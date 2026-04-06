@@ -5,13 +5,19 @@ A collection of Claude Code skills covering the full medical research lifecycle 
 ## Skills
 
 ```
-Literature Review  ->  Study Design  ->  Data Analysis  ->  Figures  ->  Writing  ->  Reporting  ->  Revision
-      |                    |                  |               |            |             |              |
-  search-lit         design-study       analyze-stats    make-figures  write-paper  check-reporting   revise
-                                                                                        |
-                                                                                   self-review
-                                                                         |
-                                                                    meta-analysis
+Literature Review -> Study Design -> Analysis -> Figures -> Writing -> Reporting -> Revision -> Presenting
+      |                  |              |           |          |            |            |           |
+  search-lit       design-study   analyze-stats make-figures write-paper check-reporting revise present-paper
+                                                                              |
+                                                                         self-review
+                                                                |
+                                                           meta-analysis
+
+                              ┌─────────────────────────────────────────────┐
+                              │  publish-skill: package any skill above for │
+                              │  open-source distribution (PII audit,       │
+                              │  license check, generalization)             │
+                              └─────────────────────────────────────────────┘
 ```
 
 ### Available Now (Phase 1)
@@ -25,6 +31,8 @@ Literature Review  ->  Study Design  ->  Data Analysis  ->  Figures  ->  Writing
 | **design-study** | Study design review: identifies analysis unit, cohort logic, data leakage risks, comparator design, validation strategy, and reporting guideline fit. |
 | **intake-project** | Classifies new research projects, summarizes current state, identifies missing inputs, and recommends next steps. |
 | **grant-builder** | Structures grant proposals: significance, innovation, approach, milestones, and consortium roles. |
+| **present-paper** | Academic presentation preparation: paper analysis, supporting research, speaker scripts, slide note injection, and Q&A prep. |
+| **publish-skill** | Convert personal Claude Code skills into distributable, open-source-ready packages. PII audit, license compatibility check, generalization, and packaging workflow. |
 
 ### Coming Soon (Phase 2-3)
 
