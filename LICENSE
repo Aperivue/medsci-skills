@@ -1,0 +1,42 @@
+MIT License
+
+Copyright (c) 2026 Aperivue (https://aperivue.com)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+## Third-Party Content Licenses
+
+The following reporting guideline checklists are bundled under their original licenses
+(NOT under MIT). See each file for attribution:
+
+- STROBE checklist: CC BY (https://www.strobe-statement.org)
+- STARD 2015 checklist: CC BY 4.0 (https://www.equator-network.org/reporting-guidelines/stard/)
+- TRIPOD+AI checklist: CC BY 4.0 (https://www.tripod-statement.org)
+- PRISMA 2020 checklist: CC BY (https://www.prisma-statement.org)
+- ARRIVE 2.0 checklist: CC0 (https://arriveguidelines.org)
+
+The following checklists are NOT bundled due to license restrictions.
+Users should download them directly from official sources:
+
+- CONSORT 2010: https://www.consort-statement.org (CC BY-NC)
+- CARE: https://www.care-statement.org
+- SPIRIT: https://www.spirit-statement.org (CC BY-NC-ND)
+- CLAIM 2024: https://pubs.rsna.org/doi/10.1148/radiol.2020200267

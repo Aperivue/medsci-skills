@@ -1,0 +1,69 @@
+# Publication-ready matplotlib style for medical research figures
+# Usage: plt.style.use('path/to/figure_style.mplstyle')
+
+# --- Font ---
+font.family: sans-serif
+font.sans-serif: Arial, Helvetica, DejaVu Sans
+font.size: 9
+
+# --- Figure ---
+figure.figsize: 3.5, 3.5
+figure.dpi: 300
+figure.facecolor: white
+figure.edgecolor: white
+figure.autolayout: True
+
+# --- Axes ---
+axes.facecolor: white
+axes.edgecolor: 333333
+axes.linewidth: 0.8
+axes.grid: True
+axes.titlesize: 10
+axes.titleweight: bold
+axes.labelsize: 9
+axes.labelweight: normal
+axes.labelpad: 4.0
+axes.spines.top: False
+axes.spines.right: False
+axes.prop_cycle: cycler('color', ['0072B2', 'D55E00', '009E73', 'CC79A7', 'F0E442', '56B4E9', 'E69F00', '000000'])
+
+# --- Grid ---
+grid.color: cccccc
+grid.linewidth: 0.5
+grid.linestyle: -
+grid.alpha: 0.4
+
+# --- Lines ---
+lines.linewidth: 1.5
+lines.markersize: 4
+lines.markeredgewidth: 0.5
+
+# --- Ticks ---
+xtick.labelsize: 8
+xtick.direction: out
+xtick.major.size: 4
+xtick.major.width: 0.8
+xtick.minor.visible: False
+ytick.labelsize: 8
+ytick.direction: out
+ytick.major.size: 4
+ytick.major.width: 0.8
+ytick.minor.visible: False
+
+# --- Legend ---
+legend.fontsize: 8
+legend.frameon: False
+legend.loc: best
+legend.borderpad: 0.3
+legend.handlelength: 1.5
+
+# --- Scatter ---
+scatter.marker: o
+scatter.edgecolors: face
+
+# --- Save ---
+savefig.dpi: 300
+savefig.format: pdf
+savefig.bbox: tight
+savefig.pad_inches: 0.05
+savefig.transparent: False
