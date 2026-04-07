@@ -53,6 +53,10 @@ You do NOT do the work yourself. You classify, plan, and delegate.
 | **grant-builder** | Funding | Structure grant proposals: significance, innovation, approach, milestones |
 | **present-paper** | Presentation | Prepare academic talks: analyze paper, draft scripts, inject slide notes, Q&A prep |
 | **publish-skill** | Packaging | Convert a personal skill into an open-source distributable package |
+| **calc-sample-size** | Statistics | Sample size calculation, power analysis, IRB justification text, test selection guidance |
+| **find-journal** | Submission | Journal recommendation based on abstract/scope matching, post-rejection re-targeting |
+| **clean-data** | Data | Data profiling, missing value flagging, outlier detection, cleaning code generation |
+| **write-protocol** | Protocol | IRB/ethics protocol drafting, 4 core sections + 6 skeleton sections with TODO markers |
 
 ---
 
@@ -78,6 +82,12 @@ When the user's request arrives, classify it into one of these intents:
 | "Write a grant proposal" / "Structure my aims page" | `/grant-builder` |
 | "Prepare a presentation" / "I have a journal club talk" | `/present-paper` |
 | "Package this skill for distribution" | `/publish-skill` |
+| "How many patients do I need?" / "Calculate sample size" / "Power analysis" | `/calc-sample-size` |
+| "Which journal should I submit to?" / "Find a journal" / "I was rejected, where else?" | `/find-journal` |
+| "Clean my data" / "Check data quality" / "Profile my dataset" | `/clean-data` |
+| "Write an IRB protocol" / "Draft ethics submission" / "Research protocol" | `/write-protocol` |
+| "Write a case report" / "I have an interesting case" | `/write-paper` (case-report mode) |
+| "Generate a cover letter" / "Write cover letter for submission" | `/write-paper` (Phase 8+, requires completed manuscript) |
 
 ### Multi-skill workflows (plan then execute sequentially)
 
@@ -90,6 +100,11 @@ When the user's request arrives, classify it into one of these intents:
 | **Meta-analysis from scratch** | `meta-analysis` (handles its own pipeline internally) |
 | **Grant writing** | `search-lit` -> `grant-builder` |
 | **Conference presentation** | `present-paper` (handles its own pipeline internally) |
+| **New study, need IRB protocol** | `search-lit` -> `design-study` -> `calc-sample-size` -> `write-protocol` |
+| **Data ready, need cleaning first** | `clean-data` -> `analyze-stats` -> `make-figures` -> `write-paper` |
+| **Full submission chain** | `write-paper` -> `self-review` -> `check-reporting` -> `find-journal` -> `write-paper` (Phase 8+ cover letter) -> `manage-project checklist` |
+| **Post-rejection resubmission** | `find-journal` (exclude rejected journal) -> `write-paper` (Phase 8+ new cover letter) |
+| **Case report pipeline** | `search-lit` (similar cases) -> `write-paper` (case-report mode) -> `self-review` -> `check-reporting` (CARE) -> `find-journal` |
 
 ### Ambiguous requests (ask before routing)
 
@@ -128,6 +143,9 @@ Before routing, check for context clues in the working directory:
 | `*.bib` files | References exist -- may need verification |
 | `PRISMA_*.md` or `QUADAS*.md` | Meta-analysis or systematic review |
 | Decision letter / reviewer PDF | Route to `/revise` |
+| CSV/Excel data files without analysis scripts | Raw data may need cleaning -- suggest `/clean-data` first |
+| `protocol_draft.md` | Protocol drafting in progress -- may need `/write-protocol` |
+| `sample_size_*.csv` or `sample_size_*.R` | Sample size calculation done -- check if protocol or manuscript next |
 
 ---
 
