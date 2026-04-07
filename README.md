@@ -1,10 +1,34 @@
-# Medical Research Skills for Claude Code
+<div align="center">
+
+# MedSci Skills
+
+**15 skills that actually work.** Built by a physician-researcher, tested on real publications.
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+![Skills](https://img.shields.io/badge/Skills-15-brightgreen?style=flat-square)
+![Platform](https://img.shields.io/badge/Platform-Claude_Code-blueviolet?style=flat-square)
+![Built by](https://img.shields.io/badge/Built_by-Physician--Researcher-blue?style=flat-square)
 
 ![Medical Research Skills](assets/social-preview.png)
 
-A collection of Claude Code skills covering the full medical research lifecycle -- from literature search to manuscript revision. Built by physicians and researchers, battle-tested on real publications.
+*Literature Search &rarr; Study Design &rarr; Statistics &rarr; Figures &rarr; Writing &rarr; Compliance &rarr; Revision &rarr; Presentation*
+
+</div>
 
 ![check-reporting demo](demo.gif)
+
+---
+
+## Why This Repo?
+
+| | MedSci Skills | Aggregator repos (400-900 skills) |
+|---|---|---|
+| **Citation quality** | Every reference verified via PubMed / Semantic Scholar / CrossRef API. Zero hallucinated citations. | No verification -- citations generated from model memory |
+| **Pipeline integration** | Skills call each other. `check-reporting` invokes `make-figures` for PRISMA diagrams. | Standalone stubs with no cross-skill interaction |
+| **Battle-tested** | Used on real manuscript submissions by a practicing physician-researcher | Unknown provenance and validation |
+| **Depth per skill** | 200-380 lines of documentation + bundled reference files (checklists, figure specs) | Typically thin SKILL.md templates |
+
+---
 
 ## Skills
 
@@ -61,15 +85,15 @@ Literature Review -> Study Design -> Analysis -> Figures -> Writing -> Reporting
 ### Option 1: Install all skills (recommended)
 
 ```bash
-git clone https://github.com/aperivue/medical-research-skills.git
-cp -r medical-research-skills/skills/* ~/.claude/skills/
+git clone https://github.com/Aperivue/medsci-skills.git
+cp -r medsci-skills/skills/* ~/.claude/skills/
 ```
 
 ### Option 2: Install individual skills
 
 ```bash
-git clone https://github.com/aperivue/medical-research-skills.git
-cp -r medical-research-skills/skills/check-reporting ~/.claude/skills/
+git clone https://github.com/Aperivue/medsci-skills.git
+cp -r medsci-skills/skills/check-reporting ~/.claude/skills/
 ```
 
 After copying, restart Claude Code. Skills are automatically discovered from `~/.claude/skills/`.
@@ -96,6 +120,36 @@ Skills can call each other. For example, `check-reporting` can invoke `make-figu
 - Python 3.9+ (for statistical analysis and figure generation)
 - R 4.0+ with `meta` (>=7.0), `metafor` (>=4.0), `mada` (>=0.5.11) packages (for meta-analysis)
 
+## Use Cases
+
+**"I have a diagnostic accuracy study draft and need to check compliance."**
+```
+/design-study          # Review study design for leakage and bias
+/analyze-stats         # Generate DTA statistics (sensitivity, specificity, AUC with CIs)
+/make-figures          # Create ROC curve + STARD flow diagram
+/check-reporting       # Audit against STARD checklist
+```
+
+**"I'm starting a meta-analysis and need to find relevant studies."**
+```
+/search-lit            # Systematic search across PubMed + Semantic Scholar
+/meta-analysis         # Full DTA or intervention MA pipeline
+/make-figures          # Forest plot + PRISMA flow diagram
+/check-reporting       # Audit against PRISMA-DTA checklist
+```
+
+**"I need to present a paper at journal club."**
+```
+/present-paper         # Analyze paper, find supporting refs, draft speaker script
+```
+
+**"I want to write a grant proposal for a radiology AI project."**
+```
+/design-study          # Validate study design before writing
+/grant-builder         # Structure significance, innovation, approach
+/search-lit            # Find supporting literature with verified citations
+```
+
 ## Disclaimer
 
 These skills are research productivity tools. They do **not** provide clinical decision support, medical advice, or diagnostic recommendations. All outputs should be reviewed by qualified researchers before use in any publication or clinical context.
@@ -109,3 +163,5 @@ Bundled reporting guideline checklists retain their original Creative Commons li
 ## About
 
 Built by [Aperivue](https://aperivue.com) -- tools for medical AI research and education.
+
+If you find this useful, consider giving it a star. It helps other researchers discover these tools.
