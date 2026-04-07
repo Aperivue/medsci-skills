@@ -138,7 +138,8 @@ Write the Methods section first -- it is the most objective and anchors the rest
 
 ### Phase 4: Results
 
-Write Results aligned to the approved tables and figures.
+Write Results aligned to the approved tables and figures. **Results = "What did we find?"
+— nothing more.** Every sentence must be a factual statement backed by a number.
 
 **Rules:**
 - Every number in the text must match the corresponding table cell exactly.
@@ -149,28 +150,96 @@ Write Results aligned to the approved tables and figures.
 - All primary metrics must include 95% confidence intervals.
 - Do not interpret results in this section; state findings only.
 
+**Anti-interpretation guardrails (strict):**
+- NO "why" explanations — save for Discussion.
+- NO comparisons with prior literature — save for Discussion.
+- NO causal language ("caused," "led to," "due to") — use "was associated with."
+- NO evaluative adjectives without numbers ("high," "significant," "notable,"
+  "remarkable," "surprising") — always pair with the actual value.
+- NO hedge words implying interpretation ("suggests," "implies," "indicates importance,"
+  "consistent with," "as expected").
+- **Self-check heuristic (applied to every sentence):**
+  1. Does this sentence explain "why"? → Move to Discussion.
+  2. Does it reference another study? → Move to Discussion.
+  3. Does it use "suggests/implies/indicates importance"? → Rewrite as factual statement.
+  4. Does it use an adjective without a number? → Add the number or delete the adjective.
+  5. Does it contain "interestingly/notably/remarkably/surprisingly"? → Delete the word.
+
+**Structure:**
+1. Study population (enrollment, exclusions, demographics → Table 1).
+2. Primary endpoint results (one paragraph per primary outcome).
+3. Secondary endpoint results.
+4. Subgroup / sensitivity analyses (if applicable).
+
 **Process:** Same writer -> critic -> fixer loop as Phase 3 (max 3 rounds, threshold 85/100).
+
+**Gate:** Present final Results to user. Confirm before proceeding to Discussion.
 
 ---
 
 ### Phase 5: Discussion
 
-Write the Discussion with clear structure.
+**Before writing, collect user input (Discussion Planning Gate).**
+
+#### Step 5a: Discussion Planning (interactive)
+
+Ask the user the following questions. Wait for answers before drafting.
+
+```
+Q1. 이 연구의 핵심 발견 3~5개를 중요도 순으로 나열해주세요.
+Q2. Discussion에서 반드시 비교하고 싶은 핵심 선행 연구(anchor papers)
+    3~5편의 제목 또는 DOI를 알려주세요.
+    - 내 결과와 일치하는 연구: ?
+    - 내 결과와 불일치하는 연구: ?
+Q3. 불일치의 원인이 될 수 있는 방법론적/집단적 차이가 있나요?
+Q4. 이 연구의 한계 3개 이내를 서술해주세요.
+    (각 한계에 대해 어떻게 완화했는지, 결과에 어떤 방향으로 영향을 줄 수 있는지 포함)
+Q5. 강조하고 싶은 임상적 함의가 있나요?
+```
+
+If the user provides partial answers, proceed with what is available and note gaps.
+If the user says "skip" or "자동으로 해줘", use `/search-lit` to identify anchor papers
+from the reference list and proceed with best-effort defaults.
+
+**Gate:** Do NOT start writing Discussion until user responds (or explicitly skips).
+
+#### Step 5b: Discussion Drafting
+
+Write the Discussion using the inverted funnel structure:
 
 **Paragraph structure:**
 1. **Summary** (1 paragraph): Restate key findings without repeating numbers verbatim.
-2. **Context** (2-3 paragraphs): Compare with prior literature. Explain agreements and discrepancies.
+   Bridge from Results — the reader should feel continuity.
+2. **Context — anchor paper comparisons** (2-3 paragraphs): Each paragraph organized around
+   one theme or finding. For each anchor paper:
+   - State the prior finding with citation.
+   - Compare: agreement or disagreement with our result.
+   - Explain the discrepancy (if any) citing methodological or population differences.
 3. **Clinical implications** (1 paragraph): What does this mean for practice or future research?
-4. **Limitations** (1 paragraph): Honest, specific, ordered by severity. Do NOT use "our study has several limitations" as an opener.
-5. **Conclusion** (1-2 sentences): Restate the single most important finding and its implication.
+4. **Limitations** (1 paragraph): Honest, specific, ordered by severity. For each limitation:
+   (a) what it is, (b) how it was mitigated, (c) direction of residual bias.
+   Do NOT use "our study has several limitations" as an opener.
+5. **Strengths** (optional, 1-2 sentences): Only if genuinely novel contribution.
+6. **Conclusion** (1-2 sentences): Single most important finding + implication.
+   Must be a citable statement. No "further studies are needed" as final sentence.
 
 **Rules:**
 - Do not introduce new data not presented in Results.
 - Avoid overclaiming: language must match evidence level.
 - Acknowledge alternative explanations for key findings.
 - Each comparison with prior work must cite the specific study.
+- NO "interestingly," "notably," "it is worth noting" — state the point directly.
 
 **Process:** Same writer -> critic -> fixer loop (max 3 rounds, threshold 85/100).
+
+After the first draft, present to user with:
+```
+Discussion 초안입니다. 다음을 확인해주세요:
+- 빠진 anchor paper나 추가 비교가 필요한 연구가 있나요?
+- 해석 방향을 수정하고 싶은 부분이 있나요?
+- 임상적 함의를 더 강조하거나 약화할 부분이 있나요?
+```
+Incorporate user feedback before running the critic-fixer loop.
 
 ---
 
@@ -224,6 +293,12 @@ Each section goes through a critic-fixer loop. The critic scores 6 dimensions (0
 | 4 | **Conciseness** | No filler phrases, redundant sentences, or unnecessary hedging. Within word budget. |
 | 5 | **Reporting** | Specific guideline items (STARD/TRIPOD/CLAIM/etc.) addressed in this section. |
 | 6 | **Humanness** | No AI writing patterns detected (see list below). Reads like an experienced physician wrote it. |
+| 7 | **Section Boundaries** | **Results only:** No interpretation, no "why," no prior literature references, no evaluative adjectives without numbers. **Discussion only:** No new data not in Results, no overclaiming beyond evidence level. Flag any sentence that belongs in the other section. |
+
+> **Note:** Dimensions 1-6 are scored 0-20 each (total 0-120 scaled to 0-100). Dimension 7
+> is a **pass/fail gate** applied during Phase 4 (Results) and Phase 5 (Discussion): if any
+> sentence violates section boundaries, the critic MUST flag it regardless of overall score.
+> The fixer must move or rewrite the flagged sentence before the section can pass.
 
 ### Scoring Guide
 

@@ -145,6 +145,9 @@ Follow the target journal's format. Include:
 
 ## Results
 
+> **Results = facts and numbers only.** No interpretation, no "why," no prior study
+> comparisons. See SKILL.md Phase 4 anti-interpretation guardrails.
+
 ### 5.1 Dataset Characteristics
 - Flow diagram (Figure 1): screening, exclusions, final cohorts.
 - Table 1: demographics and baseline characteristics by split (train/val/test) or group.
@@ -165,13 +168,12 @@ Follow the target journal's format. Include:
 ### 5.4 Subgroup Analysis
 - Performance by key subgroups (age, sex, scanner, pathology subtype, difficulty).
 - Present as table or forest plot.
-- Flag any subgroups with notably different performance.
+- State the numbers; do NOT interpret why subgroups differ (save for Discussion).
 
 ### 5.5 Error Analysis
 - Types of errors (false positives and false negatives).
 - Representative examples (Figure 3+): correctly classified, false positive, false negative.
-- Pattern analysis: are errors random or systematic?
-- Clinical impact assessment of errors.
+- Describe error patterns factually; do NOT speculate on causes (save for Discussion).
 
 ### 5.6 Calibration (for prediction models)
 - Calibration plot (Figure).
@@ -182,11 +184,16 @@ Follow the target journal's format. Include:
 
 ## Discussion
 
+> **Before writing:** Collect anchor papers and user input via SKILL.md Phase 5a
+> interactive planning gate.
+
 ### Paragraph 1: Summary
 - Restate key findings without repeating exact numbers.
 - Frame in context of the study aim.
 
-### Paragraphs 2-3: Performance in Context
+### Paragraphs 2-3: Performance in Context (anchor paper driven)
+- Organize around anchor papers provided by the user.
+- For each anchor paper: state their result → compare with ours → explain discrepancy.
 - Compare to prior models on the same task (cite specific AUC/accuracy from prior studies).
 - Compare to human reader performance (if applicable).
 - Explain performance differences: data, methodology, population.
@@ -207,9 +214,11 @@ Typical AI study limitations to address honestly:
 6. For LLMs: model version changes, non-reproducibility, API dependency.
 7. No prospective clinical validation.
 8. No assessment of clinical outcome impact.
+For each: (a) what it is, (b) how mitigated, (c) direction of residual bias.
 
 ### Conclusion
 - One to two sentences: main finding and primary clinical implication.
+- Must be a citable statement — memorable and specific.
 
 ---
 

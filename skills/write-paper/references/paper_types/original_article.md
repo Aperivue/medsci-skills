@@ -126,40 +126,54 @@ Four sections matching the journal's required headings (common variants shown):
 - Acknowledge if exploratory (not powered for subgroup differences).
 
 ### Rules
-- Do NOT interpret findings; state them.
+- Do NOT interpret findings; state them. Results answers "What?" only — never "Why?"
 - Every table and figure must be referenced in the text.
 - Numbers in text must match tables exactly.
 - Report exact p-values; use "P < .001" only when truly below 0.001.
 - Present data in the same order as Methods subsections.
+- NO comparisons with prior literature (save for Discussion).
+- NO causal language ("caused," "led to," "due to") — use "was associated with."
+- NO evaluative adjectives without numbers ("high," "notable," "remarkable").
+- NO hedge words implying interpretation ("suggests," "implies," "indicates importance").
+- Banned openers: "Interestingly," "Notably," "Remarkably," "Surprisingly," "As expected."
 
 ---
 
 ## Discussion (4-5 paragraphs, ~800-1200 words)
+
+> **Before writing:** The user should provide anchor papers (3-5 key references for
+> comparison) and key findings to emphasize. See SKILL.md Phase 5a for the interactive
+> planning gate. If not provided, identify anchor papers from the reference list.
 
 ### Paragraph 1: Summary of Key Findings
 - Restate the principal findings in the context of the study aim.
 - Do not repeat exact numbers from Results (paraphrase).
 - One paragraph, 3-5 sentences.
 
-### Paragraphs 2-3: Comparison with Prior Literature
-- How do findings compare with prior studies? Cite specific studies.
-- Explain concordance or discordance.
-- Discuss possible reasons for differences (methodology, population, technology).
+### Paragraphs 2-3: Comparison with Prior Literature (anchor paper driven)
+- Organize around anchor papers provided by the user.
+- For each anchor paper: state their finding → compare with ours → explain discrepancy.
+- Pattern: "Smith et al. [ref] reported {X} in {population}. In contrast/Similarly, our
+  study found {Y}, which may be attributable to {methodological/population difference}."
+- Include both concordant and discordant studies.
 
 ### Paragraph 4: Clinical Implications
 - What does this mean for clinical practice, training, or future research?
-- Be specific: "These findings suggest that {AI tool} could be integrated into {specific workflow} to {specific benefit}."
+- Be specific: "{AI tool} could be integrated into {specific workflow} to {specific benefit}."
 - Avoid vague statements about "future directions."
 
 ### Paragraph 5: Limitations
 - Ordered by severity (most impactful first).
 - Be specific and honest.
 - Do NOT start with "Our study has several limitations."
-- Template: "This study has limitations. First, the retrospective design at a single institution limits generalizability. Second, ..."
-- For each limitation, briefly note the potential impact on findings.
+- For each limitation: (a) what it is, (b) how it was mitigated, (c) direction of residual bias.
+- Template: "This study has limitations. First, the retrospective design at a single
+  institution limits generalizability; however, the multicenter external test set partially
+  addresses this, and any selection bias would likely inflate performance estimates."
 
 ### Conclusion (within Discussion, final paragraph or sentence)
 - One to two sentences restating the single most important finding.
+- Must be a citable statement — memorable and specific.
 - Template: "In summary, {main finding} in {context}, suggesting {implication}."
 
 ---

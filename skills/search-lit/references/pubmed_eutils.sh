@@ -35,7 +35,15 @@ fi
 _sleep() { sleep "$SLEEP"; }
 
 _curl() {
-  curl -sS -A "Mozilla/5.0 (${TOOL})" "$@"
+  local http_code body
+  body=$(curl -sS -w '\n%{http_code}' -A "Mozilla/5.0 (${TOOL})" "$@")
+  http_code=$(echo "$body" | tail -n1)
+  body=$(echo "$body" | sed '$d')
+  if [ "$http_code" -ge 400 ] 2>/dev/null; then
+    echo "{\"error\": \"HTTP ${http_code}\", \"url\": \"$1\"}" >&2
+    return 1
+  fi
+  echo "$body"
 }
 
 cmd_search() {
