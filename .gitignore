@@ -1,3 +1,6 @@
+# Local-only scripts (not for public distribution)
+/fulltext-retrieval/
+
 # License-restricted checklists (local use only, not for distribution)
 skills/check-reporting/references/checklists/CARE.md
 skills/check-reporting/references/checklists/CLAIM_2024.md
