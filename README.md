@@ -119,6 +119,8 @@ search-lit -> fulltext-retrieval -> design-study ──> write-protocol -> manag
 
 ## Installation
 
+> **🇰🇷 프로그래밍 경험이 없으신가요?** [한국어 설치 가이드](https://aperivue.com/guide/install)를 따라하세요. Claude Code Desktop 앱으로 터미널 없이 설치할 수 있습니다.
+
 ### Option 1: Install all skills (recommended)
 
 ```bash
@@ -133,6 +135,14 @@ git clone https://github.com/Aperivue/medsci-skills.git
 cp -r medsci-skills/skills/check-reporting ~/.claude/skills/
 ```
 
+### Option 3: No terminal (Claude Code Desktop)
+
+1. Download ZIP from this repo (green **Code** button → **Download ZIP**)
+2. Unzip and copy the `skills/` folder contents to `~/.claude/skills/`
+3. Restart Claude Code Desktop
+
+See the [full step-by-step guide](https://aperivue.com/guide/install) for detailed instructions with screenshots.
+
 After copying, restart Claude Code. Skills are automatically discovered from `~/.claude/skills/`.
 
 > **Tip:** Not sure which skill to use? Start with `/orchestrate` -- it will classify your request and route you to the right tool.
@@ -145,7 +155,7 @@ After copying, restart Claude Code. Skills are automatically discovered from `~/
 ### Anti-Hallucination Citations
 Every reference produced by `search-lit` is verified against PubMed, Semantic Scholar, or CrossRef APIs. No citation is ever generated from memory alone. API errors are batched silently -- no token waste from repeated failure messages.
 
-### 16 Reporting Guidelines & RoB Tools Built-in
+### 15 Reporting Guidelines & RoB Tools Built-in
 `check-reporting` includes STROBE, STARD, TRIPOD+AI, PRISMA, PRISMA-DTA, ARRIVE, QUADAS-2, RoB 2, ROBINS-I, PROBAST, and NOS checklists. CONSORT, CARE, SPIRIT, and CLAIM are supported via knowledge-based assessment (checklists not bundled due to license restrictions). Now includes Results/Discussion section boundary checks.
 
 ### Publication-Ready Output
