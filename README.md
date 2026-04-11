@@ -2,10 +2,10 @@
 
 # MedSci Skills
 
-**20 skills that actually work.** Built by a physician-researcher, tested on real publications.
+**21 skills that actually work.** Built by a physician-researcher, tested on real publications.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-![Skills](https://img.shields.io/badge/Skills-20-brightgreen?style=flat-square)
+![Skills](https://img.shields.io/badge/Skills-21-brightgreen?style=flat-square)
 ![Platform](https://img.shields.io/badge/Platform-Claude_Code-blueviolet?style=flat-square)
 ![Built by](https://img.shields.io/badge/Built_by-Physician--Researcher-blue?style=flat-square)
 
@@ -134,6 +134,11 @@ search-lit -> fulltext-retrieval -> design-study ──> write-protocol -> manag
                               │  open-source distribution (PII audit,       │
                               │  license check, generalization)             │
                               └─────────────────────────────────────────────┘
+                              ┌─────────────────────────────────────────────┐
+                              │  add-journal: add new journal profiles to   │
+                              │  the database (write-paper + find-journal   │
+                              │  dual profile generation with quality gates)│
+                              └─────────────────────────────────────────────┘
 ```
 
 ### Available Now
@@ -158,6 +163,7 @@ search-lit -> fulltext-retrieval -> design-study ──> write-protocol -> manag
 | **manage-project** | Research project scaffolding and progress tracking. Commands: init, status, sync-memory, checklist, timeline. Backwards submission timelines and pre-submission checklists. |
 | **calc-sample-size** | Interactive sample size calculator with decision-tree guided test selection. Covers 10 designs (diagnostic accuracy, t-test, ANOVA, chi-square, McNemar, logistic regression, survival, ICC, kappa, non-inferiority/equivalence). Generates reproducible R/Python code and IRB-ready justification text. |
 | **find-journal** | Journal recommendation engine. Semantic matching of your abstract against 58 journal scope profiles. Returns top-5 ranked recommendations with scope fit rationale. No cached IF/APC -- you verify current metrics at journal sites. Post-rejection re-targeting mode. |
+| **add-journal** | Add new journal profiles to the database. Extracts metadata from author guidelines, generates both write-paper (detailed) and find-journal (compact) profiles in canonical format with quality gates. Batch mode for adding multiple journals in one session. |
 | **clean-data** | Interactive data profiling and cleaning assistant. Three-stage workflow: profile your CSV/Excel data, flag issues (missing values, outliers, duplicates, type mismatches), then generate cleaning code for approved actions only. PHI/PII safety warnings built-in. |
 | **write-protocol** | IRB/ethics protocol generator. Produces 4 core sections (Background, Study Design, Sample Size Justification, Statistical Plan) with full prose. 6 remaining sections provided as structured skeletons with TODO markers for institution-specific content. Korea/US/EU regulatory guidance. |
 
