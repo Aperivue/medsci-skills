@@ -1,0 +1,16 @@
+sample_id,measurement_a,measurement_b,category,score,group,result
+S001,45.2,12.3,A,78,control,positive
+S002,38.7,15.6,B,82,treatment,negative
+S003,52.1,9.8,A,91,control,positive
+S004,41.5,11.2,C,67,treatment,negative
+S005,36.9,14.7,B,73,control,positive
+S006,48.3,10.5,A,85,treatment,positive
+S007,39.6,13.1,C,69,control,negative
+S008,55.0,8.9,B,94,treatment,positive
+S009,42.8,12.0,A,76,control,negative
+S010,37.4,16.2,C,88,treatment,positive
+S011,50.5,11.8,A,71,control,negative
+S012,44.1,13.5,B,83,treatment,positive
+S013,46.7,10.1,C,79,control,positive
+S014,40.2,14.0,A,86,treatment,negative
+S015,53.8,9.3,B,92,control,positive

@@ -21,10 +21,15 @@ Every cleaning decision must be confirmed by the researcher.
 **DATA PRIVACY WARNING**
 
 If your dataset contains Protected Health Information (PHI) or Personally Identifiable
-Information (PII), do NOT share raw data with this tool. Instead:
-1. De-identify the data first (remove names, MRNs, dates of birth, etc.)
-2. Or provide only the data dictionary / codebook for profiling guidance
-3. Or use a local-only environment with no network access
+Information (PII), run `/deidentify` first to remove PHI before proceeding. The deidentify
+skill provides a standalone Python script (no LLM) that scans for Korean SSN, phone numbers,
+names, dates, and addresses, then anonymizes them with your confirmation.
+
+If `*_deidentified.*` files exist in the working directory, use those instead of raw data.
+
+Alternatively:
+1. Provide only the data dictionary / codebook for profiling guidance
+2. Or use a local-only environment with no network access
 
 This tool generates CODE that runs on your data -- it does not need to see the raw data
 to generate useful profiling scripts.

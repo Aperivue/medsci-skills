@@ -55,6 +55,7 @@ You do NOT do the work yourself. You classify, plan, and delegate.
 | **publish-skill** | Packaging | Convert a personal skill into an open-source distributable package |
 | **calc-sample-size** | Statistics | Sample size calculation, power analysis, IRB justification text, test selection guidance |
 | **find-journal** | Submission | Journal recommendation based on abstract/scope matching, post-rejection re-targeting |
+| **deidentify** | Data safety | De-identify clinical data containing PHI before any LLM processing. Standalone Python CLI (no LLM). |
 | **clean-data** | Data | Data profiling, missing value flagging, outlier detection, cleaning code generation |
 | **write-protocol** | Protocol | IRB/ethics protocol drafting, 4 core sections + 6 skeleton sections with TODO markers |
 
@@ -85,6 +86,7 @@ When the user's request arrives, classify it into one of these intents:
 | "How many patients do I need?" / "Calculate sample size" / "Power analysis" | `/calc-sample-size` |
 | "Which journal should I submit to?" / "Find a journal" / "I was rejected, where else?" | `/find-journal` |
 | "Clean my data" / "Check data quality" / "Profile my dataset" | `/clean-data` |
+| "De-identify my data" / "Remove PHI" / "비식별화" / "익명화" / "Anonymize patient data" | `/deidentify` |
 | "Write an IRB protocol" / "Draft ethics submission" / "Research protocol" | `/write-protocol` |
 | "Write a case report" / "I have an interesting case" | `/write-paper` (case-report mode) |
 | "Generate a cover letter" / "Write cover letter for submission" | `/write-paper` (Phase 8+, requires completed manuscript) |
@@ -101,6 +103,7 @@ When the user's request arrives, classify it into one of these intents:
 | **Grant writing** | `search-lit` -> `grant-builder` |
 | **Conference presentation** | `present-paper` (handles its own pipeline internally) |
 | **New study, need IRB protocol** | `search-lit` -> `design-study` -> `calc-sample-size` -> `write-protocol` |
+| **Data with PHI, need full pipeline** | `deidentify` -> `clean-data` -> `analyze-stats` -> `make-figures` -> `write-paper` |
 | **Data ready, need cleaning first** | `clean-data` -> `analyze-stats` -> `make-figures` -> `write-paper` |
 | **Full submission chain** | `write-paper` -> `self-review` -> `check-reporting` -> `find-journal` -> `write-paper` (Phase 8+ cover letter) -> `manage-project checklist` |
 | **Post-rejection resubmission** | `find-journal` (exclude rejected journal) -> `write-paper` (Phase 8+ new cover letter) |
@@ -144,6 +147,7 @@ When the user requests "run the full pipeline," "end-to-end," or similar, execut
 
 | Skill | Reads | Writes |
 |-------|-------|--------|
+| deidentify | raw data with PHI (CSV/Excel) | `*_deidentified.*`, `mapping.json`, `audit_log.csv` |
 | analyze-stats | raw data (CSV/Excel) | tables/*.csv, figures/*, `_analysis_outputs.md` |
 | make-figures | `_analysis_outputs.md`, data files | figures/*.pdf, figures/*.png, `_figure_manifest.md` |
 | write-paper | figures/, tables/, manifests, journal profile | manuscript.md, manuscript.pdf, manuscript.docx |
@@ -156,6 +160,25 @@ When the user requests "run the full pipeline," "end-to-end," or similar, execut
 3. Do NOT ask "shall I proceed?" between skills — proceed automatically.
 4. DO pause at write-paper's built-in gates (outline approval, discussion planning).
 5. If a skill fails, report the error and ask the user how to proceed.
+
+---
+
+## PHI Safety Gate
+
+Before routing to any data-handling skill (`clean-data`, `analyze-stats`, `make-figures`),
+check if the data might contain PHI:
+
+1. If CSV/Excel files exist in the working directory AND no `*_deidentified.*` files exist:
+   Ask: "데이터에 환자 식별정보(PHI)가 포함되어 있습니까? (이름, 주민번호, 생년월일, 연락처 등)"
+   - If yes → Route to `/deidentify` first, then continue to the originally requested skill
+   - If no → Proceed directly
+   - If already de-identified (user confirms or `*_deidentified.*` files exist) → Proceed directly
+
+2. De-identification is an INTERACTIVE process requiring the researcher's active participation.
+   Warn: "비식별화 과정은 연구자의 직접 검토가 필요합니다. 터미널에서 스크립트를 실행하고 각 항목을 확인해야 합니다."
+
+3. After deidentify completes, continue to the originally requested skill using the
+   `*_deidentified.*` output file.
 
 ---
 
@@ -175,6 +198,7 @@ Before routing, check for context clues in the working directory:
 | `PRISMA_*.md` or `QUADAS*.md` | Meta-analysis or systematic review |
 | Decision letter / reviewer PDF | Route to `/revise` |
 | CSV/Excel data files without analysis scripts | Raw data may need cleaning -- suggest `/clean-data` first |
+| `*_deidentified.*` or `audit_log.csv` | Data already de-identified -- skip PHI Safety Gate |
 | `protocol_draft.md` | Protocol drafting in progress -- may need `/write-protocol` |
 | `sample_size_*.csv` or `sample_size_*.R` | Sample size calculation done -- check if protocol or manuscript next |
 

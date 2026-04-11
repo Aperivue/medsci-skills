@@ -18,6 +18,16 @@ color accessibility. Produce clean, data-focused visuals with no chartjunk.
 - All figure text (labels, legends, annotations) must be in English.
 - Medical terminology is always in English.
 
+## Data Privacy Check
+
+Before reading any data file, check whether it might contain Protected Health Information (PHI):
+
+1. If `*_deidentified.*` files exist in the working directory, use those preferentially.
+2. If only raw CSV/Excel files exist (no `*_deidentified.*` counterpart), warn the user:
+   > "이 데이터에 환자 식별정보(이름, 주민번호, 연락처 등)가 포함되어 있습니까?
+   > 포함된 경우 `/deidentify` 스킬로 먼저 비식별화를 진행해주세요."
+3. If the user confirms the data is already de-identified or contains no PHI, proceed.
+
 ## Reference Files
 
 - **Figure specifications**: `${CLAUDE_SKILL_DIR}/references/figure_specs.md`

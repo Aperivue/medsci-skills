@@ -2,16 +2,16 @@
 
 # MedSci Skills
 
-**21 skills that actually work.** Built by a physician-researcher, tested on real publications.
+**22 skills that actually work.** Built by a physician-researcher, tested on real publications.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-![Skills](https://img.shields.io/badge/Skills-21-brightgreen?style=flat-square)
+![Skills](https://img.shields.io/badge/Skills-22-brightgreen?style=flat-square)
 ![Platform](https://img.shields.io/badge/Platform-Claude_Code-blueviolet?style=flat-square)
 ![Built by](https://img.shields.io/badge/Built_by-Physician--Researcher-blue?style=flat-square)
 
 ![Medical Research Skills](assets/social-preview.png)
 
-*Literature Search &rarr; Full-Text Retrieval &rarr; Study Design &rarr; Sample Size &rarr; Protocol &rarr; Data Cleaning &rarr; Statistics &rarr; Figures &rarr; Writing &rarr; Compliance &rarr; Journal Selection &rarr; Revision &rarr; Presentation*
+*Literature Search &rarr; Full-Text Retrieval &rarr; Study Design &rarr; Sample Size &rarr; Protocol &rarr; De-identification &rarr; Data Cleaning &rarr; Statistics &rarr; Figures &rarr; Writing &rarr; Compliance &rarr; Journal Selection &rarr; Revision &rarr; Presentation*
 
 </div>
 
@@ -94,7 +94,7 @@ data(dat.bcg)  # 13 RCTs, 357,347 participants (Colditz et al. 1994)
 | **Pipeline integration** | Skills call each other in defined chains. `design-study` -> `calc-sample-size` -> `write-protocol`. | Standalone stubs with no cross-skill interaction |
 | **End-to-end coverage** | From IRB protocol to journal submission: sample size, data cleaning, analysis, writing, compliance, journal selection, cover letter. | Gaps at every transition -- no protocol, no journal matching, no cover letter |
 | **Battle-tested** | Used on real manuscript submissions by a practicing physician-researcher | Unknown provenance and validation |
-| **Depth per skill** | 150-600 lines of documentation + bundled reference files (77 journal profiles, checklists, formula sheets, code templates) | Typically thin SKILL.md templates |
+| **Depth per skill** | 150-600 lines of documentation + bundled reference files (134 journal profiles, checklists, formula sheets, code templates) | Typically thin SKILL.md templates |
 
 ---
 
@@ -118,7 +118,7 @@ data(dat.bcg)  # 13 RCTs, 357,347 participants (Colditz et al. 1994)
 search-lit -> fulltext-retrieval -> design-study ──> write-protocol -> manage-project
                                     │
                                     ▼
-                         clean-data -> analyze-stats -> make-figures -> write-paper
+                         deidentify -> clean-data -> analyze-stats -> make-figures -> write-paper
                                                                           │
                                                                           ├── (case-report mode)
                                                                           │
@@ -162,8 +162,9 @@ search-lit -> fulltext-retrieval -> design-study ──> write-protocol -> manag
 | **revise** | Response to reviewers with tracked changes. Parses decision letters, classifies comments as MAJOR/MINOR/REBUTTAL, generates point-by-point responses and cover letter. |
 | **manage-project** | Research project scaffolding and progress tracking. Commands: init, status, sync-memory, checklist, timeline. Backwards submission timelines and pre-submission checklists. |
 | **calc-sample-size** | Interactive sample size calculator with decision-tree guided test selection. Covers 10 designs (diagnostic accuracy, t-test, ANOVA, chi-square, McNemar, logistic regression, survival, ICC, kappa, non-inferiority/equivalence). Generates reproducible R/Python code and IRB-ready justification text. |
-| **find-journal** | Journal recommendation engine. 2-pass matching: 46 compact profiles for scoring, write-paper profiles for top-5 enrichment. Covers 30 medical specialties. No cached IF/APC -- you verify current metrics at journal sites. Post-rejection re-targeting mode. |
+| **find-journal** | Journal recommendation engine. 2-pass matching: 93 compact profiles for scoring, write-paper profiles for top-5 enrichment. Covers 30 medical specialties. No cached IF/APC -- you verify current metrics at journal sites. Post-rejection re-targeting mode. |
 | **add-journal** | Add new journal profiles to the database. Extracts metadata from author guidelines, generates both write-paper (detailed) and find-journal (compact) profiles in canonical format with quality gates. Batch mode for adding multiple journals in one session. |
+| **deidentify** | De-identify clinical research data before LLM-assisted analysis. Standalone Python CLI (no LLM) detects PHI via regex + heuristics (Korean SSN, phone, names, dates, addresses). Interactive terminal review, pseudonymization, date shifting, mapping file generation. |
 | **clean-data** | Interactive data profiling and cleaning assistant. Three-stage workflow: profile your CSV/Excel data, flag issues (missing values, outliers, duplicates, type mismatches), then generate cleaning code for approved actions only. PHI/PII safety warnings built-in. |
 | **write-protocol** | IRB/ethics protocol generator. Produces 4 core sections (Background, Study Design, Sample Size Justification, Statistical Plan) with full prose. 6 remaining sections provided as structured skeletons with TODO markers for institution-specific content. Korea/US/EU regulatory guidance. |
 
@@ -273,6 +274,7 @@ Skills call each other. `check-reporting` invokes `make-figures` for PRISMA diag
 
 **"I have messy clinical data that needs cleaning before analysis."**
 ```
+/deidentify            # Remove PHI from clinical data (standalone Python, no LLM)
 /clean-data            # Profile dataset, flag issues, generate cleaning code
 /analyze-stats         # Run statistics on cleaned data
 /make-figures          # Publication-ready figures

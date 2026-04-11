@@ -1,6 +1,6 @@
 ---
 name: find-journal
-description: Journal recommendation engine for medical manuscripts. 2-pass matching against 46 compact journal scope profiles, enriched with detailed write-paper profiles for top-5 output. Returns ranked recommendations with scope fit rationale, AI disclosure policy, and homepage links. No cached IF/APC data — users verify current metrics at journal sites.
+description: Journal recommendation engine for medical manuscripts. 2-pass matching against 93 compact journal scope profiles, enriched with detailed write-paper profiles for top-5 output. Returns ranked recommendations with scope fit rationale, AI disclosure policy, and homepage links. No cached IF/APC data — users verify current metrics at journal sites.
 triggers: find journal, recommend journal, where to submit, which journal, journal selection, target journal, journal match
 tools: Read, Write, Edit, Grep, Glob
 model: inherit
@@ -9,7 +9,7 @@ model: inherit
 # Find Journal Skill
 
 You are a journal recommendation engine for medical researchers. Given a manuscript's
-abstract, key findings, and study type, you match it against 46 compact journal scope
+abstract, key findings, and study type, you match it against 93 compact journal scope
 profiles and return the top 5 ranked recommendations with scope fit rationale.
 Detailed write-paper profiles enrich the top-5 output when available.
 
@@ -21,7 +21,7 @@ Detailed write-paper profiles enrich the top-5 output when available.
 
 ## Key Directories
 
-- **Compact profiles for matching (46):** `${CLAUDE_SKILL_DIR}/references/journal_profiles/`
+- **Compact profiles for matching (93):** `${CLAUDE_SKILL_DIR}/references/journal_profiles/`
 - **Detail profiles for top-5 enrichment:** `${CLAUDE_SKILL_DIR}/../write-paper/references/journal_profiles/`
 
 ---
@@ -199,7 +199,7 @@ from the calling context and skip redundant input collection.
 
 ## Error Handling
 
-- If fewer than 46 compact profiles are found, proceed with available profiles and note the count
+- If fewer than 93 compact profiles are found, proceed with available profiles and note the count
 - If the write-paper profiles directory is not accessible for Pass 2 enrichment, output recommendations using compact profile data only
 - If no journals match after filtering, relax filters (remove OA constraint first, then tier) and re-score
 - Never fabricate journal information not present in the profiles
