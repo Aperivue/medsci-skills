@@ -114,14 +114,14 @@ Also updated: find-journal SKILL.md counts (21→23 local, 19→24 write-paper, 
 
 Also updated: find-journal SKILL.md counts (23→26 local, 24→29 write-paper, 47→55 total), README.md (47→55 journal profiles).
 
-## Remaining: Tier 3 — Journal Profiles (Lower Priority)
+## Completed: Tier 3 Lower Priority — Journal Profiles (session 2026-04-11c)
 
-### Lower priority
+| Journal | write-paper | find-journal | Status |
+|---------|:-----------:|:------------:|--------|
+| **Skeletal Radiology** | Created | Existed | Done |
+| **Clinical Radiology** | Created | Created | Done |
 
-| Journal | Why |
-|---------|-----|
-| Skeletal Radiology | MSK subspecialty |
-| Clinical Radiology | RCR (UK) journal |
+Final counts: find-journal 27, write-paper 31, total 58. All Tier 3 journals complete.
 
 ### How to create a journal profile
 
