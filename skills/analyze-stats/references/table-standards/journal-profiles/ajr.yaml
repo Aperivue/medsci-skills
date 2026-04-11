@@ -1,0 +1,51 @@
+# AJR — Table Style Profile
+journal: American Journal of Roentgenology
+publisher: ARRS
+style_base: AMA (with AJR-specific overrides)
+
+format:
+  allowed: Word table (editable)
+  rejected: [Excel, image, links]
+  placement: "end of MS Word file, after References"
+
+limits:
+  max_tables: 5
+  word_limit: 4500
+  min_size: "4 rows x 2 columns"
+  max_pages_per_table: 2
+
+lines:
+  vertical: false
+  horizontal: AMA_style
+
+font:
+  size: 12pt
+  spacing: double
+
+title:
+  format: "Table N — Title text"
+  all_columns_must_have_headings: true
+
+footnotes:
+  marker_system: superscript_lowercase_letters  # AMA style
+  abbreviation_list: "ajronline.org/abbreviationlist"
+  note: "Abbreviations on AJR list need no definition"
+
+p_value:
+  case: lowercase  # AJR override: lowercase italic p
+  italic: true
+  symbol: "*p*"
+  leading_zero: false
+  examples: ["*p* = .03", "*p* < .001"]
+
+numbering:
+  sub_parts: false  # Table 1A, 1B forbidden
+  rule: "each table gets independent number"
+
+gtsummary_theme: null  # no built-in theme, use "jama" as base
+
+notes:
+  - "AJR has its own approved abbreviation list"
+  - "Lowercase italic p (differs from Radiology's uppercase P)"
+  - "No 1A/1B sub-numbering — separate tables"
+  - "Minimum 4 rows x 2 columns"

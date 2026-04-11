@@ -1,0 +1,51 @@
+# NEJM — Table Style Profile
+journal: New England Journal of Medicine
+publisher: NEJM Group
+style_base: Custom (AMA-influenced)
+
+format:
+  allowed: Word table
+  rejected: [Excel, PDF, image]
+
+limits:
+  max_display_items: 5  # tables + figures combined (4-5)
+  word_limit: 2700
+
+lines:
+  vertical: false
+  horizontal_internal: false  # "Do not use internal horizontal and vertical rules"
+  horizontal: [top, below_header, bottom]
+
+font:
+  size: null
+
+title:
+  format: "Table N. Title text"
+  placement: above
+  separator: period
+
+footnotes:
+  marker_system: symbols
+  symbol_order: ["*", "†", "‡", "§", "‖", "¶", "**", "††"]
+  assignment_order: top_to_bottom_left_to_right
+  explanatory_content: footnotes_not_headings
+
+p_value:
+  case: uppercase
+  italic: true
+  symbol: "*P*"
+  leading_zero: false
+  decimals_above_01: 2
+  decimals_01_to_001: 3
+  floor: "*P* < .001"
+
+ci_format:
+  separator: "to"
+  example: "1.23 (95% CI, 0.89 to 1.70)"
+
+gtsummary_theme: "nejm"
+
+notes:
+  - "Original Article: ~4-5 display items"
+  - "Non-standard abbreviations defined per table"
+  - "Symbol footnotes (not letters) — different from AMA 11th"

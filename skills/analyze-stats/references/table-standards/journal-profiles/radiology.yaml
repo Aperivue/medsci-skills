@@ -1,0 +1,66 @@
+# Radiology (RSNA) — Table Style Profile
+journal: Radiology
+publisher: RSNA
+style_base: AMA 11th Edition
+
+format:
+  allowed: Word table (editable)
+  rejected: [Excel, PDF, image]
+
+limits:
+  max_tables: null  # no explicit limit for Original Research
+  max_display_items: null
+  max_rows: 40
+  max_columns: 8
+  max_pages_per_table: 1
+  word_limit: 3000  # Introduction through Discussion
+
+lines:
+  vertical: false
+  horizontal: [top, below_header, bottom]
+  additional_horizontal: sparingly
+
+font:
+  body: null  # not specified
+  size: null
+
+spacing: null
+
+title:
+  format: "**Table N.** Title text"
+  placement: above
+  bold_prefix: true
+  separator: period
+
+footnotes:
+  marker_system: superscript_lowercase_letters  # a, b, c...
+  assignment_order: top_to_bottom_left_to_right
+  abbreviation_order: appearance_in_table  # not alphabetical
+  abbreviation_format: "BMI = body mass index, OR = odds ratio"
+  abbreviation_separator: ", "
+  max_abbreviations_per_manuscript: 10
+
+p_value:
+  case: uppercase
+  italic: true
+  symbol: "*P*"
+  leading_zero: false
+  examples: ["*P* = .03", "*P* < .001"]
+  decimals_above_01: 2
+  decimals_01_to_001: 3
+  floor: "*P* < .001"
+  never_report_p_equals_1: true  # use > .99
+
+ci_format:
+  separator: comma
+  brackets: parentheses
+  example: "(0.82, 0.95)"
+
+data_conventions:
+  parentheses_default: percentage  # unspecified parenthetical data = %
+  decking_max_levels: 3
+
+notes:
+  - "RSNA Scientific Style Guide is authoritative"
+  - "Review articles: max 4 tables"
+  - "Radiology:AI follows same RSNA style"

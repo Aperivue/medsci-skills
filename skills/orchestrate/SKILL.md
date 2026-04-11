@@ -43,18 +43,20 @@ You do NOT do the work yourself. You classify, plan, and delegate.
 | **design-study** | Methodology | Review study design, identify leakage/bias, pick reporting guideline, validate analysis plan |
 | **intake-project** | Project setup | New or messy project folder, "what is this project?", classify and scaffold |
 | **manage-project** | Project mgmt | Scaffold directories, track progress, generate checklists and timelines |
-| **analyze-stats** | Statistics | Generate R/Python code for diagnostic accuracy, demographics, meta-analysis stats, agreement |
-| **make-figures** | Visualization | ROC curves, forest plots, flow diagrams (PRISMA/CONSORT/STARD), Kaplan-Meier, Bland-Altman |
+| **analyze-stats** | Statistics | Generate R/Python code for diagnostic accuracy, demographics, meta-analysis stats, agreement, regression (logistic/linear), propensity score, repeated measures |
+| **make-figures** | Visualization | ROC curves, forest plots, flow diagrams (PRISMA/CONSORT/STARD), Kaplan-Meier, Bland-Altman, visual/graphical abstracts |
 | **meta-analysis** | Systematic review | Full MA pipeline: protocol, search, screening, extraction, synthesis, PRISMA-DTA |
 | **write-paper** | Writing | IMRAD manuscript drafting (8-phase pipeline), any section writing |
-| **self-review** | Quality | Pre-submission self-check from reviewer perspective (7 categories) |
+| **self-review** | Quality | Pre-submission self-check from reviewer perspective (10 categories) |
 | **check-reporting** | Compliance | Audit against 22 reporting guidelines and risk-of-bias tools |
 | **revise** | Revision | Parse reviewer comments, generate point-by-point response, track changes |
 | **grant-builder** | Funding | Structure grant proposals: significance, innovation, approach, milestones |
 | **present-paper** | Presentation | Prepare academic talks: analyze paper, draft scripts, inject slide notes, Q&A prep |
 | **publish-skill** | Packaging | Convert a personal skill into an open-source distributable package |
-| **calc-sample-size** | Statistics | Sample size calculation, power analysis, IRB justification text, test selection guidance |
+| **calc-sample-size** | Statistics | Sample size calculation (11 tests including Cox EPV), power analysis, IRB justification text |
 | **find-journal** | Submission | Journal recommendation based on abstract/scope matching, post-rejection re-targeting |
+| **add-journal** | Journal DB | Add a new journal to the profile database; extracts metadata from author guidelines |
+| **fulltext-retrieval** | Literature | Batch download open-access PDFs by DOI using Unpaywall, PMC, OpenAlex APIs |
 | **deidentify** | Data safety | De-identify clinical data containing PHI before any LLM processing. Standalone Python CLI (no LLM). |
 | **clean-data** | Data | Data profiling, missing value flagging, outlier detection, cleaning code generation |
 | **write-protocol** | Protocol | IRB/ethics protocol drafting, 4 core sections + 6 skeleton sections with TODO markers |
@@ -85,6 +87,10 @@ When the user's request arrives, classify it into one of these intents:
 | "Package this skill for distribution" | `/publish-skill` |
 | "How many patients do I need?" / "Calculate sample size" / "Power analysis" | `/calc-sample-size` |
 | "Which journal should I submit to?" / "Find a journal" / "I was rejected, where else?" | `/find-journal` |
+| "Add a journal profile" / "저널 프로필 추가" | `/add-journal` |
+| "Download PDFs" / "Get full texts" / "PDF 다운로드" | `/fulltext-retrieval` |
+| "Visual abstract 만들어줘" / "Graphical abstract" / "GA 생성" | `/make-figures` |
+| "Logistic regression" / "Propensity score" / "PSM" / "IPTW" / "Repeated measures" / "Mixed model" / "GEE" | `/analyze-stats` |
 | "Clean my data" / "Check data quality" / "Profile my dataset" | `/clean-data` |
 | "De-identify my data" / "Remove PHI" / "비식별화" / "익명화" / "Anonymize patient data" | `/deidentify` |
 | "Write an IRB protocol" / "Draft ethics submission" / "Research protocol" | `/write-protocol` |
@@ -99,7 +105,7 @@ When the user's request arrives, classify it into one of these intents:
 | **Data ready, need a paper** | `manage-project init` -> `analyze-stats` -> `make-figures` -> `write-paper` |
 | **Draft exists, prepare for submission** | `self-review` -> `check-reporting` -> `search-lit` (verify refs) -> `manage-project checklist` |
 | **Reviewer comments received** | `revise` -> `analyze-stats` (if new analyses needed) -> `make-figures` (if new figures needed) |
-| **Meta-analysis from scratch** | `meta-analysis` (handles its own pipeline internally) |
+| **Meta-analysis from scratch** | `search-lit` -> `fulltext-retrieval` -> `meta-analysis` (handles its own pipeline internally) |
 | **Grant writing** | `search-lit` -> `grant-builder` |
 | **Conference presentation** | `present-paper` (handles its own pipeline internally) |
 | **New study, need IRB protocol** | `search-lit` -> `design-study` -> `calc-sample-size` -> `write-protocol` |
@@ -148,6 +154,7 @@ When the user requests "run the full pipeline," "end-to-end," or similar, execut
 | Skill | Reads | Writes |
 |-------|-------|--------|
 | deidentify | raw data with PHI (CSV/Excel) | `*_deidentified.*`, `mapping.json`, `audit_log.csv` |
+| fulltext-retrieval | DOI list (CSV/text) | `pdfs/*.pdf`, retrieval report |
 | analyze-stats | raw data (CSV/Excel) | tables/*.csv, figures/*, `_analysis_outputs.md` |
 | make-figures | `_analysis_outputs.md`, data files | figures/*.pdf, figures/*.png, `_figure_manifest.md` |
 | write-paper | figures/, tables/, manifests, journal profile | manuscript.md, manuscript.pdf, manuscript.docx |

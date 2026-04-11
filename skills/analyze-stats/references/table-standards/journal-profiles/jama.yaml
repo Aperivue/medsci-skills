@@ -1,0 +1,66 @@
+# JAMA — Table Style Profile
+journal: JAMA
+publisher: AMA (American Medical Association)
+style_base: AMA 11th Edition
+
+format:
+  allowed: Word table (table function)
+  rejected: [Excel, PDF, image]
+
+limits:
+  max_display_items: 5  # tables + figures combined
+  word_limit: null
+
+lines:
+  vertical: false
+  horizontal: minimal  # cell gridlines serve as outlines
+  note: "Do not draw extra lines/rules"
+
+font:
+  size: "10pt or 12pt"
+  shrink: false  # never reduce font to fit
+
+spacing: single
+
+title:
+  format: "**Table N.** Title text"
+  placement: above
+  bold_prefix: true
+  separator: period
+
+footnotes:
+  marker_system: superscript_lowercase_letters
+  assignment_order: top_to_bottom_left_to_right
+  each_on_separate_line: true
+  abbreviation_order: alphabetical  # JAMA prefers alphabetical
+  abbreviation_format: "BMI, body mass index; CI, confidence interval"
+  abbreviation_separator: "; "
+
+p_value:
+  case: uppercase
+  italic: true
+  symbol: "*P*"
+  leading_zero: false
+  examples: ["*P* = .04", "*P* = .003", "*P* < .001"]
+  decimals_above_01: 2
+  decimals_01_to_001: 3
+  floor: "*P* < .001"
+  asterisk_significance: false  # never use *, **, ***
+
+ci_format:
+  separator: "to"
+  brackets: null
+  example: "1.23 (95% CI, 0.89 to 1.70)"
+
+data_conventions:
+  si_units: "Provide conversion factor in footnote"
+  vertical_cell_merge: false  # forbidden
+  percentages: "n (%) with denominator clear"
+  summary_stats: "mean [SD] or median [IQR]"
+
+gtsummary_theme: "jama"
+
+notes:
+  - "Original Investigation: max 5 display items"
+  - "Empty cells must be explained in footnotes"
+  - "Abbreviation: semicolon-separated, alphabetical"

@@ -1,7 +1,7 @@
 ---
 name: analyze-stats
-description: Statistical analysis for medical research papers. Generates reproducible Python/R code with publication-ready tables and figures. Supports diagnostic accuracy, inter-rater agreement, meta-analysis, survival analysis, survey data, and group comparisons.
-triggers: statistics, statistical analysis, analyze data, run stats, table 1, demographics table, ROC curve, agreement analysis, ICC, kappa, survival analysis, Kaplan-Meier, group comparison
+description: Statistical analysis for medical research papers. Generates reproducible Python/R code with publication-ready tables and figures. Supports diagnostic accuracy, inter-rater agreement, meta-analysis, survival analysis, survey data, group comparisons, regression, propensity score, and repeated measures.
+triggers: statistics, statistical analysis, analyze data, run stats, table 1, demographics table, ROC curve, agreement analysis, ICC, kappa, survival analysis, Kaplan-Meier, group comparison, logistic regression, linear regression, regression, propensity score, PSM, IPTW, overlap weighting, repeated measures, mixed model, GEE, longitudinal
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit
 ---
@@ -27,10 +27,18 @@ Before reading any data file, check whether it might contain Protected Health In
 ## Reference Files
 
 - **Templates**: `${CLAUDE_SKILL_DIR}/references/templates/` -- reusable analysis scripts
+- **Analysis guides**: `${CLAUDE_SKILL_DIR}/references/analysis_guides/` -- on-demand methodology references
+- **Table standards**: `${CLAUDE_SKILL_DIR}/references/table-standards/` -- journal-specific table formatting
+  - `table-standards.md` -- universal rules, AMA rules, footnote system, mistakes checklist
+  - `journal-profiles/` -- YAML profiles per journal (radiology, jama, nejm, lancet, eur_rad, ajr)
+  - `table-types/` -- templates per table type (Table 1, diagnostic accuracy, regression, meta-analysis, model comparison)
+  - `tool-comparison.md` -- R/Python tool comparison and recommended pipelines
 - **Figure style**: `${CLAUDE_SKILL_DIR}/references/style/figure_style.mplstyle`
 - **Project data**: See CLAUDE.md for data locations under `2_Data/`
 
-Read relevant templates before generating analysis code.
+Read relevant templates before generating analysis code. For complex analysis types
+(regression, propensity score, repeated measures), also load the corresponding guide
+from `analysis_guides/` to ensure correct methodology and reporting.
 
 ## Workflow
 
@@ -68,6 +76,14 @@ Present the plan and **wait for user approval** before executing.
 | Survival | Time-to-event outcomes | lifelines | survival | KM curves, Cox table |
 | Group Comparison | Comparing 2+ groups | scipy, pingouin | -- | Test results + effect sizes |
 | Correlation | Association between variables | scipy, pingouin | -- | Scatter + correlation matrix |
+| Logistic Regression | Binary outcome + predictors | statsmodels, sklearn | -- | OR table, C-statistic, forest plot |
+| Linear Regression | Continuous outcome + predictors | statsmodels | -- | Coefficient table, R², diagnostic plots |
+| Propensity Score | Observational treatment comparison | sklearn, statsmodels | MatchIt, WeightIt, cobalt | Balance table, Love plot, weighted analysis |
+| Repeated Measures | Longitudinal / multi-timepoint data | pingouin, statsmodels | lme4, nlme, geepack | Spaghetti plot, LMM/GEE/RM ANOVA results |
+
+For **Logistic Regression**, **Linear Regression**, **Propensity Score**, and **Repeated Measures**:
+load the corresponding guide from `${CLAUDE_SKILL_DIR}/references/analysis_guides/` before generating code.
+For test selection guidance, load `${CLAUDE_SKILL_DIR}/references/analysis_guides/test_selection.md`.
 
 ### Phase 3: Execute
 
@@ -187,9 +203,56 @@ These rules apply to ALL analyses without exception:
 
 ### Tables
 
-- Format: CSV file + console markdown rendering
-- Include: column headers, units in parentheses, footnotes for abbreviations
-- For Table 1: include p-values column, test names in footnote, overall + per-group columns
+**Before generating any publication table**, load the journal profile and table type template:
+1. Load `${CLAUDE_SKILL_DIR}/references/table-standards/journal-profiles/{journal}.yaml` if a target journal is known
+2. Load `${CLAUDE_SKILL_DIR}/references/table-standards/table-types/{type}.md` for the relevant table type
+3. If no journal specified, default to AMA style (Radiology profile)
+
+**Output formats** (always generate all three):
+- CSV file (for downstream use and archival)
+- Console markdown rendering (for user review)
+- R gtsummary code (for publication-quality Word/LaTeX export)
+
+**Universal rules** (enforced regardless of journal):
+- No vertical lines — horizontal rules only (top, below header, bottom)
+- Binary variables: show only one level (e.g., Male only, not Male + Female)
+- Units in column headers, not repeated in cells
+- Consistent decimal places within each column
+- All abbreviations defined in footnotes, self-contained per table
+- Exact P values always (never "NS" or "significant")
+- Name the statistical test in footnote or general note
+- Variability measure always stated: mean (SD) or median (IQR)
+
+**Journal-specific parameters** (from loaded YAML profile):
+- Footnote markers: letters (AMA) vs symbols (NEJM/Lancet)
+- P value format: case, leading zero, italic
+- CI separator: comma (Radiology) vs "to" (JAMA/NEJM/Lancet)
+- Title format: period (AMA) vs colon (Lancet)
+- Abbreviation order: appearance (Radiology) vs alphabetical (JAMA)
+
+**Footnote placement order** (universal):
+1. General note (no marker) — e.g., "Data are mean (SD) unless noted"
+2. Abbreviations — in order per journal convention
+3. Specific notes (superscript markers) — per-cell explanations
+4. Probability notes — significance thresholds (if applicable)
+
+**gtsummary pipeline** (recommended for R table generation):
+```r
+theme_gtsummary_journal("{journal}")  # "jama", "lancet", "nejm"
+theme_gtsummary_compact()
+# ... build table ...
+tbl %>% as_flex_table() %>% flextable::save_as_docx(path = "table.docx")
+```
+
+**Validation checklist** (run before finalizing any table):
+- [ ] Binary variables show only one level
+- [ ] Units in headers, not cells
+- [ ] Consistent decimal places per column
+- [ ] Statistical test named (footnote or general note)
+- [ ] Effect sizes per clinically meaningful unit (per 10 years, not per 1 year)
+- [ ] Reference category stated for categorical predictors
+- [ ] No "NS" — exact P values only
+- [ ] Abbreviations defined in footnotes
 
 ### Figures
 
@@ -211,10 +274,14 @@ These rules apply to ALL analyses without exception:
 ### Table 1 (Demographics)
 
 - Template: `references/templates/table1_demographics.py`
+- Table type guide: `references/table-standards/table-types/table1_demographics.md`
 - Continuous variables: mean +/- SD if normal, median (IQR) if skewed
 - Categorical variables: n (%)
+- Binary variables: show only one level (e.g., Male n (%), not both Male and Female)
 - Compare groups: t-test/Mann-Whitney for continuous, chi-square/Fisher for categorical
-- Report standardized mean differences (SMD) if requested
+- Report standardized mean differences (SMD) if requested (preferred over P for PS-matched studies)
+- RCTs: P values in Table 1 are usually unnecessary per CONSORT
+- gtsummary `tbl_summary()` with journal theme for R pipeline
 
 ### Diagnostic Accuracy
 
@@ -225,6 +292,12 @@ These rules apply to ALL analyses without exception:
 - If comparing models: DeLong test for AUC comparison
 - Youden's index for optimal threshold when applicable
 - Include calibration assessment (Brier score, calibration plot) for prediction models
+- **NRI/IDI**: When comparing two models (e.g., base model vs model + AI score), report:
+  - Category-based NRI (with clinically defined risk categories)
+  - Continuous NRI (note: tends to be inflated — report alongside category-based)
+  - IDI (Integrated Discrimination Improvement)
+  - Bootstrap 95% CIs (1000+ iterations)
+  - These supplement, not replace, DeLong AUC comparison
 
 ### Inter-rater Agreement
 
@@ -299,6 +372,52 @@ These rules apply to ALL analyses without exception:
 - Report: coefficient, 95% CI, p-value
 - Scatter plot with regression line and CI band
 - For multiple variables: correlation matrix heatmap
+
+### Logistic Regression
+
+- **Guide**: Load `analysis_guides/regression.md` before generating code
+- **Template**: `references/templates/regression.py` (set `regression_type = "logistic"`)
+- Run univariable analysis first, then multivariable with clinically selected variables
+- Required outputs: OR table (univariable + multivariable), C-statistic (95% CI), Hosmer-Lemeshow
+- Check VIF < 5, EPV >= 10 (warn if violated)
+- Box-Tidwell test for continuous predictor linearity
+- Forest plot of adjusted ORs
+- NRI/IDI if comparing models (incremental value assessment)
+
+### Linear Regression
+
+- **Guide**: Load `analysis_guides/regression.md` before generating code
+- **Template**: `references/templates/regression.py` (set `regression_type = "linear"`)
+- Required outputs: coefficient table (β, 95% CI, P), R²/adjusted R², VIF
+- Always generate 4-panel diagnostic plot (residuals vs fitted, Q-Q, scale-location, leverage)
+- Check assumptions: normality of residuals, homoscedasticity, multicollinearity
+- Report both unstandardized β (primary) and standardized β (for effect size comparison)
+
+### Propensity Score
+
+- **Guide**: Load `analysis_guides/propensity_score.md` before generating code
+- **Template**: `references/templates/propensity_score.py`
+- Step 1: PS estimation (logistic regression)
+- Step 2: Apply method (matching with caliper = 0.2 × SD logit PS, IPTW with stabilized weights, or overlap weighting)
+- Step 3: Balance assessment — SMD < 0.10 for all covariates, Love plot mandatory
+- Step 4: Weighted/matched outcome analysis with robust SE
+- Step 5: Sensitivity analysis (E-value for unmeasured confounding)
+- Always state the estimand (ATE/ATT/ATO) explicitly
+- Recommend overlap weighting as default (no extreme weight issues)
+
+### Repeated Measures
+
+- **Guide**: Load `analysis_guides/repeated_measures.md` before generating code
+- **Template**: `references/templates/repeated_measures.py`
+- Default method: **LMM** (handles missing data, no sphericity assumption)
+- RM ANOVA only if: no missing data AND few time points AND sphericity met
+- GEE for: population-averaged effects or non-normal outcomes
+- Always convert wide → long format first
+- **Time × Group interaction is the key result** — always report and interpret
+- Generate spaghetti plot (individual trajectories) + group mean trajectory plot
+- For LMM: report random effects structure, covariance structure (CS/AR1/UN), AIC/BIC
+- For RM ANOVA: report Mauchly's test, epsilon, correction method (Greenhouse-Geisser)
+- If missing > 5%: load `analysis_guides/missing_data.md` and apply MICE before analysis
 
 ## Language
 

@@ -1,0 +1,55 @@
+# European Radiology — Table Style Profile
+journal: European Radiology
+publisher: Springer Nature
+style_base: Springer house style
+
+format:
+  allowed: Word table (Table object function), separate file
+  rejected: [spreadsheet, image]
+
+limits:
+  max_tables: 5
+  max_figures: 6
+  word_limit: 3000
+
+lines:
+  vertical: false
+  color_shading: false  # no colors/shading in tables
+  emphasis: [superscript, numbers, symbols, bold]
+
+font:
+  size: null
+
+title:
+  format: "Table N Title text"
+  numbering: arabic
+  placement: above
+  legends_placement: "after References, grouped"
+
+footnotes:
+  marker_system: superscript_lowercase_letters
+  significance_markers: asterisks  # * for significance (Springer convention)
+  placement: below_table_body
+
+p_value:
+  case: lowercase
+  italic: false
+  symbol: "p"
+  leading_zero: varies
+  significance_asterisks: true  # * allowed for p<.05
+
+ci_format:
+  separator: varies
+  example: null
+
+data_conventions:
+  no_comma_as_decimal: true  # avoid European decimal comma confusion
+  oversized_tables: "place at end of document if > 1 A4 page"
+
+abbreviations:
+  define_in: [title, first_use, footnote]  # any of these locations
+
+notes:
+  - "No color or shading in tables"
+  - "Abbreviations can be defined in title, first use, OR footnote"
+  - "Comma must not be used as numeric value (decimal confusion)"

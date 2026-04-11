@@ -533,6 +533,50 @@ Base R. Also see `TrialSize`, `PowerTOST` packages.
 
 ---
 
+## Test 11: Cox Regression EPV (Events Per Variable)
+
+### Formula
+```
+N_events = EPV × k    (where k = number of predictor variables)
+N_total = ceil( N_events / event_rate )
+N_adj = ceil( N_total / (1 - attrition_rate) )
+```
+
+Where:
+- `EPV` = events per variable (minimum 10, recommended 20)
+- `k` = number of predictors in the Cox model
+- `event_rate` = proportion of subjects experiencing the event
+
+### R Implementation
+```r
+n_events <- epv * n_predictors
+n_total <- ceiling(n_events / event_rate)
+n_adj <- ceiling(n_total / (1 - attrition_rate))
+
+cat(sprintf("EPV = %d, Predictors = %d\n", epv, n_predictors))
+cat(sprintf("Required events = %d\n", n_events))
+cat(sprintf("Total N = %d (event rate = %.0f%%)\n", n_total, event_rate * 100))
+cat(sprintf("Adjusted N = %d (attrition = %.0f%%)\n", n_adj, attrition_rate * 100))
+```
+
+### Python Implementation
+```python
+import math
+
+n_events = epv * n_predictors
+n_total = math.ceil(n_events / event_rate)
+n_adj = math.ceil(n_total / (1 - attrition_rate))
+```
+
+### R Package
+Base R (no additional packages needed).
+
+### Key References
+- Peduzzi P, Concato J, Feinstein AR, Holford TR. Importance of events per independent variable in proportional hazards regression analysis. II. Accuracy and precision of regression estimates. J Clin Epidemiol. 1995;48(12):1503-1510.
+- Vittinghoff E, McCulloch CE. Relaxing the rule of ten events per variable in logistic and Cox regression. Am J Epidemiol. 2007;165(6):710-718.
+
+---
+
 ## Cohen's Effect Size Conventions
 
 | Measure | Small | Medium | Large | Context |
@@ -603,3 +647,9 @@ Base R. Also see `TrialSize`, `PowerTOST` packages.
 
 12. **Connor RJ.** Sample size for testing differences in proportions for the paired-sample design. Biometrics. 1987;43(1):207-211.
     - McNemar test sample size formula.
+
+13. **Peduzzi P, Concato J, Feinstein AR, Holford TR.** Importance of events per independent variable in proportional hazards regression analysis. II. Accuracy and precision of regression estimates. J Clin Epidemiol. 1995;48(12):1503-1510.
+    - EPV >= 10 rule for Cox regression model stability.
+
+14. **Vittinghoff E, McCulloch CE.** Relaxing the rule of ten events per variable in logistic and Cox regression. Am J Epidemiol. 2007;165(6):710-718.
+    - Evidence that EPV 5-10 may be acceptable with careful validation.

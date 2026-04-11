@@ -57,7 +57,7 @@ What is your primary outcome?
 +-- Time-to-event (survival, recurrence)
 |   |
 |   +-- Two groups, unadjusted      --> [7] Log-rank test
-|   +-- Multivariable / adjusted HR  --> [7] Log-rank (Schoenfeld) with Cox note
+|   +-- Multivariable / adjusted HR  --> [7] Log-rank (Schoenfeld) + [11] Cox EPV
 |
 +-- Agreement (inter-rater, reproducibility)
 |   |
@@ -287,10 +287,40 @@ What is your primary outcome?
 
 ---
 
+### Test 11: Cox Regression EPV (Events Per Variable)
+
+**When to use**: Multivariable Cox proportional hazards models — ensuring enough events for stable model estimates. Same EPV logic as logistic regression (Test 9), applied to time-to-event outcomes.
+
+**Required parameters**:
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `n_predictors` | Number of predictor variables in Cox model | -- |
+| `event_rate` | Expected proportion of subjects experiencing the event | -- |
+| `epv` | Events per variable target | 10 |
+| `attrition_rate` | Expected dropout rate | 0.10 |
+
+**Formula**:
+```
+N_events = EPV × n_predictors
+N_total = N_events / event_rate
+N_adj = N_total / (1 - attrition_rate)
+```
+
+**EPV guidelines**:
+- EPV >= 10: minimum for stable estimates (Peduzzi et al., 1995)
+- EPV >= 20: recommended for reliable CI coverage and type I error control
+- EPV < 5: model likely unstable — reduce predictors or use penalized methods
+
+**Effect size interpretation**: The EPV rule ensures model stability, not power for a specific HR. If the user also needs power for detecting a specific HR, combine with Test 7 (log-rank/Schoenfeld) and report the larger N.
+
+**Always report both approaches** (EPV minimum + Schoenfeld power, if HR is available) and recommend the larger N.
+
+---
+
 ## Scope Limitations
 
 ### Supported
-The 10 tests listed above cover the vast majority of sample size calculations needed in medical imaging research, diagnostic accuracy studies, and clinical trials.
+The 11 tests listed above cover the vast majority of sample size calculations needed in medical imaging research, diagnostic accuracy studies, and clinical trials.
 
 ### NOT Supported
 The following designs require specialized software or biostatistician consultation:

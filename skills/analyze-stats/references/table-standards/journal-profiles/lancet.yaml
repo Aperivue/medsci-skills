@@ -1,0 +1,57 @@
+# The Lancet — Table Style Profile
+journal: The Lancet
+publisher: Elsevier
+style_base: Lancet house style (Vancouver-influenced)
+
+format:
+  allowed: Word table (table function), separate Word file
+  rejected: [Excel, PDF, image]
+
+limits:
+  max_display_items: 5  # tables + figures combined (approximate)
+
+lines:
+  vertical: false
+  horizontal: [top, below_header, bottom]  # exactly 3
+
+font:
+  size: null
+
+title:
+  format: "Table N: Title text"
+  placement: above
+  separator: colon  # different from AMA period
+  keep_minimal: true
+
+footnotes:
+  marker_system: symbols
+  symbol_order: ["*", "†", "‡", "§", "¶", "‖", "**", "††"]
+  note: "¶ and ‖ swapped compared to NEJM order"
+
+p_value:
+  case: lowercase
+  italic: false
+  symbol: "p"
+  leading_zero: true  # KEY DIFFERENCE from AMA
+  examples: ["p=0.03", "p=0.0023", "p<0.0001"]
+  significant_figures: 2
+  max_decimals: 4
+  floor: "p<0.0001"
+
+ci_format:
+  separator: "to"
+  example: "1.23 (0.89 to 1.70)"
+
+data_conventions:
+  format_patterns:
+    continuous: "mean (SD) or median (IQR)"
+    categorical: "n (%) — percent sign required"
+    proportion: "n/N (%)"
+  references_in_tables: "numbered per main text citation order"
+
+gtsummary_theme: "lancet"
+
+notes:
+  - "Caption must NOT repeat Methods details"
+  - "Leading zero on p-values (0.05, not .05)"
+  - "Lowercase p, not italic"
