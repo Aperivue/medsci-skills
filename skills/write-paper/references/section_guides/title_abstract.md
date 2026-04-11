@@ -104,8 +104,20 @@ Always check the loaded journal profile for the exact limit.
 
 ## Visual Abstract
 
-- Many journals recommend or require visual abstracts
-- Submitting one voluntarily signals effort and may improve acceptance perception
-- Keep it to one page: key finding, study flow, main result graphic
-- Use the journal's template if available; otherwise use a clean single-column layout
-- Avoid AI-generated visual abstracts that look templated (see make-figures AI warning)
+Many journals now require or encourage visual abstracts. European Radiology mandates them for
+all Original Articles from first revision (Jan 2025). Submitting one voluntarily signals effort.
+
+**Generation workflow:**
+1. Check the target journal profile for visual abstract requirements and template availability.
+2. Extract content: title, Key Point 1 → hypothesis, Key Point 3 → main finding, methodology
+   bullets (<6 words each), patient cohort/modality/center badges.
+3. Select a visual element: prefer the study's own figures (ROC, flow diagram) over illustrations.
+4. Call `/make-figures` with visual abstract request, or run `generate_visual_abstract.py` directly.
+5. The script fills a journal-specific PPTX template. If none exists, `medsci_default.pptx` is used.
+
+**Design rules:**
+- One page, landscape (16:9), per journal template
+- Study question → Key method → Main result structure
+- Use study's actual figures, not generic clip-art
+- Every visual element must serve a purpose
+- See `make-figures/references/medical_illustration_sources.md` for free illustration resources

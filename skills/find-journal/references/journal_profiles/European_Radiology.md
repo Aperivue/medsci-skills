@@ -26,4 +26,4 @@ diagnostic radiology, interventional radiology, CT, MRI, ultrasound, radiomics, 
 - **Field:** Radiology (general)
 
 ## Special Notes
-European Radiology is the official journal of the European Society of Radiology (ESR) and one of the highest-impact general radiology journals. Requires 3 Key Points (max 85 characters each) as declarative statements. Uses British English throughout. Strongly prefers multi-center studies with N >= 200 for original articles. AI policy: follows ICMJE — disclose AI use in Methods.
+European Radiology is the official journal of the European Society of Radiology (ESR) and one of the highest-impact general radiology journals. Requires 3 Key Points (max 85 characters each) as declarative statements. Uses British English throughout. Strongly prefers multi-center studies with N >= 200 for original articles. AI policy: follows ICMJE — disclose AI use in Methods. **Graphical abstract mandatory** from first revision for all Original Articles (Jan 2025). Official template: EURA-GA-Jan2025.pptx.

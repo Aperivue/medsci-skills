@@ -108,6 +108,18 @@ or
 
 ---
 
+## Visual Abstract / Graphical Abstract
+
+- **Status:** Mandatory from first revision for all Original Articles (January 2025)
+- **Reference:** Kelly BS. Eur Radiol 2025;35:5875–5877. doi:10.1007/s00330-025-11555-8
+- **Template:** EURA-GA-Jan2025.pptx (download from journal website)
+- **Format:** Landscape, single page, 16:9
+- **Structure:** Title → Hypothesis/Question → Methodology + Visual element → Badges (cohort, modality, center) → Main finding → Citation
+- **Generation:** `/make-figures` with `--template european_radiology`
+- **Visual element:** Use the study's actual figure (ROC curve, flow diagram). The editorial states these abstracts should "complement and elevate" the research, not just decorate it.
+
+---
+
 ## Common Rejection Reasons
 
 1. **Incremental contribution** — must advance the field beyond existing literature; "largest series" is not sufficient without novel methodology or insight

@@ -1,7 +1,7 @@
 ---
 name: make-figures
-description: Generate publication-ready figures for medical research papers. Supports ROC curves, forest plots, CONSORT/STARD/PRISMA flow diagrams, calibration plots, Kaplan-Meier curves, Bland-Altman plots, confusion matrices, and pipeline diagrams. All figures meet journal specifications with proper dimensions, fonts, and colorblind-safe palettes.
-triggers: figure, plot, graph, diagram, ROC curve, forest plot, flow diagram, CONSORT diagram, PRISMA flow, visualization, chart
+description: Generate publication-ready figures and visual abstracts for medical research papers. Supports ROC curves, forest plots, CONSORT/STARD/PRISMA flow diagrams, calibration plots, Kaplan-Meier curves, Bland-Altman plots, confusion matrices, pipeline diagrams, and journal-specific visual/graphical abstracts (python-pptx template-based).
+triggers: figure, plot, graph, diagram, ROC curve, forest plot, flow diagram, CONSORT diagram, PRISMA flow, visualization, chart, visual abstract, graphical abstract
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit
 ---
@@ -74,19 +74,75 @@ PPT drawing (for anatomical sketches) to produce figures that show intentional d
 
 ---
 
-## Visual Abstract
+## Visual Abstract / Graphical Abstract
 
-Many journals recommend or require visual abstracts. Submitting one voluntarily (even when
-not required) signals effort and can improve editorial impression.
+Many journals now require or strongly encourage visual abstracts. European Radiology made
+graphical abstracts mandatory for all Original Articles from first revision (Jan 2025).
+Submitting one voluntarily signals effort and can improve editorial impression.
 
-**Design principles**:
-- One page, landscape or portrait per journal template
+### Journal Requirements
+
+| Status | Example Journals |
+|--------|-----------------|
+| **Mandatory** | European Radiology (from 1st revision, all Original Articles) |
+| **Encouraged** | Abdominal Radiology, JCO, Annals of Internal Medicine |
+| **Voluntary** | Most other journals — improves social media visibility |
+
+Check the target journal profile (`write-paper/references/journal_profiles/`) for specific
+visual abstract requirements before starting.
+
+### Workflow
+
+1. **Check journal template.** Look for an official PPTX template in
+   `${CLAUDE_SKILL_DIR}/references/visual_abstract_templates/{journal}.pptx`.
+   If no journal-specific template exists, use `medsci_default.pptx`.
+2. **Extract content from the manuscript:**
+   - **Title:** Full article title
+   - **Hypothesis/Question:** Derived from Key Point 1 or study objective (max 1 sentence)
+   - **Methodology:** Brief flowchart or ≤3 bullets, <6 words each
+   - **Visual element:** Study's own figure (ROC curve, flow diagram, representative image)
+   - **Badges:** Patient cohort (N=...) | Modality/organ | Single/Multi-center
+   - **Main finding:** Derived from Key Point 3 (<20 words)
+   - **Citation:** Journal (year) Authors; DOI
+3. **Select visual element** (priority order — no API needed for top options):
+   1. Study's own figures (ROC, flow diagram, representative image) — **always preferred**
+   2. Free illustration from Servier Medical Art or NIAID BioArt
+      (see `${CLAUDE_SKILL_DIR}/references/medical_illustration_sources.md`)
+   3. Manual drawing in PPT/Keynote/Figma
+   4. AI generation via `generate_image.py --style medical` (only if GEMINI_API_KEY set)
+4. **Generate using the script:**
+   ```bash
+   python ${CLAUDE_SKILL_DIR}/scripts/generate_visual_abstract.py \
+     --template european_radiology \
+     --title "Article Title" \
+     --hypothesis "Research question" \
+     --methods "Method 1|Method 2|Method 3" \
+     --finding "Main finding statement" \
+     --citation "Eur Radiol (2026) Author A et al; DOI:..." \
+     --visual figures/fig1_roc_curve.png \
+     --badges "N=450|CT chest|Multi-center" \
+     --output figures/visual_abstract.pptx
+   ```
+5. **Review with user.** Open the PPTX to verify layout and content. Iterate.
+6. **Export.** PPTX is the primary deliverable. For PNG: open in PowerPoint/Keynote → export,
+   or use LibreOffice CLI (`soffice --headless --convert-to png`).
+
+### Design Principles
+
+- One page, landscape (16:9) or per journal template specification
 - Three sections: Study question → Key method → Main result
-- Use the study's actual figures (ROC curve, flow diagram) rather than generic graphics
+- Use the study's actual figures rather than generic graphics
 - Minimize text — let visuals carry the message
-- Follow the journal's visual abstract template if available
+- Every visual element must serve a purpose (no decorative clip-art)
 
-**Tools**: Canva (recommended for non-designers), Figma, or PPT with consistent styling.
+### Available Templates
+
+| Template | File | Use When |
+|----------|------|----------|
+| European Radiology | `european_radiology.pptx` | Submitting to Eur Radiol |
+| MedSci Default | `medsci_default.pptx` | Any journal without official template |
+
+To add a new journal template: see `${CLAUDE_SKILL_DIR}/references/visual_abstract_templates/template_guide.md`.
 
 ---
 
@@ -241,12 +297,15 @@ downstream positions.
 # Then open SVG in Figma for final polish (grid alignment, font swap, color adjustment)
 ```
 
-### Graphical Abstracts → Design Tools
+### Visual / Graphical Abstracts → python-pptx Template Generator
 
 | Type | Recommended Tool |
 |------|-----------------|
-| Graphical Abstract | Figma + Servier Medical Art icons |
-| Medical Illustration | BioRender or Figma + Bioicons |
+| Visual Abstract (any journal) | `generate_visual_abstract.py` with PPTX template |
+| Visual element illustration | Study's own figures (preferred), or free libraries (Servier/NIAID) |
+| Medical Illustration | See `${CLAUDE_SKILL_DIR}/references/medical_illustration_sources.md` |
+
+See the Visual Abstract section above for the full workflow.
 
 ### Hybrid Workflow (recommended for publication)
 
@@ -531,15 +590,24 @@ ffmpeg -framerate 2 -i frame_%03d.png -vf "scale=800:-1" output.gif
 ffmpeg -framerate 1 -i slide_%03d.png -c:v libx264 -pix_fmt yuv420p supplementary_video.mp4
 ```
 
-## AI Image Generation
+## AI Image Generation (Optional)
 
-If a `generate_image.py` script is available in `${CLAUDE_SKILL_DIR}/scripts/`, it can be used
-for AI-generated illustrations via the Gemini API:
+AI illustration is a **supplementary option**, not a requirement. Visual abstracts and figures
+can be completed without any API key using study figures and free illustration libraries.
+
+If `GEMINI_API_KEY` is set, the `generate_image.py` script can generate illustrations:
 ```bash
 python ${CLAUDE_SKILL_DIR}/scripts/generate_image.py \
-  "prompt" --output output.png --aspect 16:9
+  "Clean medical illustration of a CT-guided lung biopsy procedure, \
+   flat vector style, white background, no text" \
+  --output output.png --aspect 16:9
 ```
-Useful for graphical abstracts, procedural schematics, and pipeline diagrams.
+
+Use for: procedural schematics, anatomical illustrations, pipeline diagrams.
+Always review AI output against the AI-Generated Figure Warning section above.
+
+If `GEMINI_API_KEY` is not set, guide the user to free illustration resources:
+see `${CLAUDE_SKILL_DIR}/references/medical_illustration_sources.md`.
 
 ## Language
 

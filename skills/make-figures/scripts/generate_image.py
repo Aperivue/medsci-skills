@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """
-AI Image Generation via Gemini API.
-Generates images using gemini-3.1-flash-image-preview.
+AI Image Generation via Gemini API (optional supplementary tool).
+Visual abstracts and figures can be created without this tool.
 
 Usage:
     python generate_image.py "prompt text" --output path/to/output.png
     python generate_image.py "prompt text" --output path/to/output.png --aspect 16:9
+    python generate_image.py "CT-guided lung biopsy procedure" -o biopsy.png --style medical
 
 Environment variable required:
     GEMINI_API_KEY
@@ -17,15 +18,33 @@ import os
 import sys
 from pathlib import Path
 
-def generate_image(prompt: str, output_path: str, aspect_ratio: str = "1:1") -> str:
+MEDICAL_STYLE_PREFIX = (
+    "Create a clean medical illustration in the style of Servier Medical Art. "
+    "Use flat vector-style graphics with clear outlines. No text in the image. "
+    "White or transparent background. Anatomically accurate but simplified. "
+    "Suitable for use in a peer-reviewed journal graphical abstract. "
+)
+
+
+def generate_image(prompt: str, output_path: str, aspect_ratio: str = "1:1",
+                   style: str | None = None) -> str:
     import google.generativeai as genai
 
     genai.configure(api_key=os.environ["GEMINI_API_KEY"])
 
-    model = genai.GenerativeModel("gemini-3.1-flash-image-preview")
+    model = genai.GenerativeModel("gemini-2.0-flash-preview-image-generation")
+
+    # Prepend medical style prefix if requested
+    full_prompt = prompt
+    if style == "medical":
+        full_prompt = MEDICAL_STYLE_PREFIX + prompt
+
+    # Include aspect ratio instruction in the prompt
+    if aspect_ratio != "1:1":
+        full_prompt += f" Output aspect ratio: {aspect_ratio}."
 
     response = model.generate_content(
-        prompt,
+        full_prompt,
         generation_config=genai.types.GenerationConfig(
             response_mime_type="image/png",
         ),
@@ -58,16 +77,22 @@ def main():
         choices=["1:1", "16:9", "9:16", "4:3", "3:4"],
         help="Aspect ratio (default: 1:1)",
     )
+    parser.add_argument(
+        "--style",
+        choices=["medical"],
+        help="Prepend a style prefix to the prompt (medical: flat vector medical illustration)",
+    )
     args = parser.parse_args()
 
     if not os.environ.get("GEMINI_API_KEY"):
         print("Error: GEMINI_API_KEY not set", file=sys.stderr)
+        print("This tool is optional — visual abstracts can be created without it.", file=sys.stderr)
         sys.exit(1)
 
     output_path = Path(args.output).resolve()
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    generate_image(args.prompt, str(output_path), args.aspect)
+    generate_image(args.prompt, str(output_path), args.aspect, args.style)
 
 
 if __name__ == "__main__":

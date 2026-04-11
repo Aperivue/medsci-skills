@@ -142,7 +142,8 @@ Design all tables and figures BEFORE writing prose. This ensures the narrative s
 4. Call `/analyze-stats` if statistical analysis is needed.
 5. Call `/make-figures` if figure generation is needed.
 6. **Auto-detect required figures.** Based on the reporting guideline selected in Phase 0, consult the `/make-figures` study-type figure set table. Call `/make-figures` with the full figure set for the study type. Do not ask the user to name each figure individually.
-7. **Figure discovery and embedding.** After figure generation completes, scan the `figures/` directory for all PNG and PDF files. For each figure:
+7. **Visual abstract check.** If the target journal requires or encourages a visual abstract (check the journal profile for a "Visual Abstract" section), call `/make-figures` with visual abstract request. Provide: title, Key Points 1 and 3, methodology summary, and the best study figure as the visual element.
+8. **Figure discovery and embedding.** After figure generation completes, scan the `figures/` directory for all PNG and PDF files. For each figure:
    - Generate a markdown image reference: `![Figure N. Caption](figures/filename.png){width=80%}`
    - Draft a figure legend based on the figure type and analysis context
    - Insert the reference at the appropriate location in the Results section
