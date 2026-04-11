@@ -94,7 +94,7 @@ data(dat.bcg)  # 13 RCTs, 357,347 participants (Colditz et al. 1994)
 | **Pipeline integration** | Skills call each other in defined chains. `design-study` -> `calc-sample-size` -> `write-protocol`. | Standalone stubs with no cross-skill interaction |
 | **End-to-end coverage** | From IRB protocol to journal submission: sample size, data cleaning, analysis, writing, compliance, journal selection, cover letter. | Gaps at every transition -- no protocol, no journal matching, no cover letter |
 | **Battle-tested** | Used on real manuscript submissions by a practicing physician-researcher | Unknown provenance and validation |
-| **Depth per skill** | 150-600 lines of documentation + bundled reference files (47 journal profiles, checklists, formula sheets, code templates) | Typically thin SKILL.md templates |
+| **Depth per skill** | 150-600 lines of documentation + bundled reference files (55 journal profiles, checklists, formula sheets, code templates) | Typically thin SKILL.md templates |
 
 ---
 
@@ -157,7 +157,7 @@ search-lit -> fulltext-retrieval -> design-study ──> write-protocol -> manag
 | **revise** | Response to reviewers with tracked changes. Parses decision letters, classifies comments as MAJOR/MINOR/REBUTTAL, generates point-by-point responses and cover letter. |
 | **manage-project** | Research project scaffolding and progress tracking. Commands: init, status, sync-memory, checklist, timeline. Backwards submission timelines and pre-submission checklists. |
 | **calc-sample-size** | Interactive sample size calculator with decision-tree guided test selection. Covers 10 designs (diagnostic accuracy, t-test, ANOVA, chi-square, McNemar, logistic regression, survival, ICC, kappa, non-inferiority/equivalence). Generates reproducible R/Python code and IRB-ready justification text. |
-| **find-journal** | Journal recommendation engine. Semantic matching of your abstract against 47 journal scope profiles. Returns top-5 ranked recommendations with scope fit rationale. No cached IF/APC -- you verify current metrics at journal sites. Post-rejection re-targeting mode. |
+| **find-journal** | Journal recommendation engine. Semantic matching of your abstract against 55 journal scope profiles. Returns top-5 ranked recommendations with scope fit rationale. No cached IF/APC -- you verify current metrics at journal sites. Post-rejection re-targeting mode. |
 | **clean-data** | Interactive data profiling and cleaning assistant. Three-stage workflow: profile your CSV/Excel data, flag issues (missing values, outliers, duplicates, type mismatches), then generate cleaning code for approved actions only. PHI/PII safety warnings built-in. |
 | **write-protocol** | IRB/ethics protocol generator. Produces 4 core sections (Background, Study Design, Sample Size Justification, Statistical Plan) with full prose. 6 remaining sections provided as structured skeletons with TODO markers for institution-specific content. Korea/US/EU regulatory guidance. |
 

@@ -102,17 +102,19 @@ These are referenced in routing tables but have no checklist file. The skill sil
 
 Also updated: find-journal SKILL.md counts (21→23 local, 19→24 write-paper, 40→47 total), README.md (40→47 journal profiles).
 
-## Remaining: Tier 3 — Journal Profiles (Medium + Lower Priority)
+## Completed: Tier 3 Medium Priority — Journal Profiles (session 2026-04-11c)
 
-### Medium priority (subspecialty + IR)
+| Journal | write-paper | find-journal | Status |
+|---------|:-----------:|:------------:|--------|
+| **CVIR** | Created | Created | Done |
+| **JVIR** | Created | Created | Done |
+| **Neuroradiology** | Created | Existed | Done |
+| **Abdominal Radiology** | Created | Existed | Done |
+| **Diagnostics (MDPI)** | Created | Created | Done |
 
-| Journal | Why |
-|---------|-----|
-| **CVIR** | IR top journal — user's CBCT MA target |
-| **JVIR** | IR companion (American) |
-| **Neuroradiology** | Distinct from AJNR (Springer, European) |
-| **Abdominal Radiology** | AI-heavy subspecialty |
-| **Diagnostics (MDPI)** | Realistic OA target, rapid review |
+Also updated: find-journal SKILL.md counts (23→26 local, 24→29 write-paper, 47→55 total), README.md (47→55 journal profiles).
+
+## Remaining: Tier 3 — Journal Profiles (Lower Priority)
 
 ### Lower priority
 

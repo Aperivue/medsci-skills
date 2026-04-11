@@ -1,6 +1,6 @@
 ---
 name: find-journal
-description: Journal recommendation engine for medical manuscripts. Semantic matching of abstract/keywords against 47 journal scope profiles. Returns top-5 ranked recommendations with scope fit rationale and homepage links. No cached IF/APC data — users verify current metrics at journal sites.
+description: Journal recommendation engine for medical manuscripts. Semantic matching of abstract/keywords against 55 journal scope profiles. Returns top-5 ranked recommendations with scope fit rationale and homepage links. No cached IF/APC data — users verify current metrics at journal sites.
 triggers: find journal, recommend journal, where to submit, which journal, journal selection, target journal, journal match
 tools: Read, Write, Edit, Grep, Glob
 model: inherit
@@ -9,7 +9,7 @@ model: inherit
 # Find Journal Skill
 
 You are a journal recommendation engine for medical researchers. Given a manuscript's
-abstract, key findings, and study type, you match it against 47 curated journal scope
+abstract, key findings, and study type, you match it against 55 curated journal scope
 profiles and return the top 5 ranked recommendations with scope fit rationale.
 
 ## Communication Rules
@@ -20,8 +20,8 @@ profiles and return the top 5 ranked recommendations with scope fit rationale.
 
 ## Key Directories
 
-- **This skill's profiles (23):** `${CLAUDE_SKILL_DIR}/references/journal_profiles/`
-- **Write-paper profiles (24):** `${CLAUDE_SKILL_DIR}/../write-paper/references/journal_profiles/`
+- **This skill's profiles (26):** `${CLAUDE_SKILL_DIR}/references/journal_profiles/`
+- **Write-paper profiles (29):** `${CLAUDE_SKILL_DIR}/../write-paper/references/journal_profiles/`
 
 ---
 
@@ -64,7 +64,7 @@ ${CLAUDE_SKILL_DIR}/references/journal_profiles/*.md
 ${CLAUDE_SKILL_DIR}/../write-paper/references/journal_profiles/*.md
 ```
 
-This yields 47 profiles total (23 + 24). Parse each profile's Scope, Scope Keywords,
+This yields 55 profiles total (26 + 29). Parse each profile's Scope, Scope Keywords,
 Article Types Accepted, Classification (Tier, OA, Field), and Special Notes.
 
 ### 3.2 Scoring Algorithm
@@ -152,10 +152,10 @@ When the user indicates a manuscript was rejected from a specific journal:
 
 When study type is "case report":
 
-1. Filter the 47 profiles to only journals whose Article Types include case reports
+1. Filter the 55 profiles to only journals whose Article Types include case reports
 2. Prioritize journals known for valuing educational or rare cases
 3. If fewer than 5 journals accept case reports, note this and suggest the user consider
-   case-report-specific journals outside the 47-profile set
+   case-report-specific journals outside the 55-profile set
 
 ### Cross-Skill Integration
 
@@ -175,7 +175,7 @@ from the calling context and skip redundant input collection.
 
 ## Error Handling
 
-- If fewer than 47 profiles are found, proceed with available profiles and note the count
+- If fewer than 55 profiles are found, proceed with available profiles and note the count
 - If the write-paper profiles directory is not accessible, proceed with the 21 local profiles only
 - If no journals match after filtering, relax filters (remove OA constraint first, then tier) and re-score
 - Never fabricate journal information not present in the profiles
