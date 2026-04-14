@@ -2,7 +2,7 @@
 
 Generated: 2026-04-14
 Guideline: STROBE
-Verdict: **REVISE** (Score: 75/100)
+Verdict: **PASS** (Score: 85/100, after 2 fix iterations; initial: 75)
 Fatal flags: 0
 
 ## Score Breakdown

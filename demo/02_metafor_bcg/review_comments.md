@@ -2,7 +2,7 @@
 
 Generated: 2026-04-14
 Guideline: PRISMA 2020
-Verdict: **REVISE** (Score: 72/100)
+Verdict: **REVISE** (Score: 82/100, after 2 fix iterations; initial: 72)
 Fatal flags: 0
 
 ## Score Breakdown
