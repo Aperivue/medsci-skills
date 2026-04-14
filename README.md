@@ -45,7 +45,7 @@ data = load_breast_cancer()  # 569 samples, zero download
 | [ROC Curve](demo/01_wisconsin_bc/figures/roc_curve.png) | 3-model comparison with DeLong 95% CIs |
 | [STARD Flow](demo/01_wisconsin_bc/figures/stard_flow.svg) | D2-generated STARD 2015 flow diagram |
 | [Reporting Checklist](demo/01_wisconsin_bc/reporting_checklist.md) | STARD 2015 — 82.1% compliance (23/28 PRESENT) |
-| [Self-Review](demo/01_wisconsin_bc/review_comments.md) | Score 74/100, 4 major / 5 minor |
+| [Self-Review](demo/01_wisconsin_bc/review_comments.md) | Score 83/100 (2 fix iterations; initial 74), 4 major / 5 minor |
 | [Pipeline Log](demo/01_wisconsin_bc/_pipeline_log.md) | 7-step E2E execution trace |
 | [Presentation](demo/01_wisconsin_bc/presentation.pptx) | 12 slides with speaker notes |
 
@@ -68,7 +68,7 @@ data(dat.bcg)  # 13 RCTs, 357,347 participants (Colditz et al. 1994)
 | [Bubble Plot](demo/02_metafor_bcg/figures/bubble_plot.png) | Meta-regression: latitude vs. RR (R² = 75.6%) |
 | [PRISMA Flow](demo/02_metafor_bcg/figures/prisma_flow.svg) | D2-generated PRISMA 2020 flow diagram |
 | [Reporting Checklist](demo/02_metafor_bcg/reporting_checklist.md) | PRISMA 2020 — 77.8% compliance (21/27 PRESENT) |
-| [Self-Review](demo/02_metafor_bcg/review_comments.md) | Score 72/100, 4 major / 5 minor |
+| [Self-Review](demo/02_metafor_bcg/review_comments.md) | Score 82/100 (2 fix iterations; initial 72), 4 major / 5 minor |
 | [Pipeline Log](demo/02_metafor_bcg/_pipeline_log.md) | 7-step E2E execution trace |
 | [Presentation](demo/02_metafor_bcg/presentation.pptx) | 12 slides with speaker notes |
 
@@ -91,7 +91,7 @@ data(dat.bcg)  # 13 RCTs, 357,347 participants (Colditz et al. 1994)
 | [OR Forest Plot](demo/03_nhanes_obesity/figures/or_forest_plot.png) | Adjusted odds ratios for 7 variables |
 | [Study Flow](demo/03_nhanes_obesity/figures/strobe_flow.svg) | D2-generated participant flow diagram |
 | [Reporting Checklist](demo/03_nhanes_obesity/reporting_checklist.md) | STROBE — 81.8% compliance (18/22 PRESENT) |
-| [Self-Review](demo/03_nhanes_obesity/review_comments.md) | Score 75/100, 4 major / 5 minor |
+| [Self-Review](demo/03_nhanes_obesity/review_comments.md) | Score 85/100 PASS (2 fix iterations; initial 75), 4 major / 5 minor |
 | [Pipeline Log](demo/03_nhanes_obesity/_pipeline_log.md) | 7-step E2E execution trace |
 | [Presentation](demo/03_nhanes_obesity/presentation.pptx) | 12 slides with speaker notes |
 
