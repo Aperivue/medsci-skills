@@ -13,6 +13,7 @@ Mode: --e2e (autonomous)
 | 5 | `/check-reporting --json` (STROBE) | PASS | reporting_checklist.md, compliance 81.8% (18/22 PRESENT) |
 | 6 | `/self-review --json` | PASS | review_comments.md, score 75/100, verdict REVISE, 4 major / 5 minor / 0 fatal |
 | 7 | Phase 7.6: DOCX Build | PASS | manuscript_final.docx (pandoc) |
+| 8 | `/present-paper` (bonus) | PASS | presentation.pptx (12 slides, speaker notes) |
 
 ## Summary
 

@@ -47,8 +47,9 @@ data = load_breast_cancer()  # 569 samples, zero download
 | [Reporting Checklist](demo/01_wisconsin_bc/reporting_checklist.md) | STARD 2015 — 82.1% compliance (23/28 PRESENT) |
 | [Self-Review](demo/01_wisconsin_bc/review_comments.md) | Score 74/100, 4 major / 5 minor |
 | [Pipeline Log](demo/01_wisconsin_bc/_pipeline_log.md) | 7-step E2E execution trace |
+| [Presentation](demo/01_wisconsin_bc/presentation.pptx) | 12 slides with speaker notes |
 
-**Pipeline:** `analyze-stats` &rarr; `make-figures` &rarr; `write-paper` &rarr; AI pattern scan &rarr; `check-reporting` (STARD) &rarr; `self-review` &rarr; DOCX build
+**Pipeline:** `analyze-stats` &rarr; `make-figures` &rarr; `write-paper` &rarr; AI pattern scan &rarr; `check-reporting` (STARD) &rarr; `self-review` &rarr; DOCX build &rarr; `present-paper`
 
 ### Demo 2: Meta-Analysis — BCG Vaccine Efficacy
 
@@ -69,8 +70,9 @@ data(dat.bcg)  # 13 RCTs, 357,347 participants (Colditz et al. 1994)
 | [Reporting Checklist](demo/02_metafor_bcg/reporting_checklist.md) | PRISMA 2020 — 77.8% compliance (21/27 PRESENT) |
 | [Self-Review](demo/02_metafor_bcg/review_comments.md) | Score 72/100, 4 major / 5 minor |
 | [Pipeline Log](demo/02_metafor_bcg/_pipeline_log.md) | 7-step E2E execution trace |
+| [Presentation](demo/02_metafor_bcg/presentation.pptx) | 12 slides with speaker notes |
 
-**Pipeline:** `analyze-stats` (R metafor) &rarr; `make-figures` &rarr; `write-paper` &rarr; AI pattern scan &rarr; `check-reporting` (PRISMA 2020) &rarr; `self-review` &rarr; DOCX build
+**Pipeline:** `analyze-stats` (R metafor) &rarr; `make-figures` &rarr; `write-paper` &rarr; AI pattern scan &rarr; `check-reporting` (PRISMA 2020) &rarr; `self-review` &rarr; DOCX build &rarr; `present-paper`
 
 ### Demo 3: Epidemiology — NHANES Obesity & Diabetes
 
@@ -91,8 +93,9 @@ data(dat.bcg)  # 13 RCTs, 357,347 participants (Colditz et al. 1994)
 | [Reporting Checklist](demo/03_nhanes_obesity/reporting_checklist.md) | STROBE — 81.8% compliance (18/22 PRESENT) |
 | [Self-Review](demo/03_nhanes_obesity/review_comments.md) | Score 75/100, 4 major / 5 minor |
 | [Pipeline Log](demo/03_nhanes_obesity/_pipeline_log.md) | 7-step E2E execution trace |
+| [Presentation](demo/03_nhanes_obesity/presentation.pptx) | 12 slides with speaker notes |
 
-**Pipeline:** `analyze-stats` &rarr; `make-figures` &rarr; `write-paper` &rarr; AI pattern scan &rarr; `check-reporting` (STROBE) &rarr; `self-review` &rarr; DOCX build
+**Pipeline:** `analyze-stats` &rarr; `make-figures` &rarr; `write-paper` &rarr; AI pattern scan &rarr; `check-reporting` (STROBE) &rarr; `self-review` &rarr; DOCX build &rarr; `present-paper`
 
 ---
 
