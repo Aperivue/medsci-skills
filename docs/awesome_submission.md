@@ -1,6 +1,8 @@
-# awesome-claude-code Resubmission — 04-13 이후 제출
+# awesome-claude-code Resubmission — 04-27 이후 제출 (14일 연장 패널티)
 
 ## Issue Template Fields
+
+**Title:** [Resource]: MedSci Skills
 
 **Display Name:** MedSci Skills
 
@@ -18,7 +20,7 @@
 
 **Description:**
 
-20 Claude Code skills for the full medical research lifecycle — from PubMed literature search with anti-hallucination citation verification to submission-ready manuscripts with reporting compliance audits. Includes 3 live end-to-end demos (diagnostic accuracy, meta-analysis, epidemiology) that each produce complete manuscripts, 300-dpi figures, STARD/PRISMA/STROBE compliance audits, and presentation slides from public datasets. Skills cover: literature search, statistical analysis, publication figures, manuscript writing (8-phase IMRAD pipeline), 15 reporting guideline audits, meta-analysis, study design review, sample size calculation, data cleaning, journal matching, protocol writing, and academic presentations. Built by a radiologist and tested on real publications.
+22 Claude Code skills for the full medical research lifecycle — from PubMed literature search with anti-hallucination citation verification to submission-ready IMRAD manuscripts with reporting compliance audits against STARD, PRISMA, STROBE, and 12 other guidelines. Includes 3 end-to-end demos that each produce complete manuscripts, 300-dpi figures, and compliance reports from public datasets. Built by a radiologist and tested on real publications.
 
 **Validate Claims:**
 
@@ -50,13 +52,13 @@ For a quick single-skill test: `/check-reporting any_manuscript.md --guideline S
 
 **Additional Comments:**
 
-Resubmission of #1389 (closed for 7-day cooldown, eligible after April 13, 2026). Updates since original submission: 9 skills expanded to 20, added 3 live end-to-end demos with public datasets, v2.1 pipeline with automatic skill chaining (analyze-stats → make-figures → write-paper → check-reporting). Repository renamed from medical-research-skills to medsci-skills (old URL auto-redirects). All reporting guideline checklists retain original CC licenses. No network requests except public APIs (PubMed, Semantic Scholar, CrossRef).
+Resubmission of #1389 (closed for 7-day cooldown) and #1518 (closed same day, 14-day extension applied, eligible after April 27, 2026). Updates since original submission: 9 skills expanded to 22, added 3 live end-to-end demos with public datasets, v2.1 pipeline with automatic skill chaining (analyze-stats → make-figures → write-paper → check-reporting). Repository renamed from medical-research-skills to medsci-skills (old URL auto-redirects). All reporting guideline checklists retain original CC licenses. No network requests except public APIs (PubMed, Semantic Scholar, CrossRef).
 
 ---
 
 ## 제출 메모
 
-- 제출일: 04-13 (월) 이후
+- 제출일: 04-27 (월) 이후 ← 14일 연장 패널티 (#1518 당일제출로 인해)
 - Issue #1389 참조 (closed, 7-day cooldown)
 - 레포 URL: medsci-skills (자동 리디렉트 확인 완료)
 - 체크리스트 모두 충족 확인
