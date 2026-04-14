@@ -155,12 +155,12 @@ Without `--e2e`, the existing behavior is preserved: announce plan, confirm befo
 
 ### Standard Pipeline: Data → Manuscript
 
-1. `/analyze-stats` → tables (CSV), figures, `_analysis_outputs.md`
-2. `/make-figures --study-type {type}` → reads `_analysis_outputs.md` → `figures/*.pdf`, `figures/*.png`, `figures/_figure_manifest.md`
-3. `/write-paper --autonomous` (if --e2e) → reads tables, figures, manifests → `manuscript.md`, `manuscript_final.docx`
-   - Phase 7.4 internally calls `/self-review --json --fix` (fix loop: up to 2 iterations of auto-fix + re-review)
-4. `/check-reporting` → reads `manuscript.md` → compliance report (called within write-paper Phase 7, but orchestrator verifies output)
-5. `/self-review --json --fix` → reads `manuscript.md` → review report + auto-fix (called within write-paper Phase 7.4, but orchestrator verifies final output)
+1. `/analyze-stats` → `analysis/tables/*.csv`, `analysis/figures/*`, `analysis/_analysis_outputs.md`, `analysis/analyze.py`
+2. `/make-figures --study-type {type}` → reads `analysis/_analysis_outputs.md` → `analysis/figures/*.pdf`, `analysis/figures/*.png`, `analysis/figures/_figure_manifest.md`
+3. `/write-paper --autonomous` (if --e2e) → reads analysis/ → `manuscript/manuscript.md`, `manuscript/manuscript_final.docx`
+   - Phase 7.4 internally calls `/self-review --json --fix` → `qc/self_review.md`
+4. `/check-reporting` → reads `manuscript/manuscript.md` → `qc/reporting_checklist.md` (called within write-paper Phase 7, but orchestrator verifies output)
+5. `/self-review --json --fix` → reads `manuscript/manuscript.md` → `qc/self_review.md` + auto-fix (called within write-paper Phase 7.4, but orchestrator verifies final output)
 
 ### Post-Skill Validation
 
@@ -168,15 +168,15 @@ After each skill completes, verify that expected output files exist. If validati
 
 | Skill | Expected Outputs | Validation |
 |-------|-----------------|------------|
-| `/analyze-stats` | At least one file in `tables/*.csv` OR `_analysis_outputs.md` | Check file existence and non-empty |
-| `/make-figures` | `figures/_figure_manifest.md` with at least 1 entry | Parse manifest, verify listed files exist |
-| `/write-paper` | `manuscript.md` (required), `manuscript_final.docx` (required in --e2e) | Check file existence and non-empty |
-| `/check-reporting` | `reporting_checklist.md` or inline report | Check file existence |
+| `/analyze-stats` | At least one file in `analysis/tables/*.csv` OR `analysis/_analysis_outputs.md` | Check file existence and non-empty |
+| `/make-figures` | `analysis/figures/_figure_manifest.md` with at least 1 entry | Parse manifest, verify listed files exist |
+| `/write-paper` | `manuscript/manuscript.md` (required), `manuscript/manuscript_final.docx` (required in --e2e) | Check file existence and non-empty |
+| `/check-reporting` | `qc/reporting_checklist.md` or inline report | Check file existence |
 | `/self-review` | Review report with JSON block (when --json) | Check JSON block is parseable |
 
 **On validation failure:**
 - Log the failure: which skill, which output was missing, any error messages.
-- In `--e2e` mode: report the error in `_pipeline_log.md` and STOP. Do not proceed to the next skill. Output: "Pipeline halted at {skill}: {missing output}. Check the skill's output and re-run."
+- In `--e2e` mode: report the error in `qc/_pipeline_log.md` and STOP. Do not proceed to the next skill. Output: "Pipeline halted at {skill}: {missing output}. Check the skill's output and re-run."
 - In interactive mode: report the error and ask the user how to proceed.
 
 ### Data Flow Contract
@@ -185,11 +185,11 @@ After each skill completes, verify that expected output files exist. If validati
 |-------|-------|--------|
 | deidentify | raw data with PHI (CSV/Excel) | `*_deidentified.*`, `mapping.json`, `audit_log.csv` |
 | fulltext-retrieval | DOI list (CSV/text) | `pdfs/*.pdf`, retrieval report |
-| analyze-stats | raw data (CSV/Excel) | tables/*.csv, figures/*, `_analysis_outputs.md` |
-| make-figures | `_analysis_outputs.md`, data files | figures/*.pdf, figures/*.png, `_figure_manifest.md` |
-| write-paper | figures/, tables/, manifests, journal profile | manuscript.md, manuscript_final.docx, manuscript_final.pdf |
-| check-reporting | manuscript.md | reporting_checklist.md |
-| self-review | manuscript.md | review_comments.md (with JSON block) |
+| analyze-stats | raw data (CSV/Excel) | analysis/tables/*.csv, analysis/figures/*, `analysis/_analysis_outputs.md` |
+| make-figures | `analysis/_analysis_outputs.md`, data files | analysis/figures/*.pdf, analysis/figures/*.png, `analysis/figures/_figure_manifest.md` |
+| write-paper | analysis/figures/, analysis/tables/, manifests, journal profile | manuscript/manuscript.md, manuscript/manuscript_final.docx, manuscript/title_page.md |
+| check-reporting | manuscript/manuscript.md | qc/reporting_checklist.md |
+| self-review | manuscript/manuscript.md | qc/self_review.md (with JSON block) |
 
 ### Rules
 1. After each skill completes, run post-skill validation before proceeding.
@@ -197,6 +197,21 @@ After each skill completes, verify that expected output files exist. If validati
 3. In `--e2e` mode: do NOT ask "shall I proceed?" between skills — proceed automatically after validation passes.
 4. Without `--e2e`: pause at write-paper's built-in gates (outline approval, discussion planning) and confirm between skills.
 5. If a skill fails or validation fails, report the error. In `--e2e` mode, halt the pipeline.
+
+### Post-E2E: Journal Selection & Submission Prep
+
+After the E2E pipeline completes (or when the user requests journal targeting), the following
+manual-trigger workflow is available:
+
+1. `/find-journal` → top 5 recommendations based on `manuscript/manuscript.md` abstract
+2. User selects a journal → create `submission/{journal_short}/` directory
+3. Generate inside `submission/{journal_short}/`:
+   - `cover_letter.md`: via `/write-paper` Phase 8+
+   - `checklist.md`: journal-specific submission checklist
+   - `manuscript_final.docx`: reformatted for target journal (if format differs)
+4. `/peer-review` (journal scope-aware) → `submission/{journal_short}/peer_review.md`
+
+This workflow is NOT part of `--e2e`. It requires user interaction (journal selection).
 
 ---
 

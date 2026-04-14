@@ -40,14 +40,16 @@ data = load_breast_cancer()  # 569 samples, zero download
 
 | Output | Description |
 |--------|-------------|
-| [Manuscript](demo/01_wisconsin_bc/manuscript.md) | IMRAD draft, ~1,900 words |
-| [DOCX](demo/01_wisconsin_bc/manuscript_final.docx) | Submission-ready Word document |
-| [ROC Curve](demo/01_wisconsin_bc/figures/roc_curve.png) | 3-model comparison with DeLong 95% CIs |
-| [STARD Flow](demo/01_wisconsin_bc/figures/stard_flow.svg) | D2-generated STARD 2015 flow diagram |
-| [Reporting Checklist](demo/01_wisconsin_bc/reporting_checklist.md) | STARD 2015 — 82.1% compliance (23/28 PRESENT) |
-| [Self-Review](demo/01_wisconsin_bc/review_comments.md) | Score 83/100 (2 fix iterations; initial 74), 4 major / 5 minor |
-| [Pipeline Log](demo/01_wisconsin_bc/_pipeline_log.md) | 7-step E2E execution trace |
-| [Presentation](demo/01_wisconsin_bc/presentation.pptx) | 12 slides with speaker notes |
+| [Manuscript](demo/01_wisconsin_bc/manuscript/manuscript.md) | IMRAD draft, ~1,900 words |
+| [Title Page](demo/01_wisconsin_bc/manuscript/title_page.md) | STARD title page with key points |
+| [DOCX](demo/01_wisconsin_bc/manuscript/manuscript_final.docx) | Submission-ready Word document |
+| [ROC Curve](demo/01_wisconsin_bc/analysis/figures/roc_curve.png) | 3-model comparison with DeLong 95% CIs |
+| [STARD Flow](demo/01_wisconsin_bc/analysis/figures/stard_flow.svg) | D2-generated STARD 2015 flow diagram |
+| [Reporting Checklist](demo/01_wisconsin_bc/qc/reporting_checklist.md) | STARD 2015 — 82.1% compliance (23/28 PRESENT) |
+| [Self-Review](demo/01_wisconsin_bc/qc/self_review.md) | Score 83/100 (2 fix iterations; initial 74), 4 major / 5 minor |
+| [Pipeline Log](demo/01_wisconsin_bc/qc/_pipeline_log.md) | 7-step E2E execution trace |
+| [Presentation](demo/01_wisconsin_bc/presentation/presentation.pptx) | 12 slides with speaker notes |
+| [Cover Letter](demo/01_wisconsin_bc/submission/radiology_ai/cover_letter.md) | Example submission cover letter |
 
 **Pipeline:** `analyze-stats` &rarr; `make-figures` &rarr; `write-paper` &rarr; AI pattern scan &rarr; `check-reporting` (STARD) &rarr; `self-review` &rarr; DOCX build &rarr; `present-paper`
 
@@ -62,15 +64,16 @@ data(dat.bcg)  # 13 RCTs, 357,347 participants (Colditz et al. 1994)
 
 | Output | Description |
 |--------|-------------|
-| [Manuscript](demo/02_metafor_bcg/manuscript.md) | Pooled RR = 0.489 (95% CI: 0.344–0.696), ~2,600 words |
-| [DOCX](demo/02_metafor_bcg/manuscript_final.docx) | Submission-ready Word document |
-| [Forest Plot](demo/02_metafor_bcg/figures/forest_plot.png) | 13 studies, RE model (REML), 300 dpi |
-| [Bubble Plot](demo/02_metafor_bcg/figures/bubble_plot.png) | Meta-regression: latitude vs. RR (R² = 75.6%) |
-| [PRISMA Flow](demo/02_metafor_bcg/figures/prisma_flow.svg) | D2-generated PRISMA 2020 flow diagram |
-| [Reporting Checklist](demo/02_metafor_bcg/reporting_checklist.md) | PRISMA 2020 — 77.8% compliance (21/27 PRESENT) |
-| [Self-Review](demo/02_metafor_bcg/review_comments.md) | Score 82/100 (2 fix iterations; initial 72), 4 major / 5 minor |
-| [Pipeline Log](demo/02_metafor_bcg/_pipeline_log.md) | 7-step E2E execution trace |
-| [Presentation](demo/02_metafor_bcg/presentation.pptx) | 12 slides with speaker notes |
+| [Manuscript](demo/02_metafor_bcg/manuscript/manuscript.md) | Pooled RR = 0.489 (95% CI: 0.344–0.696), ~2,600 words |
+| [Title Page](demo/02_metafor_bcg/manuscript/title_page.md) | PRISMA title page with key points |
+| [DOCX](demo/02_metafor_bcg/manuscript/manuscript_final.docx) | Submission-ready Word document |
+| [Forest Plot](demo/02_metafor_bcg/analysis/figures/forest_plot.png) | 13 studies, RE model (REML), 300 dpi |
+| [Bubble Plot](demo/02_metafor_bcg/analysis/figures/bubble_plot.png) | Meta-regression: latitude vs. RR (R² = 75.6%) |
+| [PRISMA Flow](demo/02_metafor_bcg/analysis/figures/prisma_flow.svg) | D2-generated PRISMA 2020 flow diagram |
+| [Reporting Checklist](demo/02_metafor_bcg/qc/reporting_checklist.md) | PRISMA 2020 — 77.8% compliance (21/27 PRESENT) |
+| [Self-Review](demo/02_metafor_bcg/qc/self_review.md) | Score 82/100 (2 fix iterations; initial 72), 4 major / 5 minor |
+| [Pipeline Log](demo/02_metafor_bcg/qc/_pipeline_log.md) | 7-step E2E execution trace |
+| [Presentation](demo/02_metafor_bcg/presentation/presentation.pptx) | 12 slides with speaker notes |
 
 **Pipeline:** `analyze-stats` (R metafor) &rarr; `make-figures` &rarr; `write-paper` &rarr; AI pattern scan &rarr; `check-reporting` (PRISMA 2020) &rarr; `self-review` &rarr; DOCX build &rarr; `present-paper`
 
@@ -85,17 +88,51 @@ data(dat.bcg)  # 13 RCTs, 357,347 participants (Colditz et al. 1994)
 
 | Output | Description |
 |--------|-------------|
-| [Manuscript](demo/03_nhanes_obesity/manuscript.md) | Adjusted OR = 4.50 (95% CI: 3.23–6.27), ~2,800 words |
-| [DOCX](demo/03_nhanes_obesity/manuscript_final.docx) | Submission-ready Word document |
-| [Prevalence Chart](demo/03_nhanes_obesity/figures/prevalence_by_bmi.png) | Diabetes prevalence by BMI with Wilson 95% CIs |
-| [OR Forest Plot](demo/03_nhanes_obesity/figures/or_forest_plot.png) | Adjusted odds ratios for 7 variables |
-| [Study Flow](demo/03_nhanes_obesity/figures/strobe_flow.svg) | D2-generated participant flow diagram |
-| [Reporting Checklist](demo/03_nhanes_obesity/reporting_checklist.md) | STROBE — 81.8% compliance (18/22 PRESENT) |
-| [Self-Review](demo/03_nhanes_obesity/review_comments.md) | Score 85/100 PASS (2 fix iterations; initial 75), 4 major / 5 minor |
-| [Pipeline Log](demo/03_nhanes_obesity/_pipeline_log.md) | 7-step E2E execution trace |
-| [Presentation](demo/03_nhanes_obesity/presentation.pptx) | 12 slides with speaker notes |
+| [Manuscript](demo/03_nhanes_obesity/manuscript/manuscript.md) | Adjusted OR = 4.50 (95% CI: 3.23–6.27), ~2,800 words |
+| [Title Page](demo/03_nhanes_obesity/manuscript/title_page.md) | STROBE title page with key points |
+| [DOCX](demo/03_nhanes_obesity/manuscript/manuscript_final.docx) | Submission-ready Word document |
+| [Prevalence Chart](demo/03_nhanes_obesity/analysis/figures/prevalence_by_bmi.png) | Diabetes prevalence by BMI with Wilson 95% CIs |
+| [OR Forest Plot](demo/03_nhanes_obesity/analysis/figures/or_forest_plot.png) | Adjusted odds ratios for 7 variables |
+| [Study Flow](demo/03_nhanes_obesity/analysis/figures/strobe_flow.svg) | D2-generated participant flow diagram |
+| [Reporting Checklist](demo/03_nhanes_obesity/qc/reporting_checklist.md) | STROBE — 81.8% compliance (18/22 PRESENT) |
+| [Self-Review](demo/03_nhanes_obesity/qc/self_review.md) | Score 85/100 PASS (2 fix iterations; initial 75), 4 major / 5 minor |
+| [Pipeline Log](demo/03_nhanes_obesity/qc/_pipeline_log.md) | 7-step E2E execution trace |
+| [Presentation](demo/03_nhanes_obesity/presentation/presentation.pptx) | 12 slides with speaker notes |
 
 **Pipeline:** `analyze-stats` &rarr; `make-figures` &rarr; `write-paper` &rarr; AI pattern scan &rarr; `check-reporting` (STROBE) &rarr; `self-review` &rarr; DOCX build &rarr; `present-paper`
+
+### Project Folder Structure
+
+Each demo (and real project) follows this role-based folder layout:
+
+```
+project/
+├── data/                          # Input data
+│   └── raw_data.csv
+├── analysis/                      # /analyze-stats + /make-figures outputs
+│   ├── tables/
+│   ├── figures/
+│   │   └── _figure_manifest.md
+│   ├── _analysis_outputs.md
+│   └── analyze.py
+├── manuscript/                    # /write-paper outputs
+│   ├── manuscript.md
+│   ├── manuscript_final.docx
+│   └── title_page.md
+├── qc/                            # Quality verification
+│   ├── reporting_checklist.md     # /check-reporting
+│   ├── self_review.md             # /self-review
+│   └── _pipeline_log.md
+├── submission/                    # Post-journal-selection (manual trigger)
+│   └── {journal_short}/
+│       ├── cover_letter.md
+│       ├── checklist.md
+│       └── peer_review.md
+└── presentation/
+    └── presentation.pptx
+```
+
+The E2E pipeline (`orchestrate --e2e`) produces everything up to `qc/`. The `submission/` directory is created after journal selection via `/find-journal`.
 
 ---
 

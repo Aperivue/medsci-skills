@@ -125,7 +125,7 @@ Total word limit: {N} (excl. abstract, references, legends)
 ```
 
 **Gate:** Present outline to user. Do NOT proceed until user approves or requests changes.
-**Autonomous mode:** If `--autonomous` is ON, skip this gate. Log the outline to `_pipeline_log.md` and proceed to Phase 2.
+**Autonomous mode:** If `--autonomous` is ON, skip this gate. Log the outline to `qc/_pipeline_log.md` and proceed to Phase 2.
 
 ---
 
@@ -146,14 +146,14 @@ Design all tables and figures BEFORE writing prose. This ensures the narrative s
 5. Call `/make-figures` if figure generation is needed. **Pass `--study-type`** mapped from the paper type / reporting guideline selected in Phase 0: diagnostic accuracy → `diagnostic-accuracy`, prediction model → `ai-validation`, systematic review → `meta-analysis`, DTA systematic review → `dta-meta-analysis`, observational → `observational-cohort`, RCT → `rct`.
 6. **Auto-detect required figures.** Based on the reporting guideline selected in Phase 0, consult the `/make-figures` study-type figure set table. Call `/make-figures` with the full figure set for the study type. Do not ask the user to name each figure individually.
 7. **Visual abstract check.** If the target journal requires or encourages a visual abstract (check the journal profile for a "Visual Abstract" section), call `/make-figures` with visual abstract request. Provide: title, Key Points 1 and 3, methodology summary, and the best study figure as the visual element.
-8. **Figure discovery and embedding.** After figure generation completes, scan the `figures/` directory for all PNG and PDF files. For each figure:
-   - Generate a markdown image reference: `![Figure N. Caption](figures/filename.png){width=80%}`
+8. **Figure discovery and embedding.** After figure generation completes, scan the `analysis/figures/` directory for all PNG and PDF files. For each figure:
+   - Generate a markdown image reference: `![Figure N. Caption](analysis/figures/filename.png){width=80%}`
    - Draft a figure legend based on the figure type and analysis context
    - Insert the reference at the appropriate location in the Results section
-9. **Manifest verification.** After `/make-figures` completes, verify that `figures/_figure_manifest.md` exists and contains at least one figure entry. If the manifest is missing or empty: in autonomous mode, log the error to `_pipeline_log.md` and proceed with available figures; in interactive mode, report the error and ask the user how to proceed.
+9. **Manifest verification.** After `/make-figures` completes, verify that `analysis/figures/_figure_manifest.md` exists and contains at least one figure entry. If the manifest is missing or empty: in autonomous mode, log the error to `qc/_pipeline_log.md` and proceed with available figures; in interactive mode, report the error and ask the user how to proceed.
 
 **Gate:** Present T&F plan to user. Do NOT proceed until user approves.
-**Autonomous mode:** If `--autonomous` is ON, skip this gate. Log the T&F plan to `_pipeline_log.md` and proceed to Phase 3.
+**Autonomous mode:** If `--autonomous` is ON, skip this gate. Log the T&F plan to `qc/_pipeline_log.md` and proceed to Phase 3.
 
 ---
 
@@ -322,15 +322,15 @@ Final quality pass before submission.
 
 #### Step 7.1: AI Pattern Scan
 
-Scan for and remove AI writing patterns (see AI Pattern Avoidance below). Edit `manuscript.md` in place.
+Scan for and remove AI writing patterns (see AI Pattern Avoidance below). Edit `manuscript/manuscript.md` in place.
 
 #### Step 7.2: Reporting Guideline Check
 
-Call `/check-reporting` on `manuscript.md`. Parse the output:
+Call `/check-reporting` on `manuscript/manuscript.md`. Parse the output:
 - If the report includes a JSON summary block (Part D), extract MISSING items.
-- For each MISSING item where `fixable_by_ai` is true (e.g., missing ethics statement, missing data availability statement, missing sample size justification), insert the suggested text at the indicated location in `manuscript.md`.
+- For each MISSING item where `fixable_by_ai` is true (e.g., missing ethics statement, missing data availability statement, missing sample size justification), insert the suggested text at the indicated location in `manuscript/manuscript.md`.
 - Do NOT attempt to fix items requiring external information (IRB numbers, registration numbers, protocol details only the author knows).
-- Log all auto-inserted text to `_pipeline_log.md`.
+- Log all auto-inserted text to `qc/_pipeline_log.md`.
 
 #### Step 7.3: Citation Verification
 
@@ -338,7 +338,7 @@ Call `/search-lit --verify-only` to verify all citations in the manuscript are r
 
 #### Step 7.4: Self-Review + Fix Loop
 
-Call `/self-review --json --fix` on the current `manuscript.md`.
+Call `/self-review --json --fix` on the current `manuscript/manuscript.md`.
 
 This delegates the entire fix loop to the self-review skill, which:
 1. Runs systematic review (Phase 2) and generates a JSON report (Phase 3c).
@@ -348,15 +348,15 @@ This delegates the entire fix loop to the self-review skill, which:
 
 After `/self-review --json --fix` completes:
 - Parse the final JSON output block.
-- Log the final `overall_score`, `verdict`, fix iteration count, and any remaining issues to `_pipeline_log.md`.
+- Log the final `overall_score`, `verdict`, fix iteration count, and any remaining issues to `qc/_pipeline_log.md`.
 - If any `severity: "fatal"` issue remains:
-  - In autonomous mode: flag `_pipeline_log.md` with `FATAL_ISSUE_DETECTED` and proceed (the manuscript will be generated but flagged).
+  - In autonomous mode: flag `qc/_pipeline_log.md` with `FATAL_ISSUE_DETECTED` and proceed (the manuscript will be generated but flagged).
   - In interactive mode: halt and present the fatal issue to the user.
 - Proceed to Step 7.5 regardless of final verdict (the fix loop is best-effort).
 
 #### Step 7.5: Generate Deliverables
 
-Log the self-review fix loop results to `_pipeline_log.md`:
+Log the self-review fix loop results to `qc/_pipeline_log.md`:
 ```
 ## Self-Review Fix Loop (Phase 7.4)
 - Initial score: {score_before} → Final score: {score_after}
@@ -367,35 +367,36 @@ Log the self-review fix loop results to `_pipeline_log.md`:
 ```
 
 Generate the following files:
-- `manuscript.md`: Complete manuscript (with LLM disclosure in Methods and Acknowledgments if enabled)
-- `title_page.md`: Title page with author info, word count, key points if required
-- `reporting_checklist.md`: Filled reporting guideline checklist from Step 7.2
-- `cover_letter.md`: Cover letter draft (with AI disclosure paragraph if enabled)
+- `manuscript/manuscript.md`: Complete manuscript (with LLM disclosure in Methods and Acknowledgments if enabled)
+- `manuscript/title_page.md`: Title page with author info, word count, key points if required
+- `qc/reporting_checklist.md`: Filled reporting guideline checklist from Step 7.2
+- `qc/self_review.md`: Final self-review report from Step 7.4
+- `qc/_pipeline_log.md`: Pipeline execution log
 
 #### Step 7.6: DOCX Build
 
 Build the final submission-ready documents from the assembled components:
 
-1. **Input files**: `manuscript.md`, `figures/_figure_manifest.md`, `tables/*.csv`
-2. **Figure embedding**: Parse `_figure_manifest.md`. For each figure entry, verify the file exists at the specified path. Replace markdown image references `![Figure N. ...](path)` with the actual image path.
-3. **Table embedding**: For each `tables/*.csv` file referenced in the manuscript, the pandoc conversion will handle table formatting.
+1. **Input files**: `manuscript/manuscript.md`, `analysis/figures/_figure_manifest.md`, `analysis/tables/*.csv`
+2. **Figure embedding**: Parse `analysis/figures/_figure_manifest.md`. For each figure entry, verify the file exists at the specified path. Replace markdown image references `![Figure N. ...](path)` with the actual image path.
+3. **Table embedding**: For each `analysis/tables/*.csv` file referenced in the manuscript, the pandoc conversion will handle table formatting.
 4. **Pandoc conversion** (primary):
    ```bash
-   pandoc manuscript.md -o manuscript_final.docx -V mainfont="Times New Roman" -V fontsize=12pt
-   pandoc manuscript.md -o manuscript_final.pdf --pdf-engine=xelatex -V geometry:margin=1in -V fontsize=11pt -V mainfont="Times New Roman"
+   pandoc manuscript/manuscript.md -o manuscript/manuscript_final.docx -V mainfont="Times New Roman" -V fontsize=12pt
+   pandoc manuscript/manuscript.md -o manuscript/manuscript_final.pdf --pdf-engine=xelatex -V geometry:margin=1in -V fontsize=11pt -V mainfont="Times New Roman"
    ```
    Ensure all figure image references use relative paths so figures render in both formats.
 5. **Fallback** (if pandoc is unavailable): Generate the DOCX using python-docx:
-   - Parse `manuscript.md` sections (`##` → Heading 2, `###` → Heading 3, `**bold**` → bold runs)
+   - Parse `manuscript/manuscript.md` sections (`##` → Heading 2, `###` → Heading 3, `**bold**` → bold runs)
    - Insert figures as inline images at their markdown reference locations
    - Insert tables as formatted Word tables from CSV sources
    - Apply Times New Roman 12pt, double spacing, 1-inch margins, page numbers
-   - Save as `manuscript_final.docx`
-6. **Verify output**: Confirm `manuscript_final.docx` exists and is non-empty. Report file size.
+   - Save as `manuscript/manuscript_final.docx`
+6. **Verify output**: Confirm `manuscript/manuscript_final.docx` exists and is non-empty. Report file size.
 
 #### Step 7.7: Final Gate
 
-- **Autonomous mode**: Log completion to `_pipeline_log.md`. Report summary: word count, figure count, self-review score, reporting compliance percentage, any FATAL flags.
+- **Autonomous mode**: Log completion to `qc/_pipeline_log.md`. Report summary: word count, figure count, self-review score, reporting compliance percentage, any FATAL flags.
 - **Interactive mode**: Present the full summary to the user and await confirmation.
 
 ---
@@ -576,7 +577,7 @@ This skill orchestrates other skills at specific phases:
 | 7.2 | `/check-reporting` | Reporting guideline compliance + auto-fix MISSING items |
 | 7.3 | `/search-lit --verify-only` | Citation verification |
 | 7.4 | `/self-review --json` | Self-review with auto-fix loop (max 2 iterations) |
-| 7.6 | (built-in) | DOCX build from manuscript.md + figures + tables |
+| 7.6 | (built-in) | DOCX build from manuscript/manuscript.md + analysis/figures + analysis/tables |
 | 8+ | `/find-journal` | Journal scope for cover letter (optional) |
 
 If a called skill is not available, perform that step inline using the relevant section of this skill document as guidance.
