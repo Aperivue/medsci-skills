@@ -2,10 +2,10 @@
 
 # MedSci Skills
 
-**22 skills that actually work.** Built by a physician-researcher, tested on real publications.
+**23 skills that actually work.** Built by a physician-researcher, tested on real publications.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-![Skills](https://img.shields.io/badge/Skills-22-brightgreen?style=flat-square)
+![Skills](https://img.shields.io/badge/Skills-23-brightgreen?style=flat-square)
 ![Platform](https://img.shields.io/badge/Platform-Claude_Code-blueviolet?style=flat-square)
 ![Built by](https://img.shields.io/badge/Built_by-Physician--Researcher-blue?style=flat-square)
 
@@ -166,6 +166,8 @@ The E2E pipeline (`orchestrate --e2e`) produces everything up to `qc/`. The `sub
                                     ┌── calc-sample-size ──┐
                                     │                      ▼
 search-lit -> fulltext-retrieval -> design-study ──> write-protocol -> manage-project
+        │
+        └── find-cohort-gap (DB variables → literature gap → ranked topic proposals)
                                     │
                                     ▼
                          deidentify -> clean-data -> analyze-stats -> make-figures -> write-paper
@@ -196,6 +198,7 @@ search-lit -> fulltext-retrieval -> design-study ──> write-protocol -> manag
 | Skill | What It Does |
 |-------|-------------|
 | **orchestrate** | Single entry point for the full bundle. Classifies your request and routes to the right skill -- or chains multiple skills for multi-step workflows. Full Pipeline Mode runs `analyze-stats` → `make-figures` → `write-paper` → `check-reporting` → `self-review` end-to-end. **New:** `--e2e` flag for fully autonomous execution with post-skill validation and halt-on-failure. |
+| **find-cohort-gap** | Research gap finder for longitudinal cohort databases. Profiles cohort strengths, matches PI expertise, scans literature saturation via 6-Pattern scoring, and outputs ranked topic proposals with comparison tables and one-pagers. Works with any cohort: NHIS, UK Biobank, institutional EMR, health checkup registries. |
 | **search-lit** | PubMed + Semantic Scholar + bioRxiv search with anti-hallucination citation verification. Token-efficient error handling -- CrossRef failures are silently batched, not repeated. |
 | **fulltext-retrieval** | Batch open-access PDF downloader. Unpaywall → PMC → OpenAlex → CrossRef pipeline. OA-only -- no paywall bypass. Input: DOI list or TSV. Optional PDF→Markdown conversion via [pymupdf4llm](https://pymupdf.readthedocs.io/en/latest/pymupdf4llm/) for token-efficient LLM analysis of academic papers. |
 | **check-reporting** | Manuscript compliance audit against 33 reporting guidelines and risk of bias tools (STROBE, STARD, STARD-AI, TRIPOD, TRIPOD+AI, PRISMA, PRISMA-DTA, PRISMA-P, MOOSE, ARRIVE, CONSORT, CARE, SPIRIT, CLAIM, SQUIRE 2.0, CLEAR, GRRAS, MI-CLEAR-LLM, SWiM, AMSTAR 2, QUADAS-2, QUADAS-C, RoB 2, ROBINS-I, ROBINS-E, ROBIS, ROB-ME, PROBAST, PROBAST+AI, NOS, COSMIN, RoB NMA). **New:** Machine-readable JSON summary with `compliance_pct` and `fixable_by_ai` flags for automated pipeline integration. |
