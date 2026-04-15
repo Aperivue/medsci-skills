@@ -32,6 +32,7 @@ with specialized support for diagnostic test accuracy (DTA) meta-analyses.
   - `RoB2.md` -- 5 domains + signalling questions + overall judgment
   - `PROBAST.md` -- 4 domains + AI extension + validation studies
   - `NOS.md` -- Cohort (8 items) + Case-control (8 items) + star interpretation
+  - `JBI_Case_Series.md` -- 10-item critical appraisal checklist for case series
 
 ---
 
@@ -166,11 +167,61 @@ Generate a data extraction form with:
 
 Output: Excel/CSV template for data entry.
 
+#### 4b. KM Curve Reconstruction (when raw events not reported)
+
+When studies report outcomes only as Kaplan-Meier curves without raw event counts:
+
+1. **Digitise the KM curve**: Use WebPlotDigitizer (https://automeris.io/WebPlotDigitizer/)
+   - Calibrate X/Y axes carefully — verify output range matches the original axis labels
+   - If coordinates come out in 0–1 range, multiply X by the actual time range (e.g., ×30 for months)
+   - Clip negative Y values to 0 (digitisation artifact)
+   - Export as CSV: `time, cumulative_event_rate` (or survival)
+
+2. **Extract number-at-risk**: Record from the table below the KM plot at each time point.
+
+3. **Reconstruct IPD**: Use the R `IPDfromKM` package (Guyot et al. 2012 method):
+   ```r
+   library(IPDfromKM)
+   dat <- read.csv("digitised_curve.csv")
+   preproc <- preprocess(dat, trisk, nrisk, totalpts, maxy = 1)
+   ipd <- getIPD(preproc, armID = 1)  # armID starts at 1, NOT 0
+   ```
+   - ⚠️ `preprocess()` does NOT accept a `mateflag` parameter (common error)
+   - ⚠️ `armID` starts at 1 (not 0)
+
+4. **Verify**: Generate a reconstructed KM plot and visually compare to the original figure.
+
+5. **Report in Methods**: Cite Guyot et al. 2012 (doi:10.1186/1471-2288-12-9) and
+   state which studies required reconstruction.
+
+**Alternative — Text-based extraction**: When no subgroup-specific KM curve exists but the
+text reports "0% LTP at 12 months" or similar, extract directly from text. Document the
+page number and exact quote.
+
+#### Composite Exposure Disaggregation
+
+When a study's intervention is a composite of multiple techniques:
+
+1. **Subgroup-specific KM curve** → use KM reconstruction (section 4b)
+2. **Component-specific Table/multivariate** → extract per-component data from Tables
+3. **Text-based subgroup report** → extract from narrative (e.g., "APE arm: 0% LTP")
+4. **None available** → include as composite, flag in sensitivity analysis for exclusion
+
+Always pre-specify a sensitivity analysis excluding composite-exposure studies.
+Document the extraction strategy in the data extraction form Notes column.
+
 #### Data Extraction Cross-Verification
 
 When comparing extraction results between independent reviewers (minimum 2), check:
 
-1. **Denominator consistency**: Verify sample sizes match between reviewers. Watch for per-patient vs per-lesion/per-tumor unit confusion. If denominators differ, return to the original paper's Tables/Flow diagram.
+1. **Denominator consistency**: Verify sample sizes match between reviewers.
+   Watch for per-patient vs per-lesion/per-tumor unit confusion.
+   **CRITICAL**: The denominator may differ across outcomes within the same study
+   (e.g., LTP assessed only among treatment-naive nodules, but complications assessed
+   among all treated tumors). For each outcome, back-calculate: `event ÷ denominator`
+   must equal the percentage reported in the paper's Tables. If it does not match,
+   investigate the analysis population definition in the Methods section.
+   If denominators differ, return to the original paper's Tables/Flow diagram.
 2. **Arithmetic verification**: Back-calculate proportions from event/total counts and cross-check against original text (e.g., 78/91 = 85.7%).
 3. **Kaplan-Meier estimate distinction**: KM curve estimates differ from raw event counts. Always record the data source (Table vs KM curve vs text) during extraction.
 4. **Discrepancy resolution**: List all discrepancies → verify against original text → reach consensus → if consensus fails, use third reviewer. Log all consensus decisions in `{project}/consensus_log.md`.
@@ -189,6 +240,7 @@ Select tool based on meta-analysis type (see table above), then read the corresp
 | ROBINS-I (NRSI) | `${CLAUDE_SKILL_DIR}/references/checklists/ROBINS_I.md` |
 | PROBAST (Prediction) | `${CLAUDE_SKILL_DIR}/references/checklists/PROBAST.md` |
 | NOS (Observational) | `${CLAUDE_SKILL_DIR}/references/checklists/NOS.md` |
+| JBI (Case Series) | `${CLAUDE_SKILL_DIR}/references/checklists/JBI_Case_Series.md` |
 
 For AI/ML prediction models, also apply PROBAST+AI extensions.
 
@@ -247,18 +299,29 @@ metainf(res, pooled = "random")  # leave-one-out
 
 #### Dual Approach: Comparative + Single-Arm Pooled Proportion
 
-When comparative studies are limited, use dual approach (precedent: Lin 2025 PMID:41419890,
-Su 2026 PMID:41653198):
+When both comparative and single-arm studies are available, use dual analysis
+(precedent: Lin 2025 PMID:41419890, Su 2026 PMID:41653198).
+The assignment of PRIMARY vs SECONDARY depends on the research question and
+available evidence:
+
+| Scenario | Primary | Secondary | Rationale |
+|----------|---------|-----------|-----------|
+| Enough comparative studies (k≥8) | Comparative OR/RR | Pooled proportion | Direct comparison answers efficacy |
+| Limited comparative (k<6), many single-arm | Pooled proportion | Comparative OR/RR | Insufficient power for comparative; pooled proportion provides descriptive evidence |
+| Mixed (moderate k, each) | Discuss with co-authors | — | PI/methodologist decision |
+
+The choice should be pre-specified in the PROSPERO protocol and remain consistent
+throughout the manuscript.
 
 ```r
-# PRIMARY: Comparative MA (binary outcomes)
+# Comparative MA (binary outcomes)
 res_comp <- metabin(ei, ni, ec, nc, data = dat,
                      studlab = study, sm = "OR",
                      method = "Inverse", method.tau = "DL",
                      common = FALSE, random = TRUE,
                      method.random.ci = "HK", incr = 0.5)
 
-# SECONDARY: Single-arm pooled proportion
+# Single-arm pooled proportion
 res_prop <- metaprop(event, n, data = dat_single,
                       studlab = study, sm = "PLOGIT",
                       method.tau = "DL", method.ci = "CP")
@@ -268,7 +331,7 @@ Key points:
 - Comparative answers "is adjunct effective?" -- single-arm answers "what outcomes to expect?"
 - Single-arm uses `metaprop()` with logit transformation + Clopper-Pearson CI
 - GRADE certainty lower for single-arm -- state explicitly
-- Report both in Results: "Primary (comparative)" then "Secondary (pooled proportion)"
+- Report both in Results: label PRIMARY/SECONDARY per pre-specified assignment
 
 #### Practical R Notes:
 - Use `method = "Inverse"` not `"MH"` to avoid method.tau conflict
