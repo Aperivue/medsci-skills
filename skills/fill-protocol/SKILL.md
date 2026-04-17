@@ -111,6 +111,11 @@ protections:
                               # "MS Mincho", etc. for other locales)
   cant_split: true            # Apply <w:cantSplit/> to every filled row
 
+  # Readability options (see "Readability" section below for full semantics)
+  blank_between_paragraphs: true            # default true — Enter between \n\n chunks
+  blank_around_section_header: true         # default true — Enter above/below filled sections
+  blank_around_all_section_headers: false   # default false — opt-in; also touches untouched sections
+
 # Mode 1 — table key/value (left-label cell → right value cell)
 table_kv:
   "Study Title": "Multi-center prospective validation of ..."
@@ -129,6 +134,23 @@ paragraph_replace:
   "Title:":
     "Title: Multi-center prospective validation of ..."
 ```
+
+### Readability — three blank-line knobs
+
+All blank paragraphs inserted by these options use a forced single-line height
+(`<w:spacing w:line="240" w:before="0" w:after="0"/>`) so the gap is exactly
+one body-text line — never inflates the document's apparent line spacing.
+
+| Option | Default | What it does | When to flip |
+|---|---|---|---|
+| `blank_between_paragraphs` | `true` | Inserts a blank line between every `\n\n`-split chunk inside `section_replace` | Disable only for forms where every line must be packed tight |
+| `blank_around_section_header` | `true` | Wraps each header that you `section_replace` with a blank above and a blank below | Disable when the template style already adds visual gaps via `space_before/after` |
+| `blank_around_all_section_headers` | `false` | After all fills, scans every numbered header (`\d+\.\s+`) — including ones you didn't replace — and adds blank lines around them | Enable when uniform readability matters more than form fidelity. **Default off because IRB / public-document submissions favor template fidelity over visual consistency** (page count stability, boilerplate untouched, reviewer-expected layout) |
+
+The third option exists because `section_replace` only touches sections you
+list in the YAML. If a template has 18 numbered sections and you only fill 12,
+the other 6 stay tight against their content — visually inconsistent. Turn the
+opt-in on for documents where you'd rather the consistency than the fidelity.
 
 ### Step 4 — Run the fill
 
