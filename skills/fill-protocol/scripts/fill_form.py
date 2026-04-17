@@ -184,13 +184,15 @@ class FillResult:
 class FormFiller:
     def __init__(self, template_path: str | Path,
                  korean_font: str = DEFAULT_KOREAN_FONT,
-                 blank_between_paragraphs: bool = True):
+                 blank_between_paragraphs: bool = True,
+                 blank_around_section_header: bool = True):
         self.path = Path(template_path).expanduser().resolve()
         if not self.path.exists():
             raise FileNotFoundError(self.path)
         self.doc = Document(str(self.path))
         self.korean_font = korean_font
         self.blank_between_paragraphs = blank_between_paragraphs
+        self.blank_around_section_header = blank_around_section_header
         self._filled_rows: set[int] = set()
         self._table_results = FillResult()
         self._paragraph_results = FillResult()
@@ -284,6 +286,11 @@ class FormFiller:
             template_rPr = template_r.find(qn("w:rPr")) if template_r is not None else None
 
             insert_after = template_p
+            # Blank line right after section header
+            if self.blank_around_section_header:
+                blank_p = _make_blank_paragraph()
+                insert_after.addnext(blank_p)
+                insert_after = blank_p
             chunks = new_content.split("\n\n")
             for ci, chunk in enumerate(chunks):
                 if ci > 0 and self.blank_between_paragraphs:
@@ -303,6 +310,10 @@ class FormFiller:
                 from docx.text.run import Run
                 _set_run_korean_font(Run(new_r, None), self.korean_font)
                 insert_after = new_p
+            # Blank line right before next section header
+            if self.blank_around_section_header:
+                blank_p = _make_blank_paragraph()
+                insert_after.addnext(blank_p)
             self._paragraph_results.matched.append(header_text)
             return True
 
@@ -317,9 +328,14 @@ class FormFiller:
             p_elem = all_ps[i]._element
             p_elem.getparent().remove(p_elem)
 
+        # Insert blank paragraph right after section header (before first body)
+        first_target_elem = first_target._element
+        if self.blank_around_section_header:
+            blank_p = _make_blank_paragraph()
+            first_target_elem.addprevious(blank_p)
+
         # Add additional chunks as new paragraphs after first_target
         from copy import deepcopy
-        first_target_elem = first_target._element
         first_pPr = first_target_elem.find(qn("w:pPr"))
         first_r = first_target_elem.find(qn("w:r"))
         first_rPr = first_r.find(qn("w:rPr")) if first_r is not None else None
@@ -345,6 +361,11 @@ class FormFiller:
             from docx.text.run import Run
             _set_run_korean_font(Run(new_r, None), self.korean_font)
             insert_after = new_p
+
+        # Blank line right before next section header
+        if self.blank_around_section_header:
+            blank_p = _make_blank_paragraph()
+            insert_after.addnext(blank_p)
 
         self._paragraph_results.matched.append(header_text)
         return True
@@ -411,8 +432,10 @@ def fill_from_yaml(template: Path, content_yaml: Path, output: Path) -> None:
     protections = cfg.get("protections", {}) or {}
     korean_font = protections.get("korean_font", DEFAULT_KOREAN_FONT)
     blank_between = protections.get("blank_between_paragraphs", True)
+    blank_around = protections.get("blank_around_section_header", True)
     filler = FormFiller(template, korean_font=korean_font,
-                         blank_between_paragraphs=blank_between)
+                         blank_between_paragraphs=blank_between,
+                         blank_around_section_header=blank_around)
 
     # Fill table key-value pairs
     for label, value in (cfg.get("table_kv") or {}).items():
