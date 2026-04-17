@@ -31,7 +31,7 @@ Gather essential information from the user before any writing begins.
 
 **Required inputs:**
 1. **Title** (working title is fine)
-2. **Paper type**: original article, AI validation, case report, meta-analysis, technical note, animal study
+2. **Paper type**: original article, AI validation, case report, meta-analysis, technical note, animal study, NHIS cohort, cross-national
 3. **Target journal**: load profile from `${CLAUDE_SKILL_DIR}/references/journal_profiles/`
 4. **Research question / hypothesis**
 5. **Available data**: what datasets, tables, analyses already exist
