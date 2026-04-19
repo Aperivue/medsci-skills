@@ -150,6 +150,34 @@ In addition to checklist items, verify that:
 - Flag any boundary violation as a separate finding in Part C Action Items with the label
   `[BOUNDARY]`.
 
+### Step 4c: Registration / Protocol Timing Consistency Check
+
+**Applies to:** systematic reviews, meta-analyses, and intervention studies with
+prospective registration (PRISMA 2020, PRISMA-DTA, PRISMA-P, MOOSE, CONSORT, SPIRIT).
+
+**Why this step exists:** the registration identifier is a single checklist item and can
+pass Step 4 even when the manuscript is internally inconsistent about *when* the
+registration or its amendments occurred relative to the analysis. An undisclosed
+post-hoc amendment is a common rejection trigger.
+
+**Five audit items (summary):** (1) registration identifier present in Methods, Abstract,
+and cover letter; (2) initial registration date precedes — or is explicitly disclosed as
+post-dating — the extraction milestone; (3) amendment dates appear in Methods, the
+described change is visible in Methods, analysis was re-run if amendment post-dates the
+lock, and no amendment post-dates submission; (4) cross-artifact agreement between
+Methods and the registry record (PROSPERO PDF, ClinicalTrials.gov export) — silent
+discrepancy is a finding; (5) retrospective-registration disclosure paragraph when
+evidence suggests post-extraction filing.
+
+**Flagging:** any failure is logged in Part C Action Items with label
+`[REGISTRATION-TIMING]`. `fixable_by_ai: false` when reconciliation requires an external
+amendment filing; `true` only when the fix is a Methods-text insertion of a date already
+disclosed elsewhere. Part D JSON includes a `registration_timing` object
+(registry, id, initial_registration_date, amendments[], timing_consistency, findings[]).
+
+**Load-on-demand procedural detail** (exact item-by-item procedure, JSON schema,
+flagging edge cases): `${CLAUDE_SKILL_DIR}/references/step4c_registration_timing.md`.
+
 ### Step 5: Generate Report
 
 Produce a structured compliance report in two parts.
@@ -279,17 +307,18 @@ Append a fenced JSON block at the end of the report. This enables `/write-paper`
 These items are frequently missing in medical manuscripts:
 
 1. **Study registration number** (CONSORT, PRISMA, STARD)
-2. **Sample size justification** (CONSORT, STROBE, STARD)
-3. **Missing data handling** (all guidelines)
-4. **Blinding details** (CONSORT, STARD)
-5. **Funding and conflicts of interest** (all guidelines)
-6. **Ethics approval with committee name and approval number** (all guidelines)
-7. **Data availability statement** (increasingly required)
-8. **AI-specific: training/validation/test split details** (TRIPOD+AI, CLAIM, STARD-AI)
-9. **AI-specific: model architecture and hyperparameters** (TRIPOD+AI, CLAIM, STARD-AI)
-10. **AI-specific: failure mode analysis** (CLAIM, STARD-AI)
-11. **AI-specific: fairness/bias assessment** (STARD-AI)
-12. **AI-specific: commercial interests and data/code availability** (STARD-AI)
+2. **Registration / amendment date consistency** (PRISMA 2020, PRISMA-DTA, CONSORT, SPIRIT) — run Step 4c whenever a registration identifier is present
+3. **Sample size justification** (CONSORT, STROBE, STARD)
+4. **Missing data handling** (all guidelines)
+5. **Blinding details** (CONSORT, STARD)
+6. **Funding and conflicts of interest** (all guidelines)
+7. **Ethics approval with committee name and approval number** (all guidelines)
+8. **Data availability statement** (increasingly required)
+9. **AI-specific: training/validation/test split details** (TRIPOD+AI, CLAIM, STARD-AI)
+10. **AI-specific: model architecture and hyperparameters** (TRIPOD+AI, CLAIM, STARD-AI)
+11. **AI-specific: failure mode analysis** (CLAIM, STARD-AI)
+12. **AI-specific: fairness/bias assessment** (STARD-AI)
+13. **AI-specific: commercial interests and data/code availability** (STARD-AI)
 
 ---
 

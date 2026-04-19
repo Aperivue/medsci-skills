@@ -207,4 +207,4 @@ Stroke (AHA) is less appropriate for: purely interventional device / technical n
 
 ## Verification note
 
-Profile built 2026-04-19 from the Stroke author-instructions PDFs (7 files under `/Users/eugene/Downloads/stroke/`) supplied by the user. Article-type limits, AI policy, Vancouver 10-author rule, 90-day revision window, and Graphic Abstract requirement were transcribed directly from the supplied PDFs. ISSN verified against ISSN Portal (https://portal.issn.org/resource/ISSN/1524-4628) on 2026-04-19: print 0039-2499, online 1524-4628, ISSN-L 0039-2499, publisher Lippincott Williams & Wilkins.
+Profile built 2026-04-19 from the Stroke author-instructions PDF set (7 files). Article-type limits, AI policy, Vancouver 10-author rule, 90-day revision window, and Graphic Abstract requirement were transcribed directly from the source PDFs. ISSN verified against ISSN Portal (https://portal.issn.org/resource/ISSN/1524-4628) on 2026-04-19: print 0039-2499, online 1524-4628, ISSN-L 0039-2499, publisher Lippincott Williams & Wilkins.

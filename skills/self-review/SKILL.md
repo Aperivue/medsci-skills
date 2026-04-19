@@ -209,12 +209,12 @@ Internal consistency (Phase 2.5) is necessary but not sufficient. Numbers can be
 consistent across Abstract / Table / Text and still be wrong at the source — a single
 transcription error propagates cleanly through every downstream stage.
 
-**Precedent incident:**
-> CBCT Ablation MA-2 v4 stated "Du 2023 pneumothorax-requiring-drainage 3/45 vs 0/56,
-> p=0.085." Internal consistency passed because Abstract, Discussion, Table 4, and the R
-> script all said the same wrong thing. Primary Table 3 actually reported 0/45 vs 1/56,
-> p=0.37 — direction reversed. Caught only by an explicit second-pass audit with random
-> sampling against the primary papers.
+**Precedent failure pattern:**
+> A revision-era comparative meta-analysis reported a safety-outcome 2x2 with the
+> arm-level events direction-reversed relative to the primary-source Table. Internal
+> consistency passed because Abstract, Discussion, Table, and the R script all echoed
+> the same wrong values. The reversal was caught only by an explicit second-pass audit
+> that randomly sampled claims and traced each back to the primary paper.
 
 **When to run:** MA revisions, submissions, or any review where the user mentions "check
 against the source," "verify extraction," or "random sample."

@@ -1,8 +1,9 @@
 # TODO — Neurointervention / Cerebrovascular Journal Profiles
 
-**Created:** 2026-04-19
-**Context:** Paper ① FD Occlusion AI SR 작업 중 find-journal 프로파일 집합에서 뉴로인터벤션 및 인접 영역 주요 저널들이 누락되어 있음을 확인. JNIS는 즉시 추가 완료. 나머지는 별도 세션에서 일괄 추가.
-**Working dir for the session:** `/Users/eugene/workspace/medsci-skills/skills/find-journal/references/journal_profiles/`
+**Context:** During `/find-journal` use on a neurointerventional AI systematic review,
+the profile library was found to be missing several major neurointervention and adjacent-
+field journals. JNIS has since been added. The remaining entries below are pending.
+**Working dir for the session:** `skills/find-journal/references/journal_profiles/`
 
 ## Field Keywords (for Coverage Advisory)
 

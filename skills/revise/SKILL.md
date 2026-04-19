@@ -86,12 +86,12 @@ the locked extraction CSV. The resulting numbers then flow into the response let
 revised manuscript, and regenerated figures, and they can be internally consistent everywhere
 while still being wrong at the source.
 
-**Precedent incident — treat as a lived failure, not hypothetical:**
-> CBCT Ablation MA-2 R1 revision introduced a new `ma2_comparative_arm.R` script to respond
-> to a reviewer's comparative-analysis request. The Fisher exact matrix was hand-typed from
-> Du 2023 Table 3, with the CTCAE-Grade column misread as the event count. The script, the
-> revised manuscript, and Table 4 all converged on "3/45 vs 0/56, p=0.085" — direction
-> reversed from the actual "0/45 vs 1/56, p=0.37."
+**Precedent failure pattern — treat as a lived failure, not hypothetical:**
+> An R1 revision introduced a new comparative-arm analysis script to answer a reviewer
+> request. The Fisher exact matrix was hand-typed from the primary source Table, with an
+> adjacent severity-grade column misread as the event count. The script, the revised
+> manuscript, and an accompanying Table all converged on the same direction-reversed
+> numbers relative to what the primary source actually reported.
 
 **Non-negotiable actions when Step 2 flags any `/analyze-stats` re-run:**
 
@@ -104,8 +104,8 @@ while still being wrong at the source.
    hand entry is truly unavoidable (e.g., comparative-arm subset not present in the CSV), the
    line MUST carry a comment citing the CSV coordinate AND the primary-source Table/Figure:
    ```r
-   # source: data_extraction_final.csv row 23 (Du 2023 CBCT arm),
-   #         verified against Du 2023 Table 3 (Quant Imaging Med Surg 2023;13(9)), p.6
+   # source: data_extraction_final.csv row <N> (<first-author> <year>, <arm> only),
+   #         verified against <primary source> Table <X>, page <P>
    fisher.test(matrix(c(0, 45, 1, 55), nrow = 2, byrow = FALSE))
    ```
 

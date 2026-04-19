@@ -1,0 +1,8 @@
+# Exemplar metadata (YAML)
+label: "Nam2025_KJR_Fig10"
+figure_type: "pipeline"
+source_pdf: "/Users/eugene/Documents/1_Academic/0_Paper/2025 KJR.pdf"
+page: 17
+crop: [0.074, 0.075, 0.95, 0.474]
+dpi: 300
+doi: "10.3348/kjr.2025.0599"

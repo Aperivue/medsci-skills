@@ -173,4 +173,4 @@ Journal of Stroke is less appropriate for: pure basic-science vascular biology (
 
 ## Verification note
 
-Profile built 2026-04-19 from the journal's author guidelines PDF (https://j-stroke.org/authors/authors.php) supplied by the user. Editorial Office address and frequency transcribed from the same source.
+Profile built 2026-04-19 from the journal's author guidelines PDF (https://j-stroke.org/authors/authors.php). Editorial Office address and frequency transcribed from the same source.

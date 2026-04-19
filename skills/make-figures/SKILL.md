@@ -12,6 +12,15 @@ You are helping a medical researcher generate publication-ready figures for medi
 manuscripts. Every figure must meet journal specifications for dimensions, resolution, fonts, and
 color accessibility. Produce clean, data-focused visuals with no chartjunk.
 
+## Credits
+
+The Critic Loop (Step 4b) in this skill is inspired by PaperBanana (Zhu et al., *Automating
+Academic Illustration for AI Scientists*, arXiv:2601.23265, 2025) and by prior self-refinement
+research — Self-Refine (Madaan et al., 2023), Reflexion (Shinn et al., 2023), and Constitutional
+AI (Anthropic, 2022). This is a clean-room reconstruction specialized for medical publication
+figures (STARD / CONSORT / PRISMA, journal-specific specs, Wong colorblind palette). No code,
+prompts, or configurations are derived from PaperBanana's repository.
+
 ## Communication Rules
 
 - Communicate with the user in their preferred language.
@@ -214,6 +223,59 @@ Present the figure to the user and ask:
 
 Iterate until the user approves.
 
+### Step 4b: Critic Loop (self-critique before final export)
+
+Before Step 5 Export, run the automated Critic Loop. This is two stages —
+deterministic quantitative checks via Python, then qualitative review by
+Claude itself — and the combined output tells us whether to re-render or
+hand off to the user.
+
+**Stage 1: Quantitative checks (`critic_figure.py`)**
+
+```bash
+python ${CLAUDE_SKILL_DIR}/scripts/critic_figure.py \
+    figures/fig1_stard.png \
+    --type stard \
+    --spec-min-dpi 600 \
+    --spec-width-in 7.0 \
+    --source-text figures/fig1_stard.txt \   # optional: expected strings for OCR coverage
+    --out figures/fig1_stard.critique.json
+```
+
+This produces a JSON report covering:
+- DPI and physical width vs. journal spec
+- Dominant-color breakdown and out-of-Wong-palette fraction
+- OCR-detected word count, minimum text height, and (if a source-text file
+  was provided) source-word coverage
+
+**Stage 2: Qualitative review (Claude session)**
+
+1. Use the Read tool to load the generated PNG.
+2. Read the corresponding rubric file:
+   - Flow diagrams: `${CLAUDE_SKILL_DIR}/references/critic_rubrics/flow_diagram.md`
+   - Data plots:    `${CLAUDE_SKILL_DIR}/references/critic_rubrics/data_plot.md`
+3. If exemplars exist in `${CLAUDE_SKILL_DIR}/references/exemplar_diagrams/{type}/`,
+   Read 1–3 of them plus their `_why.md` notes.
+4. Score every rubric item as PASS / PARTIAL / FAIL with a one-line note,
+   using the format at the bottom of the rubric file.
+5. Emit a **"Required edits before next render"** list of concrete
+   source-code changes (D2 node renames, count corrections, matplotlib
+   parameter tweaks).
+
+**Refinement loop**
+
+- If all items are PASS → proceed to Step 5 Export with `critic_pass: yes`.
+- If any item is FAIL → apply the required edits to the source (D2 file or
+  matplotlib script), re-render, and re-run Stage 1 + Stage 2. Default
+  maximum is **T=2 rounds**; the user may request up to T=3.
+- If after the max rounds some items remain PARTIAL, proceed with
+  `critic_pass: partial` and record the residual items in the manifest's
+  `critic_notes` field.
+
+Record the final state in `_figure_manifest.md` (see the manifest format
+below) so downstream steps (`/write-paper` Phase 2 embedding and Phase 7
+DOCX build) and future critic passes can see the history.
+
 ### Step 5: Export
 
 Save final outputs:
@@ -260,18 +322,28 @@ After generating all figures, create a structured manifest file at `figures/_fig
 Generated: {YYYY-MM-DD}
 Study type: {study type or "custom"}
 
-| Figure | Path | Type | Tool | Description |
-|--------|------|------|------|-------------|
-| Figure 1 | figures/fig1_stard_flow.svg | flow-diagram | D2 | STARD participant flow diagram |
-| Figure 2 | figures/fig2_roc.pdf | roc-curve | matplotlib | ROC curves for Model A vs B |
-| Figure 3 | figures/fig3_calibration.pdf | calibration | matplotlib | Calibration plot with Hosmer-Lemeshow |
+| Figure | Path | Type | Tool | Critic | Rounds | Description |
+|--------|------|------|------|--------|--------|-------------|
+| Figure 1 | figures/fig1_stard_flow.svg | flow-diagram | D2 | yes | 2 | STARD participant flow diagram |
+| Figure 2 | figures/fig2_roc.pdf | roc-curve | matplotlib | yes | 1 | ROC curves for Model A vs B |
+| Figure 3 | figures/fig3_calibration.pdf | calibration | matplotlib | partial | 3 | Calibration plot; legend still crowded (see notes) |
+
+## Critic notes
+- Figure 3: after 3 rounds, legend placement remains crowded at the
+  double-column width. Candidate remediations documented but not applied
+  to avoid reducing data-point visibility.
 ```
 
 **Manifest field definitions:**
 - **Path**: Relative path from project root
 - **Type**: One of: `flow-diagram`, `roc-curve`, `forest-plot`, `funnel-plot`, `calibration`, `km-curve`, `bland-altman`, `confusion-matrix`, `box-violin`, `bar-chart`, `heatmap`, `pipeline`, `visual-abstract`, `sroc-curve`, `other`
 - **Tool**: Tool used to generate (`matplotlib`, `D2`, `python-pptx`, `seaborn`, etc.)
+- **Critic**: `yes` (all rubric items PASS) / `partial` (some PARTIAL after max rounds) / `no` (never critiqued — avoid for submission figures) / `skip` (deliberately bypassed, e.g., panel figure assembled externally)
+- **Rounds**: Number of Critic Loop rounds executed (0 if skipped)
 - **Description**: One-line description suitable for figure legend context
+
+A `## Critic notes` section at the bottom of the manifest records any
+residual PARTIAL items and the rationale for accepting them.
 
 This manifest is consumed by `/write-paper` Phase 2 (figure embedding) and Phase 7 (DOCX build). It **MUST** exist after figure generation completes. Verify the file is non-empty before finishing.
 
