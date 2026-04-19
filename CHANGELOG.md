@@ -1,5 +1,47 @@
 # Changelog
 
+## [2.3.0] - 2026-04-19
+
+### Added — Numerical Hallucination Prevention Layer
+
+A real incident during a revision run exposed that the citation-safety pipeline did not have
+a symmetric counterpart for numerical claims. Citations were verified end-to-end against
+PubMed (0 fabricated refs), while a hand-typed `matrix()` in a revision-era R script silently
+reversed a Fisher exact 2x2 ("3/45 vs 0/56, p=0.085" where the source said "0/45 vs 1/56,
+p=0.37"). Every internal consistency check passed because every artifact echoed the same
+wrong number. Detection required an explicitly requested second-pass audit with random
+sampling against the primary paper.
+
+To close that gap, four skills now enforce a common 3-layer (CSV ↔ analysis script ↔
+manuscript) audit, with additional back-checking against the primary paper for revisions and
+pooled estimates:
+
+- **`/meta-analysis` Phase 6b — Post-Analysis Source Fidelity Audit (new).** After Phase 6
+  statistical synthesis, mandates no hand-typed numerical matrices when a CSV exists,
+  separate consensus-log rows for comparative-arm subsets, and a random 3-claim back-check
+  (manuscript → R output → primary-source Table/Figure) before advancing to GRADE. A single
+  mismatch is a P0 blocker.
+- **`/self-review` Phase 2.5a — Numerical Source-Fidelity Audit (new).** Complements the
+  existing Phase 2.5 internal consistency check with external validation: stratified random
+  sampling of 5 claims, 3-layer traversal (manuscript ↔ CSV ↔ primary paper), and escalation
+  of any mismatch to Major Comment. Revision-introduced numbers and comparative-arm specific
+  values are the two highest-yield strata and are always sampled.
+- **`/revise` Step 2.5 — Revision Numerical Lineage Check (new).** Any `/analyze-stats`
+  re-run during revision must tag new numerical claims with `[VERIFY-CSV]`, read inputs from
+  the locked extraction CSV, and maintain a response-document audit table that maps each new
+  number to its source script:line + CSV coordinate + primary-source location. Prose
+  generation is gated on the audit clearing.
+- **`/write-paper` Step 7.3a — Numerical Claim Audit (new).** Sits alongside the existing
+  citation verification step. Triggered whenever the manuscript contains pooled estimates,
+  comparative-arm values, `[VERIFY-CSV]` tags, or is a post-v1 revision. Greps all analysis
+  scripts for hand-typed numerical literals without CSV-coordinate comments and flags them
+  as structural risks regardless of current correctness.
+
+All four skills cite the CBCT Ablation MA-2 Du 2023 incident as precedent to make the
+failure mode concrete rather than abstract. Complementary companion rules were added to
+`~/.claude/rules/data-integrity.md` and a new `~/.claude/rules/numerical-safety.md` so the
+gates trigger even in non-skill workflows.
+
 ## [2.2.1] - 2026-04-18
 
 ### Added

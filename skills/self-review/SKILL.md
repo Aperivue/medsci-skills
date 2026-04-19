@@ -191,7 +191,7 @@ publication bias (funnel plot, Egger), and sensitivity/subgroup analyses.
 - **Case reports**: Diagnostic reasoning transparency, timeline completeness, informed consent, generalizability disclaimer
 - **Surgical studies**: Learning curve consideration, surgeon volume/experience, complication grading (Clavien-Dindo), operative detail completeness
 
-### Phase 2.5: Numerical Cross-Verification
+### Phase 2.5: Numerical Cross-Verification (Internal)
 
 Before generating the report, verify internal consistency:
 
@@ -202,6 +202,63 @@ Before generating the report, verify internal consistency:
 5. **CI plausibility**: Do confidence intervals seem reasonable given sample sizes?
 
 Flag any discrepancies as Anticipated Minor Comments (category: F. Reporting Completeness).
+
+### Phase 2.5a: Numerical Source-Fidelity Audit (External)
+
+Internal consistency (Phase 2.5) is necessary but not sufficient. Numbers can be fully self-
+consistent across Abstract / Table / Text and still be wrong at the source — a single
+transcription error propagates cleanly through every downstream stage.
+
+**Precedent incident:**
+> CBCT Ablation MA-2 v4 stated "Du 2023 pneumothorax-requiring-drainage 3/45 vs 0/56,
+> p=0.085." Internal consistency passed because Abstract, Discussion, Table 4, and the R
+> script all said the same wrong thing. Primary Table 3 actually reported 0/45 vs 1/56,
+> p=0.37 — direction reversed. Caught only by an explicit second-pass audit with random
+> sampling against the primary papers.
+
+**When to run:** MA revisions, submissions, or any review where the user mentions "check
+against the source," "verify extraction," or "random sample."
+
+**Inputs the reviewer should expect:**
+- `manuscript.md` (or .docx converted to .md)
+- `extraction_final.csv` (or equivalent data-extraction spreadsheet)
+- A directory of primary-source PDFs (or equivalent accessible text)
+
+**Procedure:**
+
+1. **Inventory numerical claims** in Abstract, Results, and Discussion (patterns: `\\d+/\\d+`,
+   `\\d+\\.\\d+%`, `(95% CI:`, `p\\s*=\\s*0\\.`, `I\\^2`, `n\\s*=`, etc.).
+
+2. **Stratified random sample** — draw 5 claims across: (a) pooled estimates, (b) subgroup
+   / sensitivity results, (c) comparative-arm specific values, (d) study-level numbers
+   (first-cited in narrative), (e) a claim introduced during revision if the draft is post-v1.
+   Comparative-arm specific values and revision-introduced numbers are the two highest-
+   yield strata — always include one of each.
+
+3. **For each sampled claim, traverse 3 layers:**
+   - **Layer 1 (Manuscript → CSV):** Find the row / column in the extraction CSV.
+   - **Layer 2 (CSV → Primary source):** Locate the exact Table, Figure, or paragraph in the
+     original paper. Record page number.
+   - **Layer 3 (Analysis script → CSV):** If the claim came from an analysis script, read the
+     script and confirm its input value matches the CSV cell.
+
+4. **Record results in a table** and append to the report:
+
+   | Claim (manuscript location) | CSV row/col | Primary source (paper, Table/Fig, page) | Script input | Match? |
+   |---|---|---|---|---|
+
+5. **Any mismatch is a Major Comment (M-level), not Minor.** Mismatches that reverse a
+   direction or change a significance boundary are P0 blockers for submission.
+
+**Revision-specific rule:** If the manuscript contains `[VERIFY-CSV]` tags, treat each as a
+mandatory audit item regardless of the sampling size. The tag exists precisely because that
+number was introduced after the initial extraction pass and has not yet been independently
+checked.
+
+**Hand-entered analysis-script inputs are a code smell.** When Layer 3 reveals a `matrix(...)`,
+`c(1, 2, 3)`, or `data.frame(...)` line with numerical data and no CSV-coordinate comment,
+escalate to a Major Comment even if the audited values happen to match — the next revision
+will re-introduce the same risk.
 
 ### Phase 3: Report
 

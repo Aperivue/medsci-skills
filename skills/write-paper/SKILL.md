@@ -336,6 +336,57 @@ Call `/check-reporting` on `manuscript/manuscript.md`. Parse the output:
 
 Call `/search-lit --verify-only` to verify all citations in the manuscript are real and correctly formatted. Flag any unverified references with `[UNVERIFIED]` markers.
 
+#### Step 7.3a: Numerical Claim Audit (MANDATORY for MA / pooled estimates / comparative arms)
+
+Citation verification protects against fabricated references; this step protects against
+fabricated numbers. They are different failure modes and Step 7.3 does not catch the latter.
+
+**Precedent incident:**
+> CBCT Ablation MA-2 v4 reached Step 7.3 with 0/10 citation errors (all 10 PMIDs verified
+> against PubMed). It also carried a silent numerical reversal — "Du 2023 pneumothorax-
+> requiring-drainage 3/45 vs 0/56" where the primary source says "0/45 vs 1/56," direction
+> flipped. The error originated in a hand-typed Fisher-exact matrix in a revision-era
+> analysis script, and internal consistency checks (Phase 2.5 of `/self-review`) passed
+> cleanly because every downstream artifact echoed the same wrong number.
+
+**Trigger conditions:** any of the following makes this step mandatory before Step 7.4.
+- The manuscript contains pooled estimates, forest plots, or a meta-analysis Table.
+- The manuscript contains comparative-arm specific values extracted from a larger study.
+- The manuscript contains any `[VERIFY-CSV]` tag (from `/revise` Step 2.5 or `/meta-analysis`
+  Phase 6b).
+- The current draft is a revision (post-v1).
+
+**Procedure:**
+
+1. **3-way matching.** For every pooled estimate, subgroup result, and Table value, establish
+   that the text ↔ Table (`analysis/tables/*.csv`) ↔ extraction CSV (`data_extraction_*.csv`)
+   triplet agrees. Random-sample 5 claims if the full set is large.
+
+2. **Primary-source back-check.** For each sampled claim, locate the original paper's Table
+   or Figure coordinate and confirm the value. Record page number.
+
+3. **Analysis-script audit.** Grep all `.R` / `.py` scripts for `matrix(`, `c(`, `data.frame(`,
+   and `fisher.test(`. Any numerical literal without a CSV-coordinate comment is flagged —
+   even if the value happens to be right. Hand-typed numerical literals are a structural risk,
+   not a cosmetic issue.
+
+4. **Tag removal.** Every `[VERIFY-CSV]` tag may be removed only after that specific value
+   has been confirmed in steps 1–3. Record the removal in `qc/_pipeline_log.md`:
+   ```
+   ## Numerical Claim Audit (Phase 7.3a)
+   - [VERIFY-CSV] tags cleared: {N}/{N}
+   - 3-way mismatches found: {count}
+   - Hand-typed script literals without CSV comment: {count}
+   - Primary-source disagreements: {count}  ← P0 blocker if >0
+   ```
+
+5. **Blocker policy.** A direction reversal or a significance-boundary crossing (p<0.05 ↔
+   p≥0.05) is a P0 blocker — halt Step 7.4 and alert the user. Other mismatches are P1 and
+   must be fixed before Step 7.6 DOCX build.
+
+This step composes with — not replaces — `/self-review` Phase 2.5a. Run it here for pipeline
+completeness even when `/self-review` is also invoked.
+
 #### Step 7.4: Self-Review + Fix Loop
 
 Call `/self-review --json --fix` on the current `manuscript/manuscript.md`.

@@ -387,6 +387,56 @@ Key points:
   metrics, I-squared) from interpretation. Present numbers first in a "Statistical Results"
   block, then interpretation guidance in a separate "Interpretation Notes" block.
 
+### Phase 6b: Post-Analysis Source Fidelity Audit (MANDATORY)
+
+**Goal**: Catch numerical hallucinations that survived the forward pipeline (CSV → .R → manuscript).
+
+**Precedent incident** — treat this as a near-miss, not hypothetical:
+> CBCT Ablation MA-2 (2026-04-19) stated "Du 2023 pneumothorax-requiring-drainage 3/45 CBCT
+> vs 0/56 CT, p=0.085." Actual Table 3 values were "0/45 CBCT vs 1/56 CT, p=0.37" — direction
+> reversed. CSV was correct; the R script's Fisher exact `matrix()` was hand-typed after
+> misreading the CTCAE-Grade column. Internal consistency passed; source fidelity was never
+> checked. Caught on a second-pass peer review the user explicitly requested with random
+> extraction sampling.
+
+**Non-negotiable rules:**
+
+1. **No hand-typed numerical matrices when a CSV exists.**
+   - Use `read.csv(...)` + subset / filter. Never copy a 2x2 table from a paper's Table into
+     `matrix(c(...), ...)` by eye.
+   - If hand entry is truly unavoidable (e.g., text-only extraction), the `matrix`, `c()`, or
+     `data.frame` line MUST carry a comment citing the exact CSV row + column OR the exact
+     primary-source Table/Page coordinate. Example:
+     ```r
+     # source: data_extraction_final.csv row 23 (Du 2023), cols PTX_drain_CBCT=0, PTX_drain_cCT=1
+     fisher.test(matrix(c(0, 45, 1, 55), nrow = 2, byrow = FALSE))
+     ```
+
+2. **Comparative-arm subsets are a separate consensus-log row.**
+   - When one study (e.g., Du 2023 CBCT arm only) is used in a comparative analysis while the
+     full cohort appears elsewhere, `extraction_consensus_log.md` must carry an explicit row
+     for the arm-specific values. Pooled totals and arm-specific values MUST NOT share a row.
+
+3. **Random 3-claim back-check before closing Phase 6.**
+   - After the forest/funnel/subgroup outputs stabilize, randomly sample 3 numerical claims
+     from the Results section of the draft manuscript and trace each back to (a) the R output
+     log and (b) the original paper's Table/Figure.
+   - Record the back-check as a small table in `peer_review_<vN>_internal.md`:
+
+     | Claim (manuscript line) | R output file:line | Primary source (paper, Table/Fig, page) | Match? |
+     |---|---|---|---|
+
+   - A single mismatch is a P0 blocker — do not advance to Phase 7 until resolved.
+
+4. **Revision-introduced numbers must be tagged.**
+   - Any new number added after v1 — including numbers produced by a new comparative / subgroup /
+     sensitivity script — MUST be wrapped inline as `[VERIFY-CSV]` in the manuscript until the
+     Phase 2.5a audit in `/self-review` clears it.
+
+**When this phase triggers:** every time Phase 6 outputs change (first draft, revision, reviewer-
+requested re-analysis). Not optional on "minor" re-runs — the Du 2023 error occurred on a
+"minor" revision analysis.
+
 ### Phase 7: GRADE / Certainty of Evidence
 
 **Goal**: Assess certainty of the body of evidence.

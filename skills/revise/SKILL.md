@@ -77,6 +77,59 @@ Output: "The following comments require statistical analysis before responses ca
 
 ---
 
+## Step 2.5: Revision Numerical Lineage Check (MANDATORY)
+
+Revision-time is the highest-risk moment for numerical hallucinations. A new analysis script
+written to satisfy a reviewer — typically a comparative arm, a subgroup, or a sensitivity
+check — frequently hand-enters values copied by eye from the original paper's tables, bypassing
+the locked extraction CSV. The resulting numbers then flow into the response letter, the
+revised manuscript, and regenerated figures, and they can be internally consistent everywhere
+while still being wrong at the source.
+
+**Precedent incident — treat as a lived failure, not hypothetical:**
+> CBCT Ablation MA-2 R1 revision introduced a new `ma2_comparative_arm.R` script to respond
+> to a reviewer's comparative-analysis request. The Fisher exact matrix was hand-typed from
+> Du 2023 Table 3, with the CTCAE-Grade column misread as the event count. The script, the
+> revised manuscript, and Table 4 all converged on "3/45 vs 0/56, p=0.085" — direction
+> reversed from the actual "0/45 vs 1/56, p=0.37."
+
+**Non-negotiable actions when Step 2 flags any `/analyze-stats` re-run:**
+
+1. **Tag every new numerical claim with `[VERIFY-CSV]`** as it is written into the revised
+   manuscript, response letter, or new table. The tag is a tripwire — it only comes off at
+   Step 7 (Final Verification) after explicit CSV + primary-source back-check.
+
+2. **New analysis scripts must read from the locked extraction CSV.** Hand-typed `matrix()`,
+   `c(...)`, or `data.frame(...)` numerical inputs are PROHIBITED when a CSV row exists. If
+   hand entry is truly unavoidable (e.g., comparative-arm subset not present in the CSV), the
+   line MUST carry a comment citing the CSV coordinate AND the primary-source Table/Figure:
+   ```r
+   # source: data_extraction_final.csv row 23 (Du 2023 CBCT arm),
+   #         verified against Du 2023 Table 3 (Quant Imaging Med Surg 2023;13(9)), p.6
+   fisher.test(matrix(c(0, 45, 1, 55), nrow = 2, byrow = FALSE))
+   ```
+
+3. **Comparative / arm-specific values must enter `extraction_consensus_log.md` as separate
+   rows** before the analysis script references them. Do not let a new script invent values
+   that never passed through the dual-extraction consensus layer.
+
+4. **Revision-time numerical audit table** — maintain this inside the response document draft
+   and copy into the final change log:
+
+   | New claim (response + manuscript location) | Source script:line | CSV row/col | Primary source (Table/Fig, page) | Match? |
+   |---|---|---|---|---|
+
+5. **Gate before Step 3** — do not generate response prose for a MAJOR comment whose new
+   numbers have not yet cleared this check. Prose written around un-audited numbers is very
+   hard to unwind cleanly after a mismatch is found.
+
+**Why this matters for reviewer politics:** a numerical reversal caught by the reviewer in R2
+is far more damaging than the same error caught internally in R1 — it implies extraction
+integrity problems to the editor and licenses deeper scrutiny of the rest of the data. Treat
+Step 2.5 as a reputation-preservation gate, not just a QC step.
+
+---
+
 ## Step 3: Generate Response to Reviewers Document
 
 **Output location:** `revision/R[N]/response_to_reviewers_R[N].md`

@@ -263,11 +263,18 @@ After copying, restart Claude Code. Skills are automatically discovered from `~/
 
 ## Key Features
 
-### Autonomous E2E Pipeline (v2.2)
-`orchestrate --e2e` or `write-paper --autonomous` runs the full pipeline from data to submission-ready DOCX with zero human intervention. Skills pass outputs via structured manifests (`_analysis_outputs.md`, `_figure_manifest.md`) with post-skill validation: if a skill fails to produce expected outputs, the pipeline halts rather than proceeding with missing data. Phase 7 enforces a strict QC chain: AI pattern removal → reporting compliance check → citation verification → self-review with auto-fix (max 2 iterations) → DOCX build with embedded figures and tables.
+### Autonomous E2E Pipeline (v2.3)
+`orchestrate --e2e` or `write-paper --autonomous` runs the full pipeline from data to submission-ready DOCX with zero human intervention. Skills pass outputs via structured manifests (`_analysis_outputs.md`, `_figure_manifest.md`) with post-skill validation: if a skill fails to produce expected outputs, the pipeline halts rather than proceeding with missing data. Phase 7 enforces a strict QC chain: AI pattern removal → reporting compliance check → citation verification → numerical claim audit (new in v2.3) → self-review with auto-fix (max 2 iterations) → DOCX build with embedded figures and tables.
 
 ### Anti-Hallucination Citations
 Every reference produced by `search-lit` is verified against PubMed, Semantic Scholar, or CrossRef APIs. No citation is ever generated from memory alone. API errors are batched silently -- no token waste from repeated failure messages.
+
+### Anti-Hallucination Numerical Claims (v2.3)
+`/meta-analysis` Phase 6b, `/self-review` Phase 2.5a, `/revise` Step 2.5, and `/write-paper`
+Step 7.3a enforce a common 3-layer audit (CSV ↔ analysis script ↔ manuscript) with primary-
+source back-checking for pooled estimates and revision-era numbers. Hand-typed numerical
+matrices without CSV-coordinate comments are flagged as structural risks even when the values
+are currently correct, since the next revision will re-introduce the same failure mode.
 
 ### 33 Reporting Guidelines & RoB Tools Built-in
 `check-reporting` includes bundled checklists for 33 guidelines and risk-of-bias tools: STROBE, STARD, STARD-AI, TRIPOD, TRIPOD+AI, PRISMA 2020, PRISMA-DTA, PRISMA-P, MOOSE, ARRIVE, CONSORT, CARE, SPIRIT, CLAIM, SQUIRE 2.0, CLEAR, GRRAS, MI-CLEAR-LLM, SWiM, AMSTAR 2, QUADAS-2, QUADAS-C, RoB 2, ROBINS-I, ROBINS-E, ROBIS, ROB-ME, PROBAST, PROBAST+AI, NOS, COSMIN, RoB NMA. Includes Results/Discussion section boundary checks and machine-readable JSON summary for pipeline integration.
