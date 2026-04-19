@@ -12,15 +12,17 @@
 - `JAMA_Neurology.md`
 - `Neurology.md`
 - `JNIS.md` ✅ **추가 완료 2026-04-19** (Journal of NeuroInterventional Surgery, BMJ/SNIS)
+- `Journal_of_Stroke.md` ✅ **추가 완료 2026-04-19** (Korean Stroke Society, Full OA no APC)
+
+## Private (ISSN 공개소스 확보 후 승격 예정)
+- `Stroke.md` (AHA/ASA) — 2026-04-19 사용자 제공 PDF 7종 기반으로 프로파일 본문 완성. ISSN 부재 → `$HOME/.claude/private-journal-profiles/{find-journal,write-paper}/Stroke.md`에 저장. 사용자 ISSN 확인 시 공개 라이브러리로 이동.
 
 ## 추가 필요 — Tier 1 (핵심 뉴로인터벤션/뇌혈관)
 Priority order:
 
-1. **Stroke** (AHA/ASA) — Q1, IF~8. Acute stroke·interventional·imaging 전 범위. Scope keywords: stroke, thrombectomy, cerebrovascular, intracranial hemorrhage, brain imaging stroke, recanalization.
-2. **Stroke: Vascular and Interventional Neurology (SVIN)** (AHA) — 최근 창간 (2021), OA. 순수 뇌혈관 intervention 전문. Scope: neurointervention, mechanical thrombectomy, aneurysm intervention, AVM.
-3. **Journal of Stroke** (Korean Stroke Society) — Q1, 아시아 주도 뇌졸중 저널. OA.
-4. **International Journal of Stroke (IJS)** (SAGE, World Stroke Organization) — Q1. Global stroke research·clinical trials.
-5. **Cerebrovascular Diseases** (Karger) — Q2. Cerebrovascular 전반, diagnostic + interventional.
+1. **Stroke: Vascular and Interventional Neurology (SVIN)** (AHA) — 최근 창간 (2021), OA. 순수 뇌혈관 intervention 전문. Scope: neurointervention, mechanical thrombectomy, aneurysm intervention, AVM.
+2. **International Journal of Stroke (IJS)** (SAGE, World Stroke Organization) — Q1. Global stroke research·clinical trials.
+3. **Cerebrovascular Diseases** (Karger) — Q2. Cerebrovascular 전반, diagnostic + interventional.
 
 ## 추가 필요 — Tier 2 (신경외과 / 뇌신경 수술)
 6. **Neurosurgery** (Congress of Neurological Surgeons, Wolters Kluwer) — Q1. Aneurysm surgery·endovascular·AVM.

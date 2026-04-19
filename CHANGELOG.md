@@ -1,5 +1,14 @@
 # Changelog
 
+## [Unreleased]
+
+### Added — Verified neurointervention/cerebrovascular journal profiles
+
+- **JNIS (Journal of NeuroInterventional Surgery)** — compact + detail profiles built from user-supplied author-guidelines PDF (BMJ, SNIS). Covers double-anonymised review, ORCID mandate, BMJ Tier 3 data-sharing policy, Key Messages box requirement, AI policy aligned with BMJ/ICMJE.
+- **Journal of Stroke** (Korean Stroke Society) — compact + detail profiles from user-supplied author-guidelines PDF. Full OA CC BY-NC 4.0 with no APC; Vancouver numbered references; structured 250-word abstract for Original Articles; mRS/mTICI/sICH definition requirements; AI policy defaults to ICMJE/WAME (no explicit journal-specific text).
+
+Both profiles follow the two-tier public-library format already established by `INSI.md` and include a verification note citing the 2026-04-19 user-supplied PDF as source.
+
 ## [2.3.0] - 2026-04-19
 
 ### Added — Numerical Hallucination Prevention Layer
