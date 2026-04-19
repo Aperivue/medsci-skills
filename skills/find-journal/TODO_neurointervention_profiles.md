@@ -13,9 +13,7 @@
 - `Neurology.md`
 - `JNIS.md` ✅ **추가 완료 2026-04-19** (Journal of NeuroInterventional Surgery, BMJ/SNIS)
 - `Journal_of_Stroke.md` ✅ **추가 완료 2026-04-19** (Korean Stroke Society, Full OA no APC)
-
-## Private (ISSN 공개소스 확보 후 승격 예정)
-- `Stroke.md` (AHA/ASA) — 2026-04-19 사용자 제공 PDF 7종 기반으로 프로파일 본문 완성. ISSN 부재 → `$HOME/.claude/private-journal-profiles/{find-journal,write-paper}/Stroke.md`에 저장. 사용자 ISSN 확인 시 공개 라이브러리로 이동.
+- `Stroke.md` ✅ **추가 완료 2026-04-19** (AHA/ASA; ISSN portal.issn.org 검증 후 private→public 승격)
 
 ## 추가 필요 — Tier 1 (핵심 뉴로인터벤션/뇌혈관)
 Priority order:
