@@ -99,21 +99,26 @@ When the user's request arrives, classify it into one of these intents:
 
 ### Multi-skill workflows (plan then execute sequentially)
 
-| Scenario | Skill chain |
-|----------|-------------|
-| **New project, no prior work** | `intake-project` -> `search-lit` -> `design-study` -> `manage-project init` |
-| **Data ready, need a paper** | `manage-project init` -> `analyze-stats` -> `make-figures` -> `write-paper` |
-| **Draft exists, prepare for submission** | `self-review` -> `check-reporting` -> `search-lit` (verify refs) -> `manage-project checklist` |
-| **Reviewer comments received** | `revise` -> `analyze-stats` (if new analyses needed) -> `make-figures` (if new figures needed) |
-| **Meta-analysis from scratch** | `search-lit` -> `fulltext-retrieval` -> `meta-analysis` (handles its own pipeline internally) |
-| **Grant writing** | `search-lit` -> `grant-builder` |
-| **Conference presentation** | `present-paper` (handles its own pipeline internally) |
-| **New study, need IRB protocol** | `search-lit` -> `design-study` -> `calc-sample-size` -> `write-protocol` |
-| **Data with PHI, need full pipeline** | `deidentify` -> `clean-data` -> `analyze-stats` -> `make-figures` -> `write-paper` |
-| **Data ready, need cleaning first** | `clean-data` -> `analyze-stats` -> `make-figures` -> `write-paper` |
-| **Full submission chain** | `write-paper` -> `self-review` -> `check-reporting` -> `find-journal` -> `write-paper` (Phase 8+ cover letter) -> `manage-project checklist` |
-| **Post-rejection resubmission** | `find-journal` (exclude rejected journal) -> `write-paper` (Phase 8+ new cover letter) |
-| **Case report pipeline** | `search-lit` (similar cases) -> `write-paper` (case-report mode) -> `self-review` -> `check-reporting` (CARE) -> `find-journal` |
+The **Nodes** column lists decision forks that should be rendered in interactive mode
+(see Workflow Execution — Dialogue Protocol). Nodes are numbered N1 – N9 per
+`${SKILL_DIR}/references/dialogue_nodes.md`.
+
+| Scenario | Skill chain | Nodes |
+|----------|-------------|-------|
+| **New project, no prior work** | `intake-project` -> `search-lit` -> `design-study` -> `manage-project init` | N1, N2 (if user wants manuscript output), N3 |
+| **Data ready, need a paper** | `manage-project init` -> `analyze-stats` -> `make-figures` -> `write-paper` | N6 (PHI gate), N3, N4 (journal timing), N2 |
+| **Draft exists, prepare for submission** | `self-review` -> `check-reporting` -> `search-lit` (verify refs) -> `humanize` -> `academic-aio` (opt-in `--aio`) -> `manage-project checklist` | N4 (if not yet locked), N8 (only if self-review returns fatal) |
+| **Medical-AI paper, AI-search visibility pass** | `self-review` -> `humanize` -> `academic-aio` (title, abstract, summary box, README / CITATION.cff / HF card) | N4, N9 (section entry for re-edit scope) |
+| **Reviewer comments received** | `revise` -> `analyze-stats` (if new analyses needed) -> `make-figures` (if new figures needed) | N1 |
+| **Meta-analysis from scratch** | `search-lit` -> `fulltext-retrieval` -> `meta-analysis` (handles its own pipeline internally) | N2 (MA type), N5 (synthesis scope) |
+| **Grant writing** | `search-lit` -> `grant-builder` | N2 (option 5) |
+| **Conference presentation** | `present-paper` (handles its own pipeline internally) | N1 |
+| **New study, need IRB protocol** | `search-lit` -> `design-study` -> `calc-sample-size` -> `write-protocol` | N3, N2 (option 4 — protocol) |
+| **Data with PHI, need full pipeline** | `deidentify` -> `clean-data` -> `analyze-stats` -> `make-figures` -> `write-paper` | N6 (mandatory), N3, N4 |
+| **Data ready, need cleaning first** | `clean-data` -> `analyze-stats` -> `make-figures` -> `write-paper` | N6, N3, N4 |
+| **Full submission chain** | `write-paper` -> `self-review` -> `check-reporting` -> `find-journal` -> `write-paper` (Phase 8+ cover letter) -> `manage-project checklist` | N4, N8 (if recovery triggered), N9 (on re-entry) |
+| **Post-rejection resubmission** | `find-journal` (exclude rejected journal) -> `write-paper` (Phase 8+ new cover letter) | N4 |
+| **Case report pipeline** | `search-lit` (similar cases) -> `write-paper` (case-report mode) -> `self-review` -> `check-reporting` (CARE) -> `find-journal` | N2 (option 2), N4 |
 
 ### Ambiguous requests (ask before routing)
 
@@ -125,15 +130,45 @@ at a time. Examples:
 
 ---
 
-## Workflow Execution
+## Workflow Execution — Dialogue Protocol (interactive default)
 
-When running a multi-skill chain:
+Multi-skill orchestration uses an RPG-style decision-node protocol. At each major fork,
+render a decision node (context, numbered options, per-option `unlocks` / `locks` /
+`recovery_cost`), wait for the user to pick a number, then proceed. This replaces the
+older "announce plan → shall I proceed?" pattern and prevents silent commitment to
+paper type, study design, target journal, or recovery branch.
 
-1. **Announce the plan.** Show the user the sequence of skills you'll invoke and why.
-2. **Confirm before starting.** Wait for user approval.
-3. **Execute one skill at a time.** After each skill completes, briefly report the outcome.
-4. **Adapt.** If a skill's output changes the plan (e.g., self-review reveals major issues), update the remaining steps.
-5. **Do not skip skills silently.** If you decide a step is unnecessary, say so and explain why.
+**When to load the node reference.** Load `${SKILL_DIR}/references/dialogue_nodes.md`
+the first time the pipeline enters a decision fork in the current session. The
+reference lists 9 primary nodes (N1 entry classification, N2 paper type, N3 study
+design, N4 journal timing, N5 MA synthesis scope, N6 PHI gate, N7 autonomy flag,
+N8 audit recovery branch, N9 section entry point) with rendering templates and
+autonomous defaults. In `--autonomous` / `--e2e` mode do not load this reference —
+apply each node's default and log the choice to `qc/_pipeline_log.md`.
+
+**Per-fork execution sequence:**
+
+1. **Identify the node** that fits the current fork (see the Multi-Skill Workflows
+   table below for the scenario → node mapping).
+2. **Render the node** using the template in `dialogue_nodes.md` §"Rendering Template".
+   Keep the rendering under ~15 lines; surface `unlocks` / `locks` / `recovery_cost`
+   for each option; announce the autonomous default.
+3. **Wait for a numeric choice** (`1` / `2` / ...) or a control word (`back`, `pause`,
+   `skip`). One node at a time — never stack two nodes in the same turn.
+4. **Echo the lock.** Before invoking the downstream skill, confirm in one line what the
+   choice commits ("Locking: CARE reporting guideline; abstract = structured 250w.").
+5. **Invoke the downstream skill** matching the chosen option, then return to step 1
+   for the next fork or continue the chain.
+6. **Adapt on skill output.** If a skill's result invalidates a prior lock (e.g.,
+   `/self-review` surfaces a Step 7.4a trigger), route to the relevant recovery node
+   (N8) rather than continuing the current chain.
+
+**One-question rule.** Never ask two clarifying questions in one turn. If the orchestrator
+has no good inference, render the corresponding node and let the user pick.
+
+**Interrupt-safe.** `back` re-enters the previous node. `pause` halts the pipeline and
+returns control to the user. `skip` is only allowed for nodes whose `locks` scope
+is empty (rare) — otherwise the orchestrator explains why skipping is not available.
 
 ---
 
@@ -147,11 +182,29 @@ When `--e2e` is passed (or the user says "end-to-end", "Arm A", or "fully autono
 1. Set `--e2e` mode ON.
 2. Pass `--autonomous` to `/write-paper` when invoking it.
 3. Pass `--json` to `/self-review` and `/check-reporting` when invoking them.
-4. Skip all orchestrator-level confirmations ("Shall I proceed?").
-5. DO still respect data-safety gates (PHI Safety Gate).
-6. After each skill completes, run post-skill validation (see below).
+4. Skip all orchestrator-level confirmations ("Shall I proceed?") and do NOT render any
+   Dialogue Protocol nodes.
+5. For each node the pipeline would have rendered interactively, apply the node's
+   `default` and log the choice to `qc/_pipeline_log.md` as:
+   `[orchestrate] N{id}: defaulted to option {n} ({label}) — {autonomous_rationale}`.
+6. DO still respect data-safety gates (PHI Safety Gate / node N6): if PHI status is
+   unknown, HALT the autonomous run with a single prompt. PHI is the only node that
+   can interrupt autonomous mode.
+7. Audit Recovery (node N8): auto-invoke the routed recovery skill. If the route itself
+   fails validation twice, HALT with `RECOVERY_HALT_HUMAN_DECISION` in the log.
+8. AIO (academic-aio) is OFF by default in `--e2e`: AI-search-engine visibility work
+   is a pre-submission, not a pre-draft, concern — running it on every autonomous
+   iteration would be wasted tokens and would invite silent rewrites that violate the
+   skill's "never edit silently" contract. Enable it only when the user explicitly
+   adds `--aio` (or the pipeline is preparing a preprint / GitHub README / HF card
+   alongside submission). When enabled, schedule it after `/humanize` so the
+   checklist anchors on QC-confirmed and human-readable text, and surface the
+   PASS/PARTIAL/FAIL report to the user — never auto-apply its edits.
+9. After each skill completes, run post-skill validation (see below).
 
-Without `--e2e`, the existing behavior is preserved: announce plan, confirm before starting, pause between skills, and respect write-paper's built-in gates (outline approval, discussion planning).
+Without `--e2e`, the Dialogue Protocol is the default: render one node per fork, wait
+for a numeric choice, echo the lock, invoke the skill, and respect write-paper's
+built-in gates (outline approval, discussion planning).
 
 ### Standard Pipeline: Data → Manuscript
 
@@ -278,17 +331,36 @@ Invoking `/skill-name`...
 
 Then invoke the skill.
 
-### For multi-skill workflows:
+### For multi-skill workflows (Dialogue Protocol):
+
+Render one decision node per fork. Do NOT stack a plain bullet list with "Shall I
+proceed?" — use the node template. Example rendering:
 
 ```
-This looks like a {scenario} workflow. Here's my plan:
+This looks like a {scenario} workflow. First fork:
 
-1. **{skill-1}** -- {reason}
-2. **{skill-2}** -- {reason}
-3. **{skill-3}** -- {reason}
+▸ N2 — Paper type (locks reporting guideline + abstract template)
 
-Shall I proceed with step 1?
+  Context: analysis outputs exist in analysis/; you want a manuscript.
+
+  Which kind of manuscript?
+
+    1) Original article (STROBE / CONSORT / STARD per design)
+       unlocks: /write-paper  locks: IMRAD, 300w abstract  recovery: high
+    2) Case report (CARE)
+       unlocks: /write-paper case-report mode  locks: CARE checklist  recovery: medium
+    3) Systematic review / meta-analysis (PRISMA / PRISMA-DTA)
+       unlocks: /meta-analysis  locks: protocol registration  recovery: high
+    4) Protocol (SPIRIT / PRISMA-P)
+       unlocks: /write-protocol  locks: SPIRIT structure  recovery: medium
+    5) Grant proposal
+       unlocks: /grant-builder  locks: internal only  recovery: low
+
+  Pick 1–5, or type `back` / `pause`. (autonomous default: 1)
 ```
+
+After the user picks, echo the lock in one line and invoke the matched skill. Return
+here for the next fork when the skill completes.
 
 ### For ambiguous requests:
 

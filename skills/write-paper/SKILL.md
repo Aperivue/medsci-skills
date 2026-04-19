@@ -341,11 +341,11 @@ Call `/search-lit --verify-only` to verify all citations in the manuscript are r
 Citation verification protects against fabricated references; this step protects against
 fabricated numbers. They are different failure modes and Step 7.3 does not catch the latter.
 
-**Precedent incident:**
-> CBCT Ablation MA-2 v4 reached Step 7.3 with 0/10 citation errors (all 10 PMIDs verified
-> against PubMed). It also carried a silent numerical reversal — "Du 2023 pneumothorax-
-> requiring-drainage 3/45 vs 0/56" where the primary source says "0/45 vs 1/56," direction
-> flipped. The error originated in a hand-typed Fisher-exact matrix in a revision-era
+**Precedent failure pattern:**
+> A revision-era comparative meta-analysis reached Step 7.3 with 0 citation errors (all
+> PMIDs verified against PubMed) yet carried a silent numerical reversal on a safety
+> outcome — the reported arm-level events were direction-flipped relative to the primary
+> source Table. The error originated in a hand-typed Fisher-exact matrix in a revision-era
 > analysis script, and internal consistency checks (Phase 2.5 of `/self-review`) passed
 > cleanly because every downstream artifact echoed the same wrong number.
 
@@ -361,12 +361,12 @@ fabricated numbers. They are different failure modes and Step 7.3 does not catch
   and percentages. The matrix cells are the authoritative source; headline numbers are
   derivations and must be recomputed from cells via code before prose drafting.
 
-**Precedent for the reporting-quality trigger:**
-> Paper ① FD Occlusion AI SR (2026-04-19, same day as CBCT MA-2): `fd_tripod_ai_summary.md`
-> v1.0 stated corpus PRESENT 61.2%; v1.1 corrected to 50.8% after cell-level recomputation
-> (delta ~10 pp). The error survived internal consistency because every downstream table,
-> figure caption, and abstract sentence echoed the hand-tallied v1.0 total. See user memory
-> `feedback_matrix_tally_verification.md`.
+**Precedent failure pattern for the reporting-quality trigger:**
+> A reporting-quality systematic review reported corpus PRESENT at ~61% in v1.0; cell-level
+> recomputation on v1.1 produced ~51% (delta ~10 percentage points). The error survived
+> internal consistency because every downstream table, figure caption, and abstract
+> sentence echoed the hand-tallied v1.0 total. Recomputation from matrix cells — not from
+> hand-tallied per-study totals — is the only reliable source for headline numbers.
 
 **Procedure:**
 
@@ -443,10 +443,48 @@ This delegates the entire fix loop to the self-review skill, which:
 After `/self-review --json --fix` completes:
 - Parse the final JSON output block.
 - Log the final `overall_score`, `verdict`, fix iteration count, and any remaining issues to `qc/_pipeline_log.md`.
-- If any `severity: "fatal"` issue remains:
-  - In autonomous mode: flag `qc/_pipeline_log.md` with `FATAL_ISSUE_DETECTED` and proceed (the manuscript will be generated but flagged).
-  - In interactive mode: halt and present the fatal issue to the user.
-- Proceed to Step 7.5 regardless of final verdict (the fix loop is best-effort).
+- If any `severity: "fatal"` issue remains: **route to Step 7.4a (Audit Recovery Branch)** — do NOT proceed to Step 7.5.
+- If no fatal issue remains: proceed to Step 7.5.
+
+#### Step 7.4a: Audit Recovery Branch
+
+**Purpose:** the linear polish flow assumes remaining issues are prose-level, but some
+self-review findings are structural — underlying data, protocol application, or analysis
+script is wrong, not prose. Continuing through Step 7.5 – 7.6 in that case produces a
+polished manuscript built on a broken foundation. This step makes the recovery loop
+explicit.
+
+**Trigger (any one from Step 7.4 JSON):** fatal issue in category `accuracy`,
+`data_fidelity`, `protocol_mismatch`, or `numerical_claim`; unresolved Step 7.3a primary-
+source disagreement; `[VERIFY-CSV]` tag persisting after two fix iterations; registered
+protocol ↔ delivered analysis inconsistency; reviewer-consensus ↔ locked-dataset
+disagreement. Inline text fixes are forbidden — recovery requires re-extraction,
+re-analysis, or re-registration.
+
+**Routing table:**
+
+| Symptom | Route to |
+|---|---|
+| MA pooled/forest/subgroup/funnel numbers disagree with source | `/meta-analysis` Phase 10 |
+| MA protocol ↔ analysis mismatch (eligibility, outcome, subgroup) | `/meta-analysis` Phase 10 + registry amendment |
+| Primary-study numerical claim disagrees with source Table/Figure | `/meta-analysis` Phase 6b, then return |
+| Non-MA extraction error affecting Table 1 / primary endpoint | Return to Phase 2, re-enter Phase 3 – 7 for affected sections |
+| Non-MA protocol amendment needed | HALT — human decision |
+
+**Sequence**: (1) halt Steps 7.5 – 7.6; (2) log the branch decision to
+`qc/_pipeline_log.md`; (3) invoke the routed skill with the specific findings; (4) on
+re-entry, resume at Step 7.3 (Citation Verification) — not Step 7.1, because recovery
+may have introduced new citations — and carry any change summary to Phase 8+;
+(5) loop budget is one cycle — a second cycle should trigger a root-cause review of
+Phase 2 / 6 / 6b rather than another recovery.
+
+**Autonomous mode.** In `--autonomous`, the orchestrator may auto-invoke the routed
+recovery skill. If the recovery requires human decision (protocol amendment, eligibility
+re-scope), the run stops and flags `RECOVERY_HALT_HUMAN_DECISION` in the log.
+
+**Load-on-demand procedural detail** (full trigger list, log-block template, per-route
+re-entry checklist, autonomous-mode edge cases):
+`${CLAUDE_SKILL_DIR}/references/section_guides/step7_4a_audit_recovery.md`.
 
 #### Step 7.5: Generate Deliverables
 
@@ -674,6 +712,9 @@ This skill orchestrates other skills at specific phases:
 | 7.2 | `/check-reporting` | Reporting guideline compliance + auto-fix MISSING items |
 | 7.3 | `/search-lit --verify-only` | Citation verification |
 | 7.4 | `/self-review --json` | Self-review with auto-fix loop (max 2 iterations) |
+| 7.4a | `/meta-analysis` Phase 10 (MA manuscripts) | Audit recovery branch — rebuild extraction/analysis/figures/body when self-review surfaces structural data or protocol issues |
+| 7.5 | `/humanize` | AI-pattern density sweep (<2.0 / 1000 words) |
+| 7.5a | `/academic-aio` (optional, off by default) | AI-search-engine and RAG visibility checklist — run after humanize so QC-confirmed claims and human-readable text anchor the PASS/PARTIAL/FAIL report. Opt-in via `--aio` or when preparing preprint / GitHub README / CITATION.cff / HF card alongside submission. Silent pipeline execution is explicitly prohibited by the skill's Communication Rules. |
 | 7.6 | (built-in) | DOCX build from manuscript/manuscript.md + analysis/figures + analysis/tables |
 | 8+ | `/find-journal` | Journal scope for cover letter (optional) |
 

@@ -225,3 +225,46 @@ write-paper 완료 → manuscript.md + manuscript_final.docx 존재 확인
 | `skills/check-reporting/SKILL.md` | Structured output |
 | `CHANGELOG.md` | 업데이트 |
 | `README.md` | E2E pipeline 섹션 |
+
+---
+
+## AIO (academic-aio) pipeline position
+
+`academic-aio`는 별도 세션에서 추가된 AI search engine 가시성 스킬이다.
+E2E 파이프라인에서의 위치는 다음과 같이 확정됐다:
+
+```
+write-paper Phase 7
+  ├─ 7.1 AI pattern scan (built-in)
+  ├─ 7.2 /check-reporting         — guideline compliance (prerequisite for AIO 1.6)
+  ├─ 7.3 /search-lit --verify-only — citation verification
+  ├─ 7.4 /self-review --json --fix — QC-confirmed claims
+  ├─ 7.4a /meta-analysis Phase 10 (MA only, audit recovery)
+  ├─ 7.5 /humanize                — human-readable first
+  ├─ 7.5a /academic-aio (optional, --aio) — AI-extractable second
+  └─ 7.6 DOCX build
+```
+
+**왜 7.5a인가 (7.4나 7.6이 아니라)**:
+- `check-reporting` + `self-review` 이후: AIO Section 1.6 reporting-guideline
+  anchor는 실제 compliance가 확인된 상태에서만 추가해야 한다.
+- `humanize` 이후: humanize가 "AI 냄새"를 제거한 뒤, AIO가 "AI 검색엔진 친화
+  구조"를 다시 심는다. 순서가 역전되면 humanize가 AIO edits를 지워버린다.
+- DOCX build 이전: AIO checklist는 소스 `.md`에 반영되어야 최종 빌드에 포함된다.
+
+**왜 --e2e 기본 OFF**:
+- AIO는 submission 직전 한 번만 필요한 작업 (preprint 공개 / README push /
+  HF card 업로드 시점). Draft 매 반복마다 돌리면 토큰 낭비.
+- AIO의 Communication Rules: "Surface the checklist in the response. Never apply
+  AIO edits silently." — 자동 적용 금지 조항과 `--e2e` silent 원칙이 충돌.
+  타협: `--e2e --aio`에서도 PASS/PARTIAL/FAIL 리포트는 `qc/aio_report.md`에
+  저장하되 편집은 사용자 결정 대기.
+
+**Anti-Hallucination 분업** (중복 없음):
+| Skill | 방어 대상 |
+|---|---|
+| `search-lit` | Fabricated DOI / PMID / 존재하지 않는 논문 |
+| `check-reporting` | Fabricated compliance % / 체크리스트 항목 |
+| `write-paper` | Fabricated effect size / 존재하지 않는 결과 |
+| `humanize` | (해당 없음 — 텍스트 변환만) |
+| `academic-aio` | Fabricated discoverability metric / 자동채움 CITATION.cff 메타데이터 / 존재하지 않는 저널 summary-box 규칙 / 존재하지 않는 reporting-guideline 항목번호 |

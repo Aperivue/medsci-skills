@@ -176,7 +176,9 @@ ma-scout -> search-lit -> fulltext-retrieval -> design-study ──> write-proto
    │                                           cross-national (parallel survey)              │
    │                                           batch-cohort (N × M matrix)                   ▼
    │                                                                          find-journal <── self-review
-   │                                                                               │
+   │                                                                               │                    │
+   │                                                                               │                    ▼
+   │                                                                               │          humanize -> academic-aio (AI-search visibility)
    │                                                                               ▼
    │                                                    [cover-letter] -> check-reporting -> revise -> present-paper
    │                                                                                                       │
@@ -230,6 +232,7 @@ ma-scout -> search-lit -> fulltext-retrieval -> design-study ──> write-proto
 | **peer-review** | Structured peer review drafting for medical journals. Systematic manuscript analysis, journal-specific formatting (RYAI, INSI, EURE, AJR, KJR), conciseness targets (500-800 words), and pre-submission QC checklist. Constructive developmental tone. |
 | **ma-scout** | Meta-analysis topic discovery and feasibility assessment. Two modes: (A) Professor-first — profile → pillar analysis → MA gaps, (B) Topic-first — question → landscape scan → co-author matching. Multi-source validation (PubMed, PROSPERO, bioRxiv) with realistic k estimation (15-30% discount). |
 | **lit-sync** | Sync research references from .bib files to Zotero library + Obsidian literature notes. Concept extraction from 10+ literature notes with cross-cutting theme discovery. Works after `/search-lit` or standalone. |
+| **academic-aio** | AI search engine (Perplexity / ChatGPT web / Elicit / Consensus / SciSpace) and RAG visibility checklist for medical AI papers. Integrates TRIPOD+AI, CLAIM, STARD-AI, TRIPOD-LLM, DECIDE-AI reporting anchors with generative-engine-optimization (GEO) principles. Covers title, abstract, structured summary boxes (Key Points / Research in Context / Plain-Language Summary), preprints, GitHub README, `CITATION.cff`, Zenodo, and Hugging Face model/dataset cards. Explicit defense against LLM citation fabrication (Agarwal 2025, Nat Commun). Produces a visible PASS/PARTIAL/FAIL checklist; never applies edits silently. Pairs with `write-paper` Phase 4/6/7, runs after `self-review` + `humanize`. |
 
 ## Installation
 
@@ -366,6 +369,12 @@ Or equivalently: `/write-paper --autonomous` if analysis and figures already exi
 ## Disclaimer
 
 These skills are research productivity tools. They do **not** provide clinical decision support, medical advice, or diagnostic recommendations. All outputs should be reviewed by qualified researchers before use in any publication or clinical context.
+
+## Acknowledgements
+
+- `make-figures` Critic Loop is inspired by [PaperBanana](https://github.com/dwzhu-pku/PaperBanana) (Zhu et al., *Automating Academic Illustration for AI Scientists*, arXiv:2601.23265, 2025) and by prior self-refinement research — Self-Refine (Madaan et al., 2023), Reflexion (Shinn et al., 2023), and Constitutional AI (Anthropic, 2022). The implementation in this repository is a clean-room reconstruction specialized for medical publication figures; no code, prompts, or configurations are derived from PaperBanana's repository.
+- Reporting-guideline checklists bundled with `check-reporting` are redistributed under their original Creative Commons licenses (see each checklist for attribution).
+- Wong colorblind-safe palette: Wong B. *Points of view: Color blindness.* Nature Methods 8:441 (2011).
 
 ## License
 
