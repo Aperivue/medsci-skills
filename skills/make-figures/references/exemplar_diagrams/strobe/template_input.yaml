@@ -1,0 +1,43 @@
+# STROBE cohort-study flow diagram template.
+# Render with:
+#   Rscript ../../scripts/generate_flow_diagram.R \
+#       --type strobe --config template_input.yaml --out template_output
+rankdir: TB
+nodes:
+  - id: source
+    label: "Source population\n(Database XYZ, 2010–2023; total records = 120,000)"
+  - id: unique
+    label: "Unique subjects after deduplication\nN = 85,000"
+  - id: excl1
+    shape: note
+    fontsize: 10
+    label: "Excluded (n = 5,000):\n• Missing age/sex: 1,200\n• Outside age range: 3,800"
+    rank_same_with: unique
+  - id: eligible
+    label: "Meeting eligibility criteria\nN = 80,000"
+  - id: excl2
+    shape: note
+    fontsize: 10
+    label: "Excluded (n = 2,500):\n• Prior event at baseline: 1,500\n• Follow-up ≤ 0 days: 1,000"
+    rank_same_with: eligible
+  - id: cohort
+    label: "Analytic cohort\nN = 77,500"
+    highlight: true
+  - id: exp
+    label: "Exposed\nn = 20,000"
+  - id: unexp
+    label: "Unexposed\nn = 57,500"
+  - id: out_exp
+    label: "Incident events\n1,200 (6.0%)"
+  - id: out_unexp
+    label: "Incident events\n2,300 (4.0%)"
+edges:
+  - {from: source, to: unique}
+  - {from: unique, to: eligible}
+  - {from: eligible, to: cohort}
+  - {from: cohort, to: exp}
+  - {from: cohort, to: unexp}
+  - {from: exp, to: out_exp}
+  - {from: unexp, to: out_unexp}
+  - {from: unique,   to: excl1, style: dashed, arrow: false, constraint: false}
+  - {from: eligible, to: excl2, style: dashed, arrow: false, constraint: false}

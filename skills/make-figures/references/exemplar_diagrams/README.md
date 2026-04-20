@@ -9,6 +9,7 @@ newly generated figures.
 
 ```
 exemplar_diagrams/
+├── strobe/      # cohort / cross-sectional / case-control flow
 ├── stard/       # diagnostic-accuracy flow diagrams
 ├── consort/     # RCT participant flow
 ├── prisma/      # systematic review selection flow
@@ -16,11 +17,16 @@ exemplar_diagrams/
 └── {other...}/  # future types (roc, forest, km, ...)
 ```
 
-Each category directory contains groups of three files per exemplar:
+Each category directory can hold two kinds of files:
 
-- `{label}.png` — rendered figure (usually 300 DPI, cropped from the source PDF)
-- `{label}.meta.yaml` — attribution metadata (source PDF, page, DOI, crop coords)
-- `{label}_why.md` — 50–100 word note on why this figure is a good anchor
+1. **Review anchors** (for the Critic Loop) — groups of three files per exemplar:
+   - `{label}.png` — rendered figure cropped from a published paper (≥300 DPI)
+   - `{label}.meta.yaml` — attribution metadata (source PDF, page, DOI, crop coords)
+   - `{label}_why.md` — 50–100 word note on why this figure is a good anchor
+2. **Generation templates** (for `generate_flow_diagram.R`) — one set per category:
+   - `template_input.yaml` — minimal schema example showing all supported fields
+   - `template_output.{pdf,png,_600.png}` — rendered reference output for the template
+   - Render with `Rscript ../../scripts/generate_flow_diagram.R --type <type> --config <dir>/template_input.yaml --out <dir>/template_output`
 
 ## How to add a new exemplar
 

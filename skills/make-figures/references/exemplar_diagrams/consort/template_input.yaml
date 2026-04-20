@@ -1,0 +1,37 @@
+# CONSORT parallel-arm RCT flow diagram template.
+# Render with:
+#   Rscript ../../scripts/generate_flow_diagram.R \
+#       --type consort --config template_input.yaml --out template_output
+rankdir: TB
+nodes:
+  - id: assessed
+    label: "Assessed for eligibility\n(n = 500)"
+  - id: excl
+    shape: note
+    fontsize: 10
+    label: "Excluded (n = 100):\n• Not meeting inclusion criteria: 60\n• Declined to participate: 25\n• Other reasons: 15"
+    rank_same_with: assessed
+  - id: rand
+    label: "Randomized\n(n = 400)"
+    highlight: true
+  - id: alloc_tx
+    label: "Allocated to intervention (n = 200)\n• Received intervention (n = 195)\n• Did not receive intervention (n = 5)"
+  - id: alloc_ctrl
+    label: "Allocated to control (n = 200)\n• Received control (n = 198)\n• Did not receive control (n = 2)"
+  - id: fu_tx
+    label: "Lost to follow-up (n = 8)\nDiscontinued intervention (n = 4)"
+  - id: fu_ctrl
+    label: "Lost to follow-up (n = 6)\nDiscontinued control (n = 3)"
+  - id: ana_tx
+    label: "Analyzed (n = 200)\n• Excluded from analysis (n = 0)"
+  - id: ana_ctrl
+    label: "Analyzed (n = 200)\n• Excluded from analysis (n = 0)"
+edges:
+  - {from: assessed, to: rand}
+  - {from: rand, to: alloc_tx}
+  - {from: rand, to: alloc_ctrl}
+  - {from: alloc_tx, to: fu_tx}
+  - {from: alloc_ctrl, to: fu_ctrl}
+  - {from: fu_tx, to: ana_tx}
+  - {from: fu_ctrl, to: ana_ctrl}
+  - {from: assessed, to: excl, style: dashed, arrow: false, constraint: false}

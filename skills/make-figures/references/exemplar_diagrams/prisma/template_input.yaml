@@ -1,0 +1,47 @@
+# PRISMA 2020 systematic review / meta-analysis flow diagram template.
+# Render with:
+#   Rscript ../../scripts/generate_flow_diagram.R \
+#       --type prisma --config template_input.yaml --out template_output
+rankdir: TB
+nodes:
+  - id: id_db
+    label: "Records identified from databases\n(n = 3,500)\n• PubMed: 1,800\n• Embase: 1,200\n• Cochrane: 500"
+  - id: id_other
+    label: "Records identified from other sources\n(n = 45)\n• Citation search: 30\n• Registers: 15"
+    rank_same_with: id_db
+  - id: dedup
+    label: "Records after duplicates removed\n(n = 2,700)"
+  - id: screened
+    label: "Records screened (title/abstract)\n(n = 2,700)"
+  - id: excl_ta
+    shape: note
+    fontsize: 10
+    label: "Records excluded\n(n = 2,480)"
+    rank_same_with: screened
+  - id: ft_sought
+    label: "Reports sought for retrieval\n(n = 220)"
+  - id: ft_notret
+    shape: note
+    fontsize: 10
+    label: "Reports not retrieved\n(n = 12)"
+    rank_same_with: ft_sought
+  - id: ft_assessed
+    label: "Reports assessed for eligibility\n(n = 208)"
+  - id: ft_excl
+    shape: note
+    fontsize: 10
+    label: "Reports excluded (n = 180):\n• Wrong population: 72\n• Wrong index test: 48\n• Wrong outcome: 35\n• Abstract only: 15\n• Duplicate cohort: 10"
+    rank_same_with: ft_assessed
+  - id: included
+    label: "Studies included in review\n(n = 28)\nStudies in quantitative synthesis\n(n = 24)"
+    highlight: true
+edges:
+  - {from: id_db, to: dedup}
+  - {from: id_other, to: dedup, constraint: false}
+  - {from: dedup, to: screened}
+  - {from: screened, to: ft_sought}
+  - {from: ft_sought, to: ft_assessed}
+  - {from: ft_assessed, to: included}
+  - {from: screened, to: excl_ta, style: dashed, arrow: false, constraint: false}
+  - {from: ft_sought, to: ft_notret, style: dashed, arrow: false, constraint: false}
+  - {from: ft_assessed, to: ft_excl, style: dashed, arrow: false, constraint: false}

@@ -1,0 +1,40 @@
+# STARD 2015 diagnostic-accuracy flow diagram template.
+# Render with:
+#   Rscript ../../scripts/generate_flow_diagram.R \
+#       --type stard --config template_input.yaml --out template_output
+rankdir: TB
+nodes:
+  - id: eligible
+    label: "Eligible patients\n(n = 500)"
+  - id: excl
+    shape: note
+    fontsize: 10
+    label: "Excluded (n = 50):\n• Contraindication to index test: 20\n• No reference standard available: 20\n• Declined: 10"
+    rank_same_with: eligible
+  - id: index
+    label: "Received index test\n(n = 450)"
+    highlight: true
+  - id: ref
+    label: "Received reference standard\n(n = 450)"
+  - id: idx_pos
+    label: "Index test positive\n(n = 180)"
+  - id: idx_neg
+    label: "Index test negative\n(n = 270)"
+  - id: tp
+    label: "Reference positive\nTP = 160"
+  - id: fp
+    label: "Reference negative\nFP = 20"
+  - id: fn
+    label: "Reference positive\nFN = 15"
+  - id: tn
+    label: "Reference negative\nTN = 255"
+edges:
+  - {from: eligible, to: index}
+  - {from: index, to: ref}
+  - {from: ref, to: idx_pos}
+  - {from: ref, to: idx_neg}
+  - {from: idx_pos, to: tp}
+  - {from: idx_pos, to: fp}
+  - {from: idx_neg, to: fn}
+  - {from: idx_neg, to: tn}
+  - {from: eligible, to: excl, style: dashed, arrow: false, constraint: false}
