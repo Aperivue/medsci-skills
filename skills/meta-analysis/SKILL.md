@@ -162,6 +162,38 @@ Auto-detect type from the research question or accept user specification.
 Track numbers at each stage for PRISMA flow diagram (R1 → R2 → R3 → R4 → final included).
 Use `/make-figures` to generate PRISMA flow diagram when numbers are finalized.
 
+#### 3f. Post-Consensus Count Reconciliation Gate (MANDATORY before Phase 5 write-up)
+
+Before handing the screening artifacts to Phase 5 (statistical synthesis) or to `/write-paper` / `/self-review`, run an explicit ID-set reconciliation and record the canonical totals in a single source-of-truth file (typically `2_Screening/screening_consensus_final.md` §Net Impact or equivalent):
+
+1. **Enumerate ID sets from raw artifacts (not from prose summaries):**
+   - A = screening TSV INCLUDE IDs
+   - B = consensus spreadsheet Exclude IDs
+   - C = consensus spreadsheet Include-qualitative IDs (FLAG-resolved additions)
+   - T = Table 1 / bivariate-eligible IDs (2×2-extractable studies)
+
+2. **Compute canonical totals via set algebra:**
+   - k_qualitative = |A \ B| + |C|
+   - k_bivariate = |T|
+   - k_narrative-only = k_qualitative − k_bivariate
+   - k_FT-excluded = |full-text reviewed| − k_qualitative
+
+3. **List the narrative-only IDs explicitly.** The highest-yield red flag is a numeric claim ("10 narrative-only studies") that does not match the enumerable ID set (A ∪ C) \ B \ T.
+
+4. **Prohibit "N → M" transitions without ID receipts.** Any sentence of the form "k rose from 30 to 32 after FLAG consensus" must cite the specific added/removed IDs. A transition claim with no enumerable ID set is a P0 error and blocks the Phase 5 hand-off.
+
+5. **Record in a reconciliation table** inside the screening-consensus document:
+
+   | Quantity | v_prev draft | v_current (ID-verified) | Derivation |
+   |---|---|---|---|
+   | k_full-text | ... | ... | ... |
+   | k_FT-excluded | ... | ... | |TSV EXCLUDE| + |consensus-downgrades| |
+   | k_qualitative | ... | ... | |A \ B| + |C| |
+   | k_bivariate | ... | ... | |T| |
+   | k_narrative-only | ... | ... (explicit IDs listed) | (A ∪ C) \ B \ T |
+
+**Precedent incident (CBCT Biopsy MA-1, 2026-04-20):** v11 manuscript shipped with k_qualitative = 32 / k_narrative-only = 10 / k_FT-excluded = 46. ID-set reconciliation (only performed after Codex adversarial audit at post-Stage 4 QC) revealed true counts 24/2/54. The prose "30 → 32 after FLAG consensus" had been carried from v7 without ever being reconciled against `fulltext_screening_final.tsv` ∩ `MA1_Consensus_Sheet.xlsx`; four downstream artifacts echoed the same wrong total. This gate would have caught the drift at Phase 5 hand-off.
+
 ### Phase 4: Data Extraction
 
 **Goal**: Create standardized extraction forms and extract 2x2 or effect size data.
