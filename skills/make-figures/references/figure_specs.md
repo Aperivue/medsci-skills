@@ -226,3 +226,48 @@ Figure {N}. {Overall description.} (A) {Panel A description.} (B) {Panel B descr
 - Reference every figure at least once in the main text.
 - Place figures after first mention (or at end, per journal preference).
 - Do not include a figure title inside the plot area; use the caption below instead.
+
+---
+
+## Flow Diagram Tool Selection (STROBE / CONSORT / PRISMA / STARD)
+
+All reporting-guideline flow diagrams use a single canonical pipeline: `scripts/generate_flow_diagram.R` (DiagrammeR DOT → DiagrammeRsvg → rsvg).
+
+### Why this stack
+
+| Requirement | Requirement detail | DiagrammeR + rsvg |
+|---|---|---|
+| Vector PDF (editable, journal-grade) | Radiology/NEJM/Eur Radiol require EPS/AI/PDF | **True vector via `rsvg_pdf()`** |
+| 300 / 600 / 1200 dpi PNG | RSNA line-art = 1200 dpi; Eur Radiol = 300–1000 | **Arbitrary DPI via `rsvg_png(width=...)`** |
+| Arial font embedded | AMA/RSNA style | `fontname="Arial"` enforced in DOT header |
+| Single-color monochrome outline | BMJ/Annals IM convention; Eugene's preference | `color=black, fillcolor=white, style=filled` |
+| Auto-overlap resolution | Labels change size; manual coords fail | Graphviz `dot` hierarchical engine |
+| 4 reporting guidelines in one tool | Avoid stack sprawl | Generic DOT template switch |
+
+### Why not the obvious alternatives
+
+| Rejected tool | Reason |
+|---|---|
+| matplotlib `FancyBboxPatch` (manual coords) | Overlap on label change; DOCX embed distortion. Root cause of CK-5 Figure 1 rework (2026-04-20). |
+| D2 + post-processing | Weak Arial enforcement; PNG needs 85% vertical compression hack; font-size must be manually set 20–24. Retained as legacy fallback only. |
+| R `consort` v1.2.2 | CONSORT/STROBE only; STARD/PRISMA not covered; box style parameters not officially exposed (requires gpar override). |
+| R `PRISMA2020` v1.1.1 | `PRISMA_save()` uses webshot → PDF rasterized; no DPI parameter. Not suitable for journal submission. |
+| Mermaid / PlantUML | Font control weak; hard to enforce Arial + monochrome outline. |
+
+### PRISMA 2020 compliance
+
+The generic DOT template in `generate_flow_diagram.R` implements the PRISMA 2020 structure (two identification streams, duplicates-removed box, title/abstract screening, full-text retrieval, full-text assessment, final inclusion) and can reproduce the official template shape. When a journal explicitly requires use of the PRISMA2020 R package or Shiny app for provenance, run that tool separately; the DiagrammeR pipeline is the default for all other submissions.
+
+### File outputs
+
+Every render emits three files at the same prefix:
+
+```
+<prefix>.pdf        true vector (journal submission, figure_manifest primary)
+<prefix>.png        300 dpi (2400 px wide; review copy, DOCX embed)
+<prefix>_600.png    600 dpi (4800 px wide; RSNA/Eur Radiol line-art)
+```
+
+### System dependency
+
+`brew install librsvg` (macOS; one-time). On Linux: `apt-get install librsvg2-bin`.

@@ -347,41 +347,49 @@ residual PARTIAL items and the rationale for accepting them.
 
 This manifest is consumed by `/write-paper` Phase 2 (figure embedding) and Phase 7 (DOCX build). It **MUST** exist after figure generation completes. Verify the file is non-empty before finishing.
 
-**Flow diagram generation rule:** STARD/CONSORT/PRISMA flow diagrams **MUST** use D2 (`d2 --layout elk`) as the default tool. Check for D2 availability with `which d2`. If D2 is installed, generate the `.d2` source file and render to PNG using the compact workflow below. If D2 is NOT available, fall back in this order: (1) attempt `brew install d2`, (2) use Mermaid if available, (3) generate a markdown text-based flow diagram and flag in the manifest with `Tool: markdown-fallback`. Do NOT use matplotlib FancyBboxPatch for flow diagrams — matplotlib patches break when embedded in DOCX (box distortion) and use absolute coordinates that break when text changes.
+**Flow diagram generation rule:** STARD/CONSORT/PRISMA/STROBE flow diagrams **MUST** use the standardized R pipeline `scripts/generate_flow_diagram.R` (DiagrammeR + Graphviz dot + rsvg). This is the single canonical tool for all four reporting-guideline flow diagrams. Do NOT use matplotlib `FancyBboxPatch` (manual coordinates break when text changes, and patches distort when embedded in DOCX). Do NOT use D2 for new flow diagrams (font control is weak, overlap requires manual post-processing). The legacy D2 recipe remains documented below as a fallback only when R is unavailable.
 
-**D2 compact flow diagram recipe (mandatory for all flow diagrams):**
+**R flow diagram recipe (mandatory for all flow diagrams):**
 
-D2's default spacing is designed for software diagrams and produces overly spaced layouts for publication figures. Apply these three steps:
-
-1. **Large font sizes** — Use `font-size: 20-24` for main boxes, `18` for side/exclusion boxes, `17-18` for italic notes. This makes text readable after the resize step.
-2. **Minimal padding** — Use `--pad 20` (default is 100).
-3. **Post-process: resize + vertical compression** — D2 has no native gap control, so compress programmatically:
+The pipeline reads a YAML config describing nodes/edges and produces: a true vector PDF (journal submission), a 300 dpi PNG (review copy), and a 600 dpi PNG (RSNA/Eur Radiol line-art). Default style is single-color black outline with white fill in Arial, overriding D2's colored defaults and matplotlib's manual coordinates.
 
 ```bash
-# Step 1: D2 → raw PNG at 2x scale
+# 1. One-time system dependency:
+brew install librsvg
+Rscript -e 'install.packages(c("DiagrammeR","DiagrammeRsvg","rsvg","yaml"))'
+
+# 2. Author a YAML config. Templates for each type live at
+#    references/exemplar_diagrams/{strobe,consort,prisma,stard}/template_input.yaml
+# 3. Render:
+Rscript ${CLAUDE_SKILL_DIR}/scripts/generate_flow_diagram.R \
+    --type   {strobe|consort|prisma|stard} \
+    --config path/to/counts.yaml \
+    --out    figures/figure1_flow
+# Outputs: figure1_flow.pdf, figure1_flow.png (300 dpi), figure1_flow_600.png
+```
+
+**YAML schema highlights:**
+- `rankdir: TB` (top-down, default) or `LR` (left-to-right).
+- `nodes:` list with `id`, `label` (use literal `\n` for line breaks, real Unicode `–`, `≤`, `−`, `•`).
+- Optional per-node: `highlight: true` (thicker border), `shape: note` (side boxes), `rank_same_with: <other_id>` (place on same horizontal rank).
+- `edges:` list with `from`, `to`, optional `style: dashed`, `arrow: false` (no arrowhead), `constraint: false` (edge ignored by layout engine — use for exclusion side-links).
+- Numbers in labels **MUST** be CSV-derived in an upstream R script that emits the YAML, or hand-written only when the value lives in a commit-tracked data artifact. Follow numerical-safety rules.
+
+**Style is fixed (do not override in the YAML):**
+- Monochrome: all boxes `color=black, fillcolor=white, fontname="Arial"`.
+- Penwidth 1.2 default, 1.8 for highlighted cohort box.
+- Arrow style: black solid, arrowsize 0.75. Dashed without arrowhead for exclusion side-links.
+- To add one emphasis color (e.g., Wong blue `#0072B2` for a single highlighted box), edit `scripts/generate_flow_diagram.R` — do not inline hex colors in YAML.
+
+**Legacy D2 fallback (only when R unavailable):**
+
+```bash
 d2 --layout elk --theme 0 --pad 20 flow.d2 /tmp/raw.png --scale 2
-
-# Step 2: Resize to column width + 85% vertical compression
-python3 -c "
-from PIL import Image
-im = Image.open('/tmp/raw.png')
-TARGET_W = 2100  # 7 inches at 300 DPI (double column)
-scale = TARGET_W / im.width
-new_h = int(im.height * scale * 0.85)  # 85% vertical compression
-im.resize((TARGET_W, new_h), Image.LANCZOS).save('figures/fig1_flow.png')
-"
-
-# Step 3: Also generate PDF (vector, for journal submission)
+# Resize + 85% vertical compression via Pillow; then render PDF:
 d2 --layout elk --theme 0 --pad 20 flow.d2 figures/fig1_flow.pdf
 ```
 
-**D2 style conventions for flow diagrams:**
-- Main boxes: `font-size: 22; bold: true; fill: white or #E3F2FD/#E8F0FE; stroke: black`
-- Exclusion/side boxes: `font-size: 18; fill: #F5F5F5; stroke: #888888`
-- Outcome/group boxes: `font-size: 20; fill: #FFF8E1 or #D4E8D4`
-- Italic filter text: `shape: text; font-size: 18; italic: true`
-- Footer text: `shape: text; font-size: 17`
-- Key cohort boxes: `stroke-width: 2` for visual emphasis
+Use `font-size: 20-24`, `stroke: black`, `fill: white`. D2 PDF is vector; D2 PNG needs the resize step to match publication density.
 
 ---
 
@@ -414,13 +422,13 @@ downstream positions.
 
 | Type | Recommended Tool | Why |
 |------|-----------------|-----|
-| PRISMA Flow | **PRISMA 2020 Shiny App** (estech.shinyapps.io/prisma_flowdiagram/) | Enter numbers → auto-generate compliant diagram |
-| CONSORT Diagram | **CONSORT2025 Shiny/R App** | Auto-generates CONSORT 2025 compliant flow |
-| STARD Diagram | **D2** (`d2 --layout elk`) → PNG (compact recipe) | Auto-layout, DOCX-safe raster output |
-| Pipeline Diagram | **D2** → PNG (compact recipe) | Code-based + auto-layout + version control |
-| Generic Study Flow | **D2** → PNG (compact recipe) | CONSORT/STROBE-style participant flow |
+| STROBE (cohort / cross-sectional) | **`scripts/generate_flow_diagram.R --type strobe`** | Single canonical tool; auto-layout; vector PDF + 300/600 dpi PNG |
+| CONSORT (RCT) | **`scripts/generate_flow_diagram.R --type consort`** | Same pipeline; monochrome Arial default |
+| PRISMA 2020 (SR/MA) | **`scripts/generate_flow_diagram.R --type prisma`** | Faithfully implements PRISMA 2020 structure; avoids PRISMA2020 R package's webshot-based raster PDF issue |
+| STARD (DTA) | **`scripts/generate_flow_diagram.R --type stard`** | Same pipeline; supports 2x2 reference-standard split |
+| Pipeline Diagram | **D2** (legacy) | Until pipeline-diagram support is added to the R script |
 
-**D2 workflow for flow diagrams:** See the "D2 compact flow diagram recipe" above in the Flow diagram generation rule. Key points: font-size 20-24, `--pad 20`, resize to 2100px width with 85% vertical compression. No Figma step needed.
+**R workflow for flow diagrams:** See the "R flow diagram recipe" above in the Flow diagram generation rule. Key points: YAML config → `Rscript scripts/generate_flow_diagram.R --type <t> --config <yaml> --out <prefix>` → PDF + 300/600 dpi PNG. Templates in `references/exemplar_diagrams/{strobe,consort,prisma,stard}/template_input.yaml`.
 
 ### Visual / Graphical Abstracts → python-pptx Template Generator
 
@@ -435,8 +443,8 @@ See the Visual Abstract section above for the full workflow.
 ### Hybrid Workflow (recommended for publication)
 
 ```
-Data plots: matplotlib/seaborn → PDF + PNG (this skill)
-Flow diagrams: D2 → PNG (compact recipe) + PDF
+Data plots:    matplotlib/seaborn → PDF + PNG (this skill)
+Flow diagrams: generate_flow_diagram.R (DiagrammeR + rsvg) → PDF + 300/600 dpi PNG
 Final assembly: pandoc or python-docx (auto-embedded in DOCX)
 ```
 
@@ -488,15 +496,15 @@ ax.legend(loc='lower right', frameon=False)
 - Axis label: "Favours A | Favours B" or appropriate.
 - Include heterogeneity stats (I-squared, p) below the diamond.
 
-### Flow Diagrams (CONSORT / STARD / PRISMA)
+### Flow Diagrams (STROBE / CONSORT / PRISMA / STARD)
 
-**Preferred approach: Use dedicated tools (see Tool Selection Guide above).**
+**Single canonical tool: `scripts/generate_flow_diagram.R`** (see the R flow diagram recipe above). Do not fall back to matplotlib for flow diagrams — manual coordinates break when text changes and patches distort in DOCX. D2 remains a documented legacy fallback only when R is unavailable.
 
-If matplotlib is required (e.g., for consistency with other panels), follow these rules:
-- Use rectangular boxes with rounded corners for stages.
-- Arrows connect stages vertically; side boxes for exclusions.
-- Consistent box widths, centered text.
-- Numbers must be included in each box (e.g., "Assessed for eligibility (n = 450)").
+Layout invariants:
+- Rectangular boxes with rounded corners for stages; notes (`shape: note`) for exclusion side-boxes.
+- Vertical top-down flow by default; horizontal only when the manuscript layout demands it.
+- Every box label contains the count (e.g., `"Assessed for eligibility\n(n = 450)"`).
+- Numbers are CSV-derived (numerical-safety) — author the YAML from an R/Python script that reads the upstream data, or cite the source file in a comment when a literal value is unavoidable.
 - Follow the official template layout from each guideline.
 - **Use relative positioning** — never hard-code absolute y-coordinates. Calculate each box
   position from the previous box's bottom edge plus a consistent gap constant.
