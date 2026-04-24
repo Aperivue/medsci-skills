@@ -1,0 +1,23 @@
+schema_version: 1
+name: verify-refs
+owner_domain: reference_integrity
+inputs:
+  - manuscript.md
+  - manuscript.docx
+  - references.bib
+outputs:
+  - references/verified_references.tsv
+  - references/library.bib
+  - qc/reference_audit.json
+deterministic_scripts:
+  - scripts/verify_refs.py
+  - scripts/verify_cli.sh
+side_effects:
+  - writes_project_artifacts
+downstream_consumers:
+  - write-paper
+  - sync-submission
+  - orchestrate
+forbidden_actions:
+  - generate_references_from_memory
+  - silently_include_unverified_references

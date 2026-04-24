@@ -1,0 +1,20 @@
+schema_version: 1
+name: sync-submission
+owner_domain: submission_packaging
+inputs:
+  - project.yaml
+  - manuscript/manuscript.md
+outputs:
+  - submission/{journal}/.journal_meta.json
+  - qc/submission_sync_{journal}.json
+  - artifact_manifest.json
+deterministic_scripts:
+  - scripts/sync_submission.py
+side_effects:
+  - writes_project_artifacts
+downstream_consumers:
+  - orchestrate
+  - find-journal
+forbidden_actions:
+  - silently_edit_canonical_manuscript
+  - freeze_drifted_submission
