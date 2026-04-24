@@ -1,4 +1,4 @@
-# RESUME — medsci-skills Phase 1C 진입 (2026-04-24)
+# RESUME — medsci-skills 공개 노출 작업 (2026-04-24)
 
 **⚠️ 이어서 작업 지시. "마무리할까요?" 금지. `## 즉시 실행` 첫 항목부터.**
 **작업 디렉토리**: `/Users/eugene/workspace/medsci-skills`
@@ -7,62 +7,57 @@
 
 ## 즉시 실행
 
-직전 세션에서 Phase 1B-a 회귀 + 1B-b dry-run + 1C scope lock 모두 완료. 미커밋 변경 다수.
+직전 세션: FOLLOWUPS P2~P8/P10 + MA skill-level 통합 완료, origin 동기화 완료 (0 ahead). 코드 업데이트는 끝났으나 **공개 노출이 미반영** — 다음 3단계를 순서대로 진행.
 
-1. **commit 묶음** (3개 커밋 분리 권장):
-   - `feat(verify-refs): Phase 1B-a strict gate regression + P6 PubMed stub-error fix`
-     → `skills/verify-refs/scripts/verify_refs.py`, `tests/test_phase1a_gates.sh`, `tests/fixtures/ssot_project/manuscript/_src/refs_seed_phase1b.bib`, `tests/fixtures/ssot_project/manuscript/index.qmd`
-   - `docs(phase1c): scope lock — Hooks Warning Mode (4 subtasks, 2.5h)`
-     → `docs/phase1c_scope.md`
-   - `chore(followups): P6 done, P7/P8 added from Phase 1B-b dry-run`
-     → `FOLLOWUPS.md`, `HANDOFF.md`
-   - **제외**: `tests/fixtures/ssot_project/qc/reference_audit.json`(런타임 산출물, .gitignore 추가 필요), `README.md`/`README_FIRST.md`/`installers/`/`scripts/build_classroom_release.py`/`docs/classroom_*.md`(직전 작업과 무관, 별도 세션에서)
+1. **README 업데이트 — 최근 대규모 업데이트 반영**
+   - 추가할 짧은 섹션 2개 (각 5~10줄):
+     - **Reference Safety (Phase 1)**: SSOT.yaml + migration marker + hook mode (`auto`/`warn`/`enforce`). `MEDSCI_VERIFY_REFS_MODE` env, `qc/reference_audit.json` sole-writer 정책.
+     - **Meta-Analysis Failure Modes**: MA01~03 empirical references (DI / RO / SPD / PSR) + 4종 자동화 스크립트 훅 (DI-1/6/8, SPD).
+   - 기타: P4 Zotero auto-collection, P2 bibtex `verified=true` 플래그는 기존 스킬 표 엔트리에 한 줄 덧붙이기.
+   - 절대경로 금지, 상대경로 + `${CLAUDE_SKILL_DIR}` 사용.
 
-2. **Phase 1C 진입** (`docs/phase1c_scope.md` §8 진입점):
-   - 순서: 1C.1 (feature flag) → 1C.2 (PreSave hook) → 1C.4 (bypass+audit) → 1C.3 (rule→hook 승격)
-   - 1C.2 enforce 트리거는 `SSOT.yaml + qc/migration_complete` 둘 다 (오발화 방지)
-   - settings.json 변경은 반드시 `update-config` 스킬 경유
-   - 진입 직전 `tests/test_phase1a_gates.sh` 재실행으로 baseline 확인
+2. **GitHub Release cut — classroom ZIP**
+   - `python3 scripts/build_classroom_release.py` 실행 → `medsci-skills-classroom-{macos,windows}.zip` 생성.
+   - `gh release create vX.Y.Z --title ... --notes ...` (vX.Y.Z는 최근 태그 확인 후 semver bump).
+   - README L248/254의 `releases/latest/download/...` 링크가 실제 다운로드 가능한지 검증.
+   - Release notes에는 P10 스크립트, Phase 1A/1B/1C, classroom 번들 3개 축 요약.
 
-3. **Phase 1B-b 실 BBT 검증 (deferred)**: 첫 SSOT-conformant 신규 프로젝트 생성 시점까지 defer. SkullFx/CK-1/MA-1 모두 legacy docx — §9 freeze 정책 정합.
+3. **홈페이지 반영 — 별도 repo**
+   - `aperivue-brain` (또는 `haejinlim.art` 웹 아님 — Aperivue 사업 페이지) 경로 확인 후 소식 섹션/블로그 포스트 초안.
+   - 공개 repo 링크 + demo 3종 스크린샷 재활용.
+   - 어느 채널 (aperivue.com/blog vs /research) 게시할지 사용자 확인.
 
-**중단 조건**: 1C.2 hook이 verify-refs CLI invoke 시 PreSave latency >3s 발생 → cache 모드(P-신규) FOLLOWUPS 추가 후 1C.4로 우회.
-
----
-
-## 직전 세션 산출물
-
-- **1B-a**: 4/4 gate PASS. P6 (PubMed stub-error → FABRICATED) 버그 수정.
-- **1B-b dry-run**: Polling 로직 4/4 isolation PASS. SkullFx P2가 legacy docx 프로젝트라 실 BBT 검증 불가 발견. 결과 `~/.local/cache/phase1b_b_dryrun/findings.md`. SkullFx 파일 0건 변경.
-- **1C scope**: `docs/phase1c_scope.md` (67줄, v1.1.1 §8 정합 + HANDOFF 추정 정정).
-- **FOLLOWUPS**: P6 done, P7 (lit-sync precondition assertion) + P8 (polling 회귀 스크립트 추출) 추가.
+**중단 조건**: 공저자 신규 초안 수신 → `/verify-refs` 우선. P9 트리거 발생 (새 SSOT 프로젝트 hook latency >3s) → P9 착수.
 
 ---
 
 ## 블로커 / 대기
 
-- 진행 프로젝트(SkullFx P2 / MA-1 / CK-1) freeze 유지.
-- Phase 1B.1 (`SSOT.yaml` template) 미착수 — 1C.2 트리거 활성화의 부분 의존. 1C는 flag만 두고 진입 가능.
-- FOLLOWUPS P2/P3/P4/P7/P8 잔존.
+- 진행 프로젝트(SkullFx P2 / MA-1 / CK-1) freeze 유지. auto 모드 = warn-only.
+- P9 선착수 조건 미충족 (실측 latency 없음).
 
 ---
 
 ## 주의사항
 
-- **Phase 1A 계약 (건들지 말 것)**:
-  - `/verify-refs`는 `qc/reference_audit.json`만 write. `references/*` 복귀 금지.
-  - `/search-lit` → `references/library.bib`, `/lit-sync` → `manuscript/_src/refs.bib`. sole-writer 분리 유지.
-  - `[@NEW:topic]`은 유일한 citation placeholder.
-- **Legacy skill.yml WARN-only (2026-07-24 sunset)** — 1C에서 강제 마이그레이션 금지.
-- **1C.2 hook은 진행 프로젝트 enforce 금지** — `SSOT.yaml + qc/migration_complete` 둘 다 있는 신규만.
+- **커밋 게이트**: pre-commit hook이 `validate_skills.sh` 자동 실행. README 수정 시에도 한번 더 확인.
+- **Precedent blocklist 엄수**: README/릴리스 노트에 MA01~03 / author-year / 내부 파일경로 / 에러코드 **노출 금지**. 추상화된 레퍼런스(`DI-1`, `SPD`) 수준까지만.
+- **Zotero 테스트**: `scripts/init_project.py --zotero-collection` 테스트 시 실 API 호출됨. `env -u ZOTERO_API_KEY -u ZOTERO_LIBRARY_ID` 또는 fake 값.
+- **Phase 1A/1C 계약 불변**:
+  - `/verify-refs`는 `qc/reference_audit.json` sole-writer.
+  - `auto` 모드 = `SSOT.yaml` + `qc/migration_complete` 둘 다 있어야 enforce.
+  - 회귀: `tests/test_phase1a_gates.sh` (4), `tests/test_phase1c_hooks.sh` (12).
+- **SKILL.md**: 절대경로(`/Users/eugene/...`) 금지 → 상대경로 + `${CLAUDE_SKILL_DIR}`. Legacy skill.yml WARN-only (2026-07-24 sunset).
+- **Release tagging**: semver. 최근 변화량(classroom + P10 + Phase 1A~1C) 감안해 minor bump 이상 권장.
 
 ---
 
 ## 참조
 
-- v1.1.1 계획서: `/Users/eugene/workspace/_retros/medsci-skills_master-plan_2026-04-24_v1.1.1.md` §8 / §9 / §10.4
-- 1C scope: `docs/phase1c_scope.md`
-- 1B-b findings: `~/.local/cache/phase1b_b_dryrun/findings.md`
-- 1B-a 회귀: `tests/test_phase1a_gates.sh`
-- Contract: `docs/{ssot_schema_v1,skill_yml_schema_v2,zotero_policy,artifact_contract}.md`
 - FOLLOWUPS: `FOLLOWUPS.md`
+- Release builder: `scripts/build_classroom_release.py`
+- Classroom docs: `docs/classroom_distribution_plan.md`, `docs/classroom_materials.md`, `README_FIRST.md`
+- SSOT schema: `docs/ssot_schema_v1.md`
+- 1C scope: `docs/phase1c_scope.md`
+- MA failure refs: `skills/meta-analysis/references/{data_integrity_checklist,review_orchestration,submission_package_drift,post_submission_release_ops}.md`
+- P10 scripts: `scripts/{prisma_5way_consistency,extraction_consensus_log_init,tag_cleanup_gate,verify_package_integrity}.*`
