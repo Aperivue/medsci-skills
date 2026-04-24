@@ -1,8 +1,8 @@
 ---
 name: publish-skill
 description: >
-  Convert a personal Claude Code skill into a distributable, open-source-ready skill.
-  Runs PII audit, generalization, license compatibility check, and packaging workflow.
+  Convert a personal agent skill into a distributable, open-source-ready skill.
+  Runs PII audit, generalization, license compatibility check, cross-platform adapter review, and packaging workflow.
 triggers: publish skill, distribute skill, open-source skill, package skill, universalize skill
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit
@@ -10,7 +10,7 @@ model: inherit
 
 # Skill: publish-skill
 
-Convert a personal Claude Code skill into a clean, distributable, open-source-ready skill package. This skill walks through a 7-phase pipeline that audits for personally identifiable information, generalizes language and role assumptions, verifies license compatibility, and prepares the final package for commit.
+Convert a personal agent skill into a clean, distributable, open-source-ready skill package. This skill walks through a 7-phase pipeline that audits for personally identifiable information, generalizes language and role assumptions, verifies license compatibility, checks cross-platform adapter needs, and prepares the final package for commit.
 
 ## Communication Rules
 
@@ -26,7 +26,7 @@ Convert a personal Claude Code skill into a clean, distributable, open-source-re
 
 Collect from the user:
 
-1. **Source skill path**: directory containing the personal skill (e.g., `~/.claude/skills/my-skill/`)
+1. **Source skill path**: directory containing the personal skill (e.g., `~/.claude/skills/my-skill/` or `~/.agents/skills/my-skill/`)
 2. **Target package path**: directory of the distributable package (e.g., `~/workspace/6_Aperivue/medical-research-skills/`)
 3. **Target license**: license of the package (default: MIT)
 
@@ -226,6 +226,26 @@ Present license audit table:
 
 Run `audit_skill.sh` one final time. Must return exit code 0.
 
+### Cross-Platform Adapter Review
+
+Check whether the skill can run in common desktop-agent environments:
+
+| Platform | Check |
+|---|---|
+| Claude Code | No hardcoded dependency on private `~/.claude` paths unless documented. |
+| Codex | `SKILL.md` is self-contained and installable under `~/.agents/skills/`. |
+| Cursor | A short `.cursor/rules/*.mdc` adapter can point to the canonical `SKILL.md`. |
+| Windows | Commands avoid Unix-only assumptions or provide PowerShell/Python alternatives. |
+| macOS/Linux | Shell examples use portable paths where possible. |
+
+If the package is intended for a workshop or classroom, prepare direct-download
+ZIPs rather than asking users to navigate GitHub manually:
+
+```text
+https://github.com/{owner}/{repo}/releases/latest/download/{package}-classroom-windows.zip
+https://github.com/{owner}/{repo}/releases/latest/download/{package}-classroom-macos.zip
+```
+
 ### README Entry Draft
 
 Generate a table row matching the target package's README format:
@@ -282,6 +302,17 @@ Remind the user to:
 - Update any memory files tracking package status
 - Add the skill to any marketplace listings if applicable
 - Test installation from a clean clone: `git clone <repo> && cp -r <repo>/skills/<skill-name> ~/.claude/skills/`
+- For classroom distribution, create or update GitHub Release ZIP assets and test direct download links.
+
+### Classroom Package Checklist (if applicable)
+
+- [ ] Full skill set is installed once; lesson tasks use only 1-2 skills at a time
+- [ ] Windows ZIP includes `installers/install-windows.cmd`
+- [ ] macOS ZIP includes `installers/install-macos.command`
+- [ ] `README_FIRST.md` explains unzip -> double-click -> restart -> test prompt
+- [ ] Email announcement uses direct GitHub Release download links
+- [ ] WSL is documented as an advanced option, not a default requirement
+- [ ] First prompts avoid full end-to-end orchestration
 
 ---
 

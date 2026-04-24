@@ -238,31 +238,55 @@ ma-scout -> search-lit -> fulltext-retrieval -> design-study ──> write-proto
 
 ## Installation
 
-> **🇰🇷 프로그래밍 경험이 없으신가요?** [한국어 설치 가이드](https://aperivue.com/guide/install)를 따라하세요. Claude Code Desktop 앱으로 터미널 없이 설치할 수 있습니다.
+> **No terminal?** Use the classroom installer ZIP. Download, unzip, double-click the installer, then restart your desktop agent app.
 
-### Option 1: Install all skills (recommended)
+### Option 1: Classroom installer (recommended for non-programmers)
+
+Windows:
+
+```text
+https://github.com/Aperivue/medsci-skills/releases/latest/download/medsci-skills-classroom-windows.zip
+```
+
+macOS:
+
+```text
+https://github.com/Aperivue/medsci-skills/releases/latest/download/medsci-skills-classroom-macos.zip
+```
+
+After unzipping:
+
+- Windows: double-click `installers/install-windows.cmd`
+- macOS: double-click `installers/install-macos.command`
+
+Then restart Claude Code Desktop, Codex Desktop, or Cursor and test with:
+
+```text
+MedSci Skills가 설치됐는지 확인하고, 오늘 실습에 쓸 대표 스킬 5개만 보여줘.
+```
+
+### Option 2: Install all skills manually
 
 ```bash
 git clone https://github.com/Aperivue/medsci-skills.git
 cp -r medsci-skills/skills/* ~/.claude/skills/
 ```
 
-### Option 2: Install individual skills
+### Option 3: Install individual skills manually
 
 ```bash
 git clone https://github.com/Aperivue/medsci-skills.git
 cp -r medsci-skills/skills/check-reporting ~/.claude/skills/
 ```
 
-### Option 3: No terminal (Claude Code Desktop)
+### Platform notes
 
-1. Download ZIP from this repo (green **Code** button → **Download ZIP**)
-2. Unzip and copy the `skills/` folder contents to `~/.claude/skills/`
-3. Restart Claude Code Desktop
+- Claude Code: skills are copied to `~/.claude/skills/`.
+- Codex: skills are copied to `~/.agents/skills/`.
+- Cursor: use a project rule in `.cursor/rules/` that points Cursor to the skill files.
+- Windows users do not need WSL for the basic classroom workflow. Use WSL only for advanced reproducible Linux toolchains.
 
-See the [full step-by-step guide](https://aperivue.com/guide/install) for detailed instructions with screenshots.
-
-After copying, restart Claude Code. Skills are automatically discovered from `~/.claude/skills/`.
+See [docs/classroom_distribution_plan.md](docs/classroom_distribution_plan.md) and [docs/classroom_materials.md](docs/classroom_materials.md) for instructor distribution, email templates, and first-class exercises.
 
 > **Tip:** Not sure which skill to use? Start with `/orchestrate` -- it will classify your request and route you to the right tool.
 
