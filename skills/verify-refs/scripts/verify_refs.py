@@ -292,7 +292,12 @@ def main() -> int:
     parser.add_argument("--project-root", default=".", help="Project root for output artifacts")
     parser.add_argument("--offline", action="store_true", help="Do not call PubMed/CrossRef APIs")
     parser.add_argument("--timeout", type=int, default=10, help="HTTP timeout seconds")
+    parser.add_argument("--strict", action="store_true", help="Exit non-zero on any UNVERIFIED row, and forbid --offline")
     args = parser.parse_args()
+
+    if args.strict and args.offline:
+        print("--strict is incompatible with --offline", file=sys.stderr)
+        return 2
 
     input_path = Path(args.input).resolve()
     project_root = Path(args.project_root).resolve()
@@ -320,7 +325,11 @@ def main() -> int:
     for rec in verified:
         counts[rec.status] = counts.get(rec.status, 0) + 1
     print(json.dumps({"total": len(verified), "counts": counts}, indent=2))
-    return 1 if counts.get("FABRICATED", 0) or counts.get("MISMATCH", 0) else 0
+    if counts.get("FABRICATED", 0) or counts.get("MISMATCH", 0):
+        return 1
+    if args.strict and counts.get("UNVERIFIED", 0):
+        return 1
+    return 0
 
 
 if __name__ == "__main__":

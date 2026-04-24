@@ -84,6 +84,29 @@ When paper type is "case report":
 
 **Output:** Setup summary with journal constraints, paper type, reporting guideline, backbone article, directory path, and LLM disclosure status (ON/OFF).
 
+#### Phase 0 Gate: Citekey-only references
+
+Before any section drafting begins, this skill enforces citekey-only entry into
+the manuscript. LLM-generated reference strings in prose are a primary source of
+citation fabrication.
+
+**Hard rules (v1.1.1 Phase 1A.4)**:
+
+1. **Every in-text citation MUST be `[@citekey]`**, where `citekey` exists in `manuscript/_src/refs.bib`. Pandoc/Quarto-style only. No "(Smith et al., 2024)" free text.
+2. **For a citation the user intends to add but has not yet imported to Zotero**, use the placeholder form `[@NEW:short-topic]` (e.g., `[@NEW:chest-xray-llm]`, `[@NEW:radbench-1]`). The topic slug is kebab-case, ≤30 characters, and must be unique within the manuscript.
+3. **Never** fabricate a citekey that "looks real" (e.g., `[@Smith_2024_AI]`) when the entry is not in `refs.bib`. The `[@NEW:...]` form is the only allowed placeholder.
+4. Before Phase 7 (Polish), ALL `[@NEW:...]` placeholders must be resolved:
+   - Owner runs `/search-lit` → `/lit-sync` to import verified entries into Zotero; Better BibTeX auto-export refreshes `refs.bib`; owner replaces `[@NEW:topic]` with the real citekey.
+   - Collaborators notify the owner (per `docs/zotero_policy.md`).
+5. Phase 7 pre-submission check: `grep -E '\[@NEW:[^]]+\]' manuscript/index.qmd` must return zero matches before `/sync-submission` is allowed to freeze a journal package.
+
+**Why this matters**: PRISMA citation fabrication in MA projects and reference hallucination in solo manuscripts both traced back to LLM-generated citation strings inlined during drafting. Forcing the citekey discipline at Phase 0 redirects that failure mode into a visible placeholder the submission gate can block.
+
+**If refs.bib is absent (new project)**:
+- Create an empty `manuscript/_src/refs.bib` placeholder with a comment: `% refs.bib managed by /lit-sync via Zotero Better BibTeX. Do not hand-edit.`
+- Record in `SSOT.yaml` `reference_manager.required_for: project_owner` per Zotero policy.
+- Proceed; all early citations will be `[@NEW:...]` placeholders until the first `/lit-sync` run.
+
 ---
 
 ### Phase 1: Outline
@@ -334,12 +357,23 @@ Call `/check-reporting` on `manuscript/manuscript.md`. Parse the output:
 
 #### Step 7.3: Citation Verification
 
-Call `/verify-refs` on the current manuscript to verify all citations in the
-manuscript are real and correctly formatted. This writes
-`references/verified_references.tsv`, `references/library.bib`, and
-`qc/reference_audit.json`. If `/verify-refs` is unavailable, fall back to
-`/search-lit --verify-only` and flag any unverified references with
-`[UNVERIFIED]` markers.
+**7.3.1 — Placeholder gate (v1.1.1 Phase 1A.4).** Before running `/verify-refs`,
+confirm that no `[@NEW:topic]` placeholders remain:
+
+```bash
+grep -nE '\[@NEW:[^]]+\]' manuscript/index.qmd manuscript/manuscript.md 2>/dev/null
+```
+
+If any match is returned, HARD STOP. Report the unresolved placeholders to the
+user and loop back: owner runs `/search-lit` → `/lit-sync` to import entries,
+collaborators flag via owner. Do NOT proceed to 7.3.2 until the grep is clean.
+
+**7.3.2 — Audit.** Call `/verify-refs` on the current manuscript. Per v1.1.1
+contract, its sole output is `qc/reference_audit.json` (no longer writes
+`references/*`). Parse that file: if `submission_safe: false`, stop the pipeline
+and surface the `FABRICATED` / `MISMATCH` records to the user. If
+`/verify-refs` is unavailable, fall back to `/search-lit --verify-only` and flag
+any unverified references with `[UNVERIFIED]` markers.
 
 #### Step 7.3a: Numerical Claim Audit (MANDATORY for MA / pooled estimates / comparative arms)
 
