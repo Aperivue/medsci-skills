@@ -43,6 +43,15 @@ For hooks or quick manual runs, use the wrapper:
 "${CLAUDE_SKILL_DIR}/scripts/verify_cli.sh" manuscript/manuscript.md --offline
 ```
 
+**Manual pre-submission strict run** (Phase 1A.5):
+
+```bash
+"${CLAUDE_SKILL_DIR}/scripts/verify_cli.sh" manuscript/index.qmd --strict
+```
+
+`--strict` forbids `--offline` and exits non-zero on any UNVERIFIED row.
+Full checkpoint protocol: `references/manual_checkpoint_guide.md`.
+
 The script uses DOI, PMID, CrossRef, and PubMed E-utilities where available. If
 network verification fails, it records `UNVERIFIED` rather than silently passing.
 
