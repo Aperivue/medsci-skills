@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "project_id": "legacy_fixture",
+  "canonical": {
+    "manuscript": "manuscript/manuscript.md",
+    "references": "references/library.bib"
+  }
+}

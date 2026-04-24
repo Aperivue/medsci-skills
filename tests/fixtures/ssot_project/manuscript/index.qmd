@@ -1,0 +1,7 @@
+---
+title: "SSOT fixture manuscript"
+---
+
+# Introduction
+
+Stub body for SSOT.yaml validator regression testing. Cites [@sample2026].

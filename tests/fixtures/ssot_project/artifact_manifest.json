@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "project_id": "ssot_fixture",
+  "canonical": {
+    "manuscript": "manuscript/index.qmd",
+    "refs_bib": "manuscript/_src/refs.bib",
+    "numbers_yaml": "manuscript/_src/numbers.yaml"
+  }
+}
