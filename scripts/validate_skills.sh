@@ -235,8 +235,15 @@ echo -e " ${YELLOW}WARN${NC}: ${WARN}"
 echo -e " ${RED}FAIL${NC}: ${FAIL}"
 echo ""
 
+python3 "$REPO_ROOT/scripts/validate_skill_contracts.py"
+contract_status=$?
+echo ""
+
 if [ "$FAIL" -gt 0 ]; then
   echo -e "${RED}VALIDATION FAILED${NC} — fix $FAIL issue(s) before release"
+  exit 1
+elif [ "$contract_status" -ne 0 ]; then
+  echo -e "${RED}VALIDATION FAILED${NC} — skill contract validation failed"
   exit 1
 else
   echo -e "${GREEN}ALL CHECKS PASSED${NC}"
