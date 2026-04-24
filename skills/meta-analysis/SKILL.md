@@ -473,7 +473,16 @@ Failure patterns observed across MA01 RFA Adjunct / MA02 CBCT Biopsy / MA03 CBCT
 | Submission package drift (multi-journal folder hygiene, `DO_NOT_EDIT_HERE` gate, build artifact vs master) | Phase 8 → submission | `references/submission_package_drift.md` |
 | Post-submission release ops (Zenodo DOI timing, tag-cleanup gate, reject-retarget versioning) | Submission → Phase 10 | `references/post_submission_release_ops.md` |
 
-Planned scripts (out of current scope, tracked in FOLLOWUPS): `scripts/prisma_5way_consistency.py` (DI-6), `scripts/extraction_consensus_log_init.py` (DI-1), `scripts/tag_cleanup_gate.sh` (DI-8), `scripts/verify_package_integrity.py`.
+### Automation hooks (invoke at the phase listed)
+
+| When | Script | Gate |
+|---|---|---|
+| Phase 4 kickoff (before first extraction row) | `python3 ${CLAUDE_SKILL_DIR}/../../scripts/extraction_consensus_log_init.py --output 2_Data/extraction_consensus_log.md` | DI-1: creates standalone consensus log so comparative arm-specific rows are never folded into R-script comments. |
+| Phase 3f reconciliation + every revision touching PRISMA numbers | `python3 ${CLAUDE_SKILL_DIR}/../../scripts/prisma_5way_consistency.py --ssot prisma.yaml` | DI-6: 5-surface drift check (abstract / main text / flow figure / supplement / CSV) against YAML SSOT. Non-zero exit blocks Phase 5 writeup. |
+| Phase 8 pre-submission + every journal retarget | `bash ${CLAUDE_SKILL_DIR}/../../scripts/tag_cleanup_gate.sh` | DI-8: fails if `VERIFY-CSV`/`TODO`/`FIXME`/`XXX` survive in `7_Manuscript`, `supplement`, `SUBMISSION`, etc. |
+| Phase 8 on first build per journal (`--record`), then before every re-submission (`--verify`) | `python3 ${CLAUDE_SKILL_DIR}/../../scripts/verify_package_integrity.py --record --journal <name>` then `--verify --journal <name>` | SPD: checksum-based drift detection between master manuscript and built `SUBMISSION/{journal}/` folder. Journal-editable files (cover letter, response, MANIFEST, `DO_NOT_EDIT_HERE.md`) are auto-excluded. |
+
+All four scripts are repo-shipped as of 2026-04 (FOLLOWUPS P10). Non-zero exit = gate failure; resolve before proceeding to the next phase.
 
 ---
 
