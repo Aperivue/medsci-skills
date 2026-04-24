@@ -28,9 +28,23 @@ When enough literature notes accumulate, extracts cross-cutting concept notes.
 
 ## Prerequisites
 
-- Zotero MCP server available (skip the Zotero phase if not connected).
+- **Project owner only** — `/lit-sync` is an owner-scoped operation per `docs/zotero_policy.md`. Collaborators consume the committed `manuscript/_src/refs.bib` snapshot read-only.
+- Zotero desktop 7.x + Better BibTeX plugin installed.
+- Better BibTeX "Keep updated" auto-export configured to `<project>/manuscript/_src/refs.bib` (owner setup checklist in `docs/zotero_policy.md` §Setup).
+- Zotero MCP server available (skip the Zotero phase if not connected; auto-export refresh still fires once Zotero is reopened).
 - Obsidian CLI or direct file writing to the Obsidian vault.
 - Obsidian vault path: configured in user's environment (e.g., `$OBSIDIAN_VAULT`).
+
+## Artifact Contract
+
+Per `docs/artifact_contract.md`, `/lit-sync` is the **sole writer** of:
+
+| Artifact | Writer | Readers |
+|---|---|---|
+| `manuscript/_src/refs.bib` | `/lit-sync` (via Better BibTeX auto-export trigger) | `/write-paper`, `/verify-refs`, `/render` |
+| `references/zotero_collection.json` | `/lit-sync` | `/verify-refs`, `/sync-submission` |
+
+Direct hand edits to `refs.bib` are drift — revert on sight.
 
 ## Pipeline Overview
 
@@ -40,8 +54,11 @@ When enough literature notes accumulate, extracts cross-cutting concept notes.
     ▼ Phase 1: Parse
     Extract DOI, PMID, title, authors, journal, year
     │
-    ▼ Phase 2: Zotero Sync
-    Dedupe check → zotero_add_by_doi → place in collection
+    ▼ Phase 2: Zotero Sync (owner)
+    Dedupe → zotero_add_by_doi → place in collection → pin citekey
+    │
+    ▼ Phase 2.5: refs.bib snapshot refresh
+    Trigger Better BibTeX auto-export → verify manuscript/_src/refs.bib mtime updated
     │
     ▼ Phase 3: Obsidian Literature Notes
     Create 02 연구/문헌/{citekey}.md (empty note OK — fill later with highlights)
@@ -126,6 +143,43 @@ Always write `references/zotero_collection.json` in the project workspace:
 
 If Zotero is unavailable, write the same file with `status: "skipped"` and a
 human-readable `reason`.
+
+---
+
+## Phase 2.5: refs.bib snapshot refresh
+
+Better BibTeX "Keep updated" auto-export normally refreshes `manuscript/_src/refs.bib` within seconds of a Zotero change. This phase **verifies** the snapshot actually updated before downstream skills consume it.
+
+### Step 2.5.1: Resolve path
+
+Read `SSOT.yaml` → `truth.refs_bib`. Default: `manuscript/_src/refs.bib`. If absent (legacy project), fall back to `manuscript/_src/refs.bib` and emit a WARN recommending SSOT migration.
+
+### Step 2.5.2: Verify refresh
+
+After Phase 2 adds items:
+
+1. Capture `stat -f "%m" manuscript/_src/refs.bib` before Zotero writes.
+2. Wait up to 10s (Better BibTeX debounce). Poll mtime.
+3. If mtime unchanged after 10s:
+   - Prompt user to check Zotero is running and BBT export is "Keep updated".
+   - If BBT auto-export path is wrong, print the expected path (`<project>/manuscript/_src/refs.bib`) and refer to `docs/zotero_policy.md` §Setup.
+   - As last resort, offer manual export: `File → Export Library → Better BibTeX → target path`.
+4. Once mtime advances, grep for the newly added citekeys. All must be present; if any is missing, report as failure (do NOT fabricate entries).
+
+### Step 2.5.3: Record in zotero_collection.json
+
+Append to the JSON written in Step 2.3:
+
+```json
+{
+  "refs_bib_path": "manuscript/_src/refs.bib",
+  "refs_bib_mtime": "2026-04-24T14:32:11Z",
+  "refs_bib_refreshed": true,
+  "citekeys_verified": ["Kim_2024_Validation", "..."]
+}
+```
+
+If refresh failed, set `refs_bib_refreshed: false` and include `reason`. `/verify-refs` uses this flag to decide whether the snapshot is trustworthy.
 
 ---
 
@@ -323,9 +377,11 @@ and add whatever is missing.
    essence of the 2nd-layer note is the user's own wording.
 3. **Skip Zotero for entries without a DOI** — ask the user to add those manually.
 4. **Gracefully skip Zotero when the MCP is not connected** — Obsidian notes are
-   created independently.
+   created independently; but do NOT hand-edit `refs.bib` to compensate (violates artifact contract).
 5. **Always record the collection key** — report the key to the user when a new
    collection is created.
+6. **Never write `refs.bib` directly.** Only Better BibTeX auto-export may write that file. If auto-export is broken, fix the Zotero setup rather than writing the file from this skill.
+7. **Owner-only execution.** If the current user is a collaborator (no Zotero access per `SSOT.yaml` `reference_manager.required_for`), abort with instructions to flag `[@NEW:topic]` placeholders in the manuscript and notify the owner.
 
 ## Anti-Hallucination
 

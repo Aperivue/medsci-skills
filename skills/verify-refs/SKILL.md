@@ -1,16 +1,17 @@
 ---
 name: verify-refs
-description: Verify manuscript references against PubMed and CrossRef, detect fabricated or mismatched citations, and write auditable reference artifacts.
+description: Audit-only verification of manuscript references against PubMed and CrossRef. Detects fabricated or mismatched citations and writes qc/reference_audit.json. Does not modify references/ or refs.bib.
 triggers: verify refs, verify references, citation audit, reference hallucination, fabricated references, bibliography check, PMID check, DOI check
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit
 ---
 
-# Verify References
+# Verify References (Audit-Only)
 
 You help a medical researcher prevent reference hallucinations before submission.
-This skill audits an existing manuscript or bibliography. It does not discover
-new literature; use `/search-lit` for literature discovery.
+This skill audits an existing manuscript or bibliography. It **does not write**
+to `references/` or `manuscript/_src/refs.bib`. It does not discover new
+literature; use `/search-lit` for discovery and `/lit-sync` for bib management.
 
 ## When to Use
 
@@ -45,22 +46,27 @@ For hooks or quick manual runs, use the wrapper:
 The script uses DOI, PMID, CrossRef, and PubMed E-utilities where available. If
 network verification fails, it records `UNVERIFIED` rather than silently passing.
 
-## Output Contract
+## Output Contract (v1.1.1)
 
 | Artifact | Path | Purpose |
 |---|---|---|
-| Reference table | `references/verified_references.tsv` | Row-level OK/MISMATCH/UNVERIFIED/FABRICATED status |
-| BibTeX library | `references/library.bib` | Verified or explicitly marked bibliography entries |
-| Audit JSON | `qc/reference_audit.json` | Machine-readable summary for `/orchestrate` and `/sync-submission` |
+| Audit JSON | `qc/reference_audit.json` | Sole output — row-level status (OK/MISMATCH/UNVERIFIED/FABRICATED), counts, submission-safe flag, full records |
+
+**Removed in Phase 1A.2** (per `docs/artifact_contract.md`):
+- `references/verified_references.tsv` — record-level details now live inside `reference_audit.json` under `records[]`.
+- `references/library.bib` — never this skill's concern. `/search-lit` produces candidates; `/lit-sync` (via Better BibTeX) writes `manuscript/_src/refs.bib`.
+
+Sole-writer enforcement: `scripts/validate_project_contract.py` will flag any `references/*` file written by this skill as drift.
 
 ## Workflow
 
 1. Identify the input file and project root.
 2. Run `scripts/verify_refs.py`.
 3. Read `qc/reference_audit.json`.
-4. Report all `FABRICATED` and `MISMATCH` rows first.
+4. Report all `FABRICATED` and `MISMATCH` rows first (from `records[]`).
 5. If `UNVERIFIED` rows remain, list them as manual checks and do not call the
    manuscript fully submission-safe.
+6. If the user needs a human-readable table, summarize from `records[]` in chat — do not write a TSV.
 
 ## Quality Gates
 

@@ -3,14 +3,14 @@
 
 The script is deliberately stdlib-only. It extracts reference-like entries from
 Markdown, DOCX, BibTeX, plain text, or TSV, verifies DOI/PMID when possible, and
-writes stable TSV/JSON/BibTeX artifacts.
+writes a single audit artifact: qc/reference_audit.json. Per v1.1.1 artifact
+contract, this skill is sole writer of that file and MUST NOT touch references/.
 """
 
 from __future__ import annotations
 
 import argparse
 import csv
-import hashlib
 import html
 import json
 import re
@@ -48,11 +48,6 @@ def normalize_space(text: str) -> str:
 
 def clean_doi(doi: str) -> str:
     return doi.rstrip(".,;)].").lower()
-
-
-def slug(text: str, n: int = 10) -> str:
-    digest = hashlib.sha1(text.encode("utf-8", "ignore")).hexdigest()[:n]
-    return digest
 
 
 def read_docx(path: Path) -> str:
@@ -265,58 +260,27 @@ def verify_record(record: RefRecord, offline: bool, timeout: int) -> RefRecord:
     return record
 
 
-def bibtex_escape(text: str) -> str:
-    return text.replace("{", "").replace("}", "").replace("\n", " ")
-
-
 def write_outputs(records: list[RefRecord], project_root: Path, source: Path) -> None:
-    ref_dir = project_root / "references"
+    """Audit-only writer (v1.1.1 Phase 1A.2).
+
+    Per docs/artifact_contract.md, /verify-refs is sole writer of qc/reference_audit.json
+    only. It MUST NOT write to references/ (that directory is owned by /search-lit and
+    /lit-sync). All per-record details live inside reference_audit.json.
+    """
     qc_dir = project_root / "qc"
-    ref_dir.mkdir(parents=True, exist_ok=True)
     qc_dir.mkdir(parents=True, exist_ok=True)
-
-    tsv_path = ref_dir / "verified_references.tsv"
-    with tsv_path.open("w", encoding="utf-8", newline="") as fh:
-        writer = csv.DictWriter(
-            fh,
-            fieldnames=["ref_id", "status", "doi", "pmid", "year_guess", "title_guess", "evidence", "note", "raw"],
-            delimiter="\t",
-        )
-        writer.writeheader()
-        for rec in records:
-            writer.writerow({k: getattr(rec, k) for k in writer.fieldnames})
-
-    bib_path = ref_dir / "library.bib"
-    with bib_path.open("w", encoding="utf-8") as fh:
-        for rec in records:
-            key = f"{rec.ref_id}_{slug(rec.raw, 6)}"
-            fh.write(f"@misc{{{key},\n")
-            if rec.title_guess:
-                fh.write(f"  title = {{{bibtex_escape(rec.title_guess)}}},\n")
-            if rec.year_guess:
-                fh.write(f"  year = {{{rec.year_guess}}},\n")
-            if rec.doi:
-                fh.write(f"  doi = {{{rec.doi}}},\n")
-            if rec.pmid:
-                fh.write(f"  pmid = {{{rec.pmid}}},\n")
-            fh.write(f"  note = {{{rec.status}: {bibtex_escape(rec.evidence)}}}\n")
-            fh.write("}\n\n")
 
     counts: dict[str, int] = {}
     for rec in records:
         counts[rec.status] = counts.get(rec.status, 0) + 1
     audit = {
-        "schema_version": 1,
+        "schema_version": 2,
         "source": str(source),
         "total_references": len(records),
         "counts": counts,
         "submission_safe": counts.get("FABRICATED", 0) == 0 and counts.get("MISMATCH", 0) == 0,
         "fully_verified": counts.get("UNVERIFIED", 0) == 0 and counts.get("FABRICATED", 0) == 0 and counts.get("MISMATCH", 0) == 0,
         "requires_manual_reference_check": counts.get("UNVERIFIED", 0) > 0,
-        "artifacts": {
-            "verified_references_tsv": str(tsv_path.relative_to(project_root)),
-            "library_bib": str(bib_path.relative_to(project_root)),
-        },
         "records": [asdict(rec) for rec in records],
     }
     (qc_dir / "reference_audit.json").write_text(json.dumps(audit, indent=2, ensure_ascii=False), encoding="utf-8")
