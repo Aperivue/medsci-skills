@@ -18,7 +18,7 @@
 | P7 | ✅ Done | `/lit-sync` Phase 2.5 precondition assertion 부재 | 2026-04-24: `skills/lit-sync/SKILL.md`에 Step 2.5.1b 추가 — `read-only.json` 빈 list or target refs.bib 부재 시 polling 스킵하고 setup 안내로 early-exit. Step 2.5.3 JSON에 `reason: "precondition:<which>"` 기록. |
 | P8 | 🟢 Low | `/lit-sync` Phase 2.5 polling 회귀 스크립트 추출 | `~/.local/cache/phase1b_b_dryrun/poll.sh` + 4-test 시나리오 → `skills/lit-sync/tests/test_poll_logic.sh`. 본 세션 isolation dry-run 4/4 PASS. |
 | P9 | 🟡 Med | `verify_refs.py` cache 모드 (`--cache qc/reference_audit.json`, 60s TTL) | Phase 1C enforce 경로에서 PreSave hook latency >3s 대비. 직전 audit이 같은 bib hash + 60s 이내면 재검증 생략. scope doc §6 리스크 완화 근거. |
-| P10 | 🟡 Med | `/meta-analysis` Failure Modes 자동화 스크립트 4종 | (1) `scripts/prisma_5way_consistency.py` — DI-6 YAML single-source substitute 렌더. (2) `scripts/extraction_consensus_log_init.py` — DI-1 템플릿 생성. (3) `scripts/tag_cleanup_gate.sh` — DI-8 grep gate. (4) `scripts/verify_package_integrity.py` — SPD 저널별 폴더 checksum. 2026-04-24 references 4개(DI/RO/SPD/release-ops) 도입 후 후속. |
+| P10 | ✅ Done | `/meta-analysis` Failure Modes 자동화 스크립트 4종 | 2026-04-24: 4종 완료 — `scripts/prisma_5way_consistency.py` (DI-6 YAML SSOT + per-surface `require` 키), `scripts/extraction_consensus_log_init.py` (DI-1 10-컬럼 스캐폴드), `scripts/tag_cleanup_gate.sh` (DI-8 rg/grep 게이트), `scripts/verify_package_integrity.py` (SPD SHA-256 manifest, 저널 편집 허용 파일 제외). 스모크 테스트 PASS/FAIL + drift 케이스 전수 확인. |
 
 ## 작성 규약
 
