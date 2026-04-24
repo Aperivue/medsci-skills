@@ -2,10 +2,10 @@
 
 # MedSci Skills
 
-**32 skills that actually work.** Built by a physician-researcher, tested on real publications.
+**36 skills that actually work.** Built by a physician-researcher, tested on real publications.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-![Skills](https://img.shields.io/badge/Skills-32-brightgreen?style=flat-square)
+![Skills](https://img.shields.io/badge/Skills-36-brightgreen?style=flat-square)
 ![Platform](https://img.shields.io/badge/Platform-Claude_Code-blueviolet?style=flat-square)
 ![Built by](https://img.shields.io/badge/Built_by-Physician--Researcher-blue?style=flat-square)
 
@@ -204,6 +204,7 @@ ma-scout -> search-lit -> fulltext-retrieval -> design-study ──> write-proto
 | **orchestrate** | Single entry point for the full bundle. Classifies your request and routes to the right skill -- or chains multiple skills for multi-step workflows. Full Pipeline Mode runs `analyze-stats` → `make-figures` → `write-paper` → `check-reporting` → `self-review` end-to-end. **New:** `--e2e` flag for fully autonomous execution with post-skill validation and halt-on-failure. |
 | **find-cohort-gap** | Research gap finder for longitudinal cohort databases. Profiles cohort strengths, matches PI expertise, scans literature saturation via 6-Pattern scoring, and outputs ranked topic proposals with comparison tables and one-pagers. Works with any cohort: NHIS, UK Biobank, institutional EMR, health checkup registries. |
 | **search-lit** | PubMed + Semantic Scholar + bioRxiv search with anti-hallucination citation verification. Token-efficient error handling -- CrossRef failures are silently batched, not repeated. |
+| **verify-refs** | Pre-submission reference audit for `.md`, `.docx`, `.bib`, or `.tsv` inputs. Extracts references, verifies DOI/PMID via CrossRef/PubMed when available, and writes `references/verified_references.tsv`, `references/library.bib`, and `qc/reference_audit.json`. |
 | **fulltext-retrieval** | Batch open-access PDF downloader. Unpaywall → PMC → OpenAlex → CrossRef pipeline. OA-only -- no paywall bypass. Input: DOI list or TSV. Optional PDF→Markdown conversion via [pymupdf4llm](https://pymupdf.readthedocs.io/en/latest/pymupdf4llm/) for token-efficient LLM analysis of academic papers. |
 | **check-reporting** | Manuscript compliance audit against 33 reporting guidelines and risk of bias tools (STROBE, STARD, STARD-AI, TRIPOD, TRIPOD+AI, PRISMA, PRISMA-DTA, PRISMA-P, MOOSE, ARRIVE, CONSORT, CARE, SPIRIT, CLAIM, SQUIRE 2.0, CLEAR, GRRAS, MI-CLEAR-LLM, SWiM, AMSTAR 2, QUADAS-2, QUADAS-C, RoB 2, ROBINS-I, ROBINS-E, ROBIS, ROB-ME, PROBAST, PROBAST+AI, NOS, COSMIN, RoB NMA). **New:** Machine-readable JSON summary with `compliance_pct` and `fixable_by_ai` flags for automated pipeline integration. |
 | **analyze-stats** | Statistical analysis code generation (Python/R) for diagnostic accuracy, DTA meta-analysis (bivariate/HSROC), inter-rater agreement, survival analysis, demographics tables, regression (logistic/linear), propensity score (matching/IPTW/overlap weighting), and repeated measures (RM ANOVA/GEE/mixed models). Calibration mandatory for prediction models. |
@@ -217,6 +218,7 @@ ma-scout -> search-lit -> fulltext-retrieval -> design-study ──> write-proto
 | **write-paper** | Full IMRAD manuscript pipeline (8 phases). Outline to submission-ready manuscript with critic-fixer loops, AI pattern avoidance, and journal compliance. Anti-interpretation guardrails in Results; interactive Discussion planning with anchor paper input. Case report mode (CARE 2016, 1000-word short-form). Optional cover letter generation (Phase 8+). LLM Disclosure: auto-generates disclosure statements in Methods, Acknowledgments, and Cover Letter (opt-out via `--no-llm-disclosure`). **New:** `--autonomous` flag skips all user gates for fully automated manuscript generation; Phase 2 auto-calls `/make-figures --study-type` with manifest verification; Phase 7 enforces strict sequential QC chain (check-reporting → search-lit → self-review fix loop → DOCX build). |
 | **self-review** | Pre-submission self-review from reviewer perspective. 10 categories with research-type branching (AI, observational, educational, meta-analysis, case report, surgical). Anticipated Major/Minor format with severity framing and optional R0 numbering for `/revise` pipeline. **New:** `--json` structured output with `fixable_by_ai` flags; `--fix` mode auto-applies text fixes (max 2 iterations). |
 | **revise** | Response to reviewers with tracked changes. Parses decision letters, classifies comments as MAJOR/MINOR/REBUTTAL, generates point-by-point responses and cover letter. |
+| **sync-submission** | SSOT-to-submission drift audit and journal package helper. Treats `submission/{journal}/` as derived output, records source hashes in `.journal_meta.json`, and blocks freezing drifted packages. |
 | **manage-project** | Research project scaffolding and progress tracking. Commands: init, status, sync-memory, checklist, timeline. Backwards submission timelines and pre-submission checklists. |
 | **calc-sample-size** | Interactive sample size calculator with decision-tree guided test selection. Covers 11 designs (diagnostic accuracy, t-test, ANOVA, chi-square, McNemar, logistic regression, Cox regression EPV, survival, ICC, kappa, non-inferiority/equivalence). Generates reproducible R/Python code and IRB-ready justification text. |
 | **find-journal** | Journal recommendation engine. 2-pass matching: compact profiles for scoring, write-paper profiles for top-5 enrichment. Covers 30+ medical specialties, with a user-local private tier for personal-use profiles. No cached IF/APC -- you verify current metrics at journal sites. Post-rejection re-targeting mode. |
@@ -267,10 +269,10 @@ After copying, restart Claude Code. Skills are automatically discovered from `~/
 ## Key Features
 
 ### Autonomous E2E Pipeline (v2.3)
-`orchestrate --e2e` or `write-paper --autonomous` runs the full pipeline from data to submission-ready DOCX with zero human intervention. Skills pass outputs via structured manifests (`_analysis_outputs.md`, `_figure_manifest.md`) with post-skill validation: if a skill fails to produce expected outputs, the pipeline halts rather than proceeding with missing data. Phase 7 enforces a strict QC chain: AI pattern removal → reporting compliance check → citation verification → numerical claim audit (new in v2.3) → self-review with auto-fix (max 2 iterations) → DOCX build with embedded figures and tables.
+`orchestrate --e2e` or `write-paper --autonomous` runs the full pipeline from data to submission-ready DOCX with bounded validation. Skills pass outputs via structured manifests (`_analysis_outputs.md`, `_figure_manifest.md`) and project artifacts (`project.yaml`, `artifact_manifest.json`, `qc/status.json`). If a skill fails to produce expected outputs, the pipeline halts rather than proceeding with missing data. Phase 7 enforces a strict QC chain: AI pattern removal → reporting compliance check → `/verify-refs` citation audit → numerical claim audit → self-review with auto-fix (max 2 iterations) → DOCX/submission build.
 
 ### Anti-Hallucination Citations
-Every reference produced by `search-lit` is verified against PubMed, Semantic Scholar, or CrossRef APIs. No citation is ever generated from memory alone. API errors are batched silently -- no token waste from repeated failure messages.
+Every reference produced by `search-lit` is verified against PubMed, Semantic Scholar, or CrossRef APIs. Existing manuscripts should then run `/verify-refs`, which writes a visible reference audit and blocks fabricated references before submission. No citation is ever generated from memory alone. API errors are batched silently -- no token waste from repeated failure messages.
 
 ### Anti-Hallucination Numerical Claims (v2.3)
 `/meta-analysis` Phase 6b, `/self-review` Phase 2.5a, `/revise` Step 2.5, and `/write-paper`
