@@ -1,0 +1,11 @@
+schema_version: 1
+project_id: legacy_fixture
+project_type: original_research
+canonical_manuscript: manuscript/manuscript.md
+references_bib: references/library.bib
+artifact_manifest: artifact_manifest.json
+status_file: qc/status.json
+submission_root: submission
+target_journal: null
+reporting_guideline: STROBE
+zotero_collection: null

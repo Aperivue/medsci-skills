@@ -1,0 +1,41 @@
+schema_version: 1
+project_id: ssot_fixture
+project_type: original_research
+
+truth:
+  manuscript: manuscript/index.qmd
+  refs_bib: manuscript/_src/refs.bib
+  numbers_yaml: manuscript/_src/numbers.yaml
+  tables_yaml: manuscript/_src/tables.yaml
+  figures_dir: manuscript/figures/
+  metadata: manuscript/_metadata.yml
+
+reference_manager:
+  type: zotero
+  required_for: project_owner
+  library_type: user
+  library_id: null
+  collection_key: null
+  sync_method: better_bibtex_auto_export
+  fallback_for_collaborator: snapshot_only
+  citekey_policy: pinned_or_stable
+  refs_bib_snapshot: manuscript/_src/refs.bib
+
+renders: {}
+
+derived:
+  artifact_manifest: artifact_manifest.json
+  status_file: qc/status.json
+
+policy:
+  ssot_only_editable: true
+  submission_readonly: true
+  back_merge_required_before: render
+  manuscript_citations: citekey_only
+  allow_new_reference_from_llm: false
+  missing_citekey: block
+  unverified_reference: block_before_submission
+
+legacy:
+  project_yaml_alias: project.yaml
+  sunset_date: "2026-10-24"
