@@ -167,20 +167,24 @@ Recurring high-yield checks — apply to every manuscript:
 
 ## Journal-Specific Formatting
 
-### Radiology: AI (ScholarOne)
-- Scores: Scientific Merit, Originality/Importance, Practical Value, Reader Interest, Overall (1-9)
-- "Reject: Encourage major revision and resubmission" = Major Revision
+**Canonical source:** per-journal profile files at
+`references/reviewer_profiles/{JOURNAL_SHORTNAME}.md`
 
-### Investigative Radiology (Editorial Manager)
-- Scores: Interest (H/M/L), Innovation (H/M/L), Importance (H/M/L), Language editing (No minor/Yes major)
+In Phase 1 (Setup), after identifying the journal, read the matching profile and render its scorecard template at the top of the draft in Phase 3, above Confidential Comments to the Editor. This avoids duplicating journal form fields across multiple skills.
 
-### AJR (Editorial Manager)
-- Section-by-section structure (Title → Abstract → Introduction → Methods → Results → Discussion → References → Tables → Figures)
-- Continuous numbering across sections
+Current profiles:
+
+| Short | Journal | System | Scorecard |
+|---|---|---|---|
+| KJR | Korean Journal of Radiology | ScholarOne | 8 items, Excellent→Poor |
+| RYAI | Radiology: Artificial Intelligence | ScholarOne | 5 items, 1–9 |
+| INSI | Insights into Imaging | Editorial Manager | 4 items, H/M/L |
+| AJR | American Journal of Roentgenology | Editorial Manager | Section-by-section |
+| EURE | European Radiology | Editorial Manager | INSI-style base |
 
 ### Custom Journal
-- If the journal is not listed above, use the generic format from Phase 3
-- Ask the user if the journal has specific score requirements or formatting
+
+If a journal has no profile yet, use the generic format from Phase 3 and ask the user for the invitation form's scorecard fields so a new profile can be added under `reviewer_profiles/`.
 
 ## Output Contract
 
