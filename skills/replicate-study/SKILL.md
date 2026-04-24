@@ -116,6 +116,7 @@ Before reporting completion, verify:
 4. **LDL calculation**: note if source used direct measurement vs Friedewald.
 5. **Weighted analysis is mandatory** for KNHANES/NHANES — never run unweighted models.
 6. **IRB**: note that KNHANES/NHANES are de-identified public data (IRB exempt or waived).
+7. **Outdated source definitions**: if the source paper used a pre-2023 definition that has since been superseded (e.g., NAFLD → MASLD 2023, CKD-EPI 2009 → 2021 race-free), call `/define-variables` to cross-check whether to mirror the legacy definition (pure replication) or upgrade to current (extension). Document the choice explicitly in the difference report.
 
 ## Output Files
 

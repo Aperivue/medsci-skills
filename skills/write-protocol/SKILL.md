@@ -43,7 +43,8 @@ Read both reference files before generating a protocol draft.
 - **Input from design-study**: Study design recommendations, analysis unit, comparator design, validation strategy
 - **Input from calc-sample-size**: Sample size calculation results and IRB justification text
 - **Input from search-lit**: Background references with verified citations
-- **Pipeline position**: search-lit -> design-study -> calc-sample-size -> **write-protocol** -> manage-project
+- **Input from define-variables**: `variable_operationalization.md` — literature-grounded definitions, cutoffs, DB-variable mappings for the Methods section. **Precondition**: if the study is observational and no operationalization artifact exists, call `/define-variables` before drafting Methods. Do not invent phenotype/cutoff definitions from the data dictionary inside this skill.
+- **Pipeline position**: search-lit -> design-study -> calc-sample-size -> define-variables -> **write-protocol** -> manage-project
 
 When prior skill outputs are available, incorporate them directly. When they are not,
 prompt the user or call the relevant skill.

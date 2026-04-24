@@ -60,6 +60,7 @@ You do NOT do the work yourself. You classify, plan, and delegate.
 | **deidentify** | Data safety | De-identify clinical data containing PHI before any LLM processing. Standalone Python CLI (no LLM). |
 | **clean-data** | Data | Data profiling, missing value flagging, outlier detection, cleaning code generation |
 | **write-protocol** | Protocol | IRB/ethics protocol drafting, 4 core sections + 6 skeleton sections with TODO markers |
+| **define-variables** | Operationalization | Literature-grounded variable definitions, cutoffs, DB-variable mappings; prevents ad-hoc phenotype definitions; runs between `/search-lit` and `/write-protocol` for observational studies |
 
 ---
 
@@ -94,6 +95,7 @@ When the user's request arrives, classify it into one of these intents:
 | "Clean my data" / "Check data quality" / "Profile my dataset" | `/clean-data` |
 | "De-identify my data" / "Remove PHI" / "비식별화" / "익명화" / "Anonymize patient data" | `/deidentify` |
 | "Write an IRB protocol" / "Draft ethics submission" / "Research protocol" | `/write-protocol` |
+| "Define my variables" / "Justify cutoff" / "Phenotype definition" / "변수 정의 근거" / "ad-hoc 정의 피하기" | `/define-variables` |
 | "Write a case report" / "I have an interesting case" | `/write-paper` (case-report mode) |
 | "Generate a cover letter" / "Write cover letter for submission" | `/write-paper` (Phase 8+, requires completed manuscript) |
 | "Verify references" / "Check citation hallucinations" / "Reference audit" | `/verify-refs` |
@@ -115,7 +117,8 @@ The **Nodes** column lists decision forks that should be rendered in interactive
 | **Meta-analysis from scratch** | `search-lit` -> `fulltext-retrieval` -> `meta-analysis` (handles its own pipeline internally) | N2 (MA type), N5 (synthesis scope) |
 | **Grant writing** | `search-lit` -> `grant-builder` | N2 (option 5) |
 | **Conference presentation** | `present-paper` (handles its own pipeline internally) | N1 |
-| **New study, need IRB protocol** | `search-lit` -> `design-study` -> `calc-sample-size` -> `write-protocol` | N3, N2 (option 4 — protocol) |
+| **New study, need IRB protocol** | `search-lit` -> `design-study` -> `calc-sample-size` -> `define-variables` -> `write-protocol` | N3, N2 (option 4 — protocol) |
+| **Observational cohort study (retro/screening/registry)** | `intake-project` -> `design-study` -> `search-lit` -> `define-variables` -> `write-protocol` -> `analyze-stats` -> `write-paper` | N1, N2, N3 |
 | **Data with PHI, need full pipeline** | `deidentify` -> `clean-data` -> `analyze-stats` -> `make-figures` -> `write-paper` | N6 (mandatory), N3, N4 |
 | **Data ready, need cleaning first** | `clean-data` -> `analyze-stats` -> `make-figures` -> `write-paper` | N6, N3, N4 |
 | **Full submission chain** | `write-paper` -> `self-review` -> `check-reporting` -> `find-journal` -> `write-paper` (Phase 8+ cover letter) -> `manage-project checklist` | N4, N8 (if recovery triggered), N9 (on re-entry) |
