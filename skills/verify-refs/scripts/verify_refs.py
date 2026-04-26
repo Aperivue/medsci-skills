@@ -37,6 +37,7 @@ class RefRecord:
     doi: str = ""
     pmid: str = ""
     year_guess: str = ""
+    first_author_guess: str = ""
     status: str = "UNVERIFIED"
     evidence: str = ""
     note: str = ""
@@ -82,6 +83,7 @@ def parse_bib(text: str) -> list[RefRecord]:
         pmid_match = re.search(r"pmid\s*=\s*[\{\"]?(\d{5,9})", entry, re.I)
         year_match = re.search(r"year\s*=\s*[\{\"]?((?:19|20)\d{2})", entry, re.I)
         raw = normalize_space(entry)
+        author_match = re.search(r"author\s*=\s*[\{\"](.+?)[\}\"]\s*,", entry, re.I | re.S)
         records.append(
             RefRecord(
                 ref_id=key_match.group(1) if key_match else f"ref_{len(records)+1}",
@@ -90,6 +92,7 @@ def parse_bib(text: str) -> list[RefRecord]:
                 doi=clean_doi(doi_match.group(1)) if doi_match else "",
                 pmid=pmid_match.group(1) if pmid_match else "",
                 year_guess=year_match.group(1) if year_match else "",
+                first_author_guess=parse_first_author(author_match.group(1)) if author_match else "",
             )
         )
     return records
@@ -109,7 +112,17 @@ def parse_tsv(text: str) -> list[RefRecord]:
             if lk == "pmid" and value:
                 pmid = re.sub(r"\D", "", value)
         title = row.get("title") or row.get("Title") or ""
-        records.append(RefRecord(ref_id=f"ref_{i}", raw=normalize_space(joined), title_guess=title, doi=doi, pmid=pmid))
+        author_field = row.get("author") or row.get("authors") or row.get("Author") or row.get("Authors") or ""
+        records.append(
+            RefRecord(
+                ref_id=f"ref_{i}",
+                raw=normalize_space(joined),
+                title_guess=title,
+                doi=doi,
+                pmid=pmid,
+                first_author_guess=parse_first_author(author_field) if author_field else "",
+            )
+        )
     return records
 
 
@@ -154,9 +167,76 @@ def parse_reference_lines(text: str) -> list[RefRecord]:
                 doi=clean_doi(doi_match.group(0)) if doi_match else "",
                 pmid=pmid_match.group(1) if pmid_match else "",
                 year_guess=year_match.group(0) if year_match else "",
+                first_author_guess=parse_first_author(raw),
             )
         )
     return records
+
+
+_NAME_PARTICLES = {"von", "van", "de", "del", "della", "dos", "da", "le", "la", "du", "den", "der", "ten"}
+
+
+def parse_first_author(raw: str) -> str:
+    """Extract first-author surname from a Vancouver/AMA/BibTeX-style citation.
+
+    Conservative: returns "" when the format is ambiguous so author-mismatch
+    checks degrade gracefully rather than firing false MISMATCH alerts.
+    """
+    text = re.sub(r"^\s*(\[\d+\]|\d+[\.\)])\s*", "", raw).strip()
+    bib_m = re.search(r"author\s*=\s*[{\"]([^}\"]+)", text, re.I)
+    if bib_m:
+        text = bib_m.group(1)
+    text = re.split(r"\s+and\s+", text, maxsplit=1)[0]
+    parts = [p.strip() for p in text.split(",") if p.strip()]
+    if not parts:
+        return ""
+    # "Lastname, Firstname H." style (BibTeX expanded)
+    if len(parts) >= 2 and re.match(r"^[A-Z][a-zA-Z .\-']*$", parts[1]) and not re.search(r"\d", parts[1]):
+        if re.match(r"^[A-Z][a-zA-Zà-ÿ'\- ]+$", parts[0]):
+            return parts[0].strip()
+    first = parts[0]
+    # "Surname Initials" — strip trailing initials block (e.g., "DH", "J", "F.D.")
+    m = re.match(
+        r"^((?:(?:" + "|".join(_NAME_PARTICLES) + r")\s+)?[A-Zà-ÿ][\wà-ÿ'\-]*(?:\s+[A-Zà-ÿ][\wà-ÿ'\-]*)?)\s+(?:[A-Z]\.?\s*){1,4}$",
+        first,
+    )
+    if m:
+        return m.group(1).strip()
+    tokens = first.split()
+    if tokens and tokens[0].lower() in _NAME_PARTICLES and len(tokens) >= 2:
+        return f"{tokens[0]} {tokens[1]}"
+    return tokens[0] if tokens else ""
+
+
+def _normalize_surname(name: str) -> str:
+    n = name.lower().strip()
+    # strip diacritics best-effort
+    repl = str.maketrans("àáâãäåèéêëìíîïòóôõöùúûüñç", "aaaaaaeeeeiiiiooooouuuunc")
+    n = n.translate(repl)
+    n = re.sub(r"[^a-z\s\-]", "", n)
+    n = re.sub(r"\s+", " ", n).strip()
+    return n
+
+
+def author_surnames_match(cited: str, actual: str) -> bool:
+    """Tolerant comparison: handles particle variants and hyphenation."""
+    if not cited or not actual:
+        return True  # cannot judge → do not flag
+    a = _normalize_surname(cited)
+    b = _normalize_surname(actual)
+    if not a or not b:
+        return True
+    if a == b:
+        return True
+    # Particle-stripped variants ("von elm" vs "elm")
+    a_core = re.sub(r"^(?:" + "|".join(_NAME_PARTICLES) + r")\s+", "", a)
+    b_core = re.sub(r"^(?:" + "|".join(_NAME_PARTICLES) + r")\s+", "", b)
+    if a_core and b_core and (a_core == b_core or a_core in b_core or b_core in a_core):
+        return True
+    # Hyphen vs space ("Abd-alrazaq" vs "abd alrazaq")
+    if a.replace("-", " ") == b.replace("-", " "):
+        return True
+    return False
 
 
 def guess_title(raw: str) -> str:
@@ -178,53 +258,74 @@ def http_json(url: str, timeout: int) -> dict | None:
         return None
 
 
-def verify_crossref(doi: str, timeout: int) -> tuple[str, str]:
+def verify_crossref(doi: str, timeout: int) -> tuple[str, str, str]:
+    """Returns (status, evidence, first_author_family)."""
     url = "https://api.crossref.org/works/" + urllib.parse.quote(doi)
     data = http_json(url, timeout)
     if not data or data.get("status") != "ok":
-        return "UNVERIFIED", "CrossRef DOI lookup failed"
+        return "UNVERIFIED", "CrossRef DOI lookup failed", ""
     msg = data.get("message", {})
     title = " ".join(msg.get("title") or [])
     year_parts = (((msg.get("issued") or {}).get("date-parts") or [[None]])[0])
     year = str(year_parts[0]) if year_parts and year_parts[0] else ""
-    evidence = f"CrossRef DOI OK"
+    authors = msg.get("author") or []
+    first_author = ""
+    if authors:
+        first_author = (authors[0].get("family") or authors[0].get("name") or "").strip()
+    evidence = "CrossRef DOI OK"
     if title:
         evidence += f"; title={title[:120]}"
     if year:
         evidence += f"; year={year}"
-    return "OK", evidence
+    if first_author:
+        evidence += f"; first_author={first_author}"
+    return "OK", evidence, first_author
 
 
-def verify_pubmed_pmid(pmid: str, timeout: int) -> tuple[str, str]:
+def verify_pubmed_pmid(pmid: str, timeout: int) -> tuple[str, str, str]:
+    """Returns (status, evidence, first_author_family)."""
     url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?" + urllib.parse.urlencode(
         {"db": "pubmed", "id": pmid, "retmode": "json"}
     )
     data = http_json(url, timeout)
     if not data:
-        return "UNVERIFIED", "PubMed PMID lookup failed"
+        return "UNVERIFIED", "PubMed PMID lookup failed", ""
     result = data.get("result", {})
     item = result.get(pmid)
     if not item:
-        return "FABRICATED", "PMID not found in PubMed"
+        return "FABRICATED", "PMID not found in PubMed", ""
     if item.get("error"):
-        return "FABRICATED", f"PubMed PMID error: {item['error']}"
+        return "FABRICATED", f"PubMed PMID error: {item['error']}", ""
     title = html.unescape(item.get("title", ""))
-    return "OK", f"PubMed PMID OK; title={title[:120]}"
+    authors = item.get("authors") or []
+    first_author = ""
+    if authors:
+        # PubMed esummary "name" is "Surname Initials" e.g. "Reichheld FF"
+        full = (authors[0].get("name") or "").strip()
+        # strip trailing initials block
+        m = re.match(r"^(.+?)\s+[A-Z]{1,4}$", full)
+        first_author = m.group(1).strip() if m else full
+    evidence = f"PubMed PMID OK; title={title[:120]}"
+    if first_author:
+        evidence += f"; first_author={first_author}"
+    return "OK", evidence, first_author
 
 
-def verify_pubmed_title(title: str, timeout: int) -> tuple[str, str]:
+def verify_pubmed_title(title: str, timeout: int) -> tuple[str, str, str]:
+    """Returns (status, evidence, first_author_family). Title-only search cannot
+    return a confident first author, so the third element is always ""."""
     if not title:
-        return "UNVERIFIED", "No DOI, PMID, or usable title"
+        return "UNVERIFIED", "No DOI, PMID, or usable title", ""
     url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?" + urllib.parse.urlencode(
         {"db": "pubmed", "term": title, "retmode": "json", "retmax": "3"}
     )
     data = http_json(url, timeout)
     if not data:
-        return "UNVERIFIED", "PubMed title search failed"
+        return "UNVERIFIED", "PubMed title search failed", ""
     ids = data.get("esearchresult", {}).get("idlist", [])
     if not ids:
-        return "UNVERIFIED", "No PubMed title match"
-    return "OK", f"PubMed title match; PMID candidates={','.join(ids)}"
+        return "UNVERIFIED", "No PubMed title match", ""
+    return "OK", f"PubMed title match; PMID candidates={','.join(ids)}", ""
 
 
 def verify_record(record: RefRecord, offline: bool, timeout: int) -> RefRecord:
@@ -237,7 +338,7 @@ def verify_record(record: RefRecord, offline: bool, timeout: int) -> RefRecord:
             record.evidence = "No identifier; offline mode"
         return record
 
-    checks: list[tuple[str, str]] = []
+    checks: list[tuple[str, str, str]] = []
     if record.doi:
         checks.append(verify_crossref(record.doi, timeout))
         time.sleep(0.2)
@@ -248,17 +349,32 @@ def verify_record(record: RefRecord, offline: bool, timeout: int) -> RefRecord:
         checks.append(verify_pubmed_title(record.title_guess, timeout))
         time.sleep(0.2)
 
-    statuses = [s for s, _ in checks]
-    evidence = " | ".join(e for _, e in checks)
+    statuses = [s for s, _, _ in checks]
+    evidence_parts = [e for _, e, _ in checks]
+
+    # First-author cross-check: only meaningful when an authoritative source
+    # returned OK and a non-empty author. Stays silent on UNVERIFIED rows so
+    # we don't double-penalize them.
+    actual_authors = [a for s, _, a in checks if s == "OK" and a]
+    author_mismatch = False
+    if record.first_author_guess and actual_authors:
+        if not any(author_surnames_match(record.first_author_guess, a) for a in actual_authors):
+            author_mismatch = True
+            evidence_parts.append(
+                f"AUTHOR MISMATCH: cited='{record.first_author_guess}' vs source='{actual_authors[0]}'"
+            )
+
     if "OK" in statuses and "FABRICATED" in statuses:
         record.status = "MISMATCH"
     elif "OK" in statuses:
-        record.status = "OK"
+        record.status = "MISMATCH" if author_mismatch else "OK"
     elif "FABRICATED" in statuses:
         record.status = "FABRICATED"
     else:
         record.status = "UNVERIFIED"
-    record.evidence = evidence
+    if author_mismatch and not record.note:
+        record.note = "first-author hallucination suspected (DOI/title correct, surname differs)"
+    record.evidence = " | ".join(evidence_parts)
     return record
 
 

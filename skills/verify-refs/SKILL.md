@@ -82,6 +82,26 @@ Sole-writer enforcement: `scripts/validate_project_contract.py` will flag any `r
 - Gate 1: stop submission if any row is `FABRICATED`.
 - Gate 2: require user confirmation before accepting `UNVERIFIED` references.
 - Gate 3: rerun after any reference edits.
+- Gate 4 (added 2026-04-26): first-author surname is cross-checked against
+  CrossRef/PubMed. A row whose DOI resolves but whose cited first author does
+  not match the authoritative source is downgraded to `MISMATCH` with
+  `note = "first-author hallucination suspected"`. This catches the common
+  LLM failure mode where a real DOI is paired with an invented author name.
+
+## First-Author Cross-Check (Detail)
+
+Driven by an actual incident: Paper 3 submitted to BMC Medical Education had
+ref 8 cited as "Ebrahimi S, et al." with the correct DOI for a Ballard et al.
+task force whitepaper. Pre-patch verify-refs marked it OK because DOI resolved.
+Post-patch it is correctly flagged as `MISMATCH`.
+
+- Comparison is tolerant: case, diacritics, hyphen vs space, and name
+  particles ("von", "van", "de", ...) are normalized before matching.
+- If the cited surname cannot be parsed confidently (`first_author_guess`
+  empty), the check is skipped silently — no false MISMATCH from formatting
+  ambiguity.
+- Title-only PubMed search does not return an authoritative author and is
+  therefore excluded from this check.
 
 ## What This Skill Does NOT Do
 
