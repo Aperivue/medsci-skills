@@ -557,6 +557,30 @@ Build the final submission-ready documents from the assembled components:
    pandoc manuscript/manuscript.md -o manuscript/manuscript_final.pdf --pdf-engine=xelatex -V geometry:margin=1in -V fontsize=11pt -V mainfont="Times New Roman"
    ```
    Ensure all figure image references use relative paths so figures render in both formats.
+
+   **With pandoc citeproc + journal CSL** (when manuscript uses `[@bibkey]` citations and a `.bib` is available — preferred for any submission with > 5 references; mandatory when reviewers have asked for "automatically generated reference list"):
+   ```bash
+   # 1. Validate keys vs .bib first (fail fast on UNDEFINED keys)
+   python "${CLAUDE_SKILL_DIR}/scripts/check_citation_keys.py" \
+     manuscript/manuscript.md manuscript/_src/refs.bib
+
+   # 2. Render with journal CSL (see references/citation_styles/README.md for journal mapping)
+   "${CLAUDE_SKILL_DIR}/scripts/render_manuscript.sh" \
+     -j european-radiology \
+     -i manuscript/manuscript.md \
+     -b manuscript/_src/refs.bib \
+     -o manuscript/manuscript_final.docx
+   ```
+   Bundled CSLs: `european-radiology`, `radiology`, `american-journal-of-roentgenology`,
+   `cardiovascular-and-interventional-radiology`, `korean-journal-of-radiology`,
+   `vancouver`, `vancouver-superscript`. Use `radiology` for RYAI; use `vancouver` for JVIR
+   (no dedicated CSL). On rejection cascade (e.g., ER → JVIR → CVIR), re-render with
+   different `-j` — references reformat in seconds. Never hand-type the References list.
+
+   **Decision: pandoc vs Zotero Word plugin (CWYW)** — use Word plugin when coauthors
+   collaborate live in Word; use pandoc when (a) single-author submission lockdown,
+   (b) journal-cascade rejection re-formatting, or (c) plugin unavailable. See
+   `~/.claude/rules/manuscript-references.md`.
 5. **Fallback** (if pandoc is unavailable): Generate the DOCX using python-docx:
    - Parse `manuscript/manuscript.md` sections (`##` → Heading 2, `###` → Heading 3, `**bold**` → bold runs)
    - Insert figures as inline images at their markdown reference locations

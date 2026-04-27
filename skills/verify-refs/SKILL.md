@@ -29,6 +29,20 @@ literature; use `/search-lit` for discovery and `/lit-sync` for bib management.
    - `--offline`: extract and classify references without API verification.
    - `--timeout N`: HTTP timeout seconds.
 
+## Companion: pandoc citation key check
+
+For markdown manuscripts using pandoc `[@bibkey]` citations, run the citation-key
+matcher first to catch undefined/unused keys before this audit:
+
+```bash
+python "${CLAUDE_SKILL_DIR}/../write-paper/scripts/check_citation_keys.py" \
+  manuscript.md references.bib
+```
+
+Then run `verify_refs.py` against the .bib to validate each entry against
+PubMed/CrossRef. The two checks are complementary: `check_citation_keys.py`
+catches mis-keyed cites; `verify_refs.py` catches fabricated metadata.
+
 ## Deterministic Script
 
 Run the bundled script rather than verifying citations by memory:
