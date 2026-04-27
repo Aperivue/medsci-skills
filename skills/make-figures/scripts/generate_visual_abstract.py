@@ -39,13 +39,59 @@ FIELD_PATTERNS = {
     "title": ["articletitle"],
     "hypothesis": ["hypothesis", "question"],
     "methods": ["methodology", "flowchart", "bullet point"],
-    "visual": ["visual element", "image/illustration", "illustration/graph"],
+    "visual": ["visual element", "image/illustration", "illustration/graph", "visualelement"],
     "finding": ["main finding", "relevance statement", "main result"],
-    "citation": ["authors names", "doi", "eur radiol (year)", "journal (year)"],
+    "citation": ["authors names", "doi", "eur radiol (year)", "journal (year)", "articlecitation"],
     "badge_patient": ["patient cohort", "patient"],
     "badge_modality": ["modality", "organ"],
     "badge_center": ["single", "multi-center", "center"],
+    "footer": ["footernote"],
 }
+
+
+# --- Central Illustration validation rules (Fuster-Mann 2019, JACC 74:2816) ---
+# See references/jacc_central_illustration_principles.md for full rationale.
+CI_FORBIDDEN_METHODS_TERMS = (
+    "cohort flow",
+    "inclusion criteria",
+    "exclusion criteria",
+    "study design",
+    "enrollment",
+    "randomized",
+    "sample size",
+    "consort",
+    "prisma",
+    "stard",
+)
+
+
+def validate_central_illustration(zones: int, label_words: int,
+                                  numerical_points: int, raw_text: str,
+                                  allow_overrides: list[str] | None = None) -> tuple[bool, list[str]]:
+    """Apply CI mode validation rules. Returns (passes, reasons)."""
+    allow = set(allow_overrides or [])
+    failures: list[str] = []
+
+    if "zones" not in allow and zones > 3:
+        failures.append(
+            f"more than 3 visual zones (got {zones}); Fuster-Mann: 'simplicity is superior'"
+        )
+    if "words" not in allow and label_words > 30:
+        failures.append(
+            f"label word count {label_words} > 30; Fuster-Mann: 'avoid using too much text'"
+        )
+    if "numerical" not in allow and numerical_points > 4:
+        failures.append(
+            f"{numerical_points} numerical highlights > 4; Fuster-Mann: 'avoid secondary messages'"
+        )
+    if "methods" not in allow:
+        lower = (raw_text or "").lower()
+        offenders = [t for t in CI_FORBIDDEN_METHODS_TERMS if t in lower]
+        if offenders:
+            failures.append(
+                f"methodology terms detected ({', '.join(offenders)}); CI is not a Visual Abstract"
+            )
+    return (len(failures) == 0, failures)
 
 
 def match_field(shape_text: str) -> str | None:
@@ -287,21 +333,68 @@ def main():
     parser = argparse.ArgumentParser(
         description="Generate visual abstract from PPTX template"
     )
-    parser.add_argument("--template", "-t", default="medsci_default",
-                        help="Template name or path (default: medsci_default)")
-    parser.add_argument("--title", required=True, help="Article title")
-    parser.add_argument("--hypothesis", help="Research question or hypothesis")
-    parser.add_argument("--methods", help="Methodology (pipe-separated for bullets)")
-    parser.add_argument("--finding", help="Main finding (<20 words)")
+    parser.add_argument("--type", choices=["visual-abstract", "central-illustration"],
+                        default="visual-abstract",
+                        help="Artifact type: 'visual-abstract' (methods+results) or "
+                             "'central-illustration' (single key finding, JACC house style)")
+    parser.add_argument("--template", "-t", default=None,
+                        help="Template name or path. Default depends on --type: "
+                             "visual-abstract→medsci_default, central-illustration→jacc_central_illustration")
+    parser.add_argument("--title", help="Article title (required for VA mode)")
+    parser.add_argument("--hypothesis", help="Research question or hypothesis (VA mode)")
+    parser.add_argument("--methods", help="Methodology (pipe-separated for bullets, VA mode)")
+    parser.add_argument("--finding", help="Main finding (<20 words, VA mode)")
     parser.add_argument("--citation", help="Citation line (journal, year, authors, DOI)")
     parser.add_argument("--visual", help="Path to visual element image (PNG/JPG)")
-    parser.add_argument("--badges", help="Three pipe-separated badge texts: cohort|modality|center")
+    parser.add_argument("--badges", help="Three pipe-separated badge texts: cohort|modality|center (VA mode)")
     parser.add_argument("--output", "-o", required=True, help="Output PPTX path")
     parser.add_argument("--png", action="store_true",
                         help="Also convert to PNG (requires LibreOffice)")
     parser.add_argument("--slide-index", type=int, default=0,
                         help="Template slide index to use (default: 0)")
+    parser.add_argument("--ci-zones", type=int, default=None,
+                        help="CI mode: declared visual zone count (for validation)")
+    parser.add_argument("--ci-label-words", type=int, default=None,
+                        help="CI mode: total label word count (for validation)")
+    parser.add_argument("--ci-numerical-points", type=int, default=None,
+                        help="CI mode: count of numerical highlights (for validation)")
+    parser.add_argument("--ci-raw-text", default="",
+                        help="CI mode: raw text content for forbidden-methods-term scan")
+    parser.add_argument("--ci-allow", action="append", default=[],
+                        choices=["zones", "words", "numerical", "methods"],
+                        help="CI mode: override a single rule (repeatable)")
     args = parser.parse_args()
+
+    # Default template per type
+    if args.template is None:
+        args.template = ("jacc_central_illustration"
+                         if args.type == "central-illustration" else "medsci_default")
+
+    # CI mode: run validation BEFORE generating the PPTX
+    if args.type == "central-illustration":
+        zones = args.ci_zones if args.ci_zones is not None else 1
+        words = args.ci_label_words if args.ci_label_words is not None else 0
+        nums = args.ci_numerical_points if args.ci_numerical_points is not None else 0
+        passes, reasons = validate_central_illustration(
+            zones=zones, label_words=words, numerical_points=nums,
+            raw_text=args.ci_raw_text, allow_overrides=args.ci_allow,
+        )
+        if not passes:
+            print("Central Illustration validation FAILED:", file=sys.stderr)
+            for r in reasons:
+                print(f"  - {r}", file=sys.stderr)
+            print("\nSee references/jacc_central_illustration_principles.md for guidance.",
+                  file=sys.stderr)
+            print("Override with --ci-allow {zones|words|numerical|methods} (use sparingly).",
+                  file=sys.stderr)
+            sys.exit(2)
+        # CI mode does not require --title (only --visual + --citation)
+        if not args.visual:
+            print("CI mode requires --visual (the author content figure).", file=sys.stderr)
+            sys.exit(2)
+        # Synthesize a placeholder title so downstream code does not fail
+        if not args.title:
+            args.title = "(central illustration — title carried by manuscript)"
 
     # Resolve template
     template_path = resolve_template(args.template)

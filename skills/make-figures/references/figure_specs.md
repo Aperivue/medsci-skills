@@ -271,3 +271,21 @@ Every render emits three files at the same prefix:
 ### System dependency
 
 `brew install librsvg` (macOS; one-time). On Linux: `apt-get install librsvg2-bin`.
+
+## Central Illustration Dimensions
+
+Used by the JACC family and all journals that distinguish a Central Illustration from a Visual Abstract (Fuster V, Mann DL. *JACC.* 2019;74(22):2816–2820). See `references/jacc_central_illustration_principles.md`.
+
+| Spec | Value |
+|---|---|
+| PPTX slide size | 10 × 7.5 in (4:3 standard) |
+| Content figure area | ~4 × 4.2 in (top-center of slide) |
+| Citation textbox | 9.4 × 0.5 in at (0.4, 5.3) |
+| Content figure resolution | ≥ 600 DPI PNG; PDF vector preferred |
+| Font | Sans-serif (Arial or equivalent), ≥ 9 pt at print scale |
+| Color | Color allowed; figure should remain interpretable in grayscale |
+| Visual zones in content figure | 1–3 (enforced by `--type central-illustration`) |
+| Total label word count | ≤ 30 |
+| Numerical highlights | ≤ 4 |
+
+**Do not pre-render**: the red outer border and the blue "CENTRAL ILLUSTRATION:" header bar visible in published JACC issues are applied by JACC editorial after acceptance. Authors submit only the content figure and citation footer.

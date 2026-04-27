@@ -150,8 +150,52 @@ visual abstract requirements before starting.
 |----------|------|----------|
 | European Radiology | `european_radiology.pptx` | Submitting to Eur Radiol |
 | MedSci Default | `medsci_default.pptx` | Any journal without official template |
+| JACC Central Illustration | `jacc_central_illustration.pptx` | JACC family journals (use `--type central-illustration`) |
 
 To add a new journal template: see `${CLAUDE_SKILL_DIR}/references/visual_abstract_templates/template_guide.md`.
+
+---
+
+## Central Illustration vs Visual Abstract
+
+A Central Illustration (CI) is **not** a Visual Abstract (VA). They serve different purposes and follow different rules. JACC family journals (JACC, JACC: Asia, JACC: Cardiovascular Imaging, JACC: Heart Failure, JACC: CardioOncology, JACC: Clinical Electrophysiology, JACC: Basic to Translational Science) require a Central Illustration with every Original Article. Reference: Fuster V, Mann DL. *JACC.* 2019;74(22):2816–2820.
+
+| Aspect | Central Illustration | Visual Abstract |
+|---|---|---|
+| Purpose | Single key finding / take-home message | Methods + Results pictorial summary |
+| Where in paper | End of Results / start of Discussion | Beginning of paper |
+| Methods content | **None** | Required |
+| Audience | Cardiovascular clinicians + journal-issue readers | Broad including non-specialists / social media |
+| Used by | All JACC family + JACC: Asia | Originally JACC: Basic to Translational Science |
+| Text density | Minimal (graphical priority) | More allowed (methods labels) |
+| Bar graphs | OK if they capture entire message | Avoid — use ↑↓ arrows |
+| Default complexity | 1–3 visual zones | Q→M→R three blocks |
+
+### Fuster-Mann five rules (CI must pass all)
+
+1. **Know the message.** One finding, not study design + multiple findings.
+2. **Convey graphically, not textually.** Even a simple KM curve is OK.
+3. **Avoid using too much text.** Replace with icons or arrows.
+4. **Avoid secondary messages.** ≤ 5 seconds for a viewer to state the main finding.
+5. **Simplicity is superior.** Default to fewer panels.
+
+Full guidance and validation thresholds: `${CLAUDE_SKILL_DIR}/references/jacc_central_illustration_principles.md`.
+
+### CI mode invocation
+
+```bash
+python ${CLAUDE_SKILL_DIR}/scripts/generate_visual_abstract.py \
+  --type central-illustration \
+  --visual figures/central_illustration_v2.png \
+  --citation "Nam Y et al. JACC: Asia 2026; vol(issue):pages." \
+  --output submission/jacc_asia/central_illustration.pptx \
+  --ci-zones 3 --ci-label-words 22 --ci-numerical-points 2 \
+  --ci-raw-text "warranty drops to 3 years in age 45+ with cardiometabolic burden; MASLD HR 1.77"
+```
+
+CI mode validates before rendering and rejects (exit 2) if any of: zones > 3, label words > 30, numerical points > 4, or methodology terms (cohort flow / inclusion / exclusion / study design / enrollment / randomized / sample size / CONSORT / PRISMA / STARD) appear in `--ci-raw-text`. Override individual rules with `--ci-allow {zones|words|numerical|methods}` only when you have a defensible reason.
+
+The JACC submission PPTX is a 10×7.5 in slide with 4 placeholders (citation textbox, content picture, footer textbox reserved, JACC logo). The red border + blue "CENTRAL ILLUSTRATION:" header are applied by JACC editorial after acceptance — authors submit only the content figure + citation.
 
 ---
 
@@ -442,6 +486,47 @@ downstream positions.
 | Pipeline Diagram | **D2** (legacy) | Until pipeline-diagram support is added to the R script |
 
 **R workflow for flow diagrams:** See the "R flow diagram recipe" above in the Flow diagram generation rule. Key points: YAML config → `Rscript scripts/generate_flow_diagram.R --type <t> --config <yaml> --out <prefix>` → PDF + 300/600 dpi PNG. Templates in `references/exemplar_diagrams/{strobe,consort,prisma,stard}/template_input.yaml`.
+
+### Official Reporting Guideline Templates → `templates/official/`
+
+When a journal requires the canonical, statement-issued template (rather than
+the auto-laid-out R version), use the bundled official files in
+`templates/official/{prisma2020,consort2010,stard2015,spirit2013}/`.
+
+| Guideline | What ships | When to use |
+|-----------|-----------|-------------|
+| PRISMA 2020 | Locally built `.pptx` (4 variants) + `fill_prisma_template.py` | Reviewer asks for the official PRISMA 2020 layout, or you want editable PowerPoint instead of an R-rendered PDF. |
+| CONSORT 2025 | Official `.docx` flow diagram + checklist | RCT submissions to journals that mandate the consort-spirit.org template. |
+| STARD 2015 | Official `.pdf` flow diagram + `.docx` checklist | Diagnostic accuracy studies; flow diagram is fixed PDF, checklist is editable. |
+| SPIRIT 2025 | Official `.docx` participant timeline + checklist | Trial protocols. |
+
+Refresh / fill workflow:
+
+```bash
+# Refresh from canonical sources (CC-BY 4.0 / public-statement licenses)
+bash ${CLAUDE_SKILL_DIR}/scripts/fetch_official_templates.sh
+
+# Build PRISMA 2020 .pptx (one-time; site blocks programmatic .docx fetch)
+python3 ${CLAUDE_SKILL_DIR}/scripts/build_prisma2020_template.py \
+    --variant new \
+    --out ${CLAUDE_SKILL_DIR}/templates/official/prisma2020/PRISMA_2020_flow_new_v1.pptx
+
+# Fill counts — positional 10-tuple matching most SR/MA workflows:
+#   n_db, n_dup, n_screened, n_screen_excluded,
+#   n_sought, n_assessed, n_excl_r1, n_excl_r2, n_excl_r3, n_studies
+python3 ${CLAUDE_SKILL_DIR}/scripts/fill_prisma_template.py \
+    --template ${CLAUDE_SKILL_DIR}/templates/official/prisma2020/PRISMA_2020_flow_new_v1.pptx \
+    --counts "315,122,186,7,111,204,102,84,3,15" \
+    --out fig1_prisma_filled.pptx
+
+# Or use full JSON mapping for studies with non-standard PRISMA splits
+python3 ${CLAUDE_SKILL_DIR}/scripts/fill_prisma_template.py \
+    --template ${CLAUDE_SKILL_DIR}/templates/official/prisma2020/PRISMA_2020_flow_new_v1.pptx \
+    --counts-file my_counts.json \
+    --out fig1_prisma_filled.pptx
+```
+
+See `templates/official/NOTES.md` for licenses, attribution, and refresh notes.
 
 ### Visual / Graphical Abstracts → python-pptx Template Generator
 

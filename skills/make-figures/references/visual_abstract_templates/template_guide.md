@@ -75,3 +75,40 @@ Same field mapping as EUR, with these differences:
 4. Add a section to this guide documenting the shape map.
 5. Update the journal profile in `write-paper/references/journal_profiles/` with
    the visual abstract requirement status and template name.
+
+## JACC Central Illustration Template
+
+`jacc_central_illustration.pptx` — for JACC family journals (`--type central-illustration`).
+
+Built reproducibly via `scripts/build_jacc_template.py` to match the official JACC submission PPTX layout (verified against doi:10.1016/j.jacc.2019.10.035 Figures 1–4).
+
+### Layout (10 × 7.5 in slide)
+
+| Slot | Type | Position (left, top) | Size (W × H) | Placeholder text | Filled by `--type central-illustration` |
+|---|---|---|---|---|---|
+| 1 | TEXT_BOX | (0.4, 5.3) | 9.4 × 0.5 in | `ARTICLECITATION` | `--citation` |
+| 2 | RECTANGLE → image | (3.0, 0.8) | 4.0 × 4.2 in | `VISUALELEMENT` | `--visual` (PNG/TIFF, ≥600 DPI) |
+| 3 | TEXT_BOX | (0.4, 7.0) | 4.1 × 0.5 in | `FOOTERNOTE` | optional, usually empty |
+| 4 | RECTANGLE | (7.3, 6.7) | 2.7 × 0.8 in | `JACCLOGO` | leave for editorial |
+
+### Why a separate template
+
+The JACC editorial team applies the red outer border and the blue "CENTRAL ILLUSTRATION:" header bar after acceptance. Author submissions must contain only:
+- The content figure (slot 2)
+- The citation line (slot 1)
+
+Pre-rendering JACC house elements (red border, blue header) is incorrect — JACC will replace them anyway, and pre-rendered versions clash with the family branding.
+
+### Validation rules
+
+The CI mode in `generate_visual_abstract.py` validates structural simplicity per Fuster-Mann 2019:
+- ≤ 3 visual zones in the content figure (`--ci-zones`)
+- ≤ 30 total label words (`--ci-label-words`)
+- ≤ 4 numerical highlights (`--ci-numerical-points`)
+- No methodology terms in `--ci-raw-text` (CI ≠ Visual Abstract)
+
+Override with `--ci-allow {zones|words|numerical|methods}` only when justified.
+
+### Future cardiology templates
+
+For Circulation, EHJ, JAHA, or other journals with similar CI requirements, copy this template and rename. The Fuster-Mann 5 rules and CI mode validation apply unchanged; only the slide dimensions and citation footer pattern may need adjustment.
