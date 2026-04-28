@@ -589,6 +589,67 @@ Build the final submission-ready documents from the assembled components:
    - Save as `manuscript/manuscript_final.docx`
 6. **Verify output**: Confirm `manuscript/manuscript_final.docx` exists and is non-empty. Report file size.
 
+#### Step 7.6a: Cross-Reference QC (Manuscript ↔ rendered DOCX)
+
+Catches the failure mode where in-text Table/Figure citations resolve to the
+wrong rendered caption. Internal consistency (Phase 2.5 of `/self-review`)
+does NOT catch this because both the body prose and the build script can echo
+their own divergent SSOTs cleanly. Precedent: CK-1 CAC Warranty v6.2
+(2026-04-28) — body cited "Supplementary Table S4 (CAC>10 sensitivity)" but
+the rendered DOCX S4 was "VIF Diagnostics"; S1, S6, S7 mismatched and S8, S9
+were cited but absent from the DOCX entirely.
+
+**Run after Step 7.6 DOCX build and before Step 7.7 final gate:**
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/check_xref.py" \
+  --md manuscript/manuscript.md \
+  --docx manuscript/manuscript_final.docx \
+  --out qc/xref_audit.json \
+  --strict
+```
+
+The script extracts (a) every `(Supplementary )?(Table|Figure)\s+(S?\d+[A-Z]?)`
+in-text citation, (b) caption definitions from `## Tables` / `## Figures` /
+`## Figure Legends` / `## Supplementary {Tables,Figures}` sections in the body,
+and (c) caption paragraphs in the rendered DOCX (via python-docx). It then
+emits a 3-way matrix to `qc/xref_audit.json`:
+
+| Status | Meaning | Severity |
+|---|---|---|
+| `OK` | cited + body caption + DOCX caption all present and caption text agrees (Jaccard ≥ 0.40) | — |
+| `MISSING_DOCX` | cited but no caption with that label in the rendered DOCX | **P0 blocker** |
+| `MISSING_BODY` | cited but no caption definition in the markdown body sections (build SSOT drift) | **P0 blocker** |
+| `MISMATCH` | label exists in both body and DOCX but caption text disagrees | **P0 blocker** |
+| `UNCITED` | caption defined or rendered but never cited in main text | warn |
+| `NOT_CITED_NO_BODY` | label appears only in DOCX (rare; legacy artifact) | warn |
+
+**Submission gate:** if any `MISSING_DOCX` / `MISSING_BODY` / `MISMATCH` row is
+present, `submission_safe: false` and the script exits 1 under `--strict`.
+HALT pipeline. Do NOT proceed to Step 7.7. Route fixes by symptom:
+
+- `MISSING_BODY` → add caption definition under `## Tables` / `## Figures` in
+  `manuscript.md`, then re-run Step 7.6 + 7.6a. If the build script
+  (`build_manuscript_docx.py` or equivalent) carries its own hardcoded caption
+  list, that is the IMPROVEMENT_QUEUE #2 SSOT-unification issue — flag it.
+- `MISSING_DOCX` → either drop the citation (the table/figure was retired) or
+  re-add the table/figure to the build pipeline, then rebuild DOCX.
+- `MISMATCH` → reconcile body vs build script. Body caption is the SSOT;
+  update the build pipeline to match, never the reverse.
+
+Log the run to `qc/_pipeline_log.md`:
+```
+## Cross-Reference QC (Phase 7.6a)
+- in-text citations: {N}
+- unique labels: {N}
+- OK: {N} | MISSING_DOCX: {N} | MISSING_BODY: {N} | MISMATCH: {N} | UNCITED: {N}
+- submission_safe: {true|false}
+- audit: qc/xref_audit.json
+```
+
+If `python-docx` is unavailable, the script falls back to a body-only audit
+(citations vs body captions) with a warning. Install with `pip install python-docx`.
+
 #### Step 7.7: Final Gate
 
 - **Autonomous mode**: Log completion to `qc/_pipeline_log.md`. Report summary: word count, figure count, self-review score, reporting compliance percentage, any FATAL flags.
@@ -779,6 +840,7 @@ This skill orchestrates other skills at specific phases:
 | 7.5 | `/humanize` | AI-pattern density sweep (<2.0 / 1000 words) |
 | 7.5a | `/academic-aio` (optional, off by default) | AI-search-engine and RAG visibility checklist — run after humanize so QC-confirmed claims and human-readable text anchor the PASS/PARTIAL/FAIL report. Opt-in via `--aio` or when preparing preprint / GitHub README / CITATION.cff / HF card alongside submission. Silent pipeline execution is explicitly prohibited by the skill's Communication Rules. |
 | 7.6 | (built-in) | DOCX build from manuscript/manuscript.md + analysis/figures + analysis/tables |
+| 7.6a | `scripts/check_xref.py` | Cross-reference QC: in-text Table/Figure citations ↔ body captions ↔ rendered DOCX captions (3-way matrix). Submission gate. |
 | 8+ | `/find-journal` | Journal scope for cover letter (optional) |
 
 If a called skill is not available, perform that step inline using the relevant section of this skill document as guidance.

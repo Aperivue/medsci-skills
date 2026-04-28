@@ -47,23 +47,41 @@ Read `figure_specs.md` before generating any figure to confirm journal-specific 
 
 ---
 
-## AI-Generated Figure Warning
+## Journal AI-Image Policies (CRITICAL — check BEFORE generation)
 
-AI-generated illustrations (from Genspak, Canva AI, DALL-E, etc.) are immediately
-recognizable to experienced reviewers and audiences. Telltale signs include:
+| Journal family | Policy on AI-generated images | Disclosure required |
+|---|---|---|
+| **JACC family (incl. JACC: Asia, JACC Imaging, JACC EP, JACC BTS)** | **Prohibited without prior Editor-in-Chief permission** ([JACC pathway, PMC10167500](https://pmc.ncbi.nlm.nih.gov/articles/PMC10167500/)) | Cover-letter pre-submission inquiry + ICMJE-style declaration |
+| NEJM | AI image generation prohibited | N/A |
+| Radiology / Radiology AI | Allowed with disclosure | Manuscript disclosure block |
+| Nature family | Allowed with disclosure + license check | Methods + figure legend |
+| Lancet family | Disclosure required, generation discouraged | Manuscript disclosure |
+| Default (target unknown) | Treat as prohibited until confirmed | N/A |
 
-- **Small decorative icons** that add no information
-- **Overly uniform layouts** with templated grid patterns
-- **Text too small** to read at print resolution
-- **Generic medical clip-art style** that does not match the study specifics
+**Hard rule**: For JACC, NEJM, or any "unknown" target journal, **never** use Gemini / DALL-E / Midjourney / Stable Diffusion / Nano Banana to create images that will appear in figures, Central Illustrations, or graphical abstracts. AI text-editing of the manuscript prose remains acceptable subject to standard disclosure.
 
-**Rule**: AI tools may assist with figure drafting, but the final figure must not look
-AI-generated. Always customize layouts, replace generic icons with study-specific visuals,
-adjust text sizing, and verify that every visual element serves a purpose.
+### Default workflow when AI images are not allowed
 
-For important presentations and journal submissions, an AI-looking figure gives the
-impression of low effort. When time permits, use Canva (for illustrations) or manual
-PPT drawing (for anatomical sketches) to produce figures that show intentional design.
+1. **SMART Servier Medical Art** — https://smart.servier.com/, CC BY 4.0, free, 3,000+ vector medical icons (anatomy, organs, ethnicity-specific human figures, drugs, devices). Commercial / journal use allowed. **Required attribution** (1 line in figure legend OR methods):
+   > Anatomical icons modified from SMART Servier Medical Art (CC BY 4.0).
+2. **NIAID BioArt** (https://bioart.niaid.nih.gov) — public domain (US Govt), microbiology / immunology / lab-tech focus.
+3. **BioRender** (https://www.biorender.com) — institutional license usually required; use the exported "Publication-ready" PNG/TIFF and cite per BioRender publication policy.
+4. For "diseased" variants not directly available (e.g., calcified vessel from a clean vessel): reuse the healthy asset and overlay disease markers via matplotlib `scatter` / `Circle` / `PathPatch`. Keeps the entire pipeline non-AI and reproducible.
+
+### Asset directory convention
+
+```
+manuscript/figures/_assets_servier/      # CC BY 4.0 source PNGs
+manuscript/figures/_assets_servier/CITATION.md   # source URL + download date per asset
+manuscript/figures/_assets_data/         # data-driven raster (R / matplotlib heat maps, KM, etc.)
+manuscript/figures/_legacy/              # archived prior versions
+```
+
+Composition scripts should load only from `_assets_servier/` and `_assets_data/`. If a script imports from `_assets_ai/`, treat it as a policy violation for JACC/NEJM/unknown targets.
+
+### Decoration vs information
+
+Even when AI images are allowed, AI-generated illustrations are immediately recognizable to experienced reviewers (small decorative icons that add no information, overly uniform layouts, generic clip-art style). For high-impact submissions, prefer Servier / BioArt / BioRender + matplotlib overlays over AI.
 
 ---
 

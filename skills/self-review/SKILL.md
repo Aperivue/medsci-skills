@@ -367,6 +367,73 @@ Numerical audits (2.5/2.5a/2.5b) cover in-text numbers; they do **not** cover re
 
 **Do NOT fabricate replacement references** if any entry fails. Fix-forward belongs to `/search-lit` and `/lit-sync`, not to this skill. Self-review only reports the failure and blocks submission.
 
+### Phase 2.5d: Cross-Reference QC (Manuscript ↔ rendered DOCX)
+
+Reference-list integrity (Phase 2.5c) does **not** cover Table/Figure
+cross-references. This is a separate failure mode where in-text citations
+("Supplementary Table S4 reports CAC>10 sensitivity") resolve to a different
+caption in the rendered DOCX ("Supp Table S4 = VIF Diagnostics") because the
+build script carries its own legacy SSOT. Internal consistency (Phase 2.5)
+cannot detect it — both the prose and the build artifact echo their own
+divergent truths cleanly.
+
+**Precedent failure pattern (CK-1 CAC Warranty v6.2, 2026-04-28):**
+> Body prose cited Supp Table S4 as the CAC>10 sensitivity analysis; the
+> rendered DOCX S4 was VIF Diagnostics. S1, S6, S7 also mismatched. S8 and S9
+> were cited in the manuscript but absent from the rendered DOCX entirely.
+> Caught only on co-author circulation review.
+
+**When to run:** every manuscript at self-review when a rendered DOCX exists
+(e.g., circulation drafts, post-build pre-submission checks). Skip only if no
+DOCX build has occurred yet (early drafts).
+
+**Procedure:**
+
+1. **Locate inputs.** `manuscript/manuscript.md` (or the SSOT `truth.manuscript_md`)
+   and the rendered DOCX (typically `manuscript/manuscript_final.docx` or the
+   most recent circulation `.docx`).
+
+2. **Invoke the shared script** (lives in `/write-paper`):
+
+   ```bash
+   python3 "${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/write-paper/scripts/check_xref.py" \
+     --md manuscript/manuscript.md \
+     --docx manuscript/manuscript_final.docx \
+     --out qc/xref_audit.json
+   ```
+
+   The script writes `qc/xref_audit.json` with per-label rows tagged
+   `OK | MISSING_DOCX | MISSING_BODY | MISMATCH | UNCITED | NOT_CITED_NO_BODY`
+   and a top-level `submission_safe` boolean.
+
+3. **Translate findings to anticipated comments.** Severity mapping:
+
+   | Status | Self-review classification |
+   |---|---|
+   | `MISSING_DOCX` | **Major (P0)** — cited Table/Figure absent from rendered output |
+   | `MISSING_BODY` | **Major (P0)** — build SSOT drift; rendered caption has no body definition |
+   | `MISMATCH` | **Major (P0)** — caption text disagrees between body and rendered DOCX |
+   | `UNCITED` | Minor — orphan caption that should be cited or removed |
+
+4. **Append a reconciliation block to the Phase 3 report:**
+
+   ```
+   | Label | Status | Body caption | DOCX caption | Verdict |
+   |---|---|---|---|---|
+   | Supplementary Table S4 | MISMATCH | Sensitivity at CAC>10 | VIF Diagnostics | ✗ P0 |
+   | Supplementary Table S8 | MISSING_DOCX | (defined in body) | — | ✗ P0 |
+   | Figure 2 | UNCITED | Forest plot of subgroups | Forest plot of subgroups | △ Minor |
+   ```
+
+5. **Emit each P0 row as a separate `M`-numbered Major Comment** with
+   `category: "F"` (Reporting Completeness) and `fixable_by_ai: false`
+   (build script changes are out of scope for the auto-fix loop — they
+   require pipeline-side fixes per `/write-paper` Step 7.6a routing).
+
+**Do NOT auto-fix cross-reference defects in `--fix` mode.** Caption rewrites
+in the body without re-running the DOCX build will simply move the mismatch.
+Surface as Major Comments and let the user route to `/write-paper` Step 7.6a.
+
 ### Phase 3: Report
 
 Generate a concise report with this structure:
