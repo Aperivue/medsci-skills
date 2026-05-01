@@ -178,6 +178,49 @@ disclosed elsewhere. Part D JSON includes a `registration_timing` object
 **Load-on-demand procedural detail** (exact item-by-item procedure, JSON schema,
 flagging edge cases): `${CLAUDE_SKILL_DIR}/references/step4c_registration_timing.md`.
 
+### Step 4d: PRISMA Figure 1 Arithmetic & Cross-Reference Audit
+
+**Applies to:** systematic reviews and meta-analyses using PRISMA 2020 / PRISMA-DTA /
+PRISMA-P. Triggers when Item 16a (flow diagram) is PRESENT.
+
+**Why this step exists:** the flow diagram is a single checklist item and can pass Step 4
+visually while still containing arithmetic errors (records screened ≠ identified − duplicates;
+sought-for-retrieval ≠ screened − excluded) or text↔figure number disagreements. KKW
+v3 회람 (2026-04-26) 코멘트 K-4/K-C6: "PRISMA 2020 표준 다이아그램 + flow와 number 확인 필수".
+Reviewer가 발견하면 즉시 신뢰도 손실.
+
+**Four arithmetic checks:**
+1. records screened = records identified − duplicates removed
+2. records sought-for-retrieval = records screened − records excluded (screening)
+3. reports retrieved = sought − reports not retrieved
+4. studies included = reports assessed for eligibility − reports excluded (with reasons)
+
+**Two cross-reference checks:**
+- Body text PRISMA numbers (e.g., "315 records identified, 122 duplicates removed,
+  186 records screened") match Figure 1 box labels 1:1.
+- Reasons for exclusion (Methods + Figure legend) agree on counts and category names.
+
+**Procedure:**
+1. Extract numbers from manuscript Results / PRISMA flow paragraph (regex: integers near
+   keywords `identified`, `duplicates`, `screened`, `excluded`, `sought`, `retrieved`,
+   `assessed`, `included`).
+2. Extract numbers from Figure 1 source — preferred order: (a) `analysis/figures/Figure1_PRISMA.md`
+   markdown manifest, (b) caption text in `manuscript.md`, (c) PPTX text run if `.pptx`
+   exists, (d) manual entry from PNG/SVG.
+3. Run 4 arithmetic checks; emit PRESENT / MISSING / MISMATCH per equation.
+4. Run 2 cross-reference checks; emit PRESENT / MISSING / MISMATCH per number.
+5. Output `qc/prisma_figure_audit.json` and a short table.
+
+**Flagging:** any MISMATCH or arithmetic failure logs a Part C Action Item with label
+`[PRISMA-FIGURE]`. `fixable_by_ai: false` (numbers must be reconciled by the author).
+
+**Load-on-demand procedural detail** (exact regex set, JSON schema, edge cases —
+duplicates handled across databases, citation searching strand, dual-reviewer screening):
+`${CLAUDE_SKILL_DIR}/references/step4d_prisma_figure_audit.md`.
+
+**Cross-cutting**: integrates with `~/.claude/rules/numerical-safety.md` (PRISMA 5-way
+consistency: text ↔ Figure ↔ extraction CSV ↔ analysis script ↔ supplementary).
+
 ### Step 5: Generate Report
 
 Produce a structured compliance report in two parts.

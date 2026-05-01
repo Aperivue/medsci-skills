@@ -2,6 +2,32 @@
 
 ## [Unreleased]
 
+### Added — Senior MA reviewer harvest from RFA-Adjunct (KKW v3 circulation, 2026-04-26)
+
+Lessons from senior meta-analysis mentor (Asan/UoU) circulation feedback promoted into global rules and skill checklists, so the next manuscript circulation in the pipeline (02_CBCT_Biopsy, 03_CBCT_Ablation) does not repeat the same comments.
+
+- **Global rules (5 files)** under `~/.claude/rules/`:
+  - `manuscript-style-classical.md` (new) — 11-item style policy: `## **METHODS**` heading, abstract sub-headers `**Objectives:**`, eligibility numbered list, no `§` symbol, no AI Disclosure paragraph in body, em-dash <25, Vancouver 6+ et al., ORCID one-per-line, table header punctuation, British/American per journal.
+  - `senior-mentor-circulation.md` (new) — mandatory `8_Review_Comments/` folder layout, 1차 source preservation, 1:1 verification, mentor README (KKW/LHC examples accumulated).
+  - `ai-drafted-document-policy.md` (new) — verbatim absorption forbidden when senior mentors attach AI-drafted documents; `_DO_NOT_USE_VERBATIM` filename suffix mandatory; trust hierarchy SSOT > mentor direct text > AI-draft. Motivation: 2026-04-12 Ishikawa 2017 denominator hallucination (5/70 vs 12/33 → real 35/68).
+  - `data-integrity.md` — one-line augmentation cross-linking the AI-drafted policy.
+  - `agent-skill-routing.md` — new "Cross-cutting 룰 (Manuscript / 회람)" table referencing the six rule files.
+
+- **`/write-paper` Step 7.1 — Classical-style QC sub-step**:
+  - `skills/write-paper/references/section_guides/step7_1_classical_qc.md` (new) — load-on-demand 7-grep checklist (`§` symbol, AI Disclosure paragraph, heading style, eligibility numbered list, Funding placeholder, PROSPERO chronology, em-dash overuse).
+  - `skills/write-paper/SKILL.md` Step 7.1 — trigger table + load-on-demand pointer added.
+
+- **`/humanize` Pattern 19–21**:
+  - `skills/humanize/references/ai_patterns.md` — Pattern 19 (`§` section sign), Pattern 20 (Methods/Results self-reference parenthetical), Pattern 21 (AI Disclosure boilerplate in body) added with detection regex + rewrite guidance.
+  - `skills/humanize/SKILL.md` — 18 → 21 patterns; section-specific focus extended to MA / SR Methods and Discussion.
+
+- **`/check-reporting prisma` Step 4d — PRISMA Figure 1 arithmetic & cross-reference audit**:
+  - `skills/check-reporting/scripts/check_prisma_figure.py` (new) — extracts PRISMA numbers from manuscript body and Figure 1 source, runs 4 arithmetic equations (`screened = identified - duplicates`, etc.) and a body↔figure 1:1 cross-reference, emits `qc/prisma_figure_audit.json` + table. Exits 1 on any MISMATCH.
+  - `skills/check-reporting/SKILL.md` Step 4d — invocation block + flagging policy (`[PRISMA-FIGURE]`, `fixable_by_ai: false`).
+  - `skills/check-reporting/references/step4d_prisma_figure_audit.md` (new) — regex set, JSON schema, edge cases (multi-database, citation-searching strand, dual-reviewer screening, reports-vs-records terminology).
+
+Resolves RFA-Adjunct → medsci-skills handoff P1+P2 (2026-05-01 letter).
+
 ### Added — Manuscript ↔ rendered DOCX cross-reference QC (`/write-paper` Step 7.6a + `/self-review` Phase 2.5d)
 
 New 3-way audit catches the failure mode where in-text Table/Figure citations resolve to a different rendered caption because the build script carries its own legacy SSOT. Internal consistency (Phase 2.5) cannot detect it — both the prose and the build artifact echo their own divergent truths cleanly.
