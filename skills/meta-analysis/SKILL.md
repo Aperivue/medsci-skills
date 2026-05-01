@@ -217,6 +217,17 @@ ID sets. The Markdown consensus document remains the human explanation.
 
 > **Failure-mode cross-ref** → `references/data_integrity_checklist.md` DI-1~DI-5 are mandatory during extraction (2x2 arm-swap, KM audit trail, methodology mismatch, PRISMA 5-way drift, single-source k).
 
+#### 4.0 AI-drafted starting document gate
+
+Before opening the extraction form: if a senior mentor or collaborator has shared an AI-drafted starting document (Claude / ChatGPT / Gemini draft of the study list, 2x2 cells, or effect estimates) — even when the sender flags it as "참고용" — apply `~/.claude/rules/ai-drafted-document-policy.md`:
+
+- Save the file with a `_DO_NOT_USE_VERBATIM` (or `_AI_DRAFT_REFERENCE_ONLY`) filename suffix.
+- Treat every per-study N, denominator, event count, OR/CI, and author/year as **hallucination-suspect** until re-verified against the source PDF + own analysis script. AI-drafts collapse multiple denominator definitions (treatment-naïve / full-cohort / per-arm) into one and silently mis-route counts.
+- Record any reconciled discrepancy in `extraction_consensus_log.md` with a verbatim quote of the AI-draft value and the corrected value with PDF page coordinate.
+- Trust hierarchy for this phase: **SSOT (source PDF + own analysis stdout) > mentor's direct text (email / track-changes) > attached AI-draft**. Do not promote an AI-draft from tier 3 to tier 2.
+
+Precedent (RFA-Adjunct, 2026-04-12): Ishikawa 2017 "treatment support 5/70 vs no support 12/33" in Claude-drafted directive → source PDF was 35/68 (single arm). Verbatim absorption would have produced a denominator-hallucinated meta-analysis.
+
 #### DTA Meta-Analysis:
 Generate a data extraction form with:
 - Study ID (first author, year)

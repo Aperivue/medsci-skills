@@ -21,6 +21,10 @@ Lessons from senior meta-analysis mentor (Asan/UoU) circulation feedback promote
   - `skills/humanize/references/ai_patterns.md` — Pattern 19 (`§` section sign), Pattern 20 (Methods/Results self-reference parenthetical), Pattern 21 (AI Disclosure boilerplate in body) added with detection regex + rewrite guidance.
   - `skills/humanize/SKILL.md` — 18 → 21 patterns; section-specific focus extended to MA / SR Methods and Discussion.
 
+- **`/meta-analysis` Phase 4.0 — AI-drafted starting document gate**:
+  - `skills/meta-analysis/SKILL.md` — new sub-step at the top of Phase 4 (Data Extraction) requiring `_DO_NOT_USE_VERBATIM` filename suffix and source-PDF re-verification of every per-study N, denominator, event count, and effect estimate carried over from a senior mentor's AI-drafted directive. Trust hierarchy: SSOT > mentor direct text > AI-draft (never promote tier 3 to tier 2).
+  - Cross-links `~/.claude/rules/ai-drafted-document-policy.md` (motivation: 2026-04-12 Ishikawa 2017 denominator hallucination caught at SSOT re-verification).
+
 - **`/check-reporting prisma` Step 4d — PRISMA Figure 1 arithmetic & cross-reference audit**:
   - `skills/check-reporting/scripts/check_prisma_figure.py` (new) — extracts PRISMA numbers from manuscript body and Figure 1 source, runs 4 arithmetic equations (`screened = identified - duplicates`, etc.) and a body↔figure 1:1 cross-reference, emits `qc/prisma_figure_audit.json` + table. Exits 1 on any MISMATCH.
   - `skills/check-reporting/SKILL.md` Step 4d — invocation block + flagging policy (`[PRISMA-FIGURE]`, `fixable_by_ai: false`).
