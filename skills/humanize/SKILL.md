@@ -1,6 +1,6 @@
 ---
 name: humanize
-description: Detect and remove AI writing patterns from academic manuscripts. Scans for 18 common AI-generated text patterns and rewrites flagged passages to sound naturally human-written while preserving technical accuracy.
+description: Detect and remove AI writing patterns from academic manuscripts. Scans for 21 common AI-generated text patterns and rewrites flagged passages to sound naturally human-written while preserving technical accuracy.
 triggers: humanize, AI patterns, AI 문체, remove AI writing, make it sound natural, 자연스럽게, de-AI
 tools: Read, Write, Edit, Grep, Glob
 model: inherit
@@ -20,7 +20,7 @@ wrote it, while preserving every technical claim, number, and citation.
 
 ## Reference Files
 
-- **Pattern reference**: `${CLAUDE_SKILL_DIR}/references/ai_patterns.md` -- full 18-pattern list with expanded examples for medical/radiology manuscripts
+- **Pattern reference**: `${CLAUDE_SKILL_DIR}/references/ai_patterns.md` -- full 21-pattern list with expanded examples for medical/radiology manuscripts (Pattern 19–21 added 2026-05-01 from RFA-Adjunct senior MA reviewer feedback)
 - **Source material**: Based on matsuikentaro1/humanizer_academic and Wikipedia: Signs of AI writing
 
 Always read the pattern reference file at the start of a humanize session.
@@ -31,7 +31,7 @@ Always read the pattern reference file at the start of a humanize session.
 
 ### Phase 1: Scan
 
-Read the manuscript section(s) provided by the user and scan for all 18 patterns.
+Read the manuscript section(s) provided by the user and scan for all 21 patterns.
 
 **For each pattern found:**
 1. Record the pattern number and name.
@@ -70,7 +70,7 @@ Present findings to the user with actionable summary.
 - **LOW** (0 occurrences): Clean for this pattern.
 
 **AI Pattern Score:**
-- Count total pattern instances across all 18 categories.
+- Count total pattern instances across all 21 categories.
 - Compute density: instances per 1000 words.
 - Target: < 2.0 instances per 1000 words.
 
@@ -106,7 +106,7 @@ Rewrite flagged passages following these rules:
 
 ### Phase 4: Verify
 
-Re-scan the rewritten text using the same 18 patterns.
+Re-scan the rewritten text using the same 21 patterns.
 
 **Output: Verification Report**
 
@@ -130,7 +130,7 @@ If the density remains above 2.0, run another fix-verify cycle (max 3 rounds).
 
 ---
 
-## The 18 Detection Patterns
+## The 21 Detection Patterns
 
 ### Content Patterns
 
@@ -170,6 +170,14 @@ If the density remains above 2.0, run another fix-verify cycle (max 3 rounds).
 | 17 | Excessive hedging | "may potentially suggest the possibility" | Choose the appropriate certainty level: "suggests" |
 | 18 | Generic positive conclusions | "The future looks bright," "continues to reshape," "paves the way" | State the specific next step or implication |
 
+### Senior MA Reviewer Patterns (2026-05-01, RFA-Adjunct KKW circulation)
+
+| # | Pattern | What to look for | Fix |
+|---|---------|------------------|-----|
+| 19 | § (section sign) marker | "as in §2.3", "(see §Discussion)", "§Results" | Delete or replace with section name ("Methods", "Results") — `grep -c "§"` = 0 |
+| 20 | Methods/Results self-reference parenthetical | "(Methods §X)", "(Results §3.1)", "(Methods, Section 2.3)" | Drop the parenthetical or shorten to "(see Methods)" |
+| 21 | AI Disclosure boilerplate (body) | "## Artificial Intelligence Disclosure", "Generative AI was not used to create..." in manuscript body | Remove from body → place in cover letter / submission form only (per `~/.claude/rules/journal-ai-image-policies.md`) |
+
 ---
 
 ## Section-Specific Focus
@@ -178,12 +186,15 @@ When scanning a full manuscript, prioritize these patterns per section:
 
 | Section | Priority Patterns | Reason |
 |---------|------------------|--------|
-| Abstract | ALL (1-18) | Most visible section; most scrutinized for AI patterns |
+| Abstract | ALL (1-21) | Most visible section; most scrutinized for AI patterns |
 | Introduction | 1, 2, 5, 7, 12 | AI inflates background importance and uses vague attributions |
 | Methods | 8, 16 | Methods should be straightforward; copula avoidance and filler are common |
 | Results | 3, 4, 6, 10, 11 | AI adds interpretive -ing clauses and promotional language to results |
 | Discussion | 1, 5, 6, 17, 18 | AI produces formulaic discussions with excessive hedging |
 | Conclusion | 1, 18 | AI generates generic positive conclusions |
+| Methods (MA / SR) | 19, 20, 21 | § markers, self-reference parentheticals, AI Disclosure boilerplate are senior-MA-reviewer red flags |
+| Discussion (MA / SR) | 19, 20 | Self-reference parentheticals especially common when discussing methods |
+| Body (any) | 21 | AI Disclosure belongs in cover letter / submission form, not manuscript body |
 
 ---
 

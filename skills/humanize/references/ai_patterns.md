@@ -360,6 +360,53 @@ AI ends papers with content-free optimistic statements.
 
 ---
 
+## Senior MA Reviewer Patterns (added 2026-05-01 from RFA-Adjunct KKW circulation)
+
+### Pattern 19: § (Section-Sign) Marker
+
+AI 모델이 본문에서 섹션을 가리킬 때 `§` 기호를 자주 사용. Senior MA reviewer (특히 김경원 교수)가 즉시 "AI 패턴"으로 인지. 한국·미국 의학지 manuscript에서는 거의 사용되지 않는 LaTeX 풍 표기.
+
+| # | BAD | GOOD |
+|---|-----|------|
+| 1 | "as described in §2.3" | "as described in the Methods" |
+| 2 | "(see §Discussion)" | "(see Discussion)" |
+| 3 | "§Results" | "Results" |
+
+**Detection:** `grep -c "§" manuscript.md` → 반드시 0.
+**Fix strategy:** § 전부 삭제 또는 섹션명(`Methods`, `Results`, `Discussion`)으로 대체.
+
+---
+
+### Pattern 20: Methods/Results Self-Reference Parenthetical
+
+`(Methods §X)`, `(Results §Y)`, `(Methods, Section 2.3)` 형태의 self-reference 괄호. Pattern 19(§)와 함께 자주 등장. Reviewer는 "굳이 섹션을 자기 인용할 필요 없다"고 판단.
+
+| # | BAD | GOOD |
+|---|-----|------|
+| 1 | "We applied bootstrap resampling (Methods §2.3) to..." | "We applied bootstrap resampling (described in Methods) to..." 또는 단순 삭제 |
+| 2 | "The pooled estimate (Results §3.1) was..." | "The pooled estimate was..." |
+| 3 | "As shown in Table 1 (Methods)..." | "As shown in Table 1..." |
+
+**Detection:** `grep -inE "\((Methods|Results|Discussion|Introduction)\s*§" manuscript.md` → 0줄.
+**Fix strategy:** 본문 흐름이 자명하면 괄호 삭제. 명시 필요 시 "(Methods)" 또는 "(see Methods)"로 단축.
+
+---
+
+### Pattern 21: AI Disclosure Boilerplate (Body)
+
+"Artificial Intelligence Disclosure" / "Generative AI was not used to create..." / "AI Acknowledgement" 류 boilerplate 단락이 manuscript 본문에 등장. Submission 양식·cover letter에는 필요하지만 본문에 두면 reviewer에게 "AI로 썼다"는 선언 + AI-generated 시그널.
+
+| # | BAD | GOOD |
+|---|-----|------|
+| 1 | 본문 끝에 "## Artificial Intelligence Disclosure" 단락 | 단락 통째 삭제 → cover letter 또는 submission form에만 기재 |
+| 2 | "Generative AI was not used to create, modify, or alter any images, figures, or tables in this manuscript." (본문 Methods) | (삭제) — `~/.claude/rules/journal-ai-image-policies.md` boilerplate는 cover letter에만 |
+| 3 | Acknowledgments 섹션에 "We acknowledge the use of ChatGPT for language editing" | 저널 정책에 따라 cover letter로 이동 또는 단순 "Language editing was performed" |
+
+**Detection:** `grep -inE "artificial intelligence disclosure|generative ai was not used|ai acknowledg(e)?ment" manuscript.md` → 0줄 (본문).
+**Fix strategy:** 단락 본문에서 제거 → submission form / cover letter에만. 저널이 본문 명시를 요구할 때만 예외.
+
+---
+
 ## Section-Specific Application Guide
 
 ### Abstract (ALL patterns)
@@ -421,3 +468,6 @@ Run this checklist on the final manuscript before submission:
 - [ ] Straight quotation marks (not curly)
 - [ ] Sentence case in headings (unless journal requires title case)
 - [ ] AI pattern density < 2.0 per 1000 words
+- [ ] § (section sign) 0건 (Pattern 19) — `grep -c "§"` = 0
+- [ ] (Methods §X) / (Results §Y) self-reference 0건 (Pattern 20)
+- [ ] AI Disclosure boilerplate 본문 0건 (Pattern 21) — cover letter / submission form 전용
