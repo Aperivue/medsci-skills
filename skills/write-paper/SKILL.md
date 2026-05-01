@@ -79,7 +79,14 @@ When paper type is "case report":
 10. For extended case reports with literature review, user can specify `--extended` to raise
     the word limit to 2000-3000 words and add a structured review section.
 
-5. **Identify a backbone article**: Ask the user for a published study with a similar design in the target journal (or comparable journal). This article serves as a structural template for Methods, Tables, and Figures. Record it in the project scaffold for reference throughout writing.
+5. **Identify a backbone article (auto-proposal first, ask only as fallback)**:
+   a. **Scan first** — if `manuscript/_src/refs.bib` exists, scan it for entries matching the current paper's study design (Phase 0 paper_type), imaging modality, and target journal (or comparable tier). Prefer entries whose Zotero record has a PDF attachment (full text locally available).
+   b. **Rank candidates** by: PDF available locally (+2), recency within 5 years (+1), same target journal (+2), same study design + modality (+2).
+   c. **Behavior**:
+      - **One strong candidate (score ≥ 5)** — propose it proactively: *"I found a likely backbone article: [citation]. Full text appears available. I will use it as the structural backbone unless you prefer another."* Proceed once user confirms or stays silent for one turn.
+      - **Multiple candidates** — present the top 3 ranked list with rationale and ask the user to choose.
+      - **No refs.bib, or no candidates** — ask the user to provide a published study (legacy behavior).
+   d. Record the chosen citekey in `project.yaml::backbone_article` so Methods, Tables, and Figures phases reuse it without re-asking.
 6. Summarize the setup to the user and confirm before proceeding.
 
 **Output:** Setup summary with journal constraints, paper type, reporting guideline, backbone article, directory path, and LLM disclosure status (ON/OFF).

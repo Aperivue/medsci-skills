@@ -1,0 +1,45 @@
+schema_version: 1
+name: manage-refs
+owner_domain: manuscript_lifecycle
+inputs:
+  - manuscript/manuscript.md
+  - manuscript/_src/refs.bib
+  - n_to_zotero_key map (json or csv, optional, for CWYW workflow)
+outputs:
+  - manuscript_final.docx (or .pdf / .html — pandoc citeproc render)
+  - manuscript_cwyw.docx (Zotero CWYW field codes)
+  - qc/xref_audit.json
+deterministic_scripts:
+  - scripts/check_citation_keys.py
+  - scripts/check_xref.py
+  - scripts/render_pandoc.sh
+  - scripts/md_marker_convert.py
+  - scripts/inject_zotero_cwyw.py
+side_effects:
+  - writes_manuscript_artifacts
+  - writes_qc_artifacts
+  - reads_zotero_local_api  # port 23119 for CWYW workflow only
+downstream_consumers:
+  - write-paper
+  - revise
+  - peer-review
+  - sync-submission
+  - find-journal
+  - self-review
+forbidden_actions:
+  - hand_type_references_list
+  - invent_zotero_metadata
+  - guess_citekey_for_unmapped_marker
+  - bypass_check_citation_keys_gate
+  - patch_post_cwyw_docx_with_regex
+provenance:
+  - scripts/_vendor_citation_writer.py:
+      source: alisoroushmd/zotero-mcp
+      sha: ed5dfb718b78f355f300545eb375aec7a543e027
+      license: MIT
+      vendored: 2026-05-01
+quality_gates:
+  - check_citation_keys.py: hard exit on UNDEFINED keys
+  - check_xref.py --strict: hard exit on MISSING_DOCX / MISSING_BODY / MISMATCH
+  - verify-refs hand-off: required before sign-off
+  - cwyw_first_build_user_step: Add/Edit Bibliography in Word

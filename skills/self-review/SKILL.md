@@ -393,10 +393,10 @@ DOCX build has occurred yet (early drafts).
    and the rendered DOCX (typically `manuscript/manuscript_final.docx` or the
    most recent circulation `.docx`).
 
-2. **Invoke the shared script** (lives in `/write-paper`):
+2. **Invoke the shared script** (lives in `/manage-refs`):
 
    ```bash
-   python3 "${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/write-paper/scripts/check_xref.py" \
+   python3 "${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/manage-refs/scripts/check_xref.py" \
      --md manuscript/manuscript.md \
      --docx manuscript/manuscript_final.docx \
      --out qc/xref_audit.json
