@@ -48,7 +48,7 @@ You do NOT do the work yourself. You classify, plan, and delegate.
 | **meta-analysis** | Systematic review | Full MA pipeline: protocol, search, screening, extraction, synthesis, PRISMA-DTA |
 | **write-paper** | Writing | IMRAD manuscript drafting (8-phase pipeline), any section writing |
 | **self-review** | Quality | Pre-submission self-check from reviewer perspective (10 categories) |
-| **check-reporting** | Compliance | Audit against 22 reporting guidelines and risk-of-bias tools |
+| **check-reporting** | Compliance | Audit against 33 reporting guidelines and risk-of-bias tools |
 | **revise** | Revision | Parse reviewer comments, generate point-by-point response, track changes |
 | **grant-builder** | Funding | Structure grant proposals: significance, innovation, approach, milestones |
 | **present-paper** | Presentation | Prepare academic talks: analyze paper, draft scripts, inject slide notes, Q&A prep |
@@ -206,6 +206,35 @@ When the user requests "run the full pipeline," "end-to-end," or similar, execut
 
 ### `--e2e` Flag
 
+#### Pre-flight Validation (run once at `--e2e` entry)
+
+Before invoking any downstream skill in `--e2e` mode, run the following 4 checks.
+A failure on any one halts the pipeline and is recorded to
+`manuscript/<id>/REPORT.md` (see §"REPORT.md Generation") under
+`Frozen / Version status` + `Source artifacts checked`.
+
+1. **STATUS / project_state**: read `STATUS.md` or `project_state.json` in the
+   working directory and confirm the current phase. If neither exists, halt with
+   `STATUS_MISSING` unless the user passes `--no-status`.
+2. **Frozen artifact**: scan `manuscript/<id>/v_*_package/`. If the latest `v_N`
+   carries a `_FROZEN` marker file or `INDEX.md::frozen=true`, this run is
+   restricted to a `v_(N+1)_package/` branch. Any attempt to write directly into
+   `v_N` halts with `FROZEN_VIOLATION` (see `~/.claude/rules/manuscript-versioning.md`).
+3. **Required inputs**: confirm input artifacts for the requested phase exist.
+   Examples: Phase 4 figure requires `analysis/_analysis_outputs.md`; Phase 7
+   self-review requires `manuscript/manuscript.md`. Missing → halt with
+   `REQUIRED_INPUT_MISSING: <path>`.
+4. **Dependency miss**: if the user requested phase `k` but a prior phase is
+   incomplete, halt with `DEPENDENCY_MISS: [Phase i, Phase j]` by default. Only
+   when the user explicitly passes `--auto-extend` may the orchestrator prepend
+   the missing phases and continue.
+
+PHI Safety Gate (node N6) remains the only legitimate interrupt of an autonomous
+run after pre-flight passes. All four pre-flight outcomes are written to REPORT
+verbatim.
+
+#### `--e2e` Pipeline Behavior
+
 When `--e2e` is passed (or the user says "end-to-end", "Arm A", or "fully autonomous"):
 1. Set `--e2e` mode ON.
 2. Pass `--autonomous` to `/write-paper` when invoking it.
@@ -264,6 +293,54 @@ After each skill completes, verify that expected output files exist. If validati
 - Log the failure: which skill, which output was missing, any error messages.
 - In `--e2e` mode: report the error in `qc/_pipeline_log.md` and STOP. Do not proceed to the next skill. Output: "Pipeline halted at {skill}: {missing output}. Check the skill's output and re-run."
 - In interactive mode: report the error and ask the user how to proceed.
+
+### REPORT.md Generation
+
+At the termination of every `--e2e` invocation — whether the pipeline completed,
+halted at pre-flight, or halted on post-skill validation — the Worker MUST write
+`manuscript/<id>/REPORT.md` using the template at
+`${SKILL_DIR}/references/report_template.md`.
+
+Rules:
+
+- Copy all 11 sections from the template verbatim. Never delete a section. Empty
+  fields are filled with `(none)` or `(unknown)` — never omitted, never collapsed.
+- The §"Pipeline log" entry is a 5-line summary of `qc/_pipeline_log.md` (Dialogue
+  node defaults applied, skill invocations, halt reason if any) — not a paste of
+  the full log.
+- The §"Tier-3 차단 항목" hook-vs-prompt-guard split is mandatory — see
+  §"Tier-3 Worker Guard" below.
+- The §"Next safe command" line is the literal command the user can copy to
+  resume the next phase. Do not editorialize.
+- REPORT.md is the single artifact the user reviews; every other QC output is
+  linked from it.
+
+### Tier-3 Worker Guard
+
+The following actions are permanently forbidden inside `--e2e` autonomous flow.
+On detection, the Worker halts the pipeline and records the attempt under
+REPORT.md §"Tier-3 차단 항목" as `tier3_pending: <command>`. Hook-confirmed
+blocks and prompt-only blocks are listed separately so a future hook regression
+cannot silently re-open a prompt-only block.
+
+**Hook-confirmed (`~/.claude/hooks/tier3-confirm.sh` enforces)**:
+- `gws gmail +send` / `+reply`
+- YouTube upload
+
+**Prompt / skill guard only (no hook coverage — Worker prompt enforces)**:
+- `git push`, `gh pr create`
+- MCP Gmail send, MCP Calendar send
+- MCP GitHub create-pr
+- `/sync-submission build` external publication paths
+- Phase 8 submission DOCX auto-build / journal submission
+- Senior mentor automatic email reply
+
+`git commit` is allowed; a subsequent `git push` attempt halts. Circulation
+emails are written via `gws-draft.py` to a Gmail Draft only — never sent.
+
+Phase 8 (Post-E2E Journal Selection & Submission Prep, see §"Post-E2E" below)
+is explicitly outside `--e2e` and requires explicit user invocation. The Tier-3
+guard reinforces that boundary.
 
 ### Data Flow Contract
 
