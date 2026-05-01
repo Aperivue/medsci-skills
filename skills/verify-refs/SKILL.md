@@ -35,7 +35,7 @@ For markdown manuscripts using pandoc `[@bibkey]` citations, run the citation-ke
 matcher first to catch undefined/unused keys before this audit:
 
 ```bash
-python "${CLAUDE_SKILL_DIR}/../write-paper/scripts/check_citation_keys.py" \
+python "${CLAUDE_SKILL_DIR}/../manage-refs/scripts/check_citation_keys.py" \
   manuscript.md references.bib
 ```
 

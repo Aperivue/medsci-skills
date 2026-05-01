@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# render_manuscript.sh — Pandoc citeproc wrapper for manuscript rendering with journal CSL.
+# render_pandoc.sh — Pandoc citeproc wrapper for manuscript rendering with journal CSL.
+# (Renamed from render_manuscript.sh on 2026-05-01 when relocated to /manage-refs.)
 #
 # Usage:
 #   render_manuscript.sh -j <journal> -i <input.md> -b <refs.bib> [-o <out.docx>] [-t <reference.docx>] [-- <extra pandoc args>]
@@ -13,7 +14,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CSL_DIR="${SCRIPT_DIR}/../references/citation_styles"
+CSL_DIR="${SCRIPT_DIR}/../citation_styles"
 
 usage() {
   cat >&2 <<EOF

@@ -93,9 +93,10 @@ design in a similar journal that serves as a structural template.
 
 ### Where to Find
 
-- Search the target journal for recent studies with matching design
-- Check the reference lists of papers you are already citing
-- Ask the corresponding author or mentor for recommendations
+1. **Auto-scan `manuscript/_src/refs.bib` first** — Phase 0 Step 5 ranks entries by study design + modality + target journal + PDF attachment. If one strong candidate emerges, the skill proposes it proactively rather than asking.
+2. Search the target journal for recent studies with matching design (fallback when refs.bib has no candidate)
+3. Check the reference lists of papers you are already citing
+4. Ask the corresponding author or mentor for recommendations
 
 ---
 
