@@ -2,18 +2,28 @@ schema_version: 1
 name: lit-sync
 owner_domain: zotero_sync
 inputs:
-  - references/library.bib
+  - references/library.bib  # search-lit candidate pool (optional)
+  - PMID list, DOI list, or Zotero collection name
 outputs:
   - references/zotero_collection.json
+  - manuscript/_src/refs.bib  # SOLE WRITER via Better BibTeX auto-export "Keep updated"
   - obsidian_literature_notes
 deterministic_scripts:
-  - none_required
+  - none_required  # leverages Zotero MCP + Better BibTeX auto-export GUI
 side_effects:
   - may_update_zotero
   - may_write_obsidian_notes
+  - refreshes_manuscript_refs_bib  # via BBT auto-export
 downstream_consumers:
   - write-paper
   - verify-refs
+  - manage-refs  # consumes refreshed refs.bib for citekey validation + CSL render
+ssot_boundary:
+  - SOLE writer of manuscript/_src/refs.bib. write-paper, manage-refs, verify-refs are read-only consumers.
+quality_gates:
+  - refs_bib_refreshed: refs.bib mtime newer than collection snapshot in zotero_collection.json
+  - bbt_auto_export_active: Better BibTeX "Keep updated" must be ON for the project collection (verified per ~/.claude/rules/zotero-workflow.md)
 forbidden_actions:
   - fabricate_bibliographic_metadata
   - overwrite_existing_literature_notes
+  - hand_edit_manuscript_refs_bib  # only Better BibTeX may write

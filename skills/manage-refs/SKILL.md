@@ -45,6 +45,15 @@ Validated 2026-05-01 against a 21-reference meta-analysis manuscript
 1. **Citekey discipline (Phase 0)**: every in-text citation must be
    `[@bibkey]` resolvable in `refs.bib`. `scripts/check_citation_keys.py` is
    a hard gate — UNDEFINED keys exit non-zero and block the build.
+
+   **`[@NEW:topic]` placeholder convention**: while drafting, `/write-paper`
+   may emit `[@NEW:topic_slug]` markers for citations the author still needs
+   to source. `check_citation_keys.py` classifies these as `NEW_PLACEHOLDER`
+   (not UNDEFINED) and exits 0 — the build is allowed to proceed during
+   drafting. Phase 7.6 (DOCX render) is a hard gate: zero NEW_PLACEHOLDER
+   entries must remain. Resolve each by adding the citation to Zotero (then
+   `/lit-sync` refreshes refs.bib) and replacing the placeholder with the
+   real `[@bibkey]`. Never let a `[@NEW:...]` reach a rendered DOCX.
 2. **No hand-typed References list** — references are always rendered by
    pandoc citeproc + journal CSL or by the Zotero Word plugin (CWYW). See
    `~/.claude/rules/manuscript-references.md`.

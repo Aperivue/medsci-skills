@@ -417,3 +417,14 @@ Page numbers should be filled in by the user after final formatting. Use section
 - **Never invent clinical definitions, diagnostic criteria, or guideline recommendations.** If uncertain, flag with `[VERIFY]` and ask the user.
 - **Never fabricate numerical results** — compliance percentages, scores, effect sizes, or sample sizes must come from actual data or analysis output.
 - If a reporting guideline item, journal policy, or clinical standard is uncertain, state the uncertainty rather than guessing.
+
+---
+
+## Gates
+
+| Gate | Severity | Trigger | Action on fail |
+|---|---|---|---|
+| Mandatory items present | ENFORCED at submission | < 100% of guideline-mandatory items marked PRESENT | Auto-fix MISSING items where text exists; otherwise route to `/write-paper` Phase 7 for re-draft |
+| Step 4d PRISMA Figure 1 arithmetic & cross-reference audit (PRISMA / PRISMA-DTA only) | ENFORCED for SR/MA | flow numbers don't sum (e.g., screened ≠ included + excluded), or in-text counts mismatch flow diagram | HALT; reconcile against extraction artifacts |
+| Optional items (e.g., supplementary AI declarations) | ADVISORY | < 80% of optional items present | warn; user accepts |
+| Cross-reporting-guideline routing (study type → guideline) | ENFORCED | study type undeclared or guideline missing | Ask user; do not silently default |

@@ -1,4 +1,4 @@
-# RESUME — medsci-skills (2026-04-24 post-release)
+# RESUME — medsci-skills (2026-05-01 integration cleanup)
 
 **⚠️ 이어서 작업 지시. "마무리할까요?" 금지. `## 즉시 실행` 첫 항목부터.**
 **작업 디렉토리**: `/Users/eugene/workspace/medsci-skills`
@@ -7,37 +7,50 @@
 
 ## 즉시 실행
 
-직전 세션 결과물이 전부 live. 이 HANDOFF는 **다음 세션 진입점이 비어있다**는 신호 — 새 요청으로 시작하면 됨. 만약 follow-up 과제가 필요하면 아래 후보 중 하나를 골라 진행.
+직전 세션 integration cleanup 완료. 단일 PR `feat/backbone-auto-proposal-clean → main` 머지 + origin 정리 + 외부 컨트리뷰터 답장 발송 단계 진행:
 
-1. **(선택) batch-cohort Joo 2026 replication 경고 repo 역반영**
-   - 백업 위치: `~/.local/cache/medsci-installed-backup-20260424-173740/batch-cohort/references/variable_coding_registry.md`
-   - repo 버전(`skills/batch-cohort/references/variable_coding_registry.md`)과 `diff`로 삭제된 4줄 복원 후 커밋.
-2. **(선택) define-variables 홈페이지 반영**
-   - `aperivue-web/src/content/data/skills.{en,ko}.json`에 37번째 엔트리 추가, 페이지 메타 `36 → 37`, pipelineSteps 추가.
-   - 기존 v2.1.0 블로그 포스트에 "follow-up: define-variables" 짧은 섹션 append.
-3. **(선택) drift-risk 스킬 내용 양방향 검토**
-   - 백업 5개(`author-strategy / batch-cohort / cross-national / lit-sync / replicate-study`) vs repo diff, installed-only 내용 있으면 repo로 pull.
+1. **PR 머지 확인 (HIGH)**
+   - PR URL: GitHub web에서 확인. 머지 완료 여부 먼저 점검.
+   - 미머지면 reviewer 응답 처리 후 머지.
+   - 머지 후 즉시 다음 단계.
+
+2. **Origin 브랜치 정리 (HIGH, 사용자 승인 필요)**
+   - `git push origin --delete feat/write-paper-backbone-auto-proposal` (origin 891dd4a — clean 브랜치가 superset)
+   - 로컬 `git branch -D feat/write-paper-backbone-auto-proposal` (3377041)
+   - **사용자 명시 승인 후만 실행** — 파괴적 동작.
+
+3. **Phase 10 — Ibad Mursalov 답장 발송**
+   - 본문 `/Users/eugene/.local/cache/medsci-replies/reply_ibad_backbone.txt`의 `<ISSUE_OR_PR_URL>` 치환.
+   - `python3 ~/.local/bin/gws-draft.py --to 'ibadmursalov@gmail.com' --subject 'Re: Skill finds a backbone article but does not use it automatically /write-paper' --body-file <path>` (서명 자동 첨부).
+   - 사용자 검토 → 승인 시 발송.
+
+4. **CHANGELOG `[Unreleased]` → release 승격 (LOW, post-merge)**
+   - PR 머지 시 `[Unreleased]` → `[v0.x.y] - 2026-05-01`로 변경 (별도 PR 또는 머지 commit에 포함).
 
 ---
 
 ## 블로커 / 대기
 
-- 없음. v2.1.0 / v2.1.1 릴리스 + 홈페이지 블로그 배포 + skill registry symlink 전부 완료.
+- 없음. PR이 아직 안 만들어졌다면 `gh pr create` (사용자 권한). 머지/푸시는 사용자 명시 승인 후.
 
 ---
 
 ## 주의사항
 
-- **Symlink 구조**: `~/.claude/skills/*` 36개는 repo로 symlink. repo 편집 = 즉시 live. 반대로 `~/.claude/skills/`에서 직접 수정하지 말 것 (repo 파일을 수정하는 것과 동일).
-- **드리프트 백업**: `~/.local/cache/medsci-installed-backup-20260424-173740/` (5개 스킬 교체 전 스냅샷). 필요 시 참조, 오래되면 삭제 가능.
-- **define-variables Anti-Hallucination 섹션**: 이번 세션에서 validator 통과용으로 추가됨. 다른 세션에서 이 스킬 편집 시 섹션 유지 필요.
-- **dist/ gitignored**: 릴리스 ZIP은 local-only. `python3 scripts/build_classroom_release.py` 재빌드 후 `gh release upload`.
-- **정리 원칙**: pre-commit hook이 `validate_skills.sh` + `tag_cleanup_gate.sh` 자동 실행. 커밋 전 기대.
+- **HANDOFF 자체는 untracked**: 이번 통합에 포함됨 (commit 시 함께). 다음 세션 시작 시 SessionStart hook이 이 파일을 자동 로드.
+- **render-pdf-doc Step 4 회귀 테스트 미수행**: MeducAI Paper 2 anchor `Paper2_QA_Anchor_KO.md`로의 회귀 테스트는 외부 manuscript 위치 의존이므로 별도 세션. 현재 skill은 smoke test만 통과.
+- **post-submission-harvest 적용 누적**: RFA-Adjunct ER submission이 milestone에 도달하면 `~/.claude/rules/post-submission-harvest.md` 절차로 추가 룰 승격. 별도 trigger.
+- **글로벌 룰 영역 (`~/.claude/rules/`)**: 이번 cleanup에서 repo 외부 룰은 변경 안 함. agent-skill-routing.md / manuscript-references.md는 직전 세션에서 갱신 완료. 새 매트릭스 `docs/rule-application-map.md`는 인덱스만.
+- **40개 스킬 중 13개에만 skill.yml 존재**: render-pdf-doc + calc-sample-size 추가로 14개. 나머지 26개의 skill.yml v1 contract 작성은 follow-up. `feedback_reference_split_threshold.md` 패턴 따라 우선순위 정하기.
 
 ---
 
 ## 참조
 
+- 직전 작업 plan: `~/.claude/plans/medsci-nested-cosmos.md` (Phase 1–10 전체)
+- 통합 commit: 직전 push (clean 브랜치 70446c0 위에 누적 단일 commit)
+- CHANGELOG `[Unreleased]` 첫 섹션 "Integration cleanup" — PR 본문에 그대로 사용 가능
+- 외부 컨트리뷰터 thread: 사용자 inbox, "Skill finds a backbone article but does not use it automatically /write-paper" (ibadmursalov@gmail.com, 2026-05-01 14:27)
+- 신규 dialogue nodes: `skills/orchestrate/references/dialogue_nodes.md` N10/N11
+- IMPROVEMENT_QUEUE: `IMPROVEMENT_QUEUE.md` (#2 #3 미처리, 별도 cycle)
 - FOLLOWUPS: `FOLLOWUPS.md`
-- Release: https://github.com/Aperivue/medsci-skills/releases/tag/v2.1.1
-- Homepage blog: https://aperivue.com/ko/blog/medsci-skills-v2-1-0-reference-safety

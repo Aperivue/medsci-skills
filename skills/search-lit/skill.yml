@@ -4,7 +4,7 @@ owner_domain: literature_discovery
 inputs:
   - literature_query
 outputs:
-  - references/library.bib
+  - references/library.bib  # search-result candidate pool; NOT the manuscript SSOT bib
   - references/search_results.tsv
 deterministic_scripts:
   - references/pubmed_eutils.sh
@@ -13,8 +13,11 @@ side_effects:
   - may_call_external_literature_apis
 downstream_consumers:
   - verify-refs
-  - lit-sync
+  - lit-sync  # confirmed candidates flow through Zotero, then lit-sync refreshes manuscript/_src/refs.bib
   - write-paper
+ssot_boundary:
+  - manuscript/_src/refs.bib is OWNED by /lit-sync (Better BibTeX auto-export). search-lit MUST NOT write to that path.
 forbidden_actions:
   - generate_references_from_memory
   - silently_include_unverified_references
+  - write_to_manuscript_refs_bib  # SSOT owner is /lit-sync

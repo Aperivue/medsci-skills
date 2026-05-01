@@ -598,3 +598,15 @@ Here is how to address it with your existing data."
 - **Never invent clinical definitions, diagnostic criteria, or guideline recommendations.** If uncertain, flag with `[VERIFY]` and ask the user.
 - **Never fabricate numerical results** — compliance percentages, scores, effect sizes, or sample sizes must come from actual data or analysis output.
 - If a reporting guideline item, journal policy, or clinical standard is uncertain, state the uncertainty rather than guessing.
+
+---
+
+## Gates
+
+| Gate | Severity | Trigger | Action on fail |
+|---|---|---|---|
+| Phase 2.5b cross-reference QC (delegate `/manage-refs scripts/check_xref.py`) | ENFORCED | MISSING_DOCX / MISSING_BODY / MISMATCH > 0 | P0 Major Comment, blocks submission |
+| Phase 2.5c reference hallucination scan (delegate `/verify-refs`) | ENFORCED | FABRICATED verdict in `records[]` | P0 Major Comment, blocks submission |
+| `--fix` auto-fix loop (max 2 iterations) | ENFORCED in `/write-paper` Phase 7.4 chain | score still below threshold after 2 iterations | Route to write-paper Phase 7.4a Audit Recovery |
+| R0 numbering output | OPT-IN | `--r0-numbering` flag or downstream `/revise` consumer | Emits structured Anticipated Major/Minor Comments — consumable by `/revise` |
+| `--json` machine-readable output | OPT-IN | `--json` flag | Emits parseable JSON block consumed by `/orchestrate` post-skill validation |

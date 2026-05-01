@@ -1,0 +1,29 @@
+schema_version: 1
+name: calc-sample-size
+owner_domain: study_design
+inputs:
+  - study_design (proportions, continuous, agreement, survival, ANOVA, logistic, NI/equivalence, diagnostic accuracy, repeated measures, Cox EPV)
+  - parameters (effect size, alpha, power, attrition rate, etc.)
+outputs:
+  - protocol/sample_size_justification.md  # IRB-ready prose, Output Format §"IRB Justification Text"
+  - protocol/sample_size_calc.R  # reproducible R script
+  - protocol/sample_size_calc.py  # alternative reproducible Python script
+deterministic_scripts:
+  - inline R/Python code blocks (skill-emitted, not packaged)
+side_effects:
+  - none  # no external API calls; pure computation + literature anchoring
+downstream_consumers:
+  - write-protocol  # embeds Output §"IRB Justification Text" verbatim into Methods §Sample Size
+  - write-paper  # embeds same text into Methods (post-IRB)
+  - design-study  # cross-reference for analysis-unit / cohort-logic alignment
+ssot_boundary:
+  - protocol/sample_size_justification.md is the canonical sample size text. write-protocol and write-paper EMBED VERBATIM; do not rephrase numbers.
+quality_gates:
+  - parameters_documented: every parameter has a Source column entry (user / literature / convention)
+  - effect_size_interpretation: Cohen's benchmark classification present
+  - methodological_reference: cited (e.g., "Schoenfeld, 1981" for survival)
+  - reproducible_code: both R and Python emitted (skill default), runnable standalone
+forbidden_actions:
+  - fabricate_effect_size_from_unverified_assumption
+  - omit_attrition_or_loss_to_followup
+  - silent_protocol_modification  # changes to N must update both justification.md and protocol Methods

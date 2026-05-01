@@ -574,13 +574,17 @@ Build the final submission-ready documents from the assembled components:
    Ensure all figure image references use relative paths so figures render in both formats.
 
    **With pandoc citeproc + journal CSL** (when manuscript uses `[@bibkey]` citations and a `.bib` is available — preferred for any submission with > 5 references; mandatory when reviewers have asked for "automatically generated reference list"):
+
+   The validation + render scripts live in `/manage-refs` (split out 2026-05-01). Either invoke `/manage-refs` directly (recommended), or call the scripts manually:
    ```bash
-   # 1. Validate keys vs .bib first (fail fast on UNDEFINED keys)
-   python "${CLAUDE_SKILL_DIR}/scripts/check_citation_keys.py" \
+   MR="${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/manage-refs"
+
+   # 1. Validate keys vs .bib first (fail fast on UNDEFINED keys; [@NEW:topic] placeholders pass through)
+   python "$MR/scripts/check_citation_keys.py" \
      manuscript/manuscript.md manuscript/_src/refs.bib
 
-   # 2. Render with journal CSL (see references/citation_styles/README.md for journal mapping)
-   "${CLAUDE_SKILL_DIR}/scripts/render_manuscript.sh" \
+   # 2. Render with journal CSL (see manage-refs/citation_styles/ for bundled CSLs)
+   "$MR/scripts/render_pandoc.sh" \
      -j european-radiology \
      -i manuscript/manuscript.md \
      -b manuscript/_src/refs.bib \
@@ -592,10 +596,8 @@ Build the final submission-ready documents from the assembled components:
    (no dedicated CSL). On rejection cascade (e.g., ER → JVIR → CVIR), re-render with
    different `-j` — references reformat in seconds. Never hand-type the References list.
 
-   **Decision: pandoc vs Zotero Word plugin (CWYW)** — use Word plugin when coauthors
-   collaborate live in Word; use pandoc when (a) single-author submission lockdown,
-   (b) journal-cascade rejection re-formatting, or (c) plugin unavailable. See
-   `~/.claude/rules/manuscript-references.md`.
+   **Decision: pandoc vs Zotero Word plugin (CWYW)** — `/manage-refs` documents the hybrid 3-phase strategy (Phase 1 pandoc draft → Phase 2 transition → Phase 3 Zotero CWYW for circulation/revision/submission). Use Workflow B (CWYW) once co-authors collaborate live in Word; use Workflow A (pandoc) for single-author lockdown, journal-cascade rejection re-formatting, or when the plugin is unavailable. See
+   `~/.claude/rules/manuscript-references.md` and `skills/manage-refs/SKILL.md`.
 5. **Fallback** (if pandoc is unavailable): Generate the DOCX using python-docx:
    - Parse `manuscript/manuscript.md` sections (`##` → Heading 2, `###` → Heading 3, `**bold**` → bold runs)
    - Insert figures as inline images at their markdown reference locations
@@ -617,7 +619,8 @@ were cited but absent from the DOCX entirely.
 **Run after Step 7.6 DOCX build and before Step 7.7 final gate:**
 
 ```bash
-python3 "${CLAUDE_SKILL_DIR}/scripts/check_xref.py" \
+MR="${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/manage-refs"
+python3 "$MR/scripts/check_xref.py" \
   --md manuscript/manuscript.md \
   --docx manuscript/manuscript_final.docx \
   --out qc/xref_audit.json \
@@ -854,8 +857,8 @@ This skill orchestrates other skills at specific phases:
 | 7.4a | `/meta-analysis` Phase 10 (MA manuscripts) | Audit recovery branch — rebuild extraction/analysis/figures/body when self-review surfaces structural data or protocol issues |
 | 7.5 | `/humanize` | AI-pattern density sweep (<2.0 / 1000 words) |
 | 7.5a | `/academic-aio` (optional, off by default) | AI-search-engine and RAG visibility checklist — run after humanize so QC-confirmed claims and human-readable text anchor the PASS/PARTIAL/FAIL report. Opt-in via `--aio` or when preparing preprint / GitHub README / CITATION.cff / HF card alongside submission. Silent pipeline execution is explicitly prohibited by the skill's Communication Rules. |
-| 7.6 | (built-in) | DOCX build from manuscript/manuscript.md + analysis/figures + analysis/tables |
-| 7.6a | `scripts/check_xref.py` | Cross-reference QC: in-text Table/Figure citations ↔ body captions ↔ rendered DOCX captions (3-way matrix). Submission gate. |
+| 7.6 | `/manage-refs` (pandoc citeproc / Zotero CWYW) | DOCX build from manuscript/manuscript.md + analysis/figures + analysis/tables. Bibliography rendering delegated to `/manage-refs scripts/render_pandoc.sh` since 2026-05-01. |
+| 7.6a | `/manage-refs scripts/check_xref.py --strict` | Cross-reference QC: in-text Table/Figure citations ↔ body captions ↔ rendered DOCX captions (3-way matrix). Submission gate. |
 | 8+ | `/find-journal` | Journal scope for cover letter (optional) |
 
 If a called skill is not available, perform that step inline using the relevant section of this skill document as guidance.
@@ -969,3 +972,33 @@ If the user returns to a partially completed manuscript:
 - **Never invent clinical definitions, diagnostic criteria, or guideline recommendations.** If uncertain, flag with `[VERIFY]` and ask the user.
 - **Never fabricate numerical results** — compliance percentages, scores, effect sizes, or sample sizes must come from actual data or analysis output.
 - If a reporting guideline item, journal policy, or clinical standard is uncertain, state the uncertainty rather than guessing.
+
+---
+
+## Gates
+
+Severity levels: **ENFORCED** = pipeline halts on failure (cannot proceed to next phase). **ADVISORY** = warning logged, user may override. **OPT-IN** = runs only when explicitly invoked.
+
+| Phase | Gate | Severity | Trigger | Action on fail |
+|---|---|---|---|---|
+| 0 | Backbone-article auto-proposal (Phase 0 Step 5) | ADVISORY | refs.bib has methodologically similar candidate | Surface to user; user accepts/declines |
+| 7.0 | Citekey resolution (delegate `/manage-refs scripts/check_citation_keys.py`) | ENFORCED | UNDEFINED keys present | Halt; resolve via `/lit-sync` then re-run |
+| 7.0 | NEW_PLACEHOLDER drain (delegate `/manage-refs`) | ENFORCED at 7.6 entry | `[@NEW:topic]` markers remain | Resolve each before DOCX render |
+| 7.1 | Classical-style QC (manuscript-style-classical 11 items) | ENFORCED | § symbol > 0 OR AI Disclosure paragraph in body OR em-dash > 25 | Auto-fix or HALT for senior MA reviewer prep |
+| 7.2 | Reporting guideline compliance (`/check-reporting`) | ENFORCED at submission | <100% mandatory items present | Auto-fix MISSING; ADVISORY for partial |
+| 7.3 | Reference audit (`/verify-refs --strict`) | ENFORCED | FABRICATED or HIGH_MISMATCH_FIRST_AUTHOR > 0 | Halt; fix in Zotero, re-render refs.bib via `/lit-sync` |
+| 7.4 | Self-review fix loop (`/self-review --json --fix`) | ENFORCED | score below threshold after 2 iterations | Route to Step 7.4a Audit Recovery |
+| 7.4a | Audit Recovery branch (route to `/meta-analysis` Phase 10 for MA manuscripts) | ENFORCED in `--e2e` | self-review surfaced structural data issue | HALT with `RECOVERY_HALT_HUMAN_DECISION` if recovery validation fails twice |
+| 7.5 | Humanize density (`/humanize`) | ADVISORY | AI patterns > 2.0 / 1000 words | Sweep + flag remaining; user reviews |
+| 7.5a | AIO checklist (`/academic-aio --aio`) | OPT-IN | user supplies `--aio` flag | PASS/PARTIAL/FAIL report; never auto-applies |
+| 7.6 | DOCX build (delegate `/manage-refs scripts/render_pandoc.sh`) | ENFORCED | render exits non-zero | Halt; report stderr to user |
+| 7.6a | Cross-reference QC (delegate `/manage-refs scripts/check_xref.py --strict`) | ENFORCED — submission gate | MISSING_DOCX / MISSING_BODY / MISMATCH > 0 | Halt; route fixes per `references/check_xref_symptoms.md` |
+| 7.7 | Final submission gate | ENFORCED | any of 7.0–7.6a above failed | Refuse to mark `submission_safe: true` |
+| 8+ | Cover letter generation | OPT-IN | user invokes `--cover-letter` | Renders against journal profile |
+
+Cross-cutting global rules applied during 7.x QC:
+- `manuscript-style-classical.md` (11 items, Phase 7.1 — ENFORCED)
+- `manuscript-references.md` (hand-typed References list — ENFORCED via Phase 7.6 delegation)
+- `numerical-safety.md`, `data-integrity.md`, `citation-safety.md` (Phase 7.3 + 7.6a — ENFORCED)
+- `senior-mentor-circulation.md` (post-7.7, when round 1 begins — ADVISORY)
+- `ai-drafted-document-policy.md` (Phase 0 if AI-draft attached — ENFORCED)

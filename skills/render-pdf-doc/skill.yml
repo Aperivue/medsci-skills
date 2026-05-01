@@ -1,0 +1,33 @@
+schema_version: 1
+name: render-pdf-doc
+owner_domain: document_layout
+inputs:
+  - markdown_file (non-bibliography academic doc — proposal, briefing, anchor doc, IRB cover, reference table)
+  - frontmatter (optional; mainfont, CJKmainfont, geometry, fontsize, linestretch)
+outputs:
+  - pdf_file (default: same dir, same stem, .pdf)
+  - intermediate.colwidths.md (optional, when --infer-colwidths is run as separate step)
+deterministic_scripts:
+  - scripts/render_pdf.sh
+  - scripts/infer_colwidths.py
+  - scripts/check_deps.sh
+side_effects:
+  - writes_pdf_artifacts
+  - reads_os_font_table  # for CJK font detection (Apple SD Gothic Neo / Noto Sans CJK KR)
+downstream_consumers:
+  - intake-project
+  - manage-project
+  - write-protocol  # when no institutional .docx form exists; see fill-protocol for the form-fill alternative
+forbidden_actions:
+  - bibliography_rendering  # delegate /manage-refs scripts/render_pandoc.sh
+  - citation_key_modification
+  - institutional_word_form_filling  # delegate /fill-protocol
+  - figure_or_pptx_generation  # delegate /make-figures or /present-paper
+  - hand_typing_csv_data_into_tables  # ~/.claude/rules/numerical-safety.md
+provenance:
+  origin: "P3 spinoff from /write-paper Phase 7.6 split (2026-05-01)"
+  precedent: "MeducAI Paper 2 calibration anchor PDF — manual fix x2 → skill"
+quality_gates:
+  - check_deps.sh: pandoc + xelatex + CJK font 의존성 미설치 시 hard exit
+  - infer_colwidths.py: 균등 분할 (--equal) 옵션 명시 안 한 경우 content-proportional dash 강제
+  - circulation_redaction: 회람용 PDF 출력 시 frontmatter `redact_internal: true` 또는 변경이력/버전번호/PI attribution 본문 미노출 강제

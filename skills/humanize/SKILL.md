@@ -224,3 +224,16 @@ the pass/fail status.
 - **Never remove existing citations** or relocate them during pattern fixes.
 - **Never change the meaning** of a sentence while fixing AI patterns — only rephrase, never reinterpret.
 - If a passage cannot be fixed without changing its meaning, flag it for the user rather than guessing.
+
+---
+
+## Gates
+
+| Gate | Severity | Trigger | Action on fail |
+|---|---|---|---|
+| AI-pattern density target | ADVISORY | density > 2.0 patterns / 1000 words after sweep | warn; surface remaining flagged passages for manual review |
+| Pattern 19 — `§` symbol | ENFORCED (senior MA reviewer prep) | `grep -c "§" manuscript.md` > 0 | auto-strip; verify post-rewrite count == 0 |
+| Pattern 20 — `(see Methods §X)` self-reference | ENFORCED | match found | rewrite to direct section name reference |
+| Pattern 21 — AI Disclosure paragraph in body | ENFORCED | "Generative AI was not used..." paragraph in manuscript body | move to cover letter or remove |
+| Citation preservation invariant | ENFORCED | any pre-existing `[@bibkey]` removed by rewrite | revert that single rewrite; flag for user |
+| Numerical preservation invariant | ENFORCED | any number changed by rewrite | revert; flag for user |
