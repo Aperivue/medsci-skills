@@ -75,34 +75,46 @@ Verify the skill is original work suitable for open-source distribution.
 
 **Zero tolerance**: the skill must have exactly 0 PII matches before proceeding.
 
-### Automated Scan
-
-Run the bundled audit script:
-
-```bash
-bash ${CLAUDE_SKILL_DIR}/scripts/audit_skill.sh <source_skill_path>
-```
-
 ### Pre-scan Setup
 
-Before running, ask the user to provide:
-- Their name(s) in all languages/romanizations
-- Their institutional affiliation(s)
-- Any collaborator names that may appear
+Before running, ask the user for everything that should also count as a PII hit but is unique to them:
+- Their name(s) in all languages and romanizations (a placeholder shape: `<First Last>|<native-script name>`)
+- Their institutional affiliation(s) (a placeholder shape: `<Institution>|<Hospital>`)
+- Any collaborator surnames that may appear in drafts or filenames
 
-Add these to the scan patterns temporarily.
+Combine the inputs into a single `grep -E` alternation pattern (pipe-separated).
+
+### Automated Scan
+
+Run the bundled audit script. The first argument is the skill directory; the second is the user-specific alternation pattern from Pre-scan Setup.
+
+```bash
+bash ${CLAUDE_SKILL_DIR}/scripts/audit_skill.sh <source_skill_path> \
+    "<First Last>|<native-script name>|<Institution>|<Hospital>"
+```
+
+The script runs nine categories that mirror the medsci-skills monorepo linter (`scripts/validate_skills.sh`):
+
+1. **Hardcoded paths** (`/Users/<name>/`, `/home/<name>/`, `~/Documents`, `~/Desktop`, `~/Downloads`, `~/Projects`)
+2. **Email addresses** (any address-shaped string)
+3. **IP addresses / internal URLs** (`*.internal`, `*.local`, `*.corp`)
+4. **Institutional references** (SNUH / AMC / SMC / KAIST / SNU / ASAN / MGH / Mayo Clinic / Johns Hopkins / Samsung Medical / Severance / Asan Medical)
+5. **Academic roles with names** (`professor <Surname>`, `Prof. <Surname>`, `Dr. <Surname>`, `PGY[0-9]`, `<한글이름> 교수님`)
+6. **Language hardcoding** ("in Korean", "한국어로", "in Japanese", "in Chinese")
+7. **Location specifics** (Seoul / Busan / Daegu / Tokyo / Beijing / Shanghai / Boston / Stanford and Korean variants)
+8. **Blockquote dated precedent** (`> YYYY-MM-DD ...` lines that reveal an internal review timeline)
+9. **Author-style filenames** (`<Surname>{Year}_*` pattern, e.g., `<Surname>2025_<Journal>_Fig01.png`; allow-list excludes generic tokens like `Issue2024_`, `Sample2025_`)
+10. **Binary EXIF metadata** (DOCX / PPTX / XLSX / PDF / PNG / JPG / TIFF — scanned via `exiftool` when installed; skipped silently otherwise with an install hint)
+
+False-positive guard: text scans use `grep --binary-files=without-match` so byte-stream collisions inside `.pyc`, `.png`, or `.docx` files do not trigger findings. `__pycache__/` is also explicitly skipped.
 
 ### Cross-validation
 
-After the script runs, manually verify with Grep tool for each category in `${CLAUDE_SKILL_DIR}/references/pii-patterns.md`:
+For categories the script flags, also manually verify with the Grep tool against `${CLAUDE_SKILL_DIR}/references/pii-patterns.md`. Pay particular attention to:
 
-1. **Personal names**: author names, collaborator names
-2. **Institutional references**: hospitals, universities, labs
-3. **Hardcoded paths**: `/Users/`, `/home/`, `~/Documents`
-4. **Email addresses**: any `@` patterns
-5. **Role specifics**: named professors, specific titles with names
-6. **Language hardcoding**: "in Korean", "in English" as default
-7. **Location specifics**: city names, country-specific references
+- Names not in the EXTRA_PATTERNS argument (e.g., a co-author who appeared only in one early draft)
+- Domain-specific institutional acronyms (your institution may not be in the default list)
+- Project-specific identifiers like `CK-NN`, `MA-NN`, dated cohort names
 
 ### Output Format
 
