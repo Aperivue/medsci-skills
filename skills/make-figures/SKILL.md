@@ -1,7 +1,7 @@
 ---
 name: make-figures
 description: Generate publication-ready figures and visual abstracts for medical research papers. Supports ROC curves, forest plots, CONSORT/STARD/PRISMA flow diagrams, calibration plots, Kaplan-Meier curves, Bland-Altman plots, confusion matrices, pipeline diagrams, and journal-specific visual/graphical abstracts (python-pptx template-based).
-triggers: figure, plot, graph, diagram, ROC curve, forest plot, flow diagram, CONSORT diagram, PRISMA flow, visualization, chart, visual abstract, graphical abstract
+triggers: figure, plot, graph, diagram, ROC curve, forest plot, flow diagram, CONSORT diagram, PRISMA flow, visualization, chart, visual abstract, graphical abstract, key message, figure design, figure planning, effective figure, cognitive load
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit
 ---
@@ -48,6 +48,9 @@ Read `figure_specs.md` before generating any figure to confirm journal-specific 
 ---
 
 ## Journal AI-Image Policies (CRITICAL — check BEFORE generation)
+
+> Synced with the user's global rule `~/.claude/rules/journal-ai-image-policies.md`. The table below is the local copy used during autonomous workflow; the global rule is authoritative when conflicts arise.
+
 
 | Journal family | Policy on AI-generated images | Disclosure required |
 |---|---|---|
@@ -221,6 +224,26 @@ The JACC submission PPTX is a 10×7.5 in slide with 4 placeholders (citation tex
 
 ### Step 1: Specify
 
+**Before specifying figure type, read `${CLAUDE_SKILL_DIR}/references/design_principles.md`** —
+identify (1) the one-sentence key message, (2) audience and reading-time budget, and
+(3) whether a figure is the right vehicle (vs a small table or in-line text). The
+five strategies in that file shift Step 1 from "which chart fits the data" to
+"what should the reader remember 10 seconds later." Skip only when the figure
+is mandated by a reporting guideline (e.g., PRISMA / CONSORT flow), and even
+then apply the cognitive-load checklist.
+
+**For reporting-guideline figures**, also load
+`${CLAUDE_SKILL_DIR}/references/reporting_guideline_figure_map.md` — the
+14-row table tells you which guideline mandates which figures and whether
+this skill ships an official template (✅), generic flow only (⚠️), or
+needs manual production (❌). Critical for AI-extension guidelines
+(CONSORT-AI, STARD-AI, TRIPOD+AI, CLAIM 2024, DECIDE-AI).
+
+**For medical AI / engineering pipeline figures** (DICOM workflow,
+annotation pipeline, federated learning topology, model architecture),
+also load `${CLAUDE_SKILL_DIR}/references/pipeline_concepts_medical_ai.md` —
+canonical layouts, required annotations, and tool selection per type.
+
 **Optional flags:**
 - `--study-type <type>`: One of: `diagnostic-accuracy`, `ai-validation`, `meta-analysis`, `dta-meta-analysis`, `observational-cohort`, `rct`. When set, auto-generate the full figure set from the Study-Type Figure Sets table below without prompting for individual figure types.
 - `--data-dir <path>`: Directory containing analysis outputs (CSVs, `_analysis_outputs.md`). Default: current working directory.
@@ -315,7 +338,23 @@ This produces a JSON report covering:
 1. Use the Read tool to load the generated PNG.
 2. Read the corresponding rubric file:
    - Flow diagrams: `${CLAUDE_SKILL_DIR}/references/critic_rubrics/flow_diagram.md`
+     (sections A–G; section G adds cognitive-load and template-fidelity checks)
    - Data plots:    `${CLAUDE_SKILL_DIR}/references/critic_rubrics/data_plot.md`
+     (sections A–G; section G adds calibration / fairness / colorblind+redundant /
+     dataset-flow / decision-curve checks for medical AI papers)
+   - For PRISMA / CONSORT / STARD / STROBE specifically, also read
+     `${CLAUDE_SKILL_DIR}/references/flow_diagram_lessons.md` — five
+     production lessons covering official-template fidelity, PDF export
+     fidelity (VML fallback), docx XML escape, sequential placeholder
+     mapping, and frozen-version sync with the manuscript.
+   - For AI-extension guidelines (CONSORT-AI, STARD-AI, TRIPOD+AI,
+     CLAIM 2024, DECIDE-AI), also read
+     `${CLAUDE_SKILL_DIR}/references/reporting_guideline_figure_map.md` —
+     the row for the target guideline lists mandatory figures and which
+     ones this skill cannot template (production path documented per
+     row).
+   - For medical-AI pipeline / DICOM / federated / architecture figures,
+     also read `${CLAUDE_SKILL_DIR}/references/pipeline_concepts_medical_ai.md`.
 3. If exemplars exist in `${CLAUDE_SKILL_DIR}/references/exemplar_diagrams/{type}/`,
    Read 1–3 of them plus their `_why.md` notes.
 4. Score every rubric item as PASS / PARTIAL / FAIL with a one-line note,
@@ -346,6 +385,24 @@ Save final outputs:
 - **TIFF** (if the journal requires it, 300 DPI LZW compression)
 
 Name files descriptively: `fig1_roc_curve.pdf`, `fig2_consort_flow.pdf`, etc.
+
+**For PPTX outputs (visual abstract, central illustration, or any deck the figure
+will live in)**: run the Mac-compatibility validator before delivery. PowerPoint
+Mac silently drops TIFF, renders `<a:sp3d>` 3-D bevels as red outlines that PDF
+export does not show, and refuses to open files whose `app.xml` slide count
+disagrees with the actual slide XML files. This script catches all four classes
+of defect codified in `~/.claude/rules/pptx-mac-compatibility.md`:
+
+```bash
+python ${CLAUDE_SKILL_DIR}/scripts/validate_pptx_mac_compat.py \
+    figures/visual_abstract.pptx \
+    --json figures/visual_abstract.mac_compat.json \
+    --strict
+```
+
+Exit code 1 means at least one FAIL — fix per the `fix:` field in the JSON
+report and re-render the PPTX before delivery. Exit code 0 with WARN is
+acceptable. Skip this step when the figure is PNG/PDF only (no PPTX).
 
 ### Step 6: Design QC Checklist
 

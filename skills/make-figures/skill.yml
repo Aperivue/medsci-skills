@@ -1,6 +1,19 @@
-schema_version: 1
+schema_version: 2
 name: make-figures
+version: 1.1.0
+layer: B
 owner_domain: figure_generation
+when_to_use:
+  - User requests a figure, plot, diagram, or visual abstract for a medical research manuscript
+  - Triggered by /write-paper Phase 5 (figure generation step)
+  - Following /analyze-stats output that requires visualization
+  - Generating PRISMA / CONSORT / STARD / STROBE flow diagrams
+  - Producing journal-specific visual or graphical abstracts
+when_NOT_to_use:
+  - Self-contained tabular results (use /analyze-stats markdown output)
+  - Decorative slides for talks (use /present-paper)
+  - Logos, branding, or non-research illustrations (out of scope)
+  - AI-generated images for journals that prohibit them (JACC family, NEJM) — see Journal AI-Image Policies in SKILL.md
 inputs:
   - analysis/_analysis_outputs.md
   - analysis/tables/*.csv
@@ -11,11 +24,16 @@ outputs:
 deterministic_scripts:
   - scripts/generate_flow_diagram.R
   - scripts/critic_figure.py
+  - scripts/generate_visual_abstract.py
+  - scripts/validate_pptx_mac_compat.py
 side_effects:
   - writes_figure_artifacts
+  - reads_medical_illustration_assets_from_servier_or_bioart
 downstream_consumers:
   - write-paper
   - sync-submission
+  - present-paper
 forbidden_actions:
   - fabricate_figure_numbers
   - create_flow_diagrams_without_source_counts
+  - generate_AI_images_for_prohibited_targets

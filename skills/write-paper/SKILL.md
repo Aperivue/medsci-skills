@@ -180,7 +180,7 @@ Design all tables and figures BEFORE writing prose. This ensures the narrative s
    - Generate a markdown image reference: `![Figure N. Caption](analysis/figures/filename.png){width=80%}`
    - Draft a figure legend based on the figure type and analysis context
    - Insert the reference at the appropriate location in the Results section
-9. **Manifest verification.** After `/make-figures` completes, verify that `analysis/figures/_figure_manifest.md` exists and contains at least one figure entry. If the manifest is missing or empty: in autonomous mode, log the error to `qc/_pipeline_log.md` and proceed with available figures; in interactive mode, report the error and ask the user how to proceed.
+9. **Manifest verification (HALT gate).** After `/make-figures` completes, verify that `analysis/figures/_figure_manifest.md` exists and contains at least one figure entry. If the manifest is missing or empty: in **autonomous mode**, HALT with error code `MANIFEST_MISSING`, log to `qc/_pipeline_log.md`, and write a recovery note to `manuscript/<id>/REPORT.md` Tier-3 section ("rerun /make-figures or manually create _figure_manifest.md"). In **interactive mode**, report the error and ask the user how to proceed. **Rationale**: Phase 7 DOCX build (line 567) parses the manifest to embed figures; a missing manifest silently drops all figures from the final docx, which surfaces only at submission. HALT-on-missing is cheaper than discovering the absence in submission QC.
 
 **Gate:** Present T&F plan to user. Do NOT proceed until user approves.
 **Autonomous mode:** If `--autonomous` is ON, skip this gate. Log the T&F plan to `qc/_pipeline_log.md` and proceed to Phase 3.

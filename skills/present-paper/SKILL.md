@@ -230,13 +230,22 @@ Three rules that keep slides stable:
 | `T_lead` | Title slide, section divider | `title`, `subtitle?`, `extra?` |
 | `T_text` | Bullet body (most common) | `title`, `body_lines[]`, `subtitle?` |
 | `T_table` | Cohort tables, comparisons | `title`, `headers[]`, `rows[][]`, `body_before?` |
-| `T_image_right` | Body + figure on right | `title`, `body_lines[]`, `img_path`, `img_pct?` |
+| `T_image_right` | Body + figure on right | `title`, `body_lines[]`, `img_path`, `img_pct?` (PNG ≥300dpi or vector PDF — see Figure source formats below) |
 | `T_quote_slide` | Verbatim citations, witness quotes | `title`, `quotes[]`, `body_after?`, `img_path?` |
 | `T_two_col` | Compare/contrast | `title`, `left_lines[]`, `right_lines[]` |
 | `T_two_col_with_box` | Compare + emphasis | as above + `metaphor_col`, `metaphor_lines[]` |
 | `T_highlight_slide` | Single key result | `title`, `highlight_lines[]`, `body_before?` |
 | `T_metaphor_body` | Body + analogy footer | `title`, `body_lines[]`, `metaphor_lines[]` |
 | `T_table_two_col` | Take-aways + numeric table | `title`, `left_lines[]`, `headers[]`, `rows[][]` |
+
+### Figure source formats (when consuming `/make-figures` output)
+
+When the deck pulls figures from `analysis/figures/` produced by `/make-figures`:
+
+- **Preferred for slides**: PNG at ≥300 dpi. python-pptx `add_picture()` handles this directly. Set `img_pct` (template `T_image_right`) so the figure occupies ≥40 % of slide width on a 13.33 × 7.5-in widescreen layout.
+- **Vector source available**: prefer PDF only if the slide will be projected at >1080p or printed as a handout — convert PDF → PNG at the target DPI (`pdftoppm -r 300 input.pdf out_prefix`) before insertion, because python-pptx PDF embedding is unreliable across PowerPoint versions.
+- **Forbidden**: TIFF (Mac PowerPoint silently drops it — see Mac compatibility checklist below); JPEG for line art (compression artifacts on diagonal lines); raw SVG (PowerPoint Mac handles it inconsistently).
+- **Caption / legend**: re-draft for spoken-narration context, not the journal legend verbatim. The journal legend assumes a reader; the slide caption assumes a listener with 5–10 seconds of attention.
 
 ### Helpers (used by templates — usually you do not call directly)
 

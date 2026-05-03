@@ -208,9 +208,16 @@ study's data integrity immediately.
 2. Extract numbers from Figure 1 source — preferred order: (a) `analysis/figures/Figure1_PRISMA.md`
    markdown manifest, (b) caption text in `manuscript.md`, (c) PPTX text run if `.pptx`
    exists, (d) manual entry from PNG/SVG.
-3. Run 4 arithmetic checks; emit PRESENT / MISSING / MISMATCH per equation.
-4. Run 2 cross-reference checks; emit PRESENT / MISSING / MISMATCH per number.
-5. Output `qc/prisma_figure_audit.json` and a short table.
+3. **Cross-check `analysis/figures/_figure_manifest.md`** (produced by `/make-figures`):
+   verify that the row whose `Type = prisma` (or `Type = prisma-dta`) points at the same
+   file path used as the audit source, and that the row's `Critic` field is `yes` or
+   `partial` (not `no`). A missing manifest row, mismatched path, or `Critic = no` flag
+   logs `[MANIFEST-XREF]` (advisory) — the arithmetic check still runs against the source
+   identified in step 2. Skip this sub-step if `_figure_manifest.md` does not exist (older
+   projects).
+4. Run 4 arithmetic checks; emit PRESENT / MISSING / MISMATCH per equation.
+5. Run 2 cross-reference checks; emit PRESENT / MISSING / MISMATCH per number.
+6. Output `qc/prisma_figure_audit.json` and a short table.
 
 **Flagging:** any MISMATCH or arithmetic failure logs a Part C Action Item with label
 `[PRISMA-FIGURE]`. `fixable_by_ai: false` (numbers must be reconciled by the author).
