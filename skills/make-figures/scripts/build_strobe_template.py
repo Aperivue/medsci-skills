@@ -19,13 +19,20 @@ a single parametric builder rather than the PRISMA two-step
 YAML schema
 -----------
     output_pptx: figures/figure1_strobe.pptx          # required
-    slide_size: [13.33, 10.0]                          # inches; default widescreen
+    slide_size: [10.5, 11.0]                           # inches; auto-computed if omitted
     title: "Figure 1. STROBE participant flow diagram"  # optional
+
+    # `stages:` is OPTIONAL. STROBE itself does not mandate a phase column —
+    # most cohort papers omit it (the column is a PRISMA 2020 convention). When
+    # `stages:` is present, the script renders a left phase column and merges
+    # consecutive same-stage spine rows under one label. When omitted (or empty),
+    # the spine shifts left, the slide narrows, and the figure looks like the
+    # plainer STROBE convention.
     stages:
-      - {name: Identification, color: "#1F3A68"}      # color = stage box fill
-      - {name: Screening,      color: "#1F3A68"}
-      - {name: Inclusion,      color: "#1F3A68"}
-      - {name: Analysis,       color: "#1F3A68"}
+      - {name: Identification, color: "#cfe1f5"}      # color = stage box fill
+      - {name: Screening,      color: "#cfe1f5"}
+      - {name: Inclusion,      color: "#cfe1f5"}
+      - {name: Analysis,       color: "#cfe1f5"}
     spine:
       - {id: enrolled,    stage: Identification, text: "..."}
       - {id: polyp_ever,  stage: Screening,      text: "..."}
@@ -33,8 +40,8 @@ YAML schema
       - {id: ksar,        stage: Analysis,       text: "..."}
       - {id: landmark,    stage: Analysis,       text: "..."}  # consecutive same-stage rows share one stage label
     exclusions:
-      - {after: enrolled,   text: "Excluded (n = 147,245):\\n• no gallbladder polyp on any ultrasound"}
-      - {after: polyp_ever, text: "Excluded (n = 3):\\n• prior C23 / zero post-baseline FU"}
+      - {after: enrolled,   text: "Excluded (n = 147,245):\\n- no gallbladder polyp on any ultrasound"}
+      - {after: polyp_ever, text: "Excluded (n = 3):\\n- prior C23 / zero post-baseline FU"}
 
 Usage
 -----
@@ -196,17 +203,31 @@ def build(cfg: dict, out_path: Path) -> None:
     excl_h  = float(cfg.get("exclusion_box_height", DEFAULT_EXCL_H))
     title_text = cfg.get("title")
 
+    # Phase column is optional. STROBE itself does not mandate one (PRISMA does);
+    # most cohort papers omit it. Render only when the user supplies a non-empty
+    # `stages:` list in the YAML config.
+    stages_cfg = cfg.get("stages") or []
+    has_phase_column = bool(stages_cfg)
+
+    # Effective horizontal positions (collapse left margin when no phase column)
+    if has_phase_column:
+        spine_x_eff = SPINE_X
+        excl_x_eff  = EXCL_X
+    else:
+        excl_gap = EXCL_X - SPINE_X - SPINE_W   # preserve the spine→excl gap
+        spine_x_eff = PHASE_X
+        excl_x_eff  = spine_x_eff + SPINE_W + excl_gap
+
     avail_top = TITLE_Y + TITLE_H + TOP_PAD if title_text else TITLE_Y
     row_pitch = spine_h + ROW_GAP
-    content_h = avail_top + n_spine * row_pitch - ROW_GAP + spine_h * 0  # last row has no trailing gap
-    # The last spine box ends at avail_top + (n-1)*row_pitch + spine_h
     last_row_end = avail_top + (n_spine - 1) * row_pitch + spine_h
     auto_h = last_row_end + BOTTOM_PAD
+    auto_w = excl_x_eff + EXCL_W + PHASE_X      # right margin == left margin
 
     if "slide_size" in cfg:
         slide_w, slide_h = cfg["slide_size"]
     else:
-        slide_w = DEFAULT_SLIDE_W
+        slide_w = max(auto_w, 4.0)
         slide_h = min(max(auto_h, 4.0), ABSOLUTE_MAX_SLIDE_H)
 
     # If the user gave a slide_size that's too short for the content, scale boxes down
@@ -241,36 +262,37 @@ def build(cfg: dict, out_path: Path) -> None:
     for i, b in enumerate(spine):
         spine_y[b["id"]] = avail_top + i * row_pitch
 
-    # Phase column — group consecutive same-stage rows under one merged label
-    stage_color_lookup = {s["name"]: _parse_color(s.get("color"), NAVY) for s in cfg.get("stages", [])}
-    stages_seq = [b["stage"] for b in spine]
-    i = 0
-    while i < n_spine:
-        j = i
-        while j + 1 < n_spine and stages_seq[j + 1] == stages_seq[i]:
-            j += 1
-        sname = stages_seq[i]
-        y_top = spine_y[spine[i]["id"]]
-        y_bot = spine_y[spine[j]["id"]] + spine_h
-        h = y_bot - y_top
-        stage_fill = stage_color_lookup.get(sname, NAVY)
-        add_box(
-            slide, PHASE_X, y_top, PHASE_W, h,
-            sname,
-            fill=stage_fill,
-            border=stage_fill,
-            font_color=_readable_text_color(stage_fill),
-            font_size=14,
-            bold_first=True,
-            line_pt=0.0,
-        )
-        i = j + 1
+    # Phase column (optional) — group consecutive same-stage rows under one merged label.
+    if has_phase_column:
+        stage_color_lookup = {s["name"]: _parse_color(s.get("color"), NAVY) for s in stages_cfg}
+        stages_seq = [b.get("stage") for b in spine]
+        i = 0
+        while i < n_spine:
+            j = i
+            while j + 1 < n_spine and stages_seq[j + 1] == stages_seq[i]:
+                j += 1
+            sname = stages_seq[i]
+            y_top = spine_y[spine[i]["id"]]
+            y_bot = spine_y[spine[j]["id"]] + spine_h
+            h = y_bot - y_top
+            stage_fill = stage_color_lookup.get(sname, NAVY)
+            add_box(
+                slide, PHASE_X, y_top, PHASE_W, h,
+                sname,
+                fill=stage_fill,
+                border=stage_fill,
+                font_color=_readable_text_color(stage_fill),
+                font_size=14,
+                bold_first=True,
+                line_pt=0.0,
+            )
+            i = j + 1
 
     # Spine boxes + arrows
     for k, b in enumerate(spine):
         y = spine_y[b["id"]]
         add_box(
-            slide, SPINE_X, y, SPINE_W, spine_h,
+            slide, spine_x_eff, y, SPINE_W, spine_h,
             b["text"],
             fill=WHITE, border=BLACK, font_color=BLACK,
             font_size=11, bold_first=True,
@@ -279,8 +301,8 @@ def build(cfg: dict, out_path: Path) -> None:
             prev_y = spine_y[spine[k - 1]["id"]]
             add_arrow(
                 slide,
-                SPINE_X + SPINE_W / 2, prev_y + spine_h,
-                SPINE_X + SPINE_W / 2, y,
+                spine_x_eff + SPINE_W / 2, prev_y + spine_h,
+                spine_x_eff + SPINE_W / 2, y,
             )
 
     # Exclusion boxes + connector arrows
@@ -292,7 +314,7 @@ def build(cfg: dict, out_path: Path) -> None:
         y_mid = y_after + spine_h / 2
         y_excl_top = y_mid - excl_h / 2
         add_box(
-            slide, EXCL_X, y_excl_top, EXCL_W, excl_h,
+            slide, excl_x_eff, y_excl_top, EXCL_W, excl_h,
             excl["text"],
             fill=WHITE, border=BLACK, font_color=BLACK,
             font_size=10, bold_first=False,
@@ -302,8 +324,8 @@ def build(cfg: dict, out_path: Path) -> None:
         # Strictly horizontal connector: both endpoints at y_mid
         add_arrow(
             slide,
-            SPINE_X + SPINE_W, y_mid,
-            EXCL_X,            y_mid,
+            spine_x_eff + SPINE_W, y_mid,
+            excl_x_eff,            y_mid,
         )
 
     out_path.parent.mkdir(parents=True, exist_ok=True)

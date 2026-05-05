@@ -571,7 +571,7 @@ the auto-laid-out R version), use the bundled official files in
 | Guideline | What ships | When to use |
 |-----------|-----------|-------------|
 | PRISMA 2020 | Locally built `.pptx` (4 variants) + `fill_prisma_template.py` | Reviewer asks for the official PRISMA 2020 layout, or you want editable PowerPoint instead of an R-rendered PDF. |
-| STROBE (cohort) | Parametric `.pptx` builder `build_strobe_template.py` (single-script, takes YAML config) | Cohort/case-control study Figure 1 when co-authors want PowerPoint they can hand-edit. Auto-fits text and merges consecutive same-stage rows under one phase label. Pair with `generate_flow_diagram.R --type strobe` for the vector PDF/TIFF submission file. |
+| STROBE (cohort) | Parametric `.pptx` builder `build_strobe_template.py` (single-script, takes YAML config) | Cohort/case-control study Figure 1 when co-authors want PowerPoint they can hand-edit. Auto-fits text, content-fits slide, dashed-border exclusion side-branches with strictly-horizontal connectors. Optional left-side phase column (omit `stages:` for the plain STROBE convention; include it for the PRISMA-style Identification/Screening/Inclusion/Analysis column). Pair with `generate_flow_diagram.R --type strobe` for the vector PDF/TIFF submission file. |
 | CONSORT 2025 | Official `.docx` flow diagram + checklist | RCT submissions to journals that mandate the consort-spirit.org template. |
 | STARD 2015 | Official `.pdf` flow diagram + `.docx` checklist | Diagnostic accuracy studies; flow diagram is fixed PDF, checklist is editable. |
 | SPIRIT 2025 | Official `.docx` participant timeline + checklist | Trial protocols. |
