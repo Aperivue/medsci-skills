@@ -410,14 +410,76 @@ Record `critic_pass: yes | partial | no` and `refine_rounds: N` in `_quick_revie
 ### Note Injection Script
 
 Generate a tailored `inject_notes.py` following the pattern in
-`${CLAUDE_SKILL_DIR}/references/inject_speaker_notes.py`. The generated script should
+`${CLAUDE_SKILL_DIR}/scripts/inject_speaker_notes.py`. The generated script should
 contain only the `notes` dictionary customized for this presentation and the main
 injection loop from the template.
+
+### Notes Markdown Rule (since 2026-05-11)
+
+`python-pptx`'s `notes_text_frame.text = ...` writes the value as **plain text**.
+Markdown emphasis (`**bold**`, `*italic*`) is therefore rendered verbatim in
+PowerPoint Presenter View — the speaker sees raw `**` symbols, which looks
+unfinished.
+
+`scripts/inject_speaker_notes.py` parses inline markdown by default and emits
+run-level styling. Two opt-outs:
+
+- `--no-markdown` — legacy plain-text injection.
+- `--cjk-font ''` — leave the East-Asia (`<a:ea typeface=...>`) attribute unset.
+
+Default `--cjk-font` is `Apple SD Gothic Neo` so Korean notes render with a
+consistent font in PowerPoint Mac Presenter View. For Windows-only audiences,
+swap to `Malgun Gothic` or `Noto Sans CJK KR`.
+
+Verify after injection:
+
+```bash
+unzip -p output.pptx ppt/notesSlides/notesSlide3.xml | grep -oE '\*\*[^<*]+\*\*' | wc -l   # must be 0
+```
 
 ### Critical Rule
 
 **Speaker notes are injected without modifying slide design, layout, text, or images.**
 The script only touches the notes pane. Verify by comparing slide content before and after.
+
+### Multidisciplinary-Audience Add-ons (Mode A + Mode B)
+
+When the audience spans multiple specialties (e.g., a graduate course with
+molecular-biology, neurology, radiology, and AI students in the same room),
+add three audience-bridging elements that do **not** appear in the original
+paper:
+
+1. **Glossary slide** — insert a "Key Abbreviations" slide right after the
+   course-context slide and before the body. Two tiers:
+   - *Top tier (4–7 items)*: disease and key concept abbreviations with a
+     one-line clinical/methodological context (e.g., `iRBD — REM atonia loss
+     + 90% phenoconversion in 15y`). Use `T_two_col` or a custom layout.
+   - *Bottom tier (8–12 items, two columns)*: methods and statistics
+     abbreviations with a short definition only (e.g., `HR  Hazard Ratio
+     (Cox model)`).
+   - Tell the audience this is a reference page they can flip back to; do
+     **not** re-explain every abbreviation when it appears in the body.
+
+2. **In-line expansion on first body-slide appearance** — even with the
+   glossary slide, the first body slide that uses an abbreviation should
+   expand it once (e.g., subtitle reads `Diffusion Tensor Imaging Along the
+   Perivascular Space (Taoka 2017)` rather than just `DTI-ALPS method`).
+
+3. **Intuition box** — for one or two slides where a method or concept will
+   stop a non-expert cold, add a one-line *intuition* line in a distinct
+   colour. Examples: ComBat = same idea as microarray batch-effect removal
+   (familiar to molecular biologists); Foundation model = ChatGPT-style
+   pretraining absorbs scanner differences (familiar to AI students); PVS ⊥
+   fiber tracts → why ALPS uses a left–right vs front–back ratio.
+
+**Glossary speaker-note compression rule** (2026-05-11): on the glossary
+slide itself, keep the notes short — at most one sentence per abbreviation —
+and route detailed explanation to the body slide where the abbreviation
+actually appears. Long glossary notes duplicate the body and waste 30–60 s
+that the audience is not yet primed to spend on definitions.
+
+**Skip the add-ons when**: single-specialty audience (lab meeting), or the
+deck is a follow-up that already shares vocabulary with the prior session.
 
 ---
 
