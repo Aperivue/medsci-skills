@@ -1,0 +1,44 @@
+{
+  "title": "MedSci Skills: Claude Code Skills for the Medical Research Lifecycle",
+  "description": "An opinionated, physician-built collection of Claude Code skills covering the full medical research workflow — literature search with anti-hallucination citation verification, study design, IRB protocols, statistical analysis, publication-ready figures, IMRAD manuscript drafting, reporting compliance audits against 33 EQUATOR guidelines (STARD, STARD-AI, TRIPOD+AI, CLAIM, PRISMA-DTA, STROBE, CONSORT, etc.), journal selection, peer review, and revision response. Three end-to-end demos with public datasets produce submission-ready manuscripts.",
+  "creators": [
+    {
+      "name": "Nam, Yoojin",
+      "affiliation": "University of Ulsan College of Medicine, Seoul, Republic of Korea",
+      "orcid": "0000-0001-8565-1360"
+    }
+  ],
+  "license": "MIT",
+  "upload_type": "software",
+  "access_right": "open",
+  "keywords": [
+    "claude-code",
+    "claude-skills",
+    "agent-skills",
+    "medical-research",
+    "clinical-research",
+    "radiology",
+    "meta-analysis",
+    "systematic-review",
+    "reporting-guidelines",
+    "tripod-ai",
+    "prisma",
+    "strobe",
+    "pubmed",
+    "irb-protocol",
+    "physician-researcher"
+  ],
+  "communities": [
+    {"identifier": "open-research"}
+  ],
+  "related_identifiers": [
+    {
+      "scheme": "url",
+      "identifier": "https://github.com/Aperivue/medsci-skills",
+      "relation": "isSupplementTo",
+      "resource_type": "software"
+    }
+  ],
+  "language": "eng",
+  "notes": "If you use MedSci Skills in your research, please cite this Zenodo record. The repository contains comprehensive documentation, three end-to-end demos with public datasets (Wisconsin Breast Cancer, BCG meta-analysis, NHANES), and 33 EQUATOR reporting guideline checklists."
+}
