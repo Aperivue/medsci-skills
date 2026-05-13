@@ -1,0 +1,41 @@
+cff-version: 1.2.0
+message: "If you use MedSci Skills in your research, please cite it as below."
+type: software
+title: "MedSci Skills: Claude Code Skills for the Medical Research Lifecycle"
+abstract: >-
+  An opinionated, physician-built collection of Claude Code skills covering
+  the full medical research workflow — literature search with anti-hallucination
+  citation verification, study design, IRB protocols, statistical analysis,
+  publication-ready figures, IMRAD manuscript drafting, reporting compliance
+  audits against 33 EQUATOR guidelines (STARD, STARD-AI, TRIPOD+AI, CLAIM,
+  PRISMA-DTA, STROBE, CONSORT, etc.), journal selection, peer review, and
+  revision response. Three end-to-end demos with public datasets produce
+  submission-ready manuscripts.
+authors:
+  - family-names: Nam
+    given-names: Yoojin
+    affiliation: "University of Ulsan College of Medicine, Seoul, Republic of Korea"
+    orcid: "https://orcid.org/0000-0001-8565-1360"
+repository-code: "https://github.com/Aperivue/medsci-skills"
+url: "https://github.com/Aperivue/medsci-skills"
+license: MIT
+version: "3.0.0"
+date-released: "2026-05-13"
+keywords:
+  - claude-code
+  - claude-skills
+  - agent-skills
+  - medical-research
+  - clinical-research
+  - radiology
+  - meta-analysis
+  - systematic-review
+  - reporting-guidelines
+  - tripod-ai
+  - prisma
+  - strobe
+  - pubmed
+  - irb-protocol
+  - physician-researcher
+# Note: Add `doi:` field after first Zenodo archive of v3.0.0 release.
+# Format: doi: "10.5281/zenodo.XXXXXXX"

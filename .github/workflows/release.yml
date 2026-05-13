@@ -1,0 +1,77 @@
+name: Release
+
+# Triggered when a version tag is pushed (e.g., v3.0.0).
+# Builds the classroom installer ZIPs, creates a GitHub Release, and attaches the ZIPs.
+# Zenodo automatically archives the GitHub Release if the integration is enabled at
+# https://zenodo.org/account/settings/github/
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write  # required for gh release create
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository (with full history for tag annotation)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Build classroom release ZIPs
+        run: python scripts/build_classroom_release.py
+
+      - name: List built artifacts
+        run: |
+          ls -lh dist/
+          echo "---"
+          echo "ZIP contents preview:"
+          for zip in dist/*.zip; do
+            echo "## ${zip}"
+            unzip -l "${zip}" | head -20
+          done
+
+      - name: Extract release notes from CHANGELOG.md
+        id: notes
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          # Extract the section for this tag from CHANGELOG.md (between this version header and the next version header)
+          if [ -f CHANGELOG.md ]; then
+            awk -v tag="$TAG" '
+              $0 ~ "^## \\[?"tag"\\]?" { found=1; next }
+              found && /^## / { exit }
+              found { print }
+            ' CHANGELOG.md > /tmp/release_notes.md
+          else
+            echo "Release ${TAG}" > /tmp/release_notes.md
+          fi
+
+          # Fallback if CHANGELOG section was empty
+          if [ ! -s /tmp/release_notes.md ]; then
+            echo "Release ${TAG}" > /tmp/release_notes.md
+            echo "" >> /tmp/release_notes.md
+            echo "See [CHANGELOG.md](CHANGELOG.md) for details." >> /tmp/release_notes.md
+          fi
+
+          echo "Release notes preview:"
+          cat /tmp/release_notes.md
+
+      - name: Create GitHub Release with classroom ZIP attached
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          gh release create "$TAG" \
+            --title "MedSci Skills ${TAG}" \
+            --notes-file /tmp/release_notes.md \
+            dist/*.zip
