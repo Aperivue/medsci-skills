@@ -123,8 +123,15 @@ After drafting, verify mechanically:
 1. **Numerical accuracy**: All cited numbers (sample size, p-value, AUC) match the manuscript.
 2. **Citation accuracy**: Section/Table/Figure references match manuscript.
 3. **Feasibility**: All suggested revisions achievable with existing data.
-4. **Word count**: Author section within 500-1000 words.
+4. **Word count**: Author section within 500-1000 words (Minor Revision ≤ 600).
 5. **Forbidden words**: No recommendation words (accept/reject/minor/major revision) in Comments to Authors.
+6. **Aczel tone audit** (`references/aczel_2021_reviewer2_patterns.md`):
+   - 0 attitude markers (reject/absurd/ridiculous/naive/oblivious/fail)
+   - 0 personal attacks ("the authors seem...", "the authors do not understand")
+   - ≥2 first-person rapport instances in General Comments / Closing Remark
+   - ≥50% of Minor requests use hedged forms ("I'd suggest," "could," "would help") rather than imperative ("must," bare "Please [verb]")
+   - General Comments names ≥2 specific strengths before listing concerns
+   - At most 1 typo/grammar Minor Comment, only if in formal section or systematic
 
 Fix all issues found, then present to user.
 
@@ -149,10 +156,12 @@ Fix all issues found, then present to user.
 
 ## Tone and Calibration
 
-- **Default**: Developmental, constructive tone
+- **Default**: Developmental, constructive, partner-voice (not gatekeeper-voice)
+- **Aczel 2021 patterns** (`references/aczel_2021_reviewer2_patterns.md`): avoid attitude markers ("reject," "absurd," "oblivious"), boosters, personal attacks on authors, vague dismissals, and typo nitpicking; prefer first-person rapport ("I appreciate," "I stumbled over"), hedged suggestions ("I'd suggest," "could," "would help"), and critique aimed at the work rather than the people. Apply throughout drafting, not just QC.
 - **Escalate tone** only when: clinical validity threatened, patient safety concern, severe data leakage, or reference standard fundamentally flawed
 - **Default recommendation**: Major Revision (unless issues are purely reporting/clarity → Minor Revision)
 - **Fatal flaw signal**: State in Confidential Comments which issue(s) represent fundamental design limitations, rather than recommending Reject directly
+- **Length proportionality**: Minor Revision ≤ 600 words; Major Revision ≤ 1000 words. Length signals difficulty — a Minor Revision review longer than the manuscript itself reads as Reviewer 2.
 
 ## Signature Review Patterns
 
