@@ -61,10 +61,12 @@ https://github.com/Aperivue
 MIT
 ```
 
-### Description (1-3 sentences, no emojis, descriptive not promotional, do not address reader)
+### Description (≤500 chars; 1-3 sentences; no emojis; descriptive not promotional; do not address reader)
+
+⚠️ **Validation gate**: hesreallyhim/awesome-claude-code enforces 500-character cap. Submission #N (2026-05-13) was rejected at ~600 chars. Below is the 426-char compliant version.
 
 ```
-A 39-skill Claude Code collection covering the medical research lifecycle from PubMed search with anti-hallucination citation verification through IMRAD manuscript drafting, reporting compliance audit against 33 EQUATOR guidelines (STARD-AI, TRIPOD+AI, CLAIM, PRISMA-DTA, STROBE, etc.), peer review, and revision response. Includes three end-to-end demos with public datasets (Wisconsin Breast Cancer, BCG meta-analysis, NHANES obesity) and a read-only setup-medsci diagnostic for clinicians new to Python or R. Archived on Zenodo (DOI 10.5281/zenodo.20155321) for academic citation.
+A 39-skill Claude Code collection for the medical research lifecycle: PubMed search with anti-hallucination citation verification, IMRAD drafting, compliance audit against 33 EQUATOR reporting guidelines (STARD-AI, TRIPOD+AI, CLAIM, PRISMA-DTA, STROBE), peer review, and revision response. Three end-to-end demos run on public datasets to produce submission-ready manuscripts. Archived on Zenodo (DOI 10.5281/zenodo.20155321).
 ```
 
 ### Validate Claims
