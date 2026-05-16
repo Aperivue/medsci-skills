@@ -168,19 +168,19 @@ Use `/make-figures` to generate PRISMA flow diagram when numbers are finalized.
 
 #### 3f. Post-Consensus Count Reconciliation Gate (MANDATORY before Phase 5 write-up)
 
-Before handing the screening artifacts to Phase 5 (statistical synthesis) or to `/write-paper` / `/self-review`, run an explicit ID-set reconciliation and record the canonical totals in a single source-of-truth file (typically `2_Screening/screening_consensus_final.md` §Net Impact or equivalent):
+Before handing the screening artifacts to Phase 5 (statistical synthesis) or to `/write-paper` / `/self-review`, run an explicit ID-set reconciliation and record the canonical totals in a single source-of-truth file (typically `2_Screening/screening_consensus.md` §Net Impact or equivalent):
 
 Use the deterministic helper when TSV/CSV artifacts are available:
 
 ```bash
 python "${CLAUDE_SKILL_DIR}/scripts/screening_reconcile.py" \
-  --screening 2_Screening/fulltext_screening_final.tsv \
+  --screening 2_Screening/fulltext_screening.tsv \
   --consensus 2_Screening/consensus_decisions.tsv \
   --table1 6_Tables/table1_studies.csv \
-  --output 2_Screening/screening_consensus_final.json
+  --output 2_Screening/screening_consensus.json
 ```
 
-Downstream stages should consume `screening_consensus_final.json` for counts and
+Downstream stages should consume `screening_consensus.json` for counts and
 ID sets. The Markdown consensus document remains the human explanation.
 
 1. **Enumerate ID sets from raw artifacts (not from prose summaries):**
