@@ -39,6 +39,10 @@ dist/
 # Per-session planning notes inside docs/plans (skill-design scratchpads)
 /docs/plans/
 
+# Per-session handoff notes inside docs/ (development scratchpads, not user-facing)
+/docs/handoff_*.md
+/docs/HANDOFF_*.md
+
 # Per-skill development handoff scratchpads (NOT user-facing skill docs)
 skills/*/HANDOFF.md
 skills/*/HANDOFF_*.md

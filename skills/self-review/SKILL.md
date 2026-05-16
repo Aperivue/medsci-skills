@@ -268,15 +268,15 @@ separate failure mode: a prior-draft prose total ("30 → 32 after FLAG consensu
 every downstream pass because Abstract, Methods, Results, Discussion, Figure 1 caption, and
 even the supplementary consensus file all cite the same wrong number back to each other.
 
-**Precedent failure pattern (a PRISMA-DTA meta-analysis, 2026-04-20):**
-> v11 manuscript reported k_qualitative = 32, k_narrative-only = 10, k_FT-excluded = 46.
-> Screening TSV (28 INCLUDE) ∩ consensus sheet (non-Exclude) + 2 FLAG additions yields
-> k_qualitative = 24 with only 2 narrative-only studies (k_FT-excluded = 54). The 32/10/46
-> figures came from a v7-draft assumption that was never reconciled against the ID-level
-> artifacts; `screening_consensus_final.md`, `Supplementary_Material_5`, `v8_edit_plan.md`
-> all propagated the same wrong total. Caught only by an explicit ID-set recount against
-> `fulltext_screening_final.tsv` + `MA1_Consensus_Sheet.xlsx`, independently verified by
-> Codex adversarial audit.
+**Precedent failure pattern (a PRISMA-DTA meta-analysis revision):**
+> A late-revision manuscript reported study counts of k_qualitative = 32, k_narrative-only = 10,
+> k_FT-excluded = 46. An ID-level recount against the screening TSV and consensus sheet (with
+> FLAG additions reconciled) yielded k_qualitative = 24 with only 2 narrative-only studies
+> (k_FT-excluded = 54). The original 32/10/46 figures came from an early-draft assumption that
+> was never reconciled against the ID-level artifacts; downstream files (consensus markdown,
+> supplementary tables, edit plans) propagated the same wrong total. Caught only by an explicit
+> ID-set recount against the screening TSV and consensus spreadsheet, verified independently
+> by an adversarial audit.
 
 **When to run:** any SR/MA manuscript revision, regardless of stage. Run before Phase 3.
 
@@ -386,15 +386,15 @@ Numerical audits (2.5/2.5a/2.5b) cover in-text numbers; they do **not** cover re
 
 Reference-list integrity (Phase 2.5c) does **not** cover Table/Figure
 cross-references. This is a separate failure mode where in-text citations
-("Supplementary Table S4 reports CAC>10 sensitivity") resolve to a different
-caption in the rendered DOCX ("Supp Table S4 = VIF Diagnostics") because the
+("Supplementary Table S4 reports a sensitivity analysis") resolve to a different
+caption in the rendered DOCX ("Supp Table S4 = a diagnostics table") because the
 build script carries its own legacy SSOT. Internal consistency (Phase 2.5)
 cannot detect it — both the prose and the build artifact echo their own
 divergent truths cleanly.
 
-**Precedent failure pattern (an STROBE cohort manuscript (internal precedent), 2026-04-28):**
-> Body prose cited Supp Table S4 as the CAC>10 sensitivity analysis; the
-> rendered DOCX S4 was VIF Diagnostics. S1, S6, S7 also mismatched. S8 and S9
+**Precedent failure pattern (an STROBE cohort manuscript revision):**
+> Body prose cited Supp Table S4 as a sensitivity analysis; the rendered DOCX
+> S4 instead contained a diagnostics table. S1, S6, S7 also mismatched. S8 and S9
 > were cited in the manuscript but absent from the rendered DOCX entirely.
 > Caught only on co-author circulation review.
 
@@ -444,7 +444,7 @@ DOCX build has occurred yet (early drafts).
    ```
    | Label | Status | Body caption | DOCX caption | Verdict |
    |---|---|---|---|---|
-   | Supplementary Table S4 | MISMATCH | Sensitivity at CAC>10 | VIF Diagnostics | ✗ P0 |
+   | Supplementary Table S4 | MISMATCH | Sensitivity analysis | Diagnostics table | ✗ P0 |
    | Supplementary Table S8 | MISSING_DOCX | (defined in body) | — | ✗ P0 |
    | Figure 2 | UNCITED | Forest plot of subgroups | Forest plot of subgroups | △ Minor |
    ```

@@ -223,12 +223,15 @@ Given Agarwal et al. Nat Commun 2025 (doi:10.1038/s41467-025-58551-6) findings t
 
 When invoked, run in this order:
 
-1. Read the target artifact (title, abstract, manuscript section, README, or card).
-2. Apply Sections 1–5 and 10 relevant to that artifact; produce a PASS / PARTIAL / FAIL table. Use `references/checklists/AIO_GENERAL.md` as the canonical checklist source; render via `templates/aio_audit_checklist.md.j2` when programmatic.
-3. **Always cross-check reporting-guideline anchor (Section 1.6)** by invoking `/check-reporting` first when the manuscript has not been audited. The mapping between AIO rules and reporting-guideline items (TRIPOD+AI, CLAIM 2024, STARD-AI, TRIPOD-LLM, DECIDE-AI) is in `references/reporting_guideline_mapping.md` — fix once, both audits update.
-4. Apply Section 6 author-authority audit once per submission cycle. Apply Section 11 (timing / citation-graph) at submission planning and Section 12 (launch sequencing) post-acceptance.
-5. Surface Section 7 citation-defense recommendations at post-acceptance time. For multi-repo or Hugging-Face-card team audits, run `scripts/batch_metadata_audit.py`.
-6. Output: the checklist (visible), then at most 5 concrete edits ranked by expected visibility impact.
+1. Read the target artifact (title, abstract, manuscript section, README, or card) and **identify its lifecycle phase**: `pre-draft` / `drafting` / `pre-submission` / `post-acceptance` / `post-publication`.
+2. Apply Sections 1–5 and 10 relevant to that artifact, **filtering each rule by its `applies_to_phase` field in `references/checklists/AIO_GENERAL.md`**. Out-of-phase rules become NA rather than FAIL (e.g., do not surface §11.5 multi-disciplinary roster or §12 launch sequencing as FAIL on a `pre-submission` audit). Produce a PASS / PARTIAL / FAIL table **sorted by `expected_lift` (high → medium → low)**. Render via `templates/aio_audit_checklist.md.j2` when programmatic.
+3. **Honour `defers_to` annotations to avoid duplicate audits.** Items annotated with a `defers_to` field record only present/absent status here; item-level detail belongs to the linked skill or reference (§1.6 → `/check-reporting`; §3.4 / §11.3 → `references/oac_funding_checklist.yaml`). Cross-check reporting-guideline anchor (§1.6) by invoking `/check-reporting` first when the manuscript has not been audited; the AIO ↔ guideline-item mapping is in `references/reporting_guideline_mapping.md`.
+4. Apply Section 6 author-authority audit once per submission cycle. Sections 11.1–11.5 are `pre-draft` rules — `applies_to_phase` filter auto-NAs them once drafting is complete. Section 12 launch sequencing fires only at `post-acceptance` / `post-publication`.
+5. Surface Section 7 citation-defense recommendations at `post-acceptance` time. For multi-repo or Hugging-Face-card team audits, run `scripts/batch_metadata_audit.py`.
+6. Output:
+   - The phase-filtered checklist (visible).
+   - A short deferred-item list with one-line status per `defers_to` rule.
+   - At most 5 concrete edits **ranked by `expected_lift`** (high first, then medium, then low). Edits whose underlying rule is `low`-lift should not appear in the Top 5 unless no `high` / `medium` items remain open.
 
 ### Integration with `write-paper`
 - Phase 4 (Title and abstract drafting) → apply Section 1 as an inline filter.

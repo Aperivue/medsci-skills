@@ -209,7 +209,7 @@ ID sets. The Markdown consensus document remains the human explanation.
    | k_bivariate | ... | ... | |T| |
    | k_narrative-only | ... | ... (explicit IDs listed) | (A ∪ C) \ B \ T |
 
-**Precedent incident (a PRISMA-DTA meta-analysis, 2026-04-20):** v11 manuscript shipped with k_qualitative = 32 / k_narrative-only = 10 / k_FT-excluded = 46. ID-set reconciliation (only performed after Codex adversarial audit at post-Stage 4 QC) revealed true counts 24/2/54. The prose "30 → 32 after FLAG consensus" had been carried from v7 without ever being reconciled against `fulltext_screening_final.tsv` ∩ `MA1_Consensus_Sheet.xlsx`; four downstream artifacts echoed the same wrong total. This gate would have caught the drift at Phase 5 hand-off.
+**Precedent incident (a PRISMA-DTA meta-analysis revision):** a late-revision manuscript shipped with k_qualitative = 32 / k_narrative-only = 10 / k_FT-excluded = 46. ID-set reconciliation (performed only after an adversarial audit at post-Stage 4 QC) revealed true counts 24/2/54. An early-draft prose total ("30 → 32 after FLAG consensus") had been carried forward without ever being reconciled against the screening TSV intersected with the consensus spreadsheet; four downstream artifacts echoed the same wrong total. This gate would have caught the drift at the Phase 5 hand-off.
 
 ### Phase 4: Data Extraction
 

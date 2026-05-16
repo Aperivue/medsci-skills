@@ -34,7 +34,7 @@ directly on `word/document.xml` inside the docx zip and doing literal-string
 replacement — but that requires the target strings to already exist in the
 seed, so the skill ships a pre-filled synthetic seed.
 
-**Precedent:** an STROBE cohort with mortality endpoint (2026-04-20) — 6 authors
+**Precedent:** a multi-author cohort manuscript submission — 6 authors
 auto-filled in ~5 seconds from the synthetic seed with zero Word clicks.
 
 ## Core Principles (Do Not Violate)

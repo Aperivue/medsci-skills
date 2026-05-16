@@ -1,7 +1,7 @@
 # TODO — Neurointervention / Cerebrovascular Journal Profiles
 
-**Context:** During `/find-journal` use on a neurointerventional AI systematic review,
-the profile library was found to be missing several major neurointervention and adjacent-
+**Context:** Routine `/find-journal` usage in the neurointervention domain surfaced
+that the profile library was missing several major neurointervention and adjacent-
 field journals. JNIS has since been added. The remaining entries below are pending.
 **Working dir for the session:** `skills/find-journal/references/journal_profiles/`
 

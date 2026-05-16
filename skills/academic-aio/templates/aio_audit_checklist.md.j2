@@ -3,10 +3,11 @@
 Variables expected:
   artifact_path : str           absolute path of the artifact under audit
   artifact_type : str           manuscript | preprint | readme | citation_cff | hf_card | dataset_card
+  artifact_phase : str          pre-draft | drafting | pre-submission | post-acceptance | post-publication
   journal_target : str | None   optional journal id from journal_summarybox_templates.yaml
   audit_date : str              YYYY-MM-DD
   reviewer : str                short name of the auditor
-  items : list[dict]            loaded from references/checklists/AIO_GENERAL.md "items" list
+  items : list[dict]            loaded from references/checklists/AIO_GENERAL.md "items" list (schema v2)
   reporting_guideline_pending : bool
   numerical_audit_pending : bool
   humanize_pending : bool
@@ -15,39 +16,84 @@ Render hint (Python):
     from jinja2 import Environment, FileSystemLoader
     env = Environment(loader=FileSystemLoader("templates"))
     tpl = env.get_template("aio_audit_checklist.md.j2")
-    rendered = tpl.render(artifact_path="...", artifact_type="manuscript", ...)
+    rendered = tpl.render(artifact_path="...", artifact_type="manuscript",
+                          artifact_phase="pre-submission", ...)
 #}
 # AIO Audit — {{ artifact_path }}
 
 **Artifact type**: {{ artifact_type }}
+**Phase**: {{ artifact_phase }}
 {% if journal_target -%}
 **Journal target**: {{ journal_target }}
 {% endif -%}
 **Audit date**: {{ audit_date }}
 **Reviewer**: {{ reviewer }}
 
-## Checklist
+{# Filter: artifact_type in applies_to, artifact_phase in applies_to_phase #}
+{% set in_scope = items
+   | selectattr('applies_to', 'contains', artifact_type)
+   | selectattr('applies_to_phase', 'contains', artifact_phase)
+   | list -%}
+{% set deferred = in_scope | selectattr('defers_to', 'defined') | list -%}
+{% set actionable = in_scope | rejectattr('defers_to', 'defined') | list -%}
 
-| ID | Rule | Priority | Status | Reason | Suggested edit |
-|----|------|----------|--------|--------|----------------|
-{% set applicable = items | selectattr('applies_to', 'contains', artifact_type) | list -%}
-{% for item in applicable -%}
-| {{ item.id }} | {{ item.rule }} | {{ item.priority }} |  |  |  |
+{# Sort actionable by expected_lift: high → medium → low #}
+{% set high = actionable | selectattr('expected_lift', 'equalto', 'high') | list -%}
+{% set med  = actionable | selectattr('expected_lift', 'equalto', 'medium') | list -%}
+{% set low  = actionable | selectattr('expected_lift', 'equalto', 'low') | list -%}
+
+## Top 5 — ranked by expected_lift (high → medium → low)
+
+| Rank | ID | Rule | Lift | Status | Reason | Suggested edit |
+|------|----|------|------|--------|--------|----------------|
+{% set ordered = (high + med + low)[:5] -%}
+{% for item in ordered -%}
+| {{ loop.index }} | {{ item.id }} | {{ item.rule }} | {{ item.expected_lift }} |  |  |  |
 {% endfor %}
+
+## Full applicable checklist
+
+| ID | Rule | Lift | Priority | Status | Reason | Suggested edit |
+|----|------|------|----------|--------|--------|----------------|
+{% for item in (high + med + low) -%}
+| {{ item.id }} | {{ item.rule }} | {{ item.expected_lift }} | {{ item.priority }} |  |  |  |
+{% endfor %}
+
+## Deferred items (audit elsewhere)
+
+| ID | Rule | Status | Defers to |
+|----|------|--------|-----------|
+{% for item in deferred -%}
+| {{ item.id }} | {{ item.rule }} |  | {{ item.defers_to }} |
+{% endfor %}
+
+## Out-of-phase items (NA — surface only if phase changes)
+
+{% set out_of_scope = items
+   | selectattr('applies_to', 'contains', artifact_type)
+   | rejectattr('applies_to_phase', 'contains', artifact_phase)
+   | list -%}
+{% if out_of_scope -%}
+| ID | Rule | Applies in phase |
+|----|------|------------------|
+{% for item in out_of_scope -%}
+| {{ item.id }} | {{ item.rule }} | {{ item.applies_to_phase | join(', ') }} |
+{% endfor %}
+{% else -%}
+None.
+{% endif %}
 
 ## Summary
 
-- PASS: __ / {{ applicable | length }} applicable items
-- FAIL items requiring action:
-  -
-
-## Top 5 fixes ranked by expected visibility impact
-
-1.
-2.
-3.
-4.
-5.
+- PASS: __ / {{ actionable | length }} actionable items
+- Deferred items: {{ deferred | length }} (status only, detail elsewhere)
+- Out-of-phase NA: {{ out_of_scope | length }}
+- Top 5 fixes (ranked by expected_lift):
+  1.
+  2.
+  3.
+  4.
+  5.
 
 ## Cross-skill follow-up
 
