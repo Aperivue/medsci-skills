@@ -36,6 +36,17 @@ python "${CLAUDE_SKILL_DIR}/scripts/sync_submission.py" build --project-root . -
 python "${CLAUDE_SKILL_DIR}/scripts/sync_submission.py" freeze --project-root . --journal chest --status submitted
 ```
 
+For double-blind journals, sweep author identifiers across all upload artifacts:
+
+```bash
+python "${CLAUDE_SKILL_DIR}/scripts/blind_sweep.py" \
+  --registry _shared/authors/author_registry.yaml \
+  --files submission/{journal}/supplementary/*.md submission/{journal}/cover_letter.md \
+  --backup-dir .cache/blind_sweep_backup
+```
+
+The registry is a project-local YAML mapping author identifiers (full names, native scripts, initials with/without periods, email, ORCID) to role labels (e.g., "Reviewer 1"). See `scripts/author_registry_example.yaml` for schema. Never commit a populated registry to a public repository — keep it next to the manuscript.
+
 ## Output Contract
 
 | Artifact | Path | Purpose |
@@ -59,6 +70,8 @@ python "${CLAUDE_SKILL_DIR}/scripts/sync_submission.py" freeze --project-root . 
 - Gate 3: require `/verify-refs` audit before marking a package submission-safe.
 - Gate 4: docx audits must use a recursive walk (paragraphs + tables + nested-table cells); a flat `document.paragraphs` scan is insufficient.
 - Gate 5: before freeze, confirm portal free-text fields (cover letter, data availability, acknowledgements, abstract, author contributions) match the manuscript body.
+- Gate 6 (double-blind journals): before freeze, export the portal's blinded review PDF and grep for all author identifiers across the entire upload set — manuscript, supplementary, cover letter, registry record PDFs (PROSPERO/ClinicalTrials), portal Letter-field text. A clean manuscript blind does not imply a clean portal blind.
+- Gate 7 (text-only docx rebuilds): never use `pandoc --reference-doc=manuscript.docx` for response/cover/supplementary text-only docx — the reference docx ships its embedded media (figure files) into the new docx, bloating size 50–100×. Use plain `pandoc input.md -o output.docx` for text-only artifacts.
 
 ## Verification Blind Spots
 
@@ -77,6 +90,28 @@ Cover letter, Data Availability, Acknowledgements, Abstract, and Author Contribu
 
 - Before final submission, diff the portal's final review page against the manuscript body 1:1.
 - Treat each portal free-text field as its own drift target.
+
+### B3a. Double-blind compliance must cover ALL upload artifacts
+
+A clean manuscript-level blind sweep does not imply a clean portal-level blind. Author identifiers commonly leak through:
+
+- Supplementary materials (per-material `.md`/`.docx` files, especially methodology logs, agreement metrics, amendment logs)
+- Cover letter (separately-uploaded file is portal-default visible to reviewers unless explicitly toggled "Don't show in review PDF")
+- Registry record PDFs (PROSPERO, ClinicalTrials.gov, IRB approval PDFs)
+- Portal free-text Letter field if cover-letter signature was pasted
+- Response-to-reviewers (revision rounds)
+
+Blind sweep regex coverage must include both period and no-period initial forms (e.g., `Y.N.` and `YN`), full names in roman + native scripts, institution names, ORCID IDs, and submission email domains. The first blind PDF export from the portal is the authoritative drift detector — always export and grep before final submit.
+
+### B3b. PROSPERO public-record PDF shows only current amendment
+
+PROSPERO's "Print/PDF" export from the public record renders only the current amendment narrative. Previous versions are accessible only by selecting older versions in the public-record version-history dropdown. When citing PROSPERO version state, never rely on a single PDF export to verify cross-version consistency — record each published version's PDF independently and clarify in cover/supplementary which version anchors the methodology vs. which version reflects documentation-only erratum.
+
+For documentation-only PROSPERO errata (correcting a narrative fact without changing methods/eligibility/synthesis), prefer a single Revision-Note append over a new structured amendment entry. Preserves historical audit trail and minimizes portal edit surface.
+
+### B3c. Text-only docx rebuilds must not inherit manuscript media
+
+If `response_to_reviewers.docx` / `cover_letter.docx` / supplementary text-only docx grow to >100 KB after a rebuild, suspect `--reference-doc` pulling manuscript figure media. Verify with `unzip -l output.docx | grep word/media/` — should be empty for text-only artifacts.
 
 ### B3. Verify change propagation across the whole SSOT tree
 

@@ -1,0 +1,36 @@
+# Author registry — example for blind_sweep.py
+#
+# Each reviewer entry maps an author's identifiers to their double-blind role label
+# (e.g., "Reviewer 1", "Reviewer 2"). The blind_sweep.py script reads this YAML
+# and performs phased substitution across supplementary, cover, and response files.
+#
+# Place a project-local copy under your manuscript root (e.g.,
+# `<project>/_shared/authors/author_registry.yaml`) and pass its path to the script.
+# Do NOT commit real author identifiers to a public repository — keep the populated
+# registry alongside the manuscript, not inside this skill.
+
+reviewers:
+  - role: "Reviewer 1"
+    full_names: ["Given Surname"]              # roman script, primary author
+    native_names: []                            # e.g., ["성명"] for hangul / kanji
+    initials_with_period: ["G.S."]
+    initials_no_period: ["GS"]
+    email: "first.author@example.org"
+    orcid: "0000-0000-0000-0000"
+
+  - role: "Reviewer 2"
+    full_names: ["Coauthor Name"]
+    native_names: []
+    initials_with_period: ["C.N."]
+    initials_no_period: ["CN"]
+    email: null
+    orcid: null
+
+institutions:
+  - replace: "Hospital A / University B"
+    with: "the review team's affiliated institutions"
+
+references:
+  # Self-cited PROSPERO record or preprint
+  - replace: "Given Surname, Coauthor Name. Title of Registered Review"
+    with: "[Authors]. Title of Registered Review"
