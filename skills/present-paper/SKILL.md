@@ -274,6 +274,119 @@ headers all removed). When the deck slot expects only the figure body
 (default for `build_pptx_nature_lancet.py`), point `FIG_DIR` at the cropped
 output dir.
 
+### Word-boundary aware markdown parser (mandatory for HLA-rich decks)
+
+When the build script parses inline `**bold**` / `*italic*` markers in slide
+body or speaker notes, the italic rule must use **word-boundary lookahead /
+lookbehind** so asterisk-bearing scientific tokens (HLA alleles like
+`DRB1*07:01`, `HLA-A*02:01`, SNP IDs, footnote markers) are not eaten as
+italic delimiters:
+
+```python
+import re
+pattern = re.compile(
+    r"(\*\*(?:(?!\*\*).)+?\*\*"                           # bold; inner single * allowed
+    r"|(?<![A-Za-z0-9])\*[^*\n]+?\*(?![A-Za-z0-9]))"      # italic (word-boundary)
+)
+```
+
+Two regex tricks together:
+1. **Italic with boundary**: `(?<![A-Za-z0-9])` and `(?![A-Za-z0-9])` reject
+   `*` adjacent to alphanumerics, so `DRB1*07:01` is left intact.
+2. **Bold tolerates inner single `*`**: `(?:(?!\*\*).)+?` allows
+   `**DRB1*04:02**` (HLA allele inside bold) to match as a single bold span.
+
+Without these, a naive `\*[^*]+\*` italic pattern silently corrupts every
+HLA allele in the deck. Add the regex to `add_styled()` (or equivalent) in
+every Nature/Lancet-style build script.
+
+### Pronunciation auto-augment for non-native presenters
+
+For decks where the presenter is uncomfortable with English pronunciation of
+acronyms, author names, drug names, or gene symbols, append a per-slide
+`[ Pronunciation ]` section to the speaker notes (audience sees nothing —
+only Presenter View). Use
+`${CLAUDE_SKILL_DIR}/scripts/inject_pronunciation_notes.py`:
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/inject_pronunciation_notes.py" \
+  input.pptx output.pptx \
+  --dict pron_dict.yaml \
+  --header "[ 발음 ]"            # or any header you like
+```
+
+The script:
+- Loads a YAML/JSON `PRON_DICT` (term → [reading, full_name]) supplied by
+  the caller. The dict is domain-specific — assemble it for your audience
+  (Korean readings, French readings, Spanish readings, etc.).
+- Uses **word-boundary regex** `(?<![A-Za-z0-9_]) … (?![A-Za-z0-9_])` so
+  short acronyms (e.g. `AE`, `OR`) only match when standalone, never inside
+  other words.
+- Recognizes allele-style tokens via a separate regex
+  (`\b(?:HLA-)?[A-Z]{1,5}[0-9]?\*[0-9]{2}:[0-9]{2}\b` by default) and
+  synthesizes their reading from the base allele entry in the dict.
+- Skips slides that already contain the header (idempotent — safe to re-run).
+
+Realistic yield on a 47-slide academic deck: ~38 slides receive a section,
+~300 total term entries, 5–10 per annotated slide. Transition and divider
+slides have empty notes and are auto-skipped.
+
+### Speaker notes statistics density
+
+When the slide body already shows exact OR / 95% CI / p-value, the notes
+should NOT repeat the same numbers — the presenter ends up reading
+statistics aloud and the audience cannot keep up. Notes should be a
+**narrative** (key anchors + one-line "see the slide body for the exact
+numbers" reminder), not a numeric listing.
+
+Quick measurement to spot dense slides during QC:
+
+```python
+import re
+text = slide.notes_slide.notes_text_frame.text.split(pron_header)[0]
+n_char = len(text)
+n_stat = len(re.findall(r"\b(?:OR|p|CI)\s*[=<>]?\s*\d|\d+\.\d+|\d+%|×10", text))
+needs_compression = n_char > 1000 and n_stat >= 5
+```
+
+Rule of thumb: 700–1,000 chars + 0–2 stat tokens is fine (30–60-second
+narrative). >1,000 chars + ≥5 stat tokens → compress to narrative tone and
+point at the slide body. Exact numbers belong in the slide body and
+footnotes (SSOT), not the notes.
+
+### Sharing-ready notes-stripped variant
+
+After the presentation, when the deck is shared with the audience (e.g. a
+professor asking for the slides), the speaker notes typically contain
+presenter-only material — second-language narrative, pronunciation hints,
+self-referential reminders ("Prof. ○○ will likely ask about …"). Stripping
+notes is mandatory before circulation. Use
+`${CLAUDE_SKILL_DIR}/scripts/strip_notes_for_sharing.py`:
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/strip_notes_for_sharing.py" \
+  presenter_v9.pptx share/<topic>_<initials>.pptx
+```
+
+The script:
+- Clears every slide's `notes_text_frame` (idempotent, slide body and
+  figures untouched).
+- Re-writes `docProps/app.xml` with the correct `Slides=` and `Notes=`
+  counts so PowerPoint Mac does not show its repair dialog (see also the
+  app.xml canonical fix in `pptx-mac-compatibility.md` §5).
+- Verifies that zero notes characters remain.
+
+Recommended 3-file sharing package (filename pattern `<topic>_<initials>`):
+- `<topic>_<initials>.pptx` — notes-stripped variant for slide reuse
+- `<topic>_<initials>.pdf` — same deck, PDF for environment-agnostic
+  preview (LibreOffice `--convert-to pdf` automatically drops the cleared
+  notes pages)
+- `<topic>_<initials>_references.zip` — optional bundle of the reference
+  PDFs; if it exceeds the email attachment limit, send a Google Drive link.
+
+In the cover email, mention the PPTX is included specifically so the
+recipient can reuse individual slides if useful.
+
 ### Architecture
 
 ```
