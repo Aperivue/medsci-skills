@@ -77,10 +77,16 @@ CAPTION_RE = re.compile(
     re.IGNORECASE | re.MULTILINE,
 )
 
-# Section header patterns for the manuscript body's caption sections
+# Section header patterns for the manuscript body's caption sections.
+# Longer alternatives MUST come first so that "FIGURE LEGENDS" is not
+# truncated to "FIGURE" by an earlier short match.
+# Markdown bold wrappers (``## **FIGURE LEGENDS**``) are tolerated.
 CAPTION_SECTION_RE = re.compile(
-    r"^#{1,3}\s+(Tables|Figures|Figure\s+Legends|Supplementary\s+Tables|"
-    r"Supplementary\s+Figures|Supplementary\s+Materials?)\b",
+    r"^#{1,3}\s+\*{0,2}"
+    r"(Supplementary\s+Tables?|Supplementary\s+Figures?|Supplementary\s+Materials?|"
+    r"Figure\s+Legends?|Table\s+(?:Captions?|Legends?)|"
+    r"Tables?|Figures?)"
+    r"\*{0,2}",
     re.IGNORECASE | re.MULTILINE,
 )
 
