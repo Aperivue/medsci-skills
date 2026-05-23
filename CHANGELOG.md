@@ -1,5 +1,28 @@
 # Changelog
 
+## [3.1.0] - 2026-05-23
+
+### Added — v2.10 cycle integration
+
+- `/peer-review`: Phase 2A SR-MA 8-probe extension (P1-P8) for systematic review meta-analyses (PR #22).
+- `/verify-refs`: Gate 5 PMID/DOI duplicate detection; `submission_safe` / `fully_verified` synchronous propagation (PR #23).
+- `/meta-analysis`: SR-MA dual-extractor workflow, cohort overlap detection, and supplementary 8-file pack (PR #24).
+
+### Changed
+
+- Validator scope extended to `templates/` and `scripts/` for permanent PII blocklist enforcement.
+- `setup-medsci` skill now reflected in the public skill roster so filesystem, README, and external mirrors can align at 40 skills.
+- `README.md` refreshed with v2.10 public-surface highlights and 40-skill badge/text sync.
+
+### Hygiene
+
+- Generalized legacy non-hyphenated MA project codes in `skills/meta-analysis/SKILL.md`.
+- Added the non-hyphenated MA project-code family to the validator blocklist.
+
+### Stats
+
+- 40 skills (was 39); Zenodo concept DOI `10.5281/zenodo.20155321` preserved.
+
 ## [3.0.1] - 2026-05-13
 
 ### Added — first Zenodo-archived release with DOI

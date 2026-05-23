@@ -73,6 +73,7 @@ The registry is a project-local YAML mapping author identifiers (full names, nat
 - Gate 6 (double-blind journals): before freeze, export the portal's blinded review PDF and grep for all author identifiers across the entire upload set — manuscript, supplementary, cover letter, registry record PDFs (PROSPERO/ClinicalTrials), portal Letter-field text. A clean manuscript blind does not imply a clean portal blind.
 - Gate 7 (text-only docx rebuilds): never use `pandoc --reference-doc=manuscript.docx` for response/cover/supplementary text-only docx — the reference docx ships its embedded media (figure files) into the new docx, bloating size 50–100×. Use plain `pandoc input.md -o output.docx` for text-only artifacts.
 - Gate 8 (Phase 5 cross-document N consistency): before freeze, run `scripts/cross_document_n_check.py` over the manuscript bundle (abstract, body, PROSPERO record, cover letter, supplementary, INDEX, PRISMA flow caption). Any N category with >1 distinct integer value is a P0 drift. When a `FINAL_POOL_LOCK.yaml` is present, supply `--pool-lock` to make the locked counts the authoritative baseline. See "Phase 5 — Cross-document N consistency" below.
+- Gate 10 (Phase 7 v_(N+1) docx regeneration): when building a new submission from a frozen prior version, run `scripts/verify_package_integrity.py --assert-vN-docx-changed --vN-docx <prev>.docx --new-docx <next>.docx`. Identical MD5 = unmodified seed copy = block submission. Defense-in-depth — required even when the upstream pipeline appears to have regenerated the docx.
 
 ## Phase 5 — Cross-document N consistency
 
@@ -128,6 +129,30 @@ Output `qc/cross_document_n.json`:
 Treat `submission_safe: false` as a halt. Resolve drift by tracing each
 location to its data artifact (extraction sheet, PRISMA cascade TSVs) and
 correcting the document(s) that disagree with the locked count.
+
+## Phase 7 — v_(N+1) docx regeneration gate
+
+When a v_N submission package was frozen and a v_(N+1) is being built
+(after a markdown body edit, reviewer round, or cascade-rejection
+re-target), the v_(N+1) docx MUST differ from the v_N docx. The most
+common silent-revert pattern is a `cp v_N/manuscript.docx
+v_(N+1)/manuscript.docx` step that skips the pandoc / Zotero CWYW
+regeneration entirely. The markdown body is then edited, but the docx
+the portal receives is the frozen v_N — the change silently reverts at
+peer review.
+
+Run the byte-identity assertion at the top of the v_(N+1) submission
+gate:
+
+```bash
+python3 /path/to/medsci-skills/scripts/verify_package_integrity.py \
+    --assert-vN-docx-changed \
+    --vN-docx SUBMISSION/<journal>/v<N>/manuscript.docx \
+    --new-docx SUBMISSION/<journal>/v<N+1>/manuscript.docx
+```
+
+Identical MD5 → exit 1 with explanatory error. Block submission until
+the regeneration step is fixed.
 
 ## Verification Blind Spots
 

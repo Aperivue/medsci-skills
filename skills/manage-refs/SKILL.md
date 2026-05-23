@@ -85,6 +85,7 @@ Validated 2026-05-01 against a 21-reference meta-analysis manuscript
 | Wire native Zotero CWYW field codes into a .docx (live Refresh in Word) | `scripts/inject_zotero_cwyw.py` | Co-author Word workflow, post-circulation editability |
 | Manuscript ↔ rendered DOCX cross-reference QC | `scripts/check_xref.py --strict` | Submission gate (P0 blocker on mismatch) |
 | Figures/tables submitted as separate attachments (radiology, most medical journals) | `check_xref.py --strict --allow-separate-attachments` | Downgrades `MISSING_DOCX` to WARN; `MISSING_BODY`/`MISMATCH` remain P0 |
+| **v_(N+1) docx build-time regeneration check** | `check_xref.py --vN-docx-md5 <prev>.docx [--vN-md <prev>.md]` | Defense-in-depth: identity = unmodified seed copy; missing diff lines = body not regenerated |
 | **Master pre-submission gate** (recommended before any submission) | `scripts/pre_submission_gate.sh` | Chains `check_citation_keys` → `verify_refs --strict` → `render_pandoc` (optional) → `check_xref --strict`; single artifact `qc/pre_submission_gate.json` |
 | Bibliographic audit against PubMed / CrossRef | **delegate** to `/verify-refs` | Audit-only — keep writer/auditor separation |
 
@@ -177,6 +178,32 @@ User shipped a manuscript and a reviewer flagged a Table/Figure mismatch.
    medical journals), pass `--allow-separate-attachments`. `MISSING_DOCX` rows
    are then recorded as WARN rather than FAIL; `MISSING_BODY` and `MISMATCH`
    remain P0 because they indicate SSOT drift, not attachment policy.
+
+### D'. v_(N+1) docx regeneration check (build-time companion)
+
+When building v_(N+1) from a frozen v_N, the v_(N+1) docx MUST differ
+from v_N docx by content — a byte-identical copy is a silent seed-copy
+that will revert markdown edits at peer review. `check_xref.py` carries
+two flags for the build-time companion to the submission-time gate
+in `scripts/verify_package_integrity.py --assert-vN-docx-changed`:
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/check_xref.py" \
+    --md manuscript_v2.md \
+    --docx manuscript_v2.docx \
+    --vN-docx-md5 manuscript_v1.docx \
+    --vN-md manuscript_v1.md \
+    --strict
+```
+
+- `--vN-docx-md5` alone: MD5 identity check. Identical bytes = FAIL.
+- `--vN-docx-md5 + --vN-md`: additionally extracts the markdown-only diff
+  between v_N and v_(N+1) and verifies each ≥40-char diff line appears
+  verbatim (whitespace-normalized, case-insensitive) in the new docx
+  body XML. Missing diff lines = body did not pick up the markdown edits.
+
+Output records the result under `vN_docx_check` in `qc/xref_audit.json`.
+Either failure mode causes a non-zero exit even without `--strict`.
 
 ### E. Master pre-submission gate (recommended end-to-end chain)
 
