@@ -216,6 +216,51 @@ ID sets. The Markdown consensus document remains the human explanation.
 
 **Precedent incident (a PRISMA-DTA meta-analysis revision):** a late-revision manuscript shipped with k_qualitative = 32 / k_narrative-only = 10 / k_FT-excluded = 46. ID-set reconciliation (performed only after an adversarial audit at post-Stage 4 QC) revealed true counts 24/2/54. An early-draft prose total ("30 → 32 after FLAG consensus") had been carried forward without ever being reconciled against the screening TSV intersected with the consensus spreadsheet; four downstream artifacts echoed the same wrong total. This gate would have caught the drift at the Phase 5 hand-off.
 
+#### 3f.5 Pool composition lock (MANDATORY at adjudication freeze)
+
+After Phase 3f reconciliation passes, freeze the pool composition into a
+single source-of-truth YAML so every downstream artifact (extraction TSV,
+manuscript prose counts, PRISMA flow caption, supplementary INDEX, cover
+letter free-text) can be checked against it.
+
+Why this lock exists
+^^^^^^^^^^^^^^^^^^^^
+
+Cross-project precedent (anonymized): an LLM reporting-quality SR carried
+five documents that disagreed on INCLUDE (63 vs 64) and EXCLUDE
+(108/109/111). Three EXCLUDE rows existed in the extraction sheet without
+matching INCLUDE. The drift traced to a late round-3 adjudication whose
+result was applied to some artifacts and not others — there was no single
+canonical post-freeze count to reference.
+
+How to lock
+^^^^^^^^^^^
+
+1. Copy the template:
+   ```bash
+   cp "${CLAUDE_SKILL_DIR}/templates/FINAL_POOL_LOCK.yaml.template" \
+       2_Data/FINAL_POOL_LOCK.yaml
+   ```
+2. Fill in counts and UID lists from the reconciliation in Phase 3f.
+3. Compute the SHA-256 integrity hash from the sorted UID list.
+4. Commit the lock to git BEFORE starting Phase 4 extraction.
+
+Downstream gates
+^^^^^^^^^^^^^^^^
+
+- `/meta-analysis` Phase 4 entry: extraction TSV's UID set MUST equal
+  `include_uids` ∪ `mixed_uids` from the lock. See Phase 4 entry gate.
+- `/sync-submission` Phase 5
+  (`scripts/cross_document_n_check.py --pool-lock`): every numeric claim
+  in manuscript / abstract / supplementary that maps to a locked
+  category must match the locked value.
+- Manuscript prose: NEVER re-derive `k included` from extraction TSV at
+  manuscript build time. Always reference `final_pool_n` from the lock.
+
+If a late post-freeze decision changes the pool, treat it as a formal
+PROSPERO amendment: file the amendment, re-freeze the lock as a new
+file (`FINAL_POOL_LOCK_v2.yaml`), and propagate to every artifact.
+
 ### Phase 4: Data Extraction
 
 **Goal**: Create standardized extraction forms and extract 2x2 or effect size data.
