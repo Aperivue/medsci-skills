@@ -72,6 +72,62 @@ The registry is a project-local YAML mapping author identifiers (full names, nat
 - Gate 5: before freeze, confirm portal free-text fields (cover letter, data availability, acknowledgements, abstract, author contributions) match the manuscript body.
 - Gate 6 (double-blind journals): before freeze, export the portal's blinded review PDF and grep for all author identifiers across the entire upload set — manuscript, supplementary, cover letter, registry record PDFs (PROSPERO/ClinicalTrials), portal Letter-field text. A clean manuscript blind does not imply a clean portal blind.
 - Gate 7 (text-only docx rebuilds): never use `pandoc --reference-doc=manuscript.docx` for response/cover/supplementary text-only docx — the reference docx ships its embedded media (figure files) into the new docx, bloating size 50–100×. Use plain `pandoc input.md -o output.docx` for text-only artifacts.
+- Gate 8 (Phase 5 cross-document N consistency): before freeze, run `scripts/cross_document_n_check.py` over the manuscript bundle (abstract, body, PROSPERO record, cover letter, supplementary, INDEX, PRISMA flow caption). Any N category with >1 distinct integer value is a P0 drift. When a `FINAL_POOL_LOCK.yaml` is present, supply `--pool-lock` to make the locked counts the authoritative baseline. See "Phase 5 — Cross-document N consistency" below.
+
+## Phase 5 — Cross-document N consistency
+
+Multi-document cohort-size drift is a high-frequency desk-reject pattern.
+Manuscript abstracts, body prose, PROSPERO records, supplementary extraction
+sheets, and PRISMA flow captions all repeat the same `k included` / `k excluded`
+/ `N patients` totals — and any disagreement between them is read by reviewers
+as either a data-integrity failure or a late-edit failure. Either reading
+ends the round.
+
+`scripts/cross_document_n_check.py` scans the submission package, extracts
+every "N <noun>" claim by category (patients, cases, included, excluded,
+nodules, tumors, studies_total), and groups them by category. A category with
+more than one distinct integer value is a P0 drift.
+
+```bash
+python "${CLAUDE_SKILL_DIR}/scripts/cross_document_n_check.py" \
+    --root . \
+    --out qc/cross_document_n.json
+```
+
+When the project has frozen a `2_Data/FINAL_POOL_LOCK.yaml` from `/meta-analysis`
+Phase 3f.5, pass it as the authoritative anchor:
+
+```bash
+python "${CLAUDE_SKILL_DIR}/scripts/cross_document_n_check.py" \
+    --root . \
+    --pool-lock 2_Data/FINAL_POOL_LOCK.yaml \
+    --out qc/cross_document_n.json
+```
+
+Output `qc/cross_document_n.json`:
+
+```json
+{
+  "submission_safe": false,
+  "drift_count": 1,
+  "drifts": [
+    {
+      "category": "included",
+      "values": [63, 64],
+      "locations": [
+        {"file": "abstract.md", "line": 4, "value": 63, "context": "..."},
+        {"file": "supplementary/s1.md", "line": 12, "value": 64, "context": "..."}
+      ],
+      "severity": "MAJOR"
+    }
+  ],
+  "lock_violations": []
+}
+```
+
+Treat `submission_safe: false` as a halt. Resolve drift by tracing each
+location to its data artifact (extraction sheet, PRISMA cascade TSVs) and
+correcting the document(s) that disagree with the locked count.
 
 ## Verification Blind Spots
 
