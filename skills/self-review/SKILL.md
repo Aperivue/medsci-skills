@@ -163,6 +163,26 @@ before submission for item-level assessment."
 | Training vs fine-tuning | If pre-trained: was the model fine-tuned on study data? If vendor-provided: any access to training data composition? |
 | Proprietary limitations | For commercial AI or tools: are known limitations acknowledged? Can results be independently reproduced? |
 
+#### K. Reviewer-team consistency (SR/MA-only; fabrication-grade)
+
+| Check | What to look for |
+|-------|-----------------|
+| DUAL vs SINGLE conjunction **[CRITICAL]** | Methods or PROSPERO claims dual independent reviewers AND Discussion/Limitations admits single primary reviewer + 20% sample (or "deferred to before submission")? Mark as **MAJOR**, fabrication-grade. |
+
+Run the deterministic check at Phase 2 entry:
+
+```bash
+python "${CLAUDE_SKILL_DIR}/scripts/check_reviewer_team_consistency.py" \
+    --manuscript manuscript.md \
+    --prospero prospero/record.md \
+    --out _audit_self/reviewer_team_consistency.md
+```
+
+Exit 1 = MAJOR red flag. Either claim alone is fine; the conjunction is
+read by reviewers as fabrication. Resolution path:
+1. Honest Methods/PROSPERO update (single-reviewer execution disclosed), OR
+2. Limitations confession rewritten if dual review was actually completed.
+
 ### Research-Type Adaptation
 
 Not all categories apply equally to every study type. Use this routing table:
@@ -179,6 +199,7 @@ Not all categories apply equally to every study type. Use this routing table:
 | H. Circularity | Full | Partial | N/A | N/A | N/A | Partial |
 | I. Protocol Heterogeneity | Full | Full | N/A | Per-study | N/A | Full |
 | J. Method Transparency | Full | Partial | Partial | N/A | N/A | Partial |
+| K. Reviewer-team consistency | N/A | N/A | N/A | Full | N/A | N/A |
 
 *Meta-analysis: Replace C with heterogeneity assessment (I-squared, prediction intervals),
 publication bias (funnel plot, Egger), and sensitivity/subgroup analyses.

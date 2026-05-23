@@ -175,7 +175,7 @@ for skill_dir in "$SKILLS_DIR"/*/; do
             ! -name "SKILL.md" -print0 2>/dev/null)
 
   # 6. Personal precedent leak (blocklist of project-specific identifiers)
-  # Covers: legacy project IDs (CK-N, MA-N, RFA-Adjunct, MeducAI, CBCT, etc.),
+  # Covers: legacy project IDs, project slugs, product names, etc.,
   # institution / mentor identifiers, numbered workspace folders, and the
   # historical prefix patterns (Paper ①②③). Keep additions in alphabetical
   # blocks so future maintainers can spot what is being filtered.
