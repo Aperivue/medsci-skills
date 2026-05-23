@@ -35,7 +35,7 @@ with specialized support for diagnostic test accuracy (DTA) meta-analyses.
   - `JBI_Case_Series.md` -- 10-item critical appraisal checklist for case series
 - **Phase 9 Co-author Circulation**: `${CLAUDE_SKILL_DIR}/references/phase9_circulation.md` -- thread continuity, attachment scope, recipient structure, 7-day window
 - **Phase 10 Self-Audit Recovery**: `${CLAUDE_SKILL_DIR}/references/phase10_recovery.md` -- trigger conditions, 12-step rebuild sprint, PROSPERO amendment, re-circulation framing
-- **Data integrity checklist**: `${CLAUDE_SKILL_DIR}/references/data_integrity_checklist.md` -- DI-1~DI-9 extraction/synthesis guardrails (MA01~03 empirical)
+- **Data integrity checklist**: `${CLAUDE_SKILL_DIR}/references/data_integrity_checklist.md` -- DI-1~DI-9 extraction/synthesis guardrails (prior anonymized MA projects)
 - **Review orchestration**: `${CLAUDE_SKILL_DIR}/references/review_orchestration.md` -- RO-1~RO-5 circulation discipline (extends phase9_circulation.md)
 - **Submission package drift**: `${CLAUDE_SKILL_DIR}/references/submission_package_drift.md` -- multi-journal folder hygiene, `DO_NOT_EDIT_HERE` gate, `_build.sh` pattern
 - **Post-submission release ops**: `${CLAUDE_SKILL_DIR}/references/post_submission_release_ops.md` -- Zenodo DOI gating, tag-cleanup gates, reject-retarget versioning
@@ -512,9 +512,9 @@ amendment language template, re-circulation paragraph template, anti-pattern rat
 
 ---
 
-## Failure Modes (MA01~03 empirical)
+## Failure Modes (prior MA projects, anonymized)
 
-Failure patterns observed across MA01 RFA Adjunct / MA02 CBCT Biopsy / MA03 CBCT Ablation. Each topical reference extends the phase it cross-references above — consult alongside phase procedural docs, not in isolation.
+Failure patterns observed across three prior MA projects (anonymized). Each topical reference extends the phase it cross-references above — consult alongside phase procedural docs, not in isolation.
 
 | Domain | Phase span | Load-on-demand reference |
 |---|---|---|
