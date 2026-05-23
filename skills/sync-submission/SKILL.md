@@ -72,6 +72,55 @@ The registry is a project-local YAML mapping author identifiers (full names, nat
 - Gate 5: before freeze, confirm portal free-text fields (cover letter, data availability, acknowledgements, abstract, author contributions) match the manuscript body.
 - Gate 6 (double-blind journals): before freeze, export the portal's blinded review PDF and grep for all author identifiers across the entire upload set — manuscript, supplementary, cover letter, registry record PDFs (PROSPERO/ClinicalTrials), portal Letter-field text. A clean manuscript blind does not imply a clean portal blind.
 - Gate 7 (text-only docx rebuilds): never use `pandoc --reference-doc=manuscript.docx` for response/cover/supplementary text-only docx — the reference docx ships its embedded media (figure files) into the new docx, bloating size 50–100×. Use plain `pandoc input.md -o output.docx` for text-only artifacts.
+- Gate 9 (Phase 6 intra-manuscript scope drift): run `scripts/scope_drift_check.py` against the manuscript (and optionally the PROSPERO record). Numeric anchors (AUC, OR/HR/RR, sensitivity/specificity) appearing in Limitations / Discussion but absent from Methods + Results are P0 SCOPE_DRIFT. PROSPERO ↔ Methods synthesis-method disagreement is a P0 PROSPERO_DRIFT.
+
+## Phase 6 — Intra-manuscript scope drift
+
+Late-revision sensitivity analyses sometimes get introduced in the
+Discussion or Limitations subsection without ever propagating back to
+Methods + Results. The manuscript then makes claims (with explicit AUC,
+OR, sensitivity numbers) whose primary report never exists. Reviewers
+read this as a fabrication-grade red flag, and editors desk-reject.
+
+A second variant of the same anti-pattern: the PROSPERO record commits to
+a synthesis method (Freeman-Tukey, random-effects DerSimonian-Laird,
+bivariate, HSROC, Bayesian, etc.) but the Methods section uses a
+different one — or the PROSPERO record was updated and Methods stayed
+behind. When accompanied by a Methods line saying "no amendment lodged",
+this becomes a documented silent protocol deviation.
+
+`scripts/scope_drift_check.py` detects both patterns:
+
+```bash
+python "${CLAUDE_SKILL_DIR}/scripts/scope_drift_check.py" \
+    --manuscript manuscript.md \
+    --prospero prospero/prospero_v2.md \
+    --out qc/scope_drift.json
+```
+
+Output:
+
+```json
+{
+  "submission_safe": false,
+  "limitations_only_anchors": [
+    {
+      "anchor": "0.869",
+      "kind": "AUC",
+      "found_in": ["Limitations:31"],
+      "missing_from": ["Methods", "Results"]
+    }
+  ],
+  "synthesis_method_drift": [
+    {"method": "Freeman-Tukey", "prospero": true, "methods": false}
+  ]
+}
+```
+
+Resolution: either (a) propagate the anchor into Methods + Results as a
+primary report or (b) remove it from Limitations / Discussion. For
+synthesis-method drift, file a PROSPERO amendment and update Methods to
+match — both must agree before submission.
 
 ## Verification Blind Spots
 
