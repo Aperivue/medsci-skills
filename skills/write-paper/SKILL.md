@@ -383,10 +383,11 @@ If any match is returned, HARD STOP. Report the unresolved placeholders to the
 user and loop back: owner runs `/search-lit` → `/lit-sync` to import entries,
 collaborators flag via owner. Do NOT proceed to 7.3.2 until the grep is clean.
 
-**7.3.2 — Audit.** Call `/verify-refs` on the current manuscript. Per v1.1.1
+**7.3.2 — Audit.** Call `/verify-refs` on the current manuscript. Per v1.2.0
 contract, its sole output is `qc/reference_audit.json` (no longer writes
 `references/*`). Parse that file: if `submission_safe: false`, stop the pipeline
-and surface the `FABRICATED` / `MISMATCH` records to the user. If
+and surface the `FABRICATED` / `MISMATCH` records AND any `duplicate_findings[]`
+entries (duplicate PMID/DOI; cite renumbering required) to the user. If
 `/verify-refs` is unavailable, fall back to `/search-lit --verify-only` and flag
 any unverified references with `[UNVERIFIED]` markers.
 
