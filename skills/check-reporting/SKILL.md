@@ -373,6 +373,36 @@ These items are frequently missing in medical manuscripts:
 
 ---
 
+## PRISMA Cascade Arithmetic Auto-Verify
+
+PRISMA 2020 flow diagrams chain a cascade of subtractions (database
+records → after dedup → title/abstract screened → full-text reviewed →
+included in synthesis). Off-by-one errors in the prose cascade are a
+high-frequency reviewer red flag (e.g., `151 + 108 + 39 + 1 + 1 + 4 =
+304` followed by a prose summary "305" four lines later).
+
+When PRISMA 2020 or PRISMA-DTA is selected and round-by-round
+screening TSV artifacts are available, run the cascade auto-verify:
+
+```bash
+python "${CLAUDE_SKILL_DIR}/scripts/prisma_cascade_check.py" \
+    --round1 2_Screening/round1.tsv \
+    --round2 2_Screening/round2.tsv \
+    --round3 2_Screening/round3_adjudication.tsv \
+    --manuscript manuscript.md \
+    --out qc/prisma_cascade.json
+```
+
+The script:
+1. Reads the round TSVs and counts `INCLUDE` / `EXCLUDE` / `MAYBE`
+   decisions per round.
+2. Computes the cascade arithmetic from raw decisions (no prose).
+3. Optionally grep the manuscript for matching stage-count claims and
+   emits per-stage drift when the prose disagrees.
+
+Treat any `manuscript_drift` entry as a P0 blocker — fix the prose to
+match the computed cascade and re-run.
+
 ## Submission Checklist Export
 
 Many journals require a filled reporting checklist to be submitted alongside the manuscript.
