@@ -265,6 +265,44 @@ file (`FINAL_POOL_LOCK_v2.yaml`), and propagate to every artifact.
 
 **Goal**: Create standardized extraction forms and extract 2x2 or effect size data.
 
+#### 4.0 Entry gate (MANDATORY): pool composition lock ↔ adjudication TSV
+
+Before any extraction work begins, run the deterministic UID-set check
+to confirm that the round-3 adjudication TSV and `FINAL_POOL_LOCK.yaml`
+(produced in Phase 3f.5) agree on which UIDs are included.
+
+```bash
+python "${CLAUDE_SKILL_DIR}/scripts/check_pool_consistency.py" \
+    --lock 2_Data/FINAL_POOL_LOCK.yaml \
+    --adjudication-tsv 2_Screening/round3_adjudication.tsv \
+    --decision-col round3_decision \
+    --uid-col uid \
+    --include-labels "INCLUDE,INCLUDE_MIXED" \
+    --out qc/pool_consistency.json
+```
+
+Output `qc/pool_consistency.json`:
+
+```json
+{
+  "submission_safe": false,
+  "match": false,
+  "lock_include_n": 42,
+  "tsv_include_n": 43,
+  "in_lock_not_tsv": ["UID_007"],
+  "in_tsv_not_lock": ["UID_055"]
+}
+```
+
+The gate fails closed: any UID disagreement blocks extraction. To
+resolve, either (a) re-freeze the lock with the corrected set of UIDs
+and propagate to downstream artifacts, or (b) correct the adjudication
+TSV if a row was mis-labeled. Do NOT proceed to Phase 4 with a
+mismatch — the resulting extraction matrix will not align with the
+locked pool, and the drift surfaces as a fabrication-grade red flag at
+peer review.
+
+
 > **Failure-mode cross-ref** → `references/data_integrity_checklist.md` DI-1~DI-5 are mandatory during extraction (2x2 arm-swap, KM audit trail, methodology mismatch, PRISMA 5-way drift, single-source k).
 
 **Recommended extraction form**: For SR-MA targeting high-impact radiology / medical AI journals, use `${CLAUDE_SKILL_DIR}/templates/extraction_form_v2.md`. Dual-extractor + source-page-reference + verbatim-quote columns prevent the 2x2 cell-swap and cohort-overlap blind spots surfaced in recent SR-MA peer-review cycles. New required columns: `cohort_source`, `source_page_ref`, `source_verbatim_quote`, `extraction_consensus_status`, `overlap_flag_reviewer1/2`, `sample_n_dta_pool` vs `sample_n_prognostic_pool`.
