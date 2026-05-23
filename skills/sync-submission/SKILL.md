@@ -72,9 +72,55 @@ The registry is a project-local YAML mapping author identifiers (full names, nat
 - Gate 5: before freeze, confirm portal free-text fields (cover letter, data availability, acknowledgements, abstract, author contributions) match the manuscript body.
 - Gate 6 (double-blind journals): before freeze, export the portal's blinded review PDF and grep for all author identifiers across the entire upload set — manuscript, supplementary, cover letter, registry record PDFs (PROSPERO/ClinicalTrials), portal Letter-field text. A clean manuscript blind does not imply a clean portal blind.
 - Gate 7 (text-only docx rebuilds): never use `pandoc --reference-doc=manuscript.docx` for response/cover/supplementary text-only docx — the reference docx ships its embedded media (figure files) into the new docx, bloating size 50–100×. Use plain `pandoc input.md -o output.docx` for text-only artifacts.
+- Gate 5b (Phase 4 cover-letter free-text drift): before freeze, run `scripts/cover_letter_drift_check.py` to verify the cover letter's word-count / reference-count / table-figure-count claims still match the manuscript. Cover letters routinely go stale across v_N → v_(N+1) branching and are not covered by any docx-level audit. See "Phase 4 — Cover-letter free-text drift" below.
 - Gate 8 (Phase 5 cross-document N consistency): before freeze, run `scripts/cross_document_n_check.py` over the manuscript bundle (abstract, body, PROSPERO record, cover letter, supplementary, INDEX, PRISMA flow caption). Any N category with >1 distinct integer value is a P0 drift. When a `FINAL_POOL_LOCK.yaml` is present, supply `--pool-lock` to make the locked counts the authoritative baseline. See "Phase 5 — Cross-document N consistency" below.
 - Gate 9 (Phase 6 intra-manuscript scope drift): run `scripts/scope_drift_check.py` against the manuscript (and optionally the PROSPERO record). Numeric anchors (AUC, OR/HR/RR, sensitivity/specificity) appearing in Limitations / Discussion but absent from Methods + Results are P0 SCOPE_DRIFT. PROSPERO ↔ Methods synthesis-method disagreement is a P0 PROSPERO_DRIFT.
 - Gate 10 (Phase 7 v_(N+1) docx regeneration): when building a new submission from a frozen prior version, run `scripts/verify_package_integrity.py --assert-vN-docx-changed --vN-docx <prev>.docx --new-docx <next>.docx`. Identical MD5 = unmodified seed copy = block submission. Defense-in-depth — required even when the upstream pipeline appears to have regenerated the docx.
+
+## Phase 4 — Cover-letter free-text drift
+
+Cover letters live outside the submission docx files but are read by the
+editor side-by-side with the manuscript. Their `## Article details`
+block — body word count, abstract word count, reference count,
+table/figure count — is a sidecar SSOT that routinely goes stale when a
+manuscript branches v_N → v_(N+1) (word limit retarget, abstract
+restructure, late reference batch).
+
+`scripts/cover_letter_drift_check.py` measures the manuscript truth and
+compares it to the cover letter's numeric claims:
+
+```bash
+python "${CLAUDE_SKILL_DIR}/scripts/cover_letter_drift_check.py" \
+    --manuscript manuscript.md \
+    --cover-letter cover_letter.md \
+    --refs refs.bib \
+    --out qc/cover_letter_drift.json
+```
+
+Body words are matched with a 5% tolerance ("approximately N words"
+phrasing). Abstract words tolerate ±5. Reference / table / figure counts
+require exact match.
+
+Output `qc/cover_letter_drift.json`:
+
+```json
+{
+  "submission_safe": false,
+  "truth": {"body_words": 3036, "abstract_words": 319, "references": 12,
+            "tables": 3, "figures": 4},
+  "claims": {"body_words": 3790, "abstract_words": 250, "references": 12},
+  "drifts": [
+    {"field": "body_words", "truth": 3036, "cover_letter_claim": 3790,
+     "severity": "MAJOR",
+     "note": "|claim - truth| = 754 > tolerance 151"}
+  ]
+}
+```
+
+Drift resolution: regenerate the cover letter from the manuscript at
+v_(N+1) build time. The script never edits the cover letter — that is
+left to the manuscript build pipeline so the cover letter stays a
+deliberate authored artifact.
 
 ## Phase 5 — Cross-document N consistency
 
