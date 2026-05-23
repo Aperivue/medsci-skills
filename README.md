@@ -2,10 +2,10 @@
 
 # MedSci Skills
 
-**39 skills that actually work.** Built by a physician-researcher, tested on real publications.
+**40 skills that actually work.** Built by a physician-researcher, tested on real publications.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-![Skills](https://img.shields.io/badge/Skills-39-brightgreen?style=flat-square)
+![Skills](https://img.shields.io/badge/Skills-40-brightgreen?style=flat-square)
 ![Platform](https://img.shields.io/badge/Platform-Claude_Code-blueviolet?style=flat-square)
 ![Built by](https://img.shields.io/badge/Built_by-Physician--Researcher-blue?style=flat-square)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20155321.svg)](https://doi.org/10.5281/zenodo.20155321)
@@ -18,6 +18,17 @@
 </div>
 
 ![check-reporting demo](demo.gif)
+
+---
+
+## What's New
+
+The v2.10 cycle expands the public workflow surface while tightening release hygiene:
+
+- `/peer-review` v2.10 adds the Phase 2A SR-MA 8-probe extension (P1-P8) for systematic review meta-analyses (PR #22).
+- `/verify-refs` v1.2.0 adds Gate 5 PMID/DOI duplicate detection plus synchronous `submission_safe` / `fully_verified` propagation (PR #23).
+- `/meta-analysis` adds SR-MA dual-extractor workflow support, cohort overlap detection, and a supplementary 8-file pack (PR #24).
+- Validator coverage now enforces the PII blocklist across `templates/` and `scripts/` as well as skill documentation.
 
 ---
 

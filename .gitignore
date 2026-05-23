@@ -55,3 +55,4 @@ skills/**/HANDOFF_*.md
 
 # Gemini/Antigravity AI assistant scratchpad (per-session, not for repo)
 .gemini/
+_pr_drafts/

@@ -175,12 +175,12 @@ for skill_dir in "$SKILLS_DIR"/*/; do
             ! -name "SKILL.md" -print0 2>/dev/null)
 
   # 6. Personal precedent leak (blocklist of project-specific identifiers)
-  # Covers: legacy project IDs (CK-N, MA-N, RFA-Adjunct, MeducAI, CBCT, etc.),
+  # Covers: legacy project IDs, project slugs, product names, etc.,
   # institution / mentor identifiers, numbered workspace folders, and the
   # historical prefix patterns (Paper ①②③). Keep additions in alphabetical
   # blocks so future maintainers can spot what is being filtered.
   precedent_hits=0
-  precedent_patterns='\bCK-[0-9]+\b|\bMA-[0-9]+\b|\b0_MI2RL\b|\b1_Samsung_Changwon\b|\b5_Personal_Research\b|\b6_Aperivue\b|\b10_Meta_Analysis\b|\b11_CheckUP\b|\b21_Aneurysm\b|01_RFA_Adjunct|02_CBCT_Biopsy|03_CBCT_Ablation|RFA-Adjunct|RFA_Adjunct|CBCT Ablation MA|CBCT Biopsy MA|Du 2023|FD Occlusion AI SR|FD Occlusion|Paper ①|Paper ②|Paper ③|MeducAI|CXRscoliosis|SkullFx|Samsung Changwon|삼성서울|삼성창원|서울아산|Asan/UoU|\bKKW\b|\bLHC\b|\bKDY\b|\bLWJ\b|\bHRP_Rhim\b|김경원|이덕희|김남국|임현철|임해진|남유진|Hyunchul Rhim|Pa Hong|Taein An|Hye Ree Cho|Yoojin Nam|Dong Yeong Kim|Kyung Won Kim|Jeong Min Song|Jaeyoon Kim|[가-힣]{2,4}[[:space:]]*(교수님|선생님)|CAC>[0-9]+|VIF[[:space:]]+Diag|[A-Z]+[0-9]+_Consensus_Sheet|v[0-9]+_edit_plan\.md|screening_consensus_final\.md|fulltext_screening_final\.tsv'
+  precedent_patterns='\bCK-[0-9]+\b|\bMA-[0-9]+\b|\bMA0[0-9]\b|\b0_MI2RL\b|\b1_Samsung_Changwon\b|\b5_Personal_Research\b|\b6_Aperivue\b|\b10_Meta_Analysis\b|\b11_CheckUP\b|\b21_Aneurysm\b|01_RFA_Adjunct|02_CBCT_Biopsy|03_CBCT_Ablation|RFA-Adjunct|RFA_Adjunct|CBCT Ablation MA|CBCT Biopsy MA|Du 2023|FD Occlusion AI SR|FD Occlusion|Paper ①|Paper ②|Paper ③|MeducAI|CXRscoliosis|SkullFx|Samsung Changwon|삼성서울|삼성창원|서울아산|Asan/UoU|\bKKW\b|\bLHC\b|\bKDY\b|\bLWJ\b|\bHRP_Rhim\b|김경원|이덕희|김남국|임현철|임해진|남유진|Hyunchul Rhim|Pa Hong|Taein An|Hye Ree Cho|Yoojin Nam|Dong Yeong Kim|Kyung Won Kim|Jeong Min Song|Jaeyoon Kim|[가-힣]{2,4}[[:space:]]*(교수님|선생님)|CAC>[0-9]+|VIF[[:space:]]+Diag|[A-Z]+[0-9]+_Consensus_Sheet|v[0-9]+_edit_plan\.md|screening_consensus_final\.md|fulltext_screening_final\.tsv'
   for f in "${integrity_files[@]}"; do
     if grep -qE "$precedent_patterns" "$f"; then
       hit=$(grep -nE "$precedent_patterns" "$f" | head -1)
