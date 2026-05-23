@@ -69,11 +69,13 @@ Full checkpoint protocol: `references/manual_checkpoint_guide.md`.
 The script uses DOI, PMID, CrossRef, and PubMed E-utilities where available. If
 network verification fails, it records `UNVERIFIED` rather than silently passing.
 
-## Output Contract (v1.1.1)
+## Output Contract (v1.2.0)
 
 | Artifact | Path | Purpose |
 |---|---|---|
-| Audit JSON | `qc/reference_audit.json` | Sole output — row-level status (OK/MISMATCH/UNVERIFIED/FABRICATED), counts, submission-safe flag, full records |
+| Audit JSON | `qc/reference_audit.json` | Sole output — row-level status (OK/MISMATCH/UNVERIFIED/FABRICATED), counts, `duplicate_findings[]`, submission-safe flag, full records |
+
+**v1.2.0 (2026-05)** adds `duplicate_findings[]` to the audit JSON and bumps `schema_version` to 3. Verbatim PMID or DOI duplicates within the reference list are flagged as MAJOR findings (resolves `/peer-review` Phase 2A P7). DOI normalization strips `https://doi.org/`, `http://dx.doi.org/`, `doi:` prefixes plus trailing slashes before comparison so `https://doi.org/10.x/abc/` and `10.x/abc` collapse to one key. Both `submission_safe` and `fully_verified` now require `duplicate_findings` to be empty.
 
 **Removed in Phase 1A.2** (per `docs/artifact_contract.md`):
 - `references/verified_references.tsv` — record-level details now live inside `reference_audit.json` under `records[]`.
@@ -87,9 +89,10 @@ Sole-writer enforcement: `scripts/validate_project_contract.py` will flag any `r
 2. Run `scripts/verify_refs.py`.
 3. Read `qc/reference_audit.json`.
 4. Report all `FABRICATED` and `MISMATCH` rows first (from `records[]`).
-5. If `UNVERIFIED` rows remain, list them as manual checks and do not call the
+5. Report all `duplicate_findings[]` entries (verbatim PMID/DOI duplicates — cite renumbering required).
+6. If `UNVERIFIED` rows remain, list them as manual checks and do not call the
    manuscript fully submission-safe.
-6. If the user needs a human-readable table, summarize from `records[]` in chat — do not write a TSV.
+7. If the user needs a human-readable table, summarize from `records[]` in chat — do not write a TSV.
 
 ## Quality Gates
 
@@ -101,6 +104,11 @@ Sole-writer enforcement: `scripts/validate_project_contract.py` will flag any `r
   not match the authoritative source is downgraded to `MISMATCH` with
   `note = "first-author hallucination suspected"`. This catches the common
   LLM failure mode where a real DOI is paired with an invented author name.
+- Gate 5 (added 2026-05, v1.2.0): PMID/DOI duplicate detection within the
+  reference list. Verbatim duplicates (same PMID or normalized DOI) — a common
+  LLM citation-compilation artifact — are flagged as MAJOR findings in
+  `duplicate_findings[]`. `submission_safe == true` requires the list to be
+  empty. Resolves `/peer-review` Phase 2A P7.
 
 ## First-Author Cross-Check (Detail)
 

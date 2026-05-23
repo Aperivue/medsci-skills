@@ -363,7 +363,7 @@ Numerical audits (2.5/2.5a/2.5b) cover in-text numbers; they do **not** cover re
        --allow-separate-attachments  # see Phase 2.5d for when this is appropriate
    ```
 
-3. **Read `qc/reference_audit.json`.** For each entry not marked `VERIFIED`, add a row to the reconciliation block below. `FABRICATED` entries are P0 Major Comments (block submission). `UNVERIFIED` entries are Minor Comments unless the manuscript is at a circulation/submission gate, in which case they escalate to Major.
+3. **Read `qc/reference_audit.json`.** For each entry not marked `VERIFIED`, add a row to the reconciliation block below. `FABRICATED` entries are P0 Major Comments (block submission). `UNVERIFIED` entries are Minor Comments unless the manuscript is at a circulation/submission gate, in which case they escalate to Major. For each `duplicate_findings[]` entry (category `duplicate_pmid` / `duplicate_doi`), add a Major Comment row noting the duplicated `ref_ids` pair and recommend cite renumbering — duplicates block submission (P0 Major) regardless of per-record `VERIFIED` status.
 
 4. **Cross-check placeholder drift.** `grep -n '\[@NEW:' manuscript/` — any remaining `[@NEW:topic]` placeholder at self-review stage is a P0: the citation was queued but never resolved. Include in the reconciliation block.
 
@@ -630,7 +630,7 @@ Here is how to address it with your existing data."
 | Gate | Severity | Trigger | Action on fail |
 |---|---|---|---|
 | Phase 2.5b cross-reference QC (delegate `/manage-refs scripts/check_xref.py`) | ENFORCED | MISSING_DOCX / MISSING_BODY / MISMATCH > 0 | P0 Major Comment, blocks submission |
-| Phase 2.5c reference hallucination scan (delegate `/verify-refs`) | ENFORCED | FABRICATED verdict in `records[]` | P0 Major Comment, blocks submission |
+| Phase 2.5c reference hallucination scan (delegate `/verify-refs`) | ENFORCED | `FABRICATED` in `records[]` OR nonempty `duplicate_findings[]` | P0 Major Comment, blocks submission |
 | `--fix` auto-fix loop (max 2 iterations) | ENFORCED in `/write-paper` Phase 7.4 chain | score still below threshold after 2 iterations | Route to write-paper Phase 7.4a Audit Recovery |
 | R0 numbering output | OPT-IN | `--r0-numbering` flag or downstream `/revise` consumer | Emits structured Anticipated Major/Minor Comments — consumable by `/revise` |
 | `--json` machine-readable output | OPT-IN | `--json` flag | Emits parseable JSON block consumed by `/orchestrate` post-skill validation |
