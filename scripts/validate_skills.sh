@@ -152,6 +152,21 @@ for skill_dir in "$SKILLS_DIR"/*/; do
       _add_if_tracked "$f"
     done < <(find "${skill_dir}references" -type f \( $TEXT_EXTS \) -print0 2>/dev/null)
   fi
+  # Extended scope (2026-05): templates/ and scripts/ subdirs. Same blocklist
+  # patterns apply — these dirs were previously silently excluded and could
+  # carry vendored PII (manuscript IDs, author names, project paths) into
+  # downstream skill consumers without detection. Includes .py / .sh source
+  # since docstrings and comments are the typical PII vector.
+  if [ -d "${skill_dir}templates" ]; then
+    while IFS= read -r -d '' f; do
+      _add_if_tracked "$f"
+    done < <(find "${skill_dir}templates" -type f \( $TEXT_EXTS -o -name "*.py" -o -name "*.sh" \) -print0 2>/dev/null)
+  fi
+  if [ -d "${skill_dir}scripts" ]; then
+    while IFS= read -r -d '' f; do
+      _add_if_tracked "$f"
+    done < <(find "${skill_dir}scripts" -type f \( $TEXT_EXTS -o -name "*.py" -o -name "*.sh" \) -print0 2>/dev/null)
+  fi
   # Also catch top-level skill scratchpads (skills/<name>/TODO_*.md, HANDOFF.md)
   # and skill.yml / capabilities.yml that some skills keep alongside SKILL.md.
   while IFS= read -r -d '' f; do

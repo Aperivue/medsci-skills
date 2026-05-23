@@ -40,6 +40,11 @@ with specialized support for diagnostic test accuracy (DTA) meta-analyses.
 - **Submission package drift**: `${CLAUDE_SKILL_DIR}/references/submission_package_drift.md` -- multi-journal folder hygiene, `DO_NOT_EDIT_HERE` gate, `_build.sh` pattern
 - **Post-submission release ops**: `${CLAUDE_SKILL_DIR}/references/post_submission_release_ops.md` -- Zenodo DOI gating, tag-cleanup gates, reject-retarget versioning
 
+### Built-in Templates (`${CLAUDE_SKILL_DIR}/templates/`)
+
+- **Extraction Form v2** (`templates/extraction_form_v2.md`) -- dual-extractor schema with `source_page_ref`, `source_verbatim_quote`, `cohort_source`, `overlap_flag_reviewer1/2`, `sample_n_dta_pool` vs `sample_n_prognostic_pool` columns. Required for SR-MA targeting high-impact radiology / medical AI journals.
+- **Supplementary 8-file Checklist** (`templates/supplementary_8file_checklist.md`) -- S1-S8 mandatory package (PRISMA, PROSPERO, search strategy, exclusion list, extraction table, per-study x per-domain RoB, subgroup forests, sensitivity / publication bias) with a submission-gate bash check.
+
 ---
 
 ## Meta-Analysis Types
@@ -217,6 +222,8 @@ ID sets. The Markdown consensus document remains the human explanation.
 
 > **Failure-mode cross-ref** → `references/data_integrity_checklist.md` DI-1~DI-5 are mandatory during extraction (2x2 arm-swap, KM audit trail, methodology mismatch, PRISMA 5-way drift, single-source k).
 
+**Recommended extraction form**: For SR-MA targeting high-impact radiology / medical AI journals, use `${CLAUDE_SKILL_DIR}/templates/extraction_form_v2.md`. Dual-extractor + source-page-reference + verbatim-quote columns prevent the 2x2 cell-swap and cohort-overlap blind spots surfaced in recent SR-MA peer-review cycles. New required columns: `cohort_source`, `source_page_ref`, `source_verbatim_quote`, `extraction_consensus_status`, `overlap_flag_reviewer1/2`, `sample_n_dta_pool` vs `sample_n_prognostic_pool`.
+
 #### 4.0 AI-drafted starting document gate
 
 Before opening the extraction form: if a senior mentor or collaborator has shared an AI-drafted starting document (Claude / ChatGPT / Gemini draft of the study list, 2x2 cells, or effect estimates) — even when the sender flags it as "참고용" — apply `~/.claude/rules/ai-drafted-document-policy.md`:
@@ -278,6 +285,38 @@ When comparing extraction results between independent reviewers (minimum 2), che
 3. **Kaplan-Meier estimate distinction**: KM curve estimates differ from raw event counts. Always record the data source (Table vs KM curve vs text) during extraction.
 4. **Discrepancy resolution**: List all discrepancies → verify against original text → reach consensus → if consensus fails, use third reviewer. Log all consensus decisions in `{project}/consensus_log.md`.
 5. **Dataset lock**: After resolving all discrepancies, lock the final dataset. Any subsequent changes require documented justification with date.
+
+#### Phase 4c: Extraction QC & Cohort Overlap Detection
+
+After dual-extractor consensus, run two QC scripts before locking the extraction table for statistical synthesis.
+
+**1. 2x2 Cell Integrity Check** -- `scripts/dta_extraction_qc.py`:
+
+Validates manuscript forest-plot cells (TP / FN / TN / FP) against source-paper-reported sens/spec within a tolerance (default 0.02). Catches sens/spec swap at extraction stage -- a common error pattern where a single-study k=1 subgroup outlier flips conclusions due to cell-assignment swap.
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/dta_extraction_qc.py" \
+  --input 2_Extraction/extraction.csv \
+  --tolerance 0.02 \
+  --out 2_Extraction/qc/dta_extraction_qc.tsv
+```
+
+Any `FLAG_SWAP` or `FLAG_MISMATCH` row requires third-reviewer adjudication before Phase 6 statistical synthesis.
+
+**2. Cohort Overlap Check** -- `scripts/cohort_overlap_check.py`:
+
+Clusters included studies by (a) shared public ICU/EHR database (MIMIC-IV, eICU, MIMIC-III, KNHIS, UK Biobank, Optum, MarketScan, TriNetX, IBM), (b) same institution + overlapping enrollment period, (c) shared first-author surname + ±2y year proximity. Flags HIGH / MEDIUM overlap confidence.
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/cohort_overlap_check.py" \
+  --input 2_Extraction/studies.csv \
+  --enrich \
+  --out 2_Extraction/qc/cohort_overlap.md
+```
+
+HIGH-confidence overlap pairs require Limitations acknowledgment + sensitivity analysis excluding one of the pair.
+
+Cross-links: `/peer-review` Phase 2A P1 (cell integrity) + P2 (cohort overlap).
 
 ### Phase 5: Risk of Bias Assessment
 
@@ -497,6 +536,26 @@ All four scripts are repo-shipped as of 2026-04 (FOLLOWUPS P10). Non-zero exit =
 
 ---
 
+## Empirical Lessons (2026-05)
+
+Synthesized from recent SR-MA peer-review cycles. Drives the Phase 4 extraction form schema, Phase 4c QC scripts, and submission-gate enhancements documented above.
+
+1. **Dual-extractor + source-page-reference + verbatim quote** is mandatory for 2x2 cell integrity. Single-extractor without source-page citation invites sens/spec swap that is invisible to forest-plot-level review.
+
+2. **Cohort overlap detection** must cluster by shared public database + institution + author. Independent-cohort assumption for MA pooling fails when multiple included studies use the same public ICU/EHR cohort with overlapping enrollment windows. Sensitivity analysis excluding overlap is the minimum acknowledgment.
+
+3. **Diagnostic subset N transparency** in mixed DTA + prognostic MAs: report `sample_n_dta_pool` separately from `sample_n_prognostic_pool` with explicit prevalence. Aggregate N in Abstract misleads readers about diagnostic-subset power.
+
+4. **k=1 subgroups are not robust**: any subgroup p-value driven by a single included study must be reframed as exploratory or removed from formal subgroup test. Post-hoc subgroups require PROSPERO amendment with visible record.
+
+5. **Supplementary 8-file package** is the minimum bar for high-impact journals: PRISMA checklist, PROSPERO PDF, full search strategy, full-text exclusion list with reasons, per-study extraction table, per-study x per-domain RoB, subgroup forests, sensitivity / publication-bias analyses. See `templates/supplementary_8file_checklist.md`.
+
+6. **PROSPERO 13-char ID format** (`CRD42` + YYYY + 6-digit sequential); pre-2020 IDs may be 12 chars. Non-numeric tails or >13 chars are format anomalies. Request live registration URL in cover letter for protocol cross-check.
+
+7. **AI Disclosure presence** for SR-MA submissions to RYAI / Radiology / RSNA / Lancet / JAMA / BMJ / Nature families. Absence triggers MINOR-to-MAJOR finding at peer review.
+
+---
+
 ## DTA-Specific Pitfalls (Always Check)
 
 | Pitfall | Problem | Solution |
@@ -534,6 +593,7 @@ When the number of included studies is small (< 10):
 | Need self-review | `/self-review` | Pre-submission quality check |
 | Co-author circulation (Phase 9) | `/gws` + `/handoff` | Thread-reply send, deadline task registration |
 | Self-audit recovery entrypoint (Phase 10) | `/write-paper` Step 7.4a | Recovery branch for polish pipelines that surface structural audit failures |
+| `/sync-submission` SR-MA gate | `/sync-submission` | Before submission, verify supplementary package matches all 8 files in `templates/supplementary_8file_checklist.md` (PRISMA, PROSPERO, search strategy, exclusion list, extraction table, per-study x per-domain RoB, subgroup forests, sensitivity / publication bias). AI Disclosure presence check (cross-link `/peer-review` Phase 2A P8). Cite-list duplicate check via `/verify-refs` Gate 5 (duplicate PMID/DOI). |
 
 ---
 
