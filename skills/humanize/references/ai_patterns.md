@@ -1,7 +1,9 @@
 # AI Writing Pattern Reference for Medical/Radiology Manuscripts
 
-Detailed reference for the 18 AI writing patterns, with expanded examples and suggested
-rewrites specifically tailored for medical imaging and radiology research.
+Detailed reference for the 24 AI writing patterns, with expanded examples and suggested
+rewrites specifically tailored for medical imaging and radiology research. Patterns 1-18 are
+the general set; 19-21 are senior-MA-reviewer red flags; 22-24 are response-to-reviewers (R2R)
+letter patterns.
 
 Sources:
 - matsuikentaro1/humanizer_academic (English 18 patterns)
@@ -407,12 +409,84 @@ AI 모델이 본문에서 섹션을 가리킬 때 `§` 기호를 자주 사용. 
 
 ---
 
+## Response-Letter Patterns (R2R)
+
+These three patterns are specific to response-to-reviewers (R2R) letters and editor cover
+letters. They rarely appear in manuscript bodies but dominate machine-drafted rebuttals,
+where the model narrates the editing process instead of the science. Apply them whenever the
+text under review is a response letter or cover letter. See the revise skill's
+`references/r2r_voice.md` for full before/after skeletons. Examples below are synthetic
+(a fictional deep-learning lung-nodule CT study).
+
+### Pattern 22: Editing-Mechanism / Change-Log Narration
+
+The response prose narrates *how the text was edited* — what was added, where, how many phrases
+were swapped, which pass produced it — instead of stating what changed and why. The reviewer
+reads this as auto-generated and as checklist-clearing rather than scientific engagement.
+
+**Scope — this targets editing-mechanism narration only (avoid over-flagging):** narrating a
+*new analysis you ran* ("we performed a sensitivity analysis restricted to one eye per patient,
+and the result held") is the science the reviewer asked for — never flag it. Likewise "we added
+a sentence to the Methods: '...'", structured `Response:` / `Changes made:` blocks, and
+`Original → Revised` before/after pairs are normal human conventions. The tell is the *editing
+mechanism* layered on top, not the act of describing, quoting, or locating a change.
+
+**Watch phrases (the tell):** version-prefixed edits ("v2 Methods adds one sentence"), "we
+softened six phrases", "demoted the term at all N locations", "a grep-and-soften pass", "the v2
+revision changes", bare "No further manuscript change" stubs, "reframed via the vocabulary cascade".
+
+| # | BAD (editing-mechanism) | GOOD (substantive / science) |
+|---|---|---|
+| 1 | "v2 Methods adds one sentence: '...'. This is a short visible clarification rather than only in the Limitations." | "We agree the design is observational; we have added to the Methods: '...'" |
+| 2 | "We softened six over-interpretive phrases in Results and Discussion." | "We have rephrased the over-interpretive passages; for example, '...' now reads '...'." |
+| 3 | "No further manuscript change was applied." | "The existing Discussion text already addresses this; the relevant statement is '...'." |
+
+**Detection (triage, not auto-fail):** `grep -inE "v[0-9]+ .*(add|demote|soften|reframe)|softened [0-9a-z]+ phrases|no further (manuscript )?change|grep-and-soften|vocabulary cascade|demoted .* at all [0-9]+" response_to_reviewers.md` — review each hit and flag only genuine editing-mechanism narration, never analysis narration or quoted additions.
+**Fix strategy:** Delete the mechanism narration. State the substantive change and quote the new sentence; omit how it was found or made.
+
+### Pattern 23: Internal Line-Number Reference Tone
+
+Pointing reviewers to internal draft/markdown line numbers ("(line 43)", "at lines 43, 49,
+58, 60, 77–79"). These never match the reviewer's view of the revised manuscript and read as
+a diff log. Section names are what authors actually use.
+
+| # | BAD | GOOD |
+|---|-----|------|
+| 1 | "We clarified this at line 43." | "We clarified this in the Methods (Design subsection)." |
+| 2 | "Single-sentence clarifications were added at lines 43, 49, 58, 60, and 77–79." | "We added short clarifications to the Methods covering the design, the intervention, and the outcome definitions." |
+| 3 | "v2 line 127 retains this sentence and adds the adjustment after it." | "In the Results (Between-group comparison) we retained the original sentence and added the adjustment immediately after." |
+
+**Not a tell:** a **revised-manuscript** page/line ("page 7, lines 177-178") when the letter
+states once that all page/line numbers refer to the revised manuscript the reviewer is reading.
+The tell is the *internal draft* line number that will not match the reviewer's PDF.
+
+**Detection:** `grep -inE "\(line [0-9]+|at lines? [0-9]+|line [0-9]+(–|-)[0-9]+" response_to_reviewers.md` → review each hit; keep only those that demonstrably point to the revised manuscript.
+**Fix strategy:** Replace internal/draft line numbers with a section name; keep revised-manuscript page/line only if it matches what the reviewer sees.
+
+### Pattern 24: Tooling / Scaffolding Leak
+
+Exposing internal tooling, verification mechanics, or draft scaffolding to the reviewer:
+grep counts, internal FIX/category codes, references to "the circulated bundle" or "the
+internal supplementary index", or `§` self-references carried into the response letter.
+
+| # | BAD | GOOD |
+|---|-----|------|
+| 1 | "Final grep verification returned zero occurrences across the circulated bundle." | (delete — describe the corrected wording instead) |
+| 2 | "Addressed via the FIX-1 vocabulary cascade." | "We replaced [old term] with [new term] throughout the manuscript." |
+| 3 | "These strings remain only in the internal supplementary index, which is not part of the circulated bundle." | (delete — never reference internal scaffolding to a reviewer) |
+| 4 | "as reframed in §Discussion" | "as reframed in the Discussion" |
+
+**Detection (triage, except `§`):** `grep -inE "grep verification|grep-and-soften|circulated bundle|internal (supplementary )?index|FIX-[0-9]|vocabulary cascade|§" response_to_reviewers.md cover_letter.md` — only `§` is a hard 0 (always a tell). The other terms can rarely be legitimate (e.g., "a cascade detector", "we grep-checked our own data pipeline"), so confirm each hit is an internal-tooling reference before flagging.
+**Fix strategy:** Strip confirmed references to internal tooling, verification passes, and draft scaffolding. The reviewer should see only the science and the substantive changes.
+
+---
+
 ## Section-Specific Application Guide
 
 ### Abstract (ALL patterns)
 
 The abstract is the most visible section and the most likely to be checked for AI writing.
-Apply all 18 patterns with zero tolerance.
+Apply all applicable patterns (1-21) with zero tolerance.
 
 **Common abstract issues:**
 - Pattern 1 in the Background sentence.
@@ -448,6 +522,15 @@ Apply all 18 patterns with zero tolerance.
 - The conclusion should be 1-3 sentences stating the main finding and its specific implication.
 - No significance inflation, no generic optimism.
 
+### Response to Reviewers / Cover letter (Patterns 22, 23, 24 — plus 13, 16, 19)
+
+- Response letters and cover letters are reviewer-facing argument, not change-logs. The
+  dominant AI-tell here is the editing-mechanism register (Pattern 22), internal draft
+  line-number pointers (Pattern 23), and tooling/scaffolding leaks (Pattern 24).
+- Also sweep for em dashes (13), filler phrases (16), and `§` markers (19).
+- Patterns 1-18 still apply where relevant, but 22-24 are the highest-yield checks for this
+  document type.
+
 ---
 
 ## Quick Checklist (Pre-Submission)
@@ -471,3 +554,9 @@ Run this checklist on the final manuscript before submission:
 - [ ] § (section sign) 0건 (Pattern 19) — `grep -c "§"` = 0
 - [ ] (Methods §X) / (Results §Y) self-reference 0건 (Pattern 20)
 - [ ] AI Disclosure boilerplate 본문 0건 (Pattern 21) — cover letter / submission form 전용
+
+### Response letters / cover letters only (Patterns 22-24)
+
+- [ ] No editing-mechanism narration (Pattern 22) — "v2 adds one sentence", "softened N phrases", "No further manuscript change" (analysis narration and quoted additions are fine)
+- [ ] No internal draft line-number pointers (Pattern 23) — "(line NN)", "at lines N, M" (revised-manuscript page/line is fine)
+- [ ] No tooling/scaffolding leak (Pattern 24) — "grep", "FIX-N", "circulated bundle", "internal index", `§`
