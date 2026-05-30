@@ -34,14 +34,14 @@ YAML schema
       - {name: Inclusion,      color: "#cfe1f5"}
       - {name: Analysis,       color: "#cfe1f5"}
     spine:
-      - {id: enrolled,    stage: Identification, text: "..."}
-      - {id: polyp_ever,  stage: Screening,      text: "..."}
-      - {id: primary,     stage: Inclusion,      text: "..."}
-      - {id: ksar,        stage: Analysis,       text: "..."}
-      - {id: landmark,    stage: Analysis,       text: "..."}  # consecutive same-stage rows share one stage label
+      - {id: enrolled,  stage: Identification, text: "..."}
+      - {id: screened,  stage: Screening,      text: "..."}
+      - {id: eligible,  stage: Inclusion,      text: "..."}
+      - {id: primary,   stage: Analysis,       text: "..."}
+      - {id: landmark,  stage: Analysis,       text: "..."}  # consecutive same-stage rows share one stage label
     exclusions:
-      - {after: enrolled,   text: "Excluded (n = 147,245):\\n- no gallbladder polyp on any ultrasound"}
-      - {after: polyp_ever, text: "Excluded (n = 3):\\n- prior C23 / zero post-baseline FU"}
+      - {after: enrolled, text: "Excluded (n = 1,200):\\n- did not meet the index finding on any screening"}
+      - {after: screened, text: "Excluded (n = 3):\\n- prior outcome event / zero post-baseline follow-up"}
 
 Usage
 -----
