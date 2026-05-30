@@ -185,7 +185,7 @@ https://academic.oup.com/jcem/pages/Author_Guidelines
 
 ## Verification
 
-- **Source (compact harvest):** ~/.claude/private-journal-profiles/find-journal/JCEM.md (2026-05-20 fetch from https://academic.oup.com/jcem/pages/Author_Guidelines)
+- **Source (compact harvest):** local private profile (2026-05-20 fetch from https://academic.oup.com/jcem/pages/Author_Guidelines)
 - **Source (detail authored):** based on harvested compact + JCEM verbatim AI policy + OUP/Endocrine Society standard practice
 - **Date (promoted to public):** 2026-05-21
 - **Notes:** No upper word limit for Original at submission; editors may request trimming during revision. Verify page-charge and color-figure surcharge directly at OUP.

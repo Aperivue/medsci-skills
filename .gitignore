@@ -36,6 +36,17 @@ dist/
 /PLAN_*.md
 /PLANNED_*.md
 
+# Internal promotion / strategy docs — PRIVATE (privatized 2026-05-30: PII +
+# internal strategy, not for the public OSS surface). Working tree retained;
+# do not re-add. See chore/privatize-internal-docs-and-harden-pii-scan.
+/PROMO_PLAN.md
+/docs/anthropic_devrel_pitch.md
+/docs/openclaw_issue_draft.md
+/docs/awesome_submission.md
+
+# Internal session intake / harvest notes (CK-NN session context, not public)
+/INTAKE/
+
 # Per-session planning notes inside docs/plans (skill-design scratchpads)
 /docs/plans/
 
@@ -49,9 +60,13 @@ skills/*/HANDOFF_*.md
 skills/**/HANDOFF.md
 skills/**/HANDOFF_*.md
 
-# Note: skills/*/TODO_*.md are intentionally TRACKED (sanitized before commit)
-# so that downstream users can see what's planned. They are scanned by
-# validate_skills.sh just like SKILL.md/references.
+# Per-skill dev scratchpads — PRIVATE (policy change 2026-05-30). Previously
+# tracked-after-sanitize, but find-journal/TODO_neurointervention_profiles.md
+# leaked specialty context + ~/.claude/private paths onto the public surface.
+# Now gitignored. Public roadmaps must use ROADMAP.md / docs/roadmap.md naming
+# instead of TODO_*.md.
+skills/*/TODO_*.md
+skills/**/TODO_*.md
 
 # Gemini/Antigravity AI assistant scratchpad (per-session, not for repo)
 .gemini/

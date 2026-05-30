@@ -147,14 +147,14 @@ items 2/3 with a common grant), generate it once as follows:
 
 1. Open `templates/icmje_coi_seed_synthetic.docx` in Word
 2. Edit the desired fields
-3. Save as a new file under `{project}/submission/{journal}/` or
-   `~/.claude/private-seeds/`
+3. Save as a new file under `{project}/submission/{journal}/` or a
+   local private seeds directory (outside this repo)
 4. Pass `--seed /path/to/custom.docx` to the script along with the new seed
    values for `--seed-name`, `--seed-title`, `--seed-date`
 
 Do NOT commit custom seeds that contain real author names to the public
-medsci-skills repo. Keep them in private per-project directories or under
-`~/.claude/private-seeds/`.
+medsci-skills repo. Keep them in private per-project directories or a
+local private seeds directory (outside this repo).
 
 ## Seed Provenance (how the shipped synthetic seed was created)
 

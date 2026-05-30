@@ -21,6 +21,25 @@ pass() { echo -e "  ${GREEN}PASS${NC} $1"; ((PASS++)); }
 warn() { echo -e "  ${YELLOW}WARN${NC} $1"; ((WARN++)); }
 fail() { echo -e "  ${RED}FAIL${NC} $1"; ((FAIL++)); }
 
+# Personal path blocklist. Narrowed (2026-05-30): block only personal home dirs
+# and the personal-config subtrees that carry private working notes
+# (~/.claude/plans, ~/.claude/projects, ~/.claude/private-*). The generic
+# integration paths ~/.claude/{skills,rules,hooks,templates,agents,settings.json}
+# are documented install targets across README / docs/setup / many SKILL.md and
+# must NOT be blocked. Matching `\.claude/(plans|projects|private)` (no leading
+# anchor) catches ~/ , $HOME/ and absolute forms alike.
+PERSONAL_PATH='/Users/eugene/|/home/eugene/|\.claude/(plans|projects|private)'
+
+# Returns the first "lineno:line" personal-path violation read from stdin, or
+# nothing. Allowlists the documented `private-journal-profiles` skill-convention
+# directory — a generic two-tier library location that add-journal / find-journal
+# instruct the model to read/write (analogous to the allowed ~/.claude/{skills,
+# rules,hooks} install paths). Author scratchpads (~/.claude/private-*, plans,
+# projects) and personal home dirs are still blocked.
+_personal_path_hit() {
+  sed -E 's/private-journal-profiles/journal-profiles/g' | grep -nE "$PERSONAL_PATH" | head -1
+}
+
 echo "========================================="
 echo " MedSci Skills Validator"
 echo "========================================="
@@ -191,24 +210,27 @@ for skill_dir in "$SKILLS_DIR"/*/; do
   done
   [ "$precedent_hits" -eq 0 ] && pass "Precedent blocklist (no project-specific identifiers)"
 
-  # 7. Absolute path leak (/Users/eugene/ or /home/<user>/)
+  # 7. Personal path leak (/Users/eugene/, /home/<user>/, ~/.claude/{plans,
+  #    projects,private-*}). Generic ~/.claude/{skills,rules,hooks,...} paths
+  #    are documented install targets and intentionally NOT matched (see
+  #    PERSONAL_PATH definition near the top).
   path_hits=0
   for f in "${integrity_files[@]}"; do
-    if grep -qE '/Users/eugene/|/home/eugene/' "$f"; then
-      hit=$(grep -nE '/Users/eugene/|/home/eugene/' "$f" | head -1)
+    hit=$(_personal_path_hit < "$f")
+    if [ -n "$hit" ]; then
       rel="${f#$REPO_ROOT/}"
-      fail "Absolute path in $rel: $hit"
+      fail "Personal path in $rel: $hit"
       ((path_hits++))
     fi
   done
-  [ "$path_hits" -eq 0 ] && pass "Absolute paths (no personal home-dir leak)"
+  [ "$path_hits" -eq 0 ] && pass "Personal paths (no home-dir / private-config leak)"
 
   # 7b. Real personal email leak. Whitelist: example.com / example.org /
   #     known journal editorial-office domains (sciencedirect, lancet, ahajournals,
   #     wjgnet, kams, wiley, aasld) + `your@email.com` style placeholders.
   email_hits=0
   email_pattern='[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}'
-  email_whitelist='example\.com|example\.org|your@email\.com|user@host|name@|placeholder|noreply@|@lancet\.com|@strokeahajournal\.org|@aasld\.org|@wjgnet\.com|@wiley\.com|@kams\.or\.kr|@journal\.|aim-aicro\.com'
+  email_whitelist='example\.com|example\.org|your@email\.com|user@host|name@|placeholder|noreply@|git@github\.com|@lancet\.com|@strokeahajournal\.org|@aasld\.org|@wjgnet\.com|@wiley\.com|@kams\.or\.kr|@journal\.|aim-aicro\.com'
   # Note: `aim-aicro.com` is a corporate domain that historically appeared in a
   #   personal author roster. We allow the bare domain here only because the
   #   precedent blocklist already catches the full `kyungwon.kim@aim-aicro.com`
@@ -368,40 +390,57 @@ PY
 done
 
 echo "========================================="
-echo " Repo-root meta-doc PII scan"
+echo " Public-surface PII scan (all tracked text outside skills/)"
 echo "========================================="
-# Apply rules 6 + 7 + 7b to tracked top-level meta-docs (CHANGELOG, README,
-# README_FIRST). These ship to the public repo and to classroom installers.
+# Full tracked-text scan OUTSIDE skills/ (skills/ is covered by the per-skill
+# loop above). Closes the 2026-05-29 gap where docs/, INTAKE/, and root
+# metadata were never scanned — a hospital-name + incoming-fellowship PII
+# reached public main while the validator reported PASS (validator PASS !=
+# security PASS). Uses `git ls-files` so privatized (gitignored) drafts are
+# excluded and only the public surface is gated; the gate is "0 hits", not a
+# fixed file count.
+#
+# Self-exemption: this script holds the blocklist literals (precedent_patterns,
+# PERSONAL_PATH); scanning it would self-match. Excluded explicitly.
+#
+# Author-attribution allowlist: README.md / CITATION.cff / paper.md /
+# .zenodo.json legitimately carry the maintainer's own name for citation. Only
+# the name tokens are stripped before the precedent match, so other PII
+# (hospital, project codes, personal paths) on the same line is still caught.
 META_FAIL=0
-META_FILES=(CHANGELOG.md README.md README_FIRST.md)
-for rel in "${META_FILES[@]}"; do
+META_SCANNED=0
+AUTHOR_ATTRIB_RE='^(README\.md|CITATION\.cff|paper\.md|\.zenodo\.json)$'
+while IFS= read -r rel; do
+  [ "$rel" = "scripts/validate_skills.sh" ] && continue   # self-exempt
+  case "$rel" in skills/*) continue ;; esac               # covered by per-skill loop
   f="$REPO_ROOT/$rel"
   [ -f "$f" ] || continue
-  echo "[$rel]"
-  if grep -qE "$precedent_patterns" "$f"; then
-    hit=$(grep -nE "$precedent_patterns" "$f" | head -1)
+  ((META_SCANNED++))
+  if echo "$rel" | grep -qE "$AUTHOR_ATTRIB_RE"; then
+    scan_src=$(sed -E 's/Yoojin Nam//g; s/남유진//g' "$f")
+  else
+    scan_src=$(cat "$f")
+  fi
+  if echo "$scan_src" | grep -qE "$precedent_patterns"; then
+    hit=$(echo "$scan_src" | grep -nE "$precedent_patterns" | head -1)
     fail "Personal precedent in $rel: $hit"
     ((META_FAIL++))
-  else
-    pass "Precedent blocklist clean"
   fi
-  if grep -qE '/Users/eugene/|/home/eugene/' "$f"; then
-    hit=$(grep -nE '/Users/eugene/|/home/eugene/' "$f" | head -1)
-    fail "Absolute path in $rel: $hit"
+  hit=$(printf '%s\n' "$scan_src" | _personal_path_hit)
+  if [ -n "$hit" ]; then
+    fail "Personal path in $rel: $hit"
     ((META_FAIL++))
-  else
-    pass "Absolute paths clean"
   fi
-  matches=$(grep -nE "$email_pattern" "$f" | grep -vE "$email_whitelist" || true)
+  matches=$(echo "$scan_src" | grep -nE "$email_pattern" | grep -vE "$email_whitelist" || true)
   if [ -n "$matches" ]; then
     first=$(echo "$matches" | head -1)
     fail "Real email leak in $rel: $first"
     ((META_FAIL++))
-  else
-    pass "Email whitelist clean"
   fi
-  echo ""
-done
+done < <(git -C "$REPO_ROOT" ls-files -- '*.md' '*.yml' '*.yaml' '*.json' '*.cff' '*.bib' '*.txt' '*.csv' '*.tsv' '*.py' '*.sh')
+echo "  Scanned $META_SCANNED tracked non-skills text files"
+[ "$META_FAIL" -eq 0 ] && pass "Public-surface PII scan clean (docs/, root, metadata)"
+echo ""
 
 echo "========================================="
 echo " Summary"

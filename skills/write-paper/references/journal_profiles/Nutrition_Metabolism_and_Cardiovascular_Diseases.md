@@ -178,7 +178,7 @@ https://www.sciencedirect.com/journal/nutrition-metabolism-and-cardiovascular-di
 
 ## Verification
 
-- **Source (compact harvest):** ~/.claude/private-journal-profiles/find-journal/NMCD.md (2026-05-20 fetch from https://www.sciencedirect.com/journal/nutrition-metabolism-and-cardiovascular-diseases/publish/guide-for-authors)
+- **Source (compact harvest):** local private profile (2026-05-20 fetch from https://www.sciencedirect.com/journal/nutrition-metabolism-and-cardiovascular-diseases/publish/guide-for-authors)
 - **Source (detail authored):** based on harvested compact + Elsevier publisher-level AI policy + NMCD-specific abstract heading verbatim
 - **Date (promoted to public):** 2026-05-21
 - **Notes:** Verify APC and IF directly on the journal site at submission. Word limits sourced from compact harvest.

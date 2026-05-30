@@ -178,7 +178,7 @@ https://e-kcj.org/index.php?body=instructions
 
 ## Verification
 
-- **Source (compact harvest):** ~/.claude/private-journal-profiles/find-journal/Korean_Circulation_Journal.md (2026-05-20 fetch from https://e-kcj.org/index.php?body=instructions)
+- **Source (compact harvest):** local private profile (2026-05-20 fetch from https://e-kcj.org/index.php?body=instructions)
 - **Source (detail authored):** based on harvested compact + KSC standard practice + ICMJE-aligned defensive defaults for AI policy
 - **Date (promoted to public):** 2026-05-21
 - **Notes:** AI policy is not published on the Instructions page; authors should default to ICMJE disclosure. Verify IF and APC directly on the journal site at submission.
