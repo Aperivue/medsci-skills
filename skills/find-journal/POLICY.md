@@ -61,8 +61,8 @@ but the same source-discipline principles apply — infer less, verify more.
 
 ## Promotion checklist (private → public)
 
-Before moving a profile from `~/.claude/private-journal-profiles/` into
-`skills/*/references/journal_profiles/`, confirm each item:
+Before moving a profile from your local private profiles directory (outside this
+repo) into `skills/*/references/journal_profiles/`, confirm each item:
 
 - [ ] Journal homepage fetched successfully today and opened manually.
 - [ ] Author guidelines page fetched successfully today and opened manually.

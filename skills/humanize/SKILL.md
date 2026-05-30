@@ -1,6 +1,6 @@
 ---
 name: humanize
-description: Detect and remove AI writing patterns from academic manuscripts. Scans for 21 common AI-generated text patterns and rewrites flagged passages to sound naturally human-written while preserving technical accuracy.
+description: Detect and remove AI writing patterns from academic manuscripts and response-to-reviewers letters. Scans for 24 common AI-generated text patterns and rewrites flagged passages to sound naturally human-written while preserving technical accuracy.
 triggers: humanize, AI patterns, AI 문체, remove AI writing, make it sound natural, 자연스럽게, de-AI
 tools: Read, Write, Edit, Grep, Glob
 model: inherit
@@ -20,7 +20,7 @@ wrote it, while preserving every technical claim, number, and citation.
 
 ## Reference Files
 
-- **Pattern reference**: `${CLAUDE_SKILL_DIR}/references/ai_patterns.md` -- full 21-pattern list with expanded examples for medical/radiology manuscripts (Pattern 19–21 added 2026-05-01 from senior MA reviewer feedback)
+- **Pattern reference**: `${CLAUDE_SKILL_DIR}/references/ai_patterns.md` -- full 24-pattern list with expanded examples for medical/radiology manuscripts (Pattern 19–21 are senior-MA-reviewer red flags; Pattern 22–24 are response-to-reviewers letter patterns)
 - **Source material**: Based on matsuikentaro1/humanizer_academic and Wikipedia: Signs of AI writing
 
 Always read the pattern reference file at the start of a humanize session.
@@ -31,7 +31,8 @@ Always read the pattern reference file at the start of a humanize session.
 
 ### Phase 1: Scan
 
-Read the manuscript section(s) provided by the user and scan for all 21 patterns.
+Read the manuscript section(s) provided by the user and scan for all 24 patterns. For
+response-to-reviewers letters and cover letters, prioritise patterns 22-24.
 
 **For each pattern found:**
 1. Record the pattern number and name.
@@ -70,7 +71,7 @@ Present findings to the user with actionable summary.
 - **LOW** (0 occurrences): Clean for this pattern.
 
 **AI Pattern Score:**
-- Count total pattern instances across all 21 categories.
+- Count total pattern instances across all 24 categories.
 - Compute density: instances per 1000 words.
 - Target: < 2.0 instances per 1000 words.
 
@@ -106,7 +107,7 @@ Rewrite flagged passages following these rules:
 
 ### Phase 4: Verify
 
-Re-scan the rewritten text using the same 21 patterns.
+Re-scan the rewritten text using the same 24 patterns.
 
 **Output: Verification Report**
 
@@ -130,7 +131,7 @@ If the density remains above 2.0, run another fix-verify cycle (max 3 rounds).
 
 ---
 
-## The 21 Detection Patterns
+## The 24 Detection Patterns
 
 ### Content Patterns
 
@@ -178,6 +179,14 @@ If the density remains above 2.0, run another fix-verify cycle (max 3 rounds).
 | 20 | Methods/Results self-reference parenthetical | "(Methods §X)", "(Results §3.1)", "(Methods, Section 2.3)" | Drop the parenthetical or shorten to "(see Methods)" |
 | 21 | AI Disclosure boilerplate (body) | "## Artificial Intelligence Disclosure", "Generative AI was not used to create..." in manuscript body | Remove from body → place in cover letter / submission form only (per `~/.claude/rules/journal-ai-image-policies.md`) |
 
+### Response-Letter Patterns (R2R)
+
+Patterns 22-24 apply only when scanning a response-to-reviewers letter or editor cover letter,
+not manuscript bodies. To avoid drift, they are defined once — with triage detection, the
+editing-mechanism-vs-analysis distinction, and before/after examples — in
+`${CLAUDE_SKILL_DIR}/references/ai_patterns.md` (Response-Letter Patterns section). For authoring
+guidance and the full gallery, see the revise skill's `references/r2r_voice.md`.
+
 ---
 
 ## Section-Specific Focus
@@ -195,6 +204,7 @@ When scanning a full manuscript, prioritize these patterns per section:
 | Methods (MA / SR) | 19, 20, 21 | § markers, self-reference parentheticals, AI Disclosure boilerplate are senior-MA-reviewer red flags |
 | Discussion (MA / SR) | 19, 20 | Self-reference parentheticals especially common when discussing methods |
 | Body (any) | 21 | AI Disclosure belongs in cover letter / submission form, not manuscript body |
+| Response to Reviewers / cover letter | 22, 23, 24 (+ 13, 16, 19) | Editing-mechanism narration, internal draft line numbers, and tooling leaks are the dominant tells in machine-drafted rebuttals (see ai_patterns.md R2R section) |
 
 ---
 
@@ -204,6 +214,7 @@ When scanning a full manuscript, prioritize these patterns per section:
 |---------------|---------------------------|
 | `/write-paper` | Phase 7 (Polish) -- automatic scan before submission |
 | `/peer-review` | When reviewing one's own manuscript for AI patterns |
+| `/revise` | When drafting response-to-reviewers letters and cover letters -- patterns 22-24 are the enforced gate before submission |
 
 When called by another skill, return the verification report so the calling skill can check
 the pass/fail status.
@@ -235,5 +246,6 @@ the pass/fail status.
 | Pattern 19 — `§` symbol | ENFORCED (senior MA reviewer prep) | `grep -c "§" manuscript.md` > 0 | auto-strip; verify post-rewrite count == 0 |
 | Pattern 20 — `(see Methods §X)` self-reference | ENFORCED | match found | rewrite to direct section name reference |
 | Pattern 21 — AI Disclosure paragraph in body | ENFORCED | "Generative AI was not used..." paragraph in manuscript body | move to cover letter or remove |
+| Patterns 22-24 — R2R editing-mechanism / draft line-number / tooling leak | TRIAGE (response letters); `§` = 0 hard | detection greps in ai_patterns.md R2R section surface candidates | review each hit (analysis narration, quoted additions, revised-manuscript page/line are NOT tells); rewrite confirmed tells to substantive prose |
 | Citation preservation invariant | ENFORCED | any pre-existing `[@bibkey]` removed by rewrite | revert that single rewrite; flag for user |
 | Numerical preservation invariant | ENFORCED | any number changed by rewrite | revert; flag for user |

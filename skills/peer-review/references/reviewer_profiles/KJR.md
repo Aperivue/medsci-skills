@@ -51,6 +51,18 @@ Journal computes M-Score as mean of per-item ratings on a 0–4 scale:
 
 - **Conflict of interest** (explicit "None" when applicable) — required form field.
 - **Recommendation options:** Accept / Minor Revision / Major Revision / Reject: Resubmission allowed / Reject.
+- **Web of Science recognition radio (`*` required):** Yes / No. Missing selection blocks submission; recommend Yes for peer-review credit accumulation.
+
+## Pre-submission portal verification (confirmation PDF)
+
+Before clicking submit, export confirmation PDF and verify against draft side by side:
+- [ ] All 8 scorecard items selected (no blank radios)
+- [ ] **Overall scorecard ↔ Recommendation alignment** — scorecard mean (M-Score) should land in the same band as the chosen Recommendation (see Recommendation ↔ M-Score table above). Mismatch is a reviewer credibility distractor for the editor.
+- [ ] Web of Science recognition radio explicitly Yes or No (not blank)
+- [ ] Confidential Comments to Editor body verbatim matches final draft
+- [ ] Comments to Author body verbatim matches final draft (incl. all Major and Minor numbering)
+- [ ] COI field has "none" or actual disclosure (not blank)
+- [ ] Recommendation radio matches final draft (not default Accept)
 
 ## Draft Structure Template
 

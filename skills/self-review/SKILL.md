@@ -163,6 +163,26 @@ before submission for item-level assessment."
 | Training vs fine-tuning | If pre-trained: was the model fine-tuned on study data? If vendor-provided: any access to training data composition? |
 | Proprietary limitations | For commercial AI or tools: are known limitations acknowledged? Can results be independently reproduced? |
 
+#### K. Reviewer-team consistency (SR/MA-only; fabrication-grade)
+
+| Check | What to look for |
+|-------|-----------------|
+| DUAL vs SINGLE conjunction **[CRITICAL]** | Methods or PROSPERO claims dual independent reviewers AND Discussion/Limitations admits single primary reviewer + 20% sample (or "deferred to before submission")? Mark as **MAJOR**, fabrication-grade. |
+
+Run the deterministic check at Phase 2 entry:
+
+```bash
+python "${CLAUDE_SKILL_DIR}/scripts/check_reviewer_team_consistency.py" \
+    --manuscript manuscript.md \
+    --prospero prospero/record.md \
+    --out _audit_self/reviewer_team_consistency.md
+```
+
+Exit 1 = MAJOR red flag. Either claim alone is fine; the conjunction is
+read by reviewers as fabrication. Resolution path:
+1. Honest Methods/PROSPERO update (single-reviewer execution disclosed), OR
+2. Limitations confession rewritten if dual review was actually completed.
+
 ### Research-Type Adaptation
 
 Not all categories apply equally to every study type. Use this routing table:
@@ -179,6 +199,7 @@ Not all categories apply equally to every study type. Use this routing table:
 | H. Circularity | Full | Partial | N/A | N/A | N/A | Partial |
 | I. Protocol Heterogeneity | Full | Full | N/A | Per-study | N/A | Full |
 | J. Method Transparency | Full | Partial | Partial | N/A | N/A | Partial |
+| K. Reviewer-team consistency | N/A | N/A | N/A | Full | N/A | N/A |
 
 *Meta-analysis: Replace C with heterogeneity assessment (I-squared, prediction intervals),
 publication bias (funnel plot, Egger), and sensitivity/subgroup analyses.
@@ -260,6 +281,56 @@ checked.
 escalate to a Major Comment even if the audited values happen to match — the next revision
 will re-introduce the same risk.
 
+### Phase 2.5a-2: Design & Power Statistic Provenance (computed, not extracted)
+
+Phase 2.5a traces data-derived numbers back to a CSV and a primary source. **Design and power
+statistics are a different class and a common blind spot**: the minimum detectable effect
+(MDE), a-priori or post-hoc power, the required sample size for a future trial, and the
+a-priori effect-size assumptions behind them are *computed*, not extracted, so they have no
+CSV row or source-paper Table to trace to. They routinely escape both the internal-consistency
+check and the source-fidelity audit above.
+
+**Precedent failure pattern:**
+> A pilot study reported a minimum detectable effect of d = 1.67. No standard two-sample method
+> reproduces it (the correct value at the stated n, alpha, and power was about 1.24). It survived
+> several review rounds because no committed script computed it — the value had been hand-entered —
+> and one reviewer even cited the figure approvingly. In the same manuscript, a set of future-trial
+> sample sizes was numerically correct but had been produced with an exact noncentral-t tool, while
+> the committed script used a normal approximation and printed different numbers: right value, no
+> reproducible provenance.
+
+**Procedure:**
+
+1. **Inventory design/power claims.** Search for: "minimum detectable", "detectable effect",
+   "MDE", "power" (80% / 90% / "1 − beta"), "sample size", "n = N per arm/group", "to detect",
+   "powered to", "a priori", and any a-priori planning effect size (Cohen's d / f / OR used for
+   sizing).
+
+2. **Require a reproducible source for each.** Every such value must be produced by committed
+   code (e.g. `statsmodels` `TTestIndPower`, a G*Power-equivalent, or an explicit noncentral-t
+   computation), with the inputs stated in the manuscript: n per arm, alpha, power, allocation
+   ratio, and one- vs two-sided. A value with no committed-code source is the highest-risk case.
+
+3. **Recompute independently** with a standard tool, then classify:
+   - **Not reproducible by any standard method** → likely a calculation error (Major; P0 if it
+     is a headline claim). This is the d = 1.67-vs-1.24 case above.
+   - **Reproducible only by a method the committed script does not implement** (e.g. the
+     manuscript value is noncentral-t but the script is a normal approximation) → provenance /
+     method drift. The number may be correct, but update the committed code so it reproduces the
+     reported value (Major: reproducibility, not correctness).
+
+4. **Method-consistency across the manuscript.** All power, sample-size, and MDE statistics in
+   one paper should share a single method family (e.g. all noncentral-t). A mix of normal
+   approximation and exact-t within one manuscript signals that some values were computed in an
+   ad-hoc side tool.
+
+5. **Any non-reproducible design/power value is a Major Comment;** a non-reproducible headline
+   power or MDE claim is a P0 submission blocker.
+
+**Hand-entered design/power statistics are a code smell even when correct.** If no committed
+function emits the value, flag it: the next revision will re-introduce the risk, and a reviewer
+who recomputes will not match the manuscript.
+
 ### Phase 2.5b: Screening-Count Reconciliation from ID Sets (SR/MA-only)
 
 Internal consistency across Abstract/Methods/Results (Phase 2.5) + source fidelity of 2×2 and
@@ -268,15 +339,15 @@ separate failure mode: a prior-draft prose total ("30 → 32 after FLAG consensu
 every downstream pass because Abstract, Methods, Results, Discussion, Figure 1 caption, and
 even the supplementary consensus file all cite the same wrong number back to each other.
 
-**Precedent failure pattern (a PRISMA-DTA meta-analysis, 2026-04-20):**
-> v11 manuscript reported k_qualitative = 32, k_narrative-only = 10, k_FT-excluded = 46.
-> Screening TSV (28 INCLUDE) ∩ consensus sheet (non-Exclude) + 2 FLAG additions yields
-> k_qualitative = 24 with only 2 narrative-only studies (k_FT-excluded = 54). The 32/10/46
-> figures came from a v7-draft assumption that was never reconciled against the ID-level
-> artifacts; `screening_consensus_final.md`, `Supplementary_Material_5`, `v8_edit_plan.md`
-> all propagated the same wrong total. Caught only by an explicit ID-set recount against
-> `fulltext_screening_final.tsv` + `MA1_Consensus_Sheet.xlsx`, independently verified by
-> Codex adversarial audit.
+**Precedent failure pattern (a PRISMA-DTA meta-analysis revision):**
+> A late-revision manuscript reported study counts of k_qualitative = 32, k_narrative-only = 10,
+> k_FT-excluded = 46. An ID-level recount against the screening TSV and consensus sheet (with
+> FLAG additions reconciled) yielded k_qualitative = 24 with only 2 narrative-only studies
+> (k_FT-excluded = 54). The original 32/10/46 figures came from an early-draft assumption that
+> was never reconciled against the ID-level artifacts; downstream files (consensus markdown,
+> supplementary tables, edit plans) propagated the same wrong total. Caught only by an explicit
+> ID-set recount against the screening TSV and consensus spreadsheet, verified independently
+> by an adversarial audit.
 
 **When to run:** any SR/MA manuscript revision, regardless of stage. Run before Phase 3.
 
@@ -342,13 +413,28 @@ Numerical audits (2.5/2.5a/2.5b) cover in-text numbers; they do **not** cover re
 2. **Invoke `/verify-refs`** on the resolved bib. The skill writes `qc/reference_audit.json` with a per-entry verdict (`VERIFIED` / `FABRICATED` / `UNVERIFIED`) and a top-level `submission_safe` boolean.
 
    ```bash
-   # equivalent CLI form (same result as invoking the skill)
-   python3 skills/verify-refs/scripts/verify_refs.py \
-       --bib "$(python3 -c "import yaml,sys; print(yaml.safe_load(open('SSOT.yaml'))['truth']['refs_bib'])")" \
-       --out qc/reference_audit.json --strict
+   # equivalent CLI form (same result as invoking the skill).
+   # verify_refs.py takes a positional input (the .bib path) and writes its audit
+   # to <project-root>/qc/reference_audit.json (path derived from --project-root).
+   BIB="$(python3 -c "import yaml; print(yaml.safe_load(open('SSOT.yaml'))['truth']['refs_bib'])")"
+   python3 skills/verify-refs/scripts/verify_refs.py "$BIB" --project-root . --strict
    ```
 
-3. **Read `qc/reference_audit.json`.** For each entry not marked `VERIFIED`, add a row to the reconciliation block below. `FABRICATED` entries are P0 Major Comments (block submission). `UNVERIFIED` entries are Minor Comments unless the manuscript is at a circulation/submission gate, in which case they escalate to Major.
+   When both reference QC and cross-reference QC are needed in one pass, prefer
+   the master orchestration entry point in `/manage-refs` — it chains
+   `check_citation_keys.py` → `verify_refs.py --strict` → `render_pandoc.sh`
+   (optional) → `check_xref.py --strict` and writes
+   `qc/pre_submission_gate.json` as the single submission-readiness artifact:
+
+   ```bash
+   bash "${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/manage-refs/scripts/pre_submission_gate.sh" \
+       --md manuscript/manuscript.md \
+       --bib manuscript/_src/refs.bib \
+       --docx submission/<journal>/manuscript.docx \
+       --allow-separate-attachments  # see Phase 2.5d for when this is appropriate
+   ```
+
+3. **Read `qc/reference_audit.json`.** For each entry not marked `VERIFIED`, add a row to the reconciliation block below. `FABRICATED` entries are P0 Major Comments (block submission). `UNVERIFIED` entries are Minor Comments unless the manuscript is at a circulation/submission gate, in which case they escalate to Major. For each `duplicate_findings[]` entry (category `duplicate_pmid` / `duplicate_doi`), add a Major Comment row noting the duplicated `ref_ids` pair and recommend cite renumbering — duplicates block submission (P0 Major) regardless of per-record `VERIFIED` status.
 
 4. **Cross-check placeholder drift.** `grep -n '\[@NEW:' manuscript/` — any remaining `[@NEW:topic]` placeholder at self-review stage is a P0: the citation was queued but never resolved. Include in the reconciliation block.
 
@@ -371,15 +457,15 @@ Numerical audits (2.5/2.5a/2.5b) cover in-text numbers; they do **not** cover re
 
 Reference-list integrity (Phase 2.5c) does **not** cover Table/Figure
 cross-references. This is a separate failure mode where in-text citations
-("Supplementary Table S4 reports CAC>10 sensitivity") resolve to a different
-caption in the rendered DOCX ("Supp Table S4 = VIF Diagnostics") because the
+("Supplementary Table S4 reports a sensitivity analysis") resolve to a different
+caption in the rendered DOCX ("Supp Table S4 = a diagnostics table") because the
 build script carries its own legacy SSOT. Internal consistency (Phase 2.5)
 cannot detect it — both the prose and the build artifact echo their own
 divergent truths cleanly.
 
-**Precedent failure pattern (an STROBE cohort manuscript (internal precedent), 2026-04-28):**
-> Body prose cited Supp Table S4 as the CAC>10 sensitivity analysis; the
-> rendered DOCX S4 was VIF Diagnostics. S1, S6, S7 also mismatched. S8 and S9
+**Precedent failure pattern (an STROBE cohort manuscript revision):**
+> Body prose cited Supp Table S4 as a sensitivity analysis; the rendered DOCX
+> S4 instead contained a diagnostics table. S1, S6, S7 also mismatched. S8 and S9
 > were cited in the manuscript but absent from the rendered DOCX entirely.
 > Caught only on co-author circulation review.
 
@@ -399,28 +485,37 @@ DOCX build has occurred yet (early drafts).
    python3 "${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/manage-refs/scripts/check_xref.py" \
      --md manuscript/manuscript.md \
      --docx manuscript/manuscript_final.docx \
-     --out qc/xref_audit.json
+     --out qc/xref_audit.json \
+     [--allow-separate-attachments]
    ```
 
    The script writes `qc/xref_audit.json` with per-label rows tagged
-   `OK | MISSING_DOCX | MISSING_BODY | MISMATCH | UNCITED | NOT_CITED_NO_BODY`
-   and a top-level `submission_safe` boolean.
+   `OK | MISSING_DOCX | MISSING_BODY | MISMATCH | UNCITED | NOT_CITED_NO_BODY`,
+   a top-level `submission_safe` boolean, and a `policy.allow_separate_attachments`
+   field that records which severity policy applied.
 
-3. **Translate findings to anticipated comments.** Severity mapping:
+3. **Translate findings to anticipated comments.** Severity mapping depends on
+   the journal's figure/table submission policy. Many radiology and medical
+   journals (e.g., European Radiology, Radiology, AJR) accept figures and tables
+   as separate attachment files rather than inline in the manuscript DOCX; for
+   those workflows pass `--allow-separate-attachments` so MISSING_DOCX is not
+   treated as a P0 blocker. `MISSING_BODY` and `MISMATCH` remain P0 regardless,
+   because they indicate SSOT drift between body markdown and rendered DOCX
+   rather than a legitimate attachment style.
 
-   | Status | Self-review classification |
-   |---|---|
-   | `MISSING_DOCX` | **Major (P0)** — cited Table/Figure absent from rendered output |
-   | `MISSING_BODY` | **Major (P0)** — build SSOT drift; rendered caption has no body definition |
-   | `MISMATCH` | **Major (P0)** — caption text disagrees between body and rendered DOCX |
-   | `UNCITED` | Minor — orphan caption that should be cited or removed |
+   | Status | Default policy | With `--allow-separate-attachments` |
+   |---|---|---|
+   | `MISSING_DOCX` | **Major (P0)** — cited Table/Figure absent from rendered output | **Minor** — figure/table is separately attached per journal policy |
+   | `MISSING_BODY` | **Major (P0)** — build SSOT drift; rendered caption has no body definition | **Major (P0)** (no change) |
+   | `MISMATCH` | **Major (P0)** — caption text disagrees between body and rendered DOCX | **Major (P0)** (no change) |
+   | `UNCITED` | Minor — orphan caption that should be cited or removed | Minor (no change) |
 
 4. **Append a reconciliation block to the Phase 3 report:**
 
    ```
    | Label | Status | Body caption | DOCX caption | Verdict |
    |---|---|---|---|---|
-   | Supplementary Table S4 | MISMATCH | Sensitivity at CAC>10 | VIF Diagnostics | ✗ P0 |
+   | Supplementary Table S4 | MISMATCH | Sensitivity analysis | Diagnostics table | ✗ P0 |
    | Supplementary Table S8 | MISSING_DOCX | (defined in body) | — | ✗ P0 |
    | Figure 2 | UNCITED | Forest plot of subgroups | Forest plot of subgroups | △ Minor |
    ```
@@ -606,7 +701,8 @@ Here is how to address it with your existing data."
 | Gate | Severity | Trigger | Action on fail |
 |---|---|---|---|
 | Phase 2.5b cross-reference QC (delegate `/manage-refs scripts/check_xref.py`) | ENFORCED | MISSING_DOCX / MISSING_BODY / MISMATCH > 0 | P0 Major Comment, blocks submission |
-| Phase 2.5c reference hallucination scan (delegate `/verify-refs`) | ENFORCED | FABRICATED verdict in `records[]` | P0 Major Comment, blocks submission |
+| Phase 2.5c reference hallucination scan (delegate `/verify-refs`) | ENFORCED | `FABRICATED` in `records[]` OR nonempty `duplicate_findings[]` | P0 Major Comment, blocks submission |
+| Phase 2.5a-2 design/power statistic provenance | ENFORCED | a reported MDE / power / sample-size value is not reproduced by committed code, or is reproducible only by a method the committed script does not implement | Major Comment (P0 if a headline claim); recompute and either correct the value or update the committed code to reproduce it |
 | `--fix` auto-fix loop (max 2 iterations) | ENFORCED in `/write-paper` Phase 7.4 chain | score still below threshold after 2 iterations | Route to write-paper Phase 7.4a Audit Recovery |
 | R0 numbering output | OPT-IN | `--r0-numbering` flag or downstream `/revise` consumer | Emits structured Anticipated Major/Minor Comments — consumable by `/revise` |
 | `--json` machine-readable output | OPT-IN | `--json` flag | Emits parseable JSON block consumed by `/orchestrate` post-skill validation |

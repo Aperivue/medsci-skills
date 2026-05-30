@@ -25,6 +25,12 @@ When the user provides reviewer comments (pasted text, PDF, or file path), or re
 
 ---
 
+## Reference Files
+
+- **Response-letter voice gallery**: `${CLAUDE_SKILL_DIR}/references/r2r_voice.md` -- before/after examples, three response skeletons (accept / partial-accept / polite-rebuttal), and a meta-phrase-to-natural conversion table. Read it before drafting the Response to Reviewers document.
+
+---
+
 ## Step 1: Parse and Number All Comments
 
 Read the full decision letter. Extract every discrete comment from every reviewer and the editor.
@@ -226,6 +232,8 @@ We believe this issue does not warrant [the specific change requested]
 because [reason]. We hope the reviewer finds this explanation satisfactory.
 ```
 
+**Voice caution:** The acknowledgment lines in these templates are schematic placeholders, not literal text to paste under every comment. Repeating the same opener ("We thank the reviewer for this important suggestion.") across a dozen responses is itself an AI-tell that careful reviewers notice. Vary the openers and apply the **Response-Letter Voice & AI-Tell Avoidance** section below before finalizing any response.
+
 ---
 
 ## 5-Category Triage Strategy
@@ -302,6 +310,49 @@ carefully read the manuscript:
 
 ---
 
+## Response-Letter Voice & AI-Tell Avoidance
+
+A response-to-reviewers letter is a reviewer-facing scientific argument, not an internal
+change-log. The dominant AI-tell in machine-drafted letters is the **editing-mechanism
+register**: prose that narrates *how the text was edited* ("the revised Methods adds one
+sentence at line 88", "a grep-and-soften pass replaced six phrases", "no further manuscript
+change") instead of stating, in plain language, what changed and why.
+
+Three principles when drafting (the AI-tell patterns themselves are defined once in humanize
+`references/ai_patterns.md`, patterns 22-24 — this section is the authoring guidance):
+
+1. **Write the change and the science, not the editing mechanism.** Describe what changed and
+   why, and quote the new sentence. Never narrate the diff: no version prefixes ("v2 adds..."),
+   no "softened N phrases", no grep/verification language, no internal FIX codes, no bare "No
+   further manuscript change" stubs. Describing a *new analysis you ran* ("we performed a
+   sensitivity analysis and found X") is the science, not a tell — that is welcome.
+2. **No `§` symbols, no internal draft line numbers.** A revised-manuscript page/line
+   ("page 7, lines 177-178", stated once as referring to the revised manuscript) is fine;
+   only internal draft line numbers that will not match the reviewer's view are banned.
+3. **Format is free.** Free prose, a structured `Response:` / `Changes made:` block, an
+   `Original → Revised` pair, or a left-comment/right-response table are all standard human
+   conventions. Pick any; strip only the mechanism narration.
+
+### Reviewer-facing tone
+
+- **Vary openers.** "We thank the reviewer for this point." / "We agree." / "This is an important concern." / "We have addressed this as follows." Do not repeat one acknowledgment sentence down the whole letter.
+- **Calibrate the stance**: full agreement, partial agreement with a bounded clarification, or a polite, evidence-backed rebuttal. Match the register to the substance.
+- **Admit error plainly** when the reviewer is right ("The reviewer is correct; we have corrected this.") — natural humility reads as human and builds editor trust.
+- **Quote the new manuscript text** verbatim in quotation marks, then name its section — what experienced authors do, and the single strongest human signal across real letters.
+
+See `${CLAUDE_SKILL_DIR}/references/r2r_voice.md` for the before/after gallery, response
+skeletons, and the meta-phrase conversion table.
+
+### Mandatory pre-submission scan
+
+Before circulating or uploading the response letter and cover letter, run `/humanize` on
+**both documents**. The R2R AI-tell patterns (22-24) are defined in humanize
+`references/ai_patterns.md`; together with 13 (em dash), 16 (filler), and 19 (`§`) they form
+the response-letter scan. Also apply `~/.claude/rules/manuscript-style-classical.md` (`§`,
+em-dash, heading discipline) — the same senior-reviewer red flags apply to the letter.
+
+---
+
 ## Step 5: Cover Letter to Editor
 
 **Output location:** `revision/R[N]/cover_letter_R[N].md`
@@ -354,6 +405,10 @@ After all responses are drafted, check:
 - [ ] Every REBUTTAL is backed by cited evidence or clear scientific reasoning
 - [ ] All new statistics include 95% CI and exact p-values
 - [ ] Page/line number references match the revised manuscript (not the original)
+- [ ] No internal draft line numbers ("(line 43)"); locations point to section names or revised-manuscript page/line
+- [ ] No `§` symbols and no editing-mechanism narration ("v2 adds one sentence", "grep verification", "No further manuscript change")
+- [ ] Acknowledgment openers varied (not one sentence repeated across responses)
+- [ ] Response letter AND cover letter ran through `/humanize` (patterns 22-24 triage hits reviewed; confirmed instances = 0; `§` = 0 hard)
 - [ ] Cover letter is addressed to the correct editor
 - [ ] Response letter is 5000-8000 words
 - [ ] Tracked changes are enabled in the revised manuscript
@@ -413,3 +468,4 @@ For R2+, acknowledge whether R1 concerns were fully resolved. If a reviewer rais
 | `/verify-refs --strict` post-revision | ENFORCED | FABRICATED / HIGH_MISMATCH_FIRST_AUTHOR > 0 | HALT R1 submission |
 | New analysis coordination | ENFORCED | reviewer asks for new analysis | route to `/analyze-stats` (and `/make-figures` if figure changes); never hand-write new numbers |
 | Cover letter to editor | ENFORCED at R1 submission | R1 missing editor cover letter | block submission |
+| Response-letter voice / AI-tell | ENFORCED before submission | editing-mechanism narration, internal draft line refs, `§`, tooling leak, or repeated openers in response/cover letter | run `/humanize` (patterns 22-24 as triage; `§` = 0 hard); resolve confirmed tells before submission |

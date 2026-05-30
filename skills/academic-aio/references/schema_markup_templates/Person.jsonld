@@ -1,0 +1,30 @@
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "<First Last>",
+  "givenName": "<First>",
+  "familyName": "<Last>",
+  "identifier": "https://orcid.org/0000-0000-0000-0000",
+  "url": "<personal landing page URL>",
+  "jobTitle": "<Resident / Researcher / Faculty>",
+  "affiliation": [
+    {
+      "@type": "Organization",
+      "name": "<Department, Institution>",
+      "address": "<City, Country>"
+    }
+  ],
+  "alumniOf": {
+    "@type": "Organization",
+    "name": "<medical school or PhD institution>"
+  },
+  "knowsAbout": ["Radiology", "Medical AI", "Deep learning"],
+  "sameAs": [
+    "https://orcid.org/0000-0000-0000-0000",
+    "https://scholar.google.com/citations?user=<id>",
+    "https://www.semanticscholar.org/author/<id>",
+    "https://github.com/<username>",
+    "https://huggingface.co/<username>",
+    "https://www.linkedin.com/in/<username>"
+  ]
+}

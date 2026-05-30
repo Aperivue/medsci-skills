@@ -34,7 +34,7 @@ directly on `word/document.xml` inside the docx zip and doing literal-string
 replacement — but that requires the target strings to already exist in the
 seed, so the skill ships a pre-filled synthetic seed.
 
-**Precedent:** an STROBE cohort with mortality endpoint (2026-04-20) — 6 authors
+**Precedent:** a multi-author cohort manuscript submission — 6 authors
 auto-filled in ~5 seconds from the synthetic seed with zero Word clicks.
 
 ## Core Principles (Do Not Violate)
@@ -147,14 +147,14 @@ items 2/3 with a common grant), generate it once as follows:
 
 1. Open `templates/icmje_coi_seed_synthetic.docx` in Word
 2. Edit the desired fields
-3. Save as a new file under `{project}/submission/{journal}/` or
-   `~/.claude/private-seeds/`
+3. Save as a new file under `{project}/submission/{journal}/` or a
+   local private seeds directory (outside this repo)
 4. Pass `--seed /path/to/custom.docx` to the script along with the new seed
    values for `--seed-name`, `--seed-title`, `--seed-date`
 
 Do NOT commit custom seeds that contain real author names to the public
-medsci-skills repo. Keep them in private per-project directories or under
-`~/.claude/private-seeds/`.
+medsci-skills repo. Keep them in private per-project directories or a
+local private seeds directory (outside this repo).
 
 ## Seed Provenance (how the shipped synthetic seed was created)
 

@@ -82,7 +82,7 @@ def main() -> int:
     parser.add_argument("--screening", required=True, help="TSV/CSV with screening decisions")
     parser.add_argument("--consensus", help="TSV/CSV with final consensus decisions")
     parser.add_argument("--table1", help="TSV/CSV containing bivariate/Table 1 study IDs")
-    parser.add_argument("--output", default="2_Screening/screening_consensus_final.json")
+    parser.add_argument("--output", default="2_Screening/screening_consensus.json")
     parser.add_argument("--screening-id-col")
     parser.add_argument("--screening-decision-col")
     parser.add_argument("--consensus-id-col")

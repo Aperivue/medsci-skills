@@ -248,7 +248,7 @@ All reporting-guideline flow diagrams use a single canonical pipeline: `scripts/
 
 | Rejected tool | Reason |
 |---|---|
-| matplotlib `FancyBboxPatch` (manual coords) | Overlap on label change; DOCX embed distortion. Root cause of an STROBE Figure 1 rework (2026-04-20). |
+| matplotlib `FancyBboxPatch` (manual coords) | Overlap on label change; DOCX embed distortion. Root cause of an STROBE Figure 1 rework. |
 | D2 + post-processing | Weak Arial enforcement; PNG needs 85% vertical compression hack; font-size must be manually set 20–24. Retained as legacy fallback only. |
 | R `consort` v1.2.2 | CONSORT/STROBE only; STARD/PRISMA not covered; box style parameters not officially exposed (requires gpar override). |
 | R `PRISMA2020` v1.1.1 | `PRISMA_save()` uses webshot → PDF rasterized; no DPI parameter. Not suitable for journal submission. |

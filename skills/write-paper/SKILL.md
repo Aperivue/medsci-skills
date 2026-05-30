@@ -383,10 +383,11 @@ If any match is returned, HARD STOP. Report the unresolved placeholders to the
 user and loop back: owner runs `/search-lit` → `/lit-sync` to import entries,
 collaborators flag via owner. Do NOT proceed to 7.3.2 until the grep is clean.
 
-**7.3.2 — Audit.** Call `/verify-refs` on the current manuscript. Per v1.1.1
+**7.3.2 — Audit.** Call `/verify-refs` on the current manuscript. Per v1.2.0
 contract, its sole output is `qc/reference_audit.json` (no longer writes
 `references/*`). Parse that file: if `submission_safe: false`, stop the pipeline
-and surface the `FABRICATED` / `MISMATCH` records to the user. If
+and surface the `FABRICATED` / `MISMATCH` records AND any `duplicate_findings[]`
+entries (duplicate PMID/DOI; cite renumbering required) to the user. If
 `/verify-refs` is unavailable, fall back to `/search-lit --verify-only` and flag
 any unverified references with `[UNVERIFIED]` markers.
 
@@ -611,10 +612,10 @@ Build the final submission-ready documents from the assembled components:
 Catches the failure mode where in-text Table/Figure citations resolve to the
 wrong rendered caption. Internal consistency (Phase 2.5 of `/self-review`)
 does NOT catch this because both the body prose and the build script can echo
-their own divergent SSOTs cleanly. Precedent: an STROBE cohort manuscript (internal precedent)
-(2026-04-28) — body cited "Supplementary Table S4 (CAC>10 sensitivity)" but
-the rendered DOCX S4 was "VIF Diagnostics"; S1, S6, S7 mismatched and S8, S9
-were cited but absent from the DOCX entirely.
+their own divergent SSOTs cleanly. Precedent: an STROBE cohort manuscript revision —
+body cited "Supplementary Table S4 (a sensitivity-analysis)" but the rendered DOCX S4
+was a diagnostics table; S1, S6, S7 mismatched and S8, S9 were cited but absent from
+the DOCX entirely.
 
 **Run after Step 7.6 DOCX build and before Step 7.7 final gate:**
 
