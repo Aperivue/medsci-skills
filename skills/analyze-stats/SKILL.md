@@ -191,6 +191,15 @@ These rules apply to ALL analyses without exception:
 7. **Missing data**: Report how many cases were excluded and why.
 8. **Decimal places**: p-values to 3 decimals, proportions to 1 decimal, means/SDs to
    appropriate precision for the measurement.
+9. **Design/power statistics are code outputs, never hand-computed.** Any minimum detectable
+   effect (MDE), a-priori or post-hoc power, or required sample size that will appear in the
+   manuscript MUST be emitted by this committed script — printed with its method and inputs
+   (n per arm, alpha, power, allocation ratio, one/two-sided) — not computed in a side tool
+   (G*Power, an online calculator) and pasted in. Use one method family consistently
+   (e.g. the exact noncentral-t via `statsmodels` `TTestIndPower` or `scipy`'s `nct`); do not
+   mix a normal approximation for some values with exact-t for others. A value that exists only
+   in the manuscript with no script that reproduces it is the failure mode `/self-review`
+   Phase 2.5a-2 is built to catch.
 
 ## Error Handling
 

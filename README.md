@@ -2,12 +2,14 @@
 
 # MedSci Skills
 
-**39 skills that actually work.** Built by a physician-researcher, tested on real publications.
+**40 skills that actually work.** Built by a physician-researcher, tested on real publications.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-![Skills](https://img.shields.io/badge/Skills-39-brightgreen?style=flat-square)
+![Skills](https://img.shields.io/badge/Skills-40-brightgreen?style=flat-square)
 ![Platform](https://img.shields.io/badge/Platform-Claude_Code-blueviolet?style=flat-square)
 ![Built by](https://img.shields.io/badge/Built_by-Physician--Researcher-blue?style=flat-square)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20155321.svg)](https://doi.org/10.5281/zenodo.20155321)
+[![Citation](https://img.shields.io/badge/Cite-CITATION.cff-blue?style=flat-square)](CITATION.cff)
 
 ![MedSci Skills](assets/social-preview.png)
 
@@ -16,6 +18,17 @@
 </div>
 
 ![check-reporting demo](demo.gif)
+
+---
+
+## What's New
+
+The v2.10 cycle expands the public workflow surface while tightening release hygiene:
+
+- `/peer-review` v2.10 adds the Phase 2A SR-MA 8-probe extension (P1-P8) for systematic review meta-analyses (PR #22).
+- `/verify-refs` v1.2.0 adds Gate 5 PMID/DOI duplicate detection plus synchronous `submission_safe` / `fully_verified` propagation (PR #23).
+- `/meta-analysis` adds SR-MA dual-extractor workflow support, cohort overlap detection, and a supplementary 8-file pack (PR #24).
+- Validator coverage now enforces the PII blocklist across `templates/` and `scripts/` as well as skill documentation.
 
 ---
 
@@ -145,6 +158,14 @@ The E2E pipeline (`orchestrate --e2e`) produces everything up to `qc/`. The `sub
 | **End-to-end coverage** | From IRB protocol to journal submission: sample size, data cleaning, analysis, writing, compliance, journal selection, cover letter. | Gaps at every transition -- no protocol, no journal matching, no cover letter |
 | **Battle-tested** | Used on real manuscript submissions by a practicing physician-researcher | Unknown provenance and validation |
 | **Depth per skill** | 150-600 lines of documentation + bundled reference files (curated journal profile library, checklists, formula sheets, code templates) | Typically thin SKILL.md templates |
+
+---
+
+## What This Is NOT
+
+This is **not** a broad scientific-tooling library — for cheminformatics, structural biology, or genomics pipelines, see [K-Dense scientific-agent-skills](https://github.com/K-Dense-AI/scientific-agent-skills) (135 skills). It is **not** a biomedical-skill aggregator — for the largest curated collection mirroring 12+ source repos, see [OpenClaw Medical Skills](https://github.com/FreedomIntelligence/OpenClaw-Medical-Skills) (869 skills).
+
+MedSci Skills is **opinionated and narrow on purpose**: a single physician-researcher's medical-manuscript pipeline, biased toward radiology, diagnostic accuracy, observational EMR studies, and systematic review / meta-analysis. If you write IMRAD manuscripts for clinical journals, audit reporting compliance against EQUATOR guidelines, or run SR/MA workflows end-to-end, this is built for you. For wet-lab protocols, drug discovery, or single-cell genomics, the repos above are better fits.
 
 ---
 
@@ -330,6 +351,21 @@ Projects declare their source-of-truth layout in `SSOT.yaml`, and a `qc/migratio
 
 ### Skills Work Together
 Skills call each other. `check-reporting` invokes `make-figures` for PRISMA diagrams. `write-paper` calls `search-lit` for citation verification. `self-review` delegates reporting compliance to `check-reporting`. `calc-sample-size` output feeds directly into `write-protocol`'s IRB justification section.
+
+## Setup
+
+**New to Python, R, or the command line?** The full step-by-step guide for clinicians is in [`docs/setup/`](docs/setup/README.md):
+
+- [Mac setup](docs/setup/mac.md) — Homebrew → Python 3.11 → R → Node → Claude Code (~30 min)
+- [Windows setup](docs/setup/windows.md) — winget-based, no WSL required
+- [MCP server setup](docs/setup/mcp-setup.md) — Zotero, Google Drive, PubMed integration
+- [Common issues](docs/setup/common-issues.md) — top 10 fixes (PATH, Apple Silicon, antivirus, JSON syntax)
+
+**Verify your environment** with the diagnostic skill (read-only, installs nothing):
+```
+/setup-medsci
+```
+Prints a checklist showing which components are present, which are missing, and which doc to follow for any gap.
 
 ## Requirements
 

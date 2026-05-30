@@ -61,6 +61,24 @@ def clean_doi(doi: str) -> str:
     return doi.rstrip(".,;)].").lower()
 
 
+def normalize_doi_for_dup(doi: str) -> str:
+    """Strict DOI normalization for duplicate detection.
+
+    Beyond clean_doi(): strips common URL prefixes and trailing slashes so that
+    `https://doi.org/10.1234/abc/` and `10.1234/abc` collapse to the same key.
+    """
+    if not doi:
+        return ""
+    s = doi.strip().lower()
+    for prefix in ("https://doi.org/", "http://doi.org/",
+                   "https://dx.doi.org/", "http://dx.doi.org/", "doi:"):
+        if s.startswith(prefix):
+            s = s[len(prefix):]
+            break
+    s = s.strip().rstrip("/")
+    return clean_doi(s)
+
+
 def read_docx(path: Path) -> str:
     with zipfile.ZipFile(path) as zf:
         xml = zf.read("word/document.xml")
@@ -588,12 +606,56 @@ def verify_record(record: RefRecord, offline: bool, timeout: int) -> RefRecord:
     return record
 
 
-def write_outputs(records: list[RefRecord], project_root: Path, source: Path) -> None:
-    """Audit-only writer (v1.1.1 Phase 1A.2).
+def detect_duplicates(records: list[RefRecord]) -> list[dict]:
+    """Detect verbatim PMID or DOI duplicates within the reference list.
+
+    Verbatim duplicates (same PMID or normalized DOI) are a common LLM
+    citation-compilation artifact and require cite renumbering before
+    submission.
+    """
+    seen_pmids: dict[str, str] = {}
+    seen_dois: dict[str, str] = {}
+    findings: list[dict] = []
+    for rec in records:
+        rec_id = rec.ref_id or "<unknown>"
+        pmid = (rec.pmid or "").strip()
+        if pmid:
+            if pmid in seen_pmids:
+                findings.append({
+                    "severity": "MAJOR",
+                    "category": "duplicate_pmid",
+                    "ref_ids": [seen_pmids[pmid], rec_id],
+                    "pmid": pmid,
+                    "note": "Verbatim duplicate reference. Cite renumbering required.",
+                })
+            else:
+                seen_pmids[pmid] = rec_id
+        doi = normalize_doi_for_dup(rec.doi or "")
+        if doi:
+            if doi in seen_dois:
+                findings.append({
+                    "severity": "MAJOR",
+                    "category": "duplicate_doi",
+                    "ref_ids": [seen_dois[doi], rec_id],
+                    "doi": doi,
+                    "note": "Verbatim duplicate reference. Cite renumbering required.",
+                })
+            else:
+                seen_dois[doi] = rec_id
+    return findings
+
+
+def write_outputs(records: list[RefRecord], project_root: Path, source: Path,
+                  duplicate_findings: list[dict]) -> None:
+    """Audit-only writer (v1.2.0).
 
     Per docs/artifact_contract.md, /verify-refs is sole writer of qc/reference_audit.json
     only. It MUST NOT write to references/ (that directory is owned by /search-lit and
     /lit-sync). All per-record details live inside reference_audit.json.
+
+    v1.2.0 (2026-05): adds duplicate_findings[] for PMID/DOI duplicate detection
+    (Gate 5; resolves /peer-review Phase 2A P7). submission_safe and fully_verified
+    both require duplicate_findings to be empty.
     """
     qc_dir = project_root / "qc"
     qc_dir.mkdir(parents=True, exist_ok=True)
@@ -602,12 +664,22 @@ def write_outputs(records: list[RefRecord], project_root: Path, source: Path) ->
     for rec in records:
         counts[rec.status] = counts.get(rec.status, 0) + 1
     audit = {
-        "schema_version": 2,
+        "schema_version": 3,
         "source": str(source),
         "total_references": len(records),
         "counts": counts,
-        "submission_safe": counts.get("FABRICATED", 0) == 0 and counts.get("MISMATCH", 0) == 0,
-        "fully_verified": counts.get("UNVERIFIED", 0) == 0 and counts.get("FABRICATED", 0) == 0 and counts.get("MISMATCH", 0) == 0,
+        "duplicate_findings": duplicate_findings,
+        "submission_safe": (
+            counts.get("FABRICATED", 0) == 0
+            and counts.get("MISMATCH", 0) == 0
+            and len(duplicate_findings) == 0
+        ),
+        "fully_verified": (
+            counts.get("UNVERIFIED", 0) == 0
+            and counts.get("FABRICATED", 0) == 0
+            and counts.get("MISMATCH", 0) == 0
+            and len(duplicate_findings) == 0
+        ),
         "requires_manual_reference_check": counts.get("UNVERIFIED", 0) > 0,
         "records": [asdict(rec) for rec in records],
     }
@@ -647,13 +719,18 @@ def main() -> int:
         return 3
 
     verified = [verify_record(rec, args.offline, args.timeout) for rec in records]
-    write_outputs(verified, project_root, input_path)
+    duplicate_findings = detect_duplicates(verified)
+    write_outputs(verified, project_root, input_path, duplicate_findings)
 
     counts: dict[str, int] = {}
     for rec in verified:
         counts[rec.status] = counts.get(rec.status, 0) + 1
-    print(json.dumps({"total": len(verified), "counts": counts}, indent=2))
-    if counts.get("FABRICATED", 0) or counts.get("MISMATCH", 0):
+    print(json.dumps({
+        "total": len(verified),
+        "counts": counts,
+        "duplicate_findings_count": len(duplicate_findings),
+    }, indent=2))
+    if counts.get("FABRICATED", 0) or counts.get("MISMATCH", 0) or duplicate_findings:
         return 1
     if args.strict and counts.get("UNVERIFIED", 0):
         return 1

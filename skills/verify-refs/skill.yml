@@ -18,8 +18,6 @@ inputs:
   - manuscript.docx
   - references.bib
 outputs:
-  - references/verified_references.tsv
-  - references/library.bib
   - qc/reference_audit.json
 deterministic_scripts:
   - scripts/verify_refs.py

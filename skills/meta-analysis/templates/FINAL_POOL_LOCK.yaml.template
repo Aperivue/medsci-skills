@@ -1,0 +1,70 @@
+# FINAL_POOL_LOCK.yaml — frozen pool composition for an SR/MA
+#
+# Created at Phase 3f.5 (round-3 adjudication freeze) by /meta-analysis.
+# All downstream artifacts (extraction TSV, manuscript prose counts,
+# PRISMA flow caption, supplementary INDEX, cover letter free-text)
+# must agree with these values exactly. /sync-submission Phase 5
+# `scripts/cross_document_n_check.py --pool-lock` enforces this.
+#
+# Why a lock file
+# ---------------
+# Cross-project precedent (anonymized): an LLM reporting-quality SR carried
+# five documents that disagreed on INCLUDE (63 vs 64) and EXCLUDE
+# (108/109/111). Three EXCLUDE rows existed in the extraction sheet
+# without matching INCLUDE. The drift traced to a late round-3 adjudication
+# whose result was applied to some artifacts and not others.
+#
+# The lock file is the single source of truth. Once the freeze line is
+# crossed, NEVER re-derive the counts from raw artifacts in a downstream
+# script — always reference the lock.
+
+# ---------------------------------------------------------------------------
+# Metadata
+# ---------------------------------------------------------------------------
+
+# ISO-8601 date when the pool was frozen.
+freeze_date: "YYYY-MM-DD"
+
+# Round at which freeze occurred — typically "round_3_adjudication".
+freeze_stage: "round_3_adjudication"
+
+# Freeform note describing which screening sheet anchored this lock.
+provenance:
+  screening_artifact: "2_Screening/round3_adjudication.tsv"
+  adjudicator: "first_reviewer"
+  ai_assisted_round: false   # set true if AI pre-screening was used per SKILL.md Phase 3c
+
+# ---------------------------------------------------------------------------
+# Counts (canonical numbers — NEVER edit without re-freezing)
+# ---------------------------------------------------------------------------
+
+# Studies in the final pool (Phase 4 extraction candidate set).
+final_pool_n: 0
+
+# Total INCLUDE decisions across rounds (post-adjudication).
+include_count: 0
+
+# Total EXCLUDE decisions (full-text excluded).
+exclude_count: 0
+
+# Mixed (eligible for some outcomes, excluded for others).
+mixed_count: 0
+
+# ---------------------------------------------------------------------------
+# Identifier sets
+# ---------------------------------------------------------------------------
+
+# UID lists. Use stable IDs (PMID, DOI, or screening-sheet record ID).
+include_uids: []
+exclude_uids: []
+mixed_uids: []
+
+# ---------------------------------------------------------------------------
+# Integrity hash
+# ---------------------------------------------------------------------------
+
+# SHA-256 of the sorted include_uids + exclude_uids + mixed_uids list,
+# joined with newlines. Provides tamper-evidence: any single UID edit
+# changes the hash. Recompute with:
+#   python -c 'import hashlib; ids = sorted(open("..._uids.txt").read().splitlines()); print(hashlib.sha256("\n".join(ids).encode()).hexdigest())'
+sha256: ""

@@ -186,6 +186,72 @@ students).
 
 ---
 
+## 5. Academic lecture — multi-paper survey (graduate course)
+
+**Audience**: Graduate students from mixed disciplines (basic science, clinical,
+imaging, AI). Cross-disciplinary background; a single specialty's jargon will not
+land for everyone.
+**Time**: 30–45 min present + 5–10 min Q&A.
+**Tone**: Narrative arc across multiple papers; one *lighthouse* paper per section
+anchors the discussion, surrounding papers add nuance.
+**Slide count**: ~35–50 (1 slide / 45–75 s, with section dividers + transitions).
+
+### Section structure — 4-act narrative
+
+| # | Section | Slides | Purpose |
+|---|---|---|---|
+| 1 | Title slide | 1 | Course position, instructor, date, presenter, affiliation |
+| 2 | Outline (TOC) | 1 | 4 sections with time budgets visible |
+| 3 | Glossary (optional) | 1 | Tier 1: disease/concept · Tier 2: method/stats abbreviations |
+| 4 | Section 1 divider | 1 | "History" / "Background" — full-bleed deep navy |
+| 5 | Section 1 content | 4–6 | Founding papers, original observations, classical concepts |
+| 6 | Transition slide | 1 | Large coral quotes + one-sentence question motivating next act |
+| 7 | Section 2 divider | 1 | "Concept" / "Classification" |
+| 8 | Section 2 content | 5–8 | Modern framework, definitions, what we now know |
+| 9 | Transition slide | 1 | Bridge to mechanism |
+| 10 | Section 3 divider | 1 | "Mechanism" — typically the longest, anchored by 1–2 lighthouse papers |
+| 11 | Section 3 content | 10–14 | Lighthouse paper figures, mechanistic details, 2024–2026 updates |
+| 12 | Transition slide | 1 | Bridge to clinical translation |
+| 13 | Section 4 divider | 1 | "Clinical translation" |
+| 14 | Section 4 content | 6–10 | Diagnostic application, therapy, ongoing trials |
+| 15 | Wrap-up / Take-home | 1–2 | 3 bullets max, mirrored to outline |
+| 16 | Acknowledgments / Q&A | 1 | Funding, mentor thanks, contact |
+
+### Design seed
+
+- **Visual style**: Nature/Lancet — see `slide_visual_styles/nature_lancet.md`
+- **Body language**: English only (per `~/.claude/rules/academic-lecture-style.md` §1)
+- **Speaker notes**: Korean narrative (서술형, `~합니다`체), 150–300 chars / slide
+- **Section dividers**: full-bleed `#121D36` background + coral accent strip + `{N} MIN`
+  badge bottom-right
+- **Transition slides**: large coral curly quotes (72pt) flanking a 36pt white question
+- **Lighthouse paper anchor**: each section names one anchor paper in the divider
+  subtitle; section content slides reference it in eyebrow text
+
+### Pre-presentation checklist
+
+- [ ] All `--` em-dashes verified rendering correctly on Mac PowerPoint
+- [ ] TIFF images converted to PNG (per `pptx-mac-compatibility.md` §1)
+- [ ] `<a:sp3d>` 3D bevel = 0 (per `pptx-mac-compatibility.md`)
+- [ ] `app.xml` Slides/Notes counts patched (per `pptx-mac-compatibility.md` §5)
+- [ ] Speaker notes parsed for `**bold**` / `*italic*` markdown (per §4)
+- [ ] 40-min timing rehearsal completed (longest section flagged)
+- [ ] Glossary slide present if audience is multidisciplinary
+- [ ] Each section has ≥1 lighthouse paper figure (not text-only)
+- [ ] PDF export visually verified (figure positions, font fallback)
+- [ ] Mac PowerPoint actual-rendering check (PDF alone misses some defects)
+
+### Reference implementation
+
+- Build script: `templates/build_pptx_nature_lancet.py` (this skill) — `add_title_slide`,
+  `add_toc_slide`, `add_glossary_slide`, `add_section_divider`, `add_transition_slide`,
+  `add_content_slide`, `add_closing_slide` + `fix_app_xml` helper
+- Style spec: `slide_visual_styles/nature_lancet.md`
+- Example deck: 47-slide academic lecture (4-section narrative across 17 lighthouse papers
+  + supporting references), Mac PowerPoint verified
+
+---
+
 ## Mapping to SKILL.md phases
 
 | Template element | SKILL.md phase | Notes |
@@ -200,8 +266,12 @@ students).
 
 ## Cross-references
 - `slide_design_principles.md` — design foundations (Reynolds, Duarte, Knaflic, Tufte)
+- `slide_visual_styles/nature_lancet.md` — Nature/Lancet color/typography/layout spec
+- `templates/build_pptx_nature_lancet.py` — generic builder for Template #5
 - `critic_rubrics/slide.md` — per-slide quality scoring
 - `workflow-checklist.md` — end-to-end Phase 0 → 4 production checklist
-- `~/.claude/rules/pptx-mac-compatibility.md` — TIFF / sp3d / app.xml / srcRect defects
+- `~/.claude/rules/academic-lecture-style.md` — English body + Korean notes + Nature/Lancet (global default)
+- `~/.claude/rules/pptx-mac-compatibility.md` — TIFF / sp3d / app.xml / srcRect / Inches EMU / markdown notes
+- `~/.claude/rules/multidisciplinary-presentation.md` — glossary slide + intuition box pattern
 - `~/.claude/rules/journal-ai-image-policies.md` — AI-image policy (visual abstract /
   Central Illustration cases)

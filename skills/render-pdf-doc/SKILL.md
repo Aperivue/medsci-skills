@@ -19,12 +19,11 @@ Markdown + frontmatter → publication-quality Korean academic PDF.
 
 ## Why This Skill Exists
 
-2026-05-01 an education-research calibration anchor PDF 회람에서 두 번 재작업:
-1. v1: 변경이력·버전번호·PI attribution이 첨부 PDF 노출 → 첫 수신자 혼란
-2. v2: pandoc pipe table 대시 비율 잘못 잡혀 첫 열 협소 → 라벨 wrap, 가독성 저하
+In real circulation cycles for Korean academic PDFs, two recurring failure patterns appear:
+1. v1 drafts: change-history, version numbers, and PI attribution leak into the attached PDF, confusing the first recipient.
+2. v2 drafts: pandoc pipe-table dash ratios are misjudged, narrowing the first column and forcing label wrapping that hurts readability.
 
-Manual fix했으나 proposal / briefing / IRB cover / 면제 신청서 등 같은 패턴 반복 예상.
-이 스킬은 **layout** (CJK fonts + table column widths)에 집중. Bibliography·CSL은 `/manage-refs`가 담당.
+Manual fixes work but the same pattern recurs across proposals, briefings, IRB covers, exemption applications. This skill focuses on **layout** (CJK fonts + table column widths). Bibliography and CSL are handled by `/manage-refs`.
 
 ## Boundary (다른 스킬과 분리)
 

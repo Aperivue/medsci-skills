@@ -18,7 +18,7 @@ inputs:
   - screening/*.tsv
   - extraction/*.csv
 outputs:
-  - 2_Screening/screening_consensus_final.json
+  - 2_Screening/screening_consensus.json
   - analysis/meta_analysis_outputs.json
   - manuscript/manuscript.md
 deterministic_scripts:

@@ -1,0 +1,43 @@
+# STROBE cohort-study flow diagram — editable PPTX schema.
+#
+# Render with:
+#   python3 ../../scripts/build_strobe_template.py \
+#       --config template_input_pptx.yaml \
+#       --out    template_output.pptx
+#
+# Output is a fully-editable PowerPoint slide (13.33 × 10 in) with:
+#   - left-side colored phase column (one merged label per consecutive same-stage spine block)
+#   - center white-fill spine of cohort-stage boxes
+#   - right-side white-fill exclusion boxes, connected by arrows
+#
+# Stage box text colour auto-picks BLACK or WHITE from fill luminance.
+# All text frames have word_wrap = True so prose never overflows.
+
+slide_size: [13.33, 10.0]
+title: "Figure 1. STROBE participant flow diagram"
+
+stages:
+  - {name: Identification, color: "#cfe1f5"}
+  - {name: Screening,      color: "#cfe1f5"}
+  - {name: Inclusion,      color: "#cfe1f5"}
+  - {name: Analysis,       color: "#cfe1f5"}
+
+spine:
+  - id: source
+    stage: Identification
+    text: "Source population\n(Database XYZ, 2010–2023)\ntotal records = 120,000"
+  - id: unique
+    stage: Screening
+    text: "Unique subjects after deduplication\nN = 85,000"
+  - id: eligible
+    stage: Inclusion
+    text: "Meeting eligibility criteria\nN = 80,000"
+  - id: cohort
+    stage: Analysis
+    text: "Analytic cohort\nN = 77,500"
+
+exclusions:
+  - after: unique
+    text: "Excluded (n = 5,000):\n- missing age/sex (n = 1,200)\n- outside age range (n = 3,800)"
+  - after: eligible
+    text: "Excluded (n = 2,500):\n- prior event at baseline (n = 1,500)\n- follow-up ≤ 0 days (n = 1,000)"

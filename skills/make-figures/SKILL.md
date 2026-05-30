@@ -571,6 +571,7 @@ the auto-laid-out R version), use the bundled official files in
 | Guideline | What ships | When to use |
 |-----------|-----------|-------------|
 | PRISMA 2020 | Locally built `.pptx` (4 variants) + `fill_prisma_template.py` | Reviewer asks for the official PRISMA 2020 layout, or you want editable PowerPoint instead of an R-rendered PDF. |
+| STROBE (cohort) | Parametric `.pptx` builder `build_strobe_template.py` (single-script, takes YAML config) | Cohort/case-control study Figure 1 when co-authors want PowerPoint they can hand-edit. Auto-fits text, content-fits slide, dashed-border exclusion side-branches with strictly-horizontal connectors. Optional left-side phase column (omit `stages:` for the plain STROBE convention; include it for the PRISMA-style Identification/Screening/Inclusion/Analysis column). Pair with `generate_flow_diagram.R --type strobe` for the vector PDF/TIFF submission file. |
 | CONSORT 2025 | Official `.docx` flow diagram + checklist | RCT submissions to journals that mandate the consort-spirit.org template. |
 | STARD 2015 | Official `.pdf` flow diagram + `.docx` checklist | Diagnostic accuracy studies; flow diagram is fixed PDF, checklist is editable. |
 | SPIRIT 2025 | Official `.docx` participant timeline + checklist | Trial protocols. |
@@ -599,7 +600,21 @@ python3 ${CLAUDE_SKILL_DIR}/scripts/fill_prisma_template.py \
     --template ${CLAUDE_SKILL_DIR}/templates/official/prisma2020/PRISMA_2020_flow_new_v1.pptx \
     --counts-file my_counts.json \
     --out fig1_prisma_filled.pptx
+
+# STROBE — parametric single-script builder (cohort study; spine structure varies per study).
+# YAML schema: stages, spine (id/stage/text), exclusions (after/text). Consecutive same-stage
+# rows share one phase label automatically. Stage box fills auto-pick readable text color.
+python3 ${CLAUDE_SKILL_DIR}/scripts/build_strobe_template.py \
+    --config figures/figure1_strobe.yaml \
+    --out    figures/figure1_strobe.pptx
 ```
+
+For STROBE the canonical KJR/Radiology/BMJ submission flow is:
+
+1. Render the vector submission file via the auto-fitting Graphviz path:
+   `Rscript ${CLAUDE_SKILL_DIR}/scripts/generate_flow_diagram.R --type strobe --config figures/figure1_strobe_graphviz.yaml --out figures/figure1`
+2. Build the editable PowerPoint companion via `build_strobe_template.py` so co-authors and senior reviewers can adjust prose/positioning before sign-off.
+3. Re-export the final PPTX to PDF/TIFF only after co-author edits are integrated.
 
 See `templates/official/NOTES.md` for licenses, attribution, and refresh notes.
 

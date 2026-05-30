@@ -404,7 +404,7 @@ totals). Do not edit `SKILL.md` or `README.md` to update numeric counts.
 Report to user:
 - Target tier (`public` or `private`) and paths written
 - Reminder for `public`: "Run `git add -A && git commit` in the medsci-skills repo"
-- Reminder for `private`: "Files are local-only at `~/.claude/private-journal-profiles/` — do not commit to the public repo"
+- Reminder for `private`: "Files are local-only in your private profiles directory (outside this repo) — do not commit to the public repo"
 
 ---
 
