@@ -48,7 +48,7 @@ You do NOT do the work yourself. You classify, plan, and delegate.
 | **meta-analysis** | Systematic review | Full MA pipeline: protocol, search, screening, extraction, synthesis, PRISMA-DTA |
 | **write-paper** | Writing | IMRAD manuscript drafting (8-phase pipeline), any section writing |
 | **self-review** | Quality | Pre-submission self-check from reviewer perspective (10 categories) |
-| **check-reporting** | Compliance | Audit against 22 reporting guidelines and risk-of-bias tools |
+| **check-reporting** | Compliance | Audit against 33 reporting guidelines and risk-of-bias tools |
 | **revise** | Revision | Parse reviewer comments, generate point-by-point response, track changes |
 | **grant-builder** | Funding | Structure grant proposals: significance, innovation, approach, milestones |
 | **present-paper** | Presentation | Prepare academic talks: analyze paper, draft scripts, inject slide notes, Q&A prep |
@@ -61,6 +61,16 @@ You do NOT do the work yourself. You classify, plan, and delegate.
 | **clean-data** | Data | Data profiling, missing value flagging, outlier detection, cleaning code generation |
 | **write-protocol** | Protocol | IRB/ethics protocol drafting, 4 core sections + 6 skeleton sections with TODO markers |
 | **define-variables** | Operationalization | Literature-grounded variable definitions, cutoffs, DB-variable mappings; prevents ad-hoc phenotype definitions; runs between `/search-lit` and `/write-protocol` for observational studies |
+| **verify-refs** | Reference audit | Read-only PubMed/CrossRef audit of manuscript references; first-author cross-check; sole writer of `qc/reference_audit.json`. Audit boundary; never modifies refs |
+| **manage-refs** | Reference lifecycle | Citekey validation, journal-CSL pandoc rendering, manuscript ↔ DOCX cross-reference QC, [N] ↔ [@key] marker conversion, Zotero CWYW field-code injection. Sole writer of `manuscript_final.docx`, `qc/xref_audit.json`. Pairs with `lit-sync` (refs.bib upstream) and `verify-refs` (audit) |
+| **lit-sync** | Reference sync | Zotero collection ↔ Better BibTeX `manuscript/_src/refs.bib` ↔ Obsidian literature notes. Sole writer of refs.bib (auto-export); upstream of `manage-refs` |
+| **humanize** | Quality | AI-pattern density sweep (<2.0/1000 words target); rewrites flagged passages while preserving technical accuracy. Phase 7.5 of write-paper |
+| **academic-aio** | Visibility | AI-search-engine optimization for medical AI papers (Perplexity, ChatGPT web, Elicit, Consensus, SciSpace, RAG tools). Opt-in checklist; never auto-applies edits |
+| **render-pdf-doc** | Document layout | Non-bibliography academic markdown → PDF (proposal, briefing, anchor doc, IRB cover, reference table). CJK font + content-proportional table column widths. Boundary opposite of `manage-refs scripts/render_pandoc.sh` |
+| **fill-protocol** | Form filling | Institutional Word form filling (.doc/.docx) for IRB/ethics/grant templates. Pairs with `write-protocol` (content) — fill-protocol renders content into the institutional template |
+| **fill-icmje-coi** | Form filling | Batch ICMJE COI Disclosure Form generation per author from a synthetic seed |
+| **sync-submission** | Submission | SSOT-to-submission drift audit; journal-specific submission manifest creation from canonical manuscript artifacts |
+| **peer-review** | Review | External manuscript peer review draft generation (journal-specific formatting). Use ONLY for reviewing other authors' work, never for self-review |
 
 ---
 
@@ -100,6 +110,14 @@ When the user's request arrives, classify it into one of these intents:
 | "Generate a cover letter" / "Write cover letter for submission" | `/write-paper` (Phase 8+, requires completed manuscript) |
 | "Verify references" / "Check citation hallucinations" / "Reference audit" | `/verify-refs` |
 | "Sync submission" / "Retarget journal" / "Check SSOT drift" | `/sync-submission` |
+| "Render manuscript to DOCX" / "Build final .docx" / "Cascade reformat references" / "Apply journal CSL" / "Re-render with Vancouver" / "회람용 docx" / "Zotero CWYW injection" | `/manage-refs` |
+| "Sync Zotero" / "Refresh refs.bib" / "Better BibTeX export" / "Zotero ↔ Obsidian 동기화" / "literature note 만들어줘" | `/lit-sync` |
+| "Render proposal to PDF" / "Anchor doc PDF" / "한글 학술 PDF" / "Briefing handout PDF" / "IRB cover PDF" / "non-bib markdown → PDF" | `/render-pdf-doc` |
+| "Fill IRB protocol form" / "기관 양식 채워줘" / "심사면제 요청서 채움" / "동의면제 양식" | `/fill-protocol` |
+| "ICMJE COI 양식 일괄 생성" / "공저자 COI 폼 만들기" / "Disclosure form batch" | `/fill-icmje-coi` |
+| "AI search optimization" / "Perplexity-friendly abstract" / "RAG visibility" / "GEO checklist" / "Elicit/Consensus 노출" | `/academic-aio` |
+| "Remove AI patterns" / "AI 티 제거" / "humanize this section" / "GPT 흔적 지워줘" | `/humanize` |
+| "Review someone else's manuscript" / "Journal club critique draft" / "외부 논문 리뷰 답변" | `/peer-review` |
 
 ### Multi-skill workflows (plan then execute sequentially)
 
@@ -111,7 +129,12 @@ The **Nodes** column lists decision forks that should be rendered in interactive
 |----------|-------------|-------|
 | **New project, no prior work** | `intake-project` -> `search-lit` -> `design-study` -> `manage-project init` | N1, N2 (if user wants manuscript output), N3 |
 | **Data ready, need a paper** | `manage-project init` -> `analyze-stats` -> `make-figures` -> `write-paper` | N6 (PHI gate), N3, N4 (journal timing), N2 |
-| **Draft exists, prepare for submission** | `self-review` -> `check-reporting` -> `search-lit` (verify refs) -> `humanize` -> `academic-aio` (opt-in `--aio`) -> `manage-project checklist` | N4 (if not yet locked), N8 (only if self-review returns fatal) |
+| **Draft exists, prepare for submission** | `self-review` -> `check-reporting` -> `verify-refs` -> `humanize` -> `academic-aio` (opt-in `--aio`) -> `manage-refs` (DOCX build + xref QC `--strict`) -> `manage-project checklist` | N4 (if not yet locked), N8 (only if self-review returns fatal) |
+| **Submission rendering & cascade reformat** | `manage-refs` (Workflow A pandoc citeproc, or B Zotero CWYW) -> `manage-refs scripts/check_xref.py --strict` -> `verify-refs` -> `sync-submission build` | N10 (Workflow A vs B selection — see manage-refs SKILL.md decision tree) |
+| **Cascade rejection re-target** | `find-journal` (exclude rejected) -> `manage-refs` (re-render with new CSL) -> `write-paper` Phase 8+ (new cover letter) -> `sync-submission build --journal {new}` | N4 |
+| **Non-bibliography academic deliverable (proposal/briefing/anchor doc)** | `write-protocol` -> `fill-protocol` (institutional form available) ⫶ `render-pdf-doc` (markdown-only, no form) | N11 (form available vs not) |
+| **Reference housekeeping cycle** | `lit-sync` (Zotero ↔ refs.bib auto-export) -> `manage-refs scripts/check_citation_keys.py` -> `verify-refs --strict` (first-author cross-check) | — |
+| **ICMJE COI batch (multi-author submission)** | `fill-icmje-coi` (per-author docx generation from synthetic seed) -> manual circulation | — |
 | **Medical-AI paper, AI-search visibility pass** | `self-review` -> `humanize` -> `academic-aio` (title, abstract, summary box, README / CITATION.cff / HF card) | N4, N9 (section entry for re-edit scope) |
 | **Reviewer comments received** | `revise` -> `analyze-stats` (if new analyses needed) -> `make-figures` (if new figures needed) | N1 |
 | **Meta-analysis from scratch** | `search-lit` -> `fulltext-retrieval` -> `meta-analysis` (handles its own pipeline internally) | N2 (MA type), N5 (synthesis scope) |
@@ -183,6 +206,35 @@ When the user requests "run the full pipeline," "end-to-end," or similar, execut
 
 ### `--e2e` Flag
 
+#### Pre-flight Validation (run once at `--e2e` entry)
+
+Before invoking any downstream skill in `--e2e` mode, run the following 4 checks.
+A failure on any one halts the pipeline and is recorded to
+`manuscript/<id>/REPORT.md` (see §"REPORT.md Generation") under
+`Frozen / Version status` + `Source artifacts checked`.
+
+1. **STATUS / project_state**: read `STATUS.md` or `project_state.json` in the
+   working directory and confirm the current phase. If neither exists, halt with
+   `STATUS_MISSING` unless the user passes `--no-status`.
+2. **Frozen artifact**: scan `manuscript/<id>/v_*_package/`. If the latest `v_N`
+   carries a `_FROZEN` marker file or `INDEX.md::frozen=true`, this run is
+   restricted to a `v_(N+1)_package/` branch. Any attempt to write directly into
+   `v_N` halts with `FROZEN_VIOLATION` (see `~/.claude/rules/manuscript-versioning.md`).
+3. **Required inputs**: confirm input artifacts for the requested phase exist.
+   Examples: Phase 4 figure requires `analysis/_analysis_outputs.md`; Phase 7
+   self-review requires `manuscript/manuscript.md`. Missing → halt with
+   `REQUIRED_INPUT_MISSING: <path>`.
+4. **Dependency miss**: if the user requested phase `k` but a prior phase is
+   incomplete, halt with `DEPENDENCY_MISS: [Phase i, Phase j]` by default. Only
+   when the user explicitly passes `--auto-extend` may the orchestrator prepend
+   the missing phases and continue.
+
+PHI Safety Gate (node N6) remains the only legitimate interrupt of an autonomous
+run after pre-flight passes. All four pre-flight outcomes are written to REPORT
+verbatim.
+
+#### `--e2e` Pipeline Behavior
+
 When `--e2e` is passed (or the user says "end-to-end", "Arm A", or "fully autonomous"):
 1. Set `--e2e` mode ON.
 2. Pass `--autonomous` to `/write-paper` when invoking it.
@@ -215,11 +267,12 @@ built-in gates (outline approval, discussion planning).
 
 1. `/analyze-stats` → `analysis/tables/*.csv`, `analysis/figures/*`, `analysis/_analysis_outputs.md`, `analysis/analyze.py`
 2. `/make-figures --study-type {type}` → reads `analysis/_analysis_outputs.md` → `analysis/figures/*.pdf`, `analysis/figures/*.png`, `analysis/figures/_figure_manifest.md`
-3. `/write-paper --autonomous` (if --e2e) → reads analysis/ → `manuscript/manuscript.md`, `manuscript/manuscript_final.docx`
+3. `/write-paper --autonomous` (if --e2e) → reads analysis/ → `manuscript/manuscript.md` (DOCX rendering delegated to step 7)
    - Phase 7.4 internally calls `/self-review --json --fix` → `qc/self_review.md`
 4. `/check-reporting` → reads `manuscript/manuscript.md` → `qc/reporting_checklist.md` (called within write-paper Phase 7, but orchestrator verifies output)
 5. `/verify-refs` → reads `manuscript/manuscript.md` → `qc/reference_audit.json` (sole output; row-level status in `records[]`)
 6. `/self-review --json --fix` → reads `manuscript/manuscript.md` → `qc/self_review.md` + auto-fix (called within write-paper Phase 7.4, but orchestrator verifies final output)
+7. `/manage-refs` (Workflow A pandoc citeproc, or B Zotero CWYW) → reads `manuscript/manuscript.md` + `manuscript/_src/refs.bib` → `manuscript/manuscript_final.docx` + `qc/xref_audit.json`. Submission gate: `check_xref.py --strict` must pass (no MISSING_DOCX / MISSING_BODY / MISMATCH).
 
 ### Post-Skill Validation
 
@@ -231,13 +284,63 @@ After each skill completes, verify that expected output files exist. If validati
 | `/make-figures` | `analysis/figures/_figure_manifest.md` with at least 1 entry | Parse manifest, verify listed files exist |
 | `/write-paper` | `manuscript/manuscript.md` (required), `manuscript/manuscript_final.docx` (required in --e2e) | Check file existence and non-empty |
 | `/check-reporting` | `qc/reporting_checklist.md` or inline report | Check file existence |
-| `/verify-refs` | `qc/reference_audit.json` (sole output) | Parse JSON; halt if `FABRICATED` or `MISMATCH` count > 0 (from `records[]`) |
+| `/verify-refs` | `qc/reference_audit.json` (sole output) | Parse JSON; halt if `submission_safe == false` (i.e., `FABRICATED` / `MISMATCH` count > 0 OR `duplicate_findings[]` nonempty) |
 | `/self-review` | Review report with JSON block (when --json) | Check JSON block is parseable |
+| `/manage-refs` | `manuscript/manuscript_final.docx`, `qc/xref_audit.json` | DOCX exists and non-empty; xref_audit.json has `submission_safe: true` (no P0 blocker rows) |
+| `/lit-sync` | `manuscript/_src/refs.bib` (mtime updated), `references/zotero_collection.json` | refs.bib mtime newer than collection snapshot; `refs_bib_refreshed: true` in collection JSON |
 
 **On validation failure:**
 - Log the failure: which skill, which output was missing, any error messages.
 - In `--e2e` mode: report the error in `qc/_pipeline_log.md` and STOP. Do not proceed to the next skill. Output: "Pipeline halted at {skill}: {missing output}. Check the skill's output and re-run."
 - In interactive mode: report the error and ask the user how to proceed.
+
+### REPORT.md Generation
+
+At the termination of every `--e2e` invocation — whether the pipeline completed,
+halted at pre-flight, or halted on post-skill validation — the Worker MUST write
+`manuscript/<id>/REPORT.md` using the template at
+`${SKILL_DIR}/references/report_template.md`.
+
+Rules:
+
+- Copy all 11 sections from the template verbatim. Never delete a section. Empty
+  fields are filled with `(none)` or `(unknown)` — never omitted, never collapsed.
+- The §"Pipeline log" entry is a 5-line summary of `qc/_pipeline_log.md` (Dialogue
+  node defaults applied, skill invocations, halt reason if any) — not a paste of
+  the full log.
+- The §"Tier-3 차단 항목" hook-vs-prompt-guard split is mandatory — see
+  §"Tier-3 Worker Guard" below.
+- The §"Next safe command" line is the literal command the user can copy to
+  resume the next phase. Do not editorialize.
+- REPORT.md is the single artifact the user reviews; every other QC output is
+  linked from it.
+
+### Tier-3 Worker Guard
+
+The following actions are permanently forbidden inside `--e2e` autonomous flow.
+On detection, the Worker halts the pipeline and records the attempt under
+REPORT.md §"Tier-3 차단 항목" as `tier3_pending: <command>`. Hook-confirmed
+blocks and prompt-only blocks are listed separately so a future hook regression
+cannot silently re-open a prompt-only block.
+
+**Hook-confirmed (`~/.claude/hooks/tier3-confirm.sh` enforces)**:
+- `gws gmail +send` / `+reply`
+- YouTube upload
+
+**Prompt / skill guard only (no hook coverage — Worker prompt enforces)**:
+- `git push`, `gh pr create`
+- MCP Gmail send, MCP Calendar send
+- MCP GitHub create-pr
+- `/sync-submission build` external publication paths
+- Phase 8 submission DOCX auto-build / journal submission
+- Senior mentor automatic email reply
+
+`git commit` is allowed; a subsequent `git push` attempt halts. Circulation
+emails are written via `gws-draft.py` to a Gmail Draft only — never sent.
+
+Phase 8 (Post-E2E Journal Selection & Submission Prep, see §"Post-E2E" below)
+is explicitly outside `--e2e` and requires explicit user invocation. The Tier-3
+guard reinforces that boundary.
 
 ### Data Flow Contract
 
@@ -247,10 +350,17 @@ After each skill completes, verify that expected output files exist. If validati
 | fulltext-retrieval | DOI list (CSV/text) | `pdfs/*.pdf`, retrieval report |
 | analyze-stats | raw data (CSV/Excel) | analysis/tables/*.csv, analysis/figures/*, `analysis/_analysis_outputs.md` |
 | make-figures | `analysis/_analysis_outputs.md`, data files | analysis/figures/*.pdf, analysis/figures/*.png, `analysis/figures/_figure_manifest.md` |
-| write-paper | analysis/figures/, analysis/tables/, manifests, journal profile | manuscript/manuscript.md, manuscript/manuscript_final.docx, manuscript/title_page.md |
+| write-paper | analysis/figures/, analysis/tables/, manifests, journal profile | manuscript/manuscript.md, manuscript/title_page.md (DOCX rendering now delegated to manage-refs) |
 | check-reporting | manuscript/manuscript.md | qc/reporting_checklist.md |
 | verify-refs | manuscript/manuscript.md or a bib input | qc/reference_audit.json (sole writer; see skills/verify-refs/SKILL.md §Output Contract) |
 | self-review | manuscript/manuscript.md | qc/self_review.md (with JSON block) |
+| lit-sync | Zotero collection (live), `manuscript/_src/refs.bib` (Better BibTeX auto-export) | `manuscript/_src/refs.bib` (refreshed), `references/zotero_collection.json`, Obsidian literature notes (sole writer of refs.bib) |
+| manage-refs | manuscript/manuscript.md, manuscript/_src/refs.bib, n_to_zotero_key map (optional) | manuscript/manuscript_final.docx (or _cwyw.docx), qc/xref_audit.json (sole writer) |
+| render-pdf-doc | non-bib markdown (proposal/briefing/anchor doc/IRB cover) | PDF (same dir, same stem) |
+| fill-protocol | content markdown + institutional Word template (.doc/.docx) | filled `*.docx` preserving original styles, table layouts, fonts, geometry |
+| fill-icmje-coi | author roster (JSON), seed `coi_disclosure.docx` (synthetic shipped) | per-author `coi_disclosure_{author}.docx` (Date, Name, Manuscript Title replaced) |
+| sync-submission | manuscript/, qc/ artifacts, journal profile | submission/{journal}/manifest.md, drift report |
+| peer-review | external manuscript (.docx/.pdf), journal scope | review draft (review.md) following the medical imaging peer-review guideline |
 
 ### Rules
 1. After each skill completes, run post-skill validation before proceeding.

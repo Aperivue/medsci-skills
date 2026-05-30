@@ -1,0 +1,36 @@
+{
+  "@context": "https://schema.org",
+  "@type": "Dataset",
+  "name": "<dataset name>",
+  "description": "<dataset description: modality, n cases, anatomy, task>",
+  "url": "https://doi.org/10.5281/zenodo.<id>",
+  "identifier": "10.5281/zenodo.<id>",
+  "license": "https://creativecommons.org/licenses/by/4.0/",
+  "creator": [
+    {
+      "@type": "Person",
+      "name": "<First Last>",
+      "identifier": "https://orcid.org/0000-0000-0000-0000"
+    }
+  ],
+  "datePublished": "YYYY-MM-DD",
+  "isPartOf": {
+    "@type": "ScholarlyArticle",
+    "@id": "https://doi.org/10.xxxx/yyyy"
+  },
+  "variableMeasured": [
+    {"@type": "PropertyValue", "name": "<measurement 1, e.g., AUC>"},
+    {"@type": "PropertyValue", "name": "<measurement 2, e.g., sensitivity>"}
+  ],
+  "distribution": {
+    "@type": "DataDownload",
+    "encodingFormat": "application/zip",
+    "contentUrl": "<direct download URL>",
+    "contentSize": "<bytes>"
+  },
+  "keywords": ["<task>", "<modality>", "<anatomy>", "<dataset family>"],
+  "spatialCoverage": "<country/region of provenance>",
+  "temporalCoverage": "YYYY/YYYY",
+  "citation": "<APA or Vancouver citation of the parent paper>",
+  "isAccessibleForFree": true
+}

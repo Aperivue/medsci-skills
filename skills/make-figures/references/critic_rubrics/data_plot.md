@@ -108,6 +108,37 @@ list to the user.
 20. **Annotation style** — placement of summary statistics, N labels,
     p-values consistent with exemplars.
 
+## G. Medical AI / prediction-model checks (added v1.1.0)
+
+Apply when the figure supports a prediction-model or medical-AI claim
+(TRIPOD+AI, CLAIM 2024, STARD-AI, CONSORT-AI). Source:
+`reporting_guideline_figure_map.md` "AI-specific figures most often
+missing."
+
+21. **Calibration plot accompanies discrimination** — when the manuscript
+    reports AUC/c-statistic, a calibration plot is also presented (or the
+    figure is paired with one). TRIPOD+AI mandates calibration; AUC alone
+    is insufficient evidence of model fitness.
+22. **Subgroup / fairness panel** — when the deployment claim covers
+    multiple demographic groups, sites, or scanner vendors, performance
+    is shown stratified by at least one such axis. CLAIM 2024 §C and
+    TRIPOD+AI both require this.
+23. **Colorblind-safe + redundant encoding** — color carrying diagnostic
+    meaning is paired with at least one non-color cue (line style, marker
+    shape, or direct label) so the figure survives deuteranopia
+    simulation and grayscale conversion. (Crameri 2024.) Stronger than
+    the existing item D.13.
+24. **Dataset-flow visible** — for AI papers reporting performance on a
+    test set, the manuscript also includes a dataset-flow diagram with
+    counts at training / tuning / internal-test / external-test splits.
+    Required by STARD-AI, CLAIM 2024, TRIPOD+AI. If the figure under
+    review is not the dataset-flow itself, confirm one exists elsewhere
+    in the manuscript.
+25. **Decision-curve analysis (when claiming clinical utility)** — papers
+    that argue "this model would change clinical management" must
+    accompany discrimination/calibration with a decision-curve plot
+    (Vickers & Elkin, *Med Decis Making* 2006). Recommended by TRIPOD+AI.
+
 ---
 
 ## Scoring output format

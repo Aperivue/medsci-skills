@@ -185,9 +185,10 @@ PRISMA-P. Triggers when Item 16a (flow diagram) is PRESENT.
 
 **Why this step exists:** the flow diagram is a single checklist item and can pass Step 4
 visually while still containing arithmetic errors (records screened ≠ identified − duplicates;
-sought-for-retrieval ≠ screened − excluded) or text↔figure number disagreements. KKW
-v3 회람 (2026-04-26) 코멘트 K-4/K-C6: "PRISMA 2020 표준 다이아그램 + flow와 number 확인 필수".
-Reviewer가 발견하면 즉시 신뢰도 손실.
+sought-for-retrieval ≠ screened − excluded) or text↔figure number disagreements. Senior
+MA reviewers commonly require strict PRISMA 2020 diagram conformance and explicit body↔
+figure number agreement; reviewers who detect these mismatches lose confidence in the
+study's data integrity immediately.
 
 **Four arithmetic checks:**
 1. records screened = records identified − duplicates removed
@@ -207,9 +208,16 @@ Reviewer가 발견하면 즉시 신뢰도 손실.
 2. Extract numbers from Figure 1 source — preferred order: (a) `analysis/figures/Figure1_PRISMA.md`
    markdown manifest, (b) caption text in `manuscript.md`, (c) PPTX text run if `.pptx`
    exists, (d) manual entry from PNG/SVG.
-3. Run 4 arithmetic checks; emit PRESENT / MISSING / MISMATCH per equation.
-4. Run 2 cross-reference checks; emit PRESENT / MISSING / MISMATCH per number.
-5. Output `qc/prisma_figure_audit.json` and a short table.
+3. **Cross-check `analysis/figures/_figure_manifest.md`** (produced by `/make-figures`):
+   verify that the row whose `Type = prisma` (or `Type = prisma-dta`) points at the same
+   file path used as the audit source, and that the row's `Critic` field is `yes` or
+   `partial` (not `no`). A missing manifest row, mismatched path, or `Critic = no` flag
+   logs `[MANIFEST-XREF]` (advisory) — the arithmetic check still runs against the source
+   identified in step 2. Skip this sub-step if `_figure_manifest.md` does not exist (older
+   projects).
+4. Run 4 arithmetic checks; emit PRESENT / MISSING / MISMATCH per equation.
+5. Run 2 cross-reference checks; emit PRESENT / MISSING / MISMATCH per number.
+6. Output `qc/prisma_figure_audit.json` and a short table.
 
 **Flagging:** any MISMATCH or arithmetic failure logs a Part C Action Item with label
 `[PRISMA-FIGURE]`. `fixable_by_ai: false` (numbers must be reconciled by the author).
@@ -365,6 +373,36 @@ These items are frequently missing in medical manuscripts:
 
 ---
 
+## PRISMA Cascade Arithmetic Auto-Verify
+
+PRISMA 2020 flow diagrams chain a cascade of subtractions (database
+records → after dedup → title/abstract screened → full-text reviewed →
+included in synthesis). Off-by-one errors in the prose cascade are a
+high-frequency reviewer red flag (e.g., `151 + 108 + 39 + 1 + 1 + 4 =
+304` followed by a prose summary "305" four lines later).
+
+When PRISMA 2020 or PRISMA-DTA is selected and round-by-round
+screening TSV artifacts are available, run the cascade auto-verify:
+
+```bash
+python "${CLAUDE_SKILL_DIR}/scripts/prisma_cascade_check.py" \
+    --round1 2_Screening/round1.tsv \
+    --round2 2_Screening/round2.tsv \
+    --round3 2_Screening/round3_adjudication.tsv \
+    --manuscript manuscript.md \
+    --out qc/prisma_cascade.json
+```
+
+The script:
+1. Reads the round TSVs and counts `INCLUDE` / `EXCLUDE` / `MAYBE`
+   decisions per round.
+2. Computes the cascade arithmetic from raw decisions (no prose).
+3. Optionally grep the manuscript for matching stage-count claims and
+   emits per-stage drift when the prose disagrees.
+
+Treat any `manuscript_drift` entry as a P0 blocker — fix the prose to
+match the computed cascade and re-run.
+
 ## Submission Checklist Export
 
 Many journals require a filled reporting checklist to be submitted alongside the manuscript.
@@ -417,3 +455,14 @@ Page numbers should be filled in by the user after final formatting. Use section
 - **Never invent clinical definitions, diagnostic criteria, or guideline recommendations.** If uncertain, flag with `[VERIFY]` and ask the user.
 - **Never fabricate numerical results** — compliance percentages, scores, effect sizes, or sample sizes must come from actual data or analysis output.
 - If a reporting guideline item, journal policy, or clinical standard is uncertain, state the uncertainty rather than guessing.
+
+---
+
+## Gates
+
+| Gate | Severity | Trigger | Action on fail |
+|---|---|---|---|
+| Mandatory items present | ENFORCED at submission | < 100% of guideline-mandatory items marked PRESENT | Auto-fix MISSING items where text exists; otherwise route to `/write-paper` Phase 7 for re-draft |
+| Step 4d PRISMA Figure 1 arithmetic & cross-reference audit (PRISMA / PRISMA-DTA only) | ENFORCED for SR/MA | flow numbers don't sum (e.g., screened ≠ included + excluded), or in-text counts mismatch flow diagram | HALT; reconcile against extraction artifacts |
+| Optional items (e.g., supplementary AI declarations) | ADVISORY | < 80% of optional items present | warn; user accepts |
+| Cross-reporting-guideline routing (study type → guideline) | ENFORCED | study type undeclared or guideline missing | Ask user; do not silently default |

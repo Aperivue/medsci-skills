@@ -1,7 +1,7 @@
 ---
 name: make-figures
 description: Generate publication-ready figures and visual abstracts for medical research papers. Supports ROC curves, forest plots, CONSORT/STARD/PRISMA flow diagrams, calibration plots, Kaplan-Meier curves, Bland-Altman plots, confusion matrices, pipeline diagrams, and journal-specific visual/graphical abstracts (python-pptx template-based).
-triggers: figure, plot, graph, diagram, ROC curve, forest plot, flow diagram, CONSORT diagram, PRISMA flow, visualization, chart, visual abstract, graphical abstract
+triggers: figure, plot, graph, diagram, ROC curve, forest plot, flow diagram, CONSORT diagram, PRISMA flow, visualization, chart, visual abstract, graphical abstract, key message, figure design, figure planning, effective figure, cognitive load
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit
 ---
@@ -48,6 +48,9 @@ Read `figure_specs.md` before generating any figure to confirm journal-specific 
 ---
 
 ## Journal AI-Image Policies (CRITICAL — check BEFORE generation)
+
+> Synced with the user's global rule `~/.claude/rules/journal-ai-image-policies.md`. The table below is the local copy used during autonomous workflow; the global rule is authoritative when conflicts arise.
+
 
 | Journal family | Policy on AI-generated images | Disclosure required |
 |---|---|---|
@@ -205,7 +208,7 @@ Full guidance and validation thresholds: `${CLAUDE_SKILL_DIR}/references/jacc_ce
 python ${CLAUDE_SKILL_DIR}/scripts/generate_visual_abstract.py \
   --type central-illustration \
   --visual figures/central_illustration_v2.png \
-  --citation "Nam Y et al. JACC: Asia 2026; vol(issue):pages." \
+  --citation "FirstAuthor Last et al. Journal Name 2026; vol(issue):pages." \
   --output submission/jacc_asia/central_illustration.pptx \
   --ci-zones 3 --ci-label-words 22 --ci-numerical-points 2 \
   --ci-raw-text "warranty drops to 3 years in age 45+ with cardiometabolic burden; MASLD HR 1.77"
@@ -220,6 +223,26 @@ The JACC submission PPTX is a 10×7.5 in slide with 4 placeholders (citation tex
 ## Workflow
 
 ### Step 1: Specify
+
+**Before specifying figure type, read `${CLAUDE_SKILL_DIR}/references/design_principles.md`** —
+identify (1) the one-sentence key message, (2) audience and reading-time budget, and
+(3) whether a figure is the right vehicle (vs a small table or in-line text). The
+five strategies in that file shift Step 1 from "which chart fits the data" to
+"what should the reader remember 10 seconds later." Skip only when the figure
+is mandated by a reporting guideline (e.g., PRISMA / CONSORT flow), and even
+then apply the cognitive-load checklist.
+
+**For reporting-guideline figures**, also load
+`${CLAUDE_SKILL_DIR}/references/reporting_guideline_figure_map.md` — the
+14-row table tells you which guideline mandates which figures and whether
+this skill ships an official template (✅), generic flow only (⚠️), or
+needs manual production (❌). Critical for AI-extension guidelines
+(CONSORT-AI, STARD-AI, TRIPOD+AI, CLAIM 2024, DECIDE-AI).
+
+**For medical AI / engineering pipeline figures** (DICOM workflow,
+annotation pipeline, federated learning topology, model architecture),
+also load `${CLAUDE_SKILL_DIR}/references/pipeline_concepts_medical_ai.md` —
+canonical layouts, required annotations, and tool selection per type.
 
 **Optional flags:**
 - `--study-type <type>`: One of: `diagnostic-accuracy`, `ai-validation`, `meta-analysis`, `dta-meta-analysis`, `observational-cohort`, `rct`. When set, auto-generate the full figure set from the Study-Type Figure Sets table below without prompting for individual figure types.
@@ -315,7 +338,23 @@ This produces a JSON report covering:
 1. Use the Read tool to load the generated PNG.
 2. Read the corresponding rubric file:
    - Flow diagrams: `${CLAUDE_SKILL_DIR}/references/critic_rubrics/flow_diagram.md`
+     (sections A–G; section G adds cognitive-load and template-fidelity checks)
    - Data plots:    `${CLAUDE_SKILL_DIR}/references/critic_rubrics/data_plot.md`
+     (sections A–G; section G adds calibration / fairness / colorblind+redundant /
+     dataset-flow / decision-curve checks for medical AI papers)
+   - For PRISMA / CONSORT / STARD / STROBE specifically, also read
+     `${CLAUDE_SKILL_DIR}/references/flow_diagram_lessons.md` — five
+     production lessons covering official-template fidelity, PDF export
+     fidelity (VML fallback), docx XML escape, sequential placeholder
+     mapping, and frozen-version sync with the manuscript.
+   - For AI-extension guidelines (CONSORT-AI, STARD-AI, TRIPOD+AI,
+     CLAIM 2024, DECIDE-AI), also read
+     `${CLAUDE_SKILL_DIR}/references/reporting_guideline_figure_map.md` —
+     the row for the target guideline lists mandatory figures and which
+     ones this skill cannot template (production path documented per
+     row).
+   - For medical-AI pipeline / DICOM / federated / architecture figures,
+     also read `${CLAUDE_SKILL_DIR}/references/pipeline_concepts_medical_ai.md`.
 3. If exemplars exist in `${CLAUDE_SKILL_DIR}/references/exemplar_diagrams/{type}/`,
    Read 1–3 of them plus their `_why.md` notes.
 4. Score every rubric item as PASS / PARTIAL / FAIL with a one-line note,
@@ -346,6 +385,24 @@ Save final outputs:
 - **TIFF** (if the journal requires it, 300 DPI LZW compression)
 
 Name files descriptively: `fig1_roc_curve.pdf`, `fig2_consort_flow.pdf`, etc.
+
+**For PPTX outputs (visual abstract, central illustration, or any deck the figure
+will live in)**: run the Mac-compatibility validator before delivery. PowerPoint
+Mac silently drops TIFF, renders `<a:sp3d>` 3-D bevels as red outlines that PDF
+export does not show, and refuses to open files whose `app.xml` slide count
+disagrees with the actual slide XML files. This script catches all four classes
+of defect codified in `~/.claude/rules/pptx-mac-compatibility.md`:
+
+```bash
+python ${CLAUDE_SKILL_DIR}/scripts/validate_pptx_mac_compat.py \
+    figures/visual_abstract.pptx \
+    --json figures/visual_abstract.mac_compat.json \
+    --strict
+```
+
+Exit code 1 means at least one FAIL — fix per the `fix:` field in the JSON
+report and re-render the PPTX before delivery. Exit code 0 with WARN is
+acceptable. Skip this step when the figure is PNG/PDF only (no PPTX).
 
 ### Step 6: Design QC Checklist
 
@@ -442,17 +499,17 @@ Rscript ${CLAUDE_SKILL_DIR}/scripts/generate_flow_diagram.R \
 - Penwidth 1.2 default, 1.8 for highlighted cohort box.
 - Arrow style: black solid, arrowsize 0.75. Dashed without arrowhead for exclusion side-links.
 - Bullet alignment in multi-item labels: Graphviz `\l` (left-align), never `\n` (center). Each `\l` applies to text preceding it.
-- **No HTML-like labels** (`label=<...>` with `<B>`, `<I>`, `&#8226;`). Rejected 2026-04-20 in MA-01 RFA retrofit — "오히려 구조가 깨저버렸어. 그냥 이전버전으로 하자." Plain quoted labels with `\l` bullets produce tighter, more readable structure than HTML ragged wrapping. Do not reintroduce without explicit approval.
+- **No HTML-like labels** (`label=<...>` with `<B>`, `<I>`, `&#8226;`). Plain quoted labels with `\l` bullets produce tighter, more readable structure than HTML ragged wrapping. Do not reintroduce without explicit approval.
 - To add one emphasis color (e.g., Wong blue `#0072B2` for a single highlighted box), edit `scripts/generate_flow_diagram.R` — do not inline hex colors in YAML.
 
 **Per-project `create_figure1.R` pattern (preferred for complex flows):**
 
-When the flow has derived counts, `stopifnot()` reconciliation, multi-rank `{rank=same; ... }` constraints, or exclusion side-cars that the generic YAML dispatcher cannot express cleanly, write a per-project `create_figure1.R` directly (same DiagrammeR + DiagrammeRsvg + rsvg stack, sprintf'd `dot` string). This is the dominant pattern across 9 retrofitted manuscripts (2026-04-20~21):
+When the flow has derived counts, `stopifnot()` reconciliation, multi-rank `{rank=same; ... }` constraints, or exclusion side-cars that the generic YAML dispatcher cannot express cleanly, write a per-project `create_figure1.R` directly (same DiagrammeR + DiagrammeRsvg + rsvg stack, sprintf'd `dot` string). This is the dominant pattern when the generic YAML dispatcher cannot capture the flow:
 
-- STROBE cohort: `1_Samsung_Changwon/11_CheckUP_DB/{05_Emphysema_COPD_Mortality,01_CAC_Warranty_Period}/manuscript/figures/create_figure1.R`
-- STARD: `0_MI2RL/10_CXRscoliosis/Analysis/figures/create_figure1.R`, `0_MI2RL/0_SkullFx/Paper2_Clinical/figures/create_figure1.R`, `5_Personal_Research/MeducAI/7_Manuscript/Paper1/figures/v2_monochrome/create_figure1.R`
-- PRISMA / PRISMA-DTA: `10_Meta_Analysis/{01_RFA_Adjunct/5_Figures/v3,02_CBCT_Biopsy/5_Figures,21_Aneurysm_AI_Validation_SR_Paper1_FD/analysis}/create_figure1.R`
-- CONSORT-edu (naturalistic allocation): `5_Personal_Research/MeducAI/7_Manuscript/Paper3/figures/v2_monochrome/create_figure1.R`
+- STROBE cohort: `<project>/manuscript/figures/create_figure1.R`
+- STARD: `<project>/Analysis/figures/create_figure1.R` or `<project>/figures/v2_monochrome/create_figure1.R`
+- PRISMA / PRISMA-DTA: `<project>/5_Figures/create_figure1.R` or `<project>/analysis/create_figure1.R`
+- CONSORT-edu (naturalistic allocation): `<project>/figures/v2_monochrome/create_figure1.R`
 
 Copy the `STYLE_HEADER` (graph/node/edge attrs) verbatim from any exemplar; then customise nodes, edges, and `{rank=same}` blocks. Use `read.csv()` for cohort counts when possible; if hardcoded, every number must have a source comment referencing manuscript line / CSV cell / screening log row.
 
@@ -514,6 +571,7 @@ the auto-laid-out R version), use the bundled official files in
 | Guideline | What ships | When to use |
 |-----------|-----------|-------------|
 | PRISMA 2020 | Locally built `.pptx` (4 variants) + `fill_prisma_template.py` | Reviewer asks for the official PRISMA 2020 layout, or you want editable PowerPoint instead of an R-rendered PDF. |
+| STROBE (cohort) | Parametric `.pptx` builder `build_strobe_template.py` (single-script, takes YAML config) | Cohort/case-control study Figure 1 when co-authors want PowerPoint they can hand-edit. Auto-fits text, content-fits slide, dashed-border exclusion side-branches with strictly-horizontal connectors. Optional left-side phase column (omit `stages:` for the plain STROBE convention; include it for the PRISMA-style Identification/Screening/Inclusion/Analysis column). Pair with `generate_flow_diagram.R --type strobe` for the vector PDF/TIFF submission file. |
 | CONSORT 2025 | Official `.docx` flow diagram + checklist | RCT submissions to journals that mandate the consort-spirit.org template. |
 | STARD 2015 | Official `.pdf` flow diagram + `.docx` checklist | Diagnostic accuracy studies; flow diagram is fixed PDF, checklist is editable. |
 | SPIRIT 2025 | Official `.docx` participant timeline + checklist | Trial protocols. |
@@ -542,7 +600,21 @@ python3 ${CLAUDE_SKILL_DIR}/scripts/fill_prisma_template.py \
     --template ${CLAUDE_SKILL_DIR}/templates/official/prisma2020/PRISMA_2020_flow_new_v1.pptx \
     --counts-file my_counts.json \
     --out fig1_prisma_filled.pptx
+
+# STROBE — parametric single-script builder (cohort study; spine structure varies per study).
+# YAML schema: stages, spine (id/stage/text), exclusions (after/text). Consecutive same-stage
+# rows share one phase label automatically. Stage box fills auto-pick readable text color.
+python3 ${CLAUDE_SKILL_DIR}/scripts/build_strobe_template.py \
+    --config figures/figure1_strobe.yaml \
+    --out    figures/figure1_strobe.pptx
 ```
+
+For STROBE the canonical KJR/Radiology/BMJ submission flow is:
+
+1. Render the vector submission file via the auto-fitting Graphviz path:
+   `Rscript ${CLAUDE_SKILL_DIR}/scripts/generate_flow_diagram.R --type strobe --config figures/figure1_strobe_graphviz.yaml --out figures/figure1`
+2. Build the editable PowerPoint companion via `build_strobe_template.py` so co-authors and senior reviewers can adjust prose/positioning before sign-off.
+3. Re-export the final PPTX to PDF/TIFF only after co-author edits are integrated.
 
 See `templates/official/NOTES.md` for licenses, attribution, and refresh notes.
 

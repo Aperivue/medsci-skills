@@ -6,23 +6,25 @@
 - **Abbreviation**: Liver Int
 - **Publisher**: John Wiley & Sons
 - **ISSN**: 1478-3223 (print), 1478-3231 (online)
-- **Frequency**: [TODO: verify at journal site] (Continuous Publication model)
-- **Impact Factor**: [TODO: verify at JCR]
-- **Open Access**: Hybrid (standard copyright OR Creative Commons under OA fee; APC applies when OA chosen)
-- **Acceptance rate**: [TODO: verify at journal site]
-- **Peer review**: Single-blind; 2 independent reviewers plus Editors; early rejection without external review permitted; Publons linkage available (opt-out during submission)
+- **Frequency**: Continuous Publication (no issue pagination; articles published as ready with final citation)
+- **Impact Factor**: [VERIFY at JCR — Q1 hepatology consistent]
+- **Open Access**: Hybrid (standard copyright OR Creative Commons under OA fee; APC applies when OA chosen). >9 published pages = GBP 100/page (excess), unless fully OA.
+- **Acceptance rate**: [VERIFY at journal site]
+- **Peer review**: Single-blind; 2 independent reviewers plus Editors; early rejection without external review permitted; Peer Review Transparency pilot via Publons (opt-out during submission)
+- **Verification date**: 2026-05-21 (against Wiley Liver International Author Guidelines PDF)
 
 ## Manuscript Types and Word Limits
 
 | Type | Body Word Limit | Abstract | References | Figures/Tables |
 |------|----------------|----------|------------|----------------|
 | Original Article | 5,000 (incl. title page, abstract, lay summary, main text; excl. refs/figs/tables/legends) | 250 words **structured** (Background & Aims, Methods, Results, Conclusions) | 50 | 8 (max 6 panels each) |
-| Systematic Review / Meta-Analysis | [TODO: verify body limit] | [TODO: verify] | 50 | 4 |
+| Systematic Review / Meta-Analysis | 6,000 (incl. title page, abstract, key points, main text; excl. refs/figs/tables) | 250 **structured** (same headings as Original) | 50 | 4 (Key Points box mandatory, ≤5 bullets ≤100w) |
 | Brief Definitive Report | 3,000 (incl. title page, abstract, main text, refs) | 150 unstructured | 20 | 2 |
-| Review Article | 5,000 recommended, 6,000 upper limit | 250 unstructured | 150 | [TODO: verify — Key Points mandatory] |
+| Review Article | 5,000 recommended / 6,000 upper limit (incl. title page, abstract, key points, main text; excl. refs/figs/tables) | 250 unstructured | 150 | Tables/figures encouraged; **Key Points box mandatory** (≤5 bullets ≤100w) |
+| Mini-Review | 4,000 (incl. title page, unstructured abstract, key points, main text; excl. refs/fig legends/tables) | 250 unstructured | 30 | 2 (Key Points box mandatory ≤5 bullets ≤100w) |
 | Research Letter | 1,500 | None | 10 | 2 (max 10 authors) |
-| Editorial | 1,500 | None | 20 | 1 |
-| Letter to the Editor | [TODO: verify] | None | [TODO: verify] | [TODO: verify] |
+| Editorial | 1,500 | None | 20 | 1 (highly recommended) |
+| Letter to the Editor | 400 (main text only; about a paper published in Liver Int within 6 months) | None | 5 | 1 (max 4 authors; case reports auto-rejected) |
 | Liver International Images | 250 (short description) | — | 5 | — (max 4 authors) |
 
 **Lay Summary**: 2–3 sentences in plain English, mandatory on revised manuscripts (encouraged at initial submission) for Original Articles.
@@ -89,8 +91,7 @@ Clinical trial registration is **mandatory** — unregistered trials are not acc
 - Statistical measures (SD, SEM) must be identified in table headings
 - Footnote symbols in tables: †, ‡, §, ¶ (in that order); *, **, *** reserved for P-values
 - Descriptive research or methodology papers without clinical/translational relevance are not considered — statistical analyses must serve a clinical or mechanistic question
-- [TODO: verify at journal site] Specific p-value format (significant figures, threshold).
-- Default — until verified: report exact p-values to 2–3 significant figures; use p<0.001 below that threshold; 95% CI for primary outcomes; state statistical software and version
+- P-value format not explicitly specified in AGL; default convention applies — report exact P-values to 2–3 significant figures; use P<0.001 below that threshold; 95% CI for primary outcomes; state statistical software and version
 
 ---
 
@@ -132,9 +133,9 @@ Cover letter is **required** with all submissions. Should include:
 
 - **Requirement level:** Required — Liver International follows Wiley's AI policy, which implements ICMJE guidance (the Author Guidelines PDF does not contain a dedicated AI section; publisher-wide policy applies)
 - **Permitted scope:** Disclosure of all generative AI and AI-assisted technologies used in manuscript preparation. AI tools cannot be listed as authors. Basic grammar/spelling/reference tools are exempt.
-- **Disclosure location:** **Methods** (if AI was used in study/data-analysis pipeline) or **Acknowledgements** (if AI was used in drafting/editing). Specify software name, version, developer, and scope of use. [VERIFY at Wiley's current AI policy]
-- **AI-generated images:** Not specified in the journal's author guidelines; Wiley publisher policy applies. [VERIFY]
-- **Policy URL:** https://authorservices.wiley.com/author-resources/Journal-Authors/open-access/ethics/index.html (Wiley publisher-wide policy; verify at journal homepage for any journal-specific amendments)
+- **Disclosure location:** **Methods** (if AI was used in study/data-analysis pipeline) or **Acknowledgements** (if AI was used in drafting/editing). Specify software name, version, developer, and scope of use. (Wiley publisher-wide ICMJE policy applies; AGL itself silent on AI specifics.)
+- **AI-generated images:** Not specified in the journal's author guidelines; Wiley publisher policy applies (treat as restricted unless explicit permission obtained).
+- **Policy URL:** https://authors.wiley.com/author-resources/Journal-Authors/open-access/ethics/index.html (Wiley publisher-wide; redirected from authorservices.wiley.com per 2026-05-21 fetch)
 
 ---
 

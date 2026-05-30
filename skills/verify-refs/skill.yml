@@ -1,13 +1,21 @@
-schema_version: 1
+schema_version: 2
 name: verify-refs
+layer: A
 owner_domain: reference_integrity
+when_to_use:
+  - Audit-only verification of manuscript references against PubMed and CrossRef
+  - Pre-submission citation hallucination check (PostToolUse hook trigger on circulation/submission docx)
+  - Detecting first-author hallucination (DOI real but author name wrong — Paper 3 ref 8 incident pattern)
+  - LLM-assisted drafting gate — `--strict` mode required when AI generated or rewrote citations
+when_NOT_to_use:
+  - Adding new references (use /search-lit + /lit-sync)
+  - Rendering references list (use /manage-refs render_pandoc.sh)
+  - Modifying refs.bib or library.bib (audit-only — never writes back)
 inputs:
   - manuscript.md
   - manuscript.docx
   - references.bib
 outputs:
-  - references/verified_references.tsv
-  - references/library.bib
   - qc/reference_audit.json
 deterministic_scripts:
   - scripts/verify_refs.py

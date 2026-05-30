@@ -1,12 +1,24 @@
-schema_version: 1
+schema_version: 2
 name: meta-analysis
+layer: B
 owner_domain: meta_analysis_integrity
+when_to_use:
+  - Running an end-to-end systematic review or meta-analysis (PROSPERO → search → screen → extract → synthesis → PRISMA)
+  - Diagnostic test accuracy meta-analysis (bivariate / HSROC) or intervention meta-analysis (random-effects)
+  - Screening reconciliation across two reviewers with Cohen's kappa and adjudication round
+  - Risk of bias batch (QUADAS-2 / ROBINS-I) tied to extraction CSV ID receipts
+  - Phase 6b post-analysis source-fidelity audit when CSV ↔ R output ↔ manuscript drift suspected
+when_NOT_to_use:
+  - Single-study analysis (use /analyze-stats)
+  - Topic discovery before a protocol exists (use /ma-scout)
+  - Reporting checklist generation only (use /check-reporting)
+  - Manuscript prose drafting after synthesis (use /write-paper)
 inputs:
   - protocol/search_strategies.md
   - screening/*.tsv
   - extraction/*.csv
 outputs:
-  - 2_Screening/screening_consensus_final.json
+  - 2_Screening/screening_consensus.json
   - analysis/meta_analysis_outputs.json
   - manuscript/manuscript.md
 deterministic_scripts:

@@ -35,10 +35,15 @@ with specialized support for diagnostic test accuracy (DTA) meta-analyses.
   - `JBI_Case_Series.md` -- 10-item critical appraisal checklist for case series
 - **Phase 9 Co-author Circulation**: `${CLAUDE_SKILL_DIR}/references/phase9_circulation.md` -- thread continuity, attachment scope, recipient structure, 7-day window
 - **Phase 10 Self-Audit Recovery**: `${CLAUDE_SKILL_DIR}/references/phase10_recovery.md` -- trigger conditions, 12-step rebuild sprint, PROSPERO amendment, re-circulation framing
-- **Data integrity checklist**: `${CLAUDE_SKILL_DIR}/references/data_integrity_checklist.md` -- DI-1~DI-9 extraction/synthesis guardrails (MA01~03 empirical)
+- **Data integrity checklist**: `${CLAUDE_SKILL_DIR}/references/data_integrity_checklist.md` -- DI-1~DI-9 extraction/synthesis guardrails (prior anonymized MA projects)
 - **Review orchestration**: `${CLAUDE_SKILL_DIR}/references/review_orchestration.md` -- RO-1~RO-5 circulation discipline (extends phase9_circulation.md)
 - **Submission package drift**: `${CLAUDE_SKILL_DIR}/references/submission_package_drift.md` -- multi-journal folder hygiene, `DO_NOT_EDIT_HERE` gate, `_build.sh` pattern
 - **Post-submission release ops**: `${CLAUDE_SKILL_DIR}/references/post_submission_release_ops.md` -- Zenodo DOI gating, tag-cleanup gates, reject-retarget versioning
+
+### Built-in Templates (`${CLAUDE_SKILL_DIR}/templates/`)
+
+- **Extraction Form v2** (`templates/extraction_form_v2.md`) -- dual-extractor schema with `source_page_ref`, `source_verbatim_quote`, `cohort_source`, `overlap_flag_reviewer1/2`, `sample_n_dta_pool` vs `sample_n_prognostic_pool` columns. Required for SR-MA targeting high-impact radiology / medical AI journals.
+- **Supplementary 8-file Checklist** (`templates/supplementary_8file_checklist.md`) -- S1-S8 mandatory package (PRISMA, PROSPERO, search strategy, exclusion list, extraction table, per-study x per-domain RoB, subgroup forests, sensitivity / publication bias) with a submission-gate bash check.
 
 ---
 
@@ -168,19 +173,19 @@ Use `/make-figures` to generate PRISMA flow diagram when numbers are finalized.
 
 #### 3f. Post-Consensus Count Reconciliation Gate (MANDATORY before Phase 5 write-up)
 
-Before handing the screening artifacts to Phase 5 (statistical synthesis) or to `/write-paper` / `/self-review`, run an explicit ID-set reconciliation and record the canonical totals in a single source-of-truth file (typically `2_Screening/screening_consensus_final.md` §Net Impact or equivalent):
+Before handing the screening artifacts to Phase 5 (statistical synthesis) or to `/write-paper` / `/self-review`, run an explicit ID-set reconciliation and record the canonical totals in a single source-of-truth file (typically `2_Screening/screening_consensus.md` §Net Impact or equivalent):
 
 Use the deterministic helper when TSV/CSV artifacts are available:
 
 ```bash
 python "${CLAUDE_SKILL_DIR}/scripts/screening_reconcile.py" \
-  --screening 2_Screening/fulltext_screening_final.tsv \
+  --screening 2_Screening/fulltext_screening.tsv \
   --consensus 2_Screening/consensus_decisions.tsv \
   --table1 6_Tables/table1_studies.csv \
-  --output 2_Screening/screening_consensus_final.json
+  --output 2_Screening/screening_consensus.json
 ```
 
-Downstream stages should consume `screening_consensus_final.json` for counts and
+Downstream stages should consume `screening_consensus.json` for counts and
 ID sets. The Markdown consensus document remains the human explanation.
 
 1. **Enumerate ID sets from raw artifacts (not from prose summaries):**
@@ -209,13 +214,98 @@ ID sets. The Markdown consensus document remains the human explanation.
    | k_bivariate | ... | ... | |T| |
    | k_narrative-only | ... | ... (explicit IDs listed) | (A ∪ C) \ B \ T |
 
-**Precedent incident (CBCT Biopsy MA-1, 2026-04-20):** v11 manuscript shipped with k_qualitative = 32 / k_narrative-only = 10 / k_FT-excluded = 46. ID-set reconciliation (only performed after Codex adversarial audit at post-Stage 4 QC) revealed true counts 24/2/54. The prose "30 → 32 after FLAG consensus" had been carried from v7 without ever being reconciled against `fulltext_screening_final.tsv` ∩ `MA1_Consensus_Sheet.xlsx`; four downstream artifacts echoed the same wrong total. This gate would have caught the drift at Phase 5 hand-off.
+**Precedent incident (a PRISMA-DTA meta-analysis revision):** a late-revision manuscript shipped with k_qualitative = 32 / k_narrative-only = 10 / k_FT-excluded = 46. ID-set reconciliation (performed only after an adversarial audit at post-Stage 4 QC) revealed true counts 24/2/54. An early-draft prose total ("30 → 32 after FLAG consensus") had been carried forward without ever being reconciled against the screening TSV intersected with the consensus spreadsheet; four downstream artifacts echoed the same wrong total. This gate would have caught the drift at the Phase 5 hand-off.
+
+#### 3f.5 Pool composition lock (MANDATORY at adjudication freeze)
+
+After Phase 3f reconciliation passes, freeze the pool composition into a
+single source-of-truth YAML so every downstream artifact (extraction TSV,
+manuscript prose counts, PRISMA flow caption, supplementary INDEX, cover
+letter free-text) can be checked against it.
+
+Why this lock exists
+^^^^^^^^^^^^^^^^^^^^
+
+Cross-project precedent (anonymized): an LLM reporting-quality SR carried
+five documents that disagreed on INCLUDE (63 vs 64) and EXCLUDE
+(108/109/111). Three EXCLUDE rows existed in the extraction sheet without
+matching INCLUDE. The drift traced to a late round-3 adjudication whose
+result was applied to some artifacts and not others — there was no single
+canonical post-freeze count to reference.
+
+How to lock
+^^^^^^^^^^^
+
+1. Copy the template:
+   ```bash
+   cp "${CLAUDE_SKILL_DIR}/templates/FINAL_POOL_LOCK.yaml.template" \
+       2_Data/FINAL_POOL_LOCK.yaml
+   ```
+2. Fill in counts and UID lists from the reconciliation in Phase 3f.
+3. Compute the SHA-256 integrity hash from the sorted UID list.
+4. Commit the lock to git BEFORE starting Phase 4 extraction.
+
+Downstream gates
+^^^^^^^^^^^^^^^^
+
+- `/meta-analysis` Phase 4 entry: extraction TSV's UID set MUST equal
+  `include_uids` ∪ `mixed_uids` from the lock. See Phase 4 entry gate.
+- `/sync-submission` Phase 5
+  (`scripts/cross_document_n_check.py --pool-lock`): every numeric claim
+  in manuscript / abstract / supplementary that maps to a locked
+  category must match the locked value.
+- Manuscript prose: NEVER re-derive `k included` from extraction TSV at
+  manuscript build time. Always reference `final_pool_n` from the lock.
+
+If a late post-freeze decision changes the pool, treat it as a formal
+PROSPERO amendment: file the amendment, re-freeze the lock as a new
+file (`FINAL_POOL_LOCK_v2.yaml`), and propagate to every artifact.
 
 ### Phase 4: Data Extraction
 
 **Goal**: Create standardized extraction forms and extract 2x2 or effect size data.
 
+#### 4.0 Entry gate (MANDATORY): pool composition lock ↔ adjudication TSV
+
+Before any extraction work begins, run the deterministic UID-set check
+to confirm that the round-3 adjudication TSV and `FINAL_POOL_LOCK.yaml`
+(produced in Phase 3f.5) agree on which UIDs are included.
+
+```bash
+python "${CLAUDE_SKILL_DIR}/scripts/check_pool_consistency.py" \
+    --lock 2_Data/FINAL_POOL_LOCK.yaml \
+    --adjudication-tsv 2_Screening/round3_adjudication.tsv \
+    --decision-col round3_decision \
+    --uid-col uid \
+    --include-labels "INCLUDE,INCLUDE_MIXED" \
+    --out qc/pool_consistency.json
+```
+
+Output `qc/pool_consistency.json`:
+
+```json
+{
+  "submission_safe": false,
+  "match": false,
+  "lock_include_n": 42,
+  "tsv_include_n": 43,
+  "in_lock_not_tsv": ["UID_007"],
+  "in_tsv_not_lock": ["UID_055"]
+}
+```
+
+The gate fails closed: any UID disagreement blocks extraction. To
+resolve, either (a) re-freeze the lock with the corrected set of UIDs
+and propagate to downstream artifacts, or (b) correct the adjudication
+TSV if a row was mis-labeled. Do NOT proceed to Phase 4 with a
+mismatch — the resulting extraction matrix will not align with the
+locked pool, and the drift surfaces as a fabrication-grade red flag at
+peer review.
+
+
 > **Failure-mode cross-ref** → `references/data_integrity_checklist.md` DI-1~DI-5 are mandatory during extraction (2x2 arm-swap, KM audit trail, methodology mismatch, PRISMA 5-way drift, single-source k).
+
+**Recommended extraction form**: For SR-MA targeting high-impact radiology / medical AI journals, use `${CLAUDE_SKILL_DIR}/templates/extraction_form_v2.md`. Dual-extractor + source-page-reference + verbatim-quote columns prevent the 2x2 cell-swap and cohort-overlap blind spots surfaced in recent SR-MA peer-review cycles. New required columns: `cohort_source`, `source_page_ref`, `source_verbatim_quote`, `extraction_consensus_status`, `overlap_flag_reviewer1/2`, `sample_n_dta_pool` vs `sample_n_prognostic_pool`.
 
 #### 4.0 AI-drafted starting document gate
 
@@ -226,7 +316,7 @@ Before opening the extraction form: if a senior mentor or collaborator has share
 - Record any reconciled discrepancy in `extraction_consensus_log.md` with a verbatim quote of the AI-draft value and the corrected value with PDF page coordinate.
 - Trust hierarchy for this phase: **SSOT (source PDF + own analysis stdout) > mentor's direct text (email / track-changes) > attached AI-draft**. Do not promote an AI-draft from tier 3 to tier 2.
 
-Precedent (RFA-Adjunct, 2026-04-12): Ishikawa 2017 "treatment support 5/70 vs no support 12/33" in Claude-drafted directive → source PDF was 35/68 (single arm). Verbatim absorption would have produced a denominator-hallucinated meta-analysis.
+Precedent (an active meta-analysis project): Ishikawa 2017 "treatment support 5/70 vs no support 12/33" in Claude-drafted directive → source PDF was 35/68 (single arm). Verbatim absorption would have produced a denominator-hallucinated meta-analysis.
 
 #### DTA Meta-Analysis:
 Generate a data extraction form with:
@@ -278,6 +368,38 @@ When comparing extraction results between independent reviewers (minimum 2), che
 3. **Kaplan-Meier estimate distinction**: KM curve estimates differ from raw event counts. Always record the data source (Table vs KM curve vs text) during extraction.
 4. **Discrepancy resolution**: List all discrepancies → verify against original text → reach consensus → if consensus fails, use third reviewer. Log all consensus decisions in `{project}/consensus_log.md`.
 5. **Dataset lock**: After resolving all discrepancies, lock the final dataset. Any subsequent changes require documented justification with date.
+
+#### Phase 4c: Extraction QC & Cohort Overlap Detection
+
+After dual-extractor consensus, run two QC scripts before locking the extraction table for statistical synthesis.
+
+**1. 2x2 Cell Integrity Check** -- `scripts/dta_extraction_qc.py`:
+
+Validates manuscript forest-plot cells (TP / FN / TN / FP) against source-paper-reported sens/spec within a tolerance (default 0.02). Catches sens/spec swap at extraction stage -- a common error pattern where a single-study k=1 subgroup outlier flips conclusions due to cell-assignment swap.
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/dta_extraction_qc.py" \
+  --input 2_Extraction/extraction.csv \
+  --tolerance 0.02 \
+  --out 2_Extraction/qc/dta_extraction_qc.tsv
+```
+
+Any `FLAG_SWAP` or `FLAG_MISMATCH` row requires third-reviewer adjudication before Phase 6 statistical synthesis.
+
+**2. Cohort Overlap Check** -- `scripts/cohort_overlap_check.py`:
+
+Clusters included studies by (a) shared public ICU/EHR database (MIMIC-IV, eICU, MIMIC-III, KNHIS, UK Biobank, Optum, MarketScan, TriNetX, IBM), (b) same institution + overlapping enrollment period, (c) shared first-author surname + ±2y year proximity. Flags HIGH / MEDIUM overlap confidence.
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/cohort_overlap_check.py" \
+  --input 2_Extraction/studies.csv \
+  --enrich \
+  --out 2_Extraction/qc/cohort_overlap.md
+```
+
+HIGH-confidence overlap pairs require Limitations acknowledgment + sensitivity analysis excluding one of the pair.
+
+Cross-links: `/peer-review` Phase 2A P1 (cell integrity) + P2 (cohort overlap).
 
 ### Phase 5: Risk of Bias Assessment
 
@@ -473,9 +595,9 @@ amendment language template, re-circulation paragraph template, anti-pattern rat
 
 ---
 
-## Failure Modes (MA01~03 empirical)
+## Failure Modes (prior MA projects, anonymized)
 
-Failure patterns observed across MA01 RFA Adjunct / MA02 CBCT Biopsy / MA03 CBCT Ablation. Each topical reference extends the phase it cross-references above — consult alongside phase procedural docs, not in isolation.
+Failure patterns observed across three prior MA projects (anonymized). Each topical reference extends the phase it cross-references above — consult alongside phase procedural docs, not in isolation.
 
 | Domain | Phase span | Load-on-demand reference |
 |---|---|---|
@@ -494,6 +616,26 @@ Failure patterns observed across MA01 RFA Adjunct / MA02 CBCT Biopsy / MA03 CBCT
 | Phase 8 on first build per journal (`--record`), then before every re-submission (`--verify`) | `python3 ${CLAUDE_SKILL_DIR}/../../scripts/verify_package_integrity.py --record --journal <name>` then `--verify --journal <name>` | SPD: checksum-based drift detection between master manuscript and built `SUBMISSION/{journal}/` folder. Journal-editable files (cover letter, response, MANIFEST, `DO_NOT_EDIT_HERE.md`) are auto-excluded. |
 
 All four scripts are repo-shipped as of 2026-04 (FOLLOWUPS P10). Non-zero exit = gate failure; resolve before proceeding to the next phase.
+
+---
+
+## Empirical Lessons (2026-05)
+
+Synthesized from recent SR-MA peer-review cycles. Drives the Phase 4 extraction form schema, Phase 4c QC scripts, and submission-gate enhancements documented above.
+
+1. **Dual-extractor + source-page-reference + verbatim quote** is mandatory for 2x2 cell integrity. Single-extractor without source-page citation invites sens/spec swap that is invisible to forest-plot-level review.
+
+2. **Cohort overlap detection** must cluster by shared public database + institution + author. Independent-cohort assumption for MA pooling fails when multiple included studies use the same public ICU/EHR cohort with overlapping enrollment windows. Sensitivity analysis excluding overlap is the minimum acknowledgment.
+
+3. **Diagnostic subset N transparency** in mixed DTA + prognostic MAs: report `sample_n_dta_pool` separately from `sample_n_prognostic_pool` with explicit prevalence. Aggregate N in Abstract misleads readers about diagnostic-subset power.
+
+4. **k=1 subgroups are not robust**: any subgroup p-value driven by a single included study must be reframed as exploratory or removed from formal subgroup test. Post-hoc subgroups require PROSPERO amendment with visible record.
+
+5. **Supplementary 8-file package** is the minimum bar for high-impact journals: PRISMA checklist, PROSPERO PDF, full search strategy, full-text exclusion list with reasons, per-study extraction table, per-study x per-domain RoB, subgroup forests, sensitivity / publication-bias analyses. See `templates/supplementary_8file_checklist.md`.
+
+6. **PROSPERO 13-char ID format** (`CRD42` + YYYY + 6-digit sequential); pre-2020 IDs may be 12 chars. Non-numeric tails or >13 chars are format anomalies. Request live registration URL in cover letter for protocol cross-check.
+
+7. **AI Disclosure presence** for SR-MA submissions to RYAI / Radiology / RSNA / Lancet / JAMA / BMJ / Nature families. Absence triggers MINOR-to-MAJOR finding at peer review.
 
 ---
 
@@ -534,6 +676,7 @@ When the number of included studies is small (< 10):
 | Need self-review | `/self-review` | Pre-submission quality check |
 | Co-author circulation (Phase 9) | `/gws` + `/handoff` | Thread-reply send, deadline task registration |
 | Self-audit recovery entrypoint (Phase 10) | `/write-paper` Step 7.4a | Recovery branch for polish pipelines that surface structural audit failures |
+| `/sync-submission` SR-MA gate | `/sync-submission` | Before submission, verify supplementary package matches all 8 files in `templates/supplementary_8file_checklist.md` (PRISMA, PROSPERO, search strategy, exclusion list, extraction table, per-study x per-domain RoB, subgroup forests, sensitivity / publication bias). AI Disclosure presence check (cross-link `/peer-review` Phase 2A P8). Cite-list duplicate check via `/verify-refs` Gate 5 (duplicate PMID/DOI). |
 
 ---
 

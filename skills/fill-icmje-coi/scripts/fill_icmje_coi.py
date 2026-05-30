@@ -18,14 +18,14 @@ Template strategy (works because it avoids authoring SDT XML from scratch):
 Usage (Python API):
     from fill_icmje_coi import fill_icmje_forms
     fill_icmje_forms(
-        seed_docx=Path("/path/to/ICMJE_COI_02_Taein_An.docx"),
-        seed_name="Taein An",
-        seed_title="So Far, Human-in-the-Loop Remains ...",
-        seed_date="April 12, 2026",
-        new_title="Incidental Emphysema on ...",
-        new_date="April 20, 2026",
-        authors=[(1, "Yoojin Nam"), (2, "Hye Ree Cho"), ...],
-        out_dir=Path("submission/chest/icmje_forms"),
+        seed_docx=Path("/path/to/icmje_seed_filled.docx"),
+        seed_name="Placeholder Author",
+        seed_title="Placeholder Manuscript Title",
+        seed_date="January 1, 2000",
+        new_title="Your Manuscript Title",
+        new_date="Month D, YYYY",
+        authors=[(1, "Author One"), (2, "Author Two"), ...],
+        out_dir=Path("submission/{journal}/icmje_forms"),
     )
 
 CLI:

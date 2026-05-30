@@ -20,8 +20,15 @@ INCLUDE_PATHS = [
 ]
 
 EXCLUDE_DIR_NAMES = {"__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache", "node_modules", ".git"}
-EXCLUDE_FILE_NAMES = {".DS_Store", "Thumbs.db", "HANDOFF.md"}
-EXCLUDE_NAME_PREFIXES = ("TODO_",)
+EXCLUDE_FILE_NAMES = {
+    ".DS_Store",
+    "Thumbs.db",
+    # Personal session/dev scratchpads — should never reach a classroom ZIP.
+    "HANDOFF.md",
+    "FOLLOWUPS.md",
+    "IMPROVEMENT_QUEUE.md",
+}
+EXCLUDE_NAME_PREFIXES = ("TODO_", "HANDOFF_", "PLAN_", "PLANNED_")
 EXCLUDE_SUFFIXES = {".pyc", ".pyo", ".swp"}
 
 

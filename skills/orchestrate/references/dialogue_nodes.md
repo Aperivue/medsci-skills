@@ -133,6 +133,29 @@ autonomous_rationale: why this default is safe for unattended runs
 - **default:** 1
 - **lock:** later re-entry invalidates later polish; later = expensive
 
+### N10. Reference Workflow (manage-refs entry)
+- **phase:** /manage-refs entry (Phase 7.6 of write-paper, or standalone DOCX rebuild)
+- **context:** manuscript ready for DOCX rendering with bibliography; need to choose Workflow A (pandoc citeproc) vs Workflow B (Zotero CWYW)
+- **question:** "Bibliography rendering: pandoc citeproc (single-author / cascade reformat) or Zotero CWYW (co-author Word collaboration)?"
+- **options:**
+  1. Workflow A — pandoc citeproc + journal CSL (markdown SSOT, regenerable, cascade-friendly)
+  2. Workflow B — Zotero CWYW field-code injection (Word-tracked-changes-friendly, co-author live edit)
+  3. Hybrid 3-phase — start A (draft), transition to B (circulation/revision/submission)
+- **default:** 3
+- **lock:** Workflow B `.docx` becomes editable SSOT; markdown re-render requires re-extraction. Hybrid is the documented default per `~/.claude/rules/manuscript-references.md`
+- **autonomous_rationale:** Hybrid 3-phase is the accumulated pattern; A→B transition only happens when circulation begins, so default is safe for solo drafting
+
+### N11. Protocol Delivery Format (write-protocol → fill-protocol vs render-pdf-doc)
+- **phase:** /write-protocol Phase final (or standalone protocol rendering)
+- **context:** content drafted; need final deliverable. Institutional Word template availability differs
+- **question:** "Final deliverable: institutional .docx form (use `/fill-protocol`) or markdown → PDF (use `/render-pdf-doc`)?"
+- **options:**
+  1. `/fill-protocol` — institutional Word template exists (IRB 연구계획서, 심사면제, 동의면제, etc.)
+  2. `/render-pdf-doc` — no institutional template; markdown-driven layout (proposal cover, briefing handout, anchor doc, IRB cover letter)
+- **default:** 1 (when `${institutional_template_path}` resolves; else 2)
+- **lock:** option 1 inherits institutional layout (immutable styles, table cantSplit, eastAsia fonts); option 2 inherits markdown frontmatter + content-proportional pipe-table widths
+- **autonomous_rationale:** Most institutional submissions require option 1; default to scanning known template paths first (`~/.claude/rules/institutional-form-fill.md` table) before falling back to option 2
+
 ## Rendering Template
 
 When presenting a node in interactive mode, use:

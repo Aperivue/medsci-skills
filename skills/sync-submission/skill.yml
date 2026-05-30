@@ -1,6 +1,16 @@
-schema_version: 1
+schema_version: 2
 name: sync-submission
+layer: A
 owner_domain: submission_packaging
+when_to_use:
+  - Auditing SSOT-to-submission drift before freezing a journal package
+  - Building a journal-specific submission manifest from canonical manuscript artifacts
+  - Retargeting an existing submission to a new journal (cascade rejection)
+  - Refreshing artifact_manifest.json to reflect the current canonical state
+when_NOT_to_use:
+  - Drafting or editing the canonical manuscript (use /write-paper or /revise)
+  - Choosing the target journal (use /find-journal)
+  - Freezing a submission while drift is detected (forbidden — fix drift first)
 inputs:
   - project.yaml
   - manuscript/manuscript.md

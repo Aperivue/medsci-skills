@@ -21,10 +21,41 @@ pass() { echo -e "  ${GREEN}PASS${NC} $1"; ((PASS++)); }
 warn() { echo -e "  ${YELLOW}WARN${NC} $1"; ((WARN++)); }
 fail() { echo -e "  ${RED}FAIL${NC} $1"; ((FAIL++)); }
 
+# Personal path blocklist. Narrowed (2026-05-30): block only personal home dirs
+# and the personal-config subtrees that carry private working notes
+# (~/.claude/plans, ~/.claude/projects, ~/.claude/private-*). The generic
+# integration paths ~/.claude/{skills,rules,hooks,templates,agents,settings.json}
+# are documented install targets across README / docs/setup / many SKILL.md and
+# must NOT be blocked. Matching `\.claude/(plans|projects|private)` (no leading
+# anchor) catches ~/ , $HOME/ and absolute forms alike.
+PERSONAL_PATH='/Users/eugene/|/home/eugene/|\.claude/(plans|projects|private)'
+
+# Returns the first "lineno:line" personal-path violation read from stdin, or
+# nothing. Allowlists the documented `private-journal-profiles` skill-convention
+# directory — a generic two-tier library location that add-journal / find-journal
+# instruct the model to read/write (analogous to the allowed ~/.claude/{skills,
+# rules,hooks} install paths). Author scratchpads (~/.claude/private-*, plans,
+# projects) and personal home dirs are still blocked.
+_personal_path_hit() {
+  sed -E 's/private-journal-profiles/journal-profiles/g' | grep -nE "$PERSONAL_PATH" | head -1
+}
+
 echo "========================================="
 echo " MedSci Skills Validator"
 echo "========================================="
 echo ""
+
+# Tool dependencies. exiftool is required for rule 10 (binary EXIF metadata
+# scan). Python3 is invoked inline; missing it fails on use. Make exiftool a
+# hard requirement so a missing install is loud, not silent — installing it
+# once (brew / apt) is the easy path and beats shipping PII in a PDF Author
+# field that the text linter cannot see.
+if ! command -v exiftool >/dev/null 2>&1; then
+  echo -e "${RED}ERROR${NC}: exiftool not found."
+  echo "  Install: brew install exiftool      # macOS"
+  echo "           sudo apt-get install -y libimage-exiftool-perl   # Ubuntu"
+  exit 2
+fi
 
 for skill_dir in "$SKILLS_DIR"/*/; do
   skill_name=$(basename "$skill_dir")
@@ -110,25 +141,65 @@ for skill_dir in "$SKILLS_DIR"/*/; do
   fi
 
   # ---------------- Content Integrity (v2 lints) ----------------
-  # Scope: SKILL.md + references/**/*.md only (shipped prose).
-  # Excluded (meta-docs): TODO_*.md, HANDOFF.md, and scripts/yaml files.
+  # Scope: every tracked .md inside the skill directory (SKILL.md + references/
+  # + any TODO_*.md / HANDOFF*.md scratchpads that slipped past .gitignore).
+  # Rationale: meta-docs are the most common PII-leak path because authors
+  # treat them as "internal" while git still tracks and publishes them. The
+  # 2026-05-02 audit caught one such file (TODO_*.md skipped by the previous
+  # case-statement exclusion). Force scanning everything; gitignore is the
+  # mechanism for keeping a developer scratchpad out, not the linter.
+
+  # Helper: skip gitignored files. Linter should match what the public sees,
+  # not what is on local disk.
+  _add_if_tracked() {
+    local f="$1"
+    # `git check-ignore` exits 0 when the file IS ignored; skip in that case.
+    if ! git -C "$REPO_ROOT" check-ignore -q "$f" 2>/dev/null; then
+      integrity_files+=("$f")
+    fi
+  }
+
+  # Text-bearing extensions to scan. Binary types (.png/.pdf/.docx) are out
+  # of scope — separate FAIL rule below catches their FILENAMES (rule 7c)
+  # but their content needs a different tool (e.g. exiftool for EXIF).
+  TEXT_EXTS='-name *.md -o -name *.yml -o -name *.yaml -o -name *.json -o -name *.txt -o -name *.csv -o -name *.tsv'
 
   integrity_files=()
-  [ -f "$skill_file" ] && integrity_files+=("$skill_file")
+  [ -f "$skill_file" ] && _add_if_tracked "$skill_file"
   if [ -d "${skill_dir}references" ]; then
     while IFS= read -r -d '' f; do
-      # Skip meta-docs (HANDOFF, TODO_*) inside references/
-      base=$(basename "$f")
-      case "$base" in
-        HANDOFF.md|TODO_*.md) continue ;;
-      esac
-      integrity_files+=("$f")
-    done < <(find "${skill_dir}references" -type f -name "*.md" -print0 2>/dev/null)
+      _add_if_tracked "$f"
+    done < <(find "${skill_dir}references" -type f \( $TEXT_EXTS \) -print0 2>/dev/null)
   fi
+  # Extended scope (2026-05): templates/ and scripts/ subdirs. Same blocklist
+  # patterns apply — these dirs were previously silently excluded and could
+  # carry vendored PII (manuscript IDs, author names, project paths) into
+  # downstream skill consumers without detection. Includes .py / .sh source
+  # since docstrings and comments are the typical PII vector.
+  if [ -d "${skill_dir}templates" ]; then
+    while IFS= read -r -d '' f; do
+      _add_if_tracked "$f"
+    done < <(find "${skill_dir}templates" -type f \( $TEXT_EXTS -o -name "*.py" -o -name "*.sh" \) -print0 2>/dev/null)
+  fi
+  if [ -d "${skill_dir}scripts" ]; then
+    while IFS= read -r -d '' f; do
+      _add_if_tracked "$f"
+    done < <(find "${skill_dir}scripts" -type f \( $TEXT_EXTS -o -name "*.py" -o -name "*.sh" \) -print0 2>/dev/null)
+  fi
+  # Also catch top-level skill scratchpads (skills/<name>/TODO_*.md, HANDOFF.md)
+  # and skill.yml / capabilities.yml that some skills keep alongside SKILL.md.
+  while IFS= read -r -d '' f; do
+    _add_if_tracked "$f"
+  done < <(find "${skill_dir}" -maxdepth 1 -type f \( $TEXT_EXTS \) \
+            ! -name "SKILL.md" -print0 2>/dev/null)
 
   # 6. Personal precedent leak (blocklist of project-specific identifiers)
+  # Covers: legacy project IDs, project slugs, product names, etc.,
+  # institution / mentor identifiers, numbered workspace folders, and the
+  # historical prefix patterns (Paper ①②③). Keep additions in alphabetical
+  # blocks so future maintainers can spot what is being filtered.
   precedent_hits=0
-  precedent_patterns='CBCT Ablation MA|Du 2023|FD Occlusion AI SR|FD Occlusion|Paper ①|Paper ②|Paper ③'
+  precedent_patterns='\bCK-[0-9]+\b|\bMA-[0-9]+\b|\bMA0[0-9]\b|\b0_MI2RL\b|\b1_Samsung_Changwon\b|\b5_Personal_Research\b|\b6_Aperivue\b|\b10_Meta_Analysis\b|\b11_CheckUP\b|\b21_Aneurysm\b|01_RFA_Adjunct|02_CBCT_Biopsy|03_CBCT_Ablation|RFA-Adjunct|RFA_Adjunct|CBCT Ablation MA|CBCT Biopsy MA|Du 2023|FD Occlusion AI SR|FD Occlusion|Paper ①|Paper ②|Paper ③|MeducAI|CXRscoliosis|SkullFx|Samsung Changwon|삼성서울|삼성창원|서울아산|Asan/UoU|\bKKW\b|\bLHC\b|\bKDY\b|\bLWJ\b|\bHRP_Rhim\b|김경원|이덕희|김남국|임현철|임해진|남유진|Hyunchul Rhim|Pa Hong|Taein An|Hye Ree Cho|Yoojin Nam|Dong Yeong Kim|Kyung Won Kim|Jeong Min Song|Jaeyoon Kim|[가-힣]{2,4}[[:space:]]*(교수님|선생님)|CAC>[0-9]+|VIF[[:space:]]+Diag|[A-Z]+[0-9]+_Consensus_Sheet|v[0-9]+_edit_plan\.md|screening_consensus_final\.md|fulltext_screening_final\.tsv'
   for f in "${integrity_files[@]}"; do
     if grep -qE "$precedent_patterns" "$f"; then
       hit=$(grep -nE "$precedent_patterns" "$f" | head -1)
@@ -139,17 +210,64 @@ for skill_dir in "$SKILLS_DIR"/*/; do
   done
   [ "$precedent_hits" -eq 0 ] && pass "Precedent blocklist (no project-specific identifiers)"
 
-  # 7. Absolute path leak (/Users/eugene/)
+  # 7. Personal path leak (/Users/eugene/, /home/<user>/, ~/.claude/{plans,
+  #    projects,private-*}). Generic ~/.claude/{skills,rules,hooks,...} paths
+  #    are documented install targets and intentionally NOT matched (see
+  #    PERSONAL_PATH definition near the top).
   path_hits=0
   for f in "${integrity_files[@]}"; do
-    if grep -qE '/Users/eugene/' "$f"; then
-      hit=$(grep -nE '/Users/eugene/' "$f" | head -1)
+    hit=$(_personal_path_hit < "$f")
+    if [ -n "$hit" ]; then
       rel="${f#$REPO_ROOT/}"
-      fail "Absolute path in $rel: $hit"
+      fail "Personal path in $rel: $hit"
       ((path_hits++))
     fi
   done
-  [ "$path_hits" -eq 0 ] && pass "Absolute paths (no /Users/eugene/ leak)"
+  [ "$path_hits" -eq 0 ] && pass "Personal paths (no home-dir / private-config leak)"
+
+  # 7b. Real personal email leak. Whitelist: example.com / example.org /
+  #     known journal editorial-office domains (sciencedirect, lancet, ahajournals,
+  #     wjgnet, kams, wiley, aasld) + `your@email.com` style placeholders.
+  email_hits=0
+  email_pattern='[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}'
+  email_whitelist='example\.com|example\.org|your@email\.com|user@host|name@|placeholder|noreply@|git@github\.com|@lancet\.com|@strokeahajournal\.org|@aasld\.org|@wjgnet\.com|@wiley\.com|@kams\.or\.kr|@journal\.|aim-aicro\.com'
+  # Note: `aim-aicro.com` is a corporate domain that historically appeared in a
+  #   personal author roster. We allow the bare domain here only because the
+  #   precedent blocklist already catches the full `kyungwon.kim@aim-aicro.com`
+  #   string by way of the personal-name patterns above; remove from this
+  #   whitelist if the bare domain ever surfaces on its own.
+  for f in "${integrity_files[@]}"; do
+    matches=$(grep -nE "$email_pattern" "$f" | grep -vE "$email_whitelist" || true)
+    if [ -n "$matches" ]; then
+      rel="${f#$REPO_ROOT/}"
+      first=$(echo "$matches" | head -1)
+      fail "Real email leak in $rel: $first"
+      ((email_hits++))
+    fi
+  done
+  [ "$email_hits" -eq 0 ] && pass "Email whitelist (no personal addresses)"
+
+  # 7c. Filename PII (Author{Year}_Journal_FigNN, Surname{Year}_Conf_..., etc.)
+  #     Catches the case where the file CONTENT is fine but the filename itself
+  #     reveals authorship — e.g. `Nam2025_KJR_Fig01.png` from the 2026-05-02
+  #     audit. Pattern: a capitalised word (≥3 chars) directly followed by a
+  #     4-digit year, then `_`. Common exemplar / precedent file shape.
+  #     Allow-list: the precedent filename has to actually be a real file inside
+  #     the skill, so this only fires when shipping such a file. Common
+  #     non-author tokens are excluded (Issue, Year, Vol, Table, Figure, Sample,
+  #     Example, Sample, Demo, Test, Type, Class).
+  filename_hits=0
+  filename_pattern='^[A-Z][a-zA-Z]{2,}[0-9]{4}_'
+  filename_allow='^(Issue|Year|Vol|Table|Figure|Sample|Example|Demo|Test|Type|Class|Group|Cohort|Study|Trial|Phase|Run|Batch|Round|Stage|Step|Item|Mode)[0-9]{4}_'
+  while IFS= read -r -d '' f; do
+    base=$(basename "$f")
+    if echo "$base" | grep -qE "$filename_pattern" && ! echo "$base" | grep -qE "$filename_allow"; then
+      rel="${f#$REPO_ROOT/}"
+      fail "Author-style filename in $rel: $base"
+      ((filename_hits++))
+    fi
+  done < <(find "${skill_dir}" -type f -print0 2>/dev/null)
+  [ "$filename_hits" -eq 0 ] && pass "Filenames (no Author{Year}_ patterns)"
 
   # 8. Dated precedent blockquote (lines starting with '> ' containing YYYY-MM-DD)
   # Allow-list: meta headers like "Last updated:", "Created:", "Updated:".
@@ -223,8 +341,106 @@ PY
     warn "Korean prose in SKILL.md: $count line(s), first $first"
   fi
 
+  # 10. Binary EXIF metadata scan (DOCX / PPTX / XLSX / PDF / PNG / JPG / TIFF).
+  # Document/image metadata (dc:creator, cp:lastModifiedBy, PDF Author, EXIF
+  # Artist, etc.) is opaque to grep on the file content and is the most common
+  # silent PII leak when authors drop a personally-authored slide deck or
+  # annotated screenshot into a skill. Match the values against the same
+  # `precedent_patterns` used for text scanning + the absolute-path patterns.
+  # Upstream/3rd-party document authors (e.g. STARD's Patrick Bossuyt, the
+  # python-pptx maintainer) are not in `precedent_patterns`, so they pass
+  # without an explicit allow-list.
+  exif_binary_files=()
+  while IFS= read -r -d '' f; do
+    if ! git -C "$REPO_ROOT" check-ignore -q "$f" 2>/dev/null; then
+      exif_binary_files+=("$f")
+    fi
+  done < <(find "${skill_dir}" -type f \( \
+      -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" \
+      -o -iname "*.tif" -o -iname "*.tiff" \
+      -o -iname "*.pdf" -o -iname "*.docx" -o -iname "*.pptx" -o -iname "*.xlsx" \
+    \) -print0 2>/dev/null)
+
+  exif_hits=0
+  if [ ${#exif_binary_files[@]} -gt 0 ]; then
+    exif_dump=$(exiftool -S \
+      -Author -Creator -LastModifiedBy -LastSavedBy -Copyright -Artist \
+      -Owner -OwnerName -CompanyName -Manager -HostComputer -UserComment \
+      -Subject -Title -Description -Keywords -Comment \
+      -Producer -CreatorTool -Software \
+      "${exif_binary_files[@]}" 2>/dev/null || true)
+    current_file=""
+    while IFS= read -r line; do
+      if [[ "$line" == ========\ * ]]; then
+        current_file="${line#======== }"
+        continue
+      fi
+      [ -z "$line" ] && continue
+      [ -z "$current_file" ] && continue
+      if echo "$line" | grep -qE "$precedent_patterns|/Users/eugene/|/home/eugene/"; then
+        rel="${current_file#$REPO_ROOT/}"
+        fail "Binary EXIF PII in $rel: $line"
+        ((exif_hits++))
+      fi
+    done <<< "$exif_dump"
+  fi
+  [ "$exif_hits" -eq 0 ] && pass "Binary EXIF (no PII in document/image metadata)"
+
   echo ""
 done
+
+echo "========================================="
+echo " Public-surface PII scan (all tracked text outside skills/)"
+echo "========================================="
+# Full tracked-text scan OUTSIDE skills/ (skills/ is covered by the per-skill
+# loop above). Closes the 2026-05-29 gap where docs/, INTAKE/, and root
+# metadata were never scanned — a hospital-name + incoming-fellowship PII
+# reached public main while the validator reported PASS (validator PASS !=
+# security PASS). Uses `git ls-files` so privatized (gitignored) drafts are
+# excluded and only the public surface is gated; the gate is "0 hits", not a
+# fixed file count.
+#
+# Self-exemption: this script holds the blocklist literals (precedent_patterns,
+# PERSONAL_PATH); scanning it would self-match. Excluded explicitly.
+#
+# Author-attribution allowlist: README.md / CITATION.cff / paper.md /
+# .zenodo.json legitimately carry the maintainer's own name for citation. Only
+# the name tokens are stripped before the precedent match, so other PII
+# (hospital, project codes, personal paths) on the same line is still caught.
+META_FAIL=0
+META_SCANNED=0
+AUTHOR_ATTRIB_RE='^(README\.md|CITATION\.cff|paper\.md|\.zenodo\.json)$'
+while IFS= read -r rel; do
+  [ "$rel" = "scripts/validate_skills.sh" ] && continue   # self-exempt
+  case "$rel" in skills/*) continue ;; esac               # covered by per-skill loop
+  f="$REPO_ROOT/$rel"
+  [ -f "$f" ] || continue
+  ((META_SCANNED++))
+  if echo "$rel" | grep -qE "$AUTHOR_ATTRIB_RE"; then
+    scan_src=$(sed -E 's/Yoojin Nam//g; s/남유진//g' "$f")
+  else
+    scan_src=$(cat "$f")
+  fi
+  if echo "$scan_src" | grep -qE "$precedent_patterns"; then
+    hit=$(echo "$scan_src" | grep -nE "$precedent_patterns" | head -1)
+    fail "Personal precedent in $rel: $hit"
+    ((META_FAIL++))
+  fi
+  hit=$(printf '%s\n' "$scan_src" | _personal_path_hit)
+  if [ -n "$hit" ]; then
+    fail "Personal path in $rel: $hit"
+    ((META_FAIL++))
+  fi
+  matches=$(echo "$scan_src" | grep -nE "$email_pattern" | grep -vE "$email_whitelist" || true)
+  if [ -n "$matches" ]; then
+    first=$(echo "$matches" | head -1)
+    fail "Real email leak in $rel: $first"
+    ((META_FAIL++))
+  fi
+done < <(git -C "$REPO_ROOT" ls-files -- '*.md' '*.yml' '*.yaml' '*.json' '*.cff' '*.bib' '*.txt' '*.csv' '*.tsv' '*.py' '*.sh')
+echo "  Scanned $META_SCANNED tracked non-skills text files"
+[ "$META_FAIL" -eq 0 ] && pass "Public-surface PII scan clean (docs/, root, metadata)"
+echo ""
 
 echo "========================================="
 echo " Summary"
@@ -233,6 +449,7 @@ echo -e " Skills checked: ${TOTAL}"
 echo -e " ${GREEN}PASS${NC}: ${PASS}"
 echo -e " ${YELLOW}WARN${NC}: ${WARN}"
 echo -e " ${RED}FAIL${NC}: ${FAIL}"
+echo -e " Meta-doc FAIL: ${META_FAIL}"
 echo ""
 
 python3 "$REPO_ROOT/scripts/validate_skill_contracts.py"
@@ -241,6 +458,9 @@ echo ""
 
 if [ "$FAIL" -gt 0 ]; then
   echo -e "${RED}VALIDATION FAILED${NC} — fix $FAIL issue(s) before release"
+  exit 1
+elif [ "$META_FAIL" -gt 0 ]; then
+  echo -e "${RED}VALIDATION FAILED${NC} — fix $META_FAIL meta-doc PII issue(s) before release"
   exit 1
 elif [ "$contract_status" -ne 0 ]; then
   echo -e "${RED}VALIDATION FAILED${NC} — skill contract validation failed"

@@ -41,7 +41,7 @@ Read both reference files before generating a protocol draft.
 ## Cross-Skill Integration
 
 - **Input from design-study**: Study design recommendations, analysis unit, comparator design, validation strategy
-- **Input from calc-sample-size**: Sample size calculation results and IRB justification text
+- **Input from calc-sample-size**: `protocol/sample_size_justification.md` (canonical IRB-ready prose) + `protocol/sample_size_calc.{R,py}` (reproducible code). Embed `sample_size_justification.md` VERBATIM into Methods §Sample Size — do not rephrase numbers (per `~/.claude/rules/numerical-safety.md`).
 - **Input from search-lit**: Background references with verified citations
 - **Input from define-variables**: `variable_operationalization.md` — literature-grounded definitions, cutoffs, DB-variable mappings for the Methods section. **Precondition**: if the study is observational and no operationalization artifact exists, call `/define-variables` before drafting Methods. Do not invent phenotype/cutoff definitions from the data dictionary inside this skill.
 - **Pipeline position**: search-lit -> design-study -> calc-sample-size -> define-variables -> **write-protocol** -> manage-project
@@ -111,8 +111,8 @@ If design-study output is available, incorporate its recommendations on:
 
 #### Section 3: Sample Size Justification (150-300 words)
 
-- If calc-sample-size output is available: paste its IRB justification text directly
-- If not available: prompt the user to run `/calc-sample-size` or generate a basic justification
+- If `protocol/sample_size_justification.md` exists (calc-sample-size output): embed VERBATIM. Do not rephrase numbers.
+- If not available: prompt the user to run `/calc-sample-size` first; only fall back to a basic justification if the user explicitly declines.
 - Must include: test type, expected effect size (with literature source), alpha level, power, attrition adjustment
 - Final statement: "We plan to enroll N participants."
 

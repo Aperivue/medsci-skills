@@ -107,7 +107,7 @@ Multiple checklists may apply (e.g., CLAIM + STARD-AI for a diagnostic AI study)
 - Typical first decision: 4-6 weeks.
 - Revisions usually due within 60 days.
 
-## Special Considerations for MeducAI Papers
+## Special Considerations for Education-Research Manuscripts
 
 - Paper 1 (S5 Multi-agent Validation) and Paper 2 (MLLM Image Reliability) are strong fits for RYAI.
 - CLAIM checklist is mandatory for both.

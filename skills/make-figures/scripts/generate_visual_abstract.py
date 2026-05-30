@@ -10,7 +10,7 @@ Usage:
       --hypothesis "What is the association of smoking with PTNB outcomes?" \
       --methods "Retrospective cohort|N=1200 patients|Logistic regression" \
       --finding "Smoking was associated with higher complication rates" \
-      --citation "Eur Radiol (2026) Nam Y et al; DOI: 10.1007/s00330-..." \
+      --citation "Journal Name (2026) FirstAuthor Last et al; DOI: 10.xxxx/..." \
       --visual figures/fig1_roc_curve.png \
       --badges "N=1200|CT chest|Single-center" \
       --output visual_abstract.pptx

@@ -1,6 +1,17 @@
-schema_version: 1
+schema_version: 2
 name: self-review
+layer: D
 owner_domain: own_manuscript_critique
+when_to_use:
+  - Pre-submission self-criticism on the user's own manuscript across 10 review categories
+  - Generating Anticipated Major / Minor Comments before sending to senior co-authors
+  - Phase 2.5a numerical source-fidelity audit (CSV ↔ analysis ↔ manuscript ↔ primary paper)
+  - Producing R0-numbered comments that flow into /revise for the response document
+when_NOT_to_use:
+  - Reviewing external (assigned) manuscripts (use /peer-review)
+  - Drafting the user's manuscript (use /write-paper)
+  - Generating reviewer-response prose (use /revise)
+  - Silently fixing non-AI-fixable issues without surfacing them to the user (forbidden)
 inputs:
   - manuscript/manuscript.md
 outputs:

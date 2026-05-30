@@ -8,7 +8,7 @@
 
 ## 1. 목적
 
-진행 중 프로젝트(SkullFx P2, CBCT MA-1, CK-1)를 깨뜨리지 않으면서 Phase 1A에서 만든 reference safety gate(`/verify-refs --strict`)를 hook 인프라로 승격한다. **신규 프로젝트만 enforce**, 기존은 warn-only + bypass 허용.
+진행 중 프로젝트(multiple in-flight manuscripts)를 깨뜨리지 않으면서 Phase 1A에서 만든 reference safety gate(`/verify-refs --strict`)를 hook 인프라로 승격한다. **신규 프로젝트만 enforce**, 기존은 warn-only + bypass 허용.
 
 ## 2. 산정 (v1.1.1 §8 그대로)
 
@@ -30,7 +30,7 @@
 
 ## 4. 비-목표 (Phase 1C에서 하지 않음)
 
-- 기존 프로젝트(SkullFx/MA-1/CK-1)의 hook enforce 적용 — §9 freeze 원칙.
+- 기존 프로젝트(legacy `project.yaml` 기반)의 hook enforce 적용 — §9 freeze 원칙.
 - Numbers/render drift hook (Phase 2.1~2.2 의제).
 - Hook의 모든 PostToolUse 위치 정착 — 본 phase는 PreSave 1지점만 (verify-refs guard).
 - citation-safety.md rule 본문 자체의 폐기 — rule은 유지(LLM 컨텍스트), hook은 결정론적 차선.

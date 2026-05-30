@@ -1,0 +1,126 @@
+---
+schema_version: 1
+last_updated: "2026-05-10"
+purpose: |
+  Templates for journal-specific summary boxes used in medical-AI manuscripts.
+  Each entry mirrors the journal's Instructions for Authors (IFA) at the date
+  shown. USER MUST VERIFY the current IFA before applying — journal policies
+  change without notice.
+
+verification_protocol: |
+  Before applying any template:
+  1. Open the journal's current IFA URL (ifa_url field).
+  2. Compare structure / labels / word targets to this YAML.
+  3. If any field has changed since `last_verified`, update this file before
+     deriving the manuscript's box.
+  4. Treat `last_verified` older than 6 months as STALE — re-verify before
+     submission.
+
+journals:
+  - id: lancet-digital-health
+    name: The Lancet Digital Health
+    box_label: Research in context
+    ifa_url: https://www.thelancet.com/journals/landig/about
+    last_verified: "2026-05-10"
+    placement: After Introduction in main text, or as Panel 1.
+    structure:
+      - id: evidence-before
+        label: Evidence before this study
+        word_target: 100-200
+        notes: |
+          Describe the systematic search method (databases, dates, terms) and
+          what was known prior to this study.
+      - id: added-value
+        label: Added value of this study
+        word_target: 100-200
+        notes: |
+          State the contribution and how it advances the field beyond the
+          evidence summarized above.
+      - id: implications
+        label: Implications of all the available evidence
+        word_target: 100-200
+        notes: |
+          How findings (combined with prior evidence) should change clinical
+          practice, policy, or future research.
+    user_must_verify: true
+
+  - id: rsna-radiology
+    name: Radiology (RSNA)
+    box_label: Key Results
+    ifa_url: https://pubs.rsna.org/page/radiology/author-instructions
+    last_verified: "2026-05-10"
+    placement: First page of article, after Abstract.
+    structure:
+      - id: key-results
+        label: Key Results
+        format: 3 bullets, claim-centric, one finding each
+        notes: |
+          Each bullet should state a primary outcome with point estimate and
+          confidence interval where applicable. Avoid hedging language.
+    user_must_verify: true
+
+  - id: rsna-radiology-ai
+    name: Radiology Artificial Intelligence (RSNA)
+    box_label: Key Points
+    ifa_url: https://pubs.rsna.org/page/ai/author-instructions
+    last_verified: "2026-05-10"
+    placement: After Abstract.
+    structure:
+      - id: key-points
+        label: Key Points
+        format: 3 bullets
+        notes: |
+          Same conventions as Radiology Key Results — claim-centric, numeric
+          where possible.
+    user_must_verify: true
+
+  - id: npj-digital-medicine
+    name: npj Digital Medicine
+    box_label: Plain Language Summary
+    ifa_url: https://www.nature.com/npjdigitalmed/submission-guidelines
+    last_verified: "2026-05-10"
+    placement: After Abstract; required for all primary research.
+    structure:
+      - id: pls
+        label: Plain Language Summary
+        word_target: 150-200
+        reading_level: 8th-grade
+        notes: |
+          Avoid jargon, define acronyms inline, prefer everyday vocabulary.
+          Should be readable by a non-specialist physician or informed lay
+          reader. No quantitative thresholds; describe magnitude in plain terms.
+    user_must_verify: true
+
+  - id: nature-medicine
+    name: Nature Medicine
+    box_label: Editor's Summary
+    ifa_url: https://www.nature.com/nm/for-authors
+    last_verified: "2026-05-10"
+    placement: Editorial-supplied at acceptance; not author-drafted in main text.
+    structure:
+      - id: editor-summary
+        label: Editor's Summary
+        word_target: 100-150
+        notes: |
+          Supplied by the editorial team after acceptance. Authors should
+          proactively draft a 100–150 word version for the cover letter and
+          post-acceptance launch materials, so the editor has anchor wording
+          to refine.
+    user_must_verify: true
+
+  - id: jamia
+    name: JAMIA (Journal of the American Medical Informatics Association)
+    box_label: (none mandated; structured abstract used)
+    ifa_url: https://academic.oup.com/jamia/pages/General_Instructions
+    last_verified: "2026-05-10"
+    placement: Structured abstract serves the role of summary box.
+    structure:
+      - id: structured-abstract
+        label: Structured Abstract
+        format: Objective / Materials and Methods / Results / Discussion / Conclusion
+        notes: Treat each section as a chunk-friendly semantic block (≤ 3 sentences).
+    user_must_verify: true
+
+related:
+  - skills/academic-aio/SKILL.md Section 2.1 (manuscript-level summary box)
+  - skills/academic-aio/SKILL.md Section 1.6 (reporting-guideline anchor)

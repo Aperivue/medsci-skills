@@ -2,7 +2,7 @@
 
 Senior MA reviewer 대비 글로벌 룰 `~/.claude/rules/manuscript-style-classical.md` (11항목)을 자동 검증하는 grep-based 체크리스트. Step 7.1 AI Pattern Scan과 함께 실행.
 
-**Why**: 2026-04-26 RFA-Adjunct v3 회람에서 senior MA 멘토(KKW)가 § 기호, AI Disclosure boilerplate, 산문 형 eligibility, em-dash 남용, AI-style heading을 즉시 "AI 패턴"으로 지적. Manuscript-level 자동 grep으로 사전 차단.
+**Why**: Senior MA mentors routinely flag § 기호, AI Disclosure boilerplate, 산문 형 eligibility, em-dash 남용, AI-style heading을 "AI 패턴"으로 지적. Manuscript-level 자동 grep으로 사전 차단.
 
 ## 자동 점검 7건 (Phase 7.1 진입 시 일괄 실행)
 

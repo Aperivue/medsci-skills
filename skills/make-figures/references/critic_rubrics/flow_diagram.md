@@ -110,6 +110,36 @@ PARTIAL item. Return the scored rubric + edit list to the user.
     outcome n) are visually emphasized (thicker stroke, larger font, or
     fill distinction), consistent with exemplar conventions.
 
+## G. Communication-first checks (added v1.1.0)
+
+These checks operationalize `references/design_principles.md` (Nature Hum
+Behav 2026) and `references/flow_diagram_lessons.md`. Apply when the
+diagram will be circulated to senior co-authors or submitted to a peer-
+reviewed venue.
+
+22. **Cognitive load** — Each column has ≤7 boxes; each diagram uses ≤3
+    distinct shapes (e.g., rectangle / rounded rectangle / note) and ≤3
+    fill colors. If the count is exceeded, fold detail into supplementary
+    or split into a multi-panel figure.
+23. **Key-message visibility** — The analytic cohort (final n included in
+    primary analysis) is visually emphasized via thicker stroke
+    (`penwidth ≥ 1.8`), distinct fill, or larger font, so the reader's
+    eye lands on it within 2 seconds.
+24. **Official-template fidelity** (when applicable) — Layout matches the
+    canonical PRISMA 2020 / CONSORT 2010 / STARD 2015 / STROBE template
+    used by the corresponding statement group. Custom layouts are
+    acceptable for exploratory drafts but must be replaced before
+    circulation. (See `flow_diagram_lessons.md` Lesson 1.)
+25. **Exclusion-box geometry** — Exclusion side-boxes are rectangles (not
+    `shape: note` / "dog-ear" style) when the diagram aims to match
+    PRISMA / CONSORT canonical look. Bullets within exclusion boxes are
+    left-aligned (Graphviz `\l`, not `\n`).
+26. **Frozen-version sync** — The figure file path includes the manuscript
+    version (`figures/v{N}/figure_1.pdf`) and the value of `v{N}` matches
+    the current manuscript version. Edits after circulation must branch
+    to `v{N+1}/`, never overwrite `v{N}/`. (See `flow_diagram_lessons.md`
+    Lesson 5.)
+
 ---
 
 ## Scoring output format

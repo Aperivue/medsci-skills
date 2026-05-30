@@ -1,0 +1,32 @@
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "<repo name>",
+  "description": "<one-line description of what this repository contains>",
+  "codeRepository": "https://github.com/<org>/<repo>",
+  "programmingLanguage": ["Python", "R"],
+  "license": "https://spdx.org/licenses/Apache-2.0.html",
+  "datePublished": "YYYY-MM-DD",
+  "version": "v1.0.0",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "<First Last>",
+      "identifier": "https://orcid.org/0000-0000-0000-0000"
+    }
+  ],
+  "isPartOf": {
+    "@type": "ScholarlyArticle",
+    "@id": "https://doi.org/10.xxxx/yyyy"
+  },
+  "identifier": {
+    "@type": "PropertyValue",
+    "propertyID": "DOI",
+    "value": "10.5281/zenodo.<id>"
+  },
+  "url": "https://doi.org/10.5281/zenodo.<id>",
+  "softwareRequirements": "Python 3.10+, PyTorch 2.0+",
+  "operatingSystem": ["Linux", "macOS"],
+  "applicationCategory": "Medical AI Research",
+  "keywords": ["<task>", "<modality>", "<model family>"]
+}

@@ -1,0 +1,55 @@
+{
+  "@context": "https://schema.org",
+  "@type": "ScholarlyArticle",
+  "headline": "<paper title verbatim>",
+  "alternativeHeadline": "<short version or subtitle, optional>",
+  "datePublished": "YYYY-MM-DD",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "<First Last>",
+      "givenName": "<First>",
+      "familyName": "<Last>",
+      "identifier": "https://orcid.org/0000-0000-0000-0000",
+      "affiliation": {
+        "@type": "Organization",
+        "name": "<Department, Institution>",
+        "address": "<City, Country>"
+      }
+    }
+  ],
+  "publisher": {
+    "@type": "Organization",
+    "name": "<Journal publisher>"
+  },
+  "isPartOf": {
+    "@type": "PublicationVolume",
+    "name": "<Journal name>",
+    "volumeNumber": "<Volume>",
+    "issueNumber": "<Issue>",
+    "pageStart": "<start>",
+    "pageEnd": "<end>"
+  },
+  "identifier": [
+    {"@type": "PropertyValue", "propertyID": "DOI", "value": "10.xxxx/yyyy"},
+    {"@type": "PropertyValue", "propertyID": "PMID", "value": "<PMID>"},
+    {"@type": "PropertyValue", "propertyID": "PMC", "value": "PMC<id>"}
+  ],
+  "url": "https://doi.org/10.xxxx/yyyy",
+  "license": "https://creativecommons.org/licenses/by/4.0/",
+  "abstract": "<200-300 word abstract verbatim>",
+  "keywords": ["<MeSH term 1>", "<MeSH term 2>", "<RadLex term>", "<topic term>"],
+  "isAccessibleForFree": true,
+  "citation": [
+    {
+      "@type": "ScholarlyArticle",
+      "@id": "https://doi.org/10.xxxx/zzzz",
+      "name": "<seminal reference title>"
+    }
+  ],
+  "subjectOf": {
+    "@type": "Dataset",
+    "@id": "https://doi.org/10.5281/zenodo.<id>",
+    "name": "<companion dataset name>"
+  }
+}

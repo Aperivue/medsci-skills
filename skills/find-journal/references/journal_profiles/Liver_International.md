@@ -6,6 +6,7 @@
 - **ISSN:** 1478-3223 / 1478-3231
 - **Homepage:** https://onlinelibrary.wiley.com/journal/14783231
 - **Author guidelines:** https://onlinelibrary.wiley.com/page/journal/14783231/homepage/forauthors.html
+- **Verification:** 2026-05-21 (against Wiley AGL PDF)
 
 ## Scope
 Liver International promotes all aspects of the science of hepatology from basic research to applied clinical studies, publishing high-quality original research with clear clinical or translational significance. International multi-disciplinary forum for clinicians and basic scientists working on normal and abnormal structure and function of the liver.
