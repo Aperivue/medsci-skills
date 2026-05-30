@@ -1,6 +1,17 @@
-schema_version: 1
+schema_version: 2
 name: revise
+layer: B
 owner_domain: reviewer_response
+when_to_use:
+  - User received reviewer comments and needs a structured response-to-reviewers letter
+  - Coordinating new analyses or figures triggered by reviewer requests (delegates to /analyze-stats, /make-figures)
+  - Drafting a cover letter for a revision (R1 / R2 / minor / major)
+  - Tracking R0→R1 manuscript changes with revision-introduced number `[VERIFY-CSV]` tags
+when_NOT_to_use:
+  - Pre-submission self-criticism (use /self-review)
+  - Drafting an original manuscript (use /write-paper)
+  - Editing tone or AI patterns only (use /humanize)
+  - Arguing valid reviewer points as rebuttal without user approval (forbidden)
 inputs:
   - reviewer_comments
   - manuscript/manuscript.md

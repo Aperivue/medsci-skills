@@ -1,6 +1,18 @@
-schema_version: 1
+schema_version: 2
 name: manage-refs
+layer: A
 owner_domain: manuscript_lifecycle
+when_to_use:
+  - Render manuscript.md to journal-styled DOCX/PDF/HTML via pandoc citeproc
+  - Validate citation keys (`[@bibkey]`) against refs.bib before build
+  - Cross-reference QC between manuscript markdown and rendered DOCX (--strict)
+  - Convert citation markers `[N]` ↔ `[@key]` for cascade rejection or CWYW handoff
+  - Inject Zotero CWYW field codes for co-author Word workflow (Phase 3 hybrid)
+when_NOT_to_use:
+  - Reference verification against PubMed/CrossRef (use /verify-refs — audit-only)
+  - Adding new references to the library (use /search-lit then /lit-sync)
+  - Drafting manuscript prose (use /write-paper or /revise)
+  - Hand-typing the References list (forbidden — Zotero CWYW or pandoc citeproc only)
 inputs:
   - manuscript/manuscript.md
   - manuscript/_src/refs.bib

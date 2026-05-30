@@ -11,7 +11,7 @@
 - **Why vendored, not depended on**: the upstream module has no PyPI release
   and its repository ships an MCP server we do not need. The single file is
   self-contained (only `python-docx` required) and was validated against a
-  21-reference RFA-Adjunct manuscript before being relocated here.
+  21-reference an active meta-analysis project manuscript before being relocated here.
 
 ## CSL files (`citation_styles/*.csl`)
 

@@ -1,6 +1,16 @@
-schema_version: 1
+schema_version: 2
 name: search-lit
+layer: A
 owner_domain: literature_discovery
+when_to_use:
+  - User asks to find papers, related work, citations, or background literature on a topic
+  - Generating a verified candidate citation pool (PubMed / Semantic Scholar / bioRxiv / medRxiv)
+  - Pre-/lit-sync candidate sourcing (search-lit produces candidates → /lit-sync syncs to Zotero + refs.bib)
+  - Building a BibTeX library for a topic without yet committing to inclusion
+when_NOT_to_use:
+  - Verifying citations already in a manuscript (use /verify-refs)
+  - Syncing to Zotero or writing manuscript/_src/refs.bib (use /lit-sync — sole writer)
+  - Generating references from model memory (forbidden — every entry must be API-verified)
 inputs:
   - literature_query
 outputs:

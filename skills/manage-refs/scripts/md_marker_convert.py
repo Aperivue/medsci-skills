@@ -24,7 +24,7 @@ Anti-Hallucination:
     given, it is left untouched and reported on stderr (exit 0). The caller
     must fix the map or accept the partial conversion.
 
-Origin: generalized from the RFA-Adjunct ``build_v4_zotero_docx.py`` replacer
+Origin: generalized from the a per-project ``build_zotero_docx.py`` replacer
 (2026-05-01), validated on a 21-reference manuscript.
 """
 

@@ -1,6 +1,18 @@
-schema_version: 1
+schema_version: 2
 name: write-paper
+layer: C
 owner_domain: manuscript_drafting
+when_to_use:
+  - Drafting an original medical/scientific manuscript from outline (8-phase IMRAD workflow)
+  - Original article, case report, meta-analysis report, AI validation study, animal study, or technical note
+  - Step 7.3a numerical claim audit before submission
+  - Step 7.6 reference handoff to /manage-refs for journal CSL render
+when_NOT_to_use:
+  - Self-criticism on the user's own draft (use /self-review — explicitly different routing)
+  - Reviewer-response writing (use /revise)
+  - Reviewing external manuscripts (use /peer-review)
+  - Generating references from memory (forbidden — use /search-lit + /verify-refs)
+  - Silently editing a frozen submission docx (forbidden — branch to v_(N+1))
 inputs:
   - project.yaml
   - analysis/_analysis_outputs.md

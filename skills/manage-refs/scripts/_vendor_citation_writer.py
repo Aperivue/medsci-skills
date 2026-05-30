@@ -2,8 +2,8 @@
 # Copyright (c) 2026 Ali Soroush
 # Vendored from https://github.com/alisoroushmd/zotero-mcp
 #   src/zotero_mcp/citation_writer.py @ ed5dfb71
-# Imported into medsci-skills 2026-05-01 (originally vendored into 01_RFA_Adjunct
-# the same day, relocated here after RFA-Adjunct validation). No functional
+# Imported into medsci-skills 2026-05-01 (originally vendored into an active meta-analysis
+# the same day, relocated here after an active meta-analysis project validation). No functional
 # modifications — `inject_zotero_cwyw.py` patches `zotero_to_csl_json` at import
 # time to use Zotero's native `?format=csljson` endpoint, which handles
 # webpage / report / non-journal item types correctly. See ../NOTICE.md.

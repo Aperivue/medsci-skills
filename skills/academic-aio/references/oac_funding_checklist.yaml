@@ -1,0 +1,129 @@
+---
+schema_version: 1
+last_updated: "2026-05-10"
+purpose: |
+  Open-access compliance matrix for major funders that medical-AI researchers
+  may encounter. Use to decide gold OA vs green OA vs preprint route per paper.
+  Funder policies change; verify the policy_url before applying.
+
+verification_protocol: |
+  All funder policies change without notice.
+  - Verify policy_url before applying decisions.
+  - Treat `last_verified` older than 6 months as STALE.
+  - When in doubt, contact the institution's research-administration office.
+
+funders:
+  - id: plan-s
+    name: cOAlition S (Plan S)
+    region: Europe (multiple national funders)
+    policy_url: https://www.coalition-s.org/plan-s-principles/
+    last_verified: "2026-05-10"
+    requirement: Immediate OA on publication; no embargo allowed.
+    accepted_routes:
+      - Gold OA with CC-BY (preferred)
+      - Green OA via repository deposit at publication (no embargo)
+    apc_cap: ~ EUR 2,500 typical, varies by funder
+    notes: Strict; transformative agreements widely available.
+    user_must_verify: true
+
+  - id: nih-public-access
+    name: US NIH Public Access Policy
+    region: United States
+    policy_url: https://publicaccess.nih.gov/
+    last_verified: "2026-05-10"
+    requirement: |
+      From 2025 onward NIH policy requires manuscript deposit in PMC at
+      publication (no 12-month embargo). Earlier grants may still operate
+      under the legacy 12-month rule.
+    accepted_routes:
+      - Gold OA (publisher deposits to PMC)
+      - Green OA (author deposits AAM to PMC via NIHMS)
+    apc_cap: No cap; APCs are eligible expenses on most grants.
+    user_must_verify: true
+
+  - id: ukri
+    name: UK Research and Innovation (UKRI)
+    region: United Kingdom
+    policy_url: https://www.ukri.org/manage-your-award/publishing-your-research-findings/making-your-research-open/
+    last_verified: "2026-05-10"
+    requirement: Immediate OA; CC-BY preferred.
+    accepted_routes:
+      - Gold OA via transformative agreement (preferred)
+      - Green OA in approved repository at publication
+    user_must_verify: true
+
+  - id: gates-foundation
+    name: Bill & Melinda Gates Foundation
+    region: Global
+    policy_url: https://openaccess.gatesfoundation.org/
+    last_verified: "2026-05-10"
+    requirement: Immediate OA, CC-BY, no embargo.
+    accepted_routes:
+      - Gold OA (mandatory)
+    notes: Strictest among major funders. Closed-access publication is non-compliant.
+    user_must_verify: true
+
+  - id: wellcome
+    name: Wellcome Trust
+    region: UK / global
+    policy_url: https://wellcome.org/grant-funding/guidance/open-access-policy
+    last_verified: "2026-05-10"
+    requirement: Immediate OA, CC-BY, including for preprints.
+    accepted_routes:
+      - Gold OA (preferred)
+      - Green OA at publication
+    user_must_verify: true
+
+  - id: nrf-korea
+    name: National Research Foundation of Korea (NRF)
+    region: South Korea
+    policy_url: https://www.nrf.re.kr/
+    last_verified: "2026-05-10"
+    requirement: |
+      No formal mandatory immediate-OA policy as of 2026-Q2. Gold OA is
+      encouraged and APCs are eligible expenses on most grants.
+    accepted_routes:
+      - Gold OA (encouraged)
+      - Green OA (acceptable)
+    user_must_verify: true
+
+  - id: hira-mohw
+    name: Korean Ministry of Health & Welfare research grants
+    region: South Korea
+    policy_url: https://www.mohw.go.kr/
+    last_verified: "2026-05-10"
+    requirement: Public benefit / repository deposit encouraged; no strict immediate-OA mandate.
+    accepted_routes:
+      - Gold OA (encouraged)
+      - Green OA (acceptable)
+    user_must_verify: true
+
+decision_tree:
+  - step: 1
+    question: Does any funder on this paper require immediate OA?
+    yes_action: |
+      Choose gold OA at a Plan-S compliant journal, OR green OA with
+      repository deposit at publication. Closed-access is not allowed.
+    no_action: Continue to step 2.
+  - step: 2
+    question: Is APC budget available (grant line, institutional waiver, or transformative agreement)?
+    yes_action: |
+      Gold OA preferred — lower friction, faster PMC deposit, cited
+      30-50 % more by AI-search tools (Section 3.4).
+    no_action: |
+      Green OA via preprint at submission + AAM deposit at acceptance.
+      Verify journal's green-OA timeline.
+  - step: 3
+    question: Does the target journal auto-deposit to PMC (Section 11.3)?
+    yes_action: Confirm and proceed. Deposit window typically 4-6 weeks.
+    no_action: |
+      Plan green OA pathway and timeline. Budget the AAM submission step
+      (NIHMS or Europe PMC).
+  - step: 4
+    question: Is a transformative agreement available via the institution?
+    yes_action: Gold OA is effectively free for the author — use it.
+    no_action: Apply APC budget directly or fall back to green OA.
+
+related:
+  - skills/academic-aio/SKILL.md Section 3.4 (open-access choice)
+  - skills/academic-aio/SKILL.md Section 11.3 (PMC-auto-deposit journal preference)

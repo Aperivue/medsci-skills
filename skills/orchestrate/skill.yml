@@ -1,6 +1,16 @@
-schema_version: 1
+schema_version: 2
 name: orchestrate
+layer: D
 owner_domain: orchestration
+when_to_use:
+  - User describes a research goal without naming a specific skill
+  - Task spans multiple skills and the right pipeline is non-obvious
+  - End-to-end (`--e2e`) single-shot run from screening through manuscript draft
+  - Routing ambiguous "what should I do next" / "where do I start" prompts
+when_NOT_to_use:
+  - The right skill is unambiguous (call that skill directly — no wrapper)
+  - Direct file authoring (worker outputs) — orchestrate routes, it does not generate
+  - Bypassing artifact validation gates declared in skill contracts (forbidden)
 inputs:
   - project.yaml
   - artifact_manifest.json

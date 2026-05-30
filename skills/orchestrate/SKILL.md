@@ -284,7 +284,7 @@ After each skill completes, verify that expected output files exist. If validati
 | `/make-figures` | `analysis/figures/_figure_manifest.md` with at least 1 entry | Parse manifest, verify listed files exist |
 | `/write-paper` | `manuscript/manuscript.md` (required), `manuscript/manuscript_final.docx` (required in --e2e) | Check file existence and non-empty |
 | `/check-reporting` | `qc/reporting_checklist.md` or inline report | Check file existence |
-| `/verify-refs` | `qc/reference_audit.json` (sole output) | Parse JSON; halt if `FABRICATED` or `MISMATCH` count > 0 (from `records[]`) |
+| `/verify-refs` | `qc/reference_audit.json` (sole output) | Parse JSON; halt if `submission_safe == false` (i.e., `FABRICATED` / `MISMATCH` count > 0 OR `duplicate_findings[]` nonempty) |
 | `/self-review` | Review report with JSON block (when --json) | Check JSON block is parseable |
 | `/manage-refs` | `manuscript/manuscript_final.docx`, `qc/xref_audit.json` | DOCX exists and non-empty; xref_audit.json has `submission_safe: true` (no P0 blocker rows) |
 | `/lit-sync` | `manuscript/_src/refs.bib` (mtime updated), `references/zotero_collection.json` | refs.bib mtime newer than collection snapshot; `refs_bib_refreshed: true` in collection JSON |
@@ -360,7 +360,7 @@ guard reinforces that boundary.
 | fill-protocol | content markdown + institutional Word template (.doc/.docx) | filled `*.docx` preserving original styles, table layouts, fonts, geometry |
 | fill-icmje-coi | author roster (JSON), seed `coi_disclosure.docx` (synthetic shipped) | per-author `coi_disclosure_{author}.docx` (Date, Name, Manuscript Title replaced) |
 | sync-submission | manuscript/, qc/ artifacts, journal profile | submission/{journal}/manifest.md, drift report |
-| peer-review | external manuscript (.docx/.pdf), journal scope | review draft (review.md) following Yoojin Peer-Review Guideline v2.5 |
+| peer-review | external manuscript (.docx/.pdf), journal scope | review draft (review.md) following the medical imaging peer-review guideline |
 
 ### Rules
 1. After each skill completes, run post-skill validation before proceeding.

@@ -25,10 +25,10 @@ hepatology, liver disease, NAFLD, MASLD, alcoholic liver disease, ALD, MetALD, v
 - Review (3.8)
 - Minireview (3.9)
 - Case-Control Study (3.10)
-- **Retrospective Cohort Study (3.11)** ← CK-04 fit
+- **Retrospective Cohort Study (3.11)** ← retrospective-cohort fit
 - Retrospective Study (3.12)
 - Clinical Trials Study (3.13)
-- **Observational Study (3.14)** ← CK-04 fit
+- **Observational Study (3.14)** ← retrospective-cohort fit
 - Prospective Study (3.15)
 - Randomized Controlled Trial (3.16)
 - Randomized Clinical Trial (3.17)

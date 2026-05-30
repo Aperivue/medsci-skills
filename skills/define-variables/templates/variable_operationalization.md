@@ -1,7 +1,7 @@
 # Variable Operationalization — {{PROJECT_SHORT_TITLE}}
 
 - **Research question**: {{ONE_SENTENCE_Q}}
-- **Cohort**: {{COHORT_NAME_TYPE}} (e.g., Samsung Changwon Health Screening Cohort, retrospective)
+- **Cohort**: {{COHORT_NAME_TYPE}} (e.g., Institutional Health Screening Cohort, retrospective)
 - **Author**: {{AUTHOR_NAME}}
 - **Last updated**: {{YYYY-MM-DD}}
 - **Upstream artifacts**: `design_study.md`, `search_lit_results.md` (if present)

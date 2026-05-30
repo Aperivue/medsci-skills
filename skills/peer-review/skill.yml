@@ -1,6 +1,15 @@
-schema_version: 1
+schema_version: 2
 name: peer-review
+layer: C
 owner_domain: external_peer_review
+when_to_use:
+  - User received a journal review invitation and needs a structured review draft
+  - Drafting reviewer comments for a specific journal's review template (RYAI / INSI / EURE / AJR / KJR)
+  - Constructive developmental feedback on an external manuscript PDF
+when_NOT_to_use:
+  - Reviewing the user's own manuscript (use /self-review)
+  - Drafting the user's manuscript (use /write-paper)
+  - Generating references from memory or modifying the external paper (forbidden)
 inputs:
   - external_manuscript.pdf
 outputs:

@@ -38,6 +38,34 @@ Use it when:
 
 ## Phase 0: Init & Outline
 
+### Step 0a — Load design references (read before drafting outline)
+
+Before collecting inputs, the skill loads three reference files:
+
+1. **`references/slide_design_principles.md`** — Reynolds (Presentation Zen) +
+   Duarte (Slide:ology Glance Test™) + Knaflic (Storytelling with Data preattentive
+   attributes) + Tufte (Cognitive Style of PowerPoint). Defines the 5 design
+   principles, reading-time budgets per audience, cognitive-load ceilings, and the
+   anti-patterns this skill is built to avoid. **Read this first** — it shifts the
+   outline from "what content fits" to "what should the audience remember 10 seconds
+   after each slide."
+2. **`references/medical_presentation_templates.md`** — Section structure, slide counts,
+   and design seeds for the 5 contexts: journal club, grand rounds, conference talk,
+   lecture, and academic lecture multi-paper survey. Pick the matching template after
+   Phase 0 inputs are collected, then customize.
+3. **`references/slide_visual_styles/`** — visual style specs (color palette, typography,
+   layout grid, slide-type templates) callable from any of the 5 context templates.
+   Currently available: `nature_lancet.md` (Nature/Lancet aesthetic — white background,
+   navy primary, coral accent, Inter/Pretendard). Default for academic lectures per
+   `~/.claude/rules/academic-lecture-style.md`. Paired with the generic builder
+   `templates/build_pptx_nature_lancet.py` and the PDF figure extractor
+   `scripts/extract_pdf_figures.py`.
+
+These two files mirror the entry-point pattern used in
+`make-figures/references/design_principles.md` (Step 1 "Specify"). Both skills share
+the same Reynolds / Knaflic / Tufte foundations — slide-level (this skill) and
+figure-level (make-figures) are companions, not duplicates.
+
 ### Required Inputs
 
 Before starting, collect these from the user:
@@ -204,10 +232,160 @@ Only include if user requested in Phase 0. Examples:
 
 **Mode A: Generate new slide deck**
 
-Generate a fully-editable PPTX from structured inline data using `python-pptx`. Use the
-template library at `${CLAUDE_SKILL_DIR}/references/generate_pptx_templates.py` as the
-canonical pattern — it ships a working showcase of every template type and a smoke-tested
-`main()`.
+Generate a fully-editable PPTX from structured inline data using `python-pptx`. Two
+canonical template libraries:
+
+- `${CLAUDE_SKILL_DIR}/references/generate_pptx_templates.py` — generic T_lead /
+  T_text / T_table / T_image_right / etc. templates with smoke-tested `main()`. Use
+  for journal club, grand rounds, conference talk, and short paper talks.
+- `${CLAUDE_SKILL_DIR}/templates/build_pptx_nature_lancet.py` — Nature/Lancet visual
+  style (white + navy + coral, Inter/Pretendard, 47-slide academic lecture proven).
+  Use for **academic lecture multi-paper survey** (template #5). Functions:
+  `new_presentation`, `add_title_slide`, `add_toc_slide`, `add_section_divider`,
+  `add_transition_slide`, `add_content_slide`, `add_glossary_slide`,
+  `add_closing_slide`, plus `fix_app_xml()` helper. Style spec:
+  `references/slide_visual_styles/nature_lancet.md`.
+
+For lecture decks pulling figures from PDFs (rather than from `/make-figures`
+output), use `${CLAUDE_SKILL_DIR}/scripts/extract_pdf_figures.py` — pdftoppm + PIL
+crop with normalized (0–1) box coordinates. Supports both single-crop CLI and YAML
+batch config.
+
+After raw extraction, run `${CLAUDE_SKILL_DIR}/scripts/trim_caption.py` to
+**auto-remove journal headers / figure captions / surrounding whitespace** so
+that only the figure body remains — the Adobe-Acrobat-crop equivalent in
+automation. The script uses horizontal-projection segmentation plus
+text-band detection (height + density + gap + line-pattern signature) and
+preserves multi-panel figures intact:
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/trim_caption.py" \
+  --in-dir  figures/extracted \
+  --out-dir figures/cropped
+```
+
+Handles four common journal layouts: top running-head bar, bottom multi-line
+caption (sparse text), bottom caption *fused* with figure body (no clear gap,
+detected via narrow dark/light alternation), and multi-row tables with
+footnotes (footnote cut, table rows preserved). No tesseract / OCR
+dependency — Pillow + numpy only. Verified on 12-figure academic deck
+(80–95% height retention; captions, journal banners, and CellPress-style
+headers all removed). When the deck slot expects only the figure body
+(default for `build_pptx_nature_lancet.py`), point `FIG_DIR` at the cropped
+output dir.
+
+### Word-boundary aware markdown parser (mandatory for HLA-rich decks)
+
+When the build script parses inline `**bold**` / `*italic*` markers in slide
+body or speaker notes, the italic rule must use **word-boundary lookahead /
+lookbehind** so asterisk-bearing scientific tokens (HLA alleles like
+`DRB1*07:01`, `HLA-A*02:01`, SNP IDs, footnote markers) are not eaten as
+italic delimiters:
+
+```python
+import re
+pattern = re.compile(
+    r"(\*\*(?:(?!\*\*).)+?\*\*"                           # bold; inner single * allowed
+    r"|(?<![A-Za-z0-9])\*[^*\n]+?\*(?![A-Za-z0-9]))"      # italic (word-boundary)
+)
+```
+
+Two regex tricks together:
+1. **Italic with boundary**: `(?<![A-Za-z0-9])` and `(?![A-Za-z0-9])` reject
+   `*` adjacent to alphanumerics, so `DRB1*07:01` is left intact.
+2. **Bold tolerates inner single `*`**: `(?:(?!\*\*).)+?` allows
+   `**DRB1*04:02**` (HLA allele inside bold) to match as a single bold span.
+
+Without these, a naive `\*[^*]+\*` italic pattern silently corrupts every
+HLA allele in the deck. Add the regex to `add_styled()` (or equivalent) in
+every Nature/Lancet-style build script.
+
+### Pronunciation auto-augment for non-native presenters
+
+For decks where the presenter is uncomfortable with English pronunciation of
+acronyms, author names, drug names, or gene symbols, append a per-slide
+`[ Pronunciation ]` section to the speaker notes (audience sees nothing —
+only Presenter View). Use
+`${CLAUDE_SKILL_DIR}/scripts/inject_pronunciation_notes.py`:
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/inject_pronunciation_notes.py" \
+  input.pptx output.pptx \
+  --dict pron_dict.yaml \
+  --header "[ 발음 ]"            # or any header you like
+```
+
+The script:
+- Loads a YAML/JSON `PRON_DICT` (term → [reading, full_name]) supplied by
+  the caller. The dict is domain-specific — assemble it for your audience
+  (Korean readings, French readings, Spanish readings, etc.).
+- Uses **word-boundary regex** `(?<![A-Za-z0-9_]) … (?![A-Za-z0-9_])` so
+  short acronyms (e.g. `AE`, `OR`) only match when standalone, never inside
+  other words.
+- Recognizes allele-style tokens via a separate regex
+  (`\b(?:HLA-)?[A-Z]{1,5}[0-9]?\*[0-9]{2}:[0-9]{2}\b` by default) and
+  synthesizes their reading from the base allele entry in the dict.
+- Skips slides that already contain the header (idempotent — safe to re-run).
+
+Realistic yield on a 47-slide academic deck: ~38 slides receive a section,
+~300 total term entries, 5–10 per annotated slide. Transition and divider
+slides have empty notes and are auto-skipped.
+
+### Speaker notes statistics density
+
+When the slide body already shows exact OR / 95% CI / p-value, the notes
+should NOT repeat the same numbers — the presenter ends up reading
+statistics aloud and the audience cannot keep up. Notes should be a
+**narrative** (key anchors + one-line "see the slide body for the exact
+numbers" reminder), not a numeric listing.
+
+Quick measurement to spot dense slides during QC:
+
+```python
+import re
+text = slide.notes_slide.notes_text_frame.text.split(pron_header)[0]
+n_char = len(text)
+n_stat = len(re.findall(r"\b(?:OR|p|CI)\s*[=<>]?\s*\d|\d+\.\d+|\d+%|×10", text))
+needs_compression = n_char > 1000 and n_stat >= 5
+```
+
+Rule of thumb: 700–1,000 chars + 0–2 stat tokens is fine (30–60-second
+narrative). >1,000 chars + ≥5 stat tokens → compress to narrative tone and
+point at the slide body. Exact numbers belong in the slide body and
+footnotes (SSOT), not the notes.
+
+### Sharing-ready notes-stripped variant
+
+After the presentation, when the deck is shared with the audience (e.g. a
+professor asking for the slides), the speaker notes typically contain
+presenter-only material — second-language narrative, pronunciation hints,
+self-referential reminders ("Prof. ○○ will likely ask about …"). Stripping
+notes is mandatory before circulation. Use
+`${CLAUDE_SKILL_DIR}/scripts/strip_notes_for_sharing.py`:
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/strip_notes_for_sharing.py" \
+  presenter_v9.pptx share/<topic>_<initials>.pptx
+```
+
+The script:
+- Clears every slide's `notes_text_frame` (idempotent, slide body and
+  figures untouched).
+- Re-writes `docProps/app.xml` with the correct `Slides=` and `Notes=`
+  counts so PowerPoint Mac does not show its repair dialog (see also the
+  app.xml canonical fix in `pptx-mac-compatibility.md` §5).
+- Verifies that zero notes characters remain.
+
+Recommended 3-file sharing package (filename pattern `<topic>_<initials>`):
+- `<topic>_<initials>.pptx` — notes-stripped variant for slide reuse
+- `<topic>_<initials>.pdf` — same deck, PDF for environment-agnostic
+  preview (LibreOffice `--convert-to pdf` automatically drops the cleared
+  notes pages)
+- `<topic>_<initials>_references.zip` — optional bundle of the reference
+  PDFs; if it exceeds the email attachment limit, send a Google Drive link.
+
+In the cover email, mention the PPTX is included specifically so the
+recipient can reuse individual slides if useful.
 
 ### Architecture
 
@@ -230,13 +408,22 @@ Three rules that keep slides stable:
 | `T_lead` | Title slide, section divider | `title`, `subtitle?`, `extra?` |
 | `T_text` | Bullet body (most common) | `title`, `body_lines[]`, `subtitle?` |
 | `T_table` | Cohort tables, comparisons | `title`, `headers[]`, `rows[][]`, `body_before?` |
-| `T_image_right` | Body + figure on right | `title`, `body_lines[]`, `img_path`, `img_pct?` |
+| `T_image_right` | Body + figure on right | `title`, `body_lines[]`, `img_path`, `img_pct?` (PNG ≥300dpi or vector PDF — see Figure source formats below) |
 | `T_quote_slide` | Verbatim citations, witness quotes | `title`, `quotes[]`, `body_after?`, `img_path?` |
 | `T_two_col` | Compare/contrast | `title`, `left_lines[]`, `right_lines[]` |
 | `T_two_col_with_box` | Compare + emphasis | as above + `metaphor_col`, `metaphor_lines[]` |
 | `T_highlight_slide` | Single key result | `title`, `highlight_lines[]`, `body_before?` |
 | `T_metaphor_body` | Body + analogy footer | `title`, `body_lines[]`, `metaphor_lines[]` |
 | `T_table_two_col` | Take-aways + numeric table | `title`, `left_lines[]`, `headers[]`, `rows[][]` |
+
+### Figure source formats (when consuming `/make-figures` output)
+
+When the deck pulls figures from `analysis/figures/` produced by `/make-figures`:
+
+- **Preferred for slides**: PNG at ≥300 dpi. python-pptx `add_picture()` handles this directly. Set `img_pct` (template `T_image_right`) so the figure occupies ≥40 % of slide width on a 13.33 × 7.5-in widescreen layout.
+- **Vector source available**: prefer PDF only if the slide will be projected at >1080p or printed as a handout — convert PDF → PNG at the target DPI (`pdftoppm -r 300 input.pdf out_prefix`) before insertion, because python-pptx PDF embedding is unreliable across PowerPoint versions.
+- **Forbidden**: TIFF (Mac PowerPoint silently drops it — see Mac compatibility checklist below); JPEG for line art (compression artifacts on diagonal lines); raw SVG (PowerPoint Mac handles it inconsistently).
+- **Caption / legend**: re-draft for spoken-narration context, not the journal legend verbatim. The journal legend assumes a reader; the slide caption assumes a listener with 5–10 seconds of attention.
 
 ### Helpers (used by templates — usually you do not call directly)
 
@@ -346,6 +533,32 @@ cd /tmp/work && zip -rq ../patched.pptx . -x '*.DS_Store'
 Save to `output/presentation.pptx`. Speaker notes go into the notes pane only — never
 modify slide design when adding notes.
 
+### Step 3.5 — Slide critic (run before delivering deck)
+
+After exporting the PPTX, run the slide critic rubric at
+`references/critic_rubrics/slide.md`. Score each slide and the deck-level Mac
+compatibility checks (Section F) as PASS / PARTIAL / FAIL. Produce concrete edits for
+every FAIL or PARTIAL item before treating the deck as ready.
+
+Mandatory deck-level checks (cross-link with `~/.claude/rules/pptx-mac-compatibility.md`):
+
+```bash
+# F.22 No TIFF
+find ppt/media -iname '*.tif*' || true   # must be empty
+
+# F.23 No 3-D bevel
+grep -l '<a:sp3d>' ppt/slides/*.xml      # must be empty
+
+# F.24 app.xml count sync
+grep -c '<Slides>\|<Notes>' docProps/app.xml
+ls ppt/slides/slide*.xml | wc -l         # must match
+
+# F.25 srcRect bounds (any value > 100000 = bug)
+grep -oE '"[0-9]{6,}"' ppt/slides/*.xml | head
+```
+
+Record `critic_pass: yes | partial | no` and `refine_rounds: N` in `_quick_review.md`.
+
 **Mode B: Add notes to existing slides** (more common)
 - Read existing PPTX to understand slide structure and count
 - Map speaker script sections to corresponding slides
@@ -424,11 +637,25 @@ All outputs go in the user's presentation directory:
 ├── _references.md            # Phase 1: Verified references + key data
 ├── _script.md                # Phase 2: Speaker script
 ├── _qa_prep.md               # Phase 4: Expected Q&A
-├── _quick_review.md          # Phase 4: Pre-presentation review sheet
+├── _quick_review.md          # Phase 4: Pre-presentation review sheet + critic_pass record
+├── _slide_critic.md          # Phase 3.5: Slide rubric scores per slide
 ├── inject_notes.py           # Phase 3: Tailored note injection script
 ├── figures/                  # Extracted paper figures (if needed)
 └── reference/                # Supporting paper PDFs (if downloaded)
 ```
+
+## Cross-skill / Cross-rule integration
+
+This skill composes with adjacent skills and global rules:
+
+| When | Use | Why |
+|---|---|---|
+| Need a figure on a slide (ROC, forest, KM, flow) | `/make-figures` first, then embed | Both skills share Reynolds/Knaflic/Tufte foundations; figure-level + slide-level companions |
+| Manuscript reporting checklist parallel | `/check-reporting` for the same paper | Paper presentations often shadow manuscript revision; reporting-guideline gaps surface in Q&A |
+| Visual abstract / Central Illustration | `/make-figures` visual-abstract templates | Then verify against `~/.claude/rules/journal-ai-image-policies.md` (JACC prohibits, Radiology allows with disclosure) |
+| PPTX edits to existing institutional template | `~/.claude/rules/pptx-mac-compatibility.md` | Patch over rebuild; preserve master/layout/srcRect |
+| Manuscript companion deck | `~/.claude/rules/manuscript-style-classical.md` | Heading style, AI-Disclosure policy, em-dash discipline carry over to slides for senior MA reviewer audiences |
+| References on slides | `/verify-refs` (audit-only) before delivery | Same anti-hallucination gate as manuscript references |
 
 ---
 

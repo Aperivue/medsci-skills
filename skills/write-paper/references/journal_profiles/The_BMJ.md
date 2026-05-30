@@ -101,7 +101,7 @@
 - Avoid "significant" without accompanying statistics; use "statistically significant (P = .03)" or report the effect size with CI.
 - Statistical software and version must be identified in Methods.
 
-## Strategic Notes for MeducAI Paper 3
+## Strategic Notes for an education-research manuscript
 
 - **Education section**: NOT suitable (commissioned only, proposal required)
 - **Research section**: Theoretically possible but very competitive (4% acceptance)

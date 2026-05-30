@@ -7,9 +7,9 @@ Supplementary Tables / Supplementary Figures point to labels that either
 the manuscript body, or (c) carry a caption text in the rendered DOCX
 that disagrees with the body's caption definition.
 
-Precedent: CK-1 CAC Warranty v6.2 (2026-04-28) — body cited
-"Supp Table S4 (CAC>10 sensitivity)" but the rendered DOCX S4 was
-"VIF Diagnostics"; S1, S6, S7 mismatched; S8, S9 cited but absent
+Precedent: an STROBE cohort manuscript revision — body cited
+"Supp Table S4 (a sensitivity-analysis)" but the rendered DOCX S4 was
+a diagnostics table; S1, S6, S7 mismatched; S8, S9 cited but absent
 from DOCX. Internal consistency checks did not catch this because the
 build script carried its own legacy SSOT.
 
@@ -20,16 +20,34 @@ Inputs
   --out PATH        JSON audit (default: qc/xref_audit.json)
   --strict          exit 1 on any non-OK finding (submission gate)
   --quiet           suppress stdout summary table
+  --vN-docx-md5 PATH
+                    v_N (previous version) docx path. When supplied:
+                    (a) asserts the new --docx MD5 differs from this docx
+                        (identity = unmodified seed copy);
+                    (b) when --vN-md is also supplied, computes the
+                        markdown-only diff and verifies each diff line
+                        appears verbatim in the new docx body XML.
+  --vN-md PATH      v_N markdown path (used by --vN-docx-md5 diff check).
+
+v_(N+1) docx regeneration check
+-------------------------------
+Defense-in-depth at build time (complements verify_package_integrity.py
+--assert-vN-docx-changed which runs at submission time). If a markdown
+body change exists between v_N and v_(N+1) but the v_(N+1) docx is a
+byte-identical copy of v_N, the change will silently revert at peer
+review. The check fails fast at the QC stage.
 
 Output
 ------
   qc/xref_audit.json with submission_safe boolean and per-label rows.
-  Stdout: human-readable 3-way matrix.
+  When --vN-docx-md5 is used, the JSON also carries a `vN_docx_check`
+  block with `identical_bytes` and `diff_line_misses` fields.
 
 Exit codes
 ----------
   0  all OK (or non-strict and only warnings)
   1  --strict and at least one non-OK finding
+     OR v_N docx identity / diff-miss assertion failure
   2  argument / IO error
 
 Dependencies
@@ -77,10 +95,16 @@ CAPTION_RE = re.compile(
     re.IGNORECASE | re.MULTILINE,
 )
 
-# Section header patterns for the manuscript body's caption sections
+# Section header patterns for the manuscript body's caption sections.
+# Longer alternatives MUST come first so that "FIGURE LEGENDS" is not
+# truncated to "FIGURE" by an earlier short match.
+# Markdown bold wrappers (``## **FIGURE LEGENDS**``) are tolerated.
 CAPTION_SECTION_RE = re.compile(
-    r"^#{1,3}\s+(Tables|Figures|Figure\s+Legends|Supplementary\s+Tables|"
-    r"Supplementary\s+Figures|Supplementary\s+Materials?)\b",
+    r"^#{1,3}\s+\*{0,2}"
+    r"(Supplementary\s+Tables?|Supplementary\s+Figures?|Supplementary\s+Materials?|"
+    r"Figure\s+Legends?|Table\s+(?:Captions?|Legends?)|"
+    r"Tables?|Figures?)"
+    r"\*{0,2}",
     re.IGNORECASE | re.MULTILINE,
 )
 
@@ -370,6 +394,90 @@ def render_summary(findings: list[Finding], cited_count: int) -> str:
     return "\n".join(lines)
 
 
+def _md5_of(path: Path) -> str:
+    import hashlib
+    h = hashlib.md5()
+    with path.open("rb") as fh:
+        for chunk in iter(lambda: fh.read(65536), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def _docx_body_text(docx_path: Path) -> str:
+    """Concatenate all w:t text content from a docx for substring search."""
+    import zipfile
+    try:
+        with zipfile.ZipFile(docx_path, "r") as z:
+            xml = z.read("word/document.xml").decode("utf-8", errors="replace")
+    except (zipfile.BadZipFile, KeyError, OSError):
+        return ""
+    # Strip XML tags — we only need text content for verbatim grep.
+    return re.sub(r"<[^>]+>", " ", xml)
+
+
+def _markdown_diff_lines(vN_md: Path, new_md: Path) -> list[str]:
+    """Lines present in new_md but not in vN_md (added/changed lines).
+
+    Trimmed to non-trivial substrings (≥40 chars after stripping markdown
+    metacharacters) so that the verbatim grep is meaningful.
+    """
+    old_lines = set(vN_md.read_text(encoding="utf-8").splitlines())
+    out: list[str] = []
+    for ln in new_md.read_text(encoding="utf-8").splitlines():
+        if ln in old_lines:
+            continue
+        # Strip leading markdown noise (headers, list markers) and YAML.
+        clean = re.sub(r"^[\s#>*\-_+~`|]+", "", ln).strip()
+        if len(clean) >= 40:
+            out.append(clean)
+    return out
+
+
+def run_vN_docx_check(
+    new_docx: Path,
+    vN_docx: Path,
+    new_md: Path | None,
+    vN_md: Path | None,
+) -> dict:
+    """Returns {identical_bytes, diff_line_misses, error?}.
+
+    identical_bytes is True if v_N and new docx have the same MD5.
+    diff_line_misses lists v_N→v_(N+1) markdown additions that do NOT
+    appear in the new docx body XML.
+    """
+    out: dict = {
+        "vN_docx": str(vN_docx),
+        "new_docx": str(new_docx),
+        "identical_bytes": False,
+        "diff_line_misses": [],
+    }
+    if not vN_docx.is_file():
+        out["error"] = f"v_N docx not found: {vN_docx}"
+        return out
+    if not new_docx.is_file():
+        out["error"] = f"new docx not found: {new_docx}"
+        return out
+    if _md5_of(vN_docx) == _md5_of(new_docx):
+        out["identical_bytes"] = True
+        return out  # Identity already disqualifies — no point checking diff.
+
+    if new_md is not None and vN_md is not None:
+        if not new_md.is_file() or not vN_md.is_file():
+            out["error"] = "v_N md or new md not found"
+            return out
+        diff_lines = _markdown_diff_lines(vN_md, new_md)
+        body_text = _docx_body_text(new_docx)
+        # Light normalization: collapse runs of whitespace.
+        body_norm = re.sub(r"\s+", " ", body_text).lower()
+        misses: list[str] = []
+        for diff in diff_lines:
+            needle = re.sub(r"\s+", " ", diff).lower()
+            if needle not in body_norm:
+                misses.append(diff[:120])
+        out["diff_line_misses"] = misses
+    return out
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--md", required=True, type=Path, help="manuscript.md path")
@@ -377,6 +485,34 @@ def main() -> int:
     parser.add_argument("--out", type=Path, default=Path("qc/xref_audit.json"))
     parser.add_argument("--strict", action="store_true", help="exit 1 on any non-OK finding")
     parser.add_argument("--quiet", action="store_true")
+    parser.add_argument(
+        "--allow-separate-attachments", action="store_true",
+        help="Downgrade MISSING_DOCX from FAIL to WARN for figures/tables that are "
+             "submitted as separate attachment files (common in radiology and many "
+             "medical journals). MISSING_BODY and MISMATCH remain FAIL regardless.",
+    )
+    parser.add_argument(
+        "--vN-docx-md5",
+        dest="vN_docx_md5",
+        type=Path,
+        default=None,
+        help=(
+            "v_N docx path. Asserts the new --docx MD5 != this docx. "
+            "Identity = unmodified seed copy = FAIL."
+        ),
+    )
+    parser.add_argument(
+        "--vN-md",
+        dest="vN_md",
+        type=Path,
+        default=None,
+        help=(
+            "v_N manuscript markdown path (companion to --vN-docx-md5). "
+            "When supplied, every line added in v_(N+1) markdown must "
+            "appear verbatim in the new docx body XML; missing diff "
+            "lines fail."
+        ),
+    )
     args = parser.parse_args()
 
     if not args.md.exists():
@@ -398,14 +534,50 @@ def main() -> int:
     findings = reconcile(citations, body_captions, docx_captions)
 
     # Submission safety: any cited label whose status is not OK or UNCITED is a blocker.
-    blocking_statuses = {"MISSING_DOCX", "MISSING_BODY", "MISMATCH"}
+    # With --allow-separate-attachments, MISSING_DOCX is downgraded to a warning;
+    # MISSING_BODY and MISMATCH remain FAIL regardless because they indicate SSOT
+    # drift rather than journal-policy attachment style.
+    if args.allow_separate_attachments:
+        blocking_statuses = {"MISSING_BODY", "MISMATCH"}
+    else:
+        blocking_statuses = {"MISSING_DOCX", "MISSING_BODY", "MISMATCH"}
     blockers = [f for f in findings if f.status in blocking_statuses]
+    warnings = [
+        f for f in findings
+        if args.allow_separate_attachments and f.status == "MISSING_DOCX"
+    ]
     submission_safe = len(blockers) == 0
 
+    vN_check: dict | None = None
+    vN_check_failed = False
+    if args.vN_docx_md5 is not None:
+        if args.docx is None:
+            print(
+                "ERROR: --vN-docx-md5 requires --docx (the new manuscript docx).",
+                file=sys.stderr,
+            )
+            return 2
+        vN_check = run_vN_docx_check(
+            new_docx=args.docx,
+            vN_docx=args.vN_docx_md5,
+            new_md=args.md,
+            vN_md=args.vN_md,
+        )
+        if vN_check.get("error"):
+            print(f"ERROR: vN docx check: {vN_check['error']}", file=sys.stderr)
+            return 2
+        if vN_check["identical_bytes"]:
+            vN_check_failed = True
+        if vN_check["diff_line_misses"]:
+            vN_check_failed = True
+
     payload = {
-        "version": "1.0",
+        "version": "1.2",
         "manuscript": str(args.md),
         "docx": str(args.docx) if args.docx else None,
+        "policy": {
+            "allow_separate_attachments": bool(args.allow_separate_attachments),
+        },
         "summary": {
             "total_in_text_citations": len(citations),
             "unique_labels": len(findings),
@@ -414,9 +586,12 @@ def main() -> int:
             "missing_body": sum(1 for f in findings if f.status == "MISSING_BODY"),
             "mismatch": sum(1 for f in findings if f.status == "MISMATCH"),
             "uncited": sum(1 for f in findings if f.status == "UNCITED"),
+            "blockers": len(blockers),
+            "warnings": len(warnings),
         },
-        "submission_safe": submission_safe,
+        "submission_safe": submission_safe and not vN_check_failed,
         "findings": [asdict(f) for f in findings],
+        "vN_docx_check": vN_check,
     }
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
@@ -425,10 +600,31 @@ def main() -> int:
     if not args.quiet:
         print(render_summary(findings, len(citations)))
         print(f"\n[check_xref] wrote {args.out}")
+        if warnings:
+            print(
+                f"[check_xref] WARN: {len(warnings)} MISSING_DOCX row(s) downgraded "
+                f"under --allow-separate-attachments."
+            )
         if not submission_safe:
             print(f"[check_xref] SUBMISSION BLOCKED: {len(blockers)} cross-reference defect(s).")
+        if vN_check is not None:
+            if vN_check["identical_bytes"]:
+                print(
+                    "[check_xref] FAIL: v_(N+1) docx is byte-identical to "
+                    "v_N docx — unmodified seed copy, regenerate via "
+                    "pandoc / Zotero CWYW."
+                )
+            elif vN_check["diff_line_misses"]:
+                print(
+                    f"[check_xref] FAIL: {len(vN_check['diff_line_misses'])} "
+                    "markdown diff line(s) absent from new docx body. "
+                    "v_(N+1) docx body did not pick up the markdown edits."
+                )
+                for miss in vN_check["diff_line_misses"][:5]:
+                    print(f"    - {miss}")
 
-    if args.strict and not submission_safe:
+    block_exit = args.strict and not submission_safe
+    if block_exit or vN_check_failed:
         return 1
     return 0
 

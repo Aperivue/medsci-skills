@@ -8,9 +8,9 @@ forms using `python-docx`.
 
 ## Template Location
 
-Use any existing blank ICMJE form as template. Known locations:
-- MeducAI: `5_Personal_Research/MeducAI/7_Manuscript/Paper1/submission/icmje_coi_forms/`
-- Download blank: https://www.icmje.org/disclosure-of-interest/
+Use any existing blank ICMJE form as template. Suggested locations:
+- A previously-used filled form from one of your manuscripts (under `<project>/submission/{journal}/icmje_forms/`).
+- Download a blank from https://www.icmje.org/disclosure-of-interest/.
 
 ## ICMJE Form Structure (docx)
 
@@ -122,23 +122,20 @@ def _safe_append(cell, text):
 
 # === Example usage ===
 if __name__ == "__main__":
-    # RFA Meta authors
+    # Replace with the actual author roster for your manuscript.
     authors = [
-        ("Yoojin Nam", "eugene8998@gmail.com"),
-        ("Dong Yeong Kim", "keo8410@gmail.com"),
-        ("Kyung Won Kim", "kyungwon.kim@aim-aicro.com"),
-        ("Jeong Min Song", "jmsong.rad@gmail.com"),
-        ("Jaeyoon Kim", "rwd4856@naver.com"),
-        ("Pa Hong", "honeia11@gmail.com"),
-        ("Hyunchul Rhim", "rhim.hc@gmail.com"),
+        ("Author One", "author1@example.com"),
+        ("Author Two", "author2@example.com"),
+        ("Author Three", "author3@example.com"),
+        # ...
     ]
-    
+
     generate_coi_forms(
         template_path="path/to/blank_ICMJE_template.docx",
-        output_dir="7_Submission/icmje_coi_forms/",
-        manuscript_title="Adjunct Fluid Techniques for Percutaneous Thermal Ablation...",
+        output_dir="submission/{journal}/icmje_coi_forms/",
+        manuscript_title="Your Manuscript Title Here",
         authors=authors,
-        date_str="2026-04-XX",
+        date_str="YYYY-MM-DD",
     )
 ```
 

@@ -1,6 +1,16 @@
-schema_version: 1
+schema_version: 2
 name: calc-sample-size
+layer: A
 owner_domain: study_design
+when_to_use:
+  - User asks for a sample size, power calculation, or "how many patients/subjects do I need"
+  - Drafting an IRB sample size justification before /write-protocol Methods
+  - Re-deriving N when a reviewer challenges the original power assumption
+  - Estimating events-per-variable (EPV) for survival or logistic regression
+when_NOT_to_use:
+  - Statistical analysis of collected data (use /analyze-stats)
+  - Choosing the test itself rather than its N (use /design-study)
+  - Replicating a prior study's reported N without recomputation (still re-derive)
 inputs:
   - study_design (proportions, continuous, agreement, survival, ANOVA, logistic, NI/equivalence, diagnostic accuracy, repeated measures, Cox EPV)
   - parameters (effect size, alpha, power, attrition rate, etc.)

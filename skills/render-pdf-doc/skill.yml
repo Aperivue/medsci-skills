@@ -1,6 +1,17 @@
-schema_version: 1
+schema_version: 2
 name: render-pdf-doc
+layer: A
 owner_domain: document_layout
+when_to_use:
+  - Render a non-bibliography Korean/English academic markdown to publication-quality PDF
+  - Research proposals, IRB cover letters, briefing handouts, anchor docs, reference tables
+  - Auto-infer pipe-table column widths for content-proportional layout
+  - CJK-font-aware PDF on macOS (Apple SD Gothic Neo) or Linux (Noto Sans CJK KR)
+when_NOT_to_use:
+  - Manuscripts with bibliography (use /manage-refs scripts/render_pandoc.sh — owns CSL pipeline)
+  - Filling institutional Word form templates (use /fill-protocol)
+  - Figures, plots, or PPTX (use /make-figures or /present-paper)
+  - Hand-typing CSV data into tables (forbidden — see numerical-safety rule)
 inputs:
   - markdown_file (non-bibliography academic doc — proposal, briefing, anchor doc, IRB cover, reference table)
   - frontmatter (optional; mainfont, CJKmainfont, geometry, fontsize, linestretch)
@@ -26,7 +37,7 @@ forbidden_actions:
   - hand_typing_csv_data_into_tables  # ~/.claude/rules/numerical-safety.md
 provenance:
   origin: "P3 spinoff from /write-paper Phase 7.6 split (2026-05-01)"
-  precedent: "MeducAI Paper 2 calibration anchor PDF — manual fix x2 → skill"
+  precedent: "an education-research calibration anchor PDF — manual fix x2 → skill"
 quality_gates:
   - check_deps.sh: pandoc + xelatex + CJK font 의존성 미설치 시 hard exit
   - infer_colwidths.py: 균등 분할 (--equal) 옵션 명시 안 한 경우 content-proportional dash 강제

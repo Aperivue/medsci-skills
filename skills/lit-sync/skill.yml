@@ -1,6 +1,16 @@
-schema_version: 1
+schema_version: 2
 name: lit-sync
+layer: A
 owner_domain: zotero_sync
+when_to_use:
+  - User wants to add PMIDs / DOIs / Zotero collection items to the project library
+  - After /search-lit when verified candidates need to flow into Zotero + refs.bib
+  - Cross-cutting concept-note extraction from accumulated literature into Obsidian
+  - Refreshing manuscript/_src/refs.bib via Better BibTeX auto-export before a build
+when_NOT_to_use:
+  - Pure literature search without sync (use /search-lit)
+  - Hand-editing refs.bib (BBT is the sole writer; never touch the file directly)
+  - Reference verification audit (use /verify-refs)
 inputs:
   - references/library.bib  # search-lit candidate pool (optional)
   - PMID list, DOI list, or Zotero collection name

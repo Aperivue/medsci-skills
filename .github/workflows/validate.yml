@@ -1,0 +1,31 @@
+name: Validate skills (PII + structure)
+
+# Server-side enforcement of validate_skills.sh.
+# This catches commits that bypassed the local pre-commit hook
+# (--no-verify, different machine, different user) before they reach main.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Python deps for contract validator
+        run: pip install pyyaml
+
+      - name: Install exiftool (for binary EXIF metadata scan)
+        run: sudo apt-get update && sudo apt-get install -y libimage-exiftool-perl
+
+      - name: Run validate_skills.sh (PII + structure)
+        run: bash scripts/validate_skills.sh

@@ -142,7 +142,7 @@ AJR endorses the SAMPL (Statistical Analyses and Methods in the Published Litera
 - Statistical review for accepted manuscripts.
 - Statistical software and version must be reported in Methods.
 
-## Special Considerations for MeducAI Papers
+## Special Considerations for Education-Research Manuscripts
 
 - Paper 3 (Educational Effectiveness) could fit AJR's scope if framed around radiology education and AI-assisted learning tools.
 - The "What Does This Article Add?" box and Key Points are mandatory and should be drafted early to clarify the paper's contribution.
