@@ -281,6 +281,56 @@ checked.
 escalate to a Major Comment even if the audited values happen to match — the next revision
 will re-introduce the same risk.
 
+### Phase 2.5a-2: Design & Power Statistic Provenance (computed, not extracted)
+
+Phase 2.5a traces data-derived numbers back to a CSV and a primary source. **Design and power
+statistics are a different class and a common blind spot**: the minimum detectable effect
+(MDE), a-priori or post-hoc power, the required sample size for a future trial, and the
+a-priori effect-size assumptions behind them are *computed*, not extracted, so they have no
+CSV row or source-paper Table to trace to. They routinely escape both the internal-consistency
+check and the source-fidelity audit above.
+
+**Precedent failure pattern:**
+> A pilot study reported a minimum detectable effect of d = 1.67. No standard two-sample method
+> reproduces it (the correct value at the stated n, alpha, and power was about 1.24). It survived
+> several review rounds because no committed script computed it — the value had been hand-entered —
+> and one reviewer even cited the figure approvingly. In the same manuscript, a set of future-trial
+> sample sizes was numerically correct but had been produced with an exact noncentral-t tool, while
+> the committed script used a normal approximation and printed different numbers: right value, no
+> reproducible provenance.
+
+**Procedure:**
+
+1. **Inventory design/power claims.** Search for: "minimum detectable", "detectable effect",
+   "MDE", "power" (80% / 90% / "1 − beta"), "sample size", "n = N per arm/group", "to detect",
+   "powered to", "a priori", and any a-priori planning effect size (Cohen's d / f / OR used for
+   sizing).
+
+2. **Require a reproducible source for each.** Every such value must be produced by committed
+   code (e.g. `statsmodels` `TTestIndPower`, a G*Power-equivalent, or an explicit noncentral-t
+   computation), with the inputs stated in the manuscript: n per arm, alpha, power, allocation
+   ratio, and one- vs two-sided. A value with no committed-code source is the highest-risk case.
+
+3. **Recompute independently** with a standard tool, then classify:
+   - **Not reproducible by any standard method** → likely a calculation error (Major; P0 if it
+     is a headline claim). This is the d = 1.67-vs-1.24 case above.
+   - **Reproducible only by a method the committed script does not implement** (e.g. the
+     manuscript value is noncentral-t but the script is a normal approximation) → provenance /
+     method drift. The number may be correct, but update the committed code so it reproduces the
+     reported value (Major: reproducibility, not correctness).
+
+4. **Method-consistency across the manuscript.** All power, sample-size, and MDE statistics in
+   one paper should share a single method family (e.g. all noncentral-t). A mix of normal
+   approximation and exact-t within one manuscript signals that some values were computed in an
+   ad-hoc side tool.
+
+5. **Any non-reproducible design/power value is a Major Comment;** a non-reproducible headline
+   power or MDE claim is a P0 submission blocker.
+
+**Hand-entered design/power statistics are a code smell even when correct.** If no committed
+function emits the value, flag it: the next revision will re-introduce the risk, and a reviewer
+who recomputes will not match the manuscript.
+
 ### Phase 2.5b: Screening-Count Reconciliation from ID Sets (SR/MA-only)
 
 Internal consistency across Abstract/Methods/Results (Phase 2.5) + source fidelity of 2×2 and
@@ -652,6 +702,7 @@ Here is how to address it with your existing data."
 |---|---|---|---|
 | Phase 2.5b cross-reference QC (delegate `/manage-refs scripts/check_xref.py`) | ENFORCED | MISSING_DOCX / MISSING_BODY / MISMATCH > 0 | P0 Major Comment, blocks submission |
 | Phase 2.5c reference hallucination scan (delegate `/verify-refs`) | ENFORCED | `FABRICATED` in `records[]` OR nonempty `duplicate_findings[]` | P0 Major Comment, blocks submission |
+| Phase 2.5a-2 design/power statistic provenance | ENFORCED | a reported MDE / power / sample-size value is not reproduced by committed code, or is reproducible only by a method the committed script does not implement | Major Comment (P0 if a headline claim); recompute and either correct the value or update the committed code to reproduce it |
 | `--fix` auto-fix loop (max 2 iterations) | ENFORCED in `/write-paper` Phase 7.4 chain | score still below threshold after 2 iterations | Route to write-paper Phase 7.4a Audit Recovery |
 | R0 numbering output | OPT-IN | `--r0-numbering` flag or downstream `/revise` consumer | Emits structured Anticipated Major/Minor Comments — consumable by `/revise` |
 | `--json` machine-readable output | OPT-IN | `--json` flag | Emits parseable JSON block consumed by `/orchestrate` post-skill validation |
