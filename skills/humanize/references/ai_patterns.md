@@ -418,6 +418,15 @@ text under review is a response letter or cover letter. See the revise skill's
 `references/r2r_voice.md` for full before/after skeletons. Examples below are synthetic
 (a fictional deep-learning lung-nodule CT study).
 
+**Related (triage, not a fixed-string pattern):** *defensive over-elaboration* — pre-emptive
+cross-reviewer lobbying ("Reviewers 2 and 3 also accepted this"), defensive meta-comments ("we
+confirm this is unchanged and not softened"), manufactured paragraphs answering a satisfied
+reviewer, or a separate cover letter on an R2+ round when its content belongs in the
+response-letter head — is a succinctness / round-discipline issue, not a regex pattern, and is
+most common on R2+ rounds. The normative guidance lives in the revise skill (Step 5 +
+Response-Letter Voice), its `references/r2r_voice.md`, and the `rebuttal-letter-style` rule;
+humanize only cross-references it (no hard fail, no detection regex added here).
+
 ### Pattern 22: Editing-Mechanism / Change-Log Narration
 
 The response prose narrates *how the text was edited* — what was added, where, how many phrases

@@ -340,6 +340,16 @@ Three principles when drafting (the AI-tell patterns themselves are defined once
 - **Admit error plainly** when the reviewer is right ("The reviewer is correct; we have corrected this.") — natural humility reads as human and builds editor trust.
 - **Quote the new manuscript text** verbatim in quotation marks, then name its section — what experienced authors do, and the single strongest human signal across real letters.
 
+### Succinctness & non-defensiveness (especially R2+)
+
+Let the point-by-point prove the work; strip the pre-emptive defence. This matters most on **R2+ rounds**, where over-explaining reads as anxiety rather than rigor.
+
+- **No pre-emptive hand-holding.** Drop "Reviewers 2 and 3 also accepted this," "we left it unchanged because the other reviewers were satisfied," and similar cross-reviewer lobbying. Answer the comment in front of you.
+- **A satisfied reviewer gets one sentence.** If a reviewer is content or offers only praise, "We thank the reviewer." or a single sentence is the whole response. Do not manufacture paragraphs.
+- **Cut defensive meta-comments.** Remove "We confirm this statement is unchanged and not softened," "These passages already make the point, so no further text was added." State plainly where the matter is handled and move on.
+- **Fold methodology disclosure into the comment it answers.** Multiplicity, a SAP deviation, or an analysis caveat goes inside the relevant response — not into a separate "Statistical note" front section. Keep the disclosure (never hide a deviation), but keep it in place.
+- **Split, do not bundle.** When a reviewer packs several points into one paragraph, answer each as its own comment with that reviewer sentence quoted, not one block reply to the whole paragraph. Succinct means short *answers*, not fewer *comments*.
+
 See `${CLAUDE_SKILL_DIR}/references/r2r_voice.md` for the before/after gallery, response
 skeletons, and the meta-phrase conversion table.
 
@@ -383,6 +393,34 @@ Sincerely,
 On behalf of all authors
 ```
 
+### R1 vs R2+ cover-letter protocol
+
+The template above is the **R1** convention: a standalone editor cover letter (200-400 words).
+
+On an **R2+ round (second revision onward), do not write a separate cover letter.** Whatever you would say to the editor — the greeting and the brief change summary — belongs in the **head of the response-to-reviewers letter**, not in a second document. A standalone cover letter that merely restates the response letter's summary reads as redundant and, on later rounds, as boilerplate. If an earlier round already produced a `cover_letter_R1.md`, move it to `_superseded/`, exclude it from the R2+ package, and reuse the response-letter head verbatim in any portal "cover letter" field. (Exception: a journal that explicitly requires a separate cover letter at every round — then keep the head summary and the cover letter from duplicating each other.)
+
+**Response-letter head (R2+)** — placed at the top of `response_to_reviewers_R[N].md`, before the point-by-point:
+
+```
+Dear Dr. [Editor Name / "Editor-in-Chief"],
+
+Thank you for the opportunity to revise our manuscript once more. In brief, this
+revision [1-2 sentence summary of the principal changes — e.g., "adds the requested
+subgroup analysis and tempers the three comparisons the reviewers flagged as
+over-stated"].
+
+[If applicable: one sentence on a companion paper, a re-analysis, or a verification
+the editor requested.]
+
+All quotations below are from the revised manuscript. A point-by-point response to each
+comment follows.
+
+Sincerely,
+[First Author Name], on behalf of all authors
+```
+
+Keep the head to a short greeting, a one-paragraph "in brief," an optional companion/verification note, the single line stating quotations are from the revised manuscript, and the signature. Everything else is point-by-point.
+
 ---
 
 ## Step 6: Change Log
@@ -409,6 +447,10 @@ After all responses are drafted, check:
 - [ ] No `§` symbols and no editing-mechanism narration ("v2 adds one sentence", "grep verification", "No further manuscript change")
 - [ ] Acknowledgment openers varied (not one sentence repeated across responses)
 - [ ] Response letter AND cover letter ran through `/humanize` (patterns 22-24 triage hits reviewed; confirmed instances = 0; `§` = 0 hard)
+- [ ] (R2+) No separate cover letter — the editor greeting and "in brief" summary are folded into the response-letter head
+- [ ] (R2+) Satisfied reviewers get ≤1-2 sentences; no pre-emptive hand-holding or cross-reviewer lobbying
+- [ ] Multi-point reviewer paragraphs are split into discrete comments (reviewer sentence quoted + Response N), not answered as a block
+- [ ] Methodology disclosure (multiplicity, SAP deviation) is folded into the relevant response, not a separate front section
 - [ ] Cover letter is addressed to the correct editor
 - [ ] Response letter is 5000-8000 words
 - [ ] Tracked changes are enabled in the revised manuscript
@@ -432,10 +474,11 @@ For R2+, acknowledge whether R1 concerns were fully resolved. If a reviewer rais
 ## Word Count Guidance
 
 - Response letter total: 5000-8000 words (including quoted reviewer comments)
-- Cover letter: 200-400 words
+- Cover letter: 200-400 words (R1 only; on R2+ there is no separate cover letter — see Step 5)
 - MINOR response: 50-150 words
 - MAJOR response: 150-400 words
 - REBUTTAL response: 200-500 words
+- **R2+ rounds run leaner.** Most R1 concerns are already resolved, so the letter is shorter and a satisfied reviewer's response is 1-2 sentences. Do not pad an R2+ reply to reach the R1 range.
 
 ---
 
@@ -468,4 +511,5 @@ For R2+, acknowledge whether R1 concerns were fully resolved. If a reviewer rais
 | `/verify-refs --strict` post-revision | ENFORCED | FABRICATED / HIGH_MISMATCH_FIRST_AUTHOR > 0 | HALT R1 submission |
 | New analysis coordination | ENFORCED | reviewer asks for new analysis | route to `/analyze-stats` (and `/make-figures` if figure changes); never hand-write new numbers |
 | Cover letter to editor | ENFORCED at R1 submission | R1 missing editor cover letter | block submission |
+| R2+ cover-letter handling | ENFORCED at R2+ submission | standalone cover letter present on an R2+ round (not folded into the response-letter head) | move it to `_superseded/`; fold the summary into the head |
 | Response-letter voice / AI-tell | ENFORCED before submission | editing-mechanism narration, internal draft line refs, `§`, tooling leak, or repeated openers in response/cover letter | run `/humanize` (patterns 22-24 as triage; `§` = 0 hard); resolve confirmed tells before submission |

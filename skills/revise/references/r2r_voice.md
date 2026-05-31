@@ -152,6 +152,91 @@ internal line numbers, the `§` markers, or the internal FIX label.
 
 ---
 
+## Succinctness & non-defensiveness (R2+)
+
+Items 1-6 strip the *editing-mechanism* tell. These strip the *defensive over-elaboration* tell,
+which dominates later (R2+) rounds: pre-emptive lobbying, manufactured paragraphs for satisfied
+reviewers, and disclosure piled into a front section. The fix is always to say less and let the
+point-by-point carry the work. (Examples remain synthetic — a fictional imaging deep-learning study.)
+
+### 7. Pre-emptive hand-holding / cross-reviewer lobbying
+
+**AI-tell (bad):**
+"We respectfully note that Reviewers 1 and 3 found this analysis appropriate, and we left the
+primary endpoint unchanged on that basis. We hope Reviewer 2 will agree that the consensus of
+the panel supports our approach."
+
+**Natural (good):**
+"We retained the primary endpoint as pre-registered. Our reasoning is [one-sentence scientific
+justification]; we have added it to the Methods: '[new sentence].'"
+
+Why: answer the reviewer in front of you on the merits. Citing what other reviewers thought is
+lobbying, not science, and reads as defensive.
+
+### 8. Defensive meta-comment about an unchanged passage
+
+**AI-tell (bad):**
+"We confirm that this statement is unchanged and has not been softened or weakened in any way,
+and we emphasise that it already fully conveys the intended claim."
+
+**Natural (good):**
+"This is already stated in the Discussion: '[existing sentence].'"
+
+Why: point to where the matter is handled and stop. Insisting that nothing was weakened invites
+the suspicion that something was.
+
+### 9. Over-elaborated response to a satisfied reviewer
+
+> Reviewer: The revised manuscript is much improved and I have no further concerns.
+
+**AI-tell (bad):**
+"We are deeply grateful to the reviewer for this generous assessment. It has been a privilege to
+benefit from such careful and constructive guidance throughout, and we are delighted that the
+substantial revisions across the Methods, Results, and Discussion have fully addressed the
+concerns raised in the previous round."
+
+**Natural (good):**
+"Thank you."
+
+Why: a satisfied reviewer needs one sentence. A paragraph of gratitude is padding and reads as
+machine-generated filler.
+
+### 10. Methodology disclosure as a separate front section
+
+**AI-tell (bad):**
+A standalone "Statistical Note" at the top of the letter: "Before responding to individual
+comments, we wish to disclose that the subgroup analyses were not adjusted for multiplicity..."
+
+**Natural (good):** inside the response to the comment that raised it —
+"The reviewer is right to ask about multiplicity. These subgroup analyses were exploratory and
+are not adjusted for multiple comparisons; we now state this in the Methods and label them as
+exploratory in Table 3."
+
+Why: keep the disclosure (never hide a deviation) but put it where the reviewer raised it. A
+front-loaded "note" separates the admission from the question and reads as pre-emptive defence.
+
+### 11. Bundling a multi-point paragraph into one block reply
+
+> Reviewer: The introduction is too long, the cohort definition is unclear, and Figure 2 is
+> hard to read.
+
+**AI-tell (bad):**
+"We thank the reviewer for these helpful comments. We have shortened the introduction, clarified
+the cohort, and improved Figure 2 accordingly."
+
+**Natural (good):** split into three —
+"**Comment 1.** *'The introduction is too long.'* We have cut the introduction by roughly a
+third, removing [what]. …
+**Comment 2.** *'The cohort definition is unclear.'* We have added to the Methods: '[new
+sentence].' …
+**Comment 3.** *'Figure 2 is hard to read.'* We have remade Figure 2 with [change]. …"
+
+Why: each sub-point gets a quoted comment and a specific response. A single block reply hides
+which point you actually addressed and which you skipped. Succinct means short answers, not
+fewer comments.
+
+---
+
 ## Three response skeletons
 
 Pick the skeleton that matches the comment's substance; do not force every reply into one shape.
@@ -194,6 +279,21 @@ add [the requested item] in a subsequent revision."
 
 This is a common, courteous move: it shows you took the request seriously, gives a reason, and
 defers rather than flatly refusing.
+
+### Response-letter head (R2+)
+
+On R1 the editor gets a separate cover letter; on **R2+ there is no separate cover letter** — its
+content becomes the head of the response letter. Keep the head to a short greeting, a
+one-paragraph "in brief" summary of the principal changes, an optional one-sentence
+companion/verification note, the single line stating that all quotations are from the revised
+manuscript, and the signature. Then go straight to the point-by-point.
+
+"Dear Dr. [Editor], thank you for the opportunity to revise our manuscript once more. In brief,
+this revision [1-2 sentence change summary]. All quotations below are from the revised
+manuscript; a point-by-point response follows. Sincerely, [First Author], on behalf of all
+authors."
+
+Reuse this head verbatim in any portal "cover letter" field rather than writing a second document.
 
 ---
 
@@ -240,3 +340,7 @@ defers rather than flatly refusing.
 - [ ] New manuscript text quoted verbatim where a sentence-level change was made
 - [ ] Em dashes below threshold (see humanize Pattern 13)
 - [ ] Ran `/humanize` on both documents; triage hits reviewed, confirmed patterns 22-24 instances = 0 (`§` = 0 hard)
+- [ ] (R2+) No separate cover letter; its summary is folded into the response-letter head
+- [ ] Satisfied reviewers answered in 1-2 sentences; no cross-reviewer lobbying or defensive meta-comments
+- [ ] Multi-point reviewer paragraphs split into discrete, individually quoted comments
+- [ ] Methodology disclosures folded into the relevant response, not a separate front section
