@@ -43,19 +43,25 @@ assert_exit "AMSTAR 2 alias present" 0 "$(run --guideline 'AMSTAR 2')"
 assert_exit "RoB 2 alias present" 0 "$(run --guideline 'RoB 2')"
 assert_exit "QUADAS-C alias present" 0 "$(run --guideline QUADAS-C)"
 
-# 2. Advertised-but-unvendored guidelines -> exit 1 (contract violation).
-assert_exit "CONSORT 2010 missing" 1 "$(run --guideline 'CONSORT 2010')"
-assert_exit "CARE missing" 1 "$(run --guideline CARE)"
-assert_exit "SPIRIT missing" 1 "$(run --guideline SPIRIT)"
-assert_exit "CLAIM 2024 missing" 1 "$(run --guideline 'CLAIM 2024')"
+# 2. Now-vendored guidelines -> exit 0 (CONSORT 2025 / SPIRIT 2025 / CARE / CLAIM
+#    2024 were vendored in PR #43; they must resolve to real files).
+assert_exit "CONSORT now vendored" 0 "$(run --guideline 'CONSORT 2025')"
+assert_exit "CARE now vendored" 0 "$(run --guideline CARE)"
+assert_exit "SPIRIT now vendored" 0 "$(run --guideline 'SPIRIT 2025')"
+assert_exit "CLAIM 2024 now vendored" 0 "$(run --guideline 'CLAIM 2024')"
+
+# 2b. Advertised-but-unvendored guidelines -> exit 1 (contract violation). The AI
+#     extensions are routed in the auto-detect table but ship no checklist file.
+assert_exit "CONSORT-AI unvendored" 1 "$(run --guideline 'CONSORT-AI')"
+assert_exit "SPIRIT-AI unvendored" 1 "$(run --guideline 'SPIRIT-AI')"
 
 # 3. Unrecognised guideline -> exit 2.
 assert_exit "unknown guideline" 2 "$(run --guideline NOT-A-REAL-GUIDELINE)"
 
 # 4. Explicit opt-in downgrades missing/unknown to exit 0 but warns (never silent).
-assert_exit "opt-in missing -> 0" 0 "$(run --guideline CARE --allow-from-memory)"
+assert_exit "opt-in unvendored -> 0" 0 "$(run --guideline 'CONSORT-AI' --allow-from-memory)"
 assert_exit "opt-in unknown -> 0" 0 "$(run --guideline NOPE --allow-from-memory)"
-optin_out="$(python3 "$SCRIPT" --guideline CARE --allow-from-memory 2>&1)"
+optin_out="$(python3 "$SCRIPT" --guideline 'CONSORT-AI' --allow-from-memory 2>&1)"
 assert_contains "opt-in emits NON-AUTHORITATIVE warning" "NON-AUTHORITATIVE" "$optin_out"
 
 # 5. Contract-test simulation (codex Improvement B "Prove" step).
@@ -64,7 +70,7 @@ assert_exit "simulate-missing-checklist" 1 "$(run --simulate-missing-checklist)"
 assert_contains "simulate emits standard violation code" "MISSING_CHECKLIST_CONTRACT_VIOLATION" "$sim_out"
 
 # 6. Violation message carries the standardized machine-greppable code.
-viol_out="$(python3 "$SCRIPT" --guideline 'CONSORT 2010' 2>&1)"
+viol_out="$(python3 "$SCRIPT" --guideline 'CONSORT-AI' 2>&1)"
 assert_contains "missing emits standard violation code" "MISSING_CHECKLIST_CONTRACT_VIOLATION" "$viol_out"
 
 printf '\n%d/%d checks passed\n' "$((ran - fail))" "$ran"
