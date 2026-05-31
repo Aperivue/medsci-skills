@@ -1,0 +1,6 @@
+# SHA-256 digests of the maintainer's own name variants. Subtracted from the
+# precedent set by check_precedent.py --allow-author when scanning citation/
+# attribution files (README.md, CITATION.cff, paper.md, .zenodo.json), where
+# the author's name legitimately appears. Hash-only (self-doxxing avoidance).
+91af7b768be9eb722a90c1b1a0a615577121e5e757d47bc9acba760613d4e590
+fffd81a5064f45c1c7db22a075bb64aea1282799221dcf2fa0d2fc5532a7fd6f
