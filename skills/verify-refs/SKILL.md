@@ -69,13 +69,15 @@ Full checkpoint protocol: `references/manual_checkpoint_guide.md`.
 The script uses DOI, PMID, CrossRef, and PubMed E-utilities where available. If
 network verification fails, it records `UNVERIFIED` rather than silently passing.
 
-## Output Contract (v1.2.0)
+## Output Contract (v1.3.0)
 
 | Artifact | Path | Purpose |
 |---|---|---|
-| Audit JSON | `qc/reference_audit.json` | Sole output — row-level status (OK/MISMATCH/UNVERIFIED/FABRICATED), counts, `duplicate_findings[]`, submission-safe flag, full records |
+| Audit JSON | `qc/reference_audit.json` | Sole output — row-level status (OK/MISMATCH/UNVERIFIED/FABRICATED), counts, `cited_authors[]`/`actual_authors[]`, `duplicate_findings[]`, submission-safe flag, full records |
 
-**v1.2.0 (2026-05)** adds `duplicate_findings[]` to the audit JSON and bumps `schema_version` to 3. Verbatim PMID or DOI duplicates within the reference list are flagged as MAJOR findings (resolves `/peer-review` Phase 2A P7). DOI normalization strips `https://doi.org/`, `http://dx.doi.org/`, `doi:` prefixes plus trailing slashes before comparison so `https://doi.org/10.x/abc/` and `10.x/abc` collapse to one key. Both `submission_safe` and `fully_verified` now require `duplicate_findings` to be empty.
+**v1.2.0 (2026-05)** adds `duplicate_findings[]` to the audit JSON. Verbatim PMID or DOI duplicates within the reference list are flagged as MAJOR findings (resolves `/peer-review` Phase 2A P7). DOI normalization strips `https://doi.org/`, `http://dx.doi.org/`, `doi:` prefixes plus trailing slashes before comparison so `https://doi.org/10.x/abc/` and `10.x/abc` collapse to one key. Both `submission_safe` and `fully_verified` now require `duplicate_findings` to be empty.
+
+**v1.3.0 (2026-05)** extends the author cross-check from first-author-only to the **full author list** and bumps `schema_version` to 4. For BibTeX inputs, every cited author family name is compared index-by-index against the authoritative source, and the cited-vs-source author counts are compared. PubMed `efetch.fcgi` (XML full record) is the truth source when a PMID is present — it is authoritative for given/family names where CrossRef is not (a documented case where CrossRef returned a wrong given name that PubMed efetch corrected). Records now carry `cited_authors[]`, `actual_authors[]`, `cited_author_count`, and `actual_author_count`. Motivation: a real AI-assisted manuscript registered a reference with a correct first author but seven of ten fabricated co-author names, and the first-author-only check passed it. Plain-text / TSV inputs, which cannot be parsed into a confident full list, degrade gracefully to the first-author check.
 
 **Removed in Phase 1A.2** (per `docs/artifact_contract.md`):
 - `references/verified_references.tsv` — record-level details now live inside `reference_audit.json` under `records[]`.
@@ -99,31 +101,50 @@ Sole-writer enforcement: `scripts/validate_project_contract.py` will flag any `r
 - Gate 1: stop submission if any row is `FABRICATED`.
 - Gate 2: require user confirmation before accepting `UNVERIFIED` references.
 - Gate 3: rerun after any reference edits.
-- Gate 4 (added 2026-04-26): first-author surname is cross-checked against
-  CrossRef/PubMed. A row whose DOI resolves but whose cited first author does
-  not match the authoritative source is downgraded to `MISMATCH` with
-  `note = "first-author hallucination suspected"`. This catches the common
-  LLM failure mode where a real DOI is paired with an invented author name.
+- Gate 4 (added 2026-04-26; extended to full-author in v1.3.0): the cited
+  author list is cross-checked against the authoritative source (PubMed efetch
+  preferred, then CrossRef, then PubMed esummary). A row whose DOI/PMID resolves
+  but whose cited authors do not match — at any index, or in total count — is
+  downgraded to `MISMATCH`. First-author mismatches get
+  `note = "first-author hallucination suspected"`; #2..#N family or count
+  mismatches get `note = "non-first-author hallucination or count mismatch"`.
+  This catches the LLM failure mode where a real DOI is paired with invented
+  author names anywhere in the list, not just the lead author. Intentional CSL
+  et-al truncation (cited fewer than source) can be silenced per-entry with a
+  BibTeX `_audit_truncated = <N>` field.
 - Gate 5 (added 2026-05, v1.2.0): PMID/DOI duplicate detection within the
   reference list. Verbatim duplicates (same PMID or normalized DOI) — a common
   LLM citation-compilation artifact — are flagged as MAJOR findings in
   `duplicate_findings[]`. `submission_safe == true` requires the list to be
   empty. Resolves `/peer-review` Phase 2A P7.
 
-## First-Author Cross-Check (Detail)
+## Author Cross-Check (Detail)
 
-Driven by an actual incident: Paper 3 submitted to BMC Medical Education had
-ref 8 cited as "Ebrahimi S, et al." with the correct DOI for a Ballard et al.
-task force whitepaper. Pre-patch verify-refs marked it OK because DOI resolved.
-Post-patch it is correctly flagged as `MISMATCH`.
+Driven by two actual incidents. First (Gate 4 origin): a manuscript had a
+reference cited with a plausible lead author but the correct DOI for an entirely
+different author's whitepaper. Pre-patch verify-refs marked it OK because the
+DOI resolved; post-patch it is `MISMATCH`. Second (v1.3.0 extension): an
+AI-assembled `.bib` registered a reference with the correct first author but
+seven of ten fabricated co-author names — the first-author-only check passed it,
+and it would have shipped to reviewers. The full-author cross-check catches it.
 
-- Comparison is tolerant: case, diacritics, hyphen vs space, and name
-  particles ("von", "van", "de", ...) are normalized before matching.
-- If the cited surname cannot be parsed confidently (`first_author_guess`
-  empty), the check is skipped silently — no false MISMATCH from formatting
-  ambiguity.
+- The authoritative author list is taken from PubMed `efetch.fcgi` (XML) when a
+  PMID is present, falling back to CrossRef (DOI) and then PubMed esummary.
+  efetch is preferred because CrossRef is unreliable for given names.
+- For BibTeX inputs, the full cited list is parsed (`cited_authors[]`,
+  balanced-brace aware, LaTeX-accent tolerant) and compared family-by-family and
+  by total count against `actual_authors[]`.
+- Comparison is tolerant: case, diacritics (NFKD plus Turkish/Polish/Czech/
+  German/Nordic special letters), hyphen vs space, and name particles
+  ("von", "van", "de", ...) are normalized before matching.
+- If the cited authors cannot be parsed confidently, the check degrades to the
+  first-author surname comparison, and if even that is empty it is skipped
+  silently — no false MISMATCH from formatting ambiguity.
 - Title-only PubMed search does not return an authoritative author and is
   therefore excluded from this check.
+- Intentional truncation (a bib that cites only the first author, or first five
+  + et al., by design) would otherwise trip the count check; mark such entries
+  with `_audit_truncated = <N>` to downgrade the count mismatch to a note.
 
 ## What This Skill Does NOT Do
 

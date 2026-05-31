@@ -5,7 +5,7 @@ owner_domain: reference_integrity
 when_to_use:
   - Audit-only verification of manuscript references against PubMed and CrossRef
   - Pre-submission citation hallucination check (PostToolUse hook trigger on circulation/submission docx)
-  - Detecting first-author hallucination (DOI real but author name wrong — Paper 3 ref 8 incident pattern)
+  - Detecting author hallucination (DOI real but a cited author name wrong at any position — full-author cross-check against PubMed efetch, v1.3.0)
   - LLM-assisted drafting gate — `--strict` mode required when AI generated or rewrote citations
 when_NOT_to_use:
   - Adding new references (use /search-lit + /lit-sync)
