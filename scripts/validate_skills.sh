@@ -6,6 +6,11 @@ set -uo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SKILLS_DIR="$REPO_ROOT/skills"
+# Precedent / personal-identifier scanner. Structural shapes stay as plaintext
+# regex inside it; real names / mentors / institutions / project codes are
+# matched against SHA-256 digests (scripts/precedent_hashes.txt) so this public
+# validator never enumerates them in cleartext (oss-publication-pii-guard §5).
+CHECK_PRECEDENT="$REPO_ROOT/scripts/check_precedent.py"
 PASS=0
 WARN=0
 FAIL=0
@@ -193,18 +198,20 @@ for skill_dir in "$SKILLS_DIR"/*/; do
   done < <(find "${skill_dir}" -maxdepth 1 -type f \( $TEXT_EXTS \) \
             ! -name "SKILL.md" -print0 2>/dev/null)
 
-  # 6. Personal precedent leak (blocklist of project-specific identifiers)
-  # Covers: legacy project IDs, project slugs, product names, etc.,
-  # institution / mentor identifiers, numbered workspace folders, and the
-  # historical prefix patterns (Paper ①②③). Keep additions in alphabetical
-  # blocks so future maintainers can spot what is being filtered.
+  # 6. Personal precedent leak (blocklist of project-specific identifiers).
+  # Delegated to check_precedent.py: structural shapes (CK-<n>, MA-<n>, ...)
+  # stay as plaintext regex there, while real names / mentors / institutions /
+  # project codes are matched against SHA-256 digests in precedent_hashes.txt —
+  # so neither this validator nor the digest file enumerates them in cleartext.
   precedent_hits=0
-  precedent_patterns='\bCK-[0-9]+\b|\bMA-[0-9]+\b|\bMA0[0-9]\b|\b0_MI2RL\b|\b1_Samsung_Changwon\b|\b5_Personal_Research\b|\b6_Aperivue\b|\b10_Meta_Analysis\b|\b11_CheckUP\b|\b21_Aneurysm\b|01_RFA_Adjunct|02_CBCT_Biopsy|03_CBCT_Ablation|RFA-Adjunct|RFA_Adjunct|CBCT Ablation MA|CBCT Biopsy MA|Du 2023|FD Occlusion AI SR|FD Occlusion|Paper ①|Paper ②|Paper ③|MeducAI|CXRscoliosis|SkullFx|Samsung Changwon|삼성서울|삼성창원|서울아산|Asan/UoU|\bKKW\b|\bLHC\b|\bKDY\b|\bLWJ\b|\bHRP_Rhim\b|김경원|이덕희|김남국|임현철|임해진|남유진|Hyunchul Rhim|Pa Hong|Taein An|Hye Ree Cho|Yoojin Nam|Dong Yeong Kim|Kyung Won Kim|Jeong Min Song|Jaeyoon Kim|[가-힣]{2,4}[[:space:]]*(교수님|선생님)|CAC>[0-9]+|VIF[[:space:]]+Diag|[A-Z]+[0-9]+_Consensus_Sheet|v[0-9]+_edit_plan\.md|screening_consensus_final\.md|fulltext_screening_final\.tsv'
   for f in "${integrity_files[@]}"; do
-    if grep -qE "$precedent_patterns" "$f"; then
-      hit=$(grep -nE "$precedent_patterns" "$f" | head -1)
-      rel="${f#$REPO_ROOT/}"
+    hit=$(python3 "$CHECK_PRECEDENT" "$f"); rc=$?
+    rel="${f#$REPO_ROOT/}"
+    if [ "$rc" -eq 3 ]; then
       fail "Personal precedent in $rel: $hit"
+      ((precedent_hits++))
+    elif [ "$rc" -ne 0 ]; then
+      fail "check_precedent.py error on $rel (rc=$rc)"
       ((precedent_hits++))
     fi
   done
@@ -345,10 +352,10 @@ PY
   # Document/image metadata (dc:creator, cp:lastModifiedBy, PDF Author, EXIF
   # Artist, etc.) is opaque to grep on the file content and is the most common
   # silent PII leak when authors drop a personally-authored slide deck or
-  # annotated screenshot into a skill. Match the values against the same
-  # `precedent_patterns` used for text scanning + the absolute-path patterns.
+  # annotated screenshot into a skill. Match the values through the same
+  # check_precedent.py scanner used for text + the absolute-path patterns.
   # Upstream/3rd-party document authors (e.g. STARD's Patrick Bossuyt, the
-  # python-pptx maintainer) are not in `precedent_patterns`, so they pass
+  # python-pptx maintainer) are not in the precedent set, so they pass
   # without an explicit allow-list.
   exif_binary_files=()
   while IFS= read -r -d '' f; do
@@ -377,7 +384,9 @@ PY
       fi
       [ -z "$line" ] && continue
       [ -z "$current_file" ] && continue
-      if echo "$line" | grep -qE "$precedent_patterns|/Users/eugene/|/home/eugene/"; then
+      _exif_rc=0
+      printf '%s' "$line" | python3 "$CHECK_PRECEDENT" - >/dev/null 2>&1 || _exif_rc=$?
+      if echo "$line" | grep -qE "/Users/eugene/|/home/eugene/" || [ "$_exif_rc" -eq 3 ]; then
         rel="${current_file#$REPO_ROOT/}"
         fail "Binary EXIF PII in $rel: $line"
         ((exif_hits++))
@@ -400,30 +409,38 @@ echo "========================================="
 # excluded and only the public surface is gated; the gate is "0 hits", not a
 # fixed file count.
 #
-# Self-exemption: this script holds the blocklist literals (precedent_patterns,
-# PERSONAL_PATH); scanning it would self-match. Excluded explicitly.
+# Self-exemption: this script + check_precedent.py + precedent_hashes.txt carry
+# the blocklist machinery (structural regex, PERSONAL_PATH, SHA-256 digests).
+# Scanning them would self-match the structural shapes. Excluded explicitly.
 #
 # Author-attribution allowlist: README.md / CITATION.cff / paper.md /
-# .zenodo.json legitimately carry the maintainer's own name for citation. Only
-# the name tokens are stripped before the precedent match, so other PII
-# (hospital, project codes, personal paths) on the same line is still caught.
+# .zenodo.json legitimately carry the maintainer's own name for citation. For
+# those files the precedent scan runs with --allow-author (the author's own name
+# digest is exempted), so other PII (hospital, project codes, personal paths) on
+# the same line is still caught. The author name is no longer spelled out here.
 META_FAIL=0
 META_SCANNED=0
 AUTHOR_ATTRIB_RE='^(README\.md|CITATION\.cff|paper\.md|\.zenodo\.json)$'
 while IFS= read -r rel; do
-  [ "$rel" = "scripts/validate_skills.sh" ] && continue   # self-exempt
-  case "$rel" in skills/*) continue ;; esac               # covered by per-skill loop
+  case "$rel" in
+    scripts/validate_skills.sh|scripts/check_precedent.py|scripts/precedent_hashes.txt|scripts/precedent_author_hashes.txt) continue ;;  # self-exempt: blocklist machinery
+    tests/test_precedent_hashing.sh) continue ;;           # self-exempt: scanner's own test carries structural fixtures (CK-<n>, ...)
+    skills/*) continue ;;                                  # covered by per-skill loop
+  esac
   f="$REPO_ROOT/$rel"
   [ -f "$f" ] || continue
   ((META_SCANNED++))
+  scan_src=$(cat "$f")
   if echo "$rel" | grep -qE "$AUTHOR_ATTRIB_RE"; then
-    scan_src=$(sed -E 's/Yoojin Nam//g; s/남유진//g' "$f")
+    precedent_hit=$(printf '%s' "$scan_src" | python3 "$CHECK_PRECEDENT" --allow-author -); precedent_rc=$?
   else
-    scan_src=$(cat "$f")
+    precedent_hit=$(printf '%s' "$scan_src" | python3 "$CHECK_PRECEDENT" -); precedent_rc=$?
   fi
-  if echo "$scan_src" | grep -qE "$precedent_patterns"; then
-    hit=$(echo "$scan_src" | grep -nE "$precedent_patterns" | head -1)
-    fail "Personal precedent in $rel: $hit"
+  if [ "$precedent_rc" -eq 3 ]; then
+    fail "Personal precedent in $rel: $precedent_hit"
+    ((META_FAIL++))
+  elif [ "$precedent_rc" -ne 0 ]; then
+    fail "check_precedent.py error on $rel (rc=$precedent_rc)"
     ((META_FAIL++))
   fi
   hit=$(printf '%s\n' "$scan_src" | _personal_path_hit)
