@@ -53,7 +53,7 @@ compliance report suitable for journal submission.
   - `AMSTAR2.md` -- quality of systematic reviews (Shea et al. BMJ 2017)
   - `PRISMA_P.md` -- systematic review protocols (Shamseer et al. BMJ 2015)
   - `SWiM.md` -- synthesis without meta-analysis reporting (Campbell et al. BMJ 2020)
-- If a local checklist file is not found for a requested guideline, the skill constructs checklist items from its knowledge of the guideline.
+- Fail-fast contract: if a routed guideline has no vendored checklist file, the skill does **not** silently construct items from memory. It halts with a `MISSING_CHECKLIST_CONTRACT_VIOLATION` and surfaces the gap. A from-memory assessment is allowed only with the explicit `--allow-from-memory` opt-in, and that report must be clearly labelled NON-AUTHORITATIVE. See Step 2 and `scripts/check_checklist_exists.py`.
 
 ---
 
@@ -108,8 +108,27 @@ user specification.
 
 ### Step 2: Load Checklist
 
-1. Read the checklist file from `${CLAUDE_SKILL_DIR}/references/checklists/`.
-2. If the checklist file does not exist for the requested guideline, use your knowledge of the guideline to construct the checklist items and inform the user that a local checklist file was not found.
+1. **Run the fail-fast guard first** for every guideline you intend to apply:
+
+   ```bash
+   python "${CLAUDE_SKILL_DIR}/scripts/check_checklist_exists.py" --guideline "STARD-AI"
+   ```
+
+   - Exit 0 → the vendored checklist exists; read it from
+     `${CLAUDE_SKILL_DIR}/references/checklists/` and proceed.
+   - Exit 1 (`MISSING_CHECKLIST_CONTRACT_VIOLATION`) → the guideline is routed
+     but no checklist file is vendored. **Do not construct items from memory.**
+     Halt, report the violation to the user, and stop unless they explicitly
+     opt in (next bullet).
+   - Exit 2 (`UNKNOWN_GUIDELINE`) → the name is not recognised; confirm the
+     correct guideline with the user.
+
+2. **No silent fallback.** A from-memory checklist is permitted only when the
+   user explicitly accepts it — re-run the guard with `--allow-from-memory`
+   (exit 0 + a NON-AUTHORITATIVE warning). In that case the output report MUST
+   carry a prominent banner that the assessment was constructed from model
+   knowledge and is not backed by a vendored checklist, and `submission_safe`
+   must not be asserted on its basis.
 
 ### Step 3: Scan Manuscript
 
