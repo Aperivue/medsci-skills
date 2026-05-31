@@ -4,6 +4,7 @@
 
 ### Added
 
+- **`/generate-codebook`** (new skill, brings the catalog to 41): generates a citable data dictionary / codebook (`codebook.md` + `codebook.json`) from a tabular dataset, profiling variable role / type / level frequencies / range / missingness. Coded variables whose level meanings are unknown are flagged `[NEEDS DICTIONARY]` rather than guessed — the generator side of the dictionary-first workflow; feeds `/define-variables`.
 - `/calc-sample-size`: observational-cohort precision-branch reference for retrospective / fixed-extract studies (PR #40).
 - `/verify-refs`: **v1.3.0** full-author cross-check via PubMed `efetch` — co-author hallucinations at positions #2..#N are now caught, not just the first author; `schema_version` → 4 (PR #41).
 - `/check-reporting`: fail-fast guard (`scripts/check_checklist_exists.py`) — a routed guideline with no vendored checklist now halts with `MISSING_CHECKLIST_CONTRACT_VIOLATION` instead of silently constructing items from model memory; from-memory requires explicit `--allow-from-memory` (PR #42).
