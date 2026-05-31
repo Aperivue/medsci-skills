@@ -17,7 +17,25 @@ Attribution for bundled reporting guideline checklists.
 | PROBAST.md | PROBAST | Wolff RF et al. Ann Intern Med 2019 | CC BY |
 | NOS.md | Newcastle-Ottawa Scale | Wells GA et al. Ottawa Hospital Research Institute | Public Domain |
 | MI_CLEAR_LLM.md | MI-CLEAR-LLM 2025 | Park SH et al. Korean J Radiol 2024;25(10):865-868; 2025 update KJR 2025;26(12):1123-1132 | CC BY-NC 4.0 |
+| CONSORT.md | CONSORT 2025 | Hopewell S et al. BMJ 2025;389:e081123 | CC BY 4.0 |
+| SPIRIT.md | SPIRIT 2025 | Chan AW et al. BMJ 2025;389:e081477 | CC BY 4.0 |
+| CARE.md | CARE 2013 | Gagnier JJ et al. J Clin Epidemiol 2014;67(1):46-51 | CC BY-NC 4.0 |
+| CLAIM_2024.md | CLAIM 2024 Update | Tejani AS et al. Radiol Artif Intell 2024;6(4):e240300 | RSNA, open access |
 
 These files are educational summaries of published assessment tools. The original
-checklist documents should be cited in any manuscript that uses them. All files are
-compatible with the MIT license of this repository.
+checklist documents should be cited in any manuscript that uses them.
+
+## Third-party licenses (NOT covered by the repository MIT license)
+
+Most files above are CC BY / CC0 / public domain and redistribute freely with
+attribution. The following retain their own licenses and are **not** placed under
+this repository's MIT license — downstream use must comply with the original terms:
+
+- **CARE.md** and **MI_CLEAR_LLM.md** are **CC BY-NC 4.0**: free to copy and
+  redistribute **with attribution for non-commercial purposes**. Commercial use
+  requires permission from the original rights holders.
+- **CLAIM_2024.md** is an educational summary of an RSNA open-access checklist
+  (© RSNA). Cite Tejani et al. 2024; consult RSNA for commercial reuse terms.
+
+All files remain educational summaries that cite their source; they do not relicense
+the underlying guidelines.
