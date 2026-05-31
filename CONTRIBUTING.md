@@ -10,6 +10,8 @@ Thank you for helping make medical research workflows more reproducible and less
 - Public demo improvements using open or synthetic datasets.
 - Documentation that helps clinicians install, test, or safely adapt the skills.
 
+Per-skill documentation is sourced from each `skills/<skill-name>/SKILL.md` (and is intended to be generated into `docs/skills/` rather than hand-maintained in parallel — a duplicated copy drifts from the skill). Improve the `SKILL.md` itself; see `docs/seed_issues.md` for the planned auto-generation work.
+
 ## Skill Addition Workflow
 
 1. Open an issue describing the workflow, target users, expected artifacts, and safety boundaries.
@@ -62,4 +64,4 @@ For JOSS readiness, contributions should strengthen open-source practice signals
 
 ## Code of Conduct
 
-Until a repository-specific `CODE_OF_CONDUCT.md` is added, contributors are expected to follow the Contributor Covenant principles: https://www.contributor-covenant.org/
+This project follows its [Code of Conduct](CODE_OF_CONDUCT.md), which adopts the Contributor Covenant. By participating, you agree to uphold it.

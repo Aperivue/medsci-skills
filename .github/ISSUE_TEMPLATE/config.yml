@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions & discussion
+    url: https://github.com/Aperivue/medsci-skills/discussions
+    about: Ask questions, share workflows, or discuss ideas before opening an issue.
+  - name: Contributing guide
+    url: https://github.com/Aperivue/medsci-skills/blob/main/CONTRIBUTING.md
+    about: How to add a skill, the PR checklist, and PII/publication hygiene rules.

@@ -1,0 +1,69 @@
+name: Skill request
+description: Propose a new skill for a recurring medical-research workflow
+title: "[skill] <short name>"
+labels: ["enhancement", "help wanted"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for proposing a skill. MedSci Skills is intentionally narrow — a
+        physician-researcher's manuscript pipeline. A good proposal explains the
+        recurring workflow, the artifacts it should produce, and where it sits in the
+        research lifecycle. Please keep examples public/synthetic (no real names,
+        manuscript IDs, or institution-specific context).
+  - type: textarea
+    id: purpose
+    attributes:
+      label: What workflow should this skill automate?
+      description: The recurring task, the target users, and the problem it solves.
+      placeholder: e.g. "Generate a PRISMA-compliant search-strategy appendix from a list of databases and query strings."
+    validations:
+      required: true
+  - type: dropdown
+    id: stage
+    attributes:
+      label: Research-lifecycle stage
+      description: Where in the pipeline does this fit?
+      options:
+        - Topic discovery / literature
+        - Study design / sample size / protocol
+        - Data preparation / de-identification / cleaning
+        - Statistics / figures
+        - Writing / humanize / reporting compliance
+        - Journal selection / submission / peer review / revision
+        - Presentation
+        - Other (explain below)
+    validations:
+      required: true
+  - type: textarea
+    id: io
+    attributes:
+      label: Inputs and outputs
+      description: What does the skill consume, and what artifacts does it produce?
+      placeholder: "Inputs: ... | Outputs: ..."
+    validations:
+      required: true
+  - type: textarea
+    id: why-skill
+    attributes:
+      label: Why a new skill rather than an existing one?
+      description: Which existing skill is closest, and why does it not cover this?
+    validations:
+      required: true
+  - type: dropdown
+    id: contribute
+    attributes:
+      label: Are you willing to open a pull request?
+      options:
+        - "Yes, I can draft the skill"
+        - "Maybe, with guidance"
+        - "No, requesting only"
+    validations:
+      required: true
+  - type: checkboxes
+    id: hygiene
+    attributes:
+      label: Public-repo hygiene
+      options:
+        - label: This request contains no real names, manuscript IDs, project codes, hospital names, or patient-level details.
+          required: true

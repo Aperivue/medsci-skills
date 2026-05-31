@@ -1,0 +1,55 @@
+name: Bug report
+description: Report a skill that produces wrong, broken, or unsafe output
+title: "[bug] <short summary>"
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. Please keep any pasted output public/synthetic — strip
+        real names, manuscript IDs, and institution-specific context before posting.
+  - type: input
+    id: skill
+    attributes:
+      label: Which skill?
+      placeholder: e.g. check-reporting, verify-refs, write-paper
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What the skill produced versus what you expected.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: The request you made and any inputs (anonymized).
+      placeholder: |
+        1. Invoked /... with ...
+        2. ...
+        3. Observed ...
+    validations:
+      required: true
+  - type: textarea
+    id: validator
+    attributes:
+      label: Validator / console output (if any)
+      description: Output from the repo validators or the agent, fenced in a code block.
+      render: shell
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: OS + agent (e.g. macOS 15 / Claude Code 1.x, Codex, Cursor)
+    validations:
+      required: true
+  - type: checkboxes
+    id: hygiene
+    attributes:
+      label: Public-repo hygiene
+      options:
+        - label: This report contains no real names, manuscript IDs, project codes, hospital names, or patient-level details.
+          required: true

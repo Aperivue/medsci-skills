@@ -1,0 +1,35 @@
+name: Documentation improvement
+description: Report unclear, missing, or outdated documentation
+title: "[docs] <short summary>"
+labels: ["documentation", "good first issue"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Documentation fixes are some of the most useful contributions. This is a great
+        first issue. Please point at the specific file or section.
+  - type: input
+    id: location
+    attributes:
+      label: Which document or file?
+      placeholder: e.g. README.md Quick Start, docs/setup/mac.md, skills/verify-refs/SKILL.md
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is unclear, missing, or wrong?
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested fix
+      description: A proposed wording or the missing information, if you have one.
+  - type: checkboxes
+    id: hygiene
+    attributes:
+      label: Public-repo hygiene
+      options:
+        - label: This report contains no real names, manuscript IDs, project codes, hospital names, or patient-level details.
+          required: true

@@ -5,7 +5,7 @@
 **42 skills that actually work.** Built by a physician-researcher, tested on real publications.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-![Skills](https://img.shields.io/badge/Skills-40-brightgreen?style=flat-square)
+![Skills](https://img.shields.io/badge/Skills-42-brightgreen?style=flat-square)
 ![Platform](https://img.shields.io/badge/Platform-Claude_Code-blueviolet?style=flat-square)
 ![Built by](https://img.shields.io/badge/Built_by-Physician--Researcher-blue?style=flat-square)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20155321.svg)](https://doi.org/10.5281/zenodo.20155321)
@@ -21,14 +21,19 @@
 
 ---
 
-## What's New
+## Quick Start
 
-The v2.10 cycle expands the public workflow surface while tightening release hygiene:
+**No terminal?** Use the classroom installer ZIP — download, unzip, double-click the installer, then restart your agent app (see [Installation](#installation)).
 
-- `/peer-review` v2.10 adds the Phase 2A SR-MA 8-probe extension (P1-P8) for systematic review meta-analyses (PR #22).
-- `/verify-refs` v1.2.0 adds Gate 5 PMID/DOI duplicate detection plus synchronous `submission_safe` / `fully_verified` propagation (PR #23).
-- `/meta-analysis` adds SR-MA dual-extractor workflow support, cohort overlap detection, and a supplementary 8-file pack (PR #24).
-- Validator coverage now enforces the PII blocklist across `templates/` and `scripts/` as well as skill documentation.
+**Have git?** Install every skill in three commands:
+
+```bash
+git clone https://github.com/Aperivue/medsci-skills.git
+mkdir -p ~/.claude/skills
+cp -r medsci-skills/skills/* ~/.claude/skills/
+```
+
+Restart Claude Code, then start with **`/orchestrate`** — it classifies your request and routes you to the right skill. Full install options (Codex, Cursor, individual skills) are in [Installation](#installation).
 
 ---
 
@@ -51,6 +56,9 @@ data = load_breast_cancer()  # 569 samples, zero download
 
 **Output from `orchestrate --e2e`** ([see full demo](demo/01_wisconsin_bc/)):
 
+<details>
+<summary>Full output list — manuscript, figures, STARD flow, checklist, slides (click to expand)</summary>
+
 | Output | Description |
 |--------|-------------|
 | [Manuscript](demo/01_wisconsin_bc/manuscript/manuscript.md) | IMRAD draft, ~1,900 words |
@@ -64,6 +72,8 @@ data = load_breast_cancer()  # 569 samples, zero download
 | [Presentation](demo/01_wisconsin_bc/presentation/presentation.pptx) | 12 slides with speaker notes |
 | [Cover Letter](demo/01_wisconsin_bc/submission/radiology_ai/cover_letter.md) | Example submission cover letter |
 
+</details>
+
 **Pipeline:** `analyze-stats` &rarr; `make-figures` &rarr; `write-paper` &rarr; AI pattern scan &rarr; `check-reporting` (STARD) &rarr; `self-review` &rarr; DOCX build &rarr; `present-paper`
 
 ### Demo 2: Meta-Analysis — BCG Vaccine Efficacy
@@ -74,6 +84,9 @@ data(dat.bcg)  # 13 RCTs, 357,347 participants (Colditz et al. 1994)
 ```
 
 **Output from `orchestrate --e2e`** ([see full demo](demo/02_metafor_bcg/)):
+
+<details>
+<summary>Full output list — manuscript, forest/bubble plots, PRISMA flow, checklist, slides (click to expand)</summary>
 
 | Output | Description |
 |--------|-------------|
@@ -88,6 +101,8 @@ data(dat.bcg)  # 13 RCTs, 357,347 participants (Colditz et al. 1994)
 | [Pipeline Log](demo/02_metafor_bcg/qc/_pipeline_log.md) | 7-step E2E execution trace |
 | [Presentation](demo/02_metafor_bcg/presentation/presentation.pptx) | 12 slides with speaker notes |
 
+</details>
+
 **Pipeline:** `analyze-stats` (R metafor) &rarr; `make-figures` &rarr; `write-paper` &rarr; AI pattern scan &rarr; `check-reporting` (PRISMA 2020) &rarr; `self-review` &rarr; DOCX build &rarr; `present-paper`
 
 ### Demo 3: Epidemiology — NHANES Obesity & Diabetes
@@ -98,6 +113,9 @@ data(dat.bcg)  # 13 RCTs, 357,347 participants (Colditz et al. 1994)
 ```
 
 **Output from `orchestrate --e2e`** ([see full demo](demo/03_nhanes_obesity/)):
+
+<details>
+<summary>Full output list — manuscript, prevalence/OR plots, STROBE flow, checklist, slides (click to expand)</summary>
 
 | Output | Description |
 |--------|-------------|
@@ -111,6 +129,8 @@ data(dat.bcg)  # 13 RCTs, 357,347 participants (Colditz et al. 1994)
 | [Self-Review](demo/03_nhanes_obesity/qc/self_review.md) | Score 85/100 PASS (2 fix iterations; initial 75), 4 major / 5 minor |
 | [Pipeline Log](demo/03_nhanes_obesity/qc/_pipeline_log.md) | 7-step E2E execution trace |
 | [Presentation](demo/03_nhanes_obesity/presentation/presentation.pptx) | 12 slides with speaker notes |
+
+</details>
 
 **Pipeline:** `analyze-stats` &rarr; `make-figures` &rarr; `write-paper` &rarr; AI pattern scan &rarr; `check-reporting` (STROBE) &rarr; `self-review` &rarr; DOCX build &rarr; `present-paper`
 
@@ -146,6 +166,16 @@ project/
 ```
 
 The E2E pipeline (`orchestrate --e2e`) produces everything up to `qc/`. The `submission/` directory is created after journal selection via `/find-journal`.
+
+---
+
+## What's New
+
+The current cycle hardens public readiness:
+
+- Two new skills — `/generate-codebook` (citable data dictionary / codebook from a dataset) and `/version-dataset` (dataset reproducibility locks).
+- A catalog-count single source of truth (`metadata/catalog_counts.json`) with a CI gate that fails the build on any skill- or guideline-count drift across the README, badges, and skill docs — including the reporting-guideline figure, now corrected and enforced.
+- The PII / precedent guard now scans the full public surface (`templates/`, `scripts/`, and root docs), not just skill documentation.
 
 ---
 
@@ -339,7 +369,7 @@ Projects declare their source-of-truth layout in `SSOT.yaml`, and a `qc/migratio
 ### Meta-Analysis Failure Modes
 `/meta-analysis` ships empirical failure-mode references (data integrity, review orchestration, submission package drift, post-submission release ops) with four automation hooks: `scripts/prisma_5way_consistency.py` (DI-6 PRISMA number consistency), `scripts/extraction_consensus_log_init.py` (DI-1 dual-extraction scaffold), `scripts/tag_cleanup_gate.sh` (DI-8 placeholder tag gate), and `scripts/verify_package_integrity.py` (SPD SHA-256 manifest for submission bundles).
 
-### 33 Reporting Guidelines & RoB Tools Built-in
+### 32 Reporting Guidelines & RoB Tools Built-in
 `check-reporting` includes bundled checklists for 32 guidelines and risk-of-bias tools: STROBE, STARD, STARD-AI, TRIPOD, TRIPOD+AI, PRISMA 2020, PRISMA-DTA, PRISMA-P, MOOSE, ARRIVE, CONSORT, CARE, SPIRIT, CLAIM, SQUIRE 2.0, CLEAR, GRRAS, MI-CLEAR-LLM, SWiM, AMSTAR 2, QUADAS-2, QUADAS-C, RoB 2, ROBINS-I, ROBINS-E, ROBIS, ROB-ME, PROBAST, PROBAST+AI, NOS, COSMIN, RoB NMA. Includes Results/Discussion section boundary checks and machine-readable JSON summary for pipeline integration.
 
 ### Publication-Ready Output

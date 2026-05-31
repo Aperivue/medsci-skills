@@ -11,9 +11,12 @@ Three layers:
   1. Recompute every count from disk (the real ground truth).
   2. Assert metadata/catalog_counts.json matches disk — the SSOT cannot lie.
   3. Assert the count claims in README / orchestrate / check-reporting match the
-     SSOT. Guideline claims are matched by the word "guideline"; the skill self-
-     count by the "skills that actually work" tagline — so comparison/marketing
-     lines about *other* repos ("400-900 skills", "869 skills") are never touched.
+     SSOT. Guideline claims are matched (case-insensitively, so a "### 33 Reporting
+     Guidelines" heading is caught) by the word "guideline"; the skill self-count by
+     both the "skills that actually work" tagline and the README shields badge
+     (img.shields.io/badge/Skills-N-). The badge regex is scoped to the shields URL so
+     arbitrary prose never trips it, and comparison/marketing lines about *other* repos
+     ("400-900 skills", "869 skills") are never touched.
 
 Exit 0 when everything agrees; non-zero on any drift. Stdlib-only.
 """
@@ -55,6 +58,9 @@ GUIDELINE_CLAIM_FILES = [
     "skills/make-figures/references/reporting_guideline_figure_map.md",
 ]
 SKILLS_TAGLINE_FILES = ["README.md"]
+# README shields badge (img.shields.io/badge/Skills-N-...). Scoped to the badge URL so
+# only the literal badge count is checked, never arbitrary "Skills" prose.
+SKILLS_BADGE_FILES = ["README.md"]
 
 
 def doc_claims() -> list[tuple[str, int, int, str]]:
@@ -70,8 +76,9 @@ def doc_claims() -> list[tuple[str, int, int, str]]:
     g = truth["reporting_guidelines"]
     s = truth["skills"]
 
-    guide_re = re.compile(r"\b(\d{1,2})\s+(?:reporting\s+)?guidelines\b")
+    guide_re = re.compile(r"\b(\d{1,2})\s+(?:reporting\s+)?guidelines\b", re.IGNORECASE)
     skills_re = re.compile(r"\*\*(\d+)\s+skills that actually work")
+    badge_re = re.compile(r"img\.shields\.io/badge/Skills-(\d+)-")
 
     for rel in GUIDELINE_CLAIM_FILES:
         f = ROOT / rel
@@ -88,6 +95,14 @@ def doc_claims() -> list[tuple[str, int, int, str]]:
         for i, line in enumerate(f.read_text(encoding="utf-8").splitlines(), 1):
             for m in skills_re.finditer(line):
                 out.append((rel, int(m.group(1)), s, f"L{i} skills tagline"))
+
+    for rel in SKILLS_BADGE_FILES:
+        f = ROOT / rel
+        if not f.exists():
+            continue
+        for i, line in enumerate(f.read_text(encoding="utf-8").splitlines(), 1):
+            for m in badge_re.finditer(line):
+                out.append((rel, int(m.group(1)), s, f"L{i} skills badge"))
     return out
 
 
