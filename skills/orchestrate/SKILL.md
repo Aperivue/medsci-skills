@@ -48,7 +48,7 @@ You do NOT do the work yourself. You classify, plan, and delegate.
 | **meta-analysis** | Systematic review | Full MA pipeline: protocol, search, screening, extraction, synthesis, PRISMA-DTA |
 | **write-paper** | Writing | IMRAD manuscript drafting (8-phase pipeline), any section writing |
 | **self-review** | Quality | Pre-submission self-check from reviewer perspective (10 categories) |
-| **check-reporting** | Compliance | Audit against 33 reporting guidelines and risk-of-bias tools |
+| **check-reporting** | Compliance | Audit against 32 reporting guidelines and risk-of-bias tools |
 | **revise** | Revision | Parse reviewer comments, generate point-by-point response, track changes |
 | **grant-builder** | Funding | Structure grant proposals: significance, innovation, approach, milestones |
 | **present-paper** | Presentation | Prepare academic talks: analyze paper, draft scripts, inject slide notes, Q&A prep |

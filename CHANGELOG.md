@@ -1,5 +1,25 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- `/calc-sample-size`: observational-cohort precision-branch reference for retrospective / fixed-extract studies (PR #40).
+- `/verify-refs`: **v1.3.0** full-author cross-check via PubMed `efetch` — co-author hallucinations at positions #2..#N are now caught, not just the first author; `schema_version` → 4 (PR #41).
+- `/check-reporting`: fail-fast guard (`scripts/check_checklist_exists.py`) — a routed guideline with no vendored checklist now halts with `MISSING_CHECKLIST_CONTRACT_VIOLATION` instead of silently constructing items from model memory; from-memory requires explicit `--allow-from-memory` (PR #42).
+- `/check-reporting`: vendored four previously-gitignored checklists — **CONSORT 2025, SPIRIT 2025, CARE 2013, CLAIM 2024** — with per-file license attribution and a "Third-party licenses" note (PR #43, #45).
+- `scripts/validate_routing_assets.py`: CI gate that every `${CLAUDE_SKILL_DIR}` asset reference and check-reporting checklist bullet resolves to a real file (PR #43).
+- `metadata/catalog_counts.json` + `scripts/validate_catalog_consistency.py`: single source of truth for skill / guideline / journal-profile counts, wired into CI — public-doc counts that drift from disk now fail the build.
+
+### Changed
+
+- **Reporting-guideline count corrected from 33 to 32** across README, `/orchestrate`, `/check-reporting`, and the make-figures guideline map — the enumeration and vendored checklist files were both 32; "33" was an off-by-one now backed by the count SSOT.
+
+### Hygiene
+
+- Validator precedent blocklist no longer stores the maintainer's name, mentor names, institutions, or project codes in cleartext: `scripts/validate_skills.sh` delegates to `scripts/check_precedent.py`, which keeps generic structural shapes as regex but matches sensitive identifiers against SHA-256 digests (`scripts/precedent_hashes.txt`), with an `--allow-author` exemption for citation files (PR #44).
+- Fixed `/present-paper` note-injection script path (`references/` → `scripts/`) (PR #43).
+
 ## [3.1.0] - 2026-05-23
 
 ### Added — v2.10 cycle integration

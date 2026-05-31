@@ -32,3 +32,6 @@ jobs:
 
       - name: Run validate_routing_assets.py (SKILL.md asset references must exist)
         run: python3 scripts/validate_routing_assets.py --strict
+
+      - name: Run validate_catalog_consistency.py (doc counts must match disk SSOT)
+        run: python3 scripts/validate_catalog_consistency.py
