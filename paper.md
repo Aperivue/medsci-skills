@@ -19,7 +19,7 @@ bibliography: paper.bib
 
 # Summary
 
-MedSci Skills is a collection of Claude Code skills for medical researchers who need repeatable support across the manuscript lifecycle. The repository currently contains 41 skills covering topic discovery, literature search, full-text retrieval, study design, sample size planning, protocol drafting, de-identification, data cleaning, statistical analysis, publication figures, manuscript writing, reporting-guideline checks, reference verification, peer review, revision, presentation, and submission hygiene.
+MedSci Skills is a collection of Claude Code skills for medical researchers who need repeatable support across the manuscript lifecycle. The repository currently contains 42 skills covering topic discovery, literature search, full-text retrieval, study design, sample size planning, protocol drafting, de-identification, data cleaning, statistical analysis, publication figures, manuscript writing, reporting-guideline checks, reference verification, peer review, revision, presentation, and submission hygiene.
 
 The software is organized as auditable workflow modules rather than as single-use prompts. Each skill encodes task boundaries, anti-hallucination checks, deterministic script hooks where appropriate, and routing guidance for adjacent skills. Three public end-to-end demos illustrate diagnostic accuracy, meta-analysis, and epidemiology workflows using public datasets.
 

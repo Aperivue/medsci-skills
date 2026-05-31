@@ -35,3 +35,13 @@ jobs:
 
       - name: Run validate_catalog_consistency.py (doc counts must match disk SSOT)
         run: python3 scripts/validate_catalog_consistency.py
+
+      - name: Install pandas (demo manifest verification)
+        run: pip install pandas
+
+      - name: Verify demo manifest.lock files (reproducibility lock)
+        run: |
+          for d in demo/01_wisconsin_bc demo/02_metafor_bcg demo/03_nhanes_obesity; do
+            python3 skills/version-dataset/scripts/version_dataset.py verify \
+              --manifest "$d/manifest.lock.json" --base "$d" --strict
+          done

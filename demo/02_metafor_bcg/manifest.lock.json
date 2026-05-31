@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "seed": null,
+  "provenance": "demo reproducibility lock: input data + deterministic result tables (timestamped .docx/.pptx excluded)",
+  "files": {
+    "analysis/tables/leave_one_out.csv": {
+      "sha256": "efee02a1eafd5961c48f886e1ee49c59809371669411b1e14729c0fc1aedced7",
+      "bytes": 653,
+      "tabular": {
+        "n_rows": 13,
+        "n_cols": 5,
+        "dtypes": {
+          "Study": "object",
+          "RR": "float64",
+          "CI_lower": "float64",
+          "CI_upper": "float64",
+          "I2": "float64"
+        },
+        "column_hashes": {
+          "Study": "665fc1366eaf0ae713930e2bfbc220c2773ed402296f812398404daf25c2aef8",
+          "RR": "9ba185574f896e0cffc55244fa81de8fc47d811a53d37dd1b8c82986b33edd0e",
+          "CI_lower": "aadb287af5c9bfa25641fe792a4c8351eed4a8e04ebd3c592591b360738d6167",
+          "CI_upper": "31d7bbedc43b2766752a317d814293d9b121bc2e19b3f86b1c08171e19610b42",
+          "I2": "8feb7d0ff98a2ce44fea79bcf634daf40e7626d214f2c6d18195b95c2820270d"
+        }
+      }
+    },
+    "analysis/tables/metaregression_table.csv": {
+      "sha256": "3cb6ac7e5b1751ccccedcb86ed93efe9c46ddf78661e62df7b619a758eb5de9d",
+      "bytes": 127,
+      "tabular": {
+        "n_rows": 2,
+        "n_cols": 5,
+        "dtypes": {
+          "Covariate": "object",
+          "Estimate": "float64",
+          "SE": "float64",
+          "z": "float64",
+          "p": "object"
+        },
+        "column_hashes": {
+          "Covariate": "1c74b5f2fefc4210e436c79e017a9d01fabc271f8e9ceeae46a82a257f11c027",
+          "Estimate": "8fbb90b997abdfb9db4fffda27b4ddeba8163ed0f8b50d3d42c376eaf5319bad",
+          "SE": "07ca1e23b44961e3f834aded6fcde90e36b6ce9ec9326686c31a9ef5ea69a4ca",
+          "z": "0cb8efeacdfa6ae8164661a25bec7f449d4a3243e9560f7cbf924b3dbdc70285",
+          "p": "191b1e2ee22f8cf6e0226ee39c3556d2ffbd53b5a6df24e7158f689063425e68"
+        }
+      }
+    },
+    "analysis/tables/study_results.csv": {
+      "sha256": "f6949a0cd2a60fcb41114f7a6c07836e0a58cf13d60b9208486bace8c124a6f3",
+      "bytes": 854,
+      "tabular": {
+        "n_rows": 13,
+        "n_cols": 7,
+        "dtypes": {
+          "Study": "object",
+          "RR": "float64",
+          "CI_lower": "float64",
+          "CI_upper": "float64",
+          "Weight": "float64",
+          "Latitude": "int64",
+          "Allocation": "object"
+        },
+        "column_hashes": {
+          "Study": "665fc1366eaf0ae713930e2bfbc220c2773ed402296f812398404daf25c2aef8",
+          "RR": "21a13b973638442ea9cd837e9ebf6e3e6fdbfca849fc2d4f584c9465ad046df7",
+          "CI_lower": "c76e689e9737d6ecd8ef478f24dc7f53e8a9e6caa7cea03e768cf39476f45b85",
+          "CI_upper": "0fb9fb47e9578b440fa6034eddb5827dd3c32c6032c8dd5a62522ee8b9fca494",
+          "Weight": "660024fe4fb0f6f3a7701530ec4f4bed08c3da1fac573ab1e6dca4dd1b5032fd",
+          "Latitude": "67da5740fbf561d559c79c7a4018c1e4b27a8334c5bf9ea4c352b956da4c382d",
+          "Allocation": "fda0ab32b2efd95df303426917e74bbdc34b16b205ba0278f4bb6d40267262fa"
+        }
+      }
+    },
+    "analysis/tables/summary_table.csv": {
+      "sha256": "3f4fe17c072b30d215b297514f3251e10126aa091aa8aec2b6f31af55798f35f",
+      "bytes": 319,
+      "tabular": {
+        "n_rows": 5,
+        "n_cols": 7,
+        "dtypes": {
+          "Analysis": "object",
+          "k": "int64",
+          "RR": "float64",
+          "CI_lower": "float64",
+          "CI_upper": "float64",
+          "I2": "float64",
+          "tau2": "float64"
+        },
+        "column_hashes": {
+          "Analysis": "8310c1967122ea94cc29bf8b6a82a386ccc94e1beca5ba9973fe0e04ed4ef136",
+          "k": "1e279d01915da02e54020c06cf70707fed7ffe9f8504ab8aeb9de4f6f344155b",
+          "RR": "508c9f7d642d28ec4fe7be7536dc94f6c94099563ffee9a173fb0ba8417d970d",
+          "CI_lower": "2208a8f91665fe92645e2ca99c6951ac9f74e90a6cc46f0b51b19a242700e1e9",
+          "CI_upper": "7fd55269bfd55297ea342924539fd821c31efcd910286305f8fa5be904b2717c",
+          "I2": "2dbe21a559323fa3ef9400ea0099c2d748dadf789367ee1eea40cd5c62e88fd8",
+          "tau2": "f7bbdd53a6782d931b5a17cf2ff4e5359bc8c4bbc93d7ea04e3d57869b246a52"
+        }
+      }
+    },
+    "data/bcg_raw.csv": {
+      "sha256": "21fe27b2e2f68ab042d9897c01f731256a7f15acd48b3fa427a6d1f4f9f1b87b",
+      "bytes": 783,
+      "tabular": {
+        "n_rows": 13,
+        "n_cols": 9,
+        "dtypes": {
+          "trial": "int64",
+          "author": "object",
+          "year": "int64",
+          "tpos": "int64",
+          "tneg": "int64",
+          "cpos": "int64",
+          "cneg": "int64",
+          "ablat": "int64",
+          "alloc": "object"
+        },
+        "column_hashes": {
+          "trial": "0dd3da2043d65f35ceec9791ce6a3b85cdb6a71f09180f757ddcf57b14d20690",
+          "author": "d4a14e29b09295a7f9f99c0892cad55a436fbe06410b2cb5c00a7a8a0504619f",
+          "year": "c94697361c29085ae0ad62f2bfc28fb0031fc86e10369fdac84d863fdd99d1d4",
+          "tpos": "341326dc0bcacafb355f6efc266e77b3437df6711a4ddb66abc9d1ce5e79eb3c",
+          "tneg": "3bdd879de129e7fb323a7a20e7b4d57067e89269b58667767a8d07847499c300",
+          "cpos": "9a6482ff5e20e0b7978afd2cf6c3908a32dd06f2b3ac96fff62fc096462f7fc0",
+          "cneg": "1e5bfc975545aa06f6c70d16b84f12ae000c4950ba6320664061ba4c42c63946",
+          "ablat": "67da5740fbf561d559c79c7a4018c1e4b27a8334c5bf9ea4c352b956da4c382d",
+          "alloc": "fda0ab32b2efd95df303426917e74bbdc34b16b205ba0278f4bb6d40267262fa"
+        }
+      }
+    }
+  }
+}

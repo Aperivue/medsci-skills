@@ -60,6 +60,7 @@ You do NOT do the work yourself. You classify, plan, and delegate.
 | **deidentify** | Data safety | De-identify clinical data containing PHI before any LLM processing. Standalone Python CLI (no LLM). |
 | **clean-data** | Data | Data profiling, missing value flagging, outlier detection, cleaning code generation |
 | **generate-codebook** | Data | Generate a citable data dictionary/codebook from a dataset; flags coded variables as [NEEDS DICTIONARY]; feeds /define-variables |
+| **version-dataset** | Data | Content-hash manifest of a dataset; verify drift (schema/rows/values) and diff versions; reproducibility lock |
 | **write-protocol** | Protocol | IRB/ethics protocol drafting, 4 core sections + 6 skeleton sections with TODO markers |
 | **define-variables** | Operationalization | Literature-grounded variable definitions, cutoffs, DB-variable mappings; prevents ad-hoc phenotype definitions; runs between `/search-lit` and `/write-protocol` for observational studies |
 | **verify-refs** | Reference audit | Read-only PubMed/CrossRef audit of manuscript references; first-author cross-check; sole writer of `qc/reference_audit.json`. Audit boundary; never modifies refs |

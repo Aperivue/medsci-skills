@@ -2,7 +2,7 @@
 
 # MedSci Skills
 
-**41 skills that actually work.** Built by a physician-researcher, tested on real publications.
+**42 skills that actually work.** Built by a physician-researcher, tested on real publications.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 ![Skills](https://img.shields.io/badge/Skills-40-brightgreen?style=flat-square)
@@ -260,6 +260,7 @@ ma-scout -> search-lit -> fulltext-retrieval -> design-study ──> write-proto
 | **render-pdf-doc** | Render non-bibliography academic markdown (proposal, briefing handout, anchor doc, IRB cover, reference table) to publication-quality PDF via `pandoc + xelatex` with CJK font fallback (Apple SD Gothic Neo on macOS, Noto Sans CJK KR on Linux) and content-proportional pipe-table column widths. Boundary opposite of `manage-refs` (bibliography-driven). **New:** spun off from `write-paper` Phase 7.6 in 2026-05-01. |
 | **define-variables** | Literature-grounded variable operationalization for observational research. Turns a data dictionary plus research question into a citation-backed table of exposure / outcome / covariate definitions, cutoffs, and DB-variable mappings. Tier 0 dictionary-first rule prevents ad-hoc phenotype definitions that invite reviewer rejection. Bridges `/search-lit` output into `/write-protocol` Methods. |
 | **generate-codebook** | Generate a citable data dictionary / codebook from a tabular dataset (CSV/TSV/Excel/Parquet/Stata/SAS). Profiles every variable — role, type, level frequencies, range/quantiles, missingness — into `codebook.md` + `codebook.json`. Flags coded variables whose level meanings are unknown as `[NEEDS DICTIONARY]` rather than guessing them, feeding `/define-variables` and the dictionary-first workflow. |
+| **version-dataset** | Dataset version control for reproducibility. Builds a deterministic content-hash manifest (file SHA-256 + tabular schema + per-column value hashes), verifies a later copy to detect drift (schema / row-count / value changes), and diffs two manifests. Locks "which version of the data the results came from"; also reproducibility-locks the bundled demos. |
 | **fill-protocol** | Fill institutional Word form templates (`.doc` / `.docx`) for IRB protocols, ethics applications, grant proposals, and other structured research documents while preserving the original styles, table layouts, fonts, and page geometry. Korean-aware (CJK eastAsia font enforcement, table cantSplit) but works for any-language template. Pairs with `write-protocol` (content) — fill-protocol renders the content into the institutional template. |
 | **fill-icmje-coi** | Batch-generate per-author ICMJE Conflict of Interest Disclosure Forms (`coi_disclosure.docx`) for manuscript submission. Pre-fills all 13 disclosure items as "☒ None" plus the final certification using a synthetic seed template, then clones the seed per author with Date / Name / Manuscript Title replaced. Designed for the common case of hospital-based observational research where no author has real financial conflicts; circulated forms become "reply 변경 없음 + sign" for most authors and only flag those who need to amend. |
 

@@ -4,6 +4,7 @@
 
 ### Added
 
+- **`/version-dataset`** (new skill, brings the catalog to 42): dataset version control — a deterministic content-hash manifest (file SHA-256 + tabular schema + per-column value hashes), `verify` to detect drift (schema / row-count / value changes), and `diff` between versions. Each bundled `demo/*/` now carries a `manifest.lock.json` (input data + deterministic result tables) verified in CI — closing codex Improvement E (demo reproducibility).
 - **`/generate-codebook`** (new skill, brings the catalog to 41): generates a citable data dictionary / codebook (`codebook.md` + `codebook.json`) from a tabular dataset, profiling variable role / type / level frequencies / range / missingness. Coded variables whose level meanings are unknown are flagged `[NEEDS DICTIONARY]` rather than guessed — the generator side of the dictionary-first workflow; feeds `/define-variables`.
 - `/calc-sample-size`: observational-cohort precision-branch reference for retrospective / fixed-extract studies (PR #40).
 - `/verify-refs`: **v1.3.0** full-author cross-check via PubMed `efetch` — co-author hallucinations at positions #2..#N are now caught, not just the first author; `schema_version` → 4 (PR #41).
