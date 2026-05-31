@@ -9,23 +9,14 @@
       "tabular": {
         "n_rows": 4,
         "n_cols": 7,
-        "dtypes": {
-          "BMI Category": "object",
-          "n": "int64",
-          "n diabetes": "int64",
-          "Prevalence (%)": "float64",
-          "95% CI lower": "float64",
-          "95% CI upper": "float64",
-          "Weighted prevalence (%)": "float64"
-        },
         "column_hashes": {
-          "BMI Category": "58d2e3fc2d3340e3e1bcdbd83b8d710129d9ac30268e5f763f08275566da051a",
-          "n": "0e4bd654c30b8491b41fde0512ac00bcebf4215d304f0b7315e928cc7c3b923c",
-          "n diabetes": "e0872fe106ec12b3ac9836e92c922d3e4ce09d86e4e86dad119586fc92ba1ef3",
-          "Prevalence (%)": "70a0dcf75f60d9dd94f137330284c6df8b5aabcc098333fb7a8b0a298afe12ab",
-          "95% CI lower": "f1fa11a561e9b0884ff09cccf270820c9671c89e44a905dd9dedc338d55cdabd",
-          "95% CI upper": "62456dd61ad8f49bff0b9bac11d2f200d442930be6d4ac197a0cac7183dc3ad9",
-          "Weighted prevalence (%)": "b6f7446d0e312803894d6145343b3a9ab6b5602e790b9f16d06ccd5e91dbbfe5"
+          "BMI Category": "b95ce183594dab1350bc81527ae9d645c00bde068c09129730c80bb52a540734",
+          "n": "19858f0a57d45ce9bee63617b03f04bf66beae5a6be56d65d69216b1c263abbd",
+          "n diabetes": "123ec22f516d14aecfb6d338d49b3afe427777f46a4b9d2a6c8d57724fb13dcf",
+          "Prevalence (%)": "91e6b2ab22f4fe62d2866a75d6c5598d527180ce065272537d6f5bfb7d822117",
+          "95% CI lower": "0d90595a58a309afd0c60251210f88f582725355b77e2d8b75fb8d03c746ccf4",
+          "95% CI upper": "ffcf05377512d3a926ff017eb83e36db4a7eb7667185230355fe5072c8577738",
+          "Weighted prevalence (%)": "c9760edd2913f23cd8164138c93ee1c3a84f1302b25366f4aa1172e49433814e"
         }
       }
     },
@@ -35,19 +26,12 @@
       "tabular": {
         "n_rows": 9,
         "n_cols": 5,
-        "dtypes": {
-          "Model": "object",
-          "Variable": "object",
-          "OR": "float64",
-          "95% CI": "object",
-          "p-value": "object"
-        },
         "column_hashes": {
-          "Model": "f35c6e06b81779091de76ccd5358fd2428fcdc074269836a1b3722419db4f143",
-          "Variable": "2c0c6377b45f63eb1cfaf9aad2d1d5b37238fc181ba51e94688cca5a438713ab",
-          "OR": "a5198e9cff45eaa19884993ab7fb14659cdf1b3b5d47ff07c3a596a0fbd6902c",
-          "95% CI": "1bdb5d2ac7b7fc9e4f3943a63e7b2c2c3150d0ea90f4df42295daa49487ca889",
-          "p-value": "c62077384e34449ba4c39ff2830498a486a9249fbc19068c94985a189e53bb08"
+          "Model": "178d283bd2d8860991e3c3a61a99f842348004cc5d3f0f1e948f77aa88eac2ad",
+          "Variable": "e790faaa02385f14e8511544be130a50b67aaee7121749d4db00d241801802b8",
+          "OR": "92cb73a645beaab5bf94ae1ba84a8e8d976a7063004fe3a4801d0bd3ab845754",
+          "95% CI": "4fc116aa1c6555128b576ccc2be93e6d78c142bcacad9e5da3f49586a178c8bf",
+          "p-value": "406f9e669a62e9320fdf6067ea85d91e8638dd782f2f6674ab97a0b9b638271a"
         }
       }
     },
@@ -57,21 +41,13 @@
       "tabular": {
         "n_rows": 17,
         "n_cols": 6,
-        "dtypes": {
-          "Variable": "object",
-          "Normal": "object",
-          "Overweight": "object",
-          "Obese": "object",
-          "Overall": "object",
-          "p-value": "object"
-        },
         "column_hashes": {
-          "Variable": "a36cf2d193b8d3dc8fbb4fa9c45fb6c4fd9869be8564989589318cc41622b6c7",
-          "Normal": "bc8a9825725d9e59176adf1afa73635c83ea0660d09aa6faaed2552bf5f29b3b",
-          "Overweight": "f7ab8feae5b48084b35d358c6272fa1a91c93f0197136d41e4ec2782638afc7c",
-          "Obese": "9e39b321f0ee8bf7b23f0513f395d6d5369e60e5a45c5835f02d352ffb99b0a7",
-          "Overall": "40552a8683b1e25b2fa001e3e865627806f6f17c48508b5c0bbc6e55e861808a",
-          "p-value": "15b6e705c64cff865607fa78ad92b1afecc22885754170fef30fb55161c00189"
+          "Variable": "938f4169fb72bffbfe6fe8de3699a57ed57f2bbc06428d18d77d0706665f7c6d",
+          "Normal": "6f2edd3b08627afbb38e4b6a6151ad8ae1f9531cd761de09c14aac92f36feb45",
+          "Overweight": "abf354745fa910a9230a3fc0a2615a137d87596708925b134773810584c81e8d",
+          "Obese": "dc1cb6867b953bb6a77c8888be7510b0ce98aea088fedca667785a9a7bdaed19",
+          "Overall": "424d5b87e14970823fe33eff4b938922b73e0684d849aa83d446091648d48b5d",
+          "p-value": "7ee2bad35bb8b77e8fd1f510582a97469b73cc814e1e883455008ae620697d68"
         }
       }
     },
@@ -81,47 +57,26 @@
       "tabular": {
         "n_rows": 4940,
         "n_cols": 19,
-        "dtypes": {
-          "SEQN": "float64",
-          "gender_code": "float64",
-          "age": "float64",
-          "race_ethnicity_code": "float64",
-          "education_code": "float64",
-          "poverty_income_ratio": "float64",
-          "survey_weight": "float64",
-          "psu": "float64",
-          "stratum": "float64",
-          "bmi": "float64",
-          "waist_circumference": "float64",
-          "hba1c": "float64",
-          "gender": "object",
-          "race_ethnicity": "object",
-          "education": "object",
-          "bmi_category": "object",
-          "diabetes": "int64",
-          "diabetes_label": "object",
-          "glycemic_status": "object"
-        },
         "column_hashes": {
-          "SEQN": "0d9e60219a417bd5ac477d968c901b4b554864c1ea0d4adabb3773144edc8248",
-          "gender_code": "87eea87261a9dc686b634b363ae770b8b1f5f9cb892645ea2ef62d6ce2da7412",
-          "age": "5072eb9a03feeb395d00524cb5ab95e811502d10d33c4b05ad7ca7fc1426c450",
-          "race_ethnicity_code": "b4f2afd4e5a76a53d86ec04ee6e0f1e20ef05d16d52e9bf7197b360b0c016a3f",
-          "education_code": "dd620ccb336103b0f41c6a6aab4d350cd460e6529ca55c6f426cd1cbaefdcef0",
-          "poverty_income_ratio": "3cf2e150ed49039ff06af8dc35fffe76610d0c54b82365124a78ddd41bb99c2e",
-          "survey_weight": "2ebaac9b13add2b1c4459a1e21c56cddff046c85b5ef28c56ce6ba82734b769a",
-          "psu": "808fc7c78dc9f038efcd6d4556fffe88143dcaf387c51b25b5bc1151833914b9",
-          "stratum": "e4d977b81dde11f32c7d5f821077e2610a70e170b28b06229415b29614ed4c30",
-          "bmi": "4cd4922ccf9465c812ce983e37df1869083607010c60b36ea6cea9b23fb76d0a",
-          "waist_circumference": "c45f85877b7a90d7cd57a85f72cee790107c55231e2cbee07031dcbeb9f7c60b",
-          "hba1c": "a0670f44c0fcd815bd8da177d9e6d18d55b8bb18749bb316063ba34983d573f5",
-          "gender": "6d5e03cd4d0a8269eae82add7e074838ae2d99b0df3db47e6c1a896bdc245a70",
-          "race_ethnicity": "bf80e6dbc7bab497afba7b69bb5daa2d1a389914cbaab263084aae56f9cf57ec",
-          "education": "8356d1368e5e35447accda1a4e6137b7118b1a8eaac6d4dbf15b234d559e92bc",
-          "bmi_category": "a5ab88367e18661c4d179e14aa12408fce0edba4bb60328ff091fb49fa0e68f0",
-          "diabetes": "ed4a4908e35a00eb083504048e9ceaf3caa8d05c3301baa9dce8f0f7562ae386",
-          "diabetes_label": "f88855e5ea8677bee7c391ed3dfa802942a4a7769d539c266b662a53ff69ef32",
-          "glycemic_status": "bcc36fbf859d068bb4d2c7e00c2c189c0adb86947f172fc4da1a8526dd08201d"
+          "SEQN": "f4bfdcd488d0e996e80984d9ac6560f8f89560833490b20c31e044760b38801d",
+          "gender_code": "4ebfbea515c58fc39292d7472a1c7ae42e6968c1e74f50ae69b5d56cd68fee06",
+          "age": "f98442bf416acb5a24788366c36cdc7730046c7da1a3af111c572c38184eb880",
+          "race_ethnicity_code": "e76b34050af91b95b443dbf92458077c67a917282504b033d4910d92a9f2bf56",
+          "education_code": "e9898ee0553115082ae4f82aa1fe0d6d7bbc6cedf103841f33fa9a9fd96328d7",
+          "poverty_income_ratio": "bffeaf1ffa2ebef7c1a21bb9ae6a55d59735517645531cb40218dc41f0e684ca",
+          "survey_weight": "a2d11ff30817db3b02a61fafce88f79230ba918f4a080a7af2a7521f06439d14",
+          "psu": "e6f402d02077986fefb7e919acd33ec67fa8e0c830599adf1b762fe9e397f082",
+          "stratum": "ec410c7eec4fde4034601317bfba1ce941b973d8bc2460f4598618b84535ff54",
+          "bmi": "dbc3ef375872001de87afd3f113c04ca15953324c831b54e37a268bf11b668ae",
+          "waist_circumference": "0e70ccedcdad1fc4769af26208c02a8df594fb68b57d15c7f539ce10c929ae59",
+          "hba1c": "34836368dd37306a3ee3ba8b188792ebb2ac1ec9406d6dea06ff08b38051cd14",
+          "gender": "af3457de0991e5ca5ea6ac8209f7ace937340d3789ad87331277f758c5e3d90b",
+          "race_ethnicity": "a56b6fb05bce55dda122985081ff3eb5e204d47e90ffd808df0fc34a233fd239",
+          "education": "39bd512cfedf7798db4bca26223e5023c5255716de81dfd5a78a2264ca678fda",
+          "bmi_category": "157fa448d67eb77912529a106530a1e5cb5212a18b5d611866d5c94de913ba43",
+          "diabetes": "d011eecc3ab1bcc960cbfd75069c486d487244668d42443b7a4e953ab1e0ba29",
+          "diabetes_label": "64dfc34f92698d60af351eab3e6d3fc7325fbe208c30443bf29a5122e7a79c47",
+          "glycemic_status": "cbf4545cf37ca407b6f249200a149709ec13c4a11966b83a33b2c3f556324ea8"
         }
       }
     }

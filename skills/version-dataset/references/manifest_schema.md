@@ -19,8 +19,8 @@ artifact policy.
       "tabular": {                     // present only for CSV/TSV/Parquet/Stata/SAS/Excel
         "n_rows": 200,
         "n_cols": 9,
-        "dtypes": {"age": "int64", "bmi": "float64"},
-        "column_hashes": {"age": "…", "bmi": "…"}   // sha256 of dtype + values in row order
+        "column_hashes": {"age": "…", "bmi": "…"}   // sha256 of the column's literal
+                                                    // cell strings (row order)
       }
     }
   }

@@ -46,28 +46,38 @@ def file_sha256(path: Path) -> str:
     return h.hexdigest()
 
 
-def _read(path: Path):
+def _read_str(path: Path):
+    """Read a tabular file with every cell as its literal string.
+
+    Hashing must depend only on the data, not on the reader's environment. Native
+    dtype inference (int64 vs int32, object vs string, NaN coercion, float repr)
+    varies across pandas versions and platforms, which made manifests fail to
+    reproduce in CI. Reading CSV/TSV with dtype=str + keep_default_na=False
+    captures the exact textual content; other formats are read then stringified.
+    """
     suf = path.suffix.lower()
     if suf in (".csv", ".txt"):
-        return pd.read_csv(path)
+        return pd.read_csv(path, dtype=str, keep_default_na=False)
     if suf == ".tsv":
-        return pd.read_csv(path, sep="\t")
+        return pd.read_csv(path, sep="\t", dtype=str, keep_default_na=False)
     if suf in (".parquet", ".pq"):
-        return pd.read_parquet(path)
-    if suf == ".dta":
-        return pd.read_stata(path)
-    if suf == ".sas7bdat":
-        return pd.read_sas(path)
-    if suf == ".xlsx":
-        return pd.read_excel(path)
-    return None
+        df = pd.read_parquet(path)
+    elif suf == ".dta":
+        df = pd.read_stata(path)
+    elif suf == ".sas7bdat":
+        df = pd.read_sas(path)
+    elif suf == ".xlsx":
+        df = pd.read_excel(path, dtype=str)
+    else:
+        return None
+    return df.astype(str)
 
 
 def column_hashes(path: Path, ignore_cols: set[str]) -> dict | None:
     if not _HAVE_PANDAS or path.suffix.lower() not in TABULAR:
         return None
     try:
-        df = _read(path)
+        df = _read_str(path)
     except Exception:
         return None
     if df is None:
@@ -76,14 +86,13 @@ def column_hashes(path: Path, ignore_cols: set[str]) -> dict | None:
     for c in df.columns:
         if c in ignore_cols:
             continue
-        ser = df[c]
-        # stable digest of dtype + values in row order
-        payload = (str(ser.dtype) + "\x1f" + "\x1e".join(map(str, ser.tolist()))).encode("utf-8")
+        # Cells are already canonical strings (environment-independent); the
+        # pandas dtype is deliberately NOT part of the digest.
+        payload = ("\x1e".join(df[c].tolist())).encode("utf-8")
         cols[str(c)] = hashlib.sha256(payload).hexdigest()
     return {
         "n_rows": int(len(df)),
         "n_cols": int(df.shape[1]),
-        "dtypes": {str(c): str(df[c].dtype) for c in df.columns},
         "column_hashes": cols,
     }
 
