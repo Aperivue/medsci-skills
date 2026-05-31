@@ -567,7 +567,7 @@ Record `critic_pass: yes | partial | no` and `refine_rounds: N` in `_quick_revie
 ### Note Injection Script
 
 Generate a tailored `inject_notes.py` following the pattern in
-`${CLAUDE_SKILL_DIR}/references/inject_speaker_notes.py`. The generated script should
+`${CLAUDE_SKILL_DIR}/scripts/inject_speaker_notes.py`. The generated script should
 contain only the `notes` dictionary customized for this presentation and the main
 injection loop from the template.
 

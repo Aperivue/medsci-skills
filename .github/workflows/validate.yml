@@ -29,3 +29,6 @@ jobs:
 
       - name: Run validate_skills.sh (PII + structure)
         run: bash scripts/validate_skills.sh
+
+      - name: Run validate_routing_assets.py (SKILL.md asset references must exist)
+        run: python3 scripts/validate_routing_assets.py --strict

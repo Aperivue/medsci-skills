@@ -34,10 +34,10 @@ compliance report suitable for journal submission.
   - `ROBINS_I.md` -- non-randomised studies risk of bias (CC BY, Sterne et al. BMJ 2016)
   - `PROBAST.md` -- prediction model risk of bias (CC BY, Wolff et al. Ann Intern Med 2019)
   - `NOS.md` -- observational study quality (public domain, Ottawa Hospital)
-  - `CONSORT.md` -- randomised controlled trials
-  - `CARE.md` -- case reports
-  - `SPIRIT.md` -- study protocols
-  - `CLAIM_2024.md` -- AI/ML in clinical imaging
+  - `CONSORT.md` -- randomised controlled trials, CONSORT 2025 (CC BY 4.0, Hopewell et al. BMJ 2025)
+  - `CARE.md` -- case reports, CARE 2013 (CC BY-NC 4.0, Gagnier et al. J Clin Epidemiol 2014)
+  - `SPIRIT.md` -- clinical trial protocols, SPIRIT 2025 (CC BY 4.0, Chan et al. BMJ 2025)
+  - `CLAIM_2024.md` -- AI/ML in clinical imaging, CLAIM 2024 Update (RSNA open access, Tejani et al. Radiol Artif Intell 2024)
   - `MI_CLEAR_LLM.md` -- LLM accuracy studies in healthcare (CC BY-NC 4.0, Park et al. KJR 2024; 2025 update)
   - `SQUIRE_2.md` -- quality improvement in healthcare/education (CC BY, Ogrinc et al. BMJ Qual Saf 2016)
   - `CLEAR.md` -- radiomics studies (CC BY 4.0, Kocak et al. Insights Imaging 2023)
@@ -69,7 +69,7 @@ user specification.
 | Study Type | Primary Guideline | AI Extension |
 |------------|------------------|--------------|
 | Observational study | STROBE | -- |
-| Randomized controlled trial | CONSORT 2010 | CONSORT-AI |
+| Randomized controlled trial | CONSORT 2025 | CONSORT-AI |
 | Diagnostic accuracy study | STARD 2015 | STARD-AI |
 | Prediction model (development/validation) | TRIPOD | TRIPOD+AI |
 | Systematic review / meta-analysis | PRISMA 2020 | -- |
@@ -87,7 +87,7 @@ user specification.
 | Risk of bias (measurement properties) | COSMIN RoB | -- |
 | Quality assessment (observational) | NOS | -- |
 | Case report | CARE | -- |
-| Study protocol | SPIRIT | SPIRIT-AI |
+| Study protocol | SPIRIT 2025 | SPIRIT-AI |
 | Animal study | ARRIVE 2.0 | -- |
 | AI/ML study in clinical imaging | CLAIM 2024 | -- |
 | LLM accuracy evaluation in healthcare | MI-CLEAR-LLM | STARD-AI or CLAIM 2024 (use alongside) |
