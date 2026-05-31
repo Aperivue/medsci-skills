@@ -19,9 +19,11 @@ Python (alternative), interpret effect sizes clinically, and produce IRB-ready j
 ## Reference Files
 
 - **Formulas**: `${CLAUDE_SKILL_DIR}/references/formulas.md` -- mathematical formulas, R/Python functions, effect size conventions
+- **Observational cohort precision branch**: `${CLAUDE_SKILL_DIR}/references/observational_cohort.md`
 - **Existing R template**: See `analyze-stats` skill at `references/templates/sample_size.R` for the 7 original tests
 
 Read `formulas.md` before generating calculation code.
+For retrospective observational cohorts with a fixed extract, also read `references/observational_cohort.md` and report event budget / confidence-interval precision instead of forcing a prospective recruitment-style power calculation.
 
 ## Cross-Skill References
 
