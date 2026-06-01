@@ -8,7 +8,7 @@
 ![Skills](https://img.shields.io/badge/Skills-42-brightgreen?style=flat-square)
 ![Platform](https://img.shields.io/badge/Platform-Claude_Code-blueviolet?style=flat-square)
 ![Built by](https://img.shields.io/badge/Built_by-Physician--Researcher-blue?style=flat-square)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20155321.svg)](https://doi.org/10.5281/zenodo.20155321)
+[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.20155321-blue?style=flat-square)](https://doi.org/10.5281/zenodo.20155321)
 [![Citation](https://img.shields.io/badge/Cite-CITATION.cff-blue?style=flat-square)](CITATION.cff)
 
 ![MedSci Skills](assets/social-preview.png)
