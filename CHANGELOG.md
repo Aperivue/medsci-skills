@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [3.2.0] - 2026-06-01
+
 ### Added
 
 - **`/version-dataset`** (new skill, brings the catalog to 42): dataset version control — a deterministic content-hash manifest (file SHA-256 + tabular schema + per-column value hashes), `verify` to detect drift (schema / row-count / value changes), and `diff` between versions. Each bundled `demo/*/` now carries a `manifest.lock.json` (input data + deterministic result tables) verified in CI — closing codex Improvement E (demo reproducibility).
@@ -11,16 +13,28 @@
 - `/check-reporting`: fail-fast guard (`scripts/check_checklist_exists.py`) — a routed guideline with no vendored checklist now halts with `MISSING_CHECKLIST_CONTRACT_VIOLATION` instead of silently constructing items from model memory; from-memory requires explicit `--allow-from-memory` (PR #42).
 - `/check-reporting`: vendored four previously-gitignored checklists — **CONSORT 2025, SPIRIT 2025, CARE 2013, CLAIM 2024** — with per-file license attribution and a "Third-party licenses" note (PR #43, #45).
 - `scripts/validate_routing_assets.py`: CI gate that every `${CLAUDE_SKILL_DIR}` asset reference and check-reporting checklist bullet resolves to a real file (PR #43).
-- `metadata/catalog_counts.json` + `scripts/validate_catalog_consistency.py`: single source of truth for skill / guideline / journal-profile counts, wired into CI — public-doc counts that drift from disk now fail the build.
+- `metadata/catalog_counts.json` + `scripts/validate_catalog_consistency.py`: single source of truth for skill / guideline / journal-profile counts, wired into CI — public-doc counts that drift from disk now fail the build. The check now also gates the README shields **badge** (`Skills-N`) and matches guideline-count claims case-insensitively, so a drifted badge or section heading fails CI (PR #50).
+- **`/revise`**: R1 vs R2+ cover-letter protocol — on a second-or-later revision the editor cover letter folds into the response-letter "head" rather than a separate document; adds a "Succinctness & non-defensiveness (R2+)" voice section, a synthetic before/after gallery, and matching verification gates. `/humanize` cross-references it as a triage cue (PR #51).
+- **Contributor funnel**: GitHub issue forms (skill request / bug report / docs improvement), a pull-request template, `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1 by reference), and `docs/seed_issues.md` (PR #50).
 
 ### Changed
 
 - **Reporting-guideline count corrected from 33 to 32** across README, `/orchestrate`, `/check-reporting`, and the make-figures guideline map — the enumeration and vendored checklist files were both 32; "33" was an off-by-one now backed by the count SSOT.
+- **README restructured for faster onboarding** — a Quick Start (install + first command) above the demos, the three heavy demo output tables collapsed behind `<details>`, and "What's New" refreshed and moved below the demos (PR #50).
+- Skill badge corrected from 40 to 42 (PR #50).
+
+### Fixed
+
+- **DOI badge now renders on GitHub** — the Zenodo-hosted badge SVG was served with `Cache-Control: no-cache`, which GitHub's Camo image proxy cannot cache, so it displayed as a broken image; replaced with a shields.io static DOI badge (Camo-cacheable). The DOI value and link are unchanged (PR #50).
 
 ### Hygiene
 
 - Validator precedent blocklist no longer stores the maintainer's name, mentor names, institutions, or project codes in cleartext: `scripts/validate_skills.sh` delegates to `scripts/check_precedent.py`, which keeps generic structural shapes as regex but matches sensitive identifiers against SHA-256 digests (`scripts/precedent_hashes.txt`), with an `--allow-author` exemption for citation files (PR #44).
 - Fixed `/present-paper` note-injection script path (`references/` → `scripts/`) (PR #43).
+
+### Stats
+
+- 42 skills (was 40); Zenodo concept DOI `10.5281/zenodo.20155321` preserved.
 
 ## [3.1.0] - 2026-05-23
 
