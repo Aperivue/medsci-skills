@@ -42,3 +42,16 @@ quality_gates:
   - check_deps.sh: pandoc + xelatex + CJK font 의존성 미설치 시 hard exit
   - infer_colwidths.py: 균등 분할 (--equal) 옵션 명시 안 한 경우 content-proportional dash 강제
   - circulation_redaction: 회람용 PDF 출력 시 frontmatter `redact_internal: true` 또는 변경이력/버전번호/PI attribution 본문 미노출 강제
+
+# v2.1 quality card
+purpose: "Render a Markdown manuscript to a styled DOCX/PDF (tables, column widths, dependencies checked)."
+safety_boundaries:
+  - "Delegates bibliography rendering to manage-refs and figures/PPTX to make-figures/present-paper; does not modify citation keys."
+  - "Does not hand-type CSV data into tables (numerical-safety)."
+known_limitations:
+  - "Output fidelity depends on installed render dependencies (checked by check_deps.sh)."
+  - "Institutional Word forms are out of scope (use fill-protocol)."
+validation_commands:
+  - "bash scripts/check_deps.sh"
+  - "bash scripts/render_pdf.sh <manuscript.md>"
+evidence_surface: bundled_script

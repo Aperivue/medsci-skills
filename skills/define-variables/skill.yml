@@ -1,0 +1,34 @@
+schema_version: 2
+name: define-variables
+layer: C
+owner_domain: variable_operationalization
+
+when_to_use: "Turn a data dictionary + research question into a citation-backed table of exposure/outcome/covariate definitions, cutoffs, and DB variable mappings."
+when_NOT_to_use: "Drafting Methods prose (use write-protocol/write-paper); finding literature (use search-lit)."
+
+inputs:
+  - "data dictionary"
+  - "research question"
+  - "candidate literature"
+outputs:
+  - "variable operationalization table (definitions, cutoffs, DB mappings)"
+side_effects:
+  - writes_project_artifacts
+downstream_consumers:
+  - write-protocol
+  - analyze-stats
+forbidden_actions:
+  - define_phenotype_without_dictionary_citation
+  - invent_cutoff_without_literature_source
+
+# v2.1 quality card
+purpose: "Produce a literature-grounded, dictionary-cited operationalization table that prevents ad-hoc phenotype definitions."
+safety_boundaries:
+  - "Every DB variable interpretation quotes the data dictionary verbatim (dictionary-first)."
+  - "Cutoffs cite a canonical literature source; unsupported definitions are flagged, not invented."
+known_limitations:
+  - "Quality depends on a complete data dictionary; silent dictionary gaps block definitions."
+  - "No standalone demo; output is reviewed against the dictionary and sources."
+validation_commands:
+  - "cross-check each row's dictionary citation against the source dictionary"
+evidence_surface: manual_workflow

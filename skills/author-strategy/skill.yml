@@ -1,0 +1,34 @@
+schema_version: 2
+name: author-strategy
+layer: D
+owner_domain: author_profile_analysis
+
+when_to_use: "Analyze a PubMed author profile (study-type mix, trends) and produce a strategy report."
+when_NOT_to_use: "Finding meta-analysis topics (use ma-scout); literature search for a manuscript (use search-lit)."
+
+inputs:
+  - "author name / PubMed identifier"
+outputs:
+  - "study-type classification"
+  - "profile visualization"
+  - "strategy report"
+side_effects:
+  - writes_report_artifacts
+  - network_access_pubmed
+downstream_consumers:
+  - ma-scout
+forbidden_actions:
+  - fabricate_publication_records
+  - infer_identity_without_disambiguation
+
+# v2.1 quality card
+purpose: "Summarize an author's PubMed publication profile and surface strategy options from the actual record."
+safety_boundaries:
+  - "Records are fetched from PubMed, not recalled from memory; author disambiguation is explicit."
+  - "Reports describe the public record only; no private or speculative attribution."
+known_limitations:
+  - "Name collisions on PubMed can blur profiles; disambiguation is best-effort."
+  - "No standalone demo; output is an advisory report."
+validation_commands:
+  - "manual review of the fetched record against PubMed"
+evidence_surface: manual_workflow

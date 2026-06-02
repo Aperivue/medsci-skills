@@ -32,3 +32,17 @@ downstream_consumers:
 forbidden_actions:
   - generate_references_from_memory
   - silently_edit_frozen_submission
+
+# v2.1 quality card
+purpose: "Draft a submission-ready IMRAD manuscript or section from approved project inputs (8-phase workflow)."
+safety_boundaries:
+  - "Never generates references from memory; citations come from search-lit and are checked by verify-refs."
+  - "Never silently edits a frozen submission; branches to v_(N+1) instead."
+  - "Numerical claims are audited against approved tables before submission (Step 7.3a)."
+known_limitations:
+  - "Reference integrity depends on verify-refs (PubMed/CrossRef); offline runs degrade to manual checking."
+  - "Drafts the user's own manuscript only; not for self-critique (self-review), reviewer response (revise), or external review (peer-review)."
+validation_commands:
+  - "/verify-refs --strict"
+  - "/self-review"
+evidence_surface: demo

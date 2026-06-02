@@ -55,3 +55,16 @@ quality_gates:
   - check_xref.py --strict: hard exit on MISSING_DOCX / MISSING_BODY / MISMATCH
   - verify-refs hand-off: required before sign-off
   - cwyw_first_build_user_step: Add/Edit Bibliography in Word
+
+# v2.1 quality card
+purpose: "Manage the reference lifecycle: citekey validation, CSL rendering (pandoc citeproc), Zotero CWYW injection, marker conversion, and cross-reference QC."
+safety_boundaries:
+  - "References are never hand-typed; only Better BibTeX / citeproc / CWYW produce the list."
+  - "Citekeys are validated against the .bib; unmapped markers are not guessed; CWYW docx is not regex-patched."
+known_limitations:
+  - "Pandoc/Zotero must be installed; rendering is deterministic but environment-dependent."
+  - "Phase 3 CWYW field safety depends on a correct Zotero library."
+validation_commands:
+  - "python3 scripts/check_citation_keys.py manuscript.md refs.bib"
+  - "python3 scripts/check_xref.py --md manuscript.md --docx out.docx --strict"
+evidence_surface: bundled_script

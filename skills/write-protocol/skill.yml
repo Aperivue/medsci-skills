@@ -1,0 +1,34 @@
+schema_version: 2
+name: write-protocol
+layer: C
+owner_domain: protocol_drafting
+
+when_to_use: "Generate an IRB/ethics research protocol: 4 full prose core sections (Background, Design, Sample Size, Statistical Plan) plus 6 skeleton sections with TODO markers."
+when_NOT_to_use: "Filling an institutional Word form (use fill-protocol); manuscript drafting (use write-paper)."
+
+inputs:
+  - "design-study output"
+  - "calc-sample-size output"
+  - "search-lit output"
+outputs:
+  - "protocol.md (4 core sections + 6 TODO skeletons)"
+side_effects:
+  - writes_project_artifacts
+downstream_consumers:
+  - fill-protocol
+forbidden_actions:
+  - generate_references_from_memory
+  - fill_institution_specific_sections_with_invented_content
+
+# v2.1 quality card
+purpose: "Draft the scientific core of an IRB protocol and leave institution-specific sections as explicit TODO skeletons."
+safety_boundaries:
+  - "Institution-specific content is left as TODO markers, never fabricated."
+  - "Citations come from search-lit; references are not generated from memory."
+known_limitations:
+  - "Core sections need design-study/calc-sample-size inputs to be sound."
+  - "Skeleton sections require the researcher's institutional knowledge to complete."
+validation_commands:
+  - "/verify-refs --strict on cited work"
+  - "hand off to fill-protocol for the institutional template"
+evidence_surface: manual_workflow

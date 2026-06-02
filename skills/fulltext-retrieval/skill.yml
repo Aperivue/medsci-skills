@@ -1,0 +1,41 @@
+schema_version: 2
+name: fulltext-retrieval
+layer: A
+owner_domain: literature_discovery
+
+when_to_use: "Batch-download open-access full-text PDFs from a DOI list; optionally convert them to Markdown for token-efficient analysis."
+when_NOT_to_use: "Finding or verifying citations (use search-lit / verify-refs). Retrieving paywalled or non-open-access content."
+
+inputs:
+  - path: "DOI list (.txt, one per line, or .tsv with a DOI column)"
+    schema: csv
+    required: true
+outputs:
+  - path: "downloaded open-access PDFs (pdfs/)"
+  - path: "optional PDF-to-Markdown conversions"
+
+deterministic_scripts:
+  - fetch_oa.py
+  - pdf_to_md.py
+side_effects:
+  - downloads_files
+  - network_access_oa_apis
+downstream_consumers:
+  - meta-analysis
+  - obsidian-paper-vault
+forbidden_actions:
+  - download_paywalled_content
+  - bypass_publisher_access_controls
+
+# v2.1 quality card
+purpose: "Resolve a DOI list to open-access full-text PDFs via legitimate OA APIs, with optional Markdown conversion."
+safety_boundaries:
+  - "Uses legitimate open-access sources only (Unpaywall, PMC / Europe PMC, OpenAlex, Crossref); never circumvents paywalls or access controls."
+  - "Validates each download (>=10 KB and a %PDF- header) before accepting it."
+known_limitations:
+  - "Only open-access content is retrievable; non-OA DOIs fail by design rather than fetching from unauthorized sources."
+  - "PDF-to-Markdown conversion requires the optional pymupdf4llm dependency (AGPL-3.0 or commercial license)."
+validation_commands:
+  - "python fetch_oa.py dois.txt -o pdfs/ -e <email> --verbose   # per-DOI source trace"
+  - "verify each output begins with %PDF- and is at least 10 KB"
+evidence_surface: bundled_script

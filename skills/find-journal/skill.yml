@@ -1,0 +1,34 @@
+schema_version: 2
+name: find-journal
+layer: D
+owner_domain: journal_recommendation
+
+when_to_use: "Recommend journals for a manuscript via two-pass matching against the public profile library plus any user-local private profiles."
+when_NOT_to_use: "Adding a journal to the database (use add-journal); building the submission package (use sync-submission)."
+
+inputs:
+  - "manuscript abstract / scope"
+  - "study type"
+outputs:
+  - "ranked journal recommendations with scope rationale and AI-policy notes"
+side_effects:
+  - reads_journal_profiles
+downstream_consumers:
+  - add-journal
+  - write-paper
+  - sync-submission
+forbidden_actions:
+  - fabricate_impact_factor_or_apc
+  - recommend_journals_outside_the_profile_library
+
+# v2.1 quality card
+purpose: "Rank candidate journals by scope fit from the curated profile library, with AI-disclosure policy and homepage links."
+safety_boundaries:
+  - "No cached impact-factor/APC values are asserted; users verify current metrics at journal sites."
+  - "Recommendations are drawn from the curated profile library, not invented venues."
+known_limitations:
+  - "Coverage is limited to profiled journals; an unprofiled fit may be missed (add via add-journal)."
+  - "Scope-fit ranking is advisory, not an acceptance prediction."
+validation_commands:
+  - "verify shortlisted journals' current scope and metrics at their official sites"
+evidence_surface: manual_workflow

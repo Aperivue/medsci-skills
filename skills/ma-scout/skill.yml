@@ -1,0 +1,33 @@
+schema_version: 2
+name: ma-scout
+layer: D
+owner_domain: ma_topic_discovery
+
+when_to_use: "Discover and assess meta-analysis topics, either from a professor's publication profile or from a clinical question/trend."
+when_NOT_to_use: "Running the meta-analysis (use meta-analysis); single-author profiling (use author-strategy)."
+
+inputs:
+  - "professor profile or clinical question/trend"
+outputs:
+  - "ranked MA topic proposals with feasibility and gap evidence"
+side_effects:
+  - writes_report_artifacts
+  - network_access_literature
+downstream_consumers:
+  - meta-analysis
+  - search-lit
+forbidden_actions:
+  - claim_an_ma_gap_without_search_evidence
+  - fabricate_study_counts
+
+# v2.1 quality card
+purpose: "Find feasible meta-analysis gaps (professor-first or topic-first) backed by literature evidence."
+safety_boundaries:
+  - "Gap claims rest on real literature scans; candidate study counts are not fabricated."
+  - "Advisory report; does not perform screening or synthesis."
+known_limitations:
+  - "Feasibility is an estimate; the true includable pool is established only by meta-analysis screening."
+  - "No standalone demo; topic selection needs domain judgement."
+validation_commands:
+  - "confirm feasibility by running meta-analysis screening on the shortlist"
+evidence_surface: manual_workflow

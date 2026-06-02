@@ -32,3 +32,16 @@ downstream_consumers:
 forbidden_actions:
   - report_counts_without_id_receipts
   - continue_after_p0_reconciliation_mismatch
+
+# v2.1 quality card
+purpose: "Run the SR/MA pipeline: PROSPERO registration, search, screening, extraction, risk of bias, synthesis (bivariate/HSROC or random-effects), and PRISMA reporting."
+safety_boundaries:
+  - "Study counts are never reported without ID-level receipts; halts on a P0 reconciliation mismatch."
+  - "Pool composition is locked to a single source of truth; downstream counts are re-derived, not copied."
+known_limitations:
+  - "Synthesis validity depends on correct extraction; the skill enforces process, not clinical correctness."
+  - "DTA pooling assumes adequate per-study 2x2 / threshold data."
+validation_commands:
+  - "python3 scripts/screening_reconcile.py"
+  - "python3 scripts/check_pool_consistency.py"
+evidence_surface: demo

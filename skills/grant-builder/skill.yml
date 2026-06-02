@@ -1,0 +1,34 @@
+schema_version: 2
+name: grant-builder
+layer: C
+owner_domain: grant_proposal
+
+when_to_use: "Support grant and challenge proposals (significance, innovation, approach, milestones, consortium roles) with evidence-based, executable claims."
+when_NOT_to_use: "IRB protocol content (use write-protocol); manuscript drafting (use write-paper)."
+
+inputs:
+  - "funding call / RFP"
+  - "project concept"
+  - "team/consortium"
+outputs:
+  - "proposal sections (significance, innovation, approach, milestones)"
+side_effects:
+  - writes_project_artifacts
+downstream_consumers:
+  - write-protocol
+forbidden_actions:
+  - fabricate_preliminary_data_or_citations
+  - promise_unexecutable_milestones
+
+# v2.1 quality card
+purpose: "Structure a fundable, executable proposal whose claims are evidence-based and whose milestones are realistic."
+safety_boundaries:
+  - "Claims are tied to evidence the user supplies; preliminary data and citations are not invented."
+  - "Milestones are scoped to be executable, not aspirational."
+known_limitations:
+  - "Does not guarantee funding; tailoring to a specific reviewer panel is the user's responsibility."
+  - "No standalone demo; content requires PI review."
+validation_commands:
+  - "/verify-refs --strict on any cited work"
+  - "/self-review for internal consistency"
+evidence_surface: manual_workflow

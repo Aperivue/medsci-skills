@@ -1,0 +1,33 @@
+schema_version: 2
+name: add-journal
+layer: C
+owner_domain: journal_profile_authoring
+
+when_to_use: "Add a new journal to the profile database from its author guidelines, generating both write-paper (detailed) and find-journal (compact) profiles."
+when_NOT_to_use: "Recommending a journal for a manuscript (use find-journal)."
+
+inputs:
+  - "journal author-guidelines URL or pasted text"
+outputs:
+  - "find-journal compact profile"
+  - "write-paper detailed profile"
+side_effects:
+  - writes_journal_profiles
+downstream_consumers:
+  - find-journal
+  - write-paper
+forbidden_actions:
+  - fabricate_journal_policy_or_metrics
+  - record_unverified_guidelines_as_verified
+
+# v2.1 quality card
+purpose: "Turn a journal's official author guidelines into canonical compact + detailed profiles for the recommendation and drafting skills."
+safety_boundaries:
+  - "Policy/scope fields are transcribed from the official source, never inferred; unverifiable items are flagged."
+  - "No cached impact-factor or APC values are asserted; users verify current metrics at the source."
+known_limitations:
+  - "Profiles drift as journals update guidelines; each carries a verification date."
+  - "Quality depends on the guidelines text supplied; gated pages require user-provided content."
+validation_commands:
+  - "python3 scripts/validate_catalog_consistency.py   # profile counts stay in sync"
+evidence_surface: manual_workflow

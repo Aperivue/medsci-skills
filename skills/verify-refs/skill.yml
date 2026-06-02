@@ -29,3 +29,16 @@ downstream_consumers:
 forbidden_actions:
   - generate_references_from_memory
   - silently_include_unverified_references
+
+# v2.1 quality card
+purpose: "Audit-only verification of manuscript references against PubMed and CrossRef (full-author cross-check); writes qc/reference_audit.json. Does not modify references."
+safety_boundaries:
+  - "Audit-only: never edits references/ or refs.bib; never generates references from memory."
+  - "Unverified references are flagged, not silently included."
+known_limitations:
+  - "Confirms DOI/PMID and author identity, not topical appropriateness of the citation."
+  - "CrossRef given-name errors are possible; PubMed efetch is treated as authoritative."
+validation_commands:
+  - "bash scripts/verify_cli.sh <refs.bib>"
+  - "confirm qc/reference_audit.json submission_safe: true"
+evidence_surface: bundled_script
