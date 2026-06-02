@@ -201,6 +201,8 @@ MedSci Skills is **opinionated and narrow on purpose**: a single physician-resea
 
 ## Skills
 
+📖 **Per-skill reference:** [`docs/skills/`](docs/skills/) — one page per skill (what it does, when it activates, bundled resources), generated from each `SKILL.md`.
+
 ```
                               ┌─────────────────────────────────┐
                               │  orchestrate: single entry point │

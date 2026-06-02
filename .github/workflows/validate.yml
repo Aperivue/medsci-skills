@@ -36,6 +36,9 @@ jobs:
       - name: Run validate_catalog_consistency.py (doc counts must match disk SSOT)
         run: python3 scripts/validate_catalog_consistency.py
 
+      - name: Run gen_skill_docs.py --check (per-skill docs must match SKILL.md)
+        run: python3 scripts/gen_skill_docs.py --check
+
       - name: Install pandas (demo manifest verification)
         run: pip install pandas
 

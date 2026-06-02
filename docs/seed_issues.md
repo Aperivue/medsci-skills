@@ -6,35 +6,10 @@ are intentionally scoped so a first-time contributor can pick one up.
 
 ---
 
-## 1. Auto-generate per-skill docs from `SKILL.md` (+ CI drift gate)
+> The "auto-generate per-skill docs" issue that previously lived here has been implemented:
+> `scripts/gen_skill_docs.py` generates `docs/skills/` and CI gates it via `--check`.
 
-**Labels:** `good first issue`, `documentation`, `enhancement`
-
-**Body:**
-
-Per-skill documentation currently lives only inside each `skills/<skill>/SKILL.md`. A
-hand-maintained parallel copy under `docs/skills/` would drift, so we want it generated.
-
-Build a small, deterministic, stdlib-only generator:
-
-- `scripts/gen_skill_docs.py` reads the YAML frontmatter of every `skills/<skill>/SKILL.md`
-  (`name`, `description`, `triggers`, `tools`, `model`) and writes one
-  `docs/skills/<skill>.md` index page per skill, plus a `docs/skills/README.md` index
-  linking them all.
-- The page should link back to the source `SKILL.md` and list the skill's reference
-  files if present.
-- Add a `--check` mode that fails (non-zero exit) when the generated output is stale
-  relative to the current `SKILL.md` files, and wire it into `.github/workflows/validate.yml`
-  so doc drift fails CI — the same pattern as `scripts/validate_catalog_consistency.py`.
-
-Acceptance:
-- Running the generator produces `docs/skills/<skill>.md` for all skills.
-- `--check` passes immediately after generation and fails after an unsynced `SKILL.md` edit.
-- No personal paths, names, or PII in generated output (it is sourced from public SKILL.md).
-
----
-
-## 2. Polish the 10 core skills' `SKILL.md` for first-time readers
+## 1. Polish the 10 core skills' `SKILL.md` for first-time readers
 
 **Labels:** `help wanted`, `documentation`
 

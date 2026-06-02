@@ -10,7 +10,7 @@ Thank you for helping make medical research workflows more reproducible and less
 - Public demo improvements using open or synthetic datasets.
 - Documentation that helps clinicians install, test, or safely adapt the skills.
 
-Per-skill documentation is sourced from each `skills/<skill-name>/SKILL.md` (and is intended to be generated into `docs/skills/` rather than hand-maintained in parallel — a duplicated copy drifts from the skill). Improve the `SKILL.md` itself; see `docs/seed_issues.md` for the planned auto-generation work.
+Per-skill documentation under `docs/skills/` is **generated** from each `skills/<skill-name>/SKILL.md` by `scripts/gen_skill_docs.py` — do not hand-edit those pages (a parallel copy drifts). Improve the `SKILL.md` itself, then run `python3 scripts/gen_skill_docs.py` and commit the regenerated `docs/skills/`. CI runs `gen_skill_docs.py --check` and fails the build if the pages are out of sync.
 
 ## Skill Addition Workflow
 
