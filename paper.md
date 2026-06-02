@@ -13,7 +13,7 @@ authors:
 affiliations:
   - name: University of Ulsan College of Medicine, Seoul, Republic of Korea
     index: 1
-date: 23 May 2026
+date: 1 June 2026
 bibliography: paper.bib
 ---
 
@@ -46,11 +46,9 @@ Design trade-offs:
 - Deterministic scripts are used for checks that should not depend on language-model judgment.
 - Public demos use accessible datasets so users can inspect complete outputs without private data.
 
-# Research Impact Statement
+# Research Applications
 
-MedSci Skills has a citable Zenodo DOI, a public GitHub history, three reproducible demonstration pipelines, and active repository traffic from developer and research communities. The near-term research significance is strongest for groups that need a structured manuscript workflow with built-in checks for references, reporting guidelines, meta-analysis artifacts, and submission package drift.
-
-Before JOSS submission, this section should be strengthened with concrete adoption evidence, citations, external issues, or documented reuse by researchers outside the maintainer's own workflow.
+MedSci Skills is archived with a citable Zenodo DOI and a public version history, and ships three reproducible end-to-end demonstrations — diagnostic accuracy, meta-analysis, and epidemiology — built on openly available datasets, so that complete outputs can be inspected without private data. It is most useful to groups that need a structured manuscript workflow with built-in checks for references, reporting-guideline compliance, meta-analysis artifacts, and submission-package consistency.
 
 # AI Usage Disclosure
 
