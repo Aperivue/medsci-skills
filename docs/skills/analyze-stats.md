@@ -16,7 +16,7 @@
 
 - `analysis_guides/` (7 files)
 - `style/` (2 files)
-- `table-standards/` (14 files)
+- `table-standards/` (13 files)
 - `templates/` (14 files)
 
 ## Source

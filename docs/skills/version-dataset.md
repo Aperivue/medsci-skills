@@ -18,7 +18,6 @@
 
 **Scripts** (`skills/version-dataset/scripts/`):
 
-- `__pycache__/` (1 file)
 - `version_dataset.py`
 
 ## Source

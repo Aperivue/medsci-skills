@@ -113,6 +113,14 @@ def load_skill(skill_dir: Path) -> dict[str, str]:
     return fm
 
 
+def _ignorable(p: Path) -> bool:
+    """Untracked build/OS artifacts that exist locally but not in a clean checkout —
+    excluding them keeps counts identical between a working tree and CI (determinism)."""
+    if p.suffix == ".pyc":
+        return True
+    return any(part == "__pycache__" or part.startswith(".") for part in p.parts)
+
+
 def list_resources(skill_dir: Path) -> dict[str, list[str]]:
     out: dict[str, list[str]] = {}
     for cat in RESOURCE_DIRS:
@@ -121,10 +129,10 @@ def list_resources(skill_dir: Path) -> dict[str, list[str]]:
             continue
         entries: list[str] = []
         for child in sorted(d.iterdir(), key=lambda p: p.name):
-            if child.name.startswith("."):
+            if child.name.startswith(".") or child.name == "__pycache__":
                 continue
             if child.is_dir():
-                count = sum(1 for p in child.rglob("*") if p.is_file())
+                count = sum(1 for p in child.rglob("*") if p.is_file() and not _ignorable(p))
                 entries.append(f"`{child.name}/` ({count} file{'s' if count != 1 else ''})")
             else:
                 entries.append(f"`{child.name}`")
