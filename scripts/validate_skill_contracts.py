@@ -6,6 +6,15 @@ schema_version policy:
                    FAIL thereafter
   - 2           -> ENFORCE strict requirements (layer, when_to_use, etc.)
 
+Schema v2.1 quality-card extension (optional, additive, backwards-compatible):
+  Contracts keep `schema_version: 2`. They MAY add quality-card fields surfaced
+  per-skill in docs/skills/ (see docs/skill_yml_schema_v2.md):
+    purpose, safety_boundaries, known_limitations, validation_commands,
+    evidence_surface.
+  When present, list fields must be non-empty and `evidence_surface` must be one
+  of the strict labels below. None of these are required yet; missing skill.yml
+  stays a WARN until every skill ships one.
+
 Missing skill.yml -> WARN (migration in progress).
 Malformed skill.yml -> FAIL.
 """
@@ -48,6 +57,15 @@ REQUIRED_V2 = {
 
 VALID_LAYERS = {"A", "B", "C", "D"}
 
+# Schema v2.1 quality-card extension (all optional).
+VALID_EVIDENCE_SURFACE = {
+    "ci_validator",        # a CI gate exercises this skill's behavior/output
+    "demo",                # covered by a manifest-locked demo project
+    "bundled_script",      # a deterministic bundled script produces the output
+    "manual_workflow",     # human-driven; no standalone automated check
+    "not_yet_demonstrated",
+}
+
 LIST_FIELDS = {
     "inputs",
     "outputs",
@@ -59,6 +77,10 @@ LIST_FIELDS = {
     "exclusive_with",
     "sequence_after",
     "aliases",
+    # v2.1 quality-card lists (optional; non-empty when present)
+    "safety_boundaries",
+    "known_limitations",
+    "validation_commands",
 }
 
 
@@ -102,6 +124,20 @@ def past_v1_sunset() -> bool:
     return _dt.date.today().isoformat() >= V1_SUNSET
 
 
+def validate_quality_card(text: str, keys: set[str]) -> list[str]:
+    """Validate the optional v2.1 quality-card fields when present. List fields are
+    checked for non-emptiness by the generic LIST_FIELDS loop; here we enforce the
+    strict `evidence_surface` enum (single scalar label)."""
+    if "evidence_surface" not in keys:
+        return []
+    val = extract_scalar(text, "evidence_surface")
+    if not val:
+        return ["evidence_surface present but empty (must be a single label)"]
+    if val not in VALID_EVIDENCE_SURFACE:
+        return [f"evidence_surface invalid: {val!r} (must be one of {sorted(VALID_EVIDENCE_SURFACE)})"]
+    return []
+
+
 def validate_v2(path: Path, skill_name: str, text: str, keys: set[str]) -> list[str]:
     errors: list[str] = []
     missing = REQUIRED_V2 - keys
@@ -120,6 +156,8 @@ def validate_v2(path: Path, skill_name: str, text: str, keys: set[str]) -> list[
         if not list_has_item(text, key):
             errors.append(f"{key} must contain at least one item")
 
+    errors += validate_quality_card(text, keys)
+
     return errors
 
 
@@ -137,6 +175,8 @@ def validate_v1(path: Path, skill_name: str, text: str, keys: set[str]) -> list[
                 "downstream_consumers", "forbidden_actions"} & keys:
         if not list_has_item(text, key):
             errors.append(f"{key} must contain at least one item")
+
+    errors += validate_quality_card(text, keys)
 
     return errors
 

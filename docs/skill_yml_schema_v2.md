@@ -1,6 +1,6 @@
 # skill.yml — Schema v2
 
-**Status**: Frozen (Phase 0.5.3, 2026-04-24)
+**Status**: Frozen (Phase 0.5.3, 2026-04-24). Extended additively by the optional **v2.1 quality-card** fields (2026-06-03) — `schema_version` stays `2`; see [Quality-card extension](#quality-card-extension-v21-optional).
 **Supersedes**: skill.yml schema v1 (3-month dual-schema period)
 **Validator**: `scripts/validate_skill_contracts.py` (v1 warn, v2 enforce)
 
@@ -47,6 +47,11 @@ Validator rule: `layer` is required and must be one of `A`, `B`, `C`, `D`.
 | `tokens_cap` | no | int | Soft warn threshold (per D-7 session cap). |
 | `deprecated` | no | bool | If true, skill is in sunset window. |
 | `aliases` | no | list[str] | Accepted alternative names. |
+| `purpose` | no | str | v2.1 quality card: one-line statement of what the skill produces. |
+| `safety_boundaries` | no | list[str] | v2.1 quality card: human-readable guardrails (superset of `forbidden_actions`). Non-empty when present. |
+| `known_limitations` | no | list[str] | v2.1 quality card: honest caveats. Non-empty when present. |
+| `validation_commands` | no | list[str] | v2.1 quality card: real commands/skills that check this skill's output. Non-empty when present. |
+| `evidence_surface` | no | enum | v2.1 quality card: strongest evidence type. One of `ci_validator` / `demo` / `bundled_script` / `manual_workflow` / `not_yet_demonstrated`. |
 
 ## inputs / outputs
 
@@ -96,6 +101,44 @@ deterministic_steps:
 | `write_refs_bib_directly` | artifact_contract.md owner rule |
 | `hand_tally_counts` | numerical-safety hook |
 | `bypass_verify_refs` | pre-save hook verify-refs-guard.sh |
+
+## Quality-card extension (v2.1, optional)
+
+The quality-card fields make each skill's contract self-describing and let `scripts/gen_skill_docs.py` render a **Quality Card** section on the skill's `docs/skills/` page. They are an **additive, backwards-compatible** extension: contracts keep `schema_version: 2`, every field is optional, and the validator does not require them. Once all skills carry a `skill.yml`, the "missing skill.yml" WARN flips to FAIL — but the quality-card fields themselves remain optional.
+
+| Field | Type | Rule |
+|---|---|---|
+| `purpose` | str | One line: what the skill produces. |
+| `safety_boundaries` | list[str] | Guardrails in plain language. Non-empty when present. |
+| `known_limitations` | list[str] | Honest caveats. Non-empty when present. |
+| `validation_commands` | list[str] | Commands/skills that verify the output. Non-empty when present. |
+| `evidence_surface` | enum | Single label, strongest evidence type (see below). |
+
+**`evidence_surface` labels** (strict; the validator rejects anything else):
+
+| Label | Meaning |
+|---|---|
+| `ci_validator` | A CI gate exercises this skill's behavior or output. |
+| `demo` | Covered by a manifest-locked demo project (`demo/`). |
+| `bundled_script` | A deterministic bundled script produces the output. |
+| `manual_workflow` | Human-driven; no standalone automated check. |
+| `not_yet_demonstrated` | No demo or deterministic check yet. |
+
+**Evidence discipline**: never overclaim. Use `ci_validator` only when a CI gate truly touches the behavior; a skill with no demo or deterministic check uses `manual_workflow` (or `not_yet_demonstrated`) and says so in `known_limitations`.
+
+```yaml
+# appended to the write-paper example below
+purpose: "Draft a submission-ready IMRAD manuscript or section from approved inputs."
+safety_boundaries:
+  - "Never generates references from memory; citations come from search-lit + verify-refs."
+  - "Never silently edits a frozen submission; branches to v_(N+1)."
+known_limitations:
+  - "Reference integrity depends on verify-refs (PubMed/CrossRef); offline runs degrade to manual check."
+validation_commands:
+  - "/verify-refs --strict"
+  - "/self-review"
+evidence_surface: demo   # exercised end-to-end by demo/02_metafor_bcg
+```
 
 ## v1 → v2 migration guide
 
@@ -162,4 +205,5 @@ aliases: [wp, draft_manuscript]
 
 ## Change log
 
+- **2026-06-03** v2.1 quality-card extension (additive, optional): `purpose`, `safety_boundaries`, `known_limitations`, `validation_commands`, `evidence_surface`. `schema_version` unchanged (`2`). Surfaced per-skill in `docs/skills/`.
 - **2026-04-24** Schema v2 frozen (Phase 0.5.3). D-3 retained three agents; skill contracts now cover routing previously handled by agent definitions.
