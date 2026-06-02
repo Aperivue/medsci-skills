@@ -27,12 +27,26 @@ def log(message: str, log_lines: list[str]) -> None:
 
 
 def default_target_dir(target: str) -> Path:
+    # Verified against official host docs on 2026-06-03 (see docs/host_compatibility.md):
+    #   claude -> ~/.claude/skills   (Claude Code; also read by GitHub Copilot and Cursor)
+    #   codex  -> ~/.agents/skills   (Codex personal scope per developers.openai.com/codex/skills;
+    #                                 also read by Cursor and GitHub Copilot)
+    # These two destinations together cover Claude Code, Codex, Cursor, and Copilot, so no
+    # per-host fork is needed. OpenClaw/Hermes remain unverified and are intentionally absent.
     home = Path.home()
     if target == "claude":
         return home / ".claude" / "skills"
     if target == "codex":
         return home / ".agents" / "skills"
     raise ValueError(f"Unknown target: {target}")
+
+
+def verify_discoverable(dest: Path, skill_names: list[str], log_lines: list[str]) -> None:
+    """Assert each installed skill landed at <dest>/<name>/SKILL.md so a host can discover it."""
+    missing = [s for s in skill_names if not (dest / s / "SKILL.md").is_file()]
+    log(f"  verified {len(skill_names) - len(missing)}/{len(skill_names)} skills discoverable at {dest}", log_lines)
+    if missing:
+        raise RuntimeError(f"discoverability check failed at {dest}: missing SKILL.md for {', '.join(missing)}")
 
 
 def copy_skills(target: str, dest: Path, log_lines: list[str], dry_run: bool) -> int:
@@ -51,6 +65,7 @@ def copy_skills(target: str, dest: Path, log_lines: list[str], dry_run: bool) ->
     for skill in skill_dirs:
         shutil.copytree(skill, dest / skill.name, dirs_exist_ok=True)
         log(f"  installed {skill.name}", log_lines)
+    verify_discoverable(dest, [s.name for s in skill_dirs], log_lines)
     return len(skill_dirs)
 
 
@@ -90,6 +105,51 @@ Repository path:
     log("  installed Cursor project rule", log_lines)
 
 
+def run_self_test() -> int:
+    """Simulate installs into throwaway temp dirs, assert every skill is discoverable, and
+    prove no real host directory is touched. Returns 0 on pass, 1 on failure. Writes nothing
+    outside a TemporaryDirectory."""
+    import tempfile
+
+    source = sorted(p.name for p in SKILLS_DIR.iterdir() if p.is_dir() and (p / "SKILL.md").exists())
+    n = len(source)
+    problems: list[str] = []
+    sink: list[str] = []
+
+    # Snapshot real host dirs to prove the self-test never creates them.
+    host_dirs = [default_target_dir("claude"), default_target_dir("codex")]
+    existed_before = {d: d.exists() for d in host_dirs}
+
+    with tempfile.TemporaryDirectory(prefix="medsci-selftest-") as tmp:
+        tmp_path = Path(tmp)
+        dest = tmp_path / "skills"
+        try:
+            copied = copy_skills("self-test", dest, sink, dry_run=False)  # includes verify_discoverable
+        except Exception as exc:  # noqa: BLE001
+            problems.append(f"copy/verify raised: {exc}")
+            copied = -1
+        if copied != n:
+            problems.append(f"copied {copied} != source skill count {n}")
+
+        proj = tmp_path / "project"
+        install_cursor_rule(proj, sink, dry_run=False)
+        if not (proj / ".cursor" / "rules" / "medsci-skills.mdc").is_file():
+            problems.append("cursor project rule was not written")
+
+    for d in host_dirs:
+        if not existed_before[d] and d.exists():
+            problems.append(f"self-test created a real host dir: {d}")
+
+    print("MedSci Skills installer self-test")
+    print(f"  source skills: {n}")
+    if problems:
+        for p in problems:
+            print(f"  FAIL: {p}")
+        return 1
+    print(f"  OK: {n}/{n} skills discoverable in temp target; cursor rule written; no host dir touched")
+    return 0
+
+
 def write_log(log_lines: list[str]) -> Path:
     stamp = dt.datetime.now().strftime("%Y%m%d-%H%M%S")
     log_path = REPO_ROOT / f"{stamp}-{LOG_NAME}"
@@ -112,11 +172,18 @@ def parse_args() -> argparse.Namespace:
         help="Project folder where a .cursor/rules/medsci-skills.mdc rule should be written.",
     )
     parser.add_argument("--dry-run", action="store_true", help="Print actions without changing files.")
+    parser.add_argument(
+        "--self-test",
+        action="store_true",
+        help="Simulate installs into temp dirs, assert all skills are discoverable, and touch no host directory. Exits 0 on pass.",
+    )
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
+    if args.self_test:
+        return run_self_test()
     log_lines: list[str] = []
     log("MedSci Skills Installer", log_lines)
     log(f"Repository: {REPO_ROOT}", log_lines)
