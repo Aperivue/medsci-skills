@@ -7,11 +7,19 @@
 *MedSci Skills is a submission-grade clinical manuscript workflow, not a generic biomedical skill catalog. It competes on clinical submission reliability, not skill count.*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/Aperivue/medsci-skills?style=flat-square&color=blue)](https://github.com/Aperivue/medsci-skills/releases/latest)
+[![CI](https://img.shields.io/github/actions/workflow/status/Aperivue/medsci-skills/validate.yml?branch=main&style=flat-square&label=CI)](https://github.com/Aperivue/medsci-skills/actions/workflows/validate.yml)
 ![Skills](https://img.shields.io/badge/Skills-42-brightgreen?style=flat-square)
-![Platform](https://img.shields.io/badge/Platform-Claude_Code-blueviolet?style=flat-square)
-![Built by](https://img.shields.io/badge/Built_by-Physician--Researcher-blue?style=flat-square)
+
+[![Agent Skills](https://img.shields.io/badge/Agent_Skills-standard-blue?style=flat-square)](https://agentskills.io)
+[![Claude Code](https://img.shields.io/badge/Claude_Code-supported-success?style=flat-square)](docs/host_compatibility.md)
+[![Codex](https://img.shields.io/badge/Codex-supported-success?style=flat-square)](docs/host_compatibility.md)
+[![Cursor](https://img.shields.io/badge/Cursor-supported-success?style=flat-square)](docs/host_compatibility.md)
+[![GitHub Copilot](https://img.shields.io/badge/GitHub_Copilot-supported-success?style=flat-square)](docs/host_compatibility.md)
+
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.20155321-blue?style=flat-square)](https://doi.org/10.5281/zenodo.20155321)
 [![Citation](https://img.shields.io/badge/Cite-CITATION.cff-blue?style=flat-square)](CITATION.cff)
+![Built by](https://img.shields.io/badge/Built_by-Physician--Researcher-blue?style=flat-square)
 
 ![MedSci Skills](assets/social-preview.png)
 
@@ -173,11 +181,14 @@ The E2E pipeline (`orchestrate --e2e`) produces everything up to `qc/`. The `sub
 
 ## What's New
 
-The current cycle hardens public readiness:
+**v3.3.0** sharpens packaging, portability, and trust without broadening scope:
 
-- Two new skills — `/generate-codebook` (citable data dictionary / codebook from a dataset) and `/version-dataset` (dataset reproducibility locks).
-- A catalog-count single source of truth (`metadata/catalog_counts.json`) with a CI gate that fails the build on any skill- or guideline-count drift across the README, badges, and skill docs — including the reporting-guideline figure, now corrected and enforced.
-- The PII / precedent guard now scans the full public surface (`templates/`, `scripts/`, and root docs), not just skill documentation.
+- **Per-skill Quality Cards** — every skill now ships a contract (`skill.yml`, 42/42), surfaced on its [`docs/skills/`](docs/skills/) page: purpose, safety boundaries, known limitations, validation commands, and an evidence label (demo / CI-validated / bundled-script / manual). A missing contract now fails CI.
+- **Verified cross-agent support** — [`docs/host_compatibility.md`](docs/host_compatibility.md) documents install and discovery on Claude Code, Codex, Cursor, and GitHub Copilot, each with a sourced path. The two install targets (`~/.claude/skills`, `~/.agents/skills`) already cover all four; OpenClaw/Hermes remain unverified roadmap items.
+- **An auditable validation story** — [`docs/skills/AUDIT.md`](docs/skills/AUDIT.md) maps the CI gates and three reproducible demos to explicit trust boundaries (what is automated, what is reviewed by hand, what is not claimed).
+- **Sharper positioning** — a submission-grade clinical manuscript workflow, not a generic catalog; see [`docs/competitive_positioning.md`](docs/competitive_positioning.md).
+
+Earlier in this series: a catalog-count single source of truth (`metadata/catalog_counts.json`) wired into CI, and a PII / precedent guard that scans the full public surface (`templates/`, `scripts/`, root docs).
 
 ---
 
