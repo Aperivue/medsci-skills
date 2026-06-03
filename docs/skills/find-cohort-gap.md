@@ -10,6 +10,26 @@
 
 `find-cohort-gap` activates on requests such as: cohort gap, research topic, DB 주제, 코호트 갭, gap analysis, 연구주제 찾기, find research gap, 주제 발굴.
 
+## Quality Card
+
+**Purpose** — Rank under-studied topics for a specific cohort, each backed by literature-saturation evidence and feasibility.
+
+**Safety boundaries**
+
+- Each proposed gap cites the literature scan that supports it; saturation counts come from real searches.
+- Advisory report only; does not design or execute studies.
+
+**Known limitations**
+
+- Literature scans are point-in-time; a gap can close between scan and submission.
+- No standalone demo; proposals require domain judgement.
+
+**Validation**
+
+- `re-run the saturation search before committing to a topic`
+
+**Evidence** — `manual_workflow`
+
 ## Bundled resources
 
 **References** (`skills/find-cohort-gap/references/`):

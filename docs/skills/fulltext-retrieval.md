@@ -10,6 +10,27 @@
 
 `fulltext-retrieval` activates on requests such as: PDF download, fulltext retrieval, open access PDF, batch download papers, meta-analysis PDF, PDF to markdown, convert PDF.
 
+## Quality Card
+
+**Purpose** — Resolve a DOI list to open-access full-text PDFs via legitimate OA APIs, with optional Markdown conversion.
+
+**Safety boundaries**
+
+- Uses legitimate open-access sources only (Unpaywall, PMC / Europe PMC, OpenAlex, Crossref); never circumvents paywalls or access controls.
+- Validates each download (>=10 KB and a %PDF- header) before accepting it.
+
+**Known limitations**
+
+- Only open-access content is retrievable; non-OA DOIs fail by design rather than fetching from unauthorized sources.
+- PDF-to-Markdown conversion requires the optional pymupdf4llm dependency (AGPL-3.0 or commercial license).
+
+**Validation**
+
+- `python fetch_oa.py dois.txt -o pdfs/ -e <email> --verbose   # per-DOI source trace`
+- `verify each output begins with %PDF- and is at least 10 KB`
+
+**Evidence** — `bundled_script`
+
 ## Source
 
 Canonical definition: [`skills/fulltext-retrieval/SKILL.md`](../../skills/fulltext-retrieval/SKILL.md)

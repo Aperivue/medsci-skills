@@ -10,6 +10,27 @@
 
 `self-review` activates on requests such as: self-review, pre-submission check, check my paper, reviewer perspective, manuscript self-check.
 
+## Quality Card
+
+**Purpose** — Pre-submission self-review of the user's own manuscript from a reviewer's perspective across 10 categories, with severity-framed anticipated comments.
+
+**Safety boundaries**
+
+- Reviews the user's own manuscript only; not for reviewing external (journal-assigned) manuscripts.
+- Does not silently fix non-AI-fixable issues; it flags them for the author.
+
+**Known limitations**
+
+- Anticipates likely reviewer comments; cannot predict a specific reviewer's focus.
+- Advisory; produces recommendations, not manuscript edits.
+
+**Validation**
+
+- `python3 scripts/check_reviewer_team_consistency.py`
+- `feed R0-numbered output into /revise`
+
+**Evidence** — `demo`
+
 ## Bundled resources
 
 **Scripts** (`skills/self-review/scripts/`):

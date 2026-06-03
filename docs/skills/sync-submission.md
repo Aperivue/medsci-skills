@@ -10,6 +10,27 @@
 
 `sync-submission` activates on requests such as: sync submission, build submission, submission drift, SSOT sync, journal package, retarget journal, freeze submission.
 
+## Quality Card
+
+**Purpose** — Audit SSOT-to-submission drift and build journal submission manifests from canonical manuscript artifacts.
+
+**Safety boundaries**
+
+- Never silently edits the canonical manuscript; a drifted submission is not frozen until reconciled.
+- Submission packages are derived from canonical sources, not hand-assembled.
+
+**Known limitations**
+
+- Detects drift it is configured to scan (counts, cover-letter fields, scope); portal free-text fields still need a human check.
+- A clean audit is necessary, not sufficient, for acceptance.
+
+**Validation**
+
+- `python3 scripts/sync_submission.py`
+- `python3 scripts/cross_document_n_check.py`
+
+**Evidence** — `bundled_script`
+
 ## Bundled resources
 
 **Scripts** (`skills/sync-submission/scripts/`):

@@ -10,6 +10,26 @@
 
 `peer-review` activates on requests such as: peer review, manuscript review, review paper, reviewer comments, 리뷰, 논문 리뷰, review invitation, journal review.
 
+## Quality Card
+
+**Purpose** — Draft a structured peer-review for a journal-assigned manuscript following the Yoojin Peer-Review Guideline v2.5, with journal-specific formatting.
+
+**Safety boundaries**
+
+- Reviews assigned external manuscripts only; never edits the user's own manuscript.
+- References are not generated from memory.
+
+**Known limitations**
+
+- A review is one reviewer's judgement, not an editorial decision.
+- No standalone demo; quality depends on the manuscript supplied.
+
+**Validation**
+
+- `confirm the draft addresses each section against the guideline rubric`
+
+**Evidence** — `manual_workflow`
+
 ## Bundled resources
 
 **References** (`skills/peer-review/references/`):

@@ -10,6 +10,27 @@
 
 `humanize` activates on requests such as: humanize, AI patterns, AI 문체, remove AI writing, make it sound natural, 자연스럽게, de-AI.
 
+## Quality Card
+
+**Purpose** — Rewrite flagged passages to read as naturally human-written without changing facts, numbers, or citations.
+
+**Safety boundaries**
+
+- Edits style only; never alters numeric values, citations, or scientific meaning.
+- Preserves the manuscript's technical claims while removing AI tells.
+
+**Known limitations**
+
+- Pattern detection is heuristic; subtle tells may remain and need a human pass.
+- No standalone demo; judgement is required on borderline phrasings.
+
+**Validation**
+
+- `diff against the source to confirm only style changed`
+- `/self-review`
+
+**Evidence** — `manual_workflow`
+
 ## Bundled resources
 
 **References** (`skills/humanize/references/`):

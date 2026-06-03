@@ -10,6 +10,26 @@
 
 `version-dataset` activates on requests such as: version dataset, dataset version, data manifest, data hash, dataset drift, reproducibility lock, verify dataset, data provenance, did my data change, manifest.lock.
 
+## Quality Card
+
+**Purpose** — Pin a dataset's contents with SHA-256 manifests so analyses are reproducible and drift is detectable.
+
+**Safety boundaries**
+
+- Hashes are computed from the actual files; a manifest is never edited to force a pass.
+- Verification is deterministic and re-runnable in CI.
+
+**Known limitations**
+
+- Detects byte-level drift, not semantic correctness of the data.
+- A manifest is only as trustworthy as the moment it was locked.
+
+**Validation**
+
+- `python3 scripts/version_dataset.py verify --manifest <lock> --strict`
+
+**Evidence** — `ci_validator`
+
 ## Bundled resources
 
 **References** (`skills/version-dataset/references/`):

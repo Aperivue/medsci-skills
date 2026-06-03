@@ -10,6 +10,26 @@
 
 `generate-codebook` activates on requests such as: generate codebook, data dictionary, codebook, profile variables, variable dictionary, describe dataset, what variables, column dictionary, build codebook.
 
+## Quality Card
+
+**Purpose** — Derive a structured codebook (variables, types, ranges, missingness) directly from a dataset.
+
+**Safety boundaries**
+
+- Descriptive statistics are computed from the data by the bundled script, not asserted.
+- Variable semantics not present in the data are left blank for the researcher, not invented.
+
+**Known limitations**
+
+- Computes structure and distributions; does not supply clinical meaning of variables.
+- Free-text/semantic descriptions require researcher input.
+
+**Validation**
+
+- `python3 scripts/generate_codebook.py <dataset>`
+
+**Evidence** — `bundled_script`
+
 ## Bundled resources
 
 **References** (`skills/generate-codebook/references/`):

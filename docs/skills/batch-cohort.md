@@ -10,6 +10,27 @@
 
 `batch-cohort` activates on requests such as: batch cohort, batch analysis, 대량 분석, 변수 교체, variable swap, mass production, 80명 팀, batch generate, 일괄 코드 생성, exposure outcome matrix, combinatorial analysis.
 
+## Quality Card
+
+**Purpose** — Scale one validated method across many variable combinations, swapping only exposure/outcome, never the method.
+
+**Safety boundaries**
+
+- The methodology is held constant across all generated scripts; deviations are disclosed.
+- Generated scripts run on real data; no results are pre-filled.
+
+**Known limitations**
+
+- Inherits the source template's assumptions; a flawed template propagates.
+- No standalone demo; outputs are code to be executed and reviewed.
+
+**Validation**
+
+- `execute each generated script and reconcile the summary matrix`
+- `/self-review`
+
+**Evidence** — `manual_workflow`
+
 ## Bundled resources
 
 **References** (`skills/batch-cohort/references/`):

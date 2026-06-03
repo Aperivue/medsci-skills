@@ -10,6 +10,27 @@
 
 `render-pdf-doc` activates on requests such as: render PDF, PDF 렌더, korean PDF, 한글 PDF, anchor doc PDF, briefing PDF, proposal PDF, 연구계획서 PDF, 표 정렬 PDF, 표 폭 자동, tbl-colwidths, 학술 PDF.
 
+## Quality Card
+
+**Purpose** — Render a Markdown manuscript to a styled DOCX/PDF (tables, column widths, dependencies checked).
+
+**Safety boundaries**
+
+- Delegates bibliography rendering to manage-refs and figures/PPTX to make-figures/present-paper; does not modify citation keys.
+- Does not hand-type CSV data into tables (numerical-safety).
+
+**Known limitations**
+
+- Output fidelity depends on installed render dependencies (checked by check_deps.sh).
+- Institutional Word forms are out of scope (use fill-protocol).
+
+**Validation**
+
+- `bash scripts/check_deps.sh`
+- `bash scripts/render_pdf.sh <manuscript.md>`
+
+**Evidence** — `bundled_script`
+
 ## Bundled resources
 
 **References** (`skills/render-pdf-doc/references/`):

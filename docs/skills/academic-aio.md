@@ -10,6 +10,26 @@
 
 `academic-aio` activates on requests such as: AIO, LLMO, GEO, AI search optimization, discoverability, abstract optimization, structured abstract, Key Points, Research in context, plain-language summary, preprint strategy, GitHub README, CITATION.cff, Zenodo DOI, Hugging Face model card, dataset card, Perplexity, Elicit, Consensus, SciSpace, RAG visibility, reporting guideline compliance, TRIPOD-AI, CLAIM, STARD-AI, taxonomy review paper, Radiology Key Points, Lancet Digital Health Research in context, npj Digital Medicine.
 
+## Quality Card
+
+**Purpose** — Make a medical-AI manuscript discoverable and citable by AI search/RAG tools without sacrificing reporting-guideline compliance.
+
+**Safety boundaries**
+
+- Off by default in autonomous pipelines; rewrites require user review (no silent rewrite).
+- Reporting-guideline claims are checked, never asserted without the underlying item being present.
+
+**Known limitations**
+
+- GEO/AIO heuristics evolve with each engine; recommendations are point-in-time.
+- Does not draft new scientific content; optimizes existing approved text only.
+
+**Validation**
+
+- `python3 scripts/validate_schema.py <summary-box-file>`
+
+**Evidence** — `bundled_script`
+
 ## Bundled resources
 
 **References** (`skills/academic-aio/references/`):

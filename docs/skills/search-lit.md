@@ -10,6 +10,27 @@
 
 `search-lit` activates on requests such as: literature search, find papers, citation, references, bibliography, PubMed search, related work.
 
+## Quality Card
+
+**Purpose** — Search PubMed, Semantic Scholar, and bioRxiv/medRxiv and generate API-verified BibTeX (anti-hallucination: every reference verified before inclusion).
+
+**Safety boundaries**
+
+- Never generates references from memory; unverified references are not silently included.
+- Does not write to the manuscript refs.bib (that SSOT belongs to lit-sync).
+
+**Known limitations**
+
+- Depends on PubMed/Semantic Scholar availability; rate limits/outages reduce recall.
+- Verification confirms existence/metadata, not topical relevance.
+
+**Validation**
+
+- `bash references/pubmed_eutils.sh <query>`
+- `/verify-refs --strict`
+
+**Evidence** — `bundled_script`
+
 ## Bundled resources
 
 **References** (`skills/search-lit/references/`):

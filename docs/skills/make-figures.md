@@ -10,6 +10,27 @@
 
 `make-figures` activates on requests such as: figure, plot, graph, diagram, ROC curve, forest plot, flow diagram, CONSORT diagram, PRISMA flow, visualization, chart, visual abstract, graphical abstract, key message, figure design, figure planning, effective figure, cognitive load.
 
+## Quality Card
+
+**Purpose** — Generate publication-ready figures and visual/graphical abstracts (ROC, forest, CONSORT/STARD/PRISMA flow, KM, Bland-Altman, etc.).
+
+**Safety boundaries**
+
+- Figure numbers are not fabricated; flow diagrams are built from real source counts.
+- Honors journal AI-image policies; no AI images for prohibited targets.
+
+**Known limitations**
+
+- Figure correctness depends on correct input data/counts supplied by upstream skills.
+- PPTX visual abstracts need the Mac-compatibility check before sharing.
+
+**Validation**
+
+- `Rscript scripts/generate_flow_diagram.R`
+- `python3 scripts/validate_pptx_mac_compat.py <file>`
+
+**Evidence** — `demo`
+
 ## Bundled resources
 
 **References** (`skills/make-figures/references/`):

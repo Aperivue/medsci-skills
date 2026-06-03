@@ -10,6 +10,26 @@
 
 `setup-medsci` activates on requests such as: setup, install, environment, diagnostic, check setup, why doesn't this work, missing python, missing R, MCP not connected, 환경 설정, 설치 점검.
 
+## Quality Card
+
+**Purpose** — Check and prepare the local toolchain (Python/R/CLI deps) needed to run the skills.
+
+**Safety boundaries**
+
+- Confirms before destructive or system-wide changes; surfaces what is missing.
+- Operates locally; does not transmit machine state.
+
+**Known limitations**
+
+- Environment coverage is best-effort across OSes; some hosts need manual steps.
+- No standalone demo; an operational utility.
+
+**Validation**
+
+- `re-run the setup check and confirm all dependencies report present`
+
+**Evidence** — `manual_workflow`
+
 ## Bundled resources
 
 **References** (`skills/setup-medsci/references/`):

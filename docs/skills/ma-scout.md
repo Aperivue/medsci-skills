@@ -10,6 +10,26 @@
 
 `ma-scout` activates on requests such as: ma-scout, MA 주제 찾기, professor MA, 메타분석 주제, MA gap, topic-first MA, 트렌드 MA, meta-analysis topic, 교수님 분석, 연구 분석.
 
+## Quality Card
+
+**Purpose** — Find feasible meta-analysis gaps (professor-first or topic-first) backed by literature evidence.
+
+**Safety boundaries**
+
+- Gap claims rest on real literature scans; candidate study counts are not fabricated.
+- Advisory report; does not perform screening or synthesis.
+
+**Known limitations**
+
+- Feasibility is an estimate; the true includable pool is established only by meta-analysis screening.
+- No standalone demo; topic selection needs domain judgement.
+
+**Validation**
+
+- `confirm feasibility by running meta-analysis screening on the shortlist`
+
+**Evidence** — `manual_workflow`
+
 ## Bundled resources
 
 **References** (`skills/ma-scout/references/`):

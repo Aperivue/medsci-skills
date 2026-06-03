@@ -10,6 +10,27 @@
 
 `write-protocol` activates on requests such as: write protocol, IRB protocol, ethics protocol, research protocol, IRB submission, ethics submission, protocol draft.
 
+## Quality Card
+
+**Purpose** — Draft the scientific core of an IRB protocol and leave institution-specific sections as explicit TODO skeletons.
+
+**Safety boundaries**
+
+- Institution-specific content is left as TODO markers, never fabricated.
+- Citations come from search-lit; references are not generated from memory.
+
+**Known limitations**
+
+- Core sections need design-study/calc-sample-size inputs to be sound.
+- Skeleton sections require the researcher's institutional knowledge to complete.
+
+**Validation**
+
+- `/verify-refs --strict on cited work`
+- `hand off to fill-protocol for the institutional template`
+
+**Evidence** — `manual_workflow`
+
 ## Bundled resources
 
 **References** (`skills/write-protocol/references/`):

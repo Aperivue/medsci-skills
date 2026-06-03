@@ -10,6 +10,27 @@
 
 `revise` activates on requests such as: revise paper, respond to reviewers, revision letter, reviewer comments, major revision, minor revision, resubmit, R1 revision, revision round, response letter, point-by-point response.
 
+## Quality Card
+
+**Purpose** — Parse reviewer comments and generate a structured Response to Reviewers with tracked manuscript changes and an editor cover letter.
+
+**Safety boundaries**
+
+- Valid reviewer points are not argued away as rebuttal without user approval.
+- Does not reference original page/line numbers after the manuscript has been revised.
+
+**Known limitations**
+
+- Coordinates new analyses/figures via other skills but does not itself produce statistics.
+- No standalone demo; depends on the actual reviewer comments supplied.
+
+**Validation**
+
+- `confirm every reviewer comment maps to a point-by-point response`
+- `/verify-refs --strict on new citations`
+
+**Evidence** — `manual_workflow`
+
 ## Bundled resources
 
 **References** (`skills/revise/references/`):

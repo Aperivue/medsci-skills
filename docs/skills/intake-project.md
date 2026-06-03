@@ -10,6 +10,26 @@
 
 `intake-project` activates on requests such as: new project, intake project, project intake, classify project, organize project, what is this project.
 
+## Quality Card
+
+**Purpose** — Normalize a new or messy project into a classified, summarized starting point with scaffolded memory.
+
+**Safety boundaries**
+
+- Scaffolds new lightweight files; does not overwrite existing project artifacts.
+- Flags missing inputs rather than inventing them.
+
+**Known limitations**
+
+- Classification is heuristic and may need correction on unusual projects.
+- No standalone demo; a setup step, not an analysis.
+
+**Validation**
+
+- `review the scaffolded files and correct the classification if needed`
+
+**Evidence** — `manual_workflow`
+
 ## Source
 
 Canonical definition: [`skills/intake-project/SKILL.md`](../../skills/intake-project/SKILL.md)

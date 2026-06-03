@@ -10,6 +10,26 @@
 
 `add-journal` activates on requests such as: add journal, new journal, create journal profile, journal profile 추가.
 
+## Quality Card
+
+**Purpose** — Turn a journal's official author guidelines into canonical compact + detailed profiles for the recommendation and drafting skills.
+
+**Safety boundaries**
+
+- Policy/scope fields are transcribed from the official source, never inferred; unverifiable items are flagged.
+- No cached impact-factor or APC values are asserted; users verify current metrics at the source.
+
+**Known limitations**
+
+- Profiles drift as journals update guidelines; each carries a verification date.
+- Quality depends on the guidelines text supplied; gated pages require user-provided content.
+
+**Validation**
+
+- `python3 scripts/validate_catalog_consistency.py   # profile counts stay in sync`
+
+**Evidence** — `manual_workflow`
+
 ## Source
 
 Canonical definition: [`skills/add-journal/SKILL.md`](../../skills/add-journal/SKILL.md)

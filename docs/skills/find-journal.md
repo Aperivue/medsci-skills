@@ -10,6 +10,26 @@
 
 `find-journal` activates on requests such as: find journal, recommend journal, where to submit, which journal, journal selection, target journal, journal match.
 
+## Quality Card
+
+**Purpose** — Rank candidate journals by scope fit from the curated profile library, with AI-disclosure policy and homepage links.
+
+**Safety boundaries**
+
+- No cached impact-factor/APC values are asserted; users verify current metrics at journal sites.
+- Recommendations are drawn from the curated profile library, not invented venues.
+
+**Known limitations**
+
+- Coverage is limited to profiled journals; an unprofiled fit may be missed (add via add-journal).
+- Scope-fit ranking is advisory, not an acceptance prediction.
+
+**Validation**
+
+- `verify shortlisted journals' current scope and metrics at their official sites`
+
+**Evidence** — `manual_workflow`
+
 ## Bundled resources
 
 **References** (`skills/find-journal/references/`):

@@ -10,6 +10,27 @@
 
 `clean-data` activates on requests such as: clean data, data cleaning, data preprocessing, data profiling, missing values, outliers, check my data, data quality.
 
+## Quality Card
+
+**Purpose** — Profile, flag, and code-generate cleaning steps for clinical tabular data, with a researcher approval gate at every stage.
+
+**Safety boundaries**
+
+- Never auto-cleans; every decision (missing values, outliers, dups, types) requires user confirmation.
+- All transforms are emitted as reviewable code, not applied silently.
+
+**Known limitations**
+
+- Heuristic flags need clinical judgement; the skill does not decide what is a true outlier.
+- No standalone demo; correctness depends on user approvals.
+
+**Validation**
+
+- `re-run the emitted cleaning code and re-profile`
+- `/version-dataset for a manifest`
+
+**Evidence** — `manual_workflow`
+
 ## Bundled resources
 
 **References** (`skills/clean-data/references/`):

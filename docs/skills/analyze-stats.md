@@ -10,6 +10,27 @@
 
 `analyze-stats` activates on requests such as: statistics, statistical analysis, analyze data, run stats, table 1, demographics table, ROC curve, agreement analysis, ICC, kappa, survival analysis, Kaplan-Meier, group comparison, logistic regression, linear regression, regression, propensity score, PSM, IPTW, SIPTW, overlap weighting, repeated measures, mixed model, GEE, longitudinal, survey weighted, KNHANES, NHANES, NHIS cohort, complex survey, wOR, weighted odds ratio, claims-based, ICD-10.
 
+## Quality Card
+
+**Purpose** — Produce reproducible statistical code and publication-ready output for a specified design (DTA, agreement, survival, regression, survey, etc.).
+
+**Safety boundaries**
+
+- All numbers come from executed code on the supplied data; never hand-typed (seed-fixed transforms).
+- Primary estimates report effect size with 95% CI and exact p-values.
+
+**Known limitations**
+
+- Correctness depends on a correct analysis plan and clean data (use design-study / clean-data first).
+- Does not adjudicate clinical validity of the chosen test.
+
+**Validation**
+
+- `re-run the emitted script and diff results`
+- `/self-review`
+
+**Evidence** — `demo`
+
 ## Bundled resources
 
 **References** (`skills/analyze-stats/references/`):

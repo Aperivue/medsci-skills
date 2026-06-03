@@ -10,6 +10,27 @@
 
 `check-reporting` activates on requests such as: checklist, reporting guideline, STROBE, CONSORT, STARD, STARD-AI, TRIPOD, PRISMA, PRISMA-DTA, PRISMA-P, ARRIVE, CARE, CLAIM, MI-CLEAR-LLM, SPIRIT, QUADAS, QUADAS-C, RoB, ROBINS, ROBINS-E, ROBIS, ROB-ME, PROBAST, NOS, COSMIN, AMSTAR, SWiM, risk of bias, compliance check, LLM accuracy.
 
+## Quality Card
+
+**Purpose** — Audit a manuscript item-by-item against a chosen reporting guideline (32 supported) with PRESENT/MISSING/PARTIAL status.
+
+**Safety boundaries**
+
+- Checklist items are quoted from the guideline, never invented; missing items are not marked present.
+- Fails fast if the requested checklist file is absent rather than generating a guessed checklist.
+
+**Known limitations**
+
+- Item judgements are advisory; a PRESENT mark is a locator, not a quality guarantee.
+- Coverage is limited to the bundled checklists.
+
+**Validation**
+
+- `python3 scripts/check_checklist_exists.py <guideline>`
+- `python3 scripts/prisma_cascade_check.py`
+
+**Evidence** — `demo`
+
 ## Bundled resources
 
 **References** (`skills/check-reporting/references/`):

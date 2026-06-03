@@ -10,6 +10,27 @@
 
 `verify-refs` activates on requests such as: verify refs, verify references, citation audit, reference hallucination, fabricated references, bibliography check, PMID check, DOI check.
 
+## Quality Card
+
+**Purpose** — Audit-only verification of manuscript references against PubMed and CrossRef (full-author cross-check); writes qc/reference_audit.json. Does not modify references.
+
+**Safety boundaries**
+
+- Audit-only: never edits references/ or refs.bib; never generates references from memory.
+- Unverified references are flagged, not silently included.
+
+**Known limitations**
+
+- Confirms DOI/PMID and author identity, not topical appropriateness of the citation.
+- CrossRef given-name errors are possible; PubMed efetch is treated as authoritative.
+
+**Validation**
+
+- `bash scripts/verify_cli.sh <refs.bib>`
+- `confirm qc/reference_audit.json submission_safe: true`
+
+**Evidence** — `bundled_script`
+
 ## Bundled resources
 
 **References** (`skills/verify-refs/references/`):

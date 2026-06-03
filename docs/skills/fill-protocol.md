@@ -10,6 +10,27 @@
 
 `fill-protocol` activates on requests such as: fill protocol, fill template, fill IRB form, IRB template, ethics template, grant template, 양식 채우기, 연구계획서 작성, 신청서 작성, 정부 양식, 병원 양식, 워드 템플릿.
 
+## Quality Card
+
+**Purpose** — Render approved content into an institutional Word template without losing its layout, styles, or page geometry.
+
+**Safety boundaries**
+
+- Operates on the original template (never rebuilds from a blank Document, which strips logos/headers/styles).
+- CJK eastAsia fonts and table cantSplit are enforced for Korean templates.
+
+**Known limitations**
+
+- Requires the institutional template file; cannot invent a missing one.
+- Content-controlled (SDT) fields may need manual handling in Word.
+
+**Validation**
+
+- `confirm [MISS] count is 0 after fill`
+- `soffice --headless --convert-to pdf for visual check`
+
+**Evidence** — `bundled_script`
+
 ## Bundled resources
 
 **References** (`skills/fill-protocol/references/`):

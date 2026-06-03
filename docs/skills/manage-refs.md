@@ -10,6 +10,27 @@
 
 `manage-refs` activates on requests such as: manage-refs, references, citation, citation keys, pandoc citeproc, journal CSL, CSL swap, cascade rejection re-render, cross-reference QC, [@bibkey], Zotero CWYW, ADDIN ZOTERO_ITEM, marker conversion, [N] to [@key], reference manager, render manuscript, check_citation_keys, check_xref.
 
+## Quality Card
+
+**Purpose** — Manage the reference lifecycle: citekey validation, CSL rendering (pandoc citeproc), Zotero CWYW injection, marker conversion, and cross-reference QC.
+
+**Safety boundaries**
+
+- References are never hand-typed; only Better BibTeX / citeproc / CWYW produce the list.
+- Citekeys are validated against the .bib; unmapped markers are not guessed; CWYW docx is not regex-patched.
+
+**Known limitations**
+
+- Pandoc/Zotero must be installed; rendering is deterministic but environment-dependent.
+- Phase 3 CWYW field safety depends on a correct Zotero library.
+
+**Validation**
+
+- `python3 scripts/check_citation_keys.py manuscript.md refs.bib`
+- `python3 scripts/check_xref.py --md manuscript.md --docx out.docx --strict`
+
+**Evidence** — `bundled_script`
+
 ## Bundled resources
 
 **References** (`skills/manage-refs/references/`):

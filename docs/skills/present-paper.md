@@ -10,6 +10,27 @@
 
 `present-paper` activates on requests such as: present paper, paper presentation, journal club, seminar presentation, grand rounds, academic presentation, presentation prep, lecture, lecture material, teaching slides, course slides, 강의자료, 발표자료, 슬라이드, pptx.
 
+## Quality Card
+
+**Purpose** — Turn source papers into an audience-adapted deck with speaker notes, Mac-compatible PPTX, and a sharing-stripped variant.
+
+**Safety boundaries**
+
+- Slide claims trace to the source material; findings are not invented for narrative effect.
+- A notes-stripped variant is produced for sharing so private speaker notes never leak.
+
+**Known limitations**
+
+- Figure cropping and notes parsing are heuristic; verify the built PPTX in PowerPoint.
+- Mac OOXML quirks require the bundled compatibility checks; not every host renders identically.
+
+**Validation**
+
+- `unzip the .pptx and confirm 0 markdown-raw notes / 0 TIFF / app.xml counts synced`
+- `python3 scripts/strip_notes_for_sharing.py before sharing`
+
+**Evidence** — `bundled_script`
+
 ## Bundled resources
 
 **References** (`skills/present-paper/references/`):

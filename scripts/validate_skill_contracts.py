@@ -15,7 +15,7 @@ Schema v2.1 quality-card extension (optional, additive, backwards-compatible):
   of the strict labels below. None of these are required yet; missing skill.yml
   stays a WARN until every skill ships one.
 
-Missing skill.yml -> WARN (migration in progress).
+Missing skill.yml -> FAIL (every skill must ship a contract; migration complete 2026-06-03).
 Malformed skill.yml -> FAIL.
 """
 
@@ -203,8 +203,8 @@ def main() -> int:
             continue
         contract = skill_dir / "skill.yml"
         if not contract.exists():
-            warnings += 1
-            print(f"WARN {skill_dir.name}: skill.yml missing (migration warning)")
+            failures += 1
+            print(f"FAIL {skill_dir.name}: skill.yml missing (required — every skill must ship a contract)")
             continue
 
         text = contract.read_text(encoding="utf-8")

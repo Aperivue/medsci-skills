@@ -10,6 +10,27 @@
 
 `cross-national` activates on requests such as: cross-national, 한미 비교, Korea US comparison, KNHANES NHANES, 양국 비교, binational, cross-country, 비교연구, 3국 비교, CHNS, 한미중.
 
+## Quality Card
+
+**Purpose** — Harmonize and analyze parallel national surveys (2- or 3-country) with correct complex-survey weighting.
+
+**Safety boundaries**
+
+- Variable harmonization is documented in an explicit mapping; survey weights are always applied.
+- Numbers come from executed weighted analysis on real survey data.
+
+**Known limitations**
+
+- Cross-survey comparability is limited by instrument differences; residual non-comparability remains.
+- No standalone demo; depends on a sound harmonization plan.
+
+**Validation**
+
+- `re-run weighted analysis per country and reconcile`
+- `/self-review`
+
+**Evidence** — `manual_workflow`
+
 ## Source
 
 Canonical definition: [`skills/cross-national/SKILL.md`](../../skills/cross-national/SKILL.md)

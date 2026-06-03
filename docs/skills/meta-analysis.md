@@ -10,6 +10,27 @@
 
 `meta-analysis` activates on requests such as: meta-analysis, systematic review, PROSPERO, forest plot, funnel plot, PRISMA, QUADAS, ROBINS, HSROC, bivariate model, pooled sensitivity, pooled specificity, search strategy, study selection, data extraction form.
 
+## Quality Card
+
+**Purpose** — Run the SR/MA pipeline: PROSPERO registration, search, screening, extraction, risk of bias, synthesis (bivariate/HSROC or random-effects), and PRISMA reporting.
+
+**Safety boundaries**
+
+- Study counts are never reported without ID-level receipts; halts on a P0 reconciliation mismatch.
+- Pool composition is locked to a single source of truth; downstream counts are re-derived, not copied.
+
+**Known limitations**
+
+- Synthesis validity depends on correct extraction; the skill enforces process, not clinical correctness.
+- DTA pooling assumes adequate per-study 2x2 / threshold data.
+
+**Validation**
+
+- `python3 scripts/screening_reconcile.py`
+- `python3 scripts/check_pool_consistency.py`
+
+**Evidence** — `demo`
+
 ## Bundled resources
 
 **References** (`skills/meta-analysis/references/`):

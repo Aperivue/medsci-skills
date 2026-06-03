@@ -10,6 +10,26 @@
 
 `author-strategy` activates on requests such as: author-strategy, 저자 분석, publication analysis, 다작 분석, 연구 전략 분석, author profile, reverse engineer strategy.
 
+## Quality Card
+
+**Purpose** — Summarize an author's PubMed publication profile and surface strategy options from the actual record.
+
+**Safety boundaries**
+
+- Records are fetched from PubMed, not recalled from memory; author disambiguation is explicit.
+- Reports describe the public record only; no private or speculative attribution.
+
+**Known limitations**
+
+- Name collisions on PubMed can blur profiles; disambiguation is best-effort.
+- No standalone demo; output is an advisory report.
+
+**Validation**
+
+- `manual review of the fetched record against PubMed`
+
+**Evidence** — `manual_workflow`
+
 ## Source
 
 Canonical definition: [`skills/author-strategy/SKILL.md`](../../skills/author-strategy/SKILL.md)
