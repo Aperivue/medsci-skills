@@ -170,3 +170,32 @@ https://submit.jkms.org
 
 - Editorial office email: jkms@kams.or.kr
 - For technical submission issues, use the portal's help system
+
+---
+
+## Submission verification log (verified 2026-06-03, Original Article)
+
+End-to-end submission learnings — use as the JKMS submission checklist.
+
+**References (author-guide ≠ Zotero CSL):**
+- Format: **superscript** Arabic numerals · **NLM abbreviation** (`Ann Intern Med`) · **no DOI** · ≤6 authors then `et al.` · **year only** (no month/day) · issue `(n)` · `J Abbrev Year;Vol(Issue):Page.` (no period after abbrev).
+- Zotero `journal-of-korean-medical-science.csl` is a **stub → nlm-citation-sequence (parenthetical, keeps DOI, full journal name)** — does NOT match the author guide. Use `manage-refs/citation_styles/journal-of-korean-medical-science-strict.csl` for the pandoc render; validate with `check_csl_render.py --journal jkms`.
+- NLM abbreviations require a `shortjournal` field — populate via `fill_journal_abbrev.py` (PubMed esummary `source`). Authoritative titles (proper-noun casing + subtitle) via PubMed efetch ArticleTitle, double-braced. Particles braced (`{de Torres}`).
+
+**File structure:**
+- Title page (WITH author details) + Main body (NO author details — blinded) uploaded separately.
+- Main body needs **consecutive page numbers + continuous line numbers**.
+- Figures separate (PPT/PDF, panel labels A/B/C); Tables at end of text. Sequence: …Discussion → **References → Figure legends → Tables**.
+- Structured abstract ≤350 (Background/Methods/Results/Conclusion); main text ≤3,000; keywords 3–5 capitalized semicolon MeSH.
+
+**Graphical Abstract (required for Original Articles):**
+- JKMS provides **no fixed template**; after acceptance an external illustrator re-styles it (fee in APC). Submit a clear **draft** (PPT, separated objects) — illustrator edits faster when figure/conclusion/numbers are placed explicitly.
+- Build non-AI (matplotlib + Servier/BioArt) per `journal-ai-image-policies`. 4-block layout (Purpose/Methods/Results/Conclusions) works well. python-pptx + Mac-compat (`app.xml` sync, no TIFF).
+
+**Portal declaration answers (typical observational study):**
+- Article type Original Article · subspecialty leaf (e.g. 23.1.3 Chest Radiology) · IRB Yes + approval# + consent-waiver text · COI per ICMJE · AI use Yes→Proofreading (**must match manuscript AI disclosure** — never tick Statistics/Analysis if disclosure says otherwise) · Professional English proofreading No (unless paid service) · Suggested reviewers optional.
+- **"Submitted elsewhere?"** — cascade (prior reject → JKMS) is sequential not simultaneous → **No** for "currently/under consideration"; **Yes** only for "ever/previously". Check project cascade history (`submission-portal-verification.md` §2B).
+- Corresponding **Tel is a required portal field**; JKMS Information also wants phone on the title page.
+- ICMJE COI form per author (all). Co-first = "First Author" ×N + title-page equal-contribution footnote.
+
+**DOI hyperlink pitfall:** surgical docx reference replacement leaves `<w:hyperlink>` DOIs that `p.runs` misses — strip them, verify via PDF proof (`submission-portal-verification.md` §1).
