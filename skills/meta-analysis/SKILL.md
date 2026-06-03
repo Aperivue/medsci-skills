@@ -489,6 +489,19 @@ publication-bias test power, sensitivity-analysis menu, and error-handling rules
      sensitivity script — MUST be wrapped inline as `[VERIFY-CSV]` in the manuscript until the
      Phase 2.5a audit in `/self-review` clears it.
 
+5. **Sensitivity analyses must be recomputed on the modified data, not copied.**
+   - When you add a sensitivity / leave-one-out / erosion / alternative-model analysis, every
+     reported effect size (Cohen's dz/f, AUC, OR, HR, β, sens/spec, ICC) MUST be re-derived from
+     the modified dataset. If a sensitivity-table effect size is **identical to the primary
+     analysis to two decimals across ≥4 values**, the recomputation almost certainly did not run
+     and the primary values were transcribed — re-run the script on the modified data.
+   - The underlying means/SDs/counts will change even when the effect size looks similar; if the
+     effect sizes are byte-identical while the inputs differ, that is the tell. Probability of ≥4
+     independent values coinciding to 2 decimals by chance is ≈ (0.01)^4 — essentially zero.
+   - Precedent: a revision-era sensitivity analysis (1-voxel erosion) reported 8 effect-size values
+     (Cohen's dz + f across 4 VOIs) byte-identical to the primary tables while the means/SDs
+     differed — the erosion analysis had not actually been recomputed. Caught only by external QC.
+
 **When this phase triggers:** every time Phase 6 outputs change (first draft, revision, reviewer-
 requested re-analysis). Not optional on "minor" re-runs — the precedent reversal above
 occurred inside a "minor" revision-era re-analysis.
@@ -636,6 +649,10 @@ Synthesized from recent SR-MA peer-review cycles. Drives the Phase 4 extraction 
 6. **PROSPERO 13-char ID format** (`CRD42` + YYYY + 6-digit sequential); pre-2020 IDs may be 12 chars. Non-numeric tails or >13 chars are format anomalies. Request live registration URL in cover letter for protocol cross-check.
 
 7. **AI Disclosure presence** for SR-MA submissions to RYAI / Radiology / RSNA / Lancet / JAMA / BMJ / Nature families. Absence triggers MINOR-to-MAJOR finding at peer review.
+
+8. **Sensitivity analyses are recomputed, not copied** (Phase 6b rule 5). Leave-one-out / erosion / alternative-model effect sizes identical to the primary analysis to 2 decimals across ≥4 values means the recomputation did not run. Re-derive from the modified dataset; the inputs (means/SDs/counts) change even when the effect size is close.
+
+9. **Prognostic / survival-outcome MAs carry survival-specific concerns** beyond the DTA pitfalls: censoring handling, competing risks (cause-specific vs Fine-Gray), cutoff-derivation optimism, comparator time-horizon alignment, C-index variant transparency (Harrell vs Uno vs IPCW), and calibration beyond discrimination. When pooling prognostic models, pre-specify these in the protocol and report them per study; for the reviewing counterpart see the survival/prognostic 7-probe in `/peer-review`.
 
 ---
 
