@@ -7,7 +7,7 @@ abstract: >-
   the full medical research workflow — literature search with anti-hallucination
   citation verification, study design, IRB protocols, statistical analysis,
   publication-ready figures, IMRAD manuscript drafting, reporting compliance
-  audits against 33 EQUATOR guidelines (STARD, STARD-AI, TRIPOD+AI, CLAIM,
+  audits against 32 EQUATOR guidelines (STARD, STARD-AI, TRIPOD+AI, CLAIM,
   PRISMA-DTA, STROBE, CONSORT, etc.), journal selection, peer review, and
   revision response. Three end-to-end demos with public datasets produce
   submission-ready manuscripts.
@@ -19,8 +19,8 @@ authors:
 repository-code: "https://github.com/Aperivue/medsci-skills"
 url: "https://github.com/Aperivue/medsci-skills"
 license: MIT
-version: "3.2.0"
-date-released: "2026-06-01"
+version: "3.3.0"
+date-released: "2026-06-03"
 doi: "10.5281/zenodo.20155321"
 identifiers:
   - description: "Concept DOI (always points to the latest version)"

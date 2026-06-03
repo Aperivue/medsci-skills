@@ -2,6 +2,27 @@
 
 ## [Unreleased]
 
+## [3.3.0] - 2026-06-03
+
+Packaging, portability, and trust signals — sharpening the "submission-grade clinical manuscript workflow" wedge without broadening scope.
+
+### Added
+
+- **Per-skill Quality Cards**: every skill now ships a `skill.yml` (42/42) with an optional, additive **v2.1 quality-card** extension — `purpose`, `safety_boundaries`, `known_limitations`, `validation_commands`, and a strict `evidence_surface` label (`ci_validator` / `demo` / `bundled_script` / `manual_workflow` / `not_yet_demonstrated`). `scripts/gen_skill_docs.py` renders the card into each `docs/skills/` page and tags the index with each skill's evidence level. Labels are grounded in repo reality, not asserted (PR #57, #58, #59).
+- **`docs/skills/AUDIT.md`**: the validation story grounded in the actual CI gates and the three manifest-locked demos, with explicit trust boundaries — what is automated, what is reviewed by hand, and what is deliberately not claimed (PR #59).
+- **`docs/host_compatibility.md`**: a verified host-compatibility matrix (Claude Code, Codex, Cursor, GitHub Copilot). Each VERIFIED cell carries a source URL and retrieval date; OpenClaw/Hermes are marked UNVERIFIED-roadmap. Confirms Codex reads `~/.agents/skills` and that Cursor + GitHub Copilot read the same directories as Claude Code, so the existing two install targets already cover four hosts (PR #60).
+- **`docs/competitive_positioning.md`**: a neutral comparison to broad skill catalogs, with caveated, dated skill counts (PR #54).
+- **`installers/install.py --self-test`**: simulates Claude/Codex/Cursor installs into temporary directories, asserts every skill is discoverable, and proves no real host directory is touched; real installs now run a post-copy discoverability check (PR #56).
+
+### Changed
+
+- **README positioning sharpened**: adds the canonical lines (a submission-grade clinical manuscript workflow; competes on clinical submission reliability, not skill count), removes volatile competitor skill counts from the body, and softens the citation claim to validator-backed language (reference-verification gates + citation-audit workflows) (PR #54).
+- **`skill.yml` contract now required**: with all 42 skills shipping a contract, a missing `skill.yml` is a CI failure rather than a migration warning — closing the v1→v2 migration (PR #57, #58).
+
+### Fixed
+
+- CITATION.cff EQUATOR-guideline count corrected from 33 to 32 (matches the catalog count SSOT).
+
 ## [3.2.0] - 2026-06-01
 
 ### Added
