@@ -4,6 +4,8 @@
 
 **42 skills that actually work.** Built by a physician-researcher, tested on real publications.
 
+*MedSci Skills is a submission-grade clinical manuscript workflow, not a generic biomedical skill catalog. It competes on clinical submission reliability, not skill count.*
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 ![Skills](https://img.shields.io/badge/Skills-42-brightgreen?style=flat-square)
 ![Platform](https://img.shields.io/badge/Platform-Claude_Code-blueviolet?style=flat-square)
@@ -181,9 +183,9 @@ The current cycle hardens public readiness:
 
 ## Why This Repo?
 
-| | MedSci Skills | Aggregator repos (400-900 skills) |
+| | MedSci Skills | Broad skill aggregators |
 |---|---|---|
-| **Citation quality** | Every reference verified via PubMed / Semantic Scholar / CrossRef API. Zero hallucinated citations. | No verification -- citations generated from model memory |
+| **Citation quality** | Every reference passes reference-verification gates (PubMed / Semantic Scholar / CrossRef) and citation-audit workflows before inclusion. | No verification -- citations generated from model memory |
 | **Pipeline integration** | Skills call each other in defined chains. `design-study` -> `calc-sample-size` -> `write-protocol`. | Standalone stubs with no cross-skill interaction |
 | **End-to-end coverage** | From IRB protocol to journal submission: sample size, data cleaning, analysis, writing, compliance, journal selection, cover letter. | Gaps at every transition -- no protocol, no journal matching, no cover letter |
 | **Battle-tested** | Used on real manuscript submissions by a practicing physician-researcher | Unknown provenance and validation |
@@ -193,7 +195,7 @@ The current cycle hardens public readiness:
 
 ## What This Is NOT
 
-This is **not** a broad scientific-tooling library — for cheminformatics, structural biology, or genomics pipelines, see [K-Dense scientific-agent-skills](https://github.com/K-Dense-AI/scientific-agent-skills) (135 skills). It is **not** a biomedical-skill aggregator — for the largest curated collection mirroring 12+ source repos, see [OpenClaw Medical Skills](https://github.com/FreedomIntelligence/OpenClaw-Medical-Skills) (869 skills).
+This is **not** a broad scientific-tooling library — for cheminformatics, structural biology, or genomics pipelines, see [K-Dense scientific-agent-skills](https://github.com/K-Dense-AI/scientific-agent-skills). It is **not** a biomedical-skill aggregator — for a broad curated collection, see [OpenClaw Medical Skills](https://github.com/FreedomIntelligence/OpenClaw-Medical-Skills). For how MedSci Skills compares to these catalogs, see [`docs/competitive_positioning.md`](docs/competitive_positioning.md); a cross-agent host-compatibility roadmap is planned.
 
 MedSci Skills is **opinionated and narrow on purpose**: a single physician-researcher's medical-manuscript pipeline, biased toward radiology, diagnostic accuracy, observational EMR studies, and systematic review / meta-analysis. If you write IMRAD manuscripts for clinical journals, audit reporting compliance against EQUATOR guidelines, or run SR/MA workflows end-to-end, this is built for you. For wet-lab protocols, drug discovery, or single-cell genomics, the repos above are better fits.
 
