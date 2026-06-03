@@ -118,6 +118,15 @@ Sole-writer enforcement: `scripts/validate_project_contract.py` will flag any `r
   `duplicate_findings[]`. `submission_safe == true` requires the list to be
   empty. Resolves `/peer-review` Phase 2A P7.
 
+**Classification note — citation-metadata confusion is not fabrication.** Digits
+in a DOI suffix sometimes look like a journal article number but differ from the
+real one (e.g., a DOI tail "77196" against article number 26068, or a "60466-1"
+suffix against article 6274). This is cosmetic metadata confusion, not a
+fabricated reference: do not record such rows as `FABRICATED` when the DOI/PMID
+resolves and the authors match. A genuine `FABRICATED` verdict requires a
+non-resolving identifier or an author cross-check failure (Gate 4), not a
+mismatch between a DOI suffix and an article number.
+
 ## Author Cross-Check (Detail)
 
 Driven by two actual incidents. First (Gate 4 origin): a manuscript had a
