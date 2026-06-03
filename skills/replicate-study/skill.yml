@@ -1,0 +1,37 @@
+schema_version: 2
+name: replicate-study
+layer: B
+owner_domain: study_replication
+
+when_to_use: "Replicate an existing cohort study's methodology on a different database via a variable harmonization table and a replication difference report."
+when_NOT_to_use: "Comparing countries in parallel (use cross-national); a fresh single analysis (use analyze-stats)."
+
+inputs:
+  - "source study paper"
+  - "target database"
+  - "variable mapping"
+outputs:
+  - "replication analysis code"
+  - "replication difference report"
+side_effects:
+  - writes_project_artifacts
+  - executes_analysis_code
+downstream_consumers:
+  - analyze-stats
+  - self-review
+forbidden_actions:
+  - misrepresent_method_deviations_as_identical
+  - fabricate_replication_results
+
+# v2.1 quality card
+purpose: "Re-run a published study's method on a new DB and report exactly where target-DB constraints forced deviations."
+safety_boundaries:
+  - "Method deviations forced by the target DB are documented in a difference report, not hidden."
+  - "Results come from executed code on the target data."
+known_limitations:
+  - "Perfect replication is rarely possible; residual method differences remain and are disclosed."
+  - "No standalone demo; depends on a faithful variable mapping."
+validation_commands:
+  - "execute the replication code and review the difference report"
+  - "/self-review"
+evidence_surface: manual_workflow

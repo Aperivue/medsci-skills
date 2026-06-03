@@ -28,3 +28,16 @@ downstream_consumers:
 forbidden_actions:
   - silently_edit_canonical_manuscript
   - freeze_drifted_submission
+
+# v2.1 quality card
+purpose: "Audit SSOT-to-submission drift and build journal submission manifests from canonical manuscript artifacts."
+safety_boundaries:
+  - "Never silently edits the canonical manuscript; a drifted submission is not frozen until reconciled."
+  - "Submission packages are derived from canonical sources, not hand-assembled."
+known_limitations:
+  - "Detects drift it is configured to scan (counts, cover-letter fields, scope); portal free-text fields still need a human check."
+  - "A clean audit is necessary, not sufficient, for acceptance."
+validation_commands:
+  - "python3 scripts/sync_submission.py"
+  - "python3 scripts/cross_document_n_check.py"
+evidence_surface: bundled_script

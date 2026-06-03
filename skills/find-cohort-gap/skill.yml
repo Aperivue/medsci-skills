@@ -1,0 +1,35 @@
+schema_version: 2
+name: find-cohort-gap
+layer: D
+owner_domain: research_gap_analysis
+
+when_to_use: "Find research gaps in a longitudinal cohort DB by profiling its strengths, matching PI expertise, and scanning literature saturation."
+when_NOT_to_use: "Finding meta-analysis topics (use ma-scout); designing a chosen study (use design-study)."
+
+inputs:
+  - "cohort profile / data dictionary"
+  - "PI expertise"
+  - "literature landscape"
+outputs:
+  - "ranked topic proposals with gap evidence"
+side_effects:
+  - writes_report_artifacts
+  - network_access_literature
+downstream_consumers:
+  - design-study
+  - define-variables
+forbidden_actions:
+  - claim_a_gap_without_literature_evidence
+  - fabricate_saturation_counts
+
+# v2.1 quality card
+purpose: "Rank under-studied topics for a specific cohort, each backed by literature-saturation evidence and feasibility."
+safety_boundaries:
+  - "Each proposed gap cites the literature scan that supports it; saturation counts come from real searches."
+  - "Advisory report only; does not design or execute studies."
+known_limitations:
+  - "Literature scans are point-in-time; a gap can close between scan and submission."
+  - "No standalone demo; proposals require domain judgement."
+validation_commands:
+  - "re-run the saturation search before committing to a topic"
+evidence_surface: manual_workflow

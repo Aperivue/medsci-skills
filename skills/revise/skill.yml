@@ -28,3 +28,16 @@ downstream_consumers:
 forbidden_actions:
   - argue_valid_reviewer_points_as_rebuttal_without_approval
   - reference_original_page_lines_after_revision
+
+# v2.1 quality card
+purpose: "Parse reviewer comments and generate a structured Response to Reviewers with tracked manuscript changes and an editor cover letter."
+safety_boundaries:
+  - "Valid reviewer points are not argued away as rebuttal without user approval."
+  - "Does not reference original page/line numbers after the manuscript has been revised."
+known_limitations:
+  - "Coordinates new analyses/figures via other skills but does not itself produce statistics."
+  - "No standalone demo; depends on the actual reviewer comments supplied."
+validation_commands:
+  - "confirm every reviewer comment maps to a point-by-point response"
+  - "/verify-refs --strict on new citations"
+evidence_surface: manual_workflow

@@ -1,0 +1,35 @@
+schema_version: 2
+name: publish-skill
+layer: B
+owner_domain: skill_publishing
+
+when_to_use: "Convert a personal agent skill into a distributable, OSS-ready skill: PII audit, generalization, license check, cross-platform review, packaging."
+when_NOT_to_use: "Authoring a brand-new skill from scratch (out of scope; this hardens an existing one)."
+
+inputs:
+  - "a personal skill directory"
+outputs:
+  - "PII audit report"
+  - "generalized OSS-ready skill"
+deterministic_scripts:
+  - scripts/audit_skill.sh
+side_effects:
+  - writes_skill_artifacts
+downstream_consumers:
+  - none
+forbidden_actions:
+  - publish_skill_with_unresolved_pii
+  - weaken_the_pii_blocklist_to_pass
+
+# v2.1 quality card
+purpose: "Harden a personal skill for open-source release through a PII audit, generalization, and license/portability checks."
+safety_boundaries:
+  - "Publication is gated on a passing PII audit; the blocklist is conservative and not weakened to pass."
+  - "Personal paths, names, and document metadata are scrubbed before release."
+known_limitations:
+  - "The audit catches known PII patterns; novel identifiers still need human review."
+  - "Generalization preserves behavior but a maintainer should re-read the result."
+validation_commands:
+  - "bash scripts/audit_skill.sh <skill-dir>"
+  - "bash scripts/validate_skills.sh"
+evidence_surface: bundled_script

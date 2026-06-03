@@ -29,3 +29,16 @@ downstream_consumers:
 forbidden_actions:
   - generate_worker_outputs_directly
   - bypass_artifact_validation
+
+# v2.1 quality card
+purpose: "Single entry point for the bundle: classify a request and route to the right skill, or chain skills for multi-step and end-to-end (--e2e) workflows."
+safety_boundaries:
+  - "Never generates worker-skill outputs directly; routes to and invokes the owning skill."
+  - "Does not bypass per-skill artifact validation in the chain."
+known_limitations:
+  - "Routing is heuristic; an ambiguous request may need explicit skill selection."
+  - "--e2e halts on missing expected outputs rather than proceeding with gaps."
+validation_commands:
+  - "python3 scripts/validate_skill_contracts.py"
+  - "python3 scripts/validate_project_contract.py"
+evidence_surface: demo

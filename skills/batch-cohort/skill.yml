@@ -1,0 +1,35 @@
+schema_version: 2
+name: batch-cohort
+layer: B
+owner_domain: batch_analysis
+
+when_to_use: "Generate N analysis scripts from one validated methodology template across many exposure/outcome combinations."
+when_NOT_to_use: "A single analysis (use analyze-stats); cross-country comparison (use cross-national)."
+
+inputs:
+  - "methodology template"
+  - "exposure/outcome combination matrix"
+outputs:
+  - "N analysis scripts"
+  - "summary matrix"
+side_effects:
+  - writes_project_artifacts
+downstream_consumers:
+  - analyze-stats
+  - self-review
+forbidden_actions:
+  - alter_methodology_per_combination_without_disclosure
+  - fabricate_results_matrix
+
+# v2.1 quality card
+purpose: "Scale one validated method across many variable combinations, swapping only exposure/outcome, never the method."
+safety_boundaries:
+  - "The methodology is held constant across all generated scripts; deviations are disclosed."
+  - "Generated scripts run on real data; no results are pre-filled."
+known_limitations:
+  - "Inherits the source template's assumptions; a flawed template propagates."
+  - "No standalone demo; outputs are code to be executed and reviewed."
+validation_commands:
+  - "execute each generated script and reconcile the summary matrix"
+  - "/self-review"
+evidence_surface: manual_workflow

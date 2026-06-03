@@ -24,3 +24,15 @@ downstream_consumers:
 forbidden_actions:
   - edit_users_own_manuscript
   - generate_references_from_memory
+
+# v2.1 quality card
+purpose: "Draft a structured peer-review for a journal-assigned manuscript following the Yoojin Peer-Review Guideline v2.5, with journal-specific formatting."
+safety_boundaries:
+  - "Reviews assigned external manuscripts only; never edits the user's own manuscript."
+  - "References are not generated from memory."
+known_limitations:
+  - "A review is one reviewer's judgement, not an editorial decision."
+  - "No standalone demo; quality depends on the manuscript supplied."
+validation_commands:
+  - "confirm the draft addresses each section against the guideline rubric"
+evidence_surface: manual_workflow

@@ -1,0 +1,30 @@
+schema_version: 2
+name: setup-medsci
+layer: A
+owner_domain: environment_setup
+
+when_to_use: "Set up the local environment for MedSci Skills (dependencies, tooling checks)."
+when_NOT_to_use: "Installing the skills themselves (use installers/install.py)."
+
+inputs:
+  - "local machine state"
+outputs:
+  - "verified environment / dependency report"
+side_effects:
+  - runs_setup_commands
+downstream_consumers:
+  - none
+forbidden_actions:
+  - install_without_user_consent_for_destructive_actions
+
+# v2.1 quality card
+purpose: "Check and prepare the local toolchain (Python/R/CLI deps) needed to run the skills."
+safety_boundaries:
+  - "Confirms before destructive or system-wide changes; surfaces what is missing."
+  - "Operates locally; does not transmit machine state."
+known_limitations:
+  - "Environment coverage is best-effort across OSes; some hosts need manual steps."
+  - "No standalone demo; an operational utility."
+validation_commands:
+  - "re-run the setup check and confirm all dependencies report present"
+evidence_surface: manual_workflow

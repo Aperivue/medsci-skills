@@ -1,0 +1,33 @@
+schema_version: 2
+name: design-study
+layer: D
+owner_domain: study_design
+
+when_to_use: "Review study design and validity (analysis unit, cohort logic, leakage, comparator, validation, reporting fit) before drafting or submission."
+when_NOT_to_use: "Sample-size math (use calc-sample-size); variable definitions (use define-variables)."
+
+inputs:
+  - "study description / draft protocol"
+outputs:
+  - "design and validity review (decision notes)"
+side_effects:
+  - writes_decision_notes
+downstream_consumers:
+  - calc-sample-size
+  - define-variables
+  - write-protocol
+forbidden_actions:
+  - write_project_artifacts_beyond_decision_notes
+  - approve_design_with_uncorrected_leakage
+
+# v2.1 quality card
+purpose: "Surface design and validity risks (leakage, analysis unit, comparator, validation strategy) before a study is built or written."
+safety_boundaries:
+  - "Advisory only: writes decision notes, not analysis or manuscript artifacts."
+  - "Names validity threats explicitly rather than rubber-stamping a design."
+known_limitations:
+  - "A review reduces but cannot eliminate design risk; it is not a guarantee of validity."
+  - "No standalone demo; recommendations require researcher judgement."
+validation_commands:
+  - "carry findings into write-protocol Methods and re-check with /self-review"
+evidence_surface: manual_workflow

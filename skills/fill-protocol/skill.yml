@@ -1,0 +1,37 @@
+schema_version: 2
+name: fill-protocol
+layer: A
+owner_domain: form_filling
+
+when_to_use: "Fill an institutional Word (.doc/.docx) template (IRB protocol, ethics application, grant form) while preserving styles, tables, fonts, and page geometry."
+when_NOT_to_use: "Drafting the scientific content (use write-protocol); ICMJE COI forms (use fill-icmje-coi)."
+
+inputs:
+  - "institutional Word template"
+  - "content mapping (fill_*.yaml)"
+outputs:
+  - "filled .docx preserving the institutional template"
+deterministic_scripts:
+  - scripts/fill_form.py
+  - scripts/inspect_template.py
+  - scripts/doc_to_docx.py
+side_effects:
+  - writes_docx_forms
+downstream_consumers:
+  - render-pdf-doc
+forbidden_actions:
+  - rebuild_template_from_blank_document
+  - drop_template_styles_or_logos
+
+# v2.1 quality card
+purpose: "Render approved content into an institutional Word template without losing its layout, styles, or page geometry."
+safety_boundaries:
+  - "Operates on the original template (never rebuilds from a blank Document, which strips logos/headers/styles)."
+  - "CJK eastAsia fonts and table cantSplit are enforced for Korean templates."
+known_limitations:
+  - "Requires the institutional template file; cannot invent a missing one."
+  - "Content-controlled (SDT) fields may need manual handling in Word."
+validation_commands:
+  - "confirm [MISS] count is 0 after fill"
+  - "soffice --headless --convert-to pdf for visual check"
+evidence_surface: bundled_script

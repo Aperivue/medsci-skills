@@ -27,3 +27,16 @@ downstream_consumers:
 forbidden_actions:
   - review_external_manuscripts_as_peer_reviewer
   - silently_fix_non_ai_fixable_issues
+
+# v2.1 quality card
+purpose: "Pre-submission self-review of the user's own manuscript from a reviewer's perspective across 10 categories, with severity-framed anticipated comments."
+safety_boundaries:
+  - "Reviews the user's own manuscript only; not for reviewing external (journal-assigned) manuscripts."
+  - "Does not silently fix non-AI-fixable issues; it flags them for the author."
+known_limitations:
+  - "Anticipates likely reviewer comments; cannot predict a specific reviewer's focus."
+  - "Advisory; produces recommendations, not manuscript edits."
+validation_commands:
+  - "python3 scripts/check_reviewer_team_consistency.py"
+  - "feed R0-numbered output into /revise"
+evidence_surface: demo

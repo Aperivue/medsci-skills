@@ -1,0 +1,35 @@
+schema_version: 2
+name: fill-icmje-coi
+layer: A
+owner_domain: form_filling
+
+when_to_use: "Batch-generate per-author ICMJE COI disclosure forms from a synthetic seed, pre-filled as 'None' with date/name/title replaced."
+when_NOT_to_use: "Filling an IRB or institutional Word form (use fill-protocol)."
+
+inputs:
+  - "author list"
+  - "manuscript title"
+  - "date"
+outputs:
+  - "per-author coi_disclosure.docx files"
+deterministic_scripts:
+  - scripts/fill_icmje_coi.py
+side_effects:
+  - writes_docx_forms
+downstream_consumers:
+  - none
+forbidden_actions:
+  - alter_checkboxes_or_disclosure_items
+  - use_a_seed_containing_real_author_pii
+
+# v2.1 quality card
+purpose: "Clone the ICMJE COI form per author with date/name/title filled, defaulting all 13 items to 'None' for the no-conflict common case."
+safety_boundaries:
+  - "Only date, name, and manuscript title are substituted; the 13 items and certification come from the seed unchanged."
+  - "Ships a synthetic PII-free seed; never commits a seed with real author PII."
+known_limitations:
+  - "Authors with real disclosures must edit their form in Word; the skill cannot infer conflicts."
+  - "A blank ICMJE template cannot be used as the seed (the safety check requires the pre-filled 'None' strings)."
+validation_commands:
+  - "verify each output: 14 checked boxes, 13 'None', no seed-placeholder leakage"
+evidence_surface: bundled_script

@@ -1,0 +1,34 @@
+schema_version: 2
+name: intake-project
+layer: D
+owner_domain: project_intake
+
+when_to_use: "Intake and normalize a new research project: classify type, summarize state, flag missing inputs, recommend next steps, and scaffold lightweight memory files."
+when_NOT_to_use: "Ongoing project tracking (use manage-project)."
+
+inputs:
+  - "raw project description / existing files"
+outputs:
+  - "project classification"
+  - "state summary"
+  - "scaffolded memory files"
+side_effects:
+  - scaffolds_project_files
+downstream_consumers:
+  - manage-project
+  - design-study
+forbidden_actions:
+  - overwrite_existing_project_artifacts
+  - fabricate_missing_inputs
+
+# v2.1 quality card
+purpose: "Normalize a new or messy project into a classified, summarized starting point with scaffolded memory."
+safety_boundaries:
+  - "Scaffolds new lightweight files; does not overwrite existing project artifacts."
+  - "Flags missing inputs rather than inventing them."
+known_limitations:
+  - "Classification is heuristic and may need correction on unusual projects."
+  - "No standalone demo; a setup step, not an analysis."
+validation_commands:
+  - "review the scaffolded files and correct the classification if needed"
+evidence_surface: manual_workflow

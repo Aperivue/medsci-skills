@@ -37,3 +37,15 @@ forbidden_actions:
   - fabricate_effect_size_from_unverified_assumption
   - omit_attrition_or_loss_to_followup
   - silent_protocol_modification  # changes to N must update both justification.md and protocol Methods
+
+# v2.1 quality card
+purpose: "Compute sample size / power with decision-tree test selection and reproducible R/Python code plus IRB-ready justification."
+safety_boundaries:
+  - "Effect-size assumptions are justified and sourced, not fabricated; attrition/loss is accounted for."
+  - "Any change to N updates both the justification and the protocol Methods (no silent change)."
+known_limitations:
+  - "Emits inline R/Python, not a packaged script; the user runs it."
+  - "Output is only as valid as the assumed effect size and design."
+validation_commands:
+  - "re-run the emitted power code and confirm N matches the justification"
+evidence_surface: manual_workflow

@@ -37,3 +37,16 @@ forbidden_actions:
   - fabricate_bibliographic_metadata
   - overwrite_existing_literature_notes
   - hand_edit_manuscript_refs_bib  # only Better BibTeX may write
+
+# v2.1 quality card
+purpose: "Sync verified references from .bib into Zotero and Obsidian literature notes, extracting cross-cutting concept notes when enough literature accumulates."
+safety_boundaries:
+  - "Bibliographic metadata is never fabricated; only Better BibTeX may write refs.bib."
+  - "Existing literature notes are not overwritten."
+known_limitations:
+  - "Depends on a connected Zotero MCP + Better BibTeX auto-export; degrades to manual without them."
+  - "No standalone demo; effects are in the user's Zotero/Obsidian."
+validation_commands:
+  - "confirm refs.bib mtime refreshed via Better BibTeX"
+  - "zotero_find_duplicates after sync"
+evidence_surface: manual_workflow

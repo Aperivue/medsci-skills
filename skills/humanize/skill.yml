@@ -1,0 +1,33 @@
+schema_version: 2
+name: humanize
+layer: C
+owner_domain: ai_pattern_removal
+
+when_to_use: "Detect and remove the 18 common AI-writing patterns from an academic manuscript while preserving technical accuracy."
+when_NOT_to_use: "Drafting content (use write-paper); AI-search optimization (use academic-aio)."
+
+inputs:
+  - "manuscript / section text (Markdown)"
+outputs:
+  - "revised text with AI patterns removed"
+side_effects:
+  - writes_project_artifacts
+downstream_consumers:
+  - self-review
+  - write-paper
+forbidden_actions:
+  - alter_numeric_values_or_citations
+  - change_scientific_meaning
+
+# v2.1 quality card
+purpose: "Rewrite flagged passages to read as naturally human-written without changing facts, numbers, or citations."
+safety_boundaries:
+  - "Edits style only; never alters numeric values, citations, or scientific meaning."
+  - "Preserves the manuscript's technical claims while removing AI tells."
+known_limitations:
+  - "Pattern detection is heuristic; subtle tells may remain and need a human pass."
+  - "No standalone demo; judgement is required on borderline phrasings."
+validation_commands:
+  - "diff against the source to confirm only style changed"
+  - "/self-review"
+evidence_surface: manual_workflow

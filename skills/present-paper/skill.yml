@@ -1,0 +1,41 @@
+schema_version: 2
+name: present-paper
+layer: C
+owner_domain: presentation
+
+when_to_use: "Prepare academic presentations (journal club, grand rounds, seminar, lecture/teaching decks): analyze source, find references, draft audience-adapted scripts, and generate/augment PPTX with speaker notes."
+when_NOT_to_use: "Drafting a manuscript (use write-paper); building figures for a paper (use make-figures)."
+
+inputs:
+  - "source paper(s) / topic"
+  - "audience and format"
+outputs:
+  - "PPTX deck"
+  - "speaker notes"
+  - "Q&A prep"
+deterministic_scripts:
+  - scripts/inject_speaker_notes.py
+  - scripts/trim_caption.py
+  - scripts/extract_pdf_figures.py
+  - scripts/inject_pronunciation_notes.py
+  - scripts/strip_notes_for_sharing.py
+side_effects:
+  - writes_pptx_artifacts
+downstream_consumers:
+  - none
+forbidden_actions:
+  - fabricate_findings_not_in_source
+  - leave_speaker_notes_in_shared_deck
+
+# v2.1 quality card
+purpose: "Turn source papers into an audience-adapted deck with speaker notes, Mac-compatible PPTX, and a sharing-stripped variant."
+safety_boundaries:
+  - "Slide claims trace to the source material; findings are not invented for narrative effect."
+  - "A notes-stripped variant is produced for sharing so private speaker notes never leak."
+known_limitations:
+  - "Figure cropping and notes parsing are heuristic; verify the built PPTX in PowerPoint."
+  - "Mac OOXML quirks require the bundled compatibility checks; not every host renders identically."
+validation_commands:
+  - "unzip the .pptx and confirm 0 markdown-raw notes / 0 TIFF / app.xml counts synced"
+  - "python3 scripts/strip_notes_for_sharing.py before sharing"
+evidence_surface: bundled_script

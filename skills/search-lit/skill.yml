@@ -31,3 +31,16 @@ forbidden_actions:
   - generate_references_from_memory
   - silently_include_unverified_references
   - write_to_manuscript_refs_bib  # SSOT owner is /lit-sync
+
+# v2.1 quality card
+purpose: "Search PubMed, Semantic Scholar, and bioRxiv/medRxiv and generate API-verified BibTeX (anti-hallucination: every reference verified before inclusion)."
+safety_boundaries:
+  - "Never generates references from memory; unverified references are not silently included."
+  - "Does not write to the manuscript refs.bib (that SSOT belongs to lit-sync)."
+known_limitations:
+  - "Depends on PubMed/Semantic Scholar availability; rate limits/outages reduce recall."
+  - "Verification confirms existence/metadata, not topical relevance."
+validation_commands:
+  - "bash references/pubmed_eutils.sh <query>"
+  - "/verify-refs --strict"
+evidence_surface: bundled_script

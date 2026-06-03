@@ -1,0 +1,35 @@
+schema_version: 2
+name: version-dataset
+layer: A
+owner_domain: dataset_versioning
+
+when_to_use: "Version-control a dataset with SHA-256 manifests for reproducibility."
+when_NOT_to_use: "Cleaning the data (use clean-data); documenting variables (use generate-codebook)."
+
+inputs:
+  - "analysis dataset"
+  - "prior manifest (optional)"
+outputs:
+  - "dataset manifest.lock with SHA-256 hashes"
+deterministic_scripts:
+  - scripts/version_dataset.py
+side_effects:
+  - writes_manifest_artifacts
+downstream_consumers:
+  - analyze-stats
+  - self-review
+forbidden_actions:
+  - alter_data_to_match_a_manifest
+  - report_verification_pass_without_running_verify
+
+# v2.1 quality card
+purpose: "Pin a dataset's contents with SHA-256 manifests so analyses are reproducible and drift is detectable."
+safety_boundaries:
+  - "Hashes are computed from the actual files; a manifest is never edited to force a pass."
+  - "Verification is deterministic and re-runnable in CI."
+known_limitations:
+  - "Detects byte-level drift, not semantic correctness of the data."
+  - "A manifest is only as trustworthy as the moment it was locked."
+validation_commands:
+  - "python3 scripts/version_dataset.py verify --manifest <lock> --strict"
+evidence_surface: ci_validator

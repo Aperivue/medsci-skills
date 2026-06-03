@@ -1,0 +1,37 @@
+schema_version: 2
+name: cross-national
+layer: B
+owner_domain: cross_national_comparison
+
+when_to_use: "Run a cross-national comparison (KNHANES + NHANES + CHNS or similar) with harmonized variables and parallel weighted analysis."
+when_NOT_to_use: "Single-cohort analysis (use analyze-stats); replicating one study on one DB (use replicate-study)."
+
+inputs:
+  - "parallel survey datasets"
+  - "variable harmonization plan"
+outputs:
+  - "harmonization table"
+  - "parallel weighted analysis"
+  - "comparison tables"
+side_effects:
+  - writes_project_artifacts
+  - executes_analysis_code
+downstream_consumers:
+  - analyze-stats
+  - self-review
+forbidden_actions:
+  - harmonize_variables_without_documented_mapping
+  - ignore_survey_weights
+
+# v2.1 quality card
+purpose: "Harmonize and analyze parallel national surveys (2- or 3-country) with correct complex-survey weighting."
+safety_boundaries:
+  - "Variable harmonization is documented in an explicit mapping; survey weights are always applied."
+  - "Numbers come from executed weighted analysis on real survey data."
+known_limitations:
+  - "Cross-survey comparability is limited by instrument differences; residual non-comparability remains."
+  - "No standalone demo; depends on a sound harmonization plan."
+validation_commands:
+  - "re-run weighted analysis per country and reconcile"
+  - "/self-review"
+evidence_surface: manual_workflow

@@ -1,0 +1,38 @@
+schema_version: 2
+name: analyze-stats
+layer: B
+owner_domain: statistical_analysis
+
+when_to_use: "Generate reproducible Python/R analysis code with publication-ready tables and figures for a defined study design."
+when_NOT_to_use: "Sample-size planning (use calc-sample-size); figure-only generation (use make-figures)."
+
+inputs:
+  - "analysis dataset (CSV)"
+  - "analysis plan / variable definitions"
+outputs:
+  - "analysis code (Python/R)"
+  - "result tables"
+  - "analysis figures"
+side_effects:
+  - writes_project_artifacts
+  - executes_analysis_code
+downstream_consumers:
+  - write-paper
+  - make-figures
+  - self-review
+forbidden_actions:
+  - fabricate_or_hand_type_numeric_results
+  - report_estimates_without_ci_or_p
+
+# v2.1 quality card
+purpose: "Produce reproducible statistical code and publication-ready output for a specified design (DTA, agreement, survival, regression, survey, etc.)."
+safety_boundaries:
+  - "All numbers come from executed code on the supplied data; never hand-typed (seed-fixed transforms)."
+  - "Primary estimates report effect size with 95% CI and exact p-values."
+known_limitations:
+  - "Correctness depends on a correct analysis plan and clean data (use design-study / clean-data first)."
+  - "Does not adjudicate clinical validity of the chosen test."
+validation_commands:
+  - "re-run the emitted script and diff results"
+  - "/self-review"
+evidence_surface: demo
