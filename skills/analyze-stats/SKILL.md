@@ -201,6 +201,46 @@ These rules apply to ALL analyses without exception:
    in the manuscript with no script that reproduces it is the failure mode `/self-review`
    Phase 2.5a-2 is built to catch.
 
+### Effect-Size Real-World Translation
+
+Whenever a primary result is a correlation, a standardized coefficient, a regression slope, an
+OR/HR/RR, or a Cohen's d, also report it as a **plain-language unit shift** a non-statistician can
+act on. The coefficient answers "is there an association"; the translation answers "how much, in
+units I use". This complements rule 3 above (report effect sizes) — it does not replace it.
+
+**When to apply**
+- Any continuous-exposure to continuous-outcome association reported as Spearman's rho, Pearson's r,
+  or a standardized slope.
+- Any OR/HR/RR where the audience needs an absolute-risk feel.
+- Reader / expert-elicitation studies, clinical-utility framing, abstracts, and figure captions.
+
+**Procedure**
+1. **Pick an anchored contrast on the exposure**, not a 1-unit step. Default: 25th to 75th percentile
+   (IQR). State both endpoints in native units.
+2. **Translate to the outcome scale.**
+   - For a rank/standardized association (Spearman's rho or a per-SD slope) under an approximately
+     monotonic-linear assumption:
+     `delta_outcome ~= ((x_p75 - x_p25) / SD_x) * |rho| * SD_outcome`.
+     Report as: "going from {x_p25} to {x_p75} {units} is associated with about {delta_outcome}
+     {outcome units} on average."
+   - For a regression slope b: `delta_outcome = b * (x_p75 - x_p25)` (cleaner; no monotonicity caveat).
+   - State the assumption explicitly; the IQR translation is a more defensible verbal guide than an
+     SD-scaled one.
+3. **For OR/HR/RR**, accompany the relative measure with an absolute one at a stated baseline risk:
+   the absolute risk difference, and NNT = 1 / ARR (or NNH = 1 / ARI). Always state the baseline risk used.
+4. **Bound the claim**: report the contrast, the assumption, and a CI on the coefficient; do not imply
+   causation from a crude or unadjusted estimate.
+
+**Worked example (synthetic)**
+rho = 0.39 between a fasting marker (IQR 0.6 to 3.5 units, SD 3.05) and an index (SD 2.13):
+`((3.5 - 0.6) / 3.05) * 0.39 * 2.13 ~= 0.8` -> "Going from the 25th to the 75th percentile of the
+marker is associated with about 0.8 index units higher on average (monotonic-linear approximation;
+crude, unadjusted)."
+
+**Output contract**: add a "Real-world translation" line beneath each primary effect size in the
+results table or its footnote. For OR/HR/RR primary outcomes, add an NNT/NNH line with the baseline
+risk stated.
+
 ## Error Handling
 
 - If a script fails to execute, report the error in one line, diagnose the likely cause

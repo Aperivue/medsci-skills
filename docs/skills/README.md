@@ -15,6 +15,7 @@ One reference page per skill, generated from each skill's `SKILL.md` and `skill.
 - [cross-national](cross-national.md) — End-to-end cross-national comparison study using KNHANES + NHANES + CHNS (or other parallel surveys). _(evidence: manual_workflow)_
 - [define-variables](define-variables.md) — Literature-grounded variable operationalization for observational research. _(evidence: manual_workflow)_
 - [deidentify](deidentify.md) — De-identify clinical research data before LLM-assisted analysis. _(evidence: bundled_script)_
+- [design-ai-benchmarking](design-ai-benchmarking.md) — Design and validity review for studies that benchmark one or more AI systems against a human-expert panel as the reference. _(evidence: manual_workflow)_
 - [design-study](design-study.md) — Study design and validity review for radiology and medical AI research. _(evidence: manual_workflow)_
 - [fill-icmje-coi](fill-icmje-coi.md) — Batch-generate per-author ICMJE Conflict of Interest Disclosure Forms (`coi_disclosure.docx`) for manuscript submission. _(evidence: bundled_script)_
 - [fill-protocol](fill-protocol.md) — Fill institutional Word form templates (.doc/.docx) for IRB protocols, ethics applications, grant proposals, and other structured research documents while preserving the original styles, table layouts… _(evidence: bundled_script)_

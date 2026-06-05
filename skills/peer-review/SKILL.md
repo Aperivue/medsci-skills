@@ -54,6 +54,18 @@ methodology and study design.
    - Overclaiming relative to evidence level
    - Sample size adequacy
    - Statistical methodology appropriateness
+   - Effect-size clinical meaningfulness (scored separately from the validation / CI / calibration axis
+     above): translate the headline effect to a real-world unit shift (see `/analyze-stats` "Effect-Size
+     Real-World Translation") and compare it to a known minimal clinically important difference. Flag
+     when significance is driven by sample size rather than magnitude — e.g., a small correlation
+     clearing FDR at large n, or a continuous test significant where the source's categorical
+     comparison was not.
+   - Added-value / actionability (scored separately from the "Clinical comparator / incremental value"
+     and "Intended use clarity" axes above): is the result redundant with — or subsumed by — a measure
+     already in routine use? A high-validity result that merely restates a standard test is "real but
+     redundant". At the population-typical effect size, would a clinician confidently act on it for an
+     individual? The point is to let these axes diverge from validity (e.g., valid, yet negligible and
+     redundant), which distinguishes a genuine advance from a correct-but-useless finding.
 5. **Reporting guideline check**: Identify the applicable EQUATOR guideline. Flag MISSING items as candidate comments. If `/check-reporting` is available, delegate.
 6. **Prioritize**: Rank issues by impact on validity. Select top 3-5 for Major, 3-4 for Minor. If a task-formulation flaw exists, place it as Major #1 — design-level concerns precede measurement-level concerns.
 7. **Gate**: Present findings to user — "Here are the key issues I found — do you agree with this prioritization?"

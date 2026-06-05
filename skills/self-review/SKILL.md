@@ -80,6 +80,7 @@ partially, or not at all for the given manuscript type.
 | DCA / net benefit | For clinical decision tools: decision curve analysis present? |
 | Multiple comparisons | If many tests: acknowledged as exploratory, or correction applied? |
 | Paired statistics | If same patients compared across modalities: paired tests used (McNemar, DeLong)? |
+| Effect-size meaningfulness | Scored separately from significance: is each primary effect (OR, HR, beta, Cohen's d, correlation) translated to a real-world unit shift and compared to a minimal clinically important difference? Is significance driven by magnitude rather than sample size? |
 
 #### D. Clinical Framing & Importance
 
@@ -91,6 +92,7 @@ partially, or not at all for the given manuscript type.
 | Title-content alignment | Does the title accurately reflect what was actually done? |
 | Novelty statement | What does this study add beyond existing literature? Is this explicitly stated? |
 | Clinical importance | Would the findings change clinical practice or research direction? Is this articulated? |
+| Added value / actionability | Scored separately from novelty: does the finding add value over a measure already in routine use, or is it "real but redundant" (restates a standard test)? At the typical effect size, would a clinician act on it for an individual? |
 
 #### E. Reproducibility
 

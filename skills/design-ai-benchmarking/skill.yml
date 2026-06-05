@@ -1,0 +1,38 @@
+schema_version: 2
+name: design-ai-benchmarking
+layer: D
+owner_domain: study_design
+
+when_to_use: "Design or review a study that benchmarks one or more AI systems against a human-expert panel: arm definition, decoupled rubric, calibration probes, reviewer panel, IRR targets, judge adjudication, and a structured export schema, before ratings are collected."
+when_NOT_to_use: "General study/validity review (use design-study); statistical execution such as ICC/DeLong (use analyze-stats); reporting-guideline item audits (use check-reporting); reviewing a finished manuscript (use peer-review or self-review)."
+
+inputs:
+  - "evaluation question and the AI system(s) / arms to compare"
+  - "candidate outputs or items to be rated"
+  - "available human-expert reviewers and their metadata"
+outputs:
+  - "benchmark design and validity review (decision notes)"
+  - "decoupled rating rubric with anchors and planted calibration probes"
+  - "structured rating-export schema (JSON)"
+side_effects:
+  - writes_decision_notes
+downstream_consumers:
+  - analyze-stats
+  - check-reporting
+  - design-study
+forbidden_actions:
+  - fabricate_reviewer_ratings_or_reference_labels
+  - approve_benchmark_with_unblinded_or_leaky_rubric
+  - report_irr_without_separate_control_item_reliability
+
+# v2.1 quality card
+purpose: "Surface design and validity risks specific to AI-vs-human-expert benchmarks (rubric coupling, scale calibration, rater independence, judge choice) before data collection begins."
+safety_boundaries:
+  - "Advisory only: writes decision notes plus rubric/schema artifacts, never ratings or analysis results."
+  - "Calibration probes and reference labels are planted or adjudicated, never fabricated to fit a hypothesis."
+known_limitations:
+  - "A design review reduces but cannot eliminate evaluation bias; it does not guarantee a valid benchmark."
+  - "No standalone demo; rubric and panel decisions require domain-expert judgement."
+validation_commands:
+  - "carry the rubric and export schema into analyze-stats for ICC/agreement, then check-reporting (STARD-AI / CLAIM / TRIPOD+AI)"
+evidence_surface: manual_workflow

@@ -110,6 +110,13 @@ Look for:
 - normalization or thresholding performed before data split
 - repeated exams across train/test
 - reader annotations derived from outcome information
+- **construct dependence** (a predictor that is a definitional component of the outcome). Two cases:
+  (i) *mathematical definition* — an input that computes the outcome (when the outcome is HOMA-IR =
+  f(fasting insulin, fasting glucose), those two inputs are not independent predictors); (ii)
+  *near-tautological composite* — a ratio or score built from the outcome's defining components, which
+  shows an inflated, near-circular association. Test: "could this predictor be derived, in whole or
+  part, from the outcome's definition or the same measurement?" If yes, exclude it, or retain it only
+  as a labeled calibration probe rather than a reported discovery.
 
 #### C. Reference standard
 
@@ -128,6 +135,48 @@ Classify:
 - temporal validation
 - external validation
 - multi-center external validation
+
+#### E. Reader / Expert-Elicitation Study Design
+
+When the study elicits expert ratings (reader study, annotation panel, AI-output evaluation), check
+the following before data collection.
+
+**Rubric design**
+- **Decouple the axes.** Each rated dimension should measure one construct. Keep "is the finding
+  valid/correct" separate from "is it novel", "is it feasible to measure", "does it add value over
+  current tools", and "would it change action". A candidate can be high-validity yet low-added-value
+  ("real but redundant"); a single blended score hides this.
+- **Anchor every Likert point** with a short verbal descriptor; pilot the anchors with at least one
+  reviewer before locking.
+- **Pre-specify discriminant validity**: hypothesize which dimensions should correlate vs be
+  orthogonal, then report the full inter-dimension correlation matrix to confirm the rubric measures
+  distinct constructs.
+
+**Calibration probes (planted control items)**
+Insert a small number of deliberate control items, blinded and randomized across raters (record who
+received which, e.g. a `probe_arm` flag), to (i) anchor the scale, (ii) measure rater drift and
+fatigue, and (iii) audit the rubric and pipeline itself. Four useful flavors:
+- **Positive control / "too-good" item** — a known-strong or near-tautological item; tests whether
+  raters equate "largest effect" with "best", and whether an upstream construct-independence gate works.
+- **Known-bad negative control** — an engineered defect (fabricated reference, missing key statistic);
+  expected to score low.
+- **Instability item** — an estimate that reverses or fails to replicate on holdout; tests caveat handling.
+- **Mechanism-contradiction item** — an empirical direction that opposes the proposed mechanism.
+
+Report inter-rater reliability **on the control items separately** as primary evidence of rubric and
+scale validity; a low overall ICC is interpretable only if raters at least converge on the controls.
+
+**Operational rigor**
+- Randomize item order **per reviewer** (not one global seed); analyze order and fatigue effects.
+- Collect reviewer metadata (years of experience, prior AI-evaluation experience, subspecialty) for
+  descriptive reporting.
+- Define a structured export schema (per-item ratings, free-text justifications, follow-ups, timing) up front.
+- Require each item to be judged standalone; discourage cross-item references in free-text, which
+  signal non-independent rating.
+
+For an AI-system-versus-human-expert benchmark specifically, route to `/design-ai-benchmarking`, which
+extends this subsection with arm definition, LLM-as-judge versus human-as-judge adjudication, and a
+structured export schema.
 
 ### Phase 3: Clinical framing
 
