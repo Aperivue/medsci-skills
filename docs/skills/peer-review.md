@@ -12,7 +12,7 @@
 
 ## Quality Card
 
-**Purpose** — Draft a structured peer-review for a journal-assigned manuscript following the Yoojin Peer-Review Guideline v2.5, with journal-specific formatting.
+**Purpose** — Draft a structured peer-review for a journal-assigned manuscript following the MedSci peer-review guideline (v2.5), with journal-specific formatting.
 
 **Safety boundaries**
 
