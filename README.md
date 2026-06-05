@@ -2,14 +2,14 @@
 
 # MedSci Skills
 
-**42 skills that actually work.** Built by a physician-researcher, tested on real publications.
+**43 skills that actually work.** Built by a physician-researcher, tested on real publications.
 
 *MedSci Skills is a submission-grade clinical manuscript workflow, not a generic biomedical skill catalog. It competes on clinical submission reliability, not skill count.*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Release](https://img.shields.io/github/v/release/Aperivue/medsci-skills?style=flat-square&color=blue)](https://github.com/Aperivue/medsci-skills/releases/latest)
 [![CI](https://img.shields.io/github/actions/workflow/status/Aperivue/medsci-skills/validate.yml?branch=main&style=flat-square&label=CI)](https://github.com/Aperivue/medsci-skills/actions/workflows/validate.yml)
-![Skills](https://img.shields.io/badge/Skills-42-brightgreen?style=flat-square)
+![Skills](https://img.shields.io/badge/Skills-43-brightgreen?style=flat-square)
 
 [![Agent Skills](https://img.shields.io/badge/Agent_Skills-standard-blue?style=flat-square)](https://agentskills.io)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-supported-success?style=flat-square)](docs/host_compatibility.md)
@@ -183,7 +183,7 @@ The E2E pipeline (`orchestrate --e2e`) produces everything up to `qc/`. The `sub
 
 **v3.3.0** sharpens packaging, portability, and trust without broadening scope:
 
-- **Per-skill Quality Cards** — every skill now ships a contract (`skill.yml`, 42/42), surfaced on its [`docs/skills/`](docs/skills/) page: purpose, safety boundaries, known limitations, validation commands, and an evidence label (demo / CI-validated / bundled-script / manual). A missing contract now fails CI.
+- **Per-skill Quality Cards** — every skill now ships a contract (`skill.yml`, 43/43), surfaced on its [`docs/skills/`](docs/skills/) page: purpose, safety boundaries, known limitations, validation commands, and an evidence label (demo / CI-validated / bundled-script / manual). A missing contract now fails CI.
 - **Verified cross-agent support** — [`docs/host_compatibility.md`](docs/host_compatibility.md) documents install and discovery on Claude Code, Codex, Cursor, and GitHub Copilot, each with a sourced path. The two install targets (`~/.claude/skills`, `~/.agents/skills`) already cover all four; OpenClaw/Hermes remain unverified roadmap items.
 - **An auditable validation story** — [`docs/skills/AUDIT.md`](docs/skills/AUDIT.md) maps the CI gates and three reproducible demos to explicit trust boundaries (what is automated, what is reviewed by hand, what is not claimed).
 - **Sharper positioning** — a submission-grade clinical manuscript workflow, not a generic catalog; see [`docs/competitive_positioning.md`](docs/competitive_positioning.md).
@@ -277,6 +277,7 @@ ma-scout -> search-lit -> fulltext-retrieval -> design-study ──> write-proto
 | **meta-analysis** | Full systematic review and meta-analysis pipeline (8 phases). DTA (bivariate/HSROC) and intervention meta-analysis. Protocol to submission-ready manuscript with PRISMA-DTA compliance. |
 | **make-figures** | Publication-ready figures and visual abstracts: ROC curves, forest plots, PRISMA/CONSORT/STARD flow diagrams, Kaplan-Meier curves, Bland-Altman plots, confusion matrices, and journal-specific visual/graphical abstracts (python-pptx template-based). Communication-first design principles (Nat Hum Behav 2026 — key message, audience, cognitive load, figure-vs-table decision) and five flow-diagram production lessons (official-template fidelity, VML fallback PDF export, docx XML escape, sequential placeholder mapping, version freeze); critic rubric Section G adds 5 communication-first checks. `--study-type` auto-generates the full required figure set; structured `_figure_manifest.md` output for downstream pipeline consumption; D2 enforced as default for flow diagrams. |
 | **design-study** | Study design review: identifies analysis unit, cohort logic, data leakage risks, comparator design, validation strategy, and reporting guideline fit. |
+| **design-ai-benchmarking** | Design and validity review for benchmarking AI system(s) against a human-expert panel: evaluation-question and arm definition, decoupled multi-dimensional rubrics with anchors, planted calibration probes (positive-control / known-bad / instability / mechanism-contradiction), reviewer-panel construction with per-reviewer randomization, inter-rater reliability targets with separate control-item reliability, LLM-as-judge vs human-as-judge adjudication, construct-independence guards, and a structured JSON rating-export schema. Locks the rubric before data collection. |
 | **intake-project** | Classifies new research projects, summarizes current state, identifies missing inputs, and recommends next steps. |
 | **grant-builder** | Structures grant proposals: significance, innovation, approach, milestones, and consortium roles. |
 | **present-paper** | Academic presentation preparation: paper analysis, supporting research, speaker scripts, slide note injection, and Q&A prep. |

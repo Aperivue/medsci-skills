@@ -1,0 +1,69 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AI-vs-expert benchmark rating export (synthetic template)",
+  "description": "One record per (reviewer, item) rating. Lock this schema before collecting ratings. All example values are illustrative placeholders, not real data.",
+  "type": "object",
+  "required": ["reviewer_id", "item_id", "arm", "probe_arm", "order_index", "ratings", "justification"],
+  "properties": {
+    "reviewer_id": {
+      "type": "string",
+      "description": "Stable pseudonymous id for the reviewer (no personal identifiers).",
+      "examples": ["R01"]
+    },
+    "reviewer_metadata": {
+      "type": "object",
+      "description": "Captured once per reviewer; repeated here for convenience.",
+      "properties": {
+        "years_experience": {"type": "integer", "minimum": 0},
+        "prior_ai_evaluation": {"type": "boolean"},
+        "subspecialty": {"type": "string"}
+      }
+    },
+    "item_id": {"type": "string", "examples": ["item_0042"]},
+    "arm": {
+      "type": "string",
+      "description": "Which system produced the rated output, or the human-expert reference arm.",
+      "examples": ["system_a", "system_b", "expert_reference"]
+    },
+    "probe_arm": {
+      "type": ["string", "null"],
+      "description": "Non-null when this is a planted control item.",
+      "enum": ["pos_control", "neg_control", "instability", "mechanism_contra", null]
+    },
+    "order_index": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Position in this reviewer's randomized item order (for fatigue analysis)."
+    },
+    "ratings": {
+      "type": "object",
+      "description": "One score per decoupled rubric dimension.",
+      "required": ["validity", "novelty", "feasibility", "added_value", "actionability"],
+      "properties": {
+        "validity": {"type": "integer", "minimum": 1, "maximum": 5},
+        "novelty": {"type": "integer", "minimum": 1, "maximum": 5},
+        "feasibility": {"type": "integer", "minimum": 1, "maximum": 5},
+        "added_value": {"type": "integer", "minimum": 1, "maximum": 5},
+        "actionability": {"type": "integer", "minimum": 1, "maximum": 5}
+      }
+    },
+    "justification": {
+      "type": "string",
+      "description": "Free text, judged standalone; no cross-item references."
+    },
+    "follow_up": {
+      "type": ["string", "null"],
+      "description": "What additional evidence would change the rating."
+    },
+    "judge_type": {
+      "type": "string",
+      "enum": ["human", "llm"],
+      "description": "Whether the rater is a human expert or an LLM-as-judge arm."
+    },
+    "timing_seconds": {
+      "type": ["number", "null"],
+      "minimum": 0,
+      "description": "Time spent on this item, for fatigue/drift analysis."
+    }
+  }
+}
