@@ -26,7 +26,7 @@ forbidden_actions:
   - generate_references_from_memory
 
 # v2.1 quality card
-purpose: "Draft a structured peer-review for a journal-assigned manuscript following the Yoojin Peer-Review Guideline v2.5, with journal-specific formatting."
+purpose: "Draft a structured peer-review for a journal-assigned manuscript following the MedSci peer-review guideline (v2.5), with journal-specific formatting."
 safety_boundaries:
   - "Reviews assigned external manuscripts only; never edits the user's own manuscript."
   - "References are not generated from memory."
