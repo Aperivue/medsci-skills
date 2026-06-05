@@ -35,13 +35,16 @@
 
 **References** (`skills/manage-refs/references/`):
 
+- `REFERENCE_STYLE_SPECS.md`
 - `check_xref_symptoms.md`
 
 **Scripts** (`skills/manage-refs/scripts/`):
 
 - `_vendor_citation_writer.py`
 - `check_citation_keys.py`
+- `check_csl_render.py`
 - `check_xref.py`
+- `fill_journal_abbrev.py`
 - `inject_zotero_cwyw.py`
 - `md_marker_convert.py`
 - `pre_submission_gate.sh`
