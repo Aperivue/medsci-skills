@@ -188,6 +188,12 @@ Methods and the registry record (PROSPERO PDF, ClinicalTrials.gov export) — si
 discrepancy is a finding; (5) retrospective-registration disclosure paragraph when
 evidence suggests post-extraction filing.
 
+**Registration-ID format gate:** a PROSPERO ID is `CRD42` + 9 digits = 14 characters
+(`^CRD42\d{9}$`, e.g. `CRD42024500001`). Run `grep -oE 'CRD42[0-9]+' manuscript.md` and
+assert each match is 14 characters long; a 15-character ID (a stray inserted digit) is a
+transcription error logged as `[REGISTRATION-TIMING]` (`fixable_by_ai: false` — verify against
+the live PROSPERO record, do not guess the correct digit).
+
 **Flagging:** any failure is logged in Part C Action Items with label
 `[REGISTRATION-TIMING]`. `fixable_by_ai: false` when reconciliation requires an external
 amendment filing; `true` only when the fix is a Methods-text insertion of a date already

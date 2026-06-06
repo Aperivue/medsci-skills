@@ -101,6 +101,8 @@ Auto-detect type from the research question or accept user specification.
    - Read `${CLAUDE_SKILL_DIR}/references/PROSPERO_template.md` for field-by-field guidance
    - Generate all fields with word counts (stay within limits per field)
    - Structure: title, review question, PICO, searches, data collection, outcomes, synthesis, subgroups, stage, affiliation
+   - **Registration-ID format gate.** A PROSPERO ID is `CRD42` + 9 digits (14 characters total), e.g. `CRD42024500001`. Validate any ID that appears in the manuscript or registration doc with `grep -oE 'CRD42[0-9]+'` and assert a 14-character length / `^CRD42\d{9}$` — a 15-character ID (a stray digit) is a transcription error a reviewer will check against the live record.
+   - **Review-type selection.** Pick the *least-wrong* portal review type for the actual design and state any portal constraint in the protocol. A descriptive single-arm proportion synthesis is not an "Intervention review"; choosing "Intervention review" only to satisfy a portal field contradicts a later GRADE / effect-certainty statement. Whatever certainty language the protocol commits to (GRADE vs "evidence statements only") must match the manuscript verbatim — a guideline-style "we recommend" is not licensed by a descriptive review type.
    - For mixed designs (comparative + single-arm): explicitly address comparator for both arms
    - For RoB: map tool to study design (NOS for comparative, JBI for case series → select "Other" in form)
    - Output: Markdown + DOCX (via pandoc) for copy-paste into PROSPERO web form
