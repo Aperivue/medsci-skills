@@ -181,13 +181,13 @@ The E2E pipeline (`orchestrate --e2e`) produces everything up to `qc/`. The `sub
 
 ## What's New
 
-**v3.4.0** deepens the review skills without broadening the catalog (still 43 skills):
+**v3.5.0** adds analysis-integrity guards across the manuscript pipeline, without broadening the catalog (still 43 skills). These backport into deterministic, stdlib-only single-pass checks the failure modes a multi-agent panel caught but a single-pass review missed — manuscript prose that is internally consistent yet disagrees with its own data, registration, or arithmetic:
 
-- **Multi-agent panel review** — `/self-review --panel` runs several domain-expert reviewers independently (blinded), then an editor consolidates their findings with consensus flags and reviewer attribution, for a high-stakes pre-submission final pass. Opt-in; the single-pass review stays the default. Portable across hosts (parallel subagents where available, a sequential blinded fallback otherwise — no `Workflow`-tool dependency).
-- **Shared domain-probe modules** — the SR-MA, survival/prognostic, radiomics, and narrative-review critique probes are now reusable modules vendored byte-identical into both `/peer-review` and `/self-review` (with a CI drift gate), closing the gap where self-review had no survival / time-to-event probe set.
-- **Sharper routing** — `/orchestrate` sends harsh / top-tier / multi-reviewer requests to `/self-review --panel`, never auto-applying it in autonomous chains.
+- **Confounding completeness** (`/self-review` Phase 2.5e + a new observational domain-probe module) — joins the exposure-stratified Table 1 against the Methods adjustment set and flags every measured-but-unadjusted imbalanced covariate; closes the gap where observational studies had no probe set.
+- **Claim-vs-artifact cross-check** (`/self-review` Phase 2.5f, `/write-paper` Step 7.3b) — catches an outcome-dependent primary re-designation, an E-value that does not recompute from its primary estimate, and a Methods-promised analysis missing from Results; plus a survival **estimand-provenance** probe (S8).
+- **Source- and write-side guards** — structural-zero / dose-duration covariate handling (`/analyze-stats`, `/clean-data`, `/define-variables`), a power-aware null-interpretation check, an abstract estimand-shopping guardrail, a Figure 1 caption ↔ flow-diagram reconciliation (`/make-figures`), a multi-copy manuscript divergence detector (`/sync-submission`), and an incremental-value probe (`/design-study`, `/write-paper`).
 
-Earlier in this series: per-skill Quality Cards (`skill.yml` contracts surfaced on every [`docs/skills/`](docs/skills/) page), verified cross-agent support (Claude Code, Codex, Cursor, GitHub Copilot), and an auditable validation story ([`docs/skills/AUDIT.md`](docs/skills/AUDIT.md)).
+Earlier in this series: a multi-agent `/self-review --panel` mode, shared domain-probe modules vendored byte-identical into `/peer-review` and `/self-review` (with a CI drift gate), and per-skill Quality Cards with verified cross-agent support.
 
 ---
 
