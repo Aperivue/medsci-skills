@@ -139,6 +139,12 @@ Before running parametric tests, always check and report:
 - Always report both uncorrected and corrected p-values.
 - State the correction method used.
 
+#### Stratified & Ordinal-Trend Reporting
+
+- **Strata disjointness gate (before any ordinal trend test).** Before running a Cochran-Armitage trend test (or any analysis that treats tiers as an ordered partition), assert the strata are mutually exclusive and exhaustive: `sum(n per stratum) == unique N` and `sum(events per stratum) == total events`. A trend test on overlapping or non-exhaustive strata is invalid. Emit the per-stratum N/event table and the reconciliation in the output (this is the analysis-side mirror of `/self-review` `check_cohort_arithmetic.py` `PARTITION_OVERLAP`).
+- **Secondary stratum-HR validation checklist.** Every secondary stratum hazard/odds ratio must be reported with (a) its **reference contrast** (which category is the referent), (b) the **event count** in each stratum, and (c) a **sparse-stratum caveat** when any stratum has a low event count (a rule of thumb: < 10 events makes the estimate unstable). A bare "HR 1.55 in lean participants" without the referent and the events is uninterpretable.
+- **Proportion CI lower-bound clamp.** Clamp every proportion confidence-interval lower bound to `max(0, lower)`; a zero-event Wilson/score interval can emit a negative or absurd tiny-exponent lower bound (e.g., `3.47e-16`) that is a display artifact, not a real bound. Report `0` (or `0.0%`) instead, and prefer an exact (Clopper-Pearson) interval for zero/near-zero cells.
+
 #### Output Manifest
 
 After all analyses complete, save a manifest file `_analysis_outputs.md` in the output directory:

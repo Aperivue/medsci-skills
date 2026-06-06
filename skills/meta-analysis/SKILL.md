@@ -256,6 +256,14 @@ Downstream gates
   category must match the locked value.
 - Manuscript prose: NEVER re-derive `k included` from extraction TSV at
   manuscript build time. Always reference `final_pool_n` from the lock.
+- **Aggregate patient/lesion totals are locked too, not just study counts.**
+  The Abstract/Results aggregate denominators ("a total of 483 patients /
+  531 lesions") are derived from the lock, never hand-carried. Lock them as
+  explicit fields and distinguish **arm-separable** from **both-arm** rows:
+  a study contributing one arm to a comparison must not have its full-cohort
+  patient count folded into a pooled total. A hand-carried headline total that
+  does not re-derive from the locked per-study values is a P0 (the analysis-side
+  mirror of `/self-review` `check_cohort_arithmetic.py` partition checks).
 
 If a late post-freeze decision changes the pool, treat it as a formal
 PROSPERO amendment: file the amendment, re-freeze the lock as a new
@@ -501,6 +509,16 @@ publication-bias test power, sensitivity-analysis menu, and error-handling rules
    - Precedent: a revision-era sensitivity analysis (1-voxel erosion) reported 8 effect-size values
      (Cohen's dz + f across 4 VOIs) byte-identical to the primary tables while the means/SDs
      differed — the erosion analysis had not actually been recomputed. Caught only by external QC.
+
+6. **A "fixed" / "resolved" audit note requires re-run evidence, not a claim.**
+   - When a prior audit note records a number as `fixed`, `resolved`, or `corrected`, that status is
+     only valid if it carries the re-run evidence: a timestamp and the relevant stdout / output-file
+     line showing the corrected value, or the commit that changed it. A bare "fixed in v10" with no
+     re-run artifact does NOT clear the finding — re-run the script and attach the output.
+   - The forward pipeline can echo a stale value through every artifact while an audit note claims it
+     was fixed (e.g., a major-comparison N still reading the old total after a "fixed" note). The
+     outcome-denominator cross-check (`/self-review` Phase 2.5b, the cohort-arithmetic / pool-lock
+     assertions) must pass against the *current* outputs before any "fixed" status is accepted.
 
 **When this phase triggers:** every time Phase 6 outputs change (first draft, revision, reviewer-
 requested re-analysis). Not optional on "minor" re-runs — the precedent reversal above

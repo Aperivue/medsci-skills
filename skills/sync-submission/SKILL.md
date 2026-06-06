@@ -77,6 +77,13 @@ The registry is a project-local YAML mapping author identifiers (full names, nat
 - Gate 9 (Phase 6 intra-manuscript scope drift): run `scripts/scope_drift_check.py` against the manuscript (and optionally the PROSPERO record). Numeric anchors (AUC, OR/HR/RR, sensitivity/specificity) appearing in Limitations / Discussion but absent from Methods + Results are P0 SCOPE_DRIFT. PROSPERO ↔ Methods synthesis-method disagreement is a P0 PROSPERO_DRIFT.
 - Gate 10 (Phase 7 v_(N+1) docx regeneration): when building a new submission from a frozen prior version, run `scripts/verify_package_integrity.py --assert-vN-docx-changed --vN-docx <prev>.docx --new-docx <next>.docx`. Identical MD5 = unmodified seed copy = block submission. Defense-in-depth — required even when the upstream pipeline appears to have regenerated the docx.
 - Gate 11 (Phase 8 multi-copy divergence): when the project hand-maintains more than one manuscript copy (working SSOT, circulation, portal), run `scripts/detect_copy_divergence.py --ssot <ssot>.md --copy <copy>.md ...` before freeze or circulation. Any `STALE_COPY` (an SSOT numeric claim or heading that did not propagate to a copy) is a P0 drift. See "Phase 8 — Multi-copy manuscript divergence" below.
+- Gate 12 (target-journal metadata drift): on `build` / retarget, cross-check the target the manuscript is written *for* against the target the project is being submitted *to*. Compare `project.yaml` `target` (and any in-manuscript header/footer "for submission to X" string) against the journal the package is built for, and check the structural metadata the target dictates — abstract heading structure (4- vs 5-heading), body word limit, citation style (Vancouver / AMA), required elements (Highlights / Central Illustration / Key Points). A mismatch (e.g., a header still reading the previous journal after a cascade retarget, or a 4-heading abstract for a 5-heading target) is a target-restructure trigger — branch to v_(N+1) per `manuscript-versioning.md` §2 and sync every sidecar (cover letter, title page, ICMJE COI list) — not a silent build.
+
+  ```bash
+  # header target vs project.yaml target
+  TGT=$(python3 -c "import yaml;print(yaml.safe_load(open('project.yaml')).get('target',''))" 2>/dev/null)
+  grep -niE 'for submission to|submitted to|prepared for' manuscript/manuscript.md   # compare against "$TGT"
+  ```
 
 ## Phase 4 — Cover-letter free-text drift
 

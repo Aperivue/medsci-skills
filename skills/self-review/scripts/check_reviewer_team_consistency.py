@@ -33,6 +33,16 @@ Section-aware grep for two regex families:
 
 Both present → MAJOR self-review red flag.
 
+Two further fabrication-grade axes (the prose↔JSON↔confession 3-way):
+- LLM-AS-REVIEWER (fatal): a per-study extraction JSON whose reviewer /
+  screener / extractor / rater field is an LLM ("Claude", "GPT-4", "LLM",
+  "Gemini"). An LLM is a tool, not an independent reviewer; listing it as
+  one misrepresents the screening team regardless of the prose. Pass the
+  extraction JSON (file or directory) via --extraction-json.
+- DEFERRED-MITIGATION (MAJOR): a future-tense mitigation promise — "a 20%
+  sample will be completed before submission" — that is unmet at the time
+  the manuscript circulates. The promise is evidence the work is not done.
+
 Usage
 =====
 
@@ -114,6 +124,22 @@ SINGLE_PATTERNS = [
 ]
 
 
+# An LLM named where an independent reviewer should be (fatal). Bare "ai" is too
+# broad (matches names), so it is excluded; explicit model families + "LLM" only.
+LLM_NAME_RE = re.compile(
+    r"\b(?:claude|chatgpt|gpt-?\d|gpt|llm|large language model|gemini|copilot|bard|"
+    r"ai model|an ai\b)\b", re.IGNORECASE)
+REVIEWER_KEY_RE = re.compile(
+    r"reviewer|screener|extractor|rater|annotator|adjudicator|coder", re.IGNORECASE)
+
+# A future-tense mitigation promised but not yet executed at circulation.
+DEFERRED_MITIGATION_RE = re.compile(
+    r"(?:will be|to be|is to be|are to be)\s+"
+    r"(?:completed|performed|conducted|done|undertaken|carried out|finalized|finalised)\b"
+    r"[^.]{0,80}?(?:before|prior to|ahead of)\s+(?:final\s+)?submission",
+    re.IGNORECASE)
+
+
 SECTION_HEADERS = {
     "Methods": re.compile(
         r"^#{1,3}\s*\*{0,2}(?:METHODS?|Method[s]?|Materials and Methods)\*{0,2}\s*$",
@@ -142,6 +168,8 @@ class Report:
     submission_safe: bool
     dual_hits: list[dict] = field(default_factory=list)
     single_hits: list[dict] = field(default_factory=list)
+    llm_reviewer_hits: list[dict] = field(default_factory=list)
+    deferred_mitigation_hits: list[dict] = field(default_factory=list)
 
 
 def split_sections(text: str) -> dict[str, str]:
@@ -179,7 +207,50 @@ def hit_to_dict(h: Hit, source: str) -> dict:
     }
 
 
-def build_report(manuscript: str, prospero: str | None) -> Report:
+def _iter_extraction_files(path: Path):
+    if path.is_dir():
+        yield from sorted(path.rglob("*.json"))
+    elif path.is_file():
+        yield path
+
+
+def _walk_reviewer_fields(obj, source: str, hits: list[dict], keypath: str = "") -> None:
+    """Recursively find reviewer-role fields whose value names an LLM."""
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            kp = f"{keypath}.{k}" if keypath else str(k)
+            if isinstance(v, str) and REVIEWER_KEY_RE.search(str(k)) and LLM_NAME_RE.search(v):
+                hits.append({"source": source, "field": kp, "value": v[:120]})
+            _walk_reviewer_fields(v, source, hits, kp)
+    elif isinstance(obj, list):
+        for i, v in enumerate(obj):
+            _walk_reviewer_fields(v, source, hits, f"{keypath}[{i}]")
+
+
+def scan_llm_reviewers(extraction: Path | None) -> list[dict]:
+    hits: list[dict] = []
+    if extraction is None:
+        return hits
+    for f in _iter_extraction_files(extraction):
+        try:
+            data = json.loads(f.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            continue
+        _walk_reviewer_fields(data, f.name, hits)
+    return hits
+
+
+def scan_deferred_mitigation(manuscript: str) -> list[dict]:
+    hits: list[dict] = []
+    for lineno, line in enumerate(manuscript.splitlines(), start=1):
+        m = DEFERRED_MITIGATION_RE.search(line)
+        if m:
+            hits.append({"source": "manuscript", "line": lineno, "context": m.group(0).strip()[:160]})
+    return hits
+
+
+def build_report(manuscript: str, prospero: str | None,
+                 extraction: Path | None = None) -> Report:
     sections = split_sections(manuscript)
 
     dual_hits: list[dict] = []
@@ -199,12 +270,36 @@ def build_report(manuscript: str, prospero: str | None) -> Report:
         for h in scan_text(sections.get(region, ""), SINGLE_PATTERNS):
             single_hits.append(hit_to_dict(h, f"manuscript:{region}"))
 
-    submission_safe = not (dual_hits and single_hits)
+    llm_reviewer_hits = scan_llm_reviewers(extraction)
+    deferred_hits = scan_deferred_mitigation(manuscript)
+
+    submission_safe = not (
+        (dual_hits and single_hits) or llm_reviewer_hits or deferred_hits
+    )
     return Report(
         submission_safe=submission_safe,
         dual_hits=dual_hits,
         single_hits=single_hits,
+        llm_reviewer_hits=llm_reviewer_hits,
+        deferred_mitigation_hits=deferred_hits,
     )
+
+
+def _render_extra(lines: list[str], report: Report) -> None:
+    if report.llm_reviewer_hits:
+        lines.append("")
+        lines.append("## LLM-AS-REVIEWER (fatal)")
+        lines.append("An LLM is named where an independent reviewer is required:")
+        for h in report.llm_reviewer_hits:
+            lines.append(f"- `{h['source']}` field `{h['field']}` = {h['value']}")
+        lines.append("Fix: list a human reviewer; an LLM is a tool, not a member of the review team.")
+    if report.deferred_mitigation_hits:
+        lines.append("")
+        lines.append("## DEFERRED-MITIGATION (MAJOR)")
+        lines.append("A mitigation is promised in the future tense but not yet executed:")
+        for h in report.deferred_mitigation_hits:
+            lines.append(f"- line {h['line']}: {h['context']}")
+        lines.append("Fix: execute and report the mitigation before circulation, or remove the claim.")
 
 
 def render_markdown(report: Report) -> str:
@@ -224,21 +319,28 @@ def render_markdown(report: Report) -> str:
             for h in report.single_hits:
                 lines.append(f"- `{h['source']}` line {h['line']}: `{h['pattern']}` — {h['context']}")
     else:
-        lines.append("Status: **MAJOR red flag** — DUAL claim and SINGLE confession both present.")
+        triggers = []
+        if report.dual_hits and report.single_hits:
+            triggers.append("DUAL claim + SINGLE confession")
+        if report.llm_reviewer_hits:
+            triggers.append("LLM-as-reviewer")
+        if report.deferred_mitigation_hits:
+            triggers.append("deferred mitigation")
+        lines.append(f"Status: **MAJOR red flag** — {', '.join(triggers)}.")
         lines.append("")
-        lines.append("Reviewers will read this as fabrication-grade. Fix one of:")
-        lines.append("1. Methods / PROSPERO honestly states single-reviewer execution.")
-        lines.append("2. The Limitations admission is rewritten if dual review was actually done.")
-        lines.append("")
-        lines.append("## DUAL claims (Methods / PROSPERO)")
-        for h in report.dual_hits:
-            lines.append(f"- `{h['source']}` line {h['line']}: `{h['pattern']}`")
-            lines.append(f"  > {h['context']}")
-        lines.append("")
-        lines.append("## SINGLE confessions (Discussion / Limitations)")
-        for h in report.single_hits:
-            lines.append(f"- `{h['source']}` line {h['line']}: `{h['pattern']}`")
-            lines.append(f"  > {h['context']}")
+        lines.append("Reviewers will read this as fabrication-grade.")
+        if report.dual_hits and report.single_hits:
+            lines.append("")
+            lines.append("## DUAL claims (Methods / PROSPERO)")
+            for h in report.dual_hits:
+                lines.append(f"- `{h['source']}` line {h['line']}: `{h['pattern']}`")
+                lines.append(f"  > {h['context']}")
+            lines.append("")
+            lines.append("## SINGLE confessions (Discussion / Limitations)")
+            for h in report.single_hits:
+                lines.append(f"- `{h['source']}` line {h['line']}: `{h['pattern']}`")
+                lines.append(f"  > {h['context']}")
+        _render_extra(lines, report)
     return "\n".join(lines) + "\n"
 
 
@@ -248,6 +350,10 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--manuscript", type=Path, required=True)
     parser.add_argument("--prospero", type=Path, default=None)
+    parser.add_argument(
+        "--extraction-json", type=Path, default=None,
+        help="per-study extraction JSON file or directory (reviewer-field LLM scan)",
+    )
     parser.add_argument(
         "--out",
         type=Path,
@@ -265,9 +371,12 @@ def main(argv: list[str] | None = None) -> int:
             print(f"ERROR: prospero not found: {args.prospero}", file=sys.stderr)
             return 2
         prospero_text = args.prospero.read_text(encoding="utf-8")
+    if args.extraction_json is not None and not args.extraction_json.exists():
+        print(f"ERROR: extraction-json not found: {args.extraction_json}", file=sys.stderr)
+        return 2
 
     text = args.manuscript.read_text(encoding="utf-8")
-    report = build_report(text, prospero_text)
+    report = build_report(text, prospero_text, args.extraction_json)
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(render_markdown(report), encoding="utf-8")
@@ -278,6 +387,8 @@ def main(argv: list[str] | None = None) -> int:
                 "submission_safe": report.submission_safe,
                 "dual_hits": report.dual_hits,
                 "single_hits": report.single_hits,
+                "llm_reviewer_hits": report.llm_reviewer_hits,
+                "deferred_mitigation_hits": report.deferred_mitigation_hits,
             },
             indent=2,
         ),
@@ -285,16 +396,13 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     if not args.quiet:
+        counts = (f"DUAL={len(report.dual_hits)} SINGLE={len(report.single_hits)} "
+                  f"LLM={len(report.llm_reviewer_hits)} "
+                  f"DEFERRED={len(report.deferred_mitigation_hits)}")
         if report.submission_safe:
-            print(
-                f"PASS: no conjunction. DUAL={len(report.dual_hits)} "
-                f"SINGLE={len(report.single_hits)}"
-            )
+            print(f"PASS: no fabrication-grade conflict. {counts}")
         else:
-            print(
-                f"FAIL: MAJOR red flag. DUAL={len(report.dual_hits)} "
-                f"SINGLE={len(report.single_hits)}"
-            )
+            print(f"FAIL: MAJOR red flag. {counts}")
             print(f"See {args.out}")
 
     return 0 if report.submission_safe else 1

@@ -118,6 +118,14 @@ Look for:
   part, from the outcome's definition or the same measurement?" If yes, exclude it, or retain it only
   as a labeled calibration probe rather than a reported discovery.
 
+#### F. Time origin & survivorship (incident / transition models)
+
+For any time-to-event or incident/transition design, check before drafting:
+- **Time origin per model.** Each incident model starts its at-risk clock at the correct origin. Watch for **immortal-time bias** (a span in which the event cannot occur, misattributed to one group) and **left-truncation / delayed entry** (subjects entering the risk set after the origin).
+- **Mediator-ascertainment-window survivorship.** A "progressor" / transition label that is conditional on *surviving to* a later ascertainment (a second scan, a follow-up visit) is survivorship-biased; plan a landmark time or an explicit intermediate-state (multistate / illness-death) model.
+- **Primary-analysis-set selection.** If the primary will not be the full cohort (e.g., complete-case while a large fraction is missing), pre-specify the selection justification and a MAR rationale; do not let the complete-case model become primary because it is the significant one (an outcome-dependent choice).
+- A design that cannot yet answer these should say so honestly — but note that at review time a Methods/Limitations admission that the issue was *"not formally assessed"* is escalated to a MAJOR by the survival probe (S1), not waved through as a limitation.
+
 #### C. Reference standard
 
 Check:
@@ -185,6 +193,7 @@ Ask whether the comparator and endpoint support the stated claim:
 - is the endpoint clinically meaningful?
 - does performance translate to action?
 - **incremental value**: if the study frames the model/marker as adding value *beyond* / *on top of* / *incremental to* an existing tool (a clinical score, a routine test, a baseline model), the design must pre-specify the baseline comparator built from the in-routine-use predictors **and** an incremental-value metric — ΔC-index / ΔAUC (with a paired CI, e.g. DeLong), categorical or continuous NRI, IDI, or decision-curve net benefit. A standalone discrimination number ("our model's AUC was 0.84") does not support a "beyond X" claim; without the nested-model comparison the finding may be real but redundant. Plan this at design time — it cannot be added post hoc without the baseline model.
+- **endpoint↔conclusion scope**: decide up front what *kind* of conclusion the design can support, so the manuscript does not overreach. A cross-sectional / single-visit / prevalence design cannot support a prognostic or surveillance claim (rescreen interval, disease progression) — that needs longitudinal follow-up. A binary surrogate endpoint (present/absent, >0, dichotomized) is risk stratification, not a patient-care directive (defer/withhold/initiate therapy). At review time `/self-review` §D + `check_scope_coherence.py` flag `CROSS_SECTIONAL_PROGNOSTIC` / `SURROGATE_CARE_DIRECTIVE` against the conclusion.
 
 ### Phase 4: Reporting fit
 

@@ -307,6 +307,7 @@ Write the Discussion using the inverted funnel structure:
 **Rules:**
 - Do not introduce new data not presented in Results.
 - Avoid overclaiming: language must match evidence level.
+- **Endpoint↔conclusion scope.** The Clinical-implications and Conclusion sentences must not exceed what the design and endpoint support. A cross-sectional / single-visit / prevalence study cannot license a prognostic or surveillance claim (a rescreen interval, disease progression, predicting future risk) — that requires longitudinal follow-up. A binary surrogate endpoint (present/absent, >0, dichotomized) is risk stratification, not a patient-care directive (defer/withhold/initiate therapy). `/self-review` §D (`check_scope_coherence.py`) flags `CROSS_SECTIONAL_PROGNOSTIC` / `SURROGATE_CARE_DIRECTIVE`; keep the conclusion verb inside the design's reach.
 - Acknowledge alternative explanations for key findings.
 - Each comparison with prior work must cite the specific study.
 - NO "interestingly," "notably," "it is worth noting" — state the point directly.

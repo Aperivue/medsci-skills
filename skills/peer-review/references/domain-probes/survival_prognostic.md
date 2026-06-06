@@ -15,6 +15,8 @@ An 8-probe checklist for time-to-event outcomes and prognostic model development
 - Inputs include post-decision variables (resection margin status, adjuvant chemo/radiotherapy, transplant status) that are unknown at the claimed decision point?
 - Non-treatment comparator or causal framework present?
 - Conditioning gap → MAJOR candidate. Recommend retrain without leaky variables / add non-treatment arm / reframe intended use.
+- **Time origin & survivorship** (incident / transition models): is the at-risk clock started at the correct origin for each incident model, with immortal time (a span in which the event cannot occur, misattributed to one group) and left-truncation / delayed entry handled? Is a "progressor" / transition label conditioned on *surviving to* a later ascertainment (a second scan, a follow-up visit) — a survivorship that needs a landmark time or an explicit intermediate-state model? If the primary analysis is **not** the full cohort (e.g., complete-case while a large fraction is missing) and the complete-case model is the significant one, that selection needs a stated justification and a MAR rationale — an outcome-dependent choice of the analysis set is the S8 concern. Any of these unhandled → MAJOR.
+- **Self-confession escalation**: a Methods or Limitations admission that a time-origin, immortal-time, return-conditioning, or selection issue was *"not formally assessed"* (or equivalent) is itself a MAJOR — it names a known bias that was left unaddressed, not a mitigated limitation.
 
 **S2 — Censoring handling in training loss**:
 - Cox partial-likelihood loss or DeepSurv-style loss specified? How is censoring handled (right-censoring, interval-censoring, informative censoring by death)?

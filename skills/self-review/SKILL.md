@@ -44,6 +44,25 @@ Most issues are Fixable. Reserve Fatal for true design-level problems.
    - Anything they're already worried about?
    - **Review depth?** The default is a single-pass review. For a high-stakes pre-submission final pass, a multi-agent **panel** (`--panel`, Phase 2.6) is available — several domain-expert reviewers run independently, then an editor consolidates them (more thorough, but it spawns several agents so it costs several times more tokens). On an interactive run, surface this option **once** in one line and offer it; then proceed with the single-pass review unless the user opts in. Do **not** surface or auto-apply the panel when invoked with `--json` or from `/write-paper` — those stay single-pass.
 3. Read the full manuscript.
+4. **SSOT gate — confirm there is one manuscript, not several.** Self-review reads a single
+   input file, so a divergence between a legacy working copy and the live submission copy is
+   structurally invisible to it. Before a `--panel` run (or any pre-submission pass), check for
+   multiple copies and reconcile first:
+
+   ```bash
+   find . \( -path '*manuscript*' -o -path '*main_document*' \) -name '*.md' | grep -v node_modules
+   ```
+
+   If more than one manuscript-like file exists, confirm which is the SSOT and run
+   `/sync-submission`'s divergence gate before reviewing — a `STALE_COPY` (an SSOT numeric claim
+   or heading that did not propagate to the other copy) is a P0 that must clear first:
+
+   ```bash
+   python3 "${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/sync-submission/scripts/detect_copy_divergence.py" \
+     --ssot <ssot>.md --copy <other-copy>.md
+   ```
+
+   Review the SSOT copy; do not review a stale copy and pass it.
 
 ### Phase 2: Systematic Check
 
@@ -98,6 +117,16 @@ partially, or not at all for the given manuscript type.
 | Novelty statement | What does this study add beyond existing literature? Is this explicitly stated? |
 | Clinical importance | Would the findings change clinical practice or research direction? Is this articulated? |
 | Added value / actionability | Scored separately from novelty: does the finding add value over a measure already in routine use, or is it "real but redundant" (restates a standard test)? At the typical effect size, would a clinician act on it for an individual? |
+| Endpoint↔conclusion scope **[CRITICAL]** | Does the conclusion's *action* exceed what the design or endpoint supports? A cross-sectional / single-visit study cannot license a prognostic or surveillance claim (rescreen interval, disease progression); a binary surrogate endpoint (present/absent, >0) is risk stratification, not a care directive (defer/withhold/initiate therapy). Both are documented anti-patterns. |
+
+Run the deterministic scope gate:
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/check_scope_coherence.py" \
+  --manuscript manuscript.md --out qc/scope_coherence.json --strict
+```
+
+`CROSS_SECTIONAL_PROGNOSTIC` and `SURROGATE_CARE_DIRECTIVE` are Anticipated Major Comments (category: D. Clinical Framing). The gate is conservative — it fires only when a design/endpoint signal and a conclusion-region action verb co-occur.
 
 #### E. Reproducibility
 
@@ -175,18 +204,25 @@ before submission for item-level assessment."
 | Check | What to look for |
 |-------|-----------------|
 | DUAL vs SINGLE conjunction **[CRITICAL]** | Methods or PROSPERO claims dual independent reviewers AND Discussion/Limitations admits single primary reviewer + 20% sample (or "deferred to before submission")? Mark as **MAJOR**, fabrication-grade. |
+| LLM-as-reviewer **[CRITICAL]** | A per-study extraction JSON whose `reviewer`/`screener`/`extractor` field is an LLM (Claude, GPT-4, Gemini, "LLM")? An LLM is a tool, not an independent reviewer — listing it as one misrepresents the team. **Fatal**, regardless of the prose. |
+| Deferred mitigation | A future-tense mitigation promise — "a 20% sample **will be completed before submission**" — unmet at circulation? The future tense is the tell that the work is not done. **MAJOR**. |
 
-Run the deterministic check at Phase 2 entry:
+Run the deterministic check at Phase 2 entry (pass the extraction JSON — a file or
+a directory of per-study JSONs — so the prose↔JSON↔confession 3-way is covered):
 
 ```bash
 python "${CLAUDE_SKILL_DIR}/scripts/check_reviewer_team_consistency.py" \
     --manuscript manuscript.md \
     --prospero prospero/record.md \
+    --extraction-json extraction/ \
     --out _audit_self/reviewer_team_consistency.md
 ```
 
-Exit 1 = MAJOR red flag. Either claim alone is fine; the conjunction is
-read by reviewers as fabrication. Resolution path:
+Exit 1 = MAJOR red flag. The JSON sidecar carries `dual_hits`, `single_hits`,
+`llm_reviewer_hits`, and `deferred_mitigation_hits`. Any of the DUAL+SINGLE
+conjunction, an LLM reviewer field, or a deferred mitigation trips it. Either of
+the dual/single claims alone is fine; the conjunction is read by reviewers as
+fabrication. Resolution path:
 1. Honest Methods/PROSPERO update (single-reviewer execution disclosed), OR
 2. Limitations confession rewritten if dual review was actually completed.
 
