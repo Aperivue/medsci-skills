@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- **`/self-review` category C — power-aware null interpretation**: a new check that scores non-significant primary results (p > 0.05, 95% CI crossing the null) for whether the analysis is powered to *exclude* a clinically meaningful effect. An underpowered null is flagged as "not yet established" rather than "no effect," and the check watches for bilateral over-correction (a prior overclaim swinging to an equally unsupported negative claim during revision). Undocumented null = Minor; a null driving a clinical recommendation without power/CI-compatibility justification = Major. Backports a panel-only finding into the single-pass review (prose check, no new dependency).
+
 ## [3.4.0] - 2026-06-06
 
 Dual-review consolidation and a multi-agent panel mode for self-review — depth without broadening the catalog (still 43 skills).

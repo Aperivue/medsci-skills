@@ -83,6 +83,7 @@ partially, or not at all for the given manuscript type.
 | Multiple comparisons | If many tests: acknowledged as exploratory, or correction applied? |
 | Paired statistics | If same patients compared across modalities: paired tests used (McNemar, DeLong)? |
 | Effect-size meaningfulness | Scored separately from significance: is each primary effect (OR, HR, beta, Cohen's d, correlation) translated to a real-world unit shift and compared to a minimal clinically important difference? Is significance driven by magnitude rather than sample size? |
+| Power-aware null interpretation | Scored separately from significance, for any **non-significant primary result** (p > 0.05, 95% CI crossing the null): is the analysis powered to *exclude* a clinically meaningful effect? An underpowered null is "not yet established," not "no effect" -- if the upper CI bound still includes a meaningful effect size, a flat "X was not associated with Y" claim overreads the data. Look for reported observed power or a minimum detectable effect that justifies a negative conclusion, and watch for **bilateral over-correction** (a prior "independently associated" overclaim swinging to an equally unsupported "not associated" claim during revision). Undocumented null = Minor; a null that drives a clinical recommendation or a headline negative conclusion without power/CI-compatibility justification = Major. |
 
 #### D. Clinical Framing & Importance
 
