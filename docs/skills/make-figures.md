@@ -52,6 +52,7 @@
 - `build_prisma2020_template.py`
 - `build_strobe_template.py`
 - `critic_figure.py`
+- `derive_figure_legend_counts.py`
 - `extract_exemplar_from_pdf.py`
 - `fetch_official_templates.sh`
 - `fill_prisma_template.py`

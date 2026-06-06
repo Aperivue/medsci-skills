@@ -1,0 +1,8 @@
+# STROBE flow config (SSOT) consumed by generate_flow_diagram.R
+boxes:
+  - id: assessed
+    label: "Assessed for eligibility (n = 1284)"
+  - id: excluded
+    label: "Excluded (n = 286)"
+  - id: analytic
+    label: "Analytic cohort (n = 998)"

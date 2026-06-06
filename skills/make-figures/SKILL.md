@@ -705,6 +705,17 @@ d2 --layout elk --theme 0 flow.d2 output.svg
 # Then: open SVG in Figma → grid-snap → font swap → export PDF
 ```
 
+**Caption ↔ flow-SSOT reconciliation (before Step 5 Export).** The flow-diagram config (the YAML/script that `generate_flow_diagram.R` consumes) is the single source of truth for participant counts. A hand-written Figure 1 caption drifts from it whenever the cohort is re-locked but the caption is not — the classic "caption says n = 1,284 analytic, diagram box says n = 998" defect, which surfaces only at submission. Re-derive the caption counts from the flow config and reconcile:
+
+```bash
+python3 ${CLAUDE_SKILL_DIR}/scripts/derive_figure_legend_counts.py \
+  --flow-config figures/figure1_strobe_graphviz.yaml \
+  --manuscript manuscript/index.qmd \
+  --out qc/figure_legend_counts.json --strict
+```
+
+Any `n = N` in the caption that is not a box count in the flow config is a `MISMATCH` (stale caption) — update the caption from the config, never the reverse. This pairs with numerical-safety's "re-derive prose counts every revision" rule and with `/sync-submission`'s cross-document N checks. (The reconciler is stdlib-only and parses the config as text, so it works regardless of the flow tool.)
+
 ### Calibration Plot
 
 - 45-degree reference line (perfect calibration).
