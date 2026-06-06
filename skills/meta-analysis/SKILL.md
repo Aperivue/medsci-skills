@@ -396,6 +396,8 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/dta_extraction_qc.py" \
 
 Any `FLAG_SWAP` or `FLAG_MISMATCH` row requires third-reviewer adjudication before Phase 6 statistical synthesis.
 
+**Flag → form-edit forced transition.** A confirmed flag is not resolved until the extraction form itself is edited. Track each flag through `confirmed → acted`: after the adjudicator confirms a `FLAG_SWAP`/`FLAG_MISMATCH`/unit-of-analysis violation, the extraction CSV row MUST be corrected and the QC re-run to clear it. A flag that is "confirmed" but whose form row is unchanged (the correction lived only in a review note) silently re-enters synthesis. Verify the form's mtime advanced and the re-run QC shows zero open flags before locking.
+
 **2. Cohort Overlap Check** -- `scripts/cohort_overlap_check.py`:
 
 Clusters included studies by (a) shared public ICU/EHR database (MIMIC-IV, eICU, MIMIC-III, KNHIS, UK Biobank, Optum, MarketScan, TriNetX, IBM), (b) same institution + overlapping enrollment period, (c) shared first-author surname + ±2y year proximity. Flags HIGH / MEDIUM overlap confidence.
@@ -662,15 +664,19 @@ Synthesized from recent SR-MA peer-review cycles. Drives the Phase 4 extraction 
 
 3. **Diagnostic subset N transparency** in mixed DTA + prognostic MAs: report `sample_n_dta_pool` separately from `sample_n_prognostic_pool` with explicit prevalence. Aggregate N in Abstract misleads readers about diagnostic-subset power.
 
-4. **k=1 subgroups are not robust**: any subgroup p-value driven by a single included study must be reframed as exploratory or removed from formal subgroup test. Post-hoc subgroups require PROSPERO amendment with visible record.
+4. **Small-k subgroups are not robust (k < 4)**: a subgroup test driven by a single study (k=1) is descriptive-only, and the same caution extends to k=2–3 — heterogeneity and the trend are not estimable from so few strata. Any subgroup with k < 4 must be labelled descriptive / exploratory rather than entered into a formal subgroup interaction test. Post-hoc subgroups require a PROSPERO amendment with a visible record.
 
 5. **Supplementary 8-file package** is the minimum bar for high-impact journals: PRISMA checklist, PROSPERO PDF, full search strategy, full-text exclusion list with reasons, per-study extraction table, per-study x per-domain RoB, subgroup forests, sensitivity / publication-bias analyses. See `templates/supplementary_8file_checklist.md`.
 
-6. **PROSPERO 13-char ID format** (`CRD42` + YYYY + 6-digit sequential); pre-2020 IDs may be 12 chars. Non-numeric tails or >13 chars are format anomalies. Request live registration URL in cover letter for protocol cross-check.
+6. **PROSPERO 14-char ID format** (`^CRD42\d{9}$` = `CRD42` + 4-digit year + 5-digit sequence, e.g. `CRD42024500001`). A 15-character ID is a stray-digit transcription error; pre-2020 IDs may be shorter. Validate with `grep -oE 'CRD42[0-9]+'` + length assert, and request the live registration URL in the cover letter for protocol cross-check.
 
 7. **AI Disclosure presence** for SR-MA submissions to RYAI / Radiology / RSNA / Lancet / JAMA / BMJ / Nature families. Absence triggers MINOR-to-MAJOR finding at peer review.
 
 8. **Sensitivity analyses are recomputed, not copied** (Phase 6b rule 5). Leave-one-out / erosion / alternative-model effect sizes identical to the primary analysis to 2 decimals across ≥4 values means the recomputation did not run. Re-derive from the modified dataset; the inputs (means/SDs/counts) change even when the effect size is close.
+
+9. **Outcome harmonization before pooling.** Studies that report the same-named outcome under different definitions (an imaging-detected event vs a clinically diagnosed one; different thresholds) must not be presented as a single pooled range or pooled estimate. Split by ascertainment method (or pool only the harmonizable subset) and state the definition per stratum — a "6.9–46%" range that silently mixes imaging-detected and clinical events is a heterogeneity artifact, not a finding.
+
+10. **Heterogeneous RoB instruments → no single pooled κ.** When studies are assessed with different risk-of-bias tools (QUADAS-2 for DTA + NOS for cohorts, etc.), do not report one pooled inter-rater κ across the mixed set. Report agreement per instrument, and use an ordinal weighted κ when the domain judgments are ordered (low/some/high). A single κ over a heterogeneous instrument set is uninterpretable.
 
 9. **Prognostic / survival-outcome MAs carry survival-specific concerns** beyond the DTA pitfalls: censoring handling, competing risks (cause-specific vs Fine-Gray), cutoff-derivation optimism, comparator time-horizon alignment, C-index variant transparency (Harrell vs Uno vs IPCW), and calibration beyond discrimination. When pooling prognostic models, pre-specify these in the protocol and report them per study; for the reviewing counterpart see the survival/prognostic 7-probe in `/peer-review`.
 
