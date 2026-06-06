@@ -486,6 +486,16 @@ Or equivalently: `/write-paper --autonomous` if analysis and figures already exi
 /search-lit            # Find supporting literature with verified citations
 ```
 
+## In the Wild
+
+Adoption is tracked openly in [`IMPACT.md`](IMPACT.md) (stars, forks, traffic,
+release downloads — snapshotted weekly into [`metrics/traffic_log.csv`](metrics/traffic_log.csv))
+and academic use is logged in [`docs/citations.md`](docs/citations.md).
+
+**Used MedSci Skills in your research?** Please
+[let us know](https://github.com/Aperivue/medsci-skills/issues/new?template=used-in-research.yml).
+It helps other researchers find the toolkit — and we list it (with your permission).
+
 ## Disclaimer
 
 These skills are research productivity tools. They do **not** provide clinical decision support, medical advice, or diagnostic recommendations. All outputs should be reviewed by qualified researchers before use in any publication or clinical context.

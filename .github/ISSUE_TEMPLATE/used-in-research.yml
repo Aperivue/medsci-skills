@@ -1,0 +1,59 @@
+name: "📄 I used MedSci Skills in my research"
+description: Tell us how you used the toolkit so we can list it and learn what to improve.
+title: "[used-in-research] "
+labels: ["used-in-research"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for using MedSci Skills! Sharing how you used it helps other
+        researchers discover the toolkit and helps us understand real-world use.
+        Only fill in what you are comfortable making public — everything here is
+        optional and you control what gets listed.
+  - type: textarea
+    id: how-used
+    attributes:
+      label: How did you use MedSci Skills?
+      description: Which skills, for what kind of study, at what stage (protocol, analysis, writing, submission)?
+      placeholder: "e.g., used /search-lit + /verify-refs for a diagnostic-accuracy review, and /check-reporting (STARD) before submission."
+    validations:
+      required: true
+  - type: input
+    id: work
+    attributes:
+      label: Associated work (optional)
+      description: A paper, preprint, thesis, protocol, registration (PROSPERO/ClinicalTrials), or downstream repository.
+      placeholder: "DOI, URL, or registry ID"
+    validations:
+      required: false
+  - type: dropdown
+    id: stage
+    attributes:
+      label: Stage of the work
+      options:
+        - Planning / protocol
+        - Analysis
+        - Manuscript writing
+        - Submitted / under review
+        - Published
+        - Other
+    validations:
+      required: false
+  - type: dropdown
+    id: list-permission
+    attributes:
+      label: May we list this in docs/citations.md?
+      description: We never list anything without permission, and you can ask us to remove it at any time.
+      options:
+        - "Yes, list it (with the link above)"
+        - "Yes, but anonymously (no name/affiliation)"
+        - "No, this is just feedback"
+    validations:
+      required: true
+  - type: textarea
+    id: feedback
+    attributes:
+      label: What worked well, and what should we improve? (optional)
+      description: Anything that helped, broke, or was missing.
+    validations:
+      required: false

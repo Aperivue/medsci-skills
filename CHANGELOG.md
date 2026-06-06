@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- **Adoption & impact tracking** — a public [`IMPACT.md`](IMPACT.md) dashboard, an automated weekly metrics snapshot (`.github/workflows/metrics.yml` → `metrics/traffic_log.csv`, capturing stars/forks/release-downloads/14-day traffic/Zenodo stats that GitHub otherwise discards after 14 days), a [`docs/citations.md`](docs/citations.md) ledger for academic citations and named downstream use, and a "Used in research" issue template (`.github/ISSUE_TEMPLATE/used-in-research.yml`) for collecting user reports. No skill behavior changes; catalog unchanged at 43 skills.
+
 ## [3.6.0] - 2026-06-06
 
 A 13-project panel self-review distilled 158 cross-project traces into 12 recurring defect patterns; this release lands the 18 resulting gates (P1/P2/P3) as deterministic, stdlib-only checks wherever a grep is clean, and as prose/probe guidance where the call needs a human. Six new detectors join the existing trio, each with PII-free synthetic fixtures and a regression test. Catalog unchanged at 43 skills — every addition is a check, probe, or convention inside an existing skill.
