@@ -495,6 +495,8 @@ This delegates the entire fix loop to the self-review skill, which:
 3. If `verdict` is `"PASS"` after any iteration: stops early.
 4. Returns the final JSON report with updated scores.
 
+**High-stakes manual pass (optional):** this autonomous loop deliberately uses the single-pass review — a multi-agent panel is *not* auto-applied in the pipeline (it spawns several reviewer agents plus an editor, multiplying token cost). For a top-tier or otherwise high-stakes manuscript, run `/self-review --panel` once manually as a final pre-submission pass (it diagnoses and prioritizes but does not auto-fix, so triage its findings yourself).
+
 After `/self-review --json --fix` completes:
 - Parse the final JSON output block.
 - Log the final `overall_score`, `verdict`, fix iteration count, and any remaining issues to `qc/_pipeline_log.md`.

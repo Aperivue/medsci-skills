@@ -42,6 +42,7 @@ Most issues are Fixable. Reserve Fatal for true design-level problems.
    - Target journal? (affects reporting standards and scope expectations)
    - Manuscript type? (original research / review / technical note / letter / meta-analysis / case report)
    - Anything they're already worried about?
+   - **Review depth?** The default is a single-pass review. For a high-stakes pre-submission final pass, a multi-agent **panel** (`--panel`, Phase 2.6) is available — several domain-expert reviewers run independently, then an editor consolidates them (more thorough, but it spawns several agents so it costs several times more tokens). On an interactive run, surface this option **once** in one line and offer it; then proceed with the single-pass review unless the user opts in. Do **not** surface or auto-apply the panel when invoked with `--json` or from `/write-paper` — those stay single-pass.
 3. Read the full manuscript.
 
 ### Phase 2: Systematic Check
