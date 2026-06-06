@@ -118,6 +118,14 @@ Look for:
   part, from the outcome's definition or the same measurement?" If yes, exclude it, or retain it only
   as a labeled calibration probe rather than a reported discovery.
 
+#### F. Time origin & survivorship (incident / transition models)
+
+For any time-to-event or incident/transition design, check before drafting:
+- **Time origin per model.** Each incident model starts its at-risk clock at the correct origin. Watch for **immortal-time bias** (a span in which the event cannot occur, misattributed to one group) and **left-truncation / delayed entry** (subjects entering the risk set after the origin).
+- **Mediator-ascertainment-window survivorship.** A "progressor" / transition label that is conditional on *surviving to* a later ascertainment (a second scan, a follow-up visit) is survivorship-biased; plan a landmark time or an explicit intermediate-state (multistate / illness-death) model.
+- **Primary-analysis-set selection.** If the primary will not be the full cohort (e.g., complete-case while a large fraction is missing), pre-specify the selection justification and a MAR rationale; do not let the complete-case model become primary because it is the significant one (an outcome-dependent choice).
+- A design that cannot yet answer these should say so honestly — but note that at review time a Methods/Limitations admission that the issue was *"not formally assessed"* is escalated to a MAJOR by the survival probe (S1), not waved through as a limitation.
+
 #### C. Reference standard
 
 Check:
