@@ -75,6 +75,7 @@ Based on profiling results, flag potential issues in these categories:
 4. **Type mismatches**: Numeric stored as string, dates in inconsistent formats
 5. **Implausible values**: ONLY if codebook provides valid ranges; otherwise flag as "review needed"
 6. **Category inconsistencies**: Typos in categorical values (e.g., "Male", "male", "M", "MALE")
+7. **Categorical-implied zeros**: When a categorical variable defines a natural zero for a dose/duration variable (`smoking_status == 'never'` implies `pack_years == 0`, `alcohol_use == 'never'` implies `grams_per_week == 0`), flag any record where the implied zero is stored as NULL/missing instead of 0. This is a *contradiction*, not a missing-data pattern: a never-smoker with `pack_years = NULL` will be silently dropped by complete-case models or, worse, imputed to a non-zero dose by MICE — corrupting the exposure contrast. Suggested action: "Set dose = 0 where category == reference level; impute only the residual missingness among the exposed." Detected by `scripts/check_structural_zero.py` given the category↔dose mapping; pairs with `/analyze-stats` "Covariate Pitfalls: Structural Zeros & Dose/Duration Variables".
 
 Present the flag report as a structured table:
 
@@ -83,6 +84,7 @@ Present the flag report as a structured table:
 | age | Outlier (IQR) | 3 | Medium | Review: values 150, 200, -5 |
 | sex | Category inconsistency | 12 | Low | Harmonize: Male/male/M -> "Male" |
 | lab_date | Type mismatch | 45 | High | Parse to datetime |
+| pack_years | Categorical-implied zero | 12421 | High | Set 0 where smoking_status=='never' (structural zero, not missing) |
 
 Severity levels:
 - **High**: Likely data errors that will affect analysis (type mismatches, impossible values)
