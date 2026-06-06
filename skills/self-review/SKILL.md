@@ -98,6 +98,16 @@ partially, or not at all for the given manuscript type.
 | Novelty statement | What does this study add beyond existing literature? Is this explicitly stated? |
 | Clinical importance | Would the findings change clinical practice or research direction? Is this articulated? |
 | Added value / actionability | Scored separately from novelty: does the finding add value over a measure already in routine use, or is it "real but redundant" (restates a standard test)? At the typical effect size, would a clinician act on it for an individual? |
+| Endpoint↔conclusion scope **[CRITICAL]** | Does the conclusion's *action* exceed what the design or endpoint supports? A cross-sectional / single-visit study cannot license a prognostic or surveillance claim (rescreen interval, disease progression); a binary surrogate endpoint (present/absent, >0) is risk stratification, not a care directive (defer/withhold/initiate therapy). Both are documented anti-patterns. |
+
+Run the deterministic scope gate:
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/check_scope_coherence.py" \
+  --manuscript manuscript.md --out qc/scope_coherence.json --strict
+```
+
+`CROSS_SECTIONAL_PROGNOSTIC` and `SURROGATE_CARE_DIRECTIVE` are Anticipated Major Comments (category: D. Clinical Framing). The gate is conservative — it fires only when a design/endpoint signal and a conclusion-region action verb co-occur.
 
 #### E. Reproducibility
 

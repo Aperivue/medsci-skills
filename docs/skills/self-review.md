@@ -47,6 +47,7 @@
 - `check_cohort_arithmetic.py`
 - `check_confounding_completeness.py`
 - `check_reviewer_team_consistency.py`
+- `check_scope_coherence.py`
 
 ## Source
 

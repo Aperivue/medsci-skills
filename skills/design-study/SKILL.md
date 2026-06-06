@@ -185,6 +185,7 @@ Ask whether the comparator and endpoint support the stated claim:
 - is the endpoint clinically meaningful?
 - does performance translate to action?
 - **incremental value**: if the study frames the model/marker as adding value *beyond* / *on top of* / *incremental to* an existing tool (a clinical score, a routine test, a baseline model), the design must pre-specify the baseline comparator built from the in-routine-use predictors **and** an incremental-value metric — ΔC-index / ΔAUC (with a paired CI, e.g. DeLong), categorical or continuous NRI, IDI, or decision-curve net benefit. A standalone discrimination number ("our model's AUC was 0.84") does not support a "beyond X" claim; without the nested-model comparison the finding may be real but redundant. Plan this at design time — it cannot be added post hoc without the baseline model.
+- **endpoint↔conclusion scope**: decide up front what *kind* of conclusion the design can support, so the manuscript does not overreach. A cross-sectional / single-visit / prevalence design cannot support a prognostic or surveillance claim (rescreen interval, disease progression) — that needs longitudinal follow-up. A binary surrogate endpoint (present/absent, >0, dichotomized) is risk stratification, not a patient-care directive (defer/withhold/initiate therapy). At review time `/self-review` §D + `check_scope_coherence.py` flag `CROSS_SECTIONAL_PROGNOSTIC` / `SURROGATE_CARE_DIRECTIVE` against the conclusion.
 
 ### Phase 4: Reporting fit
 
