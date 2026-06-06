@@ -520,6 +520,20 @@ analyses (interaction, subgroup, sensitivity, multiple imputation). Skip for cas
    add it to Results, remove the promise from Methods, or file a protocol amendment. Log the
    checklist to `qc/_pipeline_log.md`.
 
+3. **Reverse direction — disk-present-but-unreported.** The forward grep only catches analyses
+   the Methods promised. An analysis that was *run* but whose result is missing from the paper —
+   often because it undercuts the headline — needs the opposite scan. Delegate to
+   `/self-review` Phase 2.5f's coverage gate, which reads an `_analysis_outputs.md` manifest (or
+   globs the analysis directory) and reconciles every output file against the manuscript body:
+
+   ```bash
+   python3 "${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/self-review/scripts/check_artifact_coverage.py" \
+     --manuscript manuscript/index.qmd --analysis-dir output/analysis --strict
+   ```
+
+   A `DISK_UNREPORTED` analysis-bearing output (an added-value DeLong CSV, a calibration table)
+   is a **HALT**: report it or document why it was dropped.
+
 This step composes with `/self-review` Phase 2.5f; run it here for pipeline completeness even
 when `/self-review` is also invoked.
 

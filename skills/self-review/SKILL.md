@@ -698,6 +698,27 @@ analysis completeness, and imputation-input integrity are separate subchecks (ru
    significant one is foregrounded, confirm which was pre-specified; an outcome-dependent
    choice of primary model is a Major comment even when each model is individually correct.
 
+5. **Headline vs own-sensitivity direction.** Read the sensitivity series (S1 etc.) the
+   manuscript itself reports. If the headline causal/association claim points the *opposite*
+   way from the authors' own adjusted or sensitivity estimate — a positive lead sentence over
+   a sensitivity model that attenuates to the null, or vice versa — that is a Major: the paper
+   is contradicting its own robustness check. This is a prose judgement, not a script verdict.
+
+6. **Methods ↔ Results ↔ disk coverage.** Run the deterministic coverage gate:
+
+   ```bash
+   python3 "${CLAUDE_SKILL_DIR}/scripts/check_artifact_coverage.py" \
+     --manuscript manuscript.md --analysis-dir output/analysis \
+     --out qc/artifact_coverage.json --strict
+   ```
+
+   `PROMISED_ABSENT` (an analysis named in Methods that never reaches Results) and
+   `DISK_UNREPORTED` (an analysis output on disk — an added-value DeLong CSV, a calibration
+   table — never mentioned in the manuscript) are Anticipated Major Comments. The reverse
+   direction matters because a run-but-unreported result can be the one that undercuts the
+   headline. When an `_analysis_outputs.md` manifest exists the gate uses it as the source of
+   truth; otherwise it globs `--analysis-dir` and only escalates analysis-bearing file names.
+
 The script is deterministic but its provenance match is fuzzy (token overlap): read the
 reconciliation in `qc/claim_artifact.json` and confirm against the actual registration
 before raising `ESTIMAND_DRIFT`. For time-to-event manuscripts, also apply probe **S8
