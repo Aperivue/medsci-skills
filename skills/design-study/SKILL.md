@@ -219,6 +219,7 @@ Recommend one primary guideline:
 - healthy volunteer bias unacknowledged → inflated external validity claims
 - surveillance bias from unequal follow-up frequency between groups
 - **3 bias classification (Hernan/Robins)**: selection bias (who enters), information bias (how measured), confounding (what else differs) — explicitly map each threat
+- **confounding completeness**: pre-specify the adjustment set from a DAG (not a Table-1 p < 0.05 rule), and plan to report whether any measured covariate that turns out imbalanced by exposure but outside the adjustment set leaves the primary estimate robust (an extended-adjustment sensitivity model). At review time `/self-review` Phase 2.5e + the O1–O6 probes in `observational_confounding.md` check this against Table 1.
 
 ### Multimodal LLM / report generation
 - no clear rubric for clinical correctness

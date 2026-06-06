@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Domain-probe vendoring drift gate.
 
-The four domain-specific critique probe modules (sr_ma, survival_prognostic,
-radiomics, narrative_review) live canonically inside the peer-review skill and
-are vendored BYTE-IDENTICAL into the self-review skill. Skills are distributed
+The five domain-specific critique probe modules (sr_ma, survival_prognostic,
+radiomics, narrative_review, observational_confounding) live canonically inside
+the peer-review skill and are vendored BYTE-IDENTICAL into the self-review skill.
+Skills are distributed
 individually (/publish-skill), so a runtime cross-skill import is forbidden;
 build-time vendoring with this drift gate is the portability-preserving pattern
 (see docs/dedup_audit.md; same idea as the vendored citation writer).
@@ -35,6 +36,7 @@ MODULES = (
     "survival_prognostic.md",
     "radiomics.md",
     "narrative_review.md",
+    "observational_confounding.md",
 )
 
 CANONICAL_REL = "skills/peer-review/references/domain-probes"

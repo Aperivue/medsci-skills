@@ -30,8 +30,8 @@ check "--panel flag documented in Optional Flags" grep -qE '^- `--panel`:' "$SKI
 check "default stays single-pass (off by default)" grep -qi 'off by default' "$SKILL"
 check "--fix x --panel guard documented"       grep -qi 'Do \*\*not\*\* combine with `--fix`' "$SKILL"
 
-# 2. Reviewer-set mapping names all four domain-probe modules.
-for m in survival_prognostic sr_ma radiomics narrative_review; do
+# 2. Reviewer-set mapping names all five domain-probe modules.
+for m in survival_prognostic sr_ma radiomics narrative_review observational_confounding; do
     check "reviewer-set table references $m module" grep -qE "domain-probes/$m\.md" "$SKILL"
 done
 
@@ -42,7 +42,7 @@ check "template has reviewer schema fields"     grep -qE '"severity": "Fatal \| 
 check "template has editor synthesis skeleton"  grep -qi 'Editor synthesis prompt skeleton' "$TEMPLATE"
 
 # 4. Vendored probe modules each reviewer loads exist.
-for m in survival_prognostic sr_ma radiomics narrative_review; do
+for m in survival_prognostic sr_ma radiomics narrative_review observational_confounding; do
     check "vendored module present: $m.md"      test -f "$PROBE_DIR/$m.md"
 done
 

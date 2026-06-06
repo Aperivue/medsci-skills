@@ -37,11 +37,12 @@
 
 **References** (`skills/self-review/references/`):
 
-- `domain-probes/` (4 files)
+- `domain-probes/` (5 files)
 - `panel_review_template.md`
 
 **Scripts** (`skills/self-review/scripts/`):
 
+- `check_confounding_completeness.py`
 - `check_reviewer_team_consistency.py`
 
 ## Source

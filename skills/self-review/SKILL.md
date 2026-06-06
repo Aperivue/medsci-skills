@@ -211,7 +211,7 @@ publication bias (funnel plot, Egger), and sensitivity/subgroup analyses.
 
 **Type-Specific Additional Checks:**
 
-- **Observational studies**: Confounding assessment (DAG or adjustment strategy), selection bias, exposure measurement validity
+- **Observational studies**: Confounding assessment (DAG or adjustment strategy), selection bias, exposure measurement validity. Run **Phase 2.5e (Confounding Completeness)** and apply the O1–O6 probes in `references/domain-probes/observational_confounding.md`.
 - **Educational studies**: Learning outcome measurement validity, Kirkpatrick level, control group adequacy, curriculum fidelity
 - **Meta-analyses**: Search comprehensiveness (2+ databases), screening reproducibility (2 reviewers), RoB assessment per study, GRADE certainty
 - **Case reports**: Diagnostic reasoning transparency, timeline completeness, informed consent, generalizability disclaimer
@@ -547,6 +547,68 @@ DOCX build has occurred yet (early drafts).
 in the body without re-running the DOCX build will simply move the mismatch.
 Surface as Major Comments and let the user route to `/write-paper` Step 7.6a.
 
+### Phase 2.5e: Confounding Completeness (observational only)
+
+For an observational study, the highest-yield reviewer finding is also the most
+mechanical, and a prose pass misses it because the manuscript text is internally
+consistent: a covariate that was **measured**, is **imbalanced across exposure
+groups** in the baseline table, and is **absent from the adjustment set** is
+residual confounding by a measured variable. Only a join of the exposure-
+stratified Table 1 against the Methods adjustment set exposes it. This is probe
+O1 of `references/domain-probes/observational_confounding.md`, run here as a
+deterministic gate so the finding lands without the `--panel` cost.
+
+**When to run:** manuscript type is observational (cohort, case-control,
+cross-sectional, health-screening registry) and the central claim is an
+adjusted exposure–outcome association. Skip for RCTs and descriptive studies.
+
+**Precedent failure pattern:**
+> A cross-sectional screening-cohort manuscript reported an adjusted association
+> while Table 1 showed uric acid, smoking pack-years, HDL, total cholesterol, and
+> HbA1c all significantly imbalanced across the exposure groups — none of which
+> were in the age/sex/BMI/hypertension/diabetes adjustment set. The single-pass
+> review passed it; only an epidemiology panel reviewer who read the Table 1 CSV
+> against the Methods caught the gap. After refitting with extended adjustment the
+> primary estimate held, but the manuscript had claimed robustness it had not shown.
+
+**Procedure:**
+
+1. **Locate the exposure-stratified baseline table** as a CSV (e.g.
+   `table1_by_<exposure>.csv` from `/analyze-stats`) and the Methods adjustment
+   set (the variables after "adjusted for ...").
+
+2. **Run the deterministic gate:**
+
+   ```bash
+   python3 "${CLAUDE_SKILL_DIR}/scripts/check_confounding_completeness.py" \
+     --table1 table1_by_<exposure>.csv \
+     --adjusted-list "age, sex, BMI, hypertension, diabetes" \
+     --out qc/confounding_completeness.json --strict
+   ```
+
+   It emits a reconciliation table (covariate | imbalance p | SMD | in adjustment
+   set? | verdict) and flags each **measured-but-unadjusted imbalanced** covariate
+   as an `UNADJUSTED_IMBALANCED` Major candidate. When the CSV is unavailable,
+   apply probe O1 by hand from the published Table 1.
+
+3. **Each `UNADJUSTED_IMBALANCED` covariate is an Anticipated Major Comment**
+   (category: A. Study Design & Data Integrity), with the suggested fix: report an
+   **extended-adjustment sensitivity model** that adds the omitted covariates and
+   states whether the primary estimate is materially unchanged; the original model
+   stays primary only if the extended model agrees.
+
+4. **Then apply the rest of the observational probe set** (O2 adjustment-set
+   provenance, O3 selection/collider bias, O4 exposure measurement validity, O5
+   missing-data mechanism & complete-case collapse, O6 residual-confounding
+   E-value) from `references/domain-probes/observational_confounding.md` — these
+   are prose probes, not data-checkable, and complement the generic Phase 2
+   categories rather than replacing them.
+
+**Adjustment-set matching is fuzzy** (a table row "Smoking, pack-years" vs an
+adjustment token "smoking"): read the reconciliation table rather than trusting
+the count, and confirm each flagged covariate is a plausible cause of the outcome
+(not a mediator or collider, which O2 covers) before raising it.
+
 ### Phase 2.6: Multi-Agent Panel Review (--panel, opt-in)
 
 Run this phase **only when `--panel` is passed**. The default single-pass review (Phases 2–2.5d) stays the fast path; the panel is the high-cost, high-precision option for a pre-submission final pass on a top-tier target. Run it after the numerical audits (Phases 2.5–2.5d) so the reviewers see source-verified numbers, and before the Phase 3 report, which it feeds.
@@ -561,7 +623,7 @@ The panel simulates independent peer reviewers who do not see each other's comme
 | Systematic review / meta-analysis | R1 Methodology (search/screening/PRISMA) · R2 Clinical · R3 Statistics (pooling/heterogeneity) | `references/domain-probes/sr_ma.md` |
 | Radiomics / feature reproducibility | R1 Imaging physics & acquisition · R2 ML / Statistics · R3 Clinical translation | `references/domain-probes/radiomics.md` |
 | Diagnostic-accuracy / AI model | R1 Study design & leakage · R2 Statistics (DeLong, calibration) · R3 Clinical / reference standard | `references/domain-probes/sr_ma.md` (P1 DTA cells) + categories A–C |
-| Observational (STROBE) | R1 Epidemiology / confounding · R2 Clinical · R3 Statistics | none type-specific; categories A–J + the effect-size / added-value axes |
+| Observational (STROBE) | R1 Epidemiology / confounding · R2 Clinical · R3 Statistics | `references/domain-probes/observational_confounding.md` (O1 run as the Phase 2.5e deterministic gate) + categories A–J + the effect-size / added-value axes |
 | Narrative / review article | R1 Domain-content expert · R2 Methodology / SANRA · R3 Technical accuracy | `references/domain-probes/narrative_review.md` |
 
 If the type is ambiguous, ask the user before composing the set.

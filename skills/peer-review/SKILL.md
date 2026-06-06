@@ -117,6 +117,17 @@ The original-research probes (Phase 2 issue checklist, Phase 2A/2B/2C) do not tr
 
 **Probe detail (RV1–RV8), with the verify-your-own-criticism gate and output templates:** `${CLAUDE_SKILL_DIR}/references/domain-probes/narrative_review.md`. Load it and apply each probe when the trigger above fires; the SANRA appraisal items and candidate-additions catalog in `${CLAUDE_SKILL_DIR}/references/narrative_review_audit.md` remain peer-review-specific supporting material. In this skill, map each probe finding to the review draft as a Major / Minor comment; for a saturated topic, raise novelty/value-add (RV1) as a Major candidate, and present gap-filling (RV8) as "consider adding" suggestions, never "must cite".
 
+### Phase 2E: Observational / Confounding Extension
+
+Apply this 6-probe checklist (O1–O6) **only when the manuscript is an observational study** (cohort, case-control, cross-sectional, health-screening / registry) **whose central claim is an adjusted exposure–outcome association** estimated by covariate adjustment rather than randomization. These probes complement (do not replace) the generic Phase 2 issue checklist and the STROBE reporting items; they target the gap between the stated adjustment set and what the exposure-stratified Table 1 shows.
+
+**Exempt**:
+- Randomized trials (confounding controlled by design → Phase 2 + CONSORT)
+- Purely descriptive / prevalence reports with no adjusted association claim
+- Diagnostic-accuracy studies with no exposure–outcome estimand (→ Phase 2A DTA cells + categories A–C)
+
+**Probe detail (O1–O6), with output templates:** `${CLAUDE_SKILL_DIR}/references/domain-probes/observational_confounding.md`. Load it and apply each probe when the trigger above fires. O1 (a measured covariate that is imbalanced by exposure in Table 1 yet absent from the adjustment set) is data-checkable and the highest-yield probe — verify it against the manuscript's own Table 1. In this skill, map each probe finding to the review draft as a Major / Minor comment; a confounding-completeness gap (O1), a selection/collider structure that could generate the association (O3), or an undisclosed complete-case collapse (O5) is design-level, so surface it in the Confidential Comments to the Editor and place it as the Major #1 candidate rather than softening it to a reporting fix.
+
 ### Phase 3: Draft Review
 
 Generate `{manuscript_id}_review_draft.md`:
@@ -212,6 +223,7 @@ After drafting, verify mechanically:
 9. **SR-MA-specific QC** (if Phase 2A applied): Confirm the P0 internal-consistency gate was run before any fabrication claim. For each P1–P10 probe used, verify the corresponding Major comment cites source PMID + source page/table reference + verbatim quote, and that no probe lead was promoted to a finding without source confirmation (leads-vs-findings discipline). Reviews citing extraction errors without source-page reference are not actionable for authors.
 10. **Radiomics-reproducibility QC** (if Phase 2C applied): If an acquisition-parameter sweep predicts an outcome from its own grid axes (R1 design-grid circularity) or the substantive result is a cross-domain failure framed as success (R3), confirm the recommendation reflects design-level severity and is not softened to a reporting fix. Where a model × threshold/cohort grid yields a few p < 0.05, confirm the multiplicity / expected-false-positive count is named (R4), not deferred to "statistical review needed."
 11. **Review-article QC** (if Phase 2D applied): Confirm RV1–RV8 are reflected — in particular that novelty/value-add (RV1) is raised for a saturated topic and that gap-filling (RV8) is present, not just error-spotting. Verify SANRA is used as an appraisal aid, not over-enforced as a reporting guideline (no PRISMA demand on a narrative review; only RV3 is SANRA-aligned and phrased as a suggestion). Verify every suggested addition uses "consider adding" phrasing (no "must cite"), is source-confirmed, and that preprints are labeled as preprints (not equated with peer-reviewed guidelines).
+12. **Observational-confounding QC** (if Phase 2E applied): For any covariate imbalanced by exposure in Table 1 but absent from the adjustment set (O1), confirm the comment requests a concrete extended-adjustment sensitivity model, not a vague "adjust for more confounders." Confirm a selection/collider structure (O3) or an undisclosed complete-case collapse from a structural-zero dose covariate (O5) is raised at design-level severity, and that any E-value request (O6) targets the declared primary estimate rather than a supporting one.
 12. **Verify-your-own-criticism** (all reviews): For each Major framed as a technical inaccuracy or a citation–claim mismatch, confirm the reviewer's own assertion was checked against a current authoritative source (full paper, CrossRef, arXiv). Downgrade unverified technical claims to a hedged "Please verify…"; keep confirmed ones firm. Watch for status drift (a "preprint" since published; a method since adapted) before asserting the manuscript is wrong.
 
 Fix all issues found, then present to user.
@@ -264,6 +276,8 @@ For survival / prognostic-model manuscripts, also apply the Phase 2B 7-probe aud
 For radiomic feature-reproducibility / phantom parameter-sweep / reliability-filtering manuscripts, also apply the Phase 2C 4-probe audit (design-grid circularity, construct validity / proxy-target gap, transportability framing with Reject-escalate calibration, multiplicity).
 
 For Review / narrative / primer / state-of-the-art manuscripts, apply the Phase 2D 8-probe audit (novelty/value-add, scope/aims, evidence-gathering transparency, technical/medical accuracy, taxonomy/synthesis coherence, balance/currency/citation accuracy, load-bearing figures/tables, constructive gap-filling) in place of the original-research probes — error-spotting plus proportionate gap-filling, with SANRA used as an appraisal aid only.
+
+For observational studies whose central claim is an adjusted exposure–outcome association, also apply the Phase 2E 6-probe audit (confounding completeness, adjustment-set provenance, selection/collider bias, exposure measurement validity, missing-data / complete-case collapse, residual-confounding E-value), with O1 — a measured covariate imbalanced by exposure in Table 1 yet absent from the adjustment set — checked against the manuscript's own Table 1.
 
 ## Journal-Specific Formatting
 
