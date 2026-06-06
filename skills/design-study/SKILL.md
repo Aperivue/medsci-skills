@@ -184,6 +184,7 @@ Ask whether the comparator and endpoint support the stated claim:
 - is the model better than current practice or just another model?
 - is the endpoint clinically meaningful?
 - does performance translate to action?
+- **incremental value**: if the study frames the model/marker as adding value *beyond* / *on top of* / *incremental to* an existing tool (a clinical score, a routine test, a baseline model), the design must pre-specify the baseline comparator built from the in-routine-use predictors **and** an incremental-value metric — ΔC-index / ΔAUC (with a paired CI, e.g. DeLong), categorical or continuous NRI, IDI, or decision-curve net benefit. A standalone discrimination number ("our model's AUC was 0.84") does not support a "beyond X" claim; without the nested-model comparison the finding may be real but redundant. Plan this at design time — it cannot be added post hoc without the baseline model.
 
 ### Phase 4: Reporting fit
 

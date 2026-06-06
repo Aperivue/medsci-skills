@@ -225,6 +225,7 @@ Write Results aligned to the approved tables and figures. **Results = "What did 
 - Reference every table and figure at least once in the text.
 - Report exact p-values (not "p < 0.05" unless truly < 0.001).
 - All primary metrics must include 95% confidence intervals.
+- **Incremental value must be earned, not asserted.** If the paper claims the model/marker adds value *beyond* / *on top of* an existing tool (a clinical score, a routine test, a baseline model), Results must report the nested-model comparison — a baseline model from the in-routine-use predictors versus the augmented model — with an incremental metric: ΔC-index / ΔAUC (paired CI, e.g. DeLong), NRI, IDI, or decision-curve net benefit. A standalone discrimination number does not support a "beyond X" claim. If the design did not include the baseline comparator (see `/design-study` Phase 3), soften the claim to standalone performance rather than implying added value.
 - Do not interpret results in this section; state findings only.
 
 **Anti-interpretation guardrails (strict):**
