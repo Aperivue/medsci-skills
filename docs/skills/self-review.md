@@ -28,6 +28,7 @@
 
 - `python3 scripts/check_reviewer_team_consistency.py`
 - `python3 scripts/check_domain_probe_sync.py --strict`
+- `bash tests/test_panel_mode.sh`
 - `feed R0-numbered output into /revise`
 
 **Evidence** — `demo`
@@ -37,6 +38,7 @@
 **References** (`skills/self-review/references/`):
 
 - `domain-probes/` (4 files)
+- `panel_review_template.md`
 
 **Scripts** (`skills/self-review/scripts/`):
 

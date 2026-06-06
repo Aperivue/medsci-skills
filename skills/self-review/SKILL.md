@@ -20,6 +20,7 @@ strengthened before reviewers ever see it.
 
 - `--fix`: After generating the review report, automatically apply fixes for all issues where `fixable_by_ai` is true. Edits the manuscript in place, then reports a diff summary. Does NOT fix issues marked `fixable_by_ai: false` (e.g., missing data, design flaws). Maximum 2 fix-and-re-review iterations.
 - `--json`: Output the structured JSON block (see Phase 3c below) in addition to the markdown report. Default when called from `/write-paper` Phase 7.
+- `--panel`: Run the multi-agent panel review (Phase 2.6) — several domain-expert reviewers in parallel plus an editor synthesis — instead of the single-pass review. Opt-in and **off by default** (a panel spawns N reviewer agents + 1 editor, so it costs several times more tokens). Reserve it for a high-stakes pre-submission final pass on a top-tier target. Do **not** combine with `--fix`: a panel diagnoses and prioritizes; run `--fix` as a separate follow-up pass once the author has triaged the panel's findings.
 
 ## Severity Framing
 
@@ -544,6 +545,40 @@ DOCX build has occurred yet (early drafts).
 in the body without re-running the DOCX build will simply move the mismatch.
 Surface as Major Comments and let the user route to `/write-paper` Step 7.6a.
 
+### Phase 2.6: Multi-Agent Panel Review (--panel, opt-in)
+
+Run this phase **only when `--panel` is passed**. The default single-pass review (Phases 2–2.5d) stays the fast path; the panel is the high-cost, high-precision option for a pre-submission final pass on a top-tier target. Run it after the numerical audits (Phases 2.5–2.5d) so the reviewers see source-verified numbers, and before the Phase 3 report, which it feeds.
+
+The panel simulates independent peer reviewers who do not see each other's comments, then an editor who consolidates them — the same structure a journal uses. It reuses the vendored domain-probe modules so every reviewer applies the same criteria.
+
+**Step 1 — Compose the reviewer set by research type.** Auto-detect the manuscript type (Phase 1 input + the Research-Type Adaptation table). Each reviewer loads the matching domain-probe module so the panel's criteria are single-sourced.
+
+| Research type | Reviewer set (each is one reviewer) | Domain-probe module each loads |
+|---|---|---|
+| Survival / prognostic cohort | R1 Biostatistics & Study Design · R2 Clinical (domain) · R3 Imaging/Radiology (if an imaging exposure) | `references/domain-probes/survival_prognostic.md` |
+| Systematic review / meta-analysis | R1 Methodology (search/screening/PRISMA) · R2 Clinical · R3 Statistics (pooling/heterogeneity) | `references/domain-probes/sr_ma.md` |
+| Radiomics / feature reproducibility | R1 Imaging physics & acquisition · R2 ML / Statistics · R3 Clinical translation | `references/domain-probes/radiomics.md` |
+| Diagnostic-accuracy / AI model | R1 Study design & leakage · R2 Statistics (DeLong, calibration) · R3 Clinical / reference standard | `references/domain-probes/sr_ma.md` (P1 DTA cells) + categories A–C |
+| Observational (STROBE) | R1 Epidemiology / confounding · R2 Clinical · R3 Statistics | none type-specific; categories A–J + the effect-size / added-value axes |
+| Narrative / review article | R1 Domain-content expert · R2 Methodology / SANRA · R3 Technical accuracy | `references/domain-probes/narrative_review.md` |
+
+If the type is ambiguous, ask the user before composing the set.
+
+**Step 2 — Run the reviewers (portable execution).** When the host provides a parallel subagent / Task capability (Claude Code, or any harness exposing an Agent tool), spawn the reviewer set as independent parallel subagents, each blinded to the others, then run the editor as a final synthesis agent. **Fallback (no subagent capability — e.g. a minimal Codex/Cursor harness):** a single agent role-plays each reviewer sequentially and in isolation — it completes and writes out reviewer R1's full structured review before reading the manuscript "fresh" as R2, so a later reviewer never sees an earlier reviewer's comments. The panel is defined by these instructions; it does **not** depend on the `Workflow` tool or any Claude-Code-only orchestration.
+
+A reusable reviewer schema, a generic harsh-but-fair reviewer prompt skeleton with per-domain focus checklists, and the editor synthesis prompt skeleton live in `${CLAUDE_SKILL_DIR}/references/panel_review_template.md`.
+
+Each reviewer returns: `reviewer_id`, `expertise_area`, an `overall_assessment` (name the single biggest threat to the conclusions), `strengths` (2–3), `major[]` (each with `heading`, `comment`, `location`, `severity`, `suggested_fix`), and `minor[]`. Map `severity` onto this skill's own scale — a conclusion-threatening / design-level finding is **Fatal**, a reporting-level finding is **Fixable** — rather than introducing a separate vocabulary.
+
+**Step 3 — Editor synthesis.** One editor pass (a final agent, or the main agent in the fallback) consolidates the reviews:
+1. **Dedupe** findings by theme across reviewers.
+2. **Flag CONSENSUS** for any theme raised by ≥2 reviewers, with R1/R2/R3 attribution (e.g., `[CONSENSUS: R1+R3]`); single-reviewer findings are attributed to the one reviewer.
+3. **Decide** an internal readiness verdict (this sets the Phase 3c `verdict` / `overall_score`; it is not printed as a journal recommendation).
+4. **Rank** the concrete pre-submission actions the author should complete first.
+5. State a one-line **readiness verdict** (ready for the target tier now / fix specific items first / consider a different tier).
+
+**Step 4 — Feed Phase 3.** The consolidated panel output flows into the Phase 3 report, Phase 3b R0 numbering (**preserved**, so `/revise` still consumes it), and Phase 3c JSON. CONSENSUS flags and reviewer attribution are additive annotations on the existing `M`/`m` comments (and the optional `consensus` JSON field); they do not change the report or JSON structure.
+
 ### Phase 3: Report
 
 Generate a concise report with this structure:
@@ -646,6 +681,7 @@ When `--json` is passed, or when invoked by `/write-paper` Phase 7, append a mac
 - `category`: Letter code from the 10-category system (A-J)
 - `fixable_by_ai`: `true` if the issue can be resolved by editing manuscript text with existing data; `false` if it requires new data, analyses, or human judgment (e.g., design changes, IRB decisions, missing experiments)
 - `suggested_fix`: Specific, actionable instruction. If `fixable_by_ai` is true, this must be concrete enough for the fixer to execute without ambiguity.
+- `consensus` *(optional, panel mode only)*: array of reviewer ids that raised the issue, e.g. `["R1","R3"]`. Additive and backwards-compatible — present only when Phase 2.6 ran; parsers that do not expect it must ignore it.
 
 ### Phase 4: Fix Support
 

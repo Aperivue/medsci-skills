@@ -47,7 +47,7 @@ You do NOT do the work yourself. You classify, plan, and delegate.
 | **make-figures** | Visualization | ROC curves, forest plots, flow diagrams (PRISMA/CONSORT/STARD), Kaplan-Meier, Bland-Altman, visual/graphical abstracts |
 | **meta-analysis** | Systematic review | Full MA pipeline: protocol, search, screening, extraction, synthesis, PRISMA-DTA |
 | **write-paper** | Writing | IMRAD manuscript drafting (8-phase pipeline), any section writing |
-| **self-review** | Quality | Pre-submission self-check from reviewer perspective (10 categories) |
+| **self-review** | Quality | Pre-submission self-check with domain probes (Survival / SR-MA / Radiomics / Narrative); optional `--panel` for a high-stakes final QC pass |
 | **check-reporting** | Compliance | Audit against 32 reporting guidelines and risk-of-bias tools |
 | **revise** | Revision | Parse reviewer comments, generate point-by-point response, track changes |
 | **grant-builder** | Funding | Structure grant proposals: significance, innovation, approach, milestones |
@@ -93,6 +93,7 @@ When the user's request arrives, classify it into one of these intents:
 | "I'm doing a meta-analysis" / "Start systematic review" | `/meta-analysis` |
 | "Write the methods section" / "Draft my paper" | `/write-paper` |
 | "Review my manuscript before submission" | `/self-review` |
+| "Brutally / harshly check before submission" / "top-tier journal final check" / "multi-reviewer / panel review" / "review it from stats, clinical, and imaging angles" / "혹독하게 제출 전 점검" | `/self-review --panel --json` |
 | "Check STROBE compliance" / "Run reporting checklist" | `/check-reporting` |
 | "I got reviewer comments" / "Help me respond to reviewers" | `/revise` |
 | "Write a grant proposal" / "Structure my aims page" | `/grant-builder` |
@@ -149,6 +150,8 @@ The **Nodes** column lists decision forks that should be rendered in interactive
 | **Full submission chain** | `write-paper` -> `self-review` -> `check-reporting` -> `find-journal` -> `write-paper` (Phase 8+ cover letter) -> `manage-project checklist` | N4, N8 (if recovery triggered), N9 (on re-entry) |
 | **Post-rejection resubmission** | `find-journal` (exclude rejected journal) -> `write-paper` (Phase 8+ new cover letter) | N4 |
 | **Case report pipeline** | `search-lit` (similar cases) -> `write-paper` (case-report mode) -> `self-review` -> `check-reporting` (CARE) -> `find-journal` | N2 (option 2), N4 |
+
+**Panel mode (`/self-review --panel`) is opt-in, never automatic.** The submission chains above use single-pass `self-review`. Add `--panel` only for a deliberate high-stakes final pass (it spawns several reviewer agents plus an editor, so it costs several times more tokens); do not apply it by default, and do not auto-enable it in `--e2e` unless the user explicitly asks. A panel diagnoses and prioritizes, so keep it separate from the auto-fix loop — do not call `--panel` together with `--fix`.
 
 ### Ambiguous requests (ask before routing)
 
@@ -287,7 +290,7 @@ After each skill completes, verify that expected output files exist. If validati
 | `/write-paper` | `manuscript/manuscript.md` (required), `manuscript/manuscript_final.docx` (required in --e2e) | Check file existence and non-empty |
 | `/check-reporting` | `qc/reporting_checklist.md` or inline report | Check file existence |
 | `/verify-refs` | `qc/reference_audit.json` (sole output) | Parse JSON; halt if `submission_safe == false` (i.e., `FABRICATED` / `MISMATCH` count > 0 OR `duplicate_findings[]` nonempty) |
-| `/self-review` | Review report with JSON block (when --json) | Check JSON block is parseable |
+| `/self-review` | Review report with JSON block (when --json) | Check JSON block is parseable. In `--panel` mode each issue may carry an additional optional `consensus` array plus R1/R2/R3 attribution annotations on the `M`/`m` comments — these are additive and backwards-compatible; accept them |
 | `/manage-refs` | `manuscript/manuscript_final.docx`, `qc/xref_audit.json` | DOCX exists and non-empty; xref_audit.json has `submission_safe: true` (no P0 blocker rows) |
 | `/lit-sync` | `manuscript/_src/refs.bib` (mtime updated), `references/zotero_collection.json` | refs.bib mtime newer than collection snapshot; `refs_bib_refreshed: true` in collection JSON |
 

@@ -36,6 +36,9 @@ jobs:
       - name: Run check_domain_probe_sync.py (vendored domain probes must be byte-identical)
         run: python3 scripts/check_domain_probe_sync.py --strict
 
+      - name: Run self-review panel-mode structural + PII test
+        run: bash skills/self-review/tests/test_panel_mode.sh
+
       - name: Run validate_catalog_consistency.py (doc counts must match disk SSOT)
         run: python3 scripts/validate_catalog_consistency.py
 
