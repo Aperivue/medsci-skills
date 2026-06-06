@@ -29,6 +29,9 @@ dist/
 /FOLLOWUPS.md
 /PLAN_*.md
 /PLANNED_*.md
+# Improvement-cycle planning + per-project review evidence (PII-rich: project
+# codes, case names, manuscript IDs). Local reference only — never committed.
+/_improvement_plans/
 
 # Internal promotion / strategy docs — PRIVATE (privatized 2026-05-30: PII +
 # internal strategy, not for the public OSS surface). Working tree retained;
