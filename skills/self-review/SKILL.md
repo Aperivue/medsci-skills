@@ -44,6 +44,25 @@ Most issues are Fixable. Reserve Fatal for true design-level problems.
    - Anything they're already worried about?
    - **Review depth?** The default is a single-pass review. For a high-stakes pre-submission final pass, a multi-agent **panel** (`--panel`, Phase 2.6) is available — several domain-expert reviewers run independently, then an editor consolidates them (more thorough, but it spawns several agents so it costs several times more tokens). On an interactive run, surface this option **once** in one line and offer it; then proceed with the single-pass review unless the user opts in. Do **not** surface or auto-apply the panel when invoked with `--json` or from `/write-paper` — those stay single-pass.
 3. Read the full manuscript.
+4. **SSOT gate — confirm there is one manuscript, not several.** Self-review reads a single
+   input file, so a divergence between a legacy working copy and the live submission copy is
+   structurally invisible to it. Before a `--panel` run (or any pre-submission pass), check for
+   multiple copies and reconcile first:
+
+   ```bash
+   find . \( -path '*manuscript*' -o -path '*main_document*' \) -name '*.md' | grep -v node_modules
+   ```
+
+   If more than one manuscript-like file exists, confirm which is the SSOT and run
+   `/sync-submission`'s divergence gate before reviewing — a `STALE_COPY` (an SSOT numeric claim
+   or heading that did not propagate to the other copy) is a P0 that must clear first:
+
+   ```bash
+   python3 "${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/sync-submission/scripts/detect_copy_divergence.py" \
+     --ssot <ssot>.md --copy <other-copy>.md
+   ```
+
+   Review the SSOT copy; do not review a stale copy and pass it.
 
 ### Phase 2: Systematic Check
 
