@@ -175,18 +175,25 @@ before submission for item-level assessment."
 | Check | What to look for |
 |-------|-----------------|
 | DUAL vs SINGLE conjunction **[CRITICAL]** | Methods or PROSPERO claims dual independent reviewers AND Discussion/Limitations admits single primary reviewer + 20% sample (or "deferred to before submission")? Mark as **MAJOR**, fabrication-grade. |
+| LLM-as-reviewer **[CRITICAL]** | A per-study extraction JSON whose `reviewer`/`screener`/`extractor` field is an LLM (Claude, GPT-4, Gemini, "LLM")? An LLM is a tool, not an independent reviewer — listing it as one misrepresents the team. **Fatal**, regardless of the prose. |
+| Deferred mitigation | A future-tense mitigation promise — "a 20% sample **will be completed before submission**" — unmet at circulation? The future tense is the tell that the work is not done. **MAJOR**. |
 
-Run the deterministic check at Phase 2 entry:
+Run the deterministic check at Phase 2 entry (pass the extraction JSON — a file or
+a directory of per-study JSONs — so the prose↔JSON↔confession 3-way is covered):
 
 ```bash
 python "${CLAUDE_SKILL_DIR}/scripts/check_reviewer_team_consistency.py" \
     --manuscript manuscript.md \
     --prospero prospero/record.md \
+    --extraction-json extraction/ \
     --out _audit_self/reviewer_team_consistency.md
 ```
 
-Exit 1 = MAJOR red flag. Either claim alone is fine; the conjunction is
-read by reviewers as fabrication. Resolution path:
+Exit 1 = MAJOR red flag. The JSON sidecar carries `dual_hits`, `single_hits`,
+`llm_reviewer_hits`, and `deferred_mitigation_hits`. Any of the DUAL+SINGLE
+conjunction, an LLM reviewer field, or a deferred mitigation trips it. Either of
+the dual/single claims alone is fine; the conjunction is read by reviewers as
+fabrication. Resolution path:
 1. Honest Methods/PROSPERO update (single-reviewer execution disclosed), OR
 2. Limitations confession rewritten if dual review was actually completed.
 

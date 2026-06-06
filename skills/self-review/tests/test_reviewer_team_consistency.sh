@@ -92,6 +92,47 @@ python3 "$SCRIPT" --manuscript "$TMP/c4.md" \
     --out "$TMP/c4.md.audit" --quiet
 assert_exit "case 4: single confession only (PASS)" 0 $?
 
+# --------------------------------------------------------------------------
+# Case 5: extraction JSON names an LLM as a reviewer => fatal FAIL.
+# --------------------------------------------------------------------------
+cat > "$TMP/c5.md" <<'EOF'
+## **METHODS**
+Records were screened against pre-specified eligibility criteria.
+EOF
+cat > "$TMP/c5_extract.json" <<'EOF'
+{"study": "Example 2024", "reviewer_1": "Claude", "reviewer_2": "Jane Doe"}
+EOF
+python3 "$SCRIPT" --manuscript "$TMP/c5.md" --extraction-json "$TMP/c5_extract.json" \
+    --out "$TMP/c5.md.audit" --quiet
+assert_exit "case 5: LLM-as-reviewer in extraction JSON (FAIL)" 1 $?
+grep -q "LLM-AS-REVIEWER" "$TMP/c5.md.audit" || { echo "  FAIL c5 markdown body"; fail=$((fail + 1)); }
+
+# --------------------------------------------------------------------------
+# Case 6: future-tense deferred mitigation => MAJOR FAIL.
+# --------------------------------------------------------------------------
+cat > "$TMP/c6.md" <<'EOF'
+## **METHODS**
+Records were screened by the primary reviewer.
+
+## **DISCUSSION**
+### Limitations
+A duplicate-screening check will be completed before submission.
+EOF
+python3 "$SCRIPT" --manuscript "$TMP/c6.md" \
+    --out "$TMP/c6.md.audit" --quiet
+assert_exit "case 6: deferred mitigation (FAIL)" 1 $?
+grep -q "DEFERRED-MITIGATION" "$TMP/c6.md.audit" || { echo "  FAIL c6 markdown body"; fail=$((fail + 1)); }
+
+# --------------------------------------------------------------------------
+# Case 7: clean extraction JSON (human reviewers) => PASS (backward compat).
+# --------------------------------------------------------------------------
+cat > "$TMP/c7_extract.json" <<'EOF'
+{"study": "Example 2024", "reviewer_1": "Jane Doe", "reviewer_2": "John Roe"}
+EOF
+python3 "$SCRIPT" --manuscript "$TMP/c1.md" --extraction-json "$TMP/c7_extract.json" \
+    --out "$TMP/c7.md.audit" --quiet
+assert_exit "case 7: human reviewers in extraction JSON (PASS)" 0 $?
+
 echo ""
 echo "ran=$ran fail=$fail"
 [[ $fail -eq 0 ]]
