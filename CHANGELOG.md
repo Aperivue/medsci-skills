@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- **Structural-zero / dose-duration covariate guards (`/analyze-stats`, `/clean-data`, `/define-variables`)**: a coupled source-side defense against the most common observational miscoding — a dose/duration variable anchored to a categorical exposure (pack-years under smoking status, grams/week under alcohol use). `/clean-data` gains a Stage-2 flag for *categorical-implied zeros* (a `never` record with a NULL dose is a contradiction, not missing data) plus a stdlib detector `scripts/check_structural_zero.py`; `/analyze-stats` gains a "Covariate Pitfalls" section warning against imputing structural zeros (MICE fabricates a non-zero dose for the unexposed) and against complete-case collapse (the unexposed stratum is silently dropped, shrinking n 40–60%), recommending adjustment on the categorical status with the continuous dose reserved for an exposed-only secondary analysis; `/define-variables` gains a matching failure mode requiring `IF status == 'never' THEN dose = 0` to be operationalized explicitly. Synthetic PII-free fixtures + regression test included.
+
 ## [3.4.0] - 2026-06-06
 
 Dual-review consolidation and a multi-agent panel mode for self-review — depth without broadening the catalog (still 43 skills).
