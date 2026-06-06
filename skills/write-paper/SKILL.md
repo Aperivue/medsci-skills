@@ -105,7 +105,7 @@ citation fabrication.
 4. Before Phase 7 (Polish), ALL `[@NEW:...]` placeholders must be resolved:
    - Owner runs `/search-lit` → `/lit-sync` to import verified entries into Zotero; Better BibTeX auto-export refreshes `refs.bib`; owner replaces `[@NEW:topic]` with the real citekey.
    - Collaborators notify the owner (per `docs/zotero_policy.md`).
-5. Phase 7 pre-submission check: `grep -E '\[@NEW:[^]]+\]' manuscript/index.qmd` must return zero matches before `/sync-submission` is allowed to freeze a journal package.
+5. Phase 7 pre-submission check: `grep -E '\[@NEW:[^]]+\]|\[N\]|\[N–N\]' manuscript/index.qmd` must return zero matches before `/sync-submission` is allowed to freeze a journal package. The bare numeric markers `[N]` / `[N–N]` are the failure mode where a manuscript is drafted outside this pipeline (no `refs.bib`) and method-load-bearing citations are left as unresolved placeholders; block them the same way as `[@NEW:...]`.
 
 **Why this matters**: PRISMA citation fabrication in MA projects and reference hallucination in solo manuscripts both traced back to LLM-generated citation strings inlined during drafting. Forcing the citekey discipline at Phase 0 redirects that failure mode into a visible placeholder the submission gate can block.
 

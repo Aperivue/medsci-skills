@@ -93,7 +93,9 @@ Sole-writer enforcement: `scripts/validate_project_contract.py` will flag any `r
 4. Report all `FABRICATED` and `MISMATCH` rows first (from `records[]`).
 5. Report all `duplicate_findings[]` entries (verbatim PMID/DOI duplicates — cite renumbering required).
 6. If `UNVERIFIED` rows remain, list them as manual checks and do not call the
-   manuscript fully submission-safe.
+   manuscript fully submission-safe. Rows with `note = "pagination_placeholder"`
+   (`e000–e000` / `in press` / `TBD` / `forthcoming`) need the citation resolved
+   before submission; `/self-review` Phase 2.5c decides whether any is a P0 blocker.
 7. If the user needs a human-readable table, summarize from `records[]` in chat — do not write a TSV.
 
 ## Quality Gates
@@ -117,6 +119,14 @@ Sole-writer enforcement: `scripts/validate_project_contract.py` will flag any `r
   LLM citation-compilation artifact — are flagged as MAJOR findings in
   `duplicate_findings[]`. `submission_safe == true` requires the list to be
   empty. Resolves `/peer-review` Phase 2A P7.
+- Gate 6 (added 2026-06): pagination / publication-stage placeholders. A reference
+  whose raw entry still carries `e000–e000`, `in press`, `TBD`, or `forthcoming`
+  is not yet a fully citable record. Each is marked `UNVERIFIED` with
+  `note = "pagination_placeholder"` (a would-be `VERIFIED` record is downgraded; a
+  worse status is left unchanged). **verify-refs is manuscript-agnostic and does not
+  judge centrality** — it only flags. The escalation call (is this a method- or
+  headline-load-bearing citation, hence a P0 submission blocker?) is made by
+  `/self-review` Phase 2.5c, which has the manuscript in hand.
 
 **Classification note — citation-metadata confusion is not fabrication.** Digits
 in a DOI suffix sometimes look like a journal article number but differ from the

@@ -654,6 +654,30 @@ def detect_duplicates(records: list[RefRecord]) -> list[dict]:
     return findings
 
 
+# Pagination / publication-stage placeholders. A reference whose pages or status is
+# still "e000–e000", "in press", "TBD", or "forthcoming" is not yet a fully citable
+# record. verify-refs is manuscript-agnostic, so it only flags these as UNVERIFIED
+# with note="pagination_placeholder"; the centrality call (is this a method- or
+# headline-load-bearing cite, hence a P0 blocker?) is made by /self-review Phase 2.5c,
+# which has the manuscript in hand. (Gate 6, added 2026-06.)
+PAGINATION_PLACEHOLDER_RE = re.compile(
+    r"e0{3}.{0,3}e0{3}|in[ .]?press|\bTBD\b|forthcoming", re.I)
+
+
+def flag_pagination_placeholder(record: RefRecord) -> None:
+    """If the raw entry carries a pagination/publication-stage placeholder, attach a
+    note and downgrade a would-be VERIFIED record to UNVERIFIED (an in-press/e000
+    citation is not yet locatable to the page). Worse statuses are left unchanged."""
+    if not PAGINATION_PLACEHOLDER_RE.search(record.raw or ""):
+        return
+    tag = "pagination_placeholder"
+    record.note = f"{record.note} | {tag}".strip(" |") if record.note else tag
+    if record.status == "VERIFIED":
+        record.status = "UNVERIFIED"
+        ev = "identifier resolved but pagination/publication-stage placeholder unresolved"
+        record.evidence = f"{record.evidence} | {ev}".strip(" |") if record.evidence else ev
+
+
 def write_outputs(records: list[RefRecord], project_root: Path, source: Path,
                   duplicate_findings: list[dict]) -> None:
     """Audit-only writer (v1.3.0).
@@ -734,6 +758,8 @@ def main() -> int:
         return 3
 
     verified = [verify_record(rec, args.offline, args.timeout) for rec in records]
+    for rec in verified:
+        flag_pagination_placeholder(rec)
     duplicate_findings = detect_duplicates(verified)
     write_outputs(verified, project_root, input_path, duplicate_findings)
 
