@@ -105,7 +105,7 @@ citation fabrication.
 4. Before Phase 7 (Polish), ALL `[@NEW:...]` placeholders must be resolved:
    - Owner runs `/search-lit` → `/lit-sync` to import verified entries into Zotero; Better BibTeX auto-export refreshes `refs.bib`; owner replaces `[@NEW:topic]` with the real citekey.
    - Collaborators notify the owner (per `docs/zotero_policy.md`).
-5. Phase 7 pre-submission check: `grep -E '\[@NEW:[^]]+\]' manuscript/index.qmd` must return zero matches before `/sync-submission` is allowed to freeze a journal package.
+5. Phase 7 pre-submission check: `grep -E '\[@NEW:[^]]+\]|\[N\]|\[N–N\]' manuscript/index.qmd` must return zero matches before `/sync-submission` is allowed to freeze a journal package. The bare numeric markers `[N]` / `[N–N]` are the failure mode where a manuscript is drafted outside this pipeline (no `refs.bib`) and method-load-bearing citations are left as unresolved placeholders; block them the same way as `[@NEW:...]`.
 
 **Why this matters**: PRISMA citation fabrication in MA projects and reference hallucination in solo manuscripts both traced back to LLM-generated citation strings inlined during drafting. Forcing the citekey discipline at Phase 0 redirects that failure mode into a visible placeholder the submission gate can block.
 
@@ -364,6 +364,28 @@ Scan for and remove AI writing patterns (see AI Pattern Avoidance below). Edit `
 | 글로벌 룰 cross-reference | `~/.claude/rules/manuscript-style-classical.md` (11항목 motivation) |
 | Pattern 19–21 본문 rewrite | `/humanize` (§, self-reference, AI Disclosure boilerplate) |
 
+**AI-disclosure meta-applicability (manuscript-style-classical §15):** if the manuscript
+contains an AI/LLM-use disclosure, that paragraph must itself satisfy the reporting items the
+manuscript critiques (FLAIR F1.6, TRIPOD-LLM, MI-CLEAR-LLM all require the tool **version**, the
+**access channel**, the **date range**, and the **responsible party**). Enforce all four tokens
+and zero unresolved placeholders:
+
+```bash
+DISC=$(grep -niE 'generative ai|large language model|\bLLM\b|assisted (the|with) (writing|drafting)|ChatGPT|Claude|Copilot|Gemini' manuscript/manuscript.md)
+# the disclosure paragraph must carry: version + channel + date + responsible party
+grep -iE 'version|[0-9]+\.[0-9x]+|GPT-[0-9]'   <<<"$DISC"   # version present
+grep -iE 'API|chat|web|Bedrock|Azure|interface' <<<"$DISC"   # access channel present
+grep -E '20[0-9]{2}'                            <<<"$DISC"   # date / date range present
+grep -iE 'by [A-Z]\.[A-Z]\.|reviewed by|deployed by|the authors' <<<"$DISC" # responsible party
+# zero placeholders
+grep -nE '\[(version|date|tool|model|channel)\]|TODO|XXXX|TBD' manuscript/manuscript.md  # must be empty
+```
+
+Any missing token (or a surviving `[version]`/`TODO`/`XXXX` placeholder) is a HALT: the paper
+cannot critique a framework's AI-disclosure item while failing it itself. For a classical /
+senior-MA target the disclosure paragraph is not placed in the body at all — branch it to the
+title page (manuscript-style-classical §7 forbids the in-body AI-disclosure paragraph).
+
 #### Step 7.2: Reporting Guideline Check
 
 Call `/check-reporting` on `manuscript/manuscript.md`. Parse the output:
@@ -519,6 +541,20 @@ analyses (interaction, subgroup, sensitivity, multiple imputation). Skip for cas
    Cross-check each hit against the Results section. A promised-but-absent analysis is a **HALT**:
    add it to Results, remove the promise from Methods, or file a protocol amendment. Log the
    checklist to `qc/_pipeline_log.md`.
+
+3. **Reverse direction — disk-present-but-unreported.** The forward grep only catches analyses
+   the Methods promised. An analysis that was *run* but whose result is missing from the paper —
+   often because it undercuts the headline — needs the opposite scan. Delegate to
+   `/self-review` Phase 2.5f's coverage gate, which reads an `_analysis_outputs.md` manifest (or
+   globs the analysis directory) and reconciles every output file against the manuscript body:
+
+   ```bash
+   python3 "${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/self-review/scripts/check_artifact_coverage.py" \
+     --manuscript manuscript/index.qmd --analysis-dir output/analysis --strict
+   ```
+
+   A `DISK_UNREPORTED` analysis-bearing output (an added-value DeLong CSV, a calibration table)
+   is a **HALT**: report it or document why it was dropped.
 
 This step composes with `/self-review` Phase 2.5f; run it here for pipeline completeness even
 when `/self-review` is also invoked.

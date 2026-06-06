@@ -62,6 +62,7 @@ Based on the data structure and research question, propose an analysis plan:
 3. **Identify primary and secondary endpoints**.
 4. **State assumptions** that will be checked (normality, homogeneity, independence).
 5. **Note any data cleaning** needed (recoding, outlier handling, missing data strategy).
+6. **Anchor the estimand to the research question.** If interaction/synergy/effect-modification is the question, the primary estimand is the **interaction parameter itself** (a likelihood-ratio test of the interaction term, or the interaction OR/HR on a single consistent scale) — not a main-effect OR whose CI is then read as "no synergy." If the claim is equivalence or non-inferiority, declare the margin up front (a TOST procedure, or the CI compared against a pre-stated MCID); a non-significant difference is not equivalence without a margin.
 
 Present the plan and **wait for user approval** before executing.
 
@@ -200,6 +201,13 @@ These rules apply to ALL analyses without exception:
    mix a normal approximation for some values with exact-t for others. A value that exists only
    in the manuscript with no script that reproduces it is the failure mode `/self-review`
    Phase 2.5a-2 is built to catch.
+10. **Estimand & CI output contract.** Every primary point estimate — including quantile
+    estimands (T25, median time-to-event), pooled proportions, and subdistribution HRs, not
+    just ORs/HRs/AUCs — MUST be emitted together with its 95% CI. In the output CSV, carry the
+    interval as explicit columns (`estimate, ci_lower, ci_upper`) or as a single text column in
+    `est (lo–hi)` form; never emit a point estimate with no interval in an adjacent column.
+    Round ORs/HRs/sHRs to 2 decimals and AUC/C-statistic to 3. This is the output side of the
+    `/self-review` §C assertion that "all primary metrics have 95% CIs."
 
 ### Effect-Size Real-World Translation
 
@@ -367,9 +375,12 @@ tbl %>% as_flex_table() %>% flextable::save_as_docx(path = "table.docx")
   - Use `method = "Inverse"`, `method.tau = "DL"`, `method.random.ci = "HK"`
   - Avoid deprecated args: `comb.fixed` → `common`, `hakn` → `method.random.ci`
 - **Single-arm pooled proportion**: `metaprop()` with `sm = "PLOGIT"`, `method.ci = "CP"`
-- Heterogeneity: I-squared, Q test, tau-squared
+  - **Small-study test branch**: do **not** use Egger's regression for a single-arm proportion meta-analysis — funnel-asymmetry tests assume an effect-size-vs-SE relationship that does not hold for raw proportions. If a small-study assessment is needed, use Peters' test or an arcsine-based variant, and only when `k >= 10` (note underpowered otherwise)
+  - **Standard output**: report `tau-squared` on the logit scale and a **95% prediction interval** (`metaprop(..., prediction = TRUE)`) in addition to the pooled estimate; the PI conveys where a future study's proportion is expected to fall under the random-effects model
+- **Nested observation units**: if the proportion's unit is nested within study (e.g., per-lesion within study, per-image within patient), do **not** report a naive Wilson/binomial CI that ignores clustering — use a cluster-bootstrap or a GLMM with a random intercept per study so the CI reflects the design
+- Heterogeneity: I-squared, Q test, tau-squared, and a 95% prediction interval for the random-effects pooled estimate
 - Forest plot: individual studies + pooled estimate
-- Funnel plot + Egger's test for publication bias (note: underpowered k<10)
+- Funnel plot + Egger's test for publication bias (comparative effect sizes only; note: underpowered k<10)
 - Sensitivity analysis: leave-one-out (`metainf()`)
 - Subgroup: `update(res, subgroup = variable)`
 
@@ -406,9 +417,10 @@ tbl %>% as_flex_table() %>% flextable::save_as_docx(path = "table.docx")
 - Kaplan-Meier curves with number-at-risk table
 - Log-rank test for group comparison
 - Cox proportional hazards: report HR (95% CI)
+- **Events-per-variable (EPV) gate**: check `events / n_covariates >= 10` before fitting Cox (mirror of the logistic EPV rule). Warn if violated and fall back to a Firth/penalized Cox or profile-likelihood CIs; do not report Wald CIs from a sparse-event model as if stable
 - Check proportional hazards assumption (Schoenfeld residuals)
 - Report median survival with 95% CI
-- **Warranty period / T25**: Time to 25% cumulative incidence. Use `quantile()` from KM fit. If event rate < 25%, report "not reached" and consider Weibull parametric extrapolation for estimation
+- **Warranty period / quantile estimands (T25 etc.)**: Time to a fixed cumulative incidence. Use `quantile()` from the KM/`survfit` object and **always emit the 95% CI** (the lower/upper from `quantile(km, conf.int=TRUE)`, or a log-transformed / bootstrap CI) alongside the events/n that define it. A quantile point estimate reported without its CI is incomplete. If the event rate is below the target quantile, report "not reached" and consider Weibull parametric extrapolation (also with an interval)
 
 ### Interval-Censored Survival
 
@@ -427,7 +439,7 @@ When death or other events preclude the outcome of interest, standard KM overest
 
 - **R packages**: `cmprsk` (Fine-Gray), `tidycmprsk` (tidy interface), `survival` (cause-specific Cox)
 - **Cumulative incidence function (CIF)**: `cmprsk::cuminc()` — replaces 1-KM for each event type. Gray's test for group comparison
-- **Fine-Gray subdistribution hazard**: `cmprsk::crr()` or `tidycmprsk::crr()` — reports subdistribution HR (sHR) with 95% CI. Interpretable as effect on CIF directly
+- **Fine-Gray subdistribution hazard**: `cmprsk::crr()` or `tidycmprsk::crr()` — reports subdistribution HR (sHR) with 95% CI. Interpretable as effect on CIF directly. **Check the subdistribution-PH assumption** the same way you check it for Cox (a time-interaction term on the subdistribution scale, or inspection of scaled-residual analogues); a constant sHR is an assumption, not a given. Report the cause-specific HR alongside it so the etiologic and prognostic readings are both visible
 - **Cause-specific Cox**: Standard Cox censoring competing events — reports cause-specific HR. Better for etiology; Fine-Gray better for prognosis/prediction
 - **When to use**: Mortality studies with multiple causes of death, cardiovascular events when non-CV death is frequent, any outcome where competing events are common (>5% of total events)
 - **Reporting**: Present CIF plots (NOT 1-KM) when competing risks exist. Report both cause-specific HR and subdistribution HR when the research question is etiologic. State which competing events were defined

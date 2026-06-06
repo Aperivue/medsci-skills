@@ -84,6 +84,8 @@ partially, or not at all for the given manuscript type.
 | Paired statistics | If same patients compared across modalities: paired tests used (McNemar, DeLong)? |
 | Effect-size meaningfulness | Scored separately from significance: is each primary effect (OR, HR, beta, Cohen's d, correlation) translated to a real-world unit shift and compared to a minimal clinically important difference? Is significance driven by magnitude rather than sample size? |
 | Power-aware null interpretation | Scored separately from significance, for any **non-significant primary result** (p > 0.05, 95% CI crossing the null): is the analysis powered to *exclude* a clinically meaningful effect? An underpowered null is "not yet established," not "no effect" -- if the upper CI bound still includes a meaningful effect size, a flat "X was not associated with Y" claim overreads the data. Look for reported observed power or a minimum detectable effect that justifies a negative conclusion, and watch for **bilateral over-correction** (a prior "independently associated" overclaim swinging to an equally unsupported "not associated" claim during revision). Undocumented null = Minor; a null that drives a clinical recommendation or a headline negative conclusion without power/CI-compatibility justification = Major. |
+| Equivalence-margin discipline | A claim that two groups/methods are "equivalent," "non-inferior," "indistinguishable," or show "no difference" requires a **pre-stated margin** — a TOST procedure, or the CI compared against a declared MCID. Grep `indistinguishable\|equivalent\|non-inferior\|no difference` and check for an adjacent `margin\|TOST\|MCID\|non-inferiority`; a margin-free equivalence claim is a Major (it converts a failure to reject into positive evidence of no effect). |
+| Interaction-anchor discipline | When synergy / interaction / effect-modification **is** the research question, the null must be anchored to the **interaction parameter** (a likelihood-ratio test of the interaction term, or the interaction OR/HR on one consistent scale), not to a main-effect OR whose upper CI is then read as "no synergy." Grep `synergy\|interaction\|joint effect\|effect modification`; if present, confirm Results carries an `OR_int\|β_int\|LRT\|p_interaction` term. A synergy conclusion resting on a main-effect estimate is a model mis-specification (Major), even when each main effect is individually correct. |
 
 #### D. Clinical Framing & Importance
 
@@ -239,8 +241,18 @@ Before generating the report, verify internal consistency:
 3. **Figure vs Text**: Do figure legends match the data described in Results?
 4. **Percentage arithmetic**: Verify that n/N percentages are calculated correctly (e.g., 23/150 = 15.3%, not 15.0%).
 5. **CI plausibility**: Do confidence intervals seem reasonable given sample sizes?
+6. **Rate back-calculation**: every reported rate must invert to its own numerator/denominator — an incidence rate ≈ events / person-years × scale (±rounding). A rate that does not recompute from the stated events and person-time (or that implies more events than the cohort can supply) is a Major, not a Minor.
+7. **Exclusion-cascade and complete-case arithmetic** (cohort/observational): the STROBE flow must balance — start N − Σ(exclusions) == final analytic N — and any complete-case statement must balance — total − missing == complete. A footnote N that does not equal the subtraction is a Major.
 
-Flag any discrepancies as Anticipated Minor Comments (category: F. Reporting Completeness).
+For cohort/observational manuscripts, run the deterministic gate instead of eyeballing it (it parses prose equations + GFM tables, and recomputes from a committed CSV when given one):
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/check_cohort_arithmetic.py" \
+  --manuscript manuscript.md --data analysis/strata.csv \
+  --out qc/cohort_arithmetic.json --strict
+```
+
+`RATE_BACKCALC` / `CASCADE_SUM` / `PARTITION_OVERLAP` rows are Anticipated Major Comments (category: A. Study Design & Data Integrity); the partition check is the Phase 2.5b cohort branch below. Flag any remaining internal-consistency discrepancies as Anticipated Minor Comments (category: F. Reporting Completeness).
 
 ### Phase 2.5a: Numerical Source-Fidelity Audit (External)
 
@@ -349,7 +361,7 @@ check and the source-fidelity audit above.
 function emits the value, flag it: the next revision will re-introduce the risk, and a reviewer
 who recomputes will not match the manuscript.
 
-### Phase 2.5b: Screening-Count Reconciliation from ID Sets (SR/MA-only)
+### Phase 2.5b: Screening-Count Reconciliation from ID Sets (SR/MA + observational tier/stratum)
 
 Internal consistency across Abstract/Methods/Results (Phase 2.5) + source fidelity of 2×2 and
 effect-size numbers (Phase 2.5a) do **not** cover study-count arithmetic. The latter is a
@@ -418,6 +430,23 @@ consensus") that is not backed by an enumerable ID addition/subtraction set is i
 Major Comment**, because the transition is unverifiable by downstream audit. Require
 conversion of every such claim to explicit ID lists before closing the report.
 
+**Observational tier/stratum branch.** The same set-recount logic applies when a cohort
+manuscript presents an ordinal tier or mutually-exclusive stratum split. A partition that
+is claimed to be disjoint must satisfy `Σ(stratum N) == unique total` and
+`Σ(stratum events) == total events`; denominators that sum *above* the unique cohort
+double-count subjects, and a table where every stratum n equals the grand total is a
+stratum-total mis-entry rather than a partition. Run `check_cohort_arithmetic.py`
+(Phase 2.5 above) with the stratum CSV — its `PARTITION_OVERLAP` verdict is the cohort
+analogue of an ID-set mismatch and is a P0 Major:
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/check_cohort_arithmetic.py" \
+  --manuscript manuscript.md --data analysis/strata.csv --strict
+```
+
+Also confirm the reference (baseline) row of any stratified hazard/odds table is present
+and labelled; a missing reference category makes the other strata uninterpretable.
+
 ### Phase 2.5c: Reference Hallucination Scan
 
 Numerical audits (2.5/2.5a/2.5b) cover in-text numbers; they do **not** cover reference-list integrity. LLM-drafted or co-author-handed-in bibliographies frequently contain fabricated DOIs, wrong author/year combinations for a real DOI, or plausible-looking references that never existed. These slip past human proofreading because the surface form looks canonical.
@@ -454,7 +483,15 @@ Numerical audits (2.5/2.5a/2.5b) cover in-text numbers; they do **not** cover re
 
 3. **Read `qc/reference_audit.json`.** For each entry not marked `VERIFIED`, add a row to the reconciliation block below. `FABRICATED` entries are P0 Major Comments (block submission). `UNVERIFIED` entries are Minor Comments unless the manuscript is at a circulation/submission gate, in which case they escalate to Major. For each `duplicate_findings[]` entry (category `duplicate_pmid` / `duplicate_doi`), add a Major Comment row noting the duplicated `ref_ids` pair and recommend cite renumbering — duplicates block submission (P0 Major) regardless of per-record `VERIFIED` status.
 
-4. **Cross-check placeholder drift.** `grep -n '\[@NEW:' manuscript/` — any remaining `[@NEW:topic]` placeholder at self-review stage is a P0: the citation was queued but never resolved. Include in the reconciliation block.
+4. **Cross-check placeholder + pagination drift.** Run, on every round:
+
+   ```bash
+   grep -nE '\[@NEW:|\[N\]|\[N–N\]|e0{3}.{0,5}e0{3}|in[ .]?press|\bTBD\b|forthcoming' manuscript/
+   ```
+
+   Two failure classes:
+   - **Citation-queue placeholders** (`[@NEW:topic]`, `[N]`, `[N–N]`): a citation slot that was never resolved. Any remaining at self-review is a P0.
+   - **Pagination placeholders** (`e000–e000`, `in press`, `TBD`, `forthcoming`): `/verify-refs` (Phase 2.5c step 2) marks these `UNVERIFIED` with `note = "pagination_placeholder"` but cannot judge centrality from the .bib alone. **Here, with the manuscript in hand, decide centrality:** if the unresolved reference supports a method choice or a headline claim (grep the citekey/marker against the Abstract, the Statistical Analysis subsection, and the first Results paragraph), escalate it to a **P0 Major** rather than a generic Minor. A method-load-bearing citation that is still "in press / e000" at submission is a blocker. Include each in the reconciliation block.
 
 5. **Record results in a short reconciliation block** and append to the Phase 3 report:
 
@@ -660,6 +697,27 @@ analysis completeness, and imputation-input integrity are separate subchecks (ru
    models for the same contrast where one is significant and the other null and the
    significant one is foregrounded, confirm which was pre-specified; an outcome-dependent
    choice of primary model is a Major comment even when each model is individually correct.
+
+5. **Headline vs own-sensitivity direction.** Read the sensitivity series (S1 etc.) the
+   manuscript itself reports. If the headline causal/association claim points the *opposite*
+   way from the authors' own adjusted or sensitivity estimate — a positive lead sentence over
+   a sensitivity model that attenuates to the null, or vice versa — that is a Major: the paper
+   is contradicting its own robustness check. This is a prose judgement, not a script verdict.
+
+6. **Methods ↔ Results ↔ disk coverage.** Run the deterministic coverage gate:
+
+   ```bash
+   python3 "${CLAUDE_SKILL_DIR}/scripts/check_artifact_coverage.py" \
+     --manuscript manuscript.md --analysis-dir output/analysis \
+     --out qc/artifact_coverage.json --strict
+   ```
+
+   `PROMISED_ABSENT` (an analysis named in Methods that never reaches Results) and
+   `DISK_UNREPORTED` (an analysis output on disk — an added-value DeLong CSV, a calibration
+   table — never mentioned in the manuscript) are Anticipated Major Comments. The reverse
+   direction matters because a run-but-unreported result can be the one that undercuts the
+   headline. When an `_analysis_outputs.md` manifest exists the gate uses it as the source of
+   truth; otherwise it globs `--analysis-dir` and only escalates analysis-bearing file names.
 
 The script is deterministic but its provenance match is fuzzy (token overlap): read the
 reconciliation in `qc/claim_artifact.json` and confirm against the actual registration

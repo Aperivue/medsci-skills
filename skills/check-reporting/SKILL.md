@@ -248,6 +248,31 @@ duplicates handled across databases, citation searching strand, dual-reviewer sc
 **Cross-cutting**: integrates with `~/.claude/rules/numerical-safety.md` (PRISMA 5-way
 consistency: text ↔ Figure ↔ extraction CSV ↔ analysis script ↔ supplementary).
 
+### Step 4e: Reporting-Framework Naming Audit
+
+**Applies to:** any manuscript that invokes an AI/extension reporting framework
+(PROBAST+AI, STARD-AI, TRIPOD+AI, TRIPOD-LLM, CONSORT-AI, SPIRIT-AI, PRISMA-DTA, QUADAS-C).
+
+**Why this step exists:** a base reporting tool and its extension are distinct instruments
+with separate citations (manuscript-style-classical §14). Step 1 routes to the right
+checklist but does not police how the framework is *named* in prose. The recurring failures
+are: invoking an extension without ever naming or citing the base instrument it extends;
+mixing `+AI` and `-AI` hyphenation for one family within a single document; coining item
+labels like "12-AI"; and waving at "recent guidance" instead of naming the framework.
+
+**Run the deterministic gate:**
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/check_framework_naming.py" \
+  --manuscript manuscript.md --out qc/framework_naming.json --strict
+```
+
+**Verdicts:** `BASE_MISSING` (extension used, base instrument never named standalone) is a
+Major and logs `[FRAMEWORK-NAMING]` in Part C with `fixable_by_ai: true` (insert the base
+name + its citation). `HYPHEN_MIX`, `CITE_MISSING`, `SELF_COINED_LABEL`, and `VAGUE_GUIDANCE`
+are Minor (`fixable_by_ai: true`). Part D JSON includes a `framework_naming` object mirroring
+the script's `claims[]`.
+
 ### Step 5: Generate Report
 
 Produce a structured compliance report in two parts.
