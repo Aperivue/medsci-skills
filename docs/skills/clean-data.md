@@ -38,6 +38,10 @@
 - `cleaning_patterns.md`
 - `profiling_template.py`
 
+**Scripts** (`skills/clean-data/scripts/`):
+
+- `check_structural_zero.py`
+
 ## Source
 
 Canonical definition: [`skills/clean-data/SKILL.md`](../../skills/clean-data/SKILL.md)

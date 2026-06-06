@@ -516,6 +516,13 @@ When death or other events preclude the outcome of interest, standard KM overest
 - For RM ANOVA: report Mauchly's test, epsilon, correction method (Greenhouse-Geisser)
 - If missing > 5%: load `analysis_guides/missing_data.md` and apply MICE before analysis
 
+### Covariate Pitfalls: Structural Zeros & Dose/Duration Variables
+
+Applies to any multivariable adjustment (logistic / linear / Cox / propensity-score / survey-weighted). Two coupled failure modes around a **dose/duration variable anchored to a categorical exposure** (pack-years under smoking status, grams/week under alcohol use, cessation-duration under former-smoker):
+
+- **Structural-zero guard (do not impute):** a never-smoker's `pack_years` is a *structural zero*, not missing-at-random — the value is known to be 0 by definition of the category. Feeding it to MICE/MNAR imputation as if it were missing fabricates a non-zero dose for unexposed subjects and corrupts the exposure contrast. Before imputing any dose/duration column, set the implied zero explicitly (`IF status == 'never' THEN dose = 0`) and impute only the genuinely-missing residual among the exposed. `/clean-data` flags categorical-implied-zero contradictions (a `never` row with a NULL dose) and ships `scripts/check_structural_zero.py`.
+- **Complete-case collapse warning (use status, not dose, for adjustment):** when a dose/duration variable enters a *complete-case* multivariable model, the unexposed stratum — which carries structural zeros often stored as NULL — is dropped wholesale, collapsing n (commonly 40–60%) and distorting subgroup estimates (a small stratum can shrink to a handful of subjects). For confounder adjustment use the **categorical status** variable (never/former/current); reserve the continuous **dose** for an exposed-only (e.g., ever-smoker-restricted) *secondary* analysis. Always report n before and after model fitting and confirm the denominator did not silently collapse.
+
 ## Language
 
 - Code and output: English
