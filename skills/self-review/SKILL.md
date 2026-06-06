@@ -198,6 +198,16 @@ before submission for item-level assessment."
 | Model provenance | Is it clear where the model came from? (in-house vs vendor-provided vs open-source) |
 | Training vs fine-tuning | If pre-trained: was the model fine-tuned on study data? If vendor-provided: any access to training data composition? |
 | Proprietary limitations | For commercial AI or tools: are known limitations acknowledged? Can results be independently reproduced? |
+| Classical-style body conventions | Does the body carry an AI tell or a policy violation a senior reviewer flags on sight — a `§` symbol, an in-body AI-disclosure paragraph, eligibility criteria as prose, mixed OR/HR decimal places, or em-dash overuse? |
+
+Run the deterministic classical-style lint (these are all greps, so they belong in a gate, not eyeballing):
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/check_classical_style.py" \
+  --manuscript manuscript.md --out qc/classical_style.json --strict
+```
+
+`SECTION_SYMBOL` and `INBODY_AI_DISCLOSURE` are Major (the `§` count must be 0; the AI-disclosure paragraph belongs on the title page for a classical / senior-MA target, not the body). `ELIGIBILITY_PROSE`, `DECIMAL_INCONSISTENCY`, and `EM_DASH_OVERUSE` are Minor. This is the self-review-side mirror of `/write-paper` Step 7.1's classical QC (manuscript-style-classical §5/§6/§7/§8).
 
 #### K. Reviewer-team consistency (SR/MA-only; fabrication-grade)
 

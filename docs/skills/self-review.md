@@ -44,6 +44,7 @@
 
 - `check_artifact_coverage.py`
 - `check_claim_artifact.py`
+- `check_classical_style.py`
 - `check_cohort_arithmetic.py`
 - `check_confounding_completeness.py`
 - `check_reviewer_team_consistency.py`

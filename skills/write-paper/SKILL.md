@@ -362,6 +362,7 @@ Scan for and remove AI writing patterns (see AI Pattern Avoidance below). Edit `
 | Trigger | Action |
 |---------|--------|
 | Manuscript 유형 = MA, systematic review, 또는 senior co-author review가 예정됨 | `references/section_guides/step7_1_classical_qc.md` 로드 → 7개 grep 점검 (§ 기호, AI Disclosure 단락, heading style, eligibility numbered list, Funding placeholder, PROSPERO chronology, em-dash 남용) 일괄 실행 |
+| 결정론 lint으로 한 번에 검증 | `python3 "${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/self-review/scripts/check_classical_style.py" --manuscript manuscript/manuscript.md --strict` — `SECTION_SYMBOL`/`INBODY_AI_DISCLOSURE`(Major) + `ELIGIBILITY_PROSE`/`DECIMAL_INCONSISTENCY`/`EM_DASH_OVERUSE`(Minor). 7-grep checklist과 같은 conventions의 machine-checkable subset. |
 | 글로벌 룰 cross-reference | `~/.claude/rules/manuscript-style-classical.md` (11항목 motivation) |
 | Pattern 19–21 본문 rewrite | `/humanize` (§, self-reference, AI Disclosure boilerplate) |
 
