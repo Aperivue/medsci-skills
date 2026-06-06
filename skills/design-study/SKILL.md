@@ -133,6 +133,9 @@ Check:
 - when it was established
 - whether blinding was possible
 - whether only a subset had gold standard verification
+- **Construct ↔ nominal-definition match.** Does the exposure/finding *construct* stay inside its stated definition, or does it quietly exceed it? An "incidentaloma" defined as an *indeterminate* finding must not include frank malignancy reads; a label that overshoots its definition inflates the apparent cohort and breaks the κ. For each construct, restate the nominal definition and confirm every included case satisfies it.
+- **Per-flag reference-standard concordance.** When the index finding is flagged against a reference standard, report the concordance *per flag category* (not just overall). A construct where a large fraction of flags do not match the reference standard (e.g., ~86% non-match) is measuring something other than the named construct.
+- **Manuscript definition ↔ `variable_operationalization.md`.** The variable definitions written in Methods must match the operationalization table verbatim (dictionary-first). A blinded re-classification form must quote the analytic protocol's definition verbatim — paraphrase / "common-sense extension" in the form (but not the Methods) is the documented cause of a low κ that is a *definition mismatch*, not real disagreement. Cross-check with `/define-variables` output before drafting.
 
 #### D. Validation
 
