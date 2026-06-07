@@ -1,0 +1,4 @@
+demo,ref,ref_sha,pass,hash_match,files_checked,wall_clock_s,manual_intervention
+01_wisconsin_bc,HEAD,e5c6c562b224,yes,yes,5,0.241,none (pandas preinstalled; verify is stdlib+pandas)
+02_metafor_bcg,HEAD,e5c6c562b224,yes,yes,4,0.234,none (pandas preinstalled; verify is stdlib+pandas)
+03_nhanes_obesity,HEAD,e5c6c562b224,yes,yes,6,0.229,none (pandas preinstalled; verify is stdlib+pandas)

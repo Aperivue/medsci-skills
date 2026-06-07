@@ -1,0 +1,20 @@
+defect_id,defect_class,detector_id,detector_family,expected_codes,n_demos,n_injected,n_detected,recall,n_skipped,n_not_run,clean_fp_inputs,clean_fp_hits
+CIT_UNDEFINED_KEY,citation,citation_keys,Citation and reference integrity,UNDEFINED,1,1,1,1.0,0,0,1,0
+CIT_DUPLICATE,citation,verify_refs,Citation and reference integrity,DUPLICATE,1,1,1,1.0,0,0,1,0
+CIT_FAKE_DOI,citation,verify_refs,Citation and reference integrity,FABRICATED,1,0,0,,0,1,1,0
+CIT_PAGINATION,citation,verify_refs,Citation and reference integrity,PAGINATION_PLACEHOLDER,1,1,1,1.0,0,0,1,0
+CIT_WRONG_AUTHOR,citation,verify_refs,Citation and reference integrity,MISMATCH,1,0,0,,0,1,1,0
+SCO_PROGNOSTIC,scope,scope_coherence,"Confounding, scope, and estimand contracts",CROSS_SECTIONAL_PROGNOSTIC,1,1,1,1.0,0,0,1,0
+ART_PROMISED_ABSENT,artifact_coverage,artifact_coverage,"Numerical, cohort, and pool arithmetic",PROMISED_ABSENT,1,1,1,1.0,0,0,1,0
+COH_CASCADE_SUM,cohort,cohort_arithmetic,"Numerical, cohort, and pool arithmetic",CASCADE_SUM,1,1,1,1.0,0,0,1,0
+COH_RATE_BACKCALC,cohort,cohort_arithmetic,"Numerical, cohort, and pool arithmetic",RATE_BACKCALC,1,1,1,1.0,0,0,1,0
+FRM_BASE_MISSING,framework,framework_naming,Reporting compliance,BASE_MISSING,3,3,3,1.0,0,0,3,0
+FRM_HYPHEN_MIX,framework,framework_naming,Reporting compliance,HYPHEN_MIX,3,3,3,1.0,0,0,3,0
+STY_AI_DISCLOSURE,style,classical_style,Style and review-process integrity,INBODY_AI_DISCLOSURE,3,3,3,1.0,0,0,3,0
+STY_EM_DASH,style,classical_style,Style and review-process integrity,EM_DASH_OVERUSE,3,3,3,1.0,0,0,3,0
+STY_SECTION_SYMBOL,style,classical_style,Style and review-process integrity,SECTION_SYMBOL,3,3,3,1.0,0,0,3,0
+GEN_ABS_PATH_PY,generated_code,generated_code,Style and review-process integrity,HARDCODED_ABS_PATH,1,1,1,1.0,0,0,1,0
+GEN_ABS_PATH_R,generated_code,generated_code,Style and review-process integrity,HARDCODED_ABS_PATH,1,1,1,1.0,0,0,1,0
+GEN_INPLACE_OVERWRITE_PY,generated_code,generated_code,Style and review-process integrity,INPLACE_SOURCE_OVERWRITE,1,1,1,1.0,0,0,1,0
+GEN_MISSING_SEED_PY,generated_code,generated_code,Style and review-process integrity,MISSING_SEED,1,1,1,1.0,0,0,1,0
+GEN_MISSING_SEED_R,generated_code,generated_code,Style and review-process integrity,MISSING_SEED,1,1,1,1.0,0,0,1,0

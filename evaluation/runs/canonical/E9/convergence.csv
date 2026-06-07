@@ -1,0 +1,2 @@
+status,reason,note
+NOT_RUN,default mode (pass --with-llm with a configured runner),internal self-review QC convergence harness specified and archived; not analyzed in this release

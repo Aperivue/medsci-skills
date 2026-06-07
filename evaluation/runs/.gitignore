@@ -1,0 +1,6 @@
+# Timestamped run packages are local artifacts; only the committed canonical
+# run (the v3.8.0 snapshot evidence) is tracked.
+*
+!.gitignore
+!canonical/
+!canonical/**

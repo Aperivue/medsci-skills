@@ -1,0 +1,11 @@
+You are reviewing a medical research manuscript before journal submission. Read
+the manuscript below and list every specific error or problem you find. For each
+item, quote the exact text that is wrong and state briefly what is wrong with it.
+Consider numerical consistency, citation/reference integrity, methodological
+soundness, reporting completeness, and writing style. Do not summarize the
+manuscript; only list concrete problems. If you find no problems, say so.
+
+MANUSCRIPT:
+---
+{manuscript}
+---

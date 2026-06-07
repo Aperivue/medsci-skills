@@ -1,0 +1,5 @@
+host,install_target_dir,self_test_pass,skills_discoverable,path_leaks_found,doc_verified,notes
+Claude Code,~/.claude/skills,yes,43,0,yes,installation-contract + documented portability (not live execution)
+OpenAI Codex,~/.agents/skills,yes,43,0,yes,installation-contract + documented portability (not live execution)
+Cursor,~/.agents/skills | ~/.claude/skills,yes,43,0,yes,installation-contract + documented portability (not live execution)
+GitHub Copilot,.github/skills | ~/.claude/skills,yes,43,0,yes,installation-contract + documented portability (not live execution)

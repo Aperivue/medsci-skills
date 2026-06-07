@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+## [3.8.0] - 2026-06-07
+
+An `evaluation/` harness suite that validates the instrument itself, plus a reconcile of the README Live-Demos numbers with the v3.7.0 clean-room demo artifacts. Catalog unchanged at 43 skills, 21 detectors — this release adds tooling and tracked evidence, not skills.
+
+### Added
+
+- **Evaluation harness suite (`evaluation/`)** — stdlib-only harnesses that validate the tool (not manuscript quality): **E1** seeded-defect detector benchmark (one defect injected per temp copy, recall + clean false-positive rate; offline-deterministic with a `--check` reproducibility-hash gate; network-required citation defects marked NOT_RUN unless `--online`), **E4** fresh-clone manifest reproducibility (`--ref` RC-SHA pre-tag / `v3.8.0` tag post-tag), **E5** claim audit-trail completeness (deterministic provenance pre-fill: manuscript → analysis table → manifest → QC), **E6** host-portability smoke (installer `--self-test` + path-contract scan + host-target mapping), **E7** detector coverage inventory, **E8** catalog claim-drift resistance (temp-copy only), and **E3** cost/time. Each run writes a self-describing log package (`run_manifest.json` with per-component determinism class + input/output hashes, `commands.sh`, `environment.txt`, `git_commit.txt`, `metrics.csv`, `limitations.md`). A committed canonical run lives under `evaluation/runs/canonical/`. The LLM comparator (**E2**) and a self-review convergence harness (**E9**) ship runnable with MI-CLEAR-LLM-inspired logging but are NOT executed in this release (graceful NOT_RUN without an API key / runner). All harnesses operate on temp copies and never mutate the real `demo/` tree or repo.
+
+### Changed
+
+- **README Live-Demos reconcile** — demo numbers re-derived from the v3.7.0 QC artifacts (STARD 60.9% (14/23), PRISMA 57.1% (24/42), STROBE 83.3% (25/30); Demo 3 analytic N 5,010; Demo 3 adjusted OR 3.03 (2.29–4.02); self-review verdicts from `qc/self_review.md`); figure links relinked to actual paths (`forest.png`, `forest_or.png`, `figures/stard_flow.svg`); unproduced slide/cover-letter/bubble-plot entries removed. Provenance for every number is logged in `evaluation/_readme_reconcile_sources.md`.
+
 ## [3.7.0] - 2026-06-07
 
 Three new deterministic, stdlib-only detectors extend the v3.6.0 panel-derived gates — reference *adequacy*, panel lens-diversity, and generated-code quality — bringing the analysis-integrity detector count in `skills/` to 21. A publish-time skill-worthiness gate and public adoption/impact tracking round out the release. Catalog unchanged at 43 skills; every addition is a check, probe, or convention inside an existing skill.

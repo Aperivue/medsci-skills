@@ -1,0 +1,25 @@
+{
+  "components": [
+    {
+      "command_args": [],
+      "component_type": "deterministic_script",
+      "expected_reproducibility": "exact",
+      "git_sha": "e5c6c562b224479f6da6b9caaa526bd5207899ff",
+      "input_hash": "d58c6c6eeea09db290de67f5bbca5558e4ab6d3374c9cf7dee86bc0576cf95f9",
+      "model_name": null,
+      "output_hash": "8e1f3298539123de1aed4282343dd0b671c3597ec2276a1c8797b6d0cdb87898",
+      "rerun_policy": "rerun any time; coverage_matrix.csv hash stable for a fixed tree",
+      "script_path": "evaluation/h6_inventory_drift/run_e7_inventory.py",
+      "seed": null
+    }
+  ],
+  "experiment_id": "E7",
+  "git_dirty": true,
+  "git_sha": "e5c6c562b224479f6da6b9caaa526bd5207899ff",
+  "reproducibility_hash": "c7443741924ec42e5251d048da1585487dfa75f8ba34455b7b42c3e273fff0b9",
+  "reproducibility_targets": {
+    "coverage_matrix.csv": "8e1f3298539123de1aed4282343dd0b671c3597ec2276a1c8797b6d0cdb87898",
+    "metrics.csv": "8e1f3298539123de1aed4282343dd0b671c3597ec2276a1c8797b6d0cdb87898"
+  },
+  "timestamp": "2026-06-07T18:58:10"
+}

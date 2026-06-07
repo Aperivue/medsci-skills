@@ -1,0 +1,1 @@
+Self-review convergence loop NOT executed for this release. Measures internal rubric / self-review QC convergence only - not external manuscript quality, reviewer acceptance, or distinguishability.

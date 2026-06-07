@@ -1,0 +1,40 @@
+{
+  "_note": "MI-CLEAR-LLM-inspired logging for the E2 LLM comparator.",
+  "executed": false,
+  "not_run_reason": "default mode (pass --with-llm to attempt execution)",
+  "1_model_identification": {
+    "provider": "Anthropic",
+    "model_name": "claude-opus-4-8",
+    "access_mode": "API (messages)",
+    "api_endpoint": "https://api.anthropic.com",
+    "query_datetime": null
+  },
+  "2_stochasticity": {
+    "temperature": 0,
+    "top_p": null,
+    "attempts_per_prompt": 1,
+    "repeat_policy": "single sample at temperature 0"
+  },
+  "3_full_prompt": {
+    "prompt_path": "evaluation/h2_llm_baseline/prompt.txt",
+    "prompt_sha256": "86401759cdcc55d1304113702f403b27da05023e462d0db56b43b1db3b134024",
+    "verbatim": "You are reviewing a medical research manuscript before journal submission. Read\nthe manuscript below and list every specific error or problem you find. For each\nitem, quote the exact text that is wrong and state briefly what is wrong with it.\nConsider numerical consistency, citation/reference integrity, methodological\nsoundness, reporting completeness, and writing style. Do not summarize the\nmanuscript; only list concrete problems. If you find no problems, say so.\n\nMANUSCRIPT:\n---\n{manuscript}\n---\n"
+  },
+  "4_execution": {
+    "sessions": "independent session per variant",
+    "batching": "sequential",
+    "post_processing": "deterministic signature adjudication (adjudicate.py)",
+    "error_handling": "record NOT_RUN on missing key/SDK"
+  },
+  "5_prompt_development": {
+    "fixed": true,
+    "tuned_on_test_data": false,
+    "revisions": 0,
+    "note": "generic prompt fixed before any variant was seen; not tuned per defect"
+  },
+  "6_test_data_independence": {
+    "test_data": "synthetic seeded defects (E1 variants)",
+    "contamination": "none; variants are programmatic mutations, not used for prompt tuning"
+  },
+  "redaction": "raw outputs stored without API keys/account IDs"
+}

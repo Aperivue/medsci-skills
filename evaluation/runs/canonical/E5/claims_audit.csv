@@ -1,0 +1,250 @@
+demo,claim_id,claim_type,value,manuscript_loc,qc_artifact,analysis_table,source_data_manifest,verified_citation,provenance_score,match_confidence,auto_or_manual,claim_text
+01_wisconsin_bc,C001,numerical,0.5,L9,yes,yes,yes,,complete,exact,auto,) with DeLong 95% confidence intervals; sensitivity and specificity at a 0.5 probability threshold were reported wit
+01_wisconsin_bc,C002,numerical,0.998,L11,yes,yes,yes,,complete,exact,auto,"benign), logistic regression reached an AUC of 0.998 (95% CI 0.994–1.000), with sensitivity"
+01_wisconsin_bc,C003,numerical,0.938,L11,yes,yes,yes,,complete,exact,auto,"AUC of 0.998 (95% CI 0.994–1.000), with sensitivity 0.938 (95% CI 0.850–0.975) and specificity 0."
+01_wisconsin_bc,C004,numerical,0.991,L11,yes,yes,yes,,complete,exact,auto,sitivity 0.938 (95% CI 0.850–0.975) and specificity 0.991 (95% CI 0.949–0.998) at the 0.5 thresho
+01_wisconsin_bc,C005,numerical,0.019,L11,yes,yes,yes,,complete,exact,auto,".949–0.998) at the 0.5 threshold, and a Brier score of 0.019. The random forest reached an AUC of 0."
+01_wisconsin_bc,C006,numerical,0.996,L11,outputs_md,yes,yes,,complete,exact,auto,of 0.019. The random forest reached an AUC of 0.996 (95% CI 0.991–1.000) and the support-ve
+01_wisconsin_bc,C007,numerical,0.997,L11,outputs_md,yes,yes,,complete,exact,auto,.000) and the support-vector machine an AUC of 0.997 (95% CI 0.992–1.000). All three pairwis
+01_wisconsin_bc,C008,numerical,0.998,L47,yes,yes,yes,,complete,exact,auto,"= 171), logistic regression reached an AUC of 0.998 (95% CI 0.994–1.000). At the 0.5 probab"
+01_wisconsin_bc,C009,numerical,0.938,L47,yes,yes,yes,,complete,exact,auto,"and 106 of 107 benign samples, giving a sensitivity of 0.938 (95% CI 0.850–0.975), a specificity of"
+01_wisconsin_bc,C010,numerical,0.991,L47,yes,yes,yes,,complete,exact,auto,"tivity of 0.938 (95% CI 0.850–0.975), a specificity of 0.991 (95% CI 0.949–0.998), a positive predic"
+01_wisconsin_bc,C011,numerical,0.971,L47,,yes,yes,,complete,exact,auto,"ative predictive value of 0.964, and an accuracy of 0.971. Its Brier score was 0.019, the lowest"
+01_wisconsin_bc,C012,numerical,0.019,L47,yes,yes,yes,,complete,exact,auto,"of 0.964, and an accuracy of 0.971. Its Brier score was 0.019, the lowest of the three index tests."
+01_wisconsin_bc,C013,numerical,0.996,L49,outputs_md,yes,yes,,complete,exact,auto,"ex tests. The random forest reached an AUC of 0.996 (95% CI 0.991–1.000), with sensitivity"
+01_wisconsin_bc,C014,numerical,0.922,L49,outputs_md,yes,yes,,complete,exact,auto,"AUC of 0.996 (95% CI 0.991–1.000), with sensitivity 0.922 (95% CI 0.830–0.966), specificity 1.000"
+01_wisconsin_bc,C015,numerical,1.000,L49,,yes,yes,,complete,exact,auto,"sensitivity 0.922 (95% CI 0.830–0.966), specificity 1.000 (95% CI 0.965–1.000), and a Brier score"
+01_wisconsin_bc,C016,numerical,0.029,L49,yes,yes,yes,,complete,exact,auto,"icity 1.000 (95% CI 0.965–1.000), and a Brier score of 0.029. The support-vector machine reached an"
+01_wisconsin_bc,C017,numerical,0.997,L49,outputs_md,yes,yes,,complete,exact,auto,". The support-vector machine reached an AUC of 0.997 (95% CI 0.992–1.000), with sensitivity"
+01_wisconsin_bc,C018,numerical,0.922,L49,outputs_md,yes,yes,,complete,exact,auto,"AUC of 0.997 (95% CI 0.992–1.000), with sensitivity 0.922 (95% CI 0.830–0.966), specificity 1.000"
+01_wisconsin_bc,C019,numerical,1.000,L49,,yes,yes,,complete,exact,auto,"sensitivity 0.922 (95% CI 0.830–0.966), specificity 1.000 (95% CI 0.965–1.000), and a Brier score"
+01_wisconsin_bc,C020,numerical,0.020,L49,yes,yes,yes,,complete,exact,auto,"icity 1.000 (95% CI 0.965–1.000), and a Brier score of 0.020. The receiver-operating-characteristic"
+01_wisconsin_bc,C021,numerical,0.019,L57,yes,yes,yes,,complete,exact,auto,"gave the best probability calibration (Brier score 0.019). For a feature set this separable, mod"
+01_wisconsin_bc,C022,numerical,0.994,L11,outputs_md,yes,yes,,complete,exact,auto,"ression reached an AUC of 0.998 (95% CI 0.994–1.000), with sensitivity 0.938 (95% CI 0.850–"
+01_wisconsin_bc,C023,numerical,1.000,L11,,yes,yes,,complete,exact,auto,"ression reached an AUC of 0.998 (95% CI 0.994–1.000), with sensitivity 0.938 (95% CI 0.850–"
+01_wisconsin_bc,C024,numerical,0.850,L11,,yes,yes,,complete,exact,auto,"–1.000), with sensitivity 0.938 (95% CI 0.850–0.975) and specificity 0.991 (95% CI 0.949–0."
+01_wisconsin_bc,C025,numerical,0.975,L11,,yes,yes,,complete,exact,auto,"–1.000), with sensitivity 0.938 (95% CI 0.850–0.975) and specificity 0.991 (95% CI 0.949–0."
+01_wisconsin_bc,C026,numerical,0.949,L11,,yes,yes,,complete,exact,auto,"50–0.975) and specificity 0.991 (95% CI 0.949–0.998) at the 0.5 threshold, and a Brier scor"
+01_wisconsin_bc,C027,numerical,0.998,L11,yes,yes,yes,,complete,exact,auto,"50–0.975) and specificity 0.991 (95% CI 0.949–0.998) at the 0.5 threshold, and a Brier scor"
+01_wisconsin_bc,C028,numerical,1.000,L11,,yes,yes,,complete,exact,auto,forest reached an AUC of 0.996 (95% CI 0.991–1.000) and the support-vector machine an AUC
+01_wisconsin_bc,C029,numerical,0.992,L11,outputs_md,yes,yes,,complete,exact,auto,-vector machine an AUC of 0.997 (95% CI 0.992–1.000). All three pairwise DeLong comparisons
+01_wisconsin_bc,C030,numerical,1.000,L11,,yes,yes,,complete,exact,auto,-vector machine an AUC of 0.997 (95% CI 0.992–1.000). All three pairwise DeLong comparisons
+01_wisconsin_bc,C031,numerical,0.994,L47,outputs_md,yes,yes,,complete,exact,auto,ression reached an AUC of 0.998 (95% CI 0.994–1.000). At the 0.5 probability threshold it c
+01_wisconsin_bc,C032,numerical,1.000,L47,,yes,yes,,complete,exact,auto,ression reached an AUC of 0.998 (95% CI 0.994–1.000). At the 0.5 probability threshold it c
+01_wisconsin_bc,C033,numerical,0.850,L47,,yes,yes,,complete,exact,auto,", giving a sensitivity of 0.938 (95% CI 0.850–0.975), a specificity of 0.991 (95% CI 0.949–"
+01_wisconsin_bc,C034,numerical,0.975,L47,,yes,yes,,complete,exact,auto,", giving a sensitivity of 0.938 (95% CI 0.850–0.975), a specificity of 0.991 (95% CI 0.949–"
+01_wisconsin_bc,C035,numerical,0.949,L47,,yes,yes,,complete,exact,auto,"–0.975), a specificity of 0.991 (95% CI 0.949–0.998), a positive predictive value of 0.984,"
+01_wisconsin_bc,C036,numerical,0.998,L47,yes,yes,yes,,complete,exact,auto,"–0.975), a specificity of 0.991 (95% CI 0.949–0.998), a positive predictive value of 0.984,"
+01_wisconsin_bc,C037,numerical,0.991,L49,yes,yes,yes,,complete,exact,auto,"forest reached an AUC of 0.996 (95% CI 0.991–1.000), with sensitivity 0.922 (95% CI 0.830–"
+01_wisconsin_bc,C038,numerical,0.830,L49,,yes,yes,,complete,exact,auto,"–1.000), with sensitivity 0.922 (95% CI 0.830–0.966), specificity 1.000 (95% CI 0.965–1.000"
+01_wisconsin_bc,C039,numerical,0.966,L49,,yes,yes,,complete,exact,auto,"–1.000), with sensitivity 0.922 (95% CI 0.830–0.966), specificity 1.000 (95% CI 0.965–1.000"
+01_wisconsin_bc,C040,numerical,0.965,L49,,yes,yes,,complete,exact,auto,"0.830–0.966), specificity 1.000 (95% CI 0.965–1.000), and a Brier score of 0.029. The suppo"
+01_wisconsin_bc,C041,numerical,0.992,L49,outputs_md,yes,yes,,complete,exact,auto,"machine reached an AUC of 0.997 (95% CI 0.992–1.000), with sensitivity 0.922 (95% CI 0.830–"
+01_wisconsin_bc,C042,numerical,0.830,L49,,yes,yes,,complete,exact,auto,"–1.000), with sensitivity 0.922 (95% CI 0.830–0.966), specificity 1.000 (95% CI 0.965–1.000"
+01_wisconsin_bc,C043,numerical,0.966,L49,,yes,yes,,complete,exact,auto,"–1.000), with sensitivity 0.922 (95% CI 0.830–0.966), specificity 1.000 (95% CI 0.965–1.000"
+01_wisconsin_bc,C044,numerical,0.965,L49,,yes,yes,,complete,exact,auto,"0.830–0.966), specificity 1.000 (95% CI 0.965–1.000), and a Brier score of 0.020. The recei"
+01_wisconsin_bc,C045,numerical,398,L9,yes,yes,yes,,partial,loose,auto,Samples were partitioned into training (n = 398) and test (n = 171) sets by a stratifie
+01_wisconsin_bc,C046,numerical,171,L9,yes,yes,yes,,partial,loose,auto,ioned into training (n = 398) and test (n = 171) sets by a stratified 70/30 split (seed
+01_wisconsin_bc,C047,numerical,398,L35,yes,yes,yes,,partial,loose,auto,s were partitioned into a training set (n = 398) and a test set (n = 171) by a stratifi
+01_wisconsin_bc,C048,numerical,171,L35,yes,yes,yes,,partial,loose,auto,training set (n = 398) and a test set (n = 171) by a stratified 70/30 split with a fix
+01_wisconsin_bc,C049,numerical,171,L47,yes,yes,yes,,partial,loose,auto,"# Diagnostic accuracy On the test set (n = 171), logistic regression reached an AUC of"
+01_wisconsin_bc,C050,numerical,398,L73,yes,yes,yes,,partial,loose,auto,30 split (seed 42) into a training set (n = 398) and a test set (n = 171). The histopat
+01_wisconsin_bc,C051,numerical,171,L73,yes,yes,yes,,partial,loose,auto,training set (n = 398) and a test set (n = 171). The histopathology reference standard
+01_wisconsin_bc,C052,numerical,171,L77,yes,yes,yes,,partial,loose,auto,"a 0.5 probability threshold (test set, n = 171). ## References > Note: the reference"
+01_wisconsin_bc,C053,citation,,L17,,,,placeholder,manual-only,,manual,od for a palpable or imaged breast mass [1]. Digitized FNA images can be reduced to
+01_wisconsin_bc,C054,citation,,L17,,,,placeholder,manual-only,,manual,enign lesions with substantial accuracy [2]. Translating such measurements into a r
+01_wisconsin_bc,C055,citation,,L17,,,,placeholder,manual-only,,manual,clear consensus on which is preferable [3]. Reporting of diagnostic-accuracy stud
+01_wisconsin_bc,C056,citation,,L19,,,,placeholder,manual-only,,manual,tes accompanied by confidence intervals [4]. Comparative claims between competing i
+01_wisconsin_bc,C057,citation,,L19,,,,placeholder,manual-only,,manual,side-by-side display of point estimates [5]. Many published comparisons report only
+01_wisconsin_bc,C058,citation,,L27,,,,placeholder,manual-only,,manual,"ataset as distributed with scikit-learn [6], comprising 569 FNA samples. Thirty cyt"
+01_wisconsin_bc,C059,citation,,L31,,,,placeholder,manual-only,,manual,"uated: a logistic-regression classifier [7], a random-forest classifier with 400 tr"
+01_wisconsin_bc,C060,citation,,L31,,,,placeholder,manual-only,,manual,"random-forest classifier with 400 trees [8], and a support-vector machine with a ra"
+01_wisconsin_bc,C061,citation,,L31,,,,placeholder,manual-only,,manual,ine with a radial-basis-function kernel [9]. Continuous features were standardized
+01_wisconsin_bc,C062,citation,,L37,,,,placeholder,manual-only,,manual,idence intervals from the DeLong method [5]. At a fixed probability threshold of 0.
+01_wisconsin_bc,C063,citation,,L37,,,,placeholder,manual-only,,manual,e given Wilson 95% confidence intervals [10]. Probability calibration was summarized
+01_wisconsin_bc,C064,citation,,L37,,,,placeholder,manual-only,,manual,ation was summarized by the Brier score [11]. The Youden index was used to report an
+01_wisconsin_bc,C065,citation,,L37,,,,placeholder,manual-only,,manual,the DeLong method for correlated curves [5]; a two-sided p value below 0.05 was tre
+01_wisconsin_bc,C066,citation,,L37,,,,placeholder,manual-only,,manual,rting followed the STARD 2015 statement [4]. Analyses used Python (scikit-learn [6]
+01_wisconsin_bc,C067,citation,,L37,,,,placeholder,manual-only,,manual,[4]. Analyses used Python (scikit-learn [6] and SciPy [12]) with the random seed fi
+01_wisconsin_bc,C068,citation,,L37,,,,placeholder,manual-only,,manual,used Python (scikit-learn [6] and SciPy [12]) with the random seed fixed at 42 for r
+01_wisconsin_bc,C069,citation,,L59,,,,placeholder,manual-only,,manual,titive with ensemble and kernel methods [3]. The practical implication is that a co
+01_wisconsin_bc,C070,reporting,STARD,L19,yes,,,,complete,,auto,"tic-accuracy studies is governed by the STARD 2015 statement, which asks for an expli"
+01_wisconsin_bc,C071,reporting,STARD,L37,yes,,,,complete,,auto,of a difference. Reporting followed the STARD 2015 statement [4]. Analyses used Pytho
+01_wisconsin_bc,C072,reporting,STARD,L59,yes,,,,complete,,auto,"a paired test of discrimination, as the STARD framework and the DeLong method jointly"
+01_wisconsin_bc,C073,reporting,STARD,L63,yes,,,,complete,,auto,"aceable diagnostic-accuracy workflow: a STARD-compliant participant flow, AUC estimat"
+01_wisconsin_bc,C074,reporting,STARD,L73,yes,,,,complete,,auto,ntly. ## Figure Legends **Figure 1.** STARD 2015 participant flow diagram. The 569
+01_wisconsin_bc,C075,reporting,STARD,L89,yes,,,,complete,,auto,"ata. 4. [UNVERIFIED] Bossuyt PM, et al. STARD 2015 statement for reporting diagnostic"
+01_wisconsin_bc,C076,figure_table,Figure 1,L43,,,,,manual-only,,manual,= 0.767). Participant flow is shown in Figure 1. ### Diagnostic accuracy On the test
+01_wisconsin_bc,C077,figure_table,Figure 2,L49,,,,,manual-only,,manual,ting-characteristic curves are shown in Figure 2 and the confusion matrices at the 0.5 t
+01_wisconsin_bc,C078,figure_table,Figure 3,L49,,,,,manual-only,,manual,fusion matrices at the 0.5 threshold in Figure 3. ### Pairwise comparison of discrimina
+01_wisconsin_bc,C079,figure_table,Figure 1,L73,,,,,manual-only,,manual,ed independently. ## Figure Legends **Figure 1.** STARD 2015 participant flow diagram.
+01_wisconsin_bc,C080,figure_table,Figure 2,L75,,,,,manual-only,,manual,"(TP = 60, FP = 1, FN = 4, TN = 106). **Figure 2.** Receiver-operating-characteristic cu"
+01_wisconsin_bc,C081,figure_table,Figure 3,L77,,,,,manual-only,,manual,% confidence interval in the legend. **Figure 3.** Confusion matrices for the three ind
+01_wisconsin_bc,C082,analysis_method,logistic regression,L9,,script,yes,,complete,,auto,"tests were fitted on the training set: logistic regression, random forest, and a support-vector ma"
+01_wisconsin_bc,C083,analysis_method,random forest,L9,,script,yes,,complete,,auto,"the training set: logistic regression, random forest, and a support-vector machine with a ra"
+01_wisconsin_bc,C084,analysis_method,DeLong,L9,,script,yes,,complete,,auto,erating-characteristic curve (AUC) with DeLong 95% confidence intervals; sensitivity a
+01_wisconsin_bc,C085,analysis_method,Wilson interval,L9,,,,,manual-only,,manual,robability threshold were reported with Wilson intervals; calibration was summarized by the Bri
+01_wisconsin_bc,C086,analysis_method,DeLong,L9,,script,yes,,complete,,auto,se AUC differences were tested with the DeLong method. **Results:** On the test set (
+01_wisconsin_bc,C087,analysis_method,logistic regression,L11,,script,yes,,complete,,auto,"he test set (64 malignant, 107 benign), logistic regression reached an AUC of 0.998 (95% CI 0.994–1"
+01_wisconsin_bc,C088,analysis_method,random forest,L11,,script,yes,,complete,,auto,"eshold, and a Brier score of 0.019. The random forest reached an AUC of 0.996 (95% CI 0.991–1"
+01_wisconsin_bc,C089,analysis_method,DeLong,L11,,script,yes,,complete,,auto,95% CI 0.992–1.000). All three pairwise DeLong comparisons were non-significant (p = 0
+01_wisconsin_bc,C090,analysis_method,logistic regression,L13,,script,yes,,complete,,auto,inguishable accuracy on this benchmark; logistic regression offered the best probability calibratio
+01_wisconsin_bc,C091,analysis_method,DeLong,L37,,script,yes,,complete,,auto,with 95% confidence intervals from the DeLong method [5]. At a fixed probability thre
+01_wisconsin_bc,C092,analysis_method,DeLong,L37,,script,yes,,complete,,auto,etween index tests were tested with the DeLong method for correlated curves [5]; a two
+01_wisconsin_bc,C093,analysis_method,logistic regression,L47,,script,yes,,complete,,auto,"ic accuracy On the test set (n = 171), logistic regression reached an AUC of 0.998 (95% CI 0.994–1"
+01_wisconsin_bc,C094,analysis_method,random forest,L49,,script,yes,,complete,,auto,e lowest of the three index tests. The random forest reached an AUC of 0.996 (95% CI 0.991–1
+01_wisconsin_bc,C095,analysis_method,DeLong,L53,,script,yes,,complete,,auto,inguishable in discrimination. Pairwise DeLong tests gave p = 0.554 for logistic regre
+01_wisconsin_bc,C096,analysis_method,logistic regression,L53,,script,yes,,complete,,auto,"airwise DeLong tests gave p = 0.554 for logistic regression versus random forest, p = 0.800 for log"
+01_wisconsin_bc,C097,analysis_method,random forest,L53,,script,yes,,complete,,auto,"= 0.554 for logistic regression versus random forest, p = 0.800 for logistic regression vers"
+01_wisconsin_bc,C098,analysis_method,logistic regression,L53,,script,yes,,complete,,auto,"ion versus random forest, p = 0.800 for logistic regression versus the support-vector machine, and"
+01_wisconsin_bc,C099,analysis_method,random forest,L53,,script,yes,,complete,,auto,"pport-vector machine, and p = 0.640 for random forest versus the support-vector machine. No p"
+01_wisconsin_bc,C100,analysis_method,Logistic regression,L57,,script,yes,,complete,,auto,"hem were not statistically significant. Logistic regression, the simplest model, matched the two mo"
+01_wisconsin_bc,C101,analysis_method,DeLong,L59,,script,yes,,complete,,auto,"ination, as the STARD framework and the DeLong method jointly recommend [4,5]; had we"
+01_wisconsin_bc,C102,analysis_method,logistic regression,L59,,script,yes,,complete,,auto,"reported only the AUC point estimates, logistic regression's 0.998 would appear to outrank the ran"
+01_wisconsin_bc,C103,analysis_method,random forest,L59,,script,yes,,complete,,auto,"ion's 0.998 would appear to outrank the random forest's 0.996, yet that ordering is within sa"
+01_wisconsin_bc,C104,analysis_method,DeLong,L63,,script,yes,,complete,,auto,"nt participant flow, AUC estimates with DeLong intervals, threshold metrics with Wilso"
+01_wisconsin_bc,C105,analysis_method,Wilson interval,L63,,,,,manual-only,,manual,"eLong intervals, threshold metrics with Wilson intervals, a calibration score, and a paired tes"
+01_wisconsin_bc,C106,analysis_method,logistic regression,L65,,script,yes,,complete,,auto,"committed analysis table. In summary, logistic regression, random forest, and a radial-basis-func"
+01_wisconsin_bc,C107,analysis_method,random forest,L65,,script,yes,,complete,,auto,"able. In summary, logistic regression, random forest, and a radial-basis-function support-ve"
+01_wisconsin_bc,C108,analysis_method,logistic regression,L65,,script,yes,,complete,,auto,gh accuracy on the Wisconsin benchmark; logistic regression is the most attractive of the three bec
+01_wisconsin_bc,C109,analysis_method,DeLong,L69,,script,yes,,complete,,auto,"racy estimate, confidence interval, and DeLong comparison reported here can be recompu"
+01_wisconsin_bc,C110,analysis_method,DeLong,L75,,script,yes,,complete,,auto,"three index tests on the test set, with DeLong AUC and 95% confidence interval in the"
+01_wisconsin_bc,C111,analysis_method,DeLong,L90,,script,yes,,complete,,auto,"ostic accuracy studies. 5. [UNVERIFIED] DeLong ER, et al. Comparing the areas under tw"
+01_wisconsin_bc,C112,analysis_method,logistic regression,L92,,script,yes,,complete,,auto,in Python. 7. [UNVERIFIED] Reference on logistic regression for classification. 8. [UNVERIFIED] Bre
+01_wisconsin_bc,C113,analysis_method,Random forest,L93,,script,yes,,complete,,auto,"ssification. 8. [UNVERIFIED] Breiman L. Random forests. 9. [UNVERIFIED] Cortes C, Vapnik V. S"
+02_metafor_bcg,C001,numerical,0.489,L9,yes,yes,yes,,complete,exact,auto,"accination was associated with a pooled RR of 0.489 (95% CI 0.344 to 0.696), corresponding"
+02_metafor_bcg,C002,numerical,0.489,L9,yes,yes,yes,,complete,exact,auto,"tment gave an identical point estimate (RR 0.489, 95% CI 0.330 to 0.726). **Conclusion:"
+02_metafor_bcg,C003,numerical,1.0,L35,yes,yes,yes,,complete,exact,auto,"rm relative to the control arm, with an RR below 1.0 indicating protection. For each trial w"
+02_metafor_bcg,C004,numerical,0.489,L53,yes,yes,yes,,complete,exact,auto,"accination was associated with a pooled risk ratio of 0.489 (95% CI 0.344 to 0.696), corresponding"
+02_metafor_bcg,C005,numerical,0.489,L53,yes,yes,yes,,complete,exact,auto,tment produced the same point estimate (RR 0.489) with a wider confidence interval (0.33
+02_metafor_bcg,C006,numerical,0.452,L61,yes,yes,yes,,partial,loose,auto,"the leave-one-out analysis, the pooled risk ratio remained between 0.452 and 0.533 regardless of which single tr"
+02_metafor_bcg,C007,numerical,0.489,L65,yes,yes,yes,,complete,exact,auto,"the risk of tuberculosis, with a pooled risk ratio of 0.489. The protective direction was consisten"
+02_metafor_bcg,C008,numerical,0.489,L87,yes,yes,yes,,complete,exact,auto,"is the pooled random-effects estimate (RR 0.489, 95% CI 0.344 to 0.696). The vertical d"
+02_metafor_bcg,C009,numerical,357347,L7,,yes,yes,,complete,exact,auto,"f BCG vaccine versus control comprising 357,347 participants. The effect measure was the risk ratio"
+02_metafor_bcg,C010,numerical,357347,L49,,yes,yes,,complete,exact,auto,"o the meta-analysis, together enrolling 357,347 participants across the vaccinated and control arms"
+02_metafor_bcg,C011,numerical,350000,L65,,,,,missing,,auto,"3 randomized trials enrolling more than 350,000 participants, BCG vaccination roughly halved the ris"
+02_metafor_bcg,C012,numerical,357347,L85,,yes,yes,,complete,exact,auto,"terminates in the 13 randomized trials (357,347 participants) included in the meta-analysis. Upstrea"
+02_metafor_bcg,C013,numerical,92.2,L9,yes,yes,yes,,partial,loose,auto,"Heterogeneity was very high (I-squared 92.2%, tau-squared 0.313; Cochran Q = 152.23,"
+02_metafor_bcg,C014,numerical,92.2,L57,yes,yes,yes,,partial,loose,auto,"very high. The I-squared statistic was 92.2%, the between-trial variance tau-squared"
+02_metafor_bcg,C015,numerical,87.0,L61,outputs_md,yes,yes,,partial,loose,auto,the I-squared statistic stayed between 87.0% and 93.2%. ## **DISCUSSION** Across 1
+02_metafor_bcg,C016,numerical,93.2,L61,outputs_md,yes,yes,,partial,loose,auto,ared statistic stayed between 87.0% and 93.2%. ## **DISCUSSION** Across 13 randomiz
+02_metafor_bcg,C017,numerical,92.2,L67,yes,yes,yes,,partial,loose,auto,ather than its average. An I-squared of 92.2% means that almost all of the observed v
+02_metafor_bcg,C018,reporting,PRISMA,L7,yes,,,,complete,,auto,ve-one-out analysis. Reporting followed PRISMA 2020. **Results:** BCG vaccination was
+02_metafor_bcg,C019,reporting,PRISMA,L27,yes,,,,complete,,auto,"ulosis, reported in accordance with the PRISMA 2020 statement [UNVERIFIED]. The trial-"
+02_metafor_bcg,C020,reporting,PRISMA,L85,yes,,,,complete,,auto,calc.csv. ## Figure Legends Figure 1. PRISMA 2020 study-selection flow diagram. The
+02_metafor_bcg,C021,figure_table,Figure 1,L27,,,,,manual-only,,manual,s shown in the study-selection diagram (Figure 1) are illustrative of a typical search-a
+02_metafor_bcg,C022,figure_table,Figure 1,L49,,,,,manual-only,,manual,across the vaccinated and control arms (Figure 1). Trial-level risk ratios ranged from 0
+02_metafor_bcg,C023,figure_table,Table 1,L49,,,,,manual-only,,manual,risk ratios ranged from 0.197 to 1.562 (Table 1). Eleven of the 13 trials had a point e
+02_metafor_bcg,C024,figure_table,Figure 2,L53,,,,,manual-only,,manual,reduction in the risk of tuberculosis (Figure 2). The independent cross-check using the
+02_metafor_bcg,C025,figure_table,Figure 3,L61,,,,,manual-only,,manual,"n-significant (tau = 0.026, p = 0.952) (Figure 3). In the leave-one-out analysis, the po"
+02_metafor_bcg,C026,figure_table,Table 1,L81,,,,,manual-only,,manual,dividual future population. ## Tables Table 1. Per-trial event counts and risk ratios
+02_metafor_bcg,C027,figure_table,Figure 1,L85,,,,,manual-only,,manual,r_study_escalc.csv. ## Figure Legends Figure 1. PRISMA 2020 study-selection flow diagr
+02_metafor_bcg,C028,figure_table,Figure 2,L87,,,,,manual-only,,manual,ot the yield of a new database search. Figure 2. Random-effects (REML) forest plot of t
+02_metafor_bcg,C029,figure_table,Figure 3,L89,,,,,manual-only,,manual,shed line marks the null value of one. Figure 3. Funnel plot of the trial-level log ris
+02_metafor_bcg,C030,analysis_method,Random-Effects,L1,,script,yes,,complete,,auto,BCG Vaccination Against Tuberculosis: A Random-Effects Meta-Analysis of 13 Randomized Trials
+02_metafor_bcg,C031,analysis_method,random-effects,L7,,script,yes,,complete,,auto,mpling variances and pooled them with a random-effects model estimated by restricted maximum l
+02_metafor_bcg,C032,analysis_method,REML,L7,,script,yes,,complete,,auto,mated by restricted maximum likelihood (REML). Heterogeneity was summarized by I-squ
+02_metafor_bcg,C033,analysis_method,random-effects,L13,,script,yes,,complete,,auto,uberculosis; meta-analysis; risk ratio; random-effects model ## **INTRODUCTION** Tuberculosi
+02_metafor_bcg,C034,analysis_method,random-effects,L21,,script,yes,,complete,,auto,"of vaccination on TB incidence under a random-effects model, and to characterize the between-"
+02_metafor_bcg,C035,analysis_method,random-effects,L27,,script,yes,,complete,,auto,tudy design and data source This was a random-effects meta-analysis of randomized controlled
+02_metafor_bcg,C036,analysis_method,inverse-variance,L43,,,,,manual-only,,manual,os and variances were computed with the inverse-variance approach implemented in the metafor pac
+02_metafor_bcg,C037,analysis_method,random-effects,L43,,script,yes,,complete,,auto,UNVERIFIED]. Effects were pooled with a random-effects model fitted by restricted maximum like
+02_metafor_bcg,C038,analysis_method,REML,L43,,script,yes,,complete,,auto,itted by restricted maximum likelihood (REML) [UNVERIFIED]. Between-trial heterogene
+02_metafor_bcg,C039,analysis_method,inverse-variance,L43,,,,,manual-only,,manual,e-fitted with the meta package using an inverse-variance random-effects model with the Hartung-K
+02_metafor_bcg,C040,analysis_method,random-effects,L43,,script,yes,,complete,,auto,meta package using an inverse-variance random-effects model with the Hartung-Knapp adjustment
+02_metafor_bcg,C041,analysis_method,random-effects,L53,,script,yes,,complete,,auto,"irection. ### Pooled effect Under the random-effects REML model, BCG vaccination was associa"
+02_metafor_bcg,C042,analysis_method,REML,L53,,script,yes,,complete,,auto,"Pooled effect Under the random-effects REML model, BCG vaccination was associated w"
+02_metafor_bcg,C043,analysis_method,Random-effects,L87,,script,yes,,complete,,auto,ld of a new database search. Figure 2. Random-effects (REML) forest plot of the risk ratio of
+02_metafor_bcg,C044,analysis_method,REML,L87,,script,yes,,complete,,auto,base search. Figure 2. Random-effects (REML) forest plot of the risk ratio of tuber
+02_metafor_bcg,C045,analysis_method,inverse-variance,L87,,,,,manual-only,,manual,es are trial-level risk ratios sized by inverse-variance weight; horizontal lines are 95% confid
+02_metafor_bcg,C046,analysis_method,random-effects,L87,,script,yes,,complete,,auto,"ce intervals; the diamond is the pooled random-effects estimate (RR 0.489, 95% CI 0.344 to 0.6"
+03_nhanes_obesity,C001,numerical,11.7,L18,yes,yes,yes,,partial,loose,auto,"met eligibility criteria. The weighted prevalence of diabetes was 11.7% (95% confidence interval [CI], 10.6-12"
+03_nhanes_obesity,C002,numerical,7.6,L19,yes,,,,missing,,auto,"42.3% (95% CI, 38.9-45.7). The weighted prevalence of diabetes was 7.6% among non-obese adults and 17.3% among"
+03_nhanes_obesity,C003,numerical,3.03,L21,yes,yes,yes,,complete,exact,auto,", obesity was associated with diabetes (aOR 3.03; 95% CI, 2.29-4.02; p < 0.001) after ad"
+03_nhanes_obesity,C004,numerical,2.95,L22,yes,yes,yes,,partial,loose,auto,"ed sensitivity analysis was concordant (aOR 2.95; 95% CI, 2.18-3.98). **Conclusion:** I"
+03_nhanes_obesity,C005,numerical,11.7,L119,yes,yes,yes,,partial,loose,auto,"### Weighted prevalence The weighted prevalence of diabetes was 11.7% (95% CI, 10.6-12.8), and the weighted"
+03_nhanes_obesity,C006,numerical,42.3,L120,yes,yes,yes,,partial,loose,auto,"% (95% CI, 10.6-12.8), and the weighted prevalence of obesity was 42.3% (95% CI, 38.9-45.7). Adults with diabe"
+03_nhanes_obesity,C007,numerical,7.6,L122,yes,,,,missing,,auto,us 29.3 kg/m^2) (Table 1). The weighted prevalence of diabetes was 7.6% among non-obese adults and 17.3% among
+03_nhanes_obesity,C008,numerical,3.03,L128,yes,yes,yes,,complete,exact,auto,"associated with self-reported diabetes (aOR 3.03; 95% CI, 2.29-4.02; p < 0.001) after ad"
+03_nhanes_obesity,C009,numerical,1.07,L129,,yes,yes,,complete,exact,auto,"age was also associated with diabetes (aOR 1.07 per year; 95% CI, 1.06-1.08; p < 0.001)"
+03_nhanes_obesity,C010,numerical,0.66,L130,,yes,yes,,complete,exact,auto,"ale sex was associated with lower odds (aOR 0.66; 95% CI, 0.47-0.92; p = 0.046). Relativ"
+03_nhanes_obesity,C011,numerical,2.39,L132,,yes,yes,,complete,exact,auto,"s were observed for non-Hispanic Asian (aOR 2.39; 95% CI, 1.53-3.75), other/multiracial"
+03_nhanes_obesity,C012,numerical,1.95,L132,,yes,yes,,complete,exact,auto,"95% CI, 1.53-3.75), other/multiracial (aOR 1.95; 95% CI, 1.37-2.77), and Mexican Americ"
+03_nhanes_obesity,C013,numerical,1.68,L133,,,,,missing,,auto,"% CI, 1.37-2.77), and Mexican American (aOR 1.68; 95% CI, 1.17-2.41) adults. ### Sensit"
+03_nhanes_obesity,C014,numerical,9.8,L138,outputs_md,yes,yes,,partial,loose,auto,"weighted prevalence of an HbA1c of 6.5% or higher was 9.8% (95% CI, 8.8-10.8). Using this laborat"
+03_nhanes_obesity,C015,numerical,2.95,L139,yes,yes,yes,,partial,loose,auto,"s concordant with the primary analysis (aOR 2.95; 95% CI, 2.18-3.98). ## **DISCUSSION**"
+03_nhanes_obesity,C016,numerical,10.6,L18,yes,yes,yes,,partial,loose,auto,"as 11.7% (95% confidence interval [CI], 10.6-12.8) and of obesity 42.3% (95% CI, 38.9-45."
+03_nhanes_obesity,C017,numerical,12.8,L18,yes,yes,yes,,complete,exact,auto,"as 11.7% (95% confidence interval [CI], 10.6-12.8) and of obesity 42.3% (95% CI, 38.9-45."
+03_nhanes_obesity,C018,numerical,38.9,L19,yes,yes,yes,,partial,loose,auto,"0.6-12.8) and of obesity 42.3% (95% CI, 38.9-45.7). The weighted prevalence of diabetes w"
+03_nhanes_obesity,C019,numerical,45.7,L19,yes,yes,yes,,partial,loose,auto,"0.6-12.8) and of obesity 42.3% (95% CI, 38.9-45.7). The weighted prevalence of diabetes w"
+03_nhanes_obesity,C020,numerical,2.29,L21,yes,yes,yes,,partial,loose,auto,"ciated with diabetes (aOR 3.03; 95% CI, 2.29-4.02; p < 0.001) after adjustment for age, s"
+03_nhanes_obesity,C021,numerical,4.02,L21,yes,yes,yes,,partial,loose,auto,"ciated with diabetes (aOR 3.03; 95% CI, 2.29-4.02; p < 0.001) after adjustment for age, s"
+03_nhanes_obesity,C022,numerical,2.18,L23,yes,yes,yes,,complete,exact,auto,"lysis was concordant (aOR 2.95; 95% CI, 2.18-3.98). **Conclusion:** In this nationally r"
+03_nhanes_obesity,C023,numerical,3.98,L23,yes,yes,yes,,partial,loose,auto,"lysis was concordant (aOR 2.95; 95% CI, 2.18-3.98). **Conclusion:** In this nationally r"
+03_nhanes_obesity,C024,numerical,10.6,L119,yes,yes,yes,,partial,loose,auto,"evalence of diabetes was 11.7% (95% CI, 10.6-12.8), and the weighted prevalence of obesit"
+03_nhanes_obesity,C025,numerical,12.8,L119,yes,yes,yes,,complete,exact,auto,"evalence of diabetes was 11.7% (95% CI, 10.6-12.8), and the weighted prevalence of obesit"
+03_nhanes_obesity,C026,numerical,38.9,L120,yes,yes,yes,,partial,loose,auto,"revalence of obesity was 42.3% (95% CI, 38.9-45.7). Adults with diabetes were older than"
+03_nhanes_obesity,C027,numerical,45.7,L120,yes,yes,yes,,partial,loose,auto,"revalence of obesity was 42.3% (95% CI, 38.9-45.7). Adults with diabetes were older than"
+03_nhanes_obesity,C028,numerical,2.29,L128,yes,yes,yes,,partial,loose,auto,"lf-reported diabetes (aOR 3.03; 95% CI, 2.29-4.02; p < 0.001) after adjustment for age, s"
+03_nhanes_obesity,C029,numerical,4.02,L128,yes,yes,yes,,partial,loose,auto,"lf-reported diabetes (aOR 3.03; 95% CI, 2.29-4.02; p < 0.001) after adjustment for age, s"
+03_nhanes_obesity,C030,numerical,1.06,L130,,yes,yes,,partial,loose,auto,"th diabetes (aOR 1.07 per year; 95% CI, 1.06-1.08; p < 0.001), and female sex was associa"
+03_nhanes_obesity,C031,numerical,1.08,L130,,,,,missing,,auto,"th diabetes (aOR 1.07 per year; 95% CI, 1.06-1.08; p < 0.001), and female sex was associa"
+03_nhanes_obesity,C032,numerical,0.47,L131,,yes,yes,,complete,exact,auto,"ated with lower odds (aOR 0.66; 95% CI, 0.47-0.92; p = 0.046). Relative to non-Hispanic W"
+03_nhanes_obesity,C033,numerical,0.92,L131,,yes,yes,,complete,exact,auto,"ated with lower odds (aOR 0.66; 95% CI, 0.47-0.92; p = 0.046). Relative to non-Hispanic W"
+03_nhanes_obesity,C034,numerical,1.53,L132,,,,,missing,,auto,"r non-Hispanic Asian (aOR 2.39; 95% CI, 1.53-3.75), other/multiracial (aOR 1.95; 95% CI,"
+03_nhanes_obesity,C035,numerical,3.75,L132,,yes,yes,,complete,exact,auto,"r non-Hispanic Asian (aOR 2.39; 95% CI, 1.53-3.75), other/multiracial (aOR 1.95; 95% CI,"
+03_nhanes_obesity,C036,numerical,1.37,L133,,yes,yes,,complete,exact,auto,"), other/multiracial (aOR 1.95; 95% CI, 1.37-2.77), and Mexican American (aOR 1.68; 95% C"
+03_nhanes_obesity,C037,numerical,2.77,L133,,yes,yes,,complete,exact,auto,"), other/multiracial (aOR 1.95; 95% CI, 1.37-2.77), and Mexican American (aOR 1.68; 95% C"
+03_nhanes_obesity,C038,numerical,1.17,L133,,,,,missing,,auto,"and Mexican American (aOR 1.68; 95% CI, 1.17-2.41) adults. ### Sensitivity analysis Amo"
+03_nhanes_obesity,C039,numerical,2.41,L133,,yes,yes,,complete,exact,auto,"and Mexican American (aOR 1.68; 95% CI, 1.17-2.41) adults. ### Sensitivity analysis Amo"
+03_nhanes_obesity,C040,numerical,8.8,L138,outputs_md,yes,yes,,complete,exact,auto,"A1c of 6.5% or higher was 9.8% (95% CI, 8.8-10.8). Using this laboratory-based outcome,"
+03_nhanes_obesity,C041,numerical,10.8,L138,outputs_md,yes,yes,,partial,loose,auto,"A1c of 6.5% or higher was 9.8% (95% CI, 8.8-10.8). Using this laboratory-based outcome,"
+03_nhanes_obesity,C042,numerical,2.18,L140,yes,yes,yes,,complete,exact,auto,"the primary analysis (aOR 2.95; 95% CI, 2.18-3.98). ## **DISCUSSION** In a nationally r"
+03_nhanes_obesity,C043,numerical,3.98,L140,yes,yes,yes,,partial,loose,auto,"the primary analysis (aOR 2.95; 95% CI, 2.18-3.98). ## **DISCUSSION** In a nationally r"
+03_nhanes_obesity,C044,numerical,2018,L17,yes,yes,yes,,partial,loose,auto,"sis. **Results:** Of 9,254 NHANES 2017-2018 participants, 5,010 met eligibility criteria. The we"
+03_nhanes_obesity,C045,numerical,2018,L111,yes,yes,yes,,partial,loose,auto,"### Participants Of 9,254 NHANES 2017-2018 participants, 3,685 were excluded for being younger"
+03_nhanes_obesity,C046,numerical,5010,L114,yes,yes,yes,,complete,exact,auto,"ht. The final analytic sample comprised 5,010 adults, of whom 2,090 (41.7%) were classified"
+03_nhanes_obesity,C047,numerical,4779,L137,yes,yes,yes,,complete,exact,auto,"s. ### Sensitivity analysis Among the 4,779 participants with an available HbA1c measurement, th"
+03_nhanes_obesity,C048,numerical,2018,L192,yes,yes,yes,,partial,loose,auto,Weighted characteristics of NHANES 2017-2018 adults by diabetes status. See `analysis/table
+03_nhanes_obesity,C049,numerical,2018,L200,yes,yes,yes,,partial,loose,auto,ends **Figure 1.** Flow of NHANES 2017-2018 participants through eligibility criteria to the ana
+03_nhanes_obesity,C050,numerical,5010,L201,yes,yes,yes,,complete,exact,auto,"bility criteria to the analytic sample (n = 5,010). Dashed boxes indicate exclusions. **"
+03_nhanes_obesity,C051,numerical,6.5,L14,yes,yes,yes,,partial,loose,auto,glycohemoglobin-based outcome (HbA1c of 6.5% or higher) was used in a sensitivity an
+03_nhanes_obesity,C052,numerical,11.7,L18,yes,yes,yes,,partial,loose,auto,"The weighted prevalence of diabetes was 11.7% (95% confidence interval [CI], 10.6-12."
+03_nhanes_obesity,C053,numerical,42.3,L19,yes,yes,yes,,partial,loose,auto,"nterval [CI], 10.6-12.8) and of obesity 42.3% (95% CI, 38.9-45.7). The weighted preva"
+03_nhanes_obesity,C054,numerical,7.6,L19,yes,,,,missing,,auto,The weighted prevalence of diabetes was 7.6% among non-obese adults and 17.3% among
+03_nhanes_obesity,C055,numerical,17.3,L20,yes,,,,missing,,auto,tes was 7.6% among non-obese adults and 17.3% among adults with obesity. In the surve
+03_nhanes_obesity,C056,numerical,6.5,L83,yes,yes,yes,,partial,loose,auto,"tes, we used glycohemoglobin (HbA1c) of 6.5% or higher among participants with an av"
+03_nhanes_obesity,C057,numerical,41.7,L114,,,,,missing,,auto,"comprised 5,010 adults, of whom 2,090 (41.7%) were classified as obese on unweighted"
+03_nhanes_obesity,C058,numerical,11.7,L119,yes,yes,yes,,partial,loose,auto,"The weighted prevalence of diabetes was 11.7% (95% CI, 10.6-12.8), and the weighted p"
+03_nhanes_obesity,C059,numerical,42.3,L120,yes,yes,yes,,partial,loose,auto,"the weighted prevalence of obesity was 42.3% (95% CI, 38.9-45.7). Adults with diabet"
+03_nhanes_obesity,C060,numerical,7.6,L122,yes,,,,missing,,auto,The weighted prevalence of diabetes was 7.6% among non-obese adults and 17.3% among
+03_nhanes_obesity,C061,numerical,17.3,L123,yes,,,,missing,,auto,tes was 7.6% among non-obese adults and 17.3% among adults with obesity. ### Associa
+03_nhanes_obesity,C062,numerical,6.5,L138,yes,yes,yes,,partial,loose,auto,"the weighted prevalence of an HbA1c of 6.5% or higher was 9.8% (95% CI, 8.8-10.8)."
+03_nhanes_obesity,C063,numerical,9.8,L138,outputs_md,yes,yes,,partial,loose,auto,"lence of an HbA1c of 6.5% or higher was 9.8% (95% CI, 8.8-10.8). Using this laborato"
+03_nhanes_obesity,C064,numerical,42.3,L148,yes,yes,yes,,partial,loose,auto,e. The weighted prevalences of obesity (42.3%) and diabetes (11.7%) are consistent wi
+03_nhanes_obesity,C065,numerical,11.7,L148,yes,yes,yes,,partial,loose,auto,lences of obesity (42.3%) and diabetes (11.7%) are consistent with the high populatio
+03_nhanes_obesity,C066,numerical,7.6,L162,yes,,,,missing,,auto,ed prevalence: diabetes was reported by 7.6% of non-obese adults and 17.3% of adults
+03_nhanes_obesity,C067,numerical,17.3,L162,yes,,,,missing,,auto,"eported by 7.6% of non-obese adults and 17.3% of adults with obesity, a gradient that"
+03_nhanes_obesity,C068,reporting,STROBE,L66,yes,,,,complete,,auto,condary analysis. Reporting follows the STROBE recommendations for cross-sectional stu
+03_nhanes_obesity,C069,figure_table,Table 1,L95,,,,,manual-only,,manual,confidence intervals (CIs). A weighted Table 1 described participant characteristics b
+03_nhanes_obesity,C070,figure_table,Figure 1,L115,,,,,manual-only,,manual,"weighted counts and 2,920 as non-obese (Figure 1). ### Weighted prevalence The weighte"
+03_nhanes_obesity,C071,figure_table,Table 1,L122,,,,,manual-only,,manual,her mean BMI (33.3 versus 29.3 kg/m^2) (Table 1). The weighted prevalence of diabetes w
+03_nhanes_obesity,C072,figure_table,Table 2,L129,,,,,manual-only,,manual,"tment for age, sex, and race/ethnicity (Table 2, Figure 2). Older age was also associat"
+03_nhanes_obesity,C073,figure_table,Figure 2,L129,,,,,manual-only,,manual,"age, sex, and race/ethnicity (Table 2, Figure 2). Older age was also associated with di"
+03_nhanes_obesity,C074,figure_table,Table 1,L192,,,,,manual-only,,manual,rality and disease onset. ## Tables **Table 1.** Weighted characteristics of NHANES 2
+03_nhanes_obesity,C075,figure_table,Table 2,L195,,,,,manual-only,,manual,s. See `analysis/tables/table1.csv`. **Table 2.** Survey-weighted logistic regression
+03_nhanes_obesity,C076,figure_table,Figure 1,L200,,,,,manual-only,,manual,gression_or.csv`. ## Figure Legends **Figure 1.** Flow of NHANES 2017-2018 participant
+03_nhanes_obesity,C077,figure_table,Figure 2,L203,,,,,manual-only,,manual,). Dashed boxes indicate exclusions. **Figure 2.** Adjusted odds ratios (95% CI) for se
+03_nhanes_obesity,C078,analysis_method,Survey-weighted,L12,,script,yes,,complete,,auto,-reported physician-diagnosed diabetes. Survey-weighted logistic regression (examination weight
+03_nhanes_obesity,C079,analysis_method,logistic regression,L12,,script,yes,,complete,,auto,"ian-diagnosed diabetes. Survey-weighted logistic regression (examination weights, with stratificati"
+03_nhanes_obesity,C080,analysis_method,survey-weighted,L20,,script,yes,,complete,,auto,"17.3% among adults with obesity. In the survey-weighted model, obesity was associated with diab"
+03_nhanes_obesity,C081,analysis_method,survey-weighted,L47,,script,yes,,complete,,auto,"NVERIFIED]. A weighted prevalence and a survey-weighted odds ratio, estimated with design-based"
+03_nhanes_obesity,C082,analysis_method,survey-weighted,L96,,script,yes,,complete,,auto,t characteristics by diabetes status. A survey-weighted logistic regression model estimated the
+03_nhanes_obesity,C083,analysis_method,logistic regression,L96,,script,yes,,complete,,auto,s by diabetes status. A survey-weighted logistic regression model estimated the adjusted odds ratio
+03_nhanes_obesity,C084,analysis_method,survey-weighted,L127,,script,yes,,complete,,auto,"on between obesity and diabetes In the survey-weighted logistic regression model, obesity was"
+03_nhanes_obesity,C085,analysis_method,logistic regression,L127,,script,yes,,complete,,auto,"ty and diabetes In the survey-weighted logistic regression model, obesity was associated with self"
+03_nhanes_obesity,C086,analysis_method,survey-weighted,L186,,script,yes,,complete,,auto,pendently associated with diabetes in a survey-weighted analysis. Given the cross-sectional des
+03_nhanes_obesity,C087,analysis_method,Survey-weighted,L195,,script,yes,,complete,,auto,lysis/tables/table1.csv`. **Table 2.** Survey-weighted logistic regression for self-reported d
+03_nhanes_obesity,C088,analysis_method,logistic regression,L195,,script,yes,,complete,,auto,le1.csv`. **Table 2.** Survey-weighted logistic regression for self-reported diabetes (adjusted od
+03_nhanes_obesity,C089,analysis_method,survey-weighted,L204,,script,yes,,complete,,auto,"CI) for self-reported diabetes from the survey-weighted logistic regression model (weights, str"
+03_nhanes_obesity,C090,analysis_method,logistic regression,L204,,script,yes,,complete,,auto,"orted diabetes from the survey-weighted logistic regression model (weights, stratification, and clu"

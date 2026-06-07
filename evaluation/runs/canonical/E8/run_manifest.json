@@ -1,0 +1,25 @@
+{
+  "components": [
+    {
+      "command_args": [],
+      "component_type": "deterministic_script",
+      "expected_reproducibility": "exact",
+      "git_sha": "e5c6c562b224479f6da6b9caaa526bd5207899ff",
+      "input_hash": "8be1572b778db7743a8ad6a513dee6f91bc4e2ba7ae36ff4819312426e434640",
+      "model_name": null,
+      "output_hash": "bd95058b857f555c8fb47cbbd05ff98f4ad261f9765b2e75ad3d9ce72684cc00",
+      "rerun_policy": "rerun any time; operates on a fresh git-archive temp copy, real repo untouched",
+      "script_path": "evaluation/h6_inventory_drift/run_e8_drift.py",
+      "seed": null
+    }
+  ],
+  "experiment_id": "E8",
+  "git_dirty": true,
+  "git_sha": "e5c6c562b224479f6da6b9caaa526bd5207899ff",
+  "reproducibility_hash": "205c85533a4b24e6f72ccf36e232607f831c01ef880dce17991aef85056d5927",
+  "reproducibility_targets": {
+    "drift_matrix.csv": "bd95058b857f555c8fb47cbbd05ff98f4ad261f9765b2e75ad3d9ce72684cc00",
+    "metrics.csv": "bd95058b857f555c8fb47cbbd05ff98f4ad261f9765b2e75ad3d9ce72684cc00"
+  },
+  "timestamp": "2026-06-07T18:58:11"
+}

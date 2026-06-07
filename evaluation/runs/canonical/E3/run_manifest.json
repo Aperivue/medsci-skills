@@ -1,0 +1,25 @@
+{
+  "components": [
+    {
+      "command_args": [],
+      "component_type": "deterministic_script",
+      "expected_reproducibility": "near-exact",
+      "git_sha": "e5c6c562b224479f6da6b9caaa526bd5207899ff",
+      "input_hash": null,
+      "model_name": null,
+      "output_hash": "3602aa443d8b162d1161e7522a0adb6a6680eb906b75dd6110622333d37cf594",
+      "rerun_policy": "re-aggregate after a full suite run; wall-clock varies by machine",
+      "script_path": "evaluation/e3_cost_time/aggregate_timing.py",
+      "seed": null
+    }
+  ],
+  "experiment_id": "E3",
+  "git_dirty": true,
+  "git_sha": "e5c6c562b224479f6da6b9caaa526bd5207899ff",
+  "reproducibility_hash": "5a5e0251bc96924c2c982b22312d2f5ea0e55dfc4ca4a1d3153139ad71bd1c4b",
+  "reproducibility_targets": {
+    "cost_time.csv": "3602aa443d8b162d1161e7522a0adb6a6680eb906b75dd6110622333d37cf594",
+    "metrics.csv": "3602aa443d8b162d1161e7522a0adb6a6680eb906b75dd6110622333d37cf594"
+  },
+  "timestamp": "2026-06-07T18:58:15"
+}

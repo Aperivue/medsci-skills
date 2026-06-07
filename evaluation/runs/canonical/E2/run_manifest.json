@@ -1,0 +1,24 @@
+{
+  "components": [
+    {
+      "command_args": [],
+      "component_type": "llm_baseline",
+      "expected_reproducibility": "non-deterministic",
+      "git_sha": "e5c6c562b224479f6da6b9caaa526bd5207899ff",
+      "input_hash": "ecf973e56d3d5db0e7f134cde9d2b034e150bb59dd453ce0efa568ed46c6725d",
+      "model_name": "claude-opus-4-8",
+      "output_hash": "93bef183145bee77624c102c59c9f7b55e597bc42199745a45a9c8a78e6d2778",
+      "rerun_policy": "run with ANTHROPIC_API_KEY + anthropic SDK; temperature 0, single sample",
+      "script_path": null,
+      "seed": null
+    }
+  ],
+  "experiment_id": "E2",
+  "git_dirty": true,
+  "git_sha": "e5c6c562b224479f6da6b9caaa526bd5207899ff",
+  "reproducibility_hash": "bc118e9b1ad31fc730208e97c74818379fdae9ab1ef4bdac7d5890cf360ec1c8",
+  "reproducibility_targets": {
+    "metrics.csv": "93bef183145bee77624c102c59c9f7b55e597bc42199745a45a9c8a78e6d2778"
+  },
+  "timestamp": "2026-06-07T18:58:16"
+}

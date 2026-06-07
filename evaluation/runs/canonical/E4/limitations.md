@@ -1,0 +1,1 @@
+Verified ref=HEAD (e5c6c562b224). The archive is a clean committed tree (no working-tree state). pandas was preinstalled in the running interpreter; a true cold-start would `pip install pandas` first. Pass/fail is deterministic; wall-clock varies and is excluded from the reproducibility hash.

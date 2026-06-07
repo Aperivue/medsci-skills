@@ -53,7 +53,7 @@ Restart Claude Code, then start with **`/orchestrate`** — it classifies your r
 
 ## Live Demos: Three Study Types, Three Full Pipelines
 
-Three public datasets. Three study types. Each produces a complete manuscript, publication-ready figures, reporting compliance audit, and presentation slides.
+Three public datasets. Three study types. Each produces a complete manuscript, publication-ready figures, and a reporting compliance audit.
 
 | Demo | Dataset | Study Type | Compliance |
 |------|---------|------------|------------|
@@ -71,20 +71,19 @@ data = load_breast_cancer()  # 569 samples, zero download
 **Output from `orchestrate --e2e`** ([see full demo](demo/01_wisconsin_bc/)):
 
 <details>
-<summary>Full output list — manuscript, figures, STARD flow, checklist, slides (click to expand)</summary>
+<summary>Full output list — manuscript, figures, STARD flow, checklist (click to expand)</summary>
 
 | Output | Description |
 |--------|-------------|
-| [Manuscript](demo/01_wisconsin_bc/manuscript/manuscript.md) | IMRAD draft, ~1,900 words |
+| [Manuscript](demo/01_wisconsin_bc/manuscript/manuscript.md) | IMRAD draft, ~1,800 words |
 | [Title Page](demo/01_wisconsin_bc/manuscript/title_page.md) | STARD title page with key points |
 | [DOCX](demo/01_wisconsin_bc/manuscript/manuscript_final.docx) | Submission-ready Word document |
 | [ROC Curve](demo/01_wisconsin_bc/analysis/figures/roc_curve.png) | 3-model comparison with DeLong 95% CIs |
-| [STARD Flow](demo/01_wisconsin_bc/analysis/figures/stard_flow.svg) | D2-generated STARD 2015 flow diagram |
-| [Reporting Checklist](demo/01_wisconsin_bc/qc/reporting_checklist.md) | STARD 2015 — 82.1% compliance (23/28 PRESENT) |
-| [Self-Review](demo/01_wisconsin_bc/qc/self_review.md) | Score 83/100 (2 fix iterations; initial 74), 4 major / 5 minor |
+| [Confusion Matrices](demo/01_wisconsin_bc/analysis/figures/confusion_matrices.png) | Per-model confusion matrices at threshold 0.5 |
+| [STARD Flow](demo/01_wisconsin_bc/figures/stard_flow.svg) | D2-generated STARD 2015 flow diagram |
+| [Reporting Checklist](demo/01_wisconsin_bc/qc/reporting_checklist.md) | STARD 2015 — 60.9% compliance (14/23 applicable) |
+| [Self-Review](demo/01_wisconsin_bc/qc/self_review.md) | Initial 82 (REVISE) → 88 (PASS) after 1 fix iteration; final 0 major / 1 minor |
 | [Pipeline Log](demo/01_wisconsin_bc/qc/_pipeline_log.md) | 7-step E2E execution trace |
-| [Presentation](demo/01_wisconsin_bc/presentation/presentation.pptx) | 12 slides with speaker notes |
-| [Cover Letter](demo/01_wisconsin_bc/submission/radiology_ai/cover_letter.md) | Example submission cover letter |
 
 </details>
 
@@ -100,20 +99,19 @@ data(dat.bcg)  # 13 RCTs, 357,347 participants (Colditz et al. 1994)
 **Output from `orchestrate --e2e`** ([see full demo](demo/02_metafor_bcg/)):
 
 <details>
-<summary>Full output list — manuscript, forest/bubble plots, PRISMA flow, checklist, slides (click to expand)</summary>
+<summary>Full output list — manuscript, forest/funnel plots, PRISMA flow, checklist (click to expand)</summary>
 
 | Output | Description |
 |--------|-------------|
-| [Manuscript](demo/02_metafor_bcg/manuscript/manuscript.md) | Pooled RR = 0.489 (95% CI: 0.344–0.696), ~2,600 words |
+| [Manuscript](demo/02_metafor_bcg/manuscript/manuscript.md) | Pooled RR = 0.489 (95% CI: 0.344–0.696), ~2,200 words |
 | [Title Page](demo/02_metafor_bcg/manuscript/title_page.md) | PRISMA title page with key points |
 | [DOCX](demo/02_metafor_bcg/manuscript/manuscript_final.docx) | Submission-ready Word document |
-| [Forest Plot](demo/02_metafor_bcg/analysis/figures/forest_plot.png) | 13 studies, RE model (REML), 300 dpi |
-| [Bubble Plot](demo/02_metafor_bcg/analysis/figures/bubble_plot.png) | Meta-regression: latitude vs. RR (R² = 75.6%) |
+| [Forest Plot](demo/02_metafor_bcg/analysis/figures/forest.png) | 13 studies, RE model (REML), 300 dpi |
+| [Funnel Plot](demo/02_metafor_bcg/analysis/figures/funnel.png) | Small-study / publication-bias visual |
 | [PRISMA Flow](demo/02_metafor_bcg/analysis/figures/prisma_flow.svg) | D2-generated PRISMA 2020 flow diagram |
-| [Reporting Checklist](demo/02_metafor_bcg/qc/reporting_checklist.md) | PRISMA 2020 — 77.8% compliance (21/27 PRESENT) |
-| [Self-Review](demo/02_metafor_bcg/qc/self_review.md) | Score 82/100 (2 fix iterations; initial 72), 4 major / 5 minor |
+| [Reporting Checklist](demo/02_metafor_bcg/qc/reporting_checklist.md) | PRISMA 2020 — 57.1% compliance (24/42 applicable) |
+| [Self-Review](demo/02_metafor_bcg/qc/self_review.md) | Initial 78 → 82 (REVISE) after 1 fix iteration; 3 major / 4 minor (majors are out-of-scope RoB/GRADE/references) |
 | [Pipeline Log](demo/02_metafor_bcg/qc/_pipeline_log.md) | 7-step E2E execution trace |
-| [Presentation](demo/02_metafor_bcg/presentation/presentation.pptx) | 12 slides with speaker notes |
 
 </details>
 
@@ -123,26 +121,24 @@ data(dat.bcg)  # 13 RCTs, 357,347 participants (Colditz et al. 1994)
 
 ```python
 # Pre-processed NHANES 2017-2018 CSV included
-# 4,866 US adults after exclusions
+# 5,010 US adults after exclusions
 ```
 
 **Output from `orchestrate --e2e`** ([see full demo](demo/03_nhanes_obesity/)):
 
 <details>
-<summary>Full output list — manuscript, prevalence/OR plots, STROBE flow, checklist, slides (click to expand)</summary>
+<summary>Full output list — manuscript, OR forest plot, STROBE flow, checklist (click to expand)</summary>
 
 | Output | Description |
 |--------|-------------|
-| [Manuscript](demo/03_nhanes_obesity/manuscript/manuscript.md) | Adjusted OR = 4.50 (95% CI: 3.23–6.27), ~2,800 words |
+| [Manuscript](demo/03_nhanes_obesity/manuscript/manuscript.md) | Adjusted OR = 3.03 (95% CI: 2.29–4.02), ~1,850 words |
 | [Title Page](demo/03_nhanes_obesity/manuscript/title_page.md) | STROBE title page with key points |
 | [DOCX](demo/03_nhanes_obesity/manuscript/manuscript_final.docx) | Submission-ready Word document |
-| [Prevalence Chart](demo/03_nhanes_obesity/analysis/figures/prevalence_by_bmi.png) | Diabetes prevalence by BMI with Wilson 95% CIs |
-| [OR Forest Plot](demo/03_nhanes_obesity/analysis/figures/or_forest_plot.png) | Adjusted odds ratios for 7 variables |
+| [OR Forest Plot](demo/03_nhanes_obesity/analysis/figures/forest_or.png) | Adjusted odds ratios for 7 variables |
 | [Study Flow](demo/03_nhanes_obesity/analysis/figures/strobe_flow.svg) | D2-generated participant flow diagram |
-| [Reporting Checklist](demo/03_nhanes_obesity/qc/reporting_checklist.md) | STROBE — 81.8% compliance (18/22 PRESENT) |
-| [Self-Review](demo/03_nhanes_obesity/qc/self_review.md) | Score 85/100 PASS (2 fix iterations; initial 75), 4 major / 5 minor |
+| [Reporting Checklist](demo/03_nhanes_obesity/qc/reporting_checklist.md) | STROBE — 83.3% compliance (25/30 applicable) |
+| [Self-Review](demo/03_nhanes_obesity/qc/self_review.md) | ACCEPT-WITH-NOTES after 1 fix iteration; 0 genuine majors remaining |
 | [Pipeline Log](demo/03_nhanes_obesity/qc/_pipeline_log.md) | 7-step E2E execution trace |
-| [Presentation](demo/03_nhanes_obesity/presentation/presentation.pptx) | 12 slides with speaker notes |
 
 </details>
 
@@ -184,6 +180,8 @@ The E2E pipeline (`orchestrate --e2e`) produces everything up to `qc/`. The `sub
 ---
 
 ## What's New
+
+**v3.8.0** adds an `evaluation/` harness suite that validates the instrument itself — deterministic detector recall on programmatically seeded defects (E1), fresh-clone manifest reproducibility (E4), claim audit-trail completeness (E5), host-portability and metadata-drift checks (E6/E7/E8), and a cost/time table (E3) — each writing a self-describing, reproducible run package. An LLM-comparator (E2) and a self-review convergence harness (E9) ship runnable but are NOT executed in this release. This release also reconciles the README Live-Demos numbers with the v3.7.0 clean-room demo artifacts. Catalog unchanged (still 43 skills, 21 detectors).
 
 **v3.7.0** adds three deterministic, stdlib-only detectors on top of the v3.6.0 panel-derived gates — bringing the analysis-integrity detector count in `skills/` to **21** — without broadening the catalog (still 43 skills):
 

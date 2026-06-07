@@ -1,0 +1,1 @@
+Wall-clock is a machine-dependent observation (near-exact), not a reproducibility target. Deterministic harnesses incur ~0 token cost; E2/E9 report tokens/cost only when actually run (they are NOT_RUN by default). Aggregates the most recent run per experiment.

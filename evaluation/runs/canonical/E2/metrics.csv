@@ -1,0 +1,2 @@
+status,reason,model,note
+NOT_RUN,default mode (pass --with-llm to attempt execution),claude-opus-4-8,LLM comparator specified and archived; not analyzed in this release

@@ -1,0 +1,77 @@
+# Registry of evaluation harnesses for the MedSci Skills methods/architecture paper.
+# Single place a reader or CI consults to know what each harness does, its
+# determinism class, default network behaviour, and target manuscript artifact.
+schema_version: 1
+
+harnesses:
+  - id: E1
+    name: seeded_defect_benchmark
+    script: h1_seeded_defects/run_h1.py
+    determinism: exact
+    network_default: offline      # online citation defects (FABRICATED/MISMATCH) -> NOT_RUN unless --online
+    output: runs/<ts>_E1/metrics.csv
+    manuscript_target: "Table 2 (detector validation) + optional Figure S1"
+
+  - id: E2
+    name: llm_self_check_baseline
+    script: h2_llm_baseline/run_h2.py
+    determinism: non-deterministic
+    network_default: skip_without_api_key   # graceful NOT_RUN
+    output: runs/<ts>_E2/metrics.csv
+    manuscript_target: "Repo + one Methods sentence (no table)"
+
+  - id: E3
+    name: cost_time_feasibility
+    script: e3_cost_time/aggregate_timing.py
+    determinism: near-exact
+    network_default: offline
+    output: runs/<ts>_E3/cost_time.csv
+    manuscript_target: "Supplement"
+
+  - id: E4
+    name: fresh_clone_reproducibility
+    script: h3_fresh_clone/run_h3.py
+    determinism: exact
+    network_default: offline
+    output: runs/<ts>_E4/metrics.csv
+    manuscript_target: "Table 3 summary row + Transparency paragraph"
+
+  - id: E5
+    name: audit_trail_completeness
+    script: h4_audit_trail/run_h4.py
+    determinism: exact_extract_plus_human_score
+    network_default: offline
+    output: runs/<ts>_E5/claims_audit.csv
+    manuscript_target: "Table 3 summary + supplement detail"
+
+  - id: E6
+    name: host_portability_smoke
+    script: h5_portability/run_h5.py
+    determinism: exact
+    network_default: offline
+    output: runs/<ts>_E6/portability_matrix.csv
+    manuscript_target: "Table 3 summary + supplement"
+
+  - id: E7
+    name: gate_coverage_inventory
+    script: h6_inventory_drift/run_e7_inventory.py
+    determinism: exact
+    network_default: offline
+    output: runs/<ts>_E7/coverage_matrix.csv
+    manuscript_target: "Supplement (coverage inventory)"
+
+  - id: E8
+    name: claim_drift_resistance
+    script: h6_inventory_drift/run_e8_drift.py
+    determinism: exact
+    network_default: offline
+    output: runs/<ts>_E8/drift_matrix.csv
+    manuscript_target: "Supplement note"
+
+  - id: E9
+    name: selfreview_convergence
+    script: h7_selfreview_convergence/run_h7.py
+    determinism: non-deterministic
+    network_default: skip_without_runner    # graceful NOT_RUN
+    output: runs/<ts>_E9/convergence.csv
+    manuscript_target: "Repo + one Methods sentence (no table)"

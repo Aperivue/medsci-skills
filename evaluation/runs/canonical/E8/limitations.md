@@ -1,0 +1,1 @@
+Drift is injected into a git-archive copy of HEAD; the live repo is never modified. A SKIPPED_target_absent row means the drift's target string was not present in the archived README (e.g. badge format changed) and is not a validator miss.

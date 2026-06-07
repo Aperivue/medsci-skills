@@ -1,0 +1,6 @@
+drift_id,layer,injected_change,validator_exit,caught,status
+BASELINE_clean,-,(none),0,n/a,PASS
+README_skill_badge_+1,L3-doc,Skills badge count +1,1,yes,OK
+README_skill_tagline_+1,L3-doc,'N skills that actually work' +1,1,yes,OK
+SSOT_skills_+1,L2-ssot,catalog_counts.json::skills +1,1,yes,OK
+SSOT_reporting_guidelines_+1,L2-ssot,catalog_counts.json::reporting_guidelines +1,1,yes,OK

@@ -1,0 +1,25 @@
+{
+  "components": [
+    {
+      "command_args": [],
+      "component_type": "llm_baseline",
+      "expected_reproducibility": "non-deterministic",
+      "git_sha": "e5c6c562b224479f6da6b9caaa526bd5207899ff",
+      "input_hash": null,
+      "model_name": "self-review-loop (agent/LLM)",
+      "output_hash": "15e33a963364f2d3c9f1cc1ac224e0e8f3f8b971c20a28581b7967c3c539d5cc",
+      "rerun_policy": "configure MEDSCI_SELFREVIEW_RUNNER; bounded 3-5 rounds; N replicates advised",
+      "script_path": null,
+      "seed": null
+    }
+  ],
+  "experiment_id": "E9",
+  "git_dirty": true,
+  "git_sha": "e5c6c562b224479f6da6b9caaa526bd5207899ff",
+  "reproducibility_hash": "8136cc84688c05bbbe3d627a96cc18afad2cac2f699d1ee8516c256747a2a627",
+  "reproducibility_targets": {
+    "convergence.csv": "15e33a963364f2d3c9f1cc1ac224e0e8f3f8b971c20a28581b7967c3c539d5cc",
+    "metrics.csv": "15e33a963364f2d3c9f1cc1ac224e0e8f3f8b971c20a28581b7967c3c539d5cc"
+  },
+  "timestamp": "2026-06-07T18:58:16"
+}
