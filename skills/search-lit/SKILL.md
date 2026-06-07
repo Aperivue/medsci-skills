@@ -328,6 +328,39 @@ When called during manuscript writing (especially by `/write-paper` Phase 7):
 
 ## Specialized Search Modes
 
+### Mode: Manuscript Paper Reference Pool
+
+For supplying a manuscript's reference pool — typically invoked by `/write-paper` Step 7.3c (or
+`/self-review` Phase 2.5c-2) when the **reference adequacy** gate finds the draft under target or a
+named method uncited, but usable directly when building out an original-research bibliography.
+
+This mode is deliberately **broad**: for an original-research article, return **25–40** verified
+candidates, not the ~10 a quick search settles on. Do not stop early unless the field is genuinely
+sparse — and if it is, say so explicitly rather than returning a thin list silently. Respect a
+narrower journal reference cap or user scope when one is given.
+
+Structure the pool across **six candidate categories** so the gaps the adequacy gate cares about
+are all covered:
+
+1. **Background / disease burden / clinical context** — establishes why the question matters.
+2. **Gap-defining prior studies** — the work the manuscript extends or contradicts.
+3. **Comparator / comparable-design cohorts** — studies the Results will be measured against.
+4. **Methods / statistical canonical sources** — the originating reference for every named method,
+   model, score, equation, or diagnostic criterion (e.g. competing-risk model, multiple
+   imputation, E-value, eGFR equation, concordance statistic). This is the category that clears
+   Methods named-method gaps.
+5. **Reporting-guideline sources** — STROBE, TRIPOD(+AI), CONSORT, PRISMA(-DTA), STARD, etc.
+6. **Interpretation / mechanism / limitation support** — grounds Discussion claims.
+
+For each candidate, report: **PMID/DOI**, **verification status**, **candidate category**, the
+**target manuscript section** it belongs in, and a one-line **why it is needed**.
+
+Boundary (unchanged): every entry is API-verified before inclusion, and BibTeX is appended **only**
+to `references/library.bib` — the candidate pool for `/lit-sync` to import into Zotero. **Never**
+write to `manuscript/_src/refs.bib`; that SSOT belongs to `/lit-sync`. This mode produces
+candidates; it does not decide inclusion (the user does) and it does not insert references into the
+manuscript bib.
+
 ### Mode: Systematic Search
 
 For systematic reviews or comprehensive literature sections:

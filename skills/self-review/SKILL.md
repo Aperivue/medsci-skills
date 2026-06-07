@@ -554,6 +554,40 @@ Numerical audits (2.5/2.5a/2.5b) cover in-text numbers; they do **not** cover re
 
 **Do NOT fabricate replacement references** if any entry fails. Fix-forward belongs to `/search-lit` and `/lit-sync`, not to this skill. Self-review only reports the failure and blocks submission.
 
+### Phase 2.5c-2: Reference Adequacy Scan
+
+Phase 2.5c covers reference **integrity** — are the cited references real (fabricated / unverified / duplicate / placeholder)? It does **not** ask whether there are *enough* references, in the right sections, grounding every named method. That is reference **adequacy**, and it is the failure mode behind a draft with thirteen references where the Statistical Analysis subsection names a competing-risk model, multiple imputation, the E-value, and an eGFR equation with zero citations. Keep the two strictly separate: an integrity failure blocks because a citation is *wrong*; an adequacy failure flags because a citation is *missing*.
+
+**When to run:** every manuscript at self-review, after the integrity scan. The two share the manuscript and the resolved bib path.
+
+**Procedure:**
+
+1. **Run the deterministic checker.** Resolve the article type from `project.yaml` (passed verbatim; the script's alias map handles repo paper-type names) and the journal cap from the target journal profile when known:
+
+   ```bash
+   python3 "${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/self-review/scripts/check_reference_adequacy.py" \
+     --manuscript manuscript/manuscript.md --bib "$BIB" \
+     --article-type "$TYPE" ${CAP:+--journal-cap "$CAP"} \
+     --out qc/reference_adequacy.json --strict
+   ```
+
+   It reports the cited-reference count vs the article-type target, the section distribution (Introduction / Methods / Results / Discussion), every named method found in the Methods/Statistical-Analysis block, which of them lack a citation in their paragraph, and a `methods_zero_citations` flag.
+
+2. **Fold `findings[]` into the review.** Each finding becomes a standard `issues[]` entry (so `/revise` and downstream consumers ingest adequacy and other comments uniformly), **additively** carrying the machine-readable `issue_type` + `subtype` alongside the usual fields, under `category: "F" / category_name: "Reporting Completeness"`:
+
+   ```json
+   {"id":"M2","severity":"major","category":"F","category_name":"Reporting Completeness",
+    "issue_type":"reference_adequacy","subtype":"methods_named_method_uncited",
+    "location":"Methods - Statistical Analysis",
+    "description":"Fine-Gray competing-risk model is named without a canonical citation.",
+    "fixable_by_ai":false,
+    "suggested_fix":"Run /search-lit for the canonical Fine-Gray competing-risk source, sync via /lit-sync, then rerun /verify-refs --strict."}
+   ```
+
+   **Severity:** `methods_zero_citations` (original / AI-validation / meta-analysis) and each uncited statistical method → **Major** (a P0 candidate before submission when the method is central to the primary or a sensitivity analysis); each uncited reporting/diagnostic standard → **Minor**; a total count below the article-type target → **Major** when far below (under half the floor), otherwise **Minor**, scaled also by stage (escalate at a submission/circulation gate).
+
+3. **Fix-forward, not fabricate.** As in Phase 2.5c, this skill never writes replacement references. Every adequacy finding carries `fixable_by_ai: false`; the remedy is `/search-lit` (Manuscript Paper Reference Pool mode) → `/lit-sync` → `/verify-refs --strict`, which the author runs.
+
 ### Phase 2.5d: Cross-Reference QC (Manuscript ↔ rendered DOCX)
 
 Reference-list integrity (Phase 2.5c) does **not** cover Table/Figure
