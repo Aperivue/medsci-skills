@@ -49,6 +49,32 @@ Collect from the user:
 
 ---
 
+## Phase 0.5: Skill-Worthiness Gate
+
+Before spending effort on PII scrubbing and generalization, confirm the workflow is
+worth distributing *as a skill* at all. A skill earns its place by encoding a reusable
+decision heuristic, a hard-won constraint, or a verification step — not a snippet anyone
+could reconstruct in five minutes. Apply all three gates; **any "no" (or "yes" on the
+inverse) stops publication** in favor of documentation or a memory note instead.
+
+| Gate | Question | Pass condition |
+|------|----------|----------------|
+| **Uniqueness** | Could a competent user get the same result by searching the web for ~5 minutes, or by asking a general assistant with no skill installed? | **No** |
+| **Specificity** | Does it encode a workflow, decision heuristic, constraint, or convention specific to this domain or a recurring task — rather than a generic code snippet or a standard-library example? | **Yes** |
+| **Effort** | Did discovering it take real debugging, study design, operational effort, or a reviewer-anticipation lesson (a pitfall, a verification step, a domain convention)? | **Yes** |
+
+Favor skills that encode reviewer-anticipation, reporting-guideline constraints,
+verification gates, and decision trees over thin wrappers or one-off snippets. This is
+the publish-time analogue of the "reusable pattern vs one-off hack" distinction: a
+workflow that fails the gate is better captured as a doc or a memory note than shipped as
+a skill that dilutes the catalog.
+
+**Gate**: If any of the three fails, recommend documentation/memory instead and stop. If
+the value is real but the skill delegates to private agents, route through Phase 1's
+orchestrator finding (refactor to standalone first). Only a clear three-way pass proceeds.
+
+---
+
 ## Phase 1: Originality Check
 
 Verify the skill is original work suitable for open-source distribution.

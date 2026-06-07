@@ -802,6 +802,21 @@ Each reviewer returns: `reviewer_id`, `expertise_area`, an `overall_assessment` 
 4. **Rank** the concrete pre-submission actions the author should complete first.
 5. State a one-line **readiness verdict** (ready for the target tier now / fix specific items first / consider a different tier).
 
+**Step 3.5 — Lens-diversity gate (deterministic).** A panel only earns its cost if its reviewers span *distinct* axes rather than echo one theme louder. Before the editor finalizes, serialize the reviewers' structured outputs (the schema above) to a JSON file — either a top-level list or `{"reviewers": [...], "research_type": "..."}` — and run the gate:
+
+```bash
+python3 ${CLAUDE_SKILL_DIR}/scripts/check_panel_diversity.py \
+    --panel panel_reviews.json \
+    --research-type {survival|sr_ma|radiomics|dta|observational|narrative} --strict
+```
+
+It reports three diversity failures, each mapped onto a concern family aligned to the focus checklists:
+- **`UNCOVERED_AXIS`** (Major) — an axis the research type is expected to probe (e.g. heterogeneity/pooling for an SR/MA) drew **zero** major findings. The editor re-probes it with the owning reviewer before finalizing, or records in the synthesis why the gap is acceptable.
+- **`FAMILY_MONOCULTURE`** (Major) — the majority of majors fall in one concern family; the lenses converged rather than spanned the manuscript.
+- **`LENS_COLLAPSE`** (Flag) — a reviewer raised only families another reviewer already covered, adding no independent axis.
+
+Healthy CONSENSUS is preserved — agreement on *some* themes is a strength (Step 3 flags it), and the gate fires `LENS_COLLAPSE` only on a *fully* redundant reviewer and the Major checks on panel-level coverage, never on agreement per se. Do not silently ship a monoculture: resolve every Major before the synthesis verdict.
+
 **Step 4 — Feed Phase 3.** The consolidated panel output flows into the Phase 3 report, Phase 3b R0 numbering (**preserved**, so `/revise` still consumes it), and Phase 3c JSON. CONSENSUS flags and reviewer attribution are additive annotations on the existing `M`/`m` comments (and the optional `consensus` JSON field); they do not change the report or JSON structure.
 
 ### Phase 3: Report

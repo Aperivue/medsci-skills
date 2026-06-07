@@ -167,6 +167,36 @@ Study type: {detected or user-specified type}
 
 This manifest enables downstream skills (`/make-figures`, `/write-paper`) to auto-discover analysis outputs without user intervention.
 
+### Phase 3.5: Generated-Code Quality Gate
+
+Before reporting any script as final, lint every emitted `.py`/`.R` file for the
+reproducibility-hygiene "slop" that AI-generated analysis code recurrently carries:
+
+```bash
+python3 ${CLAUDE_SKILL_DIR}/scripts/check_generated_code.py {script.py} --strict
+# or scan a whole output directory:
+python3 ${CLAUDE_SKILL_DIR}/scripts/check_generated_code.py --code-dir {analysis_dir} --strict
+```
+
+**Major findings (fix before reporting the script):**
+- `MISSING_SEED` — randomness used (sampling, bootstrap, train/test split, rng) with no
+  `np.random.seed` / `set.seed` / `random_state=` / `default_rng`. Non-reproducible.
+- `HARDCODED_DATA_LITERAL` — a hand-typed, table-shaped numeric literal instead of
+  `read_csv()`/`read.csv()` + subset. This is the data-integrity rule "never hand-type CSV
+  data into scripts."
+- `HARDCODED_ABS_PATH` — an absolute path literal (`/Users/`, `/home/`, `C:\`, `~/Documents`).
+  Non-portable and a PII risk.
+- `INPLACE_SOURCE_OVERWRITE` — writing to the same path read as input; this overwrites raw
+  data. Write derived outputs to a new path ("never modify raw data").
+
+**Flags (fix when tidying):** `DEBUG_LEFTOVER` (a `breakpoint()` / `browser()` / debug print
+/ TODO marker left in) and `UNUSED_IMPORT` (a dead Python dependency).
+
+The gate is conservative on the Major checks — it fires `HARDCODED_DATA_LITERAL` only on
+genuinely table-shaped literals and `MISSING_SEED` only on a real randomness call — so it
+stays quiet on legitimate analysis code. It is the analysis-side mirror of the
+data-integrity and reproducibility checks `/self-review` is built to catch downstream.
+
 ### Phase 4: Report
 
 After execution, generate manuscript-ready text:

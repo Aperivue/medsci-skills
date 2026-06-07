@@ -146,3 +146,32 @@ design-level finding, **Fixable** for a reporting-level finding.
 > JSON, adding the optional `consensus` field where ≥2 reviewers agreed. Follow the
 > manuscript-style rules: no "§" symbols, minimal em-dashes, full prose, cite specific
 > locations.
+
+---
+
+## Lens-diversity gate (Step 3.5)
+
+Before finalizing, the editor runs `scripts/check_panel_diversity.py` on the collected
+reviewer JSON. The gate classifies each major finding into a concern family and checks
+that the panel spans the axes its research type is expected to probe — the deterministic
+backstop against a panel converging on one easy theme while a high-risk axis goes unprobed.
+
+**Expected high-risk axes per research type** (each should yield ≥1 major; mirrors the
+Phase 2.6 reviewer-set table). Optional axes — for example imaging when the exposure is
+non-imaging — are not required:
+
+| Research type | Expected axes (families) |
+|---|---|
+| Survival / prognostic | statistics, clinical |
+| Systematic review / meta-analysis | search_screening, clinical, statistics |
+| Radiomics | imaging, statistics, clinical |
+| Diagnostic-accuracy / AI model | design_leakage, statistics, clinical |
+| Observational (STROBE) | confounding, clinical, statistics |
+| Narrative / review article | clinical, reporting |
+
+Concern families the classifier recognizes: `search_screening`, `design_leakage`,
+`confounding`, `imaging`, `reporting`, `reproducibility`, `statistics`, `clinical`
+(everything else falls to `other` and does not count toward coverage). When the research
+type is unknown, the axis-coverage check is skipped (the monoculture and lens-collapse
+checks still run). The gate never penalizes genuine consensus — only full reviewer
+redundancy (`LENS_COLLAPSE`) or panel-level concentration (`FAMILY_MONOCULTURE`).

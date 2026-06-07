@@ -82,6 +82,8 @@ manuscript/figures/_legacy/              # archived prior versions
 
 Composition scripts should load only from `_assets_servier/` and `_assets_data/`. If a script imports from `_assets_ai/`, treat it as a policy violation for JACC/NEJM/unknown targets.
 
+When a figure is produced by a data-driven `.py`/`.R` script (ROC, forest, KM, calibration, heat maps), lint that script before finalizing with the `/analyze-stats` code-quality gate (`check_generated_code.py {script} --strict`): it catches a missing plotting seed for any bootstrapped CI band, a hardcoded absolute data path, or a hand-typed data literal that should have been read from the analysis CSV.
+
 ### Decoration vs information
 
 Even when AI images are allowed, AI-generated illustrations are immediately recognizable to experienced reviewers (small decorative icons that add no information, overly uniform layouts, generic clip-art style). For high-impact submissions, prefer Servier / BioArt / BioRender + matplotlib overlays over AI.

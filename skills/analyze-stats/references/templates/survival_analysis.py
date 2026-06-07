@@ -28,14 +28,12 @@ Dependencies:
 
 import argparse
 import sys
-import warnings
 from datetime import datetime
 
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
-from scipy import stats
 
 try:
     from lifelines import KaplanMeierFitter, CoxPHFitter

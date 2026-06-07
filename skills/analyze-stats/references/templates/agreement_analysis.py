@@ -15,7 +15,6 @@ Output: agreement_table.csv, bland_altman.pdf/.png, summary text
 import sys
 import os
 import datetime
-import warnings
 import numpy as np
 import pandas as pd
 from scipy import stats

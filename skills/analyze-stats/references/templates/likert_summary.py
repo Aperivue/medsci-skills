@@ -29,11 +29,9 @@ import argparse
 import sys
 import warnings
 from datetime import datetime
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
-import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from scipy import stats

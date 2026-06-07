@@ -15,7 +15,6 @@ Output: balance table CSV, Love plot PDF/PNG, PS distribution plot, outcome resu
 import sys
 import os
 import datetime
-import warnings
 import numpy as np
 import pandas as pd
 from scipy import stats

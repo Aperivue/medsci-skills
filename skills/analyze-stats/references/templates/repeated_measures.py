@@ -15,7 +15,6 @@ Output: model summary, spaghetti plot PDF/PNG, group mean trajectory plot
 import sys
 import os
 import datetime
-import warnings
 import numpy as np
 import pandas as pd
 from scipy import stats
@@ -303,7 +302,7 @@ def run_lmm(df_long, id_col, time_col, outcome_col, group_col, random_effects, c
 def run_gee(df_long, id_col, time_col, outcome_col, group_col, covariates):
     """Run Generalized Estimating Equations."""
     from statsmodels.genmod.generalized_estimating_equations import GEE
-    from statsmodels.genmod.cov_struct import Exchangeable, Autoregressive
+    from statsmodels.genmod.cov_struct import Exchangeable
 
     print(f"\n{'='*60}")
     print("GEE (Generalized Estimating Equations)")

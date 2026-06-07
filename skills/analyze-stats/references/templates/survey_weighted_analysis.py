@@ -20,7 +20,6 @@ Output: Weighted Table 1, wOR table, subgroup results
 import sys
 import os
 import datetime
-import warnings
 import numpy as np
 import pandas as pd
 from scipy import stats

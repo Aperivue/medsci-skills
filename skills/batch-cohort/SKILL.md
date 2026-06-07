@@ -154,6 +154,7 @@ Aggregate all results into a single summary:
 7. **No p-hacking framing**: The summary matrix is for **hypothesis generation**, not confirmation. State this explicitly in README and any manuscript output.
 8. **Outcome definitions MUST include physician diagnosis**: Diabetes = FPG≥126 OR HbA1c≥6.5 OR physician-diagnosed (KNHANES: DE1_dg=1, NHANES: DIQ010="Yes"). Hypertension = SBP≥140 OR DBP≥90 OR physician-diagnosed (KNHANES: DI1_dg=1, NHANES: BPQ020="Yes"). Lab-only definitions systematically overestimate exposure→outcome associations (validated: Joo 2026 replication showed US depression→DM wOR 1.92 without vs 1.54 with physician dx).
 9. **Full covariate set is default**: Always use 8 covariates (age, sex, education, income, smoking, alcohol, obesity, CVD) unless explicitly justified. Minimal models (age+sex+BMI only) overestimate effects due to residual confounding.
+10. **Generated-code quality gate**: Because this skill emits N near-identical scripts, a single reproducibility slip (a missing seed, an absolute path, a hand-typed data literal) replicates across the whole batch. After Phase 3, lint the generated scripts with the `/analyze-stats` code-quality gate (`check_generated_code.py --code-dir {batch_dir} --strict`) and clear every Major (`MISSING_SEED`, `HARDCODED_DATA_LITERAL`, `HARDCODED_ABS_PATH`, `INPLACE_SOURCE_OVERWRITE`) before batch execution.
 
 ## Cross-National Batch Mode
 

@@ -1,0 +1,32 @@
+{
+  "research_type": "sr_ma",
+  "reviewers": [
+    {
+      "reviewer_id": "R1",
+      "expertise_area": "Methodology (search/screening/PRISMA)",
+      "major": [
+        {"heading": "Calibration absent", "comment": "No calibration plot or Brier score is reported.", "location": "Results"},
+        {"heading": "Discrimination overstated", "comment": "AUC discrimination is reported without a confidence interval.", "location": "Results"},
+        {"heading": "Heterogeneity ignored", "comment": "I2 heterogeneity is high but not explored.", "location": "Results"}
+      ],
+      "minor": []
+    },
+    {
+      "reviewer_id": "R2",
+      "expertise_area": "Clinical",
+      "major": [
+        {"heading": "Confidence intervals missing", "comment": "Pooled estimates lack a confidence interval.", "location": "Table 2"},
+        {"heading": "Multiplicity uncorrected", "comment": "Multiplicity across many outcomes is not corrected.", "location": "Methods"}
+      ],
+      "minor": []
+    },
+    {
+      "reviewer_id": "R3",
+      "expertise_area": "Statistics (pooling/heterogeneity)",
+      "major": [
+        {"heading": "Missing data handling", "comment": "Missing data and imputation are not described.", "location": "Methods"}
+      ],
+      "minor": []
+    }
+  ]
+}

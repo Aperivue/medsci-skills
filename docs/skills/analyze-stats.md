@@ -40,6 +40,10 @@
 - `table-standards/` (13 files)
 - `templates/` (14 files)
 
+**Scripts** (`skills/analyze-stats/scripts/`):
+
+- `check_generated_code.py`
+
 ## Source
 
 Canonical definition: [`skills/analyze-stats/SKILL.md`](../../skills/analyze-stats/SKILL.md)

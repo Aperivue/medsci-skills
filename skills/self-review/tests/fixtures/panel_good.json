@@ -1,0 +1,32 @@
+{
+  "research_type": "sr_ma",
+  "reviewers": [
+    {
+      "reviewer_id": "R1",
+      "expertise_area": "Methodology (search/screening/PRISMA)",
+      "major": [
+        {"heading": "Search strategy not reproducible", "comment": "The search strategy is described in one line with no database-specific syntax; eligibility criteria are prose rather than a numbered list.", "location": "Methods, Search"},
+        {"heading": "Duplicate record handling unclear", "comment": "Screening counts in the PRISMA flow do not reconcile with the records identified.", "location": "Figure 1"}
+      ],
+      "minor": []
+    },
+    {
+      "reviewer_id": "R2",
+      "expertise_area": "Clinical",
+      "major": [
+        {"heading": "Overreaching clinical recommendation", "comment": "Clinical actionability is asserted but generalizability to community settings is not supported.", "location": "Discussion"},
+        {"heading": "Applicability to the target population", "comment": "The included studies are tertiary-center only; clinical relevance to primary care is overstated.", "location": "Discussion"}
+      ],
+      "minor": []
+    },
+    {
+      "reviewer_id": "R3",
+      "expertise_area": "Statistics (pooling/heterogeneity)",
+      "major": [
+        {"heading": "Heterogeneity not addressed", "comment": "I2 exceeds 90% yet a fixed pooling is reported without justification.", "location": "Results"},
+        {"heading": "Pooling model mis-specified", "comment": "Random-effects model assumptions and the confidence interval method are not stated.", "location": "Methods, Synthesis"}
+      ],
+      "minor": []
+    }
+  ]
+}
