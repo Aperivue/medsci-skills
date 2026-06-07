@@ -1,0 +1,75 @@
+name: metrics
+
+# Weekly adoption snapshot. GitHub only retains traffic (views/clones) for 14
+# days and exposes it to repo admins only — without this job that data is lost
+# every day. Appends one row per run to metrics/traffic_log.csv so the growth
+# curve survives as a durable, auditable record.
+#
+# Traffic endpoints (/traffic/views, /traffic/clones) require push access. The
+# default GITHUB_TOKEN may return 403; set a repo secret METRICS_PAT (a fine-
+# grained PAT with "Administration: read" on this repo) to capture them. Public
+# metrics (stars/forks/release downloads/Zenodo) work without any PAT.
+
+on:
+  schedule:
+    - cron: "17 3 * * 1" # every Monday 03:17 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  snapshot:
+    # Do not run on forks — only the canonical repo should append to the log.
+    if: github.repository_owner == 'Aperivue'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Capture metrics snapshot
+        env:
+          GH_TOKEN: ${{ secrets.METRICS_PAT || secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          # Zenodo concept record id (the number in the concept DOI). Verify it
+          # resolves at https://zenodo.org/api/records/<id> before relying on the
+          # Zenodo columns; left blank-tolerant if the API call fails.
+          ZENODO_RECORD: "20155321"
+        run: |
+          set -uo pipefail
+          DATE=$(date -u +%Y-%m-%d)
+
+          # --- Public repo metrics (always available) ---
+          REPO_JSON=$(gh api "repos/$REPO" 2>/dev/null || echo '{}')
+          STARS=$(echo "$REPO_JSON"  | jq -r '.stargazers_count // ""')
+          FORKS=$(echo "$REPO_JSON"  | jq -r '.forks_count // ""')
+          WATCH=$(echo "$REPO_JSON"  | jq -r '.subscribers_count // ""')
+          DL=$(gh api "repos/$REPO/releases" --paginate 2>/dev/null \
+                 | jq -s 'add // [] | [.[].assets[]?.download_count] | add // 0' || echo "")
+
+          # --- Traffic (needs push access; blank-tolerant on 403) ---
+          VJSON=$(gh api "repos/$REPO/traffic/views"  2>/dev/null || echo '{}')
+          CJSON=$(gh api "repos/$REPO/traffic/clones" 2>/dev/null || echo '{}')
+          VIEWS=$(echo "$VJSON"  | jq -r '.count // ""')
+          UVIEWS=$(echo "$VJSON" | jq -r '.uniques // ""')
+          CLONES=$(echo "$CJSON" | jq -r '.count // ""')
+          UCLONES=$(echo "$CJSON"| jq -r '.uniques // ""')
+
+          # --- Zenodo (public API, blank-tolerant) ---
+          ZJSON=$(curl -fsSL "https://zenodo.org/api/records/$ZENODO_RECORD" 2>/dev/null || echo '{}')
+          ZVIEWS=$(echo "$ZJSON" | jq -r '(.stats.version_views // .stats.views) // ""' 2>/dev/null || echo "")
+          ZDL=$(echo "$ZJSON"    | jq -r '(.stats.version_downloads // .stats.downloads) // ""' 2>/dev/null || echo "")
+
+          mkdir -p metrics
+          if [ ! -f metrics/traffic_log.csv ]; then
+            echo "date,stars,forks,watchers,release_downloads,views_14d,unique_views_14d,clones_14d,unique_clones_14d,zenodo_views,zenodo_downloads" > metrics/traffic_log.csv
+          fi
+          echo "$DATE,$STARS,$FORKS,$WATCH,$DL,$VIEWS,$UVIEWS,$CLONES,$UCLONES,$ZVIEWS,$ZDL" >> metrics/traffic_log.csv
+          echo "Appended: $DATE stars=$STARS forks=$FORKS downloads=$DL views=$VIEWS clones=$CLONES"
+
+      - name: Commit snapshot
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add metrics/traffic_log.csv
+          git diff --staged --quiet || git commit -m "chore(metrics): weekly adoption snapshot [skip ci]"
+          git push
