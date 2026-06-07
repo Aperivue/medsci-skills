@@ -29,6 +29,7 @@
 - `python3 scripts/check_reviewer_team_consistency.py`
 - `python3 scripts/check_domain_probe_sync.py --strict`
 - `bash tests/test_panel_mode.sh`
+- `bash tests/test_reference_adequacy.sh`
 - `feed R0-numbered output into /revise`
 
 **Evidence** — `demo`
@@ -48,6 +49,7 @@
 - `check_cohort_arithmetic.py`
 - `check_confounding_completeness.py`
 - `check_panel_diversity.py`
+- `check_reference_adequacy.py`
 - `check_reviewer_team_consistency.py`
 - `check_scope_coherence.py`
 

@@ -561,6 +561,61 @@ analyses (interaction, subgroup, sensitivity, multiple imputation). Skip for cas
 This step composes with `/self-review` Phase 2.5f; run it here for pipeline completeness even
 when `/self-review` is also invoked.
 
+#### Step 7.3c: Reference Adequacy Gate
+
+Step 7.3/7.3a/7.3b verify reference **integrity** — that the cited references are real and the
+numbers/estimands trace to their artifacts. This step is the complementary **reference adequacy**
+check: are there *enough* relevant references, in the right sections, and does **every named
+statistical method or reporting guideline carry a citation**? The dominant failure mode in an
+autonomous draft is a Statistical Analysis subsection that names a competing-risk model, multiple
+imputation, the E-value, and an eGFR equation with **zero citations** — internally consistent
+prose that no integrity check flags.
+
+Delegate the detection to the self-review checker (same cross-skill pattern Step 7.3b uses for
+`check_artifact_coverage.py`). Resolve the manuscript path with the fallback chain
+`SSOT.yaml::truth.manuscript_md` → `manuscript/manuscript.md` → `manuscript/index.qmd`; pass the
+`project.yaml` paper type verbatim (the script's alias map handles repo names); pass the journal
+reference cap from the chosen `references/journal_profiles/<journal>.md` when known.
+
+```bash
+python3 "${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/self-review/scripts/check_reference_adequacy.py" \
+  --manuscript "$MANUSCRIPT" --bib "$BIB" \
+  --article-type "$TYPE" ${CAP:+--journal-cap "$CAP"} \
+  --out qc/reference_adequacy.json   # no --strict: write-paper decides the action from the JSON
+```
+
+Parse `qc/reference_adequacy.json` and act:
+
+1. **Methods citation completeness (blocking).** Any `methods_zero_citations: true` (for an
+   original/AI-validation/meta-analysis paper) **or** any `methods_named_method_uncited`
+   (statistical tier) finding is a reference-acquisition blocker. **Interactive:** loop
+   `/search-lit` (Manuscript Paper Reference Pool mode) → `/lit-sync` → `/verify-refs --strict`,
+   then re-run this gate until the named-method gap clears. **`--autonomous` mode** (where
+   `/lit-sync` needs the Zotero GUI and cannot run unattended): do **not** infinite-loop — record
+   `SEARCH_LIT_REQUIRED` plus the uncited-method list in `qc/_pipeline_log.md`, surface it to the
+   owner, and continue producing the draft (the same deferral Phase 0 applies to unresolved
+   `[@NEW:]` placeholders).
+2. **Total count (loop, then warn).** `reference_count_verdict: "BELOW_TARGET"` triggers one
+   `/search-lit` acquisition round; if the field is genuinely sparse and the count stays low,
+   downgrade to a logged WARN rather than blocking. **Never fabricate references to hit a target.**
+
+All additions flow `/search-lit` → `/lit-sync` → `/verify-refs --strict` only; this skill never
+writes references from memory, and the checker emits `fixable_by_ai: false` (it diagnoses gaps, it
+does not write citations). Append the result to `qc/_pipeline_log.md`:
+
+```md
+## Reference Adequacy Gate (Phase 7.3c)
+- Article type / Journal cap: {type} / {cap|unknown}
+- Cited references: {N}   Effective target: {min}-{max}
+- Section distribution: Intro {N} / Methods {N} / Results {N} / Discussion {N}
+- Named methods checked: {N}   Uncited: {list}
+- Action: PASS | SEARCH_LIT_REQUIRED | HALT_UNVERIFIED_REFS
+```
+
+This step composes with `/self-review` Phase 2.5c-2, which re-runs the same checker with `--strict`
+and folds its findings into the review JSON; run it here so a reference-acquisition loop precedes
+the prose self-review in Step 7.4.
+
 #### Step 7.4: Self-Review + Fix Loop
 
 Call `/self-review --json --fix` on the current `manuscript/manuscript.md`.

@@ -39,6 +39,9 @@ jobs:
       - name: Run self-review panel-mode structural + PII test
         run: bash skills/self-review/tests/test_panel_mode.sh
 
+      - name: Run self-review reference-adequacy gate test
+        run: bash skills/self-review/tests/test_reference_adequacy.sh
+
       - name: Run validate_catalog_consistency.py (doc counts must match disk SSOT)
         run: python3 scripts/validate_catalog_consistency.py
 

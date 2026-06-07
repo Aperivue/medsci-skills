@@ -18,8 +18,9 @@ inputs:
 outputs:
   - qc/self_review.md
   - qc/self_review.json
+  - qc/reference_adequacy.json
 deterministic_scripts:
-  - none_required
+  - scripts/check_reference_adequacy.py
 side_effects:
   - may_edit_manuscript_when_fix_flag_set
 downstream_consumers:
@@ -41,5 +42,6 @@ validation_commands:
   - "python3 scripts/check_reviewer_team_consistency.py"
   - "python3 scripts/check_domain_probe_sync.py --strict"
   - "bash tests/test_panel_mode.sh"
+  - "bash tests/test_reference_adequacy.sh"
   - "feed R0-numbered output into /revise"
 evidence_surface: demo
