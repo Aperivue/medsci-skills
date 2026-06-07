@@ -4,8 +4,8 @@
       "command_args": [],
       "component_type": "deterministic_script",
       "expected_reproducibility": "exact",
-      "git_sha": "e5c6c562b224479f6da6b9caaa526bd5207899ff",
-      "input_hash": "8be1572b778db7743a8ad6a513dee6f91bc4e2ba7ae36ff4819312426e434640",
+      "git_sha": "1d42f478ff275d6692b54e92d1efbb9ca13cb9c4",
+      "input_hash": "0912927ef6b2b4666a2ecc1adedbddf146f4c8e335ea8751fa0f8392d79ce4e7",
       "model_name": null,
       "output_hash": "bd95058b857f555c8fb47cbbd05ff98f4ad261f9765b2e75ad3d9ce72684cc00",
       "rerun_policy": "rerun any time; operates on a fresh git-archive temp copy, real repo untouched",
@@ -14,12 +14,12 @@
     }
   ],
   "experiment_id": "E8",
-  "git_dirty": true,
-  "git_sha": "e5c6c562b224479f6da6b9caaa526bd5207899ff",
+  "git_dirty": false,
+  "git_sha": "1d42f478ff275d6692b54e92d1efbb9ca13cb9c4",
   "reproducibility_hash": "205c85533a4b24e6f72ccf36e232607f831c01ef880dce17991aef85056d5927",
   "reproducibility_targets": {
     "drift_matrix.csv": "bd95058b857f555c8fb47cbbd05ff98f4ad261f9765b2e75ad3d9ce72684cc00",
     "metrics.csv": "bd95058b857f555c8fb47cbbd05ff98f4ad261f9765b2e75ad3d9ce72684cc00"
   },
-  "timestamp": "2026-06-07T18:58:11"
+  "timestamp": "2026-06-07T19:56:12"
 }

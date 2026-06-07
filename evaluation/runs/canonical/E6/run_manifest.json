@@ -4,7 +4,7 @@
       "command_args": [],
       "component_type": "deterministic_script",
       "expected_reproducibility": "exact",
-      "git_sha": "e5c6c562b224479f6da6b9caaa526bd5207899ff",
+      "git_sha": "1d42f478ff275d6692b54e92d1efbb9ca13cb9c4",
       "input_hash": "1c42be8cc239163bce94dc77f68396803828dbda2f515bfdc7060cb91752e400",
       "model_name": null,
       "output_hash": "8c0a6ab16df428325d05653157c307d470bf014603a8ca85bd15e33ac69a9d33",
@@ -14,12 +14,12 @@
     }
   ],
   "experiment_id": "E6",
-  "git_dirty": true,
-  "git_sha": "e5c6c562b224479f6da6b9caaa526bd5207899ff",
+  "git_dirty": false,
+  "git_sha": "1d42f478ff275d6692b54e92d1efbb9ca13cb9c4",
   "reproducibility_hash": "8f24c1dc6a8e64ec793633365dcfb5814ca285c3b8f2f349dd789b1752680a6b",
   "reproducibility_targets": {
     "metrics.csv": "8c0a6ab16df428325d05653157c307d470bf014603a8ca85bd15e33ac69a9d33",
     "portability_matrix.csv": "8c0a6ab16df428325d05653157c307d470bf014603a8ca85bd15e33ac69a9d33"
   },
-  "timestamp": "2026-06-07T18:58:15"
+  "timestamp": "2026-06-07T19:56:16"
 }

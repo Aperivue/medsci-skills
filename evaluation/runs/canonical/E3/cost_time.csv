@@ -1,9 +1,9 @@
 experiment,status,wall_clock_s,n_components,manual_steps,token_cost
-E1,run,1.783,1,no,~0 (deterministic)
-E4,run,1.105,1,no,~0 (deterministic)
-E5,run,0.208,2,yes,~0 (deterministic)
-E6,run,0.42,1,no,~0 (deterministic)
-E7,run,0.465,1,no,~0 (deterministic)
-E8,run,0.631,1,no,~0 (deterministic)
+E1,run,1.784,1,no,~0 (deterministic)
+E4,run,1.149,1,no,~0 (deterministic)
+E5,run,0.212,2,yes,~0 (deterministic)
+E6,run,0.457,1,no,~0 (deterministic)
+E7,run,0.653,1,no,~0 (deterministic)
+E8,run,0.709,1,no,~0 (deterministic)
 E2,no_run,,,,
 E9,no_run,,,,

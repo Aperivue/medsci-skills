@@ -7,21 +7,21 @@
       ],
       "component_type": "deterministic_script",
       "expected_reproducibility": "exact",
-      "git_sha": "e5c6c562b224479f6da6b9caaa526bd5207899ff",
+      "git_sha": "1d42f478ff275d6692b54e92d1efbb9ca13cb9c4",
       "input_hash": "ca9043d0c34f46f02b1f1a3f32a8d85c12d02b6510b396c3249ba875dee4c529",
       "model_name": null,
-      "output_hash": "a241c10358d97d2189f43054b6986a786d0f69a9e05d169de745853643383898",
+      "output_hash": "d4c815d0d000fa64e7df91fd23dffd143f1fe003fd690f21053b8c82ac1575d5",
       "rerun_policy": "rerun against RC SHA pre-tag and against v3.8.0 tag post-tag",
       "script_path": "evaluation/h3_fresh_clone/run_h3.py",
       "seed": null
     }
   ],
   "experiment_id": "E4",
-  "git_dirty": true,
-  "git_sha": "e5c6c562b224479f6da6b9caaa526bd5207899ff",
-  "reproducibility_hash": "772c02a62ebcbfd1d3f5219d3b3c4cb796553f99ff4d8afe46ba1c12f8906efe",
+  "git_dirty": false,
+  "git_sha": "1d42f478ff275d6692b54e92d1efbb9ca13cb9c4",
+  "reproducibility_hash": "534d48ed9a641ba3699e556bcd0d3a44786a2099efed7f1df495306d3c04600d",
   "reproducibility_targets": {
-    "metrics.csv": "a241c10358d97d2189f43054b6986a786d0f69a9e05d169de745853643383898"
+    "metrics.csv": "d4c815d0d000fa64e7df91fd23dffd143f1fe003fd690f21053b8c82ac1575d5"
   },
-  "timestamp": "2026-06-07T18:58:11"
+  "timestamp": "2026-06-07T19:56:13"
 }

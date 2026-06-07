@@ -4,7 +4,7 @@
       "command_args": [],
       "component_type": "deterministic_script",
       "expected_reproducibility": "exact",
-      "git_sha": "e5c6c562b224479f6da6b9caaa526bd5207899ff",
+      "git_sha": "1d42f478ff275d6692b54e92d1efbb9ca13cb9c4",
       "input_hash": "814d457f83c2a8e8ec0d0b3329488ef70741b6c34133d16de19ea15ccaf99264",
       "model_name": null,
       "output_hash": "a77ebf6ffbe021d5fd786e5bee7f120679443061fe4e441b413d461be682e76d",
@@ -14,13 +14,13 @@
     }
   ],
   "experiment_id": "E1",
-  "git_dirty": true,
-  "git_sha": "e5c6c562b224479f6da6b9caaa526bd5207899ff",
+  "git_dirty": false,
+  "git_sha": "1d42f478ff275d6692b54e92d1efbb9ca13cb9c4",
   "reproducibility_hash": "99f35b9436daf09938a82b890bf5253250f799141561eb1bc016e9a1e57a4aee",
   "reproducibility_targets": {
     "injected_defects.jsonl": "636e1258f8fd8f5b82a757cccc87de2a8a2bdb7d4444e1b87944e72a560d98d5",
     "metrics.csv": "a77ebf6ffbe021d5fd786e5bee7f120679443061fe4e441b413d461be682e76d",
     "variants.csv": "7854258f0714f14ec1b43b78d7014218107b143ab3ac752f86e37e7b49d6f154"
   },
-  "timestamp": "2026-06-07T18:58:13"
+  "timestamp": "2026-06-07T19:56:14"
 }

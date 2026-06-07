@@ -4,7 +4,7 @@
       "command_args": [],
       "component_type": "llm_baseline",
       "expected_reproducibility": "non-deterministic",
-      "git_sha": "e5c6c562b224479f6da6b9caaa526bd5207899ff",
+      "git_sha": "1d42f478ff275d6692b54e92d1efbb9ca13cb9c4",
       "input_hash": null,
       "model_name": "self-review-loop (agent/LLM)",
       "output_hash": "15e33a963364f2d3c9f1cc1ac224e0e8f3f8b971c20a28581b7967c3c539d5cc",
@@ -14,12 +14,12 @@
     }
   ],
   "experiment_id": "E9",
-  "git_dirty": true,
-  "git_sha": "e5c6c562b224479f6da6b9caaa526bd5207899ff",
+  "git_dirty": false,
+  "git_sha": "1d42f478ff275d6692b54e92d1efbb9ca13cb9c4",
   "reproducibility_hash": "8136cc84688c05bbbe3d627a96cc18afad2cac2f699d1ee8516c256747a2a627",
   "reproducibility_targets": {
     "convergence.csv": "15e33a963364f2d3c9f1cc1ac224e0e8f3f8b971c20a28581b7967c3c539d5cc",
     "metrics.csv": "15e33a963364f2d3c9f1cc1ac224e0e8f3f8b971c20a28581b7967c3c539d5cc"
   },
-  "timestamp": "2026-06-07T18:58:16"
+  "timestamp": "2026-06-07T19:56:18"
 }

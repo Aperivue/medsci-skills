@@ -4,7 +4,7 @@
       "command_args": [],
       "component_type": "deterministic_script",
       "expected_reproducibility": "exact",
-      "git_sha": "e5c6c562b224479f6da6b9caaa526bd5207899ff",
+      "git_sha": "1d42f478ff275d6692b54e92d1efbb9ca13cb9c4",
       "input_hash": "02c68a4df998ee01d879eaeac54f25ef172dc166021df303ef7032e80b2fc431",
       "model_name": null,
       "output_hash": "02460ebf9a5f4f0bc5c63fb663400c6c50460cad8dd8c2f83ff1c159c4554129",
@@ -16,8 +16,8 @@
       "command_args": [],
       "component_type": "human_adjudication",
       "expected_reproducibility": "non-deterministic",
-      "git_sha": "e5c6c562b224479f6da6b9caaa526bd5207899ff",
-      "input_hash": "6033b2cc45cf1020a75f49acf002464277396929df6706c05a997d65513da09f",
+      "git_sha": "1d42f478ff275d6692b54e92d1efbb9ca13cb9c4",
+      "input_hash": "d21c497210bbb517ffce5337d7244be50a7cb48bcb30a2574122e4d9fd86502b",
       "model_name": null,
       "output_hash": null,
       "rerun_policy": "manual rows (figure_table / citation / some analysis_method) need a human reviewer",
@@ -26,13 +26,13 @@
     }
   ],
   "experiment_id": "E5",
-  "git_dirty": true,
-  "git_sha": "e5c6c562b224479f6da6b9caaa526bd5207899ff",
+  "git_dirty": false,
+  "git_sha": "1d42f478ff275d6692b54e92d1efbb9ca13cb9c4",
   "reproducibility_hash": "bd7d352a7ae3874da8478b341a0acdc61583a5c30fb4e070f726493a3900e407",
   "reproducibility_targets": {
     "claims_audit.csv": "02460ebf9a5f4f0bc5c63fb663400c6c50460cad8dd8c2f83ff1c159c4554129",
     "metrics.csv": "02460ebf9a5f4f0bc5c63fb663400c6c50460cad8dd8c2f83ff1c159c4554129",
     "summary.csv": "3b40f122a3abe69bd0beeb0aafca8c178e2b1de2c79d8c297ed567aa181f489f"
   },
-  "timestamp": "2026-06-07T18:58:15"
+  "timestamp": "2026-06-07T19:56:16"
 }

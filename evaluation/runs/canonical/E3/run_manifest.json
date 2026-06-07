@@ -4,22 +4,22 @@
       "command_args": [],
       "component_type": "deterministic_script",
       "expected_reproducibility": "near-exact",
-      "git_sha": "e5c6c562b224479f6da6b9caaa526bd5207899ff",
+      "git_sha": "1d42f478ff275d6692b54e92d1efbb9ca13cb9c4",
       "input_hash": null,
       "model_name": null,
-      "output_hash": "3602aa443d8b162d1161e7522a0adb6a6680eb906b75dd6110622333d37cf594",
+      "output_hash": "29057018591e18c0744ff7528ceb0610106bd54e5cbedfe89270445a9aef4015",
       "rerun_policy": "re-aggregate after a full suite run; wall-clock varies by machine",
       "script_path": "evaluation/e3_cost_time/aggregate_timing.py",
       "seed": null
     }
   ],
   "experiment_id": "E3",
-  "git_dirty": true,
-  "git_sha": "e5c6c562b224479f6da6b9caaa526bd5207899ff",
-  "reproducibility_hash": "5a5e0251bc96924c2c982b22312d2f5ea0e55dfc4ca4a1d3153139ad71bd1c4b",
+  "git_dirty": false,
+  "git_sha": "1d42f478ff275d6692b54e92d1efbb9ca13cb9c4",
+  "reproducibility_hash": "e091e92d94931b2141489ec1d84c9aa3ca0dcb9ed14505d625b00828c219a5b9",
   "reproducibility_targets": {
-    "cost_time.csv": "3602aa443d8b162d1161e7522a0adb6a6680eb906b75dd6110622333d37cf594",
-    "metrics.csv": "3602aa443d8b162d1161e7522a0adb6a6680eb906b75dd6110622333d37cf594"
+    "cost_time.csv": "29057018591e18c0744ff7528ceb0610106bd54e5cbedfe89270445a9aef4015",
+    "metrics.csv": "29057018591e18c0744ff7528ceb0610106bd54e5cbedfe89270445a9aef4015"
   },
-  "timestamp": "2026-06-07T18:58:15"
+  "timestamp": "2026-06-07T19:56:17"
 }
