@@ -1,0 +1,33 @@
+Based on my review of this manuscript fragment, here are the concrete problems I found:
+
+**1. Promised analysis not reported (Methods→Results coverage gap)**
+
+- Methods text: *"A landmark analysis was performed to address potential immortal-time bias in the primary comparison."*
+- Problem: The landmark analysis is described in the Methods but its results are **never reported** in the Results section. The Results section only covers the primary model and the sensitivity analysis. This is a reporting completeness failure—a promised analysis is absent from the Results.
+
+**2. Insufficient statistical reporting in Results**
+
+- Results text: *"The primary model showed a positive association."*
+- Problem: No effect estimate (e.g., odds ratio), confidence interval, or p-value is reported. For a logistic regression model, the magnitude and precision of the association should be quantified, not described only qualitatively.
+
+**3. Sensitivity analysis result is uninformative as written**
+
+- Results text: *"The sensitivity analysis excluding participants with missing covariates was consistent with the primary result."*
+- Problem: "Consistent" is stated without any supporting numbers (estimates/CIs), and the number of participants excluded for missing covariates is never reported, so robustness cannot actually be judged.
+
+**4. Missing methodological details for the landmark analysis**
+
+- Methods text: *"A landmark analysis was performed to address potential immortal-time bias..."*
+- Problem: No landmark time point is specified, and no handling of subjects with events/censoring before the landmark is described—both are essential for a reproducible landmark analysis.
+
+**5. Missing core methodological reporting**
+
+- Throughout Methods: There is no statement of sample size, study population, outcome definition, the covariates included in the "multivariable logistic regression model," or how missing data were handled in the primary model. These omissions prevent reproducibility and assessment of methodological soundness.
+
+**6. No numbers anywhere to check for numerical consistency**
+
+- The manuscript contains no counts, percentages, or statistics, so numerical-consistency checks cannot be performed (this is itself a reporting-completeness shortcoming).
+
+---
+
+**Note on caveats:** This document self-identifies as a "synthetic" "fixture" created "only to exercise the Methods->Results coverage check," so several of the above (especially the absent landmark result) are intentional artifacts of the test fixture rather than genuine scientific errors. There are **no citations or references** in the fragment, so citation/reference integrity could not be assessed.

@@ -1,0 +1,35 @@
+# Problems Found in the Manuscript
+
+## Numerical / Statistical Consistency
+
+1. **"Eleven of the 13 trials had a point estimate below 1.0"** vs. **"Trial-level risk ratios ranged from 0.197 to 1.562"** — The text states only 11 of 13 trials are below 1.0, but in the canonical Colditz BCG dataset, all but one or two trials are below 1.0. More importantly, this needs to be checked against Table 1 (which is missing — see below). The claim cannot be verified.
+
+2. **Prediction interval inconsistency with Hartung-Knapp CI.** The standard random-effects CI is "0.344 to 0.696" while the Hartung-Knapp CI is "0.330 to 0.726." The abstract says the HK adjustment "gave an identical point estimate (RR 0.489, 95% CI 0.330 to 0.726)." These are internally consistent, but the claim that HK is merely "wider" deserves scrutiny — fine as stated, but flag for verification.
+
+3. **"corresponding to a 51% relative reduction in TB risk"** — RR 0.489 corresponds to a 51.1% reduction (1 − 0.489 = 0.511). This is correct, but note the point estimate 0.489 rounds to a 51% reduction only loosely; acceptable.
+
+4. **Leave-one-out claim of stability is questionable.** "The pooled estimate was stable in leave-one-out analysis (range 0.452 to 0.533)" — With I² = 92.2% and trial RRs ranging from 0.197 to 1.562, a leave-one-out range this narrow (0.452–0.533) is plausible but should be verified against the data; given the extreme heterogeneity it is suspiciously tight. Flag for verification.
+
+5. **"with every leave-one-out interval excluding 1.0"** and **"8 trials the 95% confidence interval excluded 1.0"** — These counts must be checked against Table 1, which is absent.
+
+## Citation / Reference Integrity
+
+6. **Pervasive "[UNVERIFIED]" placeholder citations.** Every factual/methodological claim that should be supported by a reference instead carries "[UNVERIFIED]" (e.g., "the only licensed vaccine in routine use against it [UNVERIFIED]", "PRISMA 2020 statement [UNVERIFIED]", "metafor package [UNVERIFIED]", "restricted maximum likelihood (REML) [UNVERIFIED]"). The manuscript has **no reference list at all**. This is unsubmittable as-is.
+
+7. **No numbered references / bibliography section exists.** Despite numerous citation points, there is no References section.
+
+## Reporting Completeness
+
+8. **Table 1 contains no data.** The "Tables" section provides only a caption ("Table 1. Per-trial event counts and risk ratios...") but **no actual table with the per-trial counts or RRs.** This is the core data table and is entirely missing.
+
+9. **Figures are referenced but not present.** Figures 1, 2, and 3 are described in legends but not provided; acceptable pre-submission, but the manuscript relies on Table 1/figures for verifiable numbers that cannot be checked.
+
+10. **"Source: analysis/tables/per_study_escalc.csv."** — An internal file path left in the manuscript text; this is a production/pipeline artifact that should not appear in a submitted manuscript.
+
+11. **PRISMA flow diagram is acknowledged to use fabricated upstream counts.** "the upstream record counts shown in the study-selection diagram (Figure 1) are illustrative... and are not the yield of a new database search." Presenting an illustrative/fabricated PRISMA diagram in a manuscript claiming "Reporting followed PRISMA 2020" is methodologically and ethically problematic — PRISMA reporting is incompatible with illustrative record counts.
+
+## Methodological Soundness
+
+12. **Claiming PRISMA 2020 compliance without an actual systematic search.** The Methods state reporting "followed PRISMA 2020" while simultaneously admitting "this is a methods demonstration rather than a de novo systematic review" with no real search. These are contradictory; you cannot claim PRISMA adherence without the search/screening it requires.
+
+13. **Self-defeating publication-bias statement.** "recognizing that both tests are underpowered when fewer than 10 trials are available and are reported here for completeness with 13 trials" — awkward and self-underm

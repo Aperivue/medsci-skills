@@ -1,0 +1,35 @@
+# Errors and Problems Identified
+
+## Numerical Consistency Errors
+
+1. **Exclusion counts do not sum correctly.** The text states "3,685 were excluded for being younger than 20 years, 394 for a missing measured BMI, and 165 for a borderline, refused, or unknown diabetes status." These sum to 9,254 − 3,685 − 394 − 165 = 5,010, which actually works. However, **check the unweighted obesity counts:** "2,090 (41.7%) were classified as obese" and "2,920 as non-obese." 2,090 + 2,920 = 5,010 (consistent), but 2,090/5,010 = 41.7% is correct. *(No error here — but see below.)*
+
+2. **Inconsistent obesity prevalence figures.** The abstract/results report **weighted** obesity prevalence as "42.3%," while the unweighted obese proportion is "41.7%." These are appropriately different (weighted vs unweighted), so not an error — but the text should be checked for clarity; this is acceptable.
+
+3. **Overall diabetes prevalence is inconsistent with the obese/non-obese subgroup prevalences.** Weighted diabetes prevalence is "11.7%". With obesity prevalence 42.3%, the implied overall prevalence from subgroups = (0.423 × 17.3%) + (0.577 × 7.6%) = 7.32% + 4.39% = **11.7%**. This is consistent. *(No error.)*
+
+4. **Female sex p-value/CI mismatch.** "female sex was associated with lower odds (aOR 0.66; 95% CI, 0.47-0.92; **p = 0.046**)." An aOR of 0.66 with CI 0.47–0.92 (upper bound well below 1) would typically yield a smaller p-value; p = 0.046 is implausibly close to 0.05 for a CI this far from null. This warrants verification for internal consistency.
+
+## Reporting Completeness Errors
+
+5. **HbA1c sensitivity analysis missing a p-value.** "(aOR 2.95; 95% CI, 2.18-3.98)" — the primary analysis reports a p-value but the sensitivity analysis omits one, an inconsistency in reporting.
+
+6. **Sensitivity analysis sample accounting is incomplete.** "Among the 4,779 participants with an available HbA1c measurement" — there is no explanation of how many of the 5,010 lacked HbA1c (5,010 − 4,779 = 231), nor whether excluding them introduces selection bias. Not addressed in limitations.
+
+7. **Table 1 and Table 2 contents are not provided.** Both tables only reference external CSV files ("See `analysis/tables/table1.csv`"). For a submission, the actual table contents must be present; text claims (e.g., mean BMI 33.3 vs 29.3) cannot be verified.
+
+## Citation / Reference Integrity
+
+8. **All references are unverified placeholders.** "References in this methods-demonstration manuscript are intentionally left as [UNVERIFIED] placeholders." Numerous factual claims are marked [UNVERIFIED] with no actual citations. This is unacceptable for journal submission.
+
+9. **Internal tooling references leaked into text.** "they would be resolved through /search-lit and /verify-refs against PubMed and CrossRef and rendered by a reference manager." This is workflow/internal content that does not belong in a manuscript.
+
+## Orphaned / Disconnected Content
+
+10. **Dangling sentence about risk of bias.** "Risk of bias was assessed using PROBAST-AI." appears isolated at the very end, after Data Availability/References, with no context. Additionally, **PROBAST-AI is a tool for prediction-model/AI studies**, which is methodologically inappropriate for a cross-sectional association study (which would use STROBE, already cited). This is both misplaced and wrong.
+
+## Methodological Soundness
+
+11. **Self-disclosed methods-demonstration framing undermines submission.** The manuscript repeatedly calls itself a "methods-demonstration manuscript" with placeholder references — inconsistent with a genuine "reviewing before journal submission" scenario; the entire reference apparatus is non-functional.
+
+12. **LLM disclosure contains an implausible/future detail.** "Claude Opus 4.8, Anthropic, accessed via the programmatic API in **June 2026**" — a future date and a model version that should be verified; at minimum this is suspect and should be checked

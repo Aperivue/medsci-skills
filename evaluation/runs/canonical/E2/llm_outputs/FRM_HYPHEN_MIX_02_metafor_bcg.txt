@@ -1,0 +1,31 @@
+I'll review this manuscript systematically for errors and problems.
+
+## Numerical Consistency Issues
+
+1. **"in 8 trials the 95% confidence interval excluded 1.0 in the protective direction"** vs. abstract context — This is internally consistent but not verifiable; however, the bigger issue: **"Eleven of the 13 trials had a point estimate below 1.0"** combined with **"Trial-level risk ratios ranged from 0.197 to 1.562"** implies 2 trials had RR > 1.0. This is internally consistent, but Table 1 data is not actually shown to verify any of these counts.
+
+2. **Leave-one-out claim contradicts heterogeneity claims indirectly** — "every leave-one-out confidence interval excluded 1.0" is plausible, but **"the pooled estimate was stable in leave-one-out analysis (range 0.452 to 0.533), with every leave-one-out interval excluding 1.0"** — this is stated in both abstract and results, internally consistent.
+
+3. **Prediction interval vs. confidence interval logic** — The 95% prediction interval "0.155 to 1.549" crossing 1.0 while the pooled CI (0.344 to 0.696) excludes 1.0 is statistically coherent. No error here, but worth noting the abstract's claim is consistent.
+
+## Citation/Reference Integrity Issues
+
+4. **Pervasive "[UNVERIFIED]" tags** — Numerous factual and methodological claims are tagged "[UNVERIFIED]" (e.g., "the only licensed vaccine in routine use against it [UNVERIFIED]", "implemented in the metafor package [UNVERIFIED]", "fitted by restricted maximum likelihood (REML) [UNVERIFIED]"). These placeholder tags should never appear in a submission-ready manuscript; they indicate missing/unconfirmed citations throughout.
+
+5. **"Reporting followed TRIPOD [1]"** — This is a critical error. TRIPOD is a reporting guideline for **prediction model studies**, not meta-analyses. The Methods state reporting "followed the PRISMA 2020 statement," which is the correct guideline for a meta-analysis. The TRIPOD reference is both wrong and contradicts the PRISMA statement made elsewhere.
+
+6. **"AI-specific items were drawn from TRIPOD+AI and TRIPOD-AI guidance"** — Again, TRIPOD+AI applies to AI prediction models, not meta-analyses. This is irrelevant/incorrect for this study type and inconsistent with the PRISMA framing.
+
+7. **Reference [1]** — The only numbered citation is "[1]" attached to TRIPOD; there is no reference list provided. The reference list is missing entirely.
+
+8. **"a prior systematic review [UNVERIFIED]"** — The canonical BCG dataset originates from Colditz et al. (1994); this specific source should be cited properly, not left unverified.
+
+## Methodological Issues
+
+9. **Contradiction about small-study tests and trial count** — Methods state: "both tests are underpowered when fewer than 10 trials are available and are reported here for completeness with 13 trials." The "for completeness" framing combined with the acknowledgment is fine, but the Discussion says "With only 13 trials, both Egger regression and the rank correlation test have limited power" — calling 13 trials underpowered while methods justify reporting *because* there are 13 (>10) is slightly inconsistent reasoning.
+
+10. **Hartung-Knapp "identical point estimate" claim** — Abstract states "gave an identical point estimate (RR 0.489, 95% CI 0.330 to 0.726)." The Hartung-Knapp adjustment only modifies the confidence interval (variance estimation), so an identical point estimate is expected and correctly described in the Results. However, the abstract calls it a "cross-check using the Hartung-Knapp adjustment gave an identical point estimate" — minor: HK with REML vs. the primary REML could yield slightly different point estimates depending on weighting; claiming "identical" to three decimals warrants verification.
+
+11. **No description of how zero-cell corrections were handled** — Methods describe computing log RR from "four cell counts" but never state continuity correction handling for any zero cells, which is a standard methodological reporting omission.
+
+12. **PRISMA flow diagram is fabricated/"illustrative"** — The manuscript admits "the upstream record counts shown in the study-sel

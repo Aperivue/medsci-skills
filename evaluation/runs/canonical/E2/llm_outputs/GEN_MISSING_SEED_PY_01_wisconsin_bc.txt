@@ -1,0 +1,29 @@
+I'll review the manuscript for concrete errors and problems.
+
+## Numerical Consistency Errors
+
+1. **Malignant/benign totals don't sum correctly.** The text states "569 FNA samples; 212 malignant, 357 benign" — 212 + 357 = 569, this is correct. However, the standard Wisconsin Diagnostic Breast Cancer dataset actually has **212 malignant and 357 benign** — wait, this is correct. (No error here; flagging that I verified it.)
+
+2. **Test set class proportions are inconsistent with the stated split.** The full dataset is "212 malignant, 357 benign" (37.3% malignant). The test set is "64 malignant, 107 benign" (37.4% malignant). 64+107 = 171, consistent. The training set should be 398: 212−64 = 148 malignant, 357−107 = 250 benign = 398. This is internally consistent.
+
+3. **PPV inconsistency for logistic regression.** Text: "correctly classified 60 of 64 malignant and 106 of 107 benign... a positive predictive value of 0.984." With TP=60, FP=1 (107−106), PPV = 60/61 = **0.984** ✓. NPV = 106/110 = **0.964** ✓. Accuracy = 166/171 = **0.971** ✓. These are correct.
+
+4. **Sensitivity value inconsistency.** "correctly classified 60 of 64 malignant... giving a sensitivity of 0.938." 60/64 = 0.9375 ≈ 0.938 ✓. Correct.
+
+5. **Abstract p-value ordering mismatch.** Abstract states: "non-significant (p = 0.554, 0.640, and 0.800)." The Results section assigns p = 0.554 (LR vs RF), p = 0.800 (LR vs SVM), p = 0.640 (RF vs SVM). The abstract lists them in order **0.554, 0.640, 0.800**, which does not match the comparison order in the Results (0.554, 0.800, 0.640). The values are the same set but the abstract's ordering is potentially misleading since no labels are given — minor but a reporting inconsistency.
+
+## Methodological / Reporting Problems
+
+6. **Brier score claim is internally contradictory.** Text: logistic regression "Brier score of 0.019, the lowest of the three index tests" and conclusion says LR "offered the best probability calibration." But the SVM Brier score is **0.020**, essentially identical (0.001 difference). Calling LR's calibration definitively "the best" on a 0.001 difference with no confidence interval on the Brier score is an overstatement.
+
+7. **Youden index thresholds claimed but never reported.** Methods: "The Youden index was used to report an alternative operating threshold for each index test." Discussion: "Youden-based thresholds are reported alongside it for each index test." **No Youden-based thresholds appear anywhere** in the Results, tables, or figures. This is a reporting gap — claimed but absent.
+
+8. **PPV/NPV/accuracy reported only for logistic regression.** Methods state these were "computed" for the analysis, but PPV, NPV, and accuracy are reported only for logistic regression, not for random forest or SVM. Incomplete reporting.
+
+9. **Random forest and SVM have identical sensitivity/specificity/CIs.** Both report "sensitivity 0.922 (95% CI 0.830–0.966), specificity 1.000 (95% CI 0.965–1.000)." Sensitivity 0.922 corresponds to 59/64 = 0.9219, and specificity 1.000 = 107/107. This is plausible but the identical confusion-matrix values for two different models warrant verification (Figure 3 should confirm).
+
+10. **Specificity 1.000 with CI lower bound 0.965 — check Wilson interval.** Wilson 95% CI for 107/107 gives a lower bound around 0.966, so 0.965 is approximately right; acceptable.
+
+11. **DeLong CI for AUC reaching 1.000.** All three AUC upper CIs are "1.000" — for AUC 0.998 with DeLong, an upper bound clipped at 1.000 is plausible but should be noted as a boundary artifact; not necessarily an error.
+
+12. **No participant flow diagram content matches STARD requirements fully.** Figure 1 is described as a STARD flow diagram but the manuscript reports no exclusions, indeterminate results, or missing data accounting — for a curated dataset

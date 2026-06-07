@@ -1,0 +1,27 @@
+I'll review this manuscript for concrete errors and problems.
+
+## Numerical Consistency Errors
+
+1. **Class count totals don't add up.** "212 malignant and 357 were benign" — 212 + 357 = 569, but this is the *reversed* labeling for the actual WDBC dataset. More importantly, internal consistency: the abstract and methods state "212 malignant, 357 benign." The full dataset has 569 samples; 212 + 357 = 569 ✓ arithmetically, but see the train/test split problem below.
+
+2. **Train/test split arithmetic on malignant samples is inconsistent.** The test set has "64 malignant" of 212 total malignant. A stratified 70/30 split should leave ~30% in test. 30% of 212 = 63.6 ≈ 64 ✓. But the test benign count: "107 benign" of 357 → 30% of 357 = 107.1 ≈ 107 ✓. Training malignant would be 212−64 = 148, training benign 357−107 = 250; 148+250 = 398 ✓. (These are actually consistent.)
+
+3. **Sensitivity confidence interval mismatch for logistic regression.** Sensitivity is reported as "0.938 (95% CI 0.850–0.975)." With 60/64 correct, the point estimate is 60/64 = 0.9375 ✓, but the Wilson 95% CI for 60/64 is approximately 0.849–0.978. The upper bound 0.975 is slightly off but plausibly within rounding — flag for verification.
+
+4. **PPV/NPV arithmetic check for logistic regression.** TP=60, FP=1, FN=4, TN=106. PPV = 60/61 = 0.984 ✓. NPV = 106/110 = 0.964 ✓. Accuracy = 166/171 = 0.971 ✓. (Consistent.)
+
+5. **Abstract sensitivity CI inconsistency.** Abstract states sensitivity "0.938 (95% CI 0.850–0.975)" — same as results; consistent with each other but see #3.
+
+6. **DeLong p-value ordering inconsistency between Abstract and Results.** The Abstract states: "All three pairwise DeLong comparisons were non-significant (p = 0.554, 0.640, and 0.800)." The Results assign these specifically: LR vs RF = 0.554, LR vs SVM = 0.800, RF vs SVM = 0.640. The abstract lists them in order "0.554, 0.640, 0.800" without labels — not wrong per se, but the ordering differs from the results presentation, which could confuse. Minor.
+
+7. **SVM and RF have identical sensitivity/specificity but different AUCs/Brier — internally possible but worth verifying.** "random forest...sensitivity 0.922...specificity 1.000" and "support-vector machine...sensitivity 0.922...specificity 1.000" — identical confusion-matrix-derived metrics (59/64 and 107/107) but AUC 0.996 vs 0.997 and Brier 0.029 vs 0.020. Possible but should be verified against the predictions file.
+
+## Methodological / Reporting Problems
+
+8. **Reference standard is misrepresented.** "The reference standard for each sample was the histopathologic diagnosis" — In the actual WDBC dataset, the diagnosis label is the clinical/pathologic diagnosis, but the manuscript repeatedly asserts a "histopathology reference standard" applied to FNA samples. FNA cytology being verified by histopathology is a methodological claim not supported by the dataset, which provides only a diagnosis label without documented per-sample histopathologic confirmation. This overstates the reference standard.
+
+9. **"Thirty cytomorphometric features (the mean, standard error, and worst value of ten nuclear measurements)" — 3 × 10 = 30 ✓**, consistent.
+
+10. **Youden index threshold claimed but never reported.** Methods: "The Youden index was used to report an alternative operating threshold for each index test." Discussion: "Youden-based thresholds are reported alongside it." **No Youden thresholds appear anywhere in the Results or figures.** This is a reporting completeness failure — the claimed values are missing.
+
+11. **PPV/NPV described as not transportable, but reported anyway without caveat in Results.** Methods/Results report PPV and NPV computed at the dataset's high prevalence; the Discussion notes they "are not transportable," but the Results present them without flagging prevalence-

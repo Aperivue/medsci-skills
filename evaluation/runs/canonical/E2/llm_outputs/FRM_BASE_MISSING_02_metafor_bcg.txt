@@ -1,0 +1,31 @@
+I'll review this manuscript systematically for errors and problems.
+
+## Numerical Consistency Issues
+
+1. **"in 8 trials the 95% confidence interval excluded 1.0 in the protective direction"** vs. abstract/results claims — This is internally plausible but cannot be verified without Table 1 data, which is not actually provided (only a caption exists). The numerical claims in the text cannot be checked against the table.
+
+2. **Prediction interval vs. trial range inconsistency:** The text states the **"95% prediction interval was 0.155 to 1.549"** while **"Trial-level risk ratios ranged from 0.197 to 1.562."** The observed trial range (0.197–1.562) extends slightly beyond the prediction interval on both ends, which is unusual and worth checking, since a 95% PI for a future *true* effect would typically be expected to encompass the range of observed point estimates given high heterogeneity. This warrants verification.
+
+3. **"corresponding to a 51% relative reduction"** — RR of 0.489 corresponds to a 51.1% reduction (1 − 0.489 = 0.511). This rounds to 51%, so it is correct, but note RR 0.489 is reported to three decimals while the reduction is rounded.
+
+## Citation/Reference Integrity Issues
+
+4. **No reference list exists.** The manuscript repeatedly uses **"[UNVERIFIED]"** as a placeholder citation throughout (Introduction, Methods, Discussion) but contains no numbered references or bibliography. Every factual claim that should be cited (e.g., "the only licensed vaccine," "prior systematic review," PRISMA 2020, metafor/meta packages) lacks an actual citation. This must be resolved before submission.
+
+5. **PRISMA 2020 cited as [UNVERIFIED]** in both Abstract context and Methods — a real, citable document (Page et al., 2021) is being flagged as unverified.
+
+## Methodological / Reporting Problems
+
+6. **Risk of bias method inconsistency:** The final line states **"Risk of bias was assessed using PROBAST-AI."** PROBAST is a tool for **prediction model studies**, not randomized controlled trials. The appropriate tool would be RoB 2 (Cochrane). This is methodologically wrong for an RCT meta-analysis. Moreover, this sentence is orphaned at the end after the figure legends, not integrated into Methods, and no risk-of-bias results are reported anywhere.
+
+7. **Begg-Mazumdar and Egger tests applied despite acknowledged inadequacy:** The Methods note both tests "are underpowered when fewer than 10 trials are available." With exactly 13 trials this is marginal, and the manuscript appropriately flags it, but the claim **"reported here for completeness with 13 trials"** somewhat contradicts the standard cutoff caution (the issue is more about high heterogeneity than n<10 here).
+
+8. **Hartung-Knapp described as giving "identical point estimate":** The text says **"gave an identical point estimate (RR 0.489...)"** and **"produced the same point estimate."** Hartung-Knapp affects the confidence interval, not the point estimate, so it is correct that the point estimate is unchanged — but the framing "cross-check... gave an identical point estimate" is trivially true and slightly misleading as if it were a validation; only the CI differs (0.330–0.726 vs. 0.344–0.696). Worth rewording.
+
+9. **Eligibility criterion wording:** "(1) a randomized or **systematically allocated** comparison" — "systematically allocated" (e.g., alternation) is *not* randomization. The title and throughout claim "**Randomized** Trials" and "randomized controlled trials," but this criterion admits quasi-randomized/systematically allocated trials, which is a contradiction with the stated design. (The canonical BCG dataset does include alternate-allocation trials, making the title potentially inaccurate.)
+
+10. **Table 1 not provided:** Only the caption exists. The actual per-trial event counts, RRs, and CIs are absent, so none of the trial-level claims can be verified.
+
+11. **Figures not provided:** Figures 1, 2, and 3 are referenced with legends only; no actual figures. Cannot verify the forest plot, funnel plot, or PRISMA diagram.
+
+12. **Confidence interval rounding asymmetry:** Egger reported as "z = -1.40, p = 0.189" and rank test "tau = 0.026

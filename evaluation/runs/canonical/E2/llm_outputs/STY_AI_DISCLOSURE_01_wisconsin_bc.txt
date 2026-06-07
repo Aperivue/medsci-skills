@@ -1,0 +1,33 @@
+Here are the concrete problems I found:
+
+## Numerical Consistency Errors
+
+1. **Class counts don't sum correctly.** "212 samples were malignant and 357 were benign" — 212 + 357 = 569, which is correct. However, the standard WDBC dataset has **212 malignant and 357 benign**, so this matches. *(No error here — verified.)*
+
+2. **Test set malignant count inconsistent with split.** The full dataset is "212 malignant, 357 benign" (37.3% malignant). A stratified 70/30 split should give a test set of ~30% × 212 ≈ 64 malignant and ~30% × 357 ≈ 107 benign. Test set is "64 malignant, 107 benign" = 171 total, which is correct. But the training set should then be 212−64 = 148 malignant and 357−107 = 250 benign = 398. This is consistent. *(No error.)*
+
+3. **Sensitivity value inconsistent with confusion counts.** "correctly classified 60 of 64 malignant" gives sensitivity = 60/64 = 0.9375 ≈ 0.938. Correct. But the **Wilson 95% CI "0.850–0.975"** is implausibly narrow/misplaced for 60/64; the standard Wilson interval for 60/64 is approximately **0.848–0.979**, so the upper bound 0.975 is slightly off but the lower is roughly fine — worth re-checking against the actual computation.
+
+4. **PPV inconsistent with stated counts.** "a positive predictive value of 0.984" — with TP = 60 and FP = 1, PPV = 60/61 = 0.984. Correct.
+
+5. **NPV inconsistent with stated counts.** "a negative predictive value of 0.964" — with TN = 106 and FN = 4, NPV = 106/110 = 0.964. Correct.
+
+6. **Accuracy check.** "an accuracy of 0.971" — (60+106)/171 = 166/171 = 0.9708 ≈ 0.971. Correct.
+
+7. **Random forest / SVM specificity vs. benign count.** Specificity "1.000" with 107 benign implies 107/107 correct (0 FP). The Wilson CI "0.965–1.000" for 107/107 is plausible. Consistent.
+
+8. **RF and SVM have identical sensitivity/specificity but different Brier and AUC.** "sensitivity 0.922 (95% CI 0.830–0.966), specificity 1.000" for *both* RF and SVM — possible but suspicious that two different models produce identical confusion matrices (59/64 malignant, 107/107 benign); should be verified, not necessarily an error.
+
+## Citation / Reference Integrity
+
+9. **All references are explicitly unverified placeholders.** "the references below are UNVERIFIED placeholders" — a manuscript "before journal submission" cannot be submitted with placeholder references; every citation [1]–[12] lacks real bibliographic data.
+
+10. **Reference [5] (DeLong) is cited for two distinct purposes without distinction.** [5] is used both for "DeLong 95% confidence intervals" and for "a test for the difference in discrimination" and also generically for "Comparative claims between competing index tests" (Introduction). The DeLong paper covers comparing correlated ROC curves but is being stretched to also justify the general methodological claim that comparisons require a paired test.
+
+## Statistical / Methodological Problems
+
+11. **Three pairwise comparisons with no multiple-comparison adjustment.** "All three pairwise DeLong comparisons" — three simultaneous tests are reported without any correction; should be noted given the comparative framing.
+
+12. **p-value ordering inconsistent between Abstract and Results.** Abstract: "p = 0.554, 0.640, and 0.800." Results assigns p = 0.554 (LR vs RF), p = 0.800 (LR vs SVM), p = 0.640 (RF vs SVM). The **abstract lists them in order 0.554, 0.640, 0.800**, but provides no labels, while the Discussion repeats "p = 0.554" for LR vs RF. The ordering mismatch (0.640 vs 0.800 swapped relative to Results' pairing order) creates ambiguity about which p maps to which comparison.
+
+13. **Youden thresholds mentioned but never reported.** Methods: "The Youden index was used to report an alternative operating threshold for each index test." Discussion: "Youden-based thresholds are reported alongside it." But

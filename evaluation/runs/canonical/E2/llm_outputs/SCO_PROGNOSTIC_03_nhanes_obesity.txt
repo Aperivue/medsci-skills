@@ -1,0 +1,34 @@
+Here are the concrete problems I found:
+
+## Numerical / Consistency Errors
+
+1. **Exclusion counts don't add up.** "9,254 NHANES 2017-2018 participants, 3,685 were excluded for being younger than 20 years, 394 for a missing measured BMI, and 165 for a borderline, refused, or unknown diabetes status" — 9,254 − 3,685 − 394 − 165 = 5,010, which matches. **However**, the Methods state participants needed "a positive mobile examination center (MEC) examination weight," and the Results say "no eligible participant had a non-positive examination weight." This is internally consistent in counts but **note the arithmetic still works only if these are mutually exclusive sequential exclusions, which is not stated.** (Minor; verify the exclusions are applied as non-overlapping steps.)
+
+2. **Unweighted obesity count vs. percentage mismatch.** "2,090 (41.7%) were classified as obese" — 2,090 / 5,010 = 41.72%, which is consistent. But "2,920 as non-obese": 2,090 + 2,920 = 5,010, consistent. (No error here, but the unweighted 41.7% sits oddly close to the weighted 42.3% — worth a sanity check, not necessarily wrong.)
+
+3. **Sex association p-value inconsistent with CI.** "female sex was associated with lower odds (aOR 0.66; 95% CI, 0.47-0.92; p = 0.046)." An OR of 0.66 with a fairly narrow CI (0.47–0.92) would typically yield a p-value well below 0.046; this p-value looks too large for that CI and should be recomputed/verified.
+
+4. **Prevalence-by-subgroup vs. overall prevalence.** Overall weighted diabetes prevalence is 11.7%, with 7.6% in non-obese and 17.3% in obese adults. With obesity prevalence of 42.3%, the weighted average = 0.423×17.3 + 0.577×7.6 = 7.32 + 4.39 = **11.7%**. Consistent. (No error.)
+
+## Citation / Reference Integrity
+
+5. **No real references.** "References in this methods-demonstration manuscript are intentionally left as [UNVERIFIED] placeholders." For journal submission, no claims are supported by citations. Every [UNVERIFIED] tag (introduction, discussion) is an unsupported factual claim.
+
+6. **Internal tooling references leaked into manuscript.** "they would be resolved through /search-lit and /verify-refs against PubMed and CrossRef and rendered by a reference manager." These internal pipeline commands must not appear in a submitted manuscript.
+
+7. **Tables reference raw file paths.** "See `analysis/tables/table1.csv`" and "See `analysis/tables/regression_or.csv`" — the actual table contents are absent; only file paths are given. Tables 1 and 2 are not reproduced in the manuscript.
+
+## Structural / Reporting Completeness
+
+8. **Two conclusion sections.** There is a "## **CONCLUSION**" section and a separate "## Conclusions" section at the very end. Duplicated/conflicting structure.
+
+9. **Final "Conclusions" contradicts the entire manuscript.** "We recommend annual surveillance and longitudinal follow-up to monitor disease progression over time." The manuscript repeatedly states the design is cross-sectional and draws no temporal/causal conclusions; recommending "longitudinal follow-up to monitor disease progression" is an over-reach inconsistent with a single-cycle cross-sectional study and contradicts the stated framing.
+
+10. **Table 1 content not described.** "A weighted Table 1 described participant characteristics by diabetes status" — but specific Table 1 values (other than age and BMI means) are not reported in text, and the table itself is a file path.
+
+11. **Missing sample sizes for subgroups.** Race/ethnicity ORs are reported but no group-level n's or distributions are provided.
+
+## Methodological Issues
+
+12. **Wrong weight choice for an HbA1c (laboratory) outcome.** The sensitivity analysis uses an HbA1c-based outcome but the Methods state the MEC examination weight is used throughout. NHANES laboratory measures like HbA1c are sometimes a subsample requiring **fasting/lab-specific weights**; using the MEC exam weight for an HbA1c-based analysis may be inappropriate, and this is not addressed.
+

@@ -1,0 +1,27 @@
+I'll review the manuscript systematically for errors.
+
+## Numerical Consistency Errors
+
+1. **Malignant/benign totals don't match.** Quote: "212 malignant, 357 benign" and "212 samples were malignant and 357 were benign." 212 + 357 = 569, which is correct. However, the WDBC dataset actually contains **357 benign and 212 malignant** — this is correct. But check the proportion: 212/569 = 37.3% malignant. The test set has "64 malignant, 107 benign" = 64/171 = 37.4%. Consistent. (No error here, but flagging the check.)
+
+2. **Test set proportion claim is slightly off.** Quote: "the test set preserved the malignant/benign proportion of the full dataset (64 malignant, 107 benign)." Stratified 30% of 212 = 63.6 (≈64) and 30% of 357 = 107.1 (≈107). This is consistent.
+
+3. **PPV/NPV arithmetic error (logistic regression).** Quote: "a positive predictive value of 0.984, a negative predictive value of 0.964." With TP=60, FP=1, FN=4, TN=106: PPV = 60/61 = 0.984 ✓; NPV = 106/110 = 0.9636 ≈ 0.964 ✓. Accuracy = 166/171 = 0.971 ✓. (Consistent.)
+
+4. **Random forest / SVM sensitivity inconsistency.** Quote: "sensitivity 0.922 (95% CI 0.830–0.966), specificity 1.000." Sensitivity 0.922 × 64 = 59.0, so 59/64 malignant correct. Both RF and SVM report **identical** sensitivity, specificity, and CIs but **different Brier scores and AUCs** — possible but worth verifying that two different models produce byte-identical confusion matrices; suspicious and should be confirmed.
+
+5. **DeLong p-value ordering inconsistency between Abstract and Results.** Quote (Abstract): "All three pairwise DeLong comparisons were non-significant (p = 0.554, 0.640, and 0.800)." Quote (Results): "p = 0.554 for logistic regression versus random forest, p = 0.800 for logistic regression versus the support-vector machine, and p = 0.640 for random forest versus the support-vector machine." The abstract lists the values in order 0.554, 0.640, 0.800, but the Results assign 0.640 to RF-vs-SVM and 0.800 to LR-vs-SVM. The set of values matches, but the abstract's ordering does not correspond to the comparison ordering, which is at minimum ambiguous/inconsistent in presentation.
+
+## Methodological / Reporting Problems
+
+6. **Reference standard misrepresented.** Quote: "The reference standard for each sample was the histopathologic diagnosis, coded as malignant or benign." The WDBC dataset labels are derived from FNA diagnosis, **not independent histopathologic (surgical) confirmation** for all cases. Claiming histopathology as the reference standard for all 569 samples is likely inaccurate and overstates the gold standard.
+
+7. **Circularity / same-source reference standard and index test.** The features and the diagnosis both originate from the same FNA material; calling histopathology the independent reference standard while features come from the FNA image raises a verification/incorporation bias concern not addressed.
+
+8. **Youden thresholds claimed but never reported.** Quote: "The Youden index was used to report an alternative operating threshold for each index test" and "Youden-based thresholds are reported alongside it for each index test." No Youden-based thresholds or their associated metrics actually appear anywhere in the Results. This is a reporting completeness failure.
+
+9. **No participant flow data beyond split.** STARD flow diagram (Figure 1) is referenced, but there is no reporting of indeterminate results, missing data, or excluded samples — claimed STARD compliance is incomplete.
+
+10. **PPV/NPV transportability stated but still reported as primary.** Quote: "the reported predictive values are not transportable to clinical practice." PPV/NPV are reported in Results without prevalence adjustment, then disclaimed — acceptable as limitation but the reporting should flag prevalence-dependence at point of presentation.
+
+11. **Primary outcome not defined in manuscript.** Quote: "The primary outcome was defined in §2 of the protocol." This stray sentence appears after the references, references an external protocol §2 

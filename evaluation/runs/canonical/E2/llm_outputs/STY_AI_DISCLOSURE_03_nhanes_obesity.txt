@@ -1,0 +1,33 @@
+Here are the concrete problems I found:
+
+## Numerical / Internal Consistency Errors
+
+1. **Exclusion counts don't add up.** "3,685 were excluded for being younger than 20 years, 394 for a missing measured BMI, and 165 for a borderline, refused, or unknown diabetes status" — 9,254 − 3,685 − 394 − 165 = **5,010**, which matches the stated final sample. ✓ (This part is consistent.) However, see the obese/non-obese split below.
+
+2. **Obese + non-obese counts vs. total.** "2,090 (41.7%) were classified as obese on unweighted counts and 2,920 as non-obese" — 2,090 + 2,920 = **5,010** ✓, but 2,090/5,010 = **41.7%** ✓. (Consistent.) Note though: text elsewhere uses 42.3% as a weighted figure, which is correctly distinguished — no error here.
+
+3. **Non-obese prevalence inconsistency.** "diabetes was 7.6% among non-obese adults and 17.3% among adults with obesity." Check overall weighted prevalence: with obesity weighted prevalence 42.3%, expected overall = 0.423×17.3% + 0.577×7.6% = 7.32% + 4.39% = **11.7%** ✓. (Consistent.)
+
+4. **Female sex p-value/CI mismatch.** "female sex was associated with lower odds (aOR 0.66; 95% CI, 0.47-0.92; p = 0.046)" — A 95% CI of 0.47–0.92 that clearly excludes 1 (upper bound 0.92) would typically correspond to a p-value well below 0.046; p = 0.046 is implausibly close to 0.05 for a CI this far from the null. The p-value and CI are likely inconsistent.
+
+## Methodological Problems
+
+5. **Wrong weight specification.** "the MEC examination weight as the sampling weight" combined with an outcome partly based on HbA1c. HbA1c (glycohemoglobin) in NHANES 2017-2018 is a **fasting/special laboratory subsample** measured under different weights; using the MEC exam weight for the HbA1c-based sensitivity analysis is methodologically questionable and not addressed.
+
+6. **Degrees of freedom claim.** "yielding 15 design degrees of freedom for the single two-year cycle" — NHANES 2017-2018 design degrees of freedom = (number of PSUs) − (number of strata). The standard value is typically smaller (often ~15 for some cycles but cycle-specific); the manuscript states it as a fixed fact without showing the stratum/PSU counts, and 15 should be verified against the actual masked variance units in this cycle.
+
+7. **Missing data on covariates not addressed.** Eligibility requires non-missing BMI and diabetes status, but no mention is made of missing values for **age, sex, or race/ethnicity** (covariates), nor how missing HbA1c interacts with weighting. The drop from 5,010 to 4,779 for HbA1c (231 missing) is not justified or characterized.
+
+8. **Subsample reweighting not done for HbA1c.** The discussion says single-cycle weights are "appropriate," but the HbA1c sensitivity analysis on a subsample (4,779) using the full MEC weight does not account for the reduced subsample — a domain/subpopulation analysis approach is needed but not described.
+
+## Reporting Completeness
+
+9. **Table 1 / Table 2 not provided.** "See `analysis/tables/table1.csv`" and "See `analysis/tables/regression_or.csv`" — the actual table contents are not in the manuscript; numbers cited in Results (e.g., mean age, BMI) cannot be verified against Table 1.
+
+10. **No reference for the STROBE statement.** "Reporting follows the STROBE recommendations" is asserted but STROBE itself is not cited (all references are [UNVERIFIED] placeholders).
+
+11. **HbA1c sensitivity analysis lacks self-report concordance detail.** The discussion claims the two outcomes "identify overlapping but distinct groups" but no cross-tabulation or agreement statistic (e.g., kappa, overlap counts) is reported.
+
+12. **Race/ethnicity results incomplete.** Other Hispanic and non-Hispanic Black aORs are not reported in Results, though they are part of the model. Selective reporting of only the significant/higher categories.
+
+## Citation / Reference

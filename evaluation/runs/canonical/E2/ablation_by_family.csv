@@ -1,0 +1,7 @@
+gate_family,n_injected,gates_detected,llm_detected
+Citation and reference integrity,3,3,1
+"Numerical, cohort, and pool arithmetic",3,3,2
+"Confounding, scope, and estimand contracts",1,1,1
+Reporting compliance,6,6,5
+Style and review-process integrity,14,14,2
+TOTAL,27,27,11

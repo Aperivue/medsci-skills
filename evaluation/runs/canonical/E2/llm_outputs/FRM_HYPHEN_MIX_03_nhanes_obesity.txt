@@ -1,0 +1,27 @@
+# Errors and Problems Found
+
+## Numerical / Internal Consistency Issues
+
+1. **Exclusion arithmetic does not match the sample size.** "3,685 were excluded for being younger than 20 years, 394 for a missing measured BMI, and 165 for a borderline, refused, or unknown diabetes status... The final analytic sample comprised 5,010 adults." 9,254 − 3,685 − 394 − 165 = 5,010. This actually checks out, but note the next item.
+
+2. **Obese/non-obese counts and percentage inconsistency.** "2,090 (41.7%) were classified as obese on unweighted counts and 2,920 as non-obese." 2,090 + 2,920 = 5,010 (consistent), and 2,090/5,010 = 41.7% (consistent). However, the text elsewhere reports weighted obesity prevalence of 42.3% — these are appropriately distinguished (unweighted vs weighted), so acceptable. *(No error here on re-check.)*
+
+3. **Prevalence-by-subgroup is inconsistent with overall prevalence.** Overall weighted diabetes prevalence is stated as 11.7%. With weighted obesity prevalence 42.3%, the implied overall prevalence from subgroups = (0.076 × 0.577) + (0.173 × 0.423) = 4.39% + 7.32% = **11.7%**. This is internally consistent. *(No error.)*
+
+4. **Female sex p-value inconsistency.** "female sex was associated with lower odds (aOR 0.66; 95% CI, 0.47-0.92; p = 0.046)." A 95% CI of 0.47–0.92 that clearly excludes 1 would typically correspond to a p-value well below 0.046; a value this close to 0.05 is implausible for a CI this far from the null. The CI and p-value appear inconsistent.
+
+## Citation / Reference Integrity Issues
+
+5. **Reference [1] is cited but the reference list contains no entries.** "Reporting followed TRIPOD [1]" — the References section explicitly states all references are "[UNVERIFIED] placeholders" and lists nothing, so citation [1] is unresolved/dangling.
+
+6. **Guideline inconsistency: STROBE vs. TRIPOD.** Methods state "Reporting follows the STROBE recommendations for cross-sectional studies," but the closing line states "Reporting followed TRIPOD [1]; AI-specific items were drawn from TRIPOD+AI and TRIPOD-AI guidance." STROBE (observational studies) and TRIPOD (prediction model studies) are different guidelines; this is a contradiction, and TRIPOD is inappropriate for a non-prediction cross-sectional association study.
+
+7. **Unverified placeholders throughout the text.** Numerous "[UNVERIFIED]" markers remain in the Introduction and Discussion (e.g., "linked to metabolic disease, including type 2 diabetes [UNVERIFIED]"). These must be resolved before submission; a manuscript cannot be submitted with placeholder citations.
+
+## Methodological / Reporting Issues
+
+8. **Implausible/anachronistic LLM tool details.** "Claude Opus 4.8, Anthropic, accessed via the programmatic API in June 2026" — references a future date (June 2026) and a model version that does not exist, which is internally inconsistent for a manuscript being prepared for submission and undermines credibility.
+
+9. **HbA1c sensitivity analysis denominator not reconciled.** "Among the 4,779 participants with an available HbA1c measurement." The analytic sample is 5,010; this implies 231 participants lacked HbA1c, but no missing-data accounting or flow is provided for the sensitivity subsample, and possible selection bias from this missingness is not discussed.
+
+10. **Sensitivity-analysis outcome mismatch not addressed.** The primary outcome is self-reported *diagnosed* diabetes; the HbA1c ≥6.5% outcome captures undiagnosed cases too. The text claims concordance (aOR 2.95 vs 3.03) "strengthens confidence," but the two outcomes define different populations (the Discussion partly acknowledges this), and the sensitivity HbA1c prevalence (9.8%) is *lower* than the self-report prevalence (11.7%), which is biologically counterintuitive (HbA1c criteria usually capture *more* cases, including undiagnosed) and is left unexplained

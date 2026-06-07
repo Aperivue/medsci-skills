@@ -1,0 +1,29 @@
+Here are the concrete problems I identified:
+
+## Numerical / Statistical Consistency
+
+1. **"in 8 trials the 95% confidence interval excluded 1.0 in the protective direction"** combined with **"Eleven of the 13 trials had a point estimate below 1.0"** — These need verification against Table 1, but more importantly Table 1 contains no actual data (see below), so neither claim can be checked. The counts cannot be validated.
+
+2. **Prediction interval vs. trial range inconsistency:** The text states the **"95% prediction interval was 0.155 to 1.549"** while **"Trial-level risk ratios ranged from 0.197 to 1.562."** The observed trial range extends slightly *beyond* the prediction interval on both ends (0.197 < ... no, 0.197 > 0.155, but 1.562 > 1.549). The upper observed RR (1.562) exceeds the upper prediction bound (1.549), which is logically odd for a 95% PI that should encompass the distribution of true effects — worth checking, though not strictly impossible since observed RRs include sampling error.
+
+3. **Hartung-Knapp "identical point estimate" claim:** The abstract says the HK cross-check **"gave an identical point estimate (RR 0.489, 95% CI 0.330 to 0.726)."** A standard REML model and an inverse-variance HK model will generally *not* give an identical point estimate to three decimals unless weighting is identical; HK adjusts the CI but the underlying point estimate from a different weighting scheme producing *exactly* 0.489 is suspicious and should be verified.
+
+4. **Egger test reported as "z"**: **"Egger regression (z = -1.40, p = 0.189)"** — Egger's regression test conventionally yields a *t* statistic (regression-based), not a z. Reporting it as z is likely a methodological/reporting error.
+
+5. **Leave-one-out range vs. pooled estimate:** Abstract says leave-one-out **"range 0.452 to 0.533"** while pooled is 0.489 — consistent. But the claim **"every leave-one-out interval excluding 1.0"** plus **"I-squared statistic stayed between 87.0% and 93.2%"** cannot be verified without data.
+
+## Citation / Reference Integrity
+
+6. **Pervasive "[UNVERIFIED]" tags throughout** — Numerous factual and methodological claims are tagged "[UNVERIFIED]" (e.g., BCG being "the only licensed vaccine," PRISMA 2020 adherence, metafor/REML/meta package citations, the prior systematic review source). These are placeholder citations that were never filled in. A submission-ready manuscript cannot contain unsourced "[UNVERIFIED]" markers in place of real references.
+
+7. **No reference list exists.** The manuscript cites a "prior systematic review" and named statistical packages but contains **no References section** at all. Citation integrity is entirely absent.
+
+8. **Self-referential pipeline disclosure in the Introduction:** **"This manuscript is a clean-room demonstration of the medsci-skills v3.7.0 analysis-and-writing pipeline"** — This is inappropriate content for a research manuscript's Introduction and reveals the document is a synthetic/demonstration artifact, undermining its presentation as genuine research.
+
+## Methodological / Reporting Problems
+
+9. **Fabricated/illustrative PRISMA diagram:** The methods admit the **"upstream record counts shown in the study-selection diagram (Figure 1) are illustrative... and are not the yield of a new database search."** Presenting an illustrative PRISMA flow diagram as if it were a real search-and-screening cascade is methodologically misleading, and claiming PRISMA 2020 compliance while not performing an actual search is contradictory.
+
+10. **No actual data in Table 1.** The table legend exists but **the table contains no rows, event counts, or risk ratios** — only a caption pointing to a CSV file ("Source: analysis/tables/per_study_escalc.csv"). The core data table is empty, making every per-trial claim unverifiable.
+
+11. **Internal contradiction on small-study tests:** Methods state both tests **"are underpowered when fewer than 10 trials are available and are reported here for completeness with 13 trials."** With 13 trials (>10), the stated rationale ("fewer than 10") is internally inconsistent — they have more than 10, yet the Discussion still says **"With only 13 trials, both Egger

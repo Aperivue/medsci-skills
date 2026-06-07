@@ -1,0 +1,21 @@
+Here are the concrete problems I found:
+
+**Citation/reference integrity:**
+
+1. **"This claim cites a missing key [@ghost_missing_key]."** — The citation key `@ghost_missing_key` is not defined. The manuscript itself states in its opening that "Every key below is defined in `clean.bib`," which directly contradicts this unresolved/missing reference. This is a broken citation.
+
+2. **The "References" section contains no actual reference list.** — The text under `## References` only says "References are resolved from `clean.bib` via the reference manager." No formatted references are actually provided for the cited keys (`@wolff2019probast`, `@collins2015tripod`, `@vandenbroucke2007strobe`), so citation/reference integrity cannot be verified and the reporting is incomplete.
+
+3. **Citation placed after the References section.** — The citation "This claim cites a missing key [@ghost_missing_key]." appears *below* the `## References` heading. Body-text citations should precede the reference list; a new claim/citation appearing after References is a structural error.
+
+**Reporting completeness / methodological soundness:**
+
+4. **No expansion or definition of acronyms on first use.** — "PROBAST," "TRIPOD," and "STROBE" are used without spelling out their full names (Prediction model Risk Of Bias ASsessment Tool; Transparent Reporting of a multivariable prediction model for Individual Prognosis Or Diagnosis; Strengthening the Reporting of Observational studies in Epidemiology). Acronyms should be defined at first use.
+
+5. **No description of methods, results, or actual study content.** — The fragment claims tools were used to assess risk of bias and guide reporting, but provides no study design, sample, outcomes, or findings. As a manuscript fragment this is incomplete (though this may be intentional given it is described as a "fixture").
+
+**Note on intent:**
+
+The manuscript explicitly identifies itself as a *"synthetic manuscript fragment used only to exercise the citation-integrity detectors,"* so several of the above (especially items 1–3) appear to be deliberately planted test artifacts rather than accidental authoring errors. They are still listed because they are genuine defects relative to a real submission.
+
+I found no numerical-consistency errors (the fragment contains no numbers, statistics, or quantitative claims to check).

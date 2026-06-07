@@ -1,0 +1,36 @@
+# Errors and Problems Found
+
+## Numerical Consistency Errors
+
+**1. Exclusion counts do not sum correctly.**
+Quote: "Of 9,254 NHANES 2017-2018 participants, 3,685 were excluded for being younger than 20 years, 394 for a missing measured BMI, and 165 for a borderline, refused, or unknown diabetes status... The final analytic sample comprised 5,010 adults"
+Problem: 9,254 − 3,685 − 394 − 165 = 5,010. This actually checks out arithmetically. **However**, see the contradiction in item 2 below regarding missing covariates.
+
+**2. Final analytic sample is internally contradictory.**
+Quote: "The final analytic sample comprised 5,010 adults" vs. the trailing line "Of 5,010 participants, 1,000 had missing covariate data, leaving a final analytic sample of 4,500."
+Problem: Two different final sample sizes (5,010 vs. 4,500) are reported. The entire results section, abstract, and Figure 1 use n = 5,010, which is inconsistent with the 4,500 figure. The regression adjusts for covariates, so if 1,000 had missing covariate data they could not have been in the adjusted model. This must be reconciled; the reported analyses cannot all be based on 5,010.
+
+**3. Unweighted obesity count/percentage inconsistency.**
+Quote: "2,090 (41.7%) were classified as obese on unweighted counts and 2,920 as non-obese"
+Problem: 2,090 + 2,920 = 5,010 (correct), but 2,090/5,010 = 41.7% is correct. However the abstract/results report weighted obesity prevalence as 42.3%, and the unweighted is 41.7% — these are merely close, not an error per se, but the labeling should be checked. (Minor; flagging for verification.)
+
+**4. Weighted subgroup prevalences are not reconcilable with the overall weighted prevalence.**
+Quote: "The weighted prevalence of diabetes was 7.6% among non-obese adults and 17.3% among adults with obesity" and "weighted prevalence of obesity 42.3%" and overall "weighted prevalence of diabetes was 11.7%"
+Problem: A weighted-prevalence check: (0.423 × 17.3%) + (0.577 × 7.6%) = 7.32% + 4.39% = 11.7%. This actually reconciles. No error — but worth noting it was verified.
+
+## Methodological / Reporting Problems
+
+**5. Missing covariate data handling is never described in Methods.**
+Problem: The Methods state eligibility criteria but never mention exclusion for missing covariates (age, sex, race/ethnicity). The stray final sentence ("1,000 had missing covariate data") contradicts this and is not reflected in the eligibility flow, Figure 1, or the stated analytic n. Complete-case handling must be specified.
+
+**6. Sex coefficient p-value is inconsistent with its confidence interval.**
+Quote: "female sex was associated with lower odds (aOR 0.66; 95% CI, 0.47-0.92; p = 0.046)"
+Problem: With 15 design degrees of freedom, an OR of 0.66 with CI 0.47–0.92 that clearly excludes 1.0 should generally yield a p-value well below 0.046; more importantly the reported precision/relationship should be checked. The other coefficients report "p < 0.001" but several CIs (e.g., race/ethnicity ORs) report no p-value at all — inconsistent reporting.
+
+**7. Missing p-values for race/ethnicity estimates.**
+Quote: "non-Hispanic Asian (aOR 2.39; 95% CI, 1.53-3.75), other/multiracial (aOR 1.95; 95% CI, 1.37-2.77), and Mexican American (aOR 1.68; 95% CI, 1.17-2.41)"
+Problem: P-values are reported for obesity, age, and sex, but omitted here. Also, "other Hispanic" and "non-Hispanic Black" categories are defined in Methods but their estimates are not reported at all — incomplete reporting of the model.
+
+**8. Degrees of freedom claim may be incorrect.**
+Quote: "yielding 15 design degrees of freedom for the single two-year cycle"
+Problem: NHANES design degrees of freedom = (number of PSUs − number of strata). For the 2017–2018 cycle this should be ver

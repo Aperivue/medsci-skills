@@ -1,0 +1,24 @@
+Based on my review of this manuscript fragment, here are the concrete problems I found:
+
+## Reporting Completeness Problems
+
+1. **No actual study content.** The manuscript contains only three sentences describing reporting guidelines/tools used, with no Methods, Results, study population, statistical analysis, or findings. There is nothing to evaluate as a research manuscript.
+
+2. **"## References" section is empty.** Quote: *"References are resolved from `clean.bib` via the reference manager."* — The reference list itself is not present. The reader cannot verify any citation because no bibliographic entries are actually displayed. This is a citation/reference-integrity failure.
+
+3. **No way to verify citation-reference matching.** Four citation keys are used (`@wolff2019probast`, `@collins2015tripod`, `@vandenbroucke2007strobe`), but because the resolved references are absent, none of these can be checked against actual reference entries for accuracy (authors, year, journal, title).
+
+## Methodological Soundness Problems
+
+4. **PROBAST/TRIPOD/STROBE described without context.** Quote: *"Risk of bias for prediction models was assessed with PROBAST"* and *"The observational component was reported per STROBE"* — The text references a "prediction model" component and an "observational component," but no study design, objective, or methods are described, so it is impossible to judge whether these tools were appropriately applied. (This may be intentional given the stated synthetic purpose, but as written it is methodologically incomplete.)
+
+## Disclosure / Framing Problems
+
+5. **The document self-identifies as a test fixture, not a manuscript.** Quote: *"This is a privacy-free synthetic manuscript fragment used only to exercise the citation-integrity detectors."* — This is not a genuine research manuscript and contains no scientific claims, data, or conclusions to review. The "Citation Fixture (synthetic)" title confirms it is a test artifact rather than a submission-ready manuscript.
+
+## Note on What Could NOT Be Checked
+
+- **Numerical consistency:** No numbers, percentages, sample sizes, or statistics appear in the text, so numerical consistency cannot be assessed (no errors found because no numbers exist).
+- **Citation accuracy:** The three named guidelines (PROBAST, TRIPOD, STROBE) are paired with plausibly-named keys, but without the rendered `clean.bib` entries, correctness of author/year/title/journal cannot be confirmed.
+
+**Summary:** The principal, verifiable problem is that the **reference list is not actually present** — citations cannot be resolved or validated from the text provided. Beyond that, the fragment is too sparse (and explicitly synthetic) to contain substantive scientific errors.

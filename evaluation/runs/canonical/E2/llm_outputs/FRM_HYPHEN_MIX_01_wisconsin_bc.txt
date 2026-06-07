@@ -1,0 +1,29 @@
+I'll review this manuscript systematically for errors and problems.
+
+## Numerical Consistency Errors
+
+1. **Malignant/benign count mismatch in the full dataset.** "212 malignant, 357 benign" — these sum to 569, which is correct. However, the actual Wisconsin Diagnostic Breast Cancer dataset has **357 benign and 212 malignant**, so the totals are right, but note the test-set split below conflicts.
+
+2. **Test-set class proportions don't match the stratified split.** The full dataset is 212/569 = 37.3% malignant. A stratified test set of 171 should have ~63.7 malignant. The paper reports "64 malignant, 107 benign" (37.4%) — this is consistent. But the training set should then be 212−64 = **148 malignant in training**, and 357−107 = 250 benign = 398. This is internally consistent, so no error here, but worth verifying.
+
+3. **Logistic regression confusion matrix vs. sensitivity mismatch.** Text states it "correctly classified 60 of 64 malignant" giving "sensitivity of 0.938." But 60/64 = **0.9375 ≈ 0.938** — correct. However, the abstract reports the same sensitivity. Check PPV: TP=60, FP=1, so PPV = 60/61 = **0.984** — correct. NPV = 106/110 = **0.964** — correct. Accuracy = 166/171 = **0.971** — correct. These are internally consistent.
+
+4. **DeLong p-value ordering inconsistency between Abstract and Results.** Abstract: "All three pairwise DeLong comparisons were non-significant (p = 0.554, 0.640, and 0.800)." Results/Discussion specify: LR vs RF = 0.554, LR vs SVM = 0.800, RF vs SVM = 0.640. The abstract lists them as "0.554, 0.640, and 0.800" without labels — the *values* match but the **ordering differs from the Results section**, which could confuse readers (minor, but the unlabeled list is a reporting weakness).
+
+5. **Random forest specificity CI lower bound.** RF specificity "1.000 (95% CI 0.965–1.000)" — a Wilson interval for 107/107 should have a lower bound around 0.965, which is plausible. SVM reports identical "specificity 1.000 (95% CI 0.965–1.000)" and identical sensitivity "0.922 (95% CI 0.830–0.966)" — having **two different models produce byte-identical confusion-matrix-derived metrics** (59/64 and 107/107 for both RF and SVM) is possible but should be flagged for verification.
+
+## Methodological / Reporting Problems
+
+6. **Brier score described as "calibration."** "calibration was summarized by the Brier score." The Brier score is a **proper scoring rule conflating calibration and discrimination (refinement)**, not a pure calibration measure. The conclusion's claim that "logistic regression offered the best probability calibration" based solely on a lower Brier score is **not strictly valid** — a lower Brier score does not isolate calibration. A calibration plot or calibration slope/intercept would be needed.
+
+7. **Youden index mentioned but never reported.** Methods: "The Youden index was used to report an alternative operating threshold for each index test." Discussion: "Youden-based thresholds are reported alongside it for each index test." But **no Youden-based thresholds or their associated metrics appear anywhere in the Results or any table/figure.** This is a reporting-completeness failure.
+
+8. **PPV/NPV/accuracy only reported for logistic regression.** Methods state these were "computed" for the threshold analysis, but Results give PPV/NPV/accuracy **only for logistic regression**, omitting them for random forest and SVM. Incomplete reporting.
+
+9. **No participant flow numbers for excluded samples.** STARD compliance is claimed, but the dataset has zero exclusions described; Figure 1 is called a "participant flow diagram" though all 569 samples flow through with no exclusion/missing-data accounting.
+
+10. **"medsci-skills v3.7.0" appears in the Objective/Abstract.** Including a pipeline version string and "reproducible demonstration of the medsci-skills v3.7.0 pipeline" in the scientific **Objective** of an abstract is inappropriate for a manuscript; this is tooling metadata, not a study objective.
+
+## Citation / Reference Integrity Problems
+
+11. **All references are explicit

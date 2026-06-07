@@ -1,0 +1,35 @@
+I'll go through the manuscript systematically for concrete errors.
+
+## Numerical Consistency Errors
+
+1. **Class count mismatch with total.** "569 FNA samples; 212 malignant, 357 benign" — 212 + 357 = 569, which is correct. However, this dataset's actual figures are 212 malignant / 357 benign, so consistent. **No error here** — but note the malignant proportion is 212/569 = 37.3%.
+
+2. **Test-set class proportion does not match the full dataset.** The Methods states "the test set preserved the malignant/benign proportion of the full dataset (64 malignant, 107 benign)." Full dataset malignant proportion = 212/569 = 37.3%. Test set malignant proportion = 64/171 = 37.4%. This is consistent. **No error.**
+
+3. **Training set composition inconsistency (omission).** The split is 398 training + 171 test = 569 (correct), but the malignant/benign counts for the training set are never given. Combined with test (64 malignant), training should have 212 − 64 = 148 malignant, 250 benign. This is a reporting gap, not a numerical contradiction.
+
+4. **Logistic regression sensitivity/specificity vs. confusion counts.**
+   - "correctly classified 60 of 64 malignant" → sensitivity = 60/64 = 0.9375 ≈ 0.938. ✓
+   - "106 of 107 benign" → specificity = 106/107 = 0.9907 ≈ 0.991. ✓
+   - PPV = TP/(TP+FP) = 60/(60+1) = 0.984. ✓
+   - NPV = TN/(TN+FN) = 106/(106+4) = 0.964. ✓
+   - Accuracy = (60+106)/171 = 166/171 = 0.971. ✓
+   These are internally consistent.
+
+5. **Brier score "lowest of the three" claim is contradicted by the SVM value.** The text says logistic regression's Brier score "was 0.019, the lowest of the three index tests." But the SVM Brier score is **0.020** and the RF is 0.029 — so 0.019 is indeed the lowest. **No error.** (Difference of 0.001 is small but consistent.)
+
+6. **Random forest and SVM have identical confusion-matrix-implied counts but the claim only addresses calibration.** RF: sensitivity 0.922 (= 59/64 = 0.922 ✓), specificity 1.000 (107/107). SVM: sensitivity 0.922, specificity 1.000 — identical. This is plausible but worth flagging that two different models produce bit-identical sensitivity/specificity, which deserves a sanity check (not a definite error).
+
+## Citation / Reference Integrity
+
+7. **The entire reference list is explicitly unverified placeholders.** Quote: "the references in this manuscript are unverified placeholders." This is disclosed honestly, but for an actual submission it is a fatal problem — no claim is supported by a real citation.
+
+8. **Reference [2] supports a substantive empirical claim with a placeholder.** "these descriptors separate malignant from benign lesions with substantial accuracy [2]" — citation is an unverified placeholder, so the claim is unsupported.
+
+9. **DeLong reference [5] is cited for two distinct purposes.** Reference [5] is cited both for "DeLong 95% confidence intervals" (a CI method) and for "a test for the difference in discrimination" and "DeLong method for correlated curves." The DeLong 1988 paper concerns *comparing* correlated ROC curves; using the same citation for single-curve CI construction is a slight mis-citation (single-curve DeLong CI is a derivative use), though commonly conflated. Minor.
+
+## Methodological Problems
+
+10. **Reference standard is misdescribed as histopathology for all samples.** Quote: "The reference standard was the histopathologic diagnosis (malignant or benign)." In the actual Wisconsin Diagnostic dataset, diagnoses derive from FNA samples with confirmed outcomes; the manuscript repeatedly asserts a histopathology reference standard ("The histopathology reference standard was applied to all test samples") but provides no evidence that each case had surgical/histopathologic confirmation. This is an overstatement of the reference standard's nature and a potential incorporation-bias concern, since features and the "reference standard" both derive from the same FNA material in the published dataset.
+
+11. **Youden-based thresholds are promised but never reported.** Methods:

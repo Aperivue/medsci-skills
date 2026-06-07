@@ -1,0 +1,29 @@
+I'll review this manuscript systematically for errors and problems.
+
+## Numerical Consistency Errors
+
+1. **Exclusion arithmetic doesn't sum correctly.** Quote: "Of 9,254 NHANES 2017-2018 participants, 3,685 were excluded for being younger than 20 years, 394 for a missing measured BMI, and 165 for a borderline, refused, or unknown diabetes status... The final analytic sample comprised 5,010 adults." Check: 9,254 − 3,685 − 394 − 165 = 5,010. This actually sums correctly. (No error here — verified.)
+
+2. **Obese/non-obese counts vs. total sample.** Quote: "2,090 (41.7%) were classified as obese on unweighted counts and 2,920 as non-obese." Check: 2,090 + 2,920 = 5,010 ✓. And 2,090/5,010 = 41.7% ✓. (Verified consistent.)
+
+3. **HbA1c subsample arithmetic is unexplained/inconsistent.** Quote: "Among the 4,779 participants with an available HbA1c measurement." The methods state participants needed valid diabetes status but say nothing about how 5,010 − 4,779 = 231 participants lost HbA1c. This is acceptable as missingness, but no flow/accounting is given, which is a reporting completeness gap.
+
+4. **Weighted prevalence by obesity status is internally inconsistent with overall prevalence.** Quote: "The weighted prevalence of diabetes was 7.6% among non-obese adults and 17.3% among adults with obesity" with overall obesity prevalence 42.3% and overall diabetes 11.7%. Weighted check: (0.577 × 7.6%) + (0.423 × 17.3%) = 4.39% + 7.32% = 11.7% ✓. (Verified consistent.)
+
+## Citation/Reference Integrity
+
+5. **All references are unresolved placeholders.** Quote: "References in this methods-demonstration manuscript are intentionally left as [UNVERIFIED] placeholders." A manuscript "before journal submission" cannot have unverified/missing references. Every [UNVERIFIED] in-text marker is an unsupported claim.
+
+6. **STROBE is cited without a reference.** Quote: "Reporting follows the STROBE recommendations for cross-sectional studies." No citation is provided.
+
+## Methodological / Reporting Problems
+
+7. **Wrong weight used for an HbA1c (laboratory) outcome.** Quote: "the MEC examination weight as the sampling weight." HbA1c in NHANES 2017–2018 is measured on the full MEC sample, so MEC weights are appropriate there — but several lab subsample analyses require fasting/subsample weights. More importantly, the manuscript uses MEC exam weights throughout while the abstract calls them "examination weights"; this is at least underspecified. The sensitivity analysis on HbA1c uses MEC weights on a *subset* (4,779) without re-deriving/justifying appropriate weights for the analytic subpopulation.
+
+8. **Degrees of freedom claim.** Quote: "yielding 15 design degrees of freedom for the single two-year cycle." NHANES 2017–2018 has a limited number of PSUs; design df = (#PSUs − #strata). The value 15 is asserted without showing the PSU/strata counts, and is not the standard figure typically reported — this should be verified against the actual masked variance units.
+
+9. **Inconsistent p-value reporting / questionable significance statement.** Quote: "female sex was associated with lower odds (aOR 0.66; 95% CI, 0.47-0.92; p = 0.046)." A 95% CI of 0.47–0.92 (excluding 1) is consistent with significance, but p = 0.046 is borderline and inconsistently precise relative to the other p-values reported as "< 0.001." Also the CI upper bound 0.92 with p = 0.046 is plausible but should be checked.
+
+10. **Sensitivity analysis lacks a p-value and significance statement.** Quote: "the adjusted association with obesity was concordant with the primary analysis (aOR 2.95; 95% CI, 2.18-3.98)." No p-value given, unlike the primary analysis.
+
+11. **Missing data handling not described.** 394 missing BMI and 165 invalid diabetes status were excluded (complete-case analysis), but no discussion of potential selection bias from this exclusion is provided

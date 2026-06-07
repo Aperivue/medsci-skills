@@ -1,24 +1,26 @@
 {
   "components": [
     {
-      "command_args": [],
+      "command_args": [
+        "--with-llm"
+      ],
       "component_type": "llm_baseline",
       "expected_reproducibility": "non-deterministic",
-      "git_sha": "1d42f478ff275d6692b54e92d1efbb9ca13cb9c4",
+      "git_sha": "d0cfe9dc0e1e96c90439a6d9ef7700a59518cdbc",
       "input_hash": "ecf973e56d3d5db0e7f134cde9d2b034e150bb59dd453ce0efa568ed46c6725d",
       "model_name": "claude-opus-4-8",
-      "output_hash": "93bef183145bee77624c102c59c9f7b55e597bc42199745a45a9c8a78e6d2778",
-      "rerun_policy": "run with ANTHROPIC_API_KEY + anthropic SDK; temperature 0, single sample",
+      "output_hash": "fc8dc6d268ee4ddef0ffb2a3a7f588588f3214be50147ff36e85a8e26b5253db",
+      "rerun_policy": "single sample, provider default sampling (temperature not configurable for this model); output not guaranteed identical across runs",
       "script_path": null,
       "seed": null
     }
   ],
   "experiment_id": "E2",
-  "git_dirty": false,
-  "git_sha": "1d42f478ff275d6692b54e92d1efbb9ca13cb9c4",
-  "reproducibility_hash": "bc118e9b1ad31fc730208e97c74818379fdae9ab1ef4bdac7d5890cf360ec1c8",
+  "git_dirty": true,
+  "git_sha": "d0cfe9dc0e1e96c90439a6d9ef7700a59518cdbc",
+  "reproducibility_hash": "b3ba9b4fdee3e8f3e39ef1e1fcc04b1ba6fc3b500ac14959bc96ab985a7ab95f",
   "reproducibility_targets": {
-    "metrics.csv": "93bef183145bee77624c102c59c9f7b55e597bc42199745a45a9c8a78e6d2778"
+    "metrics.csv": "fc8dc6d268ee4ddef0ffb2a3a7f588588f3214be50147ff36e85a8e26b5253db"
   },
-  "timestamp": "2026-06-07T19:56:17"
+  "timestamp": "2026-06-07T23:51:55"
 }

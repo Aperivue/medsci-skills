@@ -59,10 +59,10 @@ def _mi_clear(executed: bool, reason: str = "") -> dict:
             "query_datetime": datetime.now().isoformat(timespec="seconds") if executed else None,
         },
         "2_stochasticity": {
-            "temperature": 0,
+            "temperature": "not set (parameter deprecated for this model; provider default sampling)",
             "top_p": None,
             "attempts_per_prompt": 1,
-            "repeat_policy": "single sample at temperature 0",
+            "repeat_policy": "single sample, provider default sampling (temperature not configurable for this model)",
         },
         "3_full_prompt": {
             "prompt_path": str(PROMPT_PATH.relative_to(REPO_ROOT)),
@@ -102,7 +102,7 @@ def _write_not_run(log, qc_dir, not_run_reason, args, out) -> int:
         component_type="llm_baseline",
         model_name=MODEL, command_args=["--with-llm"] if args.with_llm else [],
         expected_reproducibility="non-deterministic",
-        rerun_policy="run with ANTHROPIC_API_KEY + anthropic SDK; temperature 0, single sample",
+        rerun_policy="run with ANTHROPIC_API_KEY + anthropic SDK; single sample, provider default sampling",
         input_paths=[PROMPT_PATH], output_path=out,
     )
     log.finalize(metrics_path=out,
@@ -165,10 +165,22 @@ def _execute(log, qc_dir, args, out) -> int:
                 outcome = INJECTORS[spec.injector](target, spec.injector_args)
                 if outcome.status != "INJECTED":
                     continue
-                man = target if target.suffix == ".md" else root / "clean.md"
+                # Resolve the manuscript a generic reviewer would read:
+                #  - .md target -> the injected manuscript/fixture itself
+                #  - fixture dir -> its clean.md
+                #  - demo with a non-.md (code) target -> the UNCHANGED manuscript;
+                #    a code-level defect is not visible in the prose, so a
+                #    manuscript-text reviewer legitimately cannot see it (a real
+                #    ablation finding, not an error).
+                if target.suffix == ".md":
+                    man = target
+                elif (root / "clean.md").exists():
+                    man = root / "clean.md"
+                else:
+                    man = root / "manuscript" / "manuscript.md"
                 text = man.read_text(encoding="utf-8")[:120000]
                 resp = client.messages.create(
-                    model=MODEL, max_tokens=1500, temperature=0,
+                    model=MODEL, max_tokens=1500,
                     messages=[{"role": "user", "content": prompt_tmpl.replace("{manuscript}", text)}],
                 )
                 body = "".join(b.text for b in resp.content if getattr(b, "type", "") == "text")
@@ -189,7 +201,7 @@ def _execute(log, qc_dir, args, out) -> int:
     log.log_component(
         component_type="llm_baseline", model_name=MODEL, command_args=["--with-llm"],
         expected_reproducibility="non-deterministic",
-        rerun_policy="temperature 0 reduces but does not guarantee identical output",
+        rerun_policy="single sample, provider default sampling (temperature not configurable for this model); output not guaranteed identical across runs",
         input_paths=[PROMPT_PATH], output_path=out,
     )
     log.finalize(metrics_path=out,

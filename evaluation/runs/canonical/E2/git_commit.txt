@@ -1,5 +1,7 @@
-HEAD: 1d42f478ff275d6692b54e92d1efbb9ca13cb9c4
-describe: v3.7.0-2-g1d42f47
-dirty: no
+HEAD: d0cfe9dc0e1e96c90439a6d9ef7700a59518cdbc
+describe: v3.7.0-4-gd0cfe9d
+dirty: yes
 --- status --porcelain ---
-
+M evaluation/h1_seeded_defects/registry.py
+ M evaluation/h2_llm_baseline/run_h2.py
+?? evaluation/h1_seeded_defects/DEFECT_RATIONALE.md

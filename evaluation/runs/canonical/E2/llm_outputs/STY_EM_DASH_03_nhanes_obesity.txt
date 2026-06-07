@@ -1,0 +1,29 @@
+I'll review this manuscript for concrete errors and problems. I'll ignore the garbled "clause — clause" text at the end, which is clearly an artifact, not manuscript content.
+
+## Numerical Consistency Errors
+
+1. **Exclusion counts don't reconcile with sample size.** The text states "3,685 were excluded for being younger than 20 years, 394 for a missing measured BMI, and 165 for a borderline, refused, or unknown diabetes status." 9,254 − 3,685 − 394 − 165 = **5,010**. This actually checks out — but see next item.
+
+2. **Obese/non-obese counts contradict the stated total.** "2,090 (41.7%) were classified as obese on unweighted counts and 2,920 as non-obese." 2,090 + 2,920 = **5,010**, which matches. However, 2,090/5,010 = **41.7%** ✓. These are internally consistent. (No error here.)
+
+3. **Unweighted obesity (41.7%) vs. weighted obesity (42.3%) — fine, but check consistency claim.** The abstract/results report weighted obesity prevalence 42.3%; unweighted is 41.7%. Consistent, no error.
+
+4. **Sensitivity analysis denominator inconsistency.** "Among the 4,779 participants with an available HbA1c measurement." With 5,010 in the analytic sample, this implies 231 lacked HbA1c. This is plausible but **never reconciled or mentioned in the flow/exclusions** — the manuscript should state how many were missing HbA1c. Minor reporting gap, not a hard error.
+
+5. **Female sex p-value inconsistency.** "female sex was associated with lower odds (aOR 0.66; 95% CI, 0.47-0.92; p = 0.046)." A 95% CI of 0.47–0.92 that excludes 1.0 with an upper bound well below 1 would typically correspond to **p considerably smaller than 0.046**. A CI upper bound of 0.92 (about 8% below null) being borderline at p=0.046 is internally questionable — worth verifying the p-value against the CI.
+
+## Methodological / Reporting Problems
+
+6. **Wrong survey weight used.** Methods state: "the MEC examination weight as the sampling weight." For an analysis whose **primary outcome is self-reported diabetes** (an interview/questionnaire variable), the **interview weight (WTINT)** is generally the correct base, OR the analysis should be justified. More importantly, the abstract/methods describe using "examination weights" throughout, but the diabetes diagnosis question is from the interview. Using MEC exam weights is defensible only because BMI requires the exam, but this should be justified, not asserted.
+
+7. **Eligibility includes "positive examination weight" but then claims none excluded.** "(4) a positive mobile examination center (MEC) examination weight" is listed as a criterion, but Results say "no eligible participant had a non-positive examination weight." If it never excludes anyone, listing it as a substantive criterion is misleading/redundant — and NHANES does assign zero MEC weights to interviewed-but-not-examined participants, so a count of zero exclusions is **implausible** given 9,254 participants.
+
+8. **Degrees of freedom claim.** "yielding 15 design degrees of freedom for the single two-year cycle." NHANES 2017–2018 has **15 masked variance strata** and typically gives **df = (number of PSUs) − (number of strata)**. With 2 PSUs per stratum and 15 strata, df = 30 − 15 = **15**. This is correct, but it should be checked against the actual cycle structure; stated without the underlying PSU/stratum counts.
+
+9. **Continuous age modeled but no check of linearity reported.** Age is entered "continuous, years" with an aOR "per year," but no assessment of the linearity-in-logit assumption is reported. Minor.
+
+10. **No mention of how missing covariate data (race/ethnicity, sex) were handled.** Only BMI and diabetes-status missingness are addressed in exclusions.
+
+11. **Sensitivity analysis lacks p-value/comparability.** The HbA1c sensitivity aOR (2.95; 95% CI 2.18–3.98) is reported **without a p-value**, while the primary model reports one. Inconsistent reporting.
+
+12. **HbA1c-based outcome conflates with the diagnosis.** Defining diabetes by "HbA1c of 6.5% or higher" alone (single measur

@@ -5,6 +5,10 @@ be cleanly attributed in ("fixture" = the synthetic citation fixture). One
 defect is injected per temp copy, one detector judged per defect, so attribution
 is unambiguous. Network-required citation defects (FABRICATED/MISMATCH) are
 marked and recorded NOT_RUN unless --online is passed.
+
+The rationale for each defect (the real-world error class it represents, its
+grounding in the 12-recurring-pattern gate lineage, and the necessary-and-sufficient
+/ clean-baseline / false-negative scope) is documented in ``DEFECT_RATIONALE.md``.
 """
 
 from __future__ import annotations

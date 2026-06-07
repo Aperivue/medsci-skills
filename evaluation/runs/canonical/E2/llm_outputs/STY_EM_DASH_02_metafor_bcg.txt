@@ -1,0 +1,33 @@
+I'll review this manuscript for concrete errors and problems.
+
+## Numerical Consistency Issues
+
+1. **"Eleven of the 13 trials had a point estimate below 1.0, and in 8 trials the 95% confidence interval excluded 1.0 in the protective direction."** This conflicts with the stated range of "Trial-level risk ratios ranged from 0.197 to 1.562." If the maximum RR is 1.562 (above 1.0), then at least one trial is above 1.0, which is consistent with 11/13 below. However, this cannot be verified against Table 1, which contains no actual data (see below). The claim is unverifiable as presented.
+
+2. **Prediction interval vs. confidence interval inconsistency in conclusion logic:** The abstract states the prediction interval is "0.155 to 1.549" and the conclusion says protection "crosses 1.0." This is internally consistent, but worth confirming against tau-squared = 0.313 and the pooled estimate—these are plausible but the manuscript provides no way to verify.
+
+3. **Hartung-Knapp "identical point estimate" claim:** The abstract states *"A meta package cross-check using the Hartung-Knapp adjustment gave an identical point estimate (RR 0.489, 95% CI 0.330 to 0.726)."* The Hartung-Knapp adjustment affects the confidence interval, not the point estimate, so an identical point estimate is plausible only if the same REML tau-squared and weights are used. But the main analysis uses REML inverse-variance; the cross-check is described as "inverse-variance random-effects model with the Hartung-Knapp adjustment." If a different tau-squared estimator default were used, point estimates could differ. The claim of *exactly* "identical" point estimate to three decimals warrants verification.
+
+## Citation / Reference Integrity
+
+4. **Pervasive "[UNVERIFIED]" tags throughout:** Numerous factual and methodological claims carry "[UNVERIFIED]" markers (e.g., *"the only licensed vaccine in routine use against it [UNVERIFIED]"*, *"reported in accordance with the PRISMA 2020 statement [UNVERIFIED]"*, *"implemented in the metafor package [UNVERIFIED]"*). These are placeholders that were never replaced with real citations. No reference list exists anywhere in the manuscript.
+
+5. **No References section at all.** Despite multiple citation points, there is no bibliography. A submission-ready manuscript must include numbered references.
+
+6. **The canonical dataset is not cited.** The "canonical BCG vaccine dataset assembled in a prior systematic review [UNVERIFIED]" refers to a real, well-known dataset (Colditz et al.), but the actual source is never named or referenced.
+
+## Reporting Completeness
+
+7. **Table 1 contains no data.** The "Tables" section provides only a caption ("Per-trial event counts and risk ratios...") and a file path, but no actual table with the 13 trials, event counts, RRs, or CIs. All trial-level claims are therefore unverifiable.
+
+8. **No trial names, years, or characteristics given.** The manuscript never names a single included trial, gives no dates, locations, or latitudes—yet the discussion repeatedly invokes latitude as a moderator. This is a major reporting gap.
+
+9. **Source-path artifact left in text:** *"Source: analysis/tables/per_study_escalc.csv."* An internal file path should not appear in a submitted manuscript table caption.
+
+10. **PRISMA flow diagram acknowledged as fabricated/illustrative:** *"the upstream record counts shown in the study-selection diagram (Figure 1) are illustrative... and are not the yield of a new database search."* Presenting an illustrative/fictional PRISMA diagram is methodologically improper for a journal submission and contradicts the abstract's claim that *"Reporting followed PRISMA 2020."* A PRISMA flow diagram with fabricated upstream counts is not PRISMA-compliant.
+
+11. **No arm-level totals reported.** The total (357,347) is given, but no breakdown by vaccinated vs. control arm, or total TB events, is provided.
+
+## Methodological Soundness
+
+12. **Self-contradiction on power of small-study tests with 13 trials:** Methods state both tests *"are underpowered when fewer than 10 trials are available and are reported here for completeness with 13 trials."* With 13 trials (≥10), the stated under-10 caveat

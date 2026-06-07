@@ -1,0 +1,58 @@
+I'll review this manuscript systematically for errors and problems.
+
+## Numerical Consistency Errors
+
+**1. Malignant/benign totals are swapped in the dataset description**
+
+> "569 FNA samples; 212 malignant, 357 benign"
+
+The Wisconsin Diagnostic Breast Cancer dataset actually has 212 malignant and 357 benign — but if malignant is the positive/target class, the figures should be checked against the test split. Actually the real issue is downstream: see below.
+
+**2. Test set class proportions are inconsistent with the full dataset's stratified split**
+
+> "the test set preserved the malignant/benign proportion of the full dataset (64 malignant, 107 benign)"
+
+The full dataset is 212/357 (37.3% malignant). A stratified 30% test split should give ~63.6 malignant and ~107.1 benign — 64/107 is consistent. BUT the training set: 398 + 171 = 569 ✓. However, 212 − 64 = 148 malignant in training and 357 − 107 = 250 benign = 398 ✓. This is internally consistent. (No error here — noting it checked out.)
+
+**3. Abstract sensitivity CI mismatch with Results**
+
+Abstract: "sensitivity 0.938 (95% CI 0.850–0.975)" and Results match. But the sensitivity value itself: 60/64 = 0.9375 ≈ 0.938 ✓. Specificity 106/107 = 0.9907 ≈ 0.991 ✓. PPV = 60/61 = 0.984 ✓. NPV = 106/110 = 0.964 ✓. Accuracy = 166/171 = 0.971 ✓. These are consistent.
+
+**4. Abstract p-value ordering does not match the Results section**
+
+> Abstract: "All three pairwise DeLong comparisons were non-significant (p = 0.554, 0.640, and 0.800)."
+
+> Results: "p = 0.554 for logistic regression versus random forest, p = 0.800 for logistic regression versus the support-vector machine, and p = 0.640 for random forest versus the support-vector machine."
+
+The abstract lists the p-values in order 0.554, 0.640, 0.800, but the Results pair them as 0.554, 0.800, 0.640. The abstract gives no labels, so a reader matching by position would mis-assign p = 0.640 and p = 0.800 to the wrong comparisons. Inconsistent ordering.
+
+## Methodological / Reporting Problems
+
+**5. Brier score described as "best calibration" but Brier is not purely a calibration metric**
+
+> "logistic regression offered the best probability calibration" / "best probability calibration (Brier score 0.019)"
+
+The Brier score is a combined measure of calibration *and* discrimination (refinement); it is not a pure calibration measure. Claiming "best calibration" on the basis of Brier score alone is methodologically imprecise — a calibration-specific assessment (e.g., calibration slope/intercept or calibration curve) is not reported.
+
+**6. Youden index thresholds claimed but never reported**
+
+> Methods: "The Youden index was used to report an alternative operating threshold for each index test."
+> Discussion: "Youden-based thresholds are reported alongside it for each index test."
+
+No Youden-based thresholds or their associated metrics appear anywhere in the Results, tables, or figures. This is a reporting gap — claimed analyses are missing.
+
+**7. PPV/NPV and accuracy reported but Wilson CIs only given for sensitivity/specificity**
+
+> "a positive predictive value of 0.984, a negative predictive value of 0.964, and an accuracy of 0.971"
+
+Methods state PPV, NPV, and accuracy "were computed... and binomial proportions were given Wilson 95% confidence intervals," but no CIs are reported for PPV, NPV, or accuracy. Incomplete reporting relative to the stated methods.
+
+**8. PROBAST-AI sentence is orphaned and contradicts the methods**
+
+> "Risk of bias was assessed using PROBAST-AI."
+
+This single sentence is appended after the references with no context, no results, and no description in the Methods. It is dangling/unsupported text, and no PROBAST-AI assessment appears anywhere. Either an editing artifact or an unsubstantiated claim.
+
+**9. No reference standard verification / circularity concern not addressed**
+
+The "histopathologic diagnosis" is described as the reference standard, but in the actual WDBC dataset the labels are the clinical diagn

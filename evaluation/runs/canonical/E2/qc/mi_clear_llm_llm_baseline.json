@@ -1,19 +1,19 @@
 {
   "_note": "MI-CLEAR-LLM-inspired logging for the E2 LLM comparator.",
-  "executed": false,
-  "not_run_reason": "default mode (pass --with-llm to attempt execution)",
+  "executed": true,
+  "not_run_reason": "",
   "1_model_identification": {
     "provider": "Anthropic",
     "model_name": "claude-opus-4-8",
     "access_mode": "API (messages)",
     "api_endpoint": "https://api.anthropic.com",
-    "query_datetime": null
+    "query_datetime": "2026-06-08T00:00:34"
   },
   "2_stochasticity": {
-    "temperature": 0,
+    "temperature": "not set (parameter deprecated for this model; provider default sampling)",
     "top_p": null,
     "attempts_per_prompt": 1,
-    "repeat_policy": "single sample at temperature 0"
+    "repeat_policy": "single sample, provider default sampling (temperature not configurable for this model)"
   },
   "3_full_prompt": {
     "prompt_path": "evaluation/h2_llm_baseline/prompt.txt",

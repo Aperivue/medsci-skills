@@ -1,0 +1,27 @@
+Based on my review of this manuscript fragment, here are the concrete problems I found:
+
+## Reporting Completeness Issues
+
+1. **No actual reference list provided.** The text states "References are resolved from `clean.bib` via the reference manager." — but no resolved/expanded reference entries appear. A submission-ready manuscript must contain a fully formatted reference list, not unresolved instructions to a reference manager. Reviewers and readers cannot verify the three cited works (`wolff2019probast`, `collins2015tripod`, `vandenbroucke2007strobe`).
+
+2. **Unresolved citation keys in the body text.** The citations appear as raw markup keys — `[@wolff2019probast]`, `[@collins2015tripod]`, `[@vandenbroucke2007strobe]` — rather than rendered citations (e.g., numbered or author-year). The manuscript was apparently not processed through the citation manager before review/submission.
+
+## Citation/Reference Integrity Issues
+
+3. **No way to verify citation-to-reference correspondence.** Because the reference list is absent, the claim that "Every key below is defined in `clean.bib`" cannot be confirmed within the manuscript itself. Citation integrity cannot be established from the document as submitted.
+
+## Methodological Soundness Issues
+
+4. **Methods asserted without any study described.** The text references PROBAST (for "prediction models"), TRIPOD, and STROBE (for "The observational component"), implying a study with both a prediction-modeling component and an observational component — yet no study design, objective, population, data, or analysis is described. The named reporting/bias tools have nothing to apply to.
+
+5. **"Risk of bias for prediction models was assessed with PROBAST"** — no results of this assessment are reported (no judgments, domains, or outcomes), so the stated method is incomplete.
+
+## Writing Style / Document-Type Issues
+
+6. **The document is explicitly a non-manuscript fixture.** The heading and opening — "**# Citation Fixture (synthetic)**" and "**This is a privacy-free synthetic manuscript fragment used only to exercise the citation-integrity detectors.**" — indicate this is test/fixture content, not a genuine research manuscript. This is not appropriate text for journal submission and should not appear in a real manuscript.
+
+7. **Code/markup artifacts left in prose.** Backtick-formatted tokens like `clean.bib` are pipeline/file references, not appropriate content for a finished manuscript body.
+
+## Note
+
+This fragment contains no numerical data, tables, or statistics, so **numerical consistency** could not be assessed (there is nothing to check). Likewise, given the absence of any actual study content, most substantive methodological review is impossible — the primary problem is that this is a synthetic test fixture rather than a real manuscript.

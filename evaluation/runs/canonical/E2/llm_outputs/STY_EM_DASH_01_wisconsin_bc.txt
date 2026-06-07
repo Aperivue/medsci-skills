@@ -1,0 +1,27 @@
+I'll go through the manuscript systematically for concrete errors.
+
+## Numerical Consistency Errors
+
+1. **Class totals don't sum correctly.** "212 malignant, 357 benign" — 212 + 357 = 569, which is correct. **However**, the standard Wisconsin Diagnostic Breast Cancer dataset is actually 212 malignant and **357 benign** = 569; this is internally consistent. But note the real dataset is 357 benign / 212 malignant, so this is fine. *(No error here — verified consistent.)*
+
+2. **Test-set split arithmetic is inconsistent with stratification.** The full dataset is 212/357 malignant/benign (37.3% malignant). The test set is stated as "64 malignant, 107 benign" (37.4% malignant), which is consistent. But the **training set malignant count is never given and doesn't cleanly stratify**: 212 − 64 = 148 malignant and 357 − 107 = 250 benign in training = 398. 148/398 = 37.2%. This is consistent. *(No error.)*
+
+3. **Sensitivity value inconsistent with confusion matrix counts.** The text says logistic regression "correctly classified 60 of 64 malignant" giving "sensitivity of 0.938." But 60/64 = **0.9375 → 0.938**, consistent. However Figure 1 states "TP = 60, FP = 1, FN = 4, TN = 106" — that is 60+4 = 64 malignant and 1+106 = 107 benign, consistent. *(No error.)*
+
+4. **Negative predictive value inconsistency.** LR: TP=60, FP=1, FN=4, TN=106. NPV = TN/(TN+FN) = 106/110 = **0.964**, consistent. PPV = 60/61 = **0.984**, consistent. Accuracy = 166/171 = **0.971**, consistent. *(No error.)*
+
+5. **Specificity for random forest / SVM stated as 1.000 but with a confidence interval that excludes nothing meaningful — check counts.** RF/SVM specificity "1.000 (95% CI 0.965–1.000)" implies 107/107 benign correct. Sensitivity 0.922 = 59/64 (59/64 = 0.9219). This is internally consistent, but **the Brier scores create a problem**: see item below.
+
+6. **Mismatch between abstract and results for DeLong p-values ordering.** Abstract: "p = 0.554, 0.640, and 0.800." Results section maps these as LR-vs-RF = 0.554, LR-vs-SVM = 0.800, RF-vs-SVM = 0.640. The abstract lists them in order 0.554, 0.640, 0.800 without labeling, which is a **reporting ambiguity** but not strictly an error. However the Discussion only cites "(p = 0.554)" for the LR-vs-RF comparison — consistent.
+
+## Methodological / Reporting Problems
+
+7. **"histopathology as the reference standard" is methodologically false for this dataset.** The Wisconsin Diagnostic Breast Cancer dataset diagnoses are derived from FNA cytology assessment, not independent histopathologic (surgical) confirmation for all cases. Quote: *"The reference standard for each sample was the histopathologic diagnosis."* Stating histopathology as the reference standard is an **inaccurate methodological claim**.
+
+8. **Index test and reference standard are not independent.** The features (cytomorphometry) and the label both derive from the same FNA material in this dataset. Claiming an independent histopathology reference standard while features come from FNA risks **incorporation/verification bias** that is not acknowledged.
+
+9. **AUC of 0.998 with a CI upper bound of 1.000 reported as "DeLong 95% CI."** DeLong CIs near the boundary (AUC ≈ 1.0) are known to be unreliable/anticonservative. Quote: *"AUC of 0.998 (95% CI 0.994–1.000)."* Not flagged as a limitation.
+
+10. **Youden index thresholds promised but never reported.** Methods: *"The Youden index was used to report an alternative operating threshold for each index test."* Discussion: *"Youden-based thresholds are reported alongside it for each index test."* **No Youden thresholds appear anywhere in the Results or any table/figure.** Reporting-completeness failure.
+
+11. **Hyperparameter/tuning underreporting.** SVM with RBF kernel is fitted

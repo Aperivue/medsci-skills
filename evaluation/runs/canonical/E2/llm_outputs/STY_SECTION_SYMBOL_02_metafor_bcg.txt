@@ -1,0 +1,31 @@
+I'll review this manuscript for concrete errors and problems.
+
+## Numerical Consistency Issues
+
+1. **"Eleven of the 13 trials had a point estimate below 1.0"** combined with **"Trial-level risk ratios ranged from 0.197 to 1.562"**: This is internally consistent but should be cross-checked. More importantly, the canonical BCG dataset (Colditz et al.) has 13 trials where the maximum RR is approximately 1.56, but the claim that 11 are below 1.0 means 2 are above 1.0. This is plausible but cannot be verified without Table 1's data, which is not provided.
+
+2. **Egger regression "z = -1.40, p = 0.189"**: A z-value of -1.40 corresponds to a two-tailed p-value of approximately 0.162, not 0.189. The reported p-value is inconsistent with the test statistic. (If it were a t-test rather than z, the label "z" is wrong.)
+
+3. **Prediction interval vs. confidence interval logic**: The pooled RR is 0.489 with 95% CI 0.344 to 0.696, and the prediction interval is 0.155 to 1.549. These are internally plausible given tau-squared = 0.313, but worth verifying that the PI is symmetric on the log scale around the pooled estimate. log(0.489) = -0.715; log(0.155) = -1.864 and log(1.549) = 0.438. The midpoint of the PI on log scale = (-1.864 + 0.438)/2 = -0.713, which matches. Consistent.
+
+## Methodological / Logical Problems
+
+4. **"the pooled estimate was stable in leave-one-out analysis (range 0.452 to 0.533), with every leave-one-out interval excluding 1.0"**: This claim of stability and every interval excluding 1.0 is contradicted by the very high heterogeneity (I² = 92.2%) and a full-model prediction interval crossing 1.0. While leave-one-out CIs (not PIs) excluding 1.0 is possible, this should be checked against the data, as removing the most protective trial with such heterogeneity could plausibly shift things. Flag for verification.
+
+5. **Hartung-Knapp "identical point estimate"**: The abstract states *"gave an identical point estimate (RR 0.489)"* but Hartung-Knapp adjusts the confidence interval, not the point estimate, so an identical point estimate is expected and not noteworthy. However, the abstract says the cross-check CI is "0.330 to 0.726" while the main REML CI is "0.344 to 0.696." The text claims HK gives a *wider* interval—correct here—but note the lower bound 0.330 < 0.344 and upper 0.726 > 0.696, consistent with widening. This is internally consistent.
+
+## Citation / Reference Integrity
+
+6. **Pervasive "[UNVERIFIED]" tags**: Numerous factual and methodological claims are tagged "[UNVERIFIED]" rather than carrying real citations (e.g., *"the only licensed vaccine in routine use against it [UNVERIFIED]"*, *"the metafor package [UNVERIFIED]"*, *"PRISMA 2020 statement [UNVERIFIED]"*). These placeholders must be replaced with actual references before submission; no reference list exists.
+
+7. **No reference list**: The manuscript contains no References section at all, despite numerous citation points.
+
+8. **"assembled in a prior systematic review [UNVERIFIED]"**: The canonical BCG dataset (Colditz et al., JAMA 1994) is uncited; the source must be named.
+
+## Reporting Completeness
+
+9. **Table 1 contains no actual data**: The table legend is present (*"Table 1. Per-trial event counts and risk ratios..."*) but the table itself with the 13 trials' cell counts, RRs, and CIs is entirely missing. This is a major reporting gap—readers cannot verify any trial-level claim.
+
+10. **Figures not provided**: Figures 1, 2, and 3 have legends only; the figures themselves are absent.
+
+11. **PRISMA claim is undermined by fabricated flow diagram**: The manuscript states it *"followed PRISMA 2020"* and presents a PRISMA flow diagram, yet admits *"the upstream record counts shown in the study-selection diagram (Figure 1) are illustrative... and are not the yield of a new database search."* Presenting illustrative/fabricated record counts in a PRISMA diagram is
