@@ -51,6 +51,9 @@ Follow the target journal's format. Include:
 - Prior AI approaches for this task (brief, cite key studies).
 - Gaps: limited validation, single-center, no reader comparison, no generalizability data.
 - For LLM studies: current evidence on LLM/MLLM performance in medical domains.
+- For NLP/LLM extraction studies: name 2-3 closest prior extraction or report-mining papers/systems
+  and state the substantive delta (task, dataset, input constraints, method, validation, or workflow),
+  not merely that the new system is "novel."
 
 ### Paragraph 3: Study Objective
 - Precise aim with study design mentioned.
@@ -113,6 +116,11 @@ Follow the target journal's format. Include:
 - Full prompts in supplement (or verbatim in methods if short).
 - If multi-agent: agent roles, interaction protocol, consensus mechanism.
 - Input format: text-only, image+text, structured data.
+- For report-text extraction: list each supplied text field separately (e.g., findings, impression,
+  clinical history, indication, prior diagnosis, referral text). State whether fields that may contain the
+  target label were masked, excluded, or evaluated in a sensitivity analysis.
+- For fine-tuning, LoRA, prompt-engineering, or multi-agent claims: include a same-backbone zero-shot or
+  few-shot comparator using the identical input fields, output schema, and test split.
 
 #### For Pipeline/System Studies
 - End-to-end system description.
@@ -130,6 +138,12 @@ Follow the target journal's format. Include:
 - **Primary metric**: AUC, sensitivity, specificity, accuracy, F1 -- state which and why.
 - **Confidence intervals**: 95% CIs for all primary metrics (bootstrap or exact binomial).
 - **Comparison tests**: DeLong test for AUC comparison, McNemar for sensitivity/specificity.
+- **Adaptation ablation**: when claiming benefit from fine-tuning, LoRA, prompt design, or a wrapper,
+  pre-specify the paired comparison against the same-backbone zero-shot/few-shot baseline and report the
+  uncertainty for the delta, not only the adapted model's standalone performance.
+- **Input-contamination sensitivity**: for NLP/LLM extraction, report the primary analysis with the
+  pre-specified input fields and, when applicable, a sensitivity analysis excluding fields likely to
+  contain the answer.
 - **Calibration**: calibration plot, Brier score, calibration slope/intercept (for prediction models).
 - **Subgroup analyses**: pre-specified subgroups with rationale.
 - **Multiple comparisons**: correction method if applicable.
@@ -201,6 +215,8 @@ Follow the target journal's format. Include:
 ### Paragraph 4: Clinical Deployment Implications
 - Where in the workflow would this fit? (triage, second reader, standalone, quality assurance)
 - What is the intended use case?
+- What decision, workflow step, or downstream action changes if the model is correct? State this before
+  making a clinical-utility claim.
 - Implementation considerations: speed, hardware, integration.
 - Regulatory pathway considerations (if relevant).
 
@@ -249,3 +265,6 @@ For each: (a) what it is, (b) how mitigated, (c) direction of residual bias.
 8. **No intended use**: Not specifying where in the clinical workflow the model would be deployed.
 9. **Cherry-picked operating point**: Choosing the threshold that looks best on the test set.
 10. **Ignoring prevalence**: Reporting PPV/NPV without discussing the study prevalence vs real-world prevalence.
+11. **Input-text contamination**: clinical history, indication, impression, or referral text contains the target diagnosis or label.
+12. **Missing same-backbone baseline**: fine-tuning or prompt-engineering benefit is claimed without a zero-shot/few-shot comparator on the same task.
+13. **Presence-only novelty**: the Introduction says the task is novel but does not position the work against the closest 2-3 prior papers or systems.

@@ -51,8 +51,9 @@ Gather essential information from the user before any writing begins.
    - Systematic review: PRISMA 2020
    - Observational study: STROBE
    - Educational study: no standard checklist (use SQUIRE if applicable)
-4. Create or confirm the project scaffold directory.
-5. Check for `--no-llm-disclosure` flag. If absent, LLM disclosure is ON by default.
+4. **AI/LLM design-stage reporting map**: for AI validation, LLM/MLLM, NLP extraction, or report-generation papers, map each required AI-reporting item to a manuscript section before drafting. At minimum record model/version/access date, input fields, prompt or fine-tuning protocol, same-backbone zero-shot/few-shot baseline if an adaptation claim is made, test-data independence/contamination assessment, repeatability/stochasticity handling, and the Methods subsection where each will appear. If any item cannot be placed, halt for design clarification rather than burying it as a Phase 7 limitation.
+5. Create or confirm the project scaffold directory.
+6. Check for `--no-llm-disclosure` flag. If absent, LLM disclosure is ON by default.
    Check for `--autonomous` flag. If present, record autonomous mode as ON.
    Record both flag states for use in Phase 1-7 gate logic.
 
@@ -79,7 +80,7 @@ When paper type is "case report":
 10. For extended case reports with literature review, user can specify `--extended` to raise
     the word limit to 2000-3000 words and add a structured review section.
 
-5. **Identify a backbone article (auto-proposal first, ask only as fallback)**:
+7. **Identify a backbone article (auto-proposal first, ask only as fallback)**:
    a. **Scan first** — if `manuscript/_src/refs.bib` exists, scan it for entries matching the current paper's study design (Phase 0 paper_type), imaging modality, and target journal (or comparable tier). Prefer entries whose Zotero record has a PDF attachment (full text locally available).
    b. **Rank candidates** by: PDF available locally (+2), recency within 5 years (+1), same target journal (+2), same study design + modality (+2).
    c. **Behavior**:
@@ -87,7 +88,7 @@ When paper type is "case report":
       - **Multiple candidates** — present the top 3 ranked list with rationale and ask the user to choose.
       - **No refs.bib, or no candidates** — ask the user to provide a published study (legacy behavior).
    d. Record the chosen citekey in `project.yaml::backbone_article` so Methods, Tables, and Figures phases reuse it without re-asking.
-6. Summarize the setup to the user and confirm before proceeding.
+8. Summarize the setup to the user and confirm before proceeding.
 
 **Output:** Setup summary with journal constraints, paper type, reporting guideline, backbone article, directory path, and LLM disclosure status (ON/OFF).
 
@@ -201,6 +202,15 @@ Write the Methods section first -- it is the most objective and anchors the rest
 5. Statistical Analysis (reference `${CLAUDE_SKILL_DIR}/references/section_templates/methods_statistical.md`)
 6. Ethics statement
 7. AI/LLM disclosure (if `--no-llm-disclosure` was NOT set): insert the Methods disclosure paragraph from the [LLM Disclosure](#llm-writing-disclosure) section
+
+**AI/LLM extraction add-ons (when applicable):**
+- In Dataset / Inputs, state exactly which text fields the model received and whether clinical history,
+  indication, impression, prior diagnosis, or referral text was masked. If a supplied field can contain
+  the target label, Methods must either exclude it or describe a no-leaky-field sensitivity analysis.
+- In AI Model or Statistical Analysis, include a same-backbone zero-shot/few-shot comparator when the
+  claim is that fine-tuning, LoRA, prompt engineering, or a multi-agent wrapper improves performance.
+- In Introduction, state the decision-impact path: what clinical or research workflow step changes if the
+  model works, not only that the extracted label is interesting.
 
 **Process:**
 1. **Writer pass**: Draft the full Methods section following the outline and paper type template.
@@ -1115,7 +1125,7 @@ Severity levels: **ENFORCED** = pipeline halts on failure (cannot proceed to nex
 
 | Phase | Gate | Severity | Trigger | Action on fail |
 |---|---|---|---|---|
-| 0 | Backbone-article auto-proposal (Phase 0 Step 5) | ADVISORY | refs.bib has methodologically similar candidate | Surface to user; user accepts/declines |
+| 0 | Backbone-article auto-proposal (Phase 0 "Identify a backbone article" action) | ADVISORY | refs.bib has methodologically similar candidate | Surface to user; user accepts/declines |
 | 7.0 | Citekey resolution (delegate `/manage-refs scripts/check_citation_keys.py`) | ENFORCED | UNDEFINED keys present | Halt; resolve via `/lit-sync` then re-run |
 | 7.0 | NEW_PLACEHOLDER drain (delegate `/manage-refs`) | ENFORCED at 7.6 entry | `[@NEW:topic]` markers remain | Resolve each before DOCX render |
 | 7.1 | Classical-style QC (manuscript-style-classical 11 items) | ENFORCED | § symbol > 0 OR AI Disclosure paragraph in body OR em-dash > 25 | Auto-fix or HALT for senior MA reviewer prep |
