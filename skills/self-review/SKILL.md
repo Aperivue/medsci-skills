@@ -78,6 +78,7 @@ partially, or not at all for the given manuscript type.
 |-------|-----------------|
 | Patient-level splitting | Are train/val/test splits at the patient level? Is this explicitly stated? |
 | Leakage risk | Any postoperative variable used in a preoperative model? Cohort-wide preprocessing before split? |
+| Input-text contamination | For NLP/LLM extraction tasks, does any supplied report text (clinical history, indication, impression, prior diagnosis, referral text) already contain the target label? If yes, mark as Major unless the input was masked or a no-leaky-field sensitivity analysis is reported. |
 | Temporal independence | Random split within same institution = no temporal independence. Acknowledged? |
 | Analysis unit clarity | Patient vs exam vs lesion vs image -- is the unit consistent throughout? |
 | Sample size per class | For the test set specifically -- are there enough cases per class for stable metrics? |
@@ -99,6 +100,7 @@ partially, or not at all for the given manuscript type.
 | Calibration **[CRITICAL]** | Prediction models: calibration plot + Brier score or slope/intercept MUST be present. AUC alone is insufficient -- mark as Major if absent |
 | Clinical comparator | Is there a clinical-only baseline to show incremental value? |
 | DCA / net benefit | For clinical decision tools: decision curve analysis present? |
+| Fine-tuning baseline | For LLM/NLP fine-tuning, LoRA, prompt-engineering, or multi-agent claims, is there a same-backbone zero-shot or few-shot comparator on the same input, schema, and test split? |
 | Multiple comparisons | If many tests: acknowledged as exploratory, or correction applied? |
 | Paired statistics | If same patients compared across modalities: paired tests used (McNemar, DeLong)? |
 | Effect-size meaningfulness | Scored separately from significance: is each primary effect (OR, HR, beta, Cohen's d, correlation) translated to a real-world unit shift and compared to a minimal clinically important difference? Is significance driven by magnitude rather than sample size? |
@@ -115,7 +117,9 @@ partially, or not at all for the given manuscript type.
 | Terminology precision | Key terms defined? (e.g., "perioperative" = when exactly?) |
 | Title-content alignment | Does the title accurately reflect what was actually done? |
 | Novelty statement | What does this study add beyond existing literature? Is this explicitly stated? |
+| Substantive novelty differentiation | For AI/LLM extraction papers, does the Introduction name 2-3 close prior papers/systems and state the concrete delta (new task, dataset, workflow, method, validation, or clinical decision point), rather than merely saying the method is novel? |
 | Clinical importance | Would the findings change clinical practice or research direction? Is this articulated? |
+| Decision impact | Does the manuscript state what decision, workflow step, or downstream action would change if the model is correct? A text-only phenotype that does not alter triage, treatment, surveillance, enrichment, or research operations has weak clinical utility even if accuracy is high. |
 | Added value / actionability | Scored separately from novelty: does the finding add value over a measure already in routine use, or is it "real but redundant" (restates a standard test)? At the typical effect size, would a clinician act on it for an individual? |
 | Endpoint↔conclusion scope **[CRITICAL]** | Does the conclusion's *action* exceed what the design or endpoint supports? A cross-sectional / single-visit study cannot license a prognostic or surveillance claim (rescreen interval, disease progression); a binary surrogate endpoint (present/absent, >0) is risk stratification, not a care directive (defer/withhold/initiate therapy). Both are documented anti-patterns. |
 
@@ -965,7 +969,7 @@ After presenting the report, offer to help fix specific issues:
 - Rewrite overclaiming sentences
 - Draft missing limitation statements
 - Suggest statistical additions (e.g., calibration analysis code via `/analyze-stats`)
-- Draft intended use or novelty statements
+- Draft intended use, decision-impact, or novelty-delta statements
 - Check specific tables/figures for consistency
 - Generate missing flow diagrams via `/make-figures`
 

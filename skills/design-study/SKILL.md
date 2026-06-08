@@ -110,6 +110,12 @@ Look for:
 - normalization or thresholding performed before data split
 - repeated exams across train/test
 - reader annotations derived from outcome information
+- **input-text contamination for NLP/LLM extraction tasks**: if the model input includes report
+  sections such as clinical history, indication, impression, prior diagnosis, or referral text, confirm
+  that those fields do not literally name or strongly imply the target label. If the target is already
+  present in the supplied text, the task is information retrieval under label leakage, not phenotype
+  inference; redesign the input mask, report a sensitivity analysis excluding leaky fields, or reframe the
+  claim.
 - **construct dependence** (a predictor that is a definitional component of the outcome). Two cases:
   (i) *mathematical definition* — an input that computes the outcome (when the outcome is HOMA-IR =
   f(fasting insulin, fasting glucose), those two inputs are not independent predictors); (ii)
@@ -196,6 +202,10 @@ Ask whether the comparator and endpoint support the stated claim:
 - is the endpoint clinically meaningful?
 - does performance translate to action?
 - **incremental value**: if the study frames the model/marker as adding value *beyond* / *on top of* / *incremental to* an existing tool (a clinical score, a routine test, a baseline model), the design must pre-specify the baseline comparator built from the in-routine-use predictors **and** an incremental-value metric — ΔC-index / ΔAUC (with a paired CI, e.g. DeLong), categorical or continuous NRI, IDI, or decision-curve net benefit. A standalone discrimination number ("our model's AUC was 0.84") does not support a "beyond X" claim; without the nested-model comparison the finding may be real but redundant. Plan this at design time — it cannot be added post hoc without the baseline model.
+- **fine-tuning contribution baseline**: if an NLP/LLM study claims that fine-tuning, LoRA, prompt
+  engineering, or a multi-agent wrapper improves extraction/classification, pre-specify a same-backbone
+  zero-shot or few-shot comparator on the identical input, output schema, and test split. A comparison
+  only against a weaker or unrelated baseline cannot establish that the proposed adaptation adds value.
 - **endpoint↔conclusion scope**: decide up front what *kind* of conclusion the design can support, so the manuscript does not overreach. A cross-sectional / single-visit / prevalence design cannot support a prognostic or surveillance claim (rescreen interval, disease progression) — that needs longitudinal follow-up. A binary surrogate endpoint (present/absent, >0, dichotomized) is risk stratification, not a patient-care directive (defer/withhold/initiate therapy). At review time `/self-review` §D + `check_scope_coherence.py` flag `CROSS_SECTIONAL_PROGNOSTIC` / `SURROGATE_CARE_DIRECTIVE` against the conclusion.
 
 ### Phase 4: Reporting fit
@@ -238,6 +248,8 @@ Recommend one primary guideline:
 - no clear rubric for clinical correctness
 - benchmark labels derived from noisy reports without adjudication
 - unsupported claims about safety or workflow benefit
+- input text contains the target label or diagnosis being predicted
+- no same-backbone zero-shot/few-shot baseline for a fine-tuning or prompt-engineering claim
 
 ### Imaging meta-analysis
 - overlapping cohorts
