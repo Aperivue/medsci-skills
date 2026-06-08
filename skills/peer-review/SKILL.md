@@ -42,6 +42,17 @@ methodology and study design.
    - **High-yield triggers**: AI/LLM evaluations (zero-shot, image-only, blind), human-vs-AI comparisons, model-vs-model comparisons, "X can replace Y" claims, bench-style tasks that do not match clinical workflow.
    - **Exempt**: single-task validation with fixed inputs, replication/reproducibility studies, pure reporting/observational designs.
    - **Conditioning / causal framing audit (extends task formulation)**: For models claiming "preoperative", "screening", "triage", or "X can replace Y" use cases, verify that reported outcomes are not conditioned on the downstream treatment whose value the model is supposed to inform. Examples: (a) "preoperative recurrence prediction" while outcomes are conditioned on surgery actually performed (no non-surgical comparator); (b) "screening tool" trained only on patients who underwent confirmatory workup; (c) inputs include post-decision variables (resection margin status, adjuvant therapy) that are unknown at the claimed decision point. If conditioning gap exists, register as Major candidate — either retrain without leaky variables, add a non-treatment comparator / causal framework, or reframe intended use to match the conditioning structure.
+   - **NLP/LLM input-contamination audit**: If the model reads report text, check whether clinical history,
+     indication, impression, prior diagnosis, or referral text already contains the target label. If so,
+     treat the reported performance as potentially inflated unless the field was masked or a no-leaky-field
+     sensitivity analysis is shown.
+   - **Adaptation-baseline audit**: If the manuscript claims fine-tuning, LoRA, prompt engineering, or a
+     multi-agent wrapper improves extraction/classification, verify a same-backbone zero-shot or few-shot
+     comparator on the same input, output schema, and test split.
+   - **Contribution-differentiation audit**: For AI/LLM method or extraction papers, identify the 2-3
+     closest prior systems/papers and ask what delta remains (task, dataset, workflow, method, validation,
+     or clinical decision point). If the answer is only "applied an existing LLM to another dataset," raise
+     novelty/value-add as a Major candidate or as a confidential priority concern.
 4. **Identify key issues** using this systematic checklist:
    - Task formulation (carry forward from step 3 if a candidate was found)
    - Data splitting / leakage (patient-level vs image-level)
@@ -52,6 +63,8 @@ methodology and study design.
    - Protocol heterogeneity
    - Intended use clarity
    - Overclaiming relative to evidence level
+   - Priority / contribution calibration: weak novelty plus weak clinical utility can justify a stronger
+     recommendation even when the statistical/reporting critique is otherwise constructive.
    - Sample size adequacy
    - Statistical methodology appropriateness
    - Effect-size clinical meaningfulness (scored separately from the validation / CI / calibration axis
@@ -69,6 +82,24 @@ methodology and study design.
 5. **Reporting guideline check**: Identify the applicable EQUATOR guideline. Flag MISSING items as candidate comments. If `/check-reporting` is available, delegate.
 6. **Prioritize**: Rank issues by impact on validity. Select top 3-5 for Major, 3-4 for Minor. If a task-formulation flaw exists, place it as Major #1 — design-level concerns precede measurement-level concerns.
 7. **Gate**: Present findings to user — "Here are the key issues I found — do you agree with this prioritization?"
+
+### Phase 2F: Recommendation Calibration for AI/Method Papers
+
+Before finalizing **Major Revision** for an original AI, LLM, or methodology paper, explicitly run this
+calibration gate. It prevents a valid issue list from under-weighting contribution and priority.
+
+1. **Design/validity flaw**: Is there a central design, leakage, reference-standard, baseline, or workflow
+   mismatch that threatens the main claim?
+2. **Speculative value**: Is the clinical or research-use pathway weak, with no clear decision-impact,
+   workflow-change, downstream-validation, or actionability argument?
+3. **Weak novelty**: Is the work hard to distinguish from close prior AI/LLM extraction or validation
+   papers, or does it omit the baseline needed to show that the proposed adaptation adds value?
+
+If 2 and 3 both hold, do not default to Major Revision simply because the review is constructive. In the
+confidential comments, state that the manuscript has a priority/contribution problem in addition to the
+fixable technical issues, and calibrate the recommendation toward the journal's stronger option (for
+example, reject/resubmission where that tier exists). If only 1 holds and the value/novelty case is strong,
+Major Revision remains appropriate.
 
 ### Phase 2A: Systematic Review / Meta-Analysis Extension
 
@@ -223,8 +254,11 @@ After drafting, verify mechanically:
 9. **SR-MA-specific QC** (if Phase 2A applied): Confirm the P0 internal-consistency gate was run before any fabrication claim. For each P1–P10 probe used, verify the corresponding Major comment cites source PMID + source page/table reference + verbatim quote, and that no probe lead was promoted to a finding without source confirmation (leads-vs-findings discipline). Reviews citing extraction errors without source-page reference are not actionable for authors.
 10. **Radiomics-reproducibility QC** (if Phase 2C applied): If an acquisition-parameter sweep predicts an outcome from its own grid axes (R1 design-grid circularity) or the substantive result is a cross-domain failure framed as success (R3), confirm the recommendation reflects design-level severity and is not softened to a reporting fix. Where a model × threshold/cohort grid yields a few p < 0.05, confirm the multiplicity / expected-false-positive count is named (R4), not deferred to "statistical review needed."
 11. **Review-article QC** (if Phase 2D applied): Confirm RV1–RV8 are reflected — in particular that novelty/value-add (RV1) is raised for a saturated topic and that gap-filling (RV8) is present, not just error-spotting. Verify SANRA is used as an appraisal aid, not over-enforced as a reporting guideline (no PRISMA demand on a narrative review; only RV3 is SANRA-aligned and phrased as a suggestion). Verify every suggested addition uses "consider adding" phrasing (no "must cite"), is source-confirmed, and that preprints are labeled as preprints (not equated with peer-reviewed guidelines).
-12. **Observational-confounding QC** (if Phase 2E applied): For any covariate imbalanced by exposure in Table 1 but absent from the adjustment set (O1), confirm the comment requests a concrete extended-adjustment sensitivity model, not a vague "adjust for more confounders." Confirm a selection/collider structure (O3) or an undisclosed complete-case collapse from a structural-zero dose covariate (O5) is raised at design-level severity, and that any E-value request (O6) targets the declared primary estimate rather than a supporting one.
-12. **Verify-your-own-criticism** (all reviews): For each Major framed as a technical inaccuracy or a citation–claim mismatch, confirm the reviewer's own assertion was checked against a current authoritative source (full paper, CrossRef, arXiv). Downgrade unverified technical claims to a hedged "Please verify…"; keep confirmed ones firm. Watch for status drift (a "preprint" since published; a method since adapted) before asserting the manuscript is wrong.
+12. **AI/method priority QC**: Before a Major Revision recommendation, confirm Phase 2F was run. If novelty
+    and clinical/research utility are both weak, the recommendation must reflect that contribution-level
+    concern rather than treating all issues as fixable reporting defects.
+13. **Observational-confounding QC** (if Phase 2E applied): For any covariate imbalanced by exposure in Table 1 but absent from the adjustment set (O1), confirm the comment requests a concrete extended-adjustment sensitivity model, not a vague "adjust for more confounders." Confirm a selection/collider structure (O3) or an undisclosed complete-case collapse from a structural-zero dose covariate (O5) is raised at design-level severity, and that any E-value request (O6) targets the declared primary estimate rather than a supporting one.
+14. **Verify-your-own-criticism** (all reviews): For each Major framed as a technical inaccuracy or a citation–claim mismatch, confirm the reviewer's own assertion was checked against a current authoritative source (full paper, CrossRef, arXiv). Downgrade unverified technical claims to a hedged "Please verify…"; keep confirmed ones firm. Watch for status drift (a "preprint" since published; a method since adapted) before asserting the manuscript is wrong.
 
 Fix all issues found, then present to user.
 
@@ -250,6 +284,7 @@ Fix all issues found, then present to user.
 - [ ] AI pattern density within thresholds (em-dash ≤2/1000w; structural rule-of-three ≤2/Major; significance inflation 0/Major; hedged Minor ≥50%)
 - [ ] Fatal flaw hierarchy stated in Confidential Comments (if applicable)
 - [ ] Reject recommendations (if used): §1C condition checklist (design-level flaw + speculative practical value 3-trigger + novelty gap) explicitly verified — at least 2 of 3 conditions met
+- [ ] AI/method Major Revision recommendations: contribution/value gate checked; weak novelty + weak utility not silently softened
 
 ## Tone and Calibration
 
@@ -258,6 +293,10 @@ Fix all issues found, then present to user.
 - **Escalate tone** only when: clinical validity threatened, patient safety concern, severe data leakage, or reference standard fundamentally flawed
 - **Default recommendation**: Major Revision (unless issues are purely reporting/clarity → Minor Revision)
 - **Fatal flaw signal**: State in Confidential Comments which issue(s) represent fundamental design limitations, rather than recommending Reject directly
+- **Contribution/priority override**: For original AI or method papers, a manuscript can be technically
+  analyzable and still below the journal's priority bar. When weak novelty and weak clinical/research
+  utility both hold, surface that in Confidential Comments and calibrate the recommendation upward from the
+  default Major Revision tier.
 - **Length proportionality**: Minor Revision ≤ 600 words; Major Revision ≤ 1000 words. Length signals difficulty — a Minor Revision review longer than the manuscript itself reads as Reviewer 2.
 
 ## Signature Review Patterns
