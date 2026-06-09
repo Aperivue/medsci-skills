@@ -1,5 +1,7 @@
 # Korean PHI Patterns
 
+> Locale: Korean. This reference intentionally contains Korean — it documents the Korean PHI-detection patterns (the `kr` locale feature of `/deidentify`). See `docs/locale_inventory.md`.
+
 Regex patterns and column-name dictionaries used by `deidentify.py`.
 This file serves as documentation; the actual patterns are in the Python script.
 

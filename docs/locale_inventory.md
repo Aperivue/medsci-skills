@@ -1,5 +1,11 @@
 # Locale Inventory
 
+**Status: migration complete (PR1–PR4).** The English-canonical migration has landed — incidental
+Korean prose is translated (PR2) and the Korean-default skills now default to English with opt-in
+`*_ko` variants (PR3). The rows below are the **steady state**: 50 Korean-bearing files, each a
+functional locale feature (A), a Korean-jurisdiction mode (A2), a bilingual trigger (D), or an
+opt-in `*_ko`/locale variant. `check_locale_inventory.py --strict` is clean.
+
 This file is the **auditable allowlist** for non-English (currently Korean) text under `skills/`.
 
 Policy: skill mechanics and prose are English-canonical. Non-English is allowed **only** as a
