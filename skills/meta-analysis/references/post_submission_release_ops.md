@@ -1,41 +1,41 @@
 # Post-Submission Release Operations
 
-**When**: Phase 9 (circulation) 완료 직후 ~ 저널 submission 사이. Phase 10 (recovery)와 별개.
+**When**: between the end of Phase 9 (circulation) and journal submission. Separate from Phase 10 (recovery).
 
-**Why it's hard**: 회람 중(v7~v18 병존) 수치가 계속 흔들린다. DOI를 너무 일찍 찍으면 content mismatch로 재발급 필요. 너무 늦게 찍으면 submission 당일 급함.
+**Why it's hard**: during circulation (v7~v18 coexisting), the numbers keep shifting. Mint the DOI too early and a content mismatch forces a re-issue; too late and you are scrambling on submission day.
 
 ## Checklist
 
-### Gate 1 — Release 발급 시점
+### Gate 1 — When to issue the release
 
-- [ ] 내부 회람 종결: 모든 reviewer(내부 PI, 외부 peer)가 sign-off.
-- [ ] `[VERIFY-CSV]` / `TODO` / `FIXME` / `(to be regenerated)` tag가 manuscript / supplement / figures / code에서 전수 제거 (`rg -n` 0 hits).
-- [ ] k값(포함 연구 수)이 `4_Analysis/*.csv` row count와 manuscript prose / PRISMA flow / figure caption 전체에서 일치.
-- [ ] 저자 순서 / ICMJE COI가 최종 확정 (Zenodo 저자 메타데이터 반영 직전).
+- [ ] Internal circulation closed: every reviewer (internal PI, external peer) has signed off.
+- [ ] `[VERIFY-CSV]` / `TODO` / `FIXME` / `(to be regenerated)` tags fully removed from manuscript / supplement / figures / code (`rg -n` → 0 hits).
+- [ ] k (number of included studies) matches across the `4_Analysis/*.csv` row count, the manuscript prose, the PRISMA flow, and every figure caption.
+- [ ] Author order / ICMJE COI finalized (just before reflecting it in the Zenodo author metadata).
 
 ### Gate 2 — GitHub repo
 
-- [ ] `_build.sh`로 저널 타깃 번들 재생성 성공.
-- [ ] Repo에 raw analysis code, extraction_consensus_log.md, PROSPERO amendments tracker, methodology 포함.
-- [ ] README에 DOI placeholder (Zenodo 발급 후 치환).
-- [ ] `.gitignore`에 raw PDF / 저작권 자료 제외 확인.
-- [ ] LICENSE 명시 (CC-BY 4.0 또는 저널 요구 license).
+- [ ] Journal-target bundle regenerates successfully via `_build.sh`.
+- [ ] Repo includes the raw analysis code, extraction_consensus_log.md, PROSPERO amendments tracker, and methodology.
+- [ ] README has a DOI placeholder (replaced after the Zenodo DOI is issued).
+- [ ] `.gitignore` confirmed to exclude raw PDFs / copyrighted material.
+- [ ] LICENSE stated (CC-BY 4.0 or the journal-required license).
 
 ### Gate 3 — Zenodo DOI
 
-- [ ] Zenodo record metadata: 저자 순서, affiliation, ORCID, keywords, related identifiers (PROSPERO registration number).
-- [ ] `related_identifiers`에 GitHub repo release tag URL을 `isSupplementTo`로.
-- [ ] Submission package(.tar.gz)가 Zenodo에 업로드됐는지. 회람 패키지(vN)가 아닌 저널 제출 번들.
-- [ ] DOI 발급 후 manuscript / cover letter / submission portal의 "data availability" 섹션에 반영.
+- [ ] Zenodo record metadata: author order, affiliation, ORCID, keywords, related identifiers (PROSPERO registration number).
+- [ ] Add the GitHub repo release tag URL to `related_identifiers` as `isSupplementTo`.
+- [ ] The submission package (.tar.gz) is uploaded to Zenodo — the journal submission bundle, not the circulation package (vN).
+- [ ] After the DOI is issued, reflect it in the "data availability" section of the manuscript / cover letter / submission portal.
 
-### Gate 4 — Reject 후 재타깃 처리
+### Gate 4 — Handling re-targeting after rejection
 
-- [ ] 동일 content로 다른 저널 재제출: **Zenodo new version 발급 금지** (DOI는 content에 붙음). `_build.sh --journal {new}`로 새 SUBMISSION 폴더만 생성.
-- [ ] Revision 후 재제출: content 변경 → Zenodo new version 발급. concept DOI는 유지.
-- [ ] 저자 변경 발생 시 ICMJE COI 재배포 + Zenodo new version.
+- [ ] Resubmission of identical content to another journal: **do NOT mint a new Zenodo version** (the DOI attaches to the content). Use `_build.sh --journal {new}` to create only a new SUBMISSION folder.
+- [ ] Resubmission after revision: content changed → mint a new Zenodo version. The concept DOI is preserved.
+- [ ] On author changes: redistribute the ICMJE COI + mint a new Zenodo version.
 
 ## Common failures
 
-- **F1**: Zenodo DOI minted while `k` (included study count) is still oscillating between versions → content-DOI mismatch forces re-issue. **차단**: Gate 1.
-- **F2**: Journal-specific folders edited by hand without a `_build.sh` → the journal copies drift from master. **차단**: `submission_package_drift.md` 참조.
-- **F3**: `TODO` / `FIXME` tag left in an R analysis script surfaces only after the repo is pushed to GitHub. **차단**: Gate 1 `rg` scope에 code 포함.
+- **F1**: Zenodo DOI minted while `k` (included study count) is still oscillating between versions → content-DOI mismatch forces re-issue. **Blocked by**: Gate 1.
+- **F2**: Journal-specific folders edited by hand without a `_build.sh` → the journal copies drift from master. **Blocked by**: see `submission_package_drift.md`.
+- **F3**: `TODO` / `FIXME` tag left in an R analysis script surfaces only after the repo is pushed to GitHub. **Blocked by**: Gate 1 `rg` scope including code.

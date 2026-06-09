@@ -16,40 +16,40 @@ Rating scale: 1–9 integer (**1 = excellent / Accept, 9 = poor / Reject**; lowe
 
 ## Additional Required Fields
 
-ScholarOne RYAI 폼에는 다음 필드들이 **각각 별도**로 존재. 본문 톤과 정합성 점검 필수:
+The ScholarOne RYAI form has the following fields, **each separate**. Checking their consistency with the review tone is mandatory:
 
 - **Newsworthy** (Yes / No / Unsure radio)
-- **Immediate value for daily practice** (Yes / No / Unsure radio) — Newsworthy와 별개 필드. 둘 다 답해야 함.
-- **Statistical review needed** (Yes / No) — 위치 미확정 (confirmation PDF에 안 보이는 경우 있음; portal 다른 step일 가능성)
+- **Immediate value for daily practice** (Yes / No / Unsure radio) — a field separate from Newsworthy. Both must be answered.
+- **Statistical review needed** (Yes / No) — location uncertain (sometimes not visible on the confirmation PDF; possibly on a different portal step)
 - **Physician / Non-physician** (radio)
 - **CME credit** (Yes / No)
-- **Web of Science recognition** (Yes / No, 필수 항목) — 누락 시 제출 차단
-- **RSNA Confidentiality and AI Policy 체크박스** (필수) — 누락 시 제출 차단
-- **Specify Journal** (Reject: Another Journal 선택 시만)
+- **Web of Science recognition** (Yes / No, required) — submission is blocked if omitted
+- **RSNA Confidentiality and AI Policy checkbox** (required) — submission is blocked if omitted
+- **Specify Journal** (only when "Reject: Another Journal" is selected)
 
-### 정합성 룰
+### Consistency rule
 
-**Newsworthy / Daily-practice / Practical Value (1–9) / Major comments 톤 4개가 서로 정합**해야 함.
+**Newsworthy / Daily-practice / Practical Value (1–9) / Major-comment tone — these four must be mutually consistent.**
 
-| 시그널 조합 | 정합성 |
+| Signal combination | Consistency |
 |---|---|
-| Practical Value 1–3 + Newsworthy Yes + Daily-practice Yes | OK (긍정 일관) |
-| Practical Value 4–6 + Newsworthy Unsure + Daily-practice Unsure | OK (중립 일관) |
-| Practical Value 7–9 + Newsworthy No + Daily-practice No | OK (부정 일관) |
-| Practical Value 6 + Newsworthy Unsure + Daily-practice **Yes** | **MISMATCH** — daily-practice를 No 또는 Unsure로 |
-| Major comments에 actionability 비판 + Daily-practice Yes | **MISMATCH** |
+| Practical Value 1–3 + Newsworthy Yes + Daily-practice Yes | OK (consistently positive) |
+| Practical Value 4–6 + Newsworthy Unsure + Daily-practice Unsure | OK (consistently neutral) |
+| Practical Value 7–9 + Newsworthy No + Daily-practice No | OK (consistently negative) |
+| Practical Value 6 + Newsworthy Unsure + Daily-practice **Yes** | **MISMATCH** — set daily-practice to No or Unsure |
+| Major comments criticizing actionability + Daily-practice Yes | **MISMATCH** |
 
-Daily-practice 필드는 portal default selection이거나 사용자 실수로 Yes로 남기 쉬움. submission verification에서 별도 점검.
+The Daily-practice field is easily left as Yes by a portal default selection or user error. Check it separately during submission verification.
 
-### 필수 체크박스 체크리스트 (제출 직전)
+### Required checkbox checklist (just before submission)
 
-- [ ] RSNA Confidentiality and AI Policy 체크박스 ✓
-- [ ] Web of Science recognition Yes/No 선택
-- [ ] Physician/Non-physician 선택
-- [ ] CME credit 선택
-- [ ] Recommendation radio 선택
-- [ ] Newsworthy + Daily-practice 둘 다 선택 (별개 필드)
-- [ ] Statistical review needed 위치 확인 후 선택 (폼에 있으면)
+- [ ] RSNA Confidentiality and AI Policy checkbox ✓
+- [ ] Web of Science recognition Yes/No selected
+- [ ] Physician/Non-physician selected
+- [ ] CME credit selected
+- [ ] Recommendation radio selected
+- [ ] Newsworthy + Daily-practice both selected (separate fields)
+- [ ] Statistical review needed — confirm its location, then select (if present on the form)
 
 ## Recommendation Options
 

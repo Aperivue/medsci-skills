@@ -151,8 +151,8 @@ for term, count in mesh_counts.most_common(30):
 
 **Output: Pillar Summary Table**
 
-| Pillar | 영역 | 대표 키워드 | MeSH terms | 추정 논문 수 |
-|--------|------|------------|-----------|-------------|
+| Pillar | Domain | Representative keywords | MeSH terms | Est. # papers |
+|--------|--------|-------------------------|-----------|---------------|
 | 1 | ... | ... | ... | ~N+ |
 
 ---
@@ -449,10 +449,10 @@ WebSearch: `site:crd.york.ac.uk/prospero [topic keywords]`
 
 **Output: Landscape Summary Table**
 
-| 변형 | 기존 MA | Primary k (raw) | k (realistic) | PROSPERO | Preprint MA | 판정 |
-|------|---------|----------------|--------------|----------|------------|------|
-| 1 | 3편 | 120 | 18-36 | 1건 | 0 | ⚠️ 경쟁 |
-| 2 | 0편 | 85 | 13-25 | 0 | 0 | ✅ 최적 |
+| Variant | Existing MAs | Primary k (raw) | k (realistic) | PROSPERO | Preprint MA | Verdict |
+|---------|--------------|-----------------|---------------|----------|-------------|---------|
+| 1 | 3 | 120 | 18-36 | 1 | 0 | ⚠️ Competitive |
+| 2 | 0 | 85 | 13-25 | 0 | 0 | ✅ Optimal |
 
 ---
 
@@ -474,18 +474,18 @@ The only difference: no "Professor fit" to evaluate, so focus on:
 
 | Criteria | Weight | Description |
 |----------|--------|-------------|
-| **MA gap** | 최고 | 기존 MA 없음 > update 기회 > 포화 |
-| **Feasibility (k)** | 최고 | k_realistic ≥ 8 (DTA) or ≥ 6 (prognostic) |
-| **User domain fit** | 높음 | 사용자의 전문 분야와 맞는가 |
-| **Clinical impact** | 중간 | 가이드라인 변경 가능성, 임상 의사결정 직결 |
-| **Co-author availability** | 중간 | 해당 분야 전문가 접근 가능성 (기존 관계 or 접근 용이) |
-| **Execution ease** | 중간 | 단독 진행 가능 vs 전문가 해석 필수 |
+| **MA gap** | Highest | No existing MA > update opportunity > saturated |
+| **Feasibility (k)** | Highest | k_realistic ≥ 8 (DTA) or ≥ 6 (prognostic) |
+| **User domain fit** | High | Does it match the user's area of expertise? |
+| **Clinical impact** | Medium | Potential to change guidelines; directly tied to clinical decisions |
+| **Co-author availability** | Medium | Access to a domain expert (existing relationship or easy to reach) |
+| **Execution ease** | Medium | Can be done solo vs requires expert interpretation |
 
 **Output: Ranked Topic Table**
 
-| 순위 | 주제 | 기존 MA | 추정 k | PROSPERO | Co-author 필요 | 종합 |
-|------|------|---------|--------|----------|--------------|------|
-| 1 | ... | 0편 | 25 | 없음 | 선택적 | ✅ 최적 |
+| Rank | Topic | Existing MAs | Est. k | PROSPERO | Co-author needed | Overall |
+|------|-------|--------------|--------|----------|------------------|---------|
+| 1 | ... | 0 | 25 | None | Optional | ✅ Optimal |
 
 ---
 

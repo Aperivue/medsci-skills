@@ -172,7 +172,7 @@ Update cadence: review annually or when a major guideline revision drops.
 ## Alcohol exposure
 
 ### Standard drink (Korea)
-- 1 drink ≈ 10 g ethanol (국민건강영양조사, KCDC 표준잔 정의)
+- 1 drink ≈ 10 g ethanol (KNHANES; KCDC standard-drink definition)
 - ALD cutoffs above use grams/week, not drinks/week — convert when operationalizing.
 
 ### AUDIT-C / AUDIT
