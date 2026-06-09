@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- **Language Policy + locale-inventory gate** — MedSci Skills is now explicitly English-canonical: skill mechanics and prose are English, and non-English (currently Korean) text is allowed only as a labeled locale feature, a locale-jurisdiction mode (e.g. `grant-builder`'s Korean Government Grant Mode), a bilingual `triggers:` alias, or an opt-in `*_ko` variant. A new [`docs/locale_inventory.md`](docs/locale_inventory.md) lists every Korean-bearing file under `skills/` with a one-line justification, and a new stdlib detector `scripts/check_locale_inventory.py` (wired into CI + `tests/test_locale_inventory.sh`) fails if any Korean-bearing file is missing from that inventory — the authoritative allowlist, complementing the WARN-only Korean-prose check in `validate_skills.sh`. CONTRIBUTING gains a Language Policy section + PR-checklist item. This is the policy/scaffold step (PR1); incidental-prose translation (PR2) and English-default-with-Korean-opt-in redesign (PR3) follow. Catalog unchanged at 43 skills.
+
 ## [3.8.0] - 2026-06-07
 
 An `evaluation/` harness suite that validates the instrument itself, plus a reconcile of the README Live-Demos numbers with the v3.7.0 clean-room demo artifacts. Catalog unchanged at 43 skills, 21 detectors — this release adds tooling and tracked evidence, not skills.

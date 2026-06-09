@@ -25,6 +25,7 @@ Per-skill documentation under `docs/skills/` is **generated** from each `skills/
 
 - [ ] `bash scripts/validate_skills.sh`
 - [ ] `python3 scripts/validate_skill_contracts.py`
+- [ ] `python3 scripts/check_locale_inventory.py` (any new non-English text is justified in `docs/locale_inventory.md`).
 - [ ] No private project identifiers, manuscript IDs, collaborator names, patient-level examples, or institution-specific hidden context.
 - [ ] No personal absolute paths.
 - [ ] New scripts have a short usage example and deterministic expected behavior.
@@ -43,6 +44,33 @@ MedSci Skills is public. Do not include:
 - Private emails, home-directory paths, or local institution-only paths.
 
 The validator blocklist is intentionally conservative. If it catches a false positive, explain the case in the pull request rather than bypassing the check silently.
+
+## Language Policy
+
+MedSci Skills is **English-canonical**. Write skill mechanics and prose in English so that any
+international reader or contributor can understand and adapt them:
+
+- `SKILL.md` body prose, `skill.yml`, code comments, and general reference/template files: **English**.
+- Default user-facing prompts and default output templates: **English**, with Korean (or any other
+  language) offered as an opt-in `*_ko` variant or via a "communicate in the user's preferred
+  language" instruction — not hardcoded as the default.
+
+Non-English text is allowed **only** when it is functional, and then it must be **labeled and
+justified**. Permitted categories:
+
+- **Locale data / features** — e.g. the Korean PHI pack in `deidentify`, KNHANES variable labels,
+  Korean-PDF rendering references, Korean PII-detection patterns.
+- **Locale-jurisdiction modes** — e.g. `grant-builder`'s "Korean Government Grant Mode", where the
+  prose is English but real Korean program/artifact terms are preserved.
+- **Bilingual `triggers:`** — additive recognition aliases in SKILL.md frontmatter.
+- **Opt-in `*_ko` variants** — a Korean sibling of an English-default file.
+
+Every file containing non-English text must appear in
+[`docs/locale_inventory.md`](docs/locale_inventory.md) with a one-line reason. The deterministic
+gate `python3 scripts/check_locale_inventory.py` (run in CI) fails if a Korean-bearing file under
+`skills/` is missing from that inventory. Note that `validate_skills.sh`'s Korean-prose check is
+WARN-only and scans only SKILL.md (skipping code blocks, tables, and blockquotes), so the inventory
+— not that warning — is the authoritative allowlist.
 
 ## Code Style
 

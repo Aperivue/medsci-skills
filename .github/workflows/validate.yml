@@ -36,6 +36,12 @@ jobs:
       - name: Run check_domain_probe_sync.py (vendored domain probes must be byte-identical)
         run: python3 scripts/check_domain_probe_sync.py --strict
 
+      - name: Run check_locale_inventory.py (Korean-bearing files must be inventory-justified)
+        run: python3 scripts/check_locale_inventory.py
+
+      - name: Run check_locale_inventory.py self-test
+        run: bash tests/test_locale_inventory.sh
+
       - name: Run self-review panel-mode structural + PII test
         run: bash skills/self-review/tests/test_panel_mode.sh
 
