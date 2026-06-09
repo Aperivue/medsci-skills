@@ -46,6 +46,7 @@ Buckets:
 | `skills/fill-protocol/SKILL.md` | A/D | Korean institutional-form fill examples + `맑은 고딕` font + bilingual trigger. |
 | `skills/fill-protocol/scripts/fill_form.py` | A | `맑은 고딕` default CJK font for Korean .docx forms. |
 | `skills/fill-protocol/examples/example_irb_template.yaml` | A | Korean IRB template example (`국문`, `맑은 고딕`). |
+| `skills/fill-protocol/references/best_practices.md` | A | `맑은 고딕` font + a Korean IRB form-label matching demo (`연구대상자 정보`, whitespace normalization) — translating it would break the demonstrated feature. |
 | `skills/sync-submission/scripts/blind_sweep.py` | A | `성명` shown as a native-script (hangul) example. |
 | `skills/sync-submission/scripts/author_registry_example.yaml` | A | `성명` as a hangul `native_names` example comment. |
 | `skills/replicate-study/references/harmonization_knhanes_nhanes.csv` | A | KNHANES authoritative Korean variable labels (`개인아이디`, `조사연도`). Notes already English. |
@@ -66,7 +67,9 @@ Buckets:
 | Path | Bucket | Why retained |
 |---|---|---|
 | `skills/add-journal/SKILL.md` | D | Korean only in `triggers:` (`저널 프로필 추가`). |
+| `skills/author-strategy/SKILL.md` | D | Korean only in `triggers:` (body example query translated in PR2). |
 | `skills/batch-cohort/SKILL.md` | D | Korean only in `triggers:`. |
+| `skills/ma-scout/SKILL.md` | D | Korean only in `triggers:` (body tables translated in PR2). |
 | `skills/cross-national/SKILL.md` | D | Korean only in `triggers:` (한미 비교 …). |
 | `skills/find-cohort-gap/SKILL.md` | D | Korean only in `triggers:`. |
 | `skills/humanize/SKILL.md` | D | Korean only in `triggers:`. |
@@ -76,25 +79,25 @@ Buckets:
 
 ---
 
-## TRANSLATE — incidental prose (Bucket B → PR2, transitional)
+## TRANSLATE — incidental prose (Bucket B → PR2)
 
-| Path | Bucket | Disposition |
-|---|---|---|
-| `skills/humanize/references/ai_patterns.md` | B | Translate prose to English (preserve the §/AI-tell rationale). |
-| `skills/meta-analysis/references/data_integrity_checklist.md` | B | Translate prose. |
-| `skills/meta-analysis/references/post_submission_release_ops.md` | B | Translate prose. |
-| `skills/meta-analysis/references/review_orchestration.md` | B | Translate prose. |
-| `skills/meta-analysis/references/submission_package_drift.md` | B | Translate prose. |
-| `skills/meta-analysis/SKILL.md` | B | Translate `참고용` prose (line ~322). |
-| `skills/ma-scout/SKILL.md` | B | Translate internal table headers/prose (영역/대표 키워드 …). |
-| `skills/fill-protocol/references/best_practices.md` | B | Translate prose. |
-| `skills/define-variables/templates/variable_operationalization.md` | B | Translate prose. |
-| `skills/define-variables/references/common_definitions.md` | B | Translate the KCDC standard-drink note. |
-| `skills/check-reporting/references/step4d_prisma_figure_audit.md` | B | Translate the one Korean line. |
-| `skills/write-paper/references/section_guides/step7_1_classical_qc.md` | B | Translate prose (separate file from write-paper SKILL.md). |
-| `skills/author-strategy/SKILL.md` | B | Translate the Korean example query (line ~66); keep the trigger. |
-| `skills/orchestrate/references/dialogue_nodes.md` | B | Translate the one Korean line. |
-| `skills/peer-review/references/reviewer_profiles/RYAI.md` | B/A | MIXED: translate explanatory prose; **keep** the ScholarOne Korean field labels (file stays inventoried for those after PR2). |
+**PR2 complete.** All incidental-prose files were translated to English and dropped out
+(they no longer contain Korean): `humanize/references/ai_patterns.md`, the four
+`meta-analysis/references/*.md`, `meta-analysis/SKILL.md`,
+`define-variables/templates/variable_operationalization.md`,
+`define-variables/references/common_definitions.md`,
+`check-reporting/references/step4d_prisma_figure_audit.md`,
+`write-paper/references/section_guides/step7_1_classical_qc.md`,
+`orchestrate/references/dialogue_nodes.md`, and
+`peer-review/references/reviewer_profiles/RYAI.md` (its ScholarOne field labels were already
+English, so the file is now fully English).
+
+Three files originally scoped as B were reclassified during translation and remain
+inventoried under their new bucket:
+- `skills/fill-protocol/references/best_practices.md` → **A** (Korean is a functional
+  Korean-form-matching demo + font name, not incidental prose).
+- `skills/ma-scout/SKILL.md` → **D** (body tables translated; only the `triggers:` line remains).
+- `skills/author-strategy/SKILL.md` → **D** (example query translated; only the `triggers:` line remains).
 
 ## REDESIGN — English-default + Korean opt-in (Bucket C → PR3, transitional)
 

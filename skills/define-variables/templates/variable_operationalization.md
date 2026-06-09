@@ -18,10 +18,10 @@
 Roles: `exposure` / `outcome` / `covariate` / `eligibility`
 
 **Dict. sheet & row / Dict. verbatim (mandatory for DB-backed projects)**:
-- 인용 포맷 예 (categorical): sheet = `{{dictionary_sheet}}`, row = `r{{N}}`, verbatim = `0={{meaning}}, 1={{meaning}}, ...` (codebook 원문 그대로 복사).
-- Data dictionary 가 존재하는 관찰연구(예: NHIS, KNHANES, UK Biobank, 기관 EMR/검진 registry 등)에서 **필수** — 비워둘 수 없음. 프로젝트 단위 정책은 repo 내 `DICTIONARY_FIRST_POLICY.md` (또는 shared-config) 에 수록.
-- Dictionary 에 명시 없는 코드값 → DB 담당자/data steward 문의 후 답변 수령 전까지 해당 행 작성 보류.
-- BMI/SBP 등 자명한 continuous 변수는 `dict: n/a (continuous)` 로 표기 가능. Cutoff 는 여전히 canonical source 필요.
+- Citation format example (categorical): sheet = `{{dictionary_sheet}}`, row = `r{{N}}`, verbatim = `0={{meaning}}, 1={{meaning}}, ...` (copied exactly from the codebook).
+- **Mandatory** for observational studies that have a data dictionary (e.g., NHIS, KNHANES, UK Biobank, institutional EMR / health-screening registries) — it cannot be left blank. Record the project-level policy in `DICTIONARY_FIRST_POLICY.md` (or a shared config) in the repo.
+- For a code value not specified in the dictionary → hold off filling that row until you have asked the DB owner / data steward and received an answer.
+- Self-evident continuous variables such as BMI/SBP may be marked `dict: n/a (continuous)`. The cutoff still requires a canonical source.
 
 ## Ad-hoc justifications
 

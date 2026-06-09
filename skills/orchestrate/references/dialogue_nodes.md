@@ -150,7 +150,7 @@ autonomous_rationale: why this default is safe for unattended runs
 - **context:** content drafted; need final deliverable. Institutional Word template availability differs
 - **question:** "Final deliverable: institutional .docx form (use `/fill-protocol`) or markdown → PDF (use `/render-pdf-doc`)?"
 - **options:**
-  1. `/fill-protocol` — institutional Word template exists (IRB 연구계획서, 심사면제, 동의면제, etc.)
+  1. `/fill-protocol` — institutional Word template exists (e.g., IRB research protocol, review-exemption, consent-waiver forms)
   2. `/render-pdf-doc` — no institutional template; markdown-driven layout (proposal cover, briefing handout, anchor doc, IRB cover letter)
 - **default:** 1 (when `${institutional_template_path}` resolves; else 2)
 - **lock:** option 1 inherits institutional layout (immutable styles, table cantSplit, eastAsia fonts); option 2 inherits markdown frontmatter + content-proportional pipe-table widths

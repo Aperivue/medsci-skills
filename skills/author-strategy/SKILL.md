@@ -63,7 +63,7 @@ Read `analysis_report.md` and present to the user:
 
 ### Step 5: Optional — MA Gap Identification
 
-If the user asks "이 교수님과 MA 가능한 주제?":
+If the user asks "what MA topics are feasible with this professor?":
 - Cross-reference topic clusters with existing MA plans in memory
 - Identify gaps where the professor has domain expertise but no MA published
 - Output a prioritized list of MA proposals

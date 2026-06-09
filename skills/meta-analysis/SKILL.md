@@ -319,7 +319,7 @@ peer review.
 
 #### 4.0 AI-drafted starting document gate
 
-Before opening the extraction form: if a senior mentor or collaborator has shared an AI-drafted starting document (Claude / ChatGPT / Gemini draft of the study list, 2x2 cells, or effect estimates) — even when the sender flags it as "참고용" — apply `~/.claude/rules/ai-drafted-document-policy.md`:
+Before opening the extraction form: if a senior mentor or collaborator has shared an AI-drafted starting document (Claude / ChatGPT / Gemini draft of the study list, 2x2 cells, or effect estimates) — even when the sender flags it as "for reference only" — apply `~/.claude/rules/ai-drafted-document-policy.md`:
 
 - Save the file with a `_DO_NOT_USE_VERBATIM` (or `_AI_DRAFT_REFERENCE_ONLY`) filename suffix.
 - Treat every per-study N, denominator, event count, OR/CI, and author/year as **hallucination-suspect** until re-verified against the source PDF + own analysis script. AI-drafts collapse multiple denominator definitions (treatment-naïve / full-cohort / per-arm) into one and silently mis-route counts.
