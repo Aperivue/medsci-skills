@@ -99,25 +99,39 @@ inventoried under their new bucket:
 - `skills/ma-scout/SKILL.md` → **D** (body tables translated; only the `triggers:` line remains).
 - `skills/author-strategy/SKILL.md` → **D** (example query translated; only the `triggers:` line remains).
 
-## REDESIGN — English-default + Korean opt-in (Bucket C → PR3, transitional)
+## REDESIGN — English-default + Korean opt-in (Bucket C → PR3)
 
-| Path | Bucket | Disposition |
+**PR3 complete.** Each Korean-default behavior/output now defaults to English; Korean is preserved
+as an opt-in `*_ko` variant or via a "communicate in the user's preferred language" instruction.
+
+Translated to English and dropped from the inventory (paths shown without the `skills/` prefix so
+they are not re-counted here): analyze-stats/SKILL.md and make-figures/SKILL.md (PHI prompts);
+fill-icmje-coi/SKILL.md body (co-author email); write-paper/SKILL.md (Q1–Q5 + Discussion-review +
+classical-QC table); present-paper/templates/build_pptx_nature_lancet.py and
+present-paper/references/medical_presentation_templates.md (notes-language docstrings/directives);
+render-pdf-doc/SKILL.md body + render-pdf-doc/skill.yml; and the four render-pdf-doc/templates/*.md
++ orchestrate/references/report_template.md + ma-scout/references/project_readme_template.md (now
+English defaults, each with a `_ko` sibling below).
+
+### KEEP — opt-in Korean variants (`*_ko` / locale)
+
+| Path | Bucket | Why retained |
 |---|---|---|
-| `skills/lit-sync/SKILL.md` | C | English-default folders/headings; honor existing Korean vault if present; Korean layout → `references/locale/ko/note_templates.md`. |
-| `skills/write-paper/SKILL.md` | C | English-default Q1–Q5 + Discussion-review prompts + QC-table prose (whole file in PR3); Korean → `references/locale/ko/planning_prompts.md`. |
-| `skills/present-paper/templates/build_pptx_nature_lancet.py` | C | Docstrings: notes language = user preference (English default); keep `FONT_KR`. |
-| `skills/present-paper/references/generate_pptx_templates.py` | C | Docstring/comment de-Koreanize (English default). |
-| `skills/present-paper/references/slide_visual_styles/nature_lancet.md` | C | Translate Korean-notes/font directives to English. |
-| `skills/present-paper/references/medical_presentation_templates.md` | C | Translate the Korean speaker-notes directive. |
-| `skills/orchestrate/SKILL.md` | C | English-default PHI prompts (lines ~402/408) + translate §-name `Tier-3 차단 항목`; keep bilingual routing phrases (whole file in PR3). |
-| `skills/orchestrate/references/report_template.md` | C | English-default template + add `report_template_ko.md`. |
-| `skills/ma-scout/references/project_readme_template.md` | C | English-default (English structure kept) + add `_ko` variant. |
-| `skills/render-pdf-doc/SKILL.md` | C | Translate body prose (Boundary table, design notes). |
-| `skills/render-pdf-doc/skill.yml` | C | Translate `quality_gates` Korean (lines 42-44). |
-| `skills/render-pdf-doc/templates/proposal-cover.md` | C | English-default starter + add `_ko` variant. |
-| `skills/render-pdf-doc/templates/briefing-handout.md` | C | English-default starter + add `_ko` variant. |
-| `skills/render-pdf-doc/templates/anchor-doc.md` | C | English-default starter + add `_ko` variant. |
-| `skills/render-pdf-doc/templates/reference-table.md` | C | English-default starter + add `_ko` variant. |
-| `skills/fill-icmje-coi/SKILL.md` | C | English-default co-author email template (lines ~135-138) + `_ko` variant. |
-| `skills/analyze-stats/SKILL.md` | C | English-default PHI prompt (lines ~21-22, currently in blockquote — validator-invisible). |
-| `skills/make-figures/SKILL.md` | C | English-default PHI prompt (lines ~36-37, blockquote — validator-invisible). |
+| `skills/render-pdf-doc/templates/anchor-doc_ko.md` | C-ko | Korean starter; English default is `anchor-doc.md`. |
+| `skills/render-pdf-doc/templates/proposal-cover_ko.md` | C-ko | Korean starter; English default is `proposal-cover.md`. |
+| `skills/render-pdf-doc/templates/briefing-handout_ko.md` | C-ko | Korean starter; English default is `briefing-handout.md`. |
+| `skills/render-pdf-doc/templates/reference-table_ko.md` | C-ko | Korean starter; English default is `reference-table.md`. |
+| `skills/orchestrate/references/report_template_ko.md` | C-ko | Korean REPORT variant; English default is `report_template.md`. |
+| `skills/ma-scout/references/project_readme_template_ko.md` | C-ko | Korean PI-facing README variant; English default is `project_readme_template.md`. |
+| `skills/lit-sync/references/locale/ko/note_templates.md` | C-ko | Korean Obsidian vault layout + note templates; English defaults inline in lit-sync SKILL.md. |
+
+### Reclassified survivors (Korean is functional; remain inventoried)
+
+| Path | Bucket | Why retained |
+|---|---|---|
+| `skills/fill-icmje-coi/SKILL.md` | D | Body translated; only the `triggers:` line remains. |
+| `skills/render-pdf-doc/SKILL.md` | D | Body + skill.yml translated; only the `triggers:` line remains. |
+| `skills/orchestrate/SKILL.md` | A | PHI prompts + §-name translated; bilingual routing-table recognition phrases kept (functional, validator-skipped table rows). |
+| `skills/lit-sync/SKILL.md` | D | English-default vault/headings; `triggers:` line + honor-existing Korean-folder examples documenting the detect-and-honor behavior. |
+| `skills/present-paper/references/generate_pptx_templates.py` | A | Legacy Korean slide-marker parser regex (backward compatibility). |
+| `skills/present-paper/references/slide_visual_styles/nature_lancet.md` | A | Korean-glyph rendering verification grep. |

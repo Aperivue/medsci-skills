@@ -1,11 +1,11 @@
 ---
 name: render-pdf-doc
 description: >
-  Render Korean academic Markdown documents to publication-quality PDF via pandoc + xelatex.
+  Render academic Markdown documents (English or Korean) to publication-quality PDF via pandoc + xelatex.
   Targets non-bibliography artifacts: research proposals, IRB cover letters, briefing
   handouts, anchor docs (Q&A grids), and reference tables. Auto-infers pipe-table column
   widths from content (label column shrinks to fit, data columns share remaining width).
-  CJK font fallback (Apple SD Gothic Neo on macOS, Noto Sans CJK KR on Linux).
+  CJK-aware font fallback for Korean text (Apple SD Gothic Neo on macOS, Noto Sans CJK KR on Linux).
   NOT for: manuscripts with bibliography (use /manage-refs render_pandoc.sh), Word form
   filling (/fill-protocol), figures (/make-figures).
 triggers: render PDF, PDF 렌더, korean PDF, 한글 PDF, anchor doc PDF, briefing PDF, proposal PDF, 연구계획서 PDF, 표 정렬 PDF, 표 폭 자동, tbl-colwidths, 학술 PDF
@@ -15,32 +15,32 @@ model: inherit
 
 # Render-PDF-Doc Skill
 
-Markdown + frontmatter → publication-quality Korean academic PDF.
+Markdown + frontmatter → publication-quality academic PDF (English or Korean).
 
 ## Why This Skill Exists
 
-In real circulation cycles for Korean academic PDFs, two recurring failure patterns appear:
+In real circulation cycles for academic PDFs, two recurring failure patterns appear:
 1. v1 drafts: change-history, version numbers, and PI attribution leak into the attached PDF, confusing the first recipient.
 2. v2 drafts: pandoc pipe-table dash ratios are misjudged, narrowing the first column and forcing label wrapping that hurts readability.
 
 Manual fixes work but the same pattern recurs across proposals, briefings, IRB covers, exemption applications. This skill focuses on **layout** (CJK fonts + table column widths). Bibliography and CSL are handled by `/manage-refs`.
 
-## Boundary (다른 스킬과 분리)
+## Boundary (separation from other skills)
 
-| 작업 | 스킬 |
+| Task | Skill |
 |---|---|
 | Manuscript + bibliography → DOCX/PDF | `/manage-refs scripts/render_pandoc.sh` (CSL + .bib) |
-| 기관 .docx 양식 채움 | `/fill-protocol` |
-| ICMJE COI 폼 | `/fill-icmje-coi` |
+| Filling an institutional .docx form | `/fill-protocol` |
+| ICMJE COI form | `/fill-icmje-coi` |
 | Figure / PPTX | `/make-figures`, `/present-paper` |
-| **이 스킬**: non-bib 학술 마크다운 → PDF (proposal, briefing, anchor doc, IRB cover) | `/render-pdf-doc` |
+| **This skill**: non-bib academic markdown → PDF (proposal, briefing, anchor doc, IRB cover) | `/render-pdf-doc` |
 
 ## Core Principles
 
-1. **Pipe table column widths must be inferred from content.** 균등 분할 금지. 첫 열(라벨)은 최장 라벨에 맞추고, 데이터 열은 남은 폭을 content-proportional 분배.
-2. **CJK font는 명시적으로 설정** — `mainfont` + `CJKmainfont`. Default fallback은 OS-detect.
-3. **회람용 PDF에서는 변경이력·버전번호·PI attribution 제거** (또는 supplementary로 분리). frontmatter `redact_internal: true` 옵션.
-4. **Quarto 의존성 없음** — raw pandoc + xelatex. Quarto의 `tbl-colwidths`는 PDF에서 regression 보고됨 (issue 6089/9200).
+1. **Pipe table column widths must be inferred from content.** No equal splitting. Size the first column (label) to the longest label, and distribute the remaining width content-proportionally across the data columns.
+2. **Set the CJK font explicitly** — `mainfont` + `CJKmainfont`. The default fallback is OS-detected.
+3. **For circulation PDFs, remove change history / version numbers / PI attribution** (or split them into a supplementary). Use the frontmatter `redact_internal: true` option.
+4. **No Quarto dependency** — raw pandoc + xelatex. Quarto's `tbl-colwidths` has reported PDF regressions (issues 6089/9200).
 
 ## Dependencies
 
@@ -106,41 +106,41 @@ bash scripts/render_pdf.sh -i input.md -o output.pdf --infer-colwidths
 ### Step 4 — Visual verify
 
 Open the PDF. Check:
-- 첫 열 라벨이 wrap 안 되고 단일 행 유지
-- 데이터 열 충분한 폭
-- Korean glyph 깨짐 없음 (Times New Roman fallback 발생 시 CJKmainfont 미적용)
-- 변경이력·내부 버전 노출 없음
+- The first-column labels do not wrap and stay on a single line
+- Data columns have sufficient width
+- No broken Korean glyphs (a Times New Roman fallback means CJKmainfont was not applied)
+- No change history / internal version numbers exposed
 
 ## Templates
 
-`templates/` 에 starter markdown:
-- `anchor-doc.md` — Q&A grid (Paper 2 사례)
-- `proposal-cover.md` — 연구계획서 cover page
-- `briefing-handout.md` — 미팅 brief (1-page)
-- `reference-table.md` — 비교표 형식
+Starter markdown in `templates/` (English default; a Korean variant `*_ko.md` ships alongside each):
+- `anchor-doc.md` — Q&A grid
+- `proposal-cover.md` — research-proposal cover page
+- `briefing-handout.md` — meeting brief (1-page)
+- `reference-table.md` — comparison-table format
 
-각 template은 `<!-- TODO: -->` 마커로 슬롯 표시.
+Each template marks slots with a `<!-- TODO: -->` marker.
 
 ## Anti-Patterns
 
 | Anti-pattern | Consequence |
 |---|---|
-| 균등 dash 분할 (`\|---\|---\|---\|`) | 첫 열에 short label만 있어도 같은 폭 → 데이터 열 협소 |
-| `CJKmainfont` 미설정 | Hangul이 Times New Roman fallback (Latin glyph 깨짐 또는 빈칸) |
-| 회람 PDF에 v3.2.2 / 변경이력 / PI attribution 노출 | 첫 수신자 혼란, 내부 정보 유출 |
-| Quarto `tbl-colwidths` for PDF | Quarto 1.4+에서 PDF regression — HTML만 신뢰 |
+| Equal dash split (`\|---\|---\|---\|`) | A column with only a short label gets the same width → cramped data columns |
+| `CJKmainfont` not set | Hangul falls back to Times New Roman (broken Latin glyphs or blanks) |
+| Change history / version (e.g. v3.2.2) / PI attribution exposed in a circulation PDF | Confuses the first recipient; leaks internal information |
+| Quarto `tbl-colwidths` for PDF | PDF regression in Quarto 1.4+ — trust HTML only |
 
 ## Files
 
 - `scripts/render_pdf.sh` — pandoc + xelatex wrapper, OS font detection
-- `scripts/infer_colwidths.py` — pipe table separator dash-ratio 자동 생성
-- `scripts/check_deps.sh` — pandoc / xelatex / CJK font 존재 확인
-- `templates/` — 4개 starter
-- `references/pandoc_korean_cheatsheet.md` — frontmatter 패턴 모음
-- `references/known_pitfalls.md` — em-dash 줄바꿈, smart quote 등
+- `scripts/infer_colwidths.py` — auto-generates pipe-table separator dash ratios
+- `scripts/check_deps.sh` — checks for pandoc / xelatex / CJK font
+- `templates/` — 4 starters (English) + their `*_ko.md` Korean variants
+- `references/pandoc_korean_cheatsheet.md` — collection of frontmatter patterns (Korean-PDF reference)
+- `references/known_pitfalls.md` — em-dash line breaks, smart quotes, etc. (Korean-PDF reference)
 
 ## Anti-Hallucination
 
-- Numerical content in tables: `~/.claude/rules/numerical-safety.md` 적용. CSV에서 read.
-- Reference: 별도 `/manage-refs` 사용 — 이 스킬은 bib 처리 안 함.
-- 회람 PDF 작성 시 `~/.claude/rules/senior-mentor-circulation.md` (1차 source 보존) + `~/.claude/rules/ai-drafted-document-policy.md` 적용.
+- Numerical content in tables: apply `~/.claude/rules/numerical-safety.md`. Read from CSV.
+- References: use `/manage-refs` separately — this skill does not handle bib.
+- When producing a circulation PDF, apply `~/.claude/rules/senior-mentor-circulation.md` (preserve the primary source) + `~/.claude/rules/ai-drafted-document-policy.md`.

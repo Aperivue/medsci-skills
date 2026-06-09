@@ -1,6 +1,6 @@
 ---
-title: "<!-- TODO: Meeting / Briefing 제목 -->"
-author: "<!-- TODO: 작성자 -->"
+title: "<!-- TODO: meeting / briefing title -->"
+author: "<!-- TODO: author -->"
 date: "<!-- TODO: YYYY-MM-DD -->"
 mainfont: "Apple SD Gothic Neo"
 CJKmainfont: "Apple SD Gothic Neo"
@@ -9,23 +9,25 @@ fontsize: 10pt
 linestretch: 1.2
 ---
 
-# <!-- TODO: 미팅 주제 -->
+<!-- English-default template. For a Korean starter, see briefing-handout_ko.md. -->
 
-**일시**: <!-- TODO --> · **장소**: <!-- TODO --> · **참석**: <!-- TODO -->
+# <!-- TODO: meeting topic -->
 
-## 핵심 결정 (1-line each)
+**Date/time**: <!-- TODO --> · **Location**: <!-- TODO --> · **Attendees**: <!-- TODO -->
+
+## Key decisions (1 line each)
 
 1. <!-- TODO -->
 2. <!-- TODO -->
 3. <!-- TODO -->
 
-## 논의 / 액션 아이템
+## Discussion / action items
 
-| # | 항목 | 담당 | 기한 |
-|---|------|------|------|
+| # | Item | Owner | Due |
+|---|------|-------|-----|
 | 1 | <!-- TODO --> | <!-- TODO --> | <!-- TODO --> |
 | 2 | <!-- TODO --> | <!-- TODO --> | <!-- TODO --> |
 
-## 다음 미팅
+## Next meeting
 
-<!-- TODO: 일시 + 어젠다 1줄 -->
+<!-- TODO: date/time + one-line agenda -->

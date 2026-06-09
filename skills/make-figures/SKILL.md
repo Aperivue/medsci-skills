@@ -32,9 +32,9 @@ prompts, or configurations are derived from PaperBanana's repository.
 Before reading any data file, check whether it might contain Protected Health Information (PHI):
 
 1. If `*_deidentified.*` files exist in the working directory, use those preferentially.
-2. If only raw CSV/Excel files exist (no `*_deidentified.*` counterpart), warn the user:
-   > "이 데이터에 환자 식별정보(이름, 주민번호, 연락처 등)가 포함되어 있습니까?
-   > 포함된 경우 `/deidentify` 스킬로 먼저 비식별화를 진행해주세요."
+2. If only raw CSV/Excel files exist (no `*_deidentified.*` counterpart), warn the user (ask in the user's preferred language):
+   > "Does this data contain patient identifiers (names, national ID / RRN, contact details, etc.)?
+   > If so, please de-identify it first with the `/deidentify` skill."
 3. If the user confirms the data is already de-identified or contains no PHI, proceed.
 
 ## Reference Files
