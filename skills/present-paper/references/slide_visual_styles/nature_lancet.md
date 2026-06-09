@@ -133,8 +133,8 @@ value — see `pptx-mac-compatibility.md` §7.
 
 ## 6. Speaker notes density
 
-- Korean narrative (서술형, `~합니다`체) per `~/.claude/rules/academic-lecture-style.md` §1
-- 150–300 Korean characters per slide (30–60 seconds spoken)
+- Narrative speaker notes in the user's preferred language (a Korean narrative register is supported for Korean presenters, per `~/.claude/rules/academic-lecture-style.md` §1)
+- About 150–300 characters per slide (30–60 seconds spoken)
 - Run-level markdown parser for `**bold**` / `*italic*` (see
   `pptx-mac-compatibility.md` §4)
 - 13pt Pretendard

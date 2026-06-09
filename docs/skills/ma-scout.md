@@ -35,6 +35,7 @@
 **References** (`skills/ma-scout/references/`):
 
 - `project_readme_template.md`
+- `project_readme_template_ko.md`
 
 ## Source
 

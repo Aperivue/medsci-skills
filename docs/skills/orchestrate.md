@@ -37,6 +37,7 @@
 
 - `dialogue_nodes.md`
 - `report_template.md`
+- `report_template_ko.md`
 
 ## Source
 

@@ -31,6 +31,12 @@
 
 **Evidence** — `manual_workflow`
 
+## Bundled resources
+
+**References** (`skills/lit-sync/references/`):
+
+- `locale/` (1 file)
+
 ## Source
 
 Canonical definition: [`skills/lit-sync/SKILL.md`](../../skills/lit-sync/SKILL.md)

@@ -10,16 +10,18 @@ linestretch: 1.25
 colorlinks: true
 ---
 
+<!-- English-default template. For a Korean starter, see anchor-doc_ko.md. -->
+
 # <!-- TODO: Section 1 -->
 
-<!-- TODO: 한 단락 요약 (배경·목적). 회람 PDF에서는 변경이력·내부 버전 노출 금지. -->
+<!-- TODO: one-paragraph summary (background / purpose). In a circulation PDF, do not expose change history or internal versions. -->
 
-## Q&A 정렬표
+## Q&A alignment grid
 
-| Axis | 질문 | 합의 답변 |
-|------|------|-----------|
-| 정의 | <!-- TODO: 질문 텍스트 --> | <!-- TODO: 답변 --> |
-| 범위 | <!-- TODO --> | <!-- TODO --> |
-| 측정 | <!-- TODO --> | <!-- TODO --> |
+| Axis | Question | Agreed answer |
+|------|----------|---------------|
+| Definition | <!-- TODO: question text --> | <!-- TODO: answer --> |
+| Scope | <!-- TODO --> | <!-- TODO --> |
+| Measurement | <!-- TODO --> | <!-- TODO --> |
 
-> Pipe table 분리 행은 `scripts/infer_colwidths.py`가 content-proportional 대시 비율로 자동 교체.
+> `scripts/infer_colwidths.py` auto-replaces the pipe-table separator row with content-proportional dash ratios.

@@ -221,7 +221,7 @@ anchors the discussion, surrounding papers add nuance.
 
 - **Visual style**: Nature/Lancet — see `slide_visual_styles/nature_lancet.md`
 - **Body language**: English only (per `~/.claude/rules/academic-lecture-style.md` §1)
-- **Speaker notes**: Korean narrative (서술형, `~합니다`체), 150–300 chars / slide
+- **Speaker notes**: narrative, in the user's preferred language (English by default; a Korean narrative register is supported for Korean presenters), 150–300 chars / slide
 - **Section dividers**: full-bleed `#121D36` background + coral accent strip + `{N} MIN`
   badge bottom-right
 - **Transition slides**: large coral curly quotes (72pt) flanking a 36pt white question

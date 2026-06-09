@@ -1,5 +1,5 @@
 ---
-title: "<!-- TODO: comparison-table title -->"
+title: "<!-- TODO: 비교표 제목 -->"
 author: "<!-- TODO -->"
 date: "<!-- TODO: YYYY-MM-DD -->"
 mainfont: "Apple SD Gothic Neo"
@@ -9,14 +9,12 @@ fontsize: 10pt
 linestretch: 1.15
 ---
 
-<!-- English-default template. For a Korean starter, see reference-table_ko.md. -->
+# <!-- TODO: 표 제목 -->
 
-# <!-- TODO: table title -->
-
-| Dimension | Option A | Option B | Option C |
-|-----------|----------|----------|----------|
+| 차원 | 옵션 A | 옵션 B | 옵션 C |
+|------|--------|--------|--------|
 | <!-- TODO --> | <!-- TODO --> | <!-- TODO --> | <!-- TODO --> |
 | <!-- TODO --> | <!-- TODO --> | <!-- TODO --> | <!-- TODO --> |
 | <!-- TODO --> | <!-- TODO --> | <!-- TODO --> | <!-- TODO --> |
 
-> Pipe-table widths are distributed content-proportionally via `--infer-colwidths`.
+> Pipe table 폭은 `--infer-colwidths`로 content-proportional 자동 분배.

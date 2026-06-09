@@ -2,7 +2,8 @@
 """Nature/Lancet style PPTX builder — academic lecture / journal club / conference.
 
 Generic template — pass slide content via builder functions. Speaker notes are
-expected to be Korean narrative (서술형, ~합니다체); slide body in English.
+written in the user's preferred language (English by default; a Korean narrative
+register is also supported for Korean presenters); slide body in English.
 
 Color palette + typography + layout grid per:
   references/slide_visual_styles/nature_lancet.md
@@ -25,7 +26,7 @@ Usage (illustrative):
         subtitle="<One-line scope or lighthouse-paper subtitle>",
         meta_top="<Course>  ·  <Instructor>  ·  <Date>",
         meta_bottom="Presenter  <Name>  ·  <Department / Affiliation>",
-        notes="<Korean narrative speaker notes (서술형, ~합니다체)>")
+        notes="<speaker notes in the user's preferred language>")
 
     add_toc_slide(prs, sections=[
         ("01", "<Section A title>", "<one-line summary>", "5 min"),
@@ -49,7 +50,7 @@ Usage (illustrative):
         fig_caption="<Short caption>",
         footnote="<Author et al, Journal YYYY>",
         page_brand="<YEAR · COURSE NAME>",
-        notes="<Korean narrative notes>")
+        notes="<notes in the user's preferred language>")
 
     add_closing_slide(prs, title="Take-home messages", bullets=[...], notes="...")
 
@@ -142,7 +143,7 @@ def add_styled(p, text: str, *, size: float = 20, color: RGBColor = COLOR_TEXT,
 
 
 def add_notes(slide, text: str | None) -> None:
-    """Inject Korean narrative speaker notes (with **bold**/*italic* parsed per run)."""
+    """Inject speaker notes in the user's preferred language (with **bold**/*italic* parsed per run)."""
     if not text:
         return
     tf = slide.notes_slide.notes_text_frame

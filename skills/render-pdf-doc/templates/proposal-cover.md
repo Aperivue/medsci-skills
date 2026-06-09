@@ -1,7 +1,7 @@
 ---
-title: "<!-- TODO: 연구 제목 -->"
-subtitle: "<!-- TODO: 부제 (생략 가능) -->"
-author: "<!-- TODO: 책임연구자 / 소속 -->"
+title: "<!-- TODO: research title -->"
+subtitle: "<!-- TODO: subtitle (optional) -->"
+author: "<!-- TODO: principal investigator / affiliation -->"
 date: "<!-- TODO: YYYY-MM-DD -->"
 mainfont: "Apple SD Gothic Neo"
 CJKmainfont: "Apple SD Gothic Neo"
@@ -10,22 +10,24 @@ fontsize: 11pt
 linestretch: 1.5
 ---
 
-# 연구계획서 표지
+<!-- English-default template. For a Korean starter, see proposal-cover_ko.md. -->
 
-| 항목 | 내용 |
-|------|------|
-| 연구 제목 | <!-- TODO --> |
-| 책임연구자 | <!-- TODO --> |
-| 공동연구자 | <!-- TODO --> |
-| 소속기관 | <!-- TODO --> |
-| 연구 기간 | <!-- TODO: YYYY-MM-DD ~ YYYY-MM-DD --> |
-| IRB 승인번호 | <!-- TODO --> |
-| 연구비 출처 | <!-- TODO --> |
+# Research Proposal Cover
 
-## 연구 요약
+| Item | Content |
+|------|---------|
+| Research title | <!-- TODO --> |
+| Principal investigator | <!-- TODO --> |
+| Co-investigators | <!-- TODO --> |
+| Institution | <!-- TODO --> |
+| Study period | <!-- TODO: YYYY-MM-DD ~ YYYY-MM-DD --> |
+| IRB approval no. | <!-- TODO --> |
+| Funding source | <!-- TODO --> |
 
-<!-- TODO: 한 단락 (200-300 자) — 배경·목적·방법·기대효과 -->
+## Summary
 
-## 핵심 키워드
+<!-- TODO: one paragraph (200-300 words) — background / purpose / methods / expected impact -->
 
-<!-- TODO: 키워드 1, 키워드 2, 키워드 3 -->
+## Keywords
+
+<!-- TODO: keyword 1, keyword 2, keyword 3 -->

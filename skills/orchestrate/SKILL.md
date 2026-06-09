@@ -313,7 +313,7 @@ Rules:
 - The §"Pipeline log" entry is a 5-line summary of `qc/_pipeline_log.md` (Dialogue
   node defaults applied, skill invocations, halt reason if any) — not a paste of
   the full log.
-- The §"Tier-3 차단 항목" hook-vs-prompt-guard split is mandatory — see
+- The §"Tier-3 Blocked Items" hook-vs-prompt-guard split is mandatory — see
   §"Tier-3 Worker Guard" below.
 - The §"Next safe command" line is the literal command the user can copy to
   resume the next phase. Do not editorialize.
@@ -324,7 +324,7 @@ Rules:
 
 The following actions are permanently forbidden inside `--e2e` autonomous flow.
 On detection, the Worker halts the pipeline and records the attempt under
-REPORT.md §"Tier-3 차단 항목" as `tier3_pending: <command>`. Hook-confirmed
+REPORT.md §"Tier-3 Blocked Items" as `tier3_pending: <command>`. Hook-confirmed
 blocks and prompt-only blocks are listed separately so a future hook regression
 cannot silently re-open a prompt-only block.
 
@@ -399,13 +399,13 @@ Before routing to any data-handling skill (`clean-data`, `analyze-stats`, `make-
 check if the data might contain PHI:
 
 1. If CSV/Excel files exist in the working directory AND no `*_deidentified.*` files exist:
-   Ask: "데이터에 환자 식별정보(PHI)가 포함되어 있습니까? (이름, 주민번호, 생년월일, 연락처 등)"
+   Ask (in the user's preferred language): "Does the data contain patient identifiers (PHI)? (names, national ID / RRN, date of birth, contact details, etc.)"
    - If yes → Route to `/deidentify` first, then continue to the originally requested skill
    - If no → Proceed directly
    - If already de-identified (user confirms or `*_deidentified.*` files exist) → Proceed directly
 
 2. De-identification is an INTERACTIVE process requiring the researcher's active participation.
-   Warn: "비식별화 과정은 연구자의 직접 검토가 필요합니다. 터미널에서 스크립트를 실행하고 각 항목을 확인해야 합니다."
+   Warn (in the user's preferred language): "De-identification requires the researcher's direct review. You must run the script in the terminal and verify each item."
 
 3. After deidentify completes, continue to the originally requested skill using the
    `*_deidentified.*` output file.

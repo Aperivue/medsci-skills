@@ -273,26 +273,26 @@ Write Results aligned to the approved tables and figures. **Results = "What did 
 
 #### Step 5a: Discussion Planning (interactive)
 
-Ask the user the following questions. Wait for answers before drafting.
+Ask the user the following questions (in the user's preferred language). Wait for answers before drafting.
 
 ```
-Q1. 이 연구의 핵심 발견 3~5개를 중요도 순으로 나열해주세요.
-Q2. Discussion에서 반드시 비교하고 싶은 핵심 선행 연구(anchor papers)
-    3~5편의 제목 또는 DOI를 알려주세요.
-    - 내 결과와 일치하는 연구: ?
-    - 내 결과와 불일치하는 연구: ?
-Q3. 불일치의 원인이 될 수 있는 방법론적/집단적 차이가 있나요?
-Q4. 이 연구의 한계 3개 이내를 서술해주세요.
-    (각 한계에 대해 어떻게 완화했는지, 결과에 어떤 방향으로 영향을 줄 수 있는지 포함)
-Q5. 강조하고 싶은 임상적 함의가 있나요?
+Q1. List the 3-5 key findings of this study in order of importance.
+Q2. Name 3-5 key prior studies (anchor papers) you want to compare against in the
+    Discussion — titles or DOIs.
+    - Studies consistent with your results: ?
+    - Studies inconsistent with your results: ?
+Q3. Are there methodological or population differences that could explain any disagreement?
+Q4. State up to 3 limitations of this study.
+    (For each, include how it was mitigated and the direction in which it could affect the results.)
+Q5. Are there clinical implications you want to emphasize?
 ```
 
 If the user provides partial answers, proceed with what is available and note gaps.
-If the user says "skip" or "자동으로 해줘", use `/search-lit` to identify anchor papers
-from the reference list and proceed with best-effort defaults.
+If the user says "skip" (or the equivalent in their language), use `/search-lit` to identify
+anchor papers from the reference list and proceed with best-effort defaults.
 
 **Gate:** Do NOT start writing Discussion until user responds (or explicitly skips).
-**Autonomous mode:** If `--autonomous` is ON, skip the interactive planning. Use `/search-lit` to identify anchor papers from the reference list and proceed with best-effort defaults (same as the "자동으로 해줘" path).
+**Autonomous mode:** If `--autonomous` is ON, skip the interactive planning. Use `/search-lit` to identify anchor papers from the reference list and proceed with best-effort defaults (same as the "skip" path).
 
 #### Step 5b: Discussion Drafting
 
@@ -324,12 +324,12 @@ Write the Discussion using the inverted funnel structure:
 
 **Process:** Same writer -> critic -> fixer loop (max 3 rounds, threshold 85/100).
 
-After the first draft, present to user with:
+After the first draft, present to the user with (ask in the user's preferred language):
 ```
-Discussion 초안입니다. 다음을 확인해주세요:
-- 빠진 anchor paper나 추가 비교가 필요한 연구가 있나요?
-- 해석 방향을 수정하고 싶은 부분이 있나요?
-- 임상적 함의를 더 강조하거나 약화할 부분이 있나요?
+Here is the Discussion draft. Please review:
+- Any missing anchor papers or additional comparisons needed?
+- Anything you want to change in the interpretation?
+- Any clinical implications to emphasize more or soften?
 ```
 Incorporate user feedback before running the critic-fixer loop.
 
@@ -367,14 +367,14 @@ Final quality pass before submission.
 
 Scan for and remove AI writing patterns (see AI Pattern Avoidance below). Edit `manuscript/manuscript.md` in place.
 
-**Classical-style QC (senior MA reviewer 대비) — load on demand:**
+**Classical-style QC (for senior MA reviewers) — load on demand:**
 
 | Trigger | Action |
 |---------|--------|
-| Manuscript 유형 = MA, systematic review, 또는 senior co-author review가 예정됨 | `references/section_guides/step7_1_classical_qc.md` 로드 → 7개 grep 점검 (§ 기호, AI Disclosure 단락, heading style, eligibility numbered list, Funding placeholder, PROSPERO chronology, em-dash 남용) 일괄 실행 |
-| 결정론 lint으로 한 번에 검증 | `python3 "${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/self-review/scripts/check_classical_style.py" --manuscript manuscript/manuscript.md --strict` — `SECTION_SYMBOL`/`INBODY_AI_DISCLOSURE`(Major) + `ELIGIBILITY_PROSE`/`DECIMAL_INCONSISTENCY`/`EM_DASH_OVERUSE`(Minor). 7-grep checklist과 같은 conventions의 machine-checkable subset. |
-| 글로벌 룰 cross-reference | `~/.claude/rules/manuscript-style-classical.md` (11항목 motivation) |
-| Pattern 19–21 본문 rewrite | `/humanize` (§, self-reference, AI Disclosure boilerplate) |
+| Manuscript type = MA, systematic review, or a senior co-author review is expected | Load `references/section_guides/step7_1_classical_qc.md` → run the 7 grep checks together (§ symbol, AI Disclosure paragraph, heading style, eligibility numbered list, Funding placeholder, PROSPERO chronology, em-dash overuse) |
+| Verify all at once with a deterministic lint | `python3 "${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/self-review/scripts/check_classical_style.py" --manuscript manuscript/manuscript.md --strict` — `SECTION_SYMBOL`/`INBODY_AI_DISCLOSURE` (Major) + `ELIGIBILITY_PROSE`/`DECIMAL_INCONSISTENCY`/`EM_DASH_OVERUSE` (Minor). The machine-checkable subset of the same conventions as the 7-grep checklist. |
+| Global-rule cross-reference | `~/.claude/rules/manuscript-style-classical.md` (motivation for the 11 items) |
+| Pattern 19–21 body rewrite | `/humanize` (§, self-reference, AI Disclosure boilerplate) |
 
 **AI-disclosure meta-applicability (manuscript-style-classical §15):** if the manuscript
 contains an AI/LLM-use disclosure, that paragraph must itself satisfy the reporting items the

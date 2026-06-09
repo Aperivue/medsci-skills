@@ -2,7 +2,7 @@
 
 # fill-icmje-coi
 
-> Batch-generate per-author ICMJE Conflict of Interest Disclosure Forms (`coi_disclosure.docx`) for manuscript submission. Pre-fills all 13 disclosure items as "☒ None" + final certification ☒ using a synthetic seed template shipped with the skill, then clones the seed per author with Date, Name, and Manuscript Title replaced. Designed for the common case of hospital-based observational research where no author has real financial conflicts; the circulated forms become "reply 변경 없음 + sign" for most authors and only flag those who need to amend.
+> Batch-generate per-author ICMJE Conflict of Interest Disclosure Forms (`coi_disclosure.docx`) for manuscript submission. Pre-fills all 13 disclosure items as "☒ None" + final certification ☒ using a synthetic seed template shipped with the skill, then clones the seed per author with Date, Name, and Manuscript Title replaced. Designed for the common case of hospital-based observational research where no author has real financial conflicts; the circulated forms become "reply 'no changes' + sign" for most authors and only flag those who need to amend.
 
 **Invoke:** `/fill-icmje-coi` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
 

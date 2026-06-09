@@ -2,7 +2,7 @@
 
 # render-pdf-doc
 
-> Render Korean academic Markdown documents to publication-quality PDF via pandoc + xelatex. Targets non-bibliography artifacts: research proposals, IRB cover letters, briefing handouts, anchor docs (Q&A grids), and reference tables. Auto-infers pipe-table column widths from content (label column shrinks to fit, data columns share remaining width). CJK font fallback (Apple SD Gothic Neo on macOS, Noto Sans CJK KR on Linux). NOT for: manuscripts with bibliography (use /manage-refs render_pandoc.sh), Word form filling (/fill-protocol), figures (/make-figures).
+> Render academic Markdown documents (English or Korean) to publication-quality PDF via pandoc + xelatex. Targets non-bibliography artifacts: research proposals, IRB cover letters, briefing handouts, anchor docs (Q&A grids), and reference tables. Auto-infers pipe-table column widths from content (label column shrinks to fit, data columns share remaining width). CJK-aware font fallback for Korean text (Apple SD Gothic Neo on macOS, Noto Sans CJK KR on Linux). NOT for: manuscripts with bibliography (use /manage-refs render_pandoc.sh), Word form filling (/fill-protocol), figures (/make-figures).
 
 **Invoke:** `/render-pdf-doc` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
 
@@ -47,9 +47,13 @@
 **Templates** (`skills/render-pdf-doc/templates/`):
 
 - `anchor-doc.md`
+- `anchor-doc_ko.md`
 - `briefing-handout.md`
+- `briefing-handout_ko.md`
 - `proposal-cover.md`
+- `proposal-cover_ko.md`
 - `reference-table.md`
+- `reference-table_ko.md`
 
 ## Source
 

@@ -7,7 +7,7 @@ description: >
   shipped with the skill, then clones the seed per author with Date, Name, and
   Manuscript Title replaced. Designed for the common case of hospital-based
   observational research where no author has real financial conflicts; the
-  circulated forms become "reply 변경 없음 + sign" for most authors and only
+  circulated forms become "reply 'no changes' + sign" for most authors and only
   flag those who need to amend.
 triggers: ICMJE, COI form, conflict of interest form, disclosure form, coi_disclosure.docx, 이해상충, 이해상충 폼, icmje 폼, 저자 동의서, submission forms
 tools: Read, Write, Edit, Bash, Grep, Glob
@@ -130,12 +130,12 @@ off files.
 
 ### Phase 4 — Circulation Guidance
 
-Provide the user with circulation copy to send with each personalized form:
+Provide the user with circulation copy to send with each personalized form (write it in the co-authors' preferred language — Korean is common for Korean co-authors):
 
-> 첨부된 ICMJE COI 폼을 검토 부탁드립니다.
-> - 내용이 맞으면 서명 후 PDF로 회신
-> - 수정이 필요하면 해당 항목을 고쳐서 체크 + 서명 후 회신
-> - 전체가 변경 없음이면 "변경 없음" 회신 + 서명본 PDF 별도 회신
+> Please review the attached ICMJE COI form.
+> - If the contents are correct, sign and reply with a PDF.
+> - If a change is needed, edit/check the relevant item, sign, and reply.
+> - If there are no changes at all, reply "no changes" and return the signed PDF separately.
 
 All 6–21 authors can be emailed in one `gws gmail draft` batch (**Gate 3 — user
 approves batch send** before actually dispatching).

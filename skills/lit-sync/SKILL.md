@@ -14,10 +14,15 @@ When enough literature notes accumulate, extracts cross-cutting concept notes.
 
 ## Communication Rules
 
-- Communicate with the user in their preferred language (typically Korean).
-- Note template headings (`서지 정보`, `핵심 내용`, `내 생각`, `관련 노트`), vault
-  folder paths (`02 연구/문헌/`, `02 연구/개념노트/`), and Obsidian-side conventions
-  are preserved as literal template content because they match the user's existing vault.
+- Communicate with the user in their preferred language.
+- **Vault layout — honor what exists, default to English.** Before creating notes, detect the
+  vault's existing layout: if the vault already uses a particular folder structure (including a
+  Korean one such as `02 연구/문헌/` and `02 연구/개념노트/`), **honor it — never silently
+  rename a user's folders**. For a new or unclear vault, default to the English folders
+  `Literature/` and `Concepts/` with the English note templates below.
+- A Korean opt-in variant (Korean folder layout + Korean-heading templates) lives in
+  `references/locale/ko/note_templates.md` — use it when the vault is Korean-structured or the
+  user prefers Korean notes.
 
 ## When to Use
 
@@ -61,7 +66,7 @@ Direct hand edits to `refs.bib` are drift — revert on sight.
     Trigger Better BibTeX auto-export → verify manuscript/_src/refs.bib mtime updated
     │
     ▼ Phase 3: Obsidian Literature Notes
-    Create 02 연구/문헌/{citekey}.md (empty note OK — fill later with highlights)
+    Create Literature/{citekey}.md (empty note OK — fill later with highlights)
     │
     ▼ Phase 4: Concept Extraction (conditional)
     ≥10 literature notes → scan for cross-cutting concepts → propose concept notes
@@ -214,12 +219,14 @@ If refresh failed, set `refs_bib_refreshed: false` and include `reason`. `/verif
 ### Step 3.1: Check existing literature notes
 
 ```bash
-ls "$VAULT/02 연구/문헌/" | grep -v "📊" | wc -l
+# Default English layout; substitute the vault's existing folder if one is present
+# (e.g. "02 연구/문헌/" for a Korean-structured vault — see references/locale/ko/note_templates.md).
+ls "$VAULT/Literature/" | grep -v "📊" | wc -l
 ```
 
 ### Step 3.2: Create literature notes
 
-For each .bib entry, create `02 연구/문헌/{citekey}.md`.
+For each .bib entry, create `Literature/{citekey}.md` (or the vault's existing literature folder).
 **Skip if the file already exists** (never overwrite).
 
 #### Template
@@ -242,33 +249,35 @@ tags:
 
 # {title}
 
-## 서지 정보
-- **저자**: {authors}
-- **저널**: {journal}{volume_issue_pages}
-- **연도**: {year}
+## Bibliographic info
+- **Authors**: {authors}
+- **Journal**: {journal}{volume_issue_pages}
+- **Year**: {year}
 - **DOI**: [{doi}](https://doi.org/{doi})
 {pmid_line}
 
-## 핵심 내용 (내 언어로)
+## Key points (in my own words)
 
 
 
-## 내 생각
+## My thoughts
 
 
 
-## 관련 노트
-- [[🗺️ 연구 종합]]
-- [[🗺️ 논문과 리뷰]]
+## Related notes
+- [[Research Hub]]
+- [[Papers & Reviews]]
 -
 -
 ```
 
+(For a Korean-structured vault, use the Korean-heading template in `references/locale/ko/note_templates.md` and the vault's own hub-note names.)
+
 **Rules:**
 - `notetype: literature` — compatible with the Zotero Integration template.
 - `_unread` tag — change to `_read` later after the user reads the PDF in Zotero and adds highlights.
-- Leave `## 핵심 내용` and `## 내 생각` blank — the user fills these in personally.
-- `## 관련 노트` contains 2 hub links + 2 empty slots (reserved for later concept-note linking).
+- Leave `## Key points` and `## My thoughts` blank — the user fills these in personally.
+- `## Related notes` contains 2 hub links + 2 empty slots (reserved for later concept-note linking).
 - If a PMID is available, add a PubMed link.
 
 ### Step 3.3: Result report
@@ -277,7 +286,7 @@ tags:
 Obsidian Literature Notes:
   Created:   8 notes (new)
   Skipped:   3 notes (already exist)
-  Location:  02 연구/문헌/
+  Location:  Literature/
   Total in vault: 12 literature notes
 ```
 
@@ -293,7 +302,7 @@ unlocks at ≥10" and stop.
 
 ### Step 4.1: Cross-cutting concept scan
 
-Read all files under `02 연구/문헌/*.md`:
+Read all files under `Literature/*.md` (or the vault's existing literature folder):
 1. Extract keywords from each paper's title, journal, and tags.
 2. Extract major concepts from the .bib entry titles.
 3. Identify **concepts that co-occur across ≥3 literature notes**.
@@ -311,17 +320,17 @@ Whatever remains becomes a concept-note candidate.
 
 ### Step 4.3: Draft concept note
 
-Create `02 연구/개념노트/{concept name}.md`:
+Create `Concepts/{concept name}.md` (or the vault's existing concept-note folder):
 
 ```markdown
 ---
 title: "{concept name}"
 type: concept
 tags:
-  - 🧠개념
+  - concept
   - {domain tag}
 aliases:
-  - {English/Korean alternative name}
+  - {alternative name}
 related_papers:
   - "[[{lit-note-1}]]"
   - "[[{lit-note-2}]]"
@@ -331,36 +340,38 @@ status: 🌱Seedling
 
 # {concept name}
 
-## 정의 (My Understanding)
+## Definition (My Understanding)
 > TODO: write in your own words
 
-## 왜 중요한가
+## Why it matters
 {why the concept matters in this domain — AI supplies a draft}
 
-## 논문별 관점
+## Per-paper perspectives
 - **[[{lit-note-1}]]**: {this paper's angle}
 - **[[{lit-note-2}]]**: {a different angle}
 - **[[{lit-note-3}]]**: {comparison / complement}
 
-## 관련 개념
+## Related concepts
 - [[{another concept}]]
 
-## 열린 질문
+## Open questions
 - {open question 1}
 - {open question 2}
 
-## 관련 노트
-- [[🗺️ 연구 종합]]
+## Related notes
+- [[Research Hub]]
 - [[{related project hub}]]
 - [[{lit-note-1}]]
 - [[{lit-note-2}]]
 ```
 
+(For a Korean-structured vault, use the Korean-heading concept template in `references/locale/ko/note_templates.md`.)
+
 **Key rules:**
-- Keep the `## 정의` section as a `> TODO` marker — the 2nd-layer note only becomes
+- Keep the `## Definition` section as a `> TODO` marker — the 2nd-layer note only becomes
   meaningful once the user writes the definition in their own words.
 - `status` always starts at `🌱Seedling`.
-- At least 4 wikilinks under `## 관련 노트` (vault convention).
+- At least 4 wikilinks under `## Related notes` (vault convention).
 
 ### Step 4.4: Propose to the user
 
@@ -383,7 +394,7 @@ This skill can run without a fresh .bib file.
 
 ### Concept extraction only
 On an explicit concept-extraction request, scan existing
-`02 연구/문헌/*.md` and run only Phase 4.
+`Literature/*.md` (or the vault's existing literature folder) and run only Phase 4.
 
 ### References tidy
 On a "tidy this project's references" request, locate `.bib` files inside the
@@ -419,7 +430,7 @@ If a PMID has no DOI in PubMed (rare; older papers, non-indexed), fall back to
 
 1. **Never overwrite literature notes** — the user may have added highlights or
    personal notes.
-2. **Never auto-fill `## 정의` of a concept note** — keep the TODO marker; the
+2. **Never auto-fill `## Definition` of a concept note** — keep the TODO marker; the
    essence of the 2nd-layer note is the user's own wording.
 3. **Skip Zotero for entries without a DOI** — ask the user to add those manually.
 4. **Gracefully skip Zotero when the MCP is not connected** — Obsidian notes are
@@ -432,6 +443,6 @@ If a PMID has no DOI in PubMed (rare; older papers, non-indexed), fall back to
 ## Anti-Hallucination
 
 - **Never fabricate DOIs, PMIDs, or citation metadata.** All bibliographic data must come from the .bib file or API responses.
-- **Never auto-fill the "정의 (My Understanding)" section** of concept notes. This must be written by the user.
+- **Never auto-fill the "Definition (My Understanding)" section** of concept notes. This must be written by the user.
 - **Never overwrite existing literature notes.** User highlights and annotations may be present.
 - If a DOI lookup fails, report the failure rather than guessing the metadata.
