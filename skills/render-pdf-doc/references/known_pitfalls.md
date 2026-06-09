@@ -1,5 +1,7 @@
 # Known Pitfalls — Korean Academic PDF via pandoc + xelatex
 
+> Locale: Korean. This reference intentionally contains Korean examples — it demonstrates Korean-PDF rendering failure modes (a locale feature of `/render-pdf-doc`). See `docs/locale_inventory.md`.
+
 ## 1. 균등 분할 dash separator (`|---|---|---|`)
 
 **증상**: 첫 열에 짧은 라벨만 있어도 데이터 열과 같은 폭 → 데이터 wrap, 가독성 저하.

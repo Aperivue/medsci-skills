@@ -1,5 +1,7 @@
 # Pandoc Korean PDF Cheatsheet
 
+> Locale: Korean. This reference intentionally contains Korean examples — it documents how to render Korean academic PDFs (a locale feature of `/render-pdf-doc`). See `docs/locale_inventory.md`.
+
 ## 검증된 frontmatter 패턴
 
 ```yaml
