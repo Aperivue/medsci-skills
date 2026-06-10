@@ -87,6 +87,9 @@ jobs:
       - name: Run check-reporting checklist-version gate test (A4)
         run: bash skills/check-reporting/tests/test_checklist_version.sh
 
+      - name: Run write-paper placeholder gate test (A5)
+        run: bash skills/write-paper/tests/test_placeholders.sh
+
       - name: Install pandas (demo manifest verification)
         run: pip install pandas
 

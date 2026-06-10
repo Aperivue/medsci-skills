@@ -41,6 +41,10 @@
 - `section_guides/` (7 files)
 - `section_templates/` (1 file)
 
+**Scripts** (`skills/write-paper/scripts/`):
+
+- `check_placeholders.py`
+
 ## Source
 
 Canonical definition: [`skills/write-paper/SKILL.md`](../../skills/write-paper/SKILL.md)
