@@ -66,6 +66,12 @@ jobs:
       - name: Run marketplace generator self-test
         run: bash tests/test_marketplace_json.sh
 
+      - name: Run gen_detectors_catalog_json.py --check (MedSci-Audit detector SSOT)
+        run: python3 scripts/gen_detectors_catalog_json.py --check
+
+      - name: Run detectors_catalog generator self-test
+        run: bash tests/test_detectors_catalog_json.sh
+
       - name: Run analyze-stats survival template test (A1)
         run: bash skills/analyze-stats/tests/test_survival_template.sh
 
