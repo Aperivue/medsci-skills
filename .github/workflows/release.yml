@@ -45,10 +45,13 @@ jobs:
         id: notes
         run: |
           TAG="${GITHUB_REF_NAME}"
-          # Extract the section for this tag from CHANGELOG.md (between this version header and the next version header)
+          # Tags are "vX.Y.Z" but CHANGELOG headers are "## [X.Y.Z]" (no leading v).
+          # Strip the v so the section is actually found (else notes fall back).
+          VER="${TAG#v}"
+          # Extract the section for this version from CHANGELOG.md (between this version header and the next version header)
           if [ -f CHANGELOG.md ]; then
-            awk -v tag="$TAG" '
-              $0 ~ "^## \\[?"tag"\\]?" { found=1; next }
+            awk -v ver="$VER" '
+              $0 ~ "^## \\[?"ver"\\]?" { found=1; next }
               found && /^## / { exit }
               found { print }
             ' CHANGELOG.md > /tmp/release_notes.md

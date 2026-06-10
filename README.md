@@ -181,6 +181,13 @@ The E2E pipeline (`orchestrate --e2e`) produces everything up to `qc/`. The `sub
 
 ## What's New
 
+**v4.0** extends the project's own deterministic, no-drift SSOT discipline to the public storefront and finishes the detector backlog — bringing the analysis-integrity detector count in `skills/` to **24** (still 43 skills):
+
+- **SSOT to the storefront** — a generated, machine-readable `metadata/skills_catalog.json` (slug + research-lifecycle category + one-line description per skill) is now the source the [aperivue.com](https://aperivue.com/en/skills) storefront vendors, gated offline so the public site can never silently drift behind the repo (`gen_skills_catalog_json.py --check`).
+- **Asset/figure anonymization** — `/sync-submission` scans figure-generating scripts, figure-PDF rendered text, and docx/PDF metadata authors for the institution/author leaks a body-text scan misses (`check_asset_anonymization.py`).
+- **Cross-artifact staleness** — flags supplement values that disagree with the corrected body, and reporting checklists built against an older manuscript version (`check_cross_artifact_stale.py`; `check_checklist_version.py` with a `target_manuscript`/`source_sha256` checklist contract).
+- **Survival reporting** — `/analyze-stats` emits median survival with its 95% CI, a Cox events-per-variable gate, and cluster-robust SE for nested observation units.
+
 **v3.8.0** adds an `evaluation/` harness suite that validates the instrument itself — deterministic detector recall on programmatically seeded defects (E1), fresh-clone manifest reproducibility (E4), claim audit-trail completeness (E5), host-portability and metadata-drift checks (E6/E7/E8), and a cost/time table (E3) — each writing a self-describing, reproducible run package. An LLM-comparator (E2) and a self-review convergence harness (E9) ship runnable but are NOT executed in this release. This release also reconciles the README Live-Demos numbers with the v3.7.0 clean-room demo artifacts. Catalog unchanged (still 43 skills, 21 detectors).
 
 **v3.7.0** adds three deterministic, stdlib-only detectors on top of the v3.6.0 panel-derived gates — bringing the analysis-integrity detector count in `skills/` to **21** — without broadening the catalog (still 43 skills):
@@ -377,12 +384,16 @@ See [docs/classroom_distribution_plan.md](docs/classroom_distribution_plan.md) a
 
 ## Key Features
 
-### Autonomous E2E Pipeline`orchestrate --e2e` or `write-paper --autonomous` runs the full pipeline from data to submission-ready DOCX with bounded validation. Skills pass outputs via structured manifests (`_analysis_outputs.md`, `_figure_manifest.md`) and project artifacts (`project.yaml`, `artifact_manifest.json`, `qc/status.json`). If a skill fails to produce expected outputs, the pipeline halts rather than proceeding with missing data. Phase 7 enforces a strict QC chain: AI pattern removal → reporting compliance check → `/verify-refs` citation audit → numerical claim audit → self-review with auto-fix (max 2 iterations) → DOCX/submission build.
+### Autonomous E2E Pipeline
+
+`orchestrate --e2e` or `write-paper --autonomous` runs the full pipeline from data to submission-ready DOCX with bounded validation. Skills pass outputs via structured manifests (`_analysis_outputs.md`, `_figure_manifest.md`) and project artifacts (`project.yaml`, `artifact_manifest.json`, `qc/status.json`). If a skill fails to produce expected outputs, the pipeline halts rather than proceeding with missing data. Phase 7 enforces a strict QC chain: AI pattern removal → reporting compliance check → `/verify-refs` citation audit → numerical claim audit → self-review with auto-fix (max 2 iterations) → DOCX/submission build.
 
 ### Anti-Hallucination Citations
 Every reference produced by `search-lit` is verified against PubMed, Semantic Scholar, or CrossRef APIs. Existing manuscripts should then run `/verify-refs`, which writes a visible reference audit and blocks fabricated references before submission. No citation is ever generated from memory alone. API errors are batched silently -- no token waste from repeated failure messages.
 
-### Anti-Hallucination Numerical Claims`/meta-analysis` Phase 6b, `/self-review` Phase 2.5a, `/revise` Step 2.5, and `/write-paper`
+### Anti-Hallucination Numerical Claims
+
+`/meta-analysis` Phase 6b, `/self-review` Phase 2.5a, `/revise` Step 2.5, and `/write-paper`
 Step 7.3a enforce a common 3-layer audit (CSV ↔ analysis script ↔ manuscript) with primary-
 source back-checking for pooled estimates and revision-era numbers. Hand-typed numerical
 matrices without CSV-coordinate comments are flagged as structural risks even when the values

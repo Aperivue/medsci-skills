@@ -82,6 +82,9 @@ umbrellas:
 
 # Deprecation: skills and agents scheduled for removal.
 # Follows D-3 (agent archive), D-4 (project-specific skill deprecation).
+# NOTE: sunset_date is advisory — there is no CI gate that enforces it. It
+# signals intent and is announced in CHANGELOG at removal; nothing here blocks a
+# build. Treat it as a planning marker, not an automated cutoff.
 deprecation:
   agents_archived:
     sunset_date: "2026-10-24"

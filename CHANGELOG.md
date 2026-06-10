@@ -1,9 +1,15 @@
 # Changelog
 
-## [Unreleased]
+## [4.0.0] - 2026-06-10
+
+Theme: extend the project's own deterministic, no-drift SSOT discipline to the public storefront, finish the detector backlog, and roll up the English-canonical i18n migration. Analysis-integrity detectors **21 → 24** (still 43 skills). Frozen `demo/` and `evaluation/runs/canonical` artifacts (pinned to the published methods paper) are unchanged.
 
 ### Added
 
+- **Storefront catalog SSOT (`metadata/skills_catalog.json`)** — a generated, machine-readable catalog (slug + research-lifecycle category + one-line description for all 43 skills, derived from each `SKILL.md` + `skill.yml` `owner_domain`) via `scripts/gen_skills_catalog_json.py`, CI-gated with `--check`. The aperivue.com storefront vendors this file behind an offline sync gate so the public site can never silently drift behind the repo (it had shown 40 skills while the repo shipped 43).
+- **Asset/figure anonymization gate** — `skills/sync-submission/scripts/check_asset_anonymization.py` scans figure-generating scripts, figure-PDF rendered text, and docx/PDF metadata authors (`dc:creator`, `/Author`) for the institution/author leaks a body-text scan misses. Generic English+Korean institution patterns + a local-only `--names-file`; degrades gracefully when poppler is absent.
+- **Cross-artifact staleness gate** — `check_cross_artifact_stale.py` flags supplement values that disagree with the corrected body (reconciliation-prone labels) and reporting checklists built against an older manuscript version. `/check-reporting` now emits a `target_manuscript` / `target_version` / `source_sha256` contract (report `check_reporting_version` 1.1) verified by `check_checklist_version.py`.
+- **Survival reporting hardening** — `/analyze-stats`'s survival template now reports median survival with its 95% CI, a Cox events-per-variable gate, and cluster-robust (cluster-sandwich) SE for nested observation units (`--cluster`); the cluster-robust rule extends to logistic/linear regression.
 - **Language Policy + locale-inventory gate** — MedSci Skills is now explicitly English-canonical: skill mechanics and prose are English, and non-English (currently Korean) text is allowed only as a labeled locale feature, a locale-jurisdiction mode (e.g. `grant-builder`'s Korean Government Grant Mode), a bilingual `triggers:` alias, or an opt-in `*_ko` variant. A new [`docs/locale_inventory.md`](docs/locale_inventory.md) lists every Korean-bearing file under `skills/` with a one-line justification, and a new stdlib detector `scripts/check_locale_inventory.py` (wired into CI + `tests/test_locale_inventory.sh`) fails if any Korean-bearing file is missing from that inventory — the authoritative allowlist, complementing the WARN-only Korean-prose check in `validate_skills.sh`. CONTRIBUTING gains a Language Policy section + PR-checklist item. This is the policy/scaffold step (PR1); incidental-prose translation (PR2) and English-default-with-Korean-opt-in redesign (PR3) follow. Catalog unchanged at 43 skills.
 
 ### Changed
