@@ -31,17 +31,14 @@ literature; use `/search-lit` for discovery and `/lit-sync` for bib management.
 
 ## Companion: pandoc citation key check
 
-For markdown manuscripts using pandoc `[@bibkey]` citations, run the citation-key
-matcher first to catch undefined/unused keys before this audit:
-
-```bash
-python "${CLAUDE_SKILL_DIR}/../manage-refs/scripts/check_citation_keys.py" \
-  manuscript.md references.bib
-```
+For markdown manuscripts using pandoc `[@bibkey]` citations, validate citation
+keys first to catch undefined/unused keys before this audit. If you also use the
+companion `manage-refs` skill, run its `check_citation_keys.py` for this;
+otherwise use your reference manager's citation-key check.
 
 Then run `verify_refs.py` against the .bib to validate each entry against
-PubMed/CrossRef. The two checks are complementary: `check_citation_keys.py`
-catches mis-keyed cites; `verify_refs.py` catches fabricated metadata.
+PubMed/CrossRef. The two checks are complementary: a citation-key check catches
+mis-keyed cites; `verify_refs.py` catches fabricated metadata.
 
 ## Deterministic Script
 

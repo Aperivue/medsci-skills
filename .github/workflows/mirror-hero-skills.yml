@@ -1,0 +1,42 @@
+name: Mirror hero skills
+
+# Push hero skills (metadata/hero_skills.json) out to their standalone repos when
+# their canonical source changes on main. medsci-skills stays the source of truth;
+# each standalone repo is a force-synced generated mirror (scripts/sync_hero_skill.py).
+#
+# Requires repo secret HERO_SKILL_TOKEN: a fine-grained PAT with Contents: write on
+# each target repo (e.g. Aperivue/verify-refs). Until that secret exists, this
+# workflow no-ops gracefully — sync stays manual via the script.
+#
+# When adding a new hero skill to hero_skills.json, add its skills/<name>/** path
+# below (the paths filter cannot read the JSON).
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "skills/verify-refs/**"
+      - "metadata/hero_skills.json"
+      - "scripts/sync_hero_skill.py"
+  workflow_dispatch: {}
+
+jobs:
+  mirror:
+    if: github.repository_owner == 'Aperivue'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Sync hero skills to standalone repos
+        env:
+          GH_TOKEN: ${{ secrets.HERO_SKILL_TOKEN }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "HERO_SKILL_TOKEN not set — skipping mirror push (manual sync only)."
+            exit 0
+          fi
+          python3 scripts/sync_hero_skill.py --all --push

@@ -1,0 +1,11 @@
+{
+  "_comment": "Hero skills mirrored out to focused standalone repos by scripts/sync_hero_skill.py. medsci-skills is the single source of truth; each standalone repo is a GENERATED mirror (skill copied verbatim + generated README/LICENSE/CITATION/marketplace/installer). Add an entry to mirror another skill; the sync script + .github/workflows/mirror-hero-skills.yml pick it up.",
+  "hero_skills": [
+    {
+      "skill": "verify-refs",
+      "repo": "Aperivue/verify-refs",
+      "plugin_name": "verify-refs",
+      "tagline": "Catch fabricated and mismatched citations before peer review — audit-only reference verification against PubMed and CrossRef."
+    }
+  ]
+}
