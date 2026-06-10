@@ -38,7 +38,7 @@ import matplotlib.gridspec as gridspec
 try:
     from lifelines import KaplanMeierFitter, CoxPHFitter
     from lifelines.statistics import logrank_test, multivariate_logrank_test
-    from lifelines.utils import restricted_mean_survival_time
+    from lifelines.utils import restricted_mean_survival_time, median_survival_times
     LIFELINES_AVAILABLE = True
 except ImportError:
     LIFELINES_AVAILABLE = False
@@ -49,6 +49,28 @@ except ImportError:
 SCRIPT_VERSION = "1.0.0"
 SEED = 42
 np.random.seed(SEED)
+
+
+def _fmt_time(x):
+    """Format a survival time; 'NR' (not reached) for inf/NaN."""
+    if x is None or not np.isfinite(x):
+        return "NR"
+    return f"{x:.1f}"
+
+
+def median_with_ci(kmf, unit):
+    """Median survival with its 95% CI from a fitted KaplanMeierFitter.
+
+    A median point estimate reported without its CI is incomplete (analyze-stats
+    Survival reporting rule). Returns 'NR' when the median is not reached.
+    """
+    med = kmf.median_survival_time_
+    try:
+        ci = median_survival_times(kmf.confidence_interval_)
+        lo, hi = ci.iloc[0, 0], ci.iloc[0, 1]
+    except Exception:
+        lo = hi = float("nan")
+    return f"{_fmt_time(med)} (95% CI {_fmt_time(lo)}–{_fmt_time(hi)}) {unit}"
 print(f"survival_analysis.py v{SCRIPT_VERSION} | {datetime.now().strftime('%Y-%m-%d')}")
 
 # ── Style ─────────────────────────────────────────────────────────────────────
@@ -109,9 +131,8 @@ def km_analysis(df, time_col, event_col, group_col=None,
                 ci_alpha=0.15,
             )
 
-            # Median survival
-            med = kmf.median_survival_time_
-            print(f"  {g}: Median survival = {med:.1f} {time_unit}")
+            # Median survival with 95% CI
+            print(f"  {g}: Median survival = {median_with_ci(kmf, time_unit)}")
 
         # Log-rank test
         if n_groups == 2:
@@ -142,8 +163,7 @@ def km_analysis(df, time_col, event_col, group_col=None,
         fitters["All"] = kmf
         kmf.plot_survival_function(ax=ax_km, color=WONG_COLORS[0],
                                     linewidth=1.5, ci_show=True, ci_alpha=0.2)
-        med = kmf.median_survival_time_
-        print(f"  Median survival: {med:.1f} {time_unit}")
+        print(f"  Median survival: {median_with_ci(kmf, time_unit)}")
 
     # KM axis formatting
     ax_km.set_ylim(-0.02, 1.05)
@@ -187,13 +207,36 @@ def km_analysis(df, time_col, event_col, group_col=None,
     plt.close()
 
 
-def cox_analysis(df, time_col, event_col, covariates, output_path="survival"):
-    """Cox proportional hazards model."""
-    model_df = df[[time_col, event_col] + covariates].dropna()
+def cox_analysis(df, time_col, event_col, covariates, output_path="survival",
+                 cluster_col=None):
+    """Cox proportional hazards model.
+
+    cluster_col: id column for nested observation units (e.g. multiple lesions /
+    eyes / repeated episodes per subject). When set, lifelines computes a robust
+    (cluster-sandwich) variance so the HR CIs reflect within-subject correlation
+    rather than treating correlated rows as independent.
+    """
+    keep = [time_col, event_col] + covariates + ([cluster_col] if cluster_col else [])
+    model_df = df[keep].dropna()
     print(f"\n── Cox PH Model (N = {len(model_df)}) ───────────────────────")
 
+    # Events-per-variable (EPV) gate — mirror of the logistic EPV rule. A Wald CI
+    # from a sparse-event model is not stable; warn and rely on the penalizer.
+    n_events = int(model_df[event_col].sum())
+    epv = n_events / max(len(covariates), 1)
+    print(f"EPV = {epv:.1f} ({n_events} events / {len(covariates)} covariates; "
+          f"minimum recommended: 10)")
+    if epv < 10:
+        print("⚠ WARNING: EPV < 10 — Cox estimates may be unstable. The penalized "
+              "fit (penalizer=0.1) shrinks coefficients; consider Firth/penalized "
+              "Cox or profile-likelihood CIs and interpret Wald CIs with caution.")
+
     cph = CoxPHFitter(penalizer=0.1)
-    cph.fit(model_df, duration_col=time_col, event_col=event_col)
+    fit_kw = {"duration_col": time_col, "event_col": event_col}
+    if cluster_col:
+        fit_kw["cluster_col"] = cluster_col  # robust (cluster-sandwich) SE
+        print(f"Robust cluster-sandwich SE on '{cluster_col}' (nested units).")
+    cph.fit(model_df, **fit_kw)
     cph.print_summary()
 
     # Check PH assumption
@@ -238,6 +281,8 @@ def main():
     parser.add_argument("--event", required=True, help="Event column name (1=event, 0=censored)")
     parser.add_argument("--group", default=None)
     parser.add_argument("--covariates", nargs="+", default=None)
+    parser.add_argument("--cluster", default=None,
+                        help="ID column for nested units → robust cluster SE in Cox")
     parser.add_argument("--time-unit", default="Months")
     parser.add_argument("--rmst-t", type=float, default=None,
                         help="t* for RMST (in same units as time)")
@@ -254,7 +299,8 @@ def main():
                 args.time_unit, args.output)
 
     if args.covariates:
-        cox_analysis(df, args.time, args.event, args.covariates, args.output)
+        cox_analysis(df, args.time, args.event, args.covariates, args.output,
+                     cluster_col=args.cluster)
 
     if args.rmst_t and args.group:
         rmst_analysis(df, args.time, args.event, args.group,

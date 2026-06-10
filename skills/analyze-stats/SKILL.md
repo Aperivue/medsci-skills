@@ -454,6 +454,7 @@ tbl %>% as_flex_table() %>% flextable::save_as_docx(path = "table.docx")
 - Log-rank test for group comparison
 - Cox proportional hazards: report HR (95% CI)
 - **Events-per-variable (EPV) gate**: check `events / n_covariates >= 10` before fitting Cox (mirror of the logistic EPV rule). Warn if violated and fall back to a Firth/penalized Cox or profile-likelihood CIs; do not report Wald CIs from a sparse-event model as if stable
+- **Nested observation units (cluster-robust CI)**: when a subject contributes more than one analysed unit (multiple lesions, both eyes, repeated episodes), pass a subject id so the HR CIs use a robust cluster-sandwich variance (`coxph(..., cluster = id)` / `robust = TRUE` in R, `cluster_col=` in lifelines, e.g. `survival_analysis.py --cluster <id>`). Treating correlated rows as independent understates the standard errors and narrows the CI artificially
 - Check proportional hazards assumption (Schoenfeld residuals)
 - **PH violation → do not report a single time-averaged HR.** If the Schoenfeld global test is significant (or a covariate's residual trends with time), a single Cox HR averages a changing effect and is misleading. Report a piecewise / time-stratified HR (split follow-up at a clinically sensible cut, or `tt()` time-transform), or switch to RMST difference at a fixed horizon, and state the violation explicitly
 - **Horizon vs follow-up.** Do not read a KM/CIF estimate at a horizon beyond the data: if a reported time point (e.g., a 15-year cumulative incidence) exceeds the reverse-KM median follow-up, either restrict the horizon to where the risk set is non-trivial or report the number-at-risk at that horizon so the reader can judge the extrapolation
@@ -506,6 +507,7 @@ When death or other events preclude the outcome of interest, standard KM overest
 - Run univariable analysis first, then multivariable with clinically selected variables
 - Required outputs: OR table (univariable + multivariable), C-statistic (95% CI), Hosmer-Lemeshow
 - Check VIF < 5, EPV >= 10 (warn if violated)
+- **Nested observation units**: when rows are clustered within subjects (multiple lesions/visits per patient), use cluster-robust standard errors (`cov_type="cluster"`, `cov_kwds={"groups": id}` in statsmodels) or a mixed-effects logistic model — a naive logit CI assumes independent rows and is too narrow
 - Box-Tidwell test for continuous predictor linearity
 - Forest plot of adjusted ORs
 - NRI/IDI if comparing models (incremental value assessment)
