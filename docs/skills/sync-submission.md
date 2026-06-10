@@ -42,6 +42,7 @@
 - `cover_letter_drift_check.py`
 - `cross_document_n_check.py`
 - `detect_copy_divergence.py`
+- `preflight_gate.py`
 - `scope_drift_check.py`
 - `sync_submission.py`
 
