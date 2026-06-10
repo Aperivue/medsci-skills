@@ -6,6 +6,12 @@
       "repo": "Aperivue/verify-refs",
       "plugin_name": "verify-refs",
       "tagline": "Catch fabricated and mismatched citations before peer review — audit-only reference verification against PubMed and CrossRef."
+    },
+    {
+      "skill": "check-reporting",
+      "repo": "Aperivue/check-reporting",
+      "plugin_name": "check-reporting",
+      "tagline": "Audit a medical manuscript against 32 EQUATOR reporting guidelines (STROBE, CONSORT, STARD, PRISMA, TRIPOD+AI, CLAIM, and risk-of-bias tools) — item-by-item PRESENT / PARTIAL / MISSING."
     }
   ]
 }

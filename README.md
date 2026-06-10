@@ -78,7 +78,10 @@ Install a single category and invoke its skills under that namespace:
 
 All eight plugins share the same repository source, so this groups and enables skills by category — it is not a partial download. The marketplace tracks `main`, so a plugin's version is its git commit.
 
-**Just want citation verification?** `verify-refs` is also published as a focused standalone repo — [`Aperivue/verify-refs`](https://github.com/Aperivue/verify-refs) — installable on its own with `/plugin marketplace add Aperivue/verify-refs`. It is a generated mirror; this repo stays the source of truth.
+**Want just one capability?** Two skills are also published as focused standalone repos (generated mirrors; this repo stays the source of truth), each installable on its own with `/plugin marketplace add Aperivue/<repo>`:
+
+- [`Aperivue/verify-refs`](https://github.com/Aperivue/verify-refs) — catch fabricated/mismatched citations (PubMed + CrossRef).
+- [`Aperivue/check-reporting`](https://github.com/Aperivue/check-reporting) — audit a manuscript against 32 EQUATOR reporting guidelines.
 
 ---
 
