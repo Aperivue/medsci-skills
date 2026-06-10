@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "medsci-skills",
+  "description": "Physician-built Claude Code skills for the full medical research lifecycle — literature search with anti-hallucination citation verification, study design, statistics, publication-ready figures, IMRAD manuscript drafting, reporting-compliance audits, journal selection, peer review, and revision.",
+  "owner": {
+    "name": "Aperivue"
+  },
+  "plugins": [
+    {
+      "name": "medsci-literature",
+      "description": "Literature search with anti-hallucination citation verification, full-text retrieval, Zotero/Obsidian sync, and reference-integrity audits.",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/fulltext-retrieval",
+        "./skills/lit-sync",
+        "./skills/manage-refs",
+        "./skills/search-lit",
+        "./skills/verify-refs"
+      ]
+    },
+    {
+      "name": "medsci-data",
+      "description": "Study design and validity review, literature-grounded variable operationalization, sample-size planning, data cleaning, de-identification, codebook generation, and dataset versioning.",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/calc-sample-size",
+        "./skills/clean-data",
+        "./skills/define-variables",
+        "./skills/deidentify",
+        "./skills/design-ai-benchmarking",
+        "./skills/design-study",
+        "./skills/generate-codebook",
+        "./skills/version-dataset"
+      ]
+    },
+    {
+      "name": "medsci-analysis",
+      "description": "Reproducible statistical analysis, publication-ready figures, batch/cross-national/replication analysis, and meta-analysis synthesis.",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/analyze-stats",
+        "./skills/batch-cohort",
+        "./skills/cross-national",
+        "./skills/make-figures",
+        "./skills/meta-analysis",
+        "./skills/replicate-study"
+      ]
+    },
+    {
+      "name": "medsci-writing",
+      "description": "IMRAD manuscript and IRB-protocol drafting, AI-pattern removal, AI-search optimization, and reviewer-response letters.",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/academic-aio",
+        "./skills/humanize",
+        "./skills/revise",
+        "./skills/write-paper",
+        "./skills/write-protocol"
+      ]
+    },
+    {
+      "name": "medsci-review",
+      "description": "Pre-submission self-review, peer-review drafting, and reporting-guideline compliance audits against EQUATOR checklists.",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/check-reporting",
+        "./skills/peer-review",
+        "./skills/self-review"
+      ]
+    },
+    {
+      "name": "medsci-submission",
+      "description": "Submission packaging, journal recommendation and profiling, institutional form filling (ICMJE COI, IRB), and grant proposals.",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/add-journal",
+        "./skills/fill-icmje-coi",
+        "./skills/fill-protocol",
+        "./skills/find-journal",
+        "./skills/grant-builder",
+        "./skills/sync-submission"
+      ]
+    },
+    {
+      "name": "medsci-project",
+      "description": "Research orchestration, project intake and management, research-gap and meta-analysis topic discovery, and author-strategy analysis.",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/author-strategy",
+        "./skills/find-cohort-gap",
+        "./skills/intake-project",
+        "./skills/ma-scout",
+        "./skills/manage-project",
+        "./skills/orchestrate"
+      ]
+    },
+    {
+      "name": "medsci-presentation",
+      "description": "Academic presentation and PPTX building, PDF/document rendering, environment setup, and skill publishing.",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/present-paper",
+        "./skills/publish-skill",
+        "./skills/render-pdf-doc",
+        "./skills/setup-medsci"
+      ]
+    }
+  ]
+}
