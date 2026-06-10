@@ -16,6 +16,7 @@ on:
     branches: [main]
     paths:
       - "skills/verify-refs/**"
+      - "skills/check-reporting/**"
       - "metadata/hero_skills.json"
       - "scripts/sync_hero_skill.py"
   workflow_dispatch: {}
