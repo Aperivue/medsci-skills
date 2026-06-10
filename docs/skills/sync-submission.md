@@ -37,6 +37,8 @@
 
 - `author_registry_example.yaml`
 - `blind_sweep.py`
+- `check_asset_anonymization.py`
+- `check_cross_artifact_stale.py`
 - `cover_letter_drift_check.py`
 - `cross_document_n_check.py`
 - `detect_copy_divergence.py`

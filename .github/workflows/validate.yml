@@ -24,8 +24,8 @@ jobs:
       - name: Install Python deps for contract validator
         run: pip install pyyaml
 
-      - name: Install exiftool (for binary EXIF metadata scan)
-        run: sudo apt-get update && sudo apt-get install -y libimage-exiftool-perl
+      - name: Install exiftool + poppler (EXIF scan + check_asset_anonymization PDF text/metadata)
+        run: sudo apt-get update && sudo apt-get install -y libimage-exiftool-perl poppler-utils
 
       - name: Run validate_skills.sh (PII + structure)
         run: bash scripts/validate_skills.sh
@@ -59,6 +59,18 @@ jobs:
 
       - name: Run skills_catalog generator self-test
         run: bash tests/test_skills_catalog_json.sh
+
+      - name: Run analyze-stats survival template test (A1)
+        run: bash skills/analyze-stats/tests/test_survival_template.sh
+
+      - name: Run sync-submission asset-anonymization gate test (A2)
+        run: bash skills/sync-submission/tests/test_asset_anonymization.sh
+
+      - name: Run sync-submission cross-artifact staleness gate test (A3)
+        run: bash skills/sync-submission/tests/test_cross_artifact_stale.sh
+
+      - name: Run check-reporting checklist-version gate test (A4)
+        run: bash skills/check-reporting/tests/test_checklist_version.sh
 
       - name: Install pandas (demo manifest verification)
         run: pip install pandas

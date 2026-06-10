@@ -43,6 +43,7 @@
 **Scripts** (`skills/check-reporting/scripts/`):
 
 - `check_checklist_exists.py`
+- `check_checklist_version.py`
 - `check_framework_naming.py`
 - `check_prisma_figure.py`
 - `prisma_cascade_check.py`

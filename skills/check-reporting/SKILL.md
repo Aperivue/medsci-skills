@@ -59,6 +59,17 @@ compliance report suitable for journal submission.
 
 ## Workflow
 
+### Step 0: Existing-checklist staleness pre-check
+
+If a checklist already exists for this project (`qc/reporting_checklist.json` or a prior `.md` report), verify it targets the **current** manuscript before reusing it — a checklist generated against an older version carries stale section/line references and a stale version label that a reviewer who cross-checks will catch:
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/check_checklist_version.py" \
+  --checklist qc/reporting_checklist.json --manuscript manuscript_v8.md
+```
+
+A non-zero exit means the existing checklist is stale (older `target_version`, changed `source_sha256`, different `target_manuscript`) or pre-dates the version contract — regenerate it against the current manuscript (Steps 1–5) rather than reusing it. Every report you generate must carry the `target_manuscript` / `target_version` / `source_sha256` fields (Part A header + Part D JSON) so this check works next round.
+
 ### Step 1: Select Guideline
 
 Determine the appropriate reporting guideline. Auto-detect from the manuscript type or accept
@@ -289,6 +300,8 @@ Produce a structured compliance report in two parts.
 ## Reporting Guideline Compliance Report
 
 Manuscript: {title}
+Target manuscript file: {manuscript filename, e.g. manuscript_v8.md}
+Target version: {version token from the filename or frontmatter, e.g. v8}
 Guideline: {name and version}
 Date: {YYYY-MM-DD}
 Assessed by: Claude (automated pre-screening)
@@ -345,8 +358,11 @@ Append a fenced JSON block at the end of the report. This enables `/write-paper`
 
 ```json
 {
-  "check_reporting_version": "1.0",
+  "check_reporting_version": "1.1",
   "manuscript_title": "...",
+  "target_manuscript": "manuscript_v8.md",
+  "target_version": "v8",
+  "source_sha256": "<first 12 hex chars of sha256 of the manuscript file bytes>",
   "guideline": "STARD-AI",
   "guideline_version": "2025",
   "date": "YYYY-MM-DD",
