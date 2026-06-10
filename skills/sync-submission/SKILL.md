@@ -54,6 +54,40 @@ The registry is a project-local YAML mapping author identifiers (full names, nat
 | Submission metadata | `submission/{journal}/.journal_meta.json` | Source hash, status, canonical path |
 | Sync audit | `qc/submission_sync_{journal}.json` | Drift result consumed by orchestrator |
 | Manifest update | `artifact_manifest.json` | Submission package registry |
+| Pre-flight gate | `qc/preflight_gate_report.json` | Aggregated halt-on-failure manifest (see "Pre-flight gate" below) |
+
+## Pre-flight gate (single command — last step before freeze)
+
+Run this once, right before `freeze`/submission. It orchestrates the existing
+deterministic checks and the `/verify-refs` audit into one halt-on-failure gate,
+writes a single aggregated manifest (`qc/preflight_gate_report.json`), and exits
+**non-zero** so a build wrapper or CI step can stop the freeze. It shells out to
+the per-check scripts and reimplements none of them — the halt decision is driven
+by each sub-check's normalized exit code.
+
+```bash
+python "${CLAUDE_SKILL_DIR}/scripts/preflight_gate.py" --project-root . --journal chest
+# add --strict to also halt on the heuristic/conditional (P1) checks
+# add --online to make fabricated / author-mismatched references halt (PubMed/CrossRef)
+# add --double-blind to make the asset-anonymization scan halt
+```
+
+By default the gate **halts only on the unambiguous, deterministic errors** (P0):
+leftover placeholder/markers (`check_placeholders.py`), undefined `[@key]`
+citations (`check_citation_keys.py`), duplicate references (`verify_refs.py`,
+offline-deterministic), and a canonical-vs-submission hash mismatch
+(`sync_submission.py audit`). The heuristic or conditional checks — `check_xref`,
+`detect_copy_divergence`, `scope_drift_check`, `cover_letter_drift_check`,
+`cross_document_n_check`, `check_cross_artifact_stale` — **run and report as P1
+`warn` but do not halt** unless promoted with `--strict` or `--require ID`;
+`check_asset_anonymization` is P1 unless `--double-blind`. A check whose inputs are
+absent (no rendered docx, no cover letter, no copies, no journal) is recorded
+`skipped`, never a blocker. Exit codes: `0` clean, `1` halt (≥1 blocker), `2` gate
+config error (e.g. a `--require`'d check could not run).
+
+The gate's offline references pass is the deterministic subset (duplicates +
+pagination placeholders); an online `/verify-refs --strict` against PubMed/CrossRef
+remains the authoritative fabrication and author-name check before submission.
 
 ## Workflow
 
@@ -65,6 +99,7 @@ The registry is a project-local YAML mapping author identifiers (full names, nat
 
 ## Quality Gates
 
+- Gate 0 (pre-flight, last step before freeze): run `scripts/preflight_gate.py --project-root . --journal {journal}` to aggregate the deterministic checks below into one halt-on-failure manifest (`qc/preflight_gate_report.json`). Non-zero exit blocks the freeze. See "Pre-flight gate" above for the P0/P1 tiering and flags. This orchestrates Gates 1–3, 5b, 8, 9, 11 plus the placeholder and citation-key checks; the individual gates remain runnable on their own.
 - Gate 1: block freezing when canonical manuscript is missing.
 - Gate 2: block retargeting when the previous submission has unresolved drift.
 - Gate 3: require `/verify-refs` audit before marking a package submission-safe.

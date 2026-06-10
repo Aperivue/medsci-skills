@@ -90,6 +90,9 @@ jobs:
       - name: Run write-paper placeholder gate test (A5)
         run: bash skills/write-paper/tests/test_placeholders.sh
 
+      - name: Run sync-submission preflight gate test (A6)
+        run: bash skills/sync-submission/tests/test_preflight_gate.sh
+
       - name: Install pandas (demo manifest verification)
         run: pip install pandas
 
