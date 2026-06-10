@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- **Claude Code plugin marketplace (`.claude-plugin/marketplace.json`)** — one-line install via `/plugin marketplace add Aperivue/medsci-skills`, then `/plugin` discovery of eight `medsci-*` category plugins (`medsci-literature`, `-data`, `-analysis`, `-writing`, `-review`, `-submission`, `-project`, `-presentation`) mirroring the storefront categories. Generated from `metadata/skills_catalog.json` by `scripts/gen_marketplace_json.py` (a pure downstream transform — the SSOT chain stays single-source) and CI-gated with `--check` plus `tests/test_marketplace_json.sh` (validated by `claude plugin validate`). The marketplace tracks `main`: no `version` is emitted, so each plugin's version is its git commit SHA. No skills change (still 43).
+
 ## [4.0.0] - 2026-06-10
 
 Theme: extend the project's own deterministic, no-drift SSOT discipline to the public storefront, finish the detector backlog, and roll up the English-canonical i18n migration. Analysis-integrity detectors **21 → 24** (still 43 skills). Frozen `demo/` and `evaluation/runs/canonical` artifacts (pinned to the published methods paper) are unchanged.

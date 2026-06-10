@@ -49,6 +49,35 @@ cp -r medsci-skills/skills/* ~/.claude/skills/
 
 Restart Claude Code, then start with **`/orchestrate`** — it classifies your request and routes you to the right skill. Full install options (Codex, Cursor, individual skills) are in [Installation](#installation).
 
+### Install as a Claude Code plugin
+
+Prefer plugins? One line adds the marketplace; `/plugin` then lets you browse eight category plugins and enable the ones you want:
+
+```text
+/plugin marketplace add Aperivue/medsci-skills
+/plugin            # browse eight category plugins; enable the ones you want
+```
+
+| Plugin | Covers |
+|--------|--------|
+| `medsci-literature` | Literature search, full-text retrieval, Zotero sync, reference-integrity audits |
+| `medsci-data` | Study design, variable operationalization, sample size, data cleaning, de-identification, codebooks, dataset versioning |
+| `medsci-analysis` | Statistics, figures, batch/cross-national/replication analysis, meta-analysis |
+| `medsci-writing` | IMRAD & protocol drafting, AI-pattern removal, AI-search optimization, reviewer responses |
+| `medsci-review` | Self-review, peer review, reporting-guideline compliance |
+| `medsci-submission` | Submission packaging, journal selection, ICMJE/IRB form filling, grant proposals |
+| `medsci-project` | Orchestration, project intake/management, gap & topic discovery, author strategy |
+| `medsci-presentation` | Presentations/PPTX, PDF/document rendering, environment setup, skill publishing |
+
+Install a single category and invoke its skills under that namespace:
+
+```text
+/plugin install medsci-analysis@medsci-skills
+/medsci-analysis:analyze-stats
+```
+
+All eight plugins share the same repository source, so this groups and enables skills by category — it is not a partial download. The marketplace tracks `main`, so a plugin's version is its git commit.
+
 ---
 
 ## Live Demos: Three Study Types, Three Full Pipelines
