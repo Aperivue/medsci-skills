@@ -25,6 +25,7 @@ See CONTRIBUTING.md for the full workflow and PII/publication hygiene rules.
 ## Catalog consistency
 
 - [ ] If this PR **adds or removes a skill, reporting checklist, or journal profile**, I updated `metadata/catalog_counts.json` to match the new disk count, and `validate_catalog_consistency.py` passes. (Counts are a single source of truth — the README badge, tagline, and skill docs must all agree.)
+- [ ] If this PR **adds, removes, or renames a skill** (or changes a skill's `description`/`owner_domain`), I re-ran `python3 scripts/gen_skills_catalog_json.py` and committed the updated `metadata/skills_catalog.json` (the machine-readable catalog the public storefront consumes). A new `owner_domain` must be mapped in `gen_skills_catalog_json.py` or generation fails.
 
 ## PII and publication hygiene
 
