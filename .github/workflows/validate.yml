@@ -54,6 +54,12 @@ jobs:
       - name: Run gen_skill_docs.py --check (per-skill docs must match SKILL.md)
         run: python3 scripts/gen_skill_docs.py --check
 
+      - name: Run gen_skills_catalog_json.py --check (storefront catalog SSOT)
+        run: python3 scripts/gen_skills_catalog_json.py --check
+
+      - name: Run skills_catalog generator self-test
+        run: bash tests/test_skills_catalog_json.sh
+
       - name: Install pandas (demo manifest verification)
         run: pip install pandas
 
