@@ -159,6 +159,12 @@ Apply this 6-probe checklist (O1–O6) **only when the manuscript is an observat
 
 **Probe detail (O1–O6), with output templates:** `${CLAUDE_SKILL_DIR}/references/domain-probes/observational_confounding.md`. Load it and apply each probe when the trigger above fires. O1 (a measured covariate that is imbalanced by exposure in Table 1 yet absent from the adjustment set) is data-checkable and the highest-yield probe — verify it against the manuscript's own Table 1. In this skill, map each probe finding to the review draft as a Major / Minor comment; a confounding-completeness gap (O1), a selection/collider structure that could generate the association (O3), or an undisclosed complete-case collapse (O5) is design-level, so surface it in the Confidential Comments to the Editor and place it as the Major #1 candidate rather than softening it to a reporting fix.
 
+### Phase 2G: AI / ML Overclaiming Extension
+
+Apply when an AI/ML **primary study** (diagnostic, prognostic, triage, detection) makes a clinical claim in the Title/Abstract/Conclusion — generalizable, outperforms clinicians, deployment-ready, can replace a reader. Complements Phase 2F (recommendation calibration) and the signature "Overclaiming vs evidence level" check; co-applies with Phase 2C for radiomics-AI and Phase 2B for prognostic-AI.
+
+**Probe detail (AO0–AO4), with output templates and the leads-vs-findings discipline:** `${CLAUDE_SKILL_DIR}/references/domain-probes/ai_overclaiming.md`. Load it and apply each probe when the trigger fires. Run AO0 first — locate the load-bearing claim and read it together with its cited evidence before alleging over-reach (a hedged Discussion qualifier is not a headline). In this skill, map each probe finding to the review draft as a Major / Minor comment; a headline generalizability (AO1), superiority/replacement (AO2/AO3), or deployment-readiness (AO4) claim that outruns the design is framing-level — surface it in the Confidential Comments to the Editor and place it as the Major #1 candidate when it is the paper's headline.
+
 ### Phase 3: Draft Review
 
 Before writing comments, skim the relevant model in `references/exemplar_reviews/` for the
