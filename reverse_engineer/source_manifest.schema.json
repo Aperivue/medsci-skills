@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Aperivue/medsci-skills/reverse_engineer/source_manifest.schema.json",
+  "title": "Reverse-engineering corpus manifest",
+  "description": "Provenance + license ledger for every source the reverse-engineering program studies. Lives at _corpus/manifest.json (gitignored). distill.py enforces the per-record public_reuse_policy before emitting any public artifact.",
+  "type": "object",
+  "required": ["schema_version", "records"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "type": "integer", "const": 1 },
+    "records": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/record" }
+    }
+  },
+  "$defs": {
+    "record": {
+      "type": "object",
+      "required": [
+        "record_id",
+        "source_url",
+        "source_type",
+        "license",
+        "license_url",
+        "retrieved_at",
+        "verbatim_allowed",
+        "public_reuse_policy"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "record_id": {
+          "type": "string",
+          "description": "Stable slug, e.g. 'f1000_review_2024_dta_calibration'. Used by distill.py to authorize reuse.",
+          "pattern": "^[a-z0-9][a-z0-9_]{2,79}$"
+        },
+        "source_url": { "type": "string", "format": "uri" },
+        "doi": {
+          "type": ["string", "null"],
+          "description": "DOI if the source has one; null for DOI-less reports.",
+          "default": null
+        },
+        "source_type": {
+          "type": "string",
+          "enum": ["oa_article", "open_review"],
+          "description": "oa_article = open-access paper; open_review = published peer-review report."
+        },
+        "license": {
+          "type": "string",
+          "description": "SPDX-style id or short name, e.g. 'CC-BY-4.0', 'CC-BY-NC-ND-4.0', 'CC0-1.0', or 'unknown'."
+        },
+        "license_url": {
+          "type": "string",
+          "description": "Link to the license text or the page asserting the license. Use '' only when license is 'unknown'."
+        },
+        "retrieved_at": {
+          "type": "string",
+          "format": "date",
+          "description": "YYYY-MM-DD the source was fetched into _corpus/."
+        },
+        "verbatim_allowed": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether any verbatim quotation may appear in a committed artifact. Default false. Set true only for confirmed CC-BY / CC0 sources, and even then prefer synthesis."
+        },
+        "public_reuse_policy": {
+          "type": "string",
+          "enum": ["synthetic_only", "paraphrase_ok", "cc_by_attribution"],
+          "default": "synthetic_only",
+          "description": "synthetic_only = only freshly-authored, non-derivative output may be committed; paraphrase_ok = close paraphrase permitted (requires a permissive license); cc_by_attribution = CC-BY/CC0 content may be reused with attribution."
+        },
+        "attribution": {
+          "type": "string",
+          "description": "Required citation line when public_reuse_policy is cc_by_attribution. Optional otherwise."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Free-text: why this license was assigned, what was learned, caveats."
+        }
+      }
+    }
+  }
+}
