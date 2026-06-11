@@ -1,5 +1,5 @@
 {
-  "name": "@aperivue/medsci-skills",
+  "name": "medsci-skills",
   "version": "4.1.0",
   "description": "MedSci Skills — a medical/scientific research skill suite for AI coding agents (Claude Code, Codex, Cursor, Copilot). The npm package is a terminal-friendly installer shortcut; the canonical distribution remains the GitHub repository and the Claude Code plugin marketplace.",
   "license": "SEE LICENSE IN LICENSE",

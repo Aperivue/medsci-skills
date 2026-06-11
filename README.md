@@ -422,10 +422,10 @@ dependency-free Python installer. The canonical install paths remain the plugin
 marketplace (Option 1's sibling above) and the git clone above; npm is just a shortcut.
 
 ```bash
-npx @aperivue/medsci-skills install            # all hosts (Claude, Codex, Cursor)
-npx @aperivue/medsci-skills install --target claude
-npx @aperivue/medsci-skills list               # list bundled skills
-npx @aperivue/medsci-skills doctor             # quick Node/Python/skill-folder check
+npx medsci-skills install            # all hosts (Claude, Codex, Cursor)
+npx medsci-skills install --target claude
+npx medsci-skills list               # list bundled skills
+npx medsci-skills doctor             # quick Node/Python/skill-folder check
 ```
 
 Requires Node 18+ and (for `install`/`doctor`) `python3` on your PATH.

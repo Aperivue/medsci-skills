@@ -49,7 +49,7 @@ function printHelp() {
 MedSci Skills — medical/scientific research skill suite for AI coding agents.
 
 Usage:
-  npx @aperivue/medsci-skills <command> [options]
+  npx medsci-skills <command> [options]
   medsci-skills <command> [options]      (after a global install)
 
 Commands:
