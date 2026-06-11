@@ -38,6 +38,7 @@ One reference page per skill, generated from each skill's `SKILL.md` and `skill.
 - [publish-skill](publish-skill.md) — Convert a personal agent skill into a distributable, open-source-ready skill. _(evidence: bundled_script)_
 - [render-pdf-doc](render-pdf-doc.md) — Render academic Markdown documents (English or Korean) to publication-quality PDF via pandoc + xelatex. _(evidence: bundled_script)_
 - [replicate-study](replicate-study.md) — Replicate an existing cohort study's methodology on a different database. _(evidence: manual_workflow)_
+- [review-paper](review-paper.md) — Scaffold and draft medical/AI literature reviews (narrative, scoping PRISMA-ScR, or systematic).
 - [revise](revise.md) — Parse peer reviewer comments and generate a structured Response to Reviewers document with tracked manuscript changes. _(evidence: manual_workflow)_
 - [search-lit](search-lit.md) — Literature search and citation management for medical research. _(evidence: bundled_script)_
 - [self-review](self-review.md) — Pre-submission self-review for the user's own manuscripts, applying a reviewer perspective. _(evidence: demo)_
