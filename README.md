@@ -2,14 +2,14 @@
 
 # MedSci Skills
 
-**43 skills that actually work.** Built by a physician-researcher, tested on real publications.
+**44 skills that actually work.** Built by a physician-researcher, tested on real publications.
 
 *MedSci Skills is a submission-grade clinical manuscript workflow, not a generic biomedical skill catalog. It competes on clinical submission reliability, not skill count.*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Release](https://img.shields.io/github/v/release/Aperivue/medsci-skills?style=flat-square&color=blue)](https://github.com/Aperivue/medsci-skills/releases/latest)
 [![CI](https://img.shields.io/github/actions/workflow/status/Aperivue/medsci-skills/validate.yml?branch=main&style=flat-square&label=CI)](https://github.com/Aperivue/medsci-skills/actions/workflows/validate.yml)
-![Skills](https://img.shields.io/badge/Skills-43-brightgreen?style=flat-square)
+![Skills](https://img.shields.io/badge/Skills-44-brightgreen?style=flat-square)
 
 [![Agent Skills](https://img.shields.io/badge/Agent_Skills-standard-blue?style=flat-square)](https://agentskills.io)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-supported-success?style=flat-square)](docs/host_compatibility.md)
@@ -343,6 +343,7 @@ ma-scout -> search-lit -> fulltext-retrieval -> design-study ──> write-proto
 | **present-paper** | Academic presentation preparation: paper analysis, supporting research, speaker scripts, slide note injection, and Q&A prep. |
 | **publish-skill** | Convert personal Claude Code skills into distributable, open-source-ready packages. PII audit, license compatibility check, generalization, and packaging workflow. |
 | **write-paper** | Full IMRAD manuscript pipeline (8 phases). Outline to submission-ready manuscript with critic-fixer loops, AI pattern avoidance, and journal compliance. Anti-interpretation guardrails in Results; interactive Discussion planning with anchor paper input. Case report mode (CARE 2016, 1000-word short-form). Optional cover letter generation (Phase 8+). LLM Disclosure: auto-generates disclosure statements in Methods, Acknowledgments, and Cover Letter (opt-out via `--no-llm-disclosure`). `--autonomous` flag skips all user gates for fully automated manuscript generation; Phase 2 auto-calls `/make-figures --study-type` with manifest verification; Phase 7 enforces strict sequential QC chain (check-reporting → search-lit → self-review fix loop → DOCX build). |
+| **review-paper** | Scaffold and draft a literature review — narrative (SANRA), scoping (PRISMA-ScR + JBI), or systematic (PRISMA 2020). Asks for the spine axis (modality / task / lifecycle), builds a 7-part skeleton with a required Intro scope/non-overlap block, per-section summary-table stubs, and an evaluation-metrics critique subsection, then wires reporting/registration and hands off to `/self-review` (RV1-RV8) → `/check-reporting` → `/verify-refs` → `/humanize`. Never invents citations. |
 | **self-review** | Pre-submission self-review from reviewer perspective. 10 categories with research-type branching (AI, observational, educational, meta-analysis, case report, surgical). Anticipated Major/Minor format with severity framing and optional R0 numbering for `/revise` pipeline. `--json` structured output with `fixable_by_ai` flags; `--fix` mode auto-applies text fixes (max 2 iterations). |
 | **revise** | Response to reviewers with tracked changes. Parses decision letters, classifies comments as MAJOR/MINOR/REBUTTAL, generates point-by-point responses and cover letter. |
 | **sync-submission** | SSOT-to-submission drift audit and journal package helper. Treats `submission/{journal}/` as derived output, records source hashes in `.journal_meta.json`, and blocks freezing drifted packages. |

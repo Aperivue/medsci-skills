@@ -57,6 +57,7 @@
       "skills": [
         "./skills/academic-aio",
         "./skills/humanize",
+        "./skills/review-paper",
         "./skills/revise",
         "./skills/write-paper",
         "./skills/write-protocol"

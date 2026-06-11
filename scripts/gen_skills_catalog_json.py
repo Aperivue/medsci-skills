@@ -59,6 +59,7 @@ CATEGORY_BY_OWNER_DOMAIN: dict[str, tuple[str, str]] = {
     "meta_analysis_integrity": ("analysis_figures", "Analysis & Figures"),
     # Writing & manuscript
     "manuscript_drafting": ("writing_manuscript", "Writing & Manuscript"),
+    "manuscript_authoring": ("writing_manuscript", "Writing & Manuscript"),
     "protocol_drafting": ("writing_manuscript", "Writing & Manuscript"),
     "manuscript_optimization": ("writing_manuscript", "Writing & Manuscript"),
     "ai_pattern_removal": ("writing_manuscript", "Writing & Manuscript"),

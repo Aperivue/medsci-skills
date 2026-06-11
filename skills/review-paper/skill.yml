@@ -1,0 +1,25 @@
+schema_version: 2
+name: review-paper
+layer: C
+owner_domain: manuscript_authoring
+
+when_to_use: "Scaffold and draft a literature review (narrative / scoping / systematic) for medical/AI research, organized around an explicit spine axis with a non-overlap boundary and reporting-guideline wiring."
+when_NOT_to_use: "Original research articles, case reports, meta-analyses with pooled synthesis (use write-paper / meta-analysis). Pre-protocol topic discovery (use ma-scout)."
+
+inputs:
+  - "topic + chosen format (narrative/scoping/systematic)"
+  - "verified refs (_src/refs.bib) from search-lit/lit-sync"
+  - "optional: prior/adjacent reviews to differentiate against"
+outputs:
+  - "manuscript.md scaffold (7-part) + summary-table stub + figure/table legend plan"
+side_effects:
+  - writes_manuscript_scaffold
+downstream_consumers:
+  - self-review
+  - check-reporting
+  - humanize
+  - academic-aio
+  - manage-refs
+forbidden_actions:
+  - invent_citations
+  - write_outside_manuscript_dir
