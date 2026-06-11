@@ -161,6 +161,12 @@ Apply this 6-probe checklist (O1–O6) **only when the manuscript is an observat
 
 ### Phase 3: Draft Review
 
+Before writing comments, skim the relevant model in `references/exemplar_reviews/` for the
+finding type at hand (AI overclaiming, reference-standard validity, data leakage, missing
+calibration). Each shows the same four moves — anchor the location, state the gap, phrase
+it as a partner (Aczel-compliant), and calibrate severity (design-level → Major #1). Model
+the anchoring and phrasing; do not copy — they are synthetic teaching examples.
+
 Generate `{manuscript_id}_review_draft.md`:
 
 ```markdown
