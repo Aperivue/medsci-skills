@@ -79,7 +79,7 @@ methodology and study design.
      redundant". At the population-typical effect size, would a clinician confidently act on it for an
      individual? The point is to let these axes diverge from validity (e.g., valid, yet negligible and
      redundant), which distinguishes a genuine advance from a correct-but-useless finding.
-5. **Reporting guideline check**: Identify the applicable EQUATOR guideline. Flag MISSING items as candidate comments. If `/check-reporting` is available, delegate.
+5. **Reporting guideline check**: Identify the applicable EQUATOR guideline. Flag MISSING items as candidate comments. If `/check-reporting` is available, delegate. Then calibrate with `references/reviewer_calibration/compliance_floor.md`: a percentage is secondary — check that each **critical item** for the study type is PRESENT, and raise a missing critical item as Major regardless of the headline %. Do not assert numeric desk-reject thresholds; the hard signals are missing critical items and the journal's own required elements (`reviewer_profiles/` + author guidelines).
 6. **Prioritize**: Rank issues by impact on validity. Select top 3-5 for Major, 3-4 for Minor. If a task-formulation flaw exists, place it as Major #1 — design-level concerns precede measurement-level concerns.
 7. **Gate**: Present findings to user — "Here are the key issues I found — do you agree with this prioritization?"
 
