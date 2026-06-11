@@ -121,12 +121,22 @@ def load_skill(skill_dir: Path) -> dict[str, str]:
     return fm
 
 
-def _ignorable(p: Path) -> bool:
-    """Untracked build/OS artifacts that exist locally but not in a clean checkout —
-    excluding them keeps counts identical between a working tree and CI (determinism)."""
+def _ignorable(p: Path, root: Path) -> bool:
+    """Untracked build/OS artifacts within the walked tree (`__pycache__`, `.pyc`, dotfiles).
+
+    Only the path RELATIVE to `root` is inspected. A dotted *ancestor* directory — e.g. a git
+    worktree checked out under ``~/.local/...`` — must not make every file look ignorable;
+    only dot / ``__pycache__`` components *inside* the tree being counted are excluded. This
+    keeps counts identical between a normal checkout, a worktree, and CI (determinism)."""
     if p.suffix == ".pyc":
         return True
-    return any(part == "__pycache__" or part.startswith(".") for part in p.parts)
+    try:
+        rel_parts = p.relative_to(root).parts
+    except ValueError:
+        # p is not under root (unexpected): judge by basename only — never fall back to
+        # scanning absolute ancestors, which is the very bug this function guards against.
+        rel_parts = (p.name,)
+    return any(part == "__pycache__" or part.startswith(".") for part in rel_parts)
 
 
 def list_resources(skill_dir: Path) -> dict[str, list[str]]:
@@ -140,7 +150,7 @@ def list_resources(skill_dir: Path) -> dict[str, list[str]]:
             if child.name.startswith(".") or child.name == "__pycache__":
                 continue
             if child.is_dir():
-                count = sum(1 for p in child.rglob("*") if p.is_file() and not _ignorable(p))
+                count = sum(1 for p in child.rglob("*") if p.is_file() and not _ignorable(p, child))
                 entries.append(f"`{child.name}/` ({count} file{'s' if count != 1 else ''})")
             else:
                 entries.append(f"`{child.name}`")
