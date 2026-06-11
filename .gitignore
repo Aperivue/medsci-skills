@@ -68,3 +68,9 @@ skills/**/TODO_*.md
 # Gemini/Antigravity AI assistant scratchpad (per-session, not for repo)
 .gemini/
 _pr_drafts/
+
+# Reverse-engineering corpus — raw OA PDFs, open-review full text, and per-paper
+# analysis JSON are LEARN-ONLY: never committed (copyright + size). Only distilled
+# patterns and freshly-authored synthetic exemplars reach the public repo.
+# See reverse_engineer/LICENSING.md for the learn-then-synthesize policy.
+_corpus/

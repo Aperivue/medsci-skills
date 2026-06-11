@@ -1,0 +1,10 @@
+# Reverse-engineering work queue.
+# Format (tab-separated): record_id<TAB>doi_or_url<TAB>domain
+# Lines beginning with '#' are comments. Add entries only after the DOI/URL resolves
+# (use verify-refs / search-lit). See README.md and ../LICENSING.md.
+#
+# record_id must match: ^[a-z0-9][a-z0-9_]{2,79}$
+# domain is one of: radiology_ai, medical_ai, medical_education, clinical, biostatistics, ml_medicine
+#
+# (empty — the first batch is seeded in PR2, when peer-review open-review records are
+#  acquired and license-verified per record.)
