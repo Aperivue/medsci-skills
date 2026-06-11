@@ -38,7 +38,7 @@
 
 **References** (`skills/self-review/references/`):
 
-- `domain-probes/` (5 files)
+- `domain-probes/` (6 files)
 - `panel_review_template.md`
 
 **Scripts** (`skills/self-review/scripts/`):

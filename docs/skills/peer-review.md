@@ -36,7 +36,7 @@
 **References** (`skills/peer-review/references/`):
 
 - `aczel_2021_reviewer2_patterns.md`
-- `domain-probes/` (5 files)
+- `domain-probes/` (6 files)
 - `narrative_review_audit.md`
 - `reviewer_profiles/` (6 files)
 
