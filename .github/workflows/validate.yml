@@ -102,3 +102,15 @@ jobs:
             python3 skills/version-dataset/scripts/version_dataset.py verify \
               --manifest "$d/manifest.lock.json" --base "$d" --strict
           done
+
+      # --- npm/npx distribution baseline (runs last so packaging failures are easy to isolate) ---
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: npm package self-test (CLI shim + exec bit + version sync + pack audit)
+        run: bash tests/test_npm_package.sh
+
+      - name: npm pack content audit (real pack, package/ prefix normalized)
+        run: python3 scripts/check_npm_package_contents.py --real

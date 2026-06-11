@@ -1,0 +1,48 @@
+{
+  "name": "@aperivue/medsci-skills",
+  "version": "4.1.0",
+  "description": "MedSci Skills — a medical/scientific research skill suite for AI coding agents (Claude Code, Codex, Cursor, Copilot). The npm package is a terminal-friendly installer shortcut; the canonical distribution remains the GitHub repository and the Claude Code plugin marketplace.",
+  "license": "SEE LICENSE IN LICENSE",
+  "homepage": "https://github.com/Aperivue/medsci-skills#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Aperivue/medsci-skills.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Aperivue/medsci-skills/issues"
+  },
+  "bin": {
+    "medsci-skills": "bin/medsci-skills.js"
+  },
+  "files": [
+    "skills/",
+    "installers/install.py",
+    "installers/install-macos.command",
+    "installers/install-windows.cmd",
+    "installers/install-windows.ps1",
+    "metadata/skills_catalog.json",
+    "bin/medsci-skills.js",
+    "README.md",
+    "README_FIRST.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "medical-research",
+    "radiology",
+    "meta-analysis",
+    "systematic-review",
+    "reporting-guidelines",
+    "biostatistics",
+    "peer-review",
+    "claude-code",
+    "agent-skills",
+    "research-pipeline"
+  ],
+  "scripts": {
+    "prepack": "find skills installers -name __pycache__ -type d -prune -exec rm -rf {} + 2>/dev/null; true",
+    "test": "bash tests/test_npm_package.sh"
+  }
+}

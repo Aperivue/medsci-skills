@@ -21,7 +21,7 @@
 [![Citation](https://img.shields.io/badge/Cite-CITATION.cff-blue?style=flat-square)](CITATION.cff)
 ![Built by](https://img.shields.io/badge/Built_by-Physician--Researcher-blue?style=flat-square)
 
-![MedSci Skills](assets/social-preview.png)
+![MedSci Skills](https://raw.githubusercontent.com/Aperivue/medsci-skills/main/assets/social-preview.png)
 
 *Topic Discovery &rarr; Literature Search &rarr; Full-Text Retrieval &rarr; Study Design &rarr; Sample Size &rarr; Protocol &rarr; De-identification &rarr; Data Cleaning &rarr; Statistics &rarr; Figures &rarr; Writing &rarr; Humanize &rarr; Compliance &rarr; Journal Selection &rarr; Peer Review &rarr; Revision &rarr; Presentation*
 
@@ -413,6 +413,21 @@ cp -r medsci-skills/skills/* ~/.claude/skills/
 git clone https://github.com/Aperivue/medsci-skills.git
 cp -r medsci-skills/skills/check-reporting ~/.claude/skills/
 ```
+
+### Option 4: npm / npx (terminal-friendly shortcut)
+
+A convenience wrapper for terminal users — it copies the same skills via the
+dependency-free Python installer. The canonical install paths remain the plugin
+marketplace (Option 1's sibling above) and the git clone above; npm is just a shortcut.
+
+```bash
+npx @aperivue/medsci-skills install            # all hosts (Claude, Codex, Cursor)
+npx @aperivue/medsci-skills install --target claude
+npx @aperivue/medsci-skills list               # list bundled skills
+npx @aperivue/medsci-skills doctor             # quick Node/Python/skill-folder check
+```
+
+Requires Node 18+ and (for `install`/`doctor`) `python3` on your PATH.
 
 ### Platform notes
 
