@@ -860,6 +860,13 @@ Healthy CONSENSUS is preserved — agreement on *some* themes is a strength (Ste
 
 ### Phase 3: Report
 
+Before writing the Anticipated Comments, skim `references/exemplar_findings/` for the
+finding at hand (cohort-arithmetic mismatch, unadjusted confounder, cross-sectional scope
+overreach, post-hoc primary / estimand drift). Each models the full shape — which gate
+fired, the comment in the reviewer's own words, Fatal/Fixable severity, the closest
+category letter, the concrete fix, `fixable_by_ai`, and an R0-ready line for Phase 3b.
+They are synthetic teaching models — match the structure, not the wording.
+
 Generate a concise report with this structure:
 
 ```markdown

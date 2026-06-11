@@ -192,7 +192,7 @@ Design all tables and figures BEFORE writing prose. This ensures the narrative s
 
 Write the Methods section first -- it is the most objective and anchors the rest of the paper.
 
-**Before writing:** Load `${CLAUDE_SKILL_DIR}/references/section_guides/methods.md` for PICO structure, backbone article usage, checklist cross-reference, and terminology conventions.
+**Before writing:** Load `${CLAUDE_SKILL_DIR}/references/section_guides/methods.md` for PICO structure, backbone article usage, checklist cross-reference, and terminology conventions. For the matching study type, also skim the structure model in `${CLAUDE_SKILL_DIR}/references/exemplar_methods/` (diagnostic-accuracy/STARD, AI-validation/TRIPOD+AI·CLAIM, observational-cohort/STROBE) — it lists, paragraph by paragraph, what each Methods paragraph must establish plus the element that type most often omits. Model the structure; the exemplars are synthetic, with placeholder specifics, not prose to copy.
 
 **Writing order within Methods:**
 1. Study Design and Setting

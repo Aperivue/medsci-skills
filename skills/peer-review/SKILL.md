@@ -79,7 +79,7 @@ methodology and study design.
      redundant". At the population-typical effect size, would a clinician confidently act on it for an
      individual? The point is to let these axes diverge from validity (e.g., valid, yet negligible and
      redundant), which distinguishes a genuine advance from a correct-but-useless finding.
-5. **Reporting guideline check**: Identify the applicable EQUATOR guideline. Flag MISSING items as candidate comments. If `/check-reporting` is available, delegate.
+5. **Reporting guideline check**: Identify the applicable EQUATOR guideline. Flag MISSING items as candidate comments. If `/check-reporting` is available, delegate. Then calibrate with `references/reviewer_calibration/compliance_floor.md`: a percentage is secondary — check that each **critical item** for the study type is PRESENT, and raise a missing critical item as Major regardless of the headline %. Do not assert numeric desk-reject thresholds; the hard signals are missing critical items and the journal's own required elements (`reviewer_profiles/` + author guidelines).
 6. **Prioritize**: Rank issues by impact on validity. Select top 3-5 for Major, 3-4 for Minor. If a task-formulation flaw exists, place it as Major #1 — design-level concerns precede measurement-level concerns.
 7. **Gate**: Present findings to user — "Here are the key issues I found — do you agree with this prioritization?"
 
@@ -166,6 +166,12 @@ Apply when an AI/ML **primary study** (diagnostic, prognostic, triage, detection
 **Probe detail (AO0–AO4), with output templates and the leads-vs-findings discipline:** `${CLAUDE_SKILL_DIR}/references/domain-probes/ai_overclaiming.md`. Load it and apply each probe when the trigger fires. Run AO0 first — locate the load-bearing claim and read it together with its cited evidence before alleging over-reach (a hedged Discussion qualifier is not a headline). In this skill, map each probe finding to the review draft as a Major / Minor comment; a headline generalizability (AO1), superiority/replacement (AO2/AO3), or deployment-readiness (AO4) claim that outruns the design is framing-level — surface it in the Confidential Comments to the Editor and place it as the Major #1 candidate when it is the paper's headline.
 
 ### Phase 3: Draft Review
+
+Before writing comments, skim the relevant model in `references/exemplar_reviews/` for the
+finding type at hand (AI overclaiming, reference-standard validity, data leakage, missing
+calibration). Each shows the same four moves — anchor the location, state the gap, phrase
+it as a partner (Aczel-compliant), and calibrate severity (design-level → Major #1). Model
+the anchoring and phrasing; do not copy — they are synthetic teaching examples.
 
 Generate `{manuscript_id}_review_draft.md`:
 
