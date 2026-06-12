@@ -19,6 +19,7 @@
 [![GitHub Copilot](https://img.shields.io/badge/GitHub_Copilot-supported-success?style=flat-square)](docs/host_compatibility.md)
 
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.20155321-blue?style=flat-square)](https://doi.org/10.5281/zenodo.20155321)
+[![arXiv](https://img.shields.io/badge/arXiv-2606.09500-b31b1b?style=flat-square)](https://arxiv.org/abs/2606.09500)
 [![Citation](https://img.shields.io/badge/Cite-CITATION.cff-blue?style=flat-square)](CITATION.cff)
 ![Built by](https://img.shields.io/badge/Built_by-Physician--Researcher-blue?style=flat-square)
 
@@ -583,6 +584,18 @@ and academic use is logged in [`docs/citations.md`](docs/citations.md).
 **Used MedSci Skills in your research?** Please
 [let us know](https://github.com/Aperivue/medsci-skills/issues/new?template=used-in-research.yml).
 It helps other researchers find the toolkit — and we list it (with your permission).
+
+## Citation
+
+If you use MedSci Skills in your research, please cite the software via
+[`CITATION.cff`](CITATION.cff) (Zenodo concept DOI
+[10.5281/zenodo.20155321](https://doi.org/10.5281/zenodo.20155321)).
+
+The design and evaluation of the toolkit are described in a preprint:
+
+> Nam Y, Kim N. *Agentic Skills for Auditable and Reproducible Medical Research
+> Writing: An Integrity-gated Architecture for LLM-Assisted Clinical Manuscripts.*
+> arXiv:2606.09500 (2026). https://arxiv.org/abs/2606.09500
 
 ## Disclaimer
 
