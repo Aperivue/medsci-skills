@@ -45,3 +45,18 @@ keywords:
   - pubmed
   - irb-protocol
   - physician-researcher
+preferred-citation:
+  type: article
+  title: "Agentic Skills for Auditable and Reproducible Medical Research Writing: An Integrity-gated Architecture for LLM-Assisted Clinical Manuscripts"
+  authors:
+    - family-names: Nam
+      given-names: Yoojin
+      orcid: "https://orcid.org/0000-0001-8565-1360"
+    - family-names: Kim
+      given-names: Namkug
+  year: 2026
+  url: "https://arxiv.org/abs/2606.09500"
+  identifiers:
+    - type: other
+      value: "arXiv:2606.09500"
+      description: "arXiv preprint"
