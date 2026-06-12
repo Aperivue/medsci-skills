@@ -10,6 +10,7 @@
 [![Release](https://img.shields.io/github/v/release/Aperivue/medsci-skills?style=flat-square&color=blue)](https://github.com/Aperivue/medsci-skills/releases/latest)
 [![CI](https://img.shields.io/github/actions/workflow/status/Aperivue/medsci-skills/validate.yml?branch=main&style=flat-square&label=CI)](https://github.com/Aperivue/medsci-skills/actions/workflows/validate.yml)
 ![Skills](https://img.shields.io/badge/Skills-44-brightgreen?style=flat-square)
+[![npm](https://img.shields.io/npm/v/medsci-skills?style=flat-square&label=npm&color=cb3837)](https://www.npmjs.com/package/medsci-skills)
 
 [![Agent Skills](https://img.shields.io/badge/Agent_Skills-standard-blue?style=flat-square)](https://agentskills.io)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-supported-success?style=flat-square)](docs/host_compatibility.md)
@@ -38,6 +39,12 @@
 ## Quick Start
 
 **No terminal?** Use the classroom installer ZIP — download, unzip, double-click the installer, then restart your agent app (see [Installation](#installation)).
+
+**Have a terminal?** Fastest path — one command, nothing to clone:
+
+```bash
+npx medsci-skills install        # copies every skill into your agent's folder
+```
 
 **Have git?** Install every skill in three commands:
 
