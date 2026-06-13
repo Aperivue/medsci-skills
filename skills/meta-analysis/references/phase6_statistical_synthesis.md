@@ -106,8 +106,8 @@ res_prop <- metaprop(event, n, data = dat_single,
 - Use `method.tau = "DL"` (DerSimonian-Laird) — REML may not converge with sparse data.
 - Use `method.random.ci = "HK"` (Hartung-Knapp) instead of the deprecated `hakn = TRUE`.
 - Use `common = FALSE, random = TRUE` instead of deprecated `comb.fixed/comb.random`.
-- For zero cells, apply `incr = 0.5` continuity correction.
-- Egger's test is underpowered for k < 10 — note this in results.
+- For zero cells in **binary 2×2 outcomes** (OR/RR), apply `incr = 0.5` continuity correction. **Do NOT** apply a continuity correction when pooling **single-arm proportions**: use `metaprop(..., method = "GLMM", sm = "PLOGIT")`, which handles zero-event studies natively. See `single_arm_proportion_ma.md`.
+- Egger's test is underpowered for k < 10 — note this in results. **Egger/funnel tests are invalid for pooled proportions** (the SE is a deterministic function of the proportion); see `single_arm_proportion_ma.md`.
 
 ---
 
