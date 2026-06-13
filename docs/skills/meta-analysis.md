@@ -48,6 +48,7 @@
 - `post_submission_release_ops.md`
 - `r_templates.md`
 - `review_orchestration.md`
+- `single_arm_proportion_ma.md`
 - `submission_package_drift.md`
 
 **Scripts** (`skills/meta-analysis/scripts/`):
