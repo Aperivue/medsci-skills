@@ -2,7 +2,7 @@
 
 # review-paper
 
-> Scaffold and draft medical/AI literature reviews (narrative, scoping PRISMA-ScR, or systematic). Asks for the spine axis, builds a 7-part skeleton with a required Intro scope/non-overlap block, a summary-table stub, an evaluation-metrics critique subsection, and reporting-guideline wiring. Reuses the self-review RV1-RV8 narrative-review probes for QC. Does not invent citations.
+> Scaffold and draft medical/AI literature reviews (narrative, scoping PRISMA-ScR, or systematic). Asks for the spine axis, builds a 7-part skeleton with a required Intro scope/non-overlap block, a summary-table stub, an evaluation-metrics critique subsection, and reporting-guideline wiring. Reuses the self-review RV1-RV9 narrative-review probes for QC. Does not invent citations.
 
 **Invoke:** `/review-paper` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
 
