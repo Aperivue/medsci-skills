@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **Narrative-review probe expanded RV1–RV8 → RV1–RV9** (`skills/peer-review/references/domain-probes/narrative_review.md`, vendored byte-identical into `/self-review`). Adds **RV9 — Bibliometric circularity of a curated base**: a non-systematic review asserting a field-level/bibliometric asymmetry ("the field invested in X, neglected Y") is making a *measured* claim from an *unmeasured*, author-curated base; a hostile reviewer manufactures the reverse thesis by re-curating. RV9 names the two acceptable resolutions as a strategy fork — down-scope every claim site to "within the surveyed literature" (zero field-level residue) **or** add a documented search + per-axis counts — plus the engineering-density-vs-clinical-validation reframe. **RV6** gains the single-anchor-overload check (Abstract "landmark" ↔ body "base is thin" register mismatch); **RV8** gains the self-citation-architecture disclosure check (weakest axes coinciding with the authors' own forthcoming work). The `/self-review` narrative panel reviewer-set gains an **R4 Adversarial reject-hunter** seat (structural: RV9/RV6/RV8), with a matching focus checklist in `panel_review_template.md`. No skills/detector count change. Probe-count pointers across peer-review / self-review / review-paper SKILLs and the AJR reviewer profile updated to RV1–RV9.
+
 ## [4.1.0] - 2026-06-11
 
 Theme: **distribution + a submission pre-flight gate.** Ships the borrow-distribution levers (Claude Code plugin marketplace, the named MedSci-Audit detector registry, and standalone hero-skill mirror tooling with two live mirror repos) and a single submission pre-flight halt-on-failure gate that bundles the existing detectors + `/verify-refs`. Analysis-integrity detectors **24 → 25** (still 43 skills). Frozen `demo/` and `evaluation/runs/canonical` artifacts (pinned to the published methods paper) are unchanged.

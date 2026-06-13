@@ -3,7 +3,7 @@ name: review-paper
 description: >
   Scaffold and draft medical/AI literature reviews (narrative, scoping PRISMA-ScR, or systematic). Asks for
   the spine axis, builds a 7-part skeleton with a required Intro scope/non-overlap block, a summary-table stub,
-  an evaluation-metrics critique subsection, and reporting-guideline wiring. Reuses the self-review RV1-RV8
+  an evaluation-metrics critique subsection, and reporting-guideline wiring. Reuses the self-review RV1-RV9
   narrative-review probes for QC. Does not invent citations.
 triggers: review article, scoping review, narrative review, literature review, PRISMA-ScR, write a review
 tools: Read, Write, Edit, Bash, Grep, Glob
@@ -17,7 +17,7 @@ Scaffold and draft a **literature review** — narrative, scoping (PRISMA-ScR), 
 required scope/non-overlap framing, the summary-table stubs, and the reporting-guideline
 wiring, then hands off to the existing QC skills. It is the review-article counterpart to
 `write-paper` (which targets original research); for *reviewing* someone else's review
-article, use `/peer-review` or `/self-review` (the RV1-RV8 probes). The structure follows
+article, use `/peer-review` or `/self-review` (the RV1-RV9 probes). The structure follows
 established review-writing conventions; it is not derived from, and does not reproduce, any
 specific published review.
 
@@ -83,7 +83,7 @@ verified sources (see Anti-Hallucination).
 
 Run the standard manuscript QC chain, which this skill is designed to feed:
 
-1. `/self-review` — the RV1-RV8 narrative-review probes auto-activate for a review article.
+1. `/self-review` — the RV1-RV9 narrative-review probes auto-activate for a review article.
 2. `/check-reporting` — the chosen guideline (SANRA / PRISMA-ScR / PRISMA 2020).
 3. `/verify-refs` — every citation resolves; 0 FABRICATED / MISMATCH.
 4. `/humanize` — AI-pattern density below threshold.

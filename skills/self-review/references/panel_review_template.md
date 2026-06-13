@@ -120,6 +120,11 @@ design-level finding, **Fixable** for a reporting-level finding.
 - Engineering and domain correctness of specific claims; itemize errors with location.
 - Verify-your-own-criticism: cross-check each asserted inaccuracy against a current authoritative source before raising it.
 
+**Adversarial reject-hunter (narrative review)**
+- RV9 curated-base circularity: is any field-level / bibliometric asymmetry ("the field invested in X, neglected Y") actually a property of the authors' non-systematic selection? Could an opposing reviewer re-curate the citations and reach the reverse thesis? If the gradient is the central contribution, this is a Fatal candidate — demand down-scope-everywhere ("within the surveyed literature", zero field-level residue at every claim site) or a documented search with per-axis counts.
+- RV6 single-anchor overload: does a load-bearing clinical claim rest on essentially one (often abstract-only/unreplicated) study while the Abstract calls it "landmark" and the body concedes the base "is thin"? Flag the Abstract↔body register mismatch.
+- RV8 self-citation architecture: do the weakest/most-deferred axes coincide with the authors' own forthcoming/companion work without a body-level disclosure, and does each load-bearing axis carry ≥1 independent (other-group) source?
+
 ---
 
 ## Editor synthesis prompt skeleton

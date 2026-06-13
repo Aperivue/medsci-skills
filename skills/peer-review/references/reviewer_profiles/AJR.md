@@ -17,7 +17,7 @@ Per the AJR Reviewer Guide template, organize the author-facing comments as:
 
 **Section list for original research (IMRAD):** Title, Highlights, Abstract, Introduction, Methods, Results, Discussion, References, Tables, Figures.
 
-**Section list for Review / narrative articles (not IMRAD):** Title, Abstract, Introduction, thematic body sections (the manuscript's own headings), Conclusions, References, Tables, Figures (Methods/Results are N/A). Apply the Phase 2D 8-probe audit (RV1–RV8).
+**Section list for Review / narrative articles (not IMRAD):** Title, Abstract, Introduction, thematic body sections (the manuscript's own headings), Conclusions, References, Tables, Figures (Methods/Results are N/A). Apply the Phase 2D 9-probe audit (RV1–RV9).
 
 Do **not** focus the review on typographic errors (handled by copyeditors). Do **not** state an accept/reject decision in the author-facing comments.
 

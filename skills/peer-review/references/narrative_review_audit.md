@@ -1,6 +1,6 @@
 # Narrative / Review-Article Audit — Reference Material
 
-Supporting material for the Phase 2D (RV1–RV8) review-article audit in `SKILL.md`. It collects (1) the SANRA appraisal items, (2) a consolidated evaluation checklist, and (3) a candidate-additions list for AI/LLM-in-radiology reviews. Nothing here is a hard requirement; it is an appraisal aid for a *narrative* (non-systematic) review.
+Supporting material for the Phase 2D (RV1–RV9) review-article audit in `SKILL.md`. It collects (1) the SANRA appraisal items, (2) a consolidated evaluation checklist, and (3) a candidate-additions list for AI/LLM-in-radiology reviews. Nothing here is a hard requirement; it is an appraisal aid for a *narrative* (non-systematic) review.
 
 ## 1. SANRA appraisal items (paraphrased)
 
