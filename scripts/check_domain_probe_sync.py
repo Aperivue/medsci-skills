@@ -39,6 +39,7 @@ MODULES = (
     "narrative_review.md",
     "observational_confounding.md",
     "ai_overclaiming.md",
+    "rct_trial.md",
 )
 
 CANONICAL_REL = "skills/peer-review/references/domain-probes"

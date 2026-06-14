@@ -280,6 +280,7 @@ These modules carry the same domain-specific critique probes used by `/peer-revi
 | Radiomic feature reproducibility / acquisition-parameter sweep / reliability-based feature filtering | `references/domain-probes/radiomics.md` (R1–R4) |
 | Narrative / review article / primer / state-of-the-art | `references/domain-probes/narrative_review.md` (RV1–RV9) |
 | AI/ML primary study with a clinical claim (generalizable / outperforms clinicians / deployment-ready / can replace a reader) | `references/domain-probes/ai_overclaiming.md` (AO0–AO5) |
+| Randomised controlled trial (parallel / crossover / cluster / stepped-wedge) | `references/domain-probes/rct_trial.md` (RC0–RC7) |
 
 When the manuscript matches a row, read `${CLAUDE_SKILL_DIR}/references/domain-probes/<module>.md` and apply each probe as an additional source of Anticipated Major / Minor Comments. The module severity words (MAJOR / MINOR) map to this skill's framing as follows: a conclusion-threatening or design-level finding becomes a **Fatal** Anticipated Major Comment, a reporting-level finding becomes a **Fixable** Anticipated Minor Comment, and each is tagged with the closest category letter (A–K). These probes **complement** categories A–K above; they do not replace them. (The modules are vendored byte-identical from `/peer-review`; do not edit one copy only — run `python3 scripts/check_domain_probe_sync.py --sync`.)
 
