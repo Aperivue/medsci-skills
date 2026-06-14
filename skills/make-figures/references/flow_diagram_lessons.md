@@ -145,6 +145,47 @@ exists, and tracing what changed requires diffing PDFs (lossy and slow).
 
 ---
 
+## Lesson 6: Any flowchart-shaped figure uses the monochrome Graphviz convention — not colorful boxes-and-arrows
+
+**Failure mode**: A study-design / reader-flow / pipeline schematic (i.e. NOT a
+reporting-guideline flow) gets hand-built in matplotlib (or slides) with filled
+color boxes, accent palettes, and manually positioned text. It reads as
+"AI-generated", text is poorly aligned inside the boxes (matplotlib anchors text
+by point, not to the box geometry, so multi-line bodies overflow the border), and
+it does not match the journal house style of the group's accepted papers.
+
+**Resolution** — treat *every* flowchart-shaped figure (CONSORT/PRISMA/STARD/STROBE
+**and** study-design, reader-flow, cohort-assembly, MRMC/reader-study, generation-
+pipeline schematics) as the same object and render it with `scripts/generate_flow_diagram.R`
+(DiagrammeR → Graphviz `dot`). The house convention, already encoded in that
+script's `STYLE_HEADER`, is the journal standard:
+
+- `fillcolor=white, color=black` (white fill, **black outline only — no color**)
+- `fontname="Arial"`, `fontsize` 10–11
+- `shape=box, style="rounded,filled"`, `penwidth=1.2` (emphasis boxes `penwidth=1.8`)
+- `splines=ortho` (right-angle edges), `nodesep`/`ranksep` ≈ 0.4–0.55
+- left-aligned sub-lists with `\l` and `•` (`•`); side panels / exclusions via
+  `{ rank=same; main; side }` and an invisible edge to anchor them
+- Graphviz lays text out *relative to the node box*, so alignment and centering are
+  automatic — this is why it beats hand-positioned matplotlib/slide boxes.
+
+Reconcile every count to the manuscript with `stopifnot()` assertions in the script
+header (e.g. `stopifnot(N_auth + N_v16 + N_v12 == N_pool)`); leave data-dependent
+counts as a single find-replaceable token (e.g. `[N_COMPLETED]`) filled at data lock.
+
+**Do not** reach for matplotlib/PowerPoint/AI-image tools for a box-and-arrow figure.
+matplotlib is for *data* figures (ROC, forest, calibration, KM); Graphviz is for
+*flow/structure* figures. Mixing them produces the colorful, misaligned look this
+lesson exists to prevent.
+
+> Motivation: a reader-study Figure 1 was first built in colorful matplotlib and
+> rejected by the author as "too AI-looking, text not aligned in the boxes." Rebuilt
+> with `generate_flow_diagram.R` in the monochrome house style — matching the same
+> style used across the group's accepted meta-analysis, cohort, and reader-study flow
+> figures — it passed immediately.
+
+---
+
 ## When to use which approach
 
 | Stage | Tool | Output | Risk if you skip |
