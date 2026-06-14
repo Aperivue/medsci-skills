@@ -37,6 +37,7 @@
 
 - `LICENSES.md`
 - `checklists/` (32 files)
+- `critical_item_floor.md`
 - `step4c_registration_timing.md`
 - `step4d_prisma_figure_audit.md`
 

@@ -54,6 +54,7 @@ compliance report suitable for journal submission.
   - `PRISMA_P.md` -- systematic review protocols (Shamseer et al. BMJ 2015)
   - `SWiM.md` -- synthesis without meta-analysis reporting (Campbell et al. BMJ 2020)
 - Fail-fast contract: if a routed guideline has no vendored checklist file, the skill does **not** silently construct items from memory. It halts with a `MISSING_CHECKLIST_CONTRACT_VIOLATION` and surfaces the gap. A from-memory assessment is allowed only with the explicit `--allow-from-memory` opt-in, and that report must be clearly labelled NON-AUTHORITATIVE. See Step 2 and `scripts/check_checklist_exists.py`.
+- **Critical-item floor**: `${CLAUDE_SKILL_DIR}/references/critical_item_floor.md` -- the small set of non-waivable items per study type (presence outranks the headline %), plus the AI/radiomics methodological-quality / risk-of-bias instruments (PROBAST+AI, METRICS/RQS, APPRAISE-AI) kept distinct from their reporting counterparts. Loaded in Step 4f.
 
 ---
 
@@ -290,6 +291,24 @@ name + its citation). `HYPHEN_MIX`, `CITE_MISSING`, `SELF_COINED_LABEL`, and `VA
 are Minor (`fixable_by_ai: true`). Part D JSON includes a `framework_naming` object mirroring
 the script's `claims[]`.
 
+### Step 4f: Critical-item floor cross-check
+
+**Applies to:** every guideline assessment **for which the floor defines a row** (load and
+check only those; do not invent a floor for an unlisted guideline). After the item-by-item
+table, load `${CLAUDE_SKILL_DIR}/references/critical_item_floor.md` and check the small set
+of **non-waivable** items for this study type. A MISSING critical item is surfaced as a
+**Critical gap** and becomes the report's headline regardless of the overall percentage —
+a high percentage with a missing critical item (undefined reference standard, no
+leakage-controlled partition, calibration absent for a prediction model, an unreconciled
+flow diagram) is not "broadly acceptable."
+
+For AI/ML and radiomics manuscripts, also confirm the chosen **methodological-quality /
+risk-of-bias** instrument (PROBAST+AI, METRICS/RQS, APPRAISE-AI) and its non-waivable
+concerns — a fully *reported* paper can still be at high risk of bias. Keep these distinct
+from the reporting counterparts (CLEAR, DECIDE-AI), which route through the normal checklist
+flow. Do not assert a numeric journal desk-reject threshold; the hard signals are a missing
+critical item and the journal's own required elements.
+
 ### Step 5: Generate Report
 
 Produce a structured compliance report in two parts.
@@ -317,6 +336,8 @@ Assessed by: Claude (automated pre-screening)
 | **Total** | **{n}** | **100%** |
 
 Overall compliance: {PRESENT count}/{applicable count} ({%})
+
+Critical items (Step 4f): {present}/{total} present.{ if any missing: " Critical gap — " + each MISSING critical item with the section it belongs in. This, not the percentage, is the headline.}
 ```
 
 #### Part B: Item-by-Item Checklist
