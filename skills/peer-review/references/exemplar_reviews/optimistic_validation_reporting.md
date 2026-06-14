@@ -43,9 +43,9 @@ accuracy appears.
 > carry many more false positives (lower PPV) than the headline suggests. It would help to
 > state the evaluation set's class distribution and to report threshold-independent
 > discrimination with its uncertainty (AUROC, and AUPRC under imbalance, both with CIs)
-> alongside class-aware operating-point metrics — sensitivity / false-negative rate and
-> PPV / NPV at the stated threshold — so the clinical cost of a miss at the deployment
-> prevalence is visible.
+> alongside class-aware operating-point metrics — sensitivity / false-negative rate at the
+> stated threshold, and PPV / NPV on a prevalence-representative holdout (PPV/NPV shift with
+> the base rate) — so the clinical cost of a miss at the deployment prevalence is visible.
 
 ## Severity calibration
 
@@ -59,8 +59,10 @@ class-aware metric is absent from the write-up, it is a **Minor** reporting addi
 
 Signature check "Confidence intervals" (all primary metrics need 95% CIs) and the
 Phase 2 "Validation strategy / confidence intervals / calibration" issue-checklist item;
-AO4 in the AI/ML overclaiming probe (unstated decision
-threshold proposed for use needs calibration + decision-curve evidence);
+AO5 in the AI/ML overclaiming probe (the structural form of this finding: best-fold
+metric, unstated/test-tuned operating point, rebalanced-accuracy, code-vs-claims
+mismatch), with AO4 for the related case of a decision threshold proposed for use
+without calibration + decision-curve evidence;
 `calibration_missing.md` when discrimination is reported without calibration; TRIPOD+AI /
 CLAIM / STARD-AI performance-reporting items via `/check-reporting`; self-review category
 Calibration [CRITICAL] for the AUC-alone variant.
