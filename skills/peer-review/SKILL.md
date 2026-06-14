@@ -83,10 +83,11 @@ methodology and study design.
 6. **Prioritize**: Rank issues by impact on validity. Select top 3-5 for Major, 3-4 for Minor. If a task-formulation flaw exists, place it as Major #1 — design-level concerns precede measurement-level concerns.
 7. **Gate**: Present findings to user — "Here are the key issues I found — do you agree with this prioritization?"
 
-### Phase 2F: Recommendation Calibration for AI/Method Papers
+### Phase 2F: Recommendation Calibration for AI/Method and Review Papers
 
-Before finalizing **Major Revision** for an original AI, LLM, or methodology paper, explicitly run this
-calibration gate. It prevents a valid issue list from under-weighting contribution and priority.
+Before finalizing **Major Revision** (or, for AJR-style forms, a Reconsider tier) for an original AI, LLM,
+or methodology paper **— or for a Review / narrative / primer article —** explicitly run this calibration
+gate. It prevents a valid issue list from under-weighting contribution and priority.
 
 1. **Design/validity flaw**: Is there a central design, leakage, reference-standard, baseline, or workflow
    mismatch that threatens the main claim?
@@ -100,6 +101,27 @@ confidential comments, state that the manuscript has a priority/contribution pro
 fixable technical issues, and calibrate the recommendation toward the journal's stronger option (for
 example, reject/resubmission where that tier exists). If only 1 holds and the value/novelty case is strong,
 Major Revision remains appropriate.
+
+**Fixable vs unfixable tier-domination**: separate defects that a revision can repair (extraction errors,
+missing supplementary, a mislabeled table, an over-claiming sentence) from defects that cannot be repaired
+within the current submission (poolability of incommensurable studies, a broken construct, an invalid
+evaluation instrument). When both classes are present, the **unfixable** class governs the recommendation —
+do not let a long list of fixable items reframe an unfixable core as "addressable in revision."
+
+**Review/narrative/primer escalation** *(the contribution IS the product)*: for a review article there is no
+data to re-analyze; the distinct contribution — novelty, integrative synthesis, domain-specificity — is the
+deliverable itself. Therefore **weak novelty / no distinct contribution / not domain-specific is
+unfixable-in-current-form**: "add a distinct contribution" asks for a substantially different paper, so each
+gap looking individually "addressable in revision" is a trap. When RV1 (novelty) is a Major in a saturated
+space and no distinct contribution exists, escalate the recommendation one tier toward Reject (e.g.,
+Reconsider → Reject) rather than defaulting to the revision tier.
+
+**Confidential-note Reject-grade self-grep**: before committing the recommendation, re-read your own
+Confidential Comments to the Editor. If they contain Reject-grade language — "hard to distinguish from work
+it already cites," "cannot be resolved by minor editing," or **deferring the value/priority judgment to the
+editorial board** ("whether the incremental value clears the bar is a scope judgment I leave to the
+board") — that deferral is itself a Reject-grade tell, not a neutral hand-off. Re-examine plain Reject so the
+confidential note and the recommendation are consistent.
 
 ### Phase 2A: Systematic Review / Meta-Analysis Extension
 
@@ -265,10 +287,13 @@ After drafting, verify mechanically:
    - At most 1 typo/grammar Minor Comment, only if in formal section or systematic
 9. **SR-MA-specific QC** (if Phase 2A applied): Confirm the P0 internal-consistency gate was run before any fabrication claim. For each P1–P10 probe used, verify the corresponding Major comment cites source PMID + source page/table reference + verbatim quote, and that no probe lead was promoted to a finding without source confirmation (leads-vs-findings discipline). Reviews citing extraction errors without source-page reference are not actionable for authors.
 10. **Radiomics-reproducibility QC** (if Phase 2C applied): If an acquisition-parameter sweep predicts an outcome from its own grid axes (R1 design-grid circularity) or the substantive result is a cross-domain failure framed as success (R3), confirm the recommendation reflects design-level severity and is not softened to a reporting fix. Where a model × threshold/cohort grid yields a few p < 0.05, confirm the multiplicity / expected-false-positive count is named (R4), not deferred to "statistical review needed."
-11. **Review-article QC** (if Phase 2D applied): Confirm RV1–RV9 are reflected — in particular that novelty/value-add (RV1) is raised for a saturated topic and that gap-filling (RV8) is present, not just error-spotting. Verify SANRA is used as an appraisal aid, not over-enforced as a reporting guideline (no PRISMA demand on a narrative review; only RV3 is SANRA-aligned and phrased as a suggestion). Verify every suggested addition uses "consider adding" phrasing (no "must cite"), is source-confirmed, and that preprints are labeled as preprints (not equated with peer-reviewed guidelines).
-12. **AI/method priority QC**: Before a Major Revision recommendation, confirm Phase 2F was run. If novelty
-    and clinical/research utility are both weak, the recommendation must reflect that contribution-level
-    concern rather than treating all issues as fixable reporting defects.
+11. **Review-article QC** (if Phase 2D applied): Confirm RV1–RV9 are reflected — in particular that novelty/value-add (RV1) is raised for a saturated topic and that gap-filling (RV8) is present, not just error-spotting. Verify SANRA is used as an appraisal aid, not over-enforced as a reporting guideline (no PRISMA demand on a narrative review; only RV3 is SANRA-aligned and phrased as a suggestion). Verify every suggested addition uses "consider adding" phrasing (no "must cite"), is source-confirmed, and that preprints are labeled as preprints (not equated with peer-reviewed guidelines). Confirm Phase 2F was run for the recommendation: when RV1 novelty is a Major in a saturated space with no distinct contribution, the recommendation is escalated toward Reject (the contribution IS the product — weak novelty is unfixable-in-current-form), not defaulted to the revision/Reconsider tier.
+12. **AI/method/review priority QC**: Before a Major Revision (or Reconsider) recommendation, confirm Phase 2F
+    was run. If novelty and clinical/research utility are both weak, the recommendation must reflect that
+    contribution-level concern rather than treating all issues as fixable reporting defects. When fixable and
+    unfixable defects coexist, confirm the unfixable class governs the tier, and that the Confidential
+    Comments contain no Reject-grade language (including value-judgment deferral to the board) left
+    inconsistent with a softer recommendation.
 13. **Observational-confounding QC** (if Phase 2E applied): For any covariate imbalanced by exposure in Table 1 but absent from the adjustment set (O1), confirm the comment requests a concrete extended-adjustment sensitivity model, not a vague "adjust for more confounders." Confirm a selection/collider structure (O3) or an undisclosed complete-case collapse from a structural-zero dose covariate (O5) is raised at design-level severity, and that any E-value request (O6) targets the declared primary estimate rather than a supporting one.
 14. **Verify-your-own-criticism** (all reviews): For each Major framed as a technical inaccuracy or a citation–claim mismatch, confirm the reviewer's own assertion was checked against a current authoritative source (full paper, CrossRef, arXiv). Downgrade unverified technical claims to a hedged "Please verify…"; keep confirmed ones firm. Watch for status drift (a "preprint" since published; a method since adapted) before asserting the manuscript is wrong.
 
@@ -296,7 +321,7 @@ Fix all issues found, then present to user.
 - [ ] AI pattern density within thresholds (em-dash ≤2/1000w; structural rule-of-three ≤2/Major; significance inflation 0/Major; hedged Minor ≥50%)
 - [ ] Fatal flaw hierarchy stated in Confidential Comments (if applicable)
 - [ ] Reject recommendations (if used): §1C condition checklist (design-level flaw + speculative practical value 3-trigger + novelty gap) explicitly verified — at least 2 of 3 conditions met
-- [ ] AI/method Major Revision recommendations: contribution/value gate checked; weak novelty + weak utility not silently softened
+- [ ] AI/method/review Major Revision (or Reconsider) recommendations: Phase 2F contribution/value gate checked; weak novelty + weak utility not silently softened; for review articles, weak-novelty/no-distinct-contribution treated as unfixable-in-current-form (escalate toward Reject); unfixable defects govern tier over fixable list; confidential note carries no Reject-grade language left inconsistent with a softer recommendation
 
 ## Tone and Calibration
 
