@@ -80,6 +80,7 @@ Buckets:
 | `skills/cross-national/SKILL.md` | D | Korean only in `triggers:` (한미 비교 …). |
 | `skills/find-cohort-gap/SKILL.md` | D | Korean only in `triggers:`. |
 | `skills/humanize/SKILL.md` | D | Korean only in `triggers:`. |
+| `skills/polish-language/SKILL.md` | D | Korean only in `triggers:`. |
 | `skills/peer-review/SKILL.md` | D | Korean only in `triggers:`. |
 | `skills/replicate-study/SKILL.md` | D | Korean only in `triggers:`. |
 | `skills/setup-medsci/SKILL.md` | D | Korean only in `triggers:`. |
