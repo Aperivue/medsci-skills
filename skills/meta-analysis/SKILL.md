@@ -604,6 +604,13 @@ Output: Summary of Findings table.
    - RoB assessment results
    - Summary of findings / GRADE table
 
+5. **Supplementary & analysis-code pre-submission gate** (run before Phase 9 circulation and before portal upload). Presence of the 8-file package (Empirical Lesson 5) is necessary but not sufficient — each item must also be reviewer-ready:
+   - **De-scaffold**: strip internal-QC / tool artifacts before bundling — raw `/check-reporting` output ("Assessed by: <tool>", JSON blocks, "READY FOR SUBMISSION" verdicts, action-item lists), search-development planning docs (decision logs, expected-yield estimates, `[Check on execution]` placeholders, version-history dev notes), and stale version stamps. Ship a clean PRISMA 2020 checklist (27-item / 42-subitem table only) and an executed-method search-strategy doc, not the working drafts.
+   - **Blind**: supplementary goes to reviewers — remove author names/initials and sibling-project cross-references ("Designed by: <name>", "identical to a sibling review"). Same standard as the blinded manuscript.
+   - **Cross-consistency with the manuscript**: every supplementary number must match the main text — PRISMA counts, pool k/N, the Cochrane/CENTRAL search description, RoB counts. A supplement that says "Cochrane — NOT SEARCHED" while Methods report a confirmatory CENTRAL search is a contradiction reviewers catch.
+   - **Submitted analysis code must reproduce and be self-contained**: run it from a clean copy of the bundle. It must (a) read the bundled locked dataset (not an out-of-bundle path) and write to the working directory, and (b) regenerate every pool reported in the results table. A hard-coded study-id subset that drifts from the manuscript (e.g., a pool computed over k=7 while the manuscript reports k=9) is a P0 — fix and re-run; never ship stale code or stale figures derived from it.
+   - **Run a supplementary-only review pass** — the manuscript self-review/panel does not see the supplement; mirror `/self-review` Phase 2.5c–2.5d (reference + cross-reference QC) over the supplementary files.
+
 ---
 
 ### Phase 9: Co-author Circulation
@@ -720,6 +727,23 @@ Synthesized from recent SR-MA peer-review cycles. Drives the Phase 4 extraction 
 10. **Heterogeneous RoB instruments → no single pooled κ.** When studies are assessed with different risk-of-bias tools (QUADAS-2 for DTA + NOS for cohorts, etc.), do not report one pooled inter-rater κ across the mixed set. Report agreement per instrument, and use an ordinal weighted κ when the domain judgments are ordered (low/some/high). A single κ over a heterogeneous instrument set is uninterpretable.
 
 9. **Prognostic / survival-outcome MAs carry survival-specific concerns** beyond the DTA pitfalls: censoring handling, competing risks (cause-specific vs Fine-Gray), cutoff-derivation optimism, comparator time-horizon alignment, C-index variant transparency (Harrell vs Uno vs IPCW), and calibration beyond discrimination. When pooling prognostic models, pre-specify these in the protocol and report them per study; for the reviewing counterpart see the survival/prognostic 7-probe in `/peer-review`.
+
+
+## Empirical Lessons (2026-06)
+
+From a CBCT lung-ablation SR-MA submission cycle (Springer / CVIR Editorial Manager). Submission-stage; complements the 2026-05 lessons.
+
+11. **Supplementary materials need the same blinding + de-scaffolding + cross-consistency pass as the manuscript.** The largest source of pre-submission defects this cycle was the supplement shipping as raw internal artifacts — `/check-reporting` output carrying an "Assessed by: <AI tool>" line and a JSON verdict block, and a pre-search planning doc with the author's real name, sibling-project cross-references, unresolved `[Check on execution]` placeholders, and estimate tables that contradicted the actual PRISMA counts. Presence (Lesson 5) is not enough; apply the Phase 8 supplementary gate.
+
+12. **A submitted analysis script must reproduce the manuscript and be self-contained.** A hard-coded study-id subset silently drifted (a pool was k=7 in the script vs k=9 in the results table — the manuscript was correct, the script was stale) and the script read a path outside the bundle. Run the bundled code from a clean copy before submission: it must read the bundled dataset, write to cwd, and regenerate every reported pool. Remove stale figures produced by an out-of-sync script.
+
+13. **Re-sync sidecars (cover letter, title-page Word-Counts table) whenever the reference or word count changes.** Adding methodological/software citations took the list from 12 to 24, but the cover letter and title page still said "12 references" — a contradiction visible in the built PDF. Reference/word-count changes are sidecar drift targets (mirror `submission-portal-verification` cover-letter drift).
+
+14. **Methodological + software citations are a routine SR-MA gap.** The reporting standard (PRISMA 2020), each risk-of-bias tool (JBI, ROBINS-I, …), the pooling method (random-effects GLMM / logit, Hartung-Knapp, the choice over Freeman-Tukey arcsine), the certainty framework (GRADE), and the analysis software (R `meta`, `metafor`) should each be cited where named in Methods. Frequently missing from an early draft and an easy reviewer comment to pre-empt. Verify every added citation via PubMed/CrossRef with a first-author cross-check — never from memory.
+
+15. **Wide characteristics tables (≥ ~10 columns) render as character-wrapped gibberish in the journal's built PDF** when the docx uses fixed narrow columns. Put the table in a landscape section with autofit layout and a smaller font, and verify by converting the docx to PDF (`soffice --headless --convert-to pdf`) and viewing the page — the docx alone does not reveal the problem.
+
+16. **Verify the submission portal's journal identity before entering metadata.** A classification taxonomy that does not match the target journal's scope (e.g., a liver/hepatology list at an interventional-radiology journal) is the tell that you are in the wrong journal's Editorial Manager instance.
 
 ---
 
