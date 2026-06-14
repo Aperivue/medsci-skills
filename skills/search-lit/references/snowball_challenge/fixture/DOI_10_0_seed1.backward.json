@@ -1,0 +1,22 @@
+{
+  "data": [
+    {
+      "citedPaper": {
+        "title": "Synthetic Backward Paper One",
+        "year": 2019,
+        "venue": "Journal of Synthetic Radiology",
+        "externalIds": {"DOI": "10.0/back-one", "PubMed": "30000001"},
+        "authors": [{"name": "Ada Researcher"}, {"name": "Ben Coauthor"}]
+      }
+    },
+    {
+      "citedPaper": {
+        "title": "Synthetic Duplicate In Pool",
+        "year": 2018,
+        "venue": "Synthetic Imaging",
+        "externalIds": {"DOI": "10.0/dup-backward", "PubMed": "30000002"},
+        "authors": [{"name": "Cara Author"}]
+      }
+    }
+  ]
+}

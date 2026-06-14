@@ -1,0 +1,11 @@
+{
+  "recommendedPapers": [
+    {
+      "title": "Synthetic Similar Recommendation",
+      "year": 2021,
+      "venue": "Synthetic Methods",
+      "externalIds": {"DOI": "10.0/sim-one", "PubMed": "30000005"},
+      "authors": [{"name": "Gail Expert"}]
+    }
+  ]
+}

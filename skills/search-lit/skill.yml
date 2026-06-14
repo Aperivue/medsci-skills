@@ -19,6 +19,7 @@ outputs:
 deterministic_scripts:
   - references/pubmed_eutils.sh
   - references/parse_pubmed.py
+  - references/snowball.py  # Phase 2.5 citation snowballing (S2 Graph API); challenge card in references/snowball_challenge/
 side_effects:
   - may_call_external_literature_apis
 downstream_consumers:
@@ -42,5 +43,6 @@ known_limitations:
   - "Verification confirms existence/metadata, not topical relevance."
 validation_commands:
   - "bash references/pubmed_eutils.sh <query>"
+  - "bash references/snowball_challenge/verify.sh  # deterministic, network-free"
   - "/verify-refs --strict"
 evidence_surface: bundled_script
