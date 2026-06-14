@@ -1,0 +1,2 @@
+study_id,source_pmid,source_sens,source_spec,extracted_tp,extracted_fn,extracted_tn,extracted_fp,source_cohort,source_page_ref
+StudyA_2021,00000000,0.92,0.85,55,5,51,9,primary_analysis,Results page 3

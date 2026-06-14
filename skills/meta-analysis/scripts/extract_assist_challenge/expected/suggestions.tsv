@@ -1,0 +1,13 @@
+study_id	field	value	source_page_ref	verbatim_quote	confidence	needs_review	extraction_consensus_status
+StudyA_2021	study_design	retrospective	1	This was a retrospective single-center study conducted in Synthetica.	single	true	AI_SUGGESTED
+StudyA_2021	country	Synthetica	1	This was a retrospective single-center study conducted in Synthetica.	single	true	AI_SUGGESTED
+StudyA_2021	sample_n	120	1	A total of 120 patients were enrolled between 2018 and 2021.	candidate_1_of_2	true	AI_SUGGESTED
+StudyA_2021	sample_n	120	2	The index test was evaluated against the reference standard in all 120 patients.	candidate_2_of_2	true	AI_SUGGESTED
+StudyA_2021	source_sens	92%	3	The sensitivity was 92% and the specificity was 85% in the primary analysis.	candidate_1_of_2	true	AI_SUGGESTED
+StudyA_2021	source_sens	0.92	3	A sensitivity of 0.92 was also reported in the sensitivity analysis.	candidate_2_of_2	true	AI_SUGGESTED
+StudyA_2021	source_spec	85%	3	The sensitivity was 92% and the specificity was 85% in the primary analysis.	single	true	AI_SUGGESTED
+StudyA_2021	extracted_tp	55	3	The 2x2 table yielded TP = 55, FP = 9, FN = 5, and TN = 51.	single	true	AI_SUGGESTED
+StudyA_2021	extracted_fp	9	3	The 2x2 table yielded TP = 55, FP = 9, FN = 5, and TN = 51.	single	true	AI_SUGGESTED
+StudyA_2021	extracted_fn	5	3	The 2x2 table yielded TP = 55, FP = 9, FN = 5, and TN = 51.	single	true	AI_SUGGESTED
+StudyA_2021	extracted_tn	51	3	The 2x2 table yielded TP = 55, FP = 9, FN = 5, and TN = 51.	single	true	AI_SUGGESTED
+StudyA_2021	comparator_design		?		not_found	true	AI_SUGGESTED

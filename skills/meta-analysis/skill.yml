@@ -23,6 +23,7 @@ outputs:
   - manuscript/manuscript.md
 deterministic_scripts:
   - scripts/screening_reconcile.py
+  - scripts/extract_assist.py  # Phase 4 AI-assisted extraction suggestions (provenance + human gate); challenge card in scripts/extract_assist_challenge/
 side_effects:
   - writes_project_artifacts
 downstream_consumers:
@@ -44,4 +45,5 @@ known_limitations:
 validation_commands:
   - "python3 scripts/screening_reconcile.py"
   - "python3 scripts/check_pool_consistency.py"
+  - "bash scripts/extract_assist_challenge/verify.sh  # deterministic, network-free"
 evidence_surface: demo

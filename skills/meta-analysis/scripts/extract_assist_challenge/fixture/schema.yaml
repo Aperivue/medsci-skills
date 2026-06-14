@@ -1,0 +1,12 @@
+study_id: StudyA_2021
+fields:
+  - {name: study_design, type: study_design}
+  - {name: country, type: regex, pattern: "conducted in ([A-Z][A-Za-z]+)"}
+  - {name: sample_n, type: sample_n}
+  - {name: source_sens, type: sensitivity}
+  - {name: source_spec, type: specificity}
+  - {name: extracted_tp, type: tp}
+  - {name: extracted_fp, type: fp}
+  - {name: extracted_fn, type: fn}
+  - {name: extracted_tn, type: tn}
+  - {name: comparator_design, type: regex, pattern: "double-blinded RCT of ([A-Za-z]+)"}

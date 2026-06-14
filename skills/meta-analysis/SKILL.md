@@ -45,6 +45,14 @@ with specialized support for diagnostic test accuracy (DTA) meta-analyses.
 - **Extraction Form v2** (`templates/extraction_form_v2.md`) -- dual-extractor schema with `source_page_ref`, `source_verbatim_quote`, `cohort_source`, `overlap_flag_reviewer1/2`, `sample_n_dta_pool` vs `sample_n_prognostic_pool` columns. Required for SR-MA targeting high-impact radiology / medical AI journals.
 - **Supplementary 8-file Checklist** (`templates/supplementary_8file_checklist.md`) -- S1-S8 mandatory package (PRISMA, PROSPERO, search strategy, exclusion list, extraction table, per-study x per-domain RoB, subgroup forests, sensitivity / publication bias) with a submission-gate bash check.
 
+### Built-in Scripts (`${CLAUDE_SKILL_DIR}/scripts/`)
+
+- **`screening_reconcile.py`** -- Phase 3f ID-set screening reconciliation.
+- **`check_pool_consistency.py`** -- pool-composition / PRISMA count consistency.
+- **`cohort_overlap_check.py`** -- shared-database cohort-overlap detection.
+- **`extract_assist.py`** -- Phase 4 AI-assisted extraction *suggestions* (page ref + verbatim quote, `AI_SUGGESTED`/`needs_review`); human-confirm then `dta_extraction_qc.py`. Challenge card: `scripts/extract_assist_challenge/`.
+- **`dta_extraction_qc.py`** -- 2x2 cell ↔ source sens/spec QC on the **confirmed** extraction CSV.
+
 ---
 
 ## Meta-Analysis Types
@@ -327,6 +335,39 @@ Before opening the extraction form: if a senior mentor or collaborator has share
 - Trust hierarchy for this phase: **SSOT (source PDF + own analysis stdout) > mentor's direct text (email / track-changes) > attached AI-draft**. Do not promote an AI-draft from tier 3 to tier 2.
 
 Precedent (an active meta-analysis project): Ishikawa 2017 "treatment support 5/70 vs no support 12/33" in Claude-drafted directive → source PDF was 35/68 (single arm). Verbatim absorption would have produced a denominator-hallucinated meta-analysis.
+
+#### 4.0.1 AI-assisted extraction suggestions (optional, suggestions not decisions)
+
+To scaffold (not replace) manual extraction from a full-text paper, use the
+deterministic helper `scripts/extract_assist.py`. It scans a Markdown full text
+(e.g. `/fulltext-retrieval`'s PDF→MD output) for schema-defined fields and emits
+**candidate values, each with a `source_page_ref` and a verbatim source quote** —
+the extraction-stage analog of the screening-stage `ai_pre_screening_template.py`.
+
+```bash
+python3 scripts/extract_assist.py \
+  --md paper.md --schema schema.yaml --study-id StudyA_2021 --out suggestions.tsv
+```
+
+- **Suggestions, never decisions.** Every row is `extraction_consensus_status =
+  AI_SUGGESTED` and `needs_review = true`. The tool invents nothing — values and
+  quotes are copied literally from the text; absent fields become explicit
+  `not_found` rows; unit-ambiguous values (e.g. `92%` vs `0.92`) are emitted as
+  multiple candidates side by side so the reviewer reconciles them.
+- **Human confirmation is mandatory.** Apply the 4.0 gate: treat every candidate
+  N / denominator / 2x2 cell / effect estimate as hallucination-suspect until
+  confirmed against the source PDF, recording reconciliations in
+  `extraction_consensus_log.md`. Confirm or overturn each suggestion into the
+  `extraction_form_v2.md` columns.
+- **Then, and only then, QC.** Build the confirmed DTA CSV and run
+  `dta_extraction_qc.py` on **that** table — never on the suggestion TSV.
+  Passing QC is not extract-assist's acceptance criterion; per-cell human
+  confirmation is.
+
+A deterministic, network-free challenge card demonstrating the full
+suggestions → confirm → QC pipeline lives in
+`scripts/extract_assist_challenge/` (synthetic paper + schema + expected output
++ `verify.sh`).
 
 #### DTA Meta-Analysis:
 Generate a data extraction form with:

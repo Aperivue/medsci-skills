@@ -28,6 +28,7 @@
 
 - `python3 scripts/screening_reconcile.py`
 - `python3 scripts/check_pool_consistency.py`
+- `bash scripts/extract_assist_challenge/verify.sh  # deterministic, network-free`
 
 **Evidence** — `demo`
 
@@ -56,6 +57,8 @@
 - `check_pool_consistency.py`
 - `cohort_overlap_check.py`
 - `dta_extraction_qc.py`
+- `extract_assist.py`
+- `extract_assist_challenge/` (6 files)
 - `screening_reconcile.py`
 
 **Templates** (`skills/meta-analysis/templates/`):
