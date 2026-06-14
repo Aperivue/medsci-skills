@@ -29,6 +29,9 @@ models, authored from scratch**, not extracted from any published review.
 - `data_leakage.md` — patient-level split violations and label-bearing input features.
 - `calibration_missing.md` — discrimination (AUC) reported for a clinical prediction
   model with no calibration assessment.
+- `optimistic_validation_reporting.md` — best-fold metrics quoted with no cross-fold
+  CI/SD, an unstated decision threshold, and accuracy emphasized under undisclosed
+  class rebalancing.
 
 ## Curator guidelines (for adding more)
 
