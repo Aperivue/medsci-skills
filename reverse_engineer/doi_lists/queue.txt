@@ -8,8 +8,13 @@
 #
 # (empty — the first batch is seeded in PR2, when peer-review open-review records are
 #  acquired and license-verified per record.)
-f1000_meningioma_radiomics_sr_2025	https://doi.org/10.12688/f1000research.162306.1	radiology_ai
-f1000_breast_cancer_ml_pred_2025	https://doi.org/10.12688/f1000research.161073.4	medical_ai
-f1000_pe_3d_dl_detection_2026	https://doi.org/10.12688/f1000research.178627.1	radiology_ai
-f1000_eswl_stonefree_ai_sr_2025	https://doi.org/10.12688/f1000research.152346.2	clinical
-f1000_ihd_xai_transfer_2025	https://doi.org/10.12688/f1000research.166307.3	medical_ai
+# [consumed #128] f1000_meningioma_radiomics_sr_2025	https://doi.org/10.12688/f1000research.162306.1	radiology_ai
+# [consumed #128] f1000_breast_cancer_ml_pred_2025	https://doi.org/10.12688/f1000research.161073.4	medical_ai
+# [consumed #128] f1000_pe_3d_dl_detection_2026	https://doi.org/10.12688/f1000research.178627.1	radiology_ai
+# [consumed #128] f1000_eswl_stonefree_ai_sr_2025	https://doi.org/10.12688/f1000research.152346.2	clinical
+# [consumed #128] f1000_ihd_xai_transfer_2025	https://doi.org/10.12688/f1000research.166307.3	medical_ai
+ii_breast_us_dl_2026	https://doi.org/10.1186/s13244-026-02323-3	radiology_ai
+ii_pnet_radiomics_nomogram_2026	https://doi.org/10.1186/s13244-026-02250-3	radiology_ai
+ii_prostate_mri_biopsy_dta_2026	https://doi.org/10.1186/s13244-026-02235-2	radiology_ai
+ii_ct_ai_stenosis_vs_ica_2026	https://doi.org/10.1186/s13244-026-02308-2	radiology_ai
+plosmed_nsaid_malformation_cohort_2026	https://doi.org/10.1371/journal.pmed.1005063	clinical
