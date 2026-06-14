@@ -56,7 +56,8 @@ def scaffold(rid: str) -> int:
         "discussion_strengths": [],
         "figure_table_notes": [],
         "reviewer_concerns": [],
-        "_instructions": "Fill in your own words. Patterns only — no copied source prose. Remove this key when done.",
+        "linked_artifacts_reviewed": [],
+        "_instructions": "Fill in your own words. Patterns only — no copied source prose. linked_artifacts_reviewed (optional): what each supplementary / code repo / data deposit added (e.g., 'released code: the operating threshold is hard-coded, not tuned'). Remove this key when done.",
     }
     path.write_text(json.dumps(template, indent=2) + "\n", encoding="utf-8")
     print(f"scaffolded: {path}")
@@ -80,8 +81,10 @@ def validate_one(path: Path) -> list[str]:
                 errs.append(f"{path.name}: '{k}' must be a list")
             elif not data[k]:
                 errs.append(f"{path.name}: '{k}' is empty")
-    if data.get("reviewer_concerns") == []:
-        pass  # already flagged above
+    # Optional, backward-compatible: linked_artifacts_reviewed must be a list IF present
+    # (it may be empty — not every paper ships supplementary/code/data).
+    if "linked_artifacts_reviewed" in data and not isinstance(data["linked_artifacts_reviewed"], list):
+        errs.append(f"{path.name}: 'linked_artifacts_reviewed' must be a list")
     return errs
 
 

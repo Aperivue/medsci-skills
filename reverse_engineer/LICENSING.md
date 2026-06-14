@@ -56,6 +56,24 @@ but must not appear in any committed artifact.
 When in doubt, keep the record at the default (`verbatim_allowed: false`,
 `public_reuse_policy: synthetic_only`) and publish synthesis only.
 
+## Linked artifacts have their own licenses (verify each independently)
+
+A paper's supplementary files, code repository, and data deposit are **separate works with
+separate licenses** — the article's CC license does not extend to them. Record each under the
+record's `linked_artifacts[]` with its own verified license; `distill.py` validates and
+authorizes each separately (`--authorize id#N`).
+
+| Linked artifact | Where its license lives | Reuse notes |
+|---|---|---|
+| **Supplementary files** | Usually the article's license (verify — some are separate) | Same rules as the article; learn the patterns, publish synthesis. |
+| **Code repository** (GitHub/GitLab) | The repo's `LICENSE` file — a *software* license (MIT / Apache-2.0 / BSD / GPL / none) | Permissive software licenses (MIT/Apache/BSD/ISC/CC0) permit code reuse *with attribution*; **no LICENSE file = all-rights-reserved**, learn-only. GPL/AGPL impose copyleft — do not vendor into this MIT-licensed repo; learn the approach, author fresh. The *ideas/algorithms* are free to learn from regardless. |
+| **Data deposit** (Zenodo / OSF / Figshare) | The deposit page — a *per-deposit* license (often CC0 or CC-BY, sometimes restricted) | CC0/CC-BY data and figures may anchor a committed figure with attribution; restricted/unknown = learn-only. |
+| **Model / dataset card** (HuggingFace) | The card's stated license (model weights and dataset often differ) | Treat weights and data licenses separately; many are non-commercial or gated — learn-only by default. |
+
+The firewall is the same in spirit: **learn from any artifact privately; publish only
+synthesis**, unless that specific artifact's license is verified-permissive for the reuse you
+intend. A linked artifact with an unknown/empty license authorizes nothing.
+
 ## Distribution note
 
 `reverse_engineer/` is maintainer tooling. It is excluded from the npm tarball
