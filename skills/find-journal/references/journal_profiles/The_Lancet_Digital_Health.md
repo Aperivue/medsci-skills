@@ -26,4 +26,6 @@ digital health, artificial intelligence, machine learning, deep learning, clinic
 - **Field:** Medical informatics / Digital health
 
 ## Special Notes
-Ranked #1 in medical informatics by Impact Factor (~24.1). Follows Lancet Group conventions including Research in Context panel, midline dot decimal separator, and in-house figure redrawing. Requires CLAIM or TRIPOD+AI checklists for AI/ML studies and encourages code availability statements. AI policy: language editing only, Methods disclosure required per ICMJE.
+Ranked #1 in medical informatics by Impact Factor (~24.1). Follows Lancet Group conventions including a **mandatory Research in Context panel** (with a systematic-search description), midline-dot decimal separator, and in-house figure redrawing. Requires CLAIM or TRIPOD+AI checklists for AI/ML studies and encourages code availability statements. AI policy: language editing only, Methods disclosure required per ICMJE.
+
+Key constraints: Article body **≤3,500 w / abstract ≤300 w (5 headings) / references ≤30**; **Results and Discussion may not contain subheadings** (observational guideline); **figures must be editable vector (.eps/.pdf/.svg), not raster**; **Author Statement requires ≥2 named data-verifiers (by initials)** for observational studies; Equitable Partnership Declaration triggers only for LMIC-partnered research. Frequent, fast desk-reject (≈1–2 wk triage). **Verified 2026-06-11** against the official Information for Authors PDF.

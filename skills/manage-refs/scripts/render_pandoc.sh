@@ -29,9 +29,13 @@ Options:
   -o  Output path (default: <input>.docx). Format inferred from extension.
   -t  Optional Word reference .docx for styles/fonts
   -f  Force output format (docx|pdf|html). Default: from -o extension or docx.
+  -S  Skip the pre-render reference audit (verify-refs) gate (NOT recommended).
   -h  Help
 
 Pass-through: any args after '--' go directly to pandoc.
+
+The pre-render gate delegates to /verify-refs (when found alongside, or via
+\$MEDSCI_VERIFY_REFS) and blocks the render on fabricated/mismatched citations.
 EOF
   exit 1
 }
@@ -42,8 +46,9 @@ BIB=""
 OUTPUT=""
 REFDOC=""
 FORMAT=""
+SKIP_AUDIT=0
 
-while getopts ":j:i:b:o:t:f:h" opt; do
+while getopts ":j:i:b:o:t:f:hS" opt; do
   case "$opt" in
     j) JOURNAL="$OPTARG" ;;
     i) INPUT="$OPTARG" ;;
@@ -51,6 +56,7 @@ while getopts ":j:i:b:o:t:f:h" opt; do
     o) OUTPUT="$OPTARG" ;;
     t) REFDOC="$OPTARG" ;;
     f) FORMAT="$OPTARG" ;;
+    S) SKIP_AUDIT=1 ;;
     h|*) usage ;;
   esac
 done
@@ -67,6 +73,33 @@ if [[ ! -f "$CSL_FILE" ]]; then
 fi
 [[ -f "$INPUT" ]] || { echo "ERROR: input not found: $INPUT" >&2; exit 2; }
 [[ -f "$BIB" ]]   || { echo "ERROR: bib not found: $BIB" >&2; exit 2; }
+
+# Pre-render reference audit gate — delegates to /verify-refs and blocks the render on
+# fabricated / mismatched citations (e.g., #2..#N family-name hallucinations or author-count
+# mismatches) before they reach the PDF/DOCX. Best-effort: if verify-refs is not installed
+# alongside (and $MEDSCI_VERIFY_REFS is unset) the gate is skipped with a warning, so a
+# standalone manage-refs copy still renders. Opt out explicitly with -S.
+if [[ "$SKIP_AUDIT" -eq 0 ]]; then
+  VR="${MEDSCI_VERIFY_REFS:-${SCRIPT_DIR}/../../verify-refs/scripts/verify_refs.py}"
+  if [[ -f "$VR" ]] && command -v python3 >/dev/null 2>&1; then
+    echo "[render] pre-render reference audit (verify-refs) on $BIB ..." >&2
+    set +e
+    python3 "$VR" "$BIB" >&2
+    audit_rc=$?
+    set -e
+    if [[ "$audit_rc" -eq 0 ]]; then
+      echo "[render] reference audit: clean" >&2
+    elif [[ "$audit_rc" -eq 1 ]]; then
+      echo "ERROR: reference audit found FABRICATED / MISMATCH / duplicate citations (see qc/reference_audit.json)." >&2
+      echo "       Fix the .bib (or the Zotero record, since BBT overwrites manual .bib edits), or pass -S to skip (NOT recommended)." >&2
+      exit 3
+    else
+      echo "[render] WARNING: reference audit did not complete (exit $audit_rc — e.g., no network, bad input, or no references); continuing render." >&2
+    fi
+  else
+    echo "[render] (verify-refs not found alongside; skipping pre-render audit — set \$MEDSCI_VERIFY_REFS or pass -S)" >&2
+  fi
+fi
 
 if [[ -z "$OUTPUT" ]]; then
   OUTPUT="${INPUT%.*}.docx"

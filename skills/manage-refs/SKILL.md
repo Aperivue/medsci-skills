@@ -87,6 +87,7 @@ Validated 2026-05-01 against a 21-reference meta-analysis manuscript
 | Figures/tables submitted as separate attachments (radiology, most medical journals) | `check_xref.py --strict --allow-separate-attachments` | Downgrades `MISSING_DOCX` to WARN; `MISSING_BODY`/`MISMATCH` remain P0 |
 | **v_(N+1) docx build-time regeneration check** | `check_xref.py --vN-docx-md5 <prev>.docx [--vN-md <prev>.md]` | Defense-in-depth: identity = unmodified seed copy; missing diff lines = body not regenerated |
 | **Master pre-submission gate** (recommended before any submission) | `scripts/pre_submission_gate.sh` | Chains `check_citation_keys` → `verify_refs --strict` → `render_pandoc` (optional) → `check_xref --strict`; single artifact `qc/pre_submission_gate.json` |
+| Direct render with a built-in reference audit | `scripts/render_pandoc.sh` (audits the `.bib` via `/verify-refs` first; blocks on FABRICATED/MISMATCH/duplicates) | Defense-in-depth so even a direct render call cannot ship hallucinated citations; best-effort (skips with a warning if `/verify-refs` is not alongside), opt out with `-S`. The master gate passes `-S` since it audits in stage 2 |
 | Bibliographic audit against PubMed / CrossRef | **delegate** to `/verify-refs` | Audit-only — keep writer/auditor separation |
 
 ## Workflows
