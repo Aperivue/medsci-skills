@@ -21,6 +21,9 @@
 # [consumed iter5] pcd_screen_dta_2026	https://doi.org/10.1186/s12916-026-04780-5	clinical
 # [consumed iter5] methyl_lungca_pred_2026	https://doi.org/10.1186/s12916-026-04973-y	medical_ai
 # [consumed iter5] proteomic_dr_t2d_cohort_2026	https://doi.org/10.1371/journal.pmed.1004868	clinical
-nsclc_eosinophil_survival_2026	https://doi.org/10.1186/s12885-026-16104-0	clinical
-sle_cvd_cox_cohort_2026	https://doi.org/10.1186/s12916-026-04890-0	clinical
-prediag_biomarker_stress_cohort_2026	https://doi.org/10.1186/s12916-026-04916-7	clinical
+# [consumed iter6] nsclc_eosinophil_survival_2026	https://doi.org/10.1186/s12885-026-16104-0	clinical
+# [consumed iter6] sle_cvd_cox_cohort_2026	https://doi.org/10.1186/s12916-026-04890-0	clinical
+# [consumed iter6] prediag_biomarker_stress_cohort_2026	https://doi.org/10.1186/s12916-026-04916-7	clinical
+folic_parity_ma_2026	https://doi.org/10.1136/bmjopen-2025-106205	clinical
+pedt1d_insulin_ma_2026	https://doi.org/10.1136/bmjopen-2025-100186	clinical
+macrosomia_africa_ma_2026	https://doi.org/10.1136/bmjopen-2024-095768	clinical

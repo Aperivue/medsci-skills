@@ -103,6 +103,9 @@ list to the user.
 
 ## F. Exemplar comparison (if exemplars exist for this type)
 
+For non-flow types, the worked anatomy models live in `../exemplar_plots/` (e.g.,
+`forest_plot.md`) — read the matching one and confirm the draft has every element it lists.
+
 19. **Visual density** comparable to exemplars — not significantly sparser
     or more cluttered.
 20. **Annotation style** — placement of summary statistics, N labels,
