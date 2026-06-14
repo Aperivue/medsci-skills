@@ -30,3 +30,4 @@
 semaglutide_obesity_rct_2026	https://www.ncbi.nlm.nih.gov/pmc/articles/PMC13110620/	clinical
 nsclc_km_survival_2026	https://doi.org/10.1186/s12885-026-16104-0	clinical
 method_comparison_agreement_2026	https://doi.org/10.1186/s12874-026-02824-1	biostatistics
+psilocybin_rct_2025	https://doi.org/10.1371/journal.pmed.1004519	clinical
