@@ -339,7 +339,7 @@ Incorporate user feedback before running the critic-fixer loop.
 
 Write these LAST because they frame the paper and depend on knowing what was actually found.
 
-**Before writing:** Load `${CLAUDE_SKILL_DIR}/references/section_guides/introduction.md` for the Gap Storytelling 5-step structure, word/paragraph/reference targets, and common mistakes. Also load `${CLAUDE_SKILL_DIR}/references/section_guides/title_abstract.md` for Title 3-type selection, 4-component checklist, Abstract Conclusion-first priority, and Visual Abstract guidance.
+**Before writing:** Load `${CLAUDE_SKILL_DIR}/references/section_guides/introduction.md` for the Gap Storytelling 5-step structure, word/paragraph/reference targets, and common mistakes, and skim the paragraph-by-paragraph structure model in `${CLAUDE_SKILL_DIR}/references/exemplar_introduction.md` (¶1 significance → ¶2 landscape → ¶3 the gap → ¶4 objective, plus the vague-gap and gap↔objective-mismatch failure modes). Also load `${CLAUDE_SKILL_DIR}/references/section_guides/title_abstract.md` for Title 3-type selection, 4-component checklist, Abstract Conclusion-first priority, and Visual Abstract guidance.
 
 **Introduction structure (3-4 paragraphs):**
 1. Clinical context establishing importance (cite prevalence, burden, current practice).
