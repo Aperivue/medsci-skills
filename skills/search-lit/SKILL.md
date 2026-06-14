@@ -134,6 +134,43 @@ The script auto-sleeps 350ms between calls. For batch operations, keep calls seq
 
 6. Ask the user to select which papers to include.
 
+### Phase 2.5: Citation Searching (Snowballing)
+
+Optional but recommended for systematic reviews and thorough background work
+(PRISMA item 7, "records identified through citation searching"). Expands a
+seed set along the citation graph instead of relying on Boolean recall alone.
+
+Use the deterministic helper `references/snowball.py` (Semantic Scholar Graph
+API; nothing generated from memory):
+
+```bash
+# Expand seed DOIs/PMIDs in all directions, dedup against the existing pool,
+# append verified candidates to references/library.bib
+python3 references/snowball.py \
+  --seed DOI:10.1148/radiol.2024123,PMID:38000001 \
+  --direction all \
+  --pool references/library.bib \
+  --out references/library.bib
+```
+
+- **Directions**: `backward` (references the seeds cite), `forward` (papers
+  citing the seeds), `similar` (S2 recommendations), or `all` (default).
+- **Dedup**: against the current `references/library.bib` by DOI and
+  normalized title, and within the harvested set.
+- **Trust flag**: snowball candidates are written `verified=false` +
+  `verified_by=semantic_scholar`. They are candidates, not confirmed
+  citations — run `/verify-refs` (or Phase 4 verification) to confirm each
+  against PubMed/CrossRef before citing.
+- **Output contract**: appends to `references/library.bib` only. NEVER writes
+  `manuscript/_src/refs.bib` (the script hard-refuses that path).
+- **PRISMA line**: the script prints, e.g., `Records identified through
+  citation searching (snowballing): N raw (backward=…, forward=…, similar=…);
+  after dedup against existing pool: M new candidates.` — record M in the
+  PRISMA flow's citation-searching box.
+
+A deterministic, network-free challenge card (recorded fixtures + expected
+output + `verify.sh`) lives in `references/snowball_challenge/`.
+
 ### Phase 3: Deep Read
 
 For each selected paper:
@@ -388,6 +425,11 @@ For expanding from a known paper:
 2. Use `find_related_articles` to get related papers.
 3. Use Semantic Scholar for citation-based recommendations.
 4. Present results ranked by relevance.
+
+For a **structured, dedup-aware, PRISMA-countable** expansion (backward +
+forward + similar) prefer **Phase 2.5: Citation Searching** with
+`references/snowball.py`, which appends verified candidates to
+`references/library.bib` and reports a citation-searching count.
 
 ### Mode: Embase Browser Automation
 

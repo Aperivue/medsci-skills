@@ -27,6 +27,7 @@
 **Validation**
 
 - `bash references/pubmed_eutils.sh <query>`
+- `bash references/snowball_challenge/verify.sh  # deterministic, network-free`
 - `/verify-refs --strict`
 
 **Evidence** — `bundled_script`
@@ -37,6 +38,8 @@
 
 - `parse_pubmed.py`
 - `pubmed_eutils.sh`
+- `snowball.py`
+- `snowball_challenge/` (7 files)
 
 ## Source
 

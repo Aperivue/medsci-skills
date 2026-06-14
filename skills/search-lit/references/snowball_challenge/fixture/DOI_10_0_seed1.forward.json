@@ -1,0 +1,22 @@
+{
+  "data": [
+    {
+      "citingPaper": {
+        "title": "Synthetic Forward Paper Alpha",
+        "year": 2022,
+        "venue": "AI in Synthetic Medicine",
+        "externalIds": {"DOI": "10.0/fwd-alpha", "PubMed": "30000003"},
+        "authors": [{"name": "Dan Writer"}]
+      }
+    },
+    {
+      "citingPaper": {
+        "title": "Synthetic Forward Paper Beta",
+        "year": 2023,
+        "venue": "Synthetic Cardiology",
+        "externalIds": {"DOI": "10.0/fwd-beta"},
+        "authors": [{"name": "Eve Scholar"}, {"name": "Finn Helper"}]
+      }
+    }
+  ]
+}
