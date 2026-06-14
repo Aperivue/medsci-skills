@@ -41,6 +41,25 @@ A checklist for **randomised controlled trials** (parallel-group, crossover, clu
 - Is there an a-priori **sample-size / power** calculation tied to the primary, or is the trial an explicit **pilot/feasibility** study? A small pilot must be framed as hypothesis-generating, not confirmatory — a definitive efficacy claim from an underpowered trial is a MAJOR over-reach.
 - Is the **estimand** clear (the contrast, population, and handling of intercurrent events — treatment discontinuation, rescue medication)?
 
+## AI-trial reporting-flow probes (CONSORT-AI / SPIRIT-AI, A1–A5)
+
+Co-apply when the trial's intervention **includes an AI/ML component** — the reporting axis is then CONSORT-AI (completed-trial report) or SPIRIT-AI (protocol), on top of base CONSORT/SPIRIT. These probe what randomisation cannot protect: whether the AI was specified, used, and monitored as it would be in practice. Name the base instrument and the AI extension, and cite each.
+
+**A1 — Algorithm version + lock**:
+- Is the exact **AI algorithm version** stated, and was it **locked** for the trial (no mid-trial retraining/updating)? A trial result tied to an unspecified or silently-updated model is not interpretable or reproducible. Undefined/changed version → MAJOR.
+
+**A2 — Input-data eligibility + poor-input handling**:
+- Are the **input-data** inclusion/exclusion criteria stated **separately** from participant eligibility (a trial can enrol eligible patients yet feed the AI out-of-distribution inputs)? Is the handling of **poor-quality or unavailable inputs** specified? Missing input-data eligibility or undefined poor-input handling → MAJOR (the evaluated population is undefined, and silent failures bias the result).
+
+**A3 — Human–AI interaction + decision pathway**:
+- Is the **human–AI interaction** described (autonomous vs assistive), with the **expertise required of the user**, and is it explained **how the AI output fed the clinical decision** (5(vi)/11a(vi))? This determines whether the trial evaluated the AI *as used in practice*. A bare "the model assisted clinicians" with no interaction/decision detail → MAJOR interpretive gap.
+
+**A4 — Performance-error analysis + safety monitoring**:
+- Are **performance errors** analysed (CONSORT-AI item 19) — or, for a protocol, is there a **plan to identify and analyse them** (SPIRIT-AI item 22)? AI-specific harms (systematic failure on a subgroup, distribution shift during the trial) live here. Absent error analysis/plan where the design permits → MAJOR.
+
+**A5 — Setting integration + code/intervention accessibility**:
+- Are the **onsite/offsite integration** requirements described (how the AI was embedded in the trial setting), and is the **intervention/code accessibility** stated (with restrictions)? Opaque integration or undisclosed accessibility limits reproducibility and external validity → minor–MAJOR depending on the claim.
+
 **Output template (RC2 / RC3 example)**:
 > "The trial is described as blinded, but the active intervention produces [obvious effects] and the comparator arm undergoes [a different experience], so participants were likely **functionally unblinded** ([Methods]); with a self-reported primary outcome this is a real interpretive limit. I'd suggest reporting any blinding-success assessment and tempering the causal language accordingly. Relatedly, the primary analysis appears to be [per-protocol / completers]; because that breaks the randomisation, I'd suggest making the **intention-to-treat** analysis (all randomised) the primary, with per-protocol as a sensitivity analysis, and stating the missing-data assumption and method (e.g., a mixed model under MAR rather than LOCF)."
 
