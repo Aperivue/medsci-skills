@@ -28,3 +28,5 @@
 # [consumed iter7] pedt1d_insulin_ma_2026	https://doi.org/10.1136/bmjopen-2025-100186	clinical
 # [consumed iter7] macrosomia_africa_ma_2026	https://doi.org/10.1136/bmjopen-2024-095768	clinical
 semaglutide_obesity_rct_2026	https://www.ncbi.nlm.nih.gov/pmc/articles/PMC13110620/	clinical
+nsclc_km_survival_2026	https://doi.org/10.1186/s12885-026-16104-0	clinical
+method_comparison_agreement_2026	https://doi.org/10.1186/s12874-026-02824-1	biostatistics
