@@ -235,6 +235,17 @@ Critical: the gate does **not** reimplement any check. It calls the existing
 scripts as subprocesses. If you find yourself wanting to add a check, add it
 to the underlying script (the gate then picks it up automatically).
 
+### F. BibTeX author-format corruption (rendered-name check)
+
+Entries written as `author = {Surname AB and Surname2 CD}` (family + initials, **no comma**) make BibTeX treat the last token as the family name, rendering "AB S, CD S2". Always store `author = {Family, Full Given}`. Concatenated initials even with a comma (`Family, AB`) still collapse to a single initial under CSL `initialize-with`, so use the full forename from PubMed `efetch`.
+
+`/verify-refs` compares bib content against PubMed but does not see the rendered output; grep the rendered docx and the bib separately:
+
+```bash
+unzip -p out.docx word/document.xml | sed 's/<[^>]*>//g' | grep -oE "[A-Z]{2} [A-Z], [A-Z]{2} [A-Z]"   # corruption signature in output
+grep -nE 'author\s*=\s*\{[A-Z][a-z]+ [A-Z]{1,3}( |\})' refs.bib                                          # no-comma source entries
+```
+
 ## Quality Gates
 
 This skill defines **three submission gates** and **one user approval gate**:
