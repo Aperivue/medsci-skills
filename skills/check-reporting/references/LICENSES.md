@@ -8,6 +8,8 @@ Attribution for bundled reporting guideline checklists.
 | STARD.md | STARD 2015 | Bossuyt PM et al. BMJ 2015 | CC BY 4.0 |
 | STARD_AI.md | STARD-AI 2025 | Sounderajah V et al. Nat Med 2025;31:3283-3289 | CC BY |
 | TRIPOD_AI.md | TRIPOD+AI 2024 | Collins GS et al. BMJ 2024 | CC BY 4.0 |
+| CONSORT_AI.md | CONSORT-AI 2020 | Liu X et al. Nat Med 2020;26(9):1364-1374 | CC BY 4.0 |
+| SPIRIT_AI.md | SPIRIT-AI 2020 | Cruz Rivera S et al. Nat Med 2020;26(9):1351-1363 | CC BY 4.0 |
 | PRISMA_2020.md | PRISMA 2020 | Page MJ et al. BMJ 2021 | CC BY |
 | ARRIVE_2.md | ARRIVE 2.0 | Percie du Sert N et al. PLoS Biol 2020 | CC0 |
 | PRISMA_DTA.md | PRISMA-DTA 2018 | McInnes MDF et al. JAMA 2018 | CC BY |
