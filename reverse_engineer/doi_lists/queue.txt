@@ -24,6 +24,7 @@
 # [consumed iter6] nsclc_eosinophil_survival_2026	https://doi.org/10.1186/s12885-026-16104-0	clinical
 # [consumed iter6] sle_cvd_cox_cohort_2026	https://doi.org/10.1186/s12916-026-04890-0	clinical
 # [consumed iter6] prediag_biomarker_stress_cohort_2026	https://doi.org/10.1186/s12916-026-04916-7	clinical
-folic_parity_ma_2026	https://doi.org/10.1136/bmjopen-2025-106205	clinical
-pedt1d_insulin_ma_2026	https://doi.org/10.1136/bmjopen-2025-100186	clinical
-macrosomia_africa_ma_2026	https://doi.org/10.1136/bmjopen-2024-095768	clinical
+# [consumed iter7] folic_parity_ma_2026	https://doi.org/10.1136/bmjopen-2025-106205	clinical
+# [consumed iter7] pedt1d_insulin_ma_2026	https://doi.org/10.1136/bmjopen-2025-100186	clinical
+# [consumed iter7] macrosomia_africa_ma_2026	https://doi.org/10.1136/bmjopen-2024-095768	clinical
+semaglutide_obesity_rct_2026	https://www.ncbi.nlm.nih.gov/pmc/articles/PMC13110620/	clinical

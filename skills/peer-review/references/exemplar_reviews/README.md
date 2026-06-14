@@ -32,6 +32,8 @@ models, authored from scratch**, not extracted from any published review.
 - `optimistic_validation_reporting.md` — best-fold metrics quoted with no cross-fold
   CI/SD, an unstated decision threshold, and accuracy emphasized under undisclosed
   class rebalancing.
+- `selective_outcome_reporting.md` — a reported trial primary outcome that differs from
+  the registered/protocol primary, or outcomes dropped/added without a disclosed amendment.
 
 ## Curator guidelines (for adding more)
 

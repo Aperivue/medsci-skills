@@ -191,7 +191,7 @@ Apply when an AI/ML **primary study** (diagnostic, prognostic, triage, detection
 
 Before writing comments, skim the relevant model in `references/exemplar_reviews/` for the
 finding type at hand (AI overclaiming, reference-standard validity, data leakage, missing
-calibration, optimistic validation reporting). Each shows the same four moves — anchor the location, state the gap, phrase
+calibration, optimistic validation reporting, selective outcome reporting). Each shows the same four moves — anchor the location, state the gap, phrase
 it as a partner (Aczel-compliant), and calibrate severity (design-level → Major #1). Model
 the anchoring and phrasing; do not copy — they are synthetic teaching examples.
 
