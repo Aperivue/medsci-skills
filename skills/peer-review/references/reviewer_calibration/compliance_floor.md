@@ -34,6 +34,33 @@ specific missing item, anchored to where it should appear.
 Extensions name the base instrument too (e.g., STARD **and** STARD-AI) — a manuscript that
 cites only the extension and skips the base items is itself an item to flag.
 
+## AI / radiomics methodological-quality & risk-of-bias instruments
+
+The guidelines above answer "was it **reported**?" A separate family of instruments answers
+"is it **sound**?" — methodological-quality / risk-of-bias appraisal tools. Keep the two
+families distinct: do not file a reporting checklist as an appraisal tool or vice versa.
+Cite the instrument by name, anchor the concern, and do not invent item content beyond the
+instrument's published scope or score the paper for the authors.
+
+| Appraisal / RoB instrument (scope + source) | Non-waivable concerns it formalizes (raise as Major if the design fails one) |
+|---|---|
+| **PROBAST+AI** — risk of bias + applicability for prediction models, including regression and ML/AI methods (2024/25 update of PROBAST; development and evaluation parts, four domains: participants & data sources, predictors, outcome, analysis) | Train/test independence and leakage control; adequate sample size / events / overfitting-and-optimism control; performance assessed for **calibration**, not discrimination only |
+| **METRICS** — radiomics methodological quality, EuSoMII-endorsed (Insights into Imaging 2024; 30 items / 9 categories; the older **RQS** is a coarser predecessor) | Feature reproducibility/stability (test–retest, segmentation robustness, ICC); proper internal–external validation and multiplicity control; calibration |
+| **APPRAISE-AI** — quantitative methodological + reporting quality of clinical-decision-support AI studies (JAMA Network Open 2023; 24 items across 6 domains: clinical relevance, data quality, methodological conduct, robustness of results, reporting quality, reproducibility) | Independent/external validation; robustness of results / error analysis; reproducibility (data + code); performance with uncertainty |
+
+These are appraisal tools, not reporting checklists. Their **reporting** counterparts for the
+same fields — **CLEAR** (radiomics reporting, the companion to METRICS) and **DECIDE-AI**
+(reporting standard for early-stage clinical evaluation of decision-support AI) — belong
+with the reporting guidelines above, not in this table; name them when the relevant reporting
+items are missing, but do not call them risk-of-bias tools.
+
+A reporting checklist can be fully satisfied while the appraisal instrument fails — a paper
+can *report* a single best fold, an unstated threshold, or a non-independent split clearly
+and still be at high risk of bias. When that happens, the appraisal concern governs the
+comment (see the AO5 probe and the `optimistic_validation_reporting` exemplar), not the
+reporting percentage. Open data/code is an open-science/reporting expectation, raised as such
+rather than as a design-level risk-of-bias failure.
+
 ## Desk-rejection-risk signals (weigh, don't over-assert)
 
 - A **critical item is MISSING** (above) — the strongest single signal.

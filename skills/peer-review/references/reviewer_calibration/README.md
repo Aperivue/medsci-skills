@@ -13,7 +13,10 @@ lives here, as the reviewer's own guideline.
 
 - `compliance_floor.md` — the principle that **critical-item presence outranks the overall
   percentage**, a per-guideline list of items that are reject-risk when MISSING regardless
-  of the headline %, and the desk-rejection-risk signals to weigh.
+  of the headline %, a companion table of **AI/radiomics methodological-quality & risk-of-bias
+  instruments** (PROBAST+AI, METRICS/RQS, APPRAISE-AI — kept distinct from their reporting
+  counterparts CLEAR and DECIDE-AI) whose concerns can fail even a fully-reported paper, and
+  the desk-rejection-risk signals to weigh.
 
 ## How it is used
 
