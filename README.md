@@ -2,14 +2,14 @@
 
 # MedSci Skills
 
-**44 skills that actually work.** Built by a physician-researcher, tested on real publications.
+**45 skills that actually work.** Built by a physician-researcher, tested on real publications.
 
 *MedSci Skills is a submission-grade clinical manuscript workflow, not a generic biomedical skill catalog. It competes on clinical submission reliability, not skill count.*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Release](https://img.shields.io/github/v/release/Aperivue/medsci-skills?style=flat-square&color=blue)](https://github.com/Aperivue/medsci-skills/releases/latest)
 [![CI](https://img.shields.io/github/actions/workflow/status/Aperivue/medsci-skills/validate.yml?branch=main&style=flat-square&label=CI)](https://github.com/Aperivue/medsci-skills/actions/workflows/validate.yml)
-![Skills](https://img.shields.io/badge/Skills-44-brightgreen?style=flat-square)
+![Skills](https://img.shields.io/badge/Skills-45-brightgreen?style=flat-square)
 [![npm](https://img.shields.io/npm/v/medsci-skills?style=flat-square&label=npm&color=cb3837)](https://www.npmjs.com/package/medsci-skills)
 
 [![Agent Skills](https://img.shields.io/badge/Agent_Skills-standard-blue?style=flat-square)](https://agentskills.io)
@@ -371,6 +371,7 @@ ma-scout -> search-lit -> fulltext-retrieval -> design-study ──> write-proto
 | **ma-scout** | Meta-analysis topic discovery and feasibility assessment. Two modes: (A) Professor-first — profile → pillar analysis → MA gaps, (B) Topic-first — question → landscape scan → co-author matching. Multi-source validation (PubMed, PROSPERO, bioRxiv) with realistic k estimation (15-30% discount). |
 | **lit-sync** | Sync research references from .bib files to Zotero library + Obsidian literature notes. Concept extraction from 10+ literature notes with cross-cutting theme discovery. Works after `/search-lit` or standalone. |
 | **academic-aio** | AI search engine (Perplexity / ChatGPT web / Elicit / Consensus / SciSpace) and RAG visibility checklist for medical AI papers. Integrates TRIPOD+AI, CLAIM, STARD-AI, TRIPOD-LLM, DECIDE-AI reporting anchors with generative-engine-optimization (GEO) principles. Covers title, abstract, structured summary boxes (Key Points / Research in Context / Plain-Language Summary), preprints, GitHub README, `CITATION.cff`, Zenodo, and Hugging Face model/dataset cards. Explicit defense against LLM citation fabrication (Agarwal 2025, Nat Commun). Produces a visible PASS/PARTIAL/FAIL checklist; never applies edits silently. Pairs with `write-paper` Phase 4/6/7, runs after `self-review` + `humanize`. |
+| **polish-language** | Academic English consistency linting and non-native (ESL) clarity polish. A deterministic linter (`lint_consistency.py`) flags abbreviation define-once violations, US/UK spelling drift, hyphen-vs-en-dash numeric ranges, `P`/`p` case and impossible `P = 0.000`, hyphenation variants, small-number style, and value/unit spacing — then a gated, style-only clarity pass fixes wording without ever changing numbers, citations, or scientific meaning. Distinct from `humanize` (AI-tell removal) and `check-reporting` (guideline items); bundles a reproducible challenge card. |
 | **manage-refs** | Reference lifecycle as a single skill: citekey ↔ `.bib` validation, journal-CSL pandoc rendering (`render_pandoc.sh`), manuscript ↔ rendered DOCX cross-reference QC (`check_xref.py --strict` is the submission gate), `[N]` ↔ `[@key]` marker conversion, and native Zotero CWYW field-code injection for co-author Word workflows. Hybrid 3-phase strategy (pandoc draft → CWYW transition → Zotero CWYW for circulation/revision/submission). Sole writer of `manuscript_final.docx` and `qc/xref_audit.json`. Split out of `write-paper` Phase 7.6 so `revise`, `peer-review`, `sync-submission`, and `find-journal` can render directly without depending on a sibling skill. |
 | **render-pdf-doc** | Render non-bibliography academic markdown (proposal, briefing handout, anchor doc, IRB cover, reference table) to publication-quality PDF via `pandoc + xelatex` with CJK font fallback (Apple SD Gothic Neo on macOS, Noto Sans CJK KR on Linux) and content-proportional pipe-table column widths. Boundary opposite of `manage-refs` (bibliography-driven). Spun off from `write-paper` Phase 7.6. |
 | **define-variables** | Literature-grounded variable operationalization for observational research. Turns a data dictionary plus research question into a citation-backed table of exposure / outcome / covariate definitions, cutoffs, and DB-variable mappings. Tier 0 dictionary-first rule prevents ad-hoc phenotype definitions that invite reviewer rejection. Bridges `/search-lit` output into `/write-protocol` Methods. |

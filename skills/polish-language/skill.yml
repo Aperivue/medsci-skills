@@ -1,0 +1,37 @@
+schema_version: 2
+name: polish-language
+layer: C
+owner_domain: manuscript_optimization
+
+when_to_use: "Lint a medical manuscript for mechanical language consistency (abbreviations, US/UK spelling, en-dash ranges, P/p case, hyphenation, units) and run a style-only ESL clarity pass."
+when_NOT_to_use: "Removing AI writing tells (use humanize); drafting content (use write-paper); reporting-guideline checks (use check-reporting); citation formatting (use manage-refs)."
+
+inputs:
+  - "manuscript / section text (Markdown)"
+outputs:
+  - "deterministic consistency report (scripts/lint_consistency.py)"
+  - "style-only polished revision after user approval"
+deterministic_scripts:
+  - scripts/lint_consistency.py  # challenge card in scripts/lint_challenge/
+side_effects:
+  - writes_project_artifacts
+downstream_consumers:
+  - self-review
+  - write-paper
+forbidden_actions:
+  - alter_numeric_values_or_citations
+  - change_scientific_meaning
+  - rewrite_scientific_content
+
+# v2.1 quality card
+purpose: "Standardize house-style consistency and improve non-native clarity without changing facts, numbers, or citations."
+safety_boundaries:
+  - "Edits style only; never alters numeric values, p-values, units, citations, or scientific meaning."
+  - "Deterministic linter is the authority for mechanical issues; no edit without user approval."
+known_limitations:
+  - "Spelling/hyphenation families are a fixed list; uncommon variants may be missed."
+  - "Small-number and abbreviation heuristics can flag intended author choices — triage with the user."
+validation_commands:
+  - "python3 scripts/lint_consistency.py <manuscript.md>"
+  - "bash scripts/lint_challenge/verify.sh  # deterministic, network-free"
+evidence_surface: bundled_script

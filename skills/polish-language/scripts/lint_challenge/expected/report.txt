@@ -1,0 +1,28 @@
+# Consistency Lint Report
+
+## Abbreviations
+- L5: "PET" defined but never used
+- L7: "DKA" used 2x but never defined
+
+## Spelling (US/UK consistency)
+- L10: "analyze" family: US spelling here (document is predominantly UK)
+
+## Numeric ranges
+- L9: "5-10" — use en-dash for numeric range (5–10)
+
+## p-values
+- L12: "p = 0.03" — inconsistent case (document uses "P")
+- L13: "P = 0.000" — a p-value cannot be exactly 0; report as P < .001
+
+## Hyphenation / terminology
+- L15: inconsistent forms of "follow-up" (multiple variants present)
+- L17: inconsistent forms of "health care" (multiple variants present)
+
+## Small numbers in prose
+- L7: "3 patients" — spell out single-digit numbers in prose
+
+## Units
+- L16: "5mg" — insert a space between value and unit (5 mg)
+
+---
+Summary: 10 issue(s) across 7 category(ies).
