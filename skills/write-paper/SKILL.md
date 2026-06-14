@@ -267,7 +267,7 @@ Write Results aligned to the approved tables and figures. **Results = "What did 
 
 ### Phase 5: Discussion
 
-**Before writing:** Load `${CLAUDE_SKILL_DIR}/references/section_guides/discussion.md` for the 4-paragraph structure, word limits, limitation writing guidelines, and Table/Figure citation rules.
+**Before writing:** Load `${CLAUDE_SKILL_DIR}/references/section_guides/discussion.md` for the 4-paragraph structure, word limits, limitation writing guidelines, and Table/Figure citation rules. For the matching study type, also skim the structure model in `${CLAUDE_SKILL_DIR}/references/exemplar_discussion/` (diagnostic-accuracy/STARD, AI-validation/TRIPOD+AI·CLAIM, observational-cohort/STROBE) — completing the exemplar trio, each lists what every Discussion paragraph must establish (key finding → interpretation/comparison → limitations → generalizability → conclusion matched to the evidence) plus the element that type most often omits (spectrum/verification bias; evidence-tier separation and optimism caveats; mandatory causal caution). Model the structure; the exemplars are synthetic, introduce no new results, and are not prose to copy.
 
 **Before drafting, collect user input (Discussion Planning Gate).**
 
