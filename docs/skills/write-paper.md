@@ -37,6 +37,7 @@
 **References** (`skills/write-paper/references/`):
 
 - `exemplar_methods/` (4 files)
+- `exemplar_results/` (4 files)
 - `journal_profiles/` (54 files)
 - `paper_types/` (9 files)
 - `section_guides/` (7 files)

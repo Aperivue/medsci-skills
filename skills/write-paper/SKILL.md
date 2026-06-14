@@ -226,7 +226,7 @@ Write the Methods section first -- it is the most objective and anchors the rest
 Write Results aligned to the approved tables and figures. **Results = "What did we find?"
 — nothing more.** Every sentence must be a factual statement backed by a number.
 
-**Before writing:** Load `${CLAUDE_SKILL_DIR}/references/section_guides/results.md` for mirror-symmetry rules, flowchart requirements, missing data handling, and the anti-interpretation self-check.
+**Before writing:** Load `${CLAUDE_SKILL_DIR}/references/section_guides/results.md` for mirror-symmetry rules, flowchart requirements, missing data handling, and the anti-interpretation self-check. For the matching study type, also skim the structure model in `${CLAUDE_SKILL_DIR}/references/exemplar_results/` (diagnostic-accuracy/STARD, AI-validation/TRIPOD+AI·CLAIM, observational-cohort/STROBE) — each follows its `exemplar_methods/` sibling in Methods order, listing what each Results paragraph must establish (flow → baseline/prevalence → primary estimate with CIs → calibration/agreement → subgroups → sensitivity) plus the element that type most often omits. Model the structure; the exemplars are synthetic, with placeholder specifics, not prose to copy.
 
 **Rules:**
 - Every number in the text must match the corresponding table cell exactly.
