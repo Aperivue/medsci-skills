@@ -44,6 +44,11 @@ stop adding marginal items there).
 | G9 | calc-sample-size | `references/justification_examples.md` — reviewer-safe sample-size justification prose per design (found via cross-skill audit; SKILL.md promised "IRB-ready justification text" but no exemplar library) | 4 | 4 | 4 | 64 | shipped (this PR) |
 | G10 | present-paper | `scripts/inject_speaker_notes.py` run-level markdown parser — general speaker notes rendered `**bold**` literally (the failure mode pptx-speaker-notes.md warns against); the parser existed only in inject_pronunciation_notes.py. Found while triaging the unmerged `present-paper-md-notes-glossary` branch (whose verify_refs/academic-aio parts were already superseded by main) | 3 | 4 | 4 | 48 | shipped (rescue PR) |
 | G11 | manage-refs | `scripts/render_pandoc.sh` had no pre-render reference audit — a direct render call could ship fabricated/mismatched citations (the master pre_submission_gate audits, but direct calls bypass it). Found while triaging the unmerged present-paper-md-notes-glossary branch | 4 | 3 | 4 | 48 | shipped (cleanup PR) |
+| G16 | check-reporting | `checklists/CONSORT_AI.md` — CONSORT-AI extension (AI clinical-trial **reports**). Already routed in Step 1 + aliased (`consortai`) but unvendored — the fail-fast test asserts it as a MISSING_CHECKLIST_CONTRACT_VIOLATION. Vendoring closes that contract gap. Found reverse-engineering the AI-RCT reporting area | 5 | 3 | 5 | 75 | in-progress (this PR) |
+| G17 | check-reporting | `checklists/SPIRIT_AI.md` — SPIRIT-AI extension (AI clinical-trial **protocols**). Same unvendored-but-routed contract gap as CONSORT-AI; the protocol counterpart | 5 | 3 | 5 | 75 | in-progress (this PR) |
+| G18 | peer-review + self-review | `domain-probes/rct_trial.md` AI-extension subsection — the RCT probe (RC0–RC7) checks trial design but not the CONSORT-AI/SPIRIT-AI reporting flow (algorithm version, input-data criteria, human–AI interaction, poor-input handling, performance-error analysis, code accessibility) | 4 | 3 | 4 | 48 | in-progress (this PR) |
+
+> Numbering note: G12–G15 belong to the still-open sibling PR (decision-curve + TRIPOD-LLM); this branch is off origin/main and skips them to avoid post-merge collision.
 
 ## Lane status
 
