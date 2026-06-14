@@ -37,7 +37,7 @@
 
 - `analysis_guides/` (7 files)
 - `style/` (2 files)
-- `table-standards/` (15 files)
+- `table-standards/` (16 files)
 - `templates/` (14 files)
 
 **Scripts** (`skills/analyze-stats/scripts/`):

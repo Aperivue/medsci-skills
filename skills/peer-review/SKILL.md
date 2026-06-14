@@ -193,6 +193,12 @@ Apply this 8-probe checklist (RC0–RC7) **only when the manuscript is a randomi
 
 **Probe detail (RC0–RC7), with output templates and the leads-vs-findings discipline:** `${CLAUDE_SKILL_DIR}/references/domain-probes/rct_trial.md`. Load it and apply each probe when the trigger fires. Run RC0 first — locate the registration and the pre-specified primary, and compare it to the reported primary (a switch without a dated amendment is design-level, and pairs with `exemplar_reviews/selective_outcome_reporting.md`). In this skill, map each probe finding to the review draft as a Major / Minor comment; a broken-randomisation primary (RC3, per-protocol/completers), unconcealed allocation (RC1), or an open-label trial with a subjective outcome (RC2, functional unblinding) is design-level — surface it in the Confidential Comments to the Editor and place it as the Major #1 candidate. A reported baseline significance test (RC5) is MINOR.
 
+### Phase 2I: Diagnostic-Accuracy / Reader-Study Extension
+
+Apply this 6-probe checklist (D1–D6) **only when the manuscript is a diagnostic test accuracy (DTA) primary study** — an index test against a reference standard — including **multi-reader multi-case (MRMC)** reader studies (AI-vs-reader or modality comparison). These probes complement (do not replace) the generic Phase 2 issue checklist and the STARD / QUADAS-2 items; they target verification/spectrum/blinding bias and the MRMC design/variance issues a reader study adds. (For a DTA **meta-analysis**, use Phase 2A / `sr_ma.md`.)
+
+**Probe detail (D1–D6), with output templates and the leads-vs-findings discipline:** `${CLAUDE_SKILL_DIR}/references/domain-probes/diagnostic_accuracy.md`. Load it and apply each probe when the trigger fires. In this skill, map each probe finding to the review draft as a Major / Minor comment; two-gate (case-control) sampling (D2), verification/incorporation bias (D1), or an MRMC analysis that ignores reader variance (D6) is design/analysis-level — surface it in the Confidential Comments to the Editor and place it as the Major #1 candidate. Pairs the `analyze-stats` `table-types/reader_study.md` table and the `make-figures` `exemplar_plots/mrmc_roc.md` figure; a test-set-tuned operating threshold pairs with `exemplar_reviews/optimistic_validation_reporting.md`.
+
 ### Phase 3: Draft Review
 
 Before writing comments, skim the relevant model in `references/exemplar_reviews/` for the
