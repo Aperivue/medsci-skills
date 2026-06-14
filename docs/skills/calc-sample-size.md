@@ -35,6 +35,7 @@
 **References** (`skills/calc-sample-size/references/`):
 
 - `formulas.md`
+- `justification_examples.md`
 - `observational_cohort.md`
 
 ## Source

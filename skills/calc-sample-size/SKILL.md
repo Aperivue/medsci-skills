@@ -20,6 +20,7 @@ Python (alternative), interpret effect sizes clinically, and produce IRB-ready j
 
 - **Formulas**: `${CLAUDE_SKILL_DIR}/references/formulas.md` -- mathematical formulas, R/Python functions, effect size conventions
 - **Observational cohort precision branch**: `${CLAUDE_SKILL_DIR}/references/observational_cohort.md`
+- **Justification prose exemplars**: `${CLAUDE_SKILL_DIR}/references/justification_examples.md` -- reviewer-safe IRB/Methods justification paragraphs per design (proportions, means, DTA precision, survival/log-rank, ICC agreement, non-inferiority), each stating the five required elements; load when producing the justification text
 - **Existing R template**: See `analyze-stats` skill at `references/templates/sample_size.R` for the 7 original tests
 
 Read `formulas.md` before generating calculation code.
