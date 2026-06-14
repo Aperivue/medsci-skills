@@ -38,7 +38,7 @@
 - `critic_rubrics/` (2 files)
 - `design_principles.md`
 - `exemplar_diagrams/` (53 files)
-- `exemplar_plots/` (5 files)
+- `exemplar_plots/` (6 files)
 - `figure_specs.md`
 - `flow_diagram_lessons.md`
 - `jacc_central_illustration_principles.md`
