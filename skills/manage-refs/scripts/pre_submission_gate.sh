@@ -190,7 +190,8 @@ if [[ -z "$DOCX" ]]; then
   echo "[pre_submission_gate] stage 3/4: render_pandoc.sh -j $JOURNAL"
   DERIVED_DOCX="${MD%.md}.docx"
   STAGE3_LOG="$(mktemp)"
-  if bash "$SCRIPT_DIR/render_pandoc.sh" -j "$JOURNAL" -i "$MD" -b "$BIB" -o "$DERIVED_DOCX" \
+  # -S: skip render_pandoc's own pre-render audit — stage 2 already ran verify_refs --strict.
+  if bash "$SCRIPT_DIR/render_pandoc.sh" -S -j "$JOURNAL" -i "$MD" -b "$BIB" -o "$DERIVED_DOCX" \
        > "$STAGE3_LOG" 2>&1; then
     DOCX="$DERIVED_DOCX"
     record_stage "render_pandoc" "PASS" 0 "rendered $DERIVED_DOCX"

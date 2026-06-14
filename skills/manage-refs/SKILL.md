@@ -87,6 +87,7 @@ Validated 2026-05-01 against a 21-reference meta-analysis manuscript
 | Figures/tables submitted as separate attachments (radiology, most medical journals) | `check_xref.py --strict --allow-separate-attachments` | Downgrades `MISSING_DOCX` to WARN; `MISSING_BODY`/`MISMATCH` remain P0 |
 | **v_(N+1) docx build-time regeneration check** | `check_xref.py --vN-docx-md5 <prev>.docx [--vN-md <prev>.md]` | Defense-in-depth: identity = unmodified seed copy; missing diff lines = body not regenerated |
 | **Master pre-submission gate** (recommended before any submission) | `scripts/pre_submission_gate.sh` | Chains `check_citation_keys` → `verify_refs --strict` → `render_pandoc` (optional) → `check_xref --strict`; single artifact `qc/pre_submission_gate.json` |
+| Direct render with a built-in reference audit | `scripts/render_pandoc.sh` (audits the `.bib` via `/verify-refs` first; blocks on FABRICATED/MISMATCH/duplicates) | Defense-in-depth so even a direct render call cannot ship hallucinated citations; best-effort (skips with a warning if `/verify-refs` is not alongside), opt out with `-S`. The master gate passes `-S` since it audits in stage 2 |
 | Bibliographic audit against PubMed / CrossRef | **delegate** to `/verify-refs` | Audit-only — keep writer/auditor separation |
 
 ## Workflows
@@ -234,6 +235,17 @@ the failing stage passes.
 Critical: the gate does **not** reimplement any check. It calls the existing
 scripts as subprocesses. If you find yourself wanting to add a check, add it
 to the underlying script (the gate then picks it up automatically).
+
+### F. BibTeX author-format corruption (rendered-name check)
+
+Entries written as `author = {Surname AB and Surname2 CD}` (family + initials, **no comma**) make BibTeX treat the last token as the family name, rendering "AB S, CD S2". Always store `author = {Family, Full Given}`. Concatenated initials even with a comma (`Family, AB`) still collapse to a single initial under CSL `initialize-with`, so use the full forename from PubMed `efetch`.
+
+`/verify-refs` compares bib content against PubMed but does not see the rendered output; grep the rendered docx and the bib separately:
+
+```bash
+unzip -p out.docx word/document.xml | sed 's/<[^>]*>//g' | grep -oE "[A-Z]{2} [A-Z], [A-Z]{2} [A-Z]"   # corruption signature in output
+grep -nE 'author\s*=\s*\{[A-Z][a-z]+ [A-Z]{1,3}( |\})' refs.bib                                          # no-comma source entries
+```
 
 ## Quality Gates
 

@@ -102,3 +102,61 @@ Follows Lancet Group statistical conventions:
 - **AI disclosure**: in Methods or Acknowledgements; AI tools cannot be authors.
 - **Transfer between Lancet journals** available if not suitable for this journal.
 - Figures redrawn into Lancet style by in-house illustrators.
+
+## Figures (technical specs)
+
+- **Editable vector strongly preferred**: `.eps`, `.pdf`, `.svg` (saved directly from the plotting device for editability). Adobe Illustrator `.ai` emailed to the handling editor.
+- **Not accepted** as primary figure files: `.png`, `.jpeg`, `.tiff`, `.bmp`, `.gif`, `.psd`. Raster only as a last resort at ≥300 dpi (photographs/scans at ≥300 dpi).
+- Forest plots and trial profiles must be black and white; avoid multiple dotted lines; convert 3D to 2D.
+- Do not download figures from websites (resolution/copyright). Midline-dot decimals inside figures.
+
+## Required Submission Forms
+
+- **ICMJE COI form** — one per author; the manuscript Declaration of Interests must match the signed forms.
+- **Author Statement form** — signed; for **observational studies at least two authors must have accessed and verified the data, named by their initials**; contents must match the Contributors section.
+- **ICMJE author-transfer / signature form** — corresponding author confirms all signatures/statements are accurate (also used when transferring between Lancet journals).
+- **Sex/gender and race/ethnicity reporting confirmation** — at submission, confirm whether these are reported/analysed and, if not, explain why.
+- **Equitable Partnership Declaration** — **triggers only for research conducted in 1–6 low/middle-income countries with at least one author not based in the study country**; does NOT trigger for all-high-income-country studies, ≥7 countries, or systematic/modelling reviews.
+- **Reporting-guideline checklist** — uploaded at submission with page numbers.
+
+## AI Writing Disclosure Policy
+
+- **Requirement**: disclosure required (moderate). Permitted use is limited to language editing; AI tools must not generate scientific content, conclusions, figures, or tables.
+- **Authorship**: LLMs/AI cannot be listed as authors.
+- **Disclosure location**: Methods (if AI used in study methods, with tool name, version, and prompts for replication) and/or Acknowledgements (for writing assistance), applied with human oversight.
+- **AI-generated study objects** (e.g., images that are themselves the subject of study) must be described in full in the Methods.
+- For Comment/Correspondence (blue-section content): generative AI permitted only for grammar/spelling; not for translation at submission.
+
+## Cover Letter
+
+- ≤ ~400 words (convention; desk-reject risk above 500).
+- Structure: opening (journal + article type + title) → why this matters / novelty over the closest prior work → key findings (each with one effect size + 95% CI) → reporting standards + ethics + registration → 3 suggested reviewers (no recent collaboration; not the closest competitor's authors).
+- State data-sharing intent; declare no competing interests or list them; note preprint/concurrent-submission status.
+
+## Common Rejection Reasons
+
+- Scope mismatch (not a digital-health/clinical-AI question with practice or policy relevance).
+- Incremental advance over recent flagship work without a clearly articulated added value.
+- Body/abstract/reference/display-item overflow; non-contiguous or excessive display items.
+- Missing or incomplete Research in Context panel (especially the systematic-search description in "Evidence before this study").
+- Non-vector figures; figures with doubtful copyright.
+- "Undecided" or vague Data Sharing Statement.
+- AI/ML study without external validation or without a clinical-utility/impact claim.
+
+## Positioning vs npj Digital Medicine
+
+| Dimension | The Lancet Digital Health | npj Digital Medicine |
+|-----------|---------------------------|----------------------|
+| Family / tier | Lancet (Elsevier); higher IF | Nature Portfolio |
+| Desk-reject | Frequent, fast (≈1–2 wk triage) | Less frequent |
+| Abstract | 5 headings incl. Findings + Funding, ≤300 w | Background/Methods/Results, no Funding heading |
+| Structure | IMRAD (Methods after Introduction) | Methods after Discussion (Nature) |
+| Methods subheadings | Permitted; Results/Discussion **no subheadings** | Short **bold run-in** Methods headings required |
+| Research in Context | Mandatory panel | Not required |
+| Reference cap | ≤30 (Article) | No strict cap |
+| Data/Code availability | Data sharing mandatory; code encouraged | Data **and** Code availability mandatory; Reporting Summary at revision |
+
+## Verification
+
+- **Last verified**: 2026-06-11.
+- **Gate source**: official Information for Authors PDF — https://www.thelancet.com/pb-assets/Lancet/authors/tldh-info-for-authors-1778587678573.pdf (plus the Observational/Meta/RCT guideline PDFs and the artwork guidelines).
