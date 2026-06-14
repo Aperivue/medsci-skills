@@ -16,6 +16,9 @@ against `critic_rubrics/data_plot.md`; do not copy an image.
 - `forest_plot.md` — meta-analysis forest plot: per-study square-by-weight + CI, pooled diamond
   with the model named, prediction interval, I²/τ²/Q, no-pool discipline under extreme
   heterogeneity, subgroup-difference test, funnel/Egger only at k ≥ 10.
+- `km_curve.md` — Kaplan–Meier survival curve: number-at-risk table, censoring marks, CI band,
+  median/log-rank/HR annotation, no extrapolation past the thin-risk-set tail, CIF for competing
+  risks. Pairs the survival table-type.
 
 ## Curator guidelines (for adding more)
 
@@ -27,5 +30,5 @@ against `critic_rubrics/data_plot.md`; do not copy an image.
 - **Complement, do not duplicate, `critic_rubrics/data_plot.md` §C** — the rubric scores; the
   exemplar composes. Cross-reference the rubric and the relevant `analyze-stats` template
   (e.g., `forest_plot.py` / `meta_analysis.R` for the forest) rather than restating them.
-- Keep each file ~40–60 lines. Future candidates: `km_curve.md` (pairs the survival table-type),
-  `roc_pr.md`, `calibration_plot.md`.
+- Keep each file ~40–60 lines. Future candidates (see `reverse_engineer/gap_register.md`):
+  `roc_pr.md`, `calibration_plot.md`, `bland_altman.md`, `confusion_matrix.md`.
