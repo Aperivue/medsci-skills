@@ -75,6 +75,56 @@
         "notes": {
           "type": "string",
           "description": "Free-text: why this license was assigned, what was learned, caveats."
+        },
+        "linked_artifacts": {
+          "type": "array",
+          "description": "Data/code availability artifacts linked from the article (supplementary files, GitHub/GitLab repos, Zenodo/OSF/Figshare deposits, HuggingFace model/dataset cards). Each carries its OWN license, which is verified independently of the article — a code repo's software license (MIT/Apache/GPL/none) and a Zenodo deposit's per-deposit license differ from the article's. distill.py validates each like a record and authorizes its reuse separately (RECORD_ID#INDEX).",
+          "items": { "$ref": "#/$defs/linked_artifact" }
+        }
+      }
+    },
+    "linked_artifact": {
+      "type": "object",
+      "required": ["url", "artifact_type", "license", "license_url"],
+      "additionalProperties": false,
+      "properties": {
+        "url": { "type": "string", "format": "uri" },
+        "artifact_type": {
+          "type": "string",
+          "enum": ["supplementary", "code_repo", "dataset", "model_card", "preprint", "protocol", "other"],
+          "description": "supplementary = supplementary files (usually inherit the article license — verify); code_repo = source-code repository (its own software license); dataset = data deposit (Zenodo/OSF/Figshare, per-deposit license); model_card / preprint / protocol / other."
+        },
+        "doi": {
+          "type": ["string", "null"],
+          "description": "DOI of the artifact if it has one (e.g., a Zenodo deposit DOI); null otherwise.",
+          "default": null
+        },
+        "license": {
+          "type": "string",
+          "description": "The artifact's OWN license, verified independently. SPDX-style id or short name (e.g., 'MIT', 'Apache-2.0', 'GPL-3.0', 'CC0-1.0', 'CC-BY-4.0', or 'unknown')."
+        },
+        "license_url": {
+          "type": "string",
+          "description": "Link to the artifact's license (e.g., the repo LICENSE file or the Zenodo deposit page). Use '' only when license is 'unknown'."
+        },
+        "verbatim_allowed": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether verbatim reuse of this artifact (e.g., copying a code snippet or a figure) may appear in a committed artifact. Default false."
+        },
+        "public_reuse_policy": {
+          "type": "string",
+          "enum": ["synthetic_only", "paraphrase_ok", "cc_by_attribution"],
+          "default": "synthetic_only",
+          "description": "Same semantics as the record's policy, applied to this artifact. Default synthetic_only. A non-default policy requires a verified permissive license on the artifact (a permissive software license — MIT/Apache/BSD/CC0 — for a code_repo; CC-BY/CC0 for data/figures)."
+        },
+        "attribution": {
+          "type": "string",
+          "description": "Required citation/attribution line when public_reuse_policy is cc_by_attribution. Optional otherwise."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Free-text: what the artifact added (e.g., the released training code revealed the real threshold / leakage; the supplementary held the calibration plot), and license caveats."
         }
       }
     }
