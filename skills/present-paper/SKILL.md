@@ -516,7 +516,11 @@ cd /tmp/work && zip -rq ../patched.pptx . -x '*.DS_Store'
 
 `python-pptx` is reserved for (a) brand-new decks built via the templates above, or
 (b) appending speaker notes via `slide.notes_slide.notes_text_frame.text`. The skill's
-`scripts/inject_speaker_notes.py` is the canonical example of (b).
+`scripts/inject_speaker_notes.py` is the canonical example of (b). It parses inline
+`**bold**` / `*italic*` into run-level styling by default (python-pptx stores `text`
+verbatim, so the markers would otherwise show literally in Presenter View — the failure
+mode `pptx-speaker-notes.md` warns against); pass `--no-markdown` for legacy plain text.
+A reproducible check lives at `tests/test_speaker_notes_markdown.py`.
 
 ### Standard structure (10–15 min paper talk)
 
