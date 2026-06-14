@@ -44,6 +44,11 @@ stop adding marginal items there).
 | G9 | calc-sample-size | `references/justification_examples.md` — reviewer-safe sample-size justification prose per design (found via cross-skill audit; SKILL.md promised "IRB-ready justification text" but no exemplar library) | 4 | 4 | 4 | 64 | shipped (this PR) |
 | G10 | present-paper | `scripts/inject_speaker_notes.py` run-level markdown parser — general speaker notes rendered `**bold**` literally (the failure mode pptx-speaker-notes.md warns against); the parser existed only in inject_pronunciation_notes.py. Found while triaging the unmerged `present-paper-md-notes-glossary` branch (whose verify_refs/academic-aio parts were already superseded by main) | 3 | 4 | 4 | 48 | shipped (rescue PR) |
 | G11 | manage-refs | `scripts/render_pandoc.sh` had no pre-render reference audit — a direct render call could ship fabricated/mismatched citations (the master pre_submission_gate audits, but direct calls bypass it). Found while triaging the unmerged present-paper-md-notes-glossary branch | 4 | 3 | 4 | 48 | shipped (cleanup PR) |
+| G19 | peer-review + self-review | `domain-probes/diagnostic_accuracy.md` (NEW MODULE, D1–D6) — DTA primary studies + MRMC reader studies had no probe (sr_ma covers DTA *meta-analysis* only): verification/spectrum/blinding bias, indeterminate handling, MRMC fully-crossed/washout design, reader+case variance (Obuchowski–Rockette). Found reverse-engineering the prospective-DTA/MRMC area | 5 | 3 | 5 | 75 | in-progress (this PR) |
+| G20 | make-figures | `exemplar_plots/mrmc_roc.md` — MRMC reader-study ROC anatomy (per-reader + reader-averaged curves, MRMC reader+case CI, ΔAUC + margin, unit/design note); no reader-study figure exemplar existed | 4 | 3 | 5 | 60 | in-progress (this PR) |
+| G21 | analyze-stats | `table-types/reader_study.md` — MRMC per-reader + reader-averaged performance table (OR/DBM reader+case CI, per-patient vs per-lesion, non-inferiority margin); distinct from agreement.md (reliability) | 4 | 3 | 5 | 60 | in-progress (this PR) |
+
+> Numbering note: G12–G15 belong to the decision-curve+TRIPOD-LLM PR; G16–G18 to the AI-RCT PR; both off origin/main and still open. This branch uses G19–G21.
 
 ## Lane status
 
