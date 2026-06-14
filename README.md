@@ -11,6 +11,7 @@
 [![CI](https://img.shields.io/github/actions/workflow/status/Aperivue/medsci-skills/validate.yml?branch=main&style=flat-square&label=CI)](https://github.com/Aperivue/medsci-skills/actions/workflows/validate.yml)
 ![Skills](https://img.shields.io/badge/Skills-45-brightgreen?style=flat-square)
 [![npm](https://img.shields.io/npm/v/medsci-skills?style=flat-square&label=npm&color=cb3837)](https://www.npmjs.com/package/medsci-skills)
+[![good first issues](https://img.shields.io/github/issues/Aperivue/medsci-skills/good%20first%20issue?style=flat-square&label=good%20first%20issues&color=7057ff)](https://github.com/Aperivue/medsci-skills/contribute)
 
 [![Agent Skills](https://img.shields.io/badge/Agent_Skills-standard-blue?style=flat-square)](https://agentskills.io)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-supported-success?style=flat-square)](docs/host_compatibility.md)
@@ -575,6 +576,28 @@ Or equivalently: `/write-paper --autonomous` if analysis and figures already exi
 /grant-builder         # Structure significance, innovation, approach
 /search-lit            # Find supporting literature with verified citations
 ```
+
+## Contributing
+
+Contributions are welcome — and most are **one small, self-contained file** that a
+template walks you through. You do not need to understand the whole pipeline to add value.
+Pick a [**good first issue**](https://github.com/Aperivue/medsci-skills/contribute), or start
+from one of these:
+
+| Want to add… | How | Issue |
+|---|---|---|
+| **A journal profile** (submission rules for a journal we don't cover) | `/add-journal`, or copy an existing `journal_profiles/*.md` | [#115](https://github.com/Aperivue/medsci-skills/issues/115) |
+| **A figure exemplar** (ROC, KM, forest, Bland–Altman, confusion matrix…) | one `make-figures/references/exemplar_plots/*.md` anatomy model | [#118](https://github.com/Aperivue/medsci-skills/issues/118) |
+| **A CSL citation style** for a journal that lacks one | drop a `.csl` into `manage-refs/citation_styles/` | [#117](https://github.com/Aperivue/medsci-skills/issues/117) |
+| **A de-identification locale pack** for one more country | add patterns to `deidentify/` | [#116](https://github.com/Aperivue/medsci-skills/issues/116) |
+| **A reporting checklist or peer-review exemplar** | one reference file in the matching skill | [#120](https://github.com/Aperivue/medsci-skills/issues/120) |
+| **A README translation** (e.g., zh-CN) | a translated `README` | [#119](https://github.com/Aperivue/medsci-skills/issues/119) |
+
+Every contribution is gated the same way the maintainers are: it must be a self-contained
+file, pass the CI (`validate.yml` — PII scan, structure, catalog consistency), and carry no
+patient or author identifiers. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the PR checklist
+and the PII/publication hygiene rules. New ideas that don't fit a template? Open a
+[skill request](https://github.com/Aperivue/medsci-skills/issues/new?template=skill_request.yml).
 
 ## In the Wild
 
