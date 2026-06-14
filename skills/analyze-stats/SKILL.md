@@ -31,7 +31,7 @@ Before reading any data file, check whether it might contain Protected Health In
 - **Table standards**: `${CLAUDE_SKILL_DIR}/references/table-standards/` -- journal-specific table formatting
   - `table-standards.md` -- universal rules, AMA rules, footnote system, mistakes checklist
   - `journal-profiles/` -- YAML profiles per journal (radiology, jama, nejm, lancet, eur_rad, ajr)
-  - `table-types/` -- templates per table type (Table 1, diagnostic accuracy, regression, meta-analysis, model comparison)
+  - `table-types/` -- templates per table type (Table 1, diagnostic accuracy, regression, survival/Cox, meta-analysis, model comparison)
   - `tool-comparison.md` -- R/Python tool comparison and recommended pipelines
 - **Figure style**: `${CLAUDE_SKILL_DIR}/references/style/figure_style.mplstyle`
 - **Project data**: See CLAUDE.md for data locations under `2_Data/`
@@ -450,6 +450,7 @@ tbl %>% as_flex_table() %>% flextable::save_as_docx(path = "table.docx")
 
 ### Survival Analysis
 
+- Table type guide: `references/table-standards/table-types/survival_results.md` (Cox results table: events/person-time, reverse-KM median follow-up, univariable + adjusted HR with CI, PH-assumption footnote, EPV/sparse-stratum and RMST-when-PH-violated rules)
 - Kaplan-Meier curves with number-at-risk table
 - Log-rank test for group comparison
 - Cox proportional hazards: report HR (95% CI)
