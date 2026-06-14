@@ -1,7 +1,7 @@
 {
   "_comment": "Single source of truth for catalog counts cited in public docs (README, orchestrate, check-reporting). scripts/validate_catalog_consistency.py recomputes every value from disk, asserts this file matches, and asserts the doc claims match. Do not hand-edit a value without running that script — CI fails on drift.",
   "skills": 45,
-  "reporting_guidelines": 32,
+  "reporting_guidelines": 33,
   "journal_profiles_find": 68,
   "journal_profiles_write": 55,
   "integrity_detectors": 25

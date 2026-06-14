@@ -5,7 +5,7 @@ owner_domain: reporting_compliance
 when_to_use:
   - Pre-submission item-level checklist run for a target reporting guideline (STROBE / CONSORT / STARD / TRIPOD / PRISMA / ARRIVE / CARE / SPIRIT / CLAIM / SQUIRE 2.0 / etc.)
   - Risk-of-bias assessment using QUADAS-2 / QUADAS-C / RoB 2 / ROBINS-I / ROBINS-E / ROBIS / PROBAST / NOS / COSMIN / RoB NMA
-  - AI-extension audit (STARD-AI, TRIPOD+AI, PROBAST+AI, CLAIM 2024, MI-CLEAR-LLM, CLEAR)
+  - AI-extension audit (STARD-AI, TRIPOD+AI, TRIPOD-LLM, PROBAST+AI, CLAIM 2024, MI-CLEAR-LLM, CLEAR)
   - Reviewer or editor asks the manuscript "to comply with [guideline]" — generate the gap list
 when_NOT_to_use:
   - Drafting manuscript prose to fill missing items (use /write-paper or /revise)
@@ -28,7 +28,7 @@ forbidden_actions:
   - silently_mark_missing_items_present
 
 # v2.1 quality card
-purpose: "Audit a manuscript item-by-item against a chosen reporting guideline (32 supported) with PRESENT/MISSING/PARTIAL status."
+purpose: "Audit a manuscript item-by-item against a chosen reporting guideline (33 supported) with PRESENT/MISSING/PARTIAL status."
 safety_boundaries:
   - "Checklist items are quoted from the guideline, never invented; missing items are not marked present."
   - "Fails fast if the requested checklist file is absent rather than generating a guessed checklist."

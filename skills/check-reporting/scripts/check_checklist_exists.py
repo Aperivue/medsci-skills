@@ -45,6 +45,7 @@ ALIAS_TO_STEM = {
     "stardai": "STARD_AI",
     "tripod": "TRIPOD",
     "tripodai": "TRIPOD_AI",
+    "tripodllm": "TRIPOD_LLM",
     "prisma": "PRISMA_2020",
     "prismadta": "PRISMA_DTA",
     "prismap": "PRISMA_P",

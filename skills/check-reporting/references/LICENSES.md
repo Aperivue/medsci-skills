@@ -8,6 +8,7 @@ Attribution for bundled reporting guideline checklists.
 | STARD.md | STARD 2015 | Bossuyt PM et al. BMJ 2015 | CC BY 4.0 |
 | STARD_AI.md | STARD-AI 2025 | Sounderajah V et al. Nat Med 2025;31:3283-3289 | CC BY |
 | TRIPOD_AI.md | TRIPOD+AI 2024 | Collins GS et al. BMJ 2024 | CC BY 4.0 |
+| TRIPOD_LLM.md | TRIPOD-LLM 2025 | Gallifant J et al. Nat Med 2025;31(1):60-69 | CC BY 4.0 (accepted manuscript) — educational summary |
 | PRISMA_2020.md | PRISMA 2020 | Page MJ et al. BMJ 2021 | CC BY |
 | ARRIVE_2.md | ARRIVE 2.0 | Percie du Sert N et al. PLoS Biol 2020 | CC0 |
 | PRISMA_DTA.md | PRISMA-DTA 2018 | McInnes MDF et al. JAMA 2018 | CC BY |
@@ -36,6 +37,11 @@ this repository's MIT license — downstream use must comply with the original t
   requires permission from the original rights holders.
 - **CLAIM_2024.md** is an educational summary of an RSNA open-access checklist
   (© RSNA). Cite Tejani et al. 2024; consult RSNA for commercial reuse terms.
+- **TRIPOD_LLM.md** paraphrases item *intent* in our own words; no verbatim guideline
+  wording is copied. The published Nature Medicine article is subscription-access
+  (© The Author(s), under exclusive licence to Springer Nature); the author-accepted
+  manuscript is CC BY 4.0 via institutional rights retention. Cite Gallifant et al. 2025
+  and complete the official instrument (tripod-statement.org) for a submission checklist.
 
 All files remain educational summaries that cite their source; they do not relicense
 the underlying guidelines.

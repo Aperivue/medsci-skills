@@ -1,7 +1,7 @@
 ---
 name: check-reporting
-description: Check manuscript compliance with medical research reporting guidelines. Supports 32 guidelines including STROBE, CONSORT, STARD, STARD-AI, TRIPOD, TRIPOD+AI, ARRIVE, PRISMA, PRISMA-DTA, PRISMA-P, CARE, SPIRIT, CLAIM, MI-CLEAR-LLM, SQUIRE 2.0, CLEAR, MOOSE, GRRAS, SWiM, AMSTAR 2, and risk of bias tools (QUADAS-2, QUADAS-C, RoB 2, ROBINS-I, ROBINS-E, ROBIS, ROB-ME, PROBAST, PROBAST+AI, NOS, COSMIN, RoB NMA). Generates item-by-item assessment with PRESENT/MISSING/PARTIAL status.
-triggers: checklist, reporting guideline, STROBE, CONSORT, STARD, STARD-AI, TRIPOD, PRISMA, PRISMA-DTA, PRISMA-P, ARRIVE, CARE, CLAIM, MI-CLEAR-LLM, SPIRIT, QUADAS, QUADAS-C, RoB, ROBINS, ROBINS-E, ROBIS, ROB-ME, PROBAST, NOS, COSMIN, AMSTAR, SWiM, risk of bias, compliance check, LLM accuracy
+description: Check manuscript compliance with medical research reporting guidelines. Supports 33 guidelines including STROBE, CONSORT, STARD, STARD-AI, TRIPOD, TRIPOD+AI, TRIPOD-LLM, ARRIVE, PRISMA, PRISMA-DTA, PRISMA-P, CARE, SPIRIT, CLAIM, MI-CLEAR-LLM, SQUIRE 2.0, CLEAR, MOOSE, GRRAS, SWiM, AMSTAR 2, and risk of bias tools (QUADAS-2, QUADAS-C, RoB 2, ROBINS-I, ROBINS-E, ROBIS, ROB-ME, PROBAST, PROBAST+AI, NOS, COSMIN, RoB NMA). Generates item-by-item assessment with PRESENT/MISSING/PARTIAL status.
+triggers: checklist, reporting guideline, STROBE, CONSORT, STARD, STARD-AI, TRIPOD, TRIPOD-LLM, PRISMA, PRISMA-DTA, PRISMA-P, ARRIVE, CARE, CLAIM, MI-CLEAR-LLM, SPIRIT, QUADAS, QUADAS-C, RoB, ROBINS, ROBINS-E, ROBIS, ROB-ME, PROBAST, NOS, COSMIN, AMSTAR, SWiM, risk of bias, compliance check, LLM accuracy, large language model
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit
 ---
@@ -26,6 +26,7 @@ compliance report suitable for journal submission.
   - `STARD_AI.md` -- AI diagnostic accuracy studies (CC BY, Sounderajah et al. Nat Med 2025)
   - `TRIPOD.md` -- prediction models, classic 2015 version (CC BY, Moons et al. Ann Intern Med 2015)
   - `TRIPOD_AI.md` -- prediction models with AI/ML (CC BY 4.0, Collins et al. BMJ 2024)
+  - `TRIPOD_LLM.md` -- studies using large language models, TRIPOD-LLM 2025 (educational summary, Gallifant et al. Nat Med 2025)
   - `PRISMA_2020.md` -- systematic reviews (CC BY)
   - `ARRIVE_2.md` -- animal studies (CC0)
   - `PRISMA_DTA.md` -- DTA systematic reviews (CC BY, McInnes et al. JAMA 2018)
@@ -102,6 +103,7 @@ user specification.
 | Study protocol | SPIRIT 2025 | SPIRIT-AI |
 | Animal study | ARRIVE 2.0 | -- |
 | AI/ML study in clinical imaging | CLAIM 2024 | -- |
+| Study using a large language model (develop/fine-tune/prompt/evaluate an LLM) | TRIPOD-LLM | MI-CLEAR-LLM (use alongside when LLM accuracy is an outcome) |
 | LLM accuracy evaluation in healthcare | MI-CLEAR-LLM | STARD-AI or CLAIM 2024 (use alongside) |
 | Reliability / agreement study | GRRAS | -- |
 | SR protocol | PRISMA-P | -- |
@@ -114,6 +116,7 @@ user specification.
 - If the study involves AI/ML, always apply the AI extension in addition to the base guideline.
   - **Exception — TRIPOD**: TRIPOD+AI 2024 (Collins et al., BMJ 2024) is a complete rewrite, not an addendum to TRIPOD 2015 (Moons et al., Ann Intern Med 2015). For non-AI prediction models, use TRIPOD 2015 only. For AI/ML prediction models, use TRIPOD+AI 2024 only. Do NOT apply both simultaneously.
 - **STARD-AI** (Sounderajah et al., Nat Med 2025) extends STARD 2015 with 14 new and 4 modified items (40 total). For AI diagnostic accuracy studies, use STARD-AI (which incorporates all STARD 2015 items). Do NOT apply both STARD 2015 and STARD-AI simultaneously — STARD-AI supersedes STARD 2015 for AI studies.
+- **TRIPOD-LLM** (Gallifant et al., Nat Med 2025) is the reporting guideline for studies that develop, fine-tune, prompt, or evaluate a large language model for a clinical/biomedical task. It extends the TRIPOD family (TRIPOD 2015 → TRIPOD+AI 2024 → TRIPOD-LLM 2025); name the base instrument and the extension and cite each. It is modular — task-specific items (Annotation, Prompting, Summarization, Instruction-tuning) are N/A when that component is absent. Use TRIPOD-LLM for LLM studies in place of TRIPOD+AI; pair with MI-CLEAR-LLM when LLM accuracy is an evaluated outcome. The vendored checklist is an educational summary (own-words paraphrase of item intent); complete the official instrument for a submission checklist.
 - **MI-CLEAR-LLM** is a supplementary checklist (6 items), not a standalone reporting guideline. Always pair it with the study's primary guideline (e.g., STARD-AI for AI diagnostic accuracy, CLAIM for imaging AI). Apply MI-CLEAR-LLM whenever the study evaluates LLM accuracy as an outcome — do NOT apply it merely because the manuscript was written with LLM assistance.
 - If multiple guidelines apply (e.g., a diagnostic accuracy study that is also an AI study), check against all relevant guidelines and merge into one report.
 - If the user requests a specific guideline, use that one regardless of auto-detection.

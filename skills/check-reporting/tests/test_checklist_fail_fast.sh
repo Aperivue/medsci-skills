@@ -39,6 +39,7 @@ run() { python3 "$SCRIPT" "$@" >/dev/null 2>&1; echo $?; }
 assert_exit "STROBE present" 0 "$(run --guideline STROBE)"
 assert_exit "STARD-AI alias present" 0 "$(run --guideline STARD-AI)"
 assert_exit "TRIPOD+AI alias present" 0 "$(run --guideline 'TRIPOD+AI')"
+assert_exit "TRIPOD-LLM alias present" 0 "$(run --guideline 'TRIPOD-LLM')"
 assert_exit "AMSTAR 2 alias present" 0 "$(run --guideline 'AMSTAR 2')"
 assert_exit "RoB 2 alias present" 0 "$(run --guideline 'RoB 2')"
 assert_exit "QUADAS-C alias present" 0 "$(run --guideline QUADAS-C)"

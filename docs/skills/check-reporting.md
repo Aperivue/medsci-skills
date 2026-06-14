@@ -2,17 +2,17 @@
 
 # check-reporting
 
-> Check manuscript compliance with medical research reporting guidelines. Supports 32 guidelines including STROBE, CONSORT, STARD, STARD-AI, TRIPOD, TRIPOD+AI, ARRIVE, PRISMA, PRISMA-DTA, PRISMA-P, CARE, SPIRIT, CLAIM, MI-CLEAR-LLM, SQUIRE 2.0, CLEAR, MOOSE, GRRAS, SWiM, AMSTAR 2, and risk of bias tools (QUADAS-2, QUADAS-C, RoB 2, ROBINS-I, ROBINS-E, ROBIS, ROB-ME, PROBAST, PROBAST+AI, NOS, COSMIN, RoB NMA). Generates item-by-item assessment with PRESENT/MISSING/PARTIAL status.
+> Check manuscript compliance with medical research reporting guidelines. Supports 33 guidelines including STROBE, CONSORT, STARD, STARD-AI, TRIPOD, TRIPOD+AI, TRIPOD-LLM, ARRIVE, PRISMA, PRISMA-DTA, PRISMA-P, CARE, SPIRIT, CLAIM, MI-CLEAR-LLM, SQUIRE 2.0, CLEAR, MOOSE, GRRAS, SWiM, AMSTAR 2, and risk of bias tools (QUADAS-2, QUADAS-C, RoB 2, ROBINS-I, ROBINS-E, ROBIS, ROB-ME, PROBAST, PROBAST+AI, NOS, COSMIN, RoB NMA). Generates item-by-item assessment with PRESENT/MISSING/PARTIAL status.
 
 **Invoke:** `/check-reporting` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
 
 ## When to use
 
-`check-reporting` activates on requests such as: checklist, reporting guideline, STROBE, CONSORT, STARD, STARD-AI, TRIPOD, PRISMA, PRISMA-DTA, PRISMA-P, ARRIVE, CARE, CLAIM, MI-CLEAR-LLM, SPIRIT, QUADAS, QUADAS-C, RoB, ROBINS, ROBINS-E, ROBIS, ROB-ME, PROBAST, NOS, COSMIN, AMSTAR, SWiM, risk of bias, compliance check, LLM accuracy.
+`check-reporting` activates on requests such as: checklist, reporting guideline, STROBE, CONSORT, STARD, STARD-AI, TRIPOD, TRIPOD-LLM, PRISMA, PRISMA-DTA, PRISMA-P, ARRIVE, CARE, CLAIM, MI-CLEAR-LLM, SPIRIT, QUADAS, QUADAS-C, RoB, ROBINS, ROBINS-E, ROBIS, ROB-ME, PROBAST, NOS, COSMIN, AMSTAR, SWiM, risk of bias, compliance check, LLM accuracy, large language model.
 
 ## Quality Card
 
-**Purpose** — Audit a manuscript item-by-item against a chosen reporting guideline (32 supported) with PRESENT/MISSING/PARTIAL status.
+**Purpose** — Audit a manuscript item-by-item against a chosen reporting guideline (33 supported) with PRESENT/MISSING/PARTIAL status.
 
 **Safety boundaries**
 
@@ -36,7 +36,7 @@
 **References** (`skills/check-reporting/references/`):
 
 - `LICENSES.md`
-- `checklists/` (32 files)
+- `checklists/` (33 files)
 - `critical_item_floor.md`
 - `step4c_registration_timing.md`
 - `step4d_prisma_figure_audit.md`
