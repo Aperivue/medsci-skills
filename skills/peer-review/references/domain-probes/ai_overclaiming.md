@@ -43,6 +43,25 @@ A 5-probe checklist (AO1–AO5, with AO0 as a gate) for medical-AI/ML primary st
 - (d) **Code-vs-claims fidelity**: where code is released, does the described tuning/metric match it? Common mismatches: a claimed hyperparameter search the code does not run; a metric (e.g., specificity) attributed to a library function that does not compute it. A confirmed mismatch is an integrity/reproducibility flag — verify against the released code before asserting it.
 - Severity: MAJOR when the load-bearing performance claim rests on a best-fold number, an unstated/test-tuned threshold, a rebalanced-accuracy headline, or a code-vs-claims mismatch (the reported result is optimistic or not reproducible); MINOR when cross-validation was sound and only the cross-fold summary, the operating point, or a class-aware metric is missing from the write-up.
 
+## Decision-impact / early-deployment probes (DECIDE-AI axis, DI1–DI5)
+
+Co-apply when a study claims **clinical utility, deployment, or decision impact** of an AI system, or *is* an early-stage live clinical evaluation. The reporting axis is then DECIDE-AI (early-stage clinical evaluation of AI decision-support); these probes check that a utility/deployment claim rests on real-use evidence, not retrospective accuracy. They sharpen AO4 for the deployment-evaluation case.
+
+**DI1 — Live/prospective evidence vs retrospective accuracy**:
+- Is there any **prospective, in-workflow (silent-trial / shadow-deployment / live)** evidence of how the system performs and is used, or is the deployment/utility claim built only on a retrospective, internally-split accuracy study? A deployment claim from retrospective discrimination alone → MAJOR (reframe to "supports prospective evaluation").
+
+**DI2 — Intended use + deployment pathway within early-stage limits**:
+- Is the **intended use** (condition, decision supported, users, setting) stated, and is the claim kept within what an early-stage evaluation can show? Over-reach to "ready for routine clinical use" from a developmental/exploratory study → MAJOR.
+
+**DI3 — Decision threshold + calibration/utility**:
+- If a **decision threshold** or care directive is proposed, is it justified, with the predicted probabilities **calibrated** and **net benefit** (decision-curve) shown — not discrimination alone? An unjustified threshold or missing calibration/utility for a probability that drives a decision → MAJOR.
+
+**DI4 — Workflow integration + human–computer interaction**:
+- Does the study report **how the system was used in the real workflow** — user adherence/exposure, **human–computer agreement/override rates**, **usability and learning curve** (human factors)? A utility claim with no real-use interaction data is the central DECIDE-AI gap → MAJOR/PARTIAL.
+
+**DI5 — Safety, error capture, and subgroup safety**:
+- Were **significant errors/malfunctions pre-defined and captured**, the **safety profile** reported and discussed, and performance/safety examined across **relevant subgroups** (fairness)? Absent pre-defined error capture or subgroup-safety assessment where the claim is clinical deployment → MAJOR.
+
 **Output template (AO1 example)**:
 > "The Conclusion states the model 'generalizes across institutions,' but external validation appears limited to a single site ([Methods, External validation]). I'd suggest softening this to the evidence — e.g., 'validated at one external site' — and framing multi-institution generalizability as a stated limitation and a next step. If a broader claim is intended, an external set spanning multiple sites/vendors would be needed to support it."
 
