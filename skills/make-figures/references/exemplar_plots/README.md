@@ -19,6 +19,10 @@ against `critic_rubrics/data_plot.md`; do not copy an image.
 - `km_curve.md` — Kaplan–Meier survival curve: number-at-risk table, censoring marks, CI band,
   median/log-rank/HR annotation, no extrapolation past the thin-risk-set tail, CIF for competing
   risks. Pairs the survival table-type.
+- `roc_pr.md` — ROC + precision–recall: fixed 0–1 axes, AUC CI / curve band, marked operating
+  point, DeLong for AUC differences, PR + AUPRC (baseline = prevalence) under imbalance.
+- `calibration_plot.md` — calibration: predicted-vs-observed with 45° line, flexible curve,
+  slope/intercept, predicted-risk distribution, external set, not HL-test-alone; pairs roc_pr.
 
 ## Curator guidelines (for adding more)
 
@@ -31,4 +35,4 @@ against `critic_rubrics/data_plot.md`; do not copy an image.
   exemplar composes. Cross-reference the rubric and the relevant `analyze-stats` template
   (e.g., `forest_plot.py` / `meta_analysis.R` for the forest) rather than restating them.
 - Keep each file ~40–60 lines. Future candidates (see `reverse_engineer/gap_register.md`):
-  `roc_pr.md`, `calibration_plot.md`, `bland_altman.md`, `confusion_matrix.md`.
+  `bland_altman.md`, `confusion_matrix.md`, `visual_abstract` anatomy.
