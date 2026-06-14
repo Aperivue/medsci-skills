@@ -31,7 +31,7 @@ Before reading any data file, check whether it might contain Protected Health In
 - **Table standards**: `${CLAUDE_SKILL_DIR}/references/table-standards/` -- journal-specific table formatting
   - `table-standards.md` -- universal rules, AMA rules, footnote system, mistakes checklist
   - `journal-profiles/` -- YAML profiles per journal (radiology, jama, nejm, lancet, eur_rad, ajr)
-  - `table-types/` -- templates per table type (Table 1, diagnostic accuracy, regression, survival/Cox, agreement/reliability, meta-analysis, model comparison)
+  - `table-types/` -- templates per table type (Table 1, diagnostic accuracy, regression, survival/Cox, agreement/reliability, meta-analysis, model comparison, reader study (MRMC))
   - `tool-comparison.md` -- R/Python tool comparison and recommended pipelines
 - **Figure style**: `${CLAUDE_SKILL_DIR}/references/style/figure_style.mplstyle`
 - **Project data**: See CLAUDE.md for data locations under `2_Data/`
@@ -393,6 +393,7 @@ tbl %>% as_flex_table() %>% flextable::save_as_docx(path = "table.docx")
   - IDI (Integrated Discrimination Improvement)
   - Bootstrap 95% CIs (1000+ iterations)
   - These supplement, not replace, DeLong AUC comparison
+- Reader study (MRMC): `references/table-standards/table-types/reader_study.md` (per-reader + reader-averaged AUC with an Obuchowski–Rockette/DBM reader+case CI, per-patient vs per-lesion unit, superiority vs non-inferiority margin). Use an MRMC method (not a fixed-reader DeLong CI) for a claim that generalises to readers. Pairs `make-figures` `references/exemplar_plots/mrmc_roc.md`.
 
 ### Inter-rater Agreement
 
