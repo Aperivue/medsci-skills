@@ -6,7 +6,7 @@
        - self-review: Anticipated Major / Minor Comments (Fatal / Fixable) mapped to category letters.
      Do NOT edit one copy only — run `python3 scripts/check_domain_probe_sync.py --sync`. -->
 
-# Case-report probes (CR1–CR6)
+# Case-report probes (CR1–CR8)
 
 A checklist for **case reports and small single-patient clinical narratives**. These probes
 complement (do not replace) the generic Phase 2 issue checklist and the CARE items. They target the
@@ -61,6 +61,28 @@ the evidence level of n=1.
 - Check the Abstract and final paragraph together. A cautious Discussion cannot rescue an
   overgeneralized Abstract conclusion.
 
+**CR7 — Adverse drug/device/contrast reaction: causality discipline** (apply when the case *is* the adverse event):
+- Is attribution supported by a **named instrument** (Naranjo or WHO-UMC for drugs) with the score and
+  tier reported, not just the word "caused"? Is **dechallenge** documented (withdrawal → resolution)
+  with the exposure-to-onset latency, and is **rechallenge** either reported or explicitly withheld on
+  safety grounds? Mechanism-only narrative with no instrument and no dechallenge → MAJOR for the
+  attribution claim.
+- Are **alternative causes excluded**, and is the event located against a **denominator** (institutional
+  rate or pharmacovigilance database count) rather than implying incidence from n=1? Severity/
+  preventability instruments (e.g., Hartwig–Siegel, Schumock–Thornton) strengthen a safety report.
+  Blaming the agent for a course actually driven by a downstream confounder (e.g., patient
+  self-management) without separating the steps → overreach.
+
+**CR8 — Case-series-specific design** (apply only when the manuscript reports a series, n≥2):
+- Does the series have **cohort-style methods** (design, setting, case-identification source,
+  eligibility, protocol) and an **all-cases summary table**, rather than being N stacked single
+  reports? Absent methods/summary table for a series → MAJOR (it cannot be read as a series).
+- Is **selection/ascertainment** stated, with the **screened pool size** so consecutiveness can be
+  judged? Does the manuscript avoid inferring **prevalence/proportion or effectiveness** from a
+  selected/referral series (report counts, not rates)? A rate claimed from a referral series, or a
+  series presented with no selection description, → MAJOR interpretive limit. Cohort-level limitations
+  (small n, retrospective, non-uniform protocol, no comparator) should be explicit.
+
 **Output template (CR2 / CR3 example)**:
 > "The case is clinically interesting, but the submission does not yet provide enough information for
 > publication as a case report. First, the consent/anonymization statement should be made explicit,
@@ -70,7 +92,7 @@ the evidence level of n=1.
 > generating observation and narrowing the teaching point to when clinicians should consider this
 > diagnosis or management option."
 
-**Discipline — leads vs findings (applies to CR1–CR6)**:
+**Discipline — leads vs findings (applies to CR1–CR8)**:
 - A missing element is a **lead until the whole manuscript, figures, legends, and ethics statements are
   checked**. Do not allege absent consent or absent follow-up if it appears in a title page, figure
   legend, supplement, or patient-perspective section.
