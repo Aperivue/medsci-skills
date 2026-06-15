@@ -47,6 +47,22 @@ non-representative point estimates.
 - **Multi-cycle NHANES**: divide weight by number of cycles combined (e.g., 4 cycles: weight/4)
 - **Single-cycle analysis**: use the cycle-specific weight as-is
 
+### Subpopulation (domain) analysis — never row-delete
+
+A restricted analysis (adults only, one sex, a disease subgroup) must keep the **full design** and select the domain, **not** filter the data frame and refit. Row-deletion discards the strata/PSU structure of the dropped units and gives wrong standard errors and design degrees of freedom.
+
+- R `survey`: `subset(design, age >= 18)` on the **design object** (or `svyby`), not `svydesign(data = df[df$age>=18, ])`.
+- Stata: `svy, subpop(if age>=18):` — never `keep if age>=18` before `svy:`.
+- Python `samplics` / R is preferred; statsmodels has no native domain estimator.
+
+### Reporting & common errors (these invalidate the inference, flag at review)
+
+- **Model-based SEs on weighted points.** Applying the weight but computing SEs without strata + PSU (or replicate weights) understates uncertainty. Always declare `strata` + `id`/`cluster`.
+- **Weighted total ≠ sample size.** Report the **unweighted n** as the analytic sample; the weighted figure is a *population* estimate, not "n".
+- **Design effect / effective n.** Report DEFF or the effective sample size where precision is load-bearing; a large DEFF means far fewer independent observations than rows.
+- **Unweighted vs weighted divergence.** If they differ materially, that signals weight-dependent selection — discuss it, do not hide it.
+- **Data-driven thresholds.** A restricted-cubic-spline "non-linear/saturation" claim needs a pre-specified non-linearity test (LRT/Wald vs the linear model), and any "inflection point / threshold" from a recursive breakpoint search must carry a **confidence interval** and a stability check — a searched cutoff is exploratory, not a validated target (review-side probe O12 in `observational_confounding.md`).
+
 ---
 
 ## Step-by-Step Workflow
