@@ -61,23 +61,25 @@ Gather essential information from the user before any writing begins.
 
 When paper type is "case report":
 1. Load `${CLAUDE_SKILL_DIR}/references/paper_types/case_report.md` (CARE structure).
-2. Override word limits: total 1000-1500 words (excl. abstract, references, legends).
-3. Override abstract limit: 150 words, structured (Introduction, Case Presentation, Conclusion).
-4. Override reference limit: 15 references maximum.
-5. Apply CARE 2016 reporting guideline (mandatory).
-6. Modify Phase 1 outline to CARE 8-section structure:
+2. Load `${CLAUDE_SKILL_DIR}/references/exemplar_case_report.md` for the narrative flow,
+   150-word structured abstract anatomy, and case-report failure modes.
+3. Override word limits: total 1000-1500 words (excl. abstract, references, legends).
+4. Override abstract limit: 150 words, structured (Introduction, Case Presentation, Conclusion).
+5. Override reference limit: 15 references maximum.
+6. Apply CARE 2013 reporting guideline (mandatory; see `/check-reporting` `CARE.md`).
+7. Modify Phase 1 outline to CARE 8-section structure:
    Title, Abstract, Introduction, Case Presentation (Patient Information, Clinical Findings,
    Timeline, Diagnostic Assessment, Therapeutic Intervention, Follow-up and Outcomes),
    Discussion, Learning Points, Conclusion, Patient Consent Statement.
-7. In Phase 2, default figures:
+8. In Phase 2, default figures:
    - Figure 1: Key imaging findings (annotated, typically 3-6 panels)
    - Figure 2: Clinical timeline (if complex course)
    - Table 1: Laboratory and clinical data at presentation
-8. In Phase 5 (Discussion), call `/search-lit` with query: `"[condition]" AND "case report"[Publication Type]`.
+9. In Phase 5 (Discussion), call `/search-lit` with query: `"[condition]" AND "case report"[Publication Type]`.
    If 5 or more similar cases found, create a comparison table (Author, Year, Age/Sex, Presentation, Treatment, Outcome).
    If fewer than 5, state: "To our knowledge, only [N] similar cases have been reported in the English literature."
-9. Skip Phase 5a Discussion Planning Gate — case reports are shorter; proceed directly to drafting.
-10. For extended case reports with literature review, user can specify `--extended` to raise
+10. Skip Phase 5a Discussion Planning Gate — case reports are shorter; proceed directly to drafting.
+11. For extended case reports with literature review, user can specify `--extended` to raise
     the word limit to 2000-3000 words and add a structured review section.
 
 7. **Identify a backbone article (auto-proposal first, ask only as fallback)**:
@@ -174,7 +176,7 @@ Design all tables and figures BEFORE writing prose. This ensures the narrative s
    - Figure 1: Study flow diagram (CONSORT/STARD/PRISMA as applicable)
    - Additional figures: performance curves, forest plots, calibration plots, etc.
 4. Call `/analyze-stats` if statistical analysis is needed.
-5. Call `/make-figures` if figure generation is needed. **Pass `--study-type`** mapped from the paper type / reporting guideline selected in Phase 0: diagnostic accuracy → `diagnostic-accuracy`, prediction model → `ai-validation`, systematic review → `meta-analysis`, DTA systematic review → `dta-meta-analysis`, observational → `observational-cohort`, RCT → `rct`.
+5. Call `/make-figures` if figure generation is needed. **Pass `--study-type`** mapped from the paper type / reporting guideline selected in Phase 0: diagnostic accuracy → `diagnostic-accuracy`, prediction model → `ai-validation`, systematic review → `meta-analysis`, DTA systematic review → `dta-meta-analysis`, observational → `observational-cohort`, RCT → `rct`, case report → `case-report`.
 6. **Auto-detect required figures.** Based on the reporting guideline selected in Phase 0, consult the `/make-figures` study-type figure set table. Call `/make-figures` with the full figure set for the study type. Do not ask the user to name each figure individually.
 7. **Visual abstract check.** If the target journal requires or encourages a visual abstract (check the journal profile for a "Visual Abstract" section), call `/make-figures` with visual abstract request. Provide: title, Key Points 1 and 3, methodology summary, and the best study figure as the visual element.
 8. **Figure discovery and embedding.** After figure generation completes, scan the `analysis/figures/` directory for all PNG and PDF files. For each figure:
@@ -267,7 +269,7 @@ Write Results aligned to the approved tables and figures. **Results = "What did 
 
 ### Phase 5: Discussion
 
-**Before writing:** Load `${CLAUDE_SKILL_DIR}/references/section_guides/discussion.md` for the 4-paragraph structure, word limits, limitation writing guidelines, and Table/Figure citation rules. For the matching study type, also skim the structure model in `${CLAUDE_SKILL_DIR}/references/exemplar_discussion/` (diagnostic-accuracy/STARD, AI-validation/TRIPOD+AI·CLAIM, observational-cohort/STROBE) — completing the exemplar trio, each lists what every Discussion paragraph must establish (key finding → interpretation/comparison → limitations → generalizability → conclusion matched to the evidence) plus the element that type most often omits (spectrum/verification bias; evidence-tier separation and optimism caveats; mandatory causal caution). Model the structure; the exemplars are synthetic, introduce no new results, and are not prose to copy.
+**Before writing:** Load `${CLAUDE_SKILL_DIR}/references/section_guides/discussion.md` for the 4-paragraph structure, word limits, limitation writing guidelines, and Table/Figure citation rules. For the matching study type, also skim the structure model in `${CLAUDE_SKILL_DIR}/references/exemplar_discussion/` (diagnostic-accuracy/STARD, AI-validation/TRIPOD+AI·CLAIM, observational-cohort/STROBE) — completing the exemplar trio, each lists what every Discussion paragraph must establish (key finding → interpretation/comparison → limitations → generalizability → conclusion matched to the evidence) plus the element that type most often omits (spectrum/verification bias; evidence-tier separation and optimism caveats; mandatory causal caution). For case reports, use `${CLAUDE_SKILL_DIR}/references/exemplar_case_report.md` instead: it controls literature-boundary wording, n=1 causal caution, and bedside teaching-point framing. Model the structure; the exemplars are synthetic, introduce no new results, and are not prose to copy.
 
 **Before drafting, collect user input (Discussion Planning Gate).**
 
@@ -339,7 +341,7 @@ Incorporate user feedback before running the critic-fixer loop.
 
 Write these LAST because they frame the paper and depend on knowing what was actually found.
 
-**Before writing:** Load `${CLAUDE_SKILL_DIR}/references/section_guides/introduction.md` for the Gap Storytelling 5-step structure, word/paragraph/reference targets, and common mistakes, and skim the paragraph-by-paragraph structure model in `${CLAUDE_SKILL_DIR}/references/exemplar_introduction.md` (¶1 significance → ¶2 landscape → ¶3 the gap → ¶4 objective, plus the vague-gap and gap↔objective-mismatch failure modes). Also load `${CLAUDE_SKILL_DIR}/references/section_guides/title_abstract.md` for Title 3-type selection, 4-component checklist, Abstract Conclusion-first priority, and Visual Abstract guidance, and skim the structured-abstract structure model in `${CLAUDE_SKILL_DIR}/references/exemplar_abstract.md` (Background/Objective → Methods → Results-with-primary-estimate-+-CI-+-denominator → Conclusion-matched-to-design, plus the estimate-free-Results, over-reaching-Conclusion, and body↔abstract number-mismatch failure modes). Model the structure; the exemplars are synthetic, with placeholder specifics, not prose to copy.
+**Before writing:** Load `${CLAUDE_SKILL_DIR}/references/section_guides/introduction.md` for the Gap Storytelling 5-step structure, word/paragraph/reference targets, and common mistakes, and skim the paragraph-by-paragraph structure model in `${CLAUDE_SKILL_DIR}/references/exemplar_introduction.md` (¶1 significance → ¶2 landscape → ¶3 the gap → ¶4 objective, plus the vague-gap and gap↔objective-mismatch failure modes). Also load `${CLAUDE_SKILL_DIR}/references/section_guides/title_abstract.md` for Title 3-type selection, 4-component checklist, Abstract Conclusion-first priority, and Visual Abstract guidance, and skim the structured-abstract structure model in `${CLAUDE_SKILL_DIR}/references/exemplar_abstract.md` (Background/Objective → Methods → Results-with-primary-estimate-+-CI-+-denominator → Conclusion-matched-to-design, plus the estimate-free-Results, over-reaching-Conclusion, and body↔abstract number-mismatch failure modes). For case reports, use `${CLAUDE_SKILL_DIR}/references/exemplar_case_report.md` for the 150-word Introduction / Case Presentation / Conclusion abstract anatomy rather than the IMRAD abstract model. Model the structure; the exemplars are synthetic, with placeholder specifics, not prose to copy.
 
 **Introduction structure (3-4 paragraphs):**
 1. Clinical context establishing importance (cite prevalence, burden, current practice).

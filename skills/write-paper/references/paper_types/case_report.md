@@ -2,7 +2,7 @@
 
 ## Overview
 
-- **Reporting guideline:** CARE 2016 (mandatory)
+- **Reporting guideline:** CARE 2013 (mandatory)
 - **Typical word count:** 1000–1500 words (short-form) or 2000–3000 words (extended with literature review)
 - **Default mode:** Short-form (1000-1500 words). Use `--extended` for longer format.
 - **Structure:** Title → Abstract → Introduction → Case Presentation → Discussion → Conclusions → Patient Perspective (optional) → Informed Consent
@@ -10,7 +10,7 @@
 
 ---
 
-## CARE 2016 Checklist Quick Reference
+## CARE 2013 Checklist Quick Reference
 
 | # | Item | Section | Description |
 |---|------|---------|-------------|
