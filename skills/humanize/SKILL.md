@@ -159,7 +159,7 @@ If the density remains above 2.0, run another fix-verify cycle (max 3 rounds).
 
 | # | Pattern | What to look for | Fix |
 |---|---------|------------------|-----|
-| 13 | Em dash overuse | More than 2 em dashes per page | Use parentheses or restructure |
+| 13 | Em dash overuse | More than 2 em dashes per page | Use parentheses or restructure. **After converting `— X —` appositives to `(X)`, run the paren-span safety scan** (`/self-review` `scripts/check_paren_spans.py`): a bulk conversion can pair two *unrelated* dashes across a sentence boundary and wrap a whole sentence (or an ordinal "Sixth, …" limitation) inside one parenthesis — paren-balanced but broken, so a balance check misses it. Operate per-sentence; never match across `. ` |
 | 14 | Title case in headings | "Statistical Analysis And Primary Endpoints" | Sentence case per journal style |
 | 15 | Curly quotation marks | Curly quotes from ChatGPT | Straight quotes |
 
@@ -243,6 +243,7 @@ the pass/fail status.
 | Gate | Severity | Trigger | Action on fail |
 |---|---|---|---|
 | AI-pattern density target | ADVISORY | density > 2.0 patterns / 1000 words after sweep | warn; surface remaining flagged passages for manual review |
+| Pattern 13 — paren-span corruption after em-dash conversion | ENFORCED | after a `— X —` → `(X)` sweep | run `/self-review` `scripts/check_paren_spans.py --strict`; `PAREN_SPAN_ORDINAL` / `PAREN_SPAN_SENTENCE` means a conversion wrapped a sentence/ordinal inside parens — fix before finalizing |
 | Pattern 19 — `§` symbol | ENFORCED (senior MA reviewer prep) | `grep -c "§" manuscript.md` > 0 | auto-strip; verify post-rewrite count == 0 |
 | Pattern 20 — `(see Methods §X)` self-reference | ENFORCED | match found | rewrite to direct section name reference |
 | Pattern 21 — AI Disclosure paragraph in body | ENFORCED | "Generative AI was not used..." paragraph in manuscript body | move to cover letter or remove |

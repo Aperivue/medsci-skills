@@ -40,5 +40,16 @@ check "DECIMAL_INCONSISTENCY detected" has_verdict DECIMAL_INCONSISTENCY
 python3 "$SCRIPT" --manuscript "$CLEAN" --strict --quiet >/dev/null 2>&1
 check "exit 0 on clean manuscript" test "$?" -eq 0
 
+# (3) structural em-dashes (table cells, ORCID, author/affiliation, panel labels)
+#     must NOT count toward the prose threshold. With --em-dash-max 0, the fixture's
+#     ~9 structural dashes are excluded and its prose has 0 → no EM_DASH_OVERUSE.
+STRUCT="$HERE/fixtures/style_emdash_structural.md"
+python3 "$SCRIPT" --manuscript "$STRUCT" --em-dash-max 0 --out "$OUT" --quiet >/dev/null 2>&1
+check "structural em-dashes excluded (no EM_DASH_OVERUSE at max 0)" python3 -c "
+import json
+d=json.load(open('$OUT'))
+assert not any(c['verdict']=='EM_DASH_OVERUSE' for c in d['claims']), 'structural dashes were counted as prose'
+"
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

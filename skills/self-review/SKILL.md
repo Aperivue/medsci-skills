@@ -1073,9 +1073,17 @@ When `--fix` is passed:
    - Skipped (requires human): {M} issues
    - Changes: {list of id + one-line description of what was changed}
    ```
-4. **Re-review**: Run Phase 2 (systematic check) again on the modified manuscript.
-5. **Iterate**: If new fixable issues emerge, apply one more round (maximum 2 total fix iterations).
-6. **Final output**: Regenerate the Phase 3 report and Phase 3c JSON with updated scores.
+4. **Post-edit paren-span safety scan**: if any fix reduced em-dashes (e.g. a `— X —` appositive → `(X)`), run the parenthesis-span gate before re-review — a bulk conversion can pair two unrelated dashes across a sentence boundary and wrap a whole sentence (or an ordinal "Sixth, …" limitation) inside one parenthesis (paren-balanced, so a balance check misses it):
+
+   ```bash
+   python3 "${CLAUDE_SKILL_DIR}/scripts/check_paren_spans.py" \
+     --manuscript manuscript.md --out qc/paren_spans.json --strict
+   ```
+
+   `PAREN_SPAN_ORDINAL` / `PAREN_SPAN_SENTENCE` is a Major — undo or repair that conversion before continuing.
+5. **Re-review**: Run Phase 2 (systematic check) again on the modified manuscript.
+6. **Iterate**: If new fixable issues emerge, apply one more round (maximum 2 total fix iterations).
+7. **Final output**: Regenerate the Phase 3 report and Phase 3c JSON with updated scores.
 
 **Iteration limit**: Maximum 2 fix-and-re-review cycles. If the score has not reached "PASS" after 2 iterations, output the final report with remaining issues and flag: "Auto-fix limit reached. Remaining issues require human review."
 

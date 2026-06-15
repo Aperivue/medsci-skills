@@ -15,7 +15,13 @@ gate rather than a prose checklist (manuscript-style-classical.md §5/§6/§7/§
                         sentence rather than a numbered list.
   DECIMAL_INCONSISTENCY (Minor) OR/HR/RR reported with mixed decimal places (some
                         2 dp, some 3 dp) in the same manuscript.
-  EM_DASH_OVERUSE       (Minor) more than 25 em-dashes — a generation tell.
+  EM_DASH_OVERUSE       (Minor) more than 25 *prose* em-dashes — a generation tell.
+                        Structural dashes (markdown table cells incl. "—" N/A
+                        placeholders and panel-label captions, ORCID separators,
+                        author/affiliation lines) are excluded and reported
+                        separately, so a cohort manuscript with large baseline
+                        tables is not pushed into destructive edits on correct
+                        table dashes.
 
 INPUTS
   --manuscript   manuscript markdown/text (required).
@@ -105,18 +111,60 @@ def check(text: str, em_dash_max: int) -> list[dict]:
             "where": "effect-size decimals",
         })
 
-    # EM_DASH_OVERUSE (Minor)
-    n_dash = text.count("—")
-    if n_dash > em_dash_max:
+    # EM_DASH_OVERUSE (Minor) — count PROSE em-dashes only. Structural dashes are
+    # legitimate, not a generation tell: markdown table cells (incl. "—" = N/A
+    # placeholders and "(A) — label" panel captions), ORCID separators, and
+    # author/affiliation lines ("Name, MD — Department of …"). Counting them forces
+    # destructive edits on correct table dashes in cohort manuscripts with large
+    # Table 1 / Table 3.
+    prose_dash, structural_dash = _count_em_dashes(text)
+    if prose_dash > em_dash_max:
         claims.append({
             "verdict": "EM_DASH_OVERUSE",
             "severity": "Minor",
-            "detail": f"{n_dash} em-dashes (> {em_dash_max}); a generation tell — "
-                      f"replace some with commas/colons or split sentences",
-            "where": f"{n_dash} em-dashes",
+            "detail": f"{prose_dash} prose em-dashes (> {em_dash_max}); a generation tell — "
+                      f"replace some with commas/colons or split sentences "
+                      f"({structural_dash} structural em-dashes in tables/ORCID/affiliation "
+                      f"lines were excluded)",
+            "where": f"{prose_dash} prose em-dashes ({structural_dash} structural excluded)",
         })
 
     return claims
+
+
+_ORCID_RE = re.compile(r"\d{4}-\d{4}-\d{4}-\d{3}[\dXx]")
+# A credential token immediately before the dash, or an affiliation noun right
+# after it — the "Name, MD — Department of …" author/affiliation signature.
+_AFFIL_DASH_RE = re.compile(
+    r"\b(?:MD|PhD|MSc|MPH|MBBS|DO|DrPH|RN)\b[^—|]{0,20}—"
+    r"|—[^—|]{0,20}\b(?:Department|Division|Institute|Faculty|College|University|Hospital|Center|Centre)\b",
+    re.IGNORECASE)
+# Figure/table/panel caption lines ("(A) — obesity stratum", "Figure 1. …",
+# "*(A) S1 — …*") — structural, not prose.
+_CAPTION_RE = re.compile(
+    r"^\s*\*{0,2}(?:\(?[A-Za-z]\)|(?:Figure|Fig\.?|Table|Panel|Supplementary)\b)", re.IGNORECASE)
+
+
+def _count_em_dashes(text: str) -> tuple[int, int]:
+    """Return (prose, structural) em-dash counts. Structural = table rows, ORCID /
+    affiliation / author lines, and standalone-cell dashes; prose = everything else
+    (the genuine generation-tell surface)."""
+    prose = structural = 0
+    for line in text.splitlines():
+        n = line.count("—")
+        if not n:
+            continue
+        s = line.strip()
+        is_table = "|" in line
+        is_orcid = "orcid" in line.lower() or bool(_ORCID_RE.search(line))
+        is_standalone = bool(re.fullmatch(r"[-–—\s]*", s))
+        is_affil = bool(_AFFIL_DASH_RE.search(line))
+        is_caption = bool(_CAPTION_RE.match(line))
+        if is_table or is_orcid or is_standalone or is_affil or is_caption:
+            structural += n
+        else:
+            prose += n
+    return prose, structural
 
 
 def analyze(manuscript: str, em_dash_max: int) -> dict:

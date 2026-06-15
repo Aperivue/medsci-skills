@@ -96,6 +96,21 @@ jobs:
       - name: Run sync-submission preflight gate test (A6)
         run: bash skills/sync-submission/tests/test_preflight_gate.sh
 
+      - name: Run sync-submission word-count-cap gate test (A7)
+        run: bash skills/sync-submission/tests/test_wordcount_cap.sh
+
+      - name: Run verify-refs corporate-author gate test (A8)
+        run: bash skills/verify-refs/tests/test_corporate_author.sh
+
+      - name: Run self-review parenthesis-span corruption gate test (A9)
+        run: bash skills/self-review/tests/test_paren_spans.sh
+
+      - name: Run self-review classical-style gate test (A10)
+        run: bash skills/self-review/tests/test_classical_style.sh
+
+      - name: Run self-review confounding-completeness gate test (A11)
+        run: bash skills/self-review/tests/test_confounding_completeness.sh
+
       - name: Install pandas (demo manifest verification)
         run: pip install pandas
 

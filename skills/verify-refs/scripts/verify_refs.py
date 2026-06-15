@@ -48,6 +48,13 @@ class RefRecord:
     # and does not trigger MISMATCH status. Use when CSL renders first-1 or first-5
     # + et al. and the trailing authors are deliberately omitted from the bib.
     audit_truncated: bool = False
+    # Collective / corporate author (EASL, KDIGO, AHA/ACC, WHO, a named working
+    # group / consortium). BibTeX convention double-braces these
+    # (`author = {{KDIGO Working Group}}`) and PubMed returns them as
+    # <CollectiveName>; the personal-name family cross-check does not apply and
+    # must not fire MISMATCH (which would abort render on every guideline-citing
+    # cohort manuscript).
+    corporate_author: bool = False
     status: str = "UNVERIFIED"
     evidence: str = ""
     note: str = ""
@@ -55,6 +62,30 @@ class RefRecord:
 
 def normalize_space(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
+
+
+# Organization / collective-author signal in an author field. Used (a) when a
+# brace survives in the parsed BibTeX author field (double-brace convention) and
+# (b) as a keyword fallback for single-braced or plain-text collective names.
+_ORG_AUTHOR_RE = re.compile(
+    r"\b(?:Group|Committee|Society|Association|Collaborat\w+|Consortium|Network|"
+    r"Panel|Initiative|Organization|Organisation|Investigators|Trialists|Task\s+Force|"
+    r"Working\s+Group|Study\s+Group|Foundation|Institute|Council|Federation|College|"
+    r"WHO|EASL|EASD|EASO|KDIGO|AHA|ACC|ESC|NICE|AASLD|KASL)\b", re.IGNORECASE)
+
+
+def is_corporate_author_field(author_field: str) -> bool:
+    """A collective/corporate author (a guideline body, working group, consortium)
+    rather than a list of people. Signals: a brace surviving in the parsed field
+    (the BibTeX double-brace literal-name convention), or an organization keyword."""
+    if not author_field:
+        return False
+    if "{" in author_field or "}" in author_field:
+        return True
+    # No personal "Last, First" comma and an organization keyword present.
+    if "," not in author_field and bool(_ORG_AUTHOR_RE.search(author_field)):
+        return True
+    return False
 
 
 def clean_doi(doi: str) -> str:
@@ -141,6 +172,7 @@ def parse_bib(text: str) -> list[RefRecord]:
                 cited_authors=cited,
                 cited_author_count=len(cited),
                 audit_truncated=bool(trunc_match and trunc_match.group(1).strip().lower() not in ("", "false", "0", "no")),
+                corporate_author=is_corporate_author_field(author_field),
             )
         )
     return records
@@ -169,6 +201,7 @@ def parse_tsv(text: str) -> list[RefRecord]:
                 doi=doi,
                 pmid=pmid,
                 first_author_guess=parse_first_author(author_field) if author_field else "",
+                corporate_author=is_corporate_author_field(author_field),
             )
         )
     return records
@@ -497,6 +530,9 @@ def verify_record(record: RefRecord, offline: bool, timeout: int) -> RefRecord:
         else:
             record.status = "UNVERIFIED"
             record.evidence = "No identifier; offline mode"
+        if record.corporate_author:
+            record.note = "corporate/collective author — personal-name cross-check skipped"
+            record.evidence += " | CORPORATE AUTHOR (collective/organization)"
         return record
 
     statuses: list[str] = []
@@ -548,8 +584,19 @@ def verify_record(record: RefRecord, offline: bool, timeout: int) -> RefRecord:
     if record.cited_authors and not record.cited_author_count:
         record.cited_author_count = len(record.cited_authors)
 
+    # Collective/corporate author (guideline body, working group): PubMed returns
+    # it as <CollectiveName> and the BibTeX double-braces it, so the personal-name
+    # family cross-check does not apply. Detect it on the source side too (no parsed
+    # personal authors but a title/DOI verified, or the source author looks like an
+    # organization), so a guideline cite is VERIFIED, never a render-aborting MISMATCH.
+    source_corporate = bool(actual_authors) and any(_ORG_AUTHOR_RE.search(a) for a in actual_authors)
+    if record.corporate_author or source_corporate:
+        if not record.note:
+            record.note = "corporate/collective author — personal-name cross-check skipped"
+        evidence_parts.append("CORPORATE AUTHOR (collective/organization; family cross-check skipped)")
+
     mismatches: list[str] = []
-    if record.cited_authors and actual_authors:
+    if not (record.corporate_author or source_corporate) and record.cited_authors and actual_authors:
         compare_n = min(len(record.cited_authors), len(actual_authors))
         for i in range(compare_n):
             cited = record.cited_authors[i]
@@ -574,7 +621,7 @@ def verify_record(record: RefRecord, offline: bool, timeout: int) -> RefRecord:
                 mismatches.append(
                     f"AUTHOR COUNT: cited={record.cited_author_count} vs source={record.actual_author_count}"
                 )
-    elif record.first_author_guess and actual_authors:
+    elif not (record.corporate_author or source_corporate) and record.first_author_guess and actual_authors:
         # No parsed cited author list (TSV / plain-text input) — degrade to the
         # first-author surname cross-check (Gate 4 behaviour).
         if not any(author_surnames_match(record.first_author_guess, a) for a in actual_authors):
