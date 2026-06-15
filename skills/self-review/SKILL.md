@@ -751,13 +751,25 @@ adjusted exposure–outcome association. Skip for RCTs and descriptive studies.
    python3 "${CLAUDE_SKILL_DIR}/scripts/check_confounding_completeness.py" \
      --table1 table1_by_<exposure>.csv \
      --adjusted-list "age, sex, BMI, hypertension, diabetes" \
+     --exposure-defining-list "body mass index, waist, fasting glucose, triglycerides, HDL cholesterol" \
      --out qc/confounding_completeness.json --strict
    ```
 
    It emits a reconciliation table (covariate | imbalance p | SMD | in adjustment
    set? | verdict) and flags each **measured-but-unadjusted imbalanced** covariate
-   as an `UNADJUSTED_IMBALANCED` Major candidate. When the CSV is unavailable,
-   apply probe O1 by hand from the published Table 1.
+   as an `UNADJUSTED_IMBALANCED` Major candidate. The gate resolves DB column codes
+   against a prose adjustment set (alias map), and when the Table 1 has no p / SMD
+   column it **computes the SMD from per-stratum "mean ± SD" group columns**
+   (`--group-cols A,B`, or auto-detected). When the CSV is unavailable, apply probe
+   O1 by hand from the published Table 1.
+
+   **Guideline-defined exposures (MASLD / metabolic syndrome / CKM / sarcopenia /
+   frailty):** pass `--exposure-defining-list` (the components of the exposure's own
+   diagnostic criteria). Those rows are marked `EXPOSURE_DEFINING_EXEMPT`, **not**
+   Major — adjusting for them is over-adjustment (probe O7), not a confounding fix.
+   Without the exemption the gate false-positives a Major on every metabolic-criteria
+   covariate. The residual-confounding remedy is an extended-adjustment model adding
+   only **non-defining prognostic** covariates.
 
 3. **Each `UNADJUSTED_IMBALANCED` covariate is an Anticipated Major Comment**
    (category: A. Study Design & Data Integrity), with the suggested fix: report an

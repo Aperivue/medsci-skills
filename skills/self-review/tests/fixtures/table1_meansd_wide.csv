@@ -1,0 +1,7 @@
+covariate,exposed,unexposed
+age,54.2 +/- 8.1,53.8 +/- 8.3
+body mass index,28.5 +/- 3.2,24.1 +/- 2.9
+systolic blood pressure,132 +/- 12,121 +/- 11
+hba1c,6.2 +/- 0.9,5.5 +/- 0.6
+hdl cholesterol,46 +/- 10,55 +/- 11
+fib-4,2.1 +/- 0.8,1.2 +/- 0.5

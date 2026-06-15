@@ -90,6 +90,49 @@ assert any(f['covariate']=='$cov' and f['verdict']=='UNADJUSTED_IMBALANCED' for 
 "
 done
 
+# 7. A3 — wide Table 1 with mean±SD group columns and NO p/SMD column: the gate
+#    computes SMD itself and still runs. With only 'age' adjusted, the imbalanced
+#    metabolic labs flag.
+MSFIX="$HERE/fixtures/table1_meansd_wide.csv"
+[[ -f "$MSFIX" ]] || { echo "ENV-ERR: mean±SD fixture missing" >&2; exit 2; }
+MSOUT="$(mktemp -t cc_ms_XXXX).json"
+trap 'rm -f "$OUT" "$DBOUT" "$MSOUT"' EXIT
+python3 "$SCRIPT" --table1 "$MSFIX" --adjusted-list "age" --out "$MSOUT" --strict >/dev/null 2>&1
+check "exit 1 (mean±SD: SMD computed, imbalanced present)" test "$?" -eq 1
+check "smd_source == computed_from_mean_sd" python3 -c "
+import json; assert json.load(open('$MSOUT'))['smd_source']=='computed_from_mean_sd'"
+check "mean±SD: n_unadjusted_imbalanced == 5" python3 -c "
+import json; assert json.load(open('$MSOUT'))['n_unadjusted_imbalanced']==5"
+check "age (SMD<0.1) not flagged" python3 -c "
+import json
+d=json.load(open('$MSOUT'))
+assert not any(f['covariate']=='age' for f in d['findings'])"
+
+# 8. A4 — exposure-defining covariates (the exposure's diagnostic criteria) are
+#    exempt from the residual-confounding flag; only the non-defining prognostic
+#    covariate (fib-4) remains a Major.
+python3 "$SCRIPT" --table1 "$MSFIX" --adjusted-list "age" \
+    --exposure-defining-list "body mass index, systolic blood pressure, HbA1c, HDL cholesterol" \
+    --out "$MSOUT" --strict >/dev/null 2>&1
+check "exit 1 (A4: non-defining fib-4 still flags)" test "$?" -eq 1
+check "A4: 4 exposure-defining exempt" python3 -c "
+import json; assert json.load(open('$MSOUT'))['n_exposure_defining_exempt']==4"
+check "A4: only 1 unadjusted-imbalanced (fib-4)" python3 -c "
+import json
+d=json.load(open('$MSOUT'))
+assert d['n_unadjusted_imbalanced']==1
+assert any(f['covariate']=='fib-4' and f['verdict']=='UNADJUSTED_IMBALANCED' for f in d['findings'])"
+check "A4: defining covariate not a Major" python3 -c "
+import json
+d=json.load(open('$MSOUT'))
+assert all(f['verdict']=='EXPOSURE_DEFINING_EXEMPT' for f in d['findings'] if 'body mass' in f['covariate'])"
+
+# 9. A4 + adjust the non-defining prognostic covariate -> clean (exit 0)
+python3 "$SCRIPT" --table1 "$MSFIX" --adjusted-list "age, FIB-4" \
+    --exposure-defining-list "body mass index, systolic blood pressure, HbA1c, HDL cholesterol" \
+    --strict >/dev/null 2>&1
+check "exit 0 when defining exempt + non-defining adjusted" test "$?" -eq 0
+
 echo "ran=$(( ${fail} + 0 )) fail=$fail"
 [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

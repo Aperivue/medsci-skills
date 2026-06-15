@@ -19,6 +19,19 @@ INPUTS
   --adjusted adjustment-set variables. Either a path to a file (one variable per
              line, or a Methods paragraph the script greps after "adjusted for")
              or a comma-separated list passed inline with --adjusted-list.
+  --exposure-defining[-list]
+             covariates that are components of the exposure's own diagnostic
+             criteria (e.g. BMI / glycaemia / lipids for a metabolic-syndrome or
+             MASLD exposure). These are EXEMPT from the residual-confounding flag —
+             adjusting for them is over-adjustment (probe O7), not a fix. The
+             remedy for residual confounding is an extended-adjustment model with
+             NON-defining prognostic covariates only.
+  --group-cols A,B
+             when the Table 1 has no p-value / SMD column but two exposure-stratum
+             columns of "mean ± SD" (or "mean +/- SD") cells, name them here (or
+             let the script auto-detect) and the SMD is computed per row. The
+             "mean (SD)" paren form is intentionally NOT auto-parsed (it collides
+             with "n (%)"); use the ± form or pass an explicit SMD column.
 
 OUTPUT
   A reconciliation table (stdout) and, with --out, a JSON artifact:
@@ -152,11 +165,12 @@ def _pick_col(header: list[str], hints: tuple[str, ...], override: str | None) -
         for i, col in enumerate(norm):
             if col == h and h:
                 return i
-    # then substring
+    # then substring — but only for hints >= 3 chars, so a 1-2 char hint like
+    # "p" / "pr" does not match an unrelated column ("p" in "exposed").
     for hint in hints:
         h = _norm(hint)
         for i, col in enumerate(norm):
-            if h and h in col:
+            if h and len(h) >= 3 and h in col:
                 return i
     return None
 
@@ -232,9 +246,70 @@ def in_adjustment_set(cov: str, adj_norm: list[str], adj_concepts: set[str] | No
     return False
 
 
+# --- A3: SMD computed from per-stratum mean ± SD ---------------------------
+# The common wide Table 1 from /analyze-stats carries stratified "mean ± SD"
+# (or "mean +/- SD") cells but no p / SMD column, so the gate could not run. When
+# no p/SMD column is present, compute SMD from two group columns whose cells use
+# the UNAMBIGUOUS mean±SD form (not "n (%)" / "mean (SD)", which collide), so a
+# categorical "53 (52)" is never mistaken for a continuous mean(sd).
+MEANSD_RE = re.compile(r"^\s*(-?\d[\d,]*\.?\d*)\s*(?:\+/-|±)\s*(\d[\d,]*\.?\d*)\s*$")
+
+
+def _meansd(cell: str):
+    if cell is None:
+        return None
+    m = MEANSD_RE.match(cell)
+    if not m:
+        return None
+    try:
+        return float(m.group(1).replace(",", "")), float(m.group(2).replace(",", ""))
+    except ValueError:
+        return None
+
+
+def _smd_meansd(m1: float, s1: float, m2: float, s2: float):
+    denom = ((s1 ** 2 + s2 ** 2) / 2.0) ** 0.5
+    if denom <= 0:
+        return None
+    return (m1 - m2) / denom
+
+
+def _detect_group_cols(header, body_rows, name_idx, override):
+    """Return (i, j) column indices of the two exposure-stratum value columns to
+    compute SMD from, or None. With --group-cols, resolve the two named columns;
+    otherwise pick the first two non-name columns whose cells are mostly mean±SD."""
+    if override:
+        idxs = []
+        for want in override:
+            found = next((k for k, h in enumerate(header) if _norm(h) == _norm(want)), None)
+            if found is None:
+                sys.stderr.write(f"ERROR: --group-cols column '{want}' not found in {header}\n")
+                sys.exit(2)
+            idxs.append(found)
+        return (idxs[0], idxs[1]) if len(idxs) >= 2 else None
+    cand = []
+    for k in range(len(header)):
+        if k == name_idx:
+            continue
+        hits = sum(1 for r in body_rows if k < len(r) and _meansd(r[k]) is not None)
+        if hits >= 2:
+            cand.append(k)
+    return (cand[0], cand[1]) if len(cand) >= 2 else None
+
+
+def is_exposure_defining(cov: str, defining_norm: list[str], defining_concepts: set[str]) -> bool:
+    """A4: a covariate that is a component of the exposure's diagnostic criteria
+    (e.g. BMI/glycaemia/lipids for a metabolic-syndrome / MASLD exposure). Same
+    fuzzy match as in_adjustment_set."""
+    if not defining_norm and not defining_concepts:
+        return False
+    return in_adjustment_set(cov, defining_norm, defining_concepts)
+
+
 # --- core ------------------------------------------------------------------
 
-def analyze(table1: str, adj: list[str], name_col, p_col, smd_col) -> dict:
+def analyze(table1: str, adj: list[str], name_col, p_col, smd_col,
+            defining: list[str] | None = None, group_cols: list[str] | None = None) -> dict:
     p = Path(table1)
     if not p.is_file():
         sys.stderr.write(f"ERROR: table1 not found: {table1}\n")
@@ -251,12 +326,22 @@ def analyze(table1: str, adj: list[str], name_col, p_col, smd_col) -> dict:
     si = _pick_col(header, SMD_HINTS, smd_col)
     if ni is None:
         ni = 0
+    gi = None
     if pi is None and si is None:
-        sys.stderr.write("ERROR: could not locate a p-value or SMD column; pass --p-col/--smd-col\n")
-        sys.exit(2)
+        # A3: no p / SMD column — fall back to computing SMD from two mean±SD cols.
+        gi = _detect_group_cols(header, rows[1:], ni, group_cols)
+        if gi is None:
+            sys.stderr.write(
+                "ERROR: no p-value or SMD column found, and no two mean±SD group "
+                "columns to compute SMD from; pass --p-col/--smd-col or --group-cols.\n")
+            sys.exit(2)
 
     adj_norm = [_norm(a) for a in adj]
     adj_concepts = set().union(*(_concepts(a) for a in adj)) if adj else set()
+    defining = defining or []
+    def_norm = [_norm(d) for d in defining]
+    def_concepts = set().union(*(_concepts(d) for d in defining)) if defining else set()
+    smd_source = "reported" if (pi is not None or si is not None) else "computed_from_mean_sd"
     findings = []
     for r in rows[1:]:
         if ni >= len(r):
@@ -266,31 +351,48 @@ def analyze(table1: str, adj: list[str], name_col, p_col, smd_col) -> dict:
             continue
         pval = _parse_p(r[pi]) if (pi is not None and pi < len(r)) else None
         smd = _parse_float(r[si]) if (si is not None and si < len(r)) else None
+        if smd is None and gi is not None:                       # A3: compute SMD
+            g1 = _meansd(r[gi[0]]) if gi[0] < len(r) else None
+            g2 = _meansd(r[gi[1]]) if gi[1] < len(r) else None
+            if g1 and g2:
+                smd = _smd_meansd(g1[0], g1[1], g2[0], g2[1])
         imbalanced = (pval is not None and pval < P_THRESHOLD) or \
                      (smd is not None and abs(smd) >= SMD_THRESHOLD)
         if not imbalanced:
             continue
-        adjusted = in_adjustment_set(cov, adj_norm, adj_concepts)
+        # A4: a component of the exposure's own diagnostic criteria is over-
+        # adjustment, not residual confounding — exempt it from the Major flag.
+        if is_exposure_defining(cov, def_norm, def_concepts):
+            verdict = "EXPOSURE_DEFINING_EXEMPT"
+            adjusted = in_adjustment_set(cov, adj_norm, adj_concepts)
+        else:
+            adjusted = in_adjustment_set(cov, adj_norm, adj_concepts)
+            verdict = "ADJUSTED" if adjusted else "UNADJUSTED_IMBALANCED"
         findings.append({
             "covariate": cov,
             "imbalance_p": pval,
-            "smd": smd,
+            "smd": round(smd, 4) if smd is not None else None,
             "in_adjustment_set": adjusted,
-            "verdict": "ADJUSTED" if adjusted else "UNADJUSTED_IMBALANCED",
+            "verdict": verdict,
         })
 
     unadjusted = [f for f in findings if f["verdict"] == "UNADJUSTED_IMBALANCED"]
+    exempt = [f for f in findings if f["verdict"] == "EXPOSURE_DEFINING_EXEMPT"]
     return {
         "table1": str(p),
         "adjustment_set": adj,
+        "exposure_defining": defining,
         "thresholds": {"p": P_THRESHOLD, "smd": SMD_THRESHOLD},
+        "smd_source": smd_source,
         "n_imbalanced": len(findings),
         "n_unadjusted_imbalanced": len(unadjusted),
+        "n_exposure_defining_exempt": len(exempt),
         "findings": findings,
         "verdict": "MAJOR_CANDIDATE" if unadjusted else "OK",
         "suggested_fix": (
-            "Report an extended-adjustment sensitivity model adding the "
-            "unadjusted imbalanced covariates; keep the original model primary "
+            "Report an extended-adjustment sensitivity model adding the unadjusted "
+            "imbalanced covariates that are NON-defining prognostic factors (not the "
+            "exposure's own diagnostic criteria); keep the original model primary "
             "only if the extended model agrees."
         ) if unadjusted else None,
     }
@@ -301,10 +403,15 @@ def render_table(result: dict) -> str:
         "| Covariate | Imbalance p | SMD | In adjustment set? | Verdict |",
         "|---|---|---|---|---|",
     ]
+    marks = {
+        "UNADJUSTED_IMBALANCED": "✗ Major",
+        "ADJUSTED": "✓",
+        "EXPOSURE_DEFINING_EXEMPT": "⊘ exposure-defining (exempt; adjusting = over-adjustment)",
+    }
     for f in result["findings"]:
         p = "—" if f["imbalance_p"] is None else f"{f['imbalance_p']:.4g}"
         s = "—" if f["smd"] is None else f"{f['smd']:.3g}"
-        mark = "✗ Major" if f["verdict"] == "UNADJUSTED_IMBALANCED" else "✓"
+        mark = marks.get(f["verdict"], f["verdict"])
         lines.append(
             f"| {f['covariate']} | {p} | {s} | "
             f"{'yes' if f['in_adjustment_set'] else 'NO'} | {mark} |"
@@ -320,6 +427,14 @@ def main() -> int:
     ap.add_argument("--name-col", help="override covariate-name column header")
     ap.add_argument("--p-col", help="override p-value column header")
     ap.add_argument("--smd-col", help="override SMD column header")
+    ap.add_argument("--group-cols",
+                    help="two stratum value-column headers (comma-separated) to compute SMD from "
+                         "mean±SD cells when no p/SMD column exists (e.g. 'exposed,unexposed')")
+    ap.add_argument("--exposure-defining",
+                    help="file of exposure-defining covariates (components of the exposure's "
+                         "diagnostic criteria); these are exempt from the residual-confounding flag")
+    ap.add_argument("--exposure-defining-list",
+                    help="comma-separated exposure-defining covariates (inline)")
     ap.add_argument("--out", help="write JSON artifact to this path")
     ap.add_argument("--strict", action="store_true", help="exit 1 if unadjusted-imbalanced rows exist")
     args = ap.parse_args()
@@ -327,15 +442,25 @@ def main() -> int:
     adj = load_adjustment_set(args.adjusted, args.adjusted_list)
     if not adj:
         sys.stderr.write("WARN: empty adjustment set — every imbalanced covariate will flag.\n")
+    defining = load_adjustment_set(args.exposure_defining, args.exposure_defining_list)
+    group_cols = [c.strip() for c in args.group_cols.split(",")] if args.group_cols else None
 
-    result = analyze(args.table1, adj, args.name_col, args.p_col, args.smd_col)
+    result = analyze(args.table1, adj, args.name_col, args.p_col, args.smd_col,
+                     defining, group_cols)
 
     print("=" * 41)
     print(" Confounding Completeness (Phase 2.5e / O1)")
     print("=" * 41)
     print(f"adjustment set: {', '.join(adj) if adj else '(none)'}")
+    if defining:
+        print(f"exposure-defining (exempt): {', '.join(defining)}")
+    if result["smd_source"] == "computed_from_mean_sd":
+        print("SMD source: computed from mean±SD group columns (no p/SMD column present)")
     print(render_table(result))
     print()
+    if result["n_exposure_defining_exempt"]:
+        print(f"Note: {result['n_exposure_defining_exempt']} imbalanced covariate(s) exempt as "
+              f"exposure-defining (adjusting for them would be over-adjustment — see probe O7).")
     if result["n_unadjusted_imbalanced"]:
         print(f"MAJOR candidate: {result['n_unadjusted_imbalanced']} imbalanced covariate(s) "
               f"absent from the adjustment set.")
