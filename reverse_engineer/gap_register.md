@@ -71,9 +71,9 @@ stop adding marginal items there).
 | G36 | verify-refs | corporate/collective-author handling — a guideline body double-braced in BibTeX (`{{EASL} and {EASD}}`, `{{KDIGO Work Group}}`) tripped the first-author cross-check as MISMATCH and **aborted `render_pandoc.sh`** on every guideline-citing cohort manuscript. Detect corporate authors (double-brace / `<CollectiveName>` / org keyword) and exempt them from the personal-name cross-check. Found in the a cross-sectional fatty-liver cohort cycle | 5 | 4 | 5 | 100 | shipped (this PR) |
 | G37 | self-review | `scripts/check_paren_spans.py` (NEW detector) — post em-dash→paren conversion safety scan: a bulk `— X —`→`(X)` edit can pair unrelated dashes across a sentence boundary and wrap a whole sentence / ordinal limitation inside parens (paren-balanced, so a balance check misses it). Wired into `/self-review` `--fix` post-edit + `/humanize` pattern 13. Detector 26→27 | 5 | 4 | 4 | 80 | shipped (this PR) |
 | G38 | self-review | `check_classical_style.py` em-dash counter counts **prose only** — excludes table-cell `—` (N/A placeholders, panel labels), ORCID separators, and author/affiliation lines, reporting prose-vs-structural separately. Avoids forcing destructive edits on correct table dashes in cohort manuscripts with large Table 1/3 | 4 | 4 | 4 | 64 | shipped (this PR) |
-| G39 | peer-review + self-review | `domain-probes/survival_prognostic.md` S9 — panel-data / multistate variance: occupancy & intensity CIs must be person-clustered (bootstrap-by-person or robust sandwich), not naive model-based on visit-transitions; report N persons (and contributing transitions), not just visit-pairs. Found in a multistate-Markov cohort cycle | 4 | 3 | 4 | 48 | open |
-| G40 | peer-review + self-review | `domain-probes/observational_confounding.md` O10 — overlapping-subset gradient (descriptive vs inferential): an HR/OR "gradient/trend across nested or overlapping cohorts" with no difference/interaction test must use descriptive language only ("shift attributable by construction"), not "attenuated/accounted for". Comparator-refinement analogue of the scope-coherence sensitivity-envelope rule | 4 | 3 | 4 | 48 | open |
-| G41 | self-review + analyze-stats | extended-adjustment missingness-frame discipline — when an extended-adjustment model changes the analytic N (covariate missingness), compare the adjusted estimate to the **unadjusted complete-case estimate on the same reduced frame**, not the full-frame anchor; flag any "adjustment changes the estimate" claim that compares across different frames | 4 | 3 | 4 | 48 | open |
+| G39 | peer-review + self-review | `domain-probes/survival_prognostic.md` S9 — panel-data / multistate variance: occupancy & intensity CIs must be person-clustered (bootstrap-by-person or robust sandwich), not naive model-based on visit-transitions; report N persons (and contributing transitions), not just visit-pairs. Found in a multistate-Markov cohort cycle | 4 | 3 | 4 | 48 | shipped (this PR) |
+| G40 | peer-review + self-review | `domain-probes/observational_confounding.md` O10 — overlapping-subset gradient (descriptive vs inferential): an HR/OR "gradient/trend across nested or overlapping cohorts" with no difference/interaction test must use descriptive language only ("shift attributable by construction"), not "attenuated/accounted for". Comparator-refinement analogue of the scope-coherence sensitivity-envelope rule | 4 | 3 | 4 | 48 | shipped (this PR) |
+| G41 | self-review + analyze-stats | extended-adjustment missingness-frame discipline — when an extended-adjustment model changes the analytic N (covariate missingness), compare the adjusted estimate to the **unadjusted complete-case estimate on the same reduced frame**, not the full-frame anchor; flag any "adjustment changes the estimate" claim that compares across different frames | 4 | 3 | 4 | 48 | shipped (this PR) |
 | G42 | sync-submission | `scripts/assemble_supplement.py` (candidate) — cohort supplements are ad-hoc `S{N}_*.md` + `00_index.md` + hand-concatenated `_combined.md`; validate index↔file 1:1, detect duplicate/skipped sub-section numbers after inserts, rebuild `_combined` in index order, render docx/pdf, emit section→callout coverage. Reuses the supplementary-numbering lock | 3 | 3 | 4 | 36 | open |
 | G43 | render-pdf-doc | scientific-symbol + CJK font-coverage check — xelatex supplement PDFs drop arrows (→ ubiquitous in transition tables), `− ↑ ↓ √ ∪ ≤ ≥ ★ ✓`, and CJK in default fonts; warn/fail on residual missing-character classes rather than silently dropping glyphs (DOCX authoritative). Found rendering a multistate-Markov cohort supplement | 3 | 3 | 4 | 36 | open |
 | G44 | (cross-sectional-cohort lane) | paper-driven discovery: acquire strong CC-BY **cross-sectional / prevalence / health-screening** cohort papers from good journals and surface what the suite does not yet cover or check beyond O1–O9 / the cohort gates. Lane seed — specific gaps added as papers are read | 4 | 4 | 3 | 48 | open |
@@ -91,15 +91,16 @@ stop adding marginal items there).
   imaging-led radiology discipline); survey/qualitative/economic still open.
 - **case-report venues (find-journal)**: JMCR, Cureus, Radiology Case Reports, BMJ Case Reports, BJR
   Case Reports shipped (compact); detail/write-paper venue profiles + JRCR deferred.
-- **cross-sectional cohort (cross-sectional-cohort harvest + paper-driven)**: observational probes O1–O9
+- **cross-sectional cohort (cross-sectional-cohort harvest + paper-driven)**: observational probes O1–O10
   (over-adjustment, analysis-unit/clustering, outcome construct validity, exposure-defining exemption,
-  reference-arm contamination), clinical-prediction module CP1–CP4, cohort gates (ANALYSIS_UNIT,
-  YIELD_LANGUAGE, wordcount-cap, confounding alias+SMD-from-mean±SD) shipped (PR #153); cohort-cycle follow-up
-  verify-refs corporate-author + paren-span detector + prose-em-dash shipped (this PR); S9 panel-data,
-  O10 overlapping-subset gradient, missingness-frame, supplement-assembly, PDF-font-coverage **open**;
-  cross-sectional-cohort paper-driven discovery (G44) **open** — acquire CC-BY prevalence/screening
-  cohorts and surface new gaps. Rule-side C2 (sensitivity↔suppl-table number collision) + E3
-  (supplement-prose CJK leak) routed to `~/.claude/rules` (not medsci-skills).
+  reference-arm contamination, overlapping-subset gradient), survival S9 panel-data variance,
+  clinical-prediction module CP1–CP4, cohort gates (ANALYSIS_UNIT, YIELD_LANGUAGE, wordcount-cap,
+  confounding alias+SMD-from-mean±SD) shipped (#153); cohort-cycle follow-up verify-refs corporate-author
+  + paren-span detector + prose-em-dash shipped (#154); S9 panel-data variance + O10 overlapping-subset
+  gradient + extended-adjustment missingness-frame shipped (this PR); supplement-assembly (G42) +
+  PDF-font-coverage (G43) **open**; cross-sectional-cohort paper-driven discovery (G44) **open** — acquire
+  CC-BY prevalence/screening cohorts and surface new gaps. Rule-side C2 (sensitivity↔suppl-table number
+  collision) + E3 (supplement-prose CJK leak) routed to `~/.claude/rules` (not medsci-skills).
 
 ## Shipped (audit trail)
 

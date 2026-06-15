@@ -273,7 +273,7 @@ publication bias (funnel plot, Egger), and sensitivity/subgroup analyses.
 
 **Type-Specific Additional Checks:**
 
-- **Observational studies**: Confounding assessment (DAG or adjustment strategy), selection bias, exposure measurement validity. Run **Phase 2.5e (Confounding Completeness)** and apply the O1–O9 probes in `references/domain-probes/observational_confounding.md` — including O7 (over-adjustment: do not adjust for a consequence/mediator of the outcome, e.g. serum uric acid in an eGFR model — the opposite-direction failure to O1), O8 (analysis unit & clustering — run `check_cohort_arithmetic.py --id-col` for records-vs-subjects), and O9 (construct validity of a report-/registry-derived outcome). If the manuscript develops or compares a **clinical prediction model** (TRIPOD / TRIPOD+AI, nested predictor-set comparison), also apply the CP1–CP4 probes in `references/domain-probes/clinical_prediction_model.md` (apparent-vs-optimism-corrected calibration/DCA, the incremental-value-vs-marginal-effect two-null distinction, EPV per nested model, net benefit as model comparison not policy).
+- **Observational studies**: Confounding assessment (DAG or adjustment strategy), selection bias, exposure measurement validity. Run **Phase 2.5e (Confounding Completeness)** and apply the O1–O10 probes in `references/domain-probes/observational_confounding.md` — including O7 (over-adjustment: do not adjust for a consequence/mediator of the outcome, e.g. serum uric acid in an eGFR model — the opposite-direction failure to O1), O8 (analysis unit & clustering — run `check_cohort_arithmetic.py --id-col` for records-vs-subjects), O9 (construct validity of a report-/registry-derived outcome), and O10 (an inferential effect-size gradient across overlapping/nested subsets needs a difference/interaction test, not descriptive refinement alone). If the manuscript develops or compares a **clinical prediction model** (TRIPOD / TRIPOD+AI, nested predictor-set comparison), also apply the CP1–CP4 probes in `references/domain-probes/clinical_prediction_model.md` (apparent-vs-optimism-corrected calibration/DCA, the incremental-value-vs-marginal-effect two-null distinction, EPV per nested model, net benefit as model comparison not policy).
 - **Educational studies**: Learning outcome measurement validity, Kirkpatrick level, control group adequacy, curriculum fidelity
 - **Meta-analyses**: Search comprehensiveness (2+ databases), screening reproducibility (2 reviewers), RoB assessment per study, GRADE certainty
 - **Case reports**: Diagnostic reasoning transparency, timeline completeness, informed consent, generalizability disclaimer
@@ -286,7 +286,7 @@ These modules carry the same domain-specific critique probes used by `/peer-revi
 | Manuscript type / signal | Probe module |
 |---|---|
 | Systematic Review / Meta-Analysis | `references/domain-probes/sr_ma.md` (P0–P10) |
-| Time-to-event / survival / prognostic model (Cox, Fine-Gray, DeepSurv, nomogram, risk-stratification cutoff) | `references/domain-probes/survival_prognostic.md` (S1–S8) |
+| Time-to-event / survival / prognostic model (Cox, Fine-Gray, DeepSurv, nomogram, risk-stratification cutoff) | `references/domain-probes/survival_prognostic.md` (S1–S9) |
 | Radiomic feature reproducibility / acquisition-parameter sweep / reliability-based feature filtering | `references/domain-probes/radiomics.md` (R1–R4) |
 | Narrative / review article / primer / state-of-the-art | `references/domain-probes/narrative_review.md` (RV1–RV9) |
 | AI/ML primary study with a clinical claim (generalizable / outperforms clinicians / deployment-ready / can replace a reader) | `references/domain-probes/ai_overclaiming.md` (AO0–AO5) |
@@ -780,9 +780,20 @@ adjusted exposure–outcome association. Skip for RCTs and descriptive studies.
 4. **Then apply the rest of the observational probe set** (O2 adjustment-set
    provenance, O3 selection/collider bias, O4 exposure measurement validity, O5
    missing-data mechanism & complete-case collapse, O6 residual-confounding
-   E-value) from `references/domain-probes/observational_confounding.md` — these
-   are prose probes, not data-checkable, and complement the generic Phase 2
-   categories rather than replacing them.
+   E-value, O7 over-adjustment, O8 analysis unit, O9 outcome construct validity,
+   O10 overlapping-subset gradient) from
+   `references/domain-probes/observational_confounding.md` — these are prose
+   probes (O1/O7/O8 are the data-checkable ones), and complement the generic
+   Phase 2 categories rather than replacing them.
+
+5. **Extended-adjustment frame discipline.** When the extended-adjustment model
+   adds covariates that carry missingness, its analytic n shrinks. Comparing the
+   adjusted estimate to the **full-frame** unadjusted estimate confounds adjustment
+   with case-concentrated missingness ("adjustment inflated the estimate" when the
+   drift is who-was-dropped). The fair anchor is the **unadjusted estimate refit on
+   the reduced complete-case frame**; flag any "adjustment changed the estimate"
+   claim that compares across different frames, and route the refit to
+   `/analyze-stats` (`requires_reanalysis`).
 
 **Adjustment-set matching is fuzzy** (a table row "Smoking, pack-years" vs an
 adjustment token "smoking"): read the reconciliation table rather than trusting

@@ -142,7 +142,7 @@ These probes complement (do not replace) the generic Phase 2 issue checklist and
 - Cross-sectional risk model without time-to-event endpoint
 - Replication of a documented prior methodology
 
-**Probe detail (S1–S8), with output templates:** `${CLAUDE_SKILL_DIR}/references/domain-probes/survival_prognostic.md`. Load it and apply each probe when the trigger above fires. In this skill, map each probe finding to the review draft as a Major / Minor comment; route a conditioning/causal-framing, competing-risks, or estimand-provenance (S8) design flaw into the Confidential Comments to the Editor and place it as the Major #1 candidate.
+**Probe detail (S1–S9), with output templates:** `${CLAUDE_SKILL_DIR}/references/domain-probes/survival_prognostic.md`. Load it and apply each probe when the trigger above fires. In this skill, map each probe finding to the review draft as a Major / Minor comment; route a conditioning/causal-framing, competing-risks, estimand-provenance (S8), or panel-data/multistate anti-conservative-variance (S9, naive model-based CIs on within-person-correlated transitions) design flaw into the Confidential Comments to the Editor and place it as the Major #1 candidate.
 
 ### Phase 2C: Radiomics / Feature-Reproducibility Extension
 
@@ -172,14 +172,14 @@ The original-research probes (Phase 2 issue checklist, Phase 2A/2B/2C) do not tr
 
 ### Phase 2E: Observational / Confounding Extension
 
-Apply this 9-probe checklist (O1–O9) **only when the manuscript is an observational study** (cohort, case-control, cross-sectional, health-screening / registry) **whose central claim is an adjusted exposure–outcome association** estimated by covariate adjustment rather than randomization. These probes complement (do not replace) the generic Phase 2 issue checklist and the STROBE reporting items; they target the gap between the stated adjustment set and what the exposure-stratified Table 1 shows.
+Apply this 10-probe checklist (O1–O10) **only when the manuscript is an observational study** (cohort, case-control, cross-sectional, health-screening / registry) **whose central claim is an adjusted exposure–outcome association** estimated by covariate adjustment rather than randomization. These probes complement (do not replace) the generic Phase 2 issue checklist and the STROBE reporting items; they target the gap between the stated adjustment set and what the exposure-stratified Table 1 shows.
 
 **Exempt**:
 - Randomized trials (confounding controlled by design → Phase 2 + CONSORT)
 - Purely descriptive / prevalence reports with no adjusted association claim
 - Diagnostic-accuracy studies with no exposure–outcome estimand (→ Phase 2A DTA cells + categories A–C)
 
-**Probe detail (O1–O9), with output templates:** `${CLAUDE_SKILL_DIR}/references/domain-probes/observational_confounding.md`. Load it and apply each probe when the trigger above fires. O1 (a measured covariate imbalanced by exposure in Table 1 yet absent from the adjustment set), O7 (an outcome consequence/mediator wrongly adjusted — the opposite-direction failure, e.g. serum uric acid in an eGFR model), and O8 (records > subjects with the analysis unit undisclosed) are data-checkable and the highest-yield probes — verify O1/O7 against the manuscript's own Table 1 and run the records-vs-subjects check for O8. In this skill, map each probe finding to the review draft as a Major / Minor comment; a confounding-completeness gap (O1), over-adjustment that moves the headline estimate (O7), a selection/collider structure (O3), undisclosed repeat-subject clustering (O8), an undisclosed complete-case collapse (O5), or a report-derived outcome with no construct-validity defence (O9) is design-level, so surface it in the Confidential Comments to the Editor and place it as the Major #1 candidate rather than softening it to a reporting fix.
+**Probe detail (O1–O10), with output templates:** `${CLAUDE_SKILL_DIR}/references/domain-probes/observational_confounding.md`. Load it and apply each probe when the trigger above fires. O1 (a measured covariate imbalanced by exposure in Table 1 yet absent from the adjustment set), O7 (an outcome consequence/mediator wrongly adjusted — the opposite-direction failure, e.g. serum uric acid in an eGFR model), and O8 (records > subjects with the analysis unit undisclosed) are data-checkable and the highest-yield probes — verify O1/O7 against the manuscript's own Table 1 and run the records-vs-subjects check for O8. In this skill, map each probe finding to the review draft as a Major / Minor comment; a confounding-completeness gap (O1), over-adjustment that moves the headline estimate (O7), a selection/collider structure (O3), undisclosed repeat-subject clustering (O8), an undisclosed complete-case collapse (O5), a report-derived outcome with no construct-validity defence (O9), or an inferential effect-size gradient across overlapping/nested subsets with no difference/interaction test (O10) is design-level, so surface it in the Confidential Comments to the Editor and place it as the Major #1 candidate rather than softening it to a reporting fix.
 
 ### Phase 2E-2: Clinical Prediction-Model Extension
 

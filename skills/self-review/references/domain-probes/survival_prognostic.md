@@ -6,9 +6,9 @@
        - self-review: Anticipated Major / Minor Comments (Fatal / Fixable) mapped to category letters.
      Do NOT edit one copy only — run `python3 scripts/check_domain_probe_sync.py --sync`. -->
 
-# Survival / Prognostic Model probes (S1–S8)
+# Survival / Prognostic Model probes (S1–S9)
 
-An 8-probe checklist for time-to-event outcomes and prognostic model development. These probes complement (do not replace) the generic Phase 2 issue checklist and may be co-applied with the SR-MA probes for a meta-analysis of prognostic models.
+A 9-probe checklist for time-to-event outcomes and prognostic model development. These probes complement (do not replace) the generic Phase 2 issue checklist and may be co-applied with the SR-MA probes for a meta-analysis of prognostic models.
 
 **S1 — Conditioning / causal framing**:
 - Does the manuscript claim a "preoperative" / "screening" / "triage" / "X replaces Y" use case while outcomes are conditioned on the downstream treatment whose value the model is supposed to inform?
@@ -61,9 +61,15 @@ An 8-probe checklist for time-to-event outcomes and prognostic model development
 - Does every derived statistic (E-value, an sHR-vs-cause-specific-HR contrast) trace to the *declared primary* estimand, or is a supporting/non-primary estimate quoted as if it bounded the headline claim?
 - Estimand drift — a primary re-designated post-hoc, or a derived statistic computed on a non-primary estimate but presented as primary → MAJOR. Recommend reporting the pre-specified and revised models coequally, disclosing the change, and recomputing any E-value for the primary estimate. (The self-review skill automates the registration ↔ manuscript and E-value arithmetic checks as Phase 2.5f, `scripts/check_claim_artifact.py`.)
 
+**S9 — Panel-data / multistate variance (within-person non-independence)**:
+- For a **multistate / transition / recurrent-event / longitudinal** model — a continuous-time Markov occupancy model (e.g. `msm`), a multistate Cox, or a repeated-visit transition model — are the occupancy and transition-intensity confidence intervals **person-clustered**, or are they the naive model-based (likelihood / observed-information) CIs that treat every **visit-to-visit transition** as an independent observation?
+- A cohort with many visits per person contributes far fewer independent units than transition records (e.g. ~470,000 visit transitions from ~30,000 people). Model-based CIs computed on the transition count ignore within-person correlation and are **anti-conservative** (too narrow) — the same non-independence the analysis-unit probe (O8 in `observational_confounding.md`) raises for a single-outcome model, here at the transition level.
+- Is there a **person-level nonparametric bootstrap** (resample persons, refit the model) or a **robust/sandwich (cluster-by-person)** variance, and does the manuscript report the number of **persons** (and, separately, contributing transitions/visit-pairs) rather than only the transition count?
+- Naive model-based CIs on panel/multistate data with no person-clustered variance or person-bootstrap sensitivity → MAJOR (the point estimate may be fine, but its precision is overstated). The fix is usually cheap — a person-resampled bootstrap that reproduces the estimate with honest CIs.
+
 ## TRIPOD+AI reporting-flow probes (prediction-model studies, T1–T4)
 
-Co-apply these when the manuscript develops or validates a **multivariable prediction model** (often AI/ML), where the reporting axis is TRIPOD+AI (Collins et al. 2024) — and TRIPOD-LLM (Gallifant et al. 2025) when the model is a large language model. They check the *reporting flow* of a prediction model rather than the survival design probed in S1–S8; name the base instrument and the extension, and cite each.
+Co-apply these when the manuscript develops or validates a **multivariable prediction model** (often AI/ML), where the reporting axis is TRIPOD+AI (Collins et al. 2024) — and TRIPOD-LLM (Gallifant et al. 2025) when the model is a large language model. They check the *reporting flow* of a prediction model rather than the survival design probed in S1–S9; name the base instrument and the extension, and cite each.
 
 **T1 — Dataset / model flow (development vs validation)**:
 - Are the data partitions reported explicitly and kept separate: training, tuning/hyperparameter, internal test, and **external** validation? Is the unit (patient vs image vs record) consistent across splits?
