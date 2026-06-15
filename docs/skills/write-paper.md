@@ -2,7 +2,7 @@
 
 # write-paper
 
-> Full-pipeline medical/scientific paper writing. 8-phase IMRAD workflow from outline to submission-ready manuscript. Supports original articles, case reports, meta-analyses, AI validation studies, animal studies, and technical notes. Do NOT trigger for self-checking (use self-review instead).
+> Full-pipeline medical/scientific paper writing. 8-phase IMRAD workflow from outline to submission-ready manuscript. Supports original articles, case reports, case series, meta-analyses, AI validation studies, animal studies, and technical notes. Do NOT trigger for self-checking (use self-review instead).
 
 **Invoke:** `/write-paper` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
 
@@ -43,7 +43,7 @@
 - `exemplar_methods/` (4 files)
 - `exemplar_results/` (4 files)
 - `journal_profiles/` (55 files)
-- `paper_types/` (9 files)
+- `paper_types/` (10 files)
 - `section_guides/` (7 files)
 - `section_templates/` (1 file)
 
