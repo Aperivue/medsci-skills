@@ -36,6 +36,7 @@
 
 **References** (`skills/write-paper/references/`):
 
+- `exemplar_abstract.md`
 - `exemplar_discussion/` (4 files)
 - `exemplar_introduction.md`
 - `exemplar_methods/` (4 files)
