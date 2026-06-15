@@ -103,12 +103,35 @@ Or one-shot:
 bash scripts/render_pdf.sh -i input.md -o output.pdf --infer-colwidths
 ```
 
+### Step 3.5 — Scientific-symbol + CJK glyph scan (before render)
+
+xelatex **silently drops** any character the chosen font does not cover — the PDF
+renders with the glyph simply missing, no error or warning. Academic markdown
+routinely carries glyphs a default Latin font misses: transition arrows (→ ↑ ↓),
+math operators (− ≤ ≥ ± √ ∪ × ≈ ≠), stats Greek (κ μ σ β), bullets/marks (• ★ ✓),
+and CJK. Scan the source first so a silent drop is caught before it ships:
+
+```bash
+python3 scripts/scan_glyph_coverage.py input.md --strict
+# real cmap check when you have the font file + fonttools:
+python3 scripts/scan_glyph_coverage.py input.md --font "/path/to/body.otf" --strict
+```
+
+It groups the risky glyphs by class (advisory), or — with `--font` + `fonttools`
+— reports which are genuinely absent from the font's cmap. If risky glyphs are
+present, ensure `mainfont`/`CJKmainfont` cover them (a CJK-capable font such as
+*Apple SD Gothic Neo* / *Noto Sans CJK* usually covers arrows + Hangul but can
+still miss the true-minus `−` U+2212 and `★`). **The DOCX is authoritative; the
+PDF is a convenience copy** — never let a PDF render drop a glyph the document
+needs.
+
 ### Step 4 — Visual verify
 
 Open the PDF. Check:
 - The first-column labels do not wrap and stay on a single line
 - Data columns have sufficient width
 - No broken Korean glyphs (a Times New Roman fallback means CJKmainfont was not applied)
+- No missing scientific symbols (arrows, −, ≤, ±, √) — the Step 3.5 scan flags candidates
 - No change history / internal version numbers exposed
 
 ## Templates

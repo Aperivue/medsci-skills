@@ -28,6 +28,7 @@
 
 - `bash scripts/check_deps.sh`
 - `bash scripts/render_pdf.sh <manuscript.md>`
+- `bash tests/test_glyph_coverage.sh`
 
 **Evidence** — `bundled_script`
 
@@ -43,6 +44,7 @@
 - `check_deps.sh`
 - `infer_colwidths.py`
 - `render_pdf.sh`
+- `scan_glyph_coverage.py`
 
 **Templates** (`skills/render-pdf-doc/templates/`):
 

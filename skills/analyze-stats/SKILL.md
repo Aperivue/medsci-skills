@@ -551,6 +551,15 @@ When death or other events preclude the outcome of interest, standard KM overest
 - Cross-national: analyze each country separately, never pool
 - Subgroup analysis: exclude the stratification variable from covariates
 
+### Mediation Analysis
+
+- **Guide**: Load `analysis_guides/mediation.md` before generating code
+- Bootstrapped product-of-coefficients (a×b) indirect effect (R `mediation` / `CMAverse` / PROCESS); ≥2000 resamples, bias-corrected percentile CI — not the Sobel test
+- **Binary outcome**: counterfactual / natural-effects decomposition (`CMAverse`, `regmedint`), not the naive OR product
+- Report total, direct, indirect effects each with a bootstrap CI; **proportion mediated only with uncertainty and only when the total effect is well-estimated** (unstable / can exceed 100% when total is near-null)
+- **Identification, not the bootstrap, is the issue**: mediation needs no unmeasured mediator–outcome confounding (sequential ignorability) → report an **E-value for the indirect effect** (or ρ-based sensitivity). A cross-sectional design cannot order X→M→Y — frame as association-level (review probe O13)
+- Report against **AGReMA**
+
 ### NHIS Claims-Based Studies
 
 - **Guide**: Load `analysis_guides/nhis_icd10_mapping.md` for disease definition patterns

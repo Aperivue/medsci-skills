@@ -29,6 +29,7 @@
 - `python3 scripts/sync_submission.py`
 - `python3 scripts/cross_document_n_check.py`
 - `bash tests/test_wordcount_cap.sh`
+- `bash tests/test_assemble_supplement.sh`
 
 **Evidence** — `bundled_script`
 
@@ -36,6 +37,7 @@
 
 **Scripts** (`skills/sync-submission/scripts/`):
 
+- `assemble_supplement.py`
 - `author_registry_example.yaml`
 - `blind_sweep.py`
 - `check_asset_anonymization.py`

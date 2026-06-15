@@ -54,4 +54,5 @@ known_limitations:
 validation_commands:
   - "bash scripts/check_deps.sh"
   - "bash scripts/render_pdf.sh <manuscript.md>"
+  - "bash tests/test_glyph_coverage.sh"
 evidence_surface: bundled_script

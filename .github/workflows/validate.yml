@@ -111,6 +111,12 @@ jobs:
       - name: Run self-review confounding-completeness gate test (A11)
         run: bash skills/self-review/tests/test_confounding_completeness.sh
 
+      - name: Run sync-submission supplement-assembler test (A12)
+        run: bash skills/sync-submission/tests/test_assemble_supplement.sh
+
+      - name: Run render-pdf-doc glyph-coverage scan test (A13)
+        run: bash skills/render-pdf-doc/tests/test_glyph_coverage.sh
+
       - name: Install pandas (demo manifest verification)
         run: pip install pandas
 
