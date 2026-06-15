@@ -560,6 +560,13 @@ When death or other events preclude the outcome of interest, standard KM overest
 - **Identification, not the bootstrap, is the issue**: mediation needs no unmeasured mediator–outcome confounding (sequential ignorability) → report an **E-value for the indirect effect** (or ρ-based sensitivity). A cross-sectional design cannot order X→M→Y — frame as association-level (review probe O13)
 - Report against **AGReMA**
 
+### Interaction & Effect Modification
+
+- **Choose and state the scale.** A public-health / biological **synergy** claim is an **additive**-scale statement → report **RERI**, **AP** (attributable proportion), or **S** (synergy index), each **with a CI** — not only a multiplicative OR/HR product term. A non-significant multiplicative interaction is compatible with a large additive one (and vice versa)
+- **"Joint association" via a combined multi-level exposure** (high/high vs low/low) shows joint *categories*, not interaction — add the product term (multiplicative) and/or RERI (additive) to claim interaction
+- **Stratified-only** "stronger in A than B" is the difference-in-significance fallacy — report the formal interaction term, not two separate stratum estimates
+- R `interactionR` / `epiR` for RERI/AP/S with CIs; follow Knol & VanderWeele interaction-reporting recommendations. Review-side probe: O14 in `observational_confounding.md`
+
 ### NHIS Claims-Based Studies
 
 - **Guide**: Load `analysis_guides/nhis_icd10_mapping.md` for disease definition patterns
