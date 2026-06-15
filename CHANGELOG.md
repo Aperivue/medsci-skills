@@ -2,6 +2,27 @@
 
 ## [Unreleased]
 
+### Added
+
+- **Observational / cohort probe + gate hardening** (sourced from two cross-sectional health-screening cohort self-review→revise loops). Expands `observational_confounding.md` **O1–O6 → O1–O9** (vendored byte-identical into `/self-review`): **O7 — over-adjustment** (conditioning on a mediator or consequence of the outcome — the opposite-direction failure to O1, e.g. a renally-excreted lab in an eGFR model; "adjust for everything that differs in Table 1" is not a confounder-selection rule), **O8 — analysis unit & clustering** (records vs unique subjects → anti-conservative CIs), **O9 — outcome construct validity** for report-/registry-derived outcomes (composite homogeneity, ascertainment/κ, dictionary-first label provenance, misclassification direction).
+- **New domain-probe module `clinical_prediction_model.md` (CP1–CP4)** for cross-sectional / observational prediction models (TRIPOD / TRIPOD+AI nested predictor-set comparisons): apparent-vs-optimism-corrected calibration/DCA, the incremental-value-vs-marginal-effect **two-null distinction**, EPV per nested model, and net benefit as a model comparison (not a policy endorsement). Vendored byte-identical into `/self-review`; `MODULES` 9 → 10; routed from peer-review (new Phase 2E-2) and self-review. Plus two `/self-review` `exemplar_findings/` (`over_adjustment_collider.md`, `prediction_two_null_conflation.md`).
+- **`check_cohort_arithmetic.py` — new `ANALYSIS_UNIT_UNDISCLOSED` check** (`--id-col`, auto-detect with a cardinality guard): when records > unique subjects and the manuscript discloses neither the analysis unit nor a one-record-per-subject sensitivity, emits a Major with a `records / unique_subjects / repeat_subjects / max_visits` reconciliation (probe O8).
+- **`check_scope_coherence.py` — new `CROSS_SECTIONAL_YIELD_LANGUAGE` lexicon** (Minor): a cross-sectional / prevalence design using incidence-flavored vocabulary ("yield", "detection rate", "number-needed-to-screen/image", "rescreen interval") without defining "yield" once as cross-sectional report-positive prevalence.
+
+### Fixed
+
+- **`check_confounding_completeness.py` — DB-column-code ↔ prose alias map.** A DB-exported Table 1 carrying column codes (`he_sbp`, `b_uric`, `b_chol_hdl`) was false-flagged as imbalanced-and-unadjusted when the adjustment set was written in prose ("systolic blood pressure"). An alias map now resolves both to a shared concept; it only ever *adds* matches (no new false ✓). Genuinely unadjusted covariates still flag.
+
+### Changed
+
+- **`/self-review`** — adds a **difference-in-significance discipline** check (§C; "stronger in A (p<0.05) than B (p=NS)" without a formal interaction test), **statistic-type fidelity** and **stale-derived-CSV (n-mismatch)** checks (Phase 2.5a), **`POWER_MODEL_MISSPEC` / `POWER_VALUE_INTERPOLATED`** (Phase 2.5a-2; the power/MDE simulation must use the primary-model adjustment set and not be interpolated), an additive **`requires_reanalysis`** issue-schema field that routes data-level fixes to `/analyze-stats` instead of a prose `--fix` (Phase 4), and **re-run-the-panel-after-a-large-revision** guidance (Phase 2.6).
+- **`/analyze-stats`** — over-adjustment covariate-selection guidance for cross-sectional outcome models, and a **Table 1 mean(SD)-vs-median(IQR) rule by `|skewness|>1`** (not a mean−median/SD heuristic) coupled to Wilcoxon / t-test.
+- **`/check-reporting`** — STROBE common-gap items: power-aware framing of a null result, and confounder-selection rationale (no kitchen-sink / no outcome-consequence adjustment).
+- **`/write-paper`** — observational-cohort Discussion exemplar gains power-aware null framing and an over-adjustment limitation.
+- **`/revise`** — `requires_reanalysis` self-review findings auto-route to `/analyze-stats`.
+
+No skill / reporting-guideline / detector count change (45 / 36 / 25).
+
 ## [4.2.0] - 2026-06-15
 
 ### Added

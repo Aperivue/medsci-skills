@@ -12,6 +12,14 @@ tables/figures**.
   pre-specified and reported in Results — introduce no new comparison here).
 - One sentence on the clinical/public-health relevance — as risk stratification, not proven
   causation.
+- **If the primary result is null, frame it by precision, not absence.** Do not write "X was
+  not associated with Y" flatly; state what the confidence interval *excludes* — e.g. "the 95%
+  CI excluded an eGFR difference larger than ~1.7" or cite the minimum detectable effect that
+  the study was powered for. "No effect" and "could not exclude an effect of size X" are
+  different claims; an underpowered null is "not yet established," and the MDE must be computed
+  under the **full primary-model adjustment set** (a 2-covariate power calc overstates
+  precision). Watch for **bilateral over-correction** — a prior "independently associated"
+  overclaim swinging to an equally unsupported "not associated" claim during revision.
 
 ## Paragraphs 2–3 — Interpretation and comparison
 - Compare to prior evidence (agree/differ and why: design, population, exposure measurement).
@@ -24,6 +32,11 @@ tables/figures**.
 - **Residual and unmeasured confounding** with the adjustment set named and its gaps stated
   (and, ideally, an E-value / tipping-point referenced from Results); selection bias; exposure
   misclassification; missing-data handling; outcome ascertainment completeness.
+- **Adjustment-set choice both ways**: state that confounders were chosen by a causal rationale
+  (DAG / prior literature), not because they differed in Table 1, and that no **mediator or
+  consequence of the outcome** was adjusted (over-adjustment — e.g. a renally-excreted lab in an
+  eGFR model); if a borderline covariate was included, reference the drop-it sensitivity model
+  from Results.
 
 ## Generalizability
 - The population the cohort represents and where the estimate may not transfer (single

@@ -24,8 +24,30 @@ for categorical variables.
 
 ## Rules
 - **Binary variables**: Show only one level (e.g., Male only; Female is implied)
-- **Continuous variables**: Mean (SD) if normal; Median (IQR) if skewed. State which in footnote
+- **Continuous variables**: Mean (SD) if normal; Median (IQR) if skewed. State which in footnote. **Choose by skewness, not by a mean−median/SD heuristic** (see below)
 - **Categorical variables**: n (%)
+
+### Mean (SD) vs Median (IQR): choose by skewness, and couple the test
+
+The selection criterion is **`|skewness| > 1`** (equivalently a Shapiro–Wilk rejection or a clear visual departure), **not** a `|mean − median| / SD > 0.5` rule. The mean−median/SD ratio fails exactly where it matters: a strongly right-skewed lab with a large SD (triglycerides, glucose, HbA1c, creatinine, often diastolic BP) can have skewness 2–4 yet `|mean − median|/SD ≈ 0.3`, so the heuristic wrongly keeps it as mean (SD). Use skewness so heavy-tailed labs are reported as median (IQR).
+
+**Couple the statistic to the test** — a variable shown as median (IQR) must be compared with a **rank test (Wilcoxon / Mann–Whitney)**, and a variable shown as mean (SD) with a **t-test**. Reporting median (IQR) but a t-test p-value (or vice versa) is an internal inconsistency a reviewer will flag (and `/self-review` Phase 2.5a checks prose↔table statistic-type match).
+
+```python
+import numpy as np
+from scipy.stats import skew, ttest_ind, mannwhitneyu
+
+def summarize_continuous(x_by_group, full):
+    """Return ('mean_sd'|'median_iqr', display, p) for one continuous variable.
+    full = all non-missing values pooled; x_by_group = [groupA_vals, groupB_vals]."""
+    if abs(skew(full, nan_policy="omit")) > 1:          # skewed -> median (IQR) + Wilcoxon
+        stat, p = mannwhitneyu(*x_by_group, alternative="two-sided")
+        return "median_iqr", f"{np.median(full):.1f} ({np.percentile(full,25):.1f}-{np.percentile(full,75):.1f})", p
+    stat, p = ttest_ind(*x_by_group, equal_var=False)   # symmetric -> mean (SD) + t-test
+    return "mean_sd", f"{np.mean(full):.1f} ({np.std(full,ddof=1):.1f})", p
+```
+
+In `gtsummary`, drive the same split: put skewed variables in `type = list(<var> ~ "continuous")` with `statistic = list(<skewed> ~ "{median} ({p25}-{p75})")` and `add_p(test = list(<skewed> ~ "wilcox.test", <symmetric> ~ "t.test"))`.
 - **Column headers**: Include group size — "Group A (n=XXX)"
 - **Units**: In row label — "Age, y" or "Age, years"
 - **Missing data**: Report as "Missing" row or footnote stating N with complete data

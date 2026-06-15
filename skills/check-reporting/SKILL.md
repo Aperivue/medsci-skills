@@ -467,6 +467,8 @@ These items are frequently missing in medical manuscripts:
 11. **AI-specific: failure mode analysis** (CLAIM, STARD-AI)
 12. **AI-specific: fairness/bias assessment** (STARD-AI)
 13. **AI-specific: commercial interests and data/code availability** (STARD-AI)
+14. **Power-aware framing of a null result** (STROBE 16a / 18 / 20) — for an observational study whose headline is a **non-significant** association, a flat "X was not associated with Y" overreads the data when the analysis is not powered to *exclude* a clinically meaningful effect. Mark item 18/20 PARTIAL unless the manuscript states the precision as an exclusion (e.g., "the 95% CI excluded an eGFR difference larger than ~1.7") or reports a minimum detectable effect — "no effect" vs "could not exclude an effect of size X" are different claims, and a negative conclusion needs the latter.
+15. **Confounder-selection rationale, not "adjust for everything that differs"** (STROBE 16a explicitly asks *which confounders were adjusted for and why*) — flag a kitchen-sink adjustment set chosen because variables differ in Table 1. The Methods must give a causal rationale (DAG / prior literature) and must not adjust for a **mediator or consequence of the outcome** (over-adjustment, e.g. serum uric acid in an eGFR model); both an unjustified inclusion and an unjustified omission are item-16a gaps.
 
 ---
 
