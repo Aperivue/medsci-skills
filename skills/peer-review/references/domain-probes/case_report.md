@@ -6,7 +6,7 @@
        - self-review: Anticipated Major / Minor Comments (Fatal / Fixable) mapped to category letters.
      Do NOT edit one copy only — run `python3 scripts/check_domain_probe_sync.py --sync`. -->
 
-# Case-report probes (CR1–CR8)
+# Case-report probes (CR1–CR9)
 
 A checklist for **case reports and small single-patient clinical narratives**. These probes
 complement (do not replace) the generic Phase 2 issue checklist and the CARE items. They target the
@@ -83,6 +83,24 @@ the evidence level of n=1.
   series presented with no selection description, → MAJOR interpretive limit. Cohort-level limitations
   (small n, retrospective, non-uniform protocol, no comparator) should be explicit.
 
+**CR9 — Imaging-led (radiology / nuclear medicine / interventional) case report** (apply when the contribution is the image or an image-guided procedure):
+- Is each modality described as **technique → findings → impression**, in clinical order, with
+  **reproducible technique** (sequence/phase, field strength, contrast agent/dose/rate, CT
+  kV/keV/CTDIvol, PET tracer dose/uptake time, transducer frequency; for IR, devices with sizes and
+  the step sequence)? Modalities merged into one undifferentiated paragraph, or findings stated
+  without the acquisition needed to reproduce them, → reporting gap.
+- When a **structured-reporting system** applies (BI-RADS/LI-RADS/PI-RADS/TI-RADS/Lung-RADS/O-RADS),
+  is the **category given with its meaning/risk** rather than a bare number? Are **quantitative values**
+  reported with method (ROI placement) and **threshold honesty** — a value with no validated cutoff
+  labeled exploratory, not diagnostic?
+- For **multimodality discordance**, is the disagreement stated and resolved (decisive modality or
+  histopathology), and is a missing standard modality named as a limitation? For an **IR** case, is
+  complication **latency** and the diagnostic→therapeutic pathway documented with pre/post outcome?
+- **Patient-protection at the image level**: are images de-identified at the DICOM level (no burned-in
+  annotations, accession numbers, dates, faces)? Is figure **alt text real** (not a placeholder)? Is a
+  **device/vendor relationship disclosed** for an advanced-technique or device case? Identifiable
+  images or undisclosed device-vendor COI → MAJOR.
+
 **Output template (CR2 / CR3 example)**:
 > "The case is clinically interesting, but the submission does not yet provide enough information for
 > publication as a case report. First, the consent/anonymization statement should be made explicit,
@@ -92,7 +110,7 @@ the evidence level of n=1.
 > generating observation and narrowing the teaching point to when clinicians should consider this
 > diagnosis or management option."
 
-**Discipline — leads vs findings (applies to CR1–CR8)**:
+**Discipline — leads vs findings (applies to CR1–CR9)**:
 - A missing element is a **lead until the whole manuscript, figures, legends, and ethics statements are
   checked**. Do not allege absent consent or absent follow-up if it appears in a title page, figure
   legend, supplement, or patient-perspective section.

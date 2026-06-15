@@ -201,13 +201,14 @@ Apply this 6-probe checklist (D1–D6) **only when the manuscript is a diagnosti
 
 ### Phase 2J: Case-Report Extension
 
-Apply this 8-probe checklist (CR1–CR8) **only when the manuscript is a case report, a case series, or a small
+Apply this 9-probe checklist (CR1–CR9) **only when the manuscript is a case report, a case series, or a small
 single-patient clinical narrative**. These probes complement (do not replace) the generic Phase 2
 issue checklist and CARE reporting items; they target case-report contribution, consent and
 de-identification, n=1 causal overclaiming, similar-case comparison, timeline/follow-up completeness,
-teaching-point framing, adverse-event causality discipline (CR7), and case-series design (CR8).
+teaching-point framing, adverse-event causality discipline (CR7), case-series design (CR8), and
+imaging-led (radiology/nuclear-medicine/IR) reporting discipline (CR9).
 
-**Probe detail (CR1–CR8), with output templates and the leads-vs-findings discipline:** `${CLAUDE_SKILL_DIR}/references/domain-probes/case_report.md`. Load it and apply each probe when the trigger fires. In this skill, map each probe finding to the review draft as a Major / Minor comment; missing consent or identifiable patient data (CR2), causal overclaiming (CR3), an absent case-report contribution/teaching value (CR1), causality-by-assertion in an adverse-event case (CR7), or a series with no methods/summary table (CR8) can be placed as Major #1 depending on what carries the manuscript's claim. Pair timeline-related findings (CR5) with `/make-figures` `exemplar_plots/clinical_timeline.md`.
+**Probe detail (CR1–CR9), with output templates and the leads-vs-findings discipline:** `${CLAUDE_SKILL_DIR}/references/domain-probes/case_report.md`. Load it and apply each probe when the trigger fires. In this skill, map each probe finding to the review draft as a Major / Minor comment; missing consent or identifiable patient data (CR2), causal overclaiming (CR3), an absent case-report contribution/teaching value (CR1), causality-by-assertion in an adverse-event case (CR7), a series with no methods/summary table (CR8), or identifiable images / undisclosed device-vendor COI in an imaging case (CR9) can be placed as Major #1 depending on what carries the manuscript's claim. Pair timeline-related findings (CR5) with `/make-figures` `exemplar_plots/clinical_timeline.md`, and imaging-figure findings (CR9) with `exemplar_plots/imaging_panel.md`.
 
 ### Phase 3: Draft Review
 
