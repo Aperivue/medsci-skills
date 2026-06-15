@@ -224,6 +224,12 @@ The E2E pipeline (`orchestrate --e2e`) produces everything up to `qc/`. The `sub
 
 ## What's New
 
+**v4.3** hardens the **cross-sectional / observational cohort** review surface end-to-end, much of it reverse-engineered from real CC-BY cohort papers (learn-only under the license firewall) — no new skill or reporting-guideline count (still 45 skills / 36 guidelines); analysis-integrity detectors **25 → 27**:
+
+- **Observational probes O1 → O14** (`/peer-review` + `/self-review`, vendored) — over-adjustment / analysis-unit clustering / outcome construct-validity (O7–O9), overlapping-subset gradient (O10), **complex-survey design & weighting** for NHANES/KNHANES (O11), **data-driven threshold / "inflection-point" mining** (O12), **cross-sectional mediation** temporal-order & sequential-ignorability (O13), and **interaction scale** — additive RERI/AP/S vs multiplicative (O14). Plus a new **clinical-prediction-model** probe module **CP1–CP4** and survival **S9** (panel-data / multistate variance).
+- **Two new detectors (25 → 27)** — `check_wordcount_cap.py` (the revision-inflation trap: body vs journal cap) and `check_paren_spans.py` (em-dash→paren conversions that wrap a whole sentence). Plus a `check_confounding_completeness.py` upgrade (DB-code↔prose alias map, SMD-from-mean±SD, exposure-defining-covariate exemption), a `check_cohort_arithmetic.py` `ANALYSIS_UNIT_UNDISCLOSED` check, a `check_scope_coherence.py` cross-sectional-yield lexicon, and a verify-refs corporate/collective-author render-abort fix.
+- **Analysis & submission tooling** — `/analyze-stats` gains **mediation** and **interaction & effect-modification** guides; `/sync-submission` gains `assemble_supplement.py` (S{N} index↔file integrity) and a `/revise` body-word-count exit gate; `/render-pdf-doc` gains a `scan_glyph_coverage.py` xelatex silent-glyph-drop scan.
+
 **v4.2** builds out the case-report capability end-to-end, grounded in real CC-BY case reports (learn-only under the license firewall) — no new skill or reporting-guideline count (still 45 skills / 36 guidelines); journal profiles **68 → 73**:
 
 - **Case-report + case-series writing** — `/write-paper` gains a CARE narrative + 150-word-abstract case-report exemplar, a **case-series** paper type (methods-light mini-cohort, all-cases summary table, counts-not-rates), and **adverse-event/pharmacovigilance** (Naranjo/WHO-UMC causality) and **diagnostic-pitfall/mimic** subtypes.

@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [4.3.0] - 2026-06-16
+
 ### Added
 
 - **Observational / cohort probe + gate hardening** (sourced from two cross-sectional health-screening cohort self-review→revise loops). Expands `observational_confounding.md` **O1–O6 → O1–O9** (vendored byte-identical into `/self-review`): **O7 — over-adjustment** (conditioning on a mediator or consequence of the outcome — the opposite-direction failure to O1, e.g. a renally-excreted lab in an eGFR model; "adjust for everything that differs in Table 1" is not a confounder-selection rule), **O8 — analysis unit & clustering** (records vs unique subjects → anti-conservative CIs), **O9 — outcome construct validity** for report-/registry-derived outcomes (composite homogeneity, ascertainment/κ, dictionary-first label provenance, misclassification direction). O1 also gains an **exposure-defining-covariate exemption** for guideline-defined exposures and a reference-arm-contamination-vs-selection-bias note (O3); `check_confounding_completeness.py` now **computes SMD from per-stratum mean ± SD** when the wide Table 1 carries no p / SMD column (interop with `/analyze-stats`).
