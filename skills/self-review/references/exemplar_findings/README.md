@@ -34,6 +34,9 @@ partner-voice comment to authors; these model the *author's* anticipation-and-fi
   calibration/DCA (probes: CP1/CP2) → category C/D.
 - `scope_overreach_cross_sectional.md` — a prognostic/surveillance claim from a
   cross-sectional design (gate: `check_scope_coherence.py`) → category D.
+- `cross_sectional_mediation.md` — a causal X→M→Y mediation chain claimed from single-timepoint
+  data via a bootstrapped indirect effect, no temporal order / no M–Y-confounding sensitivity
+  (probe: O13) → category D/C, sensitivity is `requires_reanalysis`.
 - `estimand_drift_posthoc_primary.md` — the reported "primary" differs from the registered
   one (gate: `check_claim_artifact.py`) → category C.
 
