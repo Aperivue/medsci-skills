@@ -38,8 +38,8 @@
 
 **References** (`skills/self-review/references/`):
 
-- `domain-probes/` (9 files)
-- `exemplar_findings/` (5 files)
+- `domain-probes/` (10 files)
+- `exemplar_findings/` (7 files)
 - `panel_review_template.md`
 
 **Scripts** (`skills/self-review/scripts/`):

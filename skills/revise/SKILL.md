@@ -75,7 +75,7 @@ generates a response that argues with a valid reviewer point.
 
 Before writing responses, identify which comments require external action:
 
-**Comments requiring /analyze-stats:** Flag any MAJOR comment that requires new statistical analysis, re-run of existing analysis, additional metric (calibration, NRI, ICC), or sample size recalculation.
+**Comments requiring /analyze-stats:** Flag any MAJOR comment that requires new statistical analysis, re-run of existing analysis, additional metric (calibration, NRI, ICC), or sample size recalculation. When the source is a `/self-review` finding, any issue carrying `requires_reanalysis: true` (power/MDE re-simulation under the full model, first-visit / one-record-per-subject dedup, an extended- or reduced-adjustment over-adjustment sensitivity, optimism correction of calibration) is automatically a `/analyze-stats` routing item — it cannot be answered by a prose edit, so it must produce a committed script + CSV whose numbers are then fed back here.
 
 **Comments requiring /make-figures:** Flag any MAJOR comment that requires a new figure or revised figure (calibration plot, subgroup forest plot, Bland-Altman, new panel).
 

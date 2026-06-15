@@ -45,5 +45,29 @@ python3 "$SCRIPT" --manuscript "$CLEAN" --data "$PART" --out "$OUT" --strict --q
 check "exit 1 with overlapping --data partition CSV" test "$?" -eq 1
 check "PARTITION_OVERLAP from --data CSV" has_verdict PARTITION_OVERLAP
 
+# (4) analysis-unit: 10 records / 7 subjects + manuscript that discloses neither
+#     the analysis unit nor a one-record-per-subject sensitivity -> ANALYSIS_UNIT_
+#     UNDISCLOSED (auto-detected 'mockid' column), exit 1.
+REPEAT="$HERE/fixtures/cohort_repeat_subjects.csv"
+UNDISC="$HERE/fixtures/cohort_unit_undisclosed.md"
+DISC="$HERE/fixtures/cohort_unit_disclosed.md"
+python3 "$SCRIPT" --manuscript "$UNDISC" --data "$REPEAT" --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "exit 1 (analysis unit undisclosed, auto-detect)" test "$?" -eq 1
+check "ANALYSIS_UNIT_UNDISCLOSED detected" has_verdict ANALYSIS_UNIT_UNDISCLOSED
+check "reconciliation reports 7 unique subjects" python3 -c "
+import json
+d=json.load(open('$OUT'))
+c=next(c for c in d['claims'] if c['verdict']=='ANALYSIS_UNIT_UNDISCLOSED')
+assert 'unique_subjects=7' in c['detail'] and 'max_visits=3' in c['detail'], c['detail']
+"
+
+# (5) explicit --id-col also fires
+python3 "$SCRIPT" --manuscript "$UNDISC" --data "$REPEAT" --id-col mockid --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "exit 1 (analysis unit, explicit --id-col)" test "$?" -eq 1
+
+# (6) disclosed manuscript (states analysis unit + first-visit sensitivity) -> no fire
+python3 "$SCRIPT" --manuscript "$DISC" --data "$REPEAT" --strict --quiet >/dev/null 2>&1
+check "exit 0 when analysis unit disclosed" test "$?" -eq 0
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

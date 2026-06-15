@@ -15,6 +15,13 @@ conclusion action verb co-occur, and both are documented anti-patterns
                               dichotomized) drives a patient-care directive (defer,
                               withhold, initiate/discontinue therapy, statin). A
                               risk-stratification marker is not a management trigger.
+  CROSS_SECTIONAL_YIELD_LANGUAGE  a cross-sectional / prevalence design uses
+                              incidence/prospective-flavored vocabulary — "yield",
+                              "detection rate", "number-needed-to-screen/image",
+                              "rescreen interval", "screen-detected". On a
+                              prevalence design these read as longitudinal screening
+                              performance. Minor unless "yield" is defined once as
+                              cross-sectional report-positive prevalence.
 
 The gate is conservative: it fires only when both a signal and a conclusion-region
 verb are present, to keep false positives low on a widely-used skill.
@@ -56,6 +63,16 @@ DIRECTIVE_VERB = re.compile(
     r"(?:statin|treatment|therapy|pharmacotherapy)\s+(?:can|should|may)\s+be\s+(?:deferred|withheld|started|initiated)|"
     r"recommend(?:ed)?\s+(?:statin|treatment|therapy|initiation|against treatment)|"
     r"guide\s+(?:treatment|management|therapy)", re.IGNORECASE)
+
+YIELD_LANGUAGE = re.compile(
+    r"\byield\b|detection rate|number[-\s]needed[-\s]to[-\s](?:screen|image)|"
+    r"\bnn[si]\b|rescreen(?:ing)?\s+interval|screen[-\s]detected", re.IGNORECASE)
+
+# "yield" pinned once to a cross-sectional prevalence reading suppresses the flag.
+YIELD_DEFINED = re.compile(
+    r"yield (?:is|was|here|,)?\s*(?:defined|refers|denotes|i\.e\.)|"
+    r"defined as the (?:cross[-\s]sectional )?(?:report[-\s]positive )?prevalence|"
+    r"cross[-\s]sectional (?:report[-\s]positive )?prevalence", re.IGNORECASE)
 
 SURROGATE_SIGNAL = re.compile(
     r"binary (?:surrogate|endpoint|outcome|marker)|dichotom(?:ous|ised|ized)|surrogate (?:endpoint|marker|outcome)|"
@@ -111,6 +128,20 @@ def check(text: str) -> list[dict]:
             "where": concl[max(0, dm.start() - 40):dm.end() + 40].strip()[:160],
         })
 
+    if DESIGN_CROSS_SECTIONAL.search(text):
+        ym = YIELD_LANGUAGE.search(text)
+        if ym and not YIELD_DEFINED.search(text):
+            claims.append({
+                "verdict": "CROSS_SECTIONAL_YIELD_LANGUAGE",
+                "severity": "Minor",
+                "detail": (f"cross-sectional/prevalence design uses incidence-flavored "
+                           f"screening vocabulary ('{ym.group(0).strip()}') without defining "
+                           f"'yield' as cross-sectional report-positive prevalence; on a "
+                           f"single-timepoint design this reads as longitudinal screening "
+                           f"performance"),
+                "where": text[max(0, ym.start() - 40):ym.end() + 40].strip()[:160],
+            })
+
     return claims
 
 
@@ -161,6 +192,8 @@ def main() -> int:
         s = result["summary"]
         if s["n_major"]:
             print(f"MAJOR candidate: {s['n_major']} endpoint↔conclusion scope mismatch(es).")
+        elif s["n_flag"]:
+            print(f"MINOR flag: {s['n_flag']} scope-language issue(s) (see table).")
         else:
             print("OK: conclusion scope matches the design/endpoint.")
 

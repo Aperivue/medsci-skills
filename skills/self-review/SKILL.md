@@ -107,6 +107,7 @@ partially, or not at all for the given manuscript type.
 | Power-aware null interpretation | Scored separately from significance, for any **non-significant primary result** (p > 0.05, 95% CI crossing the null): is the analysis powered to *exclude* a clinically meaningful effect? An underpowered null is "not yet established," not "no effect" -- if the upper CI bound still includes a meaningful effect size, a flat "X was not associated with Y" claim overreads the data. Look for reported observed power or a minimum detectable effect that justifies a negative conclusion, and watch for **bilateral over-correction** (a prior "independently associated" overclaim swinging to an equally unsupported "not associated" claim during revision). Undocumented null = Minor; a null that drives a clinical recommendation or a headline negative conclusion without power/CI-compatibility justification = Major. |
 | Equivalence-margin discipline | A claim that two groups/methods are "equivalent," "non-inferior," "indistinguishable," or show "no difference" requires a **pre-stated margin** — a TOST procedure, or the CI compared against a declared MCID. Grep `indistinguishable\|equivalent\|non-inferior\|no difference` and check for an adjacent `margin\|TOST\|MCID\|non-inferiority`; a margin-free equivalence claim is a Major (it converts a failure to reject into positive evidence of no effect). |
 | Interaction-anchor discipline | When synergy / interaction / effect-modification **is** the research question, the null must be anchored to the **interaction parameter** (a likelihood-ratio test of the interaction term, or the interaction OR/HR on one consistent scale), not to a main-effect OR whose upper CI is then read as "no synergy." Grep `synergy\|interaction\|joint effect\|effect modification`; if present, confirm Results carries an `OR_int\|β_int\|LRT\|p_interaction` term. A synergy conclusion resting on a main-effect estimate is a model mis-specification (Major), even when each main effect is individually correct. |
+| Difference-in-significance discipline | A between-group claim that an association is "more X / stronger / more pronounced in group A than group B" must rest on a **formal interaction test**, not on group A being significant (p < 0.05) while group B is not (p = NS). The difference between "significant" and "non-significant" is **not** itself significant. Grep `more (clearly\|strongly\|pronounced)\|stronger in\|(only\|chiefly) in (men\|women\|older\|younger\|the [A-Za-z]+ subgroup)` near two stratum-specific estimates with discordant p-values; if no interaction term (`p_interaction\|OR_int\|LRT`) is reported for that contrast, flag it (difference-in-significance fallacy). A subgroup-difference conclusion built this way is a Major; the fix is to report the interaction test or soften to "associations were observed in group A; the interaction was not formally tested." |
 
 #### D. Clinical Framing & Importance
 
@@ -130,7 +131,7 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/check_scope_coherence.py" \
   --manuscript manuscript.md --out qc/scope_coherence.json --strict
 ```
 
-`CROSS_SECTIONAL_PROGNOSTIC` and `SURROGATE_CARE_DIRECTIVE` are Anticipated Major Comments (category: D. Clinical Framing). The gate is conservative — it fires only when a design/endpoint signal and a conclusion-region action verb co-occur.
+`CROSS_SECTIONAL_PROGNOSTIC` and `SURROGATE_CARE_DIRECTIVE` are Anticipated Major Comments (category: D. Clinical Framing). `CROSS_SECTIONAL_YIELD_LANGUAGE` is an Anticipated **Minor** Comment — a cross-sectional / prevalence design using incidence-flavored screening vocabulary ("yield", "detection rate", "number-needed-to-screen/image", "rescreen interval") without defining "yield" once as cross-sectional report-positive prevalence. The gate is conservative — it fires only when a design/endpoint signal and a conclusion-region action verb (or the yield lexicon) co-occur.
 
 #### E. Reproducibility
 
@@ -263,7 +264,7 @@ publication bias (funnel plot, Egger), and sensitivity/subgroup analyses.
 
 **Type-Specific Additional Checks:**
 
-- **Observational studies**: Confounding assessment (DAG or adjustment strategy), selection bias, exposure measurement validity. Run **Phase 2.5e (Confounding Completeness)** and apply the O1–O6 probes in `references/domain-probes/observational_confounding.md`.
+- **Observational studies**: Confounding assessment (DAG or adjustment strategy), selection bias, exposure measurement validity. Run **Phase 2.5e (Confounding Completeness)** and apply the O1–O9 probes in `references/domain-probes/observational_confounding.md` — including O7 (over-adjustment: do not adjust for a consequence/mediator of the outcome, e.g. serum uric acid in an eGFR model — the opposite-direction failure to O1), O8 (analysis unit & clustering — run `check_cohort_arithmetic.py --id-col` for records-vs-subjects), and O9 (construct validity of a report-/registry-derived outcome). If the manuscript develops or compares a **clinical prediction model** (TRIPOD / TRIPOD+AI, nested predictor-set comparison), also apply the CP1–CP4 probes in `references/domain-probes/clinical_prediction_model.md` (apparent-vs-optimism-corrected calibration/DCA, the incremental-value-vs-marginal-effect two-null distinction, EPV per nested model, net benefit as model comparison not policy).
 - **Educational studies**: Learning outcome measurement validity, Kirkpatrick level, control group adequacy, curriculum fidelity
 - **Meta-analyses**: Search comprehensiveness (2+ databases), screening reproducibility (2 reviewers), RoB assessment per study, GRADE certainty
 - **Case reports**: Diagnostic reasoning transparency, timeline completeness, informed consent, generalizability disclaimer
@@ -302,11 +303,11 @@ For cohort/observational manuscripts, run the deterministic gate instead of eyeb
 
 ```bash
 python3 "${CLAUDE_SKILL_DIR}/scripts/check_cohort_arithmetic.py" \
-  --manuscript manuscript.md --data analysis/strata.csv \
+  --manuscript manuscript.md --data analysis/cohort.csv --id-col mockid \
   --out qc/cohort_arithmetic.json --strict
 ```
 
-`RATE_BACKCALC` / `CASCADE_SUM` / `PARTITION_OVERLAP` rows are Anticipated Major Comments (category: A. Study Design & Data Integrity); the partition check is the Phase 2.5b cohort branch below. Flag any remaining internal-consistency discrepancies as Anticipated Minor Comments (category: F. Reporting Completeness).
+`RATE_BACKCALC` / `CASCADE_SUM` / `PARTITION_OVERLAP` rows are Anticipated Major Comments (category: A. Study Design & Data Integrity); the partition check is the Phase 2.5b cohort branch below. Pass `--id-col` (or let it auto-detect a subject-ID column) on health-screening / EMR / registry data so the gate also runs the **analysis-unit** check: when `records > unique subjects` and the manuscript states neither the analysis unit nor a one-record-per-subject sensitivity, it emits `ANALYSIS_UNIT_UNDISCLOSED` (Major — non-independent observations give anti-conservative CIs; probe O8). Flag any remaining internal-consistency discrepancies as Anticipated Minor Comments (category: F. Reporting Completeness).
 
 ### Phase 2.5a: Numerical Source-Fidelity Audit (External)
 
@@ -365,6 +366,26 @@ checked.
 escalate to a Major Comment even if the audited values happen to match — the next revision
 will re-introduce the same risk.
 
+**Statistic-type fidelity (not just the value).** A prose sentence must match the table/CSV not
+only on the **number** but on the **statistic type**. A body sentence that reports a *median*
+("median eGFR 92.8") while Table 1 reports a *mean* ("mean 91.3") for the same variable cannot
+be reconciled by a reviewer comparing the two — and the mismatch usually means one of them was
+not regenerated after a Table 1 rule change (see the mean/median-by-skewness rule in
+`/analyze-stats` `table-types/table1_demographics.md`). Treat a prose↔table statistic-type
+mismatch (mean vs median, SD vs IQR, n vs %) as a Minor Comment, or Major if it sits on a
+primary characteristic the conclusion leans on. Also re-check that any descriptive figure the
+prose quotes (e.g. "78.4% male") matches the *current* table value, not a stale earlier one.
+
+**Stale derived CSVs after a model/adjustment-set change (n mismatch).** When the primary model
+or adjustment set changes mid-revision, **every** derived CSV (Table 2, sensitivity tables,
+supplements) must be regenerated, or a stale file silently contradicts the new primary. The
+fastest tell is the analytic **n**: if a derived CSV's `n` differs from the manuscript's current
+primary n, suspect it is stale — and the conflict can flip a result's significance (a proteinuria
+sensitivity CSV left at the old `n = 4,914` / OR 4.52 contradicted the new primary `n = 4,214` /
+OR 3.99, significant ↔ not). Grep each derived CSV's `n` against the primary n; any divergence
+that is not explained by a stated sub-analysis restriction is a Major Comment, `requires_reanalysis`
+(re-run, not a prose edit — see Phase 4).
+
 ### Phase 2.5a-2: Design & Power Statistic Provenance (computed, not extracted)
 
 Phase 2.5a traces data-derived numbers back to a CSV and a primary source. **Design and power
@@ -414,6 +435,19 @@ check and the source-fidelity audit above.
 **Hand-entered design/power statistics are a code smell even when correct.** If no committed
 function emits the value, flag it: the next revision will re-introduce the risk, and a reviewer
 who recomputes will not match the manuscript.
+
+**`POWER_MODEL_MISSPEC` — the power/MDE simulation's adjustment set must match the primary model.**
+For cohort "negative findings," the whole conclusion leans on the MDE ("the literature effect of
+1.2–1.5 cannot be excluded"), so the MDE must be computed under the **same covariate set as the
+primary analysis**. When a committed power/MDE script exists, read its model formula: if it fits
+`y ~ exposure + age` (2 covariates) while the primary model adjusts for 6, it **overstates power**
+(omitted covariates inflate the apparent precision) — the MDE is too small and the negative claim
+too strong. Re-running a parametric bootstrap under the full model is the fix (in one worked case
+MDE moved from a 2-covariate "OR 1.67" to a full-model "OR ≈ 1.70"). A power/MDE whose script omits
+primary-model covariates → Major (P0 when the MDE is a headline). This is `requires_reanalysis`
+(re-simulate, not a prose edit). **`POWER_VALUE_INTERPOLATED`** — any `interpolat`/`approx`/`interp`
+token in a power/MDE CSV's provenance column means the headline value was never simulated on the
+grid; treat a non-reproducible headline power/MDE as Major.
 
 ### Phase 2.5b: Screening-Count Reconciliation from ID Sets (SR/MA + observational tier/stratum)
 
@@ -826,7 +860,7 @@ The panel simulates independent peer reviewers who do not see each other's comme
 | Systematic review / meta-analysis | R1 Methodology (search/screening/PRISMA) · R2 Clinical · R3 Statistics (pooling/heterogeneity) | `references/domain-probes/sr_ma.md` |
 | Radiomics / feature reproducibility | R1 Imaging physics & acquisition · R2 ML / Statistics · R3 Clinical translation | `references/domain-probes/radiomics.md` |
 | Diagnostic-accuracy / AI model | R1 Study design & leakage · R2 Statistics (DeLong, calibration) · R3 Clinical / reference standard | `references/domain-probes/sr_ma.md` (P1 DTA cells) + `references/domain-probes/ai_overclaiming.md` (AO0–AO5, for AI clinical claims) + categories A–C |
-| Observational (STROBE) | R1 Epidemiology / confounding · R2 Clinical · R3 Statistics | `references/domain-probes/observational_confounding.md` (O1 run as the Phase 2.5e deterministic gate) + categories A–J + the effect-size / added-value axes |
+| Observational (STROBE) | R1 Epidemiology / confounding · R2 Clinical · R3 Statistics | `references/domain-probes/observational_confounding.md` (O1/O8 run as the Phase 2.5e / `check_cohort_arithmetic.py --id-col` deterministic gates; O7 over-adjustment) + `references/domain-probes/clinical_prediction_model.md` (CP1–CP4, when it is a prediction-model paper) + categories A–J + the effect-size / added-value axes |
 | Narrative / review article | R1 Domain-content expert · R2 Methodology / SANRA · R3 Technical accuracy · R4 Adversarial reject-hunter (structural: RV9 curated-base circularity, RV6 single-anchor overload, RV8 self-citation architecture) | `references/domain-probes/narrative_review.md` |
 | Case report | R1 Clinical case-report reviewer · R2 Ethics / de-identification · R3 Literature-context reviewer | `references/domain-probes/case_report.md` + CARE items + categories D/F/G |
 
@@ -861,6 +895,8 @@ It reports three diversity failures, each mapped onto a concern family aligned t
 Healthy CONSENSUS is preserved — agreement on *some* themes is a strength (Step 3 flags it), and the gate fires `LENS_COLLAPSE` only on a *fully* redundant reviewer and the Major checks on panel-level coverage, never on agreement per se. Do not silently ship a monoculture: resolve every Major before the synthesis verdict.
 
 **Step 4 — Feed Phase 3.** The consolidated panel output flows into the Phase 3 report, Phase 3b R0 numbering (**preserved**, so `/revise` still consumes it), and Phase 3c JSON. CONSENSUS flags and reviewer attribution are additive annotations on the existing `M`/`m` comments (and the optional `consensus` JSON field); they do not change the report or JSON structure.
+
+**Re-run the panel after a large revision.** A panel is high-yield not only before the first submission but **again after any large edit** — a word-count compression, a primary-model or adjustment-set change, or resolving a batch of majors. Such edits introduce *new* drift (a compression drops a caveat; a re-fit leaves a derived CSV stale; a relocation orphans a cross-reference), and the second panel's findings shift character accordingly (method → compression-drift → residual). If the author has just compressed or re-modelled, recommend one more `--panel` pass rather than assuming the prior panel still holds; in practice each post-revision round surfaces real, distinct errors.
 
 ### Phase 3: Report
 
@@ -970,6 +1006,7 @@ When `--json` is passed, or when invoked by `/write-paper` Phase 7, append a mac
 - `severity`: `"fatal"`, `"major"`, or `"minor"`
 - `category`: Letter code from the 10-category system (A-J)
 - `fixable_by_ai`: `true` if the issue can be resolved by editing manuscript text with existing data; `false` if it requires new data, analyses, or human judgment (e.g., design changes, IRB decisions, missing experiments)
+- `requires_reanalysis` *(optional, default `false`)*: `true` when closing the finding needs a **committed analysis re-run against the real data**, not a prose edit — power/MDE re-simulation under the full model, first-visit/one-record-per-subject dedup, an extended- or reduced-adjustment sensitivity model, optimism correction of calibration. Always implies `fixable_by_ai: false`. Additive and backwards-compatible; parsers that do not expect it must ignore it. Route these to `/analyze-stats` (see Phase 4).
 - `suggested_fix`: Specific, actionable instruction. If `fixable_by_ai` is true, this must be concrete enough for the fixer to execute without ambiguity.
 - `consensus` *(optional, panel mode only)*: array of reviewer ids that raised the issue, e.g. `["R1","R3"]`. Additive and backwards-compatible — present only when Phase 2.6 ran; parsers that do not expect it must ignore it.
 
@@ -985,6 +1022,16 @@ After presenting the report, offer to help fix specific issues:
 - Check specific tables/figures for consistency
 - Generate missing flow diagrams via `/make-figures`
 
+**`requires_reanalysis` findings route to `/analyze-stats`, not a prose edit (observational/cohort).**
+For cohort and observational manuscripts, the highest-value fixes are usually *data-level*: a
+power/MDE re-simulation under the full primary model, a first-visit / one-record-per-subject dedup
+sensitivity, an extended- or reduced-adjustment (over-adjustment) sensitivity model, or optimism
+correction of calibration. These are **not** `fixable_by_ai` text edits — `--fix` is text-only and
+will silently skip them. Tag each such finding `requires_reanalysis: true` and route it to
+`/analyze-stats` for a committed script + CSV, then feed the regenerated numbers back into the
+manuscript and re-run the relevant Phase 2.5 gate. Surface these explicitly to the author rather
+than letting an auto-fix pass appear to "resolve" them.
+
 #### Auto-fix mode (--fix flag)
 
 When `--fix` is passed:
@@ -994,7 +1041,7 @@ When `--fix` is passed:
    - Text rewrites (overclaiming, missing sentences, terminology) → Edit in place
    - Missing reporting items (ethics statement, data availability) → Insert at suggested location
    - Numerical inconsistencies (abstract-table mismatch) → Correct to match tables
-   - Do NOT attempt: new statistical analyses, new figures, design changes, IRB-dependent items
+   - Do NOT attempt: new statistical analyses, new figures, design changes, IRB-dependent items, or any issue tagged `requires_reanalysis` (route those to `/analyze-stats`)
    - Do NOT invoke other skills (`/make-figures`, `/analyze-stats`) during fix — text edits only
 3. **Report changes**: After all fixes, output a summary:
    ```

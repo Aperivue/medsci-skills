@@ -27,6 +27,11 @@ partner-voice comment to authors; these model the *author's* anticipation-and-fi
   `check_cohort_arithmetic.py`) → category A.
 - `unadjusted_confounder.md` — an imbalanced measured covariate left out of the model
   (gate: `check_confounding_completeness.py`) → category C/E.
+- `over_adjustment_collider.md` — the opposite failure: a consequence/mediator of the outcome
+  wrongly inside the model (probe: O7) → category C, `requires_reanalysis`.
+- `prediction_two_null_conflation.md` — a "negative" prediction study merging a well-powered
+  incremental-value null with an underpowered marginal-effect null, plus apparent (uncorrected)
+  calibration/DCA (probes: CP1/CP2) → category C/D.
 - `scope_overreach_cross_sectional.md` — a prognostic/surveillance claim from a
   cross-sectional design (gate: `check_scope_coherence.py`) → category D.
 - `estimand_drift_posthoc_primary.md` — the reported "primary" differs from the registered

@@ -76,6 +76,68 @@ def _norm(s: str) -> str:
     return s
 
 
+# --- DB-code / prose synonym aliases ---------------------------------------
+# A reviewer writes the adjustment set in prose ("systolic blood pressure") while
+# a DB-exported Table 1 carries the column code ("he_sbp"); a normalized-substring
+# match then fails and a covariate that *was* adjusted is false-flagged as
+# imbalanced-and-unadjusted. Each row maps one canonical concept to the surface
+# forms (DB code + prose synonyms) that denote it; two labels match when they
+# resolve to a shared concept. This only ever *adds* matches (turns a false ✗ into
+# ✓): a true unadjusted covariate shares no concept with any adjustment token, so
+# no false ✓ is introduced. Extend as new DB dictionaries appear — one concept per
+# row, lowercase, unit-free; multi-letter codes belong to the controlled
+# `he_*` / `b_*` namespace so a bare token clash with a prose label is implausible.
+ALIAS_GROUPS = {
+    "sbp": ("he_sbp", "sbp", "systolic blood pressure", "systolic bp"),
+    "dbp": ("he_dbp", "dbp", "diastolic blood pressure", "diastolic bp"),
+    "uric_acid": ("b_uric", "uric acid", "serum uric acid", "urate"),
+    "hdl": ("b_chol_hdl", "hdl", "hdl cholesterol", "high density lipoprotein"),
+    "total_cholesterol": ("b_chol_t", "total cholesterol", "cholesterol total"),
+    "triglycerides": ("b_tg", "tg", "triglyceride", "triglycerides"),
+    "hba1c": ("b_hba1c", "hba1c", "glycated haemoglobin", "glycated hemoglobin",
+              "glycohemoglobin"),
+    "bmi": ("he_bmi", "bmi", "body mass index"),
+    "waist": ("he_wc", "wc", "waist", "waist circumference"),
+    "smoking": ("smk", "smk_packyrs", "smoking", "smoking status", "pack years",
+                "pack-years", "smoker", "cigarette"),
+    "fasting_glucose": ("he_glu", "b_glu", "fasting glucose", "fasting plasma glucose",
+                        "fpg", "glucose"),
+    "hemoglobin": ("he_hb", "b_hb", "hemoglobin", "haemoglobin"),
+    "alcohol": ("alc", "alcohol", "alcohol intake", "drinking", "ethanol"),
+    "egfr": ("egfr", "e_gfr", "estimated gfr", "estimated glomerular filtration rate"),
+    "diabetes": ("dm", "diabetes", "diabetes mellitus"),
+    "hypertension": ("htn", "hypertension", "high blood pressure"),
+}
+
+# concept -> set of normalized surface forms
+_ALIAS_NORM = {c: {_norm(f) for f in forms if _norm(f)} for c, forms in ALIAS_GROUPS.items()}
+
+
+def _concepts(label: str) -> set[str]:
+    """Canonical concept keys a (normalized) covariate / adjustment label denotes.
+
+    Single-token surface ("sbp", "wc"): whole-token match. Multi-word surface
+    ("waist circumference"): contiguous phrase or all tokens present (so a Table-1
+    row "Smoking, pack-years" -> 'smoking pack years' still resolves to smoking).
+    """
+    s = _norm(label)
+    if not s:
+        return set()
+    tokens = set(s.split())
+    out = set()
+    for concept, surfaces in _ALIAS_NORM.items():
+        for f in surfaces:
+            ft = f.split()
+            if len(ft) == 1:
+                if ft[0] in tokens:
+                    out.add(concept)
+                    break
+            elif f in s or all(t in tokens for t in ft):
+                out.add(concept)
+                break
+    return out
+
+
 def _pick_col(header: list[str], hints: tuple[str, ...], override: str | None) -> int | None:
     if override:
         for i, h in enumerate(header):
@@ -150,10 +212,15 @@ def load_adjustment_set(path: str | None, inline: str | None) -> list[str]:
     return [ln.strip() for ln in text.splitlines() if ln.strip() and not ln.startswith("#")]
 
 
-def in_adjustment_set(cov: str, adj_norm: list[str]) -> bool:
+def in_adjustment_set(cov: str, adj_norm: list[str], adj_concepts: set[str] | None = None) -> bool:
     c = _norm(cov)
     if not c:
         return False
+    # concept-level match across the DB-code / prose alias map (he_sbp ~ "systolic
+    # blood pressure"); resolves the false ✗ when Table 1 carries DB column codes
+    # and the adjustment set is written in prose.
+    if adj_concepts and (_concepts(cov) & adj_concepts):
+        return True
     for a in adj_norm:
         if not a:
             continue
@@ -189,6 +256,7 @@ def analyze(table1: str, adj: list[str], name_col, p_col, smd_col) -> dict:
         sys.exit(2)
 
     adj_norm = [_norm(a) for a in adj]
+    adj_concepts = set().union(*(_concepts(a) for a in adj)) if adj else set()
     findings = []
     for r in rows[1:]:
         if ni >= len(r):
@@ -202,7 +270,7 @@ def analyze(table1: str, adj: list[str], name_col, p_col, smd_col) -> dict:
                      (smd is not None and abs(smd) >= SMD_THRESHOLD)
         if not imbalanced:
             continue
-        adjusted = in_adjustment_set(cov, adj_norm)
+        adjusted = in_adjustment_set(cov, adj_norm, adj_concepts)
         findings.append({
             "covariate": cov,
             "imbalance_p": pval,

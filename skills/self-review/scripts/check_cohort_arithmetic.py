@@ -22,6 +22,13 @@ section echoes the same wrong number:
                        whose denominators sum above the unique cohort double-counts
                        subjects; a table where every stratum n equals the grand
                        total is a stratum-total mis-entry.
+  4. ANALYSIS_UNIT_   when --data carries a subject ID and records > unique
+     UNDISCLOSED       subjects (health-screening / EMR / registry repeat
+                       attendees), observations are non-independent -> anti-
+                       conservative CIs. Fires only when the manuscript discloses
+                       neither the analysis unit nor a one-record-per-subject
+                       sensitivity. Pass --id-col, or it auto-detects a common ID
+                       column name (with a cardinality guard).
 
 The script is deterministic but conservative: it fires only when it can extract a
 complete equation (all operands present in one window, or a Total row in a parsed
@@ -394,6 +401,82 @@ def check_partition_csv(rows: list[dict]) -> list[dict]:
     return _partition_from_rows(label_of, n_of, ev_of, rows, source="--data partition")
 
 
+# --- Check 4: ANALYSIS_UNIT_UNDISCLOSED ------------------------------------
+# Health-screening / EMR / registry cohorts routinely have repeat attendees, so a
+# record count is not a subject count. When the data carry a subject ID and
+# records > subjects, non-independent observations give anti-conservative CIs. The
+# finding is the *undisclosed* gap: fire only when the manuscript neither states
+# the analysis unit nor reports a one-record-per-subject sensitivity.
+
+# Safelist of normalized ID column names for auto-detection (tight, to avoid
+# mistaking a low-cardinality flag like "valid" for an identifier). Explicit
+# --id-col bypasses both the safelist and the cardinality guard.
+ID_NAME_SAFELIST = {
+    "id", "mockid", "mock id", "subjectid", "subject id", "patientid", "patient id",
+    "personid", "person id", "recordid", "record id", "studyid", "study id",
+    "pid", "eid", "uid", "mrn",
+}
+
+UNIT_STATED_RE = re.compile(
+    r"one record per subject|per[-\s]subject|per subject|analysis unit|analytic unit|"
+    r"screening encounter|one observation per (?:subject|participant|person)|"
+    r"one row per (?:subject|participant|person)|first (?:qualifying )?(?:visit|encounter)",
+    re.IGNORECASE)
+SENSITIVITY_STATED_RE = re.compile(
+    r"first[-\s](?:visit|encounter)|one[-\s]record[-\s]per[-\s]subject|de[-\s]?duplicat|"
+    r"unique (?:subject|participant|individual)s?|repeat (?:attendee|visit|screen)|"
+    r"sensitivity analysis[^.]{0,80}(?:subject|visit|first|repeat)",
+    re.IGNORECASE)
+
+
+def _detect_id_col(header: list[str], rows: list[dict], explicit: str | None) -> str | None:
+    if explicit:
+        for h in header:
+            if _norm(h) == _norm(explicit) or h == explicit:
+                return h
+        sys.stderr.write(f"WARN: --id-col '{explicit}' not found in {header}\n")
+        return None
+    n = len(rows)
+    for h in header:
+        if _norm(h) in ID_NAME_SAFELIST:
+            distinct = len({(r.get(h) or "").strip() for r in rows})
+            if n and distinct >= 0.5 * n:   # subject-level, not a low-cardinality flag
+                return h
+    return None
+
+
+def check_analysis_unit(rows: list[dict], text: str, id_col: str | None) -> list[dict]:
+    if not rows:
+        return []
+    header = list(rows[0].keys())
+    col = _detect_id_col(header, rows, id_col)
+    if not col:
+        return []
+    ids = [(r.get(col) or "").strip() for r in rows]
+    ids = [i for i in ids if i]
+    nrow = len(ids)
+    counts: dict[str, int] = {}
+    for i in ids:
+        counts[i] = counts.get(i, 0) + 1
+    subjects = len(counts)
+    if nrow <= subjects:
+        return []                                   # already one record per subject
+    if UNIT_STATED_RE.search(text) or SENSITIVITY_STATED_RE.search(text):
+        return []                                   # disclosed -> not a finding
+    repeats = sum(1 for c in counts.values() if c > 1)
+    max_visits = max(counts.values())
+    return [{
+        "verdict": "ANALYSIS_UNIT_UNDISCLOSED",
+        "severity": "Major",
+        "detail": (f"records={nrow:,}, unique_subjects={subjects:,}, "
+                   f"repeat_subjects={repeats:,}, max_visits={max_visits} "
+                   f"(id column '{col}'); the manuscript states neither the analysis "
+                   f"unit nor a one-record-per-subject sensitivity, so non-independent "
+                   f"observations give anti-conservative CIs"),
+        "where": f"--data id column '{col}'",
+    }]
+
+
 # --- driver ----------------------------------------------------------------
 
 def load_csv(path: str) -> list[dict]:
@@ -405,7 +488,7 @@ def load_csv(path: str) -> list[dict]:
         return [r for r in csv.DictReader(f)]
 
 
-def analyze(manuscript: str, data: str | None) -> dict:
+def analyze(manuscript: str, data: str | None, id_col: str | None = None) -> dict:
     p = Path(manuscript)
     if not p.is_file():
         sys.stderr.write(f"ERROR: manuscript not found: {manuscript}\n")
@@ -421,6 +504,7 @@ def analyze(manuscript: str, data: str | None) -> dict:
         rows = load_csv(data)
         claims += check_rate_csv(rows)
         claims += check_partition_csv(rows)
+        claims += check_analysis_unit(rows, text, id_col)
 
     n_major = sum(1 for c in claims if c["severity"] == "Major")
     return {
@@ -448,13 +532,15 @@ def render(result: dict) -> str:
 def main() -> int:
     ap = argparse.ArgumentParser(description="Cohort arithmetic gate (Phase 2.5 / 2.5b).")
     ap.add_argument("--manuscript", required=True, help="manuscript markdown/text")
-    ap.add_argument("--data", help="optional CSV for exact recompute (rate / partition)")
+    ap.add_argument("--data", help="optional CSV for exact recompute (rate / partition / analysis-unit)")
+    ap.add_argument("--id-col", help="subject-ID column in --data for the records-vs-subjects "
+                                     "analysis-unit check (auto-detected from common ID names if omitted)")
     ap.add_argument("--out", help="write JSON artifact to this path")
     ap.add_argument("--strict", action="store_true", help="exit 1 if any Major claim exists")
     ap.add_argument("--quiet", action="store_true", help="suppress stdout table")
     args = ap.parse_args()
 
-    result = analyze(args.manuscript, args.data)
+    result = analyze(args.manuscript, args.data, args.id_col)
 
     if not args.quiet:
         print("=" * 41)

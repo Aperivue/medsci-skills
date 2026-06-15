@@ -42,5 +42,21 @@ check "SURROGATE_CARE_DIRECTIVE detected" has_verdict SURROGATE_CARE_DIRECTIVE
 python3 "$SCRIPT" --manuscript "$CLEAN" --strict --quiet >/dev/null 2>&1
 check "exit 0 on clean manuscript" test "$?" -eq 0
 
+# (4) cross-sectional + yield/detection-rate language, undefined -> Minor flag
+YIELD="$HERE/fixtures/scope_yield.md"
+YDEF="$HERE/fixtures/scope_yield_defined.md"
+python3 "$SCRIPT" --manuscript "$YIELD" --out "$OUT" --quiet >/dev/null 2>&1
+check "CROSS_SECTIONAL_YIELD_LANGUAGE detected" has_verdict CROSS_SECTIONAL_YIELD_LANGUAGE
+python3 "$SCRIPT" --manuscript "$YIELD" --strict --quiet >/dev/null 2>&1
+check "yield flag is Minor (no Major -> exit 0 under --strict)" test "$?" -eq 0
+
+# (5) yield explicitly defined as cross-sectional prevalence -> suppressed
+python3 "$SCRIPT" --manuscript "$YDEF" --out "$OUT" --quiet >/dev/null 2>&1
+check "yield definition suppresses the flag" python3 -c "
+import json
+d=json.load(open('$OUT'))
+assert not any(c['verdict']=='CROSS_SECTIONAL_YIELD_LANGUAGE' for c in d['claims'])
+"
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

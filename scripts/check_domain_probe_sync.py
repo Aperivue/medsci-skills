@@ -34,6 +34,7 @@ from pathlib import Path
 MODULES = (
     "sr_ma.md",
     "survival_prognostic.md",
+    "clinical_prediction_model.md",
     "radiomics.md",
     "narrative_review.md",
     "observational_confounding.md",
