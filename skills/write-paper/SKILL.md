@@ -1,6 +1,6 @@
 ---
 name: write-paper
-description: Full-pipeline medical/scientific paper writing. 8-phase IMRAD workflow from outline to submission-ready manuscript. Supports original articles, case reports, meta-analyses, AI validation studies, animal studies, and technical notes. Do NOT trigger for self-checking (use self-review instead).
+description: Full-pipeline medical/scientific paper writing. 8-phase IMRAD workflow from outline to submission-ready manuscript. Supports original articles, case reports, case series, meta-analyses, AI validation studies, animal studies, and technical notes. Do NOT trigger for self-checking (use self-review instead).
 triggers: write paper, manuscript, draft paper, start writing, write methods, write results, write discussion, write introduction
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit
@@ -31,7 +31,7 @@ Gather essential information from the user before any writing begins.
 
 **Required inputs:**
 1. **Title** (working title is fine)
-2. **Paper type**: original article, AI validation, case report, meta-analysis, technical note, animal study, NHIS cohort, cross-national
+2. **Paper type**: original article, AI validation, case report, case series, meta-analysis, technical note, animal study, NHIS cohort, cross-national
 3. **Target journal**: load profile from `${CLAUDE_SKILL_DIR}/references/journal_profiles/`
 4. **Research question / hypothesis**
 5. **Available data**: what datasets, tables, analyses already exist
@@ -81,6 +81,26 @@ When paper type is "case report":
 10. Skip Phase 5a Discussion Planning Gate — case reports are shorter; proceed directly to drafting.
 11. For extended case reports with literature review, user can specify `--extended` to raise
     the word limit to 2000-3000 words and add a structured review section.
+
+#### Case Series Mode
+
+When paper type is "case series" (n≥2 patients reported together):
+1. Load `${CLAUDE_SKILL_DIR}/references/paper_types/case_series.md` — a case series is a
+   **methods-light mini-cohort**, not a stack of single case reports.
+2. Also load `${CLAUDE_SKILL_DIR}/references/exemplar_case_report.md` for per-case narrative
+   discipline (each vignette still follows the CARE moves).
+3. Typical word count: 1500–3000 words (scales with patient count).
+4. Apply CARE adapted for multiple patients; for ≥5 surgical cases consider PROCESS/SCARE.
+5. Modify Phase 1 outline to: Title → Abstract (structured) → Introduction → **Methods**
+   (design, setting, case identification, eligibility as a numbered list, protocol, assessment
+   process) → **Results** (mandatory all-cases summary table + consistent per-case vignettes,
+   grouped by subtype where a taxonomy exists) → Discussion (cross-case synthesis +
+   cohort-level limitations) → Conclusions → Ethics/Consent.
+6. In Phase 2, default a **summary Table 1 enumerating every case** (one row per patient) plus
+   representative figures labeled to each case number.
+7. In Discussion, enforce the case-series discipline: state selection/ascertainment and the
+   screened pool size; **report counts, not rates** (a referral/database series is not a
+   denominator of all disease); cohort-level limitations are mandatory and specific.
 
 7. **Identify a backbone article (auto-proposal first, ask only as fallback)**:
    a. **Scan first** — if `manuscript/_src/refs.bib` exists, scan it for entries matching the current paper's study design (Phase 0 paper_type), imaging modality, and target journal (or comparable tier). Prefer entries whose Zotero record has a PDF attachment (full text locally available).
