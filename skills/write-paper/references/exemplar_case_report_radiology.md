@@ -19,7 +19,7 @@ description, not just the clinical narrative. Three rules govern the whole repor
    tracer dose + uptake time + fasting, transducer frequency. For interventional cases, name devices
    with sizes/gauge and the step sequence.
 3. **Findings vs impression.** Report the observation ("circumferential aortic wall thickening,
-   iodine 2.7 mg/mL") separately from the interpretation ("favoring active large-vessel vasculitis").
+   iodine X mg/mL") separately from the interpretation ("favoring active vascular inflammation").
 
 ## Structured reporting lexicons
 
@@ -54,7 +54,7 @@ is weaker than "BI-RADS 4b (moderate suspicion, ~10–50% malignancy risk)."
 
 - **Reproducible procedure log**: access, devices with sizes (needle gauge, wire, balloon, catheter,
   coil/embolic, ablation probe + protocol), imaging guidance, and the step sequence.
-- **Complication recognition and management in context**: state latency (e.g., delayed bleed at 36 h),
+- **Complication recognition and management in context**: state latency (e.g., a delayed post-procedural bleed),
   the recognition trigger, and the diagnostic-then-therapeutic pathway (angiography → embolization),
   with pre/post outcome. Quantify (blood loss, transfusion, preserved organ function) and give the
   background complication rate.
