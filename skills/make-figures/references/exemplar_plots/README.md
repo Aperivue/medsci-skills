@@ -41,6 +41,11 @@ against `critic_rubrics/data_plot.md`; do not copy an image.
   outcome lanes, index presentation marker, final follow-up endpoint, de-identification discipline,
   and annotated imaging-panel pairing when imaging is the teaching point. Pairs `write-paper`
   `exemplar_case_report.md`.
+- `imaging_panel.md` — annotated multimodality/multi-sequence imaging panel for a radiology case
+  report or series: lettered sub-panels per modality/sequence/timepoint, arrow to the key finding in
+  each, quantitative labels (size/SUVmax/category), same-lesion correspondence for discordance or
+  treatment response, and de-identification discipline. Pairs `clinical_timeline.md` (chronology) and
+  `write-paper` `exemplar_case_report.md`.
 
 ## Curator guidelines (for adding more)
 

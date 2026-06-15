@@ -96,6 +96,48 @@ Conclusion** headings. Allocate words deliberately; do not import the IMRAD abst
   patient perspective, or limited generalizability.
 - End with a practical teaching point that a clinician can use at the bedside.
 
+## Subtype: adverse drug / device / contrast reaction (pharmacovigilance)
+
+When the case *is* the adverse event (drug reaction, contrast-agent extravasation, device
+complication), the attribution is the contribution — make it rigorous, not narrative.
+
+- **Apply a named causality instrument, do not just assert it**: the Naranjo Adverse Drug Reaction
+  Probability Scale or WHO-UMC categories for drugs; report the score and the resulting tier
+  (doubtful / possible / probable / definite). State the inputs that drove it.
+- **Dechallenge and (only if ethical) rechallenge**: document that withdrawal was followed by
+  resolution, and note the temporal latency from exposure to onset. Rechallenge is usually withheld
+  on safety grounds — say so rather than leaving it unexplained.
+- **Severity and preventability** where instruments exist (e.g., Modified Hartwig–Siegel severity;
+  Schumock–Thornton preventability) — these turn an anecdote into a structured safety report.
+- **Locate the event against a denominator**: an institutional rate (events / total procedures) or a
+  pharmacovigilance database count (e.g., prior reports in a spontaneous-reporting system) anchors
+  rarity without overclaiming incidence from n=1.
+- **Separate the index event from downstream confounders**: if patient self-management or a
+  comorbidity worsened the course, attribute each step rather than blaming the agent for the whole
+  trajectory.
+- **Close the safety loop**: state that the reaction was (or should be) reported to the relevant
+  pharmacovigilance programme.
+- A compact **instrument table** (tool | criteria applied | result | interpretation) is the clearest
+  way to present causality/severity/preventability.
+
+## Subtype: diagnostic pitfall / mimic
+
+When the lesson is "this entity was mistaken for another," the differential is the spine.
+
+- **Name the trap explicitly** in the framing ("X masquerading as Y") and state why the
+  misclassification was plausible (overlapping imaging/clinical features, an obscured primary site).
+- **Structured differential**: list the realistic competitors and, for each, the feature that argued
+  for or against it (morphology, immunohistochemistry, virology, distribution). A differential that
+  only names alternatives without adjudicating them is incomplete.
+- **Trace the resolving pathway**: which test finally settled origin vs extent (e.g., inconclusive
+  cross-sectional imaging → tissue diagnosis → functional imaging for staging), and acknowledge where
+  a modality was limited or omitted and why.
+- **Diagnostic-delay framing** (optional but strong): when delay shaped the outcome, separate
+  patient-level from healthcare-pathway-level contributors rather than a single "late presentation."
+- **Self-critical mechanism reasoning**: when proposing a mechanism, test it against this case's own
+  data and reject candidates the case does not support (e.g., a hyperperfusion mechanism is unlikely
+  when the recorded blood pressure stayed below the autoregulatory threshold).
+
 ## Required cross-checks
 
 - **Consent / anonymization**: confirm written consent or the applicable waiver statement before
@@ -124,3 +166,7 @@ Conclusion** headings. Allocate words deliberately; do not import the IMRAD abst
   search boundary.
 - **Teaching point too broad** — the conclusion asks clinicians to change practice rather than
   recognize a clue, consider a diagnosis, or report similar cases.
+- **Causality by assertion** — an adverse-event case calls the agent "causative" without a named
+  instrument (Naranjo/WHO-UMC), documented dechallenge, or exclusion of alternatives.
+- **Differential without adjudication** — a mimic/pitfall case lists competing diagnoses but never
+  says which feature ruled each in or out.

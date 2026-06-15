@@ -27,7 +27,13 @@
 # [consumed iter7] folic_parity_ma_2026	https://doi.org/10.1136/bmjopen-2025-106205	clinical
 # [consumed iter7] pedt1d_insulin_ma_2026	https://doi.org/10.1136/bmjopen-2025-100186	clinical
 # [consumed iter7] macrosomia_africa_ma_2026	https://doi.org/10.1136/bmjopen-2024-095768	clinical
-semaglutide_obesity_rct_2026	https://www.ncbi.nlm.nih.gov/pmc/articles/PMC13110620/	clinical
-nsclc_km_survival_2026	https://doi.org/10.1186/s12885-026-16104-0	clinical
-method_comparison_agreement_2026	https://doi.org/10.1186/s12874-026-02824-1	biostatistics
-psilocybin_rct_2025	https://doi.org/10.1371/journal.pmed.1004519	clinical
+# [deferred — not case-report; left for a future batch] semaglutide_obesity_rct_2026	https://www.ncbi.nlm.nih.gov/pmc/articles/PMC13110620/	clinical
+# [deferred — not case-report; left for a future batch] nsclc_km_survival_2026	https://doi.org/10.1186/s12885-026-16104-0	clinical
+# [deferred — not case-report; left for a future batch] method_comparison_agreement_2026	https://doi.org/10.1186/s12874-026-02824-1	biostatistics
+# [deferred — not case-report; left for a future batch] psilocybin_rct_2025	https://doi.org/10.1371/journal.pmed.1004519	clinical
+radcr_breast_dlbcl_2026	https://doi.org/10.1016/j.radcr.2026.03.066	clinical
+cureus_thoracic_outlet_series_2026	https://doi.org/10.7759/cureus.108620	clinical
+jmcr_gadopentetate_extravasation_2026	https://doi.org/10.1186/s13256-026-06017-8	clinical
+jmcr_aip_pres_2026	https://doi.org/10.1186/s13256-026-06000-3	clinical
+cureus_amoxclav_pityriasis_2026	https://doi.org/10.7759/cureus.102309	clinical
+jmcr_npc_sinonasal_mimic_2026	https://doi.org/10.1186/s13256-026-06102-y	clinical

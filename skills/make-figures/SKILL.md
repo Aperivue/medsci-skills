@@ -437,7 +437,7 @@ When the study type is known (from `/write-paper` Phase 0 or user specification)
 | DTA meta-analysis (PRISMA-DTA) | PRISMA flow diagram, paired forest plot (Se + Sp), SROC curve, Deeks funnel plot |
 | Observational cohort (STROBE) | Flow diagram, Kaplan-Meier curves (if survival endpoint) |
 | RCT (CONSORT) | CONSORT flow diagram, primary endpoint figure |
-| Case report (CARE) | Clinical timeline figure, annotated imaging/pathology panel when visually load-bearing |
+| Case report / series (CARE) | Clinical timeline figure (`exemplar_plots/clinical_timeline.md`), annotated multimodality imaging panel when visually load-bearing (`exemplar_plots/imaging_panel.md`); for a series, an all-cases summary table |
 
 After generating all figures, create a structured manifest file at `figures/_figure_manifest.md`:
 

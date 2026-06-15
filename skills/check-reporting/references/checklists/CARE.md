@@ -99,4 +99,20 @@ Reference: Gagnier JJ, Kienle G, Altman DG, Moher D, Sox H, Riley D. The CARE gu
 
 ---
 
+## Applying CARE to common case-report subtypes
+
+CARE covers the single-patient narrative. Two frequent subtypes need additions CARE alone does not name:
+
+- **Adverse drug / device / contrast reaction (pharmacovigilance).** Beyond item 8 (diagnostic
+  assessment), report a **named causality instrument** (Naranjo or WHO-UMC) with score and tier,
+  document **dechallenge** (withdrawal → resolution) and the exposure-to-onset latency, and consider
+  **severity** (e.g., Modified Hartwig–Siegel) and **preventability** (e.g., Schumock–Thornton).
+  Locate the event against a denominator and note safety-reporting. Causality asserted without an
+  instrument, dechallenge, or exclusion of alternatives is a reporting gap.
+- **Case series (n≥2).** CARE is single-patient; a series additionally needs **cohort-style methods**
+  (design, setting, case-identification source, eligibility, protocol) and an **all-cases summary
+  table**. Report counts, not rates — a selected/referral series cannot estimate prevalence — and
+  state selection/ascertainment with the screened pool size. See `/write-paper`
+  `paper_types/case_series.md`.
+
 *Educational summary of the CARE 2013 checklist (CC BY-NC 4.0). Cite the original guideline (Gagnier et al. 2014) and consult https://www.care-statement.org for the authoritative, full checklist with explanation and elaboration.*
