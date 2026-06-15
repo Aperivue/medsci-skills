@@ -31,9 +31,15 @@
 # [deferred — not case-report; left for a future batch] nsclc_km_survival_2026	https://doi.org/10.1186/s12885-026-16104-0	clinical
 # [deferred — not case-report; left for a future batch] method_comparison_agreement_2026	https://doi.org/10.1186/s12874-026-02824-1	biostatistics
 # [deferred — not case-report; left for a future batch] psilocybin_rct_2025	https://doi.org/10.1371/journal.pmed.1004519	clinical
-radcr_breast_dlbcl_2026	https://doi.org/10.1016/j.radcr.2026.03.066	clinical
-cureus_thoracic_outlet_series_2026	https://doi.org/10.7759/cureus.108620	clinical
-jmcr_gadopentetate_extravasation_2026	https://doi.org/10.1186/s13256-026-06017-8	clinical
-jmcr_aip_pres_2026	https://doi.org/10.1186/s13256-026-06000-3	clinical
-cureus_amoxclav_pityriasis_2026	https://doi.org/10.7759/cureus.102309	clinical
-jmcr_npc_sinonasal_mimic_2026	https://doi.org/10.1186/s13256-026-06102-y	clinical
+# [consumed #150/#151] radcr_breast_dlbcl_2026	https://doi.org/10.1016/j.radcr.2026.03.066	clinical
+# [consumed #150/#151] cureus_thoracic_outlet_series_2026	https://doi.org/10.7759/cureus.108620	clinical
+# [consumed #150/#151] jmcr_gadopentetate_extravasation_2026	https://doi.org/10.1186/s13256-026-06017-8	clinical
+# [consumed #150/#151] jmcr_aip_pres_2026	https://doi.org/10.1186/s13256-026-06000-3	clinical
+# [consumed #150/#151] cureus_amoxclav_pityriasis_2026	https://doi.org/10.7759/cureus.102309	clinical
+# [consumed #150/#151] jmcr_npc_sinonasal_mimic_2026	https://doi.org/10.1186/s13256-026-06102-y	clinical
+radcr_multimodal_us_2026	https://doi.org/10.1016/j.radcr.2026.04.075	clinical
+radcr_pcct_incidental_2026	https://www.ncbi.nlm.nih.gov/pmc/articles/PMC13262134/	clinical
+cureus_ct_cryoablation_2026	https://doi.org/10.7759/cureus.98808	clinical
+cureus_hemobilia_endovascular_2026	https://doi.org/10.7759/cureus.105708	clinical
+fonc_birads4_breast_2026	https://doi.org/10.3389/fonc.2026.1771427	clinical
+cureus_ovarian_teratoma_fdg_2026	https://www.ncbi.nlm.nih.gov/pmc/articles/PMC13258253/	clinical

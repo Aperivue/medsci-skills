@@ -38,6 +38,7 @@
 
 - `exemplar_abstract.md`
 - `exemplar_case_report.md`
+- `exemplar_case_report_radiology.md`
 - `exemplar_discussion/` (4 files)
 - `exemplar_introduction.md`
 - `exemplar_methods/` (4 files)

@@ -34,7 +34,7 @@
 
 **References** (`skills/find-journal/references/`):
 
-- `journal_profiles/` (72 files)
+- `journal_profiles/` (73 files)
 
 ## Source
 
