@@ -43,3 +43,8 @@ cureus_ct_cryoablation_2026	https://doi.org/10.7759/cureus.98808	clinical
 cureus_hemobilia_endovascular_2026	https://doi.org/10.7759/cureus.105708	clinical
 fonc_birads4_breast_2026	https://doi.org/10.3389/fonc.2026.1771427	clinical
 cureus_ovarian_teratoma_fdg_2026	https://www.ncbi.nlm.nih.gov/pmc/articles/PMC13258253/	clinical
+# [consumed G44/#paper-driven] nhanes_aip_nonlinear_2023	https://doi.org/10.1186/s12933-023-01886-5	clinical
+# [consumed G44/#paper-driven] nhanes_wwi_index_2023	https://doi.org/10.1186/s12889-023-16621-8	clinical
+# [consumed G44/#paper-driven] nhanes_exercise_saturation_2024	https://doi.org/10.1186/s12889-024-19432-7	clinical
+# [consumed G44/#paper-driven] nhanes_nonhdl_hdl_2024	https://doi.org/10.1038/s41598-024-56276-y	clinical
+# [consumed G44/#paper-driven] nhanes_cdai_antioxidant_2023	https://doi.org/10.1186/s12889-023-17373-1	clinical
