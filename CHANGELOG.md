@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [4.2.0] - 2026-06-15
+
 ### Added
 
 - **Radiology / imaging-led case-report track (G33–G35)** — a dedicated layer for radiology, nuclear-medicine, and interventional-radiology case reports, grounded in six CC-BY radiology case reports (Europe PMC, learn-only under `distill.py`; `_corpus/` gitignored, no source prose reproduced). Adds a `write-paper` **`exemplar_case_report_radiology.md`** (per-modality technique→findings→impression discipline; structured-reporting lexicons BI-RADS/LI-RADS/PI-RADS/TI-RADS/Lung-RADS/O-RADS with category meaning; quantitative anchors with ROI method and threshold honesty; multimodality discordance + modality-completeness; an interventional-radiology procedure/complication subtype; incidental-finding reporting; DICOM de-identification, real alt text, and device-vendor COI) wired into Phase 0 for imaging-led cases; extends the `/peer-review` + `/self-review` case-report probe to **CR1–CR9** (CR9 imaging-led discipline); and adds a compact `/find-journal` **BJR Case Reports** profile (`journal_profiles_find` 72→73). No new skill or reporting-guideline count.

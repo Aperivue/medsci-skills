@@ -224,6 +224,13 @@ The E2E pipeline (`orchestrate --e2e`) produces everything up to `qc/`. The `sub
 
 ## What's New
 
+**v4.2** builds out the case-report capability end-to-end, grounded in real CC-BY case reports (learn-only under the license firewall) — no new skill or reporting-guideline count (still 45 skills / 36 guidelines); journal profiles **68 → 73**:
+
+- **Case-report + case-series writing** — `/write-paper` gains a CARE narrative + 150-word-abstract case-report exemplar, a **case-series** paper type (methods-light mini-cohort, all-cases summary table, counts-not-rates), and **adverse-event/pharmacovigilance** (Naranjo/WHO-UMC causality) and **diagnostic-pitfall/mimic** subtypes.
+- **Radiology / imaging-led track** — a dedicated `exemplar_case_report_radiology.md` (per-modality technique→findings→impression, structured-reporting lexicons BI-RADS/LI-RADS/PI-RADS/TI-RADS/Lung-RADS/O-RADS, quantitative threshold honesty, an interventional-radiology procedure/complication subtype, DICOM de-identification) plus a `/make-figures` annotated multimodality imaging-panel exemplar.
+- **Case-report reviewer probe** — `/peer-review` + `/self-review` ship a vendored case-report domain probe **CR1–CR9** (novelty/consent/n=1 causality, case-series design, adverse-event causality, imaging-led discipline).
+- **Where to submit** — compact `/find-journal` profiles for Journal of Medical Case Reports, Cureus, Radiology Case Reports, BMJ Case Reports, and BJR Case Reports, and `/check-reporting` CARE notes for adverse-event and case-series subtypes.
+
 **v4.1** ships distribution levers and a submission pre-flight gate — analysis-integrity detectors **24 → 25** (still 43 skills):
 
 - **Claude Code plugin marketplace** — `/plugin marketplace add Aperivue/medsci-skills`, then `/plugin` discovery of eight `medsci-*` category plugins generated from the catalog SSOT (`.claude-plugin/marketplace.json`).
