@@ -120,6 +120,16 @@ remains the authoritative fabrication and author-name check before submission.
   grep -niE 'for submission to|submitted to|prepared for' manuscript/manuscript.md   # compare against "$TGT"
   ```
 
+- Gate 13 (body word count vs journal cap — the revision-inflation trap): resolving reviewer majors monotonically *adds* words, so a revised body silently breaches the target journal's limit. Before freeze (and after **every** `/revise` pass), run `scripts/check_wordcount_cap.py` against the target journal profile's body cap. `WORDCOUNT_OVER_CAP` is a P0 (relocate methods/sensitivity detail to the Supplement); `WORDCOUNT_NEAR_CAP` (>0.95×) warns that the next pass will breach. The binding number is the **rendered** count (citeproc expands `[@key]` → "(Author Year)"), so prefer the built DOCX count with `--rendered-words N`; otherwise the script estimates it from the markdown body + inline-citation expansion.
+
+  ```bash
+  python3 "${CLAUDE_SKILL_DIR}/scripts/check_wordcount_cap.py" \
+    --manuscript manuscript/manuscript.md \
+    --journal-profile "${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/find-journal/references/journal_profiles/<Journal>.md" \
+    --article-type "Original Article" --out qc/wordcount_cap.json --strict
+  # or, deterministic: --limit 4000   (and --rendered-words N from the built DOCX when available)
+  ```
+
 ## Phase 4 — Cover-letter free-text drift
 
 Cover letters live outside the submission docx files but are read by the

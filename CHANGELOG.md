@@ -8,6 +8,7 @@
 - **New domain-probe module `clinical_prediction_model.md` (CP1–CP4)** for cross-sectional / observational prediction models (TRIPOD / TRIPOD+AI nested predictor-set comparisons): apparent-vs-optimism-corrected calibration/DCA, the incremental-value-vs-marginal-effect **two-null distinction**, EPV per nested model, and net benefit as a model comparison (not a policy endorsement). Vendored byte-identical into `/self-review`; `MODULES` 9 → 10; routed from peer-review (new Phase 2E-2) and self-review. Plus two `/self-review` `exemplar_findings/` (`over_adjustment_collider.md`, `prediction_two_null_conflation.md`).
 - **`check_cohort_arithmetic.py` — new `ANALYSIS_UNIT_UNDISCLOSED` check** (`--id-col`, auto-detect with a cardinality guard): when records > unique subjects and the manuscript discloses neither the analysis unit nor a one-record-per-subject sensitivity, emits a Major with a `records / unique_subjects / repeat_subjects / max_visits` reconciliation (probe O8).
 - **`check_scope_coherence.py` — new `CROSS_SECTIONAL_YIELD_LANGUAGE` lexicon** (Minor): a cross-sectional / prevalence design using incidence-flavored vocabulary ("yield", "detection rate", "number-needed-to-screen/image", "rescreen interval") without defining "yield" once as cross-sectional report-positive prevalence.
+- **New detector `check_wordcount_cap.py`** (`/sync-submission`, integrity detectors **25 → 26**, family *Reporting compliance*) — the **revision-inflation trap**: a revise loop monotonically adds words and silently breaches the target journal's body cap. Counts the body (Introduction → Discussion, skipping abstract/refs/tables/declarations), compares to a cap from `--limit` or a parsed `--journal-profile` article-type line, and emits `WORDCOUNT_OVER_CAP` (Major) / `WORDCOUNT_NEAR_CAP` (Minor, >0.95×). The binding number is the rendered count (citeproc expands `[@key]`), so it prefers `--rendered-words N` and otherwise estimates from the markdown body + inline-citation expansion. Wired as `/sync-submission` Gate 13, a `/revise` exit gate (re-run after every pass), and a `/self-review` §F check. Ships fixtures + regression test.
 
 ### Fixed
 
@@ -19,9 +20,10 @@
 - **`/analyze-stats`** — over-adjustment covariate-selection guidance for cross-sectional outcome models, and a **Table 1 mean(SD)-vs-median(IQR) rule by `|skewness|>1`** (not a mean−median/SD heuristic) coupled to Wilcoxon / t-test.
 - **`/check-reporting`** — STROBE common-gap items: power-aware framing of a null result, and confounder-selection rationale (no kitchen-sink / no outcome-consequence adjustment).
 - **`/write-paper`** — observational-cohort Discussion exemplar gains power-aware null framing and an over-adjustment limitation.
-- **`/revise`** — `requires_reanalysis` self-review findings auto-route to `/analyze-stats`.
+- **`/revise`** — `requires_reanalysis` self-review findings auto-route to `/analyze-stats`; adds a Body-word-count-vs-cap exit gate (re-run `check_wordcount_cap.py` after every pass).
+- **`/self-review`** — `--panel` now treats the SSOT-singularity gate (Phase 1 step 4) as a **blocking precondition**: if >1 manuscript-like `.md` exists and none is pinned (`SSOT.yaml` / `--ssot`), it halts before spawning reviewers rather than risk a whole panel on a stale copy.
 
-No skill / reporting-guideline / detector count change (45 / 36 / 25).
+No skill / reporting-guideline count change (45 / 36); integrity detectors 25 → 26.
 
 ## [4.2.0] - 2026-06-15
 

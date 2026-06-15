@@ -64,6 +64,14 @@ Most issues are Fixable. Reserve Fatal for true design-level problems.
 
    Review the SSOT copy; do not review a stale copy and pass it.
 
+   **In `--panel` mode this is a blocking precondition, not advice.** A panel spawns N reviewer
+   agents + an editor, so reviewing a stale copy wastes the whole pass (a prior panel's top
+   finding was literally "you reviewed the wrong file"). If the `find` above returns **more than
+   one** manuscript-like `.md` and the SSOT is not pinned — no `SSOT.yaml` with `truth.manuscript_md`
+   and no explicit `--ssot <path>` argument — **STOP before spawning any reviewer** and have the
+   user name the SSOT (and clear any `STALE_COPY`). Do not auto-pick the longest/newest file. The
+   single-pass review may proceed on the one file it was given, but the panel must not.
+
 ### Phase 2: Systematic Check
 
 Run the manuscript through each applicable category below. For each item, assess whether
@@ -154,6 +162,7 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/check_scope_coherence.py" \
 | Ethics | All participating institutions' IRB approval documented? Patient consent described? |
 | Missing data | Handling of incomplete cases described? |
 | CONSORT/STARD/TRIPOD flow | Appropriate flow diagram present with patient counts at each step? |
+| Body word count vs journal cap | Is the body within the target journal's word limit? A revise loop monotonically adds words and silently breaches the cap. Run `/sync-submission` `scripts/check_wordcount_cap.py` (`--journal-profile` or `--limit`; the binding number is the rendered DOCX count). Over cap → Major; within 0.95× → Minor (a further pass will likely breach). |
 | Funding & COI | Funding sources and competing interests disclosed? |
 
 #### G. Reporting Guideline Compliance
@@ -849,6 +858,8 @@ before raising `ESTIMAND_DRIFT`. For time-to-event manuscripts, also apply probe
 ### Phase 2.6: Multi-Agent Panel Review (--panel, opt-in)
 
 Run this phase **only when `--panel` is passed**. The default single-pass review (Phases 2–2.5d) stays the fast path; the panel is the high-cost, high-precision option for a pre-submission final pass on a top-tier target. Run it after the numerical audits (Phases 2.5–2.5d) so the reviewers see source-verified numbers, and before the Phase 3 report, which it feeds.
+
+**Precondition (blocking): the SSOT must be singular.** Before spawning any reviewer, enforce the Phase 1 step 4 SSOT gate: if more than one manuscript-like `.md` exists and none is pinned (no `SSOT.yaml` `truth.manuscript_md`, no explicit `--ssot`), **halt and ask the user which file is the SSOT** — a panel is too expensive to spend on a stale copy. Clear any `STALE_COPY` from `detect_copy_divergence.py` first.
 
 The panel simulates independent peer reviewers who do not see each other's comments, then an editor who consolidates them — the same structure a journal uses. It reuses the vendored domain-probe modules so every reviewer applies the same criteria.
 

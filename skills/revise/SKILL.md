@@ -510,6 +510,7 @@ For R2+, acknowledge whether R1 concerns were fully resolved. If a reviewer rais
 | Reference re-render after revisions touching citations | ENFORCED | any new `[@bibkey]` added in R1+ | route to `/manage-refs` Phase 7.6 re-render before R1 submission |
 | `/verify-refs --strict` post-revision | ENFORCED | FABRICATED / HIGH_MISMATCH_FIRST_AUTHOR > 0 | HALT R1 submission |
 | New analysis coordination | ENFORCED | reviewer asks for new analysis | route to `/analyze-stats` (and `/make-figures` if figure changes); never hand-write new numbers |
+| Body word count vs journal cap (revision-inflation trap) | ENFORCED after every revise pass | resolving majors pushes the body over the target journal's word limit | run `/sync-submission` `scripts/check_wordcount_cap.py` (`--journal-profile` or `--limit`; prefer the rendered DOCX count); `WORDCOUNT_OVER_CAP` blocks submission — relocate methods/sensitivity detail to the Supplement, do not silently exceed |
 | Cover letter to editor | ENFORCED at R1 submission | R1 missing editor cover letter | block submission |
 | R2+ cover-letter handling | ENFORCED at R2+ submission | standalone cover letter present on an R2+ round (not folded into the response-letter head) | move it to `_superseded/`; fold the summary into the head |
 | Response-letter voice / AI-tell | ENFORCED before submission | editing-mechanism narration, internal draft line refs, `§`, tooling leak, or repeated openers in response/cover letter | run `/humanize` (patterns 22-24 as triage; `§` = 0 hard); resolve confirmed tells before submission |

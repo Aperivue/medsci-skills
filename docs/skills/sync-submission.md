@@ -28,6 +28,7 @@
 
 - `python3 scripts/sync_submission.py`
 - `python3 scripts/cross_document_n_check.py`
+- `bash tests/test_wordcount_cap.sh`
 
 **Evidence** — `bundled_script`
 
@@ -39,6 +40,7 @@
 - `blind_sweep.py`
 - `check_asset_anonymization.py`
 - `check_cross_artifact_stale.py`
+- `check_wordcount_cap.py`
 - `cover_letter_drift_check.py`
 - `cross_document_n_check.py`
 - `detect_copy_divergence.py`
