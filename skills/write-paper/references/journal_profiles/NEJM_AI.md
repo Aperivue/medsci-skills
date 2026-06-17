@@ -55,7 +55,22 @@ All original-research article types require a **1–2 sentence short description
 
 ## Citation Style
 
-NEJM/Vancouver-style numbered references (verify exact NEJM AI formatting in the Formatting Guide for Authors PDF). AI-generated material **cannot be cited as a primary source**; all quoted material fully attributed.
+NEJM/Vancouver-style **numbered** references, numbered consecutively as cited (references first cited in a table or figure legend are numbered in sequence with the in-text citations at the point the table/figure is first mentioned). **List all authors when ≤6; for ≥7 authors list the first three followed by et al.** Format: `Authors. Title. Journal-abbrev Year;Volume:Pages. DOI: 10.xxxx.` — **a DOI is required at the end of each journal reference.** Verbatim samples from the Formatting Guide for Authors PDF:
+
+- Journal (≤6 authors, all listed): `Beam AL, Kohane IS. Big Data and machine learning in health care. JAMA 2018;319:1317–1318. DOI: 10.1001/jama.2017.18391.`
+- Journal (≥7 authors → first 3 + et al.): `Shapiro AMJ, Lakey JRT, Ryan EA, et al. Islet transplantation in seven patients with type 1 diabetes mellitus using glucocorticoid immunosuppressive regimen. N Engl J Med 2000;343:230-8. DOI: 10.1056/NEJM200007273430401.`
+- Conference proceedings: `Alayrac J-B, Donahue J, Luc P, et al. Flamingo: a visual language model for few-shot learning. In: Proceedings of 2022 Conference on Neural Information Processing Systems. NeurIPS, 2022:1-21. (URL)`
+
+Personal communications, unpublished data, and manuscripts "in preparation" / "submitted for publication" are **not allowed as references** (incorporate in text if essential). AI-generated material **cannot be cited as a primary source**; all quoted material fully attributed.
+
+## Manuscript Formatting (from the Formatting Guide for Authors PDF)
+
+- Single **Word** file compiling all text + references + figure legends + tables (PDF/LaTeX accepted but Word strongly preferred).
+- **No more than 3 levels of headings.**
+- **Tables embedded in the manuscript text file** (not uploaded separately), built with the Word table function (not pasted from Excel or an embedded image), **no background colors, no hyperlinks**; every column must have a heading and the **first column must have content in every cell**; a title + source line is required; cited in numerical order.
+- **Figures uploaded as individual high-resolution graphic files or PDFs** even if also embedded; figure legend + source line required; cited in numerical order; **figures must not contain references** (treated as stand-alone).
+- **Do NOT place a COI statement in the manuscript body — any conflict-of-interest text in the manuscript is deleted; COI is collected only via Convey.**
+- Supplementary Appendix: paginated, table of contents if applicable, with a **self-contained reference list**; supplementary tables labeled Table S1, S2, …; for outcome scales give range/sign/minimally-important-difference + a reference citation for the scale.
 
 ## Reporting Guidelines
 
@@ -101,5 +116,5 @@ Single-blind; ≥2 outside reviewers for original research + dedicated **statist
 - Archived via Portico; published under MMS copyright with Publishing Agreement + Authorship Statement at acceptance.
 
 ## Verification
-- Source: NEJM AI Author Center / Editorial Policies / Article Types / Peer Review & Publication Process (author-guide text, verified 2026-06-14).
-- Re-verify before submission: exact reference formatting (Formatting Guide PDF), current JCR/CiteScore status, and whether the study is classified as a "clinical trial" for registration.
+- Source: NEJM AI Author Center / Editorial Policies / Article Types / FAQ + **Formatting Guide for Authors PDF**. Author-guide text verified 2026-06-14; **live re-verification 2026-06-17** (ai.nejm.org Editorial Policies + FAQ + trial-preregistration editorial AIe2400146 + the Formatting Guide for Authors PDF). Now resolved from the PDF/live pages (no longer open items): exact reference format + DOI requirement + ≤6/≥7-author et al. rule; ≤3-heading-level rule; table/figure formatting; COI-not-in-body (Convey only); post-acceptance designation of additional reader-contact authors.
+- Re-verify before submission: current JCR/CiteScore status; whether the specific study is classified as a "clinical trial" requiring ICTRP registration (a reader/diagnostic evaluation that does not assign subjects to an intervention generally is not); per-article-type reference caps (Original Article ≈ up to 40 references per the Article Types page — confirm in the submission system).

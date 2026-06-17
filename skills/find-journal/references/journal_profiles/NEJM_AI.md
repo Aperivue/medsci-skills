@@ -36,3 +36,7 @@ medical AI, machine learning, clinical evaluation of AI, AI safety, medical imag
 - **Statistical review** mandatory (team of statistical editors). Observational studies: signed/dated prespecified SAP encouraged; multiplicity control or limit secondary/exploratory to point estimates + 95% CI (no P values); encourage retest in an independent study.
 - **Diversity/representativeness supplementary table** required for clinical research studies.
 - Single-blind review, ≥2 reviewers + methodological review; reviews requested within ~2 weeks (NEJM-family fast triage). **No presubmission inquiries.** Preprints allowed (e.g., medRxiv); cascades from NEJM allowed. Reporting: recommends **TRIPOD-AI or MI-CLAIM**. Contact: editorial.ai@nejm.org.
+- **References:** numbered Vancouver/NEJM style, `Authors. Title. Journal Year;Vol:Pages. DOI: …` with **DOI required**; all authors if ≤6, first 3 + et al. if ≥7. Manuscript file: ≤3 heading levels; tables embedded; figures as separate hi-res files (no references inside figures); **no COI text in the body** (Convey only).
+
+## Verification
+Author-guide text verified 2026-06-14; **live re-verification 2026-06-17** (ai.nejm.org Editorial Policies + FAQ + Formatting Guide for Authors PDF). Re-verify at submission: current JCR/CiteScore; clinical-trial classification for ICTRP registration; per-type reference caps (Original Article ≈ 40).
