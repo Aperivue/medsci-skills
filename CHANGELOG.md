@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- **`/verify-refs` — OpenAlex tertiary index (conference-proceedings / non-DOI recovery).** PubMed covers only biomedical literature and CrossRef's proceedings coverage is uneven, so NeurIPS / ICLR / ACL-style citations — common in medical-AI manuscripts — fall through both and were marked `UNVERIFIED`. After the PubMed and CrossRef tiers, `verify_refs.py` now consults OpenAlex (`https://api.openalex.org`, free, no API key) **only when no authoritative author list was obtained yet** (a reference already resolved by PubMed/CrossRef incurs no extra call). It resolves by DOI when present, otherwise by a token-similarity-guarded title search so a fabricated title cannot earn a spurious `OK`. This is the free analogue of the second index (e.g. Scopus) that journal portals run alongside CrossRef. Because OpenAlex display names carry no structured family/given field and mix `First Last` with `Last, First` forms, OpenAlex-sourced authors support an existence check plus a tolerant first-author *membership* check but **never** drive the strict positional or author-count MISMATCH (reserved for PubMed efetch / CrossRef); an OpenAlex miss is `UNVERIFIED`, never `FABRICATED`. New `--no-openalex` flag restricts verification to PubMed + CrossRef. Ships a network-free regression test (`tests/test_openalex_tier.sh`, monkeypatched `http_json`, CI gate A8b). Motivation: a medical-AI reference list where two NeurIPS citations validated on Scopus but not CrossRef in a journal portal's reference check.
+
 ## [4.3.0] - 2026-06-16
 
 ### Added

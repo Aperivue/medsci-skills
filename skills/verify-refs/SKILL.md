@@ -63,8 +63,26 @@ For hooks or quick manual runs, use the wrapper:
 `--strict` forbids `--offline` and exits non-zero on any UNVERIFIED row.
 Full checkpoint protocol: `references/manual_checkpoint_guide.md`.
 
-The script uses DOI, PMID, CrossRef, and PubMed E-utilities where available. If
-network verification fails, it records `UNVERIFIED` rather than silently passing.
+The script uses DOI, PMID, CrossRef, PubMed E-utilities, and OpenAlex where
+available. If network verification fails, it records `UNVERIFIED` rather than
+silently passing.
+
+**OpenAlex tertiary index (existence recovery).** PubMed covers only biomedical
+literature and CrossRef's conference-proceedings coverage is uneven, so
+NeurIPS / ICLR / ACL-style citations — common in medical-AI manuscripts — fall
+through both and would be marked `UNVERIFIED`. After the PubMed and CrossRef tiers,
+the script consults OpenAlex (`https://api.openalex.org`, free, no API key) **only
+when no authoritative author list was obtained yet** (so a reference already
+resolved by PubMed/CrossRef incurs no extra call). It resolves by DOI when present,
+otherwise by a title search guarded by a token-similarity threshold so a fabricated
+title cannot earn a spurious `OK`. This is the free analogue of the second index
+(e.g. Scopus) that journal submission portals run alongside CrossRef. OpenAlex
+display names carry no structured family/given split and mix `First Last` with
+`Last, First` forms, so OpenAlex-sourced authors support an existence check plus a
+tolerant first-author *membership* check, but never drive the strict positional or
+author-count MISMATCH (those stay reserved for PubMed efetch / CrossRef). An
+OpenAlex miss is recorded as `UNVERIFIED`, never `FABRICATED`. Pass `--no-openalex`
+to restrict verification to PubMed + CrossRef.
 
 ## Output Contract (v1.3.0)
 

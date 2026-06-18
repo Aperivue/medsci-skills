@@ -23,11 +23,13 @@
 
 - Confirms DOI/PMID and author identity, not topical appropriateness of the citation.
 - CrossRef given-name errors are possible; PubMed efetch is treated as authoritative.
+- OpenAlex (tertiary index for conference proceedings / non-DOI works) gives an existence check plus a tolerant first-author membership check only; its display names carry no structured family field, so it never drives the strict positional or author-count cross-check. Use --no-openalex to restrict to PubMed + CrossRef.
 
 **Validation**
 
 - `bash scripts/verify_cli.sh <refs.bib>`
 - `confirm qc/reference_audit.json submission_safe: true`
+- `bash tests/test_openalex_tier.sh`
 
 **Evidence** — `bundled_script`
 

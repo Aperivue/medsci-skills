@@ -507,7 +507,104 @@ def verify_pubmed_title(title: str, timeout: int) -> tuple[str, str, list]:
     return "OK", f"PubMed title match; PMID candidates={','.join(ids)}", []
 
 
-def verify_record(record: RefRecord, offline: bool, timeout: int) -> RefRecord:
+def _title_similarity(a: str, b: str) -> float:
+    """Token Jaccard on normalized titles (stdlib-only).
+
+    Guards OpenAlex title matches: a fabricated title must not earn a spurious OK
+    just because a full-text search returned some unrelated work. Stop-short tokens
+    (<=2 chars) are dropped so connective words do not inflate similarity.
+    """
+    def toks(s: str) -> set:
+        s = re.sub(r"[^a-z0-9 ]", " ", s.lower())
+        return {w for w in s.split() if len(w) > 2}
+    ta, tb = toks(a), toks(b)
+    if not ta or not tb:
+        return 0.0
+    return len(ta & tb) / len(ta | tb)
+
+
+def _openalex_families(work: dict) -> list:
+    """Best-effort family-name list from an OpenAlex work's authorships.
+
+    OpenAlex exposes only `author.display_name` with NO structured family/given
+    split, and the live data mixes "First Last" and "Last, First" forms within a
+    single record (observed: 'Noah Shinn' alongside 'Cassano, Federico'). This list
+    is therefore informational only — it is NOT used to drive the authoritative
+    family-by-family MISMATCH cross-check (that stays reserved for PubMed efetch /
+    CrossRef, which carry a structured family field). See verify_record.
+    """
+    families: list[str] = []
+    for au in work.get("authorships") or []:
+        name = ((au.get("author") or {}).get("display_name") or "").strip()
+        if not name:
+            continue
+        if "," in name:
+            # "Last, First" → family is the part before the comma.
+            fam = name.split(",", 1)[0].strip()
+        else:
+            toks = name.split()
+            fam = toks[-1] if toks else ""
+            # Strip a trailing initials block ("Madaan A").
+            if fam and re.match(r"^[A-Z]{1,4}$", fam) and len(toks) >= 2:
+                fam = toks[-2]
+        if fam:
+            families.append(fam)
+    return families
+
+
+def verify_openalex(doi: str, title: str, timeout: int) -> tuple[str, str, list]:
+    """Tertiary index for conference proceedings / non-DOI / non-biomedical works.
+
+    PubMed covers only biomedical literature and CrossRef's proceedings coverage is
+    spotty, so NeurIPS / ICLR / ACL-style citations (common in medical-AI papers)
+    fall through both. OpenAlex (https://api.openalex.org) is free and key-less and
+    ingests those venues, so it recovers them — the free analogue of the second
+    index (e.g. Scopus) that journal portals use alongside CrossRef.
+
+    Resolves by DOI when available (exact); otherwise by title.search with a
+    similarity guard so a fabricated title cannot earn a spurious OK. Returns
+    (status, evidence, family_names). Never returns FABRICATED: an OpenAlex miss is
+    a coverage gap, not proof of fabrication.
+    """
+    work = None
+    via = ""
+    if doi:
+        data = http_json(
+            "https://api.openalex.org/works/https://doi.org/" + urllib.parse.quote(doi),
+            timeout,
+        )
+        if data and data.get("id"):
+            work = data
+            via = "doi"
+    if work is None and title:
+        url = "https://api.openalex.org/works?" + urllib.parse.urlencode(
+            {"filter": "title.search:" + title, "per-page": "5"}
+        )
+        data = http_json(url, timeout)
+        results = (data or {}).get("results") or []
+        best, best_sim = None, 0.0
+        for w in results:
+            sim = _title_similarity(title, w.get("title") or w.get("display_name") or "")
+            if sim > best_sim:
+                best, best_sim = w, sim
+        if best is not None and best_sim >= 0.8:
+            work = best
+            via = f"title(sim={best_sim:.2f})"
+    if work is None:
+        return "UNVERIFIED", "OpenAlex: no confident match", []
+    families = _openalex_families(work)
+    wtitle = (work.get("title") or work.get("display_name") or "")[:120]
+    year = work.get("publication_year")
+    ev = f"OpenAlex OK via {via}; title={wtitle}"
+    if year:
+        ev += f"; year={year}"
+    if families:
+        ev += f"; authors={len(families)} (first={families[0]})"
+    return "OK", ev, families
+
+
+def verify_record(record: RefRecord, offline: bool, timeout: int,
+                  use_openalex: bool = True) -> RefRecord:
     """v1.3.0: full-author cross-check.
 
     Authoritative source priority for the actual author list:
@@ -516,7 +613,9 @@ def verify_record(record: RefRecord, offline: bool, timeout: int) -> RefRecord:
          also catches AI-generated bib entries with hallucinated #2..#N family
          names — a real AI-assembled bib registered 7 of 10 fabricated co-author names).
       2. CrossRef DOI (fallback when no PMID).
-      3. PubMed esummary (fast count check; family-name approximation only).
+      3. OpenAlex (tertiary; conference proceedings / non-DOI / non-biomedical works
+         that PubMed and CrossRef miss — the free analogue of a portal's Scopus pass).
+      4. PubMed esummary (fast count check; family-name approximation only).
     All cited authors (BibTeX) are compared family-by-family against the
     authoritative list AND total counts are compared. Any cited author beyond
     the actual list, any per-index family mismatch, and any count mismatch are
@@ -540,6 +639,11 @@ def verify_record(record: RefRecord, offline: bool, timeout: int) -> RefRecord:
     actual_authors: list[str] = []
     actual_givens: list[str] = []
     sources_consulted: list[str] = []
+    # True when the actual_authors list came from OpenAlex, whose display names carry
+    # no structured family field and mix "First Last" / "Last, First" forms. Such a
+    # list can support a tolerant first-author membership check but NOT the strict
+    # positional + author-count cross-check (which would mis-fire on the format noise).
+    actual_authors_soft = False
 
     # Step 1 — PubMed efetch (authoritative) when PMID present.
     if record.pmid:
@@ -571,8 +675,24 @@ def verify_record(record: RefRecord, offline: bool, timeout: int) -> RefRecord:
             actual_authors = fams_cr
             sources_consulted.append("crossref")
 
-    # Step 3 — title-only fallback (no confident author list).
-    if not statuses:
+    # Step 3 — OpenAlex tertiary index. Fires only when no authoritative author list
+    # was obtained yet (no PMID/DOI, or those lookups returned no authors), so a
+    # biomedical reference already resolved by PubMed/CrossRef incurs no extra call.
+    # Recovers conference proceedings and non-biomedical works (NeurIPS/ICLR/ACL) and
+    # retries DOIs that CrossRef missed.
+    if use_openalex and not actual_authors:
+        st_oa, ev_oa, fams_oa = verify_openalex(record.doi, record.title_guess, timeout)
+        time.sleep(0.2)
+        statuses.append(st_oa)
+        evidence_parts.append(ev_oa)
+        if st_oa == "OK":
+            sources_consulted.append("openalex")
+            if fams_oa:
+                actual_authors = fams_oa
+                actual_authors_soft = True
+
+    # Step 4 — PubMed title-only final fallback when nothing confident resolved.
+    if "OK" not in statuses and not actual_authors:
         st_t, ev_t, _ = verify_pubmed_title(record.title_guess, timeout)
         time.sleep(0.2)
         statuses.append(st_t)
@@ -596,7 +716,8 @@ def verify_record(record: RefRecord, offline: bool, timeout: int) -> RefRecord:
         evidence_parts.append("CORPORATE AUTHOR (collective/organization; family cross-check skipped)")
 
     mismatches: list[str] = []
-    if not (record.corporate_author or source_corporate) and record.cited_authors and actual_authors:
+    if (not (record.corporate_author or source_corporate)
+            and record.cited_authors and actual_authors and not actual_authors_soft):
         compare_n = min(len(record.cited_authors), len(actual_authors))
         for i in range(compare_n):
             cited = record.cited_authors[i]
@@ -776,7 +897,9 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Verify manuscript references.")
     parser.add_argument("input", help="Input .md, .docx, .bib, .txt, or .tsv file")
     parser.add_argument("--project-root", default=".", help="Project root for output artifacts")
-    parser.add_argument("--offline", action="store_true", help="Do not call PubMed/CrossRef APIs")
+    parser.add_argument("--offline", action="store_true", help="Do not call PubMed/CrossRef/OpenAlex APIs")
+    parser.add_argument("--no-openalex", action="store_true",
+                        help="Disable the OpenAlex tertiary index (restrict to PubMed + CrossRef)")
     parser.add_argument("--timeout", type=int, default=10, help="HTTP timeout seconds")
     parser.add_argument("--strict", action="store_true", help="Exit non-zero on any UNVERIFIED row, and forbid --offline")
     args = parser.parse_args()
@@ -804,7 +927,10 @@ def main() -> int:
         print("No references detected.", file=sys.stderr)
         return 3
 
-    verified = [verify_record(rec, args.offline, args.timeout) for rec in records]
+    verified = [
+        verify_record(rec, args.offline, args.timeout, use_openalex=not args.no_openalex)
+        for rec in records
+    ]
     for rec in verified:
         flag_pagination_placeholder(rec)
     duplicate_findings = detect_duplicates(verified)
