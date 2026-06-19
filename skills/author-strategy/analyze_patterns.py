@@ -70,9 +70,10 @@ def plot_study_type_pie(df: pd.DataFrame, report_dir: Path):
 
 def plot_author_position(df: pd.DataFrame, report_dir: Path):
     fig, axes = plt.subplots(1, 2, figsize=(14, 6))
-    pos_order = ["1st", "co-1st", "middle", "co-last", "last"]
+    # Positional heuristic only (not leadership metadata): first / middle / last / unknown.
+    pos_order = ["first", "middle", "last", "unknown"]
     pos_counts = df["author_position"].value_counts().reindex(pos_order, fill_value=0)
-    colors_pos = ["#e74c3c", "#e67e22", "#95a5a6", "#3498db", "#2ecc71"]
+    colors_pos = ["#e74c3c", "#95a5a6", "#2ecc71", "#bdc3c7"]
     bars = axes[0].bar(pos_counts.index, pos_counts.values, color=colors_pos)
     axes[0].set_title("Author Position Overall", fontsize=12, fontweight="bold")
     axes[0].set_ylabel("Count")
@@ -154,7 +155,7 @@ def plot_strategy_roi(df: pd.DataFrame, report_dir: Path):
         n = len(subset)
         high_tier = subset["journal_tier"].isin(
             ["Lancet family", "Nature family", "NEJM/BMJ/JAMA", "IF>=10"]).mean() * 100
-        first_last = subset["author_position"].isin(["1st", "last"]).mean() * 100
+        first_last = subset["author_position"].isin(["first", "last"]).mean() * 100
         data.append({"type": st, "count": n, "high_tier_pct": high_tier, "first_last_pct": first_last})
     plot_df = pd.DataFrame(data)
     ax.scatter(
@@ -168,7 +169,7 @@ def plot_strategy_roi(df: pd.DataFrame, report_dir: Path):
                     (row["high_tier_pct"], row["first_last_pct"]),
                     fontsize=8, ha="center", va="bottom")
     ax.set_xlabel("% High-Tier Journal (IF>=10)", fontsize=12)
-    ax.set_ylabel("% 1st or Last Author", fontsize=12)
+    ax.set_ylabel("% First or Last Author (positional)", fontsize=12)
     ax.set_title("Strategy ROI: Journal Quality vs Author Position vs Volume", fontsize=14, fontweight="bold")
     ax.axhline(y=50, color="gray", linestyle="--", alpha=0.3)
     ax.axvline(x=20, color="gray", linestyle="--", alpha=0.3)
@@ -183,7 +184,7 @@ def generate_report(df: pd.DataFrame, report_dir: Path, author_name: str):
     positions = df["author_position"].value_counts()
     high_tier = len(df[df["journal_tier"].isin(
         ["Lancet family", "Nature family", "NEJM/BMJ/JAMA", "IF>=10"])])
-    first_last = len(df[df["author_position"].isin(["1st", "last"])])
+    first_last = len(df[df["author_position"].isin(["first", "last"])])
 
     # Top 3 study types
     top_types = types.head(3)
@@ -215,7 +216,7 @@ def generate_report(df: pd.DataFrame, report_dir: Path, author_name: str):
 | Year range | {year_range} |
 | {recent_year} publications | {recent_count} |
 | High-tier journals (Lancet/Nature/NEJM/BMJ/JAMA/IF>=10) | {high_tier} ({high_tier / total * 100:.1f}%) |
-| 1st or Last author | {first_last} ({first_last / total * 100:.1f}%) |
+| First or last author (positional heuristic) | {first_last} ({first_last / total * 100:.1f}%) |
 
 ## Study Type Breakdown
 
@@ -230,21 +231,21 @@ def generate_report(df: pd.DataFrame, report_dir: Path, author_name: str):
 |-------|-------|---|
 {topic_rows}
 
-## Author Position
+## Author Position (positional heuristic — not leadership metadata)
 
 | Position | Count | % |
 |----------|-------|---|
-| 1st author | {positions.get("1st", 0)} | {positions.get("1st", 0) / total * 100:.1f}% |
+| First author | {positions.get("first", 0)} | {positions.get("first", 0) / total * 100:.1f}% |
 | Last author | {positions.get("last", 0)} | {positions.get("last", 0) / total * 100:.1f}% |
-| Co-1st | {positions.get("co-1st", 0)} | {positions.get("co-1st", 0) / total * 100:.1f}% |
 | Middle | {positions.get("middle", 0)} | {positions.get("middle", 0) / total * 100:.1f}% |
+| Unknown | {positions.get("unknown", 0)} | {positions.get("unknown", 0) / total * 100:.1f}% |
 
 ## Key Observations
 
 1. **Primary strategy**: {types.index[0]} ({types.iloc[0]} papers, {types.iloc[0] / total * 100:.1f}%)
 2. **Secondary strategy**: {types.index[1] if len(types) > 1 else "N/A"} ({types.iloc[1] if len(types) > 1 else 0} papers)
 3. **High-tier placement rate**: {high_tier / total * 100:.1f}%
-4. **Leadership rate** (1st + last author): {first_last / total * 100:.1f}%
+4. **First/last positional rate** (positional heuristic, not leadership): {first_last / total * 100:.1f}%
 
 ## Visualizations
 

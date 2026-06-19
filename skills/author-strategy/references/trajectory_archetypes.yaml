@@ -1,0 +1,377 @@
+# Trajectory-Archetype Rubric — CANONICAL machine-readable source.
+#
+# This YAML is the single source of truth. references/trajectory_archetypes.md is
+# GENERATED from this file by render_archetype_doc.py (run `--check` in CI / the test
+# to prove they are in sync). Edit this file to retune; never hand-edit the .md.
+#
+# classify_archetypes.py reads this file and records `rubric_version` + a runtime
+# sha256 of the file bytes in archetype_results.json, so every classification is
+# traceable to an exact rubric.
+#
+# PROVENANCE TAGS (per signal):
+#   source-derived : a raw PubMed record field (n_authors, year, pub_types, study_type).
+#   rule-derived   : a threshold / share / fraction / term-match COMPUTED over raw fields.
+#   unavailable    : cannot be computed in the PubMed-only MVP (h-index, citation counts,
+#                    citation half-life, venue-impact tier, repository/preprint links,
+#                    cross-platform divergence). Marked [VERIFY]; weight 0; EXCLUDED from
+#                    the score denominator. Never fabricated.
+#
+# SCORING (fixed; applied uniformly by classify_archetypes.py):
+#   - A signal is "computable for this dataset" iff provenance in (source-derived,
+#     rule-derived) AND all its required_columns are present in the CSV header.
+#   - denominator = sum of weights of dataset-computable signals for the archetype.
+#   - numerator   = sum of weights of those computable signals that FIRED.
+#   - score = numerator / denominator, clamped to [0, 1]. unavailable signals never
+#     enter numerator or denominator (surfaced only as [VERIFY]).
+#   - A NEGATIVE rule firing SUPPRESSES the label (-> insufficient_evidence) regardless
+#     of score. It does not merely zero the score.
+#   - A label is surfaced iff: no negative fired AND sample n >= min_sample AND
+#     score >= score_threshold AND >= 1 computable signal fired. Otherwise the archetype
+#     is reported as insufficient_evidence with a reason.
+#
+# CONFIDENCE (then capped at max_confidence_mvp):
+#   high : >= 3 distinct computable signals fired AND n >= min_sample
+#   med  : >= 2 distinct computable signals fired
+#   low  : >= 1 computable signal fired
+#
+# EVIDENCE shape per signal `kind`:
+#   per_paper    -> evidence_pmids (the queried author's OWN triggering PMIDs)
+#   corpus_level -> evidence_summary [{signal_id, value, computed_from_n, representative_pmids}]
+#
+# IMPORTANT: classification output is an EXPLAINABLE MULTI-LABEL HEURISTIC, NOT an
+# objective verdict. Author position is a positional heuristic (first/middle/last/
+# unknown + real EqualContrib), never authoritative leadership metadata.
+
+rubric_version: "1.0.0"
+
+schema:
+  score_formula: "numerator / denominator over dataset-computable signals; clamp [0,1]"
+  computable_provenances: [source-derived, rule-derived]
+  negative_rule: "any negative firing suppresses the label (insufficient_evidence)"
+  ai_terms: &ai_terms
+    [deep learning, machine learning, artificial intelligence, neural network,
+     large language model, foundation model, multimodal, convolutional, radiomics]
+  reporting_quality_terms: &reporting_terms
+    [reproducibility, reproducible, external validation, generalizability, generalisability,
+     reporting quality, tripod, claim, quadas, probast, radiomics quality score, checklist,
+     federated learning]
+
+# ---------------------------------------------------------------------------
+archetypes:
+
+  A1:
+    name: "Infrastructure builder"
+    summary: "Datasets / benchmarks / ontologies / reusable resources."
+    min_sample: 8
+    score_threshold: 0.34
+    max_confidence_mvp: high
+    signals:
+      - id: resource_term_density
+        provenance: rule-derived
+        kind: per_paper
+        metric: title_term_count
+        required_columns: [title]
+        params:
+          fields: title
+          any_terms: [dataset, benchmark, challenge, ontology, lexicon, schema, terminology]
+          min_matching_papers: 4
+        weight: 0.5
+        narrative: "At least 4 prominent papers whose titles name a reusable resource (dataset, benchmark, challenge, ontology, lexicon, schema, terminology)."
+      - id: standard_maintenance_terms
+        provenance: rule-derived
+        kind: per_paper
+        metric: title_term_count
+        required_columns: [title]
+        params:
+          fields: title
+          any_terms: [standard, terminology, lexicon, reporting standard, common data element]
+          min_matching_papers: 1
+        weight: 0.3
+        narrative: "Escalation toward maintained standards/terminology (schema -> ontology -> standard)."
+      - id: early_overview_reviews
+        provenance: rule-derived
+        kind: per_paper
+        metric: title_term_count
+        required_columns: [title]
+        params:
+          fields: title
+          any_terms: [overview, basic principles, general review, primer]
+          min_matching_papers: 2
+        weight: 0.2
+        narrative: "Repeated field-defining overview/basic-principles reviews near a field's inflection point."
+      - id: citation_concentration_on_resources
+        provenance: unavailable
+        kind: corpus_level
+        weight: 0.0
+        verify_note: "Pareto citation skew toward resource/benchmark works — needs citation data ([VERIFY])."
+        narrative: "Citation mass concentrated on a few resource papers; long citation half-life."
+      - id: connector_coauthorship
+        provenance: unavailable
+        kind: corpus_level
+        weight: 0.0
+        verify_note: "Recurring cross-group co-authorship on others' resource papers — coarse, not in MVP record ([VERIFY])."
+        narrative: "Connector pattern across resource-producing groups."
+    negatives: []
+
+  A2:
+    name: "Methodology rule-maker"
+    summary: "Checklists / reporting standards / statistical guidance."
+    min_sample: 6
+    score_threshold: 0.34
+    max_confidence_mvp: high
+    signals:
+      - id: guideline_genre
+        provenance: rule-derived
+        kind: per_paper
+        metric: title_term_count
+        required_columns: [title]
+        params:
+          fields: title
+          any_terms: [checklist, consensus, guideline, reporting standard, recommendations, statement]
+          min_matching_papers: 1
+        weight: 0.45
+        narrative: "At least one consensus/guideline/reporting-standard/checklist-genre paper (the strong marker)."
+      - id: large_author_consortium
+        provenance: source-derived
+        kind: per_paper
+        metric: author_count_papers
+        required_columns: [n_authors]
+        params:
+          author_count_min: 30
+          min_papers: 1
+        weight: 0.2
+        narrative: "Hyper-multi-institution consortium authorship (unusually large author count)."
+      - id: methods_framework_titles
+        provenance: rule-derived
+        kind: per_paper
+        metric: title_term_count
+        required_columns: [title]
+        params:
+          fields: title
+          any_terms: [evaluating, methodologic, statistical methods, how to, practical review, framework]
+          min_matching_papers: 2
+        weight: 0.2
+        narrative: "Recurring methods/evaluation-framework titles."
+      - id: normative_empirical_pairing
+        provenance: rule-derived
+        kind: per_paper
+        metric: genre_pair_temporal
+        required_columns: [title, year]
+        params:
+          first_terms: [guideline, checklist, reporting standard, consensus, framework]
+          second_terms: [adherence, compliance, audit, evaluating, non-compliance, completeness of reporting]
+          max_year_gap: 3
+        weight: 0.15
+        narrative: "A framework/guide paper followed within ~1-3 years by an audit quantifying field-wide non-compliance with it."
+      - id: methods_section_citation_dominance
+        provenance: unavailable
+        kind: corpus_level
+        weight: 0.0
+        verify_note: "Citations dominated by Methods-section 'the way to do X' — needs citation context ([VERIFY])."
+        narrative: "Citation profile concentrated in Methods sections rather than Discussion."
+    negatives: []
+
+  A3:
+    name: "Clinical-foundation to AI-pivot hybrid"
+    summary: "Subspecialty clinical base shifting into AI/ML, often retaining a clinical-imaging through-line."
+    min_sample: 8
+    score_threshold: 0.34
+    max_confidence_mvp: high
+    signals:
+      - id: ai_term_presence
+        provenance: rule-derived
+        kind: corpus_level
+        metric: ai_term_fraction
+        required_columns: [title, study_type]
+        params:
+          terms: *ai_terms
+          direction: ge
+          fraction: 0.1
+        weight: 0.25
+        narrative: "AI/ML title/study-type terms become present (>= 10% of corpus)."
+      - id: dual_mode_corpus
+        provenance: rule-derived
+        kind: per_paper
+        metric: dual_genre_copresence
+        required_columns: [title, study_type]
+        params:
+          genre_a_terms: *ai_terms
+          genre_a_study_types: [AI/ML]
+          genre_b_terms: *reporting_terms
+          min_each: 1
+        weight: 0.3
+        narrative: "First/senior on both clinical-AI MODEL papers AND reproducibility/reporting-quality papers in the same domain (strong hybrid marker)."
+      - id: venue_drift_ai
+        provenance: rule-derived
+        kind: per_paper
+        metric: venue_drift_ai
+        required_columns: [title, study_type, year]
+        params:
+          terms: *ai_terms
+          min_late: 2
+        weight: 0.25
+        narrative: "AI/ML terms absent in the early third of the timeline but recurring (>= 2) in the late third."
+      - id: sustained_clinical_concurrent
+        provenance: rule-derived
+        kind: corpus_level
+        metric: ai_term_fraction
+        required_columns: [title, study_type]
+        params:
+          terms: *ai_terms
+          direction: between
+          lo: 0.1
+          hi: 0.9
+        weight: 0.2
+        narrative: "Clinical-imaging publications sustained concurrently with AI papers (hybrid, not defection): AI fraction between 10% and 90%."
+      - id: mobility_preprint_citation_spike
+        provenance: unavailable
+        kind: corpus_level
+        weight: 0.0
+        verify_note: "Affiliation-country change, preprint-then-journal lag, modality citation shock — links/citations/preprint-match not in MVP ([VERIFY])."
+        narrative: "Cross-border mobility, open-artifact release, preprint lead-time, mid-career citation spike."
+    negatives:
+      - id: pure_ai_no_clinical_floor
+        metric: pure_ai_no_clinical_floor
+        required_columns: [title, study_type]
+        params:
+          terms: *ai_terms
+        narrative: "ML-only from career start with no clinical floor (AI fraction == 100%) rules the archetype OUT."
+
+  A4:
+    name: "Systematic-review / meta-analysis volume engine"
+    summary: "High-density SR/MA output across many clinical questions."
+    min_sample: 6
+    score_threshold: 0.40
+    max_confidence_mvp: high
+    signals:
+      - id: srma_fraction
+        provenance: source-derived
+        kind: corpus_level
+        metric: study_type_fraction
+        required_columns: [study_type]
+        params:
+          types: [SR/MA]
+          fraction_min: 0.5
+        weight: 0.5
+        narrative: "SR/MA is >= 50% of the corpus (the primary marker)."
+      - id: srma_topic_breadth
+        provenance: rule-derived
+        kind: corpus_level
+        metric: distinct_topics_within_type
+        required_columns: [study_type, topic]
+        params:
+          types: [SR/MA]
+          min_distinct_topics: 4
+        weight: 0.25
+        narrative: "SR/MA spread across >= 4 distinct topic clusters (high topic entropy — proxy for method-monoculture across breadth)."
+      - id: how_to_paper
+        provenance: rule-derived
+        kind: per_paper
+        metric: title_term_count
+        required_columns: [title]
+        params:
+          fields: title
+          any_terms: [how to conduct, conducting a systematic, meta-analysis methods, guide to meta-analysis, practical guide to, how to perform]
+          min_matching_papers: 1
+        weight: 0.25
+        narrative: "A self-authored how-to/methods paper on conducting SR/MA (the 'factory manual' tell)."
+      - id: single_method_recurrence
+        provenance: unavailable
+        kind: corpus_level
+        weight: 0.0
+        verify_note: "One statistical method (e.g., bivariate/HSROC) recurring across organ systems — method labels not in PubMed metadata ([VERIFY])."
+        narrative: "Near-zero method entropy across high topic entropy."
+      - id: citation_if_decoupling
+        provenance: unavailable
+        kind: corpus_level
+        weight: 0.0
+        verify_note: "High h-index concentrated in mid-IF specialty journals — needs citation/IF data ([VERIFY])."
+        narrative: "Citation/IF decoupling."
+    negatives: []
+
+  A5:
+    name: "Large-consortium participation pattern"
+    summary: "Recurring membership in very-large-author consortium papers. NOT a citation or leadership claim."
+    min_sample: 8
+    score_threshold: 0.34
+    max_confidence_mvp: med
+    flag: "Large author-count participation may reflect consortium MEMBERSHIP, not individual leadership or citation magnitude. In the PubMed-only MVP only the author-count pattern is computable; any citation-collapse / fractional-citation re-ranking is [VERIFY] and not asserted here."
+    signals:
+      - id: consortium_membership
+        provenance: source-derived
+        kind: per_paper
+        metric: author_count_papers
+        required_columns: [n_authors]
+        params:
+          author_count_min: 50
+          min_papers: 2
+        weight: 0.5
+        narrative: "Recurring membership (>= 2 papers) in very-large-author consortium papers (>= 50 authors)."
+      - id: consortium_corpus_share
+        provenance: rule-derived
+        kind: corpus_level
+        metric: author_count_share
+        required_columns: [n_authors]
+        params:
+          author_count_min: 50
+          share_min: 0.1
+        weight: 0.5
+        narrative: "Hyper-authored papers are >= 10% of the corpus."
+      - id: citation_share_of_consortium
+        provenance: unavailable
+        kind: corpus_level
+        weight: 0.0
+        verify_note: "Top papers' citation share + Scholar/WoS divergence + fractional (citations / author-count) re-rank collapse — needs citation data ([VERIFY])."
+        narrative: "Disproportionate citation share attributable to hyper-authored papers; the true individual signal lives in the lower first/last-author number."
+    negatives: []
+
+  A6:
+    name: "Clinical-subspecialty + device/technique depth"
+    summary: "Concentrated subspecialty device/technique/procedural depth, low AI presence."
+    min_sample: 6
+    # Threshold > low_ai weight (0.4): low AI presence alone cannot surface A6 — the
+    # device/technique signal must fire.
+    score_threshold: 0.5
+    max_confidence_mvp: med
+    signals:
+      - id: device_term_density
+        provenance: rule-derived
+        kind: per_paper
+        metric: title_term_count
+        required_columns: [title]
+        params:
+          fields: title
+          any_terms: [device, stent, catheter, technique, hemodynamics, haemodynamics, procedural, embolization, embolisation, angioplasty, flow diverter, coil]
+          min_matching_papers: 4
+        weight: 0.6
+        narrative: "Concentrated device/technique/procedural title terms within one organ system (>= 4 papers)."
+      - id: low_ai_presence
+        provenance: rule-derived
+        kind: corpus_level
+        metric: ai_term_fraction
+        required_columns: [title, study_type]
+        params:
+          terms: *ai_terms
+          direction: le
+          fraction: 0.1
+        weight: 0.4
+        narrative: "Low AI/ML title-term presence (<= 10% of corpus)."
+    negatives: []
+
+# ---------------------------------------------------------------------------
+# Composite: a COMPUTED combination of base archetypes (not a 7th independent label).
+composites:
+  AX:
+    type: composite
+    name: "Domain-clinical + AI-bridge hybrid"
+    summary: "A primary clinical/procedural identity co-listed with a secondary computational identity."
+    requires_all: [A3, A6]
+    extra_condition:
+      metric: senior_on_ai_papers
+      required_columns: [title, study_type, author_position]
+      params:
+        terms: *ai_terms
+        position: last
+        fraction_min: 0.5
+      narrative: "On AI-cluster papers the clinical-domain author tends to be senior/last (supplies domain + data). Position is a heuristic, not authoritative leadership metadata."
+    narrative: "Fires only when A3 AND A6 both surface AND the target is last-author on >= 50% of AI-term papers."

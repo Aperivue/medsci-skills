@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<!-- Synthetic, name-free fixture. Two same-surname authors on one paper where ONLY the
+     co-author carries an ORCID. The target (Smith AB, first author, no ORCID) must NOT
+     inherit the co-author's (Smith CD) ORCID or affiliation. -->
+<PubmedArticleSet>
+  <PubmedArticle>
+    <MedlineCitation>
+      <PMID>900001</PMID>
+      <Article>
+        <Journal>
+          <Title>Journal of Synthetic Imaging</Title>
+          <ISOAbbreviation>J Synth Imaging</ISOAbbreviation>
+          <JournalIssue>
+            <PubDate><Year>2021</Year></PubDate>
+          </JournalIssue>
+        </Journal>
+        <ArticleTitle>A synthetic study of placeholder findings</ArticleTitle>
+        <AuthorList>
+          <Author EqualContrib="Y">
+            <LastName>Smith</LastName>
+            <ForeName>Alpha Beta</ForeName>
+            <Initials>AB</Initials>
+            <AffiliationInfo>
+              <Affiliation>Department of Example, Placeholder University, Sample City, Country</Affiliation>
+            </AffiliationInfo>
+          </Author>
+          <Author>
+            <LastName>Jones</LastName>
+            <ForeName>Mid Author</ForeName>
+            <Initials>MA</Initials>
+          </Author>
+          <Author>
+            <LastName>Smith</LastName>
+            <ForeName>Cee Dee</ForeName>
+            <Initials>CD</Initials>
+            <Identifier Source="ORCID">0000-0002-1234-5678</Identifier>
+            <AffiliationInfo>
+              <Affiliation>Institute of Other Things, Different University, Other City, Country</Affiliation>
+            </AffiliationInfo>
+          </Author>
+        </AuthorList>
+        <PublicationTypeList>
+          <PublicationType>Journal Article</PublicationType>
+        </PublicationTypeList>
+      </Article>
+    </MedlineCitation>
+  </PubmedArticle>
+</PubmedArticleSet>

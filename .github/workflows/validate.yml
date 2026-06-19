@@ -120,6 +120,9 @@ jobs:
       - name: Run render-pdf-doc glyph-coverage scan test (A13)
         run: bash skills/render-pdf-doc/tests/test_glyph_coverage.sh
 
+      - name: Run author-strategy archetype-classifier test (A14)
+        run: bash skills/author-strategy/tests/test_archetype_classifier.sh
+
       - name: Install pandas (demo manifest verification)
         run: pip install pandas
 

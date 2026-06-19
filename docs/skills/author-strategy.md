@@ -2,13 +2,13 @@
 
 # author-strategy
 
-> PubMed author profile analysis. Author name → PubMed fetch → study type classification → visualization → strategy report.
+> PubMed author profile analysis. Author name → PubMed fetch → study-type classification → visualization → strategy report → optional trajectory-archetype classification.
 
 **Invoke:** `/author-strategy` · **Tools:** Read, Write, Edit, Bash, Glob, Grep · **Model:** inherit
 
 ## When to use
 
-`author-strategy` activates on requests such as: author-strategy, 저자 분석, publication analysis, 다작 분석, 연구 전략 분석, author profile, reverse engineer strategy.
+`author-strategy` activates on requests such as: author-strategy, 저자 분석, publication analysis, 다작 분석, 연구 전략 분석, author profile, reverse engineer strategy, trajectory archetype, career archetype.
 
 ## Quality Card
 
@@ -21,14 +21,24 @@
 
 **Known limitations**
 
-- Name collisions on PubMed can blur profiles; disambiguation is best-effort.
+- Name collisions on PubMed can blur profiles; the archetype path requires an explicit, manifest-gated disambiguation review.
+- Archetype labels are explainable heuristics, not objective classifications; citation/h-index/venue-tier signals are unavailable and marked [VERIFY].
 - No standalone demo; output is an advisory report.
 
 **Validation**
 
 - `manual review of the fetched record against PubMed`
+- `bash skills/author-strategy/tests/test_archetype_classifier.sh`
+- `python3 skills/author-strategy/render_archetype_doc.py --check`
 
 **Evidence** — `manual_workflow`
+
+## Bundled resources
+
+**References** (`skills/author-strategy/references/`):
+
+- `trajectory_archetypes.md`
+- `trajectory_archetypes.yaml`
 
 ## Source
 

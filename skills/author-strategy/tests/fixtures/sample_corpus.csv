@@ -1,0 +1,9 @@
+pmid,title,year,n_authors,author_position,study_type,topic
+1001,A benchmark dataset for cardiac segmentation,2014,4,first,Other,Radiology/Imaging
+1002,An open dataset and challenge for organ detection,2015,5,first,Other,Radiology/Imaging
+1003,An ontology for radiology reporting,2016,3,last,Other,Radiology/Imaging
+1004,A lexicon and schema for structured findings,2017,4,first,Other,Radiology/Imaging
+1005,A benchmark for image registration,2018,6,first,Other,Radiology/Imaging
+1006,A terminology and common data element catalogue,2019,5,last,Other,Radiology/Imaging
+1007,An overview of imaging informatics,2020,2,first,Other,Radiology/Imaging
+1008,Basic principles a primer and general review,2021,2,first,Other,Radiology/Imaging
