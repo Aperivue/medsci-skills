@@ -154,6 +154,15 @@ jobs:
       - name: Run deidentify PHI-scan contract test
         run: bash skills/deidentify/tests/test_deidentify_scan.sh
 
+      - name: Run fill-icmje-coi form-clone contract test
+        run: bash skills/fill-icmje-coi/tests/test_fill_icmje_coi.sh
+
+      - name: Run academic-aio schema-validator test
+        run: bash skills/academic-aio/tests/test_validate_schema.sh
+
+      - name: Run academic-aio metadata-audit test
+        run: bash skills/academic-aio/tests/test_batch_metadata_audit.sh
+
       - name: Verify demo manifest.lock files (reproducibility lock)
         run: |
           for d in demo/01_wisconsin_bc demo/02_metafor_bcg demo/03_nhanes_obesity; do
