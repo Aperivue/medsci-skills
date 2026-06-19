@@ -17,7 +17,7 @@ WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 
 # --- fixtures ---
-mkdir -p "$WORK/leaky/figures" "$WORK/clean/figures"
+mkdir -p "$WORK/leaky/figures" "$WORK/clean/figures" "$WORK/pathleak"
 
 # figure script with an institution token (review-severity)
 cat > "$WORK/leaky/figures/flow.R" <<'EOF'
@@ -42,7 +42,7 @@ EOF
 python3 - "$WORK" <<'PY'
 import sys, zipfile, os
 work = sys.argv[1]
-def make_docx(path, creator):
+def make_docx(path, creator, body="<w:document/>"):
     core = (
         '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
         '<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" '
@@ -53,9 +53,18 @@ def make_docx(path, creator):
     )
     with zipfile.ZipFile(path, "w") as z:
         z.writestr("docProps/core.xml", core)
-        z.writestr("word/document.xml", "<w:document/>")
+        z.writestr("word/document.xml", body)
 make_docx(os.path.join(work, "leaky", "manuscript.docx"), "Alex P. Investigator")
 make_docx(os.path.join(work, "clean", "manuscript.docx"), "Microsoft Office User")
+# clean metadata but an absolute home path leaked into a pic descr (pandoc pattern)
+make_docx(
+    os.path.join(work, "pathleak", "supplement.docx"),
+    "Microsoft Office User",
+    body='<w:document><pic:pic><pic:nvPicPr>'
+         '<pic:cNvPr id="1" name="Picture" '
+         'descr="/Users/testuser/proj/figures/funnel.png"/>'
+         '</pic:nvPicPr></pic:pic></w:document>',
+)
 PY
 
 run() { python3 "$SCRIPT" "$@" 2>/dev/null; }
@@ -93,6 +102,17 @@ run --dir "$WORK/reviewonly" --quiet
 [ $? -eq 0 ] && ok "review-only passes by default" || bad "review-only should pass by default"
 run --dir "$WORK/reviewonly" --strict --quiet
 [ $? -eq 1 ] && ok "review-only fails under --strict" || bad "review-only should fail under --strict"
+
+# 6. docx with an absolute home path in pic descr -> leak (even with tool author)
+run --dir "$WORK/pathleak" --quiet
+[ $? -eq 1 ] && ok "docx embedded abs-path fails (pic descr leak)" || bad "abs-path docx should fail"
+run --dir "$WORK/pathleak" --out "$WORK/r3.json" --quiet
+python3 -c "
+import json,sys
+d=json.load(open('$WORK/r3.json'))
+types={f['type'] for f in d['findings']}
+sys.exit(0 if 'docx_embedded_abs_path' in types and d['submission_safe'] is False else 1)
+" && ok "JSON: docx_embedded_abs_path finding present" || bad "abs-path finding missing"
 
 echo ""
 echo "test_asset_anonymization: $PASS passed, $FAIL failed"

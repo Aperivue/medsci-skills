@@ -22,6 +22,12 @@ classes of leak:
   3. **document metadata author** — a `.docx` `dc:creator`/`cp:lastModifiedBy`
      or a `.pdf` Author/Creator is a real person/identifier (not empty / not a
      known tool).
+  4. **docx embedded absolute path** — a `word/*.xml` attribute (e.g. a drawing's
+     `<pic:cNvPr descr="...">`) carries an absolute home-dir path
+     (`/Users/<user>/…`, `/home/<user>/…`). pandoc writes the source image path
+     into the picture description when handed an absolute path, leaking the
+     username into the docx body XML where a rendered-text scan never sees it.
+     Fix: use a relative image path + `pandoc --resource-path=<figdir>`.
 
 Severity:
   - `leak`   — metadata author present, or a --names-file name found anywhere.
@@ -83,6 +89,11 @@ def _is_tool_author(value: str) -> bool:
 FIG_SCRIPT_GLOBS = ("*.R", "*.r", "*.py")
 DC_CREATOR_RE = re.compile(r"<dc:creator>([^<]*)</dc:creator>")
 LAST_MOD_RE = re.compile(r"<cp:lastModifiedBy>([^<]*)</cp:lastModifiedBy>")
+# Absolute home-dir path leaked into an OOXML attribute (e.g. a drawing's
+# <pic:cNvPr descr="/Users/<user>/.../fig.png">). pandoc embeds the source image
+# path as the picture description when given an absolute path; it carries the
+# username into the docx body XML, invisible to a rendered-text scan.
+DOCX_ABS_PATH_RE = re.compile(r'(?:descr|name|title)="(/(?:Users|home)/[^"]+)"')
 
 
 @dataclass
@@ -188,6 +199,30 @@ def _docx_authors(docx: Path) -> list[str]:
     return vals
 
 
+def _docx_embedded_abs_paths(docx: Path) -> list[str]:
+    """Absolute home-dir paths leaked into word/*.xml attributes (e.g. a
+    pandoc-embedded image's pic descr). Returns the offending path strings."""
+    hits: list[str] = []
+    try:
+        with zipfile.ZipFile(docx) as z:
+            parts = [n for n in z.namelist()
+                     if n.startswith("word/") and n.endswith(".xml")]
+            for name in parts:
+                xml = z.read(name).decode("utf-8", errors="replace")
+                for m in DOCX_ABS_PATH_RE.finditer(xml):
+                    hits.append(m.group(1))
+    except Exception:
+        return []
+    # de-dup, preserve order
+    seen: set[str] = set()
+    out = []
+    for h in hits:
+        if h not in seen:
+            seen.add(h)
+            out.append(h)
+    return out
+
+
 def build_report(root: Path, names: list[str], poppler: bool) -> Report:
     rep = Report(poppler_available=poppler)
     scripts = docx_files = pdf_files = 0
@@ -219,6 +254,12 @@ def build_report(root: Path, names: list[str], poppler: bool) -> Report:
                 rep.findings.append(Finding(
                     "docx_metadata_author", "leak", rel,
                     f"docx author metadata: '{a}'"))
+            # 4. absolute home-dir path embedded in word/*.xml (e.g. pic descr)
+            for ap_ in _docx_embedded_abs_paths(p):
+                rep.findings.append(Finding(
+                    "docx_embedded_abs_path", "leak", rel,
+                    f"absolute path in docx XML (username leak; use a relative "
+                    f"image path + pandoc --resource-path): {ap_}"))
 
         # PDFs: metadata + (figure) rendered-text
         elif suffix == ".pdf":
