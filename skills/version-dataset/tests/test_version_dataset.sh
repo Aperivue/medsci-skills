@@ -11,6 +11,10 @@ trap 'rm -rf "$TMP"' EXIT
 
 [[ -f "$VS" ]] || { echo "ENV-ERR: script missing" >&2; exit 2; }
 
+# CSV manifest build goes through pandas (column-level value hashing); skip
+# cleanly when pandas is absent. CI installs it before this gate runs.
+python3 -c "import pandas" 2>/dev/null || { echo "SKIP: pandas unavailable"; exit 0; }
+
 fail=0; ran=0
 check() {
     local label="$1" expected="$2" actual="$3"

@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- **Test backfill — Tier 0 CI-wiring + `deidentify` PHI-scan regression test.** Ten skill regression tests that existed on disk but were never gated are now wired into `.github/workflows/validate.yml`, so a silent break fails CI: `make-figures` (legend reconcile), `clean-data` (structural-zero), `lit-sync` (poll logic), `meta-analysis` (pool consistency), `generate-codebook`, `present-paper` (speaker-notes markdown), `version-dataset` (manifest/verify), `manage-refs` (vN-docx cross-ref), and `polish-language` (consistency-linter challenge). New `skills/deidentify/tests/test_deidentify_scan.sh` asserts the exact PHI-classification contract (PHI/REVIEW_NEEDED/SAFE counts + `rrn` phi_type) on the three committed fixtures — the CSV scan path is stdlib-only and network-free, and the test file is Hangul-free (column-specific asserts read the fixture header at runtime). CI now installs pandas/numpy/python-pptx/python-docx up front (was: pandas installed after the gates, which would silently skip the dep-guarded tests); `version-dataset` gains a pandas skip-guard for local robustness. No skill/version change — test infrastructure only.
+
 ## [4.4.0] - 2026-06-20
 
 ### Added
