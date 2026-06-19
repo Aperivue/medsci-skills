@@ -36,6 +36,7 @@ MODULES = (
     "survival_prognostic.md",
     "clinical_prediction_model.md",
     "radiomics.md",
+    "image_synthesis.md",
     "narrative_review.md",
     "observational_confounding.md",
     "ai_overclaiming.md",

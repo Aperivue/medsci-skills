@@ -63,6 +63,16 @@ methodology and study design.
    - Protocol heterogeneity
    - Intended use clarity
    - Overclaiming relative to evidence level
+   - Reference-integrity spot-check (load-bearing citations only): for the citations used *as evidence
+     that the method/premise works* — typically the Introduction "prior work shows X" and the Discussion
+     "consistent with (refs)" sentences — verify that each cited paper actually supports the claim, and
+     that title / year / first author roughly match. High-yield failures: a synthesis-method claim cited
+     to papers that do a *different* task (CT-from-MRI cited as MRI-from-PET), a duplicate reference
+     under two numbers, a wrong year/author, or an unfindable reference. Use `/search-lit` or CrossRef to
+     confirm before asserting a mismatch; an unconfirmed suspicion is phrased "please verify," a confirmed
+     one is a Minor (or Major if the whole premise rests on it). This is the reviewer-side mirror of the
+     authoring citation-safety discipline — do not assume the reference list is correct because the prose
+     is fluent.
    - Priority / contribution calibration: weak novelty plus weak clinical utility can justify a stronger
      recommendation even when the statistical/reporting critique is otherwise constructive.
    - Sample size adequacy
@@ -216,6 +226,12 @@ imaging-led (radiology/nuclear-medicine/IR) reporting discipline (CR9).
 
 **Probe detail (CR1–CR9), with output templates and the leads-vs-findings discipline:** `${CLAUDE_SKILL_DIR}/references/domain-probes/case_report.md`. Load it and apply each probe when the trigger fires. In this skill, map each probe finding to the review draft as a Major / Minor comment; missing consent or identifiable patient data (CR2), causal overclaiming (CR3), an absent case-report contribution/teaching value (CR1), causality-by-assertion in an adverse-event case (CR7), a series with no methods/summary table (CR8), or identifiable images / undisclosed device-vendor COI in an imaging case (CR9) can be placed as Major #1 depending on what carries the manuscript's claim. Pair timeline-related findings (CR5) with `/make-figures` `exemplar_plots/clinical_timeline.md`, and imaging-figure findings (CR9) with `exemplar_plots/imaging_panel.md`.
 
+### Phase 2K: Image-Synthesis / Cross-Modality Generation Extension
+
+Apply this 4-probe checklist (IS1–IS4) **only when the manuscript synthesizes one imaging modality from another** (MRI→PET, MRI→CT, CT→MRI, non-contrast→contrast, low-dose→full-dose) using a generative model (GAN/PatchGAN, diffusion, U-Net/Swin-UNet, CycleGAN) **and** frames the synthetic image as carrying functional/molecular information or as a substitute for the unavailable real target modality. These probes complement (do not replace) the generic Phase 2 issue checklist; they keep three structurally distinct failure modes — which a single review tends to split across reviewers or miss — under one reviewer's coverage. Co-applies with Phase 2I (reader-study evaluation arm) and Phase 2G (AI overclaiming).
+
+**Probe detail (IS1–IS4), with output templates:** `${CLAUDE_SKILL_DIR}/references/domain-probes/image_synthesis.md`. Load it and apply each probe when the trigger fires. In this skill, map each probe finding to a Major / Minor comment; IS1 (the synthetic image is a deterministic function of the source, so "source + synthetic > source alone" is a presentation effect absent a source→label baseline), IS2 (target-derived preprocessing / undescribed slice-selection → circularity that voids the "function inferred from structure" claim), and IS3 (global vs lesion-level quantitative agreement) are design-level — surface them in the Confidential Comments to the Editor and place IS2 as the Major #1 candidate when slice/mask provenance is undescribed (it cannot be excluded, so the central claim cannot be granted). IS4 (mechanistic/proxy-signal plausibility — name what the source physically measures vs the target's biology; high image similarity is not evidence the unmeasured signal was recovered) keeps the biological-information claim honest. Per Phase 2F, IS2/IS4 are typically **unfixable-in-current-form** and govern the recommendation toward Reject-leaning when present.
+
 ### Phase 3: Draft Review
 
 Before writing comments, skim the relevant model in `references/exemplar_reviews/` for the
@@ -325,6 +341,8 @@ After drafting, verify mechanically:
     inconsistent with a softer recommendation.
 13. **Observational-confounding QC** (if Phase 2E applied): For any covariate imbalanced by exposure in Table 1 but absent from the adjustment set (O1), confirm the comment requests a concrete extended-adjustment sensitivity model, not a vague "adjust for more confounders." Confirm a selection/collider structure (O3) or an undisclosed complete-case collapse from a structural-zero dose covariate (O5) is raised at design-level severity, and that any E-value request (O6) targets the declared primary estimate rather than a supporting one.
 14. **Verify-your-own-criticism** (all reviews): For each Major framed as a technical inaccuracy or a citation–claim mismatch, confirm the reviewer's own assertion was checked against a current authoritative source (full paper, CrossRef, arXiv). Downgrade unverified technical claims to a hedged "Please verify…"; keep confirmed ones firm. Watch for status drift (a "preprint" since published; a method since adapted) before asserting the manuscript is wrong.
+15. **Image-synthesis QC** (if Phase 2K applied): Confirm the determinism/information-ceiling point (IS1) is raised whenever the manuscript reads a same-reader source→source+synthetic gain as added diagnostic information without a source→label baseline, that undescribed slice/mask provenance (IS2) is surfaced as a leakage/circularity concern rather than a reporting nicety, that quantitative agreement is checked at the lesion/target level not only globally (IS3), and that a biological-information claim built on image similarity alone is tempered (IS4). Per Phase 2F, confirm IS2/IS4 were treated as unfixable-in-current-form when present.
+16. **Reference-integrity QC** (all original-research reviews): Confirm the load-bearing Introduction/Discussion citations (those used as evidence the method or premise works) were spot-checked — a cited paper doing a different task, a duplicate reference, or a wrong year/author is a Minor (Major if the premise rests on it), and any unconfirmed suspicion is phrased "please verify" rather than asserted.
 
 Fix all issues found, then present to user.
 
@@ -383,6 +401,8 @@ For radiomic feature-reproducibility / phantom parameter-sweep / reliability-fil
 For Review / narrative / primer / state-of-the-art manuscripts, apply the Phase 2D 9-probe audit (novelty/value-add, scope/aims, evidence-gathering transparency, technical/medical accuracy, taxonomy/synthesis coherence, balance/currency/citation accuracy, load-bearing figures/tables, constructive gap-filling, curated-base circularity) in place of the original-research probes — error-spotting plus proportionate gap-filling, with SANRA used as an appraisal aid only.
 
 For observational studies whose central claim is an adjusted exposure–outcome association, also apply the Phase 2E 12-probe audit (confounding completeness, adjustment-set provenance, selection/collider bias, exposure measurement validity, missing-data / complete-case collapse, residual-confounding E-value, over-adjustment, analysis-unit/clustering, outcome construct validity, overlapping-subset gradient, complex-survey design & weighting, data-driven threshold mining, cross-sectional mediation, interaction scale), with O1 (a measured covariate imbalanced by exposure in Table 1 yet absent from the adjustment set) and O7 (an outcome consequence/mediator wrongly adjusted) checked against the manuscript's own Table 1.
+
+For cross-modality image-synthesis manuscripts (MRI→PET / MRI→CT / non-contrast→contrast / low-dose→full-dose) that claim functional/molecular information or a substitute for the unavailable target modality, also apply the Phase 2K 4-probe audit (IS1 determinism/information-ceiling vs a source→label baseline, IS2 target-derived-preprocessing/slice-selection leakage, IS3 global vs lesion-level quantitative agreement, IS4 mechanistic/proxy-signal plausibility); IS2 and IS4 are typically unfixable-in-current-form and govern the recommendation per Phase 2F.
 
 ## Journal-Specific Formatting
 
