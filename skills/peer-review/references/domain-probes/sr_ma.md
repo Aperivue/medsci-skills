@@ -6,9 +6,9 @@
        - self-review: Anticipated Major / Minor Comments (Fatal / Fixable) mapped to category letters.
      Do NOT edit one copy only — run `python3 scripts/check_domain_probe_sync.py --sync`. -->
 
-# Systematic Review / Meta-Analysis probes (P0–P10)
+# Systematic Review / Meta-Analysis probes (P0–P11)
 
-Internal-consistency-first gate (P0) plus a 10-probe checklist (P1–P10). These probes complement (do not replace) the generic Phase 2 issue checklist.
+Internal-consistency-first gate (P0) plus an 11-probe checklist (P1–P11). These probes complement (do not replace) the generic Phase 2 issue checklist.
 
 **P0 — Internal-consistency-first gate (run before P1; gates any fabrication claim)**:
 - Before alleging fabrication on a manuscript that "feels AI-generated", reproduce the headline pooled statistics, paired study counts (k), and subgroup counts directly from the extracted data table (or supplement included-studies table).
@@ -71,6 +71,12 @@ Internal-consistency-first gate (P0) plus a 10-probe checklist (P1–P10). These
 **P10 — Citation-metadata confusion class (over-escalation guard)**:
 - DOI-suffix digits that surface as an apparent article number (e.g., a DOI tail "77196" against article number 26068, or "60466-1" against 6274) are cosmetic metadata confusion, **not** fabrication — do not escalate them as fabricated references.
 - Reference-list duplicates are handled by `/verify-refs` (`duplicate_findings[]`); AI-disclosure presence is the cross-cutting P8 check. Neither is unique to SR/MA.
+
+**P11 — Poolability / construct-validity gate (does this synthesis hold at all?)**:
+- Before refining cell-level extraction (P0/P1), ask the higher-altitude question the forensic layer skips: are the pooled studies answering the *same clinical question* on *comparable populations / index tests / reference standards*, such that combining them into one estimate is meaningful?
+- Check that the quality / risk-of-bias instrument is valid for the included *study/model class* (e.g., a radiomics-specific QA tool applied to deep-learning studies; METRICS vs CLAIM / PROBAST mismatch). An instrument applied outside its intended class invalidates the RoB synthesis.
+- When k is small and P2 non-independence reduces the independent-cohort count further (e.g., k=6 → k≈4 after overlap), quantitative pooling itself may be inappropriate → a systematic review with **descriptive synthesis** is the correct form, not a forced meta-analytic pool (and not merely a sensitivity analysis layered on top).
+- This is an **unfixable-in-current-form** defect when present: cell-level re-extraction cannot rescue a synthesis that should not have been pooled. Let it dominate the severity tier over fixable extraction/reporting defects — strong cell-level forensics must not set a lenient tier when the synthesis itself is invalid.
 
 **Output template (P1 cell-swap example)**:
 > "I spot-checked [Author Year] (PMID [...]) against the source paper and found that the values in Figure X are swapped. The source paper reports external-test sensitivity A% / specificity B% (n=N); the manuscript forest entries place [num1/denom1] in the sensitivity slot (which is the source's specificity numerator/denominator) and [num2/denom2] in the specificity slot (which is the source's sensitivity)."

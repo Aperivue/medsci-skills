@@ -104,6 +104,7 @@ design-level finding, **Fixable** for a reporting-level finding.
 - Transportability: cross-domain failure framed as success; negative R² read as a weak metric.
 - Multiplicity across model × threshold / cohort grids; small-cohort bootstrap intervals.
 - Leakage (patient-level vs image-level splits); calibration beyond discrimination.
+- Prior-art / dual-publication (salami): does the contribution duplicate a findable prior paper (same dataset size / architecture / metric values, delta-only)? An undisclosed near-duplicate is a contribution killer — check prior art, do not assume novelty.
 
 **Clinical translation / reference standard**
 - Reference-standard validity and verification bias.
@@ -138,13 +139,24 @@ design-level finding, **Fixable** for a reporting-level finding.
 > Read enough of the manuscript to adjudicate conflicts and weigh severity yourself.
 > Then:
 > 1. Reach an internal readiness decision and state the rationale honestly. (This sets
->    the Phase 3c verdict / score; it is not a journal recommendation to print.)
+>    the Phase 3c verdict / score; it is not a journal recommendation to print.) Run BOTH
+>    lenses before settling the tier: the measurement/design lens AND a contribution/priority
+>    lens (is the value and the novelty actually there?). A measurement-only read is the
+>    classic cause of a too-lenient verdict. When an **unfixable-in-current-form** defect is
+>    present — invalid poolability/construct validity, irrecoverable leakage/circularity, an
+>    undisclosed near-identical prior publication, or (for a review/primer) weak novelty /
+>    no distinct contribution since the contribution IS the product — let it dominate the
+>    tier over fixable reporting defects rather than letting the fixable framing soften it.
 > 2. De-duplicate and consolidate the major comments by theme. For each consolidated
 >    point, flag CONSENSUS (raised by ≥2 reviewers) or single-reviewer, and attribute
 >    (R1/R2/R3).
 > 3. List the top priority pre-submission actions, ranked and concrete.
 > 4. Give an honest readiness verdict: ready for the target tier now, fix specific
 >    items first, or consider a different tier.
+> 5. Rate each reviewer's contribution as high-signal / mixed / low-signal with one
+>    reason (which of their findings survived consolidation; their signal-to-noise; any
+>    whole-axis they uniquely covered). This makes the per-lens contribution explicit
+>    rather than implicit in the attribution.
 >
 > Map every finding onto the self-review framing (Fatal / Fixable, category letters
 > A–K) and emit it through the Phase 3 report, Phase 3b R0 numbering, and Phase 3c
