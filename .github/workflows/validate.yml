@@ -21,8 +21,8 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install Python deps for contract validator
-        run: pip install pyyaml
+      - name: Install Python test dependencies
+        run: pip install pyyaml pandas numpy python-pptx python-docx
 
       - name: Install exiftool + poppler (EXIF scan + check_asset_anonymization PDF text/metadata)
         run: sudo apt-get update && sudo apt-get install -y libimage-exiftool-perl poppler-utils
@@ -123,8 +123,36 @@ jobs:
       - name: Run author-strategy archetype-classifier test (A14)
         run: bash skills/author-strategy/tests/test_archetype_classifier.sh
 
-      - name: Install pandas (demo manifest verification)
-        run: pip install pandas
+      # --- Tier 0/1 skill regression tests (existing + new, now CI-wired) ---
+      - name: Run make-figures legend-reconcile test
+        run: bash skills/make-figures/tests/test_legend_reconcile.sh
+
+      - name: Run clean-data structural-zero test
+        run: bash skills/clean-data/tests/test_structural_zero.sh
+
+      - name: Run lit-sync poll-logic test
+        run: bash skills/lit-sync/tests/test_poll_logic.sh
+
+      - name: Run meta-analysis pool-consistency test
+        run: bash skills/meta-analysis/tests/test_pool_consistency.sh
+
+      - name: Run generate-codebook test
+        run: bash skills/generate-codebook/tests/test_generate_codebook.sh
+
+      - name: Run present-paper speaker-notes markdown test
+        run: python3 skills/present-paper/tests/test_speaker_notes_markdown.py
+
+      - name: Run version-dataset manifest/verify test
+        run: bash skills/version-dataset/tests/test_version_dataset.sh
+
+      - name: Run manage-refs vN-docx cross-reference test
+        run: bash skills/manage-refs/tests/test_vN_docx_check.sh
+
+      - name: Run polish-language consistency-linter challenge
+        run: bash skills/polish-language/scripts/lint_challenge/verify.sh
+
+      - name: Run deidentify PHI-scan contract test
+        run: bash skills/deidentify/tests/test_deidentify_scan.sh
 
       - name: Verify demo manifest.lock files (reproducibility lock)
         run: |
