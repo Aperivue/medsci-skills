@@ -77,6 +77,7 @@ FAMILY_BY_ID: dict[str, str] = {
     "check_wordcount_cap": "reporting_compliance",
     # Data preparation & validation
     "check_structural_zero": "data_preparation",
+    "check_reverse_coding": "data_preparation",
     "check_asset_anonymization": "data_preparation",
     "check_cross_artifact_stale": "data_preparation",
 }

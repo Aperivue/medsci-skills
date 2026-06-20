@@ -448,6 +448,7 @@ tbl %>% as_flex_table() %>% flextable::save_as_docx(path = "table.docx")
 
 - Descriptive: median, IQR, frequency distribution per item
 - Internal consistency: Cronbach's alpha with item-total correlations
+- **Reverse-coding guard (run before reliability)**: a negatively-worded scale item must be recoded `(min+max) - x` before computing the scale total or Cronbach's alpha. An un-recoded reverse item produces a *negative* item-rest correlation and a negative alpha — which is a coding bug, **not** evidence of a multidimensional construct (do not defend it as such; you lose a review round). `likert_summary.py` prints the per-item item-rest correlations, flags negative ones as reverse-code suspects, warns loudly on a negative alpha, and accepts `--reverse-items E3 ...` to apply the recode before scoring. To screen at cleaning time, run `/clean-data` `scripts/check_reverse_coding.py`. See the global rule `survey-scale-reliability.md`.
 - If comparing groups: Mann-Whitney or Kruskal-Wallis (ordinal data)
 - Visualization: diverging stacked bar chart
 

@@ -77,6 +77,8 @@ Based on profiling results, flag potential issues in these categories:
 6. **Category inconsistencies**: Typos in categorical values (e.g., "Male", "male", "M", "MALE")
 7. **Categorical-implied zeros**: When a categorical variable defines a natural zero for a dose/duration variable (`smoking_status == 'never'` implies `pack_years == 0`, `alcohol_use == 'never'` implies `grams_per_week == 0`), flag any record where the implied zero is stored as NULL/missing instead of 0. This is a *contradiction*, not a missing-data pattern: a never-smoker with `pack_years = NULL` will be silently dropped by complete-case models or, worse, imputed to a non-zero dose by MICE — corrupting the exposure contrast. Suggested action: "Set dose = 0 where category == reference level; impute only the residual missingness among the exposed." Detected by `scripts/check_structural_zero.py` given the category↔dose mapping; pairs with `/analyze-stats` "Covariate Pitfalls: Structural Zeros & Dose/Duration Variables".
 
+8. **Reverse-coded scale items**: When a multi-item Likert scale (Trust, Satisfaction, Burden, etc.) mixes positively- and negatively-worded items, every negatively-worded ("reverse") item must be recoded `(min+max) - x` *before* the scale total or Cronbach's alpha is computed. A reverse item left un-recoded correlates negatively with the rest of the scale and collapses alpha — often turning it **negative**. A negative alpha is almost never a real measurement phenomenon; it is a reverse-coding bug, and defending it as "multidimensional structure" loses a review round. Suggested action: "Recode reverse-worded items, then recompute reliability." Detected by `scripts/check_reverse_coding.py` (flags items with a negative item-rest correlation and a negative raw alpha, given the scale item columns); the recode itself is applied downstream by `/analyze-stats` `likert_summary.py --reverse-items`. Pairs with the global rule `survey-scale-reliability.md`.
+
 Present the flag report as a structured table:
 
 | Variable | Issue Type | Count | Severity | Suggested Action |
@@ -85,6 +87,7 @@ Present the flag report as a structured table:
 | sex | Category inconsistency | 12 | Low | Harmonize: Male/male/M -> "Male" |
 | lab_date | Type mismatch | 45 | High | Parse to datetime |
 | pack_years | Categorical-implied zero | 12421 | High | Set 0 where smoking_status=='never' (structural zero, not missing) |
+| trust_E3 | Reverse-coded item (raw α=-0.57) | n/a | High | Recode (6 - x) before reliability; negative α is a coding bug |
 
 Severity levels:
 - **High**: Likely data errors that will affect analysis (type mismatches, impossible values)

@@ -288,7 +288,7 @@ Earlier in this series: analysis-integrity guards (confounding completeness, cla
 | **Battle-tested** | Used on real manuscript submissions by a practicing physician-researcher | Unknown provenance and validation |
 | **Depth per skill** | 150-600 lines of documentation + bundled reference files (curated journal profile library, checklists, formula sheets, code templates) | Typically thin SKILL.md templates |
 
-**MedSci-Audit** — the verification edge in the first rows above is a named suite of **27 deterministic detectors** (citation & reference integrity, cohort & pool arithmetic, scope/estimand contracts, reporting compliance, and more) that catch fabricated or drifted content before a manuscript reaches a reviewer. See **[`MEDSCI_AUDIT.md`](MEDSCI_AUDIT.md)** for the suite, its six families, and its evaluation evidence.
+**MedSci-Audit** — the verification edge in the first rows above is a named suite of **28 deterministic detectors** (citation & reference integrity, cohort & pool arithmetic, scope/estimand contracts, reporting compliance, and more) that catch fabricated or drifted content before a manuscript reaches a reviewer. See **[`MEDSCI_AUDIT.md`](MEDSCI_AUDIT.md)** for the suite, its six families, and its evaluation evidence.
 
 ---
 
