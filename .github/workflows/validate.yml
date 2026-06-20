@@ -130,6 +130,9 @@ jobs:
       - name: Run clean-data structural-zero test
         run: bash skills/clean-data/tests/test_structural_zero.sh
 
+      - name: Run clean-data reverse-coding test
+        run: bash skills/clean-data/tests/test_reverse_coding.sh
+
       - name: Run lit-sync poll-logic test
         run: bash skills/lit-sync/tests/test_poll_logic.sh
 

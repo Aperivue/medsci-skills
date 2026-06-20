@@ -108,6 +108,39 @@ def frequency_table(df: pd.DataFrame, items: list, labels: list, scale: int) -> 
     return pd.DataFrame(rows)
 
 
+def apply_reverse_coding(df: pd.DataFrame, items: list, reverse_items: list,
+                         scale: int) -> pd.DataFrame:
+    """Recode reverse-worded items as (min+max) - x BEFORE reliability/scoring.
+    Returns a copy; leaves non-reverse items untouched. min is assumed 1."""
+    if not reverse_items:
+        return df
+    out = df.copy()
+    flip_const = scale + 1  # (min=1) + (max=scale)
+    for it in reverse_items:
+        if it not in items:
+            raise ValueError(f"--reverse-items '{it}' is not in --items")
+        out[it] = flip_const - out[it]
+        print(f"  Reverse-coded: {it} -> ({flip_const} - {it})")
+    return out
+
+
+def item_rest_correlations(df: pd.DataFrame, items: list) -> dict:
+    """Corrected item-total (item-rest) correlation per item. A negative value
+    means the item moves opposite the rest of the scale — the classic signature
+    of a reverse-worded item that was never recoded."""
+    sub = df[items].dropna()
+    out = {}
+    if len(sub) < 2 or len(items) < 2:
+        return {it: None for it in items}
+    for it in items:
+        rest = sub[[c for c in items if c != it]].sum(axis=1)
+        if sub[it].std() == 0 or rest.std() == 0:
+            out[it] = None
+        else:
+            out[it] = round(float(sub[it].corr(rest)), 3)
+    return out
+
+
 def cronbach_alpha(df: pd.DataFrame, items: list) -> float:
     """Compute Cronbach's alpha for a set of items."""
     if not PINGOUIN_AVAILABLE:
@@ -277,6 +310,9 @@ def main():
                         default=["Strongly Disagree", "Disagree", "Neutral",
                                   "Agree", "Strongly Agree"])
     parser.add_argument("--scale", type=int, default=5, choices=[5, 7])
+    parser.add_argument("--reverse-items", nargs="+", default=None,
+                        help="reverse-worded items to recode as (scale+1)-x "
+                             "BEFORE alpha/scoring (e.g. a 'I review critically' item)")
     parser.add_argument("--group", default=None)
     parser.add_argument("--pre-items", nargs="+", default=None)
     parser.add_argument("--post-items", nargs="+", default=None)
@@ -286,6 +322,13 @@ def main():
 
     df = load_data(args.input, args.items)
     print(f"\nLoaded: {len(df)} respondents, {len(args.items)} items")
+
+    # ── Reverse-coding guard (run BEFORE any scoring/reliability) ──────────────
+    # A reverse-worded item must be recoded or it sinks Cronbach's alpha (often
+    # negative). See ~/.claude/rules/survey-scale-reliability.md.
+    if args.reverse_items:
+        print("\n── Reverse-coding applied ──────────────────")
+        df = apply_reverse_coding(df, args.items, args.reverse_items, args.scale)
 
     # ── Descriptive statistics ────────────────────────────────────────────────
     print("\n── Descriptive Statistics ──────────────────")
@@ -297,16 +340,35 @@ def main():
     freq = frequency_table(df, args.items, args.labels, args.scale)
     print(freq.to_string(index=False))
 
-    # ── Cronbach's alpha ──────────────────────────────────────────────────────
+    # ── Internal consistency + reverse-coding guard ───────────────────────────
+    if len(args.items) >= 2:
+        rests = item_rest_correlations(df, args.items)
+        suspects = [it for it, r in rests.items() if r is not None and r < 0]
+        if suspects:
+            print("\n── Reverse-coding check ────────────────────")
+            for it in args.items:
+                mark = "  <-- reverse-code suspect (negative item-rest)" if it in suspects else ""
+                print(f"   item-rest r  {it:<16} {rests[it]}{mark}")
+            print(f"   ⚠ Suspect items: {', '.join(suspects)}. If reverse-worded, "
+                  "rerun with --reverse-items before reporting alpha.")
+
     if PINGOUIN_AVAILABLE:
         alpha = cronbach_alpha(df, args.items)
         if alpha is not None:
             print(f"\n── Cronbach's Alpha: {alpha}")
-            interp = ("excellent" if alpha >= 0.9 else
-                      "good" if alpha >= 0.8 else
-                      "acceptable" if alpha >= 0.7 else
-                      "questionable" if alpha >= 0.6 else "poor")
-            print(f"   Interpretation: {interp}")
+            if alpha < 0:
+                # A negative alpha is almost never a real measurement phenomenon;
+                # it is a reverse-coding bug. Do NOT defend it as multidimensional.
+                print("   ⚠ NEGATIVE alpha — almost always a reverse-coding bug, "
+                      "not a 'multidimensional' construct.")
+                print("     Recode reverse-worded items (--reverse-items) and rerun "
+                      "BEFORE interpreting. See survey-scale-reliability.md.")
+            else:
+                interp = ("excellent" if alpha >= 0.9 else
+                          "good" if alpha >= 0.8 else
+                          "acceptable" if alpha >= 0.7 else
+                          "questionable" if alpha >= 0.6 else "poor")
+                print(f"   Interpretation: {interp}")
 
     # ── Group comparison ──────────────────────────────────────────────────────
     if args.group and args.group in df.columns:

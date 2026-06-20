@@ -40,6 +40,7 @@
 
 **Scripts** (`skills/clean-data/scripts/`):
 
+- `check_reverse_coding.py`
 - `check_structural_zero.py`
 
 ## Source
