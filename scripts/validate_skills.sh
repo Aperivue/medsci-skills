@@ -420,7 +420,7 @@ echo "========================================="
 # the same line is still caught. The author name is no longer spelled out here.
 META_FAIL=0
 META_SCANNED=0
-AUTHOR_ATTRIB_RE='^(README\.md|CITATION\.cff|paper\.md|\.zenodo\.json)$'
+AUTHOR_ATTRIB_RE='^(README\.md|CITATION\.cff|paper\.md|\.zenodo\.json|MAINTAINERS\.md)$'
 while IFS= read -r rel; do
   case "$rel" in
     scripts/validate_skills.sh|scripts/check_precedent.py|scripts/precedent_hashes.txt|scripts/precedent_author_hashes.txt) continue ;;  # self-exempt: blocklist machinery
