@@ -43,6 +43,7 @@ MODULES = (
     "rct_trial.md",
     "diagnostic_accuracy.md",
     "case_report.md",
+    "equity_fairness.md",
 )
 
 CANONICAL_REL = "skills/peer-review/references/domain-probes"

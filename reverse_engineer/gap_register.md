@@ -114,3 +114,4 @@ stop adding marginal items there).
 | id | shipped | skill | note |
 |----|---------|-------|------|
 | — | #128–#130 | peer-review/self-review/write-paper/analyze-stats/make-figures/check-reporting | optimistic-validation seam, exemplar trio, survival table, forest exemplar, critical-item floor, selective-outcome exemplar |
+| G45 | v4.6.0 PR-2 | peer-review/self-review | fairness/equity/subgroup-performance domain probe `equity_fairness.md` (EQ0–EQ6: disaggregated subgroup metrics, error-rate-vs-discrimination parity, named fairness estimand + gap test, development-cohort representativeness, subgroup EPV/power, equity-aware framing); vendored byte-identical, MODULES 11→12 |
