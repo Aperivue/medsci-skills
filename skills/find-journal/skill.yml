@@ -2,6 +2,7 @@ schema_version: 2
 name: find-journal
 layer: D
 owner_domain: journal_recommendation
+maturity: official
 
 when_to_use: "Recommend journals for a manuscript via two-pass matching against the public profile library plus any user-local private profiles."
 when_NOT_to_use: "Adding a journal to the database (use add-journal); building the submission package (use sync-submission)."

@@ -4,7 +4,7 @@
 
 **45 skills that actually work.** Built by a physician-researcher, tested on real publications.
 
-*MedSci Skills is a submission-grade clinical manuscript workflow, not a generic biomedical skill catalog. It competes on clinical submission reliability, not skill count.*
+*MedSci Skills is a submission-grade clinical manuscript workflow, not a generic biomedical skill catalog. Its moat is the compliance layer — 36 reporting guidelines and risk-of-bias tools, reference/citation verification, and deterministic integrity gates, before peer review sees the manuscript. It competes on clinical submission reliability, not skill count.*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Release](https://img.shields.io/github/v/release/Aperivue/medsci-skills?style=flat-square&color=blue)](https://github.com/Aperivue/medsci-skills/releases/latest)

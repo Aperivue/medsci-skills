@@ -2,6 +2,7 @@ schema_version: 2
 name: orchestrate
 layer: D
 owner_domain: orchestration
+maturity: official
 when_to_use:
   - User describes a research goal without naming a specific skill
   - Task spans multiple skills and the right pipeline is non-obvious

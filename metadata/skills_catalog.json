@@ -103,6 +103,7 @@
       "category_label": "Writing & Manuscript",
       "layer": "C",
       "owner_domain": "manuscript_optimization",
+      "maturity": "official",
       "description": "Medical AI paper optimization for AI search engines (Perplexity, ChatGPT web, Elicit, Consensus, SciSpace) and RAG-based literature tools."
     },
     {
@@ -111,6 +112,7 @@
       "category_label": "Submission & Journals",
       "layer": "C",
       "owner_domain": "journal_profile_authoring",
+      "maturity": "official",
       "description": "Add a new journal to the MedSci Skills profile database."
     },
     {
@@ -119,6 +121,7 @@
       "category_label": "Analysis & Figures",
       "layer": "B",
       "owner_domain": "statistical_analysis",
+      "maturity": "official",
       "description": "Statistical analysis for medical research papers."
     },
     {
@@ -127,6 +130,7 @@
       "category_label": "Project & Workflow",
       "layer": "D",
       "owner_domain": "author_profile_analysis",
+      "maturity": "official",
       "description": "PubMed author profile analysis."
     },
     {
@@ -135,6 +139,7 @@
       "category_label": "Analysis & Figures",
       "layer": "B",
       "owner_domain": "batch_analysis",
+      "maturity": "official",
       "description": "Generate N analysis scripts from a single methodology template × multiple exposure/outcome combinations."
     },
     {
@@ -143,6 +148,7 @@
       "category_label": "Data & Study Design",
       "layer": "A",
       "owner_domain": "study_design",
+      "maturity": "official",
       "description": "Interactive sample size calculator for medical research."
     },
     {
@@ -151,6 +157,7 @@
       "category_label": "Review & Compliance",
       "layer": "A",
       "owner_domain": "reporting_compliance",
+      "maturity": "official",
       "description": "Check manuscript compliance with medical research reporting guidelines."
     },
     {
@@ -159,6 +166,7 @@
       "category_label": "Data & Study Design",
       "layer": "B",
       "owner_domain": "data_preparation",
+      "maturity": "official",
       "description": "Interactive data profiling and cleaning assistant for medical research."
     },
     {
@@ -167,6 +175,7 @@
       "category_label": "Analysis & Figures",
       "layer": "B",
       "owner_domain": "cross_national_comparison",
+      "maturity": "official",
       "description": "End-to-end cross-national comparison study using KNHANES + NHANES + CHNS (or other parallel surveys)."
     },
     {
@@ -175,6 +184,7 @@
       "category_label": "Data & Study Design",
       "layer": "C",
       "owner_domain": "variable_operationalization",
+      "maturity": "official",
       "description": "Literature-grounded variable operationalization for observational research."
     },
     {
@@ -183,6 +193,7 @@
       "category_label": "Data & Study Design",
       "layer": "A",
       "owner_domain": "data_preparation",
+      "maturity": "official",
       "description": "De-identify clinical research data before LLM-assisted analysis."
     },
     {
@@ -191,6 +202,7 @@
       "category_label": "Data & Study Design",
       "layer": "D",
       "owner_domain": "study_design",
+      "maturity": "official",
       "description": "Design and validity review for studies that benchmark one or more AI systems against a human-expert panel as the reference."
     },
     {
@@ -199,6 +211,7 @@
       "category_label": "Data & Study Design",
       "layer": "D",
       "owner_domain": "study_design",
+      "maturity": "official",
       "description": "Study design and validity review for radiology and medical AI research."
     },
     {
@@ -207,6 +220,7 @@
       "category_label": "Submission & Journals",
       "layer": "A",
       "owner_domain": "form_filling",
+      "maturity": "official",
       "description": "Batch-generate per-author ICMJE Conflict of Interest Disclosure Forms (`coi_disclosure.docx`) for manuscript submission."
     },
     {
@@ -215,6 +229,7 @@
       "category_label": "Submission & Journals",
       "layer": "A",
       "owner_domain": "form_filling",
+      "maturity": "official",
       "description": "Fill institutional Word form templates (.doc/.docx) for IRB protocols, ethics applications, grant proposals, and other structured research documents while preserving the original styles, table layouts…"
     },
     {
@@ -223,6 +238,7 @@
       "category_label": "Project & Workflow",
       "layer": "D",
       "owner_domain": "research_gap_analysis",
+      "maturity": "official",
       "description": "Research gap finder for longitudinal cohort databases."
     },
     {
@@ -231,6 +247,7 @@
       "category_label": "Submission & Journals",
       "layer": "D",
       "owner_domain": "journal_recommendation",
+      "maturity": "official",
       "description": "Journal recommendation engine for medical manuscripts."
     },
     {
@@ -239,6 +256,7 @@
       "category_label": "Literature & References",
       "layer": "A",
       "owner_domain": "literature_discovery",
+      "maturity": "official",
       "description": "Batch download open-access PDFs by DOI using legitimate OA APIs (Unpaywall, PMC, OpenAlex, Crossref)."
     },
     {
@@ -247,6 +265,7 @@
       "category_label": "Data & Study Design",
       "layer": "A",
       "owner_domain": "data_documentation",
+      "maturity": "official",
       "description": "Generate a citable data dictionary / codebook from a tabular dataset (CSV/TSV/Excel/Parquet/Stata/SAS)."
     },
     {
@@ -255,6 +274,7 @@
       "category_label": "Submission & Journals",
       "layer": "C",
       "owner_domain": "grant_proposal",
+      "maturity": "official",
       "description": "Grant and challenge proposal support for radiology and medical AI projects."
     },
     {
@@ -263,6 +283,7 @@
       "category_label": "Writing & Manuscript",
       "layer": "C",
       "owner_domain": "ai_pattern_removal",
+      "maturity": "official",
       "description": "Detect and remove AI writing patterns from academic manuscripts and response-to-reviewers letters."
     },
     {
@@ -271,6 +292,7 @@
       "category_label": "Project & Workflow",
       "layer": "D",
       "owner_domain": "project_intake",
+      "maturity": "official",
       "description": "Intake and normalize a new radiology research project."
     },
     {
@@ -279,6 +301,7 @@
       "category_label": "Literature & References",
       "layer": "A",
       "owner_domain": "zotero_sync",
+      "maturity": "official",
       "description": "Sync research references from .bib files to Zotero library + Obsidian literature notes."
     },
     {
@@ -287,6 +310,7 @@
       "category_label": "Project & Workflow",
       "layer": "D",
       "owner_domain": "ma_topic_discovery",
+      "maturity": "official",
       "description": "Meta-analysis topic discovery and feasibility assessment."
     },
     {
@@ -295,6 +319,7 @@
       "category_label": "Analysis & Figures",
       "layer": "B",
       "owner_domain": "figure_generation",
+      "maturity": "official",
       "description": "Generate publication-ready figures and visual abstracts for medical research papers."
     },
     {
@@ -303,6 +328,7 @@
       "category_label": "Project & Workflow",
       "layer": "D",
       "owner_domain": "project_management",
+      "maturity": "official",
       "description": "Research project management for medical manuscripts."
     },
     {
@@ -311,6 +337,7 @@
       "category_label": "Literature & References",
       "layer": "A",
       "owner_domain": "manuscript_lifecycle",
+      "maturity": "official",
       "description": "Cross-cutting reference manager for medical manuscripts."
     },
     {
@@ -319,6 +346,7 @@
       "category_label": "Analysis & Figures",
       "layer": "B",
       "owner_domain": "meta_analysis_integrity",
+      "maturity": "official",
       "description": "Systematic review and meta-analysis pipeline for medical research."
     },
     {
@@ -327,6 +355,7 @@
       "category_label": "Project & Workflow",
       "layer": "D",
       "owner_domain": "orchestration",
+      "maturity": "official",
       "description": "General-purpose research orchestrator."
     },
     {
@@ -335,6 +364,7 @@
       "category_label": "Review & Compliance",
       "layer": "C",
       "owner_domain": "external_peer_review",
+      "maturity": "official",
       "description": "Peer review assistant for medical journals."
     },
     {
@@ -343,6 +373,7 @@
       "category_label": "Writing & Manuscript",
       "layer": "C",
       "owner_domain": "manuscript_optimization",
+      "maturity": "official",
       "description": "Academic English consistency linting and non-native (ESL) language polish for medical manuscripts."
     },
     {
@@ -351,6 +382,7 @@
       "category_label": "Presentation & Tooling",
       "layer": "C",
       "owner_domain": "presentation",
+      "maturity": "official",
       "description": "Academic presentation preparation — paper-driven (journal club, grand rounds, seminar) and lecture/teaching decks (course material, workshop slides, conference talks)."
     },
     {
@@ -359,6 +391,7 @@
       "category_label": "Presentation & Tooling",
       "layer": "B",
       "owner_domain": "skill_publishing",
+      "maturity": "official",
       "description": "Convert a personal agent skill into a distributable, open-source-ready skill."
     },
     {
@@ -367,6 +400,7 @@
       "category_label": "Presentation & Tooling",
       "layer": "A",
       "owner_domain": "document_layout",
+      "maturity": "official",
       "description": "Render academic Markdown documents (English or Korean) to publication-quality PDF via pandoc + xelatex."
     },
     {
@@ -375,6 +409,7 @@
       "category_label": "Analysis & Figures",
       "layer": "B",
       "owner_domain": "study_replication",
+      "maturity": "official",
       "description": "Replicate an existing cohort study's methodology on a different database."
     },
     {
@@ -383,6 +418,7 @@
       "category_label": "Writing & Manuscript",
       "layer": "C",
       "owner_domain": "manuscript_authoring",
+      "maturity": "official",
       "description": "Scaffold and draft medical/AI literature reviews (narrative, scoping PRISMA-ScR, or systematic)."
     },
     {
@@ -391,6 +427,7 @@
       "category_label": "Writing & Manuscript",
       "layer": "B",
       "owner_domain": "reviewer_response",
+      "maturity": "official",
       "description": "Parse peer reviewer comments and generate a structured Response to Reviewers document with tracked manuscript changes."
     },
     {
@@ -399,6 +436,7 @@
       "category_label": "Literature & References",
       "layer": "A",
       "owner_domain": "literature_discovery",
+      "maturity": "official",
       "description": "Literature search and citation management for medical research."
     },
     {
@@ -407,6 +445,7 @@
       "category_label": "Review & Compliance",
       "layer": "D",
       "owner_domain": "own_manuscript_critique",
+      "maturity": "official",
       "description": "Pre-submission self-review for the user's own manuscripts, applying a reviewer perspective."
     },
     {
@@ -415,6 +454,7 @@
       "category_label": "Presentation & Tooling",
       "layer": "A",
       "owner_domain": "environment_setup",
+      "maturity": "official",
       "description": "Diagnostic checklist for the MedSci Skills runtime."
     },
     {
@@ -423,6 +463,7 @@
       "category_label": "Submission & Journals",
       "layer": "A",
       "owner_domain": "submission_packaging",
+      "maturity": "official",
       "description": "Audit SSOT-to-submission drift and create journal submission manifests from canonical manuscript artifacts."
     },
     {
@@ -431,6 +472,7 @@
       "category_label": "Literature & References",
       "layer": "A",
       "owner_domain": "reference_integrity",
+      "maturity": "official",
       "description": "Audit-only verification of manuscript references against PubMed and CrossRef."
     },
     {
@@ -439,6 +481,7 @@
       "category_label": "Data & Study Design",
       "layer": "A",
       "owner_domain": "dataset_versioning",
+      "maturity": "official",
       "description": "Dataset version control for research reproducibility."
     },
     {
@@ -447,6 +490,7 @@
       "category_label": "Writing & Manuscript",
       "layer": "C",
       "owner_domain": "manuscript_drafting",
+      "maturity": "official",
       "description": "Full-pipeline medical/scientific paper writing."
     },
     {
@@ -455,6 +499,7 @@
       "category_label": "Writing & Manuscript",
       "layer": "C",
       "owner_domain": "protocol_drafting",
+      "maturity": "official",
       "description": "IRB/ethics committee research protocol generator."
     }
   ]

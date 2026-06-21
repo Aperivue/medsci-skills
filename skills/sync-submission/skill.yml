@@ -2,6 +2,7 @@ schema_version: 2
 name: sync-submission
 layer: A
 owner_domain: submission_packaging
+maturity: official
 when_to_use:
   - Auditing SSOT-to-submission drift before freezing a journal package
   - Building a journal-specific submission manifest from canonical manuscript artifacts

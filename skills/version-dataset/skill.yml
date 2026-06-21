@@ -2,6 +2,7 @@ schema_version: 2
 name: version-dataset
 layer: A
 owner_domain: dataset_versioning
+maturity: official
 
 when_to_use: "Version-control a dataset with SHA-256 manifests for reproducibility."
 when_NOT_to_use: "Cleaning the data (use clean-data); documenting variables (use generate-codebook)."

@@ -194,8 +194,11 @@ def build(skills_dir: Path = SKILLS_DIR) -> dict:
         yml_text = yml.read_text(encoding="utf-8")
         owner_domain = _yml_scalar(yml_text, "owner_domain")
         layer = _yml_scalar(yml_text, "layer")
+        maturity = _yml_scalar(yml_text, "maturity")
         if not owner_domain:
             raise SkillError(f"{slug}: skill.yml has no 'owner_domain'")
+        if not maturity:
+            raise SkillError(f"{slug}: skill.yml has no 'maturity' (official/experimental/community)")
         if owner_domain not in CATEGORY_BY_OWNER_DOMAIN:
             raise SkillError(
                 f"{slug}: owner_domain '{owner_domain}' is not mapped to a category in "
@@ -208,6 +211,7 @@ def build(skills_dir: Path = SKILLS_DIR) -> dict:
             "category_label": cat_label,
             "layer": layer or "",
             "owner_domain": owner_domain,
+            "maturity": maturity,
             "description": short_desc(desc),
         })
 

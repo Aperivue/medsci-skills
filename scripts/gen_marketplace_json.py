@@ -49,10 +49,11 @@ OUT = ROOT / ".claude-plugin" / "marketplace.json"
 SCHEMA_URL = "https://json.schemastore.org/claude-code-marketplace.json"
 MARKETPLACE_NAME = "medsci-skills"  # not a reserved name
 MARKETPLACE_DESCRIPTION = (
-    "Physician-built Claude Code skills for the full medical research lifecycle — "
-    "literature search with anti-hallucination citation verification, study design, "
-    "statistics, publication-ready figures, IMRAD manuscript drafting, "
-    "reporting-compliance audits, journal selection, peer review, and revision."
+    "Physician-built Claude Code skills for clinical manuscript preparation, with "
+    "deterministic integrity gates — reporting-guideline and risk-of-bias compliance, "
+    "reference/citation verification, and numerical-consistency checks — plus literature "
+    "search, study design, statistics, publication-ready figures, IMRAD drafting, journal "
+    "selection, peer review, and revision. Submission-grade, not a generic skill catalog."
 )
 OWNER = {"name": "Aperivue"}  # public org; no personal email (PII-safe)
 

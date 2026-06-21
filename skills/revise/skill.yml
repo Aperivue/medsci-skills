@@ -2,6 +2,7 @@ schema_version: 2
 name: revise
 layer: B
 owner_domain: reviewer_response
+maturity: official
 when_to_use:
   - User received reviewer comments and needs a structured response-to-reviewers letter
   - Coordinating new analyses or figures triggered by reviewer requests (delegates to /analyze-stats, /make-figures)

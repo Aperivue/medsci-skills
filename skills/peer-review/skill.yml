@@ -2,6 +2,7 @@ schema_version: 2
 name: peer-review
 layer: C
 owner_domain: external_peer_review
+maturity: official
 when_to_use:
   - User received a journal review invitation and needs a structured review draft
   - Drafting reviewer comments for a specific journal's review template (RYAI / INSI / EURE / AJR / KJR)

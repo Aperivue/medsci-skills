@@ -2,6 +2,7 @@ schema_version: 2
 name: academic-aio
 layer: C
 owner_domain: manuscript_optimization
+maturity: official
 
 when_to_use: "Optimize a medical-AI manuscript's title, abstract, and structured summary boxes for AI search engines and RAG tools, integrating TRIPOD+AI/CLAIM/STARD-AI reporting requirements."
 when_NOT_to_use: "Drafting a manuscript from scratch (use write-paper); removing AI writing tells (use humanize)."

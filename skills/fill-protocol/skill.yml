@@ -2,6 +2,7 @@ schema_version: 2
 name: fill-protocol
 layer: A
 owner_domain: form_filling
+maturity: official
 
 when_to_use: "Fill an institutional Word (.doc/.docx) template (IRB protocol, ethics application, grant form) while preserving styles, tables, fonts, and page geometry."
 when_NOT_to_use: "Drafting the scientific content (use write-protocol); ICMJE COI forms (use fill-icmje-coi)."

@@ -2,6 +2,7 @@ schema_version: 2
 name: humanize
 layer: C
 owner_domain: ai_pattern_removal
+maturity: official
 
 when_to_use: "Detect and remove the 18 common AI-writing patterns from an academic manuscript while preserving technical accuracy."
 when_NOT_to_use: "Drafting content (use write-paper); AI-search optimization (use academic-aio)."

@@ -2,6 +2,7 @@ schema_version: 2
 name: present-paper
 layer: C
 owner_domain: presentation
+maturity: official
 
 when_to_use: "Prepare academic presentations (journal club, grand rounds, seminar, lecture/teaching decks): analyze source, find references, draft audience-adapted scripts, and generate/augment PPTX with speaker notes."
 when_NOT_to_use: "Drafting a manuscript (use write-paper); building figures for a paper (use make-figures)."

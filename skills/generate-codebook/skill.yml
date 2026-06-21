@@ -2,6 +2,7 @@ schema_version: 2
 name: generate-codebook
 layer: A
 owner_domain: data_documentation
+maturity: official
 
 when_to_use: "Generate a data dictionary and codebook from a dataset."
 when_NOT_to_use: "Cleaning the data (use clean-data); versioning the dataset (use version-dataset)."

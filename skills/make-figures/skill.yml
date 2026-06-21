@@ -3,6 +3,7 @@ name: make-figures
 version: 1.1.0
 layer: B
 owner_domain: figure_generation
+maturity: official
 when_to_use:
   - User requests a figure, plot, diagram, or visual abstract for a medical research manuscript
   - Triggered by /write-paper Phase 5 (figure generation step)

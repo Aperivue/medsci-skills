@@ -2,6 +2,7 @@ schema_version: 2
 name: self-review
 layer: D
 owner_domain: own_manuscript_critique
+maturity: official
 when_to_use:
   - Pre-submission self-criticism on the user's own manuscript across 10 review categories
   - Generating Anticipated Major / Minor Comments before sending to senior co-authors

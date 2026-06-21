@@ -2,6 +2,7 @@ schema_version: 2
 name: search-lit
 layer: A
 owner_domain: literature_discovery
+maturity: official
 when_to_use:
   - User asks to find papers, related work, citations, or background literature on a topic
   - Generating a verified candidate citation pool (PubMed / Semantic Scholar / bioRxiv / medRxiv)

@@ -2,6 +2,7 @@ schema_version: 2
 name: find-cohort-gap
 layer: D
 owner_domain: research_gap_analysis
+maturity: official
 
 when_to_use: "Find research gaps in a longitudinal cohort DB by profiling its strengths, matching PI expertise, and scanning literature saturation."
 when_NOT_to_use: "Finding meta-analysis topics (use ma-scout); designing a chosen study (use design-study)."

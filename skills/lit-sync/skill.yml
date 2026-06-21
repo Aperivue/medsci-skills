@@ -2,6 +2,7 @@ schema_version: 2
 name: lit-sync
 layer: A
 owner_domain: zotero_sync
+maturity: official
 when_to_use:
   - User wants to add PMIDs / DOIs / Zotero collection items to the project library
   - After /search-lit when verified candidates need to flow into Zotero + refs.bib

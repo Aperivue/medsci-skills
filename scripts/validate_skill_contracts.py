@@ -46,6 +46,7 @@ REQUIRED_V2 = {
     "name",
     "layer",
     "owner_domain",
+    "maturity",
     "when_to_use",
     "when_NOT_to_use",
     "inputs",
@@ -56,6 +57,11 @@ REQUIRED_V2 = {
 }
 
 VALID_LAYERS = {"A", "B", "C", "D"}
+# Maturity taxonomy (skill.yml v2.2, additive — schema_version stays 2):
+#   official     — founder-approved, documented, shipped in the catalog (all current skills).
+#   experimental — useful but not fully tested; may change; no strong reliability claim.
+#   community    — external contribution, not founder-validated; clearly labeled.
+VALID_MATURITY = {"official", "experimental", "community"}
 
 # Schema v2.1 quality-card extension (all optional).
 VALID_EVIDENCE_SURFACE = {
@@ -151,6 +157,10 @@ def validate_v2(path: Path, skill_name: str, text: str, keys: set[str]) -> list[
     layer_val = extract_scalar(text, "layer")
     if layer_val and layer_val not in VALID_LAYERS:
         errors.append(f"layer invalid: {layer_val!r} (must be A/B/C/D)")
+
+    maturity_val = extract_scalar(text, "maturity")
+    if maturity_val and maturity_val not in VALID_MATURITY:
+        errors.append(f"maturity invalid: {maturity_val!r} (must be official/experimental/community)")
 
     for key in LIST_FIELDS & keys:
         if not list_has_item(text, key):

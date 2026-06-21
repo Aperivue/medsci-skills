@@ -2,6 +2,7 @@ schema_version: 2
 name: author-strategy
 layer: D
 owner_domain: author_profile_analysis
+maturity: official
 
 when_to_use: "Analyze a PubMed author profile (study-type mix, trends) and produce a strategy report; optionally classify the trajectory into explainable career archetypes (A1-A6) after an author-disambiguation gate."
 when_NOT_to_use: "Finding meta-analysis topics (use ma-scout); literature search for a manuscript (use search-lit)."

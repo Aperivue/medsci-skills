@@ -2,6 +2,7 @@ schema_version: 2
 name: deidentify
 layer: A
 owner_domain: data_preparation
+maturity: official
 
 when_to_use: "De-identify clinical CSV/TSV/Excel data locally before any LLM-assisted analysis."
 when_NOT_to_use: "General data cleaning or type fixing (use clean-data). Never to have the agent itself read, paste, or process raw PHI."

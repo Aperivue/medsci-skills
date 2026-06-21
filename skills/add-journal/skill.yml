@@ -2,6 +2,7 @@ schema_version: 2
 name: add-journal
 layer: C
 owner_domain: journal_profile_authoring
+maturity: official
 
 when_to_use: "Add a new journal to the profile database from its author guidelines, generating both write-paper (detailed) and find-journal (compact) profiles."
 when_NOT_to_use: "Recommending a journal for a manuscript (use find-journal)."

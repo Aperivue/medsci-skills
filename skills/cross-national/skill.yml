@@ -2,6 +2,7 @@ schema_version: 2
 name: cross-national
 layer: B
 owner_domain: cross_national_comparison
+maturity: official
 
 when_to_use: "Run a cross-national comparison (KNHANES + NHANES + CHNS or similar) with harmonized variables and parallel weighted analysis."
 when_NOT_to_use: "Single-cohort analysis (use analyze-stats); replicating one study on one DB (use replicate-study)."

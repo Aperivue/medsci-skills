@@ -2,6 +2,7 @@ schema_version: 2
 name: design-study
 layer: D
 owner_domain: study_design
+maturity: official
 
 when_to_use: "Review study design and validity (analysis unit, cohort logic, leakage, comparator, validation, reporting fit) before drafting or submission."
 when_NOT_to_use: "Sample-size math (use calc-sample-size); variable definitions (use define-variables)."

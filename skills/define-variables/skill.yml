@@ -2,6 +2,7 @@ schema_version: 2
 name: define-variables
 layer: C
 owner_domain: variable_operationalization
+maturity: official
 
 when_to_use: "Turn a data dictionary + research question into a citation-backed table of exposure/outcome/covariate definitions, cutoffs, and DB variable mappings."
 when_NOT_to_use: "Drafting Methods prose (use write-protocol/write-paper); finding literature (use search-lit)."

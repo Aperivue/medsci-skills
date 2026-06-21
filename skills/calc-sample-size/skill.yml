@@ -2,6 +2,7 @@ schema_version: 2
 name: calc-sample-size
 layer: A
 owner_domain: study_design
+maturity: official
 when_to_use:
   - User asks for a sample size, power calculation, or "how many patients/subjects do I need"
   - Drafting an IRB sample size justification before /write-protocol Methods

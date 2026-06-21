@@ -2,6 +2,7 @@ schema_version: 2
 name: ma-scout
 layer: D
 owner_domain: ma_topic_discovery
+maturity: official
 
 when_to_use: "Discover and assess meta-analysis topics, either from a professor's publication profile or from a clinical question/trend."
 when_NOT_to_use: "Running the meta-analysis (use meta-analysis); single-author profiling (use author-strategy)."

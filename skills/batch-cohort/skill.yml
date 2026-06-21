@@ -2,6 +2,7 @@ schema_version: 2
 name: batch-cohort
 layer: B
 owner_domain: batch_analysis
+maturity: official
 
 when_to_use: "Generate N analysis scripts from one validated methodology template across many exposure/outcome combinations."
 when_NOT_to_use: "A single analysis (use analyze-stats); cross-country comparison (use cross-national)."

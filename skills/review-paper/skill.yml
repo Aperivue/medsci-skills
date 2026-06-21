@@ -2,6 +2,7 @@ schema_version: 2
 name: review-paper
 layer: C
 owner_domain: manuscript_authoring
+maturity: official
 
 when_to_use: "Scaffold and draft a literature review (narrative / scoping / systematic) for medical/AI research, organized around an explicit spine axis with a non-overlap boundary and reporting-guideline wiring."
 when_NOT_to_use: "Original research articles, case reports, meta-analyses with pooled synthesis (use write-paper / meta-analysis). Pre-protocol topic discovery (use ma-scout)."

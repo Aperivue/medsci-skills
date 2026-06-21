@@ -33,6 +33,7 @@ Validator rule: `layer` is required and must be one of `A`, `B`, `C`, `D`.
 | `name` | yes | str | Must equal parent directory name. |
 | `layer` | yes | enum | `A` / `B` / `C` / `D`. |
 | `owner_domain` | yes | str | Key from `capabilities.yml`. |
+| `maturity` | yes | enum | `official` / `experimental` / `community` (v2.2 — see below). |
 | `when_to_use` | yes | str | One-sentence trigger description. |
 | `when_NOT_to_use` | yes | str | Anti-trigger / routing guard. |
 | `exclusive_with` | no | list[str] | Skills that MUST NOT run concurrently in same project. |
@@ -140,6 +141,24 @@ validation_commands:
 evidence_surface: demo   # exercised end-to-end by demo/02_metafor_bcg
 ```
 
+## Maturity taxonomy (v2.2, required)
+
+`maturity` is an **additive** field — `schema_version` stays `2` — but, unlike the
+optional v2.1 quality-card fields, it is **required** and validated against an enum, so a
+new skill cannot silently omit it. It separates founder-approved official skills from
+experimental or community contributions for the storefront and for contributors.
+
+| Value | Operating criteria |
+|---|---|
+| `official` | Founder-approved, documented, shipped in the catalog. Every skill currently in this repository is `official` — they are all founder-authored and maintained. |
+| `experimental` | Useful but not fully tested; may change; carries no strong reliability claim. Label a skill this way when it is shipped for feedback rather than as a stable contract. |
+| `community` | An external contribution that is not founder-validated; clearly labeled so users know to review/adapt it locally. |
+
+Classify by these criteria — do not blanket-default a new skill to `official`. The
+validator (`scripts/validate_skill_contracts.py`, `VALID_MATURITY`) requires the field and
+rejects any other value; `scripts/gen_skills_catalog_json.py` emits it into
+`metadata/skills_catalog.json` for the storefront.
+
 ## v1 → v2 migration guide
 
 1. Add `schema_version: 2`.
@@ -157,6 +176,7 @@ schema_version: 2
 name: write-paper
 layer: C
 owner_domain: manuscript_drafting
+maturity: official
 
 when_to_use: "Draft original manuscript or section from scratch."
 when_NOT_to_use: "Revising existing text; use revise. Tone cleanup; use humanize."

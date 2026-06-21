@@ -2,6 +2,7 @@ schema_version: 2
 name: check-reporting
 layer: A
 owner_domain: reporting_compliance
+maturity: official
 when_to_use:
   - Pre-submission item-level checklist run for a target reporting guideline (STROBE / CONSORT / STARD / TRIPOD / PRISMA / ARRIVE / CARE / SPIRIT / CLAIM / SQUIRE 2.0 / etc.)
   - Risk-of-bias assessment using QUADAS-2 / QUADAS-C / RoB 2 / ROBINS-I / ROBINS-E / ROBIS / PROBAST / NOS / COSMIN / RoB NMA

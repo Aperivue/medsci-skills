@@ -2,6 +2,7 @@ schema_version: 2
 name: meta-analysis
 layer: B
 owner_domain: meta_analysis_integrity
+maturity: official
 when_to_use:
   - Running an end-to-end systematic review or meta-analysis (PROSPERO → search → screen → extract → synthesis → PRISMA)
   - Diagnostic test accuracy meta-analysis (bivariate / HSROC) or intervention meta-analysis (random-effects)

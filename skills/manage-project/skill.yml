@@ -2,6 +2,7 @@ schema_version: 2
 name: manage-project
 layer: D
 owner_domain: project_management
+maturity: official
 
 when_to_use: "Manage a manuscript project: scaffold structure, track writing progress across phases, maintain memory, and generate checklists and backwards timelines."
 when_NOT_to_use: "First-time intake of a messy project (use intake-project)."

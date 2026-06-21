@@ -2,6 +2,7 @@ schema_version: 2
 name: intake-project
 layer: D
 owner_domain: project_intake
+maturity: official
 
 when_to_use: "Intake and normalize a new research project: classify type, summarize state, flag missing inputs, recommend next steps, and scaffold lightweight memory files."
 when_NOT_to_use: "Ongoing project tracking (use manage-project)."

@@ -2,6 +2,7 @@ schema_version: 2
 name: write-paper
 layer: C
 owner_domain: manuscript_drafting
+maturity: official
 when_to_use:
   - Drafting an original medical/scientific manuscript from outline (8-phase IMRAD workflow)
   - Original article, case report, meta-analysis report, AI validation study, animal study, or technical note

@@ -2,6 +2,7 @@ schema_version: 2
 name: verify-refs
 layer: A
 owner_domain: reference_integrity
+maturity: official
 when_to_use:
   - Audit-only verification of manuscript references against PubMed and CrossRef
   - Pre-submission citation hallucination check (PostToolUse hook trigger on circulation/submission docx)

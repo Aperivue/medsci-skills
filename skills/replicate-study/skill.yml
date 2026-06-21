@@ -2,6 +2,7 @@ schema_version: 2
 name: replicate-study
 layer: B
 owner_domain: study_replication
+maturity: official
 
 when_to_use: "Replicate an existing cohort study's methodology on a different database via a variable harmonization table and a replication difference report."
 when_NOT_to_use: "Comparing countries in parallel (use cross-national); a fresh single analysis (use analyze-stats)."

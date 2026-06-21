@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
   "name": "medsci-skills",
-  "description": "Physician-built Claude Code skills for the full medical research lifecycle — literature search with anti-hallucination citation verification, study design, statistics, publication-ready figures, IMRAD manuscript drafting, reporting-compliance audits, journal selection, peer review, and revision.",
+  "description": "Physician-built Claude Code skills for clinical manuscript preparation, with deterministic integrity gates — reporting-guideline and risk-of-bias compliance, reference/citation verification, and numerical-consistency checks — plus literature search, study design, statistics, publication-ready figures, IMRAD drafting, journal selection, peer review, and revision. Submission-grade, not a generic skill catalog.",
   "owner": {
     "name": "Aperivue"
   },

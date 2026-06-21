@@ -2,6 +2,7 @@ schema_version: 2
 name: clean-data
 layer: B
 owner_domain: data_preparation
+maturity: official
 
 when_to_use: "Profile and clean clinical CSV/Excel data through a three-stage workflow with user approval at each gate."
 when_NOT_to_use: "Removing PHI (use deidentify); statistical analysis (use analyze-stats)."

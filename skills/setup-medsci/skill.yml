@@ -2,6 +2,7 @@ schema_version: 2
 name: setup-medsci
 layer: A
 owner_domain: environment_setup
+maturity: official
 
 when_to_use: "Set up the local environment for MedSci Skills (dependencies, tooling checks)."
 when_NOT_to_use: "Installing the skills themselves (use installers/install.py)."
