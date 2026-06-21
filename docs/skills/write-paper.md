@@ -45,6 +45,7 @@
 - `exemplar_results/` (4 files)
 - `journal_profiles/` (55 files)
 - `paper_types/` (10 files)
+- `phase7_integrity_audits.md`
 - `section_guides/` (7 files)
 - `section_templates/` (1 file)
 
