@@ -17,10 +17,13 @@
   "files": [
     "skills/",
     "installers/install.py",
+    "installers/medsci_txn.py",
     "installers/install-macos.command",
     "installers/install-windows.cmd",
     "installers/install-windows.ps1",
     "metadata/skills_catalog.json",
+    "metadata/distribution_manifest.json",
+    "metadata/distribution_files.json",
     "bin/medsci-skills.js",
     "README.md",
     "README_FIRST.md",

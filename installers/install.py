@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Install MedSci Skills for local agent apps.
 
-This installer is intentionally conservative and dependency-free. It copies the
-repository's skills into common local skill folders and optionally writes a
-small Cursor project rule that tells Cursor where to find the skills.
+Dependency-free. Installs the repository's skills into common local skill folders via a
+**transactional, crash-recoverable** install (see installers/medsci_txn.py) so an
+interrupted install is recovered on the next run, and optionally writes a small Cursor
+project rule. No network access here.
 """
 
 from __future__ import annotations
@@ -11,10 +12,11 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import os
-import shutil
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))  # allow `import medsci_txn` when run as a script
+import medsci_txn  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SKILLS_DIR = REPO_ROOT / "skills"
@@ -53,20 +55,20 @@ def copy_skills(target: str, dest: Path, log_lines: list[str], dry_run: bool) ->
     if not SKILLS_DIR.exists():
         raise FileNotFoundError(f"skills directory not found: {SKILLS_DIR}")
 
-    skill_dirs = sorted(p for p in SKILLS_DIR.iterdir() if p.is_dir() and (p / "SKILL.md").exists())
-    log(f"\n[{target}] installing {len(skill_dirs)} skills to {dest}", log_lines)
+    owned = sorted(p.name for p in SKILLS_DIR.iterdir() if p.is_dir() and (p / "SKILL.md").exists())
+    log(f"\n[{target}] installing {len(owned)} skills to {dest}", log_lines)
 
     if dry_run:
-        for skill in skill_dirs:
-            log(f"  DRY RUN copy {skill.name}", log_lines)
-        return len(skill_dirs)
+        for name in owned:
+            log(f"  DRY RUN install {name}", log_lines)
+        return len(owned)
 
-    dest.mkdir(parents=True, exist_ok=True)
-    for skill in skill_dirs:
-        shutil.copytree(skill, dest / skill.name, dirs_exist_ok=True)
-        log(f"  installed {skill.name}", log_lines)
-    verify_discoverable(dest, [s.name for s in skill_dirs], log_lines)
-    return len(skill_dirs)
+    result = medsci_txn.install_target(
+        SKILLS_DIR, dest, target, owned, medsci_txn.state_home(),
+        lambda m: log(m, log_lines),
+    )
+    verify_discoverable(dest, owned, log_lines)
+    return result["installed"]
 
 
 def install_cursor_rule(project: Path, log_lines: list[str], dry_run: bool) -> None:
@@ -116,29 +118,44 @@ def run_self_test() -> int:
     problems: list[str] = []
     sink: list[str] = []
 
-    # Snapshot real host dirs to prove the self-test never creates them.
+    # Snapshot real host + state dirs to prove the self-test never creates them.
     host_dirs = [default_target_dir("claude"), default_target_dir("codex")]
-    existed_before = {d: d.exists() for d in host_dirs}
+    real_state = medsci_txn.state_home()
+    watched = host_dirs + [real_state]
+    existed_before = {d: d.exists() for d in watched}
 
+    prev_home = os.environ.get("MEDSCI_HOME")
     with tempfile.TemporaryDirectory(prefix="medsci-selftest-") as tmp:
         tmp_path = Path(tmp)
-        dest = tmp_path / "skills"
+        os.environ["MEDSCI_HOME"] = str(tmp_path / "state")  # isolate transactional state to temp
         try:
-            copied = copy_skills("self-test", dest, sink, dry_run=False)  # includes verify_discoverable
-        except Exception as exc:  # noqa: BLE001
-            problems.append(f"copy/verify raised: {exc}")
-            copied = -1
-        if copied != n:
-            problems.append(f"copied {copied} != source skill count {n}")
+            dest = tmp_path / "skills"
+            try:
+                copied = copy_skills("self-test", dest, sink, dry_run=False)  # transactional + verify
+            except Exception as exc:  # noqa: BLE001
+                problems.append(f"install/verify raised: {exc}")
+                copied = -1
+            if copied != n:
+                problems.append(f"installed {copied} != source skill count {n}")
+            # a second install must be idempotent (recovery + re-commit, no error)
+            try:
+                copy_skills("self-test", dest, sink, dry_run=False)
+            except Exception as exc:  # noqa: BLE001
+                problems.append(f"second (idempotent) install raised: {exc}")
 
-        proj = tmp_path / "project"
-        install_cursor_rule(proj, sink, dry_run=False)
-        if not (proj / ".cursor" / "rules" / "medsci-skills.mdc").is_file():
-            problems.append("cursor project rule was not written")
+            proj = tmp_path / "project"
+            install_cursor_rule(proj, sink, dry_run=False)
+            if not (proj / ".cursor" / "rules" / "medsci-skills.mdc").is_file():
+                problems.append("cursor project rule was not written")
+        finally:
+            if prev_home is None:
+                os.environ.pop("MEDSCI_HOME", None)
+            else:
+                os.environ["MEDSCI_HOME"] = prev_home
 
-    for d in host_dirs:
+    for d in watched:
         if not existed_before[d] and d.exists():
-            problems.append(f"self-test created a real host dir: {d}")
+            problems.append(f"self-test created a real dir: {d}")
 
     print("MedSci Skills installer self-test")
     print(f"  source skills: {n}")
@@ -146,7 +163,7 @@ def run_self_test() -> int:
         for p in problems:
             print(f"  FAIL: {p}")
         return 1
-    print(f"  OK: {n}/{n} skills discoverable in temp target; cursor rule written; no host dir touched")
+    print(f"  OK: {n}/{n} skills discoverable in temp target; idempotent; cursor rule written; no host/state dir touched")
     return 0
 
 
@@ -190,25 +207,37 @@ def main() -> int:
     log(f"Python: {sys.version.split()[0]}", log_lines)
     log(f"OS: {os.name}", log_lines)
 
+    # Each target is an independent transaction: a failure on one (e.g. a fail-closed corrupt
+    # journal) is logged and the others still proceed; successful targets are fully committed.
+    targets = [t for t in ("claude", "codex") if args.target in {"all", t}]
+    failures: list[str] = []
+    for t in targets:
+        try:
+            copy_skills(t, default_target_dir(t), log_lines, args.dry_run)
+        except Exception as exc:  # noqa: BLE001 - classroom installer shows friendly per-target errors.
+            failures.append(t)
+            log(f"\n[{t}] FAILED: {exc}", log_lines)
+            log(f"  [{t}] left unchanged (transactional); other targets continue.", log_lines)
+
     try:
-        if args.target in {"all", "claude"}:
-            copy_skills("claude", default_target_dir("claude"), log_lines, args.dry_run)
-        if args.target in {"all", "codex"}:
-            copy_skills("codex", default_target_dir("codex"), log_lines, args.dry_run)
         if args.target == "cursor" and not args.cursor_project:
             log("\n[cursor] skipped: pass --cursor-project <folder> to install a Cursor rule.", log_lines)
         if args.cursor_project:
             install_cursor_rule(args.cursor_project.expanduser().resolve(), log_lines, args.dry_run)
+    except Exception as exc:  # noqa: BLE001
+        failures.append("cursor")
+        log(f"\n[cursor] FAILED: {exc}", log_lines)
 
-        log("\nDone. Restart Claude Code, Codex, or Cursor before testing the skills.", log_lines)
-        log("First test prompt:", log_lines)
-        log("MedSci Skills가 설치됐는지 확인하고, 오늘 실습에 쓸 대표 스킬 5개만 보여줘.", log_lines)
-    except Exception as exc:  # noqa: BLE001 - classroom installer should show friendly errors.
-        log(f"\nERROR: {exc}", log_lines)
+    if failures:
+        log(f"\nCompleted with errors on: {', '.join(failures)}. Other targets are fully installed.", log_lines)
         log("If this happened during class, send the install log to the instructor.", log_lines)
-        write_log(log_lines)
+        log_path = write_log(log_lines)
+        print(f"\nInstall log: {log_path}")
         return 1
 
+    log("\nDone. Restart Claude Code, Codex, or Cursor before testing the skills.", log_lines)
+    log("First test prompt:", log_lines)
+    log("MedSci Skills가 설치됐는지 확인하고, 오늘 실습에 쓸 대표 스킬 5개만 보여줘.", log_lines)
     log_path = write_log(log_lines)
     print(f"\nInstall log: {log_path}")
     return 0
