@@ -17,9 +17,15 @@ INCLUDE_PATHS = [
     "README_FIRST.md",
     "installers",
     "skills",
+    # Self-update foundation: the version/ownership manifest + the file inventory the
+    # updater (PR-1b) uses as its safe-extraction allowlist. Deterministic, tracked.
+    "metadata/distribution_manifest.json",
+    "metadata/distribution_files.json",
 ]
 
-EXCLUDE_DIR_NAMES = {"__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache", "node_modules", ".git"}
+# "tests" excluded so installer dev tests are not shipped to classroom users; this keeps the
+# ZIP payload identical to metadata/distribution_files.json (which also excludes tests).
+EXCLUDE_DIR_NAMES = {"__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache", "node_modules", ".git", "tests"}
 EXCLUDE_FILE_NAMES = {
     ".DS_Store",
     "Thumbs.db",

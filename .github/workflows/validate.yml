@@ -30,6 +30,22 @@ jobs:
       - name: Run validate_skills.sh (PII + structure)
         run: bash scripts/validate_skills.sh
 
+      # --- self-update foundation (PR-1a): manifests, version drift, transactional installer ---
+      - name: Distribution manifests in sync (gen_distribution_manifest.py --check)
+        run: python3 scripts/gen_distribution_manifest.py --check
+
+      - name: Version consistency (CITATION == package.json == distribution_manifest)
+        run: python3 scripts/check_version_consistency.py
+
+      - name: Distribution manifest + scope-pinning test
+        run: python3 installers/tests/test_distribution_manifest.py
+
+      - name: Transactional installer crash-recovery + legacy-migration test
+        run: python3 installers/tests/test_txn.py
+
+      - name: install.py transactional self-test (no host/state dir touched)
+        run: python3 installers/install.py --self-test
+
       - name: Run validate_routing_assets.py (SKILL.md asset references must exist)
         run: python3 scripts/validate_routing_assets.py --strict
 
@@ -202,3 +218,20 @@ jobs:
 
       - name: npm pack content audit (real pack, package/ prefix normalized)
         run: python3 scripts/check_npm_package_contents.py --real
+
+  # Cross-platform safety for the transactional installer (PR-1a). Ubuntu-only CI cannot
+  # assert Windows path/journal/os.replace behavior; these run the crash-recovery +
+  # legacy-migration tests and the transactional self-test on Windows. (Hash-based manifest
+  # --check stays Ubuntu-only — it is sensitive to checkout line endings, not OS behavior.)
+  foundation-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Transactional installer crash-recovery + legacy-migration test (Windows)
+        run: python installers/tests/test_txn.py
+      - name: install.py transactional self-test (Windows)
+        run: python installers/install.py --self-test
