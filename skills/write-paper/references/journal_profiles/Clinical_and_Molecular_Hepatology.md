@@ -8,9 +8,10 @@
 - **ISSN**: 2287-2728 (print), 2287-285X (online)
 - **Frequency**: Quarterly (January, April, July, October)
 - **Impact Factor**: [TODO: verify at JCR]
-- **Open Access**: Full OA (APC US$1,500 since February 2024; previously US$1,000)
+- **Open Access**: Full OA. APC **US$2,000** for original and unsolicited review articles submitted on/after 1 February 2026 (previously US$1,500 from February 2024, US$1,000 before)
 - **Acceptance rate**: [TODO: verify at journal site]
 - **Peer review**: Blind peer review; ≥2 referees; first decision in approximately 1 month; fast-track option (7-day first decision) available for additional US$1,000
+- **Blinded-submission file handling**: Main Document must carry no author-identifying information; the title page is a separate file. The portal file-designation dropdown has **no "Title Page" option** — upload the title page (and the ICMJE COI forms, which name authors) as **"Supplemental File NOT for Review"** so they are excluded from the blinded reviewer packet. Blinded supplementary and reporting checklists may be "Supplemental File for Review"; the graphical abstract is "Graphic Abstract".
 
 ## Manuscript Types and Word Limits
 
