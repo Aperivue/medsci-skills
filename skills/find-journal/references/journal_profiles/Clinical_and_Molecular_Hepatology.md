@@ -25,8 +25,8 @@ hepatology, liver disease, MASLD, NAFLD, MetALD, ALD, chronic hepatitis B, chron
 
 ## Classification
 - **Tier:** Q1 hepatology
-- **Open Access:** Full OA (APC US$1,500 since 2024-02-05)
+- **Open Access:** Full OA (APC US$2,000 for original/review articles submitted on/after 2026-02-01; was US$1,500 from 2024-02)
 - **Field:** hepatology, observational cohort epidemiology, Korean/Asian clinical research
 
 ## Special Notes
-KASL flagship journal with strong preference for Korean screening-cohort epidemiology and 2023 SLD nomenclature applications. Original articles require a mandatory graphical abstract (531×531 px, 600 dpi) and structured abstract (Background/Aims, Methods, Results, Conclusions). Fast-track review available for US$1,000 with 7-day first decision. AI policy: follows ICMJE — disclose AI use in Acknowledgements with software name, version, manufacturer, dates, and description of use; AI cannot be author; citation of AI-generated material as primary source is prohibited.
+KASL flagship journal with strong preference for Korean screening-cohort epidemiology and 2023 SLD nomenclature applications. Original articles require a mandatory graphical abstract (531×531 px, 600 dpi) and structured abstract (Background/Aims, Methods, Results, Conclusions). Fast-track review available for US$1,000 with 7-day first decision. **Blinded review**: Main Document = no author info; portal has no "Title Page" file designation, so upload title page + ICMJE forms as "Supplemental File NOT for Review". AI policy: follows ICMJE — disclose AI use in Acknowledgements with software name, version, manufacturer, dates, and description of use; AI cannot be author; citation of AI-generated material as primary source is prohibited.
