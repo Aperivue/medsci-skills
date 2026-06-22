@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **Release pipeline now also publishes to npm** (idempotent, with npm provenance via OIDC), so the
+  `npx medsci-skills@latest install` channel no longer drifts behind the GitHub release. The step runs
+  only when the `NPM_TOKEN` repo secret is set, skips if that version is already on npm (re-running a
+  tag is safe), and runs after the GitHub Release so an npm hiccup never blocks it. No product change.
+
 ## [4.7.0] - 2026-06-22
 
 The **self-update foundation**: physician-researchers stay current without GitHub, git, or a
