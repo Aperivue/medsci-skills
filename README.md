@@ -267,6 +267,12 @@ The E2E pipeline (`orchestrate --e2e`) produces everything up to `qc/`. The `sub
 
 ## What's New
 
+**v4.7** is the **self-update foundation** — physician-researchers stay current without GitHub, git, or a terminal. Additive and backward-compatible; still 45 skills / 36 guidelines / 30 detectors:
+
+- **Transactional, crash-recoverable installer.** Each install runs through a durable journal state machine recovered on the next run (roll back / forward-clean / fail-closed), with per-target SHA-256 inventories — your modified or third-party skills are backed up and never clobbered or auto-deleted.
+- **One-click self-updater** (`~/.medsci-skills/updater/`, `install.py --check-update`). Verifies the download against the github.com API digest and **never `extractall()`s** (per-entry rejection of traversal / symlink / duplicate / zip-bomb + an allowlist & per-file hash). The release pipeline injects a verified `provenance.json`, attests build provenance, runs on a protected `release` environment, and verifies each ZIP round-trips through the updater's own safe-extract before publishing.
+- **Opt-in update notice (off by default):** `install.py --enable-update-notify` shows a one-line "update available" message at Claude Code session start — no telemetry, reads nothing about your session, installs nothing. `--disable-update-notify` / `MEDSCI_NO_UPDATE_CHECK=1` turn it off. *(Honest scope: the digest/attestation detect transport tampering, not a compromised publisher account — see `SECURITY.md`.)*
+
 **v4.6** is a maintainability, governance, and review-depth release — still 45 skills / 36 guidelines; analysis-integrity detectors **28 → 30**, domain probes 11 → 12:
 
 - **Fairness / equity / subgroup-performance probe (EQ0–EQ6)** for AI/prediction/diagnostic studies that claim cross-population performance, plus two new detectors: an **AI-disclosure + data/code-availability** check (`/sync-submission`) and a **structured-summary-box conformance** check (`/academic-aio`).

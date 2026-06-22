@@ -2,31 +2,68 @@
 
 ## [Unreleased]
 
+## [4.7.0] - 2026-06-22
+
+The **self-update foundation**: physician-researchers stay current without GitHub, git, or a
+terminal — via a transactional crash-safe installer, a verified one-click updater, a hardened
+release pipeline, and an opt-in update notice. **Additive and backward-compatible** — no skill, CLI,
+or output-path change; skills 45 and reporting guidelines 36 unchanged. All four pieces are
+network-mocked-tested and run on Ubuntu + macOS + Windows CI.
+
 ### Added
 
-- **Opt-in update notice for Claude Code (off by default).** `install.py --enable-update-notify`
-  merges a SessionStart hook (`installers/session_update_check.py`) into `~/.claude/settings.json`
-  that prints a one-line "update available" `systemMessage` at session start; `--disable-update-notify`
-  removes only that hook. The hook **does not read the SessionStart stdin** (no cwd/transcript/session
-  id), has no telemetry/analytics/unique-id, uses the shared clock-sane 24h cache + a short timeout,
-  stays silent on any error (never blocks a session), honors `MEDSCI_NO_UPDATE_CHECK=1`, and installs
-  nothing — it only notifies. A version *check* now resolves the latest tag without requiring the
-  OS-specific download asset (`resolve_latest_tag`), so the notice works on Linux too. Settings merge
-  is idempotent, preserves foreign hooks/settings, removes only ours (incl. mixed entries), and
-  refuses to clobber an unparseable `settings.json`. Tested offline (`installers/tests/test_session_hook.py`,
-  26 cases) on Ubuntu + macOS + Windows.
-- **Release-pipeline supply-chain hardening (self-update foundation, no user-facing change).**
-  `release.yml` now: gates on a version-consistency check (the pushed tag must equal
-  `CITATION.cff` == `package.json` == `metadata/distribution_manifest.json`); injects a verified
-  `provenance.json` `{schema_version, tag, version, git_sha, built_at}` into each classroom ZIP via
+- **Transactional, crash-recoverable installer + per-target state.** `install.py` now installs each
+  target through a durable **journal state machine** (`installers/medsci_txn.py`,
+  `prepared → old_moved → new_installed → committed`, atomic-write + `fsync`): an interrupted install
+  is recovered on the next run (roll back an incomplete transaction, forward-clean a committed one,
+  **fail closed** on a corrupt journal). It keeps a per-target installed manifest at
+  `~/.medsci-skills/targets/<target>/` with a **per-skill SHA-256 inventory** — a skill you modified
+  is snapshotted to `~/.medsci-skills/backups/<ts>/` before an update, legacy collisions are backed up
+  there (never inside the skills dirs, never auto-deleted), and only MedSci-owned skills are pruned
+  (your/third-party skills are untouched). Adds **canonical-home containment** path-safety, a
+  disk-space preflight, two deterministic tracked manifests
+  (`metadata/distribution_manifest.json` ownership/version + `metadata/distribution_files.json`
+  payload inventory) with a CI `--check` gate, and a Windows/macOS CI matrix. (#177)
+- **One-click self-updater (`installers/update.py`).** Fetches the latest classroom release and
+  re-installs through the transactional installer — no GitHub UI, git, or terminal. Resolves the
+  release via **`api.github.com` only** and **fails closed** if the API has no sha256 digest; verifies
+  the download's sha256 == the API digest, the asset name, and the tag; and **never `extractall()`s** —
+  it extracts per entry, rejecting path traversal (POSIX + Windows), symlink/hardlink/junction,
+  case-insensitive duplicates, and zip-bombs, and enforcing the `distribution_files.json` allowlist +
+  per-file hash. Installs the updater to `~/.medsci-skills/updater/` (survives deleting the download
+  folder); `install.py --check-update` reports availability via semver with a clock-sane 24h cache;
+  optional consented `--desktop-launcher`. Thin `.command`/`.cmd` launchers wrap it; a privacy notice
+  (`docs/update_privacy.md`) states the honest scope. (#178)
+- **Release-pipeline supply-chain hardening.** `release.yml` now gates on a version-consistency check
+  (the pushed tag must equal `CITATION.cff` == `package.json` == `metadata/distribution_manifest.json`
+  and the tracked inventory must match the tree); injects a verified `provenance.json`
+  `{schema_version, tag, version, git_sha, built_at}` into each classroom ZIP via
   `build_classroom_release.py --tag/--git-sha/--built-at`; attests the ZIPs' build provenance
   (`actions/attest-build-provenance`); runs on a protected `release` environment (required-reviewer
   approval); and — via the new `scripts/check_release_zip.py` — verifies each ZIP round-trips through
   the **updater's own** safe-extract + provenance validation before publishing, so a release can never
-  ship a ZIP the self-updater would reject. A CI test (`installers/tests/test_release_zip.sh`) locks
-  the build → verify round-trip and the tag/version gate. `provenance.json` stays a control file
-  (excluded from the safe-extract inventory). `SECURITY.md` gains a "Release integrity & revocation"
-  section; `docs/maintainer_workflow.md` documents the protected-environment setup.
+  ship a ZIP the self-updater would reject (locked by `installers/tests/test_release_zip.sh`).
+  `provenance.json` stays a control file (excluded from the safe-extract inventory). `SECURITY.md`
+  gains a "Release integrity & revocation" section; `docs/maintainer_workflow.md` documents the
+  protected-environment setup. (#179)
+- **Opt-in update notice for Claude Code (off by default).** `install.py --enable-update-notify`
+  merges a SessionStart hook (`installers/session_update_check.py`) into `~/.claude/settings.json`
+  that prints a one-line "update available" `systemMessage` at session start; `--disable-update-notify`
+  removes only that hook (keying on the home-anchored script path, so it never touches a foreign hook).
+  The hook **does not read the SessionStart stdin** (no cwd/transcript/session id), has no
+  telemetry/analytics/unique-id, uses the shared clock-sane 24h cache + a 4 s timeout, stays silent on
+  any error (never blocks a session), honors `MEDSCI_NO_UPDATE_CHECK=1`, and installs nothing — it
+  only notifies. A version *check* resolves the latest tag without the OS-specific download asset
+  (`resolve_latest_tag`), so the notice works on Linux too; the settings merge is idempotent, preserves
+  foreign hooks/settings, and refuses to clobber an unparseable `settings.json`. Tested offline
+  (`installers/tests/test_session_hook.py`, 38 cases). (#180)
+
+### Trust boundary (honest scope)
+
+- Running a release's bundled installer **is remote code execution within the GitHub trust boundary**.
+  The digest and the build-provenance attestation detect **transport / asset tampering** — they do
+  **not** defend against a compromised publisher account or a malicious official release. See
+  `SECURITY.md` and `docs/update_privacy.md`.
 
 ## [4.6.0] - 2026-06-21
 
