@@ -4,6 +4,17 @@
 
 ### Added
 
+- **Opt-in update notice for Claude Code (off by default).** `install.py --enable-update-notify`
+  merges a SessionStart hook (`installers/session_update_check.py`) into `~/.claude/settings.json`
+  that prints a one-line "update available" `systemMessage` at session start; `--disable-update-notify`
+  removes only that hook. The hook **does not read the SessionStart stdin** (no cwd/transcript/session
+  id), has no telemetry/analytics/unique-id, uses the shared clock-sane 24h cache + a short timeout,
+  stays silent on any error (never blocks a session), honors `MEDSCI_NO_UPDATE_CHECK=1`, and installs
+  nothing — it only notifies. A version *check* now resolves the latest tag without requiring the
+  OS-specific download asset (`resolve_latest_tag`), so the notice works on Linux too. Settings merge
+  is idempotent, preserves foreign hooks/settings, removes only ours (incl. mixed entries), and
+  refuses to clobber an unparseable `settings.json`. Tested offline (`installers/tests/test_session_hook.py`,
+  26 cases) on Ubuntu + macOS + Windows.
 - **Release-pipeline supply-chain hardening (self-update foundation, no user-facing change).**
   `release.yml` now: gates on a version-consistency check (the pushed tag must equal
   `CITATION.cff` == `package.json` == `metadata/distribution_manifest.json`); injects a verified

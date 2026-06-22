@@ -49,6 +49,9 @@ jobs:
       - name: install.py transactional self-test (no host/state dir touched)
         run: python3 installers/install.py --self-test
 
+      - name: Opt-in SessionStart update-notify hook test (settings merge + hook logic, offline)
+        run: python3 installers/tests/test_session_hook.py
+
       - name: Release-ZIP provenance + updater-consumability round-trip (build -> safe-extract)
         run: bash installers/tests/test_release_zip.sh
 
@@ -246,5 +249,7 @@ jobs:
         run: python installers/tests/test_txn.py
       - name: Updater verify / safe-extract / check-update test (offline)
         run: python installers/tests/test_update.py
+      - name: Opt-in SessionStart update-notify hook test (settings merge + hook logic)
+        run: python installers/tests/test_session_hook.py
       - name: install.py transactional self-test
         run: python installers/install.py --self-test

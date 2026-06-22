@@ -204,6 +204,17 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="With your consent, also place an 'Update MedSci Skills' launcher on your Desktop.",
     )
+    parser.add_argument(
+        "--enable-update-notify",
+        action="store_true",
+        help="Opt in: show a one-line 'update available' notice at Claude Code session start "
+             "(merges a hook into ~/.claude/settings.json; 24h-cached; no telemetry).",
+    )
+    parser.add_argument(
+        "--disable-update-notify",
+        action="store_true",
+        help="Opt out: remove the session-start update-notice hook from ~/.claude/settings.json.",
+    )
     return parser.parse_args()
 
 
@@ -217,6 +228,25 @@ def main() -> int:
             return update.check_update(medsci_txn.state_home())
         except Exception as exc:  # noqa: BLE001
             print(f"MedSci Skills: update check unavailable ({exc}).", file=sys.stderr)
+            return 1
+    if args.enable_update_notify or args.disable_update_notify:
+        try:
+            import update  # noqa: PLC0415
+            home = medsci_txn.state_home()
+            if args.disable_update_notify:
+                r = update.unregister_session_hook(home, update.default_settings_path())
+                print("Session-start update notice disabled." if r == "disabled"
+                      else "Session-start update notice was not enabled; nothing to do.")
+                return 0
+            # Opt-in: ensure the updater home (with the hook script) exists, then register the hook.
+            update.install_updater_home(REPO_ROOT, home, lambda _m: None)
+            r = update.register_session_hook(home, update.default_settings_path())
+            print("Opted in: Claude Code will show a one-line update notice at session start "
+                  "(24h-cached, no telemetry). Disable with: install.py --disable-update-notify"
+                  if r == "enabled" else "Already opted in to the session-start update notice; no change.")
+            return 0
+        except Exception as exc:  # noqa: BLE001
+            print(f"MedSci Skills: could not change the update-notify setting ({exc}).", file=sys.stderr)
             return 1
     log_lines: list[str] = []
     log("MedSci Skills Installer", log_lines)

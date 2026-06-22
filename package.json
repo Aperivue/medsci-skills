@@ -19,6 +19,7 @@
     "installers/install.py",
     "installers/medsci_txn.py",
     "installers/update.py",
+    "installers/session_update_check.py",
     "installers/install-macos.command",
     "installers/install-windows.cmd",
     "installers/install-windows.ps1",
