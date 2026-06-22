@@ -2,6 +2,21 @@
 
 ## [Unreleased]
 
+### Added
+
+- **Release-pipeline supply-chain hardening (self-update foundation, no user-facing change).**
+  `release.yml` now: gates on a version-consistency check (the pushed tag must equal
+  `CITATION.cff` == `package.json` == `metadata/distribution_manifest.json`); injects a verified
+  `provenance.json` `{schema_version, tag, version, git_sha, built_at}` into each classroom ZIP via
+  `build_classroom_release.py --tag/--git-sha/--built-at`; attests the ZIPs' build provenance
+  (`actions/attest-build-provenance`); runs on a protected `release` environment (required-reviewer
+  approval); and — via the new `scripts/check_release_zip.py` — verifies each ZIP round-trips through
+  the **updater's own** safe-extract + provenance validation before publishing, so a release can never
+  ship a ZIP the self-updater would reject. A CI test (`installers/tests/test_release_zip.sh`) locks
+  the build → verify round-trip and the tag/version gate. `provenance.json` stays a control file
+  (excluded from the safe-extract inventory). `SECURITY.md` gains a "Release integrity & revocation"
+  section; `docs/maintainer_workflow.md` documents the protected-environment setup.
+
 ## [4.6.0] - 2026-06-21
 
 A maintainability, governance, and review-depth release. **Integrity detectors 28 → 30; domain probes 11 → 12; skills 45 and reporting guidelines 36 unchanged.** No skill rename, CLI, or output-path change — additive and backward-compatible.

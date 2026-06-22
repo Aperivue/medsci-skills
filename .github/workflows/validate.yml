@@ -49,6 +49,9 @@ jobs:
       - name: install.py transactional self-test (no host/state dir touched)
         run: python3 installers/install.py --self-test
 
+      - name: Release-ZIP provenance + updater-consumability round-trip (build -> safe-extract)
+        run: bash installers/tests/test_release_zip.sh
+
       - name: Run validate_routing_assets.py (SKILL.md asset references must exist)
         run: python3 scripts/validate_routing_assets.py --strict
 

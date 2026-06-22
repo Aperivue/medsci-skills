@@ -1,21 +1,40 @@
 name: Release
 
-# Triggered when a version tag is pushed (e.g., v3.0.0).
-# Builds the classroom installer ZIPs, creates a GitHub Release, and attaches the ZIPs.
-# Zenodo automatically archives the GitHub Release if the integration is enabled at
-# https://zenodo.org/account/settings/github/
+# Triggered when a version tag is pushed (e.g., v4.7.0).
+# Builds the classroom installer ZIPs (with an injected, verified provenance.json), attests their
+# build provenance, verifies they are consumable by the self-updater, then creates a GitHub Release
+# with the ZIPs attached. Zenodo automatically archives the GitHub Release if the integration is
+# enabled at https://zenodo.org/account/settings/github/
+#
+# Supply-chain posture (see SECURITY.md "Release integrity & revocation"): the self-updater verifies
+# each download's sha256 against the github.com API digest, which detects transport/asset tampering
+# only — it does NOT defend against a compromised publisher account. Defenses added here:
+#   * a protected `release` environment (configure a required reviewer in repo Settings → Environments
+#     so a human approves before any release is published);
+#   * least-privilege token scopes;
+#   * a version-consistency gate (CITATION == package.json == manifest == the pushed tag);
+#   * build-provenance attestation of the ZIP artifacts;
+#   * a post-build check that each ZIP round-trips through the updater's own safe-extract + provenance
+#     validation, so a release can never ship a ZIP the updater would refuse.
 
 on:
   push:
     tags:
       - "v*"
 
+# Least privilege: contents:write to publish the release; id-token + attestations for the build
+# provenance attestation. Nothing else.
 permissions:
-  contents: write  # required for gh release create
+  contents: write
+  id-token: write
+  attestations: write
 
 jobs:
   release:
     runs-on: ubuntu-latest
+    # Human gate: add a required reviewer to the `release` environment (repo Settings → Environments)
+    # so publishing a release requires explicit approval. Harmless before that setting exists.
+    environment: release
 
     steps:
       - name: Checkout repository (with full history for tag annotation)
@@ -28,8 +47,39 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Build classroom release ZIPs
-        run: python scripts/build_classroom_release.py
+      - name: Version-consistency gate (CITATION == package.json == manifest == pushed tag)
+        run: |
+          set -euo pipefail
+          # CITATION == package.json == manifest (three-source version agreement)...
+          python3 scripts/check_version_consistency.py
+          # ...and the tracked distribution_files.json inventory still matches the on-disk tree, so
+          # the inventory the ZIP bundles (which the updater trusts) is anchored to the real source.
+          python3 scripts/gen_distribution_manifest.py --check
+          TAG="${GITHUB_REF_NAME}"
+          VER="${TAG#v}"
+          MAN="$(python3 -c 'import json;print(json.load(open("metadata/distribution_manifest.json"))["version"])')"
+          if [ "$VER" != "$MAN" ]; then
+            echo "::error::pushed tag ${TAG} (version ${VER}) != distribution_manifest version ${MAN}. Bump CITATION.cff/package.json/manifest before tagging." >&2
+            exit 1
+          fi
+          echo "version gate OK: ${TAG} == manifest ${MAN}"
+
+      - name: Build classroom release ZIPs (with verified provenance.json)
+        run: |
+          set -euo pipefail
+          BUILT_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          python3 scripts/build_classroom_release.py \
+            --tag "${GITHUB_REF_NAME}" \
+            --git-sha "${GITHUB_SHA}" \
+            --built-at "${BUILT_AT}"
+
+      - name: Verify ZIPs are consumable by the self-updater (provenance + safe-extract round-trip)
+        run: |
+          set -euo pipefail
+          for zip in dist/medsci-skills-classroom-*.zip; do
+            python3 scripts/check_release_zip.py --zip "$zip" \
+              --expect-tag "${GITHUB_REF_NAME}" --require-provenance
+          done
 
       - name: List built artifacts
         run: |
@@ -40,6 +90,11 @@ jobs:
             echo "## ${zip}"
             unzip -l "${zip}" | head -20
           done
+
+      - name: Attest build provenance of the release ZIPs
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: "dist/medsci-skills-classroom-*.zip"
 
       - name: Extract release notes from CHANGELOG.md
         id: notes
@@ -72,9 +127,13 @@ jobs:
       - name: Create GitHub Release with classroom ZIP attached
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # Publish the SAME classroom artifacts that were verified (line ~75) and attested (line ~97);
+        # the glob is identical so a release can only ship a ZIP that round-tripped + was attested.
+        # Nothing modifies dist/ between those steps and this upload, so the API sha256 the updater
+        # later checks covers exactly the verified bytes.
         run: |
           TAG="${GITHUB_REF_NAME}"
           gh release create "$TAG" \
             --title "MedSci Skills ${TAG}" \
             --notes-file /tmp/release_notes.md \
-            dist/*.zip
+            dist/medsci-skills-classroom-*.zip

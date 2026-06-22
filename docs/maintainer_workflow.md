@@ -31,7 +31,14 @@ final release approval at every stage.
 ## Release checklist
 
 A release is cut from `main` by pushing a version tag; `release.yml` builds the
-ZIPs, creates the GitHub Release, and Zenodo archives it.
+ZIPs (with an injected, verified `provenance.json`), attests their build provenance,
+verifies they are consumable by the self-updater, creates the GitHub Release, and
+Zenodo archives it.
+
+**One-time setup:** in repo **Settings → Environments**, create a `release` environment
+and add yourself as a **required reviewer**. The release job then pauses for your approval
+before publishing. (The workflow names the environment unconditionally; without the setting
+it simply does not gate.)
 
 1. **Decide the version** honestly (see "Versioning" below).
 2. **Sync versions in one commit:**
@@ -39,17 +46,25 @@ ZIPs, creates the GitHub Release, and Zenodo archives it.
    - `CITATION.cff` — `version` + `date-released`.
    - `package.json` — `version` (npm).
    - `README.md` — "What's New" entry.
-3. **Regenerate catalogs** if counts changed:
-   `gen_skills_catalog_json.py`, `gen_detectors_catalog_json.py`,
-   `gen_marketplace_json.py` (then `--check` each) and
-   `validate_catalog_consistency.py`.
-4. **Tag** `vX.Y.Z` and push → `release.yml` runs. Confirm the GitHub Release and
-   Zenodo archive.
+3. **Regenerate the distribution manifest + catalogs:**
+   - `python3 scripts/gen_distribution_manifest.py` — refreshes `distribution_manifest.json`
+     (version, from `CITATION.cff`) + the `distribution_files.json` inventory. Run
+     `check_version_consistency.py` to confirm CITATION == package.json == manifest.
+   - If skill/detector counts changed: `gen_skills_catalog_json.py`,
+     `gen_detectors_catalog_json.py`, `gen_marketplace_json.py` (then `--check` each) and
+     `validate_catalog_consistency.py`.
+4. **Tag** `vX.Y.Z` and push → `release.yml` runs. It gates on the version-consistency
+   check (tag must equal the manifest version), pauses for `release`-environment approval,
+   attests the ZIPs, and verifies each is updater-consumable before publishing. **Approve**
+   the run, then confirm the GitHub Release and Zenodo archive.
 5. **Sync downstream surfaces** that live outside this repo's CI: the homepage
    `skills.json` counts and any hero-skill mirrors (`sync_hero_skill.py`).
 6. **Record evidence** — refresh [`IMPACT.md`](../IMPACT.md) (run the metrics
    snapshot *before* the release commit so the bot commit is in place) and log any
    new citations / named use.
+
+A compromised-release revocation procedure is in [`SECURITY.md`](../SECURITY.md)
+("Release integrity & revocation").
 
 ## Versioning policy
 
