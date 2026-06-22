@@ -539,6 +539,10 @@ MedSci Skills updates often. You do **not** need GitHub, git, or the command lin
 - **Terminal users:** `npx medsci-skills@latest install` always installs the latest.
 - **Just checking:** `python3 installers/install.py --check-update` reports whether a newer version
   is available and installs nothing.
+- **Get reminded (opt-in, Claude Code):** `python3 installers/install.py --enable-update-notify`
+  shows a one-line *"update available"* notice when a Claude Code session starts. It is **off by
+  default**, checks at most once a day, reads nothing about your session, and never installs
+  anything. Turn it off with `--disable-update-notify`, or silence it with `MEDSCI_NO_UPDATE_CHECK=1`.
 - **Claude Code plugin marketplace:** third-party marketplace **auto-update is off by default** —
   enable it in Claude Code or run a manual plugin update.
 

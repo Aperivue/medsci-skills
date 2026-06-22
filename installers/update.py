@@ -65,10 +65,10 @@ class UpdateError(Exception):
 
 # ----------------------------------------------------------------- network (injectable)
 
-def _real_get_json(url: str):
+def _real_get_json(url: str, timeout: int = HTTP_TIMEOUT):
     import urllib.request
     req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, "Accept": "application/vnd.github+json"})
-    with urllib.request.urlopen(req, timeout=HTTP_TIMEOUT) as r:  # noqa: S310 (https only, fixed host)
+    with urllib.request.urlopen(req, timeout=timeout) as r:  # noqa: S310 (https only, fixed host)
         return json.loads(r.read().decode("utf-8"))
 
 
@@ -120,6 +120,18 @@ def resolve_latest(get_json, asset_name: str) -> dict:
     url = a.get("browser_download_url") or ""
     _require(url.lower().startswith("https://"), "asset download URL is not HTTPS")
     return {"tag": tag, "asset_name": asset_name, "url": url, "sha256": digest.split(":", 1)[1]}
+
+
+def resolve_latest_tag(get_json) -> str:
+    """Return just the latest non-draft/non-prerelease tag — for an availability CHECK only
+    (installs nothing). Unlike resolve_latest it needs no OS-specific asset/digest, so the
+    notifier works on every OS (a Linux user who installed via npm/git can still be told a newer
+    version exists, even though the classroom ZIP is macOS/Windows only)."""
+    rel = get_json(API_LATEST)
+    _require(not rel.get("draft") and not rel.get("prerelease"), "latest release is a draft/prerelease")
+    tag = rel.get("tag_name") or ""
+    _require(bool(tag), "release has no tag_name")
+    return tag
 
 
 # ----------------------------------------------------------------- verify + safe-extract
@@ -386,7 +398,8 @@ def install_updater_home(source_root: Path, home: Path, log, desktop: bool = Fal
         shutil.rmtree(staging, ignore_errors=True)
     staging.mkdir(parents=True, exist_ok=True)
     src = source_root / "installers"
-    for name in ("update.py", "medsci_txn.py", "update-macos.command", "update-windows.cmd"):
+    for name in ("update.py", "medsci_txn.py", "update-macos.command", "update-windows.cmd",
+                 SESSION_HOOK_SCRIPT):
         s = src / name
         if s.is_file():
             shutil.copy2(s, staging / name)
@@ -418,6 +431,125 @@ def _place_desktop_launcher(udir: Path, log) -> None:
         log(f"placed Desktop launcher: {launcher}")
     except OSError as exc:
         log(f"could not place Desktop launcher ({exc})")
+
+
+# ----------------------------------------------------------------- opt-in SessionStart notify hook
+
+SESSION_HOOK_SCRIPT = "session_update_check.py"
+
+
+def default_settings_path() -> Path:
+    """~/.claude/settings.json (Claude Code), overridable via MEDSCI_CLAUDE_SETTINGS for tests."""
+    override = os.environ.get("MEDSCI_CLAUDE_SETTINGS")
+    return Path(override) if override else Path.home() / ".claude" / "settings.json"
+
+
+def session_hook_command(home: Path) -> str:
+    """Absolute interpreter + absolute script path (quoted) so the hook runs cross-platform."""
+    return f'"{sys.executable}" "{home / "updater" / SESSION_HOOK_SCRIPT}"'
+
+
+def _load_settings(settings_path: Path):
+    """Parse settings.json. Absent/empty/`null` -> {}. A non-dict JSON value is returned as-is so the
+    caller can refuse it. Raises UpdateError only on genuinely unreadable/invalid JSON (never `[] or {}`
+    style collapsing, which would silently treat a JSON array as empty and clobber it)."""
+    if not settings_path.is_file():
+        return {}
+    raw = settings_path.read_text(encoding="utf-8")
+    if not raw.strip():
+        return {}
+    try:
+        obj = json.loads(raw)
+    except (OSError, json.JSONDecodeError) as exc:
+        raise UpdateError(f"cannot parse {settings_path}: {exc}; leaving it unchanged")
+    return {} if obj is None else obj
+
+
+def _managed_hook_path(home: Path) -> str:
+    """The home-anchored script path our hook command embeds. Matching on THIS (not the bare
+    filename) is precise: it cannot collide with an unrelated user hook whose command merely
+    contains the substring 'session_update_check.py' (e.g. '.../run_session_update_check.py_wrapper'),
+    nor with a hook pointing at a DIFFERENT MEDSCI_HOME, and it survives the interpreter path changing
+    between enable and disable (we match the script, not the python)."""
+    return str(home / "updater" / SESSION_HOOK_SCRIPT)
+
+
+def _hook_is_ours(h: object, home: Path) -> bool:
+    return (isinstance(h, dict) and isinstance(h.get("command"), str)
+            and _managed_hook_path(home) in h["command"])
+
+
+def _entry_owns_hook(entry: object, home: Path) -> bool:
+    return (isinstance(entry, dict) and isinstance(entry.get("hooks"), list)
+            and any(_hook_is_ours(h, home) for h in entry["hooks"]))
+
+
+def _write_settings(settings_path: Path, settings: dict) -> None:
+    """Atomically write settings.json, preserving the destination's file mode if it already exists
+    (so a user who restricted it, e.g. chmod 600, does not get it silently widened to umask default)."""
+    prev_mode = os.stat(settings_path).st_mode & 0o777 if settings_path.is_file() else None
+    settings_path.parent.mkdir(parents=True, exist_ok=True)
+    medsci_txn.atomic_write_json(settings_path, settings)
+    if prev_mode is not None:
+        try:
+            os.chmod(settings_path, prev_mode)
+        except OSError:
+            pass
+
+
+def register_session_hook(home: Path, settings_path: Path) -> str:
+    """Opt-in: MERGE a SessionStart update-notify hook into settings.json. Idempotent (no duplicate);
+    preserves every existing hook/setting. Returns 'enabled' or 'already-enabled'. Refuses (raises)
+    rather than clobber a settings.json it cannot parse or whose shape is unexpected."""
+    settings = _load_settings(settings_path)  # {} for absent/empty/null
+    if not isinstance(settings, dict):
+        raise UpdateError(f"{settings_path} is not a JSON object; leaving it unchanged")
+    hooks = settings.setdefault("hooks", {})
+    if not isinstance(hooks, dict):
+        raise UpdateError(f"{settings_path} 'hooks' is not an object; leaving it unchanged")
+    ss = hooks.setdefault("SessionStart", [])
+    if not isinstance(ss, list):
+        raise UpdateError(f"{settings_path} 'hooks.SessionStart' is not a list; leaving it unchanged")
+    if any(_entry_owns_hook(e, home) for e in ss):
+        return "already-enabled"
+    ss.append({"hooks": [{"type": "command", "command": session_hook_command(home), "timeout": 10}]})
+    _write_settings(settings_path, settings)
+    return "enabled"
+
+
+def unregister_session_hook(home: Path, settings_path: Path) -> str:
+    """Opt-out: remove ONLY our SessionStart hook (even if it shares an entry with other hooks),
+    preserving everything else; drop emptied containers. Returns 'disabled' or 'not-enabled'."""
+    if not settings_path.is_file():
+        return "not-enabled"
+    settings = _load_settings(settings_path)  # {} for empty/null; raises only if unreadable JSON
+    if not isinstance(settings, dict) or not isinstance(settings.get("hooks"), dict):
+        return "not-enabled"
+    hooks = settings["hooks"]
+    ss = hooks.get("SessionStart")
+    if not isinstance(ss, list):
+        return "not-enabled"
+    changed = False
+    new_ss: list = []
+    for e in ss:
+        if isinstance(e, dict) and isinstance(e.get("hooks"), list):
+            kept = [h for h in e["hooks"] if not _hook_is_ours(h, home)]
+            if len(kept) != len(e["hooks"]):
+                changed = True
+                if not kept:
+                    continue  # drop a now-empty entry instead of leaving {"hooks": []}
+                e = {**e, "hooks": kept}
+        new_ss.append(e)
+    if not changed:
+        return "not-enabled"
+    if new_ss:
+        hooks["SessionStart"] = new_ss
+    else:
+        hooks.pop("SessionStart", None)
+    if not hooks:
+        settings.pop("hooks", None)
+    _write_settings(settings_path, settings)
+    return "disabled"
 
 
 # ----------------------------------------------------------------- cli
