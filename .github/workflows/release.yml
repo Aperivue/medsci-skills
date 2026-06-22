@@ -2,9 +2,15 @@ name: Release
 
 # Triggered when a version tag is pushed (e.g., v4.7.0).
 # Builds the classroom installer ZIPs (with an injected, verified provenance.json), attests their
-# build provenance, verifies they are consumable by the self-updater, then creates a GitHub Release
-# with the ZIPs attached. Zenodo automatically archives the GitHub Release if the integration is
-# enabled at https://zenodo.org/account/settings/github/
+# build provenance, verifies they are consumable by the self-updater, creates a GitHub Release with
+# the ZIPs attached, and publishes the npm package (idempotently, with npm provenance) so the
+# `npx medsci-skills@latest install` channel never drifts behind the GitHub release. Zenodo
+# automatically archives the GitHub Release if the integration is enabled at
+# https://zenodo.org/account/settings/github/
+#
+# The npm publish step runs only when the `NPM_TOKEN` repo secret is set (a granular/automation token
+# scoped to medsci-skills with publish rights + 2FA bypass), and skips if that version is already on
+# npm, so re-running a tag is safe. It runs AFTER the GitHub Release so an npm hiccup never blocks it.
 #
 # Supply-chain posture (see SECURITY.md "Release integrity & revocation"): the self-updater verifies
 # each download's sha256 against the github.com API digest, which detects transport/asset tampering
@@ -35,6 +41,9 @@ jobs:
     # Human gate: add a required reviewer to the `release` environment (repo Settings → Environments)
     # so publishing a release requires explicit approval. Harmless before that setting exists.
     environment: release
+    env:
+      # 'true' only when the secret exists, so the npm steps are skipped on forks / before setup.
+      HAS_NPM_TOKEN: ${{ secrets.NPM_TOKEN != '' }}
 
     steps:
       - name: Checkout repository (with full history for tag annotation)
@@ -137,3 +146,28 @@ jobs:
             --title "MedSci Skills ${TAG}" \
             --notes-file /tmp/release_notes.md \
             dist/medsci-skills-classroom-*.zip
+
+      # --- npm publish (last, gated on NPM_TOKEN, idempotent) so a npm issue never blocks the release ---
+      - name: Set up Node for npm publish
+        if: env.HAS_NPM_TOKEN == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Publish to npm (idempotent; npm provenance via OIDC)
+        if: env.HAS_NPM_TOKEN == 'true'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          set -euo pipefail
+          VER="${GITHUB_REF_NAME#v}"
+          # Idempotent: re-running a tag must not fail on "version already published".
+          if npm view "medsci-skills@${VER}" version >/dev/null 2>&1; then
+            echo "medsci-skills@${VER} is already on npm — skipping publish."
+            exit 0
+          fi
+          # --provenance links the published package to this GitHub Actions build via OIDC
+          # (uses the id-token permission already granted above).
+          npm publish --provenance --access public
+          echo "Published medsci-skills@${VER} to npm."
