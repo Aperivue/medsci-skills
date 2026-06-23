@@ -914,6 +914,39 @@ analysis completeness, and imputation-input integrity are separate subchecks (ru
    supplement, and any figure-source data immediately **after** the reframe — not just once
    at the start — so a corrected body never ships next to a stale supplement.
 
+9. **Power-aware null interpretation.** A headline negative claim ("no synergy", "not
+   associated", "showed no difference") is interpretable only next to a precision
+   statement — a minimum-detectable-effect, a power calculation, an equivalence
+   margin/TOST, or a CI-compatibility sentence. Run the null-calibration gate:
+
+   ```bash
+   python3 "${CLAUDE_SKILL_DIR}/scripts/check_null_calibration.py" \
+     --manuscript manuscript.md --out qc/null_calibration.json --strict
+   ```
+
+   `CONFIRM_NULL_NO_MDE` (Major) fires when a negative/equivalence claim in the Title/
+   Abstract/Conclusion has no such token anywhere in those regions — a non-significant
+   result is not evidence of no effect without one. (A single MDE/power/equivalence/CI-
+   compatibility sentence suppresses it.) Pair with the interaction-scale checks (`O14`)
+   when the null is a synergy/interaction claim.
+
+10. **Confidence-weighted / rating → AUC monotonicity.** For an observer or reader study
+    that collapses a (binary-call × confidence) rating into a single score used as the
+    ROC/AUC predictor, verify the encoding is **strictly monotonic** across the full
+    ladder — a *folded* score (`cws = confidence if positive-call else 6 − confidence`)
+    collapses opposite (call × confidence) cells and silently mis-estimates the AUC; a
+    prose review cannot see an estimator bug. Run the encoding through the reusable
+    monotonicity probe and ship its 10-combination unit test:
+    `python3 "${MEDSCI_SKILLS_ROOT}/skills/analyze-stats/scripts/rating_monotonicity.py" --encoding score_def.json`.
+
+11. **Figure-embedded numbers are text-grep blind.** PRISMA/flow/forest/statistic figures
+    are rasterised, so every numeric audit above is blind to the numbers *inside* them.
+    Before submission, (a) **visually** read each such figure page in the rendered/blind
+    PDF, and (b) reconcile the **hard-coded integers** in the figure-generation script
+    (`create_figure*.R`, `make_*.py`) against the body/flow-source counts
+    (`grep -nE '<-\s*[0-9]+|=\s*[0-9]+' figures/*.R`). See `submission-portal-verification`
+    §9.5 (figure-image DATA drift) for the full procedure.
+
 The script is deterministic but its provenance match is fuzzy (token overlap): read the
 reconciliation in `qc/claim_artifact.json` and confirm against the actual registration
 before raising `ESTIMAND_DRIFT`. For time-to-event manuscripts, also apply probe **S8
