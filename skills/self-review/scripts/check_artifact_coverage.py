@@ -15,6 +15,17 @@ internally consistent:
                             mentioned in the manuscript. The work was done and run
                             but its result — which may contradict the headline —
                             is silently absent.
+  FORWARD2 PROMISED_STAT_NO_VALUE  a named statistic framed as a bound/ceiling/
+                            de-confounded value (e.g. "the de-confounded reader AUC
+                            is reported in Table S16", "the classifier ceiling AUC")
+                            is promised with a reporting verb but never given a
+                            numeric value anywhere in the manuscript or supplement.
+                            This is the "described but never quantified" reviewer
+                            catch — the bound that makes the primary estimand
+                            interpretable, marked Addressed in a checklist yet
+                            absent from every table. Conservative: fires only on a
+                            bound/ceiling/de-confounded framing whose statistic has
+                            zero associated numeric values in the whole corpus.
 
 The reverse direction is the false-positive-prone one, so it is calibrated: when
 an `_analysis_outputs.md` manifest exists (written by /analyze-stats) it is the
@@ -130,6 +141,66 @@ def check_forward(text: str) -> list[dict]:
     return claims
 
 
+# --- FORWARD2: promised statistic that is never given a number --------------
+
+# Statistic nouns whose *value* is the deliverable. "sensitivity" excludes the
+# "sensitivity analysis" sense.
+STAT_NOUN = re.compile(
+    r"\bAUROC\b|\bAUC\b|\bc[-\s]?statistic\b|\bc[-\s]?index\b"
+    r"|\bsensitivity\b(?!\s+analys)|\bspecificity\b|\bnet benefit\b|\bcalibration slope\b",
+    re.IGNORECASE)
+# A bound/ceiling/de-confounded framing — the cases where a promised-but-unquantified
+# statistic is the load-bearing bound, not an ordinary reported metric.
+PROMISE_FRAME = re.compile(
+    r"\bceiling\b|\bde[-\s]?confounded\b|\bupper[-\s]bound\b|\blower[-\s]bound\b|\bbound(?:s|ed|ing)?\b"
+    r"|\bchance[-\s]level\b|\bdiscriminat\w*\s+ceiling\b",
+    re.IGNORECASE)
+REPORT_VERB = re.compile(
+    r"\b(?:is|are|was|were)\s+(?:reported|read|given|shown|presented|computed|provided|derived)\b"
+    r"|reported in (?:Table|Supplement|Supplementary)|\bwe report\b|\bsee (?:Table|Supplement)",
+    re.IGNORECASE)
+# A numeric value a statistic can take: a 0.xx discrimination value or an N% rate.
+STAT_VALUE = re.compile(r"\b0\.\d{2,3}\b|\b\d{1,3}(?:\.\d+)?\s?%")
+
+
+def _sentences(text: str) -> list[str]:
+    flat = re.sub(r"\s*\n\s*", " ", text)
+    return [s for s in re.split(r"(?<=[.;])\s+", flat) if s.strip()]
+
+
+def check_promised_stat(methods_supp: str, corpus: str) -> list[dict]:
+    """Fire when a bound/ceiling/de-confounded statistic is promised with a
+    reporting verb but no numeric value for that statistic exists in the corpus."""
+    claims = []
+    # statistic tokens that DO have an associated value somewhere in the corpus
+    valued: set[str] = set()
+    for sent in _sentences(corpus):
+        if STAT_VALUE.search(sent):
+            for sm in STAT_NOUN.finditer(sent):
+                valued.add(sm.group(0).lower().replace(" ", "").replace("-", ""))
+    seen: set[str] = set()
+    for sent in _sentences(methods_supp):
+        if STAT_VALUE.search(sent):
+            continue  # the value is right here — not a promise
+        if not (STAT_NOUN.search(sent) and PROMISE_FRAME.search(sent) and REPORT_VERB.search(sent)):
+            continue
+        for sm in STAT_NOUN.finditer(sent):
+            tok = sm.group(0)
+            key = tok.lower().replace(" ", "").replace("-", "")
+            if key in valued or key in seen:
+                continue
+            seen.add(key)
+            claims.append({
+                "verdict": "PROMISED_STAT_NO_VALUE",
+                "severity": "Major",
+                "detail": (f"a bound/ceiling/de-confounded '{tok}' is promised with a "
+                           f"reporting verb but no numeric value for it appears in the "
+                           f"manuscript or supplement"),
+                "where": sent.strip()[:160],
+            })
+    return claims
+
+
 # --- REVERSE: disk-present-but-unreported -----------------------------------
 
 def find_analysis_dir(manuscript: Path, override: str | None) -> Path | None:
@@ -226,16 +297,32 @@ def check_reverse(text: str, manuscript: Path, analysis_dir: str | None) -> tupl
 
 # --- driver ----------------------------------------------------------------
 
-def analyze(manuscript: str, analysis_dir: str | None) -> dict:
+def analyze(manuscript: str, analysis_dir: str | None, supplements: list[str] | None = None) -> dict:
     p = Path(manuscript)
     if not p.is_file():
         sys.stderr.write(f"ERROR: manuscript not found: {manuscript}\n")
         sys.exit(2)
     text = p.read_text(encoding="utf-8")
 
+    supp_texts = []
+    for s in supplements or []:
+        sp = Path(s)
+        if not sp.is_file():
+            sys.stderr.write(f"ERROR: supplement not found: {s}\n")
+            sys.exit(2)
+        supp_texts.append(sp.read_text(encoding="utf-8", errors="replace"))
+
     claims = check_forward(text)
     rev, meta = check_reverse(text, p, analysis_dir)
     claims += rev
+
+    # FORWARD2: promised-but-unquantified bound/ceiling statistic. The promise may
+    # live in the Methods or in the supplement; the value may live anywhere.
+    sections = split_sections(text)
+    methods = section_text(sections, ("method", "statistical analys", "analysis plan"))
+    methods_supp = "\n".join([methods] + supp_texts)
+    corpus = "\n".join([text] + supp_texts)
+    claims += check_promised_stat(methods_supp, corpus)
 
     n_major = sum(1 for c in claims if c["severity"] == "Major")
     return {
@@ -265,12 +352,14 @@ def main() -> int:
     ap = argparse.ArgumentParser(description="Methods<->Results<->disk coverage gate (Phase 2.5f).")
     ap.add_argument("--manuscript", required=True, help="manuscript markdown/text")
     ap.add_argument("--analysis-dir", help="analysis-output dir (default: output/analysis, analysis, results)")
+    ap.add_argument("--supplement", action="append", default=[], metavar="PATH",
+                    help="supplement file(s) to include in the promised-statistic corpus (repeatable)")
     ap.add_argument("--out", help="write JSON artifact to this path")
     ap.add_argument("--strict", action="store_true", help="exit 1 if any Major claim exists")
     ap.add_argument("--quiet", action="store_true", help="suppress stdout table")
     args = ap.parse_args()
 
-    result = analyze(args.manuscript, args.analysis_dir)
+    result = analyze(args.manuscript, args.analysis_dir, args.supplement)
 
     if not args.quiet:
         print("=" * 41)

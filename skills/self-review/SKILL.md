@@ -875,6 +875,45 @@ analysis completeness, and imputation-input integrity are separate subchecks (ru
    headline. When an `_analysis_outputs.md` manifest exists the gate uses it as the source of
    truth; otherwise it globs `--analysis-dir` and only escalates analysis-bearing file names.
 
+   The same gate also flags `PROMISED_STAT_NO_VALUE`: a statistic framed as a **bound/
+   ceiling/de-confounded** value (e.g. "the de-confounded reader AUC is reported in
+   Table S16", "the classifier ceiling AUC") promised with a reporting verb but never
+   given a numeric value anywhere in the manuscript **or supplement** — the bound that
+   makes the primary estimand interpretable, sometimes marked "Addressed" in a checklist
+   yet absent from every table. Pass the rendered supplement so the corpus is complete:
+
+   ```bash
+   python3 "${CLAUDE_SKILL_DIR}/scripts/check_artifact_coverage.py" \
+     --manuscript manuscript.md --supplement supplement.md \
+     --out qc/artifact_coverage.json --strict
+   ```
+
+7. **Supplement / tables / caption hygiene.** Phases 2.5–2.5e and the classical-style
+   gate lint `manuscript.md` only; the rendered **supplement, a separately-built tables
+   file, and figure-caption files** are never linted — yet that is where technical-check-
+   fatal residue hides (internal §/§L SAP labels, unfilled `Table SX`/`[Authors]`
+   placeholders, `[VERIFY]`/`TODO` build markers, response-to-reviewers framing, planning
+   residue, and body↔supplement cross-reference numbers that do not resolve). Run the
+   supplement-hygiene gate over **every** rendered reader-facing artifact:
+
+   ```bash
+   python3 "${CLAUDE_SKILL_DIR}/scripts/check_supplement_hygiene.py" \
+     --supplement supplement.md --supplement tables.md --supplement captions.md \
+     --manuscript manuscript.md --out qc/supplement_hygiene.json --strict
+   ```
+
+   All verdicts (`SUPP_INTERNAL_LABEL`, `SUPP_PLACEHOLDER`, `SUPP_BUILD_MARKER`,
+   `SUPP_RESPONSE_FRAMING`, `SUPP_PLANNING_RESIDUE`, `SUPP_XREF_UNRESOLVED`) are
+   Anticipated Major Comments — a reader-facing slip in a supplement is as fatal at a
+   technical check as one in the body.
+
+8. **Re-run cross-artifact staleness after any audit or reframe.** When a headline number
+   is corrected or an analysis is re-framed, the fix often lands only in the body while a
+   supplement footnote or a figure-source data file keeps the stale (sometimes *reversed*)
+   value. Re-run `/sync-submission`'s `check_cross_artifact_stale.py` across the body, the
+   supplement, and any figure-source data immediately **after** the reframe — not just once
+   at the start — so a corrected body never ships next to a stale supplement.
+
 The script is deterministic but its provenance match is fuzzy (token overlap): read the
 reconciliation in `qc/claim_artifact.json` and confirm against the actual registration
 before raising `ESTIMAND_DRIFT`. For time-to-event manuscripts, also apply probe **S8

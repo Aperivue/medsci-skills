@@ -54,6 +54,7 @@
 - `check_reference_adequacy.py`
 - `check_reviewer_team_consistency.py`
 - `check_scope_coherence.py`
+- `check_supplement_hygiene.py`
 
 ## Source
 

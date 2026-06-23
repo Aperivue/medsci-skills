@@ -151,6 +151,12 @@ jobs:
       - name: Run self-review confounding-completeness gate test (A11)
         run: bash skills/self-review/tests/test_confounding_completeness.sh
 
+      - name: Run self-review supplement-hygiene gate test
+        run: bash skills/self-review/tests/test_supplement_hygiene.sh
+
+      - name: Run self-review artifact-coverage gate test
+        run: bash skills/self-review/tests/test_artifact_coverage.sh
+
       - name: Run sync-submission supplement-assembler test (A12)
         run: bash skills/sync-submission/tests/test_assemble_supplement.sh
 
