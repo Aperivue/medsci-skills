@@ -51,5 +51,17 @@ d=json.load(open('$OUT'))
 assert not any(c['verdict']=='EM_DASH_OVERUSE' for c in d['claims']), 'structural dashes were counted as prose'
 "
 
+# (4) § used as author/affiliation footnote dagger (co-senior-author line, super-
+#     script markers) must NOT fire SECTION_SYMBOL — only a § section cross-ref does.
+DAGGER="$HERE/fixtures/style_dagger_footnote.md"
+python3 "$SCRIPT" --manuscript "$DAGGER" --out "$OUT" --quiet >/dev/null 2>&1
+check "no SECTION_SYMBOL on footnote daggers" python3 -c "
+import json
+d=json.load(open('$OUT'))
+assert not any(c['verdict']=='SECTION_SYMBOL' for c in d['claims']), 'dagger § flagged as section symbol'
+"
+python3 "$SCRIPT" --manuscript "$DAGGER" --strict --quiet >/dev/null 2>&1
+check "exit 0 on dagger-footnote manuscript" test "$?" -eq 0
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

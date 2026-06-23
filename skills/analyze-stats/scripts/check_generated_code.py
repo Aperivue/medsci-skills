@@ -145,9 +145,15 @@ def check_text_common(src: str, lang: str) -> list[dict]:
     for m in NUM_LITERAL_BODY.finditer(src):
         body = m.group(1)
         # ignore obvious non-data: ranges, single repeated, function-call args with kwargs
-        nums = NUM_TOKEN.findall(body)
         if "=" in body:  # kwargs like figsize=(8,6) or linspace(0,1,...) — not table data
             continue
+        # A list/tuple of string literals (e.g. a hex-color palette
+        # ['#000000','#E69F00',...] — exactly the colorblind-safe WONG palette that
+        # make-figures recommends) is NOT hand-typed tabular data. Strip quoted
+        # substrings before counting numeric tokens, so digits living inside string
+        # literals (the "00" in '#E69F00', RGBA codes, category labels) don't make a
+        # string list look table-shaped. Genuine numeric data is unquoted.
+        nums = NUM_TOKEN.findall(STR_LITERAL.sub("", body))
         if len(nums) >= DATA_LITERAL_STANDALONE or (len(nums) >= DATA_LITERAL_MIN and has_read):
             ln = src[:m.start()].count("\n") + 1
             claims.append({

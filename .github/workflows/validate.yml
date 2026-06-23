@@ -209,6 +209,15 @@ jobs:
       - name: Run fulltext-retrieval pdf_to_md helper test
         run: python3 skills/fulltext-retrieval/tests/test_pdf_to_md.py
 
+      - name: Run self-review scope-coherence gate test
+        run: bash skills/self-review/tests/test_scope_coherence.sh
+
+      - name: Run self-review cohort-arithmetic gate test
+        run: bash skills/self-review/tests/test_cohort_arithmetic.sh
+
+      - name: Run analyze-stats generated-code gate test
+        run: bash skills/analyze-stats/tests/test_generated_code.sh
+
       - name: Verify demo manifest.lock files (reproducibility lock)
         run: |
           for d in demo/01_wisconsin_bc demo/02_metafor_bcg demo/03_nhanes_obesity; do

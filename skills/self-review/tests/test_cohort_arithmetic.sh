@@ -69,5 +69,18 @@ check "exit 1 (analysis unit, explicit --id-col)" test "$?" -eq 1
 python3 "$SCRIPT" --manuscript "$DISC" --data "$REPEAT" --strict --quiet >/dev/null 2>&1
 check "exit 0 when analysis unit disclosed" test "$?" -eq 0
 
+# (7) a tier label ("stratum 1") and "incident rate" sitting near a small integer
+#     must NOT mis-bind the numerator: the rate recomputes from 882 events /
+#     35,581 PY -> NO RATE_BACKCALC false positive, exit 0 (regression).
+RFP="$HERE/fixtures/cohort_rate_tier_fp.md"
+python3 "$SCRIPT" --manuscript "$RFP" --out "$OUT" --quiet >/dev/null 2>&1
+check "no RATE_BACKCALC false positive (tier + incident-rate)" python3 -c "
+import json
+d=json.load(open('$OUT'))
+assert not any(c['verdict']=='RATE_BACKCALC' for c in d['claims']), 'numerator mis-bound -> false RATE_BACKCALC'
+"
+python3 "$SCRIPT" --manuscript "$RFP" --strict --quiet >/dev/null 2>&1
+check "exit 0 on correct-rate manuscript" test "$?" -eq 0
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

@@ -58,5 +58,18 @@ d=json.load(open('$OUT'))
 assert not any(c['verdict']=='CROSS_SECTIONAL_YIELD_LANGUAGE' for c in d['claims'])
 "
 
+# (6) cross-sectional design + a DISCLAIMED surveillance/prognostic token
+#     ("... rather than surveillance intervals ... which would require prospective
+#     data ...") -> NO CROSS_SECTIONAL_PROGNOSTIC, exit 0 (regression).
+DISC="$HERE/fixtures/scope_disclaimer.md"
+python3 "$SCRIPT" --manuscript "$DISC" --out "$OUT" --quiet >/dev/null 2>&1
+check "no CROSS_SECTIONAL_PROGNOSTIC when disclaimed" python3 -c "
+import json
+d=json.load(open('$OUT'))
+assert not any(c['verdict']=='CROSS_SECTIONAL_PROGNOSTIC' for c in d['claims']), 'disclaimer flagged as prognostic claim'
+"
+python3 "$SCRIPT" --manuscript "$DISC" --strict --quiet >/dev/null 2>&1
+check "exit 0 on disclaimer manuscript" test "$?" -eq 0
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

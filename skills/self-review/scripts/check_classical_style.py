@@ -45,6 +45,18 @@ import re
 import sys
 from pathlib import Path
 
+# The § AI-tell is a SECTION CROSS-REFERENCE ("Methods §2", "(see §3.1)", "§L4"),
+# not the dagger-family footnote markers (†, ‡, §, ¶) that legitimately mark
+# author/affiliation footnotes and co-senior-author lines (e.g. "§ Dr. Hong and
+# Dr. Kim are co-senior authors", a superscript "^§"). Count only § that is part
+# of a section reference: § followed by a section id (digit, or up to 3 letters
+# then a digit — §3, §L4, §S1, §2.1), or a section noun immediately before §.
+SECTION_XREF = re.compile(
+    r"§\s*[A-Za-z]{0,3}\d"
+    r"|(?:see|in|per|section|sections|methods?|results?|discussion|introduction|"
+    r"appendix|appendices|supplement(?:ary|al)?|table|figure)\s+§",
+    re.IGNORECASE)
+
 INBODY_AI_DISCLOSURE = re.compile(
     r"generative ai was not used|artificial intelligence disclosure|"
     r"during the preparation of (?:this|the) (?:manuscript|work|study)[^.]{0,120}?"
@@ -66,15 +78,17 @@ EFFECT_DECIMAL = re.compile(
 def check(text: str, em_dash_max: int) -> list[dict]:
     claims = []
 
-    # SECTION_SYMBOL (Major)
-    if "§" in text:
-        n = text.count("§")
-        first = text.find("§")
+    # SECTION_SYMBOL (Major) — only § used as a section cross-reference, not the
+    # dagger-family author/affiliation footnote markers.
+    xrefs = list(SECTION_XREF.finditer(text))
+    if xrefs:
+        n = len(xrefs)
+        first = xrefs[0].start()
         claims.append({
             "verdict": "SECTION_SYMBOL",
             "severity": "Major",
-            "detail": f"the § symbol appears {n} time(s) — a senior-reviewer AI tell; "
-                      f"replace with the section name (manuscript-style-classical §6)",
+            "detail": f"a § section cross-reference appears {n} time(s) — a senior-reviewer "
+                      f"AI tell; replace with the section name (manuscript-style-classical §6)",
             "where": text[max(0, first - 30):first + 20].replace("\n", " ").strip()[:120],
         })
 

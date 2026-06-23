@@ -57,6 +57,20 @@ PROGNOSTIC_VERB = re.compile(
     r"prognost|predict(?:s|ing|ed)?\s+(?:incident|future|long[-\s]?term|the risk of developing)|"
     r"longitudinal (?:follow|risk|trajector)", re.IGNORECASE)
 
+# A prognostic/surveillance token sitting inside a negation/deferral frame is a
+# correct hedge, not an overclaim ("describes concurrent burden RATHER THAN
+# surveillance intervals, which WOULD REQUIRE PROSPECTIVE data"). You cannot
+# disavow surveillance without naming it; do not fire CROSS_SECTIONAL_PROGNOSTIC
+# when the match is disclaimed in its immediate vicinity.
+PROGNOSTIC_DISCLAIMER = re.compile(
+    r"rather than|instead of|not\s+(?:a\s+|the\s+)?(?:surveillance|prognostic|longitudinal)|"
+    r"does not (?:establish|imply|support|provide|address|determine|permit)|"
+    r"cannot (?:establish|determine|inform|assess|address)|"
+    r"would require|requires?\s+prospective|warrants?\s+prospective|"
+    r"defer(?:s|red|ring)?\b[^.]{0,40}\bprospective|"
+    r"beyond the scope|no (?:prognostic|surveillance|longitudinal) (?:claim|inference|conclusion)",
+    re.IGNORECASE)
+
 DIRECTIVE_VERB = re.compile(
     r"\bdefer(?:ral|red|ring)?\b|\bwithhold\b|\bforgo\b|\binitiat(?:e|ed|ion)\b|"
     r"\bdiscontinu(?:e|ed|ation)\b|start(?:ing)?\s+(?:statin|therapy|treatment|pharmacotherapy)|"
@@ -107,8 +121,13 @@ def check(text: str) -> list[dict]:
     concl = conclusion_region(text)
 
     if DESIGN_CROSS_SECTIONAL.search(text):
-        pm = PROGNOSTIC_VERB.search(concl)
-        if pm:
+        # Fire only on a prognostic/surveillance token that is NOT inside a
+        # negation/deferral frame; iterate all matches so a real claim later in the
+        # conclusion still fires even if an earlier mention was a disclaimer.
+        for pm in PROGNOSTIC_VERB.finditer(concl):
+            window = concl[max(0, pm.start() - 120):pm.end() + 120]
+            if PROGNOSTIC_DISCLAIMER.search(window):
+                continue
             claims.append({
                 "verdict": "CROSS_SECTIONAL_PROGNOSTIC",
                 "severity": "Major",
@@ -116,6 +135,7 @@ def check(text: str) -> list[dict]:
                            f"prognostic/surveillance claim ('{pm.group(0).strip()}')"),
                 "where": concl[max(0, pm.start() - 40):pm.end() + 40].strip()[:160],
             })
+            break
 
     dm = DIRECTIVE_VERB.search(concl)
     sm = SURROGATE_SIGNAL.search(concl)

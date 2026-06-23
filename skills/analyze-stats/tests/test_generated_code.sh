@@ -55,5 +55,17 @@ check "exit 0 (clean .py)" test "$?" -eq 0
 python3 "$SCRIPT" --code-dir "$HERE/fixtures" --strict --quiet >/dev/null 2>&1
 check "exit 1 (--code-dir scan)" test "$?" -eq 1
 
+# (5) hex-color palette + data read -> NOT HARDCODED_DATA_LITERAL (WONG-palette
+#     false-positive regression); the script is otherwise clean -> exit 0
+PALETTE="$HERE/fixtures/gen_palette.py"
+python3 "$SCRIPT" "$PALETTE" --out "$OUT" --quiet >/dev/null 2>&1
+check "no HARDCODED_DATA_LITERAL on hex-color palette" python3 -c "
+import json
+d=json.load(open('$OUT'))
+assert not any(c['verdict']=='HARDCODED_DATA_LITERAL' for c in d['claims']), 'palette flagged as data literal'
+"
+python3 "$SCRIPT" "$PALETTE" --strict --quiet >/dev/null 2>&1
+check "exit 0 on clean palette script" test "$?" -eq 0
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

@@ -132,7 +132,14 @@ def _pick(header: list[str], hints: tuple[str, ...]):
 
 RATE_LINE_RE = re.compile(
     r"([0-9][0-9,]*\.?[0-9]*)\s*(?:per|/)\s*([0-9][0-9,]*)\s*person[-\s]?years?", re.I)
-EVENTS_NEAR_RE = re.compile(r"([0-9][0-9,]*)\s*(?:events?|cases?|incident\b)", re.I)
+# The numerator must be a count glued to a count noun (events/cases), optionally
+# "N incident cases/events". Two guards against grabbing the wrong integer:
+#   (a) lookbehind (?<![A-Za-z0-9.]) so a tier label's digit ("T1") or a decimal's
+#       fractional part ("0.97") is never captured as the numerator;
+#   (b) drop the bare "incident" alternative, which matched the word in "incident
+#       rate" and bound the nearest stray small integer (the false-positive source).
+EVENTS_NEAR_RE = re.compile(
+    r"(?<![A-Za-z0-9.])([0-9][0-9,]*)\s*(?:incident\s+)?(?:events?|cases?)\b", re.I)
 PY_NEAR_RE = re.compile(r"([0-9][0-9,]*)\s*(?:person[-\s]?years?|py\b)", re.I)
 
 
