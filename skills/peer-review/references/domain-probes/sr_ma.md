@@ -6,7 +6,7 @@
        - self-review: Anticipated Major / Minor Comments (Fatal / Fixable) mapped to category letters.
      Do NOT edit one copy only — run `python3 scripts/check_domain_probe_sync.py --sync`. -->
 
-# Systematic Review / Meta-Analysis probes (P0–P11)
+# Systematic Review / Meta-Analysis probes (P0–P17)
 
 Internal-consistency-first gate (P0) plus an 11-probe checklist (P1–P11). These probes complement (do not replace) the generic Phase 2 issue checklist.
 
@@ -89,6 +89,26 @@ Internal-consistency-first gate (P0) plus an 11-probe checklist (P1–P11). Thes
 - Deterministic check: the set of Table-1 included-study labels (First-author + Year) must be a subset of the reference-list first-authors. Flag any included study with no matching reference.
 - Place the citations as a cluster at the point the pool is first introduced ("N studies were included [c1; c2; … cN]") so a numeric CSL renumbers them in order of appearance; citations placed only inside a separately-built table file are not processed by the manuscript's citeproc pass.
 - Do not source included-study citations from hand-kept extraction notes / appraisal sheets — those carry journal and page errors. Resolve each via PubMed `efetch` (authoritative), disambiguating same-author/year papers by **technique + sample size** (e.g., a study reporting "249 tumors, 110 adjacent to the diaphragm" is identified by the n that matches the synthesis, not by a remembered journal name). Take the article DOI only from `PubmedData/ArticleIdList`, not from an ArticleId inside the article's own reference list.
+
+**P14 — Small-k DTA/proportion MA enrollment-overlap → effective independent k**:
+- Extends P2 (non-independence) for the small-k case where double-counting changes the verdict, not just the precision. Group included studies by first-author / center / source database, then pull each study's **enrollment / recruitment window** from the source and compare overlapping groups.
+- When same-group studies share patients, recompute the **effective independent k** (e.g., k=8 reported → k≈5 once two same-center windows overlap). Ask explicitly whether quantitative pooling is still defensible at the reduced k, or whether a descriptive synthesis is the honest form (cross-link P11).
+- A panel that flags overlap as "possible / fixable in revision" without recomputing effective k under-rates a desk-fatal flaw. Severity: MAJOR when the reduced k undermines the pooled estimate; escalate toward unfixable-in-current-form when pooling itself becomes inappropriate.
+
+**P15 — Mixed analysis-unit denominator pooled into one proportion**:
+- For a single-arm proportion MA (technical success, complication rate, pneumothorax, etc.), the contributing studies must share a denominator **unit**. Pooling per-patient, per-session, and per-lesion denominators into one proportion makes the estimand undefined.
+- Deterministic lead: read the extraction denominator-unit column (or compare each study's reported N vs N_patients / N_sessions / N_lesions). Flag any outcome whose contributing studies mix units.
+- Recommend denominator-coherent subset pools as the primary analysis (e.g., per-patient pool primary; per-session as a separate, labeled pool), not one blended proportion. Severity: MAJOR (estimand undefined).
+
+**P16 — "Prospectively registered" vs registration-after-search chronology**:
+- When the manuscript or cover letter calls the review "prospectively registered" (PROSPERO/OSF), cross-check the **registration date** against the **search execution / cutoff date**. A search cutoff that predates registration reads as retrospective registration.
+- Lead: if `prospectiv*` co-occurs with the registry name AND (search date < registration date) → flag. Recommend either correcting the chronology claim or reframing as "screening and extraction followed registration" (only the steps that genuinely post-date registration may be called prospective).
+- Severity: MINOR–MAJOR depending on how load-bearing the "prospective" framing is. Every PROSPERO SR/MA cover letter is a candidate.
+
+**P17 — Boundary-degenerate proportion pooled with spurious precision**:
+- When a pooled proportion (technical success, sensitivity, specificity) has **a majority of studies at the 0% or 100% boundary** (e.g., 5 of 6 studies at 100%), a GLMM / random-effects pool is near-degenerate: I²=0 is a boundary artifact, and a pooled point estimate with a tight CI (e.g., 99.5%, CI 69–100) reads as authoritative precision the data do not support.
+- Lead: count studies at the 0%/100% boundary per outcome; if ≥ (k−1) are at the boundary, flag the pooled point-estimate/CI as spurious precision.
+- Recommend a descriptive tally ("5 of 6 studies reported 100%; the sixth reported X%") rather than a pooled estimate. Severity: MAJOR when the boundary pool is presented as a headline accuracy/success figure.
 
 **Output template (P1 cell-swap example)**:
 > "I spot-checked [Author Year] (PMID [...]) against the source paper and found that the values in Figure X are swapped. The source paper reports external-test sensitivity A% / specificity B% (n=N); the manuscript forest entries place [num1/denom1] in the sensitivity slot (which is the source's specificity numerator/denominator) and [num2/denom2] in the specificity slot (which is the source's sensitivity)."

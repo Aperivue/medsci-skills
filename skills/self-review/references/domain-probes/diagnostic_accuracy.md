@@ -6,7 +6,7 @@
        - self-review: Anticipated Major / Minor Comments (Fatal / Fixable) mapped to category letters.
      Do NOT edit one copy only — run `python3 scripts/check_domain_probe_sync.py --sync`. -->
 
-# Diagnostic-accuracy / reader-study probes (D1–D6)
+# Diagnostic-accuracy / reader-study probes (D1–D8)
 
 A checklist for **diagnostic test accuracy (DTA) primary studies** — an index test against a reference standard, including **multi-reader multi-case (MRMC)** reader studies (e.g., AI-vs-reader or modality-comparison). These probes complement (do not replace) the generic Phase 2 issue checklist and the STARD / QUADAS-2 items; they target the biases QUADAS-2 names and the MRMC design/variance issues a reader study adds. Pairs the `analyze-stats` `table-standards/table-types/reader_study.md` table and the `make-figures` `exemplar_plots/mrmc_roc.md` figure. (For a DTA **meta-analysis**, use `sr_ma.md`.)
 
@@ -38,9 +38,14 @@ A checklist for **diagnostic test accuracy (DTA) primary studies** — an index 
 - Typical signatures: "patients were included if [index score] ≥ T" in a paper whose aim is to evaluate that index; enrolling on a positive screening test to then "validate" the screening test; defining the diseased group by the same reader/algorithm output under study.
 - This is **design-level, not a reporting fix** — escalate past an ordinary Major (a co-reviewer / editor reads it as a fatal selection/spectrum artifact). The fix is a reference standard and an enrollment criterion that are independent of the index test (a consecutive suspected-disease series), not a re-analysis.
 
+**D8 — Exclusion flow-diagram ↔ Methods-prose consistency + modality-safety enumeration**:
+- Cross-check the **exclusion criteria drawn in the participant flow diagram** (STROBE/STARD flow) against the **exclusion list in the Methods prose**. A criterion that appears in one but not the other (a count in the flow with no prose rationale, or a prose exclusion not reflected in the flow boxes) is a reporting inconsistency a co-reviewer catches by reading the two side by side.
+- For an **imaging** study, check that **modality-specific safety contraindications** and **device/artifact exclusions** are enumerated where applicable: MR safety (pacemaker/implant, claustrophobia), iodinated/gadolinium **contrast** contraindications (renal function, allergy, pregnancy), and **image-quality/artifact** exclusions (motion, metal artifact, incomplete coverage). Silent omission of these categories in a prospective imaging cohort understates the selected spectrum.
+- Severity: a flow-vs-prose exclusion mismatch is MAJOR when it changes the analytic-N or the eligible spectrum; missing modality-safety/artifact exclusion categories is MINOR–MAJOR depending on how much of the source population they remove. The fix is a reconciled exclusion list (flow == prose) plus an explicit modality-safety/artifact exclusion enumeration.
+
 **Output template (D2 / D6 example)**:
 > "The study uses a case-control (two-gate) design — confirmed cases versus healthy controls — rather than a consecutive series of patients in whom the diagnosis was suspected. This typically overestimates accuracy and does not reflect the intended-use spectrum, so I'd read the reported sensitivity/specificity as proof-of-concept rather than clinical accuracy, and suggest tempering the Abstract accordingly. Separately, the reader study reports a single reader-averaged AUC; because readers are a sample, I'd suggest an MRMC analysis (e.g., Obuchowski–Rockette) that accounts for both reader and case variance, with per-reader estimates shown and the unit of analysis (per-patient vs per-lesion) stated."
 
-**Discipline — leads vs findings (applies to D1–D6)**:
+**Discipline — leads vs findings (applies to D1–D8)**:
 - A verification/blinding/spectrum concern from a quick scan is a **lead until Methods and the participant flow are read together** — distinguish under-reporting (ask to clarify) from a true design bias (MAJOR).
 - Anchor each comment to the exact bias (partial vs differential verification; single- vs two-gate; reader-averaged vs fixed-reader; per-patient vs per-lesion) and the location. Keep severity tied to what the flaw does: two-gate sampling, incorporation bias, or ignoring reader variance is design/analysis-level (MAJOR, often Major #1); an unreported reading-order detail is a clarify-request.

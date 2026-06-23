@@ -6,7 +6,7 @@
        - self-review: Anticipated Major / Minor Comments (Fatal / Fixable) mapped to category letters.
      Do NOT edit one copy only — run `python3 scripts/check_domain_probe_sync.py --sync`. -->
 
-# AI / ML overclaiming probes (AO0–AO5)
+# AI / ML overclaiming probes (AO0–AO6)
 
 A 5-probe checklist (AO1–AO5, with AO0 as a gate) for medical-AI/ML primary studies (diagnostic, prognostic, triage, detection) where the **conclusion's reach exceeds the evidence**. These probes complement (do not replace) the generic Phase 2 issue checklist and the signature "Overclaiming vs evidence level" check. The aim is to keep a framing-level over-reach from passing as a wording nitpick: a paper can report sound metrics yet draw a clinical claim — generalizable, outperforms clinicians, deployment-ready — that the design does not support, and that claim is what a reader carries away. AO1–AO4 target over-reach in the *claim sentences*; AO5 targets over-reach baked into the *reported metric itself* (an optimistically- or unreproducibly-reported number that makes the result look stronger than a faithful estimate). Run AO0 first.
 
@@ -42,6 +42,12 @@ A 5-probe checklist (AO1–AO5, with AO0 as a gate) for medical-AI/ML primary st
 - (c) **Prevalence-representative metrics**: was training/evaluation done on an artificially balanced set while the real prevalence is much lower, with accuracy quoted as the headline? Accuracy — and PPV/NPV — on a re-balanced set do not transfer to the deployment base rate (PPV/NPV are prevalence-dependent). Ask for the evaluation class distribution, threshold-independent discrimination (AUROC, and AUPRC under imbalance, with CIs), sensitivity / false-negative rate at the stated threshold, and PPV / NPV estimated on a prevalence-representative holdout (or modelled for the target clinical prevalence, with uncertainty).
 - (d) **Code-vs-claims fidelity**: where code is released, does the described tuning/metric match it? Common mismatches: a claimed hyperparameter search the code does not run; a metric (e.g., specificity) attributed to a library function that does not compute it. A confirmed mismatch is an integrity/reproducibility flag — verify against the released code before asserting it.
 - Severity: MAJOR when the load-bearing performance claim rests on a best-fold number, an unstated/test-tuned threshold, a rebalanced-accuracy headline, or a code-vs-claims mismatch (the reported result is optimistic or not reproducible); MINOR when cross-validation was sound and only the cross-fold summary, the operating point, or a class-aware metric is missing from the write-up.
+
+**AO6 — Arm-defining task vs deployment workflow (construct validity of the evaluation)**:
+- Distinct from AO3 (model-task ≠ human-task *framing*) and from scope-coherence (claim ≠ result): AO6 asks whether the **task that defines the study arms mirrors the deployment workflow the claim targets**, or an artificial handicap/selection. Two recurrent failure modes:
+  - (a) **Handicapped arm** — the AI (or comparator) arm is operationalized in a way the real workflow never imposes: e.g., AI read in pure blind interpretation while the actual deployment provides clinical context / priors / the report, so the evaluation measures a task no one performs.
+  - (b) **Success-conditioned selection** — the arm or the analyzed subset is gated on an AI-success condition (cases where the model produced an output, segmentations that "passed", studies the pipeline did not fail on), so the comparison is conditioned on the very thing under test.
+- This is a **design/paradigm-level** defect: the operationalized task, not the prose, is mis-specified, so it cannot be fixed by rewording the claim — escalate **past an ordinary Major** (editors read it as a Reject-grade construct-validity failure; a panel that files it as a fixable Major under-rates it). The fix is a re-designed arm whose task matches the intended deployment workflow and an unconditioned (consecutive / intention-to-diagnose) analysis set.
 
 ## Decision-impact / early-deployment probes (DECIDE-AI axis, DI1–DI5)
 
