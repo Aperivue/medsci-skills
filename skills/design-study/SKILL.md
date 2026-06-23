@@ -195,6 +195,39 @@ For an AI-system-versus-human-expert benchmark specifically, route to `/design-a
 extends this subsection with arm definition, LLM-as-judge versus human-as-judge adjudication, and a
 structured export schema.
 
+**Perceptual / reader AI study — design-stage ceiling gate**
+
+For a reader/observer/perceptual or diagnostic-accuracy AI study (visual Turing test, AI-vs-human
+detection, image-provenance/deepfake, observer study), the acceptance ceiling is fixed **at design
+time, not at analysis time** — excellent execution cannot lift a ceiling baked into the comparator,
+the estimand, or the reader cohort. Walk these six before data lock and, for each, take the
+higher-ambition option or record an explicit, defensible reason not to (set each at the impact level
+of the journal you actually want):
+
+1. **Comparator realism (biggest lever).** A curated teaching-repository "authentic" arm scopes the
+   claim to "teaching-quality", not clinical. Use consecutive, de-identified clinical-acquisition
+   images (the real PACS spectrum), or add a clinical-spectrum validation arm.
+2. **Format / non-content confound matching.** Match every non-content attribute (aspect ratio,
+   resolution, compression, color profile) across arms by construction, and pre-specify a
+   confound-classifier ceiling check (format-only AUC must be ≪ reader AUC) as a *primary* gate.
+3. **Synthetic / index-arm denominator (survivorship).** Pre-specify how failed/low-quality
+   generations are counted; report the full generation denominator rather than evaluating only the
+   convincing survivors.
+4. **Reader independence and breadth.** Recruit an independent, non-author, multi-site (ideally
+   multi-national) reader cohort; collect reader characteristics; blind readers to the hypothesis
+   where feasible.
+5. **Estimand and power (generalize, don't condition).** Power the reader-AND-case generalization as
+   the **primary** estimand from the start, so the two-way interval — not a pool-conditional number —
+   supports the headline claim.
+6. **Novelty positioning vs scoop, and venue-fit.** Scan for close prior work at design time; if a
+   flagship precedent exists, make the differentiation categorical (new modality class, clinical
+   spectrum, outcome linkage), not incremental; pick the venue whose audience values the likely
+   result (a rigorous null fits a methodology-forward journal better than an impact-first one).
+
+The meta-rule: set the comparator, the confound-matching, the reader cohort, and the estimand at the
+target journal's impact level **before** data collection — do not plan to out-write a structural
+ceiling in revision.
+
 ### Phase 3: Clinical framing
 
 Ask whether the comparator and endpoint support the stated claim:

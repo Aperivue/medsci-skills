@@ -157,6 +157,9 @@ jobs:
       - name: Run self-review artifact-coverage gate test
         run: bash skills/self-review/tests/test_artifact_coverage.sh
 
+      - name: Run self-review null-calibration gate test
+        run: bash skills/self-review/tests/test_null_calibration.sh
+
       - name: Run sync-submission supplement-assembler test (A12)
         run: bash skills/sync-submission/tests/test_assemble_supplement.sh
 

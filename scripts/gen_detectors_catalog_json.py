@@ -69,6 +69,7 @@ FAMILY_BY_ID: dict[str, str] = {
     "check_scope_coherence": "confounding_scope_estimand",
     "check_confounding_completeness": "confounding_scope_estimand",
     "check_claim_artifact": "confounding_scope_estimand",
+    "check_null_calibration": "confounding_scope_estimand",
     # Reporting compliance
     "check_framework_naming": "reporting_compliance",
     "check_checklist_exists": "reporting_compliance",

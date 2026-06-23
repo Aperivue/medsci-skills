@@ -49,6 +49,7 @@
 - `check_classical_style.py`
 - `check_cohort_arithmetic.py`
 - `check_confounding_completeness.py`
+- `check_null_calibration.py`
 - `check_panel_diversity.py`
 - `check_paren_spans.py`
 - `check_reference_adequacy.py`

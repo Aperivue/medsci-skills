@@ -362,6 +362,11 @@
       "sha256": "b8643d9d9a4b600af428604811135fc27cee6eb2140bdae5e393ed9b3be37fae"
     },
     {
+      "path": "skills/analyze-stats/scripts/rating_monotonicity.py",
+      "size": 5494,
+      "sha256": "b7f8f36c7af060e2dec60f51185ef4cc5a0f2ef20c1d509fb845b36521f420b3"
+    },
+    {
       "path": "skills/analyze-stats/skill.yml",
       "size": 1421,
       "sha256": "912c52e9289a7ccb014aa8a18105b6dfe04c2cc040e970c73b4bbc6b2d8a8a39"
@@ -868,8 +873,8 @@
     },
     {
       "path": "skills/design-study/SKILL.md",
-      "size": 15849,
-      "sha256": "41e461909bbf56f0cb810c6d0fe809380b70125911bbea014d9d7b8b397a13e9"
+      "size": 18282,
+      "sha256": "dfd73871102af6beab3d21f60f650db41ec2e4025d6ee19eae8de61b17851fd4"
     },
     {
       "path": "skills/design-study/skill.yml",
@@ -2843,8 +2848,8 @@
     },
     {
       "path": "skills/self-review/SKILL.md",
-      "size": 87631,
-      "sha256": "591a0fb94d645ae9a23cc04e70c3d04419705c3c2e70de7333982ef688864a6d"
+      "size": 89813,
+      "sha256": "54bcd9c6e751555044b9b436db9e8f10e0be280b60c00048c68de5570512bf16"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
@@ -2975,6 +2980,11 @@
       "path": "skills/self-review/scripts/check_confounding_completeness.py",
       "size": 21506,
       "sha256": "7d3e67074d58a28ffee52ce64b486231f103a3ddcaf6b3b6ee83ba5f89c63bc2"
+    },
+    {
+      "path": "skills/self-review/scripts/check_null_calibration.py",
+      "size": 7594,
+      "sha256": "9ddff01722c34efb6ffd757ae762c6ee12f5993bf13b11313c2e20b60b26cab3"
     },
     {
       "path": "skills/self-review/scripts/check_panel_diversity.py",
