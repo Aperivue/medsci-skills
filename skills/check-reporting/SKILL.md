@@ -323,9 +323,22 @@ critical item and the journal's own required elements.
 
 Produce a structured compliance report in two parts.
 
+This report is an **internal working audit** — it carries auto-fix annotations, a
+machine-readable JSON block (`compliance_pct`, `fixable_by_ai`, …), and Action
+Items. It is **NOT** the official reporting checklist a journal expects (that is
+the blank guideline form with `Item | Recommendation | Reported in page/section`,
+which the authors fill in). Never submit this report as the submission checklist.
+To make the file self-identifying so it cannot be reused by filename into a later
+submission package, **the report MUST begin with the NOT-FOR-SUBMISSION banner
+below** as its very first line. (`/sync-submission`'s `check_checklist_dump_leak`
+gate also catches this dump if it ever lands in a submission directory.)
+
 #### Part A: Summary
 
 ```
+<!-- INTERNAL AUDIT — NOT FOR SUBMISSION. This is the /check-reporting working
+report, not the official journal checklist. Do not upload to a submission portal. -->
+
 ## Reporting Guideline Compliance Report
 
 Manuscript: {title}

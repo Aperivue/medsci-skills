@@ -13,7 +13,9 @@ cannot silently weaken the gate.
 DEFAULT TIERS — only the unambiguous, deterministic errors halt by default:
   P0 (halt):  placeholders (blocker markers), citation_keys (UNDEFINED [@key]),
               references (duplicate PMID/DOI, offline-deterministic; fabricated/
-              author-mismatch too under --online), sync_drift (canonical hash).
+              author-mismatch too under --online), sync_drift (canonical hash),
+              checklist_dump_leak (internal /check-reporting audit dump in a
+              reviewer-facing file).
   P1 (warn):  xref, copy_divergence, scope_drift, cover_letter_drift,
               cross_document_n, cross_artifact_stale (heuristic / conditional —
               they RUN and REPORT but do not halt unless promoted). Promote with
@@ -58,6 +60,7 @@ S = {
     "scope_drift": REPO_ROOT / "skills/sync-submission/scripts/scope_drift_check.py",
     "cover_letter_drift": REPO_ROOT / "skills/sync-submission/scripts/cover_letter_drift_check.py",
     "asset_anonymization": REPO_ROOT / "skills/sync-submission/scripts/check_asset_anonymization.py",
+    "checklist_dump_leak": REPO_ROOT / "skills/sync-submission/scripts/check_checklist_dump_leak.py",
 }
 
 
@@ -211,6 +214,12 @@ def _argv_asset_anon(c):
     return [PY, str(S["asset_anonymization"]), "--dir", str(c.asset_dir),
             "--quiet", "--out", str(c.qc / "asset_anon.json")]
 
+def _argv_checklist_dump(c):
+    if not c.asset_dir:
+        return None
+    return [PY, str(S["checklist_dump_leak"]), "--dir", str(c.asset_dir),
+            "--quiet", "--out", str(c.qc / "checklist_dump_leak.json")]
+
 
 CHECKS = [
     {"id": "placeholders", "tier": "P0", "build": _argv_placeholders,
@@ -244,6 +253,11 @@ CHECKS = [
     {"id": "asset_anonymization", "tier": "P1", "build": _argv_asset_anon,
      "exit_map": {0: "ok", 1: "finding", 2: "skipped"}, "artifact": "asset_anon.json",
      "double_blind_promote": True},
+    # A leaked /check-reporting or /self-review audit dump in a reviewer-facing
+    # file is never acceptable (exposes auto-fix notes, raw JSON, stale content)
+    # — P0 blocker, independent of blinding.
+    {"id": "checklist_dump_leak", "tier": "P0", "build": _argv_checklist_dump,
+     "exit_map": {0: "ok", 1: "finding", 2: "skipped"}, "artifact": "checklist_dump_leak.json"},
 ]
 
 
@@ -278,7 +292,7 @@ def _message(check_id, status, artifact_path, stdout):
         return f"{len(j.get('limitations_only_anchors', []))} limitations-only anchor(s)"
     if check_id == "copy_divergence" and j:
         return str(j.get("verdict", "")) or "copies checked"
-    if check_id in ("cross_artifact_stale", "asset_anonymization") and j:
+    if check_id in ("cross_artifact_stale", "asset_anonymization", "checklist_dump_leak") and j:
         return ", ".join(f"{k}={v}" for k, v in (j.get("summary") or {}).items()) or "scanned"
     if check_id == "sync_drift" and artifact_path is None and stdout:
         try:
@@ -353,6 +367,7 @@ _SCRIPT_KEY = {
     "cross_document_n": "cross_document_n", "xref": "xref", "copy_divergence": "copy_divergence",
     "scope_drift": "scope_drift", "cover_letter_drift": "cover_letter_drift",
     "asset_anonymization": "asset_anonymization",
+    "checklist_dump_leak": "checklist_dump_leak",
 }
 
 
