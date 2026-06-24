@@ -12,6 +12,7 @@ Source: https://github.com/citation-style-language/styles (zotero/styles).
 | `radiology.csl` | Radiology (RSNA) | Independent. Also acceptable fallback for Radiology: AI when no dedicated CSL exists |
 | `american-journal-of-roentgenology.csl` | AJR | Independent |
 | `korean-journal-of-radiology.csl` | KJR | Vancouver-superscript variant |
+| `liver-international.csl` | Liver International (Wiley) | AMA-style superscript: et-al after 6 (first 3 + et al), no PMID, DOI kept. Also a fallback for Wiley/AMA "first-3-et-al" superscript journals |
 | `vancouver.csl` | Generic Vancouver (brackets) | Fallback when journal CSL unavailable (e.g., JVIR, Radiology: AI) |
 | `vancouver-superscript.csl` | Generic Vancouver (superscript) | Alternative fallback |
 | `springer-basic-brackets.csl` | Parent of European Radiology | Do not use directly — keep co-located |

@@ -2023,8 +2023,8 @@
     },
     {
       "path": "skills/manage-refs/citation_styles/README.md",
-      "size": 2001,
-      "sha256": "e25f3c5689112527d0eccabcd5dc69a061f56355b3e02c8b71a1d831e04e443d"
+      "size": 2205,
+      "sha256": "d957bbdd13df10884fd54f9eb4efb096a73824c69167f872b0cb9819be031cdf"
     },
     {
       "path": "skills/manage-refs/citation_styles/american-journal-of-roentgenology.csl",
@@ -2060,6 +2060,11 @@
       "path": "skills/manage-refs/citation_styles/korean-journal-of-radiology.csl",
       "size": 5849,
       "sha256": "edde670da20212820d54649dcb96594db835eb55498e88c7de41891dfb370114"
+    },
+    {
+      "path": "skills/manage-refs/citation_styles/liver-international.csl",
+      "size": 18264,
+      "sha256": "c7c144ff5df948fc09c9604bf9f8269c6cd427c29bd043da6ead24e75c80971f"
     },
     {
       "path": "skills/manage-refs/citation_styles/nature.csl",
@@ -3438,8 +3443,8 @@
     },
     {
       "path": "skills/write-paper/references/journal_profiles/Liver_International.md",
-      "size": 9474,
-      "sha256": "50b7cc65792c17b406ffa4cb32cfb54963d0972b71e48730d4e92a7172dcbe12"
+      "size": 12174,
+      "sha256": "4a12d53605045b20aabc827e4b803edd73f603b6112ced34ec8acfef965950aa"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/Medical_Image_Analysis.md",
