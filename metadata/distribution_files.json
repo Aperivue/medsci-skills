@@ -468,8 +468,8 @@
     },
     {
       "path": "skills/check-reporting/SKILL.md",
-      "size": 32921,
-      "sha256": "6901d90a56ac4f752988b533310eedb773819241774befc2bbc64bb592d52e9f"
+      "size": 33816,
+      "sha256": "d36e4163336c023d0d5b963a63148b76af715210892216cabca42e45bdf9bb87"
     },
     {
       "path": "skills/check-reporting/references/LICENSES.md",
@@ -3043,8 +3043,8 @@
     },
     {
       "path": "skills/sync-submission/SKILL.md",
-      "size": 26836,
-      "sha256": "7aa91cc5355c3257877e0e9fdb12b60a7315f3865faa225ece32a4cc6a9c2d76"
+      "size": 27787,
+      "sha256": "4da14c76c6c9326d31ee93e9515854291cba2c48692eb85cf5d9f6f4301ce465"
     },
     {
       "path": "skills/sync-submission/references/journal_availability_policy.json",
@@ -3070,6 +3070,11 @@
       "path": "skills/sync-submission/scripts/check_asset_anonymization.py",
       "size": 13869,
       "sha256": "caba039c6cfbfa09aec681a9840c7e0b5650cccdf9e00ddfd869557b0fec57c8"
+    },
+    {
+      "path": "skills/sync-submission/scripts/check_checklist_dump_leak.py",
+      "size": 8745,
+      "sha256": "320765b9e975601fc2d73ce15a65b1419668982630c3b7546d0909158e5a5374"
     },
     {
       "path": "skills/sync-submission/scripts/check_cross_artifact_stale.py",
@@ -3103,8 +3108,8 @@
     },
     {
       "path": "skills/sync-submission/scripts/preflight_gate.py",
-      "size": 20061,
-      "sha256": "e3e7a300f258cab373410504c1f48d27a1b75c49a12d7fa5cc0f8ba62ab86c4b"
+      "size": 20954,
+      "sha256": "f4be9edf587ec5ea2b7fb782e4912173b78a4fe2035720e6d0681b3d8f36340f"
     },
     {
       "path": "skills/sync-submission/scripts/scope_drift_check.py",

@@ -84,6 +84,7 @@ FAMILY_BY_ID: dict[str, str] = {
     "check_reverse_coding": "data_preparation",
     "check_asset_anonymization": "data_preparation",
     "check_cross_artifact_stale": "data_preparation",
+    "check_checklist_dump_leak": "data_preparation",
 }
 
 # Stable display order + human labels for the families array.

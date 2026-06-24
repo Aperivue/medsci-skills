@@ -75,8 +75,9 @@ python "${CLAUDE_SKILL_DIR}/scripts/preflight_gate.py" --project-root . --journa
 By default the gate **halts only on the unambiguous, deterministic errors** (P0):
 leftover placeholder/markers (`check_placeholders.py`), undefined `[@key]`
 citations (`check_citation_keys.py`), duplicate references (`verify_refs.py`,
-offline-deterministic), and a canonical-vs-submission hash mismatch
-(`sync_submission.py audit`). The heuristic or conditional checks — `check_xref`,
+offline-deterministic), a canonical-vs-submission hash mismatch
+(`sync_submission.py audit`), and an internal-audit dump leaked into a
+reviewer-facing file (`check_checklist_dump_leak.py` — see below). The heuristic or conditional checks — `check_xref`,
 `detect_copy_divergence`, `scope_drift_check`, `cover_letter_drift_check`,
 `cross_document_n_check`, `check_cross_artifact_stale` — **run and report as P1
 `warn` but do not halt** unless promoted with `--strict` or `--require ID`;
@@ -88,6 +89,8 @@ config error (e.g. a `--require`'d check could not run).
 The gate's offline references pass is the deterministic subset (duplicates +
 pagination placeholders); an online `/verify-refs --strict` against PubMed/CrossRef
 remains the authoritative fabrication and author-name check before submission.
+
+**Audit-dump leak check (P0).** A `/check-reporting` or `/self-review` report is an *internal working audit* — it carries auto-fix annotations, a raw JSON block (`compliance_pct`, `fixable_by_ai`, `check_reporting_version`), pipeline-log paths, and "Action Items". It is NOT the official reporting checklist a journal expects, and must never reach a reviewer. A near-miss: a prior project's `STROBE_checklist_v4.pdf` was actually this dump, reused by filename into a later submission and compiled into the reviewer-visible proof. `scripts/check_checklist_dump_leak.py --dir submission/` scans every `.md`/`.docx`/`.pdf` in the package for these tokens; any hit is a P0 `leak`. Run it (the pre-flight gate already does, over the journal asset directory) before freeze and confirm `submission_safe: true`. Writes `qc/checklist_dump_leak.json`.
 
 **Disclosure & availability check (standalone).** Top medical-AI journals require, before review, an AI-use disclosure carrying four tokens (version + access channel + date/date-range + responsible party — the tool name only *triggers* the check) and Data/Code Availability statements. Run `python3 ${CLAUDE_SKILL_DIR}/scripts/check_disclosure_availability.py --manuscript <file> --journal <stem> [--ai-study] [--require data_availability ...] [--strict]` (reads `references/journal_availability_policy.json`). It blocks on a missing required statement or an AI disclosure that is present but missing a token / carrying a placeholder; "available on reasonable request" where the journal expects a repository is a P1 warning. Writes `qc/disclosure_availability_report.json`.
 

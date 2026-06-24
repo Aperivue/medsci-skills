@@ -2,6 +2,23 @@
 
 ## [Unreleased]
 
+### Added
+
+- **Audit-dump leak gate** — new `check_checklist_dump_leak.py` (`/sync-submission`)
+  scans every `.md`/`.docx`/`.pdf` in a submission directory for the residue of a
+  `/check-reporting` or `/self-review` *internal* audit report (`compliance_pct`,
+  `fixable_by_ai`, `check_reporting_version`, `Auto-fix:`, `[PARTIAL→auto-fixed]`,
+  `suggested_fix`, `Action Items`, `_pipeline_log`, `NON-AUTHORITATIVE`). Any hit is
+  a **P0 leak**: these tooling tokens must never reach a reviewer. Motivated by a
+  near-miss where a prior project's `STROBE_checklist_v4.pdf` was actually the
+  check-reporting dump, reused by filename and compiled into the reviewer-visible
+  proof (exposing auto-fix notes, raw JSON, and a stale old title). Wired into
+  `preflight_gate.py` as a P0 check over the journal asset directory; writes
+  `qc/checklist_dump_leak.json`. `/check-reporting` reports now also open with a
+  `NOT-FOR-SUBMISSION` banner so the working audit is self-identifying.
+  Analysis-integrity detectors **32 → 33**; skills 45 and reporting guidelines 36
+  unchanged. Additive and backward-compatible.
+
 ## [4.8.0] - 2026-06-24
 
 The **review-harvest batch**: deterministic detector hardening promoted from real-manuscript review

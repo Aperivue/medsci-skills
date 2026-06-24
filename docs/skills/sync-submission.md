@@ -46,6 +46,7 @@
 - `author_registry_example.yaml`
 - `blind_sweep.py`
 - `check_asset_anonymization.py`
+- `check_checklist_dump_leak.py`
 - `check_cross_artifact_stale.py`
 - `check_disclosure_availability.py`
 - `check_wordcount_cap.py`
