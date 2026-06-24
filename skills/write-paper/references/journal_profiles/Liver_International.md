@@ -11,7 +11,7 @@
 - **Open Access**: Hybrid (standard copyright OR Creative Commons under OA fee; APC applies when OA chosen). >9 published pages = GBP 100/page (excess), unless fully OA.
 - **Acceptance rate**: [VERIFY at journal site]
 - **Peer review**: Single-blind; 2 independent reviewers plus Editors; early rejection without external review permitted; Peer Review Transparency pilot via Publons (opt-out during submission)
-- **Verification date**: 2026-05-21 (against Wiley Liver International Author Guidelines PDF)
+- **Verification date**: 2026-05-21 (AGL PDF); submission mechanics verified 2026-06-24 (live Research Exchange submission)
 
 ## Manuscript Types and Word Limits
 
@@ -163,3 +163,25 @@ Editorial Office: LIVeditorialoffice@wiley.com
 | OA model | Hybrid | Full OA | Hybrid | Hybrid |
 | Methodology-only papers | Rejected | Case-by-case | Rejected | Rejected |
 | Case reports | Rejected | Not mentioned | Rejected | Rejected |
+
+---
+
+## Submission Mechanics (Research Exchange / Free Format) — verified 2026-06-24
+
+Liver International submits via **Wiley Research Exchange** (https://authors.wiley.com/journal/LIV), **Free Format**:
+
+- **Initial submission needs no journal-specific reformatting.** Main manuscript may be a single file (title page + abstract + lay summary + main text + references + tables + figure legends). References may be in **any consistent style** at first submission; AMA is the journal house style for revision (see CSL below).
+- **Upload slots** (no separate Title Page slot — embed title page as manuscript page 1):
+  | Slot | What goes here |
+  |---|---|
+  | Main Manuscript (1, MS Word) | full manuscript incl. embedded tables + figure legends |
+  | Figure | each figure as a separate image file if not embedded (TIFF 300 dpi / EPS 800 dpi); TIFFs are not inline-rendered in the proof — normal |
+  | Table | only if tables are NOT embedded in the main document |
+  | Supplementary Material for Review | supplement that will be published (e.g., Supplementary Methods + Tables) |
+  | Additional File for Review but Not for Publication | reporting checklist (STROBE/etc.) — review aid, not published |
+  | Cover letter / Comments | cover letter (not shown to reviewers) |
+- **Reference style / CSL**: AMA-style superscript, >6 authors → first 3 + et al. Render with `/manage-refs render_pandoc.sh -j liver-international` (adds `citation_styles/liver-international.csl`: et-al-min 7, et-al-use-first 3, PMID removed, DOI kept).
+- **AI disclosure**: Wiley requires AIGC tools declared **in the Methods section** with the **tool name(s)** (e.g., "Anthropic Claude", "OpenAI Codex"), not only in the cover letter. (This overrides any classical-style "no in-body AI disclosure" preference for this journal.)
+- **ICMJE COI form upload is NOT required** — Wiley collects per-author COI in-portal + title page statement + cover letter. There is no COI/ICMJE upload slot.
+- **Cascade resubmission** (e.g., after a different journal's rejection): portal "currently under consideration elsewhere?" = **No** (the prior submission is closed); "previously submitted to *this* journal?" = **No**. No disclosure of the prior rejection required.
+- **Pitfall**: when reusing a prior version's STROBE/PRISMA/CONSORT attachment, verify the file content — a `/check-reporting` or `/self-review` **audit output is not a submission file** (it leaks "auto-fix"/JSON/compliance%/stale title). Upload only the official-format checklist. Read the compiled proof PDF to the last page (supplementary + additional files) before completing. See `submission-portal-verification.md` §9.6.
