@@ -76,6 +76,16 @@
   Analysis-integrity detectors **32 → 33**; skills 45 and reporting guidelines 36
   unchanged. Additive and backward-compatible.
 
+- **Frontmatter schema gate (Agent Skills cross-platform portability)** — new
+  `scripts/check_frontmatter_schema.py` + CI step strictly `yaml.safe_load`s every
+  `skills/*/SKILL.md` frontmatter and enforces the published Agent Skills spec: valid
+  YAML, `name` ≤64 chars / lowercase-hyphen / no reserved `claude`/`anthropic` token,
+  `description` present / ≤1024 chars / no XML angle brackets. The repo's own generators
+  use a tolerant line-based reader, so a frontmatter block that is not valid YAML could
+  pass every prior gate yet be rejected by a strict-YAML consumer (the agentskills.io
+  directory validator or another agent platform). Self-test (`tests/test_frontmatter_schema.sh`)
+  covers each violation class. This is a repo-CI validator, not a counted detector.
+
 ### Fixed
 
 - **Public-doc count reconciliation** — `README.md` (MedSci-Audit suite line) and
@@ -122,6 +132,13 @@
   or test from going dormant again (a detector must be invoked from SKILL.md and CI-tested; a
   test only counts as coverage if it is a `run:` step in `validate.yml`). No skill or detector
   count change.
+
+- **`manage-project` frontmatter was not valid YAML** — its inline `description` ended with
+  `Commands: init, status, …`, and the `: ` makes a plain inline scalar invalid YAML (a strict
+  parser raises "mapping values are not allowed here"). The repo's tolerant reader accepted it,
+  so it passed every prior gate, but a strict-YAML consumer would reject the skill. Quoted the
+  description value (text unchanged; the storefront catalog first-sentence and per-skill docs are
+  byte-identical). Found by the new frontmatter schema gate above.
 
 ## [4.8.0] - 2026-06-24
 

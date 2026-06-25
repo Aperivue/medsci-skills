@@ -1,6 +1,6 @@
 ---
 name: manage-project
-description: Research project management for medical manuscripts. Scaffold project structure, track writing progress across phases, maintain project memory files, generate submission checklists and backwards timelines. Commands: init, status, sync-memory, checklist, timeline.
+description: "Research project management for medical manuscripts. Scaffold project structure, track writing progress across phases, maintain project memory files, generate submission checklists and backwards timelines. Commands: init, status, sync-memory, checklist, timeline."
 triggers: manage project, project init, project status, submission checklist, project scaffold, create project, new paper project
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit
