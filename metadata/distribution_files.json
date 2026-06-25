@@ -468,8 +468,8 @@
     },
     {
       "path": "skills/check-reporting/SKILL.md",
-      "size": 33816,
-      "sha256": "d36e4163336c023d0d5b963a63148b76af715210892216cabca42e45bdf9bb87"
+      "size": 35025,
+      "sha256": "b2808d9de4873aebe2006ceb00d0a4577cdb02d9709cb9777bdf4b8513f79710"
     },
     {
       "path": "skills/check-reporting/references/LICENSES.md",
@@ -667,6 +667,11 @@
       "sha256": "f955a0479da6474e43ece05361838f8db95923ec9f7dc56863afbf4cba66174d"
     },
     {
+      "path": "skills/check-reporting/references/genai_image_study_object_decision_aid.md",
+      "size": 4287,
+      "sha256": "34f79571566ef06eee0fc4c8c646be530806fca658720902d16642faadc8844b"
+    },
+    {
       "path": "skills/check-reporting/references/step4c_registration_timing.md",
       "size": 4197,
       "sha256": "e0e76c5fb061ac2df0b61048461124abfa16217ea72cd9eed41f83d372343310"
@@ -853,8 +858,13 @@
     },
     {
       "path": "skills/design-ai-benchmarking/SKILL.md",
-      "size": 10820,
-      "sha256": "28bc4edc34b28e3d40d176743a1ccaa60b1c559ee1e401ca94c4a14131c10630"
+      "size": 12094,
+      "sha256": "b8f794a1f6c800d821305a4df8a797bea61cf34a602e0dc0dbea8f2c0c458ca5"
+    },
+    {
+      "path": "skills/design-ai-benchmarking/references/anchor_rotate_reader_allocation.md",
+      "size": 4585,
+      "sha256": "a763572efd764118e6ee57c950268c175cfeeecca00a43be53412e97c053421d"
     },
     {
       "path": "skills/design-ai-benchmarking/references/benchmark_export_schema.json",

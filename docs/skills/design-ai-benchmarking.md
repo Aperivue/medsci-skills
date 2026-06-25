@@ -34,6 +34,7 @@
 
 **References** (`skills/design-ai-benchmarking/references/`):
 
+- `anchor_rotate_reader_allocation.md`
 - `benchmark_export_schema.json`
 - `elicitation_rubric_template.md`
 
