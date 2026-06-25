@@ -86,6 +86,19 @@
   progression no longer implies v4.8 is current. No code or count change — the SSOT was
   already correct; only the prose was stale. Verified by `validate_catalog_consistency.py`.
 
+- **`check_csl_render.py` hardening** (`/manage-refs`) — the CSL acceptance detector
+  had five latent bugs that could surface a raw traceback or a silently-wrong verdict:
+  it carried the two citekeys as module globals (`render()` was not standalone-callable),
+  did not check pandoc's return code (a failed render was analyzed as if it succeeded),
+  leaked `NamedTemporaryFile(delete=False)` temp files, imported `python-docx` deep inside
+  a function, and read the `.bib` with an unguarded `open().read()`. Now: citekeys are
+  passed as parameters, pandoc's return code (and a missing pandoc binary) raise a clear
+  error and exit 2, all temp files live in a `TemporaryDirectory`, the `python-docx` import
+  is guarded with an install hint, and a missing `.bib` reports `bib file not found`. No
+  detector-count or behavior change on the happy path. New CI-wired regression test
+  (`tests/test_csl_render.sh`, PII-free fixture) covers the error paths without requiring
+  pandoc (the no-pandoc branch runs in CI; the render branch runs wherever pandoc exists).
+
 ## [4.8.0] - 2026-06-24
 
 The **review-harvest batch**: deterministic detector hardening promoted from real-manuscript review

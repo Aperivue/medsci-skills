@@ -17,6 +17,12 @@ This script renders a 2-citation sample through pandoc + the CSL and checks:
 Compares against expected spec (from REFERENCE_STYLE_SPECS.md or CLI flags) and
 exits non-zero on mismatch — run this BEFORE submission, not after the proof PDF.
 
+Exit codes:
+  0  output matches journal spec
+  1  spec mismatch (in-text / DOI / abbreviation)
+  2  environment / input error (pandoc or python-docx missing, bib not found,
+     pandoc render failed) — reported with a clear message, never a raw traceback
+
 Usage:
   python check_csl_render.py --csl path/to.csl --bib refs.bib \\
       --expect-intext superscript --expect-doi 0 --expect-abbrev yes
@@ -24,6 +30,15 @@ Usage:
   python check_csl_render.py --csl ... --bib ... --journal jkms
 """
 import argparse, subprocess, tempfile, re, os, sys, json
+from pathlib import Path
+
+# python-docx is required for the superscript check. Import is guarded at the top
+# so a missing dependency is a clear, actionable message (exit 2) rather than an
+# ImportError traceback raised deep inside analyze().
+try:
+    from docx import Document
+except ImportError:  # pragma: no cover - environment-dependent
+    Document = None
 
 # Minimal built-in spec table (extend via REFERENCE_STYLE_SPECS.md).
 # intext: superscript|bracket|paren ; doi: 0|1 ; abbrev: yes|no
@@ -38,27 +53,71 @@ SPECS = {
 
 SAMPLE = ("Risk is elevated [@A; @B].\n\n# References\n")
 
-def render(csl, bib, fmt):
-    md = tempfile.NamedTemporaryFile("w", suffix=".md", delete=False)
-    md.write(SAMPLE.replace("@A", FIRST).replace("@B", SECOND)); md.close()
-    out = tempfile.NamedTemporaryFile(suffix=("."+fmt), delete=False).name
-    subprocess.run(["pandoc", md.name, "--citeproc", f"--bibliography={bib}",
-                    f"--csl={csl}", "-o", out], capture_output=True)
-    return out
 
-def analyze(csl, bib):
-    # need two citekeys present in bib; pick first two @article keys
-    keys = re.findall(r"@\w+\{([^,]+),", open(bib).read())
-    global FIRST, SECOND
-    FIRST, SECOND = (keys + ["A", "B"])[:2]
-    docx = render(csl, bib, "docx")
-    txt_out = render(csl, bib, "plain")
-    txt = open(txt_out).read() if os.path.exists(txt_out) else ""
-    # in-text format
-    from docx import Document
-    d = Document(docx)
-    sup = sum(1 for p in d.paragraphs for r in p.runs
-              if r.font.superscript and re.search(r"\d", r.text))
+class RenderError(RuntimeError):
+    """Environment/input failure that should exit 2 with a clear message."""
+
+
+def _read_bib(bib: str) -> str:
+    """Read the .bib file, raising a clear RenderError if it is missing/unreadable."""
+    p = Path(bib)
+    if not p.exists():
+        raise RenderError(f"bib file not found: {bib}")
+    try:
+        return p.read_text(encoding="utf-8")
+    except OSError as exc:
+        raise RenderError(f"could not read bib file {bib}: {exc}") from exc
+
+
+def render(csl: str, bib: str, fmt: str, first: str, second: str, outdir: str) -> str:
+    """Render the 2-citation SAMPLE through pandoc+CSL into ``outdir``.
+
+    ``first``/``second`` are the two citekeys to substitute (passed explicitly so
+    this function is standalone-callable — no module globals). The input markdown
+    and the output file live under ``outdir`` so the caller's TemporaryDirectory
+    cleans everything up; nothing leaks. Raises RenderError if pandoc is missing
+    or returns non-zero, so a failed render can never be silently analyzed as if
+    it had succeeded.
+    """
+    md_path = os.path.join(outdir, "sample.md")
+    out_path = os.path.join(outdir, f"out.{fmt}")
+    Path(md_path).write_text(SAMPLE.replace("@A", first).replace("@B", second), encoding="utf-8")
+    try:
+        proc = subprocess.run(
+            ["pandoc", md_path, "--citeproc", f"--bibliography={bib}",
+             f"--csl={csl}", "-o", out_path],
+            capture_output=True, text=True,
+        )
+    except FileNotFoundError as exc:
+        raise RenderError(
+            "pandoc not found on PATH. Install pandoc to run the CSL render check."
+        ) from exc
+    if proc.returncode != 0:
+        raise RenderError(
+            f"pandoc failed (exit {proc.returncode}) rendering {fmt}: "
+            f"{proc.stderr.strip()[:500]}"
+        )
+    return out_path
+
+
+def analyze(csl: str, bib: str) -> dict:
+    # Validate inputs first (bib path), so a missing bib is reported clearly and
+    # independently of whether the optional python-docx parser is installed.
+    keys = re.findall(r"@\w+\{([^,]+),", _read_bib(bib))
+    first, second = (keys + ["A", "B"])[:2]
+    if Document is None:
+        raise RenderError(
+            "python-docx is required for the in-text superscript check "
+            "(pip install python-docx)."
+        )
+    with tempfile.TemporaryDirectory(prefix="csl_render_") as tmp:
+        docx = render(csl, bib, "docx", first, second, tmp)
+        txt_out = render(csl, bib, "plain", first, second, tmp)
+        txt = Path(txt_out).read_text(encoding="utf-8") if os.path.exists(txt_out) else ""
+        # in-text format
+        d = Document(docx)
+        sup = sum(1 for p in d.paragraphs for r in p.runs
+                  if r.font.superscript and re.search(r"\d", r.text))
     body = txt.split("References")[0] if "References" in txt else txt
     intext = ("superscript" if sup > 0
               else "bracket" if re.search(r"\[\d", body)
@@ -83,7 +142,11 @@ def main():
     if a.expect_intext: exp["intext"] = a.expect_intext
     if a.expect_doi is not None: exp["doi"] = a.expect_doi
     if a.expect_abbrev: exp["abbrev"] = a.expect_abbrev
-    got = analyze(a.csl, a.bib)
+    try:
+        got = analyze(a.csl, a.bib)
+    except RenderError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        sys.exit(2)
     print(json.dumps({"csl": os.path.basename(a.csl), "expected": exp, "got": got}, indent=2))
     fails = []
     if exp.get("intext") and got["intext"] != exp["intext"]:

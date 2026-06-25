@@ -2133,8 +2133,8 @@
     },
     {
       "path": "skills/manage-refs/scripts/check_csl_render.py",
-      "size": 5151,
-      "sha256": "bdaf85f75a2ebfb0224d39b4862ccf31dd914453b540de8f3c1ea6e2a0dccc48"
+      "size": 7718,
+      "sha256": "a1848c33e945024719fa1b7cc996d37555801e011c6280be6644ae4f01642601"
     },
     {
       "path": "skills/manage-refs/scripts/check_reference_duplication.py",

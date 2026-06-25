@@ -197,6 +197,9 @@ jobs:
       - name: Run manage-refs vN-docx cross-reference test
         run: bash skills/manage-refs/tests/test_vN_docx_check.sh
 
+      - name: Run manage-refs CSL-render hardening test
+        run: bash skills/manage-refs/tests/test_csl_render.sh
+
       - name: Run polish-language consistency-linter challenge
         run: bash skills/polish-language/scripts/lint_challenge/verify.sh
 
