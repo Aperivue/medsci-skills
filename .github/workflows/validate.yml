@@ -79,6 +79,12 @@ jobs:
       - name: Run validate_catalog_consistency.py (doc counts must match disk SSOT)
         run: python3 scripts/validate_catalog_consistency.py
 
+      - name: Run check_frontmatter_schema.py (Agent Skills frontmatter spec — valid YAML, name, description)
+        run: python3 scripts/check_frontmatter_schema.py
+
+      - name: Run frontmatter-schema gate self-test
+        run: bash tests/test_frontmatter_schema.sh
+
       - name: Run gen_skill_docs.py --check (per-skill docs must match SKILL.md)
         run: python3 scripts/gen_skill_docs.py --check
 
