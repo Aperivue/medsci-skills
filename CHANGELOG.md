@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [4.9.0] - 2026-06-26
+
 ### Added
 
 - **Duplicate-bibliography gate** — new `check_reference_duplication.py`

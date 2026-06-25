@@ -268,7 +268,7 @@ The E2E pipeline (`orchestrate --e2e`) produces everything up to `qc/`. The `sub
 
 ## What's New
 
-**Unreleased** — analysis-integrity hardening promoted from real review cycles, plus journal-mechanics additions. Additive and backward-compatible; still 45 skills / 36 guidelines, analysis-integrity detectors **32 → 36**:
+**v4.9** — analysis-integrity hardening promoted from real review cycles, plus journal-mechanics additions. Additive and backward-compatible; still 45 skills / 36 guidelines, analysis-integrity detectors **32 → 36**:
 
 - **Four new gates** — a **duplicate-bibliography** check (`check_reference_duplication.py`) for the hybrid `[@key]` + hand-typed `## References` build that renders the list twice; a **cross-script binning / composite-indicator** consistency check (`check_binning_consistency.py`, `BINNING_DRIFT` / `DERIVED_DEF_DRIFT`) for a derived categorical or composite indicator defined inconsistently across analysis scripts; a **float citation-order** check (`check_citation_order.py`) for numbered Tables/Figures not first cited in ascending order per series; and an **audit-dump leak** gate (`/sync-submission`) that blocks a `/check-reporting` output mistakenly attached as a submission file.
 - **KJR technical-check conventions + percentage-decimal style**, reader-allocation-under-burden and generative-image-as-study-object reporting (`/design-ai-benchmarking`, `/check-reporting`), and a **Liver International** CSL with that journal's submission mechanics (`/manage-refs`).
