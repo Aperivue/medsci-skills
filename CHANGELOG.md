@@ -86,6 +86,20 @@
   directory validator or another agent platform). Self-test (`tests/test_frontmatter_schema.sh`)
   covers each violation class. This is a repo-CI validator, not a counted detector.
 
+### Changed
+
+- **Skill-boundary documentation** — a diagnostic pass confirmed the 45 skills are
+  deliberately specialized (no consolidation warranted), but several boundaries were
+  easy to confuse. README's "Skills Work Together" now carries a **Skill boundaries**
+  block spelling out the reference pipeline (`search-lit` → `lit-sync` → `manage-refs` →
+  `verify-refs`), the language pass order (`humanize` → `polish-language` → `academic-aio`),
+  manuscript-type selection (`write-paper` / `review-paper` / `revise`), author-vs-reviewer
+  (`self-review` / `peer-review`), project entry (`intake-project` / `orchestrate`), study
+  design (`design-study` perceptual ceiling gate / `design-ai-benchmarking`), and content
+  vs template (`write-protocol` / `fill-protocol`). `/revise` now documents the manual
+  fallback when `/analyze-stats` or `/make-figures` is unavailable (emit a checklist, hold
+  responses as `BLOCKED — pending analysis/figure`, never invent numbers). Docs only.
+
 ### Fixed
 
 - **Public-doc count reconciliation** — `README.md` (MedSci-Audit suite line) and

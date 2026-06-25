@@ -606,6 +606,17 @@ Projects declare their source-of-truth layout in `SSOT.yaml`, and a `qc/migratio
 ### Skills Work Together
 Skills call each other. `check-reporting` invokes `make-figures` for PRISMA diagrams. `write-paper` calls `search-lit` for citation verification. `self-review` delegates reporting compliance to `check-reporting`. `calc-sample-size` output feeds directly into `write-protocol`'s IRB justification section.
 
+### Skill boundaries — which to use, and in what order
+The skill set is deliberately *specialized, not consolidated* — each skill owns a distinct artifact or lifecycle step, so the routing stays precise. The boundaries that are easy to confuse:
+
+- **Reference pipeline** — `search-lit` (discover candidates) → `lit-sync` (sole writer of `refs.bib`, syncs Zotero/Obsidian) → `manage-refs` (render CSL / inject CWYW / cross-ref QC, sole writer of the rendered DOCX) → `verify-refs` (read-only audit; never edits `refs.bib`). They are one pipeline, not four overlapping tools.
+- **Language passes run in order** — `humanize` (remove AI-writing tells) → `polish-language` (deterministic ESL/house-style consistency: abbreviations, spelling, en-dashes, p-value case) → `academic-aio` (AI-search/GEO visibility). Three sequential passes with non-overlapping jobs.
+- **Manuscript type picks the skill** — `write-paper` (original/IMRAD articles, case reports, MAs) vs `review-paper` (narrative / scoping / systematic literature reviews) vs `revise` (reviewer-response + tracked changes). Different structures and reporting guidelines.
+- **Author vs external reviewer** — `self-review` is your own pre-submission check (anticipated comments); `peer-review` drafts a journal-facing review as an external reviewer. Same domain probes, different user and output.
+- **Project entry** — `intake-project` classifies and scaffolds a *new or messy folder*; `orchestrate` routes a *goal or task* ("help me write a paper"). Start with `intake-project` when you have files but no structure, `orchestrate` when you have a task but no plan.
+- **Study design** — `design-study` covers general validity (analysis unit, leakage, comparator, validation) **and** carries a design-stage ceiling gate for perceptual / observer / reader / visual-Turing-test / image-provenance studies; `design-ai-benchmarking` specializes in AI-vs-human-expert evaluation (rubrics, calibration probes, LLM-as-judge).
+- **Content vs template** — `write-protocol` drafts IRB/ethics scientific content; `fill-protocol` renders that content into an institutional Word template without breaking its formatting.
+
 ### Validation status — available vs CI-gated vs evaluated
 Be precise about what "validated" means here — the three tiers are different facts:
 - **Available** — every bundled skill and deterministic detector. The current totals are the single source of truth in [`metadata/catalog_counts.json`](metadata/catalog_counts.json) and [`MEDSCI_AUDIT.md`](MEDSCI_AUDIT.md).

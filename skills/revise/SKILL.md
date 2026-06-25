@@ -81,6 +81,8 @@ Before writing responses, identify which comments require external action:
 
 Output: "The following comments require statistical analysis before responses can be finalized: R1-1, R2-3. Run /analyze-stats with these tasks, then return to /revise."
 
+**If `/analyze-stats` or `/make-figures` is not installed in this environment**, do not invent numbers or figures. Emit the same routing list as an explicit checklist for the author to run manually (the named analysis or figure per comment) and hold those responses as `BLOCKED — pending analysis/figure` until the committed script + CSV (or figure file) returns. The reviewer-response numbers must always trace to a produced artifact, never to a model estimate.
+
 ---
 
 ## Step 2.5: Revision Numerical Lineage Check (MANDATORY)
