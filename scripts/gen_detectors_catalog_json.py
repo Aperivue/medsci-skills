@@ -59,6 +59,7 @@ FAMILY_BY_ID: dict[str, str] = {
     "check_csl_render": "citation_reference",
     "check_reference_adequacy": "citation_reference",
     "check_placeholders": "citation_reference",
+    "check_reference_duplication": "citation_reference",
     # Style & review-process integrity
     "check_classical_style": "style_review",
     "check_generated_code": "style_review",
@@ -86,6 +87,7 @@ FAMILY_BY_ID: dict[str, str] = {
     "check_asset_anonymization": "data_preparation",
     "check_cross_artifact_stale": "data_preparation",
     "check_checklist_dump_leak": "data_preparation",
+    "check_binning_consistency": "data_preparation",
 }
 
 # Stable display order + human labels for the families array.

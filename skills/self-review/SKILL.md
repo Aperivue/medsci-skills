@@ -546,6 +546,29 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/check_cohort_arithmetic.py" \
 Also confirm the reference (baseline) row of any stratified hazard/odds table is present
 and labelled; a missing reference category makes the other strata uninterpretable.
 
+**Cross-script cut-point consistency (root cause of stratum-N drift).** When the same cohort
+is re-stratified in more than one analysis script — a primary table in one file, a sensitivity
+or secondary analysis in another — the derived categorical (age band, BMI category, eGFR stage,
+risk tier) must use one identical cut definition: same breaks, same interval closure
+(`right=`), same labels. If two scripts bin the same variable differently, per-stratum Ns drift
+between tables while the grand total still reconciles, and a stratum can spuriously cross a
+threshold — a `PARTITION_OVERLAP`/stratum-N check on the manuscript alone will not localize the
+cause. `check_binning_consistency.py` parses the analysis source (R/Python) and emits
+`BINNING_DRIFT` (Major) when one variable is derived with ≥2 different `(breaks, right)`
+signatures across files:
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/check_binning_consistency.py" \
+  --root analysis --root scripts --strict
+```
+
+Precedent: a screening cohort binned age with `breaks=c(-Inf,45,50,60,Inf), right=FALSE` in the
+primary script and `breaks=c(-Inf,44,49,59,Inf), right=TRUE` in a threshold sensitivity script;
+fractional ages fell into different bands, shifting hundreds of participants and producing a
+spurious "reached" stratum in the sensitivity table that vanished once the binning was
+harmonized. Fix at the source by defining each cut once in a shared helper that every script
+sources.
+
 ### Phase 2.5c: Reference Hallucination Scan
 
 Numerical audits (2.5/2.5a/2.5b) cover in-text numbers; they do **not** cover reference-list integrity. LLM-drafted or co-author-handed-in bibliographies frequently contain fabricated DOIs, wrong author/year combinations for a real DOI, or plausible-looking references that never existed. These slip past human proofreading because the surface form looks canonical.
