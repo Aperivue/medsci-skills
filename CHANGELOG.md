@@ -121,6 +121,16 @@
   (no rewrite, no renumber — a pre-existing duplicate "9." label is carried over and noted in
   the reference file). No skill/detector count change.
 
+- **De-drift the `sync-submission` YAML front-matter splitter** — `check_wordcount_cap.py`
+  and `cover_letter_drift_check.py` each carried their own `_strip_yaml_front_matter`, marked
+  "keep in sync" but already drifted (list vs tuple return; subtly different unclosed-fence
+  handling). Extracted one canonical `split_yaml_front_matter()` into a private
+  `scripts/_yaml_frontmatter.py` (leading underscore → not counted as a detector) imported by
+  both — the helper ships in the same skill's `scripts/` dir, so it stays self-contained when
+  vendored/installed. Behavior-preserving (verified normal / no-front-matter / unclosed cases
+  + the wired `test_wordcount_cap` and `test_preflight_gate` subprocess-import path). No
+  skill/detector count change.
+
 ### Fixed
 
 - **Public-doc count reconciliation** — `README.md` (MedSci-Audit suite line) and

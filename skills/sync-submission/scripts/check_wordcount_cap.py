@@ -46,7 +46,9 @@ import re
 import sys
 from pathlib import Path
 
-# --- measurement (vendored from cover_letter_drift_check.py; keep in sync) -----
+from _yaml_frontmatter import split_yaml_front_matter
+
+# --- measurement (shares the skip set + YAML splitter with cover_letter_drift_check.py) -----
 
 SKIP_SECTION_RE = re.compile(
     r"^#{1,3}\s+\*{0,2}\s*("
@@ -58,26 +60,16 @@ SKIP_SECTION_RE = re.compile(
     r")\s*\*{0,2}\s*:?\s*$",
     re.IGNORECASE,
 )
-YAML_FENCE_RE = re.compile(r"^---\s*$")
 WORD_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9'./%\-]*")
 # pandoc inline citations: [@key], [@k1; @k2], [-@k]. Count each @key.
 CITE_RE = re.compile(r"@[A-Za-z0-9_][A-Za-z0-9_:.\-]*")
 HEADER_RE = re.compile(r"^#{1,3}\s")
 
 
-def _strip_yaml_front_matter(lines: list[str]) -> list[str]:
-    if not lines or not YAML_FENCE_RE.match(lines[0].rstrip()):
-        return lines
-    for i, line in enumerate(lines[1:], start=1):
-        if YAML_FENCE_RE.match(line.rstrip()):
-            return lines[i + 1:]
-    return lines
-
-
 def measure_body(manuscript_path: Path) -> tuple[int, int]:
     """Return (body_words, n_inline_citations) over the non-skipped body."""
     lines = manuscript_path.read_text(encoding="utf-8").splitlines()
-    body_lines = _strip_yaml_front_matter(lines)
+    _, body_lines = split_yaml_front_matter(lines)
     in_skip = False
     in_code_fence = False
     words = 0
