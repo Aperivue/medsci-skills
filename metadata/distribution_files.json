@@ -2183,8 +2183,8 @@
     },
     {
       "path": "skills/meta-analysis/SKILL.md",
-      "size": 55293,
-      "sha256": "d370d5fddffaa5fa26f438a1157d4b96412dbbf7cbe65c9c28cc8474cc736d0b"
+      "size": 49604,
+      "sha256": "4947eae188dc2fcfba68ed991ba126da8315dc79deac0649d2beea558e73025e"
     },
     {
       "path": "skills/meta-analysis/references/LICENSES.md",
@@ -2240,6 +2240,11 @@
       "path": "skills/meta-analysis/references/data_integrity_checklist.md",
       "size": 5538,
       "sha256": "9b2dc03572cb066528e1ef19b0699ec9434ec29cbad8b84f5fbab1492ead5480"
+    },
+    {
+      "path": "skills/meta-analysis/references/empirical_lessons.md",
+      "size": 7616,
+      "sha256": "f49ebc21369095d19661d39186d1c41368811fbe689c77762daf60c74cd73ee8"
     },
     {
       "path": "skills/meta-analysis/references/icmje_coi_guide.md",

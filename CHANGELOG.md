@@ -111,6 +111,16 @@
   already enforces before drafting Methods, closing the one observational-pipeline skill that
   lacked it. Guidance only — non-breaking, no new code gate.
 
+- **`/meta-analysis` progressive disclosure (token hygiene)** — the two inline "Empirical
+  Lessons" sections (16 dated SR-MA peer-review lessons, ~45 lines) moved verbatim to
+  load-on-demand `references/empirical_lessons.md`, with an explicit "load before Phase 4
+  extraction-form design and before Phase 8 submission" pointer and a `Reference Files`
+  entry — matching the skill's own established pattern (15 existing reference files). The
+  largest SKILL.md in the bundle drops 804 → 775 lines (less context loaded on every
+  activation); the lessons stay discoverable via the reference list. Content byte-preserved
+  (no rewrite, no renumber — a pre-existing duplicate "9." label is carried over and noted in
+  the reference file). No skill/detector count change.
+
 ### Fixed
 
 - **Public-doc count reconciliation** — `README.md` (MedSci-Audit suite line) and

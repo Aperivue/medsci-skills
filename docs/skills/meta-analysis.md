@@ -41,6 +41,7 @@
 - `ai_pre_screening_template.py`
 - `checklists/` (7 files)
 - `data_integrity_checklist.md`
+- `empirical_lessons.md`
 - `icmje_coi_guide.md`
 - `phase10_recovery.md`
 - `phase4_km_composite.md`
