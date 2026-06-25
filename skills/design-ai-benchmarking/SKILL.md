@@ -148,6 +148,19 @@ recruitment is finalized.
 - Plan the minimum ratings-per-item needed for a stable agreement estimate (delegate the math to
   `/analyze-stats`).
 
+### Phase 5b: Reader allocation under burden constraints (anchor-and-rotate)
+
+When the item pool is larger than one reader can rate in a session, do **not** force every reader
+to rate every item (that caps the total pool at the per-reader limit and discards coverage). Use an
+**anchor-and-rotate** (balanced-incomplete-block) layout: all readers rate a shared **anchor set**
+(which carries the inter-rater ICC/kappa, alongside the planted controls), and each reader
+additionally rates a **rotating unique block**, so total coverage grows independently of the
+per-reader cap. The usually-binding constraint is the **number of available expert readers**, not the
+item count — solve the reverse problem (`max_pool = anchor + R*(cap-anchor)//m`) to size the must-rate
+set to a realistic panel. Pre-specify anchor membership, raters-per-item, and the rotation seed before
+rating. Formulas, trade-offs, and a stdlib reference implementation are in
+`${CLAUDE_SKILL_DIR}/references/anchor_rotate_reader_allocation.md`.
+
 ### Phase 6: Choose the judge strategy and adjudication
 
 - Decide human-as-judge, LLM-as-judge, or both. If an LLM is used as a judge, treat it as one more arm
@@ -212,3 +225,6 @@ whole point — changes afterward compromise the comparison.
   multi-dimension rating rubric with anchors and a planted-probe column.
 - `${CLAUDE_SKILL_DIR}/references/benchmark_export_schema.json` -- a synthetic JSON schema for the
   per-item rating export (ratings, justifications, probe_arm, reviewer metadata, order, timing).
+- `${CLAUDE_SKILL_DIR}/references/anchor_rotate_reader_allocation.md` -- anchor-and-rotate
+  (balanced-incomplete-block) reader allocation: formulas, the reverse "max pool for R readers"
+  ceiling, trade-offs, and a stdlib reference implementation (Phase 5b).
