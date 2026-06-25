@@ -248,6 +248,23 @@ study's data integrity immediately.
 - Reasons for exclusion (Methods + Figure legend) agree on counts and category names.
 
 **Procedure:**
+
+Run the deterministic implementation first — it performs steps 1, 4, 5, and 6 below
+automatically (same keyword regex, the four arithmetic equations, the body↔figure
+cross-reference) and writes `qc/prisma_figure_audit.json`:
+
+```bash
+python3 ${CLAUDE_SKILL_DIR}/scripts/check_prisma_figure.py \
+  --md <manuscript.md> --figure <Figure 1 source: .md manifest / caption / text export> \
+  --out qc/prisma_figure_audit.json
+```
+
+Exit `1` = an arithmetic or cross-reference MISMATCH (log a Part C Action Item labelled
+`[PRISMA-FIGURE]`, `fixable_by_ai: false` — the author must reconcile the numbers); exit
+`2` = missing/unparsable input. The manual algorithm below documents exactly what the
+script checks and is the fallback when Figure 1 numbers live only in a PNG/SVG that must
+be transcribed by hand:
+
 1. Extract numbers from manuscript Results / PRISMA flow paragraph (regex: integers near
    keywords `identified`, `duplicates`, `screened`, `excluded`, `sought`, `retrieved`,
    `assessed`, `included`).

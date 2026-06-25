@@ -230,6 +230,58 @@ jobs:
       - name: Run analyze-stats generated-code gate test
         run: bash skills/analyze-stats/tests/test_generated_code.sh
 
+      # --- previously-dormant skill regression tests, now CI-wired (v5 coverage-gap closure) ---
+      # These tests shipped with their detectors but were never added to this workflow, so CI
+      # gave false coverage. All pass on the same toolchain CI installs (stdlib + python-docx;
+      # no pandoc/R). Re-run gen_distribution_manifest.py after adding any new fixture.
+      - name: Run check-reporting checklist fail-fast test
+        run: bash skills/check-reporting/tests/test_checklist_fail_fast.sh
+
+      - name: Run check-reporting framework-naming gate test
+        run: bash skills/check-reporting/tests/test_framework_naming.sh
+
+      - name: Run check-reporting PRISMA-cascade test
+        run: bash skills/check-reporting/tests/test_prisma_cascade.sh
+
+      - name: Run check-reporting PRISMA Figure 1 audit test (Step 4d)
+        run: bash skills/check-reporting/tests/test_prisma_figure.sh
+
+      - name: Run manage-refs duplicate-bibliography gate test
+        run: bash skills/manage-refs/tests/test_reference_duplication.sh
+
+      - name: Run self-review binning-consistency gate test
+        run: bash skills/self-review/tests/test_binning_consistency.sh
+
+      - name: Run self-review float citation-order gate test
+        run: bash skills/self-review/tests/test_citation_order.sh
+
+      - name: Run self-review claim-artifact (estimand provenance) gate test
+        run: bash skills/self-review/tests/test_claim_artifact.sh
+
+      - name: Run self-review panel-diversity gate test
+        run: bash skills/self-review/tests/test_panel_diversity.sh
+
+      - name: Run self-review reviewer-team-consistency gate test
+        run: bash skills/self-review/tests/test_reviewer_team_consistency.sh
+
+      - name: Run sync-submission audit-dump leak gate test
+        run: bash skills/sync-submission/tests/test_checklist_dump_leak.sh
+
+      - name: Run sync-submission copy-divergence gate test
+        run: bash skills/sync-submission/tests/test_copy_divergence.sh
+
+      - name: Run sync-submission cross-document-N gate test
+        run: bash skills/sync-submission/tests/test_cross_document_n.sh
+
+      - name: Run sync-submission scope-drift gate test
+        run: bash skills/sync-submission/tests/test_scope_drift.sh
+
+      - name: Run sync-submission vN-docx assertion gate test
+        run: bash skills/sync-submission/tests/test_vN_docx_assertion.sh
+
+      - name: Run verify-refs pagination-placeholder gate test
+        run: bash skills/verify-refs/tests/test_pagination_placeholder.sh
+
       - name: Verify demo manifest.lock files (reproducibility lock)
         run: |
           for d in demo/01_wisconsin_bc demo/02_metafor_bcg demo/03_nhanes_obesity; do

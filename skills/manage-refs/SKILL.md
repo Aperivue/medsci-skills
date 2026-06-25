@@ -78,6 +78,8 @@ Validated 2026-05-01 against a 21-reference meta-analysis manuscript
 | Validate `[@bibkey]` ↔ `refs.bib` (UNDEFINED / UNUSED keys) | `scripts/check_citation_keys.py` | Hard build gate, runs in seconds |
 | Single-author submission lockdown, frozen output | `scripts/render_pandoc.sh -j <journal>` | Reproducible, CI-friendly |
 | Cascade rejection (e.g., ER → JVIR → CVIR) | `render_pandoc.sh` with new `-j` | CSL swap reformats references in seconds |
+| Verify a journal CSL renders the in-text format / DOI / journal-name style the author guide actually requires | `scripts/check_csl_render.py --csl <x>.csl --bib refs.bib --journal <key>` | A stub/"dependent" CSL inherits its parent's format, which may differ from the guide (parenthetical vs superscript, DOI kept, full journal names). Run BEFORE submission, not after the proof PDF |
+| Reference list prints FULL journal names but the journal wants NLM abbreviations | `scripts/fill_journal_abbrev.py` | Resolves each entry DOI → PMID → PubMed NLM `shortjournal` into the `.bib` so CSL `form="short"` renders abbreviations; authoritative source, never invents abbreviations |
 | Reviewer revision: add 1–2 refs to a Word doc with co-authors live | Zotero Word plugin (user GUI) | Minimal disruption to track-changes flow |
 | Reviewer revision: bulk reference change | Edit markdown SSOT, re-run `render_pandoc.sh` | Consistency, no cherry-pick risk |
 | Migrate `[N]` numeric markers → `[@key]` for pandoc | `scripts/md_marker_convert.py --to-keys` | Mapping-driven, partial conversion safe |

@@ -99,6 +99,30 @@
   (`tests/test_csl_render.sh`, PII-free fixture) covers the error paths without requiring
   pandoc (the no-pandoc branch runs in CI; the render branch runs wherever pandoc exists).
 
+- **CI test-coverage gap closure (15 dormant tests wired)** — fifteen skill regression
+  tests shipped with their detectors but were never added to `.github/workflows/validate.yml`,
+  so CI gave false coverage (`check-reporting` fail-fast / framework-naming / PRISMA-cascade,
+  `manage-refs` duplicate-bibliography, `self-review` binning-consistency / citation-order /
+  claim-artifact / panel-diversity / reviewer-team-consistency, `sync-submission` audit-dump-leak
+  / copy-divergence / cross-document-N / scope-drift / vN-docx-assertion, `verify-refs`
+  pagination-placeholder). All pass on the toolchain CI installs (stdlib + python-docx; no
+  pandoc/R) and are now `run:` steps in `validate.yml`.
+
+- **Dormant PRISMA Figure 1 detector activated** — `check_prisma_figure.py` (a counted
+  MedSci-Audit detector implementing `/check-reporting` Step 4d's arithmetic + body↔figure
+  cross-reference audit) existed and worked but was never invoked: Step 4d described the
+  algorithm in prose and asked the model to extract numbers by hand. Step 4d now runs the
+  deterministic script first (manual algorithm kept as the PNG/SVG-transcription fallback),
+  with a new CI-wired test (`tests/test_prisma_figure.sh`, PII-free fixtures). The two
+  `manage-refs` CSL tools surfaced by the same audit (`check_csl_render.py`,
+  `fill_journal_abbrev.py`) are now documented in that skill's tool table.
+
+- **`skills/MAINTENANCE.md`** — documents the four skill-script categories (counted detector /
+  helper / run-once authoring tool / test fixture) and the wiring rules that prevent a detector
+  or test from going dormant again (a detector must be invoked from SKILL.md and CI-tested; a
+  test only counts as coverage if it is a `run:` step in `validate.yml`). No skill or detector
+  count change.
+
 ## [4.8.0] - 2026-06-24
 
 The **review-harvest batch**: deterministic detector hardening promoted from real-manuscript review
