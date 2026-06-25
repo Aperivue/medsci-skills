@@ -45,6 +45,7 @@
 **Scripts** (`skills/self-review/scripts/`):
 
 - `check_artifact_coverage.py`
+- `check_citation_order.py`
 - `check_claim_artifact.py`
 - `check_classical_style.py`
 - `check_cohort_arithmetic.py`

@@ -907,6 +907,28 @@ analysis completeness, and imputation-input integrity are separate subchecks (ru
    Anticipated Major Comments — a reader-facing slip in a supplement is as fatal at a
    technical check as one in the body.
 
+   **Float citation order (same technical-check pass).** Editorial offices "unsubmit"
+   manuscripts *before* peer review when numbered floats are not cited in ascending
+   order of first appearance — a fully deterministic desk-check item the hygiene gate
+   above does not cover (it lints xref *resolution*, not *order*). Run the citation-order
+   gate, which checks each series independently (main Tables, main Figures, Supplementary
+   Tables, Supplementary Figures), scanning only the narrative body (it auto-excludes the
+   Figure Legends / back-matter so an in-order legends block cannot mask an out-of-order
+   body):
+
+   ```bash
+   python3 "${CLAUDE_SKILL_DIR}/scripts/check_citation_order.py" \
+     --manuscript manuscript.md --out qc/citation_order.json --strict
+   ```
+
+   `CITATION_ORDER` (Major) — a series cited out of numerical order (e.g. Table 3 before
+   Tables 1–2, or Supplementary Tables cited S4, S9, S16, S12, …); fix by renumbering the
+   series by first-citation order (and reordering the float/supplement document + remapping
+   every cross-reference, expanding ranges like `S12–S15` by hand and leaving non-float
+   sensitivity-spec labels such as `S1–S6` untouched) or by rephrasing away the early
+   citation. `CITATION_GAP` (Minor) — cited numbers not contiguous from 1 (a possible
+   missing/mis-numbered float).
+
 8. **Re-run cross-artifact staleness after any audit or reframe.** When a headline number
    is corrected or an analysis is re-framed, the fix often lands only in the body while a
    supplement footnote or a figure-source data file keeps the stale (sometimes *reversed*)
