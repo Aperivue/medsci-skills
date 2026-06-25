@@ -4,6 +4,21 @@
 
 ### Added
 
+- **Float citation-order gate** — new `check_citation_order.py` (`/self-review`)
+  flags numbered floats not cited in ascending order of first appearance, per series
+  independently (main Tables, main Figures, Supplementary Tables, Supplementary
+  Figures). It scans only the narrative body (auto-excluding the Figure Legends /
+  back-matter so an in-order legends block cannot mask an out-of-order body) and
+  tolerates plural lists ("Tables S4, S5"), ranges, and non-float sensitivity-spec
+  labels ("S1–S6"). `CITATION_ORDER` (Major) is a pre-peer-review desk/technical-check
+  item editorial offices "unsubmit" for; `CITATION_GAP` (Minor) flags non-contiguous
+  numbering. Motivated by a journal technical-check unsubmit where main Table 3 was
+  cited before Tables 1–2 and the supplementary tables were cited wildly out of order
+  (S4, S9, S16, S12, …). Wired into `/self-review`'s technical-check pass; synthetic
+  positive/negative fixtures + regression test. Analysis-integrity detectors
+  **33 → 34** (Reporting compliance family 8 → 9); skills 45 and reporting guidelines
+  36 unchanged. Additive and backward-compatible.
+
 - **Audit-dump leak gate** — new `check_checklist_dump_leak.py` (`/sync-submission`)
   scans every `.md`/`.docx`/`.pdf` in a submission directory for the residue of a
   `/check-reporting` or `/self-review` *internal* audit report (`compliance_pct`,

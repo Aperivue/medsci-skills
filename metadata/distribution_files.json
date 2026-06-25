@@ -2853,8 +2853,8 @@
     },
     {
       "path": "skills/self-review/SKILL.md",
-      "size": 89813,
-      "sha256": "54bcd9c6e751555044b9b436db9e8f10e0be280b60c00048c68de5570512bf16"
+      "size": 91173,
+      "sha256": "7c397de519dca725175e4d6e1fcbb31242f2d6893dfdccdbbc7f56ae39fb3996"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
@@ -2965,6 +2965,11 @@
       "path": "skills/self-review/scripts/check_artifact_coverage.py",
       "size": 17113,
       "sha256": "56096c39ddb0083c04a1254f06bafa6fac9fc8a136c9246f68773f0ba5da96d4"
+    },
+    {
+      "path": "skills/self-review/scripts/check_citation_order.py",
+      "size": 8705,
+      "sha256": "38525b4dd3ca8c9d99f090e4d42b65f10baf442f56fc4eac5174fb6ba13d90bb"
     },
     {
       "path": "skills/self-review/scripts/check_claim_artifact.py",

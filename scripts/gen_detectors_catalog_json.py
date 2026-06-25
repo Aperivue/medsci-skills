@@ -79,6 +79,7 @@ FAMILY_BY_ID: dict[str, str] = {
     "check_disclosure_availability": "reporting_compliance",
     "check_summary_box": "reporting_compliance",
     "check_supplement_hygiene": "reporting_compliance",
+    "check_citation_order": "reporting_compliance",
     # Data preparation & validation
     "check_structural_zero": "data_preparation",
     "check_reverse_coding": "data_preparation",
