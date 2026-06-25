@@ -569,6 +569,17 @@ spurious "reached" stratum in the sensitivity table that vanished once the binni
 harmonized. Fix at the source by defining each cut once in a shared helper that every script
 sources.
 
+The same gate also covers the **composite-indicator** sibling failure: a derived 0/1 component
+(e.g. a metabolic-syndrome criterion built from `as.integer(a >= x | b == 1 | c == 1)`) that is
+re-built in a second script with a clause dropped or added. It splits each definition into
+comparison atoms on the top-level `|`, compares them as a SET (clause order, whitespace, outer
+parentheses, dataframe `df$` qualifiers and commutative `&`-operands are normalized away), and
+emits `DERIVED_DEF_DRIFT` (Major) when one variable carries ≥2 distinct atom sets across scripts.
+Precedent: `mets_bp <- as.integer(bl_he_sbp>=130 | bl_he_dbp>=85 | bl_tx_hypertension_med==1 |
+bl_hypertension==1)` in the benchmark script vs the same name without the final
+`| bl_hypertension==1` in a re-analysis script — the metabolic-syndrome C-index then read 0.6704
+in one table and 0.6712 in another.
+
 ### Phase 2.5c: Reference Hallucination Scan
 
 Numerical audits (2.5/2.5a/2.5b) cover in-text numbers; they do **not** cover reference-list integrity. LLM-drafted or co-author-handed-in bibliographies frequently contain fabricated DOIs, wrong author/year combinations for a real DOI, or plausible-looking references that never existed. These slip past human proofreading because the surface form looks canonical.

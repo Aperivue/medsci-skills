@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Cross-script categorical / cut-point consistency gate (self-review Phase 2.5b).
+"""Cross-script categorical / cut-point and composite-definition consistency gate (self-review Phase 2.5b).
 
 A derived categorical variable (age band, BMI category, eGFR/CKD stage, FIB-4
 strata, risk tier) is often re-derived in more than one analysis script — the
@@ -25,6 +25,24 @@ it can extract a complete `breaks`/`bins` operand and the signatures genuinely
 differ. The interval-closure flag is compared using each language's documented
 default (R `cut` right=TRUE, pandas `pd.cut` right=True), so an explicit
 `right=FALSE` in one file and an omitted default in another is a real difference.
+
+It ALSO extracts composite boolean-indicator definitions — the sibling failure
+mode where a derived 0/1 component (e.g. a metabolic-syndrome criterion) is built
+from a disjunction of comparison clauses and a second script omits or adds a
+clause:
+
+    R:       <var> <- as.integer(a >= x | b == 1 | c == 1)
+    R:       <var> <- as.numeric(<bool expr>)   / ifelse(<bool expr>, 1, 0)
+    Python:  <var> = np.where(<bool expr>, 1, 0)
+
+The boolean expression is split into comparison ATOMS on the top-level `|` (OR);
+clause order, whitespace, and outer parentheses do not matter (atoms are compared
+as a SET), so only a genuinely missing or added clause counts. It fires
+DERIVED_DEF_DRIFT when one variable is defined with two or more distinct atom sets.
+Motivation: `mets_bp <- as.integer(bl_he_sbp>=130 | bl_he_dbp>=85 |
+bl_tx_hypertension_med==1 | bl_hypertension==1)` in the canonical script vs the
+same name without the final `| bl_hypertension==1` in a re-analysis script — the
+metabolic-syndrome C-index then read 0.6704 in one table and 0.6712 in another.
 
 Motivation: a screening cohort binned age with
 `cut(bl_age, breaks=c(-Inf,45,50,60,Inf), right=FALSE)` in the primary script and
@@ -65,12 +83,23 @@ CATEGORICAL_HINTS = (
     "age", "bmi", "egfr", "gfr", "fib4", "fib_4", "cmb", "mets", "ckd",
 )
 
+# Name hints for composite 0/1 indicator components (the DERIVED_DEF_DRIFT path).
+INDICATOR_HINTS = (
+    "mets", "indicator", "flag", "criteria", "criterion", "_pos", "_neg",
+    "_yes", "_bin", "_ind", "comp", "positive", "present",
+)
+
 SCRIPT_SUFFIXES = (".r", ".py")
 
 
 def _is_categorical_name(name: str) -> bool:
     n = name.lower()
     return any(h in n for h in CATEGORICAL_HINTS)
+
+
+def _is_indicator_name(name: str) -> bool:
+    n = name.lower()
+    return any(h in n for h in INDICATOR_HINTS)
 
 
 def _norm_breaks(raw: str) -> str:
@@ -199,6 +228,113 @@ def extract_cut_defs(path: Path):
     return out
 
 
+# Composite boolean-indicator assignment: `lhs <- as.integer(...)`, `as.numeric`,
+# `ifelse(...)`, Python `(...).astype(int)` / `np.where(...)`.
+_ASSIGN_DERIVED_RE = re.compile(
+    r"(?P<lhs>[A-Za-z_][\w.$\[\]\"']*?)\s*(?:<<-|<-|=)\s*"
+    r"(?P<fn>as\.integer|as\.numeric|np\.where|ifelse)\s*\(",
+)
+_COMPARISON_RE = re.compile(r"==|!=|>=|<=|%in%|>|<")
+
+
+def _first_arg(call_body: str) -> str:
+    """The first top-level (depth-0) comma-delimited argument of a call body."""
+    depth = 0
+    for i, c in enumerate(call_body):
+        if c in "([":
+            depth += 1
+        elif c in ")]":
+            depth -= 1
+        elif c == "," and depth == 0:
+            return call_body[:i]
+    return call_body
+
+
+def _split_top_level(expr: str, op: str):
+    """Split on a top-level (depth-0) boolean operator char `op` ('|' or '&').
+    Parenthesized/`&`-or-`|` sub-groups stay intact; the doubled form (`||`/`&&`)
+    is treated identically as a single separator."""
+    parts, depth, cur, i = [], 0, [], 0
+    while i < len(expr):
+        c = expr[i]
+        if c in "([":
+            depth += 1
+            cur.append(c)
+        elif c in ")]":
+            depth -= 1
+            cur.append(c)
+        elif c == op and depth == 0:
+            if i + 1 < len(expr) and expr[i + 1] == op:  # collapse `||` / `&&`
+                i += 1
+            parts.append("".join(cur))
+            cur = []
+        else:
+            cur.append(c)
+        i += 1
+    if cur:
+        parts.append("".join(cur))
+    return parts
+
+
+def _strip_wrap_parens(a: str) -> str:
+    """Remove fully-wrapping outer parens, e.g. `(a | b)` -> `a | b`. A leading
+    paren that does NOT close at the end (e.g. `(a & b) | c`) is left intact."""
+    a = a.strip()
+    while len(a) >= 2 and a[0] == "(" and _find_matching_paren(a, 0) == len(a) - 1:
+        a = a[1:-1].strip()
+    return a
+
+
+def _norm_atom(a: str) -> str:
+    """Whitespace-free canonical form of one OR-clause. Dataframe qualifiers
+    (`df$col`, `sub$col`) are dropped so a bare `mutate()` reference and a base-R
+    `df$` reference to the same column compare equal, and a top-level `&`-group is
+    sorted so operand order inside an AND does not matter
+    (`x==1 & y>=2` == `y>=2 & x==1`)."""
+    a = re.sub(r"\s+", "", _strip_wrap_parens(a))
+    a = re.sub(r"[A-Za-z_]\w*\$", "", a)  # df$col / sub$col -> col
+    if "&" in a:
+        andparts = _split_top_level(a, "&")
+        if len(andparts) > 1:
+            a = "&".join(sorted(_strip_wrap_parens(p) for p in andparts))
+    return a
+
+
+def extract_derived_defs(path: Path):
+    """Yield dicts for each composite boolean-indicator assignment in a file.
+
+    Only definitions whose expression contains at least one comparison operator
+    are kept (a plain `as.integer(count)` cast is not an indicator and is skipped).
+    The atom set is order- and whitespace-insensitive."""
+    text = path.read_text(encoding="utf-8", errors="replace")
+    out = []
+    for m in _ASSIGN_DERIVED_RE.finditer(text):
+        open_idx = m.end() - 1
+        close_idx = _find_matching_paren(text, open_idx)
+        if close_idx == -1:
+            continue
+        inner = text[open_idx + 1:close_idx]
+        # np.where(expr, 1, 0) / ifelse(expr, 1, 0): the boolean test is arg 1.
+        if m.group("fn") in ("np.where", "ifelse"):
+            inner = _first_arg(inner)
+        inner = _strip_wrap_parens(inner)
+        if not _COMPARISON_RE.search(inner):
+            continue
+        atoms = sorted({_norm_atom(a) for a in _split_top_level(inner, "|") if _norm_atom(a)})
+        if not atoms:
+            continue
+        lhs = m.group("lhs").strip()
+        line_no = text[:m.start()].count("\n") + 1
+        out.append({
+            "var": lhs,
+            "kind": "derived",
+            "atoms": atoms,
+            "file": str(path),
+            "line": line_no,
+        })
+    return out
+
+
 def analyze(roots, extra_globs):
     files = []
     seen = set()
@@ -223,9 +359,15 @@ def analyze(roots, extra_globs):
             continue
 
     # Group by assigned variable name (normalized to leaf identifier).
+    # `df$col` (R) / `df['col']` (py) / `df.col` (py) / bare `col` all reduce to
+    # the COLUMN name `col` — the table handle is not the variable of interest.
     def _leaf(v):
-        v = re.sub(r"\[[^\]]*\]|\$.*$|\"|'", "", v)
-        return v.split("$")[-1].split(".")[-1].strip()
+        v = v.strip().strip("\"'")
+        m = re.search(r"\[\s*[\"']([^\"']+)[\"']\s*\]", v)   # py df['col'] / df["col"]
+        if m:
+            return m.group(1)
+        v = re.sub(r"\[[^\]]*\]", "", v)                      # drop other [..] indexers
+        return v.split("$")[-1].split(".")[-1].strip()        # R df$col / py df.col / bare
 
     groups: dict[str, list[dict]] = {}
     for d in defs:
@@ -254,14 +396,49 @@ def analyze(roots, extra_globs):
             "where": "; ".join(f"{Path(d['file']).name}:{d['line']}" for d in ds),
         })
 
+    # --- Composite boolean-indicator definition drift (DERIVED_DEF_DRIFT) -----
+    derived_defs = []
+    for p in sorted(files):
+        try:
+            derived_defs.extend(extract_derived_defs(p))
+        except OSError:
+            continue
+
+    dgroups: dict[str, list[dict]] = {}
+    for d in derived_defs:
+        dgroups.setdefault(_leaf(d["var"]), []).append(d)
+
+    for var, ds in sorted(dgroups.items()):
+        sigs = {tuple(d["atoms"]) for d in ds}
+        if len(ds) < 2 or len(sigs) < 2:
+            continue
+        n_files = len({d["file"] for d in ds})
+        # Conservative focus: indicator/categorical-looking name OR re-derived in >=2 files.
+        if not (_is_indicator_name(var) or _is_categorical_name(var) or n_files >= 2):
+            continue
+        siglist = [set(s) for s in sigs]
+        diff = sorted(set().union(*siglist) - set.intersection(*siglist))
+        detail_parts = [f"{Path(d['file']).name}:{d['line']} {{{', '.join(d['atoms'])}}}" for d in ds]
+        claims.append({
+            "verdict": "DERIVED_DEF_DRIFT",
+            "severity": "Major",
+            "var": var,
+            "detail": f"`{var}` defined with {len(sigs)} different clause sets across "
+                      f"{n_files} file(s); differing clause(s): {{{', '.join(diff)}}}. "
+                      + " | ".join(detail_parts),
+            "where": "; ".join(f"{Path(d['file']).name}:{d['line']}" for d in ds),
+        })
+
     n_major = sum(1 for c in claims if c["severity"] == "Major")
     return {
         "scanned": [str(p) for p in sorted(files)],
-        "definitions": defs,
+        "definitions": defs + derived_defs,
         "claims": claims,
         "summary": {
             "n_files": len(files),
-            "n_definitions": len(defs),
+            "n_definitions": len(defs) + len(derived_defs),
+            "n_cut_definitions": len(defs),
+            "n_derived_definitions": len(derived_defs),
             "n_claims": len(claims),
             "n_major": n_major,
             "verdict": "MAJOR_CANDIDATE" if n_major else "OK",
@@ -274,7 +451,7 @@ def render(result: dict) -> str:
     for c in result["claims"]:
         lines.append(f"| {c['verdict']} | {c['severity']} | {c['detail']} |")
     if len(lines) == 2:
-        lines.append("| (none) | — | no cross-script binning drift detected |")
+        lines.append("| (none) | — | no cross-script binning or definition drift detected |")
     return "\n".join(lines)
 
 
@@ -299,17 +476,18 @@ def main() -> int:
 
     if not args.quiet:
         print("=" * 46)
-        print(" Cross-script Binning Consistency (Phase 2.5c)")
+        print(" Cross-script Categorical / Definition Consistency (Phase 2.5c)")
         print("=" * 46)
         print(render(result))
         print()
         s = result["summary"]
+        defs_desc = (f"{s['n_cut_definitions']} cut + {s['n_derived_definitions']} "
+                     f"composite definitions in {s['n_files']} files")
         if s["n_major"]:
-            print(f"MAJOR candidate: {s['n_major']} variable(s) binned inconsistently "
-                  f"across scripts ({s['n_definitions']} cut definitions in {s['n_files']} files).")
+            print(f"MAJOR candidate: {s['n_major']} variable(s) derived inconsistently "
+                  f"across scripts ({defs_desc}).")
         else:
-            print(f"OK: no cross-script binning drift "
-                  f"({s['n_definitions']} cut definitions in {s['n_files']} files).")
+            print(f"OK: no cross-script binning or definition drift ({defs_desc}).")
 
     if args.out:
         Path(args.out).parent.mkdir(parents=True, exist_ok=True)

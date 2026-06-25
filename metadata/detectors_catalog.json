@@ -95,7 +95,7 @@
       "skill": "self-review",
       "family": "data_preparation",
       "family_label": "Data preparation & validation",
-      "description": "Cross-script categorical / cut-point consistency gate (self-review Phase 2.5b)."
+      "description": "Cross-script categorical / cut-point and composite-definition consistency gate (self-review Phase 2.5b)."
     },
     {
       "id": "check_checklist_dump_leak",
