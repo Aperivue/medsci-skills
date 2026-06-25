@@ -4,6 +4,36 @@
 
 ### Added
 
+- **Duplicate-bibliography gate** — new `check_reference_duplication.py`
+  (`/manage-refs`, also usable from `/sync-submission`) reads the BUILT artifact
+  (`.docx` via stdlib zipfile, or a rendered `.md`/`.txt`) and fires
+  `DUP_REF_HEADING` / `REF_NUMBER_RESTART` / `REF_SIGNATURE_DUP` (Major) when the
+  reference list is duplicated. Catches the hybrid failure where a manuscript
+  carries both inline `[@key]` citations and a hand-typed `## References` list and
+  is built with pandoc `--citeproc`: the build renders the hand list **and** a
+  citeproc bibliography (often after the legends), so the same reference appears
+  twice; `check_xref` does not see it. Author-anchored `(first-author, year)`
+  signature detection works on Word auto-numbered lists. Validated against a real
+  built docx with the duplicate (caught) and its single-list fix (clean).
+  Stdlib-only; PII-free fixtures + `test_reference_duplication.sh`.
+
+- **Cross-script binning-consistency gate** — new `check_binning_consistency.py`
+  (`/self-review`, Phase 2.5b) parses analysis source (R/Python) and emits
+  `BINNING_DRIFT` (Major) when one derived categorical (age band, BMI category,
+  eGFR stage, risk tier) is binned with ≥2 different `(breaks, right-closure)`
+  signatures across files. The same cohort then splits differently per script:
+  per-stratum Ns drift between a primary table and a sensitivity table while the
+  grand total still reconciles, so a row-sum check passes but a stratum can
+  spuriously cross a threshold. Motivated by a screening cohort that binned age
+  `right=FALSE` in the primary script vs `right=TRUE` in a threshold sensitivity
+  script — fractional ages shifted hundreds of participants and produced a
+  spurious "reached" stratum. Stdlib-only; PII-free fixtures +
+  `test_binning_consistency.sh`.
+
+  Together these two gates take the analysis-integrity detector suite **34 → 36**
+  (citation family 6 → 7, data-preparation 5 → 6); skills and reporting guidelines
+  unchanged. Additive and backward-compatible.
+
 - **Float citation-order gate** — new `check_citation_order.py` (`/self-review`)
   flags numbered floats not cited in ascending order of first appearance, per series
   independently (main Tables, main Figures, Supplementary Tables, Supplementary

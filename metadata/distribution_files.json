@@ -2018,8 +2018,8 @@
     },
     {
       "path": "skills/manage-refs/SKILL.md",
-      "size": 17029,
-      "sha256": "61441a243ea113e9a5aeba3154ca741db9f1301118051f461b0a3c3de7b61fdf"
+      "size": 17482,
+      "sha256": "74309d07f0145b2805b53050eb37e72471067da4bed7b6ed569d3945dff06e14"
     },
     {
       "path": "skills/manage-refs/citation_styles/README.md",
@@ -2125,6 +2125,11 @@
       "path": "skills/manage-refs/scripts/check_csl_render.py",
       "size": 5151,
       "sha256": "bdaf85f75a2ebfb0224d39b4862ccf31dd914453b540de8f3c1ea6e2a0dccc48"
+    },
+    {
+      "path": "skills/manage-refs/scripts/check_reference_duplication.py",
+      "size": 10210,
+      "sha256": "439f02252338e204dadf24dc4de13e38ab3ce7b6ea394e8dee38b8ee1cf92524"
     },
     {
       "path": "skills/manage-refs/scripts/check_xref.py",
@@ -2853,8 +2858,8 @@
     },
     {
       "path": "skills/self-review/SKILL.md",
-      "size": 91173,
-      "sha256": "7c397de519dca725175e4d6e1fcbb31242f2d6893dfdccdbbc7f56ae39fb3996"
+      "size": 92634,
+      "sha256": "ffc2346fbaaff613728a73676a705fe5f9e5422da6577dfee2f79d5c21564b33"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
@@ -2965,6 +2970,11 @@
       "path": "skills/self-review/scripts/check_artifact_coverage.py",
       "size": 17113,
       "sha256": "56096c39ddb0083c04a1254f06bafa6fac9fc8a136c9246f68773f0ba5da96d4"
+    },
+    {
+      "path": "skills/self-review/scripts/check_binning_consistency.py",
+      "size": 12164,
+      "sha256": "b61420592af896b2a39c373f596d2e2e0d885124d05276ca9f9f849dca21ba6b"
     },
     {
       "path": "skills/self-review/scripts/check_citation_order.py",

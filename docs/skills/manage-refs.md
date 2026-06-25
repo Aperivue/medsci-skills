@@ -43,6 +43,7 @@
 - `_vendor_citation_writer.py`
 - `check_citation_keys.py`
 - `check_csl_render.py`
+- `check_reference_duplication.py`
 - `check_xref.py`
 - `fill_journal_abbrev.py`
 - `inject_zotero_cwyw.py`
