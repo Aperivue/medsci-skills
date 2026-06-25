@@ -100,6 +100,17 @@
   fallback when `/analyze-stats` or `/make-figures` is unavailable (emit a checklist, hold
   responses as `BLOCKED — pending analysis/figure`, never invent numbers). Docs only.
 
+- **`/analyze-stats` observational-design precondition** — Phase 2 (Analysis Plan) now opens
+  with a WARN-level precondition: before planning an observational analysis (cohort,
+  case-control, cross-sectional, registry, survey), confirm a literature-grounded
+  `variable_operationalization.md` (from `/define-variables`) or equivalent codebook-backed
+  definition table exists; if not, warn and recommend `/define-variables` first so
+  exposure/outcome/covariate definitions and cutoffs are citation-backed rather than invented
+  ad hoc from the data dictionary. WARN, not a hard block (proceed on explicit confirmation;
+  stricter projects can treat it as a hard stop). Mirrors the precondition `/write-protocol`
+  already enforces before drafting Methods, closing the one observational-pipeline skill that
+  lacked it. Guidance only — non-breaking, no new code gate.
+
 ### Fixed
 
 - **Public-doc count reconciliation** — `README.md` (MedSci-Audit suite line) and

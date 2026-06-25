@@ -55,6 +55,8 @@ from `analysis_guides/` to ensure correct methodology and reporting.
 
 ### Phase 2: Analysis Plan
 
+**Precondition (observational studies).** Before proposing an analysis plan for an observational design (cohort, case-control, cross-sectional, registry, or survey), confirm that a literature-grounded variable operationalization exists — a `variable_operationalization.md` from `/define-variables`, or an equivalent codebook-backed definition table. If none exists, **warn** the user and recommend running `/define-variables` first, so exposure / outcome / covariate definitions and cutoffs are citation-backed rather than invented ad hoc from the data dictionary (ad-hoc phenotype/cutoff definitions are a common reviewer-rejection trigger for observational work — see the dictionary-first discipline). This is a WARN, not a hard block: proceed on explicit user confirmation, recording that the operationalization artifact was not available. For stricter projects, treat the missing artifact as a hard stop until `/define-variables` has run. (This mirrors the same precondition already enforced in `/write-protocol` before drafting Methods.)
+
 Based on the data structure and research question, propose an analysis plan:
 
 1. **Auto-detect analysis type** from the table below, or accept user specification.
