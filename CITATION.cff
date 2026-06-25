@@ -7,7 +7,7 @@ abstract: >-
   the full medical research workflow — literature search with anti-hallucination
   citation verification, study design, IRB protocols, statistical analysis,
   publication-ready figures, IMRAD manuscript drafting, reporting compliance
-  audits against 32 EQUATOR guidelines (STARD, STARD-AI, TRIPOD+AI, CLAIM,
+  audits against 36 EQUATOR guidelines (STARD, STARD-AI, TRIPOD+AI, CLAIM,
   PRISMA-DTA, STROBE, CONSORT, etc.), journal selection, peer review, and
   revision response. Three end-to-end demos with public datasets produce
   submission-ready manuscripts.

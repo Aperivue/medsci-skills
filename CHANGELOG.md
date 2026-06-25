@@ -76,6 +76,16 @@
   Analysis-integrity detectors **32 → 33**; skills 45 and reporting guidelines 36
   unchanged. Additive and backward-compatible.
 
+### Fixed
+
+- **Public-doc count reconciliation** — `README.md` (MedSci-Audit suite line) and
+  `CITATION.cff` (abstract) cited stale catalog totals from before the detectors above
+  merged (28 detectors / 32 EQUATOR guidelines). Reconciled to the disk SSOT
+  (`metadata/catalog_counts.json`): **36 analysis-integrity detectors / 36 reporting
+  guidelines**. Added a `What's New` "Unreleased" block to `README.md` so the public
+  progression no longer implies v4.8 is current. No code or count change — the SSOT was
+  already correct; only the prose was stale. Verified by `validate_catalog_consistency.py`.
+
 ## [4.8.0] - 2026-06-24
 
 The **review-harvest batch**: deterministic detector hardening promoted from real-manuscript review
