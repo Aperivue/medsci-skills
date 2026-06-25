@@ -57,6 +57,8 @@ import sys
 from pathlib import Path
 from typing import Optional
 
+from _yaml_frontmatter import split_yaml_front_matter
+
 
 # ---------------------------------------------------------------------------
 # Manuscript measurement helpers
@@ -79,26 +81,10 @@ ABSTRACT_START_RE = re.compile(
     r"^#{1,3}\s+\*{0,2}\s*Abstract\s*\*{0,2}\s*:?\s*$", re.IGNORECASE
 )
 
-# YAML frontmatter delimiters.
-YAML_FENCE_RE = re.compile(r"^---\s*$")
-
 # Word-counting tokenizer: splits on whitespace, drops markdown punctuation-only
 # tokens (e.g., "—", "•", standalone "1." numbering) so prose density isn't
 # inflated.
 WORD_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9'./%\-]*")
-
-
-def _strip_yaml_front_matter(lines: list[str]) -> tuple[list[str], list[str]]:
-    """Return (yaml_lines, body_lines) splitting on first two `---` fences."""
-    if not lines or not YAML_FENCE_RE.match(lines[0].rstrip()):
-        return [], lines
-    yaml_block: list[str] = []
-    for i, line in enumerate(lines[1:], start=1):
-        if YAML_FENCE_RE.match(line.rstrip()):
-            return lines[1:i], lines[i + 1 :]
-        yaml_block.append(line)
-    # Unclosed front matter — treat as no front matter.
-    return [], lines
 
 
 def _next_section_boundary(lines: list[str], start: int) -> int:
@@ -115,7 +101,7 @@ def count_body_words(manuscript_path: Path) -> int:
     references, tables, figures, supplementary, acknowledgments, and
     declaration sections."""
     lines = manuscript_path.read_text(encoding="utf-8").splitlines()
-    _, body_lines = _strip_yaml_front_matter(lines)
+    _, body_lines = split_yaml_front_matter(lines)
 
     in_skip = False
     in_code_fence = False
@@ -144,7 +130,7 @@ def count_body_words(manuscript_path: Path) -> int:
 def extract_abstract_text(manuscript_path: Path) -> str:
     """Extract abstract section text from manuscript (best-effort)."""
     lines = manuscript_path.read_text(encoding="utf-8").splitlines()
-    yaml_lines, body_lines = _strip_yaml_front_matter(lines)
+    yaml_lines, body_lines = split_yaml_front_matter(lines)
 
     # First try YAML `abstract:` field.
     yaml_text = "\n".join(yaml_lines)

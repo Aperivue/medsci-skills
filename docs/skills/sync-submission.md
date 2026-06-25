@@ -42,6 +42,7 @@
 
 **Scripts** (`skills/sync-submission/scripts/`):
 
+- `_yaml_frontmatter.py`
 - `assemble_supplement.py`
 - `author_registry_example.yaml`
 - `blind_sweep.py`

@@ -3087,6 +3087,11 @@
       "sha256": "6d278675d7c734aa3589165817f5413cc46c44402ea15039e51052ab2f52c0a8"
     },
     {
+      "path": "skills/sync-submission/scripts/_yaml_frontmatter.py",
+      "size": 1669,
+      "sha256": "028fa8c4f7a4440c72d693a2ba6d4799410de0c565c61bd30d68eb0e7c208c78"
+    },
+    {
       "path": "skills/sync-submission/scripts/assemble_supplement.py",
       "size": 8979,
       "sha256": "ab6549a295b37df059f83d97c50c41e3ea373d797d52b2978ae60e9cc78e6458"
@@ -3123,13 +3128,13 @@
     },
     {
       "path": "skills/sync-submission/scripts/check_wordcount_cap.py",
-      "size": 10053,
-      "sha256": "7d47c194bdde03accbb6fab6347621cb3efdec17131651d7e58b4a69b4f0f0c6"
+      "size": 9788,
+      "sha256": "16fecbceae672e4192a138a0509321ea367f61079ca4ef4d630667b1e64eda58"
     },
     {
       "path": "skills/sync-submission/scripts/cover_letter_drift_check.py",
-      "size": 16554,
-      "sha256": "3188551ea2557ec7445f668a4d4b64396e94c5d691114b3d5bf52a16ef27cd7b"
+      "size": 16001,
+      "sha256": "347c5b702fbe9375899795791a34e8a60e246253bafb53b15ebb59d51dd45e7d"
     },
     {
       "path": "skills/sync-submission/scripts/cross_document_n_check.py",
