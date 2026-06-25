@@ -1198,8 +1198,8 @@
     },
     {
       "path": "skills/find-journal/references/journal_profiles/KJR.md",
-      "size": 2553,
-      "sha256": "11aea434bb653d304d107133f9af5a74937907b558b22dd28029f7fdba64f31b"
+      "size": 3036,
+      "sha256": "a0814e6d62288389db7528b73a25db870ab91635dc4b946fb0c8bf8af47150a3"
     },
     {
       "path": "skills/find-journal/references/journal_profiles/Korean_Circulation_Journal.md",
@@ -2978,8 +2978,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_classical_style.py",
-      "size": 10953,
-      "sha256": "3b5c85edc57ee607a2b0a10898d68ac163ce3be6fe50b82c8c11490d7bc2705a"
+      "size": 12210,
+      "sha256": "c973ee8b776f28515439fb185e1254e08e62c2e1410e260f18a824241a331af0"
     },
     {
       "path": "skills/self-review/scripts/check_cohort_arithmetic.py",
@@ -3433,8 +3433,8 @@
     },
     {
       "path": "skills/write-paper/references/journal_profiles/KJR.md",
-      "size": 10367,
-      "sha256": "e74e6454054dc3665c6012b973020222f9d02e469d195a60b2570e850fc23e2c"
+      "size": 12737,
+      "sha256": "ea71f1be90ff7088ba8931c97515f221486ca7ac9c7079fefba25417e7a0e932"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/Korean_Circulation_Journal.md",

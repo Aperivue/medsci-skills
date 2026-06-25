@@ -35,10 +35,18 @@ check "SECTION_SYMBOL detected"        has_verdict SECTION_SYMBOL
 check "INBODY_AI_DISCLOSURE detected"  has_verdict INBODY_AI_DISCLOSURE
 check "ELIGIBILITY_PROSE detected"     has_verdict ELIGIBILITY_PROSE
 check "DECIMAL_INCONSISTENCY detected" has_verdict DECIMAL_INCONSISTENCY
+check "PERCENT_DECIMALS detected (35.14%, 96.12%)" has_verdict PERCENT_DECIMALS
 
-# (2) clean manuscript: numbered eligibility, consistent decimals, no §/disclosure -> exit 0
+# (2) clean manuscript: numbered eligibility, consistent decimals, no §/disclosure,
+#     no >1-dp percentages -> exit 0
 python3 "$SCRIPT" --manuscript "$CLEAN" --strict --quiet >/dev/null 2>&1
 check "exit 0 on clean manuscript" test "$?" -eq 0
+python3 "$SCRIPT" --manuscript "$CLEAN" --out "$OUT" --quiet >/dev/null 2>&1
+check "no PERCENT_DECIMALS false positive on clean manuscript" python3 -c "
+import json
+d=json.load(open('$OUT'))
+assert not any(c['verdict']=='PERCENT_DECIMALS' for c in d['claims']), 'PERCENT_DECIMALS false positive'
+"
 
 # (3) structural em-dashes (table cells, ORCID, author/affiliation, panel labels)
 #     must NOT count toward the prose threshold. With --em-dash-max 0, the fixture's

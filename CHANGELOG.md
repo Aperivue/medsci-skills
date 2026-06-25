@@ -18,6 +18,18 @@
   positive/negative fixtures + regression test. Analysis-integrity detectors
   **33 → 34** (Reporting compliance family 8 → 9); skills 45 and reporting guidelines
   36 unchanged. Additive and backward-compatible.
+- **Percentage-decimal style check + KJR technical-check conventions** — `/self-review`'s
+  `check_classical_style.py` gains a `PERCENT_DECIMALS` verdict (Minor, report-only)
+  flagging percentages reported to >1 decimal place ("35.14%"), which several journals
+  (e.g. KJR) require at one decimal at technical check; regression fixture + test added.
+  The KJR journal profile (`write-paper` detail + `find-journal` compact) gains a
+  **Technical-Check Conventions** section enumerating the deterministic pre-review desk
+  items that "unsubmit" a manuscript: ascending float citation order, demographics in
+  Materials and Methods, one-decimal percentages, double spacing, Acknowledgments/Funding/
+  Author-Contributions on the Title Page only, reporting checklist cited as "Supplementary
+  Material 1", IRB number in Methods even when blinded, and ICMJE forms only after
+  acceptance. No detector-count change (existing detector extended; profiles updated, not
+  added). Motivated by a 2026-06 KJR technical-check unsubmit.
 
 - **Audit-dump leak gate** — new `check_checklist_dump_leak.py` (`/sync-submission`)
   scans every `.md`/`.docx`/`.pdf` in a submission directory for the residue of a

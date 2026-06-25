@@ -5,7 +5,8 @@ adult participants with the target condition.
 
 Outcome definitions are given in Methods §2.
 
-The adjusted odds ratio was 1.25 and the hazard ratio was 2.305.
+The adjusted odds ratio was 1.25 and the hazard ratio was 2.305. The event rate was
+35.14% and specificity was 96.12%.
 
 # **DISCUSSION**
 

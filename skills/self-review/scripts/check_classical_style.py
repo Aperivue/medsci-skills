@@ -15,6 +15,9 @@ gate rather than a prose checklist (manuscript-style-classical.md §5/§6/§7/§
                         sentence rather than a numbered list.
   DECIMAL_INCONSISTENCY (Minor) OR/HR/RR reported with mixed decimal places (some
                         2 dp, some 3 dp) in the same manuscript.
+  PERCENT_DECIMALS      (Minor) percentage(s) reported to >1 decimal place ("35.14%").
+                        Several journals (e.g. KJR) require one-decimal percentages at
+                        technical check; journal-dependent, so report-only.
   EM_DASH_OVERUSE       (Minor) more than 25 *prose* em-dashes — a generation tell.
                         Structural dashes (markdown table cells incl. "—" N/A
                         placeholders and panel-label captions, ORCID separators,
@@ -74,6 +77,10 @@ EFFECT_DECIMAL = re.compile(
     r"(?:\b(?:a?OR|a?HR|RR|sHR)\b|\bodds ratio\b|\bhazard ratio\b|\brisk ratio\b)"
     r"\s*(?:of|was|were|=|:|,)?\s*(\d+\.(\d+))", re.IGNORECASE)
 
+# A percentage reported to >1 decimal place ("35.14%"). Several journals (e.g. KJR)
+# require one-decimal percentages at technical check ("35.1%"). Journal-dependent.
+PERCENT_DECIMAL = re.compile(r"\b\d{1,3}\.\d{2,}\s*%")
+
 
 def check(text: str, em_dash_max: int) -> list[dict]:
     claims = []
@@ -123,6 +130,21 @@ def check(text: str, em_dash_max: int) -> list[dict]:
             "detail": f"OR/HR/RR reported with mixed decimal places ({sorted(dps)}); "
                       f"standardize (OR/HR to 2 dp)",
             "where": "effect-size decimals",
+        })
+
+    # PERCENT_DECIMALS (Minor) — percentages to >1 decimal place. Several journals
+    # (e.g. KJR) require one-decimal percentages at technical check ("35.1%" not
+    # "35.14%"); journal-dependent, so report-only (Minor, does not fail --strict).
+    pcts = [mm.group(0).strip() for mm in PERCENT_DECIMAL.finditer(text)]
+    if pcts:
+        ex = ", ".join(dict.fromkeys(pcts))  # dedup, keep order
+        claims.append({
+            "verdict": "PERCENT_DECIMALS",
+            "severity": "Minor",
+            "detail": f"{len(pcts)} percentage(s) reported to >1 decimal place "
+                      f"(e.g. {ex[:80]}); several journals require one decimal at "
+                      f"technical check (35.1% not 35.14%)",
+            "where": "percentage decimals",
         })
 
     # EM_DASH_OVERUSE (Minor) — count PROSE em-dashes only. Structural dashes are

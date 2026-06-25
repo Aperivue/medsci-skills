@@ -134,6 +134,24 @@ Example (PDF):
 
 ---
 
+## Technical-Check Conventions (pre-peer-review desk check)
+
+KJR runs a production "technical check" *before* peer review and **"unsubmits"** a manuscript that fails these deterministic items (it returns to the author's queue — not a reject — and delays review). Clear all of them before submitting:
+
+1. **Float citation order.** Tables, Supplementary Tables, and Figures must each be **cited in ascending numerical order of first appearance** in the text (Table 1 before Table 2; Supplementary Table S1 before S2; …). This is the most-missed item: an analysis table cited in Methods before the baseline Table 1, or supplementary tables left in authoring order rather than citation order, triggers an unsubmit. Run `/self-review`'s `check_citation_order.py`. Fix by renumbering the series by first-citation order (reorder the supplement + remap every cross-reference, expanding ranges like "S12–S15" by hand and leaving non-float sensitivity labels like "S1–S6" untouched).
+2. **Demographics location.** State the **number, age, and sex** of included patients in **Materials and Methods** — in both the abstract and the body — not introduced first in Results.
+3. **Percentages to one decimal** (35.1%, not 35.14%); P to three decimals; commas in large numbers (see Statistical Reporting). `check_classical_style.py` flags `PERCENT_DECIMALS`.
+4. **Double line spacing** throughout the Word file (12-pt, ~3-cm margins).
+5. **Tables and figures at the end** of the Main Document, in order, **each table on its own page**; every figure has a title (legend). Initial submission embeds figures + tables in the Main Document.
+6. **Acknowledgments, Funding, and Author Contributions on the Title Page only** — not in the (blinded) main body.
+7. **Reporting checklist** (STROBE/PRISMA/CONSORT) uploaded as a supplementary file and cited in the text as **"Supplementary Material 1"**.
+8. **IRB approval number in Materials and Methods even under double-blind review** — KJR requests it for transparency; keep the IRB number while blinding the institution name.
+9. **ICMJE COI forms are collected only after acceptance** — do not upload them at initial submission (delete them from the portal if already uploaded).
+
+(Global rule: `~/.claude/rules/journal-technical-check-gate.md`. Motivated by a 2026-06 KJR technical-check unsubmit on items 1, 2, 6, 7.)
+
+---
+
 ## Positioning
 
 KJR is well-suited for:
