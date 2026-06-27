@@ -153,13 +153,18 @@
     },
     {
       "path": "skills/analyze-stats/SKILL.md",
-      "size": 48695,
-      "sha256": "b7ea47fef239c87e61f0c43c2825b95c5bd9273f22523ef23573ff893a21563d"
+      "size": 50120,
+      "sha256": "bbe4456fa3c8514d0bc108bc36809118011d3c44417f9bfeae44d500d4c7f9a6"
     },
     {
       "path": "skills/analyze-stats/references/analysis_guides/mediation.md",
       "size": 4576,
       "sha256": "453bfe3c0ee4b61dd259102faa91d718167b7ef367c7aa844609a49978c3330b"
+    },
+    {
+      "path": "skills/analyze-stats/references/analysis_guides/mendelian_randomization.md",
+      "size": 5369,
+      "sha256": "57090d09151db48264139fc30fc832e915aa9e9d5995155227948b76672e0b38"
     },
     {
       "path": "skills/analyze-stats/references/analysis_guides/missing_data.md",
@@ -2408,8 +2413,8 @@
     },
     {
       "path": "skills/peer-review/SKILL.md",
-      "size": 50304,
-      "sha256": "2cabbeb0695e52e6a4aa1f341a0ddeb3cfe088c53e25c9803a2b1b5f3a0b5bd1"
+      "size": 51939,
+      "sha256": "acdaa7031cc4666c4e9812aa34ba7a64e78168270a2f432be40758726e3ebbe3"
     },
     {
       "path": "skills/peer-review/references/aczel_2021_reviewer2_patterns.md",
@@ -2445,6 +2450,11 @@
       "path": "skills/peer-review/references/domain-probes/image_synthesis.md",
       "size": 6295,
       "sha256": "1a640587100e7d2441e1890db33cf7844314586dcad559532972fc1eee54ab32"
+    },
+    {
+      "path": "skills/peer-review/references/domain-probes/mendelian_randomization.md",
+      "size": 11244,
+      "sha256": "197cfaa4bdcfe223a0ebfb69c229ccb3852160ab76870ade914eb8997ab684c5"
     },
     {
       "path": "skills/peer-review/references/domain-probes/narrative_review.md",
@@ -2888,8 +2898,8 @@
     },
     {
       "path": "skills/self-review/SKILL.md",
-      "size": 93517,
-      "sha256": "92b6e1c0e6cdaa27d5f033ce28e58a210208d619793d221f9ffa944aa1055bba"
+      "size": 93750,
+      "sha256": "8c8ec5efe8936e1fa7a74bb48a2b177bca0906a1072ddacafc4e9fd5890469b7"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
@@ -2920,6 +2930,11 @@
       "path": "skills/self-review/references/domain-probes/image_synthesis.md",
       "size": 6295,
       "sha256": "1a640587100e7d2441e1890db33cf7844314586dcad559532972fc1eee54ab32"
+    },
+    {
+      "path": "skills/self-review/references/domain-probes/mendelian_randomization.md",
+      "size": 11244,
+      "sha256": "197cfaa4bdcfe223a0ebfb69c229ccb3852160ab76870ade914eb8997ab684c5"
     },
     {
       "path": "skills/self-review/references/domain-probes/narrative_review.md",
