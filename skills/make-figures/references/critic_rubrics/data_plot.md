@@ -2,7 +2,7 @@
 
 Apply this rubric when the generated figure is a data visualization (not a
 flow diagram): ROC, forest, KM, calibration, Bland-Altman, confusion matrix,
-box/violin, bar, heatmap. The Claude session should Read the rendered PNG
+Manhattan/volcano, box/violin, bar, heatmap. The Claude session should Read the rendered PNG
 plus any available exemplars from `references/exemplar_diagrams/{type}/`,
 then mark each item below as **PASS / PARTIAL / FAIL** with a one-line
 justification.
@@ -74,6 +74,13 @@ list to the user.
 - Cells annotated with counts AND percentages
 - Axis labels "Predicted" / "Actual" (or "Reference")
 - Diagonal emphasized (darker color or heavier stroke) if useful
+
+### Manhattan / volcano (agnostic many-exposure scan: ExWAS / EWAS / MWAS)
+- Significance threshold line drawn AND its basis stated (FWER/Bonferroni or FDR), with the **number of tests** in the caption
+- Y-axis is −log10(p) (Manhattan) or −log10(p) vs effect size (volcano) — a volcano must show effect size, not significance alone
+- Hits labeled sparingly (top/threshold-crossing only); the full tested set is in a supplement, not crowded onto the plot
+- Direction of effect distinguishable (volcano: up/down; Manhattan: a sign/colour track if signed)
+- Caption states whether hits are **replicated** (discovery-only scans are exploratory)
 
 ## D. Typography and accessibility
 

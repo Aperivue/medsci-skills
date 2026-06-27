@@ -46,6 +46,11 @@ against `critic_rubrics/data_plot.md`; do not copy an image.
   each, quantitative labels (size/SUVmax/category), same-lesion correspondence for discordance or
   treatment response, and de-identification discipline. Pairs `clinical_timeline.md` (chronology) and
   `write-paper` `exemplar_case_report.md`.
+- `manhattan_plot.md` — Manhattan / volcano figure for an agnostic many-exposure scan (ExWAS / EWAS /
+  MWAS / proteome-/nutrient-wide): named significance-threshold line + the number of tests, effect-size
+  channel (volcano axis or Manhattan direction track), sparse hit labelling with the full set in a
+  supplement, domain banding, and replication encoding. Pairs `analyze-stats` `multiplicity.md` and
+  review probe O17.
 
 ## Curator guidelines (for adding more)
 
