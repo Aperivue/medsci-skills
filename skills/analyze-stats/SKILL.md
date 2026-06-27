@@ -570,6 +570,16 @@ When death or other events preclude the outcome of interest, standard KM overest
 - **Stratified-only** "stronger in A than B" is the difference-in-significance fallacy — report the formal interaction term, not two separate stratum estimates
 - R `interactionR` / `epiR` for RERI/AP/S with CIs; follow Knol & VanderWeele interaction-reporting recommendations. Review-side probe: O14 in `observational_confounding.md`
 
+### Multiple Testing & High-Dimensional Screening
+
+- **Guide**: Load `analysis_guides/multiplicity.md` before generating code
+- For agnostic many-exposure scans (ExWAS / EWAS / MWAS / proteome-/nutrient-wide) and any "screen N predictors, report the significant ones" pass
+- **Match the correction to the claim**: FWER (Bonferroni / Holm / permutation-based study-wide threshold) for a confirmatory single hit; FDR (Benjamini–Hochberg q-value) for discovery — then frame as hypothesis-generating
+- Report the correction method **and the number of tests `m`** (the denominator), applied to the whole tested set — never shrink `m` to the winners
+- **Replication is the real safeguard**: split-half / second cohort / cross-cycle with directional concordance and a reported replication rate; a single-cohort FDR-significant scan is exploratory
+- Correlated exposures → raw Bonferroni is over-conservative (permutation or effective-number-of-tests via `poolr::meff()`); a univariate hit may be a marker for a correlated cause (consider WQS / quantile g-computation / BKMR before causal reading)
+- Report full results (all effect sizes + p/q), not only winners; complex surveys combine design-based SEs (`survey_weighted.md`) WITH the correction. Review-side probe: O17 in `observational_confounding.md`
+
 ### NHIS Claims-Based Studies
 
 - **Guide**: Load `analysis_guides/nhis_icd10_mapping.md` for disease definition patterns
