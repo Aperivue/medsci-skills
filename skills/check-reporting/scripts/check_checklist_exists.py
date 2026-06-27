@@ -77,6 +77,9 @@ ALIAS_TO_STEM = {
     "nos": "NOS",
     "cosmin": "COSMIN_RoB",
     "cosminrob": "COSMIN_RoB",
+    "strobemr": "STROBE_MR",
+    "pgsrs": "PGS_RS",
+    "prsrs": "PGS_RS",
 }
 
 EXIT_OK = 0

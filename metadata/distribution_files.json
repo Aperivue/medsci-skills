@@ -488,8 +488,8 @@
     },
     {
       "path": "skills/check-reporting/SKILL.md",
-      "size": 35835,
-      "sha256": "a11617fb2bcf03b63a788638ad68ab9dac8623281e8b58428706b7c43a02e8c3"
+      "size": 36374,
+      "sha256": "a47396e0ed32e52e394c9bb81dc28ea3542669bc7f71a01e9e3ddff68ac0a464"
     },
     {
       "path": "skills/check-reporting/references/LICENSES.md",
@@ -565,6 +565,11 @@
       "path": "skills/check-reporting/references/checklists/NOS.md",
       "size": 2725,
       "sha256": "ebdbf8f3024d74e74ce0dbc54d946388377ce800e8f2d695440cf9cf7e55a43a"
+    },
+    {
+      "path": "skills/check-reporting/references/checklists/PGS_RS.md",
+      "size": 6030,
+      "sha256": "aa4912c11f980c90b1945d45849f175febd81d798f99df9d37cfa624eab6229f"
     },
     {
       "path": "skills/check-reporting/references/checklists/PRISMA_2020.md",
@@ -662,6 +667,11 @@
       "sha256": "4c7752f7c086a737f7f74935897bc5dcd0dbb12e3529006ecf7207a78f1005f3"
     },
     {
+      "path": "skills/check-reporting/references/checklists/STROBE_MR.md",
+      "size": 8509,
+      "sha256": "684284ed275b0edcc16d8aeb6b8a9af738929626b2fe34774e832f1bc872fb76"
+    },
+    {
       "path": "skills/check-reporting/references/checklists/SWiM.md",
       "size": 3516,
       "sha256": "118171e304491812709ee2311b1b968f8caac92e689431622a8fb81b2684e970"
@@ -703,8 +713,8 @@
     },
     {
       "path": "skills/check-reporting/scripts/check_checklist_exists.py",
-      "size": 6539,
-      "sha256": "322a86394e09c0d0e38e0de844750e6ffb3dde0ab17165c628ca58e6583407c5"
+      "size": 6614,
+      "sha256": "7c7c5ceefe9e77ba1540cf71b8fac9cc536e51182fda72375200100d0dc51897"
     },
     {
       "path": "skills/check-reporting/scripts/check_checklist_version.py",
@@ -1864,7 +1874,7 @@
     {
       "path": "skills/make-figures/references/reporting_guideline_figure_map.md",
       "size": 6862,
-      "sha256": "0d668f7f1da7f9f519a986ca089e08583547bed83303ca2200181e5d41c7359e"
+      "sha256": "367511d288192cec766cc6b4b8711b1148077f7567f20dd66c555f56fec55eb7"
     },
     {
       "path": "skills/make-figures/references/visual_abstract_templates/european_radiology.pptx",
@@ -2394,7 +2404,7 @@
     {
       "path": "skills/orchestrate/SKILL.md",
       "size": 35203,
-      "sha256": "3493bf0f2660f10536f957d15cebd852955fd7a1d6255a3244436f0bb4652dc0"
+      "sha256": "5adf3a50cee42451029b0d4ba32a2f74b2e81bd30e5220ebd0e36a9f538a40b7"
     },
     {
       "path": "skills/orchestrate/references/dialogue_nodes.md",
