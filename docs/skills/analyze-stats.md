@@ -35,7 +35,7 @@
 
 **References** (`skills/analyze-stats/references/`):
 
-- `analysis_guides/` (8 files)
+- `analysis_guides/` (9 files)
 - `style/` (2 files)
 - `table-standards/` (17 files)
 - `templates/` (14 files)

@@ -153,8 +153,8 @@
     },
     {
       "path": "skills/analyze-stats/SKILL.md",
-      "size": 47388,
-      "sha256": "12121ea6224d8c75d4aa98a6e2ee2947c95cfc17a3902780e7bb8d7ddb0be052"
+      "size": 48695,
+      "sha256": "b7ea47fef239c87e61f0c43c2825b95c5bd9273f22523ef23573ff893a21563d"
     },
     {
       "path": "skills/analyze-stats/references/analysis_guides/mediation.md",
@@ -165,6 +165,11 @@
       "path": "skills/analyze-stats/references/analysis_guides/missing_data.md",
       "size": 3762,
       "sha256": "1f247f4c01c9b90dfeef618b65377fbe545086059c0030116197505a140b196f"
+    },
+    {
+      "path": "skills/analyze-stats/references/analysis_guides/multiplicity.md",
+      "size": 5932,
+      "sha256": "84765a5c20cdc96e3a846ad6928f98111e55bcfbe21a48edf0806ed99999663e"
     },
     {
       "path": "skills/analyze-stats/references/analysis_guides/nhis_icd10_mapping.md",
@@ -1483,8 +1488,8 @@
     },
     {
       "path": "skills/make-figures/references/critic_rubrics/data_plot.md",
-      "size": 7061,
-      "sha256": "85f6a513fdb2b0e21e9e31b67b3e2f225c37b428bfcb157ea0220c60d14a8b87"
+      "size": 7728,
+      "sha256": "21334143086b59449fa1ffa3ad8f2ad3a7acd9f2948f236332352f8fe6077ae3"
     },
     {
       "path": "skills/make-figures/references/critic_rubrics/flow_diagram.md",
@@ -1763,8 +1768,8 @@
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/README.md",
-      "size": 4486,
-      "sha256": "22acf14fe080621e1b9510ed187150a456027ee5dc3cc65ae7603ee34adfc235"
+      "size": 4913,
+      "sha256": "a5a320c785154ec73e41863302c2b625c9a24aeb213cfac0f195414aa1570f01"
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/bland_altman.md",
@@ -1805,6 +1810,11 @@
       "path": "skills/make-figures/references/exemplar_plots/km_curve.md",
       "size": 2951,
       "sha256": "711b9bda2cb29f7debf45185c0445bf29d50c59a38f552a9f78affc6fbf71065"
+    },
+    {
+      "path": "skills/make-figures/references/exemplar_plots/manhattan_plot.md",
+      "size": 4097,
+      "sha256": "60b2ada79a65162b1697fad23e168645355f7b090064b2a356ebebef38fb0f6b"
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/mrmc_roc.md",
@@ -2443,8 +2453,8 @@
     },
     {
       "path": "skills/peer-review/references/domain-probes/observational_confounding.md",
-      "size": 27378,
-      "sha256": "bbced9817545c65992e7c3430057e32b9f32e092180bc91bd08730f03b2dcf9a"
+      "size": 33429,
+      "sha256": "ac1736047c069aa47df76deea92379cae407043b6989d8d3fc77db8fd84b0031"
     },
     {
       "path": "skills/peer-review/references/domain-probes/radiomics.md",
@@ -2918,8 +2928,8 @@
     },
     {
       "path": "skills/self-review/references/domain-probes/observational_confounding.md",
-      "size": 27378,
-      "sha256": "bbced9817545c65992e7c3430057e32b9f32e092180bc91bd08730f03b2dcf9a"
+      "size": 33429,
+      "sha256": "ac1736047c069aa47df76deea92379cae407043b6989d8d3fc77db8fd84b0031"
     },
     {
       "path": "skills/self-review/references/domain-probes/radiomics.md",
