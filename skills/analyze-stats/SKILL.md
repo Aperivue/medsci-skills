@@ -580,6 +580,16 @@ When death or other events preclude the outcome of interest, standard KM overest
 - Correlated exposures → raw Bonferroni is over-conservative (permutation or effective-number-of-tests via `poolr::meff()`); a univariate hit may be a marker for a correlated cause (consider WQS / quantile g-computation / BKMR before causal reading)
 - Report full results (all effect sizes + p/q), not only winners; complex surveys combine design-based SEs (`survey_weighted.md`) WITH the correction. Review-side probe: O17 in `observational_confounding.md`
 
+### Mendelian Randomization
+
+- **Guide**: Load `analysis_guides/mendelian_randomization.md` before generating code
+- For genetic-instrument causal inference: two-sample summary-data MR, one-sample MR, MVMR, drug-target / cis-MR, non-linear MR
+- **State and evidence the 3 IV assumptions**: relevance (F-statistic / R²), independence (ancestry + confounder scan), exclusion restriction (no horizontal pleiotropy — the untestable one)
+- **Pre-specify the full sensitivity suite, not IVW alone**: IVW + MR-Egger (intercept = directional pleiotropy) + weighted median + weighted mode + MR-PRESSO; Cochran's Q + leave-one-out; concordance across methods is the robustness claim (R `TwoSampleMR` / `MendelianRandomization`)
+- Address **reverse causation** (Steiger / bidirectional), **sample overlap** (report fraction; overlap + weak instruments inflate type-1 error), **winner's curse** (select instruments in an independent GWAS), and ancestry matching
+- **Drug-target / cis-MR**: GLS-IVW for correlated cis variants + colocalization (`coloc`) + positive control + adverse-effect phenome scan. **Non-linear MR**: residual/doubly-ranked shapes can be artefactual → require negative/positive controls + extreme-stratum sensitivity
+- Interpret as a **lifelong genetic-proxy effect direction**, not a clinical-intervention magnitude; report against **STROBE-MR**. Review-side probes: MR1–MR8 in `mendelian_randomization.md`
+
 ### NHIS Claims-Based Studies
 
 - **Guide**: Load `analysis_guides/nhis_icd10_mapping.md` for disease definition patterns
