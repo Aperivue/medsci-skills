@@ -45,6 +45,7 @@ MODULES = (
     "case_report.md",
     "equity_fairness.md",
     "mendelian_randomization.md",
+    "polygenic_risk_score.md",
 )
 
 CANONICAL_REL = "skills/peer-review/references/domain-probes"

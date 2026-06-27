@@ -590,6 +590,16 @@ When death or other events preclude the outcome of interest, standard KM overest
 - **Drug-target / cis-MR**: GLS-IVW for correlated cis variants + colocalization (`coloc`) + positive control + adverse-effect phenome scan. **Non-linear MR**: residual/doubly-ranked shapes can be artefactual → require negative/positive controls + extreme-stratum sensitivity
 - Interpret as a **lifelong genetic-proxy effect direction**, not a clinical-intervention magnitude; report against **STROBE-MR**. Review-side probes: MR1–MR8 in `mendelian_randomization.md`
 
+### Polygenic Risk Score (PRS / PGS)
+
+- **Guide**: Load `analysis_guides/polygenic_risk_score.md` before generating code
+- For developing/validating/applying a genome-wide polygenic score as a predictor or risk-stratifier (distinct from MR: PRS is prediction, MR is causal inference)
+- **Base (discovery GWAS) and target/validation samples must be independent**; tune (P+T / LDpred2 / PRS-CS shrinkage / quantile cut) on a separate tuning set and evaluate out-of-sample (avoid overfitting / winner's curse). Tools: PRSice-2, LDpred2 (`bigsnpr`), PRS-CS / PRS-CSx, BridgePRS
+- **Ancestry portability is the central issue**: report performance **separately per target ancestry** (within-group differences can rival between-group); prefer ancestry-matched / multi-ancestry discovery + PCs; do not extend a European-derived score to other ancestries without per-ancestry validation
+- Report **OR/HR per SD** (CI) + quantile **absolute risk**; discrimination (C/AUC) **and** calibration (plot + slope/intercept) in the target population — discrimination ≠ calibration
+- **Incremental value is the clinical crux**: report PRS **on top of** the guideline clinical model (SCORE2/QRISK3/PCE/Tyrer-Cuzick) — ΔC-statistic (CI), NRI/IDI, net benefit — not PRS-alone AUC. A screening claim needs detection-rate-at-fixed-FPR / likelihood ratio, not AUC
+- Prefer prospective/incident validation (prevalent case–control overstates utility); report against **PGS-RS** / TRIPOD+AI. Review-side probes: PG1–PG8 in `polygenic_risk_score.md`
+
 ### NHIS Claims-Based Studies
 
 - **Guide**: Load `analysis_guides/nhis_icd10_mapping.md` for disease definition patterns

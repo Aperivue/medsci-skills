@@ -153,8 +153,8 @@
     },
     {
       "path": "skills/analyze-stats/SKILL.md",
-      "size": 50120,
-      "sha256": "bbe4456fa3c8514d0bc108bc36809118011d3c44417f9bfeae44d500d4c7f9a6"
+      "size": 51655,
+      "sha256": "4cf4dab7af9b77b81d5a80b5887c497d1874b46b6b9ed4aa9450333fd93dd2f7"
     },
     {
       "path": "skills/analyze-stats/references/analysis_guides/mediation.md",
@@ -180,6 +180,11 @@
       "path": "skills/analyze-stats/references/analysis_guides/nhis_icd10_mapping.md",
       "size": 9172,
       "sha256": "8c31807d5e7e036d419d00326c3be7fe55410c9e0eb1aa1cabad895c741a14c7"
+    },
+    {
+      "path": "skills/analyze-stats/references/analysis_guides/polygenic_risk_score.md",
+      "size": 4452,
+      "sha256": "bd03c7153c784244fca67e4e12efa9a254a105f2cfc64dc333e3d0c6ab6b4f8b"
     },
     {
       "path": "skills/analyze-stats/references/analysis_guides/propensity_score.md",
@@ -2413,8 +2418,8 @@
     },
     {
       "path": "skills/peer-review/SKILL.md",
-      "size": 51939,
-      "sha256": "acdaa7031cc4666c4e9812aa34ba7a64e78168270a2f432be40758726e3ebbe3"
+      "size": 53743,
+      "sha256": "1bfce7857e97c9413da9cb99fd3a51c319e128884549a54cceb6270ae5e365b9"
     },
     {
       "path": "skills/peer-review/references/aczel_2021_reviewer2_patterns.md",
@@ -2465,6 +2470,11 @@
       "path": "skills/peer-review/references/domain-probes/observational_confounding.md",
       "size": 33429,
       "sha256": "ac1736047c069aa47df76deea92379cae407043b6989d8d3fc77db8fd84b0031"
+    },
+    {
+      "path": "skills/peer-review/references/domain-probes/polygenic_risk_score.md",
+      "size": 9718,
+      "sha256": "2e383fec4cf2034c62f9e1a419a0ff61e27bc5b3c132f7115b2335bd72472452"
     },
     {
       "path": "skills/peer-review/references/domain-probes/radiomics.md",
@@ -2898,8 +2908,8 @@
     },
     {
       "path": "skills/self-review/SKILL.md",
-      "size": 93750,
-      "sha256": "8c8ec5efe8936e1fa7a74bb48a2b177bca0906a1072ddacafc4e9fd5890469b7"
+      "size": 93937,
+      "sha256": "c9784df8a96f22b07ddc4e820dc02dd26735564d8dc549c1baa0d3132c3b88a9"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
@@ -2945,6 +2955,11 @@
       "path": "skills/self-review/references/domain-probes/observational_confounding.md",
       "size": 33429,
       "sha256": "ac1736047c069aa47df76deea92379cae407043b6989d8d3fc77db8fd84b0031"
+    },
+    {
+      "path": "skills/self-review/references/domain-probes/polygenic_risk_score.md",
+      "size": 9718,
+      "sha256": "2e383fec4cf2034c62f9e1a419a0ff61e27bc5b3c132f7115b2335bd72472452"
     },
     {
       "path": "skills/self-review/references/domain-probes/radiomics.md",
