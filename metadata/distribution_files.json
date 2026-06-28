@@ -2868,8 +2868,8 @@
     },
     {
       "path": "skills/present-paper/SKILL.md",
-      "size": 29247,
-      "sha256": "aa8455317bd4996d5b1e0cc9d27c8be33b8112b7826749d87376c161d6cf87d5"
+      "size": 33518,
+      "sha256": "777197edf83a4d242508b366abe24681198467a95950b0acc385ac2714f33cb4"
     },
     {
       "path": "skills/present-paper/references/critic_rubrics/slide.md",
@@ -2887,9 +2887,39 @@
       "sha256": "d0f964af7523ec8bfef50ca627878f8c2cfe58159c2a827c5f7dfd43585cf9ee"
     },
     {
+      "path": "skills/present-paper/references/presentation_design_guidelines.md",
+      "size": 7460,
+      "sha256": "689d021ff7fc5e04abf93f3d6e1b0646bb5aa86430239b76b51d2224b3b92f0c"
+    },
+    {
       "path": "skills/present-paper/references/slide_design_principles.md",
       "size": 10436,
       "sha256": "7f2a5e03c8f2ddbb2d84a163506c5f3a2d1cca1353a694abd7bfb14225324826"
+    },
+    {
+      "path": "skills/present-paper/references/slide_visual_styles/CATALOG.md",
+      "size": 3177,
+      "sha256": "78782ce6916212bcae9e1d8513197721a8ac72ed1faa33ce335b36d0c88a828f"
+    },
+    {
+      "path": "skills/present-paper/references/slide_visual_styles/clinical_blue.md",
+      "size": 3249,
+      "sha256": "334ee770935b93a1ddf86c426a8f3da377d2618c0f6553308ccc38e871f26160"
+    },
+    {
+      "path": "skills/present-paper/references/slide_visual_styles/dark_modern.md",
+      "size": 3197,
+      "sha256": "b5adf2331318a1276fa5eedf173a36c056d220fbfa04819a5c4d4d68b1109f68"
+    },
+    {
+      "path": "skills/present-paper/references/slide_visual_styles/editorial_mono.md",
+      "size": 3068,
+      "sha256": "db07e84bbf4d248f0a4837fe22ed61c82e176fe94055b590131e24d25c59f20b"
+    },
+    {
+      "path": "skills/present-paper/references/slide_visual_styles/institutional_brand.md",
+      "size": 4431,
+      "sha256": "c8b04c93bf61072fc6c4ee7d402e107d7375e933d60085bf325d74830896684a"
     },
     {
       "path": "skills/present-paper/references/slide_visual_styles/nature_lancet.md",
@@ -2915,6 +2945,11 @@
       "path": "skills/present-paper/scripts/inject_speaker_notes.py",
       "size": 6758,
       "sha256": "6eeaf94c396d0f4ff365eaea0408f2fc00f8e2dc75b53a9514214194cb9329f9"
+    },
+    {
+      "path": "skills/present-paper/scripts/inspect_pptx_template.py",
+      "size": 5073,
+      "sha256": "648fe3d2904a5ffffb41eb064d1780f605a672dc44618a74b5e3e59c023cb63d"
     },
     {
       "path": "skills/present-paper/scripts/strip_notes_for_sharing.py",
