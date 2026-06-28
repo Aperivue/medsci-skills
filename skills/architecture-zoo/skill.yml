@@ -1,0 +1,36 @@
+schema_version: 2
+name: architecture-zoo
+layer: D
+owner_domain: architecture_reference
+maturity: official
+
+when_to_use: "Choose a model architecture for a medical-imaging research question before scaffolding — map the task (classification / segmentation / detection / transfer), modality and dimensionality, labelled-data scale, and class imbalance to a shortlist of architectures, each grounded in its source paper with a when-to-use, a medical-imaging use, a reference implementation, the typical validation setup, and the matching /model-scaffold template."
+when_NOT_to_use: "Generating the runnable training repo (use model-scaffold); auditing a trained model's validation design (use model-validation); computing metrics (use model-evaluation / analyze-stats); general study/validity design (use design-study); benchmarking AI vs a human-expert panel (use design-ai-benchmarking); evaluating an LLM / MLLM (use mllm-eval). It does not chase SOTA leaderboards — it teaches archetypes and the task-to-architecture logic."
+
+inputs:
+  - "the research question + imaging modality and dimensionality (2-D / 3-D)"
+  - "labelled-data scale (events / structures), label availability, and class-imbalance / interpretability constraints"
+outputs:
+  - "an architecture decision note (chosen architecture, source paper, reason vs constraints, runner-up + why not, matching model-scaffold template)"
+side_effects:
+  - writes_decision_notes
+downstream_consumers:
+  - model-scaffold
+  - model-validation
+  - design-study
+forbidden_actions:
+  - recommend_an_architecture_without_naming_its_source_paper
+  - fabricate_benchmark_numbers_or_invent_paper_claims
+  - recommend_an_architecture_for_a_modality_or_data_scale_it_does_not_suit
+
+# v2.1 quality card
+purpose: "Turn a medical-imaging research question into a paper-grounded architecture choice — so the build starts from the right archetype (and a known validation setup) rather than from what is fashionable, and the choice carries its source citation into the manuscript."
+safety_boundaries:
+  - "Advisory only: it writes a decision note, never code or weights; the build is /model-scaffold."
+  - "Every recommendation names its source paper; benchmark numbers are cited, never invented; the zoo describes archetypes, not a live leaderboard."
+known_limitations:
+  - "The literature moves fast; this is a curated archetype map (classification, segmentation, foundation/SSL families seeded), not an exhaustive or current SOTA ranking — additional families (detection, synthesis) land in later phases."
+  - "A sound architecture choice is necessary, not sufficient; validity still depends on the split, validation design, and metrics (/model-validation, /model-evaluation)."
+validation_commands:
+  - "carry the decision note into /model-scaffold to instantiate the chosen template, then /model-validation"
+evidence_surface: manual_workflow
