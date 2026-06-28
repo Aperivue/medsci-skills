@@ -1,0 +1,43 @@
+schema_version: 2
+name: model-validation
+layer: D
+owner_domain: model_validation
+maturity: official
+
+when_to_use: "Design or audit the clinical-validation study for an engineer-built medical-imaging model (segmentation / classification / detection): patient-level split disjointness and the data-leakage taxonomy, internal vs genuine external validation, comparator design, test-set sizing handoff, seed / run variance, task-correct metric selection, and CLAIM 2024 / TRIPOD+AI / STARD-AI reporting fit — before the validation report or manuscript is written."
+when_NOT_to_use: "Building or training the model (out of scope — do not rebuild MONAI / nnU-Net); benchmarking AI against a human-expert panel (use design-ai-benchmarking); evaluating an LLM / MLLM (use mllm-eval when available); general study/validity review (use design-study); statistical execution such as DeLong / ICC / bootstrap CIs (use analyze-stats); item-by-item reporting-guideline audit of a finished manuscript (use check-reporting); reviewing a finished manuscript (use self-review or peer-review)."
+
+inputs:
+  - "trained-model description (task, architecture provenance, intended use)"
+  - "split-assignment table (patient/subject ID + train/val/test partition) for the leakage gate"
+  - "validation-study draft or methods notes (optional)"
+outputs:
+  - "validation-design / audit review (decision notes: leakage, split, comparator, validation tier, metric selection)"
+  - "split-leakage audit JSON (deterministic)"
+  - "reporting-guideline fit recommendation (CLAIM 2024 / TRIPOD+AI / STARD-AI) + test-set sizing handoff to calc-sample-size"
+deterministic_scripts:
+  - scripts/check_split_leakage.py
+side_effects:
+  - writes_decision_notes
+downstream_consumers:
+  - calc-sample-size
+  - check-reporting
+  - self-review
+  - write-paper
+forbidden_actions:
+  - fabricate_performance_metrics_or_split_assignments
+  - approve_a_validation_design_with_patient_overlap_across_splits
+  - report_a_split_audit_pass_without_running_the_detector
+
+# v2.1 quality card
+purpose: "Catch the structural validity failures of an engineer-built imaging model's evaluation — patient-level leakage, tuning on the test set, an internal split sold as external validation, a single-run headline metric, and metric-on-imbalanced — before they reach a clinical-validation manuscript."
+safety_boundaries:
+  - "Advisory plus deterministic-audit only: never alters predictions, splits, or metrics."
+  - "The leakage verdict is reproduced by a stdlib script (set arithmetic on the patient IDs), never asserted from prose."
+known_limitations:
+  - "Audits the evaluation design, not the model's clinical safety; a clean audit is necessary, not sufficient."
+  - "The split-leakage gate sees only the split table it is given; it cannot detect leakage hidden in upstream preprocessing it never sees."
+validation_commands:
+  - "python3 scripts/check_split_leakage.py --splits <split_assignment.csv> --strict"
+  - "bash scripts/check_split_leakage_challenge/verify.sh  # deterministic, network-free"
+evidence_surface: ci_validator

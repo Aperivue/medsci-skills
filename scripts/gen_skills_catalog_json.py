@@ -50,6 +50,9 @@ CATEGORY_BY_OWNER_DOMAIN: dict[str, tuple[str, str]] = {
     "data_preparation": ("data_study_design", "Data & Study Design"),
     "data_documentation": ("data_study_design", "Data & Study Design"),
     "dataset_versioning": ("data_study_design", "Data & Study Design"),
+    # Model engineering & validation (v5.0 lane — interim home; carves its own
+    # "Model Engineering & Validation" storefront category at the v5.0.0 major).
+    "model_validation": ("data_study_design", "Data & Study Design"),
     # Analysis & figures
     "statistical_analysis": ("analysis_figures", "Analysis & Figures"),
     "figure_generation": ("analysis_figures", "Analysis & Figures"),

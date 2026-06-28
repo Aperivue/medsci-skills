@@ -32,6 +32,7 @@
         "./skills/design-ai-benchmarking",
         "./skills/design-study",
         "./skills/generate-codebook",
+        "./skills/model-validation",
         "./skills/version-dataset"
       ]
     },

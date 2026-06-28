@@ -1,0 +1,9 @@
+=========================================
+ Split-Leakage Gate (model-validation)
+=========================================
+  rows=14  subjects=12  partitions={'test': 4, 'train': 6, 'val': 4}  seed=42
+| Check | Severity | Detail |
+|---|---|---|
+| PATIENT_OVERLAP | Major | 2 of 12 subjects appear in >= 2 partitions (e.g. 'P03' in test/train); the same patient in train and test inflates every metric. Offenders: P03, P07 |
+
+MAJOR candidate: 1 split-integrity issue(s).

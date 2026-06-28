@@ -1,0 +1,6 @@
+subject_id,partition
+S1,train
+S1,test
+S2,train
+S3,test
+S4,val
