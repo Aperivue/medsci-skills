@@ -86,4 +86,20 @@ assert abs(loss_once() - loss_once()) < 1e-9, "FAIL: loss not reproducible under
 print("  torch forward tier OK (shape (2,1,32,32), grads flow, reproducible loss)")
 PY
 
-echo "PASS: scaffold -> disjoint+seeded split (matches frozen expected) -> training hygiene clean -> forward tier."
+# (5) BREADTH: every task scaffolds to the same (task-independent) frozen split, valid
+#     Python, and a hygiene-clean train.py / evaluate.py.
+for task in classification detection synthesis ssl; do
+  tdir="$WORK/$task"
+  python3 "$SCAFFOLD" --manifest "$HERE/fixture/manifest.csv" --task "$task" --out "$tdir" --seed 42 --quiet
+  diff -q "$HERE/expected/split_assignment.csv" "$tdir/splits/split_assignment.csv" >/dev/null \
+    || { echo "FAIL: $task split differs from the frozen (task-independent) split" >&2; exit 1; }
+  for f in "$tdir"/*.py; do
+    python3 -c "import ast,sys; ast.parse(open(sys.argv[1]).read())" "$f" \
+      || { echo "FAIL: $task emitted $(basename "$f") is not valid Python" >&2; exit 1; }
+  done
+  python3 "$HYGIENE" --repo "$tdir" --strict --quiet \
+    || { echo "FAIL: $task repo failed check_training_hygiene" >&2; exit 1; }
+  echo "  $task OK (frozen split + valid Python + training hygiene)"
+done
+
+echo "PASS: 5 tasks scaffold to a disjoint+seeded split (frozen) with hygiene-clean code; segmentation forward tier verified."

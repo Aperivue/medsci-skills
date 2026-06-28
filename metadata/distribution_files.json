@@ -398,13 +398,18 @@
     },
     {
       "path": "skills/architecture-zoo/SKILL.md",
-      "size": 5444,
-      "sha256": "6d8f81262a42ff24e36dca425511804b9f324d2c900f31f701c703e3d8326729"
+      "size": 5712,
+      "sha256": "ffb9a52d417f309a3b22c8d0f74e6700b67350c0d7a2a2e2c785f0cb4cb066bc"
     },
     {
       "path": "skills/architecture-zoo/references/classification.md",
       "size": 5986,
       "sha256": "035e0fddaccb0e19e23ffd7756b075154f847ee20f9a512cd2a010c0db4210fa"
+    },
+    {
+      "path": "skills/architecture-zoo/references/detection.md",
+      "size": 3917,
+      "sha256": "60549b53a87dcb149c442498695321e94c28f0c8853316dda995a2dd730dfeec"
     },
     {
       "path": "skills/architecture-zoo/references/foundation_models.md",
@@ -413,8 +418,8 @@
     },
     {
       "path": "skills/architecture-zoo/references/index.md",
-      "size": 4065,
-      "sha256": "a1ed80efcf9a56e0286972ae9b08bd38965bb20a569e3aac5314549dfa6ad5f4"
+      "size": 4024,
+      "sha256": "d2360eb8635347f0f22be0b0e337a540db865aafdc12678455cf32bc49fd9d3d"
     },
     {
       "path": "skills/architecture-zoo/references/segmentation.md",
@@ -422,9 +427,14 @@
       "sha256": "17618fe3d6884cf89b034ededcd69e081a65d7bfd473495eb2ab1fb5d8b15d8b"
     },
     {
+      "path": "skills/architecture-zoo/references/synthesis.md",
+      "size": 3973,
+      "sha256": "b7fec1a55a7b9e2f8eea6979d7bfbda1fc03664aeec0cc89daac8c8f9bdfb8bc"
+    },
+    {
       "path": "skills/architecture-zoo/skill.yml",
-      "size": 2889,
-      "sha256": "275cfb1d0779028d79d8596879c09b5b6c714859142cb72a12b7ec901acc69e1"
+      "size": 2836,
+      "sha256": "7d7c727a9fc75383e775feac14faf1c4caad90307ed8ca20859ef499ac17deb0"
     },
     {
       "path": "skills/author-strategy/SKILL.md",
@@ -2628,8 +2638,8 @@
     },
     {
       "path": "skills/model-scaffold/SKILL.md",
-      "size": 7048,
-      "sha256": "a1612de8a2888667137c3d81100adcb4a6c42d45c73edf93f715fad1da7e179f"
+      "size": 7686,
+      "sha256": "cede2020d3ceee0e1599cbcfb412230ab9c04b08032c8bbaff620e4129ec6785"
     },
     {
       "path": "skills/model-scaffold/references/training_guide.md",
@@ -2643,8 +2653,8 @@
     },
     {
       "path": "skills/model-scaffold/scripts/scaffold.py",
-      "size": 19327,
-      "sha256": "d37d617d9753faf6cd6f4d9332d896ad3704d4f2dea8578d4d23f02baedbfd09"
+      "size": 40470,
+      "sha256": "33569806ecd230aebb9d35c77a27b8480d23329b00f633d7fee9531a7bcec974"
     },
     {
       "path": "skills/model-scaffold/scripts/scaffold_challenge/expected/split_assignment.csv",
@@ -2663,13 +2673,13 @@
     },
     {
       "path": "skills/model-scaffold/scripts/scaffold_challenge/verify.sh",
-      "size": 4191,
-      "sha256": "f2476dc72772ffa77ba13ed43067a19bf4f9b6fbce9ce49a1726eee2f64d7b21"
+      "size": 5136,
+      "sha256": "040acee712943e8392b70b40b790438bec056a3a4e7a282f76455d2a2b791447"
     },
     {
       "path": "skills/model-scaffold/skill.yml",
-      "size": 3104,
-      "sha256": "a6284452adbbb533c63dcd294c5b4b7fce7d93e1be381d27323168ac3888ba33"
+      "size": 3195,
+      "sha256": "06c4ed02872bfc38abd1c753c02a640a2bfaa1141fbfdd9f8b9ccbe18a148d82"
     },
     {
       "path": "skills/model-validation/SKILL.md",

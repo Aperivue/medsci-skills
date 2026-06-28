@@ -21,7 +21,7 @@
 
 **Known limitations**
 
-- The literature moves fast; this is a curated archetype map (classification, segmentation, foundation/SSL families seeded), not an exhaustive or current SOTA ranking — additional families (detection, synthesis) land in later phases.
+- The literature moves fast; this is a curated archetype map (classification, segmentation, detection, synthesis, foundation/SSL families), not an exhaustive or current SOTA ranking.
 - A sound architecture choice is necessary, not sufficient; validity still depends on the split, validation design, and metrics (/model-validation, /model-evaluation).
 
 **Validation**
@@ -35,9 +35,11 @@
 **References** (`skills/architecture-zoo/references/`):
 
 - `classification.md`
+- `detection.md`
 - `foundation_models.md`
 - `index.md`
 - `segmentation.md`
+- `synthesis.md`
 
 ## Source
 

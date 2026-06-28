@@ -2,13 +2,13 @@
 
 # model-scaffold
 
-> Generate a reproducible, runnable PyTorch training repo for a medical-imaging segmentation task — the missing middle link between choosing an architecture and validating a trained model. Emits a patient-level seed-locked split as an auditable artifact, a configurable U-Net, train and evaluate scripts that seed every RNG and infer under eval mode, a config, requirements, a reproducibility record, and a Methods stub with VERIFY placeholders (no fabricated numbers). The reproducibility guarantees hold by construction, so the build is leakage-safe before any training runs. Integrates with MONAI, nnU-Net, and TorchIO — it does not reimplement them.
+> Generate a reproducible, runnable PyTorch training repo for a medical-imaging task — segmentation, classification, detection, image-to-image synthesis, or self-supervised pretraining — the missing middle link between choosing an architecture and validating a trained model. Emits a patient-level seed-locked split as an auditable artifact, a task-appropriate model, train and evaluate scripts that seed every RNG and infer under eval mode, a config, requirements, a reproducibility record, and a Methods stub with VERIFY placeholders (no fabricated numbers). The reproducibility guarantees hold by construction, so the build is leakage-safe before any training runs. Integrates with MONAI, nnU-Net, TorchIO, timm, and torchvision — it does not reimplement them.
 
 **Invoke:** `/model-scaffold` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
 
 ## When to use
 
-`model-scaffold` activates on requests such as: model scaffold, scaffold a model, training repo, PyTorch repo, build a model, train a segmentation model, U-Net, UNet, segmentation model, nnU-Net, MONAI, dataloader, train.py, patient-level split, reproducible training, seed everything, generate training code, medical imaging model.
+`model-scaffold` activates on requests such as: model scaffold, scaffold a model, training repo, PyTorch repo, build a model, train a model, segmentation, classification, detection, image synthesis, self-supervised, SimCLR, Pix2Pix, Faster R-CNN, U-Net, UNet, nnU-Net, MONAI, timm, torchvision, dataloader, train.py, patient-level split, reproducible training, seed everything, generate training code, medical imaging model.
 
 ## Quality Card
 

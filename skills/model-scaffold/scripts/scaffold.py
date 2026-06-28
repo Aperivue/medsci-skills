@@ -1,50 +1,45 @@
 #!/usr/bin/env python3
 """Reproducible medical-imaging training-repo scaffold generator (model-scaffold).
 
-Emits a runnable PyTorch training repo for a medical-imaging segmentation task with
-the reproducibility guarantees baked in *by construction*, so the produced code
-passes the lane's integrity gates without hand-editing:
+Emits a runnable PyTorch training repo for a medical-imaging task with the
+reproducibility guarantees baked in *by construction*, so the produced code passes the
+lane's integrity gates without hand-editing:
 
   - a PATIENT-LEVEL, SEED-LOCKED split written as an auditable artifact
-    (`splits/split_assignment.csv` + `splits/split_seed.txt`) — every image of a
-    patient lands in exactly one of train/val/test, so the split is disjoint by
-    construction and `check_split_leakage.py` (/model-validation) passes;
-  - a `train.py` that seeds random / numpy / torch (+ cuda) and sets cuDNN
-    deterministic, builds the training DataLoader from the TRAIN split only, and an
-    `evaluate.py` that runs inference under `model.eval()` + `torch.no_grad()` — so
-    `check_training_hygiene.py` passes;
-  - `model.py` (a small configurable U-Net), `dataset.py` (reads the split table,
-    never re-splits), `losses.py`, `config.yaml` (the single source of truth),
-    `requirements.txt`, `REPRODUCIBILITY.md`, and a `methods_stub.md` with
-    `[VERIFY: ...]` placeholders (no fabricated numbers).
+    (`splits/split_assignment.csv` + `splits/split_seed.txt`) — disjoint by construction
+    (so `check_split_leakage.py` passes), task-independent;
+  - a `train.py` that seeds random / numpy / torch (+ cuda) and sets cuDNN deterministic,
+    builds the training DataLoader from the TRAIN split only, and an `evaluate.py` that
+    runs inference under `model.eval()` + `torch.no_grad()` (so `check_training_hygiene.py`
+    passes);
+  - `model.py`, `dataset.py`, `losses.py`, `config.yaml`, `requirements.txt`,
+    `REPRODUCIBILITY.md`, and a `methods_stub.md` with `[VERIFY: ...]` placeholders.
 
-It INTEGRATES with the ecosystem (PyTorch; MONAI / nnU-Net / TorchIO referenced in
-the generated requirements + guide) — it does not reimplement them. The generated
-repo is what the user runs on Colab / a lab GPU; this generator and the lane's gates
-only verify the NETWORK-FREE parts (split disjointness, training hygiene, forward
-shape). Heavy training is the user's to run.
+Tasks (`--task`):
+  segmentation   2-D U-Net (Dice + BCE).
+  classification small multi-label CNN (BCEWithLogits); swap in a `timm` backbone.
+  detection      torchvision Faster R-CNN (ResNet-FPN); FROC / mAP downstream.
+  synthesis      Pix2Pix-style U-Net generator + PatchGAN (image-to-image; L1 + GAN).
+  ssl            SimCLR encoder + projection head (NT-Xent); pretrain then fine-tune.
+
+It INTEGRATES with the ecosystem (PyTorch; MONAI / nnU-Net / TorchIO / timm / torchvision
+referenced in the generated requirements) — it does not reimplement them. The generated
+repo is what the user runs on a GPU; the lane's gates verify only the NETWORK-FREE parts
+(split disjointness, training hygiene, forward shape).
 
 INPUTS
-  --manifest   CSV listing one row per image with a patient/subject ID column
-               (and optional image / label path columns, copied into dataset.py's
-               expected schema). Required.
-  --id-col     patient/subject ID column in the manifest (default: auto-detect
-               patient_id / subject_id / case_id / id).
-  --task       segmentation (default; the only task in this phase).
-  --arch       unet (default) — a small configurable 2-D U-Net.
+  --manifest   CSV: one row per image with a patient/subject ID column (+ image/label paths).
+  --id-col     ID column (auto-detected: patient_id / subject_id / case_id / id).
+  --task       segmentation (default) | classification | detection | synthesis | ssl.
   --out        output repo directory (default: model_repo).
-  --seed       split + training seed (default 42).
-  --val-frac / --test-frac   patient-level split fractions (default 0.15 / 0.15).
-  --in-channels / --out-channels   model channels (default 1 / 1).
-  --base-channels   U-Net base width (default 16).
+  --seed / --val-frac / --test-frac / --in-channels / --out-channels / --base-channels.
 
 OUTPUT
   A self-contained repo under --out (tree printed to stdout). Deterministic given the
   manifest + seed.
 
-Stdlib + numpy only (numpy is used solely for the deterministic patient-level split;
-the GENERATED code uses torch, which the user installs). Exit codes: 0 ok,
-2 input/usage error.
+Stdlib + numpy only (numpy is used solely for the deterministic patient-level split; the
+GENERATED code uses torch). Exit codes: 0 ok, 2 input/usage error.
 """
 
 from __future__ import annotations
@@ -58,17 +53,25 @@ import numpy as np
 
 ID_HINTS = ("patient_id", "subject_id", "case_id", "patientid", "subjectid", "id", "pid", "mrn")
 
+# Shared determinism preamble, interpolated into every train.py via __SEED_FN__ so each
+# emitted training script seeds every RNG and sets cuDNN deterministic (check_training_hygiene).
+SEED_FN = '''def seed_everything(seed):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False'''
+
 # --------------------------------------------------------------------------- #
-# Generated-file templates. Placeholders are __TOKENS__ replaced by render().   #
-# The emitted Python is valid and hygienic BY CONSTRUCTION (seeds all RNGs,      #
-# cuDNN-deterministic, train-only loader, eval()/no_grad() inference).           #
+# Per-task templates. Placeholders are __TOKENS__ replaced by render().         #
 # --------------------------------------------------------------------------- #
 
-MODEL_PY = r'''"""Small configurable 2-D U-Net (generated by model-scaffold).
+# ---- segmentation (2-D U-Net) ----
+SEG_MODEL = r'''"""Small configurable 2-D U-Net (generated by model-scaffold).
 
-A plain encoder-decoder with skip connections (Ronneberger 2015). Kept intentionally
-small and CPU-runnable so a forward pass can be smoke-tested without a GPU. Swap in
-MONAI's UNet / SegResNet or an nnU-Net plan for production (see REPRODUCIBILITY.md).
+Plain encoder-decoder with skip connections (Ronneberger 2015); small and CPU-runnable so
+a forward pass can be smoke-tested. Swap in MONAI UNet/SegResNet or an nnU-Net plan.
 """
 import torch
 import torch.nn as nn
@@ -112,62 +115,7 @@ def build_model():
     return UNet()
 '''
 
-DATASET_PY = r'''"""Dataset that reads the FROZEN split assignment (generated by model-scaffold).
-
-The split was decided once, at scaffold time, and recorded in
-splits/split_assignment.csv. This dataset only READS it (filtering by split) and
-never re-splits, so the partition stays patient-disjoint and reproducible. Replace
-the _load_image / _load_label stubs with your DICOM / NIfTI / TIFF reader
-(nibabel / pydicom / tifffile / TorchIO / MONAI transforms).
-"""
-import csv
-from pathlib import Path
-
-import torch
-from torch.utils.data import Dataset
-
-ID_COL = "__ID_COL__"
-
-
-def _read_split(repo_root):
-    root = Path(repo_root)
-    assign = {}
-    with (root / "splits" / "split_assignment.csv").open(encoding="utf-8") as f:
-        for row in csv.DictReader(f):
-            assign[row[ID_COL]] = row["split"]
-    return assign
-
-
-class ScaffoldDataset(Dataset):
-    """One item per manifest row whose patient is in `split`."""
-
-    def __init__(self, manifest_csv, repo_root, split, transform=None):
-        assign = _read_split(repo_root)
-        self.rows = []
-        with open(manifest_csv, encoding="utf-8") as f:
-            for row in csv.DictReader(f):
-                if assign.get(row[ID_COL]) == split:
-                    self.rows.append(row)
-        self.transform = transform
-
-    def __len__(self):
-        return len(self.rows)
-
-    def _load_image(self, row):
-        raise NotImplementedError("plug in your DICOM/NIfTI/TIFF reader -> CxHxW float tensor")
-
-    def _load_label(self, row):
-        raise NotImplementedError("plug in your mask reader -> 1xHxW float tensor in {0,1}")
-
-    def __getitem__(self, i):
-        row = self.rows[i]
-        x, y = self._load_image(row), self._load_label(row)
-        if self.transform is not None:
-            x, y = self.transform(x, y)
-        return x, y
-'''
-
-LOSSES_PY = r'''"""Segmentation losses (generated by model-scaffold)."""
+SEG_LOSSES = r'''"""Segmentation losses (generated by model-scaffold)."""
 import torch
 import torch.nn as nn
 
@@ -189,15 +137,390 @@ class DiceBCELoss(nn.Module):
         return bce + dice
 '''
 
-TRAIN_PY = r'''"""Training entry point (generated by model-scaffold).
+# ---- classification (small multi-label CNN) ----
+CLS_MODEL = r'''"""Small multi-label classifier (generated by model-scaffold).
 
-Reproducibility is baked in: every RNG is seeded and cuDNN is deterministic, the
-training DataLoader is built from the TRAIN split only, and the best model is
-selected on the VAL split (never the test set). Fill in the dataset I/O stubs, then
-run on your GPU / Colab. No metric is hard-coded here.
+A compact CNN for a forward-pass smoke test; for production swap in a pretrained `timm`
+backbone (ResNet/DenseNet/EfficientNet/ViT) with a multi-label head.
 """
-import random
+import torch
+import torch.nn as nn
 
+
+class SmallClassifier(nn.Module):
+    def __init__(self, in_channels=__IN_CH__, num_classes=__OUT_CH__, base=__BASE__):
+        super().__init__()
+        self.features = nn.Sequential(
+            nn.Conv2d(in_channels, base, 3, padding=1), nn.BatchNorm2d(base), nn.ReLU(inplace=True),
+            nn.MaxPool2d(2),
+            nn.Conv2d(base, base * 2, 3, padding=1), nn.BatchNorm2d(base * 2), nn.ReLU(inplace=True),
+            nn.MaxPool2d(2),
+            nn.Conv2d(base * 2, base * 4, 3, padding=1), nn.BatchNorm2d(base * 4), nn.ReLU(inplace=True),
+        )
+        self.pool = nn.AdaptiveAvgPool2d(1)
+        self.head = nn.Linear(base * 4, num_classes)
+
+    def forward(self, x):
+        x = self.pool(self.features(x)).flatten(1)
+        return self.head(x)
+
+
+def build_model():
+    return SmallClassifier()
+'''
+
+CLS_LOSSES = r'''"""Classification loss (generated by model-scaffold)."""
+import torch.nn as nn
+
+
+def build_loss(pos_weight=None):
+    """Multi-label classification: BCEWithLogits (use pos_weight for imbalance).
+    For single-label, swap to nn.CrossEntropyLoss()."""
+    return nn.BCEWithLogitsLoss(pos_weight=pos_weight)
+'''
+
+# ---- detection (torchvision Faster R-CNN) ----
+DET_MODEL = r'''"""Detection model (generated by model-scaffold).
+
+A torchvision Faster R-CNN (ResNet-50 FPN). torchvision returns a loss dict in train mode
+and detections in eval mode. For instance segmentation use maskrcnn_resnet50_fpn.
+"""
+import torchvision
+from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
+
+
+def build_model(num_classes=__OUT_CH__ + 1):  # +1 for background
+    model = torchvision.models.detection.fasterrcnn_resnet50_fpn(weights=None)
+    in_features = model.roi_heads.box_predictor.cls_score.in_features
+    model.roi_heads.box_predictor = FastRCNNPredictor(in_features, num_classes)
+    return model
+'''
+
+DET_LOSSES = r'''"""Detection losses (generated by model-scaffold).
+
+torchvision detection models compute their own multi-task loss dict (classification +
+box regression + objectness + rpn box) when called as model(images, targets) in train
+mode. This module documents that the training loss is sum(loss_dict.values())."""
+
+
+def reduce_loss(loss_dict):
+    return sum(loss for loss in loss_dict.values())
+'''
+
+# ---- synthesis (Pix2Pix-style U-Net generator + PatchGAN) ----
+SYN_MODEL = r'''"""Image-to-image synthesis model (generated by model-scaffold).
+
+A small Pix2Pix-style U-Net generator + PatchGAN discriminator (Isola 2017), CPU-runnable
+for a forward smoke test. For 3-D or diffusion, see MONAI generative models.
+"""
+import torch
+import torch.nn as nn
+
+
+def _down(cin, cout):
+    return nn.Sequential(nn.Conv2d(cin, cout, 4, 2, 1), nn.BatchNorm2d(cout), nn.LeakyReLU(0.2, True))
+
+
+def _up(cin, cout):
+    return nn.Sequential(nn.ConvTranspose2d(cin, cout, 4, 2, 1), nn.BatchNorm2d(cout), nn.ReLU(True))
+
+
+class UNetGenerator(nn.Module):
+    def __init__(self, in_channels=__IN_CH__, out_channels=__OUT_CH__, base=__BASE__):
+        super().__init__()
+        self.d1, self.d2, self.d3 = _down(in_channels, base), _down(base, base * 2), _down(base * 2, base * 4)
+        self.u3, self.u2 = _up(base * 4, base * 2), _up(base * 4, base)
+        self.u1 = nn.ConvTranspose2d(base * 2, out_channels, 4, 2, 1)
+
+    def forward(self, x):
+        e1 = self.d1(x)
+        e2 = self.d2(e1)
+        e3 = self.d3(e2)
+        u3 = self.u3(e3)
+        u2 = self.u2(torch.cat([u3, e2], dim=1))
+        return torch.tanh(self.u1(torch.cat([u2, e1], dim=1)))
+
+
+class PatchGAN(nn.Module):
+    def __init__(self, in_channels=__IN_CH__ + __OUT_CH__, base=__BASE__):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Conv2d(in_channels, base, 4, 2, 1), nn.LeakyReLU(0.2, True),
+            nn.Conv2d(base, base * 2, 4, 2, 1), nn.BatchNorm2d(base * 2), nn.LeakyReLU(0.2, True),
+            nn.Conv2d(base * 2, 1, 4, 1, 1),
+        )
+
+    def forward(self, src, tgt):
+        return self.net(torch.cat([src, tgt], dim=1))
+
+
+def build_model():
+    return UNetGenerator()
+
+
+def build_discriminator():
+    return PatchGAN()
+'''
+
+SYN_LOSSES = r'''"""Synthesis losses (generated by model-scaffold): adversarial (GAN) + L1."""
+import torch.nn as nn
+
+
+def build_losses():
+    """Returns (gan_loss, l1_loss). Generator loss = gan + lambda * L1 (lambda ~ 100)."""
+    return nn.BCEWithLogitsLoss(), nn.L1Loss()
+'''
+
+# ---- ssl (SimCLR encoder + projection head) ----
+SSL_MODEL = r'''"""Self-supervised encoder + projection head (generated by model-scaffold).
+
+A SimCLR-style encoder (small CNN) + MLP projection head (Chen 2020). Pretrain with
+NT-Xent on two augmented views, then fine-tune the encoder on labels.
+"""
+import torch
+import torch.nn as nn
+
+
+class Encoder(nn.Module):
+    def __init__(self, in_channels=__IN_CH__, base=__BASE__, proj_dim=__BASE__ * 2):
+        super().__init__()
+        self.backbone = nn.Sequential(
+            nn.Conv2d(in_channels, base, 3, padding=1), nn.BatchNorm2d(base), nn.ReLU(True),
+            nn.MaxPool2d(2),
+            nn.Conv2d(base, base * 2, 3, padding=1), nn.BatchNorm2d(base * 2), nn.ReLU(True),
+            nn.AdaptiveAvgPool2d(1),
+        )
+        self.projector = nn.Sequential(nn.Linear(base * 2, base * 2), nn.ReLU(True),
+                                       nn.Linear(base * 2, proj_dim))
+
+    def forward(self, x):
+        h = self.backbone(x).flatten(1)
+        return h, nn.functional.normalize(self.projector(h), dim=1)
+
+
+def build_model():
+    return Encoder()
+'''
+
+SSL_LOSSES = r'''"""NT-Xent contrastive loss (SimCLR; generated by model-scaffold)."""
+import torch
+import torch.nn as nn
+
+
+def nt_xent(z1, z2, temperature=0.5):
+    n = z1.size(0)
+    z = torch.cat([z1, z2], dim=0)
+    sim = torch.mm(z, z.t()) / temperature
+    sim.fill_diagonal_(-1e9)
+    targets = torch.arange(n, device=z.device)
+    targets = torch.cat([targets + n, targets], dim=0)
+    return nn.functional.cross_entropy(sim, targets)
+'''
+
+# ---- per-task dataset templates ----
+SEG_DATASET = r'''"""Dataset reading the FROZEN split (segmentation; generated by model-scaffold).
+Replace _load_image/_load_label with your DICOM/NIfTI/TIFF reader."""
+import csv
+from pathlib import Path
+import torch
+from torch.utils.data import Dataset
+
+ID_COL = "__ID_COL__"
+
+
+def _read_split(repo_root):
+    assign = {}
+    with (Path(repo_root) / "splits" / "split_assignment.csv").open(encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            assign[row[ID_COL]] = row["split"]
+    return assign
+
+
+class ScaffoldDataset(Dataset):
+    def __init__(self, manifest_csv, repo_root, split, transform=None):
+        assign = _read_split(repo_root)
+        self.rows = [r for r in csv.DictReader(open(manifest_csv, encoding="utf-8"))
+                     if assign.get(r[ID_COL]) == split]
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.rows)
+
+    def _load_image(self, row):
+        raise NotImplementedError("plug in your image reader -> CxHxW float tensor")
+
+    def _load_label(self, row):
+        raise NotImplementedError("plug in your mask reader -> 1xHxW float tensor in {0,1}")
+
+    def __getitem__(self, i):
+        row = self.rows[i]
+        x, y = self._load_image(row), self._load_label(row)
+        if self.transform is not None:
+            x, y = self.transform(x, y)
+        return x, y
+'''
+
+CLS_DATASET = r'''"""Dataset reading the FROZEN split (classification; generated by model-scaffold).
+Replace _load_image/_load_label with your reader."""
+import csv
+from pathlib import Path
+import torch
+from torch.utils.data import Dataset
+
+ID_COL = "__ID_COL__"
+
+
+def _read_split(repo_root):
+    assign = {}
+    with (Path(repo_root) / "splits" / "split_assignment.csv").open(encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            assign[row[ID_COL]] = row["split"]
+    return assign
+
+
+class ScaffoldDataset(Dataset):
+    def __init__(self, manifest_csv, repo_root, split, transform=None):
+        assign = _read_split(repo_root)
+        self.rows = [r for r in csv.DictReader(open(manifest_csv, encoding="utf-8"))
+                     if assign.get(r[ID_COL]) == split]
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.rows)
+
+    def _load_image(self, row):
+        raise NotImplementedError("plug in your image reader -> CxHxW float tensor")
+
+    def _load_label(self, row):
+        raise NotImplementedError("plug in your label reader -> float tensor [num_classes] (multi-label)")
+
+    def __getitem__(self, i):
+        row = self.rows[i]
+        x, y = self._load_image(row), self._load_label(row)
+        if self.transform is not None:
+            x = self.transform(x)
+        return x, y
+'''
+
+DET_DATASET = r'''"""Detection dataset reading the FROZEN split (generated by model-scaffold).
+Returns (image, target) where target = {"boxes": Nx4, "labels": N} per torchvision."""
+import csv
+from pathlib import Path
+import torch
+from torch.utils.data import Dataset
+
+ID_COL = "__ID_COL__"
+
+
+def _read_split(repo_root):
+    assign = {}
+    with (Path(repo_root) / "splits" / "split_assignment.csv").open(encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            assign[row[ID_COL]] = row["split"]
+    return assign
+
+
+class ScaffoldDataset(Dataset):
+    def __init__(self, manifest_csv, repo_root, split):
+        assign = _read_split(repo_root)
+        self.rows = [r for r in csv.DictReader(open(manifest_csv, encoding="utf-8"))
+                     if assign.get(r[ID_COL]) == split]
+
+    def __len__(self):
+        return len(self.rows)
+
+    def _load_image(self, row):
+        raise NotImplementedError("plug in your image reader -> CxHxW float tensor")
+
+    def _load_target(self, row):
+        raise NotImplementedError('return {"boxes": FloatTensor[N,4], "labels": Int64Tensor[N]}')
+
+    def __getitem__(self, i):
+        row = self.rows[i]
+        return self._load_image(row), self._load_target(row)
+'''
+
+SYN_DATASET = r'''"""Image-to-image synthesis dataset reading the FROZEN split (generated by model-scaffold).
+Returns (source_image, target_image)."""
+import csv
+from pathlib import Path
+import torch
+from torch.utils.data import Dataset
+
+ID_COL = "__ID_COL__"
+
+
+def _read_split(repo_root):
+    assign = {}
+    with (Path(repo_root) / "splits" / "split_assignment.csv").open(encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            assign[row[ID_COL]] = row["split"]
+    return assign
+
+
+class ScaffoldDataset(Dataset):
+    def __init__(self, manifest_csv, repo_root, split):
+        assign = _read_split(repo_root)
+        self.rows = [r for r in csv.DictReader(open(manifest_csv, encoding="utf-8"))
+                     if assign.get(r[ID_COL]) == split]
+
+    def __len__(self):
+        return len(self.rows)
+
+    def _load_source(self, row):
+        raise NotImplementedError("plug in your source-modality reader -> CxHxW float tensor")
+
+    def _load_target(self, row):
+        raise NotImplementedError("plug in your target-modality reader -> CxHxW float tensor")
+
+    def __getitem__(self, i):
+        row = self.rows[i]
+        return self._load_source(row), self._load_target(row)
+'''
+
+SSL_DATASET = r'''"""SSL dataset reading the FROZEN split (generated by model-scaffold).
+Returns two augmented views of the same image (no labels at pretraining)."""
+import csv
+from pathlib import Path
+import torch
+from torch.utils.data import Dataset
+
+ID_COL = "__ID_COL__"
+
+
+def _read_split(repo_root):
+    assign = {}
+    with (Path(repo_root) / "splits" / "split_assignment.csv").open(encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            assign[row[ID_COL]] = row["split"]
+    return assign
+
+
+class ScaffoldDataset(Dataset):
+    def __init__(self, manifest_csv, repo_root, split, augment=None):
+        assign = _read_split(repo_root)
+        self.rows = [r for r in csv.DictReader(open(manifest_csv, encoding="utf-8"))
+                     if assign.get(r[ID_COL]) == split]
+        self.augment = augment
+
+    def __len__(self):
+        return len(self.rows)
+
+    def _load_image(self, row):
+        raise NotImplementedError("plug in your image reader -> CxHxW float tensor")
+
+    def __getitem__(self, i):
+        x = self._load_image(self.rows[i])
+        if self.augment is None:
+            raise NotImplementedError("provide a stochastic augment() for two views")
+        return self.augment(x), self.augment(x)
+'''
+
+# ---- per-task train templates (all hygienic by construction) ----
+SEG_TRAIN = r'''"""Training entry point (segmentation; generated by model-scaffold).
+Reproducible: every RNG seeded, cuDNN deterministic, train loader from the TRAIN split,
+best model selected on the VAL split. No metric is hard-coded."""
+import random
 import numpy as np
 import torch
 from torch.utils.data import DataLoader
@@ -211,28 +534,19 @@ REPO_ROOT = "."
 MANIFEST = "__MANIFEST_NAME__"
 
 
-def seed_everything(seed):
-    random.seed(seed)
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)
-    torch.backends.cudnn.deterministic = True
-    torch.backends.cudnn.benchmark = False
+__SEED_FN__
 
 
 def main():
     seed_everything(SEED)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
     train_ds = ScaffoldDataset(MANIFEST, REPO_ROOT, split="train")
     val_ds = ScaffoldDataset(MANIFEST, REPO_ROOT, split="val")
     train_loader = DataLoader(train_ds, batch_size=4, shuffle=True, num_workers=4)
     val_loader = DataLoader(val_ds, batch_size=4, shuffle=False, num_workers=4)
-
     model = build_model().to(device)
     criterion = DiceBCELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
-
     best_val = float("inf")
     for epoch in range(50):
         model.train()
@@ -242,7 +556,6 @@ def main():
             loss = criterion(model(x), y)
             loss.backward()
             optimizer.step()
-
         model.eval()
         val_loss = 0.0
         with torch.no_grad():
@@ -252,27 +565,220 @@ def main():
         val_loss /= max(len(val_loader), 1)
         if val_loss < best_val:
             best_val = val_loss
-            torch.save({"epoch": epoch, "model": model.state_dict(),
-                        "optimizer": optimizer.state_dict(), "seed": SEED},
-                       "best.pt")
+            torch.save({"epoch": epoch, "model": model.state_dict(), "seed": SEED}, "best.pt")
 
 
 if __name__ == "__main__":
     main()
 '''
 
-EVALUATE_PY = r'''"""Held-out evaluation (generated by model-scaffold).
-
-Loads the best checkpoint, runs inference on the TEST split under model.eval() +
-torch.no_grad(), and writes a per-case predictions table. Compute task-correct
-metrics (Dice + HD95/NSD, with CIs) downstream via /model-evaluation and
-/analyze-stats — this script only produces predictions, never fabricated scores.
-"""
-import csv
-
+CLS_TRAIN = r'''"""Training entry point (classification; generated by model-scaffold).
+Reproducible: every RNG seeded, cuDNN deterministic, train loader from the TRAIN split."""
+import random
+import numpy as np
 import torch
 from torch.utils.data import DataLoader
 
+from dataset import ScaffoldDataset
+from losses import build_loss
+from model import build_model
+
+SEED = __SEED__
+REPO_ROOT = "."
+MANIFEST = "__MANIFEST_NAME__"
+
+
+__SEED_FN__
+
+
+def main():
+    seed_everything(SEED)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    train_ds = ScaffoldDataset(MANIFEST, REPO_ROOT, split="train")
+    val_ds = ScaffoldDataset(MANIFEST, REPO_ROOT, split="val")
+    train_loader = DataLoader(train_ds, batch_size=16, shuffle=True, num_workers=4)
+    val_loader = DataLoader(val_ds, batch_size=16, shuffle=False, num_workers=4)
+    model = build_model().to(device)
+    criterion = build_loss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
+    best_val = float("inf")
+    for epoch in range(50):
+        model.train()
+        for x, y in train_loader:
+            x, y = x.to(device), y.to(device)
+            optimizer.zero_grad()
+            loss = criterion(model(x), y)
+            loss.backward()
+            optimizer.step()
+        model.eval()
+        val_loss = 0.0
+        with torch.no_grad():
+            for x, y in val_loader:
+                x, y = x.to(device), y.to(device)
+                val_loss += criterion(model(x), y).item()
+        val_loss /= max(len(val_loader), 1)
+        if val_loss < best_val:
+            best_val = val_loss
+            torch.save({"epoch": epoch, "model": model.state_dict(), "seed": SEED}, "best.pt")
+
+
+if __name__ == "__main__":
+    main()
+'''
+
+DET_TRAIN = r'''"""Training entry point (detection; generated by model-scaffold).
+Reproducible: every RNG seeded, cuDNN deterministic, train loader from the TRAIN split.
+torchvision detection models return a loss dict in train mode."""
+import random
+import numpy as np
+import torch
+from torch.utils.data import DataLoader
+
+from dataset import ScaffoldDataset
+from losses import reduce_loss
+from model import build_model
+
+SEED = __SEED__
+REPO_ROOT = "."
+MANIFEST = "__MANIFEST_NAME__"
+
+
+__SEED_FN__
+
+
+def _collate(batch):
+    return tuple(zip(*batch))
+
+
+def main():
+    seed_everything(SEED)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    train_ds = ScaffoldDataset(MANIFEST, REPO_ROOT, split="train")
+    train_loader = DataLoader(train_ds, batch_size=2, shuffle=True, num_workers=4, collate_fn=_collate)
+    model = build_model().to(device)
+    optimizer = torch.optim.SGD(model.parameters(), lr=5e-3, momentum=0.9, weight_decay=5e-4)
+    for epoch in range(20):
+        model.train()
+        for images, targets in train_loader:
+            images = [img.to(device) for img in images]
+            targets = [{k: v.to(device) for k, v in t.items()} for t in targets]
+            optimizer.zero_grad()
+            loss = reduce_loss(model(images, targets))
+            loss.backward()
+            optimizer.step()
+        torch.save({"epoch": epoch, "model": model.state_dict(), "seed": SEED}, "best.pt")
+
+
+if __name__ == "__main__":
+    main()
+'''
+
+SYN_TRAIN = r'''"""Training entry point (synthesis; generated by model-scaffold).
+Reproducible: every RNG seeded, cuDNN deterministic, train loader from the TRAIN split.
+Pix2Pix: generator loss = GAN + lambda * L1."""
+import random
+import numpy as np
+import torch
+from torch.utils.data import DataLoader
+
+from dataset import ScaffoldDataset
+from losses import build_losses
+from model import build_model, build_discriminator
+
+SEED = __SEED__
+REPO_ROOT = "."
+MANIFEST = "__MANIFEST_NAME__"
+LAMBDA_L1 = 100.0
+
+
+__SEED_FN__
+
+
+def main():
+    seed_everything(SEED)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    train_ds = ScaffoldDataset(MANIFEST, REPO_ROOT, split="train")
+    train_loader = DataLoader(train_ds, batch_size=4, shuffle=True, num_workers=4)
+    gen, disc = build_model().to(device), build_discriminator().to(device)
+    gan_loss, l1_loss = build_losses()
+    opt_g = torch.optim.Adam(gen.parameters(), lr=2e-4, betas=(0.5, 0.999))
+    opt_d = torch.optim.Adam(disc.parameters(), lr=2e-4, betas=(0.5, 0.999))
+    for epoch in range(100):
+        gen.train()
+        disc.train()
+        for src, tgt in train_loader:
+            src, tgt = src.to(device), tgt.to(device)
+            fake = gen(src)
+            opt_d.zero_grad()
+            d_real = disc(src, tgt)
+            d_fake = disc(src, fake.detach())
+            loss_d = 0.5 * (gan_loss(d_real, torch.ones_like(d_real)) +
+                            gan_loss(d_fake, torch.zeros_like(d_fake)))
+            loss_d.backward()
+            opt_d.step()
+            opt_g.zero_grad()
+            d_fake = disc(src, fake)
+            loss_g = gan_loss(d_fake, torch.ones_like(d_fake)) + LAMBDA_L1 * l1_loss(fake, tgt)
+            loss_g.backward()
+            opt_g.step()
+        torch.save({"epoch": epoch, "gen": gen.state_dict(), "seed": SEED}, "best.pt")
+
+
+if __name__ == "__main__":
+    main()
+'''
+
+SSL_TRAIN = r'''"""Training entry point (self-supervised pretraining; generated by model-scaffold).
+Reproducible: every RNG seeded, cuDNN deterministic, train loader from the TRAIN split.
+SimCLR NT-Xent over two augmented views; fine-tune the encoder afterwards."""
+import random
+import numpy as np
+import torch
+from torch.utils.data import DataLoader
+
+from dataset import ScaffoldDataset
+from losses import nt_xent
+from model import build_model
+
+SEED = __SEED__
+REPO_ROOT = "."
+MANIFEST = "__MANIFEST_NAME__"
+
+
+__SEED_FN__
+
+
+def main():
+    seed_everything(SEED)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    train_ds = ScaffoldDataset(MANIFEST, REPO_ROOT, split="train")
+    train_loader = DataLoader(train_ds, batch_size=32, shuffle=True, num_workers=4)
+    model = build_model().to(device)
+    optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
+    for epoch in range(100):
+        model.train()
+        for v1, v2 in train_loader:
+            v1, v2 = v1.to(device), v2.to(device)
+            optimizer.zero_grad()
+            _, z1 = model(v1)
+            _, z2 = model(v2)
+            loss = nt_xent(z1, z2)
+            loss.backward()
+            optimizer.step()
+        torch.save({"epoch": epoch, "model": model.state_dict(), "seed": SEED}, "encoder.pt")
+
+
+if __name__ == "__main__":
+    main()
+'''
+
+# ---- per-task evaluate templates (all use model.eval() + no_grad()) ----
+SEG_EVAL = r'''"""Held-out evaluation (segmentation; generated by model-scaffold).
+Inference under model.eval() + torch.no_grad(); writes per-case predictions. Compute
+Dice + HD95/NSD with CIs downstream via /model-evaluation + /analyze-stats."""
+import csv
+import torch
+from torch.utils.data import DataLoader
 from dataset import ScaffoldDataset
 from model import build_model
 
@@ -282,22 +788,15 @@ MANIFEST = "__MANIFEST_NAME__"
 
 def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    test_ds = ScaffoldDataset(MANIFEST, REPO_ROOT, split="test")
-    test_loader = DataLoader(test_ds, batch_size=1, shuffle=False)
-
+    test_loader = DataLoader(ScaffoldDataset(MANIFEST, REPO_ROOT, split="test"), batch_size=1, shuffle=False)
     model = build_model().to(device)
-    ckpt = torch.load("best.pt", map_location=device)
-    model.load_state_dict(ckpt["model"])
+    model.load_state_dict(torch.load("best.pt", map_location=device)["model"])
     model.eval()
-
     rows = []
     with torch.no_grad():
         for i, (x, y) in enumerate(test_loader):
-            x = x.to(device)
-            logits = model(x)
-            probs = torch.sigmoid(logits)
+            probs = torch.sigmoid(model(x.to(device)))
             rows.append({"index": i, "pred_positive_voxels": int((probs > 0.5).sum().item())})
-
     with open("predictions.csv", "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=["index", "pred_positive_voxels"])
         w.writeheader()
@@ -307,6 +806,152 @@ def main():
 if __name__ == "__main__":
     main()
 '''
+
+CLS_EVAL = r'''"""Held-out evaluation (classification; generated by model-scaffold).
+Inference under model.eval() + torch.no_grad(); writes per-case scores. Compute
+AUROC + AUPRC with CIs downstream via /model-evaluation + /analyze-stats."""
+import csv
+import torch
+from torch.utils.data import DataLoader
+from dataset import ScaffoldDataset
+from model import build_model
+
+REPO_ROOT = "."
+MANIFEST = "__MANIFEST_NAME__"
+
+
+def main():
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    test_loader = DataLoader(ScaffoldDataset(MANIFEST, REPO_ROOT, split="test"), batch_size=1, shuffle=False)
+    model = build_model().to(device)
+    model.load_state_dict(torch.load("best.pt", map_location=device)["model"])
+    model.eval()
+    rows = []
+    with torch.no_grad():
+        for i, (x, y) in enumerate(test_loader):
+            scores = torch.sigmoid(model(x.to(device))).squeeze(0).tolist()
+            rows.append({"index": i, "scores": scores})
+    with open("predictions.csv", "w", newline="", encoding="utf-8") as f:
+        w = csv.DictWriter(f, fieldnames=["index", "scores"])
+        w.writeheader()
+        w.writerows(rows)
+
+
+if __name__ == "__main__":
+    main()
+'''
+
+DET_EVAL = r'''"""Held-out evaluation (detection; generated by model-scaffold).
+Inference under model.eval() + torch.no_grad(); writes detections. Compute FROC/mAP with a
+stated IoU criterion downstream via /model-evaluation + /analyze-stats."""
+import json
+import torch
+from torch.utils.data import DataLoader
+from dataset import ScaffoldDataset
+from model import build_model
+
+REPO_ROOT = "."
+MANIFEST = "__MANIFEST_NAME__"
+
+
+def _collate(batch):
+    return tuple(zip(*batch))
+
+
+def main():
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    test_loader = DataLoader(ScaffoldDataset(MANIFEST, REPO_ROOT, split="test"), batch_size=1,
+                             shuffle=False, collate_fn=_collate)
+    model = build_model().to(device)
+    model.load_state_dict(torch.load("best.pt", map_location=device)["model"])
+    model.eval()
+    out = []
+    with torch.no_grad():
+        for i, (images, _) in enumerate(test_loader):
+            preds = model([img.to(device) for img in images])
+            out.append({"index": i, "n_boxes": int(preds[0]["boxes"].shape[0])})
+    json.dump(out, open("predictions.json", "w"))
+
+
+if __name__ == "__main__":
+    main()
+'''
+
+SYN_EVAL = r'''"""Held-out evaluation (synthesis; generated by model-scaffold).
+Inference under generator.eval() + torch.no_grad(); writes synthesized images. Compute
+SSIM/PSNR + a downstream-task metric via /model-evaluation."""
+import torch
+from torch.utils.data import DataLoader
+from dataset import ScaffoldDataset
+from model import build_model
+
+REPO_ROOT = "."
+MANIFEST = "__MANIFEST_NAME__"
+
+
+def main():
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    test_loader = DataLoader(ScaffoldDataset(MANIFEST, REPO_ROOT, split="test"), batch_size=1, shuffle=False)
+    gen = build_model().to(device)
+    gen.load_state_dict(torch.load("best.pt", map_location=device)["gen"])
+    gen.eval()
+    with torch.no_grad():
+        for i, (src, tgt) in enumerate(test_loader):
+            fake = gen(src.to(device))
+            torch.save(fake.cpu(), "synth_%d.pt" % i)
+
+
+if __name__ == "__main__":
+    main()
+'''
+
+SSL_EVAL = r'''"""Feature extraction (self-supervised; generated by model-scaffold).
+Inference under model.eval() + torch.no_grad(); writes encoder embeddings for a
+downstream linear-probe / fine-tune evaluation."""
+import torch
+from torch.utils.data import DataLoader
+from dataset import ScaffoldDataset
+from model import build_model
+
+REPO_ROOT = "."
+MANIFEST = "__MANIFEST_NAME__"
+
+
+def _identity(x):
+    return x
+
+
+def main():
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    test_ds = ScaffoldDataset(MANIFEST, REPO_ROOT, split="test", augment=_identity)
+    test_loader = DataLoader(test_ds, batch_size=1, shuffle=False)
+    model = build_model().to(device)
+    model.load_state_dict(torch.load("encoder.pt", map_location=device)["model"])
+    model.eval()
+    feats = []
+    with torch.no_grad():
+        for v1, _ in test_loader:
+            h, _z = model(v1.to(device))
+            feats.append(h.cpu())
+    torch.save(torch.cat(feats, dim=0) if feats else torch.empty(0), "embeddings.pt")
+
+
+if __name__ == "__main__":
+    main()
+'''
+
+TASKS = {
+    "segmentation": {"model": SEG_MODEL, "dataset": SEG_DATASET, "losses": SEG_LOSSES,
+                     "train": SEG_TRAIN, "evaluate": SEG_EVAL, "arch": "unet"},
+    "classification": {"model": CLS_MODEL, "dataset": CLS_DATASET, "losses": CLS_LOSSES,
+                       "train": CLS_TRAIN, "evaluate": CLS_EVAL, "arch": "cnn"},
+    "detection": {"model": DET_MODEL, "dataset": DET_DATASET, "losses": DET_LOSSES,
+                  "train": DET_TRAIN, "evaluate": DET_EVAL, "arch": "fasterrcnn"},
+    "synthesis": {"model": SYN_MODEL, "dataset": SYN_DATASET, "losses": SYN_LOSSES,
+                  "train": SYN_TRAIN, "evaluate": SYN_EVAL, "arch": "pix2pix"},
+    "ssl": {"model": SSL_MODEL, "dataset": SSL_DATASET, "losses": SSL_LOSSES,
+            "train": SSL_TRAIN, "evaluate": SSL_EVAL, "arch": "simclr"},
+}
 
 CONFIG_YAML = """# Single source of truth for this scaffolded run (generated by model-scaffold).
 task: __TASK__
@@ -329,54 +974,40 @@ torch
 numpy
 # Recommended medical-imaging stack (integrate, do not reimplement):
 # monai          # UNet/SegResNet, transforms, metrics (Dice/HD95/NSD)
+# torchvision    # detection (Faster / Mask R-CNN, FPN)
+# timm           # pretrained classification backbones (ResNet/EfficientNet/ViT/Swin)
 # torchio        # 3-D spatial/intensity augmentation
-# nibabel        # NIfTI I/O
-# pydicom        # DICOM I/O
-# tifffile       # TIFF I/O
-# tensorboard    # training curves
+# nibabel pydicom tifffile   # NIfTI / DICOM / TIFF I/O
+# tensorboard
 """
 
 REPRO_MD = """# Reproducibility
 
-This repo was generated by `model-scaffold` with the reproducibility guarantees baked
-in. Record the exact environment before publishing.
+Generated by `model-scaffold` (task: __TASK__, arch: __ARCH__) with reproducibility baked in.
 
-- **Split**: patient-level, seed-locked. The assignment is frozen in
-  `splits/split_assignment.csv` (seed in `splits/split_seed.txt`, = `__SEED__`).
-  Every image of a patient is in exactly one of train/val/test (disjoint by
-  construction). Verify with `/model-validation`:
-  `python3 check_split_leakage.py --splits splits/split_assignment.csv --strict`.
-- **Seed**: `__SEED__`, applied to `random`, `numpy`, `torch`, `torch.cuda`; cuDNN set
-  deterministic (`train.py: seed_everything`). Note GPU non-determinism caveats for
-  some ops; report metrics as mean ± SD over >= 3 seeds.
-- **Model**: `model.py` (configurable U-Net, in=`__IN_CH__` out=`__OUT_CH__`
-  base=`__BASE__`). For production, swap in MONAI `UNet`/`SegResNet` or an nnU-Net plan.
-- **Environment** (fill in): `python --version`, `pip freeze` (torch/monai/... pins),
-  CUDA / driver, GPU model, git commit of this repo.
-- **Data**: plug your reader into `dataset.py` (`_load_image` / `_load_label`).
+- **Split**: patient-level, seed-locked (`splits/split_assignment.csv`, seed `__SEED__`);
+  disjoint by construction. Verify with `/model-validation`
+  (`check_split_leakage.py --splits splits/split_assignment.csv --strict`).
+- **Seed**: `__SEED__` applied to random / numpy / torch / torch.cuda; cuDNN deterministic
+  (`train.py: seed_everything`). Report metrics as mean +/- SD over >= 3 seeds.
+- **Model**: `model.py` (`__ARCH__`). Swap in MONAI / nnU-Net / timm / torchvision for production.
+- **Environment** (fill in): python + pip freeze, CUDA / driver, GPU, git commit.
+- **Data**: plug your reader into `dataset.py`.
 
 ## How to reproduce
-1. `pip install -r requirements.txt` (pinned).
-2. Implement `dataset.py` I/O for your modality.
-3. `python train.py`  (selects best model on the VAL split; writes `best.pt`).
-4. `python evaluate.py`  (writes `predictions.csv` on the TEST split).
-5. Metrics + CIs via `/model-evaluation` -> `/analyze-stats`; reporting via
-   `/check-reporting` (CLAIM 2024 / TRIPOD+AI).
+`pip install -r requirements.txt` -> implement `dataset.py` I/O -> `python train.py` ->
+`python evaluate.py` -> metrics + CIs via `/model-evaluation` -> `/analyze-stats`.
 """
 
 METHODS_MD = """# Methods stub (generated by model-scaffold — fill the [VERIFY] placeholders)
 
-A 2-D U-Net (`__ARCH__`; in=`__IN_CH__`, out=`__OUT_CH__`, base width `__BASE__`) was
-trained for __TASK__. Data were split at the **patient level** (train / validation /
-test = [VERIFY: report n patients per split from splits/split_assignment.csv];
-fractions val=__VAL_FRAC__, test=__TEST_FRAC__), with the assignment frozen and
-seed-locked (seed __SEED__) so that no patient contributed images to more than one
-partition. The model was optimised with Adam (learning rate 1e-3) and a combined
-soft-Dice + binary-cross-entropy loss; the best model was selected on the validation
-split. All random number generators (Python, NumPy, PyTorch, CUDA) were seeded and
-cuDNN was set to deterministic mode. Held-out performance is reported as
-[VERIFY: Dice and a boundary metric (HD95 / NSD), per structure, with 95% CIs over
->= 3 seeds] on the test split, which was used once.
+A `__ARCH__` model was trained for __TASK__ (in=`__IN_CH__`, out=`__OUT_CH__`, base
+`__BASE__`). Data were split at the **patient level** (val=__VAL_FRAC__, test=__TEST_FRAC__;
+[VERIFY: report n patients per split from splits/split_assignment.csv]) with the assignment
+frozen and seed-locked (seed __SEED__), so no patient contributed images to more than one
+partition. All random number generators (Python, NumPy, PyTorch, CUDA) were seeded and cuDNN
+was set deterministic. Held-out performance is reported as
+[VERIFY: task-correct metrics with 95% CIs over >= 3 seeds] on the test split.
 """
 
 
@@ -388,21 +1019,18 @@ def _pick_id_col(header, explicit):
         sys.exit(2)
     norm = {h.strip().lower().replace("_", "").replace(" ", ""): h for h in header}
     for hint in ID_HINTS:
-        key = hint.replace("_", "")
-        if key in norm:
-            return norm[key]
+        if hint.replace("_", "") in norm:
+            return norm[hint.replace("_", "")]
     sys.stderr.write(f"ERROR: no ID column found in {header}; pass --id-col\n")
     sys.exit(2)
 
 
 def split_patients(ids, seed, val_frac, test_frac):
-    """Deterministic patient-level split. Returns {patient_id: 'train'|'val'|'test'}."""
     uniq = sorted(set(ids))
     rng = np.random.default_rng(seed)
     order = [uniq[i] for i in rng.permutation(len(uniq))]
     n = len(order)
-    n_test = round(n * test_frac)
-    n_val = round(n * val_frac)
+    n_test, n_val = round(n * test_frac), round(n * val_frac)
     assign = {}
     for pid in order[:n_test]:
         assign[pid] = "test"
@@ -424,8 +1052,8 @@ def main() -> int:
     ap = argparse.ArgumentParser(description="Reproducible medical-imaging training-repo scaffold.")
     ap.add_argument("--manifest", required=True, help="CSV: one row per image, with a patient ID column")
     ap.add_argument("--id-col", help="patient/subject ID column (auto-detected if omitted)")
-    ap.add_argument("--task", default="segmentation", choices=["segmentation"])
-    ap.add_argument("--arch", default="unet", choices=["unet"])
+    ap.add_argument("--task", default="segmentation", choices=sorted(TASKS))
+    ap.add_argument("--arch", help="architecture label (defaults to the task's default)")
     ap.add_argument("--out", default="model_repo", help="output repo directory")
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--val-frac", type=float, default=0.15)
@@ -453,12 +1081,12 @@ def main() -> int:
         sys.stderr.write(f"ERROR: no values in ID column '{id_col}'\n")
         return 2
 
+    task = TASKS[args.task]
+    arch = args.arch or task["arch"]
     assign = split_patients(ids, args.seed, args.val_frac, args.test_frac)
 
     out = Path(args.out)
     (out / "splits").mkdir(parents=True, exist_ok=True)
-
-    # Auditable, frozen split artifact (sorted for determinism).
     with (out / "splits" / "split_assignment.csv").open("w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
         w.writerow([id_col, "split"])
@@ -468,25 +1096,24 @@ def main() -> int:
 
     repl = {
         "__SEED__": args.seed, "__IN_CH__": args.in_channels, "__OUT_CH__": args.out_channels,
-        "__BASE__": args.base_channels, "__TASK__": args.task, "__ARCH__": args.arch,
+        "__BASE__": args.base_channels, "__TASK__": args.task, "__ARCH__": arch,
         "__ID_COL__": id_col, "__VAL_FRAC__": args.val_frac, "__TEST_FRAC__": args.test_frac,
-        "__MANIFEST_NAME__": man.name,
+        "__MANIFEST_NAME__": man.name, "__SEED_FN__": SEED_FN,
     }
     files = {
-        "model.py": MODEL_PY, "dataset.py": DATASET_PY, "losses.py": LOSSES_PY,
-        "train.py": TRAIN_PY, "evaluate.py": EVALUATE_PY, "config.yaml": CONFIG_YAML,
-        "requirements.txt": REQUIREMENTS, "REPRODUCIBILITY.md": REPRO_MD,
-        "methods_stub.md": METHODS_MD,
+        "model.py": task["model"], "dataset.py": task["dataset"], "losses.py": task["losses"],
+        "train.py": task["train"], "evaluate.py": task["evaluate"], "config.yaml": CONFIG_YAML,
+        "requirements.txt": REQUIREMENTS, "REPRODUCIBILITY.md": REPRO_MD, "methods_stub.md": METHODS_MD,
     }
     for name, tmpl in files.items():
         (out / name).write_text(render(tmpl, repl), encoding="utf-8")
 
-    n_train = sum(1 for v in assign.values() if v == "train")
-    n_val = sum(1 for v in assign.values() if v == "val")
-    n_test = sum(1 for v in assign.values() if v == "test")
+    nt = sum(1 for v in assign.values() if v == "train")
+    nv = sum(1 for v in assign.values() if v == "val")
+    ns = sum(1 for v in assign.values() if v == "test")
     if not args.quiet:
-        print(f"scaffolded {args.task}/{args.arch} repo -> {out}/")
-        print(f"  patients: {len(assign)} (train={n_train} val={n_val} test={n_test}), seed={args.seed}")
+        print(f"scaffolded {args.task}/{arch} repo -> {out}/")
+        print(f"  patients: {len(assign)} (train={nt} val={nv} test={ns}), seed={args.seed}")
         print("  files: " + ", ".join(sorted(files) + ["splits/split_assignment.csv", "splits/split_seed.txt"]))
     return 0
 

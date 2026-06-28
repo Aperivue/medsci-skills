@@ -1,14 +1,15 @@
 ---
 name: model-scaffold
 description: >
-  Generate a reproducible, runnable PyTorch training repo for a medical-imaging segmentation task —
-  the missing middle link between choosing an architecture and validating a trained model. Emits a
-  patient-level seed-locked split as an auditable artifact, a configurable U-Net, train and evaluate
-  scripts that seed every RNG and infer under eval mode, a config, requirements, a reproducibility
-  record, and a Methods stub with VERIFY placeholders (no fabricated numbers). The reproducibility
-  guarantees hold by construction, so the build is leakage-safe before any training runs. Integrates
-  with MONAI, nnU-Net, and TorchIO — it does not reimplement them.
-triggers: model scaffold, scaffold a model, training repo, PyTorch repo, build a model, train a segmentation model, U-Net, UNet, segmentation model, nnU-Net, MONAI, dataloader, train.py, patient-level split, reproducible training, seed everything, generate training code, medical imaging model
+  Generate a reproducible, runnable PyTorch training repo for a medical-imaging task — segmentation,
+  classification, detection, image-to-image synthesis, or self-supervised pretraining — the missing
+  middle link between choosing an architecture and validating a trained model. Emits a patient-level
+  seed-locked split as an auditable artifact, a task-appropriate model, train and evaluate scripts that
+  seed every RNG and infer under eval mode, a config, requirements, a reproducibility record, and a
+  Methods stub with VERIFY placeholders (no fabricated numbers). The reproducibility guarantees hold by
+  construction, so the build is leakage-safe before any training runs. Integrates with MONAI, nnU-Net,
+  TorchIO, timm, and torchvision — it does not reimplement them.
+triggers: model scaffold, scaffold a model, training repo, PyTorch repo, build a model, train a model, segmentation, classification, detection, image synthesis, self-supervised, SimCLR, Pix2Pix, Faster R-CNN, U-Net, UNet, nnU-Net, MONAI, timm, torchvision, dataloader, train.py, patient-level split, reproducible training, seed everything, generate training code, medical imaging model
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit
 ---
@@ -17,7 +18,9 @@ model: inherit
 
 ## Purpose
 
-This skill stamps out a **runnable PyTorch training repo** for a medical-imaging segmentation task
+This skill stamps out a **runnable PyTorch training repo** for a medical-imaging task — `--task`
+**segmentation** (U-Net), **classification** (CNN / `timm` backbone), **detection** (torchvision Faster
+R-CNN / FPN), **synthesis** (Pix2Pix generator + PatchGAN), or **ssl** (SimCLR encoder) —
 with the reproducibility guarantees **baked in by construction** — so the build is leakage-safe and
 reproducible before a single epoch runs. It is the imaging analogue of how `/analyze-stats` generates
 runnable statistical code: the generator produces the repo, you run the training on your GPU / Colab,
@@ -49,11 +52,14 @@ patient level off this column.
 ### Phase 2 — Generate the repo
 ```bash
 python3 ${CLAUDE_SKILL_DIR}/scripts/scaffold.py \
-  --manifest <manifest.csv> --out model_repo --seed 42 \
+  --manifest <manifest.csv> --task segmentation --out model_repo --seed 42 \
   --in-channels 1 --out-channels 1
+# --task = segmentation | classification | detection | synthesis | ssl
+#   (out-channels = num classes for classification, target channels for synthesis)
 ```
-This writes `model_repo/` with `config.yaml`, `model.py` (configurable U-Net), `dataset.py` (reads the
-frozen split), `losses.py` (Dice + BCE), `train.py`, `evaluate.py`, `requirements.txt`,
+This writes `model_repo/` with `config.yaml`, `model.py` (the task's model — U-Net / CNN / Faster R-CNN
+/ Pix2Pix / SimCLR encoder), `dataset.py` (reads the frozen split), `losses.py` (task-appropriate),
+`train.py`, `evaluate.py`, `requirements.txt`,
 `REPRODUCIBILITY.md`, `methods_stub.md`, and — the key artifact — `splits/split_assignment.csv` +
 `splits/split_seed.txt`. The split is **patient-disjoint by construction** (a deterministic group split)
 and the emitted code seeds every RNG, sets cuDNN deterministic, builds the training loader from the

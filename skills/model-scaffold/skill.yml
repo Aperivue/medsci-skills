@@ -4,7 +4,7 @@ layer: B
 owner_domain: model_development
 maturity: official
 
-when_to_use: "Stand up a reproducible, runnable PyTorch training repo for a medical-imaging segmentation task with a patient-level seed-locked split, a configurable U-Net, hygienic train / evaluate scripts, and a Methods stub — so the build is leakage-safe and reproducible by construction before any training runs."
+when_to_use: "Stand up a reproducible, runnable PyTorch training repo for a medical-imaging task (segmentation, classification, detection, image-to-image synthesis, or self-supervised pretraining) with a patient-level seed-locked split, a task-appropriate model, hygienic train / evaluate scripts, and a Methods stub — so the build is leakage-safe and reproducible by construction before any training runs."
 when_NOT_to_use: "Auditing an already-trained model's validation design (use model-validation); held-out metric computation / calibration / bootstrap CIs (use model-evaluation, then analyze-stats); choosing which architecture fits the research question (use architecture-zoo when available); reimplementing MONAI / nnU-Net / TorchIO (this skill integrates them, it does not replace them); LLM / MLLM work (use mllm-eval)."
 
 inputs:

@@ -29,7 +29,7 @@ safety_boundaries:
   - "Advisory only: it writes a decision note, never code or weights; the build is /model-scaffold."
   - "Every recommendation names its source paper; benchmark numbers are cited, never invented; the zoo describes archetypes, not a live leaderboard."
 known_limitations:
-  - "The literature moves fast; this is a curated archetype map (classification, segmentation, foundation/SSL families seeded), not an exhaustive or current SOTA ranking — additional families (detection, synthesis) land in later phases."
+  - "The literature moves fast; this is a curated archetype map (classification, segmentation, detection, synthesis, foundation/SSL families), not an exhaustive or current SOTA ranking."
   - "A sound architecture choice is necessary, not sufficient; validity still depends on the split, validation design, and metrics (/model-validation, /model-evaluation)."
 validation_commands:
   - "carry the decision note into /model-scaffold to instantiate the chosen template, then /model-validation"
