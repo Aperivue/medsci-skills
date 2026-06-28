@@ -83,6 +83,7 @@ FAMILY_BY_ID: dict[str, str] = {
     "check_supplement_hygiene": "reporting_compliance",
     "check_citation_order": "reporting_compliance",
     "check_model_card_complete": "reporting_compliance",
+    "check_mllm_eval_completeness": "reporting_compliance",
     # Data preparation & validation
     "check_structural_zero": "data_preparation",
     "check_reverse_coding": "data_preparation",
@@ -91,6 +92,7 @@ FAMILY_BY_ID: dict[str, str] = {
     "check_checklist_dump_leak": "data_preparation",
     "check_binning_consistency": "data_preparation",
     "check_split_leakage": "data_preparation",
+    "check_metric_reporting": "data_preparation",
 }
 
 # Stable display order + human labels for the families array.

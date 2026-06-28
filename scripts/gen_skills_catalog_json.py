@@ -56,6 +56,7 @@ CATEGORY_BY_OWNER_DOMAIN: dict[str, tuple[str, str]] = {
     "model_development": ("data_study_design", "Data & Study Design"),
     "architecture_reference": ("data_study_design", "Data & Study Design"),
     "model_reporting": ("data_study_design", "Data & Study Design"),
+    "model_evaluation": ("data_study_design", "Data & Study Design"),
     # Analysis & figures
     "statistical_analysis": ("analysis_figures", "Analysis & Figures"),
     "figure_generation": ("analysis_figures", "Analysis & Figures"),

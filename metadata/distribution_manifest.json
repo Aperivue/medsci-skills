@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "version": "4.10.0",
+  "version": "4.11.0",
   "owned_skills": [
     "academic-aio",
     "add-journal",
@@ -31,7 +31,9 @@
     "manage-project",
     "manage-refs",
     "meta-analysis",
+    "mllm-eval",
     "model-card",
+    "model-evaluation",
     "model-scaffold",
     "model-validation",
     "orchestrate",

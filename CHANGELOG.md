@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [4.11.0] - 2026-06-28
+
 ### Added
 
 - **find-journal:** acceptance-feasibility axis. A Phase 2.5 pre-flight
@@ -84,6 +86,29 @@
     presence check, not a truth check. `reporting_compliance` family. Integrity detectors 38 → 39.
   - Reproducible challenge (`check_model_card_complete_challenge`, synthetic complete + incomplete
     fixtures) + CI-wired regression test (8 cases).
+- **Medical-AI model-engineering lane — Phase 4 (evaluation + MLLM).** The evaluation half, completing
+  the choose → build → validate → evaluate → report chain. Clinician-anchored, additive.
+  - **New skill `/model-evaluation`** (Layer B) — compute task-correct held-out metrics for a trained
+    imaging model (segmentation: Dice + a boundary metric HD95/NSD per structure; classification: AUROC
+    + AUPRC + sensitivity/specificity with bootstrap CIs at the deployment prevalence; detection: FROC/
+    mAP with a stated IoU criterion) + calibration + subgroup slices, emitting a per-case table for
+    `/analyze-stats`. `check_metric_reporting.py` gates the metric choice against Metrics Reloaded
+    (Maier-Hein & Reinke et al., *Nat Methods* 2024) / CLAIM 2024 (`PIXEL_ACCURACY_SEG` /
+    `NO_BOUNDARY_METRIC` / `ACCURACY_ONLY` / `DETECTION_METRIC_MISSING` / `CI_MISSING`). data_preparation
+    family. Skills 49 → 50.
+  - **New skill `/mllm-eval`** (Layer B) — a model-agnostic (closed API or open weights) evaluation
+    harness for an LLM/MLLM on a clinical task (report generation, VQA, extraction): adjudicated
+    reference standard, clinical-efficacy metrics (RadGraph-F1 / CheXbert-F1 beyond BLEU/ROUGE),
+    faithfulness/hallucination, pretraining-contamination, prompt sensitivity, reader study.
+    `check_mllm_eval_completeness.py` gates the plan (`NGRAM_ONLY` / `FAITHFULNESS_MISSING` /
+    `REFERENCE_STANDARD_MISSING` / `CONTAMINATION_UNADDRESSED` / `READER_STUDY_MISSING` / …).
+    reporting_compliance family. Skills 50 → 51.
+  - **New reviewer domain-probe `mllm_evaluation.md` (ME0–ME8)** (`/peer-review` + `/self-review`,
+    vendored byte-identical) — the reviewer-side audit of an LLM/MLLM clinical evaluation. Grounded in
+    RadCliQ (Yu et al., *Patterns* 2023), RadGraph (Jain et al., NeurIPS 2021), CheXbert (Smit et al.
+    2020), MedVH / Med-HALT, MI-CLEAR-LLM. Domain-probe modules 16 → 17. Integrity detectors 39 → 41.
+  - **Uncounted appraisal ref** `appraisal_tools/METRICS_RELOADED.md` (metric-selection guidance; not a
+    counted reporting checklist). Reproducible challenges + CI-wired regression tests for both detectors.
 
 ## [4.10.0] - 2026-06-28
 

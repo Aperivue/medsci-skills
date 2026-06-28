@@ -33,7 +33,9 @@ One reference page per skill, generated from each skill's `SKILL.md` and `skill.
 - [manage-project](manage-project.md) — Research project management for medical manuscripts. _(evidence: manual_workflow)_
 - [manage-refs](manage-refs.md) — Cross-cutting reference manager for medical manuscripts. _(evidence: bundled_script)_
 - [meta-analysis](meta-analysis.md) — Systematic review and meta-analysis pipeline for medical research. _(evidence: demo)_
+- [mllm-eval](mllm-eval.md) — Design or audit a model-agnostic evaluation harness for an LLM or multimodal LLM on a clinical task (radiology report generation, visual question answering, clinical text extraction/classification) —… _(evidence: ci_validator)_
 - [model-card](model-card.md) — Generate the documentation an engineer-built medical-imaging model must carry — a Model Card (Mitchell et al. _(evidence: ci_validator)_
+- [model-evaluation](model-evaluation.md) — Compute and report task-correct held-out metrics for a trained medical-imaging model — segmentation (Dice plus a boundary metric such as HD95 or NSD, per structure), classification (AUROC plus AUPRC a… _(evidence: ci_validator)_
 - [model-scaffold](model-scaffold.md) — Generate a reproducible, runnable PyTorch training repo for a medical-imaging segmentation task — the missing middle link between choosing an architecture and validating a trained model. _(evidence: ci_validator)_
 - [model-validation](model-validation.md) — Design or audit the clinical-validation study for an engineer-built medical-imaging model (segmentation, classification, or detection) before the validation report or manuscript is written. _(evidence: ci_validator)_
 - [orchestrate](orchestrate.md) — General-purpose research orchestrator. _(evidence: demo)_

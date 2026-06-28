@@ -1,0 +1,43 @@
+schema_version: 2
+name: model-evaluation
+layer: B
+owner_domain: model_evaluation
+maturity: official
+
+when_to_use: "Compute and report task-correct held-out metrics for a trained medical-imaging model — segmentation (Dice + a boundary metric such as HD95 / NSD, per structure), classification (AUROC + AUPRC + sensitivity/specificity with bootstrap CIs, at the deployment prevalence), or detection (FROC / mAP with a stated IoU criterion) — plus calibration and subgroup slices, producing a per-case results table for analyze-stats, and gating the metric choice against Metrics Reloaded / CLAIM 2024."
+when_NOT_to_use: "Auditing the validation design or leakage (use model-validation); the publication-grade comparative inference such as DeLong AUC comparison / NRI / IDI / decision curves / MRMC (hand the per-case table to analyze-stats, which owns those); building or training the model (use model-scaffold); evaluating an LLM / MLLM (use mllm-eval); figure rendering (use make-figures)."
+
+inputs:
+  - "held-out predictions (per-case scores / labels / masks) and the ground truth"
+  - "the task (segmentation / classification / detection) and the analysis unit (per-patient / per-lesion)"
+outputs:
+  - "a per-case metric table (CSV) for analyze-stats, plus a metrics report (task-correct metrics + CIs, calibration, subgroup slices)"
+  - "metric-reporting audit JSON (deterministic)"
+deterministic_scripts:
+  - scripts/check_metric_reporting.py
+side_effects:
+  - writes_project_artifacts
+  - executes_analysis_code
+downstream_consumers:
+  - analyze-stats
+  - make-figures
+  - model-card
+  - check-reporting
+  - write-paper
+forbidden_actions:
+  - fabricate_metric_values
+  - report_pixel_accuracy_for_segmentation_or_bare_accuracy_under_imbalance
+  - report_a_per_lesion_metric_as_if_it_were_per_patient
+
+# v2.1 quality card
+purpose: "Make a medical-imaging model's held-out evaluation task-correct and honest — the right metric for the task and prevalence, with uncertainty, calibration, and subgroup performance — and emit a per-case table the publication statistics (analyze-stats) build on."
+safety_boundaries:
+  - "Numbers come only from executed code on the supplied predictions; never hand-typed."
+  - "The metric choice is gated by a stdlib script against Metrics Reloaded / CLAIM 2024; a pixel-accuracy or bare-accuracy headline is flagged, not emitted silently."
+known_limitations:
+  - "It produces the per-case metrics; the comparative inference (DeLong / NRI / IDI / decision curves / MRMC) is analyze-stats."
+  - "Metric correctness depends on a correctly defined analysis unit and a clean held-out split (use model-validation first)."
+validation_commands:
+  - "python3 scripts/check_metric_reporting.py --report <results.md> --task segmentation|classification|detection --strict"
+  - "bash scripts/metric_reporting_challenge/verify.sh  # deterministic, network-free"
+evidence_surface: ci_validator
