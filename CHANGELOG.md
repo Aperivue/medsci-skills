@@ -2,6 +2,19 @@
 
 ## [Unreleased]
 
+### Added
+
+- **find-journal:** acceptance-feasibility axis. A Phase 2.5 pre-flight
+  (`assess_acceptance_readiness.py`, deterministic + reproducible challenge card)
+  scans a manuscript for design-ceiling / unfixable-defect / importance-risk /
+  claim-mismatch signals and a ceiling verdict (advisory risk band, never a
+  probability). Adds two-axis ranking (scope fit × acceptance feasibility) with
+  explicit mismatch surfacing, an `Acceptance Signals` profile schema
+  (`references/acceptance_signals_schema.md`, populated for European Radiology, AJR,
+  KJR, RYAI, Investigative Radiology), a reject-fallback cascade plan, and a
+  desk-reject vs post-review distinction in Post-Rejection Mode. Helper named
+  `assess_*` (not a detector-catalog member); counts unchanged (additive). (#215)
+
 ## [4.10.0] - 2026-06-28
 
 ### Added
