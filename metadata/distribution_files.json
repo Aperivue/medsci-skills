@@ -153,8 +153,8 @@
     },
     {
       "path": "skills/analyze-stats/SKILL.md",
-      "size": 51655,
-      "sha256": "4cf4dab7af9b77b81d5a80b5887c497d1874b46b6b9ed4aa9450333fd93dd2f7"
+      "size": 53030,
+      "sha256": "39731b85aae55b96d745890ef4968dc8ab3ed12e9feefdb7ea562aa7bacc3c65"
     },
     {
       "path": "skills/analyze-stats/references/analysis_guides/mediation.md",
@@ -175,6 +175,11 @@
       "path": "skills/analyze-stats/references/analysis_guides/multiplicity.md",
       "size": 5932,
       "sha256": "84765a5c20cdc96e3a846ad6928f98111e55bcfbe21a48edf0806ed99999663e"
+    },
+    {
+      "path": "skills/analyze-stats/references/analysis_guides/network_meta_analysis.md",
+      "size": 4118,
+      "sha256": "dd33caa0ddf123ef4b3d9795598f680f3b3bcd5f7f8dfe322c6a584b2b7cb17c"
     },
     {
       "path": "skills/analyze-stats/references/analysis_guides/nhis_icd10_mapping.md",
@@ -2428,8 +2433,8 @@
     },
     {
       "path": "skills/peer-review/SKILL.md",
-      "size": 53743,
-      "sha256": "1bfce7857e97c9413da9cb99fd3a51c319e128884549a54cceb6270ae5e365b9"
+      "size": 55415,
+      "sha256": "4b75d67b35444eada1a08700b9a0d27e6b8453fbca197893799db77811904b52"
     },
     {
       "path": "skills/peer-review/references/aczel_2021_reviewer2_patterns.md",
@@ -2475,6 +2480,11 @@
       "path": "skills/peer-review/references/domain-probes/narrative_review.md",
       "size": 12598,
       "sha256": "42df51775ef388eb84d9ce711618bf9ae14343d0413dc979f5c4478b88686b4a"
+    },
+    {
+      "path": "skills/peer-review/references/domain-probes/network_meta_analysis.md",
+      "size": 9458,
+      "sha256": "75da40ac8d75e97b9fd4d0edd9800054ccfcc38efff4937454cd87653dd685dd"
     },
     {
       "path": "skills/peer-review/references/domain-probes/observational_confounding.md",
@@ -2918,8 +2928,8 @@
     },
     {
       "path": "skills/self-review/SKILL.md",
-      "size": 93937,
-      "sha256": "c9784df8a96f22b07ddc4e820dc02dd26735564d8dc549c1baa0d3132c3b88a9"
+      "size": 94121,
+      "sha256": "7222f5bc17832d84a23f1ea63fb090eb9a114c70bec3cf16ff2c7a16b24d0f40"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
@@ -2960,6 +2970,11 @@
       "path": "skills/self-review/references/domain-probes/narrative_review.md",
       "size": 12598,
       "sha256": "42df51775ef388eb84d9ce711618bf9ae14343d0413dc979f5c4478b88686b4a"
+    },
+    {
+      "path": "skills/self-review/references/domain-probes/network_meta_analysis.md",
+      "size": 9458,
+      "sha256": "75da40ac8d75e97b9fd4d0edd9800054ccfcc38efff4937454cd87653dd685dd"
     },
     {
       "path": "skills/self-review/references/domain-probes/observational_confounding.md",
