@@ -2452,6 +2452,51 @@
       "sha256": "d056566bb052bd917b4705fcd4912ef2173d5bd61b83bff4885b847bb824aa83"
     },
     {
+      "path": "skills/model-scaffold/SKILL.md",
+      "size": 7048,
+      "sha256": "a1612de8a2888667137c3d81100adcb4a6c42d45c73edf93f715fad1da7e179f"
+    },
+    {
+      "path": "skills/model-scaffold/references/training_guide.md",
+      "size": 2661,
+      "sha256": "4a3197a89b8d3473071051f67a7bcf40f71ecf007e942f81e9c40dc48fce1a9c"
+    },
+    {
+      "path": "skills/model-scaffold/scripts/check_training_hygiene.py",
+      "size": 11752,
+      "sha256": "66970049c85e46a0080b5f19eb3b5ac9dfd656a674b6f1698825e968eedd4814"
+    },
+    {
+      "path": "skills/model-scaffold/scripts/scaffold.py",
+      "size": 19327,
+      "sha256": "d37d617d9753faf6cd6f4d9332d896ad3704d4f2dea8578d4d23f02baedbfd09"
+    },
+    {
+      "path": "skills/model-scaffold/scripts/scaffold_challenge/expected/split_assignment.csv",
+      "size": 144,
+      "sha256": "23949c5c9d179ef152127e0e6b865138169184f95c4e2d5234a65bab3762bd71"
+    },
+    {
+      "path": "skills/model-scaffold/scripts/scaffold_challenge/fixture/manifest.csv",
+      "size": 582,
+      "sha256": "defce0cdce35211f038b139a9ab4214c63b22f3e60ba7ee74fa6bea8fe33aa7f"
+    },
+    {
+      "path": "skills/model-scaffold/scripts/scaffold_challenge/problem.md",
+      "size": 2678,
+      "sha256": "369e98da65cbd16c67f5ff3f17d99b707d713bbf3239409f9921190c85f8f08a"
+    },
+    {
+      "path": "skills/model-scaffold/scripts/scaffold_challenge/verify.sh",
+      "size": 4191,
+      "sha256": "f2476dc72772ffa77ba13ed43067a19bf4f9b6fbce9ce49a1726eee2f64d7b21"
+    },
+    {
+      "path": "skills/model-scaffold/skill.yml",
+      "size": 3104,
+      "sha256": "a6284452adbbb533c63dcd294c5b4b7fce7d93e1be381d27323168ac3888ba33"
+    },
+    {
       "path": "skills/model-validation/SKILL.md",
       "size": 9190,
       "sha256": "3307e57e04ef028b472fd2864f931bec42b999fb2ca96d2c07ddda5ed5eab15a"
