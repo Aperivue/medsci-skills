@@ -446,6 +446,16 @@ tbl %>% as_flex_table() %>% flextable::save_as_docx(path = "table.docx")
 - **Small studies (k < 10)**: bivariate model may not converge; consider narrative synthesis
 - **Alternative**: If `mada` unavailable, use `metafor::rma.mv()` with bivariate structure
 
+### Network Meta-Analysis
+
+- **Guide**: Load `analysis_guides/network_meta_analysis.md` before generating code
+- For ≥3 interventions via combined direct + indirect evidence (incl. component NMA); pairwise machinery (search/screening/random-effects model) via the Meta-analysis section above
+- **Assess transitivity before pooling**: compare effect-modifier distributions across comparisons (box plots / table) and/or network meta-regression — it is a clinical judgment, not a test
+- **Test consistency** globally (design-by-treatment) AND locally (node-split / back-calculation); a **star network (no closed loops) cannot be checked** — state it; investigate the source of any inconsistency (often one trial)
+- R `netmeta` (frequentist: `netsplit`, `decomp.design`, `netheat`, `netrank` P-scores, comparison-adjusted `funnel`) or Bayesian `gemtc` / `multinma` / `BUGSnet` (node-split, SUCRA, DIC)
+- Present a **network plot** (node ∝ sample size, edge ∝ #trials); report global **τ²**; **ranking (SUCRA/P-score) is not a superiority test** — report it with the league table, intervals, and certainty
+- Certainty **per estimate** via **CINeMA / GRADE-NMA** (downgrade indirect-only); component NMA assumes **additivity** (state/check it). Report against **PRISMA-NMA**; risk of bias via **RoB-NMA**. Review-side probes: NM1–NM8 in `network_meta_analysis.md`
+
 ### Survey/Likert
 
 - Descriptive: median, IQR, frequency distribution per item
