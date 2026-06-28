@@ -11,7 +11,7 @@
       "skill": "check-reporting",
       "repo": "Aperivue/check-reporting",
       "plugin_name": "check-reporting",
-      "tagline": "Audit a medical manuscript against 36 reporting guidelines and risk-of-bias tools (STROBE, CONSORT, STARD, PRISMA, TRIPOD+AI, CLAIM, QUADAS-2, RoB 2, ROBINS-I, PROBAST, and more) — item-by-item PRESENT / PARTIAL / MISSING."
+      "tagline": "Audit a medical manuscript against 38 reporting guidelines and risk-of-bias tools (STROBE, STROBE-MR, CONSORT, STARD, PRISMA, TRIPOD+AI, PGS-RS, CLAIM, QUADAS-2, RoB 2, ROBINS-I, PROBAST, and more) — item-by-item PRESENT / PARTIAL / MISSING."
     }
   ]
 }

@@ -1,7 +1,7 @@
 ---
 name: check-reporting
-description: Check manuscript compliance with medical research reporting guidelines. Supports 36 guidelines including STROBE, CONSORT, CONSORT-AI, STARD, STARD-AI, TRIPOD, TRIPOD+AI, TRIPOD-LLM, ARRIVE, PRISMA, PRISMA-DTA, PRISMA-P, CARE, SPIRIT, SPIRIT-AI, CLAIM, DECIDE-AI, MI-CLEAR-LLM, SQUIRE 2.0, CLEAR, MOOSE, GRRAS, SWiM, AMSTAR 2, and risk of bias tools (QUADAS-2, QUADAS-C, RoB 2, ROBINS-I, ROBINS-E, ROBIS, ROB-ME, PROBAST, PROBAST+AI, NOS, COSMIN, RoB NMA). Generates item-by-item assessment with PRESENT/MISSING/PARTIAL status.
-triggers: checklist, reporting guideline, STROBE, CONSORT, CONSORT-AI, STARD, STARD-AI, TRIPOD, TRIPOD-LLM, PRISMA, PRISMA-DTA, PRISMA-P, ARRIVE, CARE, CLAIM, DECIDE-AI, MI-CLEAR-LLM, SPIRIT, SPIRIT-AI, QUADAS, QUADAS-C, RoB, ROBINS, ROBINS-E, ROBIS, ROB-ME, PROBAST, NOS, COSMIN, AMSTAR, SWiM, risk of bias, compliance check, LLM accuracy, large language model, clinical deployment
+description: Check manuscript compliance with medical research reporting guidelines. Supports 38 guidelines including STROBE, STROBE-MR, CONSORT, CONSORT-AI, STARD, STARD-AI, TRIPOD, TRIPOD+AI, TRIPOD-LLM, PGS-RS, ARRIVE, PRISMA, PRISMA-DTA, PRISMA-P, CARE, SPIRIT, SPIRIT-AI, CLAIM, DECIDE-AI, MI-CLEAR-LLM, SQUIRE 2.0, CLEAR, MOOSE, GRRAS, SWiM, AMSTAR 2, and risk of bias tools (QUADAS-2, QUADAS-C, RoB 2, ROBINS-I, ROBINS-E, ROBIS, ROB-ME, PROBAST, PROBAST+AI, NOS, COSMIN, RoB NMA). Generates item-by-item assessment with PRESENT/MISSING/PARTIAL status.
+triggers: checklist, reporting guideline, STROBE, STROBE-MR, Mendelian randomization, CONSORT, CONSORT-AI, STARD, STARD-AI, TRIPOD, TRIPOD-LLM, PGS-RS, PRS-RS, polygenic risk score, polygenic score, PRISMA, PRISMA-DTA, PRISMA-P, ARRIVE, CARE, CLAIM, DECIDE-AI, MI-CLEAR-LLM, SPIRIT, SPIRIT-AI, QUADAS, QUADAS-C, RoB, ROBINS, ROBINS-E, ROBIS, ROB-ME, PROBAST, NOS, COSMIN, AMSTAR, SWiM, risk of bias, compliance check, LLM accuracy, large language model, clinical deployment
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit
 ---
@@ -22,11 +22,13 @@ compliance report suitable for journal submission.
 
 - **Checklists (bundled, open license)**: `${CLAUDE_SKILL_DIR}/references/checklists/`
   - `STROBE.md` -- observational studies (CC BY)
+  - `STROBE_MR.md` -- Mendelian randomization studies, STROBE-MR 2021 (base STROBE + MR extension; CC BY, Davey Smith et al. BMJ 2021)
   - `STARD.md` -- diagnostic accuracy studies (CC BY 4.0)
   - `STARD_AI.md` -- AI diagnostic accuracy studies (CC BY, Sounderajah et al. Nat Med 2025)
   - `TRIPOD.md` -- prediction models, classic 2015 version (CC BY, Moons et al. Ann Intern Med 2015)
   - `TRIPOD_AI.md` -- prediction models with AI/ML (CC BY 4.0, Collins et al. BMJ 2024)
   - `TRIPOD_LLM.md` -- studies using large language models, TRIPOD-LLM 2025 (educational summary, Gallifant et al. Nat Med 2025)
+  - `PGS_RS.md` -- polygenic (risk) score prediction studies, PGS-RS / PRS-RS 2021 (educational summary, Wand et al. Nature 2021)
   - `PRISMA_2020.md` -- systematic reviews (CC BY)
   - `ARRIVE_2.md` -- animal studies (CC0)
   - `PRISMA_DTA.md` -- DTA systematic reviews (CC BY, McInnes et al. JAMA 2018)
@@ -85,9 +87,11 @@ user specification.
 | Study Type | Primary Guideline | AI Extension |
 |------------|------------------|--------------|
 | Observational study | STROBE | -- |
+| Mendelian randomization study | STROBE-MR (base STROBE + MR extension) | -- |
 | Randomized controlled trial | CONSORT 2025 | CONSORT-AI |
 | Diagnostic accuracy study | STARD 2015 | STARD-AI |
 | Prediction model (development/validation) | TRIPOD | TRIPOD+AI |
+| Polygenic (risk) score prediction study | PGS-RS (with TRIPOD / TRIPOD+AI) | -- |
 | Systematic review / meta-analysis | PRISMA 2020 | -- |
 | DTA systematic review / meta-analysis | PRISMA-DTA | -- |
 | Meta-analysis of observational studies | MOOSE | PRISMA 2020 (use both) |
