@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [4.10.0] - 2026-06-28
+
 ### Added
 
 - **Three new reviewer domain-probe modules** (`/peer-review` + `/self-review`, vendored

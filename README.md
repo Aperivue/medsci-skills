@@ -274,6 +274,12 @@ The E2E pipeline (`orchestrate --e2e`) produces everything up to `qc/`. The `sub
 
 ## What's New
 
+**v4.10** — reviewer-coverage expansion reverse-engineered from high-IF, CC-BY papers (learn-only under the `reverse_engineer/` license firewall), plus a clinician-friendly update path. Additive and backward-compatible; 45 skills / **38 guidelines** / 36 detectors / **15 domain-probe modules** (was 12):
+
+- **Three new reviewer domain-probe modules** (`/peer-review` + `/self-review`, vendored byte-identical): **Mendelian randomization** (MR1–MR8 — IV assumptions, pleiotropy-robust sensitivity suite, Steiger, sample overlap, NLMR, drug-target colocalization), **polygenic risk score** (PG1–PG8 — ancestry portability, base/target leakage, incremental value over the clinical model, screening-vs-discrimination, calibration), and **network meta-analysis** (NM1–NM8 — transitivity, incoherence, SUCRA over-interpretation, CINeMA/GRADE-NMA, component-NMA additivity). Plus observational **O17** (agnostic many-exposure-scan multiplicity: ExWAS/EWAS/MWAS).
+- **Two reporting-guideline checklists** (36 → 38): **STROBE-MR** and **PGS-RS / PRS-RS**, with study-type routing. Four new `/analyze-stats` analysis guides (multiplicity, MR, PRS, NMA) and a `/clean-data` implausible-value + cross-field validity reference.
+- **Clinician-friendly update reminders** — the classroom installers enable the in-app "update available" notice + one-click Desktop updater by default; the `npx`/manual paths print how to turn it on; the install guide recommends `npx medsci-skills install --enable-update-notify`.
+
 **v4.9** — analysis-integrity hardening promoted from real review cycles, plus journal-mechanics additions. Additive and backward-compatible; still 45 skills / 38 guidelines, analysis-integrity detectors **32 → 36**:
 
 - **Four new gates** — a **duplicate-bibliography** check (`check_reference_duplication.py`) for the hybrid `[@key]` + hand-typed `## References` build that renders the list twice; a **cross-script binning / composite-indicator** consistency check (`check_binning_consistency.py`, `BINNING_DRIFT` / `DERIVED_DEF_DRIFT`) for a derived categorical or composite indicator defined inconsistently across analysis scripts; a **float citation-order** check (`check_citation_order.py`) for numbered Tables/Figures not first cited in ascending order per series; and an **audit-dump leak** gate (`/sync-submission`) that blocks a `/check-reporting` output mistakenly attached as a submission file.
