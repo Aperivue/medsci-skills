@@ -36,7 +36,7 @@
 **References** (`skills/check-reporting/references/`):
 
 - `LICENSES.md`
-- `appraisal_tools/` (1 file)
+- `appraisal_tools/` (2 files)
 - `checklists/` (38 files)
 - `critical_item_floor.md`
 - `genai_image_study_object_decision_aid.md`

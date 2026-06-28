@@ -48,6 +48,7 @@ MODULES = (
     "polygenic_risk_score.md",
     "network_meta_analysis.md",
     "model_development.md",
+    "mllm_evaluation.md",
 )
 
 CANONICAL_REL = "skills/peer-review/references/domain-probes"

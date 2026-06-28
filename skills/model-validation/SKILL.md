@@ -91,7 +91,8 @@ Match the metric to the task and the prevalence (Metrics Reloaded — Maier-Hein
 reports **AUROC and AUPRC with CIs** plus sensitivity / specificity and prevalence-dependent PPV / NPV,
 never bare accuracy on a balanced set; **detection** reports FROC / mAP with the IoU match criterion
 stated. Require the headline metric as **mean ± SD across ≥ 3 seeds / runs**, or a fixed reported seed
-with the determinism caveat.
+with the determinism caveat. The per-case metric computation + the deterministic metric-reporting gate
+live in `/model-evaluation` (which emits the per-case table for `/analyze-stats`).
 
 ### Phase 6 — Test-set sizing
 Check the **events per class** in the test set, not the cohort total — a metric on a sparse positive set
