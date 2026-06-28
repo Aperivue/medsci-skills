@@ -38,6 +38,7 @@ to generate useful profiling scripts.
 
 - **Profiling template**: `${CLAUDE_SKILL_DIR}/references/profiling_template.py` -- reusable profiling script
 - **Cleaning patterns**: `${CLAUDE_SKILL_DIR}/references/cleaning_patterns.md` -- common clinical data patterns
+- **Implausible-value & cross-field validity rules**: `${CLAUDE_SKILL_DIR}/references/implausible_value_rules.md` -- domain-default hard physiologic bounds (per organ system) + cross-field logical-consistency rules for Stage 2 flagging when the codebook is silent (error-screening, not reference ranges; flag, never auto-fix)
 
 Read relevant references before generating profiling or cleaning code.
 
@@ -73,7 +74,8 @@ Based on profiling results, flag potential issues in these categories:
 2. **Statistical outliers**: IQR method (Q1 - 1.5*IQR, Q3 + 1.5*IQR) and Z-score (|z| > 3)
 3. **Duplicates**: Exact row duplicates AND near-duplicates (same patient ID, different dates)
 4. **Type mismatches**: Numeric stored as string, dates in inconsistent formats
-5. **Implausible values**: ONLY if codebook provides valid ranges; otherwise flag as "review needed"
+5. **Implausible values**: Use the codebook's valid range when provided; when the codebook is silent, apply the domain-default hard physiologic bounds in `references/implausible_value_rules.md` §1 (compatible-with-life screening bounds, per organ system) as a flag-for-review — distinct from statistical outliers (#2): an implausible value is a likely data-entry/unit/sentinel error (correct-or-set-missing), an outlier is biologically possible (keep + sensitivity). Check units before calling a bound violation an error. Never auto-fix.
+5b. **Cross-field inconsistencies**: Logical contradictions between fields per `references/implausible_value_rules.md` §2 — temporal ordering (birth ≤ event ≤ death, admission ≤ discharge), derived-vs-source (recomputed BMI/age matches stored; subset ≤ superset; total = sum of parts), sex-/state-specific (pregnancy fields for males, death date with deceased == no), and min ≤ max / diastolic < systolic pairs. Flag with the rule that fired; High severity for a hard contradiction.
 6. **Category inconsistencies**: Typos in categorical values (e.g., "Male", "male", "M", "MALE")
 7. **Categorical-implied zeros**: When a categorical variable defines a natural zero for a dose/duration variable (`smoking_status == 'never'` implies `pack_years == 0`, `alcohol_use == 'never'` implies `grams_per_week == 0`), flag any record where the implied zero is stored as NULL/missing instead of 0. This is a *contradiction*, not a missing-data pattern: a never-smoker with `pack_years = NULL` will be silently dropped by complete-case models or, worse, imputed to a non-zero dose by MICE — corrupting the exposure contrast. Suggested action: "Set dose = 0 where category == reference level; impute only the residual missingness among the exposed." Detected by `scripts/check_structural_zero.py` given the category↔dose mapping; pairs with `/analyze-stats` "Covariate Pitfalls: Structural Zeros & Dose/Duration Variables".
 

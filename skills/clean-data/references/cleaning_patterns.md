@@ -83,6 +83,12 @@ A BMI of 50 is an outlier statistically but clinically real. An age of 200 is im
 A creatinine of 15 mg/dL is extreme but occurs in dialysis patients. Always consult the
 codebook and clinical context before removing outliers.
 
+For the **biologically-impossible** side of this distinction — hard compatible-with-life bounds
+per organ system, plus cross-field logical-consistency rules (date ordering, derived-vs-source,
+sex-specific) — see `implausible_value_rules.md`. That handles likely data-entry/unit errors
+(correct-or-set-missing); this section handles statistically extreme but possible values (keep +
+sensitivity).
+
 ---
 
 ## 3. Duplicate Detection
