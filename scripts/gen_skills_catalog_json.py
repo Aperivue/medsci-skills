@@ -50,13 +50,14 @@ CATEGORY_BY_OWNER_DOMAIN: dict[str, tuple[str, str]] = {
     "data_preparation": ("data_study_design", "Data & Study Design"),
     "data_documentation": ("data_study_design", "Data & Study Design"),
     "dataset_versioning": ("data_study_design", "Data & Study Design"),
-    # Model engineering & validation (v5.0 lane — interim home; carves its own
-    # "Model Engineering & Validation" storefront category at the v5.0.0 major).
-    "model_validation": ("data_study_design", "Data & Study Design"),
-    "model_development": ("data_study_design", "Data & Study Design"),
-    "architecture_reference": ("data_study_design", "Data & Study Design"),
-    "model_reporting": ("data_study_design", "Data & Study Design"),
-    "model_evaluation": ("data_study_design", "Data & Study Design"),
+    # Model engineering & validation (v5.0 lane — its own storefront category as of
+    # the v5.0.0 major: design an architecture, scaffold a reproducible repo, validate
+    # the model, report it, and evaluate models / LLMs-MLLMs on clinical tasks).
+    "model_validation": ("model_engineering", "Model Engineering & Validation"),
+    "model_development": ("model_engineering", "Model Engineering & Validation"),
+    "architecture_reference": ("model_engineering", "Model Engineering & Validation"),
+    "model_reporting": ("model_engineering", "Model Engineering & Validation"),
+    "model_evaluation": ("model_engineering", "Model Engineering & Validation"),
     # Analysis & figures
     "statistical_analysis": ("analysis_figures", "Analysis & Figures"),
     "figure_generation": ("analysis_figures", "Analysis & Figures"),
@@ -99,6 +100,7 @@ CATEGORY_BY_OWNER_DOMAIN: dict[str, tuple[str, str]] = {
 CATEGORY_ORDER = [
     "literature_references",
     "data_study_design",
+    "model_engineering",
     "analysis_figures",
     "writing_manuscript",
     "review_compliance",

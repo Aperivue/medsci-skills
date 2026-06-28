@@ -48,12 +48,21 @@ MedSci Skills is **narrow on purpose**. It will not become:
 - an **autonomous manuscript generator** that replaces human authors,
   statisticians, reviewers, IRBs, or journal requirements;
 - a broad **general AI-scientist** platform spanning chemistry / drug discovery /
-  bench biology;
+  bench biology, or one that runs experiments autonomously;
 - a source of **unsupported guideline interpretation** or **clinical-validation**
   claims about the toolkit itself.
 
-These boundaries are a feature: the value comes from doing clinical-manuscript
-workflow well, with human experts in the loop, not from breadth.
+**In scope (as of v5.0):** *clinical AI model research engineering* — choosing a
+paper-grounded architecture, scaffolding a reproducible training repo, and
+validating, documenting, and evaluating a medical-imaging or LLM/MLLM model so the
+work reaches a manuscript. This is the model-engineering lane; it **integrates**
+MONAI / nnU-Net and never reimplements them, and it never trains or claims results
+autonomously — a human expert runs and verifies everything. That is different from a
+general autonomous AI-scientist, which remains out of scope.
+
+These boundaries are a feature: the value comes from doing clinical research
+workflow — manuscript and model alike — well, with human experts in the loop, not
+from breadth.
 
 ## How priorities are set
 

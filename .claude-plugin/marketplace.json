@@ -25,7 +25,6 @@
       "source": "./",
       "strict": false,
       "skills": [
-        "./skills/architecture-zoo",
         "./skills/calc-sample-size",
         "./skills/clean-data",
         "./skills/define-variables",
@@ -33,12 +32,21 @@
         "./skills/design-ai-benchmarking",
         "./skills/design-study",
         "./skills/generate-codebook",
+        "./skills/version-dataset"
+      ]
+    },
+    {
+      "name": "medsci-modeling",
+      "description": "Clinical AI model research engineering: choose a paper-grounded architecture, scaffold a reproducible PyTorch training repo, validate the model's split and validation design, document it (Model Card / Datasheet), and evaluate models or LLMs/MLLMs on clinical tasks. Integrates MONAI / nnU-Net, never replaces them.",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/architecture-zoo",
         "./skills/mllm-eval",
         "./skills/model-card",
         "./skills/model-evaluation",
         "./skills/model-scaffold",
-        "./skills/model-validation",
-        "./skills/version-dataset"
+        "./skills/model-validation"
       ]
     },
     {

@@ -17,7 +17,6 @@
       "key": "data_study_design",
       "label": "Data & Study Design",
       "slugs": [
-        "architecture-zoo",
         "calc-sample-size",
         "clean-data",
         "define-variables",
@@ -25,12 +24,19 @@
         "design-ai-benchmarking",
         "design-study",
         "generate-codebook",
+        "version-dataset"
+      ]
+    },
+    {
+      "key": "model_engineering",
+      "label": "Model Engineering & Validation",
+      "slugs": [
+        "architecture-zoo",
         "mllm-eval",
         "model-card",
         "model-evaluation",
         "model-scaffold",
-        "model-validation",
-        "version-dataset"
+        "model-validation"
       ]
     },
     {
@@ -132,8 +138,8 @@
     },
     {
       "slug": "architecture-zoo",
-      "category": "data_study_design",
-      "category_label": "Data & Study Design",
+      "category": "model_engineering",
+      "category_label": "Model Engineering & Validation",
       "layer": "D",
       "owner_domain": "architecture_reference",
       "maturity": "official",
@@ -366,8 +372,8 @@
     },
     {
       "slug": "mllm-eval",
-      "category": "data_study_design",
-      "category_label": "Data & Study Design",
+      "category": "model_engineering",
+      "category_label": "Model Engineering & Validation",
       "layer": "D",
       "owner_domain": "model_evaluation",
       "maturity": "official",
@@ -375,8 +381,8 @@
     },
     {
       "slug": "model-card",
-      "category": "data_study_design",
-      "category_label": "Data & Study Design",
+      "category": "model_engineering",
+      "category_label": "Model Engineering & Validation",
       "layer": "C",
       "owner_domain": "model_reporting",
       "maturity": "official",
@@ -384,8 +390,8 @@
     },
     {
       "slug": "model-evaluation",
-      "category": "data_study_design",
-      "category_label": "Data & Study Design",
+      "category": "model_engineering",
+      "category_label": "Model Engineering & Validation",
       "layer": "B",
       "owner_domain": "model_evaluation",
       "maturity": "official",
@@ -393,8 +399,8 @@
     },
     {
       "slug": "model-scaffold",
-      "category": "data_study_design",
-      "category_label": "Data & Study Design",
+      "category": "model_engineering",
+      "category_label": "Model Engineering & Validation",
       "layer": "B",
       "owner_domain": "model_development",
       "maturity": "official",
@@ -402,8 +408,8 @@
     },
     {
       "slug": "model-validation",
-      "category": "data_study_design",
-      "category_label": "Data & Study Design",
+      "category": "model_engineering",
+      "category_label": "Model Engineering & Validation",
       "layer": "D",
       "owner_domain": "model_validation",
       "maturity": "official",
