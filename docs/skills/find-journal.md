@@ -2,7 +2,7 @@
 
 # find-journal
 
-> Journal recommendation engine for medical manuscripts. 2-pass matching against a curated public profile library plus any user-local private profiles, enriched with detailed write-paper profiles for top-5 output. Returns ranked recommendations with scope fit rationale, AI disclosure policy, and homepage links. No cached IF/APC data — users verify current metrics at journal sites.
+> Journal recommendation engine for medical manuscripts. 2-pass matching against a curated public profile library plus any user-local private profiles, enriched with detailed write-paper profiles for top-5 output. Returns ranked recommendations with scope fit rationale, AI disclosure policy, and homepage links. No cached IF/APC data — users verify current metrics at journal sites. A pre-ranking acceptance-readiness pre-flight scans the manuscript for design-ceiling, unfixable-defect, and importance-risk signals to add an acceptance-feasibility axis alongside scope fit, and the output includes a reject-fallback cascade plan.
 
 **Invoke:** `/find-journal` · **Tools:** Read, Write, Edit, Grep, Glob · **Model:** inherit
 
@@ -22,10 +22,13 @@
 **Known limitations**
 
 - Coverage is limited to profiled journals; an unprofiled fit may be missed (add via add-journal).
-- Scope-fit ranking is advisory, not an acceptance prediction.
+- Both axes (scope fit and acceptance feasibility) are advisory; the feasibility band is a risk/ceiling estimate with reasons, never an acceptance probability.
+- The Phase 2.5 pre-flight is a lexical/heuristic scan; it surfaces signals to weigh, not a verdict, and its flags are not auto-fixable.
 
 **Validation**
 
+- `python3 scripts/assess_acceptance_readiness.py <manuscript_or_abstract.md>`
+- `bash scripts/acceptance_readiness_challenge/verify.sh  # deterministic, network-free`
 - `verify shortlisted journals' current scope and metrics at their official sites`
 
 **Evidence** — `manual_workflow`
@@ -34,7 +37,13 @@
 
 **References** (`skills/find-journal/references/`):
 
+- `acceptance_signals_schema.md`
 - `journal_profiles/` (73 files)
+
+**Scripts** (`skills/find-journal/scripts/`):
+
+- `acceptance_readiness_challenge/` (6 files)
+- `assess_acceptance_readiness.py`
 
 ## Source
 

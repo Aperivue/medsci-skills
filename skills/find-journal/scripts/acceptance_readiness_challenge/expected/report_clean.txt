@@ -1,0 +1,10 @@
+ACCEPTANCE-READINESS PRE-FLIGHT
+file: manuscript.md
+note: advisory lexical scan — flags cap the venue tier a design can support;
+      not an acceptance prediction and not auto-fixable.
+
+flags:
+  (none)
+
+summary: design_ceiling=0 unfixable_defect=0 importance_risk=0 claim_mismatch=0 total=0
+ceiling: NO STRUCTURAL CEILING DETECTED BY LEXICAL SCAN

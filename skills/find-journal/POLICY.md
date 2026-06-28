@@ -41,6 +41,13 @@ Every public profile must meet **all** of the following. No exceptions, no defau
   not a substitute for checking.
 - `Special Notes` — any "Choose X over Y" decision rule must be defensible from what the
   two journals' own scope statements say, not from general reputation.
+- `Acceptance Signals` (optional block) — every line (selectivity band, desk-reject
+  triggers, design expectations, study-type tolerance, review process, cascade/transfer)
+  must be **generic and traceable to the journal's own public guidance**. Editor-decision
+  patterns learned from confidential peer review (COPE) are **not permitted in a public
+  profile**; abstracted editor-bar notes belong only in the user-local private overlay
+  (`$HOME/.claude/private-journal-profiles/find-journal/`). Selectivity is expressed as a
+  qualitative band, never a fabricated acceptance percentage.
 
 ### Proof of verification
 
@@ -72,6 +79,8 @@ repo) into `skills/*/references/journal_profiles/`, confirm each item:
 - [ ] AI policy sentence transcribed from the journal's or publisher's policy page — no
       sibling-journal copy-paste.
 - [ ] "Choose X over Y" decision rule defensible from each journal's own scope text.
+- [ ] Any `Acceptance Signals` lines are generic and traceable to the journal's own public
+      guidance — no confidential editor-corpus content, no fabricated acceptance %.
 - [ ] No `[TODO: verify at journal site]` markers remaining.
 - [ ] Commit message records which pages were opened and on what date.
 

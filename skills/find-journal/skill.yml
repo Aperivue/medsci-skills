@@ -12,6 +12,7 @@ inputs:
   - "study type"
 outputs:
   - "ranked journal recommendations with scope rationale and AI-policy notes"
+  - "acceptance-readiness pre-flight (design-ceiling / unfixable-defect / importance-risk flags) and a reject-fallback cascade plan"
 side_effects:
   - reads_journal_profiles
 downstream_consumers:
@@ -29,7 +30,10 @@ safety_boundaries:
   - "Recommendations are drawn from the curated profile library, not invented venues."
 known_limitations:
   - "Coverage is limited to profiled journals; an unprofiled fit may be missed (add via add-journal)."
-  - "Scope-fit ranking is advisory, not an acceptance prediction."
+  - "Both axes (scope fit and acceptance feasibility) are advisory; the feasibility band is a risk/ceiling estimate with reasons, never an acceptance probability."
+  - "The Phase 2.5 pre-flight is a lexical/heuristic scan; it surfaces signals to weigh, not a verdict, and its flags are not auto-fixable."
 validation_commands:
+  - "python3 scripts/assess_acceptance_readiness.py <manuscript_or_abstract.md>"
+  - "bash scripts/acceptance_readiness_challenge/verify.sh  # deterministic, network-free"
   - "verify shortlisted journals' current scope and metrics at their official sites"
 evidence_surface: manual_workflow
