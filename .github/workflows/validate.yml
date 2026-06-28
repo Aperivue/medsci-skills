@@ -233,6 +233,12 @@ jobs:
       - name: Run self-review cohort-arithmetic gate test
         run: bash skills/self-review/tests/test_cohort_arithmetic.sh
 
+      - name: Run model-validation split-leakage challenge
+        run: bash skills/model-validation/scripts/check_split_leakage_challenge/verify.sh
+
+      - name: Run model-validation split-leakage gate test
+        run: bash skills/model-validation/tests/test_split_leakage.sh
+
       - name: Run analyze-stats generated-code gate test
         run: bash skills/analyze-stats/tests/test_generated_code.sh
 

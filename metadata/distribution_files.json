@@ -2452,6 +2452,56 @@
       "sha256": "d056566bb052bd917b4705fcd4912ef2173d5bd61b83bff4885b847bb824aa83"
     },
     {
+      "path": "skills/model-validation/SKILL.md",
+      "size": 9190,
+      "sha256": "3307e57e04ef028b472fd2864f931bec42b999fb2ca96d2c07ddda5ed5eab15a"
+    },
+    {
+      "path": "skills/model-validation/scripts/check_split_leakage.py",
+      "size": 11616,
+      "sha256": "a207b82abbb5914927e0de25663820c250207b0b1689f8ed17bfe6bda9eed6e2"
+    },
+    {
+      "path": "skills/model-validation/scripts/check_split_leakage_challenge/expected/clean.txt",
+      "size": 358,
+      "sha256": "5d1e203ebc6656c172f60f4cd4eb3954fdbcd77579a6768c6bbd56952a966e6c"
+    },
+    {
+      "path": "skills/model-validation/scripts/check_split_leakage_challenge/expected/leak.txt",
+      "size": 470,
+      "sha256": "34be75bbbabf10073a1fd11587e019491b7319e2030b166a1ab3e82e4899f3c2"
+    },
+    {
+      "path": "skills/model-validation/scripts/check_split_leakage_challenge/fixture/split_seed.txt",
+      "size": 3,
+      "sha256": "084c799cd551dd1d8d5c5f9a5d593b2e931f5e36122ee5c793c1d08a19839cc0"
+    },
+    {
+      "path": "skills/model-validation/scripts/check_split_leakage_challenge/fixture/splits_clean.csv",
+      "size": 150,
+      "sha256": "a4a15320685b58c4868737e40b4df0a07a942b39b5d94611e87d63d22e88aee0"
+    },
+    {
+      "path": "skills/model-validation/scripts/check_split_leakage_challenge/fixture/splits_leak.csv",
+      "size": 145,
+      "sha256": "1bc2cc7b11a7a4a9ddc0168a83eab33ea1b03e3ca98bda5301679a18e19faf53"
+    },
+    {
+      "path": "skills/model-validation/scripts/check_split_leakage_challenge/problem.md",
+      "size": 2347,
+      "sha256": "f140095ec5d190120bf73dc62710b2ccac31c7f7d54307a0854c8438df61940e"
+    },
+    {
+      "path": "skills/model-validation/scripts/check_split_leakage_challenge/verify.sh",
+      "size": 1925,
+      "sha256": "9ae88c109caa1408a3a3b08ea0583fc97ce98b93c909f75d043f08a231e91e61"
+    },
+    {
+      "path": "skills/model-validation/skill.yml",
+      "size": 3079,
+      "sha256": "4891c0698445f98552ab2a2315bc8288a6cc4744f8711e20f939c8af8739e434"
+    },
+    {
       "path": "skills/orchestrate/SKILL.md",
       "size": 35203,
       "sha256": "5adf3a50cee42451029b0d4ba32a2f74b2e81bd30e5220ebd0e36a9f538a40b7"
@@ -2478,8 +2528,8 @@
     },
     {
       "path": "skills/peer-review/SKILL.md",
-      "size": 55415,
-      "sha256": "4b75d67b35444eada1a08700b9a0d27e6b8453fbca197893799db77811904b52"
+      "size": 56991,
+      "sha256": "881b62d1b0f89d664205716320f61ba05809b829417abac95833014952182780"
     },
     {
       "path": "skills/peer-review/references/aczel_2021_reviewer2_patterns.md",
@@ -2520,6 +2570,11 @@
       "path": "skills/peer-review/references/domain-probes/mendelian_randomization.md",
       "size": 11244,
       "sha256": "197cfaa4bdcfe223a0ebfb69c229ccb3852160ab76870ade914eb8997ab684c5"
+    },
+    {
+      "path": "skills/peer-review/references/domain-probes/model_development.md",
+      "size": 10438,
+      "sha256": "263db14ecedfc51caffb8b4966bade4566706b3ae4ce67d0b15840bdbbcdba07"
     },
     {
       "path": "skills/peer-review/references/domain-probes/narrative_review.md",
@@ -2973,8 +3028,8 @@
     },
     {
       "path": "skills/self-review/SKILL.md",
-      "size": 94121,
-      "sha256": "7222f5bc17832d84a23f1ea63fb090eb9a114c70bec3cf16ff2c7a16b24d0f40"
+      "size": 94427,
+      "sha256": "ee0d815248276421909990f3731f8831e0a05241bdce13e408ae8c38f3836411"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
@@ -3010,6 +3065,11 @@
       "path": "skills/self-review/references/domain-probes/mendelian_randomization.md",
       "size": 11244,
       "sha256": "197cfaa4bdcfe223a0ebfb69c229ccb3852160ab76870ade914eb8997ab684c5"
+    },
+    {
+      "path": "skills/self-review/references/domain-probes/model_development.md",
+      "size": 10438,
+      "sha256": "263db14ecedfc51caffb8b4966bade4566706b3ae4ce67d0b15840bdbbcdba07"
     },
     {
       "path": "skills/self-review/references/domain-probes/narrative_review.md",

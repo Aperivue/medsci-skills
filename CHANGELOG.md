@@ -14,6 +14,30 @@
   KJR, RYAI, Investigative Radiology), a reject-fallback cascade plan, and a
   desk-reject vs post-review distinction in Post-Rejection Mode. Helper named
   `assess_*` (not a detector-catalog member); counts unchanged (additive). (#215)
+- **Medical-AI model-engineering lane — Phase 1 (validation MVP).** First slice of the v5.0
+  "design → scaffold → validate → publish medical-AI model research" lane, led by the
+  validation/reporting half (the build/scaffold half lands in a later phase). Clinician-anchored,
+  torch-free, additive.
+  - **New skill `/model-validation`** (Layer D, advisory + deterministic audit) — design or audit
+    the clinical-validation study for an engineer-built medical-imaging model (segmentation /
+    classification / detection): patient-level split disjointness + the data-leakage taxonomy,
+    tuning-on-test, internal vs genuine external validation, comparator design, single-run vs
+    multi-seed variance, task-correct metric selection (Metrics Reloaded), test-set sizing handoff
+    to `/calc-sample-size`, and CLAIM 2024 / TRIPOD+AI / STARD-AI reporting fit. Integrates with
+    MONAI / nnU-Net — does not replace them. Skills 45 → 46.
+  - **New reviewer domain-probe `model_development.md` (MD0–MD8)** (`/peer-review` + `/self-review`,
+    vendored byte-identical) — partition/leakage mechanics, tuning/threshold/model-selection on the
+    test set, the internal-vs-external-validation conflation, seed/run variance, test-set event
+    count, metric selection, reproducibility/provenance, and reference-standard/label quality.
+    Domain-probe modules 15 → 16. Grounded in the leakage taxonomy (Kapoor & Narayanan, *Patterns*
+    2023), Varoquaux & Cheplygina (*npj Digit Med* 2022), CLAIM 2024, and Metrics Reloaded
+    (Maier-Hein & Reinke et al., *Nat Methods* 2024).
+  - **New deterministic detector `check_split_leakage.py`** (`/model-validation`) — *proves* (by set
+    arithmetic on the emitted `split_assignment.csv`, not heuristics) that no patient crosses
+    train/val/test, and that the split records a reproducible seed. Verdicts `PATIENT_OVERLAP`
+    (Major), `MISSING_SEED` (Major), `SINGLE_PARTITION` (Minor); train/validation/holdout synonyms
+    collapse so a labelling variant never trips it. Stdlib-only, network-free, with a reproducible
+    challenge card + CI-wired regression test. Integrity detectors 36 → 37.
 
 ## [4.10.0] - 2026-06-28
 

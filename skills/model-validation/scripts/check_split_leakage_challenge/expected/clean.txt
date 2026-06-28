@@ -1,0 +1,9 @@
+=========================================
+ Split-Leakage Gate (model-validation)
+=========================================
+  rows=13  subjects=12  partitions={'test': 4, 'train': 6, 'val': 3}  seed=42
+| Check | Severity | Detail |
+|---|---|---|
+| (none) | — | patient-disjoint split with a recorded seed |
+
+OK: patient-disjoint split with a recorded seed.

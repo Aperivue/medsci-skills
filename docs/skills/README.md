@@ -32,6 +32,7 @@ One reference page per skill, generated from each skill's `SKILL.md` and `skill.
 - [manage-project](manage-project.md) — Research project management for medical manuscripts. _(evidence: manual_workflow)_
 - [manage-refs](manage-refs.md) — Cross-cutting reference manager for medical manuscripts. _(evidence: bundled_script)_
 - [meta-analysis](meta-analysis.md) — Systematic review and meta-analysis pipeline for medical research. _(evidence: demo)_
+- [model-validation](model-validation.md) — Design or audit the clinical-validation study for an engineer-built medical-imaging model (segmentation, classification, or detection) before the validation report or manuscript is written. _(evidence: ci_validator)_
 - [orchestrate](orchestrate.md) — General-purpose research orchestrator. _(evidence: demo)_
 - [peer-review](peer-review.md) — Peer review assistant for medical journals. _(evidence: manual_workflow)_
 - [polish-language](polish-language.md) — Academic English consistency linting and non-native (ESL) language polish for medical manuscripts. _(evidence: bundled_script)_

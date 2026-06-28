@@ -47,6 +47,7 @@ MODULES = (
     "mendelian_randomization.md",
     "polygenic_risk_score.md",
     "network_meta_analysis.md",
+    "model_development.md",
 )
 
 CANONICAL_REL = "skills/peer-review/references/domain-probes"
