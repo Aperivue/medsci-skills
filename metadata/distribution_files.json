@@ -8,23 +8,23 @@
     },
     {
       "path": "installers/install-macos.command",
-      "size": 455,
-      "sha256": "abc4ed71a42e0e87ef20332a9bcad840d84e50032cbf77999d703eebe3084bd9"
+      "size": 803,
+      "sha256": "4071582be11c467f48fe9f4684dcc9b7a115a5361479fdfbd7a10c74d3309a52"
     },
     {
       "path": "installers/install-windows.cmd",
-      "size": 438,
-      "sha256": "96cce0caf63a2936de769d4a01720a2fc1de946379d04259876272474e07d574"
+      "size": 831,
+      "sha256": "3204da065979a2b060a5170b5c542e5ccd2ede4ecc172fcee7eafac3c0bfd003"
     },
     {
       "path": "installers/install-windows.ps1",
-      "size": 554,
-      "sha256": "2e025ffce1079a2a8be442ccccbd65711780423bcf68be9cc12bf29c015e3621"
+      "size": 861,
+      "sha256": "1f44ec21dfd828979445dc9ab76b4e2015cec573911d843d9416f3302aa8183d"
     },
     {
       "path": "installers/install.py",
-      "size": 13319,
-      "sha256": "9467880b2efdc5c71ed280aa1e17e4c785fe7d80078c3666d5047fb9ac267c89"
+      "size": 14230,
+      "sha256": "f1a092bbc5ea676a3bfca3dcb724e9e64a07dc1e1e2414ff696fc21cf4f7f8c0"
     },
     {
       "path": "installers/medsci_txn.py",
@@ -48,8 +48,8 @@
     },
     {
       "path": "installers/update.py",
-      "size": 25500,
-      "sha256": "6a632a88617889a1ac36418822b8af3f2bcab75bfa28169e99ae4fdf0b810365"
+      "size": 26375,
+      "sha256": "9ed283deea2e9bf10c17bbbbc1d75ae64703ecd587326583a17d0600d8bf0ca3"
     },
     {
       "path": "skills/MAINTENANCE.md",
