@@ -398,7 +398,7 @@
       "layer": "B",
       "owner_domain": "model_development",
       "maturity": "official",
-      "description": "Generate a reproducible, runnable PyTorch training repo for a medical-imaging segmentation task — the missing middle link between choosing an architecture and validating a trained model."
+      "description": "Generate a reproducible, runnable PyTorch training repo for a medical-imaging task — segmentation, classification, detection, image-to-image synthesis, or self-supervised pretraining — the missing mid…"
     },
     {
       "slug": "model-validation",

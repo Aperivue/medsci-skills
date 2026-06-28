@@ -36,7 +36,7 @@ One reference page per skill, generated from each skill's `SKILL.md` and `skill.
 - [mllm-eval](mllm-eval.md) — Design or audit a model-agnostic evaluation harness for an LLM or multimodal LLM on a clinical task (radiology report generation, visual question answering, clinical text extraction/classification) —… _(evidence: ci_validator)_
 - [model-card](model-card.md) — Generate the documentation an engineer-built medical-imaging model must carry — a Model Card (Mitchell et al. _(evidence: ci_validator)_
 - [model-evaluation](model-evaluation.md) — Compute and report task-correct held-out metrics for a trained medical-imaging model — segmentation (Dice plus a boundary metric such as HD95 or NSD, per structure), classification (AUROC plus AUPRC a… _(evidence: ci_validator)_
-- [model-scaffold](model-scaffold.md) — Generate a reproducible, runnable PyTorch training repo for a medical-imaging segmentation task — the missing middle link between choosing an architecture and validating a trained model. _(evidence: ci_validator)_
+- [model-scaffold](model-scaffold.md) — Generate a reproducible, runnable PyTorch training repo for a medical-imaging task — segmentation, classification, detection, image-to-image synthesis, or self-supervised pretraining — the missing mid… _(evidence: ci_validator)_
 - [model-validation](model-validation.md) — Design or audit the clinical-validation study for an engineer-built medical-imaging model (segmentation, classification, or detection) before the validation report or manuscript is written. _(evidence: ci_validator)_
 - [orchestrate](orchestrate.md) — General-purpose research orchestrator. _(evidence: demo)_
 - [peer-review](peer-review.md) — Peer review assistant for medical journals. _(evidence: manual_workflow)_

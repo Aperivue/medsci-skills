@@ -66,5 +66,17 @@ for r in csv.DictReader(open('$WORK/clean/splits/split_assignment.csv')):
     seen.setdefault(r['patient_id'],set()).add(r['split'])
 assert all(len(s)==1 for s in seen.values()), 'patient crosses splits'"
 
+# (d) breadth: every task scaffolds to valid Python with hygiene-clean train/eval
+clean_repo() { python3 "$SCAFFOLD" --manifest "$WORK/m.csv" --task "$1" --out "$WORK/$1" --seed 42 --quiet >/dev/null 2>&1; }
+hygiene_ok() { python3 "$HYGIENE" --repo "$WORK/$1" --strict --quiet >/dev/null 2>&1; }
+valid_py()  { for f in "$WORK/$1"/*.py; do python3 -c "import ast,sys;ast.parse(open(sys.argv[1]).read())" "$f" || return 1; done; }
+for t in classification detection synthesis ssl; do
+    if clean_repo "$t" && hygiene_ok "$t" && valid_py "$t"; then
+        printf '  PASS  scaffold %s: hygiene-clean + valid Python\n' "$t"
+    else
+        printf '  FAIL  scaffold %s\n' "$t"; fail=$((fail+1))
+    fi
+done
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

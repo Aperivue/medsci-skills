@@ -10,10 +10,10 @@ per-paper detail and the `/model-scaffold` template to instantiate.
 |---|---|---|
 | "is finding X present / which class" (per image / per patient) | **classification** (binary / multi-label) | `classification.md` |
 | "delineate / measure structure X" (pixel/voxel mask, volume, boundary) | **segmentation** | `segmentation.md` |
-| "find and localise lesions" (boxes / points, count, FROC) | **detection** | *(forthcoming — see segmentation's Mask R-CNN note)* |
+| "find and localise lesions" (boxes / points, count, FROC) | **detection** | `detection.md` |
 | "I have few labels / want to pretrain on unlabelled scans" | **self-supervised pretraining → fine-tune** | `foundation_models.md` |
 | "adapt a released medical foundation model" | **transfer / prompt a foundation model** | `foundation_models.md` |
-| "synthesise / translate a modality" (MRI→CT, denoise) | **image-to-image / generative** | *(forthcoming)* |
+| "synthesise / translate a modality" (MRI→CT, denoise) | **image-to-image / generative** | `synthesis.md` |
 | "generate a report / answer a visual question" | **multimodal LLM** | *(use `/mllm-eval`; not a CNN choice)* |
 
 ## Step 2 — let the constraints narrow it

@@ -2,6 +2,24 @@
 
 ## [Unreleased]
 
+### Added
+
+- **Medical-AI model-engineering lane — Phase 5 (build-lane breadth).** Expands the existing
+  `/model-scaffold` and `/architecture-zoo` skills; no new skills/detectors/probes (counts
+  unchanged: 51 skills / 41 detectors / 38 guidelines), torch-free CI.
+  - **`/model-scaffold` now generates 5 task types** (was segmentation-only): `--task`
+    **segmentation** (U-Net), **classification** (small multi-label CNN; swap in a `timm`
+    backbone), **detection** (torchvision Faster R-CNN + FPN), **synthesis** (Pix2Pix U-Net
+    generator + PatchGAN), **ssl** (SimCLR encoder + projection head, NT-Xent). Every task keeps
+    the reproducibility guarantees by construction — the patient-level seed-locked split is
+    task-independent, and each emitted `train.py` / `evaluate.py` passes `check_training_hygiene`
+    (all RNGs seeded, cuDNN deterministic, train-only loader, `eval()` + `no_grad()`). The
+    challenge + regression test now verify all 5 tasks (split + hygiene + valid Python, network-free).
+  - **`/architecture-zoo` adds the `detection.md` and `synthesis.md` family cards** (R-CNN family /
+    Faster R-CNN+FPN / Mask R-CNN / RetinaNet / YOLO / DETR; Pix2Pix / CycleGAN / SPADE / diffusion
+    / VAE / fastMRI), each with the source paper, when-to-use, medical use, reference implementation,
+    validation setup, and matching scaffold template; the decision-tree index now routes to them.
+
 ## [4.11.0] - 2026-06-28
 
 ### Added

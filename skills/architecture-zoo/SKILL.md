@@ -56,6 +56,10 @@ a family card.
   ViT / Swin / DeiT.
 - `${CLAUDE_SKILL_DIR}/references/segmentation.md` — U-Net / 3-D U-Net / V-Net / Attention & Residual
   U-Net / nnU-Net / SegResNet / Swin-UNETR / Mask R-CNN.
+- `${CLAUDE_SKILL_DIR}/references/detection.md` — R-CNN family / Faster R-CNN + FPN / Mask R-CNN /
+  RetinaNet / YOLO / DETR.
+- `${CLAUDE_SKILL_DIR}/references/synthesis.md` — Pix2Pix / CycleGAN / SPADE / diffusion (DDPM, latent) /
+  VAE / fastMRI reconstruction.
 - `${CLAUDE_SKILL_DIR}/references/foundation_models.md` — SAM / MedSAM / MedSAM2 / TotalSegmentator /
   SegVol / BiomedCLIP / DINO / MAE / SimCLR / MoCo.
 Each card gives the paper, core idea, when-to-use, medical-imaging use, reference implementation, and the
