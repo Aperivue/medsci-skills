@@ -59,6 +59,16 @@
     deterministic split matches the frozen expected + is patient-disjoint (proven inline) → passes
     `check_training_hygiene` → a **self-skipping** torch tier (forward shape + gradients + reproducible
     loss when torch is installed; `SKIP`, never CI coverage of runnability, when absent).
+  - **New skill `/architecture-zoo`** (Layer D, advisory) — the *choose* front end of the lane: maps a
+    research question (task + modality / dimensionality + labelled-data scale + class imbalance) to a
+    **paper-grounded** architecture shortlist via a decision tree, then per-architecture cards with core
+    idea, when-to-use, medical-imaging use, reference implementation, the typical validation/experiment
+    setup, and the matching `/model-scaffold` template. Seeds the classification (ResNet / DenseNet /
+    EfficientNet / Inception / ViT / Swin / DeiT), segmentation (U-Net / 3-D U-Net / V-Net / Attention
+    & Residual U-Net / nnU-Net / SegResNet / Swin-UNETR / Mask R-CNN), and foundation/SSL (SAM / MedSAM /
+    MedSAM2 / TotalSegmentator / SegVol / BiomedCLIP / DINO / MAE / SimCLR / MoCo) families. Every
+    recommendation names its source paper; it teaches archetypes, not a live SOTA leaderboard. Skills
+    47 → 48.
 
 ## [4.10.0] - 2026-06-28
 

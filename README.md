@@ -2,14 +2,14 @@
 
 # MedSci Skills
 
-**47 skills that actually work.** Built by a physician-researcher, tested on real publications.
+**48 skills that actually work.** Built by a physician-researcher, tested on real publications.
 
 *MedSci Skills is a submission-grade clinical manuscript workflow, not a generic biomedical skill catalog. Its moat is the compliance layer — 38 reporting guidelines and risk-of-bias tools, reference/citation verification, and deterministic integrity gates, before peer review sees the manuscript. It competes on clinical submission reliability, not skill count.*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Release](https://img.shields.io/github/v/release/Aperivue/medsci-skills?style=flat-square&color=blue)](https://github.com/Aperivue/medsci-skills/releases/latest)
 [![CI](https://img.shields.io/github/actions/workflow/status/Aperivue/medsci-skills/validate.yml?branch=main&style=flat-square&label=CI)](https://github.com/Aperivue/medsci-skills/actions/workflows/validate.yml)
-![Skills](https://img.shields.io/badge/Skills-47-brightgreen?style=flat-square)
+![Skills](https://img.shields.io/badge/Skills-48-brightgreen?style=flat-square)
 [![npm](https://img.shields.io/npm/v/medsci-skills?style=flat-square&label=npm&color=cb3837)](https://www.npmjs.com/package/medsci-skills)
 [![Watch the 2-min intro](https://img.shields.io/badge/▶_Watch-2--min_intro-FF0000?style=flat-square&logo=youtube&logoColor=white)](https://youtu.be/MclQ_RIofpE)
 [![good first issues](https://img.shields.io/github/issues/Aperivue/medsci-skills/good%20first%20issue?style=flat-square&label=good%20first%20issues&color=7057ff)](https://github.com/Aperivue/medsci-skills/contribute)
@@ -453,6 +453,7 @@ ma-scout -> search-lit -> fulltext-retrieval -> design-study ──> write-proto
 | **design-ai-benchmarking** | Design and validity review for benchmarking AI system(s) against a human-expert panel: evaluation-question and arm definition, decoupled multi-dimensional rubrics with anchors, planted calibration probes (positive-control / known-bad / instability / mechanism-contradiction), reviewer-panel construction with per-reviewer randomization, inter-rater reliability targets with separate control-item reliability, LLM-as-judge vs human-as-judge adjudication, construct-independence guards, and a structured JSON rating-export schema. Locks the rubric before data collection. |
 | **model-validation** | Design or audit the clinical-validation study for an engineer-built medical-imaging model (segmentation / classification / detection): patient-level split disjointness and the data-leakage taxonomy, tuning-on-test, internal vs genuine external validation, comparator design, single-run vs multi-seed variance, task-correct metric selection (Metrics Reloaded), test-set sizing, and CLAIM 2024 / TRIPOD+AI / STARD-AI reporting fit. Ships a deterministic split-leakage gate that proves patient disjointness by set arithmetic on the emitted split table. Integrates with MONAI / nnU-Net — does not replace them. |
 | **model-scaffold** | Generate a reproducible, runnable PyTorch training repo for a medical-imaging segmentation task — the missing middle link between choosing an architecture and validating a trained model. Emits a patient-level seed-locked split as an auditable artifact, a configurable U-Net, train/evaluate scripts that seed every RNG and infer under eval mode, a config, requirements, a reproducibility record, and a Methods stub with VERIFY placeholders (no fabricated numbers). Reproducibility holds by construction; ships a `check_training_hygiene` AST gate + a network-free build→validate challenge. Integrates with MONAI / nnU-Net / TorchIO — does not reimplement them. |
+| **architecture-zoo** | "Which architecture for which research question" decision tool: maps task (classification / segmentation / detection / transfer), modality, data scale, and class imbalance to a paper-grounded architecture shortlist. Curates the foundational curriculum (ResNet / DenseNet / EfficientNet / ViT / Swin; U-Net / 3-D U-Net / Attention & Residual U-Net / nnU-Net / Mask R-CNN; SAM/MedSAM / TotalSegmentator / BiomedCLIP / DINO / MAE / SimCLR) — each with core idea, when-to-use, medical-imaging use, reference implementation, validation setup, and the matching model-scaffold template. Advisory; teaches archetypes, not a live SOTA leaderboard. |
 | **intake-project** | Classifies new research projects, summarizes current state, identifies missing inputs, and recommends next steps. |
 | **grant-builder** | Structures grant proposals: significance, innovation, approach, milestones, and consortium roles. |
 | **present-paper** | Academic presentation preparation: paper analysis, supporting research, speaker scripts, slide note injection, and Q&A prep. |

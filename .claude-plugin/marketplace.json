@@ -25,6 +25,7 @@
       "source": "./",
       "strict": false,
       "skills": [
+        "./skills/architecture-zoo",
         "./skills/calc-sample-size",
         "./skills/clean-data",
         "./skills/define-variables",

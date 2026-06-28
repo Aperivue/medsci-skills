@@ -7,6 +7,7 @@ One reference page per skill, generated from each skill's `SKILL.md` and `skill.
 - [academic-aio](academic-aio.md) — Medical AI paper optimization for AI search engines (Perplexity, ChatGPT web, Elicit, Consensus, SciSpace) and RAG-based literature tools. _(evidence: bundled_script)_
 - [add-journal](add-journal.md) — Add a new journal to the MedSci Skills profile database. _(evidence: manual_workflow)_
 - [analyze-stats](analyze-stats.md) — Statistical analysis for medical research papers. _(evidence: demo)_
+- [architecture-zoo](architecture-zoo.md) — Choose a model architecture for a medical-imaging research question before scaffolding. _(evidence: manual_workflow)_
 - [author-strategy](author-strategy.md) — PubMed author profile analysis. _(evidence: manual_workflow)_
 - [batch-cohort](batch-cohort.md) — Generate N analysis scripts from a single methodology template × multiple exposure/outcome combinations. _(evidence: manual_workflow)_
 - [calc-sample-size](calc-sample-size.md) — Interactive sample size calculator for medical research. _(evidence: manual_workflow)_
