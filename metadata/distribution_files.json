@@ -1023,13 +1023,18 @@
     },
     {
       "path": "skills/find-journal/POLICY.md",
-      "size": 4486,
-      "sha256": "02de377328f457c57c5edbade8bae40e12c51b4c6ff8ab6293b330c482187ce7"
+      "size": 5255,
+      "sha256": "c2b61b5830844fa3eebe333dc4864acb4d085097e81ba2dbc1ef72dd65bebee3"
     },
     {
       "path": "skills/find-journal/SKILL.md",
-      "size": 14455,
-      "sha256": "48a95f5ee639e59f00241608b23b3e652395bffaa63a6bccba295e5b3d5a49d6"
+      "size": 22072,
+      "sha256": "45074f6499896700bff0eb20bd91c4076b143bcd39521d56559239edaa8b24d8"
+    },
+    {
+      "path": "skills/find-journal/references/acceptance_signals_schema.md",
+      "size": 6869,
+      "sha256": "620ba1c55272908a16125ba69074491df5246d6cf9afa14e6b08a08e8dc4e866"
     },
     {
       "path": "skills/find-journal/references/journal_profiles/AJNR.md",
@@ -1038,8 +1043,8 @@
     },
     {
       "path": "skills/find-journal/references/journal_profiles/AJR.md",
-      "size": 1417,
-      "sha256": "ae26a8ea72672a973977a01f7e7a8cdbdc98b5dbcd2a7bc4605bb6eaee1a87fe"
+      "size": 2075,
+      "sha256": "9d9a5ee7b3b2287a6deae8fc06d54dd60b26afa843f5830f7bb5fb2e2ac633f7"
     },
     {
       "path": "skills/find-journal/references/journal_profiles/Abdominal_Radiology.md",
@@ -1128,8 +1133,8 @@
     },
     {
       "path": "skills/find-journal/references/journal_profiles/European_Radiology.md",
-      "size": 1640,
-      "sha256": "b71a9fe293c985c47f674459b4a613083749bc8d246d062e2c3afddc988e349c"
+      "size": 2350,
+      "sha256": "fa50a9a9d6012b8c6b75d81a69b950dfbe7db29775c8112bf5fe68d6d5655dfa"
     },
     {
       "path": "skills/find-journal/references/journal_profiles/Hepatology_Communications.md",
@@ -1158,8 +1163,8 @@
     },
     {
       "path": "skills/find-journal/references/journal_profiles/Investigative_Radiology.md",
-      "size": 1480,
-      "sha256": "ab740ec46a98b92fc243d4770b2a4f6ed400ea5a1f86e0fdffc121cdb2c98fa9"
+      "size": 2118,
+      "sha256": "c218b4e764a070a3297802076c1e6c68e514160cc1efa038552cc271b01af9ce"
     },
     {
       "path": "skills/find-journal/references/journal_profiles/JACC_Advances.md",
@@ -1248,8 +1253,8 @@
     },
     {
       "path": "skills/find-journal/references/journal_profiles/KJR.md",
-      "size": 3036,
-      "sha256": "a0814e6d62288389db7528b73a25db870ab91635dc4b946fb0c8bf8af47150a3"
+      "size": 4061,
+      "sha256": "0849de001a47038b8bfc92b337285372c80ccf4861162cae876295d82ea4f1c8"
     },
     {
       "path": "skills/find-journal/references/journal_profiles/Korean_Circulation_Journal.md",
@@ -1348,8 +1353,8 @@
     },
     {
       "path": "skills/find-journal/references/journal_profiles/RYAI.md",
-      "size": 1601,
-      "sha256": "1a6a387ed715a559bb0a7fd535b76ecb9334ff21e43b6c025520ca1167993a5e"
+      "size": 2341,
+      "sha256": "6d85cd675a5e6f395f74865256b7fe937749a4e31cb4c6f8d43d4059cb33a717"
     },
     {
       "path": "skills/find-journal/references/journal_profiles/Radiology.md",
@@ -1397,9 +1402,44 @@
       "sha256": "e2811a46b89f39a7395d98460347ce274ff58ce50138364e8cf96050a05aad91"
     },
     {
+      "path": "skills/find-journal/scripts/acceptance_readiness_challenge/expected/report_ceiling.txt",
+      "size": 1570,
+      "sha256": "1e84f888350249a3b187d38731a371487232851c6521689e319ef59408ed9448"
+    },
+    {
+      "path": "skills/find-journal/scripts/acceptance_readiness_challenge/expected/report_clean.txt",
+      "size": 350,
+      "sha256": "40b1a3b94cf15d504fc2c04e25f5aa737410a8b2480118dcd3c9cd1927ee825c"
+    },
+    {
+      "path": "skills/find-journal/scripts/acceptance_readiness_challenge/fixture_ceiling/manuscript.md",
+      "size": 717,
+      "sha256": "557ce5c0607024aebae3375e117b1052acace3d1931a3dc8d015a6b9c6043843"
+    },
+    {
+      "path": "skills/find-journal/scripts/acceptance_readiness_challenge/fixture_clean/manuscript.md",
+      "size": 646,
+      "sha256": "77a215d5c5fe8d09035308f04cdf26ab7c2736c53563b71930a2be1941b7061b"
+    },
+    {
+      "path": "skills/find-journal/scripts/acceptance_readiness_challenge/problem.md",
+      "size": 1981,
+      "sha256": "469b518a373f5bef95016dc866f82b0d05395eb26ae162656abf1303495ed71c"
+    },
+    {
+      "path": "skills/find-journal/scripts/acceptance_readiness_challenge/verify.sh",
+      "size": 1232,
+      "sha256": "0c525f322306fd5229269f155179924d80a419301988fff0171115c3b323d795"
+    },
+    {
+      "path": "skills/find-journal/scripts/assess_acceptance_readiness.py",
+      "size": 10959,
+      "sha256": "32930f970f308d95aaf82c61d809a307685668165df4fe2bf7c2b4f5052b3e87"
+    },
+    {
       "path": "skills/find-journal/skill.yml",
-      "size": 1428,
-      "sha256": "0fdf9fdce505cc1d264bdb9c69a4ad6107ea6d510d186385f854636b9f10e609"
+      "size": 1971,
+      "sha256": "8a4ce35c9fccb8a43de5d06bee09b27fc70d2c735d8fa9fce353ec9467fa9936"
     },
     {
       "path": "skills/fulltext-retrieval/SKILL.md",

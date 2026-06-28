@@ -23,3 +23,11 @@ contrast agents, imaging physics, MRI techniques, CT technology, molecular imagi
 
 ## Special Notes
 Investigative Radiology is a highly selective journal focused on imaging science and technology rather than clinical case series. It does not accept case reports, reviews, or technical notes — only original research. Known for rapid publication of novel contrast agent studies and imaging physics advances. AI policy: AI use discouraged, must disclose in cover letter and Acknowledgments.
+
+## Acceptance Signals
+- **Selectivity band:** highly-selective
+- **Desk-reject triggers:** clinical case series; case reports, reviews, or technical notes (not accepted — original research only); work without a methodologically novel imaging-science contribution
+- **Design expectations:** high methodological rigor; a novel imaging technique, contrast agent, or physics advance
+- **Study-type tolerance:** original research only
+- **Review process:** AI use discouraged — disclose in cover letter and Acknowledgments
+- **Cascade / transfer:** tier-down to a general radiology or applied-imaging journal for clinically oriented work

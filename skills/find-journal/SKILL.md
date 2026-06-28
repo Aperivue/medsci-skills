@@ -1,6 +1,6 @@
 ---
 name: find-journal
-description: Journal recommendation engine for medical manuscripts. 2-pass matching against a curated public profile library plus any user-local private profiles, enriched with detailed write-paper profiles for top-5 output. Returns ranked recommendations with scope fit rationale, AI disclosure policy, and homepage links. No cached IF/APC data — users verify current metrics at journal sites.
+description: Journal recommendation engine for medical manuscripts. 2-pass matching against a curated public profile library plus any user-local private profiles, enriched with detailed write-paper profiles for top-5 output. Returns ranked recommendations with scope fit rationale, AI disclosure policy, and homepage links. No cached IF/APC data — users verify current metrics at journal sites. A pre-ranking acceptance-readiness pre-flight scans the manuscript for design-ceiling, unfixable-defect, and importance-risk signals to add an acceptance-feasibility axis alongside scope fit, and the output includes a reject-fallback cascade plan.
 triggers: find journal, recommend journal, where to submit, which journal, journal selection, target journal, journal match
 tools: Read, Write, Edit, Grep, Glob
 model: inherit
@@ -77,6 +77,56 @@ From the abstract/key findings, extract:
 
 ---
 
+## Phase 2.5: Acceptance-Readiness & Design-Ceiling Pre-flight
+
+Editors apply two filters in sequence: **(1) importance/novelty + design-ceiling**
+(the desk screen, before review — the #1 desk-rejection driver is lack of
+novelty/importance, ahead of scope) and **(2) scope fit**. Scope matching (Phase 3)
+handles filter 2. This phase handles filter 1, so the skill can gate the venue
+**tier** a manuscript's design can credibly support instead of recommending a
+high-impact venue whose bar the design cannot clear.
+
+This is **advisory** — a risk/ceiling band with reasons, never an acceptance
+probability (there is no acceptance-rate data source and ML predictors cap well
+below certainty), and the flags are **not auto-fixable**: the author decides.
+
+### 2.5.1 Run the deterministic pre-flight (preferred)
+
+If a manuscript or abstract file is available, run the bundled lexical scan:
+
+```
+python3 ${CLAUDE_SKILL_DIR}/scripts/assess_acceptance_readiness.py <manuscript_or_abstract.md>
+# add --json for a machine-readable report
+```
+
+It returns flags in four categories — DESIGN_CEILING, UNFIXABLE_DEFECT,
+IMPORTANCE_RISK, CLAIM_MISMATCH — and a ceiling verdict
+(`NO STRUCTURAL CEILING …` / `IMPORTANCE-FRAMING REVIEW …` /
+`SPECIALTY / TOLERANT-VENUE OR DESIGN FIX …` / `HIGH-IMPACT VENUE UNLIKELY …`).
+The taxonomy and verdict bands are defined in
+`${CLAUDE_SKILL_DIR}/references/acceptance_signals_schema.md`.
+
+### 2.5.2 If only pasted text is available
+
+When the user pasted an abstract with no file to scan, apply the **same taxonomy**
+(`references/acceptance_signals_schema.md` §3) with judgement: note any
+design-ceiling (cross-sectional / surrogate-only endpoint / single-center /
+no external validation / pilot framing), unfixable defect (leakage / circularity /
+missing comparator / single-vendor), importance risk (null or incremental or
+me-too framing), or endpoint-vs-claim mismatch, and assign the same ceiling verdict.
+
+### 2.5.3 Carry the verdict forward
+
+Record the **ceiling verdict + its top flags**. It feeds:
+- Phase 3.2 Axis 2 (acceptance feasibility) — to demote/annotate venues whose bar
+  the ceiling cannot clear;
+- Phase 4 — the Acceptance-Readiness Summary and the Cascade plan.
+
+Do not block the recommendation on a ceiling. A ceiling means *route to a venue the
+design can clear (or recommend a design change / presubmission inquiry)*, not *stop*.
+
+---
+
 ## Phase 3: Profile Loading and Matching (2-Pass)
 
 ### 3.1 Pass 1: Load Compact Profiles
@@ -96,15 +146,23 @@ takes precedence (user override). If the private directory does not exist, proce
 public-only — do not fail.
 
 These are compact profiles (~30 lines each) optimized for matching. Parse each profile's
-Scope, Scope Keywords, Article Types Accepted, Classification (Tier, OA, Field), and
-Special Notes (includes 1-line AI policy summary).
+Scope, Scope Keywords, Article Types Accepted, Classification (Tier, OA, Field),
+Special Notes (includes 1-line AI policy summary), and the optional **Acceptance Signals**
+block (selectivity band, desk-reject triggers, design expectations, cascade/transfer — see
+`${CLAUDE_SKILL_DIR}/references/acceptance_signals_schema.md`). A profile without an
+Acceptance Signals block falls back to its Special Notes plus the Phase 2.5 taxonomy.
 
 Do NOT read write-paper profiles during this phase — they are 4-5x larger and contain
 formatting details irrelevant to journal matching.
 
-### 3.2 Scoring Algorithm
+### 3.2 Two-Axis Scoring (scope fit × acceptance feasibility)
 
-For each journal, compute a composite score:
+Score each journal on **two independent axes**. Scope fit answers "does this journal
+cover my topic?"; acceptance feasibility answers "can this manuscript's design +
+importance clear this journal's bar?" Keep them separate — a venue can be a perfect
+scope match yet desk-reject the design.
+
+**Axis 1 — Scope fit.** Compute a composite scope-fit score:
 
 | Factor | Weight | Description |
 |--------|--------|-------------|
@@ -113,6 +171,18 @@ For each journal, compute a composite score:
 | Tier match | 20% | Alignment with user's preferred tier (if specified) |
 | OA match | 10% | Alignment with user's OA preference (if specified) |
 | Special fit | 5% | Bonus for unique alignment with journal's Special Notes |
+
+**Axis 2 — Acceptance feasibility.** Weigh the Phase 2.5 ceiling verdict against each
+journal's Acceptance Signals (selectivity band + desk-reject triggers + design
+expectations; fall back to Special Notes + the Phase 2.5 taxonomy when no block exists).
+Assign **High / Medium / Low** feasibility:
+- **Low / ceiling-mismatch** when the journal's bar is one the manuscript's ceiling
+  cannot clear (e.g., a `highly-selective` venue that desk-rejects single-center
+  surrogate-endpoint designs, and the manuscript is exactly that).
+- **High** when no ceiling signal collides with the journal's stated bar.
+
+Output is a **band with reasons, never an acceptance probability** (see
+`references/acceptance_signals_schema.md` §4).
 
 ### 3.3 Filtering
 
@@ -123,7 +193,13 @@ Before scoring, exclude:
 
 ### 3.4 Ranking
 
-Sort by composite score. Select top 5.
+Rank primarily by the Axis-1 scope-fit score, then apply Axis 2:
+- **Demote** (or, if the mismatch is severe, drop below a better-feasibility peer)
+  any journal whose acceptance feasibility is Low / ceiling-mismatch.
+- **Never silently demote** — always carry the reason so Phase 4 can surface it.
+- Select the top 5 by the feasibility-adjusted order. If a strong scope match is
+  demoted for feasibility, still mention it in the comparison note with the mismatch
+  spelled out (the author may choose to fix the design rather than change venue).
 
 ### 3.5 Pass 2: Enrich Top-5
 
@@ -145,6 +221,9 @@ for the output:
 - Statistical reporting requirements
 - AI Writing Disclosure Policy (full 5-field version)
 - Common rejection reasons
+- Acceptance Signals (selectivity band, desk-reject triggers, design expectations,
+  cascade/transfer targets) — these sharpen the Axis-2 feasibility call and the
+  Phase 4 cascade plan
 
 This enriches the recommendation output without loading all write-paper profiles.
 If no write-paper profile exists, use the compact profile data only.
@@ -236,6 +315,11 @@ Reference specific keywords, disease areas, or methodological preferences from t
 
 **Open Access:** [Full OA / Hybrid / Subscription]
 
+**Acceptance feasibility:** [High / Medium / Low] — [1 line: how the manuscript's
+Phase 2.5 ceiling meets this journal's bar; spell out any mismatch, e.g., "scope fit
+High, but this highly-selective venue desk-rejects single-center surrogate-endpoint
+designs — add external validation or target a selective/accessible venue"]
+
 **Homepage:** [URL]
 **Author guidelines:** [URL]
 
@@ -244,10 +328,47 @@ Reference specific keywords, disease areas, or methodological preferences from t
 
 After all 5 recommendations, add a brief comparison note (2-3 sentences) highlighting
 the key tradeoffs between the top choices (e.g., scope breadth vs. specialty depth,
-tier vs. acceptance likelihood).
+tier vs. acceptance feasibility).
 
-If Phase 3.6 produced a Coverage Advisory, insert it immediately after the comparison
-note and before the Mandatory Disclaimer.
+Then add the two blocks below, then (if Phase 3.6 produced one) the Coverage Advisory,
+then the Mandatory Disclaimer.
+
+### Acceptance-Readiness Summary
+
+```
+---
+### Acceptance-Readiness Summary
+
+**Ceiling verdict:** [from Phase 2.5]
+**Top flags:** [the 2-4 most consequential design-ceiling / unfixable / importance flags, each with its 1-line reason]
+**Implication for venue tier:** [1-2 sentences — e.g., "An unfixable single-center +
+surrogate-endpoint ceiling makes flagship venues unlikely without external validation;
+the recommendations above are routed to venues this design can clear."]
+
+_Advisory only — a risk band, not an acceptance prediction; flags are not auto-fixable._
+```
+
+### Cascade plan
+
+```
+---
+### Cascade plan (primary → reject-fallback)
+
+1. **Primary:** [top recommendation] — [why first]
+2. **If rejected:** [fallback 1] — [same-publisher transfer if applicable, else one tier
+   down / different scope angle]. Following the editor's transfer offer is worth it:
+   across publisher transfer desks more than half of transferred manuscripts are sent
+   to review and over a third are published — both above the average submission.
+3. **Then:** [fallback 2]
+
+[If the Phase 2.5 risk is IMPORTANCE rather than design, recommend a **presubmission
+inquiry** to the primary target before full submission — it lets the editor quick-assess
+contribution/fit and saves a desk-reject cycle.]
+
+[If a confidential corresponding-author editor-bar overlay exists in
+`$HOME/.claude/private-journal-profiles/find-journal/`, its notes have already been
+merged into the per-journal feasibility calls above.]
+```
 
 ---
 
@@ -278,10 +399,23 @@ Recommended verification sources:
 When the user indicates a manuscript was rejected from a specific journal:
 
 1. Exclude the rejecting journal from recommendations
-2. Prioritize journals at the **same tier or one tier lower** than the rejecting journal
-3. If rejected from Q1, recommend mix of Q1 (different scope angle) and strong Q2
-4. In the scope fit explanation, note how the recommendation differs from the rejected journal's focus
-5. Suggest any scope adjustments that might improve fit for the new target
+2. **Distinguish the rejection type — it changes the advice:**
+   - **Desk-reject (no peer review)** — usually an importance/novelty or design-ceiling
+     verdict, not a fixable-revision signal. Re-run Phase 2.5; if a ceiling/importance
+     flag is present, recommending the next same-tier venue will likely desk-reject
+     again. Route **one or two tiers down** (or to a tolerant/`accessible` venue), or
+     advise the design/importance fix first, and consider a **presubmission inquiry**.
+   - **Post-peer-review reject** — there may be a transfer offer and salvageable
+     reviews. Prefer a **same-publisher transfer** (Springer Nature Transfer Desk /
+     Elsevier Article Transfer Service / Wiley / Nature Portfolio) that carries the
+     referee reports; transferred manuscripts are reviewed and published at
+     above-average rates. Otherwise same tier or one down with the fatal flaw addressed.
+3. Prioritize journals at the **same tier or one tier lower** than the rejecting journal
+   (lower if the rejection was a desk-reject on importance/ceiling)
+4. If rejected from Q1, recommend mix of Q1 (different scope angle) and strong Q2
+5. In the scope fit explanation, note how the recommendation differs from the rejected journal's focus
+6. Suggest any scope adjustments — or, when Phase 2.5 found a ceiling, any design
+   changes — that might improve feasibility for the new target
 
 ### Case Report Mode
 

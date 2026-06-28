@@ -33,6 +33,14 @@ diagnostic radiology, AI in radiology, radiomics, deep learning, Korean radiolog
 ## Special Notes
 KJR is the leading English-language radiology journal in Asia, fully open access (USD 100 APC for accepted manuscripts; invited articles, Uncover This Tech Term, Emerging Rad Dx, and Letters are exempt). Indexed in PubMed/MEDLINE, SCIE, and Scopus. Particularly receptive to AI/radiomics studies and Korean population data. Faster turnaround than Western journals (Minor Revision within 30 days; Major Revision within 60 days). A pre-review "technical check" can *unsubmit* a manuscript for deterministic desk items — ascending float citation order (Tables / Supplementary Tables / Figures), demographics in Materials and Methods, one-decimal percentages, double spacing, Acknowledgments on the Title Page only, reporting checklist cited as "Supplementary Material 1", IRB number in Methods even when blinded, and ICMJE forms only after acceptance (see the write-paper profile's Technical-Check Conventions). References: Vancouver style with first six authors listed, then "et al." (≥7 authors). AI policy follows the journal's "Ethical and Responsible Use of Generative AI" statement (KJR 2026; https://doi.org/10.3348/kjr.2026.0166): AI cannot be author or primary scholarly source; AI use beyond routine language assistance must be disclosed in the relevant section or Acknowledgments; AI as study subject must be described in Materials and Methods; reviewers/editors must preserve confidentiality and disclose AI use beyond routine language assistance.
 
+## Acceptance Signals
+- **Selectivity band:** selective
+- **Desk-reject triggers:** out-of-scope topics (radiation oncology, dentistry/dental radiology, basic nuclear medicine); pre-review "technical check" can *unsubmit* for deterministic format items (ascending float citation order, demographics in Materials and Methods, one-decimal percentages, double spacing, Acknowledgments on Title Page only, reporting checklist as "Supplementary Material 1", IRB number in Methods even when blinded)
+- **Design expectations:** solid original studies; particularly receptive to AI/radiomics and Korean / East Asian population data
+- **Study-type tolerance:** broad (Original Article, Brief Research Report, plus short formats such as Uncover This Tech Term and Emerging Rad Dx)
+- **Review process:** pre-review technical-check desk gate; fast turnaround (Minor ≤30 d, Major ≤60 d); ICMJE forms only after acceptance
+- **Cascade / transfer:** full-OA society journal; peer Asian / society radiology journals as tier-equivalents
+
 ## Verification
 - **Source:** KJR-Instructions-202603.pdf (March 2026 official author instructions)
 - **Date:** 2026-05-21

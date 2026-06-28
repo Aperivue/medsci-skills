@@ -1,0 +1,18 @@
+ACCEPTANCE-READINESS PRE-FLIGHT
+file: manuscript.md
+note: advisory lexical scan — flags cap the venue tier a design can support;
+      not an acceptance prediction and not auto-fixable.
+
+flags:
+  L4  [DESIGN_CEILING] cross-sectional design :: cross-sectional data cannot support prognostic, causal, or surveillance claims
+  L4  [DESIGN_CEILING] single-center :: high-impact venues expect multi-center cohorts or external validation
+  L6  [DESIGN_CEILING] surrogate / non-invasive marker as endpoint :: a surrogate endpoint without a hard clinical or histologic endpoint caps clinical-impact claims
+  L7  [DESIGN_CEILING] no external validation :: a prediction/diagnostic model without external validation rarely clears a top venue
+  L7  [DESIGN_CEILING] pilot / preliminary framing :: appropriate for tolerant venues; high-impact originals expect a definitive design
+  L8  [UNFIXABLE_DEFECT] single-vendor / single-scanner :: vendor-locked acquisition is a hard generalizability ceiling
+  L11  [IMPORTANCE_RISK] negative / null framing :: a null/negative result needs explicit importance justification; low-impact nulls are desk-rejected
+  L12  [IMPORTANCE_RISK] incremental-gain framing :: incremental contribution is the single most common desk-rejection reason (~52%)
+  L15  [CLAIM_MISMATCH] management / surveillance claim :: verify the endpoint supports this action verb; a cross-sectional/surrogate design cannot
+
+summary: design_ceiling=5 unfixable_defect=1 importance_risk=2 claim_mismatch=1 total=9
+ceiling: HIGH-IMPACT VENUE UNLIKELY WITHOUT A DESIGN CHANGE
