@@ -77,7 +77,7 @@ root=Path('$REPO_ROOT')
 mk=json.load(open(root/'.claude-plugin'/'marketplace.json'))
 cat=json.load(open(root/'metadata'/'skills_catalog.json'))
 errs=[]
-# marketplace identity + 8 plugins
+# marketplace identity + one plugin per catalog category
 if mk.get('name')!='medsci-skills': errs.append('name != medsci-skills')
 if len(mk['plugins'])!=len(cat['categories']):
     errs.append('plugin count != category count')

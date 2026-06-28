@@ -2,6 +2,29 @@
 
 ## [Unreleased]
 
+## [5.0.0] - 2026-06-28
+
+### Changed
+
+- **v5.0.0 — storefront repositioning for the medical-AI model-engineering lane.** A material
+  distribution change, not a label bump: the model-engineering lane (built additively across
+  v4.x Phases 1–4 plus the Phase 5 breadth below) now has its own storefront home and the repo's
+  identity is widened to cover it.
+  - **New `model_engineering` storefront category** ("Model Engineering & Validation") and
+    **`medsci-modeling` marketplace plugin**, carved out of "Data & Study Design" (`medsci-data`).
+    The 6 lane skills — `architecture-zoo`, `model-scaffold`, `model-validation`, `model-card`,
+    `model-evaluation`, `mllm-eval` — now group under their own catalog filter and installable
+    plugin (`/plugin` now lists nine category plugins). Both catalog generators
+    (`gen_skills_catalog_json.py` category mapping/order, `gen_marketplace_json.py` plugin
+    name/description) and their self-tests cover the new category.
+  - **README + ROADMAP repositioned to the end-to-end identity**: MedSci Skills is an end-to-end
+    research tool for physician and medical-engineering researchers to design → scaffold →
+    validate → publish — for the clinical manuscript and the medical-AI model alike. "Clinical AI
+    model research engineering is in scope" is now explicit, while "not a general AI-scientist
+    platform" (and not a diagnostic tool or autonomous author) is kept; the lane **integrates**
+    MONAI / nnU-Net and never reimplements them or runs anything autonomously.
+  - Counts unchanged (**51 skills / 41 detectors / 38 reporting guidelines**); CI stays torch-free.
+
 ### Added
 
 - **Medical-AI model-engineering lane — Phase 5 (build-lane breadth).** Expands the existing

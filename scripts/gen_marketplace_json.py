@@ -62,6 +62,7 @@ OWNER = {"name": "Aperivue"}  # public org; no personal email (PII-safe)
 PLUGIN_NAME_BY_CATEGORY: dict[str, str] = {
     "literature_references": "medsci-literature",
     "data_study_design": "medsci-data",
+    "model_engineering": "medsci-modeling",
     "analysis_figures": "medsci-analysis",
     "writing_manuscript": "medsci-writing",
     "review_compliance": "medsci-review",
@@ -80,6 +81,12 @@ PLUGIN_DESC_BY_CATEGORY: dict[str, str] = {
         "Study design and validity review, literature-grounded variable "
         "operationalization, sample-size planning, data cleaning, de-identification, "
         "codebook generation, and dataset versioning."
+    ),
+    "model_engineering": (
+        "Clinical AI model research engineering: choose a paper-grounded architecture, "
+        "scaffold a reproducible PyTorch training repo, validate the model's split and "
+        "validation design, document it (Model Card / Datasheet), and evaluate models or "
+        "LLMs/MLLMs on clinical tasks. Integrates MONAI / nnU-Net, never replaces them."
     ),
     "analysis_figures": (
         "Reproducible statistical analysis, publication-ready figures, "

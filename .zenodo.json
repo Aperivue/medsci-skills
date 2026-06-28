@@ -1,6 +1,6 @@
 {
   "title": "MedSci Skills: Claude Code Skills for the Medical Research Lifecycle",
-  "description": "An opinionated, physician-built collection of Claude Code skills covering the full medical research workflow — literature search with anti-hallucination citation verification, study design, IRB protocols, statistical analysis, publication-ready figures, IMRAD manuscript drafting, reporting compliance audits against 32 EQUATOR guidelines (STARD, STARD-AI, TRIPOD+AI, CLAIM, PRISMA-DTA, STROBE, CONSORT, etc.), journal selection, peer review, and revision response. Three end-to-end demos with public datasets produce submission-ready manuscripts.",
+  "description": "An opinionated, physician-built collection of Claude Code skills covering the full medical research workflow — literature search with anti-hallucination citation verification, study design, IRB protocols, statistical analysis, publication-ready figures, IMRAD manuscript drafting, reporting compliance audits against 38 EQUATOR reporting guidelines and risk-of-bias tools (STARD, STARD-AI, TRIPOD+AI, CLAIM, PRISMA-DTA, STROBE, STROBE-MR, PGS-RS, CONSORT, etc.), journal selection, peer review, and revision response. As of v5.0 it adds a clinical AI model-engineering lane: choose a paper-grounded architecture, scaffold a reproducible, leakage-safe PyTorch training repo, and validate, document, and evaluate a medical-imaging or LLM/MLLM model — integrating MONAI / nnU-Net, never replacing them. Three end-to-end demos with public datasets produce submission-ready manuscripts.",
   "creators": [
     {
       "name": "Nam, Yoojin",
@@ -26,7 +26,11 @@
     "strobe",
     "pubmed",
     "irb-protocol",
-    "physician-researcher"
+    "physician-researcher",
+    "medical-imaging-ai",
+    "deep-learning",
+    "model-validation",
+    "reproducibility"
   ],
   "communities": [
     {"identifier": "open-research"}
@@ -40,5 +44,5 @@
     }
   ],
   "language": "eng",
-  "notes": "If you use MedSci Skills in your research, please cite this Zenodo record. The repository contains comprehensive documentation, three end-to-end demos with public datasets (Wisconsin Breast Cancer, BCG meta-analysis, NHANES), and 32 EQUATOR reporting guideline checklists."
+  "notes": "If you use MedSci Skills in your research, please cite this Zenodo record. The repository contains comprehensive documentation, three end-to-end demos with public datasets (Wisconsin Breast Cancer, BCG meta-analysis, NHANES), and 38 EQUATOR reporting guideline and risk-of-bias checklists."
 }

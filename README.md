@@ -4,7 +4,7 @@
 
 **51 skills that actually work.** Built by a physician-researcher, tested on real publications.
 
-*MedSci Skills is a submission-grade clinical manuscript workflow, not a generic biomedical skill catalog. Its moat is the compliance layer — 38 reporting guidelines and risk-of-bias tools, reference/citation verification, and deterministic integrity gates, before peer review sees the manuscript. It competes on clinical submission reliability, not skill count.*
+*MedSci Skills is an end-to-end research tool for physician and medical-engineering researchers — design → scaffold → validate → publish — for the clinical manuscript and the medical-AI model behind it. Its moat is the compliance layer — 38 reporting guidelines and risk-of-bias tools, reference/citation verification, and deterministic integrity gates before peer review — now extended by a model-engineering lane that scaffolds reproducible, leakage-safe training repos and audits model validation. Clinical AI model research engineering is in scope; a general AI-scientist platform is not. It competes on clinical submission reliability, not skill count.*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Release](https://img.shields.io/github/v/release/Aperivue/medsci-skills?style=flat-square&color=blue)](https://github.com/Aperivue/medsci-skills/releases/latest)
@@ -42,14 +42,20 @@
 ## What is MedSci Skills?
 
 MedSci Skills is an open-source Claude Code skill collection for **clinical
-manuscript preparation**. It helps physician-researchers and biomedical
-investigators move from literature search, study design, statistics, and figures to
-reporting-guideline compliance, citation/reference auditing, numerical-consistency
-checks, and response-to-reviewer workflows — combining agentic writing with
-**deterministic integrity gates** for submission-grade biomedical research. It is
-**not** a diagnostic tool, an autonomous author, or a general AI-scientist platform;
-every output requires human-expert verification. New here? See the
-[3 workflows below](#start-here-3-workflows), the [FAQ](docs/faq.md), and the
+research — the manuscript and the medical-AI model alike**. It helps
+physician-researchers and biomedical/medical-engineering investigators move from
+literature search, study design, statistics, and figures to reporting-guideline
+compliance, citation/reference auditing, numerical-consistency checks, and
+response-to-reviewer workflows — combining agentic writing with **deterministic
+integrity gates** for submission-grade biomedical research. As of **v5.0** it adds a
+**model-engineering lane**: choose a paper-grounded architecture, scaffold a
+reproducible, leakage-safe PyTorch training repo, and validate, document, and
+evaluate a medical-imaging or LLM/MLLM model so the work reaches a paper — it
+**integrates** MONAI / nnU-Net, never reimplements them. Clinical AI model research
+engineering is in scope; it is **not** a diagnostic tool, an autonomous author, or a
+general AI-scientist platform, and every output requires human-expert verification.
+New here? See the [3 workflows below](#start-here-3-workflows), the
+[FAQ](docs/faq.md), and the
 [scope boundary](ROADMAP.md#not-planned--explicitly-out-of-scope).
 
 ---
@@ -82,17 +88,18 @@ Restart Claude Code, then start with **`/orchestrate`** — it classifies your r
 
 ### Install as a Claude Code plugin
 
-Prefer plugins? One line adds the marketplace; `/plugin` then lets you browse eight category plugins and enable the ones you want:
+Prefer plugins? One line adds the marketplace; `/plugin` then lets you browse nine category plugins and enable the ones you want:
 
 ```text
 /plugin marketplace add Aperivue/medsci-skills
-/plugin            # browse eight category plugins; enable the ones you want
+/plugin            # browse nine category plugins; enable the ones you want
 ```
 
 | Plugin | Covers |
 |--------|--------|
 | `medsci-literature` | Literature search, full-text retrieval, Zotero sync, reference-integrity audits |
 | `medsci-data` | Study design, variable operationalization, sample size, data cleaning, de-identification, codebooks, dataset versioning |
+| `medsci-modeling` | Architecture selection, reproducible model-scaffold repos, model-validation audits, Model Card/Datasheet, model & LLM/MLLM evaluation |
 | `medsci-analysis` | Statistics, figures, batch/cross-national/replication analysis, meta-analysis |
 | `medsci-writing` | IMRAD & protocol drafting, AI-pattern removal, AI-search optimization, reviewer responses |
 | `medsci-review` | Self-review, peer review, reporting-guideline compliance |
@@ -452,7 +459,7 @@ ma-scout -> search-lit -> fulltext-retrieval -> design-study ──> write-proto
 | **design-study** | Study design review: identifies analysis unit, cohort logic, data leakage risks, comparator design, validation strategy, and reporting guideline fit. |
 | **design-ai-benchmarking** | Design and validity review for benchmarking AI system(s) against a human-expert panel: evaluation-question and arm definition, decoupled multi-dimensional rubrics with anchors, planted calibration probes (positive-control / known-bad / instability / mechanism-contradiction), reviewer-panel construction with per-reviewer randomization, inter-rater reliability targets with separate control-item reliability, LLM-as-judge vs human-as-judge adjudication, construct-independence guards, and a structured JSON rating-export schema. Locks the rubric before data collection. |
 | **model-validation** | Design or audit the clinical-validation study for an engineer-built medical-imaging model (segmentation / classification / detection): patient-level split disjointness and the data-leakage taxonomy, tuning-on-test, internal vs genuine external validation, comparator design, single-run vs multi-seed variance, task-correct metric selection (Metrics Reloaded), test-set sizing, and CLAIM 2024 / TRIPOD+AI / STARD-AI reporting fit. Ships a deterministic split-leakage gate that proves patient disjointness by set arithmetic on the emitted split table. Integrates with MONAI / nnU-Net — does not replace them. |
-| **model-scaffold** | Generate a reproducible, runnable PyTorch training repo for a medical-imaging segmentation task — the missing middle link between choosing an architecture and validating a trained model. Emits a patient-level seed-locked split as an auditable artifact, a configurable U-Net, train/evaluate scripts that seed every RNG and infer under eval mode, a config, requirements, a reproducibility record, and a Methods stub with VERIFY placeholders (no fabricated numbers). Reproducibility holds by construction; ships a `check_training_hygiene` AST gate + a network-free build→validate challenge. Integrates with MONAI / nnU-Net / TorchIO — does not reimplement them. |
+| **model-scaffold** | Generate a reproducible, runnable PyTorch training repo for a medical-imaging task — segmentation (U-Net), classification, detection, image-to-image synthesis, or self-supervised pretraining — the missing middle link between choosing an architecture and validating a trained model. Emits a patient-level seed-locked split as an auditable artifact, a task-appropriate model, train/evaluate scripts that seed every RNG and infer under eval mode, a config, requirements, a reproducibility record, and a Methods stub with VERIFY placeholders (no fabricated numbers). Reproducibility holds by construction; ships a `check_training_hygiene` AST gate + a network-free build→validate challenge. Integrates with MONAI / nnU-Net / TorchIO / timm / torchvision — does not reimplement them. |
 | **architecture-zoo** | "Which architecture for which research question" decision tool: maps task (classification / segmentation / detection / transfer), modality, data scale, and class imbalance to a paper-grounded architecture shortlist. Curates the foundational curriculum (ResNet / DenseNet / EfficientNet / ViT / Swin; U-Net / 3-D U-Net / Attention & Residual U-Net / nnU-Net / Mask R-CNN; SAM/MedSAM / TotalSegmentator / BiomedCLIP / DINO / MAE / SimCLR) — each with core idea, when-to-use, medical-imaging use, reference implementation, validation setup, and the matching model-scaffold template. Advisory; teaches archetypes, not a live SOTA leaderboard. |
 | **model-card** | Generate the documentation an engineer-built medical-imaging model must carry — a Model Card (Mitchell et al. 2019), a Datasheet for its dataset (Gebru et al. 2021), and a METRIC-informed data-quality pass — filled from user-supplied facts (never fabricated), then verify every required section is present and non-empty with a deterministic completeness gate (`check_model_card_complete`). Model Card / Datasheet are documentation standards vendored as templates, not counted reporting checklists. |
 | **model-evaluation** | Compute and report task-correct held-out metrics for a trained medical-imaging model — segmentation (Dice + a boundary metric HD95/NSD, per structure), classification (AUROC + AUPRC + sensitivity/specificity with bootstrap CIs at the deployment prevalence), or detection (FROC/mAP with a stated IoU criterion) — plus calibration and subgroup slices. Emits a per-case table for analyze-stats and gates the metric choice against Metrics Reloaded / CLAIM 2024 (`check_metric_reporting`). Numbers come only from executed code. |
