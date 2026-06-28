@@ -38,6 +38,27 @@
     (Major), `MISSING_SEED` (Major), `SINGLE_PARTITION` (Minor); train/validation/holdout synonyms
     collapse so a labelling variant never trips it. Stdlib-only, network-free, with a reproducible
     challenge card + CI-wired regression test. Integrity detectors 36 → 37.
+- **Medical-AI model-engineering lane — Phase 2 (build/scaffold).** Completes the
+  build → validate chain in-repo, staged after Phase 1's verification contract. Clinician-anchored
+  (a *reproducible research scaffold generator that integrates MONAI / nnU-Net*, not a replacement);
+  default CI stays torch-free.
+  - **New skill `/model-scaffold`** (Layer B) — `scaffold.py` stamps out a runnable PyTorch
+    segmentation training repo (configurable U-Net, `dataset.py`, `losses.py`, `train.py`,
+    `evaluate.py`, `config.yaml`, `requirements.txt`, `REPRODUCIBILITY.md`, `methods_stub.md`) with
+    the reproducibility guarantees baked in **by construction**: a patient-level seed-locked split
+    written as an auditable artifact (`splits/split_assignment.csv` + `split_seed.txt`, disjoint by
+    construction so it clears `/model-validation`'s `check_split_leakage`), all-RNG seeding + cuDNN
+    determinism, a train-only loader, and `eval()` + `no_grad()` inference. No fabricated numbers
+    (`[VERIFY]` placeholders). Skills 46 → 47.
+  - **New deterministic detector `check_training_hygiene.py`** (`/model-scaffold`) — conservative
+    AST linter (flag-not-prove, the training-code analogue of `check_generated_code`): all RNGs
+    seeded, cuDNN deterministic, `eval()` + `no_grad()` inference, no training on a non-train split.
+    Verdicts `SEED_INCOMPLETE` / `MISSING_EVAL_MODE` / `TRAIN_ON_NONTRAIN_SPLIT` (Major),
+    `CUDNN_NONDETERMINISTIC` / `EVAL_SHUFFLE` (Minor). Integrity detectors 37 → 38.
+  - **`scaffold_challenge`** executes the build → validate chain network-free: scaffold a repo →
+    deterministic split matches the frozen expected + is patient-disjoint (proven inline) → passes
+    `check_training_hygiene` → a **self-skipping** torch tier (forward shape + gradients + reproducible
+    loss when torch is installed; `SKIP`, never CI coverage of runnability, when absent).
 
 ## [4.10.0] - 2026-06-28
 

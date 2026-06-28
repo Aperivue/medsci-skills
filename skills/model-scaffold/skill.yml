@@ -1,0 +1,46 @@
+schema_version: 2
+name: model-scaffold
+layer: B
+owner_domain: model_development
+maturity: official
+
+when_to_use: "Stand up a reproducible, runnable PyTorch training repo for a medical-imaging segmentation task with a patient-level seed-locked split, a configurable U-Net, hygienic train / evaluate scripts, and a Methods stub — so the build is leakage-safe and reproducible by construction before any training runs."
+when_NOT_to_use: "Auditing an already-trained model's validation design (use model-validation); held-out metric computation / calibration / bootstrap CIs (use model-evaluation, then analyze-stats); choosing which architecture fits the research question (use architecture-zoo when available); reimplementing MONAI / nnU-Net / TorchIO (this skill integrates them, it does not replace them); LLM / MLLM work (use mllm-eval)."
+
+inputs:
+  - "data manifest CSV (one row per image, with a patient/subject ID column and image/label paths)"
+  - "task / architecture choice (segmentation; U-Net) and channel + split-fraction settings"
+outputs:
+  - "a runnable PyTorch repo (config.yaml, model.py, dataset.py, losses.py, train.py, evaluate.py, requirements.txt, REPRODUCIBILITY.md, methods_stub.md)"
+  - "a frozen patient-level split artifact (splits/split_assignment.csv + split_seed.txt)"
+  - "training-hygiene audit JSON (deterministic)"
+deterministic_scripts:
+  - scripts/scaffold.py
+  - scripts/check_training_hygiene.py
+side_effects:
+  - writes_project_artifacts
+downstream_consumers:
+  - model-validation
+  - model-evaluation
+  - analyze-stats
+  - make-figures
+  - write-paper
+  - check-reporting
+forbidden_actions:
+  - fabricate_training_or_evaluation_metrics
+  - emit_a_split_that_is_not_patient_disjoint_or_not_seed_locked
+  - emit_training_code_without_seeding_every_rng
+
+# v2.1 quality card
+purpose: "Generate a leakage-safe, reproducible training repo for a medical-imaging model so the reproducibility guarantees (patient-disjoint seed-locked split, all-RNG seeding, cuDNN determinism, eval-mode inference) hold by construction rather than by hand-editing."
+safety_boundaries:
+  - "The split is patient-level and seed-locked by construction (deterministic group split); the generator never emits an image-level or unseeded split."
+  - "No metric is fabricated — methods_stub.md carries [VERIFY] placeholders; numbers come only from the user's executed training and from model-evaluation / analyze-stats."
+known_limitations:
+  - "Runnability of the generated repo (build + forward pass) is verified by an optional local torch-cpu command, not by the default CI gate (which checks the network-free parts: split disjointness + training hygiene)."
+  - "Dataset I/O is a stub (the user plugs in their DICOM / NIfTI / TIFF reader); the generator does not read pixels."
+validation_commands:
+  - "python3 scripts/scaffold.py --manifest <manifest.csv> --out model_repo --seed 42"
+  - "python3 scripts/check_training_hygiene.py --repo model_repo --strict"
+  - "bash scripts/scaffold_challenge/verify.sh  # deterministic, network-free (torch tier self-skips)"
+evidence_surface: ci_validator
