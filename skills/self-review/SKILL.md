@@ -292,6 +292,7 @@ These modules carry the same domain-specific critique probes used by `/peer-revi
 | Narrative / review article / primer / state-of-the-art | `references/domain-probes/narrative_review.md` (RV1–RV9) |
 | AI/ML primary study with a clinical claim (generalizable / outperforms clinicians / deployment-ready / can replace a reader) | `references/domain-probes/ai_overclaiming.md` (AO0–AO6) |
 | Engineer-built medical-imaging model (segmentation / classification / detection; CNN / U-Net / nnU-Net / transformer) being validated — partition/leakage, seed & run variance, metric selection, reproducibility, reference-standard quality | `references/domain-probes/model_development.md` (MD0–MD8) |
+| LLM / MLLM evaluated on a clinical task (radiology report generation, visual question answering, clinical text extraction/classification; closed API or open weights) | `references/domain-probes/mllm_evaluation.md` (ME0–ME8) |
 | Randomised controlled trial (parallel / crossover / cluster / stepped-wedge) | `references/domain-probes/rct_trial.md` (RC0–RC7) |
 | Diagnostic test accuracy (DTA) primary study / multi-reader multi-case (MRMC) reader study (index test vs reference standard, AI-vs-reader, modality comparison) | `references/domain-probes/diagnostic_accuracy.md` (D1–D8) |
 | Case report / case series / single-patient clinical narrative (incl. adverse-event/pharmacovigilance and imaging-led radiology/nuclear-medicine/IR reports) | `references/domain-probes/case_report.md` (CR1–CR9) |

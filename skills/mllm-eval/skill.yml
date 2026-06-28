@@ -1,0 +1,44 @@
+schema_version: 2
+name: mllm-eval
+layer: D
+owner_domain: model_evaluation
+maturity: official
+
+when_to_use: "Design or audit a model-agnostic evaluation harness for an LLM or multimodal LLM on a clinical task (radiology report generation, visual question answering, clinical text extraction/classification) — the reference standard, clinical-efficacy metrics (RadGraph-F1 / CheXbert-F1 beyond BLEU/ROUGE), faithfulness/hallucination, pretraining-contamination of public benchmarks, prompt-sensitivity/determinism, answer-matching, and a reader study — and check the plan covers them. Works on a closed API or open weights."
+when_NOT_to_use: "Benchmarking against a human-expert panel with a rated rubric (use design-ai-benchmarking); evaluating an imaging prediction/segmentation model (use model-evaluation + model-validation); image-to-image generative models (use the image_synthesis probe); training or serving the LLM (out of scope); item-level TRIPOD-LLM / MI-CLEAR-LLM compliance of a finished manuscript (use check-reporting)."
+
+inputs:
+  - "the clinical task + the model(s) under test (API name/version or open-weights id) and decoding settings"
+  - "model outputs (generated reports / VQA answers / labels) and a reference standard (optional, for computable metrics)"
+  - "the evaluation plan / methods draft (for the completeness audit)"
+outputs:
+  - "an MLLM evaluation-harness design / audit (decision notes), naming the clinical-efficacy metrics it specifies and routes (RadGraph-F1 / CheXbert-F1) and the not-yet-measured axes (faithfulness, contamination, reader study)"
+  - "a Methods stub"
+  - "mllm-eval completeness audit JSON (deterministic)"
+deterministic_scripts:
+  - scripts/check_mllm_eval_completeness.py
+side_effects:
+  - writes_decision_notes
+downstream_consumers:
+  - design-ai-benchmarking
+  - calc-sample-size
+  - check-reporting
+  - write-paper
+  - self-review
+forbidden_actions:
+  - fabricate_model_outputs_reference_labels_or_metric_scores
+  - report_n_gram_overlap_as_clinical_correctness
+  - claim_no_contamination_without_a_stated_check
+
+# v2.1 quality card
+purpose: "Make an LLM/MLLM clinical evaluation defensible — a real adjudicated reference standard, faithfulness measured not assumed, clinical-efficacy metrics beyond n-gram overlap, a pretraining-contamination check, prompt-sensitivity disclosed, and a reader study where text is generated — and gate the plan for those axes."
+safety_boundaries:
+  - "Model-agnostic and read-only: it never runs or fine-tunes the model; it audits the eval design and specifies / routes the clinical-efficacy metrics (RadGraph-F1 / CheXbert-F1 via their published extractors) rather than computing them itself."
+  - "It never converts BLEU/ROUGE into a clinical-correctness claim, and never asserts no contamination without a stated check."
+known_limitations:
+  - "RadGraph-F1 / CheXbert-F1 require their published extractors; the skill specifies and routes to them but does not vendor model weights."
+  - "Closed-API non-determinism and undisclosed pretraining corpora cap how strongly contamination can be excluded."
+validation_commands:
+  - "python3 scripts/check_mllm_eval_completeness.py --plan <plan.md> --task report_generation|vqa|classification --strict"
+  - "bash scripts/mllm_eval_completeness_challenge/verify.sh  # deterministic, network-free"
+evidence_surface: ci_validator

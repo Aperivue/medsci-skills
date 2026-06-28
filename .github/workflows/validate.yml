@@ -251,6 +251,18 @@ jobs:
       - name: Run model-card completeness gate test
         run: bash skills/model-card/tests/test_model_card_complete.sh
 
+      - name: Run model-evaluation metric-reporting challenge
+        run: bash skills/model-evaluation/scripts/metric_reporting_challenge/verify.sh
+
+      - name: Run model-evaluation metric-reporting gate test
+        run: bash skills/model-evaluation/tests/test_metric_reporting.sh
+
+      - name: Run mllm-eval completeness challenge
+        run: bash skills/mllm-eval/scripts/mllm_eval_completeness_challenge/verify.sh
+
+      - name: Run mllm-eval completeness gate test
+        run: bash skills/mllm-eval/tests/test_mllm_eval_completeness.sh
+
       - name: Run analyze-stats generated-code gate test
         run: bash skills/analyze-stats/tests/test_generated_code.sh
 
