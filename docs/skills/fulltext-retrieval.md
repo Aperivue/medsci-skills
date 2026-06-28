@@ -22,14 +22,23 @@
 **Known limitations**
 
 - Only open-access content is retrievable; non-OA DOIs fail by design rather than fetching from unauthorized sources.
+- Higher-yield in-library retrieval (find_available_pdf.js) is user-initiated inside Zotero and uses the user's own proxy/OpenURL config; it is not reproducible CI evidence.
+- Title cross-check is best-effort: it needs a Title column plus pdftotext (poppler); otherwise title_match is 'unavailable'. A mismatch is flagged, never auto-rejected.
 - PDF-to-Markdown conversion requires the optional pymupdf4llm dependency (AGPL-3.0 or commercial license).
 
 **Validation**
 
-- `python fetch_oa.py dois.txt -o pdfs/ -e <email> --verbose   # per-DOI source trace`
+- `bash fetch_oa_report_challenge/verify.sh   # offline report-builder + title tri-state (CI-wired)`
+- `python fetch_oa.py dois.txt -o pdfs/ -e <email> --report pdfs/retrieval_report.json --verbose   # per-DOI source trace`
 - `verify each output begins with %PDF- and is at least 10 KB`
 
 **Evidence** — `bundled_script`
+
+## Bundled resources
+
+**References** (`skills/fulltext-retrieval/references/`):
+
+- `find_available_pdf.js`
 
 ## Source
 

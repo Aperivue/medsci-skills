@@ -45,6 +45,8 @@ Dual-path behavior: `SSOT.yaml` preferred, `project.yaml` warns, neither fails.
 | `qc/status.json` | pipeline runner | all | advisory | Runtime pipeline state. |
 | `qc/reference_audit.json` | `/verify-refs` | `/render`, pre-save hooks | read-only (consumers) | Citation audit output. |
 | `references/library.bib` | `/search-lit` (produces verified candidates) | `/lit-sync` (imports to Zotero), `/verify-refs` | advisory | Not the SSOT bibliography; that is `manuscript/_src/refs.bib`. |
+| `references/fulltext_retrieval.json` | `/lit-sync` (Phase 2.7) | `/meta-analysis`, human reviewers | advisory | Opt-in fulltext-retrieval report: retrieved (OA-disk / Zotero-native, user-reported) vs not-retrieved + institutional-fallback list + title-match flags. |
+| `pdfs/` + `pdfs/retrieval_report.json` | `/fulltext-retrieval` (engine) | `/lit-sync`, `/meta-analysis`, `/obsidian-paper-vault` | none | OA PDFs + per-DOI `status` (arxiv/oa/pmc/skip/fail), `source`, and `title_match` (match / mismatch / unavailable). Engine report; `/lit-sync` merges it into `references/fulltext_retrieval.json`. |
 
 ## `.journal_meta.json` Standard (v1.1.1)
 
@@ -156,5 +158,6 @@ The prose summary can explain the decisions, but downstream stages consume the J
 
 ## Change log
 
+- **2026-06-29** Roster: added `references/fulltext_retrieval.json` (sole writer `/lit-sync`, opt-in Phase 2.7) and `pdfs/` + `pdfs/retrieval_report.json` (writer `/fulltext-retrieval`). OA cascade consolidated to the `/fulltext-retrieval` engine; `/search-lit` Phase 5 delegates to it.
 - **2026-04-24 v1.1.1** `.journal_meta.json` standardized; roster updated for `refs.bib` sole writer = `/lit-sync`; `qc/reference_audit.json` sole writer = `/verify-refs` (write logic to be removed from `/verify-refs` in Phase 1A).
 - **v1.0** Initial contract (project.yaml era).

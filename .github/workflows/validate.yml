@@ -227,6 +227,9 @@ jobs:
       - name: Run fulltext-retrieval pdf_to_md helper test
         run: python3 skills/fulltext-retrieval/tests/test_pdf_to_md.py
 
+      - name: Run fulltext-retrieval report-builder challenge
+        run: bash skills/fulltext-retrieval/fetch_oa_report_challenge/verify.sh
+
       - name: Run self-review scope-coherence gate test
         run: bash skills/self-review/tests/test_scope_coherence.sh
 
