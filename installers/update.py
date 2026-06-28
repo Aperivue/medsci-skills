@@ -517,6 +517,25 @@ def register_session_hook(home: Path, settings_path: Path) -> str:
     return "enabled"
 
 
+def session_hook_enabled(home: Path, settings_path: Path) -> bool:
+    """Read-only: True iff our SessionStart update-notify hook is currently registered in
+    settings.json. Never writes; tolerant of an absent/empty/unreadable settings file (False).
+    Used by the installer to decide whether to print the one-time enable-reminders nudge."""
+    try:
+        if not settings_path.is_file():
+            return False
+        settings = _load_settings(settings_path)
+        if not isinstance(settings, dict):
+            return False
+        hooks = settings.get("hooks")
+        ss = hooks.get("SessionStart") if isinstance(hooks, dict) else None
+        if not isinstance(ss, list):
+            return False
+        return any(_entry_owns_hook(e, home) for e in ss)
+    except Exception:  # noqa: BLE001 - read-only nudge gate, never block install
+        return False
+
+
 def unregister_session_hook(home: Path, settings_path: Path) -> str:
     """Opt-out: remove ONLY our SessionStart hook (even if it shares an entry with other hooks),
     preserving everything else; drop emptied containers. Returns 'disabled' or 'not-enabled'."""

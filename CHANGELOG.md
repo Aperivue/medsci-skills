@@ -2,6 +2,41 @@
 
 ## [Unreleased]
 
+### Added
+
+- **Three new reviewer domain-probe modules** (`/peer-review` + `/self-review`, vendored
+  byte-identical), reverse-engineered from high-IF CC-BY papers under the `reverse_engineer/`
+  license firewall: **`mendelian_randomization.md`** (MR1–MR8: the three IV assumptions, a
+  pleiotropy-robust sensitivity suite rather than IVW alone, Steiger/direction, sample overlap,
+  non-linear-MR caution, drug-target colocalization); **`polygenic_risk_score.md`** (PG1–PG8:
+  ancestry transferability/portability, base/target leakage, incremental value over the clinical
+  model, screening detection-rate-vs-discrimination, target-population calibration);
+  **`network_meta_analysis.md`** (NM1–NM8: transitivity, global+local incoherence, SUCRA/P-score
+  over-interpretation, CINeMA/GRADE-NMA certainty, component-NMA additivity). Domain-probe modules
+  12 → 15.
+- **Observational probe O17** (`observational_confounding.md`) — agnostic many-exposure-scan
+  multiplicity (ExWAS / EWAS / MWAS): correction matched to claim against the honest test-count
+  denominator, independent replication as the real safeguard, correlated-exposure conservatism,
+  selective top-hit reporting.
+- **Two reporting-guideline checklists** (`/check-reporting`): **STROBE-MR** (Mendelian
+  randomization) and **PGS-RS / PRS-RS** (polygenic-score risk prediction), with study-type
+  routing + aliases. Reporting guidelines 36 → 38.
+- **Four `/analyze-stats` analysis guides**: multiple-testing/high-dimensional screening,
+  Mendelian randomization, polygenic risk score, and network meta-analysis.
+- **`/clean-data` implausible-value & cross-field validity rules** reference — organ-system
+  compatible-with-life bounds + cross-field logical-consistency rules (temporal ordering,
+  derived-vs-source, sex-/state-specific), flag-not-auto-fix.
+
+### Changed
+
+- **Clinician-friendly update reminders.** The classroom installers
+  (`install-macos.command` / `install-windows.cmd` / `install-windows.ps1`) now enable the in-app
+  "update available" notice and the one-click Desktop updater by default (turnkey path; disable
+  with `--disable-update-notify` or `MEDSCI_NO_UPDATE_CHECK=1`). For the `npx`/manual paths the
+  installer prints a one-time nudge showing how to turn reminders on (`--enable-update-notify`),
+  and the README Quick Start recommends it. New read-only `update.session_hook_enabled()` gates the
+  nudge; the `npx`/manual paths stay opt-in (no silent SessionStart hook).
+
 ## [4.9.0] - 2026-06-26
 
 ### Added

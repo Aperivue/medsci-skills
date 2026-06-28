@@ -64,6 +64,12 @@ every output requires human-expert verification. New here? See the
 npx medsci-skills install        # copies every skill into your agent's folder
 ```
 
+**Recommended (especially for clinicians):** add `--enable-update-notify` so Claude Code shows a one-line *"update available"* notice when a new version ships — otherwise you stay on the version you installed and are never told. (No terminal at all? The classroom installer below turns this on for you.)
+
+```bash
+npx medsci-skills install --enable-update-notify        # install + in-app update reminders
+```
+
 **Have git?** Install every skill in three commands:
 
 ```bash
@@ -497,6 +503,8 @@ After unzipping:
 - Windows: double-click `installers/install-windows.cmd`
 - macOS: double-click `installers/install-macos.command`
 
+This turnkey install also **turns on in-app update reminders** and adds an **"Update MedSci Skills"** Desktop icon, so you are told when a new version ships and can update with one click — no terminal needed (see [Updating](#updating)).
+
 Then restart Claude Code Desktop, Codex Desktop, or Cursor and test with:
 
 ```text
@@ -548,19 +556,22 @@ See [docs/classroom_distribution_plan.md](docs/classroom_distribution_plan.md) a
 
 MedSci Skills updates often. You do **not** need GitHub, git, or the command line to stay current.
 
-- **One click (recommended for the classroom install).** After installing, an updater is placed at
-  `~/.medsci-skills/updater/` (and, if you chose `--desktop-launcher`, an **"Update MedSci Skills"**
-  icon on your Desktop). Double-click it: it downloads the latest release from GitHub, verifies it,
-  and re-installs — transactionally, so an interrupted update never corrupts your install.
+- **One click (recommended for the classroom install).** The classroom installer (Option 1) now
+  sets this up for you automatically — it places an updater at `~/.medsci-skills/updater/`, drops an
+  **"Update MedSci Skills"** icon on your Desktop (`--desktop-launcher`), and **turns on the in-app
+  update reminder** (below). Double-click the icon: it downloads the latest release from GitHub,
+  verifies it, and re-installs — transactionally, so an interrupted update never corrupts your install.
 - **Already installed an old copy?** Re-download the latest classroom ZIP **once** and double-click
   the installer; from then on the one-click updater is in place for every future update.
 - **Terminal users:** `npx medsci-skills@latest install` always installs the latest.
 - **Just checking:** `python3 installers/install.py --check-update` reports whether a newer version
   is available and installs nothing.
-- **Get reminded (opt-in, Claude Code):** `python3 installers/install.py --enable-update-notify`
-  shows a one-line *"update available"* notice when a Claude Code session starts. It is **off by
-  default**, checks at most once a day, reads nothing about your session, and never installs
-  anything. Turn it off with `--disable-update-notify`, or silence it with `MEDSCI_NO_UPDATE_CHECK=1`.
+- **Get reminded (Claude Code):** `python3 installers/install.py --enable-update-notify` (or
+  `npx medsci-skills install --enable-update-notify`) shows a one-line *"update available"* notice
+  when a Claude Code session starts. **The classroom installer enables this for you;** for the
+  `npx`/manual paths it is **off by default** (the installer prints how to turn it on). It checks at
+  most once a day, reads nothing about your session, and never installs anything. Turn it off with
+  `--disable-update-notify`, or silence it with `MEDSCI_NO_UPDATE_CHECK=1`.
 - **Claude Code plugin marketplace:** third-party marketplace **auto-update is off by default** —
   enable it in Claude Code or run a manual plugin update.
 

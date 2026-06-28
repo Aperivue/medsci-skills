@@ -286,6 +286,19 @@ def main() -> int:
         except Exception as exc:  # noqa: BLE001
             log(f"\n[updater] could not install the one-click updater ({exc}); updates still work via re-running the installer.", log_lines)
 
+    # One-time nudge: if the in-app update reminder is not enabled, surface how to turn it on.
+    # (The classroom installers enable it automatically; this covers npx / manual installs so a
+    # clinician who installed via "install this repo" is told how to get update notices.) Read-only.
+    if not args.dry_run:
+        try:
+            import update  # noqa: PLC0415
+            if not update.session_hook_enabled(medsci_txn.state_home(), update.default_settings_path()):
+                log("\n[update reminders] OFF — Claude Code will not tell you when a new version is out.", log_lines)
+                log("  Turn on with:  npx medsci-skills install --enable-update-notify", log_lines)
+                log("  (or:           python3 installers/install.py --enable-update-notify)", log_lines)
+        except Exception:  # noqa: BLE001 - nudge is best-effort, never block the install
+            pass
+
     if failures:
         log(f"\nCompleted with errors on: {', '.join(failures)}. Other targets are fully installed.", log_lines)
         log("If this happened during class, send the install log to the instructor.", log_lines)
