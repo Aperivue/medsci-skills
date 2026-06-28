@@ -38,8 +38,9 @@
 - `critic_rubrics/` (1 file)
 - `generate_pptx_templates.py`
 - `medical_presentation_templates.md`
+- `presentation_design_guidelines.md`
 - `slide_design_principles.md`
-- `slide_visual_styles/` (1 file)
+- `slide_visual_styles/` (6 files)
 - `workflow-checklist.md`
 
 **Scripts** (`skills/present-paper/scripts/`):
@@ -47,6 +48,7 @@
 - `extract_pdf_figures.py`
 - `inject_pronunciation_notes.py`
 - `inject_speaker_notes.py`
+- `inspect_pptx_template.py`
 - `strip_notes_for_sharing.py`
 - `trim_caption.py`
 

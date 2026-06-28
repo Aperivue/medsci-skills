@@ -40,28 +40,33 @@ Use it when:
 
 ### Step 0a — Load design references (read before drafting outline)
 
-Before collecting inputs, the skill loads three reference files:
+Before collecting inputs, the skill loads these reference files:
 
 1. **`references/slide_design_principles.md`** — Reynolds (Presentation Zen) +
    Duarte (Slide:ology Glance Test™) + Knaflic (Storytelling with Data preattentive
-   attributes) + Tufte (Cognitive Style of PowerPoint). Defines the 5 design
-   principles, reading-time budgets per audience, cognitive-load ceilings, and the
-   anti-patterns this skill is built to avoid. **Read this first** — it shifts the
-   outline from "what content fits" to "what should the audience remember 10 seconds
-   after each slide."
-2. **`references/medical_presentation_templates.md`** — Section structure, slide counts,
+   attributes) + Tufte (Cognitive Style of PowerPoint). The design *theory*. **Read this
+   first** — it shifts the outline from "what content fits" to "what should the audience
+   remember 10 seconds after each slide."
+2. **`references/presentation_design_guidelines.md`** — the *operational* companion to
+   #1: concrete, enforceable rules (assertion headlines, 24-pt floor, 30–35% negative
+   space, ≤3 colors, colorblind-safe palettes, redraw-don't-screenshot, animation
+   discipline) plus a G1–G10 self-check the Phase 3.5 critic scores against. Read with #1.
+3. **`references/medical_presentation_templates.md`** — Section structure, slide counts,
    and design seeds for the 5 contexts: journal club, grand rounds, conference talk,
    lecture, and academic lecture multi-paper survey. Pick the matching template after
    Phase 0 inputs are collected, then customize.
-3. **`references/slide_visual_styles/`** — visual style specs (color palette, typography,
-   layout grid, slide-type templates) callable from any of the 5 context templates.
-   Currently available: `nature_lancet.md` (Nature/Lancet aesthetic — white background,
-   navy primary, coral accent, Inter/Pretendard). Default for academic lectures per
-   `~/.claude/rules/academic-lecture-style.md`. Paired with the generic builder
-   `templates/build_pptx_nature_lancet.py` and the PDF figure extractor
+4. **`references/slide_visual_styles/CATALOG.md`** — the menu of visual styles (palette +
+   typography + layout-grid + slide-type recipes) callable from any of the 5 context
+   templates. Available: **Nature/Lancet** (`nature_lancet.md`, default for medical
+   academic decks), **Clinical Blue** (`clinical_blue.md`, grand rounds/CME, CVD-safe),
+   **Editorial Mono** (`editorial_mono.md`, single-message keynote), **Dark Modern**
+   (`dark_modern.md`, AI/tech talks), and **Institutional Brand** (`institutional_brand.md`,
+   fill a venue's branded template). Nature/Lancet has a dedicated builder
+   (`templates/build_pptx_nature_lancet.py`); the others swap design tokens into the
+   generic builder (`references/generate_pptx_templates.py`). PDF figures →
    `scripts/extract_pdf_figures.py`.
 
-These two files mirror the entry-point pattern used in
+These mirror the entry-point pattern used in
 `make-figures/references/design_principles.md` (Step 1 "Specify"). Both skills share
 the same Reynolds / Knaflic / Tufte foundations — slide-level (this skill) and
 figure-level (make-figures) are companions, not duplicates.
@@ -76,7 +81,38 @@ Before starting, collect these from the user:
 | **Presentation time** | Determines depth and slide count |
 | **Target audience** | Specialty mix, knowledge level — controls terminology depth |
 | **Context** | Course name, conference, journal club format, prior session topics |
+| **Template / visual style** | Institutional template (.pptx/.potx) to fill, or a visual style to generate in. Default: ask (Step 0b) |
 | **Extension section** | Optional topic to include (e.g., AI directions, clinical implications). Default: none |
+
+### Step 0b — Template & visual style selection
+
+After collecting the inputs above and **before** drafting the outline, settle how the
+deck will look. Ask the user two questions (use `AskUserQuestion`; skip a question if the
+user already answered it in their request):
+
+**Q1 — "Do you have an institutional or branded template to use?"**
+- **Yes** → the user supplies a `.pptx`/`.potx`. Switch to **Mode C** (Phase 3, "Fill an
+  institutional template"): run `scripts/inspect_pptx_template.py <file>` to list its
+  layouts/placeholders/theme, then fill by placeholder index, preserving the master and
+  logo. See `references/slide_visual_styles/institutional_brand.md`. Do **not** also ask
+  Q2 — the template's theme *is* the style.
+- **No / none** → ask Q2.
+
+**Q2 — "Which visual style should I generate in?"** Offer the `CATALOG.md` menu with a
+one-line preview each (make the recommended option first and label it):
+
+| Option | One-line preview |
+|--------|------------------|
+| **Nature / Lancet** *(recommended for medical academic talks)* | White, navy + coral accent, hairline dividers, Inter/Pretendard — restrained editorial-academic |
+| **Clinical Blue** | White/light-blue, navy-teal, calm and trustworthy, colorblind-safe — grand rounds / CME |
+| **Editorial Mono** | High-contrast black-on-white, oversized type, one accent — single big-message keynote |
+| **Dark Modern** | Deep-slate background, off-white text, electric accent — AI / method / tech talks |
+| **Other** | Describe a palette/feel, or name a journal/brand to emulate |
+
+Record the choice; pass the matching style spec to Phase 3. If the user has no
+preference and the talk is a medical academic talk, default to **Nature / Lancet**
+(`~/.claude/rules/academic-lecture-style.md`). Style choice does not change the outline,
+script, or Q&A — only Phase 3 rendering.
 
 ### Paper Analysis
 
@@ -228,7 +264,11 @@ Only include if user requested in Phase 0. Examples:
 
 ## Phase 3: Slides & Notes
 
-### Two Modes
+### Three Modes
+
+**Mode A** = generate a new deck in a chosen visual style. **Mode B** = add notes to an
+existing deck. **Mode C** = fill the user's institutional/branded template (chosen at
+Step 0b). Pick the mode from the Step 0b answer.
 
 **Mode A: Generate new slide deck**
 
@@ -579,6 +619,31 @@ injection loop from the template.
 
 **Speaker notes are injected without modifying slide design, layout, text, or images.**
 The script only touches the notes pane. Verify by comparing slide content before and after.
+
+**Mode C: Fill an institutional / branded template**
+
+When the user supplied a `.pptx`/`.potx` at Step 0b (university, hospital, society
+template with a fixed logo and theme), **fill it — do not redesign it**. This is
+*patch-over-rebuild* (`~/.claude/rules/pptx-mac-compatibility.md` §2): a from-scratch
+`Presentation()` would drop the institution's master, theme, and logo.
+
+1. **Inspect**: `python3 ${CLAUDE_SKILL_DIR}/scripts/inspect_pptx_template.py <template>`
+   → lists every layout (index, name) with its placeholders (idx, type, size) plus theme
+   fonts/colors. Read it before writing content.
+2. **Map** each outline slide to one of the template's existing layouts (Title /
+   Title+Content / Section Header / Closing). Do not invent layouts.
+3. **Fill** by `placeholder_format.idx` (from the inspector) so the institution's fonts,
+   sizes, and logo are inherited — never add free text boxes for title/body. Code pattern
+   and the no-usable-body-layout fallback are in
+   `references/slide_visual_styles/institutional_brand.md`.
+4. **Notes**: inject with `scripts/inject_speaker_notes.py` as usual (notes are template-
+   independent).
+5. **Verify**: open in Mac PowerPoint (no repair dialog, logo on every slide, fonts
+   intact); confirm the logo media is still embedded; sync `docProps/app.xml` after
+   adding/deleting slides (`pptx-mac-compatibility.md` §5–5.1).
+
+The content rules (`presentation_design_guidelines.md`) still apply inside the brand —
+one idea per slide, redrawn tables, ≤3 colors *within* the institution's palette.
 
 ---
 
