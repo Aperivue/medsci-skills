@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [4.11.0] - 2026-06-28
+
 ### Added
 
 - **find-journal:** acceptance-feasibility axis. A Phase 2.5 pre-flight
