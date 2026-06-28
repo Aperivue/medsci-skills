@@ -1,0 +1,41 @@
+schema_version: 2
+name: model-card
+layer: C
+owner_domain: model_reporting
+maturity: official
+
+when_to_use: "Generate the documentation an engineer-built medical-imaging model must carry — a Model Card (Mitchell et al. 2019), a Datasheet for its dataset (Gebru et al. 2021), and a METRIC-informed data-quality pass — filled from user-supplied facts, and verify every required section is present and non-empty before the card ships to a repo, Hugging Face card, or manuscript supplement."
+when_NOT_to_use: "Auditing the validation design or metrics (use model-validation); versioning the dataset bytes (use version-dataset); documenting variables in a tabular dataset (use generate-codebook); item-by-item reporting-guideline compliance of the manuscript (use check-reporting); building or training the model (use model-scaffold)."
+
+inputs:
+  - "model metadata (task, architecture, training-data provenance, intended use, licence)"
+  - "evaluation results (performance overall + by subgroup) and dataset description (collection, labelling, consent, de-identification)"
+outputs:
+  - "MODEL_CARD.md (filled, sectioned)"
+  - "DATASHEET.md (filled, sectioned) + a METRIC data-quality pass recorded in it"
+  - "model-card completeness audit JSON (deterministic)"
+deterministic_scripts:
+  - scripts/check_model_card_complete.py
+side_effects:
+  - writes_documentation_artifacts
+downstream_consumers:
+  - check-reporting
+  - write-paper
+  - self-review
+forbidden_actions:
+  - invent_evaluation_numbers_subgroup_results_or_dataset_provenance
+  - mark_a_section_complete_without_user_supplied_content
+  - assert_a_licence_or_consent_status_the_user_did_not_confirm
+
+# v2.1 quality card
+purpose: "Produce an auditable Model Card + Datasheet so an engineer-built model carries its intended-use, out-of-scope, training-data, per-subgroup-performance, and limitations record into clinical evaluation and publication — with a deterministic gate that no required section is missing or left as an unfilled placeholder."
+safety_boundaries:
+  - "Templates are filled only from user-supplied facts; an empty required field stays [NEEDS INPUT] and is flagged, never auto-filled or guessed."
+  - "Completeness is reproduced by a stdlib script; it checks presence, not the truth of a stated fact (that is model-validation / check-reporting)."
+known_limitations:
+  - "Documents what is supplied; it cannot verify that a stated performance number or provenance claim is real."
+  - "Model Card / Datasheet are documentation standards, not clinical reporting guidelines — they are vendored as templates here, not counted reporting checklists."
+validation_commands:
+  - "python3 scripts/check_model_card_complete.py --card MODEL_CARD.md --datasheet DATASHEET.md --strict"
+  - "bash scripts/check_model_card_complete_challenge/verify.sh  # deterministic, network-free"
+evidence_surface: ci_validator

@@ -69,6 +69,21 @@
     MedSAM2 / TotalSegmentator / SegVol / BiomedCLIP / DINO / MAE / SimCLR / MoCo) families. Every
     recommendation names its source paper; it teaches archetypes, not a live SOTA leaderboard. Skills
     47 → 48.
+- **Medical-AI model-engineering lane — Phase 3 (reporting).** The documentation seam of the lane,
+  after validation (Phase 1) and build (Phase 2). Clinician-anchored, additive.
+  - **New skill `/model-card`** (Layer C) — generate the documentation an engineer-built model must
+    carry: a **Model Card** (Mitchell et al., *FAccT* 2019), a dataset **Datasheet** (Gebru et al.,
+    *CACM* 2021), and a **METRIC-informed data-quality pass** (Schwabe et al., *npj Digit Med* 2024),
+    filled from user-supplied facts — never fabricated (intended use, out-of-scope use, training data,
+    per-subgroup performance, caveats, provenance, consent, licence). Templates live in `references/`
+    and are **uncounted** (documentation standards, not clinical reporting checklists — same treatment
+    as `appraisal_tools/METRICS.md`), so `reporting_guidelines` is unchanged. Skills 48 → 49.
+  - **New deterministic detector `check_model_card_complete.py`** (`/model-card`) — verifies every
+    required Model Card / Datasheet section is **present and non-empty** (not missing, not an unfilled
+    `[NEEDS INPUT]` placeholder). Verdicts `MISSING_SECTION` / `EMPTY_REQUIRED_SECTION` (Major); a
+    presence check, not a truth check. `reporting_compliance` family. Integrity detectors 38 → 39.
+  - Reproducible challenge (`check_model_card_complete_challenge`, synthetic complete + incomplete
+    fixtures) + CI-wired regression test (8 cases).
 
 ## [4.10.0] - 2026-06-28
 

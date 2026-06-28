@@ -245,6 +245,12 @@ jobs:
       - name: Run model-scaffold training-hygiene gate test
         run: bash skills/model-scaffold/tests/test_training_hygiene.sh
 
+      - name: Run model-card completeness challenge
+        run: bash skills/model-card/scripts/check_model_card_complete_challenge/verify.sh
+
+      - name: Run model-card completeness gate test
+        run: bash skills/model-card/tests/test_model_card_complete.sh
+
       - name: Run analyze-stats generated-code gate test
         run: bash skills/analyze-stats/tests/test_generated_code.sh
 

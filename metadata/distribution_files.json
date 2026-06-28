@@ -2482,6 +2482,61 @@
       "sha256": "d056566bb052bd917b4705fcd4912ef2173d5bd61b83bff4885b847bb824aa83"
     },
     {
+      "path": "skills/model-card/SKILL.md",
+      "size": 5807,
+      "sha256": "070b1ab8391a37bc4ffebadb918b71e83251da2293d119f5b0cfbf28bea0d4c2"
+    },
+    {
+      "path": "skills/model-card/references/datasheet_template.md",
+      "size": 2280,
+      "sha256": "11998d71a43fcdf75d7f3b72cd46de7f9e4d999ac6b0b6febd5a3dee92a7a517"
+    },
+    {
+      "path": "skills/model-card/references/metric_dimensions.md",
+      "size": 3066,
+      "sha256": "70aeb1af8ed7510aff0562c8ac99852a0b1b49de5eb3ef923a1bbeb4f4c051eb"
+    },
+    {
+      "path": "skills/model-card/references/model_card_template.md",
+      "size": 3239,
+      "sha256": "e40ed0b7fd1a7370d22bb74a596048d1e09b75c14f1b2064ba89d06c886cefbd"
+    },
+    {
+      "path": "skills/model-card/scripts/check_model_card_complete.py",
+      "size": 8856,
+      "sha256": "aa1fdc6a88e18696d0dfc23397a8a9141c1219583081deb5e27b822f152d4005"
+    },
+    {
+      "path": "skills/model-card/scripts/check_model_card_complete_challenge/fixture/complete/DATASHEET.md",
+      "size": 2179,
+      "sha256": "1b53763c3017c88de0ddc583fc6a1975400d69d1929852580fd96c7fe08ccc3e"
+    },
+    {
+      "path": "skills/model-card/scripts/check_model_card_complete_challenge/fixture/complete/MODEL_CARD.md",
+      "size": 2785,
+      "sha256": "fbb5ce99d2d144ecb53d1581826758d4aece996351089e7592999873760dcfaf"
+    },
+    {
+      "path": "skills/model-card/scripts/check_model_card_complete_challenge/fixture/incomplete/MODEL_CARD.md",
+      "size": 880,
+      "sha256": "9b017400531316d787b71aaa7bc4a1fc82aa7f782e54df1eda1c34cde8980db4"
+    },
+    {
+      "path": "skills/model-card/scripts/check_model_card_complete_challenge/problem.md",
+      "size": 1853,
+      "sha256": "dc85f56704dfd049cd9807d0ffd77bc1264de69c2b20ca3e691f6eedc6843deb"
+    },
+    {
+      "path": "skills/model-card/scripts/check_model_card_complete_challenge/verify.sh",
+      "size": 1857,
+      "sha256": "8a8ee577857f4333b38313d6a322f02a54d8011698251bbec4e1a7d6bd758b21"
+    },
+    {
+      "path": "skills/model-card/skill.yml",
+      "size": 2877,
+      "sha256": "0d71da374191ca35545b90130d7d30d4693e4bd469014a3b0993063bdfd4b958"
+    },
+    {
       "path": "skills/model-scaffold/SKILL.md",
       "size": 7048,
       "sha256": "a1612de8a2888667137c3d81100adcb4a6c42d45c73edf93f715fad1da7e179f"

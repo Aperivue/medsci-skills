@@ -31,6 +31,7 @@
     "manage-project",
     "manage-refs",
     "meta-analysis",
+    "model-card",
     "model-scaffold",
     "model-validation",
     "orchestrate",
