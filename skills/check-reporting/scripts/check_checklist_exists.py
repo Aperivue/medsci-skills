@@ -80,6 +80,8 @@ ALIAS_TO_STEM = {
     "strobemr": "STROBE_MR",
     "pgsrs": "PGS_RS",
     "prsrs": "PGS_RS",
+    "cheers": "CHEERS_2022",
+    "cheers2022": "CHEERS_2022",
 }
 
 EXIT_OK = 0

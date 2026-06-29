@@ -456,6 +456,15 @@ tbl %>% as_flex_table() %>% flextable::save_as_docx(path = "table.docx")
 - Present a **network plot** (node ∝ sample size, edge ∝ #trials); report global **τ²**; **ranking (SUCRA/P-score) is not a superiority test** — report it with the league table, intervals, and certainty
 - Certainty **per estimate** via **CINeMA / GRADE-NMA** (downgrade indirect-only); component NMA assumes **additivity** (state/check it). Report against **PRISMA-NMA**; risk of bias via **RoB-NMA**. Review-side probes: NM1–NM8 in `network_meta_analysis.md`
 
+### Health Economic Evaluation
+
+- **Guide**: Load `analysis_guides/health_economic_evaluation.md` before generating code
+- For cost-effectiveness (CEA), cost-utility (CUA, QALY), cost-benefit (CBA), cost-minimisation, or budget-impact analyses; trial-based or decision-model-based (decision tree, **Markov/state-transition**, discrete-event simulation)
+- Compute **incremental cost ΔC, incremental effect ΔE, and the ICER = ΔC/ΔE**; with ≥3 options remove **dominated / extended-dominated** strategies before sequential ICERs; prefer **net benefit (INMB = λΔE − ΔC)** for regression/probabilistic summaries
+- State and justify the **perspective, time horizon (lifetime for chronic disease), discount rate (both costs and outcomes), currency + price year**; QALYs from a named preference-based instrument + value set
+- **Uncertainty is the analytic core**: one-way / **tornado** for drivers, **probabilistic sensitivity analysis (PSA)** with justified parameter distributions (beta for probabilities/utilities, gamma/log-normal for costs) → **cost-effectiveness plane + CEAC**; scenario analyses for structural choices
+- R `heemod` / `dampack` / `hesim` / `BCEA` (state-transition + PSA + CEAC + EVPI), `flexsurv` for survival extrapolation. Report against **CHEERS 2022**; make the "cost-effective" conclusion conditional on a stated willingness-to-pay threshold. Review-side probes: HE1–HE8 in `health_economic_evaluation.md`
+
 ### Survey/Likert
 
 - Descriptive: median, IQR, frequency distribution per item
