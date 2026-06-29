@@ -2,6 +2,33 @@
 
 ## [Unreleased]
 
+### Added
+
+- **`/self-review` editorial-impression counterweight (the "ceiling" pass).** The gate stack
+  minimizes *rejection-for-cause* (the floor) and several gates do so by *adding* hedges,
+  caveats, disclosures, and audit trails — with no opposing force, iterated self-review
+  monotonically over-defends until an editor reads the manuscript as a rebuttal letter. New
+  deterministic detector `check_editorial_impression.py` (self-review category **L** /
+  Phase 2.5g) reads the manuscript as a whole and recommends **SUBTRACTION** — REMOVE / MOVE /
+  TIGHTEN:
+  - `HEDGE_DENSITY` (defensive-caveat tokens per 1,000 narrative words), `HEDGE_REPEAT` (one
+    caveat motif repeated across body + Abstract), `AUDIT_IN_BODY` (SHA / commit / unit-test /
+    post-lock / manifest / seed in the Intro/Results/Discussion narrative → Methods/supplement),
+    `LIMITATIONS_VOLUME` (a long enumerated Limitations list), `ABSTRACT_CAVEAT_LOAD` (caveat
+    clauses crowding the Abstract), and `BURIED_DEFENSE` (a strong numeric robustness/sensitivity
+    result hidden in Limitations/supplement → promote to Results — the inverse of the
+    scope-coherence gate).
+  - **Advisory and non-blocking** — every finding is Minor with a REMOVE/MOVE/TIGHTEN `action`;
+    the gate emits no Major and exits 0 even under `--strict`. Thresholds are tunable. Conservative
+    by construction (fires only on an explicit, locatable signal); ships positive + negative
+    challenge-card fixtures and a CI-wired regression test.
+  - SKILL.md gains a **two-objective frame** (quality = min rejection-for-cause AND max
+    editorial-championing), a first-class **Editorial-Impression Risks (REMOVE/MOVE/TIGHTEN)**
+    report block kept separate from the additive Anticipated-Comments axis, and a `--panel`
+    **handling-editor desk-impression** persona plus an editor-synthesis defensiveness lens
+    symmetric to the contribution lens.
+- Counts: 51 skills / **42 detectors** / 41 reporting guidelines / 20 review domain-probe modules.
+
 ## [5.5.0] - 2026-06-29
 
 ### Added

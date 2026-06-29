@@ -33,6 +33,29 @@ When flagging issues, classify severity:
 
 Most issues are Fixable. Reserve Fatal for true design-level problems.
 
+## Two Objectives: the Floor and the Ceiling
+
+A submission-ready manuscript optimizes **two** things at once, and most of this skill (and
+the gate stack behind it) only optimizes the first:
+
+- **Floor — minimize rejection-for-cause.** Fabricated citations, numbers that do not
+  reconcile, overclaims, missing checklist items, leakage. Categories A–K and the
+  deterministic gates (Phases 2.5–2.5f) do this, and they are right to. Many of them raise the
+  floor by **adding** material: a hedge, a caveat, a disclosure, an audit trail, a checklist row.
+- **Ceiling — maximize editorial-championing.** Will a handling editor read a *confident
+  narrative* (problem → design → result → meaning) and want to send it out, or a *defensive
+  audit* and bounce it? Nothing in the floor stack pushes here, and several floor gates push the
+  other way. Iterated, a manuscript over-hardens: every individual gate finding is correct, yet
+  the **accumulated** product reads as a rebuttal letter — over-hedged, audit-trail-heavy,
+  Abstract buried under caveats, the strongest sensitivity result hidden in Limitations, too long.
+
+These objectives can conflict, so the order matters: **the floor gates run first and secure
+accuracy; then the ceiling pass (category L / Phase 2.5g) reads the accurate manuscript as a
+whole and recommends SUBTRACTION — REMOVE, MOVE, or TIGHTEN — so the same content is read
+confidently.** The ceiling pass is advisory and never blocks; it cannot relax a floor gate.
+Without it, repeated self-review monotonically over-defends. Surface the ceiling findings as
+their own first-class output (Phase 3), not folded silently into the "add this" comments.
+
 ## Workflow
 
 ### Phase 1: Intake
@@ -250,6 +273,38 @@ fabrication. Resolution path:
 1. Honest Methods/PROSPERO update (single-reviewer execution disclosed), OR
 2. Limitations confession rewritten if dual review was actually completed.
 
+#### L. Editorial impression & defensiveness (advisory; the counterweight)
+
+This is the **ceiling** category (see "Two Objectives" above) and the inverse of the floor
+gates: where A–K and the numerical gates ask "what is missing or wrong?" (and answer by
+**adding**), L asks "does the accurate manuscript read confidently, or has it over-defended?"
+(and answers by **subtracting**). Every L finding is **advisory (Minor / impression) and
+non-blocking** — it never converts to a Major and never blocks submission. The fixes are
+REMOVE / MOVE / TIGHTEN, not "add a caveat."
+
+| Check | What to look for | Action |
+|-------|-----------------|--------|
+| Hedge density | Defensive-caveat tokens stacking up per 1,000 narrative words — the prose hedges faster than it asserts. Keep the load-bearing caveats; cut the reflexive ones. | TIGHTEN |
+| Repeated caveat | The same caveat motif ("no deployable claim", "not generalizable", "hypothesis-generating") repeated across body + Abstract. Say it once, firmly. | TIGHTEN |
+| Audit minutiae in body | Provenance tokens (SHA / git commit / unit-test / post-lock timeline / manifest / seed=N / audit trail) in the Introduction / Results / Discussion narrative. Reproducibility detail belongs in a Methods statement or a supplement. | MOVE |
+| Limitations volume | A Limitations passage that enumerates a long list of discrete items reads as a rebuttal letter; consolidate related items. | TIGHTEN |
+| Abstract caveat load | The Abstract carries several caveat clauses, burying the headline result before a reader reaches it. Lead with the result; keep one or two essential qualifiers. | TIGHTEN |
+| Buried defense | A strong numeric robustness / sensitivity result sitting only in Limitations or the supplement, with no robustness mention in Results. Promote it into Results — it is *evidence for* the finding, not a caveat against it. (The inverse of the scope-coherence gate, which pushes a *weak* analysis out of Results.) | MOVE |
+
+Run the deterministic gate (Phase 2.5g) rather than eyeballing it — these are all counts and placements:
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/check_editorial_impression.py" \
+  --manuscript manuscript.md --out qc/editorial_impression.json
+```
+
+`HEDGE_DENSITY`, `HEDGE_REPEAT`, `AUDIT_IN_BODY`, `LIMITATIONS_VOLUME`, `ABSTRACT_CAVEAT_LOAD`,
+and `BURIED_DEFENSE` are Anticipated **Minor** Comments (category: L. Editorial impression),
+each carrying a REMOVE / MOVE / TIGHTEN `action`. The gate never blocks (it has no Major and
+exits 0 even under `--strict`); thresholds are tunable (`--hedge-per-1k`, `--repeat-threshold`,
+`--limitations-max`, `--abstract-caveat-max`). It is conservative — each probe fires only on an
+explicit, locatable signal.
+
 ### Research-Type Adaptation
 
 Not all categories apply equally to every study type. Use this routing table:
@@ -267,6 +322,7 @@ Not all categories apply equally to every study type. Use this routing table:
 | I. Protocol Heterogeneity | Full | Full | N/A | Per-study | N/A | Full |
 | J. Method Transparency | Full | Partial | Partial | N/A | N/A | Partial |
 | K. Reviewer-team consistency | N/A | N/A | N/A | Full | N/A | N/A |
+| L. Editorial impression | Full | Full | Full | Full | Full | Full |
 
 *Meta-analysis: Replace C with heterogeneity assessment (I-squared, prediction intervals),
 publication bias (funnel plot, Egger), and sensitivity/subgroup analyses.
@@ -1016,6 +1072,48 @@ reconciliation in `qc/claim_artifact.json` and confirm against the actual regist
 before raising `ESTIMAND_DRIFT`. For time-to-event manuscripts, also apply probe **S8
 (estimand provenance)** of `references/domain-probes/survival_prognostic.md`.
 
+### Phase 2.5g: Editorial-Impression / Defensiveness Scan (the ceiling pass)
+
+Run this **after** the floor gates (Phases 2.5–2.5f), because it reads the *accurate* manuscript
+and recommends what to take back out. It is the operational form of category L and the
+counterweight to the additive bias of the rest of the stack: every other phase can only make the
+manuscript longer and more defended; this one is the only phase that can make it shorter and more
+confident. It is advisory and **non-blocking** — it never produces a Major and never gates
+submission.
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/check_editorial_impression.py" \
+  --manuscript manuscript.md --out qc/editorial_impression.json
+```
+
+The gate reads the manuscript as a whole, segments it by IMRAD heading, and emits up to six
+verdicts, each tagged with a SUBTRACTION `action`:
+
+| Verdict | Reads as | Action |
+|---|---|---|
+| `HEDGE_DENSITY` | defensive-caveat tokens per 1,000 narrative words over threshold | TIGHTEN |
+| `HEDGE_REPEAT` | one caveat motif repeated across body + Abstract | TIGHTEN |
+| `AUDIT_IN_BODY` | SHA / commit / unit-test / post-lock / manifest / seed in the narrative | MOVE (→ Methods/supplement) |
+| `LIMITATIONS_VOLUME` | a long enumerated Limitations list | TIGHTEN (consolidate) |
+| `ABSTRACT_CAVEAT_LOAD` | several caveat clauses in the Abstract | TIGHTEN |
+| `BURIED_DEFENSE` | strong numeric robustness result only in Limitations/supplement | MOVE (→ Results) |
+
+**Fold the findings into the report as the SUBTRACTION axis, not the additive one.** Each
+becomes a Minor `issues[]` entry under `category: "L" / category_name: "Editorial impression"`,
+additively carrying `issue_type: "editorial_impression"`, `subtype: <verdict>`, and
+`action: "REMOVE" | "MOVE" | "TIGHTEN"`. They are summarized in their own Phase 3 block
+("Editorial-Impression Risks — REMOVE / MOVE / TIGHTEN"), kept visually separate from the
+"Anticipated Major / Minor Comments (ADD / FIX)" so the author sees both forces. Mark them
+`fixable_by_ai: false` by default — TIGHTEN-ing a hedge or MOVE-ing a robustness result is a
+voice-and-judgment edit the author should own — except a clearly-redundant repeated caveat
+(`HEDGE_REPEAT`), which `--fix` may collapse to a single statement.
+
+**Net-impact note.** When an *earlier* phase recommends adding a caveat or disclosure, weigh it
+against L: an integrity-critical disclosure is a **must (state it once, crisply)**, but a
+defensive over-disclosure is a **cut / move**. The two are not symmetric — keep the disclosure,
+but place it once and point to the supplement rather than repeating it at every claim site
+(placement discipline: main text narrates, auditability lives in the supplement).
+
 ### Phase 2.6: Multi-Agent Panel Review (--panel, opt-in)
 
 Run this phase **only when `--panel` is passed**. The default single-pass review (Phases 2–2.5d) stays the fast path; the panel is the high-cost, high-precision option for a pre-submission final pass on a top-tier target. Run it after the numerical audits (Phases 2.5–2.5d) so the reviewers see source-verified numbers, and before the Phase 3 report, which it feeds.
@@ -1037,6 +1135,12 @@ The panel simulates independent peer reviewers who do not see each other's comme
 | Case report | R1 Clinical case-report reviewer · R2 Ethics / de-identification · R3 Literature-context reviewer | `references/domain-probes/case_report.md` + CARE items + categories D/F/G |
 
 If the type is ambiguous, ask the user before composing the set.
+
+Append the **handling-editor desk-impression** persona (the ceiling lens) to every reviewer set:
+it loads no domain probe, reads only for narrative confidence vs over-defensiveness, and returns
+Minor REMOVE / MOVE / TIGHTEN findings (category L) that the editor routes to the separate
+Editorial-Impression Risks block. Its focus checklist is in `references/panel_review_template.md`.
+It does not count toward the Step 3.5 lens-diversity axes.
 
 **Step 2 — Run the reviewers (portable execution).** When the host provides a parallel subagent / Task capability (Claude Code, or any harness exposing an Agent tool), spawn the reviewer set as independent parallel subagents, each blinded to the others, then run the editor as a final synthesis agent. **Fallback (no subagent capability — e.g. a minimal Codex/Cursor harness):** a single agent role-plays each reviewer sequentially and in isolation — it completes and writes out reviewer R1's full structured review before reading the manuscript "fresh" as R2, so a later reviewer never sees an earlier reviewer's comments. The panel is defined by these instructions; it does **not** depend on the `Workflow` tool or any Claude-Code-only orchestration.
 
@@ -1103,6 +1207,15 @@ M2. ...
 m1. **{Issue}** [{Category}]: {1 sentence with location + fix}
 m2. ...
 
+## Editorial-Impression Risks (REMOVE / MOVE / TIGHTEN)
+
+*The subtraction axis — what to take out, move, or tighten so the accurate manuscript reads
+confidently. Advisory and non-blocking; from Phase 2.5g / category L. Omit this block only if the
+scan returned nothing.*
+
+L1. **{Issue}** [{REMOVE | MOVE | TIGHTEN}]: {1 sentence — what reads as over-defensive and where, with the subtraction to make}
+L2. ...
+
 ## Strengths (emphasize in cover letter)
 
 - {Specific strength 1}
@@ -1110,9 +1223,15 @@ m2. ...
 - ...
 ```
 
+The report carries **two** axes, kept visually separate: the **ADD / FIX** axis (Anticipated
+Major / Minor Comments — what is missing or wrong) and the **SUBTRACTION** axis
+(Editorial-Impression Risks — what to remove, move, or tighten). Do not fold the L items into the
+Minor Comments; an author who sees only "add this" will monotonically over-defend.
+
 **Conciseness targets**:
 - Anticipated Major Comments: 3-7 items, each 3-5 lines
 - Anticipated Minor Comments: 3-6 items, each 1-2 sentences
+- Editorial-Impression Risks: 0-6 items, each 1 sentence (only what the Phase 2.5g gate flagged)
 - Strengths: 3-5 items, each 1 sentence
 - Total report: 400-800 words (excluding optional R0 section)
 
@@ -1181,6 +1300,7 @@ When `--json` is passed, or when invoked by `/write-paper` Phase 7, append a mac
 - `requires_reanalysis` *(optional, default `false`)*: `true` when closing the finding needs a **committed analysis re-run against the real data**, not a prose edit — power/MDE re-simulation under the full model, first-visit/one-record-per-subject dedup, an extended- or reduced-adjustment sensitivity model, optimism correction of calibration. Always implies `fixable_by_ai: false`. Additive and backwards-compatible; parsers that do not expect it must ignore it. Route these to `/analyze-stats` (see Phase 4).
 - `suggested_fix`: Specific, actionable instruction. If `fixable_by_ai` is true, this must be concrete enough for the fixer to execute without ambiguity.
 - `consensus` *(optional, panel mode only)*: array of reviewer ids that raised the issue, e.g. `["R1","R3"]`. Additive and backwards-compatible — present only when Phase 2.6 ran; parsers that do not expect it must ignore it.
+- `action` *(optional, editorial-impression findings only)*: `"REMOVE" | "MOVE" | "TIGHTEN"` — the SUBTRACTION direction for a category-L finding (Phase 2.5g). Present alongside `issue_type: "editorial_impression"` and `subtype: <verdict>` (e.g. `HEDGE_REPEAT`). Additive and backwards-compatible; these are always `severity: "minor"`, never block, and are `fixable_by_ai: false` by default (except a redundant `HEDGE_REPEAT`, which `--fix` may collapse). Parsers that do not expect it must ignore it.
 
 ### Phase 4: Fix Support
 
@@ -1272,5 +1392,6 @@ Here is how to address it with your existing data."
 | Phase 2.5c reference hallucination scan (delegate `/verify-refs`) | ENFORCED | `FABRICATED` in `records[]` OR nonempty `duplicate_findings[]` | P0 Major Comment, blocks submission |
 | Phase 2.5a-2 design/power statistic provenance | ENFORCED | a reported MDE / power / sample-size value is not reproduced by committed code, or is reproducible only by a method the committed script does not implement | Major Comment (P0 if a headline claim); recompute and either correct the value or update the committed code to reproduce it |
 | `--fix` auto-fix loop (max 2 iterations) | ENFORCED in `/write-paper` Phase 7.4 chain | score still below threshold after 2 iterations | Route to write-paper Phase 7.4a Audit Recovery |
+| Phase 2.5g editorial-impression scan (`check_editorial_impression.py`) | ADVISORY (non-blocking) | HEDGE_DENSITY / HEDGE_REPEAT / AUDIT_IN_BODY / LIMITATIONS_VOLUME / ABSTRACT_CAVEAT_LOAD / BURIED_DEFENSE | Minor REMOVE/MOVE/TIGHTEN recommendation in the Editorial-Impression Risks block; never blocks submission |
 | R0 numbering output | OPT-IN | `--r0-numbering` flag or downstream `/revise` consumer | Emits structured Anticipated Major/Minor Comments — consumable by `/revise` |
 | `--json` machine-readable output | OPT-IN | `--json` flag | Emits parseable JSON block consumed by `/orchestrate` post-skill validation |
