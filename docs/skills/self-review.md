@@ -30,6 +30,7 @@
 - `python3 scripts/check_domain_probe_sync.py --strict`
 - `bash tests/test_panel_mode.sh`
 - `bash tests/test_reference_adequacy.sh`
+- `bash tests/test_editorial_impression.sh`
 - `feed R0-numbered output into /revise`
 
 **Evidence** — `demo`
@@ -51,6 +52,7 @@
 - `check_classical_style.py`
 - `check_cohort_arithmetic.py`
 - `check_confounding_completeness.py`
+- `check_editorial_impression.py`
 - `check_null_calibration.py`
 - `check_panel_diversity.py`
 - `check_paren_spans.py`

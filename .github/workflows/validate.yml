@@ -76,6 +76,9 @@ jobs:
       - name: Run self-review reference-adequacy gate test
         run: bash skills/self-review/tests/test_reference_adequacy.sh
 
+      - name: Run self-review editorial-impression gate test (defensiveness counterweight)
+        run: bash skills/self-review/tests/test_editorial_impression.sh
+
       - name: Run validate_catalog_consistency.py (doc counts must match disk SSOT)
         run: python3 scripts/validate_catalog_consistency.py
 

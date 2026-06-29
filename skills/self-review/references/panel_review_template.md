@@ -126,6 +126,36 @@ design-level finding, **Fixable** for a reporting-level finding.
 - RV6 single-anchor overload: does a load-bearing clinical claim rest on essentially one (often abstract-only/unreplicated) study while the Abstract calls it "landmark" and the body concedes the base "is thin"? Flag the Abstract↔body register mismatch.
 - RV8 self-citation architecture: do the weakest/most-deferred axes coincide with the authors' own forthcoming/companion work without a body-level disclosure, and does each load-bearing axis carry ≥1 independent (other-group) source?
 
+**Handling editor — desk-impression / champion-or-bounce (cross-type, the ceiling lens)**
+
+This persona is the counterweight to the rigor reviewers above. It is **not** a domain expert and
+loads **no** domain-probe module; it reads the manuscript exactly as a handling editor skimming
+for the desk decision, and its only question is whether the manuscript reads as a **confident
+narrative** an editor would champion or a **defensive audit** an editor would bounce. It raises no
+Major and no Fatal — every finding is a Minor with a SUBTRACTION action (REMOVE / MOVE / TIGHTEN),
+mirroring category L / Phase 2.5g. Append it to any reviewer set on a `--panel` run; it does
+**not** count toward the lens-diversity axes (its findings fall to the `other` family and the gate
+never penalizes an extra lens). Add the optional `action` field (`"REMOVE" | "MOVE" | "TIGHTEN"`)
+to each of its `minor[]` items.
+
+- Does the manuscript open by stating the problem, the design, and the headline result, or does it
+  bury the result behind qualifiers? Is the Abstract carrying several caveat clauses before a
+  reader reaches the finding? (TIGHTEN)
+- Is the strongest robustness / sensitivity result up front in Results, or hidden in Limitations or
+  the supplement where it reads as a caveat rather than as evidence? (MOVE → Results)
+- Does the narrative (Introduction / Results / Discussion) carry audit minutiae — hashes, commit
+  ids, unit-test mentions, post-lock timelines, manifests — that belong in a Methods statement or a
+  supplement? (MOVE)
+- Is the same caveat repeated at multiple claim sites? Does the Limitations section read as a
+  consolidated honest disclosure or as a long rebuttal-letter enumeration? Say each caveat once,
+  firmly. (TIGHTEN / REMOVE)
+- Overall: is the manuscript longer and more defended than its evidence requires? Name the single
+  change that would most raise an editor's confidence on a skim — and it should be a subtraction.
+
+Run `scripts/check_editorial_impression.py` first and use its verdicts as the deterministic spine
+for this persona's findings, then add anything the gate cannot see (tone, narrative order, a
+result that is technically present but framed apologetically).
+
 ---
 
 ## Editor synthesis prompt skeleton
@@ -147,6 +177,14 @@ design-level finding, **Fixable** for a reporting-level finding.
 >    undisclosed near-identical prior publication, or (for a review/primer) weak novelty /
 >    no distinct contribution since the contribution IS the product — let it dominate the
 >    tier over fixable reporting defects rather than letting the fixable framing soften it.
+>    Then run a THIRD, opposite-direction lens — **defensiveness / narrative** — symmetric to
+>    the contribution lens but guarding the other failure: is the manuscript *over-defended*?
+>    Does it read as a confident narrative or as a rebuttal letter (over-hedged, audit-trail in
+>    the body, Abstract buried under caveats, the strongest sensitivity result hidden in
+>    Limitations, too long)? Treat a defensive over-disclosure as a **cut / move**, not a virtue,
+>    while keeping any integrity-critical disclosure (stated once, crisply). The contribution lens
+>    guards against a too-lenient verdict; this lens guards against blessing an over-hardened
+>    manuscript an editor would bounce on impression.
 > 2. De-duplicate and consolidate the major comments by theme. For each consolidated
 >    point, flag CONSENSUS (raised by ≥2 reviewers) or single-reviewer, and attribute
 >    (R1/R2/R3).
@@ -159,10 +197,13 @@ design-level finding, **Fixable** for a reporting-level finding.
 >    rather than implicit in the attribution.
 >
 > Map every finding onto the self-review framing (Fatal / Fixable, category letters
-> A–K) and emit it through the Phase 3 report, Phase 3b R0 numbering, and Phase 3c
-> JSON, adding the optional `consensus` field where ≥2 reviewers agreed. Follow the
-> manuscript-style rules: no "§" symbols, minimal em-dashes, full prose, cite specific
-> locations.
+> A–L) and emit it through the Phase 3 report, Phase 3b R0 numbering, and Phase 3c
+> JSON, adding the optional `consensus` field where ≥2 reviewers agreed. Route the
+> handling-editor desk-impression findings to the separate Editorial-Impression Risks
+> block (category L, each with a REMOVE / MOVE / TIGHTEN `action`); do not fold them into
+> the Anticipated Major / Minor (ADD / FIX) comments, so the author sees both forces.
+> Follow the manuscript-style rules: no "§" symbols, minimal em-dashes, full prose, cite
+> specific locations.
 
 ---
 
