@@ -263,9 +263,9 @@ Total:       13 references
 
 If a Zotero MCP server is available, integrate search results with the user's library:
 
-1. **Add papers to Zotero**: Use `zotero_add_by_doi` for DOI-based import (auto-downloads OA PDFs).
-2. **Organize into collections**: Use `zotero_manage_collections` to file into the relevant project collection.
-3. **Check for duplicates**: Use `zotero_search_items` to avoid adding papers already in the library.
+1. **Check for duplicates first**: Use `zotero_search_items` (by DOI) to skip papers already in the library — this search-first step is what dedupes; `zotero_add_by_doi` does not dedupe on its own.
+2. **Add papers to Zotero**: Use `zotero_add_by_doi` for DOI-based import (its `attach_mode` argument governs the OA PDF attach attempt at add time).
+3. **Organize into collections**: Use `zotero_manage_collections` to file into the relevant project collection.
 4. **Leverage annotations**: Use `zotero_get_annotations` to reference the user's prior reading notes.
 5. **Write sync audit**: Record collection key, added/skipped/failed counts, and
    unsynced entries in `references/zotero_collection.json` so Zotero status is
@@ -277,77 +277,32 @@ If a Zotero MCP server is available, integrate search results with the user's li
 
 ### Phase 5: Full-Text Retrieval
 
-After identifying relevant papers, retrieve full-text PDFs for detailed review.
-This is especially important for meta-analyses where data extraction requires full text.
+Full-text PDF retrieval is **delegated to `/fulltext-retrieval`** — the single authored
+home of the open-access cascade (arXiv → Unpaywall → PMC → OpenAlex → Crossref → landing
+page, each validated with a `%PDF-` header + ≥10 KB size). Do **not** re-implement OA
+fetching here.
 
-#### Phase 5a: Open Access Auto-Retrieval
+Pass the verified candidate DOIs from `references/library.bib`:
 
-Try sources in order of reliability:
-
-1. **Unpaywall API** (highest quality OA links):
-   ```python
-   import os, requests
-   email = os.environ.get("UNPAYWALL_EMAIL", "user@example.com")
-   url = f"https://api.unpaywall.org/v2/{doi}?email={email}"
-   r = requests.get(url).json()
-   if r.get("best_oa_location", {}).get("url_for_pdf"):
-       pdf_url = r["best_oa_location"]["url_for_pdf"]
-   ```
-
-2. **PubMed Central (PMC)**:
-   - Convert PMID to PMCID via NCBI ID Converter
-   - Download from PMC OA service: `https://www.ncbi.nlm.nih.gov/pmc/articles/PMC{id}/pdf/`
-
-3. **OpenAlex API** (additional OA discovery):
-   ```python
-   url = f"https://api.openalex.org/works/https://doi.org/{doi}"
-   # Requires polite pool: add email in User-Agent header or mailto= param
-   r = requests.get(url, headers={"User-Agent": f"MyApp/1.0 (mailto:{email})"}).json()
-   oa_url = r.get("open_access", {}).get("oa_url")
-   ```
-
-4. **CrossRef landing page**: Follow `https://api.crossref.org/works/{doi}` → publisher link
-   → scrape `<meta name="citation_pdf_url">` tag
-
-#### Phase 5b: Alternative Sources
-
-Some researchers use alternative access methods for paywalled content.
-**Users are responsible for ensuring compliance with their institutional access policies.**
-
-If an environment variable (e.g., `SCIHUB_BASE`) is set, the skill may use it as an
-alternative PDF source. No specific URLs are provided here — users configure this themselves.
-
-Other options:
-- **Institutional proxy/VPN**: Access publisher sites through institutional EZproxy or VPN
-- **Interlibrary loan (ILL)**: Request through library services for papers not otherwise available
-- **Author contact**: Email corresponding authors for preprints
-
-#### PDF Validation
-
-Always validate downloaded files before use:
-
-```python
-def is_valid_pdf(filepath):
-    """Check that a downloaded file is actually a PDF, not an HTML redirect."""
-    import os
-    if os.path.getsize(filepath) < 10240:  # < 10KB is likely a stub/redirect
-        return False
-    with open(filepath, 'rb') as f:
-        header = f.read(5)
-    return header == b'%PDF-'
+```bash
+ENGINE="${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/fulltext-retrieval/fetch_oa.py"
+# extract DOIs from references/library.bib → dois.txt (one per line)
+python3 "$ENGINE" dois.txt -o pdfs/ -e <contact-email> --report pdfs/retrieval_report.json
 ```
 
-Additional checks:
-- Verify HTTP `Content-Type: application/pdf` header before saving
-- Files under 10KB are almost always HTML login/redirect pages, not real PDFs
-- Some publishers return CAPTCHA pages — these fail the `%PDF-` check
+For Zotero-resident PDFs and higher-yield, proxy-aware retrieval, use `/lit-sync` Phase 2.7,
+which also invokes `/fulltext-retrieval` and triggers Zotero's native "Find Available PDF".
 
-#### Rate Limiting
+#### Alternative sources (legitimate only)
 
-- Unpaywall: Polite pool (no hard limit with email parameter)
-- OpenAlex: Include email in User-Agent for polite pool access
-- NCBI/PMC: 3 requests/sec without API key, 10/sec with `NCBI_API_KEY`
-- General: 2-second minimum interval between requests to any single host
+For DOIs that open access cannot reach (listed in `pdfs/manual_needed.txt`):
+
+- **Institutional access / proxy / VPN** — through your library's own subscriptions.
+- **Interlibrary loan (ILL)** — request via library services.
+- **Author contact** — email the corresponding author for a copy or preprint.
+
+Never bypass paywalls or publisher access controls, and do not configure unauthorized
+PDF mirrors. Rate limits and PDF validation are handled inside `/fulltext-retrieval`.
 
 ### Phase 6: Gap Analysis
 

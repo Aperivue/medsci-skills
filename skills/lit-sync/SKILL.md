@@ -65,6 +65,9 @@ Direct hand edits to `refs.bib` are drift — revert on sight.
     ▼ Phase 2.5: refs.bib snapshot refresh
     Trigger Better BibTeX auto-export → verify manuscript/_src/refs.bib mtime updated
     │
+    ▼ Phase 2.7: Fulltext Retrieval (opt-in)
+    Disk OA PDFs via /fulltext-retrieval + in-library via find_available_pdf.js → reconcile report
+    │
     ▼ Phase 3: Obsidian Literature Notes
     Create Literature/{citekey}.md (empty note OK — fill later with highlights)
     │
@@ -116,8 +119,16 @@ collection key for future use.
 For each entry:
 
 1. Use `zotero_search_items` to search by DOI or title — if already present, skip.
+   This search-first step is what prevents duplicates; `zotero_add_by_doi` does **not**
+   dedupe by itself (it fetches CrossRef and creates the item), so never skip the search.
 2. Otherwise call `zotero_add_by_doi` (when a DOI is available) or
    `zotero_add_by_url` (falling back to the PubMed URL when no DOI is available).
+   - `zotero_add_by_doi` accepts an `attach_mode` argument that governs the **OA child-PDF
+     attach attempt at add time** (the installed server treats `linked_url` as "bookmark the
+     PDF URL"; other values download/import). Set it when you want a PDF attached during the
+     add. Exact accepted values are server-version-specific — verify against the connected
+     server. Do **not** use `zotero_add_from_file` to attach a PDF to an item added here: it
+     has no parent-item argument and would create a duplicate parent item.
 3. Use `zotero_manage_collections` to place the item in the project collection.
 
 ### Step 2.3: Result report
@@ -211,6 +222,62 @@ Append to the JSON written in Step 2.3:
 ```
 
 If refresh failed, set `refs_bib_refreshed: false` and include `reason`. `/verify-refs` uses this flag to decide whether the snapshot is trustworthy.
+
+---
+
+## Phase 2.7: Fulltext Retrieval (opt-in, owner-only)
+
+**Run only when the user asks for full text** (e.g. "download the PDFs", "fetch full
+text", or a worklist supplied with that intent). Default `/lit-sync` stays metadata-only
+and network-light — do not auto-run this phase. Runs after items are in Zotero (Phase 2)
+and the snapshot is verified (Phase 2.5), before Obsidian notes (Phase 3).
+
+There are two complementary retrieval routes; offer both and reconcile them in one report:
+
+### Route A — disk OA PDFs (for downstream skills)
+
+Delegate to the `/fulltext-retrieval` engine (do **not** re-implement the OA cascade or
+import its code; invoke it by path). Resolve the engine as:
+
+```bash
+ENGINE="${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/fulltext-retrieval/fetch_oa.py"
+python3 "$ENGINE" <worklist> -o pdfs/ -e <contact-email> --report pdfs/retrieval_report.json
+```
+
+`<worklist>` is the DOI/PMID(/Title) list — the Phase-1 `.bib` DOIs, the worklist supplied
+in the standalone mode below, or the project collection's DOIs. Output: `pdfs/*.pdf` for
+`/meta-analysis`, `/obsidian-paper-vault`, and `pdf_to_md.py`, plus
+`pdfs/retrieval_report.json` (per-DOI `status`/`source`/`title_match`).
+
+### Route B — in-library PDFs (Zotero-native, higher yield, proxy-aware)
+
+Emit `${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/fulltext-retrieval/references/find_available_pdf.js`
+for the user to paste into Zotero (*Tools → Developer → Run JavaScript*) with the project
+collection selected. It triggers Zotero's own `addAvailablePDF`/`addAvailablePDFs`, which
+reuse the **user's** OpenURL resolver / institutional proxy — so it typically retrieves more
+than OA-only, while **no credentials or institutional identifiers enter this skill**. The
+no-code equivalent is right-click → "Find Available PDF". This route is user-initiated and
+session-dependent; record its `{attached, missing}` summary from the printed JSON.
+
+### Report
+
+Merge Route A's `pdfs/retrieval_report.json` (and the user-reported Route B summary) into
+`references/fulltext_retrieval.json` (owner of this file is `/lit-sync`):
+
+```json
+{
+  "schema_version": 1,
+  "retrieved_oa_disk": [{"doi": "...", "source": "unpaywall", "file": "...", "title_match": "match"}],
+  "retrieved_zotero_native": [{"doi": "...", "via": "addAvailablePDF"}],
+  "not_retrieved": [{"doi": "...", "journal": "..."}],
+  "institutional_fallback": ["<DOIs needing institutional access / ILL / author contact>"],
+  "title_mismatch_flagged": ["<DOIs whose downloaded PDF title did not match>"]
+}
+```
+
+Also append a short `fulltext` block (counts) to `references/zotero_collection.json`.
+`not_retrieved` DOIs are candidates for institutional access, interlibrary loan, or author
+contact — never bypass paywalls or access controls from this skill.
 
 ---
 
@@ -414,15 +481,22 @@ curl -s "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&i
   | jq -r '.result | to_entries[] | select(.key != "uids") | "\(.value.uid)\t\(.value.elocationid)\t\(.value.title)"'
 ```
 
-For each resolved DOI call `zotero_add_by_doi` (auto-dedup by DOI). For items
-already in the library (returned as "skipped" or detected via `zotero_search_items`
-by DOI), use `zotero_manage_collections` to attach them to the project collection
-**without re-adding** — re-adding by URL/PubMed-URL would bypass DOI dedup and
-create duplicates. Record both `added` and `existing` items in
-`references/zotero_collection.json`.
+For each resolved DOI, search-first with `zotero_search_items`, then call
+`zotero_add_by_doi` — the search is what dedupes (add-by-doi alone does not). For items
+already in the library (detected via `zotero_search_items` by DOI), use
+`zotero_manage_collections` to attach them to the project collection **without re-adding** —
+re-adding by URL/PubMed-URL would bypass the search dedup and create duplicates. Record both
+`added` and `existing` items in `references/zotero_collection.json`.
 
 If a PMID has no DOI in PubMed (rare; older papers, non-indexed), fall back to
 `zotero_add_by_url` with the PubMed URL and mark the entry as `no_doi: true`.
+
+### Worklist ingestion (DOI/PMID/Title; no .bib)
+When the user supplies a worklist file (a `.tsv`/`.csv`/`.md` table with a `DOI` column,
+optional `PMID`/`Title`, or a plain DOI-per-line list — e.g. an SR include set), enter
+Phase 2 directly from it: resolve any PMID-only rows to DOIs (esummary above), then run the
+search-first dedupe + add loop. The same worklist file feeds Phase 2.7 Route A
+(`fetch_oa.py` reads `.tsv`/`.csv`/`.md`/plain natively), so no reformatting is needed.
 
 ---
 
@@ -439,6 +513,12 @@ If a PMID has no DOI in PubMed (rare; older papers, non-indexed), fall back to
    collection is created.
 6. **Never write `refs.bib` directly.** Only Better BibTeX auto-export may write that file. If auto-export is broken, fix the Zotero setup rather than writing the file from this skill.
 7. **Owner-only execution.** If the current user is a collaborator (no Zotero access per `SSOT.yaml` `reference_manager.required_for`), abort with instructions to flag `[@NEW:topic]` placeholders in the manuscript and notify the owner.
+8. **Fulltext boundary (Phase 2.7).** Retrieve full text only via OA APIs (the
+   `/fulltext-retrieval` engine) and the user-run Zotero "Find Available PDF" snippet
+   (which uses the user's own proxy config). Never automate authenticated browser sessions,
+   never bypass paywalls/access controls, and never hard-code institutional proxies,
+   credentials, or hosts into this skill. `not_retrieved` items are routed to institutional
+   access / ILL / author contact, not worked around.
 
 ## Anti-Hallucination
 

@@ -1488,13 +1488,43 @@
     },
     {
       "path": "skills/fulltext-retrieval/SKILL.md",
-      "size": 5830,
-      "sha256": "0bdf94398af3d9f144b0b58fbce643d05f5486329472681a39090f135d3ec63f"
+      "size": 8248,
+      "sha256": "d97c19a64d92f66e3c8a1445d893c0f55364f21dc99404fb6f012a3566556e73"
     },
     {
       "path": "skills/fulltext-retrieval/fetch_oa.py",
-      "size": 15882,
-      "sha256": "b33feb91c7258d1986fbb6168a044b2abe21f3ba1cacadd3a52a38689477f86c"
+      "size": 24503,
+      "sha256": "768f95a30737e67b7f9edee72fe8815a795c9f83451b46551bbe25fc36094f4b"
+    },
+    {
+      "path": "skills/fulltext-retrieval/fetch_oa_report_challenge/expected/projection.json",
+      "size": 522,
+      "sha256": "f24bdb507f66932c0429acefc171abf5221bd644cacdeba5cd7b5c07670b04aa"
+    },
+    {
+      "path": "skills/fulltext-retrieval/fetch_oa_report_challenge/extracted_text.json",
+      "size": 351,
+      "sha256": "9b512bbea3780727e79355dd4b3689be182f086d4afb4184737524449fc44e4d"
+    },
+    {
+      "path": "skills/fulltext-retrieval/fetch_oa_report_challenge/results.json",
+      "size": 175,
+      "sha256": "e46d52e6a9c038ebd5cb8ce89a5961f32c8365e80d189d3ee80bed021a60296a"
+    },
+    {
+      "path": "skills/fulltext-retrieval/fetch_oa_report_challenge/run_challenge.py",
+      "size": 3138,
+      "sha256": "a3c194bb31f319bdd011d4436e5de22cfcc79b7979fbcba4883ed370e4acbeb4"
+    },
+    {
+      "path": "skills/fulltext-retrieval/fetch_oa_report_challenge/verify.sh",
+      "size": 286,
+      "sha256": "f96687fa9d1b213734810dcdfa8126a2efd1af106f5d1cdeb43d58b431ab915b"
+    },
+    {
+      "path": "skills/fulltext-retrieval/fetch_oa_report_challenge/worklist.tsv",
+      "size": 326,
+      "sha256": "d1c4c906052be198275155ee3e9ecf29b04ec8bdfeef97816ca15aa8cefa61fa"
     },
     {
       "path": "skills/fulltext-retrieval/pdf_to_md.py",
@@ -1502,9 +1532,14 @@
       "sha256": "16ba8c61db254b4b356d85686946351daa5ea650d70dca2fd0d5677851c6df4d"
     },
     {
+      "path": "skills/fulltext-retrieval/references/find_available_pdf.js",
+      "size": 3057,
+      "sha256": "04dc6d13d0bb7c43679e5386f1788edee6b187b2503cd9e250ae4ea63e11cec0"
+    },
+    {
       "path": "skills/fulltext-retrieval/skill.yml",
-      "size": 1712,
-      "sha256": "43f84eeeeedb4676fb80fdca2ac0a84f6a90901b1d4e1d88359a532bb4ead835"
+      "size": 2420,
+      "sha256": "7a457e5f5fde09f57a8ef9d2207dbaab241e56a9bca59ba577d26351bf225346"
     },
     {
       "path": "skills/generate-codebook/SKILL.md",
@@ -1563,8 +1598,8 @@
     },
     {
       "path": "skills/lit-sync/SKILL.md",
-      "size": 16378,
-      "sha256": "e59b10d8dfdb52318a212e42d403a4372435697880e45643d3864f1374c7e82a"
+      "size": 21126,
+      "sha256": "4ba2d2b6dd4704803c0922993401b837d4135ac1d655d6064229315537a8e818"
     },
     {
       "path": "skills/lit-sync/references/locale/ko/note_templates.md",
@@ -1573,8 +1608,8 @@
     },
     {
       "path": "skills/lit-sync/skill.yml",
-      "size": 2522,
-      "sha256": "5f656fae91ba46d54f9d619785607bfb57773abc6a872207435ecf7a7315816b"
+      "size": 2780,
+      "sha256": "a04d160e9fc6382c783940b737c9d9348db45e34ea80c69ef905be0a3c357e34"
     },
     {
       "path": "skills/ma-scout/SKILL.md",
@@ -3238,8 +3273,8 @@
     },
     {
       "path": "skills/search-lit/SKILL.md",
-      "size": 21637,
-      "sha256": "35809486f31f1a26288a27ee0b1383760cf97e0287916ace2e9097eef88182e4"
+      "size": 20281,
+      "sha256": "608644e83ffc357f3b43b65cf7c439c9381f5948c51798672929f7a38aea5024"
     },
     {
       "path": "skills/search-lit/references/parse_pubmed.py",

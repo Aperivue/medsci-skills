@@ -1,0 +1,14 @@
+{
+  "counts": {
+    "total": 4,
+    "retrieved": 3,
+    "not_retrieved": 1,
+    "title_mismatch": 1
+  },
+  "items": [
+    {"doi": "10.1111/valid.match", "status": "oa", "source": "unpaywall", "title_match": "match"},
+    {"doi": "10.2222/label.mismatch", "status": "oa", "source": "openalex", "title_match": "mismatch"},
+    {"doi": "10.3333/no.text", "status": "pmc", "source": "pmc", "title_match": "unavailable"},
+    {"doi": "10.9999/not.retrieved", "status": "fail", "source": "", "title_match": "unavailable"}
+  ]
+}

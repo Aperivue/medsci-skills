@@ -1,0 +1,6 @@
+{
+  "10.1111/valid.match": ["oa", "unpaywall"],
+  "10.2222/label.mismatch": ["oa", "openalex"],
+  "10.3333/no.text": ["pmc", "pmc"],
+  "10.9999/not.retrieved": ["fail", ""]
+}

@@ -1,0 +1,5 @@
+DOI	PMID	Title
+10.1111/valid.match	1001	Deep learning for pulmonary nodule detection on chest CT
+10.2222/label.mismatch	1002	Automated segmentation of cardiac MRI using transformers
+10.3333/no.text	1003	Federated learning for multi-center radiology models
+10.9999/not.retrieved	1004	A paywalled study with no open-access copy

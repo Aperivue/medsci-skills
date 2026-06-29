@@ -8,6 +8,7 @@ when_to_use:
   - After /search-lit when verified candidates need to flow into Zotero + refs.bib
   - Cross-cutting concept-note extraction from accumulated literature into Obsidian
   - Refreshing manuscript/_src/refs.bib via Better BibTeX auto-export before a build
+  - Opt-in full-text retrieval (Phase 2.7) — disk OA PDFs via /fulltext-retrieval + in-library "Find Available PDF"
 when_NOT_to_use:
   - Pure literature search without sync (use /search-lit)
   - Hand-editing refs.bib (BBT is the sole writer; never touch the file directly)
@@ -17,10 +18,11 @@ inputs:
   - PMID list, DOI list, or Zotero collection name
 outputs:
   - references/zotero_collection.json
+  - references/fulltext_retrieval.json  # SOLE WRITER; opt-in Phase 2.7 retrieval report
   - manuscript/_src/refs.bib  # SOLE WRITER via Better BibTeX auto-export "Keep updated"
   - obsidian_literature_notes
 deterministic_scripts:
-  - none_required  # leverages Zotero MCP + Better BibTeX auto-export GUI
+  - none_required  # leverages Zotero MCP + Better BibTeX auto-export GUI; Phase 2.7 invokes /fulltext-retrieval fetch_oa.py
 side_effects:
   - may_update_zotero
   - may_write_obsidian_notes
