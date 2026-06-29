@@ -29,6 +29,23 @@
     symmetric to the contribution lens.
 - Counts: 51 skills / **42 detectors** / 41 reporting guidelines / 20 review domain-probe modules.
 
+## [5.5.0] - 2026-06-29
+
+### Added
+
+- **Survey-research lane (CROSS / CHERRIES).** The third study-genre lane of the autonomous
+  reverse-engineer cycle (after CHEERS and RECORD), filling the most common uncovered manuscript type:
+  - `check-reporting/references/checklists/CROSS.md` — an in-house faithful summary of the CROSS 2021
+    reportable elements (paraphrased item intents; CROSS is ©SGIM, so not reproduced verbatim — DOI
+    cited) integrating the CC-BY CHERRIES internet-survey items. Routed via the study-type table +
+    `cross` alias. **Reporting guidelines 40 → 41.**
+  - `peer-review` + `self-review` `domain-probes/survey_research.md` (SV1–SV8; vendored byte-identical,
+    review domain-probe modules 19 → 20): sampling-frame representativeness, sampling method +
+    sample-size justification, response rate (defined denominator) + non-response bias, instrument
+    development/validation/reliability, CHERRIES e-survey specifics, question design,
+    weighting/denominators/missingness, generalisability/ethics.
+- Counts: 51 skills / 41 detectors / **41 reporting guidelines** / 20 review domain-probe modules.
+
 ## [5.4.0] - 2026-06-29
 
 ### Added

@@ -3578,8 +3578,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_editorial_impression.py",
-      "size": 21256,
-      "sha256": "4e8c160a6905089bb3cff52fa3843774d3f8613d37e3a235fc84a6e6479c654b"
+      "size": 22032,
+      "sha256": "42e0e9315e1c97ca0f9943213c65ea91d7064773d25287b2577f0386dfb7fc41"
     },
     {
       "path": "skills/self-review/scripts/check_null_calibration.py",

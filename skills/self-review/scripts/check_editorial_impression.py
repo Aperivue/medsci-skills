@@ -195,11 +195,18 @@ MOTIFS: dict[str, re.Pattern] = {
     "preliminary": re.compile(r"\bpreliminary\b", re.IGNORECASE),
 }
 
+# Motifs that are factual study-design descriptors rather than defensive caveats. A
+# single-centre / retrospective study must state its design in Methods, and naming it
+# again in the Abstract and Limitations is normal, not over-hedging. Count these only
+# in the non-Methods narrative so an honestly-written single-centre retrospective study
+# (the most common observational design) is not flagged for stating a true fact.
+FACTUAL_DESCRIPTOR_MOTIFS = {"single_center", "retrospective_design"}
+
 # Provenance / audit minutiae that belong in Methods or a supplement, not the narrative.
 AUDIT = re.compile(
     r"\bsha-?256\b|\bmd5\b|\bchecksum\b|(?:git\s+)?(?:commit|hash|sha)\s*[:=]?\s*[0-9a-f]{7,40}\b|"
     r"\bcommit\s+[0-9a-f]{7,40}\b|\bunit[-\s]?test(?:s|ing|ed)?\b|\bpost[-\s]?lock\b|"
-    r"\bmanifest\b|seed\s*=\s*\d+|\brandom seed\s+\d+\b|\baudit trail\b|"
+    r"seed\s*=\s*\d+|\brandom seed\s+\d+\b|\baudit trail\b|"
     r"reproducibility (?:manifest|hash|record)|data lock(?:ed)? on|\bcontent[-\s]hash\b",
     re.IGNORECASE)
 
@@ -242,17 +249,21 @@ def probe_hedge_density(regions, body, threshold) -> list[dict]:
     return []
 
 
-def probe_hedge_repeat(full, threshold) -> list[dict]:
+def probe_hedge_repeat(regions, full, threshold) -> list[dict]:
+    non_methods = "\n".join(b for r, b in regions if r != "methods")
     claims = []
     for key, rx in MOTIFS.items():
-        n = len(rx.findall(full))
+        # Factual design descriptors are not over-hedging when stated in Methods;
+        # count them only in the non-Methods narrative.
+        hay = non_methods if key in FACTUAL_DESCRIPTOR_MOTIFS else full
+        n = len(rx.findall(hay))
         if n >= threshold:
-            m = rx.search(full)
+            m = rx.search(hay)
             phrase = m.group(0).strip() if m else key
             claims.append({
                 "verdict": "HEDGE_REPEAT", "severity": "Minor", "action": "TIGHTEN",
                 "detail": (f"the caveat '{phrase}' (motif: {key}) appears {n} times across "
-                           f"body + abstract; state it once, firmly, and remove the repeats"),
+                           f"the narrative; state it once, firmly, and remove the repeats"),
                 "where": phrase[:120],
             })
     return claims
@@ -358,7 +369,7 @@ def check(text: str, *, hedge_per_1k: float, repeat_threshold: int,
         body = region_text(regions, {"preamble", "other"}) or text
     claims: list[dict] = []
     claims += probe_hedge_density(regions, body, hedge_per_1k)
-    claims += probe_hedge_repeat(text, repeat_threshold)
+    claims += probe_hedge_repeat(regions, text, repeat_threshold)
     claims += probe_audit_in_body(regions)
     claims += probe_limitations_volume(regions, text, limitations_max)
     claims += probe_abstract_caveat_load(regions, text, abstract_caveat_max)
