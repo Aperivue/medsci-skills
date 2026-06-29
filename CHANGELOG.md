@@ -2,6 +2,25 @@
 
 ## [Unreleased]
 
+## [5.3.0] - 2026-06-29
+
+### Added
+
+- **Health economic evaluation lane (CHEERS 2022).** A new study-genre lane filling the suite's
+  largest open reporting gap (absent from medsci-skills and from competing toolkits), surfaced by an
+  EQUATOR-grounded competitor + reporting-standard research scan:
+  - `check-reporting/references/checklists/CHEERS_2022.md` — faithful 28-item CHEERS 2022 summary
+    (CC BY 4.0, Husereau et al. *BMJ* 2022); routed via the study-type table + `cheers`/`cheers2022`
+    aliases. **Reporting guidelines 38 → 39.**
+  - `peer-review` + `self-review` `domain-probes/health_economic_evaluation.md` (HE1–HE8; vendored
+    byte-identical, review domain-probe modules 17 → 18): comparator/perspective, time-horizon &
+    discounting, effectiveness source + QALY valuation, costing/currency/price-year, model structure
+    + validation, deterministic and **probabilistic** uncertainty (PSA/CEAC, not a point ICER), ICER
+    vs a stated willingness-to-pay threshold + dominance, equity/generalisability/funding-COI.
+  - `analyze-stats` `analysis_guides/health_economic_evaluation.md` + SKILL entry — ICER/net-benefit,
+    decision-analytic models (Markov/DES), PSA → plane + CEAC, `heemod`/`dampack`/`BCEA`.
+- Counts: 51 skills / 41 detectors / **39 reporting guidelines** / 18 review domain-probe modules.
+
 ## [5.2.0] - 2026-06-29
 
 ### Added
