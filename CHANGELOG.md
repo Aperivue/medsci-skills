@@ -2,6 +2,35 @@
 
 ## [Unreleased]
 
+## [5.2.0] - 2026-06-29
+
+### Added
+
+- **Model-engineering lane — reference grounding for three thin lane skills.** New load-on-demand
+  reference docs, grounded in named public standards (cross-checked against the repo's own
+  check-reporting SSOT, e.g. STARD-AI *Nat Med* 2025, PROBAST+AI *BMJ* 2025), wired into each
+  SKILL.md:
+  - `model-validation/references/validation_design.md` — data-leakage taxonomy, internal vs
+    genuine-external validation, comparator/variance/test-set sizing, CLAIM 2024 / TRIPOD+AI /
+    STARD-AI reporting map.
+  - `mllm-eval/references/evaluation_axes.md` — clinical-efficacy metrics beyond n-gram overlap,
+    faithfulness/hallucination, benchmark contamination, prompt-sensitivity, answer-matching,
+    reader study.
+  - `model-evaluation/references/metric_selection_grounding.md` — Metrics Reloaded task-fingerprint
+    principle, calibration vs discrimination, disaggregated reporting, CLAIM 2024 reporting fit.
+
+### Fixed
+
+- **`model-evaluation` metric-reporting gate false positive.** `check_metric_reporting.py`'s
+  `iou_crit` proximity window used `[^.\n]`, so a hard-wrapped IoU match criterion (the IoU and its
+  threshold on different physical lines) was undetectable and the gate fired a spurious
+  `DETECTION_METRIC_MISSING` on a legitimately formatted detection report. Changed to `[^.]`
+  (newline-tolerant, still period-bounded); locked by a load-bearing `det_good_wrapped` regression
+  case plus `det_no_iou` detection-branch coverage in the CI-wired `metric_reporting_challenge`.
+
+- Counts unchanged (**51 skills / 41 detectors / 38 reporting guidelines / 14 probes**); reference
+  docs are uncounted.
+
 ## [5.1.0] - 2026-06-29
 
 ### Added
