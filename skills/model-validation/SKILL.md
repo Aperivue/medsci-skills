@@ -47,6 +47,12 @@ TorchIO — those produce the model, this validates and publishes it.
 
 ## Workflow
 
+The design/audit rationale behind Phases 2–7 — the full data-leakage taxonomy, the
+internal-vs-genuine-external validation ladder, comparator design, single-run vs multi-seed
+variance, test-set sizing, and the CLAIM 2024 / TRIPOD+AI / STARD-AI reporting map — is in
+`${CLAUDE_SKILL_DIR}/references/validation_design.md` (load on demand). The patient-disjointness
+verdict itself is proven by `scripts/check_split_leakage.py` (Phase 2), not from that prose.
+
 ### Phase 1 — Reconstruct the task, the intended-use horizon, and the analysis unit
 State the model's task (segmentation / classification / detection), its **intended-use horizon**
 (screening, triage, pre-procedure, post-hoc), the **single headline metric** the conclusion leans on,

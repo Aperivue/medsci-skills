@@ -106,3 +106,11 @@ mllm-eval (this skill: harness design + completeness gate, model-agnostic)
   ├─ write-paper + check-reporting (TRIPOD-LLM / MI-CLEAR-LLM)
   └─ self-review / peer-review (ME0–ME8 reviewer probe)
 ```
+
+## Reference Files
+
+- `${CLAUDE_SKILL_DIR}/references/evaluation_axes.md` — the *why* behind the ME2–ME7 axes:
+  clinical-efficacy metrics beyond n-gram overlap (e.g. RadGraph-F1 / CheXbert-F1 vs BLEU/ROUGE),
+  faithfulness & hallucination, pretraining/benchmark contamination, prompt-sensitivity &
+  determinism, answer-matching, and the reader study — each mapped to its gate verdict. Load on
+  demand during Phases 2–4.

@@ -33,6 +33,10 @@
 
 ## Bundled resources
 
+**References** (`skills/model-validation/references/`):
+
+- `validation_design.md`
+
 **Scripts** (`skills/model-validation/scripts/`):
 
 - `check_split_leakage.py`

@@ -33,6 +33,10 @@
 
 ## Bundled resources
 
+**References** (`skills/mllm-eval/references/`):
+
+- `evaluation_axes.md`
+
 **Scripts** (`skills/mllm-eval/scripts/`):
 
 - `check_mllm_eval_completeness.py`
