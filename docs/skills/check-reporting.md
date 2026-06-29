@@ -2,13 +2,13 @@
 
 # check-reporting
 
-> Check manuscript compliance with medical research reporting guidelines. Supports 38 guidelines including STROBE, STROBE-MR, CONSORT, CONSORT-AI, STARD, STARD-AI, TRIPOD, TRIPOD+AI, TRIPOD-LLM, PGS-RS, ARRIVE, PRISMA, PRISMA-DTA, PRISMA-P, CARE, SPIRIT, SPIRIT-AI, CLAIM, DECIDE-AI, MI-CLEAR-LLM, SQUIRE 2.0, CLEAR, MOOSE, GRRAS, SWiM, AMSTAR 2, and risk of bias tools (QUADAS-2, QUADAS-C, RoB 2, ROBINS-I, ROBINS-E, ROBIS, ROB-ME, PROBAST, PROBAST+AI, NOS, COSMIN, RoB NMA). Generates item-by-item assessment with PRESENT/MISSING/PARTIAL status.
+> Check manuscript compliance with medical research reporting guidelines. Supports 39 guidelines including STROBE, STROBE-MR, CONSORT, CONSORT-AI, STARD, STARD-AI, TRIPOD, TRIPOD+AI, TRIPOD-LLM, PGS-RS, ARRIVE, PRISMA, PRISMA-DTA, PRISMA-P, CARE, SPIRIT, SPIRIT-AI, CLAIM, DECIDE-AI, MI-CLEAR-LLM, SQUIRE 2.0, CLEAR, MOOSE, GRRAS, SWiM, AMSTAR 2, CHEERS 2022, and risk of bias tools (QUADAS-2, QUADAS-C, RoB 2, ROBINS-I, ROBINS-E, ROBIS, ROB-ME, PROBAST, PROBAST+AI, NOS, COSMIN, RoB NMA). Generates item-by-item assessment with PRESENT/MISSING/PARTIAL status.
 
 **Invoke:** `/check-reporting` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
 
 ## When to use
 
-`check-reporting` activates on requests such as: checklist, reporting guideline, STROBE, STROBE-MR, Mendelian randomization, CONSORT, CONSORT-AI, STARD, STARD-AI, TRIPOD, TRIPOD-LLM, PGS-RS, PRS-RS, polygenic risk score, polygenic score, PRISMA, PRISMA-DTA, PRISMA-P, ARRIVE, CARE, CLAIM, DECIDE-AI, MI-CLEAR-LLM, SPIRIT, SPIRIT-AI, QUADAS, QUADAS-C, RoB, ROBINS, ROBINS-E, ROBIS, ROB-ME, PROBAST, NOS, COSMIN, AMSTAR, SWiM, risk of bias, compliance check, LLM accuracy, large language model, clinical deployment.
+`check-reporting` activates on requests such as: checklist, reporting guideline, STROBE, STROBE-MR, Mendelian randomization, CONSORT, CONSORT-AI, STARD, STARD-AI, TRIPOD, TRIPOD-LLM, PGS-RS, PRS-RS, polygenic risk score, polygenic score, PRISMA, PRISMA-DTA, PRISMA-P, ARRIVE, CARE, CLAIM, DECIDE-AI, MI-CLEAR-LLM, SPIRIT, SPIRIT-AI, QUADAS, QUADAS-C, RoB, ROBINS, ROBINS-E, ROBIS, ROB-ME, PROBAST, NOS, COSMIN, AMSTAR, SWiM, CHEERS, economic evaluation, cost-effectiveness, cost-utility, QALY, ICER, risk of bias, compliance check, LLM accuracy, large language model, clinical deployment.
 
 ## Quality Card
 
@@ -37,7 +37,7 @@
 
 - `LICENSES.md`
 - `appraisal_tools/` (2 files)
-- `checklists/` (38 files)
+- `checklists/` (39 files)
 - `critical_item_floor.md`
 - `genai_image_study_object_decision_aid.md`
 - `step4c_registration_timing.md`

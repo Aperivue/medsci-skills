@@ -153,8 +153,13 @@
     },
     {
       "path": "skills/analyze-stats/SKILL.md",
-      "size": 53030,
-      "sha256": "39731b85aae55b96d745890ef4968dc8ab3ed12e9feefdb7ea562aa7bacc3c65"
+      "size": 54473,
+      "sha256": "6f7a194db60588e84ddf8e62e80d6e143d14265e21bdac35efa6efbbdd5d5ffc"
+    },
+    {
+      "path": "skills/analyze-stats/references/analysis_guides/health_economic_evaluation.md",
+      "size": 5362,
+      "sha256": "a6f223cf060b1a3b472df82660a11c006c5ea2e72e231b730ce326b00a11044a"
     },
     {
       "path": "skills/analyze-stats/references/analysis_guides/mediation.md",
@@ -533,8 +538,8 @@
     },
     {
       "path": "skills/check-reporting/SKILL.md",
-      "size": 36374,
-      "sha256": "a47396e0ed32e52e394c9bb81dc28ea3542669bc7f71a01e9e3ddff68ac0a464"
+      "size": 36749,
+      "sha256": "2c72f50feec1f6c727797c112631d632321243c6bdbe467d7bcad2be37f214a6"
     },
     {
       "path": "skills/check-reporting/references/LICENSES.md",
@@ -565,6 +570,11 @@
       "path": "skills/check-reporting/references/checklists/CARE.md",
       "size": 5746,
       "sha256": "4bac869891f4b334cdc211409062a1dd3d6a31a0b62218ad4d9ced1a34000f77"
+    },
+    {
+      "path": "skills/check-reporting/references/checklists/CHEERS_2022.md",
+      "size": 8054,
+      "sha256": "830dc33cc4d74a3ebd4f024bb05fd064174002b150b363c3f3f03a13e2bd9a4f"
     },
     {
       "path": "skills/check-reporting/references/checklists/CLAIM_2024.md",
@@ -763,8 +773,8 @@
     },
     {
       "path": "skills/check-reporting/scripts/check_checklist_exists.py",
-      "size": 6614,
-      "sha256": "7c7c5ceefe9e77ba1540cf71b8fac9cc536e51182fda72375200100d0dc51897"
+      "size": 6676,
+      "sha256": "1eff386a3fc1b10c49b1d7348f0634323cb18fe54aa402b1bbaa3515ec137f37"
     },
     {
       "path": "skills/check-reporting/scripts/check_checklist_version.py",
@@ -2004,7 +2014,7 @@
     {
       "path": "skills/make-figures/references/reporting_guideline_figure_map.md",
       "size": 6862,
-      "sha256": "367511d288192cec766cc6b4b8711b1148077f7567f20dd66c555f56fec55eb7"
+      "sha256": "c026fc4fa0a797b91343314d854ae41b8505fc643a07c7ad007572faa4e55798"
     },
     {
       "path": "skills/make-figures/references/visual_abstract_templates/european_radiology.pptx",
@@ -2794,7 +2804,7 @@
     {
       "path": "skills/orchestrate/SKILL.md",
       "size": 35203,
-      "sha256": "5adf3a50cee42451029b0d4ba32a2f74b2e81bd30e5220ebd0e36a9f538a40b7"
+      "sha256": "59b22bc48503a2b597bc4cb10dacf4e31e196c8f9e0e2e367752bb793425ab02"
     },
     {
       "path": "skills/orchestrate/references/dialogue_nodes.md",
@@ -2818,8 +2828,8 @@
     },
     {
       "path": "skills/peer-review/SKILL.md",
-      "size": 58493,
-      "sha256": "057c39cd131c49eeb1949560a0d510f176a012431a0c8d36dd803061f98e0629"
+      "size": 60277,
+      "sha256": "168a9aac2bb0c00707c85c75f4c56bfdc90b9e705ceb30d7e1e331dfbf9f51e6"
     },
     {
       "path": "skills/peer-review/references/aczel_2021_reviewer2_patterns.md",
@@ -2850,6 +2860,11 @@
       "path": "skills/peer-review/references/domain-probes/equity_fairness.md",
       "size": 7665,
       "sha256": "83f2c5116317f96ba564f459f2b679489cc2ad8d2a3ec8078345ce1390680eb2"
+    },
+    {
+      "path": "skills/peer-review/references/domain-probes/health_economic_evaluation.md",
+      "size": 8393,
+      "sha256": "b322a9a6ae2439c1dc97f6a750572eecb3ce1481c139516665a55c9d571dfe8e"
     },
     {
       "path": "skills/peer-review/references/domain-probes/image_synthesis.md",
@@ -3358,8 +3373,8 @@
     },
     {
       "path": "skills/self-review/SKILL.md",
-      "size": 94657,
-      "sha256": "14c982c492d6305c238737366f0996415133fe02ff9aaad7e2c2207d78d260a2"
+      "size": 94894,
+      "sha256": "4145ec34a171e5783205bd2f11b62709302e1f86d6761b4cd9d545da492cbc75"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
@@ -3385,6 +3400,11 @@
       "path": "skills/self-review/references/domain-probes/equity_fairness.md",
       "size": 7665,
       "sha256": "83f2c5116317f96ba564f459f2b679489cc2ad8d2a3ec8078345ce1390680eb2"
+    },
+    {
+      "path": "skills/self-review/references/domain-probes/health_economic_evaluation.md",
+      "size": 8393,
+      "sha256": "b322a9a6ae2439c1dc97f6a750572eecb3ce1481c139516665a55c9d571dfe8e"
     },
     {
       "path": "skills/self-review/references/domain-probes/image_synthesis.md",

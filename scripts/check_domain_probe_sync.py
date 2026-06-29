@@ -49,6 +49,7 @@ MODULES = (
     "network_meta_analysis.md",
     "model_development.md",
     "mllm_evaluation.md",
+    "health_economic_evaluation.md",
 )
 
 CANONICAL_REL = "skills/peer-review/references/domain-probes"
