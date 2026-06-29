@@ -538,8 +538,8 @@
     },
     {
       "path": "skills/check-reporting/SKILL.md",
-      "size": 37305,
-      "sha256": "fa06d9d4063773a29d58603e3922d89a9b288773cc5b27022ef6eee16352b971"
+      "size": 37775,
+      "sha256": "dd025dea034a0ba6ea900d501d182513a2c1f3cbe95a32efbcb701224962c1d6"
     },
     {
       "path": "skills/check-reporting/references/LICENSES.md",
@@ -600,6 +600,11 @@
       "path": "skills/check-reporting/references/checklists/COSMIN_RoB.md",
       "size": 5535,
       "sha256": "d5c677b029a9f7a8ecff6cd2cb9d532149d29de6026b89bc7d4d4d8e1571be94"
+    },
+    {
+      "path": "skills/check-reporting/references/checklists/CROSS.md",
+      "size": 7242,
+      "sha256": "2db92417cd7d5ffed623d8e53ac5b06e8f4d57bbc07a3c8ce900851c3e6aaca4"
     },
     {
       "path": "skills/check-reporting/references/checklists/DECIDE_AI.md",
@@ -778,8 +783,8 @@
     },
     {
       "path": "skills/check-reporting/scripts/check_checklist_exists.py",
-      "size": 6700,
-      "sha256": "9a513070dd36b06bbddcf6eb0c4a4508f523e421cd8182ccad449c1250473645"
+      "size": 6722,
+      "sha256": "eaa77ce04947716984b049a85d9f94e04e4e03247e65bf5b1e08b5d591dac75a"
     },
     {
       "path": "skills/check-reporting/scripts/check_checklist_version.py",
@@ -2019,7 +2024,7 @@
     {
       "path": "skills/make-figures/references/reporting_guideline_figure_map.md",
       "size": 6862,
-      "sha256": "54f2aaee54424ebedbe8f38424bebcf52168835222bf50be91da49e816490784"
+      "sha256": "1af49856cdd22f52c063a7bf2319835b5ce922074849855933ecc24a7f25ab2b"
     },
     {
       "path": "skills/make-figures/references/visual_abstract_templates/european_radiology.pptx",
@@ -2809,7 +2814,7 @@
     {
       "path": "skills/orchestrate/SKILL.md",
       "size": 35203,
-      "sha256": "022099a1b5321fcafb4b9ac54548b212edd2a1a67894730f1fdce1a128c0f6fe"
+      "sha256": "01e2e9c98985730f2df623a634233eefb0deeab155681abb12a6b0957ca0c0bc"
     },
     {
       "path": "skills/orchestrate/references/dialogue_nodes.md",
@@ -2833,8 +2838,8 @@
     },
     {
       "path": "skills/peer-review/SKILL.md",
-      "size": 62244,
-      "sha256": "93cff5db0c82d06ba1a5b4a64dccb371fc081930bf7c16878c33cb9ba8a3ba40"
+      "size": 64095,
+      "sha256": "0848971688fb2d7bd115adf2b4fa0a5129cc979703fa0da2a680c9883644ac83"
     },
     {
       "path": "skills/peer-review/references/aczel_2021_reviewer2_patterns.md",
@@ -2930,6 +2935,11 @@
       "path": "skills/peer-review/references/domain-probes/sr_ma.md",
       "size": 17239,
       "sha256": "486d569f559f16d62b882f7256ccfe7443e3e2b4cc72a407a5cd046162a98b25"
+    },
+    {
+      "path": "skills/peer-review/references/domain-probes/survey_research.md",
+      "size": 7241,
+      "sha256": "597e317780afdcc01bd929a7b902df678ff2e16ea43cf2cbfe5e5cace6495d78"
     },
     {
       "path": "skills/peer-review/references/domain-probes/survival_prognostic.md",
@@ -3383,8 +3393,8 @@
     },
     {
       "path": "skills/self-review/SKILL.md",
-      "size": 95130,
-      "sha256": "7676619bbda458b1cae1ab148797d8a434a71dcdade12eed41deb4de87d603e6"
+      "size": 95312,
+      "sha256": "ff45218dcd5cc5233787b95c8f6ce9168dc2ff27db1ce98d4b121884e13ae526"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
@@ -3475,6 +3485,11 @@
       "path": "skills/self-review/references/domain-probes/sr_ma.md",
       "size": 17239,
       "sha256": "486d569f559f16d62b882f7256ccfe7443e3e2b4cc72a407a5cd046162a98b25"
+    },
+    {
+      "path": "skills/self-review/references/domain-probes/survey_research.md",
+      "size": 7241,
+      "sha256": "597e317780afdcc01bd929a7b902df678ff2e16ea43cf2cbfe5e5cace6495d78"
     },
     {
       "path": "skills/self-review/references/domain-probes/survival_prognostic.md",
