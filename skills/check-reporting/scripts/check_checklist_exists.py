@@ -82,6 +82,7 @@ ALIAS_TO_STEM = {
     "prsrs": "PGS_RS",
     "cheers": "CHEERS_2022",
     "cheers2022": "CHEERS_2022",
+    "record": "RECORD",
 }
 
 EXIT_OK = 0
