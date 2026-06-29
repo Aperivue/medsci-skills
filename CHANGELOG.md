@@ -2,6 +2,23 @@
 
 ## [Unreleased]
 
+## [5.4.0] - 2026-06-29
+
+### Added
+
+- **RECORD lane — routinely-collected / registry / claims / EHR observational reporting.** The second
+  lane of the autonomous reverse-engineer cycle (after CHEERS), chosen by the same CC-BY-cleanliness
+  logic and directly relevant to the suite's heavy NHIS/KNHANES/health-checkup-DB cohort emphasis:
+  - `check-reporting/references/checklists/RECORD.md` — faithful 13-item RECORD summary (base STROBE +
+    RECORD extension; RECORD-PE noted for drug studies; CC BY 4.0, Benchimol et al. *PLoS Med* 2015).
+    Routed via the study-type table + `record` alias. **Reporting guidelines 39 → 40.**
+  - `peer-review` + `self-review` `domain-probes/record_routinely_collected_data.md` (RD1–RD8; vendored
+    byte-identical, review domain-probe modules 18 → 19): database fitness-for-purpose, phenotype
+    code-lists & validation, data linkage & linkage-quality, participant-selection flow incl.
+    data-quality filtering, misclassification, informative missingness, unmeasured confounding +
+    immortal-time/prevalent-user (RECORD-PE), eligibility drift + code/protocol availability.
+- Counts: 51 skills / 41 detectors / **40 reporting guidelines** / 19 review domain-probe modules.
+
 ## [5.3.0] - 2026-06-29
 
 ### Added
