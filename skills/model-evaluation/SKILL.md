@@ -79,6 +79,18 @@ figures → `/make-figures`; the numbers + subgroup performance → `/model-card
 `scripts/check_metric_reporting.py` — flags a task-metric mismatch / missing uncertainty (stdlib,
 network-free). Reproducible challenge: `bash ${CLAUDE_SKILL_DIR}/scripts/metric_reporting_challenge/verify.sh`.
 
+## Reference Files
+
+Load on demand (keep SKILL.md short):
+- `${CLAUDE_SKILL_DIR}/references/metric_guide.md` — operational checklist: the task-correct metric
+  per task (segmentation Dice + HD95/NSD per structure; classification AUROC + AUPRC + sens/spec at
+  deployment prevalence; detection FROC/mAP with a stated IoU), plus calibration, subgroup slices,
+  run-variance, and the per-case CSV hand-off.
+- `${CLAUDE_SKILL_DIR}/references/metric_selection_grounding.md` — the standards grounding behind
+  those choices: the Metrics Reloaded task-fingerprint principle, why each metric pairing is
+  required, calibration vs discrimination, disaggregated reporting, and the CLAIM 2024
+  reporting-fit map (`/check-reporting` owns the item audit).
+
 ## Boundaries
 
 ```

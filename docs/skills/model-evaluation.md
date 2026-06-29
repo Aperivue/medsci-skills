@@ -36,11 +36,12 @@
 **References** (`skills/model-evaluation/references/`):
 
 - `metric_guide.md`
+- `metric_selection_grounding.md`
 
 **Scripts** (`skills/model-evaluation/scripts/`):
 
 - `check_metric_reporting.py`
-- `metric_reporting_challenge/` (6 files)
+- `metric_reporting_challenge/` (8 files)
 
 ## Source
 

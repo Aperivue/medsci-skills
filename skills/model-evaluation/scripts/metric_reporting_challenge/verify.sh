@@ -25,5 +25,10 @@ want seg_bad.md segmentation PIXEL_ACCURACY_SEG
 clean seg_good.md segmentation
 want clf_bad.md classification ACCURACY_ONLY
 clean clf_good.md classification
+# Detection branch: a stated IoU match criterion is required; a hard-wrapped criterion
+# (IoU and its threshold on different physical lines) must still be detected — det_good_wrapped
+# locks the iou_crit proximity window against newline-induced false fires.
+want det_no_iou.md detection DETECTION_METRIC_MISSING
+clean det_good_wrapped.md detection
 
-echo "PASS: metric-reporting gate flags Dice-only/pixel-accuracy and accuracy-only, clears task-correct reports."
+echo "PASS: metric-reporting gate flags Dice-only/pixel-accuracy, accuracy-only, and detection without an IoU criterion; clears task-correct reports (including a line-wrapped IoU criterion)."

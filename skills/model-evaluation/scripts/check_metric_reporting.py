@@ -62,7 +62,7 @@ P = {
     "spec": r"\b(specificit\w+|true[- ]?negative rate|tnr)\b",
     "detection": r"\b(froc|map\b|mean average precision|sensitivity per (?:false positive|fp)|"
                  r"competition performance metric|cpm)\b",
-    "iou_crit": r"\b(?:iou|intersection over union|overlap)\b[^.\n]{0,40}"
+    "iou_crit": r"\b(?:iou|intersection over union|overlap)\b[^.]{0,40}"
                 r"(?:threshold|criterion|>=|≥|>|\bof\b|above|exceed|\d\.\d)"
                 r"|match(?:ing)? criterion"
                 r"|(?:cent(?:er|re|roid)|distance)[- ]?based"
