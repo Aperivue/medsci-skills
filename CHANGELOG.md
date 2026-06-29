@@ -2,6 +2,31 @@
 
 ## [Unreleased]
 
+## [5.1.0] - 2026-06-29
+
+### Added
+
+- **`/lit-sync` fulltext-retrieval phase (opt-in, owner-only).** A new Phase 2.7 orchestrates two
+  complementary full-text routes and reconciles them into `references/fulltext_retrieval.json`:
+  disk open-access PDFs by delegating to the `/fulltext-retrieval` engine, and in-library
+  Zotero-native PDFs via a user-run `find_available_pdf.js` snippet that triggers Zotero's own
+  `addAvailablePDF` / `addAvailablePDFs` — reusing the user's own proxy / OpenURL configuration, so
+  no credentials or institutional identifiers ever enter the skill. Adds a DOI/PMID/Title worklist
+  entry mode.
+- **`fetch_oa.py` (the single authored open-access cascade) enhancements:** TSV/CSV/Markdown-table +
+  `Title` worklist parsing; direct **arXiv** resolution for `10.48550/arXiv.*` DOIs (new/old-style,
+  version suffixes); a `--report retrieval_report.json` (schema_version + per-DOI
+  `status`/`source`/`title_match` tri-state); and pure, offline-testable report/title-match helpers
+  with a best-effort `pdftotext` title cross-check that **flags** mislabeled PDFs without
+  auto-rejecting them. New network-free `fetch_oa_report_challenge` wired into CI.
+
+### Changed
+
+- **DRY consolidation.** `/search-lit` Phase 5 now delegates full-text retrieval to
+  `/fulltext-retrieval` and drops the duplicated inline open-access code (and the unsafe Sci-Hub
+  env-var wording) — the OA cascade now lives in exactly one authored place.
+- Counts unchanged (**51 skills / 41 detectors / 38 reporting guidelines / 14 probes**).
+
 ## [5.0.0] - 2026-06-28
 
 ### Changed
