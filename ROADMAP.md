@@ -12,12 +12,39 @@ where the toolkit sits relative to broad agent-skill catalogs, and
 
 ## Near-term priorities
 
-The work that keeps the toolkit trustworthy for real submissions:
+The toolkit's reliability surface — deterministic detectors, reporting
+checklists, reference and consistency gates — is now broad and mature. The
+near-term frontier is **research throughput**: producing more of the
+submission-grade artifacts a physician actually ships. Reliability work is
+demoted to a sustaining floor, not the strategic direction.
+
+### Research throughput (the frontier)
+
+- **Figure & artifact generation** — produce submission-ready figures
+  (Kaplan–Meier with number-at-risk, ROC with operating point, calibration with
+  slope/intercept), visual abstracts, and central illustrations, backed by
+  deterministic render tests — not just compliance checks on figures drawn
+  elsewhere. This is the suite's self-identified weakest area.
+- **Executable analysis depth** — pair each review domain-probe with a runnable
+  `analyze-stats` guide so the toolkit *produces* the estimate or table (absolute
+  risk, NNT/NNH at a stated baseline, decision-curve net benefit), not only flags
+  its absence.
+- **Design-time enablement** — turn study design into buildable artifacts:
+  target-trial-emulation specifications, DAG-derived adjustment sets, and
+  prediction-model-appropriate sample sizes, shaping a study *before* data
+  collection — the highest-leverage point in the pipeline.
+
+### Sustaining (the reliability floor)
+
+These stay green but are no longer the strategic direction:
 
 - **Manuscript-audit reliability** — keep the deterministic detectors precise
-  (few false positives) and reproducible; expand challenge-card coverage.
+  (few false positives) and reproducible.
 - **Reporting-guideline compliance** — keep the bundled EQUATOR / risk-of-bias
-  checklists current and correctly versioned (base + extension naming).
+  checklists current and correctly versioned (base + extension naming). New
+  reporting-guideline lanes are **maintenance mode** — added only on demonstrated
+  demand, and preferentially paired with a production artifact (analysis guide,
+  figure exemplar, or worked structure) rather than shipped check-only.
 - **Reference and citation integrity** — verification against PubMed / CrossRef /
   OpenAlex before a reference is trusted; no references written from model memory.
 - **Numerical, cohort, and cross-artifact consistency** — counts, denominators,
