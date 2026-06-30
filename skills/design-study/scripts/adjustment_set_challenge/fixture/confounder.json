@@ -1,0 +1,1 @@
+{"_comment": "Classic confounding: C is a common cause of X and Y.", "edges": [["C","X"],["C","Y"],["X","Y"]]}

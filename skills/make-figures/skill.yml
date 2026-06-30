@@ -50,4 +50,5 @@ known_limitations:
 validation_commands:
   - "Rscript scripts/generate_flow_diagram.R"
   - "python3 scripts/validate_pptx_mac_compat.py <file>"
+  - "bash scripts/render_core_figures_challenge/verify.sh"
 evidence_surface: demo

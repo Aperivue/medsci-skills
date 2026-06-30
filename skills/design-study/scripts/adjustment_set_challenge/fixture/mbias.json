@@ -1,0 +1,1 @@
+{"_comment": "M-bias: C is a collider (Z1->C<-Z2); neither Z1 nor Z2 is an open-backdoor common cause of X and Y.", "edges": [["Z1","X"],["Z1","C"],["Z2","C"],["Z2","Y"],["X","Y"]]}

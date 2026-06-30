@@ -1,0 +1,1 @@
+{"_comment": "Instrument-like ancestor: A affects Y only through X (A->X->Y); it is NOT a confounder, so omitting it is not bias (FP guard for the X-free-path fix).", "edges": [["A","X"],["X","Y"]]}

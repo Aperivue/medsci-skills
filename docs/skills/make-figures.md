@@ -28,6 +28,7 @@
 
 - `Rscript scripts/generate_flow_diagram.R`
 - `python3 scripts/validate_pptx_mac_compat.py <file>`
+- `bash scripts/render_core_figures_challenge/verify.sh`
 
 **Evidence** — `demo`
 
@@ -60,6 +61,8 @@
 - `generate_flow_diagram.R`
 - `generate_image.py`
 - `generate_visual_abstract.py`
+- `render_core_figures.py`
+- `render_core_figures_challenge/` (3 files)
 - `validate_pptx_mac_compat.py`
 
 **Templates** (`skills/make-figures/templates/`):
