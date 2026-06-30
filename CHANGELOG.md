@@ -1,5 +1,26 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- **make-figures — runnable, tested render layer for the four core clinical figures
+  (research-enablement frontier).** The suite's self-identified weakest area had prose
+  figure anatomy but **no deterministic render test for any data plot**. New
+  `scripts/render_core_figures.py` turns the Kaplan–Meier, ROC, calibration, and
+  decision-curve exemplar anatomies into deterministic matplotlib generators that take
+  already-computed inputs (the statistical estimation stays in `/analyze-stats`; the
+  render layer never recomputes a number) and `assert_structure` introspects the actual
+  matplotlib artists to verify each figure's load-bearing elements — KM number-at-risk
+  table + monotonic survival + no extrapolation past follow-up; ROC chance diagonal +
+  AUC annotation + operating point; calibration identity line + slope/intercept;
+  decision-curve treat-all/treat-none references + net-benefit axis. A network-free
+  render-regression challenge (`scripts/render_core_figures_challenge/`, wired into
+  `skill.yml` validation) renders all four from a synthetic fixture and confirms the
+  structural gate fails on a malformed figure (non-monotonic KM). Closes the
+  defense/enablement asymmetry (integrity detectors had challenge fixtures; the figure
+  generators had none).
+
 ## [5.8.0] - 2026-06-30
 
 ### Added
