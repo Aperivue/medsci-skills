@@ -27,8 +27,21 @@
 **Validation**
 
 - `carry findings into write-protocol Methods and re-check with /self-review`
+- `bash scripts/adjustment_set_challenge/verify.sh`
 
 **Evidence** — `manual_workflow`
+
+## Bundled resources
+
+**References** (`skills/design-study/references/`):
+
+- `dag_adjustment.md`
+- `target_trial_emulation.md`
+
+**Scripts** (`skills/design-study/scripts/`):
+
+- `adjustment_set_challenge/` (6 files)
+- `adjustment_set_helper.py`
 
 ## Source
 

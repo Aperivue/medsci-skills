@@ -4,6 +4,29 @@
 
 ### Added
 
+- **design-study — target-trial-emulation module + DAG adjustment-set scaffold
+  (design-time enablement frontier).** `design-study` told authors to "emulate a target
+  trial" and "pre-specify the adjustment set from a DAG" but shipped **no scaffold** (it
+  had no `references/` or `scripts/`). Two design artifacts now make that buildable:
+  - `references/target_trial_emulation.md` — the seven-component target-trial protocol
+    table (eligibility, treatment strategies, assignment, **time zero**, outcome, causal
+    contrast, analysis plan) with its data emulation, plus the immortal-time / prevalent-
+    user / confounding-by-indication guards, new-user + active-comparator design, the
+    grace-period clone-censor-weight pattern, ITT-vs-per-protocol estimand choice, and
+    negative-control falsification. Turns an association into a defensible causal contrast
+    — the highest-leverage point for the suite's NHIS/registry/RWE work.
+  - `references/dag_adjustment.md` + `scripts/adjustment_set_helper.py` — DAG-based
+    confounder selection. The helper deterministically classifies each proposed covariate
+    by DAG role (reachability only) and flags `MEDIATOR_ADJUSTMENT`,
+    `DESCENDANT_ADJUSTMENT`, `COLLIDER_ADJUSTMENT`, and `CONFOUNDER_OMITTED`, proposing a
+    candidate backdoor set; it defers the **minimal** sufficient set to dagitty (a
+    validated tool) and never ships a homegrown d-separation solver. A confounder is
+    defined soundly as a common cause with an **X-free** path to the outcome, so an
+    instrument-like `A→X→Y` ancestor is not mis-flagged. A network-free challenge
+    (`scripts/adjustment_set_challenge/`, wired into `skill.yml` validation) locks the
+    classification on canonical confounder / mediator / M-bias / instrument DAGs.
+  - Detector catalogue count unchanged (the helper is a design-time generator, validated
+    by its challenge, not a manuscript-integrity `check_*` detector).
 - **make-figures — runnable, tested render layer for the four core clinical figures
   (research-enablement frontier).** The suite's self-identified weakest area had prose
   figure anatomy but **no deterministic render test for any data plot**. New
