@@ -1,6 +1,14 @@
 # Changelog
 
-## [Unreleased]
+## [5.9.0] - 2026-07-01
+
+A **research-enablement pivot**. After six reporting-guideline lanes and exhaustion of the
+scored reverse-engineering backlog (G50–G68), this release rebalances the suite toward
+*producing* research rather than only checking it: a tested figure-render layer, design-time
+artifacts (target-trial emulation + DAG adjustment sets), prediction-model sample sizing, a
+prospective/deployment-monitoring model-validation seam, default-on clinical-utility output,
+a less-defensive review layer, and a roadmap / gap-scoring correction. Skill, detector, and
+reporting-guideline counts are unchanged (51 / 42 / 44).
 
 ### Changed
 
