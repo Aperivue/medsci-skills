@@ -16,6 +16,113 @@
     `check_confounding_completeness.py --strict` gate, and the research-type gating; full
     content is byte-preserved in the reference. SKILL.md 1399 → 1344 lines; the same
     pattern can be extended to the other research-type-gated phases.
+### Added
+
+- **model-validation — prospective evaluation & deployment-monitoring seam (DECIDE-AI).**
+  The validation tier ladder stopped at "multi-site / prospective external" and the lane
+  never routed to DECIDE-AI, leaving no design step for the clinical-use horizon a model is
+  headed toward. `references/validation_design.md` §2b now extends the ladder past
+  retrospective external to **silent / shadow deployment → prospective comparative (impact)
+  RCT → live deployment + post-deployment monitoring** (performance / dataset-shift /
+  calibration drift with recalibration-or-withdrawal triggers + ongoing subgroup audit). A
+  new SKILL **Phase 6.5** covers this horizon and scopes claims to the tier reached, and
+  Phase 7 reporting now routes prospective/live evaluation to **DECIDE-AI** (early clinical
+  evaluation) or **CONSORT-AI / SPIRIT-AI** in addition to CLAIM 2024 / TRIPOD+AI / STARD-AI.
+- **calc-sample-size — Riley prediction-model sample size (Tests 12–13).** For a clinical
+  prediction / medical-AI model, EPV-10 (Tests 9/11) is outdated and reviewer-vulnerable.
+  New `references/prediction_model_sample_size.md` + decision-tree branch + Tests 12
+  (development via `pmsampsize` — the four Riley criteria) and 13 (external validation via
+  `pmvalsampsize` — target CI widths for the C-statistic, calibration slope, O:E, and net
+  benefit). Test 9's EPV note now scopes EPV-10 to single-predictor hypothesis tests and
+  routes prediction models to Riley. (TRIPOD+AI-aligned; directly in the radiology-AI lane.)
+
+### Changed
+
+- **analyze-stats — clinical utility is a default output, not an optional add-on.** The
+  primary-effect output contract now *requires*, by default: absolute risk + risk
+  difference + NNT/NNH (baseline stated) for OR/HR/RR outcomes; the IQR-anchored
+  real-world-translation line for continuous outcomes; and a **decision-curve / net-benefit
+  pass** (plus incremental net benefit / NRI / IDI over the established clinical model) for
+  prediction / classification models — not AUC alone. Moves the headline from
+  "significant / X-fold" toward "changes this decision by this much."
+- **design-study — target-trial-emulation module + DAG adjustment-set scaffold
+  (design-time enablement frontier).** `design-study` told authors to "emulate a target
+  trial" and "pre-specify the adjustment set from a DAG" but shipped **no scaffold** (it
+  had no `references/` or `scripts/`). Two design artifacts now make that buildable:
+  - `references/target_trial_emulation.md` — the seven-component target-trial protocol
+    table (eligibility, treatment strategies, assignment, **time zero**, outcome, causal
+    contrast, analysis plan) with its data emulation, plus the immortal-time / prevalent-
+    user / confounding-by-indication guards, new-user + active-comparator design, the
+    grace-period clone-censor-weight pattern, ITT-vs-per-protocol estimand choice, and
+    negative-control falsification. Turns an association into a defensible causal contrast
+    — the highest-leverage point for the suite's NHIS/registry/RWE work.
+  - `references/dag_adjustment.md` + `scripts/adjustment_set_helper.py` — DAG-based
+    confounder selection. The helper deterministically classifies each proposed covariate
+    by DAG role (reachability only) and flags `MEDIATOR_ADJUSTMENT`,
+    `DESCENDANT_ADJUSTMENT`, `COLLIDER_ADJUSTMENT`, and `CONFOUNDER_OMITTED`, proposing a
+    candidate backdoor set; it defers the **minimal** sufficient set to dagitty (a
+    validated tool) and never ships a homegrown d-separation solver. A confounder is
+    defined soundly as a common cause with an **X-free** path to the outcome, so an
+    instrument-like `A→X→Y` ancestor is not mis-flagged. A network-free challenge
+    (`scripts/adjustment_set_challenge/`, wired into `skill.yml` validation) locks the
+    classification on canonical confounder / mediator / M-bias / instrument DAGs.
+  - Detector catalogue count unchanged (the helper is a design-time generator, validated
+    by its challenge, not a manuscript-integrity `check_*` detector).
+- **make-figures — runnable, tested render layer for the four core clinical figures
+  (research-enablement frontier).** The suite's self-identified weakest area had prose
+  figure anatomy but **no deterministic render test for any data plot**. New
+  `scripts/render_core_figures.py` turns the Kaplan–Meier, ROC, calibration, and
+  decision-curve exemplar anatomies into deterministic matplotlib generators that take
+  already-computed inputs (the statistical estimation stays in `/analyze-stats`; the
+  render layer never recomputes a number) and `assert_structure` introspects the actual
+  matplotlib artists to verify each figure's load-bearing elements — KM number-at-risk
+  table + monotonic survival + no extrapolation past follow-up; ROC chance diagonal +
+  AUC annotation + operating point; calibration identity line + slope/intercept;
+  decision-curve treat-all/treat-none references + net-benefit axis. A network-free
+  render-regression challenge (`scripts/render_core_figures_challenge/`, wired into
+  `skill.yml` validation) renders all four from a synthetic fixture and confirms the
+  structural gate fails on a malformed figure (non-monotonic KM). Closes the
+  defense/enablement asymmetry (integrity detectors had challenge fixtures; the figure
+  generators had none).
+### Changed
+
+- **Less-defensive QC trims (precision over volume).** The over-defensiveness in the
+  review layer is structural/volume-driven, not per-detector; three trims reduce
+  manufactured findings without weakening genuine gates:
+  - `self-review` panel template no longer imposes a per-reviewer comment **quota**
+    ("Produce 4–8 major / 4–10 minor"). Reviewers now report **only genuine threats** —
+    zero majors is a valid outcome for a clean manuscript — while the Step 3.5
+    lens-diversity gate still enforces axis *coverage* (so under-reporting is caught).
+  - `check_claim_artifact.py`: `ESTIMAND_DRIFT` (fuzzy prereg↔manuscript token overlap)
+    is **downgraded from Major to advisory** — the docs already require manual
+    confirmation against the registration, and a P0 that needs hand-confirmation is not
+    a P0. A bare honest **manuscript-stage analytical-decision disclosure** (which
+    estimand-provenance guidance *recommends writing*) is now a separate advisory
+    `PRIMARY_DISCLOSURE_NOTE`, not `PRIMARY_REASSIGNED`; only **explicit** post-hoc
+    re-designation remains Major. New regression case locks the advisory behaviour.
+  - `check_framework_naming.py`: `VAGUE_GUIDANCE` is now **context-gated** to sentences
+    with a reporting cue (report/reporting/checklist/EQUATOR), so method-level wording
+    like "external validation following recent best-practice recommendations" no longer
+    false-fires. New FP-guard regression case added.
+- **Direction pivot — research throughput over compliance breadth.** After six
+  consecutive reporting-guideline lanes (v5.3.0–v5.8.0) and exhaustion of the
+  scored reverse-engineering backlog (G50–G68), the roadmap and gap-scoring model
+  are rebalanced toward research-enablement:
+  - `ROADMAP.md` near-term priorities are restructured into a **Research
+    throughput (frontier)** tier — figure & artifact generation, executable
+    analysis depth, design-time enablement — above a demoted **Sustaining
+    (reliability floor)** tier. New reporting-guideline lanes are now explicitly
+    *maintenance mode*.
+  - `reverse_engineer/gap_register.md` scoring gains a **leverage** multiplier
+    (`score = impact × frequency × deficit × leverage`; check-only 1.0 / ships an
+    artifact 1.5 / unblocks a pre-data-collection decision 2.0) plus a
+    **saturation tax** (deficit − 2 for an Nth genre lane that only adds a
+    presence-check). Corrects the structural bias toward checkable-over-generative
+    gaps. The G50–G68 batch is marked `closed`.
+  - `README.md` model-lane wording corrected: `model-scaffold` ships a minimal
+    runnable default model for a forward-pass smoke test and *integrates* MONAI /
+    nnU-Net / timm / torchvision for production models, rather than the prior
+    "never reimplements" claim (the scaffold emits a smoke-test U-Net/CNN).
 
 ## [5.8.0] - 2026-06-30
 
