@@ -1,5 +1,20 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- **model-validation — prospective evaluation & deployment-monitoring seam (DECIDE-AI).**
+  The validation tier ladder stopped at "multi-site / prospective external" and the lane
+  never routed to DECIDE-AI, leaving no design step for the clinical-use horizon a model is
+  headed toward. `references/validation_design.md` §2b now extends the ladder past
+  retrospective external to **silent / shadow deployment → prospective comparative (impact)
+  RCT → live deployment + post-deployment monitoring** (performance / dataset-shift /
+  calibration drift with recalibration-or-withdrawal triggers + ongoing subgroup audit). A
+  new SKILL **Phase 6.5** covers this horizon and scopes claims to the tier reached, and
+  Phase 7 reporting now routes prospective/live evaluation to **DECIDE-AI** (early clinical
+  evaluation) or **CONSORT-AI / SPIRIT-AI** in addition to CLAIM 2024 / TRIPOD+AI / STARD-AI.
+
 ## [5.8.0] - 2026-06-30
 
 ### Added

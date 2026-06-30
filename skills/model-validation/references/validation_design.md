@@ -48,13 +48,44 @@ apparent (train=test, never sufficient)
     → k-fold cross-validation / bootstrap   ← still internal (optimism correction)
       → temporal split (later era held out)
         → geographic / external (different site, scanner, vendor)
-          → multi-site / prospective external
+          → multi-site / prospective external      ← retrospective evidence ends here
+            → silent / shadow deployment            ┐
+              → prospective comparative (impact) RCT  ├ early clinical evaluation + use
+                → live deployment + monitoring        ┘  (DECIDE-AI; see §2b)
 ```
 
 - A **generalisability or deployment-readiness** claim needs at least a genuine external tier
   (different site/scanner/vendor), not an internal split.
 - Single-centre external validation supports a narrower claim than multi-site; say which.
 - Reusing the external set for any tuning demotes it back to internal — flag the contradiction.
+- A **clinical-use, workflow-impact, or patient-outcome** claim needs the prospective tiers
+  in §2b (silent trial → impact study), not retrospective external accuracy.
+
+## 2b. Beyond retrospective external — prospective evaluation & deployment monitoring
+
+Retrospective external validation establishes that accuracy transfers; it does **not**
+establish that the model is safe and useful *in the clinical workflow*. That is a separate,
+higher tier the lane previously stopped short of. Design it explicitly when the claim is
+clinical use, not just discrimination:
+
+- **Silent / shadow deployment.** The model runs on live prospective cases without acting on
+  care; compare its outputs to the real-time reference and to clinician decisions. Catches
+  prospective performance drop, input/workflow mismatch, and edge-case failures before any
+  patient is affected. Pre-specify the prospective performance and calibration targets.
+- **Prospective comparative (impact) study / RCT.** To claim a workflow or patient-outcome
+  benefit, randomise or prospectively compare the AI-assisted pathway against standard care
+  on a **clinical** endpoint (time-to-diagnosis, recall rate, downstream outcome), not just
+  standalone accuracy. This is the top of the evidence hierarchy for clinical AI.
+- **Post-deployment monitoring.** A deployed model is not a finished artifact: pre-specify a
+  monitoring plan for **performance drift, dataset / population shift, and calibration
+  drift** over time, with trigger thresholds for recalibration or withdrawal, and an audit of
+  subgroup performance over time (equity does not hold automatically post-deployment).
+
+**Reporting.** Early-stage live evaluation of decision-support AI is reported against
+**DECIDE-AI** (Stage 1–2a, early clinical evaluation); full prospective trials against
+**CONSORT-AI / SPIRIT-AI**. Route via `/check-reporting` (Phase 7). State which tier the
+study reaches and scope the claim to it — a retrospective external study must not claim
+deployment readiness, monitoring adequacy, or clinical-outcome benefit.
 
 ## 3. Comparator design
 
