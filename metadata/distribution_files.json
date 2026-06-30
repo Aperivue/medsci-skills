@@ -153,8 +153,8 @@
     },
     {
       "path": "skills/analyze-stats/SKILL.md",
-      "size": 54473,
-      "sha256": "6f7a194db60588e84ddf8e62e80d6e143d14265e21bdac35efa6efbbdd5d5ffc"
+      "size": 55302,
+      "sha256": "3809b6a55e8a79b7dc48f617e3be0a7faf2a96a6f0ba03d58977a39f267cce81"
     },
     {
       "path": "skills/analyze-stats/references/analysis_guides/health_economic_evaluation.md",
@@ -513,8 +513,8 @@
     },
     {
       "path": "skills/calc-sample-size/SKILL.md",
-      "size": 20967,
-      "sha256": "da3427c78bf251def5433b5ffad106e9069770be347668e6b14bb3ce8e925d40"
+      "size": 23904,
+      "sha256": "0bed1ee5d43f044a490d77fac181900f9e513dfd379831d0446b118b4768b798"
     },
     {
       "path": "skills/calc-sample-size/references/formulas.md",
@@ -530,6 +530,11 @@
       "path": "skills/calc-sample-size/references/observational_cohort.md",
       "size": 2142,
       "sha256": "97062f5aa63ce8f5b5e340e6b65683720b3ce1d94e34d201977d9a2601293038"
+    },
+    {
+      "path": "skills/calc-sample-size/references/prediction_model_sample_size.md",
+      "size": 5074,
+      "sha256": "bf3d42ad59d2a3b3abc2f00db9559de671514b7b64bd4cf44ec53717966dc635"
     },
     {
       "path": "skills/calc-sample-size/skill.yml",

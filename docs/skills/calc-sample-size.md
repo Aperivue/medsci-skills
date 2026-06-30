@@ -37,6 +37,7 @@
 - `formulas.md`
 - `justification_examples.md`
 - `observational_cohort.md`
+- `prediction_model_sample_size.md`
 
 ## Source
 

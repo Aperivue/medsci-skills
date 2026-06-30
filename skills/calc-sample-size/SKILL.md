@@ -20,6 +20,7 @@ Python (alternative), interpret effect sizes clinically, and produce IRB-ready j
 
 - **Formulas**: `${CLAUDE_SKILL_DIR}/references/formulas.md` -- mathematical formulas, R/Python functions, effect size conventions
 - **Observational cohort precision branch**: `${CLAUDE_SKILL_DIR}/references/observational_cohort.md`
+- **Prediction-model / medical-AI sample size (Riley)**: `${CLAUDE_SKILL_DIR}/references/prediction_model_sample_size.md` -- the current TRIPOD+AI-aligned standard for a clinical prediction/classification model (development via `pmsampsize`, external validation via `pmvalsampsize`, net-benefit precision). Use this instead of EPV-10 whenever the goal is risk prediction for use rather than a single-predictor hypothesis test (Tests 12-13).
 - **Justification prose exemplars**: `${CLAUDE_SKILL_DIR}/references/justification_examples.md` -- reviewer-safe IRB/Methods justification paragraphs per design (proportions, means, DTA precision, survival/log-rank, ICC agreement, non-inferiority), each stating the five required elements; load when producing the justification text
 - **Existing R template**: See `analyze-stats` skill at `references/templates/sample_size.R` for the 7 original tests
 
@@ -49,7 +50,10 @@ What is your primary outcome?
 |   |   +-- NO  --> How many groups?
 |   |       +-- 2 groups, superiority     --> [4] Two-proportion comparison (chi-square)
 |   |       +-- 2 groups, non-inferiority --> [10] Non-inferiority / equivalence
-|   |       +-- Multivariable model       --> [9] Logistic regression
+|   |       +-- Multivariable model       --> single-predictor hypothesis test? --> [9] Logistic regression
+|   |                                     --> clinical prediction / AI model for use?
+|   |                                         +-- developing the model  --> [12] Prediction-model development (Riley)
+|   |                                         +-- externally validating  --> [13] External-validation (Riley)
 |   |
 +-- Continuous (measurement, score)
 |   |
@@ -242,7 +246,10 @@ What is your primary outcome?
 **Approach A: Peduzzi Rule of Thumb (EPV >= 10)**
 - N_events = 10 * n_predictors
 - N_total = N_events / event_rate
-- Simple, widely cited, conservative. Use as a minimum baseline.
+- Simple, widely cited, conservative. Use as a minimum baseline **for a single-predictor
+  hypothesis test only**. For a **clinical prediction / medical-AI model intended for use**,
+  EPV-10 is outdated and reviewer-vulnerable — use the Riley criteria in Test 12
+  (development) / Test 13 (validation) instead.
 
 **Approach B: Hsieh (1989) Formula**
 - Uses the OR of interest for the primary predictor to calculate a more precise sample size.
@@ -317,6 +324,44 @@ N_adj = N_total / (1 - attrition_rate)
 **Effect size interpretation**: The EPV rule ensures model stability, not power for a specific HR. If the user also needs power for detecting a specific HR, combine with Test 7 (log-rank/Schoenfeld) and report the larger N.
 
 **Always report both approaches** (EPV minimum + Schoenfeld power, if HR is available) and recommend the larger N.
+
+---
+
+### Test 12: Prediction-Model Development (Riley)
+
+**When to use**: developing a clinical prediction / classification model (including a
+medical-AI model evaluated as one) — the goal is risk prediction *for use*, not a single
+predictor's hypothesis test. EPV-10 (Tests 9/11) is outdated here.
+
+**Approach**: the minimum N is the largest satisfying all four Riley criteria
+simultaneously — global shrinkage ≥ 0.9, apparent–adjusted R² gap ≤ 0.05, precise overall
+risk estimate, and (time-to-event) precise baseline survival. Implemented in R `pmsampsize`.
+
+**Required parameters**: number of **candidate predictor parameters** (count dummy/non-linear
+terms), a conservative expected **C-statistic or Cox-Snell R²** (with its literature source),
+and outcome **prevalence** (binary) or **event rate + mean follow-up** (time-to-event).
+
+Read `${CLAUDE_SKILL_DIR}/references/prediction_model_sample_size.md` for the criteria, the
+`pmsampsize` code, and the reporting requirements. Report N + required events + the binding
+criterion + the assumed C/R² and its source.
+
+---
+
+### Test 13: External-Validation Sample Size (Riley)
+
+**When to use**: sizing an **external validation** of an existing prediction/AI model.
+
+**Approach**: size to estimate the key validation metrics *precisely enough to be
+conclusive* — target the CI width of the **C-statistic**, the **calibration slope**, the
+**calibration-in-the-large / O:E ratio**, and (if a utility claim) **net benefit**.
+Implemented in R `pmvalsampsize`. A floor of ≥ 100 events and ≥ 100 non-events applies, but
+the precise target is usually larger.
+
+**Required parameters**: expected **prevalence**, anticipated **C-statistic**, and the
+target CI widths.
+
+Read `${CLAUDE_SKILL_DIR}/references/prediction_model_sample_size.md` for the `pmvalsampsize`
+code. Report the targeted CI widths and the resulting events / non-events.
 
 ---
 
