@@ -538,8 +538,8 @@
     },
     {
       "path": "skills/check-reporting/SKILL.md",
-      "size": 38325,
-      "sha256": "e4ffb4f0879cfbcff82e2bdd9601eeebbb4e31200b2ec1ca61d7ac46db3745e4"
+      "size": 39223,
+      "sha256": "2dec1d994bb37fb6091f755ab51b2f890eca2b3299e18ca247ae3c7e45be86bb"
     },
     {
       "path": "skills/check-reporting/references/LICENSES.md",
@@ -595,6 +595,11 @@
       "path": "skills/check-reporting/references/checklists/CONSORT_AI.md",
       "size": 4376,
       "sha256": "e923b3d2f550351f952334053978d5f0ca726ddb4798f3c1e4adba36939bd662"
+    },
+    {
+      "path": "skills/check-reporting/references/checklists/COREQ.md",
+      "size": 6809,
+      "sha256": "9a8c10db7fa2859ab4d9b26e01a4a15b134e6b5f76c338911a5be118d41e8f98"
     },
     {
       "path": "skills/check-reporting/references/checklists/COSMIN_RoB.md",
@@ -727,6 +732,11 @@
       "sha256": "d145e612c8fb7a182d8212257790f2599cd218810a57ae97c0c6309cd6c4f613"
     },
     {
+      "path": "skills/check-reporting/references/checklists/SRQR.md",
+      "size": 6930,
+      "sha256": "27ecdb3835e122566b113dc9afc1de6d1a988820f45dabc34a9d56f4658016fd"
+    },
+    {
       "path": "skills/check-reporting/references/checklists/STARD.md",
       "size": 6440,
       "sha256": "afa913b1059945513e83cf146281b5f58cff3e856ca2f74be0ce3cdf60289b60"
@@ -788,8 +798,8 @@
     },
     {
       "path": "skills/check-reporting/scripts/check_checklist_exists.py",
-      "size": 6817,
-      "sha256": "c0a1eea2927b4b0edc2a4e9f15a3ac69a729fc8fa76d13de41f5519ecd782d2f"
+      "size": 6886,
+      "sha256": "c2ffe9761b4580e43a9ea7889b124a6591a6687c3cf939bc3ae1aad051e3040c"
     },
     {
       "path": "skills/check-reporting/scripts/check_checklist_version.py",
@@ -2029,7 +2039,7 @@
     {
       "path": "skills/make-figures/references/reporting_guideline_figure_map.md",
       "size": 7149,
-      "sha256": "f56ed1e6c77209cef20e82d1caa99aa65d7f41aac074198e217025f183bdee5d"
+      "sha256": "81f2eff4969e055d886976f4c9e26bf20f1946048c2b61563a7c95b7ebec1d86"
     },
     {
       "path": "skills/make-figures/references/visual_abstract_templates/european_radiology.pptx",
@@ -2819,7 +2829,7 @@
     {
       "path": "skills/orchestrate/SKILL.md",
       "size": 35203,
-      "sha256": "78920458eece7f1d65bd376595f0c5f7a6d199514554da517242aff0837b62e5"
+      "sha256": "7197cb70e6f8940653ab9adaad158167111a0478edad8a972e7cc8816ca85123"
     },
     {
       "path": "skills/orchestrate/references/dialogue_nodes.md",
@@ -2843,8 +2853,8 @@
     },
     {
       "path": "skills/peer-review/SKILL.md",
-      "size": 66025,
-      "sha256": "811ebdfbe6ddb04748cc57fd3e02922d07b3f508ec6307e0790f3b3793a0b827"
+      "size": 68213,
+      "sha256": "51feccb82dca34a28a0b9ace5467d23ddc654056af2cd9e152a4559cf074cfc3"
     },
     {
       "path": "skills/peer-review/references/aczel_2021_reviewer2_patterns.md",
@@ -2920,6 +2930,11 @@
       "path": "skills/peer-review/references/domain-probes/polygenic_risk_score.md",
       "size": 9718,
       "sha256": "2e383fec4cf2034c62f9e1a419a0ff61e27bc5b3c132f7115b2335bd72472452"
+    },
+    {
+      "path": "skills/peer-review/references/domain-probes/qualitative_research.md",
+      "size": 7014,
+      "sha256": "fd82024939bbfc7f30f284a85a06712b69a269b89a2c8e3752484fb6fb23ebea"
     },
     {
       "path": "skills/peer-review/references/domain-probes/radiomics.md",
@@ -3403,8 +3418,8 @@
     },
     {
       "path": "skills/self-review/SKILL.md",
-      "size": 104929,
-      "sha256": "085c13cd04dae19970ebb2de239fb6d1de9829ba95847e0e18c1e0bbea1e5edf"
+      "size": 105186,
+      "sha256": "202bf201cbe1b5dfc3703cddaaf2dfc025af5456d5446656132b1545243b0098"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
@@ -3475,6 +3490,11 @@
       "path": "skills/self-review/references/domain-probes/polygenic_risk_score.md",
       "size": 9718,
       "sha256": "2e383fec4cf2034c62f9e1a419a0ff61e27bc5b3c132f7115b2335bd72472452"
+    },
+    {
+      "path": "skills/self-review/references/domain-probes/qualitative_research.md",
+      "size": 7014,
+      "sha256": "fd82024939bbfc7f30f284a85a06712b69a269b89a2c8e3752484fb6fb23ebea"
     },
     {
       "path": "skills/self-review/references/domain-probes/radiomics.md",

@@ -1,5 +1,31 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- **Qualitative-research reporting lane (SRQR + COREQ + QL1–QL8 domain probes).** A new
+  study-genre lane for **qualitative studies** — interviews, focus groups, ethnography,
+  grounded theory, phenomenology, document analysis:
+  - `check-reporting` gains two checklists — **SRQR** (`references/checklists/SRQR.md`, alias
+    `srqr` / `qualitative`; 21 items, all qualitative approaches; O'Brien et al. *Acad Med*
+    2014, DOI 10.1097/ACM.0000000000000388) and **COREQ** (`COREQ.md`, alias `coreq`; 32 items
+    in 3 domains, interviews/focus groups specifically; Tong et al. *Int J Qual Health Care*
+    2007, DOI 10.1093/intqhc/mzm042). Both are **in-house faithful summaries** of the item
+    intents (paraphrased — both standards are ©, no Creative Commons licence). Brings the
+    reporting-guideline catalogue to **44**.
+  - `peer-review` / `self-review` gain a vendored, byte-identical **`qualitative_research.md`**
+    domain probe (**QL1–QL8**): approach/paradigm fit, researcher **reflexivity**, purposive
+    sampling & saturation (a small sample is not a flaw), data-collection rigour, **analysis
+    transparency / audit trail** (not "themes emerged"), **trustworthiness** (credibility/
+    dependability/confirmability/transferability — *not* statistical validity), findings
+    grounded in quoted data, and ethics/interpretive scope. Includes the **bidirectional
+    calibration trap** — neither demand quantitative yardsticks (power, "representative" sample,
+    statistical generalizability, κ-as-truth) of qualitative work, nor let it claim causal/
+    prevalence/population over-reach. Review domain-probe modules: 21 → **22**.
+  - Wired into check-reporting study-type routing and the peer-review / self-review trigger tables.
+- Counts: 51 skills / 42 detectors / **44 reporting guidelines** / **22 review domain-probe modules**.
+
 ## [5.7.0] - 2026-06-30
 
 ### Added

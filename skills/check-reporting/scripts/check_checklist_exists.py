@@ -87,6 +87,9 @@ ALIAS_TO_STEM = {
     "cheers2022": "CHEERS_2022",
     "record": "RECORD",
     "cross": "CROSS",
+    "srqr": "SRQR",
+    "coreq": "COREQ",
+    "qualitative": "SRQR",
 }
 
 EXIT_OK = 0
