@@ -1,5 +1,29 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- **Scoping-review reporting lane (PRISMA-ScR + SC1–SC8 domain probes).** A new study-genre
+  lane for **scoping reviews** — reviews that *map* the breadth/nature of evidence, clarify
+  concepts, and identify gaps (distinct from a systematic review, which answers a focused
+  effectiveness/accuracy question):
+  - `check-reporting` gains a **PRISMA-ScR** checklist (`references/checklists/PRISMA_ScR.md`,
+    aliases `prisma-scr` / `scoping review` / `scoping`) — an **in-house faithful summary** of
+    the 20 essential + 2 optional reporting items (paraphrased intents, not verbatim; the
+    PRISMA-ScR statement is ©ACP with no Creative Commons licence), citing Tricco et al.
+    *Ann Intern Med* 2018 (DOI 10.7326/M18-0850). Brings the reporting-guideline catalogue to **42**.
+  - `peer-review` / `self-review` gain a vendored, byte-identical **`scoping_review.md`** domain
+    probe (**SC1–SC8**): scoping fit & PCC framing, a-priori protocol (OSF, not PROSPERO),
+    eligibility by concept, search comprehensiveness, selection & data **charting**, the
+    **asymmetric critical-appraisal calibration** (a scoping review need not assess risk of bias —
+    do not flag its absence, but do flag GRADE-style certainty claimed without appraisal),
+    **synthesis-is-mapping-not-pooling** (no pooled effect/accuracy estimate from a scoping
+    review), and interpretation/gaps/terminology. Review domain-probe modules: 20 → **21**.
+  - Wired into the `make-figures` figure map (PRISMA-ScR flow diagram), check-reporting study-type
+    routing, and the peer-review / self-review trigger tables.
+- Counts: 51 skills / 42 detectors / **42 reporting guidelines** / **21 review domain-probe modules**.
+
 ## [5.6.0] - 2026-06-30
 
 ### Added

@@ -52,6 +52,7 @@ MODULES = (
     "health_economic_evaluation.md",
     "record_routinely_collected_data.md",
     "survey_research.md",
+    "scoping_review.md",
 )
 
 CANONICAL_REL = "skills/peer-review/references/domain-probes"

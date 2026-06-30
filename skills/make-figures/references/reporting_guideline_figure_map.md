@@ -1,7 +1,7 @@
 # Reporting Guideline → Figure Requirements Map
 
 > **Bridge**: this file connects `/make-figures` to `/check-reporting`
-> (41 reporting guidelines). Each row tells you which figures the guideline
+> (42 reporting guidelines). Each row tells you which figures the guideline
 > **mandates** and how this skill currently supports them. Use during
 > Step 1 (Specify) once the study type is known.
 
@@ -25,6 +25,7 @@ Legend for **Status** column:
 | **PRISMA 2020** | Systematic review | Flow diagram (4-phase: identification → screening → eligibility → included) | ✅ | `templates/official/prisma2020/`; R `PRISMA2020` package |
 | **PRISMA-DTA** | DTA systematic review | Modified PRISMA flow + DTA-specific exclusion reasons | ⚠️ | Salameh et al., *BMJ* 2020 (PMID 32312813); use generic flow + extra columns |
 | **PRISMA-NMA** | Network MA | PRISMA flow + network plot | ❌ | Hutton et al., *Ann Intern Med* 2015; network plot via R `netmeta::netgraph()` |
+| **PRISMA-ScR** | Scoping review | PRISMA-ScR flow diagram (sources of evidence: identification → screening → eligibility → included; item 14) | ⚠️ | Tricco et al., *Ann Intern Med* 2018 (DOI 10.7326/M18-0850); use the generic PRISMA flow with "sources of evidence" wording |
 | **PRISMA-P** | Protocol of SR | (none mandated; PRISMA-S search strategy figure recommended) | ❌ | Rethlefsen et al., *Syst Rev* 2021 |
 | **CONSORT 2025** | RCT | Participant-flow diagram (enrollment → allocation → follow-up → analysis) | ✅ | `templates/official/consort2010/` (now CONSORT 2025); R generator |
 | **CONSORT-AI 2020** | AI intervention RCT | CONSORT flow extended with AI training/validation/deployment dataset boxes | ❌ | Liu et al., *Nat Med* 2020 (PMID 32908283), Fig. 1; D2 / Graphviz custom |
@@ -95,7 +96,7 @@ flags them:
 
 ## Cross-references
 
-- `/check-reporting` skill — supports all 41 guidelines, item-level audit
+- `/check-reporting` skill — supports all 42 guidelines, item-level audit
 - `flow_diagram_lessons.md` — production lessons that apply across all flows
 - `pipeline_concepts_medical_ai.md` — DICOM / annotation / federated /
   architecture diagram conventions

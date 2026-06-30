@@ -1,7 +1,7 @@
 ---
 name: check-reporting
-description: Check manuscript compliance with medical research reporting guidelines. Supports 41 guidelines including STROBE, STROBE-MR, RECORD, CONSORT, CONSORT-AI, STARD, STARD-AI, TRIPOD, TRIPOD+AI, TRIPOD-LLM, PGS-RS, ARRIVE, PRISMA, PRISMA-DTA, PRISMA-P, CARE, SPIRIT, SPIRIT-AI, CLAIM, DECIDE-AI, MI-CLEAR-LLM, SQUIRE 2.0, CLEAR, MOOSE, GRRAS, SWiM, AMSTAR 2, CHEERS 2022, CROSS (survey studies), and risk of bias tools (QUADAS-2, QUADAS-C, RoB 2, ROBINS-I, ROBINS-E, ROBIS, ROB-ME, PROBAST, PROBAST+AI, NOS, COSMIN, RoB NMA). Generates item-by-item assessment with PRESENT/MISSING/PARTIAL status.
-triggers: checklist, reporting guideline, STROBE, STROBE-MR, Mendelian randomization, CONSORT, CONSORT-AI, STARD, STARD-AI, TRIPOD, TRIPOD-LLM, PGS-RS, PRS-RS, polygenic risk score, polygenic score, PRISMA, PRISMA-DTA, PRISMA-P, ARRIVE, CARE, CLAIM, DECIDE-AI, MI-CLEAR-LLM, SPIRIT, SPIRIT-AI, QUADAS, QUADAS-C, RoB, ROBINS, ROBINS-E, ROBIS, ROB-ME, PROBAST, NOS, COSMIN, AMSTAR, SWiM, CHEERS, economic evaluation, cost-effectiveness, cost-utility, QALY, ICER, RECORD, RECORD-PE, routinely-collected data, registry, claims, electronic health records, EHR, real-world data, CROSS, CHERRIES, survey, questionnaire, KAP, e-survey, response rate, risk of bias, compliance check, LLM accuracy, large language model, clinical deployment
+description: Check manuscript compliance with medical research reporting guidelines. Supports 42 guidelines including STROBE, STROBE-MR, RECORD, CONSORT, CONSORT-AI, STARD, STARD-AI, TRIPOD, TRIPOD+AI, TRIPOD-LLM, PGS-RS, ARRIVE, PRISMA, PRISMA-DTA, PRISMA-P, PRISMA-ScR (scoping reviews), CARE, SPIRIT, SPIRIT-AI, CLAIM, DECIDE-AI, MI-CLEAR-LLM, SQUIRE 2.0, CLEAR, MOOSE, GRRAS, SWiM, AMSTAR 2, CHEERS 2022, CROSS (survey studies), and risk of bias tools (QUADAS-2, QUADAS-C, RoB 2, ROBINS-I, ROBINS-E, ROBIS, ROB-ME, PROBAST, PROBAST+AI, NOS, COSMIN, RoB NMA). Generates item-by-item assessment with PRESENT/MISSING/PARTIAL status.
+triggers: checklist, reporting guideline, STROBE, STROBE-MR, Mendelian randomization, CONSORT, CONSORT-AI, STARD, STARD-AI, TRIPOD, TRIPOD-LLM, PGS-RS, PRS-RS, polygenic risk score, polygenic score, PRISMA, PRISMA-DTA, PRISMA-P, PRISMA-ScR, scoping review, scoping, evidence map, ARRIVE, CARE, CLAIM, DECIDE-AI, MI-CLEAR-LLM, SPIRIT, SPIRIT-AI, QUADAS, QUADAS-C, RoB, ROBINS, ROBINS-E, ROBIS, ROB-ME, PROBAST, NOS, COSMIN, AMSTAR, SWiM, CHEERS, economic evaluation, cost-effectiveness, cost-utility, QALY, ICER, RECORD, RECORD-PE, routinely-collected data, registry, claims, electronic health records, EHR, real-world data, CROSS, CHERRIES, survey, questionnaire, KAP, e-survey, response rate, risk of bias, compliance check, LLM accuracy, large language model, clinical deployment
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit
 ---
@@ -32,6 +32,7 @@ compliance report suitable for journal submission.
   - `CHEERS_2022.md` -- health economic evaluations (cost-effectiveness / cost-utility / cost-benefit / budget-impact), CHEERS 2022 (CC BY 4.0, Husereau et al. BMJ 2022)
   - `RECORD.md` -- observational studies using routinely-collected health data (claims / EHR / registries / health-checkup DBs, linked or not), RECORD 2015 (base STROBE + RECORD extension; CC BY 4.0, Benchimol et al. PLoS Med 2015; RECORD-PE for drug studies)
   - `CROSS.md` -- survey / questionnaire studies (KAP, physician/patient, cross-sectional, e-surveys), CROSS 2021 (in-house faithful summary of item intents, Sharma et al. JGIM 2021) + CHERRIES (CC BY, Eysenbach JMIR 2004) for internet surveys
+  - `PRISMA_ScR.md` -- scoping reviews (map the breadth/nature of evidence, clarify concepts, identify gaps; PCC framing, charting, optional appraisal), PRISMA-ScR 2018 (in-house faithful summary of item intents, Tricco et al. Ann Intern Med 2018; DOI 10.7326/M18-0850)
   - `PRISMA_2020.md` -- systematic reviews (CC BY)
   - `ARRIVE_2.md` -- animal studies (CC0)
   - `PRISMA_DTA.md` -- DTA systematic reviews (CC BY, McInnes et al. JAMA 2018)
@@ -94,6 +95,7 @@ user specification.
 | Health economic evaluation (cost-effectiveness / cost-utility / cost-benefit / budget-impact) | CHEERS 2022 | -- |
 | Observational study using routinely-collected data (claims / EHR / registry / health-checkup DB) | RECORD (base STROBE + RECORD extension; RECORD-PE for drug studies) | -- |
 | Survey / questionnaire study (KAP, physician/patient, cross-sectional, e-survey) | CROSS (+ CHERRIES for internet surveys) | -- |
+| Scoping review (maps breadth/nature of evidence, clarifies concepts, identifies gaps — not a focused effectiveness/accuracy question) | PRISMA-ScR (base PRISMA + scoping-review extension) | -- |
 | Randomized controlled trial | CONSORT 2025 | CONSORT-AI |
 | Diagnostic accuracy study | STARD 2015 | STARD-AI |
 | Prediction model (development/validation) | TRIPOD | TRIPOD+AI |
