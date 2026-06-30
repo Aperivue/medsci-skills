@@ -105,9 +105,22 @@ Check the **events per class** in the test set, not the cohort total — a metri
 has a confidence interval spanning much of the usable range, and calibration needs roughly ≥ 100 events.
 Hand the formal sizing (diagnostic-accuracy / AUC precision / agreement) to `/calc-sample-size`.
 
+### Phase 6.5 — Prospective evaluation & deployment-monitoring horizon
+Retrospective external validation shows accuracy *transfers*; it does **not** show the model
+is safe and useful *in the clinical workflow*. If the claim is clinical use — not just
+discrimination — design the higher tier explicitly: **silent / shadow deployment** (live
+cases, no care impact, prospective performance + calibration targets) → **prospective
+comparative / impact study or RCT** on a clinical endpoint → **post-deployment monitoring**
+for performance / dataset-shift / calibration drift with recalibration-or-withdrawal
+triggers and ongoing subgroup-performance audit. See `references/validation_design.md` §2b.
+Scope the claim to the tier reached — a retrospective external study must not claim
+deployment readiness or clinical-outcome benefit.
+
 ### Phase 7 — Reporting-guideline fit
 Map the study to its reporting standard via `/check-reporting`: **CLAIM 2024** (diagnostic imaging AI),
-**TRIPOD+AI** (prediction model), **STARD-AI** (diagnostic accuracy), **PROBAST+AI** (risk of bias).
+**TRIPOD+AI** (prediction model), **STARD-AI** (diagnostic accuracy), **PROBAST+AI** (risk of bias),
+and — for a prospective/live evaluation (Phase 6.5) — **DECIDE-AI** (early clinical evaluation of
+decision-support AI) or **CONSORT-AI / SPIRIT-AI** (full AI trials / protocols).
 
 ### Phase 8 — Handoffs
 Carry the audited design into `/write-paper` (Methods), `/calc-sample-size` (sizing), `/check-reporting`
