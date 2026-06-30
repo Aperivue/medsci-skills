@@ -46,5 +46,29 @@ EOF
 python3 "$SCRIPT" --manuscript "$CLEAN" --prereg "$PRE" --strict >/dev/null 2>&1
 check "exit 0 on clean manuscript (matching primary, correct E-value)" test "$?" -eq 0
 
+# Advisory case (less-defensive trim): a bare honest manuscript-stage disclosure —
+# WITHOUT explicit re-designation/after-results language — is PRIMARY_DISCLOSURE_NOTE
+# (advisory), NOT PRIMARY_REASSIGNED (Major). estimand-provenance guidance recommends
+# writing this, so it must not fail --strict on its own.
+DISC="$(mktemp -t ca_disc_XXXX).md"
+trap 'rm -f "$OUT" "$CLEAN" "$DISC"' EXIT
+cat > "$DISC" <<'EOF'
+## Methods
+The primary analysis was the association between emphysema and all-cause mortality
+in the complete-case multivariable Cox model. Using the multiple-imputation model as
+the estimation approach was a manuscript-stage analytical decision, disclosed here and
+reported coequally with the pre-specified complete-case analysis.
+## Results
+The E-value for the primary association (HR 1.34) was 2.02.
+EOF
+python3 "$SCRIPT" --manuscript "$DISC" --prereg "$PRE" --out "$OUT" --strict >/dev/null 2>&1
+check "exit 0 on honest manuscript-stage disclosure (advisory, not Major)" test "$?" -eq 0
+check "PRIMARY_DISCLOSURE_NOTE emitted (advisory)" has_verdict PRIMARY_DISCLOSURE_NOTE
+check "no PRIMARY_REASSIGNED on bare disclosure" python3 -c "
+import json
+d=json.load(open('$OUT'))
+raise SystemExit(0 if not any(c['verdict']=='PRIMARY_REASSIGNED' for c in d['claims']) else 1)
+"
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"
