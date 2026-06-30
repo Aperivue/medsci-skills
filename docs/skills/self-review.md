@@ -39,7 +39,7 @@
 
 **References** (`skills/self-review/references/`):
 
-- `domain-probes/` (20 files)
+- `domain-probes/` (21 files)
 - `exemplar_findings/` (8 files)
 - `panel_review_template.md`
 
