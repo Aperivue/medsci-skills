@@ -65,6 +65,11 @@ VAGUE = re.compile(
     r"\b(?:recent|current|emerging|latest|evolving)\b\s+"
     r"(?:best[- ]practice|guidance|practice|recommendations?|standards?|guidelines?)",
     re.I)
+# VAGUE only counts inside a reporting-framework context; otherwise "recent
+# best-practice recommendations" about a method is a false positive (F05).
+REPORTING_CUE = re.compile(
+    r"\b(?:report(?:ing|ed)?|checklist|EQUATOR|reporting\s+standard|"
+    r"reporting\s+framework)\b", re.I)
 
 
 def _sentences(text: str) -> list[str]:
@@ -128,15 +133,20 @@ def check(text: str) -> list[dict]:
             "where": m,
         })
 
-    # VAGUE_GUIDANCE
-    for m in VAGUE.finditer(text):
-        claims.append({
-            "verdict": "VAGUE_GUIDANCE",
-            "severity": "Minor",
-            "detail": (f"vague wording '{m.group(0).strip()}' — name the specific framework "
-                       f"and cite it"),
-            "where": m.group(0).strip()[:80],
-        })
+    # VAGUE_GUIDANCE — only when the sentence is clearly about REPORTING (a reporting
+    # guideline / checklist) yet names no specific framework. Gating on a reporting cue
+    # prevents firing on method-level wording like "external validation following recent
+    # best-practice recommendations", which is not a reporting-framework claim at all.
+    for s in _sentences(text):
+        m = VAGUE.search(s)
+        if m and REPORTING_CUE.search(s):
+            claims.append({
+                "verdict": "VAGUE_GUIDANCE",
+                "severity": "Minor",
+                "detail": (f"vague wording '{m.group(0).strip()}' in a reporting context — name "
+                           f"the specific framework and cite it"),
+                "where": m.group(0).strip()[:80],
+            })
 
     return claims
 

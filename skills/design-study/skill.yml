@@ -31,4 +31,5 @@ known_limitations:
   - "No standalone demo; recommendations require researcher judgement."
 validation_commands:
   - "carry findings into write-protocol Methods and re-check with /self-review"
+  - "bash scripts/adjustment_set_challenge/verify.sh"
 evidence_surface: manual_workflow

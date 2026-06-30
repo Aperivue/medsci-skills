@@ -11,6 +11,20 @@ These are **authored from scratch as teaching models**, not extracted from any p
 figure. Use them to compose a figure that has every load-bearing element, then score the draft
 against `critic_rubrics/data_plot.md`; do not copy an image.
 
+## Runnable render layer (tested)
+
+For the four highest-yield clinical figures — **Kaplan–Meier, ROC, calibration, and
+decision-curve** — the prose anatomy here has a matching **runnable, deterministic
+generator** in `../../scripts/render_core_figures.py`. It renders already-computed inputs
+(the statistical estimation stays in `/analyze-stats`; the render layer never recomputes a
+number) into the canonical anatomy and asserts each figure's load-bearing elements
+(number-at-risk table, chance diagonal, identity line, treat-all/treat-none references,
+no extrapolation past follow-up). A network-free render-regression challenge
+(`scripts/render_core_figures_challenge/`, wired into `skill.yml` validation) renders all
+four from a synthetic fixture and confirms the structural gate fails on a malformed figure.
+Use the generator to produce these four directly; use the prose models below to compose
+the figure types that do not yet have a generator.
+
 ## Contents
 
 - `forest_plot.md` — meta-analysis forest plot: per-study square-by-weight + CI, pooled diamond
