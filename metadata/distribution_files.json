@@ -808,8 +808,8 @@
     },
     {
       "path": "skills/check-reporting/scripts/check_framework_naming.py",
-      "size": 7719,
-      "sha256": "bb71f1628375779e00438e6ec317c9637cd7bb9c82d71db516097c991f520d58"
+      "size": 8455,
+      "sha256": "bd44ffb3f55d6539f972cd4bf50f1d9301e865da41e05c8d279776e94fb6d3d7"
     },
     {
       "path": "skills/check-reporting/scripts/check_prisma_figure.py",
@@ -1998,8 +1998,8 @@
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/README.md",
-      "size": 4913,
-      "sha256": "a5a320c785154ec73e41863302c2b625c9a24aeb213cfac0f195414aa1570f01"
+      "size": 5872,
+      "sha256": "32f93f0c65b2fe353b17dd1345267c85d5646fcf7de7adb9f784be551fc900af"
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/bland_altman.md",
@@ -2162,14 +2162,34 @@
       "sha256": "88c5e0829bb7c6d1fb6d6e1f45e1ce61bccdd91a7ed9a153623e51d8bc30b651"
     },
     {
+      "path": "skills/make-figures/scripts/render_core_figures.py",
+      "size": 14436,
+      "sha256": "35f91147d51dd73b75dc116be9e0a80588fe1daf502966e82468d3c62b12f25d"
+    },
+    {
+      "path": "skills/make-figures/scripts/render_core_figures_challenge/fixture/synthetic_inputs.json",
+      "size": 1429,
+      "sha256": "24c0944fcb1384f073988d0f6e28b8f375ba4a7eff62fb4e21bc7066726d5ebc"
+    },
+    {
+      "path": "skills/make-figures/scripts/render_core_figures_challenge/problem.md",
+      "size": 2485,
+      "sha256": "a4e62161806d95b637d9ce984541190e5e9e213e2522d1f8740d847ee10c1a30"
+    },
+    {
+      "path": "skills/make-figures/scripts/render_core_figures_challenge/verify.sh",
+      "size": 1907,
+      "sha256": "7f05fd9cd4e2bfdf6c5b7e8e2a61bee5f8fd44d7d2746e29e2ae77adec84b9c0"
+    },
+    {
       "path": "skills/make-figures/scripts/validate_pptx_mac_compat.py",
       "size": 8662,
       "sha256": "195cf51710e151957987632c5c5de3b0c307e3c1457b02ab3893797bad364dd4"
     },
     {
       "path": "skills/make-figures/skill.yml",
-      "size": 2146,
-      "sha256": "bc6f4a4d47ea7a53b733733ee356337edb8803a76fc0d2deb1d889f5931a7b1d"
+      "size": 2205,
+      "sha256": "b973c376998b15cefe9bffdf580889f905b60ddc2dead00cc5cbc900a6fd50f5"
     },
     {
       "path": "skills/make-figures/templates/official/NOTES.md",
@@ -3463,8 +3483,8 @@
     },
     {
       "path": "skills/self-review/SKILL.md",
-      "size": 105186,
-      "sha256": "202bf201cbe1b5dfc3703cddaaf2dfc025af5456d5446656132b1545243b0098"
+      "size": 105611,
+      "sha256": "4bfd610cbf68f1877ebbc4cfec69e1298b4c429f794de303aae296068744de7a"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
@@ -3618,8 +3638,8 @@
     },
     {
       "path": "skills/self-review/references/panel_review_template.md",
-      "size": 14863,
-      "sha256": "a44567b5ea0c47971bcc75b0e6c46f3846d687240b0607ded07183d6fbaad86f"
+      "size": 15095,
+      "sha256": "f9c084e950602ec88f7465dc953ed2309148cab37a3bef5f1b4c80deca2707a4"
     },
     {
       "path": "skills/self-review/scripts/check_artifact_coverage.py",
@@ -3638,8 +3658,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_claim_artifact.py",
-      "size": 10757,
-      "sha256": "2cc6690c917ecb064c9e6834fce6162787881599ba845f8cb6ecddd4d65520b6"
+      "size": 13065,
+      "sha256": "ac29a7e8145152e6641fce8eaf98766cfc943a034db72252cc38538d7ab59db2"
     },
     {
       "path": "skills/self-review/scripts/check_classical_style.py",

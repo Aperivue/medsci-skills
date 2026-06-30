@@ -934,13 +934,18 @@ analysis completeness, and imputation-input integrity are separate subchecks (ru
      --out qc/claim_artifact.json --strict
    ```
 
-2. **Estimand provenance.** The script flags `PRIMARY_REASSIGNED` when the manuscript
-   admits re-designating the primary after results were known, and `ESTIMAND_DRIFT`
-   when the manuscript's primary statement does not match the registered one. Both are
-   **Anticipated Major Comments** (category: A. Study Design & Data Integrity); a primary
-   re-designated post-hoc is a P0 issue. The fix is to report the pre-specified and the
-   revised models **coequally** and disclose the change in the Abstract and Limitations,
-   not to silently lead with the more favourable estimate.
+2. **Estimand provenance.** The script raises `PRIMARY_REASSIGNED` (Major,
+   category: A. Study Design & Data Integrity) only on **explicit** language that the
+   primary was re-designated / switched / chosen post-hoc after results were known — a
+   genuine P0. The fix is to report the pre-specified and the revised models
+   **coequally** and disclose the change in the Abstract and Limitations, not to
+   silently lead with the more favourable estimate. Two related verdicts are
+   **advisory, not Major** — surface them as Anticipated Minor Comments to confirm,
+   never as a blocker: `ESTIMAND_DRIFT` (the fuzzy manuscript↔registration primary
+   token overlap is below threshold — noisy; confirm against the actual registration
+   before treating it as drift) and `PRIMARY_DISCLOSURE_NOTE` (the manuscript discloses
+   a manuscript-stage analytical decision — the honest disclosure estimand-provenance
+   guidance *recommends writing*; confirm it is reported coequally, do not penalise it).
 
 3. **E-value.** `EVALUE_ARITHMETIC` means the reported E-value does not recompute from
    its adjacent effect estimate (the value was likely produced for a different estimate);

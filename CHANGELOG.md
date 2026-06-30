@@ -27,6 +27,61 @@
     classification on canonical confounder / mediator / M-bias / instrument DAGs.
   - Detector catalogue count unchanged (the helper is a design-time generator, validated
     by its challenge, not a manuscript-integrity `check_*` detector).
+- **make-figures — runnable, tested render layer for the four core clinical figures
+  (research-enablement frontier).** The suite's self-identified weakest area had prose
+  figure anatomy but **no deterministic render test for any data plot**. New
+  `scripts/render_core_figures.py` turns the Kaplan–Meier, ROC, calibration, and
+  decision-curve exemplar anatomies into deterministic matplotlib generators that take
+  already-computed inputs (the statistical estimation stays in `/analyze-stats`; the
+  render layer never recomputes a number) and `assert_structure` introspects the actual
+  matplotlib artists to verify each figure's load-bearing elements — KM number-at-risk
+  table + monotonic survival + no extrapolation past follow-up; ROC chance diagonal +
+  AUC annotation + operating point; calibration identity line + slope/intercept;
+  decision-curve treat-all/treat-none references + net-benefit axis. A network-free
+  render-regression challenge (`scripts/render_core_figures_challenge/`, wired into
+  `skill.yml` validation) renders all four from a synthetic fixture and confirms the
+  structural gate fails on a malformed figure (non-monotonic KM). Closes the
+  defense/enablement asymmetry (integrity detectors had challenge fixtures; the figure
+  generators had none).
+### Changed
+
+- **Less-defensive QC trims (precision over volume).** The over-defensiveness in the
+  review layer is structural/volume-driven, not per-detector; three trims reduce
+  manufactured findings without weakening genuine gates:
+  - `self-review` panel template no longer imposes a per-reviewer comment **quota**
+    ("Produce 4–8 major / 4–10 minor"). Reviewers now report **only genuine threats** —
+    zero majors is a valid outcome for a clean manuscript — while the Step 3.5
+    lens-diversity gate still enforces axis *coverage* (so under-reporting is caught).
+  - `check_claim_artifact.py`: `ESTIMAND_DRIFT` (fuzzy prereg↔manuscript token overlap)
+    is **downgraded from Major to advisory** — the docs already require manual
+    confirmation against the registration, and a P0 that needs hand-confirmation is not
+    a P0. A bare honest **manuscript-stage analytical-decision disclosure** (which
+    estimand-provenance guidance *recommends writing*) is now a separate advisory
+    `PRIMARY_DISCLOSURE_NOTE`, not `PRIMARY_REASSIGNED`; only **explicit** post-hoc
+    re-designation remains Major. New regression case locks the advisory behaviour.
+  - `check_framework_naming.py`: `VAGUE_GUIDANCE` is now **context-gated** to sentences
+    with a reporting cue (report/reporting/checklist/EQUATOR), so method-level wording
+    like "external validation following recent best-practice recommendations" no longer
+    false-fires. New FP-guard regression case added.
+- **Direction pivot — research throughput over compliance breadth.** After six
+  consecutive reporting-guideline lanes (v5.3.0–v5.8.0) and exhaustion of the
+  scored reverse-engineering backlog (G50–G68), the roadmap and gap-scoring model
+  are rebalanced toward research-enablement:
+  - `ROADMAP.md` near-term priorities are restructured into a **Research
+    throughput (frontier)** tier — figure & artifact generation, executable
+    analysis depth, design-time enablement — above a demoted **Sustaining
+    (reliability floor)** tier. New reporting-guideline lanes are now explicitly
+    *maintenance mode*.
+  - `reverse_engineer/gap_register.md` scoring gains a **leverage** multiplier
+    (`score = impact × frequency × deficit × leverage`; check-only 1.0 / ships an
+    artifact 1.5 / unblocks a pre-data-collection decision 2.0) plus a
+    **saturation tax** (deficit − 2 for an Nth genre lane that only adds a
+    presence-check). Corrects the structural bias toward checkable-over-generative
+    gaps. The G50–G68 batch is marked `closed`.
+  - `README.md` model-lane wording corrected: `model-scaffold` ships a minimal
+    runnable default model for a forward-pass smoke test and *integrates* MONAI /
+    nnU-Net / timm / torchvision for production models, rather than the prior
+    "never reimplements" claim (the scaffold emits a smoke-test U-Net/CNN).
 
 ## [5.8.0] - 2026-06-30
 

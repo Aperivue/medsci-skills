@@ -8,14 +8,47 @@ reading strong papers and noticing what our skills do not yet cover or check.
 
 ## Scoring
 
-`score = impact × frequency × deficit` (each 1–5; higher = work it sooner).
+`score = impact × frequency × deficit × leverage` (impact / frequency / deficit
+each 1–5; higher = work it sooner).
 
 - **impact** — how much a real manuscript benefits when this gap is filled.
 - **frequency** — how often the relevant study type / task actually shows up.
 - **deficit** — how missing it is now (5 = absent, 1 = minor polish).
+- **leverage** — *does filling the gap produce research, or only check it?* This
+  corrects a structural bias: the paper-driven discovery loop (below) reads
+  *finished* papers, which expose **checkable** deficits (a missing checklist
+  item trivially scores deficit = 5) far more readily than **generative** ones (a
+  sharper figure, a buildable design artifact, deeper executable statistics).
+  Left uncorrected, the register perpetually ranks compliance breadth over
+  enablement. Leverage rebalances toward what a physician ships:
+  - **1.0** — check-only: emits a warning, probe, or checklist item.
+  - **1.5** — produces a draft artifact the user ships: a figure, a table, an
+    executed analysis, a draft section, runnable code.
+  - **2.0** — unblocks a decision *before* data collection: study design, sample
+    size, architecture choice.
+
+  When in doubt, default new check-only rows to 1.0 and only claim ≥1.5 when the
+  gap genuinely emits something the author carries into the manuscript.
+
+**Saturation tax.** A new gap in a study-genre family that already has **both** a
+checklist and a review probe gets **deficit − 2** unless it also fills an
+*analytic-method or generative* gap (a runnable analysis guide, a figure
+exemplar, a worked structure, a design artifact) — not merely another
+presence-check. Adding the Nth EQUATOR variant for an audience that already has
+the relevant ones is near-zero marginal value; the tax encodes that so the loop
+stops manufacturing low-yield compliance lanes.
 
 **status:** `open` · `in-progress` · `shipped (#PR)` · `saturated` (lane's gaps are filled —
-stop adding marginal items there).
+stop adding marginal items there) · `closed` (a scored batch is exhausted — do
+not manufacture marginal rows under the old rubric; start a fresh discovery pass,
+preferentially through the enablement lens above).
+
+> **Backlog status (2026-06-30).** The scored reverse-engineering batch **G50–G68
+> is closed** (exhausted). The reporting-guideline / compliance surface is mature;
+> per the leverage rubric and saturation tax above, the next discovery pass should
+> target **research-enablement** gaps (figure rendering rigor, executable analysis
+> depth, design-time artifacts) before any further check-only genre lane. See
+> [`ROADMAP.md`](../ROADMAP.md) → *Research throughput (the frontier)*.
 
 ## How gaps enter the register
 

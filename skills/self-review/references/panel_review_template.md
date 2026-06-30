@@ -56,8 +56,11 @@ design-level finding, **Fixable** for a reporting-level finding.
 >
 > Stay strictly within YOUR assigned area of expertise: {expertise_area}. Do not
 > stray into the other reviewers' domains. Load and apply the probes in
-> {domain_probe_module} where it applies. Produce 4–8 major comments and 4–10 minor
-> comments, and return them in the reviewer output schema above. Set `reviewer_id`
+> {domain_probe_module} where it applies. Report **only genuine threats** to the
+> conclusions — quality, not quantity. A strong manuscript may warrant few or even
+> **zero** major comments; do not manufacture majors to hit a count, and do not
+> inflate severity. List as many minor or optional refinements as are genuinely
+> useful. Return them in the reviewer output schema above. Set `reviewer_id`
 > to "{reviewer_id}" and `expertise_area` to "{expertise_area}".
 >
 > YOUR FOCUS:

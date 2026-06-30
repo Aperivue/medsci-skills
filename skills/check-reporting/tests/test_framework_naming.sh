@@ -41,5 +41,21 @@ check "SELF_COINED_LABEL detected (12-AI)" has_verdict SELF_COINED_LABEL
 python3 "$SCRIPT" --manuscript "$CLEAN" --strict --quiet >/dev/null 2>&1
 check "exit 0 on clean manuscript (base named + cited)" test "$?" -eq 0
 
+# (3) FP guard (less-defensive, F05): method-level "recent best-practice recommendations"
+# with NO reporting context must NOT trigger VAGUE_GUIDANCE.
+NOFP="$(mktemp -t fw_nofp_XXXX).md"
+trap 'rm -f "$OUT" "$NOFP"' EXIT
+cat > "$NOFP" <<'EOF'
+# Methods
+We performed external validation following recent best-practice recommendations.
+The imputation strategy was aligned with current guidance for handling missingness.
+EOF
+python3 "$SCRIPT" --manuscript "$NOFP" --out "$OUT" --quiet >/dev/null 2>&1
+check "no VAGUE_GUIDANCE on method-level recommendations (no reporting cue)" python3 -c "
+import json
+d=json.load(open('$OUT'))
+raise SystemExit(0 if not any(c['verdict']=='VAGUE_GUIDANCE' for c in d['claims']) else 1)
+"
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"
