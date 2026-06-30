@@ -28,8 +28,12 @@ INPUTS
 OUTPUT  (--out path)
   {"claims": [{claim_id, type, prose_value, artifact_source, verdict, detail}],
    "summary": {...}}
-  Major verdicts: ESTIMAND_DRIFT, PRIMARY_REASSIGNED, EVALUE_ARITHMETIC.
-  Flags (review, not strict-fail): EVALUE_NON_PRIMARY, EVALUE_UNVERIFIABLE.
+  Major verdicts: PRIMARY_REASSIGNED (explicit post-hoc re-designation),
+                  EVALUE_ARITHMETIC.
+  Advisory flags (review, not strict-fail): ESTIMAND_DRIFT (fuzzy prereg↔manuscript
+                  primary token overlap — confirm against the registration first),
+                  PRIMARY_DISCLOSURE_NOTE (honest manuscript-stage disclosure),
+                  EVALUE_NON_PRIMARY, EVALUE_UNVERIFIABLE, FLAG_NO_PREREG_PRIMARY.
 
 Stdlib-only (re / json / math / argparse). Exit codes: 0 clean (or report-only),
 1 a Major verdict exists (with --strict), 2 input/usage error.
@@ -50,12 +54,23 @@ PRIMARY_RE = re.compile(
     r"[^.]*\bprimary\b[^.]*\b(outcome|endpoint|analysis|objective|contrast|comparison|model|estimand)[^.]*\.",
     re.I,
 )
+# Explicit post-hoc re-designation of the primary (Major): the estimand was
+# changed / switched / re-designated, chosen post-hoc, or selected after results
+# were known. This is a genuine integrity issue.
 REASSIGN_RE = re.compile(
     r"\bprimary\b[^.]*\b(re-?designat|re-?assign|re-?defin|switch|chang)\w*|"
     r"\b(re-?designat|re-?assign)\w*[^.]*\bprimary\b|"
-    r"\bmanuscript[- ]stage\b[^.]*\b(decision|primary|analy)|"
     r"\bpost[- ]?hoc\b[^.]*\bprimary\b|"
     r"\bprimary\b[^.]*\bafter\b[^.]*\bresult",
+    re.I,
+)
+# Honest disclosure of a manuscript-stage analytical decision (ADVISORY, not Major):
+# estimand-provenance guidance *recommends writing* exactly this. Flag only to confirm
+# it is disclosed coequally with the pre-specified analysis, not to allege a violation.
+# Only emitted when the explicit-reassignment pattern above does NOT also match.
+DISCLOSURE_RE = re.compile(
+    r"\bmanuscript[- ]stage\b[^.]*\b(decision|primary|analy)|"
+    r"\b(decision|analys[ie]s)\b[^.]*\bmanuscript[- ]stage\b",
     re.I,
 )
 EFFECT_RE = re.compile(r"\b(s?HR|a?HR|a?OR|RR|hazard ratio|odds ratio|risk ratio)\b\D{0,8}(\d+\.\d+)", re.I)
@@ -93,7 +108,7 @@ def check_estimand(manuscript: str, prereg: str | None) -> list[dict]:
     claims = []
     man_primary = [m.group(0).strip() for m in PRIMARY_RE.finditer(manuscript)]
 
-    # 1. Explicit post-hoc reassignment language (highest-confidence catch).
+    # 1. Explicit post-hoc reassignment language (highest-confidence Major catch).
     m = REASSIGN_RE.search(manuscript)
     if m:
         claims.append({
@@ -105,6 +120,21 @@ def check_estimand(manuscript: str, prereg: str | None) -> list[dict]:
             "detail": "Language indicates the primary was re-designated after results were known; "
                       "report the pre-specified and revised models coequally and disclose the change.",
         })
+    else:
+        # 1b. Honest manuscript-stage disclosure → advisory note, NOT a Major. The
+        # estimand-provenance guidance recommends writing this; do not penalise it.
+        d = DISCLOSURE_RE.search(manuscript)
+        if d:
+            claims.append({
+                "claim_id": "EST-disclosure",
+                "type": "estimand",
+                "prose_value": re.sub(r"\s+", " ", manuscript[max(0, d.start() - 40):d.end() + 40]).strip(),
+                "artifact_source": "manuscript (disclosed analytical decision)",
+                "verdict": "PRIMARY_DISCLOSURE_NOTE",
+                "detail": "Discloses a manuscript-stage analytical decision — the honest disclosure "
+                          "estimand-provenance guidance recommends, not a violation. Confirm the "
+                          "pre-specified and revised analyses are reported coequally. Advisory, not Major.",
+            })
 
     # 2. Manuscript primary vs prereg primary (token overlap).
     if prereg:
@@ -122,7 +152,8 @@ def check_estimand(manuscript: str, prereg: str | None) -> list[dict]:
                 "artifact_source": re.sub(r"\s+", " ", b)[:160],
                 "verdict": "ESTIMAND_DRIFT" if score < 0.30 else "OK",
                 "detail": f"manuscript↔prereg primary token overlap = {score:.2f} "
-                          f"(<0.30 → drift candidate; confirm the estimand matches the registration).",
+                          f"(<0.30 → drift candidate). ADVISORY: fuzzy token overlap is noisy; "
+                          f"confirm against the actual registration before treating as drift.",
             })
         elif man_primary and not pre_primary:
             claims.append({
@@ -186,7 +217,12 @@ def check_evalue(manuscript: str) -> list[dict]:
     return claims
 
 
-MAJOR = {"ESTIMAND_DRIFT", "PRIMARY_REASSIGNED", "EVALUE_ARITHMETIC"}
+# ESTIMAND_DRIFT (fuzzy prereg↔manuscript token overlap) and PRIMARY_DISCLOSURE_NOTE
+# (honest manuscript-stage disclosure) are ADVISORY, not Major: the docs require
+# manual confirmation against the registration before either is acted on, and a P0
+# that needs hand-confirmation is not a P0. Only explicit re-designation and a
+# non-recomputing E-value are Major.
+MAJOR = {"PRIMARY_REASSIGNED", "EVALUE_ARITHMETIC"}
 
 
 def main() -> int:
