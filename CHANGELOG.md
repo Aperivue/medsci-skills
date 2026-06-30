@@ -4,6 +4,24 @@
 
 ### Changed
 
+- **Less-defensive QC trims (precision over volume).** The over-defensiveness in the
+  review layer is structural/volume-driven, not per-detector; three trims reduce
+  manufactured findings without weakening genuine gates:
+  - `self-review` panel template no longer imposes a per-reviewer comment **quota**
+    ("Produce 4–8 major / 4–10 minor"). Reviewers now report **only genuine threats** —
+    zero majors is a valid outcome for a clean manuscript — while the Step 3.5
+    lens-diversity gate still enforces axis *coverage* (so under-reporting is caught).
+  - `check_claim_artifact.py`: `ESTIMAND_DRIFT` (fuzzy prereg↔manuscript token overlap)
+    is **downgraded from Major to advisory** — the docs already require manual
+    confirmation against the registration, and a P0 that needs hand-confirmation is not
+    a P0. A bare honest **manuscript-stage analytical-decision disclosure** (which
+    estimand-provenance guidance *recommends writing*) is now a separate advisory
+    `PRIMARY_DISCLOSURE_NOTE`, not `PRIMARY_REASSIGNED`; only **explicit** post-hoc
+    re-designation remains Major. New regression case locks the advisory behaviour.
+  - `check_framework_naming.py`: `VAGUE_GUIDANCE` is now **context-gated** to sentences
+    with a reporting cue (report/reporting/checklist/EQUATOR), so method-level wording
+    like "external validation following recent best-practice recommendations" no longer
+    false-fires. New FP-guard regression case added.
 - **Direction pivot — research throughput over compliance breadth.** After six
   consecutive reporting-guideline lanes (v5.3.0–v5.8.0) and exhaustion of the
   scored reverse-engineering backlog (G50–G68), the roadmap and gap-scoring model
