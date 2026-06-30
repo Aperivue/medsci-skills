@@ -167,10 +167,23 @@ def run_self_test() -> int:
     return 0
 
 
+LOG_DIR = REPO_ROOT / "installers" / ".logs"
+LOG_KEEP = 10  # retain the most recent N install logs; prune older
+
+
 def write_log(log_lines: list[str]) -> Path:
+    """Write the timestamped install log to installers/.logs/ (gitignored) and keep only
+    the most recent LOG_KEEP — logs used to accumulate in the repo root."""
+    LOG_DIR.mkdir(parents=True, exist_ok=True)
     stamp = dt.datetime.now().strftime("%Y%m%d-%H%M%S")
-    log_path = REPO_ROOT / f"{stamp}-{LOG_NAME}"
+    log_path = LOG_DIR / f"{stamp}-{LOG_NAME}"
     log_path.write_text("\n".join(log_lines) + "\n", encoding="utf-8")
+    old = sorted(LOG_DIR.glob(f"*-{LOG_NAME}"))
+    for stale in old[:-LOG_KEEP]:
+        try:
+            stale.unlink()
+        except OSError:
+            pass
     return log_path
 
 

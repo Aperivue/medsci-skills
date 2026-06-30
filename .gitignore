@@ -17,8 +17,9 @@ __pycache__/
 # Release build artifacts
 dist/
 
-# Installer logs (timestamped, per-machine)
+# Installer logs (timestamped, per-machine) — now written under installers/.logs/
 *-medsci-skills-install-log.txt
+installers/.logs/
 
 # Personal session handoff notes (root-level only; skills/*/HANDOFF.md are skill docs)
 /HANDOFF.md
