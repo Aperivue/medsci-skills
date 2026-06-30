@@ -23,8 +23,8 @@
     },
     {
       "path": "installers/install.py",
-      "size": 14230,
-      "sha256": "f1a092bbc5ea676a3bfca3dcb724e9e64a07dc1e1e2414ff696fc21cf4f7f8c0"
+      "size": 14720,
+      "sha256": "b22e5d5be62ba1f71a81ad3214aed2cbfefbf97fd52179b21a8452a11ae95fcf"
     },
     {
       "path": "installers/medsci_txn.py",
@@ -3488,8 +3488,8 @@
     },
     {
       "path": "skills/self-review/SKILL.md",
-      "size": 105611,
-      "sha256": "4bfd610cbf68f1877ebbc4cfec69e1298b4c429f794de303aae296068744de7a"
+      "size": 102413,
+      "sha256": "97219c57684d4eaced9e35b0968ca09da7731095c186a4e97757b4039f43f2f6"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
@@ -3645,6 +3645,11 @@
       "path": "skills/self-review/references/panel_review_template.md",
       "size": 15095,
       "sha256": "f9c084e950602ec88f7465dc953ed2309148cab37a3bef5f1b4c80deca2707a4"
+    },
+    {
+      "path": "skills/self-review/references/phases/confounding_completeness.md",
+      "size": 5344,
+      "sha256": "051f2b066d2d708b161c1e97d666d9e214d128f1413a9c4822f0333e748bda14"
     },
     {
       "path": "skills/self-review/scripts/check_artifact_coverage.py",

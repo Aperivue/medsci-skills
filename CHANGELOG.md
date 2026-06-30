@@ -2,6 +2,20 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **Hygiene + self-review SKILL.md slimming.**
+  - `installers/install.py` now writes timestamped install logs to a gitignored
+    `installers/.logs/` directory and prunes to the most recent 10, instead of accumulating
+    them in the repo root (21 had piled up). `.gitignore` updated.
+  - `self-review` SKILL.md (1399 lines) starts honouring the maintainer's own
+    reference-split rule: the observational-only **Phase 2.5e (Confounding Completeness,
+    ~84 lines)** is extracted to `references/phases/confounding_completeness.md` and loaded
+    on demand. A non-observational review (RCT, diagnostic-accuracy, SR/MA, descriptive) no
+    longer carries the procedure inline. The stub preserves the trigger, the deterministic
+    `check_confounding_completeness.py --strict` gate, and the research-type gating; full
+    content is byte-preserved in the reference. SKILL.md 1399 → 1344 lines; the same
+    pattern can be extended to the other research-type-gated phases.
 ### Added
 
 - **model-validation — prospective evaluation & deployment-monitoring seam (DECIDE-AI).**

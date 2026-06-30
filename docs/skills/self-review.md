@@ -42,6 +42,7 @@
 - `domain-probes/` (22 files)
 - `exemplar_findings/` (8 files)
 - `panel_review_template.md`
+- `phases/` (1 file)
 
 **Scripts** (`skills/self-review/scripts/`):
 
