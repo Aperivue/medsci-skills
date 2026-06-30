@@ -53,6 +53,7 @@ MODULES = (
     "record_routinely_collected_data.md",
     "survey_research.md",
     "scoping_review.md",
+    "qualitative_research.md",
 )
 
 CANONICAL_REL = "skills/peer-review/references/domain-probes"
