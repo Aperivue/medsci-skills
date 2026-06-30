@@ -1,5 +1,29 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- **Direction pivot — research throughput over compliance breadth.** After six
+  consecutive reporting-guideline lanes (v5.3.0–v5.8.0) and exhaustion of the
+  scored reverse-engineering backlog (G50–G68), the roadmap and gap-scoring model
+  are rebalanced toward research-enablement:
+  - `ROADMAP.md` near-term priorities are restructured into a **Research
+    throughput (frontier)** tier — figure & artifact generation, executable
+    analysis depth, design-time enablement — above a demoted **Sustaining
+    (reliability floor)** tier. New reporting-guideline lanes are now explicitly
+    *maintenance mode*.
+  - `reverse_engineer/gap_register.md` scoring gains a **leverage** multiplier
+    (`score = impact × frequency × deficit × leverage`; check-only 1.0 / ships an
+    artifact 1.5 / unblocks a pre-data-collection decision 2.0) plus a
+    **saturation tax** (deficit − 2 for an Nth genre lane that only adds a
+    presence-check). Corrects the structural bias toward checkable-over-generative
+    gaps. The G50–G68 batch is marked `closed`.
+  - `README.md` model-lane wording corrected: `model-scaffold` ships a minimal
+    runnable default model for a forward-pass smoke test and *integrates* MONAI /
+    nnU-Net / timm / torchvision for production models, rather than the prior
+    "never reimplements" claim (the scaffold emits a smoke-test U-Net/CNN).
+
 ## [5.8.0] - 2026-06-30
 
 ### Added
