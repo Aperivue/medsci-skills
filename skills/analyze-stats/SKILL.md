@@ -283,9 +283,20 @@ rho = 0.39 between a fasting marker (IQR 0.6 to 3.5 units, SD 3.05) and an index
 marker is associated with about 0.8 index units higher on average (monotonic-linear approximation;
 crude, unadjusted)."
 
-**Output contract**: add a "Real-world translation" line beneath each primary effect size in the
-results table or its footnote. For OR/HR/RR primary outcomes, add an NNT/NNH line with the baseline
-risk stated.
+**Output contract (clinical-utility is a default, not an optional add-on).** Report every
+primary effect in units a clinician acts on, by default — do not leave these as prose to be
+added later:
+- **OR/HR/RR primary outcomes** → report the relative measure **and** the absolute risk at
+  a stated baseline + absolute risk difference + **NNT** (or NNH = 1/ARI), baseline risk
+  explicit. A relative-only headline is incomplete.
+- **Continuous outcomes** → add the IQR/clinically-anchored "Real-world translation" line
+  beneath the effect size.
+- **Prediction / classification (incl. medical-AI) models** → a **decision-curve /
+  net-benefit** pass at the relevant threshold is standard output, not just AUC +
+  calibration. An incremental claim reports added **net benefit / NRI / IDI over the
+  established clinical model**, not the new model's AUC alone. See
+  `references/table-standards/table-types/incremental_value.md` and the `make-figures`
+  `decision_curve` exemplar (and `render_core_figures.py` for the rendered curve).
 
 ## Error Handling
 

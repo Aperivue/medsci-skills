@@ -4,6 +4,23 @@
 
 ### Added
 
+- **calc-sample-size — Riley prediction-model sample size (Tests 12–13).** For a clinical
+  prediction / medical-AI model, EPV-10 (Tests 9/11) is outdated and reviewer-vulnerable.
+  New `references/prediction_model_sample_size.md` + decision-tree branch + Tests 12
+  (development via `pmsampsize` — the four Riley criteria) and 13 (external validation via
+  `pmvalsampsize` — target CI widths for the C-statistic, calibration slope, O:E, and net
+  benefit). Test 9's EPV note now scopes EPV-10 to single-predictor hypothesis tests and
+  routes prediction models to Riley. (TRIPOD+AI-aligned; directly in the radiology-AI lane.)
+
+### Changed
+
+- **analyze-stats — clinical utility is a default output, not an optional add-on.** The
+  primary-effect output contract now *requires*, by default: absolute risk + risk
+  difference + NNT/NNH (baseline stated) for OR/HR/RR outcomes; the IQR-anchored
+  real-world-translation line for continuous outcomes; and a **decision-curve / net-benefit
+  pass** (plus incremental net benefit / NRI / IDI over the established clinical model) for
+  prediction / classification models — not AUC alone. Moves the headline from
+  "significant / X-fold" toward "changes this decision by this much."
 - **design-study — target-trial-emulation module + DAG adjustment-set scaffold
   (design-time enablement frontier).** `design-study` told authors to "emulate a target
   trial" and "pre-specify the adjustment set from a DAG" but shipped **no scaffold** (it
