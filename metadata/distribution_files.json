@@ -3738,8 +3738,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_supplement_hygiene.py",
-      "size": 11088,
-      "sha256": "f89027472cdf0258357c3b0f0b0f3fec09b5ea65cc1373292797b818d1acf444"
+      "size": 13579,
+      "sha256": "c61bd5e485d2bce4a6efd7bf2a7980aa0d31ebecb876a7c6895fd12cb6bf7f1c"
     },
     {
       "path": "skills/self-review/skill.yml",
