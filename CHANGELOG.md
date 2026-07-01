@@ -4,6 +4,8 @@
 
 ### Added
 
+- **Three review domain-probes (no detector-count change).** Canonical in `peer-review`, vendored byte-identical into `self-review`: **sr_ma P18** (train-vs-validation pool integrity — an apparent/in-sample estimate smuggled into the "validation" pool), **sr_ma P19** (reviewer-side included-study cell audit — metric-type identity, self-eligibility contradiction, CI provenance), and **observational_confounding O18** (pseudoreplication in multi-rater agreement / reader studies — pooled pairwise vs per-subject). SKILL.md probe ranges/counts updated.
+
 - **`check_emphasis_density`** (self-review `style_review`, humanize Pattern 25; integrity detectors 44 → 45) — `EMPHASIS_OVERUSE` (Minor): inline italic-emphasis density over a per-1000-word threshold (after an allowlist of statistical symbols, Latin phrases, and gene/species terms) is an LLM typographic tell. Bold is NOT counted so a Nature/npj bold run-in subheading is never flagged; whole-clause italics escalate. humanize gains Pattern 25 pointing at it.
 - **Two self-review deterministic detectors (integrity detectors 42 → 44).** Each
   ships positive+negative fixtures, a regression test wired into `validate.yml` +
