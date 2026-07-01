@@ -1,5 +1,23 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- **make-figures render layer extended to forest, Bland–Altman, and confusion matrix.**
+  Building on the v5.9.0 tested-generator layer (KM / ROC / calibration / decision-curve),
+  `scripts/render_core_figures.py` gains three more deterministic generators from
+  already-computed inputs, each with `assert_structure` load-bearing-element invariants:
+  **forest** (per-study CI whisker for every study + null reference line + pooled diamond +
+  study/pooled row labels), **Bland–Altman** (difference scatter + bias line + 95% limits of
+  agreement at bias ± 1.96·SD + difference-vs-mean axes), and **confusion matrix** (matrix
+  image + every cell annotated + Predicted/Actual axes). The render-regression challenge now
+  renders all **seven** figures from the synthetic fixture and confirms the gate fails on a
+  non-monotonic KM curve *and* a non-square confusion matrix. Detector count unchanged
+  (render layer is a generator, not a `check_*` detector). Continues closing the suite's
+  self-identified weakest area; forest / Bland–Altman / confusion move from prose-only
+  exemplars to tested generators.
+
 ## [5.9.2] - 2026-07-01
 
 Maintenance patch (no count change).

@@ -13,15 +13,18 @@ against `critic_rubrics/data_plot.md`; do not copy an image.
 
 ## Runnable render layer (tested)
 
-For the four highest-yield clinical figures — **Kaplan–Meier, ROC, calibration, and
-decision-curve** — the prose anatomy here has a matching **runnable, deterministic
-generator** in `../../scripts/render_core_figures.py`. It renders already-computed inputs
+For the highest-yield clinical figures — **Kaplan–Meier, ROC, calibration, decision-curve,
+forest, Bland–Altman, and confusion matrix** — the prose anatomy here has a matching
+**runnable, deterministic generator** in `../../scripts/render_core_figures.py`. It renders
+already-computed inputs
 (the statistical estimation stays in `/analyze-stats`; the render layer never recomputes a
 number) into the canonical anatomy and asserts each figure's load-bearing elements
 (number-at-risk table, chance diagonal, identity line, treat-all/treat-none references,
-no extrapolation past follow-up). A network-free render-regression challenge
+no extrapolation past follow-up; forest per-study CI rows + null line + pooled diamond;
+Bland–Altman bias + 95% limits of agreement; confusion Predicted/Actual axes + annotated
+cells). A network-free render-regression challenge
 (`scripts/render_core_figures_challenge/`, wired into `skill.yml` validation) renders all
-four from a synthetic fixture and confirms the structural gate fails on a malformed figure.
+seven from a synthetic fixture and confirms the structural gate fails on a malformed figure.
 Use the generator to produce these four directly; use the prose models below to compose
 the figure types that do not yet have a generator.
 
