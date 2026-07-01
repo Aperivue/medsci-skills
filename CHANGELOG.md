@@ -1,5 +1,17 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- **`gen_distribution_manifest.py` no longer scans `installers/.logs/`.** The gitignored,
+  per-machine install logs `install.py` writes there were picked up by the manifest scan,
+  so running `install.py` locally and regenerating would add a machine-specific log path
+  to the inventory (local `--check` drift, or an accidental committed log path). `.logs` is
+  added to the generator's excluded directory names; a regression assertion in
+  `installers/tests/test_distribution_manifest.py` (CI-wired) locks it — a stray
+  `installers/.logs/*.txt` is excluded and a normal installer file is still included.
+
 ## [5.9.1] - 2026-07-01
 
 Documentation + connector-transparency patch (no count change; behaviour unchanged by
