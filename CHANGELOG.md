@@ -1,6 +1,10 @@
 # Changelog
 
-## [Unreleased]
+## [5.10.0] - 2026-07-01
+
+Figures enablement — the make-figures **render-test layer** grows from 4 to **10** tested,
+deterministic generators, substantively closing the suite's self-identified weakest area.
+No count change (the render layer is a generator, not a detector).
 
 ### Added
 
