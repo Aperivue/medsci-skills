@@ -1578,8 +1578,8 @@
     },
     {
       "path": "skills/fulltext-retrieval/fetch_oa.py",
-      "size": 24503,
-      "sha256": "768f95a30737e67b7f9edee72fe8815a795c9f83451b46551bbe25fc36094f4b"
+      "size": 24810,
+      "sha256": "12bfbf094d338ac461267cea133c0a63a66bc0d2dadd28727921149bc5b72855"
     },
     {
       "path": "skills/fulltext-retrieval/fetch_oa_report_challenge/expected/projection.json",
@@ -3853,8 +3853,8 @@
     },
     {
       "path": "skills/verify-refs/scripts/verify_refs.py",
-      "size": 40629,
-      "sha256": "ca762e7f294cf90aa1675129a8c152304b48ba7340982c09a64204babc53c674"
+      "size": 41415,
+      "sha256": "4377e25e6b125ace31fd35df9ffdd21a413f0f70ba1e429e5bfcf50c0a29510e"
     },
     {
       "path": "skills/verify-refs/skill.yml",

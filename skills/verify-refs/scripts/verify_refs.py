@@ -13,6 +13,7 @@ import argparse
 import csv
 import html
 import json
+import os
 import re
 import sys
 import time
@@ -372,8 +373,30 @@ def guess_title(raw: str) -> str:
     return ""
 
 
+def _contact_email() -> str:
+    """User-supplied contact email (courtesy for NCBI/CrossRef), never a credential."""
+    return (os.environ.get("MEDSCI_CONTACT_EMAIL")
+            or os.environ.get("NCBI_EMAIL")
+            or "medsci-skills@users.noreply.github.com")
+
+
+def _user_agent() -> str:
+    return f"medsci-skills/verify-refs (mailto:{_contact_email()})"
+
+
+def _ncbi_extras() -> dict:
+    """Optional NCBI E-utilities etiquette / rate-limit params, all from env.
+    Setting NCBI_API_KEY raises the PubMed rate limit from 3 to 10 requests/s;
+    absent it, the calls stay keyless. `tool`/`email` are NCBI-recommended courtesy."""
+    extra = {"tool": "medsci-skills", "email": _contact_email()}
+    key = os.environ.get("NCBI_API_KEY")
+    if key:
+        extra["api_key"] = key
+    return extra
+
+
 def http_json(url: str, timeout: int) -> dict | None:
-    req = urllib.request.Request(url, headers={"User-Agent": "medsci-skills/verify-refs (mailto:example@example.com)"})
+    req = urllib.request.Request(url, headers={"User-Agent": _user_agent()})
     try:
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             return json.loads(resp.read().decode("utf-8", "replace"))
@@ -421,7 +444,7 @@ def verify_pubmed_pmid(pmid: str, timeout: int) -> tuple[str, str, list]:
     verify_pubmed_efetch().
     """
     url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?" + urllib.parse.urlencode(
-        {"db": "pubmed", "id": pmid, "retmode": "json"}
+        {"db": "pubmed", "id": pmid, "retmode": "json", **_ncbi_extras()}
     )
     data = http_json(url, timeout)
     if not data:
@@ -458,11 +481,11 @@ def verify_pubmed_efetch(pmid: str, timeout: int) -> tuple[str, str, list, list]
     case: CrossRef "Vasileios" vs PubMed "Victoria" — PubMed is authoritative).
     """
     url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?" + urllib.parse.urlencode(
-        {"db": "pubmed", "id": pmid, "retmode": "xml"}
+        {"db": "pubmed", "id": pmid, "retmode": "xml", **_ncbi_extras()}
     )
     req = urllib.request.Request(
         url,
-        headers={"User-Agent": "medsci-skills/verify-refs (mailto:example@example.com)"},
+        headers={"User-Agent": _user_agent()},
     )
     try:
         with urllib.request.urlopen(req, timeout=timeout) as resp:
@@ -496,7 +519,7 @@ def verify_pubmed_title(title: str, timeout: int) -> tuple[str, str, list]:
     if not title:
         return "UNVERIFIED", "No DOI, PMID, or usable title", []
     url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?" + urllib.parse.urlencode(
-        {"db": "pubmed", "term": title, "retmode": "json", "retmax": "3"}
+        {"db": "pubmed", "term": title, "retmode": "json", "retmax": "3", **_ncbi_extras()}
     )
     data = http_json(url, timeout)
     if not data:

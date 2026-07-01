@@ -2,7 +2,27 @@
 
 ## [Unreleased]
 
+### Added
+
+- **Research-connector registry (`docs/connectors.md`).** A declarative registry of the
+  external research APIs the skills call — PubMed / NCBI E-utilities, CrossRef, OpenAlex
+  (verification) and Unpaywall / Europe PMC / PMC (open-access full text) — with what uses
+  each, its keyless/legitimate boundary, and a plain "how you authorize" guide. The
+  clinical-manuscript analogue of a curated connector panel: **keyless public APIs (nothing
+  to paste in the common case)**, a `.claude/settings.json` permission-allowlist snippet as
+  the "call these domains without asking each time" mechanism, and an explicit boundary
+  (metadata + open access only; no paywalled-publisher scraping, no institution-auth
+  connectors, no omics/cheminformatics databases). Linked from the README intro.
+
 ### Changed
+
+- **Optional contact-email / NCBI key via environment (never required).**
+  `fetch_oa.py --email` now falls back to `MEDSCI_CONTACT_EMAIL` (and errors clearly if a
+  contact email is set nowhere — Unpaywall requires one). `verify_refs.py` E-utilities
+  calls now send NCBI-recommended `tool`/`email` courtesy params and honour an optional
+  `NCBI_API_KEY` (raising the PubMed rate limit from 3 → 10 req/s); absent the key the calls
+  stay keyless, so behaviour is unchanged by default. All verify-refs + fulltext-retrieval
+  tests pass.
 
 - **Competitive positioning — adjacent-not-competing note for hosted AI-for-science
   workbenches (Claude Science).** `docs/competitive_positioning.md` gains an "Adjacent
