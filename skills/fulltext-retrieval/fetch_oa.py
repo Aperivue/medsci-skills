@@ -21,6 +21,7 @@ import csv
 import io
 import json
 import logging
+import os
 import re
 import shutil
 import subprocess
@@ -562,14 +563,19 @@ def main():
                              "with a DOI column (optional PMID, Title)")
     parser.add_argument("-o", "--output", type=Path, default=Path("pdfs"),
                         help="Output directory (default: pdfs/)")
-    parser.add_argument("-e", "--email", required=True,
-                        help="Contact email (required by Unpaywall TOS)")
+    parser.add_argument("-e", "--email", default=os.environ.get("MEDSCI_CONTACT_EMAIL"),
+                        help="Contact email (required by Unpaywall TOS). "
+                             "Falls back to the MEDSCI_CONTACT_EMAIL environment variable.")
     parser.add_argument("--report", type=Path, default=None,
                         help="Path for the JSON retrieval report "
                              "(default: <output>/retrieval_report.json)")
     parser.add_argument("-v", "--verbose", action="store_true",
                         help="Show debug messages")
     args = parser.parse_args()
+
+    if not args.email:
+        parser.error("a contact email is required (Unpaywall TOS): pass --email you@lab.org "
+                     "or set MEDSCI_CONTACT_EMAIL")
 
     logging.basicConfig(
         level=logging.DEBUG if args.verbose else logging.WARNING,

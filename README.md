@@ -57,7 +57,9 @@ rather than reimplementing the ecosystem. Clinical AI model research
 engineering is in scope; it is **not** a diagnostic tool, an autonomous author, or a
 general AI-scientist platform, and every output requires human-expert verification.
 New here? See the [3 workflows below](#start-here-3-workflows), the
-[FAQ](docs/faq.md), and the
+[FAQ](docs/faq.md), the
+[research connectors it calls](docs/connectors.md) (keyless public APIs — nothing to set
+up in the common case), and the
 [scope boundary](ROADMAP.md#not-planned--explicitly-out-of-scope).
 
 ---
