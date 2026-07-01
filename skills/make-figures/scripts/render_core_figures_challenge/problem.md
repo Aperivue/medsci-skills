@@ -33,13 +33,22 @@ elements are present:
 - **Bland–Altman** — the difference scatter, the bias line, and the 95% limits of
   agreement (bias ± 1.96·SD); difference-vs-mean axes.
 - **Confusion matrix** — a matrix image with every cell annotated and Predicted/Actual axes.
+- **MRMC ROC** — a curve per reader + the reader-averaged curve, the chance diagonal, and
+  the averaged-AUC annotation.
+- **Manhattan** — the point scatter, the named significance-threshold line, and a
+  −log10(p) y-axis.
+- **Clinical timeline** — the time baseline, an event marker + label at each event, and a
+  time x-axis.
+
+(`imaging_panel` stays a prose-only exemplar — it composes real images, not computed
+numbers, so it has no synthetic generator.)
 
 ## Fixture (synthetic only — no real data)
 - `fixture/synthetic_inputs.json` — hand-authored coordinates and summary statistics for
-  all seven figures.
+  all ten figures.
 
 ## Expected (`verify.sh`, network-free)
-- All seven figures render to PNGs (each > 2 KB) **and** every structural invariant holds
+- All ten figures render to PNGs (each > 2 KB) **and** every structural invariant holds
   → exit 0.
 - Mutated inputs that drop a load-bearing element (a non-monotonic KM curve; a non-square
   confusion matrix) raise `AssertionError` → the negative cases in `verify.sh` confirm the

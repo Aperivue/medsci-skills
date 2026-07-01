@@ -60,5 +60,32 @@
   "confusion": {
     "matrix": [[85, 15], [10, 90]],
     "labels": ["Negative", "Positive"]
+  },
+  "mrmc_roc": {
+    "readers": [
+      {"name": "Reader 1", "fpr": [0.0, 0.10, 0.25, 0.50, 1.0], "tpr": [0.0, 0.55, 0.72, 0.88, 1.0], "auc": 0.80},
+      {"name": "Reader 2", "fpr": [0.0, 0.08, 0.20, 0.45, 1.0], "tpr": [0.0, 0.62, 0.78, 0.90, 1.0], "auc": 0.84},
+      {"name": "Reader 3", "fpr": [0.0, 0.12, 0.30, 0.55, 1.0], "tpr": [0.0, 0.50, 0.68, 0.85, 1.0], "auc": 0.77}
+    ],
+    "averaged": {"fpr": [0.0, 0.10, 0.25, 0.50, 1.0], "tpr": [0.0, 0.56, 0.73, 0.88, 1.0], "auc": 0.805, "label": "Reader-averaged"},
+    "delta_auc": {"value": 0.06, "margin": 0.05}
+  },
+  "manhattan": {
+    "xlabel": "Candidate exposure (index)",
+    "threshold": 2.6,
+    "x": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+    "neglogp": [0.4, 1.2, 0.8, 3.5, 0.6, 1.1, 2.1, 0.9, 4.2, 0.5, 1.3, 0.7, 2.8, 1.0, 0.4, 5.1, 0.9, 1.4, 0.6, 2.2],
+    "labels": ["", "", "", "Exposure D", "", "", "", "", "Exposure I", "", "", "", "Exposure M", "", "", "Exposure P", "", "", "", ""]
+  },
+  "timeline": {
+    "time_unit": "days from admission",
+    "events": [
+      {"time": 0, "label": "Admission"},
+      {"time": 2, "label": "CT scan"},
+      {"time": 5, "label": "Biopsy"},
+      {"time": 9, "label": "Diagnosis"},
+      {"time": 14, "label": "Treatment start"},
+      {"time": 30, "label": "Follow-up"}
+    ]
   }
 }

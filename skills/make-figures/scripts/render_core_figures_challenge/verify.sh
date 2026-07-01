@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Deterministic verifier for the core-figure render challenge (make-figures).
-# Network-free. Renders the seven canonical clinical figures from a synthetic fixture and
+# Network-free. Renders the ten canonical clinical figures from a synthetic fixture and
 # asserts each figure's load-bearing elements; then confirms the structural gate FAILS on
 # mutated inputs (so the assertions are proven to bite). Exit 0 = all expectations hold.
 set -euo pipefail
@@ -13,13 +13,13 @@ TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
 python3 -c "import matplotlib, numpy" 2>/dev/null \
   || { echo "SKIP: matplotlib/numpy unavailable on this host"; exit 0; }
 
-# (1) Positive: all seven figures render + every structural invariant holds.
+# (1) Positive: all ten figures render + every structural invariant holds.
 python3 "$GEN" --inputs "$FIX" --out-dir "$TMP/out" >"$TMP/log" 2>&1 \
   || { echo "FAIL: valid fixture did not render/verify" >&2; cat "$TMP/log" >&2; exit 1; }
-for k in km roc calibration dca forest bland_altman confusion; do
+for k in km roc calibration dca forest bland_altman confusion mrmc_roc manhattan timeline; do
   [ -s "$TMP/out/$k.png" ] || { echo "FAIL: $k.png not written" >&2; exit 1; }
 done
-grep -q "PASS: 7 figure" "$TMP/log" || { echo "FAIL: not all seven figures verified" >&2; cat "$TMP/log" >&2; exit 1; }
+grep -q "PASS: 10 figure" "$TMP/log" || { echo "FAIL: not all ten figures verified" >&2; cat "$TMP/log" >&2; exit 1; }
 
 # (2) Negative — the assertions must actually fire on malformed inputs.
 # (2a) a KM survival curve mutated to be non-monotonic.
@@ -43,4 +43,4 @@ if python3 "$GEN" --inputs "$TMP/bad_cm.json" --out-dir "$TMP/bc" >/dev/null 2>&
   echo "FAIL: a non-square confusion matrix was NOT caught" >&2; exit 1
 fi
 
-echo "PASS: 7 core figures render + structurally verify; the gate fails on a non-monotonic KM curve and a non-square confusion matrix."
+echo "PASS: 10 core figures render + structurally verify; the gate fails on a non-monotonic KM curve and a non-square confusion matrix."
