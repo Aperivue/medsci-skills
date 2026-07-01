@@ -48,5 +48,6 @@ validation_commands:
   - "bash tests/test_editorial_impression.sh"
   - "bash tests/test_rounded_delta.sh"
   - "bash tests/test_figure_citation.sh"
+  - "bash tests/test_emphasis_density.sh"
   - "feed R0-numbered output into /revise"
 evidence_surface: demo

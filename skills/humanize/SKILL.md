@@ -178,6 +178,7 @@ If the density remains above 2.0, run another fix-verify cycle (max 3 rounds).
 | 19 | § (section sign) marker | "as in §2.3", "(see §Discussion)", "§Results" | Delete or replace with section name ("Methods", "Results") — `grep -c "§"` = 0 |
 | 20 | Methods/Results self-reference parenthetical | "(Methods §X)", "(Results §3.1)", "(Methods, Section 2.3)" | Drop the parenthetical or shorten to "(see Methods)" |
 | 21 | AI Disclosure boilerplate (body) | "## Artificial Intelligence Disclosure", "Generative AI was not used to create..." in manuscript body | Remove from body → place in cover letter / submission form only (per `~/.claude/rules/journal-ai-image-policies.md`) |
+| 25 | Inline-emphasis over-use (typographic over-signposting) | Single-word italics (*into*, *passive*, *same*), whole-clause italics (*a redesign of the relationship itself*), bold used mid-paragraph to signpost | Remove inline emphasis; keep only legitimate italics — statistical symbols (*P*, *t*, *n*), Latin (*in vivo*, *et al.*), gene/species (*BRCA1*). A bold **run-in subheading** at line start is fine (Nature/npj style) |
 
 ### Response-Letter Patterns (R2R)
 
@@ -247,6 +248,7 @@ the pass/fail status.
 | Pattern 19 — `§` symbol | ENFORCED (senior MA reviewer prep) | `grep -c "§" manuscript.md` > 0 | auto-strip; verify post-rewrite count == 0 |
 | Pattern 20 — `(see Methods §X)` self-reference | ENFORCED | match found | rewrite to direct section name reference |
 | Pattern 21 — AI Disclosure paragraph in body | ENFORCED | "Generative AI was not used..." paragraph in manuscript body | move to cover letter or remove |
+| Pattern 25 — inline-emphasis over-use | ENFORCED | italic-emphasis density over threshold after allowlist | run `/self-review` `scripts/check_emphasis_density.py --manuscript manuscript.md`; `EMPHASIS_OVERUSE` (Minor) means strip inline italics (keep only stat symbols / Latin / gene-species); whole-clause italics are the strongest tell |
 | Patterns 22-24 — R2R editing-mechanism / draft line-number / tooling leak | TRIAGE (response letters); `§` = 0 hard | detection greps in ai_patterns.md R2R section surface candidates | review each hit (analysis narration, quoted additions, revised-manuscript page/line are NOT tells); rewrite confirmed tells to substantive prose |
 | Citation preservation invariant | ENFORCED | any pre-existing `[@bibkey]` removed by rewrite | revert that single rewrite; flag for user |
 | Numerical preservation invariant | ENFORCED | any number changed by rewrite | revert; flag for user |
