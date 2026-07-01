@@ -61,7 +61,11 @@ EXCLUDE_RELPATHS = {
     "provenance.json",
     "metadata/provenance.json",
 }
-EXCLUDE_DIR_NAMES = {"__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache", "node_modules", ".git", "tests"}
+# ".logs" excludes installers/.logs/ — the gitignored, per-machine install logs
+# install.py writes; without this, running install.py locally then regenerating would
+# add a machine-specific log path to the manifest (local `--check` drift, or an
+# accidental commit of a log path).
+EXCLUDE_DIR_NAMES = {"__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache", "node_modules", ".git", "tests", ".logs"}
 EXCLUDE_SUFFIXES = (".pyc",)
 EXCLUDE_NAMES = {".DS_Store"}
 

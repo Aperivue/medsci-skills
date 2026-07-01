@@ -37,7 +37,7 @@ def run(*args: str) -> int:
 
 
 def classroom_payload() -> set[str]:
-    excl = {"__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache", "node_modules", ".git", "tests"}
+    excl = {"__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache", "node_modules", ".git", "tests", ".logs"}
     exclf = {".DS_Store"}
     payload: set[str] = set()
     for root in ("README_FIRST.md", "installers", "skills"):
@@ -71,6 +71,20 @@ def main() -> int:
           "metadata/distribution_files.json" not in inv and "metadata/distribution_manifest.json" not in inv)
     # the transactional installer module must be in the payload (install.py imports it)
     check("installers/medsci_txn.py is in the inventory", "installers/medsci_txn.py" in inv)
+
+    # regression (durable fix): gitignored installer logs under installers/.logs/ are
+    # excluded from the inventory, so running install.py locally never drifts the manifest.
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "gdm_under_test", ROOT / "scripts" / "gen_distribution_manifest.py")
+    gdm = importlib.util.module_from_spec(spec)
+    sys.modules["gdm_under_test"] = gdm
+    spec.loader.exec_module(gdm)
+    log_name = "20260101-000000-medsci-skills-install-log.txt"
+    check("installer .logs/ path is excluded from the inventory",
+          gdm._included(f"installers/.logs/{log_name}", log_name) is False)
+    check("a normal installer file is still included",
+          gdm._included("installers/install.py", "install.py") is True)
 
     print("----")
     print(f"test_distribution_manifest: {PASS} passed, {FAIL} failed")
