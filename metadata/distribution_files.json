@@ -2923,8 +2923,8 @@
     },
     {
       "path": "skills/peer-review/SKILL.md",
-      "size": 68299,
-      "sha256": "a59027314651f771b4f91481fe789b7d10506d6a5a37d3d99d3e7e9b63fe10a2"
+      "size": 68302,
+      "sha256": "bf56fbc16bb3e43fb43f09982d36e68f53f8b0f666564e2828e692472ad0660f"
     },
     {
       "path": "skills/peer-review/references/aczel_2021_reviewer2_patterns.md",
@@ -2933,8 +2933,8 @@
     },
     {
       "path": "skills/peer-review/references/domain-probes/ai_overclaiming.md",
-      "size": 14205,
-      "sha256": "565aa362e20ea6ca923510ea393829fb851e0caaae3d732f99144dd48a25b951"
+      "size": 15410,
+      "sha256": "bdb07002bf0b351579036937af5bf149e35389a218198699b81d31dc2fda7ec9"
     },
     {
       "path": "skills/peer-review/references/domain-probes/case_report.md",
@@ -2948,8 +2948,8 @@
     },
     {
       "path": "skills/peer-review/references/domain-probes/diagnostic_accuracy.md",
-      "size": 9002,
-      "sha256": "8232e2023d3c4d52e6a2d9003ae335302d6fe78c54d39b81f591c07becaf4df0"
+      "size": 11692,
+      "sha256": "afc69e56578babcc1cf7c7952d2df301fdc829329fb480a5cf426ff6ab65d9f5"
     },
     {
       "path": "skills/peer-review/references/domain-probes/equity_fairness.md",
@@ -3488,13 +3488,13 @@
     },
     {
       "path": "skills/self-review/SKILL.md",
-      "size": 104027,
-      "sha256": "9176cb5a746bf5f298db1de9bc52ee8a0cb927831d7b168892ca70efad3db975"
+      "size": 104028,
+      "sha256": "22bc51c9adcb1fc9ff9120c2650faaa2f5f3a0482fe1fd781e231e2191e21081"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
-      "size": 14205,
-      "sha256": "565aa362e20ea6ca923510ea393829fb851e0caaae3d732f99144dd48a25b951"
+      "size": 15410,
+      "sha256": "bdb07002bf0b351579036937af5bf149e35389a218198699b81d31dc2fda7ec9"
     },
     {
       "path": "skills/self-review/references/domain-probes/case_report.md",
@@ -3508,8 +3508,8 @@
     },
     {
       "path": "skills/self-review/references/domain-probes/diagnostic_accuracy.md",
-      "size": 9002,
-      "sha256": "8232e2023d3c4d52e6a2d9003ae335302d6fe78c54d39b81f591c07becaf4df0"
+      "size": 11692,
+      "sha256": "afc69e56578babcc1cf7c7952d2df301fdc829329fb480a5cf426ff6ab65d9f5"
     },
     {
       "path": "skills/self-review/references/domain-probes/equity_fairness.md",
