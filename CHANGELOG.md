@@ -1,6 +1,11 @@
 # Changelog
 
-## [Unreleased]
+## [5.9.1] - 2026-07-01
+
+Documentation + connector-transparency patch (no count change; behaviour unchanged by
+default). Adds a research-connector registry and clarifies that the toolkit's external
+APIs are keyless public services, plus an adjacent-not-competing note vs hosted
+AI-for-science workbenches.
 
 ### Added
 
