@@ -33,6 +33,7 @@
 - `bash tests/test_editorial_impression.sh`
 - `bash tests/test_rounded_delta.sh`
 - `bash tests/test_figure_citation.sh`
+- `bash tests/test_emphasis_density.sh`
 - `feed R0-numbered output into /revise`
 
 **Evidence** — `demo`
@@ -56,6 +57,7 @@
 - `check_cohort_arithmetic.py`
 - `check_confounding_completeness.py`
 - `check_editorial_impression.py`
+- `check_emphasis_density.py`
 - `check_figure_citation.py`
 - `check_null_calibration.py`
 - `check_panel_diversity.py`

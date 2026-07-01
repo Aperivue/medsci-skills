@@ -69,6 +69,7 @@ FAMILY_BY_ID: dict[str, str] = {
     "check_paren_spans": "style_review",
     "check_training_hygiene": "style_review",
     "check_editorial_impression": "style_review",
+    "check_emphasis_density": "style_review",
     # Confounding, scope & estimand contracts
     "check_scope_coherence": "confounding_scope_estimand",
     "check_confounding_completeness": "confounding_scope_estimand",

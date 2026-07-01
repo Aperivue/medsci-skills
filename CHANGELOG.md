@@ -4,6 +4,7 @@
 
 ### Added
 
+- **`check_emphasis_density`** (self-review `style_review`, humanize Pattern 25; integrity detectors 44 → 45) — `EMPHASIS_OVERUSE` (Minor): inline italic-emphasis density over a per-1000-word threshold (after an allowlist of statistical symbols, Latin phrases, and gene/species terms) is an LLM typographic tell. Bold is NOT counted so a Nature/npj bold run-in subheading is never flagged; whole-clause italics escalate. humanize gains Pattern 25 pointing at it.
 - **Two self-review deterministic detectors (integrity detectors 42 → 44).** Each
   ships positive+negative fixtures, a regression test wired into `validate.yml` +
   `skill.yml`, and a family mapping.

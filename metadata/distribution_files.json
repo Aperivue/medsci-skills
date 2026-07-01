@@ -1658,8 +1658,8 @@
     },
     {
       "path": "skills/humanize/SKILL.md",
-      "size": 13461,
-      "sha256": "78e12b996cacfa5b1b16b0a0fe26cee5dd72cb990b70f26e90041d6e0eb65c9a"
+      "size": 14240,
+      "sha256": "f179598c74b1ab0b3d6639fdd26b8cafa33713a9ebe9374aad5d31571340d836"
     },
     {
       "path": "skills/humanize/references/ai_patterns.md",
@@ -3692,6 +3692,11 @@
       "sha256": "42e0e9315e1c97ca0f9943213c65ea91d7064773d25287b2577f0386dfb7fc41"
     },
     {
+      "path": "skills/self-review/scripts/check_emphasis_density.py",
+      "size": 6626,
+      "sha256": "79e517942c1eca4f879fa2b05e6497f93fe6f4d53ed58ca98e240bf5b44c4821"
+    },
+    {
       "path": "skills/self-review/scripts/check_figure_citation.py",
       "size": 5298,
       "sha256": "342bc1126a420111da9c0fe38c6cd68cc45542b0e485202689d7219de9d80712"
@@ -3738,8 +3743,8 @@
     },
     {
       "path": "skills/self-review/skill.yml",
-      "size": 2303,
-      "sha256": "174f646142d5b67919f364bdcce9bcc8c464faa6ad068e9b5185aed93965a186"
+      "size": 2345,
+      "sha256": "91883d75f33ee873a6ebfbd4d5f2cf0c292d3b90fe4705d6a35e82a26ecf6523"
     },
     {
       "path": "skills/setup-medsci/SKILL.md",
