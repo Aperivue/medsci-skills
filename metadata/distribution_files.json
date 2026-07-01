@@ -2923,8 +2923,8 @@
     },
     {
       "path": "skills/peer-review/SKILL.md",
-      "size": 68213,
-      "sha256": "51feccb82dca34a28a0b9ace5467d23ddc654056af2cd9e152a4559cf074cfc3"
+      "size": 68299,
+      "sha256": "a59027314651f771b4f91481fe789b7d10506d6a5a37d3d99d3e7e9b63fe10a2"
     },
     {
       "path": "skills/peer-review/references/aczel_2021_reviewer2_patterns.md",
@@ -2993,8 +2993,8 @@
     },
     {
       "path": "skills/peer-review/references/domain-probes/observational_confounding.md",
-      "size": 33429,
-      "sha256": "ac1736047c069aa47df76deea92379cae407043b6989d8d3fc77db8fd84b0031"
+      "size": 34617,
+      "sha256": "ec4a11caed6d604e510437827f2b979fcf43ab1ddea6b298eb95673472b2b459"
     },
     {
       "path": "skills/peer-review/references/domain-probes/polygenic_risk_score.md",
@@ -3028,8 +3028,8 @@
     },
     {
       "path": "skills/peer-review/references/domain-probes/sr_ma.md",
-      "size": 17239,
-      "sha256": "486d569f559f16d62b882f7256ccfe7443e3e2b4cc72a407a5cd046162a98b25"
+      "size": 20154,
+      "sha256": "82ccb4abc1ab1fffaf528268baad6c79e67c9b2ff929c14d7dcccb9677e10ddc"
     },
     {
       "path": "skills/peer-review/references/domain-probes/survey_research.md",
@@ -3488,8 +3488,8 @@
     },
     {
       "path": "skills/self-review/SKILL.md",
-      "size": 103699,
-      "sha256": "fc1cd1ec6116bd0f9c687a8dc409787b90e501865de8001f53bed21982d4449e"
+      "size": 104027,
+      "sha256": "9176cb5a746bf5f298db1de9bc52ee8a0cb927831d7b168892ca70efad3db975"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
@@ -3553,8 +3553,8 @@
     },
     {
       "path": "skills/self-review/references/domain-probes/observational_confounding.md",
-      "size": 33429,
-      "sha256": "ac1736047c069aa47df76deea92379cae407043b6989d8d3fc77db8fd84b0031"
+      "size": 34617,
+      "sha256": "ec4a11caed6d604e510437827f2b979fcf43ab1ddea6b298eb95673472b2b459"
     },
     {
       "path": "skills/self-review/references/domain-probes/polygenic_risk_score.md",
@@ -3588,8 +3588,8 @@
     },
     {
       "path": "skills/self-review/references/domain-probes/sr_ma.md",
-      "size": 17239,
-      "sha256": "486d569f559f16d62b882f7256ccfe7443e3e2b4cc72a407a5cd046162a98b25"
+      "size": 20154,
+      "sha256": "82ccb4abc1ab1fffaf528268baad6c79e67c9b2ff929c14d7dcccb9677e10ddc"
     },
     {
       "path": "skills/self-review/references/domain-probes/survey_research.md",
