@@ -2003,8 +2003,8 @@
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/README.md",
-      "size": 6063,
-      "sha256": "e08ff05fe5ade5ced10914637632b1ca4ee59ad72e09b93d8063fc0e5537453e"
+      "size": 6524,
+      "sha256": "6dded03ce2aa6cf81277d4a64fa15e0f6814aa568132fc817e2fc753517d5338"
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/bland_altman.md",
@@ -2168,23 +2168,23 @@
     },
     {
       "path": "skills/make-figures/scripts/render_core_figures.py",
-      "size": 22248,
-      "sha256": "b8a56c25dd1b5069f618e9028d361afb69865aba2d35e2341153230c31a44196"
+      "size": 29667,
+      "sha256": "8c5b8a3b564b74977f25931094e11b55e2d1bad7ec6c05436825bd1bf69dc0b0"
     },
     {
       "path": "skills/make-figures/scripts/render_core_figures_challenge/fixture/synthetic_inputs.json",
-      "size": 2284,
-      "sha256": "694e7fc00e12d461ddbcc3051f03aed7c50bd3b771ad1ebe1aad6d194902ae1f"
+      "size": 3609,
+      "sha256": "5ca97899b1f61fec1c933039fafdae13dbe20bec175561019a4c947109a9b88f"
     },
     {
       "path": "skills/make-figures/scripts/render_core_figures_challenge/problem.md",
-      "size": 3022,
-      "sha256": "bf8fc8832079a59bebff2e464800d8eebfdd0b2d25e90078d9ff8a35316cde31"
+      "size": 3486,
+      "sha256": "86c57b26720a6ae1112a641f9ef1e1736c1bc3e413452de94d7e25ec298c26ba"
     },
     {
       "path": "skills/make-figures/scripts/render_core_figures_challenge/verify.sh",
-      "size": 2354,
-      "sha256": "bcaeeccef1f3fa795dd696670acb956f45d15cd7bce12028ad08490243b9c5c3"
+      "size": 2378,
+      "sha256": "2961607318f21052d1b1e607b024520ac6a53ebf4afeaf4287199ed252c1c034"
     },
     {
       "path": "skills/make-figures/scripts/validate_pptx_mac_compat.py",

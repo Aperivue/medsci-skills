@@ -256,6 +256,97 @@ def confusion_matrix(matrix, labels, *, title: str = "") -> plt.Figure:
     return fig
 
 
+# ------------------------------------------------------------------ MRMC ROC
+def mrmc_roc(readers: list[dict], averaged: dict, *, delta_auc: dict | None = None,
+             title: str = "") -> plt.Figure:
+    """Multi-reader multi-case ROC: each reader's ROC curve plus the reader-averaged
+    curve and the chance diagonal (the load-bearing MRMC-reader-study elements).
+
+    readers:  [{name, fpr, tpr, auc}]  — per-reader ROC coordinates.
+    averaged: {fpr, tpr, auc, label}   — the reader-averaged curve.
+    delta_auc (optional): {value, margin} — a ΔAUC-vs-margin annotation."""
+    fig, ax = plt.subplots(figsize=(5.4, 5.2))
+    for r in readers:
+        ax.plot(np.asarray(r["fpr"], float), np.asarray(r["tpr"], float),
+                color="0.7", linewidth=1)                              # thin per-reader
+    a = averaged
+    ax.plot(np.asarray(a["fpr"], float), np.asarray(a["tpr"], float),
+            color="crimson", linewidth=2.4,
+            label=f"{a.get('label', 'Reader-averaged')} (AUC = {a['auc']:.3f})")
+    ax.plot([0, 1], [0, 1], linestyle="--", color="0.5", label="Chance")
+    ax.set_xlim(0, 1); ax.set_ylim(0, 1.02)
+    ax.set_xlabel("1 − specificity (false-positive rate)")
+    ax.set_ylabel("Sensitivity (true-positive rate)")
+    ax.set_title(title or "Multi-reader multi-case ROC")
+    txt = f"averaged AUC = {a['auc']:.3f}"
+    if delta_auc:
+        txt += f"\nΔAUC = {delta_auc['value']:.3f} (margin {delta_auc['margin']:.3f})"
+    ax.text(0.55, 0.08, txt, fontsize=10,
+            bbox=dict(boxstyle="round", fc="white", ec="0.7"))
+    ax.legend(loc="lower right", frameon=False)
+    fig.tight_layout()
+    fig._mf_kind = "mrmc_roc"
+    fig._mf_n_readers = len(readers)
+    return fig
+
+
+# ------------------------------------------------------------------ Manhattan
+def manhattan(x, neglogp, threshold: float, *, labels=None,
+              ylabel: str = "−log10(p)", xlabel: str = "Exposure / position",
+              title: str = "") -> plt.Figure:
+    """Manhattan / *-wide-scan plot: −log10(p) vs position with the significance
+    threshold line (the two load-bearing elements of an agnostic many-test scan)."""
+    x = np.asarray(x, float)
+    y = np.asarray(neglogp, float)
+    fig, ax = plt.subplots(figsize=(7.0, 4.4))
+    ax.scatter(x, y, s=14, color="steelblue", alpha=0.8)
+    ax.axhline(threshold, color="crimson", linestyle="--",
+               label=f"significance threshold (−log10 = {threshold:.2f})")
+    if labels:  # sparse labelling of hits above the threshold
+        for xi, yi, lab in zip(x, y, labels):
+            if lab and yi >= threshold:
+                ax.annotate(lab, (xi, yi), fontsize=8,
+                            xytext=(0, 4), textcoords="offset points", ha="center")
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    ax.set_title(title or "Manhattan plot")
+    ax.legend(loc="upper right", frameon=False)
+    fig.tight_layout()
+    fig._mf_kind = "manhattan"
+    fig._mf_threshold = threshold
+    return fig
+
+
+# --------------------------------------------------------- clinical timeline
+def clinical_timeline(events: list[dict], *, time_unit: str = "days from admission",
+                      title: str = "") -> plt.Figure:
+    """Case-report clinical timeline: an event marker + label at each time on a single
+    time axis (the load-bearing elements of a longitudinal case figure)."""
+    times = [float(e["time"]) for e in events]
+    fig, ax = plt.subplots(figsize=(max(6.0, 0.9 * len(events)), 3.4))
+    lo, hi = (min(times), max(times)) if times else (0, 1)
+    pad = max(1.0, (hi - lo) * 0.08)
+    ax.axhline(0, color="0.4")                                        # the timeline
+    for i, e in enumerate(events):
+        t = float(e["time"])
+        up = 1 if i % 2 == 0 else -1
+        ax.plot([t, t], [0, up * 0.6], color="0.6")                  # stem
+        ax.scatter([t], [0], s=40, color="crimson", zorder=5)         # event marker
+        ax.annotate(str(e["label"]), (t, up * 0.65), ha="center",
+                    va="bottom" if up > 0 else "top", fontsize=8)
+    ax.set_xlim(lo - pad, hi + pad)
+    ax.set_ylim(-1.3, 1.3)
+    ax.get_yaxis().set_visible(False)
+    for spine in ("left", "right", "top"):
+        ax.spines[spine].set_visible(False)
+    ax.set_xlabel(f"Time ({time_unit})")
+    ax.set_title(title or "Clinical timeline")
+    fig.tight_layout()
+    fig._mf_kind = "timeline"
+    fig._mf_n_events = len(events)
+    return fig
+
+
 # ----------------------------------------------------- structural invariants
 def assert_structure(fig: plt.Figure) -> list[str]:
     """Assert the load-bearing elements for the figure's kind. Returns the list of
@@ -379,6 +470,51 @@ def assert_structure(fig: plt.Figure) -> list[str]:
             "confusion: axes not Predicted/Actual"
         passed.append("confusion Predicted/Actual axes")
 
+    elif kind == "mrmc_roc":
+        ax = fig.axes[0]
+        n = getattr(fig, "_mf_n_readers")
+        curves = [ln for ln in ax.lines
+                  if len(ln.get_xdata()) > 2]                          # multi-point ROC curves
+        assert len(curves) >= n + 1, "MRMC-ROC: fewer curves than readers + averaged"
+        passed.append(f"MRMC-ROC per-reader + averaged curves present ({n}+1)")
+        diag = [ln for ln in ax.lines
+                if len(ln.get_xdata()) == 2 and np.allclose(ln.get_xdata(), [0, 1])
+                and np.allclose(ln.get_ydata(), [0, 1])]
+        assert diag, "MRMC-ROC: chance diagonal missing"
+        passed.append("MRMC-ROC chance diagonal present")
+        assert has_text(ax, "auc"), "MRMC-ROC: averaged-AUC annotation missing"
+        passed.append("MRMC-ROC averaged-AUC annotation present")
+        assert "sensitiv" in ax.get_ylabel().lower(), "MRMC-ROC: y-label not sensitivity"
+        passed.append("MRMC-ROC sensitivity y-label")
+
+    elif kind == "manhattan":
+        ax = fig.axes[0]
+        assert ax.collections, "Manhattan: point scatter missing"
+        passed.append("Manhattan scatter present")
+        thr = getattr(fig, "_mf_threshold")
+        assert any(np.allclose(ln.get_ydata(), thr) for ln in ax.lines
+                   if np.allclose(np.diff(ln.get_ydata()), 0.0)), \
+            "Manhattan: significance threshold line missing"
+        passed.append("Manhattan significance threshold line present")
+        yl = ax.get_ylabel().lower()
+        assert "log" in yl and ("10" in yl or "log10" in yl or "−log" in yl or "-log" in yl), \
+            "Manhattan: y-label not −log10(p)"
+        passed.append("Manhattan −log10(p) y-label")
+
+    elif kind == "timeline":
+        ax = fig.axes[0]
+        ne = getattr(fig, "_mf_n_events")
+        assert any(np.allclose(ln.get_ydata(), 0.0) for ln in ax.lines), \
+            "timeline: baseline axis missing"
+        passed.append("timeline baseline present")
+        assert ax.collections, "timeline: event markers missing"
+        passed.append("timeline event markers present")
+        assert len([t for t in ax.texts if t.get_text().strip()]) >= ne, \
+            "timeline: an event label is missing"
+        passed.append(f"timeline all {ne} event labels present")
+        assert "time" in ax.get_xlabel().lower(), "timeline: x-axis not a time axis"
+        passed.append("timeline time x-axis")
+
     else:
         raise AssertionError(f"unknown figure kind: {kind!r}")
     return passed
@@ -406,6 +542,13 @@ def render_all(inputs: dict, out_dir: Path) -> dict:
         "bland_altman": lambda d: bland_altman(d["mean_vals"], d["diff_vals"],
                                                bias=d["bias"], sd_diff=d["sd_diff"]),
         "confusion": lambda d: confusion_matrix(d["matrix"], d["labels"]),
+        "mrmc_roc": lambda d: mrmc_roc(d["readers"], d["averaged"],
+                                       delta_auc=d.get("delta_auc")),
+        "manhattan": lambda d: manhattan(d["x"], d["neglogp"], d["threshold"],
+                                         labels=d.get("labels"),
+                                         xlabel=d.get("xlabel", "Exposure / position")),
+        "timeline": lambda d: clinical_timeline(d["events"],
+                                                time_unit=d.get("time_unit", "days from admission")),
     }
     for kind, build in builders.items():
         if kind not in inputs:

@@ -4,6 +4,17 @@
 
 ### Added
 
+- **make-figures render layer extended to MRMC ROC, Manhattan, and clinical timeline.**
+  Three more deterministic generators in `scripts/render_core_figures.py`, each with
+  `assert_structure` invariants: **MRMC ROC** (a curve per reader + the reader-averaged
+  curve + chance diagonal + averaged-AUC annotation — reader studies), **Manhattan**
+  (point scatter + named significance-threshold line + −log10(p) axis — agnostic
+  many-exposure scans), and **clinical timeline** (time baseline + an event marker/label at
+  each event + time axis — case reports). The render-regression challenge now renders all
+  **ten** figures. `imaging_panel` is documented as staying prose-only by design (it
+  composes real images, not computed numbers). Detector count unchanged. Only `imaging_panel`
+  now remains a prose-only exemplar.
+
 - **make-figures render layer extended to forest, Bland–Altman, and confusion matrix.**
   Building on the v5.9.0 tested-generator layer (KM / ROC / calibration / decision-curve),
   `scripts/render_core_figures.py` gains three more deterministic generators from
