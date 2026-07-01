@@ -75,8 +75,8 @@ Set these only if you want them; every one has a working default or fallback.
 | `NCBI_API_KEY` | raises the PubMed rate limit from 3 → 10 requests/s | keyless (3 req/s) |
 | `GEMINI_API_KEY` | only for `make-figures` optional AI-image generation | AI images off (non-AI illustration is the default) |
 
-`fulltext-retrieval` also accepts the contact email directly: `fetch_oa.py … --email you@lab.org`
-(Unpaywall rejects `example.com`). If `--email` is omitted it falls back to
+`fulltext-retrieval` also accepts the contact email directly: `fetch_oa.py … --email <your-contact-email>`
+(a real address — Unpaywall rejects `example.com`). If `--email` is omitted it falls back to
 `MEDSCI_CONTACT_EMAIL`.
 
 ## Reference manager (separate mechanism)
