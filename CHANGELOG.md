@@ -1,5 +1,21 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- **Competitive positioning — adjacent-not-competing note for hosted AI-for-science
+  workbenches (Claude Science).** `docs/competitive_positioning.md` gains an "Adjacent
+  platforms" section clarifying that a hosted bench/omics workbench (Anthropic's Claude
+  Science: genomics / single-cell / proteomics / structural biology / cheminformatics,
+  biological-database connectors, compute/HPC, BioNeMo) is **complementary**, not
+  competing: different scientific domain (clinical manuscript / observational epidemiology
+  vs bench/omics), different core value (EQUATOR reporting-guideline compliance +
+  submission / peer-review + drift control, which such a workbench does not cover), and the
+  same Agent Skills primitive — so a clinical-manuscript skill-set sits alongside it, and
+  stays open-source (MIT), host-portable, and citable where a hosted product is
+  subscription-gated.
+
 ## [5.9.0] - 2026-07-01
 
 A **research-enablement pivot**. After six reporting-guideline lanes and exhaustion of the
