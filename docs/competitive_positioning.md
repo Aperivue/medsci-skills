@@ -36,6 +36,16 @@ These are larger-scope catalogs that serve adjacent needs. Skill counts drift; t
 
 If you need wet-lab protocols, drug discovery, single-cell genomics, broad bioinformatics, or generic AI/ML engineering, those catalogs are better fits.
 
+## Adjacent platforms: hosted AI-for-science workbenches
+
+A separate category is the **hosted AI-for-science workbench** — most prominently **[Claude Science](https://www.anthropic.com/news/claude-science-ai-workbench)** (Anthropic, beta 2026-06). These are complementary to MedSci Skills, not competing, and the boundary is clean:
+
+- **Different scientific domain.** Claude Science targets the **bench and computational life sciences** — genomics, single-cell, proteomics, structural biology, cheminformatics — with curated skills and connectors to biological databases (UniProt, PDB, Ensembl, ClinVar, ChEMBL, GEO), compute/HPC orchestration, and protein-model integration (BioNeMo: Evo 2, Boltz-2, OpenFold3). MedSci Skills targets the **clinical-manuscript and observational-epidemiology** lifecycle: radiology, diagnostic accuracy, EMR/registry cohorts, systematic review / meta-analysis, and medical-imaging AI validation. These are the omics / cheminformatics areas MedSci Skills explicitly does **not** enter (see below).
+- **Different core value.** A hosted workbench accelerates *analysis and synthesis*; its built-in reviewer agent checks citations and calculations. MedSci Skills is a **submission-reliability layer**: item-by-item compliance against EQUATOR / risk-of-bias checklists (STROBE, CONSORT, STARD, TRIPOD+AI, PRISMA, CLAIM, …), journal-submission and peer-review-response workflows, and numerical / cohort / cross-artifact drift control — the parts a bench-science workbench does not cover.
+- **Same primitive, so complementary.** A workbench of this kind runs on *curated skills and connectors* — the same Agent Skills primitive MedSci Skills is built on — so a clinical-manuscript skill-set sits **alongside** such a workbench rather than against it. MedSci Skills is also **open-source (MIT), host-portable** (Claude Code / Codex / Cursor / Copilot), and **citable** (Zenodo DOI), where a hosted product is subscription-gated and centralized.
+
+Point-in-time; verify capabilities at the source. If your work is bench/omics and compute-heavy, a hosted workbench is the better fit; if it is a clinical manuscript that must pass reporting-guideline and reference-integrity review before desk rejection, that is this project.
+
 ## What MedSci Skills does not do
 
 - No skill-count race.
