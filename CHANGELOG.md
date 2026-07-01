@@ -1,5 +1,29 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- **Four self-review detector precision fixes (no count change, no schema change).**
+  Field-observed false positives / masking on already-shipped gates, each with a
+  positive+negative regression fixture:
+  - `check_binning_consistency` (`DERIVED_DEF_DRIFT`) no longer fires on a legitimately
+    **parallel sensitivity cohort** — the SAME derivation rule expressed against a
+    different dataframe-receiver object (`v0['col']` vs `lenient_cohort['col']`). The
+    clause-set now compares on column+operator+rhs; the Python `df['col']` subscript is
+    dropped from each atom, matching the existing base-R `df$col` normalisation.
+  - `check_null_calibration` (`CONFIRM_NULL_NO_MDE`) is now **per-claim-site**: a
+    power/CI caveat co-located with one null no longer masks a bare "equivalence within
+    the bound" claim in a different region. Each unqualified claim site is evaluated on
+    its own neighbourhood.
+  - `check_scope_coherence` (`CROSS_SECTIONAL_PROGNOSTIC`) no longer fires on a
+    **meta-document** — a QC/methods/detector paper (or review) whose SUBJECT is the
+    anti-pattern and that NAMES it rather than committing it.
+  - `check_classical_style` (`INBODY_AI_DISCLOSURE`) no longer fires on a paper whose
+    SUBJECT is AI-use disclosure and that carries disclosure phrasing as an object of
+    study. All meta-document guards are kept tight (they require the meta-framing
+    structure) so a genuine overclaim / in-body disclosure is never suppressed.
+
 ## [5.10.0] - 2026-07-01
 
 Figures enablement — the make-figures **render-test layer** grows from 4 to **10** tested,

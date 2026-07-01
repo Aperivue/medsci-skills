@@ -286,13 +286,19 @@ def _strip_wrap_parens(a: str) -> str:
 
 
 def _norm_atom(a: str) -> str:
-    """Whitespace-free canonical form of one OR-clause. Dataframe qualifiers
-    (`df$col`, `sub$col`) are dropped so a bare `mutate()` reference and a base-R
-    `df$` reference to the same column compare equal, and a top-level `&`-group is
-    sorted so operand order inside an AND does not matter
-    (`x==1 & y>=2` == `y>=2 & x==1`)."""
+    """Whitespace-free canonical form of one OR-clause. Dataframe-receiver
+    qualifiers are dropped so the SAME derivation rule expressed against different
+    dataframe objects compares equal — a base-R `df$col`, a bare `mutate()`
+    reference, and a Python `df['col']` / `df["col"]` subscript all reduce to the
+    column `col`. This matters for a legitimately-parallel sensitivity cohort:
+    `v0['end_date'] >= x` in the primary script and `lenient_cohort['end_date'] >= x`
+    in the sensitivity script are the SAME rule on two df objects and must not read
+    as DERIVED_DEF_DRIFT. A top-level `&`-group is sorted so operand order inside an
+    AND does not matter (`x==1 & y>=2` == `y>=2 & x==1`)."""
     a = re.sub(r"\s+", "", _strip_wrap_parens(a))
-    a = re.sub(r"[A-Za-z_]\w*\$", "", a)  # df$col / sub$col -> col
+    a = re.sub(r"[A-Za-z_]\w*\$", "", a)  # base-R df$col / sub$col -> col
+    # Python df['col'] / df["col"] receiver subscript -> col (receiver alias dropped)
+    a = re.sub(r"[A-Za-z_]\w*\[\s*(['\"])([^'\"]+)\1\s*\]", r"\2", a)
     if "&" in a:
         andparts = _split_top_level(a, "&")
         if len(andparts) > 1:

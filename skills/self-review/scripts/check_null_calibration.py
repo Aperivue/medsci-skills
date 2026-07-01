@@ -17,8 +17,13 @@ Verdict:
                                compatibility token anywhere in those regions.
 
 Conservative by construction: it fires only when a headline negative claim is
-present AND no precision token appears anywhere in the title+abstract+conclusion
-regions (a single MDE/power/equivalence/CI-compatibility sentence suppresses it).
+present AND no precision token is CO-LOCATED with that claim (a MDE / power /
+equivalence / CI-compatibility statement within the claim's own sentence
+neighbourhood suppresses it). The check is per-claim-SITE, not per-region: a
+power-aware caveat next to the Abstract-Results null does NOT license a bare
+"equivalence within +/-0.10" in the Conclusions. Each unqualified claim site is
+flagged on its own; a caveat in one region no longer masks an uncaveated
+equivalence claim in another.
 
 Exit codes: 0 clean (or report-only), 1 with --strict when any Major exists, 2 usage.
 Stdlib-only (json / re / argparse / pathlib).
@@ -94,22 +99,35 @@ def headline_region(text: str) -> str:
     return "\n".join(spans)
 
 
+# Neighbourhood (chars each side of a claim) searched for a co-located precision
+# statement. Wide enough to cover the same sentence / adjacent clause, narrow
+# enough that a caveat in a different paragraph/region does not mask this claim.
+_COLOCATE_WINDOW = 160
+
+
 def check(text: str) -> list[dict]:
     region = headline_region(text)
-    nm = NEGATIVE_CLAIM.search(region)
-    if not nm:
-        return []
-    if PRECISION_TOKEN.search(region):
-        return []  # a precision/MDE/equivalence/CI-compatibility sentence is present
-    return [{
-        "verdict": "CONFIRM_NULL_NO_MDE",
-        "severity": "Major",
-        "detail": (f"a headline negative/equivalence claim ('{nm.group(0).strip()}') in the "
-                   f"Title/Abstract/Conclusion is not accompanied by a minimum-detectable-"
-                   f"effect, power, equivalence-margin/TOST, or CI-compatibility statement; a "
-                   f"non-significant result is not evidence of no effect without one"),
-        "where": region[max(0, nm.start() - 40):nm.end() + 60].replace("\n", " ").strip()[:160],
-    }]
+    claims: list[dict] = []
+    seen: set[str] = set()
+    for nm in NEGATIVE_CLAIM.finditer(region):
+        window = region[max(0, nm.start() - _COLOCATE_WINDOW):nm.end() + _COLOCATE_WINDOW]
+        if PRECISION_TOKEN.search(window):
+            continue  # a precision statement is co-located with THIS claim site
+        key = re.sub(r"\s+", " ", nm.group(0).strip().lower())
+        if key in seen:
+            continue
+        seen.add(key)
+        claims.append({
+            "verdict": "CONFIRM_NULL_NO_MDE",
+            "severity": "Major",
+            "detail": (f"a headline negative/equivalence claim ('{nm.group(0).strip()}') in the "
+                       f"Title/Abstract/Conclusion has no co-located minimum-detectable-"
+                       f"effect, power, equivalence-margin/TOST, or CI-compatibility statement; a "
+                       f"non-significant result is not evidence of no effect without one "
+                       f"(a caveat elsewhere in the manuscript does not cover this claim site)"),
+            "where": region[max(0, nm.start() - 40):nm.end() + 60].replace("\n", " ").strip()[:160],
+        })
+    return claims
 
 
 def analyze(manuscript: str) -> dict:

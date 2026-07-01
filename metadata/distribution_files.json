@@ -3658,8 +3658,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_binning_consistency.py",
-      "size": 19541,
-      "sha256": "e3bf7dd2e0871ce6905abc1d33a26c7afac76a93d184bfe2d431af97d0622f74"
+      "size": 20076,
+      "sha256": "c6467eb4a1d954d67da87e283d8a628604a9ec7558c966f8b20c1b661e23b9c9"
     },
     {
       "path": "skills/self-review/scripts/check_citation_order.py",
@@ -3673,8 +3673,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_classical_style.py",
-      "size": 12210,
-      "sha256": "c973ee8b776f28515439fb185e1254e08e62c2e1410e260f18a824241a331af0"
+      "size": 13124,
+      "sha256": "941d90559cdcdd24f3eba58daf00eb34a7d227c3fe44267b93b65b80b6092989"
     },
     {
       "path": "skills/self-review/scripts/check_cohort_arithmetic.py",
@@ -3693,8 +3693,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_null_calibration.py",
-      "size": 7594,
-      "sha256": "9ddff01722c34efb6ffd757ae762c6ee12f5993bf13b11313c2e20b60b26cab3"
+      "size": 8585,
+      "sha256": "e5bd71c515554b3acbaefd3807e584364a536dc6e1101bec5b524bc26b341309"
     },
     {
       "path": "skills/self-review/scripts/check_panel_diversity.py",
@@ -3718,8 +3718,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_scope_coherence.py",
-      "size": 10818,
-      "sha256": "820dfc264c2a4f62c79c0c7123a3e1a8b59a100b89654617a08ff55deeb25a75"
+      "size": 11920,
+      "sha256": "e600e54fcbe308060a8dadd871ec274b6ae19f89456ae0194490e152c0d09a91"
     },
     {
       "path": "skills/self-review/scripts/check_supplement_hygiene.py",

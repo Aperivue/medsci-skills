@@ -66,6 +66,17 @@ INBODY_AI_DISCLOSURE = re.compile(
     r"(?:used|use[d]?|employed)[^.]{0,60}?(?:ai|gpt|chatgpt|claude|copilot|gemini|language model)",
     re.IGNORECASE)
 
+# A paper whose SUBJECT is AI-use disclosure (a reporting-methods / QC paper about
+# disclosure statements) contains such phrasing as an object of study, not as its
+# own disclosure. When the match sits next to disclosure-as-subject framing, do not
+# fire INBODY_AI_DISCLOSURE. Kept tight so a genuine in-body disclosure still fires.
+AI_DISCLOSURE_SUBJECT = re.compile(
+    r"ai[-\s]?disclosure|disclosure (?:statement|practice|policy|policies|requirement|item)|"
+    r"reporting of ai (?:use|tools|assistance)|MI[-\s]?CLEAR|"
+    r"(?:this|the present) (?:paper|study|work|review|analysis)\b[^.]{0,60}?"
+    r"(?:disclosure|ai use|ai tools|ai assistance|reporting)",
+    re.IGNORECASE)
+
 ELIGIBILITY_LEAD = re.compile(
     r"(?:studies|articles|records|participants|patients|trials)\s+were\s+eligible\s+if|"
     r"eligibility criteria were|inclusion criteria (?:were|included)|"
@@ -99,8 +110,11 @@ def check(text: str, em_dash_max: int) -> list[dict]:
             "where": text[max(0, first - 30):first + 20].replace("\n", " ").strip()[:120],
         })
 
-    # INBODY_AI_DISCLOSURE (Major)
+    # INBODY_AI_DISCLOSURE (Major) — unless the paper's SUBJECT is AI disclosure
+    # (a reporting-methods paper naming the pattern, not committing it).
     m = INBODY_AI_DISCLOSURE.search(text)
+    if m and AI_DISCLOSURE_SUBJECT.search(text[max(0, m.start() - 200):m.end() + 200]):
+        m = None
     if m:
         claims.append({
             "verdict": "INBODY_AI_DISCLOSURE",
