@@ -24,6 +24,10 @@ Verdicts (all Major — each reaches a reviewer/editor as a non-anonymous slip):
                          Reviewer", "Reviewer 2 Comment 4".
   SUPP_PLANNING_RESIDUE  pre-execution planning residue: "Designed by:", "Expected
                          PRISMA Numbers", "Deduplication Plan", "to be executed/run".
+  SUPP_PARTICIPANT_PII_TIE a reader/participant identity (pseudonym R+hex, or a named
+                         participant) tied to an INDIVIDUAL response on one line — a
+                         re-identifiable datum in a reader-facing/public supplement. A
+                         byline/roster without individual responses does not fire.
   SUPP_XREF_UNRESOLVED   (needs --manuscript) a body "Supplementary Table/Figure/
                          Material N" callout with no matching supplement section.
 
@@ -83,6 +87,46 @@ PLANNING_RESIDUE = re.compile(
     r"|\bawaiting\s+(?:data|results|execution)\b",
     re.IGNORECASE)
 
+# Participant-privacy tie: a reader/participant IDENTITY on the same line as an
+# INDIVIDUAL-RESPONSE datum re-identifies that person's answers in a reader-facing /
+# public supplement. Identity = a reader pseudonym token (R + hex) OR a proper "First
+# Last" name accompanied by a participant word on the line. Response datum = an
+# explicit per-trial answer. A byline / roster line (a name with NO individual
+# response) is legitimate and must NOT fire.
+READER_PSEUDONYM = re.compile(r"\bR[0-9a-f]{5,}\b")
+PROPER_NAME = re.compile(r"\b[A-Z][a-z]+(?:\s+[A-Z]\.?)?\s+[A-Z][a-z]+\b")
+PARTICIPANT_WORD = re.compile(r"\b(?:reader|participant|rater|observer|respondent|subject)\b", re.I)
+RESPONSE_DATUM = re.compile(
+    r"\bresponse\s*[=:]|\bconfidence\s*[=:]|\bcue\s*[=:]|\btrial\s+\d+\b"
+    r"|\brated\s+(?:it|this|the\s+\w+)\b|\banswered\s+(?:real|fake|ai|synthetic)\b"
+    r"|\bresponse\s+(?:was\s+)?(?:real|fake|ai|synthetic|authentic)\b",
+    re.IGNORECASE)
+
+
+def lint_pii_tie(path: Path) -> list[dict]:
+    """Flag a line that ties a reader identity to an individual response (de-anon)."""
+    claims: list[dict] = []
+    text = path.read_text(encoding="utf-8", errors="replace")
+    for i, line in enumerate(text.splitlines(), 1):
+        if not RESPONSE_DATUM.search(line):
+            continue
+        has_pseudonym = READER_PSEUDONYM.search(line)
+        has_named = PROPER_NAME.search(line) and PARTICIPANT_WORD.search(line)
+        if not (has_pseudonym or has_named):
+            continue
+        who = "a reader pseudonym" if has_pseudonym else "a named participant"
+        claims.append({
+            "verdict": "SUPP_PARTICIPANT_PII_TIE",
+            "severity": "Major",
+            "detail": (f"{who} is tied to an individual response on one line in {path.name} — "
+                       f"a re-identifiable participant-level datum in a reader-facing supplement; "
+                       f"de-identify (a byline/roster without individual responses is fine)"),
+            "where": f"{path.name}:{i}: …{line.strip()[:110]}…",
+        })
+        break  # one per file
+    return claims
+
+
 PER_FILE_CHECKS = [
     ("SUPP_INTERNAL_LABEL", INTERNAL_LABEL,
      "a § / §L internal section or SAP label leaked into a reader-facing file"),
@@ -117,6 +161,7 @@ def lint_file(path: Path) -> list[dict]:
             "detail": f"{detail} — {n} occurrence(s) in {path.name}",
             "where": f"{path.name}:{ln}: …{snippet[:120]}…",
         })
+    claims.extend(lint_pii_tie(path))
     return claims
 
 

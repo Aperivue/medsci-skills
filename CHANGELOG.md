@@ -4,6 +4,8 @@
 
 ### Added
 
+- **`check_supplement_hygiene` gains `SUPP_PARTICIPANT_PII_TIE` (Major; no count change).** Flags a reader/participant identity — a pseudonym (`R`+hex) or a named participant — tied to an INDIVIDUAL response on one line of a reader-facing / public supplement (a re-identifiable datum). A byline / roster line with only aggregate responses does not fire. Motivated by a preprint supplement that linked a reader pseudonym to a real name + individual response.
+
 - **Four review domain-probes (no detector-count change).** Canonical in `peer-review`, vendored into `self-review`: **diagnostic_accuracy D9** (confidence-weighted reader study needs an unweighted-baseline AUC + monotonic-encoding check), **D10** (a "no stratum met threshold X" claim vs a per-stratum AUC+CI table that does meet X), **D11** (mixed-normalisation values in one comparison column), and **ai_overclaiming AO7** (a "within/comparable-to X variability" claim whose benchmark X was never quantified). SKILL.md probe ranges updated (D1–D11, AO0–AO7).
 
 - **Three review domain-probes (no detector-count change).** Canonical in `peer-review`, vendored byte-identical into `self-review`: **sr_ma P18** (train-vs-validation pool integrity — an apparent/in-sample estimate smuggled into the "validation" pool), **sr_ma P19** (reviewer-side included-study cell audit — metric-type identity, self-eligibility contradiction, CI provenance), and **observational_confounding O18** (pseudoreplication in multi-rater agreement / reader studies — pooled pairwise vs per-subject). SKILL.md probe ranges/counts updated.

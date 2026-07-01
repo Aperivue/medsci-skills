@@ -59,5 +59,22 @@ assert len(x)==1 and '9' in x[0]['detail'], x
 python3 "$SCRIPT" --manuscript "$XBODY" --quiet >/dev/null 2>&1
 check "exit 2 when no --supplement given" test "$?" -eq 2
 
+# (5) participant-PII tie: a pseudonym + name tied to an individual response row ->
+#     SUPP_PARTICIPANT_PII_TIE; a byline/roster with only aggregate responses -> clean.
+PIILEAK="$HERE/fixtures/supplement_pii_tie.md"
+PIICLEAN="$HERE/fixtures/supplement_pii_clean.md"
+python3 "$SCRIPT" --supplement "$PIILEAK" --out "$OUT" --quiet >/dev/null 2>&1
+check "SUPP_PARTICIPANT_PII_TIE on identity+individual-response row" python3 -c "
+import json
+d=json.load(open('$OUT'))
+assert any(c['verdict']=='SUPP_PARTICIPANT_PII_TIE' for c in d['claims']), 'not flagged'
+"
+python3 "$SCRIPT" --supplement "$PIICLEAN" --out "$OUT" --quiet >/dev/null 2>&1
+check "no PII tie on a byline/roster with aggregate responses" python3 -c "
+import json
+d=json.load(open('$OUT'))
+assert not any(c['verdict']=='SUPP_PARTICIPANT_PII_TIE' for c in d['claims']), 'roster false positive'
+"
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"
