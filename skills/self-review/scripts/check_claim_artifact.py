@@ -98,13 +98,45 @@ def _jaccard(a: set[str], b: set[str]) -> float:
     return len(a & b) / len(a | b)
 
 
+# Structured pre-registration fields — the authoritative anchor when the prereg is
+# a project.yaml / registration form with explicit keys. Comparing the manuscript
+# primary sentence against these VALUES (which carry the actual variable names)
+# beats comparing it against a free-text "Strategy for data synthesis" paragraph or
+# a `# PRIMARY — locked` YAML comment, which are lexically dissimilar even when
+# semantically identical.
+_STRUCT_PRIMARY_RE = re.compile(
+    r"^\s*(primary_(?:exposure|outcome|estimand|endpoint|contrast|model|comparison|analysis))\s*:\s*(.+?)\s*$",
+    re.I | re.M,
+)
+
+
+def _structured_primary(prereg: str) -> list[str]:
+    """Values of explicit primary_* keys in a structured prereg (YAML/form)."""
+    out = []
+    for m in _STRUCT_PRIMARY_RE.finditer(prereg):
+        v = m.group(2).strip().strip("\"'").strip()
+        if v and not v.startswith("#"):
+            out.append(v)
+    return out
+
+
+def _strip_yaml_comments(text: str) -> str:
+    """Drop whole-line YAML/# comments so PRIMARY_RE does not anchor on a
+    `# PRIMARY — locked` annotation rather than a real primary-outcome statement."""
+    return "\n".join(ln for ln in text.splitlines() if not ln.lstrip().startswith("#"))
+
+
 def evalue_point(rr: float) -> float:
     """VanderWeele-Ding E-value for a point estimate (risk-ratio scale)."""
     g = rr if rr >= 1 else 1.0 / rr
     return g + math.sqrt(g * (g - 1.0))
 
 
-def check_estimand(manuscript: str, prereg: str | None) -> list[dict]:
+def _flatten(t: str) -> str:
+    return re.sub(r"\s*\n\s*", " ", t)
+
+
+def check_estimand(manuscript: str, prereg: str | None, prereg_raw: str | None = None) -> list[dict]:
     claims = []
     man_primary = [m.group(0).strip() for m in PRIMARY_RE.finditer(manuscript)]
 
@@ -138,22 +170,39 @@ def check_estimand(manuscript: str, prereg: str | None) -> list[dict]:
 
     # 2. Manuscript primary vs prereg primary (token overlap).
     if prereg:
-        pre_primary = [m.group(0).strip() for m in PRIMARY_RE.finditer(prereg)]
+        # Prefer explicit structured primary_* fields (authoritative). Structured
+        # extraction needs the RAW (line-based) prereg — the flattened form has no
+        # line boundaries. Otherwise fall back to free-text primary sentences, with
+        # YAML comment lines stripped so the anchor is a real statement, not a
+        # `# PRIMARY — locked` annotation.
+        raw = prereg_raw if prereg_raw is not None else prereg
+        struct = _structured_primary(raw)
+        pre_primary = struct or [m.group(0).strip()
+                                 for m in PRIMARY_RE.finditer(_flatten(_strip_yaml_comments(raw)))]
+        anchor = "structured prereg field" if struct else "prereg primary sentence"
         if man_primary and pre_primary:
-            best = max(
-                ((_jaccard(_tokens(a), _tokens(b)), a, b) for a in man_primary for b in pre_primary),
-                key=lambda t: t[0],
-            )
-            score, a, b = best
+            # tokens of every manuscript primary sentence vs the union of prereg
+            # anchors — a structured field's variable names need only appear somewhere
+            # in the manuscript's primary description to count as consistent.
+            man_tok = set().union(*[_tokens(a) for a in man_primary])
+            pre_tok = set().union(*[_tokens(b) for b in pre_primary])
+            score = _jaccard(man_tok, pre_tok)
+            best_a = max(man_primary, key=lambda a: _jaccard(_tokens(a), pre_tok))
+            # Structured-field match is more reliable, so a moderate overlap is a
+            # soft "confirm", not a drift allegation. Free-text stays at the old 0.30.
+            drift_cut, confirm_cut = (0.20, 0.40) if struct else (0.30, 0.30)
+            verdict = ("ESTIMAND_DRIFT" if score < drift_cut
+                       else "ESTIMAND_CONFIRM" if score < confirm_cut else "OK")
             claims.append({
                 "claim_id": "EST-primary",
                 "type": "estimand",
-                "prose_value": re.sub(r"\s+", " ", a)[:160],
-                "artifact_source": re.sub(r"\s+", " ", b)[:160],
-                "verdict": "ESTIMAND_DRIFT" if score < 0.30 else "OK",
-                "detail": f"manuscript↔prereg primary token overlap = {score:.2f} "
-                          f"(<0.30 → drift candidate). ADVISORY: fuzzy token overlap is noisy; "
-                          f"confirm against the actual registration before treating as drift.",
+                "prose_value": re.sub(r"\s+", " ", best_a)[:160],
+                "artifact_source": (re.sub(r"\s+", " ", " | ".join(pre_primary))[:160]),
+                "verdict": verdict,
+                "detail": f"manuscript↔{anchor} token overlap = {score:.2f} "
+                          f"(<{drift_cut:.2f} → drift candidate; {drift_cut:.2f}–{confirm_cut:.2f} → "
+                          f"confirm). ADVISORY: fuzzy token overlap is noisy; confirm against the "
+                          f"actual registration before treating as drift.",
             })
         elif man_primary and not pre_primary:
             claims.append({
@@ -244,14 +293,16 @@ def main() -> int:
 
     manuscript = _unwrap(mp.read_text(encoding="utf-8"))
     prereg = None
+    prereg_raw = None
     if args.prereg:
         pp = Path(args.prereg)
         if pp.is_file():
-            prereg = _unwrap(pp.read_text(encoding="utf-8"))
+            prereg_raw = pp.read_text(encoding="utf-8")
+            prereg = _unwrap(prereg_raw)
         else:
             sys.stderr.write(f"WARN: prereg not found: {args.prereg} (estimand provenance limited)\n")
 
-    claims = check_estimand(manuscript, prereg) + check_evalue(manuscript)
+    claims = check_estimand(manuscript, prereg, prereg_raw) + check_evalue(manuscript)
     n_major = sum(1 for c in claims if c["verdict"] in MAJOR)
     n_flag = sum(1 for c in claims if c["verdict"] not in MAJOR and c["verdict"] != "OK")
 
