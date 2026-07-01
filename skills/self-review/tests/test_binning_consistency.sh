@@ -63,5 +63,15 @@ check "no DERIVED_DEF_DRIFT on clean composite fixtures" bash -c "
 python3 -c \"import json; d=json.load(open('$OUT')); assert not d['claims']\"
 "
 
+# (5) parallel sensitivity cohort: SAME derived rule, different dataframe-receiver
+#     object (v0[...] vs lenient_cohort[...]) -> NO DERIVED_DEF_DRIFT (regression).
+DALIAS="$HERE/fixtures/derived_clean_dfalias"
+python3 "$SCRIPT" --root "$DALIAS" --strict --quiet >/dev/null 2>&1
+check "exit 0 on parallel df-alias cohort" test "$?" -eq 0
+python3 "$SCRIPT" --root "$DALIAS" --out "$OUT" --quiet >/dev/null 2>&1
+check "no DERIVED_DEF_DRIFT on parallel df-alias cohort" bash -c "
+python3 -c \"import json; d=json.load(open('$OUT')); assert not any(c['verdict']=='DERIVED_DEF_DRIFT' for c in d['claims'])\"
+"
+
 if [[ "$fail" -eq 0 ]]; then echo "  ALL PASS"; else echo "  $fail FAILED"; fi
 exit "$fail"

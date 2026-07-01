@@ -43,5 +43,13 @@ assert not any(c['verdict']=='CONFIRM_NULL_NO_MDE' for c in d['claims']), 'fired
 python3 "$SCRIPT" --manuscript "$CLEAN" --strict --quiet >/dev/null 2>&1
 check "exit 0 on power-aware null" test "$?" -eq 0
 
+# (3) region-blind masking: a power/CI caveat co-located with the Abstract-Results
+#     null does NOT license a bare "equivalence within the bound" in a far
+#     Conclusion -> CONFIRM_NULL_NO_MDE still fires on the uncaveated claim site.
+MASKED="$HERE/fixtures/null_region_masked.md"
+python3 "$SCRIPT" --manuscript "$MASKED" --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "exit 1: masked equivalence in a far Conclusion still flagged" test "$?" -eq 1
+check "CONFIRM_NULL_NO_MDE on the uncaveated claim site" has_verdict CONFIRM_NULL_NO_MDE
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

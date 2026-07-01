@@ -71,5 +71,17 @@ assert not any(c['verdict']=='CROSS_SECTIONAL_PROGNOSTIC' for c in d['claims']),
 python3 "$SCRIPT" --manuscript "$DISC" --strict --quiet >/dev/null 2>&1
 check "exit 0 on disclaimer manuscript" test "$?" -eq 0
 
+# (7) a methods/QC/detector paper whose SUBJECT is this anti-pattern NAMES the
+#     cross-sectional+prognostic pattern rather than committing it -> no fire.
+METADOC="$HERE/fixtures/scope_metadoc.md"
+python3 "$SCRIPT" --manuscript "$METADOC" --out "$OUT" --quiet >/dev/null 2>&1
+check "no CROSS_SECTIONAL_PROGNOSTIC on a meta-document" python3 -c "
+import json
+d=json.load(open('$OUT'))
+assert not any(c['verdict']=='CROSS_SECTIONAL_PROGNOSTIC' for c in d['claims']), 'meta-document flagged as prognostic overclaim'
+"
+python3 "$SCRIPT" --manuscript "$METADOC" --strict --quiet >/dev/null 2>&1
+check "exit 0 on meta-document" test "$?" -eq 0
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

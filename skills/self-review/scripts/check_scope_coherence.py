@@ -71,6 +71,22 @@ PROGNOSTIC_DISCLAIMER = re.compile(
     r"beyond the scope|no (?:prognostic|surveillance|longitudinal) (?:claim|inference|conclusion)",
     re.IGNORECASE)
 
+# A methods / QC / detector paper — or a review — whose SUBJECT is this very
+# anti-pattern NAMES the pattern rather than committing it ("this paper detects
+# manuscripts that make a prognostic claim in a cross-sectional setting"). When the
+# match sits inside such a meta-framing, it is a description, not an overclaim; do
+# not fire. Kept tight (requires the meta-framing structure, not a bare "detect")
+# so a real prognostic overclaim is never suppressed.
+META_DOC_FRAME = re.compile(
+    r"anti[-\s]?pattern|such (?:patterns|claims|conclusions|overclaims)\b|"
+    r"(?:papers?|manuscripts?|studies|authors) (?:that|which|who) "
+    r"(?:commit|make|assert|report|conflate|claim|treat|use)\b|"
+    r"we (?:report|show|find|note|observe) that (?:papers|manuscripts|studies|authors|some|many)|"
+    r"(?:this|the present) (?:paper|study|work|review|tool|detector|gate|framework|probe)\b"
+    r"[^.]{0,40}?(?:discuss|describ|detect|flag|identif|examin|review|illustrat|catalog)|"
+    r"(?:as|is) an? (?:example|illustration|instance|case) of",
+    re.IGNORECASE)
+
 DIRECTIVE_VERB = re.compile(
     r"\bdefer(?:ral|red|ring)?\b|\bwithhold\b|\bforgo\b|\binitiat(?:e|ed|ion)\b|"
     r"\bdiscontinu(?:e|ed|ation)\b|start(?:ing)?\s+(?:statin|therapy|treatment|pharmacotherapy)|"
@@ -126,7 +142,7 @@ def check(text: str) -> list[dict]:
         # conclusion still fires even if an earlier mention was a disclaimer.
         for pm in PROGNOSTIC_VERB.finditer(concl):
             window = concl[max(0, pm.start() - 120):pm.end() + 120]
-            if PROGNOSTIC_DISCLAIMER.search(window):
+            if PROGNOSTIC_DISCLAIMER.search(window) or META_DOC_FRAME.search(window):
                 continue
             claims.append({
                 "verdict": "CROSS_SECTIONAL_PROGNOSTIC",

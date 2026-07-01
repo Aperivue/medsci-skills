@@ -71,5 +71,17 @@ assert not any(c['verdict']=='SECTION_SYMBOL' for c in d['claims']), 'dagger § 
 python3 "$SCRIPT" --manuscript "$DAGGER" --strict --quiet >/dev/null 2>&1
 check "exit 0 on dagger-footnote manuscript" test "$?" -eq 0
 
+# (5) a paper whose SUBJECT is AI-use disclosure carries disclosure phrasing as an
+#     object of study, not as its own disclosure -> no INBODY_AI_DISCLOSURE.
+METADOC="$HERE/fixtures/classical_metadoc.md"
+python3 "$SCRIPT" --manuscript "$METADOC" --out "$OUT" --quiet >/dev/null 2>&1
+check "no INBODY_AI_DISCLOSURE on an AI-disclosure-methods paper" python3 -c "
+import json
+d=json.load(open('$OUT'))
+assert not any(c['verdict']=='INBODY_AI_DISCLOSURE' for c in d['claims']), 'meta-document flagged as in-body disclosure'
+"
+python3 "$SCRIPT" --manuscript "$METADOC" --strict --quiet >/dev/null 2>&1
+check "exit 0 on AI-disclosure-methods paper" test "$?" -eq 0
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"
