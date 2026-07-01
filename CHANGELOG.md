@@ -23,6 +23,13 @@
     SUBJECT is AI-use disclosure and that carries disclosure phrasing as an object of
     study. All meta-document guards are kept tight (they require the meta-framing
     structure) so a genuine overclaim / in-body disclosure is never suppressed.
+  - `check_claim_artifact` (`ESTIMAND_DRIFT`) now anchors on explicit structured
+    prereg fields (`primary_exposure` / `primary_outcome` / `primary_estimand` / …)
+    when the pre-registration is a `project.yaml` / form, rather than on a free-text
+    paragraph or a `# PRIMARY — locked` YAML comment. Structured extraction reads the
+    raw (line-based) prereg; a moderate overlap against a structured field is a soft
+    `ESTIMAND_CONFIRM` (advisory) instead of a false `ESTIMAND_DRIFT`. Removes the
+    false drift flag on an estimand already reconciled to the registration.
 
 ## [5.10.0] - 2026-07-01
 

@@ -70,5 +70,21 @@ d=json.load(open('$OUT'))
 raise SystemExit(0 if not any(c['verdict']=='PRIMARY_REASSIGNED' for c in d['claims']) else 1)
 "
 
+# Structured-prereg anchor: a project.yaml with explicit primary_* keys + a
+# manuscript whose primary is substantively consistent -> the estimand check anchors
+# on the structured field VALUES (not a `# PRIMARY — locked` comment or a lexically
+# dissimilar free-text paragraph) and does NOT allege ESTIMAND_DRIFT. Regression for
+# the false Major at overlap 0.26 on a reconciled estimand.
+SMAN="$HERE/fixtures/claim_manuscript_structured.md"
+SPRE="$HERE/fixtures/claim_prereg_structured.md"
+python3 "$SCRIPT" --manuscript "$SMAN" --prereg "$SPRE" --out "$OUT" >/dev/null 2>&1
+check "no ESTIMAND_DRIFT on a structured, consistent prereg" python3 -c "
+import json
+d=json.load(open('$OUT'))
+raise SystemExit(0 if not any(c['verdict']=='ESTIMAND_DRIFT' for c in d['claims']) else 1)
+"
+python3 "$SCRIPT" --manuscript "$SMAN" --prereg "$SPRE" --strict >/dev/null 2>&1
+check "exit 0 on structured consistent prereg (no Major)" test "$?" -eq 0
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"
