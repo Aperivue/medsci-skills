@@ -392,6 +392,20 @@ Internal consistency (Phase 2.5) is necessary but not sufficient. Numbers can be
 consistent across Abstract / Table / Text and still be wrong at the source — a single
 transcription error propagates cleanly through every downstream stage.
 
+Also run the **displayed-arithmetic** gate — a stated difference must equal the subtraction of
+its two displayed component values at the SAME precision:
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/check_rounded_delta.py" \
+  --manuscript manuscript.md --out qc/rounded_delta.json
+```
+
+`ROUNDED_DELTA_MISMATCH` (Minor) fires when e.g. AUCs are shown as `0.70` and `0.73` (a displayed
+gap of 0.03) while the between-arm difference is stated as `0.02` — self-consistent only on the
+unrounded values. Fix: report components and the delta at one precision, or footnote that the delta
+is computed on unrounded values. A higher-precision component pair (`0.703` vs `0.726`) with a 2-dp
+delta is the legitimate unrounded case and is not flagged.
+
 **Precedent failure pattern:**
 > A revision-era comparative meta-analysis reported a safety-outcome 2x2 with the
 > arm-level events direction-reversed relative to the primary-source Table. Internal
@@ -742,6 +756,18 @@ Phase 2.5c covers reference **integrity** — are the cited references real (fab
 3. **Fix-forward, not fabricate.** As in Phase 2.5c, this skill never writes replacement references. Every adequacy finding carries `fixable_by_ai: false`; the remedy is `/search-lit` (Manuscript Paper Reference Pool mode) → `/lit-sync` → `/verify-refs --strict`, which the author runs.
 
 ### Phase 2.5d: Cross-Reference QC (Manuscript ↔ rendered DOCX)
+
+Before the DOCX is built, run the **markdown-stage orphan gate** — every captioned
+`Figure N.` / `Table N.` must be cited at least once elsewhere in the body:
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/check_figure_citation.py" \
+  --manuscript manuscript.md --out qc/figure_citation.json
+```
+
+`FIGURE_ORPHAN` / `TABLE_ORPHAN` (Minor) catch a newly-added float that has a legend
+but no in-text citation — the early, no-build counterpart to `check_xref`'s `UNCITED`
+verdict, which catches the same class on the rendered DOCX (below).
 
 Reference-list integrity (Phase 2.5c) does **not** cover Table/Figure
 cross-references. This is a separate failure mode where in-text citations

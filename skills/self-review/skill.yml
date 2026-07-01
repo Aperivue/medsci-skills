@@ -46,5 +46,7 @@ validation_commands:
   - "bash tests/test_panel_mode.sh"
   - "bash tests/test_reference_adequacy.sh"
   - "bash tests/test_editorial_impression.sh"
+  - "bash tests/test_rounded_delta.sh"
+  - "bash tests/test_figure_citation.sh"
   - "feed R0-numbered output into /revise"
 evidence_surface: demo

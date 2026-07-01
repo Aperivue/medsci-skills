@@ -31,6 +31,8 @@
 - `bash tests/test_panel_mode.sh`
 - `bash tests/test_reference_adequacy.sh`
 - `bash tests/test_editorial_impression.sh`
+- `bash tests/test_rounded_delta.sh`
+- `bash tests/test_figure_citation.sh`
 - `feed R0-numbered output into /revise`
 
 **Evidence** — `demo`
@@ -54,11 +56,13 @@
 - `check_cohort_arithmetic.py`
 - `check_confounding_completeness.py`
 - `check_editorial_impression.py`
+- `check_figure_citation.py`
 - `check_null_calibration.py`
 - `check_panel_diversity.py`
 - `check_paren_spans.py`
 - `check_reference_adequacy.py`
 - `check_reviewer_team_consistency.py`
+- `check_rounded_delta.py`
 - `check_scope_coherence.py`
 - `check_supplement_hygiene.py`
 

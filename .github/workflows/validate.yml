@@ -79,6 +79,12 @@ jobs:
       - name: Run self-review editorial-impression gate test (defensiveness counterweight)
         run: bash skills/self-review/tests/test_editorial_impression.sh
 
+      - name: Run self-review rounded-delta gate test (stated diff vs displayed components)
+        run: bash skills/self-review/tests/test_rounded_delta.sh
+
+      - name: Run self-review orphan figure/table citation gate test
+        run: bash skills/self-review/tests/test_figure_citation.sh
+
       - name: Run validate_catalog_consistency.py (doc counts must match disk SSOT)
         run: python3 scripts/validate_catalog_consistency.py
 
