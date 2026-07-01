@@ -38,5 +38,27 @@
     "thresholds": [0.05, 0.10, 0.20, 0.30, 0.40, 0.50],
     "net_benefit_model": [0.34, 0.30, 0.22, 0.15, 0.09, 0.04],
     "prevalence": 0.35
+  },
+  "forest": {
+    "effect_label": "Odds ratio (95% CI)",
+    "null_value": 1.0,
+    "log_x": true,
+    "studies": [
+      {"name": "Study A 2019", "est": 1.20, "lo": 0.90, "hi": 1.60, "weight": 25},
+      {"name": "Study B 2020", "est": 1.45, "lo": 1.10, "hi": 1.92, "weight": 30},
+      {"name": "Study C 2021", "est": 0.95, "lo": 0.70, "hi": 1.29, "weight": 20},
+      {"name": "Study D 2022", "est": 1.60, "lo": 1.15, "hi": 2.22, "weight": 25}
+    ],
+    "pooled": {"est": 1.30, "lo": 1.10, "hi": 1.54, "label": "Random-effects pooled"}
+  },
+  "bland_altman": {
+    "mean_vals": [10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32],
+    "diff_vals": [0.2, -0.5, 0.8, 1.1, -0.3, 0.6, -1.2, 0.9, 0.1, 1.5, -0.7, 0.4],
+    "bias": 0.24,
+    "sd_diff": 0.80
+  },
+  "confusion": {
+    "matrix": [[85, 15], [10, 90]],
+    "labels": ["Negative", "Positive"]
   }
 }
