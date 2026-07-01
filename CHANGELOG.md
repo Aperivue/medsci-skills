@@ -1,6 +1,8 @@
 # Changelog
 
-## [Unreleased]
+## [5.9.2] - 2026-07-01
+
+Maintenance patch (no count change).
 
 ### Fixed
 
