@@ -49,6 +49,7 @@ FAMILY_BY_ID: dict[str, str] = {
     # Numerical, cohort & pool arithmetic
     "check_cohort_arithmetic": "numerical_cohort",
     "check_artifact_coverage": "numerical_cohort",
+    "check_rounded_delta": "numerical_cohort",
     "check_pool_consistency": "numerical_cohort",
     "detect_copy_divergence": "numerical_cohort",
     "derive_figure_legend_counts": "numerical_cohort",
@@ -83,6 +84,7 @@ FAMILY_BY_ID: dict[str, str] = {
     "check_summary_box": "reporting_compliance",
     "check_supplement_hygiene": "reporting_compliance",
     "check_citation_order": "reporting_compliance",
+    "check_figure_citation": "reporting_compliance",
     "check_model_card_complete": "reporting_compliance",
     "check_mllm_eval_completeness": "reporting_compliance",
     # Data preparation & validation

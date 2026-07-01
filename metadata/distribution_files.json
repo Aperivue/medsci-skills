@@ -3488,8 +3488,8 @@
     },
     {
       "path": "skills/self-review/SKILL.md",
-      "size": 102413,
-      "sha256": "97219c57684d4eaced9e35b0968ca09da7731095c186a4e97757b4039f43f2f6"
+      "size": 103699,
+      "sha256": "fc1cd1ec6116bd0f9c687a8dc409787b90e501865de8001f53bed21982d4449e"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
@@ -3692,6 +3692,11 @@
       "sha256": "42e0e9315e1c97ca0f9943213c65ea91d7064773d25287b2577f0386dfb7fc41"
     },
     {
+      "path": "skills/self-review/scripts/check_figure_citation.py",
+      "size": 5298,
+      "sha256": "342bc1126a420111da9c0fe38c6cd68cc45542b0e485202689d7219de9d80712"
+    },
+    {
       "path": "skills/self-review/scripts/check_null_calibration.py",
       "size": 8585,
       "sha256": "e5bd71c515554b3acbaefd3807e584364a536dc6e1101bec5b524bc26b341309"
@@ -3717,6 +3722,11 @@
       "sha256": "c9cd8e47cfef1ffcea12ecda5314a71ccd5415f35f4f296addadf53ccb6ceb3b"
     },
     {
+      "path": "skills/self-review/scripts/check_rounded_delta.py",
+      "size": 7079,
+      "sha256": "2961dd0b25dcd06f202442004e08f2d98c6f2d4c337be3f8b0e3286a59952072"
+    },
+    {
       "path": "skills/self-review/scripts/check_scope_coherence.py",
       "size": 11920,
       "sha256": "e600e54fcbe308060a8dadd871ec274b6ae19f89456ae0194490e152c0d09a91"
@@ -3728,8 +3738,8 @@
     },
     {
       "path": "skills/self-review/skill.yml",
-      "size": 2223,
-      "sha256": "4009f3148776fab2096da3dad8a15e503c5073b4cc66b42c57498948e2040270"
+      "size": 2303,
+      "sha256": "174f646142d5b67919f364bdcce9bcc8c464faa6ad068e9b5185aed93965a186"
     },
     {
       "path": "skills/setup-medsci/SKILL.md",

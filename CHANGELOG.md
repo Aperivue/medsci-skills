@@ -2,6 +2,21 @@
 
 ## [Unreleased]
 
+### Added
+
+- **Two self-review deterministic detectors (integrity detectors 42 → 44).** Each
+  ships positive+negative fixtures, a regression test wired into `validate.yml` +
+  `skill.yml`, and a family mapping.
+  - **`check_rounded_delta`** (`numerical_cohort`, Phase 2.5a) — `ROUNDED_DELTA_MISMATCH`
+    (Minor): a stated difference must equal the subtraction of its two displayed
+    component values at the same precision. Catches "AUC 0.70 vs 0.73 … difference 0.02"
+    (a shown gap of 0.03). A higher-precision component pair with a lower-precision delta
+    is the legitimate unrounded case and is not flagged.
+  - **`check_figure_citation`** (`reporting_compliance`, Phase 2.5d) — `FIGURE_ORPHAN` /
+    `TABLE_ORPHAN` (Minor): every captioned `Figure N.` / `Table N.` must be cited at
+    least once in the body. The markdown-stage, no-build counterpart to `check_xref`'s
+    DOCX-stage `UNCITED`.
+
 ### Fixed
 
 - **Four self-review detector precision fixes (no count change, no schema change).**
