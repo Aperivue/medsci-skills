@@ -24,6 +24,7 @@ fit). A missing element is a gap to fill before drafting Results.
 - `ai_validation_tripod_claim.md` — an AI/ML model development + validation study (TRIPOD+AI / CLAIM).
 - `observational_cohort_strobe.md` — an exposure→outcome observational cohort (STROBE).
 - `meta_analysis_prisma.md` — a systematic review with quantitative synthesis (PRISMA 2020).
+- `rct_consort.md` — a parallel-group randomized controlled trial (CONSORT 2010).
 
 ## Curator guidelines (for adding more)
 

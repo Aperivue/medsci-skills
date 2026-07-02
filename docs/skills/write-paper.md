@@ -41,10 +41,10 @@
 - `exemplar_abstract.md`
 - `exemplar_case_report.md`
 - `exemplar_case_report_radiology.md`
-- `exemplar_discussion/` (5 files)
+- `exemplar_discussion/` (6 files)
 - `exemplar_introduction.md`
-- `exemplar_methods/` (5 files)
-- `exemplar_results/` (5 files)
+- `exemplar_methods/` (6 files)
+- `exemplar_results/` (6 files)
 - `journal_profiles/` (55 files)
 - `paper_types/` (10 files)
 - `phase7_integrity_audits.md`

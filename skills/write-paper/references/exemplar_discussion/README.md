@@ -30,6 +30,8 @@ closes with a conclusion matched to the evidence — introducing no new results.
 - `meta_analysis_prisma.md` — summary-of-evidence with certainty framing, heterogeneity-source
   and non-independence/overlap caveats, GRADE limitations, no guideline-grade conclusion
   (PRISMA 2020).
+- `rct_consort.md` — primary-on-ITT key finding, clinical-vs-statistical significance vs the MCID,
+  blinding/attrition limitations, single-trial conclusion (CONSORT 2010).
 
 ## Curator guidelines (for adding more)
 
