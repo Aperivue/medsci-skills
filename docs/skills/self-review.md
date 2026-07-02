@@ -34,6 +34,7 @@
 - `bash tests/test_rounded_delta.sh`
 - `bash tests/test_figure_citation.sh`
 - `bash tests/test_emphasis_density.sh`
+- `bash tests/test_cv_leakage.sh`
 - `feed R0-numbered output into /revise`
 
 **Evidence** — `demo`
@@ -56,6 +57,7 @@
 - `check_classical_style.py`
 - `check_cohort_arithmetic.py`
 - `check_confounding_completeness.py`
+- `check_cv_leakage.py`
 - `check_editorial_impression.py`
 - `check_emphasis_density.py`
 - `check_figure_citation.py`

@@ -1,5 +1,12 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- **`check_cv_leakage` (self-review, `data_preparation`; integrity detectors 45 → 46).** `CV_SELECTION_LEAKAGE` (Major): for a classifier / NLP / tabular manuscript, a data-driven selection step (feature selection, log-odds / univariate filtering, vocabulary construction, a threshold) that co-occurs with cross-validation without any fold-nesting disclosure ('within each fold', 'nested CV') — if the selection was fit on the full dataset the CV metric is optimistically inflated. Distinct from patient-vs-image split leakage.
+- **peer-review §1C contribution-gate: salvage-reframe sub-rule.** A fix that *narrows* a claim to survive a construct/validity flaw is Reject-leaning, not an encourage-major-revision, when novelty/importance is already weak — a shrunk contribution is the product, not addressable-in-revision.
+
 ## [5.11.0] - 2026-07-02
 
 Review-harvest inbox goal-mode processing: field-observed self-review / peer-review

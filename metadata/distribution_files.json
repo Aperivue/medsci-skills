@@ -2923,8 +2923,8 @@
     },
     {
       "path": "skills/peer-review/SKILL.md",
-      "size": 68302,
-      "sha256": "bf56fbc16bb3e43fb43f09982d36e68f53f8b0f666564e2828e692472ad0660f"
+      "size": 69384,
+      "sha256": "94033b84b41304d7dbd7919c84c7e9502bdaff1b7e2ef8f5dd7ec9cd7147c532"
     },
     {
       "path": "skills/peer-review/references/aczel_2021_reviewer2_patterns.md",
@@ -3488,8 +3488,8 @@
     },
     {
       "path": "skills/self-review/SKILL.md",
-      "size": 104028,
-      "sha256": "22bc51c9adcb1fc9ff9120c2650faaa2f5f3a0482fe1fd781e231e2191e21081"
+      "size": 104731,
+      "sha256": "9c74f317d10c7b491e710debb619dcf536689092a59fe749050a0ad41f4aacd5"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
@@ -3687,6 +3687,11 @@
       "sha256": "7d3e67074d58a28ffee52ce64b486231f103a3ddcaf6b3b6ee83ba5f89c63bc2"
     },
     {
+      "path": "skills/self-review/scripts/check_cv_leakage.py",
+      "size": 6349,
+      "sha256": "431c5f14ad2c4f59e85b2a5e86150ac708d476e8f2f1da859d81953f522b2117"
+    },
+    {
       "path": "skills/self-review/scripts/check_editorial_impression.py",
       "size": 22032,
       "sha256": "42e0e9315e1c97ca0f9943213c65ea91d7064773d25287b2577f0386dfb7fc41"
@@ -3743,8 +3748,8 @@
     },
     {
       "path": "skills/self-review/skill.yml",
-      "size": 2345,
-      "sha256": "91883d75f33ee873a6ebfbd4d5f2cf0c292d3b90fe4705d6a35e82a26ecf6523"
+      "size": 2381,
+      "sha256": "9499a87d985d981eac9418d6cd95ed79c1d9724aba8854b7d6713d89679d9f1d"
     },
     {
       "path": "skills/setup-medsci/SKILL.md",
