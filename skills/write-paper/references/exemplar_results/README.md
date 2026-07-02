@@ -27,6 +27,9 @@ element that interprets rather than reports belongs in the Discussion.
   calibration, operating point, clinical utility (TRIPOD+AI / CLAIM).
 - `observational_cohort_strobe.md` — assembly, Table 1 by exposure, crude-then-adjusted
   estimate with CIs, subgroups, sensitivity analyses (STROBE).
+- `meta_analysis_prisma.md` — PRISMA flow, study/patient characteristics + provenance, pooled
+  estimate with I²/τ²/prediction interval, subgroup interaction, sensitivity, publication bias
+  (PRISMA 2020).
 
 ## Curator guidelines (for adding more)
 

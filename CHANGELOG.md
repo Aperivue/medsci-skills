@@ -4,6 +4,17 @@
 
 ### Added
 
+- **`write-paper` meta-analysis worked IMRAD structure exemplars (PRISMA 2020).** A fourth
+  study-type structure model completes the trio in `exemplar_methods/`, `exemplar_results/`,
+  and `exemplar_discussion/` (`meta_analysis_prisma.md`) — paragraph-order skeletons stating
+  what each Methods/Results/Discussion paragraph must establish for a systematic review with
+  quantitative synthesis, anchored to PRISMA 2020 critical items (verbatim search strategy,
+  reconciling flow diagram, per-study risk of bias, protocol/registration) and cross-linked to
+  the `sr_ma` domain-probes. Enablement (produce, not check): raises worked exemplars from 3/10
+  to 4/10 paper types. SKILL.md Phase 3/Results/Discussion pointers and the three exemplar
+  READMEs updated; `paper_types/meta_analysis.md` now points to the skeletons. No detectors,
+  no count change.
+
 - **`analyze-stats` inter-rater agreement/reliability methodology guide (`analysis_guides/agreement_reliability.md`).** Executable-depth enablement paired with self-review probe O18: the pseudoreplication trap for clustered/repeated measurements + the pseudoreplication-safe per-subject-aggregation and subject-random-effect ICC code (produce, not only flag), ICC model/type selection, and the agreement-vs-reliability distinction. Wired into the skill's agreement section and cross-linked from O18.
 
 - **`check_claim_artifact` gains `--scripts` + `PRIMARY_LABEL_CODE_DRIFT` (advisory; no count change).** When the manuscript asserts a SINGLE primary model/analysis but an analysis script annotates a model as `co-primary`, the code label (a third SSOT) has drifted — reconcile it with the declared estimand. Advisory, since code comments can lag.
