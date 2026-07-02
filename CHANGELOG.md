@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- **`analyze-stats` diagnostic-accuracy / reader-study methodology guide (`analysis_guides/diagnostic_accuracy.md`).** Executable-depth enablement paired with the `diagnostic_accuracy` domain-probes: every metric with a CI on a stated per-patient/per-lesion unit (Wilson for proportions, DeLong/bootstrap for AUC); the **confidence-weighted trap** — a strictly-monotone (call × confidence) encoding check that catches the folded-score bug plus the **unweighted-baseline AUC** beside the weighted primary (produce-side of probe **D9**); paired DeLong vs MRMC for reader-generalising claims; a **per-stratum admissibility table** that tests each stratum against a stated AUC rule (produce-side of **D10**); and one-scale-per-comparison (**D11**). All code snippets verified runnable. `diagnostic_accuracy` probe D9 gains a "Produce the fix" back-link; analyze-stats SKILL.md loads the guide before generating diagnostic-accuracy code. No detectors, no count change.
+
 ## [5.12.0] - 2026-07-02
 
 Research-enablement continuation plus a feature-selection leakage detector. **Integrity
