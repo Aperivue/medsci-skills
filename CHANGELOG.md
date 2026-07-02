@@ -1,6 +1,13 @@
 # Changelog
 
-## [Unreleased]
+## [5.12.0] - 2026-07-02
+
+Research-enablement continuation plus a feature-selection leakage detector. **Integrity
+detectors 45 → 46** (`check_cv_leakage`). Two produce-side artifacts on the research-throughput
+frontier — `write-paper` meta-analysis worked IMRAD exemplars (worked structures 3/10 → 4/10
+paper types) and an `analyze-stats` agreement/reliability guide paired with self-review probe
+O18 — plus a code-label estimand reconcile and a peer-review salvage-reframe sub-rule.
+PRs #261–#264.
 
 ### Added
 
