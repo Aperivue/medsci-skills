@@ -1,6 +1,12 @@
 # Changelog
 
-## [Unreleased]
+## [5.13.0] - 2026-07-02
+
+Executable-depth research enablement. Two `analyze-stats` produce-guides complete the
+core-analysis arc — **agreement → diagnostic-accuracy → survival** — so each of the three
+most common analysis families now *produces* the estimand its review domain-probe flags the
+absence of (not only checks for it). No detectors added; **46 integrity detectors unchanged**.
+PRs #265–#266.
 
 ### Added
 
