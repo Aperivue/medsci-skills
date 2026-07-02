@@ -153,13 +153,18 @@
     },
     {
       "path": "skills/analyze-stats/SKILL.md",
-      "size": 55642,
-      "sha256": "5c4a966490cfb8da6e09ebda897599479bd527d7ee3957ccbfceb5abff06306a"
+      "size": 56034,
+      "sha256": "6dbd6a7055ba46113ce85f5ff5c38ea48b3acedbcfe3a2fc2514f6de2031d0e1"
     },
     {
       "path": "skills/analyze-stats/references/analysis_guides/agreement_reliability.md",
       "size": 6674,
       "sha256": "599ad2551f547043b2bec79e3139d9c2c3ae33c5025784359b22022f882504c2"
+    },
+    {
+      "path": "skills/analyze-stats/references/analysis_guides/diagnostic_accuracy.md",
+      "size": 9303,
+      "sha256": "e788d612aa4227500e997ec405ab15a300d28c3b6fb2a1e1df33823764cb9537"
     },
     {
       "path": "skills/analyze-stats/references/analysis_guides/health_economic_evaluation.md",
@@ -2953,8 +2958,8 @@
     },
     {
       "path": "skills/peer-review/references/domain-probes/diagnostic_accuracy.md",
-      "size": 11692,
-      "sha256": "afc69e56578babcc1cf7c7952d2df301fdc829329fb480a5cf426ff6ab65d9f5"
+      "size": 11967,
+      "sha256": "8c0a8bd30fe16507e2997ddba1bbcfb4ee7eade7df44f1981e1427cd3a28d233"
     },
     {
       "path": "skills/peer-review/references/domain-probes/equity_fairness.md",
@@ -3513,8 +3518,8 @@
     },
     {
       "path": "skills/self-review/references/domain-probes/diagnostic_accuracy.md",
-      "size": 11692,
-      "sha256": "afc69e56578babcc1cf7c7952d2df301fdc829329fb480a5cf426ff6ab65d9f5"
+      "size": 11967,
+      "sha256": "8c0a8bd30fe16507e2997ddba1bbcfb4ee7eade7df44f1981e1427cd3a28d233"
     },
     {
       "path": "skills/self-review/references/domain-probes/equity_fairness.md",

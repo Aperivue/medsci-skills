@@ -393,6 +393,7 @@ tbl %>% as_flex_table() %>% flextable::save_as_docx(path = "table.docx")
 
 ### Diagnostic Accuracy
 
+- **Methodology guide**: `references/analysis_guides/diagnostic_accuracy.md` (**load before generating code** — every metric with a CI on a stated analysis unit; the confidence-weighted trap [unweighted-baseline AUC + monotonic-encoding check, produce-side of probe D9]; paired DeLong vs MRMC for reader-generalising claims; per-stratum admissibility [D10]; one-scale-per-comparison [D11])
 - Template: `references/templates/diagnostic_accuracy.py`
 - Always report: sensitivity, specificity, PPV, NPV, accuracy, AUC
 - CIs: Wilson score for proportions, DeLong for AUC
