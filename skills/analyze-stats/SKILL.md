@@ -411,6 +411,7 @@ tbl %>% as_flex_table() %>% flextable::save_as_docx(path = "table.docx")
 
 ### Inter-rater Agreement
 
+- **Methodology guide**: `references/analysis_guides/agreement_reliability.md` (**load before generating code** — the pseudoreplication trap for clustered/repeated measurements + the pseudoreplication-safe per-subject / mixed-effects code, ICC model/type selection, agreement-vs-reliability distinction; pairs with self-review probe O18)
 - Table type guide: `references/table-standards/table-types/agreement.md` (ICC with model/type + CI, weighted κ for ordinal, Bland–Altman bias + LoA, reliability-vs-agreement distinction, common errors)
 - Template: `references/templates/agreement_analysis.py`
 - 2 raters + categorical: Cohen's kappa
