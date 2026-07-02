@@ -96,6 +96,7 @@ FAMILY_BY_ID: dict[str, str] = {
     "check_checklist_dump_leak": "data_preparation",
     "check_binning_consistency": "data_preparation",
     "check_split_leakage": "data_preparation",
+    "check_cv_leakage": "data_preparation",
     "check_metric_reporting": "data_preparation",
 }
 

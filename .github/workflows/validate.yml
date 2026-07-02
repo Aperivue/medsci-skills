@@ -88,6 +88,9 @@ jobs:
       - name: Run self-review inline-emphasis over-use gate test
         run: bash skills/self-review/tests/test_emphasis_density.sh
 
+      - name: Run self-review feature-selection-outside-CV leakage gate test
+        run: bash skills/self-review/tests/test_cv_leakage.sh
+
       - name: Run validate_catalog_consistency.py (doc counts must match disk SSOT)
         run: python3 scripts/validate_catalog_consistency.py
 

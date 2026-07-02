@@ -362,6 +362,15 @@ These modules carry the same domain-specific critique probes used by `/peer-revi
 | Scoping review (maps the breadth/nature of evidence, clarifies concepts, identifies gaps; PCC framing, charting, optional appraisal — not a focused effectiveness/accuracy question) | `references/domain-probes/scoping_review.md` (SC1–SC8) |
 | Qualitative study (interviews, focus groups, ethnography, grounded theory, phenomenology, document analysis; reflexivity, trustworthiness, thematic analysis — not quantitative validity) | `references/domain-probes/qualitative_research.md` (QL1–QL8) |
 
+For a **classifier / NLP / tabular ML** manuscript, also run the deterministic feature-selection-leakage gate — a data-driven selection (feature selection, log-odds / univariate filtering, vocabulary construction, a threshold) fit on the FULL dataset before cross-validation inflates the CV metric:
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/check_cv_leakage.py" \
+  --manuscript manuscript.md --out qc/cv_leakage.json
+```
+
+`CV_SELECTION_LEAKAGE` (Major) fires when a selection token co-occurs with cross-validation and no fold-nesting is disclosed ("within each fold" / "nested CV" suppresses it). This is distinct from patient-vs-image split leakage (`model-validation/check_split_leakage.py`).
+
 When the manuscript matches a row, read `${CLAUDE_SKILL_DIR}/references/domain-probes/<module>.md` and apply each probe as an additional source of Anticipated Major / Minor Comments. The module severity words (MAJOR / MINOR) map to this skill's framing as follows: a conclusion-threatening or design-level finding becomes a **Fatal** Anticipated Major Comment, a reporting-level finding becomes a **Fixable** Anticipated Minor Comment, and each is tagged with the closest category letter (A–K). These probes **complement** categories A–K above; they do not replace them. (The modules are vendored byte-identical from `/peer-review`; do not edit one copy only — run `python3 scripts/check_domain_probe_sync.py --sync`.)
 
 ### Phase 2.5: Numerical Cross-Verification (Internal)
