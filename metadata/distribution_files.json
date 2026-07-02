@@ -3923,8 +3923,8 @@
     },
     {
       "path": "skills/write-paper/SKILL.md",
-      "size": 66771,
-      "sha256": "1a50c9ceb040a79feaa60e809c7196f9f04b85cab2f5f3402dcaed3f7aee552c"
+      "size": 67054,
+      "sha256": "62b3cbff56a139ed20a783c462fb6dde6b7a932bb057762a2d1c6382c8d044c1"
     },
     {
       "path": "skills/write-paper/references/exemplar_abstract.md",
@@ -3943,8 +3943,8 @@
     },
     {
       "path": "skills/write-paper/references/exemplar_discussion/README.md",
-      "size": 2727,
-      "sha256": "3bfcd4eb4df4ca0309446a606550cb11adc4d88daa676f2217249691d2e6b042"
+      "size": 2902,
+      "sha256": "1db58e8d3801a7fd2bd6a6bb9c271f22436a71e82ba034a8c888e9468945a026"
     },
     {
       "path": "skills/write-paper/references/exemplar_discussion/ai_validation_tripod_claim.md",
@@ -3967,14 +3967,19 @@
       "sha256": "21ec3cbfcb626cc00f09e66aa27d8f2f835a202ed083bcebcba57b787ddff866"
     },
     {
+      "path": "skills/write-paper/references/exemplar_discussion/rct_consort.md",
+      "size": 2613,
+      "sha256": "2fa6e9f621219974f07294e8637da83d923327207e38e1692b62bb45c7d20ab5"
+    },
+    {
       "path": "skills/write-paper/references/exemplar_introduction.md",
       "size": 2636,
       "sha256": "9c61b51427bba2e4fab0cb619ae55dcfad868c078044fb18269b41d259ae90d1"
     },
     {
       "path": "skills/write-paper/references/exemplar_methods/README.md",
-      "size": 2342,
-      "sha256": "6966e8b723d0c4ccc012d54e2b8a22ef59b39c22619e63a8597f9badb380b4e7"
+      "size": 2426,
+      "sha256": "b55addd809841fdb8ae8e834693c7a03602cb1d8aeb00131ed86ecb8fbc713f6"
     },
     {
       "path": "skills/write-paper/references/exemplar_methods/ai_validation_tripod_claim.md",
@@ -3997,9 +4002,14 @@
       "sha256": "e2ea3f64be321d2fb8249d4d528cfd24231c0b69d2562e4290cf3dcddd29d419"
     },
     {
+      "path": "skills/write-paper/references/exemplar_methods/rct_consort.md",
+      "size": 3268,
+      "sha256": "742e343b163336a6dda2fa2054e0f486df489e1d6cb2cf3eb782e05d25d9710d"
+    },
+    {
       "path": "skills/write-paper/references/exemplar_results/README.md",
-      "size": 2799,
-      "sha256": "14b588f1f4433be71c39f11627148fff797eb87b3b74be75e61514095d4c38ea"
+      "size": 2989,
+      "sha256": "b67ec682f899a1774af10913eaeb8f33956859da2ef787250c01ef3b437f1155"
     },
     {
       "path": "skills/write-paper/references/exemplar_results/ai_validation_tripod_claim.md",
@@ -4020,6 +4030,11 @@
       "path": "skills/write-paper/references/exemplar_results/observational_cohort_strobe.md",
       "size": 2452,
       "sha256": "4c8e1fc5c5d00a3c0dc26ea0d94dc80e3077a96503ada653ccdcee8eeb8b14da"
+    },
+    {
+      "path": "skills/write-paper/references/exemplar_results/rct_consort.md",
+      "size": 2356,
+      "sha256": "6a0becfe8f24db7f686bd23f26c9caec749dd996914705679ea915398fc7c3dd"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/AJNR.md",

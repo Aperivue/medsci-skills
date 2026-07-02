@@ -30,6 +30,8 @@ element that interprets rather than reports belongs in the Discussion.
 - `meta_analysis_prisma.md` — PRISMA flow, study/patient characteristics + provenance, pooled
   estimate with I²/τ²/prediction interval, subgroup interaction, sensitivity, publication bias
   (PRISMA 2020).
+- `rct_consort.md` — CONSORT flow, baseline by arm (no p-values), ITT primary estimate with CI,
+  secondary outcomes + harms, subgroup interaction, per-protocol beside ITT (CONSORT 2010).
 
 ## Curator guidelines (for adding more)
 
