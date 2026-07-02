@@ -1,5 +1,17 @@
 # Changelog
 
+## [Unreleased]
+
+### Documentation
+
+- **Release-cadence policy** (`docs/maintainer_workflow.md` § Release cadence). Codifies that
+  `[Unreleased]` is a staging area a release drains, that a minor release must be a coherent
+  user-noticeable batch (not internal symmetry-completion), and a guardrail of at most ~one minor
+  release per week under additive work — bundle otherwise; only a broken-install/CI/correctness/security
+  patch ships immediately. Content creation (merge when ready, demand-driven) and releasing
+  (batch-driven) are decoupled. ROADMAP "honest versioning" now links it; the release checklist
+  clarifies draining `[Unreleased]` in place.
+
 ## [5.14.0] - 2026-07-02
 
 Research enablement: a fourth executable-depth produce-guide and completion of the worked-exemplar

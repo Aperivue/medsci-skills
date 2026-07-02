@@ -42,7 +42,10 @@ it simply does not gate.)
 
 1. **Decide the version** honestly (see "Versioning" below).
 2. **Sync versions in one commit:**
-   - `CHANGELOG.md` — move `[Unreleased]` to `[x.y.z]` with today's date.
+   - `CHANGELOG.md` — rename the `## [Unreleased]` header **in place** to `## [x.y.z] - <date>`
+     so the accumulated items stay under it; do **not** insert a new `## [x.y.z]` header *above*
+     `## [Unreleased]` (that orphans the items under a stale Unreleased heading). Verify with
+     `grep '^## \[' CHANGELOG.md`.
    - `CITATION.cff` — `version` + `date-released`.
    - `package.json` — `version` (npm).
    - `README.md` — "What's New" entry.
@@ -86,3 +89,40 @@ Semantic versioning, read honestly:
 
 Release notes distinguish: **Added / Changed / Fixed / Deprecated /
 Validation-Evidence / Breaking changes / Documentation.**
+
+## Release cadence
+
+Semver above says *what a bump means*; this says *how often to cut one*. The default
+failure mode for an actively-developed toolkit — especially one worked on by an
+autonomous agent — is **releasing per pull request**, which inflates the version number
+until it no longer communicates anything. `[Unreleased]` racing several minors in a few
+days is a credibility tell to an academic audience, the same way an unjustified major bump
+is.
+
+**Rules:**
+
+1. **`[Unreleased]` is the staging area; a release drains it.** Merged PRs accumulate under
+   `## [Unreleased]` in `CHANGELOG.md`. Do **not** cut a release for every 1–2 merged PRs.
+   Let the section fill up, then release once.
+
+2. **A minor release must be a coherent, user-noticeable batch** — not internal
+   symmetry-completion. "The N-pillar set is now complete" or "the arc is finished" is an
+   *aesthetic* trigger, not a release trigger. Release when `[Unreleased]` holds something a
+   user would actually notice or act on.
+
+3. **Cadence guardrail: at most ~one minor release per week** under normal additive work. If
+   several minors would otherwise land in the same week, **bundle them into one**. More than
+   one minor release in a single work session is almost always over-granular — accumulate
+   instead.
+
+4. **The only "release now" trigger is a patch for a broken install / CI / correctness or
+   security fix.** Those ship immediately (see the Versioning policy for what counts as a
+   patch). Everything else waits for the next batch.
+
+5. **Content creation and releasing are decoupled.** New skills/detectors/guides should be
+   **demand-driven** (a real reviewer comment, a user request, a desk-reject, or a
+   review-harvest promotion), and *merged* whenever ready; *releasing* is **batch-driven** on
+   the cadence above. Finishing a PR is a reason to merge, never by itself a reason to tag.
+
+When in doubt, **do not release** — an extra week in `[Unreleased]` costs nothing, while an
+extra version number spends credibility that is hard to earn back.
