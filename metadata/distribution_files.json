@@ -153,13 +153,18 @@
     },
     {
       "path": "skills/analyze-stats/SKILL.md",
-      "size": 56422,
-      "sha256": "ddb73598fe60601942e8b44a87771e3ba583a585304effac4ae206d53ab4f154"
+      "size": 56948,
+      "sha256": "e7f01164e2fc9db924e49ee226b13bcf78d4d7c0463099c0f666985152a91d2e"
     },
     {
       "path": "skills/analyze-stats/references/analysis_guides/agreement_reliability.md",
       "size": 6674,
       "sha256": "599ad2551f547043b2bec79e3139d9c2c3ae33c5025784359b22022f882504c2"
+    },
+    {
+      "path": "skills/analyze-stats/references/analysis_guides/calibration.md",
+      "size": 6470,
+      "sha256": "ac33862c6c707997be5a2511ed6a6d546c1e829fc9fc033d1c85eca9afa3ca9a"
     },
     {
       "path": "skills/analyze-stats/references/analysis_guides/diagnostic_accuracy.md",
@@ -3053,8 +3058,8 @@
     },
     {
       "path": "skills/peer-review/references/domain-probes/survival_prognostic.md",
-      "size": 14022,
-      "sha256": "96195cd1b575535bc12a133125b9d85e2ca7e756b96a0649e03d4c3696e5312b"
+      "size": 14297,
+      "sha256": "32cd929ff2e151f33bc5b106eddef0d38d5bd15672054e690c603ee82a22a817"
     },
     {
       "path": "skills/peer-review/references/exemplar_reviews/README.md",
@@ -3613,8 +3618,8 @@
     },
     {
       "path": "skills/self-review/references/domain-probes/survival_prognostic.md",
-      "size": 14022,
-      "sha256": "96195cd1b575535bc12a133125b9d85e2ca7e756b96a0649e03d4c3696e5312b"
+      "size": 14297,
+      "sha256": "32cd929ff2e151f33bc5b106eddef0d38d5bd15672054e690c603ee82a22a817"
     },
     {
       "path": "skills/self-review/references/exemplar_findings/README.md",

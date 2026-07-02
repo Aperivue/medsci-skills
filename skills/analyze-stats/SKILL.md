@@ -545,7 +545,8 @@ When death or other events preclude the outcome of interest, standard KM overest
 - **Guide**: Load `analysis_guides/regression.md` before generating code
 - **Template**: `references/templates/regression.py` (set `regression_type = "logistic"`)
 - Run univariable analysis first, then multivariable with clinically selected variables
-- Required outputs: OR table (univariable + multivariable), C-statistic (95% CI), Hosmer-Lemeshow
+- Required outputs: OR table (univariable + multivariable), C-statistic (95% CI), and **calibration** (intercept + slope + flexible plot — **not** Hosmer–Lemeshow, which is deprecated; see the calibration guide)
+- **Prediction-model calibration guide**: `references/analysis_guides/calibration.md` (**load before generating code** for any model that outputs a risk used for a decision — the apparent slope of exactly 1.00 is the in-sample tell, so produce the **bootstrap optimism-corrected** slope/intercept; Van Calster's calibration levels; scaled Brier; why Hosmer–Lemeshow is dropped; produce-side of probe S7)
 - Check VIF < 5, EPV >= 10 (warn if violated)
 - **Nested observation units**: when rows are clustered within subjects (multiple lesions/visits per patient), use cluster-robust standard errors (`cov_type="cluster"`, `cov_kwds={"groups": id}` in statsmodels) or a mixed-effects logistic model — a naive logit CI assumes independent rows and is too narrow
 - Box-Tidwell test for continuous predictor linearity
