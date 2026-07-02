@@ -83,6 +83,16 @@ EVALUE_RE = re.compile(
 NONPRIMARY_KW = ("secondary", "exploratory", "subgroup", "sensitivity", "supporting",
                  "cause-specific", "cancer-specific", "post-hoc", "post hoc", "non-primary")
 
+# The manuscript asserts exactly ONE primary model/analysis (so a script annotating a
+# model as "co-primary" is a third-SSOT drift).
+SINGLE_PRIMARY = re.compile(
+    r"\bsingle\s+primary\b|\ba\s+single\s+primary\b|\bone\s+primary\s+(?:model|analysis|endpoint|outcome)\b"
+    r"|\bthe\s+primary\s+(?:model|analysis|endpoint|outcome)\b[^.]{0,70}?"
+    r"(?:consistent\s+with\s+the\s+(?:registered|pre-?specified)|registered\s+analysis\s+plan)",
+    re.I)
+# A model annotated "co-primary" in analysis code (a comment, string, or variable).
+CO_PRIMARY_CODE = re.compile(r"\bco[-\s]?primary\b", re.I)
+
 STOP = set("the a an of for in on to and or with by is was were are be been being this that "
            "between association associated estimated using model analysis primary outcome "
            "endpoint study patients group as at from".split())
@@ -271,6 +281,45 @@ def check_evalue(manuscript: str) -> list[dict]:
 # manual confirmation against the registration before either is acted on, and a P0
 # that needs hand-confirmation is not a P0. Only explicit re-designation and a
 # non-recomputing E-value are Major.
+def check_code_labels(manuscript: str, scripts_dir: str | None) -> list[dict]:
+    """Reconcile the manuscript's declared primary against analysis-script labels.
+
+    Fires only the specific conflict: the manuscript asserts a SINGLE primary while an
+    analysis script annotates a model as 'co-primary' — the code label is a third SSOT
+    that drifts across revisions. Advisory (code comments can lag)."""
+    claims: list[dict] = []
+    if not scripts_dir:
+        return claims
+    d = Path(scripts_dir)
+    if not d.exists() or not SINGLE_PRIMARY.search(manuscript):
+        return claims
+    for p in sorted(d.rglob("*")):
+        if p.suffix.lower() not in (".r", ".py"):
+            continue
+        try:
+            txt = p.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        m = CO_PRIMARY_CODE.search(txt)
+        if not m:
+            continue
+        ln = txt[:m.start()].count("\n") + 1
+        snippet = txt.splitlines()[ln - 1].strip()[:80] if ln - 1 < len(txt.splitlines()) else ""
+        claims.append({
+            "claim_id": "EST-code-label",
+            "type": "estimand",
+            "prose_value": "manuscript asserts a single primary model/analysis",
+            "artifact_source": f"{p.name}:{ln} labels a model 'co-primary'",
+            "verdict": "PRIMARY_LABEL_CODE_DRIFT",
+            "detail": (f"the manuscript declares a SINGLE primary while an analysis script "
+                       f"annotates a model as co-primary ({p.name}:{ln}: '{snippet}'); reconcile "
+                       f"the code's primary/co-primary label with the declared estimand — code "
+                       f"labels are a third SSOT that can drift across revisions. ADVISORY."),
+        })
+        break  # one is enough to prompt a reconcile
+    return claims
+
+
 MAJOR = {"PRIMARY_REASSIGNED", "EVALUE_ARITHMETIC"}
 
 
@@ -278,6 +327,7 @@ def main() -> int:
     ap = argparse.ArgumentParser(description="Claim-vs-artifact cross-check (estimand + E-value).")
     ap.add_argument("--manuscript", required=True, help="manuscript markdown/text")
     ap.add_argument("--prereg", help="pre-registration / protocol / project.yaml text")
+    ap.add_argument("--scripts", help="analysis-scripts directory (reconcile code primary/co-primary labels)")
     ap.add_argument("--out", help="write JSON artifact to this path")
     ap.add_argument("--strict", action="store_true", help="exit 1 if any Major verdict")
     args = ap.parse_args()
@@ -302,7 +352,8 @@ def main() -> int:
         else:
             sys.stderr.write(f"WARN: prereg not found: {args.prereg} (estimand provenance limited)\n")
 
-    claims = check_estimand(manuscript, prereg, prereg_raw) + check_evalue(manuscript)
+    claims = (check_estimand(manuscript, prereg, prereg_raw) + check_evalue(manuscript)
+              + check_code_labels(manuscript, args.scripts))
     n_major = sum(1 for c in claims if c["verdict"] in MAJOR)
     n_flag = sum(1 for c in claims if c["verdict"] not in MAJOR and c["verdict"] != "OK")
 

@@ -86,5 +86,20 @@ raise SystemExit(0 if not any(c['verdict']=='ESTIMAND_DRIFT' for c in d['claims'
 python3 "$SCRIPT" --manuscript "$SMAN" --prereg "$SPRE" --strict >/dev/null 2>&1
 check "exit 0 on structured consistent prereg (no Major)" test "$?" -eq 0
 
+# Code-label reconciliation (--scripts): a manuscript asserting a SINGLE primary vs an
+# analysis script annotating a model 'co-primary' -> PRIMARY_LABEL_CODE_DRIFT (advisory,
+# not Major). A consistent scripts dir and the no-flag backward-compatible default.
+SP="$HERE/fixtures/claim_manuscript_single_primary.md"
+python3 "$SCRIPT" --manuscript "$SP" --scripts "$HERE/fixtures/claim_scripts_coprimary" --out "$OUT" >/dev/null 2>&1
+check "PRIMARY_LABEL_CODE_DRIFT on code co-primary vs single-primary manuscript" has_verdict PRIMARY_LABEL_CODE_DRIFT
+python3 "$SCRIPT" --manuscript "$SP" --scripts "$HERE/fixtures/claim_scripts_coprimary" --strict >/dev/null 2>&1
+check "code-label drift is advisory (exit 0 under --strict)" test "$?" -eq 0
+python3 "$SCRIPT" --manuscript "$SP" --scripts "$HERE/fixtures/claim_scripts_consistent" --out "$OUT" >/dev/null 2>&1
+check "no drift when scripts carry no co-primary label" python3 -c "
+import json
+d=json.load(open('$OUT'))
+raise SystemExit(0 if not any(c['verdict']=='PRIMARY_LABEL_CODE_DRIFT' for c in d['claims']) else 1)
+"
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"
