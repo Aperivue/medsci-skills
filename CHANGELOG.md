@@ -1,6 +1,13 @@
 # Changelog
 
-## [Unreleased]
+## [5.11.0] - 2026-07-02
+
+Review-harvest inbox goal-mode processing: field-observed self-review / peer-review
+gaps promoted into detectors, domain-probes, and precision fixes. **Integrity
+detectors 42 → 45** (`check_rounded_delta`, `check_figure_citation`,
+`check_emphasis_density`); seven review domain-probes added (sr_ma P18/P19,
+observational O18, diagnostic_accuracy D9/D10/D11, ai_overclaiming AO7); one new
+supplement-hygiene verdict; five precision fixes on already-shipped detectors.
 
 ### Added
 
