@@ -3668,8 +3668,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_claim_artifact.py",
-      "size": 15879,
-      "sha256": "1daa64eaabe493f05ae7e2129a2056b673ec588487d5b6c73f41f10104822935"
+      "size": 18475,
+      "sha256": "c99c8090205734b0eae981550ed09e6275d94add608e66df78f4533c35f20924"
     },
     {
       "path": "skills/self-review/scripts/check_classical_style.py",
