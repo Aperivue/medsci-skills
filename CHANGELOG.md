@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- **`analyze-stats` prediction-model calibration methodology guide (`analysis_guides/calibration.md`).** Executable-depth enablement paired with probe **S7** (calibration beyond discrimination): the **apparent calibration slope of a maximum-likelihood fit is exactly 1.00 by construction** (the in-sample tell), so the guide produces the **bootstrap optimism-corrected** slope/intercept (Harrell/Steyerberg) instead; Van Calster's calibration hierarchy (report weak calibration — intercept + slope — plus a flexible curve, not decile bins); scaled Brier; and why **Hosmer–Lemeshow is deprecated** (dropped from the logistic required-outputs in favour of slope/intercept + flexible plot). Survival-at-a-horizon calibration noted. Core claims verified (apparent slope 1.00 → optimism-corrected 0.75 on an overfit model; scaled Brier; calibration-in-the-large). `survival_prognostic` probe S7 gains a "Produce the fix" back-link; SKILL.md loads the guide before generating prediction-model code. No detectors, no count change.
+
 ## [5.13.0] - 2026-07-02
 
 Executable-depth research enablement. Two `analyze-stats` produce-guides complete the
