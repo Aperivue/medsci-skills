@@ -488,6 +488,7 @@ tbl %>% as_flex_table() %>% flextable::save_as_docx(path = "table.docx")
 
 ### Survival Analysis
 
+- **Methodology guide**: `references/analysis_guides/survival.md` (**load before generating code** — competing risks first [naive 1−KM overestimates → produce the Aalen–Johansen/Fine–Gray CIF; cause-specific vs subdistribution for which question, produce-side of probe S3]; PH check → RMST when violated; reverse-KM follow-up + C-index variant [S6]; estimand provenance [S8])
 - Table type guide: `references/table-standards/table-types/survival_results.md` (Cox results table: events/person-time, reverse-KM median follow-up, univariable + adjusted HR with CI, PH-assumption footnote, EPV/sparse-stratum and RMST-when-PH-violated rules)
 - Kaplan-Meier curves with number-at-risk table
 - Log-rank test for group comparison
