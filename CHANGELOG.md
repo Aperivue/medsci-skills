@@ -4,6 +4,11 @@
 
 ### Documentation
 
+- **Copy-paste citation ergonomics** (README § Citation). Adds a ready-to-adapt Methods/Acknowledgement
+  sentence (with a version placeholder), BibTeX for the software (Zenodo) and the design preprint,
+  a note that the concept DOI resolves to the latest release, and a pointer to the "Used in research"
+  issue → `docs/citations.md`. Lowers the friction to legitimately cite the toolkit.
+
 - **Release-cadence policy** (`docs/maintainer_workflow.md` § Release cadence). Codifies that
   `[Unreleased]` is a staging area a release drains, that a minor release must be a coherent
   user-noticeable batch (not internal symmetry-completion), and a guardrail of at most ~one minor
