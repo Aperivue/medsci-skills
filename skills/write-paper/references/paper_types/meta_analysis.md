@@ -8,6 +8,11 @@
 - **Typical word count:** 4500–6000 words
 - **Structure:** Abstract → Introduction → Methods → Results → Discussion → Conclusions
 
+**Worked structure models** (paragraph order + what each paragraph must establish, synthetic):
+`exemplar_methods/meta_analysis_prisma.md`, `exemplar_results/meta_analysis_prisma.md`,
+`exemplar_discussion/meta_analysis_prisma.md`. This file carries the fuller prose templates;
+the exemplars are the compact skeletons for confirming every load-bearing paragraph is present.
+
 ---
 
 ## Required at Phase 0 (Init)

@@ -27,6 +27,9 @@ closes with a conclusion matched to the evidence — introducing no new results.
   CLAIM).
 - `observational_cohort_strobe.md` — mandatory causal caution, reverse-causation and
   unmeasured-confounding limitations, no care-directive conclusion (STROBE).
+- `meta_analysis_prisma.md` — summary-of-evidence with certainty framing, heterogeneity-source
+  and non-independence/overlap caveats, GRADE limitations, no guideline-grade conclusion
+  (PRISMA 2020).
 
 ## Curator guidelines (for adding more)
 
