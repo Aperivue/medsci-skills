@@ -153,8 +153,13 @@
     },
     {
       "path": "skills/analyze-stats/SKILL.md",
-      "size": 55302,
-      "sha256": "3809b6a55e8a79b7dc48f617e3be0a7faf2a96a6f0ba03d58977a39f267cce81"
+      "size": 55642,
+      "sha256": "5c4a966490cfb8da6e09ebda897599479bd527d7ee3957ccbfceb5abff06306a"
+    },
+    {
+      "path": "skills/analyze-stats/references/analysis_guides/agreement_reliability.md",
+      "size": 6674,
+      "sha256": "599ad2551f547043b2bec79e3139d9c2c3ae33c5025784359b22022f882504c2"
     },
     {
       "path": "skills/analyze-stats/references/analysis_guides/health_economic_evaluation.md",
@@ -2993,8 +2998,8 @@
     },
     {
       "path": "skills/peer-review/references/domain-probes/observational_confounding.md",
-      "size": 34617,
-      "sha256": "ec4a11caed6d604e510437827f2b979fcf43ab1ddea6b298eb95673472b2b459"
+      "size": 34795,
+      "sha256": "ff8cb910c7fb83ec08a04ba88866bdf1e0d2f43d972e2861b825595a85b035ee"
     },
     {
       "path": "skills/peer-review/references/domain-probes/polygenic_risk_score.md",
@@ -3553,8 +3558,8 @@
     },
     {
       "path": "skills/self-review/references/domain-probes/observational_confounding.md",
-      "size": 34617,
-      "sha256": "ec4a11caed6d604e510437827f2b979fcf43ab1ddea6b298eb95673472b2b459"
+      "size": 34795,
+      "sha256": "ff8cb910c7fb83ec08a04ba88866bdf1e0d2f43d972e2861b825595a85b035ee"
     },
     {
       "path": "skills/self-review/references/domain-probes/polygenic_risk_score.md",

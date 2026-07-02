@@ -4,6 +4,8 @@
 
 ### Added
 
+- **`analyze-stats` inter-rater agreement/reliability methodology guide (`analysis_guides/agreement_reliability.md`).** Executable-depth enablement paired with self-review probe O18: the pseudoreplication trap for clustered/repeated measurements + the pseudoreplication-safe per-subject-aggregation and subject-random-effect ICC code (produce, not only flag), ICC model/type selection, and the agreement-vs-reliability distinction. Wired into the skill's agreement section and cross-linked from O18.
+
 - **`check_claim_artifact` gains `--scripts` + `PRIMARY_LABEL_CODE_DRIFT` (advisory; no count change).** When the manuscript asserts a SINGLE primary model/analysis but an analysis script annotates a model as `co-primary`, the code label (a third SSOT) has drifted — reconcile it with the declared estimand. Advisory, since code comments can lag.
 
 - **`check_cv_leakage` (self-review, `data_preparation`; integrity detectors 45 → 46).** `CV_SELECTION_LEAKAGE` (Major): for a classifier / NLP / tabular manuscript, a data-driven selection step (feature selection, log-odds / univariate filtering, vocabulary construction, a threshold) that co-occurs with cross-validation without any fold-nesting disclosure ('within each fold', 'nested CV') — if the selection was fit on the full dataset the CV metric is optimistically inflated. Distinct from patient-vs-image split leakage.
