@@ -153,8 +153,8 @@
     },
     {
       "path": "skills/analyze-stats/SKILL.md",
-      "size": 56034,
-      "sha256": "6dbd6a7055ba46113ce85f5ff5c38ea48b3acedbcfe3a2fc2514f6de2031d0e1"
+      "size": 56422,
+      "sha256": "ddb73598fe60601942e8b44a87771e3ba583a585304effac4ae206d53ab4f154"
     },
     {
       "path": "skills/analyze-stats/references/analysis_guides/agreement_reliability.md",
@@ -225,6 +225,11 @@
       "path": "skills/analyze-stats/references/analysis_guides/survey_weighted.md",
       "size": 12803,
       "sha256": "1639f4810fb5946b24e782b3ce463c000222dcac75709e1e3dac78ad4a2ad72f"
+    },
+    {
+      "path": "skills/analyze-stats/references/analysis_guides/survival.md",
+      "size": 7191,
+      "sha256": "6b7f220f2aa165fd16eda58b0b40ac743c122c03757bc00f61efc884b203f337"
     },
     {
       "path": "skills/analyze-stats/references/analysis_guides/test_selection.md",
@@ -3048,8 +3053,8 @@
     },
     {
       "path": "skills/peer-review/references/domain-probes/survival_prognostic.md",
-      "size": 13765,
-      "sha256": "af0e0323876424eec8ba07be22fe99b3100356e8e4895b5b79635e9a2d76e98e"
+      "size": 14022,
+      "sha256": "96195cd1b575535bc12a133125b9d85e2ca7e756b96a0649e03d4c3696e5312b"
     },
     {
       "path": "skills/peer-review/references/exemplar_reviews/README.md",
@@ -3608,8 +3613,8 @@
     },
     {
       "path": "skills/self-review/references/domain-probes/survival_prognostic.md",
-      "size": 13765,
-      "sha256": "af0e0323876424eec8ba07be22fe99b3100356e8e4895b5b79635e9a2d76e98e"
+      "size": 14022,
+      "sha256": "96195cd1b575535bc12a133125b9d85e2ca7e756b96a0649e03d4c3696e5312b"
     },
     {
       "path": "skills/self-review/references/exemplar_findings/README.md",

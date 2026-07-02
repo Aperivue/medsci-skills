@@ -28,6 +28,7 @@ A 9-probe checklist for time-to-event outcomes and prognostic model development.
 - Cause-specific hazards or Fine-Gray subdistribution hazards used?
 - Patient developing one event still at risk for the other (informative censoring by death)?
 - If competing-risks structure is ignored and outcomes are treated as independent right-censored events → MAJOR.
+- Produce the fix: `analyze-stats` `references/analysis_guides/survival.md` has the Aalen–Johansen/Fine–Gray cumulative-incidence code (naive 1−KM overestimates) + the cause-specific-vs-subdistribution estimand choice (S8) and the PH→RMST fallback.
 
 **S4 — Cutoff derivation optimism**:
 - Cutoffs derived via maximally selected log-rank statistics, AUC-based Youden's J, or similar data-driven methods?
