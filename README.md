@@ -787,15 +787,44 @@ It helps other researchers find the toolkit — and we list it (with your permis
 
 ## Citation
 
-If you use MedSci Skills in your research, please cite the software via
-[`CITATION.cff`](CITATION.cff) (Zenodo concept DOI
-[10.5281/zenodo.20155321](https://doi.org/10.5281/zenodo.20155321)).
+If MedSci Skills helped produce your manuscript, protocol, or analysis, please cite it —
+software citation is how a tool like this earns academic recognition, and it takes one line.
 
-The design and evaluation of the toolkit are described in a preprint:
+**In your manuscript** (Methods or Acknowledgements — cite the version you actually used):
 
-> Nam Y, Kim N. *Agentic Skills for Auditable and Reproducible Medical Research
-> Writing: An Integrity-gated Architecture for LLM-Assisted Clinical Manuscripts.*
-> arXiv:2606.09500 (2026). https://arxiv.org/abs/2606.09500
+> Reporting-guideline compliance, reference verification, and pre-submission integrity checks
+> were assisted by MedSci Skills (version X.Y.Z; https://github.com/Aperivue/medsci-skills;
+> archived at Zenodo, https://doi.org/10.5281/zenodo.20155321).
+
+**BibTeX** (the software, and the preprint describing its design):
+
+```bibtex
+@software{nam_medsci_skills,
+  author    = {Nam, Yoojin},
+  title     = {{MedSci Skills: Claude Code Skills for the Medical Research Lifecycle}},
+  year      = {2026},
+  publisher = {Zenodo},
+  doi       = {10.5281/zenodo.20155321},
+  url       = {https://github.com/Aperivue/medsci-skills}
+}
+
+@article{nam2026agentic,
+  author  = {Nam, Yoojin and Kim, Namkug},
+  title   = {{Agentic Skills for Auditable and Reproducible Medical Research Writing:
+             An Integrity-gated Architecture for LLM-Assisted Clinical Manuscripts}},
+  year    = {2026},
+  journal = {arXiv preprint arXiv:2606.09500},
+  url     = {https://arxiv.org/abs/2606.09500}
+}
+```
+
+The Zenodo **concept DOI** [10.5281/zenodo.20155321](https://doi.org/10.5281/zenodo.20155321)
+always resolves to the latest release; [`CITATION.cff`](CITATION.cff) carries the machine-readable
+metadata (GitHub's "Cite this repository" button reads it).
+
+**Used it in published or in-review work?** Tell us via the
+["Used in research" issue template](https://github.com/Aperivue/medsci-skills/issues/new?template=used-in-research.yml)
+— with your permission it is added to [`docs/citations.md`](docs/citations.md).
 
 ## Disclaimer
 
