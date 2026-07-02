@@ -1,6 +1,14 @@
 # Changelog
 
-## [Unreleased]
+## [5.14.0] - 2026-07-02
+
+Research enablement: a fourth executable-depth produce-guide and completion of the worked-exemplar
+set. The `analyze-stats` **calibration** guide (probe S7 — the apparent-slope-of-1.00 tell →
+bootstrap optimism correction) extends the produce-guide line to agreement / diagnostic-accuracy /
+survival / calibration; the `write-paper` **RCT/CONSORT** exemplar completes the five-pillar
+reporting-guideline worked-exemplar set (STROBE / STARD / TRIPOD+AI·CLAIM / PRISMA / CONSORT),
+raising worked exemplars to 5/10 paper types. No detectors added; **46 integrity detectors
+unchanged**. PRs #267–#268.
 
 ### Added
 
