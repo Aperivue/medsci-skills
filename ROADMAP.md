@@ -49,8 +49,9 @@ These stay green but are no longer the strategic direction:
   OpenAlex before a reference is trusted; no references written from model memory.
 - **Numerical, cohort, and cross-artifact consistency** — counts, denominators,
   and submission-package artifacts that agree across the manuscript lifecycle.
-- **Release stability and documentation clarity** — honest versioning, a clear
-  "start here", and reproducible public demos.
+- **Release stability and documentation clarity** — honest versioning and a batched
+  [release cadence](docs/maintainer_workflow.md#release-cadence) (no per-PR version
+  inflation), a clear "start here", and reproducible public demos.
 - **Maintainability and governance** — lightweight contributor and maintainer
   process so the project can accept help without diluting clinical scope
   (see [`MAINTAINERS.md`](MAINTAINERS.md)).
