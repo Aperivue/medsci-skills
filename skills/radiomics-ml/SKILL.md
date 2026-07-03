@@ -1,14 +1,17 @@
 ---
 name: radiomics-ml
 description: >
-  Produce or audit a radiomics / tabular clinical-ML study — imaging or clinical features → random
-  forest / XGBoost / regularised logistic → a clinical outcome — so it clears the rigor bar reviewers
-  expect: nested cross-validation (tuning never on the reported folds), dimensionality control for the
+  Produce or audit a radiomics / tabular clinical-ML study — imaging or clinical features → any
+  classical learner (penalised logistic [LASSO / ridge / elastic-net], SVM, k-NN, naive Bayes,
+  LDA/QDA, decision tree, random forest, gradient boosting [XGBoost / LightGBM / CatBoost], shallow
+  MLP, stacked ensembles) → a clinical outcome — so it clears the rigor bar reviewers expect: nested
+  cross-validation (tuning never on the reported folds), dimensionality control for the
   features-far-exceed-events regime, feature selection inside the fold, feature-stability (ICC /
-  test-retest) filtering, calibration, and external/temporal validation. Emits a pipeline manifest and
-  a deterministic rigor gate. The most common solo-doable clinical-ML workflow — no GPU, no engineer.
-  Integrates scikit-learn / xgboost / pyradiomics; it does not reimplement them.
-triggers: radiomics, radiomic features, pyradiomics, tabular ML, clinical prediction model, random forest, XGBoost, gradient boosting, tree ensemble, feature selection, nested cross-validation, nested CV, ICC feature stability, SHAP, machine learning model, classical ML, clinical machine learning, LASSO, feature stability, decision curve, calibration, TRIPOD, CLEAR, PROBAST
+  test-retest) filtering, calibration, and external/temporal validation. The deterministic gate is
+  learner-agnostic (it audits the pipeline, not the algorithm). Emits a pipeline manifest and the gate.
+  The most common solo-doable clinical-ML workflow — no GPU, no engineer. Integrates scikit-learn /
+  xgboost / lightgbm / catboost / pyradiomics; it does not reimplement them.
+triggers: radiomics, radiomic features, pyradiomics, tabular ML, clinical prediction model, random forest, XGBoost, LightGBM, CatBoost, gradient boosting, tree ensemble, SVM, support vector machine, k-NN, KNN, naive Bayes, LDA, QDA, elastic net, ridge, LASSO, logistic regression, MLP, stacking, ensemble, clustering, k-means, PCA, UMAP, dimensionality reduction, feature selection, nested cross-validation, nested CV, ICC feature stability, SHAP, machine learning model, classical ML, clinical machine learning, feature stability, decision curve, calibration, TRIPOD, CLEAR, PROBAST
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit
 ---
@@ -67,7 +70,20 @@ patient/subject ID and the outcome. See `references/radiomics_ml_guide.md`.
 - **Nested cross-validation** — outer folds estimate performance, inner folds tune; do **feature
   selection and scaling inside each training fold** (never on the whole dataset).
 - **Dimensionality** — with features ≥ events, use LASSO / a stability+redundancy filter / PCA.
-- **Model** — random forest / XGBoost / regularised logistic (a simple baseline is mandatory).
+- **Model** — pick from the full classical family for the task; a simple baseline (penalised logistic)
+  is mandatory alongside any complex learner:
+  - *penalised regression* — LASSO / ridge / elastic-net logistic (also the baseline)
+  - *margin / kernel* — linear or RBF SVM
+  - *instance-based* — k-NN
+  - *probabilistic / discriminant* — naive Bayes, LDA / QDA
+  - *trees & bagging* — decision tree, random forest, extra-trees
+  - *boosting* — XGBoost, LightGBM, CatBoost, HistGBM, AdaBoost
+  - *shallow neural* — MLP
+  - *meta* — stacking / voting ensembles
+  - *unsupervised (upstream)* — PCA / UMAP for reduction, k-means / hierarchical / GMM for phenotyping
+  The gate below is **learner-agnostic** — it audits the pipeline (nested CV, leakage, dimensionality,
+  calibration), so it applies identically to any of these. See the full method map in
+  [`docs/method_coverage_map.md`](../../docs/method_coverage_map.md).
 - **Report** — discrimination **and** calibration (slope/intercept + flexible curve, via the
   `/analyze-stats` calibration guide) and clinical utility (decision curve). SHAP for interpretation.
 

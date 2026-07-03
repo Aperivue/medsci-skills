@@ -63,10 +63,32 @@ grid  = GridSearchCV(pipe, param_grid, cv=inner, scoring="roc_auc")
 auc   = cross_val_score(grid, X, y, cv=outer, scoring="roc_auc")  # outer = unbiased estimate
 ```
 
-## 5. Models
+## 5. Models — the full classical family (not just RF / XGBoost)
 
-Report a **simple baseline** (regularised logistic) alongside random forest / XGBoost — a tree ensemble
-that does not beat penalised logistic on your data is a finding, not a failure. Fix the seed.
+Always report a **simple baseline** (penalised logistic) alongside any complex learner — a model that
+does not beat penalised logistic on your data is a finding, not a failure. Fix the seed. Pick by task
+and sample size; the pipeline rigor in §2–§4 is identical across all of them (the gate is
+learner-agnostic).
+
+| Family | Learner (scikit-learn / library) | When |
+|---|---|---|
+| Penalised regression | `LogisticRegression(penalty=l1/l2/elasticnet)` — LASSO / ridge / elastic-net | baseline; small n; interpretable coefficients |
+| Margin / kernel | `SVC` (linear / RBF) | moderate n, clear margin; scale features first |
+| Instance-based | `KNeighborsClassifier` | small feature set, local structure |
+| Probabilistic / discriminant | `GaussianNB`, `LinearDiscriminantAnalysis`, `QuadraticDiscriminantAnalysis` | fast baselines; LDA when classes ~Gaussian |
+| Single tree | `DecisionTreeClassifier` | interpretability demo (rarely final) |
+| Bagging | `RandomForestClassifier`, `ExtraTreesClassifier` | robust default, low tuning |
+| Boosting | `XGBClassifier`, `LGBMClassifier`, `CatBoostClassifier`, `HistGradientBoostingClassifier`, `AdaBoost` | usually top tabular performance; tune with the inner CV |
+| Shallow neural | `MLPClassifier` | non-linear, enough samples; scale + early-stop |
+| Meta / ensemble | `StackingClassifier`, `VotingClassifier` | squeeze marginal gain; guard overfitting |
+| Survival ML | random survival forest, Cox-net, DeepSurv | time-to-event outcome (+ `/analyze-stats` survival) |
+
+**Unsupervised (upstream, not the endpoint):** PCA / UMAP for dimensionality reduction (fit inside the
+fold, §4), and k-means / hierarchical / Gaussian-mixture for phenotype discovery — report cluster
+stability, never as a supervised performance claim.
+
+For imbalanced outcomes prefer probability-calibrated models + threshold analysis over resampling that
+distorts prevalence; calibrate with Platt / isotonic (`/analyze-stats` calibration).
 
 ## 6. Report discrimination AND calibration AND utility
 

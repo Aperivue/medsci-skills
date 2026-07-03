@@ -2,13 +2,13 @@
 
 # radiomics-ml
 
-> Produce or audit a radiomics / tabular clinical-ML study — imaging or clinical features → random forest / XGBoost / regularised logistic → a clinical outcome — so it clears the rigor bar reviewers expect: nested cross-validation (tuning never on the reported folds), dimensionality control for the features-far-exceed-events regime, feature selection inside the fold, feature-stability (ICC / test-retest) filtering, calibration, and external/temporal validation. Emits a pipeline manifest and a deterministic rigor gate. The most common solo-doable clinical-ML workflow — no GPU, no engineer. Integrates scikit-learn / xgboost / pyradiomics; it does not reimplement them.
+> Produce or audit a radiomics / tabular clinical-ML study — imaging or clinical features → any classical learner (penalised logistic [LASSO / ridge / elastic-net], SVM, k-NN, naive Bayes, LDA/QDA, decision tree, random forest, gradient boosting [XGBoost / LightGBM / CatBoost], shallow MLP, stacked ensembles) → a clinical outcome — so it clears the rigor bar reviewers expect: nested cross-validation (tuning never on the reported folds), dimensionality control for the features-far-exceed-events regime, feature selection inside the fold, feature-stability (ICC / test-retest) filtering, calibration, and external/temporal validation. The deterministic gate is learner-agnostic (it audits the pipeline, not the algorithm). Emits a pipeline manifest and the gate. The most common solo-doable clinical-ML workflow — no GPU, no engineer. Integrates scikit-learn / xgboost / lightgbm / catboost / pyradiomics; it does not reimplement them.
 
 **Invoke:** `/radiomics-ml` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
 
 ## When to use
 
-`radiomics-ml` activates on requests such as: radiomics, radiomic features, pyradiomics, tabular ML, clinical prediction model, random forest, XGBoost, gradient boosting, tree ensemble, feature selection, nested cross-validation, nested CV, ICC feature stability, SHAP, machine learning model, classical ML, clinical machine learning, LASSO, feature stability, decision curve, calibration, TRIPOD, CLEAR, PROBAST.
+`radiomics-ml` activates on requests such as: radiomics, radiomic features, pyradiomics, tabular ML, clinical prediction model, random forest, XGBoost, LightGBM, CatBoost, gradient boosting, tree ensemble, SVM, support vector machine, k-NN, KNN, naive Bayes, LDA, QDA, elastic net, ridge, LASSO, logistic regression, MLP, stacking, ensemble, clustering, k-means, PCA, UMAP, dimensionality reduction, feature selection, nested cross-validation, nested CV, ICC feature stability, SHAP, machine learning model, classical ML, clinical machine learning, feature stability, decision curve, calibration, TRIPOD, CLEAR, PROBAST.
 
 ## Quality Card
 

@@ -3413,13 +3413,13 @@
     },
     {
       "path": "skills/radiomics-ml/SKILL.md",
-      "size": 6946,
-      "sha256": "d957750dd8e2a16327eb0fda05a0b442f2592383f122267b485b38493301bce3"
+      "size": 8273,
+      "sha256": "cc65bfd50db2b6e9b6681e1c9649b306490cd5dd74192bfdf5316362b71f141b"
     },
     {
       "path": "skills/radiomics-ml/references/radiomics_ml_guide.md",
-      "size": 4882,
-      "sha256": "f6333fabdfddce9bb16181215e9a3e6f33da86af3d28e8d426bbe0881e45677d"
+      "size": 6707,
+      "sha256": "29bf2b2b847c488ddb33e50cd21ea0e2cd4937a1a62ab2655f31227a0e42215a"
     },
     {
       "path": "skills/radiomics-ml/scripts/check_radiomics_ml.py",
