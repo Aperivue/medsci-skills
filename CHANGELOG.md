@@ -4,6 +4,12 @@
 
 ### Documentation
 
+- **README: by-stage skill index, multi-host framing, and star history.** A scannable "by research
+  stage" grouping of all 51 skills sits above the full table; a Star History chart is added; and the
+  About section now states the toolkit runs on all four verified Agent Skills hosts (Claude Code,
+  Codex, Cursor, GitHub Copilot) rather than Claude Code alone. The GitHub repo description and topics
+  were broadened to match (leads with "Agent Skills"; adds `codex`/`cursor` topics).
+
 - **Copy-paste citation ergonomics** (README § Citation). Adds a ready-to-adapt Methods/Acknowledgement
   sentence (with a version placeholder), BibTeX for the software (Zenodo) and the design preprint,
   a note that the concept DOI resolves to the latest release, and a pointer to the "Used in research"

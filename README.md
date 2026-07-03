@@ -447,6 +447,21 @@ ma-scout -> search-lit -> fulltext-retrieval -> design-study ──> write-proto
                               └─────────────────────────────────────────────┘
 ```
 
+### By research stage
+
+All 51 skills, grouped by where they fit in the clinical-manuscript and medical-AI lifecycle. Full descriptions are in the table below; one page per skill lives in the [per-skill reference](docs/skills/).
+
+| Stage | Skills |
+|-------|--------|
+| 🔭 **Discover & scope** | `ma-scout` · `find-cohort-gap` · `search-lit` · `fulltext-retrieval` · `lit-sync` · `author-strategy` |
+| 📐 **Design & plan** | `design-study` · `calc-sample-size` · `define-variables` · `write-protocol` · `fill-protocol` · `design-ai-benchmarking` |
+| 🧹 **Data & analysis** | `deidentify` · `clean-data` · `generate-codebook` · `version-dataset` · `analyze-stats` · `batch-cohort` · `cross-national` · `replicate-study` |
+| 🤖 **Medical-AI model engineering** | `architecture-zoo` · `model-scaffold` · `model-validation` · `model-evaluation` · `model-card` · `mllm-eval` |
+| ✍️ **Write & visualize** | `write-paper` · `make-figures` · `review-paper` · `present-paper` · `humanize` · `polish-language` · `academic-aio` |
+| ✅ **Comply & verify** | `check-reporting` · `self-review` · `verify-refs` · `manage-refs` |
+| 📤 **Submit & respond** | `find-journal` · `add-journal` · `sync-submission` · `revise` · `peer-review` · `fill-icmje-coi` |
+| 🧭 **Orchestrate & manage** | `orchestrate` · `intake-project` · `manage-project` · `meta-analysis` · `grant-builder` · `publish-skill` · `render-pdf-doc` · `setup-medsci` |
+
 ### Available Now
 
 | Skill | What It Does |
@@ -844,8 +859,16 @@ Bundled reporting guideline checklists retain their original Creative Commons li
 
 Optional dependency: `pdf_to_md.py` uses [pymupdf4llm](https://pymupdf.readthedocs.io) (AGPL-3.0). Not bundled -- installed separately by the user via `pip install pymupdf4llm`.
 
+## Star History
+
+<a href="https://star-history.com/#Aperivue/medsci-skills&Date">
+  <img src="https://api.star-history.com/svg?repos=Aperivue/medsci-skills&type=Date" alt="MedSci Skills star history" width="640">
+</a>
+
 ## About
 
 Built by [Aperivue](https://aperivue.com) -- tools for medical AI research and education.
+
+**Runs anywhere the [Agent Skills standard](https://agentskills.io) is supported** -- not Claude Code alone. Claude Code, OpenAI Codex, Cursor, and GitHub Copilot are all verified against each host's own docs: one install, four hosts, no per-host fork ([host compatibility](docs/host_compatibility.md)).
 
 If you find this useful, consider giving it a star. It helps other researchers discover these tools.
