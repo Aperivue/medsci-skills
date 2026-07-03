@@ -46,7 +46,8 @@
         "./skills/model-card",
         "./skills/model-evaluation",
         "./skills/model-scaffold",
-        "./skills/model-validation"
+        "./skills/model-validation",
+        "./skills/preprocess-imaging"
       ]
     },
     {

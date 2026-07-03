@@ -1,0 +1,17 @@
+{
+  "split_seed": 42,
+  "transforms": [
+    {"name": "hist_match_to_atlas", "type": "histogram_match", "fit_scope": "all", "stage": "after_split"},
+    {"name": "dataset_zscore", "type": "standardize", "fit_scope": "train", "stage": "before_split"},
+    {"name": "random_flip", "type": "augmentation", "stage": "after_split", "applies_to": ["train", "test"]},
+    {"name": "hu_window", "type": "clip", "fit_scope": "none", "stage": "before_split"}
+  ],
+  "split_assignment": [
+    {"patient_id": "P01", "unit_id": "P01_s1", "split": "train"},
+    {"patient_id": "P02", "unit_id": "P02_s1", "split": "train"},
+    {"patient_id": "P03", "unit_id": "P03_s1", "split": "train"},
+    {"patient_id": "P03", "unit_id": "P03_s2", "split": "test"},
+    {"patient_id": "P04", "unit_id": "P04_s1", "split": "validation"},
+    {"patient_id": "P05", "unit_id": "P05_s1", "split": "test"}
+  ]
+}

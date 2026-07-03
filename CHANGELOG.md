@@ -2,6 +2,20 @@
 
 ## [Unreleased]
 
+### Added
+
+- **`preprocess-imaging` skill + `check_preprocessing_leakage` detector** (Item 1 of the
+  [model-engineering produce-side depth roadmap](docs/roadmap_model_engineering_depth.md)). Designs and
+  audits the data-preparation stage of a medical-imaging model *before* `model-scaffold` builds the
+  training repo, extending the split-leakage moat upstream to preprocessing. Emits a declarative
+  preprocessing manifest (transforms with `type`/`fit_scope`/`stage` + patient-level split) and a
+  stdlib-only deterministic gate with six verdicts: `NORMALIZATION_LEAKAGE`, `PREPROCESS_BEFORE_SPLIT`,
+  `PATIENT_CROSS_SPLIT` (Major); `AUGMENTATION_ON_EVAL`, `UNSPECIFIED_FIT_SCOPE`, `MISSING_SEED`
+  (Minor). A per-sample transform is correctly treated as leakage-free even before the split. Ships a
+  modality-aware `references/preprocessing_guide.md`, a network-free challenge card, and a CI-wired
+  regression test. Integrates MONAI / TorchIO by reference; never reimplements them or touches real
+  patient data. Skills **51 → 52**, integrity detectors **46 → 47** (`data_preparation` family). PR #274.
+
 ### Fixed
 
 - **`self-review` scope-coherence: enumerated-defect-label false positive.** `check_scope_coherence`

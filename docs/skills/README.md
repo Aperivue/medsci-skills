@@ -41,6 +41,7 @@ One reference page per skill, generated from each skill's `SKILL.md` and `skill.
 - [orchestrate](orchestrate.md) — General-purpose research orchestrator. _(evidence: demo)_
 - [peer-review](peer-review.md) — Peer review assistant for medical journals. _(evidence: manual_workflow)_
 - [polish-language](polish-language.md) — Academic English consistency linting and non-native (ESL) language polish for medical manuscripts. _(evidence: bundled_script)_
+- [preprocess-imaging](preprocess-imaging.md) — Design or audit the data-preparation stage of a medical-imaging model — DICOM/NIfTI intake, resampling and intensity normalisation, and the augmentation plan — so the pipeline is leakage-safe before m… _(evidence: ci_validator)_
 - [present-paper](present-paper.md) — Academic presentation preparation — paper-driven (journal club, grand rounds, seminar) and lecture/teaching decks (course material, workshop slides, conference talks). _(evidence: bundled_script)_
 - [publish-skill](publish-skill.md) — Convert a personal agent skill into a distributable, open-source-ready skill. _(evidence: bundled_script)_
 - [render-pdf-doc](render-pdf-doc.md) — Render academic Markdown documents (English or Korean) to publication-quality PDF via pandoc + xelatex. _(evidence: bundled_script)_
