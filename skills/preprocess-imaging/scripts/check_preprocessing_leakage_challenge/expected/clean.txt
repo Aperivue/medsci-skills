@@ -1,0 +1,9 @@
+=========================================
+ Preprocessing-Leakage Gate (preprocess-imaging)
+=========================================
+  transforms=4  units=5  patients=5  partitions={'test': 2, 'train': 2, 'val': 1}  seed=7
+| Check | Severity | Detail |
+|---|---|---|
+| (none) | — | preprocessing manifest is leakage-safe |
+
+OK: preprocessing manifest is leakage-safe.

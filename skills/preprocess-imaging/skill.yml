@@ -1,0 +1,45 @@
+schema_version: 2
+name: preprocess-imaging
+layer: D
+owner_domain: model_validation
+maturity: official
+
+when_to_use: "Design or audit the data-preparation stage of a medical-imaging model — DICOM/NIfTI intake, resampling and intensity normalisation, and the augmentation plan — so the pipeline is leakage-safe BEFORE model-scaffold builds the training repo. Emits a declarative preprocessing manifest and a deterministic data-stage leakage gate that catches the leaks the split table cannot see: a dataset-level normaliser fit on non-train data, any data-fitted transform run before the split, and the same patient's slices crossing splits."
+when_NOT_to_use: "Auditing the train/val/test split table itself (use model-validation's split-leakage gate); scaffolding the training repo or model code (use model-scaffold — it consumes this manifest); choosing the architecture (use architecture-zoo); computing held-out metrics or calibration (use model-evaluation then analyze-stats); LLM/MLLM data handling (use mllm-eval); reimplementing MONAI/TorchIO transforms (out of scope — this skill wires and audits them, never rebuilds them)."
+
+inputs:
+  - "data manifest (one row per image/slice with a patient/subject ID) and modality"
+  - "intended preprocessing steps (resample spacing, intensity window/normalisation, augmentation plan)"
+  - "split-assignment (patient/subject ID + train/val/test), when available, for the slice-level leakage check"
+outputs:
+  - "a declarative preprocessing manifest (JSON: transforms with type/fit_scope/stage + split_assignment + split_seed) that model-scaffold consumes"
+  - "preprocessing-leakage audit JSON (deterministic)"
+  - "modality-aware augmentation-appropriateness notes (physiology-preserving vs breaking) and a normalisation fit-scope recommendation"
+deterministic_scripts:
+  - scripts/check_preprocessing_leakage.py
+side_effects:
+  - writes_decision_notes
+downstream_consumers:
+  - model-scaffold
+  - model-validation
+  - check-reporting
+  - self-review
+forbidden_actions:
+  - fabricate_image_statistics_or_split_assignments
+  - approve_a_pipeline_that_fits_normalisation_on_non_train_data
+  - report_a_preprocessing_audit_pass_without_running_the_detector
+  - reimplement_MONAI_or_TorchIO_transforms
+
+# v2.1 quality card
+purpose: "Catch data-stage leakage in a medical-imaging pipeline — a normaliser fit on the test distribution, a data-fitted transform run before the split, or a patient's slices spread across splits — before it silently inflates every downstream metric."
+safety_boundaries:
+  - "Advisory plus deterministic-audit only: never alters images, statistics, or split assignments."
+  - "The leakage verdict is reproduced by a stdlib script (rule + set arithmetic on the manifest), never asserted from prose."
+  - "Integrates MONAI / TorchIO transforms by reference; it does not reimplement them and never runs preprocessing on real patient data."
+known_limitations:
+  - "Audits the declared manifest, not the executed code; a transform mislabelled in the manifest (e.g. a dataset normaliser tagged fit_scope=sample) can hide a real leak."
+  - "A clean data-stage audit is necessary, not sufficient — the split table (model-validation) and held-out evaluation (model-evaluation) still apply."
+validation_commands:
+  - "python3 scripts/check_preprocessing_leakage.py --manifest <preprocessing_manifest.json> --strict"
+  - "bash scripts/check_preprocessing_leakage_challenge/verify.sh  # deterministic, network-free"
+evidence_surface: ci_validator

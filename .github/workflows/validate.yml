@@ -257,6 +257,12 @@ jobs:
       - name: Run model-validation split-leakage gate test
         run: bash skills/model-validation/tests/test_split_leakage.sh
 
+      - name: Run preprocess-imaging leakage challenge
+        run: bash skills/preprocess-imaging/scripts/check_preprocessing_leakage_challenge/verify.sh
+
+      - name: Run preprocess-imaging leakage gate test
+        run: bash skills/preprocess-imaging/tests/test_preprocessing_leakage.sh
+
       - name: Run model-scaffold build→validate challenge
         run: bash skills/model-scaffold/scripts/scaffold_challenge/verify.sh
 

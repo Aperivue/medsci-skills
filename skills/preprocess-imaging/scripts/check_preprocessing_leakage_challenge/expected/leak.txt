@@ -1,0 +1,12 @@
+=========================================
+ Preprocessing-Leakage Gate (preprocess-imaging)
+=========================================
+  transforms=4  units=6  patients=5  partitions={'test': 2, 'train': 3, 'val': 1}  seed=42
+| Check | Severity | Detail |
+|---|---|---|
+| NORMALIZATION_LEAKAGE | Major | data-fitted transform 'hist_match_to_atlas' (histogram_match) is fit on a non-train scope ('all'); test-set statistics leak into training |
+| PREPROCESS_BEFORE_SPLIT | Major | data-fitted transform 'dataset_zscore' (standardize) runs before the split (stage=before_split); the fit spans train and test |
+| AUGMENTATION_ON_EVAL | Minor | augmentation 'random_flip' is applied to test; train-time augmentation on an evaluation split folds undisclosed test-time augmentation into the reported metric |
+| PATIENT_CROSS_SPLIT | Major | 1 of 5 patients have units in >= 2 splits (e.g. 'P03' in test/train); the same patient in train and test inflates every metric. Offenders: P03 |
+
+MAJOR candidate: 3 preprocessing-leakage issue(s).

@@ -3182,6 +3182,56 @@
       "sha256": "ce4996820b24c230584890c501860c8d37dfd07521195954077d2fdd1a26f419"
     },
     {
+      "path": "skills/preprocess-imaging/SKILL.md",
+      "size": 7068,
+      "sha256": "e17b73b0760194d4e6e3924ec2a0452601adc27122e7455cc5f2993d5af1d0d0"
+    },
+    {
+      "path": "skills/preprocess-imaging/references/preprocessing_guide.md",
+      "size": 5023,
+      "sha256": "fdab6d435ff6bce7b6787319acda9b0b160411bc2e1109e15154bbb8a68c8282"
+    },
+    {
+      "path": "skills/preprocess-imaging/scripts/check_preprocessing_leakage.py",
+      "size": 12992,
+      "sha256": "dcce1493a29122ed4259adc116ed7ad239b11ee1f45a10f6f7eb94698b3efa67"
+    },
+    {
+      "path": "skills/preprocess-imaging/scripts/check_preprocessing_leakage_challenge/expected/clean.txt",
+      "size": 370,
+      "sha256": "bc1efcfc1d8575d78a0448752e60a3b58d654a5bc1a7b11360e4d9ba690665ac"
+    },
+    {
+      "path": "skills/preprocess-imaging/scripts/check_preprocessing_leakage_challenge/expected/leak.txt",
+      "size": 1030,
+      "sha256": "fe046c81f20b34a6ff3fd6858f7832e786106ed56635b39f7e413b4853d4b7e8"
+    },
+    {
+      "path": "skills/preprocess-imaging/scripts/check_preprocessing_leakage_challenge/fixture/manifest_clean.json",
+      "size": 800,
+      "sha256": "e01ff6d09aae6f76d3b2b1cd05c333d66fd53499a2a2d1296380eefde720c515"
+    },
+    {
+      "path": "skills/preprocess-imaging/scripts/check_preprocessing_leakage_challenge/fixture/manifest_leak.json",
+      "size": 881,
+      "sha256": "a55389654128c577e16eefb3c6b8f85d8a47bdc06a817619f13036a1e1ebe4b4"
+    },
+    {
+      "path": "skills/preprocess-imaging/scripts/check_preprocessing_leakage_challenge/problem.md",
+      "size": 903,
+      "sha256": "042ddd4736133ccf63192ea65c4faa714b2854ec9bb704f29ca2f401cd4658ee"
+    },
+    {
+      "path": "skills/preprocess-imaging/scripts/check_preprocessing_leakage_challenge/verify.sh",
+      "size": 2188,
+      "sha256": "9201d264720627f7281f43bcf3b1093bf6940f67acd7c299c8b3ac64fb58b564"
+    },
+    {
+      "path": "skills/preprocess-imaging/skill.yml",
+      "size": 3518,
+      "sha256": "c6edc7ac6421438d4e0b64cd416202ac9f91092870ea1cb8531ba15fda7d5c72"
+    },
+    {
       "path": "skills/present-paper/SKILL.md",
       "size": 33518,
       "sha256": "777197edf83a4d242508b366abe24681198467a95950b0acc385ac2714f33cb4"
