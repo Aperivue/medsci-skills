@@ -488,7 +488,7 @@
       "layer": "D",
       "owner_domain": "model_validation",
       "maturity": "official",
-      "description": "Produce or audit a radiomics / tabular clinical-ML study — imaging or clinical features → random forest / XGBoost / regularised logistic → a clinical outcome — so it clears the rigor bar reviewers exp…"
+      "description": "Produce or audit a radiomics / tabular clinical-ML study — imaging or clinical features → any classical learner (penalised logistic [LASSO / ridge / elastic-net], SVM, k-NN, naive Bayes, LDA/QDA, deci…"
     },
     {
       "slug": "render-pdf-doc",
