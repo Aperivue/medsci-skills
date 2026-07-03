@@ -3758,8 +3758,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_scope_coherence.py",
-      "size": 11920,
-      "sha256": "e600e54fcbe308060a8dadd871ec274b6ae19f89456ae0194490e152c0d09a91"
+      "size": 12989,
+      "sha256": "2444bce9c5bd2fc088c43eae97c1fc5791ae4da44f428a2caa0559b976dbe622"
     },
     {
       "path": "skills/self-review/scripts/check_supplement_hygiene.py",

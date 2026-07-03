@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- **`self-review` scope-coherence: enumerated-defect-label false positive.** `check_scope_coherence`
+  no longer fires `CROSS_SECTIONAL_PROGNOSTIC` on a sentence that *names* the anti-pattern as a defect
+  in a list (e.g. "… flags … an unsupported prognostic claim in a cross-sectional study, a fabricated
+  citation, …"), which the existing meta-document guard missed. A new `ANTIPATTERN_LABEL` guard treats
+  a prognostic/surveillance token preceded by a defect adjective (unsupported/unwarranted/…) or
+  followed by overclaim/overreach/fallacy/error as a label, not a claim — high-precision, no genuine
+  overclaim suppressed. Field-harvested from real-project precision tracking; regression test added.
+  No detector count change (46).
+
 ### Documentation
 
 - **README: by-stage skill index, multi-host framing, and star history.** A scannable "by research

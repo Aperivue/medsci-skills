@@ -87,6 +87,22 @@ META_DOC_FRAME = re.compile(
     r"(?:as|is) an? (?:example|illustration|instance|case) of",
     re.IGNORECASE)
 
+# A sentence that LABELS a prognostic/surveillance claim as a defect — "an
+# unsupported prognostic claim in a cross-sectional study", "prognostic
+# overreach", "an unwarranted surveillance recommendation" — is naming the
+# anti-pattern, not committing it. This catches the enumerated-defect framing
+# (a defect listed as an appositive in a list of things a tool flags) that
+# META_DOC_FRAME misses because the framing verb ("flags"/"detects") sits far
+# from the match. Stays high-precision: a manuscript making a real prognostic
+# claim never precedes it with "unsupported"/"unwarranted", nor calls it an
+# "overreach"/"overclaim" — so no genuine overclaim is suppressed.
+ANTIPATTERN_LABEL = re.compile(
+    r"(?:unsupported|unwarranted|unjustified|inappropriate|spurious|invalid|"
+    r"overreaching|erroneous|illegitimate)\s+(?:\w+\s+){0,2}?"
+    r"(?:prognostic|surveillance|longitudinal)|"
+    r"(?:prognostic|surveillance|longitudinal)\s+(?:overclaim|overreach|fallacy|error)",
+    re.IGNORECASE)
+
 DIRECTIVE_VERB = re.compile(
     r"\bdefer(?:ral|red|ring)?\b|\bwithhold\b|\bforgo\b|\binitiat(?:e|ed|ion)\b|"
     r"\bdiscontinu(?:e|ed|ation)\b|start(?:ing)?\s+(?:statin|therapy|treatment|pharmacotherapy)|"
@@ -142,7 +158,8 @@ def check(text: str) -> list[dict]:
         # conclusion still fires even if an earlier mention was a disclaimer.
         for pm in PROGNOSTIC_VERB.finditer(concl):
             window = concl[max(0, pm.start() - 120):pm.end() + 120]
-            if PROGNOSTIC_DISCLAIMER.search(window) or META_DOC_FRAME.search(window):
+            if (PROGNOSTIC_DISCLAIMER.search(window) or META_DOC_FRAME.search(window)
+                    or ANTIPATTERN_LABEL.search(window)):
                 continue
             claims.append({
                 "verdict": "CROSS_SECTIONAL_PROGNOSTIC",
