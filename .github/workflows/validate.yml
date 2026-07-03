@@ -269,6 +269,12 @@ jobs:
       - name: Run explainability report gate test
         run: bash skills/explainability/tests/test_explainability_report.sh
 
+      - name: Run radiomics-ml pipeline challenge
+        run: bash skills/radiomics-ml/scripts/check_radiomics_ml_challenge/verify.sh
+
+      - name: Run radiomics-ml pipeline gate test
+        run: bash skills/radiomics-ml/tests/test_radiomics_ml.sh
+
       - name: Run model-scaffold build→validate challenge
         run: bash skills/model-scaffold/scripts/scaffold_challenge/verify.sh
 

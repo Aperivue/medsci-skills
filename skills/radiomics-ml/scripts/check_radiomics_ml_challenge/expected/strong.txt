@@ -1,0 +1,9 @@
+=========================================
+ Radiomics / Classical-ML Gate (radiomics-ml)
+=========================================
+  model=random_forest  n_features=1200  n_samples=300  n_events=110  cv_scheme=nested
+| Check | Severity | Detail |
+|---|---|---|
+| (none) | — | radiomics/ML pipeline meets the rigor bar |
+
+OK: radiomics/ML pipeline meets the rigor bar.

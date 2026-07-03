@@ -1,0 +1,13 @@
+{
+  "task": "classification",
+  "n_features": 1200,
+  "n_samples": 300,
+  "n_events": 110,
+  "cv_scheme": "nested",
+  "feature_selection_stage": "inside_cv",
+  "dimensionality_reduction": true,
+  "feature_stability": "icc",
+  "calibration_reported": true,
+  "external_validation": "temporal",
+  "model": "random_forest"
+}

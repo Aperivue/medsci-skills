@@ -1,0 +1,46 @@
+schema_version: 2
+name: radiomics-ml
+layer: D
+owner_domain: model_validation
+maturity: official
+
+when_to_use: "Produce or audit a radiomics / tabular clinical-ML study — imaging or clinical features → random forest / XGBoost / regularised logistic → a clinical outcome — so it clears the rigor bar reviewers expect: nested cross-validation (tuning never on the reported folds), dimensionality control for the features-far-exceed-events regime, feature selection inside the fold, feature-stability (ICC / test-retest) filtering, calibration, and external/temporal validation. Emits a pipeline manifest and a deterministic rigor gate. The most common solo-doable clinical-ML workflow — no GPU, no engineer."
+when_NOT_to_use: "Deep-learning imaging models (use architecture-zoo / model-scaffold / model-validation); classical inferential statistics or a regression model as the primary estimand (use analyze-stats); LLM/MLLM evaluation (use mllm-eval); interpretability of a trained imaging network (use explainability); item-by-item reporting-guideline audit of a finished manuscript (use check-reporting — CLEAR / TRIPOD+AI / PROBAST-AI); reimplementing scikit-learn / xgboost / pyradiomics (out of scope — this skill wires and audits them)."
+
+inputs:
+  - "a feature table (radiomics or clinical/tabular) with a patient/subject ID and the outcome"
+  - "the intended model (random forest / XGBoost / regularised logistic) and validation plan"
+  - "feature provenance (pyradiomics settings) and, if available, test-retest data for stability"
+outputs:
+  - "a pipeline manifest (JSON: n_features, n_events, cv_scheme, feature_selection_stage, dimensionality_reduction, feature_stability, calibration, external_validation)"
+  - "nested-CV training code (scikit-learn / xgboost) with in-fold selection, SHAP, calibration, and clinical-utility"
+  - "radiomics/ML pipeline-rigor audit JSON (deterministic) + a CLEAR / TRIPOD+AI / PROBAST-AI reporting fit"
+deterministic_scripts:
+  - scripts/check_radiomics_ml.py
+side_effects:
+  - writes_decision_notes
+downstream_consumers:
+  - analyze-stats
+  - check-reporting
+  - self-review
+  - write-paper
+forbidden_actions:
+  - fabricate_features_performance_metrics_or_sample_counts
+  - report_flat_cv_performance_as_if_nested_or_held_out
+  - approve_a_pipeline_with_feature_selection_fit_outside_the_cv_fold
+  - report_a_radiomics_ml_audit_pass_without_running_the_detector
+  - reimplement_scikit_learn_xgboost_or_pyradiomics
+
+# v2.1 quality card
+purpose: "Stop the over-optimistic radiomics / tree-ensemble study — hundreds of features on tens of events, hyperparameters tuned on the reported folds, features selected on the whole dataset, unstable features unfiltered, discrimination without calibration — from reaching a clinical manuscript."
+safety_boundaries:
+  - "Advisory plus deterministic-audit only: never alters features, metrics, or sample counts."
+  - "The rigor verdict is reproduced by a stdlib script (rule on the pipeline manifest), never asserted from prose."
+  - "Integrates scikit-learn / xgboost / pyradiomics by reference; it does not reimplement them and never runs a model on real patient data."
+known_limitations:
+  - "Audits the declared pipeline manifest, not the executed code; a mislabelled field (e.g. flat CV recorded as nested) can hide a real problem — complements, does not replace, self-review/check_cv_leakage (prose audit)."
+  - "A clean pipeline audit is necessary, not sufficient — external validation and clinical-utility evidence still govern the clinical claim."
+validation_commands:
+  - "python3 scripts/check_radiomics_ml.py --manifest <pipeline_manifest.json> --strict"
+  - "bash scripts/check_radiomics_ml_challenge/verify.sh  # deterministic, network-free"
+evidence_surface: ci_validator

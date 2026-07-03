@@ -2,6 +2,21 @@
 
 ## [Unreleased]
 
+### Added
+
+- **`radiomics-ml` skill + `check_radiomics_ml` detector** (Item 3 of the
+  [model-engineering produce-side depth roadmap](docs/roadmap_model_engineering_depth.md), clinical
+  fine-tuning focus). Produces and audits a radiomics / tabular clinical-ML study — features → random
+  forest / XGBoost / regularised logistic → a clinical outcome, the most common solo-doable clinical-ML
+  workflow (no GPU, no engineer). Emits a pipeline manifest and a stdlib-only deterministic gate with
+  six verdicts: `NO_NESTED_CV`, `HIGH_DIM_LOW_EVENTS`, `SELECTION_OUTSIDE_CV` (Major);
+  `NO_FEATURE_STABILITY`, `NO_CALIBRATION`, `NO_EXTERNAL_VALIDATION` (Minor). Complements the prose
+  `check_cv_leakage` audit at the pipeline-spec level. Ships a `references/radiomics_ml_guide.md`
+  (pyradiomics/IBSI settings, nested-CV skeleton, ICC stability, calibration + decision curve,
+  CLEAR/TRIPOD+AI/PROBAST-AI reporting), a network-free challenge card, and a CI-wired regression test.
+  Integrates scikit-learn / xgboost / pyradiomics by reference; never reimplements them or touches real
+  patient data. Skills **53 → 54**, integrity detectors **48 → 49** (`data_preparation` family). PR #276.
+
 ## [5.15.0] - 2026-07-03
 
 Model-engineering produce-side depth. Two new skills that *produce* the leakage-safe, rigorously

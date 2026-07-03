@@ -1,0 +1,14 @@
+=========================================
+ Radiomics / Classical-ML Gate (radiomics-ml)
+=========================================
+  model=xgboost  n_features=1200  n_samples=140  n_events=40  cv_scheme=flat
+| Check | Severity | Detail |
+|---|---|---|
+| NO_NESTED_CV | Major | flat CV ('flat') tunes and reports on the same folds; use nested cross-validation or a held-out test set so tuning does not inflate the reported performance |
+| HIGH_DIM_LOW_EVENTS | Major | 1200 features vs 40 events (p >= events) with no dimensionality reduction / regularisation; radiomics overfits badly in this regime — apply LASSO / PCA / a stability+redundancy filter |
+| SELECTION_OUTSIDE_CV | Major | feature selection is fit outside the CV fold (on the whole dataset), so the held-out folds leak into selection; nest selection inside each training fold |
+| NO_FEATURE_STABILITY | Minor | no test-retest / ICC feature-stability filtering; radiomics features are unstable across acquisition and segmentation — filter to reproducible features |
+| NO_CALIBRATION | Minor | a clinical prediction model is reported without calibration (slope/intercept or a flexible calibration curve), only discrimination |
+| NO_EXTERNAL_VALIDATION | Minor | single-cohort development with no external / temporal validation; a clinical claim needs validation beyond the development sample |
+
+MAJOR candidate: 3 radiomics/ML rigor issue(s).
