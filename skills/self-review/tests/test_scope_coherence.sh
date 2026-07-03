@@ -83,5 +83,19 @@ assert not any(c['verdict']=='CROSS_SECTIONAL_PROGNOSTIC' for c in d['claims']),
 python3 "$SCRIPT" --manuscript "$METADOC" --strict --quiet >/dev/null 2>&1
 check "exit 0 on meta-document" test "$?" -eq 0
 
+# (8) an enumerated-defect list ("... flags ..., an unsupported prognostic claim
+#     in a cross-sectional study, a fabricated citation, ...") LABELS the anti-pattern
+#     as a defect rather than committing it. META_DOC_FRAME misses it (the framing
+#     verb sits far from the match); ANTIPATTERN_LABEL suppresses it. -> no fire.
+APLIST="$HERE/fixtures/scope_antipattern_list.md"
+python3 "$SCRIPT" --manuscript "$APLIST" --out "$OUT" --quiet >/dev/null 2>&1
+check "no CROSS_SECTIONAL_PROGNOSTIC on an enumerated-defect list" python3 -c "
+import json
+d=json.load(open('$OUT'))
+assert not any(c['verdict']=='CROSS_SECTIONAL_PROGNOSTIC' for c in d['claims']), 'enumerated-defect label flagged as prognostic overclaim'
+"
+python3 "$SCRIPT" --manuscript "$APLIST" --strict --quiet >/dev/null 2>&1
+check "exit 0 on enumerated-defect list" test "$?" -eq 0
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"
