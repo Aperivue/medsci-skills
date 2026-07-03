@@ -263,6 +263,12 @@ jobs:
       - name: Run preprocess-imaging leakage gate test
         run: bash skills/preprocess-imaging/tests/test_preprocessing_leakage.sh
 
+      - name: Run explainability report challenge
+        run: bash skills/explainability/scripts/check_explainability_report_challenge/verify.sh
+
+      - name: Run explainability report gate test
+        run: bash skills/explainability/tests/test_explainability_report.sh
+
       - name: Run model-scaffold build→validate challenge
         run: bash skills/model-scaffold/scripts/scaffold_challenge/verify.sh
 

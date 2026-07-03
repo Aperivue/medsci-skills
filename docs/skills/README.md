@@ -18,6 +18,7 @@ One reference page per skill, generated from each skill's `SKILL.md` and `skill.
 - [deidentify](deidentify.md) — De-identify clinical research data before LLM-assisted analysis. _(evidence: bundled_script)_
 - [design-ai-benchmarking](design-ai-benchmarking.md) — Design and validity review for studies that benchmark one or more AI systems against a human-expert panel as the reference. _(evidence: manual_workflow)_
 - [design-study](design-study.md) — Study design and validity review for radiology and medical AI research. _(evidence: manual_workflow)_
+- [explainability](explainability.md) — Produce or audit the interpretability/explainability analysis of a medical-imaging model — Grad-CAM / Grad-CAM++ / attention-rollout / saliency / integrated-gradients — so it clears the rigor bar a re… _(evidence: ci_validator)_
 - [fill-icmje-coi](fill-icmje-coi.md) — Batch-generate per-author ICMJE Conflict of Interest Disclosure Forms (`coi_disclosure.docx`) for manuscript submission. _(evidence: bundled_script)_
 - [fill-protocol](fill-protocol.md) — Fill institutional Word form templates (.doc/.docx) for IRB protocols, ethics applications, grant proposals, and other structured research documents while preserving the original styles, table layouts… _(evidence: bundled_script)_
 - [find-cohort-gap](find-cohort-gap.md) — Research gap finder for longitudinal cohort databases. _(evidence: manual_workflow)_

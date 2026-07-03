@@ -1082,6 +1082,56 @@
       "sha256": "3981d5da7734b90e6905ac329e996b145af82bd6a28ec2a8d42918e9ce077ee5"
     },
     {
+      "path": "skills/explainability/SKILL.md",
+      "size": 6474,
+      "sha256": "4d1c082ad48393adb65203ffbedf63f772fdc521d873f657cbfc81150c7b36de"
+    },
+    {
+      "path": "skills/explainability/references/explainability_guide.md",
+      "size": 4203,
+      "sha256": "24bc06181e54801b148f142f9312fe0eede9f540a4e57810701506681e254b4b"
+    },
+    {
+      "path": "skills/explainability/scripts/check_explainability_report.py",
+      "size": 10783,
+      "sha256": "4071a93aacf509f73a44b2c7f6423b5722aab3d44c79e9a8680845454261d47d"
+    },
+    {
+      "path": "skills/explainability/scripts/check_explainability_report_challenge/expected/strong.txt",
+      "size": 391,
+      "sha256": "317018eb7546f77b2de39ff1b73c9e82584a9d65c25eb91a940de76a4c7d2ec5"
+    },
+    {
+      "path": "skills/explainability/scripts/check_explainability_report_challenge/expected/weak.txt",
+      "size": 876,
+      "sha256": "de5c090c1ee4c632d7d59bc0d5f20fac8d28342b74b68eb51066677658245451"
+    },
+    {
+      "path": "skills/explainability/scripts/check_explainability_report_challenge/fixture/report_strong.json",
+      "size": 238,
+      "sha256": "b835871c1d98313f736575faf7f6adbb5cfabe4e3dfd1abe1279976c8c5f1867"
+    },
+    {
+      "path": "skills/explainability/scripts/check_explainability_report_challenge/fixture/report_weak.json",
+      "size": 163,
+      "sha256": "dfde5db357a83660f941fdde957bb3a9af25f60d26300322f04b3981b13c429a"
+    },
+    {
+      "path": "skills/explainability/scripts/check_explainability_report_challenge/problem.md",
+      "size": 805,
+      "sha256": "1b667c138ac54e38614e438efdb995adba208588007e95eed6f374233ff6dcdc"
+    },
+    {
+      "path": "skills/explainability/scripts/check_explainability_report_challenge/verify.sh",
+      "size": 2005,
+      "sha256": "5246897dc616e04fa1260e9b20d9970e1499f95ebb52034bba59482d401c1156"
+    },
+    {
+      "path": "skills/explainability/skill.yml",
+      "size": 3569,
+      "sha256": "5b3e135825470392867dc851627d9899bc512d9a5ee52556c205eea8fae4edb1"
+    },
+    {
       "path": "skills/fill-icmje-coi/SKILL.md",
       "size": 9997,
       "sha256": "033425065ed9a7429b071e6e2310fdf0666a8a3993a448eb53c9f239c578dc12"

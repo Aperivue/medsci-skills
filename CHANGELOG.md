@@ -4,6 +4,21 @@
 
 ### Added
 
+- **`explainability` skill + `check_explainability_report` detector** (Item 2 of the
+  [model-engineering produce-side depth roadmap](docs/roadmap_model_engineering_depth.md)). Produces and
+  audits the interpretability analysis of a medical-imaging model (Grad-CAM / attention-rollout /
+  saliency / integrated-gradients) so it clears the rigor bar reviewers expect: it *produces* what
+  `self-review` previously only audited. Emits an explainability-report manifest and a stdlib-only
+  deterministic gate with six verdicts: `SALIENCY_AS_VALIDATION`, `NO_SANITY_CHECK`,
+  `NO_LOCALIZATION_METRIC` (Major); `INSUFFICIENT_SANITY`, `CHERRY_PICKED_EXAMPLES`, `MISSING_METHOD`
+  (Minor). Enforces Adebayo (2018) model- and data-randomisation sanity checks, a quantitative
+  localisation metric (IoU / pointing game / Dice vs ground truth) over a cohort, and attribution-not-
+  validation framing. Ships a modality-aware `references/explainability_guide.md`, a network-free
+  challenge card, and a CI-wired regression test. Integrates captum / pytorch-grad-cam by reference;
+  never reimplements them or touches real patient data. Skills **52 → 53**, integrity detectors
+  **47 → 48** (`reporting_compliance` family; the family's `MEDSCI_AUDIT.md` row also regained the
+  previously-dropped `check_figure_citation`). PR #275.
+
 - **`preprocess-imaging` skill + `check_preprocessing_leakage` detector** (Item 1 of the
   [model-engineering produce-side depth roadmap](docs/roadmap_model_engineering_depth.md)). Designs and
   audits the data-preparation stage of a medical-imaging model *before* `model-scaffold` builds the
