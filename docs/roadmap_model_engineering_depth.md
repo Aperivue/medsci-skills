@@ -26,6 +26,16 @@ By design this is a *rigor / reproducibility / reporting* lane — it **integrat
 MONAI / nnU-Net / timm and never reimplements a training framework. Three
 produce-side stages are genuinely thin; this roadmap fills them, in order.
 
+## Scope anchor — the target user
+
+The target user is a **clinician-researcher who fine-tunes existing / pretrained models on collected
+clinical data to derive clinical results and write papers** — *not* someone developing new
+architectures. Every produce path here centres on **adapting an existing model + a clinical outcome +
+manuscript rigor**, never architecture innovation. So the lane favours transfer-learning /
+fine-tuning of pretrained backbones (timm, MedSAM, nnU-Net), classical ML on radiomics/tabular
+features (random forest, XGBoost), and diffusion used off-the-shelf for augmentation — each wrapped
+in the leakage / validation / calibration / reporting gates that a solo clinician gets wrong alone.
+
 ## Guardrails (every item)
 
 - **On-moat only.** Rigor / reproducibility / reporting for medical imaging —
@@ -87,9 +97,47 @@ produce-side stages are genuinely thin; this roadmap fills them, in order.
   ↔ produce; CLAIM / TRIPOD+AI explainability items in `check-reporting`.
 - **Catalog.** +1 skill, +1 detector.
 
-### Item 3 — Uncertainty / OOD / selective prediction  ·  deployment-safety, do third
+### Item 3 — Radiomics / classical-ML produce path (RF / XGBoost)  ·  clinician-first, do next
 
-- **Why third.** Deployment-safety flavored; builds on evaluation + calibration.
+- **Why next.** The most common solo-doable clinical-ML workflow (radiomics features → tree
+  ensemble → clinical outcome), needs no GPU, and directly serves the target user. The key audit gate
+  (`check_cv_leakage`, feature-selection-outside-CV in prose) already exists — only the *produce* path
+  and a structural gate are missing.
+- **Form.** New skill (`radiomics-ml`) — radiomics + tabular clinical ML with tree ensembles.
+- **Produces.** pyradiomics feature-extraction guidance (IBSI settings — by reference), random forest /
+  XGBoost / regularised-logistic training with **nested cross-validation**, feature selection **inside
+  the fold**, feature-stability (ICC / test-retest) filtering, class-imbalance handling, SHAP,
+  calibration, and clinical-utility (decision curve) — integrating scikit-learn / xgboost, not
+  reimplementing them.
+- **Gate — `check_radiomics_ml`.** Flags (from a declarative pipeline manifest): `NO_NESTED_CV`,
+  `HIGH_DIM_LOW_EVENTS`, `SELECTION_OUTSIDE_CV` (Major); `NO_FEATURE_STABILITY`, `NO_CALIBRATION`,
+  `NO_EXTERNAL_VALIDATION` (Minor). Complements `check_cv_leakage` (prose audit) at the pipeline-spec
+  level.
+- **Wiring.** `analyze-stats` calibration / clinical-utility guides; `check-reporting` CLEAR (radiomics)
+  + TRIPOD+AI + PROBAST-AI; `self-review` `clinical_prediction_model` probe.
+- **Catalog.** +1 skill, +1 detector.
+
+### Item 4 — Fine-tuning scaffold: transfer-learning + SAM/MedSAM adaptation + diffusion augmentation  ·  imaging fine-tune, do fourth
+
+- **Why fourth.** Extends `model-scaffold` from train-from-scratch to the target user's real mode —
+  **fine-tune a pretrained model on collected clinical data**: a pretrained timm/MONAI backbone, a
+  MedSAM adapter, or nnU-Net fine-tuning; diffusion used off-the-shelf for augmentation, not as a
+  novel method.
+- **Form.** Extend `model-scaffold` with fine-tuning task modes (`--task finetune` / `--from-pretrained`)
+  + a MedSAM-adaptation and a diffusion-augmentation reference — or a thin sibling skill; decide at
+  build time. Prefer extending `model-scaffold` (avoids skill-count churn where a mode fits).
+- **Produces.** A leakage-safe fine-tuning repo: frozen-vs-unfrozen layer schedule, discriminative
+  learning rates, pretrained-weight provenance recorded, small-clinical-dataset regularisation; MedSAM
+  prompt/adapter fine-tuning; diffusion augmentation wired to the train-only split (never eval).
+- **Gate.** Reuse `check_training_hygiene` + `check_preprocessing_leakage` (augmentation-on-eval already
+  caught); add fine-tuning-specific checks only if a gap remains (avoid duplicate detectors).
+- **Wiring.** `architecture-zoo` (selection already covers SAM/diffusion) → this (adapt) →
+  `model-validation` / `model-evaluation`.
+- **Catalog.** +0–1 skill (prefer extend), +0–1 detector.
+
+### Item 5 — Uncertainty / OOD / selective prediction  ·  deployment-safety
+
+- **Why.** Deployment-safety flavored; builds on evaluation + calibration.
 - **Form.** New skill (`uncertainty-imaging`) — decide vs extending
   `model-evaluation` at build time (lean new skill for discoverability).
 - **Produces.** MC-dropout / deep-ensemble / conformal-prediction intervals, OOD
@@ -102,7 +150,7 @@ produce-side stages are genuinely thin; this roadmap fills them, in order.
   calibration guide; DECIDE-AI monitoring seam in `model-validation`.
 - **Catalog.** +1 skill, +1 detector.
 
-### Item 4 — MLOps integration reference (off-moat, reframed thin)  ·  last, reference-only
+### Item 6 — MLOps integration reference (off-moat, reframed thin)  ·  last, reference-only
 
 - **Why last / reframed.** Honors "grow all of it" without scope creep. **Not** a
   training-loop or experiment-tracking reimplementation. A reference that
@@ -116,9 +164,11 @@ produce-side stages are genuinely thin; this roadmap fills them, in order.
 
 - [x] **Item 1** — imaging data pipeline + `check_preprocessing_leakage` (skill `preprocess-imaging`, PR #274)
 - [x] **Item 2** — interpretability/explainability + `check_explainability_report` (skill `explainability`, PR #275)
-- [ ] **Item 3** — uncertainty/OOD + `check_uncertainty_reporting`
-- [ ] **Item 4** — MLOps integration reference (`model-scaffold/training_guide.md`)
+- [ ] **Item 3** — radiomics / classical-ML (RF/XGBoost) + `check_radiomics_ml` (skill `radiomics-ml`)
+- [ ] **Item 4** — fine-tuning scaffold: transfer-learning + SAM/MedSAM adaptation + diffusion augmentation
+- [ ] **Item 5** — uncertainty/OOD + `check_uncertainty_reporting`
+- [ ] **Item 6** — MLOps integration reference (`model-scaffold/training_guide.md`)
 
-*Update the checkboxes and the top-level ROADMAP pointer as items land. Release
-the lane as one batch (e.g. a `model-engineering produce-side depth` minor) once
-Items 1–2 are merged.*
+*Update the checkboxes and the top-level ROADMAP pointer as items land. Items 1–2
+shipped in **v5.15.0**; release the next batch (Items 3–4, the clinical fine-tuning
+focus) as one minor once both are merged — not per skill (release-cadence policy).*

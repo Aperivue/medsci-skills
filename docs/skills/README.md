@@ -45,6 +45,7 @@ One reference page per skill, generated from each skill's `SKILL.md` and `skill.
 - [preprocess-imaging](preprocess-imaging.md) — Design or audit the data-preparation stage of a medical-imaging model — DICOM/NIfTI intake, resampling and intensity normalisation, and the augmentation plan — so the pipeline is leakage-safe before m… _(evidence: ci_validator)_
 - [present-paper](present-paper.md) — Academic presentation preparation — paper-driven (journal club, grand rounds, seminar) and lecture/teaching decks (course material, workshop slides, conference talks). _(evidence: bundled_script)_
 - [publish-skill](publish-skill.md) — Convert a personal agent skill into a distributable, open-source-ready skill. _(evidence: bundled_script)_
+- [radiomics-ml](radiomics-ml.md) — Produce or audit a radiomics / tabular clinical-ML study — imaging or clinical features → random forest / XGBoost / regularised logistic → a clinical outcome — so it clears the rigor bar reviewers exp… _(evidence: ci_validator)_
 - [render-pdf-doc](render-pdf-doc.md) — Render academic Markdown documents (English or Korean) to publication-quality PDF via pandoc + xelatex. _(evidence: bundled_script)_
 - [replicate-study](replicate-study.md) — Replicate an existing cohort study's methodology on a different database. _(evidence: manual_workflow)_
 - [review-paper](review-paper.md) — Scaffold and draft medical/AI literature reviews (narrative, scoping PRISMA-ScR, or systematic).

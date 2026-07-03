@@ -48,7 +48,8 @@
         "./skills/model-evaluation",
         "./skills/model-scaffold",
         "./skills/model-validation",
-        "./skills/preprocess-imaging"
+        "./skills/preprocess-imaging",
+        "./skills/radiomics-ml"
       ]
     },
     {

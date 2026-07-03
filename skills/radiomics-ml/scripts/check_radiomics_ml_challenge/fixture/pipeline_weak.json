@@ -1,0 +1,13 @@
+{
+  "task": "classification",
+  "n_features": 1200,
+  "n_samples": 140,
+  "n_events": 40,
+  "cv_scheme": "flat",
+  "feature_selection_stage": "outside_cv",
+  "dimensionality_reduction": false,
+  "feature_stability": "none",
+  "calibration_reported": false,
+  "external_validation": "none",
+  "model": "xgboost"
+}

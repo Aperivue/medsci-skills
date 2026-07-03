@@ -3412,6 +3412,56 @@
       "sha256": "81caa10775246f2db3f5e08948292f63076d44ffc039d8eec764f1d46aab275f"
     },
     {
+      "path": "skills/radiomics-ml/SKILL.md",
+      "size": 6946,
+      "sha256": "d957750dd8e2a16327eb0fda05a0b442f2592383f122267b485b38493301bce3"
+    },
+    {
+      "path": "skills/radiomics-ml/references/radiomics_ml_guide.md",
+      "size": 4882,
+      "sha256": "f6333fabdfddce9bb16181215e9a3e6f33da86af3d28e8d426bbe0881e45677d"
+    },
+    {
+      "path": "skills/radiomics-ml/scripts/check_radiomics_ml.py",
+      "size": 10179,
+      "sha256": "b1cfbd9991aa8871d5aabc528c9aa22eecf8e46cb5983872bca2359229223840"
+    },
+    {
+      "path": "skills/radiomics-ml/scripts/check_radiomics_ml_challenge/expected/strong.txt",
+      "size": 369,
+      "sha256": "c73c776e6558d9a78dacd3c63ae1cc3dee183d9e1a2f27d99b1e0db70f44997e"
+    },
+    {
+      "path": "skills/radiomics-ml/scripts/check_radiomics_ml_challenge/expected/weak.txt",
+      "size": 1408,
+      "sha256": "3bb90f31587e94f3f2b267874a9ac58cce5adf3436254bc206092e0acfb86cd7"
+    },
+    {
+      "path": "skills/radiomics-ml/scripts/check_radiomics_ml_challenge/fixture/pipeline_strong.json",
+      "size": 322,
+      "sha256": "83d128fe0b728ef52a1fd98ef5b5bd478c3e48455cdb07d8040f9d130df81cee"
+    },
+    {
+      "path": "skills/radiomics-ml/scripts/check_radiomics_ml_challenge/fixture/pipeline_weak.json",
+      "size": 313,
+      "sha256": "2fa1a3f98f952faf2e6e1faf1bdbf4675a44dc88679dcfaf18a4f32eb47ba9e7"
+    },
+    {
+      "path": "skills/radiomics-ml/scripts/check_radiomics_ml_challenge/problem.md",
+      "size": 894,
+      "sha256": "9a6abad4e12f9b4e9290eb305fb9ad04127fa1cde03961a38ac4ccb5431a2100"
+    },
+    {
+      "path": "skills/radiomics-ml/scripts/check_radiomics_ml_challenge/verify.sh",
+      "size": 1988,
+      "sha256": "b9e55aaf9b29f3e810b837fc373c7a212dc5f778a49bac11854bdb50ed84a184"
+    },
+    {
+      "path": "skills/radiomics-ml/skill.yml",
+      "size": 3790,
+      "sha256": "9b99b87add656873d3f7277ce12490ffea36d919e9538bc4f4fbe1ebbfedc18e"
+    },
+    {
       "path": "skills/render-pdf-doc/SKILL.md",
       "size": 7490,
       "sha256": "2de13f525ab617dc3a5d67403f8668c26829d927732ae2ac718158b109861243"
