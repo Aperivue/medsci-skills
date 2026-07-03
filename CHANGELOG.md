@@ -2,6 +2,24 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **`radiomics-ml` broadened to the full classical / statistical-ML family** (not just RF / XGBoost).
+  The skill description, triggers, workflow, and `references/radiomics_ml_guide.md` now enumerate
+  penalised regression (LASSO / ridge / elastic-net), SVM, k-NN, naive Bayes, LDA/QDA, trees, bagging,
+  boosting (XGBoost / LightGBM / CatBoost / HistGBM / AdaBoost), shallow MLP, stacked ensembles, plus
+  unsupervised reduction/clustering — and make explicit that the `check_radiomics_ml` gate is
+  **learner-agnostic** (it audits the pipeline, not the algorithm). No code or count change.
+
+### Documentation
+
+- **ML / DL method coverage map** (`docs/method_coverage_map.md`, linked from README and `ROADMAP.md`).
+  A single matrix showing every common ML/DL method family — imaging deep learning (CNN / transformer /
+  segmentation / detection / foundation-SAM / diffusion / SSL / multimodal), the full classical/tabular
+  family, and LLM/MLLM — mapped to the skills that select, produce, validate, interpret, and report it,
+  with the integrate-not-reimplement boundary and open candidate gaps (graph neural nets, Item 4
+  fine-tuning) stated explicitly.
+
 ### Added
 
 - **`radiomics-ml` skill + `check_radiomics_ml` detector** (Item 3 of the

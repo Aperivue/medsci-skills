@@ -402,6 +402,8 @@ MedSci Skills is **opinionated and narrow on purpose**: a single physician-resea
 
 📖 **Per-skill reference:** [`docs/skills/`](docs/skills/) — one page per skill (what it does, when it activates, its Quality Card — purpose, safety boundaries, known limitations, validation, evidence — and bundled resources), generated from each `SKILL.md` + `skill.yml`. See [`docs/skills/AUDIT.md`](docs/skills/AUDIT.md) for how the skills are validated.
 
+🧠 **ML / DL method coverage:** [`docs/method_coverage_map.md`](docs/method_coverage_map.md) — which machine-learning and deep-learning method families (CNN / transformer / segmentation / detection / foundation / diffusion / SSL for imaging; the full classical family — penalised regression, SVM, k-NN, trees, boosting [XGBoost / LightGBM / CatBoost], MLP, ensembles, clustering — for radiomics/tabular; LLM/MLLM) map to which skills for selection, production, validation, interpretation, and reporting.
+
 ```
                               ┌─────────────────────────────────┐
                               │  orchestrate: single entry point │
