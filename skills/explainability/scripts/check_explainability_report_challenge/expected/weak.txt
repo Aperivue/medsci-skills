@@ -1,0 +1,11 @@
+=========================================
+ Explainability-Report Gate (explainability)
+=========================================
+  method=grad-cam  n_examples=4  cohort_level=False  localization_metric=none  interpretation=localization
+| Check | Severity | Detail |
+|---|---|---|
+| NO_SANITY_CHECK | Major | no sanity check declared; Adebayo et al. model- and data-randomisation tests are the minimum bar for a trustworthy saliency analysis |
+| NO_LOCALIZATION_METRIC | Major | interpretation='localization' asserts the map localises the finding, but no quantitative localisation metric (IoU / pointing game / Dice vs ground truth) is reported ('none') |
+| CHERRY_PICKED_EXAMPLES | Minor | no cohort-level result declared (cohort_level != true); illustrative examples alone cannot show how often the map behaves as claimed |
+
+MAJOR candidate: 2 explainability-rigor issue(s).

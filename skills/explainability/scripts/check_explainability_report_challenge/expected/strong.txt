@@ -1,0 +1,9 @@
+=========================================
+ Explainability-Report Gate (explainability)
+=========================================
+  method=grad-cam++  n_examples=200  cohort_level=True  localization_metric=iou  interpretation=localization
+| Check | Severity | Detail |
+|---|---|---|
+| (none) | — | explainability report meets the rigor bar |
+
+OK: explainability report meets the rigor bar.

@@ -88,6 +88,7 @@ FAMILY_BY_ID: dict[str, str] = {
     "check_figure_citation": "reporting_compliance",
     "check_model_card_complete": "reporting_compliance",
     "check_mllm_eval_completeness": "reporting_compliance",
+    "check_explainability_report": "reporting_compliance",
     # Data preparation & validation
     "check_structural_zero": "data_preparation",
     "check_reverse_coding": "data_preparation",

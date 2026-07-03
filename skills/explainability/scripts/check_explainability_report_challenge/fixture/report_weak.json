@@ -1,0 +1,8 @@
+{
+  "method": "grad-cam",
+  "n_examples": 4,
+  "cohort_level": false,
+  "localization_metric": "none",
+  "sanity_checks": [],
+  "interpretation": "localization"
+}

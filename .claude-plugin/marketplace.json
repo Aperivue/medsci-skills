@@ -42,6 +42,7 @@
       "strict": false,
       "skills": [
         "./skills/architecture-zoo",
+        "./skills/explainability",
         "./skills/mllm-eval",
         "./skills/model-card",
         "./skills/model-evaluation",

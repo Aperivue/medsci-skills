@@ -114,8 +114,8 @@ produce-side stages are genuinely thin; this roadmap fills them, in order.
 
 ## Progress
 
-- [ ] **Item 1** — imaging data pipeline + `check_preprocessing_leakage`
-- [ ] **Item 2** — interpretability/explainability + `check_explainability_report`
+- [x] **Item 1** — imaging data pipeline + `check_preprocessing_leakage` (skill `preprocess-imaging`, PR #274)
+- [x] **Item 2** — interpretability/explainability + `check_explainability_report` (skill `explainability`, PR #275)
 - [ ] **Item 3** — uncertainty/OOD + `check_uncertainty_reporting`
 - [ ] **Item 4** — MLOps integration reference (`model-scaffold/training_guide.md`)
 

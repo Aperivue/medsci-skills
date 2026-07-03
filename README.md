@@ -2,14 +2,14 @@
 
 # MedSci Skills
 
-**52 skills that actually work.** Built by a physician-researcher, tested on real publications.
+**53 skills that actually work.** Built by a physician-researcher, tested on real publications.
 
 *MedSci Skills is an end-to-end research tool for physician and medical-engineering researchers — design → scaffold → validate → publish — for the clinical manuscript and the medical-AI model behind it. Its moat is the compliance layer — 44 reporting guidelines and risk-of-bias tools, reference/citation verification, and deterministic integrity gates before peer review — now extended by a model-engineering lane that scaffolds reproducible, leakage-safe training repos and audits model validation. Clinical AI model research engineering is in scope; a general AI-scientist platform is not. It competes on clinical submission reliability, not skill count.*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Release](https://img.shields.io/github/v/release/Aperivue/medsci-skills?style=flat-square&color=blue)](https://github.com/Aperivue/medsci-skills/releases/latest)
 [![CI](https://img.shields.io/github/actions/workflow/status/Aperivue/medsci-skills/validate.yml?branch=main&style=flat-square&label=CI)](https://github.com/Aperivue/medsci-skills/actions/workflows/validate.yml)
-![Skills](https://img.shields.io/badge/Skills-52-brightgreen?style=flat-square)
+![Skills](https://img.shields.io/badge/Skills-53-brightgreen?style=flat-square)
 [![npm](https://img.shields.io/npm/v/medsci-skills?style=flat-square&label=npm&color=cb3837)](https://www.npmjs.com/package/medsci-skills)
 [![Watch the 2-min intro](https://img.shields.io/badge/▶_Watch-2--min_intro-FF0000?style=flat-square&logo=youtube&logoColor=white)](https://youtu.be/MclQ_RIofpE)
 [![good first issues](https://img.shields.io/github/issues/Aperivue/medsci-skills/good%20first%20issue?style=flat-square&label=good%20first%20issues&color=7057ff)](https://github.com/Aperivue/medsci-skills/contribute)
@@ -449,14 +449,14 @@ ma-scout -> search-lit -> fulltext-retrieval -> design-study ──> write-proto
 
 ### By research stage
 
-All 52 skills, grouped by where they fit in the clinical-manuscript and medical-AI lifecycle. Full descriptions are in the table below; one page per skill lives in the [per-skill reference](docs/skills/).
+All 53 skills, grouped by where they fit in the clinical-manuscript and medical-AI lifecycle. Full descriptions are in the table below; one page per skill lives in the [per-skill reference](docs/skills/).
 
 | Stage | Skills |
 |-------|--------|
 | 🔭 **Discover & scope** | `ma-scout` · `find-cohort-gap` · `search-lit` · `fulltext-retrieval` · `lit-sync` · `author-strategy` |
 | 📐 **Design & plan** | `design-study` · `calc-sample-size` · `define-variables` · `write-protocol` · `fill-protocol` · `design-ai-benchmarking` |
 | 🧹 **Data & analysis** | `deidentify` · `clean-data` · `generate-codebook` · `version-dataset` · `analyze-stats` · `batch-cohort` · `cross-national` · `replicate-study` |
-| 🤖 **Medical-AI model engineering** | `preprocess-imaging` · `architecture-zoo` · `model-scaffold` · `model-validation` · `model-evaluation` · `model-card` · `mllm-eval` |
+| 🤖 **Medical-AI model engineering** | `preprocess-imaging` · `architecture-zoo` · `model-scaffold` · `model-validation` · `model-evaluation` · `explainability` · `model-card` · `mllm-eval` |
 | ✍️ **Write & visualize** | `write-paper` · `make-figures` · `review-paper` · `present-paper` · `humanize` · `polish-language` · `academic-aio` |
 | ✅ **Comply & verify** | `check-reporting` · `self-review` · `verify-refs` · `manage-refs` |
 | 📤 **Submit & respond** | `find-journal` · `add-journal` · `sync-submission` · `revise` · `peer-review` · `fill-icmje-coi` |
@@ -483,6 +483,7 @@ All 52 skills, grouped by where they fit in the clinical-manuscript and medical-
 | **architecture-zoo** | "Which architecture for which research question" decision tool: maps task (classification / segmentation / detection / transfer), modality, data scale, and class imbalance to a paper-grounded architecture shortlist. Curates the foundational curriculum (ResNet / DenseNet / EfficientNet / ViT / Swin; U-Net / 3-D U-Net / Attention & Residual U-Net / nnU-Net / Mask R-CNN; SAM/MedSAM / TotalSegmentator / BiomedCLIP / DINO / MAE / SimCLR) — each with core idea, when-to-use, medical-imaging use, reference implementation, validation setup, and the matching model-scaffold template. Advisory; teaches archetypes, not a live SOTA leaderboard. |
 | **model-card** | Generate the documentation an engineer-built medical-imaging model must carry — a Model Card (Mitchell et al. 2019), a Datasheet for its dataset (Gebru et al. 2021), and a METRIC-informed data-quality pass — filled from user-supplied facts (never fabricated), then verify every required section is present and non-empty with a deterministic completeness gate (`check_model_card_complete`). Model Card / Datasheet are documentation standards vendored as templates, not counted reporting checklists. |
 | **model-evaluation** | Compute and report task-correct held-out metrics for a trained medical-imaging model — segmentation (Dice + a boundary metric HD95/NSD, per structure), classification (AUROC + AUPRC + sensitivity/specificity with bootstrap CIs at the deployment prevalence), or detection (FROC/mAP with a stated IoU criterion) — plus calibration and subgroup slices. Emits a per-case table for analyze-stats and gates the metric choice against Metrics Reloaded / CLAIM 2024 (`check_metric_reporting`). Numbers come only from executed code. |
+| **explainability** | Produce or audit the interpretability/explainability analysis of a medical-imaging model — Grad-CAM / Grad-CAM++ / attention-rollout / saliency / integrated-gradients — so it clears the rigor bar: mandatory Adebayo sanity checks (model- and data-randomisation), a quantitative localisation metric against ground truth (IoU / pointing game / Dice) instead of eyeballed examples, a cohort-level result, and attribution framing rather than "proof the model is correct". Emits an explainability-report manifest + a deterministic gate (`check_explainability_report`): `SALIENCY_AS_VALIDATION`, `NO_SANITY_CHECK`, `NO_LOCALIZATION_METRIC` (Major); `INSUFFICIENT_SANITY`, `CHERRY_PICKED_EXAMPLES`, `MISSING_METHOD` (Minor). Integrates captum / pytorch-grad-cam; never reimplements them or touches real patient data. |
 | **mllm-eval** | Model-agnostic evaluation harness (closed API or open weights) for an LLM/MLLM on a clinical task — radiology report generation, VQA, clinical text extraction — covering the adjudicated reference standard, clinical-efficacy metrics (RadGraph-F1 / CheXbert-F1 beyond BLEU/ROUGE), faithfulness/hallucination, pretraining-contamination, prompt sensitivity, and a reader study; gates the plan with `check_mllm_eval_completeness` and routes the reviewer audit to the MLLM probe. |
 | **intake-project** | Classifies new research projects, summarizes current state, identifies missing inputs, and recommends next steps. |
 | **grant-builder** | Structures grant proposals: significance, innovation, approach, milestones, and consortium roles. |

@@ -1,0 +1,45 @@
+schema_version: 2
+name: explainability
+layer: D
+owner_domain: model_validation
+maturity: official
+
+when_to_use: "Produce or audit the interpretability/explainability analysis of a medical-imaging model — Grad-CAM / Grad-CAM++ / attention-rollout / saliency / integrated-gradients — so it clears the rigor bar a reviewer expects: mandatory Adebayo sanity checks (model- and data-randomisation), a quantitative localisation metric against ground truth (IoU / pointing game / Dice) instead of eyeballed examples, a cohort-level result rather than cherry-picked cases, and attribution framing rather than 'proof the model is correct'. Emits an explainability-report manifest and a deterministic rigor gate."
+when_NOT_to_use: "Computing held-out discrimination/calibration metrics (use model-evaluation then analyze-stats); auditing the split table or preprocessing (use model-validation / preprocess-imaging); designing the validation study (use model-validation); LLM/MLLM faithfulness and hallucination (use mllm-eval); item-by-item reporting-guideline audit of a finished manuscript (use check-reporting); reimplementing captum / pytorch-grad-cam (out of scope — this skill wires and audits them, never rebuilds them)."
+
+inputs:
+  - "trained-model description (task, architecture, intended use)"
+  - "the XAI method and its outputs (saliency/attribution maps), with the cases they were computed on"
+  - "ground-truth localisation masks/boxes (optional, for the localisation metric)"
+outputs:
+  - "an explainability-report manifest (JSON: method, n_examples, cohort_level, localization_metric + value, sanity_checks, interpretation)"
+  - "explainability-rigor audit JSON (deterministic)"
+  - "recommendations: which sanity checks and localisation metric to add, and how to frame the map as attribution not validation"
+deterministic_scripts:
+  - scripts/check_explainability_report.py
+side_effects:
+  - writes_decision_notes
+downstream_consumers:
+  - model-evaluation
+  - check-reporting
+  - self-review
+  - write-paper
+forbidden_actions:
+  - fabricate_saliency_maps_localisation_metrics_or_sanity_check_results
+  - present_a_saliency_map_as_proof_of_model_correctness_or_causation
+  - report_an_explainability_audit_pass_without_running_the_detector
+  - reimplement_captum_or_pytorch_grad_cam
+
+# v2.1 quality card
+purpose: "Stop the most over-interpreted artifact in medical-imaging AI — a saliency/Grad-CAM heat-map presented as proof the model 'looks at the right thing' — from reaching a manuscript without sanity checks, a quantitative localisation metric, a cohort-level result, and attribution (not validation) framing."
+safety_boundaries:
+  - "Advisory plus deterministic-audit only: never alters maps, metrics, or sanity-check results."
+  - "The rigor verdict is reproduced by a stdlib script (rule on the report manifest), never asserted from prose."
+  - "Integrates captum / pytorch-grad-cam by reference; it does not reimplement them and never runs a model on real patient data."
+known_limitations:
+  - "Audits the declared report manifest, not the executed XAI code; a mislabelled interpretation or an unrun sanity check recorded as run can hide a real gap."
+  - "A clean explainability audit is necessary, not sufficient — discrimination, calibration, and validation-design gates still apply."
+validation_commands:
+  - "python3 scripts/check_explainability_report.py --manifest <explainability_report.json> --strict"
+  - "bash scripts/check_explainability_report_challenge/verify.sh  # deterministic, network-free"
+evidence_surface: ci_validator

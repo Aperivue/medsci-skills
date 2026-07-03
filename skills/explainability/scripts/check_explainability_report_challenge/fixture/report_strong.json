@@ -1,0 +1,9 @@
+{
+  "method": "grad-cam++",
+  "n_examples": 200,
+  "cohort_level": true,
+  "localization_metric": "iou",
+  "localization_value": 0.63,
+  "sanity_checks": ["model_randomization", "data_randomization"],
+  "interpretation": "localization"
+}
