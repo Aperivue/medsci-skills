@@ -15,6 +15,13 @@
 
 ### Documentation
 
+- **Model-engineering produce-side depth roadmap** (`docs/roadmap_model_engineering_depth.md`,
+  linked from `ROADMAP.md` § Research throughput). Sequences the three thin produce stages of the
+  in-scope model-engineering lane — imaging data pipeline + data-stage leakage, interpretability/
+  explainability production, uncertainty/OOD reporting — each as a rigor gate with a challenge card,
+  never a training-framework reimplementation, released as one batch. Working checklist for the
+  next expansion cycle.
+
 - **README: by-stage skill index, multi-host framing, and star history.** A scannable "by research
   stage" grouping of all 51 skills sits above the full table; a Star History chart is added; and the
   About section now states the toolkit runs on all four verified Agent Skills hosts (Claude Code,
