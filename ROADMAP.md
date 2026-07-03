@@ -33,6 +33,11 @@ demoted to a sustaining floor, not the strategic direction.
   target-trial-emulation specifications, DAG-derived adjustment sets, and
   prediction-model-appropriate sample sizes, shaping a study *before* data
   collection — the highest-leverage point in the pipeline.
+- **Model-engineering produce-side depth** — fill the thin produce stages of the
+  in-scope model-engineering lane: imaging data pipeline + data-stage leakage,
+  interpretability/explainability production, and uncertainty/OOD reporting — each
+  a rigor gate, never a training-framework reimplementation. Sequenced in
+  [`docs/roadmap_model_engineering_depth.md`](docs/roadmap_model_engineering_depth.md).
 
 ### Sustaining (the reliability floor)
 
