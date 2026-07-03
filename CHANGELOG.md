@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+## [5.15.0] - 2026-07-03
+
+Model-engineering produce-side depth. Two new skills that *produce* the leakage-safe, rigorously
+reported artifacts the review lane previously only audited — `preprocess-imaging` (data-stage
+leakage) and `explainability` (interpretability rigor) — Items 1–2 of the
+[produce-side depth roadmap](docs/roadmap_model_engineering_depth.md), plus a multi-host README/About
+refresh, copy-paste citation ergonomics, a release-cadence policy, and a real-project precision fix.
+Skills **51 → 53**, integrity detectors **46 → 48**. PRs #271–#275.
+
 ### Added
 
 - **`explainability` skill + `check_explainability_report` detector** (Item 2 of the
