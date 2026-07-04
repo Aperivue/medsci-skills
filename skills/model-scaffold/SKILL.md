@@ -2,14 +2,16 @@
 name: model-scaffold
 description: >
   Generate a reproducible, runnable PyTorch training repo for a medical-imaging task — segmentation,
-  classification, detection, image-to-image synthesis, or self-supervised pretraining — the missing
-  middle link between choosing an architecture and validating a trained model. Emits a patient-level
-  seed-locked split as an auditable artifact, a task-appropriate model, train and evaluate scripts that
-  seed every RNG and infer under eval mode, a config, requirements, a reproducibility record, and a
-  Methods stub with VERIFY placeholders (no fabricated numbers). The reproducibility guarantees hold by
-  construction, so the build is leakage-safe before any training runs. Integrates with MONAI, nnU-Net,
-  TorchIO, timm, and torchvision — it does not reimplement them.
-triggers: model scaffold, scaffold a model, training repo, PyTorch repo, build a model, train a model, segmentation, classification, detection, image synthesis, self-supervised, SimCLR, Pix2Pix, Faster R-CNN, U-Net, UNet, nnU-Net, MONAI, timm, torchvision, dataloader, train.py, patient-level split, reproducible training, seed everything, generate training code, medical imaging model
+  classification, detection, image-to-image synthesis, self-supervised pretraining, or fine-tuning a
+  pretrained backbone (transfer learning) — the missing middle link between choosing an architecture and
+  validating a trained model. Emits a patient-level seed-locked split as an auditable artifact, a
+  task-appropriate model, train and evaluate scripts that seed every RNG and infer under eval mode, a
+  config, requirements, a reproducibility record, and a Methods stub with VERIFY placeholders (no
+  fabricated numbers). Fine-tuning mode adds a frozen-then-unfrozen schedule, discriminative learning
+  rates, and a pretrained-weight provenance record. The reproducibility guarantees hold by construction,
+  so the build is leakage-safe before any training runs. Integrates with MONAI, nnU-Net, TorchIO, timm,
+  and torchvision — it does not reimplement them.
+triggers: model scaffold, scaffold a model, training repo, PyTorch repo, build a model, train a model, fine-tune, finetune, transfer learning, pretrained backbone, MedSAM, SAM adaptation, segmentation, classification, detection, image synthesis, self-supervised, SimCLR, Pix2Pix, Faster R-CNN, U-Net, UNet, nnU-Net, MONAI, timm, torchvision, dataloader, train.py, patient-level split, reproducible training, seed everything, generate training code, medical imaging model
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit
 ---
@@ -20,7 +22,8 @@ model: inherit
 
 This skill stamps out a **runnable PyTorch training repo** for a medical-imaging task — `--task`
 **segmentation** (U-Net), **classification** (CNN / `timm` backbone), **detection** (torchvision Faster
-R-CNN / FPN), **synthesis** (Pix2Pix generator + PatchGAN), or **ssl** (SimCLR encoder) —
+R-CNN / FPN), **synthesis** (Pix2Pix generator + PatchGAN), **ssl** (SimCLR encoder), or **finetune**
+(transfer-learning a pretrained backbone with a frozen→unfrozen schedule + a provenance record) —
 with the reproducibility guarantees **baked in by construction** — so the build is leakage-safe and
 reproducible before a single epoch runs. It is the imaging analogue of how `/analyze-stats` generates
 runnable statistical code: the generator produces the repo, you run the training on your GPU / Colab,
@@ -34,6 +37,9 @@ in the generated `requirements.txt`); it does not reimplement them.
 ## When to use
 - You have a data manifest (one row per image, with a patient/subject ID) and want a reproducible,
   leakage-safe starting repo for a segmentation model.
+- You want to **fine-tune a pretrained backbone** (transfer learning — the common clinician workflow:
+  a `timm` / MONAI / MedSAM checkpoint adapted to your collected clinical data) with the freeze schedule,
+  discriminative learning rates, and pretrained-weight provenance recorded (`--task finetune`).
 
 ## When NOT to use
 - Auditing an already-trained model's validation design → `/model-validation`.
@@ -54,8 +60,14 @@ patient level off this column.
 python3 ${CLAUDE_SKILL_DIR}/scripts/scaffold.py \
   --manifest <manifest.csv> --task segmentation --out model_repo --seed 42 \
   --in-channels 1 --out-channels 1
-# --task = segmentation | classification | detection | synthesis | ssl
-#   (out-channels = num classes for classification, target channels for synthesis)
+# --task = segmentation | classification | detection | synthesis | ssl | finetune
+#   (out-channels = num classes for classification/finetune, target channels for synthesis)
+# fine-tuning a pretrained backbone (transfer learning) on collected clinical data:
+python3 ${CLAUDE_SKILL_DIR}/scripts/scaffold.py \
+  --manifest <manifest.csv> --task finetune --out model_repo --seed 42 \
+  --out-channels <num_classes> --from-pretrained timm:resnet50.a1_in1k
+#   emits PRETRAINED.md (provenance) + a frozen→unfrozen train.py with discriminative LRs;
+#   record the exact pretrained source so the fine-tune is reproducible.
 ```
 This writes `model_repo/` with `config.yaml`, `model.py` (the task's model — U-Net / CNN / Faster R-CNN
 / Pix2Pix / SimCLR encoder), `dataset.py` (reads the frozen split), `losses.py` (task-appropriate),
@@ -79,9 +91,11 @@ patient-disjointness proof, and (optionally, locally with torch installed)
 ### Phase 4 — Plug in your data and train
 Implement `dataset.py`'s `_load_image` / `_load_label` for your modality (DICOM / NIfTI / TIFF via
 nibabel / pydicom / tifffile / TorchIO / MONAI transforms). For production, swap `model.py` for MONAI
-`UNet` / `SegResNet` or an nnU-Net plan (see `${CLAUDE_SKILL_DIR}/references/training_guide.md`). Run
-`python train.py` (best model selected on the **val** split), then `python evaluate.py` (predictions on
-the **test** split, touched once).
+`UNet` / `SegResNet` or an nnU-Net plan (see `${CLAUDE_SKILL_DIR}/references/training_guide.md`). For a
+fine-tuning repo (`--task finetune`), fill `PRETRAINED.md` and set the freeze schedule / discriminative
+learning rates (see `${CLAUDE_SKILL_DIR}/references/finetuning_guide.md`, which also covers MedSAM/SAM
+adaptation and train-only diffusion augmentation). Run `python train.py` (best model selected on the
+**val** split), then `python evaluate.py` (predictions on the **test** split, touched once).
 
 ### Phase 5 — Validate, evaluate, publish
 Hand off to `/model-validation` (validation-tier + comparator + metric-selection audit),
@@ -110,7 +124,9 @@ runnability.
 ## Deterministic gates
 - `scripts/scaffold.py` — the generator (stdlib + numpy; deterministic given manifest + seed).
 - `scripts/check_training_hygiene.py` — AST linter: all RNGs seeded, cuDNN deterministic,
-  `eval()` + `no_grad()` inference, no training on a non-train split.
+  `eval()` + `no_grad()` inference, no training on a non-train split, and (fine-tuning) a
+  recorded pretrained-weight provenance when pretrained weights are loaded
+  (`PRETRAINED_PROVENANCE_MISSING`).
 - `scripts/scaffold_challenge/verify.sh` — the build → validate chain, network-free (torch tier
   self-skips).
 

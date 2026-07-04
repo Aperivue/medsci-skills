@@ -39,6 +39,12 @@ gates here only verify the **network-free** parts.
    output shape is `(2,1,32,32)`, gradients flow, and the loss is reproducible under a
    fixed seed. If torch is absent it prints `SKIP` and exits 0 — runnability is a
    documented local check, **never** claimed as CI coverage.
+5. **breadth + fine-tuning provenance:** all six tasks (segmentation, classification,
+   detection, synthesis, ssl, **finetune**) scaffold to the same task-independent frozen
+   split with hygiene-clean code. For `finetune`, the repo also carries a pretrained-weight
+   provenance record (`PRETRAINED.md` + a `pretrained:` block in `config.yaml`); stripping
+   that record makes `check_training_hygiene` fire `PRETRAINED_PROVENANCE_MISSING` (Minor) —
+   the gate has teeth against a hand-rolled fine-tune whose starting checkpoint is unrecorded.
 
 This is the build → validate chain executed end to end: a generated repo whose split a
 Phase-1 gate would clear and whose training code this phase's gate clears.

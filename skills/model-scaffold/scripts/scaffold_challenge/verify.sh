@@ -88,7 +88,7 @@ PY
 
 # (5) BREADTH: every task scaffolds to the same (task-independent) frozen split, valid
 #     Python, and a hygiene-clean train.py / evaluate.py.
-for task in classification detection synthesis ssl; do
+for task in classification detection synthesis ssl finetune; do
   tdir="$WORK/$task"
   python3 "$SCAFFOLD" --manifest "$HERE/fixture/manifest.csv" --task "$task" --out "$tdir" --seed 42 --quiet
   diff -q "$HERE/expected/split_assignment.csv" "$tdir/splits/split_assignment.csv" >/dev/null \
@@ -102,4 +102,22 @@ for task in classification detection synthesis ssl; do
   echo "  $task OK (frozen split + valid Python + training hygiene)"
 done
 
-echo "PASS: 5 tasks scaffold to a disjoint+seeded split (frozen) with hygiene-clean code; segmentation forward tier verified."
+# (6) FINE-TUNING PROVENANCE (teeth): the finetune scaffold records pretrained-weight
+#     provenance by construction, so it passes; strip the record and the SAME gate fires
+#     PRETRAINED_PROVENANCE_MISSING — a hand-rolled fine-tune with no recorded checkpoint.
+[ -f "$WORK/finetune/PRETRAINED.md" ] || { echo "FAIL: finetune scaffold did not emit PRETRAINED.md" >&2; exit 1; }
+grep -q "^pretrained:" "$WORK/finetune/config.yaml" || { echo "FAIL: finetune config.yaml missing pretrained block" >&2; exit 1; }
+cp -r "$WORK/finetune" "$WORK/nopro"
+rm -f "$WORK/nopro/PRETRAINED.md"
+grep -v '^pretrained:\|^  source:\|^  provenance:' "$WORK/finetune/config.yaml" > "$WORK/nopro/config.yaml"
+python3 "$HYGIENE" --repo "$WORK/nopro" --out "$WORK/nopro.json" --quiet
+python3 - "$WORK/nopro.json" <<'PY' || exit 1
+import json, sys
+d = json.load(open(sys.argv[1]))
+hit = [c for c in d["claims"] if c["verdict"] == "PRETRAINED_PROVENANCE_MISSING"]
+assert hit, "FAIL: provenance-stripped finetune repo did not fire PRETRAINED_PROVENANCE_MISSING"
+assert hit[0]["severity"] == "Minor", f"FAIL: expected Minor, got {hit[0]['severity']}"
+print("  fine-tuning provenance gate OK (scaffold passes; stripped repo fires Minor)")
+PY
+
+echo "PASS: 6 tasks scaffold to a disjoint+seeded split (frozen) with hygiene-clean code; segmentation forward tier + fine-tuning provenance gate verified."

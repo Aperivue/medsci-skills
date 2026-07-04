@@ -70,13 +70,26 @@ assert all(len(s)==1 for s in seen.values()), 'patient crosses splits'"
 clean_repo() { python3 "$SCAFFOLD" --manifest "$WORK/m.csv" --task "$1" --out "$WORK/$1" --seed 42 --quiet >/dev/null 2>&1; }
 hygiene_ok() { python3 "$HYGIENE" --repo "$WORK/$1" --strict --quiet >/dev/null 2>&1; }
 valid_py()  { for f in "$WORK/$1"/*.py; do python3 -c "import ast,sys;ast.parse(open(sys.argv[1]).read())" "$f" || return 1; done; }
-for t in classification detection synthesis ssl; do
+for t in classification detection synthesis ssl finetune; do
     if clean_repo "$t" && hygiene_ok "$t" && valid_py "$t"; then
         printf '  PASS  scaffold %s: hygiene-clean + valid Python\n' "$t"
     else
         printf '  FAIL  scaffold %s\n' "$t"; fail=$((fail+1))
     fi
 done
+
+# (e) fine-tuning provenance: the scaffold records provenance by construction (no fire),
+#     a pretrained-load repo WITHOUT a provenance record fires PRETRAINED_PROVENANCE_MISSING.
+check "finetune scaffold emits PRETRAINED.md" test -f "$WORK/finetune/PRETRAINED.md"
+check "finetune config.yaml has a pretrained: block" grep -q "^pretrained:" "$WORK/finetune/config.yaml"
+python3 "$HYGIENE" --repo "$WORK/finetune" --out "$OUT" --quiet >/dev/null 2>&1
+check "no PRETRAINED_PROVENANCE_MISSING on finetune scaffold" no PRETRAINED_PROVENANCE_MISSING
+python3 "$HYGIENE" --repo "$F/finetune_no_provenance" --out "$OUT" --quiet >/dev/null 2>&1
+check "PRETRAINED_PROVENANCE_MISSING on pretrained-load repo lacking provenance" has PRETRAINED_PROVENANCE_MISSING
+check "provenance verdict is Minor" python3 -c "
+import json; d=json.load(open('$OUT'))
+c=next(c for c in d['claims'] if c['verdict']=='PRETRAINED_PROVENANCE_MISSING')
+assert c['severity']=='Minor', c['severity']"
 
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

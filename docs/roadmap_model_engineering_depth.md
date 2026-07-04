@@ -164,11 +164,14 @@ in the leakage / validation / calibration / reporting gates that a solo clinicia
 
 - [x] **Item 1** — imaging data pipeline + `check_preprocessing_leakage` (skill `preprocess-imaging`, PR #274)
 - [x] **Item 2** — interpretability/explainability + `check_explainability_report` (skill `explainability`, PR #275)
-- [ ] **Item 3** — radiomics / classical-ML (RF/XGBoost) + `check_radiomics_ml` (skill `radiomics-ml`)
-- [ ] **Item 4** — fine-tuning scaffold: transfer-learning + SAM/MedSAM adaptation + diffusion augmentation
+- [x] **Item 3** — radiomics / classical-ML (RF/XGBoost) + `check_radiomics_ml` (skill `radiomics-ml`, PR #276/#277)
+- [x] **Item 4** — fine-tuning scaffold: transfer-learning + SAM/MedSAM adaptation + diffusion augmentation
+  (`model-scaffold --task finetune` + `--from-pretrained` + `references/finetuning_guide.md`; the
+  `PRETRAINED_PROVENANCE_MISSING` verdict added to the existing `check_training_hygiene` — no new
+  skill, no new detector). Chosen build-time form: **extend** `model-scaffold` (not a sibling skill).
 - [ ] **Item 5** — uncertainty/OOD + `check_uncertainty_reporting`
 - [ ] **Item 6** — MLOps integration reference (`model-scaffold/training_guide.md`)
 
 *Update the checkboxes and the top-level ROADMAP pointer as items land. Items 1–2
-shipped in **v5.15.0**; release the next batch (Items 3–4, the clinical fine-tuning
-focus) as one minor once both are merged — not per skill (release-cadence policy).*
+shipped in **v5.15.0**; Items 3–4 (the clinical fine-tuning focus) release together as the
+next minor (**v5.16.0**) once both are merged — not per skill (release-cadence policy).*

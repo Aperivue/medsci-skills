@@ -2,13 +2,13 @@
 
 # model-scaffold
 
-> Generate a reproducible, runnable PyTorch training repo for a medical-imaging task — segmentation, classification, detection, image-to-image synthesis, or self-supervised pretraining — the missing middle link between choosing an architecture and validating a trained model. Emits a patient-level seed-locked split as an auditable artifact, a task-appropriate model, train and evaluate scripts that seed every RNG and infer under eval mode, a config, requirements, a reproducibility record, and a Methods stub with VERIFY placeholders (no fabricated numbers). The reproducibility guarantees hold by construction, so the build is leakage-safe before any training runs. Integrates with MONAI, nnU-Net, TorchIO, timm, and torchvision — it does not reimplement them.
+> Generate a reproducible, runnable PyTorch training repo for a medical-imaging task — segmentation, classification, detection, image-to-image synthesis, self-supervised pretraining, or fine-tuning a pretrained backbone (transfer learning) — the missing middle link between choosing an architecture and validating a trained model. Emits a patient-level seed-locked split as an auditable artifact, a task-appropriate model, train and evaluate scripts that seed every RNG and infer under eval mode, a config, requirements, a reproducibility record, and a Methods stub with VERIFY placeholders (no fabricated numbers). Fine-tuning mode adds a frozen-then-unfrozen schedule, discriminative learning rates, and a pretrained-weight provenance record. The reproducibility guarantees hold by construction, so the build is leakage-safe before any training runs. Integrates with MONAI, nnU-Net, TorchIO, timm, and torchvision — it does not reimplement them.
 
 **Invoke:** `/model-scaffold` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
 
 ## When to use
 
-`model-scaffold` activates on requests such as: model scaffold, scaffold a model, training repo, PyTorch repo, build a model, train a model, segmentation, classification, detection, image synthesis, self-supervised, SimCLR, Pix2Pix, Faster R-CNN, U-Net, UNet, nnU-Net, MONAI, timm, torchvision, dataloader, train.py, patient-level split, reproducible training, seed everything, generate training code, medical imaging model.
+`model-scaffold` activates on requests such as: model scaffold, scaffold a model, training repo, PyTorch repo, build a model, train a model, fine-tune, finetune, transfer learning, pretrained backbone, MedSAM, SAM adaptation, segmentation, classification, detection, image synthesis, self-supervised, SimCLR, Pix2Pix, Faster R-CNN, U-Net, UNet, nnU-Net, MONAI, timm, torchvision, dataloader, train.py, patient-level split, reproducible training, seed everything, generate training code, medical imaging model.
 
 ## Quality Card
 
@@ -27,6 +27,7 @@
 **Validation**
 
 - `python3 scripts/scaffold.py --manifest <manifest.csv> --out model_repo --seed 42`
+- `python3 scripts/scaffold.py --manifest <manifest.csv> --task finetune --from-pretrained timm:resnet50.a1_in1k --out ft_repo --seed 42`
 - `python3 scripts/check_training_hygiene.py --repo model_repo --strict`
 - `bash scripts/scaffold_challenge/verify.sh  # deterministic, network-free (torch tier self-skips)`
 
@@ -36,6 +37,7 @@
 
 **References** (`skills/model-scaffold/references/`):
 
+- `finetuning_guide.md`
 - `training_guide.md`
 
 **Scripts** (`skills/model-scaffold/scripts/`):

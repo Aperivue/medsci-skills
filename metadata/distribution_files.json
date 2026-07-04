@@ -2868,8 +2868,13 @@
     },
     {
       "path": "skills/model-scaffold/SKILL.md",
-      "size": 7686,
-      "sha256": "cede2020d3ceee0e1599cbcfb412230ab9c04b08032c8bbaff620e4129ec6785"
+      "size": 9237,
+      "sha256": "d7e736178cb60d2d13cef9174474297bd54bc6d4d1f3862023d802ff0c034a95"
+    },
+    {
+      "path": "skills/model-scaffold/references/finetuning_guide.md",
+      "size": 6208,
+      "sha256": "b7817d53eeeb506b573beaae1889fa863dd81286d474ab99b46b38ad046b32e7"
     },
     {
       "path": "skills/model-scaffold/references/training_guide.md",
@@ -2878,13 +2883,13 @@
     },
     {
       "path": "skills/model-scaffold/scripts/check_training_hygiene.py",
-      "size": 11752,
-      "sha256": "66970049c85e46a0080b5f19eb3b5ac9dfd656a674b6f1698825e968eedd4814"
+      "size": 14095,
+      "sha256": "57542a54dac607e89e7f13e5025bd2ce6b32e629064a18cbb0f0c15fdfc6181c"
     },
     {
       "path": "skills/model-scaffold/scripts/scaffold.py",
-      "size": 40470,
-      "sha256": "33569806ecd230aebb9d35c77a27b8480d23329b00f633d7fee9531a7bcec974"
+      "size": 51482,
+      "sha256": "150abbc4864a92913b202893962c29cda8ec6ce1918f35558aa5b02514b6a0cb"
     },
     {
       "path": "skills/model-scaffold/scripts/scaffold_challenge/expected/split_assignment.csv",
@@ -2898,18 +2903,18 @@
     },
     {
       "path": "skills/model-scaffold/scripts/scaffold_challenge/problem.md",
-      "size": 2678,
-      "sha256": "369e98da65cbd16c67f5ff3f17d99b707d713bbf3239409f9921190c85f8f08a"
+      "size": 3226,
+      "sha256": "950af6c956f73b491b2bee102d884765aaeb783b5842eb428ac2ad81b49f67e8"
     },
     {
       "path": "skills/model-scaffold/scripts/scaffold_challenge/verify.sh",
-      "size": 5136,
-      "sha256": "040acee712943e8392b70b40b790438bec056a3a4e7a282f76455d2a2b791447"
+      "size": 6396,
+      "sha256": "77d81387647abf00de4b03f91a7c7bf9bef38d9679b148762c906eaccfee9f73"
     },
     {
       "path": "skills/model-scaffold/skill.yml",
-      "size": 3195,
-      "sha256": "06c4ed02872bfc38abd1c753c02a640a2bfaa1141fbfdd9f8b9ccbe18a148d82"
+      "size": 3772,
+      "sha256": "aaae59edb50c50b01be2aaca3c94b63ce76af067ff25750248517c5ce91ccf41"
     },
     {
       "path": "skills/model-validation/SKILL.md",

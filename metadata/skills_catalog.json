@@ -416,7 +416,7 @@
       "layer": "B",
       "owner_domain": "model_development",
       "maturity": "official",
-      "description": "Generate a reproducible, runnable PyTorch training repo for a medical-imaging task — segmentation, classification, detection, image-to-image synthesis, or self-supervised pretraining — the missing mid…"
+      "description": "Generate a reproducible, runnable PyTorch training repo for a medical-imaging task — segmentation, classification, detection, image-to-image synthesis, self-supervised pretraining, or fine-tuning a pr…"
     },
     {
       "slug": "model-validation",

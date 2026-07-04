@@ -22,6 +22,21 @@
 
 ### Added
 
+- **`model-scaffold` fine-tuning mode** (Item 4 of the
+  [model-engineering produce-side depth roadmap](docs/roadmap_model_engineering_depth.md), clinical
+  fine-tuning focus). Extends the scaffold from train-from-scratch to the target user's real workflow —
+  **fine-tune a pretrained backbone on collected clinical data**. New `--task finetune` +
+  `--from-pretrained <source>` emits a leakage-safe transfer-learning repo with a frozen→unfrozen
+  schedule, discriminative learning rates, and a pretrained-weight **provenance record**
+  (`PRETRAINED.md` + a `config.yaml` `pretrained:` block). The existing `check_training_hygiene` gate
+  gains one additive verdict — `PRETRAINED_PROVENANCE_MISSING` (Minor) — that fires when a repo loads
+  pretrained weights (`pretrained=True` / `from_pretrained`) but records no provenance; the scaffold
+  passes by construction, a hand-rolled fine-tune with no recorded checkpoint fails. Ships a new
+  `references/finetuning_guide.md` (freeze schedule, MedSAM/SAM adapter fine-tuning, train-only
+  diffusion augmentation with the pretraining-set-contamination leakage warning), plus challenge +
+  regression-test coverage for the finetune task and the provenance verdict. Reuses
+  `check_training_hygiene` + `check_preprocessing_leakage` — **no new skill, no new detector**
+  (skills stay **54**, integrity detectors stay **49**). PR #278.
 - **`radiomics-ml` skill + `check_radiomics_ml` detector** (Item 3 of the
   [model-engineering produce-side depth roadmap](docs/roadmap_model_engineering_depth.md), clinical
   fine-tuning focus). Produces and audits a radiomics / tabular clinical-ML study — features → random
