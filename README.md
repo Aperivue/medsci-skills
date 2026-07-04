@@ -155,15 +155,16 @@ protocol scaffolding, screening/extraction structure, PRISMA-consistent counts a
 diagram, pooled-estimate figures, and a manuscript draft. *Safety:* screening and
 extraction decisions stay with the human review team.
 
-## Live Demos: Three Study Types, Three Full Pipelines
+## Live Demos: Four Study Types, Four Full Pipelines
 
-Three public datasets. Three study types. Each produces a complete manuscript, publication-ready figures, and a reporting compliance audit.
+Four public datasets. Four study types. Demos 1–3 each produce a complete manuscript, publication-ready figures, and a reporting-compliance audit; Demo 4 runs the medical-AI **model-engineering lane** end to end (scaffold → gates → training → evaluation → interpretability).
 
 | Demo | Dataset | Study Type | Compliance |
 |------|---------|------------|------------|
 | [Demo 1: Wisconsin BC](demo/01_wisconsin_bc/) | `sklearn` built-in | Diagnostic accuracy | STARD 2015 |
 | [Demo 2: BCG Vaccine](demo/02_metafor_bcg/) | `metafor::dat.bcg` (13 RCTs) | Meta-analysis | PRISMA 2020 |
 | [Demo 3: NHANES Obesity](demo/03_nhanes_obesity/) | CDC NHANES 2017-18 | Epidemiology (survey) | STROBE |
+| [Demo 4: PneumoniaMNIST CNN](demo/04_pneumoniamnist_cnn/) | `medmnist` (CC BY 4.0) | Medical-AI model engineering (CNN) | CLAIM / TRIPOD+AI |
 
 ### Demo 1: Diagnostic Accuracy — Wisconsin Breast Cancer
 
