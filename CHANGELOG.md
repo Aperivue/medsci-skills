@@ -2,6 +2,19 @@
 
 ## [Unreleased]
 
+## [5.16.0] - 2026-07-04
+
+Model-engineering produce-side depth, clinical fine-tuning focus — Items 3–4 of the
+[produce-side depth roadmap](docs/roadmap_model_engineering_depth.md). A new `radiomics-ml` skill +
+`check_radiomics_ml` detector for the most common solo-doable clinical-ML workflow (radiomics /
+tabular features → any classical learner → a clinical outcome, no GPU), broadened to the full
+classical/statistical-ML family with a learner-agnostic gate; and a `model-scaffold` fine-tuning
+mode (`--task finetune` + `--from-pretrained`) that adapts a pretrained backbone on collected clinical
+data with a frozen→unfrozen schedule, discriminative learning rates, and a pretrained-weight provenance
+record (a `PRETRAINED_PROVENANCE_MISSING` verdict added to the existing `check_training_hygiene` — no
+new detector). Plus a ML/DL method coverage map. Additive and backward-compatible; skills **53 → 54**,
+integrity detectors **48 → 49**. PRs #276–#278.
+
 ### Changed
 
 - **`radiomics-ml` broadened to the full classical / statistical-ML family** (not just RF / XGBoost).
