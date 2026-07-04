@@ -4,6 +4,15 @@
 
 ### Added
 
+- **TARGET reporting checklist** (`check-reporting`) — Transparent Reporting of Observational Studies
+  Emulating a Target Trial (Cashin, Hansford, Hernán et al. JAMA 2025;334(12):1084-1093). 21 items across
+  6 sections, pairing the target-trial specification (item 6) with its emulation in the data (item 7) for
+  each protocol element (eligibility, treatment strategies, assignment, time zero, outcome, causal
+  contrast, assumptions, analysis). Routed via the study-type table + `target` / `targettrial` / `tte`
+  aliases, with a TARGET critical-item floor (protocol-and-emulation specification, time-zero alignment /
+  immortal-time control, causal estimand + identifying assumptions). Closes the design→reporting loop with
+  the existing `/design-study` target-trial-emulation module. **Reporting guidelines 45 → 46.**
+
 - **REMARK reporting checklist** (`check-reporting`) — REporting recommendations for tumour MARKer
   prognostic studies (McShane et al. Br J Cancer 2005; Altman et al. Explanation & Elaboration, PLoS
   Med 2012). 20 items across Introduction / Materials and Methods / Results / Discussion, vendored as a
