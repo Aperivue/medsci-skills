@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+## [5.17.0] - 2026-07-04
+
+Model-engineering produce-side depth — completion. Deployment safety plus the final wiring and candidate
+items of the [produce-side depth roadmap](docs/roadmap_model_engineering_depth.md): a new
+`uncertainty-imaging` skill + `check_uncertainty_reporting` gate (uncertainty quantification / OOD /
+selective prediction for a deployment-framed model), an MLOps wiring reference for `model-scaffold`, and
+an `architecture-zoo` graph-neural-net family card (brain connectomes) that closes the last candidate
+gap. The six-item roadmap **and** its candidate list are now complete. Additive and backward-compatible;
+skills **54 → 55**, integrity detectors **49 → 50**. PRs #279–#281.
+
 ### Documentation
 
 - **`architecture-zoo` graph-neural-net family card** (`references/graph.md`) — closes the last candidate
