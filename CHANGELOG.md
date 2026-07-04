@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+### Added
+
+- **REMARK reporting checklist** (`check-reporting`) — REporting recommendations for tumour MARKer
+  prognostic studies (McShane et al. Br J Cancer 2005; Altman et al. Explanation & Elaboration, PLoS
+  Med 2012). 20 items across Introduction / Materials and Methods / Results / Discussion, vendored as a
+  faithful own-words summary of item intent. Routed via the study-type table + `remark` / `tumormarker`
+  aliases, with a REMARK critical-item floor (marker definition, cutpoint justification, multivariable
+  adjustment for established prognostic variables, all-endpoint reporting). Fills the reporting-audit gap
+  for prognostic tumor-marker / ctDNA-MRD studies (pair with STROBE for the observational-design items).
+  **Reporting guidelines 44 → 45.**
+
 ## [5.18.0] - 2026-07-07
 
 Reliability & workflow-integrity batch — a new deterministic gate for revision response letters, a

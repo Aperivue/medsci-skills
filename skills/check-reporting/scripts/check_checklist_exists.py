@@ -86,6 +86,8 @@ ALIAS_TO_STEM = {
     "cheers": "CHEERS_2022",
     "cheers2022": "CHEERS_2022",
     "record": "RECORD",
+    "remark": "REMARK",
+    "tumormarker": "REMARK",
     "cross": "CROSS",
     "srqr": "SRQR",
     "coreq": "COREQ",
