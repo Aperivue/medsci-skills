@@ -1,0 +1,9 @@
+=========================================
+ Uncertainty / OOD Reporting Gate (uncertainty-imaging)
+=========================================
+  task=classification  deployment_claim=True  uncertainty_method=conformal  ood_method=mahalanobis
+| Check | Severity | Detail |
+|---|---|---|
+| (none) | — | uncertainty / OOD reporting meets the deployment bar |
+
+OK: uncertainty / OOD reporting meets the deployment bar.

@@ -49,7 +49,8 @@
         "./skills/model-scaffold",
         "./skills/model-validation",
         "./skills/preprocess-imaging",
-        "./skills/radiomics-ml"
+        "./skills/radiomics-ml",
+        "./skills/uncertainty-imaging"
       ]
     },
     {

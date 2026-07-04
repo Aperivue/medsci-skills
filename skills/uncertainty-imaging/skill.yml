@@ -1,0 +1,47 @@
+schema_version: 2
+name: uncertainty-imaging
+layer: D
+owner_domain: model_validation
+maturity: official
+
+when_to_use: "Design or audit the uncertainty-quantification / out-of-distribution / selective-prediction layer of a medical-imaging model framed for deployment — so a clinical-use claim carries calibrated per-case uncertainty (MC-dropout / deep ensemble / conformal / Bayesian), an OOD guard validated on a held-out OOD set, an abstention rule at a pre-specified operating point, and uncertainty checked under distribution shift. Emits an uncertainty manifest and a deterministic gate."
+when_NOT_to_use: "Held-out discrimination / calibration metrics of the point predictor (use model-evaluation then analyze-stats); the training repo / split (use model-scaffold + model-validation); interpretability / saliency of a trained network (use explainability); classical-ML tabular calibration (use radiomics-ml + analyze-stats); item-by-item reporting-guideline audit of a finished manuscript (use check-reporting — TRIPOD+AI / DECIDE-AI); reimplementing MAPIE / captum / an OOD library (out of scope — this skill wires and audits them)."
+
+inputs:
+  - "the deployment framing (is a clinical-use claim made?) and the task"
+  - "the intended uncertainty method (conformal / MC-dropout / deep ensemble / Bayesian) and its validation plan"
+  - "the OOD approach + a held-out OOD set, and the abstention target (if selective prediction is offered)"
+outputs:
+  - "an uncertainty manifest (JSON: deployment_claim, uncertainty_method, coverage_target/validated, ensemble/mc-dropout config, ood_method + heldout set, selective target, calibration_under_shift)"
+  - "uncertainty/OOD code wired to MAPIE / captum / a pretrained OOD scorer (integrated, not reimplemented)"
+  - "uncertainty/OOD reporting-rigor audit JSON (deterministic) + a TRIPOD+AI / DECIDE-AI reporting fit"
+deterministic_scripts:
+  - scripts/check_uncertainty_reporting.py
+side_effects:
+  - writes_decision_notes
+downstream_consumers:
+  - model-evaluation
+  - analyze-stats
+  - check-reporting
+  - self-review
+  - write-paper
+forbidden_actions:
+  - fabricate_coverage_ood_auroc_or_calibration_numbers
+  - report_conformal_coverage_as_guaranteed_without_measuring_it
+  - claim_ood_detection_without_a_held_out_ood_test_set
+  - report_an_uncertainty_audit_pass_without_running_the_detector
+  - reimplement_mapie_captum_or_an_ood_library
+
+# v2.1 quality card
+purpose: "Stop a deployment-framed medical-imaging model from shipping point predictions — no per-case uncertainty, conformal coverage never measured, an OOD claim with no held-out OOD data, an ensemble that shares a seed, uncertainty validated only in-distribution — into a clinical manuscript."
+safety_boundaries:
+  - "Advisory plus deterministic-audit only: never alters predictions, coverage, or OOD numbers."
+  - "The reporting verdict is reproduced by a stdlib script (rule on the uncertainty manifest), never asserted from prose."
+  - "Integrates MAPIE / captum / OOD scorers by reference; it does not reimplement them and never runs a model on real patient data."
+known_limitations:
+  - "Audits the declared uncertainty manifest, not the executed code; a mislabelled field (e.g. unvalidated coverage recorded as validated) can hide a real problem — complements, does not replace, model-evaluation's executed calibration."
+  - "A clean uncertainty audit is necessary, not sufficient — prospective deployment monitoring (DECIDE-AI) still governs the clinical claim."
+validation_commands:
+  - "python3 scripts/check_uncertainty_reporting.py --manifest <uncertainty_manifest.json> --strict"
+  - "bash scripts/check_uncertainty_reporting_challenge/verify.sh  # deterministic, network-free"
+evidence_surface: ci_validator

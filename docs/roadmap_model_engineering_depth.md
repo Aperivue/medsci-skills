@@ -138,8 +138,9 @@ in the leakage / validation / calibration / reporting gates that a solo clinicia
 ### Item 5 — Uncertainty / OOD / selective prediction  ·  deployment-safety
 
 - **Why.** Deployment-safety flavored; builds on evaluation + calibration.
-- **Form.** New skill (`uncertainty-imaging`) — decide vs extending
-  `model-evaluation` at build time (lean new skill for discoverability).
+- **Form.** New skill (`uncertainty-imaging`) — **decided at build time: new skill**
+  (deployment-safety is a distinct concern from held-out metrics; a separate skill is
+  more discoverable than a `model-evaluation` mode).
 - **Produces.** MC-dropout / deep-ensemble / conformal-prediction intervals, OOD
   detection (energy / Mahalanobis), selective prediction (abstention at a
   coverage target), calibration-under-shift.
@@ -169,9 +170,10 @@ in the leakage / validation / calibration / reporting gates that a solo clinicia
   (`model-scaffold --task finetune` + `--from-pretrained` + `references/finetuning_guide.md`; the
   `PRETRAINED_PROVENANCE_MISSING` verdict added to the existing `check_training_hygiene` — no new
   skill, no new detector). Chosen build-time form: **extend** `model-scaffold` (not a sibling skill).
-- [ ] **Item 5** — uncertainty/OOD + `check_uncertainty_reporting`
+- [x] **Item 5** — uncertainty/OOD + `check_uncertainty_reporting` (skill `uncertainty-imaging`, PR #279)
 - [ ] **Item 6** — MLOps integration reference (`model-scaffold/training_guide.md`)
 
 *Update the checkboxes and the top-level ROADMAP pointer as items land. Items 1–2
-shipped in **v5.15.0**; Items 3–4 (the clinical fine-tuning focus) release together as the
-next minor (**v5.16.0**) once both are merged — not per skill (release-cadence policy).*
+shipped in **v5.15.0**; Items 3–4 (the clinical fine-tuning focus) shipped in **v5.16.0**.
+Item 5 (`uncertainty-imaging`) is staged in `[Unreleased]` for the next minor — accumulate with
+Item 6 (or a candidate) rather than releasing per skill (release-cadence policy).*

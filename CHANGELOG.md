@@ -2,6 +2,25 @@
 
 ## [Unreleased]
 
+### Added
+
+- **`uncertainty-imaging` skill + `check_uncertainty_reporting` detector** (Item 5 of the
+  [model-engineering produce-side depth roadmap](docs/roadmap_model_engineering_depth.md), deployment
+  safety). Designs and audits the uncertainty-quantification / out-of-distribution / selective-prediction
+  layer of a deployment-framed medical-imaging model, so a clinical-use claim carries calibrated per-case
+  uncertainty (MC-dropout / deep ensemble / conformal / Bayesian), an OOD guard validated on a held-out
+  OOD set, an abstention rule at a pre-specified operating point, and calibration checked under
+  distribution shift. Emits an uncertainty manifest and a stdlib-only deterministic gate with seven
+  verdicts: `POINT_PREDICTION_NO_UNCERTAINTY`, `CONFORMAL_NO_COVERAGE_VALIDATION`, `OOD_NO_HELDOUT_SET`
+  (Major); `ENSEMBLE_NOT_INDEPENDENT`, `MCDROPOUT_DISABLED_AT_INFERENCE`, `SELECTIVE_NO_TARGET`,
+  `NO_CALIBRATION_UNDER_SHIFT` (Minor). Complements `model-evaluation`'s executed calibration/subgroup
+  metrics at the reporting-spec level. Ships a `references/uncertainty_guide.md` (conformal coverage
+  validation, ensemble independence, MC-dropout-active-at-inference, OOD held-out evaluation, selective
+  prediction, calibration-under-shift, TRIPOD+AI / DECIDE-AI reporting), a network-free challenge card,
+  and a CI-wired regression test. Integrates MAPIE / captum / OOD scorers by reference; never reimplements
+  them or touches real patient data. Skills **54 → 55**, integrity detectors **49 → 50**
+  (`reporting_compliance` family). PR #279.
+
 ## [5.16.0] - 2026-07-04
 
 Model-engineering produce-side depth, clinical fine-tuning focus — Items 3–4 of the

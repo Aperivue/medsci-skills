@@ -1,0 +1,9 @@
+{
+  "task": "classification",
+  "deployment_claim": true,
+  "uncertainty_method": "none",
+  "ood_method": "energy",
+  "ood_heldout_set": null,
+  "selective_prediction": true,
+  "selective_target": null
+}

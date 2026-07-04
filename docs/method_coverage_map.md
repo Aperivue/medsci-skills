@@ -13,9 +13,11 @@ Two facts make "all methods" tractable without a skill per algorithm:
    backbones) + MONAI / nnU-Net / torchvision; `radiomics-ml` wires **scikit-learn** + xgboost /
    lightgbm / catboost + pyradiomics. Any learner in those libraries is in scope.
 2. **The rigor gates are learner-agnostic.** `check_radiomics_ml`, `check_split_leakage`,
-   `check_preprocessing_leakage`, `check_metric_reporting`, and `check_explainability_report` audit the
-   *pipeline* (leakage, nested CV, calibration, metric choice, saliency rigor) — not the specific
-   algorithm — so they apply to every method in the same family.
+   `check_preprocessing_leakage`, `check_metric_reporting`, `check_explainability_report`, and
+   `check_uncertainty_reporting` audit the *pipeline* (leakage, nested CV, calibration, metric choice,
+   saliency rigor, deployment uncertainty) — not the specific algorithm — so they apply to every method
+   in the same family. Deployment-framed models of any family route through `uncertainty-imaging`
+   (calibrated uncertainty / OOD / abstention) as a cross-cutting safety layer.
 
 ## Deep learning (imaging)
 
