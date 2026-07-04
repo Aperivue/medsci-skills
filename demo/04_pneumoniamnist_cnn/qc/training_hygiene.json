@@ -1,0 +1,11 @@
+{
+  "train": "pipeline/train.py",
+  "eval": "pipeline/evaluate.py",
+  "claims": [],
+  "summary": {
+    "n_claims": 0,
+    "n_major": 0,
+    "n_minor": 0,
+    "verdict": "OK"
+  }
+}

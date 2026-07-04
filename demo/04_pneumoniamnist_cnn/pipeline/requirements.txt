@@ -1,0 +1,6 @@
+# medsci-skills CNN demo — PneumoniaMNIST (pin exact versions before publishing).
+torch
+numpy
+medmnist          # PneumoniaMNIST loader + official split (CC BY 4.0; Yang et al. 2023)
+scikit-learn      # quick held-out metrics (metrics.py); authoritative CIs via /analyze-stats
+# timm            # swap model.py for a pretrained ResNet/EfficientNet backbone (optional)

@@ -1,0 +1,21 @@
+{
+  "splits": "splits/split_assignment.csv",
+  "id_col": "sample_id",
+  "split_col": "split",
+  "n_rows": 5856,
+  "n_subjects": 5856,
+  "partitions": {
+    "test": 624,
+    "train": 4708,
+    "val": 524
+  },
+  "seed": "42",
+  "claims": [],
+  "summary": {
+    "n_claims": 0,
+    "n_major": 0,
+    "n_minor": 0,
+    "n_overlapping_subjects": 0,
+    "verdict": "OK"
+  }
+}

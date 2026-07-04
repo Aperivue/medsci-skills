@@ -1,0 +1,24 @@
+{
+  "method": "grad-cam",
+  "tool": "captum LayerGradCam (last conv)",
+  "cohort_level": true,
+  "n_examples": 12,
+  "localization_metric": "none",
+  "localization_note": "PneumoniaMNIST has no lesion masks; IoU/pointing-game not computable",
+  "interpretation": "attribution",
+  "sanity_checks": [
+    "model_randomization",
+    "data_randomization"
+  ],
+  "sanity_detail": {
+    "tests": [
+      "model_randomization",
+      "data_randomization"
+    ],
+    "reference": "Adebayo et al. 2018",
+    "mean_pearson_trained_vs_random_model": -0.07350304650356108,
+    "mean_pearson_trained_vs_permuted_label_model": -0.03191473217691549,
+    "passes": true,
+    "n_examples": 12
+  }
+}

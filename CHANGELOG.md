@@ -2,7 +2,17 @@
 
 ## [Unreleased]
 
-## [5.17.0] - 2026-07-04
+### Documentation
+
+- **Demo 4 — PneumoniaMNIST CNN** (`demo/04_pneumoniamnist_cnn/`). A fourth live demo that runs the
+  medical-AI **model-engineering lane** end to end on a public benchmark (PneumoniaMNIST, MedMNIST v2,
+  CC BY 4.0) — the deep-learning counterpart to Demos 1–3 (classical stats / manuscript pipeline).
+  Architecture choice → scaffold → data-stage/split/hygiene gates → 3-seed training → held-out evaluation
+  (AUROC 0.964 ± 0.004; ensemble 0.969, 95% CI 0.956–0.980) → calibration (ECE 0.127) → Grad-CAM with
+  Adebayo sanity checks → write-up. Every number is produced by an executed run (results manifest is the
+  single source of truth); gate outputs (split-leakage, training-hygiene, explainability-report) are all
+  clean; references were verified with `/verify-refs`. Tooling demonstration, not a clinical claim. README
+  "Live Demos" now lists four pipelines.
 
 Model-engineering produce-side depth — completion. Deployment safety plus the final wiring and candidate
 items of the [produce-side depth roadmap](docs/roadmap_model_engineering_depth.md): a new
