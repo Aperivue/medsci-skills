@@ -27,6 +27,14 @@ CHECKS (verdicts):
   5. EVAL_SHUFFLE            (Minor)  an evaluation DataLoader uses shuffle=True
                                       (reorders the test set; harmless for metrics but
                                       a smell, and breaks index-aligned outputs).
+  6. PRETRAINED_PROVENANCE_MISSING (Minor)  the training script loads PRETRAINED weights
+                                      (a `pretrained=True` kwarg or a `from_pretrained`
+                                      call — fine-tuning / transfer learning) but the repo
+                                      records no pretrained-weight provenance (no non-empty
+                                      PRETRAINED.md and no `pretrained:` block in
+                                      config.yaml). A fine-tune whose starting checkpoint is
+                                      unrecorded is not reproducible. Fires only in --repo
+                                      mode (the provenance record is a repo-level artifact).
 
 INPUTS
   --repo   a scaffolded repo directory; train.py and evaluate.py are auto-found.
@@ -84,6 +92,7 @@ def _scan(src: str):
         "cudnn_determ": False,        # cudnn.deterministic = True
         "dataset_split": {},          # var name -> split literal it was built with
         "loaders": [],                # (first_arg_name, shuffle_bool)
+        "loads_pretrained": False,    # a pretrained=True kwarg or a from_pretrained call
     }
     # dataset var <- Ctor(..., split="X")
     for node in ast.walk(tree):
@@ -120,6 +129,9 @@ def _scan(src: str):
                 name = first.id if isinstance(first, ast.Name) else None
                 sh = _kw(node, "shuffle")
                 facts["loaders"].append((name, _is_true(sh)))
+            # pretrained-weight load: `...(pretrained=True)` or a `...from_pretrained(...)` call
+            if _is_true(_kw(node, "pretrained")) or tail == "from_pretrained":
+                facts["loads_pretrained"] = True
         # cudnn.deterministic = True (assignment to an Attribute target)
         if isinstance(node, ast.Assign):
             for tgt in node.targets:
@@ -129,7 +141,21 @@ def _scan(src: str):
     return facts
 
 
-def analyze(train: str | None, eval_: str | None) -> dict:
+def _has_pretrained_provenance(repo: Path) -> bool:
+    """True if the repo records pretrained-weight provenance: a non-empty PRETRAINED.md, or
+    a `pretrained:` block in config.yaml."""
+    pm = repo / "PRETRAINED.md"
+    if pm.is_file() and pm.read_text(encoding="utf-8").strip():
+        return True
+    cfg = repo / "config.yaml"
+    if cfg.is_file():
+        for line in cfg.read_text(encoding="utf-8").splitlines():
+            if line.strip().startswith("pretrained:"):
+                return True
+    return False
+
+
+def analyze(train: str | None, eval_: str | None, repo: str | None = None) -> dict:
     claims = []
     tfacts = _scan(Path(train).read_text(encoding="utf-8")) if train else None
     efacts = _scan(Path(eval_).read_text(encoding="utf-8")) if eval_ else None
@@ -160,6 +186,16 @@ def analyze(train: str | None, eval_: str | None) -> dict:
                               f"'{name}' constructed with split=\"{sp}\" — training on the {sp} split",
                     "where": Path(train).name,
                 })
+        # fine-tuning: pretrained weights loaded but no provenance recorded (repo mode only)
+        if tfacts["loads_pretrained"] and repo and not _has_pretrained_provenance(Path(repo)):
+            claims.append({
+                "verdict": "PRETRAINED_PROVENANCE_MISSING", "severity": "Minor",
+                "detail": "the training script loads pretrained weights (fine-tuning) but the "
+                          "repo records no pretrained-weight provenance (a non-empty PRETRAINED.md "
+                          "or a 'pretrained:' block in config.yaml). Record the exact "
+                          "source / checkpoint / license / hash so the fine-tune is reproducible.",
+                "where": Path(train).name,
+            })
 
     if efacts is not None:
         if not (efacts["has_eval"] and efacts["has_no_grad"]):
@@ -229,7 +265,7 @@ def main() -> int:
     args = ap.parse_args()
 
     train, eval_ = _resolve(args.repo, args.train, args.eval_)
-    result = analyze(train, eval_)
+    result = analyze(train, eval_, repo=args.repo)
 
     if not args.quiet:
         print("=" * 41)

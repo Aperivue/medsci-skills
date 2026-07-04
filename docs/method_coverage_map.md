@@ -21,13 +21,13 @@ Two facts make "all methods" tractable without a skill per algorithm:
 
 | Family | Examples | Select | Produce / fine-tune | Validate | Interpret | Report / evaluate |
 |---|---|---|---|---|---|---|
-| Classification CNN / transformer | ResNet, DenseNet, EfficientNet, ViT, Swin (timm) | `architecture-zoo` | `model-scaffold --task classification` (+ fine-tune, Item 4) | `model-validation`, `preprocess-imaging` | `explainability` | `model-evaluation`, `check-reporting` (CLAIM / TRIPOD+AI) |
+| Classification CNN / transformer | ResNet, DenseNet, EfficientNet, ViT, Swin (timm) | `architecture-zoo` | `model-scaffold --task classification` / `--task finetune` (transfer learning) | `model-validation`, `preprocess-imaging` | `explainability` | `model-evaluation`, `check-reporting` (CLAIM / TRIPOD+AI) |
 | Segmentation | U-Net, 3D U-Net, Attention/Residual U-Net, **nnU-Net** | `architecture-zoo` | `model-scaffold --task segmentation` | `model-validation` | `explainability` | `model-evaluation` |
 | Detection | Faster R-CNN, RetinaNet, YOLO, Mask R-CNN | `architecture-zoo` | `model-scaffold --task detection` | `model-validation` | — | `model-evaluation` (FROC / mAP) |
-| Promptable / foundation segmentation | **SAM, MedSAM**, TotalSegmentator | `architecture-zoo` | fine-tune / adapt (Item 4) | `model-validation` | `explainability` | `model-evaluation` |
+| Promptable / foundation segmentation | **SAM, MedSAM**, TotalSegmentator | `architecture-zoo` | `model-scaffold --task finetune` + MedSAM adapter recipe (`finetuning_guide.md`) | `model-validation` | `explainability` | `model-evaluation` |
 | Self-supervised pretraining | DINO, MAE, SimCLR | `architecture-zoo` | `model-scaffold --task ssl` | `model-validation` | — | — |
-| Generative / synthesis | GAN, **diffusion** | `architecture-zoo` | `model-scaffold --task synthesis`; diffusion augmentation (Item 4) | `model-validation` | — | `check-reporting` |
-| Vision-language / multimodal | CLIP, BiomedCLIP | `architecture-zoo` | fine-tune (Item 4) | `model-validation` | — | `model-evaluation` |
+| Generative / synthesis | GAN, **diffusion** | `architecture-zoo` | `model-scaffold --task synthesis`; train-only diffusion augmentation (`finetuning_guide.md`) | `model-validation` | — | `check-reporting` |
+| Vision-language / multimodal | CLIP, BiomedCLIP | `architecture-zoo` | `model-scaffold --task finetune` (transfer learning) | `model-validation` | — | `model-evaluation` |
 | Graph neural nets (connectomes) | GCN, GAT | *candidate* (`architecture-zoo` graph entry) | *candidate* | `model-validation`; tabular graph features → `radiomics-ml` | — | — |
 
 ## Classical / statistical ML (radiomics & tabular)
@@ -67,6 +67,7 @@ PROBAST-AI reporting from `check-reporting`.
 - **Anything that runs a model on real patient data or fabricates a metric.** Every number comes from
   the researcher's executed code.
 
-*Candidate gaps (open):* a `architecture-zoo` graph-neural-net entry for brain-connectome studies, and
-the Item 4 fine-tuning / SAM-adaptation / diffusion-augmentation produce path. See
+*Candidate gaps (open):* a `architecture-zoo` graph-neural-net entry for brain-connectome studies.
+The Item 4 fine-tuning / SAM-adaptation / diffusion-augmentation produce path has landed
+(`model-scaffold --task finetune` + `references/finetuning_guide.md`). See
 [`roadmap_model_engineering_depth.md`](roadmap_model_engineering_depth.md).
