@@ -783,12 +783,18 @@ from one of these:
 
 | Want to add… | How | Issue |
 |---|---|---|
-| **A journal profile** (submission rules for a journal we don't cover) | `/add-journal`, or copy an existing `journal_profiles/*.md` | [#115](https://github.com/Aperivue/medsci-skills/issues/115) |
+| **A CSL citation style** for a journal that lacks one | drop one `.csl` into `manage-refs/citation_styles/` | [#117](https://github.com/Aperivue/medsci-skills/issues/117) |
+| **A de-identification locale pack** for one more country | add one patterns file under `deidentify/` | [#116](https://github.com/Aperivue/medsci-skills/issues/116) |
+| **A README translation** (e.g., zh-CN) | one translated `README` file | [#119](https://github.com/Aperivue/medsci-skills/issues/119) |
 | **A figure exemplar** (ROC, KM, forest, Bland–Altman, confusion matrix…) | one `make-figures/references/exemplar_plots/*.md` anatomy model | [#118](https://github.com/Aperivue/medsci-skills/issues/118) |
-| **A CSL citation style** for a journal that lacks one | drop a `.csl` into `manage-refs/citation_styles/` | [#117](https://github.com/Aperivue/medsci-skills/issues/117) |
-| **A de-identification locale pack** for one more country | add patterns to `deidentify/` | [#116](https://github.com/Aperivue/medsci-skills/issues/116) |
+| **A journal profile** (submission rules for a journal we don't cover) | `/add-journal`, or copy an existing `journal_profiles/*.md` | [#115](https://github.com/Aperivue/medsci-skills/issues/115) |
 | **A reporting checklist or peer-review exemplar** | one reference file in the matching skill | [#120](https://github.com/Aperivue/medsci-skills/issues/120) |
-| **A README translation** (e.g., zh-CN) | a translated `README` | [#119](https://github.com/Aperivue/medsci-skills/issues/119) |
+
+Each of these adds **exactly one new file** — none requires editing a count, a generated
+page, or the build config, and the catalog-consistency check auto-derives profile counts from
+disk so it won't flag you. **No assignment needed: just open a PR — the first one that passes
+CI wins, and a maintainer handles any bookkeeping in review.** See the
+[5-minute first-PR quickstart](CONTRIBUTING.md#quickstart-your-first-pr-5-minutes) to get going.
 
 Every contribution is gated the same way the maintainers are: it must be a self-contained
 file, pass the CI (`validate.yml` — PII scan, structure, catalog consistency), and carry no

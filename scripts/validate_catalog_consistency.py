@@ -10,6 +10,12 @@ the counts a single source of truth and fails CI on drift.
 Three layers:
   1. Recompute every count from disk (the real ground truth).
   2. Assert metadata/catalog_counts.json matches disk — the SSOT cannot lie.
+     Exception: the journal-profile counts (``AUTO_DERIVED_KEYS``) are recomputed
+     from disk but never asserted against the JSON, so that adding one profile —
+     the single-file change the "add a journal profile" good-first-issue (#115)
+     invites from a first-time contributor — can never fail on a count bump they
+     have no reason to know about. Those counts are cited in no checked doc claim,
+     so disk is their sole source of truth.
   3. Assert the count claims in README / orchestrate / check-reporting match the
      SSOT. Guideline claims are matched (case-insensitively, so a "### 33 Reporting
      Guidelines" heading is caught) by the word "guideline"; the skill self-count by
@@ -30,6 +36,16 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SSOT = ROOT / "metadata" / "catalog_counts.json"
+
+# Counts that a drive-by contributor legitimately changes with a single-file PR
+# (adding one journal profile). These are AUTO-DERIVED from disk and deliberately
+# NOT asserted against catalog_counts.json — otherwise the flagship "add a journal
+# profile" good-first-issue (#115) would fail CATALOG_COUNT_DRIFT for the exact
+# newcomer it targets, who has no reason to touch the SSOT JSON. No public doc
+# cross-checks these counts, so disk is their sole source of truth. Maintainer-
+# scoped counts (skills, reporting_guidelines, integrity_detectors) stay hard-
+# asserted below and in catalog_counts.json.
+AUTO_DERIVED_KEYS = ("journal_profiles_find", "journal_profiles_write")
 
 
 def disk_counts() -> dict[str, int]:
@@ -159,6 +175,8 @@ def main() -> int:
         return 1
     ssot = json.loads(SSOT.read_text(encoding="utf-8"))
     for key, val in truth.items():
+        if key in AUTO_DERIVED_KEYS:
+            continue  # disk is truth; a profile-add PR must never need a JSON bump
         if ssot.get(key) != val:
             print(f"\nFAIL: SSOT {key}={ssot.get(key)} != disk {val}", file=sys.stderr)
             failures += 1
