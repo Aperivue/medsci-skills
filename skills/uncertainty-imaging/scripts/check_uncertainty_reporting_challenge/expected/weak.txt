@@ -1,0 +1,11 @@
+=========================================
+ Uncertainty / OOD Reporting Gate (uncertainty-imaging)
+=========================================
+  task=classification  deployment_claim=True  uncertainty_method=none  ood_method=energy
+| Check | Severity | Detail |
+|---|---|---|
+| POINT_PREDICTION_NO_UNCERTAINTY | Major | a deployment / clinical-use claim reports point predictions only (no uncertainty method); add MC-dropout, a deep ensemble, conformal prediction, or a Bayesian estimate so each prediction carries uncertainty |
+| OOD_NO_HELDOUT_SET | Major | an OOD-detection claim ('energy') with no held-out OOD test set; its operating point and detection AUROC are unmeasured — evaluate on data known to be out-of-distribution (different scanner / site / pathology) |
+| SELECTIVE_NO_TARGET | Minor | selective prediction / abstention is offered without a pre-specified coverage or risk target; fixing the operating point post hoc inflates the reported accuracy-at-coverage — pre-specify the target coverage / risk |
+
+MAJOR candidate: 2 uncertainty/OOD reporting issue(s).

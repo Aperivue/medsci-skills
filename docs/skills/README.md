@@ -54,6 +54,7 @@ One reference page per skill, generated from each skill's `SKILL.md` and `skill.
 - [self-review](self-review.md) — Pre-submission self-review for the user's own manuscripts, applying a reviewer perspective. _(evidence: demo)_
 - [setup-medsci](setup-medsci.md) — Diagnostic checklist for the MedSci Skills runtime. _(evidence: manual_workflow)_
 - [sync-submission](sync-submission.md) — Audit SSOT-to-submission drift and create journal submission manifests from canonical manuscript artifacts. _(evidence: bundled_script)_
+- [uncertainty-imaging](uncertainty-imaging.md) — Design or audit the uncertainty-quantification, out-of-distribution (OOD) detection, and selective-prediction layer of a medical-imaging model framed for deployment — so a clinical-use claim carries c… _(evidence: ci_validator)_
 - [verify-refs](verify-refs.md) — Audit-only verification of manuscript references against PubMed and CrossRef. _(evidence: bundled_script)_
 - [version-dataset](version-dataset.md) — Dataset version control for research reproducibility. _(evidence: ci_validator)_
 - [write-paper](write-paper.md) — Full-pipeline medical/scientific paper writing. _(evidence: demo)_

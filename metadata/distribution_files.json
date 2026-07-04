@@ -4032,6 +4032,56 @@
       "sha256": "7f549269905cad97493d7699dad0068e410e8a8d771814988911bec5b0648d4c"
     },
     {
+      "path": "skills/uncertainty-imaging/SKILL.md",
+      "size": 8224,
+      "sha256": "0ff26311b9b372a074751d9b64c5fc20ec7440aabe76fd17c3f2e09d54d4a080"
+    },
+    {
+      "path": "skills/uncertainty-imaging/references/uncertainty_guide.md",
+      "size": 5574,
+      "sha256": "fb63c7b48b00fc371dca2ed1a7bdb9932b318ceba6334bae5097f4da3b08b38a"
+    },
+    {
+      "path": "skills/uncertainty-imaging/scripts/check_uncertainty_reporting.py",
+      "size": 13042,
+      "sha256": "2f14f78da71254d82977c8edc9f8c32bcde2e6d6d8e9c971af8114219ce558b5"
+    },
+    {
+      "path": "skills/uncertainty-imaging/scripts/check_uncertainty_reporting_challenge/expected/strong.txt",
+      "size": 414,
+      "sha256": "2d3f1cbeb88b00d1ef8968c276f17d276c152eafbf445d3879315bd727a16c61"
+    },
+    {
+      "path": "skills/uncertainty-imaging/scripts/check_uncertainty_reporting_challenge/expected/weak.txt",
+      "size": 1077,
+      "sha256": "b37379da88b17881678d50534ad993823a9a7c3b96a9942ca45be21caed39aaf"
+    },
+    {
+      "path": "skills/uncertainty-imaging/scripts/check_uncertainty_reporting_challenge/fixture/uncertainty_strong.json",
+      "size": 323,
+      "sha256": "39a64a9e327bf00151d3bb7e1394e7ba87c04ed0df6523256f22d55c127320bf"
+    },
+    {
+      "path": "skills/uncertainty-imaging/scripts/check_uncertainty_reporting_challenge/fixture/uncertainty_weak.json",
+      "size": 204,
+      "sha256": "5748d22600c8f68485f3ab665c32eace4a4dfc827df7f98c1c09640d82f304c2"
+    },
+    {
+      "path": "skills/uncertainty-imaging/scripts/check_uncertainty_reporting_challenge/problem.md",
+      "size": 2460,
+      "sha256": "fb3350f915b3b4a36a91718f93837f4331410d209f66fbd7e7d751fd35af4cc9"
+    },
+    {
+      "path": "skills/uncertainty-imaging/scripts/check_uncertainty_reporting_challenge/verify.sh",
+      "size": 2117,
+      "sha256": "5ff542ed3c4b0a479a6c2f906cefbb75494cb1ca8118e121afaf45f07f31bb80"
+    },
+    {
+      "path": "skills/uncertainty-imaging/skill.yml",
+      "size": 3753,
+      "sha256": "a229c56e3133db1ed616880f76903bbf825ee59591eb26534d4ddb172cf0945c"
+    },
+    {
       "path": "skills/verify-refs/SKILL.md",
       "size": 11846,
       "sha256": "d80f91b433a54b6c39e9f4ba4567f9c833b16c87b4586eec6e7c95b5a31287a7"

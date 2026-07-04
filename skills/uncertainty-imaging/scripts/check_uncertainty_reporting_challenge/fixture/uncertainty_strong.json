@@ -1,0 +1,12 @@
+{
+  "task": "classification",
+  "deployment_claim": true,
+  "uncertainty_method": "conformal",
+  "coverage_target": 0.90,
+  "coverage_validated": true,
+  "ood_method": "mahalanobis",
+  "ood_heldout_set": "external-ood-cohort",
+  "selective_prediction": true,
+  "selective_target": 0.95,
+  "calibration_under_shift": true
+}

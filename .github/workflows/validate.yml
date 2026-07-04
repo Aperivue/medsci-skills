@@ -281,6 +281,12 @@ jobs:
       - name: Run model-scaffold training-hygiene gate test
         run: bash skills/model-scaffold/tests/test_training_hygiene.sh
 
+      - name: Run uncertainty-imaging reporting challenge
+        run: bash skills/uncertainty-imaging/scripts/check_uncertainty_reporting_challenge/verify.sh
+
+      - name: Run uncertainty-imaging reporting gate test
+        run: bash skills/uncertainty-imaging/tests/test_uncertainty_reporting.sh
+
       - name: Run model-card completeness challenge
         run: bash skills/model-card/scripts/check_model_card_complete_challenge/verify.sh
 
