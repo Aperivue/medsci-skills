@@ -7,9 +7,10 @@ description: >
   when-to-use, a medical-imaging use, a reference implementation, the typical validation setup, and the
   matching model-scaffold template. Covers the foundational curriculum (ResNet, DenseNet, EfficientNet,
   ViT, Swin; U-Net, 3-D U-Net, Attention/Residual U-Net, nnU-Net, Mask R-CNN; SAM/MedSAM,
-  TotalSegmentator, BiomedCLIP, DINO/MAE/SimCLR). It teaches archetypes and the task-to-architecture
-  logic, not a live SOTA leaderboard.
-triggers: architecture zoo, which architecture, choose a model, model selection, ResNet vs ViT, U-Net vs nnU-Net, what backbone, foundation model for, transfer learning choice, MedSAM, TotalSegmentator, DINO, MAE, self-supervised, paper to architecture, reference implementation, when to use ViT, segmentation architecture, classification backbone
+  TotalSegmentator, BiomedCLIP, DINO/MAE/SimCLR; and graph neural nets — GCN/GraphSAGE/GAT/GIN/BrainGNN —
+  for brain connectomes). It teaches archetypes and the task-to-architecture logic, not a live SOTA
+  leaderboard.
+triggers: architecture zoo, which architecture, choose a model, model selection, ResNet vs ViT, U-Net vs nnU-Net, what backbone, foundation model for, transfer learning choice, MedSAM, TotalSegmentator, DINO, MAE, self-supervised, graph neural network, GNN, brain connectome, GCN, GAT, GraphSAGE, BrainGNN, population graph, paper to architecture, reference implementation, when to use ViT, segmentation architecture, classification backbone
 tools: Read, Write, Edit, Grep, Glob
 model: inherit
 ---
@@ -62,6 +63,8 @@ a family card.
   VAE / fastMRI reconstruction.
 - `${CLAUDE_SKILL_DIR}/references/foundation_models.md` — SAM / MedSAM / MedSAM2 / TotalSegmentator /
   SegVol / BiomedCLIP / DINO / MAE / SimCLR / MoCo.
+- `${CLAUDE_SKILL_DIR}/references/graph.md` — GCN / GraphSAGE / GAT / GIN / BrainGNN for brain
+  connectomes & population graphs (integrate PyTorch Geometric / DGL; not scaffolded by model-scaffold).
 Each card gives the paper, core idea, when-to-use, medical-imaging use, reference implementation, and the
 **typical validation/experiment setup** for that architecture class.
 

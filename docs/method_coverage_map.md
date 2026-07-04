@@ -30,7 +30,7 @@ Two facts make "all methods" tractable without a skill per algorithm:
 | Self-supervised pretraining | DINO, MAE, SimCLR | `architecture-zoo` | `model-scaffold --task ssl` | `model-validation` | — | — |
 | Generative / synthesis | GAN, **diffusion** | `architecture-zoo` | `model-scaffold --task synthesis`; train-only diffusion augmentation (`finetuning_guide.md`) | `model-validation` | — | `check-reporting` |
 | Vision-language / multimodal | CLIP, BiomedCLIP | `architecture-zoo` | `model-scaffold --task finetune` (transfer learning) | `model-validation` | — | `model-evaluation` |
-| Graph neural nets (connectomes) | GCN, GAT | *candidate* (`architecture-zoo` graph entry) | *candidate* | `model-validation`; tabular graph features → `radiomics-ml` | — | — |
+| Graph neural nets (connectomes) | GCN, GraphSAGE, GAT, GIN, **BrainGNN** | `architecture-zoo` (`graph.md`) | integrate PyTorch Geometric / DGL directly (no `model-scaffold` graph template) | `model-validation` (subject-level split); p≫n rigor → `radiomics-ml` | `explainability` (attention / salient-ROI sanity) | `check-reporting` (TRIPOD+AI) |
 
 ## Classical / statistical ML (radiomics & tabular)
 
@@ -69,7 +69,10 @@ PROBAST-AI reporting from `check-reporting`.
 - **Anything that runs a model on real patient data or fabricates a metric.** Every number comes from
   the researcher's executed code.
 
-*Candidate gaps (open):* a `architecture-zoo` graph-neural-net entry for brain-connectome studies.
-The Item 4 fine-tuning / SAM-adaptation / diffusion-augmentation produce path has landed
-(`model-scaffold --task finetune` + `references/finetuning_guide.md`). See
+*Candidate gaps (open):* none outstanding — the six-item model-engineering produce-side depth
+roadmap is complete, and the `architecture-zoo` graph-neural-net entry for brain-connectome studies
+has landed (`references/graph.md`: GCN / GraphSAGE / GAT / GIN / BrainGNN; integrate PyTorch
+Geometric / DGL, no `model-scaffold` graph template). The fine-tuning / SAM-adaptation /
+diffusion-augmentation produce path landed in `model-scaffold --task finetune` +
+`references/finetuning_guide.md`. See
 [`roadmap_model_engineering_depth.md`](roadmap_model_engineering_depth.md).
