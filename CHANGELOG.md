@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+### Documentation
+
+- **MLOps wiring reference** (`model-scaffold/references/mlops_guide.md`, Item 6 — the final item of the
+  [model-engineering produce-side depth roadmap](docs/roadmap_model_engineering_depth.md)). A
+  reproducibility-safe **wiring + reporting** reference — experiment tracking (W&B / MLflow /
+  TensorBoard), config / data / environment versioning, pipeline orchestration via the framework's own
+  (nnU-Net / MONAI bundles), CI-for-ML (gate the network-free properties, never a real training run),
+  and an MLOps reporting checklist for TRIPOD+AI / CLAIM. Deliberately **not** a training-loop,
+  hyperparameter-search, or experiment-tracking reimplementation — it points to the frameworks and never
+  replaces them (the ROADMAP out-of-scope clause). Cross-linked from `model-scaffold` Phase 5 and
+  `training_guide.md`. No skill, no detector, no count change. PR #280.
+
 ### Added
 
 - **`uncertainty-imaging` skill + `check_uncertainty_reporting` detector** (Item 5 of the

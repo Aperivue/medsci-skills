@@ -100,7 +100,10 @@ adaptation and train-only diffusion augmentation). Run `python train.py` (best m
 ### Phase 5 — Validate, evaluate, publish
 Hand off to `/model-validation` (validation-tier + comparator + metric-selection audit),
 `/model-evaluation` + `/analyze-stats` (Dice + HD95/NSD with CIs), `/make-figures`, and `/write-paper`
-(fill the `methods_stub.md` `[VERIFY]` placeholders) + `/check-reporting` (CLAIM 2024 / TRIPOD+AI).
+(fill the `methods_stub.md` `[VERIFY]` placeholders) + `/check-reporting` (CLAIM 2024 / TRIPOD+AI). For
+reproducibility-safe wiring of experiment tracking (W&B / MLflow), config / data / environment
+versioning, and the MLOps reporting checklist, see `${CLAUDE_SKILL_DIR}/references/mlops_guide.md`
+(a wiring + reporting reference — it points to the frameworks, it does not replace them).
 
 ## Runnability — honest contract
 The generated repo is **runnable**, but runnability is **not a CI guarantee**. The default gates prove

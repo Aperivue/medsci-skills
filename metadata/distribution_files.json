@@ -2868,8 +2868,8 @@
     },
     {
       "path": "skills/model-scaffold/SKILL.md",
-      "size": 9237,
-      "sha256": "d7e736178cb60d2d13cef9174474297bd54bc6d4d1f3862023d802ff0c034a95"
+      "size": 9527,
+      "sha256": "8fcf4060f064a1924d4bec278e0c0c628c99caf6ea75f617f8b9748cbb207ed8"
     },
     {
       "path": "skills/model-scaffold/references/finetuning_guide.md",
@@ -2877,9 +2877,14 @@
       "sha256": "b7817d53eeeb506b573beaae1889fa863dd81286d474ab99b46b38ad046b32e7"
     },
     {
+      "path": "skills/model-scaffold/references/mlops_guide.md",
+      "size": 5171,
+      "sha256": "cc9b62ed588daf97b40b6d7a8e27f9b6de96b9f5752ad2baa8e180e01d3d4973"
+    },
+    {
       "path": "skills/model-scaffold/references/training_guide.md",
-      "size": 2661,
-      "sha256": "4a3197a89b8d3473071051f67a7bcf40f71ecf007e942f81e9c40dc48fce1a9c"
+      "size": 2840,
+      "sha256": "9a7f7b5dda65e71d8007cb6539cda0cfb9c6b1f2c877aedee4646f368686e96f"
     },
     {
       "path": "skills/model-scaffold/scripts/check_training_hygiene.py",
