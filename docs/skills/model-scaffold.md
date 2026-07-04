@@ -38,6 +38,7 @@
 **References** (`skills/model-scaffold/references/`):
 
 - `finetuning_guide.md`
+- `mlops_guide.md`
 - `training_guide.md`
 
 **Scripts** (`skills/model-scaffold/scripts/`):

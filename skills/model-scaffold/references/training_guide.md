@@ -34,7 +34,9 @@ with cuDNN deterministic set).
 Before publishing, complete `REPRODUCIBILITY.md`: pinned `requirements.txt`
 (torch/monai/... exact versions), CUDA/driver, GPU model, the git commit of the repo,
 and the seed. Pair with `/version-dataset` to hash the exact dataset the model trained
-on.
+on. For reproducibility-safe wiring of experiment tracking (W&B / MLflow), config / data
+/ environment versioning, CI-for-ML, and the MLOps reporting checklist, see
+`mlops_guide.md`.
 
 ## Hand-offs
 - Split / validation-design audit → `/model-validation` (run `check_split_leakage.py`

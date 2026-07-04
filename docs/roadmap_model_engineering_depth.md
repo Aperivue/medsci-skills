@@ -171,9 +171,12 @@ in the leakage / validation / calibration / reporting gates that a solo clinicia
   `PRETRAINED_PROVENANCE_MISSING` verdict added to the existing `check_training_hygiene` — no new
   skill, no new detector). Chosen build-time form: **extend** `model-scaffold` (not a sibling skill).
 - [x] **Item 5** — uncertainty/OOD + `check_uncertainty_reporting` (skill `uncertainty-imaging`, PR #279)
-- [ ] **Item 6** — MLOps integration reference (`model-scaffold/training_guide.md`)
+- [x] **Item 6** — MLOps integration reference (`model-scaffold/references/mlops_guide.md` — experiment
+  tracking / config / data / environment versioning, CI-for-ML, reporting checklist; wiring-only,
+  points to MONAI / nnU-Net / W&B / MLflow, reimplements nothing; no skill, no detector). PR #280
 
 *Update the checkboxes and the top-level ROADMAP pointer as items land. Items 1–2
 shipped in **v5.15.0**; Items 3–4 (the clinical fine-tuning focus) shipped in **v5.16.0**.
-Item 5 (`uncertainty-imaging`) is staged in `[Unreleased]` for the next minor — accumulate with
-Item 6 (or a candidate) rather than releasing per skill (release-cadence policy).*
+Items 5–6 (deployment safety + the MLOps wiring reference) are staged in `[Unreleased]` for the
+next minor (**v5.17.0**) — the full six-item produce-side depth roadmap is now complete; the only
+remaining candidate is an `architecture-zoo` graph-neural-net entry (brain connectome).*
