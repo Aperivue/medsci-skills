@@ -4,6 +4,15 @@
 
 ### Documentation
 
+- **`architecture-zoo` graph-neural-net family card** (`references/graph.md`) — closes the last candidate
+  gap in the [model-engineering coverage map](docs/method_coverage_map.md). Covers GNNs for brain
+  **connectomes** and **population graphs** — GCN, GraphSAGE, GAT, GIN, and the brain-specific
+  **BrainGNN** — each with its source paper, when-to-use, medical use, PyTorch Geometric / DGL reference
+  implementation, and validation setup, plus the connectome-specific traps (subject-level split, ComBat
+  site-harmonisation leakage, p ≫ n, interpretability-is-not-proof). States the boundary honestly:
+  `model-scaffold` has no graph template, so integrate PyTorch Geometric / DGL directly while the lane's
+  subject-level gates (`model-validation`, `radiomics-ml`, `explainability`, `uncertainty-imaging`,
+  `check-reporting`) still apply. Reference-only — no skill, no detector, no count change. PR #281.
 - **MLOps wiring reference** (`model-scaffold/references/mlops_guide.md`, Item 6 — the final item of the
   [model-engineering produce-side depth roadmap](docs/roadmap_model_engineering_depth.md)). A
   reproducibility-safe **wiring + reporting** reference — experiment tracking (W&B / MLflow /

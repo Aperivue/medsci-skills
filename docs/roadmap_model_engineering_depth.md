@@ -178,5 +178,6 @@ in the leakage / validation / calibration / reporting gates that a solo clinicia
 *Update the checkboxes and the top-level ROADMAP pointer as items land. Items 1–2
 shipped in **v5.15.0**; Items 3–4 (the clinical fine-tuning focus) shipped in **v5.16.0**.
 Items 5–6 (deployment safety + the MLOps wiring reference) are staged in `[Unreleased]` for the
-next minor (**v5.17.0**) — the full six-item produce-side depth roadmap is now complete; the only
-remaining candidate is an `architecture-zoo` graph-neural-net entry (brain connectome).*
+next minor (**v5.17.0**), together with the `architecture-zoo` graph-neural-net entry (brain
+connectome, `references/graph.md`) that closes the last candidate gap. The full six-item
+produce-side depth roadmap and its candidate list are now complete.*

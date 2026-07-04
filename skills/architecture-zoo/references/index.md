@@ -14,12 +14,16 @@ per-paper detail and the `/model-scaffold` template to instantiate.
 | "I have few labels / want to pretrain on unlabelled scans" | **self-supervised pretraining → fine-tune** | `foundation_models.md` |
 | "adapt a released medical foundation model" | **transfer / prompt a foundation model** | `foundation_models.md` |
 | "synthesise / translate a modality" (MRI→CT, denoise) | **image-to-image / generative** | `synthesis.md` |
+| "classify from a brain connectome / graph" (ROI connectivity, DTI/fMRI) | **graph neural network** | `graph.md` |
 | "generate a report / answer a visual question" | **multimodal LLM** | *(use `/mllm-eval`; not a CNN choice)* |
 
 ## Step 2 — let the constraints narrow it
 - **Modality / dimensionality**: 2-D (CXR, fundus, path tiles, single CT/MR slices) →
   2-D backbones / 2-D U-Net. 3-D volumes (CT, MR) → **3-D U-Net / SegResNet / nnU-Net**
-  (3-D context matters; do not collapse to slices if the structure is volumetric).
+  (3-D context matters; do not collapse to slices if the structure is volumetric). A
+  **graph** (brain connectome, ROI-connectivity matrix — no pixel grid) → a **GNN**
+  (`graph.md`); integrate PyTorch Geometric / DGL directly (`/model-scaffold` has no graph
+  template).
 - **Labelled data scale** (events/structures, not just images):
   - **small** (hundreds) → a **pretrained** backbone fine-tuned (ImageNet / a medical
     foundation model), strong augmentation, heavy regularisation; prefer **nnU-Net**
