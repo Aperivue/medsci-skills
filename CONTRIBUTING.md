@@ -2,6 +2,19 @@
 
 Thank you for helping make medical research workflows more reproducible and less brittle. Contributions are welcome through GitHub issues and pull requests.
 
+## Quickstart: your first PR (5 minutes)
+
+Most contributions are **one small, self-contained file** (a CSL style, a de-identification locale, a figure exemplar, a journal profile, a README translation). You do **not** need to read the rest of this document, understand the whole pipeline, or run the full validator suite locally for one of these. The path is:
+
+1. **Fork** the repo and **clone** your fork.
+2. **Branch**: `git checkout -b add-<what-you-are-adding>`.
+3. **Add one file** in the folder the [good-first-issue](https://github.com/Aperivue/medsci-skills/contribute) or the README's "Contributing" table points to. Copy the nearest existing file as your template.
+4. **Open a PR.** CI runs for you — you do not need to run it locally, and you do **not** need the worktree discipline, the release process, or any catalog-count bump. The catalog-consistency check auto-derives journal-profile counts from disk, so adding a profile will not flag you; a maintainer handles any bookkeeping in review.
+
+**Claiming an issue:** you don't need to. **No assignment is required — just open a PR.** The first PR that passes CI and review wins. If you want to signal intent, comment on the issue; that soft-claim lapses after **7 days** so an issue never sits blocked on someone who moved on.
+
+The heavier **Pull Request Checklist**, **Skill Addition Workflow**, and validator steps below apply to **maintainers and larger PRs** (new skills, detectors, or anything touching a medical/research claim) — not to a one-file drive-by contribution.
+
 ## What to Contribute
 
 - New skills for recurring medical research workflows.
