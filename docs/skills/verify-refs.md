@@ -30,6 +30,7 @@
 - `bash scripts/verify_cli.sh <refs.bib>`
 - `confirm qc/reference_audit.json submission_safe: true`
 - `bash tests/test_openalex_tier.sh`
+- `bash tests/test_fabricated_author.sh`
 
 **Evidence** — `bundled_script`
 

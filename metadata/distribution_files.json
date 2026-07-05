@@ -4108,13 +4108,13 @@
     },
     {
       "path": "skills/verify-refs/scripts/verify_refs.py",
-      "size": 41415,
-      "sha256": "4377e25e6b125ace31fd35df9ffdd21a413f0f70ba1e429e5bfcf50c0a29510e"
+      "size": 43072,
+      "sha256": "ce0db6183942afdb2dfd55733c8b1330dee1b10ce091ce99c31497f83d9c4e0b"
     },
     {
       "path": "skills/verify-refs/skill.yml",
-      "size": 2248,
-      "sha256": "3933c313777557ad8ac82b9ed6389fba12675880588af85193791f3facc636e9"
+      "size": 2291,
+      "sha256": "608e80234418a3560c9662e83a786b20ad16a340b934bfea59e2421712595fc5"
     },
     {
       "path": "skills/version-dataset/SKILL.md",

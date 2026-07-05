@@ -626,6 +626,71 @@ def verify_openalex(doi: str, title: str, timeout: int) -> tuple[str, str, list]
     return "OK", ev, families
 
 
+def author_cross_check(
+    cited_authors: list,
+    actual_authors: list,
+    cited_author_count: int,
+    actual_author_count: int,
+    *,
+    corporate: bool = False,
+    soft: bool = False,
+    audit_truncated: bool = False,
+    first_author_guess: str = "",
+) -> tuple[list, list]:
+    """Pure family-by-family + author-count cross-check (no network, no RefRecord).
+
+    Compares every cited author family against the authoritative list positionally,
+    flags any cited author beyond the source list, and compares total counts (a count
+    mismatch is downgraded to a note when ``audit_truncated`` and cited < actual — an
+    intentional CSL et-al truncation). When no cited list was parsed (TSV / plain
+    text) it degrades to a first-author surname check. Corporate/collective authors
+    and OpenAlex-``soft`` lists are exempt (they must never fire MISMATCH).
+
+    Returns ``(mismatches, notes)``: ``mismatches`` — human-readable mismatch strings
+    (empty = clean); ``notes`` — non-mismatch evidence strings (the truncation note).
+    This is the sole decision surface behind an AUTHOR MISMATCH status, extracted so
+    the fabricated-co-author path (a real AI-assembled bib once registered 7 of 10
+    fabricated co-author names) has a network-free regression test
+    (``tests/test_fabricated_author.sh``). Behaviour is identical to the inline logic
+    it replaced in ``verify_record``.
+    """
+    mismatches: list = []
+    notes: list = []
+    if not corporate and cited_authors and actual_authors and not soft:
+        compare_n = min(len(cited_authors), len(actual_authors))
+        for i in range(compare_n):
+            cited = cited_authors[i]
+            if not author_surnames_match(cited, actual_authors[i]):
+                mismatches.append(
+                    f"#{i+1} family: cited='{cited}' vs source='{actual_authors[i]}'"
+                )
+        # cited has more authors than source — always flag (cannot be intentional)
+        for i in range(compare_n, len(cited_authors)):
+            mismatches.append(
+                f"#{i+1} extra cited='{cited_authors[i]}' (source has only {len(actual_authors)} authors)"
+            )
+        # source has more authors than cited — count mismatch, suppressed under
+        # `_audit_truncated` marker (intentional CSL et-al truncation).
+        if cited_author_count != actual_author_count:
+            if audit_truncated and cited_author_count < actual_author_count:
+                notes.append(
+                    f"NOTE: intentional truncate ({cited_author_count} of {actual_author_count}; "
+                    f"`_audit_truncated` marker set)"
+                )
+            else:
+                mismatches.append(
+                    f"AUTHOR COUNT: cited={cited_author_count} vs source={actual_author_count}"
+                )
+    elif not corporate and first_author_guess and actual_authors:
+        # No parsed cited author list (TSV / plain-text input) — degrade to the
+        # first-author surname cross-check (Gate 4 behaviour).
+        if not any(author_surnames_match(first_author_guess, a) for a in actual_authors):
+            mismatches.append(
+                f"#1 family: cited='{first_author_guess}' vs source='{actual_authors[0]}'"
+            )
+    return mismatches, notes
+
+
 def verify_record(record: RefRecord, offline: bool, timeout: int,
                   use_openalex: bool = True) -> RefRecord:
     """v1.3.0: full-author cross-check.
@@ -738,40 +803,17 @@ def verify_record(record: RefRecord, offline: bool, timeout: int,
             record.note = "corporate/collective author — personal-name cross-check skipped"
         evidence_parts.append("CORPORATE AUTHOR (collective/organization; family cross-check skipped)")
 
-    mismatches: list[str] = []
-    if (not (record.corporate_author or source_corporate)
-            and record.cited_authors and actual_authors and not actual_authors_soft):
-        compare_n = min(len(record.cited_authors), len(actual_authors))
-        for i in range(compare_n):
-            cited = record.cited_authors[i]
-            if not author_surnames_match(cited, actual_authors[i]):
-                mismatches.append(
-                    f"#{i+1} family: cited='{cited}' vs source='{actual_authors[i]}'"
-                )
-        # cited has more authors than source — always flag (cannot be intentional)
-        for i in range(compare_n, len(record.cited_authors)):
-            mismatches.append(
-                f"#{i+1} extra cited='{record.cited_authors[i]}' (source has only {len(actual_authors)} authors)"
-            )
-        # source has more authors than cited — count mismatch, suppressed under
-        # `_audit_truncated` marker (intentional CSL et-al truncation).
-        if record.cited_author_count != record.actual_author_count:
-            if record.audit_truncated and record.cited_author_count < record.actual_author_count:
-                evidence_parts.append(
-                    f"NOTE: intentional truncate ({record.cited_author_count} of {record.actual_author_count}; "
-                    f"`_audit_truncated` marker set)"
-                )
-            else:
-                mismatches.append(
-                    f"AUTHOR COUNT: cited={record.cited_author_count} vs source={record.actual_author_count}"
-                )
-    elif not (record.corporate_author or source_corporate) and record.first_author_guess and actual_authors:
-        # No parsed cited author list (TSV / plain-text input) — degrade to the
-        # first-author surname cross-check (Gate 4 behaviour).
-        if not any(author_surnames_match(record.first_author_guess, a) for a in actual_authors):
-            mismatches.append(
-                f"#1 family: cited='{record.first_author_guess}' vs source='{actual_authors[0]}'"
-            )
+    mismatches, xcheck_notes = author_cross_check(
+        record.cited_authors,
+        actual_authors,
+        record.cited_author_count,
+        record.actual_author_count,
+        corporate=(record.corporate_author or source_corporate),
+        soft=actual_authors_soft,
+        audit_truncated=record.audit_truncated,
+        first_author_guess=record.first_author_guess,
+    )
+    evidence_parts.extend(xcheck_notes)
 
     author_mismatch = bool(mismatches)
     if author_mismatch:
