@@ -843,9 +843,9 @@ software citation is how a tool like this earns academic recognition, and it tak
 }
 
 @article{nam2026agentic,
-  author  = {Nam, Yoojin and Kim, Namkug},
-  title   = {{Agentic Skills for Auditable and Reproducible Medical Research Writing:
-             An Integrity-gated Architecture for LLM-Assisted Clinical Manuscripts}},
+  author  = {Nam, Yoojin and Jeong, Jinhoon and Kim, Namkug},
+  title   = {{Deterministic Integrity Gates for LLM-Assisted Clinical Manuscript
+             Preparation: An Auditable Biomedical Informatics Architecture}},
   year    = {2026},
   journal = {arXiv preprint arXiv:2606.09500},
   url     = {https://arxiv.org/abs/2606.09500}
