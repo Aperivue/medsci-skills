@@ -3,12 +3,13 @@ name: model-evaluation
 description: >
   Compute and report task-correct held-out metrics for a trained medical-imaging model — segmentation
   (Dice plus a boundary metric such as HD95 or NSD, per structure), classification (AUROC plus AUPRC and
-  sensitivity/specificity with bootstrap CIs at the deployment prevalence), or detection (FROC or mAP with
-  a stated IoU criterion) — plus calibration and subgroup slices. Emits a per-case results table that
-  analyze-stats turns into publication tables, and gates the metric choice against Metrics Reloaded and
-  CLAIM 2024 (no pixel accuracy for segmentation, no bare accuracy under imbalance). Numbers come only
-  from executed code, never hand-typed.
-triggers: model evaluation, held-out metrics, test set metrics, Dice, HD95, NSD, surface distance, Metrics Reloaded, AUROC, AUPRC, bootstrap CI, calibration, ECE, reliability diagram, subgroup analysis, slice metrics, mAP, FROC, segmentation metrics, detection metrics, evaluate predictions
+  sensitivity/specificity with bootstrap CIs at the deployment prevalence), detection (FROC or mAP with
+  a stated IoU criterion), or interactive/promptable segmentation (the interaction-count, convergence,
+  and per-case-time axes a static Dice omits) — plus calibration and subgroup slices. Emits a per-case
+  results table that analyze-stats turns into publication tables, and gates the metric choice against
+  Metrics Reloaded and CLAIM 2024 (no pixel accuracy for segmentation, no bare accuracy under imbalance,
+  no static Dice for an interactive method). Numbers come only from executed code, never hand-typed.
+triggers: model evaluation, held-out metrics, test set metrics, Dice, HD95, NSD, surface distance, Metrics Reloaded, AUROC, AUPRC, bootstrap CI, calibration, ECE, reliability diagram, subgroup analysis, slice metrics, mAP, FROC, segmentation metrics, detection metrics, evaluate predictions, interactive segmentation, promptable segmentation, SAM2, MedSAM2, nnInteractive, number of clicks, NoC, interactions-to-threshold, click budget
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit
 ---
@@ -40,7 +41,7 @@ ECE of a softmax head); `/analyze-stats` owns DeLong / NRI / IDI / decision curv
 ## Workflow
 
 ### Phase 1 — Fix the analysis unit and the task
-State the task (segmentation / classification / detection) and the **analysis unit** the metric must
+State the task (segmentation / classification / detection / interactive) and the **analysis unit** the metric must
 respect (per-patient vs per-lesion vs per-image). A per-lesion metric must not be reported as
 per-patient.
 
@@ -51,13 +52,17 @@ Generate evaluation code that computes, on the held-out predictions:
 - **classification**: **AUROC and AUPRC** with bootstrap CIs, sensitivity/specificity, and PPV/NPV **at
   the deployment prevalence** (not a balanced set).
 - **detection**: **FROC / mAP** with the **IoU match criterion stated**.
+- **interactive / promptable segmentation** (SAM2 / MedSAM2 / nnInteractive): the segmentation
+  metrics above **plus** the interaction axis — Dice-vs-interactions / number-of-clicks (NoC) to a
+  target threshold, initial-vs-converged (or peak) Dice, and per-case interaction/inference time
+  (see the metric guide; the study design is in `/design-study` + `/model-validation`).
 Add **calibration** (reliability diagram / ECE) and **subgroup** slices (the Model Card Factors).
 See `${CLAUDE_SKILL_DIR}/references/metric_guide.md`. Emit a **per-case CSV** for `/analyze-stats`.
 
 ### Phase 3 — Gate the metric choice (deterministic)
 ```bash
 python3 ${CLAUDE_SKILL_DIR}/scripts/check_metric_reporting.py \
-  --report results.md --task segmentation|classification|detection --strict
+  --report results.md --task segmentation|classification|detection|interactive --strict
 ```
 `PIXEL_ACCURACY_SEG` / `NO_BOUNDARY_METRIC` / `ACCURACY_ONLY` / `DETECTION_METRIC_MISSING` must be zero.
 

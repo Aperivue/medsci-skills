@@ -22,13 +22,19 @@ CHECKS (verdicts; which apply depends on --task):
   detection:
     DETECTION_METRIC_MISSING (Major)  no FROC / mAP / sensitivity-per-false-positive,
                                       or no IoU match criterion stated.
+  interactive (promptable segmentation — SAM2 / MedSAM2 / nnInteractive; also runs the
+  segmentation checks above, since interactive segmentation is still segmentation):
+    INTERACTIVE_NO_INTERACTION_COUNT (Major)  no interaction axis (number of clicks /
+                                      interactions-to-threshold / Dice-vs-interactions).
+    INTERACTIVE_NO_CONVERGENCE (Minor)  no initial-prompt vs converged/peak Dice split.
+    INTERACTIVE_NO_TIME        (Minor)  no per-case interaction / inference time.
   all tasks:
     CI_MISSING           (Minor)  no confidence interval / uncertainty mentioned for
                                   the headline metric.
 
 INPUTS
   --report  metrics report / results markdown (required).
-  --task    segmentation | classification | detection (required).
+  --task    segmentation | classification | detection | interactive (required).
 
 OUTPUT
   A table (stdout) and, with --out, a JSON artifact:
@@ -69,6 +75,26 @@ P = {
                 r"|hit (?:rule|criterion)|within (?:the )?lesion",
     "ci": r"confidence interval|credible interval|\b95\s*%?\s*ci|\bcis?\b|±|\+/-|\bsd\b|"
           r"standard deviation|bootstrap|interquartile|\biqr\b",
+    # interactive / promptable segmentation (SAM2 / MedSAM2 / nnInteractive). The
+    # interaction axis: number of clicks (NoC), interactions/clicks-to-threshold, or a
+    # Dice-vs-interactions trajectory — the metric a static Dice cannot express.
+    "interactions": r"\b(number of clicks|#\s?clicks|clicks?[- ]?to[- ]?(?:threshold|target)|"
+                    r"\bnoc\b|noc@\d+|interaction[- ]?(?:count|budget)|"
+                    r"interactions?[- ]?to[- ]?(?:threshold|target)|"
+                    r"number of (?:interactions|prompts|corrections|edits)|"
+                    r"corrective (?:click|interaction)|"
+                    r"dice[- ]?(?:vs|versus|per|over|against)[- ]?(?:click|interaction|prompt)|"
+                    r"clicks required)\b",
+    # separation of the initial prompt from the converged / peak operating point
+    "convergence": r"\b(initial[- ]?(?:dice|prompt|click|mask|prediction)|"
+                   r"first[- ]?(?:click|prompt) dice|converged? dice|convergence|peak dice|"
+                   r"plateau|saturat\w+|dice after \d+|"
+                   r"after (?:the )?(?:first|final|last|\d+) (?:click|prompt|interaction))\b",
+    # per-case interaction / inference efficiency
+    "interaction_time": r"\b(interaction time|time per (?:case|click|interaction|prompt)|"
+                        r"per[- ]?case (?:time|latency)|inference time|inference latency|"
+                        r"seconds per (?:case|click|interaction)|wall[- ]?clock|"
+                        r"time[- ]?to[- ]?(?:threshold|target))\b",
 }
 
 # Negation BEFORE the token ('we do NOT report pixel accuracy ...').
@@ -105,7 +131,9 @@ def analyze(report: str, task: str) -> dict:
     def add(v, s, d):
         claims.append({"verdict": v, "severity": s, "detail": d, "where": Path(report).name})
 
-    if task == "segmentation":
+    if task in ("segmentation", "interactive"):
+        # interactive/promptable segmentation is still segmentation: the overlap-plus-boundary
+        # requirement applies to its per-structure quality regardless of the interaction axis.
         if has_affirmative(text, "pixel_acc"):
             add("PIXEL_ACCURACY_SEG", "Major",
                 "pixel/voxel accuracy is reported for segmentation — misleading on imbalanced masks; "
@@ -115,6 +143,23 @@ def analyze(report: str, task: str) -> dict:
                 "Dice/IoU is reported without a boundary metric (HD95 / NSD / surface distance) — "
                 "overlap alone is shape- and size-insensitive; pair it with a boundary metric, "
                 "per structure")
+    if task == "interactive":
+        # A promptable / interactive method's contribution is the accuracy-vs-interaction
+        # trajectory and its efficiency, not a single operating point; a static Dice omits
+        # exactly what makes it interactive (Metrics Reloaded does not cover this regime).
+        if not has(text, "interactions"):
+            add("INTERACTIVE_NO_INTERACTION_COUNT", "Major",
+                "an interactive/promptable segmentation report does not quantify the interaction "
+                "axis (number of clicks / interactions-to-threshold / Dice-vs-interactions) — a "
+                "single Dice evaluates a promptable method as if it were one-shot")
+        if not has(text, "convergence"):
+            add("INTERACTIVE_NO_CONVERGENCE", "Minor",
+                "no separation of the initial prompt from the converged/peak Dice — the interactive "
+                "contribution is the improvement across interactions, not one operating point")
+        if not has(text, "interaction_time"):
+            add("INTERACTIVE_NO_TIME", "Minor",
+                "no per-case interaction/inference time — efficiency is a primary interactive claim "
+                "(a high-Dice method needing many slow interactions may not be clinically usable)")
     elif task == "classification":
         # the accuracy METRIC, excluding the study-type phrase 'diagnostic accuracy'; a
         # sensitivity+specificity pair is a threshold-pair report, not accuracy-only
@@ -162,7 +207,8 @@ def render(result: dict) -> str:
 def main() -> int:
     ap = argparse.ArgumentParser(description="Task-correct metric-reporting gate (model-evaluation).")
     ap.add_argument("--report", required=True, help="metrics report / results markdown")
-    ap.add_argument("--task", required=True, choices=["segmentation", "classification", "detection"])
+    ap.add_argument("--task", required=True,
+                    choices=["segmentation", "classification", "detection", "interactive"])
     ap.add_argument("--out", help="write JSON artifact to this path")
     ap.add_argument("--strict", action="store_true", help="exit 1 if any Major claim exists")
     ap.add_argument("--quiet", action="store_true", help="suppress stdout table")

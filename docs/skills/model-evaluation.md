@@ -2,13 +2,13 @@
 
 # model-evaluation
 
-> Compute and report task-correct held-out metrics for a trained medical-imaging model — segmentation (Dice plus a boundary metric such as HD95 or NSD, per structure), classification (AUROC plus AUPRC and sensitivity/specificity with bootstrap CIs at the deployment prevalence), or detection (FROC or mAP with a stated IoU criterion) — plus calibration and subgroup slices. Emits a per-case results table that analyze-stats turns into publication tables, and gates the metric choice against Metrics Reloaded and CLAIM 2024 (no pixel accuracy for segmentation, no bare accuracy under imbalance). Numbers come only from executed code, never hand-typed.
+> Compute and report task-correct held-out metrics for a trained medical-imaging model — segmentation (Dice plus a boundary metric such as HD95 or NSD, per structure), classification (AUROC plus AUPRC and sensitivity/specificity with bootstrap CIs at the deployment prevalence), detection (FROC or mAP with a stated IoU criterion), or interactive/promptable segmentation (the interaction-count, convergence, and per-case-time axes a static Dice omits) — plus calibration and subgroup slices. Emits a per-case results table that analyze-stats turns into publication tables, and gates the metric choice against Metrics Reloaded and CLAIM 2024 (no pixel accuracy for segmentation, no bare accuracy under imbalance, no static Dice for an interactive method). Numbers come only from executed code, never hand-typed.
 
 **Invoke:** `/model-evaluation` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
 
 ## When to use
 
-`model-evaluation` activates on requests such as: model evaluation, held-out metrics, test set metrics, Dice, HD95, NSD, surface distance, Metrics Reloaded, AUROC, AUPRC, bootstrap CI, calibration, ECE, reliability diagram, subgroup analysis, slice metrics, mAP, FROC, segmentation metrics, detection metrics, evaluate predictions.
+`model-evaluation` activates on requests such as: model evaluation, held-out metrics, test set metrics, Dice, HD95, NSD, surface distance, Metrics Reloaded, AUROC, AUPRC, bootstrap CI, calibration, ECE, reliability diagram, subgroup analysis, slice metrics, mAP, FROC, segmentation metrics, detection metrics, evaluate predictions, interactive segmentation, promptable segmentation, SAM2, MedSAM2, nnInteractive, number of clicks, NoC, interactions-to-threshold, click budget.
 
 ## Quality Card
 
@@ -26,7 +26,7 @@
 
 **Validation**
 
-- `python3 scripts/check_metric_reporting.py --report <results.md> --task segmentation|classification|detection --strict`
+- `python3 scripts/check_metric_reporting.py --report <results.md> --task segmentation|classification|detection|interactive --strict`
 - `bash scripts/metric_reporting_challenge/verify.sh  # deterministic, network-free`
 
 **Evidence** — `ci_validator`
@@ -41,7 +41,7 @@
 **Scripts** (`skills/model-evaluation/scripts/`):
 
 - `check_metric_reporting.py`
-- `metric_reporting_challenge/` (8 files)
+- `metric_reporting_challenge/` (10 files)
 
 ## Source
 
