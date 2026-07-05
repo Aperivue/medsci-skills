@@ -45,6 +45,7 @@ confirmed use:
 - **Forks** may indicate experimentation or reuse — a somewhat stronger signal than a star.
 - **Clones / downloads** are inflated by CI and mirroring traffic; the *unique* columns are more meaningful.
 - **Confirmed use cases and academic citations** are the strongest evidence, and are scarcer than raw stars.
+- **AI-mediated discovery** is a distinct and growing channel: the referrer log ([`metrics/referrers_log.csv`](metrics/referrers_log.csv)) captures visits arriving from LLM assistants such as ChatGPT and Claude. Because agent-recommended installs are often cloned or run via `npx` without ever loading the GitHub page, this channel — and the real usage behind it — is systematically undercounted by the star count.
 - **Current status: early community interest for a niche biomedical-workflow repository — not widespread adoption.** This page never claims adoption that has not been observed; a thin section is a truthful section.
 
 ---
