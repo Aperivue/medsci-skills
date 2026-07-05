@@ -163,6 +163,9 @@ jobs:
       - name: Run verify-refs OpenAlex tertiary-index test (A8b)
         run: bash skills/verify-refs/tests/test_openalex_tier.sh
 
+      - name: Run verify-refs fabricated-author cross-check test
+        run: bash skills/verify-refs/tests/test_fabricated_author.sh
+
       - name: Run self-review parenthesis-span corruption gate test (A9)
         run: bash skills/self-review/tests/test_paren_spans.sh
 
