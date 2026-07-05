@@ -61,17 +61,44 @@ done
 
 # OS-based font defaults
 if [[ -z "$MAINFONT" || -z "$CJKFONT" ]]; then
-  if [[ "$(uname)" == "Darwin" ]]; then
-    : "${MAINFONT:=Apple SD Gothic Neo}"
-    : "${CJKFONT:=Apple SD Gothic Neo}"
-  else
-    : "${MAINFONT:=Noto Serif CJK KR}"
-    : "${CJKFONT:=Noto Sans CJK KR}"
-  fi
+  case "$(uname -s)" in
+    Darwin)
+      : "${MAINFONT:=Apple SD Gothic Neo}"
+      : "${CJKFONT:=Apple SD Gothic Neo}"
+      ;;
+    MINGW*|MSYS*|CYGWIN*)
+      # Windows: Malgun Gothic ships with Windows 7+ (the Korean UI font), so no
+      # font download is needed. Noto CJK is NOT preinstalled on Windows.
+      : "${MAINFONT:=Malgun Gothic}"
+      : "${CJKFONT:=Malgun Gothic}"
+      ;;
+    *)
+      : "${MAINFONT:=Noto Serif CJK KR}"
+      : "${CJKFONT:=Noto Sans CJK KR}"
+      ;;
+  esac
 fi
 
+# Windows/Git Bash: MiKTeX's bin directory is frequently absent from the Git Bash
+# PATH, so xelatex is not found even after `winget install MiKTeX.MiKTeX`. Prepend
+# the known MiKTeX bin locations (best-effort) when xelatex is not already resolvable.
+case "$(uname -s)" in
+  MINGW*|MSYS*|CYGWIN*)
+    if ! command -v xelatex >/dev/null 2>&1; then
+      _la="$(cygpath -u "${LOCALAPPDATA:-}" 2>/dev/null || printf '%s' "${LOCALAPPDATA:-}")"
+      _pf="$(cygpath -u "${PROGRAMFILES:-}" 2>/dev/null || printf '%s' "${PROGRAMFILES:-}")"
+      for _d in \
+        "$_la/Programs/MiKTeX/miktex/bin/x64" \
+        "$_la/Programs/MiKTeX/miktex/bin" \
+        "$_pf/MiKTeX/miktex/bin/x64"; do
+        if [[ -x "$_d/xelatex.exe" ]]; then PATH="$_d:$PATH"; break; fi
+      done
+    fi
+    ;;
+esac
+
 command -v pandoc >/dev/null || { echo "ERROR: pandoc not installed" >&2; exit 3; }
-command -v xelatex >/dev/null || { echo "ERROR: xelatex not installed (install mactex / texlive-xetex)" >&2; exit 3; }
+command -v xelatex >/dev/null || { echo "ERROR: xelatex not installed (install mactex / texlive-xetex / MiKTeX)" >&2; exit 3; }
 
 WORK="$INPUT"
 TMPDIR=""

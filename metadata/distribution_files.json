@@ -3478,8 +3478,8 @@
     },
     {
       "path": "skills/render-pdf-doc/SKILL.md",
-      "size": 7490,
-      "sha256": "2de13f525ab617dc3a5d67403f8668c26829d927732ae2ac718158b109861243"
+      "size": 8300,
+      "sha256": "fad21da8e60907c212b6d216ffe591502941c8defa4ce212b521306e00332836"
     },
     {
       "path": "skills/render-pdf-doc/references/known_pitfalls.md",
@@ -3493,8 +3493,8 @@
     },
     {
       "path": "skills/render-pdf-doc/scripts/check_deps.sh",
-      "size": 984,
-      "sha256": "84d5b4d3455a66f21baaa2a3be1f01b9cba58c9e50331138c7132d23531f211d"
+      "size": 2183,
+      "sha256": "782efdda541c0a84a8d978bb076d43a1d3a026a00b878205dd6d922a197186f6"
     },
     {
       "path": "skills/render-pdf-doc/scripts/infer_colwidths.py",
@@ -3503,8 +3503,8 @@
     },
     {
       "path": "skills/render-pdf-doc/scripts/render_pdf.sh",
-      "size": 2874,
-      "sha256": "aad89324341121270be0093a05ff944927696180a27a97068f2faf906321e987"
+      "size": 3958,
+      "sha256": "b5a9ebcbb25b1ec85577c9864f60f4f363e90f88896903cff48f7626f5b6b95a"
     },
     {
       "path": "skills/render-pdf-doc/scripts/scan_glyph_coverage.py",

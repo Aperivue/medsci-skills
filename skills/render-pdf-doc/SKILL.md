@@ -45,18 +45,31 @@ Manual fixes work but the same pattern recurs across proposals, briefings, IRB c
 ## Dependencies
 
 ```bash
-# Required
-brew install pandoc                                                   # macOS
+# macOS
+brew install pandoc
 brew install --cask mactex-no-gui          # xelatex + xeCJK (~5 GB)
 
 # Linux
 sudo apt-get install pandoc texlive-xetex texlive-lang-cjk fonts-noto-cjk
+
+# Windows (PowerShell) — run in Git Bash afterwards
+winget install --id JohnMacFarlane.Pandoc
+winget install --id MiKTeX.MiKTeX          # xelatex; installs missing LaTeX packages on demand
+# No CJK font download needed: Malgun Gothic ships with Windows 7+ and is the default here.
 ```
 
 Detection:
 ```bash
 bash scripts/check_deps.sh
 ```
+
+**Windows / Git Bash note.** MiKTeX's binary directory
+(`%LOCALAPPDATA%\Programs\MiKTeX\miktex\bin\x64`) is often not on the Git Bash `PATH`,
+so `xelatex` can read as `[MISS]` even after install. Both `check_deps.sh` and
+`render_pdf.sh` now auto-probe that location; if `xelatex` still isn't found, add the
+directory to your `PATH` (or run from the *MiKTeX Console → Settings*-configured shell).
+The Windows CJK/main font default is **Malgun Gothic** (preinstalled); override per document
+via frontmatter, or with `--font` / `--cjk-font`.
 
 ## Workflow
 
@@ -76,7 +89,7 @@ colorlinks: true
 ---
 ```
 
-For Linux/CI, use `Noto Sans CJK KR` instead. The render script auto-detects.
+For Linux/CI, use `Noto Sans CJK KR`; on Windows, use `Malgun Gothic`. The render script auto-detects the default per OS.
 
 ### Step 2 — Infer column widths
 
