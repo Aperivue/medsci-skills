@@ -2,13 +2,13 @@
 
 # model-evaluation
 
-> Compute and report task-correct held-out metrics for a trained medical-imaging model — segmentation (Dice plus a boundary metric such as HD95 or NSD, per structure), classification (AUROC plus AUPRC and sensitivity/specificity with bootstrap CIs at the deployment prevalence), detection (FROC or mAP with a stated IoU criterion), or interactive/promptable segmentation (the interaction-count, convergence, and per-case-time axes a static Dice omits) — plus calibration and subgroup slices. Emits a per-case results table that analyze-stats turns into publication tables, and gates the metric choice against Metrics Reloaded and CLAIM 2024 (no pixel accuracy for segmentation, no bare accuracy under imbalance, no static Dice for an interactive method). Numbers come only from executed code, never hand-typed.
+> Compute and report task-correct held-out metrics for a trained medical-imaging model — segmentation (Dice plus a boundary metric such as HD95 or NSD, per structure), classification (AUROC plus AUPRC and sensitivity/specificity with bootstrap CIs at the deployment prevalence), detection (FROC or mAP with a stated IoU criterion), interactive/promptable segmentation (the interaction-count, convergence, and per-case-time axes a static Dice omits), or generative/synthesis image evaluation (image-quality similarity plus the downstream-task efficacy that similarity alone cannot establish) — plus calibration and subgroup slices. Emits a per-case results table that analyze-stats turns into publication tables, and gates the metric choice against Metrics Reloaded, CLAIM 2024, and Park et al. (Radiol Med 2024) (no pixel accuracy for segmentation, no bare accuracy under imbalance, no static Dice for an interactive method, no similarity-only claim for a generative model). Numbers come only from executed code, never hand-typed.
 
 **Invoke:** `/model-evaluation` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
 
 ## When to use
 
-`model-evaluation` activates on requests such as: model evaluation, held-out metrics, test set metrics, Dice, HD95, NSD, surface distance, Metrics Reloaded, AUROC, AUPRC, bootstrap CI, calibration, ECE, reliability diagram, subgroup analysis, slice metrics, mAP, FROC, segmentation metrics, detection metrics, evaluate predictions, interactive segmentation, promptable segmentation, SAM2, MedSAM2, nnInteractive, number of clicks, NoC, interactions-to-threshold, click budget.
+`model-evaluation` activates on requests such as: model evaluation, held-out metrics, test set metrics, Dice, HD95, NSD, surface distance, Metrics Reloaded, AUROC, AUPRC, bootstrap CI, calibration, ECE, reliability diagram, subgroup analysis, slice metrics, mAP, FROC, segmentation metrics, detection metrics, evaluate predictions, interactive segmentation, promptable segmentation, SAM2, MedSAM2, nnInteractive, number of clicks, NoC, interactions-to-threshold, click budget, generative metrics, image synthesis, SSIM, PSNR, SNR, CNR, downstream task, multiclass classification, Obuchowski index, Harrell's C, time-dependent ROC.
 
 ## Quality Card
 
@@ -26,7 +26,7 @@
 
 **Validation**
 
-- `python3 scripts/check_metric_reporting.py --report <results.md> --task segmentation|classification|detection|interactive --strict`
+- `python3 scripts/check_metric_reporting.py --report <results.md> --task segmentation|classification|detection|interactive|generative --strict`
 - `bash scripts/metric_reporting_challenge/verify.sh  # deterministic, network-free`
 
 **Evidence** — `ci_validator`
@@ -41,7 +41,7 @@
 **Scripts** (`skills/model-evaluation/scripts/`):
 
 - `check_metric_reporting.py`
-- `metric_reporting_challenge/` (10 files)
+- `metric_reporting_challenge/` (13 files)
 
 ## Source
 

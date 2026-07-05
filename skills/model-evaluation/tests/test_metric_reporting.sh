@@ -60,4 +60,25 @@ check "interactive_good no NO_BOUNDARY_METRIC" no NO_BOUNDARY_METRIC
 printf 'Interactive tumor segmentation: Dice rose from an initial-click Dice 0.55 to a peak Dice 0.90 (95%% CI 0.88-0.92); HD95 5.1 mm; median 3 clicks to threshold; interaction time 30 s/case.\n' > "$W/int_ok.md"
 check "FP: full interactive one-liner passes --strict" ok0 "$W/int_ok.md" interactive
 
+# --- generative / synthesis ---
+python3 "$DET" --report "$F/generative_bad.md" --task generative --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "generative_bad exits 1 (no downstream)" test "$?" -eq 1
+check "GENERATIVE_NO_DOWNSTREAM" has GENERATIVE_NO_DOWNSTREAM
+python3 "$DET" --report "$F/generative_good.md" --task generative --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "generative_good exits 0 (downstream task present)" test "$?" -eq 0
+check "generative_good no GENERATIVE_NO_DOWNSTREAM" no GENERATIVE_NO_DOWNSTREAM
+# FP guard: a synthesis report that names no similarity metric is flagged NO_SIMILARITY, not DOWNSTREAM
+printf 'We generated synthetic MRI and evaluated a downstream tumor-segmentation Dice of 0.88 on the synthesized images (95%% CI 0.85-0.90).\n' > "$W/gen_down_only.md"
+python3 "$DET" --report "$W/gen_down_only.md" --task generative --out "$OUT" --quiet >/dev/null 2>&1
+check "generative downstream-only -> GENERATIVE_NO_SIMILARITY not DOWNSTREAM" has GENERATIVE_NO_SIMILARITY
+check "generative downstream-only -> no GENERATIVE_NO_DOWNSTREAM" no GENERATIVE_NO_DOWNSTREAM
+
+# --- multiclass classification ---
+python3 "$DET" --report "$F/multiclass_bad.md" --task classification --out "$OUT" --quiet >/dev/null 2>&1
+check "MULTICLASS_NO_AVERAGING" has MULTICLASS_NO_AVERAGING
+# FP guard: a multiclass report that states its aggregation scheme must NOT fire the verdict
+printf 'Three-class classification: one-vs-rest macro-averaged AUROC 0.90 and AUPRC 0.71 (95%% CI).\n' > "$W/mc_ok.md"
+python3 "$DET" --report "$W/mc_ok.md" --task classification --out "$OUT" --quiet >/dev/null 2>&1
+check "FP: multiclass with one-vs-rest macro-average -> no MULTICLASS_NO_AVERAGING" no MULTICLASS_NO_AVERAGING
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"; exit "$fail"

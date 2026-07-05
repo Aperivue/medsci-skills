@@ -36,5 +36,11 @@ clean det_good_wrapped.md detection
 want interactive_bad.md interactive INTERACTIVE_NO_INTERACTION_COUNT
 want interactive_bad.md interactive NO_BOUNDARY_METRIC
 clean interactive_good.md interactive
+# Generative / synthesis: image-quality similarity without a downstream-task evaluation is a Major
+# (similarity is not clinical utility); a report that adds the downstream task clears. Multiclass
+# classification with AUROC/accuracy but no aggregation scheme stated is flagged.
+want generative_bad.md generative GENERATIVE_NO_DOWNSTREAM
+clean generative_good.md generative
+want multiclass_bad.md classification MULTICLASS_NO_AVERAGING
 
-echo "PASS: metric-reporting gate flags Dice-only/pixel-accuracy, accuracy-only, detection without an IoU criterion, and interactive segmentation reported as one-shot; clears task-correct reports (including a line-wrapped IoU criterion and a full interactive report)."
+echo "PASS: metric-reporting gate flags Dice-only/pixel-accuracy, accuracy-only, detection without an IoU criterion, interactive segmentation reported as one-shot, generative similarity without a downstream task, and multiclass without an aggregation scheme; clears task-correct reports."

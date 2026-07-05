@@ -47,11 +47,35 @@ design** for an interactive evaluation — the human-as-operator reader arm and 
   threshold on the training/tuning folds, never the test set.
 - **Calibration**: a reliability diagram + ECE; a discriminating model can still be
   miscalibrated.
+- **Multiclass**: state the aggregation scheme (Park et al., *Radiol Med* 2024) — **one-vs-rest**
+  with **macro** (unweighted) or **micro** (instance-weighted) averaging, all **pairwise** two-class
+  combinations, or the prevalence-weighted **Obuchowski index**; a bare multiclass AUROC is ambiguous
+  and prevalence-sensitive.
 
 ## Detection
 - **FROC / mAP with the IoU match criterion stated**: report sensitivity per false-positive
   (FROC) or mAP, and **state the IoU threshold** used to match predictions to ground truth —
   the metric is undefined without it. Patient-level accuracy is not a detection metric.
+
+## Generative / synthesis (image generation or modification)
+Grounded in Park et al., *Radiol Med* 2024.
+- **Full-reference** (a reference image exists): pixel/intensity similarity — **MSE / RMSE / MAE**,
+  **PSNR**, **SSIM** — summarized as mean ± SD over image pairs.
+- **No-reference** (no ideal replica exists): **SNR** and **CNR**, plus standardized qualitative visual
+  scores (Likert) with explicit rater protocols to control inter-rater variability.
+- **Downstream-task efficacy — the load-bearing check.** Image quality and clinical utility **need not
+  align**: an AI-denoised CT can show higher CNR yet lower lesion sensitivity. Report the efficacy of
+  the synthesized images on a **downstream task** (segmentation / detection / classification /
+  quantitative measurement), not similarity alone. The gate `--task generative` flags a similarity-only
+  report (`GENERATIVE_NO_DOWNSTREAM`, Major) and a synthesis report naming no quality metric
+  (`GENERATIVE_NO_SIMILARITY`, Minor).
+
+## Time-to-event (survival)
+Discrimination for a time-to-event outcome uses **Harrell's C-index** and **time-dependent ROC/AUC**
+(Park et al., *Radiol Med* 2024), not a static AUROC. These — with the comparative inference and
+calibration-in-time — are computed and gated in **`/analyze-stats`** (survival domain); `/model-evaluation`
+emits the per-case risk scores and hands them over, so the deterministic anchor for survival
+discrimination lives in `/analyze-stats`, not in this reporting gate (stated per the no-prose-only rule).
 
 ## Subgroup / fairness
 - Slice every headline metric by the Model Card **Factors** (scanner/vendor, site, age, sex,

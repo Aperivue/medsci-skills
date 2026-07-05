@@ -135,5 +135,12 @@ owns the item-by-item CLAIM 2024 / TRIPOD+AI audit; this is the routing map.
   principle.
 - **Model Card Factors** (Mitchell et al., *FAT\** 2019): named documentation standard for
   disaggregated reporting axes.
+- **Generative / synthesis, multiclass, and time-to-event metrics** (Park, Han & Lee, *Radiol Med*
+  2024, "Conceptual review of outcome metrics and measures used in clinical evaluation of AI in
+  radiology"): named review. Grounds the full-reference (MSE / RMSE / PSNR / SSIM) and no-reference
+  (SNR / CNR) image-quality metrics, the **image-quality-vs-downstream-efficacy divergence** (a
+  denoised CT with higher CNR but lower lesion sensitivity), multiclass aggregation (one-vs-rest /
+  macro / micro / pairwise / Obuchowski index), and time-to-event discrimination (Harrell's C,
+  time-dependent ROC). Concepts described qualitatively; no numeric values copied.
 - No DOIs, dataset names, numeric thresholds, prevalences, NSD tolerances, or CLAIM item numbers are
   fabricated; any uncertain specific is flagged `[VERIFY]`.

@@ -48,7 +48,7 @@ from pathlib import Path
 # concept -> regex of any phrasing that SATISFIES it (searched case-insensitively)
 SAT = {
     "ngram": r"\b(bleu|rouge|meteor|cider)\b",
-    "clinical_metric": r"\b(radgraph|chexbert|chexpert[- ]?label|radcliq|f1[\w-]*chexpert|"
+    "clinical_metric": r"\b(radgraph|chexbert|chexpert[- ]?label|radcliq|green|f1[\w-]*chexpert|"
                        r"clinical efficacy|factual(?:ity| correctness)|entity[- ]?relation)\b",
     "faithfulness": r"\b(faithful(?:ness)?|hallucinat\w+|atomic[- ]?fact|false[- ]?premise|"
                     r"fabricat\w+|med-?hal|medvh|med-?halt|confabulat\w+|ungrounded|groundedness|"
