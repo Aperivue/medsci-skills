@@ -44,4 +44,20 @@ python3 "$DET" --report "$W/aur.md" --task classification --out "$OUT" --quiet >
 check "negation: 'AUROC was not computed' -> ACCURACY_ONLY" has ACCURACY_ONLY
 check "negation: no spurious AUPRC_MISSING" no AUPRC_MISSING
 
+# --- interactive / promptable segmentation ---
+python3 "$DET" --report "$F/interactive_bad.md" --task interactive --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "interactive_bad exits 1" test "$?" -eq 1
+check "INTERACTIVE_NO_INTERACTION_COUNT" has INTERACTIVE_NO_INTERACTION_COUNT
+check "interactive_bad also flags NO_BOUNDARY_METRIC (still segmentation)" has NO_BOUNDARY_METRIC
+check "interactive_bad flags INTERACTIVE_NO_TIME" has INTERACTIVE_NO_TIME
+python3 "$DET" --report "$F/interactive_good.md" --task interactive --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "interactive_good exits 0" test "$?" -eq 0
+check "interactive_good no INTERACTIVE_NO_INTERACTION_COUNT" no INTERACTIVE_NO_INTERACTION_COUNT
+check "interactive_good no INTERACTIVE_NO_CONVERGENCE" no INTERACTIVE_NO_CONVERGENCE
+check "interactive_good no NO_BOUNDARY_METRIC" no NO_BOUNDARY_METRIC
+# FP guard: a static (non-interactive) segmentation report is NOT run under --task interactive,
+# and a full interactive report must not spuriously fire the interaction verdicts.
+printf 'Interactive tumor segmentation: Dice rose from an initial-click Dice 0.55 to a peak Dice 0.90 (95%% CI 0.88-0.92); HD95 5.1 mm; median 3 clicks to threshold; interaction time 30 s/case.\n' > "$W/int_ok.md"
+check "FP: full interactive one-liner passes --strict" ok0 "$W/int_ok.md" interactive
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"; exit "$fail"

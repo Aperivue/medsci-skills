@@ -1033,8 +1033,8 @@
     },
     {
       "path": "skills/design-study/SKILL.md",
-      "size": 19220,
-      "sha256": "d4a05f6dd2530620bd1ec3e1c64ba0625aae25def12892247e61a77724132cd6"
+      "size": 20296,
+      "sha256": "98644b7750b65ff9bb38af7cb6e0b3300169f498332a3f143394cc35f5ba7ff7"
     },
     {
       "path": "skills/design-study/references/dag_adjustment.md",
@@ -2808,13 +2808,13 @@
     },
     {
       "path": "skills/model-evaluation/SKILL.md",
-      "size": 5780,
-      "sha256": "334b4ca87a2f672446563f3fb6d78c0585386fac12aee29e10dc09465e892193"
+      "size": 6494,
+      "sha256": "f06d36d734527c39c296be529946e216a5eb2454289539e51b178ee67f748e63"
     },
     {
       "path": "skills/model-evaluation/references/metric_guide.md",
-      "size": 2454,
-      "sha256": "8d09ca7ce9fb9f66ee4942689294d9b12ae1d892ac67769cd68fdc38a4e220ee"
+      "size": 4323,
+      "sha256": "aea0ecac9824feb75f7f984ce9465861b73949f2441320594677cfbfc1035820"
     },
     {
       "path": "skills/model-evaluation/references/metric_selection_grounding.md",
@@ -2823,8 +2823,8 @@
     },
     {
       "path": "skills/model-evaluation/scripts/check_metric_reporting.py",
-      "size": 9562,
-      "sha256": "fd6c0205f652651a5a43910cb415ed8442100fc553ce04aa5d5905d97743a0bf"
+      "size": 13166,
+      "sha256": "96b2cd038c825799e74a29937817cad7a065b14b93c810b5dc83ca111a39c99d"
     },
     {
       "path": "skills/model-evaluation/scripts/metric_reporting_challenge/fixture/clf_bad.md",
@@ -2847,6 +2847,16 @@
       "sha256": "08227fbe46829b8eecdfe15680e1bb32087f1e6c5a353b3df6055c67d8300fc0"
     },
     {
+      "path": "skills/model-evaluation/scripts/metric_reporting_challenge/fixture/interactive_bad.md",
+      "size": 128,
+      "sha256": "be714934c18566a89c6c7b06951a420d8e2cbfca814e1daf26df87866252a185"
+    },
+    {
+      "path": "skills/model-evaluation/scripts/metric_reporting_challenge/fixture/interactive_good.md",
+      "size": 500,
+      "sha256": "a45e14485fb02f0ee790350235c652ea2b871aa16cfd89e12a32e49cd6e1b9ca"
+    },
+    {
       "path": "skills/model-evaluation/scripts/metric_reporting_challenge/fixture/seg_bad.md",
       "size": 119,
       "sha256": "50c138840976b8fa010cb0ca9fd24fffc7181e275eb6c71e76500da7d2a0420d"
@@ -2863,13 +2873,13 @@
     },
     {
       "path": "skills/model-evaluation/scripts/metric_reporting_challenge/verify.sh",
-      "size": 1663,
-      "sha256": "4aa6db49d3552f01a54ddb70484df5d214806d805b836b24beda81d9aca32bd6"
+      "size": 2186,
+      "sha256": "1968d80c13423b4aa09d6e226f8990aa3dd9e8754efe80400b74c52e0f8832db"
     },
     {
       "path": "skills/model-evaluation/skill.yml",
-      "size": 2921,
-      "sha256": "9713dbab40c54ca88324e7dcd74d3142890f9625ad68d708ba40b0cf57a7b9ee"
+      "size": 2933,
+      "sha256": "f767583346095135f50cc83a24b8b8928a20b03883a068b5a31758cc51bbe24c"
     },
     {
       "path": "skills/model-scaffold/SKILL.md",
@@ -2928,8 +2938,8 @@
     },
     {
       "path": "skills/model-validation/SKILL.md",
-      "size": 10836,
-      "sha256": "5cfd4ac6d75b3a474408b10d8eead3fdf7be8a44e1578dcac332cc2203ae75fe"
+      "size": 11524,
+      "sha256": "ac326c03451282a5adeeb3592f511dac47720bba9338dba761bf6ea4679d7c0b"
     },
     {
       "path": "skills/model-validation/references/validation_design.md",

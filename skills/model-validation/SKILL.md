@@ -98,7 +98,14 @@ reports **AUROC and AUPRC with CIs** plus sensitivity / specificity and prevalen
 never bare accuracy on a balanced set; **detection** reports FROC / mAP with the IoU match criterion
 stated. Require the headline metric as **mean ± SD across ≥ 3 seeds / runs**, or a fixed reported seed
 with the determinism caveat. The per-case metric computation + the deterministic metric-reporting gate
-live in `/model-evaluation` (which emits the per-case table for `/analyze-stats`).
+live in `/model-evaluation` (which emits the per-case table for `/analyze-stats`). For **interactive /
+promptable segmentation** (SAM2 / MedSAM2 / nnInteractive) the metric set adds the interaction axis —
+number of clicks / interactions-to-threshold (NoC), initial-vs-converged Dice, and per-case
+interaction / inference time (`/model-evaluation --task interactive`). When the evaluation runs two arms
+(simulated prompting + human-operator validation), record **protocol fidelity** across arms — identical
+prompt types, stopping rule, target threshold, and seeds — as an explicit validity item: arm-to-arm
+comparability is the precondition for reading the human-operator arm as validating the simulated one,
+and the human-operator arm design is in `/design-study`.
 
 ### Phase 6 — Test-set sizing
 Check the **events per class** in the test set, not the cohort total — a metric on a sparse positive set

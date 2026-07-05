@@ -191,6 +191,19 @@ scale validity; a low overall ICC is interpretable only if raters at least conve
 - Require each item to be judged standalone; discourage cross-item references in free-text, which
   signal non-independent rating.
 
+**Human-as-operator arm (interactive / promptable AI).** The reader-study patterns above assume the
+human is a *rater / reference* judging outputs. Interactive / promptable segmentation (SAM2, MedSAM2,
+nnInteractive) inverts this: the human is the *operator* who places the prompts, so the measured object
+is the human-operated system's **accuracy + interaction count + time + learning curve**, not a rating.
+Design for it explicitly:
+- Define the operator population and their onboarding; a **learning curve** (performance vs case index)
+  is a first-class outcome, not noise to average away.
+- Fix the prompting protocol (allowed prompt types, stopping rule, target Dice) identically to any
+  simulated-prompting arm so the two are comparable — **protocol fidelity**, checked in `/model-validation`.
+- Pre-specify the interaction and timing metrics; their deterministic reporting gate is
+  `/model-evaluation --task interactive`. (A design document is free-form prose, so the deterministic
+  anchor for these items sits at the reporting stage, not on the protocol text.)
+
 For an AI-system-versus-human-expert benchmark specifically, route to `/design-ai-benchmarking`, which
 extends this subsection with arm definition, LLM-as-judge versus human-as-judge adjudication, and a
 structured export schema.

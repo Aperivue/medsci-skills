@@ -30,5 +30,11 @@ clean clf_good.md classification
 # locks the iou_crit proximity window against newline-induced false fires.
 want det_no_iou.md detection DETECTION_METRIC_MISSING
 clean det_good_wrapped.md detection
+# Interactive / promptable segmentation: a static-Dice-only report must be flagged for the
+# missing interaction axis (and, being segmentation, for the missing boundary metric); a report
+# with the interaction axis, convergence split, per-case time, and a boundary metric must clear.
+want interactive_bad.md interactive INTERACTIVE_NO_INTERACTION_COUNT
+want interactive_bad.md interactive NO_BOUNDARY_METRIC
+clean interactive_good.md interactive
 
-echo "PASS: metric-reporting gate flags Dice-only/pixel-accuracy, accuracy-only, and detection without an IoU criterion; clears task-correct reports (including a line-wrapped IoU criterion)."
+echo "PASS: metric-reporting gate flags Dice-only/pixel-accuracy, accuracy-only, detection without an IoU criterion, and interactive segmentation reported as one-shot; clears task-correct reports (including a line-wrapped IoU criterion and a full interactive report)."
