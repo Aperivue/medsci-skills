@@ -38,6 +38,6 @@ known_limitations:
   - "It produces the per-case metrics; the comparative inference (DeLong / NRI / IDI / decision curves / MRMC) is analyze-stats."
   - "Metric correctness depends on a correctly defined analysis unit and a clean held-out split (use model-validation first)."
 validation_commands:
-  - "python3 scripts/check_metric_reporting.py --report <results.md> --task segmentation|classification|detection|interactive --strict"
+  - "python3 scripts/check_metric_reporting.py --report <results.md> --task segmentation|classification|detection|interactive|generative --strict"
   - "bash scripts/metric_reporting_challenge/verify.sh  # deterministic, network-free"
 evidence_surface: ci_validator

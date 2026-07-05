@@ -27,7 +27,13 @@ score.
 - **RadCliQ.** A composite (Yu et al., 2023) that combines metrics to better predict the count
   of radiologist-judged errors. Report it as a composite **alongside** its components, not as a
   one-number replacement.
-- **Advise:** report a clinical-efficacy metric (RadGraph-F1 / CheXbert-F1 / RadCliQ)
+- **GREEN.** An LLM-based score (Ostmeier et al., EMNLP Findings 2024) that prompts a language model
+  to identify and count **clinically significant errors** between the candidate and reference report
+  and emits an interpretable error notation, aligning better with radiologist judgment than n-gram
+  overlap. Report it as a complement to RadGraph-F1 / CheXbert-F1, not a replacement, and note its
+  dependence on the grading model + prompt (a quantitative metric with a qualitative, human-readable
+  error breakdown — the two halves of report-generation evaluation).
+- **Advise:** report a clinical-efficacy metric (RadGraph-F1 / CheXbert-F1 / RadCliQ / GREEN)
   **with bootstrap CIs over reports** and a **per-finding / per-label breakdown**, and present
   any BLEU/ROUGE explicitly labelled as a surface-overlap measure — never as the headline.
 
@@ -136,6 +142,8 @@ numbers, thresholds, or dataset contents are invented.
   vendored in the `mllm_evaluation.md` probe).
 - **RadGraph-F1 (entity-relation overlap)** — Jain et al., NeurIPS Datasets & Benchmarks 2021.
   Named public methods paper.
+- **GREEN (LLM-graded clinically significant errors)** — Ostmeier et al., EMNLP Findings 2024.
+  Named public methods paper; described qualitatively, no scores invented.
 - **CheXbert-F1 / CheXpert observation labels** — Smit et al., 2020 (CheXbert); Irvin et al.,
   2019 (CheXpert labeler). Named public methods papers; the CheXpert label set is a factual
   artifact, not invented.

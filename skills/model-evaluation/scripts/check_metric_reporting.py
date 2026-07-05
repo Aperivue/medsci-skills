@@ -19,6 +19,9 @@ CHECKS (verdicts; which apply depends on --task):
                                   discrimination).
     AUPRC_MISSING        (Minor)  AUROC named but no AUPRC (the minority-class metric
                                   under imbalance).
+    MULTICLASS_NO_AVERAGING (Minor)  a multiclass claim with AUROC/accuracy but no stated
+                                  aggregation scheme (one-vs-rest / macro / micro / pairwise /
+                                  Obuchowski), per Park et al. (Radiol Med 2024).
   detection:
     DETECTION_METRIC_MISSING (Major)  no FROC / mAP / sensitivity-per-false-positive,
                                       or no IoU match criterion stated.
@@ -28,13 +31,18 @@ CHECKS (verdicts; which apply depends on --task):
                                       interactions-to-threshold / Dice-vs-interactions).
     INTERACTIVE_NO_CONVERGENCE (Minor)  no initial-prompt vs converged/peak Dice split.
     INTERACTIVE_NO_TIME        (Minor)  no per-case interaction / inference time.
+  generative (image synthesis / generation — Park et al., Radiol Med 2024):
+    GENERATIVE_NO_DOWNSTREAM (Major)  image-quality similarity (SSIM / PSNR / SNR / CNR)
+                                  reported without a downstream-task evaluation — similarity
+                                  is not clinical utility (quality and task efficacy can diverge).
+    GENERATIVE_NO_SIMILARITY (Minor)  a synthesis claim with no image-quality metric named.
   all tasks:
     CI_MISSING           (Minor)  no confidence interval / uncertainty mentioned for
                                   the headline metric.
 
 INPUTS
   --report  metrics report / results markdown (required).
-  --task    segmentation | classification | detection | interactive (required).
+  --task    segmentation | classification | detection | interactive | generative (required).
 
 OUTPUT
   A table (stdout) and, with --out, a JSON artifact:
@@ -95,6 +103,27 @@ P = {
                         r"per[- ]?case (?:time|latency)|inference time|inference latency|"
                         r"seconds per (?:case|click|interaction)|wall[- ]?clock|"
                         r"time[- ]?to[- ]?(?:threshold|target))\b",
+    # generative / synthesis image evaluation (Park et al., Radiol Med 2024): full-reference
+    # pixel/intensity similarity, no-reference quality, and the downstream-task efficacy that
+    # image similarity alone does not establish.
+    "sim_full_ref": r"\b(mse|rmse|nrmse|\bmae\b|psnr|peak signal[- ]?to[- ]?noise|ssim|"
+                    r"structural similarity|pixel[- ]?wise similarity|full[- ]?reference)\b",
+    "snr_cnr": r"\b(snr|cnr|signal[- ]?to[- ]?noise|contrast[- ]?to[- ]?noise)\b",
+    "downstream": r"\b(downstream[- ]?(?:task|clinical|evaluation|performance)|task[- ]?based|"
+                  r"efficacy (?:in|on|for) (?:performing |executing |conducting )?(?:the )?"
+                  r"(?:downstream |clinical )?task|"
+                  r"(?:segmentation|detection|classification|diagnostic|lesion) "
+                  r"(?:performance|sensitivity|accuracy|dice|auroc) "
+                  r"(?:on|of|using|with|from) (?:the )?"
+                  r"(?:synthes\w+|generat\w+|synthetic|reconstruct\w+|denoised)|"
+                  r"trained on (?:the )?(?:synthes\w+|generat\w+|synthetic)|"
+                  r"indirect(?:ly)? (?:evaluat|assess))\b",
+    # multiclass classification aggregation scheme (Park et al., Radiol Med 2024)
+    "multiclass": r"\b(multi[- ]?class|multi[- ]?categor\w+|three[- ]?class|"
+                  r"(?:\d+|four|five|six|seven|eight|nine|ten)[- ]?class(?:es|\b))\b",
+    "averaging": r"\b(one[- ]?vs[- ]?rest|one[- ]?versus[- ]?rest|\bovr\b|one[- ]?vs[- ]?one|\bovo\b|"
+                 r"pairwise|macro[- ]?averag\w+|micro[- ]?averag\w+|weighted average|obuchowski|"
+                 r"per[- ]?class (?:auroc|auc))\b",
 }
 
 # Negation BEFORE the token ('we do NOT report pixel accuracy ...').
@@ -175,6 +204,11 @@ def analyze(report: str, task: str) -> dict:
             add("AUPRC_MISSING", "Minor",
                 "AUROC is reported without AUPRC — AUPRC tracks the minority class and is informative "
                 "under imbalance")
+        if has(text, "multiclass") and (accuracy_metric or auroc_reported) and not has(text, "averaging"):
+            add("MULTICLASS_NO_AVERAGING", "Minor",
+                "a multiclass classification reports AUROC/accuracy without stating the aggregation "
+                "scheme (one-vs-rest, macro/micro averaging, pairwise, or the prevalence-weighted "
+                "Obuchowski index) — the aggregate is ambiguous and prevalence-sensitive without it")
     elif task == "detection":
         if not has(text, "detection"):
             add("DETECTION_METRIC_MISSING", "Major",
@@ -184,6 +218,24 @@ def analyze(report: str, task: str) -> dict:
             add("DETECTION_METRIC_MISSING", "Major",
                 "a detection metric is reported but the IoU match criterion is not stated — mAP/FROC "
                 "are undefined without the match threshold")
+    elif task == "generative":
+        # image synthesis / generation (Park et al., Radiol Med 2024): full-reference similarity
+        # (MSE/RMSE/PSNR/SSIM) or, without a reference, no-reference quality (SNR/CNR) — but image
+        # quality and downstream-task efficacy need not align, so a clinical-utility claim needs a
+        # downstream-task evaluation, not similarity alone.
+        has_sim = has(text, "sim_full_ref") or has(text, "snr_cnr")
+        if has_sim and not has(text, "downstream"):
+            add("GENERATIVE_NO_DOWNSTREAM", "Major",
+                "image-quality similarity (SSIM / PSNR / SNR / CNR) is reported for a generative / "
+                "synthesis model without a downstream-task evaluation — pixel/intensity similarity does "
+                "not establish clinical utility (quality and task efficacy need not align, e.g. an "
+                "AI-denoised CT with higher CNR but lower lesion sensitivity); evaluate a downstream "
+                "task (segmentation / detection / classification) on the synthesized images")
+        if not has_sim:
+            add("GENERATIVE_NO_SIMILARITY", "Minor",
+                "a generative / synthesis evaluation names no image-quality metric — report "
+                "full-reference similarity (MSE / RMSE / PSNR / SSIM) or, when no reference exists, "
+                "no-reference quality (SNR / CNR, standardized visual scores)")
 
     if not has(text, "ci"):
         add("CI_MISSING", "Minor",
@@ -208,7 +260,7 @@ def main() -> int:
     ap = argparse.ArgumentParser(description="Task-correct metric-reporting gate (model-evaluation).")
     ap.add_argument("--report", required=True, help="metrics report / results markdown")
     ap.add_argument("--task", required=True,
-                    choices=["segmentation", "classification", "detection", "interactive"])
+                    choices=["segmentation", "classification", "detection", "interactive", "generative"])
     ap.add_argument("--out", help="write JSON artifact to this path")
     ap.add_argument("--strict", action="store_true", help="exit 1 if any Major claim exists")
     ap.add_argument("--quiet", action="store_true", help="suppress stdout table")
