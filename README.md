@@ -11,6 +11,7 @@
 [![CI](https://img.shields.io/github/actions/workflow/status/Aperivue/medsci-skills/validate.yml?branch=main&style=flat-square&label=CI)](https://github.com/Aperivue/medsci-skills/actions/workflows/validate.yml)
 ![Skills](https://img.shields.io/badge/Skills-55-brightgreen?style=flat-square)
 [![npm](https://img.shields.io/npm/v/medsci-skills?style=flat-square&label=npm&color=cb3837)](https://www.npmjs.com/package/medsci-skills)
+[![npm downloads](https://img.shields.io/npm/dw/medsci-skills?style=flat-square&label=npm%20downloads&color=cb3837)](https://www.npmjs.com/package/medsci-skills)
 [![Watch the 2-min intro](https://img.shields.io/badge/▶_Watch-2--min_intro-FF0000?style=flat-square&logo=youtube&logoColor=white)](https://youtu.be/MclQ_RIofpE)
 [![good first issues](https://img.shields.io/github/issues/Aperivue/medsci-skills/good%20first%20issue?style=flat-square&label=good%20first%20issues&color=7057ff)](https://github.com/Aperivue/medsci-skills/contribute)
 
@@ -41,8 +42,9 @@
 
 ## What is MedSci Skills?
 
-MedSci Skills is an open-source Claude Code skill collection for **clinical
-research — the manuscript and the medical-AI model alike**. It helps
+MedSci Skills is an open-source **Agent Skills** collection for **clinical
+research — the manuscript and the medical-AI model alike** — designed to be driven
+directly by AI coding agents (Claude Code, Codex, Cursor, and GitHub Copilot). It helps
 physician-researchers and biomedical/medical-engineering investigators move from
 literature search, study design, statistics, and figures to reporting-guideline
 compliance, citation/reference auditing, numerical-consistency checks, and
