@@ -98,11 +98,16 @@ P = {
                    r"first[- ]?(?:click|prompt) dice|converged? dice|convergence|peak dice|"
                    r"plateau|saturat\w+|dice after \d+|"
                    r"after (?:the )?(?:first|final|last|\d+) (?:click|prompt|interaction))\b",
-    # per-case interaction / inference efficiency
+    # per-case interaction / inference efficiency. Matches named time terms AND a bare
+    # number-plus-time-unit ("179±114 seconds", "120-200 ms"), since real interactive papers
+    # report timing that way rather than always writing "inference time" (dogfood: nnInteractive).
     "interaction_time": r"\b(interaction time|time per (?:case|click|interaction|prompt)|"
-                        r"per[- ]?case (?:time|latency)|inference time|inference latency|"
-                        r"seconds per (?:case|click|interaction)|wall[- ]?clock|"
-                        r"time[- ]?to[- ]?(?:threshold|target))\b",
+                        r"per[- ]?case (?:time|latency)|(?:inference|annotation|completion|"
+                        r"segmentation|processing|response) (?:time|latency|speed)|"
+                        r"seconds per (?:case|click|interaction)|runtime|wall[- ]?clock|"
+                        r"time[- ]?to[- ]?(?:threshold|target)|"
+                        r"\d+(?:\.\d+)?\s*(?:±|\+/-|–|-|to)?\s*\d*(?:\.\d+)?\s*"
+                        r"(?:ms|msec|milliseconds?|seconds?|minutes?|hours?)\b)\b",
     # generative / synthesis image evaluation (Park et al., Radiol Med 2024): full-reference
     # pixel/intensity similarity, no-reference quality, and the downstream-task efficacy that
     # image similarity alone does not establish.

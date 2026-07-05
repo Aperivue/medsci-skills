@@ -59,6 +59,11 @@ check "interactive_good no NO_BOUNDARY_METRIC" no NO_BOUNDARY_METRIC
 # and a full interactive report must not spuriously fire the interaction verdicts.
 printf 'Interactive tumor segmentation: Dice rose from an initial-click Dice 0.55 to a peak Dice 0.90 (95%% CI 0.88-0.92); HD95 5.1 mm; median 3 clicks to threshold; interaction time 30 s/case.\n' > "$W/int_ok.md"
 check "FP: full interactive one-liner passes --strict" ok0 "$W/int_ok.md" interactive
+# dogfood regression (nnInteractive, arXiv 2503.08373): timing written as "N seconds" / "N ms"
+# — not the literal phrase "inference time" — must still satisfy the interaction-time check.
+printf 'Interactive segmentation: number of clicks to threshold, converged Dice, HD95 6 mm; per case 179±114 seconds and 120-200 ms per structure.\n' > "$W/int_time.md"
+python3 "$DET" --report "$W/int_time.md" --task interactive --out "$OUT" --quiet >/dev/null 2>&1
+check "dogfood: 'N seconds' / 'N ms' timing -> no INTERACTIVE_NO_TIME" no INTERACTIVE_NO_TIME
 
 # --- generative / synthesis ---
 python3 "$DET" --report "$F/generative_bad.md" --task generative --out "$OUT" --strict --quiet >/dev/null 2>&1
