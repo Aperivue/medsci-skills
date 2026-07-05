@@ -54,7 +54,7 @@ confirmed use:
 - Conforms to the [Agent Skills](https://agentskills.io) standard (cross-host:
   Claude Code, Codex, Cursor, GitHub Copilot — see
   [`docs/host_compatibility.md`](docs/host_compatibility.md)).
-- Indexed in community "awesome" lists for the agent-skills ecosystem.
+- Published to the npm registry (`medsci-skills`) and the Claude Code plugin marketplace.
 - Archived for citation on Zenodo with a concept DOI (always resolves to latest).
 
 *(New listings are added here as they appear.)*
