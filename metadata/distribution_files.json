@@ -2808,8 +2808,8 @@
     },
     {
       "path": "skills/model-evaluation/SKILL.md",
-      "size": 7414,
-      "sha256": "4f0c5304c77551a184998e31e08174486762a13634da112c8ce60655a2d149a7"
+      "size": 7380,
+      "sha256": "b39293e54402fa79ac73de827201f4cd98bb2cc70fd1cd4fc8da4e940d429b3b"
     },
     {
       "path": "skills/model-evaluation/references/metric_guide.md",

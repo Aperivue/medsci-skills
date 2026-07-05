@@ -5,13 +5,12 @@ description: >
   (Dice plus a boundary metric such as HD95 or NSD, per structure), classification (AUROC plus AUPRC and
   sensitivity/specificity with bootstrap CIs at the deployment prevalence), detection (FROC or mAP with
   a stated IoU criterion), interactive/promptable segmentation (the interaction-count, convergence,
-  and per-case-time axes a static Dice omits), or generative/synthesis image evaluation (image-quality
-  similarity plus the downstream-task efficacy that similarity alone cannot establish) — plus calibration
-  and subgroup slices. Emits a per-case results table that analyze-stats turns into publication tables,
-  and gates the metric choice against Metrics Reloaded, CLAIM 2024, and Park et al. (Radiol Med 2024)
-  (no pixel accuracy for segmentation, no bare accuracy under imbalance, no static Dice for an
-  interactive method, no similarity-only claim for a generative model). Numbers come only from executed
-  code, never hand-typed.
+  and per-case-time axes a static Dice omits), or generative/synthesis image evaluation (similarity plus
+  the downstream-task efficacy similarity alone cannot establish) — plus calibration and subgroup slices.
+  Emits a per-case results table that analyze-stats turns into publication tables, and gates the metric
+  choice against Metrics Reloaded, CLAIM 2024, and Park et al. 2024 (no pixel accuracy for segmentation,
+  no bare accuracy under imbalance, no static Dice for an interactive method, no similarity-only claim
+  for a generative model). Numbers come only from executed code, never hand-typed.
 triggers: model evaluation, held-out metrics, test set metrics, Dice, HD95, NSD, surface distance, Metrics Reloaded, AUROC, AUPRC, bootstrap CI, calibration, ECE, reliability diagram, subgroup analysis, slice metrics, mAP, FROC, segmentation metrics, detection metrics, evaluate predictions, interactive segmentation, promptable segmentation, SAM2, MedSAM2, nnInteractive, number of clicks, NoC, interactions-to-threshold, click budget, generative metrics, image synthesis, SSIM, PSNR, SNR, CNR, downstream task, multiclass classification, Obuchowski index, Harrell's C, time-dependent ROC
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit
