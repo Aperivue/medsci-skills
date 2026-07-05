@@ -47,11 +47,13 @@ keywords:
   - physician-researcher
 preferred-citation:
   type: article
-  title: "Agentic Skills for Auditable and Reproducible Medical Research Writing: An Integrity-gated Architecture for LLM-Assisted Clinical Manuscripts"
+  title: "Deterministic Integrity Gates for LLM-Assisted Clinical Manuscript Preparation: An Auditable Biomedical Informatics Architecture"
   authors:
     - family-names: Nam
       given-names: Yoojin
       orcid: "https://orcid.org/0000-0001-8565-1360"
+    - family-names: Jeong
+      given-names: Jinhoon
     - family-names: Kim
       given-names: Namkug
   year: 2026
