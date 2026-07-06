@@ -2823,8 +2823,8 @@
     },
     {
       "path": "skills/model-evaluation/scripts/check_metric_reporting.py",
-      "size": 17474,
-      "sha256": "cb64587503b783fb4e2c373af8bc4dbd8a3c54cbb05030dc746c54c264a29deb"
+      "size": 17964,
+      "sha256": "f1315745ceba694cb2437a412618d86cd7f0a7f4e652f5ced2cc207b67eaa731"
     },
     {
       "path": "skills/model-evaluation/scripts/metric_reporting_challenge/fixture/clf_bad.md",
