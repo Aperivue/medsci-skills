@@ -810,6 +810,8 @@ or a [detector request](https://github.com/Aperivue/medsci-skills/issues/new?tem
 [`docs/maintainer_workflow.md`](docs/maintainer_workflow.md) (review + release process),
 and [`SECURITY.md`](SECURITY.md) (vulnerability reporting + the medical-scope boundary).
 A change that touches a medical/research claim needs Clinical-Lead review.
+Community members who have reported, verified, or shaped the project are credited in
+[`CONTRIBUTORS.md`](CONTRIBUTORS.md).
 
 ## In the Wild
 
