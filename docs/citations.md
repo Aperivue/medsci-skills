@@ -48,6 +48,17 @@ With your permission, it will be added below.
 
 ---
 
+## Community contributions & external verification
+
+Documented independent engagement — external bug reports, fix verifications, and code
+contributions — each verified against its public GitHub thread.
+
+| Date | Contributor | Contribution | Link |
+|---|---|---|---|
+| 2026-07-05 | @Rochelle1995 | Filed a precise bug report for `render-pdf-doc` on Windows (Git Bash could not resolve the MiKTeX PATH; no CJK font fallback), then independently verified the fix on Windows 11 + MiKTeX — all dependency checks pass and both an English and a Korean document (Hangul text + a mixed table) render cleanly with no missing-glyph warnings | [#68](https://github.com/Aperivue/medsci-skills/issues/68) · [#286](https://github.com/Aperivue/medsci-skills/pull/286) |
+
+---
+
 ## Media, talks, and listings
 
 | Date | Item | Type | Link |
