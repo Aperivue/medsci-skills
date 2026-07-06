@@ -56,6 +56,9 @@ confirmed use:
   Claude Code, Codex, Cursor, GitHub Copilot — see
   [`docs/host_compatibility.md`](docs/host_compatibility.md)).
 - Published to the npm registry (`medsci-skills`) and the Claude Code plugin marketplace.
+- Listed in the [Evidence Synthesis Tools](https://evidencesynthesis-tools.github.io/) directory
+  (Workflow & Automation category; added via a maintainer-reviewed
+  [PR](https://github.com/evidencesynthesis-tools/awesome-evidence-synthesis/pull/4), 2026-06-03).
 - Archived for citation on Zenodo with a concept DOI (always resolves to latest).
 
 *(New listings are added here as they appear.)*
