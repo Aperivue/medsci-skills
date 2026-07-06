@@ -63,7 +63,7 @@ contributions — each verified against its public GitHub thread.
 
 | Date | Item | Type | Link |
 |---|---|---|---|
-| _none recorded yet_ | | | |
+| 2026-06-03 | Listed in the **Evidence Synthesis Tools** directory (Workflow & Automation category), added via a maintainer-reviewed PR | Curated directory | [directory](https://evidencesynthesis-tools.github.io/) · [PR](https://github.com/evidencesynthesis-tools/awesome-evidence-synthesis/pull/4) |
 
 ---
 
