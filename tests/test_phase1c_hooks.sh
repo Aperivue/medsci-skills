@@ -140,6 +140,23 @@ else
   e2e_check "BYPASS=1 → approve (got rc=$rc2)" no
 fi
 
+# Issue #14: an outgoing/ mentor-circulation draft is WARN-ONLY — a FABRICATED
+# reference must NOT block even under MODE=enforce (the new patterns downgrade
+# enforce -> warn), yet it must still be gated (the hook runs verify_cli).
+mkdir -p "$TMP/e2e/8_Review_Comments/Prof_X/outgoing"
+OG="$TMP/e2e/8_Review_Comments/Prof_X/outgoing/reply.docx"
+echo "# reply with [@fab_doi_2026]" > "$OG"
+PAYLOAD_OG="$(printf '{"tool_input":{"file_path":"%s"}}' "$OG")"
+set +e
+OUT_OG="$(printf '%s' "$PAYLOAD_OG" | MEDSCI_VERIFY_REFS_MODE=enforce bash "$HOOK_CLONE" 2>/dev/null)"
+rc_og=$?
+set -e
+if [ "$rc_og" -ne 2 ] && echo "$OUT_OG" | grep -q '"continue"[[:space:]]*:[[:space:]]*true'; then
+  e2e_check "#14 outgoing/ FABRICATED in enforce -> warn, not block" ok
+else
+  e2e_check "#14 outgoing/ FABRICATED -> warn (got rc=$rc_og)" no
+fi
+
 pass=$((pass + e2e_pass))
 fail=$((fail + e2e_fail))
 
