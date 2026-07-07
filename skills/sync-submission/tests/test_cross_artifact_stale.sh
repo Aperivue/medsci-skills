@@ -75,6 +75,62 @@ run --manuscript "$WORK/manuscript_v8.md" --aux "$WORK/clean" --quiet
 run --manuscript "$WORK/manuscript_v8.md" --quiet
 [ $? -eq 2 ] && ok "missing --aux -> exit 2" || bad "missing --aux should be usage error"
 
+# --- retired-term / old-value survivor scan (reframe-drift + claim-site propagation) ---
+mkdir -p "$WORK/reframe"
+# body reframed to "overall pooled"; a superseded headline value 1.72 -> 2.03
+cat > "$WORK/reframe/manuscript.md" <<'EOF'
+## Results
+The overall pooled estimate was 2.03.
+EOF
+# supplement kept the retired framing AND the old value
+cat > "$WORK/reframe/supplement.md" <<'EOF'
+Supplementary Table S3. Location-stratified benchmark.
+The dome benchmark hazard ratio was 1.72.
+EOF
+# a clean supplement matching the reframed body
+cat > "$WORK/reframe/clean_suppl.md" <<'EOF'
+Supplementary Table S3. Overall pooled estimate 2.03.
+EOF
+
+# 6. retired framing term survives in the supplement -> exit 1
+run --manuscript "$WORK/reframe/manuscript.md" --aux "$WORK/reframe/supplement.md" \
+    --retired-term "location-stratified benchmark" --out "$WORK/r3.json" --quiet
+[ $? -eq 1 ] && ok "retired framing survivor in supplement -> exit 1" || bad "retired-term survivor should fail"
+python3 -c "
+import json,sys
+d=json.load(open('$WORK/r3.json'))
+sys.exit(0 if any(f['type']=='retired_framing_survivor' for f in d['findings']) else 1)
+" && ok "JSON: retired_framing_survivor" || bad "missing retired_framing_survivor finding"
+
+# 7. superseded value survives in the supplement -> exit 1
+run --manuscript "$WORK/reframe/manuscript.md" --aux "$WORK/reframe/supplement.md" \
+    --old-value 1.72 --out "$WORK/r4.json" --quiet
+python3 -c "
+import json,sys
+d=json.load(open('$WORK/r4.json'))
+sys.exit(0 if any(f['type']=='stale_old_value' for f in d['findings']) else 1)
+" && ok "JSON: stale_old_value" || bad "missing stale_old_value finding"
+
+# 8. retired term survives in the BODY itself (un-touched paragraph) -> exit 1
+cat > "$WORK/reframe/body_stale.md" <<'EOF'
+## Results
+The overall pooled estimate was 2.03. As shown in the location-stratified benchmark, the dome stratum led.
+EOF
+run --manuscript "$WORK/reframe/body_stale.md" --retired-term "location-stratified benchmark" --quiet
+[ $? -eq 1 ] && ok "retired survivor in body paragraph -> exit 1" || bad "body survivor should fail"
+
+# 9. numeric boundary: --old-value 1.72 must NOT match 11.723 -> exit 0
+cat > "$WORK/reframe/numbound.md" <<'EOF'
+The value is 11.723 throughout.
+EOF
+run --manuscript "$WORK/reframe/numbound.md" --old-value 1.72 --quiet
+[ $? -eq 0 ] && ok "old-value 1.72 does not match 11.723 (numeric boundary)" || bad "numeric boundary false positive"
+
+# 10. reframed body + matching supplement, retired term absent -> exit 0
+run --manuscript "$WORK/reframe/manuscript.md" --aux "$WORK/reframe/clean_suppl.md" \
+    --retired-term "location-stratified benchmark" --old-value 1.72 --quiet
+[ $? -eq 0 ] && ok "no survivors after full reframe -> exit 0" || bad "clean reframe should pass"
+
 echo ""
 echo "test_cross_artifact_stale: $PASS passed, $FAIL failed"
 [ "$FAIL" -eq 0 ]

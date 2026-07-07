@@ -4,6 +4,17 @@
 
 ### Added
 
+- **Reframe / headline-change survivor scan** — `check_cross_artifact_stale.py` (sync-submission) gains
+  opt-in `--retired-term` / `--old-value`. After a revision reframes a claim class or changes a headline
+  number, stale copies survive in un-touched body paragraphs, figure/table legends, the supplement, and
+  the response letter (which often claims the change was applied "throughout"). Given the retired
+  vocabulary / superseded value(s), the gate scans the **body and every aux artifact** and flags each
+  survivor (`retired_framing_survivor` / `stale_old_value`), automating the claim-site grep of
+  `manuscript-versioning.md` §6.1 across all artifacts rather than a sample. Numeric survivors are
+  digit-bounded (`1.72` never matches `11.723`). Additive — **no new detector, detector count unchanged**;
+  extends the existing `test_cross_artifact_stale.sh` (11 cases). Demand-gated by recurrence across
+  multiple projects (reframe drift + claim-site propagation).
+
 - **Response-claim verification gate** (`skills/revise/scripts/check_response_claims.py`, integrity
   detectors **50 → 51**). A response-to-reviewers letter's *"we added the sentence '…'"* / *"we now
   cite Tariq et al. [15]"* is verified against the **revised manuscript body** — the source of truth,
