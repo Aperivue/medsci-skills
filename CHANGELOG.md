@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## [5.18.0] - 2026-07-07
+
+Reliability & workflow-integrity batch — a new deterministic gate for revision response letters, a
+reframe/headline-change survivor scan, a pre-drafting backbone full-text gate, a skill-registry
+consistency validator, plus AI-tool citation-framing guidance and the PneumoniaMNIST model-engineering
+demo. Additive and backward-compatible; **55 skills / 44 guidelines / 51 integrity detectors**.
+
 ### Documentation
 
 - **verify-refs guard hook — extended warn-only coverage (issue #14)**. The optional local PostToolUse
@@ -90,6 +97,8 @@
   single source of truth); gate outputs (split-leakage, training-hygiene, explainability-report) are all
   clean; references were verified with `/verify-refs`. Tooling demonstration, not a clinical claim. README
   "Live Demos" now lists four pipelines.
+
+## [5.17.0] - 2026-07-04
 
 Model-engineering produce-side depth — completion. Deployment safety plus the final wiring and candidate
 items of the [produce-side depth roadmap](docs/roadmap_model_engineering_depth.md): a new
