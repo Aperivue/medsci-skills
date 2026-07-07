@@ -59,6 +59,12 @@ confirmed use:
 - Listed in the [Evidence Synthesis Tools](https://evidencesynthesis-tools.github.io/) directory
   (Workflow & Automation category; added via a maintainer-reviewed
   [PR](https://github.com/evidencesynthesis-tools/awesome-evidence-synthesis/pull/4), 2026-06-03).
+- Included by independent maintainers in four third-party curated "awesome" lists:
+  [awesome-medical-ai-skills](https://github.com/JuneYaooo/awesome-medical-ai-skills/blob/7e395fd600a64234dde74cb3be08710e300c8554/README.md#L424)
+  and its [Chinese edition](https://github.com/JuneYaooo/awesome-medical-ai-skills-cn/blob/239471ad76d2d2f88bf1674bd4f3d09e8e06bb03/README.md#L227) (juneyaooo),
+  [awesome-claude-skills](https://github.com/Chat2AnyLLM/awesome-claude-skills/blob/c2b12ff1a87c41045e28a7cc01863511f3654fcf/README.md#L127) (Chat2AnyLLM),
+  and [awesome-research-agents](https://github.com/chrisliu298/awesome-research-agents/blob/fb32bf2ed19ed37c2ebd944c9bfdcd68d83e1411/README.md#L90) (chrisliu298).
+  These are inclusion signals (a maintainer chose to list the toolkit), not independent reviews.
 - Archived for citation on Zenodo with a concept DOI (always resolves to latest).
 
 *(New listings are added here as they appear.)*
