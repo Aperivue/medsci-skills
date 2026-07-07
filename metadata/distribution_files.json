@@ -4168,8 +4168,8 @@
     },
     {
       "path": "skills/write-paper/SKILL.md",
-      "size": 67054,
-      "sha256": "62b3cbff56a139ed20a783c462fb6dde6b7a932bb057762a2d1c6382c8d044c1"
+      "size": 68059,
+      "sha256": "d05e1bbde228a87abf459ec19484e560dc08b7e88213e36655b680ebecf7dd8f"
     },
     {
       "path": "skills/write-paper/references/exemplar_abstract.md",
@@ -4662,9 +4662,14 @@
       "sha256": "6bc4032302265ba2c834212e77fbe78b8ddeddba716c833ecf8c65e85e586320"
     },
     {
+      "path": "skills/write-paper/scripts/gate_backbone_fulltext.py",
+      "size": 8358,
+      "sha256": "fa06f0d38c59b319a6cb892f4fb0beeccbf147ec4377a87d0f4b35a49d607050"
+    },
+    {
       "path": "skills/write-paper/skill.yml",
-      "size": 2191,
-      "sha256": "06bd12d85f94702b6e23f74ea8e7009a746d31d247e437f4ba08ea6bd26f7d18"
+      "size": 2466,
+      "sha256": "185eb0948913e0fd0c0f6ddcf4bea30ff7d6b50185b5c6c401b51600039b745c"
     },
     {
       "path": "skills/write-protocol/SKILL.md",

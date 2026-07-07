@@ -29,7 +29,9 @@
 
 - `/verify-refs --strict`
 - `/self-review`
+- `python3 scripts/gate_backbone_fulltext.py --project project.yaml --refs manuscript/_src/refs.bib --fulltext-dir pdfs/ --strict`
 - `python3 scripts/build_title_page_affiliations.py --check manuscript/title_page.md --strict`
+- `bash tests/test_backbone_fulltext.sh`
 - `bash tests/test_title_page_affiliations.sh`
 
 **Evidence** — `demo`
@@ -55,6 +57,7 @@
 
 - `build_title_page_affiliations.py`
 - `check_placeholders.py`
+- `gate_backbone_fulltext.py`
 
 ## Source
 

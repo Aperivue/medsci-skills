@@ -4,6 +4,17 @@
 
 ### Added
 
+- **Backbone full-text readiness gate for `/write-paper`** (`skills/write-paper/scripts/gate_backbone_fulltext.py`,
+  issues #4 + #8). Phase 0 records a backbone article (`project.yaml::backbone_article`), but nothing forced
+  its **full text** to be extracted before drafting — so the draft could follow an abstract. The gate resolves
+  the backbone (via `project.yaml`, or `--backbone`, mapping citekey→DOI from `refs.bib`) and confirms an
+  extracted Markdown full text exists and is substantial: `BACKBONE_FULLTEXT_MISSING` (nothing extracted),
+  `BACKBONE_FULLTEXT_THIN` (below the full-text size floor — an abstract/landing page), or `BACKBONE_UNDECLARED`
+  (warn). Wired into Phase 0 as a mandatory pre-drafting gate that routes to `/lit-sync` Phase 2.7 +
+  `/fulltext-retrieval` `pdf_to_md.py`. A pre-draft **workflow prerequisite**, not a manuscript-integrity
+  detector (named `gate_*`, not `check_*`) — **detector count unchanged (51)**. Ships
+  `skills/write-paper/tests/test_backbone_fulltext.sh`.
+
 - **Reframe / headline-change survivor scan** — `check_cross_artifact_stale.py` (sync-submission) gains
   opt-in `--retired-term` / `--old-value`. After a revision reframes a claim class or changes a headline
   number, stale copies survive in un-touched body paragraphs, figure/table legends, the supplement, and
