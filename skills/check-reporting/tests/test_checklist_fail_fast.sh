@@ -51,6 +51,7 @@ assert_exit "CARE now vendored" 0 "$(run --guideline CARE)"
 assert_exit "SPIRIT now vendored" 0 "$(run --guideline 'SPIRIT 2025')"
 assert_exit "CLAIM 2024 now vendored" 0 "$(run --guideline 'CLAIM 2024')"
 assert_exit "DECIDE-AI now vendored" 0 "$(run --guideline 'DECIDE-AI')"
+assert_exit "REMARK now vendored" 0 "$(run --guideline REMARK)"
 
 # 2b. CONSORT-AI / SPIRIT-AI are now vendored -> exit 0 (routed AND a checklist file exists).
 #     The advertised-but-unvendored contract path is exercised via --simulate-missing-checklist

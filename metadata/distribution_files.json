@@ -573,8 +573,8 @@
     },
     {
       "path": "skills/check-reporting/SKILL.md",
-      "size": 39223,
-      "sha256": "2dec1d994bb37fb6091f755ab51b2f890eca2b3299e18ca247ae3c7e45be86bb"
+      "size": 39865,
+      "sha256": "9f7090acc7e0375e87aae47a66e38161201f47b14e9b715a37668b63b3a8c15a"
     },
     {
       "path": "skills/check-reporting/references/LICENSES.md",
@@ -722,6 +722,11 @@
       "sha256": "186000d9cd72e025ce483995735c05400450d9356f89f8f95b855d5815e925fa"
     },
     {
+      "path": "skills/check-reporting/references/checklists/REMARK.md",
+      "size": 6020,
+      "sha256": "bfe8781663c33fc8a906d2d07f790f7237012ca100351bf2676e0d1f7ec89e11"
+    },
+    {
       "path": "skills/check-reporting/references/checklists/ROBINS_E.md",
       "size": 8206,
       "sha256": "268b634aeead53804b6d278d38398fa10575887b440ee882ed1ee5108f8561b8"
@@ -813,8 +818,8 @@
     },
     {
       "path": "skills/check-reporting/references/critical_item_floor.md",
-      "size": 4565,
-      "sha256": "f955a0479da6474e43ece05361838f8db95923ec9f7dc56863afbf4cba66174d"
+      "size": 4908,
+      "sha256": "3bd133b5041bf36c00a3cf04ea83c0c1c30857247646ad9568a00e1a109884ea"
     },
     {
       "path": "skills/check-reporting/references/genai_image_study_object_decision_aid.md",
@@ -833,8 +838,8 @@
     },
     {
       "path": "skills/check-reporting/scripts/check_checklist_exists.py",
-      "size": 6886,
-      "sha256": "c2ffe9761b4580e43a9ea7889b124a6591a6687c3cf939bc3ae1aad051e3040c"
+      "size": 6939,
+      "sha256": "f0ec2049fefb5873904357d822d884f55ec3a466f1a658a350ecf2410a176b15"
     },
     {
       "path": "skills/check-reporting/scripts/check_checklist_version.py",
@@ -2169,7 +2174,7 @@
     {
       "path": "skills/make-figures/references/reporting_guideline_figure_map.md",
       "size": 7149,
-      "sha256": "81f2eff4969e055d886976f4c9e26bf20f1946048c2b61563a7c95b7ebec1d86"
+      "sha256": "b7106c9a4ae478c1d23f7ba69ff2ee81dc1ce8542386577a3cbcb6cee508799c"
     },
     {
       "path": "skills/make-figures/references/visual_abstract_templates/european_radiology.pptx",
@@ -3014,7 +3019,7 @@
     {
       "path": "skills/orchestrate/SKILL.md",
       "size": 35203,
-      "sha256": "7197cb70e6f8940653ab9adaad158167111a0478edad8a972e7cc8816ca85123"
+      "sha256": "1b972439b22327433f3cdf0649e945c49bc73aa34a68c45568cad4209927f4b9"
     },
     {
       "path": "skills/orchestrate/references/dialogue_nodes.md",
