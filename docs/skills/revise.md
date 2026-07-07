@@ -23,19 +23,26 @@
 
 - Coordinates new analyses/figures via other skills but does not itself produce statistics.
 - No standalone demo; depends on the actual reviewer comments supplied.
+- check_response_claims verifies only anchored claims (quoted added text, added citations); paraphrased edits are not machine-verifiable and are not flagged.
 
 **Validation**
 
 - `confirm every reviewer comment maps to a point-by-point response`
 - `/verify-refs --strict on new citations`
+- `python3 scripts/check_response_claims.py --response revision/response_to_reviewers.md --manuscript manuscript/manuscript.md --strict`
+- `bash tests/test_response_claims.sh`
 
-**Evidence** — `manual_workflow`
+**Evidence** — `bundled_script`
 
 ## Bundled resources
 
 **References** (`skills/revise/references/`):
 
 - `r2r_voice.md`
+
+**Scripts** (`skills/revise/scripts/`):
+
+- `check_response_claims.py`
 
 ## Source
 

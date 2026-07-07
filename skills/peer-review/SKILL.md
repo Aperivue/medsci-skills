@@ -32,7 +32,21 @@ methodology and study design.
 ### Phase 2: Manuscript Analysis
 
 1. **Read the manuscript PDF** thoroughly — Abstract, Methods, Results, Discussion, Tables, Figures.
-2. **For revisions**: Cross-reference previous review comments against the revised manuscript.
+2. **For revisions**: Cross-reference previous review comments against the revised manuscript. Do
+   **not** trust the response letter's "we added / we changed X" at face value — the source of truth is
+   the revised body. When you have both the author response and the revised manuscript as text/`.docx`,
+   run the shared deterministic gate to catch a claimed-but-absent edit before you spend the round on it:
+
+   ```bash
+   python3 ${CLAUDE_SKILL_DIR}/../revise/scripts/check_response_claims.py \
+     --response author_response.md --manuscript revised_manuscript.docx --strict
+   ```
+
+   A `RESPONSE_QUOTE_UNVERIFIED` / `RESPONSE_CITATION_UNVERIFIED` verdict means the response asserts a
+   specific added sentence or citation that is not in the revised body — verify it by hand, and if
+   confirmed, raise it (the author-side `/revise` skill runs the same gate; see
+   `~/.claude/rules/peer-review-response-verification.md`). If the whole round already had one
+   response-vs-body mismatch, re-verify **every** prior comment, not a sample.
 3. **Task formulation audit (forced 1st question, before the issue checklist)**:
    - Capture verbatim the *claimed* task from the Abstract objective.
    - Capture verbatim the *measured* task from Methods (inputs → outputs).

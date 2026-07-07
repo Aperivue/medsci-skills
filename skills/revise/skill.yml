@@ -19,8 +19,9 @@ inputs:
 outputs:
   - revision/response_to_reviewers.md
   - revision/change_log.md
+  - qc/response_claims.json
 deterministic_scripts:
-  - none_required
+  - scripts/check_response_claims.py
 side_effects:
   - may_edit_manuscript_with_user_approved_changes
 downstream_consumers:
@@ -38,7 +39,10 @@ safety_boundaries:
 known_limitations:
   - "Coordinates new analyses/figures via other skills but does not itself produce statistics."
   - "No standalone demo; depends on the actual reviewer comments supplied."
+  - "check_response_claims verifies only anchored claims (quoted added text, added citations); paraphrased edits are not machine-verifiable and are not flagged."
 validation_commands:
   - "confirm every reviewer comment maps to a point-by-point response"
   - "/verify-refs --strict on new citations"
-evidence_surface: manual_workflow
+  - "python3 scripts/check_response_claims.py --response revision/response_to_reviewers.md --manuscript manuscript/manuscript.md --strict"
+  - "bash tests/test_response_claims.sh"
+evidence_surface: bundled_script
