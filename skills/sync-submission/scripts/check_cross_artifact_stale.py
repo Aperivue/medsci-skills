@@ -25,11 +25,23 @@ Two deterministic checks:
      (`--manuscript-version`, or a `vN` in the manuscript filename) is flagged
      `checklist_version_stale` — its line/section refs no longer match.
 
+  3. **retired-term / old-value survivors** (opt-in, `--retired-term` /
+     `--old-value`) — after a revision *reframes* a claim class or *changes* a
+     headline number, stale copies survive in un-touched body paragraphs, figure
+     / table legends, the supplement, and the response letter. Given the retired
+     framing vocabulary or the superseded value(s) from the reframe diff, this
+     scans the **body AND every aux file** and flags each survivor
+     (`retired_framing_survivor` / `stale_old_value`). This automates the
+     claim-site grep of `manuscript-versioning.md` §6.1: a reframe the body
+     claims to have made "throughout" is verified across all artifacts, not a
+     sample.
+
 Exit: 0 = clean, 1 = findings, 2 = usage/error. Stdlib-only.
 
 Usage:
     python3 check_cross_artifact_stale.py --manuscript manuscript.md \
         --aux supplement/ --aux qc/ [--manuscript-version v8] \
+        [--retired-term "location-stratified benchmark"] [--old-value 1.72] \
         [--out qc/cross_artifact.json] [--strict] [--quiet]
 """
 
@@ -96,9 +108,38 @@ class Report:
             "summary": {
                 "stale": sum(1 for f in self.findings if f.severity == "stale"),
                 "version_stale": sum(1 for f in self.findings if f.severity == "version_stale"),
+                "survivor": sum(1 for f in self.findings if f.severity == "survivor"),
             },
             "findings": [asdict(f) for f in self.findings],
         }
+
+
+def _survivor_pattern(needle: str, numeric: bool) -> re.Pattern:
+    """Case-insensitive term match, or a digit-bounded numeric match."""
+    if numeric:
+        return re.compile(r"(?<![\d.])" + re.escape(needle) + r"(?!\d)")
+    return re.compile(re.escape(needle), re.IGNORECASE)
+
+
+def scan_survivors(text: str, path: str, retired_terms: list[str],
+                   old_values: list[str]) -> list["Finding"]:
+    """Flag any retired framing term / superseded value that survives in text."""
+    out: list[Finding] = []
+    for term in retired_terms:
+        m = _survivor_pattern(term, numeric=False).search(text)
+        if m:
+            snippet = re.sub(r"\s+", " ", text[max(0, m.start() - 30): m.start() + len(term) + 30]).strip()
+            out.append(Finding(
+                "retired_framing_survivor", "survivor", path,
+                f"retired term {term!r} still present (…{snippet}…) — reframe not applied here"))
+    for val in old_values:
+        m = _survivor_pattern(val, numeric=bool(re.fullmatch(r"\d+(?:\.\d+)?", val))).search(text)
+        if m:
+            snippet = re.sub(r"\s+", " ", text[max(0, m.start() - 30): m.start() + len(val) + 30]).strip()
+            out.append(Finding(
+                "stale_old_value", "survivor", path,
+                f"superseded value {val!r} still present (…{snippet}…) — headline change not propagated here"))
+    return out
 
 
 def label_values(text: str) -> dict[str, set[str]]:
@@ -134,15 +175,27 @@ def _manuscript_version(manuscript: Path, explicit: str | None) -> int | None:
     return int(m.group(1)) if m else None
 
 
-def build_report(manuscript: Path, aux_paths: list[Path], version: int | None) -> Report:
+def build_report(manuscript: Path, aux_paths: list[Path], version: int | None,
+                 retired_terms: list[str] | None = None,
+                 old_values: list[str] | None = None) -> Report:
     rep = Report()
+    retired_terms = retired_terms or []
+    old_values = old_values or []
     body = manuscript.read_text(encoding="utf-8", errors="replace")
     body_labels = label_values(body)
+
+    # 3. retired-term / old-value survivors in the BODY itself (un-touched paragraphs)
+    if retired_terms or old_values:
+        rep.findings += scan_survivors(body, str(manuscript), retired_terms, old_values)
 
     aux_files = [f for f in _iter_files(aux_paths) if f.resolve() != manuscript.resolve()]
     for f in aux_files:
         text = f.read_text(encoding="utf-8", errors="replace")
         rel = str(f)
+
+        # 3. retired-term / old-value survivors in this aux artifact
+        if retired_terms or old_values:
+            rep.findings += scan_survivors(text, rel, retired_terms, old_values)
 
         # 1. labeled-value drift vs the body
         for key, vals in label_values(text).items():
@@ -176,6 +229,10 @@ def main(argv: list[str] | None = None) -> int:
                     help="Auxiliary file or directory (supplement/checklist/captions). Repeatable.")
     ap.add_argument("--manuscript-version", default=None,
                     help="Current manuscript version, e.g. v8 (else inferred from filename).")
+    ap.add_argument("--retired-term", action="append", default=[], metavar="TERM",
+                    help="A framing term the revision retired; flag any survivor in body/aux. Repeatable.")
+    ap.add_argument("--old-value", action="append", default=[], metavar="VALUE",
+                    help="A superseded headline value; flag any survivor in body/aux. Repeatable.")
     ap.add_argument("--out", type=Path, default=None, help="Write JSON report here.")
     ap.add_argument("--strict", action="store_true",
                     help="(Reserved) all findings already fail; flag kept for interface parity.")
@@ -185,12 +242,13 @@ def main(argv: list[str] | None = None) -> int:
     if not args.manuscript.is_file():
         print(f"ERROR: --manuscript not a file: {args.manuscript}", file=sys.stderr)
         return 2
-    if not args.aux:
-        print("ERROR: at least one --aux is required", file=sys.stderr)
+    if not args.aux and not args.retired_term and not args.old_value:
+        print("ERROR: pass at least one of --aux, --retired-term, --old-value", file=sys.stderr)
         return 2
 
     version = _manuscript_version(args.manuscript, args.manuscript_version)
-    rep = build_report(args.manuscript, args.aux, version)
+    rep = build_report(args.manuscript, args.aux, version,
+                       retired_terms=args.retired_term, old_values=args.old_value)
 
     if args.out is not None:
         args.out.parent.mkdir(parents=True, exist_ok=True)
