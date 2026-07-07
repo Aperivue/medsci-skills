@@ -26,6 +26,7 @@ headline gap regardless of the overall percentage.
 | **STROBE** (observational) | Eligibility/selection; exposure/outcome definitions; **missing-data handling**; participant flow that reconciles |
 | **PRISMA / PRISMA-DTA** (systematic review) | Full search strategy (≥1 database verbatim); flow diagram that reconciles; per-study risk of bias; registration/protocol **status or reference** (an explicit "not registered / no protocol" satisfies this — a reference is not mandatory) |
 | **REMARK** (prognostic tumor-marker study) | Marker definition + pre-specified vs exploratory hypotheses; **cutpoint justification** when a continuous marker is categorized; multivariable effect **adjusted for established prognostic variables** (not a marker-alone analysis); all examined endpoints reported, not only the significant ones |
+| **TARGET** (observational study emulating a target trial) | Explicit target-trial protocol specification (eligibility, treatment strategies, assignment, time zero, outcome, causal contrast) **and** its emulation mapping in the data; **time-zero alignment** of eligibility / assignment / start of follow-up (immortal-time control); stated causal estimand + identifying assumptions including baseline confounding |
 
 Where an extension genuinely extends a base instrument (e.g., STARD-AI extends STARD), a
 manuscript that names only the extension and skips the base items is a gap — but defer this
