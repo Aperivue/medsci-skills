@@ -2,6 +2,19 @@
 
 ## [Unreleased]
 
+### Added
+
+- **Response-claim verification gate** (`skills/revise/scripts/check_response_claims.py`, integrity
+  detectors **50 → 51**). A response-to-reviewers letter's *"we added the sentence '…'"* / *"we now
+  cite Tariq et al. [15]"* is verified against the **revised manuscript body** — the source of truth,
+  not the response prose. Fires `RESPONSE_QUOTE_UNVERIFIED` (a quoted added sentence absent from the
+  body) and `RESPONSE_CITATION_UNVERIFIED` (an added citation whose token is nowhere in the body).
+  Conservative by design: paraphrased edits and reviewer-comment blockquotes are not flagged, so a
+  firing verdict is a real discrepancy. Wired into `/revise` (author, pre-send gate) and `/peer-review`
+  (reviewer, verifying the author's claims), implementing the rule that a claimed-but-absent edit is a
+  reputation-fatal class both a reviewer round and the authors can miss. Ships
+  `skills/revise/tests/test_response_claims.sh`; `/revise` gains its first deterministic gate.
+
 ### Developer tooling
 
 - **Skill-registry consistency validator** (`scripts/validate_capabilities.py`, CI-enforced, issue #15).

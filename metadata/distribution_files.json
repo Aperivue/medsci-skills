@@ -3033,8 +3033,8 @@
     },
     {
       "path": "skills/peer-review/SKILL.md",
-      "size": 69384,
-      "sha256": "94033b84b41304d7dbd7919c84c7e9502bdaff1b7e2ef8f5dd7ec9cd7147c532"
+      "size": 70338,
+      "sha256": "246beb8a3c3c6eef78180a6ab1d87fa49db4f98d55964af5b3ab0ce5d0e7e3b0"
     },
     {
       "path": "skills/peer-review/references/aczel_2021_reviewer2_patterns.md",
@@ -3623,8 +3623,8 @@
     },
     {
       "path": "skills/revise/SKILL.md",
-      "size": 27775,
-      "sha256": "2da4f80e879c2d3ff31d2af435cb27ecae0ba09f1014b8ebbd799ac2472ff1ea"
+      "size": 28904,
+      "sha256": "c1851293ea0f59c658a1a5b4b303667de3e55f693ee5fddc2148d7245bab60ea"
     },
     {
       "path": "skills/revise/references/r2r_voice.md",
@@ -3632,9 +3632,14 @@
       "sha256": "d6e657ab4d864e0c12c6d3c8e7db5060dfcea0c56d0f9afccd876702f8b8adcf"
     },
     {
+      "path": "skills/revise/scripts/check_response_claims.py",
+      "size": 9798,
+      "sha256": "ef5e67cf757e146b43c578753fcafd10632676b08eec00328eb5100e20dc79b6"
+    },
+    {
       "path": "skills/revise/skill.yml",
-      "size": 1873,
-      "sha256": "972bcb3f09675ab830f27dd447948059d7de583a7e7317501be7212f72d82683"
+      "size": 2261,
+      "sha256": "421670bd78193e01966d08d08b22f044a6c396cba0bed99ae50fbb8f6c6564a5"
     },
     {
       "path": "skills/search-lit/SKILL.md",

@@ -363,6 +363,26 @@ Before circulating or uploading the response letter and cover letter, run `/huma
 the response-letter scan. Also apply `~/.claude/rules/manuscript-style-classical.md` (`§`,
 em-dash, heading discipline) — the same senior-reviewer red flags apply to the letter.
 
+### Response-claim verification gate (MANDATORY, deterministic)
+
+The single source of truth is the **revised manuscript**, not the response prose. A letter
+that says *"we added the sentence '…'"* or *"we now cite Tariq et al. [15]"* must be
+verifiable in the body — a claimed edit that was never actually inserted is a reputation-fatal
+class that both a reviewer round and the authors have missed. Run the gate before sending:
+
+```bash
+python3 ${CLAUDE_SKILL_DIR}/scripts/check_response_claims.py \
+  --response revision/response_to_reviewers.md \
+  --manuscript manuscript/manuscript.md --strict
+```
+
+It flags `RESPONSE_QUOTE_UNVERIFIED` (a quoted added sentence absent from the body) and
+`RESPONSE_CITATION_UNVERIFIED` (an added citation whose token is nowhere in the body). It is
+conservative — vague, paraphrased claims are not flagged — so a firing verdict is a real
+discrepancy: either insert the promised edit or correct the response wording. This directly
+enforces the *"quote the new manuscript text verbatim"* discipline above, and is the same
+check a reviewer runs against your revision (see `/peer-review`).
+
 ---
 
 ## Step 5: Cover Letter to Editor
