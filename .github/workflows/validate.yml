@@ -148,6 +148,9 @@ jobs:
       - name: Run write-paper title-page affiliation-order test
         run: bash skills/write-paper/tests/test_title_page_affiliations.sh
 
+      - name: Run write-paper backbone full-text readiness gate test
+        run: bash skills/write-paper/tests/test_backbone_fulltext.sh
+
       - name: Run sync-submission cross-artifact staleness gate test (A3)
         run: bash skills/sync-submission/tests/test_cross_artifact_stale.sh
 

@@ -117,6 +117,13 @@ When paper type is "case series" (n≥2 patients reported together):
       - **Multiple candidates** — present the top 3 ranked list with rationale and ask the user to choose.
       - **No refs.bib, or no candidates** — ask the user to provide a published study (legacy behavior).
    d. Record the chosen citekey in `project.yaml::backbone_article` so Methods, Tables, and Figures phases reuse it without re-asking.
+   e. **Full-text readiness gate (MANDATORY before any drafting).** A backbone whose full text is not extracted is a backbone in name only — the draft would follow an abstract. After recording the citekey, confirm its full text is retrieved and converted to Markdown, then gate on it:
+      ```bash
+      python3 ${CLAUDE_SKILL_DIR}/scripts/gate_backbone_fulltext.py \
+        --project project.yaml --refs manuscript/_src/refs.bib \
+        --fulltext-dir pdfs/ --strict
+      ```
+      `BACKBONE_FULLTEXT_MISSING` / `BACKBONE_FULLTEXT_THIN` means stop and retrieve it first — `/lit-sync` Phase 2.7 (open-access + Zotero "Find Available PDF") then `/fulltext-retrieval` `pdf_to_md.py` to convert the PDF to Markdown. Do **not** begin Methods drafting until this gate passes (addresses issues #4 and #8: the backbone is *used*, not merely *detected*). If the article is genuinely unavailable in full text, record that limitation explicitly and get user confirmation before proceeding on the abstract.
 8. Summarize the setup to the user and confirm before proceeding.
 
 **Output:** Setup summary with journal constraints, paper type, reporting guideline, backbone article, directory path, and LLM disclosure status (ON/OFF).
