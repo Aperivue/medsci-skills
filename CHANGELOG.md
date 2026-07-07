@@ -2,6 +2,22 @@
 
 ## [Unreleased]
 
+### Developer tooling
+
+- **Skill-registry consistency validator** (`scripts/validate_capabilities.py`, CI-enforced, issue #15).
+  Asserts that `capabilities.yml` (which adjudicates the overlapping domains) and every
+  `skills/*/skill.yml` (`owner_domain`) agree: valid-YAML contracts, owner⇄skill agreement, no silent
+  claimant of a declared domain, and resolvable `overlaps`/umbrella members. It found and fixed two
+  latent drifts it now guards against — a malformed `render-pdf-doc/skill.yml` (an unquoted embedded
+  colon that no prior check caught, because `validate_skill_contracts.py` parses skill.yml by regex and
+  was never wired into CI) and `fulltext-retrieval` claiming the `literature_discovery` domain without
+  appearing in its `overlaps`. Ships `tests/test_capabilities_validator.sh` (each drift class fails
+  under `--strict`; the live repo is clean). Not an integrity detector — a repo validator, so the
+  detector count is unchanged.
+- **manage-refs designated canonical** (issue #16) — `skills/manage-refs/SKILL.md` now carries a
+  canonical-source banner for the reference *workflow* (`verify-refs` remains canonical for bib
+  *audit*), so external/user-scope notes point here rather than restating the "how" and drifting.
+
 ### Documentation
 
 - **Demo 4 — PneumoniaMNIST CNN** (`demo/04_pneumoniamnist_cnn/`). A fourth live demo that runs the

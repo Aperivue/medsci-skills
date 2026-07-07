@@ -2373,8 +2373,8 @@
     },
     {
       "path": "skills/manage-refs/SKILL.md",
-      "size": 18165,
-      "sha256": "49adc82dea2b5d7eb93946b2cd8143d66d50b53169d3ed18f4bd738bfe3af39f"
+      "size": 18627,
+      "sha256": "abb0f38acbff93ffdff68be6a29b68757027fd7ffec545abd90df2df4113c08c"
     },
     {
       "path": "skills/manage-refs/citation_styles/README.md",
@@ -3538,8 +3538,8 @@
     },
     {
       "path": "skills/render-pdf-doc/skill.yml",
-      "size": 3131,
-      "sha256": "af400eb4f819fd982dc0df71ed6ad8b003987a164fbff1cf467c9d1d3c0c0a6c"
+      "size": 3133,
+      "sha256": "77fe112e5a013d3169290132f9882fbb05b3ebe9317729960582895509c21568"
     },
     {
       "path": "skills/render-pdf-doc/templates/anchor-doc.md",

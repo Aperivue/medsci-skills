@@ -17,6 +17,13 @@ model: inherit
 
 # Manage-Refs Skill
 
+> **Canonical source (issue #16).** This SKILL.md is the single canonical
+> reference for the reference-*workflow* (validate keys → render CSL → convert
+> markers → QC cross-references → inject Zotero CWYW). Audit-only bib
+> verification is owned by `skills/verify-refs/SKILL.md`. Any user-scope rule or
+> external note about reference handling should point here (workflow) or to
+> verify-refs (audit) rather than restating the "how", to prevent drift.
+
 You are routing reference-handling work for a medical manuscript. The user is
 somewhere in the lifecycle — drafting, building a circulation DOCX, swapping
 CSL after a journal rejection, fixing a cross-reference defect surfaced by

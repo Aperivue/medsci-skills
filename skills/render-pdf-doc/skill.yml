@@ -42,7 +42,7 @@ provenance:
 quality_gates:
   - check_deps.sh: hard exit if pandoc + xelatex + CJK-font dependencies are not installed
   - infer_colwidths.py: enforce content-proportional dashes unless the equal-split (--equal) option is specified
-  - circulation_redaction: for circulation PDFs, enforce frontmatter `redact_internal: true` or keep change history / version numbers / PI attribution out of the body
+  - circulation_redaction: "for circulation PDFs, enforce frontmatter `redact_internal: true` or keep change history / version numbers / PI attribution out of the body"
 
 # v2.1 quality card
 purpose: "Render a Markdown manuscript to a styled DOCX/PDF (tables, column widths, dependencies checked)."
