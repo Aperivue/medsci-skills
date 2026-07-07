@@ -23,6 +23,13 @@
 
 ### Added
 
+- **`make-figures` PPTX Mac-compatibility validator test** (`skills/make-figures/tests/test_pptx_mac_compat.py`).
+  `validate_pptx_mac_compat.py` (TIFF media / `<a:sp3d>` bevel / `docProps/app.xml` slide-count mismatch /
+  `srcRect` over-crop) previously shipped without a regression test. The test builds a clean deck
+  (python-pptx, with a corrected app.xml slide count so the known `<Slides>0` bug does not false-fail),
+  asserts it passes, then injects each of the four defect classes and asserts a `--strict` failure, plus a
+  missing-input exit code and the WARN-tolerated (no app.xml) path. CI-wired. No skill-logic change.
+
 - **Backbone full-text readiness gate for `/write-paper`** (`skills/write-paper/scripts/gate_backbone_fulltext.py`,
   issues #4 + #8). Phase 0 records a backbone article (`project.yaml::backbone_article`), but nothing forced
   its **full text** to be extracted before drafting — so the draft could follow an abstract. The gate resolves

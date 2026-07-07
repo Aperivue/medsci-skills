@@ -209,6 +209,9 @@ jobs:
       - name: Run make-figures legend-reconcile test
         run: bash skills/make-figures/tests/test_legend_reconcile.sh
 
+      - name: Run make-figures pptx Mac-compatibility validator test
+        run: python3 skills/make-figures/tests/test_pptx_mac_compat.py
+
       - name: Run clean-data structural-zero test
         run: bash skills/clean-data/tests/test_structural_zero.sh
 
