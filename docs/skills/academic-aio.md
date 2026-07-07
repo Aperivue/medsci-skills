@@ -36,6 +36,7 @@
 
 **References** (`skills/academic-aio/references/`):
 
+- `ai_tool_citation_framing.md`
 - `case_studies/` (1 file)
 - `checklists/` (1 file)
 - `journal_summarybox_templates.yaml`

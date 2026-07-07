@@ -58,8 +58,13 @@
     },
     {
       "path": "skills/academic-aio/SKILL.md",
-      "size": 31396,
-      "sha256": "339f937d2218e11c8f6576df9bb6d5b2b827634092d8f4e6c1b6110e092076b5"
+      "size": 32276,
+      "sha256": "d893714e70af45b6f9d162d5220875685995e4a2c428331348689566e672989c"
+    },
+    {
+      "path": "skills/academic-aio/references/ai_tool_citation_framing.md",
+      "size": 4064,
+      "sha256": "e3c8403cc698a45bb5626b233c5cbf18eb283e6a606d6232471f0f0c657d0fec"
     },
     {
       "path": "skills/academic-aio/references/case_studies/kjr_mllm_2025.md",
