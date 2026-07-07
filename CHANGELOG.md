@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+### Documentation
+
+- **AI-tool citation framing (`/academic-aio`)** — a use-class guide for citing an AI-assisted research
+  tool safely (`references/ai_tool_citation_framing.md` + a Section 2.4a pointer). Verification/QA and
+  analysis uses belong in a Software / Code-availability statement (citable, rigor-signalling); generative
+  drafting belongs in the journal's AI-disclosure field, not a proud citation. Self-citation by a tool's
+  author additionally requires a COI disclosure. States why a deterministic gate is deferred (use-class
+  classification is high-FP without context). Motivated by the recurring "how do I cite an AI-QA tool
+  under journal AI-hostility" question.
+
 ### Added
 
 - **Backbone full-text readiness gate for `/write-paper`** (`skills/write-paper/scripts/gate_backbone_fulltext.py`,

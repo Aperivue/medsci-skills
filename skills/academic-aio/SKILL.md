@@ -107,6 +107,9 @@ This pattern is the canonical shape LLM extractors parse first.
 ### 2.4 Reproducibility block
 Include a labeled block (typically end of Methods or a standalone Data/Code Availability section) listing: data availability and license, code availability with DOI, model weights and checkpoints, prompts and configuration files, random seeds, compute environment. This block is disproportionately scraped by AI agents when they cite a paper as reproducible.
 
+### 2.4a Citing an AI-assisted tool by use-class
+If the work used an AI-assisted tool (a verification/QA suite, analysis code, or a generative drafting assistant), frame the mention by *what it did*, not by hiding it — under current journal wariness, a proud in-text citation of a **generative** use invites suspicion, while the same placement for a **verification** use reads as rigor (like citing a reference manager or a linter). Split the mention: **verification/QA and analysis** → a **Software / Code-availability statement** (citable); **generative** drafting/humanizing → the journal's **AI-use disclosure field**, not a citation. A self-citation by the tool's author additionally requires a COI disclosure, and you should cite only the functions the work actually used. Full use-class table and rules: `${CLAUDE_SKILL_DIR}/references/ai_tool_citation_framing.md`.
+
 ### 2.5 Limitations enumeration
 List limitations explicitly and name each one (generalizability, spectrum bias, dataset shift, single-center training, label noise). Papers with enumerated limitations score higher for trustworthiness in LLM summarization benchmarks.
 
