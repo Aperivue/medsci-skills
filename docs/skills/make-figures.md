@@ -28,6 +28,7 @@
 
 - `Rscript scripts/generate_flow_diagram.R`
 - `python3 scripts/validate_pptx_mac_compat.py <file>`
+- `python3 tests/test_pptx_mac_compat.py`
 - `bash scripts/render_core_figures_challenge/verify.sh`
 
 **Evidence** — `demo`

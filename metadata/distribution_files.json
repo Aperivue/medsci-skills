@@ -2273,8 +2273,8 @@
     },
     {
       "path": "skills/make-figures/skill.yml",
-      "size": 2205,
-      "sha256": "b973c376998b15cefe9bffdf580889f905b60ddc2dead00cc5cbc900a6fd50f5"
+      "size": 2249,
+      "sha256": "6a8ebbe077c2073bb546a044bbecb5d483dbe2d2a50b31adabba6cf5e3a87990"
     },
     {
       "path": "skills/make-figures/templates/official/NOTES.md",
