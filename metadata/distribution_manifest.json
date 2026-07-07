@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "version": "5.17.0",
+  "version": "5.18.0",
   "owned_skills": [
     "academic-aio",
     "add-journal",
