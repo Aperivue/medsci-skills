@@ -64,7 +64,7 @@ jobs:
       - name: Run check_domain_probe_sync.py (vendored domain probes must be byte-identical)
         run: python3 scripts/check_domain_probe_sync.py --strict
 
-      - name: Run validate_capabilities.py (skill registry: capabilities.yml <-> skills/*/skill.yml)
+      - name: Run validate_capabilities.py (skill-registry consistency, capabilities.yml vs skill.yml)
         run: python3 scripts/validate_capabilities.py --strict
 
       - name: Run capabilities-validator self-test (drift fixtures fail, live repo clean)
