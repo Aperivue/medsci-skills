@@ -34,10 +34,30 @@ Per-skill documentation under `docs/skills/` is **generated** from each `skills/
 5. Add focused tests or validation scripts for deterministic behavior.
 6. Run the repository validators before opening a pull request.
 
+### Registry consistency (`capabilities.yml` ⇄ `skill.yml`)
+
+`capabilities.yml` adjudicates the *overlapping* domains (each with an `owner`
+and `overlaps` list); every skill's `skill.yml` declares its `owner_domain`.
+`scripts/validate_capabilities.py --strict` (CI-enforced) asserts four
+invariants — run it after adding or moving a skill:
+
+1. **Valid contract** — every `skills/*/skill.yml` is valid YAML with `name`
+   equal to its directory and a non-empty `owner_domain`.
+2. **Owner agreement** — each declared domain's `owner` is a real skill whose
+   `owner_domain` is that domain.
+3. **No silent claimant** — a skill whose `owner_domain` is a *declared* domain
+   must be that domain's owner or listed in its `overlaps`.
+4. **Resolvable references** — every `overlaps` entry and every umbrella member
+   resolves to an existing skill / declared domain.
+
+A single-skill domain that needs no adjudication is *not* declared in
+`capabilities.yml` — that is intentional, not drift.
+
 ## Pull Request Checklist
 
 - [ ] `bash scripts/validate_skills.sh`
 - [ ] `python3 scripts/validate_skill_contracts.py`
+- [ ] `python3 scripts/validate_capabilities.py --strict` (skill-registry consistency)
 - [ ] `python3 scripts/check_locale_inventory.py` (any new non-English text is justified in `docs/locale_inventory.md`).
 - [ ] No private project identifiers, manuscript IDs, collaborator names, patient-level examples, or institution-specific hidden context.
 - [ ] No personal absolute paths.

@@ -37,6 +37,7 @@ domains:
     overlaps:
       - verify-refs
       - ma-scout
+      - fulltext-retrieval
     rule: Finds literature and generates verified candidate citations.
   zotero_sync:
     owner: lit-sync
