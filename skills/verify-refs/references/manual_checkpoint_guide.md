@@ -91,6 +91,10 @@ python3 -c "import json; a=json.load(open('qc/reference_audit.json')); \
 
 The pre-save hook `verify-refs-guard.sh` already runs on every `.docx` save
 under `submission/` or `revision/R*/`. A `FABRICATED` status blocks the save.
+It additionally runs **warn-only** (never blocks) on pre-submission and
+mentor-circulation drafts that used to skip the audit — `outgoing/`,
+`8_Review_Comments/*/outgoing/`, and any `circulation/` path (issue #14) — so a
+missing citation audit is surfaced there without interrupting rapid iteration.
 The manual strict run is a belt-and-suspenders check at the checkpoints listed
 above; it is NOT a substitute for the inline hook.
 

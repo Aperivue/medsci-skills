@@ -4,6 +4,15 @@
 
 ### Documentation
 
+- **verify-refs guard hook — extended warn-only coverage (issue #14)**. The optional local PostToolUse
+  hook (`~/.claude/hooks/verify-refs-guard.sh`, document-only in this repo) previously gated only
+  `submission/` and `revision/R*/…circulation…` saves, so senior-mentor reply drafts and pre-submission
+  `outgoing/` packages skipped the citation audit entirely. Documented (README + verify-refs manual-checkpoint
+  guide) the added **warn-only** patterns — `*/outgoing/*.{docx,md}`, `*/8_Review_Comments/*/outgoing/*.{docx,md}`,
+  and any `*/circulation/*.{docx,md}` — which surface a missing audit without blocking and never enforce,
+  regardless of SSOT/migration state. Extends the local-only regression suite (`tests/test_phase1c_hooks.sh`)
+  with a case asserting an `outgoing/` FABRICATED draft warns rather than blocks even under `MODE=enforce`.
+
 - **AI-tool citation framing (`/academic-aio`)** — a use-class guide for citing an AI-assisted research
   tool safely (`references/ai_tool_citation_framing.md` + a Section 2.4a pointer). Verification/QA and
   analysis uses belong in a Software / Code-availability statement (citable, rigor-signalling); generative

@@ -4133,8 +4133,8 @@
     },
     {
       "path": "skills/verify-refs/references/manual_checkpoint_guide.md",
-      "size": 3727,
-      "sha256": "86832ad71dbeaf8287258d0ccab6e32ffd75e9fa5787b9240703c8a951b18d4e"
+      "size": 4031,
+      "sha256": "4da6bd649d672bcae7505098d4712d6fb253fea8fa3be41c95870587cc6553a4"
     },
     {
       "path": "skills/verify-refs/scripts/verify_cli.sh",
