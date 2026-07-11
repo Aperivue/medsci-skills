@@ -3048,8 +3048,8 @@
     },
     {
       "path": "skills/peer-review/SKILL.md",
-      "size": 72603,
-      "sha256": "92b89c3edc60c1d621738904df2bd4932fcb70babc60e3e306d857c781cfd6e6"
+      "size": 75710,
+      "sha256": "484a289ceb990a3301fc3a8093c1e5fae2e8fb00e267d774e4d7df4e0591a748"
     },
     {
       "path": "skills/peer-review/references/aczel_2021_reviewer2_patterns.md",
@@ -3073,8 +3073,8 @@
     },
     {
       "path": "skills/peer-review/references/domain-probes/diagnostic_accuracy.md",
-      "size": 11967,
-      "sha256": "8c0a8bd30fe16507e2997ddba1bbcfb4ee7eade7df44f1981e1427cd3a28d233"
+      "size": 12675,
+      "sha256": "06f8a8e6fcfaf00f25d04e98b58ddf3344ddc1d772057c401a83ef71d012be90"
     },
     {
       "path": "skills/peer-review/references/domain-probes/equity_fairness.md",
@@ -3118,8 +3118,8 @@
     },
     {
       "path": "skills/peer-review/references/domain-probes/observational_confounding.md",
-      "size": 34795,
-      "sha256": "ff8cb910c7fb83ec08a04ba88866bdf1e0d2f43d972e2861b825595a85b035ee"
+      "size": 35839,
+      "sha256": "32343fb2ed0d20cb76593c8d07842d0628ce363a7c24a6739f10fa29b37e6398"
     },
     {
       "path": "skills/peer-review/references/domain-probes/polygenic_risk_score.md",
@@ -3778,8 +3778,8 @@
     },
     {
       "path": "skills/self-review/references/domain-probes/diagnostic_accuracy.md",
-      "size": 11967,
-      "sha256": "8c0a8bd30fe16507e2997ddba1bbcfb4ee7eade7df44f1981e1427cd3a28d233"
+      "size": 12675,
+      "sha256": "06f8a8e6fcfaf00f25d04e98b58ddf3344ddc1d772057c401a83ef71d012be90"
     },
     {
       "path": "skills/self-review/references/domain-probes/equity_fairness.md",
@@ -3823,8 +3823,8 @@
     },
     {
       "path": "skills/self-review/references/domain-probes/observational_confounding.md",
-      "size": 34795,
-      "sha256": "ff8cb910c7fb83ec08a04ba88866bdf1e0d2f43d972e2861b825595a85b035ee"
+      "size": 35839,
+      "sha256": "32343fb2ed0d20cb76593c8d07842d0628ce363a7c24a6739f10fa29b37e6398"
     },
     {
       "path": "skills/self-review/references/domain-probes/polygenic_risk_score.md",
