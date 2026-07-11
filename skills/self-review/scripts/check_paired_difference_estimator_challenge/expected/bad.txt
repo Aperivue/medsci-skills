@@ -1,0 +1,5 @@
+== ESTIMATOR PROBLEM ==  fixture/paired_bad.md
+problems=3
+[MAJOR] DEGENERATE_CI  reported 95% CI has equal bounds (0.5–0.5) — zero width
+[MAJOR] ESTIMATOR_UNNAMED  a median-difference effect size with a CI is reported but no estimator / interval method (Hodges–Lehmann, pseudomedian, bootstrap, Wilcoxon, exact, sign test) is named
+[MAJOR] MEDIAN_PARITY  reported median paired difference 0.5 is not achievable: the median of n=153 (odd) integer differences must be an integer — likely a Hodges–Lehmann pseudomedian mislabelled as a median

@@ -1,0 +1,3 @@
+== OK ==  fixture/p_ok.md
+non_reproducible=0
+every reported P reproduces from its counts under a standard test.

@@ -4,6 +4,21 @@
 
 ### Added
 
+- **Reviewer-arithmetic detectors D1–D4** (`self-review`) — four deterministic gates promoted from a
+  reviewer-side review cycle, each recomputing what a manuscript already prints:
+  `check_nested_group_comparison.py` (`NESTED_GROUP_TEST` — a P-value table comparing an analysed subset
+  against the parent cohort that contains it is an *invalid* test, not merely uninformative; the valid
+  contrast is subset vs remainder), `check_reported_p_from_counts.py` (`P_NOT_REPRODUCIBLE` — rebuilds each
+  2×2 row and recomputes Fisher / Pearson χ² ± Yates in pure stdlib, calibrates the family on rows that
+  reproduce, and flags a reported P off by >1 order of magnitude under every family), `check_dta_denominators.py`
+  (`DTA_DENOMINATOR_MISMATCH` / `STAGE_ROWSUM` — sensitivity/specificity denominators must equal the
+  reference-standard category counts in the characteristics table; grand-total agreement is not accepted as
+  passing), and `check_paired_difference_estimator.py` (`MEDIAN_PARITY` / `DEGENERATE_CI` / `ESTIMATOR_UNNAMED`
+  — an odd-n integer-scale median cannot be non-integer, a zero-width CI, and an effect size with no named
+  estimator). All run on first submissions, not only revisions; each ships a synthetic challenge card that runs
+  in CI. Paired with rule updates R1 (requested-analysis correctness audit) and R5 (portal box-provenance) in
+  `~/.claude/rules`. **Integrity detectors 53 → 57.**
+
 - **Table-percentage gate** (`self-review`) — `check_table_percentages.py` recomputes every `n (p%)` table
   cell against its own column denominator (a `n = N` header, a Total row, or the column's counts summing)
   and flags a printed percentage off by more than 0.5 pp — the cheapest, zero-judgement arithmetic check,

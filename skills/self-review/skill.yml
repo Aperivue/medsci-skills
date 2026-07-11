@@ -24,6 +24,10 @@ deterministic_scripts:
   - scripts/check_reference_adequacy.py
   - scripts/check_editorial_impression.py
   - scripts/check_table_percentages.py
+  - scripts/check_nested_group_comparison.py
+  - scripts/check_reported_p_from_counts.py
+  - scripts/check_dta_denominators.py
+  - scripts/check_paired_difference_estimator.py
 side_effects:
   - may_edit_manuscript_when_fix_flag_set
 downstream_consumers:
@@ -53,5 +57,9 @@ validation_commands:
   - "bash tests/test_cv_leakage.sh"
   - "python3 scripts/check_table_percentages.py --manuscript <manuscript.md> --strict  # recompute n (%) cells vs column denominator"
   - "bash scripts/check_table_percentages_challenge/verify.sh  # deterministic, network-free"
+  - "bash scripts/check_nested_group_comparison_challenge/verify.sh  # subset-vs-parent P-value comparison"
+  - "bash scripts/check_reported_p_from_counts_challenge/verify.sh  # recompute row P from 2x2 counts"
+  - "bash scripts/check_dta_denominators_challenge/verify.sh  # sens/spec denominators vs reference-standard counts"
+  - "bash scripts/check_paired_difference_estimator_challenge/verify.sh  # median parity / degenerate CI / unnamed estimator"
   - "feed R0-numbered output into /revise"
 evidence_surface: demo

@@ -1,0 +1,5 @@
+== DENOMINATOR MISMATCH ==  fixture/dta_bad.md
+mismatches=2
+[MAJOR] DTA_DENOMINATOR_MISMATCH  sensitivity denominator 18 (disease-positive) ≠ reference-standard positive count 19 from the characteristics table
+[MAJOR] DTA_DENOMINATOR_MISMATCH  specificity denominator 15 (disease-negative) ≠ reference-standard negative count 14 from the characteristics table
+[INFO ] GRAND_TOTAL_AGREES  grand totals agree (14+19 = 18+15 = 33), so a totals-only check passes — the split-level mismatch is the defect

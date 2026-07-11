@@ -1,0 +1,3 @@
+== OK ==  fixture/clean.md
+nested_comparisons=0
+no subset-vs-parent-cohort P-value comparison detected.
