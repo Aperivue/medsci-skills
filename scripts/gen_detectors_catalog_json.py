@@ -49,6 +49,9 @@ FAMILY_BY_ID: dict[str, str] = {
     # Numerical, cohort & pool arithmetic
     "check_cohort_arithmetic": "numerical_cohort",
     "check_table_percentages": "numerical_cohort",
+    "check_reported_p_from_counts": "numerical_cohort",
+    "check_dta_denominators": "numerical_cohort",
+    "check_paired_difference_estimator": "numerical_cohort",
     "check_artifact_coverage": "numerical_cohort",
     "check_rounded_delta": "numerical_cohort",
     "check_pool_consistency": "numerical_cohort",
@@ -76,6 +79,7 @@ FAMILY_BY_ID: dict[str, str] = {
     # Confounding, scope & estimand contracts
     "check_scope_coherence": "confounding_scope_estimand",
     "check_confounding_completeness": "confounding_scope_estimand",
+    "check_nested_group_comparison": "confounding_scope_estimand",
     "check_claim_artifact": "confounding_scope_estimand",
     "check_null_calibration": "confounding_scope_estimand",
     # Reporting compliance

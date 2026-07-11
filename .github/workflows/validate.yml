@@ -329,6 +329,18 @@ jobs:
       - name: Run self-review table-percentage challenge (n (%) recompute vs denominator)
         run: bash skills/self-review/scripts/check_table_percentages_challenge/verify.sh
 
+      - name: Run self-review nested-group-comparison challenge (subset vs parent cohort)
+        run: bash skills/self-review/scripts/check_nested_group_comparison_challenge/verify.sh
+
+      - name: Run self-review reported-P-from-counts challenge (recompute row P, stdlib)
+        run: bash skills/self-review/scripts/check_reported_p_from_counts_challenge/verify.sh
+
+      - name: Run self-review DTA-denominator challenge (sens/spec vs reference-standard)
+        run: bash skills/self-review/scripts/check_dta_denominators_challenge/verify.sh
+
+      - name: Run self-review paired-difference-estimator challenge (median parity / degenerate CI)
+        run: bash skills/self-review/scripts/check_paired_difference_estimator_challenge/verify.sh
+
       - name: Run analyze-stats generated-code gate test
         run: bash skills/analyze-stats/tests/test_generated_code.sh
 

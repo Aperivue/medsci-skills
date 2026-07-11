@@ -1,0 +1,3 @@
+== OK ==  fixture/paired_ok.md
+problems=0
+median-difference estimator, interval, and value set are consistent.

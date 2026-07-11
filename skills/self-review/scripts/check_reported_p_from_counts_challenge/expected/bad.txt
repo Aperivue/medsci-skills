@@ -1,0 +1,3 @@
+== NON-REPRODUCIBLE P ==  fixture/p_bad.md
+non_reproducible=1
+[MAJOR] P_NOT_REPRODUCIBLE L6  row 'Adenocarcinoma' (5/132 vs 4/33) reports P<0.001, but recomputes to Fisher 0.0799 / Yates 0.145 / uncorrected 0.0594 (closest Pearson chi-square (uncorrected); table family ≈ Pearson chi-square (uncorrected))

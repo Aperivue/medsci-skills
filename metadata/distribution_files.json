@@ -3962,6 +3962,41 @@
       "sha256": "431c5f14ad2c4f59e85b2a5e86150ac708d476e8f2f1da859d81953f522b2117"
     },
     {
+      "path": "skills/self-review/scripts/check_dta_denominators.py",
+      "size": 7798,
+      "sha256": "98c116aa7c42f045565e6e8a24df2b15751aef4a5e7e012ec7e5b5ec17a73850"
+    },
+    {
+      "path": "skills/self-review/scripts/check_dta_denominators_challenge/expected/bad.txt",
+      "size": 506,
+      "sha256": "c784ee7acd5521c7789b6893f4b86deb5c9401e1b1195dc1b77be088af2dda96"
+    },
+    {
+      "path": "skills/self-review/scripts/check_dta_denominators_challenge/expected/ok.txt",
+      "size": 119,
+      "sha256": "875e7cfd99ff0c4e2daa1270f9a5dce30597cc2e58e50c085b7c30d843d57fda"
+    },
+    {
+      "path": "skills/self-review/scripts/check_dta_denominators_challenge/fixture/dta_bad.md",
+      "size": 281,
+      "sha256": "49ed72428ff7cbcc16470fad4f7e63ef20c529fff6a0866d26003cc6cb3f75c7"
+    },
+    {
+      "path": "skills/self-review/scripts/check_dta_denominators_challenge/fixture/dta_ok.md",
+      "size": 280,
+      "sha256": "3ed363e1a00af0db022c522254788d76c3618becff8479b91e98fab52fa77760"
+    },
+    {
+      "path": "skills/self-review/scripts/check_dta_denominators_challenge/problem.md",
+      "size": 1584,
+      "sha256": "fcb419b743fa08256f3098c9a96ee7277819e8b769732d7f4763053535af61a5"
+    },
+    {
+      "path": "skills/self-review/scripts/check_dta_denominators_challenge/verify.sh",
+      "size": 1410,
+      "sha256": "3d6582b582ab5fef657dbb1e8b75a5d478669ccd88fff52e7ebe644ce5ba51f4"
+    },
+    {
       "path": "skills/self-review/scripts/check_editorial_impression.py",
       "size": 22032,
       "sha256": "42e0e9315e1c97ca0f9943213c65ea91d7064773d25287b2577f0386dfb7fc41"
@@ -3977,9 +4012,79 @@
       "sha256": "342bc1126a420111da9c0fe38c6cd68cc45542b0e485202689d7219de9d80712"
     },
     {
+      "path": "skills/self-review/scripts/check_nested_group_comparison.py",
+      "size": 6351,
+      "sha256": "44a7d7ce9913dcf33386de3fae510bc2f1e388c59d338ae482028920b327b37a"
+    },
+    {
+      "path": "skills/self-review/scripts/check_nested_group_comparison_challenge/expected/clean.txt",
+      "size": 104,
+      "sha256": "de4af34352139fba95d091bd65da9c34ffba15d205c1f5ebe53bf1eb23dbe01d"
+    },
+    {
+      "path": "skills/self-review/scripts/check_nested_group_comparison_challenge/expected/nested.txt",
+      "size": 301,
+      "sha256": "497f6f5ce6604a8cce134a165d72768d5bb724458912f926a5cbfbbb22243671"
+    },
+    {
+      "path": "skills/self-review/scripts/check_nested_group_comparison_challenge/fixture/clean.md",
+      "size": 328,
+      "sha256": "882880e171b845160d2f228a45d74fbab55ad9c65aa5ef0f19fc53ff5f4dbb92"
+    },
+    {
+      "path": "skills/self-review/scripts/check_nested_group_comparison_challenge/fixture/nested.md",
+      "size": 243,
+      "sha256": "40d41141e8c60a8338f8e33ac2a597ec2ee4f42fa92ce3cc94cee7be20f52b2d"
+    },
+    {
+      "path": "skills/self-review/scripts/check_nested_group_comparison_challenge/problem.md",
+      "size": 1494,
+      "sha256": "f02cff50c0c86f28ea144cb06b190420d9a02f2217d15c271157943b3f6a4984"
+    },
+    {
+      "path": "skills/self-review/scripts/check_nested_group_comparison_challenge/verify.sh",
+      "size": 1478,
+      "sha256": "c84ba913c3ba0f4d9ecc9bf84a77836513314c967491c2bb0d8666b1baf0281e"
+    },
+    {
       "path": "skills/self-review/scripts/check_null_calibration.py",
       "size": 8585,
       "sha256": "e5bd71c515554b3acbaefd3807e584364a536dc6e1101bec5b524bc26b341309"
+    },
+    {
+      "path": "skills/self-review/scripts/check_paired_difference_estimator.py",
+      "size": 6612,
+      "sha256": "e4a4c4c59b7dc50a8eeace2a9dfa7ba988120b4ede5f307d9836c37b40a2b76f"
+    },
+    {
+      "path": "skills/self-review/scripts/check_paired_difference_estimator_challenge/expected/bad.txt",
+      "size": 550,
+      "sha256": "3f9204146334e1f18c67997cb208d1e3702e9f2c7ed865f31f342c03ca962935"
+    },
+    {
+      "path": "skills/self-review/scripts/check_paired_difference_estimator_challenge/expected/ok.txt",
+      "size": 111,
+      "sha256": "4706dc20a9e9391a032acf5b91ce71b6ec619174ffc7e676eee4fc2cf91d4e40"
+    },
+    {
+      "path": "skills/self-review/scripts/check_paired_difference_estimator_challenge/fixture/paired_bad.md",
+      "size": 257,
+      "sha256": "a268c335cc776f26f6b366044d40d75538fba87e2730c58cc8cbeb66780f44eb"
+    },
+    {
+      "path": "skills/self-review/scripts/check_paired_difference_estimator_challenge/fixture/paired_ok.md",
+      "size": 287,
+      "sha256": "0be43e775f0e6d45162c9d0dd23e591b916992f2abd041ff71483920cb4d8a90"
+    },
+    {
+      "path": "skills/self-review/scripts/check_paired_difference_estimator_challenge/problem.md",
+      "size": 1505,
+      "sha256": "ede7ecbef797e18958abd037d3534f11b71e1027f87a3a99c310a24484da69ed"
+    },
+    {
+      "path": "skills/self-review/scripts/check_paired_difference_estimator_challenge/verify.sh",
+      "size": 1531,
+      "sha256": "b3172bbdc15868b8d4f16534e1c0049ec8b694ac864f22a989ee00aa84d218e4"
     },
     {
       "path": "skills/self-review/scripts/check_panel_diversity.py",
@@ -3995,6 +4100,41 @@
       "path": "skills/self-review/scripts/check_reference_adequacy.py",
       "size": 17564,
       "sha256": "007100ed2ec23d01a9352feae10c5af23e7b3e88d91bb7fda7c3c899772aaa85"
+    },
+    {
+      "path": "skills/self-review/scripts/check_reported_p_from_counts.py",
+      "size": 8813,
+      "sha256": "86771e8dfbad9d9680fa7cfd15cc98b63a247a318cd86c4162d852359c82a252"
+    },
+    {
+      "path": "skills/self-review/scripts/check_reported_p_from_counts_challenge/expected/bad.txt",
+      "size": 308,
+      "sha256": "b9d0da79b8eedda2c8a17ef6852400e6b7adb5e556d561cf544c8a5e5a8fb875"
+    },
+    {
+      "path": "skills/self-review/scripts/check_reported_p_from_counts_challenge/expected/ok.txt",
+      "size": 112,
+      "sha256": "cddb1acfec3c0a27e18c24755373a0bcb5521eae3d6ad6e97b06a03eabfafdbc"
+    },
+    {
+      "path": "skills/self-review/scripts/check_reported_p_from_counts_challenge/fixture/p_bad.md",
+      "size": 206,
+      "sha256": "b22b3cae304a8986a9b9ec49377601dc96f791fbbc0e04cd8adaf7c9952707dc"
+    },
+    {
+      "path": "skills/self-review/scripts/check_reported_p_from_counts_challenge/fixture/p_ok.md",
+      "size": 205,
+      "sha256": "15546bf0a9be157265dd3ec80be46d32b7fbe5386ad6e31ea6c16ea669abf3ac"
+    },
+    {
+      "path": "skills/self-review/scripts/check_reported_p_from_counts_challenge/problem.md",
+      "size": 1572,
+      "sha256": "e2df6d50acbce0da65f1af6f767a63e7007a855f40e5ef7b549d8348bd830133"
+    },
+    {
+      "path": "skills/self-review/scripts/check_reported_p_from_counts_challenge/verify.sh",
+      "size": 1509,
+      "sha256": "1a1fddcdef6d23a3c6e2f83c924180c2703355953223d5d82cd89e01615e436d"
     },
     {
       "path": "skills/self-review/scripts/check_reviewer_team_consistency.py",
@@ -4053,8 +4193,8 @@
     },
     {
       "path": "skills/self-review/skill.yml",
-      "size": 2648,
-      "sha256": "8d245285549215c8f7687d17c968b28bf3fb4e84be55f112eacfc1d9b1a91e53"
+      "size": 3278,
+      "sha256": "84ea9430003ffc8f1b2e009600ac3b4614abb84a697ec1891a39086aa65fe404"
     },
     {
       "path": "skills/setup-medsci/SKILL.md",

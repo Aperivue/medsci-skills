@@ -37,6 +37,10 @@
 - `bash tests/test_cv_leakage.sh`
 - `python3 scripts/check_table_percentages.py --manuscript <manuscript.md> --strict  # recompute n (%) cells vs column denominator`
 - `bash scripts/check_table_percentages_challenge/verify.sh  # deterministic, network-free`
+- `bash scripts/check_nested_group_comparison_challenge/verify.sh  # subset-vs-parent P-value comparison`
+- `bash scripts/check_reported_p_from_counts_challenge/verify.sh  # recompute row P from 2x2 counts`
+- `bash scripts/check_dta_denominators_challenge/verify.sh  # sens/spec denominators vs reference-standard counts`
+- `bash scripts/check_paired_difference_estimator_challenge/verify.sh  # median parity / degenerate CI / unnamed estimator`
 - `feed R0-numbered output into /revise`
 
 **Evidence** — `demo`
@@ -60,13 +64,21 @@
 - `check_cohort_arithmetic.py`
 - `check_confounding_completeness.py`
 - `check_cv_leakage.py`
+- `check_dta_denominators.py`
+- `check_dta_denominators_challenge/` (6 files)
 - `check_editorial_impression.py`
 - `check_emphasis_density.py`
 - `check_figure_citation.py`
+- `check_nested_group_comparison.py`
+- `check_nested_group_comparison_challenge/` (6 files)
 - `check_null_calibration.py`
+- `check_paired_difference_estimator.py`
+- `check_paired_difference_estimator_challenge/` (6 files)
 - `check_panel_diversity.py`
 - `check_paren_spans.py`
 - `check_reference_adequacy.py`
+- `check_reported_p_from_counts.py`
+- `check_reported_p_from_counts_challenge/` (6 files)
 - `check_reviewer_team_consistency.py`
 - `check_rounded_delta.py`
 - `check_scope_coherence.py`
