@@ -45,7 +45,11 @@ SSOT = ROOT / "metadata" / "catalog_counts.json"
 # cross-checks these counts, so disk is their sole source of truth. Maintainer-
 # scoped counts (skills, reporting_guidelines, integrity_detectors) stay hard-
 # asserted below and in catalog_counts.json.
-AUTO_DERIVED_KEYS = ("journal_profiles_find", "journal_profiles_write")
+# `plugins` is derived from the marketplace SSOT (.claude-plugin/marketplace.json),
+# not from catalog_counts.json, so it is not asserted against the JSON here — but
+# unlike the journal-profile keys it IS cross-checked against the README plugin
+# claim in Layer 3 (doc_claims).
+AUTO_DERIVED_KEYS = ("journal_profiles_find", "journal_profiles_write", "plugins")
 
 
 def disk_counts() -> dict[str, int]:
@@ -61,12 +65,23 @@ def disk_counts() -> dict[str, int]:
     detectors = len({
         str(p) for g in detector_globs for p in (ROOT / "skills").glob(f"*/scripts/{g}")
     })
+    # medsci-* category plugins in the plugin marketplace SSOT
+    mp = ROOT / ".claude-plugin" / "marketplace.json"
+    plugins = 0
+    if mp.exists():
+        try:
+            data = json.loads(mp.read_text(encoding="utf-8"))
+            plugins = sum(1 for p in data.get("plugins", [])
+                          if str(p.get("name", "")).startswith("medsci-"))
+        except (ValueError, OSError):
+            plugins = 0
     return {
         "skills": skills,
         "reporting_guidelines": checklists,
         "journal_profiles_find": find_prof,
         "journal_profiles_write": write_prof,
         "integrity_detectors": detectors,
+        "plugins": plugins,
     }
 
 
@@ -102,6 +117,17 @@ DETECTOR_CLAIM_PATTERNS = [
     r'"(\d{1,3})\s+detectors,\s*validated\b',
     r"\bcover all\s+(\d{1,3})\s+detectors\b",
 ]
+
+# Files carrying the plugin-marketplace count claim (the `medsci-*` category
+# plugins). Drifted once (README said "eight" while marketplace.json had nine)
+# because no gate watched it. The number is written as an English word, so a small
+# word->int map is needed; only a number token immediately preceding
+# "category plugins" is treated as a claim.
+PLUGIN_CLAIM_FILES = ["README.md"]
+NUM_WORDS = {w: i for i, w in enumerate(
+    ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight",
+     "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen",
+     "sixteen", "seventeen", "eighteen", "nineteen", "twenty"])}
 
 
 def doc_claims() -> list[tuple[str, int, int, str]]:
@@ -155,6 +181,24 @@ def doc_claims() -> list[tuple[str, int, int, str]]:
             for rx in det_res:
                 for m in rx.finditer(line):
                     out.append((rel, int(m.group(1)), d, f"L{i} detector total"))
+
+    # Plugin marketplace count: a number word or digit shortly before "category
+    # plugins". The capture group is constrained to number tokens so an ordinary
+    # word (e.g. "of", "medsci") that happens to sit before the phrase is not
+    # mistaken for the count.
+    pl = truth["plugins"]
+    _num_alt = "|".join(NUM_WORDS)
+    plugin_re = re.compile(rf"\b({_num_alt}|\d+)\b[^.\n]{{0,20}}?\bcategory plugins\b", re.IGNORECASE)
+    for rel in PLUGIN_CLAIM_FILES:
+        f = ROOT / rel
+        if not f.exists():
+            continue
+        for i, line in enumerate(f.read_text(encoding="utf-8").splitlines(), 1):
+            for m in plugin_re.finditer(line):
+                tok = m.group(1).lower()
+                n = NUM_WORDS.get(tok, int(tok) if tok.isdigit() else None)
+                if n is not None:
+                    out.append((rel, n, pl, f"L{i} plugin count"))
     return out
 
 
