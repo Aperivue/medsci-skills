@@ -2,6 +2,23 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- **`/orchestrate` coherence** (audit F1 + F2) — two P0 findings from a repo-improvement audit.
+  **F1 (E2E state transition):** the `--e2e` post-skill validation required `manuscript_final.docx` for
+  `/write-paper`, but the DOCX is only rendered by `/manage-refs` at step 7, so an `--e2e` run halted at
+  step 3 ("STOP, do not proceed"). `/write-paper` now validates only `manuscript.md`; the DOCX requirement
+  stays on the `/manage-refs` row where it is produced. **F2 (reachability):** the hand-maintained
+  "Available Skills" routing table listed 34 of 55 skills, so the single entry point could not route to the
+  other 20 (most of the model-engineering lane: `architecture-zoo`, `preprocess-imaging`, `model-scaffold`,
+  `radiomics-ml`, `model-validation`, `model-evaluation`, `mllm-eval`, `explainability`,
+  `uncertainty-imaging`, `model-card`, plus `author-strategy`, `batch-cohort`, `cross-national`,
+  `replicate-study`, `ma-scout`, `find-cohort-gap`, `design-ai-benchmarking`, `review-paper`,
+  `polish-language`, `setup-medsci`). All 20 are added to the table, and a new
+  `scripts/check_orchestrate_reachability.py` CI gate (with self-test) asserts every skill directory is
+  routable from `/orchestrate` (or explicitly direct-only), so the drift cannot recur. No new skill or
+  detector; catalog counts unchanged.
+
 ## [5.20.0] - 2026-07-11
 
 Reviewer-arithmetic gates — five deterministic `self-review` detectors that recompute what a manuscript

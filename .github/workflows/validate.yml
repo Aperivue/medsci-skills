@@ -70,6 +70,12 @@ jobs:
       - name: Run capabilities-validator self-test (drift fixtures fail, live repo clean)
         run: bash tests/test_capabilities_validator.sh
 
+      - name: Run check_orchestrate_reachability.py (every skill routable from /orchestrate)
+        run: python3 scripts/check_orchestrate_reachability.py --strict
+
+      - name: Run orchestrate-reachability self-test (missing-row + ghost-route fail)
+        run: bash tests/test_orchestrate_reachability.sh
+
       - name: Run check_locale_inventory.py (Korean-bearing files must be inventory-justified)
         run: python3 scripts/check_locale_inventory.py
 
