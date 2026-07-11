@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+## [5.20.0] - 2026-07-11
+
+Reviewer-arithmetic gates — five deterministic `self-review` detectors that recompute what a manuscript
+already prints (an `n (%)` cell vs its column denominator; a subset-vs-parent-cohort P value; a row P from
+2×2 counts via pure-stdlib Fisher / Pearson χ²; sensitivity/specificity denominators vs the reference-standard
+category counts; median-difference parity), plus `/peer-review` request-type discipline (disclosure vs
+computation) and impossibility-claim verification. Additive and backward-compatible;
+**55 skills / 46 guidelines / 57 integrity detectors**.
+
 ### Changed
 
 - **Reviewer request-type discipline + impossibility-claim verification** (`peer-review`, R2/R3/R4) — Phase 3
