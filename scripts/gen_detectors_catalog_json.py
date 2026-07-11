@@ -48,6 +48,7 @@ DETECTOR_GLOBS = ("check_*.py", "detect_*.py", "derive_*.py", "verify_refs.py")
 FAMILY_BY_ID: dict[str, str] = {
     # Numerical, cohort & pool arithmetic
     "check_cohort_arithmetic": "numerical_cohort",
+    "check_table_percentages": "numerical_cohort",
     "check_artifact_coverage": "numerical_cohort",
     "check_rounded_delta": "numerical_cohort",
     "check_pool_consistency": "numerical_cohort",

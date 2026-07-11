@@ -326,6 +326,9 @@ jobs:
       - name: Run peer-review pdf-injection challenge (hidden-text guard, PyMuPDF-free)
         run: bash skills/peer-review/scripts/check_pdf_injection_challenge/verify.sh
 
+      - name: Run self-review table-percentage challenge (n (%) recompute vs denominator)
+        run: bash skills/self-review/scripts/check_table_percentages_challenge/verify.sh
+
       - name: Run analyze-stats generated-code gate test
         run: bash skills/analyze-stats/tests/test_generated_code.sh
 

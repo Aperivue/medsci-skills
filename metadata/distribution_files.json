@@ -4017,9 +4017,44 @@
       "sha256": "c61bd5e485d2bce4a6efd7bf2a7980aa0d31ebecb876a7c6895fd12cb6bf7f1c"
     },
     {
+      "path": "skills/self-review/scripts/check_table_percentages.py",
+      "size": 8674,
+      "sha256": "102cc795660fd41c40219b006dc657edd8d77f9195cf5b8fd2e5e470d3c28f3a"
+    },
+    {
+      "path": "skills/self-review/scripts/check_table_percentages_challenge/expected/bad.txt",
+      "size": 301,
+      "sha256": "6fed046d75f3a02818e0a3ac4aa0ad907b17eab7e05e9629467e1d54bea51856"
+    },
+    {
+      "path": "skills/self-review/scripts/check_table_percentages_challenge/expected/ok.txt",
+      "size": 112,
+      "sha256": "2fb34506bf65909fdb040acf085c4c18810b52497b6b1a53a2e08509a4465fd8"
+    },
+    {
+      "path": "skills/self-review/scripts/check_table_percentages_challenge/fixture/table_bad.md",
+      "size": 121,
+      "sha256": "841bcb7d75c8e51512c59de171d82c9959b72976eef29f631ba9440c873357d6"
+    },
+    {
+      "path": "skills/self-review/scripts/check_table_percentages_challenge/fixture/table_ok.md",
+      "size": 235,
+      "sha256": "ea5999c08b15a928606ca154c504545ed5804e45bade45ffca4d12b5849cc0bc"
+    },
+    {
+      "path": "skills/self-review/scripts/check_table_percentages_challenge/problem.md",
+      "size": 2072,
+      "sha256": "0af0e84599a8ac52a33ce33bc3244803ccc34d6f8f7f8de24234ac3b64a9a61a"
+    },
+    {
+      "path": "skills/self-review/scripts/check_table_percentages_challenge/verify.sh",
+      "size": 2041,
+      "sha256": "b4c9eb16f291841c1d6dc74a5554a49b5dc60d3562d0e328e01a78797f8d32ad"
+    },
+    {
       "path": "skills/self-review/skill.yml",
-      "size": 2381,
-      "sha256": "9499a87d985d981eac9418d6cd95ed79c1d9724aba8854b7d6713d89679d9f1d"
+      "size": 2648,
+      "sha256": "8d245285549215c8f7687d17c968b28bf3fb4e84be55f112eacfc1d9b1a91e53"
     },
     {
       "path": "skills/setup-medsci/SKILL.md",
