@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## [5.20.1] - 2026-07-11
+
+Audit-driven fixes (no behaviour change to skills): a real `/orchestrate --e2e` state-transition bug
+(the pipeline halted at step 3 requiring a DOCX only rendered at step 7), 20 skills made routable from the
+single entry point with a CI reachability gate, and a README plugin-count that had drifted from the
+marketplace SSOT (now gated). No new skill or detector; **55 skills / 46 guidelines / 57 integrity detectors**.
+
 ### Fixed
 
 - **Public-claim plugin-count gate** (audit F/§6.1, PR-3) — the README plugin-marketplace claim was not
