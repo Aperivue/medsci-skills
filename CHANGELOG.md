@@ -2,6 +2,21 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **Reviewer request-type discipline + impossibility-claim verification** (`peer-review`, R2/R3/R4) — Phase 3
+  now classifies every Major's ask as *disclosure* (the study already holds the answer — surfaces errors,
+  costs nothing) vs *computation* (a number that does not yet exist — a new, unreviewed error surface); a
+  computation request must justify that the existing tables cannot answer it and name its estimator, and a
+  subset-vs-parent-cohort P value must never be requested (nested groups → invalid). Phase 4 item 14
+  (verify-your-own-criticism) is widened to cover assertions of arithmetic/statistical *impossibility* from
+  the manuscript's own summary statistics (restate as premise→conclusion + counterexample; a quantile/IQR
+  does not constrain the tail, an agreement coefficient does not constrain the marginal), plus re-deriving a
+  reviewer-requested new statistic before accepting it Resolved. The observational (`O10`) and
+  diagnostic-accuracy (`D2`) domain probes gain the nested subset-vs-parent P-value invalidity rule (vendored
+  byte-identical into `self-review`). Pairs with the D1/D4 deterministic gates and the `~/.claude/rules`
+  R1/R5 updates. No new detector; catalog counts unchanged.
+
 ### Added
 
 - **Reviewer-arithmetic detectors D1–D4** (`self-review`) — four deterministic gates promoted from a
