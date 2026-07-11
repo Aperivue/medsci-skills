@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [5.19.0] - 2026-07-11
+
+Reviewer-safety + reporting-checklist batch — a PDF hidden-text / prompt-injection guard for
+`/peer-review`, plus the TARGET (target-trial emulation) and REMARK (prognostic tumour-marker)
+reporting checklists. Additive and backward-compatible; **55 skills / 46 guidelines / 52 integrity detectors**.
+
 ### Added
 
 - **PDF hidden-text / prompt-injection guard** (`peer-review`) — a two-stage reviewer-safety tool for
