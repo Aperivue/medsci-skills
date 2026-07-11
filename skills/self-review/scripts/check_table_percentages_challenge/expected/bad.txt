@@ -1,0 +1,6 @@
+== MISMATCH FOUND ==  fixture/table_bad.md
+mismatches=2 findings=2
+[MAJOR] PERCENT_MISMATCH       L3  printed 37% but 53/132 (header n=) = 40.2% (Δ3.2pp)
+        cell> Female: 53 (37)
+[MAJOR] PERCENT_MISMATCH       L3  printed 63% but 79/132 (header n=) = 59.8% (Δ3.2pp)
+        cell> Male: 79 (63)

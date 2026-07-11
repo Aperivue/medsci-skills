@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+### Added
+
+- **Table-percentage gate** (`self-review`) — `check_table_percentages.py` recomputes every `n (p%)` table
+  cell against its own column denominator (a `n = N` header, a Total row, or the column's counts summing)
+  and flags a printed percentage off by more than 0.5 pp — the cheapest, zero-judgement arithmetic check,
+  which routinely survives multiple review rounds because the error is present from the first submission
+  (e.g. `79 (63%)` / `53 (37%)` under 132, true 59.8% / 40.2%). A column is treated as percentages only when
+  a cell carries an explicit `%` or its parentheticals sum to ~100, so `mean (SD)` cells never false-fire.
+  Sibling to `check_cohort_arithmetic`; challenge card runs in CI. **Integrity detectors 52 → 53.**
+
 ## [5.19.0] - 2026-07-11
 
 Reviewer-safety + reporting-checklist batch — a PDF hidden-text / prompt-injection guard for

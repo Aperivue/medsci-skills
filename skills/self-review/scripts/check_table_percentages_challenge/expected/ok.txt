@@ -1,0 +1,3 @@
+== OK ==  fixture/table_ok.md
+mismatches=0 findings=0
+all n (%) cells reconcile with their column denominators.

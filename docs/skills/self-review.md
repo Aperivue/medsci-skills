@@ -35,6 +35,8 @@
 - `bash tests/test_figure_citation.sh`
 - `bash tests/test_emphasis_density.sh`
 - `bash tests/test_cv_leakage.sh`
+- `python3 scripts/check_table_percentages.py --manuscript <manuscript.md> --strict  # recompute n (%) cells vs column denominator`
+- `bash scripts/check_table_percentages_challenge/verify.sh  # deterministic, network-free`
 - `feed R0-numbered output into /revise`
 
 **Evidence** — `demo`
@@ -69,6 +71,8 @@
 - `check_rounded_delta.py`
 - `check_scope_coherence.py`
 - `check_supplement_hygiene.py`
+- `check_table_percentages.py`
+- `check_table_percentages_challenge/` (6 files)
 
 ## Source
 
