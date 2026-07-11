@@ -3048,8 +3048,8 @@
     },
     {
       "path": "skills/peer-review/SKILL.md",
-      "size": 70338,
-      "sha256": "246beb8a3c3c6eef78180a6ab1d87fa49db4f98d55964af5b3ab0ce5d0e7e3b0"
+      "size": 72603,
+      "sha256": "92b89c3edc60c1d621738904df2bd4932fcb70babc60e3e306d857c781cfd6e6"
     },
     {
       "path": "skills/peer-review/references/aczel_2021_reviewer2_patterns.md",
@@ -3247,9 +3247,49 @@
       "sha256": "2f548ccbe1ee101bf6630b4d363f15e4df0750a350788b26f177490496be74f6"
     },
     {
+      "path": "skills/peer-review/scripts/check_pdf_injection.py",
+      "size": 10870,
+      "sha256": "fcf33336f16dbfa92a0b5bbd5588b4026d3c89f21041733099d7a028e16e6bd3"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_pdf_injection_challenge/expected/clean.txt",
+      "size": 113,
+      "sha256": "9f37abe54221df614502f460030e15d30fd3d0573fcc5f3af47feac736614a8b"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_pdf_injection_challenge/expected/inject.txt",
+      "size": 1228,
+      "sha256": "bd5788f40f87e599caa5e9883fe1374b204008fb8de89a4781068a74a08ddb3b"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_pdf_injection_challenge/fixture/manifest_clean.json",
+      "size": 553,
+      "sha256": "bb67c4f241be5603b70743a2f443c8221ad69f48433ad4fa846845eaea70737d"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_pdf_injection_challenge/fixture/manifest_inject.json",
+      "size": 1042,
+      "sha256": "b77379a0e3ae35914528f8a0905bdaee887bcf5cce6913872c1d343d68da168b"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_pdf_injection_challenge/problem.md",
+      "size": 2614,
+      "sha256": "409bf859e9fafd5121ff5d7fb02c9e0b2bfcf818b8976acca1d0ab30b64ab1c6"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_pdf_injection_challenge/verify.sh",
+      "size": 2187,
+      "sha256": "6d149ab8d6737430937a0424dd4c66ea9332f25d83d1eca8e37104db33e97b0d"
+    },
+    {
+      "path": "skills/peer-review/scripts/scan_pdf_layers.py",
+      "size": 6216,
+      "sha256": "0bccc9b86e6e8caa47cb7e1897618459abe376aef8264114d7c4795c358fe2c3"
+    },
+    {
       "path": "skills/peer-review/skill.yml",
-      "size": 1628,
-      "sha256": "e8022ffd3a2716f27dff881915b166c9423bc343de99ef7a84c8b14584c7041b"
+      "size": 2346,
+      "sha256": "42bd6cc388a3802960ddf3e46b2ca226926bd4c9a779e6802b43e9fbb4172bac"
     },
     {
       "path": "skills/polish-language/SKILL.md",

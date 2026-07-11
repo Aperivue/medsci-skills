@@ -23,13 +23,16 @@
 
 - A review is one reviewer's judgement, not an editorial decision.
 - No standalone demo; quality depends on the manuscript supplied.
+- The injection scan catches formatting-hidden text (colour/size/position/render-mode/metadata) deterministically; a phrase in visible prose is flagged for a human, not auto-removed.
 
 **Validation**
 
 - `confirm the draft addresses each section against the guideline rubric`
 - `python3 scripts/check_domain_probe_sync.py --strict`
+- `python3 scripts/scan_pdf_layers.py <manuscript.pdf> | python3 scripts/check_pdf_injection.py - --strict  # hidden-text / prompt-injection guard (extractor needs PyMuPDF)`
+- `bash scripts/check_pdf_injection_challenge/verify.sh  # deterministic, network-free, PyMuPDF-free`
 
-**Evidence** — `manual_workflow`
+**Evidence** — `ci_validator`
 
 ## Bundled resources
 
@@ -41,6 +44,12 @@
 - `narrative_review_audit.md`
 - `reviewer_calibration/` (2 files)
 - `reviewer_profiles/` (6 files)
+
+**Scripts** (`skills/peer-review/scripts/`):
+
+- `check_pdf_injection.py`
+- `check_pdf_injection_challenge/` (6 files)
+- `scan_pdf_layers.py`
 
 ## Source
 
