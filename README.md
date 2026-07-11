@@ -356,7 +356,7 @@ The E2E pipeline (`orchestrate --e2e`) produces everything up to `qc/`. The `sub
 
 **v4.1** ships distribution levers and a submission pre-flight gate — analysis-integrity detectors **24 → 25** (still 43 skills):
 
-- **Claude Code plugin marketplace** — `/plugin marketplace add Aperivue/medsci-skills`, then `/plugin` discovery of eight `medsci-*` category plugins generated from the catalog SSOT (`.claude-plugin/marketplace.json`).
+- **Claude Code plugin marketplace** — `/plugin marketplace add Aperivue/medsci-skills`, then `/plugin` discovery of nine `medsci-*` category plugins generated from the catalog SSOT (`.claude-plugin/marketplace.json`).
 - **MedSci-Audit detector registry** — the deterministic verification layer is now a named, enumerated, citable suite ([`MEDSCI_AUDIT.md`](MEDSCI_AUDIT.md) + generated `metadata/detectors_catalog.json`, six audit families).
 - **Hero-skill standalone mirrors** — `scripts/sync_hero_skill.py` mirrors a focused skill to its own star-funnel repo; first two live: [`Aperivue/verify-refs`](https://github.com/Aperivue/verify-refs) and [`Aperivue/check-reporting`](https://github.com/Aperivue/check-reporting).
 - **Placeholder/marker gate** — `check_placeholders.py` flags leftover `[@NEW:]` / `[version]` / `TODO` / template-URL markers before submission (the 25th detector).

@@ -4,6 +4,13 @@
 
 ### Fixed
 
+- **Public-claim plugin-count gate** (audit F/§6.1, PR-3) — the README plugin-marketplace claim was not
+  cross-checked against the SSOT, so it drifted: README said "eight `medsci-*` category plugins" while
+  `.claude-plugin/marketplace.json` has nine (all `medsci-*`). Fixed to "nine", and extended
+  `scripts/validate_catalog_consistency.py` to recompute the plugin count from the marketplace SSOT and
+  assert the README claim (word or digit) matches — the same drift-guard the skills / guideline / detector
+  counts already have. CI-enforced.
+
 - **`/orchestrate` coherence** (audit F1 + F2) — two P0 findings from a repo-improvement audit.
   **F1 (E2E state transition):** the `--e2e` post-skill validation required `manuscript_final.docx` for
   `/write-paper`, but the DOCX is only rendered by `/manage-refs` at step 7, so an `--e2e` run halted at
