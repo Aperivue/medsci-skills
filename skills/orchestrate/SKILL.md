@@ -73,6 +73,26 @@ You do NOT do the work yourself. You classify, plan, and delegate.
 | **fill-icmje-coi** | Form filling | Batch ICMJE COI Disclosure Form generation per author from a synthetic seed |
 | **sync-submission** | Submission | SSOT-to-submission drift audit; journal-specific submission manifest creation from canonical manuscript artifacts |
 | **peer-review** | Review | External manuscript peer review draft generation (journal-specific formatting). Use ONLY for reviewing other authors' work, never for self-review |
+| **review-paper** | Writing | Scaffold/draft a literature review (narrative / scoping PRISMA-ScR / systematic); reuses the self-review narrative-review probes for QC. Distinct from `write-paper` (original research) and `meta-analysis` (pooling) |
+| **polish-language** | Quality | Academic-English consistency lint + non-native clarity polish (abbreviation define-once, US/UK spelling drift, hyphen/en-dash ranges, P/p case, value/unit spacing). Style-only; distinct from `humanize` (AI-tell removal) and `check-reporting` (guideline items) |
+| **author-strategy** | Analysis | PubMed author-profile analysis: study-type classification, trajectory-archetype, publication-strategy report from a name |
+| **batch-cohort** | Analysis | Generate N analysis scripts from one validated methodology template × many exposure/outcome combinations (same method, swap variables) + summary matrix |
+| **replicate-study** | Analysis | Replicate an existing cohort study's methodology on a different database: design extraction, variable-harmonization table, replication-difference report |
+| **cross-national** | Analysis | Cross-national comparison study (KNHANES + NHANES + CHNS or parallel surveys): variable harmonization + parallel weighted analysis |
+| **ma-scout** | Systematic review | Meta-analysis topic discovery + feasibility (professor-first profile→gap, or topic-first question→gap→co-author) before a protocol exists |
+| **find-cohort-gap** | Methodology | Research-gap discovery from a longitudinal cohort DB: profile strengths, match PI expertise, literature-saturation scan, ranked topic proposals |
+| **design-ai-benchmarking** | Methodology | Design/validity review for benchmarking one or more AI systems against a human-expert reference panel (decoupled rubrics, planted calibration probes, reviewer-panel construction, IRR targets, rating-export schema) — before data collection |
+| **architecture-zoo** | Modeling | Choose a medical-imaging model architecture (classification / segmentation / detection / transfer) before scaffolding — maps task + modality + labelled-data scale + imbalance to a paper-grounded shortlist |
+| **preprocess-imaging** | Modeling | Design/audit DICOM/NIfTI intake, resampling, normalisation, and augmentation so the pipeline is leakage-safe before `model-scaffold`; emits a preprocessing manifest + data-stage leakage gate |
+| **model-scaffold** | Modeling | Generate a reproducible runnable PyTorch training repo (patient-level seed-locked split, task model, train/eval scripts, repro record) — the link between choosing an architecture and validating a trained model |
+| **radiomics-ml** | Modeling | Produce/audit a radiomics / tabular-ML study (imaging or clinical features → penalised logistic / SVM / RF / gradient-boosting / MLP → outcome) with a learner-agnostic nested-CV / feature-stability / calibration / external-validation gate (no GPU) |
+| **model-validation** | Validation | Design/audit the clinical-validation study for an engineer-built imaging model (segmentation / classification / detection): patient-level split disjointness, internal-vs-external validation, comparator, metric fit — with a deterministic split-leakage gate |
+| **model-evaluation** | Evaluation | Compute task-correct held-out metrics for a trained imaging model (segmentation Dice + boundary; classification AUROC + AUPRC + Se/Sp with bootstrap CIs; detection FROC/mAP; calibration; subgroup slices) → per-case results table |
+| **mllm-eval** | Evaluation | Design/audit a model-agnostic evaluation harness for an LLM/MLLM clinical task (report generation, VQA, extraction/classification): adjudicated reference, clinical-efficacy metrics beyond BLEU/ROUGE, hallucination, contamination, prompt-sensitivity, reader study |
+| **explainability** | Modeling | Produce/audit a medical-imaging model's interpretability analysis (Grad-CAM / saliency / integrated-gradients) held to the reviewer bar — Adebayo sanity checks, quantitative localisation vs ground truth, cohort-level results, attribution-not-validation framing |
+| **uncertainty-imaging** | Modeling | Design/audit the uncertainty-quantification / OOD-detection / selective-prediction layer of a deployment-framed imaging model (MC-dropout / ensemble / conformal, held-out OOD set, abstention at a pre-specified point) + deployment-claim gate |
+| **model-card** | Documentation | Generate a Model Card + Datasheet + METRIC-informed data-quality pass for an engineer-built imaging model, filled from user-supplied facts, with a completeness gate (never fabricates numbers/provenance/licence) |
+| **setup-medsci** | Setup | Diagnostic checklist for the runtime (Python, R, Node, Claude Code, Git, Zotero, MCP servers) — read-only pass/fail table pointing to the right setup doc for any missing component |
 
 ---
 
@@ -287,7 +307,7 @@ After each skill completes, verify that expected output files exist. If validati
 |-------|-----------------|------------|
 | `/analyze-stats` | At least one file in `analysis/tables/*.csv` OR `analysis/_analysis_outputs.md` | Check file existence and non-empty |
 | `/make-figures` | `analysis/figures/_figure_manifest.md` with at least 1 entry | Parse manifest, verify listed files exist |
-| `/write-paper` | `manuscript/manuscript.md` (required), `manuscript/manuscript_final.docx` (required in --e2e) | Check file existence and non-empty |
+| `/write-paper` | `manuscript/manuscript.md` (required) | Check file existence and non-empty. Do NOT require the DOCX here — `manuscript_final.docx` is rendered later by `/manage-refs` (step 7); requiring it at this step would halt an `--e2e` run before the DOCX exists |
 | `/check-reporting` | `qc/reporting_checklist.md` or inline report | Check file existence |
 | `/verify-refs` | `qc/reference_audit.json` (sole output) | Parse JSON; halt if `submission_safe == false` (i.e., `FABRICATED` / `MISMATCH` count > 0 OR `duplicate_findings[]` nonempty) |
 | `/self-review` | Review report with JSON block (when --json) | Check JSON block is parseable. In `--panel` mode each issue may carry an additional optional `consensus` array plus R1/R2/R3 attribution annotations on the `M`/`m` comments — these are additive and backwards-compatible; accept them |
