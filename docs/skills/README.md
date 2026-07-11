@@ -40,7 +40,7 @@ One reference page per skill, generated from each skill's `SKILL.md` and `skill.
 - [model-scaffold](model-scaffold.md) — Generate a reproducible, runnable PyTorch training repo for a medical-imaging task — segmentation, classification, detection, image-to-image synthesis, self-supervised pretraining, or fine-tuning a pr… _(evidence: ci_validator)_
 - [model-validation](model-validation.md) — Design or audit the clinical-validation study for an engineer-built medical-imaging model (segmentation, classification, or detection) before the validation report or manuscript is written. _(evidence: ci_validator)_
 - [orchestrate](orchestrate.md) — General-purpose research orchestrator. _(evidence: demo)_
-- [peer-review](peer-review.md) — Peer review assistant for medical journals. _(evidence: manual_workflow)_
+- [peer-review](peer-review.md) — Peer review assistant for medical journals. _(evidence: ci_validator)_
 - [polish-language](polish-language.md) — Academic English consistency linting and non-native (ESL) language polish for medical manuscripts. _(evidence: bundled_script)_
 - [preprocess-imaging](preprocess-imaging.md) — Design or audit the data-preparation stage of a medical-imaging model — DICOM/NIfTI intake, resampling and intensity normalisation, and the augmentation plan — so the pipeline is leakage-safe before m… _(evidence: ci_validator)_
 - [present-paper](present-paper.md) — Academic presentation preparation — paper-driven (journal club, grand rounds, seminar) and lecture/teaching decks (course material, workshop slides, conference talks). _(evidence: bundled_script)_

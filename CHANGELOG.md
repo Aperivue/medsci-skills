@@ -4,6 +4,18 @@
 
 ### Added
 
+- **PDF hidden-text / prompt-injection guard** (`peer-review`) — a two-stage reviewer-safety tool for
+  manuscripts that smuggle a review-steering instruction into the PDF where a human cannot see it but an
+  LLM ingesting the text layer reads it (white-on-white text, sub-visible fonts, off-page glyphs, invisible
+  render mode, or a document-metadata field; the injection attack first reported at scale in 2025).
+  `scan_pdf_layers.py` (PyMuPDF) transcribes the PDF into a span manifest; the new stdlib-only detector
+  `check_pdf_injection.py` audits the manifest, flags hidden runs and instruction-style phrases (HIGH inside
+  a hidden run, LOW in visible prose), and emits the visible-only text (`--sanitize`) to feed an LLM instead
+  of the raw PDF. A synthetic-manifest challenge card runs in CI without PyMuPDF. Guards the reviewer against
+  an author's injection; it is unrelated to a venue's own canary text, and does not change the rule that the
+  journal's LLM-use policy governs whether a confidential manuscript may be uploaded at all.
+  **Integrity detectors 51 → 52.**
+
 - **TARGET reporting checklist** (`check-reporting`) — Transparent Reporting of Observational Studies
   Emulating a Target Trial (Cashin, Hansford, Hernán et al. JAMA 2025;334(12):1084-1093). 21 items across
   6 sections, pairing the target-trial specification (item 6) with its emulation in the data (item 7) for

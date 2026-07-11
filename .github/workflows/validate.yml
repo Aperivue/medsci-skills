@@ -323,6 +323,9 @@ jobs:
       - name: Run mllm-eval completeness gate test
         run: bash skills/mllm-eval/tests/test_mllm_eval_completeness.sh
 
+      - name: Run peer-review pdf-injection challenge (hidden-text guard, PyMuPDF-free)
+        run: bash skills/peer-review/scripts/check_pdf_injection_challenge/verify.sh
+
       - name: Run analyze-stats generated-code gate test
         run: bash skills/analyze-stats/tests/test_generated_code.sh
 
