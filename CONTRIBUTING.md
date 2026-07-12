@@ -53,6 +53,48 @@ invariants — run it after adding or moving a skill:
 A single-skill domain that needs no adjudication is *not* declared in
 `capabilities.yml` — that is intentional, not drift.
 
+## Running the tests
+
+MedSci Skills is guarded by a deterministic test suite that runs in CI on every
+push and pull request. The authoritative list of every check is
+[`.github/workflows/validate.yml`](.github/workflows/validate.yml); the whole
+suite uses synthetic fixtures and needs no private data or network access.
+
+To run it locally, install the test dependencies and execute the checks:
+
+```bash
+pip install pyyaml pandas numpy python-pptx python-docx
+
+# Structure, PII, and skill-contract validation
+bash scripts/validate_skills.sh
+
+# Version + distribution manifest + installer round-trip
+python3 scripts/check_version_consistency.py
+python3 scripts/gen_distribution_manifest.py --check
+python3 installers/install.py --self-test
+bash installers/tests/test_release_zip.sh
+
+# Skill-registry, /orchestrate routing, and catalog consistency
+python3 scripts/validate_capabilities.py --strict
+python3 scripts/check_orchestrate_reachability.py --strict
+python3 scripts/validate_catalog_consistency.py
+
+# Deterministic-detector self-tests (drift fixtures must fail, live repo clean)
+for t in skills/self-review/tests/*.sh; do bash "$t"; done
+```
+
+Each deterministic detector additionally ships a self-contained
+`<detector>_challenge/` directory — a positive case, a negative control, and a
+`verify.sh` — so any single detector can be exercised offline in isolation, for
+example:
+
+```bash
+bash skills/self-review/scripts/check_reported_p_from_counts_challenge/verify.sh
+```
+
+A green run of `.github/workflows/validate.yml` is required before any release is
+cut.
+
 ## Pull Request Checklist
 
 - [ ] `bash scripts/validate_skills.sh`
