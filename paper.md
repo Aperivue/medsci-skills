@@ -50,6 +50,28 @@ The repository is organized as a modular skill library over a deterministic audi
 
 The toolkit is archived with a citable Zenodo DOI and a public version history, and is distributed through npm and a plugin marketplace in addition to the source repository.
 
+# Example
+
+A detector recomputes a claim rather than judging it. Consider a baseline table in which a categorical comparison reports a *P* value that its own cell counts do not support:
+
+```
+| Characteristic | Full cohort (n = 132) | Subset (n = 33) | P       |
+| -------------- | --------------------- | --------------- | ------- |
+| Adenocarcinoma | 5 (4)                 | 4 (12)          | <0.001  |
+```
+
+Running the reported-*P* detector on the manuscript:
+
+```
+$ python3 check_reported_p_from_counts.py --manuscript table3.md
+
+[MAJOR] P_NOT_REPRODUCIBLE  row 'Adenocarcinoma' (5/132 vs 4/33)
+  reports P<0.001, but recomputes to Fisher 0.0799 / Yates 0.145 /
+  uncorrected 0.0594 (closest Pearson chi-square (uncorrected))
+```
+
+The detector reconstructs the 2×2 table from the printed counts, recomputes the test with a standard-library Fisher exact test and a Pearson chi-square, and reports the discrepancy with an explicit verdict and a non-zero signal — so it can halt a submission gate or be re-run by a reviewer. A correct table returns `OK` and passes silently. The same pattern underlies the other detectors: references are re-resolved against PubMed and CrossRef, printed percentages are re-divided by their denominators, and reporting compliance is re-scored against the vendored checklists.
+
 # AI Usage Disclosure
 
 Generative AI tools, including Claude Code and Codex, were used to draft, revise, and audit skill documentation, scripts, validators, release notes, and this paper. The author made the core design decisions, reviewed all AI-assisted output, ran the repository validation suite, and is responsible for the accuracy, originality, licensing, and research-integrity compliance of the work.
