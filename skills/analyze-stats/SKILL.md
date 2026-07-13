@@ -66,6 +66,26 @@ Based on the data structure and research question, propose an analysis plan:
 5. **Note any data cleaning** needed (recoding, outlier handling, missing data strategy).
 6. **Anchor the estimand to the research question.** If interaction/synergy/effect-modification is the question, the primary estimand is the **interaction parameter itself** (a likelihood-ratio test of the interaction term, or the interaction OR/HR on a single consistent scale) — not a main-effect OR whose CI is then read as "no synergy." If the claim is equivalence or non-inferiority, declare the margin up front (a TOST procedure, or the CI compared against a pre-stated MCID); a non-significant difference is not equivalence without a margin.
 
+7. **Screen every categorical/binary predictor for separation — before fitting anything.**
+   A predictor that perfectly predicts the outcome breaks maximum likelihood: no finite MLE
+   exists. The failure is silent — `glm` does not error, it returns an odds ratio near 0 (or
+   enormous), *p* ≈ 0.99, and an AUC that then gets written into a table. This is routine in
+   diagnostic imaging, because the good signs are the pathognomonic ones (T2-FLAIR mismatch,
+   the string sign, a halo sign): 100% specificity means an empty cell by construction.
+
+   ```bash
+   python3 "${CLAUDE_SKILL_DIR}/scripts/check_separation.py" \
+     --data cohort.csv --outcome idh_mutant --auto --strict
+   ```
+
+   `COMPLETE_SEPARATION` (an empty cell) and `QUASI_SEPARATION` (a cell below the sparsity
+   floor) both halt the plan. The remedy is a **design** decision, not a numerical one:
+   Firth's penalised likelihood keeps one model, while a **two-stage rule** — classify the
+   sign-positive cases directly, model only the sign-negative remainder — is usually the
+   clinically meaningful choice for a pathognomonic sign, because a sign-positive patient is
+   already diagnosed and the real question is what to do with everyone else. Decide this in
+   the plan; do not discover it in the output.
+
 Present the plan and **wait for user approval** before executing.
 
 | Type | When to use | Python packages | R packages | Primary output |

@@ -4,6 +4,29 @@
 
 ### Added
 
+- **Complete / quasi-complete separation is caught before the model is fitted** (`/analyze-stats`
+  Phase 2, `check_separation.py`; **detectors 59 → 60**). A predictor that perfectly predicts the
+  outcome breaks maximum likelihood — no finite MLE exists — and the failure is **silent**. `glm`
+  does not error: it returns an odds ratio of 0.00 (or an enormous one), *p* ≈ 0.99, and an AUC.
+  That AUC gets written into a table as a result.
+
+  This is routine in diagnostic imaging, because the good signs are the pathognomonic ones. A sign
+  with 100% specificity and 100% PPV — T2-FLAIR mismatch for IDH status, the string sign, a halo
+  sign — has an empty cell against the outcome *by construction*. Enter it as a covariate in an
+  incremental-value model and the model is numerically undefined while looking entirely healthy.
+
+  The gate is a cross-tabulation, not an inference: an empty cell is arithmetic, and arithmetic can
+  be checked in advance. It runs on the **data**, in the analysis-plan phase, and reports
+  `COMPLETE_SEPARATION` (an empty cell, or a continuous predictor whose ranges do not overlap) and
+  `QUASI_SEPARATION` (a cell below the sparsity floor, where the estimate converges but its CI is
+  not trustworthy).
+
+  Both verdicts name **both** remedies, because the choice is a study-design decision and not a
+  numerical one: Firth's penalised likelihood keeps a single model, while a **two-stage rule** —
+  classify the sign-positive cases directly, model only the sign-negative remainder — is usually the
+  clinically meaningful design for a pathognomonic sign, since a sign-positive patient is already
+  diagnosed and the real question is what to do with everyone else.
+
 - **Publisher markup in a `.bib` title is now caught before it renders** (`/manage-refs`,
   `check_bib_title_markup.py`; **detectors 58 → 59**). CrossRef ships titles containing markup —
   `<scp>WHO</scp>`, `<i>IDH</i>`, `<sub>1</sub>` — and a DOI-add stores them verbatim. Better BibTeX
