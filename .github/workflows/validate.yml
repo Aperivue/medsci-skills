@@ -87,6 +87,15 @@ jobs:
       - name: Run detector-envelope gate self-test (unlabelled + mislabelled envelopes fail)
         run: bash tests/test_detector_envelopes.sh
 
+      - name: Run check_python_floor.py (everything a user runs must parse on the Python we promise)
+        run: python3 scripts/check_python_floor.py --strict
+
+      - name: Run installer Python-guard test (old / missing Python must be refused, not crash)
+        run: bash installers/tests/test_installer_python_guard.sh
+
+      - name: Run setup-check test (hide pandoc; the report must NOTICE, and must install nothing)
+        run: bash installers/tests/test_doctor.sh
+
       - name: Run check_release_cadence.py (a release is an event, not a commit)
         run: python3 scripts/check_release_cadence.py --strict
 

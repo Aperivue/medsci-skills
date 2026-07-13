@@ -7,14 +7,29 @@
       "sha256": "b359c9214ce261265e2820a74902ff8b6d331e05270e475ded3b5fc06781ca65"
     },
     {
+      "path": "installers/check-setup-macos.command",
+      "size": 975,
+      "sha256": "6e54f5f5ae8dbcf82afb2ec08a3e54643842ceb75befaf079e5b6e7e3c900432"
+    },
+    {
+      "path": "installers/check-setup-windows.cmd",
+      "size": 948,
+      "sha256": "c514e0dcd9d69681ec9a4adacf1cf4ada00d89aed060358d7eba4c4e7a1ff303"
+    },
+    {
+      "path": "installers/doctor.py",
+      "size": 23120,
+      "sha256": "a37caea62468e1847337cc2ef82bd83d094fed81b02f8708dcc13cecb420df46"
+    },
+    {
       "path": "installers/install-macos.command",
-      "size": 803,
-      "sha256": "4071582be11c467f48fe9f4684dcc9b7a115a5361479fdfbd7a10c74d3309a52"
+      "size": 3904,
+      "sha256": "6f1cc2e24661054f1b68ad9677ecc3d39582b8ba419f0764c566f3f9037b7e59"
     },
     {
       "path": "installers/install-windows.cmd",
-      "size": 831,
-      "sha256": "3204da065979a2b060a5170b5c542e5ccd2ede4ecc172fcee7eafac3c0bfd003"
+      "size": 4486,
+      "sha256": "d686cf96e2e116eed9c85c8201443230016c3b63a0ec6aae4e92b06a6d1dcb80"
     },
     {
       "path": "installers/install-windows.ps1",
@@ -23,8 +38,8 @@
     },
     {
       "path": "installers/install.py",
-      "size": 16786,
-      "sha256": "26dac5013afc68adbebe1ddd954979701d46078cc1aa8fca974b2572ce1d0098"
+      "size": 18509,
+      "sha256": "7dc0eac5c52077d8e97cf8b7fb653056bc45475fedb772e650f4370ebd7d392b"
     },
     {
       "path": "installers/medsci_txn.py",
@@ -38,18 +53,18 @@
     },
     {
       "path": "installers/update-macos.command",
-      "size": 535,
-      "sha256": "b5eafc89896ad022ead1db3e431f021ec4f734a4fe0cd0ac170b9d25fa80bddf"
+      "size": 1764,
+      "sha256": "4df32d457ff1b70474b4e979e28e642633eec44a9a184bcfb8b6419a6090cd1d"
     },
     {
       "path": "installers/update-windows.cmd",
-      "size": 383,
-      "sha256": "095ba6d2a720ced75ff04dbe860480baec658bc2e90afbe9c4138fc9eb2702e2"
+      "size": 1780,
+      "sha256": "ddf32104ec882c6b921d265d52542e2413ae1ab3bb12afb89e7ea0f64134ca09"
     },
     {
       "path": "installers/update.py",
-      "size": 26375,
-      "sha256": "9ed283deea2e9bf10c17bbbbc1d75ae64703ecd587326583a17d0600d8bf0ca3"
+      "size": 26983,
+      "sha256": "2851980bd25d3f435788f032239d50e3d026d8c13f9c0128afc3a935d26f8cfa"
     },
     {
       "path": "skills/MAINTENANCE.md",

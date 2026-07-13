@@ -4,6 +4,53 @@
 
 ### Added
 
+- **A setup check that answers "what else does this computer need?" before you need it**
+  (`installers/doctor.py`; double-click `check-setup-macos.command` / `check-setup-windows.cmd`).
+  Every skill that needs an outside program already fails politely — the problem is *when*: you find
+  out in the middle of the work, and a clinician who hits that message does not stop and install a
+  package manager. They close the window. The check runs at the end of every install and reports in
+  terms of what you were trying to **do** — "turn your manuscript into a journal-formatted Word file"
+  needs pandoc, "read and QC submission PDFs" needs poppler, "open a .docx at all" needs python-docx
+  — and with `--fix` installs the small things after asking. Large things (a TeX distribution, R,
+  PyTorch) are **never** installed for you: it prints the size and the command and leaves the choice
+  alone. It installs nothing on its own, and cannot fail an install that worked.
+
+- **The installers now offer to install Python itself.** Telling someone with no Python to "go to
+  python.org" is a step they have to perform; on Windows the installer now offers
+  `winget install --exact --id Python.Python.3.13 --scope user` — no administrator password, which
+  matters on a locked-down hospital PC — and otherwise opens the download page for them, on both
+  platforms. The one checkbox that breaks everything if missed ("Add python.exe to PATH") is called
+  out.
+
+### Fixed
+
+- **The README demanded R and never mentioned pandoc — both wrong.** It listed "R 4.0+ with `meta`,
+  `metafor`, `mada`" under Requirements, which reads as *you cannot use this without R*. The toolkit
+  **never executes R**: `/analyze-stats` writes Python unless asked for R. Meanwhile **pandoc** — which
+  people genuinely hit, because it renders the manuscript to Word — was not listed at all. Requirements
+  now says what is true: Python and an agent host, and everything else on demand.
+
+- **The Windows installer could report success while installing nothing.** On a Windows machine with
+  no Python, `python` still *exists*: it is an App Execution Alias that opens the Microsoft Store. So
+  `where python` succeeded, the installer ran it, a Store page opened — and the script said it was
+  done. **Windows is 65% of classroom-ZIP downloads.** An interpreter is now accepted only after it
+  proves, **by running**, that it is Python 3.9 or newer; asking `where` only proves a name exists.
+
+- **A too-old Python produced a traceback instead of an explanation.** `install.py` *parses* on 3.8,
+  so it did not fail cleanly — it died partway through and left a clinician staring at a Python stack
+  trace. All four double-click scripts (install / update × macOS / Windows) and both Python entry
+  points now check the floor **before** anything runs, and say which of the two problems it is ("no
+  Python" and "too old a Python" need different actions), what to do about it, and that nothing on the
+  computer was changed. A failed install now also says so, rather than ending on a cheerful prompt.
+
+- **`check_python_floor.py` (CI)**: every script that reaches a user — the installers and the skill
+  scripts the agent runs on their machine — must parse on **Python 3.9**, the floor the README
+  promises. CI runs 3.11 and this project is developed on 3.14, so a `match` statement would have
+  shipped, broken only on a clinician's computer, and been invisible: when a research tool errors out,
+  a physician does not file a bug. They close the window and go back to doing it by hand.
+
+### Added
+
 - **`/contribute` — the way back** (new skill; **56 skills**, **detectors 61 → 62**). The people who use
   this toolkit are clinicians. They install it once, adapt a skill to the way their department actually
   works, add the journal they publish in, fix a checklist item that was wrong for their specialty — and
