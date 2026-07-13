@@ -15,6 +15,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # check_release_cadence.py compares CITATION.cff against the newest TAG. A shallow
+          # checkout has no tags, and the gate would pass by seeing nothing — the worst kind of
+          # green.
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -81,6 +86,12 @@ jobs:
 
       - name: Run detector-envelope gate self-test (unlabelled + mislabelled envelopes fail)
         run: bash tests/test_detector_envelopes.sh
+
+      - name: Run check_release_cadence.py (a release is an event, not a commit)
+        run: python3 scripts/check_release_cadence.py --strict
+
+      - name: Run release-cadence gate self-test
+        run: bash tests/test_release_cadence.sh
 
       - name: Run check_locale_inventory.py (Korean-bearing files must be inventory-justified)
         run: python3 scripts/check_locale_inventory.py

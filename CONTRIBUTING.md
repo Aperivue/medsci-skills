@@ -188,6 +188,44 @@ Maintainers may ask for:
 
 For JOSS readiness, contributions should strengthen open-source practice signals: public issues, pull requests, tests, CI, documentation, release notes, and clear contribution pathways.
 
+## Releasing (maintainers)
+
+**A release is an event, not a commit.** Merge to `main` continuously — that is what `main` is for —
+and let the work accumulate into something a person would actually want to read about.
+
+The rule is enforced by `scripts/check_release_cadence.py` (CI):
+
+- **At least 14 days since the last release.**
+- **The release must carry something a user would notice.** Docs, CI and internal changes are fine
+  to merge and a poor reason to make a hundred people update; they ride along with the next release
+  that has a reason of its own.
+- **Exception — a hotfix.** Something already shipped is broken: it will not install, it loses data,
+  it is a security problem, or it produced a wrong result that a user may have believed. Those go out
+  immediately. Say so, and the gate stands aside:
+
+  ```markdown
+  ## [5.20.1] - 2026-07-11
+
+  **Hotfix:** `/orchestrate --e2e` halted at step 3 requiring a DOCX only rendered at step 7,
+  so an end-to-end run could not complete.
+  ```
+
+### Why this is a gate and not a preference
+
+In the 37 days to 2026-07-13 this repository cut **42 releases** — a median gap of **zero days**,
+three of them on one afternoon. That was not merely untidy:
+
+1. **The release stopped meaning anything.** Someone who sees forty-nine releases does not read a
+   changelog; they wonder whether the project is stable. A version number that changes daily is a
+   commit log with extra ceremony, and it stops being usable as a coordinate — *"which version were
+   you on?"* has no answer when there were four that week.
+
+2. **It destroyed our own adoption signal.** Every release attracts a handful of automated asset
+   downloads (mirrors, scanners, crawlers), so `release_downloads` grows with the number of
+   **releases**, not the number of **users**. Across that window the cumulative total doubled while
+   per-release downloads collapsed from **32 to 5** — and the cumulative total was about to be cited
+   as evidence of adoption. **Cadence is a measurement decision, not only a shipping one.**
+
 ## Code of Conduct
 
 This project follows its [Code of Conduct](CODE_OF_CONDUCT.md), which adopts the Contributor Covenant. By participating, you agree to uphold it.
