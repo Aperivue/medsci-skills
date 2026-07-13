@@ -360,6 +360,19 @@ Apply this 8-probe checklist (QL1–QL8) **only when the manuscript is a qualita
 
 **Probe detail (QL1–QL8), with output templates and the leads-vs-findings discipline:** `${CLAUDE_SKILL_DIR}/references/domain-probes/qualitative_research.md`. Load it and apply each probe when the trigger fires. In this skill, map each probe finding to a Major / Minor comment; a method–question mismatch (a quantitative question answered with a few interviews, QL1), absent **reflexivity** (QL2), an opaque "themes emerged" analysis with no coding process / audit trail (QL5), or interpretation not traceable to quoted data (QL7) are design-level — surface them in the Confidential Comments to the Editor and place the strongest as the Major #1 candidate. Note the **bidirectional calibration trap** (QL6): do **not** demand a power calculation, a "representative" sample, statistical generalizability, or treat inter-coder κ as the sole truth — these are quantitative yardsticks inappropriate to qualitative work (a small purposive sample is not a flaw; "generalizability" is **transferability**); but do flag authors who claim statistical generalizability or causal/prevalence/population over-reach (QL8) from qualitative data. Unjustified sampling / no saturation (QL3), thin data-collection reporting (QL4), and missing ethics/consent for identifiable quotes (QL8) are validity/framing-level. Map the study to **COREQ** (interviews/focus groups) or **SRQR** (broader).
 
+### Self-improving / self-evaluating system (SI1–SI7)
+
+**Trigger:** the manuscript's claimed mechanism of improvement is the system judging or revising **itself** — an agent that iteratively critiques and rewrites its own output, a pipeline trained on data it generated, an LLM used as the judge that scores or filters the training signal, a "self-evolving" clinical agent.
+
+**Probe detail (SI1–SI7):** `${CLAUDE_SKILL_DIR}/references/domain-probes/self_improving_system.md`. The organizing question is not *did it improve?* but **what said so?** Every improvement loop is a claim that some signal can substitute for human judgment, and signals are not interchangeable: a formal verifier is sound by construction, execution feedback is reliable but incomplete, an LLM-as-judge is bounded by its own competence, and a model's self-consistency is the most gameable of all. A rung-1 conclusion drawn from a rung-3 signal is the commonest failure in this literature and is a design-level Major — surface it in the Confidential Comments to the Editor. **SI2** (the judge is the model it judges, unvalidated) and **SI3** (an ungrounded loop, where the gain may be reformulation rather than progress) are the two that a deterministic pass can decide:
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/check_self_improvement_claims.py" \
+  --manuscript paper.md --out qc/self_improvement.json --strict
+```
+
+`SELF_CONFIRMING_EVALUATOR` / `UNGROUNDED_SELF_LOOP` (major) and `SELF_TRAINING_NO_REAL_DATA` (minor). It is deliberately conservative — a paper that self-refines **and** validates its judge against human experts or a held-out labelled set has named its signal and does not fire; from there the probes are judgment and stay judgment.
+
 ### Phase 3: Draft Review
 
 Before writing comments, skim the relevant model in `references/exemplar_reviews/` for the

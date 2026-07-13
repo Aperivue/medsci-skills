@@ -4,6 +4,39 @@
 
 ### Added
 
+- **A domain probe + gate for manuscripts that claim a system improved *itself*** (`/peer-review` +
+  `/self-review`, `self_improving_system.md` SI1–SI7 and `check_self_improvement_claims.py`;
+  **detectors 60 → 61**, domain probes 22 → 23). An agent that critiques and rewrites its own reports, a
+  pipeline fine-tuned on data it generated, an LLM used as the judge that scores the training signal — a
+  fast-growing class in medical AI, and one that is reviewed badly, because the loop *looks* like a
+  method while the thing that decides whether it worked is often the system itself.
+
+  The probe's organizing question is not *did it improve?* but **what said so?** Every improvement loop
+  is a claim that some signal can substitute for human judgment, and signals are not interchangeable: a
+  formal verifier is sound by construction; execution feedback is reliable but incomplete; an
+  LLM-as-judge is bounded by its own competence and is itself an optimization target; a model's own
+  confidence is the most gameable of all. Demonstrated self-improvement tracks that order, so a rung-1
+  conclusion drawn from a rung-3 signal is a design-level Major.
+
+  Two of the seven probes are decidable by reading, and the detector takes them:
+  `SELF_CONFIRMING_EVALUATOR` (the judge is the same model family as the system it judges, and is never
+  validated against anything outside the loop — when generator and evaluator share weights their biases
+  correlate, and the loop reinforces the errors the model is *most confident about*) and
+  `UNGROUNDED_SELF_LOOP` (an explicit self-refinement claim with no external signal named anywhere;
+  ungrounded self-critique converges to rewording, not correction). Plus `SELF_TRAINING_NO_REAL_DATA`
+  (minor) for training on generated data with no real-data mixing, where the distribution's tails — the
+  rare presentations — are what erodes first.
+
+  It is deliberately conservative: a paper that self-refines **and** validates its judge against human
+  experts or a held-out labelled set has named its signal and does not fire. From there the probes are
+  judgment, and stay judgment.
+
+  Framework and evidence: Chen, Wang & Qu, *Recursive Self-Improvement in AI* (arXiv:2607.07663, a
+  survey of 1,250 papers) for the verification hierarchy and the self-confirming loop; DeVilling, *The
+  Mirror Loop* (arXiv:2510.21861) for the measured 55% decline in informational change across ten rounds
+  of ungrounded self-critique; Shumailov et al., *Nature* 2024, for collapse under self-generated
+  training data.
+
 - **Complete / quasi-complete separation is caught before the model is fitted** (`/analyze-stats`
   Phase 2, `check_separation.py`; **detectors 59 → 60**). A predictor that perfectly predicts the
   outcome breaks maximum likelihood — no finite MLE exists — and the failure is **silent**. `glm`

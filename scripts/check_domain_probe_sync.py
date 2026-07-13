@@ -54,6 +54,7 @@ MODULES = (
     "survey_research.md",
     "scoping_review.md",
     "qualitative_research.md",
+    "self_improving_system.md",
 )
 
 CANONICAL_REL = "skills/peer-review/references/domain-probes"

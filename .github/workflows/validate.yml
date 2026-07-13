@@ -145,6 +145,9 @@ jobs:
       - name: Run sync_hero_skill.py generator self-test (standalone mirror build)
         run: bash tests/test_sync_hero_skill.sh
 
+      - name: Run peer-review self-improvement-claim gate test (self-confirming / ungrounded loop)
+        run: bash skills/peer-review/tests/test_self_improvement_claims.sh
+
       - name: Run analyze-stats separation gate test (complete / quasi-complete separation)
         run: bash skills/analyze-stats/tests/test_separation.sh
 

@@ -361,6 +361,7 @@ These modules carry the same domain-specific critique probes used by `/peer-revi
 | Self-report survey / questionnaire study (KAP, physician/patient survey, cross-sectional questionnaire, web/e-survey) | `references/domain-probes/survey_research.md` (SV1–SV8) |
 | Scoping review (maps the breadth/nature of evidence, clarifies concepts, identifies gaps; PCC framing, charting, optional appraisal — not a focused effectiveness/accuracy question) | `references/domain-probes/scoping_review.md` (SC1–SC8) |
 | Qualitative study (interviews, focus groups, ethnography, grounded theory, phenomenology, document analysis; reflexivity, trustworthiness, thematic analysis — not quantitative validity) | `references/domain-probes/qualitative_research.md` (QL1–QL8) |
+| **Self-improving / self-evaluating system** (an agent that critiques and rewrites its own output; training on model-generated data; an LLM used as the judge that scores the training signal; "self-evolving" clinical agents) | `references/domain-probes/self_improving_system.md` (SI1–SI7) + `skills/peer-review/scripts/check_self_improvement_claims.py` |
 
 For a **classifier / NLP / tabular ML** manuscript, also run the deterministic feature-selection-leakage gate — a data-driven selection (feature selection, log-odds / univariate filtering, vocabulary construction, a threshold) fit on the FULL dataset before cross-validation inflates the CV metric:
 
