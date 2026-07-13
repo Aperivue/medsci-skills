@@ -15,6 +15,20 @@ import os
 import sys
 from pathlib import Path
 
+# The floor the README promises. Checked here as well as in the double-click installers, because
+# the failure it prevents is a clinician staring at a Python traceback: on 3.8 this file *parses*
+# (so there is no clean syntax error to explain itself) and then dies somewhere in the middle,
+# leaving a half-explained wall of text and no idea what to do next.
+MIN_PYTHON = (3, 9)
+if sys.version_info < MIN_PYTHON:
+    have = ".".join(str(n) for n in sys.version_info[:3])
+    sys.exit(
+        f"\nMedSci Skills needs Python {MIN_PYTHON[0]}.{MIN_PYTHON[1]} or newer. This computer has {have}.\n\n"
+        "  Install the latest Python from  https://www.python.org/downloads/\n"
+        "  then run this installer again.\n\n"
+        "Nothing has been changed on your computer.\n"
+    )
+
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # allow `import medsci_txn` when run as a script
 import medsci_txn  # noqa: E402
 

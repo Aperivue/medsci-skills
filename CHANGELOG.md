@@ -2,6 +2,27 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- **The Windows installer could report success while installing nothing.** On a Windows machine with
+  no Python, `python` still *exists*: it is an App Execution Alias that opens the Microsoft Store. So
+  `where python` succeeded, the installer ran it, a Store page opened — and the script said it was
+  done. **Windows is 65% of classroom-ZIP downloads.** An interpreter is now accepted only after it
+  proves, **by running**, that it is Python 3.9 or newer; asking `where` only proves a name exists.
+
+- **A too-old Python produced a traceback instead of an explanation.** `install.py` *parses* on 3.8,
+  so it did not fail cleanly — it died partway through and left a clinician staring at a Python stack
+  trace. All four double-click scripts (install / update × macOS / Windows) and both Python entry
+  points now check the floor **before** anything runs, and say which of the two problems it is ("no
+  Python" and "too old a Python" need different actions), what to do about it, and that nothing on the
+  computer was changed. A failed install now also says so, rather than ending on a cheerful prompt.
+
+- **`check_python_floor.py` (CI)**: every script that reaches a user — the installers and the skill
+  scripts the agent runs on their machine — must parse on **Python 3.9**, the floor the README
+  promises. CI runs 3.11 and this project is developed on 3.14, so a `match` statement would have
+  shipped, broken only on a clinician's computer, and been invisible: when a research tool errors out,
+  a physician does not file a bug. They close the window and go back to doing it by hand.
+
 ### Added
 
 - **`/contribute` — the way back** (new skill; **56 skills**, **detectors 61 → 62**). The people who use
