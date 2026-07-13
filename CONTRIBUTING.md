@@ -4,12 +4,33 @@ Thank you for helping make medical research workflows more reproducible and less
 
 ## Quickstart: your first PR (5 minutes)
 
-Most contributions are **one small, self-contained file** (a CSL style, a de-identification locale, a figure exemplar, a journal profile, a README translation). You do **not** need to read the rest of this document, understand the whole pipeline, or run the full validator suite locally for one of these. The path is:
+Most contributions are **one small, self-contained file** (a CSL style, a de-identification locale, a figure exemplar, a journal profile, a README translation). You do **not** need to read the rest of this document, understand the whole pipeline, or run the full validator suite locally for one of these.
 
-1. **Fork** the repo and **clone** your fork.
-2. **Branch**: `git checkout -b add-<what-you-are-adding>`.
-3. **Add one file** in the folder the [good-first-issue](https://github.com/Aperivue/medsci-skills/contribute) or the README's "Contributing" table points to. Copy the nearest existing file as your template.
-4. **Open a PR.** CI runs for you — you do not need to run it locally, and you do **not** need the worktree discipline, the release process, or any catalog-count bump. The catalog-consistency check auto-derives journal-profile counts from disk, so adding a profile will not flag you; a maintainer handles any bookkeeping in review.
+### You do not need git
+
+Most of the people who use this toolkit are clinicians, and the single most common reason a good
+contribution never arrives is that step one used to be *"fork the repo and clone your fork."* For a
+one-file contribution, **you can do the whole thing in your browser** — no git, no clone, no terminal:
+
+1. Open the folder the issue points to (e.g. [`skills/manage-refs/citation_styles/`](skills/manage-refs/citation_styles/)).
+2. Click **Add file → Create new file** (or open an existing file and click the **pencil** to edit it).
+   Open the nearest existing file in another tab and copy its shape.
+3. Write the file, then click **Propose changes** at the bottom. GitHub forks the repository for you,
+   makes the branch, and offers to open the pull request. Click **Create pull request**.
+4. That is the whole thing. **CI runs for you.** If something needs fixing, a maintainer will say so in
+   plain language on that page — you will not be asked to rebase anything.
+
+If you would rather work locally, the git path is: fork → clone → `git checkout -b add-<thing>` → add
+the file → push → open a PR. Either way, you do **not** need the worktree discipline, the release
+process, or any catalog-count bump. The catalog-consistency check auto-derives journal-profile counts
+from disk, so adding a profile will not flag you; a maintainer handles the bookkeeping in review.
+
+### Already changed something on your own machine?
+
+If you have adapted an installed skill — added your journal, fixed something that was wrong for your
+specialty — run **`/contribute`**. It finds what you changed, **scans it for patient data, hospital
+names, IRB numbers and manuscript IDs** (that scan blocks), shows you every line, and opens the pull
+request for you. You never type a git command.
 
 **Claiming an issue:** you don't need to. **No assignment is required — just open a PR.** The first PR that passes CI and review wins. If you want to signal intent, comment on the issue; that soft-claim lapses after **7 days** so an issue never sits blocked on someone who moved on.
 
