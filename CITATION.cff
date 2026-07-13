@@ -19,7 +19,7 @@ authors:
 repository-code: "https://github.com/Aperivue/medsci-skills"
 url: "https://github.com/Aperivue/medsci-skills"
 license: MIT
-version: "5.20.1"
+version: "5.21.0"
 date-released: "2026-07-11"
 doi: "10.5281/zenodo.20155321"
 identifiers:
