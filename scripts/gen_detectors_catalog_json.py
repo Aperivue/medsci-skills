@@ -113,6 +113,7 @@ FAMILY_BY_ID: dict[str, str] = {
     "check_preprocessing_leakage": "data_preparation",
     "check_radiomics_ml": "data_preparation",
     "check_separation": "data_preparation",
+    "check_contribution_safety": "data_preparation",
 }
 
 # Stable display order + human labels for the families array.

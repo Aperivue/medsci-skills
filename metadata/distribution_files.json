@@ -28,8 +28,8 @@
     },
     {
       "path": "installers/medsci_txn.py",
-      "size": 14829,
-      "sha256": "0cb950a98ffcf027c8fa090e1352f7d3052e928934bc2f3a21ce420b631866d0"
+      "size": 15812,
+      "sha256": "a98fd2c3508a4f1344f81963e11587bb635bc012284eb4aacef4b20ddef6c716"
     },
     {
       "path": "installers/session_update_check.py",
@@ -910,6 +910,31 @@
       "path": "skills/clean-data/skill.yml",
       "size": 1310,
       "sha256": "61d4095b54ca1c15a96c9be59282c336f3638080c5f7a49d0bad49e42be4758e"
+    },
+    {
+      "path": "skills/contribute/SKILL.md",
+      "size": 9268,
+      "sha256": "149934450338d1ff5bcd31b18ed49aa8a32d7b36a436d06305f163cc5c3d99da"
+    },
+    {
+      "path": "skills/contribute/scripts/check_contribution_safety.py",
+      "size": 11153,
+      "sha256": "4620801b7ce5e42b3de15fa069b0a46d2b0d113140609b3fa950de7f8773ad27"
+    },
+    {
+      "path": "skills/contribute/scripts/find_local_changes.py",
+      "size": 7584,
+      "sha256": "1dd82a3fe8383379531971b5db5f7262e48193efeed3a2147d5394138fca33d6"
+    },
+    {
+      "path": "skills/contribute/scripts/submit_contribution.py",
+      "size": 8815,
+      "sha256": "e3e962861a87a7c5a409e9ebff9c9eb7d220d22c8cd92f34de11077af14c0203"
+    },
+    {
+      "path": "skills/contribute/skill.yml",
+      "size": 2389,
+      "sha256": "a9a1e403241e200956283543580925ab6cc62d9bafe7a4f81bd8e24f3c84c06d"
     },
     {
       "path": "skills/cross-national/SKILL.md",
@@ -3038,8 +3063,8 @@
     },
     {
       "path": "skills/orchestrate/SKILL.md",
-      "size": 40144,
-      "sha256": "6535b55a55791f1339c32d4b8ee8e7ebdaf749a6c3dc1677ef8f3a653ef424ca"
+      "size": 40630,
+      "sha256": "0b98738ef47f7fd2e0a2922572e3b55103f46152b727668865c466068c2d1b71"
     },
     {
       "path": "skills/orchestrate/references/dialogue_nodes.md",

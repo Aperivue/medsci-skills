@@ -256,6 +256,22 @@ def install_target(
             else:
                 permanent_backup(d, target, home, "legacy-collision", log)
 
+    # A user-modified skill is not an accident to be logged and forgotten — it is usually a
+    # clinician adapting the toolkit to their journal, their specialty, their department. The
+    # backup preserved it; nothing ever read the backup again. Point at the way back.
+    modified = [
+        name for name in owned_skills
+        if (dest / name).exists()
+        and name in prior_skills
+        and skill_inventory(dest / name) != prior_skills[name].get("inventory", {})
+    ]
+    if modified:
+        log(f"  NOTE: you had changed {len(modified)} skill(s): {', '.join(sorted(modified))}")
+        log("        Your version is backed up (above) and the new one is now installed.")
+        log("        If the change was worth making, it is probably worth sharing: run /contribute")
+        log("        and it will be offered back to the project — with a scan for patient data")
+        log("        first, and nothing sent until you have read every line and said yes.")
+
     prune = [n for n in prior_skills if n not in set(owned_skills)]
     for name in prune:  # a removed/renamed owned skill: back up before pruning, then remove in txn
         d = dest / name

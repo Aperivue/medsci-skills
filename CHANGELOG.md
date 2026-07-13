@@ -2,6 +2,44 @@
 
 ## [Unreleased]
 
+### Added
+
+- **`/contribute` — the way back** (new skill; **56 skills**, **detectors 61 → 62**). The people who use
+  this toolkit are clinicians. They install it once, adapt a skill to the way their department actually
+  works, add the journal they publish in, fix a checklist item that was wrong for their specialty — and
+  then stop. The edit sits on one laptop. They do not open a pull request, because a pull request is not
+  a thing they do. Frequently that edit is the most valuable thing in the repository, because it is real
+  domain knowledge nobody in the project has, and it dies where it was written.
+
+  The detection already existed and nobody had noticed: the installer hashes every shipped file and takes
+  a **permanent backup** of any skill you modified before overwriting it. Nothing ever read the backup
+  again. `/contribute` is the other half — it compares the installed skills against the shipped hashes,
+  tells the author exactly what they changed and added, and offers it back as a pull request **without
+  them ever typing a git command**. No GitHub CLI? It reaches the project as a pre-filled issue instead;
+  installing a developer tool is not made a condition of helping.
+
+  **`check_contribution_safety.py` is the load-bearing part.** These users edit skills *while working on
+  real manuscripts and real patients*, so a local edit can carry a patient identifier, a national ID, an
+  IRB number, a manuscript under review, a colleague's name, or a home directory with their own account
+  name in it. A contribution flow that simply uploads "the files you changed" is a PHI leak with a
+  friendly button on it. Patient-level data and credentials are **blockers** — the line is deleted, not
+  argued with — and identity, institution, approval-ID, manuscript-ID and local-path findings are shown
+  with the remedy next to them.
+
+  And the skill says out loud, every time, that **the scan is not a certificate**: no pattern list
+  recognises every patient name or every hospital, and a scanner that is *believed* to be complete is
+  more dangerous than none, because it replaces the human check. The author reads every line that would
+  leave their machine, and confirms, or nothing is sent.
+
+  It also files the feedback that is not a code change — *"this flagged my paper and it was wrong"*, *"this
+  failed on my Word document"*. A false positive is the only evidence anyone has of how a detector behaves
+  on a **real** manuscript rather than a synthetic fixture; it is not a lesser contribution.
+
+  Finally, the installer now says something when it finds a modified skill, instead of logging a backup
+  path nobody reads: your version is preserved, and if the change was worth making it is probably worth
+  sharing.
+
+
 ## [5.21.0] - 2026-07-13
 
 Verification-layer batch: the marked-manuscript round trip, a self-improvement probe, an artifact

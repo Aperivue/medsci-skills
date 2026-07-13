@@ -2,14 +2,14 @@
 
 # MedSci Skills
 
-**55 skills that actually work.** Built by a physician-researcher, tested on real publications.
+**56 skills that actually work.** Built by a physician-researcher, tested on real publications.
 
 *MedSci Skills is an end-to-end research tool for physician and medical-engineering researchers — design → scaffold → validate → publish — for the clinical manuscript and the medical-AI model behind it. Its moat is the compliance layer — 46 reporting guidelines and risk-of-bias tools, reference/citation verification, and deterministic integrity gates before peer review — now extended by a model-engineering lane that scaffolds reproducible, leakage-safe training repos and audits model validation. Clinical AI model research engineering is in scope; a general AI-scientist platform is not. It competes on clinical submission reliability, not skill count.*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Release](https://img.shields.io/github/v/release/Aperivue/medsci-skills?style=flat-square&color=blue)](https://github.com/Aperivue/medsci-skills/releases/latest)
 [![CI](https://img.shields.io/github/actions/workflow/status/Aperivue/medsci-skills/validate.yml?branch=main&style=flat-square&label=CI)](https://github.com/Aperivue/medsci-skills/actions/workflows/validate.yml)
-![Skills](https://img.shields.io/badge/Skills-55-brightgreen?style=flat-square)
+![Skills](https://img.shields.io/badge/Skills-56-brightgreen?style=flat-square)
 [![npm](https://img.shields.io/npm/v/medsci-skills?style=flat-square&label=npm&color=cb3837)](https://www.npmjs.com/package/medsci-skills)
 [![npm downloads](https://img.shields.io/npm/dw/medsci-skills?style=flat-square&label=npm%20downloads&color=cb3837)](https://www.npmjs.com/package/medsci-skills)
 [![Watch the 2-min intro](https://img.shields.io/badge/▶_Watch-2--min_intro-FF0000?style=flat-square&logo=youtube&logoColor=white)](https://youtu.be/MclQ_RIofpE)
@@ -788,8 +788,29 @@ Or equivalently: `/write-paper --autonomous` if analysis and figures already exi
 
 ## Contributing
 
-Contributions are welcome — and most are **one small, self-contained file** that a
-template walks you through. You do not need to understand the whole pipeline to add value.
+**If you have already changed something on your own machine, `/contribute` will send it for you.**
+Most people who use this are clinicians, not git users: they add the journal they publish in, fix a
+checklist item that was wrong for their specialty, adapt a skill to their department — and the
+change dies on one laptop.
+
+```
+/contribute
+```
+
+It compares your installed skills against what was shipped, tells you exactly what you changed,
+**scans it for patient data, hospital names, IRB numbers and manuscript IDs** (that scan blocks, and
+it is the reason this is a skill and not a button), shows you every line that would leave your
+machine, and only then opens the pull request — you never type a git command. No GitHub CLI? It
+reaches the project as an issue instead.
+
+The same skill files a **false positive** ("this flagged my paper and it was wrong") or a failed
+step. That is not a lesser contribution: it is the only evidence anyone has of how a detector
+behaves on a real manuscript rather than a synthetic fixture.
+
+---
+
+Contributions are also welcome the ordinary way — and most are **one small, self-contained file**
+that a template walks you through. You do not need to understand the whole pipeline to add value.
 Pick a [**good first issue**](https://github.com/Aperivue/medsci-skills/contribute), or start
 from one of these:
 

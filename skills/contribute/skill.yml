@@ -1,0 +1,46 @@
+schema_version: 2
+name: contribute
+layer: D
+owner_domain: contribution_flow
+maturity: official
+
+when_to_use: "Offer a local edit back to the project (a journal profile you added, a fix you made), or report a false positive / a step that failed — without using git."
+when_NOT_to_use: "Publishing your own research (use /sync-submission); editing the manuscript itself (use /write-paper or /revise)."
+
+inputs:
+  - "the skills installed on this machine (compared against the hashes of what was shipped)"
+  - "optionally, free-text feedback about a detector that fired wrongly or a step that failed"
+outputs:
+  - "qc/local_changes.json — what you changed"
+  - "qc/safety.json — what must not leave this machine"
+  - "a pull request on the project's repository, or a pre-filled issue"
+deterministic_scripts:
+  - scripts/find_local_changes.py
+  - scripts/check_contribution_safety.py
+  - scripts/submit_contribution.py
+side_effects:
+  - writes_report_artifacts
+  - network_access_github
+downstream_consumers:
+  - none
+forbidden_actions:
+  - send_anything_without_explicit_confirmation_on_the_exact_text
+  - publish_patient_level_data_or_a_credential
+  - claim_the_safety_scan_certifies_a_diff_is_clean
+  - fabricate_what_a_users_change_was_for
+
+# v2.1 quality card
+purpose: "Let a clinician who has never opened a pull request give their change back to the project, without ever typing a git command and without leaking a patient."
+safety_boundaries:
+  - "Nothing leaves the machine until the author has seen every line that would leave it and confirmed."
+  - "Patient-level data and credentials are blockers: the line is deleted, not argued with."
+  - "The safety scan is an aid, never a certificate — the skill says so to the user, every time."
+  - "Touches only the installed skills; never the user's manuscripts or data."
+known_limitations:
+  - "No pattern list recognises every patient name or every hospital; the scan narrows what the author must check, it does not replace the check."
+  - "A pull request needs the GitHub CLI; without it the contribution still reaches the project as an issue."
+  - "A modified file is sent whole (the shipped original is not kept on disk — only its hash), so the maintainer diffs it."
+validation_commands:
+  - "bash tests/test_contribution_safety.sh"
+  - "python3 scripts/find_local_changes.py --target claude"
+evidence_surface: bundled_script
