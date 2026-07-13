@@ -1238,8 +1238,8 @@
     },
     {
       "path": "skills/find-cohort-gap/scripts/build_cohort_profile.py",
-      "size": 23222,
-      "sha256": "dd6093e97822f79d49503880741ae92e6b7bcc384fc2327fc3cf1599e44a52a0"
+      "size": 23783,
+      "sha256": "9a08c1d1aef54d827bfc8d2a131ab2d3e9cfc36fe1f4e4c8918b05797220d669"
     },
     {
       "path": "skills/find-cohort-gap/skill.yml",

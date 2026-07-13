@@ -28,7 +28,10 @@
 
   Two structural facts *are* derivable from variable names, and both feed patterns the skill already
   scores: **serial / repeated-measure groups** (P1 Longitudinal Advantage) and **endpoint candidates**
-  (P2 Endpoint Upgrade). Each is reported with the variables that justify it, and a measurement is only
+  (P2 Endpoint Upgrade). Endpoints also get a cluster of their own (`outcome_endpoint`), assigned only
+  when no other cluster claims the variable — otherwise the profile contradicted itself, listing
+  `death_date` as "matched nothing, review it" in the cluster map while citing it as the P2 evidence
+  two sections below. Each is reported with the variables that justify it, and a measurement is only
   called serial when it genuinely repeats. Cluster assignment records the keyword that triggered it, and
   a variable matching nothing is left `unclassified` rather than forced into a bucket.
 
@@ -58,6 +61,11 @@
     regex `<w:t[^>]*>` also matches `<w:tbl>`, `<w:tc>` and `<w:tr>`, silently swallowing table markup as prose.
 
 ### Fixed
+
+- **The locale-inventory gate no longer trips over build artifacts.** It scanned `__pycache__`, so a
+  compiled `.pyc` of a Korean-bearing module — produced simply by running a test that imports it — was
+  reported as an un-inventoried Korean file: a CI failure on a git-ignored file that does not ship and
+  has nothing to fix.
 
 - **The JOSS paper's detector total is now gated.** `paper.md` states the size of the detector suite in its
   Summary but was absent from `DETECTOR_CLAIM_FILES`, so it would have silently disagreed with the software

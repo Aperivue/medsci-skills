@@ -99,7 +99,8 @@ CLUSTERS: dict[str, tuple[str, ...]] = {
 TOKEN_ONLY = 4
 
 # Endpoint-like variables. A cohort's value proposition is usually its hard endpoints, and
-# the skill scores that (P2), so surface them explicitly.
+# the skill scores that (P2), so they get both a cluster of their own (`outcome_endpoint`,
+# assigned only when no other cluster claims the variable) and an explicit candidate list.
 ENDPOINT_HINTS = (
     "death", "mortal", "expire", "died", "survival", "cancer", "malign", "incid",
     "cvd", "chd", "mace", "stroke", "myocard", "mi", "infarct", "event", "outcome",
@@ -287,13 +288,22 @@ def _hits(key: str, hay: str, toks: set[str]) -> bool:
 
 def classify(name: str, desc: str) -> tuple[str, str]:
     """Return (cluster, matched_keyword). Unmatched stays 'unclassified' — a variable is
-    never forced into a bucket to make the map look complete."""
+    never forced into a bucket to make the map look complete.
+
+    Endpoints are resolved LAST, and only against variables no other cluster claimed, so a
+    cohort's hard endpoint lands in `outcome_endpoint` instead of `unclassified`. Otherwise
+    the profile contradicts itself: `death_date` would be listed as "matched nothing —
+    review it" in the cluster map and as the P2 evidence two sections below.
+    """
     hay = f"{name} {desc}".lower()
     toks = _tokens(hay)
     for cluster, keys in CLUSTERS.items():
         for k in keys:
             if _hits(k, hay, toks):
                 return cluster, k
+    kw = is_endpoint(name, desc)
+    if kw:
+        return "outcome_endpoint", kw
     return "unclassified", ""
 
 
