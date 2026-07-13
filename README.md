@@ -825,6 +825,24 @@ Community members who have reported, verified, or shaped the project are credite
 
 ## In the Wild
 
+### Cited in the literature
+
+**Chen, Wang & Qu (2026), *Recursive Self-Improvement in AI*** — [arXiv:2607.07663](https://arxiv.org/abs/2607.07663), a
+survey of **1,250 papers** — cites this project's methods paper
+([arXiv:2606.09500](https://arxiv.org/abs/2606.09500)) twice, as the reference for what fails when an AI
+audits its own scientific output, and names the approach taken here as the response:
+
+> "In regulated domains, **deterministic integrity gates are interposed** because 'self-critique
+> inherits the blind spots that produce confident fabrication'."
+> — §6.3 (quoting the methods paper; also cited in §5.3, on the self-confirming loop)
+
+That is the argument this repository is built on: a model asked to check its own work inherits the
+blind spots that produced the error, and a script that **recomputes** the number does not.
+
+Every citation we know of is logged in [`docs/citations.md`](docs/citations.md).
+
+### Adoption
+
 Adoption is tracked openly in [`IMPACT.md`](IMPACT.md) (stars, forks, traffic,
 release downloads — snapshotted weekly into [`metrics/traffic_log.csv`](metrics/traffic_log.csv))
 and academic use is logged in [`docs/citations.md`](docs/citations.md).
