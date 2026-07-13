@@ -23,12 +23,15 @@
 
 - Literature scans are point-in-time; a gap can close between scan and submission.
 - No standalone demo; proposals require domain judgement.
+- The codebook adapter clusters variables by a keyword lexicon that is not exhaustive; unmatched variables are surfaced as 'unclassified' for the user to review rather than force-assigned.
+- A codebook cannot state sample size, follow-up, or IRB status; those are emitted as [UNKNOWN] and must be collected from the user.
 
 **Validation**
 
+- `bash tests/test_cohort_profile.sh`
 - `re-run the saturation search before committing to a topic`
 
-**Evidence** — `manual_workflow`
+**Evidence** — `bundled_script`
 
 ## Bundled resources
 
@@ -38,6 +41,10 @@
 - `onepager_template.md`
 - `pattern_scoring_rubric.md`
 - `saturation_query_templates.md`
+
+**Scripts** (`skills/find-cohort-gap/scripts/`):
+
+- `build_cohort_profile.py`
 
 ## Source
 

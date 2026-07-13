@@ -1213,13 +1213,13 @@
     },
     {
       "path": "skills/find-cohort-gap/SKILL.md",
-      "size": 14253,
-      "sha256": "22a560e69e5309d28d293a23aad7a23b3d475f4cb51fa1b73688230d54cfcb74"
+      "size": 16508,
+      "sha256": "5a8f96af2b3f44853231fb677efb9ab92395fcfab1d58283ebe24fba0656a8c1"
     },
     {
       "path": "skills/find-cohort-gap/references/cohort_profile_template.md",
-      "size": 3395,
-      "sha256": "dfaf0cbe27236334bdeea2efdba73a7cbad3564ec3c95787b349b0d759cda3fd"
+      "size": 4219,
+      "sha256": "a370ea69d1c71a7f2546de396c189aab63f4b566b3950a8bc37951f05128711b"
     },
     {
       "path": "skills/find-cohort-gap/references/onepager_template.md",
@@ -1237,9 +1237,14 @@
       "sha256": "ee21c6fd0b10c22f2f9a9f120005b7e6ee0e1404dbf00aede8bbbe59f2eba1ef"
     },
     {
+      "path": "skills/find-cohort-gap/scripts/build_cohort_profile.py",
+      "size": 23222,
+      "sha256": "dd6093e97822f79d49503880741ae92e6b7bcc384fc2327fc3cf1599e44a52a0"
+    },
+    {
       "path": "skills/find-cohort-gap/skill.yml",
-      "size": 1365,
-      "sha256": "f7ed59f9ad3655cb88439b90bc0bcf32cc2bf0c7b4172decdae574e7916015b4"
+      "size": 2147,
+      "sha256": "ba9d514645ce4f3036b8b8ccdfa09cc7fdc3fafea761685e61f427fed3fdfa5c"
     },
     {
       "path": "skills/find-journal/POLICY.md",

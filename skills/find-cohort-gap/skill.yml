@@ -8,11 +8,15 @@ when_to_use: "Find research gaps in a longitudinal cohort DB by profiling its st
 when_NOT_to_use: "Finding meta-analysis topics (use ma-scout); designing a chosen study (use design-study)."
 
 inputs:
-  - "cohort profile / data dictionary"
+  - "named cohort, OR a local codebook / data dictionary / CSV export (.csv/.tsv/.json/.md/.xlsx/.pdf)"
+  - "optional domain context: a review / guideline / preprint (file or URL)"
   - "PI expertise"
   - "literature landscape"
 outputs:
+  - "cohort_profile.md + cohort_profile.json (variables enumerated verbatim, with provenance)"
   - "ranked topic proposals with gap evidence"
+deterministic_scripts:
+  - scripts/build_cohort_profile.py
 side_effects:
   - writes_report_artifacts
   - network_access_literature
@@ -22,6 +26,8 @@ downstream_consumers:
 forbidden_actions:
   - claim_a_gap_without_literature_evidence
   - fabricate_saturation_counts
+  - invent_a_variable_the_codebook_does_not_contain
+  - guess_a_sample_size_or_follow_up_the_codebook_does_not_state
 
 # v2.1 quality card
 purpose: "Rank under-studied topics for a specific cohort, each backed by literature-saturation evidence and feasibility."
@@ -31,6 +37,9 @@ safety_boundaries:
 known_limitations:
   - "Literature scans are point-in-time; a gap can close between scan and submission."
   - "No standalone demo; proposals require domain judgement."
+  - "The codebook adapter clusters variables by a keyword lexicon that is not exhaustive; unmatched variables are surfaced as 'unclassified' for the user to review rather than force-assigned."
+  - "A codebook cannot state sample size, follow-up, or IRB status; those are emitted as [UNKNOWN] and must be collected from the user."
 validation_commands:
+  - "bash tests/test_cohort_profile.sh"
   - "re-run the saturation search before committing to a topic"
-evidence_surface: manual_workflow
+evidence_surface: bundled_script

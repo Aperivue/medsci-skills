@@ -44,6 +44,7 @@ Buckets:
 | `skills/deidentify/tests/README.md` | A | Documents the Korean placeholder test names (김철수 etc., synthetic). |
 | `skills/deidentify/deidentify.py` | A | Korean date parsing (년/월/일) + bilingual `Select country / 국가 선택` prompt. |
 | `skills/deidentify/SKILL.md` | A/D | Locale-pack description (kr: 주민번호 …) + bilingual trigger. |
+| `skills/find-cohort-gap/scripts/build_cohort_profile.py` | A | Codebook column-header aliases: a Korean hospital registry's data dictionary labels its description column `설명` / `한글`, and the adapter must recognise it to read the codebook at all. Language-specific parsing, not prose. |
 | `skills/publish-skill/SKILL.md` | A | Language-hardcoding **detection** patterns (`한국어로`, `<한글이름> 교수님`) — the feature. |
 | `skills/publish-skill/scripts/audit_skill.sh` | A | Korean PII/name detection regex. |
 | `skills/publish-skill/references/pii-patterns.md` | A | Korean PII pattern examples for the auditor. |
