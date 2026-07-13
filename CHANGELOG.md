@@ -41,7 +41,16 @@
   running, which this audience already under-does. Defaulting to silence costs a few contributions;
   defaulting to noise costs the update path itself.
 
-  The option is mentioned **once**, at the end of a first install, and then never again whatever the
+  The install also, **once**, says how to say thanks — because clinicians who find this useful write
+  to the maintainer personally and have often never starred the repository, not having weighed it up
+  and declined but never having been told that starring is the thing you do, what it is for, or that
+  it takes one click. That is a **missing instruction, not a missing favour**. `star_repo.py` explains
+  what a star is (how the next researcher with the same problem finds the tool; the closest thing
+  research software has to a citation when it is not in anyone's reference list) and then makes it one
+  command with the GitHub CLI, or one click without it. If they have already starred it, it says thank
+  you and stops. It never asks twice.
+
+  The contribution option is mentioned **once**, at the end of a first install, and then never again whatever the
   user does — *ignoring the question is an answer*. Opted in, the reminder appears only when something
   actually changed, and **at most once a month**. The setting governs reminders **only** (`/contribute`
   runs whenever it is run; turning reminders off is not opting out of contributing, it is opting out of

@@ -249,12 +249,20 @@ def _offer_contribution_reminders_once(log_lines) -> None:
         return
 
     log(
-        "\nOne thing, once — then we will not bring it up again:\n"
-        "  If you ever adapt a skill (add your journal, fix something wrong for your specialty),\n"
-        "  that change can be offered back with /contribute. It is off by default and nothing is\n"
-        "  ever sent without a patient-data scan and your confirmation on every line.\n"
-        "  To be reminded when you have changed something worth sharing:\n"
-        "      python3 ~/.claude/skills/contribute/scripts/contribution_prefs.py --on",
+        "\nTwo things, once — then we will not bring either up again:\n"
+        "\n"
+        "  1. If you ever adapt a skill (add your journal, fix something wrong for your specialty),\n"
+        "     that change can be offered back with /contribute. Reminders are OFF by default, and\n"
+        "     nothing is ever sent without a patient-data scan and your confirmation on every line.\n"
+        "         python3 ~/.claude/skills/contribute/scripts/contribution_prefs.py --on\n"
+        "\n"
+        "  2. If this ends up saving you time, the way to say so is a star on the repository.\n"
+        "     Not applause — it is how the next researcher with your problem finds it, and for\n"
+        "     software with no DOI in anyone's reference list it is the closest thing to a citation.\n"
+        "     Most people who write to say thanks have never done it, because nobody told them.\n"
+        "     One command, no browser:\n"
+        "         python3 ~/.claude/skills/contribute/scripts/star_repo.py --now\n"
+        "     (or one click: https://github.com/Aperivue/medsci-skills)",
         log_lines,
     )
     cfg["asked_once"] = True

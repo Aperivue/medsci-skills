@@ -228,6 +228,37 @@ assert "config" not in src.lower() or "contribution_reminders" not in src, \
 PY
 ck "the safety scan reads no preferences (cannot be turned down)" 0 "$?"
 
+# --- 10) Saying thanks is an INSTRUCTION, not a request ---------------------------------------
+# Physicians who find this useful write to the maintainer personally to say so, and many of the
+# same people have never starred the repository — not because they declined, but because nobody
+# told them starring is the thing you do. That is a missing instruction. It is shown once, it
+# works without a browser for anyone who has the GitHub CLI, and it never asks twice.
+STAR="$REPO_ROOT/skills/contribute/scripts/star_repo.py"
+SHOME="$TMP/star"
+
+# a machine with no GitHub CLI (most clinicians) must still get a usable answer
+OUT="$(PATH=/usr/bin:/bin MEDSCI_HOME="$SHOME" python3 "$STAR" --how 2>&1)"
+echo "$OUT" | grep -q "github.com/Aperivue/medsci-skills"
+ck "no GitHub CLI -> a clickable link, not a dead end" 0 "$?"
+echo "$OUT" | grep -qi "free GitHub account"
+ck "...and says what is actually required (an account)" 0 "$?"
+
+# --now must never fail silently when it cannot act
+PATH=/usr/bin:/bin MEDSCI_HOME="$SHOME" python3 "$STAR" --now > /dev/null 2>&1
+ck "--now without gh falls back to the link (does not error)" 0 "$?"
+
+# it explains WHAT a star is for — the whole point is that people were never told
+echo "$OUT" | grep -qi "closest thing"
+ck "the note explains what a star is for" 0 "$?"
+
+# and it records that it was shown, so nobody is asked twice
+python3 - "$SHOME/config.json" <<'PY'
+import json, sys
+cfg = json.load(open(sys.argv[1]))
+assert cfg.get("star_note_shown") is True, cfg
+PY
+ck "showing it once is recorded (never asked twice)" 0 "$?"
+
 echo "----"
 echo "test_contribution_safety: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]

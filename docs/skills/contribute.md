@@ -21,6 +21,7 @@
 - The safety scan is an aid, never a certificate — the skill says so to the user, every time.
 - Touches only the installed skills; never the user's manuscripts or data.
 - Reminders are opt-in and off by default; the setting governs reminders only and cannot weaken the safety scan.
+- The star note is shown once, ever, and never repeated; it explains what a star is rather than asking for one.
 
 **Known limitations**
 
@@ -42,6 +43,7 @@
 - `check_contribution_safety.py`
 - `contribution_prefs.py`
 - `find_local_changes.py`
+- `star_repo.py`
 - `submit_contribution.py`
 
 ## Source
