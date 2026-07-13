@@ -43,6 +43,7 @@
 **Scripts** (`skills/analyze-stats/scripts/`):
 
 - `check_generated_code.py`
+- `check_separation.py`
 - `rating_monotonicity.py`
 
 ## Source
