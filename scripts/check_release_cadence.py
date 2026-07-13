@@ -146,9 +146,11 @@ def audit(min_days: int) -> tuple[list[str], dict]:
         )
 
     if not substantive(section) and not hotfix:
+        # Computed outside the f-string: a backslash inside an f-string expression is a syntax
+        # error before Python 3.12, and CI runs 3.11 while this machine runs 3.14.
+        found = ", ".join(re.findall(r"^###\s+(.+)$", section, re.MULTILINE)) or "no headings"
         problems.append(
-            f"the `[{version}]` section carries nothing a user would notice "
-            f"(only: {', '.join(re.findall(r'^###\\s+(.+)$', section, re.MULTILINE)) or 'no headings'}).\n"
+            f"the `[{version}]` section carries nothing a user would notice (only: {found}).\n"
             "      Docs, CI and internal changes are fine to merge and a poor reason to make a "
             "hundred people\n      update. Let them ride along with the next release that has a "
             "reason of its own."
