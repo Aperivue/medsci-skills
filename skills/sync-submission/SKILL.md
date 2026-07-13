@@ -364,6 +364,44 @@ for s in Funding "Competing Interests" "Ethics Approval" "Consent to Participate
 - **Submitting via a co-author's account.** Editorial Manager auto-adds the account holder at the top of the author list, tagged first/corresponding. De-duplicate, reorder to the intended position, reassign the first-author tag to the true first author, and fill missing co-author email/ORCID.
 - **Re-read the EM-compiled submission PDF before Approve** — author order, degrees, ethics number, references, declarations, and figures.
 
+## Phase 10 — Marked (tracked-changes) manuscript for a revision round
+
+Every revision round asks for a **marked** manuscript: the revised paper with tracked changes against the version the reviewers saw. Two rules, both load-bearing.
+
+**The baseline is R0, not the previous round.** The base of the diff is always the *originally reviewed* submission; only the target advances each round. An editor wants every change made since the version under review, so do not diff v7 against v8.
+
+**Word's Compare is the only safe producer — but it is scriptable.** `pandiff` and LibreOffice `--compare` corrupt OOXML on real manuscripts (tables collapse, affiliation superscripts are lost); do not use them. Word for Mac exposes `compare` through AppleScript with `author name`, so the build needs no GUI pass and no post-hoc rewriting of `w:author`:
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/build_marked_manuscript.py" \
+  --original submission/{journal}/R0/manuscript.docx \
+  --revised  submission/{journal}/R1/manuscript_clean.docx \
+  --out      submission/{journal}/R1/manuscript_marked.docx \
+  --author   "Submitting Author" --line-numbers
+```
+
+(macOS + Word only. On any other platform, produce the marked file in Word by hand — then still run the gate below.)
+
+### The gate: a round trip, not a grep
+
+Confirming that "the marked file contains sentence X" passes even when Compare has dropped a paragraph, duplicated one, or split the revisions between two authors. Verify it the only way that is correct by construction — **accepting every revision must reproduce the revised manuscript exactly, and rejecting every revision must reproduce the original**:
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/check_marked_manuscript.py" \
+  --marked   submission/{journal}/R1/manuscript_marked.docx \
+  --original submission/{journal}/R0/manuscript.docx \
+  --revised  submission/{journal}/R1/manuscript_clean.docx \
+  --author   "Submitting Author" --strict
+```
+
+Verdicts: `MARKED_ACCEPT_MISMATCH`, `MARKED_REJECT_MISMATCH` (content dropped, duplicated, or invented), `MARKED_NO_REVISIONS` (Compare produced a clean copy), `MARKED_AUTHOR_MIXED`, `MARKED_TABLE_LOSS`, `MARKED_BASE_TRACKED` (a baseline still carrying live tracked changes, which makes the comparison ill-defined — accept or reject them first).
+
+**A move is not an insert plus a delete.** Word encodes relocated content as `w:moveFrom` / `w:moveTo`, and a verifier that knows only `w:ins` / `w:del` reconstructs the original with the moved paragraph in it *twice* — reporting a perfectly good file as corrupt. The gate resolves `revised = unchanged + w:ins + w:moveTo` and `original = unchanged + w:delText + w:moveFrom`. Any docx probe written here must walk exact `w:t` / `w:delText` elements: the regex `<w:t[^>]*>` also matches `<w:tbl>`, `<w:tc>` and `<w:tr>`, silently swallowing table markup as prose.
+
+### Upload failure on a large marked file
+
+The marked file carries the baseline's embedded images as deleted content, so it can exceed a portal's size cap even when the clean file is small. Before re-encoding, rule out the ordinary causes: the file is still open in Word (a `~$…docx` lock), the portal session expired, or the upload is transient — retry. If it is genuinely too large, downsample only `word/media/*` and repackage; tracked changes live in `word/document.xml` and are untouched. Re-run the gate afterwards and keep the full-resolution original as `*.full.docx`.
+
 ## Verification Blind Spots
 
 Post-submission learnings (npj Digital Medicine R1, 2026-05): a clean docx-level audit still missed several stale artifacts that surfaced only at the portal review stage. Apply these whenever auditing a submission package.

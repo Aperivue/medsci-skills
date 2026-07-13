@@ -38,9 +38,11 @@ safety_boundaries:
 known_limitations:
   - "Detects drift it is configured to scan (counts, cover-letter fields, scope); portal free-text fields still need a human check."
   - "A clean audit is necessary, not sufficient, for acceptance."
+  - "Building a marked (tracked-changes) manuscript drives Microsoft Word and therefore needs macOS + Word; the round-trip verification of a marked file is portable and runs anywhere."
 validation_commands:
   - "python3 scripts/sync_submission.py"
   - "python3 scripts/cross_document_n_check.py"
+  - "bash tests/test_marked_manuscript.sh"
   - "bash tests/test_wordcount_cap.sh"
   - "bash tests/test_assemble_supplement.sh"
   - "bash tests/test_disclosure_availability.sh"

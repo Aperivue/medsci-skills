@@ -3678,8 +3678,8 @@
     },
     {
       "path": "skills/revise/SKILL.md",
-      "size": 28904,
-      "sha256": "c1851293ea0f59c658a1a5b4b303667de3e55f693ee5fddc2148d7245bab60ea"
+      "size": 29984,
+      "sha256": "79e12a5bd02f16665a5b3bdef582167e081a9b7ba3c722de3e0438d488c5ae5e"
     },
     {
       "path": "skills/revise/references/r2r_voice.md",
@@ -4213,8 +4213,8 @@
     },
     {
       "path": "skills/sync-submission/SKILL.md",
-      "size": 28938,
-      "sha256": "deb2d8b9d9939e84f2a0eaf57584b900b62eadf1d398ea60a49e3720d7ab174b"
+      "size": 32406,
+      "sha256": "7633eaad3772477c54f5f52204c2e158b588984e712a3d87e52c955e106ce549"
     },
     {
       "path": "skills/sync-submission/references/journal_availability_policy.json",
@@ -4242,6 +4242,11 @@
       "sha256": "db16a5bde226122fee632b36201a8037f41f6b199217b5e548dd9bb4ff8c47e1"
     },
     {
+      "path": "skills/sync-submission/scripts/build_marked_manuscript.py",
+      "size": 6413,
+      "sha256": "259d027039bc05d41d6bdcd5e0648aa35aed88b053449015f3736e38107afe31"
+    },
+    {
       "path": "skills/sync-submission/scripts/check_asset_anonymization.py",
       "size": 13869,
       "sha256": "caba039c6cfbfa09aec681a9840c7e0b5650cccdf9e00ddfd869557b0fec57c8"
@@ -4260,6 +4265,11 @@
       "path": "skills/sync-submission/scripts/check_disclosure_availability.py",
       "size": 10406,
       "sha256": "104f2d1acc2a70fbbf0c96d9f48c1fca5032d9074b4186eba85a1c378e40cc8a"
+    },
+    {
+      "path": "skills/sync-submission/scripts/check_marked_manuscript.py",
+      "size": 12478,
+      "sha256": "5d2d5e57fcc14ea8ea717d4e5665b73ec46cb81dc73c72730153dfb11b004f8e"
     },
     {
       "path": "skills/sync-submission/scripts/check_wordcount_cap.py",
@@ -4298,8 +4308,8 @@
     },
     {
       "path": "skills/sync-submission/skill.yml",
-      "size": 1911,
-      "sha256": "7f549269905cad97493d7699dad0068e410e8a8d771814988911bec5b0648d4c"
+      "size": 2139,
+      "sha256": "3dda0f4cb42ef31a0963fb034565fc0607bb79d24d904b09025d79483b17c876"
     },
     {
       "path": "skills/uncertainty-imaging/SKILL.md",

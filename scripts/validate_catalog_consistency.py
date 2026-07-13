@@ -109,7 +109,11 @@ SKILLS_BADGE_FILES = ["README.md"]
 # "19 DefectSpec rows", "n=21", or the per-family sub-counts in the family table),
 # which are legitimately different facts. A new doc citing the detector total must
 # be added here with an anchored pattern.
-DETECTOR_CLAIM_FILES = ["MEDSCI_AUDIT.md"]
+#
+# paper.md (the JOSS submission) states the total in its Summary and was ungated
+# until the suite grew past it — a paper whose headline number disagrees with the
+# software it describes is exactly the drift this file exists to prevent.
+DETECTOR_CLAIM_FILES = ["MEDSCI_AUDIT.md", "paper.md"]
 DETECTOR_CLAIM_PATTERNS = [
     r"\b(\d{1,3})\s+stdlib-only detectors\b",
     r"\bThe\s+(\d{1,3})\s+detectors\s+fall into\b",
