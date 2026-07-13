@@ -231,6 +231,39 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+
+def _offer_contribution_reminders_once(log_lines) -> None:
+    """Mention — once, ever — that the option exists. Then never again, whatever they do.
+
+    A person who ignores the question has answered it. Asking a second time would be the exact
+    nagging this setting exists to prevent, so `asked_once` is recorded whether or not they act.
+    """
+    import json as _json
+    home = medsci_txn.state_home()
+    cfg_path = home / "config.json"
+    try:
+        cfg = _json.loads(cfg_path.read_text(encoding="utf-8")) if cfg_path.is_file() else {}
+    except (ValueError, OSError):
+        cfg = {}
+    if cfg.get("asked_once"):
+        return
+
+    log(
+        "\nOne thing, once — then we will not bring it up again:\n"
+        "  If you ever adapt a skill (add your journal, fix something wrong for your specialty),\n"
+        "  that change can be offered back with /contribute. It is off by default and nothing is\n"
+        "  ever sent without a patient-data scan and your confirmation on every line.\n"
+        "  To be reminded when you have changed something worth sharing:\n"
+        "      python3 ~/.claude/skills/contribute/scripts/contribution_prefs.py --on",
+        log_lines,
+    )
+    cfg["asked_once"] = True
+    try:
+        cfg_path.parent.mkdir(parents=True, exist_ok=True)
+        medsci_txn.atomic_write_json(cfg_path, cfg)
+    except OSError:
+        pass  # never fail an install over a preference file
+
 def main() -> int:
     args = parse_args()
     if args.self_test:
@@ -319,6 +352,7 @@ def main() -> int:
         print(f"\nInstall log: {log_path}")
         return 1
 
+    _offer_contribution_reminders_once(log_lines)
     log("\nDone. Restart Claude Code, Codex, or Cursor before testing the skills.", log_lines)
     log("First test prompt:", log_lines)
     log("MedSci Skills가 설치됐는지 확인하고, 오늘 실습에 쓸 대표 스킬 5개만 보여줘.", log_lines)

@@ -160,6 +160,29 @@ Tell them. Then offer the obvious thing: if the change is worth keeping, contrib
 next update will *contain* it — at which point there is nothing left to preserve, and they can
 update freely forever.
 
+## Settings — nobody is nagged
+
+Reminders are **opt-in and off by default**, and this is not a detail. A clinician installed a
+research tool; they did not sign up to be asked for things. An installer that greets a physician
+mid-manuscript with "you changed a file, would you like to share it?" is an installer they stop
+running — and this audience already under-updates.
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/contribution_prefs.py" --status
+python3 "${CLAUDE_SKILL_DIR}/scripts/contribution_prefs.py" --on    # remind me
+python3 "${CLAUDE_SKILL_DIR}/scripts/contribution_prefs.py" --off   # never mention it (default)
+```
+
+- **Default: off.** A fresh install says nothing, ever.
+- The installer mentions the option **once, at the end of a first install**, in a few lines, and
+  then never again — whatever the user does. *Ignoring the question is an answer.*
+- **Opted in**, the reminder appears only when they actually changed something, and **at most once
+  a month**. An opted-in reminder that fires on every update is still a nuisance.
+- The setting governs **reminders only**. `/contribute` works whenever it is run, whatever it says.
+  Turning reminders off is not opting out of contributing; it is opting out of being asked.
+- The setting **cannot weaken safety**. There is no key for that, and `check_contribution_safety.py`
+  reads no configuration at all. Opting in never means "send without asking".
+
 ## What This Skill Does NOT Do
 
 - Does not send anything without an explicit confirmation on the exact text.

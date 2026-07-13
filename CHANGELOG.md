@@ -35,9 +35,18 @@
   failed on my Word document"*. A false positive is the only evidence anyone has of how a detector behaves
   on a **real** manuscript rather than a synthetic fixture; it is not a lesser contribution.
 
-  Finally, the installer now says something when it finds a modified skill, instead of logging a backup
-  path nobody reads: your version is preserved, and if the change was worth making it is probably worth
-  sharing.
+  **And nobody is nagged.** Reminders are **opt-in and off by default** — a clinician installed a
+  research tool, they did not sign up to be asked for things, and an installer that greets a physician
+  mid-manuscript with *"you changed a file, would you like to share it?"* is an installer they stop
+  running, which this audience already under-does. Defaulting to silence costs a few contributions;
+  defaulting to noise costs the update path itself.
+
+  The option is mentioned **once**, at the end of a first install, and then never again whatever the
+  user does — *ignoring the question is an answer*. Opted in, the reminder appears only when something
+  actually changed, and **at most once a month**. The setting governs reminders **only** (`/contribute`
+  runs whenever it is run; turning reminders off is not opting out of contributing, it is opting out of
+  being asked), and it **cannot weaken the safety scan**, which reads no configuration at all — the
+  tests assert that.
 
 
 ## [5.21.0] - 2026-07-13

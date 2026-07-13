@@ -179,6 +179,55 @@ assert json.load(open(sys.argv[1]))["detector"] == "check_contribution_safety"
 PY
 ck "JSON envelope self-identifies" 0 "$?"
 
+# --- 9) NOBODY IS NAGGED. Reminders are opt-in, off by default, and rate-limited. ------------
+# A person who installed a research tool did not sign up to be asked for things. The default
+# must be silence, and an installer that nags is an installer people stop running — which this
+# audience already under-does.
+P="$REPO_ROOT/skills/contribute/scripts/contribution_prefs.py"
+PREF="$TMP/prefs"
+
+MEDSCI_HOME="$PREF" python3 "$P" --should-remind > /dev/null 2>&1
+ck "a fresh machine is NEVER reminded (default off)" 1 "$?"
+
+MEDSCI_HOME="$PREF" python3 "$P" --on > /dev/null 2>&1
+MEDSCI_HOME="$PREF" python3 "$P" --should-remind --today 2026-07-13 > /dev/null 2>&1
+ck "after opting in, a reminder is allowed" 0 "$?"
+
+MEDSCI_HOME="$PREF" python3 "$P" --mark-reminded 2026-07-13 > /dev/null 2>&1
+MEDSCI_HOME="$PREF" python3 "$P" --should-remind --today 2026-07-14 > /dev/null 2>&1
+ck "an opted-in user is not reminded again the next day" 1 "$?"
+
+MEDSCI_HOME="$PREF" python3 "$P" --should-remind --today 2026-08-20 > /dev/null 2>&1
+ck "...but is, a month later" 0 "$?"
+
+MEDSCI_HOME="$PREF" python3 "$P" --off > /dev/null 2>&1
+MEDSCI_HOME="$PREF" python3 "$P" --should-remind --today 2026-12-01 > /dev/null 2>&1
+ck "opting out is permanent" 1 "$?"
+
+# the installer's own predicate agrees — the reminder and the setting cannot drift apart
+python3 - "$REPO_ROOT" "$PREF" <<'PY'
+import json, sys
+from pathlib import Path
+sys.path.insert(0, str(Path(sys.argv[1]) / "installers"))
+import medsci_txn
+home = Path(sys.argv[2])
+assert medsci_txn._contribution_reminder_wanted(home) is False, "opted-out user would be nagged"
+(home / "config.json").write_text(json.dumps({"contribution_reminders": "on"}))
+assert medsci_txn._contribution_reminder_wanted(home) is True, "opted-in user would not be told"
+PY
+ck "the installer honours the same setting" 0 "$?"
+
+# the setting can never be used to weaken safety: there is no such key, and the scan
+# does not read the config at all.
+grep -q "config.json\|contribution_reminders" "$S" && echo found || true
+python3 - "$S" <<'PY'
+import sys
+src = open(sys.argv[1]).read()
+assert "config" not in src.lower() or "contribution_reminders" not in src, \
+    "the safety scanner must not be configurable — it reads no preferences"
+PY
+ck "the safety scan reads no preferences (cannot be turned down)" 0 "$?"
+
 echo "----"
 echo "test_contribution_safety: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]

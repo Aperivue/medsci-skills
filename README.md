@@ -807,6 +807,9 @@ The same skill files a **false positive** ("this flagged my paper and it was wro
 step. That is not a lesser contribution: it is the only evidence anyone has of how a detector
 behaves on a real manuscript rather than a synthetic fixture.
 
+**You will not be nagged.** Reminders are off by default; the installer mentions the option once
+and then never again. `/contribute` only ever runs when you run it.
+
 ---
 
 Contributions are also welcome the ordinary way — and most are **one small, self-contained file**

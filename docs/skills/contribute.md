@@ -20,6 +20,7 @@
 - Patient-level data and credentials are blockers: the line is deleted, not argued with.
 - The safety scan is an aid, never a certificate — the skill says so to the user, every time.
 - Touches only the installed skills; never the user's manuscripts or data.
+- Reminders are opt-in and off by default; the setting governs reminders only and cannot weaken the safety scan.
 
 **Known limitations**
 
@@ -39,6 +40,7 @@
 **Scripts** (`skills/contribute/scripts/`):
 
 - `check_contribution_safety.py`
+- `contribution_prefs.py`
 - `find_local_changes.py`
 - `submit_contribution.py`
 

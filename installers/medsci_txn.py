@@ -38,6 +38,7 @@ so staging + holding dirs are kept on the destination's filesystem.
 
 from __future__ import annotations
 
+import datetime
 import hashlib
 import json
 import os
@@ -142,6 +143,50 @@ def permanent_backup(skill_path: Path, target: str, home: Path, reason: str, log
     shutil.copytree(skill_path, dest)
     log(f"  backed up {skill_path.name} ({reason}) -> {dest}")
     return dest
+
+
+
+# ------------------------------------------------------- contribution reminders (opt-in, off)
+
+def _contrib_config(home: Path) -> Path:
+    return home / "config.json"
+
+
+def _contribution_reminder_wanted(home: Path) -> bool:
+    """Off unless the user explicitly asked to be reminded, and then at most monthly.
+
+    An installer that nags is an installer people stop running, and this audience already
+    under-updates. Defaulting to silence costs a few contributions; defaulting to noise costs
+    the update path itself.
+    """
+    p = _contrib_config(home)
+    if not p.is_file():
+        return False
+    try:
+        cfg = json.loads(p.read_text(encoding="utf-8"))
+    except (ValueError, OSError):
+        return False
+    if cfg.get("contribution_reminders") != "on":
+        return False
+    last = cfg.get("last_reminded")
+    if not last:
+        return True
+    try:
+        y, m, d = (int(x) for x in str(last).split("-"))
+        return (datetime.date.today() - datetime.date(y, m, d)).days >= 30
+    except (ValueError, TypeError):
+        return True
+
+
+def _mark_reminded(home: Path) -> None:
+    p = _contrib_config(home)
+    try:
+        cfg = json.loads(p.read_text(encoding="utf-8")) if p.is_file() else {}
+        cfg["last_reminded"] = datetime.date.today().isoformat()
+        p.parent.mkdir(parents=True, exist_ok=True)
+        atomic_write_json(p, cfg)
+    except OSError:
+        pass  # a reminder is not worth failing an install over
 
 
 # ---------------------------------------------------------------- recovery
@@ -256,21 +301,24 @@ def install_target(
             else:
                 permanent_backup(d, target, home, "legacy-collision", log)
 
-    # A user-modified skill is not an accident to be logged and forgotten — it is usually a
-    # clinician adapting the toolkit to their journal, their specialty, their department. The
-    # backup preserved it; nothing ever read the backup again. Point at the way back.
+    # A user-modified skill is usually a clinician adapting the toolkit to their journal, their
+    # specialty, their department. The backup preserves it; nothing ever read the backup again.
+    #
+    # But the person who installed a research tool did not sign up to be asked for things, and a
+    # physician finishing a paper does not need a lecture on open-source etiquette from their
+    # installer. So this is OPT-IN and OFF BY DEFAULT: we say nothing unless they asked to be
+    # told, and even then not more than once a month. Silence is the default, and it is correct.
     modified = [
         name for name in owned_skills
         if (dest / name).exists()
         and name in prior_skills
         and skill_inventory(dest / name) != prior_skills[name].get("inventory", {})
     ]
-    if modified:
-        log(f"  NOTE: you had changed {len(modified)} skill(s): {', '.join(sorted(modified))}")
-        log("        Your version is backed up (above) and the new one is now installed.")
-        log("        If the change was worth making, it is probably worth sharing: run /contribute")
-        log("        and it will be offered back to the project — with a scan for patient data")
-        log("        first, and nothing sent until you have read every line and said yes.")
+    if modified and _contribution_reminder_wanted(home):
+        log(f"  You had changed {len(modified)} skill(s): {', '.join(sorted(modified))}. Your version")
+        log("  is backed up (above); if the change is worth keeping, /contribute will offer it back")
+        log("  to the project — patient-data scan first, nothing sent without your confirmation.")
+        _mark_reminded(home)
 
     prune = [n for n in prior_skills if n not in set(owned_skills)]
     for name in prune:  # a removed/renamed owned skill: back up before pruning, then remove in txn

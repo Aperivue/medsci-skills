@@ -16,6 +16,7 @@ outputs:
   - "a pull request on the project's repository, or a pre-filled issue"
 deterministic_scripts:
   - scripts/find_local_changes.py
+  - scripts/contribution_prefs.py
   - scripts/check_contribution_safety.py
   - scripts/submit_contribution.py
 side_effects:
@@ -36,6 +37,7 @@ safety_boundaries:
   - "Patient-level data and credentials are blockers: the line is deleted, not argued with."
   - "The safety scan is an aid, never a certificate — the skill says so to the user, every time."
   - "Touches only the installed skills; never the user's manuscripts or data."
+  - "Reminders are opt-in and off by default; the setting governs reminders only and cannot weaken the safety scan."
 known_limitations:
   - "No pattern list recognises every patient name or every hospital; the scan narrows what the author must check, it does not replace the check."
   - "A pull request needs the GitHub CLI; without it the contribution still reaches the project as an issue."
