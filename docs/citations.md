@@ -28,7 +28,7 @@ With your permission, it will be added below.
 
 | Date found | Work (authors, year) | Venue | How it uses MedSci Skills | Link |
 |---|---|---|---|---|
-| _none recorded yet_ | | | | |
+| 2026-07-13 | Chen, Wang & Qu (2026), *Recursive Self-Improvement in AI: From Bounded Self-Refinement to Autonomous Research Loops* | arXiv:2607.07663 (survey of 1,250 papers, 2024–2026) | Cites the project's methods paper (arXiv:2606.09500) **twice**, as the reference for what fails when an AI audits its own scientific output: in §5.3 (the self-confirming loop) — *"AI scientists whose self-critique 'inherits the blind spots that produce confident fabrication'"* — and in §6.3, *"In regulated domains, **deterministic integrity gates are interposed** because 'self-critique inherits the blind spots that produce confident fabrication'"*. The toolkit's approach is named as the remedy. | [arXiv](https://arxiv.org/abs/2607.07663) |
 
 ---
 
