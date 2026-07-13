@@ -67,5 +67,6 @@ known_limitations:
   - "Phase 3 CWYW field safety depends on a correct Zotero library."
 validation_commands:
   - "python3 scripts/check_citation_keys.py manuscript.md refs.bib"
+  - "bash tests/test_bib_title_markup.sh"
   - "python3 scripts/check_xref.py --md manuscript.md --docx out.docx --strict"
 evidence_surface: bundled_script

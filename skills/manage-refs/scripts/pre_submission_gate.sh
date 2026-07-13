@@ -7,9 +7,10 @@
 #
 # Stages (run in order; first failure aborts the chain):
 #   1. check_citation_keys.py  — markdown [@bibkey] ↔ refs.bib key matching
-#   2. verify_refs.py --strict — refs.bib ↔ PubMed/CrossRef entry verification
-#   3. render_pandoc.sh        — (only when --docx is not provided) render DOCX
-#   4. check_xref.py --strict  — manuscript ↔ rendered DOCX cross-reference QC
+#   2. check_bib_title_markup.py — publisher markup / tag-strip fusion in .bib titles
+#   3. verify_refs.py --strict — refs.bib ↔ PubMed/CrossRef entry verification
+#   4. render_pandoc.sh        — (only when --docx is not provided) render DOCX
+#   5. check_xref.py --strict  — manuscript ↔ rendered DOCX cross-reference QC
 #                                (optionally with --allow-separate-attachments)
 #
 # Usage:
@@ -151,7 +152,7 @@ abort_with_failure() {
 
 # Stage 1: citation keys ------------------------------------------------------
 
-echo "[pre_submission_gate] stage 1/4: check_citation_keys.py"
+echo "[pre_submission_gate] stage 1/5: check_citation_keys.py"
 STAGE1_LOG="$(mktemp)"
 if python3 "$SCRIPT_DIR/check_citation_keys.py" "$MD" "$BIB" > "$STAGE1_LOG" 2>&1; then
   record_stage "check_citation_keys" "PASS" 0 "$(tail -n 1 "$STAGE1_LOG")"
@@ -165,9 +166,29 @@ else
 fi
 rm -f "$STAGE1_LOG"
 
-# Stage 2: verify_refs.py against refs.bib ------------------------------------
+# Stage 2: bib title markup ---------------------------------------------------
+# verify_refs proves the reference is TRUE; this proves it will PRINT. CrossRef ships
+# markup in titles (<scp>WHO</scp>, <i>IDH</i>) and a DOI-add stores it verbatim, so the
+# rendered list can read "andTERTPromoter" while every other gate is green.
 
-echo "[pre_submission_gate] stage 2/4: verify_refs.py --strict"
+echo "[pre_submission_gate] stage 2/5: check_bib_title_markup.py --strict"
+STAGE1B_LOG="$(mktemp)"
+if python3 "$SCRIPT_DIR/check_bib_title_markup.py" --bib "$BIB" \
+     --out "$QC_DIR/bib_title_markup.json" --strict > "$STAGE1B_LOG" 2>&1; then
+  record_stage "check_bib_title_markup" "PASS" 0 "$(tail -n 1 "$STAGE1B_LOG")"
+  cat "$STAGE1B_LOG"
+else
+  rc=$?
+  record_stage "check_bib_title_markup" "FAIL" "$rc" "$(tail -n 5 "$STAGE1B_LOG" | tr '\n' '; ')"
+  cat "$STAGE1B_LOG"
+  rm -f "$STAGE1B_LOG"
+  abort_with_failure
+fi
+rm -f "$STAGE1B_LOG"
+
+# Stage 3: verify_refs.py against refs.bib ------------------------------------
+
+echo "[pre_submission_gate] stage 3/5: verify_refs.py --strict"
 PROJECT_ROOT="$(dirname "$QC_DIR")"
 [[ -z "$PROJECT_ROOT" || "$PROJECT_ROOT" == "." ]] && PROJECT_ROOT="$(pwd)"
 STAGE2_LOG="$(mktemp)"
@@ -187,7 +208,7 @@ rm -f "$STAGE2_LOG"
 # Stage 3: render DOCX if missing --------------------------------------------
 
 if [[ -z "$DOCX" ]]; then
-  echo "[pre_submission_gate] stage 3/4: render_pandoc.sh -j $JOURNAL"
+  echo "[pre_submission_gate] stage 4/5: render_pandoc.sh -j $JOURNAL"
   DERIVED_DOCX="${MD%.md}.docx"
   STAGE3_LOG="$(mktemp)"
   # -S: skip render_pandoc's own pre-render audit — stage 2 already ran verify_refs --strict.
@@ -213,7 +234,7 @@ fi
 
 # Stage 4: check_xref.py ------------------------------------------------------
 
-echo "[pre_submission_gate] stage 4/4: check_xref.py --strict"
+echo "[pre_submission_gate] stage 5/5: check_xref.py --strict"
 XREF_OUT="$QC_DIR/xref_audit.json"
 STAGE4_ARGS=(--md "$MD" --docx "$DOCX" --out "$XREF_OUT" --strict)
 if [[ "$ALLOW_SEPARATE_ATTACHMENTS" == "1" ]]; then

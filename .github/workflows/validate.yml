@@ -187,6 +187,12 @@ jobs:
       - name: Run verify-refs fabricated-author cross-check test
         run: bash skills/verify-refs/tests/test_fabricated_author.sh
 
+      - name: Run verify-refs author-normalization test (Unicode dash + BBT brace-protected surname)
+        run: bash skills/verify-refs/tests/test_author_normalization.sh
+
+      - name: Run manage-refs bib-title publisher-markup gate test
+        run: bash skills/manage-refs/tests/test_bib_title_markup.sh
+
       - name: Run revise response-claim verification gate test
         run: bash skills/revise/tests/test_response_claims.sh
 

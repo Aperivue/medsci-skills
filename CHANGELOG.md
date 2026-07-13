@@ -4,6 +4,23 @@
 
 ### Added
 
+- **Publisher markup in a `.bib` title is now caught before it renders** (`/manage-refs`,
+  `check_bib_title_markup.py`; **detectors 58 → 59**). CrossRef ships titles containing markup —
+  `<scp>WHO</scp>`, `<i>IDH</i>`, `<sub>1</sub>` — and a DOI-add stores them verbatim. Better BibTeX
+  then either escapes the tags (`{$<$}scp{$>$}`) or strips them without restoring the space they
+  occupied, and the reference list prints as garbage: *"The 2021 {$<$}scp{$>$}WHO{$<$}/scp{$>$}
+  Classification…"*, *"Glioma Groups Based on 1p/19q,IDH, andTERTPromoter Mutations"*.
+
+  Nothing caught this. `/verify-refs` checks whether a reference is **true**; `check_citation_keys`
+  checks whether its key **resolves**; neither looks at the title as it will be **printed** — so the
+  corruption survived every green gate and was found by eyeballing the rendered document, which is
+  exactly the reading nobody gives a reference list. The new gate joins the `pre_submission_gate.sh`
+  chain, so it runs where the others already run.
+
+  `TITLE_FUSION` is deliberately narrow — it fires on an English function word or a comma welded to
+  an acronym, not on any lowercase-then-uppercase transition — so `mRNA`, `hTERT`, `nnU-Net`, `pH`
+  and `1,2-dichloroethane` do not fire. A gate is only worth having if a clean run means something.
+
 - **`/find-cohort-gap` accepts your own cohort** (issue #69, requested by an external user).
   The skill used to start from a *named* database — NHIS, UK Biobank, and the handful of registries it
   knows about. Most researchers do not have one of those: they have an institutional registry, a
@@ -75,6 +92,24 @@
   key is a literal and can be verified without either.
 
 ### Fixed
+
+- **Two precision defects in `/verify-refs`'s author cross-check**, found on the same clean
+  bibliography and failing in opposite directions.
+
+  *A false alarm.* The surname normalizer folds accents but not Unicode **dashes**, and its final
+  filter keeps `[a-z\s-]` and deletes everything else — so a publisher-supplied U+2010 in a
+  hyphenated surname was *deleted* rather than matched. CrossRef's `Foltyn‐Dumitru` normalized to
+  `foltyndumitru` while the identical ASCII bib entry gave `foltyn-dumitru`, and the audit fired
+  `MISMATCH` — its loudest verdict, the one that means *fabricated author* — on a correct reference.
+  Unicode dash variants now fold to ASCII first.
+
+  *A false pass, which is worse.* Better BibTeX brace-protects a hyphenated or particle surname so
+  BibTeX will not re-split it (`author = {{Eckel-Passow}, Jeanette E. and {von Deimling}, Andreas}`).
+  The corporate-author heuristic treated **any** brace as an organization and **skipped the author
+  cross-check entirely** — the one thing the tool exists to do — reporting `UNVERIFIED — corporate
+  author` and moving on. A brace now signals an organization only when the field carries an
+  organizational keyword or has no personal-name structure at all; genuine collective authors
+  (`{{KDIGO Working Group}}`) are still skipped.
 
 - **The locale-inventory gate no longer trips over build artifacts.** It scanned `__pycache__`, so a
   compiled `.pyc` of a Korean-bearing module — produced simply by running a test that imports it — was

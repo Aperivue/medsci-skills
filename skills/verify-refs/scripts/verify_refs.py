@@ -77,16 +77,36 @@ _ORG_AUTHOR_RE = re.compile(
 
 def is_corporate_author_field(author_field: str) -> bool:
     """A collective/corporate author (a guideline body, working group, consortium)
-    rather than a list of people. Signals: a brace surviving in the parsed field
-    (the BibTeX double-brace literal-name convention), or an organization keyword."""
+    rather than a list of people.
+
+    Braces alone do NOT make an author corporate. Better BibTeX brace-protects a
+    hyphenated or particle SURNAME so BibTeX will not re-case or re-split it —
+    `author = {{Eckel-Passow}, Jeanette E. and {von Deimling}, Andreas}` — and the
+    old brace-only rule read those as organizations and *skipped* the author
+    cross-check entirely. That is a false PASS, not a false alarm: the check this
+    tool exists to perform was silently not performed, and nothing said so.
+
+    A field is corporate when it carries an organizational keyword, or when it is a
+    single braced blob with no personal-name structure at all (no comma separating a
+    surname from a given name, no `and`-joined list).
+    """
     if not author_field:
         return False
-    if "{" in author_field or "}" in author_field:
+    if _ORG_AUTHOR_RE.search(author_field):
         return True
-    # No personal "Last, First" comma and an organization keyword present.
-    if "," not in author_field and bool(_ORG_AUTHOR_RE.search(author_field)):
-        return True
-    return False
+
+    braced = "{" in author_field or "}" in author_field
+    if not braced:
+        return False
+
+    # Personal-name structure survives brace-stripping -> these are people.
+    bare = author_field.replace("{", "").replace("}", "")
+    if "," in bare or re.search(r"\band\b", bare):
+        return False
+
+    # A lone braced blob with no keyword and no name structure (e.g. `{{ADNI}}`):
+    # still treat as collective — skipping is the conservative outcome there.
+    return True
 
 
 def clean_doi(doi: str) -> str:
@@ -325,11 +345,21 @@ def _normalize_surname(name: str) -> str:
     (ş→s, ğ→g, ı→i), Polish/Czech (ł, đ — not NFKD-decomposable, handled below),
     German ß→ss, Nordic ø/æ/œ → o/ae/oe. Motivation: a Turkish surname
     `Çolakoğlu` vs PubMed `Colakoglu` false-positive MISMATCH.
+
+    Unicode dashes are folded to ASCII `-` FIRST. The final filter keeps `[a-z\\s-]`
+    and deletes everything else, so a publisher-supplied U+2010 in a hyphenated
+    surname was *deleted* rather than matched: CrossRef `Foltyn‐Dumitru` normalized
+    to `foltyndumitru` while the identical ASCII bib entry gave `foltyn-dumitru`,
+    and the audit fired MISMATCH — its loudest verdict — on a clean reference.
     """
     import unicodedata
     n = unicodedata.normalize("NFKD", name)
     n = "".join(c for c in n if not unicodedata.combining(c))
     n = n.lower().strip()
+    # Unicode dash/hyphen variants -> ASCII hyphen. Publisher metadata uses these
+    # freely in hyphenated surnames (U+2010 HYPHEN, U+2011 NON-BREAKING HYPHEN,
+    # U+2012 FIGURE DASH, U+2013 EN DASH, U+2014 EM DASH, U+2212 MINUS).
+    n = re.sub(r"[‐‑‒–—―−﹘﹣－]", "-", n)
     # Multi-char + non-NFKD-decomposable mappings
     multi = {
         "ß": "ss", "þ": "th", "ł": "l", "đ": "d", "ı": "i",

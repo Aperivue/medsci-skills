@@ -27,6 +27,7 @@
 **Validation**
 
 - `python3 scripts/check_citation_keys.py manuscript.md refs.bib`
+- `bash tests/test_bib_title_markup.sh`
 - `python3 scripts/check_xref.py --md manuscript.md --docx out.docx --strict`
 
 **Evidence** — `bundled_script`
@@ -41,6 +42,7 @@
 **Scripts** (`skills/manage-refs/scripts/`):
 
 - `_vendor_citation_writer.py`
+- `check_bib_title_markup.py`
 - `check_citation_keys.py`
 - `check_csl_render.py`
 - `check_reference_duplication.py`

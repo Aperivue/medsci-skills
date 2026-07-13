@@ -2393,8 +2393,8 @@
     },
     {
       "path": "skills/manage-refs/SKILL.md",
-      "size": 18627,
-      "sha256": "abb0f38acbff93ffdff68be6a29b68757027fd7ffec545abd90df2df4113c08c"
+      "size": 19110,
+      "sha256": "1f23594657e523540fafb94b0292d73604df0c3348c6fb569334978dcdbed4ac"
     },
     {
       "path": "skills/manage-refs/citation_styles/README.md",
@@ -2492,6 +2492,11 @@
       "sha256": "a09e9e58974cd5b91e40f42b332bcd65417af99275d32674a3a08e5fd5a7f95f"
     },
     {
+      "path": "skills/manage-refs/scripts/check_bib_title_markup.py",
+      "size": 6749,
+      "sha256": "8e9059d98ef1e6384b811c72e4ba049311150d4966c0c5e1d1b1ea8ee2ae8de4"
+    },
+    {
       "path": "skills/manage-refs/scripts/check_citation_keys.py",
       "size": 4125,
       "sha256": "b336b661b9d68e42d8829f017d2d55fba22585de6f9d59e2441ffc1c7f5ba3a7"
@@ -2528,8 +2533,8 @@
     },
     {
       "path": "skills/manage-refs/scripts/pre_submission_gate.sh",
-      "size": 7966,
-      "sha256": "fdf57068bb91ea34fb9db6d2fd8c83183af694be2b4a5d4bfa29abfb5156fe41"
+      "size": 8932,
+      "sha256": "73ae8e4f32c9fc6d3676d3f4a5b41a74ad7dc2c9f5f5e39d4d5ec7c2e4fcbfb5"
     },
     {
       "path": "skills/manage-refs/scripts/render_pandoc.sh",
@@ -2538,8 +2543,8 @@
     },
     {
       "path": "skills/manage-refs/skill.yml",
-      "size": 2979,
-      "sha256": "39ce7a9629a3740afe045222a7b9d6ebf6d17df9adcbbf4da6174740f48788e3"
+      "size": 3021,
+      "sha256": "9b73919fea6bcd1368c589eb608723e8ecefdc9d2f7bdef9c6b92ef8a602e735"
     },
     {
       "path": "skills/meta-analysis/SKILL.md",
@@ -4383,8 +4388,8 @@
     },
     {
       "path": "skills/verify-refs/scripts/verify_refs.py",
-      "size": 43103,
-      "sha256": "b966b3832c4997e2b3c2889fc2752de116d5dc1569b767ccde0efbc4438bee39"
+      "size": 44683,
+      "sha256": "8b1bfee367b638cd49f5b6f92bfb353edef05ec71b5a9d8b44be9c5aa475b100"
     },
     {
       "path": "skills/verify-refs/skill.yml",
