@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## [5.21.0] - 2026-07-13
+
+Verification-layer batch: the marked-manuscript round trip, a self-improvement probe, an artifact
+contract that lets a qc file name the detector that wrote it, two `/verify-refs` precision defects,
+and `/find-cohort-gap` opened to researchers who do not have a named public cohort.
+**55 skills / 61 integrity detectors / 46 guidelines / 23 domain-probe modules.**
+
 ### Added
 
 - **A domain probe + gate for manuscripts that claim a system improved *itself*** (`/peer-review` +
