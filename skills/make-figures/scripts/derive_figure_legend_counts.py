@@ -128,7 +128,7 @@ def main() -> int:
 
     if args.out:
         Path(args.out).parent.mkdir(parents=True, exist_ok=True)
-        Path(args.out).write_text(json.dumps(result, indent=2), encoding="utf-8")
+        Path(args.out).write_text(json.dumps({"detector": "derive_figure_legend_counts", **result}, indent=2), encoding="utf-8")
         print(f"wrote {args.out}")
 
     return 1 if (args.strict and stale) else 0

@@ -60,6 +60,20 @@
   - Detector hygiene, encoded once: docx text must be read by walking exact `w:t` / `w:delText` elements. The
     regex `<w:t[^>]*>` also matches `<w:tbl>`, `<w:tc>` and `<w:tr>`, silently swallowing table markup as prose.
 
+- **Every detector's JSON artifact now names the detector that wrote it.** A verification layer
+  whose artifacts cannot be traced back to the check that produced them is only half a verification
+  layer. The `qc/*.json` envelopes carried the findings but not the finding's author, so a consumer
+  aggregating a project's `qc/` directory — an audit trail, a dashboard, a precision ledger — had to
+  infer the detector from the **filename**, which is chosen freely at the call site (`--out qc/cs3.json`,
+  `--out qc/v13_scope.json`). Two runs of one detector under different filenames read as two detectors;
+  one run under an unexpected filename read as none.
+
+  All 56 JSON-emitting detectors now emit `"detector": "<id>"` in the envelope (a purely additive key —
+  every existing consumer keeps working), and **`scripts/check_detector_envelopes.py`** enforces it in
+  CI, so a new detector cannot ship without it and a cloned one cannot keep its parent's name. It is a
+  source check, not an execution check: detectors need fixtures and sometimes a network to run, but the
+  key is a literal and can be verified without either.
+
 ### Fixed
 
 - **The locale-inventory gate no longer trips over build artifacts.** It scanned `__pycache__`, so a

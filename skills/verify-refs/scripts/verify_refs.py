@@ -955,7 +955,7 @@ def write_outputs(records: list[RefRecord], project_root: Path, source: Path,
         "requires_manual_reference_check": counts.get("UNVERIFIED", 0) > 0,
         "records": [asdict(rec) for rec in records],
     }
-    (qc_dir / "reference_audit.json").write_text(json.dumps(audit, indent=2, ensure_ascii=False), encoding="utf-8")
+    (qc_dir / "reference_audit.json").write_text(json.dumps({"detector": "verify_refs", **audit}, indent=2, ensure_ascii=False), encoding="utf-8")
 
 
 def main() -> int:

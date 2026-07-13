@@ -208,7 +208,7 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.out is not None:
         args.out.parent.mkdir(parents=True, exist_ok=True)
-        args.out.write_text(json.dumps(rep.as_dict(), indent=2), encoding="utf-8")
+        args.out.write_text(json.dumps({"detector": "check_checklist_dump_leak", **rep.as_dict()}, indent=2), encoding="utf-8")
 
     if not args.quiet:
         if not poppler:

@@ -227,7 +227,7 @@ def main(argv: list[str] | None = None) -> int:
 
     if not args.quiet:
         if args.json:
-            print(json.dumps({"source": rep.source, "verdict": rep.verdict,
+            print(json.dumps({"detector": "check_pdf_injection", "source": rep.source, "verdict": rep.verdict,
                               "hidden_char_count": rep.hidden_char_count,
                               "injection_hits": rep.injection_hits,
                               "findings": [asdict(f) for f in rep.findings]},

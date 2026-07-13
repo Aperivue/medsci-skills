@@ -171,7 +171,7 @@ def main(argv: list[str] | None = None) -> int:
         "include_labels": labels,
     }
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(report, indent=2), encoding="utf-8")
+    args.out.write_text(json.dumps({"detector": "check_pool_consistency", **report}, indent=2), encoding="utf-8")
 
     if not args.quiet:
         if match:

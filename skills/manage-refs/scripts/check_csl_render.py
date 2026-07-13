@@ -147,7 +147,7 @@ def main():
     except RenderError as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         sys.exit(2)
-    print(json.dumps({"csl": os.path.basename(a.csl), "expected": exp, "got": got}, indent=2))
+    print(json.dumps({"detector": "check_csl_render", "csl": os.path.basename(a.csl), "expected": exp, "got": got}, indent=2))
     fails = []
     if exp.get("intext") and got["intext"] != exp["intext"]:
         fails.append(f"in-text {got['intext']} != expected {exp['intext']}")

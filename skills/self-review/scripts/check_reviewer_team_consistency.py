@@ -382,9 +382,7 @@ def main(argv: list[str] | None = None) -> int:
     args.out.write_text(render_markdown(report), encoding="utf-8")
     json_out = args.out.with_suffix(args.out.suffix + ".json")
     json_out.write_text(
-        json.dumps(
-            {
-                "submission_safe": report.submission_safe,
+        json.dumps({"detector": "check_reviewer_team_consistency", "submission_safe": report.submission_safe,
                 "dual_hits": report.dual_hits,
                 "single_hits": report.single_hits,
                 "llm_reviewer_hits": report.llm_reviewer_hits,

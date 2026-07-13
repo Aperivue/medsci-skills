@@ -198,10 +198,10 @@ def main(argv: list[str] | None = None) -> int:
                "n_mismatch": rep.n_mismatch, "findings": [asdict(f) for f in rep.findings]}
     if args.out:
         with open(args.out, "w", encoding="utf-8") as fh:
-            json.dump(payload, fh, ensure_ascii=False, indent=2)
+            json.dump({"detector": "check_table_percentages", **payload}, fh, ensure_ascii=False, indent=2)
 
     if not args.quiet:
-        print(json.dumps(payload, ensure_ascii=False, indent=2) if args.json
+        print(json.dumps({"detector": "check_table_percentages", **payload}, ensure_ascii=False, indent=2) if args.json
               else format_report(rep, color=sys.stdout.isatty()))
 
     return 1 if (args.strict and rep.n_mismatch) else 0

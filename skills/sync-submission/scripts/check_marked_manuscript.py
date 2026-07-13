@@ -320,7 +320,7 @@ def main() -> int:
     if a.out:
         a.out.parent.mkdir(parents=True, exist_ok=True)
         a.out.write_text(
-            json.dumps({"summary": summary, "findings": findings}, indent=2) + "\n",
+            json.dumps({"detector": "check_marked_manuscript", "summary": summary, "findings": findings}, indent=2) + "\n",
             encoding="utf-8",
         )
 

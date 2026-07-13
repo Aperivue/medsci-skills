@@ -186,7 +186,7 @@ def main() -> int:
 
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(json.dumps(result, indent=2, ensure_ascii=False), encoding="utf-8")
+    out_path.write_text(json.dumps({"detector": "check_prisma_figure", **result}, indent=2, ensure_ascii=False), encoding="utf-8")
 
     print(f"== PRISMA Figure Audit — {md_path.name} vs {fig_path.name} ==\n")
     print("Body arithmetic:")
