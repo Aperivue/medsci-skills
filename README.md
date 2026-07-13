@@ -716,9 +716,33 @@ Prints a checklist showing which components are present, which are missing, and 
 
 ## Requirements
 
+**Python 3.9+ and an agent host. That is the whole hard requirement.** Every integrity detector is
+stdlib-only, and so is drafting, reviewing, and auditing a manuscript. If you have no Python, the
+double-click installer will offer to install it for you (`winget` on Windows, or the official
+download page) rather than leaving you at a dead end.
+
 - An [Agent Skills](https://agentskills.io)-compatible host — [Claude Code](https://claude.ai/code) (primary), or Codex / Cursor / GitHub Copilot (see [`docs/host_compatibility.md`](docs/host_compatibility.md); some live-data workflows rely on Claude MCP servers)
-- Python 3.9+ (for statistical analysis and figure generation)
-- R 4.0+ with `meta` (>=7.0), `metafor` (>=4.0), `mada` (>=0.5.11) packages (for meta-analysis)
+- Python 3.9+ — the floor is CI-enforced (`scripts/check_python_floor.py`). Newer is better; if you are installing Python today, take the latest.
+
+Everything else is needed by *some* skills and not others. Rather than a shopping list of packages
+you have never heard of, ask the toolkit what **this** computer can do:
+
+```bash
+python3 installers/doctor.py          # what works, what does not, and the exact fix for each
+python3 installers/doctor.py --fix    # offers to install what is missing — asking before each one
+```
+(Or double-click `installers/check-setup-macos.command` / `installers/check-setup-windows.cmd`.)
+
+It reports in terms of what you were trying to *do* — "turn your manuscript into a journal-formatted
+Word file" needs **pandoc**; "read and QC submission PDFs" needs **poppler**; "open a .docx at all"
+needs **python-docx** — and installs the small things on request. Large things (a TeX distribution,
+R, PyTorch) are never installed for you: it prints the size and the command and leaves the choice
+alone.
+
+**R is not required.** `/analyze-stats` writes Python by default and only emits R if you ask it to;
+the toolkit itself never executes R. Install R (with `meta`, `metafor`, `mada` for meta-analysis)
+only if you want to run the R code it writes for you. The same is true of PyTorch and
+`/model-scaffold`: writing the training code needs nothing; running it needs torch.
 
 ## Use Cases
 

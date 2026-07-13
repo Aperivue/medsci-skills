@@ -374,6 +374,22 @@ def main() -> int:
         print(f"\nInstall log: {log_path}")
         return 1
 
+    # Say what ELSE this computer needs, while they are still looking at the screen.
+    #
+    # Every integrity detector is stdlib-only, so the install above is enough to use most of the
+    # toolkit. But a few skills need a program we do not ship — pandoc to render a manuscript into
+    # a journal-formatted Word file, poppler to read a submission PDF. Those skills already fail
+    # politely; the problem is that they fail *later*, in the middle of the work, to someone who
+    # will not go and install a package manager at that moment. Tell them now, when the answer is
+    # one command. Read-only, asks nothing, installs nothing, and can never fail the install.
+    if not args.dry_run:
+        try:
+            import doctor  # noqa: PLC0415
+
+            doctor.brief_summary(lambda m: log(m, log_lines))
+        except Exception:  # noqa: BLE001 - a setup *check* must never break an install that worked
+            pass
+
     _offer_contribution_reminders_once(log_lines)
     log("\nDone. Restart Claude Code, Codex, or Cursor before testing the skills.", log_lines)
     log("First test prompt:", log_lines)

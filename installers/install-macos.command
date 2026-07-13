@@ -49,11 +49,27 @@ if [ -z "$PY" ]; then
     echo "Python was not found on this Mac."
   fi
   echo
-  echo "  1. Go to  https://www.python.org/downloads/"
-  echo "  2. Download and install the latest Python for macOS."
-  echo "  3. Double-click this installer again."
+  echo "MedSci Skills is written in Python, so Python has to be on the computer first."
+  echo "It is free, official, and takes about two minutes."
+  echo
+  echo "  1. Download the latest Python for macOS  (the page opens by itself in a moment)"
+  echo "  2. Open the file you downloaded and click through the installer"
+  echo "  3. Double-click THIS installer again"
   echo
   echo "Nothing has been changed on your computer."
+  echo
+
+  # Open the page for them. Telling a clinician to "go to python.org" is a step they have to
+  # perform; opening it is a step they do not. `open` is standard on macOS, but never let a
+  # convenience break the message they still need to read.
+  if command -v open >/dev/null 2>&1; then
+    read -r -p "Press Enter to open the Python download page..."
+    open "https://www.python.org/downloads/" >/dev/null 2>&1 || \
+      echo "Could not open the page. It is at:  https://www.python.org/downloads/"
+  else
+    echo "The download page is at:  https://www.python.org/downloads/"
+  fi
+
   echo
   read -r -p "Press Enter to close..."
   exit 1

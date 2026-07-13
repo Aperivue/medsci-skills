@@ -7,14 +7,29 @@
       "sha256": "b359c9214ce261265e2820a74902ff8b6d331e05270e475ded3b5fc06781ca65"
     },
     {
+      "path": "installers/check-setup-macos.command",
+      "size": 975,
+      "sha256": "6e54f5f5ae8dbcf82afb2ec08a3e54643842ceb75befaf079e5b6e7e3c900432"
+    },
+    {
+      "path": "installers/check-setup-windows.cmd",
+      "size": 948,
+      "sha256": "c514e0dcd9d69681ec9a4adacf1cf4ada00d89aed060358d7eba4c4e7a1ff303"
+    },
+    {
+      "path": "installers/doctor.py",
+      "size": 21829,
+      "sha256": "c16165db89c000fdee12a29582ad04ba8843e0ac3d3239ea8bd0bf41fe20de36"
+    },
+    {
       "path": "installers/install-macos.command",
-      "size": 3110,
-      "sha256": "251a137533e4945c8968d6dedce40cbfc8d0d690470112904da623ffe0e7e840"
+      "size": 3904,
+      "sha256": "6f1cc2e24661054f1b68ad9677ecc3d39582b8ba419f0764c566f3f9037b7e59"
     },
     {
       "path": "installers/install-windows.cmd",
-      "size": 2803,
-      "sha256": "b5d21e6ae9e25be49f6792fd947b2fac221149738ce0a1b1fdf347360652f518"
+      "size": 4486,
+      "sha256": "d686cf96e2e116eed9c85c8201443230016c3b63a0ec6aae4e92b06a6d1dcb80"
     },
     {
       "path": "installers/install-windows.ps1",
@@ -23,8 +38,8 @@
     },
     {
       "path": "installers/install.py",
-      "size": 17572,
-      "sha256": "86d18d7f741105c6a4b2457202a0973ef5bb4150440ffbb5ce7b14e241ff4a54"
+      "size": 18509,
+      "sha256": "7dc0eac5c52077d8e97cf8b7fb653056bc45475fedb772e650f4370ebd7d392b"
     },
     {
       "path": "installers/medsci_txn.py",

@@ -35,16 +35,56 @@ if not defined PY (
 if not defined PY (
   echo Python 3.9 or newer was not found on this computer.
   echo.
-  echo   1. Go to  https://www.python.org/downloads/
-  echo   2. Download and install the latest Python for Windows.
-  echo      IMPORTANT: on the first screen, tick "Add python.exe to PATH".
-  echo   3. Double-click this installer again.
+  echo MedSci Skills is written in Python, so Python has to be installed first.
+  echo It is free, official, and takes a couple of minutes.
+  echo.
+
+  rem winget ships with Windows 10 ^(1809+^) and Windows 11, so on most hospital machines Python can
+  rem simply be installed for the user -- no admin rights, no download page, no PATH checkbox to
+  rem miss. We ASK first: installing software on someone's computer without asking is not ours to do.
+  where winget >nul 2>nul
+  if !errorlevel!==0 (
+    echo This installer can install Python for you now, from the official Python
+    echo repository, into your own user account ^(no administrator password needed^).
+    echo.
+    set /p "DOIT=Install Python now? [Y/N] "
+    if /i "!DOIT!"=="Y" (
+      echo.
+      echo Installing Python. This takes a couple of minutes...
+      echo.
+      winget install --exact --id Python.Python.3.13 --scope user ^
+        --accept-source-agreements --accept-package-agreements
+      echo.
+      if !errorlevel!==0 (
+        echo Python is installed.
+        echo.
+        echo Windows only notices a new program in NEW windows, so this one cannot use it yet:
+        echo.
+        echo    ^>^>  Close this window and double-click the installer again.  ^<^<
+        echo.
+        echo Nothing else has been changed on your computer.
+        echo.
+        pause
+        exit /b 1
+      )
+      echo Python could not be installed automatically ^(error !errorlevel!^).
+      echo Use the download page instead - it is opening now.
+      echo.
+    )
+  )
+
+  echo   1. Download the latest Python for Windows ^(the page opens by itself in a moment^)
+  echo   2. Run the file you downloaded.
+  echo      IMPORTANT: on the FIRST screen, tick the box "Add python.exe to PATH"
+  echo      before pressing Install. It is easy to miss, and nothing works without it.
+  echo   3. Double-click THIS installer again.
   echo.
   echo If a Microsoft Store page opened when you tried Python before, that page is a
-  echo placeholder, not Python. Install it from python.org instead.
+  echo placeholder, not Python. Use python.org instead.
   echo.
   echo Nothing has been changed on your computer.
   echo.
+  start "" "https://www.python.org/downloads/"
   pause
   exit /b 1
 )
