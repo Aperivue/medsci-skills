@@ -128,8 +128,8 @@
     },
     {
       "path": "skills/academic-aio/scripts/check_summary_box.py",
-      "size": 7939,
-      "sha256": "3c294bc2c5aa5c60a2d468dae3486da359da5a8f2ec83c3d8f0c1f6f26b7d0c1"
+      "size": 7976,
+      "sha256": "0c12f521a70c44b4dc2749c6cfa6347411cb56d1ac15869e74567eefbd25b642"
     },
     {
       "path": "skills/academic-aio/scripts/validate_schema.py",
@@ -413,8 +413,8 @@
     },
     {
       "path": "skills/analyze-stats/scripts/check_generated_code.py",
-      "size": 15024,
-      "sha256": "b8643d9d9a4b600af428604811135fc27cee6eb2140bdae5e393ed9b3be37fae"
+      "size": 15064,
+      "sha256": "acf06d2ed995242a3332b496fdce116cc364dfb1758a03ad6fee3a8c7f1d0180"
     },
     {
       "path": "skills/analyze-stats/scripts/rating_monotonicity.py",
@@ -848,18 +848,18 @@
     },
     {
       "path": "skills/check-reporting/scripts/check_checklist_version.py",
-      "size": 7195,
-      "sha256": "0f3a0f8106319175aa1914cf5f9da89404b3e380cff8281f895e0ac0399e6b9a"
+      "size": 7238,
+      "sha256": "014fc9d23109f657a9a7fd5cd6d9c9375505b7b7cb8a50d980607d4a2a49f467"
     },
     {
       "path": "skills/check-reporting/scripts/check_framework_naming.py",
-      "size": 8455,
-      "sha256": "bd44ffb3f55d6539f972cd4bf50f1d9301e865da41e05c8d279776e94fb6d3d7"
+      "size": 8497,
+      "sha256": "5f6bdfa096070d9b2351b81a85b44705dadec592d010c46090954236084c3630"
     },
     {
       "path": "skills/check-reporting/scripts/check_prisma_figure.py",
-      "size": 7763,
-      "sha256": "a4d0d88755b868be4480c70d1b2f1446322e63c63f3ed9950278be6e76f3657d"
+      "size": 7802,
+      "sha256": "d68c2f37d547a1a37314891226e123b2dfe83b8d8b703fa8f8897cbb05c31d63"
     },
     {
       "path": "skills/check-reporting/scripts/prisma_cascade_check.py",
@@ -893,13 +893,13 @@
     },
     {
       "path": "skills/clean-data/scripts/check_reverse_coding.py",
-      "size": 7788,
-      "sha256": "89288c0af4949d56d3ab68f55d10d677741588edeee1909fc760285168e03b4a"
+      "size": 7828,
+      "sha256": "2773667a60eecb59ac38799f8daacddb9c4d0823f8cc019fc6aea0e6158bf666"
     },
     {
       "path": "skills/clean-data/scripts/check_structural_zero.py",
-      "size": 6614,
-      "sha256": "aee4cdd08236ce160ea130e791fc8ba3550f60dadc7d8744062ffd096141a547"
+      "size": 6655,
+      "sha256": "357b896db5730b8c2e65d327359556020f1579633134419efb7a1898cfc76657"
     },
     {
       "path": "skills/clean-data/skill.yml",
@@ -1113,8 +1113,8 @@
     },
     {
       "path": "skills/explainability/scripts/check_explainability_report.py",
-      "size": 10783,
-      "sha256": "4071a93aacf509f73a44b2c7f6423b5722aab3d44c79e9a8680845454261d47d"
+      "size": 10830,
+      "sha256": "78c46fc1a6932f8d6390e1f2ea756bde71147c718b990c5694705684bcc13248"
     },
     {
       "path": "skills/explainability/scripts/check_explainability_report_challenge/expected/strong.txt",
@@ -2228,8 +2228,8 @@
     },
     {
       "path": "skills/make-figures/scripts/derive_figure_legend_counts.py",
-      "size": 5478,
-      "sha256": "bc8a8b5035eddcbf7ddc0962e815d53b5a69f6f3bfec06cfce4784355f01f5f1"
+      "size": 5525,
+      "sha256": "14cab7426080526b9ca67c26f791958a995ef726636b48a9a311c19c8e61ee64"
     },
     {
       "path": "skills/make-figures/scripts/extract_exemplar_from_pdf.py",
@@ -2498,18 +2498,18 @@
     },
     {
       "path": "skills/manage-refs/scripts/check_csl_render.py",
-      "size": 7718,
-      "sha256": "a1848c33e945024719fa1b7cc996d37555801e011c6280be6644ae4f01642601"
+      "size": 7750,
+      "sha256": "2e5955d8a8717faad5bc11599d15985d163e3deb3a1b33e82785e9eef5eb07b4"
     },
     {
       "path": "skills/manage-refs/scripts/check_reference_duplication.py",
-      "size": 10210,
-      "sha256": "439f02252338e204dadf24dc4de13e38ab3ce7b6ea394e8dee38b8ee1cf92524"
+      "size": 10257,
+      "sha256": "3a00bb0021e8ce320547f32a2c44e22a5f3395fd5ac98dc3bdc36e23e10c3303"
     },
     {
       "path": "skills/manage-refs/scripts/check_xref.py",
-      "size": 24014,
-      "sha256": "324a8e4e39700a3ffebbd9813707f35054e2f281edf4668347cc0c3f81a924e1"
+      "size": 24044,
+      "sha256": "e7f035af887c581eb98b57c865b2ed358b541091c30deeb8e6652145f0929acf"
     },
     {
       "path": "skills/manage-refs/scripts/fill_journal_abbrev.py",
@@ -2658,8 +2658,8 @@
     },
     {
       "path": "skills/meta-analysis/scripts/check_pool_consistency.py",
-      "size": 7087,
-      "sha256": "8671060face364875f4ba4629a009f71b9417ce0ea5d8544db8be4a3523d1239"
+      "size": 7129,
+      "sha256": "0fa44cedbecded9a4ee671d34cc8ab659c7ffe0717358e987dfa8a28736f333d"
     },
     {
       "path": "skills/meta-analysis/scripts/cohort_overlap_check.py",
@@ -2743,8 +2743,8 @@
     },
     {
       "path": "skills/mllm-eval/scripts/check_mllm_eval_completeness.py",
-      "size": 9386,
-      "sha256": "bb714a45449a26ccafca9e988a95aaa6af92fb8f3b79cfc03f8b47768f37aaec"
+      "size": 9434,
+      "sha256": "4364431238fec7dd01a9f8cf293bc70b7205b8d5f966928da6743b4d90e29a32"
     },
     {
       "path": "skills/mllm-eval/scripts/mllm_eval_completeness_challenge/fixture/plan_bad.md",
@@ -2793,8 +2793,8 @@
     },
     {
       "path": "skills/model-card/scripts/check_model_card_complete.py",
-      "size": 8856,
-      "sha256": "aa1fdc6a88e18696d0dfc23397a8a9141c1219583081deb5e27b822f152d4005"
+      "size": 8901,
+      "sha256": "ccdf8e58b571f38b6014ecaa8de5ce1326034d66841a10e4f9a161c97b4a5157"
     },
     {
       "path": "skills/model-card/scripts/check_model_card_complete_challenge/fixture/complete/DATASHEET.md",
@@ -2843,8 +2843,8 @@
     },
     {
       "path": "skills/model-evaluation/scripts/check_metric_reporting.py",
-      "size": 17964,
-      "sha256": "f1315745ceba694cb2437a412618d86cd7f0a7f4e652f5ced2cc207b67eaa731"
+      "size": 18006,
+      "sha256": "9eba3bd5d0a255825b232fe94003afa0dd6d489d8d02235b247e3da8eef18a30"
     },
     {
       "path": "skills/model-evaluation/scripts/metric_reporting_challenge/fixture/clf_bad.md",
@@ -2938,8 +2938,8 @@
     },
     {
       "path": "skills/model-scaffold/scripts/check_training_hygiene.py",
-      "size": 14095,
-      "sha256": "57542a54dac607e89e7f13e5025bd2ce6b32e629064a18cbb0f0c15fdfc6181c"
+      "size": 14137,
+      "sha256": "ff08cc101819def5ba1471c9426bd67dbc12978435a8a6456877e75a63bbd4e1"
     },
     {
       "path": "skills/model-scaffold/scripts/scaffold.py",
@@ -2983,8 +2983,8 @@
     },
     {
       "path": "skills/model-validation/scripts/check_split_leakage.py",
-      "size": 11616,
-      "sha256": "a207b82abbb5914927e0de25663820c250207b0b1689f8ed17bfe6bda9eed6e2"
+      "size": 11655,
+      "sha256": "479f1572e1754787d38d83004711deb2a8c33d2b0a13402498e9a9856a0d5285"
     },
     {
       "path": "skills/model-validation/scripts/check_split_leakage_challenge/expected/clean.txt",
@@ -3253,8 +3253,8 @@
     },
     {
       "path": "skills/peer-review/scripts/check_pdf_injection.py",
-      "size": 10870,
-      "sha256": "fcf33336f16dbfa92a0b5bbd5588b4026d3c89f21041733099d7a028e16e6bd3"
+      "size": 10905,
+      "sha256": "a034c1d9d78bf7f327553c92a354a612f9061e9647940ebc44b6bdbe65501e30"
     },
     {
       "path": "skills/peer-review/scripts/check_pdf_injection_challenge/expected/clean.txt",
@@ -3343,8 +3343,8 @@
     },
     {
       "path": "skills/preprocess-imaging/scripts/check_preprocessing_leakage.py",
-      "size": 12992,
-      "sha256": "dcce1493a29122ed4259adc116ed7ad239b11ee1f45a10f6f7eb94698b3efa67"
+      "size": 13039,
+      "sha256": "dbd204c5ac40470a6fba8f44c14477bf754ef0f31f82c7f5cac6049679c8372d"
     },
     {
       "path": "skills/preprocess-imaging/scripts/check_preprocessing_leakage_challenge/expected/clean.txt",
@@ -3523,8 +3523,8 @@
     },
     {
       "path": "skills/radiomics-ml/scripts/check_radiomics_ml.py",
-      "size": 10179,
-      "sha256": "b1cfbd9991aa8871d5aabc528c9aa22eecf8e46cb5983872bca2359229223840"
+      "size": 10217,
+      "sha256": "46dd0049f0ad1c580b7ea647a0ca6f86a49644f886ddc8995131fdb03970589b"
     },
     {
       "path": "skills/radiomics-ml/scripts/check_radiomics_ml_challenge/expected/strong.txt",
@@ -3693,8 +3693,8 @@
     },
     {
       "path": "skills/revise/scripts/check_response_claims.py",
-      "size": 9798,
-      "sha256": "ef5e67cf757e146b43c578753fcafd10632676b08eec00328eb5100e20dc79b6"
+      "size": 9839,
+      "sha256": "d8c810a21ff973dd9a5c3f9ccd7c9607cfa9d106053406495f06cbc5786a3fc5"
     },
     {
       "path": "skills/revise/skill.yml",
@@ -3928,48 +3928,48 @@
     },
     {
       "path": "skills/self-review/scripts/check_artifact_coverage.py",
-      "size": 17113,
-      "sha256": "56096c39ddb0083c04a1254f06bafa6fac9fc8a136c9246f68773f0ba5da96d4"
+      "size": 17156,
+      "sha256": "fa049e8c18ce133540155325261a301a460200bab911a85baed9794847e1ba72"
     },
     {
       "path": "skills/self-review/scripts/check_binning_consistency.py",
-      "size": 20076,
-      "sha256": "c6467eb4a1d954d67da87e283d8a628604a9ec7558c966f8b20c1b661e23b9c9"
+      "size": 20121,
+      "sha256": "fde5fcfec8992d5c26d5de2165e58c8014d7ef38434d17176f170f593c6a0d1a"
     },
     {
       "path": "skills/self-review/scripts/check_citation_order.py",
-      "size": 8705,
-      "sha256": "38525b4dd3ca8c9d99f090e4d42b65f10baf442f56fc4eac5174fb6ba13d90bb"
+      "size": 8745,
+      "sha256": "9da14bf35e9a816c34f68fa57495f921f14c3fa8c161479be6fcc4dea56ad3c8"
     },
     {
       "path": "skills/self-review/scripts/check_claim_artifact.py",
-      "size": 18475,
-      "sha256": "c99c8090205734b0eae981550ed09e6275d94add608e66df78f4533c35f20924"
+      "size": 18515,
+      "sha256": "70d09ba741389e3116ee002941c823a127528e8b43e1a08a32ac90cb93e3386e"
     },
     {
       "path": "skills/self-review/scripts/check_classical_style.py",
-      "size": 13124,
-      "sha256": "941d90559cdcdd24f3eba58daf00eb34a7d227c3fe44267b93b65b80b6092989"
+      "size": 13165,
+      "sha256": "e26683579615b905a0529e90221bc97e942ff151721a5a9fad63f4338b152837"
     },
     {
       "path": "skills/self-review/scripts/check_cohort_arithmetic.py",
-      "size": 23868,
-      "sha256": "55933d25d824bf073c0a8b7abc42d2f160c459a288ab932c50d63cf8c03afd37"
+      "size": 23911,
+      "sha256": "85c998f19877d5b9a2cebe4245910a59178a6e247c4d4e07f017e40c584484d6"
     },
     {
       "path": "skills/self-review/scripts/check_confounding_completeness.py",
-      "size": 21506,
-      "sha256": "7d3e67074d58a28ffee52ce64b486231f103a3ddcaf6b3b6ee83ba5f89c63bc2"
+      "size": 21556,
+      "sha256": "f03067e65dffa0e1fe7d76229d9a66a69d177486b31240123bdbbbb18b4c15c3"
     },
     {
       "path": "skills/self-review/scripts/check_cv_leakage.py",
-      "size": 6349,
-      "sha256": "431c5f14ad2c4f59e85b2a5e86150ac708d476e8f2f1da859d81953f522b2117"
+      "size": 6385,
+      "sha256": "1c1f301dbd6ed737cbb7cabb40544102ff8475a020494a38bcb9ac0650ebd263"
     },
     {
       "path": "skills/self-review/scripts/check_dta_denominators.py",
-      "size": 7798,
-      "sha256": "98c116aa7c42f045565e6e8a24df2b15751aef4a5e7e012ec7e5b5ec17a73850"
+      "size": 7836,
+      "sha256": "2058a257fd1d1b3cc6507c907ec108693847e7ab047aa04214c2a8d39e3619f3"
     },
     {
       "path": "skills/self-review/scripts/check_dta_denominators_challenge/expected/bad.txt",
@@ -4003,23 +4003,23 @@
     },
     {
       "path": "skills/self-review/scripts/check_editorial_impression.py",
-      "size": 22032,
-      "sha256": "42e0e9315e1c97ca0f9943213c65ea91d7064773d25287b2577f0386dfb7fc41"
+      "size": 22078,
+      "sha256": "c35d8104be75e7045a6218423832de7a7fcf27855745e011744138f32d44adf1"
     },
     {
       "path": "skills/self-review/scripts/check_emphasis_density.py",
-      "size": 6626,
-      "sha256": "79e517942c1eca4f879fa2b05e6497f93fe6f4d53ed58ca98e240bf5b44c4821"
+      "size": 6668,
+      "sha256": "836925aaba3adba772330ed86a2e6021fce9c7f163ed02b2580dc414a93ce386"
     },
     {
       "path": "skills/self-review/scripts/check_figure_citation.py",
-      "size": 5298,
-      "sha256": "342bc1126a420111da9c0fe38c6cd68cc45542b0e485202689d7219de9d80712"
+      "size": 5339,
+      "sha256": "fe86c632bb14aaab14d787bc2ebf56079828949cff400b16c2fd5df897da1513"
     },
     {
       "path": "skills/self-review/scripts/check_nested_group_comparison.py",
-      "size": 6351,
-      "sha256": "44a7d7ce9913dcf33386de3fae510bc2f1e388c59d338ae482028920b327b37a"
+      "size": 6396,
+      "sha256": "191ea2603d2fe753c5e14a8e67e894c83e7af95bcad4b2d90480f529cbe40ac6"
     },
     {
       "path": "skills/self-review/scripts/check_nested_group_comparison_challenge/expected/clean.txt",
@@ -4053,13 +4053,13 @@
     },
     {
       "path": "skills/self-review/scripts/check_null_calibration.py",
-      "size": 8585,
-      "sha256": "e5bd71c515554b3acbaefd3807e584364a536dc6e1101bec5b524bc26b341309"
+      "size": 8627,
+      "sha256": "ee66612c9ad6130285120cc2376a0c65d5d8509c5fe6022bc58bef1f431d2b10"
     },
     {
       "path": "skills/self-review/scripts/check_paired_difference_estimator.py",
-      "size": 6612,
-      "sha256": "e4a4c4c59b7dc50a8eeace2a9dfa7ba988120b4ede5f307d9836c37b40a2b76f"
+      "size": 6661,
+      "sha256": "bece43b50667457887211edc35736655e402f4306162d5f6dfd3a7f9d7cc305d"
     },
     {
       "path": "skills/self-review/scripts/check_paired_difference_estimator_challenge/expected/bad.txt",
@@ -4093,23 +4093,23 @@
     },
     {
       "path": "skills/self-review/scripts/check_panel_diversity.py",
-      "size": 15324,
-      "sha256": "71a7fac49076edc24c32a28ed51bd0ff83feb70e13da76bc24f9f75d1c20c6e1"
+      "size": 15365,
+      "sha256": "320f18504847ed33b1cb0a2913579e532cfec8b82aa6af9cf6877d2f80e0b519"
     },
     {
       "path": "skills/self-review/scripts/check_paren_spans.py",
-      "size": 6425,
-      "sha256": "41f74c41ae9a80281f901c17e41e7e5ac7d813103ae6578b57e915c8272c6052"
+      "size": 6462,
+      "sha256": "bb6ba881fba0c026cae4087d954e6f954be9c9325bfaa4210e4d7ff02310524d"
     },
     {
       "path": "skills/self-review/scripts/check_reference_adequacy.py",
-      "size": 17564,
-      "sha256": "007100ed2ec23d01a9352feae10c5af23e7b3e88d91bb7fda7c3c899772aaa85"
+      "size": 17608,
+      "sha256": "50afc9f646fa7494a7f1a90e2a0c794c645421c34a7e49422c6734cfa4a5fbc7"
     },
     {
       "path": "skills/self-review/scripts/check_reported_p_from_counts.py",
-      "size": 8813,
-      "sha256": "86771e8dfbad9d9680fa7cfd15cc98b63a247a318cd86c4162d852359c82a252"
+      "size": 8857,
+      "sha256": "0cd24f3320e9e985606e84d1ced20340a370f2b1f3dbfd192a1b04394fa525ae"
     },
     {
       "path": "skills/self-review/scripts/check_reported_p_from_counts_challenge/expected/bad.txt",
@@ -4143,28 +4143,28 @@
     },
     {
       "path": "skills/self-review/scripts/check_reviewer_team_consistency.py",
-      "size": 15481,
-      "sha256": "c9cd8e47cfef1ffcea12ecda5314a71ccd5415f35f4f296addadf53ccb6ceb3b"
+      "size": 15498,
+      "sha256": "9af6a41312262a05b30abebf0ce41718ff5463fe5c613e11b27db1073f66e54e"
     },
     {
       "path": "skills/self-review/scripts/check_rounded_delta.py",
-      "size": 7079,
-      "sha256": "2961dd0b25dcd06f202442004e08f2d98c6f2d4c337be3f8b0e3286a59952072"
+      "size": 7118,
+      "sha256": "64b5cac13fffb805f27e351b8439e49ed30494315f2c1ed85dd19d648c71cb3a"
     },
     {
       "path": "skills/self-review/scripts/check_scope_coherence.py",
-      "size": 12989,
-      "sha256": "2444bce9c5bd2fc088c43eae97c1fc5791ae4da44f428a2caa0559b976dbe622"
+      "size": 13030,
+      "sha256": "e0316f9d3e57ef47de00d6c082486c7520e2960fed6d3270069cc3e30de1c490"
     },
     {
       "path": "skills/self-review/scripts/check_supplement_hygiene.py",
-      "size": 13579,
-      "sha256": "c61bd5e485d2bce4a6efd7bf2a7980aa0d31ebecb876a7c6895fd12cb6bf7f1c"
+      "size": 13623,
+      "sha256": "e155900ac2633cb37778a29da33fdac7788715035c826a6e94df80cd700e5f78"
     },
     {
       "path": "skills/self-review/scripts/check_table_percentages.py",
-      "size": 8674,
-      "sha256": "102cc795660fd41c40219b006dc657edd8d77f9195cf5b8fd2e5e470d3c28f3a"
+      "size": 8760,
+      "sha256": "32405faecca4b8c28a38a90d272d8849c0451c048938440301bfe9a732d99a37"
     },
     {
       "path": "skills/self-review/scripts/check_table_percentages_challenge/expected/bad.txt",
@@ -4253,33 +4253,33 @@
     },
     {
       "path": "skills/sync-submission/scripts/check_asset_anonymization.py",
-      "size": 13869,
-      "sha256": "caba039c6cfbfa09aec681a9840c7e0b5650cccdf9e00ddfd869557b0fec57c8"
+      "size": 13914,
+      "sha256": "a4552caa7bfcfba93c32d1b8f5b24fdcde49b4201768e977cd10a3d8fba06dc0"
     },
     {
       "path": "skills/sync-submission/scripts/check_checklist_dump_leak.py",
-      "size": 8745,
-      "sha256": "320765b9e975601fc2d73ce15a65b1419668982630c3b7546d0909158e5a5374"
+      "size": 8790,
+      "sha256": "c1d637afa5ef98b24758ea2131a79af37ce1ab7921beb7a13bebfd8e24fd9583"
     },
     {
       "path": "skills/sync-submission/scripts/check_cross_artifact_stale.py",
-      "size": 11679,
-      "sha256": "613cdbab508fa2767e7b445624829d645c3a917e8f3d58a72dd66bcac7fd0586"
+      "size": 11725,
+      "sha256": "62314a6a052e0a71e40dd00a76c96692b6a19d66ef0c9bd706e0b2f1d3959a04"
     },
     {
       "path": "skills/sync-submission/scripts/check_disclosure_availability.py",
-      "size": 10406,
-      "sha256": "104f2d1acc2a70fbbf0c96d9f48c1fca5032d9074b4186eba85a1c378e40cc8a"
+      "size": 10455,
+      "sha256": "f5e195119ec1a24723748049ee6c2ae44418500b1fc6ba525984fa12c7f06aef"
     },
     {
       "path": "skills/sync-submission/scripts/check_marked_manuscript.py",
-      "size": 12478,
-      "sha256": "5d2d5e57fcc14ea8ea717d4e5665b73ec46cb81dc73c72730153dfb11b004f8e"
+      "size": 12517,
+      "sha256": "4f47c9b0ac9c017a57eb17232b867ce5e8b46f936f88b6b98f0ae24da595497a"
     },
     {
       "path": "skills/sync-submission/scripts/check_wordcount_cap.py",
-      "size": 9788,
-      "sha256": "16fecbceae672e4192a138a0509321ea367f61079ca4ef4d630667b1e64eda58"
+      "size": 9827,
+      "sha256": "4d1c3403efeb4d891c4558d6e784c4088a0d349aad1625f1c348e50665c17f8d"
     },
     {
       "path": "skills/sync-submission/scripts/cover_letter_drift_check.py",
@@ -4293,8 +4293,8 @@
     },
     {
       "path": "skills/sync-submission/scripts/detect_copy_divergence.py",
-      "size": 5191,
-      "sha256": "7b77108c941b9ac2a5e1482e40f70faee0ede5e280c50be26075f5f3a5865237"
+      "size": 5233,
+      "sha256": "a6c17162f26a7dd476958b4f912b7db0cf546a913be2bae4325496e23e4cb3ea"
     },
     {
       "path": "skills/sync-submission/scripts/preflight_gate.py",
@@ -4328,8 +4328,8 @@
     },
     {
       "path": "skills/uncertainty-imaging/scripts/check_uncertainty_reporting.py",
-      "size": 13042,
-      "sha256": "2f14f78da71254d82977c8edc9f8c32bcde2e6d6d8e9c971af8114219ce558b5"
+      "size": 13089,
+      "sha256": "dcb3e0a897c69c723af0185bebe2318bc128872788d21e3b0162daaeac0e5f23"
     },
     {
       "path": "skills/uncertainty-imaging/scripts/check_uncertainty_reporting_challenge/expected/strong.txt",
@@ -4383,8 +4383,8 @@
     },
     {
       "path": "skills/verify-refs/scripts/verify_refs.py",
-      "size": 43072,
-      "sha256": "ce0db6183942afdb2dfd55733c8b1330dee1b10ce091ce99c31497f83d9c4e0b"
+      "size": 43103,
+      "sha256": "b966b3832c4997e2b3c2889fc2752de116d5dc1569b767ccde0efbc4438bee39"
     },
     {
       "path": "skills/verify-refs/skill.yml",
@@ -4903,8 +4903,8 @@
     },
     {
       "path": "skills/write-paper/scripts/check_placeholders.py",
-      "size": 7437,
-      "sha256": "6bc4032302265ba2c834212e77fbe78b8ddeddba716c833ecf8c65e85e586320"
+      "size": 7475,
+      "sha256": "2a7c9fe8caa000ab0c7bfffb6b09b4dd2508dcc3b374e2650d18c42ff52e7420"
     },
     {
       "path": "skills/write-paper/scripts/gate_backbone_fulltext.py",

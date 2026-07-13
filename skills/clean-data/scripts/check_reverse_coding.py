@@ -190,7 +190,7 @@ def main() -> int:
     report = analyze(data_path, args.items, args.scale_min, args.scale_max, args.threshold)
 
     if args.out:
-        Path(args.out).write_text(json.dumps(report, indent=2), encoding="utf-8")
+        Path(args.out).write_text(json.dumps({"detector": "check_reverse_coding", **report}, indent=2), encoding="utf-8")
 
     a = report["alpha_raw"]
     print(f"Scale items: {', '.join(report['items'])}  (n={report['n_complete']} complete)")

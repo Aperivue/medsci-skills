@@ -150,7 +150,7 @@ def main(argv: list[str] | None = None) -> int:
               "checklist": checklist, "findings": findings}
     if args.out is not None:
         args.out.parent.mkdir(parents=True, exist_ok=True)
-        args.out.write_text(json.dumps(report, indent=2), encoding="utf-8")
+        args.out.write_text(json.dumps({"detector": "check_checklist_version", **report}, indent=2), encoding="utf-8")
 
     if not args.quiet:
         if safe:

@@ -185,7 +185,7 @@ def main() -> int:
 
     out_path = Path(args.out) if args.out else Path("qc") / "summary_box_report.json"
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    out_path.write_text(json.dumps({"detector": "check_summary_box", **report}, indent=2) + "\n", encoding="utf-8")
 
     print("=" * 41)
     print(" Summary-Box Conformance")

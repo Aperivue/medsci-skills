@@ -211,7 +211,7 @@ def main(argv: list[str] | None = None) -> int:
     report = build_report(args.response, args.manuscript)
     if args.out:
         args.out.parent.mkdir(parents=True, exist_ok=True)
-        args.out.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
+        args.out.write_text(json.dumps({"detector": "check_response_claims", **report}, indent=2, ensure_ascii=False), encoding="utf-8")
 
     if not args.quiet:
         if report["submission_safe"]:

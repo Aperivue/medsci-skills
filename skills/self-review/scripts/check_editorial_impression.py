@@ -449,7 +449,7 @@ def main() -> int:
 
     if args.out:
         Path(args.out).parent.mkdir(parents=True, exist_ok=True)
-        Path(args.out).write_text(json.dumps(result, indent=2), encoding="utf-8")
+        Path(args.out).write_text(json.dumps({"detector": "check_editorial_impression", **result}, indent=2), encoding="utf-8")
         if not args.quiet:
             print(f"\nwrote {args.out}")
 

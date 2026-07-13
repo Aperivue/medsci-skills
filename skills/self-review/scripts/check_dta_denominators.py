@@ -170,7 +170,7 @@ def main(argv: list[str] | None = None) -> int:
     rep = audit(text, args.manuscript)
     if not args.quiet:
         if args.json:
-            print(json.dumps({"source": rep.source, "verdict": rep.verdict,
+            print(json.dumps({"detector": "check_dta_denominators", "source": rep.source, "verdict": rep.verdict,
                               "findings": [asdict(f) for f in rep.findings]},
                              ensure_ascii=False, indent=2))
         else:

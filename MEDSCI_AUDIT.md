@@ -26,6 +26,25 @@ The 58 detectors fall into six audit families:
 | Reporting compliance | 14 | `check_framework_naming`, `check_checklist_exists`, `check_checklist_version`, `check_prisma_figure`, `check_figure_citation`, `check_wordcount_cap`, `check_disclosure_availability`, `check_summary_box`, `check_supplement_hygiene`, `check_citation_order`, `check_model_card_complete`, `check_mllm_eval_completeness`, `check_explainability_report`, `check_uncertainty_reporting` |
 | Data preparation & validation | 11 | `check_structural_zero`, `check_reverse_coding`, `check_asset_anonymization`, `check_cross_artifact_stale`, `check_checklist_dump_leak`, `check_binning_consistency`, `check_cv_leakage`, `check_split_leakage`, `check_metric_reporting`, `check_preprocessing_leakage`, `check_radiomics_ml` |
 
+## The artifact contract
+
+Every detector that emits JSON names itself in the envelope:
+
+```json
+{
+  "detector": "check_reported_p_from_counts",
+  "manuscript": "manuscript.md",
+  "claims": [ ... ]
+}
+```
+
+The filename is chosen at the call site (`--out qc/anything.json`) and therefore cannot
+identify the check that produced a finding. Without the key, two runs of one detector under
+different filenames read as two detectors, and a run under an unexpected filename reads as
+none — so any consumer that aggregates a project's `qc/` directory (an audit trail, a
+dashboard, a precision ledger) is guessing. `scripts/check_detector_envelopes.py` enforces
+the key in CI, so a new detector cannot ship without it.
+
 ## Evidence
 
 The suite's evaluation evidence and its current size are **two separate facts** — they are reported at different versions, and should not be collapsed into a single "58 detectors, validated by E1/E7" claim.

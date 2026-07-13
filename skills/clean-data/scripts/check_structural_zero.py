@@ -164,7 +164,7 @@ def main() -> int:
 
     if args.out:
         Path(args.out).parent.mkdir(parents=True, exist_ok=True)
-        Path(args.out).write_text(json.dumps(result, indent=2), encoding="utf-8")
+        Path(args.out).write_text(json.dumps({"detector": "check_structural_zero", **result}, indent=2), encoding="utf-8")
         print(f"\nwrote {args.out}")
 
     return 1 if (args.strict and result["total_implied_zero_missing"]) else 0

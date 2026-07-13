@@ -595,7 +595,7 @@ def main() -> int:
     }
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
+    args.out.write_text(json.dumps({"detector": "check_xref", **payload}, indent=2, ensure_ascii=False), encoding="utf-8")
 
     if not args.quiet:
         print(render_summary(findings, len(citations)))

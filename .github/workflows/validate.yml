@@ -76,6 +76,12 @@ jobs:
       - name: Run orchestrate-reachability self-test (missing-row + ghost-route fail)
         run: bash tests/test_orchestrate_reachability.sh
 
+      - name: Run check_detector_envelopes.py (every detector's JSON names the detector that wrote it)
+        run: python3 scripts/check_detector_envelopes.py --strict
+
+      - name: Run detector-envelope gate self-test (unlabelled + mislabelled envelopes fail)
+        run: bash tests/test_detector_envelopes.sh
+
       - name: Run check_locale_inventory.py (Korean-bearing files must be inventory-justified)
         run: python3 scripts/check_locale_inventory.py
 
