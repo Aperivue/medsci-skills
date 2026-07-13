@@ -4,6 +4,34 @@
 
 ### Added
 
+- **`/find-cohort-gap` accepts your own cohort** (issue #69, requested by an external user).
+  The skill used to start from a *named* database — NHIS, UK Biobank, and the handful of registries it
+  knows about. Most researchers do not have one of those: they have an institutional registry, a
+  single-centre EMR export, or a specialty cohort, described by a data dictionary nobody else has ever
+  seen. Those users could not use the skill at all.
+
+  **`scripts/build_cohort_profile.py`** is the input layer that lets them in. It reads a local codebook
+  (`.csv` / `.tsv` / `.json` / `.md` / `.txt`, plus `.xlsx` via openpyxl and `.pdf` via `pdftotext`) and
+  emits the same cohort profile the skill already consumes, so the intersection matrix, saturation scan
+  and 6-pattern scoring are unchanged. A review, guideline, or preprint can be attached as domain
+  context (`--context`), as a file or a URL. A `.csv` is auto-detected as a codebook (rows are
+  variables) or a data export (the header row is the variable list).
+
+  It is a script and not "the model reads the file" for a reason: asked to *summarise* a codebook, a
+  language model will paraphrase a variable name, merge two that look alike, or invent one the cohort
+  does not have — and the intersection matrix, the feasibility gate, and eventually the manuscript's
+  Methods all inherit it. So variables are **enumerated, never generated**: copied verbatim, each
+  carrying its provenance (`file:row`). What the codebook cannot state — sample size, follow-up
+  duration, IRB status, prior publications — is emitted as `[UNKNOWN - ask the user]` rather than
+  guessed, because a fabricated N does not merely sit there; it flows into the Phase 5 feasibility gate,
+  which then passes for a reason unrelated to the cohort.
+
+  Two structural facts *are* derivable from variable names, and both feed patterns the skill already
+  scores: **serial / repeated-measure groups** (P1 Longitudinal Advantage) and **endpoint candidates**
+  (P2 Endpoint Upgrade). Each is reported with the variables that justify it, and a measurement is only
+  called serial when it genuinely repeats. Cluster assignment records the keyword that triggered it, and
+  a variable matching nothing is left `unclassified` rather than forced into a bucket.
+
 - **Marked (tracked-changes) manuscript: a build step and a round-trip gate** (`/sync-submission` Phase 10,
   used by `/revise`). Every revision round must ship the revised paper with tracked changes against the
   version the reviewers saw. This was the last hand-done, unverified step of a submission: produced by

@@ -36,22 +36,63 @@ literature to gaps. This skill works from the data outward.
 
 ## Phase 0: Cohort Intake
 
-Collect cohort metadata. Use the template at `${CLAUDE_SKILL_DIR}/references/cohort_profile_template.md`.
+The cohort does not have to be one this skill has heard of. Route on what the user
+actually has.
 
-Required information:
-1. **Cohort name and setting** (institution, country, population type)
-2. **Sample size** (N at baseline, N with follow-up)
-3. **Time span** (enrollment period, follow-up duration, measurement intervals)
-4. **Variable categories** (demographics, labs, imaging, questionnaires, medications, procedures)
-5. **Endpoints available** (mortality, cancer incidence, cardiovascular events, hospitalization)
-6. **Special strengths** (serial measurements, linkage to national registries, unique population)
-7. **Known limitations** (healthy volunteer bias, attrition, missing data patterns)
-8. **Existing publications** from this cohort (if known — to avoid duplication)
+| The user has… | Do this |
+|---------------|---------|
+| A **named public cohort** (NHIS, UK Biobank, KNHANES, …) | Fill the profile from published documentation. Cite the source for every field. |
+| A **codebook / data dictionary / CSV export** of their own registry or EMR extract | Run the input adapter below. This is the common case — an institutional registry or single-centre export that no public documentation describes. |
+| A **review, guideline, or preprint** defining the clinical domain | Attach it as domain context (`--context`), as a file or a URL. |
 
-If the user provides a data dictionary file (Excel/CSV), read it to extract variable
-categories and construct the variable cluster map automatically.
+### Input adapter (local codebook / documents)
 
-**Gate:** Present the cohort profile summary. Confirm before proceeding.
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/build_cohort_profile.py" \
+  --codebook data_dictionary.csv \
+  --context narrative_review.pdf --context https://example.org/guideline \
+  --cohort-name "Institutional CT registry" --out-dir .
+```
+
+Formats: `.csv` / `.tsv` / `.json` / `.md` / `.txt` (stdlib), `.xlsx` (needs `openpyxl`),
+`.pdf` (needs `pdftotext`). A `.csv` is auto-detected as a **codebook** (rows are
+variables) or a **data export** (the header row is the variable list). Writes
+`cohort_profile.md` + `cohort_profile.json` (+ `context_extract.md`).
+
+**Do not read the codebook yourself and summarise it.** Paraphrasing a variable name,
+merging two that look alike, or inventing one the cohort does not have poisons every
+downstream claim — the intersection matrix, the feasibility gate, and eventually the
+manuscript's Methods. The adapter *enumerates* variables verbatim with provenance
+(`file:row`) instead, which is the dictionary-first discipline a reviewer expects of a
+DB-backed study. Read `cohort_profile.md`; do not re-derive it.
+
+What the adapter infers (and shows its work for): the **variable cluster map**, **serial
+/ repeated-measure groups** (evidence for P1 Longitudinal Advantage), and **endpoint
+candidates** (evidence for P2 Endpoint Upgrade). Every cluster assignment records the
+keyword that triggered it, and a variable matching nothing is left `unclassified` rather
+than forced into a bucket — review those, since the lexicon is not exhaustive.
+
+### What the adapter cannot know — ASK, never guess
+
+A codebook lists variables. It does not state any of the following, and each is emitted
+as `[UNKNOWN - ask the user]`:
+
+1. **Sample size** (N at baseline, N with follow-up)
+2. **Time span** (enrollment period, follow-up duration, measurement intervals)
+3. **Known limitations** (healthy volunteer bias, attrition, missing-data patterns)
+4. **Existing publications** from this cohort (to avoid duplicating them)
+5. **IRB status and data-access route**
+
+Collect these from the user before Phase 2. A guessed N does not merely sit there — it
+flows into the Phase 5 feasibility gate, which then passes (or fails) for a reason that
+has nothing to do with the cohort.
+
+Also confirm the **setting** (institution type, country, population type) and any
+**special strengths** the variable names cannot reveal — registry linkage, biobank
+availability, a distinctive population.
+
+**Gate:** Present the cohort profile summary, including the `[UNKNOWN]` list and the
+unclassified variables. Confirm before proceeding.
 
 ---
 

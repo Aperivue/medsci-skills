@@ -86,8 +86,22 @@ List known papers already published from this cohort (to avoid topic duplication
 
 ## Variable Cluster Map (Auto-generated)
 
-If a data dictionary is provided, the skill will auto-generate clusters below:
+If a codebook / data dictionary / CSV export is available, do not fill this in by hand
+and do not summarise the file yourself — run the input adapter:
 
-| Cluster | Variables | Serial? | Endpoint Link? |
-|---------|-----------|---------|----------------|
-| (auto-filled) | | | |
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/build_cohort_profile.py" --codebook <file> --out-dir .
+```
+
+It writes `cohort_profile.md` + `cohort_profile.json` with:
+
+| Section | Content |
+|---------|---------|
+| Variable cluster map | every variable copied **verbatim**, with its source (`file:row`) and the keyword that placed it in its cluster |
+| Serial / repeated measures | measurement groups that genuinely repeat (evidence for **P1**) |
+| Endpoint candidates | mortality / cancer / CVD / hospitalisation variables (evidence for **P2**) |
+| `[UNKNOWN]` list | sample size, follow-up, IRB, prior publications — **ask the user; never guess** |
+
+Variables that match no cluster keyword are reported as `unclassified` rather than forced
+into a bucket. Review them: the lexicon is not exhaustive, and a mis-clustered exposure
+variable will distort the intersection matrix.

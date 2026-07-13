@@ -21,7 +21,7 @@ One reference page per skill, generated from each skill's `SKILL.md` and `skill.
 - [explainability](explainability.md) — Produce or audit the interpretability/explainability analysis of a medical-imaging model — Grad-CAM / Grad-CAM++ / attention-rollout / saliency / integrated-gradients — so it clears the rigor bar a re… _(evidence: ci_validator)_
 - [fill-icmje-coi](fill-icmje-coi.md) — Batch-generate per-author ICMJE Conflict of Interest Disclosure Forms (`coi_disclosure.docx`) for manuscript submission. _(evidence: bundled_script)_
 - [fill-protocol](fill-protocol.md) — Fill institutional Word form templates (.doc/.docx) for IRB protocols, ethics applications, grant proposals, and other structured research documents while preserving the original styles, table layouts… _(evidence: bundled_script)_
-- [find-cohort-gap](find-cohort-gap.md) — Research gap finder for longitudinal cohort databases. _(evidence: manual_workflow)_
+- [find-cohort-gap](find-cohort-gap.md) — Research gap finder for longitudinal cohort databases. _(evidence: bundled_script)_
 - [find-journal](find-journal.md) — Journal recommendation engine for medical manuscripts. _(evidence: manual_workflow)_
 - [fulltext-retrieval](fulltext-retrieval.md) — Batch download open-access PDFs by DOI using legitimate OA APIs (Unpaywall, PMC, OpenAlex, Crossref). _(evidence: bundled_script)_
 - [generate-codebook](generate-codebook.md) — Generate a citable data dictionary / codebook from a tabular dataset (CSV/TSV/Excel/Parquet/Stata/SAS). _(evidence: bundled_script)_
