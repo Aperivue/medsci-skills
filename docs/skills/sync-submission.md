@@ -23,11 +23,13 @@
 
 - Detects drift it is configured to scan (counts, cover-letter fields, scope); portal free-text fields still need a human check.
 - A clean audit is necessary, not sufficient, for acceptance.
+- Building a marked (tracked-changes) manuscript drives Microsoft Word and therefore needs macOS + Word; the round-trip verification of a marked file is portable and runs anywhere.
 
 **Validation**
 
 - `python3 scripts/sync_submission.py`
 - `python3 scripts/cross_document_n_check.py`
+- `bash tests/test_marked_manuscript.sh`
 - `bash tests/test_wordcount_cap.sh`
 - `bash tests/test_assemble_supplement.sh`
 - `bash tests/test_disclosure_availability.sh`
@@ -46,10 +48,12 @@
 - `assemble_supplement.py`
 - `author_registry_example.yaml`
 - `blind_sweep.py`
+- `build_marked_manuscript.py`
 - `check_asset_anonymization.py`
 - `check_checklist_dump_leak.py`
 - `check_cross_artifact_stale.py`
 - `check_disclosure_availability.py`
+- `check_marked_manuscript.py`
 - `check_wordcount_cap.py`
 - `cover_letter_drift_check.py`
 - `cross_document_n_check.py`

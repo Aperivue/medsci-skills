@@ -184,6 +184,9 @@ jobs:
       - name: Run revise response-claim verification gate test
         run: bash skills/revise/tests/test_response_claims.sh
 
+      - name: Run sync-submission marked-manuscript round-trip gate test (move-aware)
+        run: bash skills/sync-submission/tests/test_marked_manuscript.sh
+
       - name: Run self-review parenthesis-span corruption gate test (A9)
         run: bash skills/self-review/tests/test_paren_spans.sh
 

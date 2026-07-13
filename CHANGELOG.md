@@ -2,6 +2,39 @@
 
 ## [Unreleased]
 
+### Added
+
+- **Marked (tracked-changes) manuscript: a build step and a round-trip gate** (`/sync-submission` Phase 10,
+  used by `/revise`). Every revision round must ship the revised paper with tracked changes against the
+  version the reviewers saw. This was the last hand-done, unverified step of a submission: produced by
+  clicking through Word's Compare, then "checked" by grepping the file for a sentence or two that ought to
+  appear as an insertion — a check that passes even when Compare has dropped a paragraph, duplicated one, or
+  split the revisions between two authors.
+
+  - **`check_marked_manuscript.py`** (new detector; **57 → 58**) verifies the marked file the only way that
+    is correct by construction: **accepting every revision must reproduce the revised manuscript exactly, and
+    rejecting every revision must reproduce the original**. Verdicts: `MARKED_ACCEPT_MISMATCH`,
+    `MARKED_REJECT_MISMATCH`, `MARKED_NO_REVISIONS`, `MARKED_AUTHOR_MIXED`, `MARKED_TABLE_LOSS`,
+    `MARKED_BASE_TRACKED`. Stdlib only, so it audits a marked file produced by any means, on any platform.
+  - **The gate is move-aware.** Word encodes relocated content as `w:moveFrom` / `w:moveTo`, *not* as
+    `w:ins` / `w:del`. A verifier that knows only insert-and-delete reconstructs the original with the moved
+    paragraph in it twice, and reports a perfectly good file as corrupt — a false alarm confirmed against a
+    real, already-submitted marked manuscript. Resolution: `revised = unchanged + w:ins + w:moveTo`;
+    `original = unchanged + w:delText + w:moveFrom`.
+  - **`build_marked_manuscript.py`** drives Word's Compare from the command line through AppleScript
+    (`author name` is passed to Compare, so revisions are attributed at source instead of by rewriting
+    `w:author` afterwards), optionally injects continuous line numbers, and runs the gate on its own output.
+    macOS + Word only, and therefore deliberately *not* a detector. `pandiff` and LibreOffice `--compare`
+    remain forbidden: they corrupt OOXML tables and superscript runs.
+  - Detector hygiene, encoded once: docx text must be read by walking exact `w:t` / `w:delText` elements. The
+    regex `<w:t[^>]*>` also matches `<w:tbl>`, `<w:tc>` and `<w:tr>`, silently swallowing table markup as prose.
+
+### Fixed
+
+- **The JOSS paper's detector total is now gated.** `paper.md` states the size of the detector suite in its
+  Summary but was absent from `DETECTOR_CLAIM_FILES`, so it would have silently disagreed with the software
+  it describes the moment the suite grew. Added to `scripts/validate_catalog_consistency.py`.
+
 ## [5.20.1] - 2026-07-11
 
 Audit-driven fixes (no behaviour change to skills): a real `/orchestrate --e2e` state-transition bug

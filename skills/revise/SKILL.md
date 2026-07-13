@@ -475,8 +475,22 @@ After all responses are drafted, check:
 - [ ] Methodology disclosure (multiplicity, SAP deviation) is folded into the relevant response, not a separate front section
 - [ ] Cover letter is addressed to the correct editor
 - [ ] Response letter is 5000-8000 words
-- [ ] Tracked changes are enabled in the revised manuscript
+- [ ] The marked manuscript passed the round-trip gate (below) — not merely "tracked changes are on"
 - [ ] All new figures/tables are referenced in the response letter
+
+### The marked manuscript is gated, not eyeballed
+
+The journal wants the revised paper with tracked changes against **the version the reviewers saw** (R0 — not the previous round). Produce it with Word's Compare, which `/sync-submission` drives from the command line, and verify it with a round trip rather than a spot-check: accepting every revision must reproduce the revised manuscript exactly, and rejecting every revision must reproduce the original. Confirming that "sentence X appears as an insertion" passes even when Compare has dropped a paragraph or attributed half the changes to another author.
+
+```bash
+python3 <medsci-skills>/skills/sync-submission/scripts/check_marked_manuscript.py \
+  --marked revision/R1/manuscript_marked.docx \
+  --original submission/R0/manuscript.docx \
+  --revised revision/R1/manuscript_clean.docx \
+  --author "Submitting Author" --strict
+```
+
+See `/sync-submission` Phase 10 for the build step and for why the check must be move-aware (`w:moveFrom` / `w:moveTo` are not `w:ins` / `w:del`).
 
 ---
 
