@@ -2,6 +2,62 @@
 
 ## [Unreleased]
 
+### Added
+
+- **`/contribute` — the way back** (new skill; **56 skills**, **detectors 61 → 62**). The people who use
+  this toolkit are clinicians. They install it once, adapt a skill to the way their department actually
+  works, add the journal they publish in, fix a checklist item that was wrong for their specialty — and
+  then stop. The edit sits on one laptop. They do not open a pull request, because a pull request is not
+  a thing they do. Frequently that edit is the most valuable thing in the repository, because it is real
+  domain knowledge nobody in the project has, and it dies where it was written.
+
+  The detection already existed and nobody had noticed: the installer hashes every shipped file and takes
+  a **permanent backup** of any skill you modified before overwriting it. Nothing ever read the backup
+  again. `/contribute` is the other half — it compares the installed skills against the shipped hashes,
+  tells the author exactly what they changed and added, and offers it back as a pull request **without
+  them ever typing a git command**. No GitHub CLI? It reaches the project as a pre-filled issue instead;
+  installing a developer tool is not made a condition of helping.
+
+  **`check_contribution_safety.py` is the load-bearing part.** These users edit skills *while working on
+  real manuscripts and real patients*, so a local edit can carry a patient identifier, a national ID, an
+  IRB number, a manuscript under review, a colleague's name, or a home directory with their own account
+  name in it. A contribution flow that simply uploads "the files you changed" is a PHI leak with a
+  friendly button on it. Patient-level data and credentials are **blockers** — the line is deleted, not
+  argued with — and identity, institution, approval-ID, manuscript-ID and local-path findings are shown
+  with the remedy next to them.
+
+  And the skill says out loud, every time, that **the scan is not a certificate**: no pattern list
+  recognises every patient name or every hospital, and a scanner that is *believed* to be complete is
+  more dangerous than none, because it replaces the human check. The author reads every line that would
+  leave their machine, and confirms, or nothing is sent.
+
+  It also files the feedback that is not a code change — *"this flagged my paper and it was wrong"*, *"this
+  failed on my Word document"*. A false positive is the only evidence anyone has of how a detector behaves
+  on a **real** manuscript rather than a synthetic fixture; it is not a lesser contribution.
+
+  **And nobody is nagged.** Reminders are **opt-in and off by default** — a clinician installed a
+  research tool, they did not sign up to be asked for things, and an installer that greets a physician
+  mid-manuscript with *"you changed a file, would you like to share it?"* is an installer they stop
+  running, which this audience already under-does. Defaulting to silence costs a few contributions;
+  defaulting to noise costs the update path itself.
+
+  The install also, **once**, says how to say thanks — because clinicians who find this useful write
+  to the maintainer personally and have often never starred the repository, not having weighed it up
+  and declined but never having been told that starring is the thing you do, what it is for, or that
+  it takes one click. That is a **missing instruction, not a missing favour**. `star_repo.py` explains
+  what a star is (how the next researcher with the same problem finds the tool; the closest thing
+  research software has to a citation when it is not in anyone's reference list) and then makes it one
+  command with the GitHub CLI, or one click without it. If they have already starred it, it says thank
+  you and stops. It never asks twice.
+
+  The contribution option is mentioned **once**, at the end of a first install, and then never again whatever the
+  user does — *ignoring the question is an answer*. Opted in, the reminder appears only when something
+  actually changed, and **at most once a month**. The setting governs reminders **only** (`/contribute`
+  runs whenever it is run; turning reminders off is not opting out of contributing, it is opting out of
+  being asked), and it **cannot weaken the safety scan**, which reads no configuration at all — the
+  tests assert that.
+
+
 ## [5.21.0] - 2026-07-13
 
 Verification-layer batch: the marked-manuscript round trip, a self-improvement probe, an artifact

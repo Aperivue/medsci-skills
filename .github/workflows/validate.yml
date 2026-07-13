@@ -148,6 +148,9 @@ jobs:
       - name: Run peer-review self-improvement-claim gate test (self-confirming / ungrounded loop)
         run: bash skills/peer-review/tests/test_self_improvement_claims.sh
 
+      - name: Run contribute safety gate test (PHI/identifier scan before anything leaves a laptop)
+        run: bash skills/contribute/tests/test_contribution_safety.sh
+
       - name: Run analyze-stats separation gate test (complete / quasi-complete separation)
         run: bash skills/analyze-stats/tests/test_separation.sh
 

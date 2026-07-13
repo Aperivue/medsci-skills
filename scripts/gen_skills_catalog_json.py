@@ -93,6 +93,7 @@ CATEGORY_BY_OWNER_DOMAIN: dict[str, tuple[str, str]] = {
     "presentation": ("presentation_tooling", "Presentation & Tooling"),
     "document_layout": ("presentation_tooling", "Presentation & Tooling"),
     "environment_setup": ("presentation_tooling", "Presentation & Tooling"),
+    "contribution_flow": ("presentation_tooling", "Presentation & Tooling"),
     "skill_publishing": ("presentation_tooling", "Presentation & Tooling"),
 }
 

@@ -23,13 +23,13 @@
     },
     {
       "path": "installers/install.py",
-      "size": 14720,
-      "sha256": "b22e5d5be62ba1f71a81ad3214aed2cbfefbf97fd52179b21a8452a11ae95fcf"
+      "size": 16786,
+      "sha256": "26dac5013afc68adbebe1ddd954979701d46078cc1aa8fca974b2572ce1d0098"
     },
     {
       "path": "installers/medsci_txn.py",
-      "size": 14829,
-      "sha256": "0cb950a98ffcf027c8fa090e1352f7d3052e928934bc2f3a21ce420b631866d0"
+      "size": 17498,
+      "sha256": "13da36ce2a07f8c0880dcf44dabc9867ae32b7f6388fa695a63a7a0dedd08f3d"
     },
     {
       "path": "installers/session_update_check.py",
@@ -910,6 +910,41 @@
       "path": "skills/clean-data/skill.yml",
       "size": 1310,
       "sha256": "61d4095b54ca1c15a96c9be59282c336f3638080c5f7a49d0bad49e42be4758e"
+    },
+    {
+      "path": "skills/contribute/SKILL.md",
+      "size": 12263,
+      "sha256": "776b8d63940088ee984de6e4849c7d21c2b120500a7db5300a299ff7e1e3b63e"
+    },
+    {
+      "path": "skills/contribute/scripts/check_contribution_safety.py",
+      "size": 11153,
+      "sha256": "4620801b7ce5e42b3de15fa069b0a46d2b0d113140609b3fa950de7f8773ad27"
+    },
+    {
+      "path": "skills/contribute/scripts/contribution_prefs.py",
+      "size": 6162,
+      "sha256": "da79ac2a4c31dbffa7a7c6a37b292a1a355ccfa456ad2d2b741852f71bfcf166"
+    },
+    {
+      "path": "skills/contribute/scripts/find_local_changes.py",
+      "size": 7584,
+      "sha256": "1dd82a3fe8383379531971b5db5f7262e48193efeed3a2147d5394138fca33d6"
+    },
+    {
+      "path": "skills/contribute/scripts/star_repo.py",
+      "size": 5701,
+      "sha256": "c5b1ecce562605944bb9e63c3222bc6acba505eaf81196d58940cacdc4b0a954"
+    },
+    {
+      "path": "skills/contribute/scripts/submit_contribution.py",
+      "size": 8815,
+      "sha256": "e3e962861a87a7c5a409e9ebff9c9eb7d220d22c8cd92f34de11077af14c0203"
+    },
+    {
+      "path": "skills/contribute/skill.yml",
+      "size": 2681,
+      "sha256": "6c1d5a7fee93015ccd2ff4640ef0c299e72e2ea2266b8b67ca1afdc867612ce0"
     },
     {
       "path": "skills/cross-national/SKILL.md",
@@ -3038,8 +3073,8 @@
     },
     {
       "path": "skills/orchestrate/SKILL.md",
-      "size": 40144,
-      "sha256": "6535b55a55791f1339c32d4b8ee8e7ebdaf749a6c3dc1677ef8f3a653ef424ca"
+      "size": 40630,
+      "sha256": "0b98738ef47f7fd2e0a2922572e3b55103f46152b727668865c466068c2d1b71"
     },
     {
       "path": "skills/orchestrate/references/dialogue_nodes.md",

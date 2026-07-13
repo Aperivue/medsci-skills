@@ -13,6 +13,7 @@ One reference page per skill, generated from each skill's `SKILL.md` and `skill.
 - [calc-sample-size](calc-sample-size.md) — Interactive sample size calculator for medical research. _(evidence: manual_workflow)_
 - [check-reporting](check-reporting.md) — Check manuscript compliance with medical research reporting guidelines. _(evidence: demo)_
 - [clean-data](clean-data.md) — Interactive data profiling and cleaning assistant for medical research. _(evidence: manual_workflow)_
+- [contribute](contribute.md) — Offer your local changes back to the project — a journal profile you added, a checklist item you fixed, a skill you adapted to your department — as a pull request or an issue, without ever typing a gi… _(evidence: bundled_script)_
 - [cross-national](cross-national.md) — End-to-end cross-national comparison study using KNHANES + NHANES + CHNS (or other parallel surveys). _(evidence: manual_workflow)_
 - [define-variables](define-variables.md) — Literature-grounded variable operationalization for observational research. _(evidence: manual_workflow)_
 - [deidentify](deidentify.md) — De-identify clinical research data before LLM-assisted analysis. _(evidence: bundled_script)_

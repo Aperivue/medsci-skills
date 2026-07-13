@@ -127,6 +127,7 @@
       "source": "./",
       "strict": false,
       "skills": [
+        "./skills/contribute",
         "./skills/present-paper",
         "./skills/publish-skill",
         "./skills/render-pdf-doc",
