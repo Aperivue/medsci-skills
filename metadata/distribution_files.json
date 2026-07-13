@@ -18,8 +18,8 @@
     },
     {
       "path": "installers/doctor.py",
-      "size": 21829,
-      "sha256": "c16165db89c000fdee12a29582ad04ba8843e0ac3d3239ea8bd0bf41fe20de36"
+      "size": 23120,
+      "sha256": "a37caea62468e1847337cc2ef82bd83d094fed81b02f8708dcc13cecb420df46"
     },
     {
       "path": "installers/install-macos.command",
