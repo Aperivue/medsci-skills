@@ -36,6 +36,10 @@ HANGUL = re.compile(r"[가-힣ㄱ-ㆎ]")
 SKILLS_PATH = re.compile(r"skills/[A-Za-z0-9_./\-]+")
 # Files we never scan for content (binary-ish); kept small and explicit.
 SKIP_SUFFIXES = {".png", ".jpg", ".jpeg", ".gif", ".pdf", ".docx", ".xlsx", ".zip", ".pptx"}
+# Build artifacts are not source. A compiled .pyc of a Korean-bearing module still carries its
+# string literals, so a contributor whose test imports such a module would fail this gate on a
+# file that is git-ignored and does not ship — a confusing failure with nothing to fix.
+SKIP_DIRS = {"__pycache__", ".pytest_cache", ".ruff_cache", "node_modules"}
 
 
 def repo_root() -> Path:
@@ -47,6 +51,8 @@ def korean_files(skills_dir: Path, base: Path) -> set[str]:
     found: set[str] = set()
     for p in sorted(skills_dir.rglob("*")):
         if not p.is_file() or p.suffix.lower() in SKIP_SUFFIXES:
+            continue
+        if SKIP_DIRS.intersection(p.parts):
             continue
         try:
             text = p.read_text(encoding="utf-8", errors="ignore")

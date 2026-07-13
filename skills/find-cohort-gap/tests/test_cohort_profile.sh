@@ -92,14 +92,20 @@ assert c["ct_lung_nodule"] == "imaging", c["ct_lung_nodule"]
 assert c["phq9_total"] == "questionnaire", c["phq9_total"]
 assert c["statin_use"] == "medication", c["statin_use"]
 assert c["weird_unmatchable_token"] == "unclassified", c["weird_unmatchable_token"]
+# a hard endpoint gets its own cluster — it must never read as "matched nothing, review it"
+# in the cluster map while being cited as P2 evidence two sections below.
+assert c["death_date"] == "outcome_endpoint", c["death_date"]
+assert c["cvd_event"] == "outcome_endpoint", c["cvd_event"]
+assert "death_date" not in p["clusters"].get("unclassified", []), "endpoint landed in unclassified"
 # every assignment shows the keyword that caused it
 assert all(v["matched_keyword"] for v in p["variables"] if v["cluster"] != "unclassified")
 PY
-ck "clusters assigned; unmatched stays 'unclassified'" 0 "$?"
+ck "clusters assigned; endpoints get outcome_endpoint" 0 "$?"
 
 # 2b) the abbreviation false positive: a short keyword must match a whole TOKEN, never a
 # substring. `us` (ultrasound) inside `statin_use` once made a statin an imaging variable.
-python3 - "$B" <<'PY'
+# -B: importing the module must not leave a __pycache__ artifact in the skill directory.
+python3 -B - "$B" <<'PY'
 import importlib.util, sys
 spec = importlib.util.spec_from_file_location("bcp", sys.argv[1])
 m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
