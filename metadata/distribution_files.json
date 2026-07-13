@@ -3063,8 +3063,8 @@
     },
     {
       "path": "skills/peer-review/SKILL.md",
-      "size": 75710,
-      "sha256": "484a289ceb990a3301fc3a8093c1e5fae2e8fb00e267d774e4d7df4e0591a748"
+      "size": 77450,
+      "sha256": "631f8ae865f80057198a39eb1274e7ecf40278ad93ae4bd25826697cb75e2e64"
     },
     {
       "path": "skills/peer-review/references/aczel_2021_reviewer2_patterns.md",
@@ -3165,6 +3165,11 @@
       "path": "skills/peer-review/references/domain-probes/scoping_review.md",
       "size": 7246,
       "sha256": "c8d7ab314aaff513638715674d26be7dd32b3b4815cab48de8cef00cba6db2f8"
+    },
+    {
+      "path": "skills/peer-review/references/domain-probes/self_improving_system.md",
+      "size": 8423,
+      "sha256": "a11d01d8ed7ecb351d2f10d2cc7ab797390645f515f1434aad2771651d8b32b5"
     },
     {
       "path": "skills/peer-review/references/domain-probes/sr_ma.md",
@@ -3295,6 +3300,11 @@
       "path": "skills/peer-review/scripts/check_pdf_injection_challenge/verify.sh",
       "size": 2187,
       "sha256": "6d149ab8d6737430937a0424dd4c66ea9332f25d83d1eca8e37104db33e97b0d"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_self_improvement_claims.py",
+      "size": 12310,
+      "sha256": "d783ccad8fbbf03e353689b9d47f281d992e522479c7499d7d9556fce77061b7"
     },
     {
       "path": "skills/peer-review/scripts/scan_pdf_layers.py",
@@ -3773,8 +3783,8 @@
     },
     {
       "path": "skills/self-review/SKILL.md",
-      "size": 104731,
-      "sha256": "9c74f317d10c7b491e710debb619dcf536689092a59fe749050a0ad41f4aacd5"
+      "size": 105088,
+      "sha256": "bc74e3138847edaf31d757d4fdab96667e740c4e0cb656ff2bd685a894bc2ed2"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
@@ -3870,6 +3880,11 @@
       "path": "skills/self-review/references/domain-probes/scoping_review.md",
       "size": 7246,
       "sha256": "c8d7ab314aaff513638715674d26be7dd32b3b4815cab48de8cef00cba6db2f8"
+    },
+    {
+      "path": "skills/self-review/references/domain-probes/self_improving_system.md",
+      "size": 8423,
+      "sha256": "a11d01d8ed7ecb351d2f10d2cc7ab797390645f515f1434aad2771651d8b32b5"
     },
     {
       "path": "skills/self-review/references/domain-probes/sr_ma.md",

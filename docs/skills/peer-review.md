@@ -39,7 +39,7 @@
 **References** (`skills/peer-review/references/`):
 
 - `aczel_2021_reviewer2_patterns.md`
-- `domain-probes/` (22 files)
+- `domain-probes/` (23 files)
 - `exemplar_reviews/` (7 files)
 - `narrative_review_audit.md`
 - `reviewer_calibration/` (2 files)
@@ -49,6 +49,7 @@
 
 - `check_pdf_injection.py`
 - `check_pdf_injection_challenge/` (6 files)
+- `check_self_improvement_claims.py`
 - `scan_pdf_layers.py`
 
 ## Source
