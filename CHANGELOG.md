@@ -4,6 +4,60 @@
 
 ### Added
 
+- **`/present-paper` — the marks an AI leaves on a deck, caught in the built `.pptx`**
+  (`check_slide_tells.py`, detector #63). Reviewers now say roughly a third of the decks they
+  receive were made by an AI, that they can spot it instantly, and — the part that matters — that
+  the tell is **not that the deck is ugly**. Templates solved ugly. The tell is that the deck stops
+  communicating: *"무슨 말을 하고 싶은 것인지 전달이 잘 안 된다. 만드는 사람의 생각을 잘 읽을 수가
+  없음."* Investors are telling founders never to use AI for an IR deck. Six verdicts, each one a
+  mark people name unprompted:
+
+  | | |
+  |---|---|
+  | `CHROME_ON_EVERY_SLIDE` | the little words along the top and bottom of every slide |
+  | `SCAFFOLD_PHRASE` | a slide narrating its own construction — "요약하자면", "The key takeaway is…" |
+  | `TOPIC_TITLE` | a content slide titled "Results" instead of saying what the result was |
+  | `SHAPE_MONOTONY` | the same rounded box, eight times, at the same size |
+  | `DEAD_SPACE_BAND` | a mostly-empty slide with a hole through the middle |
+  | `ARROW_NO_SEMANTICS` | two or more arrows and not one of them labelled |
+
+  Stdlib-only (it reads the `.pptx` as the ZIP of XML it is), so it also audits a deck a colleague
+  sends you. It does **not** detect "was AI used" — AI used as a booster leaves none of these marks.
+
+- **`references/ai_slide_tells.md`** — the teaching half, read before drafting. Scaffolding is the
+  centre of it: a person thinking A→B→C→D does it in silence and writes down **D**; a model says
+  *"having completed B, I will now proceed to C"* and leaves the sentence in. Scaffolding is what a
+  writer takes down in revision. AI hands over the building with the scaffolding still bolted on.
+
+- **Diagrams and plots are now drawn as CODE and inserted** — matplotlib, or Graphviz DOT where the
+  graph is the point, because a DOT edge *must* be written `A -> B [label="seeds along"]`: the
+  language will not let you draw an unlabelled arrow. Assembling a diagram from `python-pptx`
+  autoshapes produces both remaining tells at once and is now forbidden. This is the one approach
+  practitioners report actually working when they hand slide-making to an agent.
+
+### Fixed
+
+- **Our own house style was manufacturing the most-cited tell.** `academic-lecture-style.md` required
+  an all-caps eyebrow on **every** slide and a `2026 · NEUROGENETICS` brand footer on **every**
+  slide; `nature_lancet.md` gave them fixed coordinates; and `build_pptx_nature_lancet.py` took
+  `eyebrow` as a **required** argument, so every content slide got one whether or not it meant
+  anything. *"슬라이드 상단과 하단에 자잘한 글자들"* is the first thing reviewers name. Chrome is now
+  off by default — the page number stays (someone in Q&A says "go back to twelve"), the eyebrow
+  survives on the title slide and section dividers, and the rest is gone. **The builder was changed,
+  not just the style guide**: editing the guide would have been a fix that changed nothing, because
+  the builder is what makes the deck. `tests/test_builder_no_chrome.py` builds with the shipped
+  builder (must be clean) *and* restores the old eyebrow-everywhere default (must be caught) — the
+  second half is what makes the first half mean anything.
+
+- **`check_detector_envelopes.py` failed a detector for doing the right thing.** It grepped source
+  for the literal `"detector": "check_x"`, so a detector that names itself once
+  (`DETECTOR = "check_x"`) and uses the constant in both the envelope and every finding was reported
+  as not self-identifying. That would have pushed authors toward copy-pasted string literals to
+  appease a checker, which is how a gate starts making the code worse. It now accepts both, and
+  still catches a wrong name.
+
+### Added
+
 - **A setup check that answers "what else does this computer need?" before you need it**
   (`installers/doctor.py`; double-click `check-setup-macos.command` / `check-setup-windows.cmd`).
   Every skill that needs an outside program already fails politely — the problem is *when*: you find

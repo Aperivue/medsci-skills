@@ -1,6 +1,6 @@
 # MedSci-Audit
 
-**MedSci-Audit** is the named deterministic verification layer inside [MedSci Skills](README.md): a suite of **62 stdlib-only detectors** that catch fabricated, drifted, or non-compliant content in a medical manuscript *before* it reaches a reviewer. The detectors run inside the skills that own them (e.g. `/self-review`, `/check-reporting`, `/sync-submission`, `/verify-refs`); this document names and indexes that suite so it can be cited and reasoned about as one thing.
+**MedSci-Audit** is the named deterministic verification layer inside [MedSci Skills](README.md): a suite of **63 stdlib-only detectors** that catch fabricated, drifted, or non-compliant content in a medical manuscript *before* it reaches a reviewer. The detectors run inside the skills that own them (e.g. `/self-review`, `/check-reporting`, `/sync-submission`, `/verify-refs`); this document names and indexes that suite so it can be cited and reasoned about as one thing.
 
 The detectors are **deterministic** — same input, same verdict, no LLM in the decision path — so a flagged defect is reproducible and a clean run is meaningful.
 
@@ -15,13 +15,13 @@ MedSci-Audit detectors **find** integrity problems; they deliberately do **not**
 
 The authoritative, machine-readable list is **[`metadata/detectors_catalog.json`](metadata/detectors_catalog.json)** — generated from the detectors under `skills/*/scripts/` by [`scripts/gen_detectors_catalog_json.py`](scripts/gen_detectors_catalog_json.py) and CI-gated with `--check` (it uses the same discovery glob as `validate_catalog_consistency.py`, so its `detector_count` always equals `catalog_counts.json::integrity_detectors`). Do not hand-maintain a parallel list; read the JSON.
 
-The 62 detectors fall into six audit families:
+The 63 detectors fall into six audit families:
 
 | Family | Count | Examples |
 |--------|------:|----------|
 | Numerical, cohort & pool arithmetic | 10 | `check_cohort_arithmetic`, `check_table_percentages`, `check_reported_p_from_counts`, `check_dta_denominators`, `check_paired_difference_estimator`, `check_pool_consistency`, `check_artifact_coverage`, `check_rounded_delta`, `detect_copy_divergence`, `derive_figure_legend_counts` |
 | Citation & reference integrity | 8 | `verify_refs`, `check_citation_keys`, `check_xref`, `check_csl_render`, `check_reference_adequacy`, `check_placeholders`, `check_reference_duplication`, `check_bib_title_markup` |
-| Style & review-process integrity | 12 | `check_classical_style`, `check_generated_code`, `check_panel_diversity`, `check_reviewer_team_consistency`, `check_paren_spans`, `check_training_hygiene`, `check_editorial_impression`, `check_emphasis_density`, `check_response_claims`, `check_pdf_injection`, `check_marked_manuscript`, `check_self_improvement_claims` |
+| Style & review-process integrity | 13 | `check_classical_style`, `check_generated_code`, `check_panel_diversity`, `check_reviewer_team_consistency`, `check_paren_spans`, `check_training_hygiene`, `check_editorial_impression`, `check_emphasis_density`, `check_response_claims`, `check_pdf_injection`, `check_marked_manuscript`, `check_self_improvement_claims`, `check_slide_tells` |
 | Confounding, scope & estimand contracts | 5 | `check_scope_coherence`, `check_confounding_completeness`, `check_nested_group_comparison`, `check_claim_artifact`, `check_null_calibration` |
 | Reporting compliance | 14 | `check_framework_naming`, `check_checklist_exists`, `check_checklist_version`, `check_prisma_figure`, `check_figure_citation`, `check_wordcount_cap`, `check_disclosure_availability`, `check_summary_box`, `check_supplement_hygiene`, `check_citation_order`, `check_model_card_complete`, `check_mllm_eval_completeness`, `check_explainability_report`, `check_uncertainty_reporting` |
 | Data preparation & validation | 13 | `check_structural_zero`, `check_reverse_coding`, `check_asset_anonymization`, `check_cross_artifact_stale`, `check_checklist_dump_leak`, `check_binning_consistency`, `check_cv_leakage`, `check_split_leakage`, `check_metric_reporting`, `check_preprocessing_leakage`, `check_radiomics_ml`, `check_separation`, `check_contribution_safety` |
@@ -47,11 +47,11 @@ the key in CI, so a new detector cannot ship without it.
 
 ## Evidence
 
-The suite's evaluation evidence and its current size are **two separate facts** — they are reported at different versions, and should not be collapsed into a single "62 detectors, validated by E1/E7" claim.
+The suite's evaluation evidence and its current size are **two separate facts** — they are reported at different versions, and should not be collapsed into a single "63 detectors, validated by E1/E7" claim.
 
-- **Current detector catalog: 62** (the enumerated list in `metadata/detectors_catalog.json`).
+- **Current detector catalog: 63** (the enumerated list in `metadata/detectors_catalog.json`).
 - **Canonical evaluation runs are v3.8-era and validate the then-current subset.** The seeded-defect benchmark (**E1**) is built on **19 `DefectSpec` rows / 17 deterministic injectors** ([`evaluation/h1_seeded_defects/DEFECT_RATIONALE.md`](evaluation/h1_seeded_defects/DEFECT_RATIONALE.md)), and the coverage inventory (**E7**) is **n=21** ([`evaluation/runs/canonical/E7/limitations.md`](evaluation/runs/canonical/E7/limitations.md)). Both predate the A1–A4 detectors that brought the catalog to 24. The frozen canonical runs under [`evaluation/runs/canonical/`](evaluation/runs/canonical/) are pinned to the published methods artifacts and are intentionally left unchanged.
-- **Detectors added since v3.8 are covered by their own per-skill CI tests** (e.g. `skills/sync-submission/tests/test_asset_anonymization.sh`, `skills/check-reporting/tests/test_checklist_version.sh`, `skills/write-paper/tests/test_placeholders.sh`), run on every push via [`.github/workflows/validate.yml`](.github/workflows/validate.yml) — not by a re-run of the frozen E1/E7. A refresh of E1/E7 to cover all 62 detectors is a separate evaluation effort and is **not** part of this registry.
+- **Detectors added since v3.8 are covered by their own per-skill CI tests** (e.g. `skills/sync-submission/tests/test_asset_anonymization.sh`, `skills/check-reporting/tests/test_checklist_version.sh`, `skills/write-paper/tests/test_placeholders.sh`), run on every push via [`.github/workflows/validate.yml`](.github/workflows/validate.yml) — not by a re-run of the frozen E1/E7. A refresh of E1/E7 to cover all 63 detectors is a separate evaluation effort and is **not** part of this registry.
 
 For the broader evaluation harness (E1–E9: seeded-defects, LLM baseline, cost/time, fresh-clone reproducibility, audit-trail completeness, portability, inventory, drift, self-review convergence), see [`evaluation/`](evaluation/).
 

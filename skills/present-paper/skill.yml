@@ -35,8 +35,12 @@ safety_boundaries:
   - "A notes-stripped variant is produced for sharing so private speaker notes never leak."
 known_limitations:
   - "Figure cropping and notes parsing are heuristic; verify the built PPTX in PowerPoint."
+  - "A per-slide script is required, not a topic. Given only a topic, the deck comes out generic in the way every reviewer can see -- the skill asks for the narrative instead of inventing one."
+  - "It does not draw diagrams from autoshapes: flows and mechanisms are rendered as code (matplotlib / Graphviz) and inserted, because an unlabelled arrow is read differently by every person in the room."
   - "Mac OOXML quirks require the bundled compatibility checks; not every host renders identically."
 validation_commands:
   - "unzip the .pptx and confirm 0 markdown-raw notes / 0 TIFF / app.xml counts synced"
+  - "python3 scripts/check_slide_tells.py output/presentation.pptx --strict"
+  - "bash scripts/check_slide_tells_challenge/verify.sh"
   - "python3 scripts/strip_notes_for_sharing.py before sharing"
 evidence_surface: bundled_script

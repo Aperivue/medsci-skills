@@ -1,0 +1,109 @@
+#!/usr/bin/env python3
+"""The shipped builder must not manufacture the tell it is supposed to prevent.
+
+This project's own house style used to require an all-caps eyebrow on *every* slide and a
+"2026 · COURSE" footer on *every* slide. That is the first thing reviewers name when they say they
+can spot an AI-made deck at a glance — "슬라이드 상단과 하단에 자잘한 글자들" — and it was not an
+accident of generation. It was in our style guide, and `build_pptx_nature_lancet.py` took `eyebrow`
+as a *required* argument, so every content slide got one whether or not it meant anything.
+
+Editing the style guide would have been a fix that changed nothing. The builder is what makes the
+deck.
+
+So this test does both halves:
+
+  1. Build with the shipped builder as documented -> `check_slide_tells.py` must find NOTHING.
+  2. Rebuild the SAME deck the old way (eyebrow on every content slide) -> the detector must FIRE.
+
+Half 2 is the one that makes half 1 mean something. A test that only asserts "the current build is
+clean" would also pass if the detector were broken, or if it never looked at chrome at all.
+"""
+
+from __future__ import annotations
+
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+SKILL = HERE.parent
+sys.path.insert(0, str(SKILL / "templates"))
+
+from build_pptx_nature_lancet import (  # noqa: E402
+    add_closing_slide,
+    add_content_slide,
+    add_section_divider,
+    add_title_slide,
+    new_presentation,
+)
+
+DETECTOR = SKILL / "scripts" / "check_slide_tells.py"
+
+TITLES = [
+    "Seeding followed the catheter tract in 9 of 11 cases",
+    "Recurrence halved with adjunctive ablation (12% vs 26%)",
+    "The effect did not depend on tumour size",
+]
+
+
+def build(path: Path, chrome_on_every_slide: bool) -> None:
+    prs = new_presentation()
+    # The title slide and the dividers keep their eyebrow: there it orients someone who just
+    # walked in. That is the whole distinction being tested.
+    add_title_slide(prs, eyebrow="REVIEW LECTURE", title="Tract seeding after pleural catheters",
+                    subtitle="What the registry shows", meta_top="Journal club",
+                    meta_bottom="Presenter", notes="notes")
+    add_section_divider(prs, num="01", title="Findings", subtitle="registry", time_min=5)
+    for t in TITLES:
+        kwargs = {}
+        if chrome_on_every_slide:  # the old, wrong default
+            kwargs = {"eyebrow": "TRACT SEEDING", "page_brand": "2026 · JOURNAL CLUB"}
+        add_content_slide(prs, title=t, subtitle="n = 412",
+                          bullets=["Median follow-up 3.2 years", "  Consistent across centres"],
+                          notes="notes", **kwargs)
+    add_closing_slide(prs, title="Take-home", bullets=["Ablate the tract."], notes="notes")
+    prs.save(str(path))
+
+
+def verdicts(deck: Path) -> set:
+    out = subprocess.run([sys.executable, str(DETECTOR), str(deck)],
+                         capture_output=True, text=True).stdout
+    return {line.strip().split("]")[0].lstrip("[")
+            for line in out.splitlines() if line.strip().startswith("[")}
+
+
+def main() -> int:
+    ok = True
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+
+        # 1. As shipped: no chrome on content slides.
+        clean = tmp / "shipped.pptx"
+        build(clean, chrome_on_every_slide=False)
+        found = verdicts(clean)
+        if found:
+            print(f"  FAIL  the shipped builder produces a deck with tells: {sorted(found)}")
+            ok = False
+        else:
+            print("  PASS  the shipped builder produces a deck with no tells")
+
+        # 2. The defect, deliberately restored. If this does NOT fire, the fix above proves
+        #    nothing — the detector would be blind to the very thing we just removed.
+        old = tmp / "old_way.pptx"
+        build(old, chrome_on_every_slide=True)
+        found = verdicts(old)
+        if "CHROME_ON_EVERY_SLIDE" in found:
+            print("  PASS  restoring the old eyebrow-everywhere default is CAUGHT")
+        else:
+            print("  FAIL  the old default was NOT caught — this gate is decorative "
+                  f"(found: {sorted(found) or 'nothing'})")
+            ok = False
+
+    print("----")
+    print("test_builder_no_chrome:", "passed" if ok else "FAILED")
+    return 0 if ok else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

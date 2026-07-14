@@ -56,18 +56,36 @@ PowerPoint falls back to Times New Roman otherwise. See
 
 | Region | Position | Content |
 |---|---|---|
-| Eyebrow | x=0.7", y=0.32", w=8", h=0.4" | All-caps topic label (10–14pt, coral or muted) |
+| Eyebrow | x=0.7", y=0.32", w=8", h=0.4" | **Title + dividers only** — see below |
 | Title | x=0.7", y=0.75", w=12.0", h=1.1" | Slide title + optional subtitle |
 | Hairline | x=0.7", y=2.05", w=0.6", h≈0.02" | Coral hairline (separator) |
 | Body (no figure) | x=0.7", y=2.4", w=12.0", h=4.6" | Bullets full width |
 | Body (with figure) | x=0.7", y=2.4", w=6.8", h=4.6" | Bullets left half |
 | Figure (right half) | x=7.9", y=2.4", w=5.0", h=4.0" | Centered within tile |
 | Figure caption | x=7.9", y=fig+0.10", w=5.0", h=0.6" | "Figure · {caption}" centered |
-| Footer (page brand) | x=0.7", y=7.05", w=4.0", h=0.35" | "2026 · NEUROGENETICS" pattern |
-| Footnote | x=0.7", y=7.05", w=12.0", h=0.35" | Right-aligned source ref |
+| Page number | x=12.6", y=7.0", w=0.4", h=0.3" | A bare numeral. Keep it. |
+| Footnote | x=0.7", y=7.05", w=12.0", h=0.35" | Right-aligned source ref (only where there is a source) |
 
-**Margins**: 0.7" left/right, 0.32" top eyebrow, 0.35" bottom footer. Title-body
-separation enforced by the **0.6" coral hairline** (never a 0.05"-tall bar).
+**Margins**: 0.7" left/right. Title-body separation enforced by the **0.6" coral hairline** (never a
+0.05"-tall bar).
+
+### The edge furniture is OFF by default (changed 2026-07-14)
+
+This style used to put an all-caps eyebrow on **every** slide and a `2026 · NEUROGENETICS` brand
+footer on **every** slide. That was wrong, and it was our own doing: *"슬라이드 상단과 하단에 자잘한
+글자들"* is the first thing reviewers name when they say they can spot an AI-made deck at a glance.
+We were manufacturing the tell and calling it house style.
+
+| Element | Where it survives | Why |
+|---|---|---|
+| **Page number** | Every slide | Someone in Q&A says "go back to twelve", and they are right to. |
+| **Eyebrow label** | Title slide + section dividers | There it orients. Elsewhere it repeats what the audience already knows. |
+| **Brand footer** | Title slide only | The audience knows whose talk they are at. |
+| **Footnote / source** | Only on slides that have a source | It is information. The others were decoration. |
+
+`check_slide_tells.py` fires `CHROME_ON_EVERY_SLIDE` when ≥60% of slides carry small edge text
+(page numbers excluded). If a venue's branded template requires a footer on every slide, that is a
+legitimate override — record it, and move on.
 
 ## 4. Slide type templates
 

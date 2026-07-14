@@ -147,6 +147,36 @@ Run this once on the final deck before sending to a Mac viewer:
 5. Insert Limitations slide between current slides 24 and 25.
 
 ### Overall verdict
+## I. AI tells (the deck must not read as generated)
+
+`scripts/check_slide_tells.py` scores 36–41 mechanically. Run it — but these two are judgment, and
+no script will ever make them for you.
+
+36. **No chrome on content slides** — eyebrow labels and brand footers survive only on the title
+    slide and section dividers. The page number stays. (`CHROME_ON_EVERY_SLIDE`)
+37. **No scaffolding sentences** — nothing that narrates the thought instead of stating it:
+    "요약하자면", "핵심은 ~라는 점이다", "The key takeaway is…", "This slide shows…". Delete the
+    sentence and keep what it pointed at. (`SCAFFOLD_PHRASE`)
+38. **Assertion headlines** — every content slide's title states the finding, not the section.
+    "Adjunctive ablation halved local recurrence (12% vs 26%)", never "Results". (`TOPIC_TITLE`)
+39. **Shapes differ because ideas differ** — not the same rounded box eight times.
+    (`SHAPE_MONOTONY`)
+40. **Every arrow is labelled**, or the diagram carries a legend saying what an arrow means. An
+    arrow is a claim; an unlabelled one is read differently by every person in the room.
+    (`ARROW_NO_SEMANTICS`)
+41. **Diagrams and plots were drawn as code** (matplotlib / Graphviz) and inserted, not assembled
+    from autoshapes.
+
+**Judgment — the part no detector reaches:**
+
+42. **Could this deck have been made for anyone else?** If the slides would serve a different
+    speaker, a different audience, a different week without changing a word, it is generic in the
+    way everyone can see. Generic is the tell that survives every template.
+43. **Whose comfort is this deck serving?** A generated deck optimises the maker's convenience. A
+    presentation exists for the audience. If a slide exists because the outline had a gap, cut it.
+
+If a choice ever comes down to *prettier* versus *clearer*, it is not a choice.
+
 [ ] PASS — ready for delivery
 [ ] REFINE — items above must be fixed before next round
 ```
