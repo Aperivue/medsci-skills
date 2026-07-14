@@ -57,6 +57,40 @@
   in a container, a loose image with no provenance, a file the LICENSE denies shipping, an
   undeclared payload) and asserts the gate **fails**, and that it stays silent on work that is ours.
 
+- **Two guards existed for one instance of a pattern and not for its twin.** Both were found by
+  asking, of an existing gate, "what else looks exactly like this, and is it watched?"
+
+  **A vendored set nothing checked.** Six risk-of-bias checklists (`RoB2`, `NOS`, `ROBINS_I`,
+  `QUADAS2`, `PROBAST`, `PRISMA_DTA`) are vendored byte-identical from `/check-reporting` into
+  `/meta-analysis` — the same build-time vendoring pattern as the 23 domain probes, which *are*
+  gated by `check_domain_probe_sync.py`. The checklists were gated by nothing. No drift had happened
+  yet, so nothing was broken; a hand-edit to either copy would have shipped two silently different
+  versions of the same appraisal tool. The gate is now **table-driven** (`VENDOR_SETS`) and covers
+  both sets — and, so a *third* set cannot be forgotten the same way, it hashes everything under
+  `skills/` and **fails on byte-identical content living in two skills that no entry declares**. The
+  table no longer has to be remembered, because an undeclared duplicate gets found. `--sync` still
+  repairs drift in one command. (`/check-reporting`, `/meta-analysis`, `/peer-review`, `/self-review`)
+
+  **A shipped, CI-tested script no skill ever ran.** `sync-submission/scripts/assemble_supplement.py`
+  (199 lines) — supplement index↔file integrity, duplicate/skipped `S{N}` detection, `_combined.md`
+  rebuild, callout coverage — was invoked by **no SKILL.md**. Its only caller was its own test. It had
+  a CI step, a manifest entry, a CHANGELOG line and a README mention; none of those make a script run.
+  Same disease as the five dormant detectors of #334, one category over: `check_detector_reachability.py`
+  guards the detector glob, and the "deliberately not named `check_*` so the catalog won't count it"
+  convention had quietly become an exemption from being used at all. It is now **Gate 14** of
+  `/sync-submission` (the supplement numbering lock, run before freeze), and the new
+  **`scripts/check_script_reachability.py`** (CI) fails if *any* script under `skills/*/scripts/` is
+  unreachable from a SKILL.md — resolving cross-skill shell-outs and same-directory Python imports,
+  because `from _yaml_frontmatter import …` contains no filename and a naive grep would report live
+  helpers as dead code. Run-once authoring tools stay exempt only via a `MAINTAINER_TOOLS` allowlist
+  that must name where each is documented, and the gate verifies the doc really mentions it.
+  (`/sync-submission`)
+
+  Both gates ship a self-test that **restores the real defect** and asserts failure — a drifted
+  vendored checklist, and `assemble_supplement.py` with its SKILL.md step removed — plus negative
+  fixtures proving they stay silent on good work (`/meta-analysis`'s local-only `JBI_Case_Series.md`;
+  an import-only helper; a shelled-out script). Taxonomy and wiring rules recorded in
+  `skills/MAINTENANCE.md` §3b/§3c. Detector count unchanged (repo-level gates are not detectors).
 
 ### Added
 
