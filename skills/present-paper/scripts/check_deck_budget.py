@@ -14,6 +14,16 @@ It checks the three things about a deck that are mechanical, and therefore check
                       also listening to you. A keynote audience is not reading.
   TYPE_TOO_SMALL      the back row exists. Below the floor, the slide is decoration.
 
+The clock stops at the backup section. Nearly every conference deck carries one — the slides you
+do not present, and open only if someone asks. Counting them against the clock told people to
+delete their Q&A preparation, so the check was wrong in the one place a speaker most needs to be
+prepared. A slide whose headline is "Backup", "Appendix", "Q&A", "Reserve" or "Supplementary" ends
+the talk: everything from there on is off the clock.
+
+Density and type size still apply to those slides. Anything you might put on a screen has to be
+readable when it gets there; a backup slide is shown under questioning, which is the worst possible
+moment to discover it is a wall of 11-point text.
+
 Everything else about an archetype — whether the argument opens with its answer, whether the case is
 a pretext, whether the limitation is the one that matters — is judgment, and is in
 `references/presentation_archetypes.md` where a person can act on it.
@@ -29,6 +39,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 import zipfile
 from dataclasses import dataclass
@@ -99,6 +110,27 @@ def words_on(shapes) -> int:
     return n
 
 
+_BACKUP_RE = re.compile(
+    r"^\W*(back[\s-]?up|appendix|q\s*&\s*a|q\s*and\s*a|reserve|supplement(?:ary)?"
+    r"|백업|부록|예비)(?![A-Za-z])", re.I)
+
+
+def find_backup_boundary(slides) -> Optional[int]:
+    """Index of the first backup slide, or None. Everything from there on is off the clock.
+
+    A backup section opens with a marker slide -- a divider or a heading that says "Backup",
+    "Appendix", "Q&A". We look for that headline, and we require it to be *short*: a slide whose
+    body happens to discuss "the appendix of the guideline" is not a boundary, and a nine-word
+    sentence containing the word "reserve" is a sentence, not a signpost.
+    """
+    for i, shapes in enumerate(slides):
+        for s in shapes:
+            t = (s.text or "").strip()
+            if t and len(t.split()) <= 6 and _BACKUP_RE.match(t):
+                return i
+    return None
+
+
 def audit(deck: Path, archetype: str, minutes: float) -> List[Finding]:
     from check_slide_tells import mark_chrome  # noqa: PLC0415
 
@@ -108,14 +140,19 @@ def audit(deck: Path, archetype: str, minutes: float) -> List[Finding]:
     out: List[Finding] = []
 
     # --- the clock -------------------------------------------------------------------------
+    # Backup slides are not part of the talk, so they are not part of its clock.
+    backup_at = find_backup_boundary(slides)
+    n = backup_at if backup_at is not None else len(slides)
     allowed = max(1, round(minutes * b.slides_per_minute))
-    n = len(slides)
     if n > allowed * 1.25:  # 25% of slack: some slides are a divider, some are a single number
+        held = "" if backup_at is None else (
+            f" ({len(slides) - backup_at} more are held in backup from slide {backup_at + 1}, "
+            "off the clock.)")
         out.append(Finding(
             DETECTOR, "DECK_OVER_BUDGET", None,
-            f"{n} slides for a {minutes:g}-minute {b.label.lower()}. At this archetype's pace "
-            f"(~{b.slides_per_minute:g} slide/min) that is a deck for about "
-            f"{n / b.slides_per_minute:.0f} minutes.",
+            f"{n} presented slides for a {minutes:g}-minute {b.label.lower()}. At this archetype's "
+            f"pace (~{b.slides_per_minute:g} slide/min) that is a talk of about "
+            f"{n / b.slides_per_minute:.0f} minutes.{held}",
             [f"Budget: ~{allowed} slides.",
              "Cutting is the work. A talk that runs over is not a talk with more content in it — "
              "it is a talk whose ending was taken away at the microphone."],

@@ -3463,8 +3463,8 @@
     },
     {
       "path": "skills/present-paper/scripts/check_deck_budget.py",
-      "size": 8995,
-      "sha256": "a4fbee1ec4e0c00d7558f92aa7780eab725e51b71699d10aa3d0553afb2c00d3"
+      "size": 10932,
+      "sha256": "146de4082103b12781a630882ca33bd88447b1ee55d90a766934903f8b2c249a"
     },
     {
       "path": "skills/present-paper/scripts/check_deck_budget_challenge/make_fixtures.py",
