@@ -232,7 +232,7 @@ def add_title_slide(prs: Presentation, *,
         eye = s.shapes.add_textbox(Inches(1.1), Inches(2.2), Inches(10), Inches(0.5))
         p = eye.text_frame.paragraphs[0]
         r = p.add_run(); r.text = eyebrow
-        set_run(r, size=14, bold=True, color=COLOR_HIGHLIGHT, letter_space="300")
+        set_run(r, size=20, bold=True, color=COLOR_HIGHLIGHT, letter_space="300")
 
     box = s.shapes.add_textbox(Inches(1.1), Inches(2.7), Inches(11.5), Inches(2.5))
     tf = box.text_frame; tf.word_wrap = True
@@ -251,8 +251,8 @@ def add_title_slide(prs: Presentation, *,
         sub = s.shapes.add_textbox(Inches(1.1), Inches(6.0), Inches(11.5), Inches(1.0))
         stf = sub.text_frame; stf.word_wrap = True
         rows = [
-            (meta_top,    16, True,  COLOR_NAVY),
-            (meta_bottom, 13, False, COLOR_TEXT_SUB),
+            (meta_top,    20, True,  COLOR_NAVY),
+            (meta_bottom, 20, False, COLOR_TEXT_SUB),
         ]
         first = True
         for text, sz, bld, col in rows:
@@ -289,7 +289,7 @@ def add_section_divider(prs: Presentation, *,
     num_box = s.shapes.add_textbox(Inches(1.5), Inches(2.5), Inches(3), Inches(1.5))
     p = num_box.text_frame.paragraphs[0]; p.alignment = PP_ALIGN.LEFT
     r = p.add_run(); r.text = f"SECTION  {num}"
-    set_run(r, size=18, bold=True, color=COLOR_HIGHLIGHT, letter_space="400")
+    set_run(r, size=20, bold=True, color=COLOR_HIGHLIGHT, letter_space="400")
 
     title_box = s.shapes.add_textbox(Inches(1.5), Inches(3.1), Inches(10), Inches(2.5))
     tf = title_box.text_frame; tf.word_wrap = True
@@ -306,7 +306,7 @@ def add_section_divider(prs: Presentation, *,
         time_box = s.shapes.add_textbox(Inches(11.0), Inches(6.5), Inches(2.0), Inches(0.5))
         p = time_box.text_frame.paragraphs[0]; p.alignment = PP_ALIGN.RIGHT
         r = p.add_run(); r.text = f"{time_min}  MIN"
-        set_run(r, size=13, bold=True, color=COLOR_MUTED, letter_space="500")
+        set_run(r, size=20, bold=True, color=COLOR_MUTED, letter_space="500")
 
     add_notes(s, notes)
     return s
@@ -354,7 +354,7 @@ def add_content_slide(prs: Presentation, *,
         eye = s.shapes.add_textbox(Inches(0.7), Inches(0.32), Inches(8), Inches(0.4))
         p = eye.text_frame.paragraphs[0]
         r = p.add_run(); r.text = eyebrow
-        set_run(r, size=10, bold=True, color=COLOR_MUTED, letter_space="300")
+        set_run(r, size=20, bold=True, color=COLOR_MUTED, letter_space="300")
 
     title_box = s.shapes.add_textbox(Inches(0.7), Inches(0.75), Inches(12.0), Inches(1.1))
     ttf = title_box.text_frame; ttf.word_wrap = True
@@ -430,9 +430,9 @@ def add_content_slide(prs: Presentation, *,
             ctf = cap.text_frame; ctf.word_wrap = True
             cp = ctf.paragraphs[0]; cp.alignment = PP_ALIGN.CENTER
             cr = cp.add_run(); cr.text = "Figure  ·  "
-            set_run(cr, size=10, bold=True, color=COLOR_HIGHLIGHT, letter_space="200")
+            set_run(cr, size=20, bold=True, color=COLOR_HIGHLIGHT, letter_space="200")
             cr2 = cp.add_run(); cr2.text = fig_caption
-            set_run(cr2, size=11, italic=True, color=COLOR_MUTED)
+            set_run(cr2, size=20, italic=True, color=COLOR_MUTED)
 
     if footnote:
         fn = s.shapes.add_textbox(Inches(0.7), Inches(7.05), Inches(12.0), Inches(0.35))
@@ -543,7 +543,7 @@ def add_glossary_slide(prs: Presentation, *,
         eye = s.shapes.add_textbox(Inches(0.7), Inches(0.32), Inches(8), Inches(0.4))
         p = eye.text_frame.paragraphs[0]
         r = p.add_run(); r.text = eyebrow
-        set_run(r, size=10, bold=True, color=COLOR_MUTED, letter_space="300")
+        set_run(r, size=20, bold=True, color=COLOR_MUTED, letter_space="300")
 
     tb = s.shapes.add_textbox(Inches(0.7), Inches(0.75), Inches(12.0), Inches(0.8))
     p = tb.text_frame.paragraphs[0]
@@ -628,7 +628,7 @@ def add_closing_slide(prs: Presentation, *,
         cb = s.shapes.add_textbox(Inches(0.7), Inches(6.5), Inches(12.0), Inches(0.5))
         p = cb.text_frame.paragraphs[0]; p.alignment = PP_ALIGN.LEFT
         r = p.add_run(); r.text = contact
-        set_run(r, size=12, color=COLOR_TEXT_SUB)
+        set_run(r, size=20, color=COLOR_TEXT_SUB)
 
     if page_brand:
         pb = s.shapes.add_textbox(Inches(0.7), Inches(7.05), Inches(4.0), Inches(0.35))

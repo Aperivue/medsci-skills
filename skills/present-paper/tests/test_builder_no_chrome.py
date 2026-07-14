@@ -60,7 +60,7 @@ TITLES = [
 ]
 
 
-def build(path: Path, chrome_on_every_slide: bool) -> None:
+def build(path: Path, chrome_on_every_slide: bool, figure: Path | None = None) -> None:
     prs = new_presentation()
     # The title slide and the dividers keep their eyebrow: there it orients someone who just
     # walked in. That is the whole distinction being tested.
@@ -68,14 +68,18 @@ def build(path: Path, chrome_on_every_slide: bool) -> None:
                     subtitle="What the registry shows", meta_top="Journal club",
                     meta_bottom="Presenter", notes="notes")
     add_section_divider(prs, num="01", title="Findings", subtitle="registry", time_min=5)
-    for t in TITLES:
+    for i, t in enumerate(TITLES):
         kwargs = {}
         if chrome_on_every_slide:  # the old, wrong default
             kwargs = {"eyebrow": "TRACT SEEDING", "page_brand": "2026 · JOURNAL CLUB"}
+        if figure is not None and i % 4 == 0:
+            kwargs |= {"figure_path": figure, "fig_caption": "Registry cohort",
+                       "footnote": "Source 2024"}
         add_content_slide(prs, title=t, subtitle="n = 412",
                           bullets=["Median follow-up 3.2 years", "  Consistent across centres"],
                           notes="notes", **kwargs)
-    add_closing_slide(prs, title="Take-home", bullets=["Ablate the tract."], notes="notes")
+    add_closing_slide(prs, title="Take-home", bullets=["Ablate the tract."],
+                      contact="a@b.c", notes="notes")
     prs.save(str(path))
 
 
@@ -142,6 +146,33 @@ def main() -> int:
             print("  FAIL  a deck of identical thin rectangles was NOT caught "
                   f"(found: {sorted(found) or 'nothing'})")
             ok = False
+
+        # 4. The builder must also clear the OTHER gate. Its eyebrow, its meta line, its
+        #    "SECTION 01" label, its "5 MIN" badge, its figure caption and its contact line
+        #    were all set below the 20-pt floor every academic archetype declares — so a deck
+        #    built exactly as documented failed check_deck_budget. The style guide said one
+        #    thing and the gate said another; the gate is the one that is right, because a
+        #    caption nobody in the back row can read is decoration whatever the guide calls it.
+        from PIL import Image  # noqa: PLC0415  (python-pptx already requires Pillow)
+
+        fig = tmp / "fig.png"
+        Image.new("RGB", (400, 300), "white").save(fig)
+        full = tmp / "kitchen_sink.pptx"
+        build(full, chrome_on_every_slide=False, figure=fig)
+
+        budget = SKILL / "scripts" / "check_deck_budget.py"
+        out = subprocess.run(
+            [sys.executable, str(budget), str(full),
+             "--archetype", "conference_oral", "--minutes", "14"],
+            capture_output=True, text=True).stdout
+        if "TYPE_TOO_SMALL" in out:
+            small = [ln.strip() for ln in out.splitlines() if " pt — " in ln]
+            print("  FAIL  the builder's own type falls below the floor it is checked against:")
+            for ln in small[:6]:
+                print("          ", ln)
+            ok = False
+        else:
+            print("  PASS  the shipped builder clears the type floor (figures, meta, dividers)")
 
     print("----")
     print("test_builder_no_chrome:", "passed" if ok else "FAILED")
