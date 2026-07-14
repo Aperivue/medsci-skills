@@ -455,96 +455,26 @@ When the study type is known (from `/write-paper` Phase 0 or user specification)
 | RCT (CONSORT) | CONSORT flow diagram, primary endpoint figure |
 | Case report / series (CARE) | Clinical timeline figure (`exemplar_plots/clinical_timeline.md`), annotated multimodality imaging panel when visually load-bearing (`exemplar_plots/imaging_panel.md`); for a series, an all-cases summary table |
 
-After generating all figures, create a structured manifest file at `figures/_figure_manifest.md`:
+**The manifest is mandatory.** After generating all figures, write
+`figures/_figure_manifest.md` — one row per figure (`Figure | Path | Type | Tool | Critic |
+Rounds | Description`) plus a `## Critic notes` section recording any residual PARTIAL items and
+why they were accepted. It is consumed by `/write-paper` Phase 2 (figure embedding) and Phase 7
+(DOCX build); verify it exists and is non-empty before finishing. Format and field definitions:
+`${CLAUDE_SKILL_DIR}/references/figure_manifest.md`.
 
-```markdown
-# Figure Manifest
-Generated: {YYYY-MM-DD}
-Study type: {study type or "custom"}
+**Flow diagram generation rule.** STARD / CONSORT / PRISMA / STROBE flow diagrams **MUST** use the
+standardized R pipeline `scripts/generate_flow_diagram.R` (DiagrammeR + Graphviz dot + rsvg) — the
+single canonical tool for all four. Do **NOT** use matplotlib `FancyBboxPatch` (manual coordinates
+break when text changes, and patches distort when embedded in DOCX). Do **NOT** use D2 for new
+flow diagrams (weak font control, overlap needs manual post-processing). Numbers in labels must be
+CSV-derived, or hand-written only when the value lives in a commit-tracked data artifact.
 
-| Figure | Path | Type | Tool | Critic | Rounds | Description |
-|--------|------|------|------|--------|--------|-------------|
-| Figure 1 | figures/fig1_stard_flow.svg | flow-diagram | D2 | yes | 2 | STARD participant flow diagram |
-| Figure 2 | figures/fig2_roc.pdf | roc-curve | matplotlib | yes | 1 | ROC curves for Model A vs B |
-| Figure 3 | figures/fig3_calibration.pdf | calibration | matplotlib | partial | 3 | Calibration plot; legend still crowded (see notes) |
+**Read on demand:**
 
-## Critic notes
-- Figure 3: after 3 rounds, legend placement remains crowded at the
-  double-column width. Candidate remediations documented but not applied
-  to avoid reducing data-point visibility.
-```
-
-**Manifest field definitions:**
-- **Path**: Relative path from project root
-- **Type**: One of: `flow-diagram`, `roc-curve`, `forest-plot`, `funnel-plot`, `calibration`, `km-curve`, `bland-altman`, `confusion-matrix`, `box-violin`, `bar-chart`, `heatmap`, `pipeline`, `visual-abstract`, `sroc-curve`, `other`
-- **Tool**: Tool used to generate (`matplotlib`, `D2`, `python-pptx`, `seaborn`, etc.)
-- **Critic**: `yes` (all rubric items PASS) / `partial` (some PARTIAL after max rounds) / `no` (never critiqued — avoid for submission figures) / `skip` (deliberately bypassed, e.g., panel figure assembled externally)
-- **Rounds**: Number of Critic Loop rounds executed (0 if skipped)
-- **Description**: One-line description suitable for figure legend context
-
-A `## Critic notes` section at the bottom of the manifest records any
-residual PARTIAL items and the rationale for accepting them.
-
-This manifest is consumed by `/write-paper` Phase 2 (figure embedding) and Phase 7 (DOCX build). It **MUST** exist after figure generation completes. Verify the file is non-empty before finishing.
-
-**Flow diagram generation rule:** STARD/CONSORT/PRISMA/STROBE flow diagrams **MUST** use the standardized R pipeline `scripts/generate_flow_diagram.R` (DiagrammeR + Graphviz dot + rsvg). This is the single canonical tool for all four reporting-guideline flow diagrams. Do NOT use matplotlib `FancyBboxPatch` (manual coordinates break when text changes, and patches distort when embedded in DOCX). Do NOT use D2 for new flow diagrams (font control is weak, overlap requires manual post-processing). The legacy D2 recipe remains documented below as a fallback only when R is unavailable.
-
-**R flow diagram recipe (mandatory for all flow diagrams):**
-
-The pipeline reads a YAML config describing nodes/edges and produces: a true vector PDF (journal submission), a 300 dpi PNG (review copy), and a 600 dpi PNG (RSNA/Eur Radiol line-art). Default style is single-color black outline with white fill in Arial, overriding D2's colored defaults and matplotlib's manual coordinates.
-
-```bash
-# 1. One-time system dependency:
-brew install librsvg
-Rscript -e 'install.packages(c("DiagrammeR","DiagrammeRsvg","rsvg","yaml"))'
-
-# 2. Author a YAML config. Templates for each type live at
-#    references/exemplar_diagrams/{strobe,consort,prisma,stard}/template_input.yaml
-# 3. Render:
-Rscript ${CLAUDE_SKILL_DIR}/scripts/generate_flow_diagram.R \
-    --type   {strobe|consort|prisma|stard} \
-    --config path/to/counts.yaml \
-    --out    figures/figure1_flow
-# Outputs: figure1_flow.pdf, figure1_flow.png (300 dpi), figure1_flow_600.png
-```
-
-**YAML schema highlights:**
-- `rankdir: TB` (top-down, default) or `LR` (left-to-right).
-- `nodes:` list with `id`, `label` (use literal `\n` for line breaks, real Unicode `–`, `≤`, `−`, `•`).
-- Optional per-node: `highlight: true` (thicker border), `shape: note` (side boxes), `rank_same_with: <other_id>` (place on same horizontal rank).
-- `edges:` list with `from`, `to`, optional `style: dashed`, `arrow: false` (no arrowhead), `constraint: false` (edge ignored by layout engine — use for exclusion side-links).
-- Numbers in labels **MUST** be CSV-derived in an upstream R script that emits the YAML, or hand-written only when the value lives in a commit-tracked data artifact. Follow numerical-safety rules.
-
-**Style is fixed (do not override in the YAML):**
-- Monochrome: all boxes `color=black, fillcolor=white, fontname="Arial"`.
-- Penwidth 1.2 default, 1.8 for highlighted cohort box.
-- Arrow style: black solid, arrowsize 0.75. Dashed without arrowhead for exclusion side-links.
-- Bullet alignment in multi-item labels: Graphviz `\l` (left-align), never `\n` (center). Each `\l` applies to text preceding it.
-- **No HTML-like labels** (`label=<...>` with `<B>`, `<I>`, `&#8226;`). Plain quoted labels with `\l` bullets produce tighter, more readable structure than HTML ragged wrapping. Do not reintroduce without explicit approval.
-- To add one emphasis color (e.g., Wong blue `#0072B2` for a single highlighted box), edit `scripts/generate_flow_diagram.R` — do not inline hex colors in YAML.
-
-**Per-project `create_figure1.R` pattern (preferred for complex flows):**
-
-When the flow has derived counts, `stopifnot()` reconciliation, multi-rank `{rank=same; ... }` constraints, or exclusion side-cars that the generic YAML dispatcher cannot express cleanly, write a per-project `create_figure1.R` directly (same DiagrammeR + DiagrammeRsvg + rsvg stack, sprintf'd `dot` string). This is the dominant pattern when the generic YAML dispatcher cannot capture the flow:
-
-- STROBE cohort: `<project>/manuscript/figures/create_figure1.R`
-- STARD: `<project>/Analysis/figures/create_figure1.R` or `<project>/figures/v2_monochrome/create_figure1.R`
-- PRISMA / PRISMA-DTA: `<project>/5_Figures/create_figure1.R` or `<project>/analysis/create_figure1.R`
-- CONSORT-edu (naturalistic allocation): `<project>/figures/v2_monochrome/create_figure1.R`
-
-Copy the `STYLE_HEADER` (graph/node/edge attrs) verbatim from any exemplar; then customise nodes, edges, and `{rank=same}` blocks. Use `read.csv()` for cohort counts when possible; if hardcoded, every number must have a source comment referencing manuscript line / CSV cell / screening log row.
-
-**Legacy D2 fallback (only when R unavailable):**
-
-```bash
-d2 --layout elk --theme 0 --pad 20 flow.d2 /tmp/raw.png --scale 2
-# Resize + 85% vertical compression via Pillow; then render PDF:
-d2 --layout elk --theme 0 --pad 20 flow.d2 figures/fig1_flow.pdf
-```
-
-Use `font-size: 20-24`, `stroke: black`, `fill: white`. D2 PDF is vector; D2 PNG needs the resize step to match publication density.
-
----
+| File | Read it when | Cost if read blindly |
+|---|---|---|
+| `references/flow_diagram_recipe.md` | you are generating a STARD / CONSORT / PRISMA / STROBE flow diagram | ~2,200 tokens — a ROC curve or forest plot needs none of it |
+| `references/figure_manifest.md` | you are writing `_figure_manifest.md` | ~700 tokens of output format |
 
 ## Tool Selection Guide
 

@@ -44,6 +44,8 @@
 - `empirical_lessons.md`
 - `icmje_coi_guide.md`
 - `phase10_recovery.md`
+- `phase3_screening_detail.md`
+- `phase4_extraction_detail.md`
 - `phase4_km_composite.md`
 - `phase6_statistical_synthesis.md`
 - `phase9_circulation.md`

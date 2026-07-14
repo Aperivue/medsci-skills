@@ -399,64 +399,12 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/check_review_request_types.py" \
 
 Generate `{manuscript_id}_review_draft.md`:
 
-```markdown
-# {manuscript_id} — Review Draft
-
-**Manuscript**: {title}
-**Journal**: {journal}
-**Type**: {Original Research | Review | Technical Note | ...}
-**Recommendation**: {Major Revision | Minor Revision}
-
----
-
-## {Journal-specific scores section, if applicable}
-
----
-
-## CONFIDENTIAL COMMENTS TO THE EDITOR
-
-{100-150 words: summary + strengths + key concerns + fatal flaw hierarchy if applicable + recommendation}
-**Clinical Impact**: {High/Moderate/Low} — {1 sentence on implications}
-
----
-
-## COMMENTS TO THE AUTHORS
-
-**Research Summary & General Comments**
-
-{2-3 sentences summarizing objective, design, key finding (in your own words)}
-
-Major strengths:
-1. {Specific strength}
-2. {Specific strength}
-3. {Specific strength (optional)}
-
-{Scope + feasibility: 1-2 sentences — "I have suggestions focused on [areas]. Achievable within existing data."}
-
-(80-150 words total)
-
-**Major Comments**
-
-1) **{Issue title}**
-
-{Problem 1-2 sentences. Location cited.}
-
-Suggested revisions:
-- {Fix 1}
-- {Fix 2}
-
-2) **{Issue title}**
-...
-
-**Minor Comments**
-
-1) {One sentence, location cited.}
-2) ...
-
-**Closing Remark**
-
-{2-3 sentences, constructive.}
-```
+Generate `{manuscript_id}_review_draft.md` from the skeleton in
+`${CLAUDE_SKILL_DIR}/references/review_draft_template.md`. It has three blocks: a
+**Confidential Comments to the Editor** block (100–150 words: summary, strengths, key
+concerns, fatal-flaw hierarchy, recommendation, clinical impact) and a **Comments to the
+Authors** block (research summary + strengths, then Major, Minor, and a closing remark).
+**The two blocks must never be transposed** — the recommendation lives only in the editor's.
 
 **Length targets (3-tier, data-grounded)**:
 
@@ -468,6 +416,13 @@ Suggested revisions:
 - **Hard cap 1400 words**. Measure with `awk + wc` (no estimation) — at Phase 3 mid-checkpoint and Phase 6 final.
 - Each Major: 5-8 lines (Tier 1-2) or 8-12 lines (Tier 3, with Why it matters + alternative framings).
 - **Reference-baseline ratio** (self-QC metric): compute `your_wc / 545` and report. Ratio > 2.0 (above 1090w) flags trim candidate. Ratio < 1.0 may indicate insufficient design-level rigor for AI/methodology critique reviews.
+
+**Read on demand:**
+
+| File | Read it when | Cost if read blindly |
+|---|---|---|
+| `references/review_draft_template.md` | you are writing the draft and need the literal skeleton | ~800 tokens of output format; it shapes nothing about *what* you find |
+| `references/exemplar_reviews/` | you need a model for the finding type at hand | one file per finding type — read the one that matches, not the set |
 
 ### Phase 4: Self-QC
 

@@ -30,6 +30,12 @@
 
 **Evidence** — `manual_workflow`
 
+## Bundled resources
+
+**References** (`skills/add-journal/references/`):
+
+- `write_paper_profile_template.md`
+
 ## Source
 
 Canonical definition: [`skills/add-journal/SKILL.md`](../../skills/add-journal/SKILL.md)

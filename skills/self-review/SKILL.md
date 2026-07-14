@@ -98,69 +98,58 @@ their own first-class output (Phase 3), not folded silently into the "add this" 
 ### Phase 2: Systematic Check
 
 Run the manuscript through each applicable category below. For each item, assess whether
-a reviewer would raise it as a Major or Minor comment.
+a reviewer would raise it as a Major or Minor comment. Use the Research-Type Adaptation
+table (below) to determine which categories apply fully, partially, or not at all.
 
-Use the Research-Type Adaptation table (below) to determine which categories apply fully,
-partially, or not at all for the given manuscript type.
+**The categories (A–L).** The per-item check tables — what to look for under each — live
+in `references/phases/phase2_systematic_check.md`; read it once you have the manuscript
+and know its type, and work the categories the adaptation table marks as applicable.
 
-#### A. Study Design & Data Integrity
+| | Category | What it asks |
+|---|---|---|
+| **A** | Study Design & Data Integrity | patient-level splits, leakage, input-text contamination, analysis unit |
+| **B** | Reference Standard & Ground Truth | definition specificity, timing, annotator independence |
+| **C** | Validation & Statistical Reporting | CIs, **calibration**, comparator, effect size, power-aware nulls, equivalence margins, interaction anchoring |
+| **D** | Clinical Framing & Importance | intended use, overclaiming, novelty, **endpoint↔conclusion scope** |
+| **E** | Reproducibility | preprocessing, model detail, hardware/software, data & code availability |
+| **F** | Reporting Completeness | abstract↔body consistency, flow diagram, ethics, missing data, word cap |
+| **G** | Reporting Guideline Compliance | match the type to its checklist; `/check-reporting` does the item-level audit |
+| **H** | Circularity | label–feature overlap, tautological prediction, circular validation |
+| **I** | Protocol Heterogeneity | multi-site acquisition, harmonization, temporal protocol drift |
+| **J** | Method Transparency | model provenance, fine-tuning, classical-style body conventions |
+| **K** | Reviewer-team consistency | *SR/MA only* — dual-vs-single conjunction, LLM-as-reviewer (both fabrication-grade) |
+| **L** | Editorial impression & defensiveness | *advisory, never blocking* — the ceiling category: REMOVE / MOVE / TIGHTEN |
 
-| Check | What to look for |
-|-------|-----------------|
-| Patient-level splitting | Are train/val/test splits at the patient level? Is this explicitly stated? |
-| Leakage risk | Any postoperative variable used in a preoperative model? Cohort-wide preprocessing before split? |
-| Input-text contamination | For NLP/LLM extraction tasks, does any supplied report text (clinical history, indication, impression, prior diagnosis, referral text) already contain the target label? If yes, mark as Major unless the input was masked or a no-leaky-field sensitivity analysis is reported. |
-| Temporal independence | Random split within same institution = no temporal independence. Acknowledged? |
-| Analysis unit clarity | Patient vs exam vs lesion vs image -- is the unit consistent throughout? |
-| Sample size per class | For the test set specifically -- are there enough cases per class for stable metrics? |
-
-#### B. Reference Standard & Ground Truth
-
-| Check | What to look for |
-|-------|-----------------|
-| Definition specificity | Is the reference standard precisely defined? (e.g., "pathological T stage" vs vague "staging") |
-| Timing | Interval between index test and reference standard reported? |
-| Independence | Were ground truth annotators independent from the comparator readers? |
-| Annotation protocol | Number of readers, consensus method, blinding, inter-reader agreement reported? |
-
-#### C. Validation & Statistical Reporting
-
-| Check | What to look for |
-|-------|-----------------|
-| Confidence intervals | All primary metrics have 95% CIs? |
-| Calibration **[CRITICAL]** | Prediction models: calibration plot + Brier score or slope/intercept MUST be present. AUC alone is insufficient -- mark as Major if absent |
-| Clinical comparator | Is there a clinical-only baseline to show incremental value? |
-| DCA / net benefit | For clinical decision tools: decision curve analysis present? |
-| Fine-tuning baseline | For LLM/NLP fine-tuning, LoRA, prompt-engineering, or multi-agent claims, is there a same-backbone zero-shot or few-shot comparator on the same input, schema, and test split? |
-| Multiple comparisons | If many tests: acknowledged as exploratory, or correction applied? |
-| Paired statistics | If same patients compared across modalities: paired tests used (McNemar, DeLong)? |
-| Effect-size meaningfulness | Scored separately from significance: is each primary effect (OR, HR, beta, Cohen's d, correlation) translated to a real-world unit shift and compared to a minimal clinically important difference? Is significance driven by magnitude rather than sample size? |
-| Power-aware null interpretation | Scored separately from significance, for any **non-significant primary result** (p > 0.05, 95% CI crossing the null): is the analysis powered to *exclude* a clinically meaningful effect? An underpowered null is "not yet established," not "no effect" -- if the upper CI bound still includes a meaningful effect size, a flat "X was not associated with Y" claim overreads the data. Look for reported observed power or a minimum detectable effect that justifies a negative conclusion, and watch for **bilateral over-correction** (a prior "independently associated" overclaim swinging to an equally unsupported "not associated" claim during revision). Undocumented null = Minor; a null that drives a clinical recommendation or a headline negative conclusion without power/CI-compatibility justification = Major. |
-| Equivalence-margin discipline | A claim that two groups/methods are "equivalent," "non-inferior," "indistinguishable," or show "no difference" requires a **pre-stated margin** — a TOST procedure, or the CI compared against a declared MCID. Grep `indistinguishable\|equivalent\|non-inferior\|no difference` and check for an adjacent `margin\|TOST\|MCID\|non-inferiority`; a margin-free equivalence claim is a Major (it converts a failure to reject into positive evidence of no effect). |
-| Interaction-anchor discipline | When synergy / interaction / effect-modification **is** the research question, the null must be anchored to the **interaction parameter** (a likelihood-ratio test of the interaction term, or the interaction OR/HR on one consistent scale), not to a main-effect OR whose upper CI is then read as "no synergy." Grep `synergy\|interaction\|joint effect\|effect modification`; if present, confirm Results carries an `OR_int\|β_int\|LRT\|p_interaction` term. A synergy conclusion resting on a main-effect estimate is a model mis-specification (Major), even when each main effect is individually correct. |
-| Difference-in-significance discipline | A between-group claim that an association is "more X / stronger / more pronounced in group A than group B" must rest on a **formal interaction test**, not on group A being significant (p < 0.05) while group B is not (p = NS). The difference between "significant" and "non-significant" is **not** itself significant. Grep `more (clearly\|strongly\|pronounced)\|stronger in\|(only\|chiefly) in (men\|women\|older\|younger\|the [A-Za-z]+ subgroup)` near two stratum-specific estimates with discordant p-values; if no interaction term (`p_interaction\|OR_int\|LRT`) is reported for that contrast, flag it (difference-in-significance fallacy). A subgroup-difference conclusion built this way is a Major; the fix is to report the interaction test or soften to "associations were observed in group A; the interaction was not formally tested." |
-
-#### D. Clinical Framing & Importance
-
-| Check | What to look for |
-|-------|-----------------|
-| Intended use | Is the clinical decision point clearly stated? (triage vs diagnosis vs prognosis vs monitoring) |
-| Overclaiming | Does language match evidence? ("will improve" -> "may potentially"; "superior" with overlapping CIs?) |
-| Terminology precision | Key terms defined? (e.g., "perioperative" = when exactly?) |
-| Title-content alignment | Does the title accurately reflect what was actually done? |
-| Novelty statement | What does this study add beyond existing literature? Is this explicitly stated? |
-| Substantive novelty differentiation | For AI/LLM extraction papers, does the Introduction name 2-3 close prior papers/systems and state the concrete delta (new task, dataset, workflow, method, validation, or clinical decision point), rather than merely saying the method is novel? |
-| Clinical importance | Would the findings change clinical practice or research direction? Is this articulated? |
-| Decision impact | Does the manuscript state what decision, workflow step, or downstream action would change if the model is correct? A text-only phenotype that does not alter triage, treatment, surveillance, enrichment, or research operations has weak clinical utility even if accuracy is high. |
-| Added value / actionability | Scored separately from novelty: does the finding add value over a measure already in routine use, or is it "real but redundant" (restates a standard test)? At the typical effect size, would a clinician act on it for an individual? |
-| Endpoint↔conclusion scope **[CRITICAL]** | Does the conclusion's *action* exceed what the design or endpoint supports? A cross-sectional / single-visit study cannot license a prognostic or surveillance claim (rescreen interval, disease progression); a binary surrogate endpoint (present/absent, >0) is risk stratification, not a care directive (defer/withhold/initiate therapy). Both are documented anti-patterns. |
-
-Run the deterministic scope gate:
+**Run the deterministic gates.** These are greps and counts, so they belong in a gate rather
+than in eyeballing. Run them at Phase 2 entry, on every path:
 
 ```bash
+# D. endpoint↔conclusion scope
 python3 "${CLAUDE_SKILL_DIR}/scripts/check_scope_coherence.py" \
   --manuscript manuscript.md --out qc/scope_coherence.json --strict
+
+# J. classical-style body conventions
+python3 "${CLAUDE_SKILL_DIR}/scripts/check_classical_style.py" \
+  --manuscript manuscript.md --out qc/classical_style.json --strict
+
+# K. reviewer-team consistency (SR/MA only; pass the extraction JSON file or directory)
+python "${CLAUDE_SKILL_DIR}/scripts/check_reviewer_team_consistency.py" \
+    --manuscript manuscript.md --prospero prospero/record.md \
+    --extraction-json extraction/ --out _audit_self/reviewer_team_consistency.md
+
+# L. editorial impression (advisory; exits 0 even under --strict)
+python3 "${CLAUDE_SKILL_DIR}/scripts/check_editorial_impression.py" \
+  --manuscript manuscript.md --out qc/editorial_impression.json
 ```
+
+Verdict mapping: `CROSS_SECTIONAL_PROGNOSTIC`, `SURROGATE_CARE_DIRECTIVE`, `SECTION_SYMBOL`,
+`INBODY_AI_DISCLOSURE`, and any reviewer-team hit (exit 1) are Anticipated **Major** Comments.
+`CROSS_SECTIONAL_YIELD_LANGUAGE`, `ELIGIBILITY_PROSE`, `DECIMAL_INCONSISTENCY`,
+`EM_DASH_OVERUSE`, and every `check_editorial_impression` verdict are **Minor**. The
+per-verdict rationale and the resolution paths are in the reference file.
+
+**Read on demand:**
+
 
 **Then check that every analysis you report was ever defined.** Twenty-four detectors in this skill ask whether a number is *correct*. None asks whether the analysis that produced it was *defined* — and that is the gap a reviewer walks straight into:
 
@@ -175,149 +164,9 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/check_analysis_definitions.py" \
 
 `ANALYSIS_LOAD` is **informational and never a verdict.** The reviewer who wrote *"too many analyses have been performed and reported"* also named the mechanism — *"this appears to have contributed to omissions of critical information in the Materials and Methods section"* — while a second reviewer of the same manuscript listed its sensitivity analyses as a **strength**. **Load is the cause, not the crime.** Do not cut analyses to satisfy this gate; restore the definitions the analyses crowded out. If load is genuinely high, move the defensive analyses to the supplement — same defence, far less reader burden and far less attack surface.
 
-`CROSS_SECTIONAL_PROGNOSTIC` and `SURROGATE_CARE_DIRECTIVE` are Anticipated Major Comments (category: D. Clinical Framing). `CROSS_SECTIONAL_YIELD_LANGUAGE` is an Anticipated **Minor** Comment — a cross-sectional / prevalence design using incidence-flavored screening vocabulary ("yield", "detection rate", "number-needed-to-screen/image", "rescreen interval") without defining "yield" once as cross-sectional report-positive prevalence. The gate is conservative — it fires only when a design/endpoint signal and a conclusion-region action verb (or the yield lexicon) co-occur.
-
-#### E. Reproducibility
-
-| Check | What to look for |
-|-------|-----------------|
-| Preprocessing details | All steps listed in order? Normalization, augmentation, resampling specified? |
-| Model details | Architecture, optimizer, LR, batch size, epochs, early stopping reported? |
-| Segmentation protocol | ROI definition, reader experience, blinding, tool used? |
-| Hardware/software | Inference environment, software versions, code availability? |
-| Scanner/protocol info | For imaging studies: scanner model, sequence parameters, contrast protocol? |
-| Data/code availability | Is a data availability statement included? Code shared or reason for not sharing stated? |
-
-#### F. Reporting Completeness
-
-| Check | What to look for |
-|-------|-----------------|
-| Abstract-body consistency | Numbers in Abstract match Tables/Results? |
-| Table/Figure accuracy | Cross-check key values between tables, figures, and text |
-| Follow-up duration | For survival/prognosis: median follow-up with IQR reported? |
-| Ethics | All participating institutions' IRB approval documented? Patient consent described? |
-| Missing data | Handling of incomplete cases described? |
-| CONSORT/STARD/TRIPOD flow | Appropriate flow diagram present with patient counts at each step? |
-| Body word count vs journal cap | Is the body within the target journal's word limit? A revise loop monotonically adds words and silently breaches the cap. Run `/sync-submission` `scripts/check_wordcount_cap.py` (`--journal-profile` or `--limit`; the binding number is the rendered DOCX count). Over cap → Major; within 0.95× → Minor (a further pass will likely breach). |
-| Funding & COI | Funding sources and competing interests disclosed? |
-
-#### G. Reporting Guideline Compliance
-
-Match the manuscript type to the appropriate checklist and verify key items:
-
-| Manuscript type | Checklist | Critical items to verify |
-|----------------|-----------|------------------------|
-| Diagnostic accuracy | STARD / STARD-AI | Flow diagram, reference standard, spectrum |
-| Prediction model (non-AI) | TRIPOD 2015 | Model development vs validation, calibration, missing data |
-| Prediction model (AI/ML) | TRIPOD+AI 2024 | Model development vs validation, calibration, leakage, fairness |
-| AI / Radiomics | CLAIM 2024 / CLEAR | Feature selection transparency, external validation |
-| RCT | CONSORT / CONSORT-AI | Randomization, blinding, ITT |
-| Systematic review (interventions) | PRISMA 2020 | Search strategy, screening, risk of bias |
-| Meta-analysis (observational) | MOOSE + PRISMA 2020 | Confounding assessment, heterogeneity, publication bias |
-| Observational | STROBE | Confounding, selection bias, missing data |
-| Reliability / agreement | GRRAS | ICC model/type, rater description, measurement protocol |
-| Educational | SQUIRE 2.0 | Intervention description, outcome measures, context |
-| Case report | CARE | Timeline, diagnostic reasoning, informed consent |
-| Surgical | STROBE-Surgery | Surgeon experience, technique details, complications |
-
-For a full item-by-item audit, run `/check-reporting` on this manuscript. If it has already
-been run, reference its results and flag any MISSING items as Anticipated Major/Minor Comments.
-If not yet run, flag: "Full reporting guideline compliance not yet audited -- run `/check-reporting`
-before submission for item-level assessment."
-
-#### H. Circularity
-
-| Check | What to look for |
-|-------|-----------------|
-| Label-feature overlap | Is the prediction label derived from the same data source as any input features? (e.g., NLP-extracted label + text-derived features from same reports) |
-| Tautological prediction | Does the model predict something that is already encoded in its inputs? |
-| Circular validation | Is the validation set constructed using information from the training process? |
-
-#### I. Protocol Heterogeneity
-
-| Check | What to look for |
-|-------|-----------------|
-| Multi-site acquisition | If multi-site: are scanner models, protocols, and acquisition parameters reported per site? |
-| Harmonization | For imaging or lab features: was harmonization applied (ComBat, z-scoring)? If not, acknowledged? |
-| Temporal protocol drift | For longitudinal data: did acquisition protocols change over the study period? |
-
-#### J. Method Transparency
-
-| Check | What to look for |
-|-------|-----------------|
-| Model provenance | Is it clear where the model came from? (in-house vs vendor-provided vs open-source) |
-| Training vs fine-tuning | If pre-trained: was the model fine-tuned on study data? If vendor-provided: any access to training data composition? |
-| Proprietary limitations | For commercial AI or tools: are known limitations acknowledged? Can results be independently reproduced? |
-| Classical-style body conventions | Does the body carry an AI tell or a policy violation a senior reviewer flags on sight — a `§` symbol, an in-body AI-disclosure paragraph, eligibility criteria as prose, mixed OR/HR decimal places, or em-dash overuse? |
-
-Run the deterministic classical-style lint (these are all greps, so they belong in a gate, not eyeballing):
-
-```bash
-python3 "${CLAUDE_SKILL_DIR}/scripts/check_classical_style.py" \
-  --manuscript manuscript.md --out qc/classical_style.json --strict
-```
-
-`SECTION_SYMBOL` and `INBODY_AI_DISCLOSURE` are Major (the `§` count must be 0; the AI-disclosure paragraph belongs on the title page for a classical / senior-MA target, not the body). `ELIGIBILITY_PROSE`, `DECIMAL_INCONSISTENCY`, and `EM_DASH_OVERUSE` are Minor. This is the self-review-side mirror of `/write-paper` Step 7.1's classical QC (manuscript-style-classical §5/§6/§7/§8).
-
-#### K. Reviewer-team consistency (SR/MA-only; fabrication-grade)
-
-| Check | What to look for |
-|-------|-----------------|
-| DUAL vs SINGLE conjunction **[CRITICAL]** | Methods or PROSPERO claims dual independent reviewers AND Discussion/Limitations admits single primary reviewer + 20% sample (or "deferred to before submission")? Mark as **MAJOR**, fabrication-grade. |
-| LLM-as-reviewer **[CRITICAL]** | A per-study extraction JSON whose `reviewer`/`screener`/`extractor` field is an LLM (Claude, GPT-4, Gemini, "LLM")? An LLM is a tool, not an independent reviewer — listing it as one misrepresents the team. **Fatal**, regardless of the prose. |
-| Deferred mitigation | A future-tense mitigation promise — "a 20% sample **will be completed before submission**" — unmet at circulation? The future tense is the tell that the work is not done. **MAJOR**. |
-
-Run the deterministic check at Phase 2 entry (pass the extraction JSON — a file or
-a directory of per-study JSONs — so the prose↔JSON↔confession 3-way is covered):
-
-```bash
-python "${CLAUDE_SKILL_DIR}/scripts/check_reviewer_team_consistency.py" \
-    --manuscript manuscript.md \
-    --prospero prospero/record.md \
-    --extraction-json extraction/ \
-    --out _audit_self/reviewer_team_consistency.md
-```
-
-Exit 1 = MAJOR red flag. The JSON sidecar carries `dual_hits`, `single_hits`,
-`llm_reviewer_hits`, and `deferred_mitigation_hits`. Any of the DUAL+SINGLE
-conjunction, an LLM reviewer field, or a deferred mitigation trips it. Either of
-the dual/single claims alone is fine; the conjunction is read by reviewers as
-fabrication. Resolution path:
-1. Honest Methods/PROSPERO update (single-reviewer execution disclosed), OR
-2. Limitations confession rewritten if dual review was actually completed.
-
-#### L. Editorial impression & defensiveness (advisory; the counterweight)
-
-This is the **ceiling** category (see "Two Objectives" above) and the inverse of the floor
-gates: where A–K and the numerical gates ask "what is missing or wrong?" (and answer by
-**adding**), L asks "does the accurate manuscript read confidently, or has it over-defended?"
-(and answers by **subtracting**). Every L finding is **advisory (Minor / impression) and
-non-blocking** — it never converts to a Major and never blocks submission. The fixes are
-REMOVE / MOVE / TIGHTEN, not "add a caveat."
-
-| Check | What to look for | Action |
-|-------|-----------------|--------|
-| Hedge density | Defensive-caveat tokens stacking up per 1,000 narrative words — the prose hedges faster than it asserts. Keep the load-bearing caveats; cut the reflexive ones. | TIGHTEN |
-| Repeated caveat | The same caveat motif ("no deployable claim", "not generalizable", "hypothesis-generating") repeated across body + Abstract. Say it once, firmly. | TIGHTEN |
-| Audit minutiae in body | Provenance tokens (SHA / git commit / unit-test / post-lock timeline / manifest / seed=N / audit trail) in the Introduction / Results / Discussion narrative. Reproducibility detail belongs in a Methods statement or a supplement. | MOVE |
-| Limitations volume | A Limitations passage that enumerates a long list of discrete items reads as a rebuttal letter; consolidate related items. | TIGHTEN |
-| Abstract caveat load | The Abstract carries several caveat clauses, burying the headline result before a reader reaches it. Lead with the result; keep one or two essential qualifiers. | TIGHTEN |
-| Buried defense | A strong numeric robustness / sensitivity result sitting only in Limitations or the supplement, with no robustness mention in Results. Promote it into Results — it is *evidence for* the finding, not a caveat against it. (The inverse of the scope-coherence gate, which pushes a *weak* analysis out of Results.) | MOVE |
-
-Run the deterministic gate (Phase 2.5g) rather than eyeballing it — these are all counts and placements:
-
-```bash
-python3 "${CLAUDE_SKILL_DIR}/scripts/check_editorial_impression.py" \
-  --manuscript manuscript.md --out qc/editorial_impression.json
-```
-
-`HEDGE_DENSITY`, `HEDGE_REPEAT`, `AUDIT_IN_BODY`, `LIMITATIONS_VOLUME`, `ABSTRACT_CAVEAT_LOAD`,
-and `BURIED_DEFENSE` are Anticipated **Minor** Comments (category: L. Editorial impression),
-each carrying a REMOVE / MOVE / TIGHTEN `action`. The gate never blocks (it has no Major and
-exits 0 even under `--strict`); thresholds are tunable (`--hedge-per-1k`, `--repeat-threshold`,
-`--limitations-max`, `--abstract-caveat-max`). It is conservative — each probe fires only on an
-explicit, locatable signal.
-
+| File | Read it when | Cost if read blindly |
+|---|---|---|
+| `references/phases/phase2_systematic_check.md` | you are working the A–L manual pass and know the manuscript type | ~5,600 tokens — and a run that halts at Phase 1, or a panel-mode review, never reaches it |
 ### Research-Type Adaptation
 
 Not all categories apply equally to every study type. Use this routing table:
@@ -435,95 +284,46 @@ diagnostic-accuracy work.
 
 ### Phase 2.5a: Numerical Source-Fidelity Audit (External)
 
-Internal consistency (Phase 2.5) is necessary but not sufficient. Numbers can be fully self-
-consistent across Abstract / Table / Text and still be wrong at the source — a single
-transcription error propagates cleanly through every downstream stage.
+Internal consistency (Phase 2.5) is necessary but not sufficient. Numbers can be fully
+self-consistent across Abstract / Table / Text and still be wrong **at the source** — a single
+transcription error propagates cleanly through every downstream stage, and every internal check
+then confirms it. Only a traversal back to the primary source catches it.
 
-Also run the **displayed-arithmetic** gate — a stated difference must equal the subtraction of
-its two displayed component values at the SAME precision:
+Run the **displayed-arithmetic** gate first — a stated difference must equal the subtraction of
+its two displayed component values at the *same* precision:
 
 ```bash
 python3 "${CLAUDE_SKILL_DIR}/scripts/check_rounded_delta.py" \
   --manuscript manuscript.md --out qc/rounded_delta.json
 ```
 
-`ROUNDED_DELTA_MISMATCH` (Minor) fires when e.g. AUCs are shown as `0.70` and `0.73` (a displayed
-gap of 0.03) while the between-arm difference is stated as `0.02` — self-consistent only on the
-unrounded values. Fix: report components and the delta at one precision, or footnote that the delta
-is computed on unrounded values. A higher-precision component pair (`0.703` vs `0.726`) with a 2-dp
-delta is the legitimate unrounded case and is not flagged.
+`ROUNDED_DELTA_MISMATCH` (Minor) fires when AUCs shown as `0.70` and `0.73` (a displayed gap of
+0.03) are reported with a between-arm difference of `0.02` — self-consistent only on the
+unrounded values. A higher-precision component pair (`0.703` vs `0.726`) with a 2-dp delta is
+the legitimate unrounded case and is not flagged.
 
-**Precedent failure pattern:**
-> A revision-era comparative meta-analysis reported a safety-outcome 2x2 with the
-> arm-level events direction-reversed relative to the primary-source Table. Internal
-> consistency passed because Abstract, Discussion, Table, and the R script all echoed
-> the same wrong values. The reversal was caught only by an explicit second-pass audit
-> that randomly sampled claims and traced each back to the primary paper.
+**When to run the external audit:** MA revisions, submissions, or any review where the user says
+"check against the source", "verify extraction", or "random sample". Skip otherwise.
 
-**When to run:** MA revisions, submissions, or any review where the user mentions "check
-against the source," "verify extraction," or "random sample."
+**The audit, in one line:** draw a stratified sample of 5 numerical claims — always including one
+comparative-arm value and one revision-introduced number, the two highest-yield strata — and
+trace each through three layers (manuscript → extraction CSV → primary-source page; plus analysis
+script → CSV where a script produced it). **Any mismatch is a Major Comment**, and one that
+reverses a direction or crosses a significance boundary is a P0 blocker. Every `[VERIFY-CSV]` tag
+is a mandatory audit item regardless of sample size.
 
-**Inputs the reviewer should expect:**
-- `manuscript.md` (or .docx converted to .md)
-- `extraction_final.csv` (or equivalent data-extraction spreadsheet)
-- A directory of primary-source PDFs (or equivalent accessible text)
+The traversal procedure, the recording table, the sampling strata, and the four prose-judgement
+rules it also applies — hand-entered analysis-script inputs, prose↔table **statistic-type**
+mismatches (a median in the text against a mean in Table 1), stale derived CSVs after a
+model/adjustment-set change (the analytic `n` is the fastest tell, and the conflict can flip
+significance), and the precedent direction-reversal that internal consistency could not see —
+are in the reference file.
 
-**Procedure:**
+**Read on demand:**
 
-1. **Inventory numerical claims** in Abstract, Results, and Discussion (patterns: `\\d+/\\d+`,
-   `\\d+\\.\\d+%`, `(95% CI:`, `p\\s*=\\s*0\\.`, `I\\^2`, `n\\s*=`, etc.).
-
-2. **Stratified random sample** — draw 5 claims across: (a) pooled estimates, (b) subgroup
-   / sensitivity results, (c) comparative-arm specific values, (d) study-level numbers
-   (first-cited in narrative), (e) a claim introduced during revision if the draft is post-v1.
-   Comparative-arm specific values and revision-introduced numbers are the two highest-
-   yield strata — always include one of each.
-
-3. **For each sampled claim, traverse 3 layers:**
-   - **Layer 1 (Manuscript → CSV):** Find the row / column in the extraction CSV.
-   - **Layer 2 (CSV → Primary source):** Locate the exact Table, Figure, or paragraph in the
-     original paper. Record page number.
-   - **Layer 3 (Analysis script → CSV):** If the claim came from an analysis script, read the
-     script and confirm its input value matches the CSV cell.
-
-4. **Record results in a table** and append to the report:
-
-   | Claim (manuscript location) | CSV row/col | Primary source (paper, Table/Fig, page) | Script input | Match? |
-   |---|---|---|---|---|
-
-5. **Any mismatch is a Major Comment (M-level), not Minor.** Mismatches that reverse a
-   direction or change a significance boundary are P0 blockers for submission.
-
-**Revision-specific rule:** If the manuscript contains `[VERIFY-CSV]` tags, treat each as a
-mandatory audit item regardless of the sampling size. The tag exists precisely because that
-number was introduced after the initial extraction pass and has not yet been independently
-checked.
-
-**Hand-entered analysis-script inputs are a code smell.** When Layer 3 reveals a `matrix(...)`,
-`c(1, 2, 3)`, or `data.frame(...)` line with numerical data and no CSV-coordinate comment,
-escalate to a Major Comment even if the audited values happen to match — the next revision
-will re-introduce the same risk.
-
-**Statistic-type fidelity (not just the value).** A prose sentence must match the table/CSV not
-only on the **number** but on the **statistic type**. A body sentence that reports a *median*
-("median eGFR 92.8") while Table 1 reports a *mean* ("mean 91.3") for the same variable cannot
-be reconciled by a reviewer comparing the two — and the mismatch usually means one of them was
-not regenerated after a Table 1 rule change (see the mean/median-by-skewness rule in
-`/analyze-stats` `table-types/table1_demographics.md`). Treat a prose↔table statistic-type
-mismatch (mean vs median, SD vs IQR, n vs %) as a Minor Comment, or Major if it sits on a
-primary characteristic the conclusion leans on. Also re-check that any descriptive figure the
-prose quotes (e.g. "78.4% male") matches the *current* table value, not a stale earlier one.
-
-**Stale derived CSVs after a model/adjustment-set change (n mismatch).** When the primary model
-or adjustment set changes mid-revision, **every** derived CSV (Table 2, sensitivity tables,
-supplements) must be regenerated, or a stale file silently contradicts the new primary. The
-fastest tell is the analytic **n**: if a derived CSV's `n` differs from the manuscript's current
-primary n, suspect it is stale — and the conflict can flip a result's significance (a proteinuria
-sensitivity CSV left at the old `n = 4,914` / OR 4.52 contradicted the new primary `n = 4,214` /
-OR 3.99, significant ↔ not). Grep each derived CSV's `n` against the primary n; any divergence
-that is not explained by a stated sub-analysis restriction is a Major Comment, `requires_reanalysis`
-(re-run, not a prose edit — see Phase 4).
-
+| File | Read it when | Cost if read blindly |
+|---|---|---|
+| `references/phases/phase2_5a_source_fidelity.md` | you are running the external audit — tracing sampled claims back to primary sources | ~2,500 tokens; a first-draft review with no extraction CSV and no primary sources cannot use any of it |
 ### Phase 2.5a-2: Design & Power Statistic Provenance (computed, not extracted)
 
 Phase 2.5a traces data-derived numbers back to a CSV and a primary source. **Design and power
@@ -589,124 +389,58 @@ grid; treat a non-reproducible headline power/MDE as Major.
 
 ### Phase 2.5b: Screening-Count Reconciliation from ID Sets (SR/MA + observational tier/stratum)
 
-Internal consistency across Abstract/Methods/Results (Phase 2.5) + source fidelity of 2×2 and
-effect-size numbers (Phase 2.5a) do **not** cover study-count arithmetic. The latter is a
-separate failure mode: a prior-draft prose total ("30 → 32 after FLAG consensus") can survive
-every downstream pass because Abstract, Methods, Results, Discussion, Figure 1 caption, and
-even the supplementary consensus file all cite the same wrong number back to each other.
+Internal consistency across Abstract/Methods/Results (Phase 2.5) and source fidelity of 2×2 and
+effect-size numbers (Phase 2.5a) do **not** cover study-count arithmetic. That is a separate
+failure mode: a prior-draft prose total ("30 → 32 after FLAG consensus") survives every
+downstream pass because Abstract, Methods, Results, Discussion, the Figure 1 caption, and even
+the supplementary consensus file all cite the same wrong number back to each other. The only
+thing that catches it is a recount from the **ID sets**.
 
-**Precedent failure pattern (a PRISMA-DTA meta-analysis revision):**
-> A late-revision manuscript reported study counts of k_qualitative = 32, k_narrative-only = 10,
-> k_FT-excluded = 46. An ID-level recount against the screening TSV and consensus sheet (with
-> FLAG additions reconciled) yielded k_qualitative = 24 with only 2 narrative-only studies
-> (k_FT-excluded = 54). The original 32/10/46 figures came from an early-draft assumption that
-> was never reconciled against the ID-level artifacts; downstream files (consensus markdown,
-> supplementary tables, edit plans) propagated the same wrong total. Caught only by an explicit
-> ID-set recount against the screening TSV and consensus spreadsheet, verified independently
-> by an adversarial audit.
+**When to run:** any SR/MA manuscript revision, regardless of stage (run before Phase 3); or any
+observational manuscript presenting an ordinal tier / mutually-exclusive stratum split. Skip
+otherwise.
 
-**When to run:** any SR/MA manuscript revision, regardless of stage. Run before Phase 3.
+**A. SR/MA — recount from the ID sets.** Enumerate A (INCLUDE in the screening TSV), B (Exclude
+in the consensus sheet), C (Include-qualitative), T (studies in Table 1), then derive
+`k_qualitative = |A \ B| + |C|`, `k_bivariate = |T|`, and `k_narrative-only = |(A ∪ C) \ B \ T|`.
+**List the narrative-only IDs explicitly** — the highest-yield cross-check, and the one that
+turns "10 narrative-only studies" into "2 (IDs 120, 474)". Compare every derived total against
+the prose claim in Abstract, Methods, Results, the Figure 1 caption, and Limitations; any
+mismatch is a **P0 Major, blocking submission**. Any `N → M` transition claim not backed by an
+enumerable ID addition/subtraction set is itself a **Major** — it is unverifiable by downstream
+audit. The full procedure and the reconciliation-block template are in the reference file.
 
-**Inputs:**
-- Screening TSV with one row per full-text-reviewed record and an include/exclude column
-- Consensus spreadsheet (Excel/CSV) with one row per record requiring adjudication and a
-  `Consensus` column (typical values: `Exclude`, `Include-qualitative`, `Include-bivariate`)
-- Any FLAG-adjudicated inclusion log documenting records added to the qualitative pool
-  outside the primary screening TSV
-- The manuscript's Table 1 (or equivalent): the definitive list of studies contributing to
-  the primary quantitative synthesis
-
-**Procedure:**
-
-1. **Enumerate the ID sets:**
-   - A = set of IDs marked INCLUDE in the screening TSV
-   - B = set of IDs marked Exclude in the consensus spreadsheet
-   - C = set of IDs marked Include-qualitative in the consensus spreadsheet
-   - T = set of IDs represented in Table 1 (via author/year cross-match)
-
-2. **Derive canonical totals:**
-   - k_qualitative = |A \ B| + |C|
-   - k_bivariate = |T|
-   - k_narrative-only = k_qualitative − k_bivariate = |(A ∪ C) \ B \ T|
-   - k_FT-excluded = |screening TSV rows| − |A| + |B ∩ A| + |(B \ A) encountered at FT stage|
-
-3. **List the narrative-only IDs explicitly** — this is the highest-yield cross-check. A
-   manuscript claiming "10 narrative-only studies" while the (A ∪ C) \ B \ T set contains
-   only 2 IDs is an immediate P0 finding.
-
-4. **Compare each derived total against the manuscript's prose claim** in Abstract, Methods
-   §Study Selection, Results §Study Selection, Figure 1 caption, Discussion §Limitations,
-   and any References §Narrative-Only heading. Any mismatch between derived total and
-   manuscript prose = P0 Major Comment, blocking submission.
-
-5. **Record results in a short reconciliation block** and append to the report:
-
-   ```
-   | Quantity | Manuscript claim | ID-derived value | Status |
-   |---|---|---|---|
-   | k_full-text | 78 | 78 | ✓ |
-   | k_qualitative | 32 | 24 | ✗ P0 |
-   | k_bivariate | 22 | 22 | ✓ |
-   | k_narrative-only | 10 | 2 (IDs 120, 474) | ✗ P0 |
-   | k_FT-excluded | 46 | 54 | ✗ P0 |
-   ```
-
-**Any "N → M" transition claim in a consensus summary (e.g., "30 → 32 after FLAG
-consensus") that is not backed by an enumerable ID addition/subtraction set is itself a
-Major Comment**, because the transition is unverifiable by downstream audit. Require
-conversion of every such claim to explicit ID lists before closing the report.
-
-**Observational tier/stratum branch.** The same set-recount logic applies when a cohort
-manuscript presents an ordinal tier or mutually-exclusive stratum split. A partition that
-is claimed to be disjoint must satisfy `Σ(stratum N) == unique total` and
-`Σ(stratum events) == total events`; denominators that sum *above* the unique cohort
-double-count subjects, and a table where every stratum n equals the grand total is a
-stratum-total mis-entry rather than a partition. Run `check_cohort_arithmetic.py`
-(Phase 2.5 above) with the stratum CSV — its `PARTITION_OVERLAP` verdict is the cohort
-analogue of an ID-set mismatch and is a P0 Major:
+**B. Observational tier/stratum — the same set logic, as arithmetic.** A partition claimed to be
+disjoint must satisfy `Σ(stratum N) == unique total` and `Σ(stratum events) == total events`.
+Denominators summing *above* the unique cohort double-count subjects; a table where every
+stratum n equals the grand total is a mis-entry, not a partition. Confirm the reference
+(baseline) row of any stratified hazard/odds table is present and labelled — without it the
+other strata are uninterpretable.
 
 ```bash
 python3 "${CLAUDE_SKILL_DIR}/scripts/check_cohort_arithmetic.py" \
   --manuscript manuscript.md --data analysis/strata.csv --strict
 ```
 
-Also confirm the reference (baseline) row of any stratified hazard/odds table is present
-and labelled; a missing reference category makes the other strata uninterpretable.
-
-**Cross-script cut-point consistency (root cause of stratum-N drift).** When the same cohort
-is re-stratified in more than one analysis script — a primary table in one file, a sensitivity
-or secondary analysis in another — the derived categorical (age band, BMI category, eGFR stage,
-risk tier) must use one identical cut definition: same breaks, same interval closure
-(`right=`), same labels. If two scripts bin the same variable differently, per-stratum Ns drift
-between tables while the grand total still reconciles, and a stratum can spuriously cross a
-threshold — a `PARTITION_OVERLAP`/stratum-N check on the manuscript alone will not localize the
-cause. `check_binning_consistency.py` parses the analysis source (R/Python) and emits
-`BINNING_DRIFT` (Major) when one variable is derived with ≥2 different `(breaks, right)`
-signatures across files:
+**C. Cross-script cut-point consistency — the root cause of stratum-N drift.** When the same
+cohort is re-stratified in more than one analysis script, the derived categorical must use one
+identical cut definition (same breaks, same `right=` closure, same labels). Two scripts binning
+one variable differently drift the per-stratum Ns while the grand total still reconciles — so a
+manuscript-only check cannot localize it. The same gate covers the composite-indicator sibling
+(a derived 0/1 criterion rebuilt in a second script with a clause dropped).
 
 ```bash
 python3 "${CLAUDE_SKILL_DIR}/scripts/check_binning_consistency.py" \
   --root analysis --root scripts --strict
 ```
 
-Precedent: a screening cohort binned age with `breaks=c(-Inf,45,50,60,Inf), right=FALSE` in the
-primary script and `breaks=c(-Inf,44,49,59,Inf), right=TRUE` in a threshold sensitivity script;
-fractional ages fell into different bands, shifting hundreds of participants and producing a
-spurious "reached" stratum in the sensitivity table that vanished once the binning was
-harmonized. Fix at the source by defining each cut once in a shared helper that every script
-sources.
+`PARTITION_OVERLAP`, `BINNING_DRIFT`, and `DERIVED_DEF_DRIFT` are all **P0 Major**.
 
-The same gate also covers the **composite-indicator** sibling failure: a derived 0/1 component
-(e.g. a metabolic-syndrome criterion built from `as.integer(a >= x | b == 1 | c == 1)`) that is
-re-built in a second script with a clause dropped or added. It splits each definition into
-comparison atoms on the top-level `|`, compares them as a SET (clause order, whitespace, outer
-parentheses, dataframe `df$` qualifiers and commutative `&`-operands are normalized away), and
-emits `DERIVED_DEF_DRIFT` (Major) when one variable carries ≥2 distinct atom sets across scripts.
-Precedent: `mets_bp <- as.integer(bl_he_sbp>=130 | bl_he_dbp>=85 | bl_tx_hypertension_med==1 |
-bl_hypertension==1)` in the benchmark script vs the same name without the final
-`| bl_hypertension==1` in a re-analysis script — the metabolic-syndrome C-index then read 0.6704
-in one table and 0.6712 in another.
+**Read on demand:**
 
+| File | Read it when | Cost if read blindly |
+|---|---|---|
+| `references/phases/phase2_5b_screening_counts.md` | this is an SR/MA (ID-set recount) or a stratified cohort, and you are doing the recount | ~3,300 tokens — nothing in it applies to a single-cohort manuscript with no strata |
 ### Phase 2.5c: Reference Hallucination Scan
 
 Numerical audits (2.5/2.5a/2.5b) cover in-text numbers; they do **not** cover reference-list integrity. LLM-drafted or co-author-handed-in bibliographies frequently contain fabricated DOIs, wrong author/year combinations for a real DOI, or plausible-looking references that never existed. These slip past human proofreading because the surface form looks canonical.
@@ -804,92 +538,56 @@ Phase 2.5c covers reference **integrity** — are the cited references real (fab
 
 ### Phase 2.5d: Cross-Reference QC (Manuscript ↔ rendered DOCX)
 
-Before the DOCX is built, run the **markdown-stage orphan gate** — every captioned
-`Figure N.` / `Table N.` must be cited at least once elsewhere in the body:
+Reference-list integrity (Phase 2.5c) does **not** cover Table/Figure cross-references. That is a
+separate failure mode: an in-text citation ("Supplementary Table S4 reports a sensitivity
+analysis") resolves to a *different* caption in the rendered DOCX ("Supp Table S4 = a diagnostics
+table") because the build script carries its own legacy SSOT. Internal consistency (Phase 2.5)
+cannot see it — the prose and the build artifact each echo their own divergent truth cleanly.
+
+**Markdown stage (always).** Every captioned `Figure N.` / `Table N.` must be cited at least once
+elsewhere in the body:
 
 ```bash
 python3 "${CLAUDE_SKILL_DIR}/scripts/check_figure_citation.py" \
   --manuscript manuscript.md --out qc/figure_citation.json
 ```
 
-`FIGURE_ORPHAN` / `TABLE_ORPHAN` (Minor) catch a newly-added float that has a legend
-but no in-text citation — the early, no-build counterpart to `check_xref`'s `UNCITED`
-verdict, which catches the same class on the rendered DOCX (below).
+`FIGURE_ORPHAN` / `TABLE_ORPHAN` (Minor) catch a newly-added float that has a legend but no
+in-text citation — the early, no-build counterpart to `check_xref`'s `UNCITED`.
 
-Reference-list integrity (Phase 2.5c) does **not** cover Table/Figure
-cross-references. This is a separate failure mode where in-text citations
-("Supplementary Table S4 reports a sensitivity analysis") resolve to a different
-caption in the rendered DOCX ("Supp Table S4 = a diagnostics table") because the
-build script carries its own legacy SSOT. Internal consistency (Phase 2.5)
-cannot detect it — both the prose and the build artifact echo their own
-divergent truths cleanly.
+**DOCX stage (when a rendered DOCX exists** — circulation drafts, post-build pre-submission
+checks. Skip on early drafts with no build):
 
-**Precedent failure pattern (an STROBE cohort manuscript revision):**
-> Body prose cited Supp Table S4 as a sensitivity analysis; the rendered DOCX
-> S4 instead contained a diagnostics table. S1, S6, S7 also mismatched. S8 and S9
-> were cited in the manuscript but absent from the rendered DOCX entirely.
-> Caught only on co-author circulation review.
+```bash
+python3 "${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/manage-refs/scripts/check_xref.py" \
+  --md manuscript/manuscript.md --docx manuscript/manuscript_final.docx \
+  --out qc/xref_audit.json [--allow-separate-attachments]
+```
 
-**When to run:** every manuscript at self-review when a rendered DOCX exists
-(e.g., circulation drafts, post-build pre-submission checks). Skip only if no
-DOCX build has occurred yet (early drafts).
+Severity depends on the journal's figure/table submission policy. Many radiology and medical
+journals (European Radiology, Radiology, AJR) accept figures and tables as **separate
+attachments** rather than inline — pass `--allow-separate-attachments` there so a legitimate
+attachment style is not read as a blocker.
 
-**Procedure:**
+| Status | Default policy | With `--allow-separate-attachments` |
+|---|---|---|
+| `MISSING_DOCX` | **Major (P0)** — cited Table/Figure absent from rendered output | **Minor** — separately attached per journal policy |
+| `MISSING_BODY` | **Major (P0)** — build SSOT drift; rendered caption has no body definition | **Major (P0)** (no change) |
+| `MISMATCH` | **Major (P0)** — caption text disagrees between body and rendered DOCX | **Major (P0)** (no change) |
+| `UNCITED` | Minor — orphan caption; cite it or remove it | Minor (no change) |
 
-1. **Locate inputs.** `manuscript/manuscript.md` (or the SSOT `truth.manuscript_md`)
-   and the rendered DOCX (typically `manuscript/manuscript_final.docx` or the
-   most recent circulation `.docx`).
+`MISSING_BODY` and `MISMATCH` stay P0 under every policy: they are SSOT drift, not a style choice.
 
-2. **Invoke the shared script** (lives in `/manage-refs`):
+**Do NOT auto-fix cross-reference defects in `--fix` mode.** Rewriting a caption in the body
+without re-running the DOCX build merely moves the mismatch. Emit each P0 row as its own
+`M`-numbered Major Comment with `category: "F"` and `fixable_by_ai: false`, and route the user to
+`/write-paper` Step 7.6a for the pipeline-side fix.
 
-   ```bash
-   python3 "${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/manage-refs/scripts/check_xref.py" \
-     --md manuscript/manuscript.md \
-     --docx manuscript/manuscript_final.docx \
-     --out qc/xref_audit.json \
-     [--allow-separate-attachments]
-   ```
+**Read on demand:**
 
-   The script writes `qc/xref_audit.json` with per-label rows tagged
-   `OK | MISSING_DOCX | MISSING_BODY | MISMATCH | UNCITED | NOT_CITED_NO_BODY`,
-   a top-level `submission_safe` boolean, and a `policy.allow_separate_attachments`
-   field that records which severity policy applied.
-
-3. **Translate findings to anticipated comments.** Severity mapping depends on
-   the journal's figure/table submission policy. Many radiology and medical
-   journals (e.g., European Radiology, Radiology, AJR) accept figures and tables
-   as separate attachment files rather than inline in the manuscript DOCX; for
-   those workflows pass `--allow-separate-attachments` so MISSING_DOCX is not
-   treated as a P0 blocker. `MISSING_BODY` and `MISMATCH` remain P0 regardless,
-   because they indicate SSOT drift between body markdown and rendered DOCX
-   rather than a legitimate attachment style.
-
-   | Status | Default policy | With `--allow-separate-attachments` |
-   |---|---|---|
-   | `MISSING_DOCX` | **Major (P0)** — cited Table/Figure absent from rendered output | **Minor** — figure/table is separately attached per journal policy |
-   | `MISSING_BODY` | **Major (P0)** — build SSOT drift; rendered caption has no body definition | **Major (P0)** (no change) |
-   | `MISMATCH` | **Major (P0)** — caption text disagrees between body and rendered DOCX | **Major (P0)** (no change) |
-   | `UNCITED` | Minor — orphan caption that should be cited or removed | Minor (no change) |
-
-4. **Append a reconciliation block to the Phase 3 report:**
-
-   ```
-   | Label | Status | Body caption | DOCX caption | Verdict |
-   |---|---|---|---|---|
-   | Supplementary Table S4 | MISMATCH | Sensitivity analysis | Diagnostics table | ✗ P0 |
-   | Supplementary Table S8 | MISSING_DOCX | (defined in body) | — | ✗ P0 |
-   | Figure 2 | UNCITED | Forest plot of subgroups | Forest plot of subgroups | △ Minor |
-   ```
-
-5. **Emit each P0 row as a separate `M`-numbered Major Comment** with
-   `category: "F"` (Reporting Completeness) and `fixable_by_ai: false`
-   (build script changes are out of scope for the auto-fix loop — they
-   require pipeline-side fixes per `/write-paper` Step 7.6a routing).
-
-**Do NOT auto-fix cross-reference defects in `--fix` mode.** Caption rewrites
-in the body without re-running the DOCX build will simply move the mismatch.
-Surface as Major Comments and let the user route to `/write-paper` Step 7.6a.
-
+| File | Read it when | Cost if read blindly |
+|---|---|---|
+| `references/phases/phase2_5d_xref_qc.md` | the xref gate fired and you are writing up the reconciliation | ~2,400 tokens; an early draft with no DOCX build never reaches this stage |
 ### Phase 2.5e: Confounding Completeness (observational only)
 
 **When to run:** the manuscript is observational (cohort, case-control, cross-sectional,
@@ -922,181 +620,77 @@ complete-case frame, not the full frame); and the rest of the observational prob
 
 ### Phase 2.5f: Claim-vs-Artifact Cross-Check
 
-Phases 2.5–2.5e check numbers and adjustment sets. This phase checks **claims
-against the external artifacts they should trace to** — the pre-registration, the
-protocol, the analysis outputs. These are the errors that survive a single-pass
-review because the manuscript prose is internally consistent yet disagrees with
-the registration or the analysis it reports. The first scope is the two highest-
-value, deterministic instances; figure/flow-count reconciliation, Methods-promised-
-analysis completeness, and imputation-input integrity are separate subchecks (run
-`/make-figures` legend reconciliation and `/write-paper`'s Methods-promised gate).
+Phases 2.5–2.5e check numbers and adjustment sets. This phase checks **claims against the
+external artifacts they should trace to** — the pre-registration, the protocol, the analysis
+outputs. These are the errors that survive a single-pass review because the manuscript prose
+is internally consistent yet disagrees with the registration or the analysis it reports: a
+primary re-designated after the results were known, an E-value that does not recompute from
+the estimate it is quoted against, an analysis promised in Methods that never reaches Results.
 
-**Precedent failure pattern:**
-> A manuscript reported a null primary association from a multiple-imputation model
-> and described it as "pre-specified," while the registered primary had been the
-> complete-case model that was significant — the primary had been re-designated after
-> the results were known. In the same paper an E-value of 2.79 was attached to the
-> primary HR of 1.34, but 2.79 does not recompute from 1.34 (it came from a different,
-> non-primary estimate), and a second E-value bounded an exploratory cancer-specific
-> hazard, not the headline contrast. None of these tripped the internal-consistency
-> checks; all three are deterministic against the registration and the arithmetic.
+**Run the gates** (all deterministic; pass the supplement so the corpus is complete):
 
-**Procedure:**
+```bash
+# 1. claims ↔ pre-registration/protocol: estimand provenance + E-value arithmetic
+python3 "${CLAUDE_SKILL_DIR}/scripts/check_claim_artifact.py" \
+  --manuscript manuscript.md --prereg prereg.md \
+  --out qc/claim_artifact.json --strict
 
-1. **Run the cross-check** with the manuscript and (if available) the pre-registration
-   / protocol / `project.yaml`:
+# 2. Methods ↔ Results ↔ disk coverage (both directions: promised-absent AND run-but-unreported)
+python3 "${CLAUDE_SKILL_DIR}/scripts/check_artifact_coverage.py" \
+  --manuscript manuscript.md --supplement supplement.md --analysis-dir output/analysis \
+  --out qc/artifact_coverage.json --strict
 
-   ```bash
-   python3 "${CLAUDE_SKILL_DIR}/scripts/check_claim_artifact.py" \
-     --manuscript manuscript.md --prereg prereg.md \
-     --out qc/claim_artifact.json --strict
-   ```
+# 3. reader-facing residue in EVERY rendered artifact, not just the body
+python3 "${CLAUDE_SKILL_DIR}/scripts/check_supplement_hygiene.py" \
+  --supplement supplement.md --supplement tables.md --supplement captions.md \
+  --manuscript manuscript.md --out qc/supplement_hygiene.json --strict
 
-2. **Estimand provenance.** The script raises `PRIMARY_REASSIGNED` (Major,
-   category: A. Study Design & Data Integrity) only on **explicit** language that the
-   primary was re-designated / switched / chosen post-hoc after results were known — a
-   genuine P0. The fix is to report the pre-specified and the revised models
-   **coequally** and disclose the change in the Abstract and Limitations, not to
-   silently lead with the more favourable estimate. Two related verdicts are
-   **advisory, not Major** — surface them as Anticipated Minor Comments to confirm,
-   never as a blocker: `ESTIMAND_DRIFT` (the fuzzy manuscript↔registration primary
-   token overlap is below threshold — noisy; confirm against the actual registration
-   before treating it as drift) and `PRIMARY_DISCLOSURE_NOTE` (the manuscript discloses
-   a manuscript-stage analytical decision — the honest disclosure estimand-provenance
-   guidance *recommends writing*; confirm it is reported coequally, do not penalise it).
+# 4. float citation order — a desk-reject item the hygiene gate does not cover
+python3 "${CLAUDE_SKILL_DIR}/scripts/check_citation_order.py" \
+  --manuscript manuscript.md --out qc/citation_order.json --strict
 
-3. **E-value.** `EVALUE_ARITHMETIC` means the reported E-value does not recompute from
-   its adjacent effect estimate (the value was likely produced for a different estimate);
-   `EVALUE_NON_PRIMARY` means the E-value is attached to a secondary/exploratory estimate
-   but presented as if it bounded the headline claim. Both warrant a Major/Minor comment —
-   recompute the E-value for the **declared primary** estimate and its near-null confidence
-   limit, and quote it there.
+# 5. a headline null is uninterpretable without a precision statement
+python3 "${CLAUDE_SKILL_DIR}/scripts/check_null_calibration.py" \
+  --manuscript manuscript.md --out qc/null_calibration.json --strict
 
-4. **Primary-change guard.** Independently of the script, if the manuscript reports two
-   models for the same contrast where one is significant and the other null and the
-   significant one is foregrounded, confirm which was pre-specified; an outcome-dependent
-   choice of primary model is a Major comment even when each model is individually correct.
+# 6. reader/observer study only — prove the (call × confidence) → score encoding is strictly
+#    monotonic; a folded score silently mis-estimates the AUC and no prose review can see it
+python3 "${MEDSCI_SKILLS_ROOT}/skills/analyze-stats/scripts/rating_monotonicity.py" \
+  --encoding score_def.json
+```
 
-5. **Headline vs own-sensitivity direction.** Read the sensitivity series (S1 etc.) the
-   manuscript itself reports. If the headline causal/association claim points the *opposite*
-   way from the authors' own adjusted or sensitivity estimate — a positive lead sentence over
-   a sensitivity model that attenuates to the null, or vice versa — that is a Major: the paper
-   is contradicting its own robustness check. This is a prose judgement, not a script verdict.
+**Verdict → severity.** The rationale and the resolution path for each are in the reference file.
 
-6. **Methods ↔ Results ↔ disk coverage.** Run the deterministic coverage gate:
+| Verdict | Severity |
+|---|---|
+| `PRIMARY_REASSIGNED` | **Major** — the primary was re-designated after results were known |
+| `EVALUE_ARITHMETIC`, `EVALUE_NON_PRIMARY` | **Major** — recompute for the *declared primary* estimate |
+| `PROMISED_ABSENT`, `DISK_UNREPORTED`, `PROMISED_STAT_NO_VALUE` | **Major** |
+| `SUPP_INTERNAL_LABEL`, `SUPP_PLACEHOLDER`, `SUPP_BUILD_MARKER`, `SUPP_RESPONSE_FRAMING`, `SUPP_PLANNING_RESIDUE`, `SUPP_XREF_UNRESOLVED` | **Major** — a slip in a supplement is as fatal at a technical check as one in the body |
+| `CITATION_ORDER` | **Major**; `CITATION_GAP` **Minor** |
+| `CONFIRM_NULL_NO_MDE` | **Major** |
+| `ESTIMAND_DRIFT`, `PRIMARY_DISCLOSURE_NOTE` | **Advisory Minor — never a blocker.** The provenance match is fuzzy (token overlap); confirm against the actual registration first. `PRIMARY_DISCLOSURE_NOTE` flags the honest disclosure the guidance *recommends writing* — do not penalise it. |
 
-   ```bash
-   python3 "${CLAUDE_SKILL_DIR}/scripts/check_artifact_coverage.py" \
-     --manuscript manuscript.md --analysis-dir output/analysis \
-     --out qc/artifact_coverage.json --strict
-   ```
+**Four checks no script makes** (prose judgement — the reference file has the full text):
 
-   `PROMISED_ABSENT` (an analysis named in Methods that never reaches Results) and
-   `DISK_UNREPORTED` (an analysis output on disk — an added-value DeLong CSV, a calibration
-   table — never mentioned in the manuscript) are Anticipated Major Comments. The reverse
-   direction matters because a run-but-unreported result can be the one that undercuts the
-   headline. When an `_analysis_outputs.md` manifest exists the gate uses it as the source of
-   truth; otherwise it globs `--analysis-dir` and only escalates analysis-bearing file names.
+1. **Primary-change guard** — two models for one contrast, one significant and one null, the
+   significant one foregrounded: confirm which was pre-specified.
+2. **Headline vs own-sensitivity direction** — if the headline claim points the opposite way
+   from the authors' own sensitivity estimate, the paper contradicts its own robustness check.
+3. **Rating → AUC monotonicity** — a *folded* (call × confidence) score silently mis-estimates
+   the AUC, and prose review cannot see an estimator bug.
+4. **Figure-embedded numbers are grep-blind** — every numeric audit above is blind to numbers
+   *inside* a rasterised figure. Read each figure page visually before submission.
 
-   The same gate also flags `PROMISED_STAT_NO_VALUE`: a statistic framed as a **bound/
-   ceiling/de-confounded** value (e.g. "the de-confounded reader AUC is reported in
-   Table S16", "the classifier ceiling AUC") promised with a reporting verb but never
-   given a numeric value anywhere in the manuscript **or supplement** — the bound that
-   makes the primary estimand interpretable, sometimes marked "Addressed" in a checklist
-   yet absent from every table. Pass the rendered supplement so the corpus is complete:
+Also re-run `/sync-submission`'s `check_cross_artifact_stale.py` **after** any reframe, not just
+once at the start. For time-to-event manuscripts, apply probe **S8 (estimand provenance)** of
+`references/domain-probes/survival_prognostic.md`.
 
-   ```bash
-   python3 "${CLAUDE_SKILL_DIR}/scripts/check_artifact_coverage.py" \
-     --manuscript manuscript.md --supplement supplement.md \
-     --out qc/artifact_coverage.json --strict
-   ```
+**Read on demand:**
 
-7. **Supplement / tables / caption hygiene.** Phases 2.5–2.5e and the classical-style
-   gate lint `manuscript.md` only; the rendered **supplement, a separately-built tables
-   file, and figure-caption files** are never linted — yet that is where technical-check-
-   fatal residue hides (internal §/§L SAP labels, unfilled `Table SX`/`[Authors]`
-   placeholders, `[VERIFY]`/`TODO` build markers, response-to-reviewers framing, planning
-   residue, and body↔supplement cross-reference numbers that do not resolve). Run the
-   supplement-hygiene gate over **every** rendered reader-facing artifact:
-
-   ```bash
-   python3 "${CLAUDE_SKILL_DIR}/scripts/check_supplement_hygiene.py" \
-     --supplement supplement.md --supplement tables.md --supplement captions.md \
-     --manuscript manuscript.md --out qc/supplement_hygiene.json --strict
-   ```
-
-   All verdicts (`SUPP_INTERNAL_LABEL`, `SUPP_PLACEHOLDER`, `SUPP_BUILD_MARKER`,
-   `SUPP_RESPONSE_FRAMING`, `SUPP_PLANNING_RESIDUE`, `SUPP_XREF_UNRESOLVED`) are
-   Anticipated Major Comments — a reader-facing slip in a supplement is as fatal at a
-   technical check as one in the body.
-
-   **Float citation order (same technical-check pass).** Editorial offices "unsubmit"
-   manuscripts *before* peer review when numbered floats are not cited in ascending
-   order of first appearance — a fully deterministic desk-check item the hygiene gate
-   above does not cover (it lints xref *resolution*, not *order*). Run the citation-order
-   gate, which checks each series independently (main Tables, main Figures, Supplementary
-   Tables, Supplementary Figures), scanning only the narrative body (it auto-excludes the
-   Figure Legends / back-matter so an in-order legends block cannot mask an out-of-order
-   body):
-
-   ```bash
-   python3 "${CLAUDE_SKILL_DIR}/scripts/check_citation_order.py" \
-     --manuscript manuscript.md --out qc/citation_order.json --strict
-   ```
-
-   `CITATION_ORDER` (Major) — a series cited out of numerical order (e.g. Table 3 before
-   Tables 1–2, or Supplementary Tables cited S4, S9, S16, S12, …); fix by renumbering the
-   series by first-citation order (and reordering the float/supplement document + remapping
-   every cross-reference, expanding ranges like `S12–S15` by hand and leaving non-float
-   sensitivity-spec labels such as `S1–S6` untouched) or by rephrasing away the early
-   citation. `CITATION_GAP` (Minor) — cited numbers not contiguous from 1 (a possible
-   missing/mis-numbered float).
-
-8. **Re-run cross-artifact staleness after any audit or reframe.** When a headline number
-   is corrected or an analysis is re-framed, the fix often lands only in the body while a
-   supplement footnote or a figure-source data file keeps the stale (sometimes *reversed*)
-   value. Re-run `/sync-submission`'s `check_cross_artifact_stale.py` across the body, the
-   supplement, and any figure-source data immediately **after** the reframe — not just once
-   at the start — so a corrected body never ships next to a stale supplement.
-
-9. **Power-aware null interpretation.** A headline negative claim ("no synergy", "not
-   associated", "showed no difference") is interpretable only next to a precision
-   statement — a minimum-detectable-effect, a power calculation, an equivalence
-   margin/TOST, or a CI-compatibility sentence. Run the null-calibration gate:
-
-   ```bash
-   python3 "${CLAUDE_SKILL_DIR}/scripts/check_null_calibration.py" \
-     --manuscript manuscript.md --out qc/null_calibration.json --strict
-   ```
-
-   `CONFIRM_NULL_NO_MDE` (Major) fires when a negative/equivalence claim in the Title/
-   Abstract/Conclusion has no such token anywhere in those regions — a non-significant
-   result is not evidence of no effect without one. (A single MDE/power/equivalence/CI-
-   compatibility sentence suppresses it.) Pair with the interaction-scale checks (`O14`)
-   when the null is a synergy/interaction claim.
-
-10. **Confidence-weighted / rating → AUC monotonicity.** For an observer or reader study
-    that collapses a (binary-call × confidence) rating into a single score used as the
-    ROC/AUC predictor, verify the encoding is **strictly monotonic** across the full
-    ladder — a *folded* score (`cws = confidence if positive-call else 6 − confidence`)
-    collapses opposite (call × confidence) cells and silently mis-estimates the AUC; a
-    prose review cannot see an estimator bug. Run the encoding through the reusable
-    monotonicity probe and ship its 10-combination unit test:
-    `python3 "${MEDSCI_SKILLS_ROOT}/skills/analyze-stats/scripts/rating_monotonicity.py" --encoding score_def.json`.
-
-11. **Figure-embedded numbers are text-grep blind.** PRISMA/flow/forest/statistic figures
-    are rasterised, so every numeric audit above is blind to the numbers *inside* them.
-    Before submission, (a) **visually** read each such figure page in the rendered/blind
-    PDF, and (b) reconcile the **hard-coded integers** in the figure-generation script
-    (`create_figure*.R`, `make_*.py`) against the body/flow-source counts
-    (`grep -nE '<-\s*[0-9]+|=\s*[0-9]+' figures/*.R`). See `submission-portal-verification`
-    §9.5 (figure-image DATA drift) for the full procedure.
-
-The script is deterministic but its provenance match is fuzzy (token overlap): read the
-reconciliation in `qc/claim_artifact.json` and confirm against the actual registration
-before raising `ESTIMAND_DRIFT`. For time-to-event manuscripts, also apply probe **S8
-(estimand provenance)** of `references/domain-probes/survival_prognostic.md`.
-
+| File | Read it when | Cost if read blindly |
+|---|---|---|
+| `references/phases/phase2_5f_claim_artifact.md` | a gate above fired and you need the rationale + resolution path, or there is a pre-registration to reconcile | ~4,800 tokens; a manuscript with no registration and no firing gate needs none of it |
 ### Phase 2.5g: Editorial-Impression / Defensiveness Scan (the ceiling pass)
 
 Run this **after** the floor gates (Phases 2.5–2.5f), because it reads the *accurate* manuscript

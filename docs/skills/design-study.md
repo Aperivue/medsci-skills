@@ -36,6 +36,7 @@
 **References** (`skills/design-study/references/`):
 
 - `dag_adjustment.md`
+- `reader_elicitation_design.md`
 - `target_trial_emulation.md`
 
 **Scripts** (`skills/design-study/scripts/`):

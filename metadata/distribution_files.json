@@ -163,8 +163,13 @@
     },
     {
       "path": "skills/add-journal/SKILL.md",
-      "size": 16351,
-      "sha256": "6aea8833a3981d0e84a915e2174b8b4180f2ed64fded63eb57e7bc34ada2bc03"
+      "size": 15266,
+      "sha256": "a472f46e92b65d27460b0400a902efeecac4285aed1caf37f45cf3debb64b4c6"
+    },
+    {
+      "path": "skills/add-journal/references/write_paper_profile_template.md",
+      "size": 3202,
+      "sha256": "75ce89f650ccda8f4c98ea9f27c3a6afb15e705d6cd50568158b29709bb70643"
     },
     {
       "path": "skills/add-journal/skill.yml",
@@ -593,8 +598,8 @@
     },
     {
       "path": "skills/check-reporting/SKILL.md",
-      "size": 40628,
-      "sha256": "ad375c3cc13ab13172c9e65af2a4afbb25278d0c8b56461e079b10a086ae8bde"
+      "size": 38433,
+      "sha256": "01c44b3ba95f475584999e27c55949647d92e4f935ef84bb29f100b097b564f8"
     },
     {
       "path": "skills/check-reporting/references/LICENSES.md",
@@ -852,6 +857,11 @@
       "sha256": "34f79571566ef06eee0fc4c8c646be530806fca658720902d16642faadc8844b"
     },
     {
+      "path": "skills/check-reporting/references/report_templates.md",
+      "size": 5775,
+      "sha256": "60ef41961934dd32ca9eda4db139441a67519222c661fe7de8a97476fbab3648"
+    },
+    {
       "path": "skills/check-reporting/references/step4c_registration_timing.md",
       "size": 4197,
       "sha256": "e0e76c5fb061ac2df0b61048461124abfa16217ea72cd9eed41f83d372343310"
@@ -1103,13 +1113,18 @@
     },
     {
       "path": "skills/design-study/SKILL.md",
-      "size": 20296,
-      "sha256": "98644b7750b65ff9bb38af7cb6e0b3300169f498332a3f143394cc35f5ba7ff7"
+      "size": 15269,
+      "sha256": "7d21b57aa8b94728a21ddf2fd57f8fd332a95a1e1a16cddb40780b5c5ce92a9a"
     },
     {
       "path": "skills/design-study/references/dag_adjustment.md",
       "size": 4390,
       "sha256": "8b6c9d2b2d4e79652b355cf30f0d56f4232619cad8589489707107f85bef9de3"
+    },
+    {
+      "path": "skills/design-study/references/reader_elicitation_design.md",
+      "size": 6864,
+      "sha256": "01984bc2cd4a88616ae4fe94fa9da80cdf52e433a0c542d9c0afc0a3b8ec9e83"
     },
     {
       "path": "skills/design-study/references/target_trial_emulation.md",
@@ -1868,8 +1883,8 @@
     },
     {
       "path": "skills/make-figures/SKILL.md",
-      "size": 51245,
-      "sha256": "6943882db21d9143866699ba4ffe433b7de3938fb58b57a717b3d215b43cfcd5"
+      "size": 46155,
+      "sha256": "2a567bfe908a813acc02b2e9b9ba5500de23702b2088d915329483651630f5dd"
     },
     {
       "path": "skills/make-figures/references/critic_rubrics/data_plot.md",
@@ -2112,6 +2127,11 @@
       "sha256": "02c483cd89b2598726bcb071c4e9e2e5baec0383487c7847c0ed2edf5c190a8f"
     },
     {
+      "path": "skills/make-figures/references/figure_manifest.md",
+      "size": 2215,
+      "sha256": "4f581ac3b6c40504c7e29e2d760265fab30b516ad06b0f97bb13a75f39d988e3"
+    },
+    {
       "path": "skills/make-figures/references/figure_specs.md",
       "size": 11529,
       "sha256": "45a04e5e1e68e670a805aa1cd79199cf67c00abeb7272c401d881d7daee4e04e"
@@ -2120,6 +2140,11 @@
       "path": "skills/make-figures/references/flow_diagram_lessons.md",
       "size": 10201,
       "sha256": "576f11e654bace6bb93775c87fff31bd7533854dc236162fb410c654a4811706"
+    },
+    {
+      "path": "skills/make-figures/references/flow_diagram_recipe.md",
+      "size": 5136,
+      "sha256": "5b232a37d236e64d1e100151e92cce942aafc8ca0f60ec9a51ce335dfd537fd2"
     },
     {
       "path": "skills/make-figures/references/jacc_central_illustration_principles.md",
@@ -2293,8 +2318,13 @@
     },
     {
       "path": "skills/manage-project/SKILL.md",
-      "size": 12315,
-      "sha256": "40c3a0098a3729b839e132db3987ad0f3fc5f3eeaf1c5a56dd77673cffdb5dbd"
+      "size": 10322,
+      "sha256": "0517ccd1c5ec8352231cff9944d74510c8e4a111ed0f9aa7d7378513c36da429"
+    },
+    {
+      "path": "skills/manage-project/references/init_scaffold.md",
+      "size": 5266,
+      "sha256": "01ea1f161b6ca66e99ed462cbac966c5f1da125e0b3893b06046223ea4a4eb2c"
     },
     {
       "path": "skills/manage-project/references/pre_submission_checklist.md",
@@ -2498,8 +2528,8 @@
     },
     {
       "path": "skills/meta-analysis/SKILL.md",
-      "size": 49604,
-      "sha256": "4947eae188dc2fcfba68ed991ba126da8315dc79deac0649d2beea558e73025e"
+      "size": 40107,
+      "sha256": "946a0fb14b629488cb62c0d43300308ff574a3ec4c832e6bfbd6c038c1e502aa"
     },
     {
       "path": "skills/meta-analysis/references/LICENSES.md",
@@ -2570,6 +2600,16 @@
       "path": "skills/meta-analysis/references/phase10_recovery.md",
       "size": 6145,
       "sha256": "d76a832de5f89a0c7c754290a10ad0155eaaf3d9df4824226826c10c6856d399"
+    },
+    {
+      "path": "skills/meta-analysis/references/phase3_screening_detail.md",
+      "size": 9132,
+      "sha256": "9fbd21fc09da3952f50aaa942e408262284951f98d6e4adb064b1e1df0244229"
+    },
+    {
+      "path": "skills/meta-analysis/references/phase4_extraction_detail.md",
+      "size": 11199,
+      "sha256": "6aee96c0d9ab99e1a014d849de2e6b6fb711e673b96e6eb593fd56afe16c10e3"
     },
     {
       "path": "skills/meta-analysis/references/phase4_km_composite.md",
@@ -3008,8 +3048,8 @@
     },
     {
       "path": "skills/peer-review/SKILL.md",
-      "size": 78803,
-      "sha256": "2599190d0b175bdb29cfda93b67bdbc5ee89991e9d94cd802cc9a2961b8708bb"
+      "size": 78563,
+      "sha256": "63dfbcba8799036b171961ace420699c5e80776d42fa3b8a76fd17e9d2d9ce9c"
     },
     {
       "path": "skills/peer-review/references/aczel_2021_reviewer2_patterns.md",
@@ -3170,6 +3210,11 @@
       "path": "skills/peer-review/references/narrative_review_audit.md",
       "size": 5278,
       "sha256": "a4c47641de46c7950498dd56d9249a15e982a03539e4b69b28ef29af3bd80ade"
+    },
+    {
+      "path": "skills/peer-review/references/review_draft_template.md",
+      "size": 1792,
+      "sha256": "94cfb6369b3ba17da0ba18361d189b479a84033e77d4aa8ef28725371e0baf2d"
     },
     {
       "path": "skills/peer-review/references/reviewer_calibration/README.md",
@@ -3803,8 +3848,8 @@
     },
     {
       "path": "skills/self-review/SKILL.md",
-      "size": 108013,
-      "sha256": "d32ede7bb778496600069ac2fb090fea1158717b3f0605bc06b9e09637f197e1"
+      "size": 78161,
+      "sha256": "fc5ffe1fcabd79904d8294b1109c763f9a8114a0e41984d04d10f4c8359eae62"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
@@ -3970,6 +4015,31 @@
       "path": "skills/self-review/references/phases/confounding_completeness.md",
       "size": 5344,
       "sha256": "051f2b066d2d708b161c1e97d666d9e214d128f1413a9c4822f0333e748bda14"
+    },
+    {
+      "path": "skills/self-review/references/phases/phase2_5a_source_fidelity.md",
+      "size": 5989,
+      "sha256": "565eb2ee2f2eaa0be92f04ab2781c5b3ede5d716c9e5caa40b1fea82f87b53ff"
+    },
+    {
+      "path": "skills/self-review/references/phases/phase2_5b_screening_counts.md",
+      "size": 7535,
+      "sha256": "0d594614b1f41692d6a6034f9fc88d90bcdd3ba90b8ba6b4697cdfcb0a62cef2"
+    },
+    {
+      "path": "skills/self-review/references/phases/phase2_5d_xref_qc.md",
+      "size": 4974,
+      "sha256": "81756d0713842faa1f603a34500dd6aaa699be6526ee6fbbc1ace06467b10143"
+    },
+    {
+      "path": "skills/self-review/references/phases/phase2_5f_claim_artifact.md",
+      "size": 11616,
+      "sha256": "f95dea63f14cfca4cf40c5e8c858b8c7a0679b1c54b6fcd65acc68424e770bac"
+    },
+    {
+      "path": "skills/self-review/references/phases/phase2_systematic_check.md",
+      "size": 18988,
+      "sha256": "d78e98cc0eee08b56b13539c9a61836485a7357a2b4b53b6db7d6329d2443da8"
     },
     {
       "path": "skills/self-review/scripts/check_analysis_definitions.py",
@@ -4493,8 +4563,8 @@
     },
     {
       "path": "skills/write-paper/SKILL.md",
-      "size": 68059,
-      "sha256": "d05e1bbde228a87abf459ec19484e560dc08b7e88213e36655b680ebecf7dd8f"
+      "size": 49536,
+      "sha256": "a36ddb90db795de04bca34a4623c62be128305b023e42b256bedc0a0c16a5774"
     },
     {
       "path": "skills/write-paper/references/exemplar_abstract.md",
@@ -4932,9 +5002,19 @@
       "sha256": "20af90805a78bd3017786180c339881d831f9f3c81561e2124ac106f1bd476a6"
     },
     {
+      "path": "skills/write-paper/references/phase0_init_detail.md",
+      "size": 11788,
+      "sha256": "7336d02942a9308420946d286b5942a9dd8548d1ff63cfe6a1776e8eb5837f2f"
+    },
+    {
       "path": "skills/write-paper/references/phase7_integrity_audits.md",
       "size": 12540,
       "sha256": "53adeb794576bc580bd34b0173b14cf2483396e25cde12051903145426fd91e3"
+    },
+    {
+      "path": "skills/write-paper/references/phase7_polish_detail.md",
+      "size": 19036,
+      "sha256": "5c44f6ccdfc6eaa64587c62d68fe0911175e6df7a37bfc7f71b65a7f6d5a1c12"
     },
     {
       "path": "skills/write-paper/references/section_guides/discussion.md",

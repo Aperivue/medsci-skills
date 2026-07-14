@@ -41,8 +41,10 @@
 - `design_principles.md`
 - `exemplar_diagrams/` (33 files)
 - `exemplar_plots/` (12 files)
+- `figure_manifest.md`
 - `figure_specs.md`
 - `flow_diagram_lessons.md`
+- `flow_diagram_recipe.md`
 - `jacc_central_illustration_principles.md`
 - `medical_illustration_sources.md`
 - `pipeline_concepts_medical_ai.md`
