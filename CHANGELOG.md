@@ -61,6 +61,16 @@
 
 ### Fixed
 
+- **A broken workflow file does not turn a pull request red — it makes the checks *disappear*.**
+  A step named ``- name: Run deck-budget challenge (same deck: fits an oral, ...)`` put a `: ` inside
+  an unquoted YAML scalar. `validate.yml` stopped being valid YAML, GitHub ran **zero jobs**, and
+  `gh pr checks` said **"no checks reported on the branch"** — not a failure, just silence. Every
+  gate in the repository (the PII scanner, the detector-envelope contract, the manifest, all 153
+  steps) was quietly not running, and the branch looked *quiet* rather than *broken*. Anyone merging
+  on green would have merged on nothing. `scripts/check_workflow_yaml.py` now parses every workflow
+  file — and names that specific trap — as the first step of CI. It was verified by restoring the
+  defect and watching the gate go red.
+
 - **Our own house style was manufacturing the most-cited tell.** `academic-lecture-style.md` required
   an all-caps eyebrow on **every** slide and a `2026 · NEUROGENETICS` brand footer on **every**
   slide; `nature_lancet.md` gave them fixed coordinates; and `build_pptx_nature_lancet.py` took

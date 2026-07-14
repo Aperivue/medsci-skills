@@ -32,6 +32,9 @@ jobs:
       - name: Install exiftool + poppler (EXIF scan + check_asset_anonymization PDF text/metadata)
         run: sudo apt-get update && sudo apt-get install -y libimage-exiftool-perl poppler-utils
 
+      - name: "Workflow files parse (a broken one runs ZERO jobs and reports no checks)"
+        run: python3 scripts/check_workflow_yaml.py --strict
+
       - name: Run validate_skills.sh (PII + structure)
         run: bash scripts/validate_skills.sh
 
@@ -286,7 +289,7 @@ jobs:
       - name: Run slide-tells challenge (AI-made deck -> all 6 marks; human-made deck -> CLEAN)
         run: bash skills/present-paper/scripts/check_slide_tells_challenge/verify.sh
 
-      - name: Run deck-budget challenge (same deck: fits an oral, too dense for a keynote)
+      - name: "Run deck-budget challenge (same deck: fits an oral, too dense for a keynote)"
         run: bash skills/present-paper/scripts/check_deck_budget_challenge/verify.sh
 
       - name: Run present-paper builder chrome test (the old eyebrow-everywhere default must be CAUGHT)
