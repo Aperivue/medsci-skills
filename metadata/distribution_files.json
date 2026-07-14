@@ -1868,8 +1868,8 @@
     },
     {
       "path": "skills/make-figures/SKILL.md",
-      "size": 50652,
-      "sha256": "1a14014c0916cc3d26057e8aec3e9e021ec6702b999fe4c9be26088fecdaecfa"
+      "size": 51245,
+      "sha256": "6943882db21d9143866699ba4ffe433b7de3938fb58b57a717b3d215b43cfcd5"
     },
     {
       "path": "skills/make-figures/references/critic_rubrics/data_plot.md",
@@ -2142,11 +2142,6 @@
       "sha256": "a5883b85fc772c0365137264ecc98c06cb9fb084f3cd2011d4c0f87324cf6fc1"
     },
     {
-      "path": "skills/make-figures/references/visual_abstract_templates/european_radiology.pptx",
-      "size": 281849,
-      "sha256": "7bc23432b731c4066a803250915ae16939034e23cb82ad39a664e81c627aa322"
-    },
-    {
       "path": "skills/make-figures/references/visual_abstract_templates/jacc_central_illustration.pptx",
       "size": 28837,
       "sha256": "7011e9f9c24a715b813fa3d87fa234950e0c5d249a442c501f5dc3764c018922"
@@ -2158,8 +2153,8 @@
     },
     {
       "path": "skills/make-figures/references/visual_abstract_templates/template_guide.md",
-      "size": 5640,
-      "sha256": "1baaabb734206adf0c91d9fdfed1e7460a252453ea3b354a4a2e7490521a43dd"
+      "size": 6710,
+      "sha256": "9c151944b960fba4342dbfcae4004c529227598ab50ce0e80f7bbb5f3343f754"
     },
     {
       "path": "skills/make-figures/scripts/build_jacc_template.py",

@@ -47,7 +47,7 @@
 - `medical_illustration_sources.md`
 - `pipeline_concepts_medical_ai.md`
 - `reporting_guideline_figure_map.md`
-- `visual_abstract_templates/` (4 files)
+- `visual_abstract_templates/` (3 files)
 
 **Scripts** (`skills/make-figures/scripts/`):
 

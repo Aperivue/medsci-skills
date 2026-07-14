@@ -30,6 +30,33 @@
   diagnostic-accuracy vocabulary, and a prognostic model scores its predictions against the outcome it has
   already declared. `MODEL_NOT_IN_METHODS`, `TIER_LABEL_UNDEFINED` and the informational `ANALYSIS_LOAD`
   are unchanged.
+- **`make-figures`: an MIT package was redistributing a society's trademark and a published paper's
+  patient CT scan — inside a `.pptx`, where the licence gate could not see it.**
+  `european_radiology.pptx` was European Radiology's own graphical-abstract template with a
+  published article's abstract *still filled into slide 2*: the ESR wordmark, and that paper's
+  four-panel labelled CT figure. Seven images, 239 KB, no licence, `docProps/app.xml` still naming
+  the article. PR #335 had just built a gate to stop exactly this — and it globbed the filesystem,
+  where a `.pptx` is one opaque binary. It printed *"OK: all 8 bundled image(s) may be shipped"*.
+  The file is removed; nothing is lost, because `--template` has always accepted an absolute path
+  and the journal profile already told users to download it. `check_bundled_media_license.py` now
+  opens every OOXML container. It ignores `docProps/thumbnail.jpeg` — PowerPoint renders that from
+  the deck's own slides, so counting it would fire on a contributor's brand-new original template,
+  and a gate that fires on good work gets switched off.
+- **The `LICENSE` described a different package from the one we shipped.** It said CONSORT and
+  SPIRIT were *"NOT bundled due to license restrictions (CC BY-NC / CC BY-NC-ND)"* while the package
+  shipped both — the summaries and the guideline authors' own `.docx` files. The 2025 updates
+  relicensed to **CC BY 4.0**, so we were entitled to ship them all along; that is luck, not
+  diligence. The third-party index now lists what is actually there, with each licence and citation,
+  and `scripts/check_third_party_index.py` holds it to the tree in both directions: a file we swear
+  we do not bundle must be absent, and a third-party payload we do ship must be declared.
+
+### Added
+
+- `scripts/check_third_party_index.py` + `tests/test_bundled_media_license.sh` — the self-test PR
+  #335 never wrote. It does not check that the gates pass; it restores each defect (an image hidden
+  in a container, a loose image with no provenance, a file the LICENSE denies shipping, an
+  undeclared payload) and asserts the gate **fails**, and that it stays silent on work that is ours.
+
 
 ### Added
 

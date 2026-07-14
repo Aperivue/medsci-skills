@@ -27,6 +27,20 @@ So: every raster image under `skills/` (the payload) must either be
 An image with neither fails the build. There is no "probably fine" tier, because the whole failure
 was a "probably fine" that nobody had checked.
 
+## The images that hide inside containers
+
+A `.pptx` is a zip. So is a `.docx`. The first version of this gate globbed the filesystem, and on
+the filesystem a container is one opaque binary — so it walked straight past nine images, 236 KB,
+riding inside `european_radiology.pptx`: the European Society of Radiology's logo and wordmark, and
+a four-panel labelled patient CT figure belonging to a published article (`docProps/app.xml` still
+named the paper). The gate written to stop exactly this printed **"OK: all 8 bundled image(s) may
+be shipped"** and exited 0.
+
+That is the same defect as the one it exists to catch, one layer down: a check that runs, passes,
+and is looking in the wrong place. So it now opens every OOXML container and holds the images
+inside to the same standard as the images beside it. An image is shipped whether or not it is
+wrapped in a zip.
+
 Usage:
     check_bundled_media_license.py [--strict]
 
@@ -38,6 +52,7 @@ from __future__ import annotations
 import argparse
 import re
 import sys
+import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -45,10 +60,39 @@ SKILLS = ROOT / "skills"
 
 RASTER = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".tif", ".tiff", ".bmp"}
 
+# OOXML: a zip wearing a document's extension. Its media entries ship as surely as a loose .png —
+# more quietly, which is the whole problem.
+CONTAINER = {".pptx", ".docx", ".xlsx"}
+
+# The payload is `ppt/media/` — the images someone put IN the document.
+#
+# `docProps/thumbnail.jpeg` is not payload. PowerPoint renders it from the deck's own slides every
+# time you save, so it can never contain anything the deck does not already contain, and it is
+# present in every file python-pptx writes. Counting it would fire this gate on a contributor's
+# brand-new, entirely original template — and a gate that fires on good work gets switched off, and
+# takes the honest gates with it. (The European Radiology file failed on its SEVEN `ppt/media`
+# images. It did not need its thumbnail to convict it.)
+IN_CONTAINER_MEDIA = re.compile(r"(^|/)(ppt|word|xl)/media/", re.IGNORECASE)
+
 # Images this project renders itself. Each entry is a filename glob plus the script that makes it —
 # named, so that "it is ours" is a claim someone wrote down rather than an assumption.
 SELF_GENERATED = {
     "template_output*.png": "skills/make-figures/scripts/generate_flow_diagram.R",
+}
+
+# A container someone ELSE made that carries images, and which we are nonetheless entitled to
+# redistribute. The value is the evidence — the licence, and where it is stated — not a shrug.
+#
+# "It is the official template, surely that is fine" is not permission. It is the sentence that
+# shipped a patient's CT scan: the European Radiology template we used to carry was the journal's
+# own file with a published paper's graphical abstract still filled into slide 2 — the ESR wordmark
+# and that paper's four-panel CT figure, seven images, inside an MIT package anyone may sell. It
+# carried no licence, and this gate could not see it, because a .pptx is a zip. It was removed.
+# Users who want the journal's template download it and pass `--template /absolute/path.pptx`, which
+# the generator has always accepted.
+THIRD_PARTY_CONTAINERS = {
+    "skills/make-figures/templates/official/stard2015/STARD_2015_checklist.docx":
+        "CC BY 4.0 — Bossuyt PM et al., BMJ 2015;351:h5527 (equator-network.org)",
 }
 
 # Licences that permit redistribution inside an MIT-licensed package.
@@ -82,12 +126,33 @@ def sidecar_ok(p: Path) -> tuple[bool, str]:
     return True, ""
 
 
+def embedded_media(container: Path) -> list[tuple[str, int]]:
+    """Every raster riding inside an OOXML zip. (name, bytes)"""
+    out: list[tuple[str, int]] = []
+    try:
+        with zipfile.ZipFile(container) as z:
+            for info in z.infolist():
+                if info.is_dir():
+                    continue
+                suffix = Path(info.filename).suffix.lower()
+                if suffix in RASTER and IN_CONTAINER_MEDIA.search(info.filename):
+                    out.append((info.filename, info.file_size))
+    except zipfile.BadZipFile:
+        return []
+    return sorted(out)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--strict", action="store_true", help="exit 1 on any image we cannot ship")
+    ap.add_argument("--root", type=Path, default=ROOT,
+                    help="tree to inspect (the self-test points this at a fixture)")
     a = ap.parse_args()
 
-    images = sorted(p for p in SKILLS.rglob("*") if p.suffix.lower() in RASTER and p.is_file())
+    root = a.root.resolve()
+    skills_dir = root / "skills"
+
+    images = sorted(p for p in skills_dir.rglob("*") if p.suffix.lower() in RASTER and p.is_file())
     bad: list[tuple[Path, str]] = []
     ours = 0
     licensed = 0
@@ -102,14 +167,37 @@ def main() -> int:
         else:
             bad.append((p, why))
 
+    # --- and now the ones a filesystem glob cannot see ---
+    containers = sorted(p for p in skills_dir.rglob("*")
+                        if p.suffix.lower() in CONTAINER and p.is_file())
+    inspected = 0
+    embedded_total = 0
+    for c in containers:
+        inspected += 1
+        media = embedded_media(c)
+        if not media:
+            continue                      # a container with no images ships no images
+        embedded_total += len(media)
+        rel = str(c.relative_to(root))
+        if rel in THIRD_PARTY_CONTAINERS:
+            licensed += len(media)
+            continue
+        kb = sum(n for _, n in media) / 1024
+        bad.append((c, f"ships {len(media)} embedded image(s) ({kb:,.0f} KB) inside the container "
+                       f"— {', '.join(n for n, _ in media[:4])}"
+                       f"{' ...' if len(media) > 4 else ''}; "
+                       f"not named in THIRD_PARTY_CONTAINERS"))
+
     if not bad:
-        print(f"OK: all {len(images)} bundled image(s) may be shipped "
+        print(f"OK: all {len(images)} loose image(s) and the {embedded_total} image(s) embedded in "
+              f"{inspected} container(s) may be shipped "
               f"({ours} generated by this project, {licensed} licensed for redistribution).")
         return 0
 
-    print(f"BUNDLED_MEDIA_UNLICENSED: {len(bad)} of {len(images)} image(s) cannot be shipped.\n")
+    print(f"BUNDLED_MEDIA_UNLICENSED: {len(bad)} item(s) cannot be shipped "
+          f"({len(images)} loose image(s) + {inspected} container(s) inspected).\n")
     for p, why in bad:
-        print(f"  {p.relative_to(ROOT)}")
+        print(f"  {p.relative_to(root)}")
         print(f"      {why}")
     print(
         "\nThis repository is MIT-licensed and is downloaded by every user. Shipping an image means\n"
@@ -121,6 +209,14 @@ def main() -> int:
         "    permits redistribution (CC-BY, CC0, public domain); or\n"
         "  * we cannot demonstrate permission -> do not ship it. Keep it locally; a file you never\n"
         "    commit is never redistributed.\n"
+        "\nFor a .pptx / .docx / .xlsx, the images are INSIDE the zip and the same three options apply\n"
+        "to every one of them. If the container is licensed for redistribution, record it in\n"
+        "THIRD_PARTY_CONTAINERS above with the evidence — the licence, and where it is stated. If it is\n"
+        "not, the container goes. Do NOT strip its metadata and keep it: that removes the only record\n"
+        "of where the images came from while still shipping them, which is worse than doing nothing.\n"
+        "\nAnd if a user needs the journal's own template, they can download it themselves — the\n"
+        "generator already accepts `--template /absolute/path.pptx`. Pointing at a file is not the\n"
+        "same as redistributing it.\n"
         "\nA figure you may legally read is not a figure you may legally ship."
     )
     return 1 if a.strict else 0

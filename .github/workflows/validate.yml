@@ -72,8 +72,14 @@ jobs:
       - name: Run check_domain_probe_sync.py (vendored domain probes must be byte-identical)
         run: python3 scripts/check_domain_probe_sync.py --strict
 
-      - name: "Run check_bundled_media_license.py (an MIT package may only ship what it holds)"
+      - name: "Run check_bundled_media_license.py (an MIT package may only ship what it holds — including inside a .pptx)"
         run: python3 scripts/check_bundled_media_license.py --strict
+
+      - name: "Run check_third_party_index.py (the LICENSE must describe the package you downloaded)"
+        run: python3 scripts/check_third_party_index.py --strict
+
+      - name: "Run bundled-media + third-party-index self-test (restore each defect; the gate must FAIL)"
+        run: bash tests/test_bundled_media_license.sh
 
       - name: Run validate_capabilities.py (skill-registry consistency, capabilities.yml vs skill.yml)
         run: python3 scripts/validate_capabilities.py --strict

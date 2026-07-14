@@ -145,7 +145,7 @@ visual abstract requirements before starting.
 4. **Generate using the script:**
    ```bash
    python ${CLAUDE_SKILL_DIR}/scripts/generate_visual_abstract.py \
-     --template european_radiology \
+     --template medsci_default \
      --title "Article Title" \
      --hypothesis "Research question" \
      --methods "Method 1|Method 2|Method 3" \
@@ -171,9 +171,21 @@ visual abstract requirements before starting.
 
 | Template | File | Use When |
 |----------|------|----------|
-| European Radiology | `european_radiology.pptx` | Submitting to Eur Radiol |
-| MedSci Default | `medsci_default.pptx` | Any journal without official template |
+| MedSci Default | `medsci_default.pptx` | Any journal without an official template |
 | JACC Central Illustration | `jacc_central_illustration.pptx` | JACC family journals (use `--type central-illustration`) |
+
+**Using a journal's own template.** Several journals publish one — European Radiology requires a
+graphical abstract from first revision and supplies `EURA-GA-Jan2025.pptx`. We do not redistribute
+them: a template you may download is not a template we may ship. Use yours directly instead:
+
+```bash
+python ${CLAUDE_SKILL_DIR}/scripts/generate_visual_abstract.py \
+  --template /absolute/path/to/EURA-GA-Jan2025.pptx  ...
+```
+
+`--template` takes an absolute path to any `.pptx`. The script locates the fields by their text
+content rather than by shape name, so a journal's own template works unmodified. If the path does
+not exist it falls back to `medsci_default.pptx`.
 
 To add a new journal template: see `${CLAUDE_SKILL_DIR}/references/visual_abstract_templates/template_guide.md`.
 
