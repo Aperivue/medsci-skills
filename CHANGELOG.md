@@ -31,6 +31,33 @@
   not committing it — the gate's first draft flagged the one file that had already got this right,
   which is exactly how a gate dies. `tests/test_hardcoded_locale.sh` regresses both forms of the
   defect and holds the gate silent on all three kinds of legitimate use.
+- **`/meta-analysis` told every user to run two skills that exist only on the maintainer's laptop.**
+  Phase 9: *"Co-author circulation | `/gws` + `/handoff`"*. Neither is in this package; both live in
+  `~/.claude/skills`. Anyone who installed from npm and reached Phase 9 was handed an instruction
+  they could not follow — and a glimpse of a private toolchain. `/lit-sync` did the same with
+  `/obsidian-paper-vault`.
+- **`/lit-sync` announced a gate that has never existed.** It said twice that `/verify-refs` treats
+  `refs_bib_refreshed: false` as an unverified snapshot and that downstream skills *block* on it.
+  `verify_refs.py` has never contained that string. The sentence describing the gate was the only
+  thing standing between a stale `refs.bib` and a manuscript. It also routed users to `/render` — a
+  skill that does not exist and never has.
+- **`/find-journal` ran 71 lines of dead code on every invocation.** Phase 3.6 globs
+  `TODO_*_profiles.md`; those files were deleted in the privacy commit (#39). The glob has matched
+  nothing since, so the step is loaded into context, evaluated, and skipped, every single time.
+  474 -> 404 lines.
+- **`/find-journal`'s description told every session something false about itself.** *"No cached
+  IF/APC data — users verify current metrics at journal sites."* Twenty-eight of the seventy-three
+  shipped profiles cache an APC (`APC ~$3,690`, `APC $4,160`, `APC US$2,000`), thirteen cache an
+  impact factor. The description is loaded into **every** session, used or not. It now says what is
+  true: those figures are point-in-time and may be stale.
+
+### Added
+
+- `scripts/check_named_skills_exist.py` — the sibling `validate_routing_assets.py` never had. That
+  gate refuses to let a SKILL.md point at a `references/` file that is not there; this one refuses to
+  let it point at a *skill* that is not there. Tokens that only look like invocations (an Embase
+  `/exp`, a path fragment) are exempted **with their reason written down**, so the exemption is a
+  decision rather than a hole.
 
 
 ### Fixed

@@ -46,7 +46,7 @@ Per `docs/artifact_contract.md`, `/lit-sync` is the **sole writer** of:
 
 | Artifact | Writer | Readers |
 |---|---|---|
-| `manuscript/_src/refs.bib` | `/lit-sync` (via Better BibTeX auto-export trigger) | `/write-paper`, `/verify-refs`, `/render` |
+| `manuscript/_src/refs.bib` | `/lit-sync` (via Better BibTeX auto-export trigger) | `/write-paper`, `/verify-refs`, `/manage-refs` |
 | `references/zotero_collection.json` | `/lit-sync` | `/verify-refs`, `/sync-submission` |
 
 Direct hand edits to `refs.bib` are drift — revert on sight.
@@ -192,7 +192,7 @@ Before entering the 10s polling loop in Step 2.5.2, verify both preconditions. I
 
    > Phase 2.5 skipped: target snapshot `<path>` not found. Configure BBT auto-export with "On Change" to the SSOT path, then re-run.
 
-In either early-exit, set `refs_bib_refreshed: false` + `reason: "precondition:<which>"` in the Step 2.5.3 JSON and return control to the caller. `/verify-refs` treats `refs_bib_refreshed: false` as an unverified snapshot — downstream skills (`/write-paper`, `/render`) block until the precondition is resolved.
+In either early-exit, set `refs_bib_refreshed: false` + `reason: "precondition:<which>"` in the Step 2.5.3 JSON and return control to the caller. Record it and tell the user; nothing downstream enforces it. `verify_refs.py` has never read this flag, and the sentence that said it did was the only thing standing between a stale `refs.bib` and a manuscript.
 
 Rationale (2026-04-24 Phase 1B-b dry-run): on a machine with BBT installed but no auto-export registered, the original Step 2.5.2 polled for 10s then emitted a generic "mtime unchanged" WARN that did not point at the actual cause. Findings: `~/.local/cache/phase1b_b_dryrun/findings.md`.
 
@@ -221,7 +221,7 @@ Append to the JSON written in Step 2.3:
 }
 ```
 
-If refresh failed, set `refs_bib_refreshed: false` and include `reason`. `/verify-refs` uses this flag to decide whether the snapshot is trustworthy.
+If refresh failed, set `refs_bib_refreshed: false` and include `reason`. The flag records whether the export ran. It is a note to the reader, not a gate.
 
 ---
 
@@ -246,7 +246,7 @@ python3 "$ENGINE" <worklist> -o pdfs/ -e <contact-email> --report pdfs/retrieval
 
 `<worklist>` is the DOI/PMID(/Title) list — the Phase-1 `.bib` DOIs, the worklist supplied
 in the standalone mode below, or the project collection's DOIs. Output: `pdfs/*.pdf` for
-`/meta-analysis`, `/obsidian-paper-vault`, and `pdf_to_md.py`, plus
+`/meta-analysis` and `pdf_to_md.py`, plus
 `pdfs/retrieval_report.json` (per-DOI `status`/`source`/`title_match`).
 
 ### Route B — in-library PDFs (Zotero-native, higher yield, proxy-aware)

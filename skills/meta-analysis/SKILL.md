@@ -596,7 +596,6 @@ When the number of included studies is small (< 10):
 | Need reporting check | `/check-reporting` | PRISMA-DTA / PRISMA 2020 compliance (includes Step 4c registration / amendment timing) |
 | Need manuscript writing | `/write-paper` | Full IMRAD manuscript generation |
 | Need self-review | `/self-review` | Pre-submission quality check |
-| Co-author circulation (Phase 9) | `/gws` + `/handoff` | Thread-reply send, deadline task registration |
 | Self-audit recovery entrypoint (Phase 10) | `/write-paper` Step 7.4a | Recovery branch for polish pipelines that surface structural audit failures |
 | `/sync-submission` SR-MA gate | `/sync-submission` | Before submission, verify supplementary package matches all 8 files in `templates/supplementary_8file_checklist.md` (PRISMA, PROSPERO, search strategy, exclusion list, extraction table, per-study x per-domain RoB, subgroup forests, sensitivity / publication bias). AI Disclosure presence check (cross-link `/peer-review` Phase 2A P8). Cite-list duplicate check via `/verify-refs` Gate 5 (duplicate PMID/DOI). |
 

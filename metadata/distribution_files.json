@@ -1323,8 +1323,8 @@
     },
     {
       "path": "skills/find-journal/SKILL.md",
-      "size": 22072,
-      "sha256": "45074f6499896700bff0eb20bd91c4076b143bcd39521d56559239edaa8b24d8"
+      "size": 18598,
+      "sha256": "fe4188fc24ecaecf1af22ad8a889525746fa6a98b0e03726e5c27ea7ef0b5f54"
     },
     {
       "path": "skills/find-journal/references/acceptance_signals_schema.md",
@@ -1848,8 +1848,8 @@
     },
     {
       "path": "skills/lit-sync/SKILL.md",
-      "size": 21126,
-      "sha256": "4ba2d2b6dd4704803c0922993401b837d4135ac1d655d6064229315537a8e818"
+      "size": 21152,
+      "sha256": "e44d0451bdb005c0f65635fa5c7731945a4bb922e1cd75d0218d3f4a24dd4140"
     },
     {
       "path": "skills/lit-sync/references/locale/ko/note_templates.md",
@@ -2528,8 +2528,8 @@
     },
     {
       "path": "skills/meta-analysis/SKILL.md",
-      "size": 40107,
-      "sha256": "946a0fb14b629488cb62c0d43300308ff574a3ec4c832e6bfbd6c038c1e502aa"
+      "size": 40001,
+      "sha256": "06cb68d854782c59835399089f41ab184fb8b00900546d0e6e6a44d3e7d9f0bb"
     },
     {
       "path": "skills/meta-analysis/references/LICENSES.md",
