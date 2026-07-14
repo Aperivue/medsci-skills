@@ -80,7 +80,7 @@ from pptx import Presentation
 from pptx.util import Inches, Pt, Emu
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
 from pptx.dml.color import RGBColor
-from pptx.enum.shapes import MSO_SHAPE
+from pptx.enum.shapes import MSO_CONNECTOR, MSO_SHAPE
 from lxml import etree
 
 
@@ -197,6 +197,22 @@ def _blank(prs: Presentation):
 # Slide builders
 # ============================================================================
 
+def _rule(s, *, x: float, y: float, w: float, color: RGBColor, pt: float = 2.0):
+    """A typographic rule — drawn as a LINE, because that is what it is.
+
+    It used to be a rectangle 20,000 EMU tall (~0.02"), which looks identical and is not the
+    same thing. check_slide_tells counts drawn shapes and exempts ``prst == "line"``, because a
+    rule is typography, not an idea. Faking one with a rectangle put a 13th identical box in a
+    15-slide deck and tripped this project's own SHAPE_MONOTONY detector — with the shipped
+    builder, following the house style. Use the right primitive and the rule costs nothing.
+    """
+    c = s.shapes.add_connector(MSO_CONNECTOR.STRAIGHT,
+                               Inches(x), Inches(y), Inches(x + w), Inches(y))
+    c.line.color.rgb = color
+    c.line.width = Pt(pt)
+    return c
+
+
 def add_title_slide(prs: Presentation, *,
                     eyebrow: str = "",
                     title: str,
@@ -230,10 +246,7 @@ def add_title_slide(prs: Presentation, *,
         set_run(r2, size=18, italic=True, color=COLOR_TEXT_SUB)
 
     if meta_top or meta_bottom:
-        line = s.shapes.add_shape(MSO_SHAPE.RECTANGLE,
-                                  Inches(1.1), Inches(5.95), Inches(2.0), Emu(8000))
-        line.fill.solid(); line.fill.fore_color.rgb = COLOR_NAVY
-        line.line.fill.background()
+        _rule(s, x=1.1, y=5.95, w=2.0, color=COLOR_NAVY, pt=1.0)
 
         sub = s.shapes.add_textbox(Inches(1.1), Inches(6.0), Inches(11.5), Inches(1.0))
         stf = sub.text_frame; stf.word_wrap = True
@@ -354,10 +367,7 @@ def add_content_slide(prs: Presentation, *,
         r2 = p2.add_run(); r2.text = subtitle
         set_run(r2, size=15, italic=True, color=COLOR_TEXT_SUB)
 
-    line = s.shapes.add_shape(MSO_SHAPE.RECTANGLE,
-                              Inches(0.7), Inches(2.05), Inches(0.6), Emu(20000))
-    line.fill.solid(); line.fill.fore_color.rgb = COLOR_HIGHLIGHT
-    line.line.fill.background()
+    _rule(s, x=0.7, y=2.06, w=0.6, color=COLOR_HIGHLIGHT, pt=2.5)
 
     has_fig = figure_path is not None and Path(figure_path).exists()
     if has_fig:
@@ -465,10 +475,7 @@ def add_toc_slide(prs: Presentation, *,
         r2 = p2.add_run(); r2.text = subtitle
         set_run(r2, size=16, italic=True, color=COLOR_TEXT_SUB)
 
-    line = s.shapes.add_shape(MSO_SHAPE.RECTANGLE,
-                              Inches(0.7), Inches(2.1), Inches(0.6), Emu(20000))
-    line.fill.solid(); line.fill.fore_color.rgb = COLOR_HIGHLIGHT
-    line.line.fill.background()
+    _rule(s, x=0.7, y=2.1, w=0.6, color=COLOR_HIGHLIGHT, pt=2.5)
 
     y_start = 2.5
     row_h = 0.85
@@ -543,10 +550,7 @@ def add_glossary_slide(prs: Presentation, *,
     r = p.add_run(); r.text = title
     set_run(r, size=30, bold=True, color=COLOR_NAVY)
 
-    line = s.shapes.add_shape(MSO_SHAPE.RECTANGLE,
-                              Inches(0.7), Inches(1.65), Inches(0.6), Emu(20000))
-    line.fill.solid(); line.fill.fore_color.rgb = COLOR_HIGHLIGHT
-    line.line.fill.background()
+    _rule(s, x=0.7, y=1.65, w=0.6, color=COLOR_HIGHLIGHT, pt=2.5)
 
     # Tier 1 — full width
     if tier1:
@@ -606,10 +610,7 @@ def add_closing_slide(prs: Presentation, *,
     r = p.add_run(); r.text = title
     set_run(r, size=32, bold=True, color=COLOR_NAVY)
 
-    line = s.shapes.add_shape(MSO_SHAPE.RECTANGLE,
-                              Inches(0.7), Inches(1.75), Inches(0.6), Emu(20000))
-    line.fill.solid(); line.fill.fore_color.rgb = COLOR_HIGHLIGHT
-    line.line.fill.background()
+    _rule(s, x=0.7, y=1.75, w=0.6, color=COLOR_HIGHLIGHT, pt=2.5)
 
     if bullets:
         box = s.shapes.add_textbox(Inches(0.7), Inches(2.2), Inches(12.0), Inches(4.0))

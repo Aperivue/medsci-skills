@@ -40,10 +40,23 @@ from build_pptx_nature_lancet import (  # noqa: E402
 
 DETECTOR = SKILL / "scripts" / "check_slide_tells.py"
 
+# A real deck's worth of content slides, not three. The earlier version of this test built
+# three, and three is below every threshold in the detector — so it certified a builder that
+# tripped SHAPE_MONOTONY the moment anyone built a normal-length deck with it. A gate whose
+# fixture is smaller than the thing it guards is not a gate.
 TITLES = [
     "Seeding followed the catheter tract in 9 of 11 cases",
     "Recurrence halved with adjunctive ablation (12% vs 26%)",
     "The effect did not depend on tumour size",
+    "Ablation added 40 minutes to the procedure",
+    "Two centres accounted for most of the variance",
+    "The learning curve flattened after 20 cases",
+    "Grade 3 complications were unchanged",
+    "Cost per avoided recurrence was $4,100",
+    "The benefit persisted at three years",
+    "Operator experience predicted success better than device",
+    "No seeding occurred where the tract was ablated",
+    "The registry under-reports minor complications",
 ]
 
 
@@ -97,6 +110,36 @@ def main() -> int:
             print("  PASS  restoring the old eyebrow-everywhere default is CAUGHT")
         else:
             print("  FAIL  the old default was NOT caught — this gate is decorative "
+                  f"(found: {sorted(found) or 'nothing'})")
+            ok = False
+
+        # 3. The rule under the title is a LINE. Draw it as a thin rectangle instead — which
+        #    looks identical and is what the builder used to do — and the deck becomes a stack
+        #    of one repeated box. This is not hypothetical: it shipped.
+        import build_pptx_nature_lancet as b  # noqa: PLC0415
+        from pptx.enum.shapes import MSO_SHAPE  # noqa: PLC0415
+        from pptx.util import Emu, Inches  # noqa: PLC0415
+
+        real_rule = b._rule
+
+        def rule_as_rectangle(s, *, x, y, w, color, pt=2.0):
+            r = s.shapes.add_shape(MSO_SHAPE.RECTANGLE,
+                                   Inches(x), Inches(y), Inches(w), Emu(20000))
+            r.fill.solid(); r.fill.fore_color.rgb = color
+            r.line.fill.background()
+            return r
+
+        b._rule = rule_as_rectangle
+        try:
+            regressed = tmp / "rule_as_rect.pptx"
+            build(regressed, chrome_on_every_slide=False)
+        finally:
+            b._rule = real_rule
+        found = verdicts(regressed)
+        if "SHAPE_MONOTONY" in found:
+            print("  PASS  drawing the rule as a rectangle is CAUGHT (SHAPE_MONOTONY)")
+        else:
+            print("  FAIL  a deck of identical thin rectangles was NOT caught "
                   f"(found: {sorted(found) or 'nothing'})")
             ok = False
 
