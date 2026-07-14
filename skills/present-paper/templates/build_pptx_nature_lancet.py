@@ -80,7 +80,7 @@ from pptx import Presentation
 from pptx.util import Inches, Pt, Emu
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
 from pptx.dml.color import RGBColor
-from pptx.enum.shapes import MSO_SHAPE
+from pptx.enum.shapes import MSO_CONNECTOR, MSO_SHAPE
 from lxml import etree
 
 
@@ -197,6 +197,22 @@ def _blank(prs: Presentation):
 # Slide builders
 # ============================================================================
 
+def _rule(s, *, x: float, y: float, w: float, color: RGBColor, pt: float = 2.0):
+    """A typographic rule — drawn as a LINE, because that is what it is.
+
+    It used to be a rectangle 20,000 EMU tall (~0.02"), which looks identical and is not the
+    same thing. check_slide_tells counts drawn shapes and exempts ``prst == "line"``, because a
+    rule is typography, not an idea. Faking one with a rectangle put a 13th identical box in a
+    15-slide deck and tripped this project's own SHAPE_MONOTONY detector — with the shipped
+    builder, following the house style. Use the right primitive and the rule costs nothing.
+    """
+    c = s.shapes.add_connector(MSO_CONNECTOR.STRAIGHT,
+                               Inches(x), Inches(y), Inches(x + w), Inches(y))
+    c.line.color.rgb = color
+    c.line.width = Pt(pt)
+    return c
+
+
 def add_title_slide(prs: Presentation, *,
                     eyebrow: str = "",
                     title: str,
@@ -216,7 +232,7 @@ def add_title_slide(prs: Presentation, *,
         eye = s.shapes.add_textbox(Inches(1.1), Inches(2.2), Inches(10), Inches(0.5))
         p = eye.text_frame.paragraphs[0]
         r = p.add_run(); r.text = eyebrow
-        set_run(r, size=14, bold=True, color=COLOR_HIGHLIGHT, letter_space="300")
+        set_run(r, size=20, bold=True, color=COLOR_HIGHLIGHT, letter_space="300")
 
     box = s.shapes.add_textbox(Inches(1.1), Inches(2.7), Inches(11.5), Inches(2.5))
     tf = box.text_frame; tf.word_wrap = True
@@ -230,16 +246,13 @@ def add_title_slide(prs: Presentation, *,
         set_run(r2, size=18, italic=True, color=COLOR_TEXT_SUB)
 
     if meta_top or meta_bottom:
-        line = s.shapes.add_shape(MSO_SHAPE.RECTANGLE,
-                                  Inches(1.1), Inches(5.95), Inches(2.0), Emu(8000))
-        line.fill.solid(); line.fill.fore_color.rgb = COLOR_NAVY
-        line.line.fill.background()
+        _rule(s, x=1.1, y=5.95, w=2.0, color=COLOR_NAVY, pt=1.0)
 
         sub = s.shapes.add_textbox(Inches(1.1), Inches(6.0), Inches(11.5), Inches(1.0))
         stf = sub.text_frame; stf.word_wrap = True
         rows = [
-            (meta_top,    16, True,  COLOR_NAVY),
-            (meta_bottom, 13, False, COLOR_TEXT_SUB),
+            (meta_top,    20, True,  COLOR_NAVY),
+            (meta_bottom, 20, False, COLOR_TEXT_SUB),
         ]
         first = True
         for text, sz, bld, col in rows:
@@ -276,7 +289,7 @@ def add_section_divider(prs: Presentation, *,
     num_box = s.shapes.add_textbox(Inches(1.5), Inches(2.5), Inches(3), Inches(1.5))
     p = num_box.text_frame.paragraphs[0]; p.alignment = PP_ALIGN.LEFT
     r = p.add_run(); r.text = f"SECTION  {num}"
-    set_run(r, size=18, bold=True, color=COLOR_HIGHLIGHT, letter_space="400")
+    set_run(r, size=20, bold=True, color=COLOR_HIGHLIGHT, letter_space="400")
 
     title_box = s.shapes.add_textbox(Inches(1.5), Inches(3.1), Inches(10), Inches(2.5))
     tf = title_box.text_frame; tf.word_wrap = True
@@ -293,7 +306,7 @@ def add_section_divider(prs: Presentation, *,
         time_box = s.shapes.add_textbox(Inches(11.0), Inches(6.5), Inches(2.0), Inches(0.5))
         p = time_box.text_frame.paragraphs[0]; p.alignment = PP_ALIGN.RIGHT
         r = p.add_run(); r.text = f"{time_min}  MIN"
-        set_run(r, size=13, bold=True, color=COLOR_MUTED, letter_space="500")
+        set_run(r, size=20, bold=True, color=COLOR_MUTED, letter_space="500")
 
     add_notes(s, notes)
     return s
@@ -341,7 +354,7 @@ def add_content_slide(prs: Presentation, *,
         eye = s.shapes.add_textbox(Inches(0.7), Inches(0.32), Inches(8), Inches(0.4))
         p = eye.text_frame.paragraphs[0]
         r = p.add_run(); r.text = eyebrow
-        set_run(r, size=10, bold=True, color=COLOR_MUTED, letter_space="300")
+        set_run(r, size=20, bold=True, color=COLOR_MUTED, letter_space="300")
 
     title_box = s.shapes.add_textbox(Inches(0.7), Inches(0.75), Inches(12.0), Inches(1.1))
     ttf = title_box.text_frame; ttf.word_wrap = True
@@ -354,10 +367,7 @@ def add_content_slide(prs: Presentation, *,
         r2 = p2.add_run(); r2.text = subtitle
         set_run(r2, size=15, italic=True, color=COLOR_TEXT_SUB)
 
-    line = s.shapes.add_shape(MSO_SHAPE.RECTANGLE,
-                              Inches(0.7), Inches(2.05), Inches(0.6), Emu(20000))
-    line.fill.solid(); line.fill.fore_color.rgb = COLOR_HIGHLIGHT
-    line.line.fill.background()
+    _rule(s, x=0.7, y=2.06, w=0.6, color=COLOR_HIGHLIGHT, pt=2.5)
 
     has_fig = figure_path is not None and Path(figure_path).exists()
     if has_fig:
@@ -420,9 +430,9 @@ def add_content_slide(prs: Presentation, *,
             ctf = cap.text_frame; ctf.word_wrap = True
             cp = ctf.paragraphs[0]; cp.alignment = PP_ALIGN.CENTER
             cr = cp.add_run(); cr.text = "Figure  ·  "
-            set_run(cr, size=10, bold=True, color=COLOR_HIGHLIGHT, letter_space="200")
+            set_run(cr, size=20, bold=True, color=COLOR_HIGHLIGHT, letter_space="200")
             cr2 = cp.add_run(); cr2.text = fig_caption
-            set_run(cr2, size=11, italic=True, color=COLOR_MUTED)
+            set_run(cr2, size=20, italic=True, color=COLOR_MUTED)
 
     if footnote:
         fn = s.shapes.add_textbox(Inches(0.7), Inches(7.05), Inches(12.0), Inches(0.35))
@@ -465,10 +475,7 @@ def add_toc_slide(prs: Presentation, *,
         r2 = p2.add_run(); r2.text = subtitle
         set_run(r2, size=16, italic=True, color=COLOR_TEXT_SUB)
 
-    line = s.shapes.add_shape(MSO_SHAPE.RECTANGLE,
-                              Inches(0.7), Inches(2.1), Inches(0.6), Emu(20000))
-    line.fill.solid(); line.fill.fore_color.rgb = COLOR_HIGHLIGHT
-    line.line.fill.background()
+    _rule(s, x=0.7, y=2.1, w=0.6, color=COLOR_HIGHLIGHT, pt=2.5)
 
     y_start = 2.5
     row_h = 0.85
@@ -536,17 +543,14 @@ def add_glossary_slide(prs: Presentation, *,
         eye = s.shapes.add_textbox(Inches(0.7), Inches(0.32), Inches(8), Inches(0.4))
         p = eye.text_frame.paragraphs[0]
         r = p.add_run(); r.text = eyebrow
-        set_run(r, size=10, bold=True, color=COLOR_MUTED, letter_space="300")
+        set_run(r, size=20, bold=True, color=COLOR_MUTED, letter_space="300")
 
     tb = s.shapes.add_textbox(Inches(0.7), Inches(0.75), Inches(12.0), Inches(0.8))
     p = tb.text_frame.paragraphs[0]
     r = p.add_run(); r.text = title
     set_run(r, size=30, bold=True, color=COLOR_NAVY)
 
-    line = s.shapes.add_shape(MSO_SHAPE.RECTANGLE,
-                              Inches(0.7), Inches(1.65), Inches(0.6), Emu(20000))
-    line.fill.solid(); line.fill.fore_color.rgb = COLOR_HIGHLIGHT
-    line.line.fill.background()
+    _rule(s, x=0.7, y=1.65, w=0.6, color=COLOR_HIGHLIGHT, pt=2.5)
 
     # Tier 1 — full width
     if tier1:
@@ -606,10 +610,7 @@ def add_closing_slide(prs: Presentation, *,
     r = p.add_run(); r.text = title
     set_run(r, size=32, bold=True, color=COLOR_NAVY)
 
-    line = s.shapes.add_shape(MSO_SHAPE.RECTANGLE,
-                              Inches(0.7), Inches(1.75), Inches(0.6), Emu(20000))
-    line.fill.solid(); line.fill.fore_color.rgb = COLOR_HIGHLIGHT
-    line.line.fill.background()
+    _rule(s, x=0.7, y=1.75, w=0.6, color=COLOR_HIGHLIGHT, pt=2.5)
 
     if bullets:
         box = s.shapes.add_textbox(Inches(0.7), Inches(2.2), Inches(12.0), Inches(4.0))
@@ -627,7 +628,7 @@ def add_closing_slide(prs: Presentation, *,
         cb = s.shapes.add_textbox(Inches(0.7), Inches(6.5), Inches(12.0), Inches(0.5))
         p = cb.text_frame.paragraphs[0]; p.alignment = PP_ALIGN.LEFT
         r = p.add_run(); r.text = contact
-        set_run(r, size=12, color=COLOR_TEXT_SUB)
+        set_run(r, size=20, color=COLOR_TEXT_SUB)
 
     if page_brand:
         pb = s.shapes.add_textbox(Inches(0.7), Inches(7.05), Inches(4.0), Inches(0.35))
