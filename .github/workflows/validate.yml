@@ -147,6 +147,12 @@ jobs:
       - name: Run check_locale_inventory.py self-test
         run: bash tests/test_locale_inventory.sh
 
+      - name: "Run check_hardcoded_locale.py (no skill picks its user's language)"
+        run: python3 scripts/check_hardcoded_locale.py --strict
+
+      - name: Run hardcoded-locale gate self-test (the rule /publish-skill already wrote down)
+        run: bash tests/test_hardcoded_locale.sh
+
       - name: Run self-review panel-mode structural + PII test
         run: bash skills/self-review/tests/test_panel_mode.sh
 

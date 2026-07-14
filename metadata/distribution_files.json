@@ -1823,8 +1823,8 @@
     },
     {
       "path": "skills/humanize/SKILL.md",
-      "size": 14240,
-      "sha256": "f179598c74b1ab0b3d6639fdd26b8cafa33713a9ebe9374aad5d31571340d836"
+      "size": 14232,
+      "sha256": "49ce02c245e7a816b795b85a402aefb8d655da020b9b0624a25a151a513451ab"
     },
     {
       "path": "skills/humanize/references/ai_patterns.md",
@@ -3343,8 +3343,8 @@
     },
     {
       "path": "skills/polish-language/SKILL.md",
-      "size": 6578,
-      "sha256": "16cc5dd91c4614e3306d766c8f3810a52a50f8a6bc2192483cb7d8f144843dd6"
+      "size": 6585,
+      "sha256": "5d68e807703817b5771f0b3f05beafe71eb34c0e68b2df4b74b995e871a1c679"
     },
     {
       "path": "skills/polish-language/scripts/lint_challenge/expected/report.txt",
@@ -3768,8 +3768,8 @@
     },
     {
       "path": "skills/revise/SKILL.md",
-      "size": 29984,
-      "sha256": "79e12a5bd02f16665a5b3bdef582167e081a9b7ba3c722de3e0438d488c5ae5e"
+      "size": 30049,
+      "sha256": "66e9660254fe44af90173a288c7e17017888015d50a4c1800dcc9199294a9ee9"
     },
     {
       "path": "skills/revise/references/r2r_voice.md",

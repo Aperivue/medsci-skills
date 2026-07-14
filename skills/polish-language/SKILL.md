@@ -17,7 +17,7 @@ register while never touching facts.
 ## Communication Rules
 
 - Manuscript content and edits in English.
-- Conversation with the user may be in Korean.
+- Converse with the user in their preferred language.
 - Report issues first; only edit after the user approves (see gates below).
 
 ## Scope boundary (what this skill is, and is not)

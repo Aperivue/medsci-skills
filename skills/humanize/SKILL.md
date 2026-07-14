@@ -14,9 +14,9 @@ wrote it, while preserving every technical claim, number, and citation.
 
 ## Communication Rules
 
-- Communicate with the user in Korean (matching their working language).
+- Communicate with the user in their preferred language.
 - All manuscript edits are in English.
-- Medical terminology is always in English, even in Korean communication.
+- Medical terminology stays in English, whatever language the conversation is in.
 
 ## Reference Files
 
