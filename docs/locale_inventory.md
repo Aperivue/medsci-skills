@@ -146,3 +146,21 @@ English defaults, each with a `_ko` sibling below).
 | `skills/lit-sync/SKILL.md` | D | English-default vault/headings; `triggers:` line + honor-existing Korean-folder examples documenting the detect-and-honor behavior. |
 | `skills/present-paper/references/generate_pptx_templates.py` | A | Legacy Korean slide-marker parser regex (backward compatibility). |
 | `skills/present-paper/references/slide_visual_styles/nature_lancet.md` | A | Korean-glyph rendering verification grep. |
+
+### AI-slide-tell detection (Korean is the evidence, not a translation)
+
+The critiques that motivated `check_slide_tells.py` were written in Korean, and the scaffolding
+phrases the detector matches **are Korean strings** — "요약하자면", "핵심은 ~라는 점이다", "이는 세
+가지 층위에서 살펴볼 수 있다". A Korean deck built from an English brief still comes out with these
+in it, so the pattern bank has to carry them. Translating the quoted critique into English would
+also destroy it: the point of quoting a reviewer verbatim is that it is what they said.
+
+| Path | Bucket | Why retained |
+|---|---|---|
+| `skills/present-paper/scripts/check_slide_tells.py` | A | Korean scaffolding-phrase patterns are the detector's subject matter — they must match Korean slide text. |
+| `skills/present-paper/scripts/check_slide_tells_challenge/make_fixtures.py` | A | The positive fixture plants Korean scaffolding phrases; the detector must find them. |
+| `skills/present-paper/references/ai_slide_tells.md` | A | Quotes the source critiques verbatim (reviewers, an investor, a practitioner). Paraphrasing a verbatim quote is not a translation, it is a fabrication. |
+| `skills/present-paper/references/critic_rubrics/slide.md` | A | Names the Korean scaffolding phrases a reviewer must look for. |
+| `skills/present-paper/templates/build_pptx_nature_lancet.py` | A | One Korean quote in a comment, explaining why the eyebrow/footer default was removed. |
+| `skills/present-paper/tests/test_builder_no_chrome.py` | A | Same quote, explaining what the test is defending against. |
+| `skills/present-paper/references/presentation_archetypes.md` | A | One verbatim quote from an investor explaining why they tell founders never to use AI for an IR deck — the sentence is the evidence for the archetype's warning, and paraphrasing a quote is not translation. |

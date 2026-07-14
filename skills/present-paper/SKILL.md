@@ -66,6 +66,26 @@ Before collecting inputs, the skill loads these reference files:
    generic builder (`references/generate_pptx_templates.py`). PDF figures →
    `scripts/extract_pdf_figures.py`.
 
+5. **`references/presentation_archetypes.md`** — the **skeleton**, chosen by where the speaker is
+   standing: conference oral, journal-club critique, case-anchored grand rounds, didactic lecture,
+   defence, keynote (Duarte's sparkline, the Jobs STAR moment, Takahashi/Lessig), lay talk, and the
+   decision brief (Minto's pyramid, action titles, Kawasaki's 10/20/30). A deck has **two
+   independent choices** and conflating them is why talks fail: the *archetype* is what the talk has
+   to **do**; the *visual style* is what it **looks like**. A conference oral in a keynote's skeleton
+   dies (no data on the slides); a keynote in a conference oral's skeleton dies harder. **The skin is
+   a preference; the skeleton is not.** Its mechanical half is `scripts/check_deck_budget.py`.
+
+6. **`references/ai_slide_tells.md`** — **read this one first, and read all of it.** The marks a
+   generated deck leaves, and why reviewers now say they can spot one instantly: scaffolding
+   sentences that narrate the thought instead of stating it, chrome along every edge, the same box
+   eight times, unlabelled arrows, a vague brief producing a deck nobody can use. The complaint is
+   **not** that AI decks are ugly — templates solved ugly. It is that they *stop communicating*,
+   because they were built to make the maker comfortable rather than to serve the audience.
+   `scripts/check_slide_tells.py` catches these after the deck exists (Step 3.6); this file is so
+   the deck does not need catching. It also overrules older guidance where they conflict — the
+   eyebrow-on-every-slide and brand-footer rules in particular, which this project used to mandate
+   and which are the single most-cited visual tell.
+
 These mirror the entry-point pattern used in
 `make-figures/references/design_principles.md` (Step 1 "Specify"). Both skills share
 the same Reynolds / Knaflic / Tufte foundations — slide-level (this skill) and
@@ -89,6 +109,17 @@ Before starting, collect these from the user:
 After collecting the inputs above and **before** drafting the outline, settle how the
 deck will look. Ask the user two questions (use `AskUserQuestion`; skip a question if the
 user already answered it in their request):
+
+**Q0 — "Where are you standing, and for how long?"** (venue + minutes)
+
+This decides the **archetype** — the skeleton — before any question about looks. Map the answer with
+the selector table in `references/presentation_archetypes.md`, and carry `archetype` + `minutes`
+forward: Step 3.6 checks the built deck against them. A 40-word slide is an ordinary academic slide
+and a catastrophic keynote slide; there is no universal answer to "how much text is too much", only
+an answer for *this room*.
+
+If the user gives only a topic and no venue, **ask**. Do not guess: a deck built for no particular
+room comes out generic in exactly the way every reviewer can see.
 
 **Q1 — "Do you have an institutional or branded template to use?"**
 - **Yes** → the user supplies a `.pptx`/`.potx`. Switch to **Mode C** (Phase 3, "Fill an
@@ -465,6 +496,44 @@ When the deck pulls figures from `analysis/figures/` produced by `/make-figures`
 - **Forbidden**: TIFF (Mac PowerPoint silently drops it — see Mac compatibility checklist below); JPEG for line art (compression artifacts on diagonal lines); raw SVG (PowerPoint Mac handles it inconsistently).
 - **Caption / legend**: re-draft for spoken-narration context, not the journal legend verbatim. The journal legend assumes a reader; the slide caption assumes a listener with 5–10 seconds of attention.
 
+### Diagrams and plots are drawn as CODE, then inserted (not out of autoshapes)
+
+**Hard rule. This is the highest-yield rule in the skill**, and it is the one thing practitioners
+report actually working when they hand slide-making to an agent:
+
+> "에이전틱하게 PPT 도구를 사용하거나 / 웹페이지 형식으로 구성하는 경우는 거의 100% 실패함. 그나마
+> 성공률을 높일 방법은 다이어그램 / 플롯을 모두 잘 알려진 도구(matplotlib 등)를 활용해 '코드'로
+> 그리도록 시킨 다음, 그 결과를 그대로 삽입하도록 지시하는 방법인 듯."
+
+| Content | Draw it with | Never |
+|---|---|---|
+| Any chart | matplotlib / R (`/make-figures`) | Hand-placed shapes pretending to be a chart |
+| Flow, mechanism, pipeline, hierarchy | matplotlib, or **Graphviz DOT** when the graph *is* the point | `python-pptx` autoshapes |
+| Study flow (STROBE/PRISMA) | `/make-figures` flow builders | Boxes drawn one at a time |
+
+Then insert the rendered PNG (≥300 dpi) with `add_picture()`.
+
+**Why the ban.** Building a diagram out of autoshapes produces both AI tells at once: a row of
+identical rounded rectangles (`SHAPE_MONOTONY`) joined by arrows nobody labelled
+(`ARROW_NO_SEMANTICS`). Graphviz makes the second one *structurally hard to get wrong* — a DOT edge
+must be written `A -> B [label="seeds along"]`, so the language itself demands the arrow declare
+what it claims:
+
+```dot
+digraph mechanism {
+  rankdir=LR; node [shape=box, fontname="Inter"];
+  catheter -> tract   [label="seeds along"];
+  tract    -> nodule  [label="grows into"];   // an arrow that says what it means
+}
+```
+
+An arrow is a claim — *causes, becomes, flows into, is compared with, predicts*. Six claims, one
+glyph. Drawn unlabelled, every person in the room supplies a different verb, and one wrong arrow can
+derail an entire discussion. See `references/ai_slide_tells.md` §4–5.
+
+**The one exception**: a single, deliberate, labelled shape used as an accent (a callout box, a
+highlight frame). One shape is a choice; eight identical ones are a generator.
+
 ### Helpers (used by templates — usually you do not call directly)
 
 | Helper | Role |
@@ -602,6 +671,38 @@ grep -oE '"[0-9]{6,}"' ppt/slides/*.xml | head
 ```
 
 Record `critic_pass: yes | partial | no` and `refine_rounds: N` in `_quick_review.md`.
+
+### Step 3.6 — AI-tell audit (deterministic; run on the built deck, not the build script)
+
+```bash
+python3 scripts/check_slide_tells.py  output/presentation.pptx --json output/qc/slide_tells.json
+python3 scripts/check_deck_budget.py  output/presentation.pptx --json output/qc/deck_budget.json \
+        --archetype <from Q0> --minutes <from Q0>
+```
+
+`check_deck_budget.py` is the mechanical half of the archetype: slides against the clock
+(`DECK_OVER_BUDGET`), words per slide against what *this* room can absorb while also listening
+(`SLIDE_TOO_DENSE`), and the type floor for the back row (`TYPE_TOO_SMALL`). It takes an archetype
+rather than a universal threshold because a single global number would have to be wrong for most
+venues. `--list` prints the budgets.
+
+Six verdicts, each one a mark reviewers say they can spot instantly. **Every one must be cleared or
+consciously overruled**, with the reason written down:
+
+| Verdict | What it found | The fix |
+|---|---|---|
+| `CHROME_ON_EVERY_SLIDE` | Eyebrow labels / brand footers on ≥60% of slides | Keep the page number and the dividers. Delete the rest. |
+| `SCAFFOLD_PHRASE` | A slide (or note) narrating its own construction — "요약하자면", "The key takeaway is…" | Delete the sentence; say the thing it was pointing at. |
+| `TOPIC_TITLE` | A content slide titled "Results" instead of stating the result | Assertion headline: *"Adjunctive ablation halved local recurrence (12% vs 26%)."* |
+| `SHAPE_MONOTONY` | The same box, eight times, at the same size | Parallel ideas → one table. Non-parallel ideas → different shapes. |
+| `DEAD_SPACE_BAND` | A mostly-empty slide with a hole through the middle | Say more, or say one thing large. |
+| `ARROW_NO_SEMANTICS` | ≥2 arrows, none labelled | Label every arrow, or add a legend. An arrow is a claim. |
+
+The detector is **stdlib-only** and reads any `.pptx`, so it also works on a deck a colleague sends
+you, or one you did not build here.
+
+**It is not a style opinion, and it does not detect "was AI used".** Used as a booster, AI leaves
+none of these marks. Used as a button, it leaves all of them.
 
 **Mode B: Add notes to existing slides** (more common)
 - Read existing PPTX to understand slide structure and count

@@ -68,6 +68,8 @@ FAMILY_BY_ID: dict[str, str] = {
     "check_reference_duplication": "citation_reference",
     # Style & review-process integrity
     "check_classical_style": "style_review",
+    "check_slide_tells": "style_review",
+    "check_deck_budget": "style_review",
     "check_generated_code": "style_review",
     "check_panel_diversity": "style_review",
     "check_reviewer_team_consistency": "style_review",

@@ -22,11 +22,17 @@
 **Known limitations**
 
 - Figure cropping and notes parsing are heuristic; verify the built PPTX in PowerPoint.
+- A per-slide script is required, not a topic. Given only a topic, the deck comes out generic in the way every reviewer can see -- the skill asks for the narrative instead of inventing one.
+- It does not draw diagrams from autoshapes: flows and mechanisms are rendered as code (matplotlib / Graphviz) and inserted, because an unlabelled arrow is read differently by every person in the room.
 - Mac OOXML quirks require the bundled compatibility checks; not every host renders identically.
 
 **Validation**
 
 - `unzip the .pptx and confirm 0 markdown-raw notes / 0 TIFF / app.xml counts synced`
+- `python3 scripts/check_slide_tells.py output/presentation.pptx --strict`
+- `python3 scripts/check_deck_budget.py output/presentation.pptx --archetype <venue> --minutes <N> --strict`
+- `bash scripts/check_slide_tells_challenge/verify.sh`
+- `bash scripts/check_deck_budget_challenge/verify.sh`
 - `python3 scripts/strip_notes_for_sharing.py before sharing`
 
 **Evidence** — `bundled_script`
@@ -35,9 +41,11 @@
 
 **References** (`skills/present-paper/references/`):
 
+- `ai_slide_tells.md`
 - `critic_rubrics/` (1 file)
 - `generate_pptx_templates.py`
 - `medical_presentation_templates.md`
+- `presentation_archetypes.md`
 - `presentation_design_guidelines.md`
 - `slide_design_principles.md`
 - `slide_visual_styles/` (6 files)
@@ -45,6 +53,10 @@
 
 **Scripts** (`skills/present-paper/scripts/`):
 
+- `check_deck_budget.py`
+- `check_deck_budget_challenge/` (2 files)
+- `check_slide_tells.py`
+- `check_slide_tells_challenge/` (2 files)
 - `extract_pdf_figures.py`
 - `inject_pronunciation_notes.py`
 - `inject_speaker_notes.py`

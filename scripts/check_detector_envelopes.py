@@ -52,7 +52,23 @@ def audit() -> list[str]:
         stem = p.stem
         src = p.read_text(encoding="utf-8")
         writes_json = "json.dump" in src
-        identifies = re.search(rf'"detector"\s*:\s*"{re.escape(stem)}"', src) is not None
+
+        # The contract is about the ARTIFACT: the qc JSON must name the detector that wrote it.
+        # This check reads source, which is a proxy — so it has to accept both honest ways of
+        # satisfying the contract, or it fails a detector that does the right thing:
+        #
+        #   "detector": "check_x"        written as a literal, or
+        #   DETECTOR = "check_x"  …  {"detector": DETECTOR, …}   named once, used everywhere
+        #
+        # The second is better practice (the id appears in the envelope AND on each finding without
+        # being retyped). Rejecting it would push authors toward copy-pasted string literals to
+        # appease a checker, which is how a gate starts making the code worse.
+        literal = re.search(rf'"detector"\s*:\s*"{re.escape(stem)}"', src) is not None
+        via_const = (
+            re.search(rf'^DETECTOR\s*=\s*"{re.escape(stem)}"\s*$', src, re.MULTILINE) is not None
+            and re.search(r'"detector"\s*:\s*DETECTOR\b', src) is not None
+        )
+        identifies = literal or via_const
 
         if stem in NO_JSON_OUTPUT:
             if writes_json:

@@ -37,19 +37,29 @@ Usage (illustrative):
     add_section_divider(prs, num="01", title="<Section A title>",
         subtitle="<lighthouse paper or section theme>", time_min=5)
 
+    # A content slide carries NO eyebrow and NO page_brand. Both default to off.
+    #
+    # This style used to put an all-caps label at the top of every slide and a
+    # "2026 · COURSE" footer at the bottom of every slide. That is the first thing
+    # reviewers name when they say they can spot an AI-made deck at a glance —
+    # "슬라이드 상단과 하단에 자잘한 글자들" — and we were manufacturing it as house style.
+    # Keep the eyebrow for the title slide and the section dividers, where it orients
+    # someone who just walked in. Everywhere else it repeats what the audience knows.
+    #
+    # The title must SAY THE FINDING, not name the section: not "Results" but
+    # "Adjunctive ablation halved local recurrence (12% vs 26%)". The headline is the
+    # one line everyone reads.
     add_content_slide(prs,
-        eyebrow="<COURSE / TOPIC LABEL>",
-        title="<Sentence-headline title>",
+        title="<Assertion headline — the finding, as a sentence>",
         subtitle="<Author et al, Journal YYYY — n=...>",
         bullets=[
             "**Bold** main bullet",
             "  Sub bullet (prefix with 2 spaces)",
             "Another main bullet with *italic*",
         ],
-        figure_path="figures/<your_fig>.png",
+        figure_path="figures/<your_fig>.png",   # drawn as CODE (matplotlib / Graphviz), then inserted
         fig_caption="<Short caption>",
-        footnote="<Author et al, Journal YYYY>",
-        page_brand="<YEAR · COURSE NAME>",
+        footnote="<Author et al, Journal YYYY>",  # only where there is a source
         notes="<notes in the user's preferred language>")
 
     add_closing_slide(prs, title="Take-home messages", bullets=[...], notes="...")
@@ -179,7 +189,7 @@ def _blank(prs: Presentation):
 # ============================================================================
 
 def add_title_slide(prs: Presentation, *,
-                    eyebrow: str,
+                    eyebrow: str = "",
                     title: str,
                     subtitle: str | None = None,
                     meta_top: str | None = None,
@@ -192,10 +202,12 @@ def add_title_slide(prs: Presentation, *,
     bar.fill.solid(); bar.fill.fore_color.rgb = COLOR_NAVY
     bar.line.fill.background()
 
-    eye = s.shapes.add_textbox(Inches(1.1), Inches(2.2), Inches(10), Inches(0.5))
-    p = eye.text_frame.paragraphs[0]
-    r = p.add_run(); r.text = eyebrow
-    set_run(r, size=14, bold=True, color=COLOR_HIGHLIGHT, letter_space="300")
+    if eyebrow:  # OFF by default. An eyebrow on every slide is the AI tell —
+        # keep it for the title slide and section dividers, where it orients.
+        eye = s.shapes.add_textbox(Inches(1.1), Inches(2.2), Inches(10), Inches(0.5))
+        p = eye.text_frame.paragraphs[0]
+        r = p.add_run(); r.text = eyebrow
+        set_run(r, size=14, bold=True, color=COLOR_HIGHLIGHT, letter_space="300")
 
     box = s.shapes.add_textbox(Inches(1.1), Inches(2.7), Inches(11.5), Inches(2.5))
     tf = box.text_frame; tf.word_wrap = True
@@ -303,7 +315,7 @@ def add_transition_slide(prs: Presentation, *,
 
 
 def add_content_slide(prs: Presentation, *,
-                       eyebrow: str,
+                       eyebrow: str = "",
                        title: str,
                        subtitle: str | None = None,
                        bullets: Sequence[str] = (),
@@ -315,10 +327,12 @@ def add_content_slide(prs: Presentation, *,
     """Standard content slide. Bullets prefixed with two spaces become sub-bullets."""
     s = _blank(prs)
 
-    eye = s.shapes.add_textbox(Inches(0.7), Inches(0.32), Inches(8), Inches(0.4))
-    p = eye.text_frame.paragraphs[0]
-    r = p.add_run(); r.text = eyebrow
-    set_run(r, size=10, bold=True, color=COLOR_MUTED, letter_space="300")
+    if eyebrow:  # OFF by default. An eyebrow on every slide is the AI tell —
+        # keep it for the title slide and section dividers, where it orients.
+        eye = s.shapes.add_textbox(Inches(0.7), Inches(0.32), Inches(8), Inches(0.4))
+        p = eye.text_frame.paragraphs[0]
+        r = p.add_run(); r.text = eyebrow
+        set_run(r, size=10, bold=True, color=COLOR_MUTED, letter_space="300")
 
     title_box = s.shapes.add_textbox(Inches(0.7), Inches(0.75), Inches(12.0), Inches(1.1))
     ttf = title_box.text_frame; ttf.word_wrap = True
@@ -508,10 +522,12 @@ def add_glossary_slide(prs: Presentation, *,
     """
     s = _blank(prs)
 
-    eye = s.shapes.add_textbox(Inches(0.7), Inches(0.32), Inches(8), Inches(0.4))
-    p = eye.text_frame.paragraphs[0]
-    r = p.add_run(); r.text = eyebrow
-    set_run(r, size=10, bold=True, color=COLOR_MUTED, letter_space="300")
+    if eyebrow:  # OFF by default. An eyebrow on every slide is the AI tell —
+        # keep it for the title slide and section dividers, where it orients.
+        eye = s.shapes.add_textbox(Inches(0.7), Inches(0.32), Inches(8), Inches(0.4))
+        p = eye.text_frame.paragraphs[0]
+        r = p.add_run(); r.text = eyebrow
+        set_run(r, size=10, bold=True, color=COLOR_MUTED, letter_space="300")
 
     tb = s.shapes.add_textbox(Inches(0.7), Inches(0.75), Inches(12.0), Inches(0.8))
     p = tb.text_frame.paragraphs[0]

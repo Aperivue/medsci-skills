@@ -3453,13 +3453,18 @@
     },
     {
       "path": "skills/present-paper/SKILL.md",
-      "size": 33518,
-      "sha256": "777197edf83a4d242508b366abe24681198467a95950b0acc385ac2714f33cb4"
+      "size": 40128,
+      "sha256": "fbd3db6334755142d8b47c15779f2c8f5d36c1e35afca4067191d65614edd823"
+    },
+    {
+      "path": "skills/present-paper/references/ai_slide_tells.md",
+      "size": 8182,
+      "sha256": "f1837c6c8058086a0b96993905016e83e6f796d8b711fe9021e57fd53574f71a"
     },
     {
       "path": "skills/present-paper/references/critic_rubrics/slide.md",
-      "size": 7514,
-      "sha256": "cb6b5834bd416d94acc2e4ab2d2f55f5fc09b92e1c74d90d1b55f8e261ce2293"
+      "size": 9390,
+      "sha256": "5bfe547c5e5d60d977f71ddb487bf1c85dcd1a048c240394b7902326d322cabe"
     },
     {
       "path": "skills/present-paper/references/generate_pptx_templates.py",
@@ -3470,6 +3475,11 @@
       "path": "skills/present-paper/references/medical_presentation_templates.md",
       "size": 15007,
       "sha256": "d0f964af7523ec8bfef50ca627878f8c2cfe58159c2a827c5f7dfd43585cf9ee"
+    },
+    {
+      "path": "skills/present-paper/references/presentation_archetypes.md",
+      "size": 11968,
+      "sha256": "76428b7a2f84ca101db49bacc5159bf09954ef8679c5449a5f211abd2fc6204d"
     },
     {
       "path": "skills/present-paper/references/presentation_design_guidelines.md",
@@ -3508,13 +3518,43 @@
     },
     {
       "path": "skills/present-paper/references/slide_visual_styles/nature_lancet.md",
-      "size": 7989,
-      "sha256": "4d1e59eac1adb19f2f1581cd71ffb3d8495162540576b3433bab202c5229b6b4"
+      "size": 9116,
+      "sha256": "fd70cbe0edbc39b05a8c6f53da5637913c15182aeb4878983615a77af20c5846"
     },
     {
       "path": "skills/present-paper/references/workflow-checklist.md",
       "size": 3769,
       "sha256": "1aa6ecadcf3e8d83c24b6e1c5d31b11024940348ea584eb2879e3209fd13097e"
+    },
+    {
+      "path": "skills/present-paper/scripts/check_deck_budget.py",
+      "size": 8995,
+      "sha256": "a4fbee1ec4e0c00d7558f92aa7780eab725e51b71699d10aa3d0553afb2c00d3"
+    },
+    {
+      "path": "skills/present-paper/scripts/check_deck_budget_challenge/make_fixtures.py",
+      "size": 3778,
+      "sha256": "5f07853ca0ebe6df8f5c139337f353e3a43396a376a29b0f242328086c4e993f"
+    },
+    {
+      "path": "skills/present-paper/scripts/check_deck_budget_challenge/verify.sh",
+      "size": 3688,
+      "sha256": "bbde1a8486ff18c14f1bb630c67d087e26945d17334e8fc7eb4634737a52a0d5"
+    },
+    {
+      "path": "skills/present-paper/scripts/check_slide_tells.py",
+      "size": 24148,
+      "sha256": "e703164783cea7a14886f657b47ae672f5a5e8f8f526015a456ad19bae5f1d0c"
+    },
+    {
+      "path": "skills/present-paper/scripts/check_slide_tells_challenge/make_fixtures.py",
+      "size": 6724,
+      "sha256": "050f8568d92c7ccdabf7dbc3052a9abf159ddb9801b33d2e591563175f40c8e8"
+    },
+    {
+      "path": "skills/present-paper/scripts/check_slide_tells_challenge/verify.sh",
+      "size": 3441,
+      "sha256": "76228fd8cf77a1a72e925843c0ee067dfd6427c7528a051fec437465f347b4ab"
     },
     {
       "path": "skills/present-paper/scripts/extract_pdf_figures.py",
@@ -3548,13 +3588,13 @@
     },
     {
       "path": "skills/present-paper/skill.yml",
-      "size": 1697,
-      "sha256": "804c595a4d0805eddf6740b968c061d68faeee4d21258978defd806cadb77470"
+      "size": 2399,
+      "sha256": "cf98ef859afefd837dfcece79fc269fe918e4b4b6615321bf9fbd8aa5ff9b982"
     },
     {
       "path": "skills/present-paper/templates/build_pptx_nature_lancet.py",
-      "size": 28364,
-      "sha256": "e4d88a87633b7f9b00d126713a394cbe90db9b8b268fd81dfed9495522a538e0"
+      "size": 29739,
+      "sha256": "55d8369897acbba8afe5d0196b78c87f3ede1980fa90eb901ccd0c87af67804d"
     },
     {
       "path": "skills/publish-skill/SKILL.md",
