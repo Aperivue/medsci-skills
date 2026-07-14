@@ -473,11 +473,18 @@ python3 "$REPO_ROOT/scripts/validate_skill_contracts.py"
 contract_status=$?
 echo ""
 
-# Domain-probe vendoring drift gate. Capture the exit status explicitly: this
-# script runs under `set -uo pipefail` (not `set -e`), so a bare call would not
-# abort and the failure would be silently buried before the summary.
+# Vendoring drift gate (all vendored sets: domain probes + RoB checklists + any undeclared
+# cross-skill duplicate). Capture the exit status explicitly: this script runs under
+# `set -uo pipefail` (not `set -e`), so a bare call would not abort and the failure would be
+# silently buried before the summary.
 python3 "$REPO_ROOT/scripts/check_domain_probe_sync.py" --strict
 domain_probe_status=$?
+echo ""
+
+# Script reachability. A script no SKILL.md invokes never runs for a user, however well it is
+# tested — the non-detector sibling of check_detector_reachability.py.
+python3 "$REPO_ROOT/scripts/check_script_reachability.py" --strict
+script_reach_status=$?
 echo ""
 
 if [ "$FAIL" -gt 0 ]; then
@@ -490,7 +497,10 @@ elif [ "$contract_status" -ne 0 ]; then
   echo -e "${RED}VALIDATION FAILED${NC} — skill contract validation failed"
   exit 1
 elif [ "$domain_probe_status" -ne 0 ]; then
-  echo -e "${RED}VALIDATION FAILED${NC} — domain-probe vendoring drift (run check_domain_probe_sync.py --sync)"
+  echo -e "${RED}VALIDATION FAILED${NC} — vendoring drift (run check_domain_probe_sync.py --sync)"
+  exit 1
+elif [ "$script_reach_status" -ne 0 ]; then
+  echo -e "${RED}VALIDATION FAILED${NC} — a skill script is never invoked by any SKILL.md (see check_script_reachability.py)"
   exit 1
 else
   echo -e "${GREEN}ALL CHECKS PASSED${NC}"

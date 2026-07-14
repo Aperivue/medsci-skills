@@ -68,8 +68,8 @@
     },
     {
       "path": "skills/MAINTENANCE.md",
-      "size": 4061,
-      "sha256": "a4eaa6062e7d5879afcdac3bd954fcb783282707eea22b815d5a6f794d5a5217"
+      "size": 6555,
+      "sha256": "cf39c8c6015c7573aa40fb97631bba26acddab6a2fcb09c8d2a2ec5f49fdbd3f"
     },
     {
       "path": "skills/academic-aio/SKILL.md",
@@ -4298,8 +4298,8 @@
     },
     {
       "path": "skills/sync-submission/SKILL.md",
-      "size": 32406,
-      "sha256": "7633eaad3772477c54f5f52204c2e158b588984e712a3d87e52c955e106ce549"
+      "size": 33754,
+      "sha256": "a5045e252bdebf15fa569dee3156b83aa4bd03c4cb2ba07ffc21ef4fb5a762a2"
     },
     {
       "path": "skills/sync-submission/references/journal_availability_policy.json",

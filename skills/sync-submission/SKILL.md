@@ -55,6 +55,7 @@ The registry is a project-local YAML mapping author identifiers (full names, nat
 | Sync audit | `qc/submission_sync_{journal}.json` | Drift result consumed by orchestrator |
 | Manifest update | `artifact_manifest.json` | Submission package registry |
 | Pre-flight gate | `qc/preflight_gate_report.json` | Aggregated halt-on-failure manifest (see "Pre-flight gate" below) |
+| Supplement structure | `qc/supplement_structure.json` | Gate 14: index↔file 1:1, sub-section gaps, callout coverage |
 
 ## Pre-flight gate (single command — last step before freeze)
 
@@ -140,6 +141,16 @@ remains the authoritative fabrication and author-name check before submission.
     --journal-profile "${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/find-journal/references/journal_profiles/<Journal>.md" \
     --article-type "Original Article" --out qc/wordcount_cap.json --strict
   # or, deterministic: --limit 4000   (and --rendered-words N from the built DOCX when available)
+  ```
+
+- Gate 14 (supplement structure — the numbering lock): a cohort/SR supplement is a directory of `S{N}_*.md` sections plus an index, hand-concatenated into `_combined.md`. Across revision rounds that set desynchronizes silently: an index row with no file, a file the index never lists, two files claiming the same `S{N}`, or a sub-section gap after an insert (`S6.3` then `S6.5`). A reviewer opening "Supplementary Table S9" and finding the wrong content is the failure mode. Before freeze, run `scripts/assemble_supplement.py` to validate index↔file 1:1, rebuild `_combined.md` in index order (so the assembly is reproducible rather than hand-maintained), and — with `--manuscript` — report callout coverage: body callouts with no section file (`CALLOUT_WITHOUT_SECTION`) and section files the body never cites (`SECTION_UNCITED`). The four structural kinds are P0 under `--strict`; coverage findings are advisory.
+
+  ```bash
+  python3 "${CLAUDE_SKILL_DIR}/scripts/assemble_supplement.py" \
+    --dir submission/{journal}/supplementary --index 00_index.md \
+    --manuscript manuscript/manuscript.md \
+    --out submission/{journal}/supplementary/_combined.md \
+    --json qc/supplement_structure.json --strict
   ```
 
 ## Phase 4 — Cover-letter free-text drift

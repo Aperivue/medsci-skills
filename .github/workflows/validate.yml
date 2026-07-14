@@ -69,8 +69,17 @@ jobs:
       - name: Run validate_routing_assets.py self-test (dangling references/ pointer fails)
         run: bash tests/test_routing_assets.sh
 
-      - name: Run check_domain_probe_sync.py (vendored domain probes must be byte-identical)
+      - name: "Run check_domain_probe_sync.py (every vendored set byte-identical, none undeclared)"
         run: python3 scripts/check_domain_probe_sync.py --strict
+
+      - name: "Run vendoring-gate self-test (drifted checklist, drifted probe, undeclared pair all fail)"
+        run: bash tests/test_vendoring_sync.sh
+
+      - name: "Run check_script_reachability.py (a script no skill runs never runs)"
+        run: python3 scripts/check_script_reachability.py --strict
+
+      - name: "Run script-reachability self-test (de-wired script and undocumented allowlist entry fail)"
+        run: bash tests/test_script_reachability.sh
 
       - name: "Run check_bundled_media_license.py (an MIT package may only ship what it holds — including inside a .pptx)"
         run: python3 scripts/check_bundled_media_license.py --strict
