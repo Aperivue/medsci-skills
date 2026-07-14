@@ -171,8 +171,16 @@ def parse_shape(el: ET.Element, kind: str) -> Optional[Shape]:
     except (TypeError, ValueError):
         return None
 
-    texts = [t.text or "" for t in el.iter(f"{A}t")]
-    text = "".join(texts).strip()
+    # Runs inside one paragraph concatenate — a run boundary can fall mid-word, so "" is right
+    # there. Paragraphs do NOT: they are separate lines. Joining the whole shape with "" fused
+    # them, so a title slide's meta rows came out as the single token "PresenterAugust 2026" —
+    # one word where there were three, and no line for a headline to be the first of.
+    paras = []
+    for p_el in el.iter(f"{A}p"):
+        paras.append("".join(t.text or "" for t in p_el.iter(f"{A}t")))
+    if not paras:  # a shape with runs but no <a:p> ancestor we walked
+        paras = ["".join(t.text or "" for t in el.iter(f"{A}t"))]
+    text = "\n".join(paras).strip()
 
     sizes = [int(rpr.get("sz")) / 100 for rpr in el.iter(f"{A}rPr") if rpr.get("sz")]
     max_pt = max(sizes) if sizes else 0.0
