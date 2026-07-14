@@ -76,6 +76,10 @@ This work has limitations. First, it is a methods demonstration built on a singl
 
 In summary, the randomized evidence indicates that BCG vaccination substantially reduces tuberculosis risk on average, but the protection is highly variable across settings, and a prediction interval that crosses the null shows that neither the size nor, in some contexts, the presence of benefit can be assumed for any individual future population.
 
+## Data Availability
+
+The trial-level data are the BCG vaccine dataset distributed publicly with the `metafor` R package (`dat.bcg`), which reproduces the four cell counts of each of the 13 randomized trials as tabulated in the source meta-analysis. The derived effect-size table (`analysis/tables/per_study_escalc.csv`), all analysis code, and the figures accompany this demonstration, so that every pooled estimate, confidence interval, prediction interval, and leave-one-out result reported here can be recomputed independently.
+
 ## Tables
 
 Table 1. Per-trial event counts and risk ratios for tuberculosis, BCG-vaccinated versus control, in the 13 included randomized trials. Risk ratios and 95% confidence intervals are derived from the four cell counts of each trial (vaccinated TB-positive and TB-negative; control TB-positive and TB-negative). Source: analysis/tables/per_study_escalc.csv.

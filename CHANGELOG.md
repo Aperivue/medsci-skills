@@ -91,6 +91,34 @@
   fixtures proving they stay silent on good work (`/meta-analysis`'s local-only `JBI_Case_Series.md`;
   an import-only helper; a shelled-out script). Taxonomy and wiring rules recorded in
   `skills/MAINTENANCE.md` §3b/§3c. Detector count unchanged (repo-level gates are not detectors).
+- **A fixture that is clean for one detector was not required to be clean for the others — and two
+  detectors had already contradicted each other in that gap** (`scripts/check_detector_crossfire.py`,
+  `tests/test_detector_crossfire.sh`). `check_slide_tells` treated a text block as an *arrow label*
+  only if it was **≤ 18 pt**, while `check_deck_budget` demanded **≥ 20 pt** so the back row could
+  read it. A legible 20-pt arrow label therefore satisfied the budget check and was **invisible** to
+  the arrow check, so a well-made slide was reported as having unlabelled arrows. **Neither detector
+  was wrong alone.** One detector's advisory threshold had quietly become another detector's
+  *definition of a category*, and nothing in the repo ever looked at the two together.
+
+  Every detector was tested only against fixtures built to its own model of the world, so this class
+  of bug was invisible to every existing test. The new gate runs **every detector of a family against
+  every clean fixture of that family** — all manuscript detectors across the three demo manuscripts,
+  both deck detectors across all three clean decks the challenge cards build — and fails if any of
+  them produces a finding. When one does, either the detector is over-firing or the demo is
+  defective, and a human has to say which. **78 pairs** run today; the count is printed and a run of
+  zero pairs is itself a failure, because a test that silently exercises nothing is worse than none.
+
+  It found a real defect on its first run: **demo 02 had no Data Availability statement** (demos 01
+  and 03 both do), which `check_disclosure_availability` hard-blocks. The demo is fixed, not the
+  detector.
+
+  The gate learns how to invoke each detector from its own `--help` rather than guessing, and it
+  **never passes an output flag** (`--out` / `--json` / `--report`) — both deck detectors take
+  `--json PATH`, and a guessing scanner once overwrote 31 fixtures that way. It also runs each
+  detector with its working directory inside a temp dir (some write a *default* `qc/…` report beside
+  the fixture) and hashes every fixture before and after, voiding the run if one changed. Detectors
+  that need an input the fixture cannot supply are **skipped out loud, by name**, so the coverage is
+  auditable.
 
 ### Added
 
