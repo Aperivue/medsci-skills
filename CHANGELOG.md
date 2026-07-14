@@ -24,6 +24,19 @@
 
 ### Fixed
 
+- **We invited contributors through the browser, then failed them with a Python script.** A
+  stranger's first pull request — five nephrology journal profiles, exactly what our "good first
+  issue" asked for — went red with `DISTRIBUTION_MANIFEST_DRIFT: … out of date — run python3
+  scripts/gen_distribution_manifest.py`. He had added ten shipped files, so the hashed inventory the
+  self-updater verifies against no longer matched. Nothing was wrong with his work. But CONTRIBUTING
+  promises a browser-only path with **no git and no terminal**, and someone who accepts that
+  invitation cannot run a Python script: we told them to do the one thing we had just promised they
+  would never have to do. The gate stays strict — it protects the updater — but it now **names the
+  files that moved**, gives the command, and says plainly that a contributor who cannot run it should
+  leave it red, because **a maintainer will refresh the manifest before merging and this is not a
+  rejection**. CONTRIBUTING says the same. A regression test adds a shipped file and asserts the
+  message, because the message was the defect.
+
 - **The README demanded R and never mentioned pandoc — both wrong.** It listed "R 4.0+ with `meta`,
   `metafor`, `mada`" under Requirements, which reads as *you cannot use this without R*. The toolkit
   **never executes R**: `/analyze-stats` writes Python unless asked for R. Meanwhile **pandoc** — which

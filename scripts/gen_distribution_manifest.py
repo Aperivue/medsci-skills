@@ -140,6 +140,32 @@ def dumps(obj: dict) -> str:
     return json.dumps(obj, indent=2, ensure_ascii=False, sort_keys=False) + "\n"
 
 
+def _explain_drift(fresh_files_json: str, limit: int = 8) -> None:
+    """Name the files that moved, so the failure is a fact and not an accusation.
+
+    "The manifest is out of date" tells someone nothing. "You added these ten files" tells them
+    they did exactly what the issue asked, and that this check is bookkeeping.
+    """
+    try:
+        old = {e["path"]: e["sha256"] for e in json.loads(FILES.read_text(encoding="utf-8"))["files"]}
+    except (OSError, ValueError, KeyError):
+        return  # no readable previous manifest: the prose below is all we can honestly say
+    new = {e["path"]: e["sha256"] for e in json.loads(fresh_files_json)["files"]}
+
+    added = sorted(set(new) - set(old))
+    removed = sorted(set(old) - set(new))
+    changed = sorted(p for p in set(old) & set(new) if old[p] != new[p])
+
+    for label, paths in (("added", added), ("removed", removed), ("changed", changed)):
+        if not paths:
+            continue
+        print(f"  {len(paths)} file(s) {label}:", file=sys.stderr)
+        for p in paths[:limit]:
+            print(f"    {p}", file=sys.stderr)
+        if len(paths) > limit:
+            print(f"    ... and {len(paths) - limit} more", file=sys.stderr)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="Generate/verify the distribution manifests.")
     ap.add_argument("--check", action="store_true", help="verify on-disk files match; exit 1 on drift")
@@ -157,8 +183,34 @@ def main() -> int:
             if have != want:
                 drift.append(path.relative_to(ROOT).as_posix())
         if drift:
-            print(f"DISTRIBUTION_MANIFEST_DRIFT: {', '.join(drift)} out of date — run "
-                  f"python3 scripts/gen_distribution_manifest.py", file=sys.stderr)
+            # This gate protects the self-updater, which verifies a downloaded release against
+            # these hashes. A stale manifest is a broken update, so the gate is strict and stays
+            # strict.
+            #
+            # But the people who trip it are mostly FIRST-TIME contributors adding a shipped file —
+            # a journal profile, a reference doc — because adding a file *is* the whole of a good
+            # first issue. And our own CONTRIBUTING invites them through a browser-only path with
+            # no git and no terminal: someone who accepted that invitation **cannot run this
+            # generator at all**. "Run python3 scripts/…" is not an instruction to them, it is a
+            # dead end, and a red X on a stranger's first contribution is how you lose them.
+            #
+            # So: name what moved, say what to do, and say plainly that if they cannot do it, their
+            # PR is not wrong and a maintainer will finish it.
+            print(f"DISTRIBUTION_MANIFEST_DRIFT: {', '.join(drift)} out of date.\n", file=sys.stderr)
+            _explain_drift(files)
+            print(
+                "\nWhat this is: these files list every file we ship, with its hash, so the\n"
+                "self-updater can verify a download. Adding or editing a shipped file changes that\n"
+                "list. Nothing is wrong with your change — the list just has to be refreshed.\n"
+                "\n"
+                "  To refresh it:  python3 scripts/gen_distribution_manifest.py\n"
+                "                  then commit the changed file(s) under metadata/\n"
+                "\n"
+                "If you contributed through the GitHub website and cannot run Python: that is fine,\n"
+                "and expected. Leave it — say so in the pull request and a maintainer will refresh\n"
+                "the manifest before merging. This check being red is not a rejection.",
+                file=sys.stderr,
+            )
             return 1
         print(f"OK: distribution manifests in sync (version {build_manifest()['version']}, "
               f"{len(build_files()['files'])} payload files, {len(build_owned_skills())} owned skills).")

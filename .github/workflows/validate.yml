@@ -96,6 +96,9 @@ jobs:
       - name: Run setup-check test (hide pandoc; the report must NOTICE, and must install nothing)
         run: bash installers/tests/test_doctor.sh
 
+      - name: Run manifest-drift message test (a contributor's red X must be actionable)
+        run: bash tests/test_manifest_drift_message.sh
+
       - name: Run check_release_cadence.py (a release is an event, not a commit)
         run: python3 scripts/check_release_cadence.py --strict
 
