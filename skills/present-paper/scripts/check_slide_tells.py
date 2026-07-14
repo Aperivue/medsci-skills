@@ -446,7 +446,14 @@ def check_arrows(slides) -> List[Finding]:
         arrows = [s for s in shapes if s.has_arrow]
         if len(arrows) < 2:
             continue
-        labels = [s for s in shapes if s.text and s.max_pt and s.max_pt <= 18]
+        # A label is a label because it is not the headline — not because it is under some point
+        # size. Tying this to "≤18 pt" made the two checks fight: a legible 20-pt arrow label would
+        # satisfy a reader and the back row, and then be invisible *here*, so the slide would be
+        # reported as having unlabelled arrows. Sizing advice must not silently redefine what a
+        # label is.
+        texts = [s for s in shapes if s.text.strip()]
+        head_pt = max((s.max_pt for s in texts), default=0.0)
+        labels = [s for s in texts if head_pt == 0.0 or s.max_pt < head_pt]
         unlabelled = 0
         for a in arrows:
             if a.text.strip():

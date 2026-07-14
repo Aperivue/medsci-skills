@@ -3453,8 +3453,8 @@
     },
     {
       "path": "skills/present-paper/SKILL.md",
-      "size": 38100,
-      "sha256": "60f72124eb5f5de6510a44e0e8f1c54fc708f3a9926b70562f64aeed959571aa"
+      "size": 40128,
+      "sha256": "fbd3db6334755142d8b47c15779f2c8f5d36c1e35afca4067191d65614edd823"
     },
     {
       "path": "skills/present-paper/references/ai_slide_tells.md",
@@ -3475,6 +3475,11 @@
       "path": "skills/present-paper/references/medical_presentation_templates.md",
       "size": 15007,
       "sha256": "d0f964af7523ec8bfef50ca627878f8c2cfe58159c2a827c5f7dfd43585cf9ee"
+    },
+    {
+      "path": "skills/present-paper/references/presentation_archetypes.md",
+      "size": 11968,
+      "sha256": "76428b7a2f84ca101db49bacc5159bf09954ef8679c5449a5f211abd2fc6204d"
     },
     {
       "path": "skills/present-paper/references/presentation_design_guidelines.md",
@@ -3522,14 +3527,29 @@
       "sha256": "1aa6ecadcf3e8d83c24b6e1c5d31b11024940348ea584eb2879e3209fd13097e"
     },
     {
+      "path": "skills/present-paper/scripts/check_deck_budget.py",
+      "size": 8995,
+      "sha256": "a4fbee1ec4e0c00d7558f92aa7780eab725e51b71699d10aa3d0553afb2c00d3"
+    },
+    {
+      "path": "skills/present-paper/scripts/check_deck_budget_challenge/make_fixtures.py",
+      "size": 3778,
+      "sha256": "5f07853ca0ebe6df8f5c139337f353e3a43396a376a29b0f242328086c4e993f"
+    },
+    {
+      "path": "skills/present-paper/scripts/check_deck_budget_challenge/verify.sh",
+      "size": 3688,
+      "sha256": "bbde1a8486ff18c14f1bb630c67d087e26945d17334e8fc7eb4634737a52a0d5"
+    },
+    {
       "path": "skills/present-paper/scripts/check_slide_tells.py",
-      "size": 23621,
-      "sha256": "54771d669391ed8c1f1f381479ce3db4608836b43fb15c37776cce052b7e2c32"
+      "size": 24148,
+      "sha256": "e703164783cea7a14886f657b47ae672f5a5e8f8f526015a456ad19bae5f1d0c"
     },
     {
       "path": "skills/present-paper/scripts/check_slide_tells_challenge/make_fixtures.py",
-      "size": 6545,
-      "sha256": "77ee4d64d847731f7cdf2eb81d1ff92b182a9c1aeaaa8988e57ef8347c5374eb"
+      "size": 6724,
+      "sha256": "050f8568d92c7ccdabf7dbc3052a9abf159ddb9801b33d2e591563175f40c8e8"
     },
     {
       "path": "skills/present-paper/scripts/check_slide_tells_challenge/verify.sh",
@@ -3568,8 +3588,8 @@
     },
     {
       "path": "skills/present-paper/skill.yml",
-      "size": 2231,
-      "sha256": "1847e39ff4ee8b8c1230b83558d1c44f5ac2b973cb46e2a02d68811fe83eded5"
+      "size": 2399,
+      "sha256": "cf98ef859afefd837dfcece79fc269fe918e4b4b6615321bf9fbd8aa5ff9b982"
     },
     {
       "path": "skills/present-paper/templates/build_pptx_nature_lancet.py",

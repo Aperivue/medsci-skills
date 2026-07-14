@@ -66,7 +66,16 @@ Before collecting inputs, the skill loads these reference files:
    generic builder (`references/generate_pptx_templates.py`). PDF figures →
    `scripts/extract_pdf_figures.py`.
 
-5. **`references/ai_slide_tells.md`** — **read this one first, and read all of it.** The marks a
+5. **`references/presentation_archetypes.md`** — the **skeleton**, chosen by where the speaker is
+   standing: conference oral, journal-club critique, case-anchored grand rounds, didactic lecture,
+   defence, keynote (Duarte's sparkline, the Jobs STAR moment, Takahashi/Lessig), lay talk, and the
+   decision brief (Minto's pyramid, action titles, Kawasaki's 10/20/30). A deck has **two
+   independent choices** and conflating them is why talks fail: the *archetype* is what the talk has
+   to **do**; the *visual style* is what it **looks like**. A conference oral in a keynote's skeleton
+   dies (no data on the slides); a keynote in a conference oral's skeleton dies harder. **The skin is
+   a preference; the skeleton is not.** Its mechanical half is `scripts/check_deck_budget.py`.
+
+6. **`references/ai_slide_tells.md`** — **read this one first, and read all of it.** The marks a
    generated deck leaves, and why reviewers now say they can spot one instantly: scaffolding
    sentences that narrate the thought instead of stating it, chrome along every edge, the same box
    eight times, unlabelled arrows, a vague brief producing a deck nobody can use. The complaint is
@@ -100,6 +109,17 @@ Before starting, collect these from the user:
 After collecting the inputs above and **before** drafting the outline, settle how the
 deck will look. Ask the user two questions (use `AskUserQuestion`; skip a question if the
 user already answered it in their request):
+
+**Q0 — "Where are you standing, and for how long?"** (venue + minutes)
+
+This decides the **archetype** — the skeleton — before any question about looks. Map the answer with
+the selector table in `references/presentation_archetypes.md`, and carry `archetype` + `minutes`
+forward: Step 3.6 checks the built deck against them. A 40-word slide is an ordinary academic slide
+and a catastrophic keynote slide; there is no universal answer to "how much text is too much", only
+an answer for *this room*.
+
+If the user gives only a topic and no venue, **ask**. Do not guess: a deck built for no particular
+room comes out generic in exactly the way every reviewer can see.
 
 **Q1 — "Do you have an institutional or branded template to use?"**
 - **Yes** → the user supplies a `.pptx`/`.potx`. Switch to **Mode C** (Phase 3, "Fill an
@@ -655,8 +675,16 @@ Record `critic_pass: yes | partial | no` and `refine_rounds: N` in `_quick_revie
 ### Step 3.6 — AI-tell audit (deterministic; run on the built deck, not the build script)
 
 ```bash
-python3 scripts/check_slide_tells.py output/presentation.pptx --json output/qc/slide_tells.json
+python3 scripts/check_slide_tells.py  output/presentation.pptx --json output/qc/slide_tells.json
+python3 scripts/check_deck_budget.py  output/presentation.pptx --json output/qc/deck_budget.json \
+        --archetype <from Q0> --minutes <from Q0>
 ```
+
+`check_deck_budget.py` is the mechanical half of the archetype: slides against the clock
+(`DECK_OVER_BUDGET`), words per slide against what *this* room can absorb while also listening
+(`SLIDE_TOO_DENSE`), and the type floor for the back row (`TYPE_TOO_SMALL`). It takes an archetype
+rather than a universal threshold because a single global number would have to be wrong for most
+venues. `--list` prints the budgets.
 
 Six verdicts, each one a mark reviewers say they can spot instantly. **Every one must be cleared or
 consciously overruled**, with the reason written down:

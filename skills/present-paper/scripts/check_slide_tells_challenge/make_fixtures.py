@@ -109,7 +109,7 @@ def build_clean(path: Path) -> None:
     textbox(s, "Adjunctive ablation halved local recurrence (12% vs 26%)", 0.8, 0.8, 11.0, 1.2, 34)
     textbox(s, "412 patients, median follow-up 3.2 years. The difference held at 24 months and did "
                "not depend on tumour size.", 0.8, 2.4, 11.0, 2.2, 20)
-    textbox(s, "1", 12.6, 7.0, 0.4, 0.3, 10)  # a bare page number earns its place
+    textbox(s, "1", 12.6, 7.0, 0.4, 0.3, 10)  # a bare page number earns its place (and is exempt)
 
     # 2 — a divider. A filing label IS the job here, and must not be flagged.
     s = prs.slides.add_slide(prs.slide_layouts[BLANK])
@@ -124,7 +124,9 @@ def build_clean(path: Path) -> None:
     for k, (x0, x1) in enumerate(((3.6, 5.1), (8.1, 9.5))):
         s.shapes.add_connector(MSO_CONNECTOR.STRAIGHT, Inches(x0), Inches(3.55),
                                Inches(x1), Inches(3.55))
-        textbox(s, "seeds along", x0 + 0.05, 3.05, 1.4, 0.35, 12)  # the label sits on the arrow
+        # 20 pt, not 12: an arrow label the back row cannot read is not a label, it is a rumour.
+        # (check_deck_budget's floor for an academic room is 20 pt, and it was right to say so.)
+        textbox(s, "seeds along", x0 + 0.05, 2.95, 1.6, 0.45, 20)
     textbox(s, "2", 12.6, 7.0, 0.4, 0.3, 10)
 
     prs.save(str(path))

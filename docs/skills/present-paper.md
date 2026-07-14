@@ -43,6 +43,7 @@
 - `critic_rubrics/` (1 file)
 - `generate_pptx_templates.py`
 - `medical_presentation_templates.md`
+- `presentation_archetypes.md`
 - `presentation_design_guidelines.md`
 - `slide_design_principles.md`
 - `slide_visual_styles/` (6 files)
@@ -50,6 +51,8 @@
 
 **Scripts** (`skills/present-paper/scripts/`):
 
+- `check_deck_budget.py`
+- `check_deck_budget_challenge/` (2 files)
 - `check_slide_tells.py`
 - `check_slide_tells_challenge/` (2 files)
 - `extract_pdf_figures.py`

@@ -4,6 +4,30 @@
 
 ### Added
 
+- **`/present-paper` — presentation archetypes: the skeleton, chosen by where you are standing**
+  (`references/presentation_archetypes.md`, and its mechanical half `check_deck_budget.py`,
+  detector #64). A deck has **two independent choices**, and conflating them is why talks fail: the
+  **archetype** is what the talk has to *do*; the **visual style** is what it *looks like*. The skill
+  had five skins and no skeletons. Now it has eight — conference oral, journal-club critique,
+  case-anchored grand rounds, didactic lecture, defence/job talk, keynote (Duarte's sparkline, the
+  Jobs STAR moment, Takahashi and Lessig), lay talk, and the decision brief (Minto's pyramid, action
+  titles, Kawasaki's 10/20/30) — each with what the room is, what a slide is *for* there, what to
+  steal, and what fails.
+
+  A conference oral in a keynote's skeleton dies (no data on the slides; the reviewer in row three
+  came for the numbers). A keynote in a conference oral's skeleton dies harder. **The skin is a
+  preference; the skeleton is not.**
+
+  `check_deck_budget.py --archetype X --minutes N` enforces the mechanical part — slides against the
+  clock, words per slide, the type floor for the back row. It takes an archetype instead of a
+  universal threshold **because a single global number would have to be wrong for most venues**:
+  40 words is an ordinary academic slide and a catastrophic keynote slide. The challenge card proves
+  exactly that, by judging *the same deck* twice and requiring opposite verdicts.
+
+  Honest about evidence: **assertion-evidence is the only pattern here with experimental support**
+  (Alley & Neeley 2005). The rest is craft — good craft, from people who are very good at this, but
+  craft, and the file says so.
+
 - **`/present-paper` — the marks an AI leaves on a deck, caught in the built `.pptx`**
   (`check_slide_tells.py`, detector #63). Reviewers now say roughly a third of the decks they
   receive were made by an AI, that they can spot it instantly, and — the part that matters — that

@@ -163,3 +163,4 @@ also destroy it: the point of quoting a reviewer verbatim is that it is what the
 | `skills/present-paper/references/critic_rubrics/slide.md` | A | Names the Korean scaffolding phrases a reviewer must look for. |
 | `skills/present-paper/templates/build_pptx_nature_lancet.py` | A | One Korean quote in a comment, explaining why the eyebrow/footer default was removed. |
 | `skills/present-paper/tests/test_builder_no_chrome.py` | A | Same quote, explaining what the test is defending against. |
+| `skills/present-paper/references/presentation_archetypes.md` | A | One verbatim quote from an investor explaining why they tell founders never to use AI for an IR deck — the sentence is the evidence for the archetype's warning, and paraphrasing a quote is not translation. |
