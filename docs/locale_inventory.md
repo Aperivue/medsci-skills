@@ -146,6 +146,8 @@ English defaults, each with a `_ko` sibling below).
 | `skills/lit-sync/SKILL.md` | D | English-default vault/headings; `triggers:` line + honor-existing Korean-folder examples documenting the detect-and-honor behavior. |
 | `skills/present-paper/references/generate_pptx_templates.py` | A | Legacy Korean slide-marker parser regex (backward compatibility). |
 | `skills/present-paper/references/slide_visual_styles/nature_lancet.md` | A | Korean-glyph rendering verification grep. |
+| `skills/present-paper/scripts/check_deck_budget.py` | A | Backup-section markers a divider may carry in Korean (백업 / 부록 / 예비), so a Korean deck's Q&A section stops the clock like an English one. Recognition data, not prose. |
+| `skills/present-paper/tests/test_backup_off_the_clock.py` | A | Fixture for the Korean backup markers above. |
 
 ### AI-slide-tell detection (Korean is the evidence, not a translation)
 
