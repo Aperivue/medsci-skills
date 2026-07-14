@@ -3468,8 +3468,8 @@
     },
     {
       "path": "skills/present-paper/scripts/inject_speaker_notes.py",
-      "size": 6758,
-      "sha256": "6eeaf94c396d0f4ff365eaea0408f2fc00f8e2dc75b53a9514214194cb9329f9"
+      "size": 7592,
+      "sha256": "c81c7d7b67eb216644f91c59ba7221b0f0bed4b38669cf0fbdc76f511394ee83"
     },
     {
       "path": "skills/present-paper/scripts/inspect_pptx_template.py",
@@ -3493,8 +3493,8 @@
     },
     {
       "path": "skills/present-paper/templates/build_pptx_nature_lancet.py",
-      "size": 29739,
-      "sha256": "55d8369897acbba8afe5d0196b78c87f3ede1980fa90eb901ccd0c87af67804d"
+      "size": 30309,
+      "sha256": "e2ed9c3757cf1f8b8e059d04964c4a64e6ac916287a3081f97a3a1bd1977fb8d"
     },
     {
       "path": "skills/publish-skill/SKILL.md",

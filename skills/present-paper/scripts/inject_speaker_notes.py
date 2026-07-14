@@ -51,15 +51,27 @@ notes: dict[int, str] = {
 # asterisks show literally in Presenter View. Parse ``**bold**`` / ``*italic*``
 # (non-nested) into run-level styling instead. (Opt out with --no-markdown.)
 # ---------------------------------------------------------------------------
-_MD_INLINE = re.compile(r"(\*\*[^*\n]+\*\*|\*[^*\n]+\*)")
+# The italic rule needs word boundaries, or it eats the asterisk that belongs to the
+# *content*: HLA alleles (DRB1*07:01), SNP ids, footnote markers. Losing it silently
+# rewrites a genotype. The bold rule tolerates an inner single "*" for the same reason.
+# Mandated by SKILL.md ("Word-boundary aware markdown parser"); tests/test_md_parity.py
+# asserts both call sites keep using this exact pattern.
+_MD_RE = (
+    r"(\*\*(?:(?!\*\*).)+?\*\*"                       # **bold** — inner single * allowed
+    r"|(?<![A-Za-z0-9])\*[^*\n]+?\*(?![A-Za-z0-9]))"       # *italic* — word-boundary
+)
+_MD_INLINE = re.compile(_MD_RE)
 
 
 def _add_markdown_line(paragraph, line: str) -> None:
     """Emit one note line as styled runs, parsing **bold** / *italic*.
 
     Non-nested by design (matches the ``add_styled_note_line`` convention in
-    ``pptx-speaker-notes.md``): malformed/mixed markers such as ``***x***`` render
-    partially rather than nesting — text is never dropped and never raises.
+    ``pptx-speaker-notes.md``). A single ``*`` **inside** a bold span is kept verbatim,
+    because in this domain it is far more likely to be content (``**DRB1*07:01**``) than a
+    nested-italic marker. So ``**a *b* c**`` renders bold with the asterisks visible —
+    ugly, and a signal to the author to stop nesting — rather than silently deleting the
+    asterisk of an allele. Never raises; never drops a character.
     """
     if not line:
         paragraph.add_run().text = ""
