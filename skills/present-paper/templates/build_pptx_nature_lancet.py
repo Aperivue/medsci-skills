@@ -131,7 +131,16 @@ def set_run(run, *, size: float = 20, bold: bool = False, italic: bool = False,
         rPr.set("spc", str(letter_space))
 
 
-_MD_PATTERN = re.compile(r"(\*\*[^*\n]+\*\*|\*[^*\n]+\*)")
+# The italic rule needs word boundaries, or it eats the asterisk that belongs to the
+# *content*: HLA alleles (DRB1*07:01), SNP ids, footnote markers. Losing it silently
+# rewrites a genotype. The bold rule tolerates an inner single "*" for the same reason.
+# Mandated by SKILL.md ("Word-boundary aware markdown parser"); tests/test_md_parity.py
+# asserts both call sites keep using this exact pattern.
+_MD_RE = (
+    r"(\*\*(?:(?!\*\*).)+?\*\*"                       # **bold** — inner single * allowed
+    r"|(?<![A-Za-z0-9])\*[^*\n]+?\*(?![A-Za-z0-9]))"       # *italic* — word-boundary
+)
+_MD_PATTERN = re.compile(_MD_RE)
 
 
 def add_styled(p, text: str, *, size: float = 20, color: RGBColor = COLOR_TEXT,
