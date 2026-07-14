@@ -2,6 +2,35 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- **`/self-review` `check_analysis_definitions` was reading layout, not defect** (detector #66,
+  shipped hours earlier in #340). Two bugs, both caught on the *second* real manuscript:
+
+  1. **It could not see a CHEST manuscript at all.** `METHODS_RE` matched `Methods` /
+     `Materials and Methods` / `Patients and Methods`. CHEST *requires* `Study Design and Methods`, so the
+     gate emitted `SECTIONS_NOT_FOUND` and silently skipped the whole cross-check. Broadened to accept
+     `Study Design and Methods`, `Subjects and Methods`, `Design and Methods`, `Methods and Materials`.
+
+  2. **`MODEL_OUTCOME_UNDEFINED` was a formatting artifact.** It searched for the outcome declaration in a
+     400-character window around each model mention. A manuscript that declares its outcome once under
+     *Outcomes* and then specifies models under *Statistical Analysis* is following the **recommended**
+     structure — and the windowed search fired on it. It flagged a clean manuscript for exactly the reason
+     it flagged a rejected one. The declaration is now sought across the **whole Methods section**.
+
+  **This makes the check sound but deliberately narrower**, and the honest consequence must be stated: it
+  no longer fires on the rejected manuscript that motivated it. That paper declares three outcomes and
+  never says which one a given Cox model used — a real defect, and one a reader can see and a regex cannot.
+  The original detector appeared to catch it, but only because the outcome paragraph happened to sit more
+  than 400 characters from the model sentence, which is true of every well-structured paper. **One
+  manuscript, three findings matching three reviewer comments, and I called it validated. That was luck,
+  and the second manuscript exposed it.**
+
+  `REFERENCE_STANDARD_UNDEFINED` likewise now honours a declared outcome: *reference standard* is
+  diagnostic-accuracy vocabulary, and a prognostic model scores its predictions against the outcome it has
+  already declared. `MODEL_NOT_IN_METHODS`, `TIER_LABEL_UNDEFINED` and the informational `ANALYSIS_LOAD`
+  are unchanged.
+
 ### Added
 
 - **`/self-review` — every analysis you report must have been defined**

@@ -3978,8 +3978,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_analysis_definitions.py",
-      "size": 12304,
-      "sha256": "ee83bd422af3d0fb19567f4cf100eb67e6ce7adebed87aa64c55de4c062339bb"
+      "size": 13004,
+      "sha256": "a2942e15652ac7b19444bd04153023818f3385e5bd881cbc94482ed5e6009538"
     },
     {
       "path": "skills/self-review/scripts/check_analysis_definitions_challenge/expected/defined.txt",

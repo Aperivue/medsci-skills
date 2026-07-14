@@ -51,9 +51,14 @@ import re
 import sys
 from dataclasses import dataclass, field, asdict
 
+# Journals name this section differently and a gate that cannot find it is a gate
+# that silently passes. CHEST requires "Study Design and Methods"; others use
+# "Subjects and Methods", "Design and Methods", "Methods and Materials".
 METHODS_RE = re.compile(
-    r"^#{1,4}\s*\**\s*(?:\d+\.?\s*)?(?:materials?\s+and\s+methods?|methods?|"
-    r"patients?\s+and\s+methods?)\b", re.I | re.M)
+    r"^#{1,4}\s*\**\s*(?:\d+\.?\s*)?"
+    r"(?:(?:study\s+design|design|subjects?|patients?|participants?|materials?|"
+    r"methods?)\s+and\s+)?"
+    r"(?:methods?|materials?)\b", re.I | re.M)
 RESULTS_RE = re.compile(r"^#{1,4}\s*\**\s*(?:\d+\.?\s*)?results?\b", re.I | re.M)
 DISCUSSION_RE = re.compile(r"^#{1,4}\s*\**\s*(?:\d+\.?\s*)?discussion\b", re.I | re.M)
 
@@ -160,6 +165,7 @@ def audit(text: str, source: str) -> Report:
         return rep
 
     m_off = text.index(methods) if methods else 0
+    outcome_declared = bool(OUTCOME_DECL_RE.search(methods))
 
     # --- models -----------------------------------------------------------
     for label, pat in MODELS.items():
@@ -174,11 +180,11 @@ def audit(text: str, source: str) -> Report:
             continue
         if not m_hits:
             continue
-        # Does *any* mention of this model in Methods sit near an outcome declaration?
-        defined = any(
-            OUTCOME_DECL_RE.search(methods[max(0, h.start() - 400): h.end() + 400])
-            for h in m_hits)
-        if not defined:
+        # Search the WHOLE Methods section, not a window around the model. A
+        # manuscript that declares its outcome once under "Outcomes" and then
+        # specifies models under "Statistical Analysis" is doing it *correctly*;
+        # a windowed search punishes the recommended structure.
+        if not outcome_declared:
             rep.findings.append(Finding(
                 "MODEL_OUTCOME_UNDEFINED", "MAJOR",
                 _line_of(text, m_off + m_hits[0].start()),
@@ -187,8 +193,11 @@ def audit(text: str, source: str) -> Report:
                 f"variable and the censoring rule"))
 
     # --- discrimination / calibration -------------------------------------
+    # "Reference standard" is diagnostic-accuracy vocabulary. A prognostic model
+    # scores its predictions against the outcome it already declared, so a declared
+    # outcome satisfies this too. Fire only when neither exists.
     perf_hit = PERF_RE.search(results) or PERF_RE.search(methods)
-    if perf_hit and not REFSTD_DECL_RE.search(methods):
+    if perf_hit and not REFSTD_DECL_RE.search(methods) and not outcome_declared:
         where = results if PERF_RE.search(results) else methods
         base = text.index(where)
         rep.findings.append(Finding(
