@@ -3808,8 +3808,8 @@
     },
     {
       "path": "skills/self-review/SKILL.md",
-      "size": 106397,
-      "sha256": "09bf5f386c204b98fc10b2efdb19ad19761808539e6dab7db762622338ce3e2a"
+      "size": 108013,
+      "sha256": "d32ede7bb778496600069ac2fb090fea1158717b3f0605bc06b9e09637f197e1"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
@@ -3975,6 +3975,41 @@
       "path": "skills/self-review/references/phases/confounding_completeness.md",
       "size": 5344,
       "sha256": "051f2b066d2d708b161c1e97d666d9e214d128f1413a9c4822f0333e748bda14"
+    },
+    {
+      "path": "skills/self-review/scripts/check_analysis_definitions.py",
+      "size": 12304,
+      "sha256": "ee83bd422af3d0fb19567f4cf100eb67e6ce7adebed87aa64c55de4c062339bb"
+    },
+    {
+      "path": "skills/self-review/scripts/check_analysis_definitions_challenge/expected/defined.txt",
+      "size": 351,
+      "sha256": "3fda4b2b13e6171a3bc5c907f65ea0b96000813cda3dfba70d6160eb26e4d436"
+    },
+    {
+      "path": "skills/self-review/scripts/check_analysis_definitions_challenge/expected/undefined.txt",
+      "size": 921,
+      "sha256": "cddae918394a02844cb53549643bd16db64694b35c539162a1e380c9531e2ace"
+    },
+    {
+      "path": "skills/self-review/scripts/check_analysis_definitions_challenge/fixture/defined.md",
+      "size": 1317,
+      "sha256": "01c78f0bf8b491bab44f4993ab7e485d8e9c7f23d1b7f6afefda02f90e13cd09"
+    },
+    {
+      "path": "skills/self-review/scripts/check_analysis_definitions_challenge/fixture/undefined.md",
+      "size": 857,
+      "sha256": "2eff7a753c0e99fc6b4664ac46bd90e98f02b5327bd05dc907dcc19768a56e89"
+    },
+    {
+      "path": "skills/self-review/scripts/check_analysis_definitions_challenge/problem.md",
+      "size": 2733,
+      "sha256": "3c49b11f4a9a36a68de557e0f0e59da16fc63de9788730c1b2b6e344770f8155"
+    },
+    {
+      "path": "skills/self-review/scripts/check_analysis_definitions_challenge/verify.sh",
+      "size": 1570,
+      "sha256": "1b3d0271f3c428ffc2a98c6ce09faed7454813090c28552c74bd43f3c81cd8c9"
     },
     {
       "path": "skills/self-review/scripts/check_artifact_coverage.py",

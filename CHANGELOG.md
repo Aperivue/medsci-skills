@@ -4,6 +4,32 @@
 
 ### Added
 
+- **`/self-review` — every analysis you report must have been defined**
+  (`skills/self-review/scripts/check_analysis_definitions.py`, detector #66, with a challenge card).
+
+  Twenty-four detectors in this skill ask whether a number is *correct*. **None asked whether the
+  analysis that produced it was ever *defined*** — and a reviewer walks straight into that gap:
+
+  > "The outcome (dependent variable) for the multivariable Cox model is not specified." … "The ground
+  > truth (reference standard) against which discrimination and calibration were assessed is not
+  > defined." … "This section is largely incomprehensible in its current form."
+
+  A Cox model whose dependent variable is never stated is not a *hard* paper. It is an **incomplete**
+  one. The gate emits `MODEL_OUTCOME_UNDEFINED`, `MODEL_NOT_IN_METHODS`, `REFERENCE_STANDARD_UNDEFINED`
+  (Major) and `TIER_LABEL_UNDEFINED` (Minor).
+
+  **`ANALYSIS_LOAD` is informational and never a verdict.** The same reviewer wrote *"too many analyses
+  have been performed and reported"* — and named the mechanism in the next sentence: *"this appears to
+  have contributed to omissions of critical information in the Materials and Methods section."* A second
+  reviewer of the same manuscript listed its sensitivity analyses as a **strength**. So **load is the
+  cause, not the crime**, and a detector that capped the count would have punished the strength and
+  missed the defect. The two challenge fixtures carry the **identical** analysis count (two model
+  families, two auxiliary analyses) and get opposite verdicts: definition is what the gate reads.
+
+  The remedy is not to cut analyses. It is to restore the definitions they crowded out — and, where load
+  is genuinely high, to move the defensive analyses to the supplement: same defence, far less reader
+  burden and far less attack surface.
+
 - **`/peer-review` — the request-type rule now has a script behind it**
   (`skills/peer-review/scripts/check_review_request_types.py`, detector #65, with a challenge card).
   **Every other detector in this repo audits the manuscript. This one audits the review.**

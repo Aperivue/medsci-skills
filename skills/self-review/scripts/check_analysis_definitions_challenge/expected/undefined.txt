@@ -1,0 +1,6 @@
+== UNDEFINED ANALYSES ==  fixture/undefined.md
+load: models=2 auxiliary=2 tables=0
+[MAJOR] MODEL_OUTCOME_UNDEFINED L8  a Cox proportional-hazards model is specified with no outcome / dependent variable named near it — state the event and, for time-to-event, the time variable and the censoring rule
+[MAJOR] MODEL_OUTCOME_UNDEFINED L9  a Fine–Gray subdistribution model is specified with no outcome / dependent variable named near it — state the event and, for time-to-event, the time variable and the censoring rule
+[MAJOR] REFERENCE_STANDARD_UNDEFINED L15  discrimination and/or calibration are reported, but Methods names no reference standard or observed outcome to score the predictions against
+[INFO] ANALYSIS_LOAD L0  2 model families, 2 auxiliary analyses, 0 tables. Load is context, not a verdict — but it is what crowds the Methods until definitions fall out. If the checks above fired, look here first.

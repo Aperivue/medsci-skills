@@ -56,6 +56,8 @@
 
 **Scripts** (`skills/self-review/scripts/`):
 
+- `check_analysis_definitions.py`
+- `check_analysis_definitions_challenge/` (6 files)
 - `check_artifact_coverage.py`
 - `check_binning_consistency.py`
 - `check_citation_order.py`

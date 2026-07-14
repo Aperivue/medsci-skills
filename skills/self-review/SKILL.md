@@ -162,6 +162,19 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/check_scope_coherence.py" \
   --manuscript manuscript.md --out qc/scope_coherence.json --strict
 ```
 
+**Then check that every analysis you report was ever defined.** Twenty-four detectors in this skill ask whether a number is *correct*. None asks whether the analysis that produced it was *defined* — and that is the gap a reviewer walks straight into:
+
+> "The outcome (dependent variable) for the multivariable Cox model is not specified." … "The ground truth (reference standard) against which discrimination and calibration were assessed is not defined." … "This section is largely incomprehensible in its current form."
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/check_analysis_definitions.py" \
+  --manuscript manuscript.md --out qc/analysis_definitions.json --strict
+```
+
+`MODEL_OUTCOME_UNDEFINED` (a Cox / Fine–Gray / logistic model with no outcome named), `MODEL_NOT_IN_METHODS`, and `REFERENCE_STANDARD_UNDEFINED` (discrimination or calibration with nothing to score against) are Anticipated **Major** Comments. `TIER_LABEL_UNDEFINED` is Minor.
+
+`ANALYSIS_LOAD` is **informational and never a verdict.** The reviewer who wrote *"too many analyses have been performed and reported"* also named the mechanism — *"this appears to have contributed to omissions of critical information in the Materials and Methods section"* — while a second reviewer of the same manuscript listed its sensitivity analyses as a **strength**. **Load is the cause, not the crime.** Do not cut analyses to satisfy this gate; restore the definitions the analyses crowded out. If load is genuinely high, move the defensive analyses to the supplement — same defence, far less reader burden and far less attack surface.
+
 `CROSS_SECTIONAL_PROGNOSTIC` and `SURROGATE_CARE_DIRECTIVE` are Anticipated Major Comments (category: D. Clinical Framing). `CROSS_SECTIONAL_YIELD_LANGUAGE` is an Anticipated **Minor** Comment — a cross-sectional / prevalence design using incidence-flavored screening vocabulary ("yield", "detection rate", "number-needed-to-screen/image", "rescreen interval") without defining "yield" once as cross-sectional report-positive prevalence. The gate is conservative — it fires only when a design/endpoint signal and a conclusion-region action verb (or the yield lexicon) co-occur.
 
 #### E. Reproducibility
