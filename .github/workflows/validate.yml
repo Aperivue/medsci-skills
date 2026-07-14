@@ -111,6 +111,12 @@ jobs:
       - name: Run detector-envelope gate self-test (unlabelled + mislabelled envelopes fail)
         run: bash tests/test_detector_envelopes.sh
 
+      - name: Run check_detector_crossfire.py (a fixture clean for one detector must be clean for all)
+        run: python3 scripts/check_detector_crossfire.py
+
+      - name: Run detector-crossfire self-test (restores the real 18pt vs 20pt bug; the gate must catch it)
+        run: bash tests/test_detector_crossfire.sh
+
       - name: Run check_python_floor.py (everything a user runs must parse on the Python we promise)
         run: python3 scripts/check_python_floor.py --strict
 
