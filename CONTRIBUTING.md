@@ -25,6 +25,14 @@ the file → push → open a PR. Either way, you do **not** need the worktree di
 process, or any catalog-count bump. The catalog-consistency check auto-derives journal-profile counts
 from disk, so adding a profile will not flag you; a maintainer handles the bookkeeping in review.
 
+**One check may go red, and it is not your fault.** If your change *adds* a file that ships to users
+(a journal profile, a reference doc), the `Distribution manifests in sync` check fails: we keep a
+hashed list of every shipped file so the self-updater can verify a download, and your new file is not
+in it yet. If you are working locally, refresh it with `python3 scripts/gen_distribution_manifest.py`
+and commit the `metadata/` files it writes. **If you contributed through the browser, you cannot run
+that — and you are not expected to.** Leave it red, say so in the PR, and a maintainer will refresh
+the manifest before merging. A red mark on that one check is bookkeeping, not a rejection.
+
 ### Already changed something on your own machine?
 
 If you have adapted an installed skill — added your journal, fixed something that was wrong for your
