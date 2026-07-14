@@ -119,6 +119,36 @@
   the fixture) and hashes every fixture before and after, voiding the run if one changed. Detectors
   that need an input the fixture cannot supply are **skipped out loud, by name**, so the coverage is
   auditable.
+- **Fifteen SKILL.md phases were billing every invocation for text most runs never read**
+  (`scripts/check_phase_budget.py`, CI-enforced; `tests/test_phase_budget.sh`). A SKILL.md is
+  loaded **in full** the moment its skill is invoked — before the agent knows what the user wants.
+  The project already had the rule (*any phase over 80 lines gets extracted to `references/`,
+  leaving a trigger table and a load-on-demand pointer* — it is why `/present-paper` Phase 0 went
+  from ~14,000 tokens to ~6,700). Nothing enforced it, so it quietly stopped applying.
+
+  The worst offender was `/write-paper` **Phase 7: Polish at 270 lines**, and `/write-paper`
+  **Phase 0 at 127** — read *before the skill knows the paper type*, yet carrying full Case Report
+  and Case Series modes that a manuscript can only ever need one of. Also split: `/self-review`
+  Phase 2 (209), 2.5f (176), 2.5b (119), 2.5a (90), 2.5d (87); `/meta-analysis` Phase 4 (174) and
+  Phase 3 (135); `/design-study` Phase 2 (146, whose 85-line reader-elicitation section applies
+  only to studies with a human-rater arm); `/check-reporting` Step 5 (128, almost entirely output
+  templates); `/add-journal` 3.2 (117, a single fill-in template); `/manage-project init` (109, a
+  directory tree the init script already writes); `/make-figures` Study-Type Figure Sets (104);
+  `/peer-review` Phase 3 (86).
+
+  Each keeps its control flow, its gate invocations, and every HALT condition inline — what the
+  agent needs *before* it knows the ask — and moves the reference material behind a trigger table
+  that states what a blind read costs. **No exemptions were needed** (`EXEMPT` ships empty).
+
+  The gate is **fence-aware**, and that is not cosmetic: a `## heading` inside a code fence is an
+  output template, not a section boundary. A fence-blind parser chopped `/write-paper` Phase 7 in
+  two at an embedded log-block template and reported it as 139 lines, and let four more over-budget
+  sections hide the same way — so a long phase could evade the budget simply by containing one.
+  The self-test pins this, and regresses the real defect: the 209-line `/self-review` Phase 2 is
+  frozen byte-for-byte in `tests/fixtures/phase_budget/`, and the gate must still fail on it.
+
+  Also repointed a dangling `/write-paper` reference (`references/check_xref_symptoms.md`, a file
+  that never existed) at the reference that now carries the cross-reference fix routes.
 
 ### Added
 

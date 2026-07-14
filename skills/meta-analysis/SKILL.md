@@ -148,45 +148,34 @@ Auto-detect type from the research question or accept user specification.
 
 **Goal**: Systematic title/abstract and full-text screening with two independent reviewers.
 
-#### 3a. Round 1 — Initial Title/Abstract Screening (single reviewer)
-1. Define exclusion codes from protocol (e.g., E1=Not target population, E2=Not intervention, E3=Ineligible type, E4=Non-human, E5=Duplicate).
-2. For each record, screen title+abstract against eligibility criteria.
-3. Mark each record as INCLUDE / EXCLUDE / MAYBE with reason code.
-4. Output: `round1_{date}.tsv` with color-coded decisions.
+**3a. Round 1 — initial title/abstract screening (single reviewer).** Define the exclusion codes
+from the protocol (E1=Not target population, E2=Not intervention, E3=Ineligible type, E4=Non-human,
+E5=Duplicate). Mark every record INCLUDE / EXCLUDE / MAYBE with a reason code → `round1_{date}.tsv`.
 
-#### 3b. Round 2 — Dual Independent Title/Abstract Screening
-1. A second independent reviewer (or AI as a documented second-pass tool with human verification) re-screens all R1 records.
-2. Compute Cohen's kappa at title/abstract stage; report in Methods.
-3. Tag each record's `round2_tag` as INCLUDE / EXCLUDE / MAYBE based on R1+R2 agreement (MAYBE = disagreement OR either reviewer flagged uncertain).
-4. Output: `round2_{date}.tsv` (adds `round2_tag`, `round2_reason` columns).
+**3b. Round 2 — dual independent title/abstract screening.** A second independent reviewer (or AI
+as a *documented* second-pass tool with human verification) re-screens all R1 records. Compute
+Cohen's κ and report it in Methods. `round2_tag` = INCLUDE / EXCLUDE / MAYBE, where MAYBE means
+disagreement **or** either reviewer flagged uncertainty → `round2_tag`, `round2_reason` columns.
 
-#### 3c. Round 3 — Adjudication of Disagreements (first reviewer)
-1. Build R3 sheet: all MAYBE records first, followed by INCLUDE records (which receive a brief confirmation pass).
-2. The **first reviewer** independently adjudicates each row, recording `round3_decision` (INCLUDE/EXCLUDE) and `round3_reason` (only when overturning R2).
-3. **Optional AI-assisted pre-screening** to compress R3 effort:
-   - Use `references/ai_pre_screening_template.py` (customize per project).
-   - Pre-screen produces `ai_suggestion` (INCLUDE/EXCLUDE/UNCERTAIN/CONFIRM-INCLUDE) + `ai_reason` columns.
-   - Sort priority: UNCERTAIN → EXCLUDE → INCLUDE → CONFIRM-INCLUDE.
-   - First reviewer must independently confirm or overturn every AI suggestion against the title, abstract, and (when needed) full text. AI suggestions are **not** final decisions.
-   - Methods boilerplate: "Round 3 adjudication was performed by the first reviewer with AI-assisted pre-screening ({model name and version}). The AI was prompted with the prespecified PECOS criteria and produced a suggestion plus brief justification for each record; the first reviewer independently confirmed or overturned every suggestion. AI suggestions were not used as final inclusion decisions."
-4. Output: `round3_{date}.tsv` with finalized `round3_decision`.
+**3c. Round 3 — adjudication of disagreements (first reviewer).** Build the R3 sheet with all MAYBE
+records first, then INCLUDE records for a brief confirmation pass. The first reviewer independently
+adjudicates each row (`round3_decision`, plus `round3_reason` only when overturning R2). Optional
+AI-assisted pre-screening can compress the effort — but **AI suggestions are not decisions**: the
+reviewer independently confirms or overturns every one. Template, sort priority, and the required
+Methods boilerplate are in the reference file.
 
-#### 3d. Round 4 — Full-text Screening
-1. For records with `round3_decision = INCLUDE`, retrieve full-text PDFs (use `/fulltext-retrieval`).
-2. Apply full-text exclusion criteria (F1=No extractable outcome, F2=No comparative data, F3=Cannot separate target population data, F4=Inadequate sample/follow-up, F5=Full-text unavailable).
-3. Two independent reviewers; compute Cohen's kappa at full-text stage.
-4. Resolve disagreements by consensus or third reviewer.
-5. Flag comparative studies for priority extraction.
+**3d. Round 4 — full-text screening.** Retrieve full texts for `round3_decision = INCLUDE` (use
+`/fulltext-retrieval`), apply the full-text exclusion codes (F1=No extractable outcome, F2=No
+comparative data, F3=Cannot separate target population, F4=Inadequate sample/follow-up,
+F5=Full-text unavailable), with two independent reviewers, Cohen's κ, and consensus or a third
+reviewer for disagreements. Flag comparative studies for priority extraction.
 
-#### 3e. PRISMA Flow
-Track numbers at each stage for PRISMA flow diagram (R1 → R2 → R3 → R4 → final included).
-Use `/make-figures` to generate PRISMA flow diagram when numbers are finalized.
+**3e. PRISMA flow.** Track counts at every stage (R1 → R2 → R3 → R4 → final included); generate the
+diagram with `/make-figures` once the numbers are final.
 
-#### 3f. Post-Consensus Count Reconciliation Gate (MANDATORY before Phase 5 write-up)
-
-Before handing the screening artifacts to Phase 5 (statistical synthesis) or to `/write-paper` / `/self-review`, run an explicit ID-set reconciliation and record the canonical totals in a single source-of-truth file (typically `2_Screening/screening_consensus.md` §Net Impact or equivalent):
-
-Use the deterministic helper when TSV/CSV artifacts are available:
+**3f. Post-consensus count reconciliation gate (MANDATORY before Phase 5 write-up).** Reconcile the
+counts from the **raw ID sets, never from prose summaries**, and record the canonical totals in one
+source-of-truth file:
 
 ```bash
 python "${CLAUDE_SKILL_DIR}/scripts/screening_reconcile.py" \
@@ -196,265 +185,119 @@ python "${CLAUDE_SKILL_DIR}/scripts/screening_reconcile.py" \
   --output 2_Screening/screening_consensus.json
 ```
 
-Downstream stages should consume `screening_consensus.json` for counts and
-ID sets. The Markdown consensus document remains the human explanation.
+Downstream stages consume `screening_consensus.json` for counts and ID sets; the Markdown consensus
+document remains the human explanation. Two hard rules:
 
-1. **Enumerate ID sets from raw artifacts (not from prose summaries):**
-   - A = screening TSV INCLUDE IDs
-   - B = consensus spreadsheet Exclude IDs
-   - C = consensus spreadsheet Include-qualitative IDs (FLAG-resolved additions)
-   - T = Table 1 / bivariate-eligible IDs (2×2-extractable studies)
+1. **List the narrative-only IDs explicitly.** The highest-yield red flag is a numeric claim ("10
+   narrative-only studies") that does not match the enumerable set `(A ∪ C) \ B \ T`.
+2. **No "N → M" transition without ID receipts.** "k rose from 30 to 32 after FLAG consensus" must
+   cite the added/removed IDs. A transition claim with no enumerable ID set is a **P0** and blocks
+   the Phase 5 hand-off.
 
-2. **Compute canonical totals via set algebra:**
-   - k_qualitative = |A \ B| + |C|
-   - k_bivariate = |T|
-   - k_narrative-only = k_qualitative − k_bivariate
-   - k_FT-excluded = |full-text reviewed| − k_qualitative
+The set algebra, the reconciliation-table template, and the precedent (a manuscript shipped 32/10/46
+where the ID sets said 24/2/54, with four artifacts echoing the same unreconciled prose total) are
+in the reference file.
 
-3. **List the narrative-only IDs explicitly.** The highest-yield red flag is a numeric claim ("10 narrative-only studies") that does not match the enumerable ID set (A ∪ C) \ B \ T.
+**3f.5 Pool composition lock (MANDATORY at adjudication freeze).** Once 3f passes, freeze the pool
+into a single source-of-truth YAML that every downstream artifact can be checked against:
 
-4. **Prohibit "N → M" transitions without ID receipts.** Any sentence of the form "k rose from 30 to 32 after FLAG consensus" must cite the specific added/removed IDs. A transition claim with no enumerable ID set is a P0 error and blocks the Phase 5 hand-off.
+```bash
+cp "${CLAUDE_SKILL_DIR}/templates/FINAL_POOL_LOCK.yaml.template" 2_Data/FINAL_POOL_LOCK.yaml
+# fill counts + UID lists from 3f, compute the SHA-256 over the sorted UID list,
+# and COMMIT THE LOCK before any Phase 4 extraction
+```
 
-5. **Record in a reconciliation table** inside the screening-consensus document:
+- **Never re-derive `k included` from the extraction TSV at manuscript build time** — always
+  reference `final_pool_n` from the lock.
+- **Aggregate patient/lesion totals are locked too**, not just study counts. Distinguish
+  **arm-separable** from **both-arm** rows: a study contributing one arm must not have its
+  full-cohort count folded into a pooled total. A hand-carried headline total that does not
+  re-derive from the locked per-study values is a **P0**.
+- A late post-freeze change to the pool is a **formal PROSPERO amendment**: file it, re-freeze as
+  `FINAL_POOL_LOCK_v2.yaml`, and propagate to every artifact.
 
-   | Quantity | v_prev draft | v_current (ID-verified) | Derivation |
-   |---|---|---|---|
-   | k_full-text | ... | ... | ... |
-   | k_FT-excluded | ... | ... | |TSV EXCLUDE| + |consensus-downgrades| |
-   | k_qualitative | ... | ... | |A \ B| + |C| |
-   | k_bivariate | ... | ... | |T| |
-   | k_narrative-only | ... | ... (explicit IDs listed) | (A ∪ C) \ B \ T |
+**Read on demand:**
 
-**Precedent incident (a PRISMA-DTA meta-analysis revision):** a late-revision manuscript shipped with k_qualitative = 32 / k_narrative-only = 10 / k_FT-excluded = 46. ID-set reconciliation (performed only after an adversarial audit at post-Stage 4 QC) revealed true counts 24/2/54. An early-draft prose total ("30 → 32 after FLAG consensus") had been carried forward without ever being reconciled against the screening TSV intersected with the consensus spreadsheet; four downstream artifacts echoed the same wrong total. This gate would have caught the drift at the Phase 5 hand-off.
-
-#### 3f.5 Pool composition lock (MANDATORY at adjudication freeze)
-
-After Phase 3f reconciliation passes, freeze the pool composition into a
-single source-of-truth YAML so every downstream artifact (extraction TSV,
-manuscript prose counts, PRISMA flow caption, supplementary INDEX, cover
-letter free-text) can be checked against it.
-
-Why this lock exists
-^^^^^^^^^^^^^^^^^^^^
-
-Cross-project precedent (anonymized): an LLM reporting-quality SR carried
-five documents that disagreed on INCLUDE (63 vs 64) and EXCLUDE
-(108/109/111). Three EXCLUDE rows existed in the extraction sheet without
-matching INCLUDE. The drift traced to a late round-3 adjudication whose
-result was applied to some artifacts and not others — there was no single
-canonical post-freeze count to reference.
-
-How to lock
-^^^^^^^^^^^
-
-1. Copy the template:
-   ```bash
-   cp "${CLAUDE_SKILL_DIR}/templates/FINAL_POOL_LOCK.yaml.template" \
-       2_Data/FINAL_POOL_LOCK.yaml
-   ```
-2. Fill in counts and UID lists from the reconciliation in Phase 3f.
-3. Compute the SHA-256 integrity hash from the sorted UID list.
-4. Commit the lock to git BEFORE starting Phase 4 extraction.
-
-Downstream gates
-^^^^^^^^^^^^^^^^
-
-- `/meta-analysis` Phase 4 entry: extraction TSV's UID set MUST equal
-  `include_uids` ∪ `mixed_uids` from the lock. See Phase 4 entry gate.
-- `/sync-submission` Phase 5
-  (`scripts/cross_document_n_check.py --pool-lock`): every numeric claim
-  in manuscript / abstract / supplementary that maps to a locked
-  category must match the locked value.
-- Manuscript prose: NEVER re-derive `k included` from extraction TSV at
-  manuscript build time. Always reference `final_pool_n` from the lock.
-- **Aggregate patient/lesion totals are locked too, not just study counts.**
-  The Abstract/Results aggregate denominators ("a total of 483 patients /
-  531 lesions") are derived from the lock, never hand-carried. Lock them as
-  explicit fields and distinguish **arm-separable** from **both-arm** rows:
-  a study contributing one arm to a comparison must not have its full-cohort
-  patient count folded into a pooled total. A hand-carried headline total that
-  does not re-derive from the locked per-study values is a P0 (the analysis-side
-  mirror of `/self-review` `check_cohort_arithmetic.py` partition checks).
-
-If a late post-freeze decision changes the pool, treat it as a formal
-PROSPERO amendment: file the amendment, re-freeze the lock as a new
-file (`FINAL_POOL_LOCK_v2.yaml`), and propagate to every artifact.
-
+| File | Read it when | Cost if read blindly |
+|---|---|---|
+| `references/phase3_screening_detail.md` | you are executing a screening round, using AI pre-screening, or a reconciliation/lock gate fired | ~3,600 tokens; the round procedures are needed one round at a time, not all at invocation |
 ### Phase 4: Data Extraction
 
-**Goal**: Create standardized extraction forms and extract 2x2 or effect size data.
+**Goal**: Create standardized extraction forms and extract 2x2 or effect-size data.
 
-#### 4.0 Entry gate (MANDATORY): pool composition lock ↔ adjudication TSV
-
-Before any extraction work begins, run the deterministic UID-set check
-to confirm that the round-3 adjudication TSV and `FINAL_POOL_LOCK.yaml`
-(produced in Phase 3f.5) agree on which UIDs are included.
+**4.0 Entry gate (MANDATORY) — pool composition lock ↔ adjudication TSV.** Before any extraction
+work begins, confirm the round-3 adjudication TSV and `FINAL_POOL_LOCK.yaml` (Phase 3f.5) agree on
+which UIDs are included:
 
 ```bash
 python "${CLAUDE_SKILL_DIR}/scripts/check_pool_consistency.py" \
     --lock 2_Data/FINAL_POOL_LOCK.yaml \
     --adjudication-tsv 2_Screening/round3_adjudication.tsv \
-    --decision-col round3_decision \
-    --uid-col uid \
+    --decision-col round3_decision --uid-col uid \
     --include-labels "INCLUDE,INCLUDE_MIXED" \
     --out qc/pool_consistency.json
 ```
 
-Output `qc/pool_consistency.json`:
+**The gate fails closed: any UID disagreement blocks extraction.** Resolve by re-freezing the lock
+with the corrected UID set (and propagating downstream) or by correcting a mis-labelled TSV row. Do
+NOT proceed with a mismatch — the extraction matrix will not align with the locked pool, and the
+drift surfaces as a fabrication-grade red flag at peer review.
 
-```json
-{
-  "submission_safe": false,
-  "match": false,
-  "lock_include_n": 42,
-  "tsv_include_n": 43,
-  "in_lock_not_tsv": ["UID_007"],
-  "in_tsv_not_lock": ["UID_055"]
-}
-```
+> **Failure-mode cross-ref** → `references/data_integrity_checklist.md` DI-1~DI-5 are mandatory
+> during extraction (2x2 arm-swap, KM audit trail, methodology mismatch, PRISMA 5-way drift,
+> single-source k).
 
-The gate fails closed: any UID disagreement blocks extraction. To
-resolve, either (a) re-freeze the lock with the corrected set of UIDs
-and propagate to downstream artifacts, or (b) correct the adjudication
-TSV if a row was mis-labeled. Do NOT proceed to Phase 4 with a
-mismatch — the resulting extraction matrix will not align with the
-locked pool, and the drift surfaces as a fabrication-grade red flag at
-peer review.
+**Extraction form.** For an SR-MA targeting high-impact radiology / medical AI journals use
+`${CLAUDE_SKILL_DIR}/templates/extraction_form_v2.md` — its dual-extractor, source-page-reference,
+and verbatim-quote columns are what close the 2x2 cell-swap and cohort-overlap blind spots. The
+DTA and intervention field lists are in the reference file.
 
+**AI-drafted starting document — treat as hallucination-suspect.** If a mentor or collaborator
+shared an AI-drafted study list, 2x2 set, or effect estimates (*even* flagged "for reference
+only"): save it with a `_DO_NOT_USE_VERBATIM` suffix and re-verify **every** N, denominator, event
+count, OR/CI, and author/year against the source PDF. Trust hierarchy: **source PDF + own analysis
+stdout > the mentor's direct text > the attached AI draft** — never promote a draft up that ladder.
+Procedure and precedent: reference file.
 
-> **Failure-mode cross-ref** → `references/data_integrity_checklist.md` DI-1~DI-5 are mandatory during extraction (2x2 arm-swap, KM audit trail, methodology mismatch, PRISMA 5-way drift, single-source k).
+**4b. Special cases (KM reconstruction, composite exposure).** When studies report outcomes only as
+Kaplan-Meier curves, or the intervention is a composite of techniques, load
+`${CLAUDE_SKILL_DIR}/references/phase4_km_composite.md` for the WebPlotDigitizer → `IPDfromKM`
+procedure (cite Guyot et al. 2012, doi:10.1186/1471-2288-12-9) and the 4-path composite-exposure
+decision tree. Pre-specify a sensitivity analysis excluding composite-exposure studies.
 
-**Recommended extraction form**: For SR-MA targeting high-impact radiology / medical AI journals, use `${CLAUDE_SKILL_DIR}/templates/extraction_form_v2.md`. Dual-extractor + source-page-reference + verbatim-quote columns prevent the 2x2 cell-swap and cohort-overlap blind spots surfaced in recent SR-MA peer-review cycles. New required columns: `cohort_source`, `source_page_ref`, `source_verbatim_quote`, `extraction_consensus_status`, `overlap_flag_reviewer1/2`, `sample_n_dta_pool` vs `sample_n_prognostic_pool`.
+**Cross-verification (≥2 independent reviewers).** Report inter-reviewer agreement (% or Cohen's
+κ) at title/abstract and full-text stages. Verify denominator consistency — **the denominator may
+differ across outcomes within one study**, so for each outcome back-calculate `event ÷ denominator`
+and confirm it reproduces the paper's reported percentage. Distinguish KM-curve estimates from raw
+event counts and record the data source (Table / KM / text). Log every consensus decision in
+`{project}/consensus_log.md`, then **lock the dataset**; later changes need a dated justification.
 
-#### 4.0 AI-drafted starting document gate
-
-Before opening the extraction form: if a senior mentor or collaborator has shared an AI-drafted starting document (Claude / ChatGPT / Gemini draft of the study list, 2x2 cells, or effect estimates) — even when the sender flags it as "for reference only" — apply `~/.claude/rules/ai-drafted-document-policy.md`:
-
-- Save the file with a `_DO_NOT_USE_VERBATIM` (or `_AI_DRAFT_REFERENCE_ONLY`) filename suffix.
-- Treat every per-study N, denominator, event count, OR/CI, and author/year as **hallucination-suspect** until re-verified against the source PDF + own analysis script. AI-drafts collapse multiple denominator definitions (treatment-naïve / full-cohort / per-arm) into one and silently mis-route counts.
-- Record any reconciled discrepancy in `extraction_consensus_log.md` with a verbatim quote of the AI-draft value and the corrected value with PDF page coordinate.
-- Trust hierarchy for this phase: **SSOT (source PDF + own analysis stdout) > mentor's direct text (email / track-changes) > attached AI-draft**. Do not promote an AI-draft from tier 3 to tier 2.
-
-Precedent (an active meta-analysis project): Ishikawa 2017 "treatment support 5/70 vs no support 12/33" in Claude-drafted directive → source PDF was 35/68 (single arm). Verbatim absorption would have produced a denominator-hallucinated meta-analysis.
-
-#### 4.0.1 AI-assisted extraction suggestions (optional, suggestions not decisions)
-
-To scaffold (not replace) manual extraction from a full-text paper, use the
-deterministic helper `scripts/extract_assist.py`. It scans a Markdown full text
-(e.g. `/fulltext-retrieval`'s PDF→MD output) for schema-defined fields and emits
-**candidate values, each with a `source_page_ref` and a verbatim source quote** —
-the extraction-stage analog of the screening-stage `ai_pre_screening_template.py`.
+**4c. Extraction QC & cohort overlap.** After dual-extractor consensus, run both before locking:
 
 ```bash
-python3 scripts/extract_assist.py \
-  --md paper.md --schema schema.yaml --study-id StudyA_2021 --out suggestions.tsv
-```
-
-- **Suggestions, never decisions.** Every row is `extraction_consensus_status =
-  AI_SUGGESTED` and `needs_review = true`. The tool invents nothing — values and
-  quotes are copied literally from the text; absent fields become explicit
-  `not_found` rows; unit-ambiguous values (e.g. `92%` vs `0.92`) are emitted as
-  multiple candidates side by side so the reviewer reconciles them.
-- **Human confirmation is mandatory.** Apply the 4.0 gate: treat every candidate
-  N / denominator / 2x2 cell / effect estimate as hallucination-suspect until
-  confirmed against the source PDF, recording reconciliations in
-  `extraction_consensus_log.md`. Confirm or overturn each suggestion into the
-  `extraction_form_v2.md` columns.
-- **Then, and only then, QC.** Build the confirmed DTA CSV and run
-  `dta_extraction_qc.py` on **that** table — never on the suggestion TSV.
-  Passing QC is not extract-assist's acceptance criterion; per-cell human
-  confirmation is.
-
-A deterministic, network-free challenge card demonstrating the full
-suggestions → confirm → QC pipeline lives in
-`scripts/extract_assist_challenge/` (synthetic paper + schema + expected output
-+ `verify.sh`).
-
-#### DTA Meta-Analysis:
-Generate a data extraction form with:
-- Study ID (first author, year)
-- Study characteristics (country, design, setting, enrollment period)
-- Population (n, age, sex, disease prevalence)
-- Index test details (technique, threshold, manufacturer, reader experience)
-- Reference standard details
-- 2x2 table (TP, FP, FN, TN)
-- Additional outcomes (AUC per study, if reported)
-- Notes on partial verification, differential verification, uninterpretable results
-
-#### Intervention Meta-Analysis:
-Generate a data extraction form with:
-- Study ID
-- Study characteristics
-- Population
-- Intervention / comparator details
-- Outcome data (means, SDs, event counts, sample sizes)
-- Effect measures (OR, RR, HR, MD, SMD as appropriate)
-
-Output: Excel/CSV template for data entry.
-
-#### 4b. Special cases (KM reconstruction, composite exposure)
-
-When studies report outcomes only as Kaplan-Meier curves (no raw event counts) or
-when the intervention is a composite of multiple techniques, load
-`${CLAUDE_SKILL_DIR}/references/phase4_km_composite.md` for the WebPlotDigitizer
-→ `IPDfromKM` reconstruction procedure (cite Guyot et al. 2012,
-doi:10.1186/1471-2288-12-9) and the 4-path composite-exposure disaggregation
-decision tree. Pre-specify a sensitivity analysis excluding composite-exposure
-studies and document extraction strategy in the form's Notes column.
-
-#### Data Extraction Cross-Verification
-
-When comparing extraction results between independent reviewers (minimum 2), check:
-
-0. **Inter-reviewer agreement**: Calculate and report screening agreement: % agreement or Cohen's kappa at title/abstract and full-text stages. If kappa was not calculated, report the exact number of discrepant records and the resolution method.
-
-1. **Denominator consistency**: Verify sample sizes match between reviewers.
-   Watch for per-patient vs per-lesion/per-tumor unit confusion.
-   **CRITICAL**: The denominator may differ across outcomes within the same study
-   (e.g., LTP assessed only among treatment-naive nodules, but complications assessed
-   among all treated tumors). For each outcome, back-calculate: `event ÷ denominator`
-   must equal the percentage reported in the paper's Tables. If it does not match,
-   investigate the analysis population definition in the Methods section.
-   If denominators differ, return to the original paper's Tables/Flow diagram.
-2. **Arithmetic verification**: Back-calculate proportions from event/total counts and cross-check against original text (e.g., 78/91 = 85.7%).
-3. **Kaplan-Meier estimate distinction**: KM curve estimates differ from raw event counts. Always record the data source (Table vs KM curve vs text) during extraction.
-4. **Discrepancy resolution**: List all discrepancies → verify against original text → reach consensus → if consensus fails, use third reviewer. Log all consensus decisions in `{project}/consensus_log.md`.
-5. **Dataset lock**: After resolving all discrepancies, lock the final dataset. Any subsequent changes require documented justification with date.
-
-#### Phase 4c: Extraction QC & Cohort Overlap Detection
-
-After dual-extractor consensus, run two QC scripts before locking the extraction table for statistical synthesis.
-
-**1. 2x2 Cell Integrity Check** -- `scripts/dta_extraction_qc.py`:
-
-Validates manuscript forest-plot cells (TP / FN / TN / FP) against source-paper-reported sens/spec within a tolerance (default 0.02). Catches sens/spec swap at extraction stage -- a common error pattern where a single-study k=1 subgroup outlier flips conclusions due to cell-assignment swap.
-
-```bash
+# 2x2 cell integrity: validates TP/FN/TN/FP against source-reported sens/spec (catches arm-swap)
 python3 "${CLAUDE_SKILL_DIR}/scripts/dta_extraction_qc.py" \
-  --input 2_Extraction/extraction.csv \
-  --tolerance 0.02 \
+  --input 2_Extraction/extraction.csv --tolerance 0.02 \
   --out 2_Extraction/qc/dta_extraction_qc.tsv
-```
 
-Any `FLAG_SWAP` or `FLAG_MISMATCH` row requires third-reviewer adjudication before Phase 6 statistical synthesis.
-
-**Flag → form-edit forced transition.** A confirmed flag is not resolved until the extraction form itself is edited. Track each flag through `confirmed → acted`: after the adjudicator confirms a `FLAG_SWAP`/`FLAG_MISMATCH`/unit-of-analysis violation, the extraction CSV row MUST be corrected and the QC re-run to clear it. A flag that is "confirmed" but whose form row is unchanged (the correction lived only in a review note) silently re-enters synthesis. Verify the form's mtime advanced and the re-run QC shows zero open flags before locking.
-
-**2. Cohort Overlap Check** -- `scripts/cohort_overlap_check.py`:
-
-Clusters included studies by (a) shared public ICU/EHR database (MIMIC-IV, eICU, MIMIC-III, KNHIS, UK Biobank, Optum, MarketScan, TriNetX, IBM), (b) same institution + overlapping enrollment period, (c) shared first-author surname + ±2y year proximity. Flags HIGH / MEDIUM overlap confidence.
-
-```bash
+# cohort overlap: shared public DB / same institution+period / same first author ±2y
 python3 "${CLAUDE_SKILL_DIR}/scripts/cohort_overlap_check.py" \
-  --input 2_Extraction/studies.csv \
-  --enrich \
+  --input 2_Extraction/studies.csv --enrich \
   --out 2_Extraction/qc/cohort_overlap.md
 ```
 
-HIGH-confidence overlap pairs require Limitations acknowledgment + sensitivity analysis excluding one of the pair.
+Any `FLAG_SWAP` / `FLAG_MISMATCH` requires third-reviewer adjudication before Phase 6. **A
+confirmed flag is not resolved until the extraction form itself is edited** — a flag corrected only
+in a review note silently re-enters synthesis, so re-run the QC and confirm zero open flags before
+locking. HIGH-confidence overlap pairs require a Limitations acknowledgment plus a sensitivity
+analysis excluding one of the pair. Cross-links: `/peer-review` Phase 2A P1 + P2.
 
-Cross-links: `/peer-review` Phase 2A P1 (cell integrity) + P2 (cohort overlap).
+**Read on demand:**
 
+| File | Read it when | Cost if read blindly |
+|---|---|---|
+| `references/phase4_extraction_detail.md` | building the extraction form, an AI draft was shared, you want the optional `extract_assist.py` scaffolding, or a QC flag fired | ~4,700 tokens; a clean dual-extraction with no AI draft needs none of it |
+| `references/phase4_km_composite.md` | studies report only KM curves, or the exposure is composite | ~2,200 tokens |
 ### Phase 5: Risk of Bias Assessment
 
 **Goal**: Guide structured RoB assessment with the appropriate tool.

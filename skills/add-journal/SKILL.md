@@ -191,122 +191,37 @@ Also read ONE existing find-journal profile from any field for the compact forma
 
 ### 3.2 Generate Write-Paper Profile
 
-Follow the canonical 11-section order exactly:
+The detailed profile `/write-paper` loads when drafting for this journal. Copy the literal
+template from `${CLAUDE_SKILL_DIR}/references/write_paper_profile_template.md` and fill it.
 
-```markdown
-# Journal Profile: {Full Name}
+**Follow the canonical 11-section order exactly.** `/write-paper` Phase 7 and `/find-journal` read
+these profiles positionally — a reordered, renamed, or omitted section silently degrades both:
 
-## Journal Identity
+1. **Journal Identity** — full name, abbreviation, publisher, ISSN, frequency, impact factor, OA
+   model, acceptance rate, peer-review type
+2. **Manuscript Types and Word Limits**
+3. **Abstract Requirements** — word cap and heading structure
+4. **Required Sections (Original Article)**
+5. **Statistical Reporting**
+6. **Figures**
+7. **Common Rejection Reasons**
+8. **Cover Letter**
+9. **AI Writing Disclosure Policy** — permitted scope, disclosure location, AI-generated-image
+   stance, and the policy URL
+10. **Author Guidelines URL**
+11. **Positioning** — when to submit here, when *not* to, and the comparison table against two
+    competitor journals
 
-- **Full name**: {name}
-- **Abbreviation**: {abbrev}
-- **Publisher**: {publisher}
-- **ISSN**: {print} (print), {online} (online)
-- **Frequency**: {frequency}
-- **Impact Factor**: ~{IF} (JCR {year})
-- **Open Access**: {OA model}
-- **Acceptance rate**: ~{rate}
-- **Peer review**: {type}
+**Fill rules.** Never guess a value. Tag any uncertain field with `[VERIFY]` rather than inventing
+a plausible number — an invented word limit or abstract structure propagates straight into a
+drafted manuscript. Where the journal publishes no dedicated AI policy, cite the publisher-level
+policy and say so explicitly.
 
-## Manuscript Types and Word Limits
+**Read on demand:**
 
-| Type | Body Word Limit | Abstract | References | Figures/Tables |
-|------|----------------|----------|------------|----------------|
-| Original Article | {limit} | {limit} | {limit} | {limit} |
-| ... | ... | ... | ... | ... |
-
----
-
-## Abstract Requirements
-
-{Structured or unstructured. Show format as code block if structured.}
-
----
-
-## Required Sections (Original Article)
-
-1. **Introduction**
-2. **Methods**
-   - {subsections}
-3. **Results**
-4. **Discussion**
-5. **{Other required sections if any}**
-
----
-
-## Statistical Reporting
-
-- {p-value format}
-- {CI requirements}
-- {Effect size requirements}
-- {Software identification requirement}
-- {Journal-specific statistical requirements}
-
----
-
-## Figures
-
-- **Maximum**: {N figures/tables}
-- **Resolution**: {DPI} minimum
-- **Format**: {accepted formats}
-- **Color**: {policy}
-
----
-
-## Common Rejection Reasons
-
-1. {reason}
-2. {reason}
-3. {reason}
-4. {reason}
-5. {reason}
-
----
-
-## Cover Letter
-
-Should include:
-- {requirements}
-
----
-
-## AI Writing Disclosure Policy
-
-- **Requirement level:** {Required / Recommended / Not specified — follows ICMJE recommendations}
-- **Permitted scope:** {Language editing only / All tasks / describe specific policy}
-- **Disclosure location:** {Methods / Acknowledgments / Cover letter / Submission form}
-- **AI-generated images:** {Banned / Must be declared / Not specified}
-- **Policy URL:** {URL to journal's AI policy page, or author guidelines URL if no dedicated page}
-
-<!-- Use WebFetch to check the journal's Author Guidelines for AI policy.
-     If no specific AI policy found, use ICMJE default:
-     - Requirement level: Not specified — follows ICMJE recommendations
-     - Permitted scope: Language editing only — per ICMJE 2025
-     - Disclosure location: Methods
-     - AI-generated images: Not specified
-     - Policy URL: [author guidelines URL] (no dedicated AI policy page)
-     Add [VERIFY] tag if uncertain about any field. -->
-
----
-
-## Author Guidelines URL
-
-{URL}
-
----
-
-## Positioning
-
-{When to submit here. When NOT to submit here.}
-
-| Dimension | {This Journal} | {Competitor 1} | {Competitor 2} |
-|-----------|---------------|----------------|----------------|
-| Society | ... | ... | ... |
-| Scope | ... | ... | ... |
-| Impact factor | ... | ... | ... |
-| Emphasis | ... | ... | ... |
-```
-
+| File | Read it when | Cost if read blindly |
+|---|---|---|
+| `references/write_paper_profile_template.md` | you are writing the profile and need the literal fill-in template | ~1,800 tokens of pure template; the section order above is all you need to plan the fetch |
 ### 3.3 Generate Find-Journal Profile
 
 Follow the canonical 5-section format exactly:

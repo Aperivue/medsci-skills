@@ -42,6 +42,7 @@
 - `domain-probes/` (23 files)
 - `exemplar_reviews/` (7 files)
 - `narrative_review_audit.md`
+- `review_draft_template.md`
 - `reviewer_calibration/` (2 files)
 - `reviewer_profiles/` (6 files)
 

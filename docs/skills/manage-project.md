@@ -34,6 +34,7 @@
 
 **References** (`skills/manage-project/references/`):
 
+- `init_scaffold.md`
 - `pre_submission_checklist.md`
 - `project_state_template.json`
 - `scaffold_templates.md`
