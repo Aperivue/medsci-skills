@@ -4,6 +4,40 @@
 
 ### Added
 
+- **`/peer-review` — the request-type rule now has a script behind it**
+  (`skills/peer-review/scripts/check_review_request_types.py`, detector #65, with a challenge card).
+  **Every other detector in this repo audits the manuscript. This one audits the review.**
+
+  Phase 3 already told reviewers to sort each ask into two kinds — **disclosure** ("show what the
+  study already knows and has not printed": costs the authors nothing, and *surfaces* errors) and
+  **computation** ("produce a number that does not yet exist": creates a new, unreviewed error
+  surface, written under revision deadline by authors who will not re-check it, and accepted next
+  round by a reviewer who reads its *existence* as compliance). In the incident that produced the
+  rule, three of the four defects found in a revision had been **manufactured by the reviewer's own
+  two computation requests**.
+
+  **The rule shipped as prose, and prose did not bind.** In the first live review after it landed, a
+  draft went out with fifteen asks — six computation, one demanding a second reader — and it passed
+  *every* neighbouring gate: word count, em-dash density, forbidden recommendation words, attitude
+  markers, hedging ratio. Those held because they are scripts. This one failed because it was a
+  sentence. The difference was not importance; it was executability.
+
+  The gate emits `COMPUTATION_UNJUSTIFIED` (a computation request stating no reason the existing
+  tables cannot answer it — *feasibility is not justification*: "a text filter on data you already
+  hold" says the work is cheap, not that the tables cannot answer it), `COMPUTATION_HEAVY`,
+  `NEW_DATA_REQUESTED` (a second reader, re-segmentation, a new cohort — strictly worse, because it
+  cannot be satisfied in a revision at all), `NESTED_P_REQUESTED` (never *request* the subset-vs-parent
+  table that `check_nested_group_comparison.py` exists to flag), and `ESTIMATOR_UNNAMED`.
+
+  Deliberately high-precision: it honours negation ("I am not asking you to repeat the validation";
+  "a single reader **without** adjudication"; "**without** a significance test — the groups are
+  nested") and ignores plain description ("bootstrap intervals are reported for the median only"
+  states a fact, it does not ask for work). A detector that never falsely accuses a disclosure
+  request is worth more than one that catches every computation.
+
+  Wired into Phase 3 (beside the rule it enforces), Phase 4 self-QC item 7, and the Phase 6
+  pre-submission checklist.
+
 - **`/present-paper` — presentation archetypes: the skeleton, chosen by where you are standing**
   (`references/presentation_archetypes.md`, and its mechanical half `check_deck_budget.py`,
   detector #64). A deck has **two independent choices**, and conflating them is why talks fail: the
