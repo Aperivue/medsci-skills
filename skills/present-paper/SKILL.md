@@ -40,7 +40,43 @@ Use it when:
 
 ### Step 0a — Load design references (read before drafting outline)
 
-Before collecting inputs, the skill loads these reference files:
+Three of these are read **now**, in full — they change what you produce. The rest are read **when the
+answer to Q0 tells you which one you need**, because a talk has one venue and one style, and reading
+the others costs roughly seven thousand tokens to learn nothing you will use.
+
+**Read now (always):**
+
+**A. `references/ai_slide_tells.md`** — the marks a generated deck leaves. Read all of it, first.
+The complaint about AI decks is **not** that they are ugly — templates solved ugly. It is that they
+*stop communicating*, because they were built to make the maker comfortable rather than to serve the
+audience. This file is why the deck does not need catching later; `scripts/check_slide_tells.py`
+catches it after (Step 3.6). It **overrules older guidance where they conflict** — in particular the
+eyebrow-on-every-slide and brand-footer rules this project used to mandate, which are the single
+most-cited visual tell.
+
+**B. `references/presentation_archetypes.md`** — the **skeleton**, chosen by where the speaker is
+standing: conference oral, journal-club critique, case-anchored grand rounds, didactic lecture,
+defence, keynote (Duarte's sparkline, the Jobs STAR moment, Takahashi/Lessig), lay talk, decision
+brief (Minto's pyramid, action titles, Kawasaki's 10/20/30). A deck has **two independent choices**
+and conflating them is why talks fail: the *archetype* is what the talk has to **do**; the *visual
+style* is what it **looks like**. A conference oral in a keynote's skeleton dies (no data on the
+slides); a keynote in a conference oral's skeleton dies harder. **The skin is a preference; the
+skeleton is not.** Its mechanical half is `scripts/check_deck_budget.py`.
+
+**C. `references/presentation_design_guidelines.md`** — the enforceable rules (assertion headlines,
+24-pt floor, negative space, ≤3 colours, colourblind-safe palettes, redraw-don't-screenshot,
+animation discipline) plus the G1–G10 self-check the Phase 3.5 critic scores against.
+
+**Read on demand — after Q0/Q2 tell you which one:**
+
+| File | Read it when | Cost if read blindly |
+|---|---|---|
+| `references/medical_presentation_templates.md` | the venue is one of the five medical ones — then read **that section only** | ~3,700 tokens, of which you use a fifth |
+| `references/slide_visual_styles/CATALOG.md` → one style file | Q2 has chosen a style | ~2,300 tokens per style |
+| `references/slide_design_principles.md` | you are stuck on *why* a slide is not landing — Reynolds / Duarte / Knaflic / Tufte, the theory under the rules in **C** | ~2,600 tokens of theory you mostly already applied |
+
+<details>
+<summary>The original list, for reference</summary>
 
 1. **`references/slide_design_principles.md`** — Reynolds (Presentation Zen) +
    Duarte (Slide:ology Glance Test™) + Knaflic (Storytelling with Data preattentive
@@ -66,25 +102,7 @@ Before collecting inputs, the skill loads these reference files:
    generic builder (`references/generate_pptx_templates.py`). PDF figures →
    `scripts/extract_pdf_figures.py`.
 
-5. **`references/presentation_archetypes.md`** — the **skeleton**, chosen by where the speaker is
-   standing: conference oral, journal-club critique, case-anchored grand rounds, didactic lecture,
-   defence, keynote (Duarte's sparkline, the Jobs STAR moment, Takahashi/Lessig), lay talk, and the
-   decision brief (Minto's pyramid, action titles, Kawasaki's 10/20/30). A deck has **two
-   independent choices** and conflating them is why talks fail: the *archetype* is what the talk has
-   to **do**; the *visual style* is what it **looks like**. A conference oral in a keynote's skeleton
-   dies (no data on the slides); a keynote in a conference oral's skeleton dies harder. **The skin is
-   a preference; the skeleton is not.** Its mechanical half is `scripts/check_deck_budget.py`.
-
-6. **`references/ai_slide_tells.md`** — **read this one first, and read all of it.** The marks a
-   generated deck leaves, and why reviewers now say they can spot one instantly: scaffolding
-   sentences that narrate the thought instead of stating it, chrome along every edge, the same box
-   eight times, unlabelled arrows, a vague brief producing a deck nobody can use. The complaint is
-   **not** that AI decks are ugly — templates solved ugly. It is that they *stop communicating*,
-   because they were built to make the maker comfortable rather than to serve the audience.
-   `scripts/check_slide_tells.py` catches these after the deck exists (Step 3.6); this file is so
-   the deck does not need catching. It also overrules older guidance where they conflict — the
-   eyebrow-on-every-slide and brand-footer rules in particular, which this project used to mandate
-   and which are the single most-cited visual tell.
+</details>
 
 These mirror the entry-point pattern used in
 `make-figures/references/design_principles.md` (Step 1 "Specify"). Both skills share

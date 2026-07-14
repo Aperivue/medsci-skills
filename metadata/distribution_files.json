@@ -3453,8 +3453,8 @@
     },
     {
       "path": "skills/present-paper/SKILL.md",
-      "size": 40128,
-      "sha256": "fbd3db6334755142d8b47c15779f2c8f5d36c1e35afca4067191d65614edd823"
+      "size": 41029,
+      "sha256": "9f9f7635053748e8174d23e78bd1e6661ab2acca87889a773282a01dde6edb55"
     },
     {
       "path": "skills/present-paper/references/ai_slide_tells.md",
@@ -3478,8 +3478,8 @@
     },
     {
       "path": "skills/present-paper/references/presentation_archetypes.md",
-      "size": 11968,
-      "sha256": "76428b7a2f84ca101db49bacc5159bf09954ef8679c5449a5f211abd2fc6204d"
+      "size": 12547,
+      "sha256": "02d45db18bd0c8cfd430b0f4683714988fdf8427653f30068140f3885ee008e7"
     },
     {
       "path": "skills/present-paper/references/presentation_design_guidelines.md",
@@ -3873,8 +3873,8 @@
     },
     {
       "path": "skills/self-review/SKILL.md",
-      "size": 105088,
-      "sha256": "bc74e3138847edaf31d757d4fdab96667e740c4e0cb656ff2bd685a894bc2ed2"
+      "size": 106397,
+      "sha256": "09bf5f386c204b98fc10b2efdb19ad19761808539e6dab7db762622338ce3e2a"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",

@@ -396,6 +396,30 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/check_cohort_arithmetic.py" \
 
 `RATE_BACKCALC` / `CASCADE_SUM` / `PARTITION_OVERLAP` rows are Anticipated Major Comments (category: A. Study Design & Data Integrity); the partition check is the Phase 2.5b cohort branch below. Pass `--id-col` (or let it auto-detect a subject-ID column) on health-screening / EMR / registry data so the gate also runs the **analysis-unit** check: when `records > unique subjects` and the manuscript states neither the analysis unit nor a one-record-per-subject sensitivity, it emits `ANALYSIS_UNIT_UNDISCLOSED` (Major — non-independent observations give anti-conservative CIs; probe O8). Flag any remaining internal-consistency discrepancies as Anticipated Minor Comments (category: F. Reporting Completeness).
 
+**Then recompute the three things a reviewer recomputes by hand.** These are the arithmetic checks a
+careful reviewer does with a calculator on the train home, and the ones that end a submission when
+they fail:
+
+```bash
+# Every "n (%)" in a table, recomputed against its own denominator.
+python3 "${CLAUDE_SKILL_DIR}/scripts/check_table_percentages.py" \
+  --manuscript manuscript.md --out qc/table_percentages.json --strict
+
+# Every reported P beside a 2×2 (or r×c) count, recomputed from the counts themselves.
+python3 "${CLAUDE_SKILL_DIR}/scripts/check_reported_p_from_counts.py" \
+  --manuscript manuscript.md --out qc/reported_p.json --strict
+
+# Diagnostic-accuracy only: sensitivity/specificity against the reference-standard denominators.
+python3 "${CLAUDE_SKILL_DIR}/scripts/check_dta_denominators.py" \
+  --manuscript manuscript.md --out qc/dta_denominators.json --strict
+```
+
+`PCT_MISMATCH`, `P_MISMATCH` / `P_IMPOSSIBLE`, and `DENOM_MISMATCH` are **P0 Major** — a percentage
+that does not follow from its own denominator, or a P value that does not follow from its own counts,
+is not a rounding disagreement. It means one of the two numbers is wrong, and the reviewer who checks
+will find it. Run the first two on **every** manuscript with a table; the third only on
+diagnostic-accuracy work.
+
 ### Phase 2.5a: Numerical Source-Fidelity Audit (External)
 
 Internal consistency (Phase 2.5) is necessary but not sufficient. Numbers can be fully self-
