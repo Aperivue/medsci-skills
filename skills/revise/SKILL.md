@@ -274,10 +274,10 @@ not an attack. **Never ignore these requests** — reviewer engagement is a posi
 ### Category 5: Statistical Method Challenge
 
 Reviewer questions or requests changes to statistical methods.
-**Response**: Consult a biostatistician if unfamiliar → provide a reasoned justification
-for your method choice with references → if the reviewer's suggestion is valid, perform
-both analyses and show results are consistent. "This analysis was reviewed in consultation
-with our biostatistician" adds credibility.
+**Response**: Provide a reasoned justification for the method with references. If the reviewer's
+suggestion is valid, run both analyses and show the results are consistent. If a statistician was
+in fact consulted, say so; do not write that sentence because it *sounds* credible — a claim about
+who reviewed the work is a claim about the world, and this letter goes to an editor.
 
 ### Mapping to MAJ/MIN/REB
 

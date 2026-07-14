@@ -4,6 +4,37 @@
 
 ### Fixed
 
+- **`/revise` was handing the author a sentence to tell an editor, and recommending it for its
+  effect rather than its truth.** Category 5 read: *"This analysis was reviewed in consultation with
+  our biostatistician" adds credibility.* That is a claim about who looked at the work — a claim
+  about the world — offered as a rhetorical move, in a toolkit whose whole thesis is that you do not
+  write down what you have not verified. Removed. If a statistician was in fact consulted, say so.
+- **Two skills told every user of an international toolkit what language they speak.**
+  `/humanize` opened with *"Communicate with the user in Korean"*; `/polish-language` with
+  *"Conversation with the user may be in Korean."* This package ships on npm and is starred from
+  countries its maintainer has never visited. Both now say what `/publish-skill` already said:
+  **in their preferred language.**
+
+  The rule was not missing. It was written down — **in `/publish-skill`, the skill whose job is to
+  scrub a personal skill before it goes public**, which lists "Language hardcoding" among the defects
+  to remove and prints the replacement. It was a sentence, and nothing executed it, and so the
+  repository shipped two violations of its own rule for months.
+
+  *A rule that ships as prose is a rule the model reads and disobeys. The difference between the
+  rules that held and the one that did not was not importance. It was executability.*
+
+### Added
+
+- `scripts/check_hardcoded_locale.py` — that sentence, executed. A SKILL.md may name a language as
+  the **subject** of the work ("manuscript edits are in English"); it may not choose which language
+  to address the **user** in. Naming the defect in order to teach it (as `/publish-skill` does) is
+  not committing it — the gate's first draft flagged the one file that had already got this right,
+  which is exactly how a gate dies. `tests/test_hardcoded_locale.sh` regresses both forms of the
+  defect and holds the gate silent on all three kinds of legitimate use.
+
+
+### Fixed
+
 - **`/self-review` `check_analysis_definitions` was reading layout, not defect** (detector #66,
   shipped hours earlier in #340). Two bugs, both caught on the *second* real manuscript:
 
