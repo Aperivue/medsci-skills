@@ -1,0 +1,4 @@
+== OK ==  fixture/defined.md
+load: models=2 auxiliary=2 tables=0
+every reported analysis names its outcome and its reference standard.
+[INFO] ANALYSIS_LOAD L0  2 model families, 2 auxiliary analyses, 0 tables. Load is context, not a verdict — but it is what crowds the Methods until definitions fall out. If the checks above fired, look here first.
