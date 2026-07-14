@@ -79,6 +79,23 @@ for heads, want in CASES:
     if got != want:
         fails.append(f"boundary for {heads[0]!r}: want {want}, got {got}")
 
+# A section divider puts its title AND its subtitle in one text frame. So the shape reads
+# "Backup\nQ&A — the four questions this design invites", and a guard that measured the whole
+# text threw the boundary away for being ten words long. This is the deck that caught it.
+prs = Presentation()
+prs.slide_width, prs.slide_height = Inches(13.333), Inches(7.5)
+s = prs.slides.add_slide(prs.slide_layouts[6])
+tb = s.shapes.add_textbox(Inches(1.5), Inches(3.1), Inches(10), Inches(2.5))
+tf = tb.text_frame
+tf.text = "Backup"
+tf.add_paragraph().text = "Q&A — the four questions this design invites"
+p = Path(tempfile.mkdtemp()) / "divider.pptx"
+prs.save(str(p))
+slides, _n, _w, _h = budget.read_deck(p)
+if budget.find_backup_boundary(slides) != 0:
+    fails.append("a real section divider (title + subtitle in one frame) was not recognised — "
+                 "the boundary must be read from the shape's FIRST LINE, not its whole text")
+
 
 # --- the clock stops there ----------------------------------------------------------
 TALK = [f"Finding {i} changed what we do" for i in range(11)]      # 11 presented slides

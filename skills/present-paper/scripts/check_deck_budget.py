@@ -119,14 +119,22 @@ def find_backup_boundary(slides) -> Optional[int]:
     """Index of the first backup slide, or None. Everything from there on is off the clock.
 
     A backup section opens with a marker slide -- a divider or a heading that says "Backup",
-    "Appendix", "Q&A". We look for that headline, and we require it to be *short*: a slide whose
+    "Appendix", "Q&A". We look for that *headline*, and we require it to be short: a slide whose
     body happens to discuss "the appendix of the guideline" is not a boundary, and a nine-word
     sentence containing the word "reserve" is a sentence, not a signpost.
+
+    Headline means the shape's FIRST LINE, not its whole text. A section divider normally carries
+    its title and its subtitle in one text frame, so the shape reads
+
+        "Backup\\nQ&A -- the four questions this design invites"
+
+    and a guard that measured the whole text threw the boundary away for being ten words long.
+    That is not hypothetical: it is how this check failed the first real deck it met.
     """
     for i, shapes in enumerate(slides):
         for s in shapes:
-            t = (s.text or "").strip()
-            if t and len(t.split()) <= 6 and _BACKUP_RE.match(t):
+            head = next((ln.strip() for ln in (s.text or "").splitlines() if ln.strip()), "")
+            if head and len(head.split()) <= 6 and _BACKUP_RE.match(head):
                 return i
     return None
 
