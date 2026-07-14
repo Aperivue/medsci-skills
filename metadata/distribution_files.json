@@ -3013,8 +3013,8 @@
     },
     {
       "path": "skills/peer-review/SKILL.md",
-      "size": 77450,
-      "sha256": "631f8ae865f80057198a39eb1274e7ecf40278ad93ae4bd25826697cb75e2e64"
+      "size": 78803,
+      "sha256": "2599190d0b175bdb29cfda93b67bdbc5ee89991e9d94cd802cc9a2961b8708bb"
     },
     {
       "path": "skills/peer-review/references/aczel_2021_reviewer2_patterns.md",
@@ -3250,6 +3250,41 @@
       "path": "skills/peer-review/scripts/check_pdf_injection_challenge/verify.sh",
       "size": 2187,
       "sha256": "6d149ab8d6737430937a0424dd4c66ea9332f25d83d1eca8e37104db33e97b0d"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_review_request_types.py",
+      "size": 13450,
+      "sha256": "a83738d726c72a489a3eca86a57c9ef00a17197058263fec494261bac22aa7db"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_review_request_types_challenge/expected/disciplined.txt",
+      "size": 155,
+      "sha256": "c36118924771be470852c8a8ca678c36a20dc5816020dda5877d30cb56c34009"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_review_request_types_challenge/expected/undisciplined.txt",
+      "size": 1348,
+      "sha256": "67744143d99aebc69ce21931ce5244f03bfbd9db2a1cb5768ea4833b30f978a1"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_review_request_types_challenge/fixture/disciplined.md",
+      "size": 866,
+      "sha256": "5c6ae5c34e55a825586e2ac6310dbb855baf5522e7dfab8b640c8433237a7bf0"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_review_request_types_challenge/fixture/undisciplined.md",
+      "size": 736,
+      "sha256": "df98f217c01d65292ab2f06d0f72f1118cffdc5733e4af9ce7595bf587e5ad5e"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_review_request_types_challenge/problem.md",
+      "size": 4347,
+      "sha256": "7c967ee7252d0c0bc90c49af0f4812b7bdd7d4e3d610118dbac0e20a808bda6c"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_review_request_types_challenge/verify.sh",
+      "size": 1846,
+      "sha256": "7b3704e4c2148799650c60c934781e76cd55be6af163a005b5abdbd27f1f5b5f"
     },
     {
       "path": "skills/peer-review/scripts/check_self_improvement_claims.py",
