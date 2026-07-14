@@ -6,6 +6,12 @@ A deck has two independent choices, and conflating them is why so many talks fai
 |---|---|---|
 | **Archetype** | *this file* | What the talk has to **do**, and therefore how it is built: what a slide is for, how many there are, how much can be on one, how the argument moves. |
 | **Visual style** | `slide_visual_styles/` | What it **looks like**. Palette, type, grid. A skin. |
+| **Content plan** | `medical_presentation_templates.md` | For the five *medical* venues only: the section-by-section plan, slide counts, design seed, pre-presentation checklist. |
+
+**Do not read the content plan until the venue is known** — you need one of its five, not all five.
+Archetypes A–D below are the same four medical venues; this file gives the **stance** (what the talk
+must do, what fails), the template gives the **sections**. Where they overlap, this file wins: a
+section list cannot tell you that a journal club which merely summarises the paper has failed.
 
 A conference oral in a keynote's skeleton dies (no data on the slides; the reviewer in row three
 came for the numbers). A keynote in a conference oral's skeleton dies harder (a 40-word slide read

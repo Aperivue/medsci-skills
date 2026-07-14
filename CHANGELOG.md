@@ -61,6 +61,29 @@
 
 ### Fixed
 
+- **Three detectors were counted, tested, released — and never ran.** `check_table_percentages`,
+  `check_reported_p_from_counts` and `check_dta_denominators` shipped in v5.20.0 with challenge cards,
+  CI steps, JSON envelopes and a release note, and **`self-review/SKILL.md` never mentioned them**.
+  They passed every gate we had and had never once run on a manuscript, while being counted in the
+  number we publish. A challenge card proves a detector **works**; nothing proved the skill **calls**
+  it. They are now wired into Phase 2.5 — the arithmetic a reviewer redoes with a calculator: a
+  percentage that does not follow from its own denominator, and a P value that does not follow from
+  its own counts. `scripts/check_detector_reachability.py` (CI) now fails if any detector is not
+  invoked by a SKILL.md, directly or through a named bundle runner.
+
+- **`/present-paper` Phase 0 demanded ~14,000 tokens of references before a single slide.** Three of
+  the six mattered up front; `medical_presentation_templates.md` alone cost ~3,700 tokens to use a
+  fifth of, and the visual-style file was read before the style was chosen. Split into *read now*
+  (the AI-tells file, the archetypes, the enforceable rules) and *read when Q0/Q2 tells you which
+  one*. **~7,400 tokens saved per invocation, with nothing decision-shaping removed.**
+
+- **The archetypes file duplicated the medical templates.** Archetypes A–D (conference oral, critique,
+  case-anchored, didactic) are the same four venues the content templates already covered — two files
+  answering "how do I structure a journal club talk". The boundary is now explicit: the archetype
+  gives the **stance** (what the talk must do, what fails), the template gives the **sections**, and
+  the archetype wins where they conflict. A section list cannot tell you that a journal club which
+  merely summarises the paper has failed.
+
 - **A broken workflow file does not turn a pull request red — it makes the checks *disappear*.**
   A step named ``- name: Run deck-budget challenge (same deck: fits an oral, ...)`` put a `: ` inside
   an unquoted YAML scalar. `validate.yml` stopped being valid YAML, GitHub ran **zero jobs**, and

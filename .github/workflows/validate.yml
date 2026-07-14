@@ -78,6 +78,9 @@ jobs:
       - name: Run capabilities-validator self-test (drift fixtures fail, live repo clean)
         run: bash tests/test_capabilities_validator.sh
 
+      - name: "Run check_detector_reachability.py (a detector nothing calls never runs)"
+        run: python3 scripts/check_detector_reachability.py --strict
+
       - name: Run check_orchestrate_reachability.py (every skill routable from /orchestrate)
         run: python3 scripts/check_orchestrate_reachability.py --strict
 
