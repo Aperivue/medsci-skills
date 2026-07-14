@@ -235,6 +235,6 @@ violates the cognitive-load budget (`design_principles.md` §4).
   / STARD-AI mandate
 - `critic_rubrics/data_plot.md` — calibration / fairness / colorblind
   checks
-- `exemplar_diagrams/pipeline/pipeline_01.svg` … `pipeline_10.svg` —
+- `exemplar_diagrams/pipeline/*_why.md` — design notes (the rendered figures were cropped from published papers and were removed; an MIT-licensed package cannot redistribute them) —
   worked exemplars (multimodal MLLM, contrastive learning, VQA, report
   generation)

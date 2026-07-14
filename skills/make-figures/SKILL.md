@@ -357,9 +357,13 @@ This produces a JSON report covering:
      row).
    - For medical-AI pipeline / DICOM / federated / architecture figures,
      also read `${CLAUDE_SKILL_DIR}/references/pipeline_concepts_medical_ai.md`.
-3. If exemplars exist in `${CLAUDE_SKILL_DIR}/references/exemplar_diagrams/{type}/`,
-   Read 1–3 of them plus their `_why.md` notes. For a non-flow data plot (forest, ROC, KM,
-   calibration), read the matching anatomy model in
+3. Read the `_why.md` design notes in `${CLAUDE_SKILL_DIR}/references/exemplar_diagrams/{type}/`
+   — hierarchy, whitespace, typography, emphasis, colour. **They are the anchors.** Where a rendered
+   exemplar is bundled (`template_output*.png`, produced by this skill's own R script), Read 1–2 of
+   those too; the figures cropped from published papers were removed in 2026-07 because an
+   MIT-licensed package cannot redistribute them (see that directory's README). If you have your own
+   exemplars locally, point the loop at them — they stay on your machine.
+   For a non-flow data plot (forest, ROC, KM, calibration), read the matching anatomy model in
    `${CLAUDE_SKILL_DIR}/references/exemplar_plots/` (e.g., `forest_plot.md`).
 4. Score every rubric item as PASS / PARTIAL / FAIL with a one-line note,
    using the format at the bottom of the rubric file.

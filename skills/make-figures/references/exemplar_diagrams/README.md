@@ -1,65 +1,80 @@
 # Exemplar Diagrams — Quality Anchors for the Critic Loop
 
-This directory holds a small, hand-curated set of flow-diagram and figure
-examples from published papers that we consider high-quality. The Critic
-Loop references these as "visual structure first" anchors when reviewing
-newly generated figures.
+Visual anchors the Critic Loop reads before judging a newly generated figure: *what does a
+well-composed one actually look like?*
+
+## What is here — and what is deliberately not
+
+| | |
+|---|---|
+| **`{type}/template_output*.png`** | Diagrams **this skill renders itself** (`scripts/generate_flow_diagram.R` + the `template_input.yaml` beside them). Ours. Safe to ship. |
+| **`{label}_why.md`** | **The teaching content.** 50–100 words on *why* an exemplar works — hierarchy, whitespace, typography, emphasis, colour. Written by us. This is what the Critic Loop actually learns from. |
+| ~~`{label}.png` cropped from a published paper~~ | **Removed 2026-07-14 — see below.** |
+
+## Why the paper figures are gone
+
+This directory held ten PNGs **cropped from published papers**. The old README said so plainly, and
+promised each carried a `.meta.yaml` recording *"source PDF, page, DOI, crop coords"*, and that the
+sidecar *"records DOI and source for every exemplar."*
+
+**It did not.** The files recorded `label`, `figure_type` and `dpi`. No source. No DOI. No licence.
+Eight of the eighteen images had no metadata at all. The safeguard the README described had never
+been implemented.
+
+The old README also argued fair use, on the grounds that the exemplars are *"not redistributed as
+part of generated figures"* — the Critic Loop only looks at them. That is true, and it is not the
+question. **They were redistributed as part of the package**: this repository is **MIT-licensed** and
+ships on npm and as a classroom ZIP that every user downloads. MIT tells the world it may *"use,
+copy, modify, merge, publish, distribute, sublicense, and sell"* what is inside. We were granting
+those rights over other people's figures — without knowing whose, without a licence, without credit.
+
+Some were probably open-access and freely reusable with attribution. We cannot say which, because
+the provenance was never recorded, and **a permission you cannot demonstrate is not a permission.**
+
+The `_why.md` notes stay. They are ours, and they are where the value was: a paragraph explaining
+*why* a two-tone palette survives greyscale teaches more than the picture it was written about.
+
+**A figure you may legally read is not a figure you may legally ship.** That distinction is the whole
+reason for this file.
+
+## Bringing your own visual anchors
+
+The Critic Loop reads whatever exemplars it finds here.
+
+1. Drop them into `{type}/` **on your own machine.** They stay local; nothing here is uploaded
+   anywhere, and a local file you never commit is never redistributed.
+2. Give each one a sidecar:
+
+   ```yaml
+   label: "pipeline_11"
+   figure_type: "pipeline"
+   source: "Author et al., Journal Name, 2025"
+   doi: "10.1234/example"
+   license: "CC-BY-4.0"        # must be true, and must permit redistribution
+   ```
+
+3. If you want to **contribute** an exemplar back to the project, the licence has to permit
+   redistribution — CC-BY, CC0, or your own work. `scripts/check_bundled_media_license.py` enforces
+   that in CI: an image that ships without a declared, redistributable licence fails the build.
 
 ## Layout
 
 ```
 exemplar_diagrams/
 ├── strobe/      # cohort / cross-sectional / case-control flow
-├── stard/       # diagnostic-accuracy flow diagrams
+├── stard/       # diagnostic-accuracy flow
 ├── consort/     # RCT participant flow
-├── prisma/      # systematic review selection flow
-├── pipeline/    # methods / algorithm flow diagrams
-└── {other...}/  # future types (roc, forest, km, ...)
+├── prisma/      # systematic-review selection flow
+├── pipeline/    # methods / algorithm flow   (design notes only)
+└── other/       #                            (design notes only)
 ```
 
-Each category directory can hold two kinds of files:
+Each type directory holds `template_input.yaml` (the config the R script consumes),
+`template_output*.png` (what it renders), and any `_why.md` design notes.
 
-1. **Review anchors** (for the Critic Loop) — groups of three files per exemplar:
-   - `{label}.png` — rendered figure cropped from a published paper (≥300 DPI)
-   - `{label}.meta.yaml` — attribution metadata (source PDF, page, DOI, crop coords)
-   - `{label}_why.md` — 50–100 word note on why this figure is a good anchor
-2. **Generation templates** (for `generate_flow_diagram.R`) — one set per category:
-   - `template_input.yaml` — minimal schema example showing all supported fields
-   - `template_output.{pdf,png,_600.png}` — rendered reference output for the template
-   - Render with `Rscript ../../scripts/generate_flow_diagram.R --type <type> --config <dir>/template_input.yaml --out <dir>/template_output`
-
-## How to add a new exemplar
+Render one yourself:
 
 ```bash
-python skills/make-figures/scripts/extract_exemplar_from_pdf.py \
-    --pdf "/path/to/paper.pdf" \
-    --page 3 \
-    --type stard \
-    --label LastnameYEAR_STARD \
-    --doi 10.1148/radiol.2017170371 \
-    --crop 0.05,0.1,0.95,0.6
+Rscript ../../scripts/generate_flow_diagram.R \
+  --type prisma --config prisma/template_input.yaml --out prisma/template_output
 ```
-
-Then open the generated `{label}_why.md` and fill in the curator's note
-(50–100 words on hierarchy, whitespace, typography, emphasis, color).
-
-## Curator guidelines
-
-- **Source quality** — prefer examples from Radiology, NEJM, Lancet, JAMA,
-  European Radiology, BMJ, Cochrane Reviews. Lower-tier sources only when
-  they show a specifically good design pattern.
-- **One exemplar per design principle** — do not add five near-identical
-  examples. Aim for 3–5 exemplars per category, each illustrating a
-  different design strength.
-- **Crop tightly** — remove surrounding caption and whitespace so the
-  exemplar is purely the diagram.
-- **No open-access conflict** — avoid exemplars from paywalled figures
-  where fair-use for internal reference review is unclear. Prefer
-  open-access or CC-licensed papers when possible.
-
-## Attribution
-
-Exemplars are used under fair-use for internal quality review only. They
-are **not redistributed as part of generated figures** — the Critic Loop
-uses them read-only as anchors for feedback. The `_meta.yaml` sidecar
-records DOI and source for every exemplar.

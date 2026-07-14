@@ -1868,8 +1868,8 @@
     },
     {
       "path": "skills/make-figures/SKILL.md",
-      "size": 50217,
-      "sha256": "8027b602bc0d90c3cb6b1c51f0718504b05f27202f6b9a293b4600bdb9fcfcbd"
+      "size": 50652,
+      "sha256": "1a14014c0916cc3d26057e8aec3e9e021ec6702b999fe4c9be26088fecdaecfa"
     },
     {
       "path": "skills/make-figures/references/critic_rubrics/data_plot.md",
@@ -1888,8 +1888,8 @@
     },
     {
       "path": "skills/make-figures/references/exemplar_diagrams/README.md",
-      "size": 2880,
-      "sha256": "09f0d38adc6d04f4c5b1adb2ef119e7dfd47e78bbb934a3a28ae4d5670e09b5d"
+      "size": 3902,
+      "sha256": "eb82ec4d0d5d384ac0c4dcdd2597bd3cd3f64817c5d5a5287eba48423cfd8412"
     },
     {
       "path": "skills/make-figures/references/exemplar_diagrams/consort/README.md",
@@ -1908,23 +1908,13 @@
     },
     {
       "path": "skills/make-figures/references/exemplar_diagrams/consort/template_output.png",
-      "size": 335645,
-      "sha256": "a0c3bce7adb7d1e3274702e153dbe19303f7b244111ce5007e8e2c646f8e965e"
+      "size": 124021,
+      "sha256": "fcaf4b28e3ab06436f83eaeb65a4c8671fb1126d2307e96b0c7b53a744480a5b"
     },
     {
       "path": "skills/make-figures/references/exemplar_diagrams/consort/template_output_600.png",
-      "size": 732713,
-      "sha256": "5a41ffee4acaf1503f0b37f73af16e33e2e9f1502dac1227362fa586c52e89f1"
-    },
-    {
-      "path": "skills/make-figures/references/exemplar_diagrams/other/other_02.meta.yaml",
-      "size": 75,
-      "sha256": "22206084d29b0b06d2123f8fd475dbceea62595d199c8d0b17bf0f50782e8f02"
-    },
-    {
-      "path": "skills/make-figures/references/exemplar_diagrams/other/other_02.png",
-      "size": 616141,
-      "sha256": "6a91828982365bae1bff7768658310e73161a412beaae4cd6ac217f458c46bc7"
+      "size": 121520,
+      "sha256": "6790728829081d45200cea1724d179a7058856f471dfe1240127a01ec218f122"
     },
     {
       "path": "skills/make-figures/references/exemplar_diagrams/other/other_02_why.md",
@@ -1937,29 +1927,9 @@
       "sha256": "0b9d2ce302385b11cf63aaf488d2a16468080bcad52e5ead3c3bac2d91c51f35"
     },
     {
-      "path": "skills/make-figures/references/exemplar_diagrams/pipeline/pipeline_01.meta.yaml",
-      "size": 81,
-      "sha256": "098a4ac28f00c367014630d31a5bb67f9fbd994e566022312369dcb03999d593"
-    },
-    {
-      "path": "skills/make-figures/references/exemplar_diagrams/pipeline/pipeline_01.png",
-      "size": 548542,
-      "sha256": "30f575d572917144aba3d97fcaaae129c638b316dd5ffa705c651a26767bf077"
-    },
-    {
       "path": "skills/make-figures/references/exemplar_diagrams/pipeline/pipeline_01_why.md",
       "size": 1579,
       "sha256": "d97da6ce5db0eed0acddf691cc0274f70de45411bdf954653515272fd3d6c026"
-    },
-    {
-      "path": "skills/make-figures/references/exemplar_diagrams/pipeline/pipeline_03.meta.yaml",
-      "size": 81,
-      "sha256": "0b5b67b54bf3c568f341665435b06ab2fc0859e01c107d111d565fe59b11fa4b"
-    },
-    {
-      "path": "skills/make-figures/references/exemplar_diagrams/pipeline/pipeline_03.png",
-      "size": 616811,
-      "sha256": "e47122bd29de16691b07047cf4872dead5e55f53a7caf9e9e93bdc2bb4338b5c"
     },
     {
       "path": "skills/make-figures/references/exemplar_diagrams/pipeline/pipeline_03_why.md",
@@ -1967,29 +1937,9 @@
       "sha256": "de297155c2eabb45b68c66ab8d641094ffa91fb9361f70abf7bdb46ca5c2e0c9"
     },
     {
-      "path": "skills/make-figures/references/exemplar_diagrams/pipeline/pipeline_04.meta.yaml",
-      "size": 81,
-      "sha256": "6f15c948031359d8273e3dacf29a2ae57785e03eda8e433cd10d51622add2455"
-    },
-    {
-      "path": "skills/make-figures/references/exemplar_diagrams/pipeline/pipeline_04.png",
-      "size": 592985,
-      "sha256": "6df7f08149d4f681a91c058c3367ef464e879957619d242fbc91199897339823"
-    },
-    {
       "path": "skills/make-figures/references/exemplar_diagrams/pipeline/pipeline_04_why.md",
       "size": 1603,
       "sha256": "e2fa8486993c79992b39dc7c983033a7968b944e171c8a9ed98cf839a705c1cb"
-    },
-    {
-      "path": "skills/make-figures/references/exemplar_diagrams/pipeline/pipeline_05.meta.yaml",
-      "size": 81,
-      "sha256": "9663b1582f1687f28bbd1e9a3abd7ddd7029d9377e38e96ca4ec42b21a1e757a"
-    },
-    {
-      "path": "skills/make-figures/references/exemplar_diagrams/pipeline/pipeline_05.png",
-      "size": 1307025,
-      "sha256": "220a2e61434cb14f10f974704a27bc05f4a1d95ee4e6eab58632c75dd8d4cd39"
     },
     {
       "path": "skills/make-figures/references/exemplar_diagrams/pipeline/pipeline_05_why.md",
@@ -1997,29 +1947,9 @@
       "sha256": "055e9e30381e5d1d0824f9fc7180e696f6ef376455d1314e9b87c71d8ed6375c"
     },
     {
-      "path": "skills/make-figures/references/exemplar_diagrams/pipeline/pipeline_06.meta.yaml",
-      "size": 81,
-      "sha256": "f70035362aff1ca57c6fb04dae3de5fc84526537b5e14fc1bb40f4101a91c1d0"
-    },
-    {
-      "path": "skills/make-figures/references/exemplar_diagrams/pipeline/pipeline_06.png",
-      "size": 1347517,
-      "sha256": "75e1fa1b4a272fe575b48c9bb3e4f52f5170fce6d2d5a2f06e16cddb9ac110df"
-    },
-    {
       "path": "skills/make-figures/references/exemplar_diagrams/pipeline/pipeline_06_why.md",
       "size": 1688,
       "sha256": "643dcfe88acb4ffe5787bff85792cf6aab5c38aa106565bd5fffc31e2a3d327c"
-    },
-    {
-      "path": "skills/make-figures/references/exemplar_diagrams/pipeline/pipeline_07.meta.yaml",
-      "size": 81,
-      "sha256": "ce49503853b5c6db66fcdfac1df1bedd4786131fdf0a859a0b680ab6750cdfdd"
-    },
-    {
-      "path": "skills/make-figures/references/exemplar_diagrams/pipeline/pipeline_07.png",
-      "size": 578064,
-      "sha256": "aa91a7d1195ed4d00e4e98e26d69562acc3b34d79c03e843da7abb4c6ac65383"
     },
     {
       "path": "skills/make-figures/references/exemplar_diagrams/pipeline/pipeline_07_why.md",
@@ -2027,44 +1957,14 @@
       "sha256": "2065a971ebb40d5a0b03385080a3740c61f8a2dc5ee803e1b7b52160b47200cf"
     },
     {
-      "path": "skills/make-figures/references/exemplar_diagrams/pipeline/pipeline_08.meta.yaml",
-      "size": 81,
-      "sha256": "f792e9c637171e3dd5e54c1d00f92547f86359d5ebcebce8014287899513e52c"
-    },
-    {
-      "path": "skills/make-figures/references/exemplar_diagrams/pipeline/pipeline_08.png",
-      "size": 1170765,
-      "sha256": "9ba236391c51798b11c1f18a901a51a68f162395baf96cfa2cd7f12c0f5a4c76"
-    },
-    {
       "path": "skills/make-figures/references/exemplar_diagrams/pipeline/pipeline_08_why.md",
       "size": 1713,
       "sha256": "0b525dd08d517174aa095ead5bb787d88bd307207d7f6e74c7744cfc8dbba632"
     },
     {
-      "path": "skills/make-figures/references/exemplar_diagrams/pipeline/pipeline_09.meta.yaml",
-      "size": 81,
-      "sha256": "6dff994cb920e19351f7e12ff5af9f755609fdf95d471a04b2619b6ecacec8ea"
-    },
-    {
-      "path": "skills/make-figures/references/exemplar_diagrams/pipeline/pipeline_09.png",
-      "size": 1272029,
-      "sha256": "5e30db59b1672c3dcdc726bc18679df0c8af2145f22ca5b9e215ec191b25be41"
-    },
-    {
       "path": "skills/make-figures/references/exemplar_diagrams/pipeline/pipeline_09_why.md",
       "size": 1755,
       "sha256": "33e88d98cb57c1d3eca480a8d927deb2aac9bace6f5f025dfd50fc955589dc6c"
-    },
-    {
-      "path": "skills/make-figures/references/exemplar_diagrams/pipeline/pipeline_10.meta.yaml",
-      "size": 81,
-      "sha256": "6f872dbebccae03555eda50831962088e94ebfcdd7036a8b0aa117a2ac27c189"
-    },
-    {
-      "path": "skills/make-figures/references/exemplar_diagrams/pipeline/pipeline_10.png",
-      "size": 941991,
-      "sha256": "cf4cac4f1f6015b34c607f61fb45c25965534e0aa2352111e5d646cd011445b3"
     },
     {
       "path": "skills/make-figures/references/exemplar_diagrams/pipeline/pipeline_10_why.md",
@@ -2088,13 +1988,13 @@
     },
     {
       "path": "skills/make-figures/references/exemplar_diagrams/prisma/template_output.png",
-      "size": 463465,
-      "sha256": "1bc80b9d8485ee92576dc7ab908bfaebeaef07541aaa079c09146dfdcd3848c0"
+      "size": 117859,
+      "sha256": "c9c9286f3a5e27100819533ac800fae15669e3e06fda5519b355811c0fb713dd"
     },
     {
       "path": "skills/make-figures/references/exemplar_diagrams/prisma/template_output_600.png",
-      "size": 1023738,
-      "sha256": "995999826b835a96b89e397158b760315758816f8c9c72285ced3609d469807a"
+      "size": 116229,
+      "sha256": "9a219152b54e6c0be305f177291bdbd2e779eadd8df41932d749518f12621bf1"
     },
     {
       "path": "skills/make-figures/references/exemplar_diagrams/stard/README.md",
@@ -2113,13 +2013,13 @@
     },
     {
       "path": "skills/make-figures/references/exemplar_diagrams/stard/template_output.png",
-      "size": 227701,
-      "sha256": "5a0d288351ee111265a77479b2f2218d5b267e3182b1b01ad158584ca1c34645"
+      "size": 80264,
+      "sha256": "a11c1f051c1a15da2d22dbb67b5d660d85845042ad6296075cdc5971a1854dc2"
     },
     {
       "path": "skills/make-figures/references/exemplar_diagrams/stard/template_output_600.png",
-      "size": 499267,
-      "sha256": "33aaba24ea14ac55c43feb68543f16e9f0ce4d6f84da6ecb627a5b6da5b393a8"
+      "size": 78794,
+      "sha256": "06b4df06eb653fd166e8968b082b512eade44c7701ed84087ffa79d508ef8078"
     },
     {
       "path": "skills/make-figures/references/exemplar_diagrams/strobe/template_input.yaml",
@@ -2138,8 +2038,8 @@
     },
     {
       "path": "skills/make-figures/references/exemplar_diagrams/strobe/template_output.png",
-      "size": 365079,
-      "sha256": "693bc6278dae398e73053ce0c2f1e57012d9493fbd81a2b737b146d16e07d4c2"
+      "size": 113776,
+      "sha256": "45ffa4618776fb1f746c45ea084e40c261e2d9ccafaa202de82ed2743b815cb6"
     },
     {
       "path": "skills/make-figures/references/exemplar_diagrams/strobe/template_output.pptx",
@@ -2148,8 +2048,8 @@
     },
     {
       "path": "skills/make-figures/references/exemplar_diagrams/strobe/template_output_600.png",
-      "size": 806801,
-      "sha256": "e69be32cf47af4d56f9b7258a7c2d7f94048515aa793dae9b070d0387479a101"
+      "size": 111236,
+      "sha256": "9532170fe47f48376a77eaabd6509362f67a69358b1899fb10e2f1d5ab95794d"
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/README.md",
@@ -2233,8 +2133,8 @@
     },
     {
       "path": "skills/make-figures/references/pipeline_concepts_medical_ai.md",
-      "size": 9295,
-      "sha256": "c887f34ecb0e7e874a013da6636412e1ccd0aa05693e172b51530a8a330a5008"
+      "size": 9408,
+      "sha256": "b5ec6f58843c3697e9209ea4bdee0582291f306584d106238e1974c76dbac4b7"
     },
     {
       "path": "skills/make-figures/references/reporting_guideline_figure_map.md",
@@ -2288,8 +2188,8 @@
     },
     {
       "path": "skills/make-figures/scripts/extract_exemplar_from_pdf.py",
-      "size": 6306,
-      "sha256": "e50991e5a5ddf92e57becb681ecde2c7e936d8a195eb8df2ed37d0850f158304"
+      "size": 6944,
+      "sha256": "74c52e3edfe24657eecdd31cb36577291e01f509ebcddc87b95934fb2fec77e0"
     },
     {
       "path": "skills/make-figures/scripts/fetch_official_templates.sh",

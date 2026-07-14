@@ -109,7 +109,8 @@ def extract_one(
     page: int,
     figure_type: str,
     label: str,
-    doi: Optional[str],
+    doi: str,
+    license_: str,
     crop: Optional[tuple],
     dpi: int,
     exemplar_dir: Path,
@@ -135,6 +136,7 @@ def extract_one(
         crop=list(crop) if crop else None,
         dpi=dpi,
         doi=doi,
+        license=license_,
     )
     write_why_stub(why_path, label, figure_type)
 
@@ -148,7 +150,16 @@ def main() -> int:
     p.add_argument("--type", dest="figure_type", required=True, choices=sorted(VALID_TYPES),
                    help="Exemplar category (subdirectory under exemplar_diagrams/)")
     p.add_argument("--label", required=True, help="Short label, used as filename stem (e.g., Yan2017_STARD)")
-    p.add_argument("--doi", default=None, help="DOI of source paper (for attribution)")
+    # --doi used to be optional, and that is exactly how ten figures ended up in a public,
+    # MIT-licensed package with no record of whose they were. A tool that CAN produce an
+    # unattributable exemplar eventually will.
+    p.add_argument("--doi", required=True, help="DOI of the source paper. Required — no exception.")
+    p.add_argument(
+        "--license", required=True, dest="license_",
+        help="The licence of the FIGURE (not the paper): CC-BY-4.0, CC0, public-domain, own-work. "
+             "If you do not know it, you do not have permission to ship it — keep the exemplar "
+             "local and uncommitted instead.",
+    )
     p.add_argument("--crop", default=None, type=parse_crop,
                    help="Optional crop as 'x0,y0,x1,y1' fractions 0.0–1.0")
     p.add_argument("--dpi", type=int, default=300, help="Render DPI (default: 300)")
@@ -167,6 +178,7 @@ def main() -> int:
             figure_type=args.figure_type,
             label=args.label,
             doi=args.doi,
+            license_=args.license_,
             crop=args.crop,
             dpi=args.dpi,
             exemplar_dir=args.exemplar_dir,
