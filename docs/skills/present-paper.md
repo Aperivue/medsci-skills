@@ -30,7 +30,9 @@
 
 - `unzip the .pptx and confirm 0 markdown-raw notes / 0 TIFF / app.xml counts synced`
 - `python3 scripts/check_slide_tells.py output/presentation.pptx --strict`
+- `python3 scripts/check_deck_budget.py output/presentation.pptx --archetype <venue> --minutes <N> --strict`
 - `bash scripts/check_slide_tells_challenge/verify.sh`
+- `bash scripts/check_deck_budget_challenge/verify.sh`
 - `python3 scripts/strip_notes_for_sharing.py before sharing`
 
 **Evidence** — `bundled_script`
