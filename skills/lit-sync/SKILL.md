@@ -194,8 +194,6 @@ Before entering the 10s polling loop in Step 2.5.2, verify both preconditions. I
 
 In either early-exit, set `refs_bib_refreshed: false` + `reason: "precondition:<which>"` in the Step 2.5.3 JSON and return control to the caller. Record it and tell the user; nothing downstream enforces it. `verify_refs.py` has never read this flag, and the sentence that said it did was the only thing standing between a stale `refs.bib` and a manuscript.
 
-Rationale (2026-04-24 Phase 1B-b dry-run): on a machine with BBT installed but no auto-export registered, the original Step 2.5.2 polled for 10s then emitted a generic "mtime unchanged" WARN that did not point at the actual cause. Findings: `~/.local/cache/phase1b_b_dryrun/findings.md`.
-
 ### Step 2.5.2: Verify refresh
 
 After Phase 2 adds items:
@@ -325,11 +323,7 @@ tags:
 
 ## Key points (in my own words)
 
-
-
 ## My thoughts
-
-
 
 ## Related notes
 - [[Research Hub]]
