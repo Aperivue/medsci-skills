@@ -383,6 +383,25 @@ discrepancy: either insert the promised edit or correct the response wording. Th
 enforces the *"quote the new manuscript text verbatim"* discipline above, and is the same
 check a reviewer runs against your revision (see `/peer-review`).
 
+**If a reviewer called the manuscript too long or too dense, prove the body got shorter.** Answering
+a density comment point-by-point is a trap: each point is answered by adding a sentence, so the
+revision that responds to "shorten this" comes back *longer*. One real revision did exactly that —
+four reviewers said too dense, the point-by-point answer added 613 words, and it took three rounds
+to land at 733 words below where it started. This gate is arithmetic: if the decision letter
+contains a density/length complaint and the revised body did not shrink, it fires.
+
+```bash
+python3 ${CLAUDE_SKILL_DIR}/scripts/check_density_complaint.py \
+  --comments revision/decision_letter.md \
+  --previous manuscript/manuscript_R0.md \
+  --revised manuscript/manuscript.md --strict
+```
+
+`DENSITY_COMPLAINT_UNADDRESSED` fires only when a complaint was raised AND the body word count
+(Introduction through Discussion, citation markers excluded) did not fall. With no density complaint
+it stays silent — it is not a "shorter is always better" nag. When it fires, cut or move detail to
+the supplement; do not defend the length by adding a paragraph that explains it.
+
 ---
 
 ## Step 5: Cover Letter to Editor

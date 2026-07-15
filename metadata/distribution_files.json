@@ -3768,8 +3768,8 @@
     },
     {
       "path": "skills/revise/SKILL.md",
-      "size": 30049,
-      "sha256": "66e9660254fe44af90173a288c7e17017888015d50a4c1800dcc9199294a9ee9"
+      "size": 31212,
+      "sha256": "5645ac1bb98b14611bfcad374edb01d232a44ae2c90de915b1b69d1d02b7019d"
     },
     {
       "path": "skills/revise/references/r2r_voice.md",
@@ -3777,14 +3777,44 @@
       "sha256": "d6e657ab4d864e0c12c6d3c8e7db5060dfcea0c56d0f9afccd876702f8b8adcf"
     },
     {
+      "path": "skills/revise/scripts/check_density_complaint.py",
+      "size": 8754,
+      "sha256": "243975bbdd2c25e0950f9b9a3b196b99f61e36ead5ba239f9db35749cd5cfd89"
+    },
+    {
       "path": "skills/revise/scripts/check_response_claims.py",
       "size": 9839,
       "sha256": "d8c810a21ff973dd9a5c3f9ccd7c9607cfa9d106053406495f06cbc5786a3fc5"
     },
     {
+      "path": "skills/revise/scripts/density_complaint_challenge/fixture/decision_letter.md",
+      "size": 418,
+      "sha256": "7ba2f1ca860c827c1cafa60951f409f7b7c7bfe89ba0b9fe2eb4004fae89222b"
+    },
+    {
+      "path": "skills/revise/scripts/density_complaint_challenge/fixture/v20_longer.md",
+      "size": 3153,
+      "sha256": "000fc74d06addc21d0e168f162fb75b7266b211033bb0d4d1ab22b2025e56710"
+    },
+    {
+      "path": "skills/revise/scripts/density_complaint_challenge/fixture/v21_shorter.md",
+      "size": 1247,
+      "sha256": "60d34c4fc3d92ce318f1689d35a245c93b0e73e5b8b94276715a961a50173eb8"
+    },
+    {
+      "path": "skills/revise/scripts/density_complaint_challenge/fixture/v_prev.md",
+      "size": 1697,
+      "sha256": "f68d57f14e7a40abb7d4d088b9cdbc99fca8d580b188018993ee1b0877df84b0"
+    },
+    {
+      "path": "skills/revise/scripts/density_complaint_challenge/verify.sh",
+      "size": 3238,
+      "sha256": "5aea8d11e97a7ccd88bcce7196bca0ce020776f6e80233e42c39f2e007370093"
+    },
+    {
       "path": "skills/revise/skill.yml",
-      "size": 2261,
-      "sha256": "421670bd78193e01966d08d08b22f044a6c396cba0bed99ae50fbb8f6c6564a5"
+      "size": 2489,
+      "sha256": "49919f89209ef910d125d26160b02b228dd5f712b3286685b7d098fd2da36a53"
     },
     {
       "path": "skills/search-lit/SKILL.md",

@@ -31,6 +31,8 @@
 - `/verify-refs --strict on new citations`
 - `python3 scripts/check_response_claims.py --response revision/response_to_reviewers.md --manuscript manuscript/manuscript.md --strict`
 - `bash tests/test_response_claims.sh`
+- `python3 scripts/check_density_complaint.py --comments revision/decision_letter.md --previous manuscript/manuscript_R0.md --revised manuscript/manuscript.md --strict`
+- `bash scripts/density_complaint_challenge/verify.sh`
 
 **Evidence** — `bundled_script`
 
@@ -42,7 +44,9 @@
 
 **Scripts** (`skills/revise/scripts/`):
 
+- `check_density_complaint.py`
 - `check_response_claims.py`
+- `density_complaint_challenge/` (5 files)
 
 ## Source
 

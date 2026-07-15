@@ -78,6 +78,7 @@ FAMILY_BY_ID: dict[str, str] = {
     "check_editorial_impression": "style_review",
     "check_emphasis_density": "style_review",
     "check_response_claims": "style_review",
+    "check_density_complaint": "style_review",
     "check_pdf_injection": "style_review",
     "check_self_improvement_claims": "style_review",
     "check_review_request_types": "style_review",

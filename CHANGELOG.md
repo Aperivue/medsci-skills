@@ -2,6 +2,19 @@
 
 ## [Unreleased]
 
+### Added
+
+- **`check_density_complaint` (detector 66 -> 67, `/revise`): "too dense" is the one comment you
+  cannot address by adding text.** A DTA meta-analysis was told by four reviewers it was too dense;
+  the point-by-point revision answered each comment by adding a sentence and came back **613 words
+  longer**, every named term higher than before. It took three rounds to land 733 words below where
+  it started. The detector is arithmetic: if the decision letter carries a density/length complaint
+  AND the revised body (Introduction through Discussion, citation markers excluded) did not shrink,
+  it fires `DENSITY_COMPLAINT_UNADDRESSED`. With no complaint it stays silent — it is not a
+  "shorter is always better" nag. Ships a challenge card reproducing the v_prev -> longer -> shorter
+  arithmetic (fires on the longer revision, silent on the shorter one) and the negative control.
+
+
 ### Changed
 
 - **Two dead prose blocks removed from SKILL.md (−35 lines loaded every invocation).** From a
