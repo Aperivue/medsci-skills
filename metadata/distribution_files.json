@@ -1848,8 +1848,8 @@
     },
     {
       "path": "skills/lit-sync/SKILL.md",
-      "size": 21152,
-      "sha256": "e44d0451bdb005c0f65635fa5c7731945a4bb922e1cd75d0218d3f4a24dd4140"
+      "size": 20859,
+      "sha256": "75c62c4d1064466a16555c17cfcccae1902da536a7a1e2635234108adf533fa8"
     },
     {
       "path": "skills/lit-sync/references/locale/ko/note_templates.md",
@@ -3428,8 +3428,8 @@
     },
     {
       "path": "skills/present-paper/SKILL.md",
-      "size": 41029,
-      "sha256": "9f9f7635053748e8174d23e78bd1e6661ab2acca87889a773282a01dde6edb55"
+      "size": 39097,
+      "sha256": "da139de9b1633bc789b8f3e59f72aa315186192351fccfdbcfcb3f99405db993"
     },
     {
       "path": "skills/present-paper/references/ai_slide_tells.md",

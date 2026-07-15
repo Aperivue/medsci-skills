@@ -2,6 +2,22 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **Two dead prose blocks removed from SKILL.md (−35 lines loaded every invocation).** From a
+  subtractive audit that sorted every normative sentence in 30 skills into enforced / judgment /
+  scriptable / decoration: 71 rules are enforced by a script, 269 legitimately direct the model's
+  judgment, and the "decoration" pile — sentences nothing catches, that ship no defective artifact —
+  turned out, on line-by-line re-verification, to be far smaller than a first pass claimed. Almost
+  everything a first agent flagged was defended and kept ("when in doubt, keep"). Only what could be
+  deleted with certainty is cut here:
+  - `lit-sync`: a dated dry-run rationale whose only referent was `~/.local/cache/phase1b_b_dryrun/`,
+    a machine-local path dead for every installed copy.
+  - `present-paper`: a 28-line `<details>` block self-labelled "The original list, for reference" —
+    the superseded prior version of the Step 0a load guidance, every file it named still pointed to
+    by the current A/B/C + on-demand table above it (verified: no orphaned reference).
+
+
 ### Fixed
 
 - **`check_workflow_yaml.py` could not see the failure that motivated it, one layer down.** It was

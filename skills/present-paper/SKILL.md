@@ -75,35 +75,6 @@ animation discipline) plus the G1–G10 self-check the Phase 3.5 critic scores a
 | `references/slide_visual_styles/CATALOG.md` → one style file | Q2 has chosen a style | ~2,300 tokens per style |
 | `references/slide_design_principles.md` | you are stuck on *why* a slide is not landing — Reynolds / Duarte / Knaflic / Tufte, the theory under the rules in **C** | ~2,600 tokens of theory you mostly already applied |
 
-<details>
-<summary>The original list, for reference</summary>
-
-1. **`references/slide_design_principles.md`** — Reynolds (Presentation Zen) +
-   Duarte (Slide:ology Glance Test™) + Knaflic (Storytelling with Data preattentive
-   attributes) + Tufte (Cognitive Style of PowerPoint). The design *theory*. **Read this
-   first** — it shifts the outline from "what content fits" to "what should the audience
-   remember 10 seconds after each slide."
-2. **`references/presentation_design_guidelines.md`** — the *operational* companion to
-   #1: concrete, enforceable rules (assertion headlines, 24-pt floor, 30–35% negative
-   space, ≤3 colors, colorblind-safe palettes, redraw-don't-screenshot, animation
-   discipline) plus a G1–G10 self-check the Phase 3.5 critic scores against. Read with #1.
-3. **`references/medical_presentation_templates.md`** — Section structure, slide counts,
-   and design seeds for the 5 contexts: journal club, grand rounds, conference talk,
-   lecture, and academic lecture multi-paper survey. Pick the matching template after
-   Phase 0 inputs are collected, then customize.
-4. **`references/slide_visual_styles/CATALOG.md`** — the menu of visual styles (palette +
-   typography + layout-grid + slide-type recipes) callable from any of the 5 context
-   templates. Available: **Nature/Lancet** (`nature_lancet.md`, default for medical
-   academic decks), **Clinical Blue** (`clinical_blue.md`, grand rounds/CME, CVD-safe),
-   **Editorial Mono** (`editorial_mono.md`, single-message keynote), **Dark Modern**
-   (`dark_modern.md`, AI/tech talks), and **Institutional Brand** (`institutional_brand.md`,
-   fill a venue's branded template). Nature/Lancet has a dedicated builder
-   (`templates/build_pptx_nature_lancet.py`); the others swap design tokens into the
-   generic builder (`references/generate_pptx_templates.py`). PDF figures →
-   `scripts/extract_pdf_figures.py`.
-
-</details>
-
 These mirror the entry-point pattern used in
 `make-figures/references/design_principles.md` (Step 1 "Specify"). Both skills share
 the same Reynolds / Knaflic / Tufte foundations — slide-level (this skill) and
