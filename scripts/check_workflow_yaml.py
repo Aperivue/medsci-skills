@@ -69,6 +69,35 @@ def problems() -> list[str]:
             continue
         if not isinstance(doc, dict) or not doc.get("jobs"):
             out.append(f"{f.relative_to(ROOT)}: parses, but declares no jobs.")
+            continue
+
+        # 3. A step that parses but has neither `run` nor `uses`. GitHub rejects this at the
+        #    workflow-LOADING stage — before any job starts — so it runs ZERO jobs and calls it
+        #    "This run likely failed because of a workflow file issue". That is the same
+        #    disappearing failure a parse error causes, one layer past what a YAML parse can see.
+        #
+        #    On 2026-07-15 a merge conflict was resolved by keeping both sides of a hunk, which left
+        #    a `- name:` line whose `run:` had landed on the other side and was dropped. The file
+        #    parsed. This gate — before this block — passed. GitHub ran nothing, and the branch
+        #    looked quiet rather than broken. The exact lesson that built this file recurred, because
+        #    the file only checked the trap it already knew.
+        for job_name, job in (doc.get("jobs") or {}).items():
+            if not isinstance(job, dict):
+                continue
+            for idx, step in enumerate(job.get("steps") or [], 1):
+                if not isinstance(step, dict):
+                    continue
+                if "run" not in step and "uses" not in step:
+                    label = step.get("name", f"step {idx}")
+                    out.append(
+                        f"{f.relative_to(ROOT)}: job '{job_name}' step {idx} ({label!r}) has neither "
+                        f"`run:` nor `uses:`.\n"
+                        f"      GitHub rejects this when it loads the workflow and runs ZERO jobs — "
+                        f"the same disappearing failure a parse error causes, which a YAML parse "
+                        f"cannot see because the file is valid YAML.\n"
+                        f"      Fix: give the step a `run:` command or a `uses:` action. A dropped "
+                        f"`run:` in a merge is the usual cause."
+                    )
     return out
 
 

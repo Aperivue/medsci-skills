@@ -35,6 +35,9 @@ jobs:
       - name: "Workflow files parse (a broken one runs ZERO jobs and reports no checks)"
         run: python3 scripts/check_workflow_yaml.py --strict
 
+      - name: "Workflow-yaml gate self-test (a runless step and an unquoted ': ' must both fail)"
+        run: bash tests/test_workflow_yaml.sh
+
       - name: Run validate_skills.sh (PII + structure)
         run: bash scripts/validate_skills.sh
 

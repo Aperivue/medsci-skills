@@ -4,6 +4,18 @@
 
 ### Fixed
 
+- **`check_workflow_yaml.py` could not see the failure that motivated it, one layer down.** It was
+  built (#333) after an unquoted `: ` broke `validate.yml` and GitHub ran zero jobs — a failure that
+  *disappears* instead of turning a PR red. On 2026-07-15, resolving a merge conflict by keeping both
+  sides of a hunk left a `- name:` step whose `run:` had been dropped. The file was valid YAML, this
+  gate passed, and GitHub again ran zero jobs ("This run likely failed because of a workflow file
+  issue"). The gate now asserts every step in every job has `run:` or `uses:`, and ships the
+  self-test #333 never wrote — regressing the runless step, the unquoted `: `, and a jobless file,
+  and staying silent on a `uses:`-only step and a properly quoted name.
+
+
+### Fixed
+
 - **`/revise` was handing the author a sentence to tell an editor, and recommending it for its
   effect rather than its truth.** Category 5 read: *"This analysis was reviewed in consultation with
   our biostatistician" adds credibility.* That is a claim about who looked at the work — a claim
