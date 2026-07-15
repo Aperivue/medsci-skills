@@ -275,6 +275,9 @@ jobs:
       - name: Run revise response-claim verification gate test
         run: bash skills/revise/tests/test_response_claims.sh
 
+      - name: "Run revise density-complaint challenge (point-by-point revision that got longer must fail)"
+        run: bash skills/revise/scripts/density_complaint_challenge/verify.sh
+
       - name: Run sync-submission marked-manuscript round-trip gate test (move-aware)
         run: bash skills/sync-submission/tests/test_marked_manuscript.sh
 
