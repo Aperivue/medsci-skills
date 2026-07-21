@@ -1,167 +1,125 @@
 # MI-CLEAR-LLM Checklist — Reporting LLM Accuracy Studies in Healthcare
 
-**Reference:** Park SH, Suh CH, Lee JH, Kahn CE Jr, Moy L. Minimum Reporting Items for Clear Evaluation of Accuracy Reports of Large Language Models in Healthcare (MI-CLEAR-LLM). Korean J Radiol. 2024;25(10):865-868. PMID: 39344542
-**Reference (2025 Update):** Park SH, Suh CH, Lee JH, Tejani AS, You SC, Kahn CE Jr, Moy L. MI-CLEAR-LLM: 2025 Updates. Korean J Radiol. 2025;26(12):1123-1132. PMID: 41199132
+**Minimum Reporting Items for Clear Evaluation of Accuracy Reports of Large Language Models in Healthcare**
 
-**Version:** 2025 (expanded from 2024 original)
-**License:** CC BY-NC 4.0 (Korean Society of Radiology)
-**Source:** https://kjronline.org/DOIx.php?id=10.3348/kjr.2025.1522
+- **Version:** MI-CLEAR-LLM 2025 (8 item categories) — updates and expands the 2024 original (6 items).
+- **Citation (2025 update):** Park SH, Suh CH, Lee JH, Tejani AS, You SC, Kahn CE Jr, Moy L. *MI-CLEAR-LLM: 2025 Updates.* Korean J Radiol. 2025;26(12):1123-1132. PMID: 41199132.
+- **DOI:** 10.3348/kjr.2025.1522
+- **Citation (2024 original):** Park SH, Suh CH, Lee JH, Kahn CE Jr, Moy L. Korean J Radiol. 2024;25(10):865-868. PMID: 39344542.
+- **Licence:** CC BY-NC 4.0 (Korean Society of Radiology).
 
-**Scope:** Studies evaluating the accuracy of LLMs in healthcare applications (diagnosis, triage, clinical decision support, medical question answering, etc.). This is NOT for disclosing LLM use in manuscript writing — for that, see ICMJE/COPE policies and the write-paper skill's LLM disclosure feature.
+> **Educational summary, authored in our own words.** This file paraphrases the *intent* of each MI-CLEAR-LLM
+> 2025 item to drive an item-by-item audit; it does not reproduce the guideline's verbatim wording. For a
+> submission-ready checklist, complete the official instrument at the source above and cite Park et al. 2025.
 
-**vs. CLAIM 2024:** Use CLAIM for imaging AI model validation. Use MI-CLEAR-LLM for studies testing LLM accuracy in healthcare tasks. Both may apply if the study evaluates an LLM integrated with medical imaging interpretation.
+**The 2025 update expanded the original 6 items into 8 item categories.** The three items that are new or
+promoted to the top level in 2025 — **Access mode (2)**, **Input data type (3)**, and **Adaptation strategy
+used (4)** — were prompted by the growth of API access and self-managed (often open-source) LLMs, which the
+2024 six-item version folded into a single "model identification" item. Cite items by the 2025 numbering.
 
----
+**Scope:** Studies evaluating the accuracy of LLMs in healthcare tasks (diagnosis, triage, clinical decision
+support, medical question answering, information extraction, report generation, etc.). This is NOT for
+disclosing LLM use in manuscript *writing* — for that, see ICMJE/COPE policies and the write-paper skill's LLM
+disclosure feature. MI-CLEAR-LLM supplements, and does not replace, a primary reporting guideline (STARD /
+STARD-AI, CLAIM 2024, or TRIPOD+AI) chosen for the study design.
 
-## Item 1 — LLM Identification and Specifications ⚠️ commonly missed
+## Checklist Items (8 items)
 
-**Description:** Fully identify the LLM evaluated in the study.
-**Required content:**
-- Model name and version (e.g., GPT-4o, Claude 3.5 Sonnet, Gemini 1.5 Pro)
-- Manufacturer/developer (e.g., OpenAI, Anthropic, Google)
-- Training data cutoff date (if known or disclosed by the developer)
-- Date(s) when queries were executed (LLM outputs may change over time due to updates)
-- Access mode: web-based chatbot interface, API, or locally deployed open-source model
-- For API access: specific API version or endpoint used
-- For open-source models: model weights version, quantization method (if applicable), hardware specifications
-- Whether retrieval-augmented generation (RAG) or internet access was enabled
-- Any fine-tuning or adaptation applied to the base model
+| # | Item category | What must be reported |
+|---|---|---|
+| 1 | Model identification | Model name, version, developer, proprietary/open-source status, access date(s), and training-data cutoff. |
+| 2 | Access mode | Whether a web chatbot, an API, or a self-managed local deployment was used, with rationale and version/endpoint or weights. |
+| 3 | Input data type | The type and format of data supplied with the prompt, in enough detail for a reader to replicate. |
+| 4 | Adaptation strategy used | Whether model weights were altered (e.g., fine-tuning) or non-parametric methods (e.g., prompting, RAG) were used — or neither. |
+| 5 | Prompt optimization procedures | How prompts were created and optimized, the rationale, and the full executable prompt text. |
+| 6 | Prompt execution setup | How queries were submitted (session handling, batching, post-processing); provide the experiment scripts where feasible. |
+| 7 | Stochasticity management | Temperature and sampling settings, number of attempts per item, how repeats were synthesized, and reliability across repeats. |
+| 8 | Independence of test data | Any overlap between the test data and the model's training data or the data used for prompt development/adaptation. |
 
-**Rationale:** LLMs are frequently updated without version increments. The same model name may produce different outputs on different dates. Without exact version and date documentation, studies are not reproducible.
+## Item detail
 
-**Status:** [ ] PRESENT [ ] PARTIAL [ ] MISSING
+### 1. Model identification ⚠️ commonly missed
 
----
-
-## Item 2 — Stochasticity Handling ⚠️ commonly missed
-
-**Description:** Document how the inherent randomness of LLM outputs was managed.
-**Required content:**
-- Number of query attempts per question/task (e.g., each prompt was run 3 times)
-- How multiple outputs were synthesized (e.g., majority vote, best-of-N, mean score)
-- Reliability analysis across repeated attempts (e.g., agreement rate, Fleiss' kappa)
-- Technical parameter settings that control randomness:
-  - Temperature setting (e.g., temperature = 0 for deterministic output)
-  - Top-p (nucleus sampling) setting
-  - Any other sampling parameters (top-k, frequency penalty, etc.)
-- If parameters were not controllable (e.g., web chatbot interface): state this explicitly
-
-**Rationale:** LLM outputs are stochastic by design. A single query attempt is insufficient to characterize model performance. Studies that do not control or report stochasticity parameters produce unreliable and unreproducible results.
+Fully identify the LLM: model name and version (e.g., GPT-4o, Claude 3.5 Sonnet, Gemini 1.5 Pro), developer
+(OpenAI, Anthropic, Google, etc.), whether it is proprietary or open-source, the date(s) the queries were
+run, and the training-data cutoff if disclosed. LLMs are frequently updated behind the same name, so a name
+alone (e.g., "GPT-4") is insufficient — the exact version and access date are what make the study reproducible.
 
 **Status:** [ ] PRESENT [ ] PARTIAL [ ] MISSING
 
----
+### 2. Access mode ⚠️ new/expanded in 2025
 
-## Item 3 — Full Prompt Text ⚠️ commonly missed
-
-**Description:** Provide the complete text of all prompts used, preserving exact formatting.
-**Required content:**
-- Full prompt text including system prompts, user prompts, and any few-shot examples
-- Preserve precise spellings, symbols, punctuation, spaces, line breaks, and formatting
-- If prompts include clinical data or images: describe the format and structure of input data
-- For multi-turn conversations: provide the complete conversation sequence
-- For chain-of-thought or structured prompting: document the full prompting strategy
-- Recommended location: supplementary materials (if prompts are lengthy)
-
-**Rationale:** Minor prompt variations can substantially alter LLM outputs. Without exact prompt text, no reader can assess the study methodology or attempt replication.
+State how the model was accessed and why: a web-based chatbot interface, a programmatic API, or a self-managed
+local deployment. For API access, give the specific API version or endpoint. For self-managed/open-source
+models, give the weights version, any quantization, and the hardware. Access mode changes what is controllable
+(e.g., a web chatbot may not expose temperature) and what is reproducible.
 
 **Status:** [ ] PRESENT [ ] PARTIAL [ ] MISSING
 
----
+### 3. Input data type ⚠️ new/expanded in 2025
 
-## Item 4 — Prompt Execution Details ⚠️ commonly missed
-
-**Description:** Explain how prompts were operationally used during the study.
-**Required content:**
-- Whether each query was executed as an independent chat session (new conversation) or within a continuing session
-- Whether multiple queries were submitted simultaneously (batch) or sequentially
-- If sequentially: whether prior outputs could influence subsequent queries (context carryover)
-- Whether any post-processing was applied to LLM outputs (e.g., extracting structured answers from free text, parsing JSON)
-- Who executed the queries (researchers, automated scripts, clinical staff)
-- For API-based studies: batch size, rate limiting, error handling for failed API calls
-
-**Rationale:** Chat session context and query ordering can influence LLM responses. Studies must specify whether the LLM had access to context from prior queries, as this affects comparability.
+Describe the type and format of the data supplied to the model with the prompt — free text, structured fields,
+tables, images (for vision-language models), or file attachments — in enough detail that a reader could
+reconstruct the input. Where images or clinical data are used, describe how they were encoded and presented.
 
 **Status:** [ ] PRESENT [ ] PARTIAL [ ] MISSING
 
----
+### 4. Adaptation strategy used ⚠️ new/expanded in 2025
 
-## Item 5 — Prompt Testing and Optimization ⚠️ commonly missed
-
-**Description:** Describe the prompt development process.
-**Required content:**
-- How prompts were created (expert-designed, iteratively refined, generated by another LLM)
-- Rationale for specific wording choices (why this prompt structure was chosen)
-- Whether prompt optimization/engineering was performed
-- If optimized: method used (manual iteration, automated prompt tuning, grid search over prompt variants)
-- Dataset used for prompt optimization (must be independent of test data — see Item 6)
-- Number of prompt iterations tested
-- Whether different prompt strategies were compared (zero-shot vs. few-shot vs. chain-of-thought)
-
-**Rationale:** Prompt design is a critical methodological choice equivalent to feature engineering in traditional ML. Unreported optimization inflates apparent performance if optimization and test data overlap.
+State whether the base model was adapted, and how. Distinguish **parametric** adaptation (model weights were
+changed, e.g., fine-tuning, instruction-tuning) from **non-parametric** methods that leave weights unchanged
+(e.g., prompting strategies, retrieval-augmented generation, tool use) — or state that no adaptation was
+applied. Adaptation is a first-class methodological choice, not a footnote.
 
 **Status:** [ ] PRESENT [ ] PARTIAL [ ] MISSING
 
----
+### 5. Prompt optimization procedures ⚠️ commonly missed
 
-## Item 6 — Test Data Independence ⚠️ commonly missed
-
-**Description:** Confirm separation between test data and all other data used in the study.
-**Required content:**
-- Explicit statement that test data were not used during prompt development or optimization
-- Whether test data could have been part of the LLM's training data (data contamination risk)
-- If test data were sourced from the internet: provide exact URLs and confirm whether the content was publicly accessible before the LLM's training cutoff date
-- For published medical examination questions: acknowledge that these may be in the LLM's training corpus and discuss implications
-- Mitigation strategies for data contamination (e.g., using unpublished cases, temporal splits, institution-specific data)
-
-**Rationale:** If test data were seen during prompt optimization or were part of the LLM's pretraining corpus, performance estimates are inflated. Unlike traditional ML where training data are known, LLM training data are often undisclosed, making contamination assessment particularly challenging.
+Document how prompts were developed and optimized: who wrote them, how they were iterated, whether prompt
+engineering or automated tuning was used, and how many variants were compared. Provide the **full prompt text**
+(system, user, and any few-shot examples), preserving exact wording, punctuation, and formatting — in
+supplementary material if lengthy. Any dataset used to optimize prompts must be independent of the test data
+(see item 8); undisclosed optimization on test-overlapping data inflates apparent performance.
 
 **Status:** [ ] PRESENT [ ] PARTIAL [ ] MISSING
 
----
+### 6. Prompt execution setup ⚠️ commonly missed
 
-## Notes for Assessors
+Describe how prompts were run operationally: whether each query was an independent session or a continuing
+conversation, whether queries were batched or sequential, whether prior outputs could carry over as context,
+and any post-processing applied to outputs (e.g., parsing structured answers from free text). For API studies,
+give batch size, rate limiting, and failure handling. Provide the experiment scripts where feasible.
 
-### When to Apply MI-CLEAR-LLM
+**Status:** [ ] PRESENT [ ] PARTIAL [ ] MISSING
 
-Apply this checklist when the study's primary aim is to evaluate LLM accuracy, performance, or clinical utility in a healthcare context. Examples:
-- LLM answering medical board examination questions
-- LLM performing clinical reasoning or differential diagnosis
-- LLM triaging patient messages or radiology reports
-- LLM extracting structured data from clinical notes
-- LLM generating radiology report impressions
+### 7. Stochasticity management ⚠️ commonly missed
 
-Do NOT apply this checklist when:
-- The study uses LLMs as a tool in the research pipeline (e.g., NLP preprocessing) but does not evaluate LLM accuracy as an outcome
-- The manuscript merely discloses that LLM writing assistance was used
+LLM outputs are stochastic. Report the number of query attempts per item, how multiple outputs were combined
+(majority vote, best-of-N, mean score), and a reliability analysis across repeats (e.g., agreement rate,
+kappa). Report the parameters that control randomness — temperature, top-p, top-k, penalties — or, if they were
+not controllable (e.g., a web chatbot), state that explicitly. A single-attempt study cannot characterize
+reliability and should be scored PARTIAL at best.
 
-### Common Assessment Pitfalls
+**Status:** [ ] PRESENT [ ] PARTIAL [ ] MISSING
 
-1. **Item 1 — "GPT-4" is insufficient.** Require the exact model version (e.g., gpt-4-0613, gpt-4-turbo-2024-04-09) and the access date. OpenAI and other providers frequently update models behind the same name.
-2. **Item 2 — Single-run studies.** If only one query attempt was made per item, mark as PARTIAL at best. The study cannot characterize reliability without repeated measurements.
-3. **Item 3 — "We used a standardized prompt" is insufficient.** The full text must be available, even if in supplementary materials.
-4. **Item 5 — Absent optimization reporting.** Many studies iteratively refine prompts but do not report this process. If the prompt appears highly optimized but no development process is described, flag as MISSING.
-5. **Item 6 — Published exam questions.** Studies using publicly available medical exam questions (USMLE, board exams) should explicitly discuss training data contamination risk. This is a known and well-documented concern.
+### 8. Independence of test data ⚠️ commonly missed
 
-### Relationship to Other Guidelines
+Confirm that the test data were separate from all other data used, and address training-data contamination:
+whether the test items could have been in the model's pretraining corpus (a particular risk for published exam
+questions and public benchmarks), and any mitigation (unpublished cases, temporal or institution-specific
+data). Because most LLM training corpora are undisclosed, contamination cannot be ruled out by inspection and
+must be discussed.
 
-- **CLAIM 2024**: Use alongside MI-CLEAR-LLM if the LLM processes medical images (e.g., vision-language models interpreting radiology images).
-- **TRIPOD+AI**: Use alongside MI-CLEAR-LLM if the LLM is used as a clinical prediction model.
-- **STARD / STARD-AI**: Use alongside MI-CLEAR-LLM if the study evaluates diagnostic accuracy of the LLM against a reference standard.
+**Status:** [ ] PRESENT [ ] PARTIAL [ ] MISSING
 
----
+## Notes for assessors
 
-## Summary
-
-| Category | Items | PRESENT | PARTIAL | MISSING |
-|----------|-------|---------|---------|---------|
-| LLM Specification | 1 | /1 | /1 | /1 |
-| Stochasticity | 1 | /1 | /1 | /1 |
-| Prompt Documentation | 2 | /2 | /2 | /2 |
-| Prompt Development | 1 | /1 | /1 | /1 |
-| Data Independence | 1 | /1 | /1 | /1 |
-| **TOTAL** | **6** | /6 | /6 | /6 |
-
-**Verdict:** [ ] READY FOR SUBMISSION [ ] NEEDS REVISION
-
-**Co-application note:** MI-CLEAR-LLM is typically used alongside another guideline (STARD, CLAIM, TRIPOD+AI) depending on the study design. The 6 items here supplement — not replace — the primary reporting guideline.
+- **Apply MI-CLEAR-LLM when the study's outcome is LLM accuracy or performance** (answering board questions,
+  clinical reasoning, triage, information extraction, report generation). Do NOT apply it when an LLM is merely
+  a pipeline tool whose accuracy is not the outcome, or when the manuscript only discloses writing assistance.
+- **"GPT-4" is insufficient (item 1)** — require the exact version (e.g., gpt-4-0613, gpt-4-turbo-2024-04-09)
+  and the access date. **Single-run studies (item 7)** are PARTIAL at best. **Published exam questions (item
+  8)** demand an explicit contamination discussion.
+- **Co-application:** use MI-CLEAR-LLM alongside STARD/STARD-AI (diagnostic accuracy against a reference
+  standard), CLAIM 2024 (an LLM processing medical images), or TRIPOD+AI (an LLM used as a prediction model).
+  The 8 items here supplement — they do not replace — the primary reporting guideline.

@@ -4,6 +4,20 @@
 
 ### Fixed
 
+- **Two more bundled checklists mis-stated their official structure — the same class as #352, found
+  by turning the new fidelity gate on the rest of the AI/extension checklists.** *CLEAR* had been
+  regrouped into seven invented topical "domains" with item 1 = "Study hypothesis"; the official CLEAR
+  (Kocak et al., Insights Imaging 2023;14:75) is numbered by **manuscript section** — item 1 = Title,
+  item 2 = Abstract, item 44 = baseline demographics — and its only two non-essential items are 53 and
+  58 (the file said 17 and 57). Every CLEAR item number an assessor would have cited was wrong.
+  *MI-CLEAR-LLM* was labelled "Version 2025" but carried the 2024 **six-item** body; the official 2025
+  update (Park et al., Korean J Radiol 2025;26:1123-1132) has **eight item categories**, promoting
+  Access mode, Input data type, and Adaptation strategy to first-class items. Both rebuilt faithfully
+  from the published statements (CLEAR verified item-by-item against the open-access full text;
+  MI-CLEAR-LLM's eight 2025 categories verified against the paper), the fidelity gate extended to hold
+  both to their official inventory, and `test_checklist_fidelity.sh` now regresses all three defects.
+  The other seven AI/extension checklists (CLAIM 2024, PROBAST+AI, STARD-AI, TRIPOD-LLM, DECIDE-AI,
+  CONSORT-AI, SPIRIT-AI) were checked against their official sources and are faithful.
 - **The bundled TRIPOD+AI checklist was TRIPOD 2015 with `-AI` additions, not the official 2024
   statement (issue #352, external report).** The file was labelled "TRIPOD+AI 2024" but carried the
   TRIPOD 2015 section sequence, non-canonical identifiers (`1-AI`, `10-AI-a`, …), and had no Open

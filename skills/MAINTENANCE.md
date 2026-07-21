@@ -53,10 +53,13 @@ code with permission, and the gate fails on it. Current run-once tools:
   PDF page to grow the make-figures Critic-Loop exemplar reference set.
 - `skills/check-reporting/scripts/verify_checklist_fidelity.py` — a CI-run fidelity regression: it
   holds each bundled reporting checklist to the official instrument's item inventory (item count,
-  required sections, forbidden non-canonical identifiers, source DOI). It runs in CI via
-  `skills/check-reporting/tests/test_checklist_fidelity.sh`, not at skill invocation. Added after
-  issue #352 (the bundled TRIPOD+AI checklist was TRIPOD 2015 + `-AI` additions, and nothing checked
-  it against the official 27-item/52-subitem TRIPOD+AI 2024 statement).
+  required sections, forbidden structures, source DOI). It runs in CI via
+  `skills/check-reporting/tests/test_checklist_fidelity.sh`, not at skill invocation. Add a checklist
+  by adding an `EXPECTED` entry (item count, required sections, a source token), not code. It began
+  with issue #352 (the bundled TRIPOD+AI was TRIPOD 2015 + `-AI` additions, never checked against the
+  official 27-item/52-subitem 2024 statement); the same audit then covered **CLEAR** (a fabricated
+  7-topical-domain regrouping vs the official manuscript-section numbering) and **MI-CLEAR-LLM** (a
+  2024 six-item body under a "Version 2025" label vs the official 8-category 2025 update).
 
 ## 3b. Every other script MUST be invoked by a SKILL.md
 
