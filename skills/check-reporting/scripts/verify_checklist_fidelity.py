@@ -13,8 +13,14 @@ official one — so a checklist could silently drift from the guideline it claim
 audit could report "TRIPOD+AI compliant" while checking a different, older instrument.
 
 This is that check. It is manifest-driven, so it generalises: each entry states the official
-inventory (item count, required sections, forbidden non-canonical identifiers, a source token) and
-this script holds the bundled file to it. Add a guideline by adding an EXPECTED entry, not code.
+inventory (item count, required sections, forbidden structures, a source token) and this script holds
+the bundled file to it. Add a guideline by adding an EXPECTED entry, not code.
+
+The same audit (2026-07-21) found two more of the #352 class and they are covered here: CLEAR had been
+regrouped into seven invented topical "domains" (item 1 = "Study hypothesis") when the official
+instrument is numbered by manuscript section (item 1 = Title, item 44 = baseline demographics), and
+MI-CLEAR-LLM carried the 2024 six-item body under a "Version 2025" label when the official 2025 update
+has eight item categories.
 
 Not named `check_*` on purpose — it is a fidelity regression, run in CI, not one of the manuscript
 integrity detectors in the published count.
@@ -47,6 +53,32 @@ EXPECTED = {
         "forbidden_in_official": r"\b\d+-AI\b",              # non-canonical identifiers
         "must_contain": ["10.1136/bmj-2023-078378", "supersedes and replaces TRIPOD 2015"],
         "source": "Collins GS et al. BMJ 2024;385:e078378 (TRIPOD+AI 2024)",
+    },
+    # Issue-#352 class, found by the same fidelity audit (2026-07-21): the bundled CLEAR invented a
+    # 7-topical-domain taxonomy (item 1 = "Study hypothesis") — but official CLEAR is numbered by
+    # MANUSCRIPT SECTION (item 1 = Title, 2 = Abstract, 44 = baseline demographics), and its only two
+    # non-essential items are 53 and 58 (the file wrongly said 17 and 57). Every cited item number was wrong.
+    "CLEAR.md": {
+        "official_section_start": "## Checklist Items",
+        "official_section_end": "## Notes for assessors",
+        "main_items": list(range(1, 59)),                    # 1..58
+        "subitem_rows": 58,
+        "required_headings": ["### Title", "### Abstract", "### Results", "### Discussion"],
+        "forbidden_in_official": r"Domain \d",               # the topical-domain regrouping tell
+        "must_contain": ["10.1186/s13244-023-01415-8", "specifying the radiomic methodology"],
+        "source": "Kocak B et al. Insights Imaging 2023;14(1):75 (CLEAR 2023)",
+    },
+    # Issue-#352 class (2026-07-21): the file was labelled "Version 2025" but carried the 2024 SIX-item
+    # body. The official 2025 update has EIGHT item categories, promoting Access mode, Input data type,
+    # and Adaptation strategy to first-class items.
+    "MI_CLEAR_LLM.md": {
+        "official_section_start": "## Checklist Items",
+        "official_section_end": "## Notes for assessors",
+        "main_items": list(range(1, 9)),                     # 1..8
+        "subitem_rows": 8,
+        "required_headings": ["### 2. Access mode", "### 3. Input data type", "### 4. Adaptation strategy used"],
+        "must_contain": ["10.3348/kjr.2025.1522", "8 item categories"],
+        "source": "Park SH et al. Korean J Radiol 2025;26(12):1123-1132 (MI-CLEAR-LLM 2025)",
     },
 }
 
@@ -86,11 +118,13 @@ def check_one(path: Path, spec: dict) -> list[str]:
         if h not in text:
             out.append(f"{path.name}: missing required section '{h}' — it is an official item, not optional.")
 
-    bad = re.findall(spec["forbidden_in_official"], official)
-    if bad:
-        out.append(f"{path.name}: non-canonical identifier(s) in the official section: "
-                   f"{sorted(set(bad))} — the official checklist has no '<n>-AI' items; keep repo-specific "
-                   f"checks in the clearly-labelled supplemental section.")
+    forbidden = spec.get("forbidden_in_official")
+    if forbidden:
+        bad = re.findall(forbidden, official)
+        if bad:
+            out.append(f"{path.name}: forbidden pattern in the official section: "
+                       f"{sorted(set(bad))} — this marks a structure the official instrument does not use "
+                       f"(non-canonical identifiers, or a grouping the guideline does not have).")
 
     for tok in spec["must_contain"]:
         if tok not in text:

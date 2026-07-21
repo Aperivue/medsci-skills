@@ -1,113 +1,182 @@
 # CLEAR Checklist
 
 **CheckList for EvaluAtion of Radiomics research**
-Version: CLEAR 2023
-Source: https://doi.org/10.1186/s13244-023-01415-8
-Reference: Kocak B, Baessler B, Bakas S, et al. CheckList for EvaluAtion of Radiomics research (CLEAR): a step-by-step reporting guideline for authors and reviewers endorsed by ESR and EuSoMII. Insights Imaging. 2023;14(1):75. doi:10.1186/s13244-023-01415-8
 
-## Checklist Items (58 items)
+- **Version:** CLEAR 2023
+- **Citation:** Kocak B, Baessler B, Bakas S, et al. *CheckList for EvaluAtion of Radiomics research (CLEAR): a step-by-step reporting guideline for authors and reviewers endorsed by ESR and EuSoMII.* Insights Imaging. 2023;14(1):75.
+- **DOI:** 10.1186/s13244-023-01415-8
+- **Source:** https://pmc.ncbi.nlm.nih.gov/articles/PMC10160267/ · official item list: https://clearchecklist.github.io/clear_checklist/CLEAR.html
+- **Licence:** CC BY 4.0. Item wording below is reproduced faithfully from the published statement with attribution.
 
-### Domain 1: Study Design (Items 1-8)
+CLEAR is a **58-item** step-by-step reporting guideline for radiomics research, ordered by **manuscript
+section** to follow a paper from title to open science: Title (1), Abstract (2), Keywords (3),
+Introduction (4–6), Methods (7–43), Results (44–48), Discussion (49–52), and Open Science (53–58). The
+Methods block is subdivided into Study design (7–12), Data (13–18), Segmentation (19–20), Pre-processing
+(21–24), Feature extraction (25–28), Data preparation (29–33), Modeling (34–37), and Evaluation (38–43).
 
-| # | Item | Description |
-|---|------|-------------|
-| 1 | Study hypothesis | State the study hypothesis or objectives clearly. |
-| 2 | Study design | Describe the study design (retrospective/prospective, single/multi-center, development/validation). |
-| 3 | Inclusion criteria | Define the inclusion criteria for the study population. |
-| 4 | Exclusion criteria | Define the exclusion criteria, including imaging quality-related exclusions. |
-| 5 | Sample size | Report the total sample size and per-group sample sizes. Justify the sample size if a power analysis was performed. |
-| 6 | Clinical and demographic data | Report relevant clinical and demographic characteristics of the study population. |
-| 7 | Reference standard | Describe the reference standard (ground truth) used for labeling, including how and by whom it was determined. |
-| 8 | Time frame | Report the time period of data collection and any relevant temporal information. |
+Two items — **53** and **58** — are marked **[n/e]** ("not essential" but recommended). All other items are
+essential; score a missing essential item as a reporting gap, and a missing [n/e] item as N/A only when
+justified. CLEAR is written for **hand-crafted radiomics**; for deep-learning pipelines without radiomic
+features, CLAIM 2024 or TRIPOD+AI may fit better (a study that does both should be assessed against both).
 
-### Domain 2: Imaging Data (Items 9-18)
+## Checklist Items
 
-| # | Item | Description |
-|---|------|-------------|
-| 9 | Imaging modality | Specify the imaging modality (CT, MRI, PET, ultrasound, etc.) and rationale for selection. |
-| 10 | Scanner details | Report scanner manufacturer, model, and number of different scanners used. |
-| 11 | Acquisition parameters | Report key acquisition parameters (e.g., slice thickness, pixel spacing, repetition time, echo time, field strength, reconstruction kernel). |
-| 12 | Contrast agent | Report whether contrast agent was used, type, dose, and timing of acquisition relative to injection. |
-| 13 | Image preprocessing | Describe all image preprocessing steps (resampling, normalization, filtering, N4 bias correction, etc.) and their order. |
-| 14 | Image quality control | Describe any image quality assessment or exclusion criteria applied before feature extraction. |
-| 15 | Multi-scanner harmonization | For multi-scanner data: describe any harmonization methods applied (e.g., ComBat, z-scoring) or state that none was used. |
-| 16 | DICOM compliance | State whether the analysis was performed on DICOM-compliant images and report any format conversions. |
-| 17 | Phantom or test-retest data | Report whether phantom or test-retest data were used to assess feature reproducibility. |
-| 18 | Data augmentation | Describe any data augmentation techniques applied to imaging data and at which stage (before/after splitting). |
+### Title
 
-### Domain 3: Segmentation (Items 19-24)
+| Item | Checklist item |
+|---|---|
+| 1 | Relevant title, specifying the radiomic methodology (generally identifying the study as radiomics-related). |
 
-| # | Item | Description |
-|---|------|-------------|
-| 19 | Segmentation method | Describe the segmentation method (manual, semi-automatic, fully automatic) and software used. |
-| 20 | ROI definition | Define the region of interest (ROI) -- what was segmented, on which sequences/phases, 2D vs 3D. |
-| 21 | Segmentator qualifications | Report the qualifications and experience of the person(s) performing segmentation. |
-| 22 | Segmentation protocol | Describe the segmentation protocol, including any guidelines or training provided to segmentators. |
-| 23 | Inter-reader agreement | Report inter-reader agreement for segmentation (e.g., Dice coefficient, ICC) if multiple readers were used. |
-| 24 | Intra-reader agreement | Report intra-reader agreement for segmentation if assessed. |
+### Abstract
 
-### Domain 4: Feature Extraction and Processing (Items 25-34)
+| Item | Checklist item |
+|---|---|
+| 2 | Structured summary with relevant information (with a structured or unstructured summary presenting key information). |
 
-| # | Item | Description |
-|---|------|-------------|
-| 25 | Feature extraction software | Report the software name and version used for feature extraction. |
-| 26 | Feature classes | List the feature classes extracted (e.g., first-order, shape, GLCM, GLRLM, GLSZM, GLDM, NGTDM). |
-| 27 | Number of features | Report the total number of features extracted before any selection. |
-| 28 | Extraction parameters | Report feature extraction parameters (e.g., bin width/count, distance for GLCM, voxel size for resampling). |
-| 29 | IBSI compliance | State whether the feature extraction software is IBSI (Image Biomarker Standardisation Initiative) compliant. |
-| 30 | Feature reproducibility | Report feature reproducibility assessment (e.g., ICC from test-retest or multi-reader segmentation). Describe how non-reproducible features were handled. |
-| 31 | Feature standardization | Describe any feature standardization or normalization methods applied (e.g., z-score, min-max). |
-| 32 | Collinearity handling | Describe methods used to address collinearity among features (e.g., correlation threshold, VIF). |
-| 33 | Feature selection method | Describe the feature selection method(s) used (e.g., LASSO, mRMR, recursive feature elimination) and the rationale. |
-| 34 | Number of selected features | Report the number of features selected for the final model. |
+### Keywords
 
-### Domain 5: Modeling (Items 35-44)
+| Item | Checklist item |
+|---|---|
+| 3 | Relevant keywords for radiomics (providing keywords most relevant to the topic). |
 
-| # | Item | Description |
-|---|------|-------------|
-| 35 | Model type | Specify the type of model(s) used (e.g., logistic regression, random forest, SVM, neural network). |
-| 36 | Training methodology | Describe the training methodology, including optimization algorithm, loss function, and stopping criteria. |
-| 37 | Data splitting | Describe the data splitting strategy (training/validation/test), including method (random, temporal, institutional) and ratios. |
-| 38 | Cross-validation | If cross-validation was used, specify the type (k-fold, leave-one-out, nested) and number of folds/repetitions. |
-| 39 | Hyperparameter tuning | Describe the hyperparameter tuning approach and which hyperparameters were tuned. |
-| 40 | Class imbalance | Report whether class imbalance existed and how it was handled (oversampling, undersampling, SMOTE, class weights, etc.). |
-| 41 | Clinical feature integration | If clinical features were combined with radiomics features, describe the integration method. |
-| 42 | Comparison models | Describe any comparison models (clinical-only, radiomics-only, combined) and how they were compared. |
-| 43 | External validation | Report whether external validation was performed. If so, describe the external dataset source, size, and key differences from the development set. |
-| 44 | Temporal validation | Report whether temporal (chronological) validation was performed and the time gap between development and validation cohorts. |
+### Introduction
 
-### Domain 6: Performance Assessment (Items 45-52)
+| Item | Checklist item |
+|---|---|
+| 4 | Scientific or clinical background (mentioning the current scientific or clinical background). |
+| 5 | Rationale for using a radiomic approach (explaining the rationale for using a radiomic approach). |
+| 6 | Study objective(s) (stating the study objectives, hypotheses, or aims). |
 
-| # | Item | Description |
-|---|------|-------------|
-| 45 | Discrimination metrics | Report discrimination metrics (e.g., AUC, sensitivity, specificity, accuracy) with confidence intervals. |
-| 46 | Calibration | Report calibration assessment (calibration plot, Hosmer-Lemeshow test, calibration slope/intercept, Brier score). |
-| 47 | Clinical utility | Report clinical utility assessment (e.g., decision curve analysis, net benefit, net reclassification improvement). |
-| 48 | Statistical tests | Report statistical tests used for comparing models and their p-values. |
-| 49 | Subgroup analysis | Report any subgroup analyses performed (e.g., by scanner, institution, patient subgroup). |
-| 50 | Failure analysis | Report any analysis of cases where the model failed or performed poorly. |
-| 51 | Reader comparison | If applicable, compare model performance with radiologist readers. |
-| 52 | Multicollinearity in final model | Report assessment of multicollinearity in the final model (e.g., VIF values). |
+### Methods — Study design
 
-### Domain 7: Open Science (Items 53-58)
+| Item | Checklist item |
+|---|---|
+| 7 | Adherence to guidelines or checklists (e.g., CLEAR checklist). |
+| 8 | Ethical details (e.g., approval, consent, data protection). |
+| 9 | Sample size calculation (with a statistical power analysis, if performed). |
+| 10 | Study nature (e.g., retrospective, prospective). |
+| 11 | Eligibility criteria (with inclusion and exclusion criteria). |
+| 12 | Flowchart for technical pipeline (presenting a technical pipeline flowchart). |
 
-| # | Item | Description |
-|---|------|-------------|
-| 53 | Code availability | State whether the analysis code is publicly available. If yes, provide the repository URL. |
-| 54 | Data availability | State whether the data are publicly available. If restricted, explain why and how access can be requested. |
-| 55 | Model availability | State whether the trained model is publicly available for external validation. |
-| 56 | Radiomics feature values | State whether extracted feature values are shared (as supplementary material or in a repository). |
-| 57 | Pre-registration | State whether the study was pre-registered (e.g., in a prospective register or protocol). |
-| 58 | Reporting guideline adherence | State which reporting guideline(s) were followed (e.g., CLEAR, CLAIM, TRIPOD+AI). |
+### Methods — Data
+
+| Item | Checklist item |
+|---|---|
+| 13 | Data source (e.g., private, public). |
+| 14 | Data overlap (declaring any data overlap with previous studies). |
+| 15 | Data split methodology (describing how the data were split, e.g., training/validation/test). |
+| 16 | Imaging protocol (i.e., image acquisition and processing). |
+| 17 | Definition of non-radiomic predictor variables. |
+| 18 | Definition of the reference standard (i.e., outcome variable). |
+
+### Methods — Segmentation
+
+| Item | Checklist item |
+|---|---|
+| 19 | Segmentation strategy (2D/3D, manual/automatic, software, region of interest). |
+| 20 | Details of operators performing segmentation (number, experience, qualifications). |
+
+### Methods — Pre-processing
+
+| Item | Checklist item |
+|---|---|
+| 21 | Image pre-processing details. |
+| 22 | Resampling method and its parameters. |
+| 23 | Discretization method and its parameters (e.g., fixed bin width or count). |
+| 24 | Image types (e.g., original, filtered, transformed). |
+
+### Methods — Feature extraction
+
+| Item | Checklist item |
+|---|---|
+| 25 | Feature extraction method (software and version). |
+| 26 | Feature classes (e.g., shape, first-order, texture). |
+| 27 | Number of features (extracted per region and in total). |
+| 28 | Default configuration statement for remaining parameters. |
+
+### Methods — Data preparation
+
+| Item | Checklist item |
+|---|---|
+| 29 | Handling of missing data. |
+| 30 | Details of class imbalance. |
+| 31 | Details of segmentation reliability analysis (e.g., inter-/intra-observer agreement). |
+| 32 | Feature scaling details (e.g., normalization, standardization). |
+| 33 | Dimension reduction details (e.g., feature selection). |
+
+### Methods — Modeling
+
+| Item | Checklist item |
+|---|---|
+| 34 | Algorithm details (name and characteristics of the modeling algorithm[s]). |
+| 35 | Training and tuning details (including hyperparameter optimization). |
+| 36 | Handling of confounders. |
+| 37 | Model selection strategy. |
+
+### Methods — Evaluation
+
+| Item | Checklist item |
+|---|---|
+| 38 | Testing technique (e.g., internal, external). |
+| 39 | Performance metrics and rationale for choosing. |
+| 40 | Uncertainty evaluation and measures (e.g., confidence intervals). |
+| 41 | Statistical performance comparison (e.g., DeLong's test). |
+| 42 | Comparison with non-radiomic and combined methods. |
+| 43 | Interpretability and explainability methods. |
+
+### Results
+
+| Item | Checklist item |
+|---|---|
+| 44 | Baseline demographic and clinical characteristics (across data partitions). |
+| 45 | Flowchart for eligibility criteria (participant flow). |
+| 46 | Feature statistics (e.g., reproducibility, feature selection). |
+| 47 | Model performance evaluation (with the pre-specified metrics). |
+| 48 | Comparison with non-radiomic and combined approaches. |
+
+### Discussion
+
+| Item | Checklist item |
+|---|---|
+| 49 | Overview of important findings. |
+| 50 | Previous works with differences from the current study. |
+| 51 | Practical implications. |
+| 52 | Strengths and limitations (e.g., bias and generalizability issues). |
+
+### Open Science — Data availability
+
+| Item | Checklist item |
+|---|---|
+| 53 | Sharing images along with segmentation data **[n/e]**. |
+| 54 | Sharing radiomic feature data. |
+
+### Open Science — Code availability
+
+| Item | Checklist item |
+|---|---|
+| 55 | Sharing pre-processing scripts or settings. |
+| 56 | Sharing source code for modeling. |
+
+### Open Science — Model availability
+
+| Item | Checklist item |
+|---|---|
+| 57 | Sharing final model files. |
+| 58 | Sharing a ready-to-use system **[n/e]**. |
 
 ---
 
-## Notes for Assessors
+## Notes for assessors
 
-- CLEAR is specifically designed for radiomics studies. For deep learning studies without handcrafted radiomics features, CLAIM 2024 or TRIPOD+AI may be more appropriate.
-- Items in Domain 3 (Segmentation) may not apply if the study uses atlas-based or fully automated segmentation without reader involvement.
-- Items 17 (phantom data) and 57 (pre-registration) are aspirational best practices; their absence should be noted but may be scored as N/A if justified.
-- Item 29 (IBSI compliance) is strongly recommended. Non-IBSI-compliant software should be flagged as a potential limitation.
-- For studies combining radiomics with deep learning features, assess both CLEAR (for radiomics components) and CLAIM/TRIPOD+AI (for deep learning components).
-- Domain 7 (Open Science) items are increasingly required by journals. Missing items here are more likely to trigger reviewer comments in high-impact journals.
-- CLEAR was endorsed by the European Society of Radiology (ESR) and the European Society of Medical Imaging Informatics (EuSoMII).
+- **Order is by manuscript section, not by topic.** CLEAR numbers items in the order they appear in a paper
+  (Title → Abstract → … → Open Science). When you cite a CLEAR item, cite it by this official number — item 1
+  is the title, item 44 is baseline demographics in the Results, item 58 is sharing a ready-to-use system.
+- **Items 53 and 58 are the only non-essential ([n/e]) items** — recommended best practice for open science.
+  Every other item is essential; a missing essential item is a reporting gap, not an optional extra.
+- **Segmentation items (19–20)** may be N/A for studies using fully automated, atlas-based segmentation with
+  no reader involvement — note this rather than scoring MISSING.
+- **Open Science (53–58)** is where a radiomics study's reproducibility is assessed and is increasingly
+  required by journals; missing items here commonly draw reviewer comments.
+- CLEAR was endorsed by the European Society of Radiology (ESR) and the European Society of Medical Imaging
+  Informatics (EuSoMII). For methodological quality (as opposed to reporting completeness), pair CLEAR with
+  METRICS (Kocak et al. 2024).

@@ -68,8 +68,8 @@
     },
     {
       "path": "skills/MAINTENANCE.md",
-      "size": 7114,
-      "sha256": "76844f21d84ee2704896f7a141d80547ef30bc41be83b76b10df3321d8d1785f"
+      "size": 7422,
+      "sha256": "8cf861afba71d93940ccd72f16e9ad62e6ce6d22e5d2cce166f6ffc10c7af6d7"
     },
     {
       "path": "skills/academic-aio/SKILL.md",
@@ -598,8 +598,8 @@
     },
     {
       "path": "skills/check-reporting/SKILL.md",
-      "size": 38433,
-      "sha256": "01c44b3ba95f475584999e27c55949647d92e4f935ef84bb29f100b097b564f8"
+      "size": 38487,
+      "sha256": "7e089fcc858e725469f015c5376d8ab993e52bba332061fcad919cbab3426f9d"
     },
     {
       "path": "skills/check-reporting/references/LICENSES.md",
@@ -643,8 +643,8 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/CLEAR.md",
-      "size": 9610,
-      "sha256": "372460d48040758fc204f3ca2364b2f79cebe91f9d4294111d6f808b7b09effe"
+      "size": 7781,
+      "sha256": "0bbfe04ffbea69bc1099086ad1489f09289ba13a3160d0f9f69e1edf75655333"
     },
     {
       "path": "skills/check-reporting/references/checklists/CONSORT.md",
@@ -683,8 +683,8 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/MI_CLEAR_LLM.md",
-      "size": 10109,
-      "sha256": "1a62ba357be40703b37c2dc7adb4f61d98b656ca2cfe2298e54a137e6f46bbde"
+      "size": 8468,
+      "sha256": "8e369bd75d4d2c6646693f856c719825ff4135d231c754518575116ea8f7a112"
     },
     {
       "path": "skills/check-reporting/references/checklists/MOOSE.md",
@@ -898,8 +898,8 @@
     },
     {
       "path": "skills/check-reporting/scripts/verify_checklist_fidelity.py",
-      "size": 5529,
-      "sha256": "3dd2018588f784d0ca7772d31102d88e52517ff7478dbd5a78213a6ef19a0dbc"
+      "size": 7811,
+      "sha256": "f65094e35dafd7f3586a86edca22a326e4c4c6e55ba09867de7ac35110a85a63"
     },
     {
       "path": "skills/check-reporting/skill.yml",
