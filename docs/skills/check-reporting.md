@@ -51,6 +51,7 @@
 - `check_framework_naming.py`
 - `check_prisma_figure.py`
 - `prisma_cascade_check.py`
+- `verify_checklist_fidelity.py`
 
 ## Source
 

@@ -68,8 +68,8 @@
     },
     {
       "path": "skills/MAINTENANCE.md",
-      "size": 6555,
-      "sha256": "cf39c8c6015c7573aa40fb97631bba26acddab6a2fcb09c8d2a2ec5f49fdbd3f"
+      "size": 7114,
+      "sha256": "76844f21d84ee2704896f7a141d80547ef30bc41be83b76b10df3321d8d1785f"
     },
     {
       "path": "skills/academic-aio/SKILL.md",
@@ -838,8 +838,8 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/TRIPOD_AI.md",
-      "size": 9262,
-      "sha256": "a7a8750eeeac1a31ad16088be871dfd7193d186639278fe9c9a1f67c5b31e7f7"
+      "size": 13826,
+      "sha256": "0ec248b9846a06bf4e13890daaa1f61e69b7588b390d0612dcabefed78c42975"
     },
     {
       "path": "skills/check-reporting/references/checklists/TRIPOD_LLM.md",
@@ -895,6 +895,11 @@
       "path": "skills/check-reporting/scripts/prisma_cascade_check.py",
       "size": 9382,
       "sha256": "fe4859261c2af0783c82f4e0fe49af2e4b9311c7ca2d9c6241dd134a2bc32a04"
+    },
+    {
+      "path": "skills/check-reporting/scripts/verify_checklist_fidelity.py",
+      "size": 5529,
+      "sha256": "3dd2018588f784d0ca7772d31102d88e52517ff7478dbd5a78213a6ef19a0dbc"
     },
     {
       "path": "skills/check-reporting/skill.yml",

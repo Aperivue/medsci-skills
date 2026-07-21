@@ -469,6 +469,9 @@ jobs:
       - name: Run check-reporting framework-naming gate test
         run: bash skills/check-reporting/tests/test_framework_naming.sh
 
+      - name: "Run check-reporting checklist-fidelity gate test (a checklist must match the official inventory, issue #352)"
+        run: bash skills/check-reporting/tests/test_checklist_fidelity.sh
+
       - name: Run check-reporting PRISMA-cascade test
         run: bash skills/check-reporting/tests/test_prisma_cascade.sh
 

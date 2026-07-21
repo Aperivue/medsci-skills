@@ -2,6 +2,32 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- **The bundled TRIPOD+AI checklist was TRIPOD 2015 with `-AI` additions, not the official 2024
+  statement (issue #352, external report).** The file was labelled "TRIPOD+AI 2024" but carried the
+  TRIPOD 2015 section sequence, non-canonical identifiers (`1-AI`, `10-AI-a`, …), and had no Open
+  Science or Patient-and-Public-Involvement items. The official TRIPOD+AI 2024 (Collins et al., BMJ
+  2024;385:e078378) is a **rewrite**: 27 main items, 52 subitems, with Open science (18) and PPI (19)
+  as first-class items. `check-reporting`'s SKILL.md already *said* so ("a complete rewrite, not an
+  addendum"); the checklist file did not follow it. Rewritten faithfully from the published statement
+  (verified item-by-item against the source; applicability labels D/E/D;E preserved), with the
+  toolkit's own engineering-reproducibility prompts (architecture, training config, software/hardware,
+  reproducibility) moved to a clearly-labelled "MedSci supplemental checks — NOT official TRIPOD+AI
+  items" section.
+
+### Added
+
+- `skills/check-reporting/scripts/verify_checklist_fidelity.py` — the check that was missing. Nothing
+  compared a bundled checklist against the official item inventory of the guideline it claims to be:
+  `check_checklist_exists` verifies presence, `check_framework_naming` verifies naming, neither
+  verifies the *contents*. This gate is manifest-driven (item count, required sections, forbidden
+  non-canonical identifiers, source DOI) so it generalises to other checklists by adding an entry, not
+  code. It runs in CI via `test_checklist_fidelity.sh`, which regresses the exact #352 defect and
+  holds the gate silent on the corrected file. Not a counted detector (a CI fidelity regression, not a
+  per-manuscript check).
+
+
 ### Added
 
 - **`check_density_complaint` (detector 66 -> 67, `/revise`): "too dense" is the one comment you

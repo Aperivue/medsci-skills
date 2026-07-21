@@ -59,6 +59,7 @@ TEST_MARKERS = ("/tests/", "_challenge/", "/challenge/")
 MAINTAINER_TOOLS: dict[str, str] = {
     "make-figures/scripts/build_jacc_template.py": "skills/MAINTENANCE.md",
     "make-figures/scripts/extract_exemplar_from_pdf.py": "skills/MAINTENANCE.md",
+    "check-reporting/scripts/verify_checklist_fidelity.py": "skills/MAINTENANCE.md",
 }
 
 IMPORT_RE = re.compile(r"^\s*(?:from|import)\s+([A-Za-z_][\w]*)", re.MULTILINE)
