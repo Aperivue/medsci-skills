@@ -4128,8 +4128,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_claim_artifact.py",
-      "size": 18515,
-      "sha256": "70d09ba741389e3116ee002941c823a127528e8b43e1a08a32ac90cb93e3386e"
+      "size": 22106,
+      "sha256": "890ba1834c86d864e40c4ad3c9afb7db6824ffb5f50c2b8896b2a9bbea611ab0"
     },
     {
       "path": "skills/self-review/scripts/check_classical_style.py",
@@ -4138,8 +4138,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_cohort_arithmetic.py",
-      "size": 23911,
-      "sha256": "85c998f19877d5b9a2cebe4245910a59178a6e247c4d4e07f017e40c584484d6"
+      "size": 28137,
+      "sha256": "6711adf4ad70c9d70b76f526a2c0177b08ff56c9c80efb85265ee873886eff3f"
     },
     {
       "path": "skills/self-review/scripts/check_confounding_completeness.py",

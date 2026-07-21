@@ -21,7 +21,16 @@ section echoes the same wrong number:
                        total and sum(stratum events) == total events. A tier split
                        whose denominators sum above the unique cohort double-counts
                        subjects; a table where every stratum n equals the grand
-                       total is a stratum-total mis-entry.
+                       total is a stratum-total mis-entry. This also fires on an
+                       in-text PROSE enumeration presented as an exhaustive split
+                       of a stated total (>=3 "count (pct%)" categories with
+                       partition-cue language, e.g. "of the 289 cases, 37 (12.8%)
+                       ... 185 (64.0%) ... 103 (35.6%) ...") when the counts do not
+                       sum to the total or the percentages do not sum to ~100% --
+                       the sign that a non-exclusive component was mixed among the
+                       mutually exclusive categories. The partition-cue gate keeps
+                       it off legitimate overlapping-attribute prose (comorbidity
+                       prevalence).
   4. ANALYSIS_UNIT_   when --data carries a subject ID and records > unique
      UNDISCLOSED       subjects (health-screening / EMR / registry repeat
                        attendees), observations are non-independent -> anti-
@@ -408,6 +417,75 @@ def check_partition_csv(rows: list[dict]) -> list[dict]:
     return _partition_from_rows(label_of, n_of, ev_of, rows, source="--data partition")
 
 
+# Prose partition: an in-text enumeration presented as an exhaustive split of a
+# stated total. A sentence that decomposes N into >=3 "count (pct%)" categories
+# with partition-cue language, but whose counts do not sum to N (or whose
+# percentages do not sum to ~100), has mixed a non-exclusive component in among
+# mutually exclusive categories -- a "these don't add to N" reviewer flag. The
+# partition-cue gate is what keeps this off legitimate overlapping-attribute prose
+# ("210 (72.7%) had hypertension, 140 (48.4%) had diabetes, ..."): comorbidity
+# prevalence is not a partition, and its counts legitimately sum above N.
+_PART_CUE_RE = re.compile(
+    r"\b(?:decomposed|broke\s+down|broken\s+down|breakdown|comprised|"
+    r"consist(?:ed|ing)\s+of|partitioned|categori[sz]ed|classified|of\s+which|"
+    r"identified\s+(?:by|as|through)|attributable\s+to|ascertained\s+(?:by|through|via)|"
+    r"accounted\s+for|respectively)\b", re.I)
+_PART_TOTAL_RE = re.compile(
+    r"\b(?:among|of|the|these|totall?ing)\s+(?:the\s+)?([0-9][0-9,]{2,})\s+"
+    r"(?:incident\s+|total\s+|remaining\s+|eligible\s+|included\s+)?"
+    r"(?:cases|patients|subjects|participants|individuals|events|records|women|men|"
+    r"children|deaths|lesions|nodules|tumou?rs|samples|episodes|visits)\b", re.I)
+_PART_CAT_RE = re.compile(r"\b([0-9][0-9,]{0,})\s*\(\s*([0-9]+(?:\.[0-9]+)?)\s*%\s*\)")
+_SENT_SPLIT_RE = re.compile(r"(?<=[.!?])\s+(?=[A-Z(\"'])")
+# Bound the scan to a paragraph so an enumeration cannot accrue counts across a
+# blank line or a markdown header (a partition claim lives in one sentence).
+_BLOCK_SPLIT_RE = re.compile(r"\n\s*\n|\n#{1,6}\s")
+
+
+def _iter_partition_sentences(text: str):
+    for block in _BLOCK_SPLIT_RE.split(text):
+        for sent in _SENT_SPLIT_RE.split(block):
+            yield sent
+
+
+def check_partition_text(text: str) -> list[dict]:
+    claims = []
+    for sent in _iter_partition_sentences(text):
+        tm = _PART_TOTAL_RE.search(sent)
+        if not tm:
+            continue
+        cats = _PART_CAT_RE.findall(sent)
+        if len(cats) < 3:
+            continue
+        if not _PART_CUE_RE.search(sent):
+            continue  # cue gate: only an exhaustive-split claim, never overlapping attributes
+        total = _num(tm.group(1))
+        counts = [_num(c) for c, _ in cats]
+        if total is None or any(c is None for c in counts):
+            continue
+        sum_c = sum(counts)
+        sum_p = sum(float(p) for _, p in cats)
+        if abs(sum_c - total) >= 1:
+            claims.append({
+                "verdict": "PARTITION_OVERLAP",
+                "severity": "Major",
+                "detail": (f"enumerated counts sum to {int(sum_c):,} but the stated total is "
+                           f"{int(total):,} (difference {int(sum_c - total):+,}); a non-exclusive "
+                           f"component may be mixed among the mutually exclusive categories"),
+                "where": sent.strip()[:160],
+            })
+        elif not (99.0 <= sum_p <= 101.0):
+            claims.append({
+                "verdict": "PARTITION_OVERLAP",
+                "severity": "Major",
+                "detail": (f"category percentages sum to {sum_p:.1f}% (expected ~100%) for an "
+                           f"exhaustive split of {int(total):,}; a non-exclusive component may be "
+                           f"mixed among the mutually exclusive categories"),
+                "where": sent.strip()[:160],
+            })
+    return claims
+
+
 # --- Check 4: ANALYSIS_UNIT_UNDISCLOSED ------------------------------------
 # Health-screening / EMR / registry cohorts routinely have repeat attendees, so a
 # record count is not a subject count. When the data carry a subject ID and
@@ -506,6 +584,7 @@ def analyze(manuscript: str, data: str | None, id_col: str | None = None) -> dic
     claims += check_rate_text(text)
     claims += check_cascade_text(text)
     claims += check_partition_md(text)
+    claims += check_partition_text(text)
 
     if data:
         rows = load_csv(data)

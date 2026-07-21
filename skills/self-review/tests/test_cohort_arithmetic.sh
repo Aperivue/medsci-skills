@@ -82,5 +82,21 @@ assert not any(c['verdict']=='RATE_BACKCALC' for c in d['claims']), 'numerator m
 python3 "$SCRIPT" --manuscript "$RFP" --strict --quiet >/dev/null 2>&1
 check "exit 0 on correct-rate manuscript" test "$?" -eq 0
 
+# (8) PROSE partition: an in-text exhaustive split whose counts do not sum to the
+#     stated total (37 + 185 + 103 = 325 != 289, % = 112.4) -> PARTITION_OVERLAP,
+#     exit 1.
+PPROSE="$HERE/fixtures/cohort_partition_prose.md"
+python3 "$SCRIPT" --manuscript "$PPROSE" --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "exit 1 on prose partition that does not reconcile" test "$?" -eq 1
+check "PARTITION_OVERLAP from prose enumeration"          has_verdict PARTITION_OVERLAP
+
+# (9) PRECISION: the corrected split (37+149+103=289, %=100), a no-% cross-tab,
+#     and an overlapping-comorbidity enumeration WITH %s but no partition cue must
+#     all stay silent -> exit 0. The last is the case a naive count-sum check
+#     would false-fire on.
+PPCLEAN="$HERE/fixtures/cohort_partition_prose_clean.md"
+python3 "$SCRIPT" --manuscript "$PPCLEAN" --strict --quiet >/dev/null 2>&1
+check "exit 0 on corrected + cross-tab + cue-less overlapping prose" test "$?" -eq 0
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

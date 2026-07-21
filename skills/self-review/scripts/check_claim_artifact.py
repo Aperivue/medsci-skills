@@ -13,6 +13,11 @@ highest-value, deterministic instances:
   2. E-VALUE — is a reported E-value arithmetically consistent with its adjacent
      effect estimate, and is it attached to the *primary* estimate rather than a
      secondary/exploratory one quoted as if it bounded the headline claim?
+  3. REGISTRATION CHRONOLOGY — a "prospectively registered" claim is falsifiable
+     against the manuscript's own dates: if the registration date postdates search
+     completion, the review was registered retrospectively. Manuscript-internal
+     (needs no external prereg artifact); include supplement text in --manuscript
+     to catch an overclaim that survives only in the supplement.
 
 Figure/flow-count reconciliation, Methods-promised-analysis completeness, and
 imputation-input integrity are separate subchecks (see /make-figures and
@@ -320,7 +325,71 @@ def check_code_labels(manuscript: str, scripts_dir: str | None) -> list[dict]:
     return claims
 
 
-MAJOR = {"PRIMARY_REASSIGNED", "EVALUE_ARITHMETIC"}
+# --- Check: REGISTRATION_CHRONOLOGY ----------------------------------------
+# A "prospectively registered" claim is falsifiable against the manuscript's own
+# dates: if the registration date postdates search completion, the review was
+# registered *retrospectively*, and a reviewer flags the overclaim on sight. This
+# is manuscript-internal (no external prereg artifact needed) -- both dates and the
+# claim live in the text (body or supplement). Fires only when a prospective claim
+# co-occurs with a registry AND both dates parse AND registration > search-end.
+_MONTHS = ("January|February|March|April|May|June|July|August|September|October|"
+           "November|December")
+_MONTH_NUM = {m.lower(): i + 1 for i, m in enumerate(_MONTHS.split("|"))}
+_DATE = (rf"\d{{4}}-\d{{2}}-\d{{2}}|\d{{1,2}}\s+(?:{_MONTHS})\s+\d{{4}}|"
+         rf"(?:{_MONTHS})\s+\d{{1,2}},?\s+\d{{4}}")
+_PROSPECTIVE_RE = re.compile(r"\bprospectiv\w*\b", re.I)
+_REGISTRY_RE = re.compile(r"\b(?:PROSPERO|CRD42\d{9}|OSF|ClinicalTrials|NCT\d{6,})\b", re.I)
+_REG_DATE_RE = re.compile(
+    rf"(?:registered|registration|PROSPERO|CRD42\d{{9}}|OSF)[^.]*?\bon\b\s+({_DATE})"
+    rf"|(?:registered|registration)[^.]{{0,60}}?({_DATE})", re.I)
+_SEARCH_END_RE = re.compile(
+    rf"search\w*[^.]*?\b(?:to|through|up to|until|inception to)\b\s+({_DATE})"
+    rf"|search\w*[^.]{{0,80}}?({_DATE})", re.I)
+
+
+def _parse_date(s: str) -> tuple[int, int, int] | None:
+    s = s.strip()
+    m = re.fullmatch(r"(\d{4})-(\d{2})-(\d{2})", s)
+    if m:
+        return (int(m.group(1)), int(m.group(2)), int(m.group(3)))
+    m = re.fullmatch(rf"(\d{{1,2}})\s+({_MONTHS})\s+(\d{{4}})", s, re.I)
+    if m:
+        return (int(m.group(3)), _MONTH_NUM[m.group(2).lower()], int(m.group(1)))
+    m = re.fullmatch(rf"({_MONTHS})\s+(\d{{1,2}}),?\s+(\d{{4}})", s, re.I)
+    if m:
+        return (int(m.group(3)), _MONTH_NUM[m.group(1).lower()], int(m.group(2)))
+    return None
+
+
+def _first_group(m) -> str | None:
+    return next((g for g in m.groups() if g), None) if m else None
+
+
+def check_registration_chronology(manuscript: str) -> list[dict]:
+    claims: list[dict] = []
+    if not (_PROSPECTIVE_RE.search(manuscript) and _REGISTRY_RE.search(manuscript)):
+        return claims
+    reg_s = _first_group(_REG_DATE_RE.search(manuscript))
+    srch_s = _first_group(_SEARCH_END_RE.search(manuscript))
+    if not reg_s or not srch_s:
+        return claims
+    reg, srch = _parse_date(reg_s), _parse_date(srch_s)
+    if not reg or not srch or reg <= srch:
+        return claims
+    claims.append({
+        "claim_id": "registration-chronology",
+        "type": "registration",
+        "prose_value": f"registered {reg_s.strip()}",
+        "artifact_source": f"search completed {srch_s.strip()} (manuscript)",
+        "verdict": "REGISTRATION_CHRONOLOGY",
+        "detail": (f"a prospective-registration claim, but registration ({reg_s.strip()}) postdates "
+                   f"search completion ({srch_s.strip()}) — the review was registered "
+                   f"retrospectively; reframe as \"registered with\" or correct the chronology"),
+    })
+    return claims
+
+
+MAJOR = {"PRIMARY_REASSIGNED", "EVALUE_ARITHMETIC", "REGISTRATION_CHRONOLOGY"}
 
 
 def main() -> int:
@@ -353,7 +422,8 @@ def main() -> int:
             sys.stderr.write(f"WARN: prereg not found: {args.prereg} (estimand provenance limited)\n")
 
     claims = (check_estimand(manuscript, prereg, prereg_raw) + check_evalue(manuscript)
-              + check_code_labels(manuscript, args.scripts))
+              + check_code_labels(manuscript, args.scripts)
+              + check_registration_chronology(manuscript))
     n_major = sum(1 for c in claims if c["verdict"] in MAJOR)
     n_flag = sum(1 for c in claims if c["verdict"] not in MAJOR and c["verdict"] != "OK")
 
