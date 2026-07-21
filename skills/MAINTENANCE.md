@@ -51,6 +51,12 @@ code with permission, and the gate fails on it. Current run-once tools:
   Illustration PPTX template (`references/visual_abstract_templates/jacc_central_illustration.pptx`).
 - `skills/make-figures/scripts/extract_exemplar_from_pdf.py` — extracts a figure region from a
   PDF page to grow the make-figures Critic-Loop exemplar reference set.
+- `skills/check-reporting/scripts/verify_checklist_fidelity.py` — a CI-run fidelity regression: it
+  holds each bundled reporting checklist to the official instrument's item inventory (item count,
+  required sections, forbidden non-canonical identifiers, source DOI). It runs in CI via
+  `skills/check-reporting/tests/test_checklist_fidelity.sh`, not at skill invocation. Added after
+  issue #352 (the bundled TRIPOD+AI checklist was TRIPOD 2015 + `-AI` additions, and nothing checked
+  it against the official 27-item/52-subitem TRIPOD+AI 2024 statement).
 
 ## 3b. Every other script MUST be invoked by a SKILL.md
 
