@@ -83,6 +83,8 @@ FAMILY_BY_ID: dict[str, str] = {
     "check_pdf_injection": "style_review",
     "check_self_improvement_claims": "style_review",
     "check_review_request_types": "style_review",
+    "check_review_length": "style_review",
+    "check_review_boxes": "style_review",
     "check_marked_manuscript": "style_review",
     # Confounding, scope & estimand contracts
     "check_scope_coherence": "confounding_scope_estimand",
