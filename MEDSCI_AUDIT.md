@@ -1,6 +1,6 @@
 # MedSci-Audit
 
-**MedSci-Audit** is the named deterministic verification layer inside [MedSci Skills](README.md): a suite of **68 stdlib-only detectors** that catch fabricated, drifted, or non-compliant content in a medical manuscript *before* it reaches a reviewer. The detectors run inside the skills that own them (e.g. `/self-review`, `/check-reporting`, `/sync-submission`, `/verify-refs`); this document names and indexes that suite so it can be cited and reasoned about as one thing.
+**MedSci-Audit** is the named deterministic verification layer inside [MedSci Skills](README.md): a suite of **69 stdlib-only detectors** that catch fabricated, drifted, or non-compliant content in a medical manuscript *before* it reaches a reviewer. The detectors run inside the skills that own them (e.g. `/self-review`, `/check-reporting`, `/sync-submission`, `/verify-refs`); this document names and indexes that suite so it can be cited and reasoned about as one thing.
 
 The detectors are **deterministic** — same input, same verdict, no LLM in the decision path — so a flagged defect is reproducible and a clean run is meaningful.
 
@@ -15,7 +15,7 @@ MedSci-Audit detectors **find** integrity problems; they deliberately do **not**
 
 The authoritative, machine-readable list is **[`metadata/detectors_catalog.json`](metadata/detectors_catalog.json)** — generated from the detectors under `skills/*/scripts/` by [`scripts/gen_detectors_catalog_json.py`](scripts/gen_detectors_catalog_json.py) and CI-gated with `--check` (it uses the same discovery glob as `validate_catalog_consistency.py`, so its `detector_count` always equals `catalog_counts.json::integrity_detectors`). Do not hand-maintain a parallel list; read the JSON.
 
-The 68 detectors fall into six audit families:
+The 69 detectors fall into six audit families:
 
 | Family | Count | Examples |
 |--------|------:|----------|
@@ -47,11 +47,11 @@ the key in CI, so a new detector cannot ship without it.
 
 ## Evidence
 
-The suite's evaluation evidence and its current size are **two separate facts** — they are reported at different versions, and should not be collapsed into a single "68 detectors, validated by E1/E7" claim.
+The suite's evaluation evidence and its current size are **two separate facts** — they are reported at different versions, and should not be collapsed into a single "69 detectors, validated by E1/E7" claim.
 
-- **Current detector catalog: 68** (the enumerated list in `metadata/detectors_catalog.json`).
+- **Current detector catalog: 69** (the enumerated list in `metadata/detectors_catalog.json`).
 - **Canonical evaluation runs are v3.8-era and validate the then-current subset.** The seeded-defect benchmark (**E1**) is built on **19 `DefectSpec` rows / 17 deterministic injectors** ([`evaluation/h1_seeded_defects/DEFECT_RATIONALE.md`](evaluation/h1_seeded_defects/DEFECT_RATIONALE.md)), and the coverage inventory (**E7**) is **n=21** ([`evaluation/runs/canonical/E7/limitations.md`](evaluation/runs/canonical/E7/limitations.md)). Both predate the A1–A4 detectors that brought the catalog to 24. The frozen canonical runs under [`evaluation/runs/canonical/`](evaluation/runs/canonical/) are pinned to the published methods artifacts and are intentionally left unchanged.
-- **Detectors added since v3.8 are covered by their own per-skill CI tests** (e.g. `skills/sync-submission/tests/test_asset_anonymization.sh`, `skills/check-reporting/tests/test_checklist_version.sh`, `skills/write-paper/tests/test_placeholders.sh`), run on every push via [`.github/workflows/validate.yml`](.github/workflows/validate.yml) — not by a re-run of the frozen E1/E7. A refresh of E1/E7 to cover all 68 detectors is a separate evaluation effort and is **not** part of this registry.
+- **Detectors added since v3.8 are covered by their own per-skill CI tests** (e.g. `skills/sync-submission/tests/test_asset_anonymization.sh`, `skills/check-reporting/tests/test_checklist_version.sh`, `skills/write-paper/tests/test_placeholders.sh`), run on every push via [`.github/workflows/validate.yml`](.github/workflows/validate.yml) — not by a re-run of the frozen E1/E7. A refresh of E1/E7 to cover all 69 detectors is a separate evaluation effort and is **not** part of this registry.
 
 For the broader evaluation harness (E1–E9: seeded-defects, LLM baseline, cost/time, fresh-clone reproducibility, audit-trail completeness, portability, inventory, drift, self-review convergence), see [`evaluation/`](evaluation/).
 
