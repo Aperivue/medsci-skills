@@ -27,6 +27,12 @@ Verdicts:
                           S4, S9, S16, S12, …). Technical-check-fatal.
   CITATION_GAP  (Minor)   a series' cited numbers are not contiguous from 1
                           (a possible missing / mis-numbered float). Report-only.
+  DANGLING_SECTION_XREF   an in-text "Section N" / "Section N.M" reference has no
+        (Major)           matching numbered heading — the common case being a
+                          journal that typesets UNNUMBERED headings, where every
+                          such reference dangles at production. Name the heading
+                          instead of a number. ("Supplementary/Appendix Section N"
+                          is exempt — it points at the supplement.)
 
 Fix: renumber the series by first-citation order (and reorder the float/supplement
 document + remap ALL cross-references, expanding ranges like "S12–S15" by hand and
@@ -76,6 +82,49 @@ SERIES_LABEL = {
     ("figure", True): "Supplementary Figure",
 }
 
+# In-text reference to a numbered section ("as reported in Section 3.4"). Many
+# medical journals typeset UNNUMBERED headings (house style), so a "Section N"
+# cross-reference written during drafting dangles at production — a deterministic
+# desk/galley flag the float-order check does not cover.
+SECTION_REF_RE = re.compile(r"\bSection\s+(\d+(?:\.\d+)?)\b")
+# A heading that carries a leading number: "## 3 Results", "### 3.4 Foo".
+NUMBERED_HEADING_RE = re.compile(r"^#{1,6}\s+\*{0,2}\s*(\d+(?:\.\d+)*)\b", re.MULTILINE)
+
+
+def _check_section_xref(body: str) -> list[dict]:
+    """A `Section N` / `Section N.M` reference must resolve to a numbered heading.
+    If the manuscript has no numbered headings at all (the common unnumbered-house-
+    style case), every such reference dangles at typeset."""
+    refs: list[str] = []
+    for m in SECTION_REF_RE.finditer(body):
+        pre = body[max(0, m.start() - 18):m.start()].lower()
+        if "supplement" in pre or "appendix" in pre:
+            continue  # "Supplementary Section 3" points at the supplement, not a body section
+        refs.append(m.group(1))
+    if not refs:
+        return []
+    heading_nums = set(NUMBERED_HEADING_RE.findall(body))
+    dangling = [r for r in dict.fromkeys(refs)
+                if not any(h == r or h.startswith(r + ".") for h in heading_nums)]
+    if not dangling:
+        return []
+    refs_str = ", ".join(f"Section {d}" for d in dangling)
+    if not heading_nums:
+        detail = (f"in-text cross-reference(s) to numbered sections ({refs_str}) but the manuscript "
+                  f"has no numbered headings — every 'Section N' reference dangles at typeset "
+                  f"(unnumbered-heading house style); name the heading (e.g. 'the Sensitivity analyses "
+                  f"section') instead of a number")
+    else:
+        detail = (f"{refs_str} has no matching numbered heading "
+                  f"(numbered headings present: {', '.join(sorted(heading_nums))}); "
+                  f"name the heading or correct the number")
+    return [{
+        "verdict": "DANGLING_SECTION_XREF",
+        "severity": "Major",
+        "detail": detail,
+        "where": refs_str[:160],
+    }]
+
 
 def _body(text: str, include_back_matter: bool) -> str:
     if include_back_matter:
@@ -106,7 +155,9 @@ def _first_appearance(text: str):
 
 def check(text: str, include_back_matter: bool) -> list[dict]:
     claims = []
-    order = _first_appearance(_body(text, include_back_matter))
+    body = _body(text, include_back_matter)
+    claims += _check_section_xref(body)
+    order = _first_appearance(body)
     for label in ("Table", "Figure", "Supplementary Table", "Supplementary Figure"):
         seq = order.get(label)
         if not seq or len(seq) < 2:

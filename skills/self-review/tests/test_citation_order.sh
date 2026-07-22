@@ -44,5 +44,24 @@ python3 "$SCRIPT" --manuscript "$GOOD" --out "$OUT" --strict --quiet >/dev/null 
 check "exit 0 on clean manuscript (no false positive)" test "$?" -eq 0
 check "no Major on clean manuscript" no_falsepos
 
+# (3) DANGLING_SECTION_XREF: "Section 3.4"/"Section 3" refs with UNNUMBERED headings -> Major
+SBAD="$HERE/fixtures/citation_order_section_bad.md"
+python3 "$SCRIPT" --manuscript "$SBAD" --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "exit 1 on Section-refs with unnumbered headings" test "$?" -eq 1
+check "DANGLING_SECTION_XREF flagged" python3 -c "
+import json
+d=json.load(open('$OUT'))
+assert any(c['verdict']=='DANGLING_SECTION_XREF' for c in d['claims']), 'not flagged'
+"
+# (4) numbered headings resolve the refs, and 'Supplementary Section 5' is exempt -> silent
+SGOOD="$HERE/fixtures/citation_order_section_good.md"
+python3 "$SCRIPT" --manuscript "$SGOOD" --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "exit 0 when Section refs resolve to numbered headings" test "$?" -eq 0
+check "no DANGLING_SECTION_XREF when headings are numbered" python3 -c "
+import json
+d=json.load(open('$OUT'))
+assert not any(c['verdict']=='DANGLING_SECTION_XREF' for c in d['claims']), 'false positive'
+"
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

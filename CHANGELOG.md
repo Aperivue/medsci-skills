@@ -4,6 +4,19 @@
 
 ### Added
 
+- **Two more field-backlog gates, both additive verdicts (no new counted detector).**
+  - **`check_citation_order` now resolves in-text `Section N` cross-references** (`DANGLING_SECTION_XREF`).
+    Many medical journals typeset **unnumbered** headings, so a "as reported in Section 3.4" written
+    during drafting dangles at production — a galley-stage flag the float-order check did not cover. The
+    verdict fires when a `Section N`/`N.M` reference has no matching numbered heading (and when the
+    manuscript has no numbered headings at all, every such reference dangles); `Supplementary`/`Appendix
+    Section N` is exempt.
+  - **`lint_consistency` now catches thousands-separator drift between a float title and the body**
+    (`Thousands separator` section). A table title reading `n = 3.681` while the body writes `3,681`
+    survives to galley. High-precision by construction: it fires only when the *same* integer appears
+    comma-grouped in the body **and** period-grouped in a float title, so a genuine 3-decimal number
+    (never also comma-grouped) does not false-fire.
+
 - **`/self-review` — `check_effect_stability` (detector 67 → 68): a wide interval is a direction, not a
   magnitude.** A manuscript's Conclusions reported **OR 50.9 (95% CI 5.8–443.6)** as a magnitude — a
   76-fold interval — fit on **19 events for 2 covariates** (EPV 9.5). Two independent reviewers and the
