@@ -46,4 +46,5 @@ validation_commands:
   - "bash tests/test_wordcount_cap.sh"
   - "bash tests/test_assemble_supplement.sh"
   - "bash tests/test_disclosure_availability.sh"
+  - "bash scripts/check_portal_field_residue_challenge/verify.sh  # deterministic, network-free"
 evidence_surface: bundled_script

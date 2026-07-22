@@ -4,6 +4,19 @@
 
 ### Added
 
+- **`/sync-submission` — `check_portal_field_residue` (detector 72 → 73): markdown that pastes into
+  the published field.** Portal free-text files (`abstract.txt`, `keywords.txt`, …) are cut from the
+  manuscript markdown so an author can paste them straight into an Editorial Manager / ScholarOne
+  field — but nothing strips the markdown at that boundary, so a trailing `---`, a stray `**bold**`,
+  or a `cm^2^` superscript pastes into, and is published in, the field literally (real instance: three
+  portal-field files each ended with a `---` line). The detector scans **only `.txt`** (a `.md` is
+  meant to carry markdown) for six residue kinds — horizontal rule, bold, heading, inline link,
+  superscript, subscript — using paired-marker patterns so significance stars (`* p<0.05, ** p<0.01`),
+  approximation tildes (`~5%`), numeric ranges (`1~2`), and `C#` do not fire. Wired into the
+  `/sync-submission` pre-flight gate as a P1 (strict-promotable) check over `portal_fields/`, so a
+  freeze halts on it under `--strict`. Ships a challenge card (all six kinds positive vs a clean file
+  packed with the false-positive traps negative) run in CI. Grounding: real-failure.
+
 - **`/meta-analysis` — `check_exclusion_code_validity` (detector 71 → 72): a screening code that
   excludes a design the protocol INCLUDES.** A review whose protocol admitted single-arm case series
   removed three eligible studies under a "not comparative" code. The screening sheet was internally

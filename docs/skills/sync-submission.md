@@ -33,6 +33,7 @@
 - `bash tests/test_wordcount_cap.sh`
 - `bash tests/test_assemble_supplement.sh`
 - `bash tests/test_disclosure_availability.sh`
+- `bash scripts/check_portal_field_residue_challenge/verify.sh  # deterministic, network-free`
 
 **Evidence** — `bundled_script`
 
@@ -54,6 +55,8 @@
 - `check_cross_artifact_stale.py`
 - `check_disclosure_availability.py`
 - `check_marked_manuscript.py`
+- `check_portal_field_residue.py`
+- `check_portal_field_residue_challenge/` (6 files)
 - `check_wordcount_cap.py`
 - `cover_letter_drift_check.py`
 - `cross_document_n_check.py`
