@@ -2,6 +2,21 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- **`/self-review` `check_figure_citation` — a multi-panel citation is no longer a false
+  `FIGURE_ORPHAN`.** The in-text mention regex ended in `(?P<num>\d+)\b`, and there is no
+  word boundary between "3" and "a", so `(Figure 3a)` / `(Figure 3b)` — the *only* way
+  multi-panel figures are ever cited — matched nothing. Figure 3 then looked uncited and
+  `FIGURE_ORPHAN` fired on essentially every manuscript with a multi-panel figure. The
+  citation regex now allows an optional single-letter panel suffix (`Figure 3a` cites
+  Figure 3); the caption anchor (`Figure 3.` names the whole float) is unchanged, so the
+  caption↔citation correspondence the gate relies on is preserved, and a genuinely
+  uncited figure still fires. Ships a regression challenge card that **fails on the old
+  regex and passes on the new** (a decontaminated fixture — the first attempt hid the bug
+  because the image alt-text contained "figure 1"). Grounding: real-failure (co-author
+  review of a multi-panel manuscript). Detector count unchanged.
+
 ### Added
 
 - **`/sync-submission` — `check_portal_field_residue` (detector 72 → 73): markdown that pastes into

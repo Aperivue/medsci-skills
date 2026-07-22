@@ -45,8 +45,14 @@ from pathlib import Path
 
 # A caption/legend line: (optional **) Figure|Table N (.|:) ...
 CAPTION_RE = re.compile(r"^\s*\*{0,2}\s*(?P<kind>Figure|Fig\.?|Table)\s+(?P<num>\d+)\s*[.:]", re.I)
-# Any in-text mention: Figure N / Fig N / Fig. N / Table N (+ "Figures 1 and 2" heads)
-MENTION_RE = re.compile(r"\b(?P<kind>Figures?|Figs?\.?|Tables?)\s+(?P<num>\d+)\b", re.I)
+# Any in-text mention: Figure N / Fig N / Fig. N / Table N (+ "Figures 1 and 2" heads),
+# with an OPTIONAL single-letter panel suffix so "Figure 3a" / "(Figure 3b)" registers
+# as citing Figure 3 (multi-panel figures are cited only by panel, and without this the
+# num-then-\b never matched "3a"). Panels never appear in CAPTION_RE ("Figure 3." names
+# the whole float), so caption<->citation correspondence is preserved; the trailing \b
+# after the optional letter keeps "Figure 3rd" / "3mg" from matching (no boundary
+# between the letter and a following word char).
+MENTION_RE = re.compile(r"\b(?P<kind>Figures?|Figs?\.?|Tables?)\s+(?P<num>\d+)(?P<panel>[a-zA-Z])?\b", re.I)
 # A markdown image embed: ![alt](path). Its presence is how a figure reaches the
 # rendered output; a manuscript with figure captions but zero image links ships
 # with every legend and no picture.
