@@ -3053,8 +3053,8 @@
     },
     {
       "path": "skills/peer-review/SKILL.md",
-      "size": 79206,
-      "sha256": "c7ae7922f6fee5d660cb9dfcd60fdeadfe0f43f8d0acc4ae2bc0b976861338bf"
+      "size": 80908,
+      "sha256": "4780c77300c38440edd1873d6fb0073713599052482988c88e66252255585a6b"
     },
     {
       "path": "skills/peer-review/references/aczel_2021_reviewer2_patterns.md",
@@ -3295,6 +3295,16 @@
       "path": "skills/peer-review/scripts/check_pdf_injection_challenge/verify.sh",
       "size": 2187,
       "sha256": "6d149ab8d6737430937a0424dd4c66ea9332f25d83d1eca8e37104db33e97b0d"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_review_boxes.py",
+      "size": 8897,
+      "sha256": "5ddf3ea77569a6ad6b22e7b6ee1a912f9ea36c1c147f7f61cfdf4b2b4d3afcb9"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_review_length.py",
+      "size": 10012,
+      "sha256": "4d5f8010f5c4681ba33a2b02c092bf62085393c173bfd433a8149b208e5f01f4"
     },
     {
       "path": "skills/peer-review/scripts/check_review_request_types.py",

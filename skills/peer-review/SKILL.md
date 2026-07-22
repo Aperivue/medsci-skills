@@ -406,6 +406,27 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/check_review_request_types.py" \
 
 `COMPUTATION_UNJUSTIFIED` / `COMPUTATION_HEAVY` / `NEW_DATA_REQUESTED` / `NESTED_P_REQUESTED` / `ESTIMATOR_UNNAMED`. It honours negation ("I am not asking you to repeat the validation") and ignores plain description, so a finding means the ask really is a request. **Feasibility is not justification** — "a text filter on data you already hold" says the work is cheap, not that the existing tables cannot answer the question.
 
+The budgets below, and the two-box structure, are enforced the same way and for the same
+reason. Run both on the draft alongside the request-type gate:
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/check_review_length.py" \
+  --review review/{manuscript_id}_review_draft.md --tier 2 --strict
+python3 "${CLAUDE_SKILL_DIR}/scripts/check_review_boxes.py" \
+  --review review/{manuscript_id}_review_draft.md --strict
+```
+
+`check_review_length.py` prints **a per-item table**, and that is the point of it: the total
+tells you to trim, the table tells you *which comment*. Verdicts `AUTHOR_BLOCK_NOT_FOUND` /
+`HARD_CAP` / `TIER_EXCEEDED` / `MAJOR_OVERLONG` / `RATIO_HIGH`. Pass the tier you are claiming;
+without `--tier` it infers one and cannot tell you that you blew the ceiling you had in mind.
+
+`check_review_boxes.py` guards the two-box structure: `RECOMMENDATION_IN_AUTHOR_BOX` (a grade
+in the authors' block, which is either a transposition or a leak, and neither is recoverable
+after submission), `BOX_DUPLICATION` (the editor's note is the authors' note pasted over —
+write it in its own register: what was done, what is left, whether it needs another expert
+round), `BOX_MISSING`.
+
 Generate `{manuscript_id}_review_draft.md`:
 
 Generate `{manuscript_id}_review_draft.md` from the skeleton in
@@ -440,8 +461,8 @@ After drafting, verify mechanically:
 1. **Numerical accuracy**: All cited numbers (sample size, p-value, AUC) match the manuscript.
 2. **Citation accuracy**: Section/Table/Figure references match manuscript.
 3. **Feasibility**: All suggested revisions achievable with existing data.
-4. **Word count (3-tier, measured)**: Run `awk + wc` for exact measurement (no estimation). Identify which tier the Author section falls in (Tier 1 ≤700w / Tier 2 700-1000w ★ default / Tier 3 1000-1400w). Most reviews should land in Tier 2. If Tier 3, justify with a one-line rationale (which design-level concern warrants the extra length) and verify Tier 3 frequency stays ≤20% rolling. Hard cap 1400w. Also measure at Phase 3 mid-checkpoint, not only at final. Report **reference-baseline ratio** (`wc / 545w`) — ratio > 2.0 flags trim candidate.
-5. **Forbidden words**: No recommendation words (accept/reject/minor/major revision) in Comments to Authors.
+4. **Word count (3-tier, measured)**: Run `check_review_length.py --review <draft> --tier N --strict`, not `awk + wc` by hand — raw markdown counts `**Major` and table pipes, and a total alone never says which comment to cut. Read the per-item table it prints. Identify which tier the Author section falls in (Tier 1 ≤700w / Tier 2 700-1000w ★ default / Tier 3 1000-1400w). Most reviews should land in Tier 2. If Tier 3, justify with a one-line rationale (which design-level concern warrants the extra length) and verify Tier 3 frequency stays ≤20% rolling. Hard cap 1400w. Also measure at Phase 3 mid-checkpoint, not only at final. Report **reference-baseline ratio** (`wc / 545w`) — ratio > 2.0 flags trim candidate.
+5. **Forbidden words / two-box integrity**: Run `check_review_boxes.py --review <draft> --strict`. No recommendation grade in Comments to the Authors, both blocks present, and the editor's block not a paste of the authors'.
 6. **Major #1 = task formulation flaw** (if present): if §3C-1 audit found framing mismatch, place it as Major #1. Do not let it be downgraded into adjacent measurement-level issues (selection bias, sample size).
 7. **Request-type gate (deterministic)**: run `check_review_request_types.py --review <draft> --strict` on your own draft. Any MAJOR verdict blocks: reword the ask as disclosure, justify why the existing tables cannot answer it, or drop it. This is the Phase 3 rule with a script behind it.
 8. **AI pattern density (quantified threshold)**: em-dash ≤2 per 1000 words, structural rule-of-three ≤2 per Major comment, significance inflation ("genuinely", "truly", "indeed") 0 per Major, hedged Minor proportion ≥50% ("could", "would help", "I'd suggest" vs bare "Please [verb]").
@@ -484,10 +505,11 @@ Fix all issues found, then present to user.
 - [ ] All cited numbers match the manuscript
 - [ ] Major comments ranked by impact (Task formulation flaw, if present, as Major #1)
 - [ ] All suggestions feasible with existing data
-- [ ] Author section word count measured (awk + wc), tier identified (Tier 1 ≤700w / Tier 2 700-1000w ★ default / Tier 3 1000-1400w); Tier 3 justified + ≤20% rolling frequency
+- [ ] `check_review_length.py --review <draft> --tier N --strict` exits 0; per-item table read and no Major over budget; tier identified (Tier 1 ≤700w / Tier 2 700-1000w ★ default / Tier 3 1000-1400w); Tier 3 justified + ≤20% rolling frequency
 - [ ] Reference-baseline ratio (`wc / 545w`) reported; ratio > 2.0 trimmed
 - [ ] Hard cap 1400 words not exceeded
 - [ ] AI pattern density within thresholds (em-dash ≤2/1000w; structural rule-of-three ≤2/Major; significance inflation 0/Major; hedged Minor ≥50%)
+- [ ] `check_review_boxes.py --review <draft> --strict` exits 0 — recommendation confined to the editor's block, the two blocks not duplicates of each other
 - [ ] `check_review_request_types.py --review <draft> --strict` exits 0 — every Major's ask classified disclosure vs computation; each computation request justified (existing tables cannot answer it) and its estimator named; no subset-vs-parent-cohort P value requested, no new-data request
 - [ ] Impossibility claims (requires/cannot/impossible/must/contradicts) restated as premise→conclusion + counterexample-tested; reviewer-requested new statistics re-derived from the manuscript's own cells (correctness ≠ presence)
 - [ ] Fatal flaw hierarchy stated in Confidential Comments (if applicable)
