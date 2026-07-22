@@ -89,28 +89,22 @@ push and pull request. The authoritative list of every check is
 [`.github/workflows/validate.yml`](.github/workflows/validate.yml); the whole
 suite uses synthetic fixtures and needs no private data or network access.
 
-To run it locally, install the test dependencies and execute the checks:
+To run the same gates CI runs, install the test dependencies and run the mirror:
 
 ```bash
 pip install pyyaml pandas numpy python-pptx python-docx
 
-# Structure, PII, and skill-contract validation
-bash scripts/validate_skills.sh
-
-# Version + distribution manifest + installer round-trip
-python3 scripts/check_version_consistency.py
-python3 scripts/gen_distribution_manifest.py --check
-python3 installers/install.py --self-test
-bash installers/tests/test_release_zip.sh
-
-# Skill-registry, /orchestrate routing, and catalog consistency
-python3 scripts/validate_capabilities.py --strict
-python3 scripts/check_orchestrate_reachability.py --strict
-python3 scripts/validate_catalog_consistency.py
-
-# Deterministic-detector self-tests (drift fixtures must fail, live repo clean)
-for t in skills/self-review/tests/*.sh; do bash "$t"; done
+# Runs every gate in the CI `validate` job, in order, locally. The step list is
+# parsed from validate.yml itself, so it can never drift from a hand-copied subset,
+# and each gate's flags (--strict, --check) come along. If this is green, CI's
+# validate job will be too. (--list to see the gates; --fail-fast to stop at the
+# first failure; --only SUBSTR to run one.)
+scripts/run_ci_mirror.sh
 ```
+
+Do not maintain a shorter list by hand: a gate added to the workflow, or a `--strict`
+flag, silently drifts out of a copied list and is only caught by a red CI after you
+push. `run_ci_mirror.sh` reads the workflow, so it stays exact.
 
 Each deterministic detector additionally ships a self-contained
 `<detector>_challenge/` directory — a positive case, a negative control, and a
