@@ -27,6 +27,10 @@ Verdicts:
                           S4, S9, S16, S12, …). Technical-check-fatal.
   CITATION_GAP  (Minor)   a series' cited numbers are not contiguous from 1
                           (a possible missing / mis-numbered float). Report-only.
+  UNCITED_FLOAT (Minor)   a float that HAS a legend/caption in the back matter is never
+                          cited anywhere in the narrative body — a display item the reader
+                          is never pointed to (uncited supplements/tables/figures are a
+                          recurrent reviewer/technical-check rejection). Report-only.
   DANGLING_SECTION_XREF   an in-text "Section N" / "Section N.M" reference has no
         (Major)           matching numbered heading — the common case being a
                           journal that typesets UNNUMBERED headings, where every
@@ -83,6 +87,20 @@ SERIES_LABEL = {
     ("table", True): "Supplementary Table",
     ("figure", True): "Supplementary Figure",
 }
+
+# A float DEFINITION (legend / caption line) in the back matter — line-start, optional
+# bold, the kind word, the number, then a caption delimiter (`.`/`:`/`|`). This is a
+# definition, not a citation: "Table 3. Baseline characteristics" (legend) vs "Table 3
+# shows…" (citation). Series is keyed by the number's S-prefix, exactly as the body-
+# citation scan keys it, so a defined float and its in-text citation land in the same
+# series and never produce a spurious mismatch.
+FLOAT_DEF_RE = re.compile(
+    r"(?im)^\s{0,3}\**\s*(?:Supplementary\s+|Suppl\.?\s+|Online\s+|e-?)?"
+    r"(Table|Figure)\s+(S?\d+)\s*[.:|]")
+# The references/bibliography list is back matter too but is not a source of float
+# definitions; truncate the definition scan there so a "Fig. 3" inside a citation string
+# cannot be read as a legend.
+REF_HEADER_RE = re.compile(r"(?im)^#{1,6}\s*\**\s*(references|bibliography)\b")
 
 # In-text reference to a numbered section ("as reported in Section 3.4"). Many
 # medical journals typeset UNNUMBERED headings (house style), so a "Section N"
@@ -155,12 +173,59 @@ def _first_appearance(text: str):
     return order
 
 
+def _defined_floats(text: str) -> set[tuple[str, int]]:
+    """{(series_label, number)} for every float DEFINED by a legend/caption line in the
+    back matter (references excluded). Keyed the same way as a body citation."""
+    m = REF_HEADER_RE.search(text)
+    legends = text[: m.start()] if m else text
+    out: set[tuple[str, int]] = set()
+    for dm in FLOAT_DEF_RE.finditer(legends):
+        kind = "table" if dm.group(1).lower() == "table" else "figure"
+        supp = dm.group(2)[0].lower() == "s"
+        num = int(dm.group(2).lstrip("Ss"))
+        out.add((SERIES_LABEL[(kind, supp)], num))
+    return out
+
+
+def _cited_floats(body: str) -> set[tuple[str, int]]:
+    """{(series_label, number)} cited at least once in the narrative body."""
+    return {(label, n) for label, nums in _first_appearance(body).items() for n in nums}
+
+
+def _check_uncited_floats(clean: str) -> list[dict]:
+    """A float DEFINED by a legend/caption but never cited in the narrative body is a
+    display item the reader is never pointed to — editorial offices and reviewers reject
+    uncited tables/figures/supplements (DIR-4084: three supplements shipped uncited)."""
+    m = BACK_MATTER_RE.search(clean)
+    if not m:
+        return []  # no legends/back matter -> nothing is "defined" to check against
+    body_only = clean[: m.start()]
+    defined = _defined_floats(clean[m.start():])
+    if not defined:
+        return []
+    cited = _cited_floats(body_only)
+    claims = []
+    for label, num in sorted(defined - cited):
+        prefix = "S" if label.startswith("Supplementary") else ""
+        claims.append({
+            "verdict": "UNCITED_FLOAT",
+            "severity": "Minor",
+            "detail": (f"{label} {prefix}{num} has a legend/caption but is never cited in the "
+                       f"main text — cite it at least once or remove it (editorial offices and "
+                       f"reviewers flag display items the narrative never points to)"),
+            "where": f"{label} {prefix}{num}",
+        })
+    return claims
+
+
 def check(text: str, include_back_matter: bool) -> list[dict]:
     claims = []
     # Strip any leading YAML front matter first: a `status:`/changelog block that narrates a
     # display-item renumber ("old Table 1 -> Supplementary Table S2") is not a body citation.
-    body = _body(strip_frontmatter(text), include_back_matter)
+    clean = strip_frontmatter(text)
+    body = _body(clean, include_back_matter)
     claims += _check_section_xref(body)
+    claims += _check_uncited_floats(clean)
     order = _first_appearance(body)
     for label in ("Table", "Figure", "Supplementary Table", "Supplementary Figure"):
         seq = order.get(label)

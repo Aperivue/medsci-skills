@@ -68,6 +68,20 @@
 
 ### Added
 
+- **`/self-review` `check_citation_order` — `UNCITED_FLOAT`: a display item with a legend but
+  no in-text citation.** The gate already checked that cited floats appear in ascending order; it
+  never checked that a float which *exists* is cited at all. A DIR-4084 galley proof shipped with
+  three supplements (PRISMA checklist, flow data, a 2×2 reconciliation) that carried full captions
+  but were never cited anywhere in the main text — editorial offices and reviewers reject uncited
+  tables/figures/supplements, and nothing flagged it. The detector now parses float definitions
+  (legend/caption lines: `**Supplementary Table S7.** …`, `Figure 2 | …`) out of the back matter —
+  excluding the reference list — and emits `UNCITED_FLOAT` (Minor) for any that the narrative body
+  never cites. A float cited only inside its own legend still counts as uncited. Scoped to the
+  back-matter headers the order scan already recognises (Figure Legends, Table Legends, Tables,
+  Supplementary), so a float defined only in a separate supplement file is out of scope (that needs
+  the supplement file as a second input). Count-neutral: a new verdict on an existing detector, not
+  a new detector.
+
 - **`/self-review` `check_cohort_arithmetic` — `NESTED_MODEL_NO_BASELINE`: nested discrimination
   models with no base-model row.** A table reported C-indices for several nested models that all
   embedded age + sex (CMB+age+sex = 0.667, MetS+age+sex = 0.671, …) but had **no age+sex-only baseline
