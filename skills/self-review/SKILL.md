@@ -653,14 +653,11 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/check_citation_order.py" \
 python3 "${CLAUDE_SKILL_DIR}/scripts/check_null_calibration.py" \
   --manuscript manuscript.md --out qc/null_calibration.json --strict
 
-# 5b. a headline OR/HR/RR whose 95% CI spans an order of magnitude is a direction, not a
-#     magnitude; and events/covariates < 10 (EPV) produces exactly that instability
+# 5b. a headline OR/HR/RR whose 95% CI spans an order of magnitude (a direction, not a magnitude), or events/covariates < 10 (EPV)
 python3 "${CLAUDE_SKILL_DIR}/scripts/check_effect_stability.py" \
   --manuscript manuscript.md --out qc/effect_stability.json --strict
 
-# 5c. incorporation bias — a trajectory-defined reference standard (benign by resolution/
-#     decrease/stability) with a trajectory predictor (growth) reported as associated with the
-#     outcome; the predictor is built into the reference standard
+# 5c. incorporation bias — a trajectory-defined reference standard with a trajectory predictor (growth) reported as associated with the outcome
 python3 "${CLAUDE_SKILL_DIR}/scripts/check_incorporation_bias.py" \
   --manuscript manuscript.md --out qc/incorporation_bias.json --strict
 
