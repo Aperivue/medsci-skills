@@ -2,7 +2,26 @@
 
 ## [Unreleased]
 
-## [5.22.0] - 2026-07-21
+### Added
+
+- **`/self-review` — two deterministic gates promoted from the field-feedback backlog, both as
+  verdicts on detectors that already run (no new counted detector).**
+  - **`check_cohort_arithmetic` now reads a PROSE partition, not only tables/CSV** (`PARTITION_OVERLAP`).
+    A sentence that presents an exhaustive split of a stated total — "of the 289 cases, 37 (12.8%) …
+    185 (64.0%) … 103 (35.6%) …" — but whose counts do not sum to the total (325 ≠ 289) or whose
+    percentages do not sum to ~100% (112.4%) has mixed a non-exclusive component in among the
+    mutually exclusive categories: a "these don't add to N" reviewer flag that every section echoes
+    consistently. A **partition-cue gate** keeps it off legitimate overlapping-attribute prose —
+    comorbidity prevalence ("210 (72.7%) had hypertension, 140 (48.4%) had diabetes, …") is not a
+    partition and its counts legitimately sum above N; the test pins that precision case as a
+    must-stay-silent negative.
+  - **`check_claim_artifact` now checks registration chronology** (`REGISTRATION_CHRONOLOGY`, Major).
+    A "prospectively registered" claim is falsifiable against the manuscript's own dates: if the
+    registration date postdates search completion, the review was registered *retrospectively*. The
+    check is manuscript-internal (no external pre-registration artifact needed) and fires only when a
+    prospective claim co-occurs with a registry and both dates parse and registration > search-end —
+    the exact overclaim that recurred across two projects while the prose-only panel probe slipped on
+    the second. Reframe to "registered with" or correct the chronology.
 
 **Hotfix:** three bundled reporting checklists that shipped in v5.21.0 and earlier — TRIPOD+AI, CLEAR,
 and MI-CLEAR-LLM — mis-stated their official item structure, so `/check-reporting` audited manuscripts

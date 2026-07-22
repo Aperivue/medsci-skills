@@ -101,5 +101,17 @@ d=json.load(open('$OUT'))
 raise SystemExit(0 if not any(c['verdict']=='PRIMARY_LABEL_CODE_DRIFT' for c in d['claims']) else 1)
 "
 
+# Registration chronology (manuscript-internal, no --prereg needed): a
+# "prospectively registered" claim whose registration date (16 Apr 2026) postdates
+# search completion (31 Mar 2026) -> REGISTRATION_CHRONOLOGY (Major), exit 1.
+RB="$HERE/fixtures/claim_registration_bad.md"
+python3 "$SCRIPT" --manuscript "$RB" --out "$OUT" --strict >/dev/null 2>&1
+check "exit 1 on retrospective registration under a prospective claim" test "$?" -eq 1
+check "REGISTRATION_CHRONOLOGY detected" has_verdict REGISTRATION_CHRONOLOGY
+# Silent when registration precedes search-end, and when no "prospective" claim is made.
+RC="$HERE/fixtures/claim_registration_clean.md"
+python3 "$SCRIPT" --manuscript "$RC" --strict >/dev/null 2>&1
+check "exit 0 on genuinely-prospective + no-prospective-claim registrations" test "$?" -eq 0
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"
