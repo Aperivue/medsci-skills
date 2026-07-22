@@ -653,6 +653,11 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/check_citation_order.py" \
 python3 "${CLAUDE_SKILL_DIR}/scripts/check_null_calibration.py" \
   --manuscript manuscript.md --out qc/null_calibration.json --strict
 
+# 5b. a headline OR/HR/RR whose 95% CI spans an order of magnitude is a direction, not a
+#     magnitude; and events/covariates < 10 (EPV) produces exactly that instability
+python3 "${CLAUDE_SKILL_DIR}/scripts/check_effect_stability.py" \
+  --manuscript manuscript.md --out qc/effect_stability.json --strict
+
 # 6. reader/observer study only — prove the (call × confidence) → score encoding is strictly
 #    monotonic; a folded score silently mis-estimates the AUC and no prose review can see it
 python3 "${MEDSCI_SKILLS_ROOT}/skills/analyze-stats/scripts/rating_monotonicity.py" \

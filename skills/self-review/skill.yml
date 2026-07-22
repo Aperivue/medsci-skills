@@ -61,5 +61,6 @@ validation_commands:
   - "bash scripts/check_reported_p_from_counts_challenge/verify.sh  # recompute row P from 2x2 counts"
   - "bash scripts/check_dta_denominators_challenge/verify.sh  # sens/spec denominators vs reference-standard counts"
   - "bash scripts/check_paired_difference_estimator_challenge/verify.sh  # median parity / degenerate CI / unnamed estimator"
+  - "bash scripts/check_effect_stability_challenge/verify.sh  # CI upper/lower ratio > 10x + events-per-variable < 10"
   - "feed R0-numbered output into /revise"
 evidence_surface: demo

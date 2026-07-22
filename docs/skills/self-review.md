@@ -41,6 +41,7 @@
 - `bash scripts/check_reported_p_from_counts_challenge/verify.sh  # recompute row P from 2x2 counts`
 - `bash scripts/check_dta_denominators_challenge/verify.sh  # sens/spec denominators vs reference-standard counts`
 - `bash scripts/check_paired_difference_estimator_challenge/verify.sh  # median parity / degenerate CI / unnamed estimator`
+- `bash scripts/check_effect_stability_challenge/verify.sh  # CI upper/lower ratio > 10x + events-per-variable < 10`
 - `feed R0-numbered output into /revise`
 
 **Evidence** — `demo`
@@ -69,6 +70,8 @@
 - `check_dta_denominators.py`
 - `check_dta_denominators_challenge/` (6 files)
 - `check_editorial_impression.py`
+- `check_effect_stability.py`
+- `check_effect_stability_challenge/` (6 files)
 - `check_emphasis_density.py`
 - `check_figure_citation.py`
 - `check_nested_group_comparison.py`

@@ -456,6 +456,9 @@ jobs:
       - name: Run self-review paired-difference-estimator challenge (median parity / degenerate CI)
         run: bash skills/self-review/scripts/check_paired_difference_estimator_challenge/verify.sh
 
+      - name: Run self-review effect-stability challenge (76-fold CI + low EPV vs tight CI + caveat)
+        run: bash skills/self-review/scripts/check_effect_stability_challenge/verify.sh
+
       - name: Run analyze-stats generated-code gate test
         run: bash skills/analyze-stats/tests/test_generated_code.sh
 
