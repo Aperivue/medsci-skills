@@ -1,6 +1,6 @@
 ---
 name: humanize
-description: Detect and remove AI writing patterns from academic manuscripts and response-to-reviewers letters. Scans for 25 common AI-generated text patterns and rewrites flagged passages to sound naturally human-written while preserving technical accuracy, bounding how much of the text a rewrite is allowed to touch.
+description: Detect and remove AI writing patterns from academic manuscripts and response-to-reviewers letters. Scans for 26 common AI-generated text patterns and rewrites flagged passages to sound naturally human-written while preserving technical accuracy, bounding how much of the text a rewrite is allowed to touch.
 triggers: humanize, AI patterns, AI 문체, remove AI writing, make it sound natural, 자연스럽게, de-AI
 tools: Read, Write, Edit, Grep, Glob, Bash
 model: inherit
@@ -20,7 +20,7 @@ wrote it, while preserving every technical claim, number, and citation.
 
 ## Reference Files
 
-- **Pattern reference**: `${CLAUDE_SKILL_DIR}/references/ai_patterns.md` -- full 25-pattern list with expanded examples for medical/radiology manuscripts (Pattern 19–21 are senior-MA-reviewer red flags; Pattern 25 is a typographic tell applying to any prose; Pattern 22–24 are response-to-reviewers letter patterns)
+- **Pattern reference**: `${CLAUDE_SKILL_DIR}/references/ai_patterns.md` -- full 26-pattern list with expanded examples for medical/radiology manuscripts (Pattern 19–21 are senior-MA-reviewer red flags; Patterns 25–26 are style tells applying to any prose, typographic and rhythmic respectively; Pattern 22–24 are response-to-reviewers letter patterns)
 - **Source material**: Patterns 1-18 are inherited from matsuikentaro1/humanizer_academic and Wikipedia, "Signs of AI writing"; their thresholds are conventional rather than measured on a medical corpus. Patterns 19-25 come from observed reviewer, co-author, and rebuttal rounds. `references/ai_patterns.md` records the grounding per pattern.
 
 Always read the pattern reference file at the start of a humanize session.
@@ -267,6 +267,7 @@ the pass/fail status.
 | Pattern 19 — `§` symbol | ENFORCED (senior MA reviewer prep) | `grep -c "§" manuscript.md` > 0 | auto-strip; verify post-rewrite count == 0 |
 | Pattern 20 — `(see Methods §X)` self-reference | ENFORCED | match found | rewrite to direct section name reference |
 | Pattern 21 — AI Disclosure paragraph in body | ENFORCED | "Generative AI was not used..." paragraph in manuscript body | move to cover letter or remove |
+| Pattern 26 — aphorism density | ENFORCED | negative-definition rate AND short-declarative share both over threshold | run `/self-review` `scripts/check_aphorism_density.py --manuscript manuscript.md`; `APHORISM_DENSITY` (Minor) means the prose is a run of epigrams with the explanatory sentences compressed out — absorb most of them into the neighbouring sentence and write the explanation back, keeping two or three for emphasis; do NOT simply delete them, which shortens the prose further |
 | Pattern 25 — inline-emphasis over-use | ENFORCED | italic-emphasis density over threshold after allowlist | run `/self-review` `scripts/check_emphasis_density.py --manuscript manuscript.md`; `EMPHASIS_OVERUSE` (Minor) means strip inline italics (keep only stat symbols / Latin / gene-species); whole-clause italics are the strongest tell |
 | Patterns 22-24 — R2R editing-mechanism / draft line-number / tooling leak | TRIAGE (response letters); `§` = 0 hard | detection greps in ai_patterns.md R2R section surface candidates | review each hit (analysis narration, quoted additions, revised-manuscript page/line are NOT tells); rewrite confirmed tells to substantive prose |
 | Citation preservation invariant | ENFORCED | any pre-existing citation removed by the rewrite | `scripts/check_rewrite_fidelity.py --before <pre> --after <post> --strict` → `CITATION_DROP` (Major); revert that single rewrite and flag for the user |

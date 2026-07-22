@@ -443,6 +443,43 @@ never flagged. A whole-clause italic span carries an escalation note — it is t
 **Fix strategy:** Delete the emphasis and let word order carry the stress. If the sentence
 genuinely needs the contrast, rewrite it so the contrast is structural rather than typographic.
 
+### Pattern 26: Aphorism Density (Every Sentence Lands, None Explains)
+
+LLM-drafted argumentative prose writes in epigrams. Each sentence is built to be quotable,
+and the sentences that merely carry information forward — the ones a human writer puts
+between the good lines — are missing. Two co-occurring signals make this measurable: the
+**negative definition** (`X is not Y` as a whole short sentence) and a high share of **very
+short declaratives** used as punchlines. Found when an external reader said a heavily
+revised draft was "clearer, but still reads like AI", and the cause turned out to be rhythm
+rather than grammar.
+
+**Watch for:** "Authority is not cognition." "Involvement is not independence." "It did
+not." "It is not one." "It cost more than it paid." Any paragraph whose every sentence
+could be pulled out and put on a slide.
+
+| # | BAD | GOOD |
+|---|-----|------|
+| 1 | "Agreement is not confirmation. The circle does not merely overlap. It is dragged inward." | "Agreement here is not confirmation, because the tool is working from the reader's own framing; rather than overlapping the reader's error, its error is pulled toward it." |
+| 2 | "That answer is only half-built. It is not sufficient." | "That answer is only half-built, and the missing half is the part the safety argument actually rests on." |
+| 3 | "Involvement is not independence. Partial decorrelation is not independence either." | "Involvement is not independence, and partial decorrelation does not close the gap either, since the bound assumes the stronger property." |
+
+**Calibration.** Across eight published *npj Digital Medicine* Perspectives, cleaned to body
+prose, the negative-definition rate ran 0.00–0.45% of sentences (seven of eight were 0.00%)
+and the short-declarative share 0.94–10.47%. A manuscript at 2% and 24% is outside that
+range on both axes.
+
+**Detection:** `/self-review` `scripts/check_aphorism_density.py --manuscript manuscript.md`
+→ `APHORISM_DENSITY` (Minor). Fires only when BOTH rates clear thresholds set above the
+observed published maxima, so ordinary emphatic prose does not trip it. Use `--calibrate`
+to regenerate thresholds on your own corpus; the shipped numbers come from argumentative
+Perspectives and another genre may sit elsewhere.
+
+**Fix strategy:** Do not delete the epigrams — two or three are what a reader remembers.
+Absorb most of them into the neighbouring sentence and write back the explanatory sentence
+that was compressed out. Deleting them instead of absorbing them shortens the prose further
+and makes the problem worse.
+
+
 ---
 
 ## Response-Letter Patterns (R2R)
