@@ -4,6 +4,23 @@
 
 ### Fixed
 
+- **The classroom ZIP shipped no licence text at all, and GitHub could not detect our
+  licence.** Two defects with one root cause. `LICENSE` was MIT followed by an appended
+  third-party index, so GitHub's detector fell back to `NOASSERTION` / "Other" — the repo
+  page did not say MIT, awesome-list submissions carried `license: NOASSERTION`, and any
+  institution whose legal review gates on a recognised SPDX identifier saw an unlicensed
+  package. Separately, `build_classroom_release.py` never included `LICENSE` in the ZIP:
+  the distribution aimed at non-programmers went out with neither the MIT notice that MIT
+  itself requires be included in "all copies", nor the **CC BY-NC** terms on the bundled
+  CARE / MI-CLEAR-LLM / DECIDE-AI checklist summaries, which restrict commercial use and
+  which a classroom user had no other way to learn about. `LICENSE` is now the unmodified
+  MIT text; the index moved to **`THIRD-PARTY-NOTICES.md`**, which ships in both the
+  classroom ZIP and the npm tarball and stays under `check_third_party_index.py` (whose
+  messages now name the file you actually have to edit). The extraction allowlist
+  (`gen_distribution_manifest.py` `PAYLOAD_ROOTS`) and the independent scope-pinning oracle
+  in `test_distribution_manifest.py` were widened deliberately, not incidentally — without
+  the allowlist entry `update.safe_extract` would have rejected the new files as unlisted.
+
 - **`/self-review` `check_panel_diversity` — a statistics-dedicated reviewer no longer
   reads as a missing `statistics` axis.** `UNCOVERED_AXIS` (Major) fires when a research
   type's expected axis has zero major findings assigned to it, and the family classifier's

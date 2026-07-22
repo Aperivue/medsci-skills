@@ -40,7 +40,11 @@ def classroom_payload() -> set[str]:
     excl = {"__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache", "node_modules", ".git", "tests", ".logs"}
     exclf = {".DS_Store"}
     payload: set[str] = set()
-    for root in ("README_FIRST.md", "installers", "skills"):
+    # Deliberately re-derived here rather than imported: this is the independent oracle that
+    # catches the payload scope widening by accident. Widening it on purpose means editing
+    # this tuple too. LICENSE + THIRD-PARTY-NOTICES.md ship so the MIT notice and the
+    # CC BY-NC terms travel with every classroom copy.
+    for root in ("README_FIRST.md", "LICENSE", "THIRD-PARTY-NOTICES.md", "installers", "skills"):
         p = ROOT / root
         if p.is_file():
             payload.add(p.relative_to(ROOT).as_posix())

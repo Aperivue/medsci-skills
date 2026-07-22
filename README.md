@@ -954,6 +954,8 @@ These skills are research productivity tools. They do **not** provide clinical d
 
 MIT License. See [LICENSE](LICENSE) for details.
 
+Some bundled material is **not** ours and is not MIT: the official guideline templates, the CSL citation styles, and a few checklist summaries carry their own terms — including CC BY-NC, which restricts commercial use. Those are indexed in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md), which ships with every copy and is checked against the tree on every build.
+
 Bundled reporting guideline checklists retain their original Creative Commons licenses. See each checklist file for attribution.
 
 Optional dependency: `pdf_to_md.py` uses [pymupdf4llm](https://pymupdf.readthedocs.io) (AGPL-3.0). Not bundled -- installed separately by the user via `pip install pymupdf4llm`.

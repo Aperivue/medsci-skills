@@ -2,9 +2,19 @@
   "schema_version": 1,
   "files": [
     {
+      "path": "LICENSE",
+      "size": 1088,
+      "sha256": "e4599f70211d12bf90f895c7c9fc9078c6be256362d35a30612e6cfff0b93159"
+    },
+    {
       "path": "README_FIRST.md",
-      "size": 845,
-      "sha256": "b359c9214ce261265e2820a74902ff8b6d331e05270e475ded3b5fc06781ca65"
+      "size": 1296,
+      "sha256": "8758afb5e7e336a363e98a3d0fa033bbcaf8eee5c5b21fd80364fd1a604731f6"
+    },
+    {
+      "path": "THIRD-PARTY-NOTICES.md",
+      "size": 3430,
+      "sha256": "40a64f857160a35c82cb8a0bdb2243c0c18521f586330fd481e3cebdba044ba4"
     },
     {
       "path": "installers/check-setup-macos.command",
