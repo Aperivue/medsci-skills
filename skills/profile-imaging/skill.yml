@@ -1,0 +1,48 @@
+schema_version: 2
+name: profile-imaging
+layer: D
+owner_domain: model_validation
+maturity: official
+
+when_to_use: "Profile a medical-imaging dataset BEFORE any modelling decision — acquisition grid, voxel spacing and orientation spread, intensity domain, label values actually present, foreground fraction and target volume — then gate that profile against the declared plan. Catches, while it is still cheap, the dataset facts that otherwise surface after a training run: a 'test set' with no ground truth, a label grid that does not match its image, a stray label index, accuracy planned against a target occupying a fraction of a percent, and acquisition heterogeneity with no declared resampling decision."
+when_NOT_to_use: "Tabular/clinical variables (use generate-codebook for the data dictionary, clean-data for cleaning); designing the preprocessing pipeline or auditing data-stage leakage (use preprocess-imaging — it consumes this profile); auditing the train/val/test split table (use model-validation); choosing an architecture (use architecture-zoo); building the training repo (use model-scaffold); held-out metrics, calibration or subgroup results (use model-evaluation then analyze-stats)."
+
+inputs:
+  - "image directories in NIfTI (MSD / nnU-Net / AMOS layout: images and labels matched by filename), one --split per partition"
+  - "the declared label set (index -> name)"
+  - "the declared plan: resampling, reorientation, loss family, planned metrics"
+outputs:
+  - "dataset-profile JSON (one record per case: grid, spacing, orientation, intensity percentiles, label values present, foreground fraction, target volume in mL)"
+  - "dataset-profile audit JSON (deterministic verdicts)"
+  - "decision notes for the study record: resampling target, loss/metric family, pre-specified subgroups, held-out provenance, cohort limitations"
+deterministic_scripts:
+  - scripts/check_dataset_profile.py
+side_effects:
+  - writes_decision_notes
+downstream_consumers:
+  - preprocess-imaging
+  - design-study
+  - model-scaffold
+  - model-evaluation
+  - write-paper
+forbidden_actions:
+  - report_a_profile_figure_not_computed_from_the_files
+  - assume_label_indices_or_spacings_instead_of_opening_the_data
+  - report_a_profile_audit_pass_without_running_the_detector
+  - use_an_unlabelled_split_as_a_held_out_test_set
+
+# v2.1 quality card
+purpose: "Establish what a medical-imaging dataset actually is — and what it will not support — before a plan is committed to, so the choices that follow (resampling target, loss and metric family, pre-specified subgroups, where the held-out set comes from) rest on measured facts rather than on tutorial defaults."
+safety_boundaries:
+  - "Describe-and-audit only: never modifies, resamples, reorients, splits, or writes image data."
+  - "Every profile figure is computed from the files by the profiler; the gate re-derives every verdict from that JSON by rule and arithmetic, never from prose."
+  - "The gate is stdlib-only, so an audit can be reproduced anywhere the profile JSON travels — no nibabel, no images, no network."
+known_limitations:
+  - "Profiles the files as they sit on disk: a mislabelled split name or a wrong --declared-labels argument is taken at face value, and DICOM metadata (scanner, vendor, protocol) is not read — vendor/centre subgroups need that metadata from elsewhere."
+  - "--spacing-ratio and --imbalance-frac are screening defaults, not published cut-points; they are printed in the output so a reader can see what was applied."
+  - "A clean profile is necessary, not sufficient: preprocessing leakage (preprocess-imaging), split disjointness (model-validation) and held-out metric choice (model-evaluation) are separate gates."
+validation_commands:
+  - "python3 scripts/check_dataset_profile.py --profile <profile.json> --strict"
+  - "bash scripts/check_dataset_profile_challenge/verify.sh  # deterministic, network-free"
+  - "bash tests/test_dataset_profile.sh"
+evidence_surface: ci_validator
