@@ -4,6 +4,22 @@
 
 ### Added
 
+- **`/meta-analysis` — `check_exclusion_code_validity` (detector 71 → 72): a screening code that
+  excludes a design the protocol INCLUDES.** A review whose protocol admitted single-arm case series
+  removed three eligible studies under a "not comparative" code. The screening sheet was internally
+  perfect — the reviewers agreed, every count reconciled — because the defect was in the *legend*, above
+  the cells, where no consistency, arithmetic, or inter-rater gate looks. The detector parses the
+  exclusion codes actually applied in the screening artifacts and cross-checks each against the
+  registered protocol: `CODE_CONTRADICTS_ELIGIBILITY` (Major — a code excludes a design/population that
+  the protocol's own *non-negated* eligibility text names as eligible; the bulk study-loss defect),
+  `CODE_NOT_REGISTERED` (Major — an off-protocol code, also PRISMA item 16a registered-vs-used drift),
+  and `CODE_RENUMBERED` (Minor — the same code number carries two meanings). Conservative: it stays
+  silent unless it can prove the defect (a missing legend or eligibility text → clean, never a false
+  positive on absence), and a code that correctly excludes a design the protocol *excludes* does not
+  fire. Ships a challenge card (a single-arm-eligible protocol + a "not comparative" code as positive vs
+  a comparator-required protocol where the very same code is correct as negative) run in CI. Grounding:
+  real-failure.
+
 - **`scripts/run_ci_mirror.py` (+ `.sh`) — the pre-push CI mirror that cannot drift.** The "run the
   gates locally before you push" instruction lived as a hand-copied list in CONTRIBUTING and a global
   rule; `.github/workflows/validate.yml` has ~170 `run:` steps. A copied subset drifts silently and is

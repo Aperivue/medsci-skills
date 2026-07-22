@@ -339,6 +339,9 @@ jobs:
       - name: Run meta-analysis pool-consistency test
         run: bash skills/meta-analysis/tests/test_pool_consistency.sh
 
+      - name: "Run meta-analysis exclusion-code-validity challenge (code excludes an eligible design -> fires; correct exclusion -> clean)"
+        run: bash skills/meta-analysis/scripts/check_exclusion_code_validity_challenge/verify.sh
+
       - name: Run generate-codebook test
         run: bash skills/generate-codebook/tests/test_generate_codebook.sh
 

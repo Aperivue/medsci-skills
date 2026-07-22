@@ -29,6 +29,7 @@
 - `python3 scripts/screening_reconcile.py`
 - `python3 scripts/check_pool_consistency.py`
 - `bash scripts/extract_assist_challenge/verify.sh  # deterministic, network-free`
+- `bash scripts/check_exclusion_code_validity_challenge/verify.sh  # deterministic, network-free`
 
 **Evidence** — `demo`
 
@@ -57,6 +58,8 @@
 
 **Scripts** (`skills/meta-analysis/scripts/`):
 
+- `check_exclusion_code_validity.py`
+- `check_exclusion_code_validity_challenge/` (6 files)
 - `check_pool_consistency.py`
 - `cohort_overlap_check.py`
 - `dta_extraction_qc.py`
