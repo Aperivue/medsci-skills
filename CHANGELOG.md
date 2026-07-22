@@ -4,6 +4,18 @@
 
 ### Added
 
+- **`scripts/run_ci_mirror.py` (+ `.sh`) — the pre-push CI mirror that cannot drift.** The "run the
+  gates locally before you push" instruction lived as a hand-copied list in CONTRIBUTING and a global
+  rule; `.github/workflows/validate.yml` has ~170 `run:` steps. A copied subset drifts silently and is
+  caught only by a red CI *after* a push — the failure this repo kept hitting (a gate added to the
+  workflow, or a `--strict` flag, that the prose list never learned about). The helper parses the
+  workflow, extracts the `validate` job's `run:` steps **in order**, and executes each one exactly as
+  CI does (`bash -e -c`), so the list can never diverge and every gate's flags come along. It skips
+  `uses:` steps and dependency-install steps (a gate that then needs a missing tool fails loudly, not
+  silently). `--list` shows the gates, `--fail-fast` stops at the first failure, `--only SUBSTR` runs
+  one. CONTRIBUTING now points at it instead of a subset; `tests/test_run_ci_mirror.sh` (CI) asserts it
+  enumerates the real gates and excludes setup steps. Not a detector (catalog unchanged).
+
 - **`/self-review` — `check_incorporation_bias` (detector 68 → 69): the reference standard and the
   predictor are the same construct.** A nodule study classified nodules benign by "complete resolution
   / decrease in diameter / size stability" — every tier a form of *not growing* — and then reported

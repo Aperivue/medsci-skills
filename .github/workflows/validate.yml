@@ -38,6 +38,9 @@ jobs:
       - name: "Workflow-yaml gate self-test (a runless step and an unquoted ': ' must both fail)"
         run: bash tests/test_workflow_yaml.sh
 
+      - name: Run run-ci-mirror self-test (the local mirror must enumerate the real gates)
+        run: bash tests/test_run_ci_mirror.sh
+
       - name: Run validate_skills.sh (PII + structure)
         run: bash scripts/validate_skills.sh
 
