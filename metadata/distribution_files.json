@@ -4498,8 +4498,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_scope_coherence.py",
-      "size": 17273,
-      "sha256": "9508c6f84f1971fea99500aba9bf9bf3d7045dba14e8a2d67053f32e4e0b06f8"
+      "size": 21565,
+      "sha256": "8832be5b380f340cb34f3228fd1e16632245ac97661ca0fb5955120a7bc9507e"
     },
     {
       "path": "skills/self-review/scripts/check_supplement_hygiene.py",
