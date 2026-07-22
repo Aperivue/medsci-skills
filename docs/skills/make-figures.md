@@ -53,6 +53,7 @@
 
 **Scripts** (`skills/make-figures/scripts/`):
 
+- `_strobe_cascade.py`
 - `build_jacc_template.py`
 - `build_prisma2020_template.py`
 - `build_strobe_template.py`

@@ -59,6 +59,8 @@ import json
 import sys
 from pathlib import Path
 
+from _strobe_cascade import check_cascade
+
 try:
     import yaml
     HAS_YAML = True
@@ -337,11 +339,23 @@ def main():
     p = argparse.ArgumentParser(description="Build an editable STROBE flow diagram .pptx from a YAML config.")
     p.add_argument("--config", required=True, type=Path, help="YAML/JSON STROBE config")
     p.add_argument("--out",    required=True, type=Path, help="Output .pptx path")
+    p.add_argument("--strict-cascade", action="store_true",
+                   help="refuse to build if the exclusion cascade does not close "
+                        "(A - sum(exclusions after A) != next box)")
     args = p.parse_args()
 
     cfg = load_config(args.config)
     if not isinstance(cfg, dict):
         sys.exit(f"Config root must be a mapping; got {type(cfg)}")
+
+    # The numbers a reviewer sees are in the figure, not the prose — assert the cascade closes
+    # before rendering. Warn loudly by default; refuse under --strict-cascade.
+    cascade = check_cascade(cfg)
+    for f in cascade:
+        sys.stderr.write(f"⚠️  {f['detail']}\n")
+    if cascade and args.strict_cascade:
+        sys.exit("STROBE cascade does not close; refusing to build (drop --strict-cascade "
+                 "to build anyway).")
 
     build(cfg, args.out)
     print(f"Wrote {args.out}")

@@ -4,6 +4,20 @@
 
 ### Added
 
+- **`/make-figures` — STROBE flow diagrams now assert their own exclusion cascade closes.** The
+  numbers a reviewer actually sees live as text in the figure, generated from a YAML config,
+  and can drift from the prose the manuscript gates check. A real cohort figure once read
+  "500 excluded → N = 9,470" while the enrolled box said 10,000, so 10,000 − 500 = 9,500, not
+  9,470 — a second exclusion, present in the legend, had been dropped from the figure, and it
+  survived a full round of peer review because figure-image numbers are text-grep blind. `build_strobe_template.py` now checks
+  that every declared exclusion link balances (`A − Σ(exclusions after A) == next box`): it warns
+  loudly on any imbalance and, with `--strict-cascade`, refuses to build. The check is a private
+  helper (`scripts/_strobe_cascade.py`) runnable standalone without python-pptx, so it travels
+  with the config. Low false-positive by construction — a link is checked only when an exclusion
+  is actually declared after it (a branching Analysis leaf with no exclusion between siblings is
+  never treated as a cascade step) and a box with no `n = …` count is skipped, not guessed.
+  Count-neutral: a build-time validation, not a new detector.
+
 - **`/profile-imaging` — the step that sets the research direction had no skill.** The model
   lane could design a preprocessing pipeline (`preprocess-imaging`), prove a split disjoint
   (`model-validation`) and pick metrics (`model-evaluation`), but nothing established *what the
