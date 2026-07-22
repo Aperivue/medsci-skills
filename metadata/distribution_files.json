@@ -2533,8 +2533,8 @@
     },
     {
       "path": "skills/meta-analysis/SKILL.md",
-      "size": 40295,
-      "sha256": "647df27bae2875947c7c93c132254563d237a65afba65b2c6713dd715ea334af"
+      "size": 40889,
+      "sha256": "be26a0fe7dc29e46f53ab9362d4095beb822f7648093e1a1721e0fb48306aa6c"
     },
     {
       "path": "skills/meta-analysis/references/LICENSES.md",
@@ -2657,6 +2657,41 @@
       "sha256": "b995470dedb4d3e353931b5290d0ff6a1ce330637c218a88f2223084fdc8b5ba"
     },
     {
+      "path": "skills/meta-analysis/scripts/check_exclusion_code_validity.py",
+      "size": 17073,
+      "sha256": "c2fae19e401dc4bacd42e3e91748990062c0526573b7b89276b38c674fc67eaf"
+    },
+    {
+      "path": "skills/meta-analysis/scripts/check_exclusion_code_validity_challenge/fixture/protocol_negative.md",
+      "size": 617,
+      "sha256": "c62f0c93fe9c172c514577fd38a6b50b7d376033166998aaafff1a142408be01"
+    },
+    {
+      "path": "skills/meta-analysis/scripts/check_exclusion_code_validity_challenge/fixture/protocol_positive.md",
+      "size": 611,
+      "sha256": "9cc53398de9ccbdd9d73d2945bd945928f1e61f0cb881e68573f03725f238cae"
+    },
+    {
+      "path": "skills/meta-analysis/scripts/check_exclusion_code_validity_challenge/fixture/screening_negative.tsv",
+      "size": 186,
+      "sha256": "de40cb4f86ef8261f8f1068c05929ba7683e0207e66d43d22cd0601723b231d4"
+    },
+    {
+      "path": "skills/meta-analysis/scripts/check_exclusion_code_validity_challenge/fixture/screening_positive.tsv",
+      "size": 270,
+      "sha256": "5ff389ac0b7569cdcd82fe01a11a55442d3108f0aab5fcda8ddc4c651cf5680c"
+    },
+    {
+      "path": "skills/meta-analysis/scripts/check_exclusion_code_validity_challenge/problem.md",
+      "size": 2153,
+      "sha256": "9194930bb2e039367e84843bcea7769d9721284e2e1d92f369e723ce080b660e"
+    },
+    {
+      "path": "skills/meta-analysis/scripts/check_exclusion_code_validity_challenge/verify.sh",
+      "size": 2065,
+      "sha256": "b45b0587d351ccaaa45283562e26f6261bf0d50ff99d4a4e10547434e9929b26"
+    },
+    {
       "path": "skills/meta-analysis/scripts/check_pool_consistency.py",
       "size": 7129,
       "sha256": "0fa44cedbecded9a4ee671d34cc8ab659c7ffe0717358e987dfa8a28736f333d"
@@ -2713,8 +2748,8 @@
     },
     {
       "path": "skills/meta-analysis/skill.yml",
-      "size": 2359,
-      "sha256": "aa3057e994d93b8d37f871e151ef8f7717a0bfd5ddb9003c3e594b258b521bc4"
+      "size": 2630,
+      "sha256": "ec1a054a4a4c04169757100e8c1f4bf1079fa44d7a6fad3878d90b73526d50c4"
     },
     {
       "path": "skills/meta-analysis/templates/FINAL_POOL_LOCK.yaml.template",

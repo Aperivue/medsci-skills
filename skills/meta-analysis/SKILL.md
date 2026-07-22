@@ -540,6 +540,7 @@ Failure patterns observed across three prior MA projects (anonymized). Each topi
 
 | When | Script | Gate |
 |---|---|---|
+| Phase 3f reconciliation (before Phase 5 write-up) | `python3 ${CLAUDE_SKILL_DIR}/scripts/check_exclusion_code_validity.py --protocol 0_Protocol/protocol.md --screening 2_Screening/*.tsv --strict` | validates each applied exclusion code against the *registered* eligibility criteria: `CODE_CONTRADICTS_ELIGIBILITY` (a code excludes a design the protocol includes — the bulk study-loss defect no arithmetic/inter-rater gate can see), `CODE_NOT_REGISTERED` (off-protocol code), `CODE_RENUMBERED` (same code, two meanings). Challenge card: `scripts/check_exclusion_code_validity_challenge/`. |
 | Phase 4 kickoff (before first extraction row) | `python3 ${CLAUDE_SKILL_DIR}/../../scripts/extraction_consensus_log_init.py --output 2_Data/extraction_consensus_log.md` | DI-1: creates standalone consensus log so comparative arm-specific rows are never folded into R-script comments. |
 | Phase 3f reconciliation + every revision touching PRISMA numbers | `python3 ${CLAUDE_SKILL_DIR}/../../scripts/prisma_5way_consistency.py --ssot prisma.yaml` | DI-6: 5-surface drift check (abstract / main text / flow figure / supplement / CSV) against YAML SSOT. Non-zero exit blocks Phase 5 writeup. |
 | Phase 8 pre-submission + every journal retarget | `bash ${CLAUDE_SKILL_DIR}/../../scripts/tag_cleanup_gate.sh` | DI-8: fails if `VERIFY-CSV`/`TODO`/`FIXME`/`XXX` survive in `7_Manuscript`, `supplement`, `SUBMISSION`, etc. |
