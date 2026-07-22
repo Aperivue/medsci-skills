@@ -40,6 +40,7 @@ Scan the PDF **before** you feed it to any model, and feed the model the sanitiz
 (visible-only) text rather than the raw PDF.
 
 ```bash
+set -euo pipefail   # step 1 must not fail quietly into step 2's "no such file"
 S="${CLAUDE_SKILL_DIR}/scripts"
 # 1) extract the span manifest (needs PyMuPDF: pip install pymupdf)
 python3 "$S/scan_pdf_layers.py" manuscript.pdf -o review/{manuscript_id}/{manuscript_id}.manifest.json
@@ -61,10 +62,18 @@ guards *you* against an author's injection; it is unrelated to a venue's own
 canary text, and you should always follow the journal's stated policy on whether
 an LLM may touch a confidential manuscript at all (most prohibit uploading it).
 
+If step 1 dies, do not read step 2's error as the answer. The extractor writes no
+manifest on failure, so the detector then reports a missing file and the real
+traceback scrolls past — which is why `set -euo pipefail` is on the snippet. A
+scan that did not run is not a scan that found nothing.
+
 The formatting-based hiding (colour, size, position, render mode, metadata) is
 caught deterministically; the challenge card
 (`scripts/check_pdf_injection_challenge/`) proves it on synthetic fixtures in CI
-without PyMuPDF.
+without PyMuPDF. That card audits pre-written manifests, so it cannot see a fault
+in the extractor that produces them; `tests/test_scan_pdf_layers_xmp.sh` covers
+the XMP metadata read, whose failure silently disabled the metadata vector on
+every PDF that actually carried a packet.
 
 ### Phase 2: Manuscript Analysis
 

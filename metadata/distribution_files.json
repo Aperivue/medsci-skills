@@ -3053,8 +3053,8 @@
     },
     {
       "path": "skills/peer-review/SKILL.md",
-      "size": 78563,
-      "sha256": "63dfbcba8799036b171961ace420699c5e80776d42fa3b8a76fd17e9d2d9ce9c"
+      "size": 79206,
+      "sha256": "c7ae7922f6fee5d660cb9dfcd60fdeadfe0f43f8d0acc4ae2bc0b976861338bf"
     },
     {
       "path": "skills/peer-review/references/aczel_2021_reviewer2_patterns.md",
@@ -3338,8 +3338,8 @@
     },
     {
       "path": "skills/peer-review/scripts/scan_pdf_layers.py",
-      "size": 6216,
-      "sha256": "0bccc9b86e6e8caa47cb7e1897618459abe376aef8264114d7c4795c358fe2c3"
+      "size": 7474,
+      "sha256": "e25d16e0f5e80f45635419261939038a5ba2577fea17facc5f1a59fcc12cc5db"
     },
     {
       "path": "skills/peer-review/skill.yml",
