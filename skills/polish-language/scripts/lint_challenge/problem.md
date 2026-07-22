@@ -28,7 +28,7 @@ small number (`3 patients`), unit (`5mg`).
 
 ## Expected
 
-`expected/report.txt` — 10 issues across 7 categories.
+`expected/report.txt` — 11 issues across 8 categories.
 
 ## Baseline vs new gate
 

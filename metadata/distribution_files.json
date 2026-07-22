@@ -3353,28 +3353,28 @@
     },
     {
       "path": "skills/polish-language/scripts/lint_challenge/expected/report.txt",
-      "size": 826,
-      "sha256": "c3da9ac0ab5068aeed46886a56338344902480df2d64201188cefaf907557ec6"
+      "size": 1032,
+      "sha256": "bf7be677cd12d583fd958468a6e5ee7f08493cc5fd01a4f7c27af3770331da66"
     },
     {
       "path": "skills/polish-language/scripts/lint_challenge/fixture/manuscript.md",
-      "size": 611,
-      "sha256": "8be38bc72a10d235090dc96e18a277a3bcead24774bd502e06907343c61deb08"
+      "size": 709,
+      "sha256": "f2f64176108a72e54808da302a9f7b3c9060cd48692929864ea51a2239e3fe0a"
     },
     {
       "path": "skills/polish-language/scripts/lint_challenge/problem.md",
       "size": 2169,
-      "sha256": "45cec5c5bc23362bc7a2e4cedf312009ec3b7ce696621a3cc9fb3c1f34e0e74e"
+      "sha256": "69037c9d85cf1a29a77dc77cd61e879b9a6befcec945b808d71468fff4278490"
     },
     {
       "path": "skills/polish-language/scripts/lint_challenge/verify.sh",
       "size": 615,
-      "sha256": "66d8fff9ba2439a7f411f3a2f39a908805cc50407272b8355319ee21fb0c0660"
+      "sha256": "31ddc7fb64ac2f9180cdfa6a6ee15a29844c2e9c0955b83250b2c1b62f9e8fa6"
     },
     {
       "path": "skills/polish-language/scripts/lint_consistency.py",
-      "size": 11321,
-      "sha256": "4d87e42d4bfa523f880e8f33ece88a9db0c0e93efe17fa2d9942ddc29f2872e3"
+      "size": 12990,
+      "sha256": "e6f7034f8c53bbb6565cecff911b94497f9e4e3d003e707175186316ebce6811"
     },
     {
       "path": "skills/polish-language/skill.yml",
@@ -4123,8 +4123,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_citation_order.py",
-      "size": 8745,
-      "sha256": "9da14bf35e9a816c34f68fa57495f921f14c3fa8c161479be6fcc4dea56ad3c8"
+      "size": 11472,
+      "sha256": "e405065299cf1f5f46710cf0c3fb03228e7ce48aaa6b67c9289e1dc7dfb16055"
     },
     {
       "path": "skills/self-review/scripts/check_claim_artifact.py",

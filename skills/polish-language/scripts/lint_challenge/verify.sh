@@ -9,7 +9,7 @@ LINTER="$HERE/../lint_consistency.py"
 actual="$(python3 "$LINTER" "$HERE/fixture/manuscript.md")"
 
 if diff -u "$HERE/expected/report.txt" <(printf '%s\n' "$actual"); then
-  echo "PASS: linter report matches expected (10 seeded issues across 7 categories)."
+  echo "PASS: linter report matches expected (11 seeded issues across 8 categories)."
 else
   echo "FAIL: linter output drifted from expected/report.txt" >&2
   exit 1

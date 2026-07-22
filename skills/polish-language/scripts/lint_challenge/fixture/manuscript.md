@@ -15,3 +15,7 @@ One result showed P = 0.000 unexpectedly.
 Patients had regular follow-up, though some had no followup at all.
 The dose was 5mg daily.
 Healthcare access and health care equity were assessed.
+
+The cohort comprised 3,681 records in total.
+
+**Table 1.** Baseline characteristics (n = 3.681).

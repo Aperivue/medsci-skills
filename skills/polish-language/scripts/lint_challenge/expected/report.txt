@@ -24,5 +24,8 @@
 ## Units
 - L16: "5mg" — insert a space between value and unit (5 mg)
 
+## Thousands separator (title vs body)
+- L21: "3.681" in a float title uses a period thousands-separator while the body writes it "3,681" (L19) — harmonize the thousands separator across titles and body
+
 ---
-Summary: 10 issue(s) across 7 category(ies).
+Summary: 11 issue(s) across 8 category(ies).
