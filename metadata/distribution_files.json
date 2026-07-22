@@ -3083,8 +3083,8 @@
     },
     {
       "path": "skills/orchestrate/SKILL.md",
-      "size": 40630,
-      "sha256": "0b98738ef47f7fd2e0a2922572e3b55103f46152b727668865c466068c2d1b71"
+      "size": 40926,
+      "sha256": "8c3ca056e02e999cfc9a72dae51ae352d762b6292635ef4c7ac3301d9a072d7d"
     },
     {
       "path": "skills/orchestrate/references/dialogue_nodes.md",
@@ -3640,6 +3640,56 @@
       "path": "skills/present-paper/templates/build_pptx_nature_lancet.py",
       "size": 30327,
       "sha256": "8a08bb4e981c76aa8b3d262037c7456dc4eab2ef12c809a26297c85be9508f6e"
+    },
+    {
+      "path": "skills/profile-imaging/SKILL.md",
+      "size": 9445,
+      "sha256": "2ea8e6300d6da2a02e84c33245513d2a2978f545302472fef060ff813ac5f918"
+    },
+    {
+      "path": "skills/profile-imaging/scripts/check_dataset_profile.py",
+      "size": 13584,
+      "sha256": "09d27d14fea759b372e6938f4e14410620b06f6dfeb1f9a5a2f7391e6da735c5"
+    },
+    {
+      "path": "skills/profile-imaging/scripts/check_dataset_profile_challenge/expected/clean.txt",
+      "size": 360,
+      "sha256": "9e5fddb88dd83dd32aea8d0651a0f66922e5b58fb010713fb5d550090d1b5a58"
+    },
+    {
+      "path": "skills/profile-imaging/scripts/check_dataset_profile_challenge/expected/defect.txt",
+      "size": 1600,
+      "sha256": "8eac4257e5904e777a7e7f2631e3680ae66a5366c3e4fb16b1a8f3bf2dc53525"
+    },
+    {
+      "path": "skills/profile-imaging/scripts/check_dataset_profile_challenge/fixture/profile_clean.json",
+      "size": 2887,
+      "sha256": "5527d34c123551319a8323f6c7a9536c94747e9cd11ed7de3c91edd41f802287"
+    },
+    {
+      "path": "skills/profile-imaging/scripts/check_dataset_profile_challenge/fixture/profile_defect.json",
+      "size": 4536,
+      "sha256": "933c4a235f6b27a5f14c78e096744a664dbe16ae100478d3b77400a323f770b9"
+    },
+    {
+      "path": "skills/profile-imaging/scripts/check_dataset_profile_challenge/problem.md",
+      "size": 1404,
+      "sha256": "feba54fdb80b99f757bb9d191b2be60008104d6ee0c2029b3d7fcba0f762d90d"
+    },
+    {
+      "path": "skills/profile-imaging/scripts/check_dataset_profile_challenge/verify.sh",
+      "size": 2463,
+      "sha256": "e5b23d1addc2510d343036b9100491b40eaf9dc57824e0d593ee8f77c610c8cb"
+    },
+    {
+      "path": "skills/profile-imaging/scripts/profile_imaging_dataset.py",
+      "size": 5388,
+      "sha256": "c1d3346c48ca7f1fd1cfcc8ef967d4bb5b2d67a3c4eca88d4802828ab2f9d410"
+    },
+    {
+      "path": "skills/profile-imaging/skill.yml",
+      "size": 3981,
+      "sha256": "4a1748f238dcfb247f9ca388506c24c7e8d14e786b613a0ecb6313ab4ecb2d54"
     },
     {
       "path": "skills/publish-skill/SKILL.md",

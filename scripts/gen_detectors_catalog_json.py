@@ -123,6 +123,7 @@ FAMILY_BY_ID: dict[str, str] = {
     "check_split_leakage": "data_preparation",
     "check_cv_leakage": "data_preparation",
     "check_metric_reporting": "data_preparation",
+    "check_dataset_profile": "data_preparation",
     "check_preprocessing_leakage": "data_preparation",
     "check_radiomics_ml": "data_preparation",
     "check_separation": "data_preparation",

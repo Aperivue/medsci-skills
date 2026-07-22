@@ -2,6 +2,34 @@
 
 ## [Unreleased]
 
+### Added
+
+- **`/profile-imaging` — the step that sets the research direction had no skill.** The model
+  lane could design a preprocessing pipeline (`preprocess-imaging`), prove a split disjoint
+  (`model-validation`) and pick metrics (`model-evaluation`), but nothing established *what the
+  dataset is* first — and every one of those later steps assumes you already know. Profiling a
+  real public dataset (41 labelled CT cases) surfaced four facts that decide the study before
+  any model exists: through-plane spacing ran **1.5–8.0 mm inside a single institution**, the
+  target occupied a **median 0.39 % of the volume** (predicting background everywhere scores
+  99.6 %), the shipped `imagesTs` "test set" carried **no labels at all**, and organ volume
+  spanned 56–502 mL where normal is roughly 100–250 — a clinical subgroup worth *pre-specifying*
+  rather than discovering afterwards.
+
+  The skill emits a per-case profile (grid, spacing, orientation, intensity percentiles, label
+  values actually present, foreground fraction, target volume in mL) and gates it against the
+  researcher's declared plan via `check_dataset_profile` — five Major verdicts
+  (`LABEL_SHAPE_MISMATCH`, `LABEL_EMPTY`, `LABEL_VALUE_UNEXPECTED`, `TEST_SET_UNLABELLED`,
+  `ACCURACY_UNDER_IMBALANCE`) and five Minor ones (`LABEL_MISSING`, `SPACING_HETEROGENEOUS`,
+  `ORIENTATION_MIXED`, `INTENSITY_SCALE_INCONSISTENT`, `EXTREME_IMBALANCE`).
+
+  The gate flags an **undeclared decision, not variability itself**: the clean fixture is just as
+  heterogeneous as the defect one — same 5.3× spacing spread, same two orientation codes — and
+  fires nothing, because resampling and reorientation are declared. `--spacing-ratio` and
+  `--imbalance-frac` are screening defaults, not published cut-points, and are printed in the
+  output so a reader sees what was applied. The profiler needs nibabel (it opens images); the
+  gate is stdlib-only, so an audit reproduces anywhere the JSON travels.
+  **57 skills / 77 detectors.**
+
 ### Fixed
 
 - **`/self-review` — two `--manuscript` detectors read a manuscript's YAML front matter as

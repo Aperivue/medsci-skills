@@ -411,6 +411,12 @@ jobs:
       - name: Run model-validation split-leakage gate test
         run: bash skills/model-validation/tests/test_split_leakage.sh
 
+      - name: Run profile-imaging dataset-profile challenge
+        run: bash skills/profile-imaging/scripts/check_dataset_profile_challenge/verify.sh
+
+      - name: Run profile-imaging dataset-profile gate test
+        run: bash skills/profile-imaging/tests/test_dataset_profile.sh
+
       - name: Run preprocess-imaging leakage challenge
         run: bash skills/preprocess-imaging/scripts/check_preprocessing_leakage_challenge/verify.sh
 
