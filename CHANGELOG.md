@@ -35,6 +35,19 @@
 
 ### Added
 
+- **`/self-review` `check_cohort_arithmetic` — `SUBGROUP_DUPLICATE_CI`: the same subgroup
+  rendered twice in one table with two different confidence intervals.** A results table listed
+  "MetS ≥3 criteria" (OR 4.95, 4.32–5.94) and "MetS-positive (binary)" (OR 4.95, 4.26–5.83) — the
+  identical subgroup (same n, same events) relabeled, each with its own independently-resampled
+  bootstrap interval; a biostatistics reviewer asks why one group has two CIs. The gate now flags,
+  within a single GFM table, two rows sharing the **same effect estimate and identical count columns
+  (n / events) but printing different CIs** (Minor). High precision by construction: it requires the
+  non-label integer cells to be identical, so two genuinely distinct subgroups with a coincidentally
+  equal point estimate do not fire, and a table with no count columns is left alone (the label column,
+  which is exactly what differs between the two rows, is excluded from the identity). Regression cases
+  in `test_cohort_arithmetic.sh` fail on the pre-verdict detector. Grounding: real-failure. Additive
+  verdict on an existing detector; detector count unchanged.
+
 - **`/self-review` `check_panel_diversity` — `--roster` + `PANEL_UNDERRETURN`: a panel whose
   reviewers spawn and return nothing is now a failure, not a silent success.** A `--panel` run spawns
   N reviewers; when some or all return no parseable review, the resulting `panel_reviews.json` is thin

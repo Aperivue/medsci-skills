@@ -57,7 +57,9 @@ INPUTS
 OUTPUT
   A reconciliation table (stdout) and, with --out, a JSON artifact:
     {manuscript, data, claims[{verdict, severity, detail, where}], summary}
-  verdicts RATE_BACKCALC / CASCADE_SUM / PARTITION_OVERLAP are Major candidates.
+  verdicts RATE_BACKCALC / CASCADE_SUM / PARTITION_OVERLAP are Major candidates;
+  FOLLOWUP_VS_CRITERION and SUBGROUP_DUPLICATE_CI (the same subgroup rendered twice in
+  one table with divergent confidence intervals) are Minor.
   Exit 1 (with --strict) when any Major-severity claim exists.
 
 Stdlib-only (csv / json / re / argparse). Exit codes: 0 clean (or report-only),
@@ -624,6 +626,66 @@ def load_csv(path: str) -> list[dict]:
         return [r for r in csv.DictReader(f)]
 
 
+# Effect estimate with a bracketed CI: "4.95 (4.32-5.94)" / "4.95 [4.32 to 5.94]".
+_EFFECT_CI_RE = re.compile(
+    r"(?P<pt>\d+(?:\.\d+)?)\s*[\(\[]\s*"
+    r"(?P<lo>\d+(?:\.\d+)?)\s*(?:[-–—]|to|,)\s*(?P<hi>\d+(?:\.\d+)?)\s*[\)\]]"
+)
+
+
+def check_duplicate_subgroup_ci(text: str) -> list[dict]:
+    """Within one GFM table, two rows that share the SAME effect estimate AND the same
+    identity counts (n / events) but print DIFFERENT confidence intervals are the same
+    subgroup rendered twice (relabeled) with independently-resampled uncertainty — a
+    reviewer asks why one group has two intervals. High precision by construction: it
+    requires the non-effect integer cells (n, events) to be IDENTICAL between the rows,
+    so two genuinely distinct subgroups with a coincidentally-equal point estimate do
+    not fire; a table with no count columns is left alone."""
+    claims: list[dict] = []
+    for tbl in _parse_md_tables(text):
+        if len(tbl) < 3:            # header + at least two body rows
+            continue
+        groups: dict = {}
+        for row in tbl[1:]:
+            eff = eff_idx = None
+            for ci, cell in enumerate(row):
+                m = _EFFECT_CI_RE.search(cell)
+                if m:
+                    eff, eff_idx = m, ci
+                    break
+            if eff is None:
+                continue
+            # Identity = the count columns (n / events), NOT the label (col 0, which is
+            # exactly what differs between the two relabeled rows) and NOT the effect+CI
+            # cell. _ints_in already drops decimals, so CI bounds / p-values / percents
+            # do not enter the identity.
+            ids: list[int] = []
+            for ci, cell in enumerate(row):
+                if ci not in (0, eff_idx):
+                    ids += _ints_in(cell)
+            if not ids:             # need n/events to confirm it is the same subgroup
+                continue
+            key = (eff.group("pt"), tuple(sorted(ids)))
+            label = (row[0] if row else "").strip()
+            groups.setdefault(key, []).append(((eff.group("lo"), eff.group("hi")), label))
+        for (pt, ids), members in groups.items():
+            cis = {ci for ci, _ in members}
+            if len(members) >= 2 and len(cis) >= 2:
+                labels = [lab for _, lab in members if lab]
+                intervals = "; ".join(f"{lo}–{hi}" for lo, hi in sorted(cis))
+                claims.append({
+                    "verdict": "SUBGROUP_DUPLICATE_CI",
+                    "severity": "Minor",
+                    "detail": (f"rows sharing estimate {pt} and identity counts {list(ids)} print "
+                               f"different confidence intervals ({intervals}); the same subgroup appears "
+                               f"rendered twice with divergent uncertainty — harmonize to one interval, "
+                               f"or footnote why the two differ"
+                               + (f" (rows: {', '.join(labels)})" if labels else "")),
+                    "where": (" / ".join(labels))[:120] or f"estimate {pt}",
+                })
+    return claims
+
+
 def analyze(manuscript: str, data: str | None, id_col: str | None = None) -> dict:
     p = Path(manuscript)
     if not p.is_file():
@@ -637,6 +699,7 @@ def analyze(manuscript: str, data: str | None, id_col: str | None = None) -> dic
     claims += check_partition_md(text)
     claims += check_partition_text(text)
     claims += check_followup_criterion(text)
+    claims += check_duplicate_subgroup_ci(text)
 
     if data:
         rows = load_csv(data)
