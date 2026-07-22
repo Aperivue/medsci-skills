@@ -1,0 +1,13 @@
+{
+  "research_type": "sr_ma",
+  "reviewers": [
+    {
+      "reviewer_id": "R1",
+      "expertise_area": "Methodology (search/screening/PRISMA)",
+      "major": [
+        {"heading": "Search strategy incomplete", "comment": "No grey-literature database was searched and the PRISMA flow omits duplicate record removal.", "location": "Methods, Search"}
+      ],
+      "minor": []
+    }
+  ]
+}

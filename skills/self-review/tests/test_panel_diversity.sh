@@ -13,6 +13,9 @@ GOOD="$HERE/fixtures/panel_good.json"
 MONO="$HERE/fixtures/panel_monoculture.json"
 COLLAPSE="$HERE/fixtures/panel_collapse.json"
 STATS="$HERE/fixtures/panel_stats_lens.json"
+ONE="$HERE/fixtures/panel_one_returned.json"
+ROSTER4="$HERE/fixtures/roster_4.json"
+ROSTER3="$HERE/fixtures/roster_3.json"
 OUT="$(mktemp -t paneldiv_XXXX).json"
 trap 'rm -f "$OUT"' EXIT
 
@@ -60,6 +63,21 @@ check "no UNCOVERED_AXIS without research type" no_verdict UNCOVERED_AXIS
 python3 "$SCRIPT" --panel "$STATS" --out "$OUT" --strict --quiet >/dev/null 2>&1
 check "exit 0 (stats reviewer covers the statistics axis)" test "$?" -eq 0
 check "no UNCOVERED_AXIS when statistics is covered by reader-study vocabulary" no_verdict UNCOVERED_AXIS
+
+# (5) roster of 4 spawned reviewers, only 1 returned -> PANEL_UNDERRETURN (Major), exit 1.
+#     The failure this exists for: reviewers spawn, return nothing, and the thin/empty panel
+#     JSON reads as a completed run because nothing errors. The roster makes the absence visible.
+python3 "$SCRIPT" --panel "$ONE" --roster "$ROSTER4" --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "exit 1 (1 of 4 rostered reviewers returned)" test "$?" -eq 1
+check "PANEL_UNDERRETURN on under-return" has_verdict PANEL_UNDERRETURN
+
+# (6) roster == returned set -> no PANEL_UNDERRETURN
+python3 "$SCRIPT" --panel "$GOOD" --roster "$ROSTER3" --out "$OUT" --quiet >/dev/null 2>&1
+check "no PANEL_UNDERRETURN when roster == returned" no_verdict PANEL_UNDERRETURN
+
+# (7) roster-gated: without --roster the same 1-reviewer panel does NOT emit PANEL_UNDERRETURN
+python3 "$SCRIPT" --panel "$ONE" --out "$OUT" --quiet >/dev/null 2>&1
+check "no PANEL_UNDERRETURN without a roster (backward compatible)" no_verdict PANEL_UNDERRETURN
 
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"
