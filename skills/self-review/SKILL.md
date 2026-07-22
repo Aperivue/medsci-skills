@@ -771,6 +771,8 @@ It does not count toward the Step 3.5 lens-diversity axes.
 
 **Step 2 — Run the reviewers (portable execution).** When the host provides a parallel subagent / Task capability (Claude Code, or any harness exposing an Agent tool), spawn the reviewer set as independent parallel subagents, each blinded to the others, then run the editor as a final synthesis agent. **Fallback (no subagent capability — e.g. a minimal Codex/Cursor harness):** a single agent role-plays each reviewer sequentially and in isolation — it completes and writes out reviewer R1's full structured review before reading the manuscript "fresh" as R2, so a later reviewer never sees an earlier reviewer's comments. The panel is defined by these instructions; it does **not** depend on the `Workflow` tool or any Claude-Code-only orchestration.
 
+**Before spawning, write a roster manifest** — `panel_roster.json`, the list of `reviewer_id`s you are about to spawn — so a reviewer that returned nothing is distinguishable from one that was never expected (the Step 3.5 `--roster` completeness check). The Step 2 fallback shares a substrate with the drafter; on the author's own manuscript that is the weakest grounding, so when the manuscript was drafted with the same model, route at least one lens to a **different substrate** (the Codex adversarial path) or a human co-author rather than treating the same-model self-review as an independent panel.
+
 A reusable reviewer schema, a generic harsh-but-fair reviewer prompt skeleton with per-domain focus checklists, and the editor synthesis prompt skeleton live in `${CLAUDE_SKILL_DIR}/references/panel_review_template.md`.
 
 Each reviewer returns: `reviewer_id`, `expertise_area`, an `overall_assessment` (name the single biggest threat to the conclusions), `strengths` (2–3), `major[]` (each with `heading`, `comment`, `location`, `severity`, `suggested_fix`), and `minor[]`. Map `severity` onto this skill's own scale — a conclusion-threatening / design-level finding is **Fatal**, a reporting-level finding is **Fixable** — rather than introducing a separate vocabulary.
@@ -786,11 +788,11 @@ Each reviewer returns: `reviewer_id`, `expertise_area`, an `overall_assessment` 
 
 ```bash
 python3 ${CLAUDE_SKILL_DIR}/scripts/check_panel_diversity.py \
-    --panel panel_reviews.json \
+    --panel panel_reviews.json --roster panel_roster.json \
     --research-type {survival|sr_ma|radiomics|dta|observational|narrative} --strict
 ```
 
-It reports three diversity failures, each mapped onto a concern family aligned to the focus checklists:
+With `--roster` it first checks **completeness** — **`PANEL_UNDERRETURN`** (Major) fires when fewer reviewers returned a parseable review than were spawned, or when fewer than 2 returned at all. A panel with <2 returned reviews is a **failed run, not a thin one**: do not synthesize it or report it as a review — re-spawn (or route to a different substrate / human co-author). This is the case that otherwise passes silently, because a thin or empty `panel_reviews.json` errors nowhere. It then reports three diversity failures, each mapped onto a concern family aligned to the focus checklists:
 - **`UNCOVERED_AXIS`** (Major) — an axis the research type is expected to probe (e.g. heterogeneity/pooling for an SR/MA) drew **zero** major findings. The editor re-probes it with the owning reviewer before finalizing, or records in the synthesis why the gap is acceptable.
 - **`FAMILY_MONOCULTURE`** (Major) — the majority of majors fall in one concern family; the lenses converged rather than spanned the manuscript.
 - **`LENS_COLLAPSE`** (Flag) — a reviewer raised only families another reviewer already covered, adding no independent axis.

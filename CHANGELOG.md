@@ -35,6 +35,20 @@
 
 ### Added
 
+- **`/self-review` `check_panel_diversity` — `--roster` + `PANEL_UNDERRETURN`: a panel whose
+  reviewers spawn and return nothing is now a failure, not a silent success.** A `--panel` run spawns
+  N reviewers; when some or all return no parseable review, the resulting `panel_reviews.json` is thin
+  or empty and nothing errors, so the run reads as a completed panel and can be written up as one.
+  Phase 2.6 now writes a `panel_roster.json` (the spawned `reviewer_id`s) before spawning, and the gate
+  takes `--roster`: `PANEL_UNDERRETURN` (Major) fires when fewer reviewers returned than were spawned,
+  or fewer than 2 returned at all — a panel with <2 returned reviews is a failed run, not a thin one,
+  and must not be synthesized or reported as a review. Set arithmetic over two id lists; silent and
+  unchanged without a roster (backward compatible). SKILL.md also states that the single-agent fallback
+  shares a substrate with the drafter — the weakest grounding on the author's own manuscript — and
+  should route at least one lens to a different substrate (the Codex adversarial path) or a human
+  co-author. Regression cases in `test_panel_diversity.sh` fail on the pre-roster detector. Grounding:
+  real-failure. Detector count unchanged (an additive verdict on an existing detector).
+
 - **`/humanize` — `check_rewrite_fidelity` + `check_sentence_variety` (detectors 73 → 75): the de-AI
   pass finally checks its own contract.** The skill declared two ENFORCED invariants — "every number,
   statistic, p-value and confidence interval must remain identical" and "do not remove or relocate

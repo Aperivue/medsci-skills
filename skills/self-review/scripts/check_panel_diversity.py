@@ -169,8 +169,62 @@ def load_reviewers(obj) -> tuple[list[dict], str | None]:
     raise ValueError("panel JSON must be a list of reviewers or an object with a 'reviewers' list")
 
 
-def check(reviewers: list[dict], research_type: str | None) -> tuple[list[dict], dict]:
+def load_roster_ids(path: str | None) -> set[str] | None:
+    """The reviewer_ids that were SPAWNED (a roster manifest written before spawning).
+    Accepts a list of ids, a list of {reviewer_id: ...}, or {reviewers|roster: [...]}.
+    Returns None when no roster is given (roster checks then stay silent)."""
+    if not path:
+        return None
+    obj = json.loads(Path(path).read_text(encoding="utf-8"))
+    if isinstance(obj, list):
+        ids: set[str] = set()
+        for x in obj:
+            if isinstance(x, str):
+                ids.add(x)
+            elif isinstance(x, dict) and x.get("reviewer_id"):
+                ids.add(str(x["reviewer_id"]))
+        return ids
+    if isinstance(obj, dict):
+        revs = obj.get("reviewers") or obj.get("roster") or []
+        return {str(r["reviewer_id"]) for r in revs
+                if isinstance(r, dict) and r.get("reviewer_id")}
+    return set()
+
+
+def check(reviewers: list[dict], research_type: str | None,
+          roster_ids: set[str] | None = None) -> tuple[list[dict], dict]:
     claims: list[dict] = []
+
+    returned_ids = {str(rev.get("reviewer_id") or f"R{i + 1}")
+                    for i, rev in enumerate(reviewers)}
+
+    # 0) PANEL_UNDERRETURN — spawned (roster) vs returned (panel). The failure this
+    # exists for: a --panel run spawns N reviewers and some/all return nothing, so the
+    # panel JSON is thin or empty and NOTHING errors — the run reads as "completed".
+    # Set arithmetic over the two id lists turns a silent absence into a Major. Silent
+    # (no roster given): the caller did not record who was spawned, so nothing to compare.
+    if roster_ids is not None:
+        missing = sorted(roster_ids - returned_ids)
+        n_returned = len(reviewers)
+        if n_returned < 2 or missing:
+            if n_returned < 2:
+                detail = (f"only {n_returned} of {len(roster_ids)} rostered reviewer(s) returned "
+                          f"a parseable review; a panel with fewer than 2 returned reviews is a "
+                          f"FAILED run, not a thin one — do not synthesize it or report it as a "
+                          f"review. Non-returning: {', '.join(missing) or '(all)'}. Re-spawn on a "
+                          f"different substrate (or route to a human co-author) before treating "
+                          f"this as a panel.")
+            else:
+                detail = (f"{n_returned} of {len(roster_ids)} rostered reviewers returned; "
+                          f"{len(missing)} did not: {', '.join(missing)}. A missing reviewer is a "
+                          f"gap, not an absence — re-spawn the missing lens(es), or state "
+                          f"explicitly that synthesis used only the returned subset.")
+            claims.append({
+                "verdict": "PANEL_UNDERRETURN",
+                "severity": "Major",
+                "detail": detail,
+                "where": f"roster: {len(roster_ids)} spawned, {n_returned} returned",
+            })
 
     # Per-reviewer families (set of distinct families this reviewer raised as majors)
     rev_families: dict[str, set[str]] = {}
@@ -270,7 +324,7 @@ def check(reviewers: list[dict], research_type: str | None) -> tuple[list[dict],
     return claims, summary
 
 
-def analyze(panel: str, research_type_arg: str | None) -> dict:
+def analyze(panel: str, research_type_arg: str | None, roster_arg: str | None = None) -> dict:
     p = Path(panel)
     if not p.is_file():
         sys.stderr.write(f"ERROR: panel JSON not found: {panel}\n")
@@ -281,9 +335,19 @@ def analyze(panel: str, research_type_arg: str | None) -> dict:
     except (ValueError, json.JSONDecodeError) as exc:
         sys.stderr.write(f"ERROR: {exc}\n")
         sys.exit(2)
+    try:
+        roster_ids = load_roster_ids(roster_arg)
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        sys.stderr.write(f"ERROR: roster: {exc}\n")
+        sys.exit(2)
 
     research_type = normalize_research_type(research_type_arg) or normalize_research_type(rt_in_json)
-    claims, summary = check(reviewers, research_type)
+    claims, summary = check(reviewers, research_type, roster_ids)
+    if roster_ids is not None:
+        returned = {str(rev.get("reviewer_id") or f"R{i + 1}") for i, rev in enumerate(reviewers)}
+        summary["rostered"] = len(roster_ids)
+        summary["returned"] = len(reviewers)
+        summary["not_returned"] = sorted(roster_ids - returned)
     n_major = sum(1 for c in claims if c["severity"] == "Major")
     summary["n_claims"] = len(claims)
     summary["n_major"] = n_major
@@ -309,13 +373,17 @@ def render(result: dict) -> str:
 def main() -> int:
     ap = argparse.ArgumentParser(description="Panel lens-diversity gate (Phase 2.6, --panel).")
     ap.add_argument("--panel", required=True, help="reviewers JSON (list or {reviewers:[...]})")
+    ap.add_argument("--roster", help="roster manifest of SPAWNED reviewer_ids written before "
+                                     "spawning (list of ids, or {reviewers|roster:[{reviewer_id}]}); "
+                                     "enables PANEL_UNDERRETURN when the returned panel is missing "
+                                     "rostered reviewers or has <2 returned")
     ap.add_argument("--research-type", help="survival|sr_ma|radiomics|dta|observational|narrative")
     ap.add_argument("--out", help="write JSON artifact to this path")
     ap.add_argument("--strict", action="store_true", help="exit 1 if any Major claim exists")
     ap.add_argument("--quiet", action="store_true", help="suppress stdout table")
     args = ap.parse_args()
 
-    result = analyze(args.panel, args.research_type)
+    result = analyze(args.panel, args.research_type, args.roster)
 
     if not args.quiet:
         print("=" * 41)
