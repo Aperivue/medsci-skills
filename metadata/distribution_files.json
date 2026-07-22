@@ -3883,8 +3883,8 @@
     },
     {
       "path": "skills/self-review/SKILL.md",
-      "size": 78161,
-      "sha256": "fc5ffe1fcabd79904d8294b1109c763f9a8114a0e41984d04d10f4c8359eae62"
+      "size": 78470,
+      "sha256": "4d9ba887f24e9cb6424dada237603ea1d16340a8188e6394ee719ce8dac96661"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
@@ -4192,6 +4192,41 @@
       "sha256": "c35d8104be75e7045a6218423832de7a7fcf27855745e011744138f32d44adf1"
     },
     {
+      "path": "skills/self-review/scripts/check_effect_stability.py",
+      "size": 10553,
+      "sha256": "cbf1381fc5210743b89ee9d39412b5a6442de0855ef2af34704be5b55d86ed5a"
+    },
+    {
+      "path": "skills/self-review/scripts/check_effect_stability_challenge/expected/bad.txt",
+      "size": 726,
+      "sha256": "2c4a2be7afe23c2139ee03ed475f223323ce3342642eb75e80b34822a253ef4d"
+    },
+    {
+      "path": "skills/self-review/scripts/check_effect_stability_challenge/expected/ok.txt",
+      "size": 305,
+      "sha256": "7ed2391b00ef128826eb53d38911e5a6477d02f8e8377877a8b44792f1076531"
+    },
+    {
+      "path": "skills/self-review/scripts/check_effect_stability_challenge/fixture/effect_bad.md",
+      "size": 233,
+      "sha256": "919a56101f463944c0373d59cb4a0b3ee6297271c628873fbdbb87d834855f32"
+    },
+    {
+      "path": "skills/self-review/scripts/check_effect_stability_challenge/fixture/effect_ok.md",
+      "size": 309,
+      "sha256": "1752ccaba0dbda6c58093afb8c9b71799748828fec1efbd9e002b20cb11fd322"
+    },
+    {
+      "path": "skills/self-review/scripts/check_effect_stability_challenge/problem.md",
+      "size": 928,
+      "sha256": "9860f0421ddba2978eaea14e569623a00674fa9398260bdcfedc7df9fb43d805"
+    },
+    {
+      "path": "skills/self-review/scripts/check_effect_stability_challenge/verify.sh",
+      "size": 2103,
+      "sha256": "09474025e798514ed82d476ea5db4d2deabb08cce2a7c6473889550dc6f3b86d"
+    },
+    {
       "path": "skills/self-review/scripts/check_emphasis_density.py",
       "size": 6668,
       "sha256": "836925aaba3adba772330ed86a2e6021fce9c7f163ed02b2580dc414a93ce386"
@@ -4383,8 +4418,8 @@
     },
     {
       "path": "skills/self-review/skill.yml",
-      "size": 3278,
-      "sha256": "84ea9430003ffc8f1b2e009600ac3b4614abb84a697ec1891a39086aa65fe404"
+      "size": 3397,
+      "sha256": "f19ef167bbdf12dcfa89c60a33883d95e266804ed927e68a4c60971dca20612a"
     },
     {
       "path": "skills/setup-medsci/SKILL.md",

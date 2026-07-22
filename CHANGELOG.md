@@ -4,6 +4,19 @@
 
 ### Added
 
+- **`/self-review` — `check_effect_stability` (detector 67 → 68): a wide interval is a direction, not a
+  magnitude.** A manuscript's Conclusions reported **OR 50.9 (95% CI 5.8–443.6)** as a magnitude — a
+  76-fold interval — fit on **19 events for 2 covariates** (EPV 9.5). Two independent reviewers and the
+  editor flagged exactly those numbers and the paper was rejected. The detector recomputes both from
+  the printed cells: `UNSTABLE_EFFECT_ESTIMATE` when a headline OR/HR/RR/IRR has a 95% CI upper/lower
+  ratio above 10 (`--ratio-threshold`) with no co-located imprecision caveat (exploratory /
+  hypothesis-generating / underpowered / imprecise / wide-CI / interpret-with-caution — the same
+  suppression discipline as `check_null_calibration`), and `EPV_LOW` when events/covariates < 10. Pure
+  arithmetic, no judgment; reads only the headline regions for the ratio so a labelled-exploratory
+  subgroup deep in the Results does not fire. Ships a challenge card (the 76-fold + low-EPV positive
+  vs a tight CI + a caveat-labelled wide CI negative) run in CI. Grounding: external-review (a held
+  journal decision letter, two independent reviewers).
+
 - **Two more field-backlog gates, again as verdicts on detectors that already run (no new counted
   detector).**
   - **`check_figure_citation` now flags a manuscript that has figure captions but no embedded image**
