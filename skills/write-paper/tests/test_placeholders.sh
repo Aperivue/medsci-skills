@@ -98,6 +98,23 @@ run --manuscript "$WORK/warn.md" --quiet
 run --manuscript "$WORK/warn.md" --strict --quiet
 [ $? -eq 1 ] && ok "warn-only fails under --strict" || bad "warn-only should fail under --strict"
 
+# 4b. placeholder_strength_claim (warn): a strength assertion on a [VERIFY]-marked
+#     line; the hedged marked line and a bare code-fenced line stay silent.
+cat > "$WORK/strength.md" <<'EOF'
+# Results
+
+Faculty were near-unanimous that residents should read independently [VERIFY: numbers pending].
+
+Faculty reported concerns about premature reliance [VERIFY: exact figures pending].
+EOF
+run --manuscript "$WORK/strength.md" --out "$WORK/strength.json" --quiet
+python3 -c "
+import json,sys
+d=json.load(open('$WORK/strength.json'))
+t=[f['type'] for f in d['findings']]
+sys.exit(0 if t.count('placeholder_strength_claim')==1 else 1)
+" && ok "placeholder_strength_claim on the strength+marker line only" || bad "placeholder_strength_claim mis-detected"
+
 # 5. missing file -> exit 2
 run --manuscript "$WORK/nope.md" --quiet
 [ $? -eq 2 ] && ok "missing file exits 2" || bad "missing file should exit 2"

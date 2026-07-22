@@ -97,5 +97,19 @@ assert not any(c['verdict']=='CROSS_SECTIONAL_PROGNOSTIC' for c in d['claims']),
 python3 "$SCRIPT" --manuscript "$APLIST" --strict --quiet >/dev/null 2>&1
 check "exit 0 on enumerated-defect list" test "$?" -eq 0
 
+# UNIVERSAL_NEGATIVE_UNSCOPED: a "no published system … first study to quantify"
+# claim with no named discipline-scope qualifier.
+UN="$HERE/fixtures/scope_universal_negative.md"
+python3 "$SCRIPT" --manuscript "$UN" --out "$OUT" --quiet >/dev/null 2>&1
+check "UNIVERSAL_NEGATIVE_UNSCOPED on an unscoped novelty claim" has_verdict UNIVERSAL_NEGATIVE_UNSCOPED
+# a discipline-scope qualifier ("clinically published … in the radiology literature") suppresses it
+UNOK="$HERE/fixtures/scope_universal_negative_ok.md"
+python3 "$SCRIPT" --manuscript "$UNOK" --out "$OUT" --quiet >/dev/null 2>&1
+check "no UNIVERSAL_NEGATIVE_UNSCOPED when a discipline-scope qualifier is present" python3 -c "
+import json
+d=json.load(open('$OUT'))
+raise SystemExit(0 if not any(c['verdict']=='UNIVERSAL_NEGATIVE_UNSCOPED' for c in d['claims']) else 1)
+"
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

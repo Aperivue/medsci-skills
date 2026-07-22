@@ -73,6 +73,19 @@ BLOCKER_PATTERNS = [
     ("template_url", TEMPLATE_URL),
 ]
 
+# A placeholder marker whose value has not landed yet: [VERIFY…]/[CONFIRM…]/[TEAM…]/
+# [TBD…], or an in-prose "forthcoming / interim data / data not yet available".
+VERIFY_MARKER = re.compile(
+    r"\[(?:VERIFY|CONFIRM|TEAM|TBD|PENDING)\b[^\]]*\]"
+    r"|\b(?:forthcoming|interim data|data (?:are )?not yet available|pending (?:data|results))\b",
+    re.IGNORECASE)
+# A strength adjective/quantifier: a claim written at the strength the author HOPES
+# the not-yet-held data has. Checked only on a line that already carries a marker.
+STRENGTH_LEXICON = re.compile(
+    r"\b(?:near-unanim\w*|unanimous|near-universal|universal|all|every|none|consistently|"
+    r"invariably|overwhelming(?:ly)?|vast majority|uniformly|without exception|always|never)\b",
+    re.IGNORECASE)
+
 HEADING_RE = re.compile(r"^#{1,6}\s+(.*\S)\s*$")
 REFERENCES_TITLE_RE = re.compile(r"references|bibliography|works cited|reference list", re.IGNORECASE)
 FENCE_RE = re.compile(r"^\s*(?:```|~~~)")
@@ -107,6 +120,20 @@ def scan(text: str) -> list[dict]:
                     "type": "bare_numeric_cite",
                     "line": lineno,
                     "text": m.group(0).strip()[:120],
+                    "severity": "warn",
+                })
+        # placeholder_strength_claim: a strength assertion on a line that also carries
+        # an unresolved [VERIFY]-family marker — the claim is written at the strength the
+        # author hopes the pending source has. Strip bracketed marker text first so a
+        # word INSIDE the marker ("[VERIFY: all figures]") does not trip it.
+        if VERIFY_MARKER.search(line):
+            prose = re.sub(r"\[[^\]]*\]", " ", line)
+            sm = STRENGTH_LEXICON.search(prose)
+            if sm:
+                findings.append({
+                    "type": "placeholder_strength_claim",
+                    "line": lineno,
+                    "text": sm.group(0).strip()[:120],
                     "severity": "warn",
                 })
     return findings

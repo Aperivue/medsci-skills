@@ -4,6 +4,29 @@
 
 ### Added
 
+- **Four more field-backlog verdicts on detectors that already run (no new counted detector).**
+  - **`check_cohort_arithmetic` — `FOLLOWUP_VS_CRITERION` (Minor).** A reported "median follow-up was
+    102 days" against a reference standard requiring "size stability for ≥24 months" reads as if benign
+    classification had 102 days to work with. Usually the 102 days is the index-visit interval and the
+    total observation window (median 442 days) was simply never stated. Fires when the shortest reported
+    follow-up is below the longest duration criterion in the outcome definition **and** no
+    total-observation window is separately labelled (that label suppresses it).
+  - **`check_figure_citation` — `FIGURE_ATTR_STALE` (Major) + `AUTHOR_CONTRIB_FIGURE_REF` (Minor).** An
+    Author-Contributions / CRediT line attributing "prepared Figure 4" when only Figures 1–3 exist is a
+    stale attribution from a figure renumber/merge. Scoped strictly to the author-contributions section
+    (never Results, where "Figure N" is a normal citation); the advisory flags figure-numbered
+    attribution as drift-prone (use the CRediT "Visualization" role).
+  - **`check_scope_coherence` — `UNIVERSAL_NEGATIVE_UNSCOPED` (Minor).** A "no published system…",
+    "first study to quantify…", "has not been measured" claim in the Abstract/Introduction/Discussion
+    with no named discipline-scope qualifier. A single-database search supports "no *clinical* paper does
+    X", never "nobody does X". Suppressed by a discipline frame ("…in the radiology literature"); a bare
+    "to our knowledge" does not suppress, because that is the failure.
+  - **`check_placeholders` — `placeholder_strength_claim` (warn).** A strength assertion
+    (near-unanimous / all / every / none / always) on a line that also carries an unresolved `[VERIFY]`
+    marker — the claim written at the strength the author *hopes* the pending data has. The marker text
+    is stripped before the strength check, so a word inside the marker does not trip it; hedged marked
+    lines stay silent.
+
 - **Two more field-backlog gates, both additive verdicts (no new counted detector).**
   - **`check_citation_order` now resolves in-text `Section N` cross-references** (`DANGLING_SECTION_XREF`).
     Many medical journals typeset **unnumbered** headings, so a "as reported in Section 3.4" written

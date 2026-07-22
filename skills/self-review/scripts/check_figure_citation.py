@@ -51,6 +51,10 @@ MENTION_RE = re.compile(r"\b(?P<kind>Figures?|Figs?\.?|Tables?)\s+(?P<num>\d+)\b
 # rendered output; a manuscript with figure captions but zero image links ships
 # with every legend and no picture.
 IMG_LINK_RE = re.compile(r"!\[[^\]]*\]\([^)]+\)")
+# The author-contributions / CRediT heading.
+CREDIT_HEADING_RE = re.compile(
+    r"^#{1,6}\s*\*{0,2}\s*(?:Authors?[’'\s]*\s*[Cc]ontributions?|CRediT[^\n]*)\*{0,2}\s*:?\s*$",
+    re.MULTILINE)
 
 
 def _kind(raw: str) -> str:
@@ -106,6 +110,40 @@ def check(text: str, require_embedded: bool = False) -> list[dict]:
                            f"separate file before submission"),
                 "where": lines[cap_line].strip()[:120],
             })
+
+    # Author-contributions / CRediT figure-number attribution. A "prepared Figure 4"
+    # attribution silently breaks when figures are renumbered or merged; the canonical
+    # CRediT "Visualization" role carries no numbers and is drift-proof. Scanned ONLY
+    # inside the author-contributions/CRediT section (never Results/Discussion, where
+    # "Figure N" is a normal citation).
+    cm = CREDIT_HEADING_RE.search(text)
+    if cm:
+        start = cm.end()
+        nxt = re.search(r"^#{1,6}\s", text[start:], re.MULTILINE)
+        region = text[start: start + nxt.start()] if nxt else text[start:]
+        declared_fignums = {n for (k, n) in declared if k == "Figure"}
+        fig_tokens = [int(m.group("num")) for m in MENTION_RE.finditer(region)
+                      if _kind(m.group("kind")) == "Figure"]
+        if fig_tokens:
+            claims.append({
+                "verdict": "AUTHOR_CONTRIB_FIGURE_REF",
+                "severity": "Minor",
+                "detail": ("the author-contributions/CRediT section attributes work by figure number "
+                           "(e.g. 'prepared Figure N'); this attribution breaks on any figure renumber or "
+                           "merge — use the CRediT 'Visualization' role, which carries no figure numbers"),
+                "where": "author contributions",
+            })
+            for num in sorted(set(fig_tokens)):
+                if num not in declared_fignums:
+                    claims.append({
+                        "verdict": "FIGURE_ATTR_STALE",
+                        "severity": "Major",
+                        "detail": (f"the author-contributions/CRediT section attributes Figure {num}, but no "
+                                   f"Figure {num} is declared in the manuscript — a stale attribution left by a "
+                                   f"figure renumber/merge (declared figures: "
+                                   f"{', '.join(str(n) for n in sorted(declared_fignums)) or 'none'})"),
+                        "where": "author contributions",
+                    })
     return claims
 
 
