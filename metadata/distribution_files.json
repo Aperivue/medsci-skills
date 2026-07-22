@@ -4423,8 +4423,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_panel_diversity.py",
-      "size": 15365,
-      "sha256": "320f18504847ed33b1cb0a2913579e532cfec8b82aa6af9cf6877d2f80e0b519"
+      "size": 16274,
+      "sha256": "6a2c964bbf8afd42ded4ccd6773d7a208b397bc3661cfabcdd58db8e47384640"
     },
     {
       "path": "skills/self-review/scripts/check_paren_spans.py",

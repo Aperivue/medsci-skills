@@ -90,7 +90,19 @@ FAMILY_LEXICON: list[tuple[str, re.Pattern]] = [
         r"\bci\b|heterogeneit|\bi2\b|i\^?2|pooling|pooled|random[-\s]?effects|"
         r"multiplicit|multiple compar|\bp[-\s]?value|\bpower\b|sample size|"
         r"model specif|proportional hazard|missing data|imputation|competing risk|"
-        r"events per variable|overfitting|effect size|subdistribution", re.IGNORECASE)),
+        r"events per variable|overfitting|effect size|subdistribution|"
+        # Type-agnostic statistical vocabulary a reader / agreement study raises but the
+        # meta-analysis-flavoured list above missed — effect measures, resampling,
+        # inter-rater agreement, multiplicity siblings, common tests, Bayesian. Without
+        # these a statistics-dedicated reviewer's majors classified as "other" and the
+        # statistics axis looked uncovered (false UNCOVERED_AXIS Major).
+        r"odds ratio|hazard ratio|risk ratio|relative risk|rate ratio|"
+        r"bootstrap|permutation|jackknife|monte[-\s]?carlo|"
+        r"\bkappa\b|κ|inter[-\s]?rater|intraclass|\bicc\b|\bac1\b|concordance|"
+        r"bonferroni|false discovery|\bfdr\b|\bholm\b|family[-\s]?wise|"
+        r"wilcoxon|mann[-\s]?whitney|mcnemar|log[-\s]?rank|chi[-\s]?squared?|fisher'?s? exact|"
+        r"bayesian|credible interval|posterior distribution|standard deviation|standard error",
+        re.IGNORECASE)),
     ("clinical", re.compile(
         r"clinical|actionab|guideline|management|generali[sz]ab|applicab|"
         r"external validit|patient[-\s]?care|over(?:reach|claim)|"
