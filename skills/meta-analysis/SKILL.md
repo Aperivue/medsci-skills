@@ -186,13 +186,30 @@ python "${CLAUDE_SKILL_DIR}/scripts/screening_reconcile.py" \
 ```
 
 Downstream stages consume `screening_consensus.json` for counts and ID sets; the Markdown consensus
-document remains the human explanation. Two hard rules:
+document remains the human explanation. Three hard rules:
 
 1. **List the narrative-only IDs explicitly.** The highest-yield red flag is a numeric claim ("10
    narrative-only studies") that does not match the enumerable set `(A ∪ C) \ B \ T`.
 2. **No "N → M" transition without ID receipts.** "k rose from 30 to 32 after FLAG consensus" must
    cite the added/removed IDs. A transition claim with no enumerable ID set is a **P0** and blocks
    the Phase 5 hand-off.
+3. **`STAGE_TRANSFER_LOSS` is a P0.** The script exits 1 when a record is *included at screening*
+   but **absent from the consensus artifact altogether** — neither included nor excluded, so no
+   adjudication was ever recorded. Restore those records to the consensus stage, or record an
+   explicit exclusion decision for each.
+
+   Why this needs its own verdict: consensus-*excluded* and consensus-*absent* both leave the id
+   out of set `B`, so both flow into `qualitative` and then into `narrative_only`. A
+   diagnostic-accuracy review legitimately has narrative-only studies (eligible, no extractable
+   2x2), so a lost record parked there is invisible — and the totals still reconcile, because they
+   were recomputed from the downstream artifact. The output therefore splits `narrative_only` into
+   `narrative_only_adjudicated` (a decision exists) and `narrative_only_unadjudicated` (none does);
+   only the first is a legitimate category.
+
+   Precedent: a review reached journal submission with 15 studies and was withdrawn when 5 eligible
+   studies were found **inside its own retrieved records**. One had passed both screening passes and
+   was never entered into the consensus stage. A pre-specified sensitivity analysis flipped from
+   P = 0.064 to P = 0.033 once the pool was corrected.
 
 The set algebra, the reconciliation-table template, and the precedent (a manuscript shipped 32/10/46
 where the ID sets said 24/2/54, with four artifacts echoing the same unreconciled prose total) are
