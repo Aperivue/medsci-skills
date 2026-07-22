@@ -63,5 +63,15 @@ d=json.load(open('$OUT'))
 assert not any(c['verdict']=='DANGLING_SECTION_XREF' for c in d['claims']), 'false positive'
 "
 
+# (5) YAML front matter narrating a display-item renumber ("old Table 1 -> Supplementary
+#     Table S2", "old Table 3 -> Box 1") must NOT be scanned as body citations — a
+#     `status:`/changelog block is not prose. Body cites Supplementary Tables and figures
+#     in ascending order and has no main-text tables.
+FM="$HERE/fixtures/citation_order_frontmatter.md"
+python3 "$SCRIPT" --manuscript "$FM" --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "exit 0 with an out-of-order renumber in YAML front matter (body clean)" test "$?" -eq 0
+check "no CITATION_ORDER from a front-matter changelog" count_order 0
+check "no Major from a front-matter changelog" no_falsepos
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"
