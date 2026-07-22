@@ -560,6 +560,14 @@ python3 ${CLAUDE_SKILL_DIR}/scripts/build_strobe_template.py \
     --out    figures/figure1_strobe.pptx
 ```
 
+The builder checks that the exclusion cascade closes — the count in a spine box, minus the
+exclusions declared after it, must equal the next spine box (`A - Σ(exclusions after A) ==
+B`), for every link that declares an exclusion. It warns loudly on any imbalance and, with
+`--strict-cascade`, refuses to build. This catches the figure-image arithmetic drift that
+text-grep and prose gates miss (a dropped exclusion leaving the figure short of the analytic
+N). Run `scripts/_strobe_cascade.py --config figure1_strobe.yaml --strict` to check a config
+without rebuilding the diagram.
+
 For STROBE the canonical KJR/Radiology/BMJ submission flow is:
 
 1. Render the vector submission file via the auto-fitting Graphviz path:
