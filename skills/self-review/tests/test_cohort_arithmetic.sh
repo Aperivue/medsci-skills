@@ -112,5 +112,20 @@ d=json.load(open('$OUT'))
 raise SystemExit(0 if not any(c['verdict']=='FOLLOWUP_VS_CRITERION' for c in d['claims']) else 1)
 "
 
+# (N) a subgroup rendered twice with divergent CIs: two rows share the SAME estimate AND
+#     identical n/events but print different confidence intervals (independent bootstraps)
+#     -> SUBGROUP_DUPLICATE_CI (Minor). Two DISTINCT subgroups with a coincidentally equal
+#     estimate but different n/events must NOT fire (the precision guard).
+DUPCI="$HERE/fixtures/cohort_dup_ci.md"
+DUPCICLEAN="$HERE/fixtures/cohort_dup_ci_clean.md"
+python3 "$SCRIPT" --manuscript "$DUPCI" --out "$OUT" --quiet >/dev/null 2>&1
+check "SUBGROUP_DUPLICATE_CI on same estimate+n+events with divergent CI" has_verdict SUBGROUP_DUPLICATE_CI
+python3 "$SCRIPT" --manuscript "$DUPCICLEAN" --out "$OUT" --quiet >/dev/null 2>&1
+check "no SUBGROUP_DUPLICATE_CI when n/events differ (distinct subgroups, same OR)" python3 -c "
+import json
+d=json.load(open('$OUT'))
+raise SystemExit(0 if not any(c['verdict']=='SUBGROUP_DUPLICATE_CI' for c in d['claims']) else 1)
+"
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"
