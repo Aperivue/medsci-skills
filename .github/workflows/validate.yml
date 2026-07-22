@@ -218,6 +218,9 @@ jobs:
       - name: Run peer-review self-improvement-claim gate test (self-confirming / ungrounded loop)
         run: bash skills/peer-review/tests/test_self_improvement_claims.sh
 
+      - name: "Run peer-review PDF-scan XMP regression (an int xref must not crash the injection scan)"
+        run: bash skills/peer-review/tests/test_scan_pdf_layers_xmp.sh
+
       - name: Run contribute safety gate test (PHI/identifier scan before anything leaves a laptop)
         run: bash skills/contribute/tests/test_contribution_safety.sh
 
