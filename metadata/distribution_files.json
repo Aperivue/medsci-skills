@@ -4138,8 +4138,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_cohort_arithmetic.py",
-      "size": 28137,
-      "sha256": "6711adf4ad70c9d70b76f526a2c0177b08ff56c9c80efb85265ee873886eff3f"
+      "size": 30945,
+      "sha256": "50e09a18b0e404f8fab97091efaaa8e6263bb20a76a5058d5b989655c4c2da94"
     },
     {
       "path": "skills/self-review/scripts/check_confounding_completeness.py",
@@ -4233,8 +4233,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_figure_citation.py",
-      "size": 8374,
-      "sha256": "5961b5f9b23264ce392ed9161a827b7cfcd337b3b58d3ee1287077786d5b004e"
+      "size": 10635,
+      "sha256": "087ee531a5d1b8e2ebd2630d1c5180dfbacfec46299d262100ad19f0ba4fa32c"
     },
     {
       "path": "skills/self-review/scripts/check_nested_group_comparison.py",
@@ -4373,8 +4373,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_scope_coherence.py",
-      "size": 13030,
-      "sha256": "e0316f9d3e57ef47de00d6c082486c7520e2960fed6d3270069cc3e30de1c490"
+      "size": 17273,
+      "sha256": "9508c6f84f1971fea99500aba9bf9bf3d7045dba14e8a2d67053f32e4e0b06f8"
     },
     {
       "path": "skills/self-review/scripts/check_supplement_hygiene.py",
@@ -5133,8 +5133,8 @@
     },
     {
       "path": "skills/write-paper/scripts/check_placeholders.py",
-      "size": 7475,
-      "sha256": "2a7c9fe8caa000ab0c7bfffb6b09b4dd2508dcc3b374e2650d18c42ff52e7420"
+      "size": 8998,
+      "sha256": "eb781cf4dbd7246bfd15c76ee09454df024770b8c9633f11e837d92489a36121"
     },
     {
       "path": "skills/write-paper/scripts/gate_backbone_fulltext.py",

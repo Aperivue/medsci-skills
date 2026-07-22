@@ -98,5 +98,19 @@ PPCLEAN="$HERE/fixtures/cohort_partition_prose_clean.md"
 python3 "$SCRIPT" --manuscript "$PPCLEAN" --strict --quiet >/dev/null 2>&1
 check "exit 0 on corrected + cross-tab + cue-less overlapping prose" test "$?" -eq 0
 
+# (10) FOLLOWUP_VS_CRITERION: reported "median follow-up 102 days" against a ">= 24
+#      months stability" criterion with no total-observation window -> Minor flag.
+FUC="$HERE/fixtures/cohort_followup_criterion.md"
+python3 "$SCRIPT" --manuscript "$FUC" --out "$OUT" --quiet >/dev/null 2>&1
+check "FOLLOWUP_VS_CRITERION when follow-up < a criterion duration" has_verdict FOLLOWUP_VS_CRITERION
+# (11) silent once the total-observation window is distinctly reported.
+FUOK="$HERE/fixtures/cohort_followup_ok.md"
+python3 "$SCRIPT" --manuscript "$FUOK" --out "$OUT" --quiet >/dev/null 2>&1
+check "no FOLLOWUP_VS_CRITERION when total observation window is reported" python3 -c "
+import json
+d=json.load(open('$OUT'))
+raise SystemExit(0 if not any(c['verdict']=='FOLLOWUP_VS_CRITERION' for c in d['claims']) else 1)
+"
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

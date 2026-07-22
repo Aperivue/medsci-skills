@@ -486,6 +486,57 @@ def check_partition_text(text: str) -> list[dict]:
     return claims
 
 
+# --- Check: FOLLOWUP_VS_CRITERION ------------------------------------------
+# A reported "median follow-up was 102 days" against a reference standard that
+# requires "size stability for >=24 months" reads, to a reviewer, as if the
+# benign classification had 102 days to work with. Usually the 102 days is the
+# index-visit interval and the total observation window (median 442 days) is
+# simply never stated. Pure arithmetic: if the shortest reported follow-up is
+# below the longest duration threshold the outcome/reference standard requires,
+# and no total-observation window is labelled, ask which quantity is reported.
+_DUR_UNIT_DAYS = {"day": 1.0, "week": 7.0, "month": 30.44, "year": 365.25}
+_FOLLOWUP_RE = re.compile(
+    r"(?:median|mean)\s+follow[-\s]?up[^.]{0,40}?(\d[\d,]*(?:\.\d+)?)\s*(day|week|month|year)s?", re.I)
+_CRITERION_CUE = re.compile(
+    r"stabilit|stable|reference standard|benign if|confirmed by|criterion|classified as|"
+    r"resolution over|no growth for|unchanged for|followed for", re.I)
+_CRITERION_DUR_RE = re.compile(
+    r"(?:>=|≥|at least|minimum of|for|over)\s*(\d+)\s*(day|week|month|year)s?", re.I)
+_TOTAL_WINDOW_RE = re.compile(
+    r"total observation|observation period|overall follow[-\s]?up|maximum follow[-\s]?up|"
+    r"observed for a (?:median|maximum) of|total follow[-\s]?up", re.I)
+
+
+def check_followup_criterion(text: str) -> list[dict]:
+    fu = [(_num(v) or 0) * _DUR_UNIT_DAYS[u.lower()]
+          for v, u in _FOLLOWUP_RE.findall(text)]
+    fu = [d for d in fu if d > 0]
+    if not fu:
+        return []
+    # criterion thresholds: a duration inside a reference-standard/outcome cue window
+    crit = []
+    for m in _CRITERION_DUR_RE.finditer(text):
+        win = text[max(0, m.start() - 120):m.end() + 40]
+        if _CRITERION_CUE.search(win):
+            crit.append(int(m.group(1)) * _DUR_UNIT_DAYS[m.group(2).lower()])
+    if not crit:
+        return []
+    min_fu, max_crit = min(fu), max(crit)
+    if min_fu >= max_crit:
+        return []
+    if _TOTAL_WINDOW_RE.search(text):
+        return []  # a distinctly-labelled total-observation window is already reported
+    return [{
+        "verdict": "FOLLOWUP_VS_CRITERION",
+        "severity": "Minor",
+        "detail": (f"the shortest reported follow-up ({min_fu / 30.44:.1f} months / {min_fu:.0f} days) "
+                   f"is below a {max_crit / 30.44:.0f}-month duration criterion in the outcome/reference "
+                   f"standard, and no total-observation window is reported — state whether the reported "
+                   f"follow-up is the index-visit interval or the total observation, and give the latter"),
+        "where": (_FOLLOWUP_RE.search(text).group(0)[:120] if _FOLLOWUP_RE.search(text) else "follow-up"),
+    }]
+
+
 # --- Check 4: ANALYSIS_UNIT_UNDISCLOSED ------------------------------------
 # Health-screening / EMR / registry cohorts routinely have repeat attendees, so a
 # record count is not a subject count. When the data carry a subject ID and
@@ -585,6 +636,7 @@ def analyze(manuscript: str, data: str | None, id_col: str | None = None) -> dic
     claims += check_cascade_text(text)
     claims += check_partition_md(text)
     claims += check_partition_text(text)
+    claims += check_followup_criterion(text)
 
     if data:
         rows = load_csv(data)

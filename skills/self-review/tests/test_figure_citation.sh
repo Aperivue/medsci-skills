@@ -51,5 +51,16 @@ EMB="$HERE/fixtures/figcite_embedded.md"
 python3 "$SCRIPT" --manuscript "$EMB" --require-embedded --strict --quiet >/dev/null 2>&1
 check "silent when figures are embedded (even --require-embedded)" test "$?" -eq 0
 
+# FIGURE_ATTR_STALE: Author Contributions attributes "Figure 4" but only 1-3 declared.
+CB="$HERE/fixtures/figcite_credit_bad.md"
+python3 "$SCRIPT" --manuscript "$CB" --out "$OUT" --quiet >/dev/null 2>&1
+check "FIGURE_ATTR_STALE on a CRediT attribution to a nonexistent figure" has_verdict FIGURE_ATTR_STALE
+python3 "$SCRIPT" --manuscript "$CB" --strict --quiet >/dev/null 2>&1
+check "stale figure attribution is Major (exit 1 under --strict)" test "$?" -eq 1
+# canonical CRediT roles (no figure numbers) -> silent
+CO="$HERE/fixtures/figcite_credit_ok.md"
+python3 "$SCRIPT" --manuscript "$CO" --strict --quiet >/dev/null 2>&1
+check "exit 0 when CRediT uses canonical roles (no figure numbers)" test "$?" -eq 0
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

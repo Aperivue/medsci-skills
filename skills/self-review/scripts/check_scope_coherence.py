@@ -15,6 +15,10 @@ conclusion action verb co-occur, and both are documented anti-patterns
                               dichotomized) drives a patient-care directive (defer,
                               withhold, initiate/discontinue therapy, statin). A
                               risk-stratification marker is not a management trigger.
+  UNIVERSAL_NEGATIVE_UNSCOPED  a 'nobody / first to / has not been' novelty claim
+                          in a claim region with no named discipline-scope qualifier
+                          (Minor): a single-database search cannot support a universal
+                          negative. Narrow the claim or widen the search.
   CROSS_SECTIONAL_YIELD_LANGUAGE  a cross-sectional / prevalence design uses
                               incidence/prospective-flavored vocabulary — "yield",
                               "detection rate", "number-needed-to-screen/image",
@@ -32,7 +36,8 @@ INPUTS
 OUTPUT
   A reconciliation table (stdout) and, with --out, a JSON artifact:
     {manuscript, claims[{verdict, severity, detail, where}], summary}
-  Both verdicts are Major. Exit 1 (with --strict) when any Major claim exists.
+  CROSS_SECTIONAL_PROGNOSTIC and SURROGATE_CARE_DIRECTIVE are Major; UNIVERSAL_NEGATIVE_
+  UNSCOPED and CROSS_SECTIONAL_YIELD_LANGUAGE are Minor. Exit 1 (with --strict) on any Major.
 
 Stdlib-only (json / re / argparse / pathlib). Exit codes: 0 clean (or report-only),
 1 Major claim(s) found (with --strict), 2 input/usage error.
@@ -148,9 +153,77 @@ def conclusion_region(text: str) -> str:
     return "\n".join(spans)
 
 
+# Claim regions where a novelty/neglect claim lives: Abstract, Introduction/
+# Background, Discussion, Conclusion.
+NOVELTY_REGION_HEADINGS = re.compile(
+    r"^#{1,4}\s*\*{0,2}(?:ABSTRACT|Abstract|INTRODUCTION|Introduction|BACKGROUND|Background|"
+    r"DISCUSSION|Discussion|CONCLUSIONS?|Conclusions?)\*{0,2}\s*:?\s*$",
+    re.IGNORECASE | re.MULTILINE)
+
+# A universal-negative / first-to novelty construction.
+UNIVERSAL_NEGATIVE_RE = re.compile(
+    r"\bno(?:body|-one| one)\b"
+    r"|\bnone of (?:the |these )?(?:\w+\s+){0,2}(?:studies|systems|works|methods|papers|reports)\b"
+    r"|\bno (?:\w+\s+){0,3}(?:published |existing |prior )?"
+    r"(?:system|study|work|method|approach|dataset|benchmark|paper|report|research)\b"
+    r"[^.\n]{0,50}?\b(?:measure|report|quantif|examine|assess|address|exist|investigate|describe|ask)"
+    r"|\bnever been (?:measured|examined|studied|reported|asked|quantified|assessed|investigated|addressed|explored)\b"
+    r"|\bhas not (?:yet )?been (?:measured|examined|studied|asked|quantified|assessed|investigated|addressed|explored)\b"
+    r"|\bfirst (?:study|work|report|paper)\b[^.\n]{0,50}?\b(?:to )?(?:measure|report|examine|quantif|assess|investigate|describe|characteri[sz]e)"
+    r"|\bwe are the first\b|\bthe first to (?:measure|report|examine|quantif|assess|investigate|describe|characteri[sz]e)"
+    r"|\bremains? (?:largely )?(?:unmeasured|unexamined|unexplored|unaddressed)\b|\bunexamined\b|\bunexplored\b",
+    re.IGNORECASE)
+
+# A named discipline/literature FRAME that legitimately scopes the negative. A bare
+# epistemic hedge ("to our knowledge") is NOT a frame and does not suppress.
+SCOPE_QUALIFIER_RE = re.compile(
+    r"\bclinical(?:ly)? (?:published|literature)\b"
+    r"|\bin (?:the )?(?:clinical|medical|radiolog\w+|surgical|nursing|imaging|oncolog\w+) (?:literature|domain|setting|field)\b"
+    r"|\bin radiology\b|\bin medicine\b|\bpeer-reviewed clinical\b"
+    r"|\b(?:within|among|across) (?:the )?(?:published )?\w+ (?:literature|studies)\b"
+    r"|\bto date in the \w+ literature\b",
+    re.IGNORECASE)
+
+
+def _region(text: str, heading_re) -> str:
+    spans = []
+    all_headings = [m.start() for m in re.finditer(r"^#{1,4}\s", text, re.MULTILINE)]
+    for m in heading_re.finditer(text):
+        s = m.end()
+        nxt = next((h for h in all_headings if h > s), len(text))
+        spans.append(text[s:nxt])
+    mt = re.search(r"^#{1,6}\s+(.+)$", text, re.MULTILINE)  # title
+    if mt:
+        spans.append(mt.group(1))
+    return "\n".join(spans) if spans else text
+
+
 def check(text: str) -> list[dict]:
     claims = []
     concl = conclusion_region(text)
+
+    # UNIVERSAL_NEGATIVE_UNSCOPED — a "nobody / first to / has not been" claim in a
+    # claim region with no named discipline-scope qualifier nearby. Minor: the fix is
+    # usually a one-word scope narrowing (or a wider, cross-discipline search).
+    region = _region(text, NOVELTY_REGION_HEADINGS)
+    seen: set[str] = set()
+    for m in UNIVERSAL_NEGATIVE_RE.finditer(region):
+        window = region[max(0, m.start() - 200):m.end() + 200]
+        if SCOPE_QUALIFIER_RE.search(window):
+            continue
+        key = re.sub(r"\s+", " ", m.group(0).lower())[:60]
+        if key in seen:
+            continue
+        seen.add(key)
+        claims.append({
+            "verdict": "UNIVERSAL_NEGATIVE_UNSCOPED",
+            "severity": "Minor",
+            "detail": (f"a universal-negative / first-to claim ('{m.group(0).strip()}') with no named "
+                       f"discipline-scope qualifier; a single-database search supports 'no *clinical* "
+                       f"paper does X', never 'nobody does X' — narrow the claim ('...in the clinical "
+                       f"literature') or widen the search to the venues where the subject lives"),
+            "where": region[max(0, m.start() - 30):m.end() + 40].replace("\n", " ").strip()[:160],
+        })
 
     if DESIGN_CROSS_SECTIONAL.search(text):
         # Fire only on a prognostic/surveillance token that is NOT inside a
