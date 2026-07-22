@@ -4208,8 +4208,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_cohort_arithmetic.py",
-      "size": 34274,
-      "sha256": "f9c738b7676d9a10b073f123736d4e3cb43e49d91a3801476410ebb1d5fef3c0"
+      "size": 37883,
+      "sha256": "ef239b1896f1b17f3b0d75b7d45ef2d3e285d96320a357c31aced06f823cf38b"
     },
     {
       "path": "skills/self-review/scripts/check_confounding_completeness.py",

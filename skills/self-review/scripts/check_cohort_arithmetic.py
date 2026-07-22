@@ -58,8 +58,9 @@ OUTPUT
   A reconciliation table (stdout) and, with --out, a JSON artifact:
     {manuscript, data, claims[{verdict, severity, detail, where}], summary}
   verdicts RATE_BACKCALC / CASCADE_SUM / PARTITION_OVERLAP are Major candidates;
-  FOLLOWUP_VS_CRITERION and SUBGROUP_DUPLICATE_CI (the same subgroup rendered twice in
-  one table with divergent confidence intervals) are Minor.
+  FOLLOWUP_VS_CRITERION, SUBGROUP_DUPLICATE_CI (the same subgroup rendered twice in one
+  table with divergent confidence intervals) and NESTED_MODEL_NO_BASELINE (nested
+  discrimination models sharing a covariate set with no base-model row / ΔC) are Minor.
   Exit 1 (with --strict) when any Major-severity claim exists.
 
 Stdlib-only (csv / json / re / argparse). Exit codes: 0 clean (or report-only),
@@ -686,6 +687,78 @@ def check_duplicate_subgroup_ci(text: str) -> list[dict]:
     return claims
 
 
+_CINDEX_HDR = ("c-index", "c index", "cindex", "c-statistic", "c statistic", "concordance",
+               "auc", "auroc", "harrell", "discrimination", "c (95")
+_MODEL_HDR = ("model", "covariate", "predictor", "variables", "adjustment")
+# tokens that appear in a model label but are NOT covariates
+_COVAR_STOP = {"model", "models", "only", "vs", "versus", "plus", "the", "and", "reference",
+               "baseline", "base", "full", "final", "adjusted", "unadjusted", "alone",
+               "with", "index"}
+_CI_VAL_RE = re.compile(r"\b0\.[5-9]\d")
+
+
+def _covar_set(label: str) -> frozenset:
+    """'CMB + age + sex' -> {'cmb','age','sex'} (additive split on '+', notes and
+    non-covariate words dropped)."""
+    label = re.sub(r"\(.*?\)", " ", label)
+    out = set()
+    for tok in re.split(r"\s*\+\s*", label):
+        t = re.sub(r"[^a-z0-9]", "", tok.lower())
+        if t and len(t) >= 2 and t not in _COVAR_STOP:
+            out.add(t)
+    return frozenset(out)
+
+
+def check_nested_model_baseline(text: str) -> list[dict]:
+    """A table of nested prediction models reports a discrimination statistic (C-index /
+    AUC) for two or more models that all embed a common covariate set (e.g. every model
+    is 'X + age + sex'), but there is no BASE-model row (the common covariates alone) and
+    no incremental deltaC — so the shared covariates could account for the discrimination,
+    and 'model A comparable to model B' is uninterpretable. Deterministic and header-gated:
+    only tables with a discrimination column and additive ('X + Y') model labels are
+    considered, so an ordinary results table does not fire."""
+    claims: list[dict] = []
+    for tbl in _parse_md_tables(text):
+        if len(tbl) < 3:
+            continue
+        header = tbl[0]
+        ci_idx = _pick(header, _CINDEX_HDR)
+        if ci_idx is None:
+            continue
+        model_idx = _pick(header, _MODEL_HDR)
+        if model_idx is None:
+            model_idx = 0
+        additive: list[tuple[str, frozenset]] = []
+        ci_row_sets: set = set()
+        for row in tbl[1:]:
+            if ci_idx >= len(row) or not _CI_VAL_RE.search(row[ci_idx]):
+                continue
+            label = row[model_idx] if model_idx < len(row) else (row[0] if row else "")
+            cset = _covar_set(label)
+            ci_row_sets.add(cset)
+            if "+" in label:
+                additive.append((label, cset))
+        if len(additive) < 2:
+            continue
+        common = frozenset.intersection(*(s for _, s in additive))
+        if not common or common in ci_row_sets:
+            continue
+        if re.search(r"(?:Δ|delta[-\s]?)\s?(?:c\b|auc)|incremental (?:c[-\s]?index|auc|discrimination)",
+                     text, re.IGNORECASE):
+            continue
+        claims.append({
+            "verdict": "NESTED_MODEL_NO_BASELINE",
+            "severity": "Minor",
+            "detail": (f"{len(additive)} nested models report a discrimination statistic and all embed "
+                       f"the covariates {sorted(common)}, but no base-model row (those covariates alone) "
+                       f"and no incremental ΔC is reported; the shared covariates could account for the "
+                       f"discrimination — add the base-model C-index and the ΔC so the incremental value "
+                       f"is interpretable"),
+            "where": ("; ".join(lab for lab, _ in additive[:3]))[:120],
+        })
+    return claims
+
+
 def analyze(manuscript: str, data: str | None, id_col: str | None = None) -> dict:
     p = Path(manuscript)
     if not p.is_file():
@@ -700,6 +773,7 @@ def analyze(manuscript: str, data: str | None, id_col: str | None = None) -> dic
     claims += check_partition_text(text)
     claims += check_followup_criterion(text)
     claims += check_duplicate_subgroup_ci(text)
+    claims += check_nested_model_baseline(text)
 
     if data:
         rows = load_csv(data)

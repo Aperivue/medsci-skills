@@ -127,5 +127,19 @@ d=json.load(open('$OUT'))
 raise SystemExit(0 if not any(c['verdict']=='SUBGROUP_DUPLICATE_CI' for c in d['claims']) else 1)
 "
 
+# (N) nested prediction models all embedding a common covariate set (age + sex) report a
+#     C-index but there is no base-model (age+sex-only) row and no incremental deltaC ->
+#     NESTED_MODEL_NO_BASELINE (Minor). Adding the base-model row must suppress it.
+NEST="$HERE/fixtures/cohort_nested_models.md"
+NESTBASE="$HERE/fixtures/cohort_nested_models_base.md"
+python3 "$SCRIPT" --manuscript "$NEST" --out "$OUT" --quiet >/dev/null 2>&1
+check "NESTED_MODEL_NO_BASELINE when nested models share covariates with no base row" has_verdict NESTED_MODEL_NO_BASELINE
+python3 "$SCRIPT" --manuscript "$NESTBASE" --out "$OUT" --quiet >/dev/null 2>&1
+check "no NESTED_MODEL_NO_BASELINE when the base-model (age+sex) row is present" python3 -c "
+import json
+d=json.load(open('$OUT'))
+raise SystemExit(0 if not any(c['verdict']=='NESTED_MODEL_NO_BASELINE' for c in d['claims']) else 1)
+"
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"
