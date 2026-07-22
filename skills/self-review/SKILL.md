@@ -658,6 +658,12 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/check_null_calibration.py" \
 python3 "${CLAUDE_SKILL_DIR}/scripts/check_effect_stability.py" \
   --manuscript manuscript.md --out qc/effect_stability.json --strict
 
+# 5c. incorporation bias — a trajectory-defined reference standard (benign by resolution/
+#     decrease/stability) with a trajectory predictor (growth) reported as associated with the
+#     outcome; the predictor is built into the reference standard
+python3 "${CLAUDE_SKILL_DIR}/scripts/check_incorporation_bias.py" \
+  --manuscript manuscript.md --out qc/incorporation_bias.json --strict
+
 # 6. reader/observer study only — prove the (call × confidence) → score encoding is strictly
 #    monotonic; a folded score silently mis-estimates the AUC and no prose review can see it
 python3 "${MEDSCI_SKILLS_ROOT}/skills/analyze-stats/scripts/rating_monotonicity.py" \

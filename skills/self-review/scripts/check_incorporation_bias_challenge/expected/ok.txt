@@ -1,0 +1,8 @@
+=========================================
+ Incorporation Bias (Phase 2.5)
+=========================================
+| Check | Severity | Detail |
+|---|---|---|
+| (none) | — | reference standard and reported predictors are independent |
+
+OK: reference standard and reported predictors are independent.

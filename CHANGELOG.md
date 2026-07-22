@@ -4,6 +4,20 @@
 
 ### Added
 
+- **`/self-review` — `check_incorporation_bias` (detector 68 → 69): the reference standard and the
+  predictor are the same construct.** A nodule study classified nodules benign by "complete resolution
+  / decrease in diameter / size stability" — every tier a form of *not growing* — and then reported
+  **growth** as associated with malignancy (OR 50.9). A resolved nodule cannot be malignant under that
+  standard, so the growth–malignancy association is partly definitional. Two panel reviewers reached it
+  independently and called it fatal; nothing fired. The detector reads trajectory tokens **only from the
+  reference-standard/outcome-defining sentences** and emits `INCORPORATION_BIAS` (Major) when a
+  trajectory-named predictor (growth, interval change, increase/decrease in size) is reported as
+  associated with the outcome in the same sentence — unless the manuscript already discloses the overlap
+  ("incorporation bias", "partly definitional", "not independent of the reference standard"). Covers the
+  deterministic size/trajectory sub-class only. Ships a challenge card (trajectory-standard + growth-OR
+  positive vs a pathology + follow-up standard negative) run in CI. Grounding: real-failure,
+  panel-confirmed against the data (72/81 benign labels were trajectory labels).
+
 - **Four more field-backlog verdicts on detectors that already run (no new counted detector).**
   - **`check_cohort_arithmetic` — `FOLLOWUP_VS_CRITERION` (Minor).** A reported "median follow-up was
     102 days" against a reference standard requiring "size stability for ≥24 months" reads as if benign

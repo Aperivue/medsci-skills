@@ -86,6 +86,7 @@ FAMILY_BY_ID: dict[str, str] = {
     "check_marked_manuscript": "style_review",
     # Confounding, scope & estimand contracts
     "check_scope_coherence": "confounding_scope_estimand",
+    "check_incorporation_bias": "confounding_scope_estimand",
     "check_analysis_definitions": "confounding_scope_estimand",
     "check_confounding_completeness": "confounding_scope_estimand",
     "check_nested_group_comparison": "confounding_scope_estimand",

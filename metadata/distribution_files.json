@@ -3883,8 +3883,8 @@
     },
     {
       "path": "skills/self-review/SKILL.md",
-      "size": 78470,
-      "sha256": "4d9ba887f24e9cb6424dada237603ea1d16340a8188e6394ee719ce8dac96661"
+      "size": 78863,
+      "sha256": "cf376254c7c4f62bedada8513fd0f3a2b210f96810e635384c8f0b70a9a1462e"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
@@ -4237,6 +4237,41 @@
       "sha256": "087ee531a5d1b8e2ebd2630d1c5180dfbacfec46299d262100ad19f0ba4fa32c"
     },
     {
+      "path": "skills/self-review/scripts/check_incorporation_bias.py",
+      "size": 9107,
+      "sha256": "52ed8e0d9893a013ad00a13a19160ca86a7bffc75965d42a67398dff23044fb4"
+    },
+    {
+      "path": "skills/self-review/scripts/check_incorporation_bias_challenge/expected/bad.txt",
+      "size": 624,
+      "sha256": "e2d88292ff0b0091b739fca6bdb14ab864f0d454eaa15967ed7ce5765e800819"
+    },
+    {
+      "path": "skills/self-review/scripts/check_incorporation_bias_challenge/expected/ok.txt",
+      "size": 303,
+      "sha256": "0c89ade42ab0ee0c439e89b234936cfacced186c0ade4c29fdcc4ae6911108dd"
+    },
+    {
+      "path": "skills/self-review/scripts/check_incorporation_bias_challenge/fixture/incorp_bad.md",
+      "size": 347,
+      "sha256": "c0678f621accf279853ae3818ff11158e1164c741c173d96a3dbe3e4f5b4cb49"
+    },
+    {
+      "path": "skills/self-review/scripts/check_incorporation_bias_challenge/fixture/incorp_ok.md",
+      "size": 299,
+      "sha256": "cb1fd2542f75ba46d4dfd6ae069a17a38e92c8f9a94d07e511f46e3b60b3c855"
+    },
+    {
+      "path": "skills/self-review/scripts/check_incorporation_bias_challenge/problem.md",
+      "size": 931,
+      "sha256": "d02337496e24fea4821813fa3c5dccccef1d3d9f8d8bda1004e3da40e2d70d92"
+    },
+    {
+      "path": "skills/self-review/scripts/check_incorporation_bias_challenge/verify.sh",
+      "size": 1796,
+      "sha256": "7b24e2ee7c74f07f9df209fb5747b68f3c119ff10f2512951acb28b858d15206"
+    },
+    {
       "path": "skills/self-review/scripts/check_nested_group_comparison.py",
       "size": 6396,
       "sha256": "191ea2603d2fe753c5e14a8e67e894c83e7af95bcad4b2d90480f529cbe40ac6"
@@ -4418,8 +4453,8 @@
     },
     {
       "path": "skills/self-review/skill.yml",
-      "size": 3397,
-      "sha256": "f19ef167bbdf12dcfa89c60a33883d95e266804ed927e68a4c60971dca20612a"
+      "size": 3517,
+      "sha256": "bfde47be6ba4e4298f7ac99734f2427a9a329368db74bcbb5007d8cb3ce07ab5"
     },
     {
       "path": "skills/setup-medsci/SKILL.md",
