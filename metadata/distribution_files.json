@@ -4198,8 +4198,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_figure_citation.py",
-      "size": 5339,
-      "sha256": "fe86c632bb14aaab14d787bc2ebf56079828949cff400b16c2fd5df897da1513"
+      "size": 8374,
+      "sha256": "5961b5f9b23264ce392ed9161a827b7cfcd337b3b58d3ee1287077786d5b004e"
     },
     {
       "path": "skills/self-review/scripts/check_nested_group_comparison.py",
@@ -4468,8 +4468,8 @@
     },
     {
       "path": "skills/sync-submission/scripts/cover_letter_drift_check.py",
-      "size": 16001,
-      "sha256": "347c5b702fbe9375899795791a34e8a60e246253bafb53b15ebb59d51dd45e7d"
+      "size": 19379,
+      "sha256": "9a1ef365e6aae53582a87570ce7bde327ed9302a9834571f681b2972b87b2d5d"
     },
     {
       "path": "skills/sync-submission/scripts/cross_document_n_check.py",

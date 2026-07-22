@@ -4,9 +4,12 @@ cover_letter_drift_check.py — Phase 4 cover-letter free-text drift gate.
 
 Compares the numeric claims embedded in a cover letter (body word count,
 abstract word count, reference count, table/figure count, reporting-guideline
-status) against the manuscript artifacts that should be their source of truth.
-Emits a drift report when the cover letter has gone stale relative to the
-manuscript.
+status) — and the manuscript TITLE — against the artifacts that should be their
+source of truth. Emits a drift report when the cover letter (or the project
+config) has gone stale relative to the manuscript. The title check requires the
+manuscript title to appear verbatim in the cover letter and to match an optional
+`--config` (SSOT.yaml/project.yaml) `title`/`title_working` field — three live
+titles at once is a guaranteed desk/technical-check flag.
 
 Why this gate exists
 ====================
@@ -274,6 +277,76 @@ def extract_claims(cover_letter_path: Path) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# Title / running-head drift
+# ---------------------------------------------------------------------------
+
+
+def _norm_title(s: str) -> str:
+    """Lowercase, collapse whitespace, strip surrounding quotes and a trailing period."""
+    s = s.strip().strip("\"'“”‘’").strip()
+    s = re.sub(r"\s+", " ", s).strip()
+    return s.rstrip(".").lower()
+
+
+def _title_from_yaml_key(text: str, keys: tuple[str, ...]) -> str:
+    for key in keys:
+        m = re.search(rf"^{key}:\s*(.+?)\s*$", text, re.MULTILINE)
+        if m:
+            return m.group(1).strip().strip("\"'")
+    return ""
+
+
+def extract_manuscript_title(manuscript_path: Path) -> str:
+    lines = manuscript_path.read_text(encoding="utf-8").splitlines()
+    yaml_lines, body_lines = split_yaml_front_matter(lines)
+    t = _title_from_yaml_key("\n".join(yaml_lines), ("title",))
+    if t:
+        return t
+    for ln in body_lines:  # fallback: first H1
+        hm = re.match(r"^#\s+(.+)", ln.strip())
+        if hm:
+            return hm.group(1).strip()
+    return ""
+
+
+def extract_config_title(config_path: Path) -> str:
+    text = config_path.read_text(encoding="utf-8")
+    return _title_from_yaml_key(text, ("title_working", "title"))
+
+
+def evaluate_title_drift(manuscript_path: Path, cover_letter_path: Path,
+                         config_path: Optional[Path]) -> list[dict]:
+    """The manuscript title must appear verbatim in the cover letter and match the
+    project config. A title that differs across these sidecars is a guaranteed
+    desk/technical-check flag (the running head and portal metadata are next)."""
+    drifts: list[dict] = []
+    ms_title = extract_manuscript_title(manuscript_path)
+    if not ms_title:
+        return drifts
+    needle = _norm_title(ms_title)
+    haystack = _norm_title(cover_letter_path.read_text(encoding="utf-8"))
+    if needle not in haystack:
+        drifts.append({
+            "field": "title",
+            "truth": ms_title,
+            "cover_letter_claim": "(manuscript title not found verbatim in cover letter)",
+            "severity": "MAJOR",
+            "note": "the cover letter does not state the manuscript title verbatim — a desk-check mismatch",
+        })
+    if config_path is not None and config_path.exists():
+        cfg_title = extract_config_title(config_path)
+        if cfg_title and _norm_title(cfg_title) != needle:
+            drifts.append({
+                "field": "title(config)",
+                "truth": ms_title,
+                "cover_letter_claim": cfg_title,
+                "severity": "MAJOR",
+                "note": "the project config title disagrees with the manuscript title",
+            })
+    return drifts
+
+
+# ---------------------------------------------------------------------------
 # Drift evaluation
 # ---------------------------------------------------------------------------
 
@@ -377,6 +450,9 @@ def main() -> int:
     p.add_argument("--refs", type=Path, default=None,
                    help="refs.bib path. Used for reference count truth. "
                         "If absent, falls back to counting unique [@key] in manuscript.")
+    p.add_argument("--config", type=Path, default=None,
+                   help="Optional project config (SSOT.yaml / project.yaml) with a `title`/"
+                        "`title_working` field to cross-check against the manuscript title.")
     p.add_argument("--out", type=Path, default=Path("qc/cover_letter_drift.json"))
     p.add_argument("--body-tolerance-pct", type=float, default=DEFAULT_BODY_TOLERANCE_PCT,
                    help="Allowed slack on body word count (percent). Default %(default)s.")
@@ -409,6 +485,7 @@ def main() -> int:
         body_tolerance_pct=args.body_tolerance_pct,
         abstract_tolerance=args.abstract_tolerance,
     )
+    drifts += evaluate_title_drift(args.manuscript, args.cover_letter, args.config)
 
     report = {
         "submission_safe": len(drifts) == 0,
