@@ -1,8 +1,8 @@
 ---
 name: humanize
-description: Detect and remove AI writing patterns from academic manuscripts and response-to-reviewers letters. Scans for 24 common AI-generated text patterns and rewrites flagged passages to sound naturally human-written while preserving technical accuracy.
+description: Detect and remove AI writing patterns from academic manuscripts and response-to-reviewers letters. Scans for 25 common AI-generated text patterns and rewrites flagged passages to sound naturally human-written while preserving technical accuracy, bounding how much of the text a rewrite is allowed to touch.
 triggers: humanize, AI patterns, AI 문체, remove AI writing, make it sound natural, 자연스럽게, de-AI
-tools: Read, Write, Edit, Grep, Glob
+tools: Read, Write, Edit, Grep, Glob, Bash
 model: inherit
 ---
 
@@ -20,8 +20,8 @@ wrote it, while preserving every technical claim, number, and citation.
 
 ## Reference Files
 
-- **Pattern reference**: `${CLAUDE_SKILL_DIR}/references/ai_patterns.md` -- full 24-pattern list with expanded examples for medical/radiology manuscripts (Pattern 19–21 are senior-MA-reviewer red flags; Pattern 22–24 are response-to-reviewers letter patterns)
-- **Source material**: Based on matsuikentaro1/humanizer_academic and Wikipedia: Signs of AI writing
+- **Pattern reference**: `${CLAUDE_SKILL_DIR}/references/ai_patterns.md` -- full 25-pattern list with expanded examples for medical/radiology manuscripts (Pattern 19–21 are senior-MA-reviewer red flags; Pattern 25 is a typographic tell applying to any prose; Pattern 22–24 are response-to-reviewers letter patterns)
+- **Source material**: Patterns 1-18 are inherited from matsuikentaro1/humanizer_academic and Wikipedia, "Signs of AI writing"; their thresholds are conventional rather than measured on a medical corpus. Patterns 19-25 come from observed reviewer, co-author, and rebuttal rounds. `references/ai_patterns.md` records the grounding per pattern.
 
 Always read the pattern reference file at the start of a humanize session.
 
@@ -31,7 +31,7 @@ Always read the pattern reference file at the start of a humanize session.
 
 ### Phase 1: Scan
 
-Read the manuscript section(s) provided by the user and scan for all 24 patterns. For
+Read the manuscript section(s) provided by the user and scan for all 25 patterns. For
 response-to-reviewers letters and cover letters, prioritise patterns 22-24.
 
 **For each pattern found:**
@@ -71,7 +71,7 @@ Present findings to the user with actionable summary.
 - **LOW** (0 occurrences): Clean for this pattern.
 
 **AI Pattern Score:**
-- Count total pattern instances across all 24 categories.
+- Count total pattern instances across all 25 categories.
 - Compute density: instances per 1000 words.
 - Target: < 2.0 instances per 1000 words.
 
@@ -91,7 +91,9 @@ Rewrite flagged passages following these rules:
    coefficient," "Fleiss' kappa" stay as-is.
 6. **Never introduce new claims** or remove existing ones.
 7. **Vary sentence structure.** Mix short declarative sentences (8-12 words) with longer ones
-   (25-35 words). Avoid uniform length.
+   (25-35 words). Avoid uniform length. A de-AI pass tends to *flatten* rhythm — it shortens the
+   long sentences and pads the short ones toward a comfortable middle, which is itself a tell.
+   `scripts/check_sentence_variety.py` verifies this rule in Phase 4.
 8. **Use active voice** where natural. "We analyzed" rather than "Analysis was performed."
 
 **Fix strategies per pattern category:**
@@ -107,7 +109,24 @@ Rewrite flagged passages following these rules:
 
 ### Phase 4: Verify
 
-Re-scan the rewritten text using the same 24 patterns.
+**Keep the pre-rewrite text.** Before editing in place, copy the original somewhere the fidelity
+check can read it (`cp manuscript.md /tmp/pre_humanize.md`). Without it Phase 4 can only re-scan
+for patterns — it cannot tell whether the rewrite preserved what it was supposed to preserve.
+
+Run both deterministic checks, then re-scan the rewritten text using the same 25 patterns.
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/check_rewrite_fidelity.py" \
+    --before /tmp/pre_humanize.md --after manuscript.md \
+    --out qc/rewrite_fidelity.json --strict
+python3 "${CLAUDE_SKILL_DIR}/scripts/check_sentence_variety.py" \
+    --manuscript manuscript.md --out qc/sentence_variety.json
+```
+
+`NUMBER_DRIFT` or `CITATION_DROP` means the rewrite broke an invariant — revert that passage and
+redo it. `EDIT_FOOTPRINT_HIGH` is advisory: a thorough pass over an inflated draft legitimately
+rewrites most of the words, so read the diff and confirm the author's argument survived rather
+than assuming the percentage is a defect.
 
 **Output: Verification Report**
 
@@ -131,7 +150,7 @@ If the density remains above 2.0, run another fix-verify cycle (max 3 rounds).
 
 ---
 
-## The 24 Detection Patterns
+## The 25 Detection Patterns
 
 ### Content Patterns
 
@@ -171,7 +190,7 @@ If the density remains above 2.0, run another fix-verify cycle (max 3 rounds).
 | 17 | Excessive hedging | "may potentially suggest the possibility" | Choose the appropriate certainty level: "suggests" |
 | 18 | Generic positive conclusions | "The future looks bright," "continues to reshape," "paves the way" | State the specific next step or implication |
 
-### Senior MA Reviewer Patterns
+### Senior MA Reviewer and Typographic Patterns
 
 | # | Pattern | What to look for | Fix |
 |---|---------|------------------|-----|
@@ -196,7 +215,7 @@ When scanning a full manuscript, prioritize these patterns per section:
 
 | Section | Priority Patterns | Reason |
 |---------|------------------|--------|
-| Abstract | ALL (1-21) | Most visible section; most scrutinized for AI patterns |
+| Abstract | ALL (1-21, 25) | Most visible section; most scrutinized for AI patterns |
 | Introduction | 1, 2, 5, 7, 12 | AI inflates background importance and uses vague attributions |
 | Methods | 8, 16 | Methods should be straightforward; copula avoidance and filler are common |
 | Results | 3, 4, 6, 10, 11 | AI adds interpretive -ing clauses and promotional language to results |
@@ -250,5 +269,7 @@ the pass/fail status.
 | Pattern 21 — AI Disclosure paragraph in body | ENFORCED | "Generative AI was not used..." paragraph in manuscript body | move to cover letter or remove |
 | Pattern 25 — inline-emphasis over-use | ENFORCED | italic-emphasis density over threshold after allowlist | run `/self-review` `scripts/check_emphasis_density.py --manuscript manuscript.md`; `EMPHASIS_OVERUSE` (Minor) means strip inline italics (keep only stat symbols / Latin / gene-species); whole-clause italics are the strongest tell |
 | Patterns 22-24 — R2R editing-mechanism / draft line-number / tooling leak | TRIAGE (response letters); `§` = 0 hard | detection greps in ai_patterns.md R2R section surface candidates | review each hit (analysis narration, quoted additions, revised-manuscript page/line are NOT tells); rewrite confirmed tells to substantive prose |
-| Citation preservation invariant | ENFORCED | any pre-existing `[@bibkey]` removed by rewrite | revert that single rewrite; flag for user |
-| Numerical preservation invariant | ENFORCED | any number changed by rewrite | revert; flag for user |
+| Citation preservation invariant | ENFORCED | any pre-existing citation removed by the rewrite | `scripts/check_rewrite_fidelity.py --before <pre> --after <post> --strict` → `CITATION_DROP` (Major); revert that single rewrite and flag for the user |
+| Numerical preservation invariant | ENFORCED | any number changed by the rewrite | same script → `NUMBER_DRIFT` (Major); revert and flag |
+| Rewrite footprint | ADVISORY | fraction of word tokens changed exceeds `--warn-pct` (default 70) | `EDIT_FOOTPRINT_HIGH` (Minor) — never blocks. Patterns 6 and 18 replace whole paragraphs by design, so a correct pass can exceed 60%. Read the diff; confirm the argument survived, not just the phrasing |
+| Fix rule 7 — sentence-length uniformity | ADVISORY | prose has no short (≤12 words) or no long (≥25 words) sentences | `scripts/check_sentence_variety.py --manuscript <file>` → `SENTENCE_UNIFORM` (Minor); break up or combine sentences until both bands exist. Silent below 15 sentences |

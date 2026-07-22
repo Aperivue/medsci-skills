@@ -2,9 +2,9 @@
 
 # humanize
 
-> Detect and remove AI writing patterns from academic manuscripts and response-to-reviewers letters. Scans for 24 common AI-generated text patterns and rewrites flagged passages to sound naturally human-written while preserving technical accuracy.
+> Detect and remove AI writing patterns from academic manuscripts and response-to-reviewers letters. Scans for 25 common AI-generated text patterns and rewrites flagged passages to sound naturally human-written while preserving technical accuracy, bounding how much of the text a rewrite is allowed to touch.
 
-**Invoke:** `/humanize` · **Tools:** Read, Write, Edit, Grep, Glob · **Model:** inherit
+**Invoke:** `/humanize` · **Tools:** Read, Write, Edit, Grep, Glob, Bash · **Model:** inherit
 
 ## When to use
 
@@ -23,10 +23,12 @@
 
 - Pattern detection is heuristic; subtle tells may remain and need a human pass.
 - No standalone demo; judgement is required on borderline phrasings.
+- Patterns 1-18 are inherited from an external list; their thresholds are conventional, not measured on a medical corpus.
 
 **Validation**
 
-- `diff against the source to confirm only style changed`
+- `scripts/check_rewrite_fidelity.py --before <pre> --after <post> --strict`
+- `scripts/check_sentence_variety.py --manuscript <file>`
 - `/self-review`
 
 **Evidence** — `manual_workflow`
@@ -36,6 +38,11 @@
 **References** (`skills/humanize/references/`):
 
 - `ai_patterns.md`
+
+**Scripts** (`skills/humanize/scripts/`):
+
+- `check_rewrite_fidelity.py`
+- `check_sentence_variety.py`
 
 ## Source
 
