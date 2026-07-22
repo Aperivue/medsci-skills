@@ -11,6 +11,15 @@ Verdict:
   FIGURE_ORPHAN (Minor)  a figure with a caption "Figure N." has no in-text
                          "Figure N" / "Fig. N" citation anywhere outside its caption.
   TABLE_ORPHAN  (Minor)  the same for a "Table N." caption.
+  FIGURE_NOT_EMBEDDED    the manuscript has figure captions but NO markdown image link
+        (Minor;          (`![...](...)`) anywhere, so every figure is captioned yet
+   Major w/ --require-   absent from the rendered output — the "complete" submission that
+   embedded)             ships with the legends and none of the pictures. Advisory by
+                         default (a drafting manuscript may keep figures as separate
+                         files); --require-embedded (the submission preflight) makes it
+                         Major. Conservative: fires only when ZERO images are embedded,
+                         never a per-figure guess, so it stays silent once any figure is
+                         embedded.
 
 Deterministic and caption-anchored: a line beginning "Figure N." / "Table N." (with
 optional **bold**) DECLARES float N; any "Figure N" / "Table N" mention on a
@@ -38,13 +47,17 @@ from pathlib import Path
 CAPTION_RE = re.compile(r"^\s*\*{0,2}\s*(?P<kind>Figure|Fig\.?|Table)\s+(?P<num>\d+)\s*[.:]", re.I)
 # Any in-text mention: Figure N / Fig N / Fig. N / Table N (+ "Figures 1 and 2" heads)
 MENTION_RE = re.compile(r"\b(?P<kind>Figures?|Figs?\.?|Tables?)\s+(?P<num>\d+)\b", re.I)
+# A markdown image embed: ![alt](path). Its presence is how a figure reaches the
+# rendered output; a manuscript with figure captions but zero image links ships
+# with every legend and no picture.
+IMG_LINK_RE = re.compile(r"!\[[^\]]*\]\([^)]+\)")
 
 
 def _kind(raw: str) -> str:
     return "Table" if raw.lower().startswith("tab") else "Figure"
 
 
-def check(text: str) -> list[dict]:
+def check(text: str, require_embedded: bool = False) -> list[dict]:
     lines = text.splitlines()
     declared: dict[tuple[str, int], int] = {}   # (kind, num) -> caption line index
     for i, line in enumerate(lines):
@@ -71,23 +84,46 @@ def check(text: str) -> list[dict]:
                        f"in the body; add an in-text '{kind} {num}' citation or remove the float"),
             "where": lines[cap_line].strip()[:120],
         })
+
+    # FIGURE_NOT_EMBEDDED: captioned figures but no image link anywhere in the file.
+    # Conservative on purpose (only the zero-embed case, never a per-figure guess) so
+    # it stays silent whenever any figure is embedded. Tables are inline markdown, not
+    # embedded images, so they are exempt.
+    figures = sorted((n, ln) for (k, n), ln in declared.items() if k == "Figure")
+    if figures and not IMG_LINK_RE.search(text):
+        # Advisory by default: a markdown manuscript with figures kept as separate
+        # attachment files legitimately embeds no image. --require-embedded (the
+        # submission preflight) escalates to Major, where captions-with-no-picture
+        # is the "complete package that ships with the legends and none of the
+        # figures" failure.
+        sev = "Major" if require_embedded else "Minor"
+        for num, cap_line in figures:
+            claims.append({
+                "verdict": "FIGURE_NOT_EMBEDDED",
+                "severity": sev,
+                "detail": (f"Figure {num} is captioned (line {cap_line + 1}) but no image is embedded "
+                           f"anywhere in the manuscript; confirm the figure is embedded or attached as a "
+                           f"separate file before submission"),
+                "where": lines[cap_line].strip()[:120],
+            })
     return claims
 
 
-def analyze(manuscript: str) -> dict:
+def analyze(manuscript: str, require_embedded: bool = False) -> dict:
     p = Path(manuscript)
     if not p.is_file():
         sys.stderr.write(f"ERROR: manuscript not found: {manuscript}\n")
         sys.exit(2)
-    claims = check(p.read_text(encoding="utf-8"))
+    claims = check(p.read_text(encoding="utf-8"), require_embedded=require_embedded)
+    n_major = sum(1 for c in claims if c["severity"] == "Major")
     return {
         "manuscript": str(p),
         "claims": claims,
         "summary": {
             "n_claims": len(claims),
-            "n_major": 0,
-            "n_flag": len(claims),
-            "verdict": "REVIEW" if claims else "OK",
+            "n_major": n_major,
+            "n_flag": len(claims) - n_major,
+            "verdict": "MAJOR_CANDIDATE" if n_major else ("REVIEW" if claims else "OK"),
         },
     }
 
@@ -107,11 +143,14 @@ def main() -> int:
     ap.add_argument("--manuscript", required=True, help="manuscript markdown/text")
     ap.add_argument("--out", help="write JSON artifact to this path")
     ap.add_argument("--strict", action="store_true",
-                    help="exit 1 if any Major (none — this gate is Minor-only)")
+                    help="exit 1 if any Major (a captioned figure with no embedded image under --require-embedded)")
+    ap.add_argument("--require-embedded", action="store_true",
+                    help="submission context: escalate FIGURE_NOT_EMBEDDED to Major (figures must be "
+                         "embedded in the manuscript, not kept as separate files)")
     ap.add_argument("--quiet", action="store_true", help="suppress stdout table")
     args = ap.parse_args()
 
-    result = analyze(args.manuscript)
+    result = analyze(args.manuscript, require_embedded=args.require_embedded)
 
     if not args.quiet:
         print("=" * 44)
@@ -119,8 +158,13 @@ def main() -> int:
         print("=" * 44)
         print(render(result))
         print()
-        n = result["summary"]["n_flag"]
-        print(f"{'REVIEW: ' + str(n) + ' orphan float(s).' if n else 'OK: every captioned float is cited in the body.'}")
+        s = result["summary"]
+        if s["n_major"]:
+            print(f"MAJOR: {s['n_major']} figure(s) captioned but not embedded; {s['n_flag']} orphan float(s).")
+        elif s["n_flag"]:
+            print(f"REVIEW: {s['n_flag']} orphan float(s).")
+        else:
+            print("OK: every captioned float is cited and embedded.")
 
     if args.out:
         Path(args.out).parent.mkdir(parents=True, exist_ok=True)

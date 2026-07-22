@@ -4,8 +4,20 @@
 
 ### Added
 
-- **`/self-review` — two deterministic gates promoted from the field-feedback backlog, both as
-  verdicts on detectors that already run (no new counted detector).**
+- **Two more field-backlog gates, again as verdicts on detectors that already run (no new counted
+  detector).**
+  - **`check_figure_citation` now flags a manuscript that has figure captions but no embedded image**
+    (`FIGURE_NOT_EMBEDDED`). A "complete" circulation manuscript can ship with every figure legend and
+    not one picture — author-invisible, because the prose reads finished. The check is conservative
+    (fires only when *zero* images are embedded, never a per-figure guess) and **advisory by default**
+    (a drafting manuscript legitimately keeps figures as separate files); `--require-embedded` — the
+    submission preflight — escalates it to Major, where captions-with-no-picture is the failure.
+  - **`cover_letter_drift_check` now checks the manuscript TITLE, not only the counts**
+    (`TITLE_DRIFT`). The §4 cover-letter gate already caught word/reference/table drift; a title that
+    differs across the manuscript frontmatter, the cover letter, and the project config (three live
+    titles at once) is a guaranteed desk/technical-check flag it did not see. The manuscript title
+    must appear verbatim in the cover letter and match an optional `--config` (`title`/`title_working`)
+    field.
   - **`check_cohort_arithmetic` now reads a PROSE partition, not only tables/CSV** (`PARTITION_OVERLAP`).
     A sentence that presents an exhaustive split of a stated total — "of the 289 cases, 37 (12.8%) …
     185 (64.0%) … 103 (35.6%) …" — but whose counts do not sum to the total (325 ≠ 289) or whose

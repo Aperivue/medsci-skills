@@ -508,6 +508,9 @@ jobs:
       - name: Run sync-submission scope-drift gate test
         run: bash skills/sync-submission/tests/test_scope_drift.sh
 
+      - name: Run sync-submission cover-letter title-drift gate test
+        run: bash skills/sync-submission/tests/test_cover_letter_title_drift.sh
+
       - name: Run sync-submission vN-docx assertion gate test
         run: bash skills/sync-submission/tests/test_vN_docx_assertion.sh
 
