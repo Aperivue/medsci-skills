@@ -52,6 +52,20 @@
 
 ### Added
 
+- **`/self-review` `check_cohort_arithmetic` — `NESTED_MODEL_NO_BASELINE`: nested discrimination
+  models with no base-model row.** A table reported C-indices for several nested models that all
+  embedded age + sex (CMB+age+sex = 0.667, MetS+age+sex = 0.671, …) but had **no age+sex-only baseline
+  row** — the section was even titled "(age + sex baseline)". "CMB comparable to MetS" was
+  uninterpretable because the shared age + sex could account for the discrimination; re-analysis put
+  C(age+sex) = 0.648 and the incremental ΔC at only 0.019/0.023. The gate now flags a table with a
+  discrimination column (C-index / AUC) where two or more additive ("X + Y") models share a common
+  covariate set but no row reports those common covariates alone and no incremental ΔC is stated
+  (Minor). Deterministic and header-gated: it only considers tables with a discrimination column and
+  `+`-additive model labels, drops non-covariate words from the label, and stays silent when the
+  base-model row or a ΔC is present. Regression cases in `test_cohort_arithmetic.sh` fail on the
+  pre-verdict detector. Grounding: real-failure. Additive verdict on an existing detector; detector
+  count unchanged.
+
 - **`/self-review` `check_scope_coherence` — `GRADIENT_WITHOUT_INTERACTION`: a "gradient across
   strata" claim with no interaction test.** An age×CMB "gradient" was claimed via joint
   stratification (primary table + heatmap + Central Illustration) with no interaction term or LRT
