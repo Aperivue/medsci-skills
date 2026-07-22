@@ -4518,8 +4518,8 @@
     },
     {
       "path": "skills/sync-submission/SKILL.md",
-      "size": 33754,
-      "sha256": "a5045e252bdebf15fa569dee3156b83aa4bd03c4cb2ba07ffc21ef4fb5a762a2"
+      "size": 34358,
+      "sha256": "397ad2d500034af4f27fafa400fd8ec589accb094671631382391fbd8890bfe1"
     },
     {
       "path": "skills/sync-submission/references/journal_availability_policy.json",
@@ -4577,6 +4577,41 @@
       "sha256": "4f47c9b0ac9c017a57eb17232b867ce5e8b46f936f88b6b98f0ae24da595497a"
     },
     {
+      "path": "skills/sync-submission/scripts/check_portal_field_residue.py",
+      "size": 6762,
+      "sha256": "bd78f80811b2fd92a6934c53d604e5127c27893cf29fd1e362ad9313c84591eb"
+    },
+    {
+      "path": "skills/sync-submission/scripts/check_portal_field_residue_challenge/fixture/negative/abstract.txt",
+      "size": 327,
+      "sha256": "888f7f217dd2ad2411746f6c9772c00c9db7fe9ac1a9285aec355a05ee98276e"
+    },
+    {
+      "path": "skills/sync-submission/scripts/check_portal_field_residue_challenge/fixture/negative/keywords.txt",
+      "size": 209,
+      "sha256": "2e545f2401f24c17dc7a75b30eddf0a48323e7e7e9f4f31a5bd41663085277cc"
+    },
+    {
+      "path": "skills/sync-submission/scripts/check_portal_field_residue_challenge/fixture/positive/abstract.txt",
+      "size": 350,
+      "sha256": "f32d5e28979529a29543fa9bf646943f9789718c38cd2d48bea49e8ab4ed89ec"
+    },
+    {
+      "path": "skills/sync-submission/scripts/check_portal_field_residue_challenge/fixture/positive/take_home.txt",
+      "size": 104,
+      "sha256": "44c8613003bd102f5dd12501261c75017116429cd7c8648f6f06bb5704ec4de6"
+    },
+    {
+      "path": "skills/sync-submission/scripts/check_portal_field_residue_challenge/problem.md",
+      "size": 1577,
+      "sha256": "65f280f8241806716921560bcf335909e4cb7ebabdda44abdedb64ef424bd978"
+    },
+    {
+      "path": "skills/sync-submission/scripts/check_portal_field_residue_challenge/verify.sh",
+      "size": 1703,
+      "sha256": "474561d3988fce903d94e83331678a6c1916626aa86a93e031724fa0d3085f3f"
+    },
+    {
       "path": "skills/sync-submission/scripts/check_wordcount_cap.py",
       "size": 9827,
       "sha256": "4d1c3403efeb4d891c4558d6e784c4088a0d349aad1625f1c348e50665c17f8d"
@@ -4598,8 +4633,8 @@
     },
     {
       "path": "skills/sync-submission/scripts/preflight_gate.py",
-      "size": 20954,
-      "sha256": "f4be9edf587ec5ea2b7fb782e4912173b78a4fe2035720e6d0681b3d8f36340f"
+      "size": 22133,
+      "sha256": "2591a051268b4b96db8bcb1505f7f17ec48f035f402399dbe198ad5606344d5f"
     },
     {
       "path": "skills/sync-submission/scripts/scope_drift_check.py",
@@ -4613,8 +4648,8 @@
     },
     {
       "path": "skills/sync-submission/skill.yml",
-      "size": 2139,
-      "sha256": "3dda0f4cb42ef31a0963fb034565fc0607bb79d24d904b09025d79483b17c876"
+      "size": 2236,
+      "sha256": "c08ce1a75ee5f7e1cab156b43d730da1598be1122619d29ae42dae128b84b8c1"
     },
     {
       "path": "skills/uncertainty-imaging/SKILL.md",

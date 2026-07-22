@@ -61,6 +61,7 @@ S = {
     "cover_letter_drift": REPO_ROOT / "skills/sync-submission/scripts/cover_letter_drift_check.py",
     "asset_anonymization": REPO_ROOT / "skills/sync-submission/scripts/check_asset_anonymization.py",
     "checklist_dump_leak": REPO_ROOT / "skills/sync-submission/scripts/check_checklist_dump_leak.py",
+    "portal_field_residue": REPO_ROOT / "skills/sync-submission/scripts/check_portal_field_residue.py",
 }
 
 
@@ -97,6 +98,10 @@ class Ctx:
         ])
         self.aux = [d for d in [self.root / "supplement", self.root / "supplementary", self.qc]
                     if d.is_dir()]
+        self.portal_fields = self._first_dir(getattr(args, "portal_fields", None), [
+            self.root / "portal_fields",
+            (self.root / "submission" / self.journal / "portal_fields") if self.journal else None,
+        ])
 
     def _manuscript(self, args):
         if args.manuscript:
@@ -220,6 +225,12 @@ def _argv_checklist_dump(c):
     return [PY, str(S["checklist_dump_leak"]), "--dir", str(c.asset_dir),
             "--quiet", "--out", str(c.qc / "checklist_dump_leak.json")]
 
+def _argv_portal_residue(c):
+    if not c.portal_fields:
+        return None
+    return [PY, str(S["portal_field_residue"]), "--dir", str(c.portal_fields),
+            "--quiet", "--out", str(c.qc / "portal_field_residue.json")]
+
 
 CHECKS = [
     {"id": "placeholders", "tier": "P0", "build": _argv_placeholders,
@@ -258,6 +269,11 @@ CHECKS = [
     # — P0 blocker, independent of blinding.
     {"id": "checklist_dump_leak", "tier": "P0", "build": _argv_checklist_dump,
      "exit_map": {0: "ok", 1: "finding", 2: "skipped"}, "artifact": "checklist_dump_leak.json"},
+    # Markdown residue (---, **bold**, ^x^, [text](url)) in a paste-verbatim portal
+    # .txt field would print literally in the published abstract/keyword field.
+    {"id": "portal_field_residue", "tier": "P1", "build": _argv_portal_residue,
+     "exit_map": {0: "ok", 1: "finding", 2: "skipped"}, "artifact": "portal_field_residue.json",
+     "strict_promote": True},
 ]
 
 
@@ -292,7 +308,7 @@ def _message(check_id, status, artifact_path, stdout):
         return f"{len(j.get('limitations_only_anchors', []))} limitations-only anchor(s)"
     if check_id == "copy_divergence" and j:
         return str(j.get("verdict", "")) or "copies checked"
-    if check_id in ("cross_artifact_stale", "asset_anonymization", "checklist_dump_leak") and j:
+    if check_id in ("cross_artifact_stale", "asset_anonymization", "checklist_dump_leak", "portal_field_residue") and j:
         return ", ".join(f"{k}={v}" for k, v in (j.get("summary") or {}).items()) or "scanned"
     if check_id == "sync_drift" and artifact_path is None and stdout:
         try:
@@ -368,6 +384,7 @@ _SCRIPT_KEY = {
     "scope_drift": "scope_drift", "cover_letter_drift": "cover_letter_drift",
     "asset_anonymization": "asset_anonymization",
     "checklist_dump_leak": "checklist_dump_leak",
+    "portal_field_residue": "portal_field_residue",
 }
 
 
@@ -400,6 +417,8 @@ def main() -> int:
     ap.add_argument("--copy", action="append", default=[], help="hand-maintained copy to check (repeatable)")
     ap.add_argument("--cover-letter", default=None)
     ap.add_argument("--asset-dir", default=None)
+    ap.add_argument("--portal-fields", default=None,
+                    help="directory of portal paste-verbatim .txt fields (abstract.txt, keywords.txt, …)")
     ap.add_argument("--prospero", default=None)
     ap.add_argument("--pool-lock", default=None)
     ap.add_argument("--out", default=None, help="report path (default: <project-root>/qc/preflight_gate_report.json)")
