@@ -517,6 +517,9 @@ jobs:
       - name: Run self-review float citation-order gate test
         run: bash skills/self-review/tests/test_citation_order.sh
 
+      - name: Run self-review aphorism-density gate test
+        run: bash skills/self-review/tests/test_aphorism_density.sh
+
       - name: Run self-review claim-artifact (estimand provenance) gate test
         run: bash skills/self-review/tests/test_claim_artifact.sh
 

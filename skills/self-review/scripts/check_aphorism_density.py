@@ -53,6 +53,8 @@ import statistics
 import sys
 from pathlib import Path
 
+from _frontmatter import strip_frontmatter
+
 FENCE_RE = re.compile(r"```.*?```", re.S)
 CITE_RE = re.compile(r"\[@[^\]]+\]|\[\d+(?:[,–-]\d+)*\]")
 INLINE_RE = re.compile(r"[*_`]")
@@ -79,6 +81,7 @@ MIN_SENTENCES = 40           # below this a rate is noise
 
 def body_text(md: str) -> str:
     """Body prose only: no headings, tables, block quotes, code, citations, markup."""
+    md = strip_frontmatter(md)   # a `status:`/build-note YAML block is not prose rhythm
     md = FENCE_RE.sub(" ", md)
     keep = []
     for line in md.splitlines():

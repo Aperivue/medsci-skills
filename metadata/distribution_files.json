@@ -4142,6 +4142,11 @@
       "sha256": "d78e98cc0eee08b56b13539c9a61836485a7357a2b4b53b6db7d6329d2443da8"
     },
     {
+      "path": "skills/self-review/scripts/_frontmatter.py",
+      "size": 2411,
+      "sha256": "129e1785593629dd63e2b4a264e8cadb034e41ed058cdfe784375e3f765cb5de"
+    },
+    {
       "path": "skills/self-review/scripts/check_analysis_definitions.py",
       "size": 13004,
       "sha256": "a2942e15652ac7b19444bd04153023818f3385e5bd881cbc94482ed5e6009538"
@@ -4178,8 +4183,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_aphorism_density.py",
-      "size": 9086,
-      "sha256": "a45486a74acd061ce951c24c59d32a629d11909017eb9e52816550f721b5dd92"
+      "size": 9219,
+      "sha256": "432ae0071a2f130b212978a6eea7c493494ea7e1a88169233e24e9d13c6a84bd"
     },
     {
       "path": "skills/self-review/scripts/check_artifact_coverage.py",
@@ -4193,8 +4198,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_citation_order.py",
-      "size": 11472,
-      "sha256": "e405065299cf1f5f46710cf0c3fb03228e7ce48aaa6b67c9289e1dc7dfb16055"
+      "size": 11722,
+      "sha256": "4ee5aaba572b62e2ecaf2884fea0aebcd01ef28f66667cb91f78ecd249a6c0aa"
     },
     {
       "path": "skills/self-review/scripts/check_claim_artifact.py",

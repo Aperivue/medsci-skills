@@ -4,6 +4,22 @@
 
 ### Fixed
 
+- **`/self-review` — two `--manuscript` detectors read a manuscript's YAML front matter as
+  body prose and fired on it.** A pandoc manuscript keeps its `status:`, changelog and build
+  notes in the leading `---`-fenced block; the shared line-filter idiom (`#`, `|`, `>`, `!`,
+  list markers, code fences) matches none of those, so the front matter was scanned as text.
+  On a live npj Digital Medicine submission this made **`check_citation_order`** report
+  `Tables cited 1, 3, 2` — the sequence came entirely from a `status:` block narrating a
+  display-item renumber ("old Table 1 → Supplementary Table S2", "old Table 3 → Box 1") while
+  the body cited every float in order — and made **`check_aphorism_density`** list
+  `THIS FILE IS THE SSOT` and `Build: python3 build/build_npj.py` among the manuscript's "very
+  short declaratives". Both now strip the leading front matter first, via a shared private
+  helper (`skills/self-review/scripts/_frontmatter.py`, same fence semantics as
+  sync-submission's `_yaml_frontmatter.py`; a lone `---` in the body is never mistaken for
+  front matter). Regression fixtures narrate an out-of-order renumber (and pack short negative
+  definitions) in the front matter over a clean body — both cases fired before the fix.
+  `check_aphorism_density`, shipped without a wired CI test, now has one.
+
 - **The classroom ZIP shipped no licence text at all, and GitHub could not detect our
   licence.** Two defects with one root cause. `LICENSE` was MIT followed by an appended
   third-party index, so GitHub's detector fell back to `NOASSERTION` / "Other" — the repo

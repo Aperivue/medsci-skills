@@ -58,6 +58,8 @@ import re
 import sys
 from pathlib import Path
 
+from _frontmatter import strip_frontmatter
+
 # A back-matter / float-definition section header. Everything from the first such
 # header onward is excluded from the body citation-order scan (legends list floats
 # in order by construction; references are not citations).
@@ -155,7 +157,9 @@ def _first_appearance(text: str):
 
 def check(text: str, include_back_matter: bool) -> list[dict]:
     claims = []
-    body = _body(text, include_back_matter)
+    # Strip any leading YAML front matter first: a `status:`/changelog block that narrates a
+    # display-item renumber ("old Table 1 -> Supplementary Table S2") is not a body citation.
+    body = _body(strip_frontmatter(text), include_back_matter)
     claims += _check_section_xref(body)
     order = _first_appearance(body)
     for label in ("Table", "Figure", "Supplementary Table", "Supplementary Figure"):
