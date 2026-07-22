@@ -35,6 +35,21 @@
 
 ### Added
 
+- **`/self-review` `check_scope_coherence` — `GRADIENT_WITHOUT_INTERACTION`: a "gradient across
+  strata" claim with no interaction test.** An age×CMB "gradient" was claimed via joint
+  stratification (primary table + heatmap + Central Illustration) with no interaction term or LRT
+  anywhere; re-analysis showed the interaction was non-significant (LRT P=0.67) — the narrative was
+  difference-in-significance across strata, not a tested interaction. Because the manuscript used
+  "gradient" rather than "synergy/interaction", the existing token trigger never fired. The gate now
+  flags a cross-strata directional claim ("shortest in the high-risk tertile", "monotonically across
+  the age strata", "more pronounced in") that carries a stratification context but reports no
+  interaction test (interaction term / LRT / p-interaction / effect modification) anywhere (Minor).
+  Precision-guarded against the FP-heavy word "gradient": a physical "pressure gradient across the
+  stenosis", an MRI "gradient echo", a claim over an "arm" rather than a stratum, a Methods-only
+  mention, and any interaction-tested claim all stay clean. Regression cases in
+  `test_scope_coherence.sh` fail on the pre-verdict detector. Grounding: real-failure. Additive
+  verdict on an existing detector; detector count unchanged.
+
 - **`/self-review` `check_cohort_arithmetic` — `SUBGROUP_DUPLICATE_CI`: the same subgroup
   rendered twice in one table with two different confidence intervals.** A results table listed
   "MetS ≥3 criteria" (OR 4.95, 4.32–5.94) and "MetS-positive (binary)" (OR 4.95, 4.26–5.83) — the

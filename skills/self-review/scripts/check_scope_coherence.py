@@ -26,6 +26,15 @@ conclusion action verb co-occur, and both are documented anti-patterns
                               prevalence design these read as longitudinal screening
                               performance. Minor unless "yield" is defined once as
                               cross-sectional report-positive prevalence.
+  GRADIENT_WITHOUT_INTERACTION  a cross-strata directional claim ("shortest in the
+                              high-risk tertile", "monotonically across the age strata")
+                              stated as a finding, with a stratification context nearby,
+                              but NO interaction test (interaction term / LRT / p-
+                              interaction / effect modification) reported anywhere. A
+                              difference in significance across strata is not a tested
+                              interaction. Minor. Precision-guarded: a physical "pressure
+                              gradient" or "gradient echo" and an interaction-tested claim
+                              do not fire.
 
 The gate is conservative: it fires only when both a signal and a conclusion-region
 verb are present, to keep false positives low on a widely-used skill.
@@ -37,7 +46,8 @@ OUTPUT
   A reconciliation table (stdout) and, with --out, a JSON artifact:
     {manuscript, claims[{verdict, severity, detail, where}], summary}
   CROSS_SECTIONAL_PROGNOSTIC and SURROGATE_CARE_DIRECTIVE are Major; UNIVERSAL_NEGATIVE_
-  UNSCOPED and CROSS_SECTIONAL_YIELD_LANGUAGE are Minor. Exit 1 (with --strict) on any Major.
+  UNSCOPED, CROSS_SECTIONAL_YIELD_LANGUAGE and GRADIENT_WITHOUT_INTERACTION are Minor.
+  Exit 1 (with --strict) on any Major.
 
 Stdlib-only (json / re / argparse / pathlib). Exit codes: 0 clean (or report-only),
 1 Major claim(s) found (with --strict), 2 input/usage error.
@@ -185,6 +195,43 @@ SCOPE_QUALIFIER_RE = re.compile(
     re.IGNORECASE)
 
 
+# A cross-strata DIRECTIONAL claim: the estimate trends / differs across the levels of a
+# subgroup. Anchored to distinctive phrases so a physical "pressure gradient across the
+# stenosis" or an MRI "gradient echo" does not match (bare "gradient" is never enough).
+GRADIENT_CLAIM_RE = re.compile(
+    r"more pronounced (?:in|among|for)\b"
+    r"|(?:short|long|high|low|great|small|strong|weak)(?:est|er) (?:in|among|for)\b"
+    r"|monotonic(?:ally)?\b"
+    r"|step[-\s]?wise (?:increase|decrease|rise|decline|shorten|across|with)"
+    r"|gradient (?:across|among|by|over|with (?:higher|increasing|worsening))"
+    r"|dose[-\s]?response (?:relationship|gradient|pattern)?\s*(?:across|with|by)"
+    r"|(?:increas|decreas|shorten|worsen)(?:ed|ing) (?:monotonically|step[-\s]?wise|progressively)",
+    re.IGNORECASE)
+
+# A stratification CONTEXT (the LEVELS of a subgroup) — required in the same window so
+# the directional language is about subgroup strata, not a physical or temporal trend.
+STRATA_CONTEXT_RE = re.compile(
+    r"tertile|quartile|quintile|decile|stratum|strata|stratified|subgroup"
+    r"|categor(?:y|ies)|\bband\b|joint(?:ly)?[-\s]?(?:strat|classif)|cross[-\s]?classif"
+    r"|(?:age|risk|score|bmi|dose)[-\s]?(?:group|categor|band|tier)",
+    re.IGNORECASE)
+
+# Evidence an interaction WAS actually tested (any hit anywhere -> suppress the flag).
+INTERACTION_TEST_RE = re.compile(
+    r"interaction (?:term|test|p[-\s]?value|effect|coefficient)"
+    r"|p[-_\s]?interaction|p[-_\s]?int\b|effect modification"
+    r"|test(?:ed|ing)? for interaction|multiplicative interaction|product term"
+    r"|likelihood[-\s]?ratio test|\bLRT\b|(?:OR|HR|RR|beta|β)[-_]?int\b",
+    re.IGNORECASE)
+
+# Claim regions where a cross-strata directional statement is a substantive claim
+# (not the Methods description of a stratified analysis).
+CLAIM_REGION_HEADINGS = re.compile(
+    r"^#{1,4}\s*\*{0,2}\s*(?:abstract|results?|discussion|interpretation|conclusions?"
+    r"|key results?|principal findings?)\b",
+    re.IGNORECASE | re.MULTILINE)
+
+
 def _region(text: str, heading_re) -> str:
     spans = []
     all_headings = [m.start() for m in re.finditer(r"^#{1,4}\s", text, re.MULTILINE)]
@@ -267,6 +314,29 @@ def check(text: str) -> list[dict]:
                            f"performance"),
                 "where": text[max(0, ym.start() - 40):ym.end() + 40].strip()[:160],
             })
+
+    # GRADIENT_WITHOUT_INTERACTION — a cross-strata directional claim ("shortest in the
+    # high-risk tertile", "monotonically across the age strata") stated as a finding, with
+    # a stratification context nearby, but NO interaction test reported anywhere. A
+    # difference in significance across strata is not a tested interaction; the
+    # joint-stratification framing escapes the synergy/interaction token trigger.
+    if not INTERACTION_TEST_RE.search(text):
+        claim_region = _region(text, CLAIM_REGION_HEADINGS)
+        for gm in GRADIENT_CLAIM_RE.finditer(claim_region):
+            window = claim_region[max(0, gm.start() - 160):gm.end() + 160]
+            if not STRATA_CONTEXT_RE.search(window):
+                continue
+            claims.append({
+                "verdict": "GRADIENT_WITHOUT_INTERACTION",
+                "severity": "Minor",
+                "detail": (f"a cross-strata directional claim ('{gm.group(0).strip()}') is made across "
+                           f"subgroup levels, but no interaction test (interaction term / LRT / "
+                           f"p-interaction / effect modification) is reported anywhere; a difference in "
+                           f"significance across strata is not a tested interaction — report the "
+                           f"interaction test, or reframe as descriptive stratified estimates"),
+                "where": window.replace("\n", " ").strip()[:160],
+            })
+            break
 
     return claims
 

@@ -12,6 +12,8 @@ SCRIPT="$HERE/../scripts/check_scope_coherence.py"
 BAD="$HERE/fixtures/scope_bad.md"
 SURR="$HERE/fixtures/scope_surrogate.md"
 CLEAN="$HERE/fixtures/scope_clean.md"
+GRAD="$HERE/fixtures/scope_gradient.md"
+GRADTEST="$HERE/fixtures/scope_gradient_tested.md"
 OUT="$(mktemp -t scope_XXXX).json"
 trap 'rm -f "$OUT"' EXIT
 
@@ -109,6 +111,19 @@ check "no UNIVERSAL_NEGATIVE_UNSCOPED when a discipline-scope qualifier is prese
 import json
 d=json.load(open('$OUT'))
 raise SystemExit(0 if not any(c['verdict']=='UNIVERSAL_NEGATIVE_UNSCOPED' for c in d['claims']) else 1)
+"
+
+# (N) cross-strata directional claim ("shortest in the high-risk tertile", "monotonically
+#     across the age strata") with a stratification context but NO interaction test ->
+#     GRADIENT_WITHOUT_INTERACTION (Minor). The SAME claim with an interaction test reported
+#     (LRT / p-interaction) must NOT fire (the suppression guard).
+python3 "$SCRIPT" --manuscript "$GRAD" --out "$OUT" --quiet >/dev/null 2>&1
+check "GRADIENT_WITHOUT_INTERACTION on gradient-across-strata, no interaction test" has_verdict GRADIENT_WITHOUT_INTERACTION
+python3 "$SCRIPT" --manuscript "$GRADTEST" --out "$OUT" --quiet >/dev/null 2>&1
+check "no GRADIENT_WITHOUT_INTERACTION when the interaction is tested (LRT / p-interaction)" python3 -c "
+import json
+d=json.load(open('$OUT'))
+raise SystemExit(0 if not any(c['verdict']=='GRADIENT_WITHOUT_INTERACTION' for c in d['claims']) else 1)
 "
 
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
