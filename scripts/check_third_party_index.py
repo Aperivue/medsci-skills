@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""The LICENSE has to describe the package you actually downloaded.
+"""THIRD-PARTY-NOTICES.md has to describe the package you actually downloaded.
 
 A license file is the first thing a JOSS reviewer opens, the first thing a legal team greps, and the
 only place most users will ever look to find out what they are allowed to do with what we gave them.
@@ -16,13 +16,13 @@ the package shipped CONSORT and SPIRIT — the summaries *and* the guideline aut
 files. As it happens the 2025 updates relicensed to CC BY 4.0 and we were entitled to ship them all
 along. That is luck, not diligence: the file said one thing, the tree did another, and nothing
 compared them. Had the licences not changed, we would have been redistributing non-commercial
-material from an MIT package on npm, and the LICENSE would have been the document proving we knew
+material from an MIT package on npm, and THIRD-PARTY-NOTICES.md would have been the document proving we knew
 better.
 
 So this gate holds the index to the tree, in both directions:
 
-  1. Anything the LICENSE says is **not bundled** must actually be absent.
-  2. Anything third-party that we **do** bundle must be named in the LICENSE.
+  1. Anything THIRD-PARTY-NOTICES.md says is **not bundled** must actually be absent.
+  2. Anything third-party that we **do** bundle must be named in THIRD-PARTY-NOTICES.md.
 
 The failure that motivated (1) is the dangerous one — a promise we were breaking. (2) catches the
 quieter one: a new third-party payload that nobody declared.
@@ -41,10 +41,10 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-LICENSE = ROOT / "LICENSE"
+NOTICES = ROOT / "THIRD-PARTY-NOTICES.md"
 SKILLS = ROOT / "skills"
 
-# --- (1) what the LICENSE promises we do NOT ship -------------------------------------------------
+# --- (1) what THIRD-PARTY-NOTICES.md promises we do NOT ship -------------------------------------------------
 # Each entry: the thing named in the "Not bundled" section, and the glob that would prove us liars.
 # Keep this in step with that section: if you add a bullet there, add its glob here, or the promise
 # is decorative.
@@ -52,8 +52,8 @@ NOT_BUNDLED = {
     "European Radiology graphical-abstract template": "skills/**/european_radiology.pptx",
 }
 
-# --- (2) third-party payloads we DO ship, and the token that must appear in the LICENSE ------------
-# The value is a string the LICENSE must contain for that payload to count as declared. It is
+# --- (2) third-party payloads we DO ship, and the token that must appear in THIRD-PARTY-NOTICES.md ------------
+# The value is a string THIRD-PARTY-NOTICES.md must contain for that payload to count as declared. It is
 # deliberately the *licence*, not just the name: "we mention CONSORT somewhere" is not a licence
 # statement.
 DECLARED = {
@@ -73,7 +73,7 @@ def main() -> int:
     a = ap.parse_args()
 
     root = a.root.resolve()
-    text = (root / "LICENSE").read_text(encoding="utf-8", errors="ignore")
+    text = (root / "THIRD-PARTY-NOTICES.md").read_text(encoding="utf-8", errors="ignore")
     broken: list[str] = []
 
     # (1) a promise we are breaking
@@ -81,7 +81,7 @@ def main() -> int:
         hits = [p for p in root.glob(glob) if p.is_file()]
         if hits:
             broken.append(
-                f"LICENSE says we do NOT bundle {name} — but it is in the tree:\n"
+                f"THIRD-PARTY-NOTICES.md says we do NOT bundle {name} — but it is in the tree:\n"
                 + "".join(f"        {h.relative_to(root)}\n" for h in hits)
                 + "      Either delete the file, or (if you now hold a licence permitting\n"
                   "      redistribution) move it into the bundled section with that licence named."
@@ -94,22 +94,22 @@ def main() -> int:
             continue                       # the directory went away; not this gate's business
         if token not in text:
             broken.append(
-                f"{rel}/ ships third-party content, and the LICENSE never says so.\n"
-                f"      Expected the LICENSE to contain: {token!r}\n"
+                f"{rel}/ ships third-party content, and THIRD-PARTY-NOTICES.md never says so.\n"
+                f"      Expected THIRD-PARTY-NOTICES.md to contain: {token!r}\n"
                 f"      Add it to '## Third-Party Content Licenses' with its licence and citation."
             )
 
     if not broken:
-        print(f"OK: the LICENSE's third-party index matches the tree "
+        print(f"OK: the third-party notices match the tree "
               f"({len(NOT_BUNDLED)} not-bundled promise(s) kept, {len(DECLARED)} payload(s) declared).")
         return 0
 
-    print(f"THIRD_PARTY_INDEX_DRIFT: {len(broken)} discrepanc(ies) between the LICENSE and the tree.\n")
+    print(f"THIRD_PARTY_INDEX_DRIFT: {len(broken)} discrepanc(ies) between THIRD-PARTY-NOTICES.md and the tree.\n")
     for b in broken:
         print(f"  - {b}\n")
     print(
-        "The LICENSE is the claim we make about what we handed you. When it disagrees with the tree,\n"
-        "the tree wins in court and the LICENSE becomes the evidence that we knew.\n"
+        "THIRD-PARTY-NOTICES.md is the claim we make about what we handed you. When it disagrees with\n"
+        "the tree, the tree wins in court and that file becomes the evidence that we knew.\n"
     )
     return 1 if a.strict else 0
 

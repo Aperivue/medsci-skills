@@ -29,6 +29,10 @@ PACKAGE_NAME = "medsci-skills-classroom"
 MANIFEST_PATH = REPO_ROOT / "metadata" / "distribution_manifest.json"
 INCLUDE_PATHS = [
     "README_FIRST.md",
+    # MIT requires the notice to travel with every copy, and the bundled guideline summaries
+    # carry CC BY-NC terms a classroom user has no other way to learn about. Both ship.
+    "LICENSE",
+    "THIRD-PARTY-NOTICES.md",
     "installers",
     "skills",
     # Self-update foundation: the version/ownership manifest + the file inventory the

@@ -31,7 +31,8 @@
     "bin/medsci-skills.js",
     "README.md",
     "README_FIRST.md",
-    "LICENSE"
+    "LICENSE",
+    "THIRD-PARTY-NOTICES.md"
   ],
   "engines": {
     "node": ">=18"

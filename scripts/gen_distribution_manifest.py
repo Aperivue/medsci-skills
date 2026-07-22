@@ -49,6 +49,10 @@ SCHEMA_VERSION = 1
 # by name in addition to this inventory.
 PAYLOAD_ROOTS = [
     "README_FIRST.md",
+    # The licence and the third-party notices ship in the ZIP, so they must be in the
+    # allowlist too — update.safe_extract rejects any entry the inventory does not name.
+    "LICENSE",
+    "THIRD-PARTY-NOTICES.md",
     "installers",
     "skills",
 ]
