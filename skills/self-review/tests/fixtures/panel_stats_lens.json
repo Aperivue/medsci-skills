@@ -1,0 +1,31 @@
+{
+  "research_type": "sr_ma",
+  "reviewers": [
+    {
+      "reviewer_id": "R1",
+      "expertise_area": "Methodology (search/screening/PRISMA)",
+      "major": [
+        {"heading": "Search strategy incomplete", "comment": "No grey-literature database was searched and the PRISMA flow omits duplicate record removal.", "location": "Methods, Search"}
+      ],
+      "minor": []
+    },
+    {
+      "reviewer_id": "R2",
+      "expertise_area": "Clinical",
+      "major": [
+        {"heading": "Overreaching recommendation", "comment": "Clinical actionability is asserted but generalizability to community care is unsupported.", "location": "Discussion"}
+      ],
+      "minor": []
+    },
+    {
+      "reviewer_id": "R3",
+      "expertise_area": "Statistics (reader agreement)",
+      "major": [
+        {"heading": "Agreement statistic without resampling", "comment": "Inter-rater agreement is reported as Cohen's kappa; no bootstrap resampling of the readers was performed.", "location": "Results"},
+        {"heading": "Repeated testing not corrected", "comment": "A permutation test across twelve endpoints with no Bonferroni correction was applied to the readers.", "location": "Methods"},
+        {"heading": "Effect measure ignores clustering", "comment": "The odds ratio disregards the intraclass correlation (ICC) induced by repeated readers.", "location": "Results"}
+      ],
+      "minor": []
+    }
+  ]
+}

@@ -12,6 +12,7 @@ SCRIPT="$HERE/../scripts/check_panel_diversity.py"
 GOOD="$HERE/fixtures/panel_good.json"
 MONO="$HERE/fixtures/panel_monoculture.json"
 COLLAPSE="$HERE/fixtures/panel_collapse.json"
+STATS="$HERE/fixtures/panel_stats_lens.json"
 OUT="$(mktemp -t paneldiv_XXXX).json"
 trap 'rm -f "$OUT"' EXIT
 
@@ -50,6 +51,15 @@ python3 "$SCRIPT" --panel "$COLLAPSE" --out "$OUT" --strict --quiet >/dev/null 2
 check "exit 0 (collapse is flag-only)" test "$?" -eq 0
 check "LENS_COLLAPSE detected" has_verdict LENS_COLLAPSE
 check "no UNCOVERED_AXIS without research type" no_verdict UNCOVERED_AXIS
+
+# (4) a statistics reviewer using reader-study / agreement vocabulary (kappa, bootstrap,
+#     permutation, odds ratio, ICC) must register as covering the 'statistics' axis, so an
+#     sr_ma panel spanning all three expected axes fires NO UNCOVERED_AXIS. Regression:
+#     before the statistics lexicon was broadened these classified as 'other' and the axis
+#     looked uncovered, producing a false Major.
+python3 "$SCRIPT" --panel "$STATS" --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "exit 0 (stats reviewer covers the statistics axis)" test "$?" -eq 0
+check "no UNCOVERED_AXIS when statistics is covered by reader-study vocabulary" no_verdict UNCOVERED_AXIS
 
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

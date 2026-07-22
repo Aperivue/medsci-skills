@@ -4,6 +4,22 @@
 
 ### Fixed
 
+- **`/self-review` `check_panel_diversity` — a statistics-dedicated reviewer no longer
+  reads as a missing `statistics` axis.** `UNCOVERED_AXIS` (Major) fires when a research
+  type's expected axis has zero major findings assigned to it, and the family classifier's
+  `statistics` lexicon was meta-analysis-flavoured (heterogeneity, pooling, I², DeLong). A
+  reader/agreement study's statistical majors — inter-rater **kappa**, **bootstrap**
+  resampling, **permutation** tests, **Bonferroni**/FDR, **odds ratio**, **intraclass
+  correlation** — matched none of it, classified as `other`, and left the statistics axis
+  looking uncovered, so the gate raised an unfounded Major on a panel that in fact covered
+  statistics thoroughly. The lexicon now includes the type-agnostic statistical vocabulary
+  (effect measures, resampling, agreement, multiplicity siblings, common tests, Bayesian).
+  A regression case in `test_panel_diversity.sh` (a stats reviewer using only the
+  previously-unmatched vocabulary) **fails on the old lexicon and passes on the new** — the
+  fixture was twice decontaminated of terms the old lexicon already matched (a heading
+  "Multiplicity", a comment "confidence interval") that masked the defect. Grounding:
+  real-failure. Detector count unchanged.
+
 - **`/self-review` `check_figure_citation` — a multi-panel citation is no longer a false
   `FIGURE_ORPHAN`.** The in-text mention regex ended in `(?P<num>\d+)\b`, and there is no
   word boundary between "3" and "a", so `(Figure 3a)` / `(Figure 3b)` — the *only* way
