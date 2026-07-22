@@ -468,6 +468,9 @@ jobs:
       - name: Run self-review DTA-denominator challenge (sens/spec vs reference-standard)
         run: bash skills/self-review/scripts/check_dta_denominators_challenge/verify.sh
 
+      - name: "Run self-review figure-citation panel-suffix challenge (Figure 3a cites Figure 3 -> no orphan; uncited -> orphan)"
+        run: bash skills/self-review/scripts/check_figure_citation_challenge/verify.sh
+
       - name: Run self-review paired-difference-estimator challenge (median parity / degenerate CI)
         run: bash skills/self-review/scripts/check_paired_difference_estimator_challenge/verify.sh
 

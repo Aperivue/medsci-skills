@@ -4278,8 +4278,28 @@
     },
     {
       "path": "skills/self-review/scripts/check_figure_citation.py",
-      "size": 10635,
-      "sha256": "087ee531a5d1b8e2ebd2630d1c5180dfbacfec46299d262100ad19f0ba4fa32c"
+      "size": 11137,
+      "sha256": "92847a5ca4faf32b94bceaf4369a6a9ca4c83a5aaa503606dd7b581c0770e093"
+    },
+    {
+      "path": "skills/self-review/scripts/check_figure_citation_challenge/fixture/panel_regression.md",
+      "size": 453,
+      "sha256": "109bc12356c32f5a450d73904e93821f6d9c13ecc273c70b4fe2bb779f3785bc"
+    },
+    {
+      "path": "skills/self-review/scripts/check_figure_citation_challenge/fixture/real_orphan.md",
+      "size": 329,
+      "sha256": "6eecd9632607f0d630de7ee0bd7cc8ede546477c536e529b20f0214699cdaeb1"
+    },
+    {
+      "path": "skills/self-review/scripts/check_figure_citation_challenge/problem.md",
+      "size": 1409,
+      "sha256": "d636aa1f488b0c1f794e935b96725c5f23e9f8897ca4eacca2eacaebe7bb7997"
+    },
+    {
+      "path": "skills/self-review/scripts/check_figure_citation_challenge/verify.sh",
+      "size": 1605,
+      "sha256": "227f668d5583bbe96e2281284bf42e99a6903daecbe40f53a3b459856cde6434"
     },
     {
       "path": "skills/self-review/scripts/check_incorporation_bias.py",
@@ -4498,8 +4518,8 @@
     },
     {
       "path": "skills/self-review/skill.yml",
-      "size": 3517,
-      "sha256": "bfde47be6ba4e4298f7ac99734f2427a9a329368db74bcbb5007d8cb3ce07ab5"
+      "size": 3642,
+      "sha256": "eb25be632ab8dfd5c7a77625f0bf562f8a84ea870584c170c44c008dd8d47d13"
     },
     {
       "path": "skills/setup-medsci/SKILL.md",
