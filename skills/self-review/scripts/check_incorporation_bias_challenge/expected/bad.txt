@@ -1,0 +1,8 @@
+=========================================
+ Incorporation Bias (Phase 2.5)
+=========================================
+| Check | Severity | Detail |
+|---|---|---|
+| INCORPORATION_BIAS | Major | the reference standard defines the outcome by size trajectory (resolution / decrease / stability / growth), and 'Growth' — a trajectory variable — is reported as associated with the outcome: the predictor is built into the reference standard, so the association is partly definitional. Use a predictor independent of the reference standard, or disclose the overlap explicitly |
+
+MAJOR candidate: 1 incorporation-bias finding(s).

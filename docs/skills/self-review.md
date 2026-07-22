@@ -42,6 +42,7 @@
 - `bash scripts/check_dta_denominators_challenge/verify.sh  # sens/spec denominators vs reference-standard counts`
 - `bash scripts/check_paired_difference_estimator_challenge/verify.sh  # median parity / degenerate CI / unnamed estimator`
 - `bash scripts/check_effect_stability_challenge/verify.sh  # CI upper/lower ratio > 10x + events-per-variable < 10`
+- `bash scripts/check_incorporation_bias_challenge/verify.sh  # trajectory reference standard + trajectory predictor`
 - `feed R0-numbered output into /revise`
 
 **Evidence** — `demo`
@@ -74,6 +75,8 @@
 - `check_effect_stability_challenge/` (6 files)
 - `check_emphasis_density.py`
 - `check_figure_citation.py`
+- `check_incorporation_bias.py`
+- `check_incorporation_bias_challenge/` (6 files)
 - `check_nested_group_comparison.py`
 - `check_nested_group_comparison_challenge/` (6 files)
 - `check_null_calibration.py`
