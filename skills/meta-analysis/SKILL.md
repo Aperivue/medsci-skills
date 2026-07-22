@@ -186,13 +186,16 @@ python "${CLAUDE_SKILL_DIR}/scripts/screening_reconcile.py" \
 ```
 
 Downstream stages consume `screening_consensus.json` for counts and ID sets; the Markdown consensus
-document remains the human explanation. Two hard rules:
+document remains the human explanation. Three hard rules:
 
 1. **List the narrative-only IDs explicitly.** The highest-yield red flag is a numeric claim ("10
    narrative-only studies") that does not match the enumerable set `(A ∪ C) \ B \ T`.
 2. **No "N → M" transition without ID receipts.** "k rose from 30 to 32 after FLAG consensus" must
    cite the added/removed IDs. A transition claim with no enumerable ID set is a **P0** and blocks
    the Phase 5 hand-off.
+3. **`STAGE_TRANSFER_LOSS` is a P0.** Exit 1 when a record is included at screening but **absent
+   from the consensus artifact altogether** — no adjudication was ever recorded. An exclusion is a
+   decision; silence is a gap. Never let it settle into narrative-only (why: reference file).
 
 The set algebra, the reconciliation-table template, and the precedent (a manuscript shipped 32/10/46
 where the ID sets said 24/2/54, with four artifacts echoing the same unreconciled prose total) are

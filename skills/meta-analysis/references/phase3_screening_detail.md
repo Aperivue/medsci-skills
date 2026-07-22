@@ -94,6 +94,36 @@ ID sets. The Markdown consensus document remains the human explanation.
 
 **Precedent incident (a PRISMA-DTA meta-analysis revision):** a late-revision manuscript shipped with k_qualitative = 32 / k_narrative-only = 10 / k_FT-excluded = 46. ID-set reconciliation (performed only after an adversarial audit at post-Stage 4 QC) revealed true counts 24/2/54. An early-draft prose total ("30 → 32 after FLAG consensus") had been carried forward without ever being reconciled against the screening TSV intersected with the consensus spreadsheet; four downstream artifacts echoed the same wrong total. This gate would have caught the drift at the Phase 5 hand-off.
 
+##### Why `STAGE_TRANSFER_LOSS` needs its own verdict
+
+The set algebra above reconciles *counts*. On its own it does not distinguish the two ways an id
+can be missing from set `B`:
+
+| Case | Meaning | Where it lands |
+|---|---|---|
+| consensus says **exclude** | a decision was made and recorded | out of `qualitative` — correct |
+| consensus **has no row at all** | the record fell out of the pipeline; nobody adjudicated it | into `qualitative`, then `narrative_only` — **wrong, and silent** |
+
+Both leave the id out of `B`, so both look identical to a count-based check. And because a
+diagnostic-accuracy review legitimately contains narrative-only studies (eligible, but no
+extractable 2×2), a lost record parked in that set is indistinguishable from a real one. The
+totals still reconcile — they were recomputed from the downstream artifact, which is exactly
+where the record is already absent.
+
+`screening_reconcile.py` therefore reports `stage_transfer_loss` (= `screening_include` −
+`consensus_ids`) as a blocking issue, and splits `narrative_only` into `_adjudicated` (a decision
+exists) and `_unadjudicated` (none does). Only the first is a legitimate category.
+
+**Precedent incident (a single-arm intervention review):** the review reached journal submission
+with 15 studies and was withdrawn by the authors when 5 eligible studies were found **inside its
+own retrieved records** — none were search failures. One had passed both title/abstract screening
+passes and was never entered into the consensus stage; three others sat under an exclusion code
+that contradicted the registered eligibility criteria (single-arm case series were eligible by
+protocol but were coded "not comparative"). A pre-specified sensitivity analysis flipped from
+P = 0.064 to P = 0.033 once the pool was corrected to 18 studies. Note the shape: every count in
+the submitted manuscript reconciled, because each had been recomputed from an artifact the lost
+studies had already dropped out of.
+
 #### 3f.5 Pool composition lock (MANDATORY at adjudication freeze)
 
 After Phase 3f reconciliation passes, freeze the pool composition into a
