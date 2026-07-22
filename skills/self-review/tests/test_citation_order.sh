@@ -31,6 +31,12 @@ import json
 d=json.load(open('$OUT'))
 assert d['summary']['n_major']==0, d['summary']
 "; }
+count_uncited() { python3 -c "
+import json
+d=json.load(open('$OUT'))
+n=sum(1 for c in d['claims'] if c['verdict']=='UNCITED_FLOAT')
+assert n==$1, f'expected $1 UNCITED_FLOAT, got {n}'
+"; }
 
 [[ -f "$SCRIPT" ]] || { echo "ENV-ERR: script missing" >&2; exit 2; }
 
@@ -72,6 +78,24 @@ python3 "$SCRIPT" --manuscript "$FM" --out "$OUT" --strict --quiet >/dev/null 2>
 check "exit 0 with an out-of-order renumber in YAML front matter (body clean)" test "$?" -eq 0
 check "no CITATION_ORDER from a front-matter changelog" count_order 0
 check "no Major from a front-matter changelog" no_falsepos
+
+# (6) A float DEFINED by a legend/caption but never cited in the narrative body ->
+#     UNCITED_FLOAT (Minor). The fixture cites Table 1, Figure 1 and Supplementary Table
+#     S1 (all defined and cited), and defines Supplementary Figure S1 with a full caption
+#     that no sentence ever cites.
+UNC="$HERE/fixtures/citation_order_uncited.md"
+python3 "$SCRIPT" --manuscript "$UNC" --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "exit 0 (UNCITED_FLOAT is Minor, not Major)" test "$?" -eq 0
+check "one UNCITED_FLOAT for the defined-but-uncited float" count_uncited 1
+check "the uncited claim names Supplementary Figure S1" python3 -c "
+import json
+d=json.load(open('$OUT'))
+u=[c for c in d['claims'] if c['verdict']=='UNCITED_FLOAT']
+assert u and u[0]['where']=='Supplementary Figure S1', [c['where'] for c in u]
+"
+# (7) the clean fixture defines nothing uncited -> no UNCITED_FLOAT (no over-fire).
+python3 "$SCRIPT" --manuscript "$GOOD" --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "no UNCITED_FLOAT on the clean manuscript (no over-fire)" count_uncited 0
 
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

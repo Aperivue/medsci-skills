@@ -4198,8 +4198,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_citation_order.py",
-      "size": 11722,
-      "sha256": "4ee5aaba572b62e2ecaf2884fea0aebcd01ef28f66667cb91f78ecd249a6c0aa"
+      "size": 15088,
+      "sha256": "7170b62c585b45599b55b32efcffb3803bce24190f3e34ec18cf6e7be48b94f1"
     },
     {
       "path": "skills/self-review/scripts/check_claim_artifact.py",
