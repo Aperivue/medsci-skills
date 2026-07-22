@@ -1,6 +1,11 @@
-# medsci-skills CNN demo — PneumoniaMNIST (pin exact versions before publishing).
-torch
+# medsci-skills CNN demo — PneumoniaMNIST. Python 3.11–3.13 (torch has no 3.14 wheel yet).
+# Deliberately unpinned: no exact version set was captured for the published run, and inventing
+# pins would be a claim we never tested. Record your own `pip freeze` in REPRODUCIBILITY.md when
+# you reproduce; results reproduce up to backend non-determinism (bounded by the reported seed SD).
+torch                 # training + MPS/CUDA backends
 numpy
-medmnist          # PneumoniaMNIST loader + official split (CC BY 4.0; Yang et al. 2023)
-scikit-learn      # quick held-out metrics (metrics.py); authoritative CIs via /analyze-stats
-# timm            # swap model.py for a pretrained ResNet/EfficientNet backbone (optional)
+medmnist              # PneumoniaMNIST loader + official split (CC BY 4.0; Yang et al. 2023)
+scikit-learn          # held-out metrics (metrics.py); authoritative CIs via /analyze-stats
+matplotlib            # make_figs.py
+captum                # explain.py — Grad-CAM + Adebayo sanity checks
+# timm                # swap model.py for a pretrained ResNet/EfficientNet backbone (optional)
