@@ -1828,18 +1828,28 @@
     },
     {
       "path": "skills/humanize/SKILL.md",
-      "size": 14232,
-      "sha256": "49ce02c245e7a816b795b85a402aefb8d655da020b9b0624a25a151a513451ab"
+      "size": 16564,
+      "sha256": "831385881274eebd1a2f6f4dbb7bfd1c99927f273d718ff053f5e6c014b86eb9"
     },
     {
       "path": "skills/humanize/references/ai_patterns.md",
-      "size": 31601,
-      "sha256": "9f6ce8232598651bbf76b2720479c428b98870852b2265f4bfc0c7bc9aafdf19"
+      "size": 34633,
+      "sha256": "2dd115b47b0d8301447c77393a4e88e469d4ca8cbdb094e26d65328cf3e39723"
+    },
+    {
+      "path": "skills/humanize/scripts/check_rewrite_fidelity.py",
+      "size": 8463,
+      "sha256": "46a1caaa2e26bf0a559f34dc13df3f06cba71df1ea52bb4c4e11d8b1301ba18f"
+    },
+    {
+      "path": "skills/humanize/scripts/check_sentence_variety.py",
+      "size": 7643,
+      "sha256": "a5091ebca81761341e95d61b01b9998e637763f414c22d31eec658f6b6376835"
     },
     {
       "path": "skills/humanize/skill.yml",
-      "size": 1245,
-      "sha256": "3e650e0b2fc60e02e6aa8bc96d9156987d327aa681586066cd65173cc41fa522"
+      "size": 1450,
+      "sha256": "265512b1a6741c04ddd0d02a232a67ea4ab05e228761d34e2817b369d707f620"
     },
     {
       "path": "skills/intake-project/SKILL.md",

@@ -179,6 +179,12 @@ jobs:
       - name: Run self-review inline-emphasis over-use gate test
         run: bash skills/self-review/tests/test_emphasis_density.sh
 
+      - name: Run humanize rewrite-fidelity gate test (a de-AI pass may not alter a number or drop a citation)
+        run: bash skills/humanize/tests/test_rewrite_fidelity.sh
+
+      - name: Run humanize sentence-variety gate test (Fix rule 7 is now measured, not just prescribed)
+        run: bash skills/humanize/tests/test_sentence_variety.sh
+
       - name: Run self-review feature-selection-outside-CV leakage gate test
         run: bash skills/self-review/tests/test_cv_leakage.sh
 

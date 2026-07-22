@@ -4,7 +4,7 @@ layer: C
 owner_domain: ai_pattern_removal
 maturity: official
 
-when_to_use: "Detect and remove the 18 common AI-writing patterns from an academic manuscript while preserving technical accuracy."
+when_to_use: "Detect and remove the 25 common AI-writing patterns from an academic manuscript while preserving technical accuracy."
 when_NOT_to_use: "Drafting content (use write-paper); AI-search optimization (use academic-aio)."
 
 inputs:
@@ -28,7 +28,9 @@ safety_boundaries:
 known_limitations:
   - "Pattern detection is heuristic; subtle tells may remain and need a human pass."
   - "No standalone demo; judgement is required on borderline phrasings."
+  - "Patterns 1-18 are inherited from an external list; their thresholds are conventional, not measured on a medical corpus."
 validation_commands:
-  - "diff against the source to confirm only style changed"
+  - "scripts/check_rewrite_fidelity.py --before <pre> --after <post> --strict"
+  - "scripts/check_sentence_variety.py --manuscript <file>"
   - "/self-review"
 evidence_surface: manual_workflow

@@ -1,13 +1,17 @@
 # AI Writing Pattern Reference for Medical/Radiology Manuscripts
 
-Detailed reference for the 24 AI writing patterns, with expanded examples and suggested
+Detailed reference for the 25 AI writing patterns, with expanded examples and suggested
 rewrites specifically tailored for medical imaging and radiology research. Patterns 1-18 are
-the general set; 19-21 are senior-MA-reviewer red flags; 22-24 are response-to-reviewers (R2R)
-letter patterns.
+the general set; 19-21 are senior-MA-reviewer red flags; 25 is a typographic tell that applies
+to any prose; 22-24 are response-to-reviewers (R2R) letter patterns.
 
-Sources:
-- matsuikentaro1/humanizer_academic (English 18 patterns)
-- Wikipedia: Signs of AI writing
+Sources (grounding differs by pattern — treat accordingly):
+- Patterns 1-18: matsuikentaro1/humanizer_academic (English 18 patterns) + Wikipedia,
+  "Signs of AI writing". Inherited lists — the thresholds they carry (em-dash per 1000 words,
+  overall density) are conventional, not measured on a medical-manuscript corpus.
+- Patterns 19-21, 22-24: observed in this user's own circulation and rebuttal rounds
+  (senior-MA-reviewer comments; machine-drafted response letters).
+- Pattern 25: observed in a co-author's track-changed edits of AI-drafted prose.
 - Adapted for radiology/medical imaging context
 
 ---
@@ -362,7 +366,7 @@ AI ends papers with content-free optimistic statements.
 
 ---
 
-## Senior MA Reviewer Patterns
+## Senior MA Reviewer and Typographic Patterns
 
 ### Pattern 19: § (Section-Sign) Marker
 
@@ -406,6 +410,38 @@ Boilerplate paragraphs such as "Artificial Intelligence Disclosure" / "Generativ
 
 **Detection:** `grep -inE "artificial intelligence disclosure|generative ai was not used|ai acknowledg(e)?ment" manuscript.md` → 0 lines (body).
 **Fix strategy:** Remove from the body → keep only on the submission form / cover letter. Exception only when the journal requires an in-body statement.
+
+---
+
+### Pattern 25: Inline-Emphasis Over-Use (Typographic Over-Signposting)
+
+LLM-drafted prose italicises words the sentence already stresses. A human copy-editor strips
+almost all of it — which is how this pattern was found, in a co-author's track-changed edits of
+an AI-drafted section. Unlike Patterns 19-21 this is not senior-MA-specific; it applies to any
+prose, including response letters.
+
+**Watch for:** single-word italics (*into*, *passive*, *same*, *not*), whole-clause italics
+(*a redesign of the relationship itself*), bold used mid-paragraph to signpost a phrase.
+
+| # | BAD | GOOD |
+|---|-----|------|
+| 1 | "The model was trained *on* the derivation cohort, not *within* it." | "The model was trained on the derivation cohort, not within it." |
+| 2 | "This is *a fundamental shift in how the reference standard is constructed*." | "This changes how the reference standard is constructed." |
+| 3 | "Sensitivity improved, but **only in the subgroup with prior imaging**." | "Sensitivity improved only in the subgroup with prior imaging." |
+
+**Legitimate italics — never strip these:** statistical symbols (*P*, *t*, *n*, *F*, *r*),
+Latin (*in vivo*, *et al.*, *post hoc*), gene and species names (*BRCA1*, *E. coli*), journal
+titles. A **bold run-in subheading** at line start is correct Nature/npj style
+(`manuscript-style-classical.md` §1.2) and is not counted.
+
+**Detection:** `/self-review` `scripts/check_emphasis_density.py --manuscript manuscript.md`
+→ `EMPHASIS_OVERUSE` (Minor). Counts non-allowlisted *italic* spans per 1,000 body words;
+bold is deliberately excluded so the gate does not fight the run-in-subheading rule. Fires
+only when density and raw count both clear a floor, so one stray italic in a short note is
+never flagged. A whole-clause italic span carries an escalation note — it is the strongest tell.
+
+**Fix strategy:** Delete the emphasis and let word order carry the stress. If the sentence
+genuinely needs the contrast, rewrite it so the contrast is structural rather than typographic.
 
 ---
 
@@ -495,7 +531,7 @@ internal supplementary index", or `§` self-references carried into the response
 ### Abstract (ALL patterns)
 
 The abstract is the most visible section and the most likely to be checked for AI writing.
-Apply all applicable patterns (1-21) with zero tolerance.
+Apply all applicable patterns (1-21 and 25) with zero tolerance.
 
 **Common abstract issues:**
 - Pattern 1 in the Background sentence.
@@ -563,6 +599,9 @@ Run this checklist on the final manuscript before submission:
 - [ ] § (section sign): 0 occurrences (Pattern 19) — `grep -c "§"` = 0
 - [ ] (Methods §X) / (Results §Y) self-reference: 0 occurrences (Pattern 20)
 - [ ] AI Disclosure boilerplate in body: 0 occurrences (Pattern 21) — cover letter / submission form only
+- [ ] Inline-emphasis over-use (Pattern 25) — `check_emphasis_density.py`; strip single-word and whole-clause italics, keep stat symbols / Latin / gene-species
+- [ ] Sentence-length variety (SKILL.md Fix rule 7) — `check_sentence_variety.py`; short (8-12 words) and long (25-35 words) sentences both present
+- [ ] Rewrite footprint within bounds — `check_edit_footprint.py` when humanize rewrote a file; >30% changed warrants a re-read, >50% is a halt
 
 ### Response letters / cover letters only (Patterns 22-24)
 

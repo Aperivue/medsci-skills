@@ -4,6 +4,39 @@
 
 ### Added
 
+- **`/humanize` — `check_rewrite_fidelity` + `check_sentence_variety` (detectors 73 → 75): the de-AI
+  pass finally checks its own contract.** The skill declared two ENFORCED invariants — "every number,
+  statistic, p-value and confidence interval must remain identical" and "do not remove or relocate
+  citations" — with nothing to enforce them, and prescribed a sentence-length mix (Fix rule 7) that
+  nothing measured. It also had **no Bash in its `tools:`**, so the gates it already carried
+  (Pattern 13 paren-span, Pattern 25 emphasis density) told the session to run a script it had no
+  permission to run; `Bash` is now in the frontmatter. `check_rewrite_fidelity` diffs pre- against
+  post-rewrite text on word tokens and returns `NUMBER_DRIFT` / `CITATION_DROP` (Major, blocking
+  under `--strict`) plus an advisory `EDIT_FOOTPRINT_HIGH`. The footprint is deliberately **not** a
+  hard gate: measured on this skill's own fixtures a *correct* de-AI pass changed 61% of word tokens,
+  because Patterns 6 and 18 require replacing formulaic limitation and conclusion paragraphs
+  wholesale — a 30%/50% cap of the kind used by general-prose humanizers would fail exactly the edits
+  this skill asks for. `check_sentence_variety` fires `SENTENCE_UNIFORM` only when a band the skill
+  itself requires is empty (no sentence ≤12 words, or none ≥25), so the threshold is the skill's own
+  specification rather than a borrowed corpus statistic; it stays silent below 15 sentences and
+  ignores headings, lists, tables, fences, decimals, and academic abbreviations. Both ship
+  positive+negative fixtures and CI-wired regression tests (11 assertions). Grounding: real-failure
+  (documentation-vs-implementation drift found by audit) — the prompting external tool contributed
+  the *mechanism* (bound the rewrite footprint), not its thresholds, which did not survive
+  measurement on medical prose.
+
+- **`/humanize` — Pattern 25 was missing from the reference file it tells you to read.** SKILL.md
+  instructs "Always read the pattern reference file at the start of a humanize session", and
+  `references/ai_patterns.md` had no Pattern 25 definition — it was added to the SKILL.md table in a
+  prior release without a matching reference entry, so a session knew the pattern only as one table
+  row with no examples, allowlist, or fix strategy. Pattern 25 is now defined in full (BAD/GOOD
+  table, legitimate-italics allowlist, detector wiring). The pattern count is corrected from 24 to
+  25 across the frontmatter description, scan/verify phases, section heading, Abstract scope
+  (`1-21` → `1-21, 25`), and the pre-submission checklist. `references/ai_patterns.md` now also
+  records **grounding per pattern**: 1-18 are inherited from an external list and their thresholds
+  (em dashes per 1000 words, overall density) are conventional rather than measured on a medical
+  corpus, while 19-25 come from observed reviewer, co-author, and rebuttal rounds.
+
 - **`/sync-submission` — `check_portal_field_residue` (detector 72 → 73): markdown that pastes into
   the published field.** Portal free-text files (`abstract.txt`, `keywords.txt`, …) are cut from the
   manuscript markdown so an author can paste them straight into an Editorial Manager / ScholarOne
