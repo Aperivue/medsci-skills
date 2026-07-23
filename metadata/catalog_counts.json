@@ -2,5 +2,5 @@
   "_comment": "Single source of truth for maintainer-scoped catalog counts cited in public docs (README, orchestrate, check-reporting). scripts/validate_catalog_consistency.py recomputes every value from disk, asserts this file matches, and asserts the doc claims match. Do not hand-edit a value without running that script \u2014 CI fails on drift. Journal-profile counts are deliberately NOT tracked here: they are auto-derived from disk by the validator so that adding one profile (good-first-issue #115) never requires a contributor to bump a count.",
   "skills": 57,
   "reporting_guidelines": 46,
-  "integrity_detectors": 77
+  "integrity_detectors": 78
 }

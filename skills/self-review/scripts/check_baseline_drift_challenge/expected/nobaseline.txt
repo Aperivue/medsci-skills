@@ -1,0 +1,4 @@
+Baseline-drift scan
+  manuscript: fixture/baseline.md
+  baseline:   (none -- no-op)
+  OK: no baseline supplied; nothing to anchor against.

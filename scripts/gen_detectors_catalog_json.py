@@ -77,6 +77,7 @@ FAMILY_BY_ID: dict[str, str] = {
     "check_paren_spans": "style_review",
     "check_training_hygiene": "style_review",
     "check_editorial_impression": "style_review",
+    "check_baseline_drift": "style_review",
     "check_emphasis_density": "style_review",
     "check_aphorism_density": "style_review",
     "check_rewrite_fidelity": "style_review",

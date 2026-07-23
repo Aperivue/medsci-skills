@@ -45,6 +45,7 @@
 - `bash scripts/check_incorporation_bias_challenge/verify.sh  # trajectory reference standard + trajectory predictor`
 - `bash scripts/check_figure_citation_challenge/verify.sh  # panel-suffixed citation (Figure 3a) regression + real orphan`
 - `bash scripts/refinement_stop_challenge/verify.sh  # terminal-state loop controller: zero-edit PASS / stop signal from qc/*.json`
+- `bash scripts/check_baseline_drift_challenge/verify.sh  # framing drift (strength/significance/scope/hedge) vs the last human-approved baseline`
 - `feed R0-numbered output into /revise`
 
 **Evidence** — `demo`
@@ -65,6 +66,8 @@
 - `check_analysis_definitions_challenge/` (6 files)
 - `check_aphorism_density.py`
 - `check_artifact_coverage.py`
+- `check_baseline_drift.py`
+- `check_baseline_drift_challenge/` (10 files)
 - `check_binning_consistency.py`
 - `check_citation_order.py`
 - `check_claim_artifact.py`

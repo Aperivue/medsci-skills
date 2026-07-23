@@ -498,6 +498,9 @@ jobs:
       - name: "Run self-review refinement-stop challenge (terminal-state loop controller: zero-edit PASS / stop signal)"
         run: bash skills/self-review/scripts/refinement_stop_challenge/verify.sh
 
+      - name: "Run self-review baseline-drift challenge (framing drift vs the human-approved baseline; clean reword clears)"
+        run: bash skills/self-review/scripts/check_baseline_drift_challenge/verify.sh
+
       - name: Run analyze-stats generated-code gate test
         run: bash skills/analyze-stats/tests/test_generated_code.sh
 
