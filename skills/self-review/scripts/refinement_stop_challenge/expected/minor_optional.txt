@@ -1,0 +1,6 @@
+Refinement terminal-state: STOP_MINOR_OPTIONAL
+  Floor gates:   0 Major, 1 Minor  (fixed point)
+  Ceiling pass:  0 finding(s)
+  Gates read:    check_cohort_arithmetic, check_editorial_impression
+  qc dir:        fixture/minor_optional
+  -> Floor is at its fixed point (0 Major); 1 optional Minor item(s) remain and the ceiling is clean. No required edits -- present the Minor items as an optional menu; do not treat them as blocking and do not loop for them.

@@ -44,6 +44,20 @@
   gate is stdlib-only, so an audit reproduces anywhere the JSON travels.
   **57 skills / 77 detectors.**
 
+- **`/self-review` — a refinement loop that never knew when to stop now has a terminal-state
+  controller.** Run iteratively (review → revise → review), the floor gates converge to zero
+  Major findings, but nothing declared the loop *done*. Because every additive gate can always
+  surface one more caveat, an ungrounded loop over-hardens the manuscript — the same findings
+  return in new words (the "Mirror Loop") and "no edit needed" is never treated as a valid
+  outcome. New **Phase 2.5h** runs `refinement_stop.py` after the ceiling pass: it reads the
+  other gates' `qc/*.json` and classifies the loop's terminal state — `CONTINUE` (a floor Major
+  remains), `STOP_OVERHARDENING` (floor clean, ceiling flags accumulation — subtraction only, do
+  not run another additive pass), `STOP_MINOR_OPTIONAL` (only optional Minor polish left),
+  `STOP_ZERO_EDIT` (submission-ready as-is — **a zero-edit result is a first-class PASS**), or
+  `INDETERMINATE` (gates not yet run). It is a loop *controller*, not a detector: it carries no
+  `check_` prefix, is advisory (it never blocks, so it cannot double-gate the floor detectors
+  that already fail under `--strict` on their own Majors), and is **count-neutral**.
+
 ### Fixed
 
 - **`/self-review` — two `--manuscript` detectors read a manuscript's YAML front matter as
