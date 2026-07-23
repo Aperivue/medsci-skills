@@ -1,9 +1,10 @@
 # AI Writing Pattern Reference for Medical/Radiology Manuscripts
 
-Detailed reference for the 25 AI writing patterns, with expanded examples and suggested
+Detailed reference for the 27 AI writing patterns, with expanded examples and suggested
 rewrites specifically tailored for medical imaging and radiology research. Patterns 1-18 are
-the general set; 19-21 are senior-MA-reviewer red flags; 25 is a typographic tell that applies
-to any prose; 22-24 are response-to-reviewers (R2R) letter patterns.
+the general set; 19-21 are senior-MA-reviewer red flags; 25-27 are style/structure tells that
+apply to any prose — typographic (25), rhythmic (26), and syntactic (27); 22-24 are
+response-to-reviewers (R2R) letter patterns.
 
 Sources (grounding differs by pattern — treat accordingly):
 - Patterns 1-18: matsuikentaro1/humanizer_academic (English 18 patterns) + Wikipedia,
@@ -12,6 +13,10 @@ Sources (grounding differs by pattern — treat accordingly):
 - Patterns 19-21, 22-24: observed in this user's own circulation and rebuttal rounds
   (senior-MA-reviewer comments; machine-drafted response letters).
 - Pattern 25: observed in a co-author's track-changed edits of AI-drafted prose.
+- Patterns 26-27: a prose-rhythm (26) and a prose-structure (27) tell, found when a
+  native-fluent reader flagged AI-drafted argumentative prose that had already cleared the
+  lexical and typographic sweeps. Pattern 27's antithesis rewrite test (M2) is adapted from
+  the SNL-UCSB paper-writing skill's `gate_mechanical.md` (MIT-licensed).
 - Adapted for radiology/medical imaging context
 
 ---
@@ -479,6 +484,50 @@ Absorb most of them into the neighbouring sentence and write back the explanator
 that was compressed out. Deleting them instead of absorbing them shortens the prose further
 and makes the problem worse.
 
+### Pattern 27: Antithesis-and-Cleft Density (Structural AI Tells)
+
+LLM-drafted argumentative prose over-builds two marked constructions that no per-instance
+rule can flag, because each single occurrence is grammatical and often functional:
+
+- **antithesis parallelism** — "authority *rather than* cognition", "*not* a check *but* a
+  second road", "involvement, *not* independence".
+- **cleft / pseudo-cleft** — sentence-initial "*What* matters *is* …", "*It is* X *that* …".
+
+One of each is legitimate; a run of them is an epigram machine. Found when a native-fluent
+co-author's comprehension review flagged prose that had already cleared the em-dash, passive
+and vocabulary sweeps (Patterns 7, 13) — the residue was structural, not lexical (one draft
+carried 28 "rather than" and roughly ten sentence-initial clefts). Unlike Pattern 26
+(whole-sentence negative definitions), this counts *within-sentence* antithesis markers and
+fronting constructions, and is a density measure — never a single instance.
+
+**Watch for:** "X rather than Y" (the dominant tic), "not X but Y", "X, not Y", "What X is
+Y", "It is X that Y". Do NOT touch "instead of" — it is the functional, non-decorative
+sibling of "rather than" and its presence is not a tell.
+
+| # | BAD (antithesis / cleft density) | GOOD (plain construction) |
+|---|---|---|
+| 1 | "The model earns trust by what it measures rather than by what it claims. What matters is the validation set, not the training curve. It is the external cohort, rather than the internal split, that carries the evidence." | "The model earns trust from what it measures. The validation set matters more than the training curve, and the external cohort carries the evidence the internal split cannot." |
+| 2 | "This is calibration, not discrimination. What the reader needs is a probability, rather than a rank." | "This is calibration rather than discrimination; the reader needs a probability, and a rank does not supply one." |
+| 3 | "It is the disagreement that informs, not the agreement." | "Disagreement between the two readers is what carries the information here." |
+
+**Calibration.** Across this toolkit's three published-quality demo manuscripts, "rather
+than" runs 1.4–3.8 per 1,000 body words and sentence-initial clefts are absent. The gate's
+thresholds (antithesis 6.0 / 1,000, cleft 2.5 / 1,000, each behind a raw-count floor) sit
+above that range, so a lone functional "rather than" or one pseudo-cleft never trips it.
+
+**Detection:** `/self-review` `scripts/check_rhetorical_density.py --manuscript manuscript.md`
+→ `ANTITHESIS_DENSITY` / `CLEFT_DENSITY` (both Minor, independent). Each fires only when the
+per-1,000 rate AND the raw count both clear a floor, so functional use in ordinary prose does
+not trip it.
+
+**Fix strategy (M2 heuristic):** For each negative/antithesis construction, delete the
+negative half and rewrite the clause in the positive. If a fact disappears the contrast was
+functional — keep it; if nothing disappears it was decoration — cut it. Judge by the
+manuscript's overall rate, not instance by instance, and keep two or three for emphasis.
+Rewrite clefts in plain subject-verb order ("What matters is X" → "X matters"). The
+negative-form test is adapted from the SNL-UCSB paper-writing skill's `gate_mechanical.md`
+(MIT-licensed).
+
 
 ---
 
@@ -637,6 +686,8 @@ Run this checklist on the final manuscript before submission:
 - [ ] (Methods §X) / (Results §Y) self-reference: 0 occurrences (Pattern 20)
 - [ ] AI Disclosure boilerplate in body: 0 occurrences (Pattern 21) — cover letter / submission form only
 - [ ] Inline-emphasis over-use (Pattern 25) — `check_emphasis_density.py`; strip single-word and whole-clause italics, keep stat symbols / Latin / gene-species
+- [ ] Aphorism density (Pattern 26) — `check_aphorism_density.py`; a run of negative definitions plus very short declaratives; absorb most into neighbouring sentences, keep two or three
+- [ ] Antithesis / cleft density (Pattern 27) — `check_rhetorical_density.py`; "rather than" / "not X but Y" / "X, not Y" and sentence-initial "What … is …" / "It is … that …"; delete the negative half and rewrite positive, keep two or three
 - [ ] Sentence-length variety (SKILL.md Fix rule 7) — `check_sentence_variety.py`; short (8-12 words) and long (25-35 words) sentences both present
 - [ ] Rewrite footprint within bounds — `check_edit_footprint.py` when humanize rewrote a file; >30% changed warrants a re-read, >50% is a halt
 

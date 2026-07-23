@@ -2,7 +2,7 @@
 
 # humanize
 
-> Detect and remove AI writing patterns from academic manuscripts and response-to-reviewers letters. Scans for 26 common AI-generated text patterns and rewrites flagged passages to sound naturally human-written while preserving technical accuracy, bounding how much of the text a rewrite is allowed to touch.
+> Detect and remove AI writing patterns from academic manuscripts and response-to-reviewers letters. Scans for 27 common AI-generated text patterns and rewrites flagged passages to sound naturally human-written while preserving technical accuracy, bounding how much of the text a rewrite is allowed to touch.
 
 **Invoke:** `/humanize` · **Tools:** Read, Write, Edit, Grep, Glob, Bash · **Model:** inherit
 

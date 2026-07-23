@@ -98,6 +98,7 @@
 - `check_reported_p_from_counts.py`
 - `check_reported_p_from_counts_challenge/` (6 files)
 - `check_reviewer_team_consistency.py`
+- `check_rhetorical_density.py`
 - `check_rounded_delta.py`
 - `check_scope_coherence.py`
 - `check_supplement_hygiene.py`

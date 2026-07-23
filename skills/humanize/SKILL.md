@@ -1,6 +1,6 @@
 ---
 name: humanize
-description: Detect and remove AI writing patterns from academic manuscripts and response-to-reviewers letters. Scans for 26 common AI-generated text patterns and rewrites flagged passages to sound naturally human-written while preserving technical accuracy, bounding how much of the text a rewrite is allowed to touch.
+description: Detect and remove AI writing patterns from academic manuscripts and response-to-reviewers letters. Scans for 27 common AI-generated text patterns and rewrites flagged passages to sound naturally human-written while preserving technical accuracy, bounding how much of the text a rewrite is allowed to touch.
 triggers: humanize, AI patterns, AI 문체, remove AI writing, make it sound natural, 자연스럽게, de-AI
 tools: Read, Write, Edit, Grep, Glob, Bash
 model: inherit
@@ -20,8 +20,8 @@ wrote it, while preserving every technical claim, number, and citation.
 
 ## Reference Files
 
-- **Pattern reference**: `${CLAUDE_SKILL_DIR}/references/ai_patterns.md` -- full 26-pattern list with expanded examples for medical/radiology manuscripts (Pattern 19–21 are senior-MA-reviewer red flags; Patterns 25–26 are style tells applying to any prose, typographic and rhythmic respectively; Pattern 22–24 are response-to-reviewers letter patterns)
-- **Source material**: Patterns 1-18 are inherited from matsuikentaro1/humanizer_academic and Wikipedia, "Signs of AI writing"; their thresholds are conventional rather than measured on a medical corpus. Patterns 19-25 come from observed reviewer, co-author, and rebuttal rounds. `references/ai_patterns.md` records the grounding per pattern.
+- **Pattern reference**: `${CLAUDE_SKILL_DIR}/references/ai_patterns.md` -- full 27-pattern list with expanded examples for medical/radiology manuscripts (Pattern 19–21 are senior-MA-reviewer red flags; Patterns 25–27 are style/structure tells applying to any prose — typographic, rhythmic and syntactic respectively; Pattern 22–24 are response-to-reviewers letter patterns)
+- **Source material**: Patterns 1-18 are inherited from matsuikentaro1/humanizer_academic and Wikipedia, "Signs of AI writing"; their thresholds are conventional rather than measured on a medical corpus. Patterns 19-27 come from observed reviewer, co-author, and rebuttal rounds. `references/ai_patterns.md` records the grounding per pattern.
 
 Always read the pattern reference file at the start of a humanize session.
 
@@ -31,7 +31,7 @@ Always read the pattern reference file at the start of a humanize session.
 
 ### Phase 1: Scan
 
-Read the manuscript section(s) provided by the user and scan for all 25 patterns. For
+Read the manuscript section(s) provided by the user and scan for all 27 patterns. For
 response-to-reviewers letters and cover letters, prioritise patterns 22-24.
 
 **For each pattern found:**
@@ -71,7 +71,7 @@ Present findings to the user with actionable summary.
 - **LOW** (0 occurrences): Clean for this pattern.
 
 **AI Pattern Score:**
-- Count total pattern instances across all 25 categories.
+- Count total pattern instances across all 27 categories.
 - Compute density: instances per 1000 words.
 - Target: < 2.0 instances per 1000 words.
 
@@ -95,6 +95,15 @@ Rewrite flagged passages following these rules:
    long sentences and pads the short ones toward a comfortable middle, which is itself a tell.
    `scripts/check_sentence_variety.py` verifies this rule in Phase 4.
 8. **Use active voice** where natural. "We analyzed" rather than "Analysis was performed."
+9. **Thin out antithesis and cleft constructions (Pattern 27, the M2 heuristic).** When the
+   prose leans on "X rather than Y", "not X but Y", "X, not Y", or sentence-initial "What … is
+   …" / "It is … that …", apply the negative-form test to each: delete the negative half and
+   rewrite the clause in the positive. If a fact disappears, the contrast was functional — keep
+   it; if nothing disappears, it was decoration — cut it. Judge by the manuscript's overall
+   rate, not instance by instance, and keep two or three for emphasis. Rewrite clefts in plain
+   subject-verb order ("What matters is X" → "X matters"). `scripts/check_rhetorical_density.py`
+   (in `/self-review`) measures this in Phase 4. (M2 test adapted from the SNL-UCSB paper-writing
+   skill, MIT.)
 
 **Fix strategies per pattern category:**
 
@@ -104,6 +113,7 @@ Rewrite flagged passages following these rules:
 | Language patterns (7-12) | Substitute with plain academic English; simplify verb constructions |
 | Style patterns (13-15) | Adjust formatting and punctuation |
 | Filler and hedging (16-18) | Delete filler; calibrate hedging to match evidence level |
+| Style/structure density (25-27) | Strip inline emphasis; absorb aphorisms; thin antithesis/cleft per the M2 test |
 
 **Output:** Present the rewritten text with changes highlighted using diff format or tracked changes.
 
@@ -113,7 +123,7 @@ Rewrite flagged passages following these rules:
 check can read it (`cp manuscript.md /tmp/pre_humanize.md`). Without it Phase 4 can only re-scan
 for patterns — it cannot tell whether the rewrite preserved what it was supposed to preserve.
 
-Run both deterministic checks, then re-scan the rewritten text using the same 25 patterns.
+Run both deterministic checks, then re-scan the rewritten text using the same 27 patterns.
 
 ```bash
 python3 "${CLAUDE_SKILL_DIR}/scripts/check_rewrite_fidelity.py" \
@@ -150,7 +160,7 @@ If the density remains above 2.0, run another fix-verify cycle (max 3 rounds).
 
 ---
 
-## The 25 Detection Patterns
+## The 27 Detection Patterns
 
 ### Content Patterns
 
@@ -268,6 +278,7 @@ the pass/fail status.
 | Pattern 20 — `(see Methods §X)` self-reference | ENFORCED | match found | rewrite to direct section name reference |
 | Pattern 21 — AI Disclosure paragraph in body | ENFORCED | "Generative AI was not used..." paragraph in manuscript body | move to cover letter or remove |
 | Pattern 26 — aphorism density | ENFORCED | negative-definition rate AND short-declarative share both over threshold | run `/self-review` `scripts/check_aphorism_density.py --manuscript manuscript.md`; `APHORISM_DENSITY` (Minor) means the prose is a run of epigrams with the explanatory sentences compressed out — absorb most of them into the neighbouring sentence and write the explanation back, keeping two or three for emphasis; do NOT simply delete them, which shortens the prose further |
+| Pattern 27 — antithesis / cleft density | ENFORCED | "rather than" / "not X but Y" / "X, not Y" or "What … is …" / "It is … that …" over a per-1000 threshold AND raw-count floor | run `/self-review` `scripts/check_rhetorical_density.py --manuscript manuscript.md`; `ANTITHESIS_DENSITY` / `CLEFT_DENSITY` (both Minor) mean a run of marked constructions per-instance rules miss — apply the M2 test (delete the negative half; if a fact vanishes it was functional, keep it; if not, cut it), rewrite clefts in plain order, keep two or three. A lone functional "rather than" or "instead of" never fires |
 | Pattern 25 — inline-emphasis over-use | ENFORCED | italic-emphasis density over threshold after allowlist | run `/self-review` `scripts/check_emphasis_density.py --manuscript manuscript.md`; `EMPHASIS_OVERUSE` (Minor) means strip inline italics (keep only stat symbols / Latin / gene-species); whole-clause italics are the strongest tell |
 | Patterns 22-24 — R2R editing-mechanism / draft line-number / tooling leak | TRIAGE (response letters); `§` = 0 hard | detection greps in ai_patterns.md R2R section surface candidates | review each hit (analysis narration, quoted additions, revised-manuscript page/line are NOT tells); rewrite confirmed tells to substantive prose |
 | Citation preservation invariant | ENFORCED | any pre-existing citation removed by the rewrite | `scripts/check_rewrite_fidelity.py --before <pre> --after <post> --strict` → `CITATION_DROP` (Major); revert that single rewrite and flag for the user |

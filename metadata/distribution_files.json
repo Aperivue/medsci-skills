@@ -1838,13 +1838,13 @@
     },
     {
       "path": "skills/humanize/SKILL.md",
-      "size": 17102,
-      "sha256": "9e3e42a240d83f05387ded03fe786a793bef236fe32e81dee9dbe0c02430471a"
+      "size": 18644,
+      "sha256": "9bdaaa4d13c360022388b89c9fdc4fb16864ffa2d999e815f2acf48f6b7c9dcb"
     },
     {
       "path": "skills/humanize/references/ai_patterns.md",
-      "size": 37218,
-      "sha256": "bb2631c490f050d98c4713f7155146b6eca7471f2557e160b32bd461a9bfe1f4"
+      "size": 41392,
+      "sha256": "f0e10e027be8f4ecc788f9c688d0aa1197ee68025e1f570f86004b7ccd7696ab"
     },
     {
       "path": "skills/humanize/scripts/check_rewrite_fidelity.py",
@@ -1859,7 +1859,7 @@
     {
       "path": "skills/humanize/skill.yml",
       "size": 1450,
-      "sha256": "d72d763088be7f2bd7e3713f309f1415e4e429c444ef7527be44d2237766818e"
+      "sha256": "f34a891182ce1595b23e692fd8f04bdcc31bc0658d9c209aa0d1800b26b6cd2a"
     },
     {
       "path": "skills/intake-project/SKILL.md",
@@ -4610,6 +4610,11 @@
       "path": "skills/self-review/scripts/check_reviewer_team_consistency.py",
       "size": 15498,
       "sha256": "9af6a41312262a05b30abebf0ce41718ff5463fe5c613e11b27db1073f66e54e"
+    },
+    {
+      "path": "skills/self-review/scripts/check_rhetorical_density.py",
+      "size": 11760,
+      "sha256": "67574a067970b02a82daf0894db38da0a43f02a3b8d248175bfaea103d37b111"
     },
     {
       "path": "skills/self-review/scripts/check_rounded_delta.py",
