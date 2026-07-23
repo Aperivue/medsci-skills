@@ -46,6 +46,7 @@
 - `bash scripts/check_figure_citation_challenge/verify.sh  # panel-suffixed citation (Figure 3a) regression + real orphan`
 - `bash scripts/refinement_stop_challenge/verify.sh  # terminal-state loop controller: zero-edit PASS / stop signal from qc/*.json`
 - `bash scripts/check_baseline_drift_challenge/verify.sh  # framing drift (strength/significance/scope/hedge) vs the last human-approved baseline`
+- `bash scripts/refinement_regression_challenge/verify.sh  # regression axis: fixed vs broke across runs (ledger); Mirror-Loop churn`
 - `feed R0-numbered output into /revise`
 
 **Evidence** — `demo`
@@ -101,6 +102,8 @@
 - `check_supplement_hygiene.py`
 - `check_table_percentages.py`
 - `check_table_percentages_challenge/` (6 files)
+- `refinement_regression.py`
+- `refinement_regression_challenge/` (17 files)
 - `refinement_stop.py`
 - `refinement_stop_challenge/` (15 files)
 

@@ -1,0 +1,5 @@
+Refinement regression: CONVERGED
+  fixed (resolved): 1   still open (carried): 0
+  broke (new):      0   resurfaced (churn):  0
+  qc dir: fixture/converged/qc   ledger: fixture/converged/ledger.jsonl
+  -> Nothing new and nothing carried -- the loop is done. Stop.

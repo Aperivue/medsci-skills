@@ -4003,8 +4003,8 @@
     },
     {
       "path": "skills/self-review/SKILL.md",
-      "size": 84400,
-      "sha256": "3f9c37424ce4a091cf4a504ca4eec73ed230748e0fef42672ca5f18ee7ea6df4"
+      "size": 86143,
+      "sha256": "0332c8f8b880bc9f418f638a533dae8afc03fac9ea0335452d7eb39d4ad5da56"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
@@ -4657,6 +4657,96 @@
       "sha256": "b4c9eb16f291841c1d6dc74a5554a49b5dc60d3562d0e328e01a78797f8d32ad"
     },
     {
+      "path": "skills/self-review/scripts/refinement_regression.py",
+      "size": 8235,
+      "sha256": "35452cddacbbaea97909fdcf5875440584049c04d2c091c5fd54fd7ecc834d16"
+    },
+    {
+      "path": "skills/self-review/scripts/refinement_regression_challenge/expected/churning.txt",
+      "size": 394,
+      "sha256": "9bc723076eef04fd4f48453efa26aaafd33c4883a2cb772da4c27535ef132645"
+    },
+    {
+      "path": "skills/self-review/scripts/refinement_regression_challenge/expected/converged.txt",
+      "size": 264,
+      "sha256": "652313e50d4ef098f039b4885ab9def6e5f7ce4842ba85b18cb3f081361122bf"
+    },
+    {
+      "path": "skills/self-review/scripts/refinement_regression_challenge/expected/firstrun.txt",
+      "size": 337,
+      "sha256": "aea916eef3449047964d64fc5166f965a7ea2ed26ee385b0cc854a453986e071"
+    },
+    {
+      "path": "skills/self-review/scripts/refinement_regression_challenge/expected/progressing.txt",
+      "size": 336,
+      "sha256": "9a882cce0f0dd886409b700993eef15790af6d304150351cfef419eaa615ba2d"
+    },
+    {
+      "path": "skills/self-review/scripts/refinement_regression_challenge/expected/regression.txt",
+      "size": 405,
+      "sha256": "e3b08bf3999482e17f77100d052ec8d14b25799986b4d122656bae20b9c465ab"
+    },
+    {
+      "path": "skills/self-review/scripts/refinement_regression_challenge/fixture/churning/ledger.jsonl",
+      "size": 78,
+      "sha256": "fc49a612482ba5f96489b7c502f8f375af8a21bde448cf6b81d6c1427a809fb4"
+    },
+    {
+      "path": "skills/self-review/scripts/refinement_regression_challenge/fixture/churning/qc/gate.json",
+      "size": 280,
+      "sha256": "36631c730ae7a92c8341f2007c78cb3f516d384e74df043b68c7002152fd01cf"
+    },
+    {
+      "path": "skills/self-review/scripts/refinement_regression_challenge/fixture/converged/ledger.jsonl",
+      "size": 44,
+      "sha256": "d7056a0a8f2c2096b70b6ae08c1ad3b6dd62f191592c3ff324ddfa3fbb563114"
+    },
+    {
+      "path": "skills/self-review/scripts/refinement_regression_challenge/fixture/converged/qc/gate.json",
+      "size": 153,
+      "sha256": "0e7309ddc13e3401732f4a0e258a5137dd36cf46b040c03331f27c005c512d8d"
+    },
+    {
+      "path": "skills/self-review/scripts/refinement_regression_challenge/fixture/firstrun/ledger.jsonl",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "skills/self-review/scripts/refinement_regression_challenge/fixture/firstrun/qc/gate.json",
+      "size": 283,
+      "sha256": "07a4a3732113700137df4439e734884ff6125d7d3c4eb9e0060cd9505dde08ce"
+    },
+    {
+      "path": "skills/self-review/scripts/refinement_regression_challenge/fixture/progressing/ledger.jsonl",
+      "size": 81,
+      "sha256": "8fa338eb4ba8ac5c1891c93d7b99035258a72c870c5c59c45ce2a4778576029e"
+    },
+    {
+      "path": "skills/self-review/scripts/refinement_regression_challenge/fixture/progressing/qc/gate.json",
+      "size": 283,
+      "sha256": "07a4a3732113700137df4439e734884ff6125d7d3c4eb9e0060cd9505dde08ce"
+    },
+    {
+      "path": "skills/self-review/scripts/refinement_regression_challenge/fixture/regression/ledger.jsonl",
+      "size": 44,
+      "sha256": "d7056a0a8f2c2096b70b6ae08c1ad3b6dd62f191592c3ff324ddfa3fbb563114"
+    },
+    {
+      "path": "skills/self-review/scripts/refinement_regression_challenge/fixture/regression/qc/gate.json",
+      "size": 427,
+      "sha256": "fa2182f92fbaa54d4f0fe70edd2e38f5ea26eaeeb43299fef71ebd8d67914b39"
+    },
+    {
+      "path": "skills/self-review/scripts/refinement_regression_challenge/problem.md",
+      "size": 2427,
+      "sha256": "071bf3623e963683dcef26a2d789363206c7b449cfa174ec28866a3012a12ecb"
+    },
+    {
+      "path": "skills/self-review/scripts/refinement_regression_challenge/verify.sh",
+      "size": 2553,
+      "sha256": "aee5185cfff6c640a9045b78d1c0204c8ee46bfadaf6945a28abfdac38970b8c"
+    },
+    {
       "path": "skills/self-review/scripts/refinement_stop.py",
       "size": 9274,
       "sha256": "bd35bd3142c0833e722a46c0f2438fba7f862be261df9b2fd6cf8ebf639cfa04"
@@ -4743,8 +4833,8 @@
     },
     {
       "path": "skills/self-review/skill.yml",
-      "size": 4016,
-      "sha256": "316da322b1d79dd9b16951f1a57cd2467d6fe3f597b1fc5085cbc1d927bb597d"
+      "size": 4186,
+      "sha256": "732e07deb5da6334f53beac194299020d544cd0258c8ba07955df44f7b544706"
     },
     {
       "path": "skills/setup-medsci/SKILL.md",

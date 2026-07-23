@@ -809,6 +809,36 @@ re-run self-review to find "one more thing". A `STOP_ZERO_EDIT` or `STOP_MINOR_O
 verdict is a legitimate terminal state; treating "found nothing required" as a failure to
 try harder is exactly the over-hardening this phase exists to stop.
 
+### Phase 2.5j: Refinement Regression (fixed vs broke, across runs)
+
+Run this each round, after the loop controller, and record the run. Self-review is
+stateless: a revision that resolves finding X can introduce finding Y, and the pass-rate
+(how many old findings are gone) hides it. This step reads a small run-history ledger — one
+line per run, the `verdict@where` fingerprints of that run's findings — and reports the
+**regression axis next to the pass-rate axis**: what the revision *fixed* vs what it *broke*.
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/refinement_regression.py" \
+  --qc-dir qc --ledger qc/refinement_ledger.jsonl --append \
+  --out qc/refinement_regression.json
+```
+
+Use `--append` on a real run so the current findings become the next entry; omit it to
+classify without recording.
+
+| Verdict | Meaning | What the harness must do |
+|---|---|---|
+| `PROGRESSING` | findings resolved, none new | continue |
+| `REGRESSION` | the revision introduced new finding(s) | review the new findings before accepting the fix — the pass-rate went up but something broke |
+| `CHURNING` | a resolved finding reappeared (Mirror Loop) | **stop revising and re-anchor** — more passes re-derive, they do not converge |
+| `CONVERGED` | nothing new, nothing carried | the loop is done |
+| `INDETERMINATE` | first run, no prior entry | re-run after a revision |
+
+It is **not a detector** (no `check_` prefix, uncounted) and **advisory — it never blocks**.
+Report both axes in Phase 3: a revision is an improvement only if it resolved findings **and**
+the `new`/`churn` columns are empty. A `CHURNING` verdict is the deterministic form of the
+same stop signal the loop controller raises — the loop is no longer making progress.
+
 ### Phase 2.6: Multi-Agent Panel Review (--panel, opt-in)
 
 Run this phase **only when `--panel` is passed**. The default single-pass review (Phases 2–2.5d) stays the fast path; the panel is the high-cost, high-precision option for a pre-submission final pass on a top-tier target. Run it after the numerical audits (Phases 2.5–2.5d) so the reviewers see source-verified numbers, and before the Phase 3 report, which it feeds.
