@@ -74,6 +74,21 @@
   `qc/baseline_drift.json` feeds the loop controller (Phase 2.5i), so a drifted draft does not
   read as a zero-edit PASS. **57 skills / 78 detectors.**
 
+- **`/self-review` — a revision that fixed one finding could break another, and the pass-rate
+  hid it.** Self-review was stateless: each run reported the manuscript's current findings, so
+  when the author revised to resolve finding X the gate pass-rate rose ("X gone") while nothing
+  measured whether the fix *introduced* a new finding Y — or whether a previously-resolved
+  finding had resurfaced (the "Mirror Loop": the loop re-deriving, not converging). New
+  **Phase 2.5j** runs `refinement_regression.py`, which reads a run-history ledger (one line
+  per run, the `verdict@where` fingerprints of that run's findings) plus the current `qc/*.json`
+  and reports the **regression axis next to the pass-rate axis**: `resolved` (fixed), `carried`
+  (still open), `new` (broke), and `churn` (resurfaced) — verdict `PROGRESSING`, `REGRESSION`,
+  `CHURNING` (stop the loop), `CONVERGED`, or `INDETERMINATE` (first run). It is a loop
+  *controller*, not a detector (no `check_` prefix, **count-neutral**), and advisory — it never
+  blocks. By default it only classifies; `--append` records the current run as the next ledger
+  entry. A revision is an improvement only if it resolved findings **and** left the `new`/`churn`
+  columns empty.
+
 ### Fixed
 
 - **`/self-review` — two `--manuscript` detectors read a manuscript's YAML front matter as
