@@ -504,6 +504,9 @@ jobs:
       - name: "Run self-review refinement-regression challenge (fixed vs broke across runs; Mirror-Loop churn)"
         run: bash skills/self-review/scripts/refinement_regression_challenge/verify.sh
 
+      - name: "Run self-review perspective-structure challenge (IMRAD headings + flat abstract in a Perspective; genre-gated, Minor)"
+        run: bash skills/self-review/scripts/check_perspective_structure_challenge/verify.sh
+
       - name: Run analyze-stats generated-code gate test
         run: bash skills/analyze-stats/tests/test_generated_code.sh
 

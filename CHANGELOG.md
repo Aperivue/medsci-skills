@@ -4,6 +4,19 @@
 
 ### Added
 
+- **Perspective structural gate — a Perspective drafted like an original article, caught before a
+  co-author does.** `/self-review` gains `check_perspective_structure` (genre-gated to
+  `article_type: Perspective`): it flags IMRAD section headings ("Introduction / Methods / Results /
+  Discussion") where a Perspective should name sections as argument-moves, and an abstract that
+  states its thesis with no authorial move ("we argue" / "we propose" / "here we ..."), which eight
+  of nine sampled npj Digital Medicine Perspectives carry. Both Minor (advisory). The parser blanks
+  HTML comments, ignores level-3 headings and leading section numbers, skips front/back-matter, and
+  evaluates the first abstract only — so a good Perspective (argument-move headings + an authorial
+  abstract) stays silent, verified on a real npj DM Perspective. **Detectors 79 → 80.**
+  `check_reference_adequacy` also gains a `perspective` bucket so an opinion essay is no longer
+  scored against original-research reference targets. Grounded in a cross-journal Perspective corpus
+  (npj DM / NEJM AI / RYAI / Radiology / Lancet) and a Codex adversarial design review.
+
 - **Burden-of-disease / health-estimate methodology — the reporting checklist and the "value-add
   analytic layer" playbook a high-output epidemiology group runs.** Reverse-engineered from a set of
   Nature Medicine / Lancet / JAMA / Gut GBD-satellite and nationwide-cohort papers: their edge is not

@@ -4013,8 +4013,8 @@
     },
     {
       "path": "skills/self-review/SKILL.md",
-      "size": 86999,
-      "sha256": "44d8f1d8163a14c8cb4ce732875f8f9c5256ad8643e667be82847ad9bc9e70bf"
+      "size": 87995,
+      "sha256": "6cb1011bf8894469793bd410ea7350961903d6fe097e90237c8ace16b0bb6246"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
@@ -4577,9 +4577,64 @@
       "sha256": "bb6ba881fba0c026cae4087d954e6f954be9c9325bfaa4210e4d7ff02310524d"
     },
     {
+      "path": "skills/self-review/scripts/check_perspective_structure.py",
+      "size": 12119,
+      "sha256": "c49e098c37a11e252fd8ad38e3d4685e0cc344bb11737773e0e4071ed8308568"
+    },
+    {
+      "path": "skills/self-review/scripts/check_perspective_structure_challenge/expected/edge_hardened.txt",
+      "size": 300,
+      "sha256": "04fe389325e2a0be4f4173f5d3d69d7ec05a31daedca8de2119b8608b2940e6b"
+    },
+    {
+      "path": "skills/self-review/scripts/check_perspective_structure_challenge/expected/not_perspective.txt",
+      "size": 283,
+      "sha256": "d7067d19e73df591f542aab16085b6221629215b1c24431dc44317a0249d326f"
+    },
+    {
+      "path": "skills/self-review/scripts/check_perspective_structure_challenge/expected/perspective_bad.txt",
+      "size": 1000,
+      "sha256": "f32746dee3662f682117c072a197aea2ccd86034dc80f625b250efecd25f6bb6"
+    },
+    {
+      "path": "skills/self-review/scripts/check_perspective_structure_challenge/expected/perspective_ok.txt",
+      "size": 300,
+      "sha256": "04fe389325e2a0be4f4173f5d3d69d7ec05a31daedca8de2119b8608b2940e6b"
+    },
+    {
+      "path": "skills/self-review/scripts/check_perspective_structure_challenge/fixture/edge_hardened.md",
+      "size": 1578,
+      "sha256": "e6539ed416913200047dc86506d4552bb802426651a3a5f4be853abbee5bc028"
+    },
+    {
+      "path": "skills/self-review/scripts/check_perspective_structure_challenge/fixture/not_perspective.md",
+      "size": 1235,
+      "sha256": "d3d1278e81966ae6510de12dc13d476e85fdf380fe27552bb0efa551b913d861"
+    },
+    {
+      "path": "skills/self-review/scripts/check_perspective_structure_challenge/fixture/perspective_bad.md",
+      "size": 1417,
+      "sha256": "f8913891119214020f61e5b2d35be7bac96e93f096918426e134cf1ee30c2c31"
+    },
+    {
+      "path": "skills/self-review/scripts/check_perspective_structure_challenge/fixture/perspective_ok.md",
+      "size": 1311,
+      "sha256": "9ab120ebab78760b03790c228d7508ff043bb94736681bd64ab41fbba312cc25"
+    },
+    {
+      "path": "skills/self-review/scripts/check_perspective_structure_challenge/problem.md",
+      "size": 2486,
+      "sha256": "8e3e4be2c52a59c11f602daefad42f5595fb8dad25cc18395bde6737acb6e602"
+    },
+    {
+      "path": "skills/self-review/scripts/check_perspective_structure_challenge/verify.sh",
+      "size": 3438,
+      "sha256": "124dc9b572f06f234619b9f4f15023b1d81449cd59ea9448d97eb8cc4912e631"
+    },
+    {
       "path": "skills/self-review/scripts/check_reference_adequacy.py",
-      "size": 17608,
-      "sha256": "50afc9f646fa7494a7f1a90e2a0c794c645421c34a7e49422c6734cfa4a5fbc7"
+      "size": 17766,
+      "sha256": "777e762e533d5fd219e0bad634fd18392a2b4a274e734723d7df050a0dd6d155"
     },
     {
       "path": "skills/self-review/scripts/check_reported_p_from_counts.py",
@@ -4898,8 +4953,8 @@
     },
     {
       "path": "skills/self-review/skill.yml",
-      "size": 4186,
-      "sha256": "732e07deb5da6334f53beac194299020d544cd0258c8ba07955df44f7b544706"
+      "size": 4402,
+      "sha256": "74bf178b823ad2a0d3e05485fbb30d49b08040e19849d67c49fd4d160fab2554"
     },
     {
       "path": "skills/setup-medsci/SKILL.md",

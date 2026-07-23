@@ -20,11 +20,13 @@ outputs:
   - qc/self_review.md
   - qc/self_review.json
   - qc/reference_adequacy.json
+  - qc/perspective_structure.json
   - qc/refinement_stop.json
   - qc/baseline_drift.json
   - qc/refinement_regression.json
 deterministic_scripts:
   - scripts/check_reference_adequacy.py
+  - scripts/check_perspective_structure.py
   - scripts/check_editorial_impression.py
   - scripts/check_baseline_drift.py
   - scripts/check_table_percentages.py
@@ -71,5 +73,6 @@ validation_commands:
   - "bash scripts/refinement_stop_challenge/verify.sh  # terminal-state loop controller: zero-edit PASS / stop signal from qc/*.json"
   - "bash scripts/check_baseline_drift_challenge/verify.sh  # framing drift (strength/significance/scope/hedge) vs the last human-approved baseline"
   - "bash scripts/refinement_regression_challenge/verify.sh  # regression axis: fixed vs broke across runs (ledger); Mirror-Loop churn"
+  - "bash scripts/check_perspective_structure_challenge/verify.sh  # IMRAD headings + flat abstract in a Perspective (genre-gated, Minor)"
   - "feed R0-numbered output into /revise"
 evidence_surface: demo

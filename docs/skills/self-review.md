@@ -47,6 +47,7 @@
 - `bash scripts/refinement_stop_challenge/verify.sh  # terminal-state loop controller: zero-edit PASS / stop signal from qc/*.json`
 - `bash scripts/check_baseline_drift_challenge/verify.sh  # framing drift (strength/significance/scope/hedge) vs the last human-approved baseline`
 - `bash scripts/refinement_regression_challenge/verify.sh  # regression axis: fixed vs broke across runs (ledger); Mirror-Loop churn`
+- `bash scripts/check_perspective_structure_challenge/verify.sh  # IMRAD headings + flat abstract in a Perspective (genre-gated, Minor)`
 - `feed R0-numbered output into /revise`
 
 **Evidence** — `demo`
@@ -94,6 +95,8 @@
 - `check_paired_difference_estimator_challenge/` (6 files)
 - `check_panel_diversity.py`
 - `check_paren_spans.py`
+- `check_perspective_structure.py`
+- `check_perspective_structure_challenge/` (10 files)
 - `check_reference_adequacy.py`
 - `check_reported_p_from_counts.py`
 - `check_reported_p_from_counts_challenge/` (6 files)

@@ -57,6 +57,7 @@ TARGETS = {
     "case_report": (10, 20),
     "editorial": (5, 15),
     "letter": (0, 10),
+    "perspective": (0, 90),      # opinion essay; count spans NEJM AI (<=5) to npj DM (40+)
 }
 
 # repo paper-type filename (skills/write-paper/references/paper_types/) -> bucket
@@ -78,6 +79,8 @@ ALIASES = {
     "editorial": "editorial",
     "commentary": "editorial",
     "letter": "letter",
+    "perspective": "perspective",
+    "viewpoint": "perspective",
 }
 
 # Buckets where a Methods/Statistical-Analysis section is expected to carry
