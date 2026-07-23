@@ -17,14 +17,20 @@ The authoritative, machine-readable list is **[`metadata/detectors_catalog.json`
 
 The 80 detectors fall into six audit families:
 
-| Family | Count | Examples |
+The per-family rows below are the **complete** enumeration, not a sample, and are CI-gated
+against `metadata/detectors_catalog.json` (`validate_catalog_consistency.py`): each row's count
+must equal that family's size in the catalog, and the names listed must be exactly that family's
+members. The gate exists because the total and the rows drifted apart once — the sentence above
+said 80 while these rows enumerated 72.
+
+| Family | Count | Detectors |
 |--------|------:|----------|
 | Numerical, cohort & pool arithmetic | 11 | `check_cohort_arithmetic`, `check_effect_stability`, `check_table_percentages`, `check_reported_p_from_counts`, `check_dta_denominators`, `check_paired_difference_estimator`, `check_pool_consistency`, `check_artifact_coverage`, `check_rounded_delta`, `detect_copy_divergence`, `derive_figure_legend_counts` |
 | Citation & reference integrity | 8 | `verify_refs`, `check_citation_keys`, `check_xref`, `check_csl_render`, `check_reference_adequacy`, `check_placeholders`, `check_reference_duplication`, `check_bib_title_markup` |
-| Style & review-process integrity | 18 | `check_classical_style`, `check_generated_code`, `check_panel_diversity`, `check_reviewer_team_consistency`, `check_paren_spans`, `check_training_hygiene`, `check_editorial_impression`, `check_emphasis_density`, `check_response_claims`, `check_pdf_injection`, `check_marked_manuscript`, `check_self_improvement_claims`, `check_slide_tells`, `check_deck_budget`, `check_density_complaint`, `check_review_request_types`, `check_review_length`, `check_review_boxes` |
-| Confounding, scope & estimand contracts | 6 | `check_scope_coherence`, `check_incorporation_bias`, `check_confounding_completeness`, `check_nested_group_comparison`, `check_claim_artifact`, `check_null_calibration` |
+| Style & review-process integrity | 24 | `check_classical_style`, `check_generated_code`, `check_panel_diversity`, `check_reviewer_team_consistency`, `check_paren_spans`, `check_training_hygiene`, `check_editorial_impression`, `check_emphasis_density`, `check_response_claims`, `check_pdf_injection`, `check_marked_manuscript`, `check_self_improvement_claims`, `check_slide_tells`, `check_deck_budget`, `check_density_complaint`, `check_review_request_types`, `check_review_length`, `check_review_boxes`, `check_aphorism_density`, `check_baseline_drift`, `check_perspective_structure`, `check_rewrite_fidelity`, `check_rhetorical_density`, `check_sentence_variety` |
+| Confounding, scope & estimand contracts | 7 | `check_scope_coherence`, `check_incorporation_bias`, `check_confounding_completeness`, `check_nested_group_comparison`, `check_claim_artifact`, `check_null_calibration`, `check_analysis_definitions` |
 | Reporting compliance | 15 | `check_framework_naming`, `check_checklist_exists`, `check_checklist_version`, `check_prisma_figure`, `check_figure_citation`, `check_wordcount_cap`, `check_disclosure_availability`, `check_summary_box`, `check_supplement_hygiene`, `check_citation_order`, `check_model_card_complete`, `check_mllm_eval_completeness`, `check_explainability_report`, `check_uncertainty_reporting`, `check_exclusion_code_validity` |
-| Data preparation & validation | 14 | `check_structural_zero`, `check_reverse_coding`, `check_asset_anonymization`, `check_cross_artifact_stale`, `check_checklist_dump_leak`, `check_binning_consistency`, `check_cv_leakage`, `check_split_leakage`, `check_metric_reporting`, `check_preprocessing_leakage`, `check_radiomics_ml`, `check_separation`, `check_contribution_safety`, `check_portal_field_residue` |
+| Data preparation & validation | 15 | `check_structural_zero`, `check_reverse_coding`, `check_asset_anonymization`, `check_cross_artifact_stale`, `check_checklist_dump_leak`, `check_binning_consistency`, `check_cv_leakage`, `check_split_leakage`, `check_metric_reporting`, `check_preprocessing_leakage`, `check_radiomics_ml`, `check_separation`, `check_contribution_safety`, `check_portal_field_residue`, `check_dataset_profile` |
 
 ## The artifact contract
 
@@ -51,7 +57,7 @@ The suite's evaluation evidence and its current size are **two separate facts** 
 
 - **Current detector catalog: 80** (the enumerated list in `metadata/detectors_catalog.json`).
 - **Canonical evaluation runs are v3.8-era and validate the then-current subset.** The seeded-defect benchmark (**E1**) is built on **19 `DefectSpec` rows / 17 deterministic injectors** ([`evaluation/h1_seeded_defects/DEFECT_RATIONALE.md`](evaluation/h1_seeded_defects/DEFECT_RATIONALE.md)), and the coverage inventory (**E7**) is **n=21** ([`evaluation/runs/canonical/E7/limitations.md`](evaluation/runs/canonical/E7/limitations.md)). Both predate the A1–A4 detectors that brought the catalog to 24. The frozen canonical runs under [`evaluation/runs/canonical/`](evaluation/runs/canonical/) are pinned to the published methods artifacts and are intentionally left unchanged.
-- **Detectors added since v3.8 are covered by their own per-skill CI tests** (e.g. `skills/sync-submission/tests/test_asset_anonymization.sh`, `skills/check-reporting/tests/test_checklist_version.sh`, `skills/write-paper/tests/test_placeholders.sh`), run on every push via [`.github/workflows/validate.yml`](.github/workflows/validate.yml) — not by a re-run of the frozen E1/E7. A refresh of E1/E7 to cover all 80 detectors is a separate evaluation effort and is **not** part of this registry.
+- **Detectors added since v3.8 are covered by their own per-skill CI tests** (e.g. `skills/sync-submission/tests/test_asset_anonymization.sh`, `skills/check-reporting/tests/test_checklist_version.sh`, `skills/write-paper/tests/test_placeholders.sh`), run on every push via [`.github/workflows/validate.yml`](.github/workflows/validate.yml) — not by a re-run of the frozen E1/E7. A refresh of E1/E7 to cover all 80 detectors is a separate evaluation effort and is **not** part of this registry — it is pre-registered as a protocol in [`evaluation/REFRESH_PROTOCOL.md`](evaluation/REFRESH_PROTOCOL.md), which also states why an injection benchmark cannot report precision, and why its clean-manuscript arm should not be run to completion without an external adjudicator.
 
 For the broader evaluation harness (E1–E9: seeded-defects, LLM baseline, cost/time, fresh-clone reproducibility, audit-trail completeness, portability, inventory, drift, self-review convergence), see [`evaluation/`](evaluation/).
 
