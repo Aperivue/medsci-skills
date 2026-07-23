@@ -89,6 +89,20 @@
   entry. A revision is an improvement only if it resolved findings **and** left the `new`/`churn`
   columns empty.
 
+- **`/self-review` — a panel could span distinct concern axes yet share one model substrate,
+  and nothing caught it.** When the generator, the critics, and the verifier run on the same
+  model, their blind spots are correlated — the self-critique inherits the very blindness that
+  produced the confident draft — and the existing `check_panel_diversity` gate measured
+  *concern-axis* diversity, which is orthogonal to *substrate* diversity. Routing at least one
+  lens to a different substrate was documented advice but not enforced. `check_panel_diversity`
+  now takes a substrate-aware roster (`generator_substrate` + a per-reviewer `substrate` lane:
+  `claude`/`codex`/`gpt`/`human`) and fires **`SUBSTRATE_MONOCULTURE`** (Major, blocking under
+  `--strict`) when every declared reviewer shares the generator's substrate — making an
+  independent lens the **default, not an option**. Skipped when the roster declares no
+  substrates (backward compatible; the panel mode is opt-in, so the default single-pass review
+  is unaffected). **Count-neutral** — an existing detector gained a verdict, the catalog stays
+  78.
+
 ### Fixed
 
 - **`/self-review` — two `--manuscript` detectors read a manuscript's YAML front matter as
