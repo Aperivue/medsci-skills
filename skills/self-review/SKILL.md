@@ -55,7 +55,7 @@ whole and recommends SUBTRACTION — REMOVE, MOVE, or TIGHTEN — so the same co
 confidently.** The ceiling pass is advisory and never blocks; it cannot relax a floor gate.
 Without it, repeated self-review monotonically over-defends. Surface the ceiling findings as
 their own first-class output (Phase 3), not folded silently into the "add this" comments.
-**Phase 2.5h (the loop controller)** then reads the floor + ceiling state to declare when
+**Phase 2.5i (the loop controller)** then reads the floor + ceiling state to declare when
 the loop is *done* — including a zero-edit PASS — so an accurate draft is not over-hardened
 by a pass it does not need.
 
@@ -744,7 +744,37 @@ defensive over-disclosure is a **cut / move**. The two are not symmetric — kee
 but place it once and point to the supplement rather than repeating it at every claim site
 (placement discipline: main text narrates, auditability lives in the supplement).
 
-### Phase 2.5h: Refinement Terminal-State (the loop controller)
+### Phase 2.5h: Baseline Drift (anchor to the last human-approved version)
+
+Run this after the ceiling pass and **before** the loop controller (Phase 2.5i), so its
+findings are counted when the terminal state is judged. The refine loop's hazard is the
+*anchor*: each pass silently takes the previous **AI output** as its baseline, so a small
+framing bias compounds across passes while every pass looks locally fine. This gate
+compares the current manuscript against the **last human-approved version** — the frozen
+`v_N` of manuscript-versioning (a senior/co-author-circulated draft), **not** the last AI
+output — and reports lexical framing drift. Supply the baseline explicitly; with none
+available (a first draft) skip it — the gate is a no-op without one.
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/check_baseline_drift.py" \
+  --manuscript manuscript.md --baseline "$BASELINE_MD" \
+  --out qc/baseline_drift.json
+```
+
+| Verdict | Signal (baseline → current) | Fold into report as |
+|---|---|---|
+| `STRENGTH_INFLATION` | certainty markers up while hedges fall | Minor — tone back to the approved strength |
+| `SIGNIFICANCE_INFLATION_DRIFT` | novel/pivotal/unprecedented tokens added | Minor — remove the inflation |
+| `SCOPE_INFLATION_DRIFT` | new generalization phrases ("in clinical practice") | Minor — the estimand did not widen; re-scope |
+| `HEDGE_ACCRETION` | hedge/caveat density up | Minor — cumulative over-hardening; TIGHTEN |
+
+Every finding is **Minor and advisory** — framing is the author's judgment and the gate
+never blocks. Treat drift as *review against the approved anchor*, not an instruction to
+revert: legitimate new analysis can justify a stronger claim, but the author should confirm
+it rather than let it accrete unexamined across AI passes. Its `qc/baseline_drift.json`
+feeds the loop controller, so a draft that has drifted does not read as a zero-edit PASS.
+
+### Phase 2.5i: Refinement Terminal-State (the loop controller)
 
 Run this **last**, after the floor gates (Phases 2.5–2.5f) and the ceiling pass (Phase
 2.5g), because it reads their `qc/*.json` artifacts and classifies whether the

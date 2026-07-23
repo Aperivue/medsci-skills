@@ -1,0 +1,4 @@
+Baseline-drift scan
+  manuscript: fixture/stable.md
+  baseline:   fixture/baseline.md
+  OK: no framing drift beyond threshold.

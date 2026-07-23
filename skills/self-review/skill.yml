@@ -21,9 +21,11 @@ outputs:
   - qc/self_review.json
   - qc/reference_adequacy.json
   - qc/refinement_stop.json
+  - qc/baseline_drift.json
 deterministic_scripts:
   - scripts/check_reference_adequacy.py
   - scripts/check_editorial_impression.py
+  - scripts/check_baseline_drift.py
   - scripts/check_table_percentages.py
   - scripts/check_nested_group_comparison.py
   - scripts/check_reported_p_from_counts.py
@@ -66,5 +68,6 @@ validation_commands:
   - "bash scripts/check_incorporation_bias_challenge/verify.sh  # trajectory reference standard + trajectory predictor"
   - "bash scripts/check_figure_citation_challenge/verify.sh  # panel-suffixed citation (Figure 3a) regression + real orphan"
   - "bash scripts/refinement_stop_challenge/verify.sh  # terminal-state loop controller: zero-edit PASS / stop signal from qc/*.json"
+  - "bash scripts/check_baseline_drift_challenge/verify.sh  # framing drift (strength/significance/scope/hedge) vs the last human-approved baseline"
   - "feed R0-numbered output into /revise"
 evidence_surface: demo

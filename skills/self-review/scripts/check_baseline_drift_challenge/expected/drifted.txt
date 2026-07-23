@@ -1,0 +1,7 @@
+Baseline-drift scan
+  manuscript: fixture/drifted.md
+  baseline:   fixture/baseline.md
+  DRIFT FOUND: 3 finding(s) (advisory / Minor)
+    [STRENGTH_INFLATION] certainty markers 0.0->52.24/1k while hedges 30.49->0.0/1k vs baseline -- the result is stated more strongly than the approved version
+    [SIGNIFICANCE_INFLATION_DRIFT] significance-inflation tokens 0->3 vs baseline (added: novel, pivotal, unprecedented)
+    [SCOPE_INFLATION_DRIFT] generalization phrase(s) not in baseline: "can be used to", "in clinical practice", "ready for clinical use", "ready for deployment"

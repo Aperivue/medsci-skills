@@ -1,0 +1,5 @@
+Baseline-drift scan
+  manuscript: fixture/overhedged.md
+  baseline:   fixture/baseline.md
+  DRIFT FOUND: 1 finding(s) (advisory / Minor)
+    [HEDGE_ACCRETION] hedge/caveat density 30.49->125.0/1k vs baseline -- cumulative over-hardening

@@ -42,14 +42,13 @@
   `--imbalance-frac` are screening defaults, not published cut-points, and are printed in the
   output so a reader sees what was applied. The profiler needs nibabel (it opens images); the
   gate is stdlib-only, so an audit reproduces anywhere the JSON travels.
-  **57 skills / 77 detectors.**
 
 - **`/self-review` — a refinement loop that never knew when to stop now has a terminal-state
   controller.** Run iteratively (review → revise → review), the floor gates converge to zero
   Major findings, but nothing declared the loop *done*. Because every additive gate can always
   surface one more caveat, an ungrounded loop over-hardens the manuscript — the same findings
   return in new words (the "Mirror Loop") and "no edit needed" is never treated as a valid
-  outcome. New **Phase 2.5h** runs `refinement_stop.py` after the ceiling pass: it reads the
+  outcome. New **Phase 2.5i** runs `refinement_stop.py` after the ceiling pass: it reads the
   other gates' `qc/*.json` and classifies the loop's terminal state — `CONTINUE` (a floor Major
   remains), `STOP_OVERHARDENING` (floor clean, ceiling flags accumulation — subtraction only, do
   not run another additive pass), `STOP_MINOR_OPTIONAL` (only optional Minor polish left),
@@ -57,6 +56,23 @@
   `INDETERMINATE` (gates not yet run). It is a loop *controller*, not a detector: it carries no
   `check_` prefix, is advisory (it never blocks, so it cannot double-gate the floor detectors
   that already fail under `--strict` on their own Majors), and is **count-neutral**.
+
+- **`/self-review` — the refine loop was anchored to the AI's own previous draft, not the
+  last human-approved version.** Each pass silently took the prior AI output as its baseline,
+  so a small framing bias compounded across passes — claims strengthened, scope inflated,
+  caveats accreted — while every individual pass looked locally reasonable. New **Phase 2.5h**
+  runs `check_baseline_drift.py`, which compares the current manuscript against an explicit
+  baseline (the frozen `v_N` of manuscript-versioning — a senior/co-author-circulated draft,
+  **not** the last AI output) and reports lexical framing drift: `STRENGTH_INFLATION`
+  (certainty markers up while hedges fall), `SIGNIFICANCE_INFLATION_DRIFT`
+  (novel/pivotal/unprecedented tokens added), `SCOPE_INFLATION_DRIFT` (generalization phrases
+  the baseline lacked), and `HEDGE_ACCRETION` (the cumulative form of the over-hardening the
+  ceiling pass catches within one pass). Advisory — every finding is Minor and the gate never
+  blocks; with no `--baseline` it is a no-op, so it stays silent on the crossfire clean
+  fixtures. Conservative by construction: a probe fires only when a density delta exceeds an
+  explicit threshold, so a legitimate reword at the same strength clears. Its
+  `qc/baseline_drift.json` feeds the loop controller (Phase 2.5i), so a drifted draft does not
+  read as a zero-edit PASS. **57 skills / 78 detectors.**
 
 ### Fixed
 

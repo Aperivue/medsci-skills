@@ -4003,8 +4003,8 @@
     },
     {
       "path": "skills/self-review/SKILL.md",
-      "size": 82487,
-      "sha256": "177bf6f41bbd3ca9044b80eaac6d798affa46a69f8a282f31f9002349f40c8ec"
+      "size": 84400,
+      "sha256": "3f9c37424ce4a091cf4a504ca4eec73ed230748e0fef42672ca5f18ee7ea6df4"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
@@ -4245,6 +4245,61 @@
       "path": "skills/self-review/scripts/check_artifact_coverage.py",
       "size": 17156,
       "sha256": "fa049e8c18ce133540155325261a301a460200bab911a85baed9794847e1ba72"
+    },
+    {
+      "path": "skills/self-review/scripts/check_baseline_drift.py",
+      "size": 11242,
+      "sha256": "cc17ce530daf73ac5e6fcfabf203284e2cbf3faf3a213e2ecd4352a3b9b5dd19"
+    },
+    {
+      "path": "skills/self-review/scripts/check_baseline_drift_challenge/expected/drifted.txt",
+      "size": 576,
+      "sha256": "5e6aa6ace0f08730023f0d4dab1559027ff7dd497c8864b1b660ef7f8b7bfb0d"
+    },
+    {
+      "path": "skills/self-review/scripts/check_baseline_drift_challenge/expected/nobaseline.txt",
+      "size": 139,
+      "sha256": "fa3e792f2e72ca419c2fafa5ed15183c87151d5a2773a3ae773c9046c284aded"
+    },
+    {
+      "path": "skills/self-review/scripts/check_baseline_drift_challenge/expected/overhedged.txt",
+      "size": 237,
+      "sha256": "ccf288016e8ffd69233e37df7c55c83aa1aec51abe91221c14b192423d6beda0"
+    },
+    {
+      "path": "skills/self-review/scripts/check_baseline_drift_challenge/expected/stable.txt",
+      "size": 127,
+      "sha256": "1c67786aa21e33e475abd99cef5e9374d1bbcaf2c60c9cab14f8155fe703b645"
+    },
+    {
+      "path": "skills/self-review/scripts/check_baseline_drift_challenge/fixture/baseline.md",
+      "size": 1102,
+      "sha256": "893e081be36b697c6c35075fd8a376fcf76921af0e776665c3a5eaba6f0d12b6"
+    },
+    {
+      "path": "skills/self-review/scripts/check_baseline_drift_challenge/fixture/drifted.md",
+      "size": 913,
+      "sha256": "7c4440fad4651a545c0a4e8659f91eaac216976f3308de32d048472f6bc14db1"
+    },
+    {
+      "path": "skills/self-review/scripts/check_baseline_drift_challenge/fixture/overhedged.md",
+      "size": 977,
+      "sha256": "b434161afdc140a8e8517b58a6a3c29c4ec0f6b8ccc0140b776edb4f7eb64ae3"
+    },
+    {
+      "path": "skills/self-review/scripts/check_baseline_drift_challenge/fixture/stable.md",
+      "size": 1070,
+      "sha256": "2c7a16e23bd2640eaaa600efa5af1542b5707ed7d23297e2de6caf638097a063"
+    },
+    {
+      "path": "skills/self-review/scripts/check_baseline_drift_challenge/problem.md",
+      "size": 2397,
+      "sha256": "be38e1c2ca30eb9f02563f925ccc057d2ca10cd26486d73badef10265d815dbb"
+    },
+    {
+      "path": "skills/self-review/scripts/check_baseline_drift_challenge/verify.sh",
+      "size": 2188,
+      "sha256": "4db88d6ab54ac75e2c1cbbf1a6410fea06356d8577c32b447db36a7522d20974"
     },
     {
       "path": "skills/self-review/scripts/check_binning_consistency.py",
@@ -4688,8 +4743,8 @@
     },
     {
       "path": "skills/self-review/skill.yml",
-      "size": 3804,
-      "sha256": "781d8d80ead1a85af578971d3f3516f1a1caedc2ba9c54c3b64442da79521437"
+      "size": 4016,
+      "sha256": "316da322b1d79dd9b16951f1a57cd2467d6fe3f597b1fc5085cbc1d927bb597d"
     },
     {
       "path": "skills/setup-medsci/SKILL.md",
