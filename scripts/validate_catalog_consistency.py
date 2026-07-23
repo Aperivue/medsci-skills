@@ -7,7 +7,7 @@ said "22 guidelines" while orchestrate said "15"; more recently every doc said
 "33 reporting guidelines" while only 32 are enumerated and vendored). This makes
 the counts a single source of truth and fails CI on drift.
 
-Three layers:
+Four layers:
   1. Recompute every count from disk (the real ground truth).
   2. Assert metadata/catalog_counts.json matches disk — the SSOT cannot lie.
      Exception: the journal-profile counts (``AUTO_DERIVED_KEYS``) are recomputed
@@ -27,6 +27,11 @@ Three layers:
      prose never trips it, and comparison/marketing lines about *other* repos
      ("400-900 skills", "869 skills") are never touched. Dated version notes (2- or
      3-component, e.g. **v5.20.1**) are skipped for every current-claim scan.
+  4. Assert the MEDSCI_AUDIT per-family detector table against the generated
+     metadata/detectors_catalog.json — each row's count against that family's true
+     size, and its listed names against that family's true membership. Layer 3 already
+     watched the "The N detectors fall into six audit families" total; nothing watched
+     the rows under it, and they drifted to 72 against a total of 80.
 
 Exit 0 when everything agrees; non-zero on any drift. Stdlib-only.
 """
@@ -147,6 +152,49 @@ NUM_WORDS = {w: i for i, w in enumerate(
     ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight",
      "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen",
      "sixteen", "seventeen", "eighteen", "nineteen", "twenty"])}
+
+# The MEDSCI_AUDIT family table is a hand-maintained mirror of the auto-generated
+# metadata/detectors_catalog.json. It drifted: the prose said "The 80 detectors fall
+# into six audit families" — gated by DETECTOR_CLAIM_PATTERNS above — while the rows
+# beneath it enumerated only 72. The total was watched; the rows were not. Layer 4
+# asserts every row against the catalog's own per-family id list, so a detector added
+# without a family-table row fails here instead of silently unbalancing the registry.
+FAMILY_TABLE_FILE = "MEDSCI_AUDIT.md"
+DETECTORS_CATALOG = "metadata/detectors_catalog.json"
+
+
+def family_table_failures() -> list[str]:
+    """Return one message per MEDSCI_AUDIT family row that disagrees with the catalog.
+
+    Checks each row's declared count against the family's true size and its listed
+    names against the family's true membership (the rows are the complete enumeration,
+    not a sample). Rows whose label is not a catalog family label are ignored, so the
+    other tables in the file are never parsed as family rows.
+    """
+    out: list[str] = []
+    cat, doc = ROOT / DETECTORS_CATALOG, ROOT / FAMILY_TABLE_FILE
+    if not cat.exists() or not doc.exists():
+        return out
+    families = json.loads(cat.read_text(encoding="utf-8")).get("families", [])
+    truth = {f["label"]: set(f["ids"]) for f in families}
+    row_re = re.compile(r"^\|\s*([^|]+?)\s*\|\s*(\d+)\s*\|\s*(.+?)\s*\|\s*$", re.M)
+    seen: set[str] = set()
+    for m in row_re.finditer(doc.read_text(encoding="utf-8")):
+        label, count, cells = m.group(1).strip(), int(m.group(2)), m.group(3)
+        if label not in truth:
+            continue  # not a family row
+        seen.add(label)
+        listed, real = set(re.findall(r"`([A-Za-z0-9_]+)`", cells)), truth[label]
+        if count != len(real):
+            out.append(f"{FAMILY_TABLE_FILE} family '{label}': count {count}, catalog has {len(real)}")
+        if missing := sorted(real - listed):
+            out.append(f"{FAMILY_TABLE_FILE} family '{label}': row omits {', '.join(missing)}")
+        if extra := sorted(listed - real):
+            out.append(f"{FAMILY_TABLE_FILE} family '{label}': row lists non-member(s) {', '.join(extra)}")
+    for label in truth:
+        if label not in seen:
+            out.append(f"{FAMILY_TABLE_FILE}: no family row for '{label}'")
+    return out
 
 
 def doc_claims() -> list[tuple[str, int, int, str]]:
@@ -283,6 +331,11 @@ def main() -> int:
         if claimed != expected:
             print(f"\nFAIL: {rel} {ctx}: claims {claimed}, expected {expected}", file=sys.stderr)
             failures += 1
+
+    # Layer 4 — the MEDSCI_AUDIT family table must match the generated catalog.
+    for msg in family_table_failures():
+        print(f"\nFAIL: {msg}", file=sys.stderr)
+        failures += 1
 
     if failures:
         print(f"\nCATALOG_COUNT_DRIFT: {failures} mismatch(es).", file=sys.stderr)

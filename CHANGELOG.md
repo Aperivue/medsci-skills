@@ -4,6 +4,24 @@
 
 ### Added
 
+- **A pre-registered protocol for the evaluation refresh that covers all 80 detectors.**
+  `evaluation/REFRESH_PROTOCOL.md` — written before any run, because an analysis plan chosen
+  after seeing results is a re-designation, not a derivation, and the toolkit enforces exactly
+  that discipline on its users. It splits the question into three arms with different evidentiary
+  standing and refuses to blend them: **Arm A** extends the seeded-defect design to every
+  detector, per *verdict* rather than per detector, and adds the **hard negative** (a near-miss
+  that must stay silent) that E1 never had — the class where the recent `/verify-refs` precision
+  bugs actually lived. **Arm B** measures what the evidence base has nothing on and what actually
+  decides adoption: **alert burden on clean manuscripts**, with applicability gating so a
+  genre-gated detector's silence is not counted as a true negative, and a pre-specified budget
+  (0 Major, median ≤ 3 Minor). **Arm C** is the real-use precision ledger, permanently
+  out-of-band. Two constraints are recorded up front rather than discovered later: an injection
+  benchmark **cannot report precision or sensitivity** (fault injection has no defined defect
+  prevalence — E1's own rationale, carried forward), and Arm B **should not be run to completion
+  while the only adjudicator is the person who wrote the detectors**, since an author judging his
+  own gate inherits the blind spot that produced it. Stages 0–2 are solo-completable; Stage 3 is
+  explicitly gated on recruiting an external adjudicator.
+
 - **Perspective structural gate — a Perspective drafted like an original article, caught before a
   co-author does.** `/self-review` gains `check_perspective_structure` (genre-gated to
   `article_type: Perspective`): it flags IMRAD section headings ("Introduction / Methods / Results /
@@ -157,6 +175,22 @@
   78.
 
 ### Fixed
+
+- **The MedSci-Audit family table enumerated 72 detectors under a sentence claiming 80.** The
+  registry's own per-family rows had gone stale by eight: style/review 18 → **24**,
+  confounding/scope/estimand 6 → **7**, data preparation 14 → **15** (`check_aphorism_density`,
+  `check_baseline_drift`, `check_perspective_structure`, `check_rewrite_fidelity`,
+  `check_rhetorical_density`, `check_sentence_variety`, `check_analysis_definitions`,
+  `check_dataset_profile` were missing rows). The total *was* gated — "The 80 detectors fall
+  into six audit families" is a watched claim — but **nothing checked that the rows beneath it
+  summed to it**, so the flagship audit document contradicted itself in public. Found while
+  scoping the family-stratified benchmark, where a stale family size would have misallocated the
+  sampling budget. `validate_catalog_consistency` gains **Layer 4**: every family row is asserted
+  against `metadata/detectors_catalog.json` — declared count against the family's true size, and
+  listed names against its true membership — so a detector added without a row now fails CI
+  instead of silently unbalancing the registry. The column header is renamed `Examples` →
+  `Detectors`, because the rows are the complete enumeration and the gate now enforces that.
+  Regression-tested both ways (count drift and membership drift each FAIL).
 
 - **Drifted public-facing catalog claims corrected, and the consistency gate widened to the phrasings
   that slipped past it.** An external review found several current-state counts stale against the

@@ -27,6 +27,20 @@ scope here by design.
 | E8 | `h6_inventory_drift/run_e8_drift.py` | Public-metadata drift is caught by the catalog validator | exact |
 | E9 | `h7_selfreview_convergence/` | Whether the self-review loop reduces its own actionable findings (internal QC convergence) | non-deterministic — **ships, NOT_RUN by default** |
 
+## Coverage status, and the planned refresh
+
+The harnesses above are **v3.8-era**: E1 rests on 19 `DefectSpec` rows / 17 offline injectors and
+E7 is n=21, while the current catalog is **80 detectors**. Detectors added since are covered by
+per-detector CI challenge cards — regression tripwires, not a benchmark.
+
+[`REFRESH_PROTOCOL.md`](REFRESH_PROTOCOL.md) pre-registers the refresh that closes that gap:
+family-stratified coverage of all 80 detectors with hard negatives (Arm A), an alert-burden
+measurement on clean manuscripts (Arm B), and an out-of-band real-use precision ledger (Arm C).
+It is a protocol only — **no results exist yet** — and it records two constraints up front: an
+injection benchmark cannot report precision (there is no defined defect prevalence), and the
+clean-manuscript arm should not be run to completion while the only available adjudicator is the
+person who wrote the detectors.
+
 ## Running
 
 ```bash
