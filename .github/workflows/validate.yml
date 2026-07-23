@@ -538,6 +538,9 @@ jobs:
       - name: Run self-review aphorism-density gate test
         run: bash skills/self-review/tests/test_aphorism_density.sh
 
+      - name: Run self-review rhetorical-density gate test (antithesis + cleft, humanize P27)
+        run: bash skills/self-review/tests/test_rhetorical_density.sh
+
       - name: Run self-review claim-artifact (estimand provenance) gate test
         run: bash skills/self-review/tests/test_claim_artifact.sh
 

@@ -4,6 +4,25 @@
 
 ### Added
 
+- **`/humanize` (P27) — a density gate for antithesis parallelism and cleft, the sentence-structure
+  AI tells the lexical sweeps miss.** The em-dash, passive-voice and AI-vocabulary checks operate
+  per instance; they cannot see prose whose every sentence is grammatical but which leans on
+  "X *rather than* Y", "*not* X *but* Y", "X, *not* Y", or sentence-initial "*What* … *is* …" /
+  "*It is* … *that* …". A native-fluent reader flagged exactly that residue in an AI-drafted
+  Perspective that had already cleared the lexical passes — one draft carried 28 "rather than" and
+  roughly ten clefts. New detector `check_rhetorical_density.py` (in `/self-review`, the density-gate
+  home shared with `check_aphorism_density` / `check_emphasis_density`) counts antithesis markers and
+  cleft constructions per 1,000 body words and fires `ANTITHESIS_DENSITY` / `CLEFT_DENSITY` (both
+  Minor, independent) only when the rate **and** a raw-count floor both clear a threshold set above
+  the rate in this toolkit's own three published-quality demos (where "rather than" runs 1.4–3.8 /
+  1,000 and clefts are absent). A lone functional "rather than" — or an "instead of", never counted —
+  does not fire; the negative fixture proves a single cleft below the count floor stays silent even
+  when its density crosses the line. The rewrite guidance is the M2 test (delete the negative half;
+  if a fact vanishes the contrast was functional, keep it; if not, cut it), adapted from the SNL-UCSB
+  paper-writing skill's `gate_mechanical.md` (MIT). Brings the detector catalog to **79**. Wired into
+  humanize (SKILL.md gate table, ai_patterns.md Pattern 27, Phase 3 M2 fix rule, pre-submission
+  checklist).
+
 - **`/make-figures` — STROBE flow diagrams now assert their own exclusion cascade closes.** The
   numbers a reviewer actually sees live as text in the figure, generated from a YAML config,
   and can drift from the prose the manuscript gates check. A real cohort figure once read

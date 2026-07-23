@@ -80,6 +80,7 @@ FAMILY_BY_ID: dict[str, str] = {
     "check_baseline_drift": "style_review",
     "check_emphasis_density": "style_review",
     "check_aphorism_density": "style_review",
+    "check_rhetorical_density": "style_review",
     "check_rewrite_fidelity": "style_review",
     "check_sentence_variety": "style_review",
     "check_response_claims": "style_review",
