@@ -1,0 +1,6 @@
+{"generator_substrate": "claude",
+ "reviewers": [
+   {"reviewer_id": "R1", "substrate": "claude"},
+   {"reviewer_id": "R2", "substrate": "codex"},
+   {"reviewer_id": "R3", "substrate": "human"}
+ ]}

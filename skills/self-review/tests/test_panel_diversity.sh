@@ -16,6 +16,8 @@ STATS="$HERE/fixtures/panel_stats_lens.json"
 ONE="$HERE/fixtures/panel_one_returned.json"
 ROSTER4="$HERE/fixtures/roster_4.json"
 ROSTER3="$HERE/fixtures/roster_3.json"
+MONOSUB="$HERE/fixtures/roster_mono_substrate.json"
+INDEPSUB="$HERE/fixtures/roster_indep_substrate.json"
 OUT="$(mktemp -t paneldiv_XXXX).json"
 trap 'rm -f "$OUT"' EXIT
 
@@ -78,6 +80,22 @@ check "no PANEL_UNDERRETURN when roster == returned" no_verdict PANEL_UNDERRETUR
 # (7) roster-gated: without --roster the same 1-reviewer panel does NOT emit PANEL_UNDERRETURN
 python3 "$SCRIPT" --panel "$ONE" --out "$OUT" --quiet >/dev/null 2>&1
 check "no PANEL_UNDERRETURN without a roster (backward compatible)" no_verdict PANEL_UNDERRETURN
+
+# (8) every returned reviewer shares the generator's substrate -> SUBSTRATE_MONOCULTURE (Major),
+#     exit 1. A same-model panel inherits the generator's blind spots; it is not an independent
+#     check. The roster ids match GOOD's returned set, so PANEL_UNDERRETURN does not confound.
+python3 "$SCRIPT" --panel "$GOOD" --roster "$MONOSUB" --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "exit 1 (all reviewers share the generator substrate)" test "$?" -eq 1
+check "SUBSTRATE_MONOCULTURE detected" has_verdict SUBSTRATE_MONOCULTURE
+
+# (9) at least one different-substrate lens (codex, human) -> no SUBSTRATE_MONOCULTURE, exit 0
+python3 "$SCRIPT" --panel "$GOOD" --roster "$INDEPSUB" --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "exit 0 (an independent lens breaks the monoculture)" test "$?" -eq 0
+check "no SUBSTRATE_MONOCULTURE with an independent lens" no_verdict SUBSTRATE_MONOCULTURE
+
+# (10) substrate-gated: a bare roster (no substrate fields) does NOT emit SUBSTRATE_MONOCULTURE
+python3 "$SCRIPT" --panel "$GOOD" --roster "$ROSTER3" --out "$OUT" --quiet >/dev/null 2>&1
+check "no SUBSTRATE_MONOCULTURE without substrate info (backward compatible)" no_verdict SUBSTRATE_MONOCULTURE
 
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"
