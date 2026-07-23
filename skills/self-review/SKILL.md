@@ -55,6 +55,9 @@ whole and recommends SUBTRACTION — REMOVE, MOVE, or TIGHTEN — so the same co
 confidently.** The ceiling pass is advisory and never blocks; it cannot relax a floor gate.
 Without it, repeated self-review monotonically over-defends. Surface the ceiling findings as
 their own first-class output (Phase 3), not folded silently into the "add this" comments.
+**Phase 2.5h (the loop controller)** then reads the floor + ceiling state to declare when
+the loop is *done* — including a zero-edit PASS — so an accurate draft is not over-hardened
+by a pass it does not need.
 
 ## Workflow
 
@@ -740,6 +743,41 @@ against L: an integrity-critical disclosure is a **must (state it once, crisply)
 defensive over-disclosure is a **cut / move**. The two are not symmetric — keep the disclosure,
 but place it once and point to the supplement rather than repeating it at every claim site
 (placement discipline: main text narrates, auditability lives in the supplement).
+
+### Phase 2.5h: Refinement Terminal-State (the loop controller)
+
+Run this **last**, after the floor gates (Phases 2.5–2.5f) and the ceiling pass (Phase
+2.5g), because it reads their `qc/*.json` artifacts and classifies whether the
+refine-and-review loop is *done*. Self-review is run iteratively (review → revise →
+review); the floor gates converge to a fixed point of zero Major findings, but the
+additive bias of the whole stack means a naive loop never stops — there is always one
+more caveat to add. This step is the counterweight's controller: it turns the floor +
+ceiling state into a reproducible STOP verdict and makes a **zero-edit result a valid
+PASS**, so an accurate manuscript is not over-hardened by another pass it does not need.
+
+It is **not a detector** (it finds no defect, carries no `check_` prefix, is uncounted in
+the catalog) and it is **advisory — it never blocks**; it must not double-gate the floor
+detectors, which already fail under `--strict` on their own Majors.
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/refinement_stop.py" \
+  --qc-dir qc --out qc/refinement_stop.json
+```
+
+| Verdict | Meaning | What the harness must do |
+|---|---|---|
+| `CONTINUE` | a floor gate still reports a Major | genuine work remains — keep going |
+| `STOP_OVERHARDENING` | floor clean, ceiling flags accumulation | STOP adding; only optional SUBTRACTION (REMOVE/MOVE/TIGHTEN) remains — do **not** run another additive pass |
+| `STOP_MINOR_OPTIONAL` | floor clean, only optional Minor polish left | stop the required-work loop; present the Minor items as an optional menu, do not loop for them |
+| `STOP_ZERO_EDIT` | floor at fixed point, ceiling clean | the manuscript is submission-ready as-is — **NO EDITS REQUIRED. Do not manufacture changes.** Report the zero-edit PASS as a first-class outcome |
+| `INDETERMINATE` | no gate artifacts yet | run the floor + ceiling gates first |
+
+**Stopping principle.** Deterministic floor gates iterate to their fixed point (0 Major);
+subjective refinement does **not** get an open loop. Once the verdict is any `STOP_*`,
+stop the additive cycle — surface the terminal state in the Phase 3 report and do not
+re-run self-review to find "one more thing". A `STOP_ZERO_EDIT` or `STOP_MINOR_OPTIONAL`
+verdict is a legitimate terminal state; treating "found nothing required" as a failure to
+try harder is exactly the over-hardening this phase exists to stop.
 
 ### Phase 2.6: Multi-Agent Panel Review (--panel, opt-in)
 

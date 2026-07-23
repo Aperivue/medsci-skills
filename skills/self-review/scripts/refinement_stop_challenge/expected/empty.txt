@@ -1,0 +1,6 @@
+Refinement terminal-state: INDETERMINATE
+  Floor gates:   0 Major, 0 Minor
+  Ceiling pass:  0 finding(s)
+  Gates read:    (none)
+  qc dir:        fixture/empty
+  -> No gate artifacts found in the qc directory. Run the floor gates (Phases 2.5-2.5f) and the ceiling pass (Phase 2.5g) first; the terminal state cannot be judged without them.

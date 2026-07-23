@@ -4003,8 +4003,8 @@
     },
     {
       "path": "skills/self-review/SKILL.md",
-      "size": 79847,
-      "sha256": "4887be85794cfa10e856d107bdde81809d5b1d13bd494aeec108641d280a85a1"
+      "size": 82487,
+      "sha256": "177bf6f41bbd3ca9044b80eaac6d798affa46a69f8a282f31f9002349f40c8ec"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
@@ -4602,9 +4602,94 @@
       "sha256": "b4c9eb16f291841c1d6dc74a5554a49b5dc60d3562d0e328e01a78797f8d32ad"
     },
     {
+      "path": "skills/self-review/scripts/refinement_stop.py",
+      "size": 9274,
+      "sha256": "bd35bd3142c0833e722a46c0f2438fba7f862be261df9b2fd6cf8ebf639cfa04"
+    },
+    {
+      "path": "skills/self-review/scripts/refinement_stop_challenge/expected/continue.txt",
+      "size": 341,
+      "sha256": "73bddd1380c419cace641d5e6a6086d277eee16949d981c7ef3cdae8b36a8255"
+    },
+    {
+      "path": "skills/self-review/scripts/refinement_stop_challenge/expected/empty.txt",
+      "size": 339,
+      "sha256": "507be2b3073389a6867821bb08d196837167ba02ecb4d42058b57ae2c749cf98"
+    },
+    {
+      "path": "skills/self-review/scripts/refinement_stop_challenge/expected/minor_optional.txt",
+      "size": 459,
+      "sha256": "4049859330bbbbfd59d29650dc4947c39e4078a75b6776d5b5711fc53056d8aa"
+    },
+    {
+      "path": "skills/self-review/scripts/refinement_stop_challenge/expected/overhardening.txt",
+      "size": 552,
+      "sha256": "bb3c2afd4126d14d0100e45bd77d13426a0c85be411a8b7e311cb3d72bc007ee"
+    },
+    {
+      "path": "skills/self-review/scripts/refinement_stop_challenge/expected/zero_edit.txt",
+      "size": 430,
+      "sha256": "9c181ba22cd83e940783692a87801fd8f56c297822aae659a187588b4d1a9d26"
+    },
+    {
+      "path": "skills/self-review/scripts/refinement_stop_challenge/fixture/continue/cohort_arithmetic.json",
+      "size": 301,
+      "sha256": "b8a562fb45ebae8593c255fea93ad6558ba096c5fb6a4471e89edefe8146757f"
+    },
+    {
+      "path": "skills/self-review/scripts/refinement_stop_challenge/fixture/continue/editorial_impression.json",
+      "size": 182,
+      "sha256": "c4e272fc013c560a9093e88c2a0a04ae0559f7f6d42af6574255c8355ac3846c"
+    },
+    {
+      "path": "skills/self-review/scripts/refinement_stop_challenge/fixture/empty/.gitkeep",
+      "size": 88,
+      "sha256": "55ddc037ed69166c6363492853777ebcd4119a24dcd1c815b81403547b351f19"
+    },
+    {
+      "path": "skills/self-review/scripts/refinement_stop_challenge/fixture/minor_optional/cohort_arithmetic.json",
+      "size": 293,
+      "sha256": "5a0ab360806b72f14844fcfcca596926cabe5f3fd7cb6f469a3516d49ac4158c"
+    },
+    {
+      "path": "skills/self-review/scripts/refinement_stop_challenge/fixture/minor_optional/editorial_impression.json",
+      "size": 182,
+      "sha256": "c4e272fc013c560a9093e88c2a0a04ae0559f7f6d42af6574255c8355ac3846c"
+    },
+    {
+      "path": "skills/self-review/scripts/refinement_stop_challenge/fixture/overhardening/cohort_arithmetic.json",
+      "size": 153,
+      "sha256": "0e7309ddc13e3401732f4a0e258a5137dd36cf46b040c03331f27c005c512d8d"
+    },
+    {
+      "path": "skills/self-review/scripts/refinement_stop_challenge/fixture/overhardening/editorial_impression.json",
+      "size": 493,
+      "sha256": "3b45f915a2fa68e751c3f08d6140567c1d918f3d4958bfa6c1ae5f90d589ac21"
+    },
+    {
+      "path": "skills/self-review/scripts/refinement_stop_challenge/fixture/zero_edit/cohort_arithmetic.json",
+      "size": 153,
+      "sha256": "0e7309ddc13e3401732f4a0e258a5137dd36cf46b040c03331f27c005c512d8d"
+    },
+    {
+      "path": "skills/self-review/scripts/refinement_stop_challenge/fixture/zero_edit/editorial_impression.json",
+      "size": 182,
+      "sha256": "c4e272fc013c560a9093e88c2a0a04ae0559f7f6d42af6574255c8355ac3846c"
+    },
+    {
+      "path": "skills/self-review/scripts/refinement_stop_challenge/problem.md",
+      "size": 2508,
+      "sha256": "0cc922fb254803fbb587a0bd648d31f4ce0ee05916bd188735442b0d27258b28"
+    },
+    {
+      "path": "skills/self-review/scripts/refinement_stop_challenge/verify.sh",
+      "size": 1525,
+      "sha256": "10479bd7eee34fc4b0724fb015f15597347e62111ffe17381c5670e19a844d32"
+    },
+    {
       "path": "skills/self-review/skill.yml",
-      "size": 3642,
-      "sha256": "eb25be632ab8dfd5c7a77625f0bf562f8a84ea870584c170c44c008dd8d47d13"
+      "size": 3804,
+      "sha256": "781d8d80ead1a85af578971d3f3516f1a1caedc2ba9c54c3b64442da79521437"
     },
     {
       "path": "skills/setup-medsci/SKILL.md",

@@ -1,0 +1,1 @@
+{"detector": "check_cohort_arithmetic", "manuscript": "synthetic", "claims": [{"verdict": "FOLLOWUP_VS_CRITERION", "severity": "Minor", "detail": "follow-up window not tied to the criterion window", "where": "Methods"}], "summary": {"n_claims": 1, "n_major": 0, "n_flag": 1, "verdict": "OK"}}
