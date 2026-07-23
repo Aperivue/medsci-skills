@@ -158,6 +158,27 @@
 
 ### Fixed
 
+- **Drifted public-facing catalog claims corrected, and the consistency gate widened to the phrasings
+  that slipped past it.** An external review found several current-state counts stale against the
+  disk SSOT (57 skills / 47 guidelines / 80 detectors): README said "All 55 skills" and "All eight
+  plugins" (three other lines already said "nine"), `CITATION.cff` said "44 EQUATOR guidelines", and
+  `paper.md` (the JOSS submission) said "46 vendored checklists" and "56 task-bounded skills". Each
+  is now current. The more consequential fix is the gate: `validate_catalog_consistency` only
+  cross-checked the skill count in the tagline+badge, the guideline count under the noun "guidelines"
+  in a fixed file set, and the plugin count under the exact phrase "category plugins" — so a prose
+  restatement ("All N skills", "N vendored checklists", "N EQUATOR guidelines", "N plugins") drifted
+  unseen while the gate's own docstring claimed broader coverage. The gate now also scans
+  `CITATION.cff` and `paper.md`, matches `checklists` and the `EQUATOR`/`vendored` qualifiers, checks
+  catalog-total skill prose, and catches a bare "N plugins" restatement; a latent `version_note_re`
+  bug (it skipped `**v5.21**` but not the three-component `**v5.20.1**`) that would have false-flagged
+  a historical note is fixed too. Each new gate branch is regression-tested (reintroduce the old
+  number → FAIL). No skill/detector/guideline count change.
+- **`paper.md` cited "TRIPOD+AI" with the 2015 original-TRIPOD bibkey.** The JOSS paper's State-of-the-
+  Field sentence listed `TRIPOD+AI [@collins2015tripod]`, but that entry is the 2015 TRIPOD Statement
+  (Ann Intern Med), not the 2024 AI extension. Added a verified `collins2024tripodai` entry (TRIPOD+AI
+  statement, *BMJ* 2024;385:e078378, doi 10.1136/bmj-2023-078378, confirmed against CrossRef) and
+  re-pointed the citation; the evaluation fixture that correctly cites plain "TRIPOD" is untouched.
+
 - **`/self-review` — the refinement loop controllers silently skipped every detector that uses
   the `findings` JSON schema, so a floor Major could read as a zero-edit PASS.** `refinement_stop`
   and `refinement_regression` were written against the `{claims, summary}` envelope, but the
