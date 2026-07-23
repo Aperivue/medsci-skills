@@ -59,6 +59,8 @@ import json
 import sys
 from pathlib import Path
 
+import _qc_findings  # same-dir helper: read the heterogeneous detector JSON schemas uniformly
+
 TOOL = "refinement_stop"
 
 RECOMMENDATIONS = {
@@ -93,51 +95,28 @@ RECOMMENDATIONS = {
 STOP_VERDICTS = {"STOP_OVERHARDENING", "STOP_MINOR_OPTIONAL", "STOP_ZERO_EDIT"}
 
 
-def _load_gate(path: Path):
-    """Return (kind, n_major, n_minor, name) for a gate JSON, or None if not a gate.
-
-    kind is "floor" or "ceiling". A ceiling artifact is the SUBTRACTION pass, recognised
-    by a `by_action` key in its summary; any other detector envelope is a floor gate.
-    Files that are not a detector envelope (no summary+claims) -- including this tool's own
-    output -- return None and are ignored.
-    """
-    try:
-        obj = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, ValueError):
-        return None
-    if not isinstance(obj, dict):
-        return None
-    summary = obj.get("summary")
-    claims = obj.get("claims")
-    if not isinstance(summary, dict) or not isinstance(claims, list):
-        return None
-    name = obj.get("detector") or path.stem
-    n_claims = summary.get("n_claims")
-    if not isinstance(n_claims, int):
-        n_claims = len(claims)
-    if "by_action" in summary:
-        return ("ceiling", 0, n_claims, name)
-    n_major = summary.get("n_major", 0)
-    if not isinstance(n_major, int):
-        n_major = 0
-    n_minor = max(0, n_claims - n_major)
-    return ("floor", n_major, n_minor, name)
-
-
 def classify(qc_dir: Path) -> dict:
     floor_major = floor_minor = ceiling_findings = 0
     gates: list[str] = []
+    unparsed: list[str] = []
     for path in sorted(qc_dir.glob("*.json")):
-        loaded = _load_gate(path)
-        if loaded is None:
+        try:
+            obj = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
             continue
-        kind, n_major, n_minor, name = loaded
-        gates.append(name)
-        if kind == "ceiling":
-            ceiling_findings += n_minor
+        g = _qc_findings.parse_gate(obj)
+        if g is None:
+            continue
+        gates.append(g["name"])
+        if not g["parsed"]:
+            # a detector-keyed file with an unrecognised schema -- do NOT count it as clean
+            unparsed.append(g["name"])
+            continue
+        if g["kind"] == "ceiling":
+            ceiling_findings += g["major"] + g["minor"]
         else:
-            floor_major += n_major
-            floor_minor += n_minor
+            floor_major += g["major"]
+            floor_minor += g["minor"]
 
     if not gates:
         verdict = "INDETERMINATE"
@@ -155,6 +134,10 @@ def classify(qc_dir: Path) -> dict:
         floor_minor=floor_minor,
         ceiling_findings=ceiling_findings,
     )
+    if unparsed:
+        rec += (f" (WARNING: {len(unparsed)} gate artifact(s) had an unrecognised schema and were "
+                f"NOT counted -- this verdict may understate the floor: "
+                f"{', '.join(sorted(set(unparsed)))})")
     return {
         "tool": TOOL,
         "verdict": verdict,
@@ -163,6 +146,7 @@ def classify(qc_dir: Path) -> dict:
         "floor_minor": floor_minor,
         "ceiling_findings": ceiling_findings,
         "gates_read": sorted(set(gates)),
+        "gates_unparsed": sorted(set(unparsed)),
         "recommendation": rec,
     }
 
@@ -170,16 +154,17 @@ def classify(qc_dir: Path) -> dict:
 def render(result: dict, qc_dir_display: str) -> str:
     fixed = "  (fixed point)" if result["floor_major"] == 0 and result["verdict"] != "INDETERMINATE" else ""
     gates = ", ".join(result["gates_read"]) if result["gates_read"] else "(none)"
-    return "\n".join(
-        [
-            f"Refinement terminal-state: {result['verdict']}",
-            f"  Floor gates:   {result['floor_major']} Major, {result['floor_minor']} Minor{fixed}",
-            f"  Ceiling pass:  {result['ceiling_findings']} finding(s)",
-            f"  Gates read:    {gates}",
-            f"  qc dir:        {qc_dir_display}",
-            f"  -> {result['recommendation']}",
-        ]
-    )
+    lines = [
+        f"Refinement terminal-state: {result['verdict']}",
+        f"  Floor gates:   {result['floor_major']} Major, {result['floor_minor']} Minor{fixed}",
+        f"  Ceiling pass:  {result['ceiling_findings']} finding(s)",
+        f"  Gates read:    {gates}",
+    ]
+    if result.get("gates_unparsed"):
+        lines.append(f"  Unparsed:      {', '.join(result['gates_unparsed'])}  (unrecognised schema — NOT counted)")
+    lines.append(f"  qc dir:        {qc_dir_display}")
+    lines.append(f"  -> {result['recommendation']}")
+    return "\n".join(lines)
 
 
 def main(argv=None) -> int:
@@ -204,6 +189,7 @@ def main(argv=None) -> int:
             "floor_minor": 0,
             "ceiling_findings": 0,
             "gates_read": [],
+            "gates_unparsed": [],
             "recommendation": RECOMMENDATIONS["INDETERMINATE"],
         }
     else:

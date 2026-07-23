@@ -8,7 +8,7 @@ DET="$HERE/../refinement_regression.py"
 cd "$HERE"
 
 pass=1
-for s in progressing regression churning converged firstrun; do
+for s in progressing regression churning converged firstrun findings_regression; do
   got="$(python3 "$DET" --qc-dir "fixture/$s/qc" --ledger "fixture/$s/ledger.jsonl")"
   if ! diff -u "expected/$s.txt" <(printf '%s\n' "$got"); then
     echo "FAIL: $s output drifted from expected/$s.txt" >&2; pass=0
@@ -19,8 +19,14 @@ for s in progressing regression churning converged firstrun; do
   fi
 done
 
-# Regression and churning must carry the offending key in the JSON artifact.
+# Regression from a findings-schema gate: the new key must be read from `findings` (not only
+# `claims`) -- the exact schema real-manuscript verification showed was being dropped.
 tmp="$(mktemp)"
+python3 "$DET" --qc-dir fixture/findings_regression/qc --ledger fixture/findings_regression/ledger.jsonl --out "$tmp" --quiet
+grep -q '"verdict": "REGRESSION"' "$tmp" || { echo "FAIL: findings-schema regression verdict" >&2; pass=0; }
+grep -q 'PERCENT_MISMATCH@12' "$tmp"     || { echo "FAIL: findings-schema key not read into the run" >&2; pass=0; }
+
+# Regression and churning must carry the offending key in the JSON artifact.
 python3 "$DET" --qc-dir fixture/regression/qc --ledger fixture/regression/ledger.jsonl --out "$tmp" --quiet
 grep -q '"verdict": "REGRESSION"' "$tmp" || { echo "FAIL: regression JSON verdict" >&2; pass=0; }
 grep -q "RATE_BACKCALC@Methods" "$tmp"   || { echo "FAIL: regression JSON missing the new finding key" >&2; pass=0; }

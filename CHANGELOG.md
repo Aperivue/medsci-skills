@@ -105,6 +105,26 @@
 
 ### Fixed
 
+- **`/self-review` — the refinement loop controllers silently skipped every detector that uses
+  the `findings` JSON schema, so a floor Major could read as a zero-edit PASS.** `refinement_stop`
+  and `refinement_regression` were written against the `{claims, summary}` envelope, but the
+  detector suite is not uniform: nine detectors (`check_table_percentages`,
+  `check_reported_p_from_counts`, `check_dta_denominators`, `check_nested_group_comparison`,
+  `check_reference_adequacy`, and others) list under `findings`, with the verdict in `kind` and a
+  `MAJOR` (upper-case) severity — the only contract `check_detector_envelopes` enforces is the
+  top-level `detector` key. The controllers read `claims` only, so those gates were dropped
+  without a trace: on a real manuscript whose only Major was a `check_table_percentages`
+  `PERCENT_MISMATCH`, `refinement_stop` reported `STOP_MINOR_OPTIONAL` (0 Major) and
+  `refinement_regression` under-counted the regression. The synthetic challenge fixtures missed
+  it because they were all hand-authored in the `{claims, summary}` shape the tools already
+  understood. A shared `_qc_findings.parse_gate` now reads both schemas (verdict from
+  `verdict`/`kind`/`type`, severity case-insensitively, location from
+  `where`/`location`/`line`/`table_line`), prefers an authoritative `summary.n_major` when present
+  and otherwise counts Majors per item, and — the key guard — surfaces any `detector`-keyed file
+  whose schema it cannot parse as `gates_unparsed` with a WARNING, so a future novel schema is
+  loud, not silently dropped. Regression fixtures added: a `findings`-schema Major must be counted
+  (→ CONTINUE) and an unrecognised schema must be surfaced. Count-neutral.
+
 - **`/self-review` — two `--manuscript` detectors read a manuscript's YAML front matter as
   body prose and fired on it.** A pandoc manuscript keeps its `status:`, changelog and build
   notes in the leading `---`-fenced block; the shared line-filter idiom (`#`, `|`, `>`, `!`,

@@ -63,6 +63,7 @@
 **Scripts** (`skills/self-review/scripts/`):
 
 - `_frontmatter.py`
+- `_qc_findings.py`
 - `check_analysis_definitions.py`
 - `check_analysis_definitions_challenge/` (6 files)
 - `check_aphorism_density.py`
@@ -103,9 +104,9 @@
 - `check_table_percentages.py`
 - `check_table_percentages_challenge/` (6 files)
 - `refinement_regression.py`
-- `refinement_regression_challenge/` (17 files)
+- `refinement_regression_challenge/` (20 files)
 - `refinement_stop.py`
-- `refinement_stop_challenge/` (15 files)
+- `refinement_stop_challenge/` (21 files)
 
 ## Source
 
