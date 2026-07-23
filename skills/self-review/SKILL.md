@@ -66,7 +66,7 @@ by a pass it does not need.
 1. Get the manuscript -- PDF, Word doc, or pasted text.
 2. Ask the user:
    - Target journal? (affects reporting standards and scope expectations)
-   - Manuscript type? (original research / review / technical note / letter / meta-analysis / case report)
+   - Manuscript type? (original research / review / perspective / technical note / letter / meta-analysis / case report)
    - Anything they're already worried about?
    - **Review depth?** The default is a single-pass review. For a high-stakes pre-submission final pass, a multi-agent **panel** (`--panel`, Phase 2.6) is available — several domain-expert reviewers run independently, then an editor consolidates them (more thorough, but it spawns several agents so it costs several times more tokens). On an interactive run, surface this option **once** in one line and offer it; then proceed with the single-pass review unless the user opts in. Do **not** surface or auto-apply the panel when invoked with `--json` or from `/write-paper` — those stay single-pass.
 3. Read the full manuscript.
@@ -143,12 +143,18 @@ python "${CLAUDE_SKILL_DIR}/scripts/check_reviewer_team_consistency.py" \
 # L. editorial impression (advisory; exits 0 even under --strict)
 python3 "${CLAUDE_SKILL_DIR}/scripts/check_editorial_impression.py" \
   --manuscript manuscript.md --out qc/editorial_impression.json
+
+# J/D. Perspective structure (genre-gated: silent unless article_type is a Perspective).
+# Pass the known type via --type; it also self-detects from the front-matter article_type.
+python3 "${CLAUDE_SKILL_DIR}/scripts/check_perspective_structure.py" \
+  --manuscript manuscript.md --type "${TYPE:-}" --out qc/perspective_structure.json
 ```
 
 Verdict mapping: `CROSS_SECTIONAL_PROGNOSTIC`, `SURROGATE_CARE_DIRECTIVE`, `SECTION_SYMBOL`,
 `INBODY_AI_DISCLOSURE`, and any reviewer-team hit (exit 1) are Anticipated **Major** Comments.
 `CROSS_SECTIONAL_YIELD_LANGUAGE`, `ELIGIBILITY_PROSE`, `DECIMAL_INCONSISTENCY`,
-`EM_DASH_OVERUSE`, and every `check_editorial_impression` verdict are **Minor**. The
+`EM_DASH_OVERUSE`, `PERSPECTIVE_HEADING_NOT_ASSERTION`, `PERSPECTIVE_ABSTRACT_NO_AUTHORIAL_MOVE`,
+and every `check_editorial_impression` verdict are **Minor**. The
 per-verdict rationale and the resolution paths are in the reference file.
 
 **Read on demand:**
@@ -211,6 +217,7 @@ These modules carry the same domain-specific critique probes used by `/peer-revi
 | Radiomic feature reproducibility / acquisition-parameter sweep / reliability-based feature filtering | `references/domain-probes/radiomics.md` (R1–R4) |
 | Cross-modality image synthesis (MRI→PET / MRI→CT / non-contrast→contrast / low-dose→full-dose) claiming functional/molecular information or target-modality substitution | `references/domain-probes/image_synthesis.md` (IS1–IS4) |
 | Narrative / review article / primer / state-of-the-art | `references/domain-probes/narrative_review.md` (RV1–RV9) |
+| Perspective / opinion / viewpoint (argumentative essay — npj DM long-essay, Lancet Comment, NEJM AI / RYAI short-structured) | `references/domain-probes/narrative_review.md` (RV1–RV9) + the deterministic `check_perspective_structure.py` gate above (IMRAD-heading + abstract authorial-move tells) |
 | AI/ML primary study with a clinical claim (generalizable / outperforms clinicians / deployment-ready / can replace a reader) | `references/domain-probes/ai_overclaiming.md` (AO0–AO7) |
 | Engineer-built medical-imaging model (segmentation / classification / detection; CNN / U-Net / nnU-Net / transformer) being validated — partition/leakage, seed & run variance, metric selection, reproducibility, reference-standard quality | `references/domain-probes/model_development.md` (MD0–MD8) |
 | LLM / MLLM evaluated on a clinical task (radiology report generation, visual question answering, clinical text extraction/classification; closed API or open weights) | `references/domain-probes/mllm_evaluation.md` (ME0–ME8) |
@@ -857,6 +864,7 @@ The panel simulates independent peer reviewers who do not see each other's comme
 | Diagnostic-accuracy / AI model | R1 Study design & leakage · R2 Statistics (DeLong, calibration) · R3 Clinical / reference standard | `references/domain-probes/sr_ma.md` (P1 DTA cells) + `references/domain-probes/ai_overclaiming.md` (AO0–AO7, for AI clinical claims) + categories A–C |
 | Observational (STROBE) | R1 Epidemiology / confounding · R2 Clinical · R3 Statistics | `references/domain-probes/observational_confounding.md` (O1/O8 run as the Phase 2.5e / `check_cohort_arithmetic.py --id-col` deterministic gates; O7 over-adjustment) + `references/domain-probes/clinical_prediction_model.md` (CP1–CP4, when it is a prediction-model paper) + categories A–J + the effect-size / added-value axes |
 | Narrative / review article | R1 Domain-content expert · R2 Methodology / SANRA · R3 Technical accuracy · R4 Adversarial reject-hunter (structural: RV9 curated-base circularity, RV6 single-anchor overload, RV8 self-citation architecture) | `references/domain-probes/narrative_review.md` |
+| Perspective / opinion / viewpoint | R1 Domain-content expert · R2 Argument architecture (thesis clarity, section-as-argument-move, single spine device) · R3 Technical accuracy · R4 Adversarial reject-hunter | `references/domain-probes/narrative_review.md` |
 | Case report | R1 Clinical case-report reviewer · R2 Ethics / de-identification · R3 Literature-context reviewer | `references/domain-probes/case_report.md` + CARE items + categories D/F/G |
 
 If the type is ambiguous, ask the user before composing the set.
