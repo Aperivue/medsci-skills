@@ -1,0 +1,49 @@
+# CODEOWNERS — routes review according to the decision rule in MAINTAINERS.md.
+#
+# What this does: GitHub auto-requests review from the owner of any path a PR touches.
+# What it does NOT do: GitHub never requests review from a PR's own author, so this
+# file is inert on maintainer-authored PRs. Its purpose is to route EXTERNAL
+# contributions — journal profiles, checklists, locale packs, skills — to the
+# Clinical Lead without anyone having to remember to.
+#
+# The roles, the decision rule, and the permission ramp live in MAINTAINERS.md; this
+# file only routes. The two blocks below follow the seam that document already draws:
+# clinical/research validity stays with the founder, while the technical surface is
+# explicitly shareable. Today both point to the same person. When a Technical
+# Maintainer is onboarded, they are added to the SECOND block only — the first block
+# is the one that must not be delegated.
+
+# ---------------------------------------------------------------------------
+# Default
+# ---------------------------------------------------------------------------
+*                                               @Yoojin-nam
+
+# ---------------------------------------------------------------------------
+# Clinical / research validity — Clinical Lead sign-off (MAINTAINERS.md)
+# Scope, official-skill decisions, medical or research claims, reporting-checklist
+# fidelity, and benchmark interpretation. Not delegable.
+# ---------------------------------------------------------------------------
+/skills/                                        @Yoojin-nam
+/skills/check-reporting/references/checklists/  @Yoojin-nam
+/skills/find-journal/references/                @Yoojin-nam
+/skills/write-paper/references/                 @Yoojin-nam
+/evaluation/                                    @Yoojin-nam
+/demo/                                          @Yoojin-nam
+/paper.md                                       @Yoojin-nam
+/paper.bib                                      @Yoojin-nam
+/MEDSCI_AUDIT.md                                @Yoojin-nam
+/MAINTAINERS.md                                 @Yoojin-nam
+/ROADMAP.md                                     @Yoojin-nam
+/README.md                                      @Yoojin-nam
+/CITATION.cff                                   @Yoojin-nam
+
+# ---------------------------------------------------------------------------
+# Technical surface — shareable (MAINTAINERS.md: Technical Maintainer)
+# CI, packaging, installers, release automation, repo validators. A future
+# co-maintainer is added here first, per the permission ramp in
+# docs/maintainer_workflow.md.
+# ---------------------------------------------------------------------------
+/scripts/                                       @Yoojin-nam
+/installers/                                    @Yoojin-nam
+/.github/                                       @Yoojin-nam
+/package.json                                   @Yoojin-nam
