@@ -80,6 +80,19 @@ EXPECTED = {
         "must_contain": ["10.3348/kjr.2025.1522", "8 item categories"],
         "source": "Park SH et al. Korean J Radiol 2025;26(12):1123-1132 (MI-CLEAR-LLM 2025)",
     },
+    # GATHER 2016 (Stevens et al.): 18 items in four sections (Objectives and funding;
+    # Data inputs; Data analysis; Results and discussion). Registered so the burden-of-disease
+    # reporting checklist cannot silently drift from the 18-item statement.
+    "GATHER.md": {
+        "official_section_start": "## Checklist Items",
+        "official_section_end": "## MedSci application notes",
+        "main_items": list(range(1, 19)),                    # 1..18
+        "subitem_rows": 18,
+        "required_headings": ["### Objectives and funding", "### Data inputs",
+                              "### Data analysis", "### Results and discussion"],
+        "must_contain": ["10.1371/journal.pmed.1002056", "Health Estimates Reporting"],
+        "source": "Stevens GA et al. Lancet 2016;388:e19-23 / PLoS Med 2016;13(6):e1002056 (GATHER)",
+    },
 }
 
 

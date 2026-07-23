@@ -141,6 +141,14 @@ def doc_claims() -> list[tuple[str, int, int, str]]:
     excluded) followed by "[reporting] guidelines". The skill self-count is matched
     only by the README "skills that actually work" tagline, so comparison lines
     about other repos ("400-900 skills") are never touched.
+
+    Dated version notes (README "**v5.21** — ... 46 guidelines ...") are SKIPPED: like
+    the CHANGELOG, they legitimately record the count at that release and must not be
+    rewritten when the current count changes. The detector claim is already scoped to
+    current-state phrasings for exactly this reason; the guideline claim was never
+    scoped because the guideline count sat at 46 across every listed version, so the
+    collision only surfaces on the first guideline addition. Only the current-state
+    guideline claims (moat line, skills table, bundled-checklist line) are checked.
     """
     out: list[tuple[str, int, int, str]] = []
     truth = disk_counts()
@@ -148,6 +156,7 @@ def doc_claims() -> list[tuple[str, int, int, str]]:
     s = truth["skills"]
 
     guide_re = re.compile(r"\b(\d{1,2})\s+(?:reporting\s+)?guidelines\b", re.IGNORECASE)
+    version_note_re = re.compile(r"^\s*\*\*v\d+\.\d+\*\*")  # a dated release note, not a current claim
     skills_re = re.compile(r"\*\*(\d+)\s+skills that actually work")
     badge_re = re.compile(r"img\.shields\.io/badge/Skills-(\d+)-")
 
@@ -156,6 +165,8 @@ def doc_claims() -> list[tuple[str, int, int, str]]:
         if not f.exists():
             continue
         for i, line in enumerate(f.read_text(encoding="utf-8").splitlines(), 1):
+            if version_note_re.match(line):
+                continue  # dated version note: records a superseded count on purpose
             for m in guide_re.finditer(line):
                 out.append((rel, int(m.group(1)), g, f"L{i} guidelines"))
 

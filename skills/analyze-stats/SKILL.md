@@ -663,6 +663,15 @@ When death or other events preclude the outcome of interest, standard KM overest
 - Anchor covariates to most recent data prior to index date
 - Sensitivity analysis: test stricter/looser disease definitions
 
+### Burden of Disease, Decomposition & Forecasting
+
+- **Guide**: Load `analysis_guides/burden_decomposition_forecasting.md` before generating code
+- For a burden-of-disease estimate, attributable-risk (PAF / comparative risk assessment), temporal-trend (joinpoint / AAPC), decomposition (Das Gupta; Arriaga life-expectancy), or forecast (BAPC / age-period-cohort)
+- **The value-add-layer playbook** — a descriptive rate is rarely publishable alone; bolt on ONE layer: decomposition (*why* the rate changed — aging vs population growth vs epidemiological change), PAF (*how much* is modifiable), joinpoint/AAPC pre-vs-post (did a datable policy/shock bend the trend), forecast (*where* it is going), Arriaga (which ages/causes drove ΔLE)
+- **Uncertainty intervals, not CIs**: report a draw-based 95% UI (2.5th–97.5th percentile of 250–500 draws propagated end-to-end); a UI crossing the null means insufficient evidence for direction, not a non-significant test
+- **Single-center cohort adaptation**: three layers port onto existing follow-up without new data — trend-break (reslice around a datable guideline/scanner-era change), forecast (project a serial imaging trajectory), and global framing (place the individual-level effect next to the published GBD burden from GHDx — contextualization, not re-estimation, so no GATHER trigger). The ecological "UI-replaces-confounding-control" shortcut does **not** port: individual-level data still needs the DAG / E-value / negative-control toolkit
+- Report the estimate against **GATHER** (`/check-reporting`); keep burden/attribution/decomposition/forecast descriptive or associational unless a causal design (natural experiment, MR — `analysis_guides/mendelian_randomization.md`) is in place
+
 ### Repeated Measures
 
 - **Guide**: Load `analysis_guides/repeated_measures.md` before generating code

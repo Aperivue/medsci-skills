@@ -34,6 +34,7 @@ seed() {
   cp "$REPO_ROOT/$CK_DIR/TRIPOD_AI.md"    "$dir/$CK_DIR/"
   cp "$REPO_ROOT/$CK_DIR/CLEAR.md"        "$dir/$CK_DIR/"
   cp "$REPO_ROOT/$CK_DIR/MI_CLEAR_LLM.md" "$dir/$CK_DIR/"
+  cp "$REPO_ROOT/$CK_DIR/GATHER.md"       "$dir/$CK_DIR/"
 }
 
 # 1) the live repo's corrected files pass

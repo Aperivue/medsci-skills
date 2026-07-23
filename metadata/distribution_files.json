@@ -188,13 +188,18 @@
     },
     {
       "path": "skills/analyze-stats/SKILL.md",
-      "size": 58243,
-      "sha256": "638cdb5793b71fc77208eb59c9f930356d7e3ede6d15a33ad58c0ac63f958697"
+      "size": 59999,
+      "sha256": "62fec491713bd24d0c44d87280a39bc52a6dc439fa0fb2004d80d4c6f8dea3ef"
     },
     {
       "path": "skills/analyze-stats/references/analysis_guides/agreement_reliability.md",
       "size": 6674,
       "sha256": "599ad2551f547043b2bec79e3139d9c2c3ae33c5025784359b22022f882504c2"
+    },
+    {
+      "path": "skills/analyze-stats/references/analysis_guides/burden_decomposition_forecasting.md",
+      "size": 9016,
+      "sha256": "b537701cd791317e432369b3c1a6eed6ffcbec1c2a657d46c7f7f0aa750019cf"
     },
     {
       "path": "skills/analyze-stats/references/analysis_guides/calibration.md",
@@ -608,8 +613,8 @@
     },
     {
       "path": "skills/check-reporting/SKILL.md",
-      "size": 38487,
-      "sha256": "7e089fcc858e725469f015c5376d8ab993e52bba332061fcad919cbab3426f9d"
+      "size": 39537,
+      "sha256": "0a291a80d8d98e2930683990bdfde14bff341a900f79a7b002f167cda86c1226"
     },
     {
       "path": "skills/check-reporting/references/LICENSES.md",
@@ -685,6 +690,11 @@
       "path": "skills/check-reporting/references/checklists/DECIDE_AI.md",
       "size": 5321,
       "sha256": "f2ad5827ecc061a04b4e33dc307a85b5eaf9031b2a34f8db9be3ed7132ed88b6"
+    },
+    {
+      "path": "skills/check-reporting/references/checklists/GATHER.md",
+      "size": 6271,
+      "sha256": "71a950e0c69f37d7b3b5d3b5f2a091dd1c54c7b8197e3af3e83c52752fd254c2"
     },
     {
       "path": "skills/check-reporting/references/checklists/GRRAS.md",
@@ -908,8 +918,8 @@
     },
     {
       "path": "skills/check-reporting/scripts/verify_checklist_fidelity.py",
-      "size": 7811,
-      "sha256": "f65094e35dafd7f3586a86edca22a326e4c4c6e55ba09867de7ac35110a85a63"
+      "size": 8662,
+      "sha256": "0ac1606bb3cd3ccd94a3bcf61b70c004acba268c8cf8e6d6e3cce3b62bfed2e5"
     },
     {
       "path": "skills/check-reporting/skill.yml",
@@ -2189,7 +2199,7 @@
     {
       "path": "skills/make-figures/references/reporting_guideline_figure_map.md",
       "size": 7149,
-      "sha256": "a5883b85fc772c0365137264ecc98c06cb9fb084f3cd2011d4c0f87324cf6fc1"
+      "sha256": "1d1c3b0f6972de1a1c4b234a72511e3ab91503cbabbe87fc30ee5c63732b809a"
     },
     {
       "path": "skills/make-figures/references/visual_abstract_templates/jacc_central_illustration.pptx",
@@ -3089,7 +3099,7 @@
     {
       "path": "skills/orchestrate/SKILL.md",
       "size": 40926,
-      "sha256": "8c3ca056e02e999cfc9a72dae51ae352d762b6292635ef4c7ac3301d9a072d7d"
+      "sha256": "fa54a94e76eb8aa43937a1d287d2d76bd09a18045c223ef805929dda7c3395df"
     },
     {
       "path": "skills/orchestrate/references/dialogue_nodes.md",
