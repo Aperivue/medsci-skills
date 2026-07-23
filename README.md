@@ -120,7 +120,7 @@ Install a single category and invoke its skills under that namespace:
 /medsci-analysis:analyze-stats
 ```
 
-All eight plugins share the same repository source, so this groups and enables skills by category — it is not a partial download. The marketplace tracks `main`, so a plugin's version is its git commit.
+All nine plugins share the same repository source, so this groups and enables skills by category — it is not a partial download. The marketplace tracks `main`, so a plugin's version is its git commit.
 
 **Want just one capability?** Two skills are also published as focused standalone repos (generated mirrors; this repo stays the source of truth), each installable on its own with `/plugin marketplace add Aperivue/<repo>`:
 
@@ -470,7 +470,7 @@ ma-scout -> search-lit -> fulltext-retrieval -> design-study ──> write-proto
 
 ### By research stage
 
-All 55 skills, grouped by where they fit in the clinical-manuscript and medical-AI lifecycle. Full descriptions are in the table below; one page per skill lives in the [per-skill reference](docs/skills/).
+All 57 skills, grouped by where they fit in the clinical-manuscript and medical-AI lifecycle. Full descriptions are in the table below; one page per skill lives in the [per-skill reference](docs/skills/).
 
 | Stage | Skills |
 |-------|--------|

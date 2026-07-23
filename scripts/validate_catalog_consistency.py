@@ -16,13 +16,17 @@ Three layers:
      invites from a first-time contributor — can never fail on a count bump they
      have no reason to know about. Those counts are cited in no checked doc claim,
      so disk is their sole source of truth.
-  3. Assert the count claims in README / orchestrate / check-reporting match the
-     SSOT. Guideline claims are matched (case-insensitively, so a "### 33 Reporting
-     Guidelines" heading is caught) by the word "guideline"; the skill self-count by
-     both the "skills that actually work" tagline and the README shields badge
-     (img.shields.io/badge/Skills-N-). The badge regex is scoped to the shields URL so
-     arbitrary prose never trips it, and comparison/marketing lines about *other* repos
-     ("400-900 skills", "869 skills") are never touched.
+  3. Assert the count claims in the public docs match the SSOT. Guideline claims are
+     matched (case-insensitively, so a "### 33 Reporting Guidelines" heading is caught)
+     by "guidelines" or "checklists", optionally qualified by "reporting"/"EQUATOR"/
+     "vendored", across README, orchestrate, check-reporting, the figure map,
+     CITATION.cff, and paper.md (the JOSS submission). The skill self-count is checked
+     in the "skills that actually work" tagline, the README shields badge
+     (img.shields.io/badge/Skills-N-), and catalog-total prose ("All N skills",
+     "N task-bounded skills"). The badge regex is scoped to the shields URL so arbitrary
+     prose never trips it, and comparison/marketing lines about *other* repos
+     ("400-900 skills", "869 skills") are never touched. Dated version notes (2- or
+     3-component, e.g. **v5.20.1**) are skipped for every current-claim scan.
 
 Exit 0 when everything agrees; non-zero on any drift. Stdlib-only.
 """
@@ -90,17 +94,28 @@ def disk_counts() -> dict[str, int]:
 # "4 reporting guidelines in one tool" (a flow-diagram subset in figure_specs.md)
 # are NOT catalog totals and would false-positive a blanket scan. A new doc that
 # cites the catalog total must be added here. CHANGELOG is deliberately absent —
-# it is a dated record that legitimately quotes superseded counts.
+# it is a dated record that legitimately quotes superseded counts. CITATION.cff and
+# paper.md (the JOSS submission) each state the total once in prose ("44 EQUATOR
+# guidelines", "46 vendored checklists"); both drifted while ungated, so they are
+# included and the noun/qualifier set below matches their phrasings.
 GUIDELINE_CLAIM_FILES = [
     "README.md",
     "skills/orchestrate/SKILL.md",
     "skills/check-reporting/SKILL.md",
     "skills/make-figures/references/reporting_guideline_figure_map.md",
+    "CITATION.cff",
+    "paper.md",
 ]
 SKILLS_TAGLINE_FILES = ["README.md"]
 # README shields badge (img.shields.io/badge/Skills-N-...). Scoped to the badge URL so
 # only the literal badge count is checked, never arbitrary "Skills" prose.
 SKILLS_BADGE_FILES = ["README.md"]
+# Catalog-total SKILL claim in prose (not the tagline/badge). README "All N skills"
+# (skill-table intro) and paper.md "N task-bounded skills" (JOSS Summary) drifted
+# because only the tagline+badge were gated. Anchored to those two phrasings so
+# other-repo comparison lines ("869 skills") and per-lane subsets never match; dated
+# version notes are skipped like the guideline claim.
+SKILLS_PROSE_FILES = ["README.md", "paper.md"]
 
 # Files carrying the catalog-total DETECTOR claim. MEDSCI_AUDIT.md drifted once
 # (lead said 27 while the SSOT was 28) because no gate watched it. The patterns
@@ -155,10 +170,17 @@ def doc_claims() -> list[tuple[str, int, int, str]]:
     g = truth["reporting_guidelines"]
     s = truth["skills"]
 
-    guide_re = re.compile(r"\b(\d{1,2})\s+(?:reporting\s+)?guidelines\b", re.IGNORECASE)
-    version_note_re = re.compile(r"^\s*\*\*v\d+\.\d+\*\*")  # a dated release note, not a current claim
+    guide_re = re.compile(
+        r"\b(\d{1,2})\s+(?:reporting\s+|EQUATOR\s+|vendored\s+)?(?:guidelines|checklists)\b",
+        re.IGNORECASE)
+    # A dated release note (2- or 3-component: **v5.21** or **v5.20.1**), not a
+    # current claim. The optional third component matters: **v5.20.1** was NOT
+    # skipped before, so "all 55 skills made routable" in that note would trip the
+    # new skills-prose scan below.
+    version_note_re = re.compile(r"^\s*\*\*v\d+\.\d+(?:\.\d+)?\*\*")
     skills_re = re.compile(r"\*\*(\d+)\s+skills that actually work")
     badge_re = re.compile(r"img\.shields\.io/badge/Skills-(\d+)-")
+    skills_prose_re = re.compile(r"\bAll (\d+) skills\b|\b(\d+) task-bounded skills\b", re.IGNORECASE)
 
     for rel in GUIDELINE_CLAIM_FILES:
         f = ROOT / rel
@@ -186,6 +208,17 @@ def doc_claims() -> list[tuple[str, int, int, str]]:
             for m in badge_re.finditer(line):
                 out.append((rel, int(m.group(1)), s, f"L{i} skills badge"))
 
+    for rel in SKILLS_PROSE_FILES:
+        f = ROOT / rel
+        if not f.exists():
+            continue
+        for i, line in enumerate(f.read_text(encoding="utf-8").splitlines(), 1):
+            if version_note_re.match(line):
+                continue  # dated version note: records a superseded count on purpose
+            for m in skills_prose_re.finditer(line):
+                tok = next(g for g in m.groups() if g)
+                out.append((rel, int(tok), s, f"L{i} skills prose"))
+
     d = truth["integrity_detectors"]
     det_res = [re.compile(p, re.IGNORECASE) for p in DETECTOR_CLAIM_PATTERNS]
     for rel in DETECTOR_CLAIM_FILES:
@@ -203,12 +236,17 @@ def doc_claims() -> list[tuple[str, int, int, str]]:
     # mistaken for the count.
     pl = truth["plugins"]
     _num_alt = "|".join(NUM_WORDS)
-    plugin_re = re.compile(rf"\b({_num_alt}|\d+)\b[^.\n]{{0,20}}?\bcategory plugins\b", re.IGNORECASE)
+    # "N category plugins" OR a bare "N plugins" restatement — the bare form drifted
+    # ("All eight plugins share the same repository source") while the "category
+    # plugins" form stayed correct, so "category" is optional here.
+    plugin_re = re.compile(rf"\b({_num_alt}|\d+)\b[^.\n]{{0,20}}?\b(?:category\s+)?plugins\b", re.IGNORECASE)
     for rel in PLUGIN_CLAIM_FILES:
         f = ROOT / rel
         if not f.exists():
             continue
         for i, line in enumerate(f.read_text(encoding="utf-8").splitlines(), 1):
+            if version_note_re.match(line):
+                continue  # dated version note: records a superseded count on purpose
             for m in plugin_re.finditer(line):
                 tok = m.group(1).lower()
                 n = NUM_WORDS.get(tok, int(tok) if tok.isdigit() else None)
