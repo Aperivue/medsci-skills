@@ -1,0 +1,7 @@
+Refinement terminal-state: STOP_ZERO_EDIT
+  Floor gates:   0 Major, 0 Minor  (fixed point)
+  Ceiling pass:  0 finding(s)
+  Gates read:    check_cohort_arithmetic, check_novel_schema
+  Unparsed:      check_novel_schema  (unrecognised schema — NOT counted)
+  qc dir:        fixture/unparsed_gate
+  -> Floor is at its fixed point (0 Major, 0 Minor) and the ceiling is clean. The manuscript is submission-ready as-is. NO EDITS REQUIRED -- a zero-edit result is a valid PASS. Do not manufacture changes. (WARNING: 1 gate artifact(s) had an unrecognised schema and were NOT counted -- this verdict may understate the floor: check_novel_schema)

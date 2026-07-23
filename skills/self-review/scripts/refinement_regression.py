@@ -55,6 +55,8 @@ import json
 import sys
 from pathlib import Path
 
+import _qc_findings  # same-dir helper: read the heterogeneous detector JSON schemas uniformly
+
 TOOL = "refinement_regression"
 
 STOP_HINT = {
@@ -79,25 +81,26 @@ STOP_HINT = {
 }
 
 
-def _current_keys(qc_dir: Path) -> list[str]:
+def _current_keys(qc_dir: Path) -> tuple[list[str], list[str]]:
+    """Return (sorted finding fingerprints, sorted unparsed gate names) for the current run.
+    Reads both the `claims` and `findings` detector schemas via _qc_findings; a detector-keyed
+    file whose schema is unrecognised is surfaced (unparsed), not silently dropped — a dropped
+    gate would understate what the run found and corrupt the cross-run comparison."""
     keys: set[str] = set()
+    unparsed: set[str] = set()
     for path in sorted(qc_dir.glob("*.json")):
         try:
             obj = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, ValueError):
             continue
-        if not isinstance(obj, dict):
+        g = _qc_findings.parse_gate(obj)
+        if g is None:
             continue
-        claims = obj.get("claims")
-        if not isinstance(claims, list):
-            continue  # not a detector envelope (e.g. this tool's own output)
-        for c in claims:
-            if not isinstance(c, dict):
-                continue
-            verdict = str(c.get("verdict", "?"))
-            where = str(c.get("where", "?"))
-            keys.add(f"{verdict}@{where}")
-    return sorted(keys)
+        if not g["parsed"]:
+            unparsed.add(g["name"])
+            continue
+        keys.update(g["keys"])
+    return sorted(keys), sorted(unparsed)
 
 
 def _read_ledger(path: Path) -> list[dict]:
@@ -158,15 +161,16 @@ def classify(current: list[str], entries: list[dict]) -> dict:
 
 
 def render(result: dict, qc_dir: str, ledger: str) -> str:
-    return "\n".join(
-        [
-            f"Refinement regression: {result['verdict']}",
-            f"  fixed (resolved): {len(result['resolved'])}   still open (carried): {len(result['carried'])}",
-            f"  broke (new):      {len(result['new'])}   resurfaced (churn):  {len(result['churn'])}",
-            f"  qc dir: {qc_dir}   ledger: {ledger}",
-            f"  -> {result['recommendation']}",
-        ]
-    )
+    lines = [
+        f"Refinement regression: {result['verdict']}",
+        f"  fixed (resolved): {len(result['resolved'])}   still open (carried): {len(result['carried'])}",
+        f"  broke (new):      {len(result['new'])}   resurfaced (churn):  {len(result['churn'])}",
+    ]
+    if result.get("gates_unparsed"):
+        lines.append(f"  unparsed gates:   {', '.join(result['gates_unparsed'])}  (unrecognised schema — NOT counted)")
+    lines.append(f"  qc dir: {qc_dir}   ledger: {ledger}")
+    lines.append(f"  -> {result['recommendation']}")
+    return "\n".join(lines)
 
 
 def main(argv=None) -> int:
@@ -183,11 +187,16 @@ def main(argv=None) -> int:
     if not qc_dir.is_dir():
         print(f"error: qc dir not found: {args.qc_dir}", file=sys.stderr)
         return 2
-    current = _current_keys(qc_dir)
+    current, unparsed = _current_keys(qc_dir)
     ledger_path = Path(args.ledger)
     entries = _read_ledger(ledger_path)
 
     result = classify(current, entries)
+    result["gates_unparsed"] = unparsed
+    if unparsed:
+        result["recommendation"] += (
+            f" (WARNING: {len(unparsed)} gate artifact(s) had an unrecognised schema and were not "
+            f"counted, so this comparison may miss findings: {', '.join(unparsed)})")
 
     if args.append:
         run_no = len(entries) + 1
