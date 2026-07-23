@@ -4,6 +4,27 @@
 
 ### Added
 
+- **Burden-of-disease / health-estimate methodology — the reporting checklist and the "value-add
+  analytic layer" playbook a high-output epidemiology group runs.** Reverse-engineered from a set of
+  Nature Medicine / Lancet / JAMA / Gut GBD-satellite and nationwide-cohort papers: their edge is not
+  per-study rigor (a careful single-center cohort matches it) but a fixed methodology *shell* — swap
+  the disease, bolt on one value-add layer, report to a standard. This ships both halves.
+  **(1) GATHER** (`/check-reporting`) — the 18-item *Guidelines for Accurate and Transparent Health
+  Estimates Reporting* (Stevens et al., Lancet 2016), the standard every burden/estimate paper is held
+  to and the one guideline the suite lacked; registered in the checklist-fidelity manifest so it cannot
+  drift from the 18-item statement, and routed for burden-of-disease / comparative-risk / cause-of-death
+  estimation study types. **Reporting guidelines 46 → 47.** **(2) A new `/analyze-stats` methodology
+  guide** `burden_decomposition_forecasting.md` — population-attributable fraction / comparative risk
+  assessment, Das Gupta decomposition (why a rate changed: aging vs population growth vs epidemiological
+  change), joinpoint / AAPC trend-break (did a datable policy/shock bend the trend), age-period-cohort
+  forecasting (BAPC), Arriaga life-expectancy decomposition, and draw-based uncertainty intervals — with
+  the value-add-layer playbook (pick one per paper) and an explicit single-center-cohort adaptation
+  (three layers port onto existing follow-up; the ecological "UI-replaces-confounding-control" shortcut
+  does not). Also fixes a latent gate defect surfaced by the count bump: `validate_catalog_consistency`
+  now scopes the guideline-count claim past dated README version notes (like the detector claim already
+  is), so a historical "46 guidelines" note is not falsified when the current count changes — the
+  collision only ever surfaces on the first guideline addition, which is this one.
+
 - **`/humanize` (P27) — a density gate for antithesis parallelism and cleft, the sentence-structure
   AI tells the lexical sweeps miss.** The em-dash, passive-voice and AI-vocabulary checks operate
   per instance; they cannot see prose whose every sentence is grammatical but which leans on
