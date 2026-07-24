@@ -4423,8 +4423,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_classical_style.py",
-      "size": 13165,
-      "sha256": "e26683579615b905a0529e90221bc97e942ff151721a5a9fad63f4338b152837"
+      "size": 16825,
+      "sha256": "0876a5e13b8f6792e7b15553abf1ce22cc4316ebf5007d32e968186326bc2ff6"
     },
     {
       "path": "skills/self-review/scripts/check_cohort_arithmetic.py",
@@ -4862,6 +4862,21 @@
       "sha256": "8cdee343a6244f5b0e0c517581c0e1fde9e483eafd4aeea75eb43b135a6c4f8b"
     },
     {
+      "path": "skills/self-review/scripts/disclosure_placement_challenge/fixture/about_disclosure.md",
+      "size": 403,
+      "sha256": "12ac993290181e13fc9d25af1714d4c251177a2b13afa3217c59fd7bd437d43e"
+    },
+    {
+      "path": "skills/self-review/scripts/disclosure_placement_challenge/fixture/manuscript.md",
+      "size": 453,
+      "sha256": "645a8b931d802828aaa61dacdda5c9660646f5adcbd125947dccefa5647f0501"
+    },
+    {
+      "path": "skills/self-review/scripts/disclosure_placement_challenge/verify.sh",
+      "size": 5145,
+      "sha256": "1d3c493f67584934e25db2717bf8a69352f8c766daccc39fd39268537f16332b"
+    },
+    {
       "path": "skills/self-review/scripts/refinement_regression.py",
       "size": 8977,
       "sha256": "f59f7029a27eba978a58cdc19ec81970b4119368295982c2810e6ce684ddd304"
@@ -5083,8 +5098,8 @@
     },
     {
       "path": "skills/self-review/skill.yml",
-      "size": 4522,
-      "sha256": "05df4d9adff66350fcd941502be8ca9290e2b9097605833328b907d5679c4f9d"
+      "size": 4582,
+      "sha256": "06ce6497317b1ca6cb06ce348a37c0e962871faea3aa80cc1496426a5638cd4f"
     },
     {
       "path": "skills/setup-medsci/SKILL.md",
@@ -5638,8 +5653,8 @@
     },
     {
       "path": "skills/write-paper/references/journal_profiles/British_Journal_of_Radiology.md",
-      "size": 7104,
-      "sha256": "3483e4b948e039e48cd6161d108627197538e2febdfb5555036283d98b62e408"
+      "size": 7333,
+      "sha256": "2e6eca7a4d83d787a6693d04cb25fe5aee5885c1846a46d58939d5f0c6c68df2"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/CVIR.md",
@@ -5663,8 +5678,8 @@
     },
     {
       "path": "skills/write-paper/references/journal_profiles/Diabetes_Metabolism_Journal.md",
-      "size": 6978,
-      "sha256": "7c66d144d23ea8e815fe0cd48860dbde36572256beaf7d29bcf4941088caee84"
+      "size": 7217,
+      "sha256": "4daf7d32d76c1ccbfbb0ca34381d22aa32dca04c2d475755137818d8256de95f"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/Diagnostic_and_Interventional_Radiology.md",
@@ -5678,8 +5693,8 @@
     },
     {
       "path": "skills/write-paper/references/journal_profiles/European_Journal_of_Preventive_Cardiology.md",
-      "size": 9182,
-      "sha256": "d6abcbb36a88fe807fb4d403504a0394165c343ea533d7f044503e34e0f4aa25"
+      "size": 9387,
+      "sha256": "015a6771a91129c995ed644bef6185305f616806123835066d0f4401f31e1b0f"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/European_Radiology.md",
@@ -5708,8 +5723,8 @@
     },
     {
       "path": "skills/write-paper/references/journal_profiles/Investigative_Radiology.md",
-      "size": 3487,
-      "sha256": "ea7980f6b6ce8d8f7c4fdae345f037dc8910184ced3e44e31bf77a6e3490a7b2"
+      "size": 3723,
+      "sha256": "f4e95b3b0d6c9024bbab92bf464ef1c0d2caa6123c410cdaf7aee04376952a79"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/JACC_Advances.md",
@@ -5878,8 +5893,8 @@
     },
     {
       "path": "skills/write-paper/references/journal_profiles/npj_Digital_Medicine.md",
-      "size": 5804,
-      "sha256": "9b046bcc4df7f0a741547383b1f886774b38397ecb51427b76095c443ed69afc"
+      "size": 6000,
+      "sha256": "c896f587a00c04613d23fdc170eefb66378201e7043c71e160ca0c0c9d95e9cf"
     },
     {
       "path": "skills/write-paper/references/paper_types/ai_validation.md",

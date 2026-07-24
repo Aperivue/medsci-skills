@@ -120,3 +120,6 @@ submission form. Read by `/sync-submission` `check_portal_mirror.py`.
 - **Preprints** encouraged and do not compromise novelty.
 - **Manuscript transfer service**: rejected papers can transfer to other Nature Portfolio journals with referee reports.
 - **Statistics section mandatory**: must include test name, n, alpha level, one-tailed vs two-tailed, exact P values.
+
+- **AI-use disclosure placement**: Methods
+  <!-- machine-read by /self-review check_classical_style.py --profile; source: the profile's own AI policy line: "document use in Methods section" -->

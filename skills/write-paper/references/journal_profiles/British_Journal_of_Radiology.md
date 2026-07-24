@@ -159,3 +159,6 @@ BJR is well-suited for:
 ## Verification
 - **Source:** https://academic.oup.com/bjr/pages/author-guidelines
 - **Date:** 2026-05-21
+
+- **AI-use disclosure placement**: Cover letter
+  <!-- machine-read by /self-review check_classical_style.py --profile; source: the profile's own AI Writing Disclosure Policy: "AI disclosure in the cover letter is required" -->

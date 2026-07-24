@@ -190,3 +190,6 @@ https://academic.oup.com/eurjpc/pages/general-instructions
 Audit performed 2026-05-20. Sources opened:
 - Homepage: https://academic.oup.com/eurjpc (ISSN, society sponsorship, author-guidelines link)
 - General Instructions: https://academic.oup.com/eurjpc/pages/general-instructions (article types, word limits, abstract structure, references, AI policy verbatim, submission portal)
+
+- **AI-use disclosure placement**: Cover letter + Methods/Acknowledgements
+  <!-- machine-read by /self-review check_classical_style.py --profile; source: the profile's own AI disclosure location row -->

@@ -4,6 +4,35 @@
 
 ### Fixed
 
+- **`INBODY_AI_DISCLOSURE` asserted a placement it could not know — and the journals
+  disagree.** The verdict said an in-body AI-use disclosure "belongs on the title page". That
+  is true at some journals and false at others, and the profiles in this repo already said so
+  in their own words: npj Digital Medicine *"document use in Methods section"*, Investigative
+  Radiology *"disclosed in cover letter and Acknowledgments section"*, Diabetes & Metabolism
+  Journal *"must be declared on title page"*, British Journal of Radiology *"AI disclosure in
+  the cover letter is required"*. So it fired identically at a journal that wants the paragraph
+  exactly where it is and at one that forbids it there, telling the author to move something
+  correct.
+
+  Across five real projects it produced eight fires and **not one could be scored** real or
+  spurious, because the answer depended on a target nobody had told the detector — the largest
+  block of unscoreable labels in the precision ledger. A verdict that cannot be scored can
+  never be shown to work.
+
+  The target now decides, read from the journal profile (`--profile`) or given inline
+  (`--disclosure-placement`): a **body-legitimate** target (Methods / Acknowledgments) is
+  **silent**; a **title-page or cover-letter-only** target is **Major** and names where the
+  journal puts it; and with **no target recorded** it drops to **Minor**, naming the ambiguity
+  instead of asserting a placement — so an unknown target no longer fails a `--strict` build.
+  Five profiles gained an explicit `AI-use disclosure placement` line, each sourced from that
+  profile's own existing policy prose and commented with where it came from.
+
+  18-case challenge card wired into CI. `Acknowledgments` is matched as a **stem** — the first
+  implementation used a trailing word boundary and fired on Investigative Radiology, whose
+  placement is written exactly that way.
+
+  No new detector: the count stays **83**.
+
 - **`check_cohort_arithmetic` was binding numbers that belong to something else — every one
   of its observed fires on a real manuscript was false.** The arithmetic was never wrong; the
   inputs were. Three captures, three ways of latching onto the wrong digit:
