@@ -80,6 +80,42 @@
 
 ### Added
 
+- **`/model-sourcing` — vetting the concrete model, not the architecture family.** `/architecture-zoo`
+  answers which family of model suits a task, and stops there by design. The next question is a
+  different kind: *which artifact do I actually run* — this repository, this revision, this
+  checkpoint. Nothing owned it, so it was done by hand and by habit, and habit checks the two
+  facts that cannot answer it.
+
+  The licence says whether you may use it. The citation count says whether others did. Neither
+  says **whether the number you are about to report means what you will say it means.** A method
+  developed and tuned against a benchmark family gets evaluated by the next person on that same
+  family, and the resulting figure reads like validation while sitting closer to a training-set
+  score. The repository will not tell you: the licence is clean, the paper is peer-reviewed and
+  highly cited, the task matches, the code runs. The conflict lives in the *relationship* between
+  two facts documented in different places — what the model was developed on, and what you are
+  about to evaluate it on — and becomes visible only when they are written down side by side.
+
+  The skill writes them down side by side. A **model dossier** records source and version pin,
+  licence and the file it was read from, intended use, pretrained-weight provenance, model task
+  vs study task, reported validation, `developed_on`, and the study's evaluation arms;
+  `check_model_provenance.py` then decides ten verdicts by set arithmetic over it —
+  `BENCHMARK_PROVENANCE_CONFLICT`, `EVAL_DATA_IN_TRAINING`, `LICENCE_UNSTATED`,
+  `LICENCE_INCOMPATIBLE`, `WEIGHTS_PROVENANCE_UNKNOWN` (Major); `TASK_MISMATCH`,
+  `NO_VERSION_PIN`, `VALIDATION_UNREPORTED`, `HARDWARE_UNVERIFIED`, `LICENCE_UNVERIFIED` (Minor).
+
+  **It flags a relationship, not a reputation.** The clean fixture still declares
+  `developed_on: ExampleBench` and fires nothing, because no evaluation arm uses ExampleBench.
+  Being developed on a benchmark is not a defect; evaluating on it and calling that independent
+  is. Dataset names match as token sequences with a small family-alias table, so
+  `MSD Task09 Spleen` matches `MSD` while `MS Cohort 2026` does not — never substring search,
+  under test. Stdlib-only and network-free: no repository is fetched, no licence resolved online,
+  and an unstated fact is a finding rather than a value the gate guesses at.
+
+  Grounded in a real sourcing pass: nnU-Net is Apache-2.0, ~5,800 citations, exactly the right
+  task, and **it won the 2018 Medical Segmentation Decathlon** — so an internal arm on MSD is not
+  an independent test of it. Licence and citation count both said "go". Skills 57 -> 58,
+  detectors 83 -> 84.
+
 - **`/sync-submission` now checks CRediT as a factual claim rather than a formatting block.**
   Contribution terms are published with the paper and every co-author reads them, but nothing
   tied a term to anything. During one byline negotiation three terms were requested in

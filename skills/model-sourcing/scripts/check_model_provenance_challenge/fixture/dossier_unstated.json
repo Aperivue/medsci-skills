@@ -1,0 +1,11 @@
+{
+  "model": "AnonNet (synthetic example)",
+  "source": {"kind": "huggingface", "url": "https://example.invalid/models/anonnet"},
+  "intended_use": "research",
+  "weights": {"pretrained": true},
+  "task": {"model": "3d_ct_organ_segmentation", "study": "3d_ct_organ_segmentation"},
+  "reported_validation": [{"dataset": "OtherCohort-2026", "metric": "Dice", "source": "preprint"}],
+  "developed_on": [],
+  "evaluation_arms": [{"name": "external", "dataset": "OtherCohort-2026"}],
+  "hardware": {"claimed": "A100", "verified_on": "A100", "verified": true}
+}

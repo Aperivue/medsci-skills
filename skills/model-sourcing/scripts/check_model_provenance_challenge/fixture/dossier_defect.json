@@ -1,0 +1,15 @@
+{
+  "model": "SynthSeg-3D (synthetic example)",
+  "source": {"kind": "github", "url": "https://example.invalid/org/synthseg3d"},
+  "licence": {"spdx": "CC-BY-NC-4.0"},
+  "intended_use": "commercial",
+  "weights": {"pretrained": true, "trained_on": ["ExampleBench", "OpenOrgan-1k"]},
+  "task": {"model": "2d_xray_classification", "study": "3d_ct_organ_segmentation"},
+  "reported_validation": [],
+  "developed_on": ["ExampleBench"],
+  "evaluation_arms": [
+    {"name": "internal", "dataset": "ExampleBench Task03 Liver"},
+    {"name": "external", "dataset": "OtherCohort-2026"}
+  ],
+  "hardware": {"claimed": "any CUDA GPU"}
+}

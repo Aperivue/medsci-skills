@@ -1,0 +1,5 @@
+Model provenance — OrganSeg-3D v2.5.1 (synthetic example)  (2 evaluation arm(s))
+
+  no findings — every provenance fact the gate checks is stated and consistent
+
+  Major 0   Minor 0

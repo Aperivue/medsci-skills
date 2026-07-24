@@ -39,6 +39,7 @@ One reference page per skill, generated from each skill's `SKILL.md` and `skill.
 - [model-card](model-card.md) — Generate the documentation an engineer-built medical-imaging model must carry — a Model Card (Mitchell et al. _(evidence: ci_validator)_
 - [model-evaluation](model-evaluation.md) — Compute and report task-correct held-out metrics for a trained medical-imaging model — segmentation (Dice plus a boundary metric such as HD95 or NSD, per structure), classification (AUROC plus AUPRC a… _(evidence: ci_validator)_
 - [model-scaffold](model-scaffold.md) — Generate a reproducible, runnable PyTorch training repo for a medical-imaging task — segmentation, classification, detection, image-to-image synthesis, self-supervised pretraining, or fine-tuning a pr… _(evidence: ci_validator)_
+- [model-sourcing](model-sourcing.md) — Vet the concrete third-party model a study will be built on — this repository, this revision, this checkpoint — not the architecture family. _(evidence: ci_validator)_
 - [model-validation](model-validation.md) — Design or audit the clinical-validation study for an engineer-built medical-imaging model (segmentation, classification, or detection) before the validation report or manuscript is written. _(evidence: ci_validator)_
 - [orchestrate](orchestrate.md) — General-purpose research orchestrator. _(evidence: demo)_
 - [peer-review](peer-review.md) — Peer review assistant for medical journals. _(evidence: ci_validator)_

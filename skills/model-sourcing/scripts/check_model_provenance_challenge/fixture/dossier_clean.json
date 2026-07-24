@@ -1,0 +1,18 @@
+{
+  "model": "OrganSeg-3D v2.5.1 (synthetic example)",
+  "source": {"kind": "github", "url": "https://example.invalid/org/organseg3d",
+             "version": "v2.5.1", "commit": "abc1234def5678"},
+  "licence": {"spdx": "Apache-2.0", "verified_from": "LICENSE at commit abc1234def5678"},
+  "intended_use": "research",
+  "weights": {"pretrained": false},
+  "task": {"model": "3d_ct_organ_segmentation", "study": "3d_ct_organ_segmentation"},
+  "reported_validation": [
+    {"dataset": "ExampleBench", "metric": "Dice", "source": "Journal of Examples 2021"}
+  ],
+  "developed_on": ["ExampleBench"],
+  "evaluation_arms": [
+    {"name": "external", "dataset": "OtherCohort-2026"},
+    {"name": "modality_shift", "dataset": "OtherCohort-2026 MRI"}
+  ],
+  "hardware": {"claimed": "any CUDA GPU", "verified_on": "GTX 1080 Ti", "verified": true}
+}
