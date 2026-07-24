@@ -869,7 +869,23 @@ magick input.png -resize 1200x -quality 95 output.jpg
 
 # CMYK conversion (some print journals require this)
 magick input.png -colorspace CMYK output.tiff
+```
 
+### Portal-ready TIFF (SNAPP `.png`-not-accepted / 25 MB cap)
+
+A raw `magick ... output.tiff` keeps the alpha channel (transparent regions print **black**
+on many production pipelines) and stays uncompressed (a 600-dpi RGBA TIFF blows past a
+portal's 25 MB cap). `export_portal_tiff.py` does the flatten-and-compress a human otherwise
+does by hand and **verifies the result is pixel-identical** to that white-flatten before
+handing it over — use it when a portal accepts only `.tiff`/`.jpeg`/`.eps` (Springer Nature
+SNAPP) or caps figure size (JACC: Asia):
+
+```bash
+python3 scripts/export_portal_tiff.py --in figure.png --out figure.tiff --max-mb 25
+# LZW-compressed, RGBA→RGB white-flattened, pixel-identity-verified; exit 1 if still over the cap
+```
+
+```bash
 # Multi-panel figure assembly (A/B/C/D panels)
 magick montage panelA.png panelB.png panelC.png panelD.png \
   -tile 2x2 -geometry +10+10 -density 300 combined.png

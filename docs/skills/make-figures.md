@@ -30,6 +30,7 @@
 - `python3 scripts/validate_pptx_mac_compat.py <file>`
 - `python3 tests/test_pptx_mac_compat.py`
 - `bash scripts/render_core_figures_challenge/verify.sh`
+- `bash scripts/export_portal_tiff_challenge/verify.sh`
 
 **Evidence** — `demo`
 
@@ -59,6 +60,8 @@
 - `build_strobe_template.py`
 - `critic_figure.py`
 - `derive_figure_legend_counts.py`
+- `export_portal_tiff.py`
+- `export_portal_tiff_challenge/` (2 files)
 - `extract_exemplar_from_pdf.py`
 - `fetch_official_templates.sh`
 - `fill_prisma_template.py`

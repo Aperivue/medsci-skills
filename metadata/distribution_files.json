@@ -1918,8 +1918,8 @@
     },
     {
       "path": "skills/make-figures/SKILL.md",
-      "size": 46740,
-      "sha256": "37708a13b21368040891f2250cfece89ab5ef0c1dd21b68a78710c1a1cbf2557"
+      "size": 47509,
+      "sha256": "45e779aa3e41d716d2514cdf750b943129a2d5bb65ebee67dae1505f091abe53"
     },
     {
       "path": "skills/make-figures/references/critic_rubrics/data_plot.md",
@@ -2247,6 +2247,21 @@
       "sha256": "14cab7426080526b9ca67c26f791958a995ef726636b48a9a311c19c8e61ee64"
     },
     {
+      "path": "skills/make-figures/scripts/export_portal_tiff.py",
+      "size": 7658,
+      "sha256": "828184a8f88a4c52675775b32525536006726d13bbc064dbdfc62c9e68ad02b6"
+    },
+    {
+      "path": "skills/make-figures/scripts/export_portal_tiff_challenge/problem.md",
+      "size": 1776,
+      "sha256": "3aba5bf8d996f5449147dd312b1a07173329ef55563ec2e71c4a7ec958003628"
+    },
+    {
+      "path": "skills/make-figures/scripts/export_portal_tiff_challenge/verify.sh",
+      "size": 3709,
+      "sha256": "bd29e3fc4533458e9e4bd34c588c0a128ae1339ba5939b3c5b2fdc13fe4023d2"
+    },
+    {
       "path": "skills/make-figures/scripts/extract_exemplar_from_pdf.py",
       "size": 6944,
       "sha256": "74c52e3edfe24657eecdd31cb36577291e01f509ebcddc87b95934fb2fec77e0"
@@ -2303,8 +2318,8 @@
     },
     {
       "path": "skills/make-figures/skill.yml",
-      "size": 2249,
-      "sha256": "6a8ebbe077c2073bb546a044bbecb5d483dbe2d2a50b31adabba6cf5e3a87990"
+      "size": 2307,
+      "sha256": "73fde538f13feb5698ca51dca35e6de87f98b8bb8d7073576dc9a93fa0c069db"
     },
     {
       "path": "skills/make-figures/templates/official/NOTES.md",
