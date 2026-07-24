@@ -34,6 +34,49 @@
 
 ### Added
 
+- **`/verify-refs` now checks whether a cited source actually says what the citing sentence
+  says it says.** `verify_refs.py` answers whether a reference is real and whose it is; nothing
+  answered whether the *sentence attached to it* is true of it. A citation can be perfectly
+  real while the claim on it is not, and that failure survives every existing gate: the DOI
+  resolves, the authors match, the reference list renders, and the sentence is still wrong. The
+  incident: a manuscript read *"the field has begun to offer the chair [41]"*. The cited work
+  uses "chair" zero times and "advocate" four times, twice in the sense the sentence was
+  reaching for. A **co-author** caught it by reading the source. The toolkit could not have.
+
+  `check_claim_fidelity.py` (detectors **80 → 81**) checks the claims that have a checkable
+  answer, against full texts already downloaded and converted by `/fulltext-retrieval` — it
+  never fetches, so it stays deterministic and CI-runnable. `CITED_QUOTE_ABSENT` (major) is
+  quoted text that is not in the source in any reading order. `ATTRIBUTION_UNSUPPORTED` and
+  `ORDINAL_CLAIM_UNSUPPORTED` are **prompts, not blockers**: paraphrase is legitimate, and a
+  gate that fails a build over rewording is a gate that gets switched off.
+
+  The precision argument is the whole design. Attribution fires only when **not one** content
+  word of the attributed claim appears in the source in any morphological form — a real
+  paraphrase almost always keeps one of the source's own terms ("propose a framework for
+  oversight" keeps *oversight*); an attribution to the wrong concept keeps none. A count fires
+  only when the noun **is** in the source (so the concept was located) but the stated cardinal
+  never appears near it. Float ordinals ("as in Table 2 of [12]") are deliberately **not**
+  checked: a manuscript cites its own Table 2 constantly, often in a sentence that also carries
+  a citation, so that probe would fire mostly on correct prose.
+
+  Every verdict is an argument from absence, so two guards keep it honest. A source whose
+  extracted text is an abstract is reported as **too short to judge** and yields no findings at
+  all; a citation with no full text on disk is reported **unresolved** and never guessed at.
+  And quote matching reuses `_quote_match.py`, so a correct quote read through a dirty
+  extraction is `UNRESOLVED`, not a fabrication charge — the challenge card proves that
+  inheritance is live by grading a quote the source contains only with a PDF line number and a
+  bled reference wedged mid-sentence, where a contiguous test finds nothing. Both sides of the
+  tolerance boundary are pinned: a heavy rewrite is major, a two-word operator flip inside a
+  long quotation is a prompt, because nothing in one extracted text distinguishes "the author
+  changed two words" from "the extractor dropped two words".
+
+  Resolution needs no hand-built map: `[@key]` goes through the `.bib` DOI, and `[N]` is read
+  off a **wrapped** numbered reference list in the manuscript itself — the Word/EndNote path,
+  which has no `.bib` at all and where the DOI usually sits on the continuation line. 26-case
+  challenge card wired into CI. `_quote_match.py` is vendored into `/verify-refs` (skills ship
+  standalone, so a cross-skill import is forbidden) and the vendoring gate — which until now
+  could only guard Markdown sets — now guards code too.
+
 - **`/polish-language` now reads figure SOURCES, catching spelling a rendered raster hides —
   and the shared US/UK families stopped counting words that are identical in both dialects.**
   Phase 1 only sees prose; text baked into a figure lives in a PNG/TIFF where no grep reaches,
