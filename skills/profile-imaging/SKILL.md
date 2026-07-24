@@ -67,6 +67,7 @@ python3 scripts/profile_imaging_dataset.py \
     --split test:imagesTs \
     --dataset "MSD Task09 Spleen" \
     --declared-labels 0=background,1=spleen \
+    --target-label 1 \
     --plan resample=true,reorient=false,loss=dice_ce,metrics=dice+hd95 \
     --out eda/profile.json
 ```
@@ -74,6 +75,15 @@ python3 scripts/profile_imaging_dataset.py \
 One record per case: grid, spacing, orientation, intensity percentiles, the label values actually
 present, foreground fraction, and target volume in mL. A `--split` given no label directory is
 recorded as **unlabelled** — which is itself a finding.
+
+**`--target-label` on a multi-structure atlas.** Foreground defaults to every non-zero index, which
+is the whole annotated anatomy. Run a single-organ study against a 15-organ atlas and the reported
+fraction describes the upper abdomen, not the target — measured on AMOS22 that is 3.2 % rather than
+the spleen's 0.2 %, so the pooled number sits *above* the 1 % imbalance threshold while the real
+target sits far below it, and the imbalance verdicts go quiet exactly where the risk is. Naming the
+target also makes `LABEL_EMPTY` mean *this case has no spleen*, which a multi-organ label file
+otherwise hides behind the other organs. Pass `--target-label all` for a genuinely multi-class
+study; leave it out on a multi-structure atlas and the gate raises `TARGET_LABEL_UNDECLARED`.
 
 Requires `nibabel` + `numpy` (it has to open images). The gate below does not.
 
@@ -91,13 +101,14 @@ Stdlib-only, so the audit re-runs anywhere the JSON travels. Verdicts:
 | `LABEL_SHAPE_MISMATCH` | Major | label grid ≠ image grid |
 | `LABEL_EMPTY` | Major | a labelled case has zero foreground |
 | `LABEL_VALUE_UNEXPECTED` | Major | label values outside the declared set |
-| `TEST_SET_UNLABELLED` | Major | a split named test/held-out/external carries no labels |
+| `TEST_SET_UNLABELLED` | Major | a split whose name contains test/held-out/external/eval carries no labels |
 | `ACCURACY_UNDER_IMBALANCE` | Major | accuracy is planned while the target is a sliver of the volume |
 | `LABEL_MISSING` | Minor | a case in a labelled split has no label file |
 | `SPACING_HETEROGENEOUS` | Minor | spacing spans ≥ ratio on an axis and no resampling is declared |
 | `ORIENTATION_MIXED` | Minor | >1 orientation code and no reorientation declared |
 | `INTENSITY_SCALE_INCONSISTENT` | Minor | some cases sit on the HU scale and others do not |
 | `EXTREME_IMBALANCE` | Minor | median foreground below the threshold with no Dice-family loss |
+| `TARGET_LABEL_UNDECLARED` | Minor | >1 structure declared but no target named, so foreground pools them all |
 
 **The gate flags an undeclared decision, not variability itself.** A dataset with 5× spacing spread
 and two orientation codes passes cleanly once resampling and reorientation are declared —

@@ -40,6 +40,18 @@ CHECKS (verdicts):
   9. EXTREME_IMBALANCE        median foreground fraction below --imbalance-frac and the
                               plan declares no Dice-family (region/overlap) loss.
  10. LABEL_MISSING            cases in a labelled split with no label file.
+ 11. TARGET_LABEL_UNDECLARED  the declared label set holds more than one structure but the
+                              profile names no target, so `foreground_fraction` pools every
+                              annotated organ. The imbalance verdicts then describe the
+                              union rather than the thing being segmented — and the union
+                              can sit above the threshold while the target sits far below.
+                              Re-profile with `--target-label N`, or `--target-label all`
+                              to declare a genuinely multi-class study.
+
+SPLIT NAMES
+  A split counts as a test/held-out split when any *token* of its name is one of
+  {test, holdout, held_out, external, eval} — so `amos_test` and `external_ct` are
+  matched, not just the bare words.
 
 THRESHOLDS
   --spacing-ratio (default 2.0) and --imbalance-frac (default 0.01) are **screening
@@ -72,10 +84,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from pathlib import Path
 from statistics import median
 
-TEST_SPLIT_NAMES = {"test", "holdout", "hold_out", "held_out", "heldout", "external", "eval"}
+TEST_SPLIT_NAMES = {"test", "testing", "holdout", "hold_out", "held_out", "heldout",
+                    "external", "eval"}
+# separator-free forms, so a name tokenised into pieces can be rejoined and matched
+_TEST_SPLIT_GRAMS = {re.sub(r"[^a-z0-9]+", "", n) for n in TEST_SPLIT_NAMES}
 DICE_FAMILY = ("dice", "tversky", "focal_tversky", "jaccard", "iou", "generalized_dice", "gdl", "lovasz")
 ACCURACY_TERMS = ("accuracy", "acc", "pixel_accuracy", "voxel_accuracy")
 # A CT case is expected to bottom out near air (-1000 HU). Anything whose 1st percentile
@@ -85,6 +101,25 @@ CT_AIR_P01_MAX = -500.0
 
 def _norm(s) -> str:
     return str(s).strip().lower()
+
+
+def _is_test_split(name: str) -> bool:
+    """Match on tokens and adjacent-token joins, not on the whole string.
+
+    Researchers qualify split names -- `amos_test`, `external_ct`, `held-out-set`,
+    `test-fold1` -- and an exact-set membership test silently misses every one of them,
+    which is the worst way for TEST_SET_UNLABELLED to fail: the split it exists for is the
+    split it cannot see.
+
+    Joins are needed because some members are two words (`held_out`), and they are built
+    from *adjacent tokens* rather than by substring search, so `contest` does not read as
+    `test`.
+    """
+    toks = [t for t in re.split(r"[^a-z0-9]+", _norm(name)) if t]
+    grams = set(toks)
+    for n in (2, 3):
+        grams |= {"".join(toks[i:i + n]) for i in range(len(toks) - n + 1)}
+    return bool(grams & _TEST_SPLIT_GRAMS)
 
 
 def _plan(profile: dict) -> dict:
@@ -110,6 +145,9 @@ def analyze(profile_path: str, spacing_ratio: float, imbalance_frac: float) -> d
     plan = _plan(profile)
     labelled = _labelled_splits(profile)
     declared = {int(k) for k in (profile.get("declared_labels") or {}).keys()} or None
+    target_label = profile.get("target_label")
+    # Structures = declared labels minus background. >1 means foreground_fraction pools them.
+    n_structures = len((declared or set()) - {0})
 
     claims: list[dict] = []
 
@@ -142,8 +180,10 @@ def analyze(profile_path: str, spacing_ratio: float, imbalance_frac: float) -> d
               "label grid differs from the image grid; the pair is not usable supervision as-is",
               shape_mismatch)
     if empty:
+        what = (f"no voxel of the target label {target_label}"
+                if target_label not in (None, "", "all") else "no foreground voxel")
         claim("LABEL_EMPTY", "Major",
-              "case is in a labelled split but its label contains no foreground voxel", empty)
+              f"case is in a labelled split but its label contains {what}", empty)
     if unexpected:
         claim("LABEL_VALUE_UNEXPECTED", "Major",
               f"label values outside the declared set {sorted(declared or [])}", unexpected)
@@ -151,9 +191,22 @@ def analyze(profile_path: str, spacing_ratio: float, imbalance_frac: float) -> d
         claim("LABEL_MISSING", "Minor",
               "case sits in a split declared labelled but has no label file", missing)
 
+    # ---- whose foreground is this? -----------------------------------------
+    # On a multi-structure atlas, foreground_fraction is the union of every annotated
+    # organ. If the study segments one of them, every imbalance verdict below is reading
+    # the wrong quantity -- and reading it in the unsafe direction, since the union is
+    # always the larger number and therefore the one that clears the threshold.
+    if n_structures > 1 and target_label in (None, ""):
+        claim("TARGET_LABEL_UNDECLARED", "Minor",
+              f"{n_structures} structures are declared but no target label is; "
+              "foreground_fraction pools all of them, so the imbalance verdicts describe "
+              "the annotated anatomy rather than the segmentation target. Re-profile with "
+              "--target-label N, or --target-label all for a genuinely multi-class study",
+              [])
+
     # ---- an unlabelled test set --------------------------------------------
     for name, is_lab in labelled.items():
-        if name in TEST_SPLIT_NAMES and not is_lab:
+        if _is_test_split(name) and not is_lab:
             n = sum(1 for c in cases if _norm(c.get("split")) == name)
             claim("TEST_SET_UNLABELLED", "Major",
                   f"split '{name}' ({n} case(s)) has no ground truth — it cannot yield Dice, "

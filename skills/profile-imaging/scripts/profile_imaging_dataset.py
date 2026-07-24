@@ -22,6 +22,14 @@ Usage
 
 A --split with no label directory is recorded as unlabelled, which is itself a
 finding: a split named `test` with no labels cannot produce a held-out metric.
+
+--target-label matters on a multi-structure atlas. Foreground defaults to every
+non-zero index, which is the whole annotated anatomy — so on a 15-organ atlas used
+for a single-organ study the reported fraction describes the upper abdomen, not the
+target, and it can sit above the imbalance threshold while the target sits far
+below it. Pass `--target-label 1` for a single-structure study (foreground and
+target volume are then computed on that index alone, and a case carrying none of it
+reads as empty), or `--target-label all` to declare a genuinely multi-class study.
 """
 from __future__ import annotations
 
@@ -33,7 +41,8 @@ import nibabel as nib
 import numpy as np
 
 
-def profile_case(img_p: Path, lab_p: Path | None, split: str) -> dict:
+def profile_case(img_p: Path, lab_p: Path | None, split: str,
+                 target_label: str | None = None) -> dict:
     img = nib.load(str(img_p))
     zooms = tuple(float(z) for z in img.header.get_zooms()[:3])
     shape = tuple(int(s) for s in img.shape[:3])
@@ -46,6 +55,7 @@ def profile_case(img_p: Path, lab_p: Path | None, split: str) -> dict:
         "voxel_volume_mm3": float(np.prod(zooms)),
         "label_values": None,
         "foreground_fraction": None,
+        "all_label_foreground_fraction": None,
         "target_volume_ml": None,
         "flags": [],
     }
@@ -70,10 +80,22 @@ def profile_case(img_p: Path, lab_p: Path | None, split: str) -> dict:
     if tuple(int(s) for s in lab.shape[:3]) != shape:
         rec["flags"].append("LABEL_SHAPE_MISMATCH")
     rec["label_values"] = [int(v) for v in np.unique(lab)]
-    n_fg = int((lab > 0).sum())
+    n_all = int((lab > 0).sum())
+    rec["all_label_foreground_fraction"] = n_all / int(lab.size)
+    # Foreground is the *target* when one is declared. On a multi-structure atlas the
+    # union of every index is the annotated anatomy, not the thing being segmented, and
+    # the gate's imbalance verdicts read this number.
+    if target_label is None or _norm_target(target_label) == "all":
+        n_fg = n_all
+    else:
+        n_fg = int((lab == int(target_label)).sum())
     rec["foreground_fraction"] = n_fg / int(lab.size)
     rec["target_volume_ml"] = n_fg * rec["voxel_volume_mm3"] / 1000.0
     return rec
+
+
+def _norm_target(t) -> str:
+    return str(t).strip().lower() if t is not None else ""
 
 
 def parse_kv(s: str | None, sep: str = ",") -> dict:
@@ -103,6 +125,10 @@ def main() -> None:
                     help="comma list, e.g. 0=background,1=spleen")
     ap.add_argument("--plan", default="",
                     help="comma list, e.g. resample=true,reorient=false,loss=dice_ce,metrics=dice+hd95")
+    ap.add_argument("--target-label", default=None,
+                    help="label index this study segments (e.g. 1), so foreground/target volume "
+                         "describe that structure instead of every annotated one; 'all' declares "
+                         "a genuinely multi-class study")
     ap.add_argument("--limit", type=int, default=0, help="profile at most N cases per split (0 = all)")
     ap.add_argument("--out", required=True)
     a = ap.parse_args()
@@ -118,13 +144,15 @@ def main() -> None:
         if a.limit:
             imgs = imgs[: a.limit]
         for i, p in enumerate(imgs, 1):
-            cases.append(profile_case(p, (Path(lab_dir) / p.name) if lab_dir else None, name))
+            cases.append(profile_case(p, (Path(lab_dir) / p.name) if lab_dir else None, name,
+                                      a.target_label))
             print(f"[{name} {i}/{len(imgs)}] {p.name}", flush=True)
 
     labels_raw = parse_kv(a.declared_labels)
     profile = {
         "dataset": a.dataset,
         "declared_labels": {str(k): v for k, v in labels_raw.items()},
+        "target_label": a.target_label,
         "plan": parse_kv(a.plan),
         "splits": splits,
         "cases": cases,
