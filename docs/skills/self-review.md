@@ -26,6 +26,7 @@
 
 **Validation**
 
+- `bash scripts/cohort_arith_binding_challenge/verify.sh`
 - `bash scripts/confounding_findings_challenge/verify.sh`
 - `python3 scripts/check_reviewer_team_consistency.py`
 - `python3 scripts/check_domain_probe_sync.py --strict`
@@ -108,6 +109,7 @@
 - `check_supplement_hygiene.py`
 - `check_table_percentages.py`
 - `check_table_percentages_challenge/` (6 files)
+- `cohort_arith_binding_challenge/` (4 files)
 - `confounding_findings_challenge/` (4 files)
 - `refinement_regression.py`
 - `refinement_regression_challenge/` (20 files)
