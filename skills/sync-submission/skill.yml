@@ -20,6 +20,7 @@ outputs:
   - qc/submission_sync_{journal}.json
   - artifact_manifest.json
 deterministic_scripts:
+  - scripts/check_credit_integrity.py
   - scripts/check_portal_mirror.py
   - scripts/sync_submission.py
 side_effects:

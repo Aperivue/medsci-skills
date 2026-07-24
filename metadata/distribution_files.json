@@ -5008,8 +5008,8 @@
     },
     {
       "path": "skills/sync-submission/SKILL.md",
-      "size": 38478,
-      "sha256": "05262ae82ad0c69472ed0db4a0e393643417e9a38f64807655b6d046e0ea9f44"
+      "size": 40770,
+      "sha256": "016b88b1d495a094104d7154724632178751f843623683fb8ebe447735ff5557"
     },
     {
       "path": "skills/sync-submission/references/journal_availability_policy.json",
@@ -5055,6 +5055,11 @@
       "path": "skills/sync-submission/scripts/check_checklist_dump_leak.py",
       "size": 8790,
       "sha256": "c1d637afa5ef98b24758ea2131a79af37ce1ab7921beb7a13bebfd8e24fd9583"
+    },
+    {
+      "path": "skills/sync-submission/scripts/check_credit_integrity.py",
+      "size": 16461,
+      "sha256": "6288efcba7d55d451199f5420affbbf3fceed603defdea09bb04b5ed64155262"
     },
     {
       "path": "skills/sync-submission/scripts/check_cross_artifact_stale.py",
@@ -5120,6 +5125,21 @@
       "path": "skills/sync-submission/scripts/cover_letter_drift_check.py",
       "size": 19379,
       "sha256": "9a1ef365e6aae53582a87570ce7bde327ed9302a9834571f681b2972b87b2d5d"
+    },
+    {
+      "path": "skills/sync-submission/scripts/credit_integrity_challenge/fixture/manuscript_bad.md",
+      "size": 400,
+      "sha256": "4e370c2e79835bf0c4f2e5b45a5c16fde22b39ed75ebb4f35ab4b610c24e84b7"
+    },
+    {
+      "path": "skills/sync-submission/scripts/credit_integrity_challenge/fixture/manuscript_good.md",
+      "size": 525,
+      "sha256": "fe69b8fd61e6063a859727a8c25685ac2eefa5bdd0300c96b223f4b33a1a5e21"
+    },
+    {
+      "path": "skills/sync-submission/scripts/credit_integrity_challenge/verify.sh",
+      "size": 5529,
+      "sha256": "9eeacb6730b6025dd04c1b7719014e354ce096e649f47850dadfb78d52d11a6a"
     },
     {
       "path": "skills/sync-submission/scripts/cross_document_n_check.py",
@@ -5213,8 +5233,8 @@
     },
     {
       "path": "skills/sync-submission/scripts/preflight_gate.py",
-      "size": 26464,
-      "sha256": "fd06ac09651cdf195958dde6c6d84f9aebba6e5a6b8ac36d3ea7428b762facec"
+      "size": 27400,
+      "sha256": "958e18e4ca4f48390a68c6c7407d341f396bc6673f9c8d918a7a51b72d000a7e"
     },
     {
       "path": "skills/sync-submission/scripts/scope_drift_check.py",
@@ -5228,8 +5248,8 @@
     },
     {
       "path": "skills/sync-submission/skill.yml",
-      "size": 2271,
-      "sha256": "efb295feb39682308720846e9aecd77b79496764338a17811eff518df8a4259c"
+      "size": 2309,
+      "sha256": "f291953988db61d64ee9f4649971236d5474e3b71e4b92fad8987cdf81a82daf"
     },
     {
       "path": "skills/uncertainty-imaging/SKILL.md",

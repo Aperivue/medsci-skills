@@ -11,7 +11,7 @@ violate it.
 The suite's size and its evaluation evidence are two separate facts, reported at different
 versions (see [`MEDSCI_AUDIT.md`](../MEDSCI_AUDIT.md) § Evidence):
 
-- **Current catalog: 82 detectors** across six families (as of 2026-07-24; the authoritative
+- **Current catalog: 83 detectors** across six families (as of 2026-07-24; the authoritative
   list is [`metadata/detectors_catalog.json`](../metadata/detectors_catalog.json), and the
   scope of this protocol is *whatever that file contains at the pinned version a run uses*,
   not the number written here).
@@ -221,3 +221,4 @@ without a trace is not pre-registered.
   document stale merely by existing.
 - **2026-07-24 — catalog 81 → 82** (`check_portal_mirror`, reporting compliance). Same
   situation and same reasoning as the entry above: no run exists, so nothing is invalidated.
+- **2026-07-24 — catalog 82 → 83** (`check_credit_integrity`, reporting compliance). No run exists; nothing invalidated.

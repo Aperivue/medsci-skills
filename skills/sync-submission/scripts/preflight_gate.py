@@ -64,6 +64,7 @@ S = {
     "checklist_dump_leak": REPO_ROOT / "skills/sync-submission/scripts/check_checklist_dump_leak.py",
     "portal_field_residue": REPO_ROOT / "skills/sync-submission/scripts/check_portal_field_residue.py",
     "portal_mirror": REPO_ROOT / "skills/sync-submission/scripts/check_portal_mirror.py",
+    "credit_integrity": REPO_ROOT / "skills/sync-submission/scripts/check_credit_integrity.py",
     "figure_readiness": REPO_ROOT / "skills/sync-submission/scripts/figure_portal_readiness_check.py",
 }
 
@@ -278,6 +279,17 @@ def _argv_portal_mirror(c):
     return argv
 
 
+def _argv_credit_integrity(c):
+    if not c.manuscript:
+        return None
+    argv = [PY, str(S["credit_integrity"]), "--manuscript", str(c.manuscript),
+            "--quiet", "--out", str(c.qc / "credit_integrity.json")]
+    rec = c.root / "contributions.yaml"
+    if rec.is_file():
+        argv += ["--contribution-record", str(rec)]
+    return argv
+
+
 def _argv_figure_readiness(c):
     if not c.figures_dir:
         return None
@@ -336,6 +348,12 @@ CHECKS = [
     # on a journal profile recording the contract; promote with --strict.
     {"id": "portal_mirror", "tier": "P1", "build": _argv_portal_mirror,
      "exit_map": {0: "ok", 1: "finding", 2: "skipped"}, "artifact": "portal_mirror.json",
+     "strict_promote": True},
+    # CRediT is published with the paper; a term outside the fourteen, an initial that
+    # matches no author, or a byline author credited nowhere is a factual defect. Author
+    # ORDER and equal-contribution are deliberately not gated.
+    {"id": "credit_integrity", "tier": "P1", "build": _argv_credit_integrity,
+     "exit_map": {0: "ok", 1: "finding", 2: "skipped"}, "artifact": "credit_integrity.json",
      "strict_promote": True},
     # A figure over the portal's size cap (25 MB) or in a rejected format (SNAPP takes no
     # .png) bounces at the upload button — deterministic from the file's bytes + extension.
@@ -455,6 +473,7 @@ _SCRIPT_KEY = {
     "checklist_dump_leak": "checklist_dump_leak",
     "portal_field_residue": "portal_field_residue",
     "portal_mirror": "portal_mirror",
+    "credit_integrity": "credit_integrity",
     "figure_readiness": "figure_readiness",
 }
 
