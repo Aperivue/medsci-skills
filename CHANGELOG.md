@@ -4,6 +4,22 @@
 
 ### Added
 
+- **`check_citation_order` now audits the in-text reference series, not just numbered floats.**
+  The Vancouver rule that governs Tables and Figures governs a fifth series the gate never
+  saw: the bracketed reference numbers themselves (`[12]`, `[4–11]`). They must ascend by
+  first appearance (`REFERENCE_ORDER`, Major), be contiguous from 1 (`REFERENCE_GAP`, Minor),
+  and reach the reference-list length (`REFERENCE_COUNT_MISMATCH` — Major when a `[N]` overruns
+  the list and dangles, Minor when trailing entries are never cited). A citeproc `[@key]`
+  manuscript has no numbers to check and stays silent; a **hand-typed `[N]` manuscript** (the
+  Word/Zotero placeholder path) previously had no gate at all. Ranges are now **expanded**
+  (`[4–11]` → 4..11) before ordering and gap analysis — for the reference series *and* the
+  existing float series — so a number sitting inside a rendered range is no longer read as a
+  false gap (an endpoint-only reader reported spurious gaps `[10]`/`[37]` sitting inside
+  `4–11`/`36–38`). No new detector: the count stays **80**. Verified clean on the bracketed-
+  citation demo manuscript and four new fixtures (out-of-order, gap, the range-trap negative,
+  and a clean series). Grounded in a real submission cycle where a citeproc build masked a
+  hand-typed-`[N]` ordering fault. See the journal technical-check gate.
+
 - **A pre-registered protocol for the evaluation refresh that covers all 80 detectors.**
   `evaluation/REFRESH_PROTOCOL.md` — written before any run, because an analysis plan chosen
   after seeing results is a re-designation, not a derivation, and the toolkit enforces exactly

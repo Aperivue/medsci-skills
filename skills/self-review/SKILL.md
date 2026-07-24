@@ -655,7 +655,7 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/check_supplement_hygiene.py" \
   --supplement supplement.md --supplement tables.md --supplement captions.md \
   --manuscript manuscript.md --out qc/supplement_hygiene.json --strict
 
-# 4. float citation order — a desk-reject item the hygiene gate does not cover
+# 4. float AND in-text reference-number ([N]) citation order — a desk-reject item the hygiene gate does not cover
 python3 "${CLAUDE_SKILL_DIR}/scripts/check_citation_order.py" \
   --manuscript manuscript.md --out qc/citation_order.json --strict
 

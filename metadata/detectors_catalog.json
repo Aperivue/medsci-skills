@@ -202,7 +202,7 @@
       "skill": "self-review",
       "family": "reporting_compliance",
       "family_label": "Reporting compliance",
-      "description": "Float citation-ORDER gate (journal technical-check pass)."
+      "description": "Citation-ORDER gate — numbered floats and the in-text reference series (journal technical-check pass)."
     },
     {
       "id": "check_claim_artifact",

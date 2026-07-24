@@ -115,14 +115,17 @@ analysis completeness, and imputation-input integrity are separate subchecks (ru
    Anticipated Major Comments — a reader-facing slip in a supplement is as fatal at a
    technical check as one in the body.
 
-   **Float citation order (same technical-check pass).** Editorial offices "unsubmit"
-   manuscripts *before* peer review when numbered floats are not cited in ascending
-   order of first appearance — a fully deterministic desk-check item the hygiene gate
-   above does not cover (it lints xref *resolution*, not *order*). Run the citation-order
-   gate, which checks each series independently (main Tables, main Figures, Supplementary
-   Tables, Supplementary Figures), scanning only the narrative body (it auto-excludes the
-   Figure Legends / back-matter so an in-order legends block cannot mask an out-of-order
-   body):
+   **Citation order — floats AND the in-text reference series (same technical-check pass).**
+   Editorial offices "unsubmit" manuscripts *before* peer review when numbered floats are
+   not cited in ascending order of first appearance — a fully deterministic desk-check item
+   the hygiene gate above does not cover (it lints xref *resolution*, not *order*). Run the
+   citation-order gate, which checks each series independently (main Tables, main Figures,
+   Supplementary Tables, Supplementary Figures) **and the in-text reference-number series**
+   (`[12]`, `[4–11]`) — the Vancouver numbering a hand-typed `[N]` manuscript (the Word/Zotero
+   path) has no other gate for; a citeproc `[@key]` manuscript has no numbers to check and
+   stays silent. Ranges are expanded (`[4–11]`→4..11) so a number inside a rendered range is
+   never a false gap. It scans only the narrative body (auto-excluding the Figure Legends /
+   back-matter so an in-order legends block cannot mask an out-of-order body):
 
    ```bash
    python3 "${CLAUDE_SKILL_DIR}/scripts/check_citation_order.py" \
@@ -135,7 +138,11 @@ analysis completeness, and imputation-input integrity are separate subchecks (ru
    every cross-reference, expanding ranges like `S12–S15` by hand and leaving non-float
    sensitivity-spec labels such as `S1–S6` untouched) or by rephrasing away the early
    citation. `CITATION_GAP` (Minor) — cited numbers not contiguous from 1 (a possible
-   missing/mis-numbered float).
+   missing/mis-numbered float). `REFERENCE_ORDER` (Major) — in-text reference numbers cited
+   out of order (e.g. `[12]` before `[5]`); the Vancouver list is mis-numbered. `REFERENCE_GAP`
+   (Minor) — a reference number never cited. `REFERENCE_COUNT_MISMATCH` — the highest cited
+   `[N]` overruns the reference-list length (dangling, **Major**) or the list has trailing
+   entries never cited (**Minor**).
 
 8. **Re-run cross-artifact staleness after any audit or reframe.** When a headline number
    is corrected or an analysis is re-framed, the fix often lands only in the body while a

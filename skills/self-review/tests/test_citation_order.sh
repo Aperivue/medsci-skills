@@ -37,6 +37,17 @@ d=json.load(open('$OUT'))
 n=sum(1 for c in d['claims'] if c['verdict']=='UNCITED_FLOAT')
 assert n==$1, f'expected $1 UNCITED_FLOAT, got {n}'
 "; }
+count_verdict() { python3 -c "
+import json
+d=json.load(open('$OUT'))
+n=sum(1 for c in d['claims'] if c['verdict']=='$1')
+assert n==$2, f'expected $2 $1, got {n}: {[c[\"verdict\"] for c in d[\"claims\"]]}'
+"; }
+no_claims() { python3 -c "
+import json
+d=json.load(open('$OUT'))
+assert not d['claims'], d['claims']
+"; }
 
 [[ -f "$SCRIPT" ]] || { echo "ENV-ERR: script missing" >&2; exit 2; }
 
@@ -96,6 +107,30 @@ assert u and u[0]['where']=='Supplementary Figure S1', [c['where'] for c in u]
 # (7) the clean fixture defines nothing uncited -> no UNCITED_FLOAT (no over-fire).
 python3 "$SCRIPT" --manuscript "$GOOD" --out "$OUT" --strict --quiet >/dev/null 2>&1
 check "no UNCITED_FLOAT on the clean manuscript (no over-fire)" count_uncited 0
+
+# --- reference (in-text [N]) series: the fifth series the float scan never saw ----------
+FX="$HERE/fixtures"
+
+# (8) hand-typed [N] manuscript that cites [12] before [5] -> REFERENCE_ORDER (Major), exit 1
+python3 "$SCRIPT" --manuscript "$FX/citation_order_ref_order_bad.md" --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "exit 1 when in-text references are out of order ([12] before [5])" test "$?" -eq 1
+check "one REFERENCE_ORDER flagged" count_verdict REFERENCE_ORDER 1
+
+# (9) references cited [1..6, 8] with 7 never cited -> REFERENCE_GAP (Minor), exit 0
+python3 "$SCRIPT" --manuscript "$FX/citation_order_ref_gap.md" --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "exit 0 on a reference gap (Minor, not Major)" test "$?" -eq 0
+check "one REFERENCE_GAP for the hole at [7]" count_verdict REFERENCE_GAP 1
+
+# (10) NEGATIVE range trap: 5-10 and 13-14 sit INSIDE rendered ranges [4-11]/[13-15] ->
+#      ranges are expanded, so NO false gap -> clean (the case the ad-hoc script got wrong)
+python3 "$SCRIPT" --manuscript "$FX/citation_order_ref_range_ok.md" --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "exit 0 when the only 'gaps' sit inside a rendered range" test "$?" -eq 0
+check "no claim from a reference range (range expanded before gap check)" no_claims
+
+# (11) NEGATIVE clean: contiguous [1..5] in order with a matching 5-entry list -> no over-fire
+python3 "$SCRIPT" --manuscript "$FX/citation_order_ref_good.md" --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "exit 0 on a clean reference series" test "$?" -eq 0
+check "no claim on a clean contiguous reference series (no over-fire)" no_claims
 
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"
