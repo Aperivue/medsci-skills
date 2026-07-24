@@ -4013,8 +4013,8 @@
     },
     {
       "path": "skills/self-review/SKILL.md",
-      "size": 87995,
-      "sha256": "6cb1011bf8894469793bd410ea7350961903d6fe097e90237c8ace16b0bb6246"
+      "size": 88030,
+      "sha256": "ab927f6a9702b4e988246fad965cab6025fcbd91f9378bf3e2002ba7dee9e6dd"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
@@ -4198,8 +4198,8 @@
     },
     {
       "path": "skills/self-review/references/phases/phase2_5f_claim_artifact.md",
-      "size": 11616,
-      "sha256": "f95dea63f14cfca4cf40c5e8c858b8c7a0679b1c54b6fcd65acc68424e770bac"
+      "size": 12382,
+      "sha256": "c4e83d109e67ca331de1c1f0ee514457426d2be6c6a4fbe56ed0be2a6fc45b25"
     },
     {
       "path": "skills/self-review/references/phases/phase2_systematic_check.md",
@@ -4323,8 +4323,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_citation_order.py",
-      "size": 15088,
-      "sha256": "7170b62c585b45599b55b32efcffb3803bce24190f3e34ec18cf6e7be48b94f1"
+      "size": 22760,
+      "sha256": "47c50a1ec4e2d64e33c90756b4c83a72721e5cff5e45c93a383549e48ba6e5b7"
     },
     {
       "path": "skills/self-review/scripts/check_claim_artifact.py",

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Float citation-ORDER gate (journal technical-check pass).
+"""Citation-ORDER gate — numbered floats and the in-text reference series (journal technical-check pass).
 
 Journals (KJR, Radiology, AJR, and most others) require that numbered floats be
 **cited in ascending order of first appearance** in the narrative text, evaluated
@@ -10,6 +10,14 @@ per series independently:
     Suppl. Tables (Table S1, S2, … / Supplementary Table S1, …)
     Suppl. Figures(Supplementary Figure S1, … / Figure S1, …)
 
+The same Vancouver discipline governs a FIFTH series the float scan never saw: the
+**in-text reference numbers** ("[12]", "[4–11]"). They too must ascend by first
+appearance, be contiguous from 1, and reach the reference-list length. A citeproc
+manuscript renumbers "[@key]" at render and so has no numbers to check here; but a
+HAND-TYPED "[N]" manuscript (the Word/Zotero placeholder path) has no gate at all,
+and an out-of-order or gapped reference series is a desk-check reject just like an
+out-of-order table.
+
 This is a deterministic, pre-peer-review desk/technical-check item: editorial
 offices "unsubmit" manuscripts for it before a reviewer ever sees them. Existing
 self-review gates lint xref *resolution* (does the callout resolve to a section)
@@ -18,15 +26,25 @@ but never *order*.
 What it does: scans the NARRATIVE body (everything before the first float-definition
 / back-matter section header — Figure Legends, Tables, Supplementary, References —
 so a legends block that lists figures in order does not mask an out-of-order body),
-extracts the first-citation position of every numbered float per series, and flags
-any series whose first-appearance number sequence is not ascending.
+extracts the first-citation position of every numbered float per series AND of every
+bracketed reference number, EXPANDS ranges ("4–11" → 4..11 — so a number inside a
+rendered range is never read as a false gap), and flags any series whose first-
+appearance sequence is not ascending (or, for references, is gapped or overruns the list).
 
 Verdicts:
-  CITATION_ORDER (Major)  a series is cited out of numerical order (e.g., Table 3
+  CITATION_ORDER (Major)  a float series is cited out of numerical order (e.g., Table 3
                           first-cited before Table 1, or Suppl. Tables cited
                           S4, S9, S16, S12, …). Technical-check-fatal.
-  CITATION_GAP  (Minor)   a series' cited numbers are not contiguous from 1
+  CITATION_GAP  (Minor)   a float series' cited numbers are not contiguous from 1
                           (a possible missing / mis-numbered float). Report-only.
+  REFERENCE_ORDER (Major) in-text reference numbers are cited out of order (e.g. [12]
+                          before [5]) — the Vancouver list is mis-numbered. Ranges are
+                          expanded first, so a re-citation inside "[4–11]" is not a fault.
+  REFERENCE_GAP (Minor)   cited reference numbers are not contiguous from 1 (a number
+                          never cited) — a missing or mis-numbered citation. Report-only.
+  REFERENCE_COUNT_MISMATCH  the highest cited reference overruns the reference-list length
+        (Major/Minor)     ([N] resolves to nothing → Major dangling), or the list has
+                          trailing entries never cited (→ Minor). Needs a numbered list.
   UNCITED_FLOAT (Minor)   a float that HAS a legend/caption in the back matter is never
                           cited anywhere in the narrative body — a display item the reader
                           is never pointed to (uncited supplements/tables/figures are a
@@ -78,8 +96,47 @@ MENTION_RE = re.compile(
     r"\b(Tables?|Figures?)\s+"
     r"(S?\d+(?:\s*(?:,|&|–|-|and)\s*S?\d+)*)", re.IGNORECASE)
 
-# Individual S?<number> token inside a numlist.
-TOKEN_RE = re.compile(r"(S?)(\d+)", re.IGNORECASE)
+# One citation token inside a numlist: optional S-prefix, a number, and an optional
+# "A–B" range tail. Ranges MUST be expanded before ordering/gap analysis — an
+# endpoint-only read of "4–11" as {4, 11} both hides the interior (5..10) and reports
+# every interior number as a false gap. Shared by the float scan and the reference scan.
+TOKEN_RANGE_RE = re.compile(r"(S?)(\d+)(?:\s*[–—-]\s*(S?)(\d+))?", re.IGNORECASE)
+
+
+def _expand_numlist(numlist: str):
+    """Yield (supp_bool, number, offset) for every number in a citation numlist,
+    expanding an "A–B" range to A..B. offset is the token's start within numlist so a
+    caller can recover first-appearance position; a range's members share the range
+    token's offset. The S-prefix of a range is taken from its start token. An inverted
+    or absurdly wide (> 500) range degrades to its two endpoints rather than expanding."""
+    for m in TOKEN_RANGE_RE.finditer(numlist):
+        supp = bool(m.group(1))
+        a = int(m.group(2))
+        if m.group(4) is not None:
+            b = int(m.group(4))
+            if a <= b <= a + 500:
+                for k in range(a, b + 1):
+                    yield supp, k, m.start()
+            else:
+                yield supp, a, m.start()
+                yield bool(m.group(3)) or supp, b, m.start(4)
+        else:
+            yield supp, a, m.start()
+
+
+# An in-text numbered reference citation: a bracketed numlist ("[12]", "[4,5]",
+# "[4–11]"). Guards against the other square-bracket syntaxes: a wikilink "[[1]]"
+# (leading "["), an image "![alt]" (leading "!"), a markdown link "[1](url)" or link-
+# definition "[1]:" (trailing "(" / ":"), and a footnote "[^1]" (the "^" is not a digit,
+# so it never matches). Only the bracketed Vancouver form is scanned — parenthetical
+# "(1)" is left alone: it is indistinguishable from equation, panel, group-size and
+# CI-bound numbers.
+REF_CITE_RE = re.compile(r"(?<![\[!])\[(\d[\d\s,;&–—-]*)\](?!\s*[:(\[])")
+# A numbered entry in the reference list ("1. …", "[1] …", "1) …").
+REF_LIST_ITEM_RE = re.compile(r"(?m)^\s{0,3}(?:\[(\d+)\]|(\d+)[.)])\s+\S")
+# Below this many distinct in-text reference numbers there is too little signal to tell
+# a Vancouver citation apart from a stray "[1]", so the reference-series check stays silent.
+REF_MIN_DISTINCT = 3
 
 SERIES_LABEL = {
     ("table", False): "Table",
@@ -158,18 +215,17 @@ def _first_appearance(text: str):
     seen: dict[str, dict[int, int]] = {}  # label -> {number: first_position}
     for m in MENTION_RE.finditer(text):
         kind = "table" if m.group(1).lower().startswith("table") else "figure"
-        for tm in TOKEN_RE.finditer(m.group(2)):
-            supp = bool(tm.group(1))
-            num = int(tm.group(2))
+        for supp, num, off in _expand_numlist(m.group(2)):
             label = SERIES_LABEL[(kind, supp)]
             seen.setdefault(label, {})
             # keep the EARLIEST position for each number
-            pos = m.start() + tm.start()
+            pos = m.start() + off
             if num not in seen[label] or pos < seen[label][num]:
                 seen[label][num] = pos
     order = {}
     for label, num_pos in seen.items():
-        order[label] = [n for n, _ in sorted(num_pos.items(), key=lambda kv: kv[1])]
+        # tie-break by number so a range's members read ascending at their shared position
+        order[label] = [n for n, _ in sorted(num_pos.items(), key=lambda kv: (kv[1], kv[0]))]
     return order
 
 
@@ -218,6 +274,81 @@ def _check_uncited_floats(clean: str) -> list[dict]:
     return claims
 
 
+def _reference_list_length(text: str) -> "int | None":
+    """Highest number in the numbered reference/bibliography list, or None if there is no
+    such list (e.g. a citeproc manuscript whose bibliography is generated at render)."""
+    m = REF_HEADER_RE.search(text)
+    if not m:
+        return None
+    nums = [int(im.group(1) or im.group(2)) for im in REF_LIST_ITEM_RE.finditer(text[m.end():])]
+    return max(nums) if nums else None
+
+
+def _reference_series(body: str, full_text: str) -> list[dict]:
+    """Bracketed in-text reference citations ("[12]", "[4–11]") must be cited in ascending
+    order of first appearance, be contiguous from 1, and reach the reference-list length —
+    the Vancouver numbering discipline a hand-typed "[N]" manuscript has no other gate for.
+    Ranges are expanded first, so a number inside "[4–11]" is never a false gap; citeproc
+    "[@key]" manuscripts match nothing here and stay silent."""
+    first: dict[int, int] = {}  # reference number -> earliest position
+    for m in REF_CITE_RE.finditer(body):
+        for _supp, num, off in _expand_numlist(m.group(1)):
+            pos = m.start() + off
+            if num not in first or pos < first[num]:
+                first[num] = pos
+    if len(first) < REF_MIN_DISTINCT:
+        return []  # too little signal to distinguish citations from stray brackets
+    seq = [n for n, _ in sorted(first.items(), key=lambda kv: (kv[1], kv[0]))]
+    pretty = ", ".join(str(n) for n in seq)
+    claims: list[dict] = []
+    if seq != sorted(seq):
+        inv = next((seq[i] for i in range(1, len(seq)) if seq[i] < seq[i - 1]), seq[-1])
+        claims.append({
+            "verdict": "REFERENCE_ORDER",
+            "severity": "Major",
+            "detail": (f"in-text references are cited out of numerical order — first-citation "
+                       f"sequence is [{pretty}]; Vancouver numbering must ascend by first "
+                       f"appearance (renumber the reference list and remap every [N], or correct "
+                       f"the marker; first inversion at [{inv}])"),
+            "where": "reference series",
+        })
+        return claims  # order is wrong; gap/count numbers are not yet meaningful
+    cited = set(first)
+    hi = max(cited)
+    length = _reference_list_length(full_text)
+    if length is not None and hi > length:
+        # A citation points past the end of the list — the dominant fault. The apparent
+        # gap up to [hi] is an artifact of the dangling number, so report only this.
+        claims.append({
+            "verdict": "REFERENCE_COUNT_MISMATCH",
+            "severity": "Major",
+            "detail": (f"the highest in-text reference cited is [{hi}] but the reference list has "
+                       f"only {length} entries — [{hi}] resolves to nothing (dangling citation)"),
+            "where": "reference series",
+        })
+        return claims
+    missing = [n for n in range(1, hi + 1) if n not in cited]
+    if missing:
+        claims.append({
+            "verdict": "REFERENCE_GAP",
+            "severity": "Minor",
+            "detail": (f"in-text references cited [{pretty}] are not contiguous from 1 (never "
+                       f"cited: {', '.join(str(n) for n in missing)}) — a missing or mis-numbered "
+                       f"citation (ranges like [4–11] are expanded before this check)"),
+            "where": "reference series",
+        })
+    if length is not None and hi < length:
+        claims.append({
+            "verdict": "REFERENCE_COUNT_MISMATCH",
+            "severity": "Minor",
+            "detail": (f"in-text references reach [{hi}] but the reference list has {length} "
+                       f"entries — {length - hi} trailing reference(s) are never cited (or the "
+                       f"list is mis-numbered)"),
+            "where": "reference series",
+        })
+    return claims
+
+
 def check(text: str, include_back_matter: bool) -> list[dict]:
     claims = []
     # Strip any leading YAML front matter first: a `status:`/changelog block that narrates a
@@ -226,6 +357,7 @@ def check(text: str, include_back_matter: bool) -> list[dict]:
     body = _body(clean, include_back_matter)
     claims += _check_section_xref(body)
     claims += _check_uncited_floats(clean)
+    claims += _reference_series(body, clean)
     order = _first_appearance(body)
     for label in ("Table", "Figure", "Supplementary Table", "Supplementary Figure"):
         seq = order.get(label)
