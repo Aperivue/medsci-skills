@@ -225,3 +225,6 @@ JNIS is less appropriate for: medical (non-endovascular) stroke management (cons
 ## Verification note
 
 Profile built 2026-04-19 from the JNIS author guidelines PDF (https://jnis.bmj.com/pages/authors/). BMJ Tier 3 data-sharing policy, double-anonymised review model, ORCID mandate, and Key Messages box requirement are transcribed from the same source. Acceptance-rate and first-decision timing figures are the BMJ-reported values on the authors page; re-verify at submission.
+
+- **AI-use disclosure placement**: Methods
+  <!-- machine-read by /self-review check_classical_style.py --profile; source: this profile's own "Disclose substantive AI use in Methods (when used in research design, analysis, or drafting)" -->

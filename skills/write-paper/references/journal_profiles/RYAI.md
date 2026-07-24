@@ -122,3 +122,6 @@ Multiple checklists may apply (e.g., CLAIM + STARD-AI for a diagnostic AI study)
 - **Disclosure location:** Methods + Acknowledgments — must describe the AI tool name, version, and specific role in both the Methods section (under "AI Disclosure in Methods") and Acknowledgments (under "AI Disclosure in Acknowledgments"); this is distinct from AI used as the research subject
 - **AI-generated images:** Banned — AI-generated or AI-manipulated images in figures are not permitted; AI models studied as research subjects must follow CLAIM checklist reporting
 - **Policy URL:** https://pubs.rsna.org/page/ai-policy
+
+- **AI-use disclosure placement**: Methods
+  <!-- machine-read by /self-review check_classical_style.py --profile; source: this profile's own "AI Disclosure in Methods: Must describe any use of AI tools in the research process" -->

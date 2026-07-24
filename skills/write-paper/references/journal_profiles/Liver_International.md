@@ -185,3 +185,6 @@ Liver International submits via **Wiley Research Exchange** (https://authors.wil
 - **ICMJE COI form upload is NOT required** — Wiley collects per-author COI in-portal + title page statement + cover letter. There is no COI/ICMJE upload slot.
 - **Cascade resubmission** (e.g., after a different journal's rejection): portal "currently under consideration elsewhere?" = **No** (the prior submission is closed); "previously submitted to *this* journal?" = **No**. No disclosure of the prior rejection required.
 - **Pitfall**: when reusing a prior version's STROBE/PRISMA/CONSORT attachment, verify the file content — a `/check-reporting` or `/self-review` **audit output is not a submission file** (it leaks "auto-fix"/JSON/compliance%/stale title). Upload only the official-format checklist. Read the compiled proof PDF to the last page (supplementary + additional files) before completing. See `submission-portal-verification.md` §9.6.
+
+- **AI-use disclosure placement**: Methods
+  <!-- machine-read by /self-review check_classical_style.py --profile; source: this profile's own "Wiley requires AIGC tools declared in the Methods section" -->

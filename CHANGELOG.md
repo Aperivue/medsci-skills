@@ -36,6 +36,29 @@
   written for. `tests/test_skill_discovery.sh` pins that distinction along with the failure
   itself. As a top-level `scripts/` validator it is deliberately outside the detector catalog,
   so the detector count is unchanged.
+- **17 more journal profiles now answer the AI-disclosure placement question — read out of
+  their own policy prose, not invented.** The placement gate shipped with five profiles
+  populated, which left every other target producing the "no target recorded" prompt. The
+  answer was already written in most profiles, in their own words: *"Disclose substantive AI
+  use in Methods"* (JNIS, Journal of Stroke), *"declared in the Methods section"* (Liver
+  International), *"in Methods or Acknowledgements"* (Lancet Digital Health), *"disclose in
+  Acknowledgments"* (The Lancet), *"must be disclosed in the cover letter"* (JKMS), *"Title
+  page (separate): … AI declaration"* (Academic Radiology). Each new line carries an HTML
+  comment quoting the sentence it came from, so the claim is checkable rather than asserted.
+
+  **22 of 55 profiles** now resolve; the challenge asserts **all 22**, not a sample, because a
+  wrong line here produces wrong advice — four of them (Academic Radiology, JKMS, British
+  Journal of Radiology, Diabetes & Metabolism Journal) legitimately make an in-body disclosure
+  a **Major**, and getting one of those backwards would tell an author to move something
+  correct.
+
+  One convention fell out and is documented in the detector: a journal whose body location is
+  named nothing like "Methods" — JACC: Advances asks for a *"Declaration of generative AI…"*
+  section immediately above the References — writes **`(body)`** in the placement string.
+  Without it that location reads as non-body, which is the exact failure the gate exists to
+  stop. The challenge pins both halves: with the marker silent, without it firing.
+
+  No new detector: the count stays **84**.
 
 - **`INBODY_AI_DISCLOSURE` asserted a placement it could not know — and the journals
   disagree.** The verdict said an in-body AI-use disclosure "belongs on the title page". That

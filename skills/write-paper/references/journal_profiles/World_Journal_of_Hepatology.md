@@ -104,3 +104,6 @@ Contact: editorialoffice@wjgnet.com (general); j.l.wang@wjgnet.com (peer-review 
 | Acc. rate (est.) | ~30–40 % | ~30–35 % | ~30–35 % | ~25–30 % |
 | Hepatology focus | Dedicated | Broad GI/Hep | Dedicated | Dedicated |
 | AI-training reuse | Prohibited | Prohibited | Permitted (CC BY) | Permitted (CC BY) |
+
+- **AI-use disclosure placement**: Methods
+  <!-- machine-read by /self-review check_classical_style.py --profile; source: this profile's own "AI tools may not be authors; AI use disclosed in Methods" -->

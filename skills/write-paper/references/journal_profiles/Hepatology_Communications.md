@@ -108,3 +108,6 @@ PaperPal Preflight: https://preflight.paperpal.com/partner/lww/hepatolcom
 | Word limit (Original) | 5,000 | 5,000 | 6,000 | 4,000 |
 | Graphical abstract | Optional | Optional | Mandatory | Optional |
 | 2023 MASLD nomenclature | Mandatory | Mandatory | Strong preference | Strong preference |
+
+- **AI-use disclosure placement**: Cover letter + Methods
+  <!-- machine-read by /self-review check_classical_style.py --profile; source: this profile's own "Explicit AI use disclosure if any (location and tool used) — mandatory in cover letter AND Methods." -->

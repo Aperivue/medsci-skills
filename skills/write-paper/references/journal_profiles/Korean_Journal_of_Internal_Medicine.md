@@ -176,3 +176,6 @@ KJIM is well-suited for:
 ## Verification
 - **Source:** https://www.kjim.org/authors/authors.php
 - **Date:** 2026-05-21
+
+- **AI-use disclosure placement**: Acknowledgments
+  <!-- machine-read by /self-review check_classical_style.py --profile; source: this profile's own "AI use not disclosed in Acknowledgments — undisclosed AI use is grounds for desk rejection" -->
