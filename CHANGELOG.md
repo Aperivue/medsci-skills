@@ -34,6 +34,44 @@
 
 ### Added
 
+- **`/sync-submission` now checks the declarations that the portal PUBLISHES IN PLACE OF the
+  manuscript.** Some portals publish the box, not the paper. SNAPP prints it on the submission
+  form at four fields — Author Contributions, Competing Interests, Data Availability,
+  Acknowledgements: *"This replaces any statement written within the manuscript and is the one
+  that we will publish."* So the manuscript file is the copy reviewers read and the portal box
+  is the copy the world gets, and a declaration that lives only in the manuscript will not
+  exist in the published record. Nothing warns you, because neither document is wrong on its
+  own — the loss appears in the galley.
+
+  Two sentences came one click from vanishing this way. **Co-first authorship**: a `†` footnote
+  on the title page, and no equal-contribution checkbox anywhere on the author page, so unless
+  the sentence is typed into the Author Contributions box the published paper has no co-first
+  authors. **"The funder had no role in study design…"**: it lived in the manuscript's
+  Acknowledgements, while the structured *Research funding* field takes a funder and a grant ID
+  and has nowhere to put a role disclaimer.
+
+  `check_portal_mirror.py` (detectors **81 → 82**) diffs each replacing manuscript section
+  against its paste artifact — `PORTAL_FIELD_NOT_MIRRORED` for a sentence with no home,
+  `PORTAL_FIELD_MISSING` for a replacing field with no artifact at all, and
+  `EQUAL_CONTRIBUTION_NOT_IN_PORTAL`, which is checked against the **whole manuscript** because
+  the sentence is normally a title-page footnote rather than part of the contributions section.
+  Wired into `preflight_gate.py` as P1 (`--strict`-promotable). It is the complement of the
+  existing residue gate, not a duplicate: that one asks whether what you paste is *clean*, this
+  asks whether what you did *not* paste is quietly gone.
+
+  **`--emit` is the actual fix**: it writes each field straight from the manuscript so the box
+  is never hand-composed — which is how both sentences were lost — and lifts the
+  equal-contribution statement in from the title page, the one place a section copy cannot
+  reach. The emitted scaffold passes the gate, and that round-trip is a test.
+
+  Which fields replace is a **journal fact, not a guess**: it is read from a new `## Portal
+  Mechanics` block in the journal profile (npj Digital Medicine populated, including the
+  no-`.png` figure formats, the cover-letter-as-upload, the double-figure trap, and the
+  affiliation parser that silently drops intermediate levels). A journal whose contract has
+  never been recorded makes the check exit 2 and assert nothing. Matching is graded through the
+  vendored `_quote_match.py`, so **re-flowing a sentence while pasting is not reported as a
+  loss** — the false positive that would have made the gate unusable.
+
 - **`/verify-refs` now checks whether a cited source actually says what the citing sentence
   says it says.** `verify_refs.py` answers whether a reference is real and whose it is; nothing
   answered whether the *sentence attached to it* is true of it. A citation can be perfectly
