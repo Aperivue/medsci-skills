@@ -59,6 +59,13 @@ class VendorSet(NamedTuple):
     # Files allowed to live in the vendored dir with no canonical counterpart. Named explicitly so
     # a local-only file is a decision, not an accident.
     vendored_local: tuple[str, ...] = ()
+    # Which files in each directory this set OWNS. The membership checks (nothing unvendored on the
+    # canonical side, nothing unexpected on the vendored side) run over this glob only, so a set can
+    # live inside a directory that also holds unrelated files. The first two sets are whole-directory
+    # libraries and keep the "*.md" default; a vendored *code* helper sits in a `scripts/` dir beside
+    # the skill's own detectors, so it scopes itself to the underscore-prefixed helper namespace
+    # rather than claiming every .py next to it.
+    pattern: str = "*.md"
 
 
 DOMAIN_PROBES = (
@@ -117,6 +124,15 @@ VENDOR_SETS: tuple[VendorSet, ...] = (
         # counterpart. Declared so the gate stays silent on it instead of crying wolf.
         vendored_local=("JBI_Case_Series.md",),
     ),
+    VendorSet(
+        name="quote-match-helper",
+        canonical="skills/revise/scripts",
+        vendored="skills/verify-refs/scripts",
+        files=("_quote_match.py",),
+        # /revise owns other scripts; only the helpers it publishes are vendored.
+        canonical_exhaustive=False,
+        pattern="_*.py",
+    ),
 )
 
 # Content that is byte-identical across skills but is NOT a vendoring relationship (a coincidental
@@ -125,7 +141,10 @@ VENDOR_SETS: tuple[VendorSet, ...] = (
 UNDECLARED_EXEMPT: frozenset[str] = frozenset()
 
 # Fixtures prove a thing works; they are not shipped payload and may legitimately duplicate.
-SCAN_SKIP = ("/tests/", "_challenge/", "/challenge/")
+# `__pycache__` is build output, not payload: two skills importing the same vendored helper can
+# produce byte-identical .pyc files on a developer's machine, and a gate that fails on that is a
+# gate that fails for reasons the contributor cannot see in `git status`.
+SCAN_SKIP = ("/tests/", "_challenge/", "/challenge/", "/__pycache__/")
 
 
 def repo_root() -> Path:
@@ -140,8 +159,8 @@ def sha256_file(path: Path) -> str:
     return h.hexdigest()
 
 
-def listing(d: Path) -> set[str]:
-    return {p.name for p in d.glob("*.md")} if d.is_dir() else set()
+def listing(d: Path, pattern: str = "*.md") -> set[str]:
+    return {p.name for p in d.glob(pattern)} if d.is_dir() else set()
 
 
 def do_sync(root: Path) -> int:
@@ -158,7 +177,7 @@ def do_sync(root: Path) -> int:
             print(f"synced  [{vs.name}] {name}")
             total += 1
         allowed = set(vs.files) | set(vs.vendored_local)
-        for stray in sorted(listing(vendored) - allowed):
+        for stray in sorted(listing(vendored, vs.pattern) - allowed):
             (vendored / stray).unlink()
             print(f"removed stray vendored file  [{vs.name}] {stray}")
     print(f"OK: {total} file(s) vendored canonical -> vendored across {len(VENDOR_SETS)} set(s)")
@@ -176,7 +195,7 @@ def check_set(root: Path, vs: VendorSet) -> tuple[list[str], int]:
         return [], 2
 
     problems: list[str] = []
-    canon_set, vend_set = listing(canonical), listing(vendored)
+    canon_set, vend_set = listing(canonical, vs.pattern), listing(vendored, vs.pattern)
 
     for name in vs.files:
         if name not in canon_set:

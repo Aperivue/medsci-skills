@@ -1,4 +1,4 @@
-# Evaluation refresh protocol — covering all 80 detectors
+# Evaluation refresh protocol — covering the whole detector catalog
 
 **Status: pre-registered protocol. No results exist yet.** Every number below is a target, a
 budget, or a stopping rule fixed *before* any run. This document is written first on purpose:
@@ -11,7 +11,10 @@ violate it.
 The suite's size and its evaluation evidence are two separate facts, reported at different
 versions (see [`MEDSCI_AUDIT.md`](../MEDSCI_AUDIT.md) § Evidence):
 
-- **Current catalog: 80 detectors** across six families.
+- **Current catalog: 81 detectors** across six families (as of 2026-07-24; the authoritative
+  list is [`metadata/detectors_catalog.json`](../metadata/detectors_catalog.json), and the
+  scope of this protocol is *whatever that file contains at the pinned version a run uses*,
+  not the number written here).
 - **Canonical evaluation is v3.8-era.** The seeded-defect benchmark (**E1**) rests on 19
   `DefectSpec` rows / 17 offline injectors; the coverage inventory (**E7**) is n=21. Both
   predate most of the current catalog.
@@ -66,7 +69,7 @@ arm the current evidence base has nothing on.
 distinct verdicts is three units; a verdict with no positive fixture is untested regardless of
 how well its siblings do.
 
-**Coverage requirement.** Every one of the 80 detectors carries:
+**Coverage requirement.** Every detector in the catalog carries:
 1. **≥1 positive fixture per emitted verdict** — the defect is injected, that specific verdict
    must fire.
 2. **≥1 hard negative** — a *near-miss* that a naive implementation would flag but that is
@@ -147,7 +150,7 @@ Arm A does not start from zero. Every detector already ships a CI challenge card
 case and a negative control. The first work item is therefore an **inventory, not an authoring
 sprint**:
 
-- **Stage 0 — inventory.** For each of the 80 detectors, mechanically determine: verdicts
+- **Stage 0 — inventory.** For each detector in the catalog, mechanically determine: verdicts
   emitted; positive fixtures present; whether the existing negative control is a *hard* negative
   or merely an empty/trivial input. Output: a per-detector gap table. Largely automatable from
   the existing challenge-card wiring and `metadata/detectors_catalog.json`.
@@ -205,3 +208,14 @@ protocol runs at a pinned version and measures the suite as a system; it is a *m
 Where Stage 1 authors a new hard negative, that fixture is wired into CI as well — so the
 benchmark's investment compounds into the regression suite rather than sitting in a one-off
 evaluation directory.
+
+## 9. Amendments
+
+Recorded here rather than applied silently, because a pre-registered plan that is edited
+without a trace is not pre-registered.
+
+- **2026-07-24 — catalog 80 → 81** (`check_claim_fidelity`, citation & reference integrity).
+  No run exists yet, so nothing is invalidated under the § 6 rule; the amendment is recorded
+  only to keep the scope statement true. The restated counts above were also replaced with
+  references to `metadata/detectors_catalog.json`, so that a later detector cannot make this
+  document stale merely by existing.

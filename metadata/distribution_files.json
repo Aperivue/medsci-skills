@@ -5208,13 +5208,63 @@
     },
     {
       "path": "skills/verify-refs/SKILL.md",
-      "size": 11846,
-      "sha256": "d80f91b433a54b6c39e9f4ba4567f9c833b16c87b4586eec6e7c95b5a31287a7"
+      "size": 14260,
+      "sha256": "95d6608cf1592c91393e65a3b609bb501fd33d629516508e66025d05cf260954"
     },
     {
       "path": "skills/verify-refs/references/manual_checkpoint_guide.md",
       "size": 4031,
       "sha256": "4da6bd649d672bcae7505098d4712d6fb253fea8fa3be41c95870587cc6553a4"
+    },
+    {
+      "path": "skills/verify-refs/scripts/_quote_match.py",
+      "size": 7904,
+      "sha256": "dd71e2359602fc149d6330ee00155f04838e46ec15ef137fbf782b7cb263c0b1"
+    },
+    {
+      "path": "skills/verify-refs/scripts/check_claim_fidelity.py",
+      "size": 28138,
+      "sha256": "e90932f24c794c35ed525ac578e51658599bf7bef2b0efee32d4e75be82f7c3c"
+    },
+    {
+      "path": "skills/verify-refs/scripts/claim_fidelity_challenge/fixture/fulltext/10.1000_synthetic.oversight.md",
+      "size": 3493,
+      "sha256": "a67bb97a8779a2b7fb517e1af11daa55d5371f48c9bc448ddacc86686fa4e379"
+    },
+    {
+      "path": "skills/verify-refs/scripts/claim_fidelity_challenge/fixture/fulltext/10.1000_synthetic.stub.md",
+      "size": 910,
+      "sha256": "aeab2ba2c5984b3176b106730e1538264521954ca6b602963caab89f13eb024b"
+    },
+    {
+      "path": "skills/verify-refs/scripts/claim_fidelity_challenge/fixture/manuscript_numbered.md",
+      "size": 769,
+      "sha256": "d6bec26523ba0a7b791f60157808c166aef87cf3e4c504a517bf47adab833800"
+    },
+    {
+      "path": "skills/verify-refs/scripts/claim_fidelity_challenge/fixture/manuscript_shortsource.md",
+      "size": 506,
+      "sha256": "572b617ea58f72f3ab533e67b73327d1c88be1563c293112a05bf81b927e3781"
+    },
+    {
+      "path": "skills/verify-refs/scripts/claim_fidelity_challenge/fixture/manuscript_supported.md",
+      "size": 732,
+      "sha256": "eb8ea581396e62f60cf97d5b948262208fbe9401ea11ea1f13939bebc0449055"
+    },
+    {
+      "path": "skills/verify-refs/scripts/claim_fidelity_challenge/fixture/manuscript_unsupported.md",
+      "size": 692,
+      "sha256": "612dbfe89e8d963f6617b6a8bdd9b18f81f774771a9741a0875692e81511a728"
+    },
+    {
+      "path": "skills/verify-refs/scripts/claim_fidelity_challenge/fixture/refs.bib",
+      "size": 588,
+      "sha256": "80d13095b913afc4ac19a1ce5658a2a8274ae6119dacd2af79b137f87d1ebfa0"
+    },
+    {
+      "path": "skills/verify-refs/scripts/claim_fidelity_challenge/verify.sh",
+      "size": 9306,
+      "sha256": "19bec2649a74ff92d7f58913b70d04716d8e7838ba075d905dabb0b0697f92ff"
     },
     {
       "path": "skills/verify-refs/scripts/verify_cli.sh",
@@ -5228,8 +5278,8 @@
     },
     {
       "path": "skills/verify-refs/skill.yml",
-      "size": 2291,
-      "sha256": "608e80234418a3560c9662e83a786b20ad16a340b934bfea59e2421712595fc5"
+      "size": 3092,
+      "sha256": "54b90d79ba5eec1d8d1776e08c7740c7b9d461c9fc5a6c32f1cf24ce71c3d9ac"
     },
     {
       "path": "skills/version-dataset/SKILL.md",
