@@ -70,6 +70,24 @@ count:
 Present the report to the user. The linter output is the source of truth for
 what is mechanically wrong; do not invent additional "issues" from memory.
 
+### Phase 1b: Figure-SOURCE locale drift (text no grep can reach)
+
+Phase 1 only sees prose. Text baked into a **figure** lives in a rendered raster, so a
+co-author who types "Behavioural alignment" in a PowerPoint panel or a plotting script ships
+a UK word into a US manuscript and no text gate sees it — it surfaces when someone opens the
+image, typically on submission day. Scan the figure **sources** instead (no OCR):
+
+```bash
+python3 scripts/lint_figure_locale.py --manuscript path/to/manuscript.md --figures-dir figures/
+# --spelling us|uk forces the target; otherwise it reads a `spelling:` front-matter field,
+# then falls back to the body's own US/UK majority. --strict exits non-zero on any drift.
+```
+
+It reads `<a:t>` runs inside `*.pptx` slide XML and the text of `*.py` / `*.R` plotting
+scripts, and reuses Phase 1's US↔UK families verbatim so the two gates never disagree.
+`FIGURE_LOCALE_DRIFT` is **Minor** — copy-edit the source before the raster is re-exported.
+A missing figures directory is not an error; it exits 0 with nothing judged.
+
 ### Phase 2: Triage with the user (gate)
 
 Walk the user through the report. Some flags are author choices (a journal may

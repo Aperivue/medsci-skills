@@ -4,6 +4,33 @@
 
 ### Added
 
+- **`/polish-language` now reads figure SOURCES, catching spelling a rendered raster hides —
+  and the shared US/UK families stopped counting words that are identical in both dialects.**
+  Phase 1 only sees prose; text baked into a figure lives in a PNG/TIFF where no grep reaches,
+  so a co-author's "Behavioural alignment" in a PowerPoint panel ships a UK word into a US
+  manuscript and surfaces only when someone opens the image. New `lint_figure_locale.py` scans
+  the sources instead — `<a:t>` runs inside `*.pptx` slide XML and the text of `*.py`/`*.R`
+  plotting scripts — against a `spelling:` front-matter field or the body's own US/UK majority,
+  emitting `FIGURE_LOCALE_DRIFT` (Minor). No OCR; a missing figures directory exits 0. It is a
+  linter alongside `lint_consistency.py`, **not** a MedSci-Audit detector — **detector count
+  stays 80**.
+
+### Fixed
+
+- **The US↔UK spelling families counted four universal words as UK evidence.** The `-ise/-ize`
+  families matched the UK side with a greedy `\w*` suffix, so words spelled *identically* in
+  both dialects were tallied as British: **analysis / analyses**, **organism(s)**,
+  **optimism**, and — worst — **characteristic(s)**, the single most common table label in
+  clinical medicine. Any US manuscript containing "Baseline characteristics" therefore
+  contributed phantom UK evidence to `lint_consistency.py`'s dominant-variant tally. The four
+  families now enumerate the genuinely dialectal inflections (`analyse|analysed|analysing|…`),
+  with a comment recording why the greedy form must not come back; `randomise`/`standardise`
+  have no universal collision and are unchanged. Verified: all seven universals now silent,
+  all genuine UK forms still caught (no false negatives), and the existing consistency
+  challenge passes unchanged — its "predominantly UK" verdict rests on real UK spellings
+  (`analyse`, `Tumour`), not on the phantom hit. Found while building the figure-source gate,
+  which would otherwise have inherited the noise directly.
+
 - **The submission pre-flight now catches two portal pitfalls the export default can't:
   over-cap / wrong-format figures, and `≥`/`≤` characters a portal expands to words.** A
   figure bounces at the upload button for reasons decidable from the file on disk — a byte

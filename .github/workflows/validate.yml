@@ -384,6 +384,9 @@ jobs:
       - name: Run polish-language consistency-linter challenge
         run: bash skills/polish-language/scripts/lint_challenge/verify.sh
 
+      - name: "Run polish-language figure-source locale challenge (UK word in a .pptx/.py label fires; universals stay silent)"
+        run: bash skills/polish-language/scripts/lint_figure_locale_challenge/verify.sh
+
       - name: Run deidentify PHI-scan contract test
         run: bash skills/deidentify/tests/test_deidentify_scan.sh
 

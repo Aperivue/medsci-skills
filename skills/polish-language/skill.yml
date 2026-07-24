@@ -14,6 +14,7 @@ outputs:
   - "style-only polished revision after user approval"
 deterministic_scripts:
   - scripts/lint_consistency.py  # challenge card in scripts/lint_challenge/
+  - scripts/lint_figure_locale.py  # challenge card in scripts/lint_figure_locale_challenge/
 side_effects:
   - writes_project_artifacts
 downstream_consumers:
@@ -35,4 +36,6 @@ known_limitations:
 validation_commands:
   - "python3 scripts/lint_consistency.py <manuscript.md>"
   - "bash scripts/lint_challenge/verify.sh  # deterministic, network-free"
+  - "python3 scripts/lint_figure_locale.py --manuscript <manuscript.md> --figures-dir <figures/>"
+  - "bash scripts/lint_figure_locale_challenge/verify.sh  # deterministic, network-free"
 evidence_surface: bundled_script
