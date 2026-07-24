@@ -4,6 +4,23 @@
 
 ### Added
 
+- **The submission pre-flight now catches two portal pitfalls the export default can't:
+  over-cap / wrong-format figures, and `≥`/`≤` characters a portal expands to words.** A
+  figure bounces at the upload button for reasons decidable from the file on disk — a byte
+  size (JACC: Asia caps a figure at 25 MB) and an extension (SNAPP accepts only
+  `.tiff`/`.jpeg`/`.eps`, **rejecting `.png`**). New `figure_portal_readiness_check.py`
+  (stdlib) emits `FIGURE_OVERSIZE` and `FIGURE_FORMAT_REJECTED`, wired into
+  `preflight_gate.py` as a P1 check (warns by default, halts under `--strict`, skips cleanly
+  when there is no figures directory). It is a pre-flight sub-check, **not** a MedSci-Audit
+  detector — its filename avoids the `check_`/`detect_` prefix, so the **detector count stays
+  80**. Separately, `check_portal_field_residue` gains a Minor `char_expansion` advisory:
+  ScholarOne expands a `≥` in a paste-verbatim field to "{greater than or equal to}" (five
+  words), inflating the word count — pre-substitute `>=`/`<=` (only `≥`/`≤` are flagged; `×`
+  and the en-dash paste cleanly and are left alone). Both ship reproducible challenge cards
+  (byte-file fixtures generated at runtime, no committed binaries). Grounded in a JACC: Asia /
+  SNAPP submission cycle; complements the `export_portal_tiff.py` export default (the fix) with
+  the pre-flight detection.
+
 - **`/make-figures` gains `export_portal_tiff.py` — a portal-ready TIFF export that a raw
   `magick … output.tiff` cannot safely produce.** Submission portals collide with a rendered
   PNG in two ways: some accept only `.tiff`/`.jpeg`/`.eps` and **reject `.png`** (Springer

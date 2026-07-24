@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # Deterministic verifier for the portal-field-residue challenge card.
-#   Positive: two paste-verbatim .txt files carry all six residue kinds -> exit 1.
+#   Positive: two paste-verbatim .txt files carry all six residue kinds + the "≥/≤"
+#             char-expansion advisory -> exit 1.
 #   Negative: clean text with the FP traps (significance stars, ~approx, 1~2 range,
-#             bare URL) -> nothing fires, exit 0.
+#             bare URL, and a "×"/en-dash the portal leaves alone) -> nothing fires, exit 0.
 # No network. Exit 0 = both stages match expectations.
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -16,7 +17,7 @@ python3 "$DET" --dir "$HERE/fixture/positive" --quiet --out "$tmp/pos.json"
 pos_rc=$?
 set -e
 
-for k in hr bold heading link superscript subscript; do
+for k in hr bold heading link superscript subscript char_expansion; do
   if ! grep -q "\"kind\": \"$k\"" "$tmp/pos.json"; then
     echo "FAIL: positive fixture did not flag residue kind '$k'" >&2
     cat "$tmp/pos.json" >&2
@@ -49,4 +50,4 @@ if grep -qE '"kind":' "$tmp/neg.json"; then
   exit 1
 fi
 
-echo "PASS: positive flags all six residue kinds (exit 1); negative with FP traps is clean (exit 0)."
+echo "PASS: positive flags all six residue kinds + the ≥/≤ char-expansion advisory (exit 1); negative with FP traps (incl. × and en-dash) is clean (exit 0)."

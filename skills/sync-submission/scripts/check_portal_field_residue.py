@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-"""Portal-field markdown-residue gate — a "paste this verbatim" artifact must be
-free of markdown, or the syntax lands in the published field.
+"""Portal-field paste-verbatim gate — a "paste this verbatim" artifact must survive the
+paste: markdown lands in the published field literally, and a few characters are silently
+EXPANDED to words by some portals.
 
 Portal-field text files (`abstract.txt`, `keywords.txt`, `take_home_points.txt`, …)
 are cut from the manuscript markdown so an author can paste them straight into an
@@ -21,6 +22,12 @@ plain-text field:
   link         inline `[text](url)`
   superscript  paired `^x^`   (e.g. `cm^2^`)
   subscript    paired `~x~`   (e.g. `H~2~O`, also `~~strike~~`)
+
+Plus one advisory (Minor) — a valid character a portal EXPANDS rather than publishes:
+
+  char_expansion  `≥` / `≤`  (ScholarOne expands "≥" to "{greater than or equal to}",
+                  five words, inflating the word count — pre-substitute `>=` / `<=`;
+                  `×` and the en-dash are left alone, as they usually paste cleanly)
 
 Deterministic and precision-tuned: the emphasis/super/sub patterns require *paired*
 markers with non-space content, so significance stars (`* p<0.05, ** p<0.01`),
@@ -66,22 +73,34 @@ RESIDUE: list[tuple[str, re.Pattern, str]] = [
      "subscript / strikethrough marker"),
 ]
 
+# Characters some portals (ScholarOne / Editorial Manager) verbose-EXPAND in a
+# paste-verbatim field: "≥" becomes "{greater than or equal to}" (five words),
+# silently inflating the field's word count and mangling the notation. This is a
+# different failure from markdown residue — the character is valid, it just does not
+# survive the paste — so it is advisory (Minor): pre-substitute ">=" / "<=" before
+# pasting. Only "≥"/"≤" are flagged; "×" and the en-dash are usually left alone.
+EXPANSION: list[tuple[str, re.Pattern, str]] = [
+    ("char_expansion", re.compile(r"[≥≤]"),
+     "portal may expand this to words (pre-substitute >= / <=)"),
+]
+
 
 def scan_text(text: str) -> list[dict]:
     findings: list[dict] = []
-    for kind, pat, label in RESIDUE:
-        for m in pat.finditer(text):
-            line_no = text.count("\n", 0, m.start()) + 1
-            ls = text.rfind("\n", 0, m.start()) + 1
-            le = text.find("\n", m.end())
-            le = len(text) if le == -1 else le
-            findings.append({
-                "kind": kind,
-                "label": label,
-                "line": line_no,
-                "snippet": text[ls:le].strip()[:120],
-                "severity": "Major",
-            })
+    for source, severity in ((RESIDUE, "Major"), (EXPANSION, "Minor")):
+        for kind, pat, label in source:
+            for m in pat.finditer(text):
+                line_no = text.count("\n", 0, m.start()) + 1
+                ls = text.rfind("\n", 0, m.start()) + 1
+                le = text.find("\n", m.end())
+                le = len(text) if le == -1 else le
+                findings.append({
+                    "kind": kind,
+                    "label": label,
+                    "line": line_no,
+                    "snippet": text[ls:le].strip()[:120],
+                    "severity": severity,
+                })
     seen: set[tuple[str, int]] = set()
     uniq: list[dict] = []
     for f in sorted(findings, key=lambda x: (x["line"], x["kind"])):
