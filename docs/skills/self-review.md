@@ -26,6 +26,7 @@
 
 **Validation**
 
+- `bash scripts/confounding_findings_challenge/verify.sh`
 - `python3 scripts/check_reviewer_team_consistency.py`
 - `python3 scripts/check_domain_probe_sync.py --strict`
 - `bash tests/test_panel_mode.sh`
@@ -107,6 +108,7 @@
 - `check_supplement_hygiene.py`
 - `check_table_percentages.py`
 - `check_table_percentages_challenge/` (6 files)
+- `confounding_findings_challenge/` (4 files)
 - `refinement_regression.py`
 - `refinement_regression_challenge/` (20 files)
 - `refinement_stop.py`

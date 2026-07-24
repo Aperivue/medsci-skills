@@ -4433,8 +4433,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_confounding_completeness.py",
-      "size": 21556,
-      "sha256": "f03067e65dffa0e1fe7d76229d9a66a69d177486b31240123bdbbbb18b4c15c3"
+      "size": 22605,
+      "sha256": "ca532200a7cb7732357bcb60378d1b0246b8667af07383fab30b003c2308fbdf"
     },
     {
       "path": "skills/self-review/scripts/check_cv_leakage.py",
@@ -4822,6 +4822,26 @@
       "sha256": "b4c9eb16f291841c1d6dc74a5554a49b5dc60d3562d0e328e01a78797f8d32ad"
     },
     {
+      "path": "skills/self-review/scripts/confounding_findings_challenge/fixture/adjusted.txt",
+      "size": 21,
+      "sha256": "360bf0d4cfc7eb600003ea5c9d1a50f537afb63379d4a44f62e3a887a858fbea"
+    },
+    {
+      "path": "skills/self-review/scripts/confounding_findings_challenge/fixture/defining.txt",
+      "size": 32,
+      "sha256": "888f481dc479a3ead1dacbdfa20e40b25571dee0fff6b5a5c7dd74e64764c366"
+    },
+    {
+      "path": "skills/self-review/scripts/confounding_findings_challenge/fixture/table1.csv",
+      "size": 310,
+      "sha256": "4d1b57eda2969340841f3e51402d29d736c1f3d7cb104dbe0d8104365fd7607b"
+    },
+    {
+      "path": "skills/self-review/scripts/confounding_findings_challenge/verify.sh",
+      "size": 5131,
+      "sha256": "8cdee343a6244f5b0e0c517581c0e1fde9e483eafd4aeea75eb43b135a6c4f8b"
+    },
+    {
       "path": "skills/self-review/scripts/refinement_regression.py",
       "size": 8977,
       "sha256": "f59f7029a27eba978a58cdc19ec81970b4119368295982c2810e6ce684ddd304"
@@ -5043,8 +5063,8 @@
     },
     {
       "path": "skills/self-review/skill.yml",
-      "size": 4402,
-      "sha256": "74bf178b823ad2a0d3e05485fbb30d49b08040e19849d67c49fd4d160fab2554"
+      "size": 4462,
+      "sha256": "354a9e12fb464a868896072cb2a5023882344d17ec79ad7c237655bb9451aefa"
     },
     {
       "path": "skills/setup-medsci/SKILL.md",

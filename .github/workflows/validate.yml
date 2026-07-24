@@ -541,6 +541,9 @@ jobs:
       - name: Run manage-refs duplicate-bibliography gate test
         run: bash skills/manage-refs/tests/test_reference_duplication.sh
 
+      - name: "Run self-review confounding findings-contract challenge (a status row is not a finding)"
+        run: bash skills/self-review/scripts/confounding_findings_challenge/verify.sh
+
       - name: Run self-review binning-consistency gate test
         run: bash skills/self-review/tests/test_binning_consistency.sh
 
