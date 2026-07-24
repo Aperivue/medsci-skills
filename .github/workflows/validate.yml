@@ -80,6 +80,13 @@ jobs:
 
       - name: "Run phase-budget self-test (the real 209-line phase must still fail the gate)"
         run: bash tests/test_phase_budget.sh
+
+      - name: "Run check_skill_discovery.py (a fixture under a nested skills/ ships as a real skill)"
+        run: python3 scripts/check_skill_discovery.py --strict
+
+      - name: "Run skill-discovery self-test (a nested skills/ must still fail the gate)"
+        run: bash tests/test_skill_discovery.sh
+
       - name: "Run check_named_skills_exist.py (a skill may not send you to a skill that does not exist)"
         run: python3 scripts/check_named_skills_exist.py --strict
 

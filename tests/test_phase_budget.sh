@@ -51,7 +51,14 @@ pass=$((pass + 1))
 # tests/fixtures/phase_budget/ holds self-review Phase 2 exactly as it shipped at a36c79e:
 # a 209-line body loaded in full on every /self-review invocation. This is the bug the gate
 # exists for, pinned so it stays regressed even after the live tree is fixed.
-REAL="$ROOT/tests/fixtures/phase_budget/skills"
+#
+# The directory is `real_defect/`, NOT `skills/`. Do not rename it back. `gh skill` discovers
+# publishable skills by looking for a directory literally named `skills`, at any depth, and
+# treats every `<name>/SKILL.md` under it as a real skill. Named `skills/`, this frozen fixture
+# was picked up as a second skill called `self-review` -- it has no frontmatter, so
+# `gh skill publish --dry-run` failed the whole repository on it, and `gh skill install --all`
+# would have offered users a broken `self-review` colliding with the real one.
+REAL="$ROOT/tests/fixtures/phase_budget/real_defect"
 if python3 "$DET" --skills-dir "$REAL" --strict >/dev/null 2>&1; then
   fail "REGRESSION: the real 209-line self-review Phase 2 did NOT fail the gate"
 fi
