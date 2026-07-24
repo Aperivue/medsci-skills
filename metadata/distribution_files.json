@@ -3493,8 +3493,8 @@
     },
     {
       "path": "skills/preprocess-imaging/SKILL.md",
-      "size": 7068,
-      "sha256": "e17b73b0760194d4e6e3924ec2a0452601adc27122e7455cc5f2993d5af1d0d0"
+      "size": 7539,
+      "sha256": "a15d5cc9da4f5d434ebac30e2ec8694363b5bfa403c741af8a93262698ef1659"
     },
     {
       "path": "skills/preprocess-imaging/references/preprocessing_guide.md",
@@ -3503,8 +3503,8 @@
     },
     {
       "path": "skills/preprocess-imaging/scripts/check_preprocessing_leakage.py",
-      "size": 13039,
-      "sha256": "dbd204c5ac40470a6fba8f44c14477bf754ef0f31f82c7f5cac6049679c8372d"
+      "size": 14121,
+      "sha256": "c0118907fb4382d4459700c7cf36d53966e59503ad03ad2b25df03894d85ce08"
     },
     {
       "path": "skills/preprocess-imaging/scripts/check_preprocessing_leakage_challenge/expected/clean.txt",
@@ -3688,13 +3688,13 @@
     },
     {
       "path": "skills/profile-imaging/SKILL.md",
-      "size": 9445,
-      "sha256": "2ea8e6300d6da2a02e84c33245513d2a2978f545302472fef060ff813ac5f918"
+      "size": 10382,
+      "sha256": "e66d9d34bf9622736206baf1ca98bbbece1bf98d86d8cc67598aef6579debcdb"
     },
     {
       "path": "skills/profile-imaging/scripts/check_dataset_profile.py",
-      "size": 13584,
-      "sha256": "09d27d14fea759b372e6938f4e14410620b06f6dfeb1f9a5a2f7391e6da735c5"
+      "size": 16672,
+      "sha256": "3726e8205fe69cfcb06f4854cc97be95bd2c6fc89e02400fff11153a68be61e7"
     },
     {
       "path": "skills/profile-imaging/scripts/check_dataset_profile_challenge/expected/clean.txt",
@@ -3728,8 +3728,8 @@
     },
     {
       "path": "skills/profile-imaging/scripts/profile_imaging_dataset.py",
-      "size": 5388,
-      "sha256": "c1d3346c48ca7f1fd1cfcc8ef967d4bb5b2d67a3c4eca88d4802828ab2f9d410"
+      "size": 6996,
+      "sha256": "379283bde44c048664b5ba2c92b1742995c900749146108fb78c7a2fa1ccc3c2"
     },
     {
       "path": "skills/profile-imaging/skill.yml",

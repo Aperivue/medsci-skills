@@ -34,8 +34,16 @@ CHECKS (verdicts):
 
 A data-fitted transform is one whose `type` is a fitted operation (normalization,
 standardize, scaler, min-max, clip_percentile, histogram_match, pca, whitening,
-feature_selection, …) AND whose `fit_scope` is not per-sample/none. A fixed transform
-(fixed HU window, resample to a fixed spacing) is not data-fitted and never leaks.
+feature_selection, resample, …) AND whose `fit_scope` is not per-sample/none/fixed.
+A genuinely fixed transform (a fixed HU window, a resample to a spacing you chose
+in advance) is not data-fitted and never leaks — declare `fit_scope: fixed` and it
+stays silent.
+
+Resampling is on that list because the *target* is so often derived rather than
+chosen: nnU-Net sets its target spacing from a percentile of the dataset
+fingerprint, so a resample fitted over every case carries held-out geometry into
+the training grid just as an intensity statistic would. "Resample to a fixed
+spacing never leaks" is true only when the spacing really is fixed.
 
 MANIFEST (JSON)
   {
@@ -82,6 +90,14 @@ FIT_BASED_TYPES = {
     "histogram_equalization", "histogram_equalisation", "pca", "whitening",
     "feature_selection", "intensity_normalization", "intensity_normalisation",
     "nyul", "zca",
+    # Resampling belongs here whenever the *target* is derived from the data. nnU-Net's
+    # target spacing is a percentile of the dataset fingerprint, so a resample fitted over
+    # all cases carries held-out geometry into the training grid exactly as an intensity
+    # statistic would. A target that is genuinely fixed declares fit_scope=fixed and drops
+    # out in _is_fit_based -- that is the case the docstring used to describe as if it
+    # were the only one.
+    "resample", "resampling", "respacing", "resample_spacing", "target_spacing",
+    "spacing_normalization", "spacing_normalisation",
 }
 # fit_scope values that make a transform NOT data-fitted (per-sample or fixed).
 SAMPLE_SCOPES = {

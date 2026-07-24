@@ -4,6 +4,52 @@
 
 ### Fixed
 
+- **A single-organ study run against a multi-organ atlas was measured on the wrong organ, and
+  the imbalance gate went quiet because of it.** `profile_imaging_dataset.py` computed
+  foreground as every non-zero label index. On a binary dataset that is the target; on a
+  15-organ atlas it is the whole annotated upper abdomen. Profiling AMOS22 for a **spleen**
+  study, the shipped profiler reported a median foreground of **3.2 %** (CT) and **7.9 %**
+  (MRI) where the spleen actually occupies **0.20 %** and **0.58 %** — inflated 15.7× and
+  13.6×. The default imbalance threshold is 1 %, so the reported number sat *above* it and the
+  true one *below*: `EXTREME_IMBALANCE` and `ACCURACY_UNDER_IMBALANCE` stayed silent on a
+  dataset where predicting background everywhere scores 99.8 %. It is not a cosmetic
+  discrepancy because it crosses the threshold, and it errs in the unsafe direction every
+  time — the union of organs is always the larger number.
+
+  The same blind spot hid missing ground truth. `LABEL_EMPTY` asks whether a label file has any
+  foreground; on an atlas the answer is yes even when the *target* is absent. **3 of AMOS22's
+  360 labelled cases carry no spleen at all** (2 CT, 1 MRI) — cases that would have entered an
+  external-validation arm and scored Dice 0 with nothing on the record to explain why.
+
+  `profile_imaging_dataset.py` gains `--target-label N`, which computes foreground and target
+  volume on that index alone (the union is still recorded as `all_label_foreground_fraction`,
+  so nothing is lost) and makes `LABEL_EMPTY` mean *this case has none of the target*.
+  `--target-label all` declares a genuinely multi-class study. When more than one structure is
+  declared and no target is, `check_dataset_profile.py` now raises the minor
+  `TARGET_LABEL_UNDECLARED` instead of quietly reporting a number about a different organ.
+
+- **`TEST_SET_UNLABELLED` could not see a test split whose name carried a qualifier.** The
+  check tested split names for exact membership in `{test, holdout, held_out, external, eval}`,
+  so `amos_test`, `external_ct`, `held-out-set` and `test-fold1` — the names people actually
+  write — all slipped it. That is the worst way for this verdict to fail: the split it exists
+  for is the split it cannot see. Matching is now over name *tokens* plus adjacent-token joins
+  (so two-word members like `held_out` survive tokenisation), and it deliberately does **not**
+  reduce to substring search: `contest`, `pretest` and `protest_cohort` are still not test
+  splits, with tests holding that line. `testing` joins the synonym set.
+
+- **The preprocessing-leakage gate treated all resampling as leakage-free, and said so in its
+  own docstring.** `FIT_BASED_TYPES` omitted `resample`, on the stated reasoning that
+  "resample to a fixed spacing … never leaks". True when the spacing is fixed — but nnU-Net
+  derives its target spacing from a percentile of the dataset fingerprint, so a resample fitted
+  over every case carries held-out geometry into the training grid exactly as an intensity
+  statistic does. Audited on a real manifest, the gate flagged the two intensity transforms and
+  stayed silent on the resample sitting beside them. Resampling types are now fit-based; a
+  target that really is chosen in advance declares `fit_scope: fixed` and stays silent, which
+  is the case the docstring had mistaken for the only one.
+
+  All three surfaced by running the shipped skills against AMOS22 and MSD Task09 rather than
+  against fixtures. No new detector script: the count stays **80**.
+
 - **A correct quote read through a dirty extraction is no longer reported as an edit the
   author never made.** `check_response_claims` verified a quoted addition by searching the
   manuscript for a **contiguous** string. That assumption breaks the moment the haystack comes
