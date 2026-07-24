@@ -92,6 +92,68 @@ OUT="$(python3 "$V" --response "$TMP/response.md" --manuscript "$TMP/body_bad.md
 echo "$OUT" | grep -q RESPONSE_QUOTE_UNVERIFIED && echo "$OUT" | grep -q RESPONSE_CITATION_UNVERIFIED
 ck "both expected verdicts present" 0 "$?"
 
+# --- extraction tolerance: a CORRECT quote must survive a dirty extraction ---------------
+# Each manuscript below really does contain the claimed sentence; the variants are what an
+# extractor emits, not what the author wrote. A contiguous substring test calls every one of
+# them "absent" — the false-positive class that once nearly had accurate quotes deleted.
+cat > "$TMP/resp_quote.md" <<'MD'
+**Response 1.** We added the sentence "learners form independent assessments before seeing AI output" to the Discussion.
+MD
+
+# (a) two-column PDF: a reference line bled into the middle of the sentence
+cat > "$TMP/body_bleed.md" <<'MD'
+## Discussion
+We note that learners form independent civile. Rev Med Suisse 2019;15:1122. assessments before seeing AI output.
+MD
+# (b) line-numbered supplement PDF: line numbers sit inside the sentence
+cat > "$TMP/body_linenum.md" <<'MD'
+## Discussion
+86 We note that learners form 87 independent assessments 88 before seeing AI output.
+MD
+# (c) a superscript / footnote marker landed mid-clause
+cat > "$TMP/body_supersc.md" <<'MD'
+## Discussion
+learners form independent 3 assessments before seeing AI output
+MD
+# (d) hyphenation across a line break split one word in two
+cat > "$TMP/body_hyphen.md" <<'MD'
+## Discussion
+learners form independent assess-
+ments before seeing AI output
+MD
+
+for variant in bleed linenum supersc hyphen; do
+  python3 "$V" --response "$TMP/resp_quote.md" --manuscript "$TMP/body_$variant.md" --strict > /dev/null 2>&1
+  ck "dirty extraction ($variant) is not drift (--strict)" 0 "$?"
+done
+
+# the interleaved variants must SAY so (unresolved), not pass silently
+for variant in bleed linenum supersc; do
+  python3 "$V" --response "$TMP/resp_quote.md" --manuscript "$TMP/body_$variant.md" 2>&1 \
+    | grep -q RESPONSE_QUOTE_UNRESOLVED
+  ck "dirty extraction ($variant) reports UNRESOLVED" 0 "$?"
+done
+
+# the hyphen split is repaired outright -> no finding at all
+python3 "$V" --response "$TMP/resp_quote.md" --manuscript "$TMP/body_hyphen.md" 2>&1 \
+  | grep -q RESPONSE_QUOTE
+ck "line-break hyphenation repaired (no finding)" 1 "$?"
+
+# PRECISION GUARD: tolerance must not excuse a genuine miss. The words below appear in
+# order but scattered a paragraph apart — that is not the claimed sentence.
+{
+  echo "## Discussion"
+  echo "Some learners were enrolled."
+  for _ in $(seq 1 12); do echo "The study reported outcomes across sites and years."; done
+  echo "We form working groups."
+  for _ in $(seq 1 12); do echo "The study reported outcomes across sites and years."; done
+  echo "An independent committee met."
+  for _ in $(seq 1 12); do echo "The study reported outcomes across sites and years."; done
+  echo "Their assessments were filed before seeing AI output."
+} > "$TMP/body_scattered.md"
+python3 "$V" --response "$TMP/resp_quote.md" --manuscript "$TMP/body_scattered.md" --strict > /dev/null 2>&1
+ck "scattered words are still MAJOR drift (--strict)" 1 "$?"
+
 echo "----"
 echo "test_response_claims: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]

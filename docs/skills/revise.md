@@ -44,6 +44,7 @@
 
 **Scripts** (`skills/revise/scripts/`):
 
+- `_quote_match.py`
 - `check_density_complaint.py`
 - `check_response_claims.py`
 - `density_complaint_challenge/` (5 files)

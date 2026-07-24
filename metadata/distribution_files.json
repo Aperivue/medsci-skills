@@ -3138,8 +3138,8 @@
     },
     {
       "path": "skills/peer-review/SKILL.md",
-      "size": 80908,
-      "sha256": "4780c77300c38440edd1873d6fb0073713599052482988c88e66252255585a6b"
+      "size": 81126,
+      "sha256": "d1783e25bcd55642cb42c200ef4151525758e1080a498e4ba6db01b54b036a98"
     },
     {
       "path": "skills/peer-review/references/aczel_2021_reviewer2_patterns.md",
@@ -3933,13 +3933,18 @@
     },
     {
       "path": "skills/revise/SKILL.md",
-      "size": 31212,
-      "sha256": "5645ac1bb98b14611bfcad374edb01d232a44ae2c90de915b1b69d1d02b7019d"
+      "size": 31941,
+      "sha256": "3d6bd4fa1db09d6bae88a2e7b8470f3494df8f4c03d45abba924184ead3977bc"
     },
     {
       "path": "skills/revise/references/r2r_voice.md",
       "size": 17042,
       "sha256": "d6e657ab4d864e0c12c6d3c8e7db5060dfcea0c56d0f9afccd876702f8b8adcf"
+    },
+    {
+      "path": "skills/revise/scripts/_quote_match.py",
+      "size": 7904,
+      "sha256": "dd71e2359602fc149d6330ee00155f04838e46ec15ef137fbf782b7cb263c0b1"
     },
     {
       "path": "skills/revise/scripts/check_density_complaint.py",
@@ -3948,8 +3953,8 @@
     },
     {
       "path": "skills/revise/scripts/check_response_claims.py",
-      "size": 9839,
-      "sha256": "d8c810a21ff973dd9a5c3f9ccd7c9607cfa9d106053406495f06cbc5786a3fc5"
+      "size": 13516,
+      "sha256": "9da2d8852dc70bb15f758e374c0d5b55e3dbfd6a3c22257be0f0b0a205f5ac11"
     },
     {
       "path": "skills/revise/scripts/density_complaint_challenge/fixture/decision_letter.md",

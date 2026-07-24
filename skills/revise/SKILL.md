@@ -383,6 +383,15 @@ discrepancy: either insert the promised edit or correct the response wording. Th
 enforces the *"quote the new manuscript text verbatim"* discipline above, and is the same
 check a reviewer runs against your revision (see `/peer-review`).
 
+A third verdict, `RESPONSE_QUOTE_UNRESOLVED` (**minor**, never drift), exists because the
+manuscript is often read through an extractor. When the quoted words are all present **in
+order** but separated by foreign tokens — a reference column bled into the sentence by a
+two-column PDF, line numbers from a supplement proof, a footnote marker, a hyphen split across
+a line — the text is there and only the extraction is dirty. A contiguous substring test
+cannot tell that from a missing edit and reports the correct quote as absent; that once came
+one step from having two accurate verbatim quotes deleted. So those cases are reported for a
+human to eyeball and do **not** fail `--strict`; only a genuinely absent quote does.
+
 **If a reviewer called the manuscript too long or too dense, prove the body got shorter.** Answering
 a density comment point-by-point is a trap: each point is answered by adding a sentence, so the
 revision that responds to "shorten this" comes back *longer*. One real revision did exactly that —

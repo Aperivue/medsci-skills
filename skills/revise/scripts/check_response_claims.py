@@ -16,6 +16,14 @@ checkable anchor, so paraphrase and honest rewording do not false-positive:
   * RESPONSE_QUOTE_UNVERIFIED (major) — the letter says specific text was
     added / inserted / "now reads" and quotes it verbatim, but that quoted text
     is absent from the revised manuscript body.
+  * RESPONSE_QUOTE_UNRESOLVED (minor) — the quoted text IS there in order, but
+    only once foreign tokens are allowed between its words, or a word or two is
+    missing. That is the signature of a dirty extraction (a bled reference
+    column, PDF line numbers, a footnote marker, a hyphen split across a line),
+    not of an edit that was never made. Reported so a human looks; never counted
+    as drift. A contiguous substring test cannot tell these apart and calls a
+    correct quote absent — the failure that once came one step from having two
+    accurate verbatim quotes deleted. Matching lives in _quote_match.py.
   * RESPONSE_CITATION_UNVERIFIED (major) — the letter says a citation was added
     / "now cite(d)", but none of the cited tokens ([N] / [@key] / Author et al.)
     appear in the revised manuscript body.
@@ -42,6 +50,9 @@ import re
 import sys
 import unicodedata
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _quote_match import match_quality  # noqa: E402  (same-dir helper)
 
 # A claim that asserts an addition/edit to the manuscript.
 CLAIM_VERB = re.compile(
@@ -140,8 +151,15 @@ def extract_claims(response: str):
     return claims
 
 
-def body_has_quote(norm_body: str, quote: str) -> bool:
-    return normalize(quote) in norm_body
+def grade_quote(body: str, quote: str) -> dict:
+    """Grade the quote's presence in the body via the extraction-tolerant matcher.
+
+    A contiguous search alone is not safe here: the manuscript may arrive as a .docx whose
+    extraction wedges a footnote marker, a line number, or a bled column of reference text
+    into the middle of the very sentence being checked. Those quotes are present and correct,
+    and a substring test calls them absent — the failure that once nearly had two accurate
+    verbatim quotes deleted. See _quote_match.py."""
+    return match_quality(quote, body)
 
 
 def body_has_citation(body: str, norm_body: str, cits) -> bool:
@@ -165,13 +183,47 @@ def build_report(response_path: Path, manuscript_path: Path) -> dict:
     findings = []
     for kind, anchor, ctx in extract_claims(response):
         if kind == "quote":
-            if not body_has_quote(norm_body, anchor):
+            g = grade_quote(body, anchor)
+            if g["grade"] == "INTERLEAVED":
+                findings.append(
+                    {
+                        "verdict": "RESPONSE_QUOTE_UNRESOLVED",
+                        "severity": "minor",
+                        "claimed_text": anchor,
+                        "context": ctx,
+                        "match": g,
+                        "message": (
+                            f"Every word of the quoted text appears in order, but with {g['inserted']} "
+                            "foreign token(s) wedged in — consistent with a dirty extraction (a bled "
+                            "reference column, line numbers, a footnote marker), not a missing edit. "
+                            "Confirm by eye; do not treat as absent."
+                        ),
+                    }
+                )
+            elif g["grade"] == "PARTIAL":
+                findings.append(
+                    {
+                        "verdict": "RESPONSE_QUOTE_UNRESOLVED",
+                        "severity": "minor",
+                        "claimed_text": anchor,
+                        "context": ctx,
+                        "match": g,
+                        "message": (
+                            f"{g['matched']} of {g['total']} words of the quoted text appear in order "
+                            "— enough to be the same sentence damaged in extraction (a hyphen split "
+                            "across a line, a dropped glyph) rather than an edit that was never made. "
+                            "Confirm by eye."
+                        ),
+                    }
+                )
+            elif g["grade"] == "ABSENT":
                 findings.append(
                     {
                         "verdict": "RESPONSE_QUOTE_UNVERIFIED",
                         "severity": "major",
                         "claimed_text": anchor,
                         "context": ctx,
+                        "match": g,
                         "message": "Response quotes added text that is absent from the revised manuscript body.",
                     }
                 )
@@ -186,11 +238,16 @@ def build_report(response_path: Path, manuscript_path: Path) -> dict:
                         "message": "Response claims a citation was added but none of the cited tokens appear in the revised manuscript body.",
                     }
                 )
+    n_major = sum(1 for f in findings if f["severity"] == "major")
     return {
         "response": str(response_path),
         "manuscript": str(manuscript_path),
         "findings": findings,
-        "submission_safe": len(findings) == 0,
+        "summary": {"major": n_major, "unresolved": len(findings) - n_major},
+        # An UNRESOLVED quote is a "look at this", not a defect: the words are demonstrably
+        # there and only the extraction is suspect. Safety therefore turns on MAJOR findings,
+        # which is what --strict has always documented.
+        "submission_safe": n_major == 0,
     }
 
 
@@ -214,14 +271,20 @@ def main(argv: list[str] | None = None) -> int:
         args.out.write_text(json.dumps({"detector": "check_response_claims", **report}, indent=2, ensure_ascii=False), encoding="utf-8")
 
     if not args.quiet:
-        if report["submission_safe"]:
+        s = report["summary"]
+        if not report["findings"]:
             print("OK: every anchored response claim is verified against the revised manuscript.")
         else:
-            print(f"RESPONSE_CLAIM DRIFT ({len(report['findings'])}):")
+            print(f"RESPONSE_CLAIM findings — {s['major']} major, {s['unresolved']} unresolved:")
             for f in report["findings"]:
                 anchor = f.get("claimed_text") or ", ".join(f.get("claimed_citation", []))
-                print(f"  [{f['verdict']}] {anchor!r}")
+                print(f"  [{f['verdict']}] ({f['severity']}) {anchor!r}")
                 print(f"      near: {f['context']}")
+                if f["severity"] == "minor":
+                    print(f"      {f['message']}")
+            if s["major"] == 0:
+                print("\nNo major drift: the unresolved item(s) are extraction-quality doubts, "
+                      "not claims of an edit that was never made.")
 
     if args.strict and not report["submission_safe"]:
         print("\nRESPONSE_CLAIM_UNVERIFIED: a response-letter claim is not reflected in the revised manuscript.", file=sys.stderr)
