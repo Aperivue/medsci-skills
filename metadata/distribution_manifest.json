@@ -37,6 +37,7 @@
     "model-card",
     "model-evaluation",
     "model-scaffold",
+    "model-sourcing",
     "model-validation",
     "orchestrate",
     "peer-review",

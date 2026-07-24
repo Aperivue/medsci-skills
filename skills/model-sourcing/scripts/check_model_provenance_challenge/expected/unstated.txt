@@ -1,0 +1,10 @@
+Model provenance — AnonNet (synthetic example)  (1 evaluation arm(s))
+
+  [Major] WEIGHTS_PROVENANCE_UNKNOWN
+           pretrained weights are used and the corpus behind them is not stated, so it cannot be established whether your evaluation data is inside them
+  [Major] LICENCE_UNSTATED
+           no licence recorded. An unstated licence is not a permissive one — it is an unanswered question about whether the work may be used or redistributed at all
+  [Minor] NO_VERSION_PIN
+           no commit, tag or revision recorded; 'we used <model>' does not identify what ran and cannot be reproduced once the default branch moves
+
+  Major 2   Minor 1

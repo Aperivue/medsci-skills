@@ -3057,6 +3057,61 @@
       "sha256": "aaae59edb50c50b01be2aaca3c94b63ce76af067ff25750248517c5ce91ccf41"
     },
     {
+      "path": "skills/model-sourcing/SKILL.md",
+      "size": 9185,
+      "sha256": "b2e27cafc5782334185b0f81aa942fd432c8697d4be92ce0951bc85177efcd75"
+    },
+    {
+      "path": "skills/model-sourcing/scripts/check_model_provenance.py",
+      "size": 12739,
+      "sha256": "36d81bf11180e0afaea2e6da2c420f39427f82f428802975af88dca63d9d2dcc"
+    },
+    {
+      "path": "skills/model-sourcing/scripts/check_model_provenance_challenge/expected/clean.txt",
+      "size": 186,
+      "sha256": "7f7653f48a4fb9839fe058fc582705afe5df899c7f6be5eca5fc38f19735e8bc"
+    },
+    {
+      "path": "skills/model-sourcing/scripts/check_model_provenance_challenge/expected/defect.txt",
+      "size": 1845,
+      "sha256": "487768c0ded663c76b4ca894e81ad669c0b30c495b357ca0a0b245226761db12"
+    },
+    {
+      "path": "skills/model-sourcing/scripts/check_model_provenance_challenge/expected/unstated.txt",
+      "size": 652,
+      "sha256": "f08fb8bf1e19c824ac7c096ebee40ad479177b118cddc8ebe6baa912faf9fc4b"
+    },
+    {
+      "path": "skills/model-sourcing/scripts/check_model_provenance_challenge/fixture/dossier_clean.json",
+      "size": 839,
+      "sha256": "74f63c95ab7c6b860d0770065b4d98c2588c7cb787a84f8f2e65dd055936d601"
+    },
+    {
+      "path": "skills/model-sourcing/scripts/check_model_provenance_challenge/fixture/dossier_defect.json",
+      "size": 626,
+      "sha256": "87ac6828fdb1ee7c196dbc79abaa63070a87e967eb54e03be401476db4cb5496"
+    },
+    {
+      "path": "skills/model-sourcing/scripts/check_model_provenance_challenge/fixture/dossier_unstated.json",
+      "size": 556,
+      "sha256": "93381970d38eb00f89f476df0268be09d5cd67131d0a6cd5709365d24779a894"
+    },
+    {
+      "path": "skills/model-sourcing/scripts/check_model_provenance_challenge/problem.md",
+      "size": 2455,
+      "sha256": "7f2185bb8bb812fd25c9fc6efe4c1de9640afdaba9b919378275a36b592af787"
+    },
+    {
+      "path": "skills/model-sourcing/scripts/check_model_provenance_challenge/verify.sh",
+      "size": 2584,
+      "sha256": "523310a3c40bb3f0a989199ebf7b190e657ae83d960b7aa01206278c1e68fddb"
+    },
+    {
+      "path": "skills/model-sourcing/skill.yml",
+      "size": 4183,
+      "sha256": "5ab4933592b047e995e82f757e09171eea17b30121db0153d91d85b0ae1185f7"
+    },
+    {
       "path": "skills/model-validation/SKILL.md",
       "size": 11524,
       "sha256": "ac326c03451282a5adeeb3592f511dac47720bba9338dba761bf6ea4679d7c0b"
@@ -3113,8 +3168,8 @@
     },
     {
       "path": "skills/orchestrate/SKILL.md",
-      "size": 40926,
-      "sha256": "fa54a94e76eb8aa43937a1d287d2d76bd09a18045c223ef805929dda7c3395df"
+      "size": 41275,
+      "sha256": "f128ee6ccd96d7c3ada6d50f0da2856d73ce01824668e9f839153349bf56d24d"
     },
     {
       "path": "skills/orchestrate/references/dialogue_nodes.md",
