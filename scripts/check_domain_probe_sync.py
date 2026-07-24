@@ -133,6 +133,17 @@ VENDOR_SETS: tuple[VendorSet, ...] = (
         canonical_exhaustive=False,
         pattern="_*.py",
     ),
+    VendorSet(
+        name="quote-match-helper-sync",
+        canonical="skills/revise/scripts",
+        vendored="skills/sync-submission/scripts",
+        files=("_quote_match.py",),
+        canonical_exhaustive=False,
+        pattern="_*.py",
+        # /sync-submission's own same-dir helper, which has no canonical counterpart. Named
+        # so that a local helper is a decision rather than something the gate shrugs at.
+        vendored_local=("_yaml_frontmatter.py",),
+    ),
 )
 
 # Content that is byte-identical across skills but is NOT a vendoring relationship (a coincidental

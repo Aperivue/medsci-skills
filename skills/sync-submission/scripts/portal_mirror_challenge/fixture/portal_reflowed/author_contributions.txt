@@ -1,0 +1,5 @@
+Jane Doe and Alex Roe contributed equally to this work.
+
+J.D. and A.R. designed the study and wrote the manuscript.
+S.P. curated the data and performed the statistical analysis.
+All authors reviewed and approved the final version.

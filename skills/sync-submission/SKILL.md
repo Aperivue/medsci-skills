@@ -155,6 +155,57 @@ remains the authoritative fabrication and author-name check before submission.
     --json qc/supplement_structure.json --strict
   ```
 
+## Phase 3b — Portal fields that REPLACE the manuscript
+
+Some portals publish the box, not the paper. SNAPP prints it on the form itself, at Author
+Contributions, Competing Interests, Data Availability and Acknowledgements:
+
+> "This replaces any statement written within the manuscript and is the one that we will publish."
+
+So the manuscript file is the copy reviewers read and the portal box is the copy the world
+gets. A declaration that lives only in the manuscript is not a harmless duplicate — it will
+not exist in the published record, and nothing warns you, because neither document is wrong
+on its own. Two sentences that came one click from vanishing this way:
+
+- **Co-first authorship.** A `†` footnote on the title page. There is **no equal-contribution
+  checkbox** on the author page — unless "X and Y contributed equally to this work" is typed
+  into the Author Contributions box, the published paper has no co-first authors.
+- **"The funder had no role in study design…"** It lived in the manuscript's Acknowledgements.
+  The structured *Research funding* field takes a funder and a grant ID and has nowhere to put
+  a role disclaimer, so pasting only an AI-use note into the Acknowledgements box drops it.
+
+**Do not hand-compose the boxes.** Generate them from the manuscript, then check:
+
+```bash
+SS="${CLAUDE_SKILL_DIR}/scripts"
+# scaffold every replacing field straight from the manuscript (lifts the equal-contribution
+# sentence in from the title page, which is the one place --emit cannot copy it from)
+python3 "$SS/check_portal_mirror.py" --manuscript manuscript/manuscript.md \
+  --profile "<...>/journal_profiles/npj_Digital_Medicine.md" --emit portal_fields/
+
+# then verify nothing was lost on the way to the box
+python3 "$SS/check_portal_mirror.py" --manuscript manuscript/manuscript.md \
+  --portal-dir portal_fields/ --profile "<...>/npj_Digital_Medicine.md" \
+  --out qc/portal_mirror.json
+```
+
+| Verdict | Fires when |
+|---|---|
+| `PORTAL_FIELD_NOT_MIRRORED` | A sentence in a replacing manuscript section has no home in that field's paste artifact. |
+| `PORTAL_FIELD_MISSING` | The manuscript has the section, the journal replaces it, and no artifact exists — the field publishes empty or as the portal's auto-extraction guessed it. |
+| `EQUAL_CONTRIBUTION_NOT_IN_PORTAL` | The manuscript asserts equal / co-first contribution and the Author Contributions text does not. |
+
+All three are major and exit 1; the pre-flight runs this as P1 (`--strict`-promotable).
+
+**Which fields replace is a journal fact, not a guess.** It is read from the journal profile's
+`## Portal Mechanics` block (`Fields that REPLACE the manuscript: …`). A journal whose portal
+contract has never been recorded makes this check exit 2 and assert nothing — record the block
+at first submission rather than letting the gate invent a contract. Matching is graded through
+`_quote_match.py`, so re-flowing a sentence while pasting is not reported as a loss.
+
+This is the complement of Gate 5c, not a duplicate: 5c asks whether what you paste is *clean*,
+this asks whether what you did *not* paste is quietly gone.
+
 ## Phase 4 — Cover-letter free-text drift
 
 Cover letters live outside the submission docx files but are read by the

@@ -36,6 +36,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -62,6 +63,7 @@ S = {
     "asset_anonymization": REPO_ROOT / "skills/sync-submission/scripts/check_asset_anonymization.py",
     "checklist_dump_leak": REPO_ROOT / "skills/sync-submission/scripts/check_checklist_dump_leak.py",
     "portal_field_residue": REPO_ROOT / "skills/sync-submission/scripts/check_portal_field_residue.py",
+    "portal_mirror": REPO_ROOT / "skills/sync-submission/scripts/check_portal_mirror.py",
     "figure_readiness": REPO_ROOT / "skills/sync-submission/scripts/figure_portal_readiness_check.py",
 }
 
@@ -108,8 +110,32 @@ class Ctx:
             self.root / "figures",
             self.root / "manuscript" / "figures",
         ])
+        self.journal_profile = self._journal_profile(getattr(args, "journal_profile", None))
         self.figure_accept = getattr(args, "figure_accept", []) or []
         self.figure_max_mb = getattr(args, "figure_max_mb", 25.0)
+
+    def _journal_profile(self, explicit):
+        """The profile carrying this journal's `## Portal Mechanics` block.
+
+        Resolved from the --journal slug against the shipped profile library by normalized
+        name, so `npj-dm`, `npj_digital_medicine` and `npjDigitalMedicine` all land on the
+        same file. Unresolved is fine: the mirror check exits 2 (skipped) without a profile
+        rather than inventing a portal contract.
+        """
+        if explicit:
+            p = Path(explicit).resolve()
+            return p if p.is_file() else None
+        if not self.journal:
+            return None
+        norm = lambda t: re.sub(r"[^a-z0-9]", "", t.lower())
+        want = norm(self.journal)
+        d = REPO_ROOT / "skills/write-paper/references/journal_profiles"
+        if not d.is_dir():
+            return None
+        for cand in sorted(d.glob("*.md")):
+            if norm(cand.stem) == want:
+                return cand
+        return None
 
     def _manuscript(self, args):
         if args.manuscript:
@@ -239,6 +265,19 @@ def _argv_portal_residue(c):
     return [PY, str(S["portal_field_residue"]), "--dir", str(c.portal_fields),
             "--quiet", "--out", str(c.qc / "portal_field_residue.json")]
 
+def _argv_portal_mirror(c):
+    # Needs BOTH the paste artifacts and the journal profile that records which fields
+    # replace the manuscript; without the profile the check exits 2 (skipped) on its own.
+    if not c.portal_fields or not c.manuscript:
+        return None
+    argv = [PY, str(S["portal_mirror"]), "--manuscript", str(c.manuscript),
+            "--portal-dir", str(c.portal_fields), "--quiet",
+            "--out", str(c.qc / "portal_mirror.json")]
+    if c.journal_profile:
+        argv += ["--profile", str(c.journal_profile)]
+    return argv
+
+
 def _argv_figure_readiness(c):
     if not c.figures_dir:
         return None
@@ -291,6 +330,12 @@ CHECKS = [
     # .txt field would print literally in the published abstract/keyword field.
     {"id": "portal_field_residue", "tier": "P1", "build": _argv_portal_residue,
      "exit_map": {0: "ok", 1: "finding", 2: "skipped"}, "artifact": "portal_field_residue.json",
+     "strict_promote": True},
+    # A portal field that REPLACES the manuscript section is the copy that gets published,
+    # so a declaration that never reaches the box is never published. P1 because it depends
+    # on a journal profile recording the contract; promote with --strict.
+    {"id": "portal_mirror", "tier": "P1", "build": _argv_portal_mirror,
+     "exit_map": {0: "ok", 1: "finding", 2: "skipped"}, "artifact": "portal_mirror.json",
      "strict_promote": True},
     # A figure over the portal's size cap (25 MB) or in a rejected format (SNAPP takes no
     # .png) bounces at the upload button — deterministic from the file's bytes + extension.
@@ -409,6 +454,7 @@ _SCRIPT_KEY = {
     "asset_anonymization": "asset_anonymization",
     "checklist_dump_leak": "checklist_dump_leak",
     "portal_field_residue": "portal_field_residue",
+    "portal_mirror": "portal_mirror",
     "figure_readiness": "figure_readiness",
 }
 
@@ -429,6 +475,9 @@ def main() -> int:
         description="Submission pre-flight gate — run submission-risk checks and halt on any blocker.")
     ap.add_argument("--project-root", default=".", help="project root (default: .)")
     ap.add_argument("--journal", default=None, help="journal slug under submission/ (for sync/cover/asset checks)")
+    ap.add_argument("--journal-profile", default=None,
+                    help="journal profile .md carrying the '## Portal Mechanics' block "
+                         "(default: resolved from --journal against the shipped profile library)")
     ap.add_argument("--strict", action="store_true", help="promote all P1 checks to halting (P0)")
     ap.add_argument("--online", action="store_true",
                     help="run the references check online (PubMed/CrossRef) so fabricated/mismatched refs halt too")

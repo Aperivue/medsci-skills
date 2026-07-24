@@ -5008,13 +5008,18 @@
     },
     {
       "path": "skills/sync-submission/SKILL.md",
-      "size": 35345,
-      "sha256": "cf305355d833335fa21c1d042b46ff48be5e067e94a7e99723800489614dfb2b"
+      "size": 38478,
+      "sha256": "05262ae82ad0c69472ed0db4a0e393643417e9a38f64807655b6d046e0ea9f44"
     },
     {
       "path": "skills/sync-submission/references/journal_availability_policy.json",
       "size": 1257,
       "sha256": "6d278675d7c734aa3589165817f5413cc46c44402ea15039e51052ab2f52c0a8"
+    },
+    {
+      "path": "skills/sync-submission/scripts/_quote_match.py",
+      "size": 7904,
+      "sha256": "dd71e2359602fc149d6330ee00155f04838e46ec15ef137fbf782b7cb263c0b1"
     },
     {
       "path": "skills/sync-submission/scripts/_yaml_frontmatter.py",
@@ -5102,6 +5107,11 @@
       "sha256": "8f528f08d11904c428785ee65c11f96e1c994983d86026ea362ff1fda4af81f5"
     },
     {
+      "path": "skills/sync-submission/scripts/check_portal_mirror.py",
+      "size": 19917,
+      "sha256": "98f9406ba4f2fc1ecffc3be9907d17029f5890f01560848d2bc2d375757e3a4d"
+    },
+    {
       "path": "skills/sync-submission/scripts/check_wordcount_cap.py",
       "size": 9827,
       "sha256": "4d1c3403efeb4d891c4558d6e784c4088a0d349aad1625f1c348e50665c17f8d"
@@ -5137,9 +5147,74 @@
       "sha256": "351d166cee69bad16f332bdf2866589b8d2e4707664532579ba08e2a92c39b13"
     },
     {
+      "path": "skills/sync-submission/scripts/portal_mirror_challenge/fixture/manuscript.md",
+      "size": 1267,
+      "sha256": "fbd719e40aec8a3ff5776c2c9a4f2d54fd346086cd07e1ee65c1e46f76ef0366"
+    },
+    {
+      "path": "skills/sync-submission/scripts/portal_mirror_challenge/fixture/portal_complete/acknowledgements.txt",
+      "size": 241,
+      "sha256": "3b716311afe4ca791f046398bd35f6e327c5b8f3e32c6357098eaef2e773e111"
+    },
+    {
+      "path": "skills/sync-submission/scripts/portal_mirror_challenge/fixture/portal_complete/author_contributions.txt",
+      "size": 230,
+      "sha256": "c46d95826f3f6d7457e8fbd09e6cb3a5f42a42e8a1f3d52616cdc21a8dbe3bae"
+    },
+    {
+      "path": "skills/sync-submission/scripts/portal_mirror_challenge/fixture/portal_complete/competing_interests.txt",
+      "size": 71,
+      "sha256": "de385eb94a087309e90af12b63a30ded019a0eb7d640a8112b86327fabb2202e"
+    },
+    {
+      "path": "skills/sync-submission/scripts/portal_mirror_challenge/fixture/portal_complete/data_availability.txt",
+      "size": 293,
+      "sha256": "cf3b3472d2e0dc56b686c5abba4fbcb8632af0b99251aa55dd7742f6b9fe9d13"
+    },
+    {
+      "path": "skills/sync-submission/scripts/portal_mirror_challenge/fixture/portal_dropped/acknowledgements.txt",
+      "size": 131,
+      "sha256": "a8f3c01ec0d26b2a071e8037d9fe120c3b984da89139e74d50da5f2bdde6e659"
+    },
+    {
+      "path": "skills/sync-submission/scripts/portal_mirror_challenge/fixture/portal_dropped/author_contributions.txt",
+      "size": 174,
+      "sha256": "f62a8089cac4e5c480497fc24d3dbfeda85c259f21c01648cbace6707376305b"
+    },
+    {
+      "path": "skills/sync-submission/scripts/portal_mirror_challenge/fixture/portal_dropped/data_availability.txt",
+      "size": 293,
+      "sha256": "cf3b3472d2e0dc56b686c5abba4fbcb8632af0b99251aa55dd7742f6b9fe9d13"
+    },
+    {
+      "path": "skills/sync-submission/scripts/portal_mirror_challenge/fixture/portal_reflowed/acknowledgements.txt",
+      "size": 243,
+      "sha256": "eb744a6ef4159efdeb337f3b282e1e0ce77ec84ef194f8ed7ed14f7a9609d82a"
+    },
+    {
+      "path": "skills/sync-submission/scripts/portal_mirror_challenge/fixture/portal_reflowed/author_contributions.txt",
+      "size": 231,
+      "sha256": "828d7190ccb24a8bee77f606928877feef95d8d58c3c8d6b94ee27a6d9d3a0c5"
+    },
+    {
+      "path": "skills/sync-submission/scripts/portal_mirror_challenge/fixture/portal_reflowed/competing_interests.txt",
+      "size": 71,
+      "sha256": "de385eb94a087309e90af12b63a30ded019a0eb7d640a8112b86327fabb2202e"
+    },
+    {
+      "path": "skills/sync-submission/scripts/portal_mirror_challenge/fixture/portal_reflowed/data_availability.txt",
+      "size": 293,
+      "sha256": "99d8c09e39928e60fdb429e4bad885701a52c63f124b8519ff42641be62595b6"
+    },
+    {
+      "path": "skills/sync-submission/scripts/portal_mirror_challenge/verify.sh",
+      "size": 6806,
+      "sha256": "1e0fa51a2d243416947078c2e8c60efe74cc7e73542448c23f798757e47d7f9b"
+    },
+    {
       "path": "skills/sync-submission/scripts/preflight_gate.py",
-      "size": 24011,
-      "sha256": "c02157be3c3a1032c485b8fc764ac094c66c4b259c13cae95e2d712bbbdf12f6"
+      "size": 26464,
+      "sha256": "fd06ac09651cdf195958dde6c6d84f9aebba6e5a6b8ac36d3ea7428b762facec"
     },
     {
       "path": "skills/sync-submission/scripts/scope_drift_check.py",
@@ -5153,8 +5228,8 @@
     },
     {
       "path": "skills/sync-submission/skill.yml",
-      "size": 2236,
-      "sha256": "c08ce1a75ee5f7e1cab156b43d730da1598be1122619d29ae42dae128b84b8c1"
+      "size": 2271,
+      "sha256": "efb295feb39682308720846e9aecd77b79496764338a17811eff518df8a4259c"
     },
     {
       "path": "skills/uncertainty-imaging/SKILL.md",
@@ -5688,8 +5763,8 @@
     },
     {
       "path": "skills/write-paper/references/journal_profiles/npj_Digital_Medicine.md",
-      "size": 3729,
-      "sha256": "cb2cf0f01abd80088c219e4356bb4081fc6455b83599dc6f9d62bb87a894370d"
+      "size": 5804,
+      "sha256": "9b046bcc4df7f0a741547383b1f886774b38397ecb51427b76095c443ed69afc"
     },
     {
       "path": "skills/write-paper/references/paper_types/ai_validation.md",

@@ -45,6 +45,7 @@
 
 **Scripts** (`skills/sync-submission/scripts/`):
 
+- `_quote_match.py`
 - `_yaml_frontmatter.py`
 - `assemble_supplement.py`
 - `author_registry_example.yaml`
@@ -57,12 +58,14 @@
 - `check_marked_manuscript.py`
 - `check_portal_field_residue.py`
 - `check_portal_field_residue_challenge/` (6 files)
+- `check_portal_mirror.py`
 - `check_wordcount_cap.py`
 - `cover_letter_drift_check.py`
 - `cross_document_n_check.py`
 - `detect_copy_divergence.py`
 - `figure_portal_readiness_challenge/` (2 files)
 - `figure_portal_readiness_check.py`
+- `portal_mirror_challenge/` (13 files)
 - `preflight_gate.py`
 - `scope_drift_check.py`
 - `sync_submission.py`
