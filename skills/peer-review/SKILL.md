@@ -93,6 +93,9 @@ every PDF that actually carried a packet.
    confirmed, raise it (the author-side `/revise` skill runs the same gate; see
    `~/.claude/rules/peer-review-response-verification.md`). If the whole round already had one
    response-vs-body mismatch, re-verify **every** prior comment, not a sample.
+
+   `RESPONSE_QUOTE_UNRESOLVED` (minor) is the opposite verdict — never write it up. The words ARE
+   there in order with extraction debris between them; look before accusing an author of skipping an edit they made.
 3. **Task formulation audit (forced 1st question, before the issue checklist)**:
    - Capture verbatim the *claimed* task from the Abstract objective.
    - Capture verbatim the *measured* task from Methods (inputs → outputs).

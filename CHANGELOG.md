@@ -2,6 +2,36 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- **A correct quote read through a dirty extraction is no longer reported as an edit the
+  author never made.** `check_response_claims` verified a quoted addition by searching the
+  manuscript for a **contiguous** string. That assumption breaks the moment the haystack comes
+  out of an extractor, because extractors wedge in tokens the source never had: a two-column
+  PDF bleeds a reference line into the middle of a sentence (`learners form independent` |
+  `civile. Rev Med Suisse 2019;15:1122.` | `assessments before seeing AI output`), a
+  line-numbered proof drops the line number inside the clause (`were` | `86` | `performed`),
+  footnote and superscript markers land mid-clause, and hyphenation across a line break splits
+  one word in two. Every such quote is present and correct; the substring test called it
+  **absent** and fired a **major** verdict. In one submission-day session that single
+  assumption produced thirteen false positives and came one step from instructing an author to
+  delete two accurate verbatim quotes.
+
+  Matching now lives in `_quote_match.py` and **grades** the match instead of answering
+  yes/no: `EXACT` (contiguous) · `INTERLEAVED` (all words in order, bounded foreign tokens
+  between) · `PARTIAL` (≥80% of words in order — extraction damage) · `ABSENT`. Only `ABSENT`
+  still yields the major `RESPONSE_QUOTE_UNVERIFIED`; the middle two yield a new **minor**
+  `RESPONSE_QUOTE_UNRESOLVED` that reports the doubt and does **not** fail `--strict`.
+  Line-break hyphenation is repaired outright, so that case produces no finding at all.
+
+  Precision comes from an **interruption count**, not a token budget — a real extraction
+  artifact interrupts a sentence once or twice (and an interruption can be long), while a
+  spurious "match" interrupts at nearly every word. So at most 4 interrupted joins, ≤25 foreign
+  tokens at any one join, plus a total sanity cap. A quote whose words are scattered a
+  paragraph apart across a Discussion is still `ABSENT` and still major — locked down by a test.
+  `--strict` now halts on major findings only, which is what its help text always promised.
+  No new detector: the count stays **80** (`_quote_match.py` is a helper, imported same-dir).
+
 ### Added
 
 - **`/polish-language` now reads figure SOURCES, catching spelling a rendered raster hides —
