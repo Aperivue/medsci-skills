@@ -4,6 +4,39 @@
 
 ### Fixed
 
+- **A test fixture was being published as a real skill, and it broke `gh skill` for the whole
+  repository.** `gh skill` (GitHub CLI ≥ 2.90) discovers installable skills by looking for a
+  directory literally named `skills` — *at any depth* — and treating every `<name>/SKILL.md`
+  beneath it as a skill. The frozen phase-budget regression fixture lived at
+  `tests/fixtures/phase_budget/skills/self-review/SKILL.md`. It is a deliberate copy of a
+  shipped defect, so it carries no frontmatter, and `gh skill publish --dry-run` therefore
+  failed the entire repository on it:
+
+  ```
+  error  self-review  missing required field: name
+  error  self-review  missing required field: description
+  validation failed with 2 error(s)
+  ```
+
+  Worse than the failed validation: `gh skill install --all Aperivue/medsci-skills` would have
+  handed users a second, broken `self-review` colliding by name with the real one.
+
+  The fixture now sits under `real_defect/` — renamed, not deleted, because it still has to
+  prove the phase-budget gate fires on the real 209-line phase. `gh skill publish --dry-run`
+  now passes, and `gh skill preview` / `install` already resolved this repository's canonical
+  top-level `skills/` layout correctly.
+
+  It survived because nothing in CI ran `gh skill`, and `gh` is not available in the validate
+  job — the defect was invisible to a green build. New gate `scripts/check_skill_discovery.py`
+  enforces the same property by path arithmetic instead, needing neither network nor `gh`:
+  every `SKILL.md` on disk is either canonical (`skills/<name>/SKILL.md` at the repo root) or
+  lives outside any directory named `skills`. It reads the **working tree**, not the git index,
+  because that is what `gh skill publish` reads — an earlier draft read the index, so moving
+  the fixture back with a plain `mv` left the gate reporting OK on the very defect it was
+  written for. `tests/test_skill_discovery.sh` pins that distinction along with the failure
+  itself. As a top-level `scripts/` validator it is deliberately outside the detector catalog,
+  so the detector count is unchanged.
+
 - **`INBODY_AI_DISCLOSURE` asserted a placement it could not know — and the journals
   disagree.** The verdict said an in-body AI-use disclosure "belongs on the title page". That
   is true at some journals and false at others, and the profiles in this repo already said so
