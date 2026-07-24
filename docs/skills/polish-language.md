@@ -28,6 +28,8 @@
 
 - `python3 scripts/lint_consistency.py <manuscript.md>`
 - `bash scripts/lint_challenge/verify.sh  # deterministic, network-free`
+- `python3 scripts/lint_figure_locale.py --manuscript <manuscript.md> --figures-dir <figures/>`
+- `bash scripts/lint_figure_locale_challenge/verify.sh  # deterministic, network-free`
 
 **Evidence** — `bundled_script`
 
@@ -37,6 +39,8 @@
 
 - `lint_challenge/` (4 files)
 - `lint_consistency.py`
+- `lint_figure_locale.py`
+- `lint_figure_locale_challenge/` (2 files)
 
 ## Source
 

@@ -37,12 +37,23 @@ ABBR_WHITELIST = {
     "ID", "OK", "PDF", "URL", "HTML", "API", "AND", "OR", "NOT", "ROC",
 }
 
-# US ↔ UK spelling families: canonical "us" form -> regex matching both.
+# US ↔ UK spelling families: canonical "us" form -> regex matching the UK variant.
+#
+# PRECISION NOTE — do NOT "simplify" the first four back to a trailing `\w*`. The -ise/-ize
+# families collide with words that are IDENTICAL in both dialects, and a greedy suffix match
+# counts them as UK evidence:
+#     analys + \w*        -> "analysis", "analyses"      (universal nouns)
+#     organis + \w*       -> "organism", "organisms"     (universal)
+#     characteris + \w*   -> "characteristic(s)"         (universal — and the single most
+#                                                         common table label in medicine)
+#     optimis + \w*       -> "optimism"                  (universal)
+# Enumerating the genuinely dialectal inflections keeps the US/UK tally honest. (randomise /
+# standardise have no universal collision, so their `\w*` form is left alone.)
 SPELLING_FAMILIES = [
-    ("analyze", r"\banalys[ei]([sdz]|zing|sing|zed|sed)?\b", r"analy(s)"),
-    ("organize", r"\borganis[ei]?\w*\b", r"organis"),
-    ("characterize", r"\bcharacteris\w*\b", r"characteris"),
-    ("optimize", r"\boptimis\w*\b", r"optimis"),
+    ("analyze", r"\banalys(e|ed|ing|able)\b", r"analy(s)"),
+    ("organize", r"\borganis(e|es|ed|ing|ation|ations|ational|er|ers)\b", r"organis"),
+    ("characterize", r"\bcharacteris(e|es|ed|ing|ation|ations)\b", r"characteris"),
+    ("optimize", r"\boptimis(e|es|ed|ing|ation|ations)\b", r"optimis"),
     ("randomize", r"\brandomis\w*\b", r"randomis"),
     ("standardize", r"\bstandardis\w*\b", r"standardis"),
     ("tumor", r"\btumour(s)?\b", r"tumour"),
