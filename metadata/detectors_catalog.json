@@ -454,7 +454,7 @@
       "skill": "sync-submission",
       "family": "data_preparation",
       "family_label": "Data preparation & validation",
-      "description": "Portal-field markdown-residue gate — a \"paste this verbatim\" artifact must be free of markdown, or the syntax lands in the published field."
+      "description": "Portal-field paste-verbatim gate — a \"paste this verbatim\" artifact must survive the paste: markdown lands in the published field literally, and a few characters are silently EXPANDED to words by some…"
     },
     {
       "id": "check_preprocessing_leakage",

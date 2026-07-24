@@ -61,6 +61,8 @@
 - `cover_letter_drift_check.py`
 - `cross_document_n_check.py`
 - `detect_copy_divergence.py`
+- `figure_portal_readiness_challenge/` (2 files)
+- `figure_portal_readiness_check.py`
 - `preflight_gate.py`
 - `scope_drift_check.py`
 - `sync_submission.py`

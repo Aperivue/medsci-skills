@@ -62,6 +62,7 @@ S = {
     "asset_anonymization": REPO_ROOT / "skills/sync-submission/scripts/check_asset_anonymization.py",
     "checklist_dump_leak": REPO_ROOT / "skills/sync-submission/scripts/check_checklist_dump_leak.py",
     "portal_field_residue": REPO_ROOT / "skills/sync-submission/scripts/check_portal_field_residue.py",
+    "figure_readiness": REPO_ROOT / "skills/sync-submission/scripts/figure_portal_readiness_check.py",
 }
 
 
@@ -102,6 +103,13 @@ class Ctx:
             self.root / "portal_fields",
             (self.root / "submission" / self.journal / "portal_fields") if self.journal else None,
         ])
+        self.figures_dir = self._first_dir(getattr(args, "figures_dir", None), [
+            (self.root / "submission" / self.journal / "figures") if self.journal else None,
+            self.root / "figures",
+            self.root / "manuscript" / "figures",
+        ])
+        self.figure_accept = getattr(args, "figure_accept", []) or []
+        self.figure_max_mb = getattr(args, "figure_max_mb", 25.0)
 
     def _manuscript(self, args):
         if args.manuscript:
@@ -231,6 +239,16 @@ def _argv_portal_residue(c):
     return [PY, str(S["portal_field_residue"]), "--dir", str(c.portal_fields),
             "--quiet", "--out", str(c.qc / "portal_field_residue.json")]
 
+def _argv_figure_readiness(c):
+    if not c.figures_dir:
+        return None
+    argv = [PY, str(S["figure_readiness"]), "--figures-dir", str(c.figures_dir),
+            "--max-mb", str(c.figure_max_mb), "--quiet",
+            "--out", str(c.qc / "figure_readiness.json")]
+    for ext in c.figure_accept:
+        argv += ["--accept", ext]
+    return argv
+
 
 CHECKS = [
     {"id": "placeholders", "tier": "P0", "build": _argv_placeholders,
@@ -274,6 +292,11 @@ CHECKS = [
     {"id": "portal_field_residue", "tier": "P1", "build": _argv_portal_residue,
      "exit_map": {0: "ok", 1: "finding", 2: "skipped"}, "artifact": "portal_field_residue.json",
      "strict_promote": True},
+    # A figure over the portal's size cap (25 MB) or in a rejected format (SNAPP takes no
+    # .png) bounces at the upload button — deterministic from the file's bytes + extension.
+    {"id": "figure_readiness", "tier": "P1", "build": _argv_figure_readiness,
+     "exit_map": {0: "ok", 1: "finding", 2: "skipped"}, "artifact": "figure_readiness.json",
+     "strict_promote": True},
 ]
 
 
@@ -308,7 +331,8 @@ def _message(check_id, status, artifact_path, stdout):
         return f"{len(j.get('limitations_only_anchors', []))} limitations-only anchor(s)"
     if check_id == "copy_divergence" and j:
         return str(j.get("verdict", "")) or "copies checked"
-    if check_id in ("cross_artifact_stale", "asset_anonymization", "checklist_dump_leak", "portal_field_residue") and j:
+    if check_id in ("cross_artifact_stale", "asset_anonymization", "checklist_dump_leak",
+                    "portal_field_residue", "figure_readiness") and j:
         return ", ".join(f"{k}={v}" for k, v in (j.get("summary") or {}).items()) or "scanned"
     if check_id == "sync_drift" and artifact_path is None and stdout:
         try:
@@ -385,6 +409,7 @@ _SCRIPT_KEY = {
     "asset_anonymization": "asset_anonymization",
     "checklist_dump_leak": "checklist_dump_leak",
     "portal_field_residue": "portal_field_residue",
+    "figure_readiness": "figure_readiness",
 }
 
 
@@ -419,6 +444,12 @@ def main() -> int:
     ap.add_argument("--asset-dir", default=None)
     ap.add_argument("--portal-fields", default=None,
                     help="directory of portal paste-verbatim .txt fields (abstract.txt, keywords.txt, …)")
+    ap.add_argument("--figures-dir", default=None,
+                    help="directory of figure files to size/format-check (default: submission/<journal>/figures or ./figures)")
+    ap.add_argument("--figure-accept", action="append", default=[], metavar="EXT",
+                    help="portal-accepted figure extension (repeatable; e.g. tiff jpeg eps for SNAPP). Omit to size-check only.")
+    ap.add_argument("--figure-max-mb", type=float, default=25.0,
+                    help="figure size cap in MB for the readiness check (default 25)")
     ap.add_argument("--prospero", default=None)
     ap.add_argument("--pool-lock", default=None)
     ap.add_argument("--out", default=None, help="report path (default: <project-root>/qc/preflight_gate_report.json)")

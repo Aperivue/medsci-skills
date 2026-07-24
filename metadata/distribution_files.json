@@ -4988,8 +4988,8 @@
     },
     {
       "path": "skills/sync-submission/SKILL.md",
-      "size": 34358,
-      "sha256": "397ad2d500034af4f27fafa400fd8ec589accb094671631382391fbd8890bfe1"
+      "size": 35345,
+      "sha256": "cf305355d833335fa21c1d042b46ff48be5e067e94a7e99723800489614dfb2b"
     },
     {
       "path": "skills/sync-submission/references/journal_availability_policy.json",
@@ -5048,8 +5048,8 @@
     },
     {
       "path": "skills/sync-submission/scripts/check_portal_field_residue.py",
-      "size": 6762,
-      "sha256": "bd78f80811b2fd92a6934c53d604e5127c27893cf29fd1e362ad9313c84591eb"
+      "size": 7976,
+      "sha256": "5b98726d279a32e227a58dd19fd3ce06c0bd4bf0f12cb401d24daa7e9e71be7c"
     },
     {
       "path": "skills/sync-submission/scripts/check_portal_field_residue_challenge/fixture/negative/abstract.txt",
@@ -5058,13 +5058,13 @@
     },
     {
       "path": "skills/sync-submission/scripts/check_portal_field_residue_challenge/fixture/negative/keywords.txt",
-      "size": 209,
-      "sha256": "2e545f2401f24c17dc7a75b30eddf0a48323e7e7e9f4f31a5bd41663085277cc"
+      "size": 327,
+      "sha256": "16154ffeb0fd6a55ddb984b6afc4b189024a571bc17fc3d499a78bd19c6181f9"
     },
     {
       "path": "skills/sync-submission/scripts/check_portal_field_residue_challenge/fixture/positive/abstract.txt",
-      "size": 350,
-      "sha256": "f32d5e28979529a29543fa9bf646943f9789718c38cd2d48bea49e8ab4ed89ec"
+      "size": 404,
+      "sha256": "7fce726b97eb3c50a188b271ce0c2ef0aff825b704bb4b62c7909435d88b8338"
     },
     {
       "path": "skills/sync-submission/scripts/check_portal_field_residue_challenge/fixture/positive/take_home.txt",
@@ -5078,8 +5078,8 @@
     },
     {
       "path": "skills/sync-submission/scripts/check_portal_field_residue_challenge/verify.sh",
-      "size": 1703,
-      "sha256": "474561d3988fce903d94e83331678a6c1916626aa86a93e031724fa0d3085f3f"
+      "size": 1877,
+      "sha256": "8f528f08d11904c428785ee65c11f96e1c994983d86026ea362ff1fda4af81f5"
     },
     {
       "path": "skills/sync-submission/scripts/check_wordcount_cap.py",
@@ -5102,9 +5102,24 @@
       "sha256": "a6c17162f26a7dd476958b4f912b7db0cf546a913be2bae4325496e23e4cb3ea"
     },
     {
+      "path": "skills/sync-submission/scripts/figure_portal_readiness_challenge/problem.md",
+      "size": 1555,
+      "sha256": "c92d4377e791e776da33d9471630f153a23df3fc259f732060e3bc3a25e5f426"
+    },
+    {
+      "path": "skills/sync-submission/scripts/figure_portal_readiness_challenge/verify.sh",
+      "size": 4271,
+      "sha256": "83e88efe2231d9fe48d4a8744b4cc99acb5e62d9dc5b38b6e59ded62621a2fd5"
+    },
+    {
+      "path": "skills/sync-submission/scripts/figure_portal_readiness_check.py",
+      "size": 6300,
+      "sha256": "351d166cee69bad16f332bdf2866589b8d2e4707664532579ba08e2a92c39b13"
+    },
+    {
       "path": "skills/sync-submission/scripts/preflight_gate.py",
-      "size": 22133,
-      "sha256": "2591a051268b4b96db8bcb1505f7f17ec48f035f402399dbe198ad5606344d5f"
+      "size": 24011,
+      "sha256": "c02157be3c3a1032c485b8fc764ac094c66c4b259c13cae95e2d712bbbdf12f6"
     },
     {
       "path": "skills/sync-submission/scripts/scope_drift_check.py",

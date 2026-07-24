@@ -1,5 +1,5 @@
 Background: Coronary artery calcium (CAC) predicts events beyond traditional risk factors.
-Methods: We measured CAC in a screening cohort and reported the area under the curve.
+Methods: We measured CAC in a screening cohort and reported the area under the curve. Adults with eGFR ≥ 45 and BMI ≤ 30 were eligible.
 Results: The **primary** endpoint improved; the mean lesion area was 2.4 cm^2^.
 Conclusion: CAC adds value. See [our repository](https://example.org/data) for details.
 

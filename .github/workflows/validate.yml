@@ -272,6 +272,9 @@ jobs:
       - name: "Run sync-submission portal-field-residue challenge (paste-verbatim .txt with markdown -> fires; clean -> clean)"
         run: bash skills/sync-submission/scripts/check_portal_field_residue_challenge/verify.sh
 
+      - name: "Run sync-submission figure portal-readiness challenge (over-cap / wrong-format figure fires; clean -> clean; preflight wiring)"
+        run: bash skills/sync-submission/scripts/figure_portal_readiness_challenge/verify.sh
+
       - name: Run sync-submission word-count-cap gate test (A7)
         run: bash skills/sync-submission/tests/test_wordcount_cap.sh
 
