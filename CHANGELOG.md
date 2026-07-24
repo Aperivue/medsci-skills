@@ -4,6 +4,21 @@
 
 ### Added
 
+- **`/make-figures` gains `export_portal_tiff.py` — a portal-ready TIFF export that a raw
+  `magick … output.tiff` cannot safely produce.** Submission portals collide with a rendered
+  PNG in two ways: some accept only `.tiff`/`.jpeg`/`.eps` and **reject `.png`** (Springer
+  Nature SNAPP), and others **cap a figure at 25 MB** (JACC: Asia) that a raw uncompressed
+  600-dpi RGBA TIFF sails past. The exporter LZW-compresses (lossless) and **flattens the
+  alpha channel onto white** (a TIFF that keeps alpha prints the transparent regions *black*
+  on many production pipelines), then **verifies the output is pixel-identical** to that
+  flatten before handing it over — and, with `--max-mb`, refuses (exit 1) an output still over
+  the cap so the failure surfaces here, not at the upload button. It is a figure producer
+  (Pillow, like `render_core_figures.py`), not a detector — **detector count unchanged**. Ships
+  `export_portal_tiff_challenge/` (synthetic RGBA fixture generated at runtime, no committed
+  binary): positive asserts LZW + RGB + white-flatten + smaller-than-uncompressed, and two
+  negatives prove the flatten and the size-cap assertions bite. Grounded in a JACC: Asia /
+  SNAPP submission cycle where a raw RGBA TIFF exceeded the portal cap.
+
 - **`check_citation_order` now audits the in-text reference series, not just numbered floats.**
   The Vancouver rule that governs Tables and Figures governs a fifth series the gate never
   saw: the bracketed reference numbers themselves (`[12]`, `[4–11]`). They must ascend by
