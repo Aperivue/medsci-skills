@@ -80,6 +80,34 @@
 
 ### Added
 
+- **`/sync-submission` now checks CRediT as a factual claim rather than a formatting block.**
+  Contribution terms are published with the paper and every co-author reads them, but nothing
+  tied a term to anything. During one byline negotiation three terms were requested in
+  sequence — Visualization, Methodology, Formal analysis — each unsupported by the project
+  record (zero embedded images and untouched figure legends; an analysis protocol frozen two
+  days before the author joined; coding recorded as two named coders whose blind passes
+  predated their arrival). A fourth, Conceptualization, was **entirely legitimate** and had no
+  repository artifact at all: it lived in email and in a critique that drove a restructure.
+
+  That asymmetry is the design. `check_credit_integrity.py` (detectors **82 → 83**) makes the
+  checkable half deterministic — `CREDIT_TERM_INVALID` for a term outside the official
+  fourteen ("Statistical analysis", "Manuscript writing" and "Study design" all read as CRediT
+  and are not; the message names what was meant), `CREDIT_INITIALS_UNRESOLVED` for initials
+  matching no author or two, which is exactly the residue a byline edit leaves behind, and
+  `CREDIT_AUTHOR_UNLISTED` for a byline author credited nowhere. The unprovable half stays a
+  **prompt**: `CREDIT_UNCORROBORATED` fires on a term with no footprint and can be answered
+  with an attestation, because a gate that failed the build on an off-repo contribution would
+  be wrong and would teach its user to switch it off.
+
+  **Author order and equal-contribution designation are never gated** — they are negotiated,
+  and conflating them with the taxonomy is why they get edited as one block. Two further
+  refusals to guess: with fewer than two resolvable byline names the author/initials
+  cross-check is skipped and says so (a wrong byline accuses every author at once), and the
+  artifact-corroboration half runs only if the project already keeps a contribution record.
+  The original proposal wanted it checked against a figure-provenance table and an analysis
+  record; neither convention exists in this toolkit, and building against them would mean
+  inventing the convention and then gating against our own invention.
+
 - **`/sync-submission` now checks the declarations that the portal PUBLISHES IN PLACE OF the
   manuscript.** Some portals publish the box, not the paper. SNAPP prints it on the submission
   form at four fields — Author Contributions, Competing Interests, Data Availability,

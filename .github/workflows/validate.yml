@@ -562,6 +562,9 @@ jobs:
       - name: Run self-review reviewer-team-consistency gate test
         run: bash skills/self-review/tests/test_reviewer_team_consistency.sh
 
+      - name: "Run sync-submission CRediT-integrity challenge (a taxonomy term with nothing behind it)"
+        run: bash skills/sync-submission/scripts/credit_integrity_challenge/verify.sh
+
       - name: "Run sync-submission portal-mirror challenge (a declaration that never reaches the field that replaces it)"
         run: bash skills/sync-submission/scripts/portal_mirror_challenge/verify.sh
 

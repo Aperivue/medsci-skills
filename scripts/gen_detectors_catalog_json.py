@@ -118,6 +118,7 @@ FAMILY_BY_ID: dict[str, str] = {
     "check_uncertainty_reporting": "reporting_compliance",
     "check_exclusion_code_validity": "reporting_compliance",
     "check_portal_mirror": "reporting_compliance",
+    "check_credit_integrity": "reporting_compliance",
     # Data preparation & validation
     "check_structural_zero": "data_preparation",
     "check_reverse_coding": "data_preparation",

@@ -206,6 +206,37 @@ at first submission rather than letting the gate invent a contract. Matching is 
 This is the complement of Gate 5c, not a duplicate: 5c asks whether what you paste is *clean*,
 this asks whether what you did *not* paste is quietly gone.
 
+## Phase 3c — CRediT integrity (not author order)
+
+A contribution taxonomy is a factual claim, published with the paper, and every co-author
+reads it. Nothing ties a term to anything. During one byline negotiation three terms were
+requested in sequence — Visualization, Methodology, Formal analysis — each unsupported by the
+project record; a fourth, Conceptualization, was **entirely legitimate** and had no repository
+artifact at all, because it lived in email and in a critique that drove a restructure.
+
+That asymmetry is the design. The taxonomy is checkable; the work behind it often is not.
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/check_credit_integrity.py" \
+  --manuscript manuscript/manuscript.md --out qc/credit_integrity.json
+```
+
+| Verdict | Severity | Fires when |
+|---|---|---|
+| `CREDIT_TERM_INVALID` | major | A term outside the official fourteen in a section that says CRediT — "Statistical analysis", "Manuscript writing", "Study design" all read as CRediT and are not. The message names the term that was meant. |
+| `CREDIT_INITIALS_UNRESOLVED` | major | Initials matching no author, or two. This is the residue a byline edit leaves: the removed author's initials keep reading as valid. |
+| `CREDIT_AUTHOR_UNLISTED` | major | A byline author with no contribution attributed. Under ICMJE that is either an authorship question or a dropped clause. |
+| `CREDIT_UNCORROBORATED` | **prompt** | A term whose footprint is absent — Visualization on a paper with no figures, Software with no Code Availability statement, or (only if the project keeps one, passed with `--contribution-record`) a contributor absent from the record. |
+
+**Author order and equal-contribution designation are never gated.** They are negotiated, and
+negotiation is legitimate; conflating them with the taxonomy is why they get edited as one
+block. Corroboration is a prompt and can be answered with an attestation — a gate that failed
+the build on an off-repo contribution would be wrong, and would teach its user to disable it.
+
+Two things it declines to guess: with fewer than two resolvable byline names the
+author/initials cross-check is **skipped and says so** (a wrong byline would accuse every
+author at once), and with no contributions section it exits 2 and asserts nothing.
+
 ## Phase 4 — Cover-letter free-text drift
 
 Cover letters live outside the submission docx files but are read by the
