@@ -125,6 +125,10 @@ def _is_total_label(label: str) -> bool:
     return any(n == t or n.startswith(t + " ") or n == t.replace(" ", "") for t in TOTAL_LABELS)
 
 
+# A hint shorter than this is matched only exactly — never as a substring.
+MIN_SUBSTRING_HINT = 3
+
+
 def _pick(header: list[str], hints: tuple[str, ...]):
     norm = [_norm(h) for h in header]
     for hint in hints:
@@ -132,10 +136,18 @@ def _pick(header: list[str], hints: tuple[str, ...]):
         for i, col in enumerate(norm):
             if col == h and h:
                 return i
+    # Substring fallback, with the guard the exact pass does not need. A hint of one or two
+    # characters has no business matching a longer word: the hint "n" found "Normal" in the
+    # header of an exposure-stratified Table 1, so every characteristic row's Normal-column
+    # value was summed as if it were a stratum size (8,299 "strata" against a "total" of 194).
+    # The same one-character-substring bug was fixed once in check_confounding_completeness
+    # and never here. Longer hints still match, but only on a word boundary.
     for hint in hints:
         h = _norm(hint)
+        if len(h) < MIN_SUBSTRING_HINT:
+            continue
         for i, col in enumerate(norm):
-            if h and h in col:
+            if col and re.search(rf"(?<![a-z0-9]){re.escape(h)}(?![a-z0-9])", col):
                 return i
     return None
 
@@ -150,9 +162,17 @@ RATE_LINE_RE = re.compile(
 #       fractional part ("0.97") is never captured as the numerator;
 #   (b) drop the bare "incident" alternative, which matched the word in "incident
 #       rate" and bound the nearest stray small integer (the false-positive source).
+#   (c) a HYPHEN or slash before the digit means it belongs to a label, not to the count:
+#       "882 KSAR S4-1 events occurred" bound the 1 of "S4-1" and reported the rate as
+#       irreconcilable with 1 event. When the count cannot be bound the check must say
+#       nothing — an unbindable numerator is not evidence of an arithmetic error.
 EVENTS_NEAR_RE = re.compile(
-    r"(?<![A-Za-z0-9.])([0-9][0-9,]*)\s*(?:incident\s+)?(?:events?|cases?)\b", re.I)
-PY_NEAR_RE = re.compile(r"([0-9][0-9,]*)\s*(?:person[-\s]?years?|py\b)", re.I)
+    r"(?<![A-Za-z0-9.\-\u2013\u2014/])([0-9][0-9,]*)\s*(?:incident\s+)?(?:events?|cases?)\b", re.I)
+# Person-time is frequently reported to one decimal ("35,581.3 person-years"). Without the
+# decimal branch the integer part failed to reach the noun and the FRACTIONAL DIGIT matched
+# instead — a cohort of "3 person-years" — so the same lookbehind applies here.
+PY_NEAR_RE = re.compile(
+    r"(?<![A-Za-z0-9.\-\u2013\u2014/])([0-9][0-9,]*(?:\.[0-9]+)?)\s*(?:person[-\s]?years?|py\b)", re.I)
 
 
 def _sentences(text: str) -> list[str]:
@@ -184,8 +204,8 @@ def check_rate_text(text: str) -> list[dict]:
         em = EVENTS_NEAR_RE.search(line)
         # the PY in "rate per <scale> person-years" is the scale, not the cohort PY;
         # the cohort PY is a *different*, larger person-time figure in the same span.
-        py_candidates = [int(g.replace(",", "")) for g in PY_NEAR_RE.findall(line)]
-        py_candidates = [p for p in py_candidates if p != int(scale)]
+        py_candidates = [float(g.replace(",", "")) for g in PY_NEAR_RE.findall(line)]
+        py_candidates = [p for p in py_candidates if abs(p - scale) > 1e-9]
         if not em or not py_candidates:
             continue
         events = _num(em.group(1))
@@ -200,7 +220,7 @@ def check_rate_text(text: str) -> list[dict]:
                 "verdict": "RATE_BACKCALC",
                 "severity": "Major",
                 "detail": (f"reported rate {rate:g} per {int(scale):,} PY does not recompute "
-                           f"from {int(events):,} events / {int(py):,} PY "
+                           f"from {int(events):,} events / {py:,.6g} PY "
                            f"(= {expected:.4g} per {int(scale):,})"),
                 "where": line.strip()[:160],
             })

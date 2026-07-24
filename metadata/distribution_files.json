@@ -4428,8 +4428,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_cohort_arithmetic.py",
-      "size": 37883,
-      "sha256": "ef239b1896f1b17f3b0d75b7d45ef2d3e285d96320a357c31aced06f823cf38b"
+      "size": 39325,
+      "sha256": "def2a226b76c5702fe0a6b87bc11a38af3ae0dae233ae0f6132b67704995f9ca"
     },
     {
       "path": "skills/self-review/scripts/check_confounding_completeness.py",
@@ -4822,6 +4822,26 @@
       "sha256": "b4c9eb16f291841c1d6dc74a5554a49b5dc60d3562d0e328e01a78797f8d32ad"
     },
     {
+      "path": "skills/self-review/scripts/cohort_arith_binding_challenge/fixture/decimal_person_time.md",
+      "size": 152,
+      "sha256": "e4c40f0d5982e7c34d3ef0bd4e3d833f94c592344aebddb30fa3f5a29f8bf3de"
+    },
+    {
+      "path": "skills/self-review/scripts/cohort_arith_binding_challenge/fixture/genuine_defects.md",
+      "size": 287,
+      "sha256": "d530e9b75800fc5bd5744ce26fbcdc051f58b16e9c988976d0310bd551de39a8"
+    },
+    {
+      "path": "skills/self-review/scripts/cohort_arith_binding_challenge/fixture/real_negatives.md",
+      "size": 737,
+      "sha256": "7498d7db7ce8eada7e6f559bf47ff74dc1654857fb59ca49aef5d706bb19a37b"
+    },
+    {
+      "path": "skills/self-review/scripts/cohort_arith_binding_challenge/verify.sh",
+      "size": 5248,
+      "sha256": "d9164487af02fdc2cebc1b3c119e8d0354db318a6b3e0207bba09179c91baf31"
+    },
+    {
       "path": "skills/self-review/scripts/confounding_findings_challenge/fixture/adjusted.txt",
       "size": 21,
       "sha256": "360bf0d4cfc7eb600003ea5c9d1a50f537afb63379d4a44f62e3a887a858fbea"
@@ -5063,8 +5083,8 @@
     },
     {
       "path": "skills/self-review/skill.yml",
-      "size": 4462,
-      "sha256": "354a9e12fb464a868896072cb2a5023882344d17ec79ad7c237655bb9451aefa"
+      "size": 4522,
+      "sha256": "05df4d9adff66350fcd941502be8ca9290e2b9097605833328b907d5679c4f9d"
     },
     {
       "path": "skills/setup-medsci/SKILL.md",

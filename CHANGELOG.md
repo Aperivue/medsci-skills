@@ -4,6 +4,35 @@
 
 ### Fixed
 
+- **`check_cohort_arithmetic` was binding numbers that belong to something else — every one
+  of its observed fires on a real manuscript was false.** The arithmetic was never wrong; the
+  inputs were. Three captures, three ways of latching onto the wrong digit:
+
+  - `"882 KSAR S4-1 events occurred"` bound the **1 of the label "S4-1"** as the event count
+    and declared 2.48 per 100 person-years irreconcilable with one event. A hyphen or slash
+    before the digit now means it belongs to a label, and when the numerator cannot be bound
+    the check says **nothing** — an unbindable count is not evidence of an arithmetic error.
+  - `"over 35,581.3 person-years"` — the integer part could not reach the noun past the decimal
+    point, so the **fractional digit** matched instead: a cohort of "3 person-years". Person-time
+    is now read with its decimal, and the same lookbehind stops a fractional tail standing alone.
+  - A one-letter column hint matched a longer word: `"n"` found **`"Normal"`** in the header of
+    an exposure-stratified Table 1, so characteristic rows were summed as if they were strata.
+    Hints under three characters are now matched exactly, longer ones on a word boundary. The
+    identical one-character-substring bug was found and fixed once in
+    `check_confounding_completeness`, and never here.
+
+  Found by the detector-precision harvest: precision **0.00 (0/3)** across two `--out` names on
+  a live cohort project. A detector whose every observed fire is false teaches its user to skip
+  the whole class — and this class (rate back-calculation, exclusion cascades, tier partitions)
+  is one nothing else covers, so the cost of the noise was the coverage.
+
+  Both rate false positives are reproduced **verbatim against the pre-fix version** and are
+  silent after it. The 16-case challenge card fails **7 assertions** on that version. Its other
+  half is the one that matters: an impossible rate, a non-disjoint partition, and a wrong rate
+  over *fractional* person-time all still fire — the fix must not buy silence by going blind.
+
+  No new detector: the count stays **83**.
+
 - **A status row is not a finding: `check_confounding_completeness` was reporting ~45
   non-defects as findings, and corrupting the measurement built on top of them.** Its
   `findings` array was the whole per-covariate audit table, and two of that table's three
