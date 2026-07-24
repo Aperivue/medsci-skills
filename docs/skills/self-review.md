@@ -26,6 +26,7 @@
 
 **Validation**
 
+- `bash scripts/disclosure_placement_challenge/verify.sh`
 - `bash scripts/cohort_arith_binding_challenge/verify.sh`
 - `bash scripts/confounding_findings_challenge/verify.sh`
 - `python3 scripts/check_reviewer_team_consistency.py`
@@ -111,6 +112,7 @@
 - `check_table_percentages_challenge/` (6 files)
 - `cohort_arith_binding_challenge/` (4 files)
 - `confounding_findings_challenge/` (4 files)
+- `disclosure_placement_challenge/` (3 files)
 - `refinement_regression.py`
 - `refinement_regression_challenge/` (20 files)
 - `refinement_stop.py`

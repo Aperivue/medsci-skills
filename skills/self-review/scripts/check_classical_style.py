@@ -7,10 +7,17 @@ gate rather than a prose checklist (manuscript-style-classical.md §5/§6/§7/§
 
   SECTION_SYMBOL        (Major) the § symbol anywhere in the body — the canonical
                         AI tell; also catches "see Methods §2" self-references.
-  INBODY_AI_DISCLOSURE  (Major) an AI/LLM-use disclosure paragraph in the body
-                        ("Generative AI was not used", "During the preparation of
-                        this manuscript the authors used …"). For a classical /
-                        senior-MA target this belongs on the title page, not the body.
+  INBODY_AI_DISCLOSURE  an AI/LLM-use disclosure paragraph in the body. WHERE IT
+                        BELONGS IS A JOURNAL FACT, and the journals disagree: npj
+                        Digital Medicine says "document use in Methods", Investigative
+                        Radiology says cover letter + Acknowledgments, Diabetes &
+                        Metabolism Journal says title page. So the placement is read
+                        from the target's profile (--profile) or given inline
+                        (--disclosure-placement):
+                          body-legitimate target (methods / acknowledgements) -> silent
+                          title-page / cover-letter-only target -> Major
+                          NO target recorded -> Minor, naming the ambiguity rather
+                          than asserting a placement it cannot know.
   ELIGIBILITY_PROSE     (Minor) eligibility/inclusion criteria written as a prose
                         sentence rather than a numbered list.
   DECIMAL_INCONSISTENCY (Minor) OR/HR/RR reported with mixed decimal places (some
@@ -93,7 +100,29 @@ EFFECT_DECIMAL = re.compile(
 PERCENT_DECIMAL = re.compile(r"\b\d{1,3}\.\d{2,}\s*%")
 
 
-def check(text: str, em_dash_max: int) -> list[dict]:
+# Where an AI-use disclosure belongs is set by the target journal, not by house style. A
+# profile states it in prose already ("document use in Methods section", "declared on title
+# page", "disclosed in cover letter and Acknowledgments"); this reads that line if the profile
+# carries the explicit machine-readable form, and otherwise falls back to the prose.
+DISCLOSURE_PLACEMENT_LINE = re.compile(
+    r"^\s*[-*]?\s*\*{0,2}AI[-\s]use disclosure placement\*{0,2}\s*:\s*(.+)$", re.M | re.I)
+# Tokens meaning "the body is where it goes" — if any appears, an in-body paragraph is correct.
+# "acknowledg" is a STEM — a trailing \b breaks on "Acknowledgments"/"Acknowledgements",
+# which is exactly how the placement is written in the profiles that use it.
+BODY_PLACEMENT = re.compile(r"\b(?:methods?|acknowledg\w*|body|main text)\b", re.I)
+
+
+def disclosure_placement(profile_text: str | None, inline: str | None) -> str | None:
+    """The declared placement string, or None when nothing was recorded."""
+    if inline:
+        return inline
+    if not profile_text:
+        return None
+    m = DISCLOSURE_PLACEMENT_LINE.search(profile_text)
+    return m.group(1).strip() if m else None
+
+
+def check(text: str, em_dash_max: int, placement: str | None = None) -> list[dict]:
     claims = []
 
     # SECTION_SYMBOL (Major) — only § used as a section cross-reference, not the
@@ -116,13 +145,31 @@ def check(text: str, em_dash_max: int) -> list[dict]:
     if m and AI_DISCLOSURE_SUBJECT.search(text[max(0, m.start() - 200):m.end() + 200]):
         m = None
     if m:
-        claims.append({
-            "verdict": "INBODY_AI_DISCLOSURE",
-            "severity": "Major",
-            "detail": "an AI/LLM-use disclosure paragraph is in the body; for a classical / "
-                      "senior-MA target it belongs on the title page (manuscript-style-classical §7)",
-            "where": m.group(0)[:120],
-        })
+        # The target decides. Firing "this belongs on the title page" at a journal that
+        # requires it in Methods tells the author to move a paragraph the journal wants
+        # exactly where it is — and this verdict fired that way across five real projects,
+        # none of which could be scored real or spurious without knowing the target.
+        if placement and BODY_PLACEMENT.search(placement):
+            pass  # the body IS where this journal puts it
+        elif placement:
+            claims.append({
+                "verdict": "INBODY_AI_DISCLOSURE",
+                "severity": "Major",
+                "detail": (f"an AI/LLM-use disclosure paragraph is in the body, but the target "
+                           f"places it in: {placement} (manuscript-style-classical §7)"),
+                "where": m.group(0)[:120],
+            })
+        else:
+            claims.append({
+                "verdict": "INBODY_AI_DISCLOSURE",
+                "severity": "Minor",
+                "detail": ("an AI/LLM-use disclosure paragraph is in the body and no target "
+                           "journal is recorded — journals disagree (npj Digital Medicine asks "
+                           "for Methods, Diabetes & Metabolism Journal for the title page, "
+                           "Investigative Radiology for the cover letter and Acknowledgments), "
+                           "so pass --profile or --disclosure-placement to settle it"),
+                "where": m.group(0)[:120],
+            })
 
     # ELIGIBILITY_PROSE (Minor)
     em = ELIGIBILITY_LEAD.search(text)
@@ -217,15 +264,16 @@ def _count_em_dashes(text: str) -> tuple[int, int]:
     return prose, structural
 
 
-def analyze(manuscript: str, em_dash_max: int) -> dict:
+def analyze(manuscript: str, em_dash_max: int, placement: str | None = None) -> dict:
     p = Path(manuscript)
     if not p.is_file():
         sys.stderr.write(f"ERROR: manuscript not found: {manuscript}\n")
         sys.exit(2)
-    claims = check(p.read_text(encoding="utf-8"), em_dash_max)
+    claims = check(p.read_text(encoding="utf-8"), em_dash_max, placement)
     n_major = sum(1 for c in claims if c["severity"] == "Major")
     return {
         "manuscript": str(p),
+        "disclosure_placement": placement,
         "claims": claims,
         "summary": {
             "n_claims": len(claims),
@@ -249,12 +297,24 @@ def main() -> int:
     ap = argparse.ArgumentParser(description="Classical-style body lint (§J).")
     ap.add_argument("--manuscript", required=True, help="manuscript markdown/text")
     ap.add_argument("--em-dash-max", type=int, default=25, help="em-dash threshold (default 25)")
+    ap.add_argument("--profile", help="target journal profile .md (for AI-disclosure placement)")
+    ap.add_argument("--disclosure-placement",
+                    help="where the target puts an AI-use disclosure, e.g. 'Methods' or "
+                         "'title page' — overrides --profile")
     ap.add_argument("--out", help="write JSON artifact to this path")
     ap.add_argument("--strict", action="store_true", help="exit 1 if any Major claim exists")
     ap.add_argument("--quiet", action="store_true", help="suppress stdout table")
     args = ap.parse_args()
 
-    result = analyze(args.manuscript, args.em_dash_max)
+    profile_text = None
+    if args.profile:
+        pp = Path(args.profile)
+        if not pp.is_file():
+            sys.stderr.write(f"ERROR: profile not found: {args.profile}\n")
+            return 2
+        profile_text = pp.read_text(encoding="utf-8", errors="replace")
+    placement = disclosure_placement(profile_text, args.disclosure_placement)
+    result = analyze(args.manuscript, args.em_dash_max, placement)
 
     if not args.quiet:
         print("=" * 41)

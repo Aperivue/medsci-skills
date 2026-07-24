@@ -52,6 +52,7 @@ known_limitations:
   - "Anticipates likely reviewer comments; cannot predict a specific reviewer's focus."
   - "Advisory; produces recommendations, not manuscript edits."
 validation_commands:
+  - "bash scripts/disclosure_placement_challenge/verify.sh"
   - "bash scripts/cohort_arith_binding_challenge/verify.sh"
   - "bash scripts/confounding_findings_challenge/verify.sh"
   - "python3 scripts/check_reviewer_team_consistency.py"

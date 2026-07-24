@@ -547,6 +547,9 @@ jobs:
       - name: "Run self-review cohort-arithmetic binding challenge (a label digit is not an event count)"
         run: bash skills/self-review/scripts/cohort_arith_binding_challenge/verify.sh
 
+      - name: "Run self-review AI-disclosure placement challenge (the journals disagree; the target decides)"
+        run: bash skills/self-review/scripts/disclosure_placement_challenge/verify.sh
+
       - name: Run self-review binning-consistency gate test
         run: bash skills/self-review/tests/test_binning_consistency.sh
 
