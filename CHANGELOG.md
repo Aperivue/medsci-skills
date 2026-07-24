@@ -4,6 +4,31 @@
 
 ### Fixed
 
+- **A status row is not a finding: `check_confounding_completeness` was reporting ~45
+  non-defects as findings, and corrupting the measurement built on top of them.** Its
+  `findings` array was the whole per-covariate audit table, and two of that table's three
+  verdicts mean *this is fine*: `ADJUSTED` says the covariate was handled, and
+  `EXPOSURE_DEFINING_EXEMPT` records a deliberate exemption (adjusting for a component of the
+  exposure's own diagnostic criteria is over-adjustment — probe O7). Nothing was wrong with
+  the analysis. What was wrong is that every consumer aggregating a project's `qc/` directory
+  counts entries in `findings`, so a run reporting "four covariates examined, none of them a
+  problem" arrived as **four findings**, with empty messages.
+
+  Found by running the detector-precision harvest over real projects: three runs of this
+  detector in one cohort project contributed ~45 pseudo-findings, enough to make it the
+  loudest detector in the suite and to seat a 0.00-precision row in the ledger that is
+  supposed to grade detectors. A measurement corrupted by the thing it measures.
+
+  `findings` now carries only `UNADJUSTED_IMBALANCED`, each with the **`severity` and
+  `message` it never had** — which is why its entries rendered blank in every report. The
+  full table is still emitted as **`covariates`**, and the human-readable render walks that,
+  so the printed table, all three counts (`n_imbalanced`, `n_unadjusted_imbalanced`,
+  `n_exposure_defining_exempt`) and both `--strict` exit codes are unchanged. 19-case
+  challenge card wired into CI; restoring the old envelope fails 8 of its assertions.
+
+  No new detector: the count stays **83** (a challenge card, not a gate).
+
+
 - **A single-organ study run against a multi-organ atlas was measured on the wrong organ, and
   the imbalance gate went quiet because of it.** `profile_imaging_dataset.py` computed
   foreground as every non-zero label index. On a binary dataset that is the target; on a

@@ -342,7 +342,7 @@ def analyze(table1: str, adj: list[str], name_col, p_col, smd_col,
     def_norm = [_norm(d) for d in defining]
     def_concepts = set().union(*(_concepts(d) for d in defining)) if defining else set()
     smd_source = "reported" if (pi is not None or si is not None) else "computed_from_mean_sd"
-    findings = []
+    covariates = []
     for r in rows[1:]:
         if ni >= len(r):
             continue
@@ -368,7 +368,7 @@ def analyze(table1: str, adj: list[str], name_col, p_col, smd_col,
         else:
             adjusted = in_adjustment_set(cov, adj_norm, adj_concepts)
             verdict = "ADJUSTED" if adjusted else "UNADJUSTED_IMBALANCED"
-        findings.append({
+        covariates.append({
             "covariate": cov,
             "imbalance_p": pval,
             "smd": round(smd, 4) if smd is not None else None,
@@ -376,17 +376,31 @@ def analyze(table1: str, adj: list[str], name_col, p_col, smd_col,
             "verdict": verdict,
         })
 
-    unadjusted = [f for f in findings if f["verdict"] == "UNADJUSTED_IMBALANCED"]
-    exempt = [f for f in findings if f["verdict"] == "EXPOSURE_DEFINING_EXEMPT"]
+    unadjusted = [f for f in covariates if f["verdict"] == "UNADJUSTED_IMBALANCED"]
+    exempt = [f for f in covariates if f["verdict"] == "EXPOSURE_DEFINING_EXEMPT"]
+    # `findings` is the DEFECT list and nothing else. It used to be the whole per-covariate
+    # audit table, two of whose three verdicts mean "this is fine": ADJUSTED says the
+    # covariate WAS handled and EXPOSURE_DEFINING_EXEMPT records a deliberate exemption.
+    # Every consumer that aggregates qc/ counted those as fires — in one real project that
+    # was ~45 pseudo-findings from three runs, enough to make this the loudest detector in
+    # the suite and to corrupt the precision ledger built on top of it. The full table is
+    # still emitted, as `covariates`, which is what the human-readable render walks.
+    findings = [dict(f, severity="major", message=(
+        f"{f['covariate']} is imbalanced by exposure "
+        + (f"(p={f['imbalance_p']:.4g})" if f["imbalance_p"] is not None else
+           f"(SMD={f['smd']:.3g})" if f["smd"] is not None else "")
+        + " and is not in the adjustment set; report an extended-adjustment sensitivity model."
+    )) for f in unadjusted]
     return {
         "table1": str(p),
         "adjustment_set": adj,
         "exposure_defining": defining,
         "thresholds": {"p": P_THRESHOLD, "smd": SMD_THRESHOLD},
         "smd_source": smd_source,
-        "n_imbalanced": len(findings),
+        "n_imbalanced": len(covariates),
         "n_unadjusted_imbalanced": len(unadjusted),
         "n_exposure_defining_exempt": len(exempt),
+        "covariates": covariates,
         "findings": findings,
         "verdict": "MAJOR_CANDIDATE" if unadjusted else "OK",
         "suggested_fix": (
@@ -408,7 +422,7 @@ def render_table(result: dict) -> str:
         "ADJUSTED": "✓",
         "EXPOSURE_DEFINING_EXEMPT": "⊘ exposure-defining (exempt; adjusting = over-adjustment)",
     }
-    for f in result["findings"]:
+    for f in result["covariates"]:
         p = "—" if f["imbalance_p"] is None else f"{f['imbalance_p']:.4g}"
         s = "—" if f["smd"] is None else f"{f['smd']:.3g}"
         mark = marks.get(f["verdict"], f["verdict"])
