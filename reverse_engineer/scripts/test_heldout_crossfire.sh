@@ -67,22 +67,55 @@ assert d["separation"]["collapsed"], "collapse not recorded in the artifact"
 v = {f["verdict"] for f in d["fires"]}
 assert v and all(x and not set(x) <= set("=- ") for x in v), \
     "worksheet verdicts are separator rules, not labelable verdicts: %r" % v
+# One exit carries several claims, and each must be labelable on its own merits: the pilot's
+# systematic-review fire asserted a true omission AND a false one inside a single exit.
+assert d["n_findings"] > d["pairs_fired"], \
+    "findings not split out of fires: %r findings, %r fires" % (d["n_findings"], d["pairs_fired"])
+assert all(f.get("code") for f in d["findings"]), "a finding with no code cannot be labelled"
+# The bar is part of the measurement. A rate whose bar is not recorded is not reportable.
+assert d["bar"] == "strict", d["bar"]
+assert all(v["bar"] in ("strict", "default") for v in d["per_detector"].values())
+# Every detector sits in exactly ONE status bucket. The old summary managed to report 33 run AND
+# 10 skipped out of 42, by counting a truncated detector in both.
+assert d["n_detectors_full"] + d["n_detectors_partial"] + d["n_detectors_never_ran"] \
+    == len(d["per_detector"]), d
 PY
 
-echo "== 2. labelled dispositions produce a rate =="
+echo "== 2. labelled dispositions produce a rate, at FINDING level =="
 python3 - "$TMP/ws.csv" "$TMP/disp.csv" <<'PY'
 import csv, sys
 rows = list(csv.DictReader(open(sys.argv[1])))
-assert len(rows) == 2, rows
-for r, d in zip(rows, ["spurious", "real"]):
-    r["disposition"] = d
+assert len(rows) >= 4, "expected finding-level rows (>=2 claims x 2 papers), got %r" % len(rows)
+assert "code" in rows[0], "worksheet is not finding-level: %r" % list(rows[0])
+# Same claims on both papers, labelled oppositely, so the rate is not degenerate either way.
+for r in rows:
+    r["disposition"] = "spurious" if r["paper"] == "alpha_2024_ct" else "real"
 with open(sys.argv[2], "w", newline="") as fh:
-    w = csv.DictWriter(fh, fieldnames=["paper", "detector", "verdict", "disposition", "note"])
+    w = csv.DictWriter(fh, fieldnames=["paper", "detector", "code", "severity", "verdict",
+                                       "disposition", "note"])
     w.writeheader(); w.writerows(rows)
 PY
 python3 "$RUNNER" --corpus "$TMP/corpus" --manifest "$TMP/manifest.json" --only "$DET" \
     --dispositions "$TMP/disp.csv" 2>&1 | grep -q "FALSE-POSITIVE RATE: 0.500" \
-  || fail "labelled dispositions did not yield the expected 1 spurious / 2 decided rate"
+  || fail "finding-level dispositions did not yield the expected half-spurious rate"
+
+echo "== 2b. a pair-level label file (no code column) still labels every finding =="
+python3 - "$TMP/ws.csv" "$TMP/disp_pairlevel.csv" <<'PY'
+import csv, sys
+seen, out = set(), []
+for r in csv.DictReader(open(sys.argv[1])):
+    if r["paper"] in seen:
+        continue
+    seen.add(r["paper"])
+    out.append({"paper": r["paper"], "detector": r["detector"], "verdict": "", "note": "",
+                "disposition": "spurious" if r["paper"] == "alpha_2024_ct" else "real"})
+with open(sys.argv[2], "w", newline="") as fh:
+    w = csv.DictWriter(fh, fieldnames=["paper", "detector", "verdict", "disposition", "note"])
+    w.writeheader(); w.writerows(out)
+PY
+python3 "$RUNNER" --corpus "$TMP/corpus" --manifest "$TMP/manifest.json" --only "$DET" \
+    --dispositions "$TMP/disp_pairlevel.csv" 2>&1 | grep -q "coverage 100%" \
+  || fail "a pre-findings (pair-level) label file no longer covers the findings it labelled"
 
 echo "== 3. an unbacked paper is excluded, not silently measured =="
 cp "$TMP/corpus/alpha_2024_ct.md" "$TMP/corpus/gamma_undeclared.md"
@@ -101,6 +134,87 @@ REL_OUT="$(cd "$TMP" && python3 "$RUNNER" --corpus ./corpus --only "$DET" 2>&1)"
   || fail "relative --corpus made the runner exit non-zero"
 grep -qE "pairs +: 2 " <<<"$REL_OUT" \
   || fail "relative --corpus ran 0 pairs — detectors were handed a path they cannot resolve"
+
+echo "== 3c. the SEVERITY BAR: a detector that exits 0 on its own blocker must not read as clean =="
+# Paid for on 2026-07-25. 32 of 42 manuscript detectors document exit 1 as conditional on --strict:
+# without it they PRINT a Major finding and exit 0, and the first version of this instrument read
+# only the exit code. Re-running the pilot corpus at both bars gave 5 fires vs 45, and seven
+# detectors recorded as "observed clean" fired the moment they were allowed to speak.
+# check_placeholders is the demonstration: it prints a warn-severity finding for a bare numeric
+# citation and exits 0, and only escalates to exit 1 under --strict. Note what this fixture also
+# shows — that the strict bar is not free. `--strict` means "gate Majors" in most detectors and
+# "promote advisories" in some, so a published paper using Vancouver citations fires at the strict
+# bar for a claim that is perfectly TRUE. That is why findings carry a severity tier and why the
+# labelling rule is correctness, not usefulness.
+mkdir -p "$TMP/bar"
+cat > "$TMP/bar/paper_with_marker.md" <<'EOF'
+# A study
+## Methods
+We enrolled patients consecutively, as described previously [1].
+EOF
+cat > "$TMP/bar_manifest.json" <<'EOF'
+{"schema_version": 1, "records": [
+  {"record_id": "paper_with_marker", "split": "heldout", "frozen_at": "2026-07-25",
+   "coverage": {"design": "unspecified"}}
+]}
+EOF
+python3 "$RUNNER" --corpus "$TMP/bar" --manifest "$TMP/bar_manifest.json" \
+  --only check_placeholders --bar default --out "$TMP/bar_default.json" >/dev/null 2>&1 \
+  || fail "runner exited non-zero on the bar fixture"
+python3 "$RUNNER" --corpus "$TMP/bar" --manifest "$TMP/bar_manifest.json" \
+  --only check_placeholders --bar strict --out "$TMP/bar_strict.json" >/dev/null 2>&1 \
+  || fail "runner exited non-zero on the bar fixture"
+python3 - "$TMP/bar_default.json" "$TMP/bar_strict.json" <<'PY' || exit 1
+import json, sys
+lo, hi = (json.load(open(p)) for p in sys.argv[1:3])
+assert lo["pairs_fired"] == 0, "fixture no longer demonstrates the bar: %r" % lo["pairs_fired"]
+assert hi["pairs_fired"] == 1, \
+    "the strict bar did not surface a finding the default bar swallowed: %r" % hi["pairs_fired"]
+assert hi["per_detector"]["check_placeholders"]["bar"] == "strict", hi["per_detector"]
+PY
+
+echo "== 3d. a per-paper skip must NOT abandon the rest of the corpus =="
+# Also paid for on 2026-07-25. Exit 2 means both "you did not give me the flags I need" (about the
+# DETECTOR) and "this paper has no section for me" (about the PAPER). The first version treated
+# both as a detector-level skip and broke out of the paper loop, so check_credit_integrity was
+# measured on 5 of 12 papers in FILENAME ORDER and the remaining 7 — holding three more fires —
+# were never measured. The first paper here is the one that makes it exit 2, on purpose.
+mkdir -p "$TMP/skip"
+cat > "$TMP/skip/aaa_no_credit_section.md" <<'EOF'
+# A study
+## Methods
+Patients were enrolled consecutively.
+EOF
+cat > "$TMP/skip/zzz_unresolvable_initials.md" <<'EOF'
+# A study
+
+Jane A. Doe, Robert B. Smith
+
+## Author contributions
+J.A.D.: Conceptualization; Methodology. R.B.S.: Writing – original draft. Q.Z.T.: Supervision.
+EOF
+cat > "$TMP/skip_manifest.json" <<'EOF'
+{"schema_version": 1, "records": [
+  {"record_id": "aaa_no_credit_section", "split": "heldout", "frozen_at": "2026-07-25",
+   "coverage": {"design": "a"}},
+  {"record_id": "zzz_unresolvable_initials", "split": "heldout", "frozen_at": "2026-07-25",
+   "coverage": {"design": "b"}}
+]}
+EOF
+python3 "$RUNNER" --corpus "$TMP/skip" --manifest "$TMP/skip_manifest.json" \
+  --only check_credit_integrity --out "$TMP/skip.json" >/dev/null 2>&1 \
+  || fail "runner exited non-zero on the truncation fixture"
+python3 - "$TMP/skip.json" <<'PY' || exit 1
+import json, sys
+d = json.load(open(sys.argv[1]))
+pd = d["per_detector"]["check_credit_integrity"]
+assert pd["not_applicable"] == 1, "the self-declared skip was not classified per paper: %r" % pd
+assert d["pairs_fired"] == 1, \
+    "a skip on the FIRST paper swallowed the fire on the second: %r" % d["pairs_fired"]
+assert pd["status"] == "partial", pd["status"]
+assert pd["measured"] == 1, pd
+assert d["pairs_unobserved"] == 1, d["pairs_unobserved"]
+PY
 
 echo "== 4. an empty corpus refuses to emit a rate =="
 mkdir -p "$TMP/empty"
