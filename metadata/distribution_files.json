@@ -1153,8 +1153,8 @@
     },
     {
       "path": "skills/design-study/SKILL.md",
-      "size": 17637,
-      "sha256": "113a91e5696f77204e35164e18b2cb4f3d730f093af12afb23ce64ddddbe456b"
+      "size": 18884,
+      "sha256": "46269424deac0a1ebcbbc6b4cfc5c19cd8fc1368e90c7edb2d435f531214f2d0"
     },
     {
       "path": "skills/design-study/references/combine_models_ablation_design.md",
@@ -1175,6 +1175,11 @@
       "path": "skills/design-study/references/reader_elicitation_design.md",
       "size": 6864,
       "sha256": "01984bc2cd4a88616ae4fe94fa9da80cdf52e433a0c542d9c0afc0a3b8ec9e83"
+    },
+    {
+      "path": "skills/design-study/references/segmentation_failure_characterization_design.md",
+      "size": 6533,
+      "sha256": "46b747623ecf1a49e813e654d5ff0e8f2c98a0d11ea798219de483f35b46faf0"
     },
     {
       "path": "skills/design-study/references/target_trial_emulation.md",

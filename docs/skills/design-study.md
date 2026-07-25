@@ -39,6 +39,7 @@
 - `dag_adjustment.md`
 - `multi_model_comparison_design.md`
 - `reader_elicitation_design.md`
+- `segmentation_failure_characterization_design.md`
 - `target_trial_emulation.md`
 - `venue_accept_recipe.md`
 
