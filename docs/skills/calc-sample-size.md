@@ -39,6 +39,7 @@
 - `mrmc_reader_study_sample_size.md`
 - `observational_cohort.md`
 - `prediction_model_sample_size.md`
+- `segmentation_metric_sample_size.md`
 
 ## Source
 

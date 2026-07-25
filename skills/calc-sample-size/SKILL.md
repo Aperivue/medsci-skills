@@ -22,6 +22,7 @@ Python (alternative), interpret effect sizes clinically, and produce IRB-ready j
 - **Observational cohort precision branch**: `${CLAUDE_SKILL_DIR}/references/observational_cohort.md`
 - **Prediction-model / medical-AI sample size (Riley)**: `${CLAUDE_SKILL_DIR}/references/prediction_model_sample_size.md` -- the current TRIPOD+AI-aligned standard for a clinical prediction/classification model (development via `pmsampsize`, external validation via `pmvalsampsize`, net-benefit precision). Use this instead of EPV-10 whenever the goal is risk prediction for use rather than a single-predictor hypothesis test (Tests 12-13).
 - **MRMC reader-study sample size (Obuchowski–Rockette)**: `${CLAUDE_SKILL_DIR}/references/mrmc_reader_study_sample_size.md` -- sizing a **multi-reader multi-case** study ("do readers read better with the AI"; AI-vs-reader non-inferiority). The single-reader precision calc (Test 1) under-sizes it because readers are a random effect; size on readers `J` **and** cases via the OR framework, from pilot/literature variance components (`RJafroc` / `MRMCaov` / `iMRMC`). Use whenever a reader study is the design (Test 14).
+- **Segmentation-metric precision (Dice / HD95 / NSD)**: `${CLAUDE_SKILL_DIR}/references/segmentation_metric_sample_size.md` -- sizing a segmentation validation by the precision of the per-case overlap/boundary score (not a proportion): `n ≈ (1.96·SD/δ)²` from the pilot SD of per-case Dice, per structure (size on the worst), bootstrap-BCa CI, paired for a model comparison, and size the external cohort. Use whenever the outcome is Dice/HD95/NSD (Test 15).
 - **Justification prose exemplars**: `${CLAUDE_SKILL_DIR}/references/justification_examples.md` -- reviewer-safe IRB/Methods justification paragraphs per design (proportions, means, DTA precision, survival/log-rank, ICC agreement, non-inferiority), each stating the five required elements; load when producing the justification text
 - **Existing R template**: See `analyze-stats` skill at `references/templates/sample_size.R` for the 7 original tests
 
@@ -388,6 +389,29 @@ Read `${CLAUDE_SKILL_DIR}/references/mrmc_reader_study_sample_size.md` for the f
 readers-vs-cases trade-off, software, and reporting. Reader-study *design internals* live in
 `design-study` (`reader_elicitation_design.md`); an AI-vs-human-expert benchmark routes to
 `/design-ai-benchmarking`.
+
+---
+
+### Test 15: Segmentation-metric precision (Dice / HD95 / NSD)
+
+**When to use**: sizing a **segmentation** validation — how many cases to estimate the segmentation
+metric (Dice / HD95 / NSD) precisely enough to be conclusive, or to separate two models. The
+proportion/events calcs (Tests 1, 12–13) do not apply: the outcome is a bounded, skewed per-case
+overlap/boundary score, not a proportion.
+
+**Approach**: precision sizing `n ≈ (1.96·SD/δ)²` from the **pilot/literature SD of per-case Dice**
+(per structure — size on the **worst** structure you must report, not the average); report the CI by
+**bootstrapping per-case values (BCa)**, since Dice has no closed-form CI and is non-normal near the
+ceiling. A model comparison on the same cases is **paired** (size on the SD of the per-case
+*difference*, or an NI margin). **Size the external cohort too** — a precise external estimate is the
+#1 acceptance lever.
+
+**Required parameters**: the **per-structure SD of per-case Dice** (pilot/literature), the target
+**precision δ** or **NI margin**, and the metric.
+
+Read `${CLAUDE_SKILL_DIR}/references/segmentation_metric_sample_size.md` for the per-structure and
+paired-comparison detail. The comparator/ablation the size serves lives in `design-study`
+(`combine_models_ablation_design.md`); metric selection is `/model-evaluation`.
 
 ---
 
