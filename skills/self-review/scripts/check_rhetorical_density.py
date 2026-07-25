@@ -59,13 +59,10 @@ import re
 import sys
 from pathlib import Path
 
-from _frontmatter import strip_frontmatter
+from _prose import body_text
 
 DETECTOR = "check_rhetorical_density"
 
-FENCE_RE = re.compile(r"```.*?```", re.S)
-CITE_RE = re.compile(r"\[@[^\]]+\]|\[\d+(?:[,–-]\d+)*\]")
-INLINE_RE = re.compile(r"[*_`]")
 WORD_RE = re.compile(r"[A-Za-z0-9']+")
 SENT_SPLIT_RE = re.compile(r"(?<=[.!?])\s+(?=[\"“(]?[A-Z0-9])")
 
@@ -97,24 +94,6 @@ IT_CLEFT_RE = re.compile(
     r"^It\s+(?:is|was|has\s+been)\s+[\w'-].*?\b(?:that|which|who)\b", re.I
 )
 
-
-def body_text(md: str) -> str:
-    """Body prose only: no front matter, headings, tables, block quotes, code, list
-    items, citations, or inline markup. Same extractor the aphorism-density gate uses."""
-    md = strip_frontmatter(md)
-    md = FENCE_RE.sub(" ", md)
-    keep = []
-    for line in md.splitlines():
-        s = line.strip()
-        if not s or s.startswith(("#", "|", ">", "!", "---")):
-            continue
-        if re.match(r"^\s*(?:[-*+]|\d+\.)\s", line):
-            continue
-        keep.append(s)
-    txt = " ".join(keep)
-    txt = CITE_RE.sub("", txt)
-    txt = INLINE_RE.sub("", txt)
-    return re.sub(r"\s+", " ", txt).strip()
 
 
 def sentences(txt: str) -> list:

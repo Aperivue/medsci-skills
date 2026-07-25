@@ -53,11 +53,8 @@ import statistics
 import sys
 from pathlib import Path
 
-from _frontmatter import strip_frontmatter
+from _prose import body_text
 
-FENCE_RE = re.compile(r"```.*?```", re.S)
-CITE_RE = re.compile(r"\[@[^\]]+\]|\[\d+(?:[,–-]\d+)*\]")
-INLINE_RE = re.compile(r"[*_`]")
 SENT_SPLIT_RE = re.compile(r"(?<=[.!?])\s+(?=[A-Z\"“])")
 
 # `X is not Y` where the complement is a bare noun phrase, not a clause or a
@@ -78,23 +75,6 @@ SHORT_MAX_WORDS = 9          # "very short declarative"
 NEG_DEF_MAX_WORDS = 14       # a negative definition only counts inside a short sentence
 MIN_SENTENCES = 40           # below this a rate is noise
 
-
-def body_text(md: str) -> str:
-    """Body prose only: no headings, tables, block quotes, code, citations, markup."""
-    md = strip_frontmatter(md)   # a `status:`/build-note YAML block is not prose rhythm
-    md = FENCE_RE.sub(" ", md)
-    keep = []
-    for line in md.splitlines():
-        s = line.strip()
-        if not s or s.startswith(("#", "|", ">", "!", "---")):
-            continue
-        if re.match(r"^\s*(?:[-*+]|\d+\.)\s", line):   # list items are not prose rhythm
-            continue
-        keep.append(s)
-    txt = " ".join(keep)
-    txt = CITE_RE.sub("", txt)
-    txt = INLINE_RE.sub("", txt)
-    return re.sub(r"\s+", " ", txt).strip()
 
 
 def sentences(txt: str) -> list[str]:
