@@ -90,6 +90,32 @@ exactly why the rate is withheld until a human looks. The instrument found a gen
 accepted paper and three vocabulary bugs in our own stack, and could not have told them apart by
 itself.
 
+## A fire you act on spends the paper
+
+This is the rule the first cycle produced, and it is the one most easily skipped.
+
+The six fires above were investigated, and four turned out to be ours: house-style vocabulary and
+a term scan running on sections that were never CRediT blocks. Fixing them dropped the same corpus
+to **2 fires, fire rate 0.005, false-positive rate 0.000** — the loop closed for the first time.
+
+That number is a **tuning score, not a held-out estimate.** Those twelve papers have now informed
+detector changes; measuring the changed detectors on them again is scoring on the set they were
+fitted to. The corpus did not stop being useful — it stopped being *unbiased*, and only for the
+detectors it touched.
+
+So the split has three parts, not two, and they are spent in this order:
+
+| set | role | spent by |
+|---|---|---|
+| challenge-card fixtures | train | authored with the detector |
+| **this corpus** | validation — find defects, fix them, re-measure | acting on a fire |
+| a **fresh** frozen corpus | test — one unbiased number | reading it |
+
+Acquiring the next freeze is cheap: the same PMC route, different DOIs, `frozen_at` on the day it
+is sealed. Do that before quoting a false-positive rate as evidence of anything, and do not quote
+this one as unbiased — it is the score of a fix on the cases that motivated it, which is exactly
+the reading a reviewer would catch.
+
 ## Reading the output
 
 ```bash
