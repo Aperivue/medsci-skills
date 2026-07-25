@@ -423,14 +423,16 @@ compared head-to-head on the same task. Single-model precision (Test 1 AUC, Test
 it: two models can each have a tight CI and still overlap, so the **difference** must be powered.
 
 **Approach**: run all models on the **same cases** (paired / within-case) and size on the **SD of the
-per-case difference** — usually much smaller than either marginal SD, since easy/hard cases are shared.
-Use **DeLong** for a paired ΔAUC (or Obuchowski for the MRMC/clustered case) and a **bootstrap of the
-paired per-case differences** for ΔDice; size so the delta CI excludes zero (or meets an NI margin). For
-**>2 models**, pre-specify **one primary contrast** (proposed vs a strong, fairly-tuned baseline) at full
-α — or, if all pairwise are confirmatory, pay the **family-wise** correction (higher n per contrast). For
-a **ranking** claim, a single-run leaderboard ranks by luck: train over **multiple seeds** (Nadeau–Bengio
-corrected variance for repeated-CV differences) and treat models within the **Demšar critical difference**
-as tied.
+per-case difference** — `σ√(2(1−ρ))`, below either marginal SD once ρ > 0.5, which shared easy/hard cases
+usually clear. Use **DeLong** for a paired ΔAUC (or Obuchowski for the MRMC/clustered case) and a
+**bootstrap of the paired per-case differences** for ΔDice; size so the delta CI excludes zero, or so its
+lower bound clears the NI margin (the whole interval inside ±margin is *equivalence*, a stricter claim).
+For **>2 models**, pre-specify **one primary contrast** (proposed vs a strong, fairly-tuned baseline) at
+full α — or, if all pairwise are confirmatory, pay the **family-wise** correction (higher n per contrast).
+For a **ranking** claim, a single-run leaderboard ranks by luck: train over **multiple seeds**
+(Nadeau–Bengio corrected variance for repeated-CV differences) and leave models inside the **Demšar
+critical difference** unranked — not separated by the test is not a demonstrated tie, and Demšar's N
+counts independent datasets, not seeds.
 
 **Required parameters**: the **per-case-difference SD** of the primary metric (pilot / prior head-to-head;
 per structure for segmentation), the metric + paired-CI method, the target **δ or NI margin on the delta**,

@@ -65,8 +65,12 @@ present it with the leaderboard figure below.)
 
 ## Rank honestly — a ranking is not a significance test
 
-Put uncertainty on every model (a CI, or at least a tested delta) and **resist over-ranking**: a "win"
-inside overlapping CIs is not a win, and models within the critical difference are **tied**. Disaggregate
+Put uncertainty on every model (a CI, or at least a tested delta) and **resist over-ranking** — but
+rank against the right object: the **paired Δ and its CI**, not the overlap of two marginal CIs. Two
+marginal intervals can overlap heavily while the paired Δ excludes zero, because the covariance the
+paired test uses is invisible in the marginals; non-overlap implies a difference, overlap implies
+nothing either way. Models inside the critical difference are **not separated by the test** — leave
+them unranked rather than reporting a demonstrated tie. Disaggregate
 (per-structure / per-class) and show **where the winning model still fails** — the honest negative
 (a structure that collapses for all models, a fusion strategy at chance) is an acceptance asset, not a
 liability. A corollary the corpus surfaced: a CI must be **believable for the N** — an implausibly tight

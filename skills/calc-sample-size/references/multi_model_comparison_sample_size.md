@@ -16,21 +16,27 @@ marginal SDs do not give you.
 
 ## Pair the design — it shrinks the required n
 
-Run **all models on the same cases** (a paired / within-case design). Then size on the **SD of the
-per-case difference**, which is usually **much smaller** than either marginal SD because easy cases
-are easy for every model and hard cases are hard for every model (the between-model differences are
-correlated away). A paired comparison needs far fewer cases than two independent arms for the same
-power — and it is also the only design that supports the paired statistics below.
+Run **all models on the same cases** (a paired / within-case design) and size on the **SD of the
+per-case difference**. With equal marginal SDs σ and between-model correlation ρ,
+`SD_Δ = σ·√(2(1−ρ))` — **smaller than either marginal SD only once ρ > 0.5**, a bar that models
+scored on the *same* cases usually clear by a wide margin (easy cases are easy for every model, hard
+cases are hard for every model). Whatever ρ turns out to be, the paired design also **collects fewer
+cases** than two independent arms at equal power, because one case serves every model — and it is the
+only design that supports the paired statistics below.
 
 ## Metric-specific paired sizing
 
 - **Classification / detection — paired ΔAUC:** use the **DeLong** (1988) variance of the *difference*
   of two correlated AUCs (or Obuchowski for the MRMC / clustered case); size so the **ΔAUC CI excludes
-  zero** (superiority) or lies within the **non-inferiority margin**. Sizing on each AUC's marginal CI
+  zero** (superiority) or so its **lower bound clears −δ**, the non-inferiority margin — requiring the
+  *whole* interval inside ±δ is the stricter **equivalence** claim, so do not size one and call it the
+  other. Sizing on each AUC's marginal CI
   is the wrong tool — the covariance between the two ROC curves is exactly what a paired calc uses.
 - **Segmentation — paired ΔDice / ΔHD95 / ΔNSD:** size on the SD of the **per-case metric difference**
-  and report the delta CI by **bootstrapping the paired per-case differences (BCa)** — there is no
-  closed-form Dice CI. This extends the A-vs-B section of `segmentation_metric_sample_size.md` beyond
+  and report the delta CI by **bootstrapping the paired per-case differences (BCa)** — a t-interval on
+  the mean per-case difference is closed-form, but it leans on a normality that a bounded metric
+  bunched near ceiling does not deliver, and BCa resamples whole *patients* rather than lesions or
+  structures. This extends the A-vs-B section of `segmentation_metric_sample_size.md` beyond
   a single contrast; **size on the worst structure** you must report.
 - Take the **per-case-difference SD from a pilot** (or a prior head-to-head), never from a marginal-SD
   formula that assumes independence.
@@ -57,10 +63,13 @@ run is not evidence. Two additions:
 - **Report run-to-run variance:** train each model over **multiple seeds** and report the metric's
   seed SD; for the paired difference of repeated cross-validation runs use the **Nadeau–Bengio
   corrected-resampled variance** (a naïve paired t over overlapping CV folds is anticonservative).
-- **Comparing many models (over datasets/structures):** the **Demšar (2006)** framework — Friedman
-  test + Nemenyi **critical-difference** — tells you which rank gaps are real; models within the
-  critical difference are **statistically tied**, not ranked. Size / seed so the top rank is stable,
-  or report the tie honestly.
+- **Comparing many models across independent datasets:** the **Demšar (2006)** framework — Friedman
+  test + Nemenyi **critical-difference** — tells you which rank gaps are real. Its sampling unit is the
+  **independent dataset**, so its N is the *number of datasets*: extra seeds and overlapping CV folds do
+  not raise it (those buy you the run-to-run spread above), and per-structure scores from one cohort are
+  correlated blocks, not substitutes for datasets. Models inside the critical difference are **not
+  separated by the test** — leave them unranked, and do not upgrade that to a demonstrated tie
+  (failure to reject is not evidence of equality; an equivalence claim needs its own margin).
 
 ## Required parameters
 

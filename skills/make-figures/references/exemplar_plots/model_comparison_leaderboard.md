@@ -13,15 +13,17 @@ show* and the errors to avoid; not an image to copy, no real citations.
 - The **metric per model** as a **forest / dumbbell**, one row per model, with the **strong,
   fairly-tuned reference baseline** as the labelled reference row — so each model is read as a
   **difference from the baseline**, not as an isolated number.
-- **A CI on every model's estimate** — a **bootstrap (BCa) CI on per-case values** for Dice (no
-  closed-form CI), a **DeLong-based CI/band** for AUC. The CI width is what turns a stack of point
-  estimates into a comparison a reviewer can judge.
+- **A CI on every model's estimate** — a **bootstrap (BCa) CI on per-case values** for Dice (bounded
+  and skewed near ceiling, so resample whole patients rather than trust a t-interval), a **DeLong CI**
+  for AUC (DeLong gives the AUC's standard error and the correlated-AUC contrast — it is not a
+  confidence band around the ROC curve). The CI width is what turns a stack of point estimates into a
+  comparison a reviewer can judge.
 - **The paired Δ vs the reference** annotated per model (Δ + its **CI / significance**), because the
   models were run on the **same cases** — the paired difference, not two marginal numbers placed
   side by side, is the comparison.
-- **Ranking honesty**: show the **overlapping CIs**; where models are near-tied, add a **rank-stability
-  strip** (seed-to-seed spread) or a **critical-difference** view so models within the critical
-  difference read as **tied**, not ordered.
+- **Ranking honesty**: where models are near-tied, add a **rank-stability strip** (seed-to-seed spread)
+  or a **critical-difference** view so models the test does not separate read as **unranked** rather
+  than ordered — and are not captioned as a demonstrated tie.
 - **Faceting by structure / subgroup / class** where the endpoint demands it (per-organ Dice, per-class
   AUC), so a model that wins on average but loses on the hard structure is visible.
 - **Matched-budget disclosure in the caption** — same data, patient-level split, preprocessing, and
@@ -29,8 +31,9 @@ show* and the errors to avoid; not an image to copy, no real citations.
   on this line; without it a leaderboard is unfalsifiable.
 
 ## Discipline (what the figure must not do)
-- **Do not bold / highlight your own row as the winner when its CI overlaps the runner-up** — an
-  overlapping-CI "win" is the cherry-pick a reviewer flags first; encode the tie instead.
+- **Do not bold / highlight your own row as the winner unless the paired Δ vs the runner-up excludes
+  zero** — and read that Δ, not the overlap of the two marginal CIs, which can overlap while the paired
+  difference is real; where the Δ does not clear zero, encode **not separated** instead of a winner.
 - **Do not plot one point per model with no CI or seed spread** — a single-run leaderboard ranks by
   *skill + luck*; a bare ranked list is a leaderboard of luck.
 - **Do not put models trained on different data / split / budget in the same ranking** without saying

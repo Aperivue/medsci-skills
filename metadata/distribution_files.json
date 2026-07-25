@@ -583,8 +583,8 @@
     },
     {
       "path": "skills/calc-sample-size/SKILL.md",
-      "size": 30284,
-      "sha256": "450d07cd6b75ec88e3cbcbeca45a0a1c1d44d7d9f5e194d8a58489bc4a4d22a3"
+      "size": 30513,
+      "sha256": "b4c5c8ae6e2f7665846484949bebb28c79593e4d4ed91d99a541021e90aea5fe"
     },
     {
       "path": "skills/calc-sample-size/references/formulas.md",
@@ -603,8 +603,8 @@
     },
     {
       "path": "skills/calc-sample-size/references/multi_model_comparison_sample_size.md",
-      "size": 5342,
-      "sha256": "7dfe92df8bc334cc1012277a53e90c69ded26a6f33bbc752dbd625e7de2b3a65"
+      "size": 6230,
+      "sha256": "0d071f01849a2831a001237a9676c647b00bb9a8586bf12f50d21195ca753c22"
     },
     {
       "path": "skills/calc-sample-size/references/observational_cohort.md",
@@ -1168,8 +1168,8 @@
     },
     {
       "path": "skills/design-study/references/multi_model_comparison_design.md",
-      "size": 6814,
-      "sha256": "06110811a3b14b0d77fba9b4f340489d1bc8abf626ac71f84009580c9b93d442"
+      "size": 7179,
+      "sha256": "73b0c806e2997b8620e694a43186ae46616b87635884f0f38a1d181b04b857ff"
     },
     {
       "path": "skills/design-study/references/reader_elicitation_design.md",
@@ -2133,8 +2133,8 @@
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/README.md",
-      "size": 8105,
-      "sha256": "a253c057783377332c4cd0b91d17bed717c3a2021bab1ff7bacbb58f1068da0b"
+      "size": 8130,
+      "sha256": "95a617b0b71a4a8b94254d47cc4a479d44cfdc96084cff9bbfb371922905b2af"
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/ai_assistance_effect.md",
@@ -2193,8 +2193,8 @@
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/model_comparison_leaderboard.md",
-      "size": 3793,
-      "sha256": "d7321ba539465a651fd4fcd43615dfb2d0bb92cf94539c07c2d1271138b44868"
+      "size": 4131,
+      "sha256": "f3cb7d5226afaf26d6645b308ed7eca19333c6a26a24cd220dd9ac1865443504"
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/mrmc_roc.md",
