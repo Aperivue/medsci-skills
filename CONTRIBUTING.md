@@ -205,6 +205,17 @@ The rule is enforced by `scripts/check_release_cadence.py` (CI):
   it is a security problem, or it produced a wrong result that a user may have believed. Those go out
   immediately. Say so, and the gate stands aside:
 
+- **Exception — a pinned reference.** An external artifact has to cite an exact version: a paper
+  reporting a measurement taken against this toolkit, for instance. A git SHA is a worse coordinate
+  for a reader trying to reproduce that number than a release is, so waiting would not serve the
+  thing the waiting period protects. Name the artifact — the gate prints it, so an unjustified use
+  is visible in the CI log of the release that used it — and note that this waives the **wait**, not
+  the **substance**: a version worth citing is a version worth updating to.
+
+  ```markdown
+  **Pinned reference:** the held-out validation study must report the exact version it measured.
+  ```
+
   ```markdown
   ## [5.20.1] - 2026-07-11
 

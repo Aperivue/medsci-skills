@@ -111,6 +111,45 @@ write_release "1.1.0" "
 python3 scripts/check_release_cadence.py --strict --min-days 0 > /dev/null 2>&1
 ck "enough time + real content -> passes" 0 "$?"
 
+# 8) the second exemption: a release cut so an external artifact can cite an exact version.
+#    A measurement study reporting "N detectors, false-positive rate X" has to name what it
+#    measured, and a git SHA is a worse coordinate than a release for anyone reproducing it — so
+#    waiting would not improve the thing the waiting period protects.
+write_release "1.1.0" "
+**Pinned reference:** the held-out validation study must report the exact version it measured.
+
+### Added
+
+- Something a user would notice.
+"
+python3 scripts/check_release_cadence.py --strict > /dev/null 2>&1
+ck "a declared pinned reference ships early" 0 "$?"
+
+OUT="$(python3 scripts/check_release_cadence.py 2>&1)"
+echo "$OUT" | grep -q "PINNED REFERENCE declared: the held-out validation study"
+ck "...and the reason is printed, so an unjustified use is visible in the log" 0 "$?"
+
+# 9) the exemption waives the WAIT, not the SUBSTANCE. A version worth citing is a version worth
+#    updating to, so it cannot be used to ship a docs-only release early.
+write_release "1.1.0" "
+**Pinned reference:** a paper needs to cite this.
+
+### Docs
+
+- Fixed a typo.
+"
+python3 scripts/check_release_cadence.py --strict > /dev/null 2>&1
+ck "a pinned reference does not excuse an empty release" 1 "$?"
+
+# 10) and the blocked message names it as a way out, so nobody has to guess or mislabel a hotfix
+write_release "1.1.0" "
+### Added
+
+- Something new.
+"
+python3 scripts/check_release_cadence.py 2>&1 | grep -q "Pinned reference"
+ck "the blocked message offers the pin, not only the hotfix" 0 "$?"
+
 echo "----"
 echo "test_release_cadence: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]
