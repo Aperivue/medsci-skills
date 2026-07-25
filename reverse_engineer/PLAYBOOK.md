@@ -43,6 +43,12 @@ Read `LICENSING.md` first — it is binding on every artifact this loop commits.
 
 ## Step A — Acquire
 
+> **Before acquiring, decide the split.** A source is `train` (informs the suite — the normal
+> path) or `heldout` (measurement only; `distill.py` denies every reuse mode, including
+> `synthetic`). The held-out set is how this program checks that it is converging on the goal
+> rather than on its own gates — see `HELDOUT.md`. The decision is effectively one-way: moving a
+> source back to `train` invalidates every measurement already taken on it.
+
 1. Pull the next batch (N ≈ 5) of `record_id`s / DOIs from `doi_lists/queue.txt`.
 2. Fetch full text into `_corpus/papers/<record_id>.md` (use the `fulltext-retrieval`
    skill for OA articles; open-review APIs for review reports). `scripts/acquire.py`

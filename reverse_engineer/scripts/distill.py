@@ -33,6 +33,7 @@ REPO_ROOT = RE_DIR.parent
 SCHEMA = RE_DIR / "source_manifest.schema.json"
 MANIFEST = REPO_ROOT / "_corpus" / "manifest.json"
 RECORD_ID_RE = re.compile(r"^[a-z0-9][a-z0-9_]{2,79}$")
+DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 MODES = ("synthetic", "paraphrase", "verbatim")
 
 # Licenses that permit derivative reuse (paraphrase / verbatim). Compared lower-cased.
@@ -89,6 +90,7 @@ def load_schema_enums() -> dict:
         "required": rec["required"],
         "source_type": rec["properties"]["source_type"]["enum"],
         "public_reuse_policy": rec["properties"]["public_reuse_policy"]["enum"],
+        "split": rec["properties"]["split"]["enum"],
         "artifact_required": art["required"],
         "artifact_type": art["properties"]["artifact_type"]["enum"],
     }
@@ -137,6 +139,13 @@ def validate_record(r: dict, enums: dict) -> list[str]:
         errs.append(f"{tag}: policy 'cc_by_attribution' requires a non-empty attribution")
     if r.get("verbatim_allowed") is True and policy != "cc_by_attribution":
         errs.append(f"{tag}: verbatim_allowed requires public_reuse_policy 'cc_by_attribution'")
+    # Development firewall. A held-out source is measurement-only; the freeze date is what makes
+    # "no detector was built knowing this paper" checkable rather than asserted.
+    split = r.get("split", "train")
+    if split not in enums["split"]:
+        errs.append(f"{tag}: split must be one of {enums['split']}")
+    if split == "heldout" and not DATE_RE.match(str(r.get("frozen_at", ""))):
+        errs.append(f"{tag}: split 'heldout' requires frozen_at as an ISO date (YYYY-MM-DD)")
     # Linked artifacts (supplementary / code repo / dataset / model card) — each carries its
     # OWN license, verified independently of the article.
     arts = r.get("linked_artifacts")
@@ -211,7 +220,32 @@ def find_record(manifest: dict, rid: str) -> dict | None:
     return None
 
 
+def heldout_denial(rec: dict) -> str | None:
+    """The development firewall, one function so both dispatch paths obey it.
+
+    A held-out source is the measurement set. It authorizes NOTHING — not even `synthetic`,
+    which every other known-license source is allowed. That looks over-strict until you say the
+    claim out loud: a fire rate measured on held-out papers means "no detector was written
+    knowing this paper". Reading one to author a fresh probe is exactly how a detector comes to
+    know it, and the reuse is non-derivative in copyright terms while being total in measurement
+    terms. The license firewall and this firewall are asking different questions; only this one
+    can answer "is the number still honest?".
+    """
+    if rec.get("split") == "heldout":
+        return (
+            f"source is in the HELD-OUT split (frozen {rec.get('frozen_at', '?')}) — it exists to "
+            "be measured against, not learned from. Distilling it silently converts the "
+            "measurement set into a training set and every fire rate taken on it becomes "
+            "uninterpretable. Use a train-split source, or move this one to train and discard "
+            "the measurements already taken on it."
+        )
+    return None
+
+
 def authorize(rec: dict, mode: str) -> tuple[bool, str]:
+    denial = heldout_denial(rec)
+    if denial:
+        return False, denial
     lic = rec.get("license")
     if not license_known(lic):
         return False, "license is unknown/empty — acquire a real license before any reuse"
@@ -301,6 +335,13 @@ def main() -> int:
         ok, reason = authorize(rec, mode)
         print(f"{'ALLOW' if ok else 'DENY'}: {rid} / {mode} — {reason}")
         return 0 if ok else 1
+
+    # A linked artifact inherits its parent's split: the code repo of a held-out paper is a
+    # different door into the same paper.
+    denial = heldout_denial(rec)
+    if denial:
+        print(f"DENY: {target} / {mode} — {denial}")
+        return 1
 
     # Authorize a specific linked artifact. A '#' with a malformed/empty index fails closed
     # (ASCII-digits only — some Unicode digits pass str.isdigit() but break int()).
