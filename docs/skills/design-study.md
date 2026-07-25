@@ -38,6 +38,7 @@
 - `dag_adjustment.md`
 - `reader_elicitation_design.md`
 - `target_trial_emulation.md`
+- `venue_accept_recipe.md`
 
 **Scripts** (`skills/design-study/scripts/`):
 

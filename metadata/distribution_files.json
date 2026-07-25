@@ -1138,8 +1138,8 @@
     },
     {
       "path": "skills/design-study/SKILL.md",
-      "size": 15269,
-      "sha256": "7d21b57aa8b94728a21ddf2fd57f8fd332a95a1e1a16cddb40780b5c5ce92a9a"
+      "size": 15702,
+      "sha256": "1945f3af72672ec271a1a92d5c39a35dccc40cf58fab90fff6f724808afecdef"
     },
     {
       "path": "skills/design-study/references/dag_adjustment.md",
@@ -1155,6 +1155,11 @@
       "path": "skills/design-study/references/target_trial_emulation.md",
       "size": 6025,
       "sha256": "3f3b8aa8256689a2109e06b0eaa92f0e793869838711c19f0b2d9e9e01dcb0ff"
+    },
+    {
+      "path": "skills/design-study/references/venue_accept_recipe.md",
+      "size": 7965,
+      "sha256": "510eda5a443db5273e792ef48266808c669864695f1e2dca1aa18773242de772"
     },
     {
       "path": "skills/design-study/scripts/adjustment_set_challenge/fixture/confounder.json",
