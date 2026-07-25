@@ -1143,8 +1143,13 @@
     },
     {
       "path": "skills/design-study/SKILL.md",
-      "size": 15702,
-      "sha256": "1945f3af72672ec271a1a92d5c39a35dccc40cf58fab90fff6f724808afecdef"
+      "size": 16485,
+      "sha256": "b94ca6b38c0196c3344d40beca3fc74f44e2ab38977b0eb21bd4c99ee72de354"
+    },
+    {
+      "path": "skills/design-study/references/combine_models_ablation_design.md",
+      "size": 4757,
+      "sha256": "22bf79fafe2ad340aa90d70bc8bd1195e92cff1ce2add3627e8bbc37c258fb0e"
     },
     {
       "path": "skills/design-study/references/dag_adjustment.md",

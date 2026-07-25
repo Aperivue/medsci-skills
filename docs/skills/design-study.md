@@ -35,6 +35,7 @@
 
 **References** (`skills/design-study/references/`):
 
+- `combine_models_ablation_design.md`
 - `dag_adjustment.md`
 - `reader_elicitation_design.md`
 - `target_trial_emulation.md`
