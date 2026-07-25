@@ -22,6 +22,29 @@ A section that genuinely cannot be split lives in EXEMPT with a one-line reason,
 so that a long section is a decision someone wrote down -- not a rule that
 quietly stopped applying.
 
+THE WHOLE FILE IS ALSO A BILL. A per-section budget bounds the parts and says
+nothing about the sum: a SKILL.md can hold thirty compliant sections and still
+cost twenty thousand tokens on every invocation. On 2026-07-25 self-review was
+1,132 lines / ~21,900 tokens and peer-review ~20,200 with every section inside
+the 80-line budget. So this gate also enforces a whole-file budget.
+
+It counts TOKENS, not lines, because lines are the wrong unit and the repo has
+the counter-example: peer-review at 604 lines cost ~20,200 tokens while
+make-figures at 930 lines cost ~11,900. Judged by lines, make-figures looks like
+the second-worst file; judged by what the user actually pays, it is fifth, and a
+line budget would have sent the work to the wrong file. Dense tables cost 33
+tokens per line, prose costs 12.
+
+--max-file-tokens is a RATCHET, not a target: it sits just above the largest
+SKILL.md we have accepted after extraction, so nothing can grow past today's
+worst without a deliberate decision. It is not a statement that 16,000 tokens is
+a reasonable size for a skill -- the median SKILL.md is ~2,800. Tightening it is
+its own decision, taken deliberately; it should never loosen.
+
+The estimate is characters/4, the standard English rough count. It is a
+proportional measure used against a threshold set with the same measure, so its
+absolute error does not matter to the comparison.
+
 Top-level `scripts/` validator (not a `skills/*/scripts/` detector) -- it audits
 the context budget of the skill surface, not a manuscript, so it is NOT part of
 the MedSci-Audit detector count.
@@ -29,9 +52,10 @@ the MedSci-Audit detector count.
 Usage:
   python3 scripts/check_phase_budget.py --strict
   python3 scripts/check_phase_budget.py --max-lines 80 --json
+  python3 scripts/check_phase_budget.py --max-file-tokens 16000 --strict
   python3 scripts/check_phase_budget.py --skills-dir <dir> --strict
-Exit: 0 when every section is within budget (or exempt); with --strict, 1 on any
-over-budget section; 2 on a read error.
+Exit: 0 when every section AND every file is within budget (or exempt); with
+--strict, 1 on any over-budget section or file; 2 on a read error.
 """
 from __future__ import annotations
 
@@ -47,6 +71,18 @@ ROOT = Path(__file__).resolve().parent.parent
 # value is the one-line reason. Keep this near-empty: an exemption is a decision
 # someone wrote down, and every entry here is context every user pays for.
 EXEMPT: dict[str, str] = {}
+
+# Whole-file exemptions. Key is the skill name, value is the reason AND the plan -- an exemption
+# without a plan is how a deferral becomes permanent.
+FILE_EXEMPT: dict[str, str] = {
+    "peer-review": (
+        "~20,200 tokens, of which ~10,000 are 24 study-type Extension blocks that each re-summarise "
+        "a references/domain-probes module. Collapsing them to one routing table is the fix, but the "
+        "Exempt conditions and highest-yield probe rankings live ONLY in SKILL.md, so the prose has "
+        "to be moved into the modules (byte-identical in two vendored copies) rather than deleted. "
+        "Tracked as its own change; delete this entry when it lands."
+    ),
+}
 
 # A section starts at a level-2 or level-3 ATX heading and ends at the next one.
 HEADING_RE = re.compile(r"^(#{2,3})\s+(\S.*?)\s*$")
@@ -112,6 +148,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--skills-dir", default=str(ROOT / "skills"))
     ap.add_argument("--max-lines", type=int, default=80,
                     help="maximum body lines per ##/### section (default: 80)")
+    ap.add_argument("--max-file-tokens", type=int, default=16000,
+                    help="maximum estimated tokens for a whole SKILL.md (default: 16000, a ratchet "
+                         "just above the largest accepted file -- not a target; the median is ~2,800)")
     ap.add_argument("--strict", action="store_true",
                     help="exit 1 when any section is over budget")
     ap.add_argument("--json", action="store_true", help="emit machine-readable JSON")
@@ -124,9 +163,28 @@ def main(argv: list[str] | None = None) -> int:
         total = 0
         over: list[dict[str, object]] = []
         exempted: list[dict[str, object]] = []
+        files_over: list[dict[str, object]] = []
+        files_exempted: list[dict[str, object]] = []
         for md in skill_mds:
             skill = md.parent.name
             scanned += 1
+
+            text = md.read_text(encoding="utf-8")
+            est_tokens = len(text) // 4
+            if est_tokens > args.max_file_tokens:
+                frec: dict[str, object] = {
+                    "skill": skill,
+                    "est_tokens": est_tokens,
+                    "lines": len(text.splitlines()),
+                    "budget": args.max_file_tokens,
+                    "over_by": est_tokens - args.max_file_tokens,
+                }
+                if skill in FILE_EXEMPT:
+                    frec["reason"] = FILE_EXEMPT[skill]
+                    files_exempted.append(frec)
+                else:
+                    files_over.append(frec)
+
             for title, line, body in sections(md):
                 total += 1
                 if body <= args.max_lines:
@@ -152,17 +210,28 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     over.sort(key=lambda r: -int(r["body_lines"]))
-    verdict = "PHASE_BUDGET_EXCEEDED" if over else "OK"
+    files_over.sort(key=lambda r: -int(r["est_tokens"]))
+    if over and files_over:
+        verdict = "PHASE_AND_FILE_BUDGET_EXCEEDED"
+    elif files_over:
+        verdict = "FILE_BUDGET_EXCEEDED"
+    elif over:
+        verdict = "PHASE_BUDGET_EXCEEDED"
+    else:
+        verdict = "OK"
 
     if args.json:
         print(json.dumps(
             {
                 "verdict": verdict,
                 "budget": args.max_lines,
+                "file_budget_tokens": args.max_file_tokens,
                 "skills_scanned": scanned,
                 "sections_scanned": total,
                 "over_budget": over,
                 "exempt": exempted,
+                "files_over_budget": files_over,
+                "files_exempt": files_exempted,
             },
             indent=2,
         ))
@@ -189,7 +258,26 @@ def main(argv: list[str] | None = None) -> int:
             print(f"\nPHASE_BUDGET_EXCEEDED: {len(over)} section(s) over the "
                   f"{args.max_lines}-line budget.", file=sys.stderr)
 
-    return 1 if (args.strict and over) else 0
+        print(f"\nWhole-file budget: {args.max_file_tokens} estimated tokens per SKILL.md "
+              f"({len(files_exempted)} exempt).")
+        for rec in files_exempted:
+            print(f"  exempt: {rec['skill']} (~{rec['est_tokens']} tokens) -- {rec['reason']}")
+        if files_over:
+            print("\nOVER FILE BUDGET -- this is what the user pays to invoke the skill at all,\n"
+                  "before a single line of it is known to be relevant:\n")
+            for rec in files_over:
+                print(f"  ~{int(rec['est_tokens']):6} tokens (+{rec['over_by']} over)  "
+                      f"{rec['skill']}/SKILL.md  ({rec['lines']} lines)")
+            print("\n  Move the CONDITIONAL blocks to references/ behind a trigger row -- the ones\n"
+                  "  needed only after the ask is known (an opt-in flag's phase, a study-type\n"
+                  "  branch, an output-format template). Control flow stays. Extract by moving the\n"
+                  "  body verbatim; a retyped phase is how a phase quietly changes meaning.\n"
+                  "  A file that genuinely cannot be split goes in FILE_EXEMPT with a reason AND a\n"
+                  "  plan -- an exemption without a plan is how a deferral becomes permanent.")
+            print(f"\nFILE_BUDGET_EXCEEDED: {len(files_over)} SKILL.md over the "
+                  f"{args.max_file_tokens}-token budget.", file=sys.stderr)
+
+    return 1 if (args.strict and (over or files_over)) else 0
 
 
 if __name__ == "__main__":

@@ -75,7 +75,7 @@ jobs:
       - name: Run validate_routing_assets.py self-test (dangling references/ pointer fails)
         run: bash tests/test_routing_assets.sh
 
-      - name: "Run check_phase_budget.py (a SKILL.md phase over 80 lines is a bill paid on every invocation)"
+      - name: "Run check_phase_budget.py (a phase over 80 lines, or a whole SKILL.md over 16k tokens, is a bill paid on every invocation)"
         run: python3 scripts/check_phase_budget.py --strict
 
       - name: "Run phase-budget self-test (the real 209-line phase must still fail the gate)"

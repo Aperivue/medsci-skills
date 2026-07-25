@@ -4153,8 +4153,8 @@
     },
     {
       "path": "skills/self-review/SKILL.md",
-      "size": 88022,
-      "sha256": "d5fe28d7e90eae50501722a879cfac2d4d1b6bdceb5a2c43caec9014ac002dbd"
+      "size": 61424,
+      "sha256": "fcaa491e8b90fda1a017b4b9fde584f9abbab58c3b32c0a10734593f238097ee"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
@@ -4322,6 +4322,11 @@
       "sha256": "051f2b066d2d708b161c1e97d666d9e214d128f1413a9c4822f0333e748bda14"
     },
     {
+      "path": "skills/self-review/references/phases/phase2_5a2_design_power.md",
+      "size": 4353,
+      "sha256": "2df5c97fcbb77fb867fd24b116b5e8349f218e3abf5221c4282157f7b2475470"
+    },
+    {
       "path": "skills/self-review/references/phases/phase2_5a_source_fidelity.md",
       "size": 5989,
       "sha256": "565eb2ee2f2eaa0be92f04ab2781c5b3ede5d716c9e5caa40b1fea82f87b53ff"
@@ -4330,6 +4335,11 @@
       "path": "skills/self-review/references/phases/phase2_5b_screening_counts.md",
       "size": 7535,
       "sha256": "0d594614b1f41692d6a6034f9fc88d90bcdd3ba90b8ba6b4697cdfcb0a62cef2"
+    },
+    {
+      "path": "skills/self-review/references/phases/phase2_5c_reference_scans.md",
+      "size": 8010,
+      "sha256": "b59e923e3bc314ebed793aad3f96684ce8c1251fa25565aaf6d289ed57c39176"
     },
     {
       "path": "skills/self-review/references/phases/phase2_5d_xref_qc.md",
@@ -4342,9 +4352,24 @@
       "sha256": "c4e83d109e67ca331de1c1f0ee514457426d2be6c6a4fbe56ed0be2a6fc45b25"
     },
     {
+      "path": "skills/self-review/references/phases/phase2_6_panel.md",
+      "size": 10415,
+      "sha256": "3a24acafb6c75bd678c60bcfedf5e839b484d9e80fc8c78f7cbc9c67688cdb05"
+    },
+    {
       "path": "skills/self-review/references/phases/phase2_systematic_check.md",
       "size": 18988,
       "sha256": "d78e98cc0eee08b56b13539c9a61836485a7357a2b4b53b6db7d6329d2443da8"
+    },
+    {
+      "path": "skills/self-review/references/phases/phase3c_json_output.md",
+      "size": 3190,
+      "sha256": "90e3981bec982394add9a535b40c7da032bb122613a09bcf2c16e750d4cc8714"
+    },
+    {
+      "path": "skills/self-review/references/phases/phase4_fix_support.md",
+      "size": 3437,
+      "sha256": "2696961df7b12ad2d3f4221eb53800d1712b3cb22d2c91f0da24ec80d5bcf365"
     },
     {
       "path": "skills/self-review/scripts/_frontmatter.py",
