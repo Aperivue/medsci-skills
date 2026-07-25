@@ -174,3 +174,6 @@ Journal of Stroke is less appropriate for: pure basic-science vascular biology (
 ## Verification note
 
 Profile built 2026-04-19 from the journal's author guidelines PDF (https://j-stroke.org/authors/authors.php). Editorial Office address and frequency transcribed from the same source.
+
+- **AI-use disclosure placement**: Methods
+  <!-- machine-read by /self-review check_classical_style.py --profile; source: this profile's own "Disclose substantive AI use in the Methods (if involved in data generation, analysis, ...)" -->

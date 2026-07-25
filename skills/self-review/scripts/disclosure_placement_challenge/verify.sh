@@ -40,6 +40,25 @@ ck "EJPC (cover + Methods/Acknowledgements) -> silent" 0 "$(fires --profile "$PR
 ck "Diabetes & Metabolism J. (title page) -> fires"   1 "$(fires --profile "$PROF/Diabetes_Metabolism_Journal.md")"
 ck "British J. of Radiology (cover letter) -> fires"  1 "$(fires --profile "$PROF/British_Journal_of_Radiology.md")"
 
+# A body location whose section name contains none of the body tokens: the "(body)" marker is
+# the convention that keeps it readable. JACC: Advances is the real instance.
+ck "a body section named nothing like 'Methods' -> silent, via (body)" 0 "$(fires --profile "$PROF/JACC_Advances.md")"
+ck "and the same string without the marker would fire" 1 "$(fires --disclosure-placement 'Declaration section immediately above the References')"
+
+echo "== every populated profile behaves per its OWN stated policy =="
+# Populated from each profile's own prose; a wrong line here produces wrong advice, so the
+# whole set is asserted rather than a sample.
+for j in npj_Digital_Medicine Investigative_Radiology JNIS Journal_of_Stroke Liver_International \
+         PLOS_Medicine RYAI The_Lancet The_Lancet_Digital_Health World_Journal_of_Hepatology \
+         Korean_Journal_of_Internal_Medicine Korean_Circulation_Journal KJR \
+         Hepatology_Communications Lancet_Gastroenterology_and_Hepatology \
+         Journal_of_Clinical_Endocrinology_and_Metabolism; do
+  ck "body-legitimate: $j" 0 "$(fires --profile "$PROF/$j.md")"
+done
+for j in Academic_Radiology JKMS British_Journal_of_Radiology Diabetes_Metabolism_Journal; do
+  ck "not-in-body: $j" 1 "$(fires --profile "$PROF/$j.md")"
+done
+
 echo "== severity follows knowledge, not house style =="
 ck "a declared title-page target is Major" "Major" "$(sev --profile "$PROF/Diabetes_Metabolism_Journal.md")"
 ck "no target recorded is only Minor"      "Minor" "$(sev)"

@@ -189,3 +189,6 @@ https://academic.oup.com/jcem/pages/Author_Guidelines
 - **Source (detail authored):** based on harvested compact + JCEM verbatim AI policy + OUP/Endocrine Society standard practice
 - **Date (promoted to public):** 2026-05-21
 - **Notes:** No upper word limit for Original at submission; editors may request trimming during revision. Verify page-charge and color-figure surcharge directly at OUP.
+
+- **AI-use disclosure placement**: Submission portal + Methods/Acknowledgments
+  <!-- machine-read by /self-review check_classical_style.py --profile; source: this profile's own its AI-policy comparison table, own-journal column: "Submission portal + Methods/Acknowledgments" -->

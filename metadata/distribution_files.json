@@ -4423,8 +4423,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_classical_style.py",
-      "size": 16825,
-      "sha256": "0876a5e13b8f6792e7b15553abf1ce22cc4316ebf5007d32e968186326bc2ff6"
+      "size": 17314,
+      "sha256": "a6d726f4d473e03246f379cdd240425e85fe900c03caefeac6882e79ebc7f5ed"
     },
     {
       "path": "skills/self-review/scripts/check_cohort_arithmetic.py",
@@ -4873,8 +4873,8 @@
     },
     {
       "path": "skills/self-review/scripts/disclosure_placement_challenge/verify.sh",
-      "size": 5145,
-      "sha256": "1d3c493f67584934e25db2717bf8a69352f8c766daccc39fd39268537f16332b"
+      "size": 6430,
+      "sha256": "3026e2ce78ae38f45c48ad36e91e442ff1257c9d8ee0735e105e863385fe62fb"
     },
     {
       "path": "skills/self-review/scripts/refinement_regression.py",
@@ -5638,8 +5638,8 @@
     },
     {
       "path": "skills/write-paper/references/journal_profiles/Academic_Radiology.md",
-      "size": 3554,
-      "sha256": "b950cf4597aa237c8e7374ba905e28f7952521b88e3de87360934832d1ba6ce2"
+      "size": 3828,
+      "sha256": "1c068ae1edf608acc398fc1b56d0680b24ccce63bc1ff9fec07cded97f9c544b"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/Annals_of_Internal_Medicine.md",
@@ -5703,8 +5703,8 @@
     },
     {
       "path": "skills/write-paper/references/journal_profiles/Hepatology_Communications.md",
-      "size": 8234,
-      "sha256": "ae909a7d09ceb5375cc9d73b0fe5b72ee36693f9096be411c1d721ab4acabe92"
+      "size": 8500,
+      "sha256": "4aa6b9e343feaf12c6620341d144af24eb10fff0f6250dd0f4fafc0b2438e67b"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/Hepatology_International.md",
@@ -5728,8 +5728,8 @@
     },
     {
       "path": "skills/write-paper/references/journal_profiles/JACC_Advances.md",
-      "size": 11404,
-      "sha256": "3ecd00082be25657ecf0f4ac06d403b296f0ee20008242ee9769ff535ff49026"
+      "size": 11751,
+      "sha256": "d9a32d002b7745fe0a8c2be80364e6f4a7953d37e688cc3c98aa119b93f96a85"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/JACC_Asia.md",
@@ -5758,8 +5758,8 @@
     },
     {
       "path": "skills/write-paper/references/journal_profiles/JKMS.md",
-      "size": 11131,
-      "sha256": "2d28c486cca4f3abec8c33843233426a4113cdf18fa92192bcddeeecc7245d5b"
+      "size": 11381,
+      "sha256": "39460faa9763c703dc019d392d4f56049e1c2af240d49f4c5faac95b49e65982"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/JMIR.md",
@@ -5773,8 +5773,8 @@
     },
     {
       "path": "skills/write-paper/references/journal_profiles/JNIS.md",
-      "size": 10179,
-      "sha256": "99480f9eb1abe6746e6c45e2a49d2aa7c459e6401ad08b220f927c552464f093"
+      "size": 10421,
+      "sha256": "6314ce1c3c57810d9a48dd9eb277d473f402cad063ba1c1d67ca811ee9d75e09"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/JVIR.md",
@@ -5783,38 +5783,38 @@
     },
     {
       "path": "skills/write-paper/references/journal_profiles/Journal_of_Clinical_Endocrinology_and_Metabolism.md",
-      "size": 9322,
-      "sha256": "1ed732928178f73d6815872cf4ce04a457a832bddd394121031071d40e25935f"
+      "size": 9603,
+      "sha256": "dc71092139693688c654f4bb07d6c588b1a5f1aafd4e7daaf13b7ecd099ea3e8"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/Journal_of_Stroke.md",
-      "size": 7500,
-      "sha256": "3c75120c119c4c39e2669564e5c8b72c7ed9de0daf1169dad9f8c885d2d7078d"
+      "size": 7740,
+      "sha256": "e551e78c799c6a26754f3186ee6d7ce0dd6931e5dc352dc225ee30e94cf1dca7"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/KJR.md",
-      "size": 12737,
-      "sha256": "ea71f1be90ff7088ba8931c97515f221486ca7ac9c7079fefba25417e7a0e932"
+      "size": 13088,
+      "sha256": "42d45781f252ada19a4086f200c407bd3c85d3d9a88c30151d9c14390616354d"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/Korean_Circulation_Journal.md",
-      "size": 8502,
-      "sha256": "4e6e9dc10a149295e4b382d80bcfe5efbe5335ce4879b7f0a9e9c220551fda8e"
+      "size": 8764,
+      "sha256": "a6b6e5d1f5a334943070b551883b00098d92661e4be08f35a83216430730d080"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/Korean_Journal_of_Internal_Medicine.md",
-      "size": 7990,
-      "sha256": "21762990408812003f1ecdaa00155ea3dda6125cad0b9f634f88f593bd2d41f9"
+      "size": 8240,
+      "sha256": "c6ac806e28486f4ee7264ef620a8fcfbea2b1fab41c1fa9f9989f2cb4fd89564"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/Lancet_Gastroenterology_and_Hepatology.md",
-      "size": 8917,
-      "sha256": "33a19c9fc22bfe53ad081a5a93ac5a69c44f85ef999d68859e263fa990513dbd"
+      "size": 9149,
+      "sha256": "9779040b087c0139df46e557f69897cb103b94df88e4acf772d33d67e39d2763"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/Liver_International.md",
-      "size": 12174,
-      "sha256": "4a12d53605045b20aabc827e4b803edd73f603b6112ced34ec8acfef965950aa"
+      "size": 12381,
+      "sha256": "bebb22c281a8494d5c5b2f0bcb3f94010a54d4c5096915460a0ba772c398e0bb"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/Medical_Image_Analysis.md",
@@ -5848,13 +5848,13 @@
     },
     {
       "path": "skills/write-paper/references/journal_profiles/PLOS_Medicine.md",
-      "size": 8280,
-      "sha256": "ab3b9bf937978c7503e5252b85d56eb4412367a6d656d4137ad5f37d7af42a0e"
+      "size": 8518,
+      "sha256": "3620a76075b44b7d529cf83cbb1c57c1e4fea01601d7868aa5d1e632c2968da3"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/RYAI.md",
-      "size": 5600,
-      "sha256": "604eafc5e3dcb2be26a83ea59c3551045add4d04713ea2d4adc45064e01a17ca"
+      "size": 5833,
+      "sha256": "2863d23a9bab14b1598bda4a3017bf10b3ed2e5227bc69467a8016c51f8ccbd6"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/Radiology.md",
@@ -5878,18 +5878,18 @@
     },
     {
       "path": "skills/write-paper/references/journal_profiles/The_Lancet.md",
-      "size": 5546,
-      "sha256": "946cebb99e468729454404b027418205e68009882793453069dd2b196f7c1765"
+      "size": 5776,
+      "sha256": "834e990d9aa9e8a90e47197ab81d31fafaa8942404a76d46098cc073f6f5cb03"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/The_Lancet_Digital_Health.md",
-      "size": 8704,
-      "sha256": "2a4e2bd53e6bf0c952e99f0f88ced8c714620ef2b9e6213bc91cc6b95ad8a2a8"
+      "size": 8947,
+      "sha256": "5651fca14c1b2d78cb0b535d431487a6904f0e18c354dab52e192cccb8dc9014"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/World_Journal_of_Hepatology.md",
-      "size": 7083,
-      "sha256": "ff89fc093a75fa7e484a9d147bf0c85611ff2d0a8d0fae5265f349a095cc66cf"
+      "size": 7289,
+      "sha256": "4f8594e07080dafb56dc6945addf45e7ceddbc3185f781f4edcd211744a8fb24"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/npj_Digital_Medicine.md",

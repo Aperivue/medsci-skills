@@ -160,3 +160,6 @@ Follows Lancet Group statistical conventions:
 
 - **Last verified**: 2026-06-11.
 - **Gate source**: official Information for Authors PDF — https://www.thelancet.com/pb-assets/Lancet/authors/tldh-info-for-authors-1778587678573.pdf (plus the Observational/Meta/RCT guideline PDFs and the artwork guidelines).
+
+- **AI-use disclosure placement**: Methods or Acknowledgements
+  <!-- machine-read by /self-review check_classical_style.py --profile; source: this profile's own "AI disclosure: in Methods or Acknowledgements; AI tools cannot be authors" -->

@@ -164,3 +164,6 @@ PLOS Medicine is appropriate when:
 - Data sharing is fully possible (no proprietary restrictions)
 
 Not appropriate for: narrow subspecialty clinical studies, technical AI methodology without health impact, studies where data cannot be shared, case reports.
+
+- **AI-use disclosure placement**: Methods
+  <!-- machine-read by /self-review check_classical_style.py --profile; source: this profile's own "Disclosure location: Methods (or appropriate section) — must disclose the AI tool name" -->

@@ -107,6 +107,12 @@ PERCENT_DECIMAL = re.compile(r"\b\d{1,3}\.\d{2,}\s*%")
 DISCLOSURE_PLACEMENT_LINE = re.compile(
     r"^\s*[-*]?\s*\*{0,2}AI[-\s]use disclosure placement\*{0,2}\s*:\s*(.+)$", re.M | re.I)
 # Tokens meaning "the body is where it goes" — if any appears, an in-body paragraph is correct.
+# CONVENTION for whoever adds a placement line to a profile: if the journal puts the disclosure
+# in the body but names a section none of these words cover — JACC: Advances asks for a
+# "Declaration of generative AI …" section immediately above the References — write "(body)"
+# in the placement string. Without it the location reads as non-body and the author is told to
+# move a paragraph the journal put exactly where it is, which is the failure this whole gate
+# exists to stop.
 # "acknowledg" is a STEM — a trailing \b breaks on "Acknowledgments"/"Acknowledgements",
 # which is exactly how the placement is written in the profiles that use it.
 BODY_PLACEMENT = re.compile(r"\b(?:methods?|acknowledg\w*|body|main text)\b", re.I)
