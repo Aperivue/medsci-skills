@@ -36,6 +36,7 @@
 
 - `formulas.md`
 - `justification_examples.md`
+- `mrmc_reader_study_sample_size.md`
 - `observational_cohort.md`
 - `prediction_model_sample_size.md`
 

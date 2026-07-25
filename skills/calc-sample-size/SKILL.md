@@ -21,6 +21,7 @@ Python (alternative), interpret effect sizes clinically, and produce IRB-ready j
 - **Formulas**: `${CLAUDE_SKILL_DIR}/references/formulas.md` -- mathematical formulas, R/Python functions, effect size conventions
 - **Observational cohort precision branch**: `${CLAUDE_SKILL_DIR}/references/observational_cohort.md`
 - **Prediction-model / medical-AI sample size (Riley)**: `${CLAUDE_SKILL_DIR}/references/prediction_model_sample_size.md` -- the current TRIPOD+AI-aligned standard for a clinical prediction/classification model (development via `pmsampsize`, external validation via `pmvalsampsize`, net-benefit precision). Use this instead of EPV-10 whenever the goal is risk prediction for use rather than a single-predictor hypothesis test (Tests 12-13).
+- **MRMC reader-study sample size (Obuchowski–Rockette)**: `${CLAUDE_SKILL_DIR}/references/mrmc_reader_study_sample_size.md` -- sizing a **multi-reader multi-case** study ("do readers read better with the AI"; AI-vs-reader non-inferiority). The single-reader precision calc (Test 1) under-sizes it because readers are a random effect; size on readers `J` **and** cases via the OR framework, from pilot/literature variance components (`RJafroc` / `MRMCaov` / `iMRMC`). Use whenever a reader study is the design (Test 14).
 - **Justification prose exemplars**: `${CLAUDE_SKILL_DIR}/references/justification_examples.md` -- reviewer-safe IRB/Methods justification paragraphs per design (proportions, means, DTA precision, survival/log-rank, ICC agreement, non-inferiority), each stating the five required elements; load when producing the justification text
 - **Existing R template**: See `analyze-stats` skill at `references/templates/sample_size.R` for the 7 original tests
 
@@ -362,6 +363,31 @@ target CI widths.
 
 Read `${CLAUDE_SKILL_DIR}/references/prediction_model_sample_size.md` for the `pmvalsampsize`
 code. Report the targeted CI widths and the resulting events / non-events.
+
+---
+
+### Test 14: MRMC Reader Study (Obuchowski–Rockette)
+
+**When to use**: sizing a **multi-reader multi-case (MRMC) reader study** — "do readers read
+better *with* the AI", or "is the AI non-inferior to readers". The single-reader AUC-precision
+calculation (Test 1) **under-sizes** this: readers as well as cases are random, so power must
+cover the **reader-variance** term, and a null from an under-sized reader study is *inconclusive,
+not negative*.
+
+**Approach**: invert the OR variance formula over the number of readers `J` and the case counts
+`N⁺`/`N⁻`; report the **`J × N` power grid** (past a modest case count, adding readers usually
+buys more power than adding cases). Requires **variance components** from a pilot or literature —
+the real bottleneck. Implemented in R `RJafroc` / `MRMCaov` / FDA `iMRMC` (integrate; do not
+hand-roll the OR algebra).
+
+**Required parameters**: the **effect** (ΔAUC, or the **non-inferiority margin** — an AI-vs-reader
+claim is usually NI), the expected AUC level, the **variance components** (pilot/literature), the
+**design** (fully-crossed vs crossover-with-washout), and power/α.
+
+Read `${CLAUDE_SKILL_DIR}/references/mrmc_reader_study_sample_size.md` for the framework, the
+readers-vs-cases trade-off, software, and reporting. Reader-study *design internals* live in
+`design-study` (`reader_elicitation_design.md`); an AI-vs-human-expert benchmark routes to
+`/design-ai-benchmarking`.
 
 ---
 
