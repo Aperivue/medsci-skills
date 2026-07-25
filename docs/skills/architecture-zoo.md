@@ -8,7 +8,7 @@
 
 ## When to use
 
-`architecture-zoo` activates on requests such as: architecture zoo, which architecture, choose a model, model selection, ResNet vs ViT, U-Net vs nnU-Net, what backbone, foundation model for, transfer learning choice, MedSAM, TotalSegmentator, DINO, MAE, self-supervised, graph neural network, GNN, brain connectome, GCN, GAT, GraphSAGE, BrainGNN, population graph, paper to architecture, reference implementation, when to use ViT, segmentation architecture, classification backbone, nnU-Net ResEnc, MedNeXt, STU-Net, nnInteractive, VISTA3D, SAM-Med3D, Mamba, U-Mamba, interactive segmentation, labelling acceleration, promptable segmentation.
+`architecture-zoo` activates on requests such as: architecture zoo, which architecture, choose a model, model selection, ResNet vs ViT, U-Net vs nnU-Net, what backbone, foundation model for, transfer learning choice, MedSAM, TotalSegmentator, DINO, MAE, self-supervised, graph neural network, GNN, brain connectome, GCN, GAT, GraphSAGE, BrainGNN, population graph, paper to architecture, reference implementation, when to use ViT, segmentation architecture, classification backbone, nnU-Net ResEnc, MedNeXt, STU-Net, nnInteractive, VISTA3D, SAM-Med3D, Mamba, U-Mamba, interactive segmentation, labelling acceleration, promptable segmentation, nnDetection, lesion detection, ConvNeXt, YOLO, YOLOv8, RT-DETR, DETR, RetinaNet, detection architecture.
 
 ## Quality Card
 
