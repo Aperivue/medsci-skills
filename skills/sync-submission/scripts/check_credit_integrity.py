@@ -152,7 +152,11 @@ def credit_section(md: str) -> str | None:
 
 
 def norm_term(t: str) -> str:
-    return re.sub(r"\s+", " ", re.sub(r"[^a-z ]", " ", t.lower())).strip()
+    n = re.sub(r"\s+", " ", re.sub(r"[^a-z ]", " ", t.lower())).strip()
+    # "Writing—original draft preparation" is MDPI's rendering of "Writing – original draft", not a
+    # fifteenth term. The trailing noun is house style, so it is normalised away rather than
+    # reported as a near miss.
+    return re.sub(r" preparation$", "", n)
 
 
 def initials_of(name: str) -> str:
@@ -225,7 +229,33 @@ def build_report(manuscript: Path, record_path: Path | None) -> dict | None:
     section_says_credit = bool(re.search(r"CRediT", heading_text + "\n" + body, re.I))
 
     # --- 1. terms outside the fourteen
-    used_raw = re.findall(r"[A-Za-z][A-Za-z–\-&' ]{3,40}", body)
+    #
+    # Only for a section that IS a CRediT block. The docstring above already says so — "a section
+    # that calls itself CRediT" — and the code had drifted from it: the scan ran on any
+    # "Authors' Contributions" heading and merely graded the result `minor`. A minor finding still
+    # exits non-zero, so a free-prose contributions paragraph fired.
+    #
+    # Measured against 12 accepted papers, that is exactly what happened: "analysis" and "writing"
+    # reported as invalid CRediT terms in papers carrying NO CRediT statement at all — zero of the
+    # fourteen present. A journal that never asked for CRediT has not asked its authors to use the
+    # fourteen. A challenge card always contains the block being validated, so no fixture in this
+    # repo could have shown it.
+    #
+    # A block counts as CRediT if it says so, or carries at least three of the official terms.
+    # Three, not one: "Investigation", "Validation" and "Software" are ordinary English words that
+    # turn up in prose by accident; three of them together do not.
+    # Count against the NORMALISED body, because CREDIT_TERMS is keyed normalised: the key is
+    # "writing original draft" and the page says "Writing – original draft". Matching the raw text
+    # undercounts every hyphenated term and lets a real CRediT block fall below the bar.
+    body_norm = norm_term(body)
+    official_present = {t for t in CREDIT_TERMS if t and t in body_norm}
+    is_credit_block = section_says_credit or len(official_present) >= 3
+
+    # The em dash belongs in this class. MDPI renders the taxonomy as "Writing—original draft
+    # preparation"; without U+2014 the term is shredded at the dash and the fragment "writing" is
+    # reported as an invalid CRediT term — against a block that had written the term correctly for
+    # its publisher. Two accepted MDPI papers failed this way.
+    used_raw = re.findall(r"[A-Za-z][A-Za-z—–\-&' ]{3,40}", body) if is_credit_block else []
     seen: set[str] = set()
     for raw in used_raw:
         n = norm_term(raw)

@@ -60,16 +60,35 @@ TOKEN_RESPONSIBLE = re.compile(
     r"\bby [A-Z]\.\s?[A-Z]\.|the authors|reviewed by|deployed by|operated by|under the supervision",
     re.IGNORECASE,
 )
+# What separates "this paper discloses that its authors used an AI tool" from "this paper is about
+# AI". Only the first owes the four tokens above.
+AI_AUTHORIAL_USE = re.compile(
+    r"\b(?:we|the authors?|author)\b[^.\n]{0,80}\b(?:used|employed|utili[sz]ed|engaged)\b|"
+    r"\b(?:used|employed|utili[sz]ed)\b[^.\n]{0,60}\b(?:to (?:assist|help|draft|edit|improve|"
+    r"polish|refine)|for (?:language|writing|editing|drafting))|"
+    r"writing assistance|language editing|during the preparation of (?:this|the) manuscript|"
+    r"in (?:the )?preparation of (?:this|the) manuscript|"
+    r"no (?:generative )?ai (?:tools? )?(?:was|were) used",
+    re.IGNORECASE,
+)
 PLACEHOLDER = re.compile(r"\[(?:version|date|tool|name|model|n)\]|\bTODO\b|XXXX|\bTBD\b", re.IGNORECASE)
 
 REASONABLE_REQUEST = re.compile(r"available (?:from the (?:corresponding )?author )?on (?:reasonable )?request", re.IGNORECASE)
 RESOLVABLE = re.compile(r"https?://|doi\.org/|\bgithub\.com\b|\bzenodo\b|\bosf\.io\b|10\.\d{4,}/", re.IGNORECASE)
 
+# House style is not optional vocabulary — it is what the target journal's own author instructions
+# tell the author to write. Measured against 12 accepted papers, this detector reported "no Data
+# Availability statement found" for a JAMA trial carrying "Data Sharing Statement: See Supplement 3"
+# and "no COI statement found" for an Elsevier review carrying "Declaration of competing interest".
+# Both statements were present, correctly worded for their journal, and called missing. A fixture
+# authored beside a detector always uses the phrasing that detector expects, so this class of defect
+# cannot surface until the detector meets a journal that words it differently.
 SECTION_LABELS = {
-    "data_availability": r"data availability|availability of data",
+    "data_availability": r"data availability|availability of data|data sharing",
     "code_availability": r"code availability|availability of code|software availability",
     "funding": r"funding|financial support|grant support",
-    "coi": r"conflicts? of interest|competing interests?|declaration of interests?|disclosure",
+    "coi": (r"conflicts? of interest|competing interests?|"
+            r"declarations? of (?:competing |conflicting )?interests?|disclosure"),
 }
 
 
@@ -113,9 +132,17 @@ def ai_disclosure_block(text: str) -> str | None:
         blk = find_section(text, pat)
         if blk and AI_TRIGGER.search(blk):
             return blk
-    # else: the first paragraph that mentions an AI tool
+    # else: the first paragraph in which the AUTHORS disclose using an AI tool.
+    #
+    # The bar is authorship, not mention. This fallback used to accept any paragraph containing an
+    # AI term, which in a paper whose SUBJECT is AI is the abstract — and then demanded a writing
+    # tool's version, access channel, date and responsible party from it. Measured against an
+    # accepted reader study on AI-assisted pneumothorax detection, that is exactly what happened:
+    # a hard finding, guaranteed, against a paper that never claimed to have used AI to write.
+    # Study-component AI and editorial-writing AI are different disclosures governed by different
+    # rules, and only the second one owes these four tokens.
     for para in re.split(r"\n\s*\n", text):
-        if AI_TRIGGER.search(para):
+        if AI_TRIGGER.search(para) and AI_AUTHORIAL_USE.search(para):
             return para.strip()
     return None
 
