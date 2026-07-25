@@ -617,6 +617,51 @@ jobs:
       - name: Run verify-refs pagination-placeholder gate test
         run: bash skills/verify-refs/tests/test_pagination_placeholder.sh
 
+      # --- Tests that shipped on disk but no workflow ran. check_test_wiring.py below is what
+      #     keeps this list from growing again by omission; these twelve were the standing backlog
+      #     it found on 2026-07-25 (six of them declared in a skill.yml CI never reads).
+      - name: "Run design-study adjustment-set challenge"
+        run: bash skills/design-study/scripts/adjustment_set_challenge/verify.sh
+
+      - name: "Run find-journal acceptance-readiness challenge"
+        run: bash skills/find-journal/scripts/acceptance_readiness_challenge/verify.sh
+
+      - name: "Run make-figures portal-TIFF export challenge"
+        run: bash skills/make-figures/scripts/export_portal_tiff_challenge/verify.sh
+
+      - name: "Run make-figures core-figure render challenge"
+        run: bash skills/make-figures/scripts/render_core_figures_challenge/verify.sh
+
+      - name: "Run meta-analysis extraction-assist challenge"
+        run: bash skills/meta-analysis/scripts/extract_assist_challenge/verify.sh
+
+      - name: "Run search-lit snowball challenge"
+        run: bash skills/search-lit/references/snowball_challenge/verify.sh
+
+      - name: Run meta-analysis screening-reconcile test
+        run: bash skills/meta-analysis/tests/test_screening_reconcile.sh
+
+      - name: Run model-sourcing model-provenance test
+        run: bash skills/model-sourcing/tests/test_model_provenance.sh
+
+      - name: Run present-paper backup-off-the-clock test
+        run: python3 skills/present-paper/tests/test_backup_off_the_clock.py
+
+      - name: Run present-paper markdown-parity test
+        run: python3 skills/present-paper/tests/test_md_parity.py
+
+      - name: Run Phase-1a gate test
+        run: bash tests/test_phase1a_gates.sh
+
+      - name: Run Phase-1c hook test
+        run: bash tests/test_phase1c_hooks.sh
+
+      - name: "Run check_test_wiring.py (a test CI never runs is a test that never runs)"
+        run: python3 scripts/check_test_wiring.py
+
+      - name: "Run test-wiring gate self-test (restore the real omission; the gate must FAIL)"
+        run: bash tests/test_test_wiring.sh
+
       - name: Verify demo manifest.lock files (reproducibility lock)
         run: |
           for d in demo/01_wisconsin_bc demo/02_metafor_bcg demo/03_nhanes_obesity; do

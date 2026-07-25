@@ -4,6 +4,19 @@
 
 ### Fixed
 
+- **Twelve tests shipped on disk that no workflow ran, and the omission had no gate.** PR #412
+  wired four unrun challenge cards by hand after a manual sweep — but a hand-maintained list of
+  "tests CI should run" has nothing that catches the *next* omission, so the same defect was
+  already back: twelve more test assets, six of them declared in a `skill.yml`'s
+  `validation_commands`, were green because nothing executed them. All twelve are now wired (they
+  pass, offline), and `scripts/check_test_wiring.py` makes the class structurally impossible: every
+  `verify.sh` / `test_*.py` / `test_*.sh` must be named by a `run:` step, or by a non-test script a
+  `run:` step invokes, or carry a written exemption. Declaring a command in `skill.yml` is not
+  wiring — CI does not read that file. This is the third sibling of `check_detector_reachability`
+  and `check_script_reachability`; both of their docstrings close the "a test is not a caller"
+  direction and left this one open. The gate has no `--strict` — a violation exits 1 always.
+  Verified by restoring the real defect: against `validate.yml` as it stood before PR #412 it names
+  all four of that PR's detectors, and its self-test deletes a live step and requires the failure.
 - **Four detectors were catalogued and shipped but never CI-tested, and two headline claims were
   false — an independent architecture review (different-substrate cross-check) found them.**
   `check_analysis_definitions`, `check_review_request_types`, and `check_model_provenance` each
