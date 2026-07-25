@@ -91,6 +91,17 @@ python3 "$RUNNER" --corpus "$TMP/corpus" --manifest "$TMP/manifest.json" --only 
   || fail "a paper with no heldout manifest record was not excluded and named"
 rm "$TMP/corpus/gamma_undeclared.md"
 
+echo "== 3b. a RELATIVE --corpus still reaches the detectors =="
+# Detectors run with cwd inside a sandbox, so a relative corpus path resolves against a directory
+# they do not share. The first real run was invoked exactly this way: every detector answered
+# "manuscript not found", and the harness relabelled that as a missing-input skip — 34 of 42
+# detectors silently unmeasured. Every synthetic fixture used absolute paths, so nothing caught it.
+# This case runs from inside $TMP on purpose.
+REL_OUT="$(cd "$TMP" && python3 "$RUNNER" --corpus ./corpus --only "$DET" 2>&1)" \
+  || fail "relative --corpus made the runner exit non-zero"
+grep -qE "pairs +: 2 " <<<"$REL_OUT" \
+  || fail "relative --corpus ran 0 pairs — detectors were handed a path they cannot resolve"
+
 echo "== 4. an empty corpus refuses to emit a rate =="
 mkdir -p "$TMP/empty"
 if python3 "$RUNNER" --corpus "$TMP/empty" --only "$DET" >/dev/null 2>&1; then

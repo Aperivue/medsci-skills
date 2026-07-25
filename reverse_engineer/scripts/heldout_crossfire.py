@@ -180,6 +180,15 @@ def main(argv: Optional[List[str]] = None) -> int:
     ap.add_argument("--verbose", action="store_true")
     a = ap.parse_args(argv)
 
+    # Detectors run with cwd inside a throwaway sandbox, so a default `qc/...` report lands there
+    # instead of in the repo. That makes every path handed to them absolute-or-broken: a relative
+    # --corpus resolves against the CALLER's cwd, which the subprocess does not share. The first
+    # real run was invoked as `--corpus _corpus/heldout`; every detector answered "manuscript not
+    # found", and this harness relabelled that as "needs an input this fixture cannot supply" —
+    # a skip reason it invented for a file it had failed to hand over, on 34 of 42 detectors, in
+    # an instrument whose whole job is honest accounting.
+    a.corpus = a.corpus.resolve()
+
     if not a.corpus.is_dir():
         print(
             f"harness: no held-out corpus at {a.corpus}\n"
@@ -255,6 +264,16 @@ def main(argv: Optional[List[str]] = None) -> int:
                     skipped[d.name] = "timed out"
                     break
                 if r.returncode == 2:
+                    # "not found" is never a skip: the detector is telling us the harness handed it
+                    # a path it could not open. Recording that as a missing-input skip is how the
+                    # instrument lies to itself. Fail loudly instead.
+                    if re.search(r"\bnot found\b|No such file", (r.stderr or "") + (r.stdout or "")):
+                        print(
+                            f"\nharness: {d.name} could not open {paper} — the harness built a bad "
+                            f"command, this is not a detector skip.\n  {(r.stderr or '').strip()[:200]}",
+                            file=sys.stderr,
+                        )
+                        return 2
                     skipped[d.name] = "needs " + cf.missing_flag_from(
                         r.stderr, r.stdout, ("--manuscript",)
                     )

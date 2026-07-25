@@ -48,6 +48,74 @@ detection studies are one pattern measured six times: a detector silent across t
 that pattern, and the denominator is inflated sixfold. That is what `coverage` is for, and the
 instrument reports concentration and identical profiles rather than trusting the count.
 
+## Rendering the corpus faithfully (where the first measurement went wrong)
+
+The corpus is the denominator. A converter that drops a section the detectors read does not produce
+a missing signal — it produces a **fire**, and that fire is indistinguishable from a detector
+defect. The first real run reported 12 fires; three rendering fixes later it reported 6, and **every
+one of those removals was the parser, not the detectors**:
+
+| what the renderer dropped | what fired | fire rate |
+|---|---|---|
+| everything but `<body>` | `check_disclosure_availability` on **12 of 12** papers | 0.031 |
+| `<author-notes>`, `<back>` | JAMA / Elsevier put disclosures there | 0.018 |
+| `<funding-group>`, `<custom-meta id="data-availability">` | PLOS puts them there and nowhere else | 0.015 |
+| `<contrib-group>` (the byline) | `check_credit_integrity` cannot resolve initials without it | 0.015 |
+
+The trap worth naming: **publishers disagree about where a disclosure lives**, so a renderer that
+knows one publisher's location manufactures fires *for the other publishers' papers only* — a bias
+correlated with journal rather than with quality, which is the worst kind a measurement corpus can
+carry. Render title, byline, abstract, body, `author-notes`, `funding-group`, non-PMC
+`custom-meta`, back matter and references before trusting a single number.
+
+## First baseline (2026-07-25)
+
+12 papers, 12 distinct design profiles, no concentration flagged. 33 detectors ran, 10 skipped
+(unobserved, each named by what it needed). **389 pairs, 6 fires, fire rate 0.015.** 31 detectors
+observed clean.
+
+Labelled: **false-positive rate 0.800** (4 spurious / 5 decided, 1 unsure, coverage 100%). Two
+causes, both structurally invisible to a fixture authored alongside its detector:
+
+- **House-style vocabulary.** JAMA's "Data Sharing Statement" / "Funding/Support" / "Conflict of
+  Interest Disclosures" and Elsevier's "Declaration of competing interest" all went unrecognised.
+  A fixture uses the phrasing its detector expects, so the detector had never met a journal that
+  words it differently.
+- **Firing on prose when the target section is absent.** `check_credit_integrity` flagged the
+  ordinary words "analysis" and "writing" as invalid CRediT terms in papers carrying **no CRediT
+  statement at all**. A fixture always contains the block being validated; a real corpus does not.
+
+One fire was real — a systematic review with no data-availability statement anywhere — which is
+exactly why the rate is withheld until a human looks. The instrument found a genuine omission in an
+accepted paper and three vocabulary bugs in our own stack, and could not have told them apart by
+itself.
+
+## A fire you act on spends the paper
+
+This is the rule the first cycle produced, and it is the one most easily skipped.
+
+The six fires above were investigated, and four turned out to be ours: house-style vocabulary and
+a term scan running on sections that were never CRediT blocks. Fixing them dropped the same corpus
+to **2 fires, fire rate 0.005, false-positive rate 0.000** — the loop closed for the first time.
+
+That number is a **tuning score, not a held-out estimate.** Those twelve papers have now informed
+detector changes; measuring the changed detectors on them again is scoring on the set they were
+fitted to. The corpus did not stop being useful — it stopped being *unbiased*, and only for the
+detectors it touched.
+
+So the split has three parts, not two, and they are spent in this order:
+
+| set | role | spent by |
+|---|---|---|
+| challenge-card fixtures | train | authored with the detector |
+| **this corpus** | validation — find defects, fix them, re-measure | acting on a fire |
+| a **fresh** frozen corpus | test — one unbiased number | reading it |
+
+Acquiring the next freeze is cheap: the same PMC route, different DOIs, `frozen_at` on the day it
+is sealed. Do that before quoting a false-positive rate as evidence of anything, and do not quote
+this one as unbiased — it is the score of a fix on the cases that motivated it, which is exactly
+the reading a reviewer would catch.
+
 ## Reading the output
 
 ```bash
