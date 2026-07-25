@@ -47,6 +47,7 @@ per-paper detail and the `/model-scaffold` template to instantiate.
 | 3-D segmentation, tensor-core GPU, max accuracy | **nnU-Net ResEnc (M/L/XL)** | the 2024 "Revisited" frontier; still self-configuring (`segmentation.md`) |
 | 2-D segmentation, custom pipeline | **U-Net / Attention U-Net (MONAI)** | transparent, controllable |
 | few labels, many unlabelled scans | **SSL pretrain (DINO/MAE) → fine-tune**, or **MedSAM/TotalSegmentator transfer** | label-efficient |
+| few labels, task in a covered domain (retina / path / CXR / CT) | **domain FM transfer (RETFound / UNI / CONCH / Merlin)** | domain-pretrained; most weights non-commercial — verify (`foundation_models.md`) |
 | zero-/few-shot organ masks on CT | **TotalSegmentator / MedSAM2** | released weights, no training |
 | accelerate expert 3-D labelling | **interactive FM (nnInteractive / VISTA3D)** | prompt-and-correct, not from-scratch; check the weight licence (`foundation_models.md`) |
 

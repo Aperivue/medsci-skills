@@ -468,8 +468,8 @@
     },
     {
       "path": "skills/architecture-zoo/SKILL.md",
-      "size": 6486,
-      "sha256": "8da760addd9e528528e777e1e06195a53a97af44326e4af69838aff8559fc2ca"
+      "size": 6692,
+      "sha256": "0fc0139c83914bf10a705cef72a3e8db7ee68ba40966128d318ee46ba240e560"
     },
     {
       "path": "skills/architecture-zoo/references/classification.md",
@@ -483,8 +483,8 @@
     },
     {
       "path": "skills/architecture-zoo/references/foundation_models.md",
-      "size": 7382,
-      "sha256": "63024c2959cb21178825e654e0505469e2e039ee69f62621fca8c5f8d4a88d5d"
+      "size": 9273,
+      "sha256": "65344180359e01ef2bd66a1f910a9a11445d1a0e0530e26baf336a0b93ef3e53"
     },
     {
       "path": "skills/architecture-zoo/references/graph.md",
@@ -493,8 +493,8 @@
     },
     {
       "path": "skills/architecture-zoo/references/index.md",
-      "size": 5121,
-      "sha256": "56c24d68cf529b0dcd33c7a0d55a2cd6a36ec79852b2aa00890e2e0ad6f6e67f"
+      "size": 5333,
+      "sha256": "e77ce445ffe345ea25ee6472f7d7cee561ff1271b5fd056ea583db7a92d1fa8a"
     },
     {
       "path": "skills/architecture-zoo/references/segmentation.md",
@@ -503,8 +503,8 @@
     },
     {
       "path": "skills/architecture-zoo/references/synthesis.md",
-      "size": 3973,
-      "sha256": "b7fec1a55a7b9e2f8eea6979d7bfbda1fc03664aeec0cc89daac8c8f9bdfb8bc"
+      "size": 4629,
+      "sha256": "8b28acf945627250add63a3cc294d28fd89d852feff0f1c51aa122d2f5e05327"
     },
     {
       "path": "skills/architecture-zoo/skill.yml",
