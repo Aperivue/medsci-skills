@@ -14,8 +14,8 @@ no real citations.
   **internal as the labelled reference** and each external cohort below it — so the **drop** is read
   at a glance, not buried in a table.
 - **Per-cohort N and a CI on each estimate** — for Dice, a **bootstrap (BCa) CI on per-case values**
-  (there is no closed-form Dice CI); the CI width makes a small external cohort's uncertainty
-  honest.
+  (a t-interval is closed-form but the metric is bounded and bunches near the ceiling, so resample
+  whole patients instead); the CI width makes a small external cohort's uncertainty honest.
 - The **Δ from internal** annotated per external cohort (the generalization gap), and, if the design
   is non-inferiority, the **margin**.
 - **Faceting by structure / subgroup / sequence** where the endpoint demands it, so a per-organ or

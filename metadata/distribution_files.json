@@ -583,8 +583,8 @@
     },
     {
       "path": "skills/calc-sample-size/SKILL.md",
-      "size": 30513,
-      "sha256": "b4c5c8ae6e2f7665846484949bebb28c79593e4d4ed91d99a541021e90aea5fe"
+      "size": 30637,
+      "sha256": "5cdded86ad07224df8dabf6c5ec286df49e9d98b1ccc1c9334b7f422e11dcbbb"
     },
     {
       "path": "skills/calc-sample-size/references/formulas.md",
@@ -618,8 +618,8 @@
     },
     {
       "path": "skills/calc-sample-size/references/segmentation_metric_sample_size.md",
-      "size": 3809,
-      "sha256": "3328647f1fb77f398d137713c0f068f71249dbdad201e9d20318a47c9206d0c2"
+      "size": 3987,
+      "sha256": "0a93b7d19c5183287598ba3a53a51b3f29714d8cff9f35b58c5b1bc1a83d62e5"
     },
     {
       "path": "skills/calc-sample-size/skill.yml",
@@ -2168,8 +2168,8 @@
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/external_validation_comparison.md",
-      "size": 3037,
-      "sha256": "e167bb710d32c618328811b0c883f632e2963fbb29bd9f3571d42192dcf1fd33"
+      "size": 3124,
+      "sha256": "7d905e5b2a75356a23442b222d904bf0381e55168a49e71bce762a6c7d32670d"
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/forest_plot.md",
@@ -4373,8 +4373,8 @@
     },
     {
       "path": "skills/self-review/references/phases/phase2_systematic_check.md",
-      "size": 18988,
-      "sha256": "d78e98cc0eee08b56b13539c9a61836485a7357a2b4b53b6db7d6329d2443da8"
+      "size": 19196,
+      "sha256": "3f9b544f8c588e278d49a69f9ce3800f004229869ed255a50c587d4221addcfa"
     },
     {
       "path": "skills/self-review/references/phases/phase3c_json_output.md",

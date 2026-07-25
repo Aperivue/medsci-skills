@@ -50,8 +50,10 @@ margin).
 ## Required parameters + compute
 
 - Pilot/literature **SD of the per-case metric** (per structure), the target **precision δ** or the
-  **NI margin**, the metric itself. There is **no closed-form CI for Dice** → bootstrap per-case
-  values; use the pilot for SD. Report N, the per-structure SD source, and δ / margin.
+  **NI margin**, the metric itself. A t-interval on mean per-case Dice is closed-form, but the metric
+  is **bounded and skewed near the ceiling**, so its nominal coverage is not the real one → **bootstrap
+  per-case values** (BCa, resampling whole patients rather than structures); use the pilot for SD.
+  Report N, the per-structure SD source, and δ / margin.
 
 ## Cross-links
 
