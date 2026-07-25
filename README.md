@@ -92,6 +92,19 @@ cp -r medsci-skills/skills/* ~/.claude/skills/
 
 Restart Claude Code, then start with **`/orchestrate`** — it classifies your request and routes you to the right skill. Full install options (Codex, Cursor, individual skills) are in [Installation](#installation).
 
+### Install with `gh skill`
+
+MedSci Skills follows the [Agent Skills standard](https://agentskills.io), so GitHub CLI ≥ 2.90 can search, preview, and install any skill straight from this repo — no clone (a `gh` preview feature):
+
+```bash
+gh skill search medsci                                   # list the whole collection
+gh skill preview Aperivue/medsci-skills check-reporting  # read a skill before installing
+gh skill install Aperivue/medsci-skills check-reporting  # install just that one
+gh skill install --all Aperivue/medsci-skills            # or install every skill
+```
+
+Search by a skill's own name (`check-reporting`, `verify-refs`, `meta-analysis`) or by `medsci` to list them all — both return this repo directly. A broad topic word like `systematic review` is shared by hundreds of skills across GitHub, so add `--owner Aperivue` to see only ours.
+
 ### Install as a Claude Code plugin
 
 Prefer plugins? One line adds the marketplace; `/plugin` then lets you browse nine category plugins and enable the ones you want:
@@ -603,6 +616,19 @@ npx medsci-skills doctor             # quick Node/Python/skill-folder check
 ```
 
 Requires Node 18+ and (for `install`/`doctor`) `python3` on your PATH.
+
+### Option 5: GitHub CLI (`gh skill`)
+
+If you use [GitHub CLI](https://cli.github.com/) ≥ 2.90, `gh skill` installs skills from any Agent-Skills repo — this one included — without cloning. It is a `gh` **preview** feature, so the exact flags may change.
+
+```bash
+gh skill search medsci                                   # list every MedSci skill
+gh skill preview Aperivue/medsci-skills check-reporting  # inspect one first
+gh skill install Aperivue/medsci-skills check-reporting  # install a single skill
+gh skill install --all Aperivue/medsci-skills            # or install all of them
+```
+
+`gh skill install` places skills in the host-specific folder for the agent you pick with `--agent` (`claude-code` → `~/.claude/skills/`, `codex` → `~/.agents/skills/`, and many others), at user or project `--scope` — the same folders the npx and git paths above populate. Discovery works best by a skill's exact name or by `medsci`; for a broad topic word, scope with `--owner Aperivue`.
 
 ### Platform notes
 
