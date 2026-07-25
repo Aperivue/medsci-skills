@@ -97,6 +97,56 @@ has "and only as a prompt"                        "$OUT" "minor] CREDIT_UNCORROB
 OUT="$(python3 "$DET" --manuscript "$FIX/manuscript_good.md" 2>&1)"
 hasnt "no record -> that half does not run"       "$OUT" "is credited in the manuscript but"
 
+echo "== a contributions paragraph that is not a CRediT block is not graded as one =="
+# Found by running this detector over 12 accepted papers. The docstring says the term check is for
+# "a section that calls itself CRediT"; the code ran it on any Authors' Contributions heading and
+# merely graded the result `minor` — and a minor finding still exits non-zero. So free prose fired:
+# "analysis" and "writing" reported as invalid CRediT terms in papers carrying NO CRediT statement.
+cat > "$TMP/prose_contrib.md" <<'EOF'
+# A manuscript with a plain-prose contributions statement
+
+Jane Doe, Alan Roe
+
+## Author Contributions
+
+Study design, J.D. Data collection, A.R. Statistical analysis, J.D. Manuscript writing, A.R.
+Both authors approved the final version.
+EOF
+OUT="$(python3 "$DET" --manuscript "$TMP/prose_contrib.md" 2>&1)"
+hasnt "prose is not scanned for the fourteen terms" "$OUT" "CREDIT_TERM_INVALID"
+
+echo "== ...but a CRediT block that never says CRediT still is =="
+# Three official terms is evidence enough. One is not: "Investigation", "Validation" and "Software"
+# are ordinary English and turn up in prose by accident.
+cat > "$TMP/unnamed_credit.md" <<'EOF'
+# A manuscript using the taxonomy without naming it
+
+Jane Doe, Alan Roe
+
+## Author Contributions
+
+Conceptualization, J.D.; Methodology, J.D.; Formal analysis, A.R.; Statistical analysis, A.R.
+EOF
+OUT="$(python3 "$DET" --manuscript "$TMP/unnamed_credit.md" 2>&1)"
+has "a real CRediT block is still graded" "$OUT" "CREDIT_TERM_INVALID"
+
+echo "== the em dash belongs inside the term, not between two of them =="
+# MDPI renders the taxonomy as "Writing—original draft preparation". Without U+2014 in the term
+# class the phrase was shredded at the dash and the fragment "writing" reported as invalid — twice,
+# against accepted papers that had written the term correctly for their publisher.
+cat > "$TMP/mdpi.md" <<'EOF'
+# A manuscript in MDPI house style
+
+Jane Doe, Alan Roe
+
+## Author Contributions
+
+Conceptualization, J.D. and A.R.; methodology, J.D.; investigation, A.R.;
+writing—original draft preparation, J.D.; writing—review and editing, A.R.
+EOF
+OUT="$(python3 "$DET" --manuscript "$TMP/mdpi.md" 2>&1)"
+hasnt "MDPI's em-dash rendering is the official term" "$OUT" "CREDIT_TERM_INVALID"
+
 echo "== the artifact names its own author =="
 python3 "$DET" --manuscript "$FIX/manuscript_bad.md" --out "$TMP/r.json" >/dev/null 2>&1
 has "qc JSON carries the detector key" "$(cat "$TMP/r.json")" '"detector": "check_credit_integrity"'

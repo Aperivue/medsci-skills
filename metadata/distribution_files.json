@@ -5263,8 +5263,8 @@
     },
     {
       "path": "skills/sync-submission/scripts/check_credit_integrity.py",
-      "size": 16461,
-      "sha256": "6288efcba7d55d451199f5420affbbf3fceed603defdea09bb04b5ed64155262"
+      "size": 18645,
+      "sha256": "c0ab9a7aa3008af3d23901ee93a764d01ae46786dbedfc287dc6cf031b7248e1"
     },
     {
       "path": "skills/sync-submission/scripts/check_cross_artifact_stale.py",
@@ -5273,8 +5273,8 @@
     },
     {
       "path": "skills/sync-submission/scripts/check_disclosure_availability.py",
-      "size": 10455,
-      "sha256": "f5e195119ec1a24723748049ee6c2ae44418500b1fc6ba525984fa12c7f06aef"
+      "size": 12568,
+      "sha256": "e6576de96a1a217749463e025d5aa35edc6b57efd80093dbfd5b306695b18059"
     },
     {
       "path": "skills/sync-submission/scripts/check_marked_manuscript.py",
@@ -5343,8 +5343,8 @@
     },
     {
       "path": "skills/sync-submission/scripts/credit_integrity_challenge/verify.sh",
-      "size": 5529,
-      "sha256": "9eeacb6730b6025dd04c1b7719014e354ce096e649f47850dadfb78d52d11a6a"
+      "size": 7806,
+      "sha256": "c280d555ba31145ca89c04ae37da3b1b3dfb13f300bf6c4b731ff85658774f10"
     },
     {
       "path": "skills/sync-submission/scripts/cross_document_n_check.py",
