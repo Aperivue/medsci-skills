@@ -50,6 +50,13 @@ the figure types that do not yet have a generator.
   honesty (the paired Δ decides, not marginal-CI overlap; critical-difference / seed-stability), per-structure faceting, and a
   **matched-budget caption**; no "bold-our-row" cherry-pick. Pairs `design-study` multi-model-comparison
   design + `calc-sample-size` Test 16 + the `analyze-stats` model_comparison table-type.
+- `segmentation_failure_panel.md` — segmentation usability (**across cases, one model** — the third
+  axis beside the two above): every case plotted rather than a bar of means, the **acceptability
+  threshold drawn with the fraction below it labelled**, failures coloured by the pre-specified class
+  (boundary drift / missed / hallucinated / catastrophic), stratification that explains the tail, and
+  a **qualitative panel of the actual worst cases** — an anatomically impossible output is invisible
+  in every summary statistic. Pairs `design-study` segmentation-usability design + `calc-sample-size`
+  Test 17.
 - `km_curve.md` — Kaplan–Meier survival curve: number-at-risk table, censoring marks, CI band,
   median/log-rank/HR annotation, no extrapolation past the thin-risk-set tail, CIF for competing
   risks. Pairs the survival table-type.
