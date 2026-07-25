@@ -2,13 +2,13 @@
 
 # architecture-zoo
 
-> Choose a model architecture for a medical-imaging research question before scaffolding. Maps the task (classification, segmentation, detection, transfer), modality and dimensionality, labelled-data scale, and class imbalance to a shortlist of architectures, each grounded in its source paper with a when-to-use, a medical-imaging use, a reference implementation, the typical validation setup, and the matching model-scaffold template. Covers the foundational curriculum (ResNet, DenseNet, EfficientNet, ViT, Swin; U-Net, 3-D U-Net, Attention/Residual U-Net, nnU-Net, Mask R-CNN; SAM/MedSAM, TotalSegmentator, BiomedCLIP, DINO/MAE/SimCLR; and graph neural nets — GCN/GraphSAGE/GAT/GIN/BrainGNN — for brain connectomes). It teaches archetypes and the task-to-architecture logic, not a live SOTA leaderboard.
+> Choose a model architecture for a medical-imaging research question before scaffolding. Maps the task (classification, segmentation, detection, transfer), modality and dimensionality, labelled-data scale, and class imbalance to a shortlist of architectures, each grounded in its source paper with a when-to-use, a medical-imaging use, a reference implementation, the typical validation setup, and the matching model-scaffold template. Covers the foundational curriculum (ResNet, DenseNet, EfficientNet, ViT, Swin; U-Net, 3-D U-Net, Attention/Residual U-Net, nnU-Net (+ ResEnc/MedNeXt/STU-Net), Mask R-CNN; SAM/MedSAM, nnInteractive/VISTA3D interactive-3D, TotalSegmentator, BiomedCLIP, DINO/MAE/SimCLR; and graph neural nets — GCN/GraphSAGE/GAT/GIN/BrainGNN — for brain connectomes). It teaches archetypes and the task-to-architecture logic (including the "scale the CNN, new≠better" rigour caveat), not a live SOTA leaderboard.
 
 **Invoke:** `/architecture-zoo` · **Tools:** Read, Write, Edit, Grep, Glob · **Model:** inherit
 
 ## When to use
 
-`architecture-zoo` activates on requests such as: architecture zoo, which architecture, choose a model, model selection, ResNet vs ViT, U-Net vs nnU-Net, what backbone, foundation model for, transfer learning choice, MedSAM, TotalSegmentator, DINO, MAE, self-supervised, graph neural network, GNN, brain connectome, GCN, GAT, GraphSAGE, BrainGNN, population graph, paper to architecture, reference implementation, when to use ViT, segmentation architecture, classification backbone.
+`architecture-zoo` activates on requests such as: architecture zoo, which architecture, choose a model, model selection, ResNet vs ViT, U-Net vs nnU-Net, what backbone, foundation model for, transfer learning choice, MedSAM, TotalSegmentator, DINO, MAE, self-supervised, graph neural network, GNN, brain connectome, GCN, GAT, GraphSAGE, BrainGNN, population graph, paper to architecture, reference implementation, when to use ViT, segmentation architecture, classification backbone, nnU-Net ResEnc, MedNeXt, STU-Net, nnInteractive, VISTA3D, SAM-Med3D, Mamba, U-Mamba, interactive segmentation, labelling acceleration, promptable segmentation.
 
 ## Quality Card
 

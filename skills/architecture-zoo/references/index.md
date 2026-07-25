@@ -43,9 +43,11 @@ per-paper detail and the `/model-scaffold` template to instantiate.
 |---|---|---|
 | 2-D multi-label CXR classification | **ResNet-50 / EfficientNet (pretrained, `timm`)** | strong, cheap, well-calibrated baselines |
 | 3-D organ / lesion segmentation | **nnU-Net (v2)** | self-configuring; the standard to beat |
+| 3-D segmentation, tensor-core GPU, max accuracy | **nnU-Net ResEnc (M/L/XL)** | the 2024 "Revisited" frontier; still self-configuring (`segmentation.md`) |
 | 2-D segmentation, custom pipeline | **U-Net / Attention U-Net (MONAI)** | transparent, controllable |
 | few labels, many unlabelled scans | **SSL pretrain (DINO/MAE) → fine-tune**, or **MedSAM/TotalSegmentator transfer** | label-efficient |
 | zero-/few-shot organ masks on CT | **TotalSegmentator / MedSAM2** | released weights, no training |
+| accelerate expert 3-D labelling | **interactive FM (nnInteractive / VISTA3D)** | prompt-and-correct, not from-scratch; check the weight licence (`foundation_models.md`) |
 
 ## Step 4 — write the decision note
 Record the choice as a short note (`decisions/architecture_choice.md`): the **task**, the
@@ -56,4 +58,7 @@ quote a benchmark number you have not cited. Then hand the choice to `/model-sca
 
 > The zoo describes **archetypes**, not a live leaderboard. SOTA churns; the task →
 > family → constraint logic does not. When a newer model claims to beat these, evaluate
-> it with `/model-validation` rather than adopting it on the strength of a headline.
+> it with `/model-validation` rather than adopting it on the strength of a headline. The
+> canonical warning is *nnU-Net Revisited* (Isensee et al., *MICCAI* 2024): under matched
+> compute, Transformer- and Mamba-based segmentors did **not** beat a scaled CNN nnU-Net,
+> and U-Mamba's Mamba layers ablated to zero contribution — the "advance" was a bigger CNN.
