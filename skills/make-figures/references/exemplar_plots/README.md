@@ -39,6 +39,11 @@ the figure types that do not yet have a generator.
 - `forest_plot.md` — meta-analysis forest plot: per-study square-by-weight + CI, pooled diamond
   with the model named, prediction interval, I²/τ²/Q, no-pool discipline under extreme
   heterogeneity, subgroup-difference test, funnel/Egger only at k ≥ 10.
+- `external_validation_comparison.md` — performance across cohorts (internal vs external / by
+  site·scanner·vendor·sequence) with the **honest drop**: forest/dumbbell, internal as reference,
+  per-cohort N + bootstrap-BCa CI, Δ-from-internal annotation, subgroup/structure faceting, failed
+  cohorts marked; a suspiciously flat external result is the leakage signature. The visual of the
+  #1 acceptance lever; pairs `/model-validation` and `calc-sample-size` segmentation-metric sizing.
 - `km_curve.md` — Kaplan–Meier survival curve: number-at-risk table, censoring marks, CI band,
   median/log-rank/HR annotation, no extrapolation past the thin-risk-set tail, CIF for competing
   risks. Pairs the survival table-type.
