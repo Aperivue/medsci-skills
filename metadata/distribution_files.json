@@ -583,8 +583,8 @@
     },
     {
       "path": "skills/calc-sample-size/SKILL.md",
-      "size": 23904,
-      "sha256": "0bed1ee5d43f044a490d77fac181900f9e513dfd379831d0446b118b4768b798"
+      "size": 25878,
+      "sha256": "0fcba682fedf439cd53d92ea49fa4f527865634553ff2e9d560496bd6717cb8c"
     },
     {
       "path": "skills/calc-sample-size/references/formulas.md",
@@ -595,6 +595,11 @@
       "path": "skills/calc-sample-size/references/justification_examples.md",
       "size": 3676,
       "sha256": "66c9fbf593d9e9a4264da8fa3cdbfca7bd24dddefd88265609dcfb3d099c3a3d"
+    },
+    {
+      "path": "skills/calc-sample-size/references/mrmc_reader_study_sample_size.md",
+      "size": 5867,
+      "sha256": "67e391fc4ce9800f3ac98d1aa84afacbbb975c6343d1cd8affdf5faad08e7dc8"
     },
     {
       "path": "skills/calc-sample-size/references/observational_cohort.md",
