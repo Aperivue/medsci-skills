@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## [5.23.0] - 2026-07-25
+
+**Pinned reference:** the held-out validation study in `Recursive_Verification_Drift` measures this toolkit's
+detectors against a frozen corpus of accepted papers and must report the exact version it measured. A git
+SHA is a worse coordinate for a reader trying to reproduce that number than a release is, so this one is cut
+four days early to be citable.
+
 ### Added
 
 - **Every detector in this repo was tested only against fixtures written alongside it — a training
@@ -1077,6 +1084,8 @@
     prospective claim co-occurs with a registry and both dates parse and registration > search-end —
     the exact overclaim that recurred across two projects while the prose-only panel probe slipped on
     the second. Reframe to "registered with" or correct the chronology.
+
+## [5.22.0] - 2026-07-21
 
 **Hotfix:** three bundled reporting checklists that shipped in v5.21.0 and earlier — TRIPOD+AI, CLEAR,
 and MI-CLEAR-LLM — mis-stated their official item structure, so `/check-reporting` audited manuscripts
