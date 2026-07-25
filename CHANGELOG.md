@@ -37,6 +37,18 @@
   re-enumerated the observational O-probes inline and announced "CP1–CP4" while
   `clinical_prediction_model.md` had grown to CP1–CP6. The inline copy is removed; the module is
   the single source for the probe list and its numbering.
+- **Two prose detectors carried a byte-identical copy of the same extractor — and only *part* of
+  what looked duplicated actually was.** `check_aphorism_density` and `check_rhetorical_density`
+  measure different tells over *the same text* (body prose with front matter, headings, tables,
+  quotes, fences, list items, citations and inline markup removed) and each held its own copy of
+  that extractor: one drift away from reporting densities over different denominators while
+  claiming to describe the same prose. The extractor and its three regexes now live in a shared
+  same-directory `_prose.py`, the pattern `_frontmatter.py` already established. **Sentence
+  splitting is deliberately NOT shared**: the two splitters genuinely differ — the rhetorical one
+  starts a sentence at a digit or an opening parenthesis and keeps one-word fragments, the aphorism
+  one does neither — so folding them together would have moved every density in both detectors, a
+  behaviour change wearing a refactor's clothes. Proven inert: all ten detector outputs across five
+  fixtures are byte-identical before and after, and the detector count is unchanged at 84.
 
 - **Four detectors were catalogued and shipped but never CI-tested, and two headline claims were
   false — an independent architecture review (different-substrate cross-check) found them.**

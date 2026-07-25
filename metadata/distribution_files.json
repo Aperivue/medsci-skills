@@ -4377,6 +4377,11 @@
       "sha256": "129e1785593629dd63e2b4a264e8cadb034e41ed058cdfe784375e3f765cb5de"
     },
     {
+      "path": "skills/self-review/scripts/_prose.py",
+      "size": 2526,
+      "sha256": "0daca1dbc31d6aa9bc2a7bde16d6b59e8d3229644cd5b18e8a24dd0ccc71bd98"
+    },
+    {
       "path": "skills/self-review/scripts/_qc_findings.py",
       "size": 3187,
       "sha256": "eac1b20db8c5c66d12243602e9272d60e1fcc9ef3ed0046d5081a74ef33a9343"
@@ -4418,8 +4423,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_aphorism_density.py",
-      "size": 9219,
-      "sha256": "432ae0071a2f130b212978a6eea7c493494ea7e1a88169233e24e9d13c6a84bd"
+      "size": 8409,
+      "sha256": "39eeb7a5b2a59d3c037381508e0db557b360201010f62d02e0b8035c17171de1"
     },
     {
       "path": "skills/self-review/scripts/check_artifact_coverage.py",
@@ -4843,8 +4848,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_rhetorical_density.py",
-      "size": 11760,
-      "sha256": "67574a067970b02a82daf0894db38da0a43f02a3b8d248175bfaea103d37b111"
+      "size": 10957,
+      "sha256": "f2d1586af84aacd9079255b5f5eb45a9716fc3cf34abd6395bc0a77ad27f7c61"
     },
     {
       "path": "skills/self-review/scripts/check_rounded_delta.py",

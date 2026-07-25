@@ -67,6 +67,7 @@
 **Scripts** (`skills/self-review/scripts/`):
 
 - `_frontmatter.py`
+- `_prose.py`
 - `_qc_findings.py`
 - `check_analysis_definitions.py`
 - `check_analysis_definitions_challenge/` (6 files)
