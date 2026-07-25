@@ -402,8 +402,9 @@ overlap/boundary score, not a proportion.
 
 **Approach**: precision sizing `n ≈ (1.96·SD/δ)²` from the **pilot/literature SD of per-case Dice**
 (per structure — size on the **worst** structure you must report, not the average); report the CI by
-**bootstrapping per-case values (BCa)**, since Dice has no closed-form CI and is non-normal near the
-ceiling. A model comparison on the same cases is **paired** (size on the SD of the per-case
+**bootstrapping per-case values (BCa)** — a t-interval is closed-form but Dice is bounded and
+non-normal near the ceiling, so its coverage is not the coverage you asked for, and BCa must resample
+whole **patients**, not structures. A model comparison on the same cases is **paired** (size on the SD of the per-case
 *difference*, or an NI margin). **Size the external cohort too** — a precise external estimate is the
 #1 acceptance lever.
 

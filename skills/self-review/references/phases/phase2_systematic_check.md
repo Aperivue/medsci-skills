@@ -53,7 +53,7 @@ not at all for this manuscript type.
 | Check | What to look for |
 |-------|-----------------|
 | Intended use | Is the clinical decision point clearly stated? (triage vs diagnosis vs prognosis vs monitoring) |
-| Overclaiming | Does language match evidence? ("will improve" -> "may potentially"; "superior" with overlapping CIs?) |
+| Overclaiming | Does language match evidence? ("will improve" -> "may potentially"; "superior" read off two arms' separate CIs rather than a tested difference — note that overlapping CIs neither establish nor refute a difference, so the fix is to report the paired delta and its CI, not to soften a claim the test supports) |
 | Terminology precision | Key terms defined? (e.g., "perioperative" = when exactly?) |
 | Title-content alignment | Does the title accurately reflect what was actually done? |
 | Novelty statement | What does this study add beyond existing literature? Is this explicitly stated? |
