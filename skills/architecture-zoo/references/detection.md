@@ -10,6 +10,27 @@ validation/experiment setup.**
 
 ---
 
+## Self-configuring 3-D detection (the default to beat)
+
+### nnDetection
+- **Paper**: Baumgartner et al., "nnDetection: A Self-configuring Method for Medical Object
+  Detection," *MICCAI* 2021.
+- **Core idea**: nnU-Net's philosophy applied to **detection** — auto-configures
+  preprocessing, anchors, network topology, and training from the dataset fingerprint for
+  **3-D volumetric** lesion detection, with no manual tuning. (First release is 3-D only; no
+  2-D / Mask R-CNN.)
+- **When to use**: the **default to beat** for 3-D medical lesion detection (nodules,
+  aneurysms, focal lesions on CT/MR), exactly as nnU-Net is for segmentation — start here and
+  justify any custom detector against it; it removes the anchor/scale tuning a torchvision
+  detector needs.
+- **Medical-imaging use**: LUNA16-style nodule detection, 3-D lesion / aneurysm detection.
+- **Reference impl**: `MIC-DKFZ/nnDetection` (Apache-2.0). Integrate, do not reimplement.
+- **Validation setup**: report **FROC** (sensitivity per false-positive-per-scan); its
+  internal CV is development-time optimism correction, not external validation
+  (`/model-validation` MD3/MD6); keep the patient-level split consistent end to end.
+
+---
+
 ## Two-stage detectors (region proposal → classify)
 
 ### R-CNN → Fast R-CNN → Faster R-CNN (+ FPN)
@@ -43,26 +64,35 @@ validation/experiment setup.**
 - **When to use**: faster than two-stage, strong under heavy class imbalance.
 - **Reference impl**: torchvision `retinanet_resnet50_fpn`; MONAI detection.
 
-### YOLO family
-- **Papers**: Redmon et al., YOLO, *CVPR* 2016; later YOLOv3+/YOLOX.
+### YOLO family (incl. modern Ultralytics)
+- **Papers**: Redmon et al., YOLO, *CVPR* 2016; YOLOv3+/YOLOX; **YOLOv8 / YOLOv11**
+  (Ultralytics, 2023–24) are the current widely-used releases.
 - **Core idea**: a single network predicts boxes + classes directly on a grid — real-time.
-- **When to use**: speed-critical / interactive settings; usually two-stage detectors are
-  preferred for maximal sensitivity on small medical lesions.
+- **When to use**: speed-critical / interactive settings; for maximal sensitivity on small
+  medical lesions, two-stage detectors or **nnDetection** (3-D) are usually preferred.
+- **Licence — check before commercial use**: **Ultralytics YOLOv8/v11 are AGPL-3.0** (strong
+  copyleft — a deployed derivative must itself be open-sourced, or you buy Ultralytics'
+  commercial licence). If that is a problem, prefer an Apache/MIT detector — **RT-DETR**
+  (real-time DETR), torchvision Faster R-CNN, or MONAI RetinaNet.
 
-### DETR (transformer, set prediction)
-- **Paper**: Carion et al., "End-to-End Object Detection with Transformers," *ECCV* 2020.
+### DETR / RT-DETR (transformer, set prediction)
+- **Papers**: Carion et al., "End-to-End Object Detection with Transformers," *ECCV* 2020;
+  **RT-DETR** (Zhao et al., *CVPR* 2024) — a real-time, permissively licensed variant.
 - **Core idea**: a transformer treats detection as direct **set prediction** (no anchors /
-  NMS) via learned object queries + bipartite matching.
+  NMS) via learned object queries + bipartite matching; RT-DETR makes it real-time.
 - **When to use**: large datasets where an anchor-free, end-to-end pipeline is attractive;
-  more data-hungry and slower to converge than CNN detectors.
-- **Reference impl**: the official DETR repo; Deformable DETR for faster convergence.
+  more data-hungry and slower to converge than CNN detectors. **RT-DETR (Apache-2.0)** is the
+  permissively licensed real-time alternative to Ultralytics YOLO's AGPL.
+- **Reference impl**: the official DETR repo; Deformable DETR for faster convergence; RT-DETR.
 
 ---
 
 ## Choosing among these
-Default lesion detection → **Faster R-CNN + FPN** (torchvision; `/model-scaffold --task
+**3-D volumetric lesion detection → nnDetection** (self-configuring, the default to beat).
+2-D lesion detection → **Faster R-CNN + FPN** (torchvision; `/model-scaffold --task
 detection`). Sparse lesions / imbalance → **RetinaNet (focal loss)**. Count + delineate
-instances → **Mask R-CNN**. Speed-critical → **YOLO**. Large data, anchor-free → **DETR**.
+instances → **Mask R-CNN**. Speed-critical → **YOLO** (mind the **AGPL-3.0** licence) or
+**RT-DETR** (Apache-2.0). Large data, anchor-free → **DETR**.
 Always report **FROC / mAP with the IoU criterion stated**, per-lesion with patient-level
 clustering disclosed. Record the choice + paper, hand to `/model-scaffold`, validate with
 `/model-validation` and `/model-evaluation`.

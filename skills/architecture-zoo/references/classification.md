@@ -63,6 +63,24 @@ note; never quote a benchmark you have not cited.
 - **When to use**: legacy strong baseline; multi-scale lesions. Usually ResNet/EfficientNet
   preferred now.
 
+### ConvNeXt / ConvNeXt V2 — the modern CNN (CNNs, reasserted)
+- **Papers**: Liu et al., "A ConvNet for the 2020s" (ConvNeXt), *CVPR* 2022; Woo et al.,
+  ConvNeXt V2 (FCMAE masked-autoencoder pretraining + Global Response Normalisation), *CVPR*
+  2023.
+- **Core idea**: a pure CNN modernised with transformer-era design choices (large kernels,
+  LayerNorm, inverted bottlenecks) that **matches or beats ViT/Swin at equal compute** — the
+  classification counterpart to the "scale the CNN, new≠better" lesson in `segmentation.md`.
+- **When to use**: a strong modern backbone when you want CNN inductive bias + good transfer
+  without ViT's data appetite; a sensible default alongside ResNet/EfficientNet for medical
+  classification.
+- **Reference impl**: `timm` (`convnext_*`, `convnextv2_*`).
+- **Licence**: ConvNeXt (V1) code **and weights MIT** (commercial OK); ConvNeXt **V2 code is
+  MIT but its ImageNet weights are CC-BY-NC** (non-commercial) — use V1 weights or your own
+  pretraining if the model feeds a product.
+- **Validation setup**: as ResNet; if you use V2's self-supervised weights, keep the
+  pretraining corpus disjoint from the test patients (contamination — `/model-validation`
+  MD1/MD3).
+
 ---
 
 ## Vision transformers (when data is large)
@@ -96,7 +114,8 @@ note; never quote a benchmark you have not cited.
 ---
 
 ## Choosing among these
-Small/medium labelled data → **pretrained ResNet/DenseNet/EfficientNet**. Large data or a
-strong pretrained transformer → **ViT/Swin**. Always pretrained, always patient-level split,
+Small/medium labelled data → **pretrained ResNet/DenseNet/EfficientNet**, or **ConvNeXt** for
+a modern CNN backbone (mind the V2 weight licence). Large data or a strong pretrained
+transformer → **ViT/Swin**. Always pretrained, always patient-level split,
 always AUROC **and** AUPRC with CIs. Record the choice + paper in the decision note and hand
 to `/model-scaffold`; validate with `/model-validation`, evaluate with `/model-evaluation`.

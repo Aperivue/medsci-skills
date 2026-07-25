@@ -41,7 +41,8 @@ per-paper detail and the `/model-scaffold` template to instantiate.
 ## Step 3 — default picks (a safe starting point, then justify deviations)
 | Task + setting | Default | Why |
 |---|---|---|
-| 2-D multi-label CXR classification | **ResNet-50 / EfficientNet (pretrained, `timm`)** | strong, cheap, well-calibrated baselines |
+| 2-D multi-label CXR classification | **ResNet-50 / EfficientNet (pretrained, `timm`)** | strong, cheap, well-calibrated baselines (**ConvNeXt** for a modern CNN — `classification.md`) |
+| 3-D lesion detection (boxes, FROC) | **nnDetection** | self-configuring — the nnU-Net of detection (`detection.md`) |
 | 3-D organ / lesion segmentation | **nnU-Net (v2)** | self-configuring; the standard to beat |
 | 3-D segmentation, tensor-core GPU, max accuracy | **nnU-Net ResEnc (M/L/XL)** | the 2024 "Revisited" frontier; still self-configuring (`segmentation.md`) |
 | 2-D segmentation, custom pipeline | **U-Net / Attention U-Net (MONAI)** | transparent, controllable |
