@@ -2113,8 +2113,13 @@
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/README.md",
-      "size": 6524,
-      "sha256": "6dded03ce2aa6cf81277d4a64fa15e0f6814aa568132fc817e2fc753517d5338"
+      "size": 7006,
+      "sha256": "7fcbee87d41d50ff2ed491705088f17edcf380f01fc3e32ebea83a4830d0c125"
+    },
+    {
+      "path": "skills/make-figures/references/exemplar_plots/ai_assistance_effect.md",
+      "size": 3599,
+      "sha256": "f702558aacdb479caf91ec1daa0fd2830d10c470e5bc2d9e54bfe2e2ac3ce7f0"
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/bland_altman.md",
