@@ -74,6 +74,13 @@ The firewall is the same in spirit: **learn from any artifact privately; publish
 synthesis**, unless that specific artifact's license is verified-permissive for the reuse you
 intend. A linked artifact with an unknown/empty license authorizes nothing.
 
+## A second, separate firewall
+
+This document governs *copyright*: what expression may be committed. `HELDOUT.md` governs
+*measurement*: which sources may inform the suite at all. They are independent, and a source can
+clear one while failing the other — a CC-BY paper marked `split: heldout` authorizes nothing here,
+because it exists to score the detectors rather than to teach them. `distill.py` enforces both.
+
 ## Distribution note
 
 `reverse_engineer/` is maintainer tooling. It is excluded from the npm tarball

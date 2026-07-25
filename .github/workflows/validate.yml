@@ -138,6 +138,9 @@ jobs:
       - name: Run detector-crossfire self-test (restores the real 18pt vs 20pt bug; the gate must catch it)
         run: bash tests/test_detector_crossfire.sh
 
+      - name: Run held-out crossfire self-test (the instrument must withhold a rate it cannot support)
+        run: bash reverse_engineer/scripts/test_heldout_crossfire.sh
+
       - name: Run check_python_floor.py (everything a user runs must parse on the Python we promise)
         run: python3 scripts/check_python_floor.py --strict
 

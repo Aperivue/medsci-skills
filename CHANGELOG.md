@@ -2,6 +2,46 @@
 
 ## [Unreleased]
 
+### Added
+
+- **Every detector in this repo was tested only against fixtures written alongside it — a training
+  set — and nothing ever measured the other number.** A challenge card proving a detector fires on
+  its own planted defect is a training accuracy of 100%: true, and uninformative. So as the
+  detector count climbed there was no way to answer the question that matters — is the stack
+  getting better, or getting better at satisfying itself? `check_detector_crossfire.py` already
+  named the gap in its closing paragraph ("a new detector still owes what *no shippable corpus can
+  supply*: two real manuscripts, at least one of them known-good"), and no shippable corpus can
+  supply it because published papers cannot be committed here.
+  `reverse_engineer/scripts/heldout_crossfire.py` points that same machinery (imported, not
+  re-implemented — its invocation rules were paid for with 31 clobbered fixtures) at a **local,
+  gitignored corpus of real accepted open-access papers** marked `split: heldout` in the manifest.
+  What ships is the number, not the papers.
+  It is an instrument, not a gate: it never fails a build, and it refuses to overclaim in three
+  specific ways. A **fire is not a false positive** — a published paper is not a defect-free
+  paper, so the false-positive rate is *withheld entirely* until a human labels the fires
+  (`real`/`spurious`/`unsure`) and is always printed with its coverage; treating every fire as an
+  error would manufacture the alarming trend it claims to detect. **"Never fired" is reported
+  separately from "never ran"** — silence from a detector that was exercised is evidence, silence
+  from one that never got a readable subject is not, and the prune decision in the harvest loop
+  turns on exactly that distinction, which harvesting project `qc/` directories cannot supply
+  because it only sees detectors somebody happened to run. And a corpus is **checked for
+  separation, not counted**: six papers sharing one declared `coverage` profile are one pattern
+  measured six times, so concentration and identical profiles are named — the corpus-side of the
+  rule `check_panel_diversity` already applies to reviewers.
+  The trend is the signal, so the ledger is protected from us: a `--only` run cannot be appended,
+  because letting a filter enter the series would make the next comparison read our own behaviour
+  as a change in the detectors.
+- **A held-out source now authorizes nothing, including `synthetic`.** `distill.py` gained a
+  development firewall alongside its copyright one: `split: heldout` denies every reuse mode, and
+  `frozen_at` (ISO date, required) is what makes "no detector was written knowing this paper"
+  checkable rather than asserted. Denying `synthetic` is deliberate — reuse can be non-derivative
+  in copyright terms and total in measurement terms, and reading a held-out paper to author a
+  fresh probe is exactly how a detector comes to know it. Protocol in
+  `reverse_engineer/HELDOUT.md`, which also records what a buffer plus a ledger is *not* yet:
+  interleaved replay with distillation (promotion that adds one detector per episode is
+  memorisation in the costume of learning), and associative retrieval that edits an existing
+  detector instead of appending a new one.
+
 ### Fixed
 
 - **Twelve tests shipped on disk that no workflow ran, and the omission had no gate.** PR #412

@@ -1,0 +1,105 @@
+# The held-out split — measuring whether this project is still converging
+
+Every detector in this repo is tested against fixtures authored alongside it: a challenge card
+proving it fires on a planted defect, and `check_detector_crossfire.py` proving it stays silent on
+the demo manuscripts. Both are necessary. Neither is independent. In machine-learning terms they
+are a **training set**, and a detector passing its own challenge card is a training accuracy of
+100% — true, and uninformative about anything.
+
+That leaves one question unanswerable, and it is the question that matters as the detector count
+climbs: **is the stack getting better, or is it getting better at satisfying itself?**
+
+An improvement loop whose generator and evaluator share a framing drifts toward the evaluator
+rather than the goal — the measured quality rises while the unmeasured quality falls. The
+counterweight is not another gate. Adding gates is what produces the drift. The counterweight is a
+set of cases the gates were never allowed to learn from, scored periodically, whose trend can
+contradict us.
+
+## What the split is
+
+| split | meaning |
+|---|---|
+| `train` (default) | May inform detectors, probes, exemplars, rubrics. The normal path. |
+| `heldout` | **Measurement only.** `distill.py` denies every reuse mode for it — including `synthetic`, which every other known-license source is allowed. |
+
+Denying `synthetic` looks over-strict until the claim is said out loud. A fire rate measured on
+held-out papers asserts *"no detector was written knowing this paper."* Reading one to author a
+fresh probe is exactly how a detector comes to know it. The reuse is non-derivative in copyright
+terms and total in measurement terms — the license firewall and this firewall answer different
+questions, and only this one answers "is the number still honest?"
+
+`frozen_at` is required on every held-out record, because the claim is chronological: a freeze date
+that precedes the detector is what makes it checkable rather than asserted.
+
+## Building one
+
+The papers are real, published, accepted open-access articles. They are **never committed** — they
+live under `_corpus/heldout/`, which is gitignored, exactly like the rest of the corpus
+(`LICENSING.md`). What gets published is the *number*, which is not copyrightable expression.
+
+1. Acquire OA papers as usual (`acquire.py`), convert to `.md` under `_corpus/heldout/`.
+   The filename stem must equal the manifest `record_id`.
+2. In `_corpus/manifest.json`, set `split: "heldout"`, `frozen_at: "YYYY-MM-DD"`, and a
+   `coverage` map declaring what design the paper *is*.
+3. Never open them again except to label a fire.
+
+Choose papers that **span designs**. Six papers that are all retrospective single-centre CT
+detection studies are one pattern measured six times: a detector silent across them is silent on
+that pattern, and the denominator is inflated sixfold. That is what `coverage` is for, and the
+instrument reports concentration and identical profiles rather than trusting the count.
+
+## Reading the output
+
+```bash
+python3 reverse_engineer/scripts/heldout_crossfire.py \
+  --corpus _corpus/heldout --manifest _corpus/manifest.json \
+  --worksheet _corpus/fires_to_label.csv --ledger _corpus/heldout_ledger.jsonl \
+  --out _corpus/heldout_run.json
+```
+
+**Fire rate** (`fired_pairs / ran_pairs`) needs no judgment and means only "how often does the
+stack speak on already-accepted work". Its *trend* is the signal: the corpus is frozen, so a rise
+across runs is a change in the detectors. Detector count up and fire rate up together is the
+overfitting signature — prune or label before adding more.
+
+**False-positive rate** is withheld until a human labels the fires. A published paper is not a
+defect-free paper; this project exists because reviewers miss things, so a fire may be exactly
+right. Calling every fire a false positive would manufacture the alarming trend it claims to
+detect. Label the worksheet (`real` / `spurious` / `unsure`) and the rate appears with its
+coverage.
+
+**Silent-when-run vs skipped** are reported separately and mean opposite things. A detector that
+ran and stayed quiet is *observed* clean. A detector that never got a subject it could read is
+*unobserved* — no evidence either way. The prune decision turns on exactly this distinction, and
+harvesting project `qc/` directories cannot supply it: that only sees detectors somebody happened
+to run. A frozen corpus observes all of them, every run.
+
+The instrument never fails a build. It is an instrument, not a gate.
+
+## What this is not yet
+
+A buffer plus a ledger is the trivial version of a memory system. The mechanisms that make
+biological consolidation work are richer, and two of them are not built here:
+
+- **Interleaved replay with distillation.** Consolidation currently runs one way — episode becomes
+  rule — and nothing replays old episodes against the newly consolidated state, so interference is
+  never checked. The sharper half is distillation: many episodes should compress into *one* general
+  detector. Promotion that adds one detector per episode is memorisation wearing the costume of
+  learning, and the ratio (episodes resolved ÷ detectors added) is measurable.
+- **Associative retrieval and editing.** Recall is currently exact-fingerprint matching, so a new
+  episode either collides or looks novel. Retrieval from a partial cue, with the default action
+  being to *edit an existing detector* rather than append a new one, is what would keep the slow
+  store from growing linearly with experience.
+
+Both are follow-on work, and both depend on this split existing first: without a set held out from
+development, neither replay nor compression has anything independent to be scored against.
+
+## Related
+
+- `LICENSING.md` — the copyright firewall (a different question from this one)
+- `scripts/heldout_crossfire.py` — the instrument
+- `scripts/test_heldout_crossfire.sh` — its self-test (wired in `validate.yml`)
+- `../scripts/check_detector_crossfire.py` — the training-set sibling, whose closing paragraph
+  names the gap this file fills
+- McClelland, McNaughton & O'Reilly (1995), *Psychological Review* 102(3):419-457 — complementary
+  learning systems: why a fast episodic store and a slow statistical one need interleaved replay
