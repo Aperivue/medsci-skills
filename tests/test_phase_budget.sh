@@ -13,6 +13,11 @@
 #   - fence-awareness: a `## heading` inside a code fence is NOT a section boundary, so a long
 #     phase cannot hide by embedding an output template that chops it in two;
 #   - EXEMPT: a listed section is tolerated, so a long section is a decision on the record.
+#
+# And the whole-file budget, whose defect is the one the per-section budget CANNOT see: a file of
+# entirely compliant sections whose sum is enormous. self-review shipped at ~21,900 tokens and
+# peer-review at ~20,200 with every section inside the 80-line budget. The regression below is
+# built to be section-clean and file-fat, so a gate that only measured sections would pass it.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 DET="$ROOT/scripts/check_phase_budget.py"
@@ -131,6 +136,57 @@ assert over[0]["over_by"] == over[0]["body_lines"] - 80, over[0]
 PY
 pass=$((pass + 1))
 
+# ------- REGRESSION 3: the defect the SECTION budget cannot see — compliant parts, fat sum
+# 40 sections of 60 lines each: every one inside the 80-line budget, ~24,000 tokens in total. This
+# is the shape self-review and peer-review actually had. Assert the section gate is SILENT on it
+# (proving the file gate is doing separate work) and the file gate FAILS.
+mkdir -p "$tmp/fat/skills/fat"
+{
+  echo "# Fat Skill"
+  echo
+  for s in $(seq 1 40); do
+    echo "## Phase $s: a section comfortably inside the per-section budget"
+    echo
+    for i in $(seq 1 58); do
+      echo "- item $i of phase $s, prose the agent pays for before it knows if it is relevant"
+    done
+    echo
+  done
+} > "$tmp/fat/skills/fat/SKILL.md"
+
+python3 "$DET" --skills-dir "$tmp/fat/skills" --max-file-tokens 999999 --strict >/dev/null 2>&1 \
+  || fail "FILE: the section gate should be silent here — the fixture must isolate the file budget"
+pass=$((pass + 1))
+
+if python3 "$DET" --skills-dir "$tmp/fat/skills" --strict >/dev/null 2>&1; then
+  fail "FILE REGRESSION: a SKILL.md of compliant sections summing to ~24,000 tokens did NOT fail"
+fi
+pass=$((pass + 1))
+
+out="$(python3 "$DET" --skills-dir "$tmp/fat/skills" 2>&1 || true)"
+grep -q "OVER FILE BUDGET" <<<"$out" || fail "file failure output does not name the file budget"
+grep -q "fat/SKILL.md" <<<"$out" || fail "file failure output does not name the offending skill"
+grep -q "verbatim" <<<"$out" || fail "file failure output does not say to move the body verbatim"
+grep -q "an exemption without a plan" <<<"$out" || fail "file failure output does not require a plan"
+pass=$((pass + 1))
+
+python3 - "$DET" "$tmp/fat/skills" <<'PY' || fail "--json did not emit a usable file verdict"
+import json, subprocess, sys
+det, skills = sys.argv[1], sys.argv[2]
+r = subprocess.run([sys.executable, det, "--skills-dir", skills, "--json"],
+                   capture_output=True, text=True)
+d = json.loads(r.stdout)
+assert d["verdict"] == "FILE_BUDGET_EXCEEDED", d["verdict"]
+assert d["file_budget_tokens"] == 16000, d["file_budget_tokens"]
+assert not d["over_budget"], "sections must be clean — this fixture isolates the file budget"
+fo = d["files_over_budget"]
+assert len(fo) == 1 and fo[0]["skill"] == "fat", fo
+assert fo[0]["est_tokens"] > 16000, fo[0]
+assert fo[0]["over_by"] == fo[0]["est_tokens"] - 16000, fo[0]
+PY
+pass=$((pass + 1))
+
 echo "PASS: phase-budget gate — $pass checks."
 echo "  live repo silent - negative fixture silent - 200-line phase FAILS -"
-echo "  message teaches the fix - fence-hidden phase still caught - JSON verdict usable."
+echo "  message teaches the fix - fence-hidden phase still caught - JSON verdict usable -"
+echo "  a file of compliant sections summing to ~24,000 tokens FAILS the whole-file budget."

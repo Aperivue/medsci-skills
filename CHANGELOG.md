@@ -17,6 +17,27 @@
   direction and left this one open. The gate has no `--strict` — a violation exits 1 always.
   Verified by restoring the real defect: against `validate.yml` as it stood before PR #412 it names
   all four of that PR's detectors, and its self-test deletes a live step and requires the failure.
+- **A SKILL.md could hold thirty compliant sections and still cost 22,000 tokens on every
+  invocation.** The phase-budget gate bounded the parts (80 lines per section) and said nothing
+  about the sum, so `self-review` reached 1,132 lines / ~21,900 estimated tokens and `peer-review`
+  ~20,200 with **every section inside the budget**. `check_phase_budget.py` now also enforces a
+  whole-file budget (`--max-file-tokens`, default 16,000). `/self-review` is down to ~15,200 —
+  **−30%, about 6,700 tokens off every single invocation** — by moving five genuinely conditional
+  blocks to `references/phases/` behind trigger rows: the `--panel` phase, the reference
+  hallucination/adequacy scans, design-and-power provenance, the `--json` output schema, and fix
+  support. Bodies were moved verbatim; a retyped phase is how a phase quietly changes meaning.
+  The budget counts **tokens, not lines**, because lines are the wrong unit and this repo is its
+  own counter-example: `peer-review` cost ~20,200 tokens in 604 lines while `make-figures` cost
+  ~11,900 in 930. By lines, `make-figures` looks like the second-worst file; by what the user pays
+  it is fifth, so a line budget would have sent the work to the wrong place. The threshold is a
+  ratchet just above the largest accepted file, not a target — the median SKILL.md is ~2,800
+  tokens. `peer-review` carries a written `FILE_EXEMPT` entry with its plan until its 24
+  study-type Extension blocks are collapsed into one routing table.
+- **A duplicated probe list had already drifted.** `self-review`'s Research-Type Adaptation
+  re-enumerated the observational O-probes inline and announced "CP1–CP4" while
+  `clinical_prediction_model.md` had grown to CP1–CP6. The inline copy is removed; the module is
+  the single source for the probe list and its numbering.
+
 - **Four detectors were catalogued and shipped but never CI-tested, and two headline claims were
   false — an independent architecture review (different-substrate cross-check) found them.**
   `check_analysis_definitions`, `check_review_request_types`, and `check_model_provenance` each

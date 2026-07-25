@@ -37,7 +37,13 @@ done
 
 # 3. Template exists and carries the schema fields + skeletons.
 check "panel_review_template.md exists"         test -f "$TEMPLATE"
-check "template references skill-dir path in SKILL.md" grep -qE 'references/panel_review_template\.md' "$SKILL"
+# The pointer must be REACHABLE from SKILL.md, not necessarily IN it. The panel phase now lives in
+# references/phases/phase2_6_panel.md behind a --panel trigger row (whole-file token budget), so the
+# chain is SKILL.md -> phase reference -> template. Asserting the pointer sits literally in SKILL.md
+# would force the panel body back into the file the budget is trying to keep small.
+PANEL_PHASE="$(dirname "$SKILL")/references/phases/phase2_6_panel.md"
+check "SKILL.md points at the panel phase"      grep -qE 'references/phases/phase2_6_panel\.md' "$SKILL"
+check "template reachable from the panel phase" grep -qE 'references/panel_review_template\.md' "$PANEL_PHASE"
 check "template has reviewer schema fields"     grep -qE '"severity": "Fatal \| Fixable"' "$TEMPLATE"
 check "template has editor synthesis skeleton"  grep -qi 'Editor synthesis prompt skeleton' "$TEMPLATE"
 

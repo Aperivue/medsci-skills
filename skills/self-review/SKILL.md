@@ -200,7 +200,7 @@ publication bias (funnel plot, Egger), and sensitivity/subgroup analyses.
 
 **Type-Specific Additional Checks:**
 
-- **Observational studies**: Confounding assessment (DAG or adjustment strategy), selection bias, exposure measurement validity. Run **Phase 2.5e (Confounding Completeness)** and apply the O1–O18 probes in `references/domain-probes/observational_confounding.md` — including O7 (over-adjustment: do not adjust for a consequence/mediator of the outcome, e.g. serum uric acid in an eGFR model — the opposite-direction failure to O1), O8 (analysis unit & clustering — run `check_cohort_arithmetic.py --id-col` for records-vs-subjects), O9 (construct validity of a report-/registry-derived outcome), O10 (an inferential effect-size gradient across overlapping/nested subsets needs a difference/interaction test, not descriptive refinement alone), and — for complex-survey data (NHANES/KNHANES/CHNS) — O11 (design-based weighting: the right weight + strata + PSU, subpopulation-not-subset) and O12 (data-driven inflection-point/'saturation' threshold mining needs a breakpoint CI + pre-specification, not a quoted cutoff), O13 (a cross-sectional mediation claim cannot establish X→M→Y order and needs an unmeasured-M–Y-confounding sensitivity), and O14 (a synergy/joint-effect/effect-modification claim needs the additive scale — RERI/AP/S with CIs — not a multiplicative-only interaction or joint-category ORs), O15 (an analytic cohort selected on an optional modality/procedure's availability is a spectrum/selection bias, not a generalizability caveat — ask for consecutive enrollment + a selected-vs-source comparison), and O16 (a serial-imaging size/growth endpoint needs a stated lesion-tracking rule + multiplicity prevalence + a solitary-lesion sensitivity), O17 (a many-exposure agnostic scan — ExWAS/EWAS/MWAS — needs multiplicity control against the true denominator + independent replication, not a raw p<0.05 top hit), and O18 (a multi-rater agreement / reader test run on pooled pairwise distances rather than independent subjects is pseudoreplication — re-run per-subject). If the manuscript develops or compares a **clinical prediction model** (TRIPOD / TRIPOD+AI, nested predictor-set comparison), also apply the CP1–CP4 probes in `references/domain-probes/clinical_prediction_model.md` (apparent-vs-optimism-corrected calibration/DCA, the incremental-value-vs-marginal-effect two-null distinction, EPV per nested model, net benefit as model comparison not policy).
+- **Observational studies**: Confounding assessment (DAG or adjustment strategy), selection bias, exposure measurement validity. Run **Phase 2.5e (Confounding Completeness)**, then apply the O-probes in `references/domain-probes/observational_confounding.md` — the two deterministic ones are O1 (a covariate imbalanced by exposure in Table 1 yet absent from the adjustment set) and O8 (records > subjects with the analysis unit undisclosed; `check_cohort_arithmetic.py --id-col`), and O7 is their opposite-direction twin (adjusting for a consequence/mediator of the outcome). If the manuscript develops or compares a **clinical prediction model** (TRIPOD / TRIPOD+AI, nested predictor-set comparison), also apply the CP-probes in `references/domain-probes/clinical_prediction_model.md`. The module is the single source for the probe list and its numbering; do not re-enumerate it here.
 - **Educational studies**: Learning outcome measurement validity, Kirkpatrick level, control group adequacy, curriculum fidelity
 - **Meta-analyses**: Search comprehensiveness (2+ databases), screening reproducibility (2 reviewers), RoB assessment per study, GRADE certainty
 - **Case reports**: Diagnostic reasoning transparency, timeline completeness, informed consent, generalizability disclaimer
@@ -334,68 +334,17 @@ are in the reference file.
 | File | Read it when | Cost if read blindly |
 |---|---|---|
 | `references/phases/phase2_5a_source_fidelity.md` | you are running the external audit — tracing sampled claims back to primary sources | ~2,500 tokens; a first-draft review with no extraction CSV and no primary sources cannot use any of it |
-### Phase 2.5a-2: Design & Power Statistic Provenance (computed, not extracted)
+### Phase 2.5a-2: Design & Power Statistic Provenance
 
-Phase 2.5a traces data-derived numbers back to a CSV and a primary source. **Design and power
-statistics are a different class and a common blind spot**: the minimum detectable effect
-(MDE), a-priori or post-hoc power, the required sample size for a future trial, and the
-a-priori effect-size assumptions behind them are *computed*, not extracted, so they have no
-CSV row or source-paper Table to trace to. They routinely escape both the internal-consistency
-check and the source-fidelity audit above.
+A design or power statistic is **computed**, not copied from a source, so the source-fidelity audit of Phase 2.5a cannot check it — it has to be re-derived from the manuscript's own inputs. This applies only when the manuscript states a sample-size calculation, a power figure, or a detectable-effect claim.
 
-**Precedent failure pattern:**
-> A pilot study reported a minimum detectable effect of d = 1.67. No standard two-sample method
-> reproduces it (the correct value at the stated n, alpha, and power was about 1.24). It survived
-> several review rounds because no committed script computed it — the value had been hand-entered —
-> and one reviewer even cited the figure approvingly. In the same manuscript, a set of future-trial
-> sample sizes was numerically correct but had been produced with an exact noncentral-t tool, while
-> the committed script used a normal approximation and printed different numbers: right value, no
-> reproducible provenance.
+**Read on demand:**
 
-**Procedure:**
+| File | Read it when | Cost if read blindly |
+|---|---|---|
+| `references/phases/phase2_5a2_design_power.md` | the manuscript reports a sample-size / power / MDE calculation | ~1,050 tokens; a manuscript with no power statement needs none of it |
 
-1. **Inventory design/power claims.** Search for: "minimum detectable", "detectable effect",
-   "MDE", "power" (80% / 90% / "1 − beta"), "sample size", "n = N per arm/group", "to detect",
-   "powered to", "a priori", and any a-priori planning effect size (Cohen's d / f / OR used for
-   sizing).
-
-2. **Require a reproducible source for each.** Every such value must be produced by committed
-   code (e.g. `statsmodels` `TTestIndPower`, a G*Power-equivalent, or an explicit noncentral-t
-   computation), with the inputs stated in the manuscript: n per arm, alpha, power, allocation
-   ratio, and one- vs two-sided. A value with no committed-code source is the highest-risk case.
-
-3. **Recompute independently** with a standard tool, then classify:
-   - **Not reproducible by any standard method** → likely a calculation error (Major; P0 if it
-     is a headline claim). This is the d = 1.67-vs-1.24 case above.
-   - **Reproducible only by a method the committed script does not implement** (e.g. the
-     manuscript value is noncentral-t but the script is a normal approximation) → provenance /
-     method drift. The number may be correct, but update the committed code so it reproduces the
-     reported value (Major: reproducibility, not correctness).
-
-4. **Method-consistency across the manuscript.** All power, sample-size, and MDE statistics in
-   one paper should share a single method family (e.g. all noncentral-t). A mix of normal
-   approximation and exact-t within one manuscript signals that some values were computed in an
-   ad-hoc side tool.
-
-5. **Any non-reproducible design/power value is a Major Comment;** a non-reproducible headline
-   power or MDE claim is a P0 submission blocker.
-
-**Hand-entered design/power statistics are a code smell even when correct.** If no committed
-function emits the value, flag it: the next revision will re-introduce the risk, and a reviewer
-who recomputes will not match the manuscript.
-
-**`POWER_MODEL_MISSPEC` — the power/MDE simulation's adjustment set must match the primary model.**
-For cohort "negative findings," the whole conclusion leans on the MDE ("the literature effect of
-1.2–1.5 cannot be excluded"), so the MDE must be computed under the **same covariate set as the
-primary analysis**. When a committed power/MDE script exists, read its model formula: if it fits
-`y ~ exposure + age` (2 covariates) while the primary model adjusts for 6, it **overstates power**
-(omitted covariates inflate the apparent precision) — the MDE is too small and the negative claim
-too strong. Re-running a parametric bootstrap under the full model is the fix (in one worked case
-MDE moved from a 2-covariate "OR 1.67" to a full-model "OR ≈ 1.70"). A power/MDE whose script omits
-primary-model covariates → Major (P0 when the MDE is a headline). This is `requires_reanalysis`
-(re-simulate, not a prose edit). **`POWER_VALUE_INTERPOLATED`** — any `interpolat`/`approx`/`interp`
-token in a power/MDE CSV's provenance column means the headline value was never simulated on the
-grid; treat a non-reproducible headline power/MDE as Major.
+**Load-on-demand**: read `${CLAUDE_SKILL_DIR}/references/phases/phase2_5a2_design_power.md` when the manuscript reports a sample-size / power / MDE calculation.
 
 ### Phase 2.5b: Screening-Count Reconciliation from ID Sets (SR/MA + observational tier/stratum)
 
@@ -410,15 +359,14 @@ thing that catches it is a recount from the **ID sets**.
 observational manuscript presenting an ordinal tier / mutually-exclusive stratum split. Skip
 otherwise.
 
-**A. SR/MA — recount from the ID sets.** Enumerate A (INCLUDE in the screening TSV), B (Exclude
-in the consensus sheet), C (Include-qualitative), T (studies in Table 1), then derive
-`k_qualitative = |A \ B| + |C|`, `k_bivariate = |T|`, and `k_narrative-only = |(A ∪ C) \ B \ T|`.
-**List the narrative-only IDs explicitly** — the highest-yield cross-check, and the one that
-turns "10 narrative-only studies" into "2 (IDs 120, 474)". Compare every derived total against
-the prose claim in Abstract, Methods, Results, the Figure 1 caption, and Limitations; any
-mismatch is a **P0 Major, blocking submission**. Any `N → M` transition claim not backed by an
-enumerable ID addition/subtraction set is itself a **Major** — it is unverifiable by downstream
-audit. The full procedure and the reconciliation-block template are in the reference file.
+**A. SR/MA — recount from the ID sets.** Derive every study count from the screening TSV and the
+consensus sheet rather than from prose, and **list the narrative-only IDs explicitly** — the
+highest-yield cross-check, the one that turns "10 narrative-only studies" into "2 (IDs 120, 474)".
+Any derived total that disagrees with Abstract, Methods, Results, the Figure 1 caption or
+Limitations is a **P0 Major, blocking submission**, and any `N → M` transition claim not backed by
+an enumerable ID addition/subtraction set is itself a **Major** — it is unverifiable by downstream
+audit. The set definitions, the derivation formulas and the reconciliation-block template are in
+the reference file.
 
 **B. Observational tier/stratum — the same set logic, as arithmetic.** A partition claimed to be
 disjoint must satisfy `Σ(stratum N) == unique total` and `Σ(stratum events) == total events`.
@@ -451,100 +399,24 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/check_binning_consistency.py" \
 | File | Read it when | Cost if read blindly |
 |---|---|---|
 | `references/phases/phase2_5b_screening_counts.md` | this is an SR/MA (ID-set recount) or a stratified cohort, and you are doing the recount | ~3,300 tokens — nothing in it applies to a single-cohort manuscript with no strata |
-### Phase 2.5c: Reference Hallucination Scan
+### Phase 2.5c: Reference Scans (hallucination + adequacy)
 
-Numerical audits (2.5/2.5a/2.5b) cover in-text numbers; they do **not** cover reference-list integrity. LLM-drafted or co-author-handed-in bibliographies frequently contain fabricated DOIs, wrong author/year combinations for a real DOI, or plausible-looking references that never existed. These slip past human proofreading because the surface form looks canonical.
+Two scans run on the bibliography: **2.5c** catches a citation that does not exist or whose first author is invented, and **2.5c-2** catches a claim that carries no citation at all. Both need a bibliography — a draft with no `refs.bib` and no reference list skips them entirely. Run `/verify-refs --strict` first; these scans read its audit rather than re-deriving it, then run the adequacy checker:
 
-**When to run:** every manuscript at self-review, regardless of stage. Mandatory before submission and before any revision circulation to co-authors or the editor.
+```bash
+python3 "${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/self-review/scripts/check_reference_adequacy.py" \
+  --manuscript manuscript/manuscript.md --bib "$BIB" \
+  --article-type "$TYPE" ${CAP:+--journal-cap "$CAP"} \
+  --out qc/reference_adequacy.json --strict
+```
 
-**Procedure:**
+**Read on demand:**
 
-1. **Locate the bibliography.** From `SSOT.yaml` → `truth.refs_bib` (fallback `manuscript/_src/refs.bib` for legacy projects). If `SSOT.yaml` is absent, scan `references/library.bib` as a last resort.
+| File | Read it when | Cost if read blindly |
+|---|---|---|
+| `references/phases/phase2_5c_reference_scans.md` | the manuscript has a bibliography and you are auditing citations | ~1,950 tokens; a draft with no reference list cannot use any of it |
 
-2. **Invoke `/verify-refs`** on the resolved bib. The skill writes `qc/reference_audit.json` with a per-entry verdict (`VERIFIED` / `FABRICATED` / `UNVERIFIED`) and a top-level `submission_safe` boolean.
-
-   ```bash
-   # equivalent CLI form (same result as invoking the skill).
-   # verify_refs.py takes a positional input (the .bib path) and writes its audit
-   # to <project-root>/qc/reference_audit.json (path derived from --project-root).
-   BIB="$(python3 -c "import yaml; print(yaml.safe_load(open('SSOT.yaml'))['truth']['refs_bib'])")"
-   python3 skills/verify-refs/scripts/verify_refs.py "$BIB" --project-root . --strict
-   ```
-
-   When both reference QC and cross-reference QC are needed in one pass, prefer
-   the master orchestration entry point in `/manage-refs` — it chains
-   `check_citation_keys.py` → `verify_refs.py --strict` → `render_pandoc.sh`
-   (optional) → `check_xref.py --strict` and writes
-   `qc/pre_submission_gate.json` as the single submission-readiness artifact:
-
-   ```bash
-   bash "${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/manage-refs/scripts/pre_submission_gate.sh" \
-       --md manuscript/manuscript.md \
-       --bib manuscript/_src/refs.bib \
-       --docx submission/<journal>/manuscript.docx \
-       --allow-separate-attachments  # see Phase 2.5d for when this is appropriate
-   ```
-
-3. **Read `qc/reference_audit.json`.** For each entry not marked `VERIFIED`, add a row to the reconciliation block below. `FABRICATED` entries are P0 Major Comments (block submission). `UNVERIFIED` entries are Minor Comments unless the manuscript is at a circulation/submission gate, in which case they escalate to Major. For each `duplicate_findings[]` entry (category `duplicate_pmid` / `duplicate_doi`), add a Major Comment row noting the duplicated `ref_ids` pair and recommend cite renumbering — duplicates block submission (P0 Major) regardless of per-record `VERIFIED` status.
-
-4. **Cross-check placeholder + pagination drift.** Run, on every round:
-
-   ```bash
-   grep -nE '\[@NEW:|\[N\]|\[N–N\]|e0{3}.{0,5}e0{3}|in[ .]?press|\bTBD\b|forthcoming' manuscript/
-   ```
-
-   Two failure classes:
-   - **Citation-queue placeholders** (`[@NEW:topic]`, `[N]`, `[N–N]`): a citation slot that was never resolved. Any remaining at self-review is a P0.
-   - **Pagination placeholders** (`e000–e000`, `in press`, `TBD`, `forthcoming`): `/verify-refs` (Phase 2.5c step 2) marks these `UNVERIFIED` with `note = "pagination_placeholder"` but cannot judge centrality from the .bib alone. **Here, with the manuscript in hand, decide centrality:** if the unresolved reference supports a method choice or a headline claim (grep the citekey/marker against the Abstract, the Statistical Analysis subsection, and the first Results paragraph), escalate it to a **P0 Major** rather than a generic Minor. A method-load-bearing citation that is still "in press / e000" at submission is a blocker. Include each in the reconciliation block.
-
-5. **Record results in a short reconciliation block** and append to the Phase 3 report:
-
-   ```
-   | Citekey | Verdict | Source check | Status |
-   |---|---|---|---|
-   | Kim_2024_Validation | VERIFIED | DOI + PubMed match | ✓ |
-   | Park_2023_Radiomics | FABRICATED | DOI resolves to unrelated paper | ✗ P0 |
-   | Lee_2022_DeepLearning | UNVERIFIED | No DOI/PMID, title not found | △ Major before submission |
-   | [@NEW:segmentation_review] | PLACEHOLDER | unresolved citation queue | ✗ P0 |
-   ```
-
-**Short-circuit rule:** if `qc/reference_audit.json` already exists with a bib-hash match within 60s (P9 cache TTL, pending), the scan MAY reuse it; otherwise re-run. Never consume a stale audit from a prior manuscript revision.
-
-**Do NOT fabricate replacement references** if any entry fails. Fix-forward belongs to `/search-lit` and `/lit-sync`, not to this skill. Self-review only reports the failure and blocks submission.
-
-### Phase 2.5c-2: Reference Adequacy Scan
-
-Phase 2.5c covers reference **integrity** — are the cited references real (fabricated / unverified / duplicate / placeholder)? It does **not** ask whether there are *enough* references, in the right sections, grounding every named method. That is reference **adequacy**, and it is the failure mode behind a draft with thirteen references where the Statistical Analysis subsection names a competing-risk model, multiple imputation, the E-value, and an eGFR equation with zero citations. Keep the two strictly separate: an integrity failure blocks because a citation is *wrong*; an adequacy failure flags because a citation is *missing*.
-
-**When to run:** every manuscript at self-review, after the integrity scan. The two share the manuscript and the resolved bib path.
-
-**Procedure:**
-
-1. **Run the deterministic checker.** Resolve the article type from `project.yaml` (passed verbatim; the script's alias map handles repo paper-type names) and the journal cap from the target journal profile when known:
-
-   ```bash
-   python3 "${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/self-review/scripts/check_reference_adequacy.py" \
-     --manuscript manuscript/manuscript.md --bib "$BIB" \
-     --article-type "$TYPE" ${CAP:+--journal-cap "$CAP"} \
-     --out qc/reference_adequacy.json --strict
-   ```
-
-   It reports the cited-reference count vs the article-type target, the section distribution (Introduction / Methods / Results / Discussion), every named method found in the Methods/Statistical-Analysis block, which of them lack a citation in their paragraph, and a `methods_zero_citations` flag.
-
-2. **Fold `findings[]` into the review.** Each finding becomes a standard `issues[]` entry (so `/revise` and downstream consumers ingest adequacy and other comments uniformly), **additively** carrying the machine-readable `issue_type` + `subtype` alongside the usual fields, under `category: "F" / category_name: "Reporting Completeness"`:
-
-   ```json
-   {"id":"M2","severity":"major","category":"F","category_name":"Reporting Completeness",
-    "issue_type":"reference_adequacy","subtype":"methods_named_method_uncited",
-    "location":"Methods - Statistical Analysis",
-    "description":"Fine-Gray competing-risk model is named without a canonical citation.",
-    "fixable_by_ai":false,
-    "suggested_fix":"Run /search-lit for the canonical Fine-Gray competing-risk source, sync via /lit-sync, then rerun /verify-refs --strict."}
-   ```
-
-   **Severity:** `methods_zero_citations` (original / AI-validation / meta-analysis) and each uncited statistical method → **Major** (a P0 candidate before submission when the method is central to the primary or a sensitivity analysis); each uncited reporting/diagnostic standard → **Minor**; a total count below the article-type target → **Major** when far below (under half the floor), otherwise **Minor**, scaled also by stage (escalate at a submission/circulation gate).
-
-3. **Fix-forward, not fabricate.** As in Phase 2.5c, this skill never writes replacement references. Every adequacy finding carries `fixable_by_ai: false`; the remedy is `/search-lit` (Manuscript Paper Reference Pool mode) → `/lit-sync` → `/verify-refs --strict`, which the author runs.
+**Load-on-demand**: read `${CLAUDE_SKILL_DIR}/references/phases/phase2_5c_reference_scans.md` when the manuscript has a bibliography and you are auditing citations.
 
 ### Phase 2.5d: Cross-Reference QC (Manuscript ↔ rendered DOCX)
 
@@ -850,64 +722,15 @@ same stop signal the loop controller raises — the loop is no longer making pro
 
 Run this phase **only when `--panel` is passed**. The default single-pass review (Phases 2–2.5d) stays the fast path; the panel is the high-cost, high-precision option for a pre-submission final pass on a top-tier target. Run it after the numerical audits (Phases 2.5–2.5d) so the reviewers see source-verified numbers, and before the Phase 3 report, which it feeds.
 
-**Precondition (blocking): the SSOT must be singular.** Before spawning any reviewer, enforce the Phase 1 step 4 SSOT gate: if more than one manuscript-like `.md` exists and none is pinned (no `SSOT.yaml` `truth.manuscript_md`, no explicit `--ssot`), **halt and ask the user which file is the SSOT** — a panel is too expensive to spend on a stale copy. Clear any `STALE_COPY` from `detect_copy_divergence.py` first.
+Two things bind before you spawn anything: the **SSOT must be singular** (the Phase 1 step 4 gate — halt and ask if more than one manuscript-like `.md` is unpinned), and the roster must not be a **substrate monoculture** (a panel that shares the drafter's model inherits its blind spots; route at least one lens to Codex or a human co-author). Both are enforced by `check_panel_diversity.py --strict`, which also fires `PANEL_UNDERRETURN` when fewer reviewers returned than were spawned — a panel with <2 returned reviews is a failed run, not a thin one.
 
-The panel simulates independent peer reviewers who do not see each other's comments, then an editor who consolidates them — the same structure a journal uses. It reuses the vendored domain-probe modules so every reviewer applies the same criteria.
+**Read on demand:**
 
-**Step 1 — Compose the reviewer set by research type.** Auto-detect the manuscript type (Phase 1 input + the Research-Type Adaptation table). Each reviewer loads the matching domain-probe module so the panel's criteria are single-sourced.
-
-| Research type | Reviewer set (each is one reviewer) | Domain-probe module each loads |
+| File | Read it when | Cost if read blindly |
 |---|---|---|
-| Survival / prognostic cohort | R1 Biostatistics & Study Design · R2 Clinical (domain) · R3 Imaging/Radiology (if an imaging exposure) | `references/domain-probes/survival_prognostic.md` |
-| Systematic review / meta-analysis | R1 Methodology (search/screening/PRISMA) · R2 Clinical · R3 Statistics (pooling/heterogeneity) | `references/domain-probes/sr_ma.md` |
-| Radiomics / feature reproducibility | R1 Imaging physics & acquisition · R2 ML / Statistics · R3 Clinical translation | `references/domain-probes/radiomics.md` |
-| Diagnostic-accuracy / AI model | R1 Study design & leakage · R2 Statistics (DeLong, calibration) · R3 Clinical / reference standard | `references/domain-probes/sr_ma.md` (P1 DTA cells) + `references/domain-probes/ai_overclaiming.md` (AO0–AO7, for AI clinical claims) + categories A–C |
-| Observational (STROBE) | R1 Epidemiology / confounding · R2 Clinical · R3 Statistics | `references/domain-probes/observational_confounding.md` (O1/O8 run as the Phase 2.5e / `check_cohort_arithmetic.py --id-col` deterministic gates; O7 over-adjustment) + `references/domain-probes/clinical_prediction_model.md` (CP1–CP4, when it is a prediction-model paper) + categories A–J + the effect-size / added-value axes |
-| Narrative / review article | R1 Domain-content expert · R2 Methodology / SANRA · R3 Technical accuracy · R4 Adversarial reject-hunter (structural: RV9 curated-base circularity, RV6 single-anchor overload, RV8 self-citation architecture) | `references/domain-probes/narrative_review.md` |
-| Perspective / opinion / viewpoint | R1 Domain-content expert · R2 Argument architecture (thesis clarity, section-as-argument-move, single spine device) · R3 Technical accuracy · R4 Adversarial reject-hunter | `references/domain-probes/narrative_review.md` |
-| Case report | R1 Clinical case-report reviewer · R2 Ethics / de-identification · R3 Literature-context reviewer | `references/domain-probes/case_report.md` + CARE items + categories D/F/G |
+| `references/phases/phase2_6_panel.md` | `--panel` was passed and you are composing the reviewer set | ~2,600 tokens — the reviewer-set table, roster manifest, editor synthesis and lens-diversity gate; a default single-pass review reaches none of it |
 
-If the type is ambiguous, ask the user before composing the set.
-
-Append the **handling-editor desk-impression** persona (the ceiling lens) to every reviewer set:
-it loads no domain probe, reads only for narrative confidence vs over-defensiveness, and returns
-Minor REMOVE / MOVE / TIGHTEN findings (category L) that the editor routes to the separate
-Editorial-Impression Risks block. Its focus checklist is in `references/panel_review_template.md`.
-It does not count toward the Step 3.5 lens-diversity axes.
-
-**Step 2 — Run the reviewers (portable execution).** When the host provides a parallel subagent / Task capability (Claude Code, or any harness exposing an Agent tool), spawn the reviewer set as independent parallel subagents, each blinded to the others, then run the editor as a final synthesis agent. **Fallback (no subagent capability — e.g. a minimal Codex/Cursor harness):** a single agent role-plays each reviewer sequentially and in isolation — it completes and writes out reviewer R1's full structured review before reading the manuscript "fresh" as R2, so a later reviewer never sees an earlier reviewer's comments. The panel is defined by these instructions; it does **not** depend on the `Workflow` tool or any Claude-Code-only orchestration.
-
-**Before spawning, write a roster manifest** — `panel_roster.json`. At minimum the list of `reviewer_id`s you are about to spawn (so a reviewer that returned nothing is distinguishable from one that was never expected — the Step 3.5 `--roster` completeness check). **When the manuscript was AI-drafted, the roster must also declare substrates** — a top-level `generator_substrate` and a `substrate` per reviewer, each a coarse lane label (`"claude"` | `"codex"` | `"gpt"` | `"human"`) — because a panel that shares the drafter's substrate inherits its blind spots and is not an independent check. Routing at least one lens to a **different substrate** (the Codex adversarial path) or a human co-author is the **default, not an option**: the Step 3.5 gate fires `SUBSTRATE_MONOCULTURE` (Major) when every declared reviewer shares `generator_substrate`. Example: `{"generator_substrate": "claude", "reviewers": [{"reviewer_id": "R1", "substrate": "claude"}, {"reviewer_id": "R2", "substrate": "codex"}, {"reviewer_id": "R3", "substrate": "human"}]}`.
-
-A reusable reviewer schema, a generic harsh-but-fair reviewer prompt skeleton with per-domain focus checklists, and the editor synthesis prompt skeleton live in `${CLAUDE_SKILL_DIR}/references/panel_review_template.md`.
-
-Each reviewer returns: `reviewer_id`, `expertise_area`, an `overall_assessment` (name the single biggest threat to the conclusions), `strengths` (2–3), `major[]` (each with `heading`, `comment`, `location`, `severity`, `suggested_fix`), and `minor[]`. Map `severity` onto this skill's own scale — a conclusion-threatening / design-level finding is **Fatal**, a reporting-level finding is **Fixable** — rather than introducing a separate vocabulary.
-
-**Step 3 — Editor synthesis.** One editor pass (a final agent, or the main agent in the fallback) consolidates the reviews:
-1. **Dedupe** findings by theme across reviewers.
-2. **Flag CONSENSUS** for any theme raised by ≥2 reviewers, with R1/R2/R3 attribution (e.g., `[CONSENSUS: R1+R3]`); single-reviewer findings are attributed to the one reviewer.
-3. **Decide** an internal readiness verdict (this sets the Phase 3c `verdict` / `overall_score`; it is not printed as a journal recommendation).
-4. **Rank** the concrete pre-submission actions the author should complete first.
-5. State a one-line **readiness verdict** (ready for the target tier now / fix specific items first / consider a different tier).
-
-**Step 3.5 — Lens-diversity gate (deterministic).** A panel only earns its cost if its reviewers span *distinct* axes rather than echo one theme louder. Before the editor finalizes, serialize the reviewers' structured outputs (the schema above) to a JSON file — either a top-level list or `{"reviewers": [...], "research_type": "..."}` — and run the gate:
-
-```bash
-python3 ${CLAUDE_SKILL_DIR}/scripts/check_panel_diversity.py \
-    --panel panel_reviews.json --roster panel_roster.json \
-    --research-type {survival|sr_ma|radiomics|dta|observational|narrative} --strict
-```
-
-With `--roster` it first checks **completeness** — **`PANEL_UNDERRETURN`** (Major) fires when fewer reviewers returned a parseable review than were spawned, or when fewer than 2 returned at all. A panel with <2 returned reviews is a **failed run, not a thin one**: do not synthesize it or report it as a review — re-spawn (or route to a different substrate / human co-author). This is the case that otherwise passes silently, because a thin or empty `panel_reviews.json` errors nowhere. It then checks **independence** — **`SUBSTRATE_MONOCULTURE`** (Major) fires when the roster declares a `generator_substrate` and every declared reviewer shares it: a same-model panel inherits the drafter's blind spots and is not an independent check, so route at least one lens to a different substrate (Codex) or a human co-author (skipped when the roster declares no substrates — backward compatible). It then reports three diversity failures, each mapped onto a concern family aligned to the focus checklists:
-- **`UNCOVERED_AXIS`** (Major) — an axis the research type is expected to probe (e.g. heterogeneity/pooling for an SR/MA) drew **zero** major findings. The editor re-probes it with the owning reviewer before finalizing, or records in the synthesis why the gap is acceptable.
-- **`FAMILY_MONOCULTURE`** (Major) — the majority of majors fall in one concern family; the lenses converged rather than spanned the manuscript.
-- **`LENS_COLLAPSE`** (Flag) — a reviewer raised only families another reviewer already covered, adding no independent axis.
-
-Healthy CONSENSUS is preserved — agreement on *some* themes is a strength (Step 3 flags it), and the gate fires `LENS_COLLAPSE` only on a *fully* redundant reviewer and the Major checks on panel-level coverage, never on agreement per se. Do not silently ship a monoculture: resolve every Major before the synthesis verdict.
-
-**Step 4 — Feed Phase 3.** The consolidated panel output flows into the Phase 3 report, Phase 3b R0 numbering (**preserved**, so `/revise` still consumes it), and Phase 3c JSON. CONSENSUS flags and reviewer attribution are additive annotations on the existing `M`/`m` comments (and the optional `consensus` JSON field); they do not change the report or JSON structure.
-
-**Re-run the panel after a large revision.** A panel is high-yield not only before the first submission but **again after any large edit** — a word-count compression, a primary-model or adjustment-set change, or resolving a batch of majors. Such edits introduce *new* drift (a compression drops a caveat; a re-fit leaves a derived CSV stale; a relocation orphans a cross-reference), and the second panel's findings shift character accordingly (method → compression-drift → residual). If the author has just compressed or re-modelled, recommend one more `--panel` pass rather than assuming the prior panel still holds; in practice each post-revision round surfaces real, distinct errors.
+**Load-on-demand**: read `${CLAUDE_SKILL_DIR}/references/phases/phase2_6_panel.md` when `--panel` is passed.
 
 ### Phase 3: Report
 
@@ -987,109 +810,29 @@ R0-3 [MIN] {mapped from m1}: {issue title}
 When actual reviewer comments arrive as R1-N, the user can cross-reference which issues
 were anticipated (R0) vs. novel (R1-only).
 
-### Phase 3c: Structured JSON Output
+### Phase 3c: Structured JSON Output (--json)
 
-When `--json` is passed, or when invoked by `/write-paper` Phase 7, append a machine-readable JSON block after the markdown report. Fence it with triple backticks and the `json` language tag so downstream parsers can extract it.
+Emit the review as machine-readable JSON **only when `--json` is passed** (or when another skill consumes this run). The schema, field semantics and worked example live in the reference; a human-facing review never serializes anything.
 
-```json
-{
-  "self_review_version": "1.0",
-  "manuscript_title": "...",
-  "date": "YYYY-MM-DD",
-  "overall_score": 72,
-  "verdict": "REVISE",
-  "fatal_count": 0,
-  "major_count": 3,
-  "minor_count": 4,
-  "issues": [
-    {
-      "id": "M1",
-      "severity": "major",
-      "category": "C",
-      "category_name": "Validation & Stats",
-      "location": "Methods, paragraph 5",
-      "description": "Calibration plot and Brier score absent for prediction model",
-      "fixable_by_ai": true,
-      "suggested_fix": "Add calibration analysis paragraph after discrimination results. Generate calibration plot via /make-figures."
-    },
-    {
-      "id": "m1",
-      "severity": "minor",
-      "category": "F",
-      "category_name": "Reporting Completeness",
-      "location": "Abstract, line 3",
-      "description": "Abstract reports AUC 0.91 but Table 2 shows 0.912 -- rounding inconsistency",
-      "fixable_by_ai": true,
-      "suggested_fix": "Change abstract to match table: AUC 0.91 (95% CI: 0.87-0.95)"
-    }
-  ]
-}
-```
+**Read on demand:**
 
-**Field definitions:**
-- `overall_score`: Integer 0-100 reflecting manuscript submission readiness
-- `verdict`: `"PASS"` (score >= 85, no fatal issues) or `"REVISE"`
-- `severity`: `"fatal"`, `"major"`, or `"minor"`
-- `category`: Letter code from the 10-category system (A-J)
-- `fixable_by_ai`: `true` if the issue can be resolved by editing manuscript text with existing data; `false` if it requires new data, analyses, or human judgment (e.g., design changes, IRB decisions, missing experiments)
-- `requires_reanalysis` *(optional, default `false`)*: `true` when closing the finding needs a **committed analysis re-run against the real data**, not a prose edit — power/MDE re-simulation under the full model, first-visit/one-record-per-subject dedup, an extended- or reduced-adjustment sensitivity model, optimism correction of calibration. Always implies `fixable_by_ai: false`. Additive and backwards-compatible; parsers that do not expect it must ignore it. Route these to `/analyze-stats` (see Phase 4).
-- `suggested_fix`: Specific, actionable instruction. If `fixable_by_ai` is true, this must be concrete enough for the fixer to execute without ambiguity.
-- `consensus` *(optional, panel mode only)*: array of reviewer ids that raised the issue, e.g. `["R1","R3"]`. Additive and backwards-compatible — present only when Phase 2.6 ran; parsers that do not expect it must ignore it.
-- `action` *(optional, editorial-impression findings only)*: `"REMOVE" | "MOVE" | "TIGHTEN"` — the SUBTRACTION direction for a category-L finding (Phase 2.5g). Present alongside `issue_type: "editorial_impression"` and `subtype: <verdict>` (e.g. `HEDGE_REPEAT`). Additive and backwards-compatible; these are always `severity: "minor"`, never block, and are `fixable_by_ai: false` by default (except a redundant `HEDGE_REPEAT`, which `--fix` may collapse). Parsers that do not expect it must ignore it.
+| File | Read it when | Cost if read blindly |
+|---|---|---|
+| `references/phases/phase3c_json_output.md` | --json was passed, or a downstream skill consumes this run | ~790 tokens of schema a human-facing review never emits |
 
-### Phase 4: Fix Support
+**Load-on-demand**: read `${CLAUDE_SKILL_DIR}/references/phases/phase3c_json_output.md` when --json was passed, or a downstream skill consumes this run.
 
-#### Standard mode (no --fix flag)
+### Phase 4: Fix Support (on request)
 
-After presenting the report, offer to help fix specific issues:
-- Rewrite overclaiming sentences
-- Draft missing limitation statements
-- Suggest statistical additions (e.g., calibration analysis code via `/analyze-stats`)
-- Draft intended use, decision-impact, or novelty-delta statements
-- Check specific tables/figures for consistency
-- Generate missing flow diagrams via `/make-figures`
+The review ends at Phase 3. Enter this phase **only when the user asks for help applying the findings** — a review that is read and acted on by the author never reaches it.
 
-**`requires_reanalysis` findings route to `/analyze-stats`, not a prose edit (observational/cohort).**
-For cohort and observational manuscripts, the highest-value fixes are usually *data-level*: a
-power/MDE re-simulation under the full primary model, a first-visit / one-record-per-subject dedup
-sensitivity, an extended- or reduced-adjustment (over-adjustment) sensitivity model, or optimism
-correction of calibration. These are **not** `fixable_by_ai` text edits — `--fix` is text-only and
-will silently skip them. Tag each such finding `requires_reanalysis: true` and route it to
-`/analyze-stats` for a committed script + CSV, then feed the regenerated numbers back into the
-manuscript and re-run the relevant Phase 2.5 gate. Surface these explicitly to the author rather
-than letting an auto-fix pass appear to "resolve" them.
+**Read on demand:**
 
-#### Auto-fix mode (--fix flag)
+| File | Read it when | Cost if read blindly |
+|---|---|---|
+| `references/phases/phase4_fix_support.md` | the user asks you to apply or draft fixes for the findings | ~850 tokens; a review that is only read never reaches this phase |
 
-When `--fix` is passed:
-
-1. **Filter fixable issues**: Select all issues where `fixable_by_ai` is true.
-2. **Apply fixes sequentially**: For each fixable issue, edit the manuscript file directly:
-   - Text rewrites (overclaiming, missing sentences, terminology) → Edit in place
-   - Missing reporting items (ethics statement, data availability) → Insert at suggested location
-   - Numerical inconsistencies (abstract-table mismatch) → Correct to match tables
-   - Do NOT attempt: new statistical analyses, new figures, design changes, IRB-dependent items, or any issue tagged `requires_reanalysis` (route those to `/analyze-stats`)
-   - Do NOT invoke other skills (`/make-figures`, `/analyze-stats`) during fix — text edits only
-3. **Report changes**: After all fixes, output a summary:
-   ```
-   ## Auto-Fix Summary
-   - Fixed: {N} issues
-   - Skipped (requires human): {M} issues
-   - Changes: {list of id + one-line description of what was changed}
-   ```
-4. **Post-edit paren-span safety scan**: if any fix reduced em-dashes (e.g. a `— X —` appositive → `(X)`), run the parenthesis-span gate before re-review — a bulk conversion can pair two unrelated dashes across a sentence boundary and wrap a whole sentence (or an ordinal "Sixth, …" limitation) inside one parenthesis (paren-balanced, so a balance check misses it):
-
-   ```bash
-   python3 "${CLAUDE_SKILL_DIR}/scripts/check_paren_spans.py" \
-     --manuscript manuscript.md --out qc/paren_spans.json --strict
-   ```
-
-   `PAREN_SPAN_ORDINAL` / `PAREN_SPAN_SENTENCE` is a Major — undo or repair that conversion before continuing.
-5. **Re-review**: Run Phase 2 (systematic check) again on the modified manuscript.
-6. **Iterate**: If new fixable issues emerge, apply one more round (maximum 2 total fix iterations).
-7. **Final output**: Regenerate the Phase 3 report and Phase 3c JSON with updated scores.
-
-**Iteration limit**: Maximum 2 fix-and-re-review cycles. If the score has not reached "PASS" after 2 iterations, output the final report with remaining issues and flag: "Auto-fix limit reached. Remaining issues require human review."
+**Load-on-demand**: read `${CLAUDE_SKILL_DIR}/references/phases/phase4_fix_support.md` when the user asks you to apply or draft fixes for the findings.
 
 ## What This Skill Does NOT Do
 
