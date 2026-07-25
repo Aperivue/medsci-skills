@@ -169,6 +169,8 @@ adjudication, and a structured export schema.
 | `references/reader_elicitation_design.md` | the design has a human-rater or expert-elicitation arm — rubric axes, calibration probes, operational rigor, human-as-operator, and the six ceiling decisions | ~2,400 tokens, none of which applies to a design with no reader arm |
 | `references/dag_adjustment.md` | confounding control needs an explicit adjustment set | — |
 | `references/target_trial_emulation.md` | the design emulates a target trial | — |
+| `references/venue_accept_recipe.md` | it is a clinical DL / AI-validation study and the question is **which venue tier the achievable design can be accepted at, and the one design move that reaches the tier above** (the design→acceptance-tier ladder + the five acceptance levers, reverse-engineered from accepted OA papers; the bridge into `/find-journal`) | ~1,800 tokens; skip for a design with no publication-tier decision |
+
 ### Phase 3: Clinical framing
 
 Ask whether the comparator and endpoint support the stated claim:

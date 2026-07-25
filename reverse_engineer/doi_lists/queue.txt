@@ -58,3 +58,10 @@ cureus_ovarian_teratoma_fdg_2026	https://www.ncbi.nlm.nih.gov/pmc/articles/PMC13
 # [consumed G49/#interaction] xsec_joint_pa_diet_htn_2024	https://doi.org/10.1186/s12889-024-18346-8	clinical
 # [consumed G49/#interaction] xsec_joint_pa_diet_dyslipidemia_2024	https://doi.org/10.1186/s12944-024-02030-2	clinical
 # [consumed G49/#interaction] xsec_mod_cadmium_exercise_sleep_2023	https://doi.org/10.1186/s12889-023-16358-4	clinical
+#
+# G69 venue-accept recipe batch (design-study; each DOI verified to resolve + license read off the publisher/PMC page):
+# [consumed G69/venue-accept] npjdm_pcn_ct_dl_2025  https://doi.org/10.1038/s41746-025-01970-y  radiology_ai  # CC BY 4.0
+# [consumed G69/venue-accept] ii_endometrial_radiomics_dl_2025  https://doi.org/10.1186/s13244-025-01966-y  radiology_ai  # CC BY 4.0
+# [consumed G69/venue-accept] erx_innerear_unet_seg_2024  https://doi.org/10.1186/s41747-024-00508-3  radiology_ai  # CC BY 4.0
+# [consumed G69/venue-accept] kjr_tle_mri_dlr_2024  https://doi.org/10.3348/kjr.2023.0842  radiology_ai  # CC BY-NC 4.0 (learn-only)
+# [consumed G69/venue-accept] npjdm_pelvic_ai_support_2025  https://doi.org/10.1038/s41746-025-01923-5  radiology_ai  # CC BY-NC-ND 4.0 (learn-only, no derivatives)
