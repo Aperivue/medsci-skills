@@ -23,6 +23,7 @@ Python (alternative), interpret effect sizes clinically, and produce IRB-ready j
 - **Prediction-model / medical-AI sample size (Riley)**: `${CLAUDE_SKILL_DIR}/references/prediction_model_sample_size.md` -- the current TRIPOD+AI-aligned standard for a clinical prediction/classification model (development via `pmsampsize`, external validation via `pmvalsampsize`, net-benefit precision). Use this instead of EPV-10 whenever the goal is risk prediction for use rather than a single-predictor hypothesis test (Tests 12-13).
 - **MRMC reader-study sample size (Obuchowski–Rockette)**: `${CLAUDE_SKILL_DIR}/references/mrmc_reader_study_sample_size.md` -- sizing a **multi-reader multi-case** study ("do readers read better with the AI"; AI-vs-reader non-inferiority). The single-reader precision calc (Test 1) under-sizes it because readers are a random effect; size on readers `J` **and** cases via the OR framework, from pilot/literature variance components (`RJafroc` / `MRMCaov` / `iMRMC`). Use whenever a reader study is the design (Test 14).
 - **Segmentation-metric precision (Dice / HD95 / NSD)**: `${CLAUDE_SKILL_DIR}/references/segmentation_metric_sample_size.md` -- sizing a segmentation validation by the precision of the per-case overlap/boundary score (not a proportion): `n ≈ (1.96·SD/δ)²` from the pilot SD of per-case Dice, per structure (size on the worst), bootstrap-BCa CI, paired for a model comparison, and size the external cohort. Use whenever the outcome is Dice/HD95/NSD (Test 15).
+- **Between-model comparison sample size**: `${CLAUDE_SKILL_DIR}/references/multi_model_comparison_sample_size.md` -- sizing a study whose claim is that **one model beats others** (several models head-to-head). Single-model precision under-sizes it: power the **difference**. Pair the design (same cases through all models) → size on the **SD of the per-case difference**; **DeLong** for a paired ΔAUC, bootstrap-paired for ΔDice; for **>2 models** pre-specify one primary contrast or pay the family-wise multiplicity; and for a ranking claim, seed for **rank stability** (Nadeau–Bengio variance, Demšar critical-difference). Use whenever the endpoint is "model A > B/C/…" (Test 16).
 - **Justification prose exemplars**: `${CLAUDE_SKILL_DIR}/references/justification_examples.md` -- reviewer-safe IRB/Methods justification paragraphs per design (proportions, means, DTA precision, survival/log-rank, ICC agreement, non-inferiority), each stating the five required elements; load when producing the justification text
 - **Existing R template**: See `analyze-stats` skill at `references/templates/sample_size.R` for the 7 original tests
 
@@ -412,6 +413,33 @@ ceiling. A model comparison on the same cases is **paired** (size on the SD of t
 Read `${CLAUDE_SKILL_DIR}/references/segmentation_metric_sample_size.md` for the per-structure and
 paired-comparison detail. The comparator/ablation the size serves lives in `design-study`
 (`combine_models_ablation_design.md`); metric selection is `/model-evaluation`.
+
+---
+
+### Test 16: Between-model comparison (is model A really better than B, C, …)
+
+**When to use**: the claim is that **one model outperforms others** — several architectures / families
+compared head-to-head on the same task. Single-model precision (Test 1 AUC, Test 15 Dice) under-sizes
+it: two models can each have a tight CI and still overlap, so the **difference** must be powered.
+
+**Approach**: run all models on the **same cases** (paired / within-case) and size on the **SD of the
+per-case difference** — usually much smaller than either marginal SD, since easy/hard cases are shared.
+Use **DeLong** for a paired ΔAUC (or Obuchowski for the MRMC/clustered case) and a **bootstrap of the
+paired per-case differences** for ΔDice; size so the delta CI excludes zero (or meets an NI margin). For
+**>2 models**, pre-specify **one primary contrast** (proposed vs a strong, fairly-tuned baseline) at full
+α — or, if all pairwise are confirmatory, pay the **family-wise** correction (higher n per contrast). For
+a **ranking** claim, a single-run leaderboard ranks by luck: train over **multiple seeds** (Nadeau–Bengio
+corrected variance for repeated-CV differences) and treat models within the **Demšar critical difference**
+as tied.
+
+**Required parameters**: the **per-case-difference SD** of the primary metric (pilot / prior head-to-head;
+per structure for segmentation), the metric + paired-CI method, the target **δ or NI margin on the delta**,
+the **number of models + the primary contrast**, and (for ranking) the **seed-to-seed SD**.
+
+Read `${CLAUDE_SKILL_DIR}/references/multi_model_comparison_sample_size.md` for the paired-difference,
+multiplicity, and ranking-stability detail. The fair-comparison design the size serves lives in
+`design-study` (`multi_model_comparison_design.md`); presenting it is `make-figures`
+(`exemplar_plots/model_comparison_leaderboard.md`).
 
 ---
 
