@@ -4,6 +4,28 @@
 
 ### Fixed
 
+- **Four detectors were catalogued and shipped but never CI-tested, and two headline claims were
+  false — an independent architecture review (different-substrate cross-check) found them.**
+  `check_analysis_definitions`, `check_review_request_types`, and `check_model_provenance` each
+  had a full challenge card (positive + negative fixture) that was **never wired into
+  `validate.yml`** — they passed every build without their own regression ever running,
+  violating `skills/MAINTENANCE.md`'s rule that every detector be self-tested. `check_citation_keys`
+  had no challenge card at all; one is added here (an undefined `[@key]` fails, a resolved
+  bibliography clears). All four are now CI-wired. This is the same "green that means nothing"
+  class the repo already fights elsewhere: a passing build proved the *other* detectors ran, and
+  silence on these four read as coverage.
+- **"84 stdlib-only detectors" was false** in both `MEDSCI_AUDIT.md` and `paper.md` (the JOSS
+  submission): at least three detectors require pandoc / python-docx / PyYAML (`check_csl_render`,
+  `check_pool_consistency`, `check_xref`). Corrected to "84 deterministic detectors" with the
+  dependency exceptions named; the count-consistency validator's parse pattern was updated in step.
+- **`make-figures` contradicted itself on flow diagrams** — the R script is declared the single
+  canonical tool and D2 a legacy fallback, then D2 was labelled "(recommended)" a few lines later.
+  D2 is now labelled a legacy fallback consistently.
+- **Stale detector counts in code comments and skill prose** (a catalog generator said "24", the
+  reachability checker said "64", `self-review/SKILL.md` said "Twenty-four" while it owns 31).
+  Replaced the hard-coded numbers with drift-proof phrasing that tracks the live catalog, rather
+  than re-arming the same drift with a new literal.
+
 - **A test fixture was being published as a real skill, and it broke `gh skill` for the whole
   repository.** `gh skill` (GitHub CLI ≥ 2.90) discovers installable skills by looking for a
   directory literally named `skills` — *at any depth* — and treating every `<name>/SKILL.md`

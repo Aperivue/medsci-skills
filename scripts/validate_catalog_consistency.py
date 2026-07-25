@@ -135,7 +135,7 @@ SKILLS_PROSE_FILES = ["README.md", "paper.md"]
 # software it describes is exactly the drift this file exists to prevent.
 DETECTOR_CLAIM_FILES = ["MEDSCI_AUDIT.md", "paper.md"]
 DETECTOR_CLAIM_PATTERNS = [
-    r"\b(\d{1,3})\s+stdlib-only detectors\b",
+    r"\b(\d{1,3})\s+deterministic detectors\b",
     r"\bThe\s+(\d{1,3})\s+detectors\s+fall into\b",
     r"Current detector catalog:\s*(\d{1,3})\b",
     r'"(\d{1,3})\s+detectors,\s*validated\b',

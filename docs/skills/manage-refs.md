@@ -44,6 +44,7 @@
 - `_vendor_citation_writer.py`
 - `check_bib_title_markup.py`
 - `check_citation_keys.py`
+- `check_citation_keys_challenge/` (4 files)
 - `check_csl_render.py`
 - `check_reference_duplication.py`
 - `check_xref.py`

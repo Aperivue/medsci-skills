@@ -240,6 +240,15 @@ jobs:
       - name: "Run peer-review draft gates (length per comment; recommendation must stay in the editor box)"
         run: bash skills/peer-review/tests/test_review_draft_gates.sh
 
+      - name: "Run peer-review request-type challenge (unjustified computation fires; disclosure-led review clears)"
+        run: bash skills/peer-review/scripts/check_review_request_types_challenge/verify.sh
+
+      - name: "Run model-sourcing model-provenance challenge (contradictory facts fire; absent facts flagged; full dossier clears)"
+        run: bash skills/model-sourcing/scripts/check_model_provenance_challenge/verify.sh
+
+      - name: "Run manage-refs citation-keys challenge (an undefined [@key] fails; a fully-resolved bibliography clears)"
+        run: bash skills/manage-refs/scripts/check_citation_keys_challenge/verify.sh
+
       - name: Run contribute safety gate test (PHI/identifier scan before anything leaves a laptop)
         run: bash skills/contribute/tests/test_contribution_safety.sh
 
@@ -501,6 +510,9 @@ jobs:
 
       - name: "Run self-review figure-citation panel-suffix challenge (Figure 3a cites Figure 3 -> no orphan; uncited -> orphan)"
         run: bash skills/self-review/scripts/check_figure_citation_challenge/verify.sh
+
+      - name: "Run self-review analysis-definitions challenge (same analysis count, opposite verdict — definition is what the gate reads)"
+        run: bash skills/self-review/scripts/check_analysis_definitions_challenge/verify.sh
 
       - name: Run self-review paired-difference-estimator challenge (median parity / degenerate CI)
         run: bash skills/self-review/scripts/check_paired_difference_estimator_challenge/verify.sh

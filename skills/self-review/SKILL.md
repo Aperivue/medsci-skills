@@ -160,7 +160,7 @@ per-verdict rationale and the resolution paths are in the reference file.
 **Read on demand:**
 
 
-**Then check that every analysis you report was ever defined.** Twenty-four detectors in this skill ask whether a number is *correct*. None asks whether the analysis that produced it was *defined* — and that is the gap a reviewer walks straight into:
+**Then check that every analysis you report was ever defined.** The detectors in this skill ask whether a number is *correct*. None asks whether the analysis that produced it was *defined* — and that is the gap a reviewer walks straight into:
 
 > "The outcome (dependent variable) for the multivariable Cox model is not specified." … "The ground truth (reference standard) against which discrimination and calibration were assessed is not defined." … "This section is largely incomprehensible in its current form."
 
