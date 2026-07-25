@@ -53,6 +53,11 @@ the figure types that do not yet have a generator.
 - `mrmc_roc.md` — multi-reader multi-case (MRMC) reader-study ROC: per-reader curves + bold
   reader-averaged curve, MRMC (reader+case) AUC CI, ΔAUC with margin, per-patient/per-lesion unit,
   fully-crossed/washout note. Pairs the analyze-stats reader-study table-type.
+- `ai_assistance_effect.md` — AI-assistance effect (reader-level paired improvement): one line per
+  reader **unaided → aided** on the same cases, stratified by experience/specialty, reader-averaged
+  ΔAUC/Δaccuracy with paired MRMC CI, **harmed readers marked** (automation bias), reading-time
+  companion, crossover/washout. The within-reader-change counterpart to `mrmc_roc.md` (ROC space);
+  pairs the analyze-stats reader-study table-type and `calc-sample-size` Test 14.
 - `bland_altman.md` — Bland–Altman agreement: difference vs mean-of-the-two-methods, bias line +
   CI, ±1.96·SD limits of agreement with CIs on each limit, proportional-bias check, % within LoA,
   pre-defined clinical-acceptability band, not a correlation plot, repeated-measures handling.
