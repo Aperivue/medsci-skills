@@ -48,6 +48,48 @@ detection studies are one pattern measured six times: a detector silent across t
 that pattern, and the denominator is inflated sixfold. That is what `coverage` is for, and the
 instrument reports concentration and identical profiles rather than trusting the count.
 
+## Rendering the corpus faithfully (where the first measurement went wrong)
+
+The corpus is the denominator. A converter that drops a section the detectors read does not produce
+a missing signal — it produces a **fire**, and that fire is indistinguishable from a detector
+defect. The first real run reported 12 fires; three rendering fixes later it reported 6, and **every
+one of those removals was the parser, not the detectors**:
+
+| what the renderer dropped | what fired | fire rate |
+|---|---|---|
+| everything but `<body>` | `check_disclosure_availability` on **12 of 12** papers | 0.031 |
+| `<author-notes>`, `<back>` | JAMA / Elsevier put disclosures there | 0.018 |
+| `<funding-group>`, `<custom-meta id="data-availability">` | PLOS puts them there and nowhere else | 0.015 |
+| `<contrib-group>` (the byline) | `check_credit_integrity` cannot resolve initials without it | 0.015 |
+
+The trap worth naming: **publishers disagree about where a disclosure lives**, so a renderer that
+knows one publisher's location manufactures fires *for the other publishers' papers only* — a bias
+correlated with journal rather than with quality, which is the worst kind a measurement corpus can
+carry. Render title, byline, abstract, body, `author-notes`, `funding-group`, non-PMC
+`custom-meta`, back matter and references before trusting a single number.
+
+## First baseline (2026-07-25)
+
+12 papers, 12 distinct design profiles, no concentration flagged. 33 detectors ran, 10 skipped
+(unobserved, each named by what it needed). **389 pairs, 6 fires, fire rate 0.015.** 31 detectors
+observed clean.
+
+Labelled: **false-positive rate 0.800** (4 spurious / 5 decided, 1 unsure, coverage 100%). Two
+causes, both structurally invisible to a fixture authored alongside its detector:
+
+- **House-style vocabulary.** JAMA's "Data Sharing Statement" / "Funding/Support" / "Conflict of
+  Interest Disclosures" and Elsevier's "Declaration of competing interest" all went unrecognised.
+  A fixture uses the phrasing its detector expects, so the detector had never met a journal that
+  words it differently.
+- **Firing on prose when the target section is absent.** `check_credit_integrity` flagged the
+  ordinary words "analysis" and "writing" as invalid CRediT terms in papers carrying **no CRediT
+  statement at all**. A fixture always contains the block being validated; a real corpus does not.
+
+One fire was real — a systematic review with no data-availability statement anywhere — which is
+exactly why the rate is withheld until a human looks. The instrument found a genuine omission in an
+accepted paper and three vocabulary bugs in our own stack, and could not have told them apart by
+itself.
+
 ## Reading the output
 
 ```bash
