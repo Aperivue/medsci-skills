@@ -583,8 +583,8 @@
     },
     {
       "path": "skills/calc-sample-size/SKILL.md",
-      "size": 30637,
-      "sha256": "5cdded86ad07224df8dabf6c5ec286df49e9d98b1ccc1c9334b7f422e11dcbbb"
+      "size": 33435,
+      "sha256": "623d9b99d03e21fd8a164d467ed54e3390f5edffc059c4d6145750aa09808eda"
     },
     {
       "path": "skills/calc-sample-size/references/formulas.md",
@@ -615,6 +615,11 @@
       "path": "skills/calc-sample-size/references/prediction_model_sample_size.md",
       "size": 5074,
       "sha256": "bf3d42ad59d2a3b3abc2f00db9559de671514b7b64bd4cf44ec53717966dc635"
+    },
+    {
+      "path": "skills/calc-sample-size/references/segmentation_acceptability_sample_size.md",
+      "size": 5855,
+      "sha256": "76c4cba1625df348e331d5dbf1a335ce67867d33da122eb14c45643152619396"
     },
     {
       "path": "skills/calc-sample-size/references/segmentation_metric_sample_size.md",
@@ -1153,8 +1158,8 @@
     },
     {
       "path": "skills/design-study/SKILL.md",
-      "size": 17637,
-      "sha256": "113a91e5696f77204e35164e18b2cb4f3d730f093af12afb23ce64ddddbe456b"
+      "size": 18884,
+      "sha256": "46269424deac0a1ebcbbc6b4cfc5c19cd8fc1368e90c7edb2d435f531214f2d0"
     },
     {
       "path": "skills/design-study/references/combine_models_ablation_design.md",
@@ -1175,6 +1180,11 @@
       "path": "skills/design-study/references/reader_elicitation_design.md",
       "size": 6864,
       "sha256": "01984bc2cd4a88616ae4fe94fa9da80cdf52e433a0c542d9c0afc0a3b8ec9e83"
+    },
+    {
+      "path": "skills/design-study/references/segmentation_failure_characterization_design.md",
+      "size": 6533,
+      "sha256": "46b747623ecf1a49e813e654d5ff0e8f2c98a0d11ea798219de483f35b46faf0"
     },
     {
       "path": "skills/design-study/references/target_trial_emulation.md",
@@ -2133,8 +2143,8 @@
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/README.md",
-      "size": 8130,
-      "sha256": "95a617b0b71a4a8b94254d47cc4a479d44cfdc96084cff9bbfb371922905b2af"
+      "size": 8751,
+      "sha256": "824baf7dbcc820909e2d812bcb021a09af5f592dad2958a2f3be779881546504"
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/ai_assistance_effect.md",
@@ -2205,6 +2215,11 @@
       "path": "skills/make-figures/references/exemplar_plots/roc_pr.md",
       "size": 2473,
       "sha256": "02c483cd89b2598726bcb071c4e9e2e5baec0383487c7847c0ed2edf5c190a8f"
+    },
+    {
+      "path": "skills/make-figures/references/exemplar_plots/segmentation_failure_panel.md",
+      "size": 4581,
+      "sha256": "9bedf2f0b762702b1b9f794d6e83abc512a0bd504101ac27133558074a788b04"
     },
     {
       "path": "skills/make-figures/references/figure_manifest.md",
