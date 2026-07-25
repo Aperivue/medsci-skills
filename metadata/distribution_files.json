@@ -583,8 +583,8 @@
     },
     {
       "path": "skills/calc-sample-size/SKILL.md",
-      "size": 27695,
-      "sha256": "3d30d6f9ac37452ff610cc1737674a944291e94c4150976e1d2307e7aaef96f5"
+      "size": 30513,
+      "sha256": "b4c5c8ae6e2f7665846484949bebb28c79593e4d4ed91d99a541021e90aea5fe"
     },
     {
       "path": "skills/calc-sample-size/references/formulas.md",
@@ -600,6 +600,11 @@
       "path": "skills/calc-sample-size/references/mrmc_reader_study_sample_size.md",
       "size": 5867,
       "sha256": "67e391fc4ce9800f3ac98d1aa84afacbbb975c6343d1cd8affdf5faad08e7dc8"
+    },
+    {
+      "path": "skills/calc-sample-size/references/multi_model_comparison_sample_size.md",
+      "size": 6230,
+      "sha256": "0d071f01849a2831a001237a9676c647b00bb9a8586bf12f50d21195ca753c22"
     },
     {
       "path": "skills/calc-sample-size/references/observational_cohort.md",
@@ -1148,8 +1153,8 @@
     },
     {
       "path": "skills/design-study/SKILL.md",
-      "size": 16485,
-      "sha256": "b94ca6b38c0196c3344d40beca3fc74f44e2ab38977b0eb21bd4c99ee72de354"
+      "size": 17637,
+      "sha256": "113a91e5696f77204e35164e18b2cb4f3d730f093af12afb23ce64ddddbe456b"
     },
     {
       "path": "skills/design-study/references/combine_models_ablation_design.md",
@@ -1160,6 +1165,11 @@
       "path": "skills/design-study/references/dag_adjustment.md",
       "size": 4390,
       "sha256": "8b6c9d2b2d4e79652b355cf30f0d56f4232619cad8589489707107f85bef9de3"
+    },
+    {
+      "path": "skills/design-study/references/multi_model_comparison_design.md",
+      "size": 7179,
+      "sha256": "73b0c806e2997b8620e694a43186ae46616b87635884f0f38a1d181b04b857ff"
     },
     {
       "path": "skills/design-study/references/reader_elicitation_design.md",
@@ -2123,8 +2133,8 @@
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/README.md",
-      "size": 7501,
-      "sha256": "c65c39a50d8c69f459ff5cbe9b56b11650317aa9eecdc2858bc7a23551015fe0"
+      "size": 8130,
+      "sha256": "95a617b0b71a4a8b94254d47cc4a479d44cfdc96084cff9bbfb371922905b2af"
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/ai_assistance_effect.md",
@@ -2180,6 +2190,11 @@
       "path": "skills/make-figures/references/exemplar_plots/manhattan_plot.md",
       "size": 4097,
       "sha256": "60b2ada79a65162b1697fad23e168645355f7b090064b2a356ebebef38fb0f6b"
+    },
+    {
+      "path": "skills/make-figures/references/exemplar_plots/model_comparison_leaderboard.md",
+      "size": 4131,
+      "sha256": "f3cb7d5226afaf26d6645b308ed7eca19333c6a26a24cd220dd9ac1865443504"
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/mrmc_roc.md",

@@ -44,6 +44,12 @@ the figure types that do not yet have a generator.
   per-cohort N + bootstrap-BCa CI, Δ-from-internal annotation, subgroup/structure faceting, failed
   cohorts marked; a suspiciously flat external result is the leakage signature. The visual of the
   #1 acceptance lever; pairs `/model-validation` and `calc-sample-size` segmentation-metric sizing.
+- `model_comparison_leaderboard.md` — model-vs-model leaderboard (**across models, one cohort** — the
+  mirror of `external_validation_comparison.md`): one row per model with a bootstrap-Dice / DeLong
+  CI, the **paired Δ vs a strong fairly-tuned reference baseline** with its CI/significance, ranking
+  honesty (the paired Δ decides, not marginal-CI overlap; critical-difference / seed-stability), per-structure faceting, and a
+  **matched-budget caption**; no "bold-our-row" cherry-pick. Pairs `design-study` multi-model-comparison
+  design + `calc-sample-size` Test 16 + the `analyze-stats` model_comparison table-type.
 - `km_curve.md` — Kaplan–Meier survival curve: number-at-risk table, censoring marks, CI band,
   median/log-rank/HR annotation, no extrapolation past the thin-risk-set tail, CIF for competing
   risks. Pairs the survival table-type.

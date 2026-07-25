@@ -37,6 +37,7 @@
 
 - `combine_models_ablation_design.md`
 - `dag_adjustment.md`
+- `multi_model_comparison_design.md`
 - `reader_elicitation_design.md`
 - `target_trial_emulation.md`
 - `venue_accept_recipe.md`
