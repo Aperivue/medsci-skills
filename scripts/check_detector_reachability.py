@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """A detector nothing calls is a detector that never runs.
 
-We count 64 detectors. We test them in CI. We give each one a challenge card with a positive and a
-negative fixture, and a JSON envelope that names itself. All of that proves a detector **works**.
+We count every detector in the catalog. We test them in CI. We give each one a challenge card with a
+positive and a negative fixture, and a JSON envelope that names itself. All of that proves a detector **works**.
 
 None of it proves the skill **calls** it.
 

@@ -1,6 +1,6 @@
 # MedSci-Audit
 
-**MedSci-Audit** is the named deterministic verification layer inside [MedSci Skills](README.md): a suite of **84 stdlib-only detectors** that catch fabricated, drifted, or non-compliant content in a medical manuscript *before* it reaches a reviewer. The detectors run inside the skills that own them (e.g. `/self-review`, `/check-reporting`, `/sync-submission`, `/verify-refs`); this document names and indexes that suite so it can be cited and reasoned about as one thing.
+**MedSci-Audit** is the named deterministic verification layer inside [MedSci Skills](README.md): a suite of **84 deterministic detectors** — almost all Python-standard-library-only, with a few (CSL rendering, pool-lock parsing, DOCX cross-reference) using pandoc / python-docx / PyYAML where the task genuinely requires it — that catch fabricated, drifted, or non-compliant content in a medical manuscript *before* it reaches a reviewer. The detectors run inside the skills that own them (e.g. `/self-review`, `/check-reporting`, `/sync-submission`, `/verify-refs`); this document names and indexes that suite so it can be cited and reasoned about as one thing.
 
 The detectors are **deterministic** — same input, same verdict, no LLM in the decision path — so a flagged defect is reproducible and a clean run is meaningful.
 

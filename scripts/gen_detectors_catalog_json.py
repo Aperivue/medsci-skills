@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Generate metadata/detectors_catalog.json — the MedSci-Audit detector registry.
 
-Why: the repo ships 24 deterministic analysis-integrity detectors, but until now
+Why: the repo ships dozens of deterministic analysis-integrity detectors, but until now
 they were only *counted* (`metadata/catalog_counts.json: integrity_detectors`),
 never *enumerated* in a machine-readable single source of truth. This catalog
 names and groups them so MEDSCI_AUDIT.md (and any external surface) can reference
@@ -12,7 +12,7 @@ Discovery uses the EXACT same glob as scripts/validate_catalog_consistency.py:
 `check_*.py`/`detect_*.py`/`derive_*.py`/`verify_refs.py` under `skills/*/scripts/`
 ONLY — top-level `scripts/` validators (validate_*, repo-CI/host gates) are NOT
 manuscript-integrity detectors and are excluded. So `detector_count` here equals
-`catalog_counts.json::integrity_detectors` (24); the self-test asserts it.
+`catalog_counts.json::integrity_detectors`; the self-test asserts it.
 
 Family: detectors have no in-file category, so each detector id is mapped to one
 of a small set of audit families via the explicit table below (the v4.0.0

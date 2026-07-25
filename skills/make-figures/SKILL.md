@@ -658,7 +658,7 @@ Layout invariants:
 - **Define gap constants** at the top of the script (e.g., `GAP_SMALL = 1.5`, `GAP_BRANCH = 2.2`).
 - **Avoid magic number padding** in arrow endpoints — use named constants.
 
-**D2 approach (recommended):**
+**D2 approach (legacy fallback — use only when R is unavailable; the R script above is canonical):**
 ```bash
 d2 --layout elk --theme 0 flow.d2 output.svg
 # Then: open SVG in Figma → grid-snap → font swap → export PDF

@@ -1918,8 +1918,8 @@
     },
     {
       "path": "skills/make-figures/SKILL.md",
-      "size": 47509,
-      "sha256": "45e779aa3e41d716d2514cdf750b943129a2d5bb65ebee67dae1505f091abe53"
+      "size": 47581,
+      "sha256": "0d3955068a6bbe1d8b3be5b4d6fcb09636c87b65147793500c49330a49df9619"
     },
     {
       "path": "skills/make-figures/references/critic_rubrics/data_plot.md",
@@ -2535,6 +2535,26 @@
       "path": "skills/manage-refs/scripts/check_citation_keys.py",
       "size": 4125,
       "sha256": "b336b661b9d68e42d8829f017d2d55fba22585de6f9d59e2441ffc1c7f5ba3a7"
+    },
+    {
+      "path": "skills/manage-refs/scripts/check_citation_keys_challenge/fixture/manuscript.md",
+      "size": 127,
+      "sha256": "7c24349f351d40181c7d14913c105be0adeca40dc09a3037d1a8195e55828bad"
+    },
+    {
+      "path": "skills/manage-refs/scripts/check_citation_keys_challenge/fixture/refs_clean.bib",
+      "size": 210,
+      "sha256": "18f0ad1552d23b75ff851126f2b39ded3e32bd6aefbba41eb9f92ceb7e37df16"
+    },
+    {
+      "path": "skills/manage-refs/scripts/check_citation_keys_challenge/fixture/refs_undefined.bib",
+      "size": 103,
+      "sha256": "5b2710b87aebcf931630d1897757f575f25d43603ca12263b729d4ee4f6faa2d"
+    },
+    {
+      "path": "skills/manage-refs/scripts/check_citation_keys_challenge/verify.sh",
+      "size": 1862,
+      "sha256": "c704ca3a531e1568febfbf79588843f8d65561406620069b50591c306368a6cd"
     },
     {
       "path": "skills/manage-refs/scripts/check_csl_render.py",
@@ -4103,8 +4123,8 @@
     },
     {
       "path": "skills/self-review/SKILL.md",
-      "size": 88030,
-      "sha256": "ab927f6a9702b4e988246fad965cab6025fcbd91f9378bf3e2002ba7dee9e6dd"
+      "size": 88022,
+      "sha256": "d5fe28d7e90eae50501722a879cfac2d4d1b6bdceb5a2c43caec9014ac002dbd"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
