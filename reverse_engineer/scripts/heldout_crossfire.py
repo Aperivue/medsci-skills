@@ -82,7 +82,7 @@ FINDINGS, NOT JUST FIRES
     availability statement" (true — a real omission in an accepted paper) and "no COI statement"
     (false — Elsevier's "Declaration of competing interest" was there and unrecognised). Labelled
     at pair level, either label is a lie. So bracketed claim lines (`[hard] key: message`,
-    `[major] CODE: message`) are extracted as individual findings, the worksheet is finding-level,
+    `[major] CODE: message`, `✗ [major] code: message`, and markdown table rows) are extracted as individual findings, the worksheet is finding-level,
     and the false-positive rate has FINDINGS as its denominator while the fire rate has PAIRS.
 
 INPUTS
@@ -135,20 +135,63 @@ VERDICT_TOKEN_RE = re.compile(r"^[A-Z][A-Z0-9_]{3,}$")
 MEASURED = ("fire", "clean")
 OUTCOMES = ("fire", "clean", "not_applicable", "unsupplied", "timeout")
 
-# One claim inside one exit. Two house formats are in use and both must parse, because a regex
-# that knows one of them undercounts the other — the same single-vocabulary trap that produced
-# ledger C1/C2 in the detectors themselves:
+# One claim inside one exit. FOUR house formats are in use and all must parse, because a regex that
+# knows one of them undercounts the others — the same single-vocabulary trap that produced ledger
+# C1/C2 in the detectors themselves, recurring in the tool built to measure it. A first version knew
+# the first two and left 27 of 62 pilot findings (44%) with no claim text, which is a row no human
+# can label:
 #     [hard] data_availability_present: no Data Availability statement found
 #     [MAJOR] REFERENCE_STANDARD_UNDEFINED L21  Methods names no reference standard
+#     ✗ [major] methods_zero_citations: the Methods section contains no citations
+#     | 35 | bare_numeric_cite | warn | `[5]` |            <- a markdown table row
 FINDING_RE = re.compile(
-    r"^\s*\[(?P<sev>[A-Za-z][A-Za-z_ -]{1,15})\]\s+(?P<code>[A-Za-z][A-Za-z0-9_.\-]*)\b"
-    r"\s*(?:L\d+)?\s*[:\-]?\s*(?P<msg>.*)$"
+    r"^[\s\u2713\u2717\u26a0\u2022\-*>]*\[(?P<sev>[A-Za-z][A-Za-z_ -]{1,15})\]\s+"
+    r"(?P<code>[A-Za-z][A-Za-z0-9_.\-]*)\b\s*(?:L\d+)?\s*[:\-]?\s*(?P<msg>.*)$"
 )
-# A detector's own severity word, mapped to two tiers. Blocking-tier findings are the ones a
-# reviewer would call findings; advisory ones are the stack clearing its throat. The tier is
-# recorded per finding so the false-positive rate can be reported for both and for Majors alone.
+
+# A detector's own severity word, mapped to three tiers.
+#   blocking  what a reviewer would call a finding
+#   advisory  the stack clearing its throat — still a claim, still labelable
+#   context   the detector says outright that this is not a verdict
 BLOCKING_SEV = {"major", "blocker", "hard", "critical", "error", "fail", "p0"}
-ADVISORY_SEV = {"minor", "warn", "warning", "soft", "info", "note", "advisory", "unspecified"}
+ADVISORY_SEV = {"minor", "warn", "warning", "soft", "note", "advisory", "unspecified"}
+CONTEXT_SEV = {"info", "context", "note-only", "debug"}
+ALL_SEV = BLOCKING_SEV | ADVISORY_SEV | CONTEXT_SEV
+
+TABLE_SEP_RE = re.compile(r"^\s*\|[\s:\-|]+\|\s*$")
+IDENT_RE = re.compile(r"^[A-Za-z][A-Za-z0-9_.\-]*$")
+
+
+def tier_of(sev: str) -> str:
+    if sev in BLOCKING_SEV:
+        return "blocking"
+    if sev in CONTEXT_SEV:
+        return "context"
+    return "advisory"
+
+
+def table_row_finding(line: str) -> Optional[tuple]:
+    """A markdown table row carrying a severity column, e.g.
+
+        | Line | Type              | Severity | Match |
+        | 35   | bare_numeric_cite | warn     | `[5]` |
+
+    Several detectors report every finding this way and nothing else. Reading only bracketed
+    lines left them as unlabelable rows whose 'code' was the output banner.
+    """
+    if not line.lstrip().startswith("|") or TABLE_SEP_RE.match(line):
+        return None
+    cells = [c.strip().strip("`") for c in line.strip().strip("|").split("|")]
+    if len(cells) < 2:
+        return None
+    sev = next((c.lower() for c in cells if c.lower() in ALL_SEV), None)
+    if sev is None:
+        return None
+    code = next((c for c in cells if IDENT_RE.match(c) and c.lower() not in ALL_SEV), None)
+    if not code or code.lower() in ("none", "severity", "type", "check"):
+        return None
+    msg = " ".join(c for c in cells if c and c != code and c.lower() != sev)
+    return sev, code, msg
 # A detector that declares its own inapplicability, e.g. "no author-contributions section — skipped."
 SELF_SKIP_RE = re.compile(r"\bskipp?ed\b", re.I)
 USAGE_RE = re.compile(r"^usage:", re.M)
@@ -192,30 +235,41 @@ def extract_findings(stdout: str, stderr: str, fallback: str) -> List[dict]:
     without bracketed claim lines still made exactly one claim.
     """
     out: List[dict] = []
-    seen = set()
+    seen: Dict[tuple, dict] = {}
     for ln in ((stderr or "") + "\n" + (stdout or "")).splitlines():
         m = FINDING_RE.match(ln)
-        if not m:
-            continue
-        sev = m.group("sev").strip().lower()
-        key = (sev, m.group("code"))
+        if m:
+            sev, code, msg = m.group("sev").strip().lower(), m.group("code"), m.group("msg").strip()
+        else:
+            row = table_row_finding(ln)
+            if not row:
+                continue
+            sev, code, msg = row
+        key = (sev, code)
         if key in seen:
+            # Same claim, another instance (8 bare citations on 8 lines is one claim about the
+            # paper). Keep the first message and count the rest; collapsing silently would make
+            # a labeler think it happened once.
+            seen[key]["occurrences"] += 1
             continue
-        seen.add(key)
-        out.append(
-            {
-                "severity": sev,
-                "tier": "blocking" if sev in BLOCKING_SEV else "advisory",
-                "code": m.group("code"),
-                "message": m.group("msg").strip()[:300],
-                "parsed": True,
-            }
-        )
+        rec = {
+            "severity": sev,
+            "tier": tier_of(sev),
+            "code": code,
+            # A tag with no message ("[est-reassign] PRIMARY_REASSIGNED") would hand the labeler a
+            # bare code. Fall back to the pair's verdict line so every row asserts something.
+            "message": (msg or fallback or code)[:300],
+            "occurrences": 1,
+            "parsed": True,
+        }
+        seen[key] = rec
+        out.append(rec)
     if not out:
-        # No parseable claim line. The exit still asserted something, so record one finding and
-        # mark it unparsed — the count of these is the parser's own coverage, reported per run.
-        out.append({"severity": "unspecified", "tier": "advisory", "code": fallback or "UNSPECIFIED",
-                    "message": fallback, "parsed": False})
+        # No parseable claim line anywhere. The exit still asserted something, so record one row and
+        # mark it unparsed. These are NOT labelable — their 'code' is whatever the banner said — and
+        # the count of them is the parser's own coverage, reported with every run.
+        out.append({"severity": "unspecified", "tier": "unparsed", "code": fallback or "UNSPECIFIED",
+                    "message": fallback, "occurrences": 1, "parsed": False})
     return out
 
 
@@ -525,10 +579,18 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     # ---- dispositions: the only path to a false-positive rate -------------------------------
     # Denominator is FINDINGS, not pairs: one exit can carry a true claim and a false one.
+    #
+    # Two kinds of row are NOT in it, because neither asserts anything a human can call true or
+    # false, and leaving them in makes the rate depend on how a labeler disposes of an unanswerable
+    # row (registered as amendment 2 before the corpus was read):
+    #   context   the detector says outright this is not a verdict ("[info] ... Load is context")
+    #   unparsed  no claim line could be read, so the 'code' is an output banner
     labels = load_dispositions(a.dispositions) if a.dispositions else {}
     for f in findings:
         f["disposition"] = label_for(labels, f["paper"], f["detector"], f["code"])
-    lab = [f["disposition"] for f in findings]
+    labelable = [f for f in findings if f["tier"] in ("blocking", "advisory")]
+    n_context = sum(1 for f in findings if f["tier"] == "context")
+    lab = [f["disposition"] for f in labelable]
     n_spurious = sum(1 for x in lab if x == "spurious")
     n_real = sum(1 for x in lab if x == "real")
     n_unsure = sum(1 for x in lab if x == "unsure")
@@ -540,10 +602,12 @@ def main(argv: Optional[List[str]] = None) -> int:
     print(f"  papers measured : {len(papers)}   (corpus frozen: {frozen_at})")
     print(f"  detectors       : {len(full)} full / {len(partial)} partial / {len(never)} never ran"
           f"   (of {len(dets)})")
-    n_block = sum(1 for f in findings if f["tier"] == "blocking")
+    n_block = sum(1 for f in labelable if f["tier"] == "blocking")
     n_unparsed = sum(1 for f in findings if not f["parsed"])
-    print(f"  pairs           : {ran_pairs}   fired: {fired_pairs}   findings: {len(findings)}"
-          f" ({n_block} blocking-tier, {n_unparsed} with no parseable claim line)")
+    print(f"  pairs           : {ran_pairs}   fired: {fired_pairs}   "
+          f"labelable findings: {len(labelable)} ({n_block} blocking-tier)")
+    print(f"  not labelable   : {n_context} context-only (detector says it is not a verdict), "
+          f"{n_unparsed} unparsed (no claim line — parser coverage, not evidence)")
     print(f"  unobserved pairs: {unobserved_pairs} "
           f"(not_applicable {sum(t['not_applicable'] for t in tally.values())}, "
           f"unsupplied {sum(t['unsupplied'] for t in tally.values())}, "
@@ -597,17 +661,17 @@ def main(argv: Optional[List[str]] = None) -> int:
                     if o in reasons[name]), "no reason recorded")
         print(f"  NEVER RAN {name} ({why}) — unobserved, NOT evidence of a clean detector")
 
-    if findings:
+    if labelable:
         print("-" * 78)
         if fp_rate is None:
             print(
-                f"  FALSE-POSITIVE RATE: WITHHELD — {n_unlabelled} finding(s) across "
+                f"  FALSE-POSITIVE RATE: WITHHELD — {n_unlabelled} labelable finding(s) across "
                 f"{len(fires)} fire(s), 0 labelled.\n"
                 "    A fire on an accepted paper may be a real defect reviewers missed. Label the\n"
                 "    worksheet (real / spurious / unsure) before any FP claim is made."
             )
         else:
-            cov = (len(findings) - n_unlabelled) / len(findings)
+            cov = (len(labelable) - n_unlabelled) / len(labelable)
             print(
                 f"  FALSE-POSITIVE RATE: {fp_rate:.3f}  "
                 f"({n_spurious} spurious / {n_real + n_spurious} decided; "
@@ -615,7 +679,7 @@ def main(argv: Optional[List[str]] = None) -> int:
             )
             print("    denominator is FINDINGS, not fires — one exit can carry a true claim and a "
                   "false one.")
-            blocking = [f for f in findings if f["tier"] == "blocking"]
+            blocking = [f for f in labelable if f["tier"] == "blocking"]
             b_sp = sum(1 for f in blocking if f["disposition"] == "spurious")
             b_dec = b_sp + sum(1 for f in blocking if f["disposition"] == "real")
             if b_dec:
@@ -625,7 +689,7 @@ def main(argv: Optional[List[str]] = None) -> int:
                 print("    Partial coverage — unlabelled findings could move this either way.")
 
     if a.worksheet:
-        todo = [f for f in findings if f["disposition"] is None]
+        todo = [f for f in labelable if f["disposition"] is None]
         with a.worksheet.open("w", newline="", encoding="utf-8") as fh:
             w = csv.writer(fh)
             w.writerow(["paper", "detector", "code", "severity", "verdict", "disposition", "note"])
@@ -645,9 +709,10 @@ def main(argv: Optional[List[str]] = None) -> int:
         "pairs_ran": ran_pairs,
         "pairs_fired": fired_pairs,
         "pairs_unobserved": unobserved_pairs,
-        "n_findings": len(findings),
-        "n_findings_blocking": sum(1 for f in findings if f["tier"] == "blocking"),
-        "n_findings_unparsed": sum(1 for f in findings if not f["parsed"]),
+        "n_findings_labelable": len(labelable),
+        "n_findings_blocking": n_block,
+        "n_findings_context": n_context,
+        "n_findings_unparsed": n_unparsed,
         "fire_rate": round(fire_rate, 4),
         "fire_rate_default_bar": (round(default_bar_fires / ran_pairs, 4)
                                   if a.bar == "both" else None),

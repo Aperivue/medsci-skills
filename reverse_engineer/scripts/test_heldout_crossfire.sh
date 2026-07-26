@@ -69,9 +69,18 @@ assert v and all(x and not set(x) <= set("=- ") for x in v), \
     "worksheet verdicts are separator rules, not labelable verdicts: %r" % v
 # One exit carries several claims, and each must be labelable on its own merits: the pilot's
 # systematic-review fire asserted a true omission AND a false one inside a single exit.
-assert d["n_findings"] > d["pairs_fired"], \
-    "findings not split out of fires: %r findings, %r fires" % (d["n_findings"], d["pairs_fired"])
-assert all(f.get("code") for f in d["findings"]), "a finding with no code cannot be labelled"
+assert d["n_findings_labelable"] > d["pairs_fired"], \
+    "findings not split out of fires: %r findings, %r fires" % (
+        d["n_findings_labelable"], d["pairs_fired"])
+assert all(f.get("code") and f.get("message") for f in d["findings"]), \
+    "a finding with no code or no message cannot be labelled"
+# The parser's own coverage is part of the measurement: a row whose claim could not be read is not
+# evidence about a detector, and a row the detector calls context is not a claim at all. Both are
+# counted and both stay out of the labelable denominator (amendment 2).
+for k in ("n_findings_context", "n_findings_unparsed", "n_findings_blocking"):
+    assert k in d, "missing %s — the finding denominator is not accountable" % k
+assert d["n_findings_unparsed"] == 0, \
+    "the stub detector's claims did not parse: %r unparsed" % d["n_findings_unparsed"]
 # The bar is part of the measurement. A rate whose bar is not recorded is not reportable.
 assert d["bar"] == "strict", d["bar"]
 assert all(v["bar"] in ("strict", "default") for v in d["per_detector"].values())
