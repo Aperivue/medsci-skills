@@ -144,6 +144,9 @@ jobs:
       - name: "Run render_jats fidelity test (a dropped section is not a missing signal, it is a FIRE, biased by publisher)"
         run: bash reverse_engineer/scripts/test_render_jats.sh
 
+      - name: "Run perturbation/invariance self-test (a probe that cannot see a moved verdict is worse than none)"
+        run: bash reverse_engineer/scripts/test_perturb_invariance.sh
+
       - name: Run check_python_floor.py (everything a user runs must parse on the Python we promise)
         run: python3 scripts/check_python_floor.py --strict
 
