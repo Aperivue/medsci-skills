@@ -167,6 +167,26 @@ python3 "$R" --xml "$TMP/bmc.xml" --out "$TMP/bmc.md" >/dev/null
 must_contain "bmc" "$TMP/bmc.md" \
   "Availability of data and materials" "Datasets are in the repository." \
   "Competing interests" "The Consortium Group"
+# A heading must never be fused to the paragraph that follows it. This is not hypothetical: the
+# throwaway renderer that built the first corpus emitted
+#     Competing interestsThe authors declare that they have no competing interests.
+# and check_disclosure_availability anchors its section match with \b, which cannot fire between
+# "s" and "T". Four of twelve papers were therefore reported as having NO conflict-of-interest
+# statement while plainly carrying one — a false positive manufactured by our own converter and
+# indistinguishable, at the point of reading, from a detector defect (the Class B trap).
+# Found by the metamorphic probe, which is the only thing that ever looked.
+for H in "Competing interests" "Availability of data and materials"; do
+  grep -qE "^#{2,4} ${H}\s*$" "$TMP/bmc.md" \
+    || fail "bmc: \"${H}\" is not a heading on its own line — a fused heading is invisible to a \\b-anchored section finder"
+done
+# And prove the assertion has teeth. Mutating THIS renderer cannot easily produce a fused heading
+# (it joins its parts on newlines), so the check is verified against the defect directly: the exact
+# byte sequence the old converter produced must fail the same grep. An assertion never shown to
+# fail is an assertion nobody has tested.
+printf 'Competing interestsThe authors declare that they have no competing interests.\n' \
+  > "$TMP/fused.md"
+grep -qE "^#{2,4} Competing interests\s*$" "$TMP/fused.md" \
+  && fail "the heading-boundary check passes on a FUSED heading — it detects nothing"
 
 # ---------------------------------------------------------------------------------------------
 # The regression that started it: a <body>-only renderer must FAIL this suite, not squeak through.
