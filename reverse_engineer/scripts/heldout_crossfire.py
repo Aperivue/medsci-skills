@@ -42,14 +42,59 @@ WHY "NEVER FIRED" IS REPORTED SEPARATELY FROM "NEVER RAN"
     project `qc/` harvesting cannot supply it — that only observes detectors somebody happened to
     run. A frozen corpus observes all of them on every run.
 
+THE SEVERITY BAR, AND WHY IT IS NOT THE DEFAULT ONE (paid for on 2026-07-25)
+    The first version of this file invoked `<detector> --manuscript <paper>` and read the exit
+    code. But 32 of 42 manuscript detectors document exit 1 as CONDITIONAL ON --strict: without it
+    they print a Major finding and exit 0. Re-running the pilot corpus at both bars: 5 fires at the
+    default bar, 45 at the strict bar, and SEVEN detectors this instrument had recorded as
+    "observed clean" fire the moment they are allowed to speak.
+
+    That is the instrument committing the error it exists to detect — a check whose output and exit
+    code disagree, read by its exit code alone. So the bar is now explicit: --strict is passed to
+    every detector whose --help offers it, the bar actually used is recorded PER DETECTOR in the
+    artifact, and `--bar both` records the default-bar outcome alongside as a secondary series.
+    A rate whose bar is not recorded is not reportable, and rates at different bars are not
+    comparable — the ledger refuses to difference them.
+
+WHY AN OUTCOME IS PER PAIR AND NEVER TERMINATES THE LOOP (also paid for on 2026-07-25)
+    Exit 2 is overloaded. It means "you did not give me the flags I need" (a property of the
+    DETECTOR) and also "this paper has no section for me to check — skipped" (a property of the
+    PAPER). The first version treated both as a detector-level skip and `break`ed out of the paper
+    loop, so `check_credit_integrity` was measured on 5 of 12 papers in filename order and the
+    remaining 7 — which held THREE more fires, one of them Major — were never measured at all.
+    Which papers got measured was a function of alphabetical sort order.
+
+    Every pair now gets its own outcome from a closed taxonomy, and no outcome stops the loop:
+
+      fire            exit 1 at the declared bar
+      clean           exit 0 — OBSERVED clean
+      not_applicable  exit 2, detector's own "... — skipped": the paper has no subject for it
+      unsupplied      exit 2, usage error naming a flag we cannot supply from a bare manuscript
+      timeout         no exit inside the limit
+      harness_void    exit 2 with "not found" — WE handed it a bad path. Voids the run.
+
+    Only `fire` and `clean` are in the fire-rate denominator. A detector is reported as full,
+    partial or never-ran with its own denominator, and appears in exactly one of those categories —
+    the old summary managed to report 33 run AND 10 skipped out of 42.
+
+FINDINGS, NOT JUST FIRES
+    One exit can carry several claims. The pilot's systematic-review fire asserted both "no data
+    availability statement" (true — a real omission in an accepted paper) and "no COI statement"
+    (false — Elsevier's "Declaration of competing interest" was there and unrecognised). Labelled
+    at pair level, either label is a lie. So bracketed claim lines (`[hard] key: message`,
+    `[major] CODE: message`, `✗ [major] code: message`, and markdown table rows) are extracted as individual findings, the worksheet is finding-level,
+    and the false-positive rate has FINDINGS as its denominator while the fire rate has PAIRS.
+
 INPUTS
   --corpus       directory of held-out papers as .md/.txt (default: _corpus/heldout/).
   --manifest     optional _corpus/manifest.json. When given, a paper is measured only if a record
                  whose record_id equals its filename stem declares split=heldout. Unbacked papers
                  are named and excluded — an unverified corpus makes an unverifiable number.
-  --dispositions optional CSV (paper,detector,verdict,disposition,note) with disposition in
-                 {real, spurious, unsure}. Without it, no false-positive rate is printed.
-  --worksheet    write unlabelled fires to this CSV for a human to label.
+  --bar          strict (default) | default | both. Which severity bar detectors are invoked at.
+  --dispositions optional CSV (paper,detector[,code],verdict,disposition,note) with disposition in
+                 {real, spurious, unsure}. A row without `code` labels every finding of that pair.
+                 Without this file, no false-positive rate is printed.
+  --worksheet    write unlabelled findings to this CSV for a human to label.
   --ledger       JSONL run history; append this run and print the delta against the last entry.
   --only         comma-separated detector names, for tests and for re-checking one detector.
   --out          JSON artifact.
@@ -85,6 +130,147 @@ DEFAULT_CORPUS = REPO / "_corpus" / "heldout"
 DISPOSITIONS = ("real", "spurious", "unsure")
 SEPARATOR_RE = re.compile(r"^[\s=~*_\-─—–]+$")
 VERDICT_TOKEN_RE = re.compile(r"^[A-Z][A-Z0-9_]{3,}$")
+
+# Outcomes in the fire-rate denominator. Everything else is UNOBSERVED and is reported as such.
+MEASURED = ("fire", "clean")
+OUTCOMES = ("fire", "clean", "not_applicable", "unsupplied", "timeout")
+
+# One claim inside one exit. FOUR house formats are in use and all must parse, because a regex that
+# knows one of them undercounts the others — the same single-vocabulary trap that produced ledger
+# C1/C2 in the detectors themselves, recurring in the tool built to measure it. A first version knew
+# the first two and left 27 of 62 pilot findings (44%) with no claim text, which is a row no human
+# can label:
+#     [hard] data_availability_present: no Data Availability statement found
+#     [MAJOR] REFERENCE_STANDARD_UNDEFINED L21  Methods names no reference standard
+#     ✗ [major] methods_zero_citations: the Methods section contains no citations
+#     | 35 | bare_numeric_cite | warn | `[5]` |            <- a markdown table row
+FINDING_RE = re.compile(
+    r"^[\s\u2713\u2717\u26a0\u2022\-*>]*\[(?P<sev>[A-Za-z][A-Za-z_ -]{1,15})\]\s+"
+    r"(?P<code>[A-Za-z][A-Za-z0-9_.\-]*)\b\s*(?:L\d+)?\s*[:\-]?\s*(?P<msg>.*)$"
+)
+
+# A detector's own severity word, mapped to three tiers.
+#   blocking  what a reviewer would call a finding
+#   advisory  the stack clearing its throat — still a claim, still labelable
+#   context   the detector says outright that this is not a verdict
+BLOCKING_SEV = {"major", "blocker", "hard", "critical", "error", "fail", "p0"}
+ADVISORY_SEV = {"minor", "warn", "warning", "soft", "note", "advisory", "unspecified"}
+CONTEXT_SEV = {"info", "context", "note-only", "debug"}
+ALL_SEV = BLOCKING_SEV | ADVISORY_SEV | CONTEXT_SEV
+
+TABLE_SEP_RE = re.compile(r"^\s*\|[\s:\-|]+\|\s*$")
+IDENT_RE = re.compile(r"^[A-Za-z][A-Za-z0-9_.\-]*$")
+
+
+def tier_of(sev: str) -> str:
+    if sev in BLOCKING_SEV:
+        return "blocking"
+    if sev in CONTEXT_SEV:
+        return "context"
+    return "advisory"
+
+
+def table_row_finding(line: str) -> Optional[tuple]:
+    """A markdown table row carrying a severity column, e.g.
+
+        | Line | Type              | Severity | Match |
+        | 35   | bare_numeric_cite | warn     | `[5]` |
+
+    Several detectors report every finding this way and nothing else. Reading only bracketed
+    lines left them as unlabelable rows whose 'code' was the output banner.
+    """
+    if not line.lstrip().startswith("|") or TABLE_SEP_RE.match(line):
+        return None
+    cells = [c.strip().strip("`") for c in line.strip().strip("|").split("|")]
+    if len(cells) < 2:
+        return None
+    sev = next((c.lower() for c in cells if c.lower() in ALL_SEV), None)
+    if sev is None:
+        return None
+    code = next((c for c in cells if IDENT_RE.match(c) and c.lower() not in ALL_SEV), None)
+    if not code or code.lower() in ("none", "severity", "type", "check"):
+        return None
+    msg = " ".join(c for c in cells if c and c != code and c.lower() != sev)
+    return sev, code, msg
+# A detector that declares its own inapplicability, e.g. "no author-contributions section — skipped."
+SELF_SKIP_RE = re.compile(r"\bskipp?ed\b", re.I)
+USAGE_RE = re.compile(r"^usage:", re.M)
+NOT_FOUND_RE = re.compile(r"\bnot found\b|No such file", re.I)
+
+
+def accepts_strict(det) -> bool:
+    """Ask the detector, once, whether it has a bar above its default. Never guess it."""
+    return "--strict" in cf.read_usage(det.path)
+
+
+def classify_outcome(rc: int, stdout: str, stderr: str) -> tuple:
+    """(outcome, detail). The closed taxonomy from the module docstring.
+
+    Order matters. A usage error and a self-declared skip both exit 2 and mean opposite things:
+    the first is about the detector, the second about the paper. Collapsing them is how a corpus
+    silently shrinks — and how a detector that abstains on everything scores perfectly.
+    """
+    blob = (stderr or "") + "\n" + (stdout or "")
+    if rc == 0:
+        return "clean", None
+    if rc == 1:
+        return "fire", None
+    if rc == 2:
+        if NOT_FOUND_RE.search(blob):
+            return "harness_void", blob.strip()[:200]
+        if USAGE_RE.search(blob):
+            return "unsupplied", "needs " + cf.missing_flag_from(stderr, stdout, ("--manuscript",))
+        if SELF_SKIP_RE.search(blob):
+            first = next((ln.strip() for ln in blob.splitlines() if ln.strip()), "")
+            return "not_applicable", first[:200]
+        return "unsupplied", "needs " + cf.missing_flag_from(stderr, stdout, ("--manuscript",))
+    # A crash is the harness's problem to explain, never a quiet skip.
+    return "harness_void", f"exit {rc}: " + blob.strip()[:180]
+
+
+def extract_findings(stdout: str, stderr: str, fallback: str) -> List[dict]:
+    """The individual claims inside one exit, so each can be labelled on its own merits.
+
+    Falls back to a single finding carrying the verdict token, because a detector that fires
+    without bracketed claim lines still made exactly one claim.
+    """
+    out: List[dict] = []
+    seen: Dict[tuple, dict] = {}
+    for ln in ((stderr or "") + "\n" + (stdout or "")).splitlines():
+        m = FINDING_RE.match(ln)
+        if m:
+            sev, code, msg = m.group("sev").strip().lower(), m.group("code"), m.group("msg").strip()
+        else:
+            row = table_row_finding(ln)
+            if not row:
+                continue
+            sev, code, msg = row
+        key = (sev, code)
+        if key in seen:
+            # Same claim, another instance (8 bare citations on 8 lines is one claim about the
+            # paper). Keep the first message and count the rest; collapsing silently would make
+            # a labeler think it happened once.
+            seen[key]["occurrences"] += 1
+            continue
+        rec = {
+            "severity": sev,
+            "tier": tier_of(sev),
+            "code": code,
+            # A tag with no message ("[est-reassign] PRIMARY_REASSIGNED") would hand the labeler a
+            # bare code. Fall back to the pair's verdict line so every row asserts something.
+            "message": (msg or fallback or code)[:300],
+            "occurrences": 1,
+            "parsed": True,
+        }
+        seen[key] = rec
+        out.append(rec)
+    if not out:
+        # No parseable claim line anywhere. The exit still asserted something, so record one row and
+        # mark it unparsed. These are NOT labelable — their 'code' is whatever the banner said — and
+        # the count of them is the parser's own coverage, reported with every run.
+        out.append({"severity": "unspecified", "tier": "unparsed", "code": fallback or "UNSPECIFIED",
+                    "message": fallback, "occurrences": 1, "parsed": False})
+    return out
 
 
 def verdict_line(stdout: str, stderr: str) -> str:
@@ -158,27 +344,76 @@ def separation_report(coverages: Dict[str, dict]) -> dict:
 
 
 def load_dispositions(path: Path) -> Dict[tuple, str]:
+    """(paper, detector, code) -> label, with (paper, detector, None) as a pair-wide fallback.
+
+    The pair-wide form is what the pilot's worksheet produced, before findings were separable.
+    Reading it still is deliberate: an old label file should keep working, and where it disagrees
+    with a finding-level label the finding-level one wins (it is the more specific claim).
+    """
     out: Dict[tuple, str] = {}
     with path.open(newline="", encoding="utf-8") as fh:
         for row in csv.DictReader(fh):
             d = (row.get("disposition") or "").strip().lower()
             if d not in DISPOSITIONS:
                 continue
-            out[((row.get("paper") or "").strip(), (row.get("detector") or "").strip())] = d
+            code = (row.get("code") or "").strip() or None
+            out[((row.get("paper") or "").strip(), (row.get("detector") or "").strip(), code)] = d
     return out
+
+
+def label_for(labels: Dict[tuple, str], paper: str, detector: str, code: str) -> Optional[str]:
+    return labels.get((paper, detector, code)) or labels.get((paper, detector, None))
 
 
 def main(argv: Optional[List[str]] = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--corpus", type=Path, default=DEFAULT_CORPUS)
     ap.add_argument("--manifest", type=Path)
+    ap.add_argument(
+        "--bar",
+        choices=("strict", "default", "both"),
+        default="strict",
+        help="severity bar detectors are invoked at. strict (default) passes --strict to every "
+        "detector whose --help offers it, because most document exit 1 as conditional on it; "
+        "both also records the default-bar outcome as a secondary series.",
+    )
     ap.add_argument("--dispositions", type=Path)
     ap.add_argument("--worksheet", type=Path)
     ap.add_argument("--ledger", type=Path)
     ap.add_argument("--only", help="comma-separated detector names")
+    ap.add_argument(
+        "--roster-out",
+        type=Path,
+        help="write the detector roster (name, bar, file sha256) and exit without measuring. "
+        "This is what a pre-registration freezes: a rate belongs to a named set of detectors at a "
+        "named content hash, or it belongs to nothing.",
+    )
     ap.add_argument("--out", type=Path)
     ap.add_argument("--verbose", action="store_true")
     a = ap.parse_args(argv)
+
+    if a.roster_out:
+        import hashlib
+
+        roster = [
+            {
+                "detector": d.name,
+                "path": str(d.path.relative_to(REPO)),
+                "bar": "strict" if (a.bar in ("strict", "both") and accepts_strict(d)) else "default",
+                "sha256": hashlib.sha256(d.path.read_bytes()).hexdigest(),
+            }
+            for d in sorted(cf.discover(), key=lambda x: x.name)
+            if d.family == "manuscript"
+        ]
+        a.roster_out.parent.mkdir(parents=True, exist_ok=True)
+        a.roster_out.write_text(
+            json.dumps({"bar_policy": a.bar, "n_detectors": len(roster), "detectors": roster},
+                       indent=2),
+            encoding="utf-8",
+        )
+        n_strict = sum(1 for r in roster if r["bar"] == "strict")
+        print(f"roster: {len(roster)} manuscript detector(s), {n_strict} at --strict -> {a.roster_out}")
+        return 0
 
     # Detectors run with cwd inside a throwaway sandbox, so a default `qc/...` report lands there
     # instead of in the repo. That makes every path handed to them absolute-or-broken: a relative
@@ -242,55 +477,80 @@ def main(argv: Optional[List[str]] = None) -> int:
         print("harness: found no manuscript-family detectors", file=sys.stderr)
         return 2
 
+    bars = {d.name: ("strict" if (a.bar in ("strict", "both") and accepts_strict(d)) else "default")
+            for d in dets}
+
     before = cf.hash_tree(papers)
     work = Path(tempfile.mkdtemp(prefix="heldout-"))
-    ran: Dict[str, int] = defaultdict(int)
-    fired: Dict[str, int] = defaultdict(int)
-    skipped: Dict[str, str] = {}
+    # outcome counters per detector, one bucket per taxonomy member — no detector is ever counted
+    # in two categories, and no category is a synonym for another.
+    tally: Dict[str, Dict[str, int]] = {d.name: {o: 0 for o in OUTCOMES} for d in dets}
+    reasons: Dict[str, Dict[str, str]] = defaultdict(dict)  # detector -> outcome -> example reason
     fires: List[dict] = []
+    findings: List[dict] = []
+    default_bar_fires = 0  # secondary series under --bar both
+
+    def run_one(det, paper: Path, strict: bool):
+        sandbox = Path(tempfile.mkdtemp(dir=work))  # a default qc/ path lands HERE
+        cmd = ["python3", str(det.path), "--manuscript", str(paper)]  # inputs only, ever
+        if strict:
+            cmd.append("--strict")
+        return cf.sh(cmd, cwd=sandbox)
 
     print("=" * 78)
     print(f" Held-out crossfire — {len(dets)} detector(s) x {len(papers)} accepted paper(s)")
+    print(f" bar: {a.bar}")
     print("=" * 78)
 
     try:
         for d in dets:
+            strict = bars[d.name] == "strict"
             for paper in papers:
-                sandbox = Path(tempfile.mkdtemp(dir=work))  # a default qc/ path lands HERE
-                cmd = ["python3", str(d.path), "--manuscript", str(paper)]  # inputs only, ever
                 try:
-                    r = cf.sh(cmd, cwd=sandbox)
+                    r = run_one(d, paper, strict)
                 except subprocess.TimeoutExpired:
-                    skipped[d.name] = "timed out"
-                    break
-                if r.returncode == 2:
-                    # "not found" is never a skip: the detector is telling us the harness handed it
-                    # a path it could not open. Recording that as a missing-input skip is how the
-                    # instrument lies to itself. Fail loudly instead.
-                    if re.search(r"\bnot found\b|No such file", (r.stderr or "") + (r.stdout or "")):
-                        print(
-                            f"\nharness: {d.name} could not open {paper} — the harness built a bad "
-                            f"command, this is not a detector skip.\n  {(r.stderr or '').strip()[:200]}",
-                            file=sys.stderr,
-                        )
-                        return 2
-                    skipped[d.name] = "needs " + cf.missing_flag_from(
-                        r.stderr, r.stdout, ("--manuscript",)
+                    # A timeout is a property of THIS pair. The next paper still gets measured.
+                    tally[d.name]["timeout"] += 1
+                    reasons[d.name].setdefault("timeout", f"timed out on {paper.stem}")
+                    continue
+
+                outcome, detail = classify_outcome(r.returncode, r.stdout, r.stderr)
+                if outcome == "harness_void":
+                    # WE handed it something it could not read. Recording that as a detector skip is
+                    # how the instrument lies to itself. Fail loudly instead.
+                    print(
+                        f"\nharness: {d.name} could not read {paper.stem} — the harness built a bad "
+                        f"command, this is not a detector skip.\n  {detail}",
+                        file=sys.stderr,
                     )
-                    break
-                ran[d.name] += 1
-                if r.returncode != 0:
-                    fired[d.name] += 1
-                    fires.append(
-                        {
-                            "paper": paper.stem,
-                            "detector": d.name,
-                            "verdict": verdict_line(r.stdout, r.stderr),
-                        }
-                    )
-                    print(f"  FIRED {d.name} x {paper.stem}")
+                    return 2
+
+                tally[d.name][outcome] += 1
+                if detail:
+                    reasons[d.name].setdefault(outcome, detail)
+
+                if outcome == "fire":
+                    verdict = verdict_line(r.stdout, r.stderr)
+                    claims = extract_findings(r.stdout, r.stderr, verdict)
+                    fires.append({"paper": paper.stem, "detector": d.name, "verdict": verdict,
+                                  "bar": bars[d.name], "n_findings": len(claims)})
+                    for c in claims:
+                        findings.append({"paper": paper.stem, "detector": d.name,
+                                         "bar": bars[d.name], **c})
+                    print(f"  FIRED {d.name} x {paper.stem}"
+                          + (f"  ({len(claims)} claims)" if len(claims) > 1 else ""))
                 elif a.verbose:
-                    print(f"  ok    {d.name} x {paper.stem}")
+                    print(f"  {outcome:<15} {d.name} x {paper.stem}")
+
+                # Secondary series: what the OLD bar would have recorded for this same pair. This is
+                # the number that made seven detectors look observed-clean.
+                if a.bar == "both" and strict:
+                    try:
+                        r0 = run_one(d, paper, False)
+                    except subprocess.TimeoutExpired:
+                        continue
+                    if classify_outcome(r0.returncode, r0.stdout, r0.stderr)[0] == "fire":
+                        default_bar_fires += 1
     finally:
         after = cf.hash_tree(papers)
         changed = [k for k in before if before[k] != after.get(k)]
@@ -302,29 +562,64 @@ def main(argv: Optional[List[str]] = None) -> int:
             print(f"  modified: {c}", file=sys.stderr)
         return 2
 
-    ran_pairs = sum(ran.values())
-    fired_pairs = sum(fired.values())
+    measured = {n: sum(t[o] for o in MEASURED) for n, t in tally.items()}
+    ran_pairs = sum(measured.values())
+    fired_pairs = sum(t["fire"] for t in tally.values())
+    unobserved_pairs = sum(t[o] for t in tally.values() for o in OUTCOMES if o not in MEASURED)
     if ran_pairs == 0:
         print("\nharness: zero pairs ran — no measurement taken.", file=sys.stderr)
         return 2
     fire_rate = fired_pairs / ran_pairs
 
+    # A detector sits in exactly ONE of these. The old summary reported 33 run and 10 skipped out
+    # of 42, because a detector truncated mid-corpus was counted as both.
+    full = sorted(n for n, m in measured.items() if m == len(papers))
+    partial = sorted(n for n, m in measured.items() if 0 < m < len(papers))
+    never = sorted(n for n, m in measured.items() if m == 0)
+
     # ---- dispositions: the only path to a false-positive rate -------------------------------
+    # Denominator is FINDINGS, not pairs: one exit can carry a true claim and a false one.
+    #
+    # Two kinds of row are NOT in it, because neither asserts anything a human can call true or
+    # false, and leaving them in makes the rate depend on how a labeler disposes of an unanswerable
+    # row (registered as amendment 2 before the corpus was read):
+    #   context   the detector says outright this is not a verdict ("[info] ... Load is context")
+    #   unparsed  no claim line could be read, so the 'code' is an output banner
     labels = load_dispositions(a.dispositions) if a.dispositions else {}
-    lab = [labels.get((f["paper"], f["detector"])) for f in fires]
+    for f in findings:
+        f["disposition"] = label_for(labels, f["paper"], f["detector"], f["code"])
+    labelable = [f for f in findings if f["tier"] in ("blocking", "advisory")]
+    n_context = sum(1 for f in findings if f["tier"] == "context")
+    lab = [f["disposition"] for f in labelable]
     n_spurious = sum(1 for x in lab if x == "spurious")
     n_real = sum(1 for x in lab if x == "real")
     n_unsure = sum(1 for x in lab if x == "unsure")
     n_unlabelled = sum(1 for x in lab if x is None)
     fp_rate = n_spurious / (n_real + n_spurious) if (n_real + n_spurious) else None
 
-    exercised = sorted(n for n in (d.name for d in dets) if ran.get(n, 0) and not fired.get(n, 0))
+    exercised = sorted(n for n, t in tally.items() if measured[n] and not t["fire"])
     print("-" * 78)
     print(f"  papers measured : {len(papers)}   (corpus frozen: {frozen_at})")
-    print(f"  detectors run   : {len(ran)}   skipped: {len(skipped)}")
-    print(f"  pairs           : {ran_pairs}   fired: {fired_pairs}")
+    print(f"  detectors       : {len(full)} full / {len(partial)} partial / {len(never)} never ran"
+          f"   (of {len(dets)})")
+    n_block = sum(1 for f in labelable if f["tier"] == "blocking")
+    n_unparsed = sum(1 for f in findings if not f["parsed"])
+    print(f"  pairs           : {ran_pairs}   fired: {fired_pairs}   "
+          f"labelable findings: {len(labelable)} ({n_block} blocking-tier)")
+    print(f"  not labelable   : {n_context} context-only (detector says it is not a verdict), "
+          f"{n_unparsed} unparsed (no claim line — parser coverage, not evidence)")
+    print(f"  unobserved pairs: {unobserved_pairs} "
+          f"(not_applicable {sum(t['not_applicable'] for t in tally.values())}, "
+          f"unsupplied {sum(t['unsupplied'] for t in tally.values())}, "
+          f"timeout {sum(t['timeout'] for t in tally.values())}) — no evidence either way")
     print(f"  FIRE RATE       : {fire_rate:.3f}  <- the trend to watch across runs")
+    if a.bar == "both":
+        print(f"  default-bar fires: {default_bar_fires} of the same {ran_pairs} pairs "
+              f"(rate {default_bar_fires / ran_pairs:.3f}) — secondary series, not comparable")
     print(f"  silent-when-run : {len(exercised)} detector(s) — OBSERVED clean, not unobserved")
+    n_strict = sum(1 for v in bars.values() if v == "strict")
+    print(f"  bar             : {n_strict} detector(s) at --strict, {len(dets) - n_strict} at their "
+          f"default exit code")
     if unbacked:
         print(f"  EXCLUDED (no heldout manifest record): {', '.join(unbacked)}")
 
@@ -356,45 +651,71 @@ def main(argv: Optional[List[str]] = None) -> int:
                     f"    COLLAPSED: {', '.join(group)} share an identical profile — one pattern "
                     "measured twice, not two observations."
                 )
-    for name, why in sorted(skipped.items()):
-        print(f"  SKIPPED {name} ({why}) — unobserved, NOT evidence of a clean detector")
+    for name in partial:
+        t = tally[name]
+        print(f"  PARTIAL {name}: measured {measured[name]}/{len(papers)} papers "
+              f"(not_applicable {t['not_applicable']}, unsupplied {t['unsupplied']}, "
+              f"timeout {t['timeout']}) — the rest are unobserved, not clean")
+    for name in never:
+        why = next((reasons[name][o] for o in ("unsupplied", "not_applicable", "timeout")
+                    if o in reasons[name]), "no reason recorded")
+        print(f"  NEVER RAN {name} ({why}) — unobserved, NOT evidence of a clean detector")
 
-    if fires:
+    if labelable:
         print("-" * 78)
         if fp_rate is None:
             print(
-                f"  FALSE-POSITIVE RATE: WITHHELD — {n_unlabelled} fire(s), 0 labelled.\n"
+                f"  FALSE-POSITIVE RATE: WITHHELD — {n_unlabelled} labelable finding(s) across "
+                f"{len(fires)} fire(s), 0 labelled.\n"
                 "    A fire on an accepted paper may be a real defect reviewers missed. Label the\n"
                 "    worksheet (real / spurious / unsure) before any FP claim is made."
             )
         else:
-            cov = (len(fires) - n_unlabelled) / len(fires)
+            cov = (len(labelable) - n_unlabelled) / len(labelable)
             print(
                 f"  FALSE-POSITIVE RATE: {fp_rate:.3f}  "
                 f"({n_spurious} spurious / {n_real + n_spurious} decided; "
                 f"{n_unsure} unsure, {n_unlabelled} unlabelled; coverage {cov:.0%})"
             )
+            print("    denominator is FINDINGS, not fires — one exit can carry a true claim and a "
+                  "false one.")
+            blocking = [f for f in labelable if f["tier"] == "blocking"]
+            b_sp = sum(1 for f in blocking if f["disposition"] == "spurious")
+            b_dec = b_sp + sum(1 for f in blocking if f["disposition"] == "real")
+            if b_dec:
+                print(f"    blocking-tier only: {b_sp / b_dec:.3f} ({b_sp}/{b_dec} decided) — the "
+                      "rate for claims the stack calls Major")
             if cov < 1.0:
-                print("    Partial coverage — unlabelled fires could move this in either direction.")
+                print("    Partial coverage — unlabelled findings could move this either way.")
 
     if a.worksheet:
-        todo = [f for f in fires if (f["paper"], f["detector"]) not in labels]
+        todo = [f for f in labelable if f["disposition"] is None]
         with a.worksheet.open("w", newline="", encoding="utf-8") as fh:
             w = csv.writer(fh)
-            w.writerow(["paper", "detector", "verdict", "disposition", "note"])
+            w.writerow(["paper", "detector", "code", "severity", "verdict", "disposition", "note"])
             for f in todo:
-                w.writerow([f["paper"], f["detector"], f["verdict"], "", ""])
-        print(f"\n  worksheet: {len(todo)} unlabelled fire(s) -> {a.worksheet}")
+                w.writerow([f["paper"], f["detector"], f["code"], f["severity"],
+                            f["message"], "", ""])
+        print(f"\n  worksheet: {len(todo)} unlabelled finding(s) -> {a.worksheet}")
 
     payload = {
         "corpus": str(a.corpus),
         "frozen_at": frozen_at,
+        "bar": a.bar,
         "n_papers": len(papers),
-        "n_detectors_run": len(ran),
-        "n_detectors_skipped": len(skipped),
+        "n_detectors_full": len(full),
+        "n_detectors_partial": len(partial),
+        "n_detectors_never_ran": len(never),
         "pairs_ran": ran_pairs,
         "pairs_fired": fired_pairs,
+        "pairs_unobserved": unobserved_pairs,
+        "n_findings_labelable": len(labelable),
+        "n_findings_blocking": n_block,
+        "n_findings_context": n_context,
+        "n_findings_unparsed": n_unparsed,
         "fire_rate": round(fire_rate, 4),
+        "fire_rate_default_bar": (round(default_bar_fires / ran_pairs, 4)
+                                  if a.bar == "both" else None),
         "false_positive_rate": None if fp_rate is None else round(fp_rate, 4),
         "labels": {
             "spurious": n_spurious,
@@ -404,15 +725,19 @@ def main(argv: Optional[List[str]] = None) -> int:
         },
         "per_detector": {
             d.name: {
-                "ran": ran.get(d.name, 0),
-                "fired": fired.get(d.name, 0),
-                "skipped": skipped.get(d.name),
+                "bar": bars[d.name],
+                "measured": measured[d.name],
+                "status": ("full" if d.name in full else
+                           "partial" if d.name in partial else "never_ran"),
+                **tally[d.name],
+                "reasons": dict(reasons[d.name]),
             }
             for d in dets
         },
         "excluded_unbacked": unbacked,
         "separation": separation,
         "fires": fires,
+        "findings": findings,
     }
 
     # ---- the trend. A level with no trend says nothing. --------------------------------------
@@ -434,14 +759,23 @@ def main(argv: Optional[List[str]] = None) -> int:
                         prev = json.loads(line)
                     except json.JSONDecodeError:
                         continue
-        entry = {k: payload[k] for k in ("frozen_at", "n_papers", "n_detectors_run",
+        entry = {k: payload[k] for k in ("frozen_at", "bar", "n_papers", "n_detectors_full",
                                          "pairs_ran", "pairs_fired", "fire_rate",
                                          "false_positive_rate")}
         with a.ledger.open("a", encoding="utf-8") as fh:
             fh.write(json.dumps(entry, ensure_ascii=False) + "\n")
-        if prev and prev.get("n_papers") == payload["n_papers"]:
+        if prev and prev.get("bar", "default") != payload["bar"]:
+            # Differencing two bars would read an invocation change as a change in the detectors.
+            # The pilot series was recorded at the default bar and cannot be continued.
+            print("-" * 78)
+            print(
+                f"  TREND: not comparable — severity bar changed "
+                f"({prev.get('bar', 'default')} -> {payload['bar']}). A rate measured at a bar where\n"
+                "    most detectors cannot exit non-zero is not the same quantity. Series restarts."
+            )
+        elif prev and prev.get("n_papers") == payload["n_papers"]:
             d_rate = payload["fire_rate"] - prev.get("fire_rate", 0.0)
-            d_det = payload["n_detectors_run"] - prev.get("n_detectors_run", 0)
+            d_det = payload["n_detectors_full"] - prev.get("n_detectors_full", 0)
             print("-" * 78)
             print(
                 f"  TREND vs last run: detectors {d_det:+d}, fire rate {d_rate:+.3f}\n"
