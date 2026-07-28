@@ -197,10 +197,9 @@ Build the final submission-ready documents from the assembled components:
      -b manuscript/_src/refs.bib \
      -o manuscript/manuscript_final.docx
    ```
-   Bundled CSLs: `european-radiology`, `radiology`, `american-journal-of-roentgenology`,
-   `cardiovascular-and-interventional-radiology`, `korean-journal-of-radiology`,
-   `vancouver`, `vancouver-superscript`. Use `radiology` for RYAI; use `vancouver` for JVIR
-   (no dedicated CSL). On rejection cascade (e.g., ER → JVIR → CVIR), re-render with
+   For the current inventory, read `manage-refs/citation_styles/README.md`; `render_pandoc.sh`
+   also prints what is on disk when `-j` names a style it cannot find. Use `radiology` for
+   RYAI; use `vancouver` for JVIR (no dedicated CSL). On rejection cascade (e.g., ER → JVIR → CVIR), re-render with
    different `-j` — references reformat in seconds. Never hand-type the References list.
 
    **Decision: pandoc vs Zotero Word plugin (CWYW)** — `/manage-refs` documents the hybrid 3-phase strategy (Phase 1 pandoc draft → Phase 2 transition → Phase 3 Zotero CWYW for circulation/revision/submission). Use Workflow B (CWYW) once co-authors collaborate live in Word; use Workflow A (pandoc) for single-author lockdown, journal-cascade rejection re-formatting, or when the plugin is unavailable. See

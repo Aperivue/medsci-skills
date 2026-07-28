@@ -2488,18 +2488,23 @@
     },
     {
       "path": "skills/manage-refs/SKILL.md",
-      "size": 19110,
-      "sha256": "1f23594657e523540fafb94b0292d73604df0c3348c6fb569334978dcdbed4ac"
+      "size": 19126,
+      "sha256": "7bda978e780e3dbffba4462ae4c86f616eec46c52811ade23e7742cd1774ded0"
     },
     {
       "path": "skills/manage-refs/citation_styles/README.md",
-      "size": 2205,
-      "sha256": "d957bbdd13df10884fd54f9eb4efb096a73824c69167f872b0cb9819be031cdf"
+      "size": 4358,
+      "sha256": "b8935886559c1491a8aa06f8f809f82a492bfc0fceb4b32f2fbc19ccc379e83f"
     },
     {
       "path": "skills/manage-refs/citation_styles/american-journal-of-roentgenology.csl",
       "size": 6944,
       "sha256": "62db40358fd006af9109490ba358489096d18a8d48026077ed4502e5d44af61a"
+    },
+    {
+      "path": "skills/manage-refs/citation_styles/american-medical-association.csl",
+      "size": 11575,
+      "sha256": "d70f843d93c2b1e8c59c0e26e2396bea4ed99fb4a1aac69b6dddc249a10fadf7"
     },
     {
       "path": "skills/manage-refs/citation_styles/cardiovascular-and-interventional-radiology.csl",
@@ -6068,8 +6073,8 @@
     },
     {
       "path": "skills/write-paper/references/phase7_polish_detail.md",
-      "size": 19036,
-      "sha256": "5c44f6ccdfc6eaa64587c62d68fe0911175e6df7a37bfc7f71b65a7f6d5a1c12"
+      "size": 18991,
+      "sha256": "5694bfa9da09267b0257e85166607994da1dad1253ed307c0d0da8480cc5868b"
     },
     {
       "path": "skills/write-paper/references/section_guides/discussion.md",
