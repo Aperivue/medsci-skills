@@ -2,6 +2,43 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- **The PII scanner had been reading one file per skill.** `validate_skills.sh` held its
+  filename patterns in a bare string and expanded it unquoted into `find`, so `*.md` was
+  pathname-expanded against the *caller's* working directory before `find` ever saw it. Run from
+  the repo root — how CI and every documented invocation run it — that became the thirteen
+  top-level `.md` files, `find` aborted with `unknown primary or operator`, and `2>/dev/null`
+  swallowed the message. Each loop yielded zero files. The "extended scope" added in 2026-05
+  specifically because vendored identifiers hide in `references/`, `templates/` and `scripts/`
+  had therefore never scanned any of them, while every run printed PASS for every rule on every
+  skill. The patterns are now an array with each glob quoted.
+
+  The blind spot was real, not theoretical: with it closed, the scanner immediately named real
+  personal names and institution strings sitting in shipped scripts and in test fixtures — all of
+  them already on the precedent blocklist, so the gate had been correct all along and simply
+  never got to look. Those are replaced with generic placeholders in this change. Git history is
+  not rewritten, so the earlier commits still carry them.
+
+- `skills/*/tests/` is now scanned as well. Fixtures are where a real name settles most easily —
+  you reach for a plausible author roster and the nearest plausible one is someone you work with.
+  Test files never reach an installer (the bundle excludes `tests/`), but they are in a public
+  repository, which is the exposure the blocklist exists to prevent. One of the names found this
+  way was inside a fixture called `supplement_pii_clean.md`.
+
+- Two files exist in order to carry personal-looking data — the Korean-PHI corpus that proves
+  `/deidentify` fires, and the leaky message that proves `/contribute` blocks a submission — and
+  are now exempt from the email rule by path, with the reason recorded beside the exemption.
+  Every other rule still applies to them. A journal's published editorial-office address and a
+  GitHub `users.noreply` sender are likewise contact information rather than a private address,
+  and join the domain whitelist.
+
+### Added
+
+- `tests/test_validator_scope.sh` plants the blocked home-directory literal in `references/`,
+  `templates/`, `scripts/`, `tests/` and at the skill root, then asserts the validator **names
+  each file**. It does not ask whether the validator passes: passing was precisely the symptom.
+
 ## [5.23.0] - 2026-07-25
 
 **Pinned reference:** the held-out validation study in `Recursive_Verification_Drift` measures this toolkit's

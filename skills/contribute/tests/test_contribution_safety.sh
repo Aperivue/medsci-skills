@@ -38,8 +38,8 @@ The pipeline failed on patient MRN 4471903 during the review.
 Subject 880101-1234567 was excluded after chart review.
 Approved under IRB 2024-0451 at Severance Hospital.
 I was reviewing EURE-D-26-00203 when this happened.
-Prof. Kim Namkuk suggested the change; reach me at yj.nam@hospital.or.kr.
-Output was written to /Users/yoojinnam/manuscripts/draft.docx.
+Prof. Alan Poe suggested the change; reach me at a.poe@hospital.or.kr.
+Output was written to /Users/apoe/manuscripts/draft.docx.
 MD
 
 # --- an ordinary, entirely publishable contribution -------------------------------------------
