@@ -47,7 +47,7 @@
 - `exemplar_introduction.md`
 - `exemplar_methods/` (6 files)
 - `exemplar_results/` (6 files)
-- `journal_profiles/` (55 files)
+- `journal_profiles/` (58 files)
 - `paper_types/` (10 files)
 - `phase0_init_detail.md`
 - `phase7_integrity_audits.md`
