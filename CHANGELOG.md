@@ -48,6 +48,31 @@
   tag to twenty days reproduces exactly the three gap-dependent failures and leaves the other nine
   passing. (The gate itself was never wrong; `--min-days 14` and both exemptions behaved as
   specified throughout.)
+- **Four shipped skills carried an instruction whose content was not shipped.** Lines of the form
+  ``apply `~/.claude/rules/numerical-safety.md` `` told an installed reader to open a file that
+  exists on the maintainer's machine and nowhere else. Nothing errored: the step was simply
+  skipped, and the skill looked like it enforced something it did not. Each is replaced by the
+  generalised rule itself, stated in one or two sentences — no personal history, no project names,
+  no rule text copied wholesale. The repo's own 2026-07-11 audit had already named this class;
+  it had been open since.
+
+  The remaining 72 references are provenance, not instruction — "English only (per `<path>`)"
+  states the rule and then says where it came from — and are deliberately left alone. Blocking
+  that shape would rewrite seventy correctly-written citations to no benefit. Instead each of the
+  thirteen affected skills now carries one short note saying those paths are the maintainer's
+  personal rules, are not shipped, and that a citation standing in for an instruction you need is
+  a bug worth reporting.
+
+### Added
+
+- A check in `validate_skills.sh` for the shape that caused it: a verb *governing* a
+  `~/.claude/rules/` path. Calibrated against real defects rather than a fixture — on the tree
+  immediately before it was written, it matched exactly the four imperative references that were
+  there and nothing else among 79 total. `see` / `per` / `cross-link` are deliberately not
+  matched, and `[^|]` keeps the window inside one markdown table cell so a "must" in one column
+  cannot reach a path in another. `tests/test_personal_rule_refs.sh` drives the whole validator
+  and asserts it *names* the offending files while staying silent on the provenance form, the
+  disclosure note, and the split-table-cell case.
 ### Added
 
 - `american-medical-association.csl` (AMA Manual of Style 11th edition) joins the bundled

@@ -540,3 +540,11 @@ Page numbers should be filled in by the user after final formatting. Use section
 | Step 4d PRISMA Figure 1 arithmetic & cross-reference audit (PRISMA / PRISMA-DTA only) | ENFORCED for SR/MA | flow numbers don't sum (e.g., screened ≠ included + excluded), or in-text counts mismatch flow diagram | HALT; reconcile against extraction artifacts |
 | Optional items (e.g., supplementary AI declarations) | ADVISORY | < 80% of optional items present | warn; user accepts |
 | Cross-reporting-guideline routing (study type → guideline) | ENFORCED | study type undeclared or guideline missing | Ask user; do not silently default |
+
+## Global-rule references
+
+Some passages in this skill cite a path of the form `~/.claude/rules/<name>.md`. Those are the
+maintainer's personal global rules, kept outside this repository. They are **not shipped with
+this skill** and will not exist on your machine; they appear only as provenance for where a
+convention came from. If one of them looks like it is standing in for an instruction you actually
+need, that is a bug — please open an issue, because the instruction belongs here.

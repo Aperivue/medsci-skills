@@ -360,8 +360,11 @@ skeletons, and the meta-phrase conversion table.
 Before circulating or uploading the response letter and cover letter, run `/humanize` on
 **both documents**. The R2R AI-tell patterns (22-24) are defined in humanize
 `references/ai_patterns.md`; together with 13 (em dash), 16 (filler), and 19 (`§`) they form
-the response-letter scan. Also apply `~/.claude/rules/manuscript-style-classical.md` (`§`,
-em-dash, heading discipline) — the same senior-reviewer red flags apply to the letter.
+the response-letter scan. Hold the letter to the same classical-style bar as the manuscript:
+zero `§` symbols and no `(Methods §X)` self-references, em-dash use kept low, and the heading
+style the target journal actually publishes. The enforced item list lives in `/write-paper`
+`references/section_guides/step7_1_classical_qc.md` — these are the marks a senior reviewer
+reads as machine-drafted, and they are as visible in a letter as in a manuscript.
 
 ### Response-claim verification gate (MANDATORY, deterministic)
 

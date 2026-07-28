@@ -177,6 +177,20 @@ Each template marks slots with a `<!-- TODO: -->` marker.
 
 ## Anti-Hallucination
 
-- Numerical content in tables: apply `~/.claude/rules/numerical-safety.md`. Read from CSV.
+- Numerical content in tables: read every value from the source CSV or analysis output. Do not
+  retype a number from prose, and do not carry one forward from an earlier draft — a table that
+  was correct in v3 is not evidence it is correct in v4.
 - References: use `/manage-refs` separately — this skill does not handle bib.
-- When producing a circulation PDF, apply `~/.claude/rules/senior-mentor-circulation.md` (preserve the primary source) + `~/.claude/rules/ai-drafted-document-policy.md`.
+- When producing a circulation PDF, keep the received primary source (the `.docx` or `.eml` a
+  co-author sent) unmodified as its own artifact. The PDF is a derivative, not a replacement, and
+  the next round is diffed against that source. If the source was itself AI-drafted by a
+  collaborator, treat every number, denominator, and author-year in it as unverified: re-derive
+  each from the underlying paper or analysis output before it reaches the PDF.
+
+## Global-rule references
+
+Some passages in this skill cite a path of the form `~/.claude/rules/<name>.md`. Those are the
+maintainer's personal global rules, kept outside this repository. They are **not shipped with
+this skill** and will not exist on your machine; they appear only as provenance for where a
+convention came from. If one of them looks like it is standing in for an instruction you actually
+need, that is a bug — please open an issue, because the instruction belongs here.

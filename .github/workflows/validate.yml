@@ -47,6 +47,9 @@ jobs:
       - name: "Validator scope self-test (it must READ every directory it claims to scan)"
         run: bash tests/test_validator_scope.sh
 
+      - name: "Unshipped-rule gate self-test (an instruction we do not ship is not an instruction)"
+        run: bash tests/test_personal_rule_refs.sh
+
       # --- self-update foundation (PR-1a): manifests, version drift, transactional installer ---
       - name: Distribution manifests in sync (gen_distribution_manifest.py --check)
         run: python3 scripts/gen_distribution_manifest.py --check

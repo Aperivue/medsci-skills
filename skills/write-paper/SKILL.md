@@ -744,3 +744,11 @@ Cross-cutting global rules applied during 7.x QC:
 - `numerical-safety.md`, `data-integrity.md`, `citation-safety.md` (Phase 7.3 + 7.6a — ENFORCED)
 - `senior-mentor-circulation.md` (post-7.7, when round 1 begins — ADVISORY)
 - `ai-drafted-document-policy.md` (Phase 0 if AI-draft attached — ENFORCED)
+
+## Global-rule references
+
+Some passages in this skill cite a path of the form `~/.claude/rules/<name>.md`. Those are the
+maintainer's personal global rules, kept outside this repository. They are **not shipped with
+this skill** and will not exist on your machine; they appear only as provenance for where a
+convention came from. If one of them looks like it is standing in for an instruction you actually
+need, that is a bug — please open an issue, because the instruction belongs here.

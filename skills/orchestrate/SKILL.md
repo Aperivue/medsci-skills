@@ -522,3 +522,11 @@ I can help with that. To route you to the right tool, one quick question:
 - **Never fabricate file paths, URLs, DOIs, or package names.** Verify existence before recommending.
 - **Never invent journal metadata, impact factors, or submission policies** without verification at the journal's website.
 - If a tool, package, or resource does not exist or you are unsure, say so explicitly rather than guessing.
+
+## Global-rule references
+
+Some passages in this skill cite a path of the form `~/.claude/rules/<name>.md`. Those are the
+maintainer's personal global rules, kept outside this repository. They are **not shipped with
+this skill** and will not exist on your machine; they appear only as provenance for where a
+convention came from. If one of them looks like it is standing in for an instruction you actually
+need, that is a bug — please open an issue, because the instruction belongs here.

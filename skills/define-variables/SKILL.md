@@ -144,3 +144,11 @@ Every variable definition, cutoff, and era anchor must be grounded in a verified
 4. **Silent ad-hoc** — introducing a novel cutoff without the `Ad-hoc: yes` flag.
 5. **Sweep-style /search-lit** — running a generic lit search instead of one focused query per gap variable. Wastes tokens and buries the signal.
 6. **Dose/duration structural-missingness** — operationalizing a dose/duration covariate (pack-years, cessation-years, alcohol grams/week) anchored to a categorical exposure (smoking status, alcohol use) without specifying what the *reference level* (never-smoker, never-drinker) does to the dose. A never-smoker's pack-years is a structural zero, not a missing value; conflating the two collapses the analytic sample under complete-case modeling and lets MICE fabricate a non-zero dose for the unexposed. Operationalize it explicitly — add a row with `Role = covariate` and `Implementation = "IF status == 'never' THEN dose = 0 ELSE measured_value"` — and adjust on the categorical **status** variable, reserving the continuous **dose** for an exposed-only secondary analysis. `/clean-data` (categorical-implied-zero flag) and `/analyze-stats` ("Covariate Pitfalls") enforce this downstream.
+
+## Global-rule references
+
+Some passages in this skill cite a path of the form `~/.claude/rules/<name>.md`. Those are the
+maintainer's personal global rules, kept outside this repository. They are **not shipped with
+this skill** and will not exist on your machine; they appear only as provenance for where a
+convention came from. If one of them looks like it is standing in for an instruction you actually
+need, that is a bug — please open an issue, because the instruction belongs here.

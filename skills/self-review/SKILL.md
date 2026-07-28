@@ -873,3 +873,11 @@ Here is how to address it with your existing data."
 | Phase 2.5g editorial-impression scan (`check_editorial_impression.py`) | ADVISORY (non-blocking) | HEDGE_DENSITY / HEDGE_REPEAT / AUDIT_IN_BODY / LIMITATIONS_VOLUME / ABSTRACT_CAVEAT_LOAD / BURIED_DEFENSE | Minor REMOVE/MOVE/TIGHTEN recommendation in the Editorial-Impression Risks block; never blocks submission |
 | R0 numbering output | OPT-IN | `--r0-numbering` flag or downstream `/revise` consumer | Emits structured Anticipated Major/Minor Comments — consumable by `/revise` |
 | `--json` machine-readable output | OPT-IN | `--json` flag | Emits parseable JSON block consumed by `/orchestrate` post-skill validation |
+
+## Global-rule references
+
+Some passages in this skill cite a path of the form `~/.claude/rules/<name>.md`. Those are the
+maintainer's personal global rules, kept outside this repository. They are **not shipped with
+this skill** and will not exist on your machine; they appear only as provenance for where a
+convention came from. If one of them looks like it is standing in for an instruction you actually
+need, that is a bug — please open an issue, because the instruction belongs here.
