@@ -5279,7 +5279,7 @@
     {
       "path": "skills/sync-submission/scripts/check_credit_integrity.py",
       "size": 18645,
-      "sha256": "c0ab9a7aa3008af3d23901ee93a764d01ae46786dbedfc287dc6cf031b7248e1"
+      "sha256": "d67a72305d2f3c1a8d5a823a272171d96db925b64b3cf4ada2997bb81234ebd2"
     },
     {
       "path": "skills/sync-submission/scripts/check_cross_artifact_stale.py",
@@ -6113,8 +6113,8 @@
     },
     {
       "path": "skills/write-paper/scripts/build_title_page_affiliations.py",
-      "size": 11749,
-      "sha256": "d42dfe6972f04103f61f47f1f7774d534117e1538024c336240f505f1c436112"
+      "size": 11723,
+      "sha256": "ff1b29d66c8272c62423f7c31f945041ce2c097b0452097fd88f25777641a3db"
     },
     {
       "path": "skills/write-paper/scripts/check_placeholders.py",

@@ -25,16 +25,16 @@ orphans, or out-of-order definitions, and a city+country on every affiliation.
 authors.yaml
 ------------
     authors:
-      - name: "Yoojin Nam"
-        affiliations: [scch_rad, amc_convergence]   # ordered; keys into `affiliations`
+      - name: "Jane Doe"
+        affiliations: [uh_rad, uh_convergence]      # ordered; keys into `affiliations`
         corresponding: false                         # optional -> appends "*"
         equal_contribution: false                    # optional -> appends "†"
-      - name: "Pa Hong"
-        affiliations: [scch_rad]
+      - name: "John Roe"
+        affiliations: [uh_rad]
         corresponding: true
     affiliations:
-      scch_rad: "Department of Radiology, Samsung Changwon Hospital, ..., Changwon, Republic of Korea"
-      amc_convergence: "Department of Convergence Medicine, ..., Seoul, Republic of Korea"
+      uh_rad: "Department of Radiology, University Hospital, City, Country"
+      uh_convergence: "Department of Convergence Medicine, University Hospital, City, Country"
 
 Exit codes: 0 clean (build, or check with no violations / report-only); 1 a check
 violation under --strict; 2 input/usage error. Stdlib-only except PyYAML (already a
