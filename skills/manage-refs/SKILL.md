@@ -116,11 +116,11 @@ User provides `manuscript.md` with `[@bibkey]` citations + `refs.bib`.
      -b refs.bib \
      -o manuscript_final.docx
    ```
-   Bundled CSLs (in `citation_styles/`): `european-radiology`, `radiology`,
-   `american-journal-of-roentgenology`, `cardiovascular-and-interventional-radiology`,
-   `korean-journal-of-radiology`, `vancouver`, `vancouver-superscript`,
-   `springer-basic-brackets`, `springer-vancouver-brackets`. Use
-   `radiology` for RYAI; use `vancouver` for JVIR (no dedicated CSL).
+   For the current inventory and what each style renders, read
+   `citation_styles/README.md` — that table is the registry. `render_pandoc.sh` also lists
+   what is on disk when `-j` names a style it cannot find, so ask the script rather than
+   trusting a list written here. Two standing fallbacks: use `radiology` for RYAI and
+   `vancouver` for JVIR (neither has a dedicated CSL).
 3. **QC**:
    ```bash
    python3 "${CLAUDE_SKILL_DIR}/scripts/check_xref.py" \

@@ -73,6 +73,32 @@
   cannot reach a path in another. `tests/test_personal_rule_refs.sh` drives the whole validator
   and asserts it *names* the offending files while staying silent on the provenance form, the
   disclosure note, and the split-table-cell case.
+### Added
+
+- `american-medical-association.csl` (AMA Manual of Style 11th edition) joins the bundled
+  citation styles — superscript, et-al after 6 (first 3 + et al), DOI kept. It covers the JAMA
+  family and the many journals whose author guide says only "AMA style"; until now the nearest
+  bundled option was `liver-international.csl`, which reaches the same rendering by way of a
+  retitled Wiley style.
+
+### Fixed
+
+- **The CSL registry had drifted from the directory it describes.** `citation_styles/README.md`
+  listed 10 of the 16 bundled styles, and `korean-journal-of-radiology.csl` was described as a
+  "Vancouver-superscript variant" when it renders parenthesised numbers — the opposite of a
+  superscript style, and the kind of error that is only discovered in a proof PDF. The table now
+  covers every file on disk, and each row states what the style actually renders (read from the
+  CSL, not from the journal's reputation).
+- **The documented refresh loop would have overwritten three local variants.** `vancouver.csl`,
+  `vancouver-superscript.csl` and `liver-international.csl` carry `<id>` slugs that differ from
+  their filenames, so `curl zotero.org/styles/<filename>` fetches a *different* style for each —
+  and two of them were already inside the loop. The loop is now restricted to files whose
+  filename equals their `<id>` slug, with the exceptions tabulated and a one-liner that
+  re-derives the list from disk.
+- Two hand-maintained copies of the CSL inventory (`manage-refs/SKILL.md`,
+  `write-paper/references/phase7_polish_detail.md`) had each drifted to a different stale subset.
+  Both now point at the README and at `render_pandoc.sh`, which prints what is actually on disk
+  when it cannot find the requested style.
 
 ## [5.23.0] - 2026-07-25
 
