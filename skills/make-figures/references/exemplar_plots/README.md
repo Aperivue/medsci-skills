@@ -39,6 +39,24 @@ the figure types that do not yet have a generator.
 - `forest_plot.md` — meta-analysis forest plot: per-study square-by-weight + CI, pooled diamond
   with the model named, prediction interval, I²/τ²/Q, no-pool discipline under extreme
   heterogeneity, subgroup-difference test, funnel/Egger only at k ≥ 10.
+- `external_validation_comparison.md` — performance across cohorts (internal vs external / by
+  site·scanner·vendor·sequence) with the **honest drop**: forest/dumbbell, internal as reference,
+  per-cohort N + bootstrap-BCa CI, Δ-from-internal annotation, subgroup/structure faceting, failed
+  cohorts marked; a suspiciously flat external result is the leakage signature. The visual of the
+  #1 acceptance lever; pairs `/model-validation` and `calc-sample-size` segmentation-metric sizing.
+- `model_comparison_leaderboard.md` — model-vs-model leaderboard (**across models, one cohort** — the
+  mirror of `external_validation_comparison.md`): one row per model with a bootstrap-Dice / DeLong
+  CI, the **paired Δ vs a strong fairly-tuned reference baseline** with its CI/significance, ranking
+  honesty (the paired Δ decides, not marginal-CI overlap; critical-difference / seed-stability), per-structure faceting, and a
+  **matched-budget caption**; no "bold-our-row" cherry-pick. Pairs `design-study` multi-model-comparison
+  design + `calc-sample-size` Test 16 + the `analyze-stats` model_comparison table-type.
+- `segmentation_failure_panel.md` — segmentation usability (**across cases, one model** — the third
+  axis beside the two above): every case plotted rather than a bar of means, the **acceptability
+  threshold drawn with the fraction below it labelled**, failures coloured by the pre-specified class
+  (boundary drift / missed / hallucinated / catastrophic), stratification that explains the tail, and
+  a **qualitative panel of the actual worst cases** — an anatomically impossible output is invisible
+  in every summary statistic. Pairs `design-study` segmentation-usability design + `calc-sample-size`
+  Test 17.
 - `km_curve.md` — Kaplan–Meier survival curve: number-at-risk table, censoring marks, CI band,
   median/log-rank/HR annotation, no extrapolation past the thin-risk-set tail, CIF for competing
   risks. Pairs the survival table-type.
@@ -53,6 +71,11 @@ the figure types that do not yet have a generator.
 - `mrmc_roc.md` — multi-reader multi-case (MRMC) reader-study ROC: per-reader curves + bold
   reader-averaged curve, MRMC (reader+case) AUC CI, ΔAUC with margin, per-patient/per-lesion unit,
   fully-crossed/washout note. Pairs the analyze-stats reader-study table-type.
+- `ai_assistance_effect.md` — AI-assistance effect (reader-level paired improvement): one line per
+  reader **unaided → aided** on the same cases, stratified by experience/specialty, reader-averaged
+  ΔAUC/Δaccuracy with paired MRMC CI, **harmed readers marked** (automation bias), reading-time
+  companion, crossover/washout. The within-reader-change counterpart to `mrmc_roc.md` (ROC space);
+  pairs the analyze-stats reader-study table-type and `calc-sample-size` Test 14.
 - `bland_altman.md` — Bland–Altman agreement: difference vs mean-of-the-two-methods, bias line +
   CI, ±1.96·SD limits of agreement with CIs on each limit, proportional-bias check, % within LoA,
   pre-defined clinical-acceptability band, not a correlation plot, repeated-measures handling.

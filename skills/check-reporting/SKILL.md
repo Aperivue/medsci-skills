@@ -1,7 +1,7 @@
 ---
 name: check-reporting
-description: Check manuscript compliance with medical research reporting guidelines. Supports 46 guidelines including STROBE, STROBE-MR, RECORD, REMARK (prognostic tumor-marker studies), TARGET (target trial emulation), CONSORT, CONSORT-AI, STARD, STARD-AI, TRIPOD, TRIPOD+AI, TRIPOD-LLM, PGS-RS, ARRIVE, PRISMA, PRISMA-DTA, PRISMA-P, PRISMA-ScR (scoping reviews), CARE, SPIRIT, SPIRIT-AI, CLAIM, DECIDE-AI, MI-CLEAR-LLM, SQUIRE 2.0, CLEAR, MOOSE, GRRAS, SWiM, AMSTAR 2, CHEERS 2022, CROSS (survey studies), SRQR and COREQ (qualitative research), and risk of bias tools (QUADAS-2, QUADAS-C, RoB 2, ROBINS-I, ROBINS-E, ROBIS, ROB-ME, PROBAST, PROBAST+AI, NOS, COSMIN, RoB NMA). Generates item-by-item assessment with PRESENT/MISSING/PARTIAL status.
-triggers: checklist, reporting guideline, STROBE, STROBE-MR, Mendelian randomization, CONSORT, CONSORT-AI, STARD, STARD-AI, TRIPOD, TRIPOD-LLM, PGS-RS, PRS-RS, polygenic risk score, polygenic score, PRISMA, PRISMA-DTA, PRISMA-P, PRISMA-ScR, scoping review, scoping, evidence map, ARRIVE, CARE, CLAIM, DECIDE-AI, MI-CLEAR-LLM, SPIRIT, SPIRIT-AI, QUADAS, QUADAS-C, RoB, ROBINS, ROBINS-E, ROBIS, ROB-ME, PROBAST, NOS, COSMIN, AMSTAR, SWiM, CHEERS, economic evaluation, cost-effectiveness, cost-utility, QALY, ICER, RECORD, RECORD-PE, routinely-collected data, registry, claims, electronic health records, EHR, real-world data, CROSS, CHERRIES, survey, questionnaire, KAP, e-survey, response rate, SRQR, COREQ, qualitative research, interviews, focus groups, thematic analysis, grounded theory, reflexivity, REMARK, tumor marker, prognostic marker, prognostic biomarker, molecular residual disease, TARGET, target trial emulation, target trial, causal inference, estimand, immortal time bias, risk of bias, compliance check, LLM accuracy, large language model, clinical deployment
+description: Check manuscript compliance with medical research reporting guidelines. Supports 47 guidelines including STROBE, STROBE-MR, RECORD, REMARK (prognostic tumor-marker studies), TARGET (target trial emulation), GATHER (burden-of-disease / health-estimate modeling), CONSORT, CONSORT-AI, STARD, STARD-AI, TRIPOD, TRIPOD+AI, TRIPOD-LLM, PGS-RS, ARRIVE, PRISMA, PRISMA-DTA, PRISMA-P, PRISMA-ScR (scoping reviews), CARE, SPIRIT, SPIRIT-AI, CLAIM, DECIDE-AI, MI-CLEAR-LLM, SQUIRE 2.0, CLEAR, MOOSE, GRRAS, SWiM, AMSTAR 2, CHEERS 2022, CROSS (survey studies), SRQR and COREQ (qualitative research), and risk of bias tools (QUADAS-2, QUADAS-C, RoB 2, ROBINS-I, ROBINS-E, ROBIS, ROB-ME, PROBAST, PROBAST+AI, NOS, COSMIN, RoB NMA). Generates item-by-item assessment with PRESENT/MISSING/PARTIAL status.
+triggers: checklist, reporting guideline, STROBE, STROBE-MR, Mendelian randomization, CONSORT, CONSORT-AI, STARD, STARD-AI, TRIPOD, TRIPOD-LLM, PGS-RS, PRS-RS, polygenic risk score, polygenic score, PRISMA, PRISMA-DTA, PRISMA-P, PRISMA-ScR, scoping review, scoping, evidence map, ARRIVE, CARE, CLAIM, DECIDE-AI, MI-CLEAR-LLM, SPIRIT, SPIRIT-AI, QUADAS, QUADAS-C, RoB, ROBINS, ROBINS-E, ROBIS, ROB-ME, PROBAST, NOS, COSMIN, AMSTAR, SWiM, CHEERS, economic evaluation, cost-effectiveness, cost-utility, QALY, ICER, RECORD, RECORD-PE, routinely-collected data, registry, claims, electronic health records, EHR, real-world data, CROSS, CHERRIES, survey, questionnaire, KAP, e-survey, response rate, SRQR, COREQ, qualitative research, interviews, focus groups, thematic analysis, grounded theory, reflexivity, REMARK, tumor marker, prognostic marker, prognostic biomarker, molecular residual disease, TARGET, target trial emulation, target trial, causal inference, estimand, immortal time bias, GATHER, burden of disease, global burden, GBD, health estimates, attributable burden, comparative risk assessment, population attributable fraction, disability-adjusted life years, DALY, forecasting, decomposition, risk of bias, compliance check, LLM accuracy, large language model, clinical deployment
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit
 ---
@@ -67,6 +67,7 @@ compliance report suitable for journal submission.
   - `AMSTAR2.md` -- quality of systematic reviews (Shea et al. BMJ 2017)
   - `PRISMA_P.md` -- systematic review protocols (Shamseer et al. BMJ 2015)
   - `SWiM.md` -- synthesis without meta-analysis reporting (Campbell et al. BMJ 2020)
+  - `GATHER.md` -- health-estimate / burden-of-disease modeling studies (GBD and GBD-satellite, comparative-risk / population-attributable-fraction, cause-of-death and prevalence/incidence estimation, with or without forecasts), GATHER 2016 (in-house faithful summary; CC BY, Stevens et al. Lancet 2016;388:e19-23 / PLoS Med 2016;13(6):e1002056). Pairs with `/analyze-stats` `references/analysis_guides/burden_decomposition_forecasting.md` for the analytic methods.
 - Fail-fast contract: if a routed guideline has no vendored checklist file, the skill does **not** silently construct items from memory. It halts with a `MISSING_CHECKLIST_CONTRACT_VIOLATION` and surfaces the gap. A from-memory assessment is allowed only with the explicit `--allow-from-memory` opt-in, and that report must be clearly labelled NON-AUTHORITATIVE. See Step 2 and `scripts/check_checklist_exists.py`.
 - **Critical-item floor**: `${CLAUDE_SKILL_DIR}/references/critical_item_floor.md` -- the small set of non-waivable items per study type (presence outranks the headline %), plus the AI/radiomics methodological-quality / risk-of-bias instruments (PROBAST+AI, METRICS/RQS, APPRAISE-AI) kept distinct from their reporting counterparts. Loaded in Step 4f.
 
@@ -107,6 +108,7 @@ user specification.
 | Polygenic (risk) score prediction study | PGS-RS (with TRIPOD / TRIPOD+AI) | -- |
 | Prognostic tumor-marker / biomarker study (single or multiple markers; e.g., ctDNA / molecular residual disease) | REMARK (pair with STROBE for the observational-design items; TRIPOD / TRIPOD+AI if a prognostic model is developed) | -- |
 | Causal / comparative-effectiveness question emulated on observational data (treatment vs treatment, screening vs none, drug A vs B on registry / EHR / claims data) | TARGET (pair with the /design-study target-trial-emulation module for design; RECORD / STROBE for the routinely-collected-data items) | -- |
+| Health-estimate / burden-of-disease modeling study (GBD or GBD-satellite, comparative-risk / population-attributable-fraction, cause-of-death or prevalence/incidence estimation, with or without forecasts) | GATHER (pair with `/analyze-stats` burden-decomposition-forecasting guide for the analytic layer) | -- |
 | Systematic review / meta-analysis | PRISMA 2020 | -- |
 | DTA systematic review / meta-analysis | PRISMA-DTA | -- |
 | Meta-analysis of observational studies | MOOSE | PRISMA 2020 (use both) |
@@ -141,7 +143,7 @@ user specification.
   - **Exception — TRIPOD**: TRIPOD+AI 2024 (Collins et al., BMJ 2024) is a complete rewrite, not an addendum to TRIPOD 2015 (Moons et al., Ann Intern Med 2015). For non-AI prediction models, use TRIPOD 2015 only. For AI/ML prediction models, use TRIPOD+AI 2024 only. Do NOT apply both simultaneously.
 - **STARD-AI** (Sounderajah et al., Nat Med 2025) extends STARD 2015 with 14 new and 4 modified items (40 total). For AI diagnostic accuracy studies, use STARD-AI (which incorporates all STARD 2015 items). Do NOT apply both STARD 2015 and STARD-AI simultaneously — STARD-AI supersedes STARD 2015 for AI studies.
 - **TRIPOD-LLM** (Gallifant et al., Nat Med 2025) is the reporting guideline for studies that develop, fine-tune, prompt, or evaluate a large language model for a clinical/biomedical task. It extends the TRIPOD family (TRIPOD 2015 → TRIPOD+AI 2024 → TRIPOD-LLM 2025); name the base instrument and the extension and cite each. It is modular — task-specific items (Annotation, Prompting, Summarization, Instruction-tuning) are N/A when that component is absent. Use TRIPOD-LLM for LLM studies in place of TRIPOD+AI; pair with MI-CLEAR-LLM when LLM accuracy is an evaluated outcome. The vendored checklist is an educational summary (own-words paraphrase of item intent); complete the official instrument for a submission checklist.
-- **MI-CLEAR-LLM** is a supplementary checklist (6 items), not a standalone reporting guideline. Always pair it with the study's primary guideline (e.g., STARD-AI for AI diagnostic accuracy, CLAIM for imaging AI). Apply MI-CLEAR-LLM whenever the study evaluates LLM accuracy as an outcome — do NOT apply it merely because the manuscript was written with LLM assistance. Its scope is **LLM accuracy** studies (including VLMs interpreting images); it does **not** apply at study level to studies where a generative model *produces* the images under study (see next bullet).
+- **MI-CLEAR-LLM** is a supplementary checklist (8 item categories in the 2025 update; the 2024 original had 6), not a standalone reporting guideline. Always pair it with the study's primary guideline (e.g., STARD-AI for AI diagnostic accuracy, CLAIM for imaging AI). Apply MI-CLEAR-LLM whenever the study evaluates LLM accuracy as an outcome — do NOT apply it merely because the manuscript was written with LLM assistance. Its scope is **LLM accuracy** studies (including VLMs interpreting images); it does **not** apply at study level to studies where a generative model *produces* the images under study (see next bullet).
 - **Generative-AI images as the study object** (a generative model synthesizes images and the study evaluates their realism, controllability, real-vs-synthetic distinguishability, or model-vs-model quality) has **no single dominant checklist**. Assemble: CLAIM 2024 (imaging-AI umbrella; model-development items N/A when commercial models are used as-is) + FUTURE-AI traceability + MI-CLEAR-LLM **transparency items only** (prompt/model/version/params/runs — for generation provenance, not study-level compliance) on the generator side; STARD-AI (for real-vs-synthetic detection) + GRRAS (reader reliability) + MRMC reporting on the evaluation side. Map applicable items and cite base + extension; never claim wholesale compliance. Full decision aid: `${CLAUDE_SKILL_DIR}/references/genai_image_study_object_decision_aid.md`.
 - If multiple guidelines apply (e.g., a diagnostic accuracy study that is also an AI study), check against all relevant guidelines and merge into one report.
 - If the user requests a specific guideline, use that one regardless of auto-detection.
@@ -359,133 +361,55 @@ critical item and the journal's own required elements.
 
 ### Step 5: Generate Report
 
-Produce a structured compliance report in two parts.
+Produce a structured compliance report in four parts.
 
 This report is an **internal working audit** — it carries auto-fix annotations, a
-machine-readable JSON block (`compliance_pct`, `fixable_by_ai`, …), and Action
-Items. It is **NOT** the official reporting checklist a journal expects (that is
-the blank guideline form with `Item | Recommendation | Reported in page/section`,
-which the authors fill in). Never submit this report as the submission checklist.
-To make the file self-identifying so it cannot be reused by filename into a later
-submission package, **the report MUST begin with the NOT-FOR-SUBMISSION banner
-below** as its very first line. (`/sync-submission`'s `check_checklist_dump_leak`
-gate also catches this dump if it ever lands in a submission directory.)
-
-#### Part A: Summary
+machine-readable JSON block (`compliance_pct`, `fixable_by_ai`, …), and Action Items. It is
+**NOT** the official reporting checklist a journal expects (that is the blank guideline form with
+`Item | Recommendation | Reported in page/section`, which the authors fill in). **Never submit
+this report as the submission checklist.** So that the file is self-identifying and cannot be
+reused by filename into a later submission package, **the report MUST begin with this banner as
+its very first line**:
 
 ```
 <!-- INTERNAL AUDIT — NOT FOR SUBMISSION. This is the /check-reporting working
 report, not the official journal checklist. Do not upload to a submission portal. -->
-
-## Reporting Guideline Compliance Report
-
-Manuscript: {title}
-Target manuscript file: {manuscript filename, e.g. manuscript_v8.md}
-Target version: {version token from the filename or frontmatter, e.g. v8}
-Guideline: {name and version}
-Date: {YYYY-MM-DD}
-Assessed by: Claude (automated pre-screening)
-
-### Summary
-
-| Status | Count | Percentage |
-|--------|-------|------------|
-| PRESENT | {n} | {%} |
-| PARTIAL | {n} | {%} |
-| MISSING | {n} | {%} |
-| N/A | {n} | {%} |
-| **Total** | **{n}** | **100%** |
-
-Overall compliance: {PRESENT count}/{applicable count} ({%})
-
-Critical items (Step 4f): {present}/{total} present.{ if any missing: " Critical gap — " + each MISSING critical item with the section it belongs in. This, not the percentage, is the headline.}
 ```
 
-#### Part B: Item-by-Item Checklist
+(`/sync-submission`'s `check_checklist_dump_leak` gate also catches this dump if it ever lands in
+a submission directory — but the banner is what makes it catchable.)
 
-```
-### Detailed Checklist
+**The four parts** — literal templates in `${CLAUDE_SKILL_DIR}/references/report_templates.md`:
 
-| # | Section | Item | Status | Location | Notes |
-|---|---------|------|--------|----------|-------|
-| 1 | Title/Abstract | {item text} | PRESENT | Title | {notes} |
-| 2 | Introduction | {item text} | MISSING | -- | {suggestion} |
-| ... | ... | ... | ... | ... | ... |
-```
+- **Part A — Summary.** Header (manuscript file, version token, guideline, date), the
+  PRESENT/PARTIAL/MISSING/N-A count table, and overall compliance. The **headline is the critical
+  items (Step 4f)**, not the percentage: report `{present}/{total}` and name every missing
+  critical item with the section it belongs in.
+- **Part B — Item-by-item checklist.** One row per item: `# | Section | Item | Status | Location | Notes`.
+- **Part C — Action items** (MISSING and PARTIAL only), ordered by: items most journals enforce
+  strictly (ethics approval, registration, sample size) → items in Methods (easiest to fix) →
+  everything else.
+- **Part D — Machine-readable JSON**, appended as a fenced block. **MUST** be present under
+  `--json` or when called from `/write-paper` Phase 7, which parses it.
 
-#### Part C: Action Items (for MISSING and PARTIAL)
+**JSON field contract** (the part other skills depend on — get these right):
 
-```
-### Action Items (Priority Order)
+- `compliance_pct` — `present / (total_items - na) * 100`, one decimal.
+- `action_items` — MISSING and PARTIAL only; PRESENT and N/A are excluded.
+- `fixable_by_ai` — `true` when the fix inserts or expands text using information already in the
+  manuscript or inferable from it; `false` when it needs external facts the author alone holds
+  (registration number, IRB approval number, protocol details).
+- `suggested_fix` — concrete draft text, insertable as written.
+- `source_sha256` — first 12 hex chars of the SHA-256 of the manuscript bytes, so a stale report
+  cannot be silently attributed to a newer manuscript.
 
-1. **[MISSING] Item {N}: {item name}**
-   - Required: {what needs to be added}
-   - Suggested location: {section, paragraph}
-   - Example text: "{draft sentence or phrase}"
+**Read on demand:**
 
-2. **[PARTIAL] Item {N}: {item name}**
-   - Current: {what was found}
-   - Needed: {what additional detail is required}
-   - Suggested revision: "{draft revision}"
-```
-
-Order action items by:
-1. Items most journals enforce strictly (e.g., ethics approval, registration, sample size)
-2. Items in the Methods section (easiest to fix)
-3. Items in other sections
-
-#### Part D: Machine-Readable JSON Summary
-
-Append a fenced JSON block at the end of the report. This enables `/write-paper` Phase 7 and `/orchestrate` to parse compliance results programmatically. This block **MUST** be present when invoked with `--json` flag or when called from `/write-paper` Phase 7. It SHOULD also be present in standard invocations (appended after Part C).
-
-```json
-{
-  "check_reporting_version": "1.1",
-  "manuscript_title": "...",
-  "target_manuscript": "manuscript_v8.md",
-  "target_version": "v8",
-  "source_sha256": "<first 12 hex chars of sha256 of the manuscript file bytes>",
-  "guideline": "STARD-AI",
-  "guideline_version": "2025",
-  "date": "YYYY-MM-DD",
-  "total_items": 40,
-  "present": 32,
-  "partial": 4,
-  "missing": 3,
-  "na": 1,
-  "compliance_pct": 88.9,
-  "action_items": [
-    {
-      "item_number": 12,
-      "section": "Methods",
-      "item_name": "Sample size justification",
-      "status": "MISSING",
-      "suggested_location": "Methods, after participant description",
-      "suggested_fix": "Add: 'The sample size was determined based on [rationale]. A minimum of [N] cases was required to achieve [target] precision for the primary endpoint.'",
-      "fixable_by_ai": true
-    },
-    {
-      "item_number": 7,
-      "section": "Methods",
-      "item_name": "Blinding of index test to reference standard",
-      "status": "PARTIAL",
-      "current_text": "Readers were blinded",
-      "needed": "Specify what readers were blinded to (reference standard results, clinical information, other reader results)",
-      "suggested_fix": "Expand to: 'Readers interpreted [index test] images blinded to the reference standard results, clinical information, and other readers' assessments.'",
-      "fixable_by_ai": true
-    }
-  ]
-}
-```
-
-**Field definitions:**
-- `compliance_pct`: `present / (total_items - na) * 100`, rounded to one decimal
-- `action_items`: Array of MISSING and PARTIAL items only (PRESENT and N/A excluded)
-- `fixable_by_ai`: `true` if the fix involves inserting or expanding text with information available in the manuscript or inferable from context; `false` if it requires external information (e.g., registration number, IRB approval number, specific protocol details only the author knows)
-- `suggested_fix`: Concrete draft text that can be inserted or used to expand an existing sentence
+| File | Read it when | Cost if read blindly |
+|---|---|---|
+| `references/report_templates.md` | you have finished the audit and are writing the report | ~1,900 tokens of pure output format — it informs no part of the assessment itself |
 
 ---
-
 ## Assessment Standards
 
 ### Be Strict

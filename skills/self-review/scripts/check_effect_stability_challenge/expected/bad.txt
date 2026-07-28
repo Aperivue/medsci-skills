@@ -1,0 +1,9 @@
+=========================================
+ Effect Stability (Phase 2.5)
+=========================================
+| Check | Severity | Detail |
+|---|---|---|
+| UNSTABLE_EFFECT_ESTIMATE | Major | OR 50.9 has a 95% CI 5.8-443.6 spanning 76-fold (> 10x) in the Abstract/Conclusions with no co-located caveat; a 76-fold interval supports a direction, not the point estimate — report it as such or add an imprecision/exploratory caveat |
+| EPV_LOW | Major | 19 events for 2 covariates is 9.5 events per variable (< 10); the model is underpowered for stable coefficient estimation — reduce covariates, use penalisation, or report the estimates as exploratory |
+
+MAJOR candidate: 2 unstable effect estimate / low-EPV finding(s).

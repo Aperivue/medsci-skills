@@ -82,5 +82,64 @@ assert not any(c['verdict']=='RATE_BACKCALC' for c in d['claims']), 'numerator m
 python3 "$SCRIPT" --manuscript "$RFP" --strict --quiet >/dev/null 2>&1
 check "exit 0 on correct-rate manuscript" test "$?" -eq 0
 
+# (8) PROSE partition: an in-text exhaustive split whose counts do not sum to the
+#     stated total (37 + 185 + 103 = 325 != 289, % = 112.4) -> PARTITION_OVERLAP,
+#     exit 1.
+PPROSE="$HERE/fixtures/cohort_partition_prose.md"
+python3 "$SCRIPT" --manuscript "$PPROSE" --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "exit 1 on prose partition that does not reconcile" test "$?" -eq 1
+check "PARTITION_OVERLAP from prose enumeration"          has_verdict PARTITION_OVERLAP
+
+# (9) PRECISION: the corrected split (37+149+103=289, %=100), a no-% cross-tab,
+#     and an overlapping-comorbidity enumeration WITH %s but no partition cue must
+#     all stay silent -> exit 0. The last is the case a naive count-sum check
+#     would false-fire on.
+PPCLEAN="$HERE/fixtures/cohort_partition_prose_clean.md"
+python3 "$SCRIPT" --manuscript "$PPCLEAN" --strict --quiet >/dev/null 2>&1
+check "exit 0 on corrected + cross-tab + cue-less overlapping prose" test "$?" -eq 0
+
+# (10) FOLLOWUP_VS_CRITERION: reported "median follow-up 102 days" against a ">= 24
+#      months stability" criterion with no total-observation window -> Minor flag.
+FUC="$HERE/fixtures/cohort_followup_criterion.md"
+python3 "$SCRIPT" --manuscript "$FUC" --out "$OUT" --quiet >/dev/null 2>&1
+check "FOLLOWUP_VS_CRITERION when follow-up < a criterion duration" has_verdict FOLLOWUP_VS_CRITERION
+# (11) silent once the total-observation window is distinctly reported.
+FUOK="$HERE/fixtures/cohort_followup_ok.md"
+python3 "$SCRIPT" --manuscript "$FUOK" --out "$OUT" --quiet >/dev/null 2>&1
+check "no FOLLOWUP_VS_CRITERION when total observation window is reported" python3 -c "
+import json
+d=json.load(open('$OUT'))
+raise SystemExit(0 if not any(c['verdict']=='FOLLOWUP_VS_CRITERION' for c in d['claims']) else 1)
+"
+
+# (N) a subgroup rendered twice with divergent CIs: two rows share the SAME estimate AND
+#     identical n/events but print different confidence intervals (independent bootstraps)
+#     -> SUBGROUP_DUPLICATE_CI (Minor). Two DISTINCT subgroups with a coincidentally equal
+#     estimate but different n/events must NOT fire (the precision guard).
+DUPCI="$HERE/fixtures/cohort_dup_ci.md"
+DUPCICLEAN="$HERE/fixtures/cohort_dup_ci_clean.md"
+python3 "$SCRIPT" --manuscript "$DUPCI" --out "$OUT" --quiet >/dev/null 2>&1
+check "SUBGROUP_DUPLICATE_CI on same estimate+n+events with divergent CI" has_verdict SUBGROUP_DUPLICATE_CI
+python3 "$SCRIPT" --manuscript "$DUPCICLEAN" --out "$OUT" --quiet >/dev/null 2>&1
+check "no SUBGROUP_DUPLICATE_CI when n/events differ (distinct subgroups, same OR)" python3 -c "
+import json
+d=json.load(open('$OUT'))
+raise SystemExit(0 if not any(c['verdict']=='SUBGROUP_DUPLICATE_CI' for c in d['claims']) else 1)
+"
+
+# (N) nested prediction models all embedding a common covariate set (age + sex) report a
+#     C-index but there is no base-model (age+sex-only) row and no incremental deltaC ->
+#     NESTED_MODEL_NO_BASELINE (Minor). Adding the base-model row must suppress it.
+NEST="$HERE/fixtures/cohort_nested_models.md"
+NESTBASE="$HERE/fixtures/cohort_nested_models_base.md"
+python3 "$SCRIPT" --manuscript "$NEST" --out "$OUT" --quiet >/dev/null 2>&1
+check "NESTED_MODEL_NO_BASELINE when nested models share covariates with no base row" has_verdict NESTED_MODEL_NO_BASELINE
+python3 "$SCRIPT" --manuscript "$NESTBASE" --out "$OUT" --quiet >/dev/null 2>&1
+check "no NESTED_MODEL_NO_BASELINE when the base-model (age+sex) row is present" python3 -c "
+import json
+d=json.load(open('$OUT'))
+raise SystemExit(0 if not any(c['verdict']=='NESTED_MODEL_NO_BASELINE' for c in d['claims']) else 1)
+"
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

@@ -88,3 +88,6 @@ Follows standard biomedical statistical reporting conventions:
 - **Co-first authors**: up to two allowed; no co-senior authors accepted.
 - **Proof turnaround**: 48 hours.
 - Drug/instrument names: use generic name first, then trade name with manufacturer and location in parentheses.
+
+- **AI-use disclosure placement**: Title page
+  <!-- machine-read by /self-review check_classical_style.py --profile; source: this profile's own "Title page (separate): title, authors, affiliations, corresponding author, keywords, disclosures, funding, AI declaration" -->

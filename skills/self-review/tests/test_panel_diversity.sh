@@ -12,6 +12,12 @@ SCRIPT="$HERE/../scripts/check_panel_diversity.py"
 GOOD="$HERE/fixtures/panel_good.json"
 MONO="$HERE/fixtures/panel_monoculture.json"
 COLLAPSE="$HERE/fixtures/panel_collapse.json"
+STATS="$HERE/fixtures/panel_stats_lens.json"
+ONE="$HERE/fixtures/panel_one_returned.json"
+ROSTER4="$HERE/fixtures/roster_4.json"
+ROSTER3="$HERE/fixtures/roster_3.json"
+MONOSUB="$HERE/fixtures/roster_mono_substrate.json"
+INDEPSUB="$HERE/fixtures/roster_indep_substrate.json"
 OUT="$(mktemp -t paneldiv_XXXX).json"
 trap 'rm -f "$OUT"' EXIT
 
@@ -50,6 +56,46 @@ python3 "$SCRIPT" --panel "$COLLAPSE" --out "$OUT" --strict --quiet >/dev/null 2
 check "exit 0 (collapse is flag-only)" test "$?" -eq 0
 check "LENS_COLLAPSE detected" has_verdict LENS_COLLAPSE
 check "no UNCOVERED_AXIS without research type" no_verdict UNCOVERED_AXIS
+
+# (4) a statistics reviewer using reader-study / agreement vocabulary (kappa, bootstrap,
+#     permutation, odds ratio, ICC) must register as covering the 'statistics' axis, so an
+#     sr_ma panel spanning all three expected axes fires NO UNCOVERED_AXIS. Regression:
+#     before the statistics lexicon was broadened these classified as 'other' and the axis
+#     looked uncovered, producing a false Major.
+python3 "$SCRIPT" --panel "$STATS" --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "exit 0 (stats reviewer covers the statistics axis)" test "$?" -eq 0
+check "no UNCOVERED_AXIS when statistics is covered by reader-study vocabulary" no_verdict UNCOVERED_AXIS
+
+# (5) roster of 4 spawned reviewers, only 1 returned -> PANEL_UNDERRETURN (Major), exit 1.
+#     The failure this exists for: reviewers spawn, return nothing, and the thin/empty panel
+#     JSON reads as a completed run because nothing errors. The roster makes the absence visible.
+python3 "$SCRIPT" --panel "$ONE" --roster "$ROSTER4" --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "exit 1 (1 of 4 rostered reviewers returned)" test "$?" -eq 1
+check "PANEL_UNDERRETURN on under-return" has_verdict PANEL_UNDERRETURN
+
+# (6) roster == returned set -> no PANEL_UNDERRETURN
+python3 "$SCRIPT" --panel "$GOOD" --roster "$ROSTER3" --out "$OUT" --quiet >/dev/null 2>&1
+check "no PANEL_UNDERRETURN when roster == returned" no_verdict PANEL_UNDERRETURN
+
+# (7) roster-gated: without --roster the same 1-reviewer panel does NOT emit PANEL_UNDERRETURN
+python3 "$SCRIPT" --panel "$ONE" --out "$OUT" --quiet >/dev/null 2>&1
+check "no PANEL_UNDERRETURN without a roster (backward compatible)" no_verdict PANEL_UNDERRETURN
+
+# (8) every returned reviewer shares the generator's substrate -> SUBSTRATE_MONOCULTURE (Major),
+#     exit 1. A same-model panel inherits the generator's blind spots; it is not an independent
+#     check. The roster ids match GOOD's returned set, so PANEL_UNDERRETURN does not confound.
+python3 "$SCRIPT" --panel "$GOOD" --roster "$MONOSUB" --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "exit 1 (all reviewers share the generator substrate)" test "$?" -eq 1
+check "SUBSTRATE_MONOCULTURE detected" has_verdict SUBSTRATE_MONOCULTURE
+
+# (9) at least one different-substrate lens (codex, human) -> no SUBSTRATE_MONOCULTURE, exit 0
+python3 "$SCRIPT" --panel "$GOOD" --roster "$INDEPSUB" --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "exit 0 (an independent lens breaks the monoculture)" test "$?" -eq 0
+check "no SUBSTRATE_MONOCULTURE with an independent lens" no_verdict SUBSTRATE_MONOCULTURE
+
+# (10) substrate-gated: a bare roster (no substrate fields) does NOT emit SUBSTRATE_MONOCULTURE
+python3 "$SCRIPT" --panel "$GOOD" --roster "$ROSTER3" --out "$OUT" --quiet >/dev/null 2>&1
+check "no SUBSTRATE_MONOCULTURE without substrate info (backward compatible)" no_verdict SUBSTRATE_MONOCULTURE
 
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

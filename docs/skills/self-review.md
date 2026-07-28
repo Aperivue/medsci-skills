@@ -26,6 +26,9 @@
 
 **Validation**
 
+- `bash scripts/disclosure_placement_challenge/verify.sh`
+- `bash scripts/cohort_arith_binding_challenge/verify.sh`
+- `bash scripts/confounding_findings_challenge/verify.sh`
 - `python3 scripts/check_reviewer_team_consistency.py`
 - `python3 scripts/check_domain_probe_sync.py --strict`
 - `bash tests/test_panel_mode.sh`
@@ -41,6 +44,13 @@
 - `bash scripts/check_reported_p_from_counts_challenge/verify.sh  # recompute row P from 2x2 counts`
 - `bash scripts/check_dta_denominators_challenge/verify.sh  # sens/spec denominators vs reference-standard counts`
 - `bash scripts/check_paired_difference_estimator_challenge/verify.sh  # median parity / degenerate CI / unnamed estimator`
+- `bash scripts/check_effect_stability_challenge/verify.sh  # CI upper/lower ratio > 10x + events-per-variable < 10`
+- `bash scripts/check_incorporation_bias_challenge/verify.sh  # trajectory reference standard + trajectory predictor`
+- `bash scripts/check_figure_citation_challenge/verify.sh  # panel-suffixed citation (Figure 3a) regression + real orphan`
+- `bash scripts/refinement_stop_challenge/verify.sh  # terminal-state loop controller: zero-edit PASS / stop signal from qc/*.json`
+- `bash scripts/check_baseline_drift_challenge/verify.sh  # framing drift (strength/significance/scope/hedge) vs the last human-approved baseline`
+- `bash scripts/refinement_regression_challenge/verify.sh  # regression axis: fixed vs broke across runs (ledger); Mirror-Loop churn`
+- `bash scripts/check_perspective_structure_challenge/verify.sh  # IMRAD headings + flat abstract in a Perspective (genre-gated, Minor)`
 - `feed R0-numbered output into /revise`
 
 **Evidence** — `demo`
@@ -52,11 +62,19 @@
 - `domain-probes/` (23 files)
 - `exemplar_findings/` (8 files)
 - `panel_review_template.md`
-- `phases/` (1 file)
+- `phases/` (11 files)
 
 **Scripts** (`skills/self-review/scripts/`):
 
+- `_frontmatter.py`
+- `_prose.py`
+- `_qc_findings.py`
+- `check_analysis_definitions.py`
+- `check_analysis_definitions_challenge/` (6 files)
+- `check_aphorism_density.py`
 - `check_artifact_coverage.py`
+- `check_baseline_drift.py`
+- `check_baseline_drift_challenge/` (10 files)
 - `check_binning_consistency.py`
 - `check_citation_order.py`
 - `check_claim_artifact.py`
@@ -67,8 +85,13 @@
 - `check_dta_denominators.py`
 - `check_dta_denominators_challenge/` (6 files)
 - `check_editorial_impression.py`
+- `check_effect_stability.py`
+- `check_effect_stability_challenge/` (6 files)
 - `check_emphasis_density.py`
 - `check_figure_citation.py`
+- `check_figure_citation_challenge/` (4 files)
+- `check_incorporation_bias.py`
+- `check_incorporation_bias_challenge/` (6 files)
 - `check_nested_group_comparison.py`
 - `check_nested_group_comparison_challenge/` (6 files)
 - `check_null_calibration.py`
@@ -76,15 +99,25 @@
 - `check_paired_difference_estimator_challenge/` (6 files)
 - `check_panel_diversity.py`
 - `check_paren_spans.py`
+- `check_perspective_structure.py`
+- `check_perspective_structure_challenge/` (10 files)
 - `check_reference_adequacy.py`
 - `check_reported_p_from_counts.py`
 - `check_reported_p_from_counts_challenge/` (6 files)
 - `check_reviewer_team_consistency.py`
+- `check_rhetorical_density.py`
 - `check_rounded_delta.py`
 - `check_scope_coherence.py`
 - `check_supplement_hygiene.py`
 - `check_table_percentages.py`
 - `check_table_percentages_challenge/` (6 files)
+- `cohort_arith_binding_challenge/` (4 files)
+- `confounding_findings_challenge/` (4 files)
+- `disclosure_placement_challenge/` (3 files)
+- `refinement_regression.py`
+- `refinement_regression_challenge/` (20 files)
+- `refinement_stop.py`
+- `refinement_stop_challenge/` (21 files)
 
 ## Source
 

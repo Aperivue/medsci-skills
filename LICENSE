@@ -19,32 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-## Third-Party Content Licenses
-
-The following reporting guideline checklists are bundled under their original licenses
-(NOT under MIT). See each file for attribution:
-
-- STROBE checklist: CC BY (https://www.strobe-statement.org)
-- STARD 2015 checklist: CC BY 4.0 (https://www.equator-network.org/reporting-guidelines/stard/)
-- TRIPOD+AI checklist: CC BY 4.0 (https://www.tripod-statement.org)
-- PRISMA 2020 checklist: CC BY (https://www.prisma-statement.org)
-- ARRIVE 2.0 checklist: CC0 (https://arriveguidelines.org)
-
-The following checklists are NOT bundled due to license restrictions.
-Users should download them directly from official sources:
-
-- CONSORT 2010: https://www.consort-statement.org (CC BY-NC)
-- CARE: https://www.care-statement.org
-- SPIRIT: https://www.spirit-statement.org (CC BY-NC-ND)
-- CLAIM 2024: https://pubs.rsna.org/doi/10.1148/radiol.2020200267
-
-## Optional Dependencies
-
-The following external packages are NOT bundled but may be installed separately by the user:
-
-- pymupdf4llm: AGPL-3.0 or Artifex Commercial License (https://pymupdf.readthedocs.io)
-  Used by: fulltext-retrieval/pdf_to_md.py (optional PDF→Markdown conversion)
-  Install: pip install pymupdf4llm

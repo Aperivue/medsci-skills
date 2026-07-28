@@ -32,6 +32,15 @@ jobs:
       - name: Install exiftool + poppler (EXIF scan + check_asset_anonymization PDF text/metadata)
         run: sudo apt-get update && sudo apt-get install -y libimage-exiftool-perl poppler-utils
 
+      - name: "Workflow files parse (a broken one runs ZERO jobs and reports no checks)"
+        run: python3 scripts/check_workflow_yaml.py --strict
+
+      - name: "Workflow-yaml gate self-test (a runless step and an unquoted ': ' must both fail)"
+        run: bash tests/test_workflow_yaml.sh
+
+      - name: Run run-ci-mirror self-test (the local mirror must enumerate the real gates)
+        run: bash tests/test_run_ci_mirror.sh
+
       - name: Run validate_skills.sh (PII + structure)
         run: bash scripts/validate_skills.sh
 
@@ -66,14 +75,50 @@ jobs:
       - name: Run validate_routing_assets.py self-test (dangling references/ pointer fails)
         run: bash tests/test_routing_assets.sh
 
+      - name: "Run check_phase_budget.py (a phase over 80 lines, or a whole SKILL.md over 16k tokens, is a bill paid on every invocation)"
+        run: python3 scripts/check_phase_budget.py --strict
+
+      - name: "Run phase-budget self-test (the real 209-line phase must still fail the gate)"
+        run: bash tests/test_phase_budget.sh
+
+      - name: "Run check_skill_discovery.py (a fixture under a nested skills/ ships as a real skill)"
+        run: python3 scripts/check_skill_discovery.py --strict
+
+      - name: "Run skill-discovery self-test (a nested skills/ must still fail the gate)"
+        run: bash tests/test_skill_discovery.sh
+
+      - name: "Run check_named_skills_exist.py (a skill may not send you to a skill that does not exist)"
+        run: python3 scripts/check_named_skills_exist.py --strict
+
       - name: Run check_domain_probe_sync.py (vendored domain probes must be byte-identical)
         run: python3 scripts/check_domain_probe_sync.py --strict
+
+      - name: "Run vendoring-gate self-test (drifted checklist, drifted probe, undeclared pair all fail)"
+        run: bash tests/test_vendoring_sync.sh
+
+      - name: "Run check_script_reachability.py (a script no skill runs never runs)"
+        run: python3 scripts/check_script_reachability.py --strict
+
+      - name: "Run script-reachability self-test (de-wired script and undocumented allowlist entry fail)"
+        run: bash tests/test_script_reachability.sh
+
+      - name: "Run check_bundled_media_license.py (an MIT package may only ship what it holds — including inside a .pptx)"
+        run: python3 scripts/check_bundled_media_license.py --strict
+
+      - name: "Run check_third_party_index.py (the LICENSE must describe the package you downloaded)"
+        run: python3 scripts/check_third_party_index.py --strict
+
+      - name: "Run bundled-media + third-party-index self-test (restore each defect; the gate must FAIL)"
+        run: bash tests/test_bundled_media_license.sh
 
       - name: Run validate_capabilities.py (skill-registry consistency, capabilities.yml vs skill.yml)
         run: python3 scripts/validate_capabilities.py --strict
 
       - name: Run capabilities-validator self-test (drift fixtures fail, live repo clean)
         run: bash tests/test_capabilities_validator.sh
+
+      - name: "Run check_detector_reachability.py (a detector nothing calls never runs)"
+        run: python3 scripts/check_detector_reachability.py --strict
 
       - name: Run check_orchestrate_reachability.py (every skill routable from /orchestrate)
         run: python3 scripts/check_orchestrate_reachability.py --strict
@@ -87,6 +132,36 @@ jobs:
       - name: Run detector-envelope gate self-test (unlabelled + mislabelled envelopes fail)
         run: bash tests/test_detector_envelopes.sh
 
+      - name: Run check_detector_crossfire.py (a fixture clean for one detector must be clean for all)
+        run: python3 scripts/check_detector_crossfire.py
+
+      - name: Run detector-crossfire self-test (restores the real 18pt vs 20pt bug; the gate must catch it)
+        run: bash tests/test_detector_crossfire.sh
+
+      - name: Run held-out crossfire self-test (the instrument must withhold a rate it cannot support)
+        run: bash reverse_engineer/scripts/test_heldout_crossfire.sh
+
+      - name: "Run render_jats fidelity test (a dropped section is not a missing signal, it is a FIRE, biased by publisher)"
+        run: bash reverse_engineer/scripts/test_render_jats.sh
+
+      - name: "Run perturbation/invariance self-test (a probe that cannot see a moved verdict is worse than none)"
+        run: bash reverse_engineer/scripts/test_perturb_invariance.sh
+
+      - name: "Run held-out acquisition self-test (seal must refuse a corpus that is not what was promised)"
+        run: bash reverse_engineer/scripts/test_acquire_heldout.sh
+
+      - name: Run check_python_floor.py (everything a user runs must parse on the Python we promise)
+        run: python3 scripts/check_python_floor.py --strict
+
+      - name: Run installer Python-guard test (old / missing Python must be refused, not crash)
+        run: bash installers/tests/test_installer_python_guard.sh
+
+      - name: Run setup-check test (hide pandoc; the report must NOTICE, and must install nothing)
+        run: bash installers/tests/test_doctor.sh
+
+      - name: Run manifest-drift message test (a contributor's red X must be actionable)
+        run: bash tests/test_manifest_drift_message.sh
+
       - name: Run check_release_cadence.py (a release is an event, not a commit)
         run: python3 scripts/check_release_cadence.py --strict
 
@@ -98,6 +173,12 @@ jobs:
 
       - name: Run check_locale_inventory.py self-test
         run: bash tests/test_locale_inventory.sh
+
+      - name: "Run check_hardcoded_locale.py (no skill picks its user's language)"
+        run: python3 scripts/check_hardcoded_locale.py --strict
+
+      - name: Run hardcoded-locale gate self-test (the rule /publish-skill already wrote down)
+        run: bash tests/test_hardcoded_locale.sh
 
       - name: Run self-review panel-mode structural + PII test
         run: bash skills/self-review/tests/test_panel_mode.sh
@@ -116,6 +197,12 @@ jobs:
 
       - name: Run self-review inline-emphasis over-use gate test
         run: bash skills/self-review/tests/test_emphasis_density.sh
+
+      - name: Run humanize rewrite-fidelity gate test (a de-AI pass may not alter a number or drop a citation)
+        run: bash skills/humanize/tests/test_rewrite_fidelity.sh
+
+      - name: Run humanize sentence-variety gate test (Fix rule 7 is now measured, not just prescribed)
+        run: bash skills/humanize/tests/test_sentence_variety.sh
 
       - name: Run self-review feature-selection-outside-CV leakage gate test
         run: bash skills/self-review/tests/test_cv_leakage.sh
@@ -159,6 +246,21 @@ jobs:
       - name: Run peer-review self-improvement-claim gate test (self-confirming / ungrounded loop)
         run: bash skills/peer-review/tests/test_self_improvement_claims.sh
 
+      - name: "Run peer-review PDF-scan XMP regression (an int xref must not crash the injection scan)"
+        run: bash skills/peer-review/tests/test_scan_pdf_layers_xmp.sh
+
+      - name: "Run peer-review draft gates (length per comment; recommendation must stay in the editor box)"
+        run: bash skills/peer-review/tests/test_review_draft_gates.sh
+
+      - name: "Run peer-review request-type challenge (unjustified computation fires; disclosure-led review clears)"
+        run: bash skills/peer-review/scripts/check_review_request_types_challenge/verify.sh
+
+      - name: "Run model-sourcing model-provenance challenge (contradictory facts fire; absent facts flagged; full dossier clears)"
+        run: bash skills/model-sourcing/scripts/check_model_provenance_challenge/verify.sh
+
+      - name: "Run manage-refs citation-keys challenge (an undefined [@key] fails; a fully-resolved bibliography clears)"
+        run: bash skills/manage-refs/scripts/check_citation_keys_challenge/verify.sh
+
       - name: Run contribute safety gate test (PHI/identifier scan before anything leaves a laptop)
         run: bash skills/contribute/tests/test_contribution_safety.sh
 
@@ -195,6 +297,12 @@ jobs:
       - name: Run sync-submission preflight gate test (A6)
         run: bash skills/sync-submission/tests/test_preflight_gate.sh
 
+      - name: "Run sync-submission portal-field-residue challenge (paste-verbatim .txt with markdown -> fires; clean -> clean)"
+        run: bash skills/sync-submission/scripts/check_portal_field_residue_challenge/verify.sh
+
+      - name: "Run sync-submission figure portal-readiness challenge (over-cap / wrong-format figure fires; clean -> clean; preflight wiring)"
+        run: bash skills/sync-submission/scripts/figure_portal_readiness_challenge/verify.sh
+
       - name: Run sync-submission word-count-cap gate test (A7)
         run: bash skills/sync-submission/tests/test_wordcount_cap.sh
 
@@ -210,11 +318,17 @@ jobs:
       - name: Run verify-refs author-normalization test (Unicode dash + BBT brace-protected surname)
         run: bash skills/verify-refs/tests/test_author_normalization.sh
 
+      - name: "Run verify-refs claim-fidelity challenge (a real citation carrying a claim its source never makes)"
+        run: bash skills/verify-refs/scripts/claim_fidelity_challenge/verify.sh
+
       - name: Run manage-refs bib-title publisher-markup gate test
         run: bash skills/manage-refs/tests/test_bib_title_markup.sh
 
       - name: Run revise response-claim verification gate test
         run: bash skills/revise/tests/test_response_claims.sh
+
+      - name: "Run revise density-complaint challenge (point-by-point revision that got longer must fail)"
+        run: bash skills/revise/scripts/density_complaint_challenge/verify.sh
 
       - name: Run sync-submission marked-manuscript round-trip gate test (move-aware)
         run: bash skills/sync-submission/tests/test_marked_manuscript.sh
@@ -256,6 +370,9 @@ jobs:
       - name: Run make-figures pptx Mac-compatibility validator test
         run: python3 skills/make-figures/tests/test_pptx_mac_compat.py
 
+      - name: Run make-figures STROBE cascade-closure test
+        run: bash skills/make-figures/tests/test_strobe_cascade.sh
+
       - name: Run clean-data structural-zero test
         run: bash skills/clean-data/tests/test_structural_zero.sh
 
@@ -268,8 +385,20 @@ jobs:
       - name: Run meta-analysis pool-consistency test
         run: bash skills/meta-analysis/tests/test_pool_consistency.sh
 
+      - name: "Run meta-analysis exclusion-code-validity challenge (code excludes an eligible design -> fires; correct exclusion -> clean)"
+        run: bash skills/meta-analysis/scripts/check_exclusion_code_validity_challenge/verify.sh
+
       - name: Run generate-codebook test
         run: bash skills/generate-codebook/tests/test_generate_codebook.sh
+
+      - name: Run slide-tells challenge (AI-made deck -> all 6 marks; human-made deck -> CLEAN)
+        run: bash skills/present-paper/scripts/check_slide_tells_challenge/verify.sh
+
+      - name: "Run deck-budget challenge (same deck: fits an oral, too dense for a keynote)"
+        run: bash skills/present-paper/scripts/check_deck_budget_challenge/verify.sh
+
+      - name: Run present-paper builder chrome test (the old eyebrow-everywhere default must be CAUGHT)
+        run: python3 skills/present-paper/tests/test_builder_no_chrome.py
 
       - name: Run present-paper speaker-notes markdown test
         run: python3 skills/present-paper/tests/test_speaker_notes_markdown.py
@@ -285,6 +414,9 @@ jobs:
 
       - name: Run polish-language consistency-linter challenge
         run: bash skills/polish-language/scripts/lint_challenge/verify.sh
+
+      - name: "Run polish-language figure-source locale challenge (UK word in a .pptx/.py label fires; universals stay silent)"
+        run: bash skills/polish-language/scripts/lint_figure_locale_challenge/verify.sh
 
       - name: Run deidentify PHI-scan contract test
         run: bash skills/deidentify/tests/test_deidentify_scan.sh
@@ -318,6 +450,12 @@ jobs:
 
       - name: Run model-validation split-leakage gate test
         run: bash skills/model-validation/tests/test_split_leakage.sh
+
+      - name: Run profile-imaging dataset-profile challenge
+        run: bash skills/profile-imaging/scripts/check_dataset_profile_challenge/verify.sh
+
+      - name: Run profile-imaging dataset-profile gate test
+        run: bash skills/profile-imaging/tests/test_dataset_profile.sh
 
       - name: Run preprocess-imaging leakage challenge
         run: bash skills/preprocess-imaging/scripts/check_preprocessing_leakage_challenge/verify.sh
@@ -382,8 +520,32 @@ jobs:
       - name: Run self-review DTA-denominator challenge (sens/spec vs reference-standard)
         run: bash skills/self-review/scripts/check_dta_denominators_challenge/verify.sh
 
+      - name: "Run self-review figure-citation panel-suffix challenge (Figure 3a cites Figure 3 -> no orphan; uncited -> orphan)"
+        run: bash skills/self-review/scripts/check_figure_citation_challenge/verify.sh
+
+      - name: "Run self-review analysis-definitions challenge (same analysis count, opposite verdict — definition is what the gate reads)"
+        run: bash skills/self-review/scripts/check_analysis_definitions_challenge/verify.sh
+
       - name: Run self-review paired-difference-estimator challenge (median parity / degenerate CI)
         run: bash skills/self-review/scripts/check_paired_difference_estimator_challenge/verify.sh
+
+      - name: Run self-review effect-stability challenge (76-fold CI + low EPV vs tight CI + caveat)
+        run: bash skills/self-review/scripts/check_effect_stability_challenge/verify.sh
+
+      - name: Run self-review incorporation-bias challenge (trajectory standard + trajectory predictor)
+        run: bash skills/self-review/scripts/check_incorporation_bias_challenge/verify.sh
+
+      - name: "Run self-review refinement-stop challenge (terminal-state loop controller: zero-edit PASS / stop signal)"
+        run: bash skills/self-review/scripts/refinement_stop_challenge/verify.sh
+
+      - name: "Run self-review baseline-drift challenge (framing drift vs the human-approved baseline; clean reword clears)"
+        run: bash skills/self-review/scripts/check_baseline_drift_challenge/verify.sh
+
+      - name: "Run self-review refinement-regression challenge (fixed vs broke across runs; Mirror-Loop churn)"
+        run: bash skills/self-review/scripts/refinement_regression_challenge/verify.sh
+
+      - name: "Run self-review perspective-structure challenge (IMRAD headings + flat abstract in a Perspective; genre-gated, Minor)"
+        run: bash skills/self-review/scripts/check_perspective_structure_challenge/verify.sh
 
       - name: Run analyze-stats generated-code gate test
         run: bash skills/analyze-stats/tests/test_generated_code.sh
@@ -398,6 +560,9 @@ jobs:
       - name: Run check-reporting framework-naming gate test
         run: bash skills/check-reporting/tests/test_framework_naming.sh
 
+      - name: "Run check-reporting checklist-fidelity gate test (a checklist must match the official inventory, issue #352)"
+        run: bash skills/check-reporting/tests/test_checklist_fidelity.sh
+
       - name: Run check-reporting PRISMA-cascade test
         run: bash skills/check-reporting/tests/test_prisma_cascade.sh
 
@@ -407,11 +572,26 @@ jobs:
       - name: Run manage-refs duplicate-bibliography gate test
         run: bash skills/manage-refs/tests/test_reference_duplication.sh
 
+      - name: "Run self-review confounding findings-contract challenge (a status row is not a finding)"
+        run: bash skills/self-review/scripts/confounding_findings_challenge/verify.sh
+
+      - name: "Run self-review cohort-arithmetic binding challenge (a label digit is not an event count)"
+        run: bash skills/self-review/scripts/cohort_arith_binding_challenge/verify.sh
+
+      - name: "Run self-review AI-disclosure placement challenge (the journals disagree; the target decides)"
+        run: bash skills/self-review/scripts/disclosure_placement_challenge/verify.sh
+
       - name: Run self-review binning-consistency gate test
         run: bash skills/self-review/tests/test_binning_consistency.sh
 
       - name: Run self-review float citation-order gate test
         run: bash skills/self-review/tests/test_citation_order.sh
+
+      - name: Run self-review aphorism-density gate test
+        run: bash skills/self-review/tests/test_aphorism_density.sh
+
+      - name: Run self-review rhetorical-density gate test (antithesis + cleft, humanize P27)
+        run: bash skills/self-review/tests/test_rhetorical_density.sh
 
       - name: Run self-review claim-artifact (estimand provenance) gate test
         run: bash skills/self-review/tests/test_claim_artifact.sh
@@ -421,6 +601,12 @@ jobs:
 
       - name: Run self-review reviewer-team-consistency gate test
         run: bash skills/self-review/tests/test_reviewer_team_consistency.sh
+
+      - name: "Run sync-submission CRediT-integrity challenge (a taxonomy term with nothing behind it)"
+        run: bash skills/sync-submission/scripts/credit_integrity_challenge/verify.sh
+
+      - name: "Run sync-submission portal-mirror challenge (a declaration that never reaches the field that replaces it)"
+        run: bash skills/sync-submission/scripts/portal_mirror_challenge/verify.sh
 
       - name: Run sync-submission audit-dump leak gate test
         run: bash skills/sync-submission/tests/test_checklist_dump_leak.sh
@@ -434,11 +620,59 @@ jobs:
       - name: Run sync-submission scope-drift gate test
         run: bash skills/sync-submission/tests/test_scope_drift.sh
 
+      - name: Run sync-submission cover-letter title-drift gate test
+        run: bash skills/sync-submission/tests/test_cover_letter_title_drift.sh
+
       - name: Run sync-submission vN-docx assertion gate test
         run: bash skills/sync-submission/tests/test_vN_docx_assertion.sh
 
       - name: Run verify-refs pagination-placeholder gate test
         run: bash skills/verify-refs/tests/test_pagination_placeholder.sh
+
+      # --- Tests that shipped on disk but no workflow ran. check_test_wiring.py below is what
+      #     keeps this list from growing again by omission; these twelve were the standing backlog
+      #     it found on 2026-07-25 (six of them declared in a skill.yml CI never reads).
+      - name: "Run design-study adjustment-set challenge"
+        run: bash skills/design-study/scripts/adjustment_set_challenge/verify.sh
+
+      - name: "Run find-journal acceptance-readiness challenge"
+        run: bash skills/find-journal/scripts/acceptance_readiness_challenge/verify.sh
+
+      - name: "Run make-figures portal-TIFF export challenge"
+        run: bash skills/make-figures/scripts/export_portal_tiff_challenge/verify.sh
+
+      - name: "Run make-figures core-figure render challenge"
+        run: bash skills/make-figures/scripts/render_core_figures_challenge/verify.sh
+
+      - name: "Run meta-analysis extraction-assist challenge"
+        run: bash skills/meta-analysis/scripts/extract_assist_challenge/verify.sh
+
+      - name: "Run search-lit snowball challenge"
+        run: bash skills/search-lit/references/snowball_challenge/verify.sh
+
+      - name: Run meta-analysis screening-reconcile test
+        run: bash skills/meta-analysis/tests/test_screening_reconcile.sh
+
+      - name: Run model-sourcing model-provenance test
+        run: bash skills/model-sourcing/tests/test_model_provenance.sh
+
+      - name: Run present-paper backup-off-the-clock test
+        run: python3 skills/present-paper/tests/test_backup_off_the_clock.py
+
+      - name: Run present-paper markdown-parity test
+        run: python3 skills/present-paper/tests/test_md_parity.py
+
+      - name: Run Phase-1a gate test
+        run: bash tests/test_phase1a_gates.sh
+
+      - name: Run Phase-1c hook test
+        run: bash tests/test_phase1c_hooks.sh
+
+      - name: "Run check_test_wiring.py (a test CI never runs is a test that never runs)"
+        run: python3 scripts/check_test_wiring.py
+
+      - name: "Run test-wiring gate self-test (restore the real omission; the gate must FAIL)"
+        run: bash tests/test_test_wiring.sh
 
       - name: Verify demo manifest.lock files (reproducibility lock)
         run: |

@@ -33,6 +33,7 @@
 - `bash tests/test_wordcount_cap.sh`
 - `bash tests/test_assemble_supplement.sh`
 - `bash tests/test_disclosure_availability.sh`
+- `bash scripts/check_portal_field_residue_challenge/verify.sh  # deterministic, network-free`
 
 **Evidence** — `bundled_script`
 
@@ -44,6 +45,7 @@
 
 **Scripts** (`skills/sync-submission/scripts/`):
 
+- `_quote_match.py`
 - `_yaml_frontmatter.py`
 - `assemble_supplement.py`
 - `author_registry_example.yaml`
@@ -51,13 +53,21 @@
 - `build_marked_manuscript.py`
 - `check_asset_anonymization.py`
 - `check_checklist_dump_leak.py`
+- `check_credit_integrity.py`
 - `check_cross_artifact_stale.py`
 - `check_disclosure_availability.py`
 - `check_marked_manuscript.py`
+- `check_portal_field_residue.py`
+- `check_portal_field_residue_challenge/` (6 files)
+- `check_portal_mirror.py`
 - `check_wordcount_cap.py`
 - `cover_letter_drift_check.py`
+- `credit_integrity_challenge/` (3 files)
 - `cross_document_n_check.py`
 - `detect_copy_divergence.py`
+- `figure_portal_readiness_challenge/` (2 files)
+- `figure_portal_readiness_check.py`
+- `portal_mirror_challenge/` (13 files)
 - `preflight_gate.py`
 - `scope_drift_check.py`
 - `sync_submission.py`

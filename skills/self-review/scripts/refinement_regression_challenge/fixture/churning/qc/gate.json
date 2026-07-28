@@ -1,0 +1,1 @@
+{"detector": "check_baseline_drift", "manuscript": "synthetic", "baseline": "synthetic_v1", "claims": [{"verdict": "HEDGE_ACCRETION", "severity": "Minor", "detail": "hedge density up vs baseline", "where": "whole document"}], "summary": {"n_claims": 1, "verdict": "DRIFT_FLAGS"}}

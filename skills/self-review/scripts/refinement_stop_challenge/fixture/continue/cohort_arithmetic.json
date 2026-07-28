@@ -1,0 +1,1 @@
+{"detector": "check_cohort_arithmetic", "manuscript": "synthetic", "claims": [{"verdict": "CASCADE_SUM", "severity": "Major", "detail": "start N minus exclusions does not equal the analytic N", "where": "Results"}], "summary": {"n_claims": 1, "n_major": 1, "n_flag": 0, "verdict": "MAJOR_CANDIDATE"}}

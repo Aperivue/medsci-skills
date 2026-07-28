@@ -42,6 +42,7 @@
 - `domain-probes/` (23 files)
 - `exemplar_reviews/` (7 files)
 - `narrative_review_audit.md`
+- `review_draft_template.md`
 - `reviewer_calibration/` (2 files)
 - `reviewer_profiles/` (6 files)
 
@@ -49,6 +50,10 @@
 
 - `check_pdf_injection.py`
 - `check_pdf_injection_challenge/` (6 files)
+- `check_review_boxes.py`
+- `check_review_length.py`
+- `check_review_request_types.py`
+- `check_review_request_types_challenge/` (6 files)
 - `check_self_improvement_claims.py`
 - `scan_pdf_layers.py`
 

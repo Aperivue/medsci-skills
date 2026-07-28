@@ -1,0 +1,6 @@
+Refinement terminal-state: STOP_ZERO_EDIT
+  Floor gates:   0 Major, 0 Minor  (fixed point)
+  Ceiling pass:  0 finding(s)
+  Gates read:    check_cohort_arithmetic, check_editorial_impression
+  qc dir:        fixture/zero_edit
+  -> Floor is at its fixed point (0 Major, 0 Minor) and the ceiling is clean. The manuscript is submission-ready as-is. NO EDITS REQUIRED -- a zero-edit result is a valid PASS. Do not manufacture changes.

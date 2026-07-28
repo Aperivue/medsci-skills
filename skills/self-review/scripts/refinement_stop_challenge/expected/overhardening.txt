@@ -1,0 +1,6 @@
+Refinement terminal-state: STOP_OVERHARDENING
+  Floor gates:   0 Major, 0 Minor  (fixed point)
+  Ceiling pass:  2 finding(s)
+  Gates read:    check_cohort_arithmetic, check_editorial_impression
+  qc dir:        fixture/overhardening
+  -> Floor is at its fixed point (0 Major). The ceiling pass flags 2 accumulation signal(s) -- the draft has begun to over-harden. STOP additive refinement: do NOT run another add-a-caveat/defense pass. The only remaining action is SUBTRACTION (REMOVE / MOVE / TIGHTEN) and it is optional, not required for submission.

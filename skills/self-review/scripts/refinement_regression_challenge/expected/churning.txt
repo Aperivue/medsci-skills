@@ -1,0 +1,5 @@
+Refinement regression: CHURNING
+  fixed (resolved): 0   still open (carried): 0
+  broke (new):      1   resurfaced (churn):  1
+  qc dir: fixture/churning/qc   ledger: fixture/churning/ledger.jsonl
+  -> A previously-resolved finding reappeared (HEDGE_ACCRETION@whole document) -- the loop is re-deriving, not converging (the Mirror Loop). Stop revising and re-anchor; more passes will not help.

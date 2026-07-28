@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# NOTE: `findings` is the DEFECT list (UNADJUSTED_IMBALANCED only); the full per-covariate
+# audit table — including the ADJUSTED and EXPOSURE_DEFINING_EXEMPT status rows — is
+# `covariates`. Assertions about whether a covariate was RESOLVED or EXEMPT read
+# `covariates`; assertions about defects read `findings`. See confounding_findings_challenge.
 # Regression test for the confounding-completeness gate (self-review Phase 2.5e).
 # Synthetic, PII-free fixture mirroring the canonical failure pattern: five
 # measured covariates imbalanced by exposure (uric acid, pack-years, HDL, total
@@ -13,8 +17,10 @@ OUT="$(mktemp -t cc_XXXX).json"
 trap 'rm -f "$OUT"' EXIT
 
 fail=0
+ran=0
 check() {  # check "label" expr...
     local label="$1"; shift
+    ran=$((ran+1))
     if "$@" >/dev/null 2>&1; then printf '  PASS  %s\n' "$label"
     else printf '  FAIL  %s\n' "$label"; fail=$((fail+1)); fi
 }
@@ -79,7 +85,7 @@ for cov in he_sbp he_dbp b_chol_t b_chol_hdl b_tg b_uric b_hba1c he_bmi; do
     check "db-code adjusted (alias resolved): $cov" python3 -c "
 import json
 d=json.load(open('$DBOUT'))
-assert any(f['covariate']=='$cov' and f['in_adjustment_set'] for f in d['findings']), '$cov not resolved'
+assert any(f['covariate']=='$cov' and f['in_adjustment_set'] for f in d['covariates']), '$cov not resolved'
 "
 done
 for cov in alc he_wc he_hb he_glu; do
@@ -125,7 +131,8 @@ assert any(f['covariate']=='fib-4' and f['verdict']=='UNADJUSTED_IMBALANCED' for
 check "A4: defining covariate not a Major" python3 -c "
 import json
 d=json.load(open('$MSOUT'))
-assert all(f['verdict']=='EXPOSURE_DEFINING_EXEMPT' for f in d['findings'] if 'body mass' in f['covariate'])"
+assert any(f['verdict']=='EXPOSURE_DEFINING_EXEMPT' for f in d['covariates'] if 'body mass' in f['covariate'])
+assert not any('body mass' in f['covariate'] for f in d['findings'])"
 
 # 9. A4 + adjust the non-defining prognostic covariate -> clean (exit 0)
 python3 "$SCRIPT" --table1 "$MSFIX" --adjusted-list "age, FIB-4" \
@@ -133,6 +140,6 @@ python3 "$SCRIPT" --table1 "$MSFIX" --adjusted-list "age, FIB-4" \
     --strict >/dev/null 2>&1
 check "exit 0 when defining exempt + non-defining adjusted" test "$?" -eq 0
 
-echo "ran=$(( ${fail} + 0 )) fail=$fail"
+echo "ran=$ran fail=$fail"
 [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

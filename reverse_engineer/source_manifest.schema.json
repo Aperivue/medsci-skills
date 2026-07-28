@@ -72,6 +72,22 @@
           "type": "string",
           "description": "Required citation line when public_reuse_policy is cc_by_attribution. Optional otherwise."
         },
+        "split": {
+          "type": "string",
+          "enum": ["train", "heldout"],
+          "default": "train",
+          "description": "Which side of the development firewall this source sits on. train = may inform detectors, probes, exemplars, rubrics (the normal path). heldout = MEASUREMENT ONLY: the source exists to be scored against, and distill.py DENIES every reuse mode for it, including synthetic. A held-out paper that informs a public artifact stops being held out, and the fire-rate measured on it stops meaning anything. Setting this to heldout is one-way in practice: moving a source back to train invalidates every measurement already taken on it."
+        },
+        "frozen_at": {
+          "type": "string",
+          "description": "ISO-8601 date (YYYY-MM-DD) the source was sealed into the held-out split. REQUIRED when split is heldout: the claim a held-out measurement makes is 'no detector was built with knowledge of this paper', and only a freeze date that precedes the detector can support it. A held-out record without one is unverifiable and fails validation."
+        },
+        "coverage": {
+          "type": "object",
+          "additionalProperties": {"type": "string"},
+          "description": "Free-form axis -> value map describing WHAT DESIGN this paper is, so a held-out corpus can be checked for separation rather than merely counted (e.g. {\"design\": \"retrospective_diagnostic\", \"modality\": \"ct\", \"task\": \"detection\", \"venue_tier\": \"specialty\"}). Six papers that are all the same design are one design measured six times: a detector silent across them is silent on ONE pattern, and the fire rate's denominator is inflated. heldout_crossfire.py reports the per-axis distribution and flags concentration. Axes are deliberately unconstrained — declare the ones that distinguish YOUR corpus.",
+          "examples": [{"design": "retrospective_diagnostic", "modality": "ct", "task": "detection"}]
+        },
         "notes": {
           "type": "string",
           "description": "Free-text: why this license was assigned, what was learned, caveats."

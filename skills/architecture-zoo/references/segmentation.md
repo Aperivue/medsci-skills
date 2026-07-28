@@ -79,6 +79,59 @@ a 3-D model; do not collapse to independent slices if the structure is volumetri
 
 ---
 
+## The 2024–2026 wave — scale the CNN (and the rigour caveat)
+
+**Read this before adopting any "beats nnU-Net" architecture.** Isensee et al., "nnU-Net
+Revisited: A Call for Rigorous Validation in 3D Medical Image Segmentation" (*MICCAI* 2024,
+arXiv 2404.09556) re-ran the field under matched compute and pipeline and found the **CNN
+U-Net still wins**: Transformer- and Mamba-based nets did not beat a properly scaled nnU-Net,
+and most headline gains came from confounded comparisons. An ablation showed **U-Mamba's
+Mamba layers contribute nothing** — its gain was the residual U-Net it was bolted onto. So
+"newer" here means *a bigger CNN*, not a new paradigm. Adopt a Transformer/Mamba seg model
+only after `/model-validation` reproduces its claim **on your data**, never on its headline.
+
+### nnU-Net ResEnc presets (M / L / XL) — the current strong default
+- **Paper**: Isensee et al., nnU-Net Revisited, *MICCAI* 2024 (the ResEnc presets ship in
+  nnU-Net v2).
+- **Core idea**: nnU-Net with a **residual encoder** and preset compute budgets (M/L/XL) that
+  scale the network to modern GPUs — the accuracy frontier for 3-D segmentation as of 2026,
+  still self-configuring.
+- **When to use**: the **default to beat** when you have a tensor-core GPU and want maximum
+  accuracy; pick the preset by VRAM (M ≈ mid-range, L/XL for larger cards). Plain nnU-Net
+  stays the choice on limited compute (a Pascal-class GPU without tensor cores gains little).
+- **Reference impl**: `nnunetv2` (`-p nnUNetResEncUNetMPlans` / `L` / `XL`), MIC-DKFZ,
+  Apache-2.0. Integrate, do not reimplement.
+- **Validation setup**: identical to nnU-Net (its CV is development-time, not external);
+  **disclose the preset used** — a reduced preset chosen for compute reasons is a stated
+  deviation (`/model-evaluation`).
+
+### MedNeXt — a ConvNeXt-scaled CNN
+- **Paper**: Roy et al., "MedNeXt: Transformer-driven Scaling of ConvNets for Medical Image
+  Segmentation," *MICCAI* 2023.
+- **Core idea**: a fully ConvNeXt-style 3-D encoder–decoder with a scalable block design;
+  often tops the "revisited" benchmarks, at a higher training cost.
+- **When to use**: you want a modern CNN backbone that scales and can afford the extra
+  training time; a strong nnU-Net-adjacent option on BTCV/ACDC/AMOS-type tasks.
+- **Reference impl**: `MIC-DKFZ/MedNeXt` (Apache-2.0, code + weights — commercial OK).
+- **Validation setup**: as nnU-Net; report **training cost alongside accuracy** (its edge is
+  not free).
+
+### STU-Net — scalable + transferable (pretrained on TotalSegmentator)
+- **Paper**: Huang et al., "STU-Net: Scalable and Transferable Medical Image Segmentation
+  Models," 2023.
+- **Core idea**: a U-Net scaled from small to **1.4 B parameters, pretrained on the
+  TotalSegmentator corpus** (104 structures) — a transfer-learning starting point, not only a
+  from-scratch trainer.
+- **When to use**: you want a **pretrained** 3-D seg backbone to fine-tune on a small labelled
+  set (transfer), or a scalable baseline; pairs with `/model-scaffold` fine-tuning mode.
+- **Reference impl**: `uni-medical/STU-Net` (Apache-2.0, code + weights S/B/L/H — commercial
+  OK).
+- **Validation setup**: keep the fine-tuning set disjoint from the test patients; if the
+  pretraining corpus (TotalSegmentator) overlaps your task's public data, state it
+  (contamination — `/model-validation` MD1).
+
+---
+
 ## Instance / detection bridge
 
 ### Mask R-CNN (instance segmentation + detection)
@@ -98,13 +151,18 @@ a 3-D model; do not collapse to independent slices if the structure is volumetri
 ---
 
 ## Promptable / foundation segmentation
-SAM / MedSAM / MedSAM2 / SegVol / TotalSegmentator (released weights, little or no training)
+SAM / MedSAM / MedSAM2 / SegVol / TotalSegmentator and the **native-3-D interactive** models
+(nnInteractive / VISTA3D / SAM-Med3D — prompt-and-correct to accelerate expert labelling)
 live in `foundation_models.md`. For organ masks on CT with no training budget, start there
-(TotalSegmentator / MedSAM2) before building a U-Net.
+(TotalSegmentator / MedSAM2); when expert 3-D labels are the bottleneck, an interactive model
+turns hand-segmentation into a correction pass before you train a dedicated U-Net.
 
 ## Choosing among these
-2-D, custom, transparent → **U-Net / Attention U-Net (MONAI)**. 3-D, default → **nnU-Net**.
-Few labels / no training budget → **TotalSegmentator / MedSAM2** (`foundation_models.md`).
+2-D, custom, transparent → **U-Net / Attention U-Net (MONAI)**. 3-D, default → **nnU-Net**
+(→ **nnU-Net ResEnc M/L/XL** for maximum accuracy on a tensor-core GPU). Few labels / no
+training budget → **TotalSegmentator / MedSAM2** (`foundation_models.md`); pretrained backbone
+to fine-tune → **STU-Net**. Accelerate expert 3-D labelling → **interactive FM (nnInteractive /
+VISTA3D)** — mind the weight licence.
 Count + localise instances → **Mask R-CNN + FPN**. Always patient-level split, always Dice
 **and** a boundary metric per structure. Record the choice + paper, hand to `/model-scaffold`,
 validate with `/model-validation`.

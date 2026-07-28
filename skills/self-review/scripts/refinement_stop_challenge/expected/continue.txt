@@ -1,0 +1,6 @@
+Refinement terminal-state: CONTINUE
+  Floor gates:   1 Major, 0 Minor
+  Ceiling pass:  0 finding(s)
+  Gates read:    check_cohort_arithmetic, check_editorial_impression
+  qc dir:        fixture/continue
+  -> Floor gates report 1 Major finding(s) (rejection-for-cause). Genuine work remains -- resolve these before treating the loop as done.

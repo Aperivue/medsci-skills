@@ -15,6 +15,20 @@ import os
 import sys
 from pathlib import Path
 
+# The floor the README promises. Checked here as well as in the double-click installers, because
+# the failure it prevents is a clinician staring at a Python traceback: on 3.8 this file *parses*
+# (so there is no clean syntax error to explain itself) and then dies somewhere in the middle,
+# leaving a half-explained wall of text and no idea what to do next.
+MIN_PYTHON = (3, 9)
+if sys.version_info < MIN_PYTHON:
+    have = ".".join(str(n) for n in sys.version_info[:3])
+    sys.exit(
+        f"\nMedSci Skills needs Python {MIN_PYTHON[0]}.{MIN_PYTHON[1]} or newer. This computer has {have}.\n\n"
+        "  Install the latest Python from  https://www.python.org/downloads/\n"
+        "  then run this installer again.\n\n"
+        "Nothing has been changed on your computer.\n"
+    )
+
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # allow `import medsci_txn` when run as a script
 import medsci_txn  # noqa: E402
 
@@ -359,6 +373,22 @@ def main() -> int:
         log_path = write_log(log_lines)
         print(f"\nInstall log: {log_path}")
         return 1
+
+    # Say what ELSE this computer needs, while they are still looking at the screen.
+    #
+    # Every integrity detector is stdlib-only, so the install above is enough to use most of the
+    # toolkit. But a few skills need a program we do not ship — pandoc to render a manuscript into
+    # a journal-formatted Word file, poppler to read a submission PDF. Those skills already fail
+    # politely; the problem is that they fail *later*, in the middle of the work, to someone who
+    # will not go and install a package manager at that moment. Tell them now, when the answer is
+    # one command. Read-only, asks nothing, installs nothing, and can never fail the install.
+    if not args.dry_run:
+        try:
+            import doctor  # noqa: PLC0415
+
+            doctor.brief_summary(lambda m: log(m, log_lines))
+        except Exception:  # noqa: BLE001 - a setup *check* must never break an install that worked
+            pass
 
     _offer_contribution_reminders_once(log_lines)
     log("\nDone. Restart Claude Code, Codex, or Cursor before testing the skills.", log_lines)

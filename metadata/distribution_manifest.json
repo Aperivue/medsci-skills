@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "version": "5.21.0",
+  "version": "5.23.0",
   "owned_skills": [
     "academic-aio",
     "add-journal",
@@ -37,12 +37,14 @@
     "model-card",
     "model-evaluation",
     "model-scaffold",
+    "model-sourcing",
     "model-validation",
     "orchestrate",
     "peer-review",
     "polish-language",
     "preprocess-imaging",
     "present-paper",
+    "profile-imaging",
     "publish-skill",
     "radiomics-ml",
     "render-pdf-doc",

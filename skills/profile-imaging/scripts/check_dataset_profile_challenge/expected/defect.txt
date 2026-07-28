@@ -1,0 +1,21 @@
+=========================================
+  Dataset-Profile Gate (profile-imaging)
+=========================================
+  cases=10  splits={'train': 'labelled', 'test': 'unlabelled'}  median_fg=0.4000%
+  thresholds: spacing_ratio=2.0  imbalance_frac=0.01
+  [Major] LABEL_SHAPE_MISMATCH: label grid differs from the image grid; the pair is not usable supervision as-is
+           cases: s06
+  [Major] LABEL_EMPTY: case is in a labelled split but its label contains no foreground voxel
+           cases: s04
+  [Major] LABEL_VALUE_UNEXPECTED: label values outside the declared set [0, 1]
+           cases: s05
+  [Minor] LABEL_MISSING: case sits in a split declared labelled but has no label file
+           cases: s08
+  [Major] TEST_SET_UNLABELLED: split 'test' (2 case(s)) has no ground truth — it cannot yield Dice, HD95, or any held-out metric; carve the held-out set from labelled data
+  [Minor] SPACING_HETEROGENEOUS: z-spacing spans 1.5-8 mm (5.3x) and the plan declares no resampling
+  [Minor] ORIENTATION_MIXED: 2 orientation codes present (LPS, RAS) and no reorientation declared
+  [Minor] INTENSITY_SCALE_INCONSISTENT: 9/10 cases bottom out near air (<= -500) and the rest do not — mixed modality, or a rescale not applied to part of the cohort
+  [Minor] EXTREME_IMBALANCE: median foreground fraction 0.4000% is below 1.00% and the plan declares no Dice-family loss
+  [Major] ACCURACY_UNDER_IMBALANCE: the plan reports accuracy at median foreground 0.4000% — predicting background everywhere would score ~99.60%
+
+MAJOR candidate: 5 dataset defect(s) that block training as planned.

@@ -1,0 +1,5 @@
+Refinement regression: REGRESSION
+  fixed (resolved): 0   still open (carried): 1
+  broke (new):      1   resurfaced (churn):  0
+  qc dir: fixture/regression/qc   ledger: fixture/regression/ledger.jsonl
+  -> The last revision resolved 0 finding(s) but INTRODUCED 1 new one(s) (RATE_BACKCALC@Methods). Fixing raised the pass-rate while breaking something else -- review the new findings before continuing.

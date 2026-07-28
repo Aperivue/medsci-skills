@@ -115,8 +115,21 @@ def main() -> int:
     bivariate = table1_ids
     narrative_only = qualitative - bivariate
 
+    # A record that passed screening and was EXCLUDED at consensus carries a decision.
+    # A record that passed screening and is ABSENT from the consensus artifact carries
+    # none -- it fell out of the pipeline. Both leave `consensus_exclude` empty for that
+    # id, so without this split the second case flows into `qualitative` and then into
+    # `narrative_only`, where it is indistinguishable from a study legitimately lacking
+    # extractable data. That is how an eligible study is lost silently.
+    if args.consensus:
+        stage_transfer_loss = screening_include - consensus_ids
+    else:
+        stage_transfer_loss = set()
+    narrative_only_unadjudicated = narrative_only & stage_transfer_loss
+    narrative_only_adjudicated = narrative_only - stage_transfer_loss
+
     payload = {
-        "schema_version": 1,
+        "schema_version": 2,
         "sources": {
             "screening": str(screening_path),
             "consensus": args.consensus,
@@ -129,6 +142,9 @@ def main() -> int:
             "qualitative": sorted(qualitative, key=lambda x: (len(x), x)),
             "bivariate": sorted(bivariate, key=lambda x: (len(x), x)),
             "narrative_only": sorted(narrative_only, key=lambda x: (len(x), x)),
+            "narrative_only_adjudicated": sorted(narrative_only_adjudicated, key=lambda x: (len(x), x)),
+            "narrative_only_unadjudicated": sorted(narrative_only_unadjudicated, key=lambda x: (len(x), x)),
+            "stage_transfer_loss": sorted(stage_transfer_loss, key=lambda x: (len(x), x)),
         },
         "totals": {
             "k_screening_include": len(screening_include),
@@ -137,6 +153,9 @@ def main() -> int:
             "k_qualitative": len(qualitative),
             "k_bivariate": len(bivariate),
             "k_narrative_only": len(narrative_only),
+            "k_narrative_only_adjudicated": len(narrative_only_adjudicated),
+            "k_narrative_only_unadjudicated": len(narrative_only_unadjudicated),
+            "k_stage_transfer_loss": len(stage_transfer_loss),
         },
         "blocking_issues": [],
     }
@@ -146,6 +165,20 @@ def main() -> int:
             {
                 "code": "TABLE1_NOT_IN_QUALITATIVE",
                 "ids": sorted(bivariate - qualitative, key=lambda x: (len(x), x)),
+            }
+        )
+
+    if stage_transfer_loss:
+        payload["blocking_issues"].append(
+            {
+                "code": "STAGE_TRANSFER_LOSS",
+                "ids": sorted(stage_transfer_loss, key=lambda x: (len(x), x)),
+                "detail": (
+                    "Included at screening but absent from the consensus artifact -- neither "
+                    "included nor excluded, so no adjudication is recorded. Either restore these "
+                    "records to the consensus stage, or record an explicit exclusion decision for "
+                    "each. Do not leave them to flow into the narrative-only set."
+                ),
             }
         )
 

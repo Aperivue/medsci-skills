@@ -1,0 +1,5 @@
+Refinement regression: INDETERMINATE
+  fixed (resolved): 0   still open (carried): 0
+  broke (new):      0   resurfaced (churn):  0
+  qc dir: fixture/firstrun/qc   ledger: fixture/firstrun/ledger.jsonl
+  -> No prior ledger entry -- this is the first run. Re-run after a revision (with --append recording each run) to measure regression.

@@ -54,6 +54,20 @@ MIN_DAYS = 14
 # A release that fixes something already broken in the wild does not wait.
 HOTFIX = re.compile(r"^\s*\*\*Hotfix:?\*\*\s*(.+)$", re.MULTILINE | re.IGNORECASE)
 
+# The second exemption, and the reason it is not a loophole.
+#
+# Reason 3 above is that a version stops being a coordinate when there were four of them that
+# week. A measurement study inverts that: an experiment that reports "42 detectors, false-positive
+# rate X" has to name the artifact it measured, and a git SHA is a worse coordinate than a release
+# for anyone trying to reproduce it. So a release cut *in order to be cited* serves the same end
+# the waiting period serves, and waiting would not improve it.
+#
+# It is narrow by construction: the changelog must name the external artifact that needs the pin,
+# and the gate prints that name, so an unjustified use is visible in the CI log of the release that
+# used it. It does NOT waive the substance requirement — a version worth citing is a version worth
+# updating to.
+PINNED_REFERENCE = re.compile(r"^\s*\*\*Pinned reference:?\*\*\s*(.+)$", re.MULTILINE | re.IGNORECASE)
+
 # A release must carry something a user would notice. These headings do not qualify on their own.
 COSMETIC_ONLY = {"changed", "docs", "documentation", "internal", "chore", "ci"}
 
@@ -131,7 +145,14 @@ def audit(min_days: int) -> tuple[list[str], dict]:
     if hotfix:
         info["hotfix_reason"] = hotfix.group(1).strip()
 
-    if tag and info["days_since"] is not None and info["days_since"] < min_days and not hotfix:
+    pinned = PINNED_REFERENCE.search(section)
+    info["pinned_reference"] = bool(pinned)
+    if pinned:
+        info["pinned_reference_reason"] = pinned.group(1).strip()
+
+    waives_wait = bool(hotfix) or bool(pinned)
+
+    if tag and info["days_since"] is not None and info["days_since"] < min_days and not waives_wait:
         problems.append(
             f"{info['days_since']} day(s) since {tag[0]} — a release needs {min_days}.\n"
             f"      A release is an event, not a commit. Merge the work to main and let it "
@@ -142,7 +163,11 @@ def audit(min_days: int) -> tuple[list[str], dict]:
             f"data, it is a\n      security problem, or it produced a wrong result someone may "
             f"have believed — say so in the\n      changelog section and this passes:\n\n"
             f"          ## [{version}] - <date>\n\n"
-            f"          **Hotfix:** <what is broken for users right now>"
+            f"          **Hotfix:** <what is broken for users right now>\n\n"
+            f"      If instead an external artifact needs to cite an exact version — a paper "
+            f"reporting a\n      measurement taken against this toolkit, say — name it and this "
+            f"passes too:\n\n"
+            f"          **Pinned reference:** <the artifact that must name this version>"
         )
 
     if not substantive(section) and not hotfix:
@@ -175,6 +200,9 @@ def main() -> int:
           f"{info['days_since']} day(s) ago)")
     if info.get("hotfix"):
         print(f"  HOTFIX declared: {info['hotfix_reason']}")
+    if info.get("pinned_reference"):
+        # Printed so an unjustified use is visible in the CI log of the release that used it.
+        print(f"  PINNED REFERENCE declared: {info['pinned_reference_reason']}")
 
     if problems:
         print(f"\nRELEASE_CADENCE: {len(problems)} problem(s)\n")

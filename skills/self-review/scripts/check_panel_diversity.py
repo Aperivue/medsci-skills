@@ -7,7 +7,7 @@ themes (everyone flags "missing calibration") while whole high-risk axes go
 unprobed — the panel collapses to fewer effective lenses than reviewers, and
 the editor synthesis cannot tell monoculture from genuine consensus. This gate
 post-processes the reviewers' structured output (the panel_review_template
-schema the editor already collects) and reports three diversity failures:
+schema the editor already collects) and reports these diversity and panel-independence failures:
 
   UNCOVERED_AXIS     an expected high-risk axis for this research type produced
                      ZERO major findings across the whole panel. Mirrors the
@@ -22,6 +22,11 @@ schema the editor already collects) and reports three diversity failures:
                      added no independent signal. Distinct from healthy
                      CONSENSUS (a reviewer agreeing on SOME themes but also
                      raising at least one family nobody else did). (Flag)
+  SUBSTRATE_MONOCULTURE  every reviewer the roster declares shares the *generator's*
+                     model substrate — a same-model panel inherits the blind spots that
+                     produced the draft and is not an independent check. Fires only when
+                     the roster declares the generator's and the reviewers' substrates and
+                     none differs; absent substrate info => skipped. (Major)
 
 Healthy consensus is preserved: a finding family raised by ≥2 reviewers is a
 strength, not a defect. The gate only fires LENS_COLLAPSE when a reviewer's
@@ -37,6 +42,11 @@ INPUTS
            narrative (synonyms accepted). Overrides any value in the JSON.
            When unknown/absent, UNCOVERED_AXIS is skipped (cannot know the
            expected axes) and noted in the summary.
+  --roster  roster manifest of SPAWNED reviewers. A list of ids, or
+           {reviewers|roster: [{reviewer_id, substrate}]} with an optional top-level
+           "generator_substrate". Enables PANEL_UNDERRETURN (spawned vs returned) and
+           SUBSTRATE_MONOCULTURE (independence). substrate is a coarse lane label
+           ("claude" | "codex" | "gpt" | "human"), not a model version.
 
 OUTPUT
   A diversity table (stdout) and, with --out, a JSON artifact:
@@ -90,7 +100,19 @@ FAMILY_LEXICON: list[tuple[str, re.Pattern]] = [
         r"\bci\b|heterogeneit|\bi2\b|i\^?2|pooling|pooled|random[-\s]?effects|"
         r"multiplicit|multiple compar|\bp[-\s]?value|\bpower\b|sample size|"
         r"model specif|proportional hazard|missing data|imputation|competing risk|"
-        r"events per variable|overfitting|effect size|subdistribution", re.IGNORECASE)),
+        r"events per variable|overfitting|effect size|subdistribution|"
+        # Type-agnostic statistical vocabulary a reader / agreement study raises but the
+        # meta-analysis-flavoured list above missed — effect measures, resampling,
+        # inter-rater agreement, multiplicity siblings, common tests, Bayesian. Without
+        # these a statistics-dedicated reviewer's majors classified as "other" and the
+        # statistics axis looked uncovered (false UNCOVERED_AXIS Major).
+        r"odds ratio|hazard ratio|risk ratio|relative risk|rate ratio|"
+        r"bootstrap|permutation|jackknife|monte[-\s]?carlo|"
+        r"\bkappa\b|κ|inter[-\s]?rater|intraclass|\bicc\b|\bac1\b|concordance|"
+        r"bonferroni|false discovery|\bfdr\b|\bholm\b|family[-\s]?wise|"
+        r"wilcoxon|mann[-\s]?whitney|mcnemar|log[-\s]?rank|chi[-\s]?squared?|fisher'?s? exact|"
+        r"bayesian|credible interval|posterior distribution|standard deviation|standard error",
+        re.IGNORECASE)),
     ("clinical", re.compile(
         r"clinical|actionab|guideline|management|generali[sz]ab|applicab|"
         r"external validit|patient[-\s]?care|over(?:reach|claim)|"
@@ -157,8 +179,109 @@ def load_reviewers(obj) -> tuple[list[dict], str | None]:
     raise ValueError("panel JSON must be a list of reviewers or an object with a 'reviewers' list")
 
 
-def check(reviewers: list[dict], research_type: str | None) -> tuple[list[dict], dict]:
+def load_roster_ids(path: str | None) -> set[str] | None:
+    """The reviewer_ids that were SPAWNED (a roster manifest written before spawning).
+    Accepts a list of ids, a list of {reviewer_id: ...}, or {reviewers|roster: [...]}.
+    Returns None when no roster is given (roster checks then stay silent)."""
+    if not path:
+        return None
+    obj = json.loads(Path(path).read_text(encoding="utf-8"))
+    if isinstance(obj, list):
+        ids: set[str] = set()
+        for x in obj:
+            if isinstance(x, str):
+                ids.add(x)
+            elif isinstance(x, dict) and x.get("reviewer_id"):
+                ids.add(str(x["reviewer_id"]))
+        return ids
+    if isinstance(obj, dict):
+        revs = obj.get("reviewers") or obj.get("roster") or []
+        return {str(r["reviewer_id"]) for r in revs
+                if isinstance(r, dict) and r.get("reviewer_id")}
+    return set()
+
+
+def load_roster_substrates(path: str | None) -> tuple[str | None, dict[str, str]]:
+    """The generator's substrate and each spawned reviewer's substrate, from the roster
+    manifest. Returns (generator_substrate, {reviewer_id: substrate}); either may be empty
+    when the roster is a bare id list or omits substrate fields (SUBSTRATE_MONOCULTURE then
+    stays silent). Substrate is a coarse lane label ("claude" | "codex" | "gpt" | "human")."""
+    if not path:
+        return None, {}
+    obj = json.loads(Path(path).read_text(encoding="utf-8"))
+    if isinstance(obj, dict):
+        gen = obj.get("generator_substrate")
+        revs = obj.get("reviewers") or obj.get("roster") or []
+    elif isinstance(obj, list):
+        gen, revs = None, obj
+    else:
+        return None, {}
+    subs: dict[str, str] = {}
+    for r in revs:
+        if isinstance(r, dict) and r.get("reviewer_id") and r.get("substrate"):
+            subs[str(r["reviewer_id"])] = str(r["substrate"])
+    return (str(gen) if gen else None), subs
+
+
+def check(reviewers: list[dict], research_type: str | None,
+          roster_ids: set[str] | None = None,
+          generator_substrate: str | None = None,
+          reviewer_substrates: dict[str, str] | None = None) -> tuple[list[dict], dict]:
     claims: list[dict] = []
+
+    returned_ids = {str(rev.get("reviewer_id") or f"R{i + 1}")
+                    for i, rev in enumerate(reviewers)}
+
+    # 0) PANEL_UNDERRETURN — spawned (roster) vs returned (panel). The failure this
+    # exists for: a --panel run spawns N reviewers and some/all return nothing, so the
+    # panel JSON is thin or empty and NOTHING errors — the run reads as "completed".
+    # Set arithmetic over the two id lists turns a silent absence into a Major. Silent
+    # (no roster given): the caller did not record who was spawned, so nothing to compare.
+    if roster_ids is not None:
+        missing = sorted(roster_ids - returned_ids)
+        n_returned = len(reviewers)
+        if n_returned < 2 or missing:
+            if n_returned < 2:
+                detail = (f"only {n_returned} of {len(roster_ids)} rostered reviewer(s) returned "
+                          f"a parseable review; a panel with fewer than 2 returned reviews is a "
+                          f"FAILED run, not a thin one — do not synthesize it or report it as a "
+                          f"review. Non-returning: {', '.join(missing) or '(all)'}. Re-spawn on a "
+                          f"different substrate (or route to a human co-author) before treating "
+                          f"this as a panel.")
+            else:
+                detail = (f"{n_returned} of {len(roster_ids)} rostered reviewers returned; "
+                          f"{len(missing)} did not: {', '.join(missing)}. A missing reviewer is a "
+                          f"gap, not an absence — re-spawn the missing lens(es), or state "
+                          f"explicitly that synthesis used only the returned subset.")
+            claims.append({
+                "verdict": "PANEL_UNDERRETURN",
+                "severity": "Major",
+                "detail": detail,
+                "where": f"roster: {len(roster_ids)} spawned, {n_returned} returned",
+            })
+
+    # 0b) SUBSTRATE_MONOCULTURE — a generator/critic/verifier sharing a model substrate have
+    # correlated blind spots; a same-model-only panel is not an independent check. Fires only
+    # when the roster declares the generator's substrate AND >=1 reviewer's substrate, and none
+    # of the declared reviewer substrates differs from the generator's. Absent substrate info =>
+    # skip (older rosters / no --roster), so this never false-positives on an unlabelled panel.
+    if generator_substrate and reviewer_substrates:
+        declared = {rid: s for rid, s in reviewer_substrates.items() if s}
+        if declared:
+            gen = generator_substrate.strip().lower()
+            independent = sorted(rid for rid, s in declared.items() if s.strip().lower() != gen)
+            if not independent:
+                claims.append({
+                    "verdict": "SUBSTRATE_MONOCULTURE",
+                    "severity": "Major",
+                    "detail": (f"all {len(declared)} declared reviewer(s) share the generator's "
+                               f"substrate ('{generator_substrate}'); a same-model panel inherits the "
+                               f"generator's blind spots and is not an independent check. Route at "
+                               f"least one lens to a different substrate (the Codex adversarial path) "
+                               f"or a human co-author before treating this as an independent panel."),
+                    "where": f"substrate: generator={generator_substrate}, "
+                             f"reviewers={sorted(set(declared.values()))}",
+                })
 
     # Per-reviewer families (set of distinct families this reviewer raised as majors)
     rev_families: dict[str, set[str]] = {}
@@ -258,7 +381,7 @@ def check(reviewers: list[dict], research_type: str | None) -> tuple[list[dict],
     return claims, summary
 
 
-def analyze(panel: str, research_type_arg: str | None) -> dict:
+def analyze(panel: str, research_type_arg: str | None, roster_arg: str | None = None) -> dict:
     p = Path(panel)
     if not p.is_file():
         sys.stderr.write(f"ERROR: panel JSON not found: {panel}\n")
@@ -269,9 +392,24 @@ def analyze(panel: str, research_type_arg: str | None) -> dict:
     except (ValueError, json.JSONDecodeError) as exc:
         sys.stderr.write(f"ERROR: {exc}\n")
         sys.exit(2)
+    try:
+        roster_ids = load_roster_ids(roster_arg)
+        generator_substrate, reviewer_substrates = load_roster_substrates(roster_arg)
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        sys.stderr.write(f"ERROR: roster: {exc}\n")
+        sys.exit(2)
 
     research_type = normalize_research_type(research_type_arg) or normalize_research_type(rt_in_json)
-    claims, summary = check(reviewers, research_type)
+    claims, summary = check(reviewers, research_type, roster_ids,
+                            generator_substrate, reviewer_substrates)
+    if generator_substrate:
+        summary["generator_substrate"] = generator_substrate
+        summary["reviewer_substrates"] = reviewer_substrates
+    if roster_ids is not None:
+        returned = {str(rev.get("reviewer_id") or f"R{i + 1}") for i, rev in enumerate(reviewers)}
+        summary["rostered"] = len(roster_ids)
+        summary["returned"] = len(reviewers)
+        summary["not_returned"] = sorted(roster_ids - returned)
     n_major = sum(1 for c in claims if c["severity"] == "Major")
     summary["n_claims"] = len(claims)
     summary["n_major"] = n_major
@@ -297,13 +435,17 @@ def render(result: dict) -> str:
 def main() -> int:
     ap = argparse.ArgumentParser(description="Panel lens-diversity gate (Phase 2.6, --panel).")
     ap.add_argument("--panel", required=True, help="reviewers JSON (list or {reviewers:[...]})")
+    ap.add_argument("--roster", help="roster manifest of SPAWNED reviewer_ids written before "
+                                     "spawning (list of ids, or {reviewers|roster:[{reviewer_id}]}); "
+                                     "enables PANEL_UNDERRETURN when the returned panel is missing "
+                                     "rostered reviewers or has <2 returned")
     ap.add_argument("--research-type", help="survival|sr_ma|radiomics|dta|observational|narrative")
     ap.add_argument("--out", help="write JSON artifact to this path")
     ap.add_argument("--strict", action="store_true", help="exit 1 if any Major claim exists")
     ap.add_argument("--quiet", action="store_true", help="suppress stdout table")
     args = ap.parse_args()
 
-    result = analyze(args.panel, args.research_type)
+    result = analyze(args.panel, args.research_type, args.roster)
 
     if not args.quiet:
         print("=" * 41)

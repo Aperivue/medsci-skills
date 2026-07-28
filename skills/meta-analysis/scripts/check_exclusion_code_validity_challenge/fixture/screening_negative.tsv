@@ -1,0 +1,6 @@
+record_id	exclusion_code	exclusion_reason
+201	F1	Duplicate publication
+202	F2	No comparative data
+203	F4	Wrong target population
+204	F5	Insufficient follow-up
+205	F2	No comparative data

@@ -37,12 +37,23 @@ ABBR_WHITELIST = {
     "ID", "OK", "PDF", "URL", "HTML", "API", "AND", "OR", "NOT", "ROC",
 }
 
-# US ↔ UK spelling families: canonical "us" form -> regex matching both.
+# US ↔ UK spelling families: canonical "us" form -> regex matching the UK variant.
+#
+# PRECISION NOTE — do NOT "simplify" the first four back to a trailing `\w*`. The -ise/-ize
+# families collide with words that are IDENTICAL in both dialects, and a greedy suffix match
+# counts them as UK evidence:
+#     analys + \w*        -> "analysis", "analyses"      (universal nouns)
+#     organis + \w*       -> "organism", "organisms"     (universal)
+#     characteris + \w*   -> "characteristic(s)"         (universal — and the single most
+#                                                         common table label in medicine)
+#     optimis + \w*       -> "optimism"                  (universal)
+# Enumerating the genuinely dialectal inflections keeps the US/UK tally honest. (randomise /
+# standardise have no universal collision, so their `\w*` form is left alone.)
 SPELLING_FAMILIES = [
-    ("analyze", r"\banalys[ei]([sdz]|zing|sing|zed|sed)?\b", r"analy(s)"),
-    ("organize", r"\borganis[ei]?\w*\b", r"organis"),
-    ("characterize", r"\bcharacteris\w*\b", r"characteris"),
-    ("optimize", r"\boptimis\w*\b", r"optimis"),
+    ("analyze", r"\banalys(e|ed|ing|able)\b", r"analy(s)"),
+    ("organize", r"\borganis(e|es|ed|ing|ation|ations|ational|er|ers)\b", r"organis"),
+    ("characterize", r"\bcharacteris(e|es|ed|ing|ation|ations)\b", r"characteris"),
+    ("optimize", r"\boptimis(e|es|ed|ing|ation|ations)\b", r"optimis"),
     ("randomize", r"\brandomis\w*\b", r"randomis"),
     ("standardize", r"\bstandardis\w*\b", r"standardis"),
     ("tumor", r"\btumour(s)?\b", r"tumour"),
@@ -234,6 +245,37 @@ def check_units(lines):
     return out
 
 
+# A float title/caption line: "**Table 2.** ...", "Figure 1 ...".
+FLOAT_TITLE_RE = re.compile(r"^\s*\*{0,2}\s*(?:Table|Figure)\s+\d+", re.IGNORECASE)
+# Thousands-grouped integers: comma style (3,681) and period/European style (3.681).
+COMMA_GROUP_RE = re.compile(r"\b\d{1,3}(?:,\d{3})+\b")
+PERIOD_GROUP_RE = re.compile(r"\b\d{1,3}(?:\.\d{3})+\b")
+
+
+def check_thousands_separator(lines):
+    """Float-title thousands-separator drift. High-precision: only flags when the
+    SAME integer appears comma-grouped somewhere (e.g. "3,681" in the body) AND
+    period-grouped inside a float title/caption (e.g. "n = 3.681"). This avoids the
+    decimal ambiguity — a genuine 3-decimal number never also appears comma-grouped."""
+    out = []
+    comma_vals = {}  # normalized digits -> first line it appears comma-grouped
+    for i, line in enumerate(lines, 1):
+        for m in COMMA_GROUP_RE.finditer(line):
+            comma_vals.setdefault(m.group(0).replace(",", ""), i)
+    if not comma_vals:
+        return out
+    for i, line in enumerate(lines, 1):
+        if not FLOAT_TITLE_RE.match(line):
+            continue
+        for m in PERIOD_GROUP_RE.finditer(line):
+            norm = m.group(0).replace(".", "")
+            if norm in comma_vals:
+                out.append((i, f'"{m.group(0)}" in a float title uses a period thousands-separator '
+                               f'while the body writes it "{int(norm):,}" (L{comma_vals[norm]}) — '
+                               f'harmonize the thousands separator across titles and body'))
+    return out
+
+
 # --------------------------------------------------------------------------- #
 # Report
 # --------------------------------------------------------------------------- #
@@ -265,6 +307,7 @@ def main(argv=None):
     hyph = check_hyphenation(lines)
     small = check_small_numbers(lines)
     units = check_units(lines)
+    thousands = check_thousands_separator(lines)
 
     report = ["# Consistency Lint Report", ""]
     total = 0
@@ -277,6 +320,7 @@ def main(argv=None):
         ("Hyphenation / terminology", hyph),
         ("Small numbers in prose", small),
         ("Units", units),
+        ("Thousands separator (title vs body)", thousands),
     ]:
         sec, n = section(title, items)
         report += sec

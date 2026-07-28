@@ -1,0 +1,8 @@
+=========================================
+  Dataset-Profile Gate (profile-imaging)
+=========================================
+  cases=6  splits={'train': 'labelled', 'test': 'labelled'}  median_fg=0.4000%
+  thresholds: spacing_ratio=2.0  imbalance_frac=0.01
+  (no findings)
+
+OK: dataset profile is intact and the declared plan matches what the data looks like.

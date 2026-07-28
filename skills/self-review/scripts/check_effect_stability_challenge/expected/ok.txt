@@ -1,0 +1,8 @@
+=========================================
+ Effect Stability (Phase 2.5)
+=========================================
+| Check | Severity | Detail |
+|---|---|---|
+| (none) | — | no headline estimate has an order-of-magnitude interval |
+
+OK: no headline estimate spans an order of magnitude without a caveat.

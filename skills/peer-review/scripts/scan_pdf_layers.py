@@ -30,12 +30,41 @@ import sys
 
 try:
     import fitz  # PyMuPDF
-except ImportError:
-    sys.exit("scan_pdf_layers.py requires PyMuPDF: pip install pymupdf")
+except ImportError:  # keep the module importable so the pure helpers stay testable
+    fitz = None     # main() re-raises this as a clean CLI error
 
 
 def _int_to_rgb(c: int) -> list[int]:
     return [(c >> 16) & 0xFF, (c >> 8) & 0xFF, c & 0xFF]
+
+
+def _xmp_text(doc) -> str:
+    """The document's XMP packet, XML tags stripped, or "" if there is none.
+
+    PyMuPDF exposes two similarly named things and only one of them is the
+    packet: ``get_xml_metadata()`` returns the XMP as a ``str``, whereas
+    ``xref_xml_metadata()`` returns the *xref number* of that object as an
+    ``int``. Feeding the latter to ``re.sub`` raises ``TypeError`` — and since a
+    document with no XMP yields xref 0, which is falsy and skips the branch, the
+    crash fires only on PDFs that actually carry a packet. Those are exactly the
+    documents this scan exists to inspect, so the metadata vector was dead on
+    every input where it mattered.
+
+    Type is therefore checked rather than trusted, and every failure degrades to
+    "no XMP" instead of propagating. This is a security gate run before a model
+    reads the manuscript; a traceback here reads to the operator as "nothing
+    found", which is the worst possible way to fail.
+    """
+    getter = getattr(doc, "get_xml_metadata", None)
+    if getter is None:
+        return ""
+    try:
+        xmp = getter()
+    except Exception:
+        return ""
+    if not isinstance(xmp, str) or not xmp.strip():
+        return ""
+    return re.sub(r"<[^>]+>", " ", xmp)
 
 
 def _page_background(page: "fitz.Page") -> list[int]:
@@ -121,12 +150,9 @@ def extract(path: str) -> dict:
                       "metadata": {}}
 
     meta = {k: v for k, v in (doc.metadata or {}).items() if v}
-    try:
-        xmp = doc.xref_xml_metadata() if hasattr(doc, "xref_xml_metadata") else ""
-    except Exception:
-        xmp = ""
+    xmp = _xmp_text(doc)
     if xmp:
-        meta["_xmp"] = re.sub(r"<[^>]+>", " ", xmp)  # strip XML tags, keep text
+        meta["_xmp"] = xmp
     manifest["metadata"] = meta
 
     for pno, page in enumerate(doc, start=1):
@@ -159,6 +185,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("pdf", help="manuscript PDF to extract")
     ap.add_argument("-o", "--out", help="write manifest here (default: stdout)")
     args = ap.parse_args(argv)
+
+    if fitz is None:
+        sys.exit("scan_pdf_layers.py requires PyMuPDF: pip install pymupdf")
 
     manifest = extract(args.pdf)
     text = json.dumps(manifest, ensure_ascii=False, indent=2)

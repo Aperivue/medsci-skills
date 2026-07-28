@@ -180,8 +180,45 @@ and it would have shipped to reviewers. The full-author cross-check catches it.
   + et al., by design) would otherwise trip the count check; mark such entries
   with `_audit_truncated = <N>` to downgrade the count mismatch to a note.
 
+## Claim Fidelity — does the source say what you say it says?
+
+`verify_refs.py` answers whether a reference is real and whose it is. It cannot answer
+whether the *sentence citing it* is true of it, and a citation can be perfectly real while
+the claim attached to it is not. That gap is where the failure lives: the DOI resolves, the
+authors match, the reference list renders, and the sentence is still wrong.
+
+`scripts/check_claim_fidelity.py` checks the claims that have a checkable answer, against
+full texts you have already downloaded and converted (`/fulltext-retrieval` produces exactly
+that layout — it never fetches anything itself):
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/check_claim_fidelity.py" \
+  --manuscript manuscript/manuscript.md \
+  --fulltext-dir fulltext/ --bib manuscript/_src/refs.bib \
+  --out qc/claim_fidelity.json --strict
+```
+
+| Verdict | Severity | Fires when |
+|---|---|---|
+| `CITED_QUOTE_ABSENT` | major | Quoted text attributed to a source is not in it in any reading order. |
+| `CITED_QUOTE_UNRESOLVED` | prompt | The quote matched only with foreign tokens wedged in, or a word or two missing — the signature of a dirty extraction, not of a fabrication. Look; do not assume. |
+| `ATTRIBUTION_UNSUPPORTED` | prompt | Not one content word of the attributed claim appears in the source, in any form. Paraphrase normally keeps at least one of the source's own terms. |
+| `ORDINAL_CLAIM_UNSUPPORTED` | prompt | "reports three strategies [12]" where the source discusses that noun but never that count near it. |
+
+Only the quote verdict can fail `--strict`. Everything else is a prompt to go read the
+source, because paraphrase is legitimate and a gate that blocks on it would be turned off.
+
+**Read the "not checked" lines.** A citation with no full text on disk is reported as
+unresolved and never guessed at, and a source whose extracted text is an abstract is reported
+as too short to judge — absence proves nothing against an abstract. Silence from this
+detector means "nothing checkable was wrong", which is not the same as "everything is right".
+
 ## What This Skill Does NOT Do
 
+- Does not fetch full texts (use `/fulltext-retrieval`); claim fidelity reads converted text
+  off disk so it stays deterministic and CI-runnable.
+- Does not judge whether a citation is topically appropriate — only whether the specific
+  quoted, attributed, or counted claim is supported by the source's own words.
 - Does not generate new references from memory.
 - Does not replace missing citations with plausible alternatives without
   `/search-lit` or user approval.

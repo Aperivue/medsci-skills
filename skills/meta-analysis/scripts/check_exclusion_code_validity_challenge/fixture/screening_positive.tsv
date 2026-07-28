@@ -1,0 +1,7 @@
+record_id	exclusion_code	exclusion_reason
+101	F1	Duplicate publication
+102	F2	single-arm study, no comparator arm
+103	F2	single-arm cohort (uncontrolled)
+104	F3	Overlapping cohort with an earlier report
+105	F9	Wrong outcome measure reported
+106	F1	Duplicate publication

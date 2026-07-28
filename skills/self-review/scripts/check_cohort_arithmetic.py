@@ -21,7 +21,16 @@ section echoes the same wrong number:
                        total and sum(stratum events) == total events. A tier split
                        whose denominators sum above the unique cohort double-counts
                        subjects; a table where every stratum n equals the grand
-                       total is a stratum-total mis-entry.
+                       total is a stratum-total mis-entry. This also fires on an
+                       in-text PROSE enumeration presented as an exhaustive split
+                       of a stated total (>=3 "count (pct%)" categories with
+                       partition-cue language, e.g. "of the 289 cases, 37 (12.8%)
+                       ... 185 (64.0%) ... 103 (35.6%) ...") when the counts do not
+                       sum to the total or the percentages do not sum to ~100% --
+                       the sign that a non-exclusive component was mixed among the
+                       mutually exclusive categories. The partition-cue gate keeps
+                       it off legitimate overlapping-attribute prose (comorbidity
+                       prevalence).
   4. ANALYSIS_UNIT_   when --data carries a subject ID and records > unique
      UNDISCLOSED       subjects (health-screening / EMR / registry repeat
                        attendees), observations are non-independent -> anti-
@@ -48,7 +57,10 @@ INPUTS
 OUTPUT
   A reconciliation table (stdout) and, with --out, a JSON artifact:
     {manuscript, data, claims[{verdict, severity, detail, where}], summary}
-  verdicts RATE_BACKCALC / CASCADE_SUM / PARTITION_OVERLAP are Major candidates.
+  verdicts RATE_BACKCALC / CASCADE_SUM / PARTITION_OVERLAP are Major candidates;
+  FOLLOWUP_VS_CRITERION, SUBGROUP_DUPLICATE_CI (the same subgroup rendered twice in one
+  table with divergent confidence intervals) and NESTED_MODEL_NO_BASELINE (nested
+  discrimination models sharing a covariate set with no base-model row / ΔC) are Minor.
   Exit 1 (with --strict) when any Major-severity claim exists.
 
 Stdlib-only (csv / json / re / argparse). Exit codes: 0 clean (or report-only),
@@ -113,6 +125,10 @@ def _is_total_label(label: str) -> bool:
     return any(n == t or n.startswith(t + " ") or n == t.replace(" ", "") for t in TOTAL_LABELS)
 
 
+# A hint shorter than this is matched only exactly — never as a substring.
+MIN_SUBSTRING_HINT = 3
+
+
 def _pick(header: list[str], hints: tuple[str, ...]):
     norm = [_norm(h) for h in header]
     for hint in hints:
@@ -120,10 +136,18 @@ def _pick(header: list[str], hints: tuple[str, ...]):
         for i, col in enumerate(norm):
             if col == h and h:
                 return i
+    # Substring fallback, with the guard the exact pass does not need. A hint of one or two
+    # characters has no business matching a longer word: the hint "n" found "Normal" in the
+    # header of an exposure-stratified Table 1, so every characteristic row's Normal-column
+    # value was summed as if it were a stratum size (8,299 "strata" against a "total" of 194).
+    # The same one-character-substring bug was fixed once in check_confounding_completeness
+    # and never here. Longer hints still match, but only on a word boundary.
     for hint in hints:
         h = _norm(hint)
+        if len(h) < MIN_SUBSTRING_HINT:
+            continue
         for i, col in enumerate(norm):
-            if h and h in col:
+            if col and re.search(rf"(?<![a-z0-9]){re.escape(h)}(?![a-z0-9])", col):
                 return i
     return None
 
@@ -138,9 +162,17 @@ RATE_LINE_RE = re.compile(
 #       fractional part ("0.97") is never captured as the numerator;
 #   (b) drop the bare "incident" alternative, which matched the word in "incident
 #       rate" and bound the nearest stray small integer (the false-positive source).
+#   (c) a HYPHEN or slash before the digit means it belongs to a label, not to the count:
+#       "882 KSAR S4-1 events occurred" bound the 1 of "S4-1" and reported the rate as
+#       irreconcilable with 1 event. When the count cannot be bound the check must say
+#       nothing — an unbindable numerator is not evidence of an arithmetic error.
 EVENTS_NEAR_RE = re.compile(
-    r"(?<![A-Za-z0-9.])([0-9][0-9,]*)\s*(?:incident\s+)?(?:events?|cases?)\b", re.I)
-PY_NEAR_RE = re.compile(r"([0-9][0-9,]*)\s*(?:person[-\s]?years?|py\b)", re.I)
+    r"(?<![A-Za-z0-9.\-\u2013\u2014/])([0-9][0-9,]*)\s*(?:incident\s+)?(?:events?|cases?)\b", re.I)
+# Person-time is frequently reported to one decimal ("35,581.3 person-years"). Without the
+# decimal branch the integer part failed to reach the noun and the FRACTIONAL DIGIT matched
+# instead — a cohort of "3 person-years" — so the same lookbehind applies here.
+PY_NEAR_RE = re.compile(
+    r"(?<![A-Za-z0-9.\-\u2013\u2014/])([0-9][0-9,]*(?:\.[0-9]+)?)\s*(?:person[-\s]?years?|py\b)", re.I)
 
 
 def _sentences(text: str) -> list[str]:
@@ -172,8 +204,8 @@ def check_rate_text(text: str) -> list[dict]:
         em = EVENTS_NEAR_RE.search(line)
         # the PY in "rate per <scale> person-years" is the scale, not the cohort PY;
         # the cohort PY is a *different*, larger person-time figure in the same span.
-        py_candidates = [int(g.replace(",", "")) for g in PY_NEAR_RE.findall(line)]
-        py_candidates = [p for p in py_candidates if p != int(scale)]
+        py_candidates = [float(g.replace(",", "")) for g in PY_NEAR_RE.findall(line)]
+        py_candidates = [p for p in py_candidates if abs(p - scale) > 1e-9]
         if not em or not py_candidates:
             continue
         events = _num(em.group(1))
@@ -188,7 +220,7 @@ def check_rate_text(text: str) -> list[dict]:
                 "verdict": "RATE_BACKCALC",
                 "severity": "Major",
                 "detail": (f"reported rate {rate:g} per {int(scale):,} PY does not recompute "
-                           f"from {int(events):,} events / {int(py):,} PY "
+                           f"from {int(events):,} events / {py:,.6g} PY "
                            f"(= {expected:.4g} per {int(scale):,})"),
                 "where": line.strip()[:160],
             })
@@ -408,6 +440,126 @@ def check_partition_csv(rows: list[dict]) -> list[dict]:
     return _partition_from_rows(label_of, n_of, ev_of, rows, source="--data partition")
 
 
+# Prose partition: an in-text enumeration presented as an exhaustive split of a
+# stated total. A sentence that decomposes N into >=3 "count (pct%)" categories
+# with partition-cue language, but whose counts do not sum to N (or whose
+# percentages do not sum to ~100), has mixed a non-exclusive component in among
+# mutually exclusive categories -- a "these don't add to N" reviewer flag. The
+# partition-cue gate is what keeps this off legitimate overlapping-attribute prose
+# ("210 (72.7%) had hypertension, 140 (48.4%) had diabetes, ..."): comorbidity
+# prevalence is not a partition, and its counts legitimately sum above N.
+_PART_CUE_RE = re.compile(
+    r"\b(?:decomposed|broke\s+down|broken\s+down|breakdown|comprised|"
+    r"consist(?:ed|ing)\s+of|partitioned|categori[sz]ed|classified|of\s+which|"
+    r"identified\s+(?:by|as|through)|attributable\s+to|ascertained\s+(?:by|through|via)|"
+    r"accounted\s+for|respectively)\b", re.I)
+_PART_TOTAL_RE = re.compile(
+    r"\b(?:among|of|the|these|totall?ing)\s+(?:the\s+)?([0-9][0-9,]{2,})\s+"
+    r"(?:incident\s+|total\s+|remaining\s+|eligible\s+|included\s+)?"
+    r"(?:cases|patients|subjects|participants|individuals|events|records|women|men|"
+    r"children|deaths|lesions|nodules|tumou?rs|samples|episodes|visits)\b", re.I)
+_PART_CAT_RE = re.compile(r"\b([0-9][0-9,]{0,})\s*\(\s*([0-9]+(?:\.[0-9]+)?)\s*%\s*\)")
+_SENT_SPLIT_RE = re.compile(r"(?<=[.!?])\s+(?=[A-Z(\"'])")
+# Bound the scan to a paragraph so an enumeration cannot accrue counts across a
+# blank line or a markdown header (a partition claim lives in one sentence).
+_BLOCK_SPLIT_RE = re.compile(r"\n\s*\n|\n#{1,6}\s")
+
+
+def _iter_partition_sentences(text: str):
+    for block in _BLOCK_SPLIT_RE.split(text):
+        for sent in _SENT_SPLIT_RE.split(block):
+            yield sent
+
+
+def check_partition_text(text: str) -> list[dict]:
+    claims = []
+    for sent in _iter_partition_sentences(text):
+        tm = _PART_TOTAL_RE.search(sent)
+        if not tm:
+            continue
+        cats = _PART_CAT_RE.findall(sent)
+        if len(cats) < 3:
+            continue
+        if not _PART_CUE_RE.search(sent):
+            continue  # cue gate: only an exhaustive-split claim, never overlapping attributes
+        total = _num(tm.group(1))
+        counts = [_num(c) for c, _ in cats]
+        if total is None or any(c is None for c in counts):
+            continue
+        sum_c = sum(counts)
+        sum_p = sum(float(p) for _, p in cats)
+        if abs(sum_c - total) >= 1:
+            claims.append({
+                "verdict": "PARTITION_OVERLAP",
+                "severity": "Major",
+                "detail": (f"enumerated counts sum to {int(sum_c):,} but the stated total is "
+                           f"{int(total):,} (difference {int(sum_c - total):+,}); a non-exclusive "
+                           f"component may be mixed among the mutually exclusive categories"),
+                "where": sent.strip()[:160],
+            })
+        elif not (99.0 <= sum_p <= 101.0):
+            claims.append({
+                "verdict": "PARTITION_OVERLAP",
+                "severity": "Major",
+                "detail": (f"category percentages sum to {sum_p:.1f}% (expected ~100%) for an "
+                           f"exhaustive split of {int(total):,}; a non-exclusive component may be "
+                           f"mixed among the mutually exclusive categories"),
+                "where": sent.strip()[:160],
+            })
+    return claims
+
+
+# --- Check: FOLLOWUP_VS_CRITERION ------------------------------------------
+# A reported "median follow-up was 102 days" against a reference standard that
+# requires "size stability for >=24 months" reads, to a reviewer, as if the
+# benign classification had 102 days to work with. Usually the 102 days is the
+# index-visit interval and the total observation window (median 442 days) is
+# simply never stated. Pure arithmetic: if the shortest reported follow-up is
+# below the longest duration threshold the outcome/reference standard requires,
+# and no total-observation window is labelled, ask which quantity is reported.
+_DUR_UNIT_DAYS = {"day": 1.0, "week": 7.0, "month": 30.44, "year": 365.25}
+_FOLLOWUP_RE = re.compile(
+    r"(?:median|mean)\s+follow[-\s]?up[^.]{0,40}?(\d[\d,]*(?:\.\d+)?)\s*(day|week|month|year)s?", re.I)
+_CRITERION_CUE = re.compile(
+    r"stabilit|stable|reference standard|benign if|confirmed by|criterion|classified as|"
+    r"resolution over|no growth for|unchanged for|followed for", re.I)
+_CRITERION_DUR_RE = re.compile(
+    r"(?:>=|≥|at least|minimum of|for|over)\s*(\d+)\s*(day|week|month|year)s?", re.I)
+_TOTAL_WINDOW_RE = re.compile(
+    r"total observation|observation period|overall follow[-\s]?up|maximum follow[-\s]?up|"
+    r"observed for a (?:median|maximum) of|total follow[-\s]?up", re.I)
+
+
+def check_followup_criterion(text: str) -> list[dict]:
+    fu = [(_num(v) or 0) * _DUR_UNIT_DAYS[u.lower()]
+          for v, u in _FOLLOWUP_RE.findall(text)]
+    fu = [d for d in fu if d > 0]
+    if not fu:
+        return []
+    # criterion thresholds: a duration inside a reference-standard/outcome cue window
+    crit = []
+    for m in _CRITERION_DUR_RE.finditer(text):
+        win = text[max(0, m.start() - 120):m.end() + 40]
+        if _CRITERION_CUE.search(win):
+            crit.append(int(m.group(1)) * _DUR_UNIT_DAYS[m.group(2).lower()])
+    if not crit:
+        return []
+    min_fu, max_crit = min(fu), max(crit)
+    if min_fu >= max_crit:
+        return []
+    if _TOTAL_WINDOW_RE.search(text):
+        return []  # a distinctly-labelled total-observation window is already reported
+    return [{
+        "verdict": "FOLLOWUP_VS_CRITERION",
+        "severity": "Minor",
+        "detail": (f"the shortest reported follow-up ({min_fu / 30.44:.1f} months / {min_fu:.0f} days) "
+                   f"is below a {max_crit / 30.44:.0f}-month duration criterion in the outcome/reference "
+                   f"standard, and no total-observation window is reported — state whether the reported "
+                   f"follow-up is the index-visit interval or the total observation, and give the latter"),
+        "where": (_FOLLOWUP_RE.search(text).group(0)[:120] if _FOLLOWUP_RE.search(text) else "follow-up"),
+    }]
+
+
 # --- Check 4: ANALYSIS_UNIT_UNDISCLOSED ------------------------------------
 # Health-screening / EMR / registry cohorts routinely have repeat attendees, so a
 # record count is not a subject count. When the data carry a subject ID and
@@ -495,6 +647,138 @@ def load_csv(path: str) -> list[dict]:
         return [r for r in csv.DictReader(f)]
 
 
+# Effect estimate with a bracketed CI: "4.95 (4.32-5.94)" / "4.95 [4.32 to 5.94]".
+_EFFECT_CI_RE = re.compile(
+    r"(?P<pt>\d+(?:\.\d+)?)\s*[\(\[]\s*"
+    r"(?P<lo>\d+(?:\.\d+)?)\s*(?:[-–—]|to|,)\s*(?P<hi>\d+(?:\.\d+)?)\s*[\)\]]"
+)
+
+
+def check_duplicate_subgroup_ci(text: str) -> list[dict]:
+    """Within one GFM table, two rows that share the SAME effect estimate AND the same
+    identity counts (n / events) but print DIFFERENT confidence intervals are the same
+    subgroup rendered twice (relabeled) with independently-resampled uncertainty — a
+    reviewer asks why one group has two intervals. High precision by construction: it
+    requires the non-effect integer cells (n, events) to be IDENTICAL between the rows,
+    so two genuinely distinct subgroups with a coincidentally-equal point estimate do
+    not fire; a table with no count columns is left alone."""
+    claims: list[dict] = []
+    for tbl in _parse_md_tables(text):
+        if len(tbl) < 3:            # header + at least two body rows
+            continue
+        groups: dict = {}
+        for row in tbl[1:]:
+            eff = eff_idx = None
+            for ci, cell in enumerate(row):
+                m = _EFFECT_CI_RE.search(cell)
+                if m:
+                    eff, eff_idx = m, ci
+                    break
+            if eff is None:
+                continue
+            # Identity = the count columns (n / events), NOT the label (col 0, which is
+            # exactly what differs between the two relabeled rows) and NOT the effect+CI
+            # cell. _ints_in already drops decimals, so CI bounds / p-values / percents
+            # do not enter the identity.
+            ids: list[int] = []
+            for ci, cell in enumerate(row):
+                if ci not in (0, eff_idx):
+                    ids += _ints_in(cell)
+            if not ids:             # need n/events to confirm it is the same subgroup
+                continue
+            key = (eff.group("pt"), tuple(sorted(ids)))
+            label = (row[0] if row else "").strip()
+            groups.setdefault(key, []).append(((eff.group("lo"), eff.group("hi")), label))
+        for (pt, ids), members in groups.items():
+            cis = {ci for ci, _ in members}
+            if len(members) >= 2 and len(cis) >= 2:
+                labels = [lab for _, lab in members if lab]
+                intervals = "; ".join(f"{lo}–{hi}" for lo, hi in sorted(cis))
+                claims.append({
+                    "verdict": "SUBGROUP_DUPLICATE_CI",
+                    "severity": "Minor",
+                    "detail": (f"rows sharing estimate {pt} and identity counts {list(ids)} print "
+                               f"different confidence intervals ({intervals}); the same subgroup appears "
+                               f"rendered twice with divergent uncertainty — harmonize to one interval, "
+                               f"or footnote why the two differ"
+                               + (f" (rows: {', '.join(labels)})" if labels else "")),
+                    "where": (" / ".join(labels))[:120] or f"estimate {pt}",
+                })
+    return claims
+
+
+_CINDEX_HDR = ("c-index", "c index", "cindex", "c-statistic", "c statistic", "concordance",
+               "auc", "auroc", "harrell", "discrimination", "c (95")
+_MODEL_HDR = ("model", "covariate", "predictor", "variables", "adjustment")
+# tokens that appear in a model label but are NOT covariates
+_COVAR_STOP = {"model", "models", "only", "vs", "versus", "plus", "the", "and", "reference",
+               "baseline", "base", "full", "final", "adjusted", "unadjusted", "alone",
+               "with", "index"}
+_CI_VAL_RE = re.compile(r"\b0\.[5-9]\d")
+
+
+def _covar_set(label: str) -> frozenset:
+    """'CMB + age + sex' -> {'cmb','age','sex'} (additive split on '+', notes and
+    non-covariate words dropped)."""
+    label = re.sub(r"\(.*?\)", " ", label)
+    out = set()
+    for tok in re.split(r"\s*\+\s*", label):
+        t = re.sub(r"[^a-z0-9]", "", tok.lower())
+        if t and len(t) >= 2 and t not in _COVAR_STOP:
+            out.add(t)
+    return frozenset(out)
+
+
+def check_nested_model_baseline(text: str) -> list[dict]:
+    """A table of nested prediction models reports a discrimination statistic (C-index /
+    AUC) for two or more models that all embed a common covariate set (e.g. every model
+    is 'X + age + sex'), but there is no BASE-model row (the common covariates alone) and
+    no incremental deltaC — so the shared covariates could account for the discrimination,
+    and 'model A comparable to model B' is uninterpretable. Deterministic and header-gated:
+    only tables with a discrimination column and additive ('X + Y') model labels are
+    considered, so an ordinary results table does not fire."""
+    claims: list[dict] = []
+    for tbl in _parse_md_tables(text):
+        if len(tbl) < 3:
+            continue
+        header = tbl[0]
+        ci_idx = _pick(header, _CINDEX_HDR)
+        if ci_idx is None:
+            continue
+        model_idx = _pick(header, _MODEL_HDR)
+        if model_idx is None:
+            model_idx = 0
+        additive: list[tuple[str, frozenset]] = []
+        ci_row_sets: set = set()
+        for row in tbl[1:]:
+            if ci_idx >= len(row) or not _CI_VAL_RE.search(row[ci_idx]):
+                continue
+            label = row[model_idx] if model_idx < len(row) else (row[0] if row else "")
+            cset = _covar_set(label)
+            ci_row_sets.add(cset)
+            if "+" in label:
+                additive.append((label, cset))
+        if len(additive) < 2:
+            continue
+        common = frozenset.intersection(*(s for _, s in additive))
+        if not common or common in ci_row_sets:
+            continue
+        if re.search(r"(?:Δ|delta[-\s]?)\s?(?:c\b|auc)|incremental (?:c[-\s]?index|auc|discrimination)",
+                     text, re.IGNORECASE):
+            continue
+        claims.append({
+            "verdict": "NESTED_MODEL_NO_BASELINE",
+            "severity": "Minor",
+            "detail": (f"{len(additive)} nested models report a discrimination statistic and all embed "
+                       f"the covariates {sorted(common)}, but no base-model row (those covariates alone) "
+                       f"and no incremental ΔC is reported; the shared covariates could account for the "
+                       f"discrimination — add the base-model C-index and the ΔC so the incremental value "
+                       f"is interpretable"),
+            "where": ("; ".join(lab for lab, _ in additive[:3]))[:120],
+        })
+    return claims
+
+
 def analyze(manuscript: str, data: str | None, id_col: str | None = None) -> dict:
     p = Path(manuscript)
     if not p.is_file():
@@ -506,6 +790,10 @@ def analyze(manuscript: str, data: str | None, id_col: str | None = None) -> dic
     claims += check_rate_text(text)
     claims += check_cascade_text(text)
     claims += check_partition_md(text)
+    claims += check_partition_text(text)
+    claims += check_followup_criterion(text)
+    claims += check_duplicate_subgroup_ci(text)
+    claims += check_nested_model_baseline(text)
 
     if data:
         rows = load_csv(data)

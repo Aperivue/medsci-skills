@@ -1,0 +1,22 @@
+Model provenance — SynthSeg-3D (synthetic example)  (2 evaluation arm(s))
+
+  [Major] BENCHMARK_PROVENANCE_CONFLICT
+           an evaluation arm uses a dataset the model was developed or tuned on; that arm does not independently test the model, no matter how held-out the split is for you. Report it as a demonstration of the pipeline and put the evidence on an arm whose data post-dates the model
+           - internal (ExampleBench Task03 Liver) <- developed on ExampleBench
+  [Major] EVAL_DATA_IN_TRAINING
+           an evaluation arm's dataset appears in the corpus the weights were trained on; the resulting number is a training-set score
+           - internal (ExampleBench Task03 Liver) in the training corpus (ExampleBench)
+  [Minor] LICENCE_UNVERIFIED
+           licence 'cc-by-nc-4.0' is named but the file it was read from is not recorded; a badge in a README is not the licence
+  [Major] LICENCE_INCOMPATIBLE
+           licence 'cc-by-nc-4.0' restricts use to non-commercial or research purposes while the declared intended use is 'commercial'
+  [Minor] TASK_MISMATCH
+           the model's task ('2d_xray_classification') is not the study's task ('3d_ct_organ_segmentation'); a transfer step and its own validation are required, not just a checkpoint
+  [Minor] NO_VERSION_PIN
+           no commit, tag or revision recorded; 'we used <model>' does not identify what ran and cannot be reproduced once the default branch moves
+  [Minor] VALIDATION_UNREPORTED
+           no reported validation (dataset + metric + source) recorded for the model as published; there is then no prior expectation to compare your own numbers against
+  [Minor] HARDWARE_UNVERIFIED
+           hardware support is claimed ('any CUDA GPU') but never executed; support matrices and what the stack actually runs on are different statements
+
+  Major 3   Minor 5

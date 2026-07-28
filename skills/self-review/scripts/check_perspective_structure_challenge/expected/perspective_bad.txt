@@ -1,0 +1,11 @@
+==========================================
+ Perspective structure (§J / §D)
+==========================================
+| Verdict | Severity | Detail |
+|---|---|---|
+| PERSPECTIVE_HEADING_NOT_ASSERTION | Minor | 2 IMRAD section heading(s) in a Perspective (1. Introduction, Methods) — published Perspectives name sections as argument-moves, not "Introduction / Methods / Results / Discussion". Rename each heading to the claim it makes; Conclusion / Summary are fine. |
+| PERSPECTIVE_ABSTRACT_NO_AUTHORIAL_MOVE | Minor | the abstract states its thesis declaratively, with no explicit authorial move ("we argue" / "we propose" / "here we ..."). Eight of nine sampled npj Digital Medicine Perspectives open the abstract with one; a report-style abstract reads as a study, not a position. Lead the thesis with the move. |
+
+PERSPECTIVE_HEADING_NOT_ASSERTION - 1. Introduction; Methods
+
+PERSPECTIVE_ABSTRACT_NO_AUTHORIAL_MOVE - Automated triage tools are being placed after the clinician forms a ju...

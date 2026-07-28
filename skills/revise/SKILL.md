@@ -274,10 +274,10 @@ not an attack. **Never ignore these requests** — reviewer engagement is a posi
 ### Category 5: Statistical Method Challenge
 
 Reviewer questions or requests changes to statistical methods.
-**Response**: Consult a biostatistician if unfamiliar → provide a reasoned justification
-for your method choice with references → if the reviewer's suggestion is valid, perform
-both analyses and show results are consistent. "This analysis was reviewed in consultation
-with our biostatistician" adds credibility.
+**Response**: Provide a reasoned justification for the method with references. If the reviewer's
+suggestion is valid, run both analyses and show the results are consistent. If a statistician was
+in fact consulted, say so; do not write that sentence because it *sounds* credible — a claim about
+who reviewed the work is a claim about the world, and this letter goes to an editor.
 
 ### Mapping to MAJ/MIN/REB
 
@@ -382,6 +382,34 @@ conservative — vague, paraphrased claims are not flagged — so a firing verdi
 discrepancy: either insert the promised edit or correct the response wording. This directly
 enforces the *"quote the new manuscript text verbatim"* discipline above, and is the same
 check a reviewer runs against your revision (see `/peer-review`).
+
+A third verdict, `RESPONSE_QUOTE_UNRESOLVED` (**minor**, never drift), exists because the
+manuscript is often read through an extractor. When the quoted words are all present **in
+order** but separated by foreign tokens — a reference column bled into the sentence by a
+two-column PDF, line numbers from a supplement proof, a footnote marker, a hyphen split across
+a line — the text is there and only the extraction is dirty. A contiguous substring test
+cannot tell that from a missing edit and reports the correct quote as absent; that once came
+one step from having two accurate verbatim quotes deleted. So those cases are reported for a
+human to eyeball and do **not** fail `--strict`; only a genuinely absent quote does.
+
+**If a reviewer called the manuscript too long or too dense, prove the body got shorter.** Answering
+a density comment point-by-point is a trap: each point is answered by adding a sentence, so the
+revision that responds to "shorten this" comes back *longer*. One real revision did exactly that —
+four reviewers said too dense, the point-by-point answer added 613 words, and it took three rounds
+to land at 733 words below where it started. This gate is arithmetic: if the decision letter
+contains a density/length complaint and the revised body did not shrink, it fires.
+
+```bash
+python3 ${CLAUDE_SKILL_DIR}/scripts/check_density_complaint.py \
+  --comments revision/decision_letter.md \
+  --previous manuscript/manuscript_R0.md \
+  --revised manuscript/manuscript.md --strict
+```
+
+`DENSITY_COMPLAINT_UNADDRESSED` fires only when a complaint was raised AND the body word count
+(Introduction through Discussion, citation markers excluded) did not fall. With no density complaint
+it stays silent — it is not a "shorter is always better" nag. When it fires, cut or move detail to
+the supplement; do not defend the length by adding a paragraph that explains it.
 
 ---
 

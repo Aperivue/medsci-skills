@@ -1,0 +1,5 @@
+Refinement regression: PROGRESSING
+  fixed (resolved): 1   still open (carried): 1
+  broke (new):      0   resurfaced (churn):  0
+  qc dir: fixture/progressing/qc   ledger: fixture/progressing/ledger.jsonl
+  -> 1 finding(s) resolved and none newly introduced -- the revision improved the manuscript without breaking anything. Continue.

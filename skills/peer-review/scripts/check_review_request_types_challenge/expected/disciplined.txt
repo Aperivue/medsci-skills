@@ -1,0 +1,3 @@
+== OK ==  fixture/disciplined.md
+asks=6 disclosure=5 computation=1 new_data=0 descriptive=0
+every ask is a disclosure request, or a justified computation.

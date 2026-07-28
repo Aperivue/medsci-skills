@@ -19,11 +19,27 @@ The script iterates through all shapes on slide index 0 and matches by **text co
 | Modality badge | `Modality` or `organ` | `--badges` (2nd) |
 | Center type badge | `Single` or `Multi-center` or `center` | `--badges` (3rd) |
 
-## European Radiology Template
+## European Radiology Template — **not bundled; supply your own**
 
-**Source:** EURA-GA-Jan2025.pptx (January 2025)
-**File:** `european_radiology.pptx`
-**Use slide:** Index 0 (slide 1 = blank template; slide 2 = filled example)
+European Radiology requires a graphical abstract from first revision and publishes its own template,
+`EURA-GA-Jan2025.pptx`. **Download it from the journal** and point the generator at it:
+
+```bash
+python scripts/generate_visual_abstract.py --template /absolute/path/to/EURA-GA-Jan2025.pptx ...
+```
+
+We used to ship a copy. We no longer do, and the reason is worth stating plainly: what we were
+shipping was the journal's file with a **published paper's graphical abstract still filled into
+slide 2** — the ESR wordmark, and that paper's four-panel patient CT figure, eight images in all,
+inside an MIT-licensed package that anyone may copy and sell. `docProps/app.xml` still carried the
+article's title. It came with no licence, and nothing in this repository could see it, because the
+image-licence gate globbed the filesystem and a `.pptx` is a zip.
+
+A template you may download is not a template we may ship. The gate now opens containers
+(`scripts/check_bundled_media_license.py`), and the generator has always accepted an absolute path —
+so nothing is lost except a file we had no right to hand out.
+
+The shape map below still applies to the journal's file, which is why it is kept.
 
 ### Shape Map (Slide 1)
 

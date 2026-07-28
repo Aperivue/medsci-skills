@@ -39,16 +39,21 @@ validation/experiment setup.**
 
 ## Diffusion models (current SOTA for fidelity / diversity)
 
-### DDPM / latent diffusion
-- **Papers**: Ho et al., DDPM, *NeurIPS* 2020; Rombach et al., latent diffusion, *CVPR*
-  2022.
+### DDPM / latent diffusion (+ conditional / 3-D medical)
+- **Papers**: Ho et al., DDPM, *NeurIPS* 2020; Rombach et al., latent diffusion, *CVPR* 2022;
+  Zhang et al., ControlNet, *ICCV* 2023 (spatial conditioning, e.g. on a segmentation map).
 - **Core idea**: learn to reverse a gradual noising process; higher fidelity and mode
-  coverage than GANs, at higher compute.
-- **When to use**: when sample quality / diversity matters and compute allows; increasingly
-  the default for medical image generation and reconstruction.
-- **Reference impl**: MONAI `generative` (DiffusionModelUNet); HuggingFace `diffusers`.
-- **Validation setup**: as GANs — fidelity + downstream-task + hallucination disclosure;
-  for reconstruction, compare against the acquired ground truth.
+  coverage than GANs, at higher compute. **Conditioning** (class, mask, ControlNet, or a
+  latent) steers what is generated — the diffusion analog of SPADE for controlled anatomy.
+- **When to use**: sample quality / diversity matters and compute allows — now the default
+  over GANs for medical generation, augmentation, and reconstruction. For **3-D volumetric**
+  synthesis a **latent** diffusion model keeps memory tractable.
+- **Reference impl**: MONAI `generative` (DiffusionModelUNet, latent diffusion) and **MAISI**
+  (3-D CT latent diffusion); HuggingFace `diffusers` (+ ControlNet).
+- **Validation setup**: fidelity metrics (SSIM/PSNR/FID) are necessary but **not sufficient** —
+  a generative claim needs a **downstream-task efficacy** result (does a model trained/tested
+  on the synthetic data do the clinical task?), not similarity alone (`/model-evaluation`),
+  plus hallucination disclosure; for reconstruction, compare against the acquired ground truth.
 
 ## Reconstruction / restoration
 

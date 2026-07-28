@@ -1,0 +1,8 @@
+== REQUEST-TYPE VIOLATIONS ==  fixture/undisciplined.md
+asks=7 disclosure=2 computation=3 new_data=1 descriptive=1
+[MAJOR] COMPUTATION_HEAVY L0  4 computation/new-data requests (limit 2) — each is a new, unreviewed error surface produced under revision deadline
+[MAJOR] COMPUTATION_UNJUSTIFIED L6  computation request with no stated reason the existing tables cannot answer it — reword as disclosure or justify: "Propagate the measured false-negative rates to the screened population and re…"
+[MAJOR] COMPUTATION_UNJUSTIFIED L7  computation request with no stated reason the existing tables cannot answer it — reword as disclosure or justify: "Bootstrap confidence intervals for the reported percentiles."
+[MINOR] ESTIMATOR_UNNAMED L7  an effect size or interval is requested without naming the estimator; the authors will adopt the loose phrase verbatim: "Bootstrap confidence intervals for the reported percentiles."
+[MAJOR] NEW_DATA_REQUESTED L8  asks for data that does not exist — cannot be satisfied within a revision: "Have a second reader independently label a subsample and report agreement."
+[MAJOR] COMPUTATION_UNJUSTIFIED L16  computation request with no stated reason the existing tables cannot answer it — reword as disclosure or justify: "Consider modelling the outcome as a continuous function of age rather than bi…"

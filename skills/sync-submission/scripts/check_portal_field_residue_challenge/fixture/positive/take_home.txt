@@ -1,0 +1,3 @@
+# Take-home points
+
+- CAC refines risk beyond traditional factors; H~2~O-based contrast was unaffected.

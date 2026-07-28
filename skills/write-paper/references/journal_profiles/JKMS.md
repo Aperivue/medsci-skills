@@ -199,3 +199,6 @@ End-to-end submission learnings — use as the JKMS submission checklist.
 - ICMJE COI form per author (all). Co-first = "First Author" ×N + title-page equal-contribution footnote.
 
 **DOI hyperlink pitfall:** surgical docx reference replacement leaves `<w:hyperlink>` DOIs that `p.runs` misses — strip them, verify via PDF proof (`submission-portal-verification.md` §1).
+
+- **AI-use disclosure placement**: Cover letter
+  <!-- machine-read by /self-review check_classical_style.py --profile; source: this profile's own "Generative AI assistance (writing aids, language editing) must be disclosed in the cover letter" -->

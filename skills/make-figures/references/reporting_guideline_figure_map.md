@@ -1,7 +1,7 @@
 # Reporting Guideline → Figure Requirements Map
 
 > **Bridge**: this file connects `/make-figures` to `/check-reporting`
-> (46 reporting guidelines). Each row tells you which figures the guideline
+> (47 reporting guidelines). Each row tells you which figures the guideline
 > **mandates** and how this skill currently supports them. Use during
 > Step 1 (Specify) once the study type is known.
 
@@ -96,7 +96,7 @@ flags them:
 
 ## Cross-references
 
-- `/check-reporting` skill — supports all 46 guidelines, item-level audit
+- `/check-reporting` skill — supports all 47 guidelines, item-level audit
 - `flow_diagram_lessons.md` — production lessons that apply across all flows
 - `pipeline_concepts_medical_ai.md` — DICOM / annotation / federated /
   architecture diagram conventions

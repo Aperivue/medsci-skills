@@ -1,0 +1,1 @@
+{"detector": "check_table_percentages", "source": "synthetic", "verdict": "MISMATCH_FOUND", "n_mismatch": 1, "findings": [{"kind": "PERCENT_MISMATCH", "severity": "MAJOR", "table_line": 12, "cell": "Malignant: 64 (63%)", "detail": "printed 63% but 64/171 = 37.4%"}]}

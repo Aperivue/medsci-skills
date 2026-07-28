@@ -1,0 +1,8 @@
+==========================================
+ Perspective structure (§J / §D)
+==========================================
+| Verdict | Severity | Detail |
+|---|---|---|
+| (none) | - | Perspective structure within convention |
+
+OK: argument-move headings and an abstract that carries an authorial move.

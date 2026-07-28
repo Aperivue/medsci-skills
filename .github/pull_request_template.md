@@ -1,6 +1,12 @@
 <!--
 Thanks for contributing to MedSci Skills. Keep PRs small and reviewable.
 See CONTRIBUTING.md for the full workflow and PII/publication hygiene rules.
+
+ADDING ONE FILE? (a journal profile, a CSL style, a reporting checklist, a
+de-identification locale pack, a figure exemplar, a README translation)
+Tick the first box under "Type of change" and stop. The rest of this template is
+for larger changes. CI runs for you and a maintainer handles the bookkeeping
+(catalog counts, changelog) in review — see CONTRIBUTING.md.
 -->
 
 ## Summary
@@ -9,6 +15,7 @@ See CONTRIBUTING.md for the full workflow and PII/publication hygiene rules.
 
 ## Type of change
 
+- [ ] **One-file contribution** (journal profile, CSL, checklist, locale pack, figure exemplar, translation, typo) — **stop here.** A maintainer handles the bookkeeping below.
 - [ ] New skill
 - [ ] Fix or improvement to an existing skill
 - [ ] Deterministic script / validator
@@ -16,6 +23,13 @@ See CONTRIBUTING.md for the full workflow and PII/publication hygiene rules.
 - [ ] Other (describe above)
 
 ## Validators
+
+<!--
+CI runs every gate for you. To run them locally, `python3 scripts/run_ci_mirror.py`
+executes the whole `validate` job in order — it parses the workflow, so it cannot
+drift from CI. A red CI on a first contribution is normal and is NOT yours to fix
+alone: say so in the PR and a maintainer will pick it up.
+-->
 
 - [ ] `bash scripts/validate_skills.sh`
 - [ ] `python3 scripts/validate_skill_contracts.py`

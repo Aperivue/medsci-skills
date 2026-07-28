@@ -1,0 +1,65 @@
+# Third-Party Content Licenses
+
+Parts of this package are not ours, and are bundled under their own licenses (NOT under MIT).
+This file is the index of them. It is checked against the tree on every build by
+`scripts/check_third_party_index.py` — a notices file that describes a package other than the one
+you downloaded is worse than no notices file at all.
+
+### Reporting guideline checklists — our summaries (`skills/*/references/checklists/*.md`)
+
+These are educational summaries written in our own words, each citing its source. They do not
+relicense the underlying guideline.
+
+- STROBE: CC BY (https://www.strobe-statement.org)
+- STARD 2015 / STARD-AI: CC BY 4.0 (https://www.equator-network.org/reporting-guidelines/stard/)
+- TRIPOD / TRIPOD+AI: CC BY 4.0 (https://www.tripod-statement.org)
+- PRISMA 2020 / PRISMA-DTA: CC BY (https://www.prisma-statement.org)
+- ARRIVE 2.0: CC0 (https://arriveguidelines.org)
+- CONSORT 2025, SPIRIT 2025: CC BY 4.0 (https://www.consort-spirit.org)
+
+**Non-commercial restrictions.** The following summaries derive from instruments whose materials are
+CC BY-NC, and are therefore free to use and redistribute **for non-commercial purposes with
+attribution**; commercial use requires permission from the rights holders:
+
+- CARE, MI-CLEAR-LLM, DECIDE-AI: CC BY-NC 4.0
+- CLAIM 2024: educational summary of an RSNA open-access checklist (© RSNA)
+
+See `skills/check-reporting/references/LICENSES.md` for the per-file detail.
+
+### Official guideline templates, verbatim (`skills/make-figures/templates/official/`)
+
+These are the guideline authors' own documents, redistributed unmodified:
+
+- CONSORT 2025 checklist + flow diagram (`.docx`): CC BY 4.0.
+  © 2025 Hopewell S et al. *BMJ* 2025;388:e081123. doi:10.1136/bmj-2024-081123
+- SPIRIT 2025 checklist + participant timeline (`.docx`): CC BY 4.0.
+  © 2025 Chan A-W et al. *BMJ* 2025;389:e081477. doi:10.1136/bmj-2024-081477
+- STARD 2015 checklist (`.docx`) and flow diagram (`.pdf`): CC BY 4.0.
+  Bossuyt PM et al. *BMJ* 2015;351:h5527
+- PRISMA 2020 flow diagrams (`.pptx`): built by us with
+  `skills/make-figures/scripts/build_prisma2020_template.py`, reproducing the published layout
+  (Page MJ et al. *BMJ* 2021;372:n71, Fig 1, CC BY 4.0)
+
+The CONSORT and SPIRIT **2025** updates are CC BY 4.0 — "unrestricted use, distribution, and
+reproduction in any medium, provided the original work is properly cited". Their 2010 / 2013
+predecessors were CC BY-NC / CC BY-NC-ND and could not have been bundled; this file said so for a
+long time after the 2025 versions had replaced them.
+
+### Citation styles (`skills/manage-refs/citation_styles/*.csl`)
+
+15 CSL files from the Citation Style Language project: **CC BY-SA 3.0**, unmodified, each retaining
+its own `<rights>` element. See `skills/manage-refs/NOTICE.md`.
+
+### Not bundled — download these yourself
+
+- **European Radiology graphical-abstract template** (`EURA-GA-Jan2025.pptx`):
+  https://www.springer.com/journal/330 — the journal's own file, with no license permitting
+  redistribution. `/make-figures` accepts it via `--template /absolute/path.pptx`.
+
+## Optional Dependencies
+
+The following external packages are NOT bundled but may be installed separately by the user:
+
+- pymupdf4llm: AGPL-3.0 or Artifex Commercial License (https://pymupdf.readthedocs.io)
+  Used by: fulltext-retrieval/pdf_to_md.py (optional PDF→Markdown conversion)
+  Install: pip install pymupdf4llm

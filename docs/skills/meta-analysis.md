@@ -29,6 +29,7 @@
 - `python3 scripts/screening_reconcile.py`
 - `python3 scripts/check_pool_consistency.py`
 - `bash scripts/extract_assist_challenge/verify.sh  # deterministic, network-free`
+- `bash scripts/check_exclusion_code_validity_challenge/verify.sh  # deterministic, network-free`
 
 **Evidence** — `demo`
 
@@ -44,6 +45,8 @@
 - `empirical_lessons.md`
 - `icmje_coi_guide.md`
 - `phase10_recovery.md`
+- `phase3_screening_detail.md`
+- `phase4_extraction_detail.md`
 - `phase4_km_composite.md`
 - `phase6_statistical_synthesis.md`
 - `phase9_circulation.md`
@@ -55,6 +58,8 @@
 
 **Scripts** (`skills/meta-analysis/scripts/`):
 
+- `check_exclusion_code_validity.py`
+- `check_exclusion_code_validity_challenge/` (6 files)
 - `check_pool_consistency.py`
 - `cohort_overlap_check.py`
 - `dta_extraction_qc.py`

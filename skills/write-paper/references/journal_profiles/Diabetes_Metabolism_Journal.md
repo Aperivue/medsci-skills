@@ -161,3 +161,6 @@ DMJ is well-suited for:
 ## Verification
 - **Source:** https://e-dmj.org/authors/authors.php
 - **Date:** 2026-05-21
+
+- **AI-use disclosure placement**: Title page
+  <!-- machine-read by /self-review check_classical_style.py --profile; source: the profile's own rejection note: "must be declared on title page including tool/version/manufacturer/role" -->

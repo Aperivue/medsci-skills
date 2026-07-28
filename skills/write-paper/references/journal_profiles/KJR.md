@@ -201,3 +201,6 @@ https://www.kjronline.org/index.php?body=Instruction
 - **Source:** KJR-Instructions-202603.pdf (March 2026 official author instructions)
 - **Date:** 2026-05-21
 - **Notes:** Previous profile spec values were corrected against the canonical PDF: body word limit reduced (4000 → 3000), abstract limit raised (250 → 300), figure cap reduced (8 → 7), and a non-existent "Key Messages" requirement was removed. Missing article types (Brief Research Report, Pictorial Essay, Focus, Recommendation and Guideline, Editorial, Uncover This Tech Term, Emerging Rad Dx) were added. This retrofit aligns with the canonical PDF.
+
+- **AI-use disclosure placement**: Relevant manuscript section or Acknowledgments
+  <!-- machine-read by /self-review check_classical_style.py --profile; source: this profile's own "AI use beyond routine linguistic assistance must be clearly disclosed, with sufficient detail, in the relevant section of the manuscript or in the Acknowledgments" -->

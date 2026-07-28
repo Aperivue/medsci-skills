@@ -182,3 +182,6 @@ https://e-kcj.org/index.php?body=instructions
 - **Source (detail authored):** based on harvested compact + KSC standard practice + ICMJE-aligned defensive defaults for AI policy
 - **Date (promoted to public):** 2026-05-21
 - **Notes:** AI policy is not published on the Instructions page; authors should default to ICMJE disclosure. Verify IF and APC directly on the journal site at submission.
+
+- **AI-use disclosure placement**: Methods or Acknowledgments
+  <!-- machine-read by /self-review check_classical_style.py --profile; source: this profile's own "declare any AI use beyond routine language assistance in a Methods or Acknowledgments section" -->

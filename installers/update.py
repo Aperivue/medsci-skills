@@ -37,6 +37,19 @@ import tempfile
 import zipfile
 from pathlib import Path
 
+# The floor the README promises. A clinician running the updater on an old Python must be told
+# that, not shown a traceback from somewhere in the middle of a download.
+MIN_PYTHON = (3, 9)
+if sys.version_info < MIN_PYTHON:
+    have = ".".join(str(n) for n in sys.version_info[:3])
+    raise SystemExit(
+        f"\nMedSci Skills needs Python {MIN_PYTHON[0]}.{MIN_PYTHON[1]} or newer. This computer has {have}.\n\n"
+        "  Install the latest Python from  https://www.python.org/downloads/\n"
+        "  then run this updater again.\n\n"
+        "Your current installation has not been touched.\n"
+    )
+
+
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import medsci_txn  # noqa: E402  (PR-1a transactional core; reused for state/version helpers)
 

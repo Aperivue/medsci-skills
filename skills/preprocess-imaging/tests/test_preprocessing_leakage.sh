@@ -70,7 +70,33 @@ check "per-image transform before split does NOT fire PREPROCESS_BEFORE_SPLIT" n
 python3 "$SCRIPT" --manifest "$TMP/persample.json" --strict --quiet >/dev/null 2>&1
 check "exit 0 on per-image-safe manifest" test "$?" -eq 0
 
-# (6) the shipped challenge card passes
+# (6) resampling. A target spacing chosen in advance is fixed and never leaks; a target
+# derived from the cohort (nnU-Net takes a percentile of the dataset fingerprint) is a
+# fitted parameter, and fitting it over every case carries held-out geometry into the
+# training grid exactly as an intensity statistic would.
+cat > "$TMP/resample_fitted.json" <<'EOF'
+{"split_seed": 42,
+ "transforms": [{"name": "resample_to_fingerprint_median", "type": "resample",
+                 "fit_scope": "all", "stage": "before_split"}],
+ "split_assignment": [{"patient_id": "A", "split": "train"}, {"patient_id": "B", "split": "test"}]}
+EOF
+python3 "$SCRIPT" --manifest "$TMP/resample_fitted.json" --out "$OUT" --quiet >/dev/null 2>&1
+check "data-derived resample target before split fires PREPROCESS_BEFORE_SPLIT" \
+      has_verdict PREPROCESS_BEFORE_SPLIT
+
+cat > "$TMP/resample_fixed.json" <<'EOF'
+{"split_seed": 42,
+ "transforms": [{"name": "resample_to_1mm_iso", "type": "resample",
+                 "fit_scope": "fixed", "stage": "before_split"}],
+ "split_assignment": [{"patient_id": "A", "split": "train"}, {"patient_id": "B", "split": "test"}]}
+EOF
+python3 "$SCRIPT" --manifest "$TMP/resample_fixed.json" --out "$OUT" --quiet >/dev/null 2>&1
+check "resample to a declared fixed spacing does NOT fire PREPROCESS_BEFORE_SPLIT" \
+      no_verdict PREPROCESS_BEFORE_SPLIT
+python3 "$SCRIPT" --manifest "$TMP/resample_fixed.json" --strict --quiet >/dev/null 2>&1
+check "exit 0 on fixed-spacing resample" test "$?" -eq 0
+
+# (7) the shipped challenge card passes
 check "challenge verify.sh passes" bash "$CH/verify.sh"
 
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"

@@ -1,6 +1,6 @@
 ---
 name: find-journal
-description: Journal recommendation engine for medical manuscripts. 2-pass matching against a curated public profile library plus any user-local private profiles, enriched with detailed write-paper profiles for top-5 output. Returns ranked recommendations with scope fit rationale, AI disclosure policy, and homepage links. No cached IF/APC data — users verify current metrics at journal sites. A pre-ranking acceptance-readiness pre-flight scans the manuscript for design-ceiling, unfixable-defect, and importance-risk signals to add an acceptance-feasibility axis alongside scope fit, and the output includes a reject-fallback cascade plan.
+description: Journal recommendation engine for medical manuscripts. 2-pass matching against a curated public profile library plus any user-local private profiles, enriched with detailed write-paper profiles for top-5 output. Returns ranked recommendations with scope fit rationale, AI disclosure policy, and homepage links. Impact-factor and APC figures in a profile are point-in-time and may be stale — verify current metrics at the journal site. A pre-ranking acceptance-readiness pre-flight scans the manuscript for design-ceiling, unfixable-defect, and importance-risk signals to add an acceptance-feasibility axis alongside scope fit, and the output includes a reject-fallback cascade plan.
 triggers: find journal, recommend journal, where to submit, which journal, journal selection, target journal, journal match
 tools: Read, Write, Edit, Grep, Glob
 model: inherit
@@ -228,76 +228,6 @@ for the output:
 This enriches the recommendation output without loading all write-paper profiles.
 If no write-paper profile exists, use the compact profile data only.
 
-### 3.6 Profile Coverage Advisory
-
-Before emitting the final output, scan the skill directory for profile-gap TODO files and
-decide whether to append a Coverage Advisory block.
-
-**What this step protects against.** The recommendation list is bounded by what the public
-and private libraries contain. If a high-value journal is simply missing from both tiers,
-the ranking silently substitutes an adjacent journal and the user never learns that
-a better-fitting target exists. The Coverage Advisory surfaces known gaps and directs the
-user to `/add-journal` (or manual PDF + verification) to close them.
-
-**Procedure.**
-
-1. **Locate TODO files.** Glob `${CLAUDE_SKILL_DIR}/TODO_*_profiles.md`. These are
-   maintainer-curated gap files, one per field (e.g., `TODO_neurointervention_profiles.md`,
-   future: `TODO_pediatric_*`, `TODO_endocrinology_*`). The file must contain a
-   `## Field Keywords` section — files without this section are ignored.
-
-2. **Match against manuscript themes.** For each TODO file, read the Field Keywords
-   block. If any keyword (case-insensitive, word-boundary match) appears in the
-   manuscript's abstract or in the themes extracted in Phase 2, mark the TODO as
-   relevant.
-
-3. **Parse the gap list.** From each relevant TODO, extract the journal entries under
-   headings matching `## 추가 필요` / `## Missing` / `## Pending` — they are the still-missing
-   journals. Exclude any entry already marked completed (lines containing ✅ or
-   "추가 완료 / Completed"). Also skip journals listed under `## Private` (waiting on
-   private→public promotion).
-
-4. **Emit the advisory.** If at least one TODO is relevant and at least one journal
-   in it is still missing, append a Coverage Advisory block immediately below the
-   top-5 recommendation list and above the Mandatory Disclaimer. If no TODO is
-   relevant, skip this block entirely — no false alarms.
-
-**Output format (when emitted).**
-
-```
----
-### ⚠️ Profile Coverage Advisory — {field name}
-
-Your manuscript matches keywords for the **{field name}** field, and the public profile
-library has known gaps here. The following journals may be strong-fit candidates that did
-not appear in the top-5 only because they are not yet in the library:
-
-- **{Journal 1}** ({Publisher}) — {1-line reason from TODO entry}
-- **{Journal 2}** ({Publisher}) — {1-line reason from TODO entry}
-- ...
-
-To add any of them to the public library:
-
-1. Open the journal's author-guidelines page and save it as PDF (or paste the text).
-2. Invoke `/add-journal` with the PDF — it transcribes the Identity / Scope / Article
-   Types / AI policy fields directly from the source and verifies the ISSN against
-   `portal.issn.org`, per `skills/find-journal/POLICY.md`.
-3. After the new profile lands in `references/journal_profiles/`, re-run `/find-journal`
-   to see the updated ranking.
-
-TODO source: `skills/find-journal/{TODO filename}`
----
-```
-
-**Guardrails.**
-
-- Do not fabricate journals, publishers, or rationale. Copy the TODO entry verbatim (or
-  paraphrase minimally from the same line).
-- Do not promote a still-private profile into the advisory — private profiles are by
-  definition not production-ready.
-- Keep the advisory concise (≤10 missing journals per field). If a TODO file lists more,
-  show the first 10 in priority order and add a "... and {N} more in the TODO file" line.
-- The advisory is informational. It does not change the top-5 ranking or its scores.
 
 ---
 
@@ -330,7 +260,7 @@ After all 5 recommendations, add a brief comparison note (2-3 sentences) highlig
 the key tradeoffs between the top choices (e.g., scope breadth vs. specialty depth,
 tier vs. acceptance feasibility).
 
-Then add the two blocks below, then (if Phase 3.6 produced one) the Coverage Advisory,
+Then add the two blocks below,
 then the Mandatory Disclaimer.
 
 ### Acceptance-Readiness Summary

@@ -84,3 +84,6 @@ Follows ICMJE statistical reporting recommendations:
 - **Figures**: line art minimum 1200 dpi; photographs minimum 300 dpi.
 - Tables must be created in Word (NOT Excel).
 - Running head maximum 45 characters including spaces.
+
+- **AI-use disclosure placement**: Cover letter + Acknowledgments
+  <!-- machine-read by /self-review check_classical_style.py --profile; source: the profile's own AI policy: "disclosed in cover letter and Acknowledgments section" -->

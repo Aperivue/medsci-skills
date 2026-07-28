@@ -153,93 +153,26 @@ Classify:
 - external validation
 - multi-center external validation
 
-#### E. Reader / Expert-Elicitation Study Design
+#### E. Reader / expert-elicitation studies (load on demand)
 
-When the study elicits expert ratings (reader study, annotation panel, AI-output evaluation), check
-the following before data collection.
+When the study elicits expert ratings — a reader study, an annotation panel, an AI-output
+evaluation — the design decisions that matter are made **before data collection**, and the
+acceptance ceiling of a perceptual / reader AI study is fixed at design time: no quality of
+execution lifts a ceiling baked into the comparator, the estimand, or the reader cohort.
 
-**Rubric design**
-- **Decouple the axes.** Each rated dimension should measure one construct. Keep "is the finding
-  valid/correct" separate from "is it novel", "is it feasible to measure", "does it add value over
-  current tools", and "would it change action". A candidate can be high-validity yet low-added-value
-  ("real but redundant"); a single blended score hides this.
-- **Anchor every Likert point** with a short verbal descriptor; pilot the anchors with at least one
-  reviewer before locking.
-- **Pre-specify discriminant validity**: hypothesize which dimensions should correlate vs be
-  orthogonal, then report the full inter-dimension correlation matrix to confirm the rubric measures
-  distinct constructs.
+For an AI-system-versus-human-expert benchmark specifically, route to `/design-ai-benchmarking`,
+which extends this subsection with arm definition, LLM-as-judge versus human-as-judge
+adjudication, and a structured export schema.
 
-**Calibration probes (planted control items)**
-Insert a small number of deliberate control items, blinded and randomized across raters (record who
-received which, e.g. a `probe_arm` flag), to (i) anchor the scale, (ii) measure rater drift and
-fatigue, and (iii) audit the rubric and pipeline itself. Four useful flavors:
-- **Positive control / "too-good" item** — a known-strong or near-tautological item; tests whether
-  raters equate "largest effect" with "best", and whether an upstream construct-independence gate works.
-- **Known-bad negative control** — an engineered defect (fabricated reference, missing key statistic);
-  expected to score low.
-- **Instability item** — an estimate that reverses or fails to replicate on holdout; tests caveat handling.
-- **Mechanism-contradiction item** — an empirical direction that opposes the proposed mechanism.
-
-Report inter-rater reliability **on the control items separately** as primary evidence of rubric and
-scale validity; a low overall ICC is interpretable only if raters at least converge on the controls.
-
-**Operational rigor**
-- Randomize item order **per reviewer** (not one global seed); analyze order and fatigue effects.
-- Collect reviewer metadata (years of experience, prior AI-evaluation experience, subspecialty) for
-  descriptive reporting.
-- Define a structured export schema (per-item ratings, free-text justifications, follow-ups, timing) up front.
-- Require each item to be judged standalone; discourage cross-item references in free-text, which
-  signal non-independent rating.
-
-**Human-as-operator arm (interactive / promptable AI).** The reader-study patterns above assume the
-human is a *rater / reference* judging outputs. Interactive / promptable segmentation (SAM2, MedSAM2,
-nnInteractive) inverts this: the human is the *operator* who places the prompts, so the measured object
-is the human-operated system's **accuracy + interaction count + time + learning curve**, not a rating.
-Design for it explicitly:
-- Define the operator population and their onboarding; a **learning curve** (performance vs case index)
-  is a first-class outcome, not noise to average away.
-- Fix the prompting protocol (allowed prompt types, stopping rule, target Dice) identically to any
-  simulated-prompting arm so the two are comparable — **protocol fidelity**, checked in `/model-validation`.
-- Pre-specify the interaction and timing metrics; their deterministic reporting gate is
-  `/model-evaluation --task interactive`. (A design document is free-form prose, so the deterministic
-  anchor for these items sits at the reporting stage, not on the protocol text.)
-
-For an AI-system-versus-human-expert benchmark specifically, route to `/design-ai-benchmarking`, which
-extends this subsection with arm definition, LLM-as-judge versus human-as-judge adjudication, and a
-structured export schema.
-
-**Perceptual / reader AI study — design-stage ceiling gate**
-
-For a reader/observer/perceptual or diagnostic-accuracy AI study (visual Turing test, AI-vs-human
-detection, image-provenance/deepfake, observer study), the acceptance ceiling is fixed **at design
-time, not at analysis time** — excellent execution cannot lift a ceiling baked into the comparator,
-the estimand, or the reader cohort. Walk these six before data lock and, for each, take the
-higher-ambition option or record an explicit, defensible reason not to (set each at the impact level
-of the journal you actually want):
-
-1. **Comparator realism (biggest lever).** A curated teaching-repository "authentic" arm scopes the
-   claim to "teaching-quality", not clinical. Use consecutive, de-identified clinical-acquisition
-   images (the real PACS spectrum), or add a clinical-spectrum validation arm.
-2. **Format / non-content confound matching.** Match every non-content attribute (aspect ratio,
-   resolution, compression, color profile) across arms by construction, and pre-specify a
-   confound-classifier ceiling check (format-only AUC must be ≪ reader AUC) as a *primary* gate.
-3. **Synthetic / index-arm denominator (survivorship).** Pre-specify how failed/low-quality
-   generations are counted; report the full generation denominator rather than evaluating only the
-   convincing survivors.
-4. **Reader independence and breadth.** Recruit an independent, non-author, multi-site (ideally
-   multi-national) reader cohort; collect reader characteristics; blind readers to the hypothesis
-   where feasible.
-5. **Estimand and power (generalize, don't condition).** Power the reader-AND-case generalization as
-   the **primary** estimand from the start, so the two-way interval — not a pool-conditional number —
-   supports the headline claim.
-6. **Novelty positioning vs scoop, and venue-fit.** Scan for close prior work at design time; if a
-   flagship precedent exists, make the differentiation categorical (new modality class, clinical
-   spectrum, outcome linkage), not incremental; pick the venue whose audience values the likely
-   result (a rigorous null fits a methodology-forward journal better than an impact-first one).
-
-The meta-rule: set the comparator, the confound-matching, the reader cohort, and the estimand at the
-target journal's impact level **before** data collection — do not plan to out-write a structural
-ceiling in revision.
+| File | Read it when | Cost if read blindly |
+|---|---|---|
+| `references/reader_elicitation_design.md` | the design has a human-rater or expert-elicitation arm — rubric axes, calibration probes, operational rigor, human-as-operator, and the six ceiling decisions | ~2,400 tokens, none of which applies to a design with no reader arm |
+| `references/dag_adjustment.md` | confounding control needs an explicit adjustment set | — |
+| `references/target_trial_emulation.md` | the design emulates a target trial | — |
+| `references/venue_accept_recipe.md` | it is a clinical DL / AI-validation study and the question is **which venue tier the achievable design can be accepted at, and the one design move that reaches the tier above** (the design→acceptance-tier ladder + the five acceptance levers, reverse-engineered from accepted OA papers; the bridge into `/find-journal`) | ~1,800 tokens; skip for a design with no publication-tier decision |
+| `references/combine_models_ablation_design.md` | the model is built by **combining / adapting / fine-tuning existing models** (nnU-Net, TotalSegmentator, SAM/MedSAM, a pretrained backbone) — how to design the comparator as an **ablation** that proves the combination earns its complexity (beat the un-adapted base + the best single component + direct-train), reverse-engineered from accepted OA papers | ~1,600 tokens; skip if the model is trained de novo with no reused component |
+| `references/multi_model_comparison_design.md` | the study's contribution is **comparing several models / architectures head-to-head** (CNN vs Transformer vs foundation backbone; N segmentation networks) — how to make the comparison **fair**: one frozen split + one preprocessing through every model, a strong self-configuring baseline (nnU-Net) not a hobbled one, **matched training/HPO/compute budget** (the #1 threat — "new≠better, just tuned harder") or disclosed, variance-over-single-run, a pre-specified primary metric + a **paired** delta test, honest ranking. Reverse-engineered from accepted OA papers | ~1,700 tokens; skip for a single-model study (use `combine_models_ablation_design.md` for an ablation of one model, `/design-ai-benchmarking` for AI-vs-human) |
+| `references/segmentation_failure_characterization_design.md` | the claim is that a segmentation model is **clinically usable**, not that it scores well — a pre-specified **failure taxonomy** (boundary drift / missed / hallucinated / catastrophic), an **acceptability endpoint** with a stated scale, named judges and an adjudication rule, the **tail** (per-case distribution, worst percentile, catastrophic count) beside the mean, **edit effort** paired against manual-from-scratch and disaggregated per structure and site, and failures **stratified by what predicts them**. Reverse-engineered from accepted OA papers | ~1,700 tokens; skip when the endpoint is benchmark accuracy with no usability claim (metric choice → `/model-evaluation`; abstention / risk–coverage → `/uncertainty-imaging`) |
 
 ### Phase 3: Clinical framing
 
@@ -251,7 +184,7 @@ Ask whether the comparator and endpoint support the stated claim:
 - **fine-tuning contribution baseline**: if an NLP/LLM study claims that fine-tuning, LoRA, prompt
   engineering, or a multi-agent wrapper improves extraction/classification, pre-specify a same-backbone
   zero-shot or few-shot comparator on the identical input, output schema, and test split. A comparison
-  only against a weaker or unrelated baseline cannot establish that the proposed adaptation adds value.
+  only against a weaker or unrelated baseline cannot establish that the proposed adaptation adds value. For an **imaging** model built by combining / adapting / fine-tuning existing models (nnU-Net, a foundation model, a pretrained backbone), design the full ablation ladder — un-adapted base, best single component, direct-train vs transfer — per `references/combine_models_ablation_design.md`. When the contribution is instead a **head-to-head comparison of several models** (which architecture wins), the decisive design question is comparison *fairness* — one frozen split/preprocessing through every model, a strong fairly-tuned baseline, a matched (or disclosed) compute budget, and a paired delta test — per `references/multi_model_comparison_design.md`. When the claim is not that a segmentation model *scores* well but that it is **clinically usable**, the design must carry a pre-specified failure taxonomy, an acceptability endpoint with a named judge and adjudication rule, the tail beside the mean, and edit effort paired against manual-from-scratch — per `references/segmentation_failure_characterization_design.md`; a mean DSC cannot be converted into a usability claim after the fact.
 - **endpoint↔conclusion scope**: decide up front what *kind* of conclusion the design can support, so the manuscript does not overreach. A cross-sectional / single-visit / prevalence design cannot support a prognostic or surveillance claim (rescreen interval, disease progression) — that needs longitudinal follow-up. A binary surrogate endpoint (present/absent, >0, dichotomized) is risk stratification, not a patient-care directive (defer/withhold/initiate therapy). At review time `/self-review` §D + `check_scope_coherence.py` flag `CROSS_SECTIONAL_PROGNOSTIC` / `SURROGATE_CARE_DIRECTIVE` against the conclusion.
 
 ### Phase 4: Reporting fit

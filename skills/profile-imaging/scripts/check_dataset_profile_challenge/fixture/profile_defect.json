@@ -1,0 +1,304 @@
+{
+ "dataset": "SYNTHETIC defect dataset (no real patients)",
+ "declared_labels": {
+  "0": "background",
+  "1": "organ"
+ },
+ "plan": {
+  "resample": false,
+  "reorient": false,
+  "loss": "cross_entropy",
+  "metrics": [
+   "dice",
+   "accuracy"
+  ]
+ },
+ "splits": [
+  {
+   "name": "train",
+   "labelled": true
+  },
+  {
+   "name": "test",
+   "labelled": false
+  }
+ ],
+ "cases": [
+  {
+   "case": "s01",
+   "split": "train",
+   "shape": [
+    512,
+    512,
+    90
+   ],
+   "spacing_mm": [
+    0.8,
+    0.8,
+    1.5
+   ],
+   "orientation": "RAS",
+   "voxel_volume_mm3": 0.9600000000000002,
+   "label_values": [
+    0,
+    1
+   ],
+   "foreground_fraction": 0.004,
+   "target_volume_ml": 90.59696640000001,
+   "intensity": {
+    "p01": -1024.0,
+    "p50": 40.0,
+    "p99": 330.0
+   },
+   "flags": []
+  },
+  {
+   "case": "s02",
+   "split": "train",
+   "shape": [
+    512,
+    512,
+    90
+   ],
+   "spacing_mm": [
+    0.8,
+    0.8,
+    8.0
+   ],
+   "orientation": "RAS",
+   "voxel_volume_mm3": 5.120000000000001,
+   "label_values": [
+    0,
+    1
+   ],
+   "foreground_fraction": 0.004,
+   "target_volume_ml": 483.1838208000001,
+   "intensity": {
+    "p01": -1024.0,
+    "p50": 40.0,
+    "p99": 330.0
+   },
+   "flags": []
+  },
+  {
+   "case": "s03",
+   "split": "train",
+   "shape": [
+    512,
+    512,
+    90
+   ],
+   "spacing_mm": [
+    0.7,
+    0.7,
+    5.0
+   ],
+   "orientation": "LPS",
+   "voxel_volume_mm3": 2.4499999999999997,
+   "label_values": [
+    0,
+    1
+   ],
+   "foreground_fraction": 0.004,
+   "target_volume_ml": 231.21100799999996,
+   "intensity": {
+    "p01": -1024.0,
+    "p50": 40.0,
+    "p99": 330.0
+   },
+   "flags": []
+  },
+  {
+   "case": "s04",
+   "split": "train",
+   "shape": [
+    512,
+    512,
+    90
+   ],
+   "spacing_mm": [
+    0.7,
+    0.7,
+    5.0
+   ],
+   "orientation": "RAS",
+   "voxel_volume_mm3": 2.4499999999999997,
+   "label_values": [
+    0,
+    1
+   ],
+   "foreground_fraction": 0.0,
+   "target_volume_ml": 0.0,
+   "intensity": {
+    "p01": -1024.0,
+    "p50": 40.0,
+    "p99": 330.0
+   },
+   "flags": []
+  },
+  {
+   "case": "s05",
+   "split": "train",
+   "shape": [
+    512,
+    512,
+    90
+   ],
+   "spacing_mm": [
+    0.7,
+    0.7,
+    5.0
+   ],
+   "orientation": "RAS",
+   "voxel_volume_mm3": 2.4499999999999997,
+   "label_values": [
+    0,
+    1,
+    7
+   ],
+   "foreground_fraction": 0.004,
+   "target_volume_ml": 231.21100799999996,
+   "intensity": {
+    "p01": -1024.0,
+    "p50": 40.0,
+    "p99": 330.0
+   },
+   "flags": []
+  },
+  {
+   "case": "s06",
+   "split": "train",
+   "shape": [
+    512,
+    512,
+    90
+   ],
+   "spacing_mm": [
+    0.7,
+    0.7,
+    5.0
+   ],
+   "orientation": "RAS",
+   "voxel_volume_mm3": 2.4499999999999997,
+   "label_values": [
+    0,
+    1
+   ],
+   "foreground_fraction": 0.004,
+   "target_volume_ml": 231.21100799999996,
+   "intensity": {
+    "p01": -1024.0,
+    "p50": 40.0,
+    "p99": 330.0
+   },
+   "flags": [
+    "LABEL_SHAPE_MISMATCH"
+   ]
+  },
+  {
+   "case": "s07",
+   "split": "train",
+   "shape": [
+    512,
+    512,
+    90
+   ],
+   "spacing_mm": [
+    0.7,
+    0.7,
+    5.0
+   ],
+   "orientation": "RAS",
+   "voxel_volume_mm3": 2.4499999999999997,
+   "label_values": [
+    0,
+    1
+   ],
+   "foreground_fraction": 0.004,
+   "target_volume_ml": 231.21100799999996,
+   "intensity": {
+    "p01": 0.0,
+    "p50": 40.0,
+    "p99": 330.0
+   },
+   "flags": []
+  },
+  {
+   "case": "s08",
+   "split": "train",
+   "shape": [
+    512,
+    512,
+    90
+   ],
+   "spacing_mm": [
+    0.7,
+    0.7,
+    5.0
+   ],
+   "orientation": "RAS",
+   "voxel_volume_mm3": 2.4499999999999997,
+   "label_values": null,
+   "foreground_fraction": null,
+   "target_volume_ml": null,
+   "intensity": {
+    "p01": -1024.0,
+    "p50": 40.0,
+    "p99": 330.0
+   },
+   "flags": [
+    "LABEL_MISSING"
+   ]
+  },
+  {
+   "case": "s09",
+   "split": "test",
+   "shape": [
+    512,
+    512,
+    90
+   ],
+   "spacing_mm": [
+    0.7,
+    0.7,
+    5.0
+   ],
+   "orientation": "RAS",
+   "voxel_volume_mm3": 2.4499999999999997,
+   "label_values": null,
+   "foreground_fraction": null,
+   "target_volume_ml": null,
+   "intensity": {
+    "p01": -1024.0,
+    "p50": 40.0,
+    "p99": 330.0
+   },
+   "flags": []
+  },
+  {
+   "case": "s10",
+   "split": "test",
+   "shape": [
+    512,
+    512,
+    90
+   ],
+   "spacing_mm": [
+    0.7,
+    0.7,
+    5.0
+   ],
+   "orientation": "RAS",
+   "voxel_volume_mm3": 2.4499999999999997,
+   "label_values": null,
+   "foreground_fraction": null,
+   "target_volume_ml": null,
+   "intensity": {
+    "p01": -1024.0,
+    "p50": 40.0,
+    "p99": 330.0
+   },
+   "flags": []
+  }
+ ]
+}

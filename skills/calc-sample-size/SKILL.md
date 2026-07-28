@@ -21,6 +21,10 @@ Python (alternative), interpret effect sizes clinically, and produce IRB-ready j
 - **Formulas**: `${CLAUDE_SKILL_DIR}/references/formulas.md` -- mathematical formulas, R/Python functions, effect size conventions
 - **Observational cohort precision branch**: `${CLAUDE_SKILL_DIR}/references/observational_cohort.md`
 - **Prediction-model / medical-AI sample size (Riley)**: `${CLAUDE_SKILL_DIR}/references/prediction_model_sample_size.md` -- the current TRIPOD+AI-aligned standard for a clinical prediction/classification model (development via `pmsampsize`, external validation via `pmvalsampsize`, net-benefit precision). Use this instead of EPV-10 whenever the goal is risk prediction for use rather than a single-predictor hypothesis test (Tests 12-13).
+- **MRMC reader-study sample size (Obuchowski–Rockette)**: `${CLAUDE_SKILL_DIR}/references/mrmc_reader_study_sample_size.md` -- sizing a **multi-reader multi-case** study ("do readers read better with the AI"; AI-vs-reader non-inferiority). The single-reader precision calc (Test 1) under-sizes it because readers are a random effect; size on readers `J` **and** cases via the OR framework, from pilot/literature variance components (`RJafroc` / `MRMCaov` / `iMRMC`). Use whenever a reader study is the design (Test 14).
+- **Segmentation-metric precision (Dice / HD95 / NSD)**: `${CLAUDE_SKILL_DIR}/references/segmentation_metric_sample_size.md` -- sizing a segmentation validation by the precision of the per-case overlap/boundary score (not a proportion): `n ≈ (1.96·SD/δ)²` from the pilot SD of per-case Dice, per structure (size on the worst), bootstrap-BCa CI, paired for a model comparison, and size the external cohort. Use whenever the outcome is Dice/HD95/NSD (Test 15).
+- **Between-model comparison sample size**: `${CLAUDE_SKILL_DIR}/references/multi_model_comparison_sample_size.md` -- sizing a study whose claim is that **one model beats others** (several models head-to-head). Single-model precision under-sizes it: power the **difference**. Pair the design (same cases through all models) → size on the **SD of the per-case difference**; **DeLong** for a paired ΔAUC, bootstrap-paired for ΔDice; for **>2 models** pre-specify one primary contrast or pay the family-wise multiplicity; and for a ranking claim, seed for **rank stability** (Nadeau–Bengio variance, Demšar critical-difference). Use whenever the endpoint is "model A > B/C/…" (Test 16).
+- **Segmentation usability sample size**: `${CLAUDE_SKILL_DIR}/references/segmentation_acceptability_sample_size.md` -- sizing a **usability** claim rather than a metric: the acceptability endpoint is a **proportion** (`n ≈ (z/δ)²p(1−p)`, size on the pessimistic p, size **per structure class**); ratings by m readers are **nested**, so pooling n·m overstates precision by `1+(m−1)ρ`; bounding a **catastrophic-failure rate** needs the **rule of three** (≤1% ⇒ ~300 clean cases — a metric-precision study bounds nothing); **edit time** is a paired per-case difference sized per structure and per site. Use whenever the claim is "clinicians can use this" (Test 17).
 - **Justification prose exemplars**: `${CLAUDE_SKILL_DIR}/references/justification_examples.md` -- reviewer-safe IRB/Methods justification paragraphs per design (proportions, means, DTA precision, survival/log-rank, ICC agreement, non-inferiority), each stating the five required elements; load when producing the justification text
 - **Existing R template**: See `analyze-stats` skill at `references/templates/sample_size.R` for the 7 original tests
 
@@ -362,6 +366,113 @@ target CI widths.
 
 Read `${CLAUDE_SKILL_DIR}/references/prediction_model_sample_size.md` for the `pmvalsampsize`
 code. Report the targeted CI widths and the resulting events / non-events.
+
+---
+
+### Test 14: MRMC Reader Study (Obuchowski–Rockette)
+
+**When to use**: sizing a **multi-reader multi-case (MRMC) reader study** — "do readers read
+better *with* the AI", or "is the AI non-inferior to readers". The single-reader AUC-precision
+calculation (Test 1) **under-sizes** this: readers as well as cases are random, so power must
+cover the **reader-variance** term, and a null from an under-sized reader study is *inconclusive,
+not negative*.
+
+**Approach**: invert the OR variance formula over the number of readers `J` and the case counts
+`N⁺`/`N⁻`; report the **`J × N` power grid** (past a modest case count, adding readers usually
+buys more power than adding cases). Requires **variance components** from a pilot or literature —
+the real bottleneck. Implemented in R `RJafroc` / `MRMCaov` / FDA `iMRMC` (integrate; do not
+hand-roll the OR algebra).
+
+**Required parameters**: the **effect** (ΔAUC, or the **non-inferiority margin** — an AI-vs-reader
+claim is usually NI), the expected AUC level, the **variance components** (pilot/literature), the
+**design** (fully-crossed vs crossover-with-washout), and power/α.
+
+Read `${CLAUDE_SKILL_DIR}/references/mrmc_reader_study_sample_size.md` for the framework, the
+readers-vs-cases trade-off, software, and reporting. Reader-study *design internals* live in
+`design-study` (`reader_elicitation_design.md`); an AI-vs-human-expert benchmark routes to
+`/design-ai-benchmarking`.
+
+---
+
+### Test 15: Segmentation-metric precision (Dice / HD95 / NSD)
+
+**When to use**: sizing a **segmentation** validation — how many cases to estimate the segmentation
+metric (Dice / HD95 / NSD) precisely enough to be conclusive, or to separate two models. The
+proportion/events calcs (Tests 1, 12–13) do not apply: the outcome is a bounded, skewed per-case
+overlap/boundary score, not a proportion.
+
+**Approach**: precision sizing `n ≈ (1.96·SD/δ)²` from the **pilot/literature SD of per-case Dice**
+(per structure — size on the **worst** structure you must report, not the average); report the CI by
+**bootstrapping per-case values (BCa)** — a t-interval is closed-form but Dice is bounded and
+non-normal near the ceiling, so its coverage is not the coverage you asked for, and BCa must resample
+whole **patients**, not structures. A model comparison on the same cases is **paired** (size on the SD of the per-case
+*difference*, or an NI margin). **Size the external cohort too** — a precise external estimate is the
+#1 acceptance lever.
+
+**Required parameters**: the **per-structure SD of per-case Dice** (pilot/literature), the target
+**precision δ** or **NI margin**, and the metric.
+
+Read `${CLAUDE_SKILL_DIR}/references/segmentation_metric_sample_size.md` for the per-structure and
+paired-comparison detail. The comparator/ablation the size serves lives in `design-study`
+(`combine_models_ablation_design.md`); metric selection is `/model-evaluation`.
+
+---
+
+### Test 16: Between-model comparison (is model A really better than B, C, …)
+
+**When to use**: the claim is that **one model outperforms others** — several architectures / families
+compared head-to-head on the same task. Single-model precision (Test 1 AUC, Test 15 Dice) under-sizes
+it: two models can each have a tight CI and still overlap, so the **difference** must be powered.
+
+**Approach**: run all models on the **same cases** (paired / within-case) and size on the **SD of the
+per-case difference** — `σ√(2(1−ρ))`, below either marginal SD once ρ > 0.5, which shared easy/hard cases
+usually clear. Use **DeLong** for a paired ΔAUC (or Obuchowski for the MRMC/clustered case) and a
+**bootstrap of the paired per-case differences** for ΔDice; size so the delta CI excludes zero, or so its
+lower bound clears the NI margin (the whole interval inside ±margin is *equivalence*, a stricter claim).
+For **>2 models**, pre-specify **one primary contrast** (proposed vs a strong, fairly-tuned baseline) at
+full α — or, if all pairwise are confirmatory, pay the **family-wise** correction (higher n per contrast).
+For a **ranking** claim, a single-run leaderboard ranks by luck: train over **multiple seeds**
+(Nadeau–Bengio corrected variance for repeated-CV differences) and leave models inside the **Demšar
+critical difference** unranked — not separated by the test is not a demonstrated tie, and Demšar's N
+counts independent datasets, not seeds.
+
+**Required parameters**: the **per-case-difference SD** of the primary metric (pilot / prior head-to-head;
+per structure for segmentation), the metric + paired-CI method, the target **δ or NI margin on the delta**,
+the **number of models + the primary contrast**, and (for ranking) the **seed-to-seed SD**.
+
+Read `${CLAUDE_SKILL_DIR}/references/multi_model_comparison_sample_size.md` for the paired-difference,
+multiplicity, and ranking-stability detail. The fair-comparison design the size serves lives in
+`design-study` (`multi_model_comparison_design.md`); presenting it is `make-figures`
+(`exemplar_plots/model_comparison_leaderboard.md`).
+
+---
+
+### Test 17: Segmentation usability (acceptability rate, failure bound, edit time)
+
+**When to use**: the claim is that a segmentation model is **clinically usable** — a share of cases a
+clinician accepts, a bounded catastrophic-failure rate, a time saving — not that its mean metric is
+high. Test 15 sizes a mean Dice to a precision and says nothing about any of these.
+
+**Approach**: an acceptability endpoint is a **proportion**: `n ≈ (z/δ)²·p(1−p)` — ≈138 cases at
+p = 0.90, δ = 0.05, but ≈384 at p = 0.50, so size on the pessimistic p unless a pilot in the same
+anatomy says otherwise, and size **per structure class** (use-as-is rates for one pipeline have run
+from ~40% for target volumes to ~89% for normal tissue). When m readers rate each case the ratings
+are **nested**, not independent: pooling n·m overstates precision by `DE ≈ 1 + (m−1)ρ` (3 readers at
+ρ = 0.5 halves it) — pre-specify either a case-level consensus rule or a mixed-effects/GEE analysis.
+To bound a **catastrophic-failure rate**, zero events in n cases gives an upper bound of ≈ `3/n`
+(**rule of three**), so ≤1% needs ~300 clean cases; a 40–60-case study bounds nothing below ~5–8%.
+For an **edit-time** claim, size the paired per-case time difference (as Test 16) **per structure and
+per site** — pooled savings coexist with structures and centres showing none.
+
+**Required parameters**: the acceptability scale and which level counts as accepted (*use-as-is* vs
+*after minor edits* are different endpoints), the expected **p** per structure class and target **δ or
+threshold**, the **readers per case** + analysis unit + assumed **ρ**, the **catastrophic bound** you
+must state, and (for work saving) the **SD of the per-case time difference**.
+
+Read `${CLAUDE_SKILL_DIR}/references/segmentation_acceptability_sample_size.md` for the proportion,
+clustering, rule-of-three and edit-time detail. The usability design the size serves lives in
+`design-study` (`segmentation_failure_characterization_design.md`); presenting it is `make-figures`
+(`exemplar_plots/segmentation_failure_panel.md`).
 
 ---
 

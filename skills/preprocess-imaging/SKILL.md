@@ -78,8 +78,14 @@ Write a declarative JSON manifest that `model-scaffold` consumes and the gate ch
 }
 ```
 
-`fit_scope`: `train` (OK) · `all`/`full`/`dataset`/`test` (leak) · `sample`/`per_image`/`none`
+`fit_scope`: `train` (OK) · `all`/`full`/`dataset`/`test` (leak) · `sample`/`per_image`/`none`/`fixed`
 (not data-fitted, leakage-free). `stage`: `before_split` / `after_split`.
+
+**Declare the fit scope of resampling too.** A target spacing you chose in advance is fixed and
+never leaks (`fit_scope: fixed`). A target *derived* from the cohort does: nnU-Net sets its target
+spacing from a percentile of the dataset fingerprint, so a resample fitted over every case carries
+held-out geometry into the training grid exactly as an intensity statistic would. Which one you
+have is decided by the fingerprint's scope, not by the word "resample".
 
 ### Phase 4 — Gate the manifest (deterministic)
 ```bash

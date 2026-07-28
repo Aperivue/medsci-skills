@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Generate metadata/detectors_catalog.json — the MedSci-Audit detector registry.
 
-Why: the repo ships 24 deterministic analysis-integrity detectors, but until now
+Why: the repo ships dozens of deterministic analysis-integrity detectors, but until now
 they were only *counted* (`metadata/catalog_counts.json: integrity_detectors`),
 never *enumerated* in a machine-readable single source of truth. This catalog
 names and groups them so MEDSCI_AUDIT.md (and any external surface) can reference
@@ -12,7 +12,7 @@ Discovery uses the EXACT same glob as scripts/validate_catalog_consistency.py:
 `check_*.py`/`detect_*.py`/`derive_*.py`/`verify_refs.py` under `skills/*/scripts/`
 ONLY — top-level `scripts/` validators (validate_*, repo-CI/host gates) are NOT
 manuscript-integrity detectors and are excluded. So `detector_count` here equals
-`catalog_counts.json::integrity_detectors` (24); the self-test asserts it.
+`catalog_counts.json::integrity_detectors`; the self-test asserts it.
 
 Family: detectors have no in-file category, so each detector id is mapped to one
 of a small set of audit families via the explicit table below (the v4.0.0
@@ -48,6 +48,7 @@ DETECTOR_GLOBS = ("check_*.py", "detect_*.py", "derive_*.py", "verify_refs.py")
 FAMILY_BY_ID: dict[str, str] = {
     # Numerical, cohort & pool arithmetic
     "check_cohort_arithmetic": "numerical_cohort",
+    "check_effect_stability": "numerical_cohort",
     "check_table_percentages": "numerical_cohort",
     "check_reported_p_from_counts": "numerical_cohort",
     "check_dta_denominators": "numerical_cohort",
@@ -66,21 +67,36 @@ FAMILY_BY_ID: dict[str, str] = {
     "check_reference_adequacy": "citation_reference",
     "check_placeholders": "citation_reference",
     "check_reference_duplication": "citation_reference",
+    "check_claim_fidelity": "citation_reference",
     # Style & review-process integrity
     "check_classical_style": "style_review",
+    "check_slide_tells": "style_review",
+    "check_deck_budget": "style_review",
     "check_generated_code": "style_review",
     "check_panel_diversity": "style_review",
     "check_reviewer_team_consistency": "style_review",
     "check_paren_spans": "style_review",
     "check_training_hygiene": "style_review",
     "check_editorial_impression": "style_review",
+    "check_baseline_drift": "style_review",
     "check_emphasis_density": "style_review",
+    "check_aphorism_density": "style_review",
+    "check_rhetorical_density": "style_review",
+    "check_perspective_structure": "style_review",
+    "check_rewrite_fidelity": "style_review",
+    "check_sentence_variety": "style_review",
     "check_response_claims": "style_review",
+    "check_density_complaint": "style_review",
     "check_pdf_injection": "style_review",
     "check_self_improvement_claims": "style_review",
+    "check_review_request_types": "style_review",
+    "check_review_length": "style_review",
+    "check_review_boxes": "style_review",
     "check_marked_manuscript": "style_review",
     # Confounding, scope & estimand contracts
     "check_scope_coherence": "confounding_scope_estimand",
+    "check_incorporation_bias": "confounding_scope_estimand",
+    "check_analysis_definitions": "confounding_scope_estimand",
     "check_confounding_completeness": "confounding_scope_estimand",
     "check_nested_group_comparison": "confounding_scope_estimand",
     "check_claim_artifact": "confounding_scope_estimand",
@@ -100,6 +116,9 @@ FAMILY_BY_ID: dict[str, str] = {
     "check_mllm_eval_completeness": "reporting_compliance",
     "check_explainability_report": "reporting_compliance",
     "check_uncertainty_reporting": "reporting_compliance",
+    "check_exclusion_code_validity": "reporting_compliance",
+    "check_portal_mirror": "reporting_compliance",
+    "check_credit_integrity": "reporting_compliance",
     # Data preparation & validation
     "check_structural_zero": "data_preparation",
     "check_reverse_coding": "data_preparation",
@@ -110,10 +129,13 @@ FAMILY_BY_ID: dict[str, str] = {
     "check_split_leakage": "data_preparation",
     "check_cv_leakage": "data_preparation",
     "check_metric_reporting": "data_preparation",
+    "check_dataset_profile": "data_preparation",
+    "check_model_provenance": "data_preparation",
     "check_preprocessing_leakage": "data_preparation",
     "check_radiomics_ml": "data_preparation",
     "check_separation": "data_preparation",
     "check_contribution_safety": "data_preparation",
+    "check_portal_field_residue": "data_preparation",
 }
 
 # Stable display order + human labels for the families array.

@@ -37,122 +37,67 @@ Gather essential information from the user before any writing begins.
 5. **Available data**: what datasets, tables, analyses already exist
 
 **Optional flags:**
-- `--no-llm-disclosure`: Skip LLM writing assistance disclosure. Default is ON (disclosure included). See [LLM Disclosure](#llm-writing-disclosure) section below.
-- `--autonomous`: Run the full pipeline without user gates. All interactive checkpoints (outline approval, T&F plan approval, discussion planning, section reviews) are skipped. The pipeline executes Phases 0-7 sequentially without pausing. Default is OFF (all gates active). Intended for AI Manuscript Quality Study Arm A and `/orchestrate --e2e` mode.
+- `--no-llm-disclosure`: skip the LLM writing-assistance disclosure. Default is ON.
+- `--autonomous`: run Phases 0–7 without user gates (outline approval, T&F plan, discussion planning, section reviews all skipped). Default OFF.
 
 **Actions:**
-1. Load the journal profile. If no profile exists, ask the user for: word limits, abstract format, citation style, figure/table limits, special requirements.
-2. Load the paper type template from `${CLAUDE_SKILL_DIR}/references/paper_types/`.
-3. Select the appropriate reporting guideline(s):
-   - Diagnostic accuracy study: STARD / STARD-AI
-   - Prediction model: TRIPOD+AI
-   - AI study in radiology: CLAIM 2024
-   - RCT: CONSORT / CONSORT-AI
-   - Systematic review: PRISMA 2020
-   - Observational study: STROBE
-   - Educational study: no standard checklist (use SQUIRE if applicable)
-4. **AI/LLM design-stage reporting map**: for AI validation, LLM/MLLM, NLP extraction, or report-generation papers, map each required AI-reporting item to a manuscript section before drafting. At minimum record model/version/access date, input fields, prompt or fine-tuning protocol, same-backbone zero-shot/few-shot baseline if an adaptation claim is made, test-data independence/contamination assessment, repeatability/stochasticity handling, and the Methods subsection where each will appear. If any item cannot be placed, halt for design clarification rather than burying it as a Phase 7 limitation.
+1. Load the journal profile. If none exists, ask for word limits, abstract format, citation style, figure/table limits, and special requirements.
+2. Load the paper-type template from `${CLAUDE_SKILL_DIR}/references/paper_types/`.
+3. Select the reporting guideline: diagnostic accuracy → STARD / STARD-AI · prediction model → TRIPOD+AI · radiology AI → CLAIM 2024 · RCT → CONSORT / CONSORT-AI · systematic review → PRISMA 2020 · observational → STROBE · educational → SQUIRE if applicable.
+4. **AI/LLM design-stage reporting map** (AI validation, LLM/MLLM, NLP extraction, report generation): map every required AI-reporting item to a manuscript section *before* drafting — model/version/access date, input fields, prompt or fine-tuning protocol, same-backbone zero-shot/few-shot baseline if an adaptation claim is made, test-data independence/contamination, repeatability, and the Methods subsection each will land in. **If any item cannot be placed, halt for design clarification** rather than burying it as a Phase 7 limitation.
 5. Create or confirm the project scaffold directory.
-6. Check for `--no-llm-disclosure` flag. If absent, LLM disclosure is ON by default.
-   Check for `--autonomous` flag. If present, record autonomous mode as ON.
-   Record both flag states for use in Phase 1-7 gate logic.
+6. Record the `--no-llm-disclosure` and `--autonomous` flag states for Phase 1–7 gate logic.
+7. **Identify a backbone article** — scan `manuscript/_src/refs.bib` first and propose proactively; ask only as a fallback. Record the chosen citekey in `project.yaml::backbone_article`. The ranking and proposal behaviour are in the reference file. Then gate on its full text — **a backbone whose full text is not extracted is a backbone in name only; the draft would follow an abstract:**
 
-#### Case Report Mode
+   ```bash
+   python3 ${CLAUDE_SKILL_DIR}/scripts/gate_backbone_fulltext.py \
+     --project project.yaml --refs manuscript/_src/refs.bib \
+     --fulltext-dir pdfs/ --strict
+   ```
 
-When paper type is "case report":
-1. Load `${CLAUDE_SKILL_DIR}/references/paper_types/case_report.md` (CARE structure).
-2. Load `${CLAUDE_SKILL_DIR}/references/exemplar_case_report.md` for the narrative flow,
-   150-word structured abstract anatomy, and case-report failure modes.
-2b. If the case is **imaging-led** (diagnostic radiology, nuclear medicine, or interventional
-    radiology — the contribution is the image or an image-guided procedure), also load
-    `${CLAUDE_SKILL_DIR}/references/exemplar_case_report_radiology.md` for per-modality
-    technique→findings→impression discipline, structured-reporting lexicons (BI-RADS/LI-RADS/
-    PI-RADS/TI-RADS/Lung-RADS/O-RADS), quantitative anchors with method/threshold honesty,
-    multimodality discordance, the IR procedure/complication subtype, incidental-finding reporting,
-    and DICOM de-identification / real alt text / device-vendor COI.
-3. Override word limits: total 1000-1500 words (excl. abstract, references, legends).
-4. Override abstract limit: 150 words, structured (Introduction, Case Presentation, Conclusion).
-5. Override reference limit: 15 references maximum.
-6. Apply CARE 2013 reporting guideline (mandatory; see `/check-reporting` `CARE.md`).
-7. Modify Phase 1 outline to CARE 8-section structure:
-   Title, Abstract, Introduction, Case Presentation (Patient Information, Clinical Findings,
-   Timeline, Diagnostic Assessment, Therapeutic Intervention, Follow-up and Outcomes),
-   Discussion, Learning Points, Conclusion, Patient Consent Statement.
-8. In Phase 2, default figures:
-   - Figure 1: Key imaging findings (annotated, typically 3-6 panels)
-   - Figure 2: Clinical timeline (if complex course)
-   - Table 1: Laboratory and clinical data at presentation
-9. In Phase 5 (Discussion), call `/search-lit` with query: `"[condition]" AND "case report"[Publication Type]`.
-   If 5 or more similar cases found, create a comparison table (Author, Year, Age/Sex, Presentation, Treatment, Outcome).
-   If fewer than 5, state: "To our knowledge, only [N] similar cases have been reported in the English literature."
-10. Skip Phase 5a Discussion Planning Gate — case reports are shorter; proceed directly to drafting.
-11. For extended case reports with literature review, user can specify `--extended` to raise
-    the word limit to 2000-3000 words and add a structured review section.
-
-#### Case Series Mode
-
-When paper type is "case series" (n≥2 patients reported together):
-1. Load `${CLAUDE_SKILL_DIR}/references/paper_types/case_series.md` — a case series is a
-   **methods-light mini-cohort**, not a stack of single case reports.
-2. Also load `${CLAUDE_SKILL_DIR}/references/exemplar_case_report.md` for per-case narrative
-   discipline (each vignette still follows the CARE moves).
-3. Typical word count: 1500–3000 words (scales with patient count).
-4. Apply CARE adapted for multiple patients; for ≥5 surgical cases consider PROCESS/SCARE.
-5. Modify Phase 1 outline to: Title → Abstract (structured) → Introduction → **Methods**
-   (design, setting, case identification, eligibility as a numbered list, protocol, assessment
-   process) → **Results** (mandatory all-cases summary table + consistent per-case vignettes,
-   grouped by subtype where a taxonomy exists) → Discussion (cross-case synthesis +
-   cohort-level limitations) → Conclusions → Ethics/Consent.
-6. In Phase 2, default a **summary Table 1 enumerating every case** (one row per patient) plus
-   representative figures labeled to each case number.
-7. In Discussion, enforce the case-series discipline: state selection/ascertainment and the
-   screened pool size; **report counts, not rates** (a referral/database series is not a
-   denominator of all disease); cohort-level limitations are mandatory and specific.
-
-7. **Identify a backbone article (auto-proposal first, ask only as fallback)**:
-   a. **Scan first** — if `manuscript/_src/refs.bib` exists, scan it for entries matching the current paper's study design (Phase 0 paper_type), imaging modality, and target journal (or comparable tier). Prefer entries whose Zotero record has a PDF attachment (full text locally available).
-   b. **Rank candidates** by: PDF available locally (+2), recency within 5 years (+1), same target journal (+2), same study design + modality (+2).
-   c. **Behavior**:
-      - **One strong candidate (score ≥ 5)** — propose it proactively: *"I found a likely backbone article: [citation]. Full text appears available. I will use it as the structural backbone unless you prefer another."* Proceed once user confirms or stays silent for one turn.
-      - **Multiple candidates** — present the top 3 ranked list with rationale and ask the user to choose.
-      - **No refs.bib, or no candidates** — ask the user to provide a published study (legacy behavior).
-   d. Record the chosen citekey in `project.yaml::backbone_article` so Methods, Tables, and Figures phases reuse it without re-asking.
-   e. **Full-text readiness gate (MANDATORY before any drafting).** A backbone whose full text is not extracted is a backbone in name only — the draft would follow an abstract. After recording the citekey, confirm its full text is retrieved and converted to Markdown, then gate on it:
-      ```bash
-      python3 ${CLAUDE_SKILL_DIR}/scripts/gate_backbone_fulltext.py \
-        --project project.yaml --refs manuscript/_src/refs.bib \
-        --fulltext-dir pdfs/ --strict
-      ```
-      `BACKBONE_FULLTEXT_MISSING` / `BACKBONE_FULLTEXT_THIN` means stop and retrieve it first — `/lit-sync` Phase 2.7 (open-access + Zotero "Find Available PDF") then `/fulltext-retrieval` `pdf_to_md.py` to convert the PDF to Markdown. Do **not** begin Methods drafting until this gate passes (addresses issues #4 and #8: the backbone is *used*, not merely *detected*). If the article is genuinely unavailable in full text, record that limitation explicitly and get user confirmation before proceeding on the abstract.
+   `BACKBONE_FULLTEXT_MISSING` / `BACKBONE_FULLTEXT_THIN` → **stop and retrieve it** (`/lit-sync` Phase 2.7, then `/fulltext-retrieval` `pdf_to_md.py`). Do not begin Methods drafting until this passes. If the article is genuinely unavailable in full text, record that limitation and get user confirmation before proceeding on the abstract alone.
 8. Summarize the setup to the user and confirm before proceeding.
 
-**Output:** Setup summary with journal constraints, paper type, reporting guideline, backbone article, directory path, and LLM disclosure status (ON/OFF).
+**Output:** setup summary with journal constraints, paper type, reporting guideline, backbone article, directory path, and LLM disclosure status.
 
 #### Phase 0 Gate: Citekey-only references
 
-Before any section drafting begins, this skill enforces citekey-only entry into
-the manuscript. LLM-generated reference strings in prose are a primary source of
-citation fabrication.
+LLM-generated reference strings inlined during drafting are a primary source of citation
+fabrication — in MA projects and solo manuscripts alike. Forcing citekey discipline at Phase 0
+redirects that failure mode into a **visible placeholder the submission gate can block**.
 
-**Hard rules (v1.1.1 Phase 1A.4)**:
+1. **Every in-text citation MUST be `[@citekey]`**, with `citekey` present in
+   `manuscript/_src/refs.bib`. Pandoc/Quarto style only — no "(Smith et al., 2024)" free text.
+2. For a citation intended but not yet imported, use `[@NEW:short-topic]` (kebab-case, ≤30 chars,
+   unique in the manuscript).
+3. **Never** fabricate a citekey that "looks real" (`[@Smith_2024_AI]`) when the entry is not in
+   `refs.bib`. `[@NEW:...]` is the *only* allowed placeholder.
+4. All `[@NEW:...]` placeholders must be resolved before Phase 7 (`/search-lit` → `/lit-sync`
+   imports verified entries; Better BibTeX refreshes `refs.bib`).
+5. Pre-submission check — must return zero matches before `/sync-submission` may freeze a package:
 
-1. **Every in-text citation MUST be `[@citekey]`**, where `citekey` exists in `manuscript/_src/refs.bib`. Pandoc/Quarto-style only. No "(Smith et al., 2024)" free text.
-2. **For a citation the user intends to add but has not yet imported to Zotero**, use the placeholder form `[@NEW:short-topic]` (e.g., `[@NEW:chest-xray-llm]`, `[@NEW:radbench-1]`). The topic slug is kebab-case, ≤30 characters, and must be unique within the manuscript.
-3. **Never** fabricate a citekey that "looks real" (e.g., `[@Smith_2024_AI]`) when the entry is not in `refs.bib`. The `[@NEW:...]` form is the only allowed placeholder.
-4. Before Phase 7 (Polish), ALL `[@NEW:...]` placeholders must be resolved:
-   - Owner runs `/search-lit` → `/lit-sync` to import verified entries into Zotero; Better BibTeX auto-export refreshes `refs.bib`; owner replaces `[@NEW:topic]` with the real citekey.
-   - Collaborators notify the owner (per `docs/zotero_policy.md`).
-5. Phase 7 pre-submission check: `grep -E '\[@NEW:[^]]+\]|\[N\]|\[N–N\]' manuscript/index.qmd` must return zero matches before `/sync-submission` is allowed to freeze a journal package. The bare numeric markers `[N]` / `[N–N]` are the failure mode where a manuscript is drafted outside this pipeline (no `refs.bib`) and method-load-bearing citations are left as unresolved placeholders; block them the same way as `[@NEW:...]`.
+   ```bash
+   grep -E '\[@NEW:[^]]+\]|\[N\]|\[N–N\]' manuscript/index.qmd
+   ```
 
-**Why this matters**: PRISMA citation fabrication in MA projects and reference hallucination in solo manuscripts both traced back to LLM-generated citation strings inlined during drafting. Forcing the citekey discipline at Phase 0 redirects that failure mode into a visible placeholder the submission gate can block.
+   The bare `[N]` / `[N–N]` markers are the failure mode of a manuscript drafted outside this
+   pipeline (no `refs.bib`), with method-load-bearing citations left unresolved. Block them
+   exactly like `[@NEW:...]`.
 
-**If refs.bib is absent (new project)**:
-- Create an empty `manuscript/_src/refs.bib` placeholder with a comment: `% refs.bib managed by /lit-sync via Zotero Better BibTeX. Do not hand-edit.`
-- Record in `SSOT.yaml` `reference_manager.required_for: project_owner` per Zotero policy.
-- Proceed; all early citations will be `[@NEW:...]` placeholders until the first `/lit-sync` run.
+If `refs.bib` is absent, create it empty with the comment
+`% refs.bib managed by /lit-sync via Zotero Better BibTeX. Do not hand-edit.`, record
+`reference_manager.required_for: project_owner` in `SSOT.yaml`, and proceed — early citations
+will all be `[@NEW:...]` until the first `/lit-sync` run.
+
+**Read on demand — once the paper type is known (step 2), and only the row that matches:**
+
+| File | Read it when | Cost if read blindly |
+|---|---|---|
+| `references/phase0_init_detail.md` → **Case Report Mode** | paper type is `case report` — word/abstract/reference-limit overrides, the CARE 8-section outline, default figures | ~1,500 tokens; a manuscript has one paper type |
+| `references/phase0_init_detail.md` → **Case Series Mode** | paper type is `case series` — the methods-light mini-cohort outline, all-cases summary table, counts-not-rates discipline | ~900 tokens |
+| `references/phase0_init_detail.md` → **Backbone ranking** | `refs.bib` exists and you are proposing a backbone | ~700 tokens |
 
 ---
-
 ### Phase 1: Outline
 
 Create a structured IMRAD outline with section-level word budgets that respect journal limits.
@@ -395,275 +340,83 @@ Write these LAST because they frame the paper and depend on knowing what was act
 
 ### Phase 7: Polish
 
-Final quality pass before submission.
+Final quality pass. **Strict sequential execution — each step MUST complete before the next
+begins.** Every HALT stops the pipeline; none is advisory. Rationale, tables and greps:
+`${CLAUDE_SKILL_DIR}/references/phase7_polish_detail.md`.
 
-**Actions (strict sequential execution — each step MUST complete before the next begins):**
+**7.1 — AI Pattern Scan.** Remove AI writing patterns (see AI Pattern Avoidance below), editing
+`manuscript/manuscript.md` in place. Then run the deterministic lint — the machine-checkable
+subset of the classical-style conventions a senior reviewer flags on sight:
+`python3 "${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/self-review/scripts/check_classical_style.py" --manuscript manuscript/manuscript.md --strict`.
+For an MA / systematic review, or when a senior co-author review is expected, also work the
+7-grep checklist in `references/section_guides/step7_1_classical_qc.md`. Pattern 19–21 body
+rewrites (§, self-reference, AI-disclosure boilerplate) go to `/humanize`.
 
-#### Step 7.1: AI Pattern Scan
+> **HALT — AI-disclosure meta-applicability.** An AI/LLM-use disclosure must itself satisfy the
+> items the manuscript critiques (FLAIR F1.6, TRIPOD-LLM, MI-CLEAR-LLM): **version**, **access
+> channel**, **date range**, **responsible party**, zero `[version]`/`TODO` placeholders. A paper
+> cannot fail a framework item it critiques. (Classical target: title page, not the body.)
 
-Scan for and remove AI writing patterns (see AI Pattern Avoidance below). Edit `manuscript/manuscript.md` in place.
+**7.2 — Reporting Guideline Check.** Call `/check-reporting`. Auto-insert only MISSING items whose
+`fixable_by_ai` is true; never invent items needing external facts (IRB / registration numbers).
+Log every insertion to `qc/_pipeline_log.md`.
 
-**Classical-style QC (for senior MA reviewers) — load on demand:**
+**7.3 — Citation Verification.** The placeholder gate first — **HARD STOP** on any hit of
+`grep -nE '\[@NEW:[^]]+\]' manuscript/index.qmd manuscript/manuscript.md`, looping back to
+`/search-lit` → `/lit-sync`. Then `/verify-refs`: parse `qc/reference_audit.json` and **stop the
+pipeline** if `submission_safe: false`, surfacing every `FABRICATED` / `MISMATCH` and any
+`duplicate_findings[]`.
 
-| Trigger | Action |
-|---------|--------|
-| Manuscript type = MA, systematic review, or a senior co-author review is expected | Load `references/section_guides/step7_1_classical_qc.md` → run the 7 grep checks together (§ symbol, AI Disclosure paragraph, heading style, eligibility numbered list, Funding placeholder, PROSPERO chronology, em-dash overuse) |
-| Verify all at once with a deterministic lint | `python3 "${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/self-review/scripts/check_classical_style.py" --manuscript manuscript/manuscript.md --strict` — `SECTION_SYMBOL`/`INBODY_AI_DISCLOSURE` (Major) + `ELIGIBILITY_PROSE`/`DECIMAL_INCONSISTENCY`/`EM_DASH_OVERUSE` (Minor). The machine-checkable subset of the same conventions as the 7-grep checklist. |
-| Global-rule cross-reference | `~/.claude/rules/manuscript-style-classical.md` (motivation for the 11 items) |
-| Pattern 19–21 body rewrite | `/humanize` (§, self-reference, AI Disclosure boilerplate) |
+**7.3a / 7.3b / 7.3c — Integrity audits.** Run all three between 7.3 and 7.4; each can HALT and
+route to 7.4a. **7.3a** numerical claims (text ↔ Table ↔ extraction CSV + primary-source check; a
+direction reversal or a p<0.05↔p≥0.05 crossing is a **P0 blocker**). **7.3b** estimand provenance
+(delegates to `/self-review` 2.5f; `PRIMARY_REASSIGNED`, `EVALUE_ARITHMETIC`, `EVALUE_NON_PRIMARY`
+= **P0**). **7.3c** reference adequacy (every named method cited — resolve via `/search-lit` →
+`/lit-sync` → `/verify-refs --strict`, **never fabricate**). See `phase7_integrity_audits.md`.
 
-**AI-disclosure meta-applicability (manuscript-style-classical §15):** if the manuscript
-contains an AI/LLM-use disclosure, that paragraph must itself satisfy the reporting items the
-manuscript critiques (FLAIR F1.6, TRIPOD-LLM, MI-CLEAR-LLM all require the tool **version**, the
-**access channel**, the **date range**, and the **responsible party**). Enforce all four tokens
-and zero unresolved placeholders:
+**7.4 — Self-Review + Fix Loop.** Call `/self-review --json --fix`: it reviews, applies
+`fixable_by_ai` edits, and re-reviews (≤2 iterations), stopping early on `PASS`. Log the score,
+verdict, iteration count, and residual issues. **Any surviving `severity: "fatal"` issue routes to
+7.4a — do not proceed to 7.5.**
 
-```bash
-DISC=$(grep -niE 'generative ai|large language model|\bLLM\b|assisted (the|with) (writing|drafting)|ChatGPT|Claude|Copilot|Gemini' manuscript/manuscript.md)
-# the disclosure paragraph must carry: version + channel + date + responsible party
-grep -iE 'version|[0-9]+\.[0-9x]+|GPT-[0-9]'   <<<"$DISC"   # version present
-grep -iE 'API|chat|web|Bedrock|Azure|interface' <<<"$DISC"   # access channel present
-grep -E '20[0-9]{2}'                            <<<"$DISC"   # date / date range present
-grep -iE 'by [A-Z]\.[A-Z]\.|reviewed by|deployed by|the authors' <<<"$DISC" # responsible party
-# zero placeholders
-grep -nE '\[(version|date|tool|model|channel)\]|TODO|XXXX|TBD' manuscript/manuscript.md  # must be empty
-```
+**7.4a — Audit Recovery Branch.** Some findings are structural, not prose: the data, protocol, or
+analysis script is wrong, and polishing on top yields a clean manuscript on a broken foundation.
+**Inline text fixes are forbidden** — recovery means re-extraction, re-analysis, or
+re-registration. Halt 7.5–7.6, log the branch, invoke the routed skill, re-enter at **7.3**.
+Loop budget: one cycle. Routing: `references/section_guides/step7_4a_audit_recovery.md`.
 
-Any missing token (or a surviving `[version]`/`TODO`/`XXXX` placeholder) is a HALT: the paper
-cannot critique a framework's AI-disclosure item while failing it itself. For a classical /
-senior-MA target the disclosure paragraph is not placed in the body at all — branch it to the
-title page (manuscript-style-classical §7 forbids the in-body AI-disclosure paragraph).
+**7.5 — Generate Deliverables.** `manuscript/manuscript.md`, `manuscript/title_page.md`,
+`qc/reporting_checklist.md`, `qc/self_review.md`, `qc/_pipeline_log.md`. **Do not hand-number
+author affiliations** — build and verify with `scripts/build_title_page_affiliations.py --check
+title_page.md --strict` (a Nature Portfolio / npj technical-check item).
 
-#### Step 7.2: Reporting Guideline Check
+**7.6 — DOCX Build.** Embed figures from `analysis/figures/_figure_manifest.md`, then render.
+Prefer `/manage-refs` (pandoc + citeproc + journal CSL) for any submission with >5 references, and
+**never hand-type a References list**.
 
-Call `/check-reporting` on `manuscript/manuscript.md`. Parse the output:
-- If the report includes a JSON summary block (Part D), extract MISSING items.
-- For each MISSING item where `fixable_by_ai` is true (e.g., missing ethics statement, missing data availability statement, missing sample size justification), insert the suggested text at the indicated location in `manuscript/manuscript.md`.
-- Do NOT attempt to fix items requiring external information (IRB numbers, registration numbers, protocol details only the author knows).
-- Log all auto-inserted text to `qc/_pipeline_log.md`.
-
-#### Step 7.3: Citation Verification
-
-**7.3.1 — Placeholder gate (v1.1.1 Phase 1A.4).** Before running `/verify-refs`,
-confirm that no `[@NEW:topic]` placeholders remain:
-
-```bash
-grep -nE '\[@NEW:[^]]+\]' manuscript/index.qmd manuscript/manuscript.md 2>/dev/null
-```
-
-If any match is returned, HARD STOP. Report the unresolved placeholders to the
-user and loop back: owner runs `/search-lit` → `/lit-sync` to import entries,
-collaborators flag via owner. Do NOT proceed to 7.3.2 until the grep is clean.
-
-**7.3.2 — Audit.** Call `/verify-refs` on the current manuscript. Per v1.2.0
-contract, its sole output is `qc/reference_audit.json` (no longer writes
-`references/*`). Parse that file: if `submission_safe: false`, stop the pipeline
-and surface the `FABRICATED` / `MISMATCH` records AND any `duplicate_findings[]`
-entries (duplicate PMID/DOI; cite renumbering required) to the user. If
-`/verify-refs` is unavailable, fall back to `/search-lit --verify-only` and flag
-any unverified references with `[UNVERIFIED]` markers.
-
-#### Steps 7.3a / 7.3b / 7.3c: Integrity audits (numerical / estimand / reference-adequacy)
-
-After Step 7.3 and before Step 7.4, run three integrity audits. Each can HALT and route to **Step 7.4a (Audit Recovery Branch)**. **Full procedures (triggers, blocker policy, the delegated checker commands, and the `qc/_pipeline_log.md` log formats) are in `${CLAUDE_SKILL_DIR}/references/phase7_integrity_audits.md` — load it when this step runs.**
-
-- **7.3a Numerical Claim Audit** (mandatory for MA / pooled estimates / comparative arms / revisions / reporting-quality-checklist synthesis): 3-way match text ↔ Table ↔ extraction CSV, primary-source back-check, analysis-script literal audit, and recompute reporting-quality headline numbers from matrix cells (denominator = Σ non-NA). A direction reversal or a p<0.05↔p≥0.05 crossing is a **P0 blocker**; composes with `/self-review` Phase 2.5a.
-- **7.3b Estimand Provenance & Promised-Analysis Audit** (any pre-registered/protocol primary, E-value, or named analyses): delegate to `/self-review` Phase 2.5f — `PRIMARY_REASSIGNED` / `ESTIMAND_DRIFT` / `EVALUE_ARITHMETIC` / `EVALUE_NON_PRIMARY` are **P0 blockers**; grep that Methods-promised analyses appear in Results; run `check_artifact_coverage.py --strict` for the disk-present-but-unreported reverse scan.
-- **7.3c Reference Adequacy Gate** (every named statistical method / reporting guideline must carry a citation): run `check_reference_adequacy.py` (no `--strict`; write-paper decides from the JSON); a `methods_zero_citations` / `methods_named_method_uncited` finding is a reference-acquisition blocker resolved only via `/search-lit` → `/lit-sync` → `/verify-refs --strict` (never fabricate); composes with `/self-review` Phase 2.5c-2.
-
-#### Step 7.4: Self-Review + Fix Loop
-
-Call `/self-review --json --fix` on the current `manuscript/manuscript.md`.
-
-This delegates the entire fix loop to the self-review skill, which:
-1. Runs systematic review (Phase 2) and generates a JSON report (Phase 3c).
-2. If `verdict` is `"REVISE"`: filters `fixable_by_ai` issues, applies text edits to `manuscript.md`, and re-reviews — up to 2 fix-and-re-review iterations.
-3. If `verdict` is `"PASS"` after any iteration: stops early.
-4. Returns the final JSON report with updated scores.
-
-**High-stakes manual pass (optional):** this autonomous loop deliberately uses the single-pass review — a multi-agent panel is *not* auto-applied in the pipeline (it spawns several reviewer agents plus an editor, multiplying token cost). For a top-tier or otherwise high-stakes manuscript, run `/self-review --panel` once manually as a final pre-submission pass (it diagnoses and prioritizes but does not auto-fix, so triage its findings yourself).
-
-After `/self-review --json --fix` completes:
-- Parse the final JSON output block.
-- Log the final `overall_score`, `verdict`, fix iteration count, and any remaining issues to `qc/_pipeline_log.md`.
-- If any `severity: "fatal"` issue remains: **route to Step 7.4a (Audit Recovery Branch)** — do NOT proceed to Step 7.5.
-- If no fatal issue remains: proceed to Step 7.5.
-
-#### Step 7.4a: Audit Recovery Branch
-
-**Purpose:** the linear polish flow assumes remaining issues are prose-level, but some
-self-review findings are structural — underlying data, protocol application, or analysis
-script is wrong, not prose. Continuing through Step 7.5 – 7.6 in that case produces a
-polished manuscript built on a broken foundation. This step makes the recovery loop
-explicit.
-
-**Trigger (any one from Step 7.4 JSON):** fatal issue in category `accuracy`,
-`data_fidelity`, `protocol_mismatch`, or `numerical_claim`; unresolved Step 7.3a primary-
-source disagreement; `[VERIFY-CSV]` tag persisting after two fix iterations; registered
-protocol ↔ delivered analysis inconsistency; reviewer-consensus ↔ locked-dataset
-disagreement. Inline text fixes are forbidden — recovery requires re-extraction,
-re-analysis, or re-registration.
-
-**Routing table:**
-
-| Symptom | Route to |
-|---|---|
-| MA pooled/forest/subgroup/funnel numbers disagree with source | `/meta-analysis` Phase 10 |
-| MA protocol ↔ analysis mismatch (eligibility, outcome, subgroup) | `/meta-analysis` Phase 10 + registry amendment |
-| Primary-study numerical claim disagrees with source Table/Figure | `/meta-analysis` Phase 6b, then return |
-| Non-MA extraction error affecting Table 1 / primary endpoint | Return to Phase 2, re-enter Phase 3 – 7 for affected sections |
-| Non-MA protocol amendment needed | HALT — human decision |
-
-**Sequence**: (1) halt Steps 7.5 – 7.6; (2) log the branch decision to
-`qc/_pipeline_log.md`; (3) invoke the routed skill with the specific findings; (4) on
-re-entry, resume at Step 7.3 (Citation Verification) — not Step 7.1, because recovery
-may have introduced new citations — and carry any change summary to Phase 8+;
-(5) loop budget is one cycle — a second cycle should trigger a root-cause review of
-Phase 2 / 6 / 6b rather than another recovery.
-
-**Autonomous mode.** In `--autonomous`, the orchestrator may auto-invoke the routed
-recovery skill. If the recovery requires human decision (protocol amendment, eligibility
-re-scope), the run stops and flags `RECOVERY_HALT_HUMAN_DECISION` in the log.
-
-**Load-on-demand procedural detail** (full trigger list, log-block template, per-route
-re-entry checklist, autonomous-mode edge cases):
-`${CLAUDE_SKILL_DIR}/references/section_guides/step7_4a_audit_recovery.md`.
-
-#### Step 7.5: Generate Deliverables
-
-Log the self-review fix loop results to `qc/_pipeline_log.md`:
-```
-## Self-Review Fix Loop (Phase 7.4)
-- Initial score: {score_before} → Final score: {score_after}
-- Fix iterations: {N}/2
-- Fixed issues: {count}
-- Remaining issues (human review needed): {count}
-- Final verdict: {PASS|REVISE}
-```
-
-Generate the following files:
-- `manuscript/manuscript.md`: Complete manuscript (with LLM disclosure in Methods and Acknowledgments if enabled)
-- `manuscript/title_page.md`: Title page with author info, word count, key points if required. **Number the author affiliations by first appearance** (affiliation 1 = the first author's first affiliation; each new affiliation gets the next integer as the author list is read left to right; each ends with city + country) — required by Nature Portfolio / npj technical checks. Do not hand-number; generate and verify with `scripts/build_title_page_affiliations.py` (`--authors authors.yaml` to build, `--check title_page.md --strict` to verify). See `references/section_guides/title_abstract.md` § "Title Page — Author & Affiliation Order".
-- `qc/reporting_checklist.md`: Filled reporting guideline checklist from Step 7.2
-- `qc/self_review.md`: Final self-review report from Step 7.4
-- `qc/_pipeline_log.md`: Pipeline execution log
-
-#### Step 7.6: DOCX Build
-
-Build the final submission-ready documents from the assembled components:
-
-1. **Input files**: `manuscript/manuscript.md`, `analysis/figures/_figure_manifest.md`, `analysis/tables/*.csv`
-2. **Figure embedding**: Parse `analysis/figures/_figure_manifest.md`. For each figure entry, verify the file exists at the specified path. Replace markdown image references `![Figure N. ...](path)` with the actual image path.
-3. **Table embedding**: For each `analysis/tables/*.csv` file referenced in the manuscript, the pandoc conversion will handle table formatting.
-4. **Pandoc conversion** (primary):
-   ```bash
-   pandoc manuscript/manuscript.md -o manuscript/manuscript_final.docx -V mainfont="Times New Roman" -V fontsize=12pt
-   pandoc manuscript/manuscript.md -o manuscript/manuscript_final.pdf --pdf-engine=xelatex -V geometry:margin=1in -V fontsize=11pt -V mainfont="Times New Roman"
-   ```
-   Ensure all figure image references use relative paths so figures render in both formats.
-
-   **With pandoc citeproc + journal CSL** (when manuscript uses `[@bibkey]` citations and a `.bib` is available — preferred for any submission with > 5 references; mandatory when reviewers have asked for "automatically generated reference list"):
-
-   The validation + render scripts live in `/manage-refs` (split out 2026-05-01). Either invoke `/manage-refs` directly (recommended), or call the scripts manually:
-   ```bash
-   MR="${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/manage-refs"
-
-   # 1. Validate keys vs .bib first (fail fast on UNDEFINED keys; [@NEW:topic] placeholders pass through)
-   python "$MR/scripts/check_citation_keys.py" \
-     manuscript/manuscript.md manuscript/_src/refs.bib
-
-   # 2. Render with journal CSL (see manage-refs/citation_styles/ for bundled CSLs)
-   "$MR/scripts/render_pandoc.sh" \
-     -j european-radiology \
-     -i manuscript/manuscript.md \
-     -b manuscript/_src/refs.bib \
-     -o manuscript/manuscript_final.docx
-   ```
-   Bundled CSLs: `european-radiology`, `radiology`, `american-journal-of-roentgenology`,
-   `cardiovascular-and-interventional-radiology`, `korean-journal-of-radiology`,
-   `vancouver`, `vancouver-superscript`. Use `radiology` for RYAI; use `vancouver` for JVIR
-   (no dedicated CSL). On rejection cascade (e.g., ER → JVIR → CVIR), re-render with
-   different `-j` — references reformat in seconds. Never hand-type the References list.
-
-   **Decision: pandoc vs Zotero Word plugin (CWYW)** — `/manage-refs` documents the hybrid 3-phase strategy (Phase 1 pandoc draft → Phase 2 transition → Phase 3 Zotero CWYW for circulation/revision/submission). Use Workflow B (CWYW) once co-authors collaborate live in Word; use Workflow A (pandoc) for single-author lockdown, journal-cascade rejection re-formatting, or when the plugin is unavailable. See
-   `~/.claude/rules/manuscript-references.md` and `skills/manage-refs/SKILL.md`.
-5. **Fallback** (if pandoc is unavailable): Generate the DOCX using python-docx:
-   - Parse `manuscript/manuscript.md` sections (`##` → Heading 2, `###` → Heading 3, `**bold**` → bold runs)
-   - Insert figures as inline images at their markdown reference locations
-   - Insert tables as formatted Word tables from CSV sources
-   - Apply Times New Roman 12pt, double spacing, 1-inch margins, page numbers
-   - Save as `manuscript/manuscript_final.docx`
-6. **Verify output**: Confirm `manuscript/manuscript_final.docx` exists and is non-empty. Report file size.
-
-#### Step 7.6a: Cross-Reference QC (Manuscript ↔ rendered DOCX)
-
-Catches the failure mode where in-text Table/Figure citations resolve to the
-wrong rendered caption. Internal consistency (Phase 2.5 of `/self-review`)
-does NOT catch this because both the body prose and the build script can echo
-their own divergent SSOTs cleanly. Precedent: an STROBE cohort manuscript revision —
-body cited "Supplementary Table S4 (a sensitivity-analysis)" but the rendered DOCX S4
-was a diagnostics table; S1, S6, S7 mismatched and S8, S9 were cited but absent from
-the DOCX entirely.
-
-**Run after Step 7.6 DOCX build and before Step 7.7 final gate:**
+**7.6a — Cross-Reference QC.** After the build, before the final gate:
 
 ```bash
-MR="${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/manage-refs"
-python3 "$MR/scripts/check_xref.py" \
-  --md manuscript/manuscript.md \
-  --docx manuscript/manuscript_final.docx \
-  --out qc/xref_audit.json \
-  --strict
+python3 "${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/manage-refs/scripts/check_xref.py" \
+  --md manuscript/manuscript.md --docx manuscript/manuscript_final.docx \
+  --out qc/xref_audit.json --strict
 ```
 
-The script extracts (a) every `(Supplementary )?(Table|Figure)\s+(S?\d+[A-Z]?)`
-in-text citation, (b) caption definitions from `## Tables` / `## Figures` /
-`## Figure Legends` / `## Supplementary {Tables,Figures}` sections in the body,
-and (c) caption paragraphs in the rendered DOCX (via python-docx). It then
-emits a 3-way matrix to `qc/xref_audit.json`:
+Catches in-text citations resolving to the **wrong rendered caption** — body prose and build
+script each echo their own divergent SSOT, so no internal-consistency check sees it. Any
+`MISSING_DOCX`/`MISSING_BODY`/`MISMATCH` → `submission_safe: false`, exit 1, **HALT**. The body
+caption is the SSOT — fix the build pipeline, never the reverse.
 
-| Status | Meaning | Severity |
+**7.7 — Final Gate.** Autonomous: log completion; report word count, figure count, self-review
+score, reporting-compliance %, FATAL flags. Interactive: present summary, await confirmation.
+
+| File | Read it when | Cost if read blindly |
 |---|---|---|
-| `OK` | cited + body caption + DOCX caption all present and caption text agrees (Jaccard ≥ 0.40) | — |
-| `MISSING_DOCX` | cited but no caption with that label in the rendered DOCX | **P0 blocker** |
-| `MISSING_BODY` | cited but no caption definition in the markdown body sections (build SSOT drift) | **P0 blocker** |
-| `MISMATCH` | label exists in both body and DOCX but caption text disagrees | **P0 blocker** |
-| `UNCITED` | caption defined or rendered but never cited in main text | warn |
-| `NOT_CITED_NO_BODY` | label appears only in DOCX (rare; legacy artifact) | warn |
-
-**Submission gate:** if any `MISSING_DOCX` / `MISSING_BODY` / `MISMATCH` row is
-present, `submission_safe: false` and the script exits 1 under `--strict`.
-HALT pipeline. Do NOT proceed to Step 7.7. Route fixes by symptom:
-
-- `MISSING_BODY` → add caption definition under `## Tables` / `## Figures` in
-  `manuscript.md`, then re-run Step 7.6 + 7.6a. If the build script
-  (`build_manuscript_docx.py` or equivalent) carries its own hardcoded caption
-  list, that is the IMPROVEMENT_QUEUE #2 SSOT-unification issue — flag it.
-- `MISSING_DOCX` → either drop the citation (the table/figure was retired) or
-  re-add the table/figure to the build pipeline, then rebuild DOCX.
-- `MISMATCH` → reconcile body vs build script. Body caption is the SSOT;
-  update the build pipeline to match, never the reverse.
-
-Log the run to `qc/_pipeline_log.md`:
-```
-## Cross-Reference QC (Phase 7.6a)
-- in-text citations: {N}
-- unique labels: {N}
-- OK: {N} | MISSING_DOCX: {N} | MISSING_BODY: {N} | MISMATCH: {N} | UNCITED: {N}
-- submission_safe: {true|false}
-- audit: qc/xref_audit.json
-```
-
-If `python-docx` is unavailable, the script falls back to a body-only audit
-(citations vs body captions) with a warning. Install with `pip install python-docx`.
-
-#### Step 7.7: Final Gate
-
-- **Autonomous mode**: Log completion to `qc/_pipeline_log.md`. Report summary: word count, figure count, self-review score, reporting compliance percentage, any FATAL flags.
-- **Interactive mode**: Present the full summary to the user and await confirmation.
+| `references/phase7_polish_detail.md` | you reach the build steps (7.5–7.6a), a HALT fires, or the manuscript has an AI-disclosure paragraph | ~7,300 tokens — a run that stops at a 7.3 blocker never builds a DOCX |
+| `references/phase7_integrity_audits.md` | running 7.3a / 7.3b / 7.3c | ~3,000 tokens |
+| `references/section_guides/step7_4a_audit_recovery.md` | 7.4 left a fatal finding | ~1,700 tokens; most runs never branch |
 
 ---
-
 ### Phase 8+ (Optional): Cover Letter Generation
 
 Triggered when the user requests "generate cover letter" or after `/find-journal` recommendation.
@@ -981,7 +734,7 @@ Severity levels: **ENFORCED** = pipeline halts on failure (cannot proceed to nex
 | 7.5 | Humanize density (`/humanize`) | ADVISORY | AI patterns > 2.0 / 1000 words | Sweep + flag remaining; user reviews |
 | 7.5a | AIO checklist (`/academic-aio --aio`) | OPT-IN | user supplies `--aio` flag | PASS/PARTIAL/FAIL report; never auto-applies |
 | 7.6 | DOCX build (delegate `/manage-refs scripts/render_pandoc.sh`) | ENFORCED | render exits non-zero | Halt; report stderr to user |
-| 7.6a | Cross-reference QC (delegate `/manage-refs scripts/check_xref.py --strict`) | ENFORCED — submission gate | MISSING_DOCX / MISSING_BODY / MISMATCH > 0 | Halt; route fixes per `references/check_xref_symptoms.md` |
+| 7.6a | Cross-reference QC (delegate `/manage-refs scripts/check_xref.py --strict`) | ENFORCED — submission gate | MISSING_DOCX / MISSING_BODY / MISMATCH > 0 | Halt; route fixes per `references/phase7_polish_detail.md` |
 | 7.7 | Final submission gate | ENFORCED | any of 7.0–7.6a above failed | Refuse to mark `submission_safe: true` |
 | 8+ | Cover letter generation | OPT-IN | user invokes `--cover-letter` | Renders against journal profile |
 

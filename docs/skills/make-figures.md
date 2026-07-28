@@ -30,6 +30,7 @@
 - `python3 scripts/validate_pptx_mac_compat.py <file>`
 - `python3 tests/test_pptx_mac_compat.py`
 - `bash scripts/render_core_figures_challenge/verify.sh`
+- `bash scripts/export_portal_tiff_challenge/verify.sh`
 
 **Evidence** — `demo`
 
@@ -39,23 +40,28 @@
 
 - `critic_rubrics/` (2 files)
 - `design_principles.md`
-- `exemplar_diagrams/` (53 files)
-- `exemplar_plots/` (12 files)
+- `exemplar_diagrams/` (33 files)
+- `exemplar_plots/` (16 files)
+- `figure_manifest.md`
 - `figure_specs.md`
 - `flow_diagram_lessons.md`
+- `flow_diagram_recipe.md`
 - `jacc_central_illustration_principles.md`
 - `medical_illustration_sources.md`
 - `pipeline_concepts_medical_ai.md`
 - `reporting_guideline_figure_map.md`
-- `visual_abstract_templates/` (4 files)
+- `visual_abstract_templates/` (3 files)
 
 **Scripts** (`skills/make-figures/scripts/`):
 
+- `_strobe_cascade.py`
 - `build_jacc_template.py`
 - `build_prisma2020_template.py`
 - `build_strobe_template.py`
 - `critic_figure.py`
 - `derive_figure_legend_counts.py`
+- `export_portal_tiff.py`
+- `export_portal_tiff_challenge/` (2 files)
 - `extract_exemplar_from_pdf.py`
 - `fetch_official_templates.sh`
 - `fill_prisma_template.py`

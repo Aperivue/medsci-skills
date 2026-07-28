@@ -1,0 +1,50 @@
+schema_version: 2
+name: model-sourcing
+layer: D
+owner_domain: model_validation
+maturity: official
+
+when_to_use: "Vet the CONCRETE third-party model a study will be built on — this repository, this revision, this checkpoint — before scaffolding or evaluation. Records a model dossier (source and version pin, licence and the file it was read from, intended use, pretrained-weight provenance, model task vs study task, reported validation, what the model was developed on, your evaluation arms) and gates it. Catches what a licence check and a citation count cannot: an evaluation arm that uses the benchmark the model was developed or tuned on, so the arm reads like validation while sitting closer to a training-set score; an evaluation set inside a pretraining corpus; an unstated or use-incompatible licence; an unpinned revision; a hardware claim never executed."
+when_NOT_to_use: "Choosing an architecture family (use architecture-zoo). Building the training repo (use model-scaffold). Designing the validation study or auditing split leakage (use model-validation). Computing held-out metrics (use model-evaluation). Documenting a model you built yourself (use model-card). Profiling your dataset before modelling (use profile-imaging). Evaluating an LLM/multimodal system on a clinical task, including benchmark contamination in that setting (use mllm-eval)."
+
+inputs:
+  - "the concrete artifact under consideration: repository or checkpoint URL, revision, licence file"
+  - "the model's published account of what it was developed, tuned, or competed on"
+  - "the study's evaluation arms (arm name -> dataset) and the study's task"
+  - "the declared intended use (research / commercial / clinical deployment)"
+outputs:
+  - "model dossier JSON (the provenance record downstream skills and the Methods section read)"
+  - "model-provenance audit JSON (deterministic verdicts)"
+  - "arm-by-arm decision: which arms may be claimed as independent validation and which may not"
+deterministic_scripts:
+  - scripts/check_model_provenance.py
+side_effects:
+  - writes_decision_notes
+downstream_consumers:
+  - model-validation
+  - model-evaluation
+  - model-card
+  - write-paper
+  - check-reporting
+forbidden_actions:
+  - infer_a_provenance_fact_the_dossier_does_not_state
+  - record_a_licence_from_a_badge_or_summary_instead_of_the_licence_file
+  - mark_hardware_verified_without_executing_it
+  - report_an_arm_as_independent_validation_when_a_provenance_conflict_is_flagged
+  - download_or_execute_a_third_party_model_as_part_of_the_audit
+
+# v2.1 quality card
+purpose: "Establish what a third-party model's numbers are allowed to claim, before a study is built on it — by writing the provenance facts that live in different documents into one record and auditing the relationships between them, chiefly whether an evaluation arm sits on the benchmark the model was developed against."
+safety_boundaries:
+  - "Audit only: never downloads, executes, fine-tunes, or benchmarks a model, and never fetches a repository or resolves a licence over the network."
+  - "Every verdict is decided by set arithmetic over the dossier JSON; an unstated fact yields a finding rather than an inferred value."
+  - "Stdlib-only, so the audit reproduces anywhere the dossier travels."
+known_limitations:
+  - "The dossier is taken at face value: the gate cannot tell that a stated licence is wrong or that `developed_on` is incomplete, so the reading of the artifact is the researcher's responsibility and the gate audits the consequences."
+  - "Dataset matching is token-sequence based with a small family-alias table; two names for the same corpus that share no leading token (a private cohort renamed between papers) will not be matched."
+  - "A clean dossier is necessary, not sufficient: split disjointness (model-validation), preprocessing leakage (preprocess-imaging) and metric choice (model-evaluation) are separate gates."
+validation_commands:
+  - "python3 scripts/check_model_provenance.py --dossier <dossier.json> --strict"
+  - "bash scripts/check_model_provenance_challenge/verify.sh  # deterministic, network-free"
+  - "bash tests/test_model_provenance.sh"
+evidence_surface: ci_validator

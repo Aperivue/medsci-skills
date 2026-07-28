@@ -52,4 +52,5 @@ validation_commands:
   - "python3 scripts/validate_pptx_mac_compat.py <file>"
   - "python3 tests/test_pptx_mac_compat.py"
   - "bash scripts/render_core_figures_challenge/verify.sh"
+  - "bash scripts/export_portal_tiff_challenge/verify.sh"
 evidence_surface: demo

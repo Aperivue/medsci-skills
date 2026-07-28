@@ -1,0 +1,8 @@
+==========================================
+ Perspective structure (§J / §D)
+==========================================
+| Verdict | Severity | Detail |
+|---|---|---|
+| (none) | - | not gated as a Perspective |
+
+OK: article_type='original article' is not a Perspective; no findings.

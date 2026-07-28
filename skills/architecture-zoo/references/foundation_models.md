@@ -55,6 +55,30 @@ validation/experiment setup.**
 - **Validation setup**: report performance **by prompt type** and whether prompts were
   human or automated; for a fully-automatic claim, no oracle prompts at test time.
 
+### Interactive 3-D promptable segmentation — nnInteractive / VISTA3D / SAM-Med3D (labelling acceleration)
+- **Papers/tools**: nnInteractive (Isensee et al., DKFZ, 2025); VISTA3D (NVIDIA / Project-MONAI,
+  2024–25); SAM-Med3D (Wang et al., 2023); MedSAM2 / SAM2 (Meta SAM2, 2024) for 3-D + video.
+- **Core idea**: **native-3-D** promptable models — a click / scribble / box / lasso on a few
+  slices yields the whole volumetric mask — trained on many 3-D datasets, so they generalise
+  across organs and modalities without task-specific training. (2-D SAM/MedSAM applied
+  slice-by-slice loses through-plane coherence; these are built for the volume.)
+- **When to use**: the **labelling-throughput lever**. When expert 3-D labels are the
+  bottleneck (e.g. neuro-faculty ground truth), an interactive model turns from-scratch
+  hand-segmentation into a **prompt-and-correct** pass — often several-fold faster per case.
+  Also a strong zero-training 3-D baseline, or an interactive tool in the reading loop.
+- **Medical-imaging use**: expert-in-the-loop CT/MR volume labelling; semi-automatic organ /
+  lesion / vessel masks that seed the training set a dedicated nnU-Net then learns.
+- **Reference impl**: `MIC-DKFZ/nnInteractive` (fast; point/scribble/box/lasso),
+  `Project-MONAI/VISTA` (VISTA3D), `uni-medical/SAM-Med3D`. **Licence — check before
+  commercial use**: nnInteractive **code is Apache-2.0 but its released weights are
+  CC BY-NC-SA 4.0 (non-commercial)**; confirm the VISTA3D and SAM-Med3D *weight* licences too
+  (bundled model licences often differ from the code repo). This matters when the labels feed
+  a product, not only a paper.
+- **Validation setup**: masks produced this way are **silver labels** — an expert must
+  correct/adjudicate them, and model-derived labels must not evaluate the same or a related
+  model (circularity — `/model-validation` MD8). Report the **human-correction effort**
+  (edits or time per case), not only the final Dice.
+
 ### TotalSegmentator / SegVol (automatic CT organ masks)
 - **Papers**: Wasserthal et al., TotalSegmentator, *Radiology: AI* 2023; SegVol (2024).
 - **Core idea**: released models that segment 100+ anatomical structures from CT
@@ -76,12 +100,38 @@ validation/experiment setup.**
 - **Validation setup**: zero-shot claims need a **held-out / post-cutoff** set and a
   contamination statement (the pretraining corpus may overlap public benchmarks).
 
+### Domain-specific medical foundation backbones (RETFound / UNI / CONCH / RAD-DINO / Merlin)
+- **Papers/tools**: RETFound (Zhou et al., *Nature* 2023 — retinal SSL backbone); UNI +
+  CONCH (Chen / Lu et al., *Nature Medicine* 2024 — pathology, UNI a vision backbone, CONCH a
+  vision–language model); RAD-DINO (Microsoft — chest-X-ray DINOv2); Merlin (Stanford — a
+  3-D abdominal-CT foundation model).
+- **Core idea**: organ-/modality-specific backbones pretrained on large **domain** corpora →
+  **fine-tune or linear-probe** for your task with far fewer labels than training from
+  scratch or transferring from ImageNet. The domain counterpart to the general SSL backbones
+  above.
+- **When to use**: your task sits in one of these domains (retina, pathology WSI, chest
+  X-ray, abdominal CT) and labels are scarce — start from the domain FM, not ImageNet.
+- **Reference impl**: `rmaphoh/RETFound_MAE`, `mahmoodlab/UNI`, `mahmoodlab/CONCH`,
+  `StanfordMIMI/Merlin` (GitHub + Hugging Face).
+- **Licence — the recurring gotcha (verified)**: **most medical-FM weights are non-commercial
+  / gated research licences.** RETFound, UNI and CONCH ship custom CC-BY-NC-style terms and
+  gate access on Hugging Face; Merlin's *code* is MIT but confirm its *weight* terms. Verify
+  per model before anything beyond a paper — a product cannot ship on CC-BY-NC weights (same
+  trap as nnInteractive / ConvNeXt V2).
+- **Validation setup**: keep the FM's pretraining corpus disjoint from your test patients
+  (many public benchmarks sit inside these corpora — contamination, `/model-validation`
+  MD1/MD3); report the **label-efficiency curve** to justify the transfer.
+
 ---
 
 ## Choosing among these
 Many unlabelled scans + few labels → **SSL pretrain (DINO/MAE/SimCLR) → fine-tune**, and
 report the label-efficiency curve. Need masks now, no budget → **TotalSegmentator (CT) /
-MedSAM2 (interactive)**. Zero-shot classification/retrieval → **BiomedCLIP**. In every case
+MedSAM2 (interactive)**. Accelerate expert 3-D labelling → **interactive FM (nnInteractive /
+VISTA3D)** — mind the non-commercial weight licence. Task in a covered domain (retina /
+pathology / CXR / abdominal CT) + few labels → **domain FM transfer (RETFound / UNI / CONCH /
+Merlin)** — most weights are non-commercial / gated, verify before a product. Zero-shot
+classification/retrieval → **BiomedCLIP**. In every case
 keep the pretraining/transfer corpus disjoint from the test patients and disclose
 model-derived labels. Record the choice + paper, then hand the fine-tuning to
 `/model-scaffold` and validate with `/model-validation`.

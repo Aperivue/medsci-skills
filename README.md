@@ -2,14 +2,14 @@
 
 # MedSci Skills
 
-**56 skills that actually work.** Built by a physician-researcher, tested on real publications.
+**58 skills that actually work.** Built by a physician-researcher, tested on real publications.
 
-*MedSci Skills is an end-to-end research tool for physician and medical-engineering researchers — design → scaffold → validate → publish — for the clinical manuscript and the medical-AI model behind it. Its moat is the compliance layer — 46 reporting guidelines and risk-of-bias tools, reference/citation verification, and deterministic integrity gates before peer review — now extended by a model-engineering lane that scaffolds reproducible, leakage-safe training repos and audits model validation. Clinical AI model research engineering is in scope; a general AI-scientist platform is not. It competes on clinical submission reliability, not skill count.*
+*MedSci Skills is an end-to-end research tool for physician and medical-engineering researchers — design → scaffold → validate → publish — for the clinical manuscript and the medical-AI model behind it. Its moat is the compliance layer — 47 reporting guidelines and risk-of-bias tools, reference/citation verification, and deterministic integrity gates before peer review — now extended by a model-engineering lane that scaffolds reproducible, leakage-safe training repos and audits model validation. Clinical AI model research engineering is in scope; a general AI-scientist platform is not. It competes on clinical submission reliability, not skill count.*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Release](https://img.shields.io/github/v/release/Aperivue/medsci-skills?style=flat-square&color=blue)](https://github.com/Aperivue/medsci-skills/releases/latest)
 [![CI](https://img.shields.io/github/actions/workflow/status/Aperivue/medsci-skills/validate.yml?branch=main&style=flat-square&label=CI)](https://github.com/Aperivue/medsci-skills/actions/workflows/validate.yml)
-![Skills](https://img.shields.io/badge/Skills-56-brightgreen?style=flat-square)
+![Skills](https://img.shields.io/badge/Skills-58-brightgreen?style=flat-square)
 [![npm](https://img.shields.io/npm/v/medsci-skills?style=flat-square&label=npm&color=cb3837)](https://www.npmjs.com/package/medsci-skills)
 [![npm downloads](https://img.shields.io/npm/dw/medsci-skills?style=flat-square&label=npm%20downloads&color=cb3837)](https://www.npmjs.com/package/medsci-skills)
 [![Watch the 2-min intro](https://img.shields.io/badge/▶_Watch-2--min_intro-FF0000?style=flat-square&logo=youtube&logoColor=white)](https://youtu.be/MclQ_RIofpE)
@@ -92,6 +92,19 @@ cp -r medsci-skills/skills/* ~/.claude/skills/
 
 Restart Claude Code, then start with **`/orchestrate`** — it classifies your request and routes you to the right skill. Full install options (Codex, Cursor, individual skills) are in [Installation](#installation).
 
+### Install with `gh skill`
+
+MedSci Skills follows the [Agent Skills standard](https://agentskills.io), so GitHub CLI ≥ 2.90 can search, preview, and install any skill straight from this repo — no clone (a `gh` preview feature):
+
+```bash
+gh skill search medsci                                   # list the whole collection
+gh skill preview Aperivue/medsci-skills check-reporting  # read a skill before installing
+gh skill install Aperivue/medsci-skills check-reporting  # install just that one
+gh skill install --all Aperivue/medsci-skills            # or install every skill
+```
+
+Search by a skill's own name (`check-reporting`, `verify-refs`, `meta-analysis`) or by `medsci` to list them all — both return this repo directly. A broad topic word like `systematic review` is shared by hundreds of skills across GitHub, so add `--owner Aperivue` to see only ours.
+
 ### Install as a Claude Code plugin
 
 Prefer plugins? One line adds the marketplace; `/plugin` then lets you browse nine category plugins and enable the ones you want:
@@ -120,7 +133,7 @@ Install a single category and invoke its skills under that namespace:
 /medsci-analysis:analyze-stats
 ```
 
-All eight plugins share the same repository source, so this groups and enables skills by category — it is not a partial download. The marketplace tracks `main`, so a plugin's version is its git commit.
+All nine plugins share the same repository source, so this groups and enables skills by category — it is not a partial download. The marketplace tracks `main`, so a plugin's version is its git commit.
 
 **Want just one capability?** Two skills are also published as focused standalone repos (generated mirrors; this repo stays the source of truth), each installable on its own with `/plugin marketplace add Aperivue/<repo>`:
 
@@ -470,14 +483,14 @@ ma-scout -> search-lit -> fulltext-retrieval -> design-study ──> write-proto
 
 ### By research stage
 
-All 55 skills, grouped by where they fit in the clinical-manuscript and medical-AI lifecycle. Full descriptions are in the table below; one page per skill lives in the [per-skill reference](docs/skills/).
+All 58 skills, grouped by where they fit in the clinical-manuscript and medical-AI lifecycle. Full descriptions are in the table below; one page per skill lives in the [per-skill reference](docs/skills/).
 
 | Stage | Skills |
 |-------|--------|
 | 🔭 **Discover & scope** | `ma-scout` · `find-cohort-gap` · `search-lit` · `fulltext-retrieval` · `lit-sync` · `author-strategy` |
 | 📐 **Design & plan** | `design-study` · `calc-sample-size` · `define-variables` · `write-protocol` · `fill-protocol` · `design-ai-benchmarking` |
 | 🧹 **Data & analysis** | `deidentify` · `clean-data` · `generate-codebook` · `version-dataset` · `analyze-stats` · `batch-cohort` · `cross-national` · `replicate-study` |
-| 🤖 **Medical-AI model engineering** | `preprocess-imaging` · `architecture-zoo` · `model-scaffold` · `model-validation` · `model-evaluation` · `uncertainty-imaging` · `explainability` · `radiomics-ml` · `model-card` · `mllm-eval` |
+| 🤖 **Medical-AI model engineering** | `profile-imaging` · `preprocess-imaging` · `architecture-zoo` · `model-scaffold` · `model-validation` · `model-evaluation` · `uncertainty-imaging` · `explainability` · `radiomics-ml` · `model-card` · `mllm-eval` |
 | ✍️ **Write & visualize** | `write-paper` · `make-figures` · `review-paper` · `present-paper` · `humanize` · `polish-language` · `academic-aio` |
 | ✅ **Comply & verify** | `check-reporting` · `self-review` · `verify-refs` · `manage-refs` |
 | 📤 **Submit & respond** | `find-journal` · `add-journal` · `sync-submission` · `revise` · `peer-review` · `fill-icmje-coi` |
@@ -492,13 +505,14 @@ All 55 skills, grouped by where they fit in the clinical-manuscript and medical-
 | **search-lit** | PubMed + Semantic Scholar + bioRxiv search with anti-hallucination citation verification. Token-efficient error handling -- CrossRef failures are silently batched, not repeated. BibTeX output tags each entry with `verified`/`verified_by`/`verified_on` fields so downstream skills can trust the citation provenance. |
 | **verify-refs** | Pre-submission reference audit for `.md`, `.docx`, `.bib`, or `.tsv` inputs. Extracts references, verifies DOI/PMID via CrossRef/PubMed when available, and writes `qc/reference_audit.json` as the sole output — row-level status (OK / MISMATCH / UNVERIFIED / FABRICATED) lives inside the JSON `records[]` block. `/search-lit` produces candidate BibTeX; `/lit-sync` owns `manuscript/_src/refs.bib`. |
 | **fulltext-retrieval** | Batch open-access PDF downloader. Unpaywall → PMC → OpenAlex → CrossRef pipeline. OA-only -- no paywall bypass. Input: DOI list or TSV. Optional PDF→Markdown conversion via [pymupdf4llm](https://pymupdf.readthedocs.io/en/latest/pymupdf4llm/) for token-efficient LLM analysis of academic papers. |
-| **check-reporting** | Manuscript compliance audit against 46 reporting guidelines and risk of bias tools (STROBE, STROBE-MR, RECORD, STARD, STARD-AI, TRIPOD, TRIPOD+AI, TRIPOD-LLM, PGS-RS, CHEERS 2022, CROSS, SRQR, COREQ, PRISMA, PRISMA-DTA, PRISMA-P, PRISMA-ScR, MOOSE, ARRIVE, CONSORT, CONSORT-AI, CARE, SPIRIT, SPIRIT-AI, CLAIM, DECIDE-AI, SQUIRE 2.0, CLEAR, GRRAS, MI-CLEAR-LLM, SWiM, AMSTAR 2, QUADAS-2, QUADAS-C, RoB 2, ROBINS-I, ROBINS-E, ROBIS, ROB-ME, PROBAST, PROBAST+AI, NOS, COSMIN, RoB NMA). Machine-readable JSON summary with `compliance_pct` and `fixable_by_ai` flags for automated pipeline integration. |
+| **check-reporting** | Manuscript compliance audit against 47 reporting guidelines and risk of bias tools (STROBE, STROBE-MR, RECORD, GATHER, STARD, STARD-AI, TRIPOD, TRIPOD+AI, TRIPOD-LLM, PGS-RS, CHEERS 2022, CROSS, SRQR, COREQ, PRISMA, PRISMA-DTA, PRISMA-P, PRISMA-ScR, MOOSE, ARRIVE, CONSORT, CONSORT-AI, CARE, SPIRIT, SPIRIT-AI, CLAIM, DECIDE-AI, SQUIRE 2.0, CLEAR, GRRAS, MI-CLEAR-LLM, SWiM, AMSTAR 2, QUADAS-2, QUADAS-C, RoB 2, ROBINS-I, ROBINS-E, ROBIS, ROB-ME, PROBAST, PROBAST+AI, NOS, COSMIN, RoB NMA). Machine-readable JSON summary with `compliance_pct` and `fixable_by_ai` flags for automated pipeline integration. |
 | **analyze-stats** | Statistical analysis code generation (Python/R) for diagnostic accuracy, DTA meta-analysis (bivariate/HSROC), inter-rater agreement, survival analysis, demographics tables, regression (logistic/linear), propensity score (matching/IPTW/overlap weighting), and repeated measures (RM ANOVA/GEE/mixed models). Calibration mandatory for prediction models. |
 | **meta-analysis** | Full systematic review and meta-analysis pipeline (8 phases). DTA (bivariate/HSROC) and intervention meta-analysis. Protocol to submission-ready manuscript with PRISMA-DTA compliance. |
 | **make-figures** | Publication-ready figures and visual abstracts: ROC curves, forest plots, PRISMA/CONSORT/STARD flow diagrams, Kaplan-Meier curves, Bland-Altman plots, confusion matrices, and journal-specific visual/graphical abstracts (python-pptx template-based). Communication-first design principles (Nat Hum Behav 2026 — key message, audience, cognitive load, figure-vs-table decision) and five flow-diagram production lessons (official-template fidelity, VML fallback PDF export, docx XML escape, sequential placeholder mapping, version freeze); critic rubric Section G adds 5 communication-first checks. `--study-type` auto-generates the full required figure set; structured `_figure_manifest.md` output for downstream pipeline consumption; D2 enforced as default for flow diagrams. |
 | **design-study** | Study design review: identifies analysis unit, cohort logic, data leakage risks, comparator design, validation strategy, and reporting guideline fit. |
 | **design-ai-benchmarking** | Design and validity review for benchmarking AI system(s) against a human-expert panel: evaluation-question and arm definition, decoupled multi-dimensional rubrics with anchors, planted calibration probes (positive-control / known-bad / instability / mechanism-contradiction), reviewer-panel construction with per-reviewer randomization, inter-rater reliability targets with separate control-item reliability, LLM-as-judge vs human-as-judge adjudication, construct-independence guards, and a structured JSON rating-export schema. Locks the rubric before data collection. |
 | **model-validation** | Design or audit the clinical-validation study for an engineer-built medical-imaging model (segmentation / classification / detection): patient-level split disjointness and the data-leakage taxonomy, tuning-on-test, internal vs genuine external validation, comparator design, single-run vs multi-seed variance, task-correct metric selection (Metrics Reloaded), test-set sizing, and CLAIM 2024 / TRIPOD+AI / STARD-AI reporting fit. Ships a deterministic split-leakage gate that proves patient disjointness by set arithmetic on the emitted split table. Integrates with MONAI / nnU-Net — does not replace them. |
+| **profile-imaging** | Profile a medical-imaging dataset before any modelling decision — acquisition grid, voxel spacing and orientation spread, intensity domain, the label values actually present, foreground fraction and target volume — then gate that profile against the declared plan. Catches, while it is still cheap, what otherwise surfaces after a training run: a "test set" carrying no ground truth (`TEST_SET_UNLABELLED`), a label grid that does not match its image (`LABEL_SHAPE_MISMATCH`), a stray label index (`LABEL_VALUE_UNEXPECTED`), accuracy planned against a sliver-sized target (`ACCURACY_UNDER_IMBALANCE`), and acquisition heterogeneity with no declared resampling decision (`SPACING_HETEROGENEOUS`). The gate flags an *undeclared* decision, not variability itself. |
 | **preprocess-imaging** | Design or audit the data-preparation stage of a medical-imaging model — DICOM/NIfTI intake, resampling, intensity normalization, and the augmentation plan — so the pipeline is leakage-safe before `model-scaffold` builds the training repo. Emits a declarative preprocessing manifest and a deterministic data-stage leakage gate (`check_preprocessing_leakage`) that catches what the split table cannot see: a dataset-level normaliser fit on non-train data (`NORMALIZATION_LEAKAGE`), a data-fitted transform run before the split (`PREPROCESS_BEFORE_SPLIT`), and a patient's slices crossing splits (`PATIENT_CROSS_SPLIT`). Integrates MONAI / TorchIO transforms; never reimplements them or touches real patient data. |
 | **model-scaffold** | Generate a reproducible, runnable PyTorch training repo for a medical-imaging task — segmentation (U-Net), classification, detection, image-to-image synthesis, self-supervised pretraining, or fine-tuning a pretrained backbone (transfer learning) — the missing middle link between choosing an architecture and validating a trained model. Emits a patient-level seed-locked split as an auditable artifact, a task-appropriate model, train/evaluate scripts that seed every RNG and infer under eval mode, a config, requirements, a reproducibility record, and a Methods stub with VERIFY placeholders (no fabricated numbers). Fine-tuning mode (`--task finetune`) adds a frozen→unfrozen schedule, discriminative learning rates, and a pretrained-weight provenance record (`PRETRAINED.md`), with a MedSAM-adaptation + train-only diffusion-augmentation guide. Reproducibility holds by construction; ships a `check_training_hygiene` AST gate (RNG seeding, eval-mode inference, train-split-only loaders, pretrained-provenance) + a network-free build→validate challenge. Integrates with MONAI / nnU-Net / TorchIO / timm / torchvision for production-grade models. |
 | **architecture-zoo** | "Which architecture for which research question" decision tool: maps task (classification / segmentation / detection / transfer), modality, data scale, and class imbalance to a paper-grounded architecture shortlist. Curates the foundational curriculum (ResNet / DenseNet / EfficientNet / ViT / Swin; U-Net / 3-D U-Net / Attention & Residual U-Net / nnU-Net / Mask R-CNN; SAM/MedSAM / TotalSegmentator / BiomedCLIP / DINO / MAE / SimCLR) — each with core idea, when-to-use, medical-imaging use, reference implementation, validation setup, and the matching model-scaffold template. Advisory; teaches archetypes, not a live SOTA leaderboard. |
@@ -603,6 +617,19 @@ npx medsci-skills doctor             # quick Node/Python/skill-folder check
 
 Requires Node 18+ and (for `install`/`doctor`) `python3` on your PATH.
 
+### Option 5: GitHub CLI (`gh skill`)
+
+If you use [GitHub CLI](https://cli.github.com/) ≥ 2.90, `gh skill` installs skills from any Agent-Skills repo — this one included — without cloning. It is a `gh` **preview** feature, so the exact flags may change.
+
+```bash
+gh skill search medsci                                   # list every MedSci skill
+gh skill preview Aperivue/medsci-skills check-reporting  # inspect one first
+gh skill install Aperivue/medsci-skills check-reporting  # install a single skill
+gh skill install --all Aperivue/medsci-skills            # or install all of them
+```
+
+`gh skill install` places skills in the host-specific folder for the agent you pick with `--agent` (`claude-code` → `~/.claude/skills/`, `codex` → `~/.agents/skills/`, and many others), at user or project `--scope` — the same folders the npx and git paths above populate. Discovery works best by a skill's exact name or by `medsci`; for a broad topic word, scope with `--owner Aperivue`.
+
 ### Platform notes
 
 - Claude Code: skills are copied to `~/.claude/skills/` (also read by GitHub Copilot and Cursor).
@@ -665,8 +692,8 @@ Projects declare their source-of-truth layout in `SSOT.yaml`, and a `qc/migratio
 ### Meta-Analysis Failure Modes
 `/meta-analysis` ships empirical failure-mode references (data integrity, review orchestration, submission package drift, post-submission release ops) with four automation hooks: `scripts/prisma_5way_consistency.py` (DI-6 PRISMA number consistency), `scripts/extraction_consensus_log_init.py` (DI-1 dual-extraction scaffold), `scripts/tag_cleanup_gate.sh` (DI-8 placeholder tag gate), and `scripts/verify_package_integrity.py` (SPD SHA-256 manifest for submission bundles).
 
-### 46 Reporting Guidelines & RoB Tools Built-in
-`check-reporting` includes bundled checklists for 46 guidelines and risk-of-bias tools: STROBE, STROBE-MR, RECORD, STARD, STARD-AI, TRIPOD, TRIPOD+AI, TRIPOD-LLM, PGS-RS, CHEERS 2022, CROSS, SRQR, COREQ, PRISMA 2020, PRISMA-DTA, PRISMA-P, PRISMA-ScR, MOOSE, ARRIVE, CONSORT, CONSORT-AI, CARE, SPIRIT, SPIRIT-AI, CLAIM, DECIDE-AI, SQUIRE 2.0, CLEAR, GRRAS, MI-CLEAR-LLM, SWiM, AMSTAR 2, QUADAS-2, QUADAS-C, RoB 2, ROBINS-I, ROBINS-E, ROBIS, ROB-ME, PROBAST, PROBAST+AI, NOS, COSMIN, RoB NMA. Includes Results/Discussion section boundary checks and machine-readable JSON summary for pipeline integration.
+### 47 Reporting Guidelines & RoB Tools Built-in
+`check-reporting` includes bundled checklists for 47 guidelines and risk-of-bias tools: STROBE, STROBE-MR, RECORD, GATHER, STARD, STARD-AI, TRIPOD, TRIPOD+AI, TRIPOD-LLM, PGS-RS, CHEERS 2022, CROSS, SRQR, COREQ, PRISMA 2020, PRISMA-DTA, PRISMA-P, PRISMA-ScR, MOOSE, ARRIVE, CONSORT, CONSORT-AI, CARE, SPIRIT, SPIRIT-AI, CLAIM, DECIDE-AI, SQUIRE 2.0, CLEAR, GRRAS, MI-CLEAR-LLM, SWiM, AMSTAR 2, QUADAS-2, QUADAS-C, RoB 2, ROBINS-I, ROBINS-E, ROBIS, ROB-ME, PROBAST, PROBAST+AI, NOS, COSMIN, RoB NMA. Includes Results/Discussion section boundary checks and machine-readable JSON summary for pipeline integration.
 
 ### Publication-Ready Output
 `analyze-stats` generates reproducible Python/R code for 13 analysis types -- including regression, propensity score, and repeated measures -- with mandatory calibration for prediction models. `make-figures` produces journal-specification figures (300 DPI, colorblind-safe palettes, proper dimensions), visual/graphical abstracts, and a tool selection guide (D2 for flow diagrams, matplotlib for data plots). `--study-type` auto-generates the complete figure set for each study design.
@@ -716,9 +743,33 @@ Prints a checklist showing which components are present, which are missing, and 
 
 ## Requirements
 
+**Python 3.9+ and an agent host. That is the whole hard requirement.** Every integrity detector is
+stdlib-only, and so is drafting, reviewing, and auditing a manuscript. If you have no Python, the
+double-click installer will offer to install it for you (`winget` on Windows, or the official
+download page) rather than leaving you at a dead end.
+
 - An [Agent Skills](https://agentskills.io)-compatible host — [Claude Code](https://claude.ai/code) (primary), or Codex / Cursor / GitHub Copilot (see [`docs/host_compatibility.md`](docs/host_compatibility.md); some live-data workflows rely on Claude MCP servers)
-- Python 3.9+ (for statistical analysis and figure generation)
-- R 4.0+ with `meta` (>=7.0), `metafor` (>=4.0), `mada` (>=0.5.11) packages (for meta-analysis)
+- Python 3.9+ — the floor is CI-enforced (`scripts/check_python_floor.py`). Newer is better; if you are installing Python today, take the latest.
+
+Everything else is needed by *some* skills and not others. Rather than a shopping list of packages
+you have never heard of, ask the toolkit what **this** computer can do:
+
+```bash
+python3 installers/doctor.py          # what works, what does not, and the exact fix for each
+python3 installers/doctor.py --fix    # offers to install what is missing — asking before each one
+```
+(Or double-click `installers/check-setup-macos.command` / `installers/check-setup-windows.cmd`.)
+
+It reports in terms of what you were trying to *do* — "turn your manuscript into a journal-formatted
+Word file" needs **pandoc**; "read and QC submission PDFs" needs **poppler**; "open a .docx at all"
+needs **python-docx** — and installs the small things on request. Large things (a TeX distribution,
+R, PyTorch) are never installed for you: it prints the size and the command and leaves the choice
+alone.
+
+**R is not required.** `/analyze-stats` writes Python by default and only emits R if you ask it to;
+the toolkit itself never executes R. Install R (with `meta`, `metafor`, `mada` for meta-analysis)
+only if you want to run the R code it writes for you. The same is true of PyTorch and
+`/model-scaffold`: writing the training code needs nothing; running it needs torch.
 
 ## Use Cases
 
@@ -929,6 +980,8 @@ These skills are research productivity tools. They do **not** provide clinical d
 ## License
 
 MIT License. See [LICENSE](LICENSE) for details.
+
+Some bundled material is **not** ours and is not MIT: the official guideline templates, the CSL citation styles, and a few checklist summaries carry their own terms — including CC BY-NC, which restricts commercial use. Those are indexed in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md), which ships with every copy and is checked against the tree on every build.
 
 Bundled reporting guideline checklists retain their original Creative Commons licenses. See each checklist file for attribution.
 

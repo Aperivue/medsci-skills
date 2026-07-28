@@ -48,7 +48,7 @@ You do NOT do the work yourself. You classify, plan, and delegate.
 | **meta-analysis** | Systematic review | Full MA pipeline: protocol, search, screening, extraction, synthesis, PRISMA-DTA |
 | **write-paper** | Writing | IMRAD manuscript drafting (8-phase pipeline), any section writing |
 | **self-review** | Quality | Pre-submission self-check with domain probes (Survival / SR-MA / Radiomics / Narrative); optional `--panel` for a high-stakes final QC pass |
-| **check-reporting** | Compliance | Audit against 46 reporting guidelines and risk-of-bias tools |
+| **check-reporting** | Compliance | Audit against 47 reporting guidelines and risk-of-bias tools |
 | **revise** | Revision | Parse reviewer comments, generate point-by-point response, track changes |
 | **grant-builder** | Funding | Structure grant proposals: significance, innovation, approach, milestones |
 | **present-paper** | Presentation | Prepare academic talks: analyze paper, draft scripts, inject slide notes, Q&A prep |
@@ -83,6 +83,8 @@ You do NOT do the work yourself. You classify, plan, and delegate.
 | **find-cohort-gap** | Methodology | Research-gap discovery from a longitudinal cohort DB: profile strengths, match PI expertise, literature-saturation scan, ranked topic proposals |
 | **design-ai-benchmarking** | Methodology | Design/validity review for benchmarking one or more AI systems against a human-expert reference panel (decoupled rubrics, planted calibration probes, reviewer-panel construction, IRR targets, rating-export schema) — before data collection |
 | **architecture-zoo** | Modeling | Choose a medical-imaging model architecture (classification / segmentation / detection / transfer) before scaffolding — maps task + modality + labelled-data scale + imbalance to a paper-grounded shortlist |
+| **model-sourcing** | Modeling | Vet the concrete third-party model a study will be built on (repo / revision / checkpoint): a dossier of licence, version pin, weight provenance, task fit and reported validation, gated for the conflict a licence check cannot see — an evaluation arm sitting on the benchmark the model was developed or tuned on |
+| **profile-imaging** | Modeling | Profile an imaging dataset before any modelling decision (spacing/orientation spread, intensity domain, label integrity, foreground fraction, target volume) and gate that profile against the declared plan; emits the dataset profile the rest of the lane reads |
 | **preprocess-imaging** | Modeling | Design/audit DICOM/NIfTI intake, resampling, normalisation, and augmentation so the pipeline is leakage-safe before `model-scaffold`; emits a preprocessing manifest + data-stage leakage gate |
 | **model-scaffold** | Modeling | Generate a reproducible runnable PyTorch training repo (patient-level seed-locked split, task model, train/eval scripts, repro record) — the link between choosing an architecture and validating a trained model |
 | **radiomics-ml** | Modeling | Produce/audit a radiomics / tabular-ML study (imaging or clinical features → penalised logistic / SVM / RF / gradient-boosting / MLP → outcome) with a learner-agnostic nested-CV / feature-stability / calibration / external-validation gate (no GPU) |

@@ -55,6 +55,7 @@ The registry is a project-local YAML mapping author identifiers (full names, nat
 | Sync audit | `qc/submission_sync_{journal}.json` | Drift result consumed by orchestrator |
 | Manifest update | `artifact_manifest.json` | Submission package registry |
 | Pre-flight gate | `qc/preflight_gate_report.json` | Aggregated halt-on-failure manifest (see "Pre-flight gate" below) |
+| Supplement structure | `qc/supplement_structure.json` | Gate 14: index↔file 1:1, sub-section gaps, callout coverage |
 
 ## Pre-flight gate (single command — last step before freeze)
 
@@ -110,6 +111,8 @@ remains the authoritative fabrication and author-name check before submission.
 - Gate 3: require `/verify-refs` audit before marking a package submission-safe.
 - Gate 4: docx audits must use a recursive walk (paragraphs + tables + nested-table cells); a flat `document.paragraphs` scan is insufficient.
 - Gate 5: before freeze, confirm portal free-text fields (cover letter, data availability, acknowledgements, abstract, author contributions) match the manuscript body.
+- Gate 5c (portal-field markdown residue): portal paste-verbatim `.txt` fields (`abstract.txt`, `keywords.txt`, …) are cut from the markdown but never stripped of it, so a trailing `---`, a `**bold**`, or a `cm^2^` superscript pastes into — and publishes in — the field literally. The pre-flight gate runs `scripts/check_portal_field_residue.py --dir portal_fields/` (P1, `--strict`-promotable) over `portal_fields/`; only `.txt` is scanned (a `.md` is meant to carry markdown), and the emphasis/super/sub patterns require paired markers so significance stars and approximation tildes do not fire. It also carries a Minor `char_expansion` advisory: `≥`/`≤` in a paste-verbatim field are verbose-expanded by ScholarOne to "{greater than or equal to}" (five words), inflating the word count — pre-substitute `>=`/`<=` (only `≥`/`≤`; `×` and the en-dash paste cleanly).
+- Gate 5d (figure portal readiness): a figure bounces at the upload button for reasons decidable from the file on disk — a byte size (JACC: Asia caps a figure at **25 MB**) and an extension (SNAPP accepts only `.tiff`/`.jpeg`/`.eps`, rejecting `.png`). The pre-flight gate runs `scripts/figure_portal_readiness_check.py --figures-dir <dir>` (P1) over `submission/<journal>/figures` (or `./figures`), emitting `FIGURE_OVERSIZE` and — when the portal's formats are supplied via `--figure-accept tiff jpeg eps` — `FIGURE_FORMAT_REJECTED`. Fix by regenerating with `/make-figures export_portal_tiff.py` (LZW + RGBA→RGB flatten). The check is skipped (never an error) when there is no figures directory.
 - Gate 6 (double-blind journals): before freeze, export the portal's blinded review PDF and grep for all author identifiers across the entire upload set — manuscript, supplementary, cover letter, registry record PDFs (PROSPERO/ClinicalTrials), portal Letter-field text. A clean manuscript blind does not imply a clean portal blind.
 - Gate 7 (text-only docx rebuilds): never use `pandoc --reference-doc=manuscript.docx` for response/cover/supplementary text-only docx — the reference docx ships its embedded media (figure files) into the new docx, bloating size 50–100×. Use plain `pandoc input.md -o output.docx` for text-only artifacts.
 - Gate 5b (Phase 4 cover-letter free-text drift): before freeze, run `scripts/cover_letter_drift_check.py` to verify the cover letter's word-count / reference-count / table-figure-count claims still match the manuscript. Cover letters routinely go stale across v_N → v_(N+1) branching and are not covered by any docx-level audit. See "Phase 4 — Cover-letter free-text drift" below.
@@ -141,6 +144,98 @@ remains the authoritative fabrication and author-name check before submission.
     --article-type "Original Article" --out qc/wordcount_cap.json --strict
   # or, deterministic: --limit 4000   (and --rendered-words N from the built DOCX when available)
   ```
+
+- Gate 14 (supplement structure — the numbering lock): a cohort/SR supplement is a directory of `S{N}_*.md` sections plus an index, hand-concatenated into `_combined.md`. Across revision rounds that set desynchronizes silently: an index row with no file, a file the index never lists, two files claiming the same `S{N}`, or a sub-section gap after an insert (`S6.3` then `S6.5`). A reviewer opening "Supplementary Table S9" and finding the wrong content is the failure mode. Before freeze, run `scripts/assemble_supplement.py` to validate index↔file 1:1, rebuild `_combined.md` in index order (so the assembly is reproducible rather than hand-maintained), and — with `--manuscript` — report callout coverage: body callouts with no section file (`CALLOUT_WITHOUT_SECTION`) and section files the body never cites (`SECTION_UNCITED`). The four structural kinds are P0 under `--strict`; coverage findings are advisory.
+
+  ```bash
+  python3 "${CLAUDE_SKILL_DIR}/scripts/assemble_supplement.py" \
+    --dir submission/{journal}/supplementary --index 00_index.md \
+    --manuscript manuscript/manuscript.md \
+    --out submission/{journal}/supplementary/_combined.md \
+    --json qc/supplement_structure.json --strict
+  ```
+
+## Phase 3b — Portal fields that REPLACE the manuscript
+
+Some portals publish the box, not the paper. SNAPP prints it on the form itself, at Author
+Contributions, Competing Interests, Data Availability and Acknowledgements:
+
+> "This replaces any statement written within the manuscript and is the one that we will publish."
+
+So the manuscript file is the copy reviewers read and the portal box is the copy the world
+gets. A declaration that lives only in the manuscript is not a harmless duplicate — it will
+not exist in the published record, and nothing warns you, because neither document is wrong
+on its own. Two sentences that came one click from vanishing this way:
+
+- **Co-first authorship.** A `†` footnote on the title page. There is **no equal-contribution
+  checkbox** on the author page — unless "X and Y contributed equally to this work" is typed
+  into the Author Contributions box, the published paper has no co-first authors.
+- **"The funder had no role in study design…"** It lived in the manuscript's Acknowledgements.
+  The structured *Research funding* field takes a funder and a grant ID and has nowhere to put
+  a role disclaimer, so pasting only an AI-use note into the Acknowledgements box drops it.
+
+**Do not hand-compose the boxes.** Generate them from the manuscript, then check:
+
+```bash
+SS="${CLAUDE_SKILL_DIR}/scripts"
+# scaffold every replacing field straight from the manuscript (lifts the equal-contribution
+# sentence in from the title page, which is the one place --emit cannot copy it from)
+python3 "$SS/check_portal_mirror.py" --manuscript manuscript/manuscript.md \
+  --profile "<...>/journal_profiles/npj_Digital_Medicine.md" --emit portal_fields/
+
+# then verify nothing was lost on the way to the box
+python3 "$SS/check_portal_mirror.py" --manuscript manuscript/manuscript.md \
+  --portal-dir portal_fields/ --profile "<...>/npj_Digital_Medicine.md" \
+  --out qc/portal_mirror.json
+```
+
+| Verdict | Fires when |
+|---|---|
+| `PORTAL_FIELD_NOT_MIRRORED` | A sentence in a replacing manuscript section has no home in that field's paste artifact. |
+| `PORTAL_FIELD_MISSING` | The manuscript has the section, the journal replaces it, and no artifact exists — the field publishes empty or as the portal's auto-extraction guessed it. |
+| `EQUAL_CONTRIBUTION_NOT_IN_PORTAL` | The manuscript asserts equal / co-first contribution and the Author Contributions text does not. |
+
+All three are major and exit 1; the pre-flight runs this as P1 (`--strict`-promotable).
+
+**Which fields replace is a journal fact, not a guess.** It is read from the journal profile's
+`## Portal Mechanics` block (`Fields that REPLACE the manuscript: …`). A journal whose portal
+contract has never been recorded makes this check exit 2 and assert nothing — record the block
+at first submission rather than letting the gate invent a contract. Matching is graded through
+`_quote_match.py`, so re-flowing a sentence while pasting is not reported as a loss.
+
+This is the complement of Gate 5c, not a duplicate: 5c asks whether what you paste is *clean*,
+this asks whether what you did *not* paste is quietly gone.
+
+## Phase 3c — CRediT integrity (not author order)
+
+A contribution taxonomy is a factual claim, published with the paper, and every co-author
+reads it. Nothing ties a term to anything. During one byline negotiation three terms were
+requested in sequence — Visualization, Methodology, Formal analysis — each unsupported by the
+project record; a fourth, Conceptualization, was **entirely legitimate** and had no repository
+artifact at all, because it lived in email and in a critique that drove a restructure.
+
+That asymmetry is the design. The taxonomy is checkable; the work behind it often is not.
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/check_credit_integrity.py" \
+  --manuscript manuscript/manuscript.md --out qc/credit_integrity.json
+```
+
+| Verdict | Severity | Fires when |
+|---|---|---|
+| `CREDIT_TERM_INVALID` | major | A term outside the official fourteen in a section that says CRediT — "Statistical analysis", "Manuscript writing", "Study design" all read as CRediT and are not. The message names the term that was meant. |
+| `CREDIT_INITIALS_UNRESOLVED` | major | Initials matching no author, or two. This is the residue a byline edit leaves: the removed author's initials keep reading as valid. |
+| `CREDIT_AUTHOR_UNLISTED` | major | A byline author with no contribution attributed. Under ICMJE that is either an authorship question or a dropped clause. |
+| `CREDIT_UNCORROBORATED` | **prompt** | A term whose footprint is absent — Visualization on a paper with no figures, Software with no Code Availability statement, or (only if the project keeps one, passed with `--contribution-record`) a contributor absent from the record. |
+
+**Author order and equal-contribution designation are never gated.** They are negotiated, and
+negotiation is legitimate; conflating them with the taxonomy is why they get edited as one
+block. Corroboration is a prompt and can be answered with an attestation — a gate that failed
+the build on an off-repo contribution would be wrong, and would teach its user to disable it.
+
+Two things it declines to guess: with fewer than two resolvable byline names the
+author/initials cross-check is **skipped and says so** (a wrong byline would accuse every
+author at once), and with no contributions section it exits 2 and asserts nothing.
 
 ## Phase 4 — Cover-letter free-text drift
 

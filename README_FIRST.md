@@ -25,3 +25,13 @@ an install log in this folder.
 4. Paste the same first test prompt above.
 
 If macOS blocks the file, right-click it, choose **Open**, and confirm once.
+
+## Licence
+
+MedSci Skills is MIT — see `LICENSE`.
+
+Some material bundled here is **not** ours and is not MIT. A few reporting-checklist
+summaries carry **CC BY-NC** terms, which permit use and redistribution **with attribution
+for non-commercial purposes only**; commercial use needs permission from the rights holders.
+The full index is in `THIRD-PARTY-NOTICES.md`, next to this file. Read it before using these
+skills in paid or commercial work.

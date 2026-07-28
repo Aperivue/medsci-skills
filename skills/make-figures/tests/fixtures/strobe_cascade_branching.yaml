@@ -1,0 +1,10 @@
+# A branching Analysis leaf: primary and landmark share the eligible parent, with no
+# exclusion declared between them. The landmark subset (4,200) must NOT be read as an
+# unbalanced cascade step off the primary (5,000).
+title: "Figure 1. STROBE participant flow diagram"
+spine:
+  - {id: eligible, text: "Eligible cohort (n = 5,000)"}
+  - {id: primary,  text: "Primary Cox model (n = 5,000)"}
+  - {id: landmark, text: "Landmark subset analysis (n = 4,200)"}
+exclusions:
+  - {after: eligible, text: "Excluded (n = 0)"}

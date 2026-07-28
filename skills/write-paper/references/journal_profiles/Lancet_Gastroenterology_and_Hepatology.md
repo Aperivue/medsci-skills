@@ -125,3 +125,6 @@ Editor email: editor@lancet.com (used for pre-submission inquiries)
 | Pre-submission inquiry | Strongly advised | Optional | Optional | Not used |
 | Research in Context box | Mandatory | Optional | Optional | Optional |
 | Ideal cohort size (Articles) | ≥ 10⁴ or multi-centre | ≥ 10³ | ≥ 10³ | ≥ 5×10² |
+
+- **AI-use disclosure placement**: Methods + cover letter
+  <!-- machine-read by /self-review check_classical_style.py --profile; source: this profile's own "AI/LLM use disclosed in Methods + cover letter; AI cannot be author" -->

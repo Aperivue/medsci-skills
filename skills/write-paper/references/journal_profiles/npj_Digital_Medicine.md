@@ -77,6 +77,35 @@ Nature-style order (Methods after Discussion):
 
 Nature Portfolio Reporting Summary required with revised manuscript.
 
+## Portal Mechanics
+
+Facts about the submission system itself, recorded at first submission. These are not author
+guidelines — they are what the portal does, and several of them are stated only on the
+submission form. Read by `/sync-submission` `check_portal_mirror.py`.
+
+- **Submission system**: SNAPP (Springer Nature Article Processing Platform)
+- **Fields that REPLACE the manuscript**: Author Contributions · Competing Interests · Data Availability · Acknowledgements
+
+  The form says so at each of them: *"This replaces any statement written within the manuscript
+  and is the one that we will publish."* The manuscript file is the copy reviewers read; the
+  portal box is the copy the world gets. Paste the manuscript section verbatim — do not
+  re-compose it, which is how a co-first-authorship sentence and a "the funder had no role"
+  sentence each came one click from vanishing.
+- **No equal-contribution checkbox**: co-first authorship survives only if it is typed into the
+  Author Contributions box. A † footnote on the title page does not reach the published record.
+- **Code Availability has no dedicated field**: append it to the Data Availability text.
+- **Research funding is structured** (funder + grant ID) with nowhere for a role disclaimer, so
+  "The funder had no role in study design…" must live in the Acknowledgements box.
+- **Accepted figure formats**: `.jpeg`, `.tiff`, `.eps` — **`.png` is not offered**. Line art and
+  text-bearing figures should go as TIFF + LZW, flattened onto white (a surviving alpha channel
+  prints black).
+- **Cover letter is a file upload** (PDF), not a paste field.
+- **Figure embedding**: figures are uploaded separately; embedding them in the manuscript file
+  as well produces a compiled review PDF with every figure twice.
+- **Known auto-extraction losses**: title and abstract come through exactly, but the affiliation
+  parser silently drops intermediate levels (e.g. a college inside a university). Check author
+  affiliations against the manuscript one by one; do not trust the extracted values.
+
 ## Special Notes
 
 - **Initial submission formatting is relaxed**; strict formatting required only at acceptance.
@@ -91,3 +120,6 @@ Nature Portfolio Reporting Summary required with revised manuscript.
 - **Preprints** encouraged and do not compromise novelty.
 - **Manuscript transfer service**: rejected papers can transfer to other Nature Portfolio journals with referee reports.
 - **Statistics section mandatory**: must include test name, n, alpha level, one-tailed vs two-tailed, exact P values.
+
+- **AI-use disclosure placement**: Methods
+  <!-- machine-read by /self-review check_classical_style.py --profile; source: the profile's own AI policy line: "document use in Methods section" -->
