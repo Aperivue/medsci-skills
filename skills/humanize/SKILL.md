@@ -285,3 +285,11 @@ the pass/fail status.
 | Numerical preservation invariant | ENFORCED | any number changed by the rewrite | same script → `NUMBER_DRIFT` (Major); revert and flag |
 | Rewrite footprint | ADVISORY | fraction of word tokens changed exceeds `--warn-pct` (default 70) | `EDIT_FOOTPRINT_HIGH` (Minor) — never blocks. Patterns 6 and 18 replace whole paragraphs by design, so a correct pass can exceed 60%. Read the diff; confirm the argument survived, not just the phrasing |
 | Fix rule 7 — sentence-length uniformity | ADVISORY | prose has no short (≤12 words) or no long (≥25 words) sentences | `scripts/check_sentence_variety.py --manuscript <file>` → `SENTENCE_UNIFORM` (Minor); break up or combine sentences until both bands exist. Silent below 15 sentences |
+
+## Global-rule references
+
+Some passages in this skill cite a path of the form `~/.claude/rules/<name>.md`. Those are the
+maintainer's personal global rules, kept outside this repository. They are **not shipped with
+this skill** and will not exist on your machine; they appear only as provenance for where a
+convention came from. If one of them looks like it is standing in for an instruction you actually
+need, that is a bug — please open an issue, because the instruction belongs here.

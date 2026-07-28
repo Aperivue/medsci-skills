@@ -241,3 +241,11 @@ Before delivering the protocol:
 - **Never invent clinical definitions, diagnostic criteria, or guideline recommendations.** If uncertain, flag with `[VERIFY]` and ask the user.
 - **Never fabricate numerical results** — compliance percentages, scores, effect sizes, or sample sizes must come from actual data or analysis output.
 - If a reporting guideline item, journal policy, or clinical standard is uncertain, state the uncertainty rather than guessing.
+
+## Global-rule references
+
+Some passages in this skill cite a path of the form `~/.claude/rules/<name>.md`. Those are the
+maintainer's personal global rules, kept outside this repository. They are **not shipped with
+this skill** and will not exist on your machine; they appear only as provenance for where a
+convention came from. If one of them looks like it is standing in for an instruction you actually
+need, that is a bug — please open an issue, because the instruction belongs here.

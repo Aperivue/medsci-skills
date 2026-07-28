@@ -411,3 +411,11 @@ Section 3.5 (post-acceptance channel checklist) is unordered; Section 12 prescri
 - **Never fabricate discoverability metrics** (Perplexity/Elicit/Consensus retrieval scores) — only report observed behavior from a recorded probe.
 - **Never auto-complete author lists, ORCIDs, or affiliations** in CITATION.cff or Zenodo metadata; surface empty slots to the user.
 - If a compliance item, journal policy, or AI-search platform behavior is uncertain, state the uncertainty rather than guessing.
+
+## Global-rule references
+
+Some passages in this skill cite a path of the form `~/.claude/rules/<name>.md`. Those are the
+maintainer's personal global rules, kept outside this repository. They are **not shipped with
+this skill** and will not exist on your machine; they appear only as provenance for where a
+convention came from. If one of them looks like it is standing in for an instruction you actually
+need, that is a bug — please open an issue, because the instruction belongs here.

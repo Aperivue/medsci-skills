@@ -310,3 +310,11 @@ This skill defines **three submission gates** and **one user approval gate**:
 4. **Local Zotero required for CWYW** — port 23119 must be reachable; no
    web-API fallback yet (would need `ZOTERO_API_KEY`). On failure the script
    aborts with non-zero exit so partial builds never ship.
+
+## Global-rule references
+
+Some passages in this skill cite a path of the form `~/.claude/rules/<name>.md`. Those are the
+maintainer's personal global rules, kept outside this repository. They are **not shipped with
+this skill** and will not exist on your machine; they appear only as provenance for where a
+convention came from. If one of them looks like it is standing in for an instruction you actually
+need, that is a bug — please open an issue, because the instruction belongs here.

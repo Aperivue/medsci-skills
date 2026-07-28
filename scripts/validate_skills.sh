@@ -45,6 +45,26 @@ _personal_path_hit() {
   sed -E 's/private-journal-profiles/journal-profiles/g' | grep -nE "$PERSONAL_PATH" | head -1
 }
 
+# An instruction whose content lives in a file we do not ship. Paths under
+# ~/.claude/rules/ are the maintainer's personal global rules; the distribution
+# bundle is skills/ + installers/ only (metadata/distribution_files.json), so an
+# installed user has no such file and never will. That is harmless when the path
+# is provenance — "English only (per <path>)" states the rule and then says where
+# it came from. It is a silent defect when a verb GOVERNS the path — "apply
+# <path>", "follow <path>" — because then the instruction *is* the file, the file
+# is absent, and the step is skipped with nothing to show for it.
+#
+# Deliberately narrow: `see` / `per` / `cross-link` are not matched. Blocking
+# those would fire on ~70 correctly-formed citations at once and this check would
+# never land. `[^|]` keeps the window inside one markdown table cell, so a "must"
+# in one column cannot reach a path in another.
+#
+# Calibrated against real defects rather than a fixture: on the tree immediately
+# before this check was added, it matched exactly the four imperative references
+# that were there (render-pdf-doc x2, meta-analysis phase-4, revise) and nothing
+# else in 79 total references.
+RULE_IMPERATIVE='(apply|applies|follow|enforce|obey|adhere to|refer to|as required by|as specified in|read)[^|]{0,40}\.claude/rules/'
+
 echo "========================================="
 echo " MedSci Skills Validator"
 echo "========================================="
@@ -296,6 +316,19 @@ for skill_dir in "$SKILLS_DIR"/*/; do
     fi
   done
   [ "$email_hits" -eq 0 ] && pass "Email whitelist (no personal addresses)"
+
+  # 7b-ii. An instruction that points at a file we do not ship (see
+  #        RULE_IMPERATIVE near the top for why this is narrow).
+  unshipped_hits=0
+  for f in "${integrity_files[@]}"; do
+    hit=$(grep -niE "$RULE_IMPERATIVE" "$f" | head -1)
+    if [ -n "$hit" ]; then
+      rel="${f#$REPO_ROOT/}"
+      fail "Instruction points at an unshipped personal rule in $rel: $hit"
+      ((unshipped_hits++))
+    fi
+  done
+  [ "$unshipped_hits" -eq 0 ] && pass "Unshipped-rule instructions (no 'apply ~/.claude/rules/...')"
 
   # 7c. Filename PII (Author{Year}_Journal_FigNN, Surname{Year}_Conf_..., etc.)
   #     Catches the case where the file CONTENT is fine but the filename itself
