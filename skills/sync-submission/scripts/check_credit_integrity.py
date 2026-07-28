@@ -126,7 +126,7 @@ FIGURE_CAPTION_RE = re.compile(r"^\s*\**\s*(?:Figure|Fig\.?)\s*\d+\b", re.M | re
 CODE_AVAIL_RE = re.compile(r"^#{1,6}\s*\*{0,2}\s*Code Availability", re.M | re.I)
 # "J.D.", "Y.N.", "A.B.C." — the form contributions sections are written in.
 INITIALS_RE = re.compile(r"\b(?:[A-Z]\.){2,4}")
-# A byline name: "Jane Doe", "Jane A. Doe", "Kyung Won Kim" — two to four capitalised words,
+# A byline name: "Jane Doe", "Jane A. Doe", "Mary Anne Roe" — two to four capitalised words,
 # optionally carrying a superscript/affiliation marker.
 NAME_RE = re.compile(r"\b([A-Z][a-z]+(?:\s+[A-Z]\.?)?(?:\s+[A-Z][a-z]+){1,2})\b")
 

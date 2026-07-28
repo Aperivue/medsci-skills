@@ -21,20 +21,20 @@ ck() {
 # --- BUILD: first-appearance numbering, affiliation reuse, ascending block ---
 cat > "$TMP/authors.json" <<'JSON'
 {"authors":[
-  {"name":"Yoojin Nam","affiliations":["scch","amc"]},
-  {"name":"Taein An","affiliations":["hallym"]},
-  {"name":"Pa Hong","affiliations":["scch"],"corresponding":true},
-  {"name":"Namkug Kim","affiliations":["amc","amcrad"],"corresponding":true}],
+  {"name":"Jane Doe","affiliations":["uh","mmc"]},
+  {"name":"Alan Poe","affiliations":["cgh"]},
+  {"name":"John Roe","affiliations":["uh"],"corresponding":true},
+  {"name":"Mary Sue","affiliations":["mmc","mmc_rad"],"corresponding":true}],
  "affiliations":{
-  "scch":"Department of Radiology, Samsung Changwon Hospital, Changwon, Republic of Korea",
-  "amc":"Department of Convergence Medicine, Asan Medical Center, Seoul, Republic of Korea",
-  "hallym":"Department of Radiology, Dongtan Sacred Heart Hospital, Hwaseong, Republic of Korea",
-  "amcrad":"Department of Radiology, Asan Medical Center, Seoul, Republic of Korea"}}
+  "uh":"Department of Radiology, University Hospital, City, Country",
+  "mmc":"Department of Convergence Medicine, Metro Medical Center, City, Country",
+  "cgh":"Department of Radiology, Coastal General Hospital, Town, Country",
+  "mmc_rad":"Department of Radiology, Metro Medical Center, City, Country"}}
 JSON
 python3 "$S" --authors "$TMP/authors.json" --out "$TMP/built.md" > /dev/null 2>&1
-ck "build emits first-appearance numbering (Nam^1,2^)" "$(grep -cF 'Yoojin Nam^1,2^' "$TMP/built.md")"
-ck "build reuses affiliation 1 for a later author (Pa Hong^1)" "$(grep -cF 'Pa Hong^1,\*^' "$TMP/built.md")"
-ck "build reuses 2 + adds 4 (Namkug Kim^2,4)" "$(grep -cF 'Namkug Kim^2,4,\*^' "$TMP/built.md")"
+ck "build emits first-appearance numbering (Doe^1,2^)" "$(grep -cF 'Jane Doe^1,2^' "$TMP/built.md")"
+ck "build reuses affiliation 1 for a later author (John Roe^1)" "$(grep -cF 'John Roe^1,\*^' "$TMP/built.md")"
+ck "build reuses 2 + adds 4 (Mary Sue^2,4)" "$(grep -cF 'Mary Sue^2,4,\*^' "$TMP/built.md")"
 ck "block lists ^4^ last" "$(grep -cE '^\^4\^ ' "$TMP/built.md")"
 
 # --- CHECK: the built title page round-trips clean ---

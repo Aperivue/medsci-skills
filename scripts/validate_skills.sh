@@ -167,14 +167,26 @@ for skill_dir in "$SKILLS_DIR"/*/; do
   # Text-bearing extensions to scan. Binary types (.png/.pdf/.docx) are out
   # of scope — separate FAIL rule below catches their FILENAMES (rule 7c)
   # but their content needs a different tool (e.g. exiftool for EXIF).
-  TEXT_EXTS='-name *.md -o -name *.yml -o -name *.yaml -o -name *.json -o -name *.txt -o -name *.csv -o -name *.tsv'
+  #
+  # An ARRAY, and every glob quoted. As a bare string expanded unquoted into
+  # `find`, `*.md` was pathname-expanded against the CALLER'S working directory
+  # before find ever saw it. From the repo root — which is how CI and every
+  # documented invocation run it — that became the thirteen top-level .md files,
+  # find aborted with "unknown primary or operator", `2>/dev/null` swallowed the
+  # message, and each loop below yielded ZERO files. Net effect: references/,
+  # templates/ and scripts/ — the "extended scope" added in 2026-05 precisely
+  # because vendored PII hides there — were never scanned, while the run printed
+  # PASS for every rule on every skill.
+  TEXT_EXTS=( -name '*.md' -o -name '*.yml' -o -name '*.yaml' -o -name '*.json' \
+              -o -name '*.txt' -o -name '*.csv' -o -name '*.tsv' )
+  CODE_EXTS=( -o -name '*.py' -o -name '*.sh' )
 
   integrity_files=()
   [ -f "$skill_file" ] && _add_if_tracked "$skill_file"
   if [ -d "${skill_dir}references" ]; then
     while IFS= read -r -d '' f; do
       _add_if_tracked "$f"
-    done < <(find "${skill_dir}references" -type f \( $TEXT_EXTS \) -print0 2>/dev/null)
+    done < <(find "${skill_dir}references" -type f \( "${TEXT_EXTS[@]}" \) -print0 2>/dev/null)
   fi
   # Extended scope (2026-05): templates/ and scripts/ subdirs. Same blocklist
   # patterns apply — these dirs were previously silently excluded and could
@@ -184,19 +196,31 @@ for skill_dir in "$SKILLS_DIR"/*/; do
   if [ -d "${skill_dir}templates" ]; then
     while IFS= read -r -d '' f; do
       _add_if_tracked "$f"
-    done < <(find "${skill_dir}templates" -type f \( $TEXT_EXTS -o -name "*.py" -o -name "*.sh" \) -print0 2>/dev/null)
+    done < <(find "${skill_dir}templates" -type f \( "${TEXT_EXTS[@]}" "${CODE_EXTS[@]}" \) -print0 2>/dev/null)
   fi
   if [ -d "${skill_dir}scripts" ]; then
     while IFS= read -r -d '' f; do
       _add_if_tracked "$f"
-    done < <(find "${skill_dir}scripts" -type f \( $TEXT_EXTS -o -name "*.py" -o -name "*.sh" \) -print0 2>/dev/null)
+    done < <(find "${skill_dir}scripts" -type f \( "${TEXT_EXTS[@]}" "${CODE_EXTS[@]}" \) -print0 2>/dev/null)
   fi
   # Also catch top-level skill scratchpads (skills/<name>/TODO_*.md, HANDOFF.md)
   # and skill.yml / capabilities.yml that some skills keep alongside SKILL.md.
   while IFS= read -r -d '' f; do
     _add_if_tracked "$f"
-  done < <(find "${skill_dir}" -maxdepth 1 -type f \( $TEXT_EXTS \) \
+  done < <(find "${skill_dir}" -maxdepth 1 -type f \( "${TEXT_EXTS[@]}" \) \
             ! -name "SKILL.md" -print0 2>/dev/null)
+  # tests/ (2026-07-29). Test fixtures are the *easiest* place for a real name to
+  # settle: an author roster, a byline, a reader panel — you reach for a plausible
+  # one and the nearest plausible name is someone you actually work with. These
+  # files are excluded from the distribution bundle, so they never reach an
+  # installer, but they are in a public git repository, which is the exposure the
+  # precedent blocklist exists to prevent. Scanning them found real names in two
+  # skills, one of them inside a fixture named `supplement_pii_clean.md`.
+  if [ -d "${skill_dir}tests" ]; then
+    while IFS= read -r -d '' f; do
+      _add_if_tracked "$f"
+    done < <(find "${skill_dir}tests" -type f \( "${TEXT_EXTS[@]}" "${CODE_EXTS[@]}" \) -print0 2>/dev/null)
+  fi
 
   # 6. Personal precedent leak (blocklist of project-specific identifiers).
   # Delegated to check_precedent.py: structural shapes (CK-<n>, MA-<n>, ...)
@@ -237,13 +261,32 @@ for skill_dir in "$SKILLS_DIR"/*/; do
   #     wjgnet, kams, wiley, aasld) + `your@email.com` style placeholders.
   email_hits=0
   email_pattern='[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}'
-  email_whitelist='example\.com|example\.org|your@email\.com|user@host|name@|placeholder|noreply@|git@github\.com|@lancet\.com|@strokeahajournal\.org|@aasld\.org|@wjgnet\.com|@wiley\.com|@kams\.or\.kr|@journal\.|aim-aicro\.com'
+  email_whitelist='example\.com|example\.org|your@email\.com|user@host|name@|placeholder|noreply@|users\.noreply\.github\.com|git@github\.com|@lancet\.com|@strokeahajournal\.org|@aasld\.org|@wjgnet\.com|@wiley\.com|@kams\.or\.kr|@nejm\.org|@journal\.|aim-aicro\.com'
   # Note: `aim-aicro.com` is a corporate domain that historically appeared in a
   #   personal author roster. We allow the bare domain here only because the
   #   precedent blocklist already catches the full `kyungwon.kim@aim-aicro.com`
   #   string by way of the personal-name patterns above; remove from this
   #   whitelist if the bare domain ever surfaces on its own.
+  # `@nejm.org` and `users.noreply.github.com` joined the list in 2026-07-29, when
+  #   this rule started scanning references/ and scripts/ for the first time: a
+  #   journal's published editorial-office address and a GitHub noreply sender are
+  #   contact information, not a person's private address.
+  #
+  # Two files exist in order to CARRY personal-looking data, and exempting them is
+  # not a loophole but the only way they can do their job: they are the corpora
+  # that prove the PII detectors fire. `deidentify` needs Korean PHI shapes
+  # (resident-registration numbers, phone numbers, addresses) and `contribute`
+  # needs a message that leaks an author's address, so that each skill's scanner
+  # can be shown catching them. Both are fully synthetic — verified name by name
+  # when this exemption was written — and neither ships (tests/ is excluded from
+  # the distribution bundle). Every other rule still applies to them; only this
+  # one is skipped, and only for these two paths.
+  PII_FIXTURE_PATHS='^skills/deidentify/tests/test_phi_[a-z]+\.csv$|^skills/contribute/tests/test_contribution_safety\.sh$'
   for f in "${integrity_files[@]}"; do
+    rel_f="${f#$REPO_ROOT/}"
+    if printf '%s' "$rel_f" | grep -qE "$PII_FIXTURE_PATHS"; then
+      continue
+    fi
     matches=$(grep -nE "$email_pattern" "$f" | grep -vE "$email_whitelist" || true)
     if [ -n "$matches" ]; then
       rel="${f#$REPO_ROOT/}"

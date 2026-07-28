@@ -4,6 +4,40 @@
 
 ### Fixed
 
+- **The PII scanner had been reading one file per skill.** `validate_skills.sh` held its
+  filename patterns in a bare string and expanded it unquoted into `find`, so `*.md` was
+  pathname-expanded against the *caller's* working directory before `find` ever saw it. Run from
+  the repo root — how CI and every documented invocation run it — that became the thirteen
+  top-level `.md` files, `find` aborted with `unknown primary or operator`, and `2>/dev/null`
+  swallowed the message. Each loop yielded zero files. The "extended scope" added in 2026-05
+  specifically because vendored identifiers hide in `references/`, `templates/` and `scripts/`
+  had therefore never scanned any of them, while every run printed PASS for every rule on every
+  skill. The patterns are now an array with each glob quoted.
+
+  The blind spot was real, not theoretical: with it closed, the scanner immediately named real
+  personal names and institution strings sitting in shipped scripts and in test fixtures — all of
+  them already on the precedent blocklist, so the gate had been correct all along and simply
+  never got to look. Those are replaced with generic placeholders in this change. Git history is
+  not rewritten, so the earlier commits still carry them.
+
+- `skills/*/tests/` is now scanned as well. Fixtures are where a real name settles most easily —
+  you reach for a plausible author roster and the nearest plausible one is someone you work with.
+  Test files never reach an installer (the bundle excludes `tests/`), but they are in a public
+  repository, which is the exposure the blocklist exists to prevent. One of the names found this
+  way was inside a fixture called `supplement_pii_clean.md`.
+
+- Two files exist in order to carry personal-looking data — the Korean-PHI corpus that proves
+  `/deidentify` fires, and the leaky message that proves `/contribute` blocks a submission — and
+  are now exempt from the email rule by path, with the reason recorded beside the exemption.
+  Every other rule still applies to them. A journal's published editorial-office address and a
+  GitHub `users.noreply` sender are likewise contact information rather than a private address,
+  and join the domain whitelist.
+
+### Added
+
+- `tests/test_validator_scope.sh` plants the blocked home-directory literal in `references/`,
+  `templates/`, `scripts/`, `tests/` and at the skill root, then asserts the validator **names
+  each file**. It does not ask whether the validator passes: passing was precisely the symptom.
 - **The release-cadence gate's own regression test had an expiry date.** It pinned its fixture
   tag to a literal `2026-07-13` and then asserted that a release cut "0 days later" is blocked —
   but the gate measures `date.today() - <tag date>`, so the fixture did not describe a fixed gap,
@@ -14,6 +48,32 @@
   tag to twenty days reproduces exactly the three gap-dependent failures and leaves the other nine
   passing. (The gate itself was never wrong; `--min-days 14` and both exemptions behaved as
   specified throughout.)
+### Added
+
+- `american-medical-association.csl` (AMA Manual of Style 11th edition) joins the bundled
+  citation styles — superscript, et-al after 6 (first 3 + et al), DOI kept. It covers the JAMA
+  family and the many journals whose author guide says only "AMA style"; until now the nearest
+  bundled option was `liver-international.csl`, which reaches the same rendering by way of a
+  retitled Wiley style.
+
+### Fixed
+
+- **The CSL registry had drifted from the directory it describes.** `citation_styles/README.md`
+  listed 10 of the 16 bundled styles, and `korean-journal-of-radiology.csl` was described as a
+  "Vancouver-superscript variant" when it renders parenthesised numbers — the opposite of a
+  superscript style, and the kind of error that is only discovered in a proof PDF. The table now
+  covers every file on disk, and each row states what the style actually renders (read from the
+  CSL, not from the journal's reputation).
+- **The documented refresh loop would have overwritten three local variants.** `vancouver.csl`,
+  `vancouver-superscript.csl` and `liver-international.csl` carry `<id>` slugs that differ from
+  their filenames, so `curl zotero.org/styles/<filename>` fetches a *different* style for each —
+  and two of them were already inside the loop. The loop is now restricted to files whose
+  filename equals their `<id>` slug, with the exceptions tabulated and a one-liner that
+  re-derives the list from disk.
+- Two hand-maintained copies of the CSL inventory (`manage-refs/SKILL.md`,
+  `write-paper/references/phase7_polish_detail.md`) had each drifted to a different stale subset.
+  Both now point at the README and at `render_pandoc.sh`, which prints what is actually on disk
+  when it cannot find the requested style.
 
 ## [5.23.0] - 2026-07-25
 

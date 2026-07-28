@@ -44,6 +44,9 @@ jobs:
       - name: Run validate_skills.sh (PII + structure)
         run: bash scripts/validate_skills.sh
 
+      - name: "Validator scope self-test (it must READ every directory it claims to scan)"
+        run: bash tests/test_validator_scope.sh
+
       # --- self-update foundation (PR-1a): manifests, version drift, transactional installer ---
       - name: Distribution manifests in sync (gen_distribution_manifest.py --check)
         run: python3 scripts/gen_distribution_manifest.py --check
