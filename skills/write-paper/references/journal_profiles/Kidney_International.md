@@ -21,7 +21,7 @@
 | In-Depth Review | 6000 words | 200 words | 120 | 6 (combined) |
 | Case Report | Not accepted | - | - | - |
 
-*Note: Case reports are no longer accepted; authors are redirected to the sister journal Kidney Medicine. Body word limit excludes title page, abstract, references, tables, figures, and legends.*
+*Note: Case reports are no longer accepted. Body word limit excludes title page, abstract, references, tables, figures, and legends.*
 
 ---
 
@@ -115,3 +115,8 @@ Kidney International is the official journal of the ISN. It is highly suited for
 | Scope | Basic, Translational, and Key Clinical | Basic, Translational, and High-impact Clinical | Primarily Clinical, Dialysis, and Transplant |
 | Impact factor | ~14.8 | ~12.7 | ~6.1 |
 | Emphasis | Pathology & Basic Mechanisms | Multidisciplinary Nephrology & Trials | European Practice, Dialysis, & Transplantation |
+
+## Verification
+- **Source:** Kidney International Guide for Authors, read during maintainer review of PR #330 — verification record: https://github.com/Aperivue/medsci-skills/pull/330#issuecomment-4968075916
+- **Date:** 2026-07-14
+- **Note:** the 4,000-word body and the ≤300-word structured abstract were confirmed against the journal's own guide. As above, no direct URL was captured and the publisher blocks automated retrieval, so none is asserted here.

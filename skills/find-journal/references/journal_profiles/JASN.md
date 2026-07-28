@@ -27,3 +27,8 @@ nephrology, glomerulonephritis, acute kidney injury, chronic kidney disease, dia
 
 ## Special Notes
 JASN (IF ~12.7) is highly selective (~10% acceptance rate). Requires a separate Significance Statement (≤120 words) written for a general audience. Strictly limits display items to 8 combined figures/tables. AI policy: language editing only, disclose in Methods/Acknowledgments, AI images banned.
+
+## Verification
+- **Source:** JASN Instructions to Authors, read during maintainer review of PR #330 — verification record: https://github.com/Aperivue/medsci-skills/pull/330#issuecomment-4968075916
+- **Date:** 2026-07-14
+- **Note:** the 3,000-word body ("excluding methods, references, figure legends, and tables"), the ≤120-word Significance Statement and the 8-display-item cap were each confirmed against the journal's own instructions. A direct URL is not recorded here because none was captured at the time and the publisher blocks automated retrieval; supplying one now would be a guess, not a citation. Replace this with the canonical instructions URL when someone next opens it.

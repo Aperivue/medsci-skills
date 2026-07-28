@@ -16,7 +16,7 @@
 
 | Type | Body Word Limit | Abstract | References | Figures/Tables |
 |------|----------------|----------|------------|----------------|
-| Original Investigation | 3500 words | 200 words | 50 (recommended) | 6-8 (combined) |
+| Original Investigation | 3500 words | 300 words | 50 (recommended) | 6-8 (combined) |
 | Research Letter | 1000 words | None | 15 | 2 (combined) |
 | Review | 5000 words | 250 words | 100 | 6 (combined) |
 | Case Report (Teaching Case) | 1500 words | 150 words | 15 | 3 (combined) |
@@ -27,7 +27,7 @@
 
 ## Abstract Requirements
 
-**Structured abstract, 200 words maximum:**
+**Structured abstract, 300 words maximum:**
 Headings must be exactly:
 - **Rationale & Objective:** [Study justification and main hypothesis]
 - **Study Design:** [Prospective/retrospective cohort, RCT, cross-sectional, etc.]
@@ -56,7 +56,7 @@ Headings must be exactly:
 
 1. **Title Page**
 2. **Clinical Summary Bullets**
-3. **Structured Abstract** (max 200 words)
+3. **Structured Abstract** (max 300 words)
 4. **Introduction** (brief, ending with study objectives)
 5. **Methods** (must describe design, population, statistics, and follow reporting checklists)
 6. **Results** (clear data reporting, references to tables/figures)
@@ -131,3 +131,8 @@ AJKD is the premier clinical nephrology journal of the National Kidney Foundatio
 | Scope | Clinical Practice, Trials, & NKF Guidelines | Clinical Trials & Epidemiology | Basic, Translational, & Major Trials |
 | Impact factor | ~10.4 | ~9.6 | ~12.7 |
 | Emphasis | Clinician-Friendly & US-centric Practice | General Clinical Nephrology | Mechanisms & Landmark Discoveries |
+
+## Verification
+- **Source:** AJKD Information for Authors — https://www.ajkd.org/article/S0272-6386(11)01206-6/fulltext
+- **Date:** 2026-07-14
+- **Note:** the 300-word abstract limit is quoted verbatim from that page in the PR #330 review (https://github.com/Aperivue/medsci-skills/pull/330#issuecomment-4968075916). The 3,500-word body limit was confirmed on the same page.
