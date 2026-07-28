@@ -2,6 +2,19 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- **The release-cadence gate's own regression test had an expiry date.** It pinned its fixture
+  tag to a literal `2026-07-13` and then asserted that a release cut "0 days later" is blocked —
+  but the gate measures `date.today() - <tag date>`, so the fixture did not describe a fixed gap,
+  it described one that grew by a day per day. The assertion held for fourteen days and then
+  became false, and on 2026-07-27 the suite went red for a reason that had nothing to do with the
+  gate it was testing. Every fixture date is now derived from today, so a fixture can only encode
+  a duration. Verified by regression rather than by the suite turning green: re-aging the fixture
+  tag to twenty days reproduces exactly the three gap-dependent failures and leaves the other nine
+  passing. (The gate itself was never wrong; `--min-days 14` and both exemptions behaved as
+  specified throughout.)
+
 ## [5.23.0] - 2026-07-25
 
 **Pinned reference:** the held-out validation study in `Recursive_Verification_Drift` measures this toolkit's

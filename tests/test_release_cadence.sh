@@ -10,12 +10,25 @@
 #
 # So the gate must (a) block a too-soon release, (b) let a genuine hotfix straight through, and
 # (c) stay silent when no release is being prepared, which is almost every commit.
+#
+# Every fixture date below is derived from TODAY, never written as a literal. The gate measures
+# `date.today() - <tag creatordate>`, so a hard-coded tag date does not describe a fixed gap — it
+# describes a gap that grows by one day per day. This test previously pinned its tag to
+# 2026-07-13 and asserted that a release cut "0 days later" is blocked; that assertion was true
+# for fourteen days and then quietly became false, and the suite went red on 2026-07-27 for a
+# reason that had nothing to do with the gate. A fixture may only encode a DURATION.
 set -u
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 G="$REPO_ROOT/scripts/check_release_cadence.py"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
+
+# Dates relative to now. python3 rather than `date -d` / `date -v`, which disagree across
+# GNU and BSD and would make this test pass on CI and fail on a maintainer's laptop.
+days_ago() { python3 -c "import datetime,sys;print((datetime.date.today()-datetime.timedelta(days=int(sys.argv[1]))).isoformat())" "$1"; }
+TODAY="$(days_ago 0)"
+LONG_AGO="$(days_ago 60)"
 
 pass=0
 fail=0
@@ -41,7 +54,7 @@ git config user.name t
 
 write_release() {   # $1 version   $2 changelog body
   printf 'cff-version: 1.2.0\nversion: "%s"\n' "$1" > CITATION.cff
-  printf '# Changelog\n\n## [Unreleased]\n\n## [%s] - 2026-07-13\n%s\n' "$1" "$2" > CHANGELOG.md
+  printf '# Changelog\n\n## [Unreleased]\n\n## [%s] - %s\n%s\n' "$1" "$TODAY" "$2" > CHANGELOG.md
 }
 
 # --- a released state: the tag and CITATION.cff agree -----------------------------------------
@@ -51,7 +64,7 @@ write_release "1.0.0" "
 - The first thing.
 "
 git add -A > /dev/null && git commit -qm v1
-GIT_COMMITTER_DATE="2026-07-13T12:00:00" git tag -a v1.0.0 -m v1.0.0
+GIT_COMMITTER_DATE="${TODAY}T12:00:00" git tag -a v1.0.0 -m v1.0.0
 
 # 1) no release pending -> silent, and this is the case on almost every commit
 python3 scripts/check_release_cadence.py --strict > /dev/null 2>&1
@@ -92,7 +105,7 @@ ck "a docs-only release is refused" 1 "$?"
 
 # 5) ...and it is still refused even when enough time HAS passed: the objection is that nobody
 #    would notice, not that it is too soon.
-GIT_COMMITTER_DATE="2026-06-01T12:00:00" git tag -a v0.9.0 -m old > /dev/null 2>&1 || true
+GIT_COMMITTER_DATE="${LONG_AGO}T12:00:00" git tag -a v0.9.0 -m old > /dev/null 2>&1 || true
 python3 scripts/check_release_cadence.py 2>&1 | grep -q "nothing a user would notice"
 ck "the docs-only objection is substance, not timing" 0 "$?"
 
