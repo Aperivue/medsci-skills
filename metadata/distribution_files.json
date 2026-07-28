@@ -1397,6 +1397,11 @@
       "sha256": "620ba1c55272908a16125ba69074491df5246d6cf9afa14e6b08a08e8dc4e866"
     },
     {
+      "path": "skills/find-journal/references/journal_profiles/AJKD.md",
+      "size": 1764,
+      "sha256": "4852b353847a9fa166a9b874be9cd4dc90231e791a3b4ca86835872fcf54c0f1"
+    },
+    {
       "path": "skills/find-journal/references/journal_profiles/AJNR.md",
       "size": 1451,
       "sha256": "20f99385a0d6fae3c464691d5a414d7dc2788f67c619e9775a7269fdc9509df4"
@@ -1552,6 +1557,11 @@
       "sha256": "0bd38b7ae4139a856c6aba5917d3444e2e86e16bb0a5f7f41869600174e00648"
     },
     {
+      "path": "skills/find-journal/references/journal_profiles/JASN.md",
+      "size": 2133,
+      "sha256": "5f7311ff8e8270caaaf8a3c22a16cf185a6cb034f58f222ca3ca1f60c635eb79"
+    },
+    {
       "path": "skills/find-journal/references/journal_profiles/JCSM.md",
       "size": 3969,
       "sha256": "0ad9de65938075bd4b081f10eff2ef9ade238359b8229b5a4f173baae6af273d"
@@ -1615,6 +1625,11 @@
       "path": "skills/find-journal/references/journal_profiles/KJR.md",
       "size": 4061,
       "sha256": "0849de001a47038b8bfc92b337285372c80ccf4861162cae876295d82ea4f1c8"
+    },
+    {
+      "path": "skills/find-journal/references/journal_profiles/Kidney_International.md",
+      "size": 1871,
+      "sha256": "60792a1f6b5466bb7ca740904f123c62cb54c9ddb7cea422a89ed2768d02b51d"
     },
     {
       "path": "skills/find-journal/references/journal_profiles/Korean_Circulation_Journal.md",
@@ -5737,6 +5752,11 @@
       "sha256": "6a0becfe8f24db7f686bd23f26c9caec749dd996914705679ea915398fc7c3dd"
     },
     {
+      "path": "skills/write-paper/references/journal_profiles/AJKD.md",
+      "size": 5809,
+      "sha256": "b0183fb94e2cb41a534807b0cb79e861683aee00e95b6850e3ddcb5036e15014"
+    },
+    {
       "path": "skills/write-paper/references/journal_profiles/AJNR.md",
       "size": 6381,
       "sha256": "9f644f4c374c9b76fb4641af5bb1ae4835f8d71b53769e281d22790286064967"
@@ -5867,6 +5887,11 @@
       "sha256": "0b7c00a4cf1616e134cfe3fff0d389268d275c0795f233733d685f56fc3018f9"
     },
     {
+      "path": "skills/write-paper/references/journal_profiles/JASN.md",
+      "size": 6619,
+      "sha256": "9f64bc923ec708e10f514636fa31cac57f1611167304ea9d4d86920a18b6bd58"
+    },
+    {
       "path": "skills/write-paper/references/journal_profiles/JCSM.md",
       "size": 13680,
       "sha256": "f5407732afbde46286d1effe12616ddfb014d7103535d7059fc0eb800393b87c"
@@ -5910,6 +5935,11 @@
       "path": "skills/write-paper/references/journal_profiles/KJR.md",
       "size": 13088,
       "sha256": "42d45781f252ada19a4086f200c407bd3c85d3d9a88c30151d9c14390616354d"
+    },
+    {
+      "path": "skills/write-paper/references/journal_profiles/Kidney_International.md",
+      "size": 5538,
+      "sha256": "d370e1706d7e9972d2764ce1321d930ba7d6f006fae873019a49c6fdcd10c84e"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/Korean_Circulation_Journal.md",
