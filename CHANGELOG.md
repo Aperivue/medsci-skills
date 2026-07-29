@@ -4,6 +4,46 @@
 
 ### Fixed
 
+- **`verify_refs` called BibTeX's own "et al." an author mismatch.** `and others` is what
+  Zotero, Mendeley, JabRef and a hand-written `.bib` all emit for a list the author chose not
+  to type out, and what BibTeX and CSL both render as *et al.* The parser already knew the
+  token — it dropped the literal family `others` from the cited list — but did not read it as
+  a **declaration**, so `cited=6 vs source=53` became `AUTHOR MISMATCH`: the render-aborting
+  verdict, on a correct reference. The escape hatch that existed, `_audit_truncated = N`, is a
+  field this toolkit invented and no reference manager writes. The universal way to declare a
+  truncation failed and the private way succeeded, which is backwards — and it failed hardest
+  on multisociety guidelines and consortium papers, the reference class clinical manuscripts
+  cite most.
+
+  `and others` now sets the same truncation flag, in the trailing position where BibTeX
+  defines it. Declaring a truncation still buys **nothing** else: a cited family that does not
+  match the source, a cited author the source does not have, and an undeclared short list all
+  still fire. `skills/verify-refs/tests/test_bibtex_et_al.sh` (network-free, wired) pins all
+  four, and reverting the one-line fix turns it red.
+
+- **The regression test for the master pre-submission chain had been failing for two months,
+  unseen.** `skills/manage-refs/tests/fixtures/pre_submission_gate/` is the end-to-end test for
+  the chain `manage-refs/SKILL.md` recommends before any submission. Its own `refs.bib` uses
+  `and others`, so it broke the day the author cross-check landed (v1.3.0, #41, 2026-05-31) and
+  stayed broken until today. Three separate things had to be true for that to go unnoticed, and
+  all three are fixed here:
+
+  - `check_test_wiring.py` decides what is a test by its **name**, and this one is called
+    `run.sh`. A gate for finding unrun tests must not have a naming blind spot; anything under
+    a `tests/` directory now counts. The fixture is `EXEMPT` with a stated reason (its stage 2
+    queries live PubMed/CrossRef, so wiring it would make a green build depend on a third-party
+    API) — visible and justified rather than invisible.
+  - That same gate **read its own source**. CI runs it, so its file landed in the one-hop text
+    it searches, and writing a test's path anywhere inside it — a comment, an exemption reason
+    — marked that test wired. Adding one explanatory sentence to `EXEMPT` turned a genuinely
+    unwired test green; removing the sentence turned it red again. The gate no longer reads
+    itself, so `EXEMPT` is the only way to excuse a test.
+  - The fixture's own network-skip guard **could never match**: it grepped the single-line
+    literal `"verify_refs", "status": "FAIL"` against a pretty-printed artifact that writes
+    `"stage"` and `"status"` on separate lines. That it was dead is lucky — alive, it would
+    have skipped on *any* verify_refs failure, hiding exactly the content regression the
+    fixture exists to catch. It now skips on the transport failing, never on the verdict.
+
 - **`CONTRIBUTING.md` promised every detector a challenge directory; 26 of 84 have one.**
   The sentence read *"Each deterministic detector additionally ships a self-contained
   `<detector>_challenge/` directory"* — stated as a property of the codebase, in the document

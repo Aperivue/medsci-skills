@@ -48,6 +48,13 @@ class RefRecord:
     # (any non-empty value); when present, count mismatch is downgraded to a note
     # and does not trigger MISMATCH status. Use when CSL renders first-1 or first-5
     # + et al. and the trailing authors are deliberately omitted from the bib.
+    #
+    # It is ALSO set by the standard BibTeX `and others` sentinel. `_audit_truncated`
+    # is a field this toolkit invented; `and others` is the one every reference
+    # manager already writes and BibTeX/CSL already render as "et al.". Treating it
+    # as a count mismatch fired MISMATCH — the render-aborting verdict — on any
+    # consortium or multisociety-guideline reference, which is the class clinical
+    # manuscripts cite most.
     audit_truncated: bool = False
     # Collective / corporate author (EASL, KDIGO, AHA/ACC, WHO, a named working
     # group / consortium). BibTeX convention double-braces these
@@ -192,7 +199,10 @@ def parse_bib(text: str) -> list[RefRecord]:
                 first_author_guess=cited[0] if cited else (parse_first_author(author_field) if author_field else ""),
                 cited_authors=cited,
                 cited_author_count=len(cited),
-                audit_truncated=bool(trunc_match and trunc_match.group(1).strip().lower() not in ("", "false", "0", "no")),
+                audit_truncated=(
+                    bool(trunc_match and trunc_match.group(1).strip().lower() not in ("", "false", "0", "no"))
+                    or has_bibtex_et_al(author_field)
+                ),
                 corporate_author=is_corporate_author_field(author_field),
             )
         )
@@ -276,6 +286,24 @@ def parse_reference_lines(text: str) -> list[RefRecord]:
 
 
 _NAME_PARTICLES = {"von", "van", "de", "del", "della", "dos", "da", "le", "la", "du", "den", "der", "ten"}
+
+
+def has_bibtex_et_al(author_field: str) -> bool:
+    """True when the author field ends in the BibTeX `and others` sentinel.
+
+    `and others` is BibTeX's own way of saying "et al." — it is what Zotero,
+    Mendeley, JabRef and a hand-written .bib all emit for a list the author chose
+    not to type out, and what BibTeX and CSL both render as an et-al. It is a
+    declaration that the list is deliberately short, so a cited-vs-source count
+    difference is expected and must not be reported as a mismatch.
+
+    Matched only in the trailing position, where BibTeX defines it. A real surname
+    "Others" mid-list (or a first name "Others") is not this sentinel and is left
+    to the ordinary family cross-check.
+    """
+    if not author_field:
+        return False
+    return bool(re.search(r"\s+and\s+others\s*$", re.sub(r"\s+", " ", author_field).strip(), re.I))
 
 
 def parse_bib_authors(author_field: str) -> list:
@@ -699,13 +727,14 @@ def author_cross_check(
             mismatches.append(
                 f"#{i+1} extra cited='{cited_authors[i]}' (source has only {len(actual_authors)} authors)"
             )
-        # source has more authors than cited — count mismatch, suppressed under
-        # `_audit_truncated` marker (intentional CSL et-al truncation).
+        # source has more authors than cited — count mismatch, suppressed when the
+        # bib declares the truncation, either with the `_audit_truncated` marker or
+        # with BibTeX's own `and others` sentinel (intentional CSL et-al truncation).
         if cited_author_count != actual_author_count:
             if audit_truncated and cited_author_count < actual_author_count:
                 notes.append(
                     f"NOTE: intentional truncate ({cited_author_count} of {actual_author_count}; "
-                    f"`_audit_truncated` marker set)"
+                    f"declared by `and others` or `_audit_truncated`)"
                 )
             else:
                 mismatches.append(

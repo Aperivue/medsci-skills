@@ -52,16 +52,34 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 
 # Where test assets live and what they are called.
+#
+# The last glob is a naming backstop. This gate reads a test's NAME to decide whether it is
+# a test, so a real regression test that is not called `test_*` or `verify.sh` is invisible
+# to it — and a gate whose job is finding unrun tests must not have a way to be blind. That
+# is not hypothetical: `skills/manage-refs/tests/fixtures/pre_submission_gate/run.sh` is the
+# end-to-end regression for the master pre-submission chain, and it sat unwired and FAILING
+# for two months (2026-05-31 -> 2026-07-29) because it is named `run.sh`. Anything under a
+# `tests/` directory is now claimed as a test regardless of its name.
 ASSET_GLOBS = (
     "skills/**/verify.sh",
     "skills/**/test_*.py",
     "skills/**/test_*.sh",
     "tests/test_*.py",
     "tests/test_*.sh",
+    "skills/**/tests/**/*.sh",
 )
 
 # path -> reason. A test that CI genuinely must not run needs a stated reason, not silence.
-EXEMPT: dict[str, str] = {}
+EXEMPT: dict[str, str] = {
+    "skills/manage-refs/tests/fixtures/pre_submission_gate/run.sh": (
+        "End-to-end chain test whose verify_refs stage queries live PubMed/CrossRef. Wiring it "
+        "into validate.yml would make a green build depend on a third-party API's availability "
+        "and rate limits, so CI would go red for reasons no contributor could act on. Run it by "
+        "hand before any release that touches the manage-refs chain; it exits 77 when the "
+        "network is unreachable. The offline-safe half of its coverage is "
+        "skills/verify-refs/tests/test_bibtex_et_al.sh, which IS wired."
+    ),
+}
 
 
 def _iter_run_commands(root: Path) -> list[str]:
@@ -107,10 +125,19 @@ def collect(root: Path = ROOT) -> dict:
     joined = "\n".join(cmds)
 
     asset_set = set(assets)
+    self_path = Path(__file__).resolve()
     hop_text = []
     for f in _referenced_repo_files(root, cmds):
         if f.relative_to(root).as_posix() in asset_set:
             continue  # a test does not wire another test — see the docstring
+        if f.resolve() == self_path:
+            # This gate must not read ITSELF. CI runs it, so it is a referenced file, so its
+            # own source lands in the one-hop text — and then writing a test's path anywhere
+            # in here, including inside an EXEMPT reason or a comment, marks that test wired.
+            # Observed: adding the sentence "the offline-safe half is <path>, which IS wired"
+            # to an exemption reason turned a genuinely unwired test green. EXEMPT is the one
+            # sanctioned way to excuse a test; prose must not be a second, silent one.
+            continue
         try:
             hop_text.append(f.read_text(encoding="utf-8", errors="replace"))
         except OSError:
