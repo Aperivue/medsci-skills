@@ -4,6 +4,31 @@
 
 ### Fixed
 
+- **A BibTeX entry's last field was not a field.** BibTeX makes the comma after an entry's final
+  field optional; the `doi` and `title` regexes both required one. So any entry ending in
+  `doi = {...}` — an extremely common shape — yielded `record.doi == ""`, which **skips the CrossRef
+  check entirely** and drops the record onto the soft-flagged OpenAlex title path where the
+  full-author cross-check is disabled. The anti-fabrication check `/verify-refs` exists to perform
+  was silently off for exactly those references, and it announced nothing: the record simply came
+  back verified by a weaker route. All **three** entries in the repo's own shipped fixture
+  `skills/verify-refs/tests/fixtures/corporate_author.bib` were being read with no DOI, and
+  `detect_duplicates` — which keys on DOI — could not see two entries sharing one.
+
+  `title` had the identical defect needing the opposite remedy: it cannot take an optional comma,
+  because a non-greedy match would then stop at the inner `}` of a brace-protected group and return
+  *"A multisociety {Delphi"*. Both fields are now read by counting braces, which is correct in both
+  positions. An absent DOI still parses as absent — the fix widens what is read, never what is
+  assumed.
+
+  Order mattered here: enabling the author cross-check on this population **before** the `and others`
+  fix below would have converted a silent gap into a wave of false `AUTHOR MISMATCH` verdicts on
+  consortium references, since those are the entries most likely to carry both a trailing DOI and a
+  truncated author list.
+
+  `skills/verify-refs/tests/test_bib_last_field.sh` (network-free, wired) pins ten cases across both
+  field positions, brace-protected and quote-delimited titles, and the absent-DOI negative control.
+  Reverting the parser turns 6 of them red; the mid-entry form that always worked stays green.
+
 - **One error in the release job took out both distribution channels, and there was no way to retry.**
   `gh release create` fails outright when a Release object for the tag already exists. On v5.23.0 it
   did, the step errored, and the job died **before** the npm publish step that follows it. Net effect,
