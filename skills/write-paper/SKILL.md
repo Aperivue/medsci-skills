@@ -734,7 +734,7 @@ Severity levels: **ENFORCED** = pipeline halts on failure (cannot proceed to nex
 | 7.5 | Humanize density (`/humanize`) | ADVISORY | AI patterns > 2.0 / 1000 words | Sweep + flag remaining; user reviews |
 | 7.5a | AIO checklist (`/academic-aio --aio`) | OPT-IN | user supplies `--aio` flag | PASS/PARTIAL/FAIL report; never auto-applies |
 | 7.6 | DOCX build (delegate `/manage-refs scripts/render_pandoc.sh`) | ENFORCED | render exits non-zero | Halt; report stderr to user |
-| 7.6a | Cross-reference QC (delegate `/manage-refs scripts/check_xref.py --strict`) | ENFORCED — submission gate | MISSING_DOCX / MISSING_BODY / MISMATCH > 0 | Halt; route fixes per `references/phase7_polish_detail.md` |
+| 7.6a | Cross-reference QC (delegate `/manage-refs scripts/check_xref.py --strict`) | ENFORCED — submission gate | MISSING_DOCX / MISSING_BODY / MISMATCH > 0 (under `--allow-separate-attachments`: MISMATCH, or MISSING_BODY whose float is in the DOCX) | Halt; route fixes per `references/phase7_polish_detail.md` |
 | 7.7 | Final submission gate | ENFORCED | any of 7.0–7.6a above failed | Refuse to mark `submission_safe: true` |
 | 8+ | Cover letter generation | OPT-IN | user invokes `--cover-letter` | Renders against journal profile |
 

@@ -243,7 +243,7 @@ emits a 3-way matrix to `qc/xref_audit.json`:
 |---|---|---|
 | `OK` | cited + body caption + DOCX caption all present and caption text agrees (Jaccard ≥ 0.40) | — |
 | `MISSING_DOCX` | cited but no caption with that label in the rendered DOCX | **P0 blocker** |
-| `MISSING_BODY` | cited but no caption definition in the markdown body sections (build SSOT drift) | **P0 blocker** |
+| `MISSING_BODY` | cited but no caption definition in the markdown body sections | **P0 blocker** — except under `--allow-separate-attachments` with no `--docx` supplied, where nothing was checked and the row is excused without evidence |
 | `MISMATCH` | label exists in both body and DOCX but caption text disagrees | **P0 blocker** |
 | `UNCITED` | caption defined or rendered but never cited in main text | warn |
 | `NOT_CITED_NO_BODY` | label appears only in DOCX (rare; legacy artifact) | warn |
@@ -251,6 +251,14 @@ emits a 3-way matrix to `qc/xref_audit.json`:
 **Submission gate:** if any `MISSING_DOCX` / `MISSING_BODY` / `MISMATCH` row is
 present, `submission_safe: false` and the script exits 1 under `--strict`.
 HALT pipeline. Do NOT proceed to Step 7.7. Route fixes by symptom:
+
+> **Under `--allow-separate-attachments`** (the normal invocation for journals that take
+> figures and tables as separate files) two of those downgrade to WARN: `MISSING_DOCX`,
+> which a supplied `--docx` proved absent from the rendered output, and `MISSING_BODY`
+> where no `--docx` was supplied at all. The second is an excuse rather than a check —
+> the run prints `EXCUSED WITHOUT EVIDENCE` and counts it in
+> `summary.downgraded_unchecked`. Run once with `--docx` before Step 7.7 so those rows
+> become evidenced. A `MISSING_BODY` whose float **is** in the DOCX still halts.
 
 - `MISSING_BODY` → add caption definition under `## Tables` / `## Figures` in
   `manuscript.md`, then re-run Step 7.6 + 7.6a. If the build script

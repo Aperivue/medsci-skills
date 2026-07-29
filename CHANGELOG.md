@@ -2,6 +2,33 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **`--allow-separate-attachments` now downgrades the `MISSING_BODY` it could not check.** When a
+  submission's floats are separate attachment files — the norm in radiology and most of medicine —
+  and `check_xref` runs without a `--docx`, those floats are cited, have no body caption, and there
+  is no rendered artifact to look them up in. Until now that blocked the submission. The flag is the
+  operator's declaration that such floats exist, so it now excuses them.
+
+  **This is an amnesty, and it is priced as one.** In markdown-only mode a caption nobody wrote is
+  indistinguishable from an attachment, and both now pass. So the two downgrades are reported apart,
+  because their evidence differs: `MISSING_DOCX` means a supplied DOCX *proved* the float absent from
+  the rendered output, while `MISSING_BODY` with no DOCX means **nothing was checked**. The second
+  prints as `EXCUSED WITHOUT EVIDENCE`, names every row, and is counted separately in the audit JSON
+  as `summary.downgraded_unchecked` — a consumer cannot read one as the other. The run tells you to
+  come back with `--docx`, which is what converts the excuse into evidence.
+
+  **What the flag still does not excuse**: `MISMATCH`, and a `MISSING_BODY` whose float **is** in the
+  rendered DOCX. There the build pipeline is the only place that knows the caption text, which is SSOT
+  drift; no attachment policy makes that acceptable, and the run says so by name when it blocks.
+
+  Six documentation sites stated the old contract ("`MISSING_BODY` remains FAIL regardless") and all
+  six move together: `manage-refs/SKILL.md`, `check_xref_symptoms.md`, `self-review/SKILL.md`,
+  `phase2_5d_xref_qc.md`, `write-paper/SKILL.md`, `phase7_polish_detail.md`, plus the `--help` text
+  and `pre_submission_gate.sh`. Verified by regression: the 13-case suite fails 7 against the previous
+  behaviour and the 6 it passes are exactly the invariants that must not move — drift still blocks,
+  the flag stays opt-in, and a supplied DOCX still produces an evidenced downgrade.
+
 ### Fixed
 
 - **`check_xref` told a correctly packaged submission it was blocked, and offered no way out.**

@@ -2503,8 +2503,8 @@
     },
     {
       "path": "skills/manage-refs/SKILL.md",
-      "size": 19617,
-      "sha256": "e1043b79057e66984de9ab23f73c6d673f95388c0613e37a23536b7011f5c246"
+      "size": 20729,
+      "sha256": "16a7ddf4412580c0797baa52821054114f434b82b302a6d67fec023d56427a8d"
     },
     {
       "path": "skills/manage-refs/citation_styles/README.md",
@@ -2598,8 +2598,8 @@
     },
     {
       "path": "skills/manage-refs/references/check_xref_symptoms.md",
-      "size": 3764,
-      "sha256": "3f2021b641e846714b02633529ceec1e90fe2a45576241f5f515ac48386d1307"
+      "size": 4501,
+      "sha256": "4d0da877aca64367cbf13fa8b1008f39b0f258648a5e2a955ca5b8fc8915236f"
     },
     {
       "path": "skills/manage-refs/scripts/_vendor_citation_writer.py",
@@ -2648,8 +2648,8 @@
     },
     {
       "path": "skills/manage-refs/scripts/check_xref.py",
-      "size": 26041,
-      "sha256": "27100b43acdc903361693d230cd7cf64a1072bd2dc92c286930c59437bd6f583"
+      "size": 28404,
+      "sha256": "ad5dc74c4c233ba1aedd6ac7b6e025c5db59ad3d729dd7752f102fa3e92742ae"
     },
     {
       "path": "skills/manage-refs/scripts/fill_journal_abbrev.py",
@@ -2668,8 +2668,8 @@
     },
     {
       "path": "skills/manage-refs/scripts/pre_submission_gate.sh",
-      "size": 8932,
-      "sha256": "73ae8e4f32c9fc6d3676d3f4a5b41a74ad7dc2c9f5f5e39d4d5ec7c2e4fcbfb5"
+      "size": 9309,
+      "sha256": "b306abe55ea639cdf2d4044db4af70d9450b8ec2dfa3b5b78e9222966e8bd97a"
     },
     {
       "path": "skills/manage-refs/scripts/render_pandoc.sh",
@@ -4203,8 +4203,8 @@
     },
     {
       "path": "skills/self-review/SKILL.md",
-      "size": 61915,
-      "sha256": "3ac7b138c1e698e2f818134e8d10849361bb5f60035e885056f949c85729f04a"
+      "size": 62498,
+      "sha256": "891b019237132a910e1157a9f0d6e5ac58bcab2a7077ab969b68e95e3ae5a63b"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
@@ -4393,8 +4393,8 @@
     },
     {
       "path": "skills/self-review/references/phases/phase2_5d_xref_qc.md",
-      "size": 4974,
-      "sha256": "81756d0713842faa1f603a34500dd6aaa699be6526ee6fbbc1ace06467b10143"
+      "size": 5639,
+      "sha256": "5a574035962626a5a758a335906414c709f2d5cb04b3ac5c5e7dfefa7ba6f8b5"
     },
     {
       "path": "skills/self-review/references/phases/phase2_5f_claim_artifact.md",
@@ -5638,8 +5638,8 @@
     },
     {
       "path": "skills/write-paper/SKILL.md",
-      "size": 50027,
-      "sha256": "0ffc727dd59fad870bf6d563478f764e49f17177bed21c35d36679e492b87c81"
+      "size": 50120,
+      "sha256": "6ac3072d67dfabfaeae11a0bf1890e9d616d073cd56b0758669d3b3f4ff59c50"
     },
     {
       "path": "skills/write-paper/references/exemplar_abstract.md",
@@ -6103,8 +6103,8 @@
     },
     {
       "path": "skills/write-paper/references/phase7_polish_detail.md",
-      "size": 18991,
-      "sha256": "5694bfa9da09267b0257e85166607994da1dad1253ed307c0d0da8480cc5868b"
+      "size": 19696,
+      "sha256": "ca5d6c1c900d9ef0b4659d18daabdc3322bba3ecef3ec5955e9dc76de958f7e9"
     },
     {
       "path": "skills/write-paper/references/section_guides/discussion.md",

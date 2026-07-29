@@ -42,8 +42,12 @@ Optional:
   --docx PATH                 Pre-built DOCX. If omitted, render via render_pandoc.sh.
   --journal CSL_KEY           Journal CSL key (default: vancouver)
   --allow-separate-attachments
-                              Forwarded to check_xref.py; downgrades MISSING_DOCX
-                              from FAIL to WARN.
+                              Forwarded to check_xref.py. Declares that some floats
+                              are submitted as separate attachment files. Downgrades
+                              MISSING_DOCX (proven absent from a supplied --docx) and,
+                              when no --docx was supplied, MISSING_BODY (excused
+                              without evidence — see summary.downgraded_unchecked).
+                              A MISSING_BODY whose float IS in the DOCX still fails.
   --qc-dir PATH               Output artifact directory (default: qc/)
   -h, --help                  Show this help
 

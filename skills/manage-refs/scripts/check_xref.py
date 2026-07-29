@@ -487,13 +487,16 @@ def main() -> int:
     parser.add_argument("--quiet", action="store_true")
     parser.add_argument(
         "--allow-separate-attachments", action="store_true",
-        help="Downgrade MISSING_DOCX from FAIL to WARN for figures/tables that are "
-             "submitted as separate attachment files (common in radiology and many "
-             "medical journals). MISSING_BODY and MISMATCH remain FAIL regardless. "
-             "NOTE: this flag only reaches a float once a --docx has shown it to be "
-             "absent from the rendered output. Without --docx, a cited float with no "
-             "body caption is MISSING_BODY and this flag does not touch it — pass "
-             "--docx to let the run decide which of the two it is.",
+        help="Declare that some figures/tables are submitted as separate attachment "
+             "files rather than inline (the norm in radiology and most medical "
+             "journals). Downgrades two things from FAIL to WARN: MISSING_DOCX, where "
+             "a supplied --docx proved the float is not in the rendered main document; "
+             "and MISSING_BODY where NO --docx was supplied, so nothing was checked and "
+             "the float is excused on your word. Those two are reported separately "
+             "because only the first has evidence behind it. Still FAIL regardless: "
+             "MISMATCH, and MISSING_BODY where the float IS in the rendered DOCX but "
+             "nothing in the markdown defines its caption — that is SSOT drift, which "
+             "no attachment policy makes acceptable. Run with --docx before submitting.",
     )
     parser.add_argument(
         "--vN-docx-md5",
@@ -538,18 +541,41 @@ def main() -> int:
     findings = reconcile(citations, body_captions, docx_captions)
 
     # Submission safety: any cited label whose status is not OK or UNCITED is a blocker.
-    # With --allow-separate-attachments, MISSING_DOCX is downgraded to a warning;
-    # MISSING_BODY and MISMATCH remain FAIL regardless because they indicate SSOT
-    # drift rather than journal-policy attachment style.
+    #
+    # --allow-separate-attachments is a declaration by the operator: "some of this
+    # manuscript's floats are submitted as separate attachment files, not inline."
+    # That is the normal packaging for radiology and most medical journals. Under it,
+    # two situations are downgraded to warnings — and they are NOT equally well
+    # evidenced, so they are reported apart:
+    #
+    #   MISSING_DOCX                    a DOCX was supplied and PROVED the float is not
+    #                                   in the rendered main document. Evidence exists.
+    #   MISSING_BODY with in_docx None  no DOCX was supplied, so nothing was checked.
+    #                                   The float may equally be a caption someone
+    #                                   forgot to write. Excused on the operator's word.
+    #
+    # MISSING_BODY with in_docx True stays a blocker under every policy: the float IS
+    # rendered and nothing in the markdown defines its caption, so the build pipeline
+    # is the only place that knows the text. That is SSOT drift, and no attachment
+    # policy makes it acceptable. MISMATCH likewise.
     if args.allow_separate_attachments:
-        blocking_statuses = {"MISSING_BODY", "MISMATCH"}
+        blockers = [
+            f for f in findings
+            if f.status == "MISMATCH"
+            or (f.status == "MISSING_BODY" and f.in_docx is True)
+        ]
+        proven_absent = [f for f in findings if f.status == "MISSING_DOCX"]
+        unchecked = [
+            f for f in findings
+            if f.status == "MISSING_BODY" and f.in_docx is None
+        ]
+        warnings = proven_absent + unchecked
     else:
         blocking_statuses = {"MISSING_DOCX", "MISSING_BODY", "MISMATCH"}
-    blockers = [f for f in findings if f.status in blocking_statuses]
-    warnings = [
-        f for f in findings
-        if args.allow_separate_attachments and f.status == "MISSING_DOCX"
-    ]
+        blockers = [f for f in findings if f.status in blocking_statuses]
+        proven_absent = []
+        unchecked = []
+        warnings = []
     submission_safe = len(blockers) == 0
 
     vN_check: dict | None = None
@@ -592,7 +618,12 @@ def main() -> int:
             "uncited": sum(1 for f in findings if f.status == "UNCITED"),
             "blockers": len(blockers),
             "warnings": len(warnings),
+            # The two downgrades kept apart, because a consumer that treats them alike
+            # cannot tell a float the DOCX proved absent from one nothing ever checked.
+            "downgraded_proven_absent": len(proven_absent),
+            "downgraded_unchecked": len(unchecked),
         },
+        "downgraded_unchecked_labels": [f.label for f in unchecked],
         "submission_safe": submission_safe and not vN_check_failed,
         "findings": [asdict(f) for f in findings],
         "vN_docx_check": vN_check,
@@ -604,36 +635,44 @@ def main() -> int:
     if not args.quiet:
         print(render_summary(findings, len(citations)))
         print(f"\n[check_xref] wrote {args.out}")
-        if warnings:
+        # The two downgrades are printed apart because their evidence differs, and the
+        # weaker one has to stay visible. Merging them into one count is how an excused
+        # row starts reading like a checked one.
+        if proven_absent:
             print(
-                f"[check_xref] WARN: {len(warnings)} MISSING_DOCX row(s) downgraded "
-                f"under --allow-separate-attachments: "
-                + ", ".join(f.label for f in warnings)
+                f"[check_xref] WARN: {len(proven_absent)} MISSING_DOCX row(s) downgraded under "
+                f"--allow-separate-attachments: " + ", ".join(f.label for f in proven_absent) + "\n"
+                f"           The DOCX was read and does not contain them, which is what a "
+                f"separate attachment looks like."
+            )
+        if unchecked:
+            print(
+                f"[check_xref] WARN: {len(unchecked)} MISSING_BODY row(s) EXCUSED WITHOUT "
+                f"EVIDENCE under --allow-separate-attachments:\n"
+                f"           " + ", ".join(f.label for f in unchecked) + "\n"
+                f"           No --docx was supplied, so nothing here was actually checked. Each "
+                f"of these is either a float in a\n"
+                f"           separate supplement file — which is what you declared — or a caption "
+                f"nobody wrote. This run cannot\n"
+                f"           tell them apart, and passed them on your word.\n"
+                f"           Run again with --docx <rendered.docx> before submitting: a float "
+                f"genuinely absent from the rendered\n"
+                f"           output becomes MISSING_DOCX (still downgraded, but now proven), and "
+                f"a caption you forgot becomes visible."
             )
         if not submission_safe:
             print(f"[check_xref] SUBMISSION BLOCKED: {len(blockers)} cross-reference defect(s).")
-            # MISSING_BODY carries two different situations under one name, and only
-            # one of them is the SSOT drift the triage tables describe:
-            #   in_docx True → the float IS rendered but has no body caption. Drift.
-            #   in_docx None → no DOCX was supplied, so there is nothing to have
-            #                  drifted FROM. The float may simply live in a separate
-            #                  supplement file this run never saw.
-            # Without this hint the second case reads as the first, and the operator
-            # is told a correctly packaged submission is blocked with no way out.
-            # A gate that is red on correct work is a gate that gets skipped.
-            undecidable = [f for f in blockers
-                           if f.status == "MISSING_BODY" and f.in_docx is None]
-            if undecidable:
-                labels = ", ".join(f.label for f in undecidable)
+            drift = [f for f in blockers
+                     if f.status == "MISSING_BODY" and f.in_docx is True]
+            if drift and args.allow_separate_attachments:
                 print(
-                    f"[check_xref] NOTE: {len(undecidable)} of those are MISSING_BODY with no "
-                    f"--docx to compare against ({labels}).\n"
-                    f"           Nothing here can tell a missing caption from a float that "
-                    f"lives in a separate supplement file.\n"
-                    f"           Supply --docx <rendered.docx> to decide it: a float absent "
-                    f"from the DOCX becomes MISSING_DOCX, which\n"
-                    f"           --allow-separate-attachments does downgrade. Adding the flag "
-                    f"alone does not change these rows."
+                    f"[check_xref] NOTE: {len(drift)} of those are MISSING_BODY that "
+                    f"--allow-separate-attachments does NOT excuse "
+                    f"({', '.join(f.label for f in drift)}).\n"
+                    f"           These floats ARE in the rendered DOCX while nothing in the "
+                    f"markdown defines their caption, so the\n"
+                    f"           build pipeline is the only place that knows the text. That is "
+                    f"SSOT drift, not attachment style."
                 )
         if vN_check is not None:
             if vN_check["identical_bytes"]:

@@ -62,15 +62,24 @@ DOCX build has occurred yet (early drafts).
    the journal's figure/table submission policy. Many radiology and medical
    journals (e.g., European Radiology, Radiology, AJR) accept figures and tables
    as separate attachment files rather than inline in the manuscript DOCX; for
-   those workflows pass `--allow-separate-attachments` so MISSING_DOCX is not
-   treated as a P0 blocker. `MISSING_BODY` and `MISMATCH` remain P0 regardless,
-   because they indicate SSOT drift between body markdown and rendered DOCX
-   rather than a legitimate attachment style.
+   those workflows pass `--allow-separate-attachments`. That flag downgrades two
+   things, and they are not equally well evidenced — the audit JSON and the console
+   output keep them apart, and so should you:
+
+   - `MISSING_DOCX` — a `--docx` was supplied and PROVED the float is not in the
+     rendered main document. That is what a separate attachment looks like.
+   - `MISSING_BODY` where **no `--docx` was supplied** — nothing was checked. The
+     float is either separately attached, as declared, or a caption nobody wrote.
+     Excused on the author's word; counted in `summary.downgraded_unchecked`.
+
+   `MISMATCH` remains P0 regardless. So does `MISSING_BODY` when the float IS in the
+   rendered DOCX: the build pipeline is then the only place that knows the caption
+   text, which is SSOT drift and not an attachment style.
 
    | Status | Default policy | With `--allow-separate-attachments` |
    |---|---|---|
    | `MISSING_DOCX` | **Major (P0)** — cited Table/Figure absent from rendered output | **Minor** — figure/table is separately attached per journal policy |
-   | `MISSING_BODY` | **Major (P0)** — build SSOT drift; rendered caption has no body definition | **Major (P0)** (no change) |
+   | `MISSING_BODY` | **Major (P0)** — no body caption definition | **Major (P0)** when the float IS in the rendered DOCX (SSOT drift). **Minor** when no `--docx` was supplied — excused without evidence, and reported as such |
    | `MISMATCH` | **Major (P0)** — caption text disagrees between body and rendered DOCX | **Major (P0)** (no change) |
    | `UNCITED` | Minor — orphan caption that should be cited or removed | Minor (no change) |
 

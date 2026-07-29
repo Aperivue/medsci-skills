@@ -454,11 +454,16 @@ attachment style is not read as a blocker.
 | Status | Default policy | With `--allow-separate-attachments` |
 |---|---|---|
 | `MISSING_DOCX` | **Major (P0)** — cited Table/Figure absent from rendered output | **Minor** — separately attached per journal policy |
-| `MISSING_BODY` | **Major (P0)** — build SSOT drift; rendered caption has no body definition | **Major (P0)** (no change) |
+| `MISSING_BODY` | **Major (P0)** — no body caption definition | **Major (P0)** when the float IS in the rendered DOCX (SSOT drift). **Minor** when no `--docx` was supplied — excused without evidence, and reported as such |
 | `MISMATCH` | **Major (P0)** — caption text disagrees between body and rendered DOCX | **Major (P0)** (no change) |
 | `UNCITED` | Minor — orphan caption; cite it or remove it | Minor (no change) |
 
-`MISSING_BODY` and `MISMATCH` stay P0 under every policy: they are SSOT drift, not a style choice.
+`MISMATCH` stays P0 under every policy. So does `MISSING_BODY` **when the float is present in the
+rendered DOCX** — the build pipeline is then the only place that knows the caption text, which is SSOT
+drift and not a style choice. `MISSING_BODY` with **no `--docx` supplied** is different: nothing was
+checked, so under `--allow-separate-attachments` it is excused on the author's declaration and the run
+says so in those words. Treat those rows as unverified, not as verified — re-run with `--docx` before
+submission and read `summary.downgraded_unchecked` in the audit JSON.
 
 **Do NOT auto-fix cross-reference defects in `--fix` mode.** Rewriting a caption in the body
 without re-running the DOCX build merely moves the mismatch. Emit each P0 row as its own
