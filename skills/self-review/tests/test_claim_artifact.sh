@@ -113,5 +113,22 @@ RC="$HERE/fixtures/claim_registration_clean.md"
 python3 "$SCRIPT" --manuscript "$RC" --strict >/dev/null 2>&1
 check "exit 0 on genuinely-prospective + no-prospective-claim registrations" test "$?" -eq 0
 
+# YAML front matter is not body prose. A project that honestly records "the primary
+# endpoint was changed ..." in a `changelog:` block was handed PRIMARY_REASSIGNED — a P0 —
+# for keeping a good record. The same sentence in the BODY is a real self-admission and
+# must still fire, which is what makes the first assertion mean something.
+FM="$HERE/fixtures/claim_frontmatter_changelog.md"
+python3 "$SCRIPT" --manuscript "$FM" --out "$OUT" --strict >/dev/null 2>&1
+check "a changelog in YAML front matter is not a self-admission" test "$?" -eq 0
+check "...and no PRIMARY_REASSIGNED is recorded" python3 -c "
+import json
+d=json.load(open('$OUT'))
+raise SystemExit(0 if not any(c['verdict']=='PRIMARY_REASSIGNED' for c in d['claims']) else 1)
+"
+BR="$HERE/fixtures/claim_body_reassign.md"
+python3 "$SCRIPT" --manuscript "$BR" --out "$OUT" --strict >/dev/null 2>&1
+check "the same sentence in the body still fires (P0 preserved)" test "$?" -eq 1
+check "PRIMARY_REASSIGNED detected in body" has_verdict PRIMARY_REASSIGNED
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"
