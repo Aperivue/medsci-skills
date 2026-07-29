@@ -2598,8 +2598,8 @@
     },
     {
       "path": "skills/manage-refs/references/check_xref_symptoms.md",
-      "size": 2426,
-      "sha256": "f3261841492aba9812529419b351cb77e07c49f3da7156773299048f51d9deee"
+      "size": 3764,
+      "sha256": "3f2021b641e846714b02633529ceec1e90fe2a45576241f5f515ac48386d1307"
     },
     {
       "path": "skills/manage-refs/scripts/_vendor_citation_writer.py",
@@ -2648,8 +2648,8 @@
     },
     {
       "path": "skills/manage-refs/scripts/check_xref.py",
-      "size": 24044,
-      "sha256": "e7f035af887c581eb98b57c865b2ed358b541091c30deeb8e6652145f0929acf"
+      "size": 26041,
+      "sha256": "27100b43acdc903361693d230cd7cf64a1072bd2dc92c286930c59437bd6f583"
     },
     {
       "path": "skills/manage-refs/scripts/fill_journal_abbrev.py",

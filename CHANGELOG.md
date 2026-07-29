@@ -4,6 +4,29 @@
 
 ### Fixed
 
+- **`check_xref` told a correctly packaged submission it was blocked, and offered no way out.**
+  When supplementary tables and figures are separate attachment files — the norm in radiology and
+  most medical journals — and the check runs without `--docx`, those floats are cited, have no body
+  caption, and land on `MISSING_BODY`. `--allow-separate-attachments` does not touch them, because a
+  float only *becomes* the downgradeable `MISSING_DOCX` once a `--docx` has shown it absent from the
+  rendered output. The run printed `SUBMISSION BLOCKED` with nothing to act on.
+
+  `MISSING_BODY` was carrying two situations under one name, and every triage table in this repo
+  describes only one of them. With a DOCX present it means build SSOT drift — the float is rendered
+  but nothing defines its caption — and that stays a P0. With no DOCX there is nothing to have
+  drifted *from*, and the run cannot tell a forgotten caption from a separate supplement file.
+
+  **No verdict changed** — the vocabulary is consumed by `/self-review`, `/write-paper` and
+  `/sync-submission` triage tables, and moving a P0 is a decision for a human, not a side effect.
+  What changed is that the run now names the labels it could not decide and says that supplying
+  `--docx` is what decides them; the `--allow-separate-attachments` downgrades are named rather than
+  counted; and the flag's own help text no longer implies it applies where it cannot reach. A gate
+  that is red on correct work is a gate the operator learns to skip, which costs more than the check.
+
+  Verified by regression: against the unfixed tree the new suite fails exactly the three assertions
+  about the messages and passes all five that pin the verdicts, so the behaviour is provably
+  unchanged.
+
 - **The PII scanner had been reading one file per skill.** `validate_skills.sh` held its
   filename patterns in a bare string and expanded it unquoted into `find`, so `*.md` was
   pathname-expanded against the *caller's* working directory before `find` ever saw it. Run from
