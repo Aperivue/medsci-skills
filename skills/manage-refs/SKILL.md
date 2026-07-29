@@ -73,7 +73,9 @@ Validated 2026-05-01 against a 21-reference meta-analysis manuscript
 5. **Cross-reference QC is a submission gate** — `scripts/check_xref.py`
    `--strict` exits 1 on any `MISSING_DOCX` / `MISSING_BODY` / `MISMATCH`,
    blocking pipelines that try to ship a DOCX whose Table/Figure citations
-   don't match captions.
+   don't match captions. `--allow-separate-attachments` downgrades the two
+   rows a separate-attachment submission legitimately produces; it never
+   downgrades a `MISSING_BODY` whose float IS in the rendered DOCX.
 6. **Audit boundary**: this skill writes; bibliographic correctness against
    PubMed/CrossRef stays in `/verify-refs`. Always invoke `/verify-refs`
    after a render before signing off — one read-only audit, one writer.
@@ -187,9 +189,22 @@ User shipped a manuscript and a reviewer flagged a Table/Figure mismatch.
    `MISSING_BODY` / `MISSING_DOCX` / `MISMATCH` triage table.
 4. For journals that accept figures and tables as **separate attachment files**
    (the default in European Radiology, Radiology, AJR, JVIR, KJR, and most
-   medical journals), pass `--allow-separate-attachments`. `MISSING_DOCX` rows
-   are then recorded as WARN rather than FAIL; `MISSING_BODY` and `MISMATCH`
-   remain P0 because they indicate SSOT drift, not attachment policy.
+   medical journals), pass `--allow-separate-attachments`. It downgrades two
+   rows, and the run reports them apart because their evidence differs:
+
+   - `MISSING_DOCX` — a `--docx` was supplied and **proved** the float is not in
+     the rendered main document. That is what a separate attachment looks like.
+   - `MISSING_BODY` with **no `--docx` supplied** — nothing was checked. The float
+     is either separately attached, as you declared, or a caption nobody wrote.
+     Excused on your word, printed as `EXCUSED WITHOUT EVIDENCE`, and counted in
+     `summary.downgraded_unchecked`.
+
+   `MISMATCH` stays P0. So does `MISSING_BODY` when the float **is** in the
+   rendered DOCX — that is SSOT drift, and no attachment policy makes the build
+   pipeline an acceptable single source of truth for a caption.
+
+   **Run once with `--docx` before submitting.** The flag is a declaration, not a
+   verification; supplying the DOCX is what converts an excuse into evidence.
 
 ### D'. v_(N+1) docx regeneration check (build-time companion)
 
@@ -266,7 +281,9 @@ This skill defines **three submission gates** and **one user approval gate**:
   UNDEFINED keys. The pipeline halts; the user reviews and fixes.
 - **Gate 2 (cross-reference integrity)**: `check_xref.py --strict` exits 1 on
   any `MISSING_DOCX` / `MISSING_BODY` / `MISMATCH` row. The user reviews
-  `qc/xref_audit.json` and resolves before proceeding.
+  `qc/xref_audit.json` and resolves before proceeding. Under
+  `--allow-separate-attachments`, check `summary.downgraded_unchecked` as well as
+  `submission_safe`: a non-zero count means rows passed without being checked.
 - **Gate 3 (audit hand-off)**: before sign-off, the user must run
   `/verify-refs` and confirm `submission_safe: true` in
   `qc/reference_audit.json`. This skill never marks the bibliography
