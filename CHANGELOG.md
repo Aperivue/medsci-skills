@@ -4,6 +4,19 @@
 
 ### Fixed
 
+- **`CONTRIBUTING.md` promised every detector a challenge directory; 26 of 84 have one.**
+  The sentence read *"Each deterministic detector additionally ships a self-contained
+  `<detector>_challenge/` directory"* — stated as a property of the codebase, in the document
+  whose whole job is telling an outside contributor what is true here. It was wrong twice:
+  the directories are named after the **feature** under test, not always a single script, and
+  48 of them cover 84 detectors. A contributor who went looking for the one belonging to the
+  detector they were extending would have found nothing and had to guess whether they had
+  misread the repo or the repo had misread itself. The text now states the coverage as a
+  number and hands over the loop that prints the 58 detectors still without one — turning a
+  false claim into an entry point for the contribution this project is actually short of.
+  No gate: the count moves with every merge, and a gate here would only pin a promise nobody
+  made.
+
 - **`check_claim_artifact` read a manuscript's own changelog as a confession.** A pandoc
   manuscript opens with a `---`-fenced YAML block, and projects keep real sentences in it. A
   `changelog:` entry saying *"the primary endpoint was changed from 30-day to 90-day mortality"*

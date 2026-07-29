@@ -106,13 +106,26 @@ Do not maintain a shorter list by hand: a gate added to the workflow, or a `--st
 flag, silently drifts out of a copied list and is only caught by a red CI after you
 push. `run_ci_mirror.sh` reads the workflow, so it stays exact.
 
-Each deterministic detector additionally ships a self-contained
-`<detector>_challenge/` directory — a positive case, a negative control, and a
-`verify.sh` — so any single detector can be exercised offline in isolation, for
-example:
+Deterministic work additionally ships a self-contained `<feature>_challenge/`
+directory — a positive case, a negative control, and a `verify.sh` — so it can be
+exercised offline in isolation:
 
 ```bash
 bash skills/self-review/scripts/check_reported_p_from_counts_challenge/verify.sh
+```
+
+New deterministic scripts are expected to add one. Coverage of what already exists
+is **partial, and deliberately stated rather than implied**: 48 challenge directories
+exist against 84 detectors, and they are named after the feature under test — which
+is not always one script — so 26 detectors have a directory bearing their own name.
+A pull request that adds a challenge directory for a detector that lacks one is a
+welcome contribution on its own. To see which those are:
+
+```bash
+for d in skills/*/scripts/{check_,detect_,derive_,verify_refs}*.py; do
+  s=$(basename "$d" .py)
+  find skills -type d -name "${s}_challenge" | grep -q . || echo "$s"
+done
 ```
 
 A green run of `.github/workflows/validate.yml` is required before any release is
