@@ -336,6 +336,9 @@ jobs:
       - name: "Run verify-refs BibTeX and-others test (a declared et-al is not an author mismatch)"
         run: bash skills/verify-refs/tests/test_bibtex_et_al.sh
 
+      - name: "Run verify-refs last-field test (an entry's final field has no trailing comma)"
+        run: bash skills/verify-refs/tests/test_bib_last_field.sh
+
       - name: "Run verify-refs claim-fidelity challenge (a real citation carrying a claim its source never makes)"
         run: bash skills/verify-refs/scripts/claim_fidelity_challenge/verify.sh
 

@@ -157,6 +157,29 @@ def read_input(path: Path) -> str:
     return path.read_text(encoding="utf-8", errors="replace")
 
 
+def brace_field(entry: str, name: str) -> str:
+    """Read a brace-delimited BibTeX field by counting braces, not by regex.
+
+    A non-greedy `{(.+?)}` stops at the first `}`, which truncates any brace-protected inner group
+    (`title = {A multisociety {Delphi} consensus}`). Anchoring the match on a trailing comma avoids
+    that but silently returns nothing when the field is the entry's LAST one, where BibTeX makes the
+    comma optional. Counting depth is correct in both cases. Returns "" when the field is absent or
+    is not brace-delimited.
+    """
+    m = re.search(rf"{name}\s*=\s*\{{", entry, re.I)
+    if not m:
+        return ""
+    start = m.end()
+    depth, j = 1, start
+    while j < len(entry) and depth > 0:
+        if entry[j] == "{":
+            depth += 1
+        elif entry[j] == "}":
+            depth -= 1
+        j += 1
+    return entry[start : j - 1]
+
+
 def parse_bib(text: str) -> list[RefRecord]:
     records: list[RefRecord] = []
     entries = re.split(r"\n(?=@\w+\{)", "\n" + text)
@@ -166,25 +189,30 @@ def parse_bib(text: str) -> list[RefRecord]:
             continue
         key_match = re.match(r"@\w+\{([^,]+),", entry)
         title_match = re.search(r"title\s*=\s*[\{\"](.+?)[\}\"]\s*,", entry, re.I | re.S)
-        doi_match = re.search(r"doi\s*=\s*[\{\"](.+?)[\}\"]\s*,", entry, re.I | re.S)
+        # The trailing comma is OPTIONAL: BibTeX does not require one after an entry's LAST field,
+        # and `doi` is very often that last field. Requiring it left `record.doi` empty for those
+        # entries, which skips the CrossRef check outright and drops the record onto the soft-flagged
+        # OpenAlex title path where the author cross-check is disabled — so the anti-fabrication
+        # check this skill exists for was silently off for exactly those references. Unlike `title`
+        # on the line above, a DOI never carries brace-protected inner groups (`{Delphi}`), so
+        # stopping at the first `}` is correct here and would truncate there.
+        doi_match = re.search(r"doi\s*=\s*[\{\"](.+?)[\}\"]\s*,?", entry, re.I | re.S)
         pmid_match = re.search(r"pmid\s*=\s*[\{\"]?(\d{5,9})", entry, re.I)
         year_match = re.search(r"year\s*=\s*[\{\"]?((?:19|20)\d{2})", entry, re.I)
         raw = normalize_space(entry)
-        # Balanced-brace aware author capture (handles "\~{n}" LaTeX escapes that
-        # would otherwise terminate a non-greedy {.+?} match prematurely).
-        author_field = ""
-        am = re.search(r"author\s*=\s*\{", entry, re.I)
-        if am:
-            start = am.end()
-            depth = 1
-            j = start
-            while j < len(entry) and depth > 0:
-                if entry[j] == "{":
-                    depth += 1
-                elif entry[j] == "}":
-                    depth -= 1
-                j += 1
-            author_field = entry[start : j - 1]
+        author_field = brace_field(entry, "author")
+        # `title` needs the same balanced-brace read, and for the same reason `doi` needed an
+        # optional comma: the regex above requires a trailing comma, so a title that is the entry's
+        # LAST field came back empty. It cannot simply take `,?` — the non-greedy match would then
+        # stop at the inner `}` of a brace-protected group and return "A multisociety {Delphi".
+        # Prefer the balanced read whenever the field is brace-delimited; keep the regex for the
+        # quote-delimited form it already handled.
+        title_braced = brace_field(entry, "title")
+        if title_braced:
+            title_match = None
+            title_text = title_braced
+        else:
+            title_text = title_match.group(1) if title_match else ""
         cited = parse_bib_authors(author_field)
         # v1.3.0: intentional truncate marker (any non-empty `_audit_truncated`)
         trunc_match = re.search(r"_audit_truncated\s*=\s*[\{\"]?([^,}\"]+)", entry, re.I)
@@ -192,7 +220,7 @@ def parse_bib(text: str) -> list[RefRecord]:
             RefRecord(
                 ref_id=key_match.group(1) if key_match else f"ref_{len(records)+1}",
                 raw=raw,
-                title_guess=normalize_space(title_match.group(1)) if title_match else "",
+                title_guess=normalize_space(title_text),
                 doi=clean_doi(doi_match.group(1)) if doi_match else "",
                 pmid=pmid_match.group(1) if pmid_match else "",
                 year_guess=year_match.group(1) if year_match else "",
