@@ -30,6 +30,31 @@
   Deliberately a list rather than a count: "37 detectors do not strip front matter" is a number
   nobody acts on; a name is a piece of work. Repo-CI validator under `scripts/`, so
   `integrity_detectors` stays **84**.
+### Added
+
+- **`check_sentence_variety` gained the upper half of the rule it enforces.** Fix rule 7 says
+  *"Mix short declarative sentences (8-12 words) with longer ones (25-35 words)"* — a **range** —
+  and the gate only ever checked its lower edge. One 97-word sentence populates the `>= 25 words`
+  band, so a manuscript passed while the detector printed `max_words: 97` in its own stats. Two
+  external reviewers independently read such prose as machine-written, on two different
+  manuscripts, while this check returned nothing.
+
+  New `SENTENCE_OVERLONG` (Minor) fires above `--long-max`, default **70 = twice the top of rule
+  7's range**. Choosing that number was the delicate part and the measurement is recorded in the
+  detector's docstring so it is auditable rather than asserted: firing at rule 7's own top of 35
+  would condemn **97 sentences (~24%) across the six manuscripts in this repository with enough
+  sentences to measure** — the project's own exemplars, so 25-35 is plainly a target band and not
+  a ceiling. At 70 the same corpus yields **4 sentences in 6 manuscripts (~1%)**. The number still
+  comes from the skill's specification; the corpus only confirmed it does not condemn good prose.
+
+  The count of sentences over rule 7's band is now reported as `stats.over_rule7_band_count` —
+  **information for a rewriter, not a verdict**, for exactly the reason above.
+
+  Regression, not a green suite: against the unfixed detector the suite fails the three assertions
+  about the new behaviour and passes the seven that pin the old. A 64-word sentence — over rule 7's
+  band, under the ceiling — must stay silent, or the verdict would just re-report the long band the
+  gate already checks; and `--long-max 50` must make that same sentence fire, or the default could
+  be doing nothing while every other assertion still passed.
 
 ### Changed
 

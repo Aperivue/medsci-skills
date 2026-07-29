@@ -11,10 +11,29 @@ prescribes a mix of short and long sentences and then contains none of one kind 
 own rule. So this gate fires only on that unambiguous case — an absent band — and reports the
 distribution for everything else rather than inventing a cutoff.
 
-Verdict:
+Rule 7 names a RANGE, and until 2026-07-29 this gate only checked its lower edge. A single
+97-word sentence populates the ">= 25 words" band, so a text could satisfy the check while
+containing a sentence nearly three times the top of the range rule 7 prescribes -- and the
+gate printed `max_words: 97` in its own stats while reporting "clean". Two external reviewers
+independently read such prose as machine-written on two different manuscripts while this
+detector returned nothing.
+
+Choosing the ceiling was the delicate part, and the measurement is recorded here so the number
+is auditable rather than asserted. Rule 7's own top is 35, but firing there is unusable: across
+the six manuscripts in this repository with enough sentences to measure, 97 sentences exceed 35
+words (~24%, 16-22 per manuscript). Those are the project's own exemplars, so a gate that
+condemns them is measuring the wrong thing -- 25-35 is a target band, not a ceiling. Doubling
+rule 7's top gives 70, at which the same corpus yields 4 sentences in 6 manuscripts (~1%, at
+most one per file). So the number is still derived from the skill's own specification (35 x 2),
+and the corpus was used only to confirm it does not condemn good prose.
+
+Verdicts:
   SENTENCE_UNIFORM (Minor)  the prose contains no short sentences (<= --short-max words) or no
                             long ones (>= --long-min), i.e. every sentence sits in the middle
                             band. Break up or combine sentences until both bands are populated.
+  SENTENCE_OVERLONG (Minor) at least one sentence exceeds --long-max (default 70 = twice the top
+                            of rule 7's range). Not "a longer one" in the sense rule 7 means; a
+                            reader loses the subject before the verb arrives. Split it.
 
 Scoped to keep false positives low:
   * Headings, list items, table rows, code fences, and YAML front matter are excluded — their
@@ -100,6 +119,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--out", type=Path, help="write the JSON envelope here")
     ap.add_argument("--short-max", type=int, default=12, help="a short sentence is <= this (SKILL.md rule 7)")
     ap.add_argument("--long-min", type=int, default=25, help="a long sentence is >= this (SKILL.md rule 7)")
+    ap.add_argument("--long-max", type=int, default=70,
+                    help="a sentence over this is overlong (default 70 = twice the top of rule 7's 25-35 range)")
     ap.add_argument("--min-sentences", type=int, default=15, help="stay silent below this many sentences")
     ap.add_argument("--strict", action="store_true")
     ap.add_argument("--quiet", action="store_true")
@@ -118,6 +139,8 @@ def main(argv: list[str] | None = None) -> int:
     if len(lengths) >= args.min_sentences:
         short = [n for n in lengths if n <= args.short_max]
         long_ = [n for n in lengths if n >= args.long_min]
+        over_band = [n for n in lengths if n > 35]
+        overlong = sorted((n for n in lengths if n > args.long_max), reverse=True)
         stats.update({
             "short_count": len(short),
             "long_count": len(long_),
@@ -125,6 +148,11 @@ def main(argv: list[str] | None = None) -> int:
             "min_words": min(lengths),
             "max_words": max(lengths),
             "stdev_words": round(statistics.pstdev(lengths), 1),
+            # Reported, not judged. Rule 7's band tops out at 35, but ~24% of sentences in this
+            # repository's own exemplar manuscripts exceed it, so the count is information for a
+            # rewriter rather than grounds for a verdict.
+            "over_rule7_band_count": len(over_band),
+            "overlong_word_counts": overlong,
         })
         if not short or not long_:
             missing = "short" if not short else "long"
@@ -139,6 +167,19 @@ def main(argv: list[str] | None = None) -> int:
                     "SKILL.md Fix rule 7 requires both bands; uniform length is itself an AI tell."
                 ),
             })
+        if overlong:
+            claims.append({
+                "verdict": "SENTENCE_OVERLONG",
+                "severity": "Minor",
+                "count": len(overlong),
+                "word_counts": overlong,
+                "message": (
+                    f"{len(overlong)} sentence(s) over {args.long_max} words "
+                    f"({', '.join(str(n) for n in overlong)}). Rule 7's long band is 25-35 words; "
+                    f"{args.long_max} is twice its top, so these are not 'a longer one' in the sense "
+                    "the rule means — the reader loses the subject before the verb arrives. Split them."
+                ),
+            })
     else:
         stats["skipped"] = f"only {len(lengths)} sentences (< --min-sentences {args.min_sentences})"
 
@@ -147,6 +188,7 @@ def main(argv: list[str] | None = None) -> int:
         "manuscript": str(args.manuscript),
         "short_max": args.short_max,
         "long_min": args.long_min,
+        "long_max": args.long_max,
         "stats": stats,
         "claims": claims,
     }
