@@ -141,23 +141,55 @@ def audit(text: str, source: str, tol: float = DEFAULT_TOL) -> Report:
                         if tc:
                             denom, src = int(tc.group(1).replace(",", "")), "Total row"
                             break
+            # Summing a column's counts is a denominator only for a partition — mutually exclusive
+            # categories accounting for everyone. For the most common table in clinical research, a
+            # Table 1 of independent binary characteristics with N declared in the CAPTION, the sum
+            # is a meaningless number larger than N, and using it accused every correct cell of bad
+            # arithmetic while printing a specific wrong replacement percentage.
+            #
+            # Gating on `is_partition` is NOT the fix: that flag is computed from the printed
+            # percentages summing to ~100, so a partition with a wrong percentage stops looking like
+            # a partition — the check would go silent on exactly the error it exists to catch.
+            #
+            # The denominator is INFERRED here, unlike a header `n =` or a Total row, which the
+            # author declared. So it must earn its use: keep it only if it explains at least one
+            # cell. A denominator that reconciles nothing is not evidence that every cell is wrong,
+            # it is evidence that it is the wrong denominator. Verified below, after recomputation.
+            inferred = False
             if denom is None:
-                denom, src = sum(p[2] for p in parsed), "column count-sum"
+                denom, src, inferred = sum(p[2] for p in parsed), "column count-sum", True
 
             if not denom:
                 rep.findings.append(Finding("PERCENT_DENOM_UNKNOWN", "INFO", lineno,
                                             f"column {col}", "percentage column with no recoverable denominator"))
                 continue
 
+            column_findings: list[Finding] = []
+            reconciled = 0
             for label, raw, count, pct, _hp in parsed:
                 if count > denom:
                     continue  # not a proportion of this denominator
                 recomputed = 100.0 * count / denom
                 if abs(recomputed - pct) > tol:
-                    rep.findings.append(Finding(
+                    column_findings.append(Finding(
                         "PERCENT_MISMATCH", "MAJOR", lineno, f"{label}: {raw}",
                         f"printed {pct:g}% but {count}/{denom} ({src}) = {recomputed:.1f}% "
                         f"(Δ{abs(recomputed - pct):.1f}pp)"))
+                else:
+                    reconciled += 1
+
+            # An inferred denominator that reconciles NOTHING is the wrong denominator, not proof
+            # that every cell is wrong. Report the gap rather than the accusation. A declared
+            # denominator (header `n =`, Total row) is never second-guessed this way: if the author
+            # states N and the arithmetic disagrees, that is the finding.
+            if inferred and column_findings and reconciled == 0:
+                rep.findings.append(Finding(
+                    "PERCENT_DENOM_UNKNOWN", "INFO", lineno, f"column {col}",
+                    f"percentage column with no declared denominator; the column count-sum "
+                    f"({denom}) reconciles none of {len(column_findings)} cell(s), so it is not the "
+                    f"denominator — declare N in the column header (n = N) or a Total row to check"))
+            else:
+                rep.findings.extend(column_findings)
     return rep
 
 

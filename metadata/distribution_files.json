@@ -4918,8 +4918,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_table_percentages.py",
-      "size": 8760,
-      "sha256": "32405faecca4b8c28a38a90d272d8849c0451c048938440301bfe9a732d99a37"
+      "size": 11061,
+      "sha256": "faeed0132193a9bc3ca90d061d6e2d185a2e29d50b46165154e76d43edd90d5f"
     },
     {
       "path": "skills/self-review/scripts/check_table_percentages_challenge/expected/bad.txt",

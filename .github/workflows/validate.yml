@@ -535,6 +535,9 @@ jobs:
       - name: Run self-review table-percentage challenge (n (%) recompute vs denominator)
         run: bash skills/self-review/scripts/check_table_percentages_challenge/verify.sh
 
+      - name: "Run table-percentage denominator test (an inferred denominator must reconcile something)"
+        run: bash skills/self-review/tests/test_table_percent_denominator.sh
+
       - name: Run self-review nested-group-comparison challenge (subset vs parent cohort)
         run: bash skills/self-review/scripts/check_nested_group_comparison_challenge/verify.sh
 
