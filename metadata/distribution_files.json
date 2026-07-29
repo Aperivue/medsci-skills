@@ -1918,8 +1918,8 @@
     },
     {
       "path": "skills/humanize/scripts/check_sentence_variety.py",
-      "size": 7643,
-      "sha256": "a5091ebca81761341e95d61b01b9998e637763f414c22d31eec658f6b6376835"
+      "size": 10498,
+      "sha256": "aeb0ac10a9889087301206c2024dc90368bd6165547023594646e5d403e2c473"
     },
     {
       "path": "skills/humanize/skill.yml",
