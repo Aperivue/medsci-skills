@@ -180,6 +180,9 @@ jobs:
       - name: Run release-cadence gate self-test
         run: bash tests/test_release_cadence.sh
 
+      - name: "Run release publish-step test (create-or-update; a release with no assets is red)"
+        run: bash tests/test_release_publish_step.sh
+
       - name: Run check_locale_inventory.py (Korean-bearing files must be inventory-justified)
         run: python3 scripts/check_locale_inventory.py
 

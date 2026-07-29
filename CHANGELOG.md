@@ -4,6 +4,42 @@
 
 ### Fixed
 
+- **One error in the release job took out both distribution channels, and there was no way to retry.**
+  `gh release create` fails outright when a Release object for the tag already exists. On v5.23.0 it
+  did, the step errored, and the job died **before** the npm publish step that follows it. Net effect,
+  live until now: the v5.23.0 Release carried **0 assets**, so the ZIP links `README.md` gives
+  non-programmers (`releases/latest/download/medsci-skills-classroom-*.zip`, and v5.23.0 *is* latest)
+  returned 404; and npm stayed on **5.22.0** while `package.json` said 5.23.0, so
+  `npx medsci-skills@latest install` silently installed the previous release. For scale, v5.22.0's two
+  ZIPs were downloaded 8 and 7 times — a real path for roughly fifteen people per release, sitting at
+  zero.
+
+  Three changes, all repair:
+
+  - The publish step is now **create-or-update**: it edits the notes and re-uploads with `--clobber`
+    when the Release exists. The invariant the original comment relied on is preserved — the bytes
+    attached are still the ZIPs verified and attested earlier in the same run.
+  - It now **asserts the outcome instead of the command's exit code**. A release finishing with fewer
+    than two assets fails the step. That is the shape this class hides behind: the command that
+    mattered did not run, and the step looked successful.
+  - `workflow_dispatch(tag)` gives the job a **recovery path**. A version tag can only be pushed once,
+    so a release that failed after the tag landed could not be re-run at all. Every step now reads a
+    resolved `RELEASE_TAG`, and the checkout takes the tag, so a dispatch republishes the tagged tree
+    rather than a branch.
+
+  `tests/test_release_publish_step.sh` executes the **actual `run:` block extracted from the shipped
+  workflow** — not a copy — against a stubbed `gh` whose `release create` errors on an existing
+  release exactly as the real one does. Reverting the step turns 4 of its 7 assertions red.
+
+  Writing that test surfaced a latent one next door: `check_test_wiring._referenced_repo_files` built
+  each candidate as `root / token`, and an **absolute** token discards `root` entirely. `release.yml`
+  has always named `/tmp/release_notes.md`, so the moment that file existed on the runner the gate
+  crashed on `relative_to`. Crashing was the good outcome — had it not, the gate would have read a
+  file from **outside the repository** into the one-hop text it searches, where any test path inside
+  it would have counted as wiring. Absolute and `../` escaping tokens are now dropped. This is the
+  same shape as the self-read fixed in #443: the gate's notion of "a file that runs this test" was
+  wider than the set of files it can vouch for.
+
 - **`verify_refs` called BibTeX's own "et al." an author mismatch.** `and others` is what
   Zotero, Mendeley, JabRef and a hand-written `.bib` all emit for a list the author chose not
   to type out, and what BibTeX and CSL both render as *et al.* The parser already knew the

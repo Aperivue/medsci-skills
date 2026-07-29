@@ -104,14 +104,26 @@ def _iter_run_commands(root: Path) -> list[str]:
 
 
 def _referenced_repo_files(root: Path, cmds: list[str]) -> list[Path]:
-    """Repo files named by a run: command — the one-hop frontier."""
+    """**Repo** files named by a run: command — the one-hop frontier.
+
+    A run: command may name an absolute path (`--notes-file /tmp/release_notes.md`). `root / token`
+    on an absolute token discards `root` entirely, so such a token used to escape the repo: if the
+    file happened to exist on the runner, `collect` crashed on `relative_to` — and if it had not
+    crashed it would have read a file from outside the repository into the one-hop text, where any
+    test path inside it would silently count as wiring. Anchor to the repo and drop anything that
+    resolves outside it.
+    """
     out: list[Path] = []
     for cmd in cmds:
         for token in cmd.replace("&&", " ").replace("|", " ").replace(";", " ").split():
             token = token.strip("\"'()")
-            if "/" not in token or token.startswith("-"):
+            if "/" not in token or token.startswith("-") or token.startswith("/"):
                 continue
             candidate = root / token
+            try:
+                candidate.resolve().relative_to(root)
+            except ValueError:
+                continue  # ../.. escape
             if candidate.is_file():
                 out.append(candidate)
     return out
