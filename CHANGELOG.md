@@ -4,6 +4,33 @@
 
 ### Fixed
 
+- **`check_table_percentages` invented a denominator, then reported false arithmetic as a MAJOR.**
+  The most common table in clinical research is a Table 1 of independent binary characteristics with
+  N stated in the **caption**. It declares no column `n = N` and has no Total row, so the checker
+  fell through to summing the column's own counts — 79 + 53 + 40 + 26 = **198** for a study of 132 —
+  and accused all four correct cells, each with a specific wrong replacement percentage, at MAJOR,
+  exit 1 under `--strict`. Telling an author to change a right number to a wrong one is worse than
+  saying nothing: it is the fastest way to teach someone to stop running the checks.
+
+  **Gating on `is_partition` would have been the wrong fix, and the test pins that too.** That flag
+  is derived from the printed percentages summing to ~100, so a partition containing a wrong
+  percentage stops looking like a partition — the check would have gone silent on exactly the error
+  it exists to catch. (Tried it; the negative control caught it.)
+
+  The rule instead distinguishes a **declared** denominator from an **inferred** one. A header
+  `n = N` or a Total row is the author's own statement and is taken at its word: if the arithmetic
+  disagrees, that is the finding. A count-sum is the checker's guess, and a guess that reconciles
+  **none** of the cells is not evidence that every cell is wrong — it is evidence that the guess is
+  wrong. That column now reports `PERCENT_DENOM_UNKNOWN` (INFO) naming the sum it tried and asking
+  for a declared N, instead of four accusations.
+
+  Coverage cost, stated rather than hidden: a caption-N table whose percentages are *genuinely*
+  wrong is now INFO rather than MAJOR, because nothing in the table distinguishes it from a correct
+  one. Recovering N from the caption would close that and is not attempted here.
+
+  `skills/self-review/tests/test_table_percent_denominator.sh` (wired) pins 11 assertions. The
+  original code fails 3; the `is_partition` version fails 2 different ones.
+
 - **A BibTeX entry's last field was not a field.** BibTeX makes the comma after an entry's final
   field optional; the `doi` and `title` regexes both required one. So any entry ending in
   `doi = {...}` — an extremely common shape — yielded `record.doi == ""`, which **skips the CrossRef
