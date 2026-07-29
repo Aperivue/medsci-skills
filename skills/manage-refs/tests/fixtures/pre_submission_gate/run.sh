@@ -67,10 +67,16 @@ bash "$GATE" \
 RC1=$?
 set -e
 
-# If stage 2 failed because of network, skip the entire fixture gracefully.
-if grep -q '"verify_refs", "status": "FAIL"' "$QC_DEFAULT/pre_submission_gate.json" 2>/dev/null \
-   || grep -qiE "network|connection|temporary failure|name resolution" "$WORK_DIR/default.log"; then
-  echo "[SKIP] verify_refs stage failed (likely network-restricted environment)."
+# If stage 2 failed because of NETWORK, skip the fixture gracefully. Only network.
+#
+# This used to also skip whenever the artifact recorded the verify_refs stage as FAIL —
+# which is any failure, including a genuine reference mismatch. That clause could never
+# match (the artifact writes `"stage": "verify_refs"` and `"status": "FAIL"` on separate
+# lines, so the single-line literal found nothing), and it is a mercy that it could not:
+# had it worked it would have skipped this fixture on exactly the content regression the
+# fixture exists to catch. Skip on the transport failing, never on the verdict.
+if grep -qiE "network|connection|temporary failure|name resolution|timed out|urlopen" "$WORK_DIR/default.log"; then
+  echo "[SKIP] verify_refs stage could not reach the network."
   cat "$WORK_DIR/default.log"
   exit 77
 fi
