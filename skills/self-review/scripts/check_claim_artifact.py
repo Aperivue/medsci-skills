@@ -53,6 +53,8 @@ import re
 import sys
 from pathlib import Path
 
+from _frontmatter import strip_frontmatter
+
 EVALUE_TOL = 0.15  # relative tolerance for E-value recompute
 
 PRIMARY_RE = re.compile(
@@ -410,7 +412,12 @@ def main() -> int:
     def _unwrap(t: str) -> str:
         return re.sub(r"\s*\n\s*", " ", t)
 
-    manuscript = _unwrap(mp.read_text(encoding="utf-8"))
+    # Strip the YAML front matter before any estimand pattern runs. A project that
+    # honestly logs "the primary endpoint was changed ..." in a `changelog:` block was
+    # read as a body self-admission and given PRIMARY_REASSIGNED — a Major that fires
+    # harder the more openly a project records its own history, which is exactly the
+    # Major most likely to get waved through.
+    manuscript = _unwrap(strip_frontmatter(mp.read_text(encoding="utf-8")))
     prereg = None
     prereg_raw = None
     if args.prereg:

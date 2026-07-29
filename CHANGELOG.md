@@ -2,6 +2,35 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- **`check_claim_artifact` read a manuscript's own changelog as a confession.** A pandoc
+  manuscript opens with a `---`-fenced YAML block, and projects keep real sentences in it. A
+  `changelog:` entry saying *"the primary endpoint was changed from 30-day to 90-day mortality"*
+  was scanned as body prose and returned `PRIMARY_REASSIGNED` — a **P0** — so a project was
+  penalised for keeping an honest record. A Major that fires harder the more openly a project
+  documents itself is the Major most likely to get waved through, and estimand provenance is
+  exactly the gate that must not be. The detector now strips front matter first; the same
+  sentence in the body still fires, which is what makes the fix meaningful rather than a mute.
+
+### Added
+
+- **`scripts/check_frontmatter_scope.py` — the gap was never the fix, it was the visibility.**
+  `_frontmatter.py` has existed for months and had reached **4 of the 41** detectors that take
+  `--manuscript`; the other 37 read YAML front matter as prose, and three of them had already
+  fired on it in production. Nothing made that countable, so nothing got swept.
+
+  The gate requires every `--manuscript` detector to strip front matter — directly or through a
+  same-directory helper it imports, so the two that strip via `_prose.py` are correctly counted
+  as compliant rather than invented as debt — or to appear in an **ALLOWLIST that names it**.
+  The list is seeded with the 35 that did not, and it exists to be emptied: a name leaves it when
+  that detector is fixed, and a **stale entry is itself a failure**, so the list cannot quietly
+  overstate the debt either. New detectors get no grace period.
+
+  Deliberately a list rather than a count: "37 detectors do not strip front matter" is a number
+  nobody acts on; a name is a piece of work. Repo-CI validator under `scripts/`, so
+  `integrity_detectors` stays **84**.
+
 ### Changed
 
 - **`--allow-separate-attachments` now downgrades the `MISSING_BODY` it could not check.** When a

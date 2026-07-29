@@ -47,6 +47,12 @@ jobs:
       - name: "Validator scope self-test (it must READ every directory it claims to scan)"
         run: bash tests/test_validator_scope.sh
 
+      - name: "Run check_frontmatter_scope.py (a manuscript detector must not read YAML front matter as prose)"
+        run: python3 scripts/check_frontmatter_scope.py --strict
+
+      - name: "Front-matter scope gate self-test (a new detector cannot join silently)"
+        run: bash tests/test_frontmatter_scope.sh
+
       - name: "Unshipped-rule gate self-test (an instruction we do not ship is not an instruction)"
         run: bash tests/test_personal_rule_refs.sh
 
