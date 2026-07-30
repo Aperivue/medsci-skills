@@ -107,6 +107,29 @@ NUM_RANGE_RE = re.compile(r"(?<![\w/.\-])(\d+(?:\.\d+)?)-(\d+(?:\.\d+)?)(?![\w/.
 PVAL_RE = re.compile(r"(?<![A-Za-z])([Pp])\s*([=<>])\s*(0?\.\d+|\d+\.\d+|\.\d+)")
 SMALL_NUM_RE = re.compile(r"(?<![\w.=<>+\-/])([1-9])\s+([a-z]{3,})")
 
+# A single digit that NAMES something is not a counted quantity, and spelling it out is wrong.
+# "type 2 diabetes" is not "type two diabetes" — nor is Grade 3, Stage 4, Phase 3, day 7, Table 2 or
+# Figure 1. The rule fired on every one of those: across nine ordinary clinical sentences it was
+# right twice. Across this repo's own markdown it produced 1,499 flags, 277 of them a digit directly
+# after a designator word. Advice that turns a correct sentence into a wrong one is the fastest way
+# to teach an author to stop running the linter, so the designator — not the digit — decides.
+#
+# Deliberately keyed on the preceding word rather than on what follows: "8 patients" and "3 deaths"
+# are counts and must still be flagged, and they look identical to "type 2 diabetes" from the right.
+DESIGNATOR_WORDS = (
+    # document structure
+    "figure", "figures", "fig", "figs", "table", "tables", "section", "sections", "panel",
+    "appendix", "supplement", "supplementary", "reference", "ref", "equation", "eq", "chapter",
+    "box", "step", "item", "question", "aim", "objective", "part", "page", "line", "row",
+    "column", "note", "phase",
+    # clinical and study designators
+    "type", "grade", "stage", "class", "level", "group", "arm", "cohort", "visit", "cycle",
+    "tier", "category", "version", "model", "site", "center", "centre", "wave", "round",
+    "session", "period", "day", "week", "month", "year", "trimester", "quarter",
+)
+DESIGNATOR_RE = re.compile(
+    r"(?:^|[^\w-])(?:" + "|".join(DESIGNATOR_WORDS) + r")\.?\s*$", re.IGNORECASE)
+
 
 # --------------------------------------------------------------------------- #
 # Checks (each returns list[(line, message)])
@@ -232,6 +255,10 @@ def check_small_numbers(lines):
         for m in SMALL_NUM_RE.finditer(line):
             word = m.group(2)
             if word in UNIT_TOKENS:
+                continue
+            # A digit that names something ("type 2", "Grade 3", "Table 2", "day 7") is a label, not
+            # a count. Spelling it out produces "type two diabetes".
+            if DESIGNATOR_RE.search(line[: m.start(1)]):
                 continue
             out.append((i, f'"{m.group(1)} {word}" — spell out single-digit numbers in prose'))
     return out
