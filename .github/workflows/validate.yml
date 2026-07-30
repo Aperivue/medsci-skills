@@ -288,6 +288,9 @@ jobs:
       - name: Run sync-submission asset-anonymization gate test (A2)
         run: bash skills/sync-submission/tests/test_asset_anonymization.sh
 
+      - name: "Run word-count heading-form test (setext and ATX must measure the same manuscript alike)"
+        run: bash skills/sync-submission/tests/test_wordcount_heading_forms.sh
+
       - name: Run sync-submission disclosure/availability detector test
         run: bash skills/sync-submission/tests/test_disclosure_availability.sh
 
