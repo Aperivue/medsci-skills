@@ -2613,8 +2613,8 @@
     },
     {
       "path": "skills/manage-refs/scripts/check_citation_keys.py",
-      "size": 4125,
-      "sha256": "b336b661b9d68e42d8829f017d2d55fba22585de6f9d59e2441ffc1c7f5ba3a7"
+      "size": 6593,
+      "sha256": "acf0b653df453ef3d9ed905f09656212ae5f8de6471a19cde52ca415b980fb47"
     },
     {
       "path": "skills/manage-refs/scripts/check_citation_keys_challenge/fixture/manuscript.md",

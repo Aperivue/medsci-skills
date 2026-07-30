@@ -32,9 +32,34 @@ import sys
 from pathlib import Path
 
 # pandoc citation syntax: [@key], [@key, p. 3], [@key1; @key2], [-@key] (suppress author)
-# A key is alnum + : . _ - / +  (per pandoc docs)
-CITE_RE = re.compile(r"(?<![A-Za-z0-9_])-?@([A-Za-z][\w:.\-/+]*)")
+# A key is alnum + : . _ - / + (per pandoc docs) — but pandoc counts internal punctuation as part of
+# the key ONLY when a letter or digit follows it. The old pattern dropped that condition, so a
+# citation ending a sentence — which is most of them — swallowed the full stop:
+#
+#     "...as previously reported @Smith2023."   ->  key "Smith2023."
+#
+# and the tool then reported the SAME reference as UNDEFINED (no `Smith2023.` in the .bib) and as
+# UNUSED (nothing cited `Smith2023`) in a single run. Trailing `;` `,` `]` already terminated the
+# match; `.` `-` `/` `+` leaked, and `.` is the one that ends English sentences. `@Sec.2a` stays one
+# key, because there the period is followed by an alphanumeric — pandoc's own rule, now encoded.
+CITE_RE = re.compile(r"(?<![A-Za-z0-9_])-?@([A-Za-z][\w]*(?:[:.\-/+][\w]+)*)")
 BIB_KEY_RE = re.compile(r"^@\w+\s*\{\s*([^,\s]+)\s*,", re.MULTILINE)
+
+# Quarto / pandoc-crossref cross-references share the `@` sigil but are not bibliography keys:
+# `@fig-flow`, `@tbl-baseline`, `@sec-methods`, `@eq-lik`, and the older `@fig:flow` form. They
+# resolve against the document's own labels, and `quarto render` compiles a manuscript full of them
+# without complaint — while this checker read every one as an undefined reference and exited 1. The
+# repo scaffolds `manuscript/index.qmd` itself (`scripts/init_project.py`), so the toolkit was
+# failing manuscripts in the shape it generates.
+#
+# Excluded from the UNDEFINED verdict, never dropped silently: they are counted and reported. A key
+# with one of these prefixes that IS defined in the .bib resolves normally and never reaches this
+# exclusion, so a real bibliography entry named `fig-...` is unaffected.
+CROSSREF_PREFIXES = (
+    "fig", "tbl", "eq", "sec", "lst", "thm", "lem", "cor", "prp", "cnj",
+    "def", "exm", "exr", "sol", "rem", "alg", "tip", "nte", "wrn", "imp", "cau",
+)
+CROSSREF_RE = re.compile(rf"^(?:{'|'.join(CROSSREF_PREFIXES)})[-:]\w", re.IGNORECASE)
 
 
 def extract_md_keys(md_path: Path) -> set[str]:
@@ -80,10 +105,20 @@ def main() -> int:
     cited = extract_md_keys(args.markdown)
     defined = extract_bib_keys(args.bib)
 
-    undefined = sorted(cited - defined)
+    # Split the unresolved keys before judging them: a Quarto cross-reference resolves against the
+    # document's own labels, not the bibliography, so calling it an undefined citation fails a
+    # manuscript that `quarto render` compiles without complaint. Reported, never silently dropped.
+    unresolved = sorted(cited - defined)
+    crossrefs = [k for k in unresolved if CROSSREF_RE.match(k)]
+    undefined = [k for k in unresolved if not CROSSREF_RE.match(k)]
     unused = sorted(defined - cited)
 
     print(f"[check_citation_keys] cited={len(cited)} defined={len(defined)}")
+    if crossrefs:
+        print(f"\nCROSS-REFERENCES ({len(crossrefs)}) — Quarto/pandoc-crossref labels, not "
+              f"bibliography keys; resolved by the renderer, not checked here:")
+        for k in crossrefs:
+            print(f"  [@{k}]")
     if undefined:
         print(f"\nUNDEFINED ({len(undefined)}) — cited in markdown but not in .bib:")
         for k in undefined:
