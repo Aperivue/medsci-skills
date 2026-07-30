@@ -445,6 +445,9 @@ jobs:
       - name: Run polish-language consistency-linter challenge
         run: bash skills/polish-language/scripts/lint_challenge/verify.sh
 
+      - name: "Run polish-language numeral-designator test (\"type 2 diabetes\" is not \"type two\")"
+        run: bash skills/polish-language/tests/test_numeral_designators.sh
+
       - name: "Run polish-language figure-source locale challenge (UK word in a .pptx/.py label fires; universals stay silent)"
         run: bash skills/polish-language/scripts/lint_figure_locale_challenge/verify.sh
 

@@ -3623,8 +3623,8 @@
     },
     {
       "path": "skills/polish-language/scripts/lint_consistency.py",
-      "size": 13850,
-      "sha256": "ed6067e9d8968dec7d913aec92be06676d1d250aaee613b390355dcb872392c1"
+      "size": 15665,
+      "sha256": "f380439fae1fd41b966862957ca4232467a1d1701dd5a19c35c1864b3df9aea2"
     },
     {
       "path": "skills/polish-language/scripts/lint_figure_locale.py",

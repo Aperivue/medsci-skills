@@ -4,6 +4,34 @@
 
 ### Fixed
 
+- **The linter told authors to write "type two diabetes".** `check_small_numbers` flagged any single
+  digit followed by a lowercase word. On nine ordinary clinical sentences it was right **twice**;
+  the other seven were labels, not counts:
+
+  | sentence | advice given |
+  |---|---|
+  | Patients with **type 2** diabetes | *"2 diabetes" — spell out* |
+  | **Grade 3** adverse events | *"3 adverse" — spell out* |
+  | **Stage 4** disease | *"4 disease" — spell out* |
+  | **Phase 3** trials | *"3 trials" — spell out* |
+  | See **Table 2** for details | *"2 for" — spell out* |
+  | appears in **Figure 1** above | *"1 above" — spell out* |
+  | At **day 7** follow-up | *"7 follow" — spell out* |
+
+  Advice that turns a correct sentence into a wrong one is the fastest way to teach an author to
+  stop running the linter, and "spell out Table 2" additionally breaks `check_figure_citation`,
+  which then cannot find the reference — one detector's output made another one's input invalid.
+
+  A digit that **names** something is now exempt, decided by the word before it: 60-odd document and
+  clinical designators (Figure/Table/Section/Phase/Grade/Stage/Type/Class/Group/Arm/day/week/year…).
+  Keying on the preceding word rather than the following one is the whole point — "8 patients" and
+  "3 deaths" are genuine counts and look identical from the right-hand side. Across this repo's own
+  markdown the change removes **308 of 1,499** flags (21%) and adds none.
+
+  `skills/polish-language/tests/test_numeral_designators.sh` (wired) pins 16 assertions in both
+  directions, including that a designator elsewhere in the line does not excuse a real count later
+  in it. Reverting the rule turns 10 red.
+
 - **A citation that ended a sentence swallowed the full stop, and the tool then accused itself.**
   The key pattern allowed `.` anywhere, but pandoc counts internal punctuation as part of a key only
   when a letter or digit follows it. So `...as previously reported @Smith2023.` parsed as the key
