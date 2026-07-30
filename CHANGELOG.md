@@ -4,6 +4,36 @@
 
 ### Fixed
 
+- **`check_slide_tells` flagged the page numbers its own template generator writes.**
+  `is_page_number` was `re.fullmatch(r"\d{1,3}", ...)` — a bare `12` and nothing else. Its own
+  docstring says a page number "earns its place — someone in Q&A says *go back to 12*", and then it
+  exempted none of the forms a deck actually uses:
+
+  ```
+  '12'          exempt
+  '2 / 57'      FLAGGED   <- what references/generate_pptx_templates.py::_slidenum emits
+  '12 of 57'    FLAGGED
+  'p. 12'       FLAGGED
+  'Page 12'     FLAGGED
+  'Slide 4'     FLAGGED
+  '- 12 -'      FLAGGED
+  ```
+
+  So the detector reported the output of this repo's **own scaffolding** as clutter, under a
+  remediation line that reads "Keep the page number". A tool that fails its own generator is the
+  clearest possible case of a checker validated against its author's assumptions rather than against
+  anything it will meet.
+
+  The exemption now covers `12`, `12.`, `2 / 57`, `2/57`, `12 | 57`, `12 of 57`, `p./pg/Page 12`,
+  `Slide 4`, `Slide 4 of 20` and `- 12 -`, and stays a **full** match: a shape whose entire text is
+  a page number is furniture, while one that merely contains a number
+  (`Confidential — p. 4`, `Study 3 results`) is chrome and still fires.
+
+  `skills/present-paper/tests/test_slide_page_numbers.sh` (wired) pins 23 assertions, and reads the
+  generator's format string **out of the generator's source** rather than restating it — so if the
+  deck builder's page-number format ever changes without the detector following, the test breaks
+  instead of the user's deck. Reverting the exemption turns 12 red.
+
 - **The linter told authors to write "type two diabetes".** `check_small_numbers` flagged any single
   digit followed by a lowercase word. On nine ordinary clinical sentences it was right **twice**;
   the other seven were labels, not counts:

@@ -247,9 +247,33 @@ def read_deck(path: Path) -> Tuple[List[List[Shape]], List[str], int, int]:
 # ---------------------------------------------------------------------------------------------
 
 
+### Page numbers, in the forms decks actually use ###############################################
+#
+# The exemption used to be `\d{1,3}` and nothing else, so it covered a bare "12" and missed every
+# other way a deck writes the same thing — including `2 / 57`, which is what this repo's OWN
+# template generator emits (`references/generate_pptx_templates.py`, `_slidenum`). The detector
+# therefore flagged the page numbers its own scaffolding produces, under a remediation line that
+# reads "Keep the page number". Every flagged shape on the shipped demo deck was a page number.
+_PAGE_NUMBER_FORMS = (
+    r"\d{1,3}\.?",                        # 12   12.
+    r"\d{1,3}\s*[/|]\s*\d{1,3}",          # 2 / 57   2/57   12 | 57
+    r"\d{1,3}\s+of\s+\d{1,3}",            # 12 of 57
+    r"[-–—]\s*\d{1,3}\s*[-–—]",           # - 12 -
+    r"(?:p|pg|page)\.?\s*\d{1,3}",        # p. 12   pg 12   Page 12
+    r"(?:slide)\.?\s*\d{1,3}"             # Slide 4
+    r"(?:\s*(?:of|/)\s*\d{1,3})?",        # Slide 4 of 20
+)
+PAGE_NUMBER_RE = re.compile(r"(?:%s)" % "|".join(_PAGE_NUMBER_FORMS), re.IGNORECASE)
+
+
 def is_page_number(text: str) -> bool:
-    """A bare page number earns its place — someone in Q&A says "go back to 12"."""
-    return bool(re.fullmatch(r"\d{1,3}", text.strip()))
+    """A page number earns its place — someone in Q&A says "go back to 12".
+
+    Deliberately a full match: a shape whose ENTIRE text is a page number is furniture the audience
+    uses, while a shape that merely contains a number ("Study 3 results", "Confidential — p. 4") is
+    ordinary chrome and stays flagged.
+    """
+    return bool(PAGE_NUMBER_RE.fullmatch(text.strip()))
 
 
 def mark_chrome(slides, h) -> None:

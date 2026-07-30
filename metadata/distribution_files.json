@@ -3788,8 +3788,8 @@
     },
     {
       "path": "skills/present-paper/scripts/check_slide_tells.py",
-      "size": 24730,
-      "sha256": "3b91a0f6850b2badaf1657208a779b892931f50ae4962a7c7ccdfc50836a5396"
+      "size": 26077,
+      "sha256": "7f41906b49d38663cc64de2f9dea69208d73f7f45648b4b65c294efbc88de831"
     },
     {
       "path": "skills/present-paper/scripts/check_slide_tells_challenge/make_fixtures.py",
