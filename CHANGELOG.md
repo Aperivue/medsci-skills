@@ -4,6 +4,31 @@
 
 ### Fixed
 
+- **The heading syntax an author happened to use decided whether they were over a journal's word
+  cap.** Markdown has two heading forms and pandoc accepts both; `check_wordcount_cap` recognised
+  only ATX, and only to depth three. Under setext —
+
+  ```markdown
+  References
+  ==========
+  ```
+
+  — the heading was never seen, `in_skip` never turned on, and the **entire References section was
+  counted as body prose**. Byte-identical prose measured **480 words as ATX and 1,002 as setext**.
+  `#### References` failed the same way for a different reason: `#{1,3}` stops at three.
+
+  This gate blocks a submission against a journal's limit, so the failure is not cosmetic — a
+  conforming manuscript written in setext could be reported over the cap, and an author would cut
+  real content to satisfy it.
+
+  Both forms are now recognised, to all six ATX depths. A setext heading is identified by requiring
+  the line above the underline to be non-blank body text, which is exactly what distinguishes it
+  from a horizontal rule — the negative control the test pins.
+
+  `skills/sync-submission/tests/test_wordcount_heading_forms.sh` (wired) asserts the invariant
+  itself: the same prose measures the same length in either syntax. Reverting the parser turns 3 of
+  its 6 assertions red, at 1,002 against an expected 480.
+
 - **A gate saying "cannot submit" was counted as an optional Minor, and the loop stopped.**
   `_qc_findings._MAJOR` knew two words, `MAJOR` and `FATAL`. Detectors were written independently
   and each picked its own vocabulary, so anything else fell into the `else` branch and became Minor.

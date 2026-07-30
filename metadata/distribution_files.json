@@ -5358,8 +5358,8 @@
     },
     {
       "path": "skills/sync-submission/scripts/check_wordcount_cap.py",
-      "size": 9827,
-      "sha256": "4d1c3403efeb4d891c4558d6e784c4088a0d349aad1625f1c348e50665c17f8d"
+      "size": 11299,
+      "sha256": "93b251185bd2168f4d50161e3d0b3c9d2a8f7b2fa36973b01bc89caf194160ee"
     },
     {
       "path": "skills/sync-submission/scripts/cover_letter_drift_check.py",

@@ -51,7 +51,7 @@ from _yaml_frontmatter import split_yaml_front_matter
 # --- measurement (shares the skip set + YAML splitter with cover_letter_drift_check.py) -----
 
 SKIP_SECTION_RE = re.compile(
-    r"^#{1,3}\s+\*{0,2}\s*("
+    r"^#{1,6}\s+\*{0,2}\s*("
     r"Abstract|References?|Table\s+Captions?|Table\s+Legends?|Figure\s+Legends?|"
     r"Tables?|Figures?|Supplementary\s+(Materials?|Tables?|Figures?|Appendix)|"
     r"Acknowled[gd]e?ments?|Funding|Conflicts?\s+of\s+Interest|COI|"
@@ -63,7 +63,19 @@ SKIP_SECTION_RE = re.compile(
 WORD_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9'./%\-]*")
 # pandoc inline citations: [@key], [@k1; @k2], [-@k]. Count each @key.
 CITE_RE = re.compile(r"@[A-Za-z0-9_][A-Za-z0-9_:.\-]*")
-HEADER_RE = re.compile(r"^#{1,3}\s")
+# Markdown has two heading syntaxes and pandoc accepts both. This recognised only ATX, and only to
+# depth 3 — so under setext ("References" on one line, "==========" under it) the heading was never
+# seen, `in_skip` never turned on, and the ENTIRE References section was counted as body prose.
+# Byte-identical prose measured 480 words as ATX and 1,002 as setext, and this gate blocks a
+# submission on a journal's word cap.
+HEADER_RE = re.compile(r"^#{1,6}\s")
+# A setext underline: at least two `=` or `-` alone on the line. Two, not one, so a stray "-" is not
+# a heading; and the caller additionally requires the line ABOVE to be non-blank body text, which is
+# what separates a setext heading from a horizontal rule.
+SETEXT_UNDERLINE_RE = re.compile(r"^\s{0,3}(={2,}|-{2,})\s*$")
+# The same section names as SKIP_SECTION_RE, with no leading hashes, for the setext form.
+SETEXT_SKIP_RE = re.compile(
+    SKIP_SECTION_RE.pattern.replace(r"^#{1,6}\s+", "^", 1), re.IGNORECASE)
 
 
 def measure_body(manuscript_path: Path) -> tuple[int, int]:
@@ -74,12 +86,20 @@ def measure_body(manuscript_path: Path) -> tuple[int, int]:
     in_code_fence = False
     words = 0
     cites = 0
-    for line in body_lines:
+    for idx, line in enumerate(body_lines):
         stripped = line.rstrip()
         if stripped.startswith("```"):
             in_code_fence = not in_code_fence
             continue
         if in_code_fence:
+            continue
+        # A setext underline belonging to the line above: consume it, never count it as prose.
+        if SETEXT_UNDERLINE_RE.match(stripped) and idx and body_lines[idx - 1].strip():
+            continue
+        # Setext heading: this line is titled by the underline beneath it.
+        nxt = body_lines[idx + 1].rstrip() if idx + 1 < len(body_lines) else ""
+        if stripped.strip() and SETEXT_UNDERLINE_RE.match(nxt):
+            in_skip = bool(SETEXT_SKIP_RE.match(stripped.strip()))
             continue
         if HEADER_RE.match(stripped):
             in_skip = bool(SKIP_SECTION_RE.match(stripped))
