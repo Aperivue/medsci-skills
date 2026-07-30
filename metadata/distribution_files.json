@@ -2648,8 +2648,8 @@
     },
     {
       "path": "skills/manage-refs/scripts/check_xref.py",
-      "size": 28404,
-      "sha256": "ad5dc74c4c233ba1aedd6ac7b6e025c5db59ad3d729dd7752f102fa3e92742ae"
+      "size": 31099,
+      "sha256": "13d89487a740fdac9b55f6f92d8228fea2c7ae4b8d1c32f96bab3616be8a5b32"
     },
     {
       "path": "skills/manage-refs/scripts/fill_journal_abbrev.py",
