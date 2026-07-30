@@ -4433,8 +4433,8 @@
     },
     {
       "path": "skills/self-review/scripts/_qc_findings.py",
-      "size": 3187,
-      "sha256": "eac1b20db8c5c66d12243602e9272d60e1fcc9ef3ed0046d5081a74ef33a9343"
+      "size": 6409,
+      "sha256": "f8426cd3bdfb7c80796956b8d7e85afe5ba77a3b6df5a8f0f1fe92be0446d6b4"
     },
     {
       "path": "skills/self-review/scripts/check_analysis_definitions.py",
@@ -5113,8 +5113,8 @@
     },
     {
       "path": "skills/self-review/scripts/refinement_stop.py",
-      "size": 9006,
-      "sha256": "3da6d19311211c4be42984bd0d0d1a134f770e70a4746a8853bc6409458f9ae6"
+      "size": 9684,
+      "sha256": "ba3f88d4eff6d35bf8d3ca56994ca5f56b060b414918efd5f6ee2343d6f2ec20"
     },
     {
       "path": "skills/self-review/scripts/refinement_stop_challenge/expected/continue.txt",

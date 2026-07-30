@@ -4,6 +4,38 @@
 
 ### Fixed
 
+- **A gate saying "cannot submit" was counted as an optional Minor, and the loop stopped.**
+  `_qc_findings._MAJOR` knew two words, `MAJOR` and `FATAL`. Detectors were written independently
+  and each picked its own vocabulary, so anything else fell into the `else` branch and became Minor.
+  `check_placeholders` marks a leftover `TODO` as `blocker` and exits 1 on it **unconditionally** —
+  and `refinement_stop`, reading that same artifact, answered:
+
+  ```
+  main :  STOP_MINOR_OPTIONAL — "No required edits ... do not treat them as blocking, do not loop"
+  now  :  CONTINUE            — "Genuine work remains -- resolve these before treating the loop as done"
+  ```
+
+  Six words were affected: `blocker`, `hard` (three detectors), `stale`, `unverifiable`, `FAIL`.
+  Membership is **derived from each detector's own exit contract**, not from what the word sounds
+  like — each one had to make its detector `return 1`. `Flag` is deliberately excluded, and that is
+  the control that makes this a derivation rather than a widening: `check_generated_code` computes
+  `n_flag = len(claims) - n_major` and exits only on `n_major`, so its own contract says `Flag` is
+  advisory.
+
+  The module's docstring already stated the right rule for an unrecognised **schema** — *"make it
+  LOUD, not silent"* — because a controller that quietly skips what it cannot read can report a
+  clean `STOP_ZERO_EDIT` over a held Major. An unrecognised **severity** was the same hazard one
+  level down, defaulting the other way. It now counts as Major and is named in the output: for a
+  stop controller, guessing "major" costs one more loop, while guessing "minor" ends the loop over
+  an unfixed blocker.
+
+  `skills/self-review/tests/test_qc_severity_vocabulary.sh` (wired) pins 17 assertions, and the last
+  one closes the class: **every severity literal shipped anywhere in `skills/*/scripts/*.py` must be
+  classified deliberately**, so a newly invented word fails CI instead of silently becoming
+  optional. It earned its place immediately — it found `unverifiable`
+  (`check_checklist_version.py:119`), which this fix's hand enumeration had missed. Reverting the
+  controller turns 6 assertions red.
+
 - **`check_slide_tells` flagged the page numbers its own template generator writes.**
   `is_page_number` was `re.fullmatch(r"\d{1,3}", ...)` — a bare `12` and nothing else. Its own
   docstring says a page number "earns its place — someone in Q&A says *go back to 12*", and then it
