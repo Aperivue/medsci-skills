@@ -577,6 +577,9 @@ jobs:
       - name: "Run self-review refinement-stop challenge (terminal-state loop controller: zero-edit PASS / stop signal)"
         run: bash skills/self-review/scripts/refinement_stop_challenge/verify.sh
 
+      - name: "Run qc severity-vocabulary test (a blocker must not be an optional Minor)"
+        run: bash skills/self-review/tests/test_qc_severity_vocabulary.sh
+
       - name: "Run self-review baseline-drift challenge (framing drift vs the human-approved baseline; clean reword clears)"
         run: bash skills/self-review/scripts/check_baseline_drift_challenge/verify.sh
 

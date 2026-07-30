@@ -99,6 +99,7 @@ def classify(qc_dir: Path) -> dict:
     floor_major = floor_minor = ceiling_findings = 0
     gates: list[str] = []
     unparsed: list[str] = []
+    unknown_sev: list[str] = []
     for path in sorted(qc_dir.glob("*.json")):
         try:
             obj = json.loads(path.read_text(encoding="utf-8"))
@@ -112,6 +113,7 @@ def classify(qc_dir: Path) -> dict:
             # a detector-keyed file with an unrecognised schema -- do NOT count it as clean
             unparsed.append(g["name"])
             continue
+        unknown_sev.extend(g.get("unknown_severities") or [])
         if g["kind"] == "ceiling":
             ceiling_findings += g["major"] + g["minor"]
         else:
@@ -134,6 +136,10 @@ def classify(qc_dir: Path) -> dict:
         floor_minor=floor_minor,
         ceiling_findings=ceiling_findings,
     )
+    if unknown_sev:
+        rec += (f" (WARNING: severity word(s) no controller knows: "
+                f"{', '.join(sorted(set(unknown_sev)))} — counted as Major so the loop continues "
+                f"rather than stopping over a verdict nobody classified)")
     if unparsed:
         rec += (f" (WARNING: {len(unparsed)} gate artifact(s) had an unrecognised schema and were "
                 f"NOT counted -- this verdict may understate the floor: "
@@ -147,6 +153,7 @@ def classify(qc_dir: Path) -> dict:
         "ceiling_findings": ceiling_findings,
         "gates_read": sorted(set(gates)),
         "gates_unparsed": sorted(set(unparsed)),
+        "unknown_severities": sorted(set(unknown_sev)),
         "recommendation": rec,
     }
 
@@ -160,6 +167,9 @@ def render(result: dict, qc_dir_display: str) -> str:
         f"  Ceiling pass:  {result['ceiling_findings']} finding(s)",
         f"  Gates read:    {gates}",
     ]
+    if result.get("unknown_severities"):
+        lines.append(f"  Unknown sev:   {', '.join(result['unknown_severities'])}  "
+                     f"(counted as Major — the loop continues rather than stopping on a guess)")
     if result.get("gates_unparsed"):
         lines.append(f"  Unparsed:      {', '.join(result['gates_unparsed'])}  (unrecognised schema — NOT counted)")
     lines.append(f"  qc dir:        {qc_dir_display}")
@@ -190,6 +200,7 @@ def main(argv=None) -> int:
             "ceiling_findings": 0,
             "gates_read": [],
             "gates_unparsed": [],
+            "unknown_severities": [],
             "recommendation": RECOMMENDATIONS["INDETERMINATE"],
         }
     else:
