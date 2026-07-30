@@ -4,6 +4,28 @@
 
 ### Fixed
 
+- **A citation that ended a sentence swallowed the full stop, and the tool then accused itself.**
+  The key pattern allowed `.` anywhere, but pandoc counts internal punctuation as part of a key only
+  when a letter or digit follows it. So `...as previously reported @Smith2023.` parsed as the key
+  `Smith2023.` — and `check_citation_keys` reported the **same reference** as `UNDEFINED` (no
+  `Smith2023.` in the .bib) and as `UNUSED` (nothing cited `Smith2023`) in one run, exit 1. A
+  citation ending a sentence is most of them. `;` `,` and `]` already terminated the match; `.`
+  `-` `/` `+` leaked, and `.` is the one that ends English sentences. `@Sec.2a` is still one key,
+  because there the period is followed by an alphanumeric — pandoc's own rule, now encoded rather
+  than approximated.
+
+- **Quarto cross-references were read as bibliography keys.** `@fig-flow`, `@tbl-baseline`,
+  `@sec-methods` and the older `@fig:flow` form resolve against the document's own labels;
+  `quarto render` compiles a manuscript full of them without complaint. This checker called every
+  one an undefined reference and exited 1 — on a manuscript in the shape `scripts/init_project.py`
+  scaffolds itself (`manuscript/index.qmd`). They are now excluded from the verdict and **reported
+  under their own heading**, so nothing is silently dropped; and a .bib entry that genuinely happens
+  to be keyed `fig-...` resolves before the exclusion is ever consulted.
+
+  `skills/manage-refs/tests/test_citation_key_boundaries.sh` (wired) pins 13 assertions including
+  the negative controls: a genuinely undefined key still fails and is named, a real `fig-*` bib key
+  is not diverted, and `--strict-unused` still fails. Reverting the parser turns 6 red.
+
 - **Writing "Figures 1 and 2" turned off the submission blocker.** `check_xref` recognised only the
   singular mention; the plural "s" breaks its `\s+`, so `Figures 1 and 2`, `Tables 1-3` and
   `Figures 2, 4 and 5` matched **nothing**. That is not a missed note — a float cited only that way
