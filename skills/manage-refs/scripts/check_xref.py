@@ -81,6 +81,30 @@ CITE_RE = re.compile(
     re.IGNORECASE,
 )
 
+# The same mention written the way people actually write it: a PLURAL kind word carrying a list of
+# numbers — "Figures 1 and 2", "Tables 1-3", "Figures 2, 4 and 5". CITE_RE cannot see any of these
+# (the plural "s" breaks its `\s+`), and the consequence was not a missed note but a DISABLED GATE:
+# a float cited only this way scored UNCITED rather than MISSING_DOCX, and UNCITED is not in
+# `blocking_statuses`. Two manuscripts identical in meaning got opposite verdicts —
+#   "Figures 1 and 2"       -> exit 0, submission_safe
+#   "Figure 1 and Figure 2" -> exit 1, SUBMISSION BLOCKED
+# — so writing ordinary English turned the blocker off, while the repetitive form this tool's own
+# examples happen to use kept it on.
+CITE_LIST_RE = re.compile(
+    r"(?<![A-Za-z])(Supplementary\s+|Supp\s+|Supp\.\s+|S\.\s*)?"
+    r"(Tables|Figures|Figs\.|Figs)\s+"
+    r"(S?\d+[A-Za-z]?(?:\s*(?:,|&|–|—|-|and|to|through)\s*S?\d+[A-Za-z]?)*)",
+    re.IGNORECASE,
+)
+
+# One token inside a numlist, with an optional "A-B" range tail. A range must be EXPANDED: reading
+# "Figures 1-3" as {1, 3} silently drops Figure 2 — the same missing-blocker outcome, one number in.
+# The separators must match what CITE_LIST_RE accepts as a JOIN, or a form it lets through gets read
+# as two endpoints and the interior is dropped: "Figures 3 to 5" scoring {3, 5} loses Figure 4 exactly
+# as an unexpanded "3-5" would.
+CITE_TOKEN_RE = re.compile(
+    r"(S?)(\d+)([A-Za-z]?)(?:\s*(?:[–—-]|to|through)\s*(S?)(\d+)([A-Za-z]?))?", re.IGNORECASE)
+
 # Caption definition (start of line, optional bold markdown). Matches:
 #   Table 1. Caption text...
 #   **Table 1.** Caption...
@@ -181,6 +205,22 @@ def extract_citations(md_text: str, body_caption_offsets: list[tuple[int, int]])
     labels: list[Label] = []
     for m in CITE_RE.finditer(text):
         labels.append(_normalize(m.group(2), m.group(1), m.group(3)))
+    # Plural mentions carrying a numlist. Singular "Figure" is a prefix of plural "Figures", so the
+    # two patterns cannot both match the same span and no citation is double-counted.
+    for m in CITE_LIST_RE.finditer(text):
+        supp, kind, numlist = m.group(1), m.group(2), m.group(3)
+        # Normalise the plural kind word to the singular the label vocabulary uses.
+        singular = "Table" if kind.lower().startswith("table") else "Figure"
+        for supp_a, num_a, suf_a, supp_b, num_b, suf_b in CITE_TOKEN_RE.findall(numlist):
+            if num_b and not suf_a and not suf_b and int(num_b) >= int(num_a):
+                # A true range: expand it. A lettered endpoint ("2A-2C") is a panel range, not a
+                # float range, so it is left to its endpoints rather than invented over.
+                for n in range(int(num_a), int(num_b) + 1):
+                    labels.append(_normalize(singular, supp, f"{supp_a}{n}"))
+            else:
+                labels.append(_normalize(singular, supp, f"{supp_a}{num_a}{suf_a}"))
+                if num_b:
+                    labels.append(_normalize(singular, supp, f"{supp_b}{num_b}{suf_b}"))
     return labels
 
 

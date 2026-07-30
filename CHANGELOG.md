@@ -4,6 +4,34 @@
 
 ### Fixed
 
+- **Writing "Figures 1 and 2" turned off the submission blocker.** `check_xref` recognised only the
+  singular mention; the plural "s" breaks its `\s+`, so `Figures 1 and 2`, `Tables 1-3` and
+  `Figures 2, 4 and 5` matched **nothing**. That is not a missed note — a float cited only that way
+  scored `UNCITED` instead of `MISSING_DOCX`, and `UNCITED` is not in `blocking_statuses`. Two
+  manuscripts identical in meaning got opposite verdicts on the same DOCX:
+
+  ```
+  "As shown in Figures 1 and 2"        -> exit 0, submission_safe: true
+  "As shown in Figure 1 and Figure 2"  -> exit 1, SUBMISSION BLOCKED (Figure 2 missing from the DOCX)
+  ```
+
+  Ordinary English disabled the gate; the repetitive phrasing this tool's own examples happen to use
+  kept it on. `skill.yml` calls this detector a hard submission blocker, and for anyone who writes
+  the way journals ask them to, it was not one.
+
+  Plural mentions are now read, and their number lists **expanded**: `Figures 1-3` is three floats,
+  not two, because an endpoint-only read drops Figure 2 — the same missing-blocker outcome, one
+  number further in. `to` and `through` are expanded as ranges too, since the list pattern already
+  accepted them as joins and would otherwise have dropped the interior of `Figures 3 to 5`. A
+  descending pair (`Figures 5-2`) is read as two endpoints rather than an invented range, and a
+  lettered panel range (`Figure 2A-2C`) is left alone.
+
+  `skills/manage-refs/tests/test_xref_plural_citations.sh` (wired) pins the equivalence itself — the
+  same package must get the same verdict however the citation is phrased — plus the negative
+  controls: a genuinely uncited figure still reports `UNCITED`, a complete package still exits 0,
+  and the singular is not double-counted inside the plural. Reverting the parser turns 6 of its 11
+  assertions red, including `submission_safe expected=False actual=True`.
+
 - **`check_table_percentages` invented a denominator, then reported false arithmetic as a MAJOR.**
   The most common table in clinical research is a Table 1 of independent binary characteristics with
   N stated in the **caption**. It declares no column `n = N` and has no Total row, so the checker

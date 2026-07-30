@@ -433,6 +433,9 @@ jobs:
       - name: "Run manage-refs separate-supplement test (a gate red on correct work gets skipped)"
         run: bash skills/manage-refs/tests/test_xref_separate_supplement.sh
 
+      - name: "Run manage-refs plural-citation test (phrasing must not change the verdict)"
+        run: bash skills/manage-refs/tests/test_xref_plural_citations.sh
+
       - name: Run manage-refs CSL-render hardening test
         run: bash skills/manage-refs/tests/test_csl_render.sh
 
