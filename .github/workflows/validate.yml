@@ -415,6 +415,9 @@ jobs:
       - name: Run slide-tells challenge (AI-made deck -> all 6 marks; human-made deck -> CLEAN)
         run: bash skills/present-paper/scripts/check_slide_tells_challenge/verify.sh
 
+      - name: "Run present-paper page-number test (the exemption must cover the generator's own form)"
+        run: bash skills/present-paper/tests/test_slide_page_numbers.sh
+
       - name: "Run deck-budget challenge (same deck: fits an oral, too dense for a keynote)"
         run: bash skills/present-paper/scripts/check_deck_budget_challenge/verify.sh
 
