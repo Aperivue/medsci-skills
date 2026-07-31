@@ -5288,8 +5288,8 @@
     },
     {
       "path": "skills/sync-submission/scripts/check_asset_anonymization.py",
-      "size": 13914,
-      "sha256": "a4552caa7bfcfba93c32d1b8f5b24fdcde49b4201768e977cd10a3d8fba06dc0"
+      "size": 14907,
+      "sha256": "9d826fc7f408ccc5d679774cd8e9c8921763b2a0066536b14173610301265587"
     },
     {
       "path": "skills/sync-submission/scripts/check_checklist_dump_leak.py",
