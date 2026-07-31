@@ -4653,8 +4653,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_figure_citation.py",
-      "size": 11137,
-      "sha256": "92847a5ca4faf32b94bceaf4369a6a9ca4c83a5aaa503606dd7b581c0770e093"
+      "size": 12859,
+      "sha256": "831aa1ef79cf6d2311adf4c9f97c766084d472b7e6dfa17e7f4f70b31ea89b43"
     },
     {
       "path": "skills/self-review/scripts/check_figure_citation_challenge/fixture/panel_regression.md",

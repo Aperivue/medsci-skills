@@ -2,6 +2,38 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- **`check_figure_citation` reported three orphan floats where there were none.** The detector emits
+  five verdicts, only two of which are orphans, and its summary line counted by **severity** while
+  printing the result as a **kind**:
+
+  ```
+  REVIEW: 3 orphan float(s).
+  ```
+
+  — on the repository's own `demo/01_wisconsin_bc`, where the orphan count is zero and all three
+  findings were `FIGURE_NOT_EMBEDDED`. The reader is sent looking for uncited floats that do not
+  exist. The summary now counts by verdict and names each part only when it occurred.
+
+  **And a document-level fact was stated once per figure.** `FIGURE_NOT_EMBEDDED`'s condition is
+  `not IMG_LINK_RE.search(text)` — true or false for the whole manuscript, never per figure — yet it
+  emitted one claim per caption. Three captioned figures produced three claims of one fact; across
+  the three demo manuscripts, **8 claims for 3 documents**, inflating every downstream count that
+  treats a claim as a finding. It is now one claim naming every affected figure, so the demos report
+  3 instead of 8.
+
+  **The docstring understated the exit contract**, in the direction that matters: it read *"1 with
+  `--strict` when any Major (none — Minor only)"* while `FIGURE_ATTR_STALE` is Major unconditionally
+  and `FIGURE_NOT_EMBEDDED` escalates to Major under `--require-embedded`. A submission-adjacent gate
+  was documented as unable to block. Corrected, and the test exercises both exit paths.
+
+  Evidence for all three comes from `demo/` only; `_corpus/heldout/` was not read (see `CLAUDE.md`).
+  `skills/self-review/tests/test_figure_citation_labels.sh` (wired) pins 15 assertions including the
+  negative controls — a real orphan still reports as an orphan, a clean manuscript still says OK.
+  The pre-existing `test_figure_citation.sh` and its challenge card pass unchanged. Reverting the
+  detector turns 9 of the 15 red.
+
 ### Added
 
 - **`CLAUDE.md` — the held-out corpus fence, moved out of a prompt and into the repository.**
