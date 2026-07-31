@@ -4,6 +4,26 @@
 
 ### Fixed
 
+- **`fill_journal_abbrev.py` had never run.** `parse_entries` returned the `Match` objects from
+  `re.finditer` while every caller treats the result as the entry **text**, so the first line of work
+  raised `TypeError: expected string or bytes-like object, got 're.Match'` — on the first entry, for
+  every input. Meanwhile `check_csl_render.py` names this script to the user as the remedy when a
+  journal spec needs `shortjournal`, and `manage-refs/SKILL.md` lists it in the tool table. **A tool
+  that cannot start is worse than a missing one: it is advertised.**
+
+  A second defect was hidden behind the first and only became reachable once it was fixed: `field()`
+  required a trailing comma after the value, and BibTeX makes that comma optional on an entry's
+  **last** field — which `doi` very often is. The DOI would have returned None, no PMID lookup would
+  happen, and the run would have reported *"0/1 entries"* while exiting 0. Same defect class as the
+  reference parser fixed in #445, in a different file.
+
+  Verified end to end against live PubMed: a real entry with a trailing `doi` now resolves and gets
+  `shortjournal = {Hepatology}` written back.
+
+  `skills/manage-refs/tests/test_journal_abbrev_parsing.sh` (wired, network-free) pins the parsing
+  contract — including the caller's exact first line, where the crash happened — plus the
+  absent-DOI negative control. Reverting turns 6 of its 7 assertions red.
+
 - **The heading syntax an author happened to use decided whether they were over a journal's word
   cap.** Markdown has two heading forms and pandoc accepts both; `check_wordcount_cap` recognised
   only ATX, and only to depth three. Under setext —

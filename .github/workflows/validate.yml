@@ -445,6 +445,9 @@ jobs:
       - name: "Run manage-refs citation-key boundary test (a full stop is not part of the key)"
         run: bash skills/manage-refs/tests/test_citation_key_boundaries.sh
 
+      - name: "Run manage-refs journal-abbrev parsing test (a tool that cannot start is advertised)"
+        run: bash skills/manage-refs/tests/test_journal_abbrev_parsing.sh
+
       - name: Run manage-refs CSL-render hardening test
         run: bash skills/manage-refs/tests/test_csl_render.sh
 

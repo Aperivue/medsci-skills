@@ -45,10 +45,19 @@ def pmids_summary(pmids):
     return {p: {"source": res.get(p, {}).get("source")} for p in pmids}
 
 def parse_entries(bib):
-    return [m for m in re.finditer(r"@\w+\{[^@]*?\n\}", bib, re.S)]
+    # `finditer` yields Match objects, and every caller treats these as the entry TEXT. Returning the
+    # matches meant `re.match(..., b)` received a Match where it wanted a string, and the script died
+    # with `TypeError: expected string or bytes-like object, got 're.Match'` on the FIRST entry — so
+    # it had never run at all, while `check_csl_render.py` names it to the user as the remedy for a
+    # missing `shortjournal`.
+    return [m.group(0) for m in re.finditer(r"@\w+\{[^@]*?\n\}", bib, re.S)]
 
 def field(block, name):
-    m = re.search(rf"{name}\s*=\s*\{{(.+?)\}},", block, re.S)
+    # The trailing comma is optional: BibTeX does not require one after an entry's LAST field, and
+    # `doi` is very often exactly that. Requiring it returned None for those entries, which here
+    # means the DOI is never resolved and the abbreviation is never filled — silently, on the
+    # entries most likely to need it. Same defect class as the reference parser fixed in #445.
+    m = re.search(rf"{name}\s*=\s*\{{(.+?)\}}\s*,?", block, re.S)
     return m.group(1).strip() if m else None
 
 def main():
