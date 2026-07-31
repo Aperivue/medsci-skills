@@ -1,0 +1,46 @@
+{
+  "audit": "reference_audit",
+  "demo": "05_msd_amos_spleen",
+  "date": "2026-07-31",
+  "method": "Every entry resolved by DOI against the authoritative API (CrossRef for journal articles, PubMed esearch/esummary for the PMID, the Zenodo record API for the data deposit). No entry was written from memory. A fuzzy CrossRef bibliographic query was tried first and returned the WRONG paper for two of four entries, both times a same-topic SPIE proceedings item; those results were discarded and DOI lookup used instead. That is recorded here because it is the exact failure mode this audit exists to prevent.",
+  "n_references": 4,
+  "n_verified": 4,
+  "n_unverified": 0,
+  "n_mismatch": 0,
+  "submission_safe": true,
+  "references": [
+    {
+      "id": 1,
+      "cited_as": "Isensee F, Jaeger PF, Kohl SAA, Petersen J, Maier-Hein KH. nnU-Net: a self-configuring method for deep learning-based biomedical image segmentation. Nat Methods. 2021;18:203-211.",
+      "doi": "10.1038/s41592-020-01008-z",
+      "verified_by": "crossref",
+      "verdict": "OK",
+      "note": "CrossRef: title, Nature Methods, vol 18, p 203-211, issued 2020 / published-print 2021, first author Isensee Fabian. Independently corroborated by the citation banner nnU-Net itself prints at run time, which is visible in this study's own prediction logs."
+    },
+    {
+      "id": 2,
+      "cited_as": "Antonelli M, Reinke A, Bakas S, et al. The Medical Segmentation Decathlon. Nat Commun. 2022;13.",
+      "doi": "10.1038/s41467-022-30695-9",
+      "pmid": "35840566",
+      "verified_by": "crossref+pubmed",
+      "verdict": "OK",
+      "note": "CrossRef: Nature Communications vol 13, 2022, authors Antonelli Michela; Reinke Annika; Bakas Spyridon; ... (58 total). PubMed esearch by DOI resolved PMID 35840566, first author Antonelli M, 2022 Jul 15. No page number is claimed because neither source returned one."
+    },
+    {
+      "id": 3,
+      "cited_as": "Ji Y. AMOS: a large-scale abdominal multi-organ benchmark for versatile medical image segmentation. Dataset, Zenodo, 28 Nov 2022.",
+      "doi": "10.5281/zenodo.7262581",
+      "verified_by": "zenodo",
+      "verdict": "OK",
+      "note": "Zenodo record API: resource type Dataset, publication date 2022-11-28, licence cc-by-4.0, creators list contains exactly one name. A draft of the write-up had cited three named co-authors from memory; the deposit does not support them and they were removed. The cited artifact is the data record, which is what this study downloaded and what carries the licence."
+    },
+    {
+      "id": 4,
+      "cited_as": "Maier-Hein L, Reinke A, Godau P, et al. Metrics reloaded: recommendations for image analysis validation. Nat Methods. 2024;21:195-212.",
+      "doi": "10.1038/s41592-023-02151-z",
+      "verified_by": "crossref",
+      "verdict": "OK",
+      "note": "CrossRef: title, Nature Methods, vol 21, p 195-212, 2024, authors Maier-Hein Lena; Reinke Annika; Godau Patrick; ... (73 total)."
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "detector": "check_dataset_profile",
+  "profile": "eda/msd_spleen_profile.json",
+  "dataset": "MSD Task09 Spleen (MSKCC)",
+  "n_cases": 61,
+  "splits": {
+    "train": "labelled",
+    "test": "unlabelled"
+  },
+  "plan": {
+    "resample": true,
+    "reorient": false,
+    "loss": "dice_ce",
+    "metrics": [
+      "dice",
+      "hd95"
+    ]
+  },
+  "thresholds": {
+    "spacing_ratio": 2.0,
+    "imbalance_frac": 0.01
+  },
+  "median_foreground_fraction": 0.0038714760228207236,
+  "claims": [
+    {
+      "verdict": "TEST_SET_UNLABELLED",
+      "severity": "Major",
+      "detail": "split 'test' (20 case(s)) has no ground truth \u2014 it cannot yield Dice, HD95, or any held-out metric; carve the held-out set from labelled data",
+      "cases": [],
+      "n_cases": 0
+    }
+  ],
+  "summary": {
+    "n_claims": 1,
+    "n_major": 1,
+    "n_flag": 0
+  }
+}

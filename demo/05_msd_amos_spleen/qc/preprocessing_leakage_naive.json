@@ -1,0 +1,38 @@
+{
+  "detector": "check_preprocessing_leakage",
+  "manifest": "manifests/preprocessing_manifest_naive.json",
+  "n_transforms": 4,
+  "n_units": 41,
+  "n_patients": 41,
+  "partitions": {
+    "test": 9,
+    "train": 32
+  },
+  "seed": 42,
+  "claims": [
+    {
+      "verdict": "PREPROCESS_BEFORE_SPLIT",
+      "severity": "Major",
+      "detail": "data-fitted transform 'resample_to_fingerprint_median_spacing' (resample) runs before the split (stage=before_split); the fit spans train and test",
+      "where": "resample_to_fingerprint_median_spacing"
+    },
+    {
+      "verdict": "PREPROCESS_BEFORE_SPLIT",
+      "severity": "Major",
+      "detail": "data-fitted transform 'ct_foreground_percentile_clip' (clip_percentile) runs before the split (stage=before_split); the fit spans train and test",
+      "where": "ct_foreground_percentile_clip"
+    },
+    {
+      "verdict": "PREPROCESS_BEFORE_SPLIT",
+      "severity": "Major",
+      "detail": "data-fitted transform 'ct_global_zscore' (standardize) runs before the split (stage=before_split); the fit spans train and test",
+      "where": "ct_global_zscore"
+    }
+  ],
+  "summary": {
+    "n_claims": 3,
+    "n_major": 3,
+    "n_flag": 0,
+    "verdict": "MAJOR_CANDIDATE"
+  }
+}

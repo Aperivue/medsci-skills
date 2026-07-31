@@ -1,0 +1,19 @@
+{
+  "detector": "check_preprocessing_leakage",
+  "manifest": "manifests/preprocessing_manifest.json",
+  "n_transforms": 4,
+  "n_units": 41,
+  "n_patients": 41,
+  "partitions": {
+    "test": 9,
+    "train": 32
+  },
+  "seed": 42,
+  "claims": [],
+  "summary": {
+    "n_claims": 0,
+    "n_major": 0,
+    "n_flag": 0,
+    "verdict": "OK"
+  }
+}

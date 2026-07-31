@@ -1,0 +1,57 @@
+{
+  "detector": "check_dataset_profile",
+  "profile": "eda/amos22_profile_spleen.json",
+  "dataset": "AMOS22 (multi-centre abdominal CT+MRI)",
+  "n_cases": 600,
+  "splits": {
+    "external_ct": "labelled",
+    "external_mri": "labelled",
+    "amos_test": "unlabelled"
+  },
+  "plan": {
+    "resample": true,
+    "reorient": true,
+    "loss": "dice_ce",
+    "metrics": [
+      "dice",
+      "hd95"
+    ]
+  },
+  "thresholds": {
+    "spacing_ratio": 2.0,
+    "imbalance_frac": 0.01
+  },
+  "median_foreground_fraction": 0.002626155050322748,
+  "claims": [
+    {
+      "verdict": "LABEL_EMPTY",
+      "severity": "Major",
+      "detail": "case is in a labelled split but its label contains no voxel of the target label 1",
+      "cases": [
+        "amos_0057",
+        "amos_0115",
+        "amos_0541"
+      ],
+      "n_cases": 3
+    },
+    {
+      "verdict": "TEST_SET_UNLABELLED",
+      "severity": "Major",
+      "detail": "split 'amos_test' (240 case(s)) has no ground truth \u2014 it cannot yield Dice, HD95, or any held-out metric; carve the held-out set from labelled data",
+      "cases": [],
+      "n_cases": 0
+    },
+    {
+      "verdict": "INTENSITY_SCALE_INCONSISTENT",
+      "severity": "Minor",
+      "detail": "500/600 cases bottom out near air (<= -500) and the rest do not \u2014 mixed modality, or a rescale not applied to part of the cohort",
+      "cases": [],
+      "n_cases": 0
+    }
+  ],
+  "summary": {
+    "n_claims": 3,
+    "n_major": 2,
+    "n_flag": 1
+  }
+}

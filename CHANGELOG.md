@@ -1,5 +1,48 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- **Demo 5 — MSD to AMOS spleen ladder** (`demo/05_msd_amos_spleen/`). The fifth live demo, and the
+  first that leaves a laptop: nnU-Net v2 trained on MSD Task09 and evaluated on three labelled rungs
+  (internal held-out n=9, genuinely external AMOS **CT** n=300, and AMOS **MRI** n=60 as a modality
+  shift). Median Dice **0.9595 → 0.8932 → 0.0152**. Every number comes from an executed run, and the
+  evaluation plan — including a written prediction for the MRI rung — was fixed before any prediction
+  existed and ships unedited.
+
+  It is also the first demo whose headline is a **failure**. The MRI collapse is not the network
+  failing to generalise: the trained `plans.json` carries `CTNormalization` into inference and
+  `nnUNetv2_predict` has no argument that declares the incoming modality, so a Hounsfield-unit clip
+  (`[-38, 174]`) is applied to arbitrary-unit images. Replaying that contract over **both** external
+  arms measures it — **0 of 60** MRI cases contain a negative voxel against **300 of 300** on CT, and
+  a median **23.2%** of voxels are flattened at the clip ceiling against **2.7%** — while the run
+  still exits 0 and writes 60 plausible contours. Without ground truth it is silent. The control arm
+  is what makes that a measurement instead of an anecdote.
+
+  The uncomfortable part is that **`/profile-imaging` already caught it, and filed it as a Minor**.
+  Before any training it returned `INTENSITY_SCALE_INCONSISTENT` — "500/600 cases bottom out near air
+  and the rest do not, mixed modality, or a rescale not applied to part of the cohort" — naming the
+  exact property that later broke the MRI rung, and that claim sat in the study's `qc/` directory for
+  nine days. So the gap the demo documents is **not detection**: it is **routing and severity**.
+  Nothing carries a profiling-stage claim to the inference stage, nothing compares a trained plan's
+  assumed intensity domain against the arm about to be predicted, and a finding worth a Dice of 0.015
+  ranked below the level at which anyone stops. A gate that fires into a directory no later step
+  reads is, operationally, a gate that did not fire. No new detector is added here; the finding is
+  recorded so the fix can be decided rather than assumed.
+
+  Shipped with the demo: the leakage counterfactual as a **declared manifest that must fail** the
+  same gate that passes the real one (`manifests/preprocessing_manifest_naive.json` → 3 ×
+  `PREPROCESS_BEFORE_SPLIT`), the per-case CSVs behind every reported number, 18 metric unit tests on
+  synthetic volumes with answers derived on paper, a reference audit recording that a fuzzy CrossRef
+  query returned the **wrong paper for two of four** citations before DOI lookup was used instead,
+  and `FRICTION.md` — every point in nine days that needed engineering knowledge, which is what makes
+  "can a clinician do this without an engineer?" an honest question to ask.
+
+  `reproduce.sh` runs both gates, the counterfactual, the unit tests and the full across-cohort
+  analysis on a laptop from the shipped CSVs, and **prints rather than pretends** for the two tiers
+  that need ~25 GB of public data and ~50 GPU-hours.
+
 ## [5.24.0] - 2026-07-31
 
 **Hotfix:** several shipped detectors produced a wrong result a user could have believed —
