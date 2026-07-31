@@ -28,8 +28,10 @@ This needs no section-boundary heuristic — the caption line itself is the anch
 a caption that happens to reference another float still counts as citing that other
 float.
 
-Exit codes: 0 clean/report-only, 1 with --strict when any Major (none — Minor only),
-2 usage. Stdlib-only.
+Exit codes: 0 clean/report-only, 1 with --strict when any Major, 2 usage. Major is reachable two
+ways: FIGURE_ATTR_STALE is Major unconditionally, and FIGURE_NOT_EMBEDDED escalates to Major under
+--require-embedded. (This line used to read "none — Minor only", which was stale in the direction
+that matters: it described a submission-adjacent gate as unable to block.) Stdlib-only.
 
 Usage:
     python3 check_figure_citation.py --manuscript manuscript.md \
@@ -107,15 +109,19 @@ def check(text: str, require_embedded: bool = False) -> list[dict]:
         # is the "complete package that ships with the legends and none of the
         # figures" failure.
         sev = "Major" if require_embedded else "Minor"
-        for num, cap_line in figures:
-            claims.append({
-                "verdict": "FIGURE_NOT_EMBEDDED",
-                "severity": sev,
-                "detail": (f"Figure {num} is captioned (line {cap_line + 1}) but no image is embedded "
-                           f"anywhere in the manuscript; confirm the figure is embedded or attached as a "
-                           f"separate file before submission"),
-                "where": lines[cap_line].strip()[:120],
-            })
+        # ONE claim, because the condition above is document-level: `not IMG_LINK_RE.search(text)`
+        # is true or false for the whole manuscript, never per figure. Emitting it once per caption
+        # repeated a single fact N times — on the repo's own demo manuscripts, 8 claims for 3
+        # documents — which inflates every count downstream that treats a claim as a finding.
+        nums = ", ".join(f"Figure {n}" for n, _ in figures)
+        claims.append({
+            "verdict": "FIGURE_NOT_EMBEDDED",
+            "severity": sev,
+            "detail": (f"no image is embedded anywhere in the manuscript, while {len(figures)} "
+                       f"figure(s) are captioned ({nums}); confirm they are embedded or attached "
+                       f"as separate files before submission"),
+            "where": lines[figures[0][1]].strip()[:120],
+        })
 
     # Author-contributions / CRediT figure-number attribution. A "prepared Figure 4"
     # attribution silently breaks when figures are renumbered or merged; the canonical
@@ -160,6 +166,12 @@ def analyze(manuscript: str, require_embedded: bool = False) -> dict:
         sys.exit(2)
     claims = check(p.read_text(encoding="utf-8"), require_embedded=require_embedded)
     n_major = sum(1 for c in claims if c["severity"] == "Major")
+    # Counted BY VERDICT, because the summary line names a kind of defect and `n_major`/`n_flag`
+    # name a severity. This detector emits five verdicts, only two of which are orphans, so
+    # "n_flag orphan float(s)" described the wrong thing whenever a non-orphan was the finding —
+    # on the repo's own demo manuscripts it printed "3 orphan float(s)" with zero orphans present.
+    n_orphan = sum(1 for c in claims if c["verdict"] in ("FIGURE_ORPHAN", "TABLE_ORPHAN"))
+    n_not_embedded = sum(1 for c in claims if c["verdict"] == "FIGURE_NOT_EMBEDDED")
     return {
         "manuscript": str(p),
         "claims": claims,
@@ -167,6 +179,8 @@ def analyze(manuscript: str, require_embedded: bool = False) -> dict:
             "n_claims": len(claims),
             "n_major": n_major,
             "n_flag": len(claims) - n_major,
+            "n_orphan": n_orphan,
+            "n_not_embedded": n_not_embedded,
             "verdict": "MAJOR_CANDIDATE" if n_major else ("REVIEW" if claims else "OK"),
         },
     }
@@ -203,10 +217,19 @@ def main() -> int:
         print(render(result))
         print()
         s = result["summary"]
-        if s["n_major"]:
-            print(f"MAJOR: {s['n_major']} figure(s) captioned but not embedded; {s['n_flag']} orphan float(s).")
-        elif s["n_flag"]:
-            print(f"REVIEW: {s['n_flag']} orphan float(s).")
+        # Say what was found, by name. Each part appears only when it happened, so the line can no
+        # longer report a count of a thing that is not there.
+        parts = []
+        if s["n_orphan"]:
+            parts.append(f"{s['n_orphan']} orphan float(s)")
+        if s["n_not_embedded"]:
+            parts.append("no image embedded for the captioned figure(s)")
+        other = s["n_claims"] - s["n_orphan"] - s["n_not_embedded"]
+        if other:
+            parts.append(f"{other} other finding(s)")
+        if parts:
+            level = "MAJOR" if s["n_major"] else "REVIEW"
+            print(f"{level}: " + "; ".join(parts) + ".")
         else:
             print("OK: every captioned float is cited and embedded.")
 
