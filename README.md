@@ -592,6 +592,7 @@ MedSci Skills가 설치됐는지 확인하고, 오늘 실습에 쓸 대표 스�
 
 ```bash
 git clone https://github.com/Aperivue/medsci-skills.git
+mkdir -p ~/.claude/skills
 cp -r medsci-skills/skills/* ~/.claude/skills/
 ```
 
@@ -599,6 +600,7 @@ cp -r medsci-skills/skills/* ~/.claude/skills/
 
 ```bash
 git clone https://github.com/Aperivue/medsci-skills.git
+mkdir -p ~/.claude/skills
 cp -r medsci-skills/skills/check-reporting ~/.claude/skills/
 ```
 
