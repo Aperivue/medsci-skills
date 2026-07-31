@@ -1,6 +1,150 @@
 # Changelog
 
-## [Unreleased]
+## [5.24.0] - 2026-07-31
+
+**Hotfix:** several shipped detectors produced a wrong result a user could have believed —
+a correct Table 1 was told its percentages were wrong and given specific wrong replacements,
+`check_xref` reported `submission_safe: true` on a package missing a cited figure, the
+anonymisation gate passed a double-blind institution leak, the language linter advised
+"type two diabetes", and `fill_journal_abbrev.py` could not run at all. Released inside the
+14-day window under the cadence rule's own hotfix clause.
+
+### Added
+
+- **`CLAUDE.md` — the held-out corpus fence, moved out of a prompt and into the repository.**
+  `_corpus/heldout/` exists to be material no detector was written knowing about, and its protocol
+  spends a *fresh* corpus by the act of **reading it**. That rule lived in `reverse_engineer/HELDOUT.md`
+  and in whatever instructions a given session happened to carry; the repository itself said nothing,
+  and there was no `CLAUDE.md` or `AGENTS.md` for an agent to find.
+
+  On 2026-07-31 an audit was launched against "the repository" with a prohibition list that covered
+  editing but never mentioned the corpus. Three of its agents reached `_corpus/heldout/`; one ran a
+  detector across the whole corpus, opened two papers, and used the result as evidence for a
+  `check_figure_citation` change. That finding was quarantined and **not acted on**; every fix merged
+  that day was re-derived from purpose-built fixtures, and the corpus in place had already been
+  declared spent, so nothing measurable was lost.
+
+  What the episode demonstrated is worth more than what it cost: `_corpus/` is gitignored, so
+  `git status` can never report a change there and a clone does not carry it — and **neither fact
+  stops anything that scans the working tree.** A fence that exists only in a prompt is not a fence.
+  It now sits at the repository root as the first thing any agent working here is told, with the
+  reason attached, because a prohibition without its reason is one an agent will talk itself past.
+
+  `CONTRIBUTING.md` is deliberately left alone: `_corpus/` never reaches an outside contributor, so
+  the warning would be noise for the only audience that reads that file.
+
+
+- **`scripts/check_frontmatter_scope.py` — the gap was never the fix, it was the visibility.**
+  `_frontmatter.py` has existed for months and had reached **4 of the 41** detectors that take
+  `--manuscript`; the other 37 read YAML front matter as prose, and three of them had already
+  fired on it in production. Nothing made that countable, so nothing got swept.
+
+  The gate requires every `--manuscript` detector to strip front matter — directly or through a
+  same-directory helper it imports, so the two that strip via `_prose.py` are correctly counted
+  as compliant rather than invented as debt — or to appear in an **ALLOWLIST that names it**.
+  The list is seeded with the 35 that did not, and it exists to be emptied: a name leaves it when
+  that detector is fixed, and a **stale entry is itself a failure**, so the list cannot quietly
+  overstate the debt either. New detectors get no grace period.
+
+  Deliberately a list rather than a count: "37 detectors do not strip front matter" is a number
+  nobody acts on; a name is a piece of work. Repo-CI validator under `scripts/`, so
+  `integrity_detectors` stays **84**.
+
+- **`check_sentence_variety` gained the upper half of the rule it enforces.** Fix rule 7 says
+  *"Mix short declarative sentences (8-12 words) with longer ones (25-35 words)"* — a **range** —
+  and the gate only ever checked its lower edge. One 97-word sentence populates the `>= 25 words`
+  band, so a manuscript passed while the detector printed `max_words: 97` in its own stats. Two
+  external reviewers independently read such prose as machine-written, on two different
+  manuscripts, while this check returned nothing.
+
+  New `SENTENCE_OVERLONG` (Minor) fires above `--long-max`, default **70 = twice the top of rule
+  7's range**. Choosing that number was the delicate part and the measurement is recorded in the
+  detector's docstring so it is auditable rather than asserted: firing at rule 7's own top of 35
+  would condemn **97 sentences (~24%) across the six manuscripts in this repository with enough
+  sentences to measure** — the project's own exemplars, so 25-35 is plainly a target band and not
+  a ceiling. At 70 the same corpus yields **4 sentences in 6 manuscripts (~1%)**. The number still
+  comes from the skill's specification; the corpus only confirmed it does not condemn good prose.
+
+  The count of sentences over rule 7's band is now reported as `stats.over_rule7_band_count` —
+  **information for a rewriter, not a verdict**, for exactly the reason above.
+
+  Regression, not a green suite: against the unfixed detector the suite fails the three assertions
+  about the new behaviour and passes the seven that pin the old. A 64-word sentence — over rule 7's
+  band, under the ceiling — must stay silent, or the verdict would just re-report the long band the
+  gate already checks; and `--long-max 50` must make that same sentence fire, or the default could
+  be doing nothing while every other assertion still passed.
+
+
+- `tests/test_validator_scope.sh` plants the blocked home-directory literal in `references/`,
+  `templates/`, `scripts/`, `tests/` and at the skill root, then asserts the validator **names
+  each file**. It does not ask whether the validator passes: passing was precisely the symptom.
+- **The release-cadence gate's own regression test had an expiry date.** It pinned its fixture
+  tag to a literal `2026-07-13` and then asserted that a release cut "0 days later" is blocked —
+  but the gate measures `date.today() - <tag date>`, so the fixture did not describe a fixed gap,
+  it described one that grew by a day per day. The assertion held for fourteen days and then
+  became false, and on 2026-07-27 the suite went red for a reason that had nothing to do with the
+  gate it was testing. Every fixture date is now derived from today, so a fixture can only encode
+  a duration. Verified by regression rather than by the suite turning green: re-aging the fixture
+  tag to twenty days reproduces exactly the three gap-dependent failures and leaves the other nine
+  passing. (The gate itself was never wrong; `--min-days 14` and both exemptions behaved as
+  specified throughout.)
+- **Four shipped skills carried an instruction whose content was not shipped.** Lines of the form
+  ``apply `~/.claude/rules/numerical-safety.md` `` told an installed reader to open a file that
+  exists on the maintainer's machine and nowhere else. Nothing errored: the step was simply
+  skipped, and the skill looked like it enforced something it did not. Each is replaced by the
+  generalised rule itself, stated in one or two sentences — no personal history, no project names,
+  no rule text copied wholesale. The repo's own 2026-07-11 audit had already named this class;
+  it had been open since.
+
+  The remaining 72 references are provenance, not instruction — "English only (per `<path>`)"
+  states the rule and then says where it came from — and are deliberately left alone. Blocking
+  that shape would rewrite seventy correctly-written citations to no benefit. Instead each of the
+  thirteen affected skills now carries one short note saying those paths are the maintainer's
+  personal rules, are not shipped, and that a citation standing in for an instruction you need is
+  a bug worth reporting.
+
+
+- A check in `validate_skills.sh` for the shape that caused it: a verb *governing* a
+  `~/.claude/rules/` path. Calibrated against real defects rather than a fixture — on the tree
+  immediately before it was written, it matched exactly the four imperative references that were
+  there and nothing else among 79 total. `see` / `per` / `cross-link` are deliberately not
+  matched, and `[^|]` keeps the window inside one markdown table cell so a "must" in one column
+  cannot reach a path in another. `tests/test_personal_rule_refs.sh` drives the whole validator
+  and asserts it *names* the offending files while staying silent on the provenance form, the
+  disclosure note, and the split-table-cell case.
+
+- `american-medical-association.csl` (AMA Manual of Style 11th edition) joins the bundled
+  citation styles — superscript, et-al after 6 (first 3 + et al), DOI kept. It covers the JAMA
+  family and the many journals whose author guide says only "AMA style"; until now the nearest
+  bundled option was `liver-international.csl`, which reaches the same rendering by way of a
+  retitled Wiley style.
+
+### Changed
+
+- **`--allow-separate-attachments` now downgrades the `MISSING_BODY` it could not check.** When a
+  submission's floats are separate attachment files — the norm in radiology and most of medicine —
+  and `check_xref` runs without a `--docx`, those floats are cited, have no body caption, and there
+  is no rendered artifact to look them up in. Until now that blocked the submission. The flag is the
+  operator's declaration that such floats exist, so it now excuses them.
+
+  **This is an amnesty, and it is priced as one.** In markdown-only mode a caption nobody wrote is
+  indistinguishable from an attachment, and both now pass. So the two downgrades are reported apart,
+  because their evidence differs: `MISSING_DOCX` means a supplied DOCX *proved* the float absent from
+  the rendered output, while `MISSING_BODY` with no DOCX means **nothing was checked**. The second
+  prints as `EXCUSED WITHOUT EVIDENCE`, names every row, and is counted separately in the audit JSON
+  as `summary.downgraded_unchecked` — a consumer cannot read one as the other. The run tells you to
+  come back with `--docx`, which is what converts the excuse into evidence.
+
+  **What the flag still does not excuse**: `MISMATCH`, and a `MISSING_BODY` whose float **is** in the
+  rendered DOCX. There the build pipeline is the only place that knows the caption text, which is SSOT
+  drift; no attachment policy makes that acceptable, and the run says so by name when it blocks.
+
+  Six documentation sites stated the old contract ("`MISSING_BODY` remains FAIL regardless") and all
+  six move together: `manage-refs/SKILL.md`, `check_xref_symptoms.md`, `self-review/SKILL.md`,
+  `phase2_5d_xref_qc.md`, `write-paper/SKILL.md`, `phase7_polish_detail.md`, plus the `--help` text
+  and `pre_submission_gate.sh`. Verified by regression: the 13-case suite fails 7 against the previous
+  behaviour and the 6 it passes are exactly the invariants that must not move — drift still blocks,
+  the flag stays opt-in, and a supplied DOCX still produces an evidenced downgrade.
 
 ### Fixed
 
@@ -93,31 +237,6 @@
   The pre-existing `test_figure_citation.sh` and its challenge card pass unchanged. Reverting the
   detector turns 9 of the 15 red.
 
-### Added
-
-- **`CLAUDE.md` — the held-out corpus fence, moved out of a prompt and into the repository.**
-  `_corpus/heldout/` exists to be material no detector was written knowing about, and its protocol
-  spends a *fresh* corpus by the act of **reading it**. That rule lived in `reverse_engineer/HELDOUT.md`
-  and in whatever instructions a given session happened to carry; the repository itself said nothing,
-  and there was no `CLAUDE.md` or `AGENTS.md` for an agent to find.
-
-  On 2026-07-31 an audit was launched against "the repository" with a prohibition list that covered
-  editing but never mentioned the corpus. Three of its agents reached `_corpus/heldout/`; one ran a
-  detector across the whole corpus, opened two papers, and used the result as evidence for a
-  `check_figure_citation` change. That finding was quarantined and **not acted on**; every fix merged
-  that day was re-derived from purpose-built fixtures, and the corpus in place had already been
-  declared spent, so nothing measurable was lost.
-
-  What the episode demonstrated is worth more than what it cost: `_corpus/` is gitignored, so
-  `git status` can never report a change there and a clone does not carry it — and **neither fact
-  stops anything that scans the working tree.** A fence that exists only in a prompt is not a fence.
-  It now sits at the repository root as the first thing any agent working here is told, with the
-  reason attached, because a prohibition without its reason is one an agent will talk itself past.
-
-  `CONTRIBUTING.md` is deliberately left alone: `_corpus/` never reaches an outside contributor, so
-  the warning would be noise for the only audience that reads that file.
-
-### Fixed
 
 - **`fill_journal_abbrev.py` had never run.** `parse_entries` returned the `Match` objects from
   `re.finditer` while every caller treats the result as the entry **text**, so the first line of work
@@ -454,77 +573,6 @@
   exactly the gate that must not be. The detector now strips front matter first; the same
   sentence in the body still fires, which is what makes the fix meaningful rather than a mute.
 
-### Added
-
-- **`scripts/check_frontmatter_scope.py` — the gap was never the fix, it was the visibility.**
-  `_frontmatter.py` has existed for months and had reached **4 of the 41** detectors that take
-  `--manuscript`; the other 37 read YAML front matter as prose, and three of them had already
-  fired on it in production. Nothing made that countable, so nothing got swept.
-
-  The gate requires every `--manuscript` detector to strip front matter — directly or through a
-  same-directory helper it imports, so the two that strip via `_prose.py` are correctly counted
-  as compliant rather than invented as debt — or to appear in an **ALLOWLIST that names it**.
-  The list is seeded with the 35 that did not, and it exists to be emptied: a name leaves it when
-  that detector is fixed, and a **stale entry is itself a failure**, so the list cannot quietly
-  overstate the debt either. New detectors get no grace period.
-
-  Deliberately a list rather than a count: "37 detectors do not strip front matter" is a number
-  nobody acts on; a name is a piece of work. Repo-CI validator under `scripts/`, so
-  `integrity_detectors` stays **84**.
-### Added
-
-- **`check_sentence_variety` gained the upper half of the rule it enforces.** Fix rule 7 says
-  *"Mix short declarative sentences (8-12 words) with longer ones (25-35 words)"* — a **range** —
-  and the gate only ever checked its lower edge. One 97-word sentence populates the `>= 25 words`
-  band, so a manuscript passed while the detector printed `max_words: 97` in its own stats. Two
-  external reviewers independently read such prose as machine-written, on two different
-  manuscripts, while this check returned nothing.
-
-  New `SENTENCE_OVERLONG` (Minor) fires above `--long-max`, default **70 = twice the top of rule
-  7's range**. Choosing that number was the delicate part and the measurement is recorded in the
-  detector's docstring so it is auditable rather than asserted: firing at rule 7's own top of 35
-  would condemn **97 sentences (~24%) across the six manuscripts in this repository with enough
-  sentences to measure** — the project's own exemplars, so 25-35 is plainly a target band and not
-  a ceiling. At 70 the same corpus yields **4 sentences in 6 manuscripts (~1%)**. The number still
-  comes from the skill's specification; the corpus only confirmed it does not condemn good prose.
-
-  The count of sentences over rule 7's band is now reported as `stats.over_rule7_band_count` —
-  **information for a rewriter, not a verdict**, for exactly the reason above.
-
-  Regression, not a green suite: against the unfixed detector the suite fails the three assertions
-  about the new behaviour and passes the seven that pin the old. A 64-word sentence — over rule 7's
-  band, under the ceiling — must stay silent, or the verdict would just re-report the long band the
-  gate already checks; and `--long-max 50` must make that same sentence fire, or the default could
-  be doing nothing while every other assertion still passed.
-
-### Changed
-
-- **`--allow-separate-attachments` now downgrades the `MISSING_BODY` it could not check.** When a
-  submission's floats are separate attachment files — the norm in radiology and most of medicine —
-  and `check_xref` runs without a `--docx`, those floats are cited, have no body caption, and there
-  is no rendered artifact to look them up in. Until now that blocked the submission. The flag is the
-  operator's declaration that such floats exist, so it now excuses them.
-
-  **This is an amnesty, and it is priced as one.** In markdown-only mode a caption nobody wrote is
-  indistinguishable from an attachment, and both now pass. So the two downgrades are reported apart,
-  because their evidence differs: `MISSING_DOCX` means a supplied DOCX *proved* the float absent from
-  the rendered output, while `MISSING_BODY` with no DOCX means **nothing was checked**. The second
-  prints as `EXCUSED WITHOUT EVIDENCE`, names every row, and is counted separately in the audit JSON
-  as `summary.downgraded_unchecked` — a consumer cannot read one as the other. The run tells you to
-  come back with `--docx`, which is what converts the excuse into evidence.
-
-  **What the flag still does not excuse**: `MISMATCH`, and a `MISSING_BODY` whose float **is** in the
-  rendered DOCX. There the build pipeline is the only place that knows the caption text, which is SSOT
-  drift; no attachment policy makes that acceptable, and the run says so by name when it blocks.
-
-  Six documentation sites stated the old contract ("`MISSING_BODY` remains FAIL regardless") and all
-  six move together: `manage-refs/SKILL.md`, `check_xref_symptoms.md`, `self-review/SKILL.md`,
-  `phase2_5d_xref_qc.md`, `write-paper/SKILL.md`, `phase7_polish_detail.md`, plus the `--help` text
-  and `pre_submission_gate.sh`. Verified by regression: the 13-case suite fails 7 against the previous
-  behaviour and the 6 it passes are exactly the invariants that must not move — drift still blocks,
-  the flag stays opt-in, and a supplied DOCX still produces an evidenced downgrade.
-
-### Fixed
 
 - **`check_xref` told a correctly packaged submission it was blocked, and offered no way out.**
   When supplementary tables and figures are separate attachment files — the norm in radiology and
@@ -578,55 +626,6 @@
   GitHub `users.noreply` sender are likewise contact information rather than a private address,
   and join the domain whitelist.
 
-### Added
-
-- `tests/test_validator_scope.sh` plants the blocked home-directory literal in `references/`,
-  `templates/`, `scripts/`, `tests/` and at the skill root, then asserts the validator **names
-  each file**. It does not ask whether the validator passes: passing was precisely the symptom.
-- **The release-cadence gate's own regression test had an expiry date.** It pinned its fixture
-  tag to a literal `2026-07-13` and then asserted that a release cut "0 days later" is blocked —
-  but the gate measures `date.today() - <tag date>`, so the fixture did not describe a fixed gap,
-  it described one that grew by a day per day. The assertion held for fourteen days and then
-  became false, and on 2026-07-27 the suite went red for a reason that had nothing to do with the
-  gate it was testing. Every fixture date is now derived from today, so a fixture can only encode
-  a duration. Verified by regression rather than by the suite turning green: re-aging the fixture
-  tag to twenty days reproduces exactly the three gap-dependent failures and leaves the other nine
-  passing. (The gate itself was never wrong; `--min-days 14` and both exemptions behaved as
-  specified throughout.)
-- **Four shipped skills carried an instruction whose content was not shipped.** Lines of the form
-  ``apply `~/.claude/rules/numerical-safety.md` `` told an installed reader to open a file that
-  exists on the maintainer's machine and nowhere else. Nothing errored: the step was simply
-  skipped, and the skill looked like it enforced something it did not. Each is replaced by the
-  generalised rule itself, stated in one or two sentences — no personal history, no project names,
-  no rule text copied wholesale. The repo's own 2026-07-11 audit had already named this class;
-  it had been open since.
-
-  The remaining 72 references are provenance, not instruction — "English only (per `<path>`)"
-  states the rule and then says where it came from — and are deliberately left alone. Blocking
-  that shape would rewrite seventy correctly-written citations to no benefit. Instead each of the
-  thirteen affected skills now carries one short note saying those paths are the maintainer's
-  personal rules, are not shipped, and that a citation standing in for an instruction you need is
-  a bug worth reporting.
-
-### Added
-
-- A check in `validate_skills.sh` for the shape that caused it: a verb *governing* a
-  `~/.claude/rules/` path. Calibrated against real defects rather than a fixture — on the tree
-  immediately before it was written, it matched exactly the four imperative references that were
-  there and nothing else among 79 total. `see` / `per` / `cross-link` are deliberately not
-  matched, and `[^|]` keeps the window inside one markdown table cell so a "must" in one column
-  cannot reach a path in another. `tests/test_personal_rule_refs.sh` drives the whole validator
-  and asserts it *names* the offending files while staying silent on the provenance form, the
-  disclosure note, and the split-table-cell case.
-### Added
-
-- `american-medical-association.csl` (AMA Manual of Style 11th edition) joins the bundled
-  citation styles — superscript, et-al after 6 (first 3 + et al), DOI kept. It covers the JAMA
-  family and the many journals whose author guide says only "AMA style"; until now the nearest
-  bundled option was `liver-international.csl`, which reaches the same rendering by way of a
-  retitled Wiley style.
-
-### Fixed
 
 - **The CSL registry had drifted from the directory it describes.** `citation_styles/README.md`
   listed 10 of the 16 bundled styles, and `korean-journal-of-radiology.csl` was described as a
