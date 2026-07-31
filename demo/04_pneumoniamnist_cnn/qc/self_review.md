@@ -6,9 +6,13 @@ results/discussion. Gates dogfooded: split-leakage OK, training-hygiene OK, expl
 
 ## Anticipated Major comments
 - **RM1 — References unverified (blocker for posting).** The reference list must pass `/verify-refs`
-  (PubMed/CrossRef first-author + DOI cross-check) before upload. Canonical items are low-risk, but exact
-  pages / IDs (CLAIM 2024 e-locator, captum arXiv id, TRIPOD+AI, NeurIPS/ICCV proceedings) must be
-  confirmed. **Action: run `/verify-refs --strict` before posting; do not upload with the placeholder note.**
+  (PubMed/CrossRef first-author + DOI cross-check) before upload. **Action (applied, 2026-07-31):**
+  `/verify-refs --strict` run against `manuscript/refs.bib`; audit committed at
+  `qc/reference_audit.json`. **8 of 9 OK, 0 fabricated, 0 duplicates, `submission_safe: true`.** The
+  ninth (`paszke2019pytorch`, the PyTorch NeurIPS 2019 paper) is **UNVERIFIED and stays that way**:
+  that proceedings year carries no CrossRef DOI and no PubMed record, so no registry can confirm it.
+  UNVERIFIED is not FABRICATED — the entry is real and deliberately kept, with this note as its
+  provenance. **RM1 is closed.**
 - **RM2 — Missing AI-use disclosure.** The pipeline and the drafting were agent-orchestrated (the paper's
   subject); this must be disclosed explicitly. **Action (applied): added an "AI use" statement.**
 
@@ -25,5 +29,7 @@ Endpoint (benchmark classification) ↔ conclusion (a tooling/reproducibility cl
 directive, no deployment claim. Consistent with the honest-framing requirement.
 
 ## Verdict
-Ready to revise → v2 (RM2, Rm1, Rm2 applied). Remaining hard gate before upload: **RM1 (/verify-refs)** and
-author confirmation. No fabricated numbers; all metrics trace to the executed run.
+Ready to revise → v2 (RM2, Rm1, Rm2 applied). **RM1 closed 2026-07-31** (see above): the reference
+audit is committed, nothing is fabricated, and the single UNVERIFIED entry is unverifiable by
+construction rather than unchecked. Remaining before upload: author confirmation of the placeholder
+author/affiliation (Rm3). No fabricated numbers; all metrics trace to the executed run.

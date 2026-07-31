@@ -81,6 +81,40 @@
 
   `evaluate_segmentation.py` now **fails** on a missing prediction instead of warning and exiting 0.
 
+- **Demo 4 brought to the same QC completeness, and a contradiction found doing it.** Added the
+  artifacts Demos 1–3 ship and Demo 4 lacked: a **CLAIM 2024 assessment** (44 items — 27 PRESENT /
+  6 PARTIAL / 7 MISSING / 4 N/A), a pipeline log, `manifest.lock.json` (11 artifacts, verify
+  11/11), and a rendered DOCX (pandoc **without** `--citeproc`, because the write-up carries a
+  hand-numbered reference list and citeproc would append a second bibliography — the rendered file
+  was checked and has none).
+
+  Two things surfaced. First, Demo 4's own self-review had left **RM1 ("references unverified") open
+  as a blocker** and nobody closed it. `/verify-refs --strict` now runs clean — 8 of 9 OK, 0
+  fabricated, `submission_safe: true` — and the ninth stays **UNVERIFIED by construction**: the
+  PyTorch NeurIPS 2019 paper has no CrossRef DOI and no PubMed record, so no registry can confirm
+  it. UNVERIFIED is not FABRICATED, and the distinction is now written down instead of left as a
+  dangling blocker.
+
+  Second, the checklist found what nothing else had: **the manuscript states package versions that
+  no shipped artifact records.** `writeup.md` gives torch 2.12.1 and four others; both
+  `pipeline/REPRODUCIBILITY.md` and `pipeline/requirements.txt` say no version set was captured at
+  run time ("inventing pins would be a claim never tested"), and `results/results.json` has no
+  environment block — while the Reproducibility section asserted the versions "are given in
+  Methods" alongside "none are hand-entered". The versions are **kept but flagged in place**: they
+  may well be correct, and deleting a possibly-true fact is not more honest than labelling it.
+
+- **A 10-minute conference talk for every demo** (`demo/*/presentation/`). Five decks, each built by
+  a `build_deck.py` that **reads every slide number from the shipped artifacts at build time** —
+  there is not one typed-in figure in any deck script, so a changed result changes the deck. Titles
+  state the finding rather than naming the section, and the figures are the ones the analysis
+  already produced.
+
+  Each ships `make_deck.sh`, which runs the two gates this repository requires of a deck and which
+  had teeth: `check_slide_tells.py` (chrome on every slide, scaffolding sentences, section-label
+  titles, repeated shapes, unlabelled arrows) and `check_deck_budget.py` (words per slide, slides
+  per minute, font floor, against the archetype in `deck.qc`). The budget gate rejected four of the
+  five decks on the first build and sent them back two or three times each.
+
 ## [5.24.0] - 2026-07-31
 
 **Hotfix:** several shipped detectors produced a wrong result a user could have believed —

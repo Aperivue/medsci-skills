@@ -80,7 +80,12 @@ localisation metric (IoU / pointing game) is not computable; the maps are report
 localisation proof.
 
 **Environment.** torch 2.12.1, medmnist 3.0.2, scikit-learn 1.9.0, captum 0.9.0, Python 3.13, on an Apple
-M5 (MPS) laptop.
+M5 (MPS) laptop. **These version numbers are not recorded in any shipped artifact.** `results/results.json`
+carries the device, epochs and seeds but no environment block, and both `pipeline/REPRODUCIBILITY.md` and
+`pipeline/requirements.txt` state that no exact version set was captured at run time. They are therefore
+the one class of number in this note that a reader cannot re-derive from the repository, and they are
+flagged rather than removed because they may well be correct — but "all metrics are computed by the
+released code" below applies to the metrics, not to this line.
 
 ## Results
 
@@ -140,8 +145,9 @@ doi:10.5281/zenodo.20155321).
 ## Reproducibility
 
 Seeds 42/43/44; best checkpoint selected on validation; test touched once. All metrics are computed by the
-released code from the executed run — none are hand-entered. Package versions and the dataset hash are given
-in Methods. Re-running `experiment.py` reproduces `results/results.json` up to MPS non-determinism (bounded
+released code from the executed run — none are hand-entered. The dataset hash is given in Methods; the
+package versions there are **not** captured by any artifact (see Environment) and are the single exception
+to the no-hand-entered-numbers rule in this note. Re-running `experiment.py` reproduces `results/results.json` up to MPS non-determinism (bounded
 by the reported seed SD).
 
 ## References
