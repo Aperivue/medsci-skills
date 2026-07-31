@@ -9,9 +9,12 @@ produces the analysis EVALUATION_PLAN.md pre-specifies:
   §7  pre-specified subgroups, the SAME fixed cut-points applied to every arm (no data-driven,
       per-arm tertiles — a cut-point must be single-source and identical across cohorts, or the
       subgroups are not comparable):
-        - spleen volume (gt_ml): small <100, normal 100-250, enlarged >250 mL
+        - spleen volume (gt_ml): small <100, normal [100, 250), enlarged >=250 mL
           (the plan's stated normal range ~100-250 mL; splenomegaly = enlarged)
-        - slice thickness (spacing_z): thin <=2.0, mid 2.0-5.0, thick >=5.0 mm
+        - slice thickness (spacing_z): thin <2.0, mid [2.0, 5.0), thick >=5.0 mm
+          Every edge is closed on the LEFT: a case sitting exactly on an edge goes UP. The
+          docstring said `<=2.0` while the code did `>=` on the edge, which put the 67 external
+          CT cases at exactly 2.00 mm in `mid` while the documented rule said `thin`.
         - modality: the arm itself (rung2 CT vs rung3 MRI), by construction
   §4  target-free cases (gt_empty=1) are NOT scored as Dice; a prediction on a target-free case
       (a hallucinated organ) is reported on its own line, never folded into a silent zero.
@@ -26,6 +29,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import glob
 import os
 import sys
@@ -37,9 +41,9 @@ N_BOOT = 10_000
 
 # Fixed, recorded cut-points (identical across all arms — see module docstring).
 VOL_EDGES = [100.0, 250.0]          # mL: small | normal | enlarged
-VOL_LABELS = ["small (<100 mL)", "normal (100-250 mL)", "enlarged (>250 mL)"]
+VOL_LABELS = ["small (<100 mL)", "normal (100-250 mL)", "enlarged (>=250 mL)"]
 THK_EDGES = [2.0, 5.0]              # mm: thin | mid | thick
-THK_LABELS = ["thin (<=2 mm)", "mid (2-5 mm)", "thick (>=5 mm)"]
+THK_LABELS = ["thin (<2 mm)", "mid (2-5 mm)", "thick (>=5 mm)"]
 
 # Arm ordering + display; rung1 is the internal reference.
 ARM_ORDER = ["rung1_msd_heldout", "rung2_amos_ct", "rung3_amos_mri"]
@@ -80,6 +84,19 @@ def _floats(rows: list[dict], key: str) -> np.ndarray:
     return np.asarray(out, dtype=float)
 
 
+def arm_rng(*key):
+    """A generator seeded from SEED and a STABLE hash of the key, so an arm's interval does not
+    depend on how many other arms were bootstrapped before it. One shared stream made the seed
+    reproducible only for a fixed arm ORDER: adding an arm silently moved intervals already
+    published. `hash()` is deliberately NOT used here -- Python randomises string hashing per
+    process (PYTHONHASHSEED), so it would have made the "deterministic" claim false in the act of
+    fixing determinism. blake2b is stable across processes, machines and versions."""
+    parts = [SEED]
+    for k in key:
+        parts.append(int.from_bytes(hashlib.blake2b(str(k).encode(), digest_size=4).digest(), "big"))
+    return np.random.default_rng(parts)
+
+
 def boot_median_ci(x: np.ndarray, rng: np.random.Generator) -> tuple[float, float, float]:
     if x.size == 0:
         return (float("nan"), float("nan"), float("nan"))
@@ -92,6 +109,23 @@ def boot_median_ci(x: np.ndarray, rng: np.random.Generator) -> tuple[float, floa
     return (med, float(lo), float(hi))
 
 
+def boot_delta_ci(x: np.ndarray, ref: np.ndarray, key_a, key_b) -> tuple[float, float, float]:
+    """95% interval for the difference in population medians between two INDEPENDENT arms.
+
+    A bare difference of two separately-estimated medians is not an inferential quantity: the two
+    marginal intervals say nothing about the uncertainty of their difference, and here the reference
+    arm has n=9, which contributes most of it. Both arms are resampled independently (cases are
+    patients, one row each) and the difference is taken inside each replicate."""
+    if x.size == 0 or ref.size == 0:
+        return (float("nan"),) * 3
+    ra, rb = arm_rng(key_a, "delta"), arm_rng(key_b, "delta_ref")
+    ia = ra.integers(0, x.size, size=(N_BOOT, x.size))
+    ib = rb.integers(0, ref.size, size=(N_BOOT, ref.size))
+    d = np.median(x[ia], axis=1) - np.median(ref[ib], axis=1)
+    lo, hi = np.percentile(d, [2.5, 97.5])
+    return (float(np.median(x) - np.median(ref)), float(lo), float(hi))
+
+
 def _fmt(t: tuple[float, float, float]) -> str:
     m, lo, hi = t
     if m != m:  # nan
@@ -99,7 +133,7 @@ def _fmt(t: tuple[float, float, float]) -> str:
     return f"{m:.4f} [{lo:.4f}-{hi:.4f}]"
 
 
-def summarise_arm(rows: list[dict], rng: np.random.Generator) -> dict:
+def summarise_arm(rows: list[dict], rng: np.random.Generator, arm_key: str = "") -> dict:
     scored = [r for r in rows if r.get("dice", "") not in ("", "nan", None)]
     dice = _floats(rows, "dice")
     hd95 = _floats(rows, "hd95_mm")
@@ -109,15 +143,16 @@ def summarise_arm(rows: list[dict], rng: np.random.Generator) -> dict:
     return {
         "n_total": len(rows),
         "n_scored": len(scored),
+        "n_hd95": int(hd95.size),
         "n_target_free": len(target_free),
         "n_hallucinated_on_target_free": len(hallucinated),
         "hallucinated_cases": [r["case"] for r in hallucinated],
-        "dice": boot_median_ci(dice, rng),
-        "hd95": boot_median_ci(hd95, rng),
+        "dice": boot_median_ci(dice, arm_rng(arm_key, "dice")),
+        "hd95": boot_median_ci(hd95, arm_rng(arm_key, "hd95")),
     }
 
 
-def subgroup_table(rows: list[dict], key: str, edges, labels, rng) -> list[tuple[str, int, tuple]]:
+def subgroup_table(rows: list[dict], key: str, edges, labels, rng, arm_key: str = "") -> list[tuple[str, int, tuple]]:
     buckets: dict[str, list[float]] = {lab: [] for lab in labels}
     for r in rows:
         if r.get("dice", "") in ("", "nan", None):
@@ -130,7 +165,7 @@ def subgroup_table(rows: list[dict], key: str, edges, labels, rng) -> list[tuple
     out = []
     for lab in labels:
         arr = np.asarray(buckets[lab], dtype=float)
-        out.append((lab, arr.size, boot_median_ci(arr, rng)))
+        out.append((lab, arr.size, boot_median_ci(arr, arm_rng(arm_key, key, lab))))
     return out
 
 
@@ -148,7 +183,7 @@ def main() -> int:
 
     rng = np.random.default_rng(SEED)
     present = [x for x in ARM_ORDER if x in arms] + [x for x in arms if x not in ARM_ORDER]
-    summ = {arm: summarise_arm(arms[arm], rng) for arm in present}
+    summ = {arm: summarise_arm(arms[arm], rng, arm) for arm in present}
 
     ref = summ.get("rung1_msd_heldout")
     L = []
@@ -156,14 +191,17 @@ def main() -> int:
     L.append(f"Bootstrap: {N_BOOT} resamples, seed {SEED}. Metric CIs are median [2.5-97.5 pct].")
     L.append("Accuracy is not reported (target ~0.2-0.4% of volume). Dice/HD95 on scored cases only.\n")
     L.append("## Per-arm summary (Dice, HD95, Delta-Dice from internal)\n")
-    L.append("| arm | n scored | Dice median [95% CI] | HD95 mm median [95% CI] | dDice vs internal |")
-    L.append("|---|---:|---|---|---|")
+    L.append("| arm | n scored | Dice median [95% CI] | n with HD95 | HD95 mm median [95% CI] | dDice vs internal |")
+    L.append("|---|---:|---|---:|---|---|")
     for arm in present:
         s = summ[arm]
         dd = ""
         if ref and arm != "rung1_msd_heldout" and s["dice"][0] == s["dice"][0] and ref["dice"][0] == ref["dice"][0]:
-            dd = f"{s['dice'][0] - ref['dice'][0]:+.4f}"
-        L.append(f"| {ARM_LABEL.get(arm, arm)} | {s['n_scored']} | {_fmt(s['dice'])} | {_fmt(s['hd95'])} | {dd} |")
+            dm, dlo, dhi = boot_delta_ci(_floats(arms[arm], "dice"),
+                                         _floats(arms["rung1_msd_heldout"], "dice"),
+                                         arm, "rung1_msd_heldout")
+            dd = f"{dm:+.4f} [{dlo:+.4f}-{dhi:+.4f}]"
+        L.append(f"| {ARM_LABEL.get(arm, arm)} | {s['n_scored']} | {_fmt(s['dice'])} | {s['n_hd95']} | {_fmt(s['hd95'])} | {dd} |")
     L.append("")
 
     # target-free / hallucination lines (§4)
@@ -187,7 +225,7 @@ def main() -> int:
             ("Slice thickness (spacing_z)", "spacing_z", THK_EDGES, THK_LABELS),
         ):
             L.append(f"- **{title}**")
-            for lab, n, ci in subgroup_table(arms[arm], key, edges, labels, rng):
+            for lab, n, ci in subgroup_table(arms[arm], key, edges, labels, rng, arm):
                 L.append(f"    - {lab}: n={n}, Dice {_fmt(ci)}")
         L.append("")
 

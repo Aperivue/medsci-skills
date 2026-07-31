@@ -1,0 +1,60 @@
+# Case-inclusion flow for Demo 5 (STARD-style, two source datasets).
+# Every count traces to a shipped artifact, none is typed from prose:
+#   MSD 61 / 20 unlabelled ....... qc/dataset_profile_msd.json (n_cases, TEST_SET_UNLABELLED)
+#   41 -> 32 train / 9 held-out .. qc/split_leakage.json (n_rows, partitions), seed splits/split_seed.txt
+#   AMOS 600 / 240 unlabelled .... qc/amos22_dataset_profile_spleen.json (n_cases, splits)
+#   3 target-free cases .......... same file, LABEL_EMPTY claim (amos_0057, amos_0115, amos_0541)
+#   298 / 59 scored .............. results/per_case_*.csv, analysis/tables/table2_performance.csv
+#
+# Labels are single-quoted so the Graphviz escapes (\n newline, \l left-aligned line) reach
+# Graphviz literally instead of being consumed by the YAML parser.
+title: 'Case inclusion across the three evaluation rungs'
+rankdir: TB
+nodes:
+  - id: msd
+    label: 'MSD Task09 Spleen (CC-BY-SA 4.0)\nN = 61 cases'
+  - id: msd_lab
+    label: 'Labelled cases\nN = 41'
+  - id: msd_excl
+    shape: box
+    fontsize: 10
+    label: 'Excluded (n = 20):\l- shipped test split has no ground truth\l  (no Dice possible)\l'
+    rank_same_with: msd_lab
+  - id: split
+    label: 'Patient-level split (seed 42)\ndisjointness proved by set arithmetic'
+  - id: train
+    label: 'Training pool\nn = 32\n(5-fold CV, 100 epochs)'
+  - id: rung1
+    label: 'RUNG 1 - internal held-out\nn = 9 evaluated, 9 scored'
+    highlight: true
+  - id: amos
+    label: 'AMOS22 (CC BY 4.0)\nN = 600 cases'
+  - id: amos_lab
+    label: 'Labelled cases\nN = 360 (300 CT, 60 MRI)'
+  - id: amos_excl
+    shape: box
+    fontsize: 10
+    label: 'Excluded (n = 240):\l- shipped test split is unlabelled\l'
+    rank_same_with: amos_lab
+  - id: rung2
+    label: 'RUNG 2 - external CT\nn = 300 evaluated, 298 scored'
+    highlight: true
+  - id: rung3
+    label: 'RUNG 3 - modality shift (MRI)\nn = 60 evaluated, 59 scored'
+    highlight: true
+  - id: tf
+    shape: box
+    fontsize: 10
+    label: 'Not scored (n = 3), reported separately:\l- reference contains no spleen voxel,\l  so Dice is undefined (0/0)\l- CT amos_0057, amos_0115\l- MRI amos_0541\l'
+    rank_same_with: rung2
+edges:
+  - {from: msd, to: msd_lab}
+  - {from: msd_lab, to: split}
+  - {from: split, to: train}
+  - {from: split, to: rung1}
+  - {from: msd_lab, to: msd_excl, style: dashed, arrow: false, constraint: false}
+  - {from: amos, to: amos_lab}
+  - {from: amos_lab, to: rung2}
+  - {from: amos_lab, to: rung3}
+  - {from: amos_lab, to: amos_excl, style: dashed, arrow: false, constraint: false}
+  - {from: rung3, to: tf, style: dashed, arrow: false, constraint: false}

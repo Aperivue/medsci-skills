@@ -275,14 +275,15 @@ answer was no.
 | Rung | Cohort | n scored | Dice median [95% CI] |
 |---|---|---:|---|
 | 1 internal | MSD held-out | 9 | **0.9595** [0.9367–0.9734] |
-| 2 genuine external | AMOS **CT** | 298 / 300 | **0.8932** [0.8639–0.9108] |
+| 2 genuine external | AMOS **CT** | 298 / 300 | **0.8932** [0.8633–0.9108] |
 | 3 modality shift | AMOS **MRI** | 59 / 60 | **0.0152** [0.0000–0.0626] |
 
-Rung 3 is the finding. The trained plan carries `CTNormalization` into inference and there is no flag
-that says "this is MRI", so a Hounsfield-unit clip is applied to arbitrary-unit images: **0 of 60 MRI
-cases contain a negative voxel** (against 300 of 300 on CT), and a median **23.2 %** of voxels are
-flattened at the clip ceiling (against 2.7 %). The run exits 0 and writes 60 plausible contours. Only
-ground truth made it loud.
+Rung 3 is a **constructed** test, and the demo says so: the evaluation plan named the normalisation
+contract and predicted the collapse *before* inference ran. The trained plan carries `CTNormalization`
+into inference and there is no flag that says "this is MRI", so a Hounsfield-unit clip is applied to
+arbitrary-unit images: **0 of 60 MRI cases contain a negative voxel** (against 300 of 300 on CT), and a
+median **23.2 %** of voxels are flattened at the clip ceiling (against 2.7 %). The run exits 0 and
+returns a file for all 60 cases, 20 of them empty. Only ground truth made it loud.
 
 And `/profile-imaging` **had already flagged the mixed intensity scale before training — as a
 Minor**, where it sat in `qc/` for nine days. So the gap this demo found is not detection; it is

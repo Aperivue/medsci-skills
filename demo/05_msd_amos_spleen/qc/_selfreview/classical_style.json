@@ -1,0 +1,12 @@
+{
+  "detector": "check_classical_style",
+  "manuscript": "manuscript/writeup.md",
+  "disclosure_placement": null,
+  "claims": [],
+  "summary": {
+    "n_claims": 0,
+    "n_major": 0,
+    "n_flag": 0,
+    "verdict": "OK"
+  }
+}

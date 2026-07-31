@@ -100,6 +100,10 @@ def main() -> int:
     ap.add_argument("--gt-label", type=int, default=1, help="label index of the target structure")
     ap.add_argument("--arm", required=True, help="arm name written into every row")
     ap.add_argument("--out", required=True)
+    ap.add_argument("--allow-missing", action="store_true",
+                    help="proceed (exit 0) even when a ground-truth case has no prediction; "
+                         "without it a missing prediction is a hard failure, because it silently "
+                         "shrinks the denominator of every downstream table")
     a = ap.parse_args()
 
     gt_dir, pred_dir = Path(a.gt_dir), Path(a.pred_dir)
@@ -121,9 +125,11 @@ def main() -> int:
               flush=True)
 
     if missing:
-        # Loud, not silent: a missing prediction changes the denominator.
-        print(f"WARNING: {len(missing)} case(s) have ground truth but no prediction: "
-              f"{missing[:10]}", file=sys.stderr)
+        # Loud, not silent: a missing prediction changes the denominator. Warning-and-exit-0 was
+        # not loud enough -- an automated re-run would succeed with a quietly smaller n, which is
+        # the exact failure this file's docstring claims to prevent.
+        print(f"{'WARNING' if a.allow_missing else 'FATAL'}: {len(missing)} case(s) have ground "
+              f"truth but no prediction: {missing[:10]}", file=sys.stderr)
 
     fields = ["arm", "case", "dice", "hd95_mm", "gt_ml", "pred_ml", "gt_empty", "pred_empty",
               "spacing_x", "spacing_y", "spacing_z"]
@@ -142,6 +148,11 @@ def main() -> int:
     if d.size:
         print(f"  Dice median {np.median(d):.4f}  mean {d.mean():.4f}  min {d.min():.4f}")
     print(f"wrote {a.out}")
+    if missing and not a.allow_missing:
+        print(f"FATAL: {len(missing)} prediction(s) missing; the denominator above is not the "
+              f"denominator the arm was supposed to have. Re-run inference, or pass "
+              f"--allow-missing to accept a reduced n deliberately.", file=sys.stderr)
+        return 3
     return 0
 
 

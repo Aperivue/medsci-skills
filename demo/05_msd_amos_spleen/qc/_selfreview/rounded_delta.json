@@ -1,0 +1,11 @@
+{
+  "detector": "check_rounded_delta",
+  "manuscript": "manuscript/writeup.md",
+  "claims": [],
+  "summary": {
+    "n_claims": 0,
+    "n_major": 0,
+    "n_flag": 0,
+    "verdict": "OK"
+  }
+}

@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "seed": 42,
+  "provenance": "Demo 5 (MSD Task09 -> AMOS22 spleen ladder). Locks the artifacts every reported number is derived from: the three per-case result CSVs, the normalisation evidence for both external arms, the seed-42 split, the real and counterfactual preprocessing manifests, and the deterministic gate outputs. Analysis seed 42 (split); bootstrap seed 20260725, seeded per (arm, metric). Source imaging is public and not vendored: MSD Task09 (CC-BY-SA 4.0) and AMOS22 (CC BY 4.0, Zenodo 7262581).",
+  "files": {
+    "manifests/preprocessing_manifest.json": {
+      "sha256": "025c0d2620275f41f1bb464d7031e9fed0852ff4c6ddebda8a433f2e2a2f855a",
+      "bytes": 5301
+    },
+    "manifests/preprocessing_manifest_naive.json": {
+      "sha256": "f9f1c57fd6dcbb18485a0f927370d063b7e2ef8ddb382f4fc6927d64acbf6e28",
+      "bytes": 4951
+    },
+    "qc/amos22_dataset_profile_spleen.json": {
+      "sha256": "b23cff93784985563e58f2ad14257f45b89607e01b5dfbad90a03e51bd0b0656",
+      "bytes": 1478
+    },
+    "qc/dataset_profile_msd.json": {
+      "sha256": "fb02bac85b479cd170749c8827bae57c6caae6dcbe2c108b623845fb8391c0de",
+      "bytes": 854
+    },
+    "qc/preprocessing_leakage.json": {
+      "sha256": "cac04cde98ea03c5a044a57ae41e45b61932e32e5f0df686d73fc58fee503516",
+      "bytes": 338
+    },
+    "qc/preprocessing_leakage_naive.json": {
+      "sha256": "6afb598c7ed39a7b97c4fdd597958c61f2f2381bf4e4445c2a538d48c4c6fede",
+      "bytes": 1225
+    },
+    "qc/split_leakage.json": {
+      "sha256": "2dae109cbd15c04455c06543f4e5ad6b998965da49addbc1cf46ec1cc0179e24",
+      "bytes": 382
+    },
+    "results/normalizer_evidence_rung2_amos_ct.json": {
+      "sha256": "5ebf51fc5940d411987d840ca25db92a21484e935f6fadf11c09b14ed7d27ccb",
+      "bytes": 93166
+    },
+    "results/normalizer_evidence_rung3_amos_mri.json": {
+      "sha256": "ead26b61d97d7f67d225693c542a2db7273e802090928e76a60f5e7cc0d52bb0",
+      "bytes": 19026
+    },
+    "results/per_case_rung1_msd_heldout.csv": {
+      "sha256": "0c23ddba153828877b7776f1bf66ef51900f88d5a37d10b09f2a82295a135dca",
+      "bytes": 1024,
+      "tabular": {
+        "n_rows": 9,
+        "n_cols": 11,
+        "column_hashes": {
+          "arm": "0e1c373314d6d0966ca674b114edd8c0f49d099f86e24c1ce5ed94f4fbd37bfd",
+          "case": "aade54f2c9849c8efe75d4c01d683665ab1f82853e1baa75a9d28d62b552703a",
+          "dice": "2ea22bd0e70d5c2f22d62a701fc4b398bcbda0f37d7bd7d204ad412eca2f229a",
+          "hd95_mm": "f45bf784161fd45bed98bc266f603093afb0b0dc20dd34f181563f6eab88ee4c",
+          "gt_ml": "6e34085a1fb41a73644e0d4cb16b5b0066c5e8f544af80e2109e34118525889e",
+          "pred_ml": "2e0f12108084130d25e5cf7ad06ccb0ddc7c6a31c0cc3a86a480b4a3aad2a287",
+          "gt_empty": "de8082f92922357c71fccba31c8bf54eadb62b29ea260a78df28da0ab7432f66",
+          "pred_empty": "de8082f92922357c71fccba31c8bf54eadb62b29ea260a78df28da0ab7432f66",
+          "spacing_x": "b53361f790af650cc9cba124958cc95f599ac3bbce472a0b524c0d384c2b16e6",
+          "spacing_y": "b53361f790af650cc9cba124958cc95f599ac3bbce472a0b524c0d384c2b16e6",
+          "spacing_z": "fa13da7463cf85f7ea2713a74241b069d545ae23d568f97241d6c6a9ce6dd053"
+        }
+      }
+    },
+    "results/per_case_rung2_amos_ct.csv": {
+      "sha256": "33898d0b10476385601f0ba20a3db7d04ec10f4d3e7ef5bdb0e08ad68f9dc262",
+      "bytes": 28296,
+      "tabular": {
+        "n_rows": 300,
+        "n_cols": 11,
+        "column_hashes": {
+          "arm": "6c6fe9044e7906a0b4cfc1f2c8a01ac8859ff161327b44d851da91624002c34c",
+          "case": "17fd4497d133a45a6a4c853122b112b76819749e8d88ad11772de1c26d04efa5",
+          "dice": "f2a0988d3021fc244e83ea0f97207534a9ef5187ab62a323bc27ca7622acf353",
+          "hd95_mm": "7fc01f1e4247f58b22cbeaf4f92dac72612565658b20685b205aa9d4613460fb",
+          "gt_ml": "ff5241bec5a28fea72f6e7e9b0c11210baf10af3507c7ebaea860daa72f2a70a",
+          "pred_ml": "8e71339c54d3b00f59e05cf6df3a5e2fdac90fc35f847c2bda3b588994f4c997",
+          "gt_empty": "bd7d5d74193591ca3b84f448e35d2295d8af1bec0fc6d4b3012df7f0576d4feb",
+          "pred_empty": "bdd30715d3f659651aac0a85e2211dd7ebc9e3f429cc208edf6eb7b294654ee6",
+          "spacing_x": "170c7b303b61485513ca6fe9cf48fb9f959eaacb798f4212bc2328ab647e20ce",
+          "spacing_y": "170c7b303b61485513ca6fe9cf48fb9f959eaacb798f4212bc2328ab647e20ce",
+          "spacing_z": "5011cd92227380135e270bb73540e69aca6880bf02a343cf2bc57c7cb4624755"
+        }
+      }
+    },
+    "results/per_case_rung3_amos_mri.csv": {
+      "sha256": "21e3925e980eed4753d9df0351d7f8ac041c7f2d5fe50daf42ff35485eb17dbd",
+      "bytes": 5291,
+      "tabular": {
+        "n_rows": 60,
+        "n_cols": 11,
+        "column_hashes": {
+          "arm": "7472672eb234802745f618f919b8e39a079bfd5e2a3ca57816b2870235dc8088",
+          "case": "e3485b00e7cc51869e3172ba3d6be9625dbddf339dde7752be4c4ff2c1f3336e",
+          "dice": "951ddf0072217246df16019deeb765a1010c9796be2e9a3898ab6952997722f4",
+          "hd95_mm": "d4e86f9f02d062a66093bb548452b099a19a5d439a323ac56d8a89fbe1e17fe2",
+          "gt_ml": "b4bd99aaa7b20ecef3f2f8734dc4f489b7a5ea0ef384489cea64784b24ece0aa",
+          "pred_ml": "719b6d8eedf30aa82b9c231799185a0c5921e37c59fede279fcee4c8d59bcbe0",
+          "gt_empty": "3cc0eb17ed0ab10f2ae009fc1f83ba8418af5c1194ea3c7d9b32ed7a8ba60a61",
+          "pred_empty": "78e1fae7bfc754b3935427d3be96c1aec3a9566698e34a41db08257e1618dd25",
+          "spacing_x": "9e05b3d17a7fcc2c7d23d1cea01183469e00f3c7ee3171855f5914c1ca3f4f74",
+          "spacing_y": "e2e49f6045aa1efffb7e2908460724351a9a2074a409b3d9292076deebbec013",
+          "spacing_z": "5eabeb5e94a09be55cd823e772b914be2aa55771e50ef44b8aa7938bf0af0da5"
+        }
+      }
+    },
+    "splits/split_assignment.csv": {
+      "sha256": "03a79078369315a119a89aae6c63250fb16e572cbd173f68353e42e1e0251dfd",
+      "bytes": 1559,
+      "tabular": {
+        "n_rows": 41,
+        "n_cols": 5,
+        "column_hashes": {
+          "patient_id": "d752cf5db77ee4a14f045b6ae687e6f88a645e59e5c9a7db5fcbbe0a61c6594f",
+          "unit_id": "d752cf5db77ee4a14f045b6ae687e6f88a645e59e5c9a7db5fcbbe0a61c6594f",
+          "split": "474e22a691ac64641f483b0bce63e64977b360387cb90a802f21b9155dc6ce0e",
+          "volume_ml": "38e44494a55bbd1d1cf277b163b09c4ad65a3ea6005a858534d941b68af4224d",
+          "volume_tertile": "84b38838f7158076d99a0dc201bb40fecd451ad9110ace018e1bcf118ee2d0d5"
+        }
+      }
+    },
+    "splits/split_seed.txt": {
+      "sha256": "084c799cd551dd1d8d5c5f9a5d593b2e931f5e36122ee5c793c1d08a19839cc0",
+      "bytes": 3
+    }
+  }
+}

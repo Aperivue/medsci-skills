@@ -1,0 +1,122 @@
+% Demo 5 references.
+%
+% Every entry was resolved by DOI against CrossRef (and PubMed for the PMID) at build time; none
+% was written from memory. Where a title search was used to find the DOI, the returned record's
+% title was string-compared against the intended title and only near-exact matches were kept —
+% a fuzzy bibliographic query returned the WRONG paper for two of the first four attempts, both
+% times a same-topic proceedings item, which is exactly the failure this discipline exists to stop.
+% Three further candidates could not be resolved to a record and were therefore NOT cited.
+% Audit: ../../qc/reference_audit.json
+
+@article{isensee2021nnunet,
+  title   = {nnU-Net: a self-configuring method for deep learning-based biomedical image segmentation},
+  author  = {Isensee, Fabian and Jaeger, Paul F. and Kohl, Simon A. A. and Petersen, Jens and Maier-Hein, Klaus H.},
+  journal = {Nature Methods},
+  volume  = {18}, pages = {203--211}, year = {2021},
+  doi     = {10.1038/s41592-020-01008-z}
+}
+
+@inproceedings{isensee2024nnunetrevisited,
+  title     = {nnU-Net Revisited: A Call for Rigorous Validation in 3D Medical Image Segmentation},
+  author    = {Isensee, Fabian and Wald, Tassilo and Ulrich, Constantin and others},
+  booktitle = {Medical Image Computing and Computer Assisted Intervention (MICCAI 2024)},
+  series    = {Lecture Notes in Computer Science},
+  pages     = {488--498}, year = {2024},
+  doi       = {10.1007/978-3-031-72114-4_47}
+}
+
+@article{antonelli2022msd,
+  title   = {The Medical Segmentation Decathlon},
+  author  = {Antonelli, Michela and Reinke, Annika and Bakas, Spyridon and others},
+  journal = {Nature Communications},
+  volume  = {13}, year = {2022},
+  doi     = {10.1038/s41467-022-30695-9},
+  pmid    = {35840566}
+}
+
+@inproceedings{ji2022amos,
+  title     = {AMOS: A Large-Scale Abdominal Multi-Organ Benchmark for Versatile Medical Image Segmentation},
+  author    = {Ji, Yuanfeng and Bai, Haotian and Ge, Chongjian and Yang, Jie and others},
+  booktitle = {Advances in Neural Information Processing Systems 35 (NeurIPS 2022)},
+  pages     = {36722--36732}, year = {2022},
+  doi       = {10.52202/068431-2661}
+}
+
+% NOTE — the AMOS22 *data record* (Zenodo, doi:10.5281/zenodo.7262581, CC BY 4.0) is deliberately
+% NOT a bibliography entry. Its deposit records the creator as the single unpunctuated string
+% "JI YUANFENG", so every automatic parser reads the family name as "YUANFENG" and `/verify-refs`
+% raises a MISMATCH that is an artifact of the deposit, not of this file (the East-Asian
+% name-order pitfall). The dataset DOI is cited in the manuscript's Data-availability statement,
+% where it carries the licence, and the peer-reviewed paper below is the bibliographic citation.
+
+@article{maierhein2024metrics,
+  title   = {Metrics reloaded: recommendations for image analysis validation},
+  author  = {Maier-Hein, Lena and Reinke, Annika and Godau, Patrick and others},
+  journal = {Nature Methods},
+  volume  = {21}, pages = {195--212}, year = {2024},
+  doi     = {10.1038/s41592-023-02151-z}
+}
+
+@article{maierhein2018rankings,
+  title   = {Why rankings of biomedical image analysis competitions should be interpreted with care},
+  author  = {Maier-Hein, Lena and Eisenmann, Matthias and Reinke, Annika and others},
+  journal = {Nature Communications},
+  volume  = {9}, year = {2018},
+  doi     = {10.1038/s41467-018-07619-7}
+}
+
+@article{zech2018generalization,
+  title   = {Variable generalization performance of a deep learning model to detect pneumonia in chest radiographs: A cross-sectional study},
+  author  = {Zech, John R. and Badgeley, Marcus A. and Liu, Manway and others},
+  journal = {PLOS Medicine},
+  volume  = {15}, pages = {e1002683}, year = {2018},
+  doi     = {10.1371/journal.pmed.1002683}
+}
+
+@article{badgeley2019confounding,
+  title   = {Deep learning predicts hip fracture using confounding patient and healthcare variables},
+  author  = {Badgeley, Marcus A. and Zech, John R. and Oakden-Rayner, Luke and others},
+  journal = {npj Digital Medicine},
+  volume  = {2}, year = {2019},
+  doi     = {10.1038/s41746-019-0105-1}
+}
+
+@article{park2018methodologic,
+  title   = {Methodologic Guide for Evaluating Clinical Performance and Effect of Artificial Intelligence Technology for Medical Diagnosis and Prediction},
+  author  = {Park, Seong Ho and Han, Kyunghwa},
+  journal = {Radiology},
+  volume  = {286}, pages = {800--809}, year = {2018},
+  doi     = {10.1148/radiol.2017171920}
+}
+
+@article{tejani2024claim,
+  title   = {Checklist for Artificial Intelligence in Medical Imaging (CLAIM): 2024 Update},
+  author  = {Tejani, Ali S. and Klontzas, Michail E. and Gatti, Anthony A. and Mongan, John T. and Moy, Linda and Park, Seong Ho and Kahn, Charles E. and others},
+  journal = {Radiology: Artificial Intelligence},
+  volume  = {6}, number = {4}, year = {2024},
+  doi     = {10.1148/ryai.240300}
+}
+
+@article{mongan2020claim,
+  title   = {Checklist for Artificial Intelligence in Medical Imaging (CLAIM): A Guide for Authors and Reviewers},
+  author  = {Mongan, John and Moy, Linda and Kahn, Charles E.},
+  journal = {Radiology: Artificial Intelligence},
+  volume  = {2}, pages = {e200029}, year = {2020},
+  doi     = {10.1148/ryai.2020200029}
+}
+
+@article{collins2024tripodai,
+  title   = {TRIPOD+AI statement: updated guidance for reporting clinical prediction models that use regression or machine learning methods},
+  author  = {Collins, Gary S. and Moons, Karel G. M. and Dhiman, Paula and others},
+  journal = {BMJ},
+  pages   = {e078378}, year = {2024},
+  doi     = {10.1136/bmj-2023-078378}
+}
+
+@article{wasserthal2023totalsegmentator,
+  title   = {TotalSegmentator: Robust Segmentation of 104 Anatomic Structures in CT Images},
+  author  = {Wasserthal, Jakob and Breit, Hanns-Christian and Meyer, Manfred T. and others},
+  journal = {Radiology: Artificial Intelligence},
+  volume  = {5}, year = {2023},
+  doi     = {10.1148/ryai.230024}
+}

@@ -43,6 +43,44 @@
   analysis on a laptop from the shipped CSVs, and **prints rather than pretends** for the two tiers
   that need ~25 GB of public data and ~50 GPU-hours.
 
+- **Demo 5, second pass — the manuscript layer, and a cross-substrate review panel that rejected it.**
+  Added the analysis and reporting artifacts that Demos 1–3 ship and Demo 5 lacked: five derived
+  tables, five figures (including a STARD-style case-flow diagram built through the shipped
+  `/make-figures` R pipeline), a title page, a 13-entry DOI-verified bibliography, a rendered DOCX, a
+  **44-item CLAIM 2024 assessment**, a reproducibility lock, and a pipeline log.
+
+  Then `/self-review --panel` was run with a **cross-substrate roster** — the manuscript was drafted
+  by Claude, so a Claude-only panel would inherit the drafter's blind spots and one lens was routed
+  to Codex. **The Codex reviewer returned a Reject and was substantially right**, on points every
+  deterministic gate had passed. Eight Majors were accepted; three changed what the paper claims:
+
+  - **Rung 3 is a *constructed* test, not a discovered failure.** The evaluation plan named the
+    normalisation contract and predicted the collapse before inference ran — so framing it as a
+    clinician landing on a defect "no step asked them to read" overclaimed, because the investigator
+    had read exactly that field in advance. The claim is now narrower and defensible: the pipeline is
+    *silent* about a known incompatibility.
+  - **The causal attribution exceeded the design.** No correctly-normalised MRI arm was run, so
+    preprocessing failure and representation failure are not separated. "Located the cause" is gone.
+  - **One authored example cannot support general claims about tooling.** The routing-and-severity
+    argument is now labelled a hypothesis this example motivates.
+
+  Two of the author's own statements were false against the shipped artifacts and are corrected in
+  place: the Abstract said "60 plausible segmentations" while Table 2 records **20 empty predictions**
+  (and five more under 1 mL), and "registered in advance" is unprovable here because the plan and the
+  results first appear in the same commit.
+
+  Numerical defects the panel found and the gates had not: **HD95 was quoted against the Dice
+  denominator** although it is undefined exactly where predictions are empty — the worst cases — so it
+  was optimistic by a one-directional selection that grows with the failure rate (9/9, 270/298,
+  **40/59**); the **bootstrap interval depended on arm processing order**, so `seed 20260725` pinned the
+  run rather than the arm; **Δ-Dice was called a "drop" with no interval** on the difference; and the
+  subgroup **labels described a different interval closure from the binning code** (67 external CT
+  cases sit at exactly 2.00 mm). All fixed. While fixing the seeding the first patch reached for
+  `hash()`, which Python randomises per process — it would have destroyed determinism in the act of
+  repairing it; replaced with blake2b and verified stable across `PYTHONHASHSEED`.
+
+  `evaluate_segmentation.py` now **fails** on a missing prediction instead of warning and exiting 0.
+
 ## [5.24.0] - 2026-07-31
 
 **Hotfix:** several shipped detectors produced a wrong result a user could have believed —
