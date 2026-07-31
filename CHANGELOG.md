@@ -22,6 +22,29 @@
   No gate added. The recurrence risk is real — these are three-line snippets nobody executes — but a
   CI check that runs documented install commands is a new gate, and that is a decision to make
   deliberately rather than as a side effect of a two-line fix.
+- **The anonymisation gate declared a double-blind leak clean because it was in a `.yaml`.**
+  `check_asset_anonymization` scanned `.r` and `.py` under `figures/`. But `/make-figures` documents
+  its STROBE builder as `build_strobe_template.py --config figures/figure1_strobe.yaml`, and the
+  first box of a STROBE flow diagram is exactly where *"Patients screened at &lt;Hospital&gt;"* lives.
+  The identical string, in the same directory, got opposite verdicts:
+
+  ```
+  figures/figure1_strobe.py    ->  FAIL: institution-like token in figure script
+  figures/figure1_strobe.yaml  ->  PASS: no anonymization leak   ({'figure_scripts': 0})
+  ```
+
+  The `figure_scripts: 0` inside that PASS is the tell — a gate reporting success over an empty
+  input set looks exactly like a gate that passed. With the config scanned it reads
+  `figure_scripts: 1`, so "found nothing" is now distinguishable from "looked at nothing", and the
+  test asserts that counter rather than only the verdict.
+
+  `.yaml`, `.yml` and `.json` under `figures/` are now read the way the scripts already were — as
+  text, line by line, which is all this check ever needed. Both formats are in scope because the
+  builders in this repo parse both.
+
+  `skills/sync-submission/tests/test_anonymization_config_scan.sh` (wired) pins 9 assertions
+  including the scope control: the same leak *outside* `figures/` is still not a figure source and
+  still passes. Reverting the scanner turns 5 red.
 
 - **The front page understated the verification layer by more than half, and the gate built to
   prevent exactly that was not looking at it.** `README.md` introduced MedSci-Audit as *"a named

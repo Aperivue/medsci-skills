@@ -233,8 +233,21 @@ def build_report(root: Path, names: list[str], poppler: bool) -> Report:
         suffix = p.suffix.lower()
         rel = str(p.relative_to(root))
 
-        # 1. figure-generating scripts
-        if suffix in (".r", ".py") and _is_under_figures(p):
+        # 1. figure-generating scripts AND the config files that drive them.
+        #
+        # A figure builder does not have to be a script. `/make-figures` documents its STROBE
+        # builder as `build_strobe_template.py --config figures/figure1_strobe.yaml`, and the first
+        # box of a STROBE flow diagram is exactly where "Patients screened at <Hospital>" lives.
+        # Scanning only .r/.py meant the identical institution string blocked in one file and
+        # passed in the other:
+        #
+        #   figures/figure1_strobe.py    -> FAIL: institution-like token in figure script
+        #   figures/figure1_strobe.yaml  -> PASS: no anonymization leak  ({'figure_scripts': 0})
+        #
+        # For a double-blind submission that is an anonymity leak which the anonymisation gate
+        # declared clean. The builders in this repo parse YAML and JSON alike, so both are now read
+        # the way the scripts already were — as text, line by line, which is all this check needs.
+        if suffix in (".r", ".py", ".yaml", ".yml", ".json") and _is_under_figures(p):
             scripts += 1
             text = p.read_text(encoding="utf-8", errors="replace")
             for i, line in enumerate(text.splitlines(), 1):
