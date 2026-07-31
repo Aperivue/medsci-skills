@@ -2653,8 +2653,8 @@
     },
     {
       "path": "skills/manage-refs/scripts/fill_journal_abbrev.py",
-      "size": 4533,
-      "sha256": "2782190044944526e1f27572062192466b34e116a4a50c9f3aecc59117b06e6e"
+      "size": 5370,
+      "sha256": "a9d6ceab5a12832c3cbf9a329afef4afa9ed4964ad0e2a34dc5fa7ced5646bd1"
     },
     {
       "path": "skills/manage-refs/scripts/inject_zotero_cwyw.py",
