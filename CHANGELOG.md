@@ -4,6 +4,25 @@
 
 ### Fixed
 
+- **Two of the four documented install paths were broken, and the worse one succeeded.** Install
+  Option 1 creates the destination first (`mkdir -p ~/.claude/skills`); Options 2 and 3 did not, and
+  on a machine where `~/.claude/skills` does not yet exist — which is every first install — BSD `cp`
+  does this:
+
+  ```
+  Option 2:  cp: ~/.claude/skills: Not a directory     → nothing copied, at least it is loud
+  Option 3:  exit 0, and ~/.claude/skills/SKILL.md     → the skills DIRECTORY became the skill
+  ```
+
+  Option 3 is the one that matters: no error, no output, and a `~/.claude/skills` that contains a
+  skill's files instead of the skill. Claude Code then finds nothing, and the person following the
+  README has no signal to act on. Both now carry the same `mkdir -p` line Option 1 already had;
+  verified, including on a re-run so the corrected form stays idempotent.
+
+  No gate added. The recurrence risk is real — these are three-line snippets nobody executes — but a
+  CI check that runs documented install commands is a new gate, and that is a decision to make
+  deliberately rather than as a side effect of a two-line fix.
+
 - **The front page understated the verification layer by more than half, and the gate built to
   prevent exactly that was not looking at it.** `README.md` introduced MedSci-Audit as *"a named
   suite of **36 deterministic detectors**"* — the **v4.10** count — while
