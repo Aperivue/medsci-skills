@@ -133,7 +133,13 @@ SKILLS_PROSE_FILES = ["README.md", "paper.md"]
 # paper.md (the JOSS submission) states the total in its Summary and was ungated
 # until the suite grew past it — a paper whose headline number disagrees with the
 # software it describes is exactly the drift this file exists to prevent.
-DETECTOR_CLAIM_FILES = ["MEDSCI_AUDIT.md", "paper.md"]
+# README carries the same claim in its MedSci-Audit tagline and was NOT watched, so it sat at
+# 36 — the v4.10 count — while the catalog, MEDSCI_AUDIT.md and paper.md moved to 84. The
+# front page of the project understated its own verification layer by more than half, and the
+# gate built to prevent exactly that was not looking at it. The patterns above are already
+# scoped to current-state phrasings, so the dated version notes ("61 integrity detectors" in
+# the v5.21 entry) do not match and stay correct as history.
+DETECTOR_CLAIM_FILES = ["MEDSCI_AUDIT.md", "paper.md", "README.md"]
 DETECTOR_CLAIM_PATTERNS = [
     r"\b(\d{1,3})\s+deterministic detectors\b",
     r"\bThe\s+(\d{1,3})\s+detectors\s+fall into\b",

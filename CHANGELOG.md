@@ -4,6 +4,23 @@
 
 ### Fixed
 
+- **The front page understated the verification layer by more than half, and the gate built to
+  prevent exactly that was not looking at it.** `README.md` introduced MedSci-Audit as *"a named
+  suite of **36 deterministic detectors**"* — the **v4.10** count — while
+  `metadata/catalog_counts.json`, `MEDSCI_AUDIT.md` and `paper.md` all said **84**. Anyone deciding
+  whether this toolkit was worth installing read 36; the paper claiming 84 sat one link away.
+
+  `validate_catalog_consistency.py` exists to stop that drift and watched
+  `["MEDSCI_AUDIT.md", "paper.md"]` — the two files that were already right. Demonstrated both ways:
+  with `README.md` in scope the stale number fails as
+  `README.md L419 detector total: claims 36, expected 84`; with the previous scope the identical
+  file passes as *"OK: SSOT and all doc count claims agree with disk."*
+
+  README is now watched. Its **thirteen** dated version notes ("61 integrity detectors" in the
+  v5.21 entry, and so on) are untouched and unflagged — the detector patterns were already scoped
+  to current-state phrasings, so a release note recording the count at its release stays correct as
+  history rather than being rewritten.
+
 - **`check_figure_citation` reported three orphan floats where there were none.** The detector emits
   five verdicts, only two of which are orphans, and its summary line counted by **severity** while
   printing the result as a **kind**:
