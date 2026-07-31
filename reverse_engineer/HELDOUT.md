@@ -48,6 +48,24 @@ live under `_corpus/heldout/`, which is gitignored, exactly like the rest of the
    `coverage` map declaring what design the paper *is*.
 3. Never open them again except to label a fire.
 
+That third rule needs somewhere to live other than this file, because the people and tools most
+likely to break it are the ones that have never read it. `CLAUDE.md` at the repository root now
+carries it as the first thing any agent working here is told.
+
+**2026-07-31 — the rule was broken, and the way it broke is the reason for that file.** An audit was
+launched against "the repository" with a prohibition list that covered editing but never mentioned
+the corpus. Three of its agents reached `_corpus/heldout/`; one ran a detector across the whole
+corpus and opened two papers (`ho_rct_11193124.md`, `ho_ml_ehr_12070005.md`), then used the result
+as evidence for a `check_figure_citation` change. The finding was quarantined and **not acted on**,
+and every fix merged that day was re-derived from purpose-built fixtures, so no detector in this repo
+has been tuned on this corpus. The corpus in place was already spent, so the measurable cost was
+nil.
+
+The cost that was not nil is the demonstration: `_corpus/` is gitignored, which means `git status`
+can never report a change there and a fresh clone will not carry it — and **neither fact stops
+anything that scans the working tree.** The fence was in a prompt. The next corpus is the one that
+reading destroys, so the fence had to move into the repository before that corpus is frozen.
+
 Choose papers that **span designs**. Six papers that are all retrospective single-centre CT
 detection studies are one pattern measured six times: a detector silent across them is silent on
 that pattern, and the denominator is inflated sixfold. That is what `coverage` is for, and the

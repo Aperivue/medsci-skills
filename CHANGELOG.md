@@ -2,6 +2,30 @@
 
 ## [Unreleased]
 
+### Added
+
+- **`CLAUDE.md` — the held-out corpus fence, moved out of a prompt and into the repository.**
+  `_corpus/heldout/` exists to be material no detector was written knowing about, and its protocol
+  spends a *fresh* corpus by the act of **reading it**. That rule lived in `reverse_engineer/HELDOUT.md`
+  and in whatever instructions a given session happened to carry; the repository itself said nothing,
+  and there was no `CLAUDE.md` or `AGENTS.md` for an agent to find.
+
+  On 2026-07-31 an audit was launched against "the repository" with a prohibition list that covered
+  editing but never mentioned the corpus. Three of its agents reached `_corpus/heldout/`; one ran a
+  detector across the whole corpus, opened two papers, and used the result as evidence for a
+  `check_figure_citation` change. That finding was quarantined and **not acted on**; every fix merged
+  that day was re-derived from purpose-built fixtures, and the corpus in place had already been
+  declared spent, so nothing measurable was lost.
+
+  What the episode demonstrated is worth more than what it cost: `_corpus/` is gitignored, so
+  `git status` can never report a change there and a clone does not carry it — and **neither fact
+  stops anything that scans the working tree.** A fence that exists only in a prompt is not a fence.
+  It now sits at the repository root as the first thing any agent working here is told, with the
+  reason attached, because a prohibition without its reason is one an agent will talk itself past.
+
+  `CONTRIBUTING.md` is deliberately left alone: `_corpus/` never reaches an outside contributor, so
+  the warning would be noise for the only audience that reads that file.
+
 ### Fixed
 
 - **`fill_journal_abbrev.py` had never run.** `parse_entries` returned the `Match` objects from
