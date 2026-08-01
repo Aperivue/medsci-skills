@@ -1,0 +1,25 @@
+{
+  "_synthetic": "Not a real trained plan. Shape mimics an nnU-Net plans.json.",
+  "configurations": {
+    "3d_fullres": {
+      "normalization_schemes": [
+        "CTNormalization"
+      ],
+      "spacing": [
+        2.5,
+        0.8,
+        0.8
+      ]
+    }
+  },
+  "foreground_intensity_properties_per_channel": {
+    "0": {
+      "mean": 90.0,
+      "std": 40.0,
+      "percentile_00_5": -38.0,
+      "percentile_99_5": 174.0,
+      "min": -450.0,
+      "max": 1040.0
+    }
+  }
+}

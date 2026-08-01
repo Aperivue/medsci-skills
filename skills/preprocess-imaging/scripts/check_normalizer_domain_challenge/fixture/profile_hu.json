@@ -1,0 +1,144 @@
+{
+  "_synthetic": "Not real patients. Twelve synthetic CT cases, all with an air floor.",
+  "dataset": "synthetic CT",
+  "splits": [
+    {
+      "name": "external_ct",
+      "labelled": true
+    }
+  ],
+  "cases": [
+    {
+      "case": "ct_000",
+      "split": "external_ct",
+      "intensity": {
+        "min": -1024.0,
+        "p01": -1000.0,
+        "p50": -80.0,
+        "p99": 320.0,
+        "max": 1500.0
+      }
+    },
+    {
+      "case": "ct_001",
+      "split": "external_ct",
+      "intensity": {
+        "min": -1024.0,
+        "p01": -1000.0,
+        "p50": -80.0,
+        "p99": 320.0,
+        "max": 1500.0
+      }
+    },
+    {
+      "case": "ct_002",
+      "split": "external_ct",
+      "intensity": {
+        "min": -1024.0,
+        "p01": -1000.0,
+        "p50": -80.0,
+        "p99": 320.0,
+        "max": 1500.0
+      }
+    },
+    {
+      "case": "ct_003",
+      "split": "external_ct",
+      "intensity": {
+        "min": -1024.0,
+        "p01": -1000.0,
+        "p50": -80.0,
+        "p99": 320.0,
+        "max": 1500.0
+      }
+    },
+    {
+      "case": "ct_004",
+      "split": "external_ct",
+      "intensity": {
+        "min": -1024.0,
+        "p01": -1000.0,
+        "p50": -80.0,
+        "p99": 320.0,
+        "max": 1500.0
+      }
+    },
+    {
+      "case": "ct_005",
+      "split": "external_ct",
+      "intensity": {
+        "min": -1024.0,
+        "p01": -1000.0,
+        "p50": -80.0,
+        "p99": 320.0,
+        "max": 1500.0
+      }
+    },
+    {
+      "case": "ct_006",
+      "split": "external_ct",
+      "intensity": {
+        "min": -1024.0,
+        "p01": -1000.0,
+        "p50": -80.0,
+        "p99": 320.0,
+        "max": 1500.0
+      }
+    },
+    {
+      "case": "ct_007",
+      "split": "external_ct",
+      "intensity": {
+        "min": -1024.0,
+        "p01": -1000.0,
+        "p50": -80.0,
+        "p99": 320.0,
+        "max": 1500.0
+      }
+    },
+    {
+      "case": "ct_008",
+      "split": "external_ct",
+      "intensity": {
+        "min": -1024.0,
+        "p01": -1000.0,
+        "p50": -80.0,
+        "p99": 320.0,
+        "max": 1500.0
+      }
+    },
+    {
+      "case": "ct_009",
+      "split": "external_ct",
+      "intensity": {
+        "min": -1024.0,
+        "p01": -1000.0,
+        "p50": -80.0,
+        "p99": 320.0,
+        "max": 1500.0
+      }
+    },
+    {
+      "case": "ct_010",
+      "split": "external_ct",
+      "intensity": {
+        "min": -1024.0,
+        "p01": -1000.0,
+        "p50": -80.0,
+        "p99": 320.0,
+        "max": 1500.0
+      }
+    },
+    {
+      "case": "ct_011",
+      "split": "external_ct",
+      "intensity": {
+        "min": -1024.0,
+        "p01": -1000.0,
+        "p50": -80.0,
+        "p99": 320.0,
+        "max": 1500.0
+      }
+    }
+  ]
+}

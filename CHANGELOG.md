@@ -62,6 +62,35 @@
   wrote into the arm's own output directory is committed as the evidence
   (`qc/rung3c_plans_used.json`: `["ZScoreNormalization"]`, against 3b's `["CTNormalization"]`).
 
+- **`/preprocess-imaging` `check_normalizer_domain.py` — the demo's finding, promoted to a gate
+  (85th detector).** Demo 5 measured what a normaliser-domain mismatch costs: **~0.28 Dice**,
+  established by two independent counterfactuals neither of which retrained the model. The toolkit's
+  own profiler had already recorded the underlying property *before training* — as a **Minor**, in a
+  directory no later step reads. **The gap was routing and severity, not detection**, so the gate
+  re-reads an existing `/profile-imaging` profile against the contract that will actually be
+  applied, at the moment where ignoring it costs something. Two JSON files in, stdlib only: no
+  imaging library, no pixels, no model.
+
+  `NORMALIZER_DOMAIN_MISMATCH` (Major) fires when a contract assuming Hounsfield units meets a split
+  with no negative voxel — HU is *defined* by an air floor near −1000, so a cohort that never goes
+  negative is not in it, whatever a metadata field claims. `NORMALIZER_SPLIT_DIVERGENCE` (Flag)
+  fires when splits inside one cohort disagree about the domain.
+
+  **A third check was written and deleted.** `NORMALIZER_CLIP_DESTRUCTIVE` compared each split's 99th
+  percentile against the contract's clip ceiling. Run against the cohorts this repository already
+  produces, it fired on **100 % of the CT arm and 100 % of the MSD training set** — the data the plan
+  was fit on. Of course it did: a CT volume's p99 is bone, and clipping bone above a soft-tissue
+  window is what `CTNormalization` is *for*. Deleted rather than tuned, and the reason is recorded in
+  the module docstring and the challenge card so it is not re-invented. This is the repository's
+  dominant defect class — a checker that rejects the notation the world actually uses — caught by
+  running the new detector on the repository's own correct data before shipping it.
+
+  The contract loader also **refuses** input it cannot parse instead of scoring it as "assumes
+  arbitrary" and returning OK; the first version did the latter and returned a green on a file it had
+  not understood. Challenge card guards all three: the contract's own domain must come back clean,
+  an arbitrary-unit cohort must raise a Major, and an unreadable contract must not succeed.
+  **58 skills / 47 guidelines / 85 integrity detectors.**
+
 ## [Unreleased]
 
 ### Added
