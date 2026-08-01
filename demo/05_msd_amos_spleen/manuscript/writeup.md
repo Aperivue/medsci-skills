@@ -9,45 +9,31 @@ bibliography: _src/refs.bib
 
 **Background and objective.** Agentic toolkits can now scaffold a medical-imaging model, and a
 clinician-researcher without an engineer can plausibly reach a trained network. Where that path
-breaks is not known. We ran one such study end to end on public data and recorded both the result
-and every point that required engineering knowledge. This is a **tooling demonstration, not a
-clinical claim.**
+breaks is not known.
 
-**Methods.** We trained nnU-Net v2 [@isensee2021nnunet] (`3d_fullres`, five folds, 100 epochs) for
-3-D spleen segmentation on 32 cases of the Medical Segmentation Decathlon Task09
-[@antonelli2022msd] under a patient-level split (seed 42, 9 held out), and evaluated it on three
-labelled rungs: the internal held-out set, AMOS22 CT (n = 300) as a genuinely external cohort, and
-AMOS22 MRI (n = 60) as a modality shift [@ji2022amos]. The evaluation plan —
-metric choice, the handling of cases containing no spleen, the subgroup cut-points, and a written
-prediction for the MRI rung — was fixed before any prediction existed. Two deterministic gates ran
-before training: a split-disjointness proof and a preprocessing-leakage check. Metric selection
-follows Metrics Reloaded [@maierhein2024metrics]: Dice with a boundary metric, never accuracy.
-Dice and HD95 are reported as medians with bootstrap 95% confidence intervals (10,000 resamples,
-seed 20260725). Every number comes from an executed run.
+**Methods.** We trained nnU-Net v2 [@isensee2021nnunet] for 3-D spleen segmentation on 32 cases of
+the Medical Segmentation Decathlon Task09 [@antonelli2022msd] under a patient-level split, and
+evaluated it on three labelled rungs: the internal held-out set, AMOS22 CT (n = 300) as a genuinely
+external cohort, and AMOS22 MRI (n = 60) as a modality shift [@ji2022amos]. Metrics, the handling of
+cases containing no spleen, the subgroup cut-points and a written prediction for the MRI rung were
+fixed before any prediction existed; Dice is reported with a boundary metric and never accuracy
+[@maierhein2024metrics].
 
-**Results.** Internal median Dice was 0.9595 (95% CI 0.9367 to 0.9734). On genuinely external CT it
-fell to 0.8932 (0.8633 to 0.9108) — a difference in medians of −0.0662 (95% CI −0.0996 to −0.0416)
-— with 28 of 300 predictions empty and both
-spleen-free cases receiving a false positive. Performance was lowest in the subgroup that
-motivates the task: enlarged spleens above 250 mL scored 0.7694 (n = 67) against 0.9114 for normal
-100 to 250 mL volumes (n = 194). On MRI, median Dice was 0.0152 (0.0000 to
-0.0626). Replaying the trained plan's normalisation over both external arms documents a
-preprocessing incompatibility present in every MRI case and in no CT case. The plan applies `CTNormalization`, clipping to the training foreground's
-[-38, 174] HU and z-scoring by mean 89.8 and SD 39.8. Every one of the 300 CT cases contains
-negative voxels and a median of 2.7% of voxels exceed the clip ceiling; none of the 60 MRI cases
-contains a single negative voxel and a median of 23.2% (up to 68.6%) exceed it, leaving as few as
-two distinct intensity levels in the extreme case. The pipeline reported no error and returned an
-output file for all 60 cases; 20 of those files are empty and five more contain under 1 mL against
-reference spleens of 100 to 600 mL, so the run completed without signalling anything while producing
-almost nothing usable.
+**Results.** Internal median Dice was 0.9595 (95% CI 0.9367 to 0.9734) and fell to 0.8932 (0.8633 to
+0.9108) on external CT, a difference of −0.0662 (−0.0996 to −0.0416). Performance was lowest where
+the task matters most: enlarged spleens scored 0.7694 against 0.9114 for normal volumes. On MRI,
+median Dice was 0.0152 (0.0000 to 0.0626). Replaying the trained plan's normalisation over both
+external arms documents an incompatibility present in every MRI case and no CT case: all 300 CT
+cases contain negative voxels and 2.7% of voxels exceed the clip ceiling, while **no** MRI case
+contains a negative voxel and a median 23.2% exceed it. The pipeline reported no error and returned
+a file for all 60 cases — 20 of them empty.
 
-**Conclusion.** The third rung is a **constructed** test: the evaluation plan named the
-normalisation contract and predicted the collapse before inference ran, so this is a demonstration
-that the pipeline stays silent about a known incompatibility, not evidence that the failure was
-discovered in the course of unaided work. Within that limit, the run shows a defect class worth
-tooling against — one that produces a number rather than an error, and that the toolkit's own
-profiler had already flagged at Minor severity in a directory no later step reads. Generalisation
-beyond this single worked example is a hypothesis, not a result.
+**Conclusion.** The third rung is a **constructed** test: the plan named the normalisation contract
+and predicted the collapse before inference ran. It demonstrates that the pipeline stays silent
+about a known incompatibility, not that the failure was discovered in unaided work. Within that
+limit it shows a defect class worth tooling against — one that produces a number rather than an
+error, and that the toolkit's own profiler had already flagged at Minor severity in a directory no
+later step reads. Generalisation beyond this example is a hypothesis, not a result.
 
 ## Introduction
 
@@ -146,10 +132,13 @@ better summary for anyone budgeting total error. Both are reported side by side 
 exactly that reason, and the empty-prediction count is reported with them so the median is never
 read as if the failures had not happened.
 
-**Between-arm differences carry their own interval.** A difference of two separately estimated
-medians is not an inferential quantity on its own, and the internal arm's n = 9 contributes most of
-the uncertainty. Each Δ-Dice is therefore a bootstrap interval for the difference in population
-medians, with both arms resampled independently at the case level.
+**Uncertainty.** Every median is reported with a percentile bootstrap 95% interval over cases —
+**10,000 resamples, seed 20260725**, seeded per (arm, metric) so that an arm's interval does not
+depend on how many other arms were bootstrapped before it. Between-arm differences carry their own
+interval: a difference of two separately estimated medians is not an inferential quantity on its
+own, and the internal arm's n = 9 contributes most of the uncertainty, so each Δ-Dice is a bootstrap
+interval for the difference in population medians with both arms resampled independently at the case
+level.
 
 Three of the 360 labelled AMOS cases contain no spleen voxel. Dice is undefined on
 an empty reference, so those cases were excluded from the metric distributions, which fixes the
@@ -259,33 +248,29 @@ a hypothesis this example motivates, not as a property established by it — one
 architecture, one dataset pair and one deliberately chosen mismatch cannot support a general claim
 about tooling, and no independent user ever walked this path.
 
-**The written prediction was right in kind and wrong in degree.** The evaluation plan predicted the
-MRI collapse and attributed it to the normalisation contract, and the outcome matched. (Its
-chronology is documented by the authors rather than provable from this repository; see Methods.) It also predicted that the clipped volume would retain "only two values",
+**The written prediction called the mechanism, then overstated it.** Before any prediction existed,
+the evaluation plan named the normalisation contract as the thing that would break the MRI rung, and
+the outcome matched. (Its chronology is documented by the authors rather than provable from this
+repository; see Methods.) It also predicted that the clipped volume would retain "only two values",
 reasoning from a single MRI case with an unusually large intensity range. Measured across the
 cohort, two levels is the extreme rather than the norm: the median is 175 levels and 23.2% of voxels
 clipped. Generalising a mechanism from one case overstated it, and the plan is left uncorrected in
 the repository with this note beside it.
 
-**Limitations.** The training cohort is 32 cases from a single institution, and the schedule is a
-tenth of nnU-Net's default. Only one configuration was trained, so this is nnU-Net the network
-rather than nnU-Net the method [@isensee2024nnunetrevisited]. Subgroup estimates are external-only
-because 9 internal cases cannot support them. Whether the spleen-free cases reflect splenectomy or
-annotation omission was not determined. The slice-thickness subgroup axis is the third voxel dimension,
-which is the through-plane axis for the CT arm but **not** for 26 of the 60 MRI volumes, whose acquisition
-plane differs; nine of the 59 scored MRI cases would change stratum if the coarsest axis were used instead.
-The MRI subgroup rows should be read with that in mind, and the CT rows — where the axis is the through-plane
-one in all 300 cases — are unaffected. The internal rung is not independent evidence about
-nnU-Net, for the reason given above. No claim is made about clinical utility, and none of these
-numbers should be read as a statement about nnU-Net's quality: a correctly configured MRI pipeline
-was never attempted here, and abdominal segmentation models trained for multi-modality use exist
-[@wasserthal2023totalsegmentator]. Most importantly, **the design does not separate preprocessing
-failure from representation failure**: the correctly-normalised MRI counterfactual — the one arm
-that would distinguish them — was not run, so the normalisation incompatibility is documented and
-sufficient to account for the magnitude, not isolated as the sole cause. Finally, this is one
-worked example authored by the same people who built the toolkit; there were no independent users,
-no comparator workflow and no repetition, so every statement about tooling in general is a
-hypothesis this example motivates.
+**Limitations.** The training cohort is 32 cases from a single institution and only one nnU-Net
+configuration was trained, so this is nnU-Net the network rather than nnU-Net the method
+[@isensee2024nnunetrevisited]. Subgroup estimates are external-only because 9 internal cases cannot
+support them, and whether the spleen-free cases reflect splenectomy or annotation omission was not
+determined. The slice-thickness axis is the third voxel dimension, which is the through-plane axis
+for every CT case but **not** for 26 of the 60 MRI volumes; nine scored MRI cases would change
+stratum under a coarsest-axis rule, so the MRI subgroup rows should be read with that in mind.
+
+Most importantly, **the design does not separate preprocessing failure from representation
+failure**: the correctly-normalised MRI counterfactual, the one arm that would distinguish them, was
+not run. The incompatibility is documented and sufficient to account for the magnitude; it is not
+isolated as the sole cause, and a correctly configured cross-modality pipeline was never attempted
+here [@wasserthal2023totalsegmentator]. Finally, this is one worked example authored by the people
+who built the toolkit — no independent users, no comparator workflow, no repetition.
 
 ## Conclusion
 
@@ -303,16 +288,15 @@ establish is that the failure can be complete, and completely quiet, at the same
 
 ## Tables
 
-**Table 1.** Cohort characteristics by evaluation arm (`analysis/tables/table1_cohort_characteristics.csv`).
+**Table 1.** Cohort characteristics by evaluation arm: case counts, target-free counts, spleen
+volume and slice thickness.
 
-**Table 2.** Performance by arm, with target-free and empty-prediction accounting
-(`analysis/tables/table2_performance.csv`).
+**Table 2.** Performance by arm, with the target-free, empty-prediction and HD95 denominators
+reported beside each estimate.
 
-**Table 3.** Pre-specified subgroups, identical cut-points across arms
-(`analysis/tables/table3_subgroups.csv`).
+**Table 3.** Pre-specified subgroups, identical cut-points across arms.
 
-**Table 4.** What the trained plan's normaliser does to each external arm
-(`analysis/tables/table4_normalisation_evidence.csv`).
+**Table 4.** What the trained plan's normaliser does to each external arm.
 
 ## Figure legends
 

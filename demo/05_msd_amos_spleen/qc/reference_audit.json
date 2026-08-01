@@ -656,5 +656,5 @@
       "note": ""
     }
   ],
-  "_note": "The `source` field is normalised to a repository-relative path. verify-refs records the absolute path it was handed, which on a maintainer's machine embeds a home directory; re-running the render locally will write your own path back into this field."
+  "_note": "Path normalised to repository-relative by manuscript/render.sh. verify-refs records the absolute path it was handed, which embeds a home directory."
 }

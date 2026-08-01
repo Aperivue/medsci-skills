@@ -124,11 +124,30 @@ L3 **REMOVE** — half of Limitations restates Methods and Introduction.
 L4 **MOVE** — the written prediction is introduced as a confession rather than as a strength.
 L5 **MOVE** — all four table legends are repository paths.
 
-**Not applied this round.** The floor revisions above *added* material (an identification-limits
-paragraph, an estimand paragraph, a chronology caveat), so the Abstract and Limitations are now
-longer, not shorter. Applying L1–L5 in the same pass would mix an accuracy revision with a voice
-revision and make neither reviewable. They are the next round's work, and the ceiling gate
-(`check_editorial_impression`) still reports no required subtraction.
+**Round 1 — not applied.** The floor revisions above *added* material (an identification-limits
+paragraph, an estimand paragraph, a chronology caveat), so the Abstract and Limitations came out of
+that round longer, not shorter. Applying L1–L5 in the same pass would have mixed an accuracy
+revision with a voice revision and made neither reviewable.
+
+### Round 2 (2026-08-01) — the subtraction round, applied
+
+All five applied. Abstract **543 → 337 words**; Limitations **~230 → 182**; body **3,972 → 3,721**.
+
+| | Action taken |
+|---|---|
+| L1 | Abstract cut: seeds, resample count, gate names, normaliser constants and the "every number comes from an executed run" reassurance all left the Abstract. The contrast that does the work (300/300 vs 0/60 negative voxels, 2.7% vs 23.2% clipped, 20 empty files) stayed. |
+| L2 | The clinical-claim guard now appears **once**, on the title page. |
+| L3 | Limitations lost the three restatements (schedule arithmetic, internal-rung provenance, clinical-claim guard) and kept only what it alone says. |
+| L4 | The prediction paragraph now opens with what the plan got right; the correction follows it. |
+| L5 | Table legends describe the table instead of naming a CSV path. |
+
+**A subtraction round can delete a fact the floor needed, and this one did.** `seed 20260725` and
+`10,000 resamples` lived **only** in the Abstract, so cutting them removed the bootstrap parameters
+from the manuscript entirely — a reproducibility regression that CLAIM item 29 depends on, invisible
+to the ceiling lens that asked for the cut. R4's instruction was *move to Methods*, not delete.
+Restored to a new **Uncertainty** paragraph in Methods, which now also states the per-(arm, metric)
+seeding. Every floor gate re-run and green after the restore; the ceiling gate reports no remaining
+subtraction.
 
 ## Strengths (for a cover letter)
 

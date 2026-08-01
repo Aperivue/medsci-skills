@@ -115,6 +115,24 @@
   per minute, font floor, against the archetype in `deck.qc`). The budget gate rejected four of the
   five decks on the first build and sent them back two or three times each.
 
+- **Demo 5 subtraction round (the deferred half of the panel).** The editor lens's five
+  REMOVE/MOVE/TIGHTEN findings, held back from the accuracy round so the two would stay separately
+  reviewable, are now applied: **Abstract 543 → 337 words**, Limitations ~230 → 182, body 3,972 →
+  3,721. Seeds, resample counts, gate names and the normaliser constants left the Abstract; the
+  contrast that does the work stayed. The clinical-claim guard now appears once, on the title page.
+  Table legends describe their table instead of naming a CSV path.
+
+  **A subtraction round can delete a fact the floor needed, and this one did.** `seed 20260725` and
+  `10,000 resamples` lived *only* in the Abstract, so cutting it removed the bootstrap parameters
+  from the manuscript entirely — a reproducibility regression invisible to the very lens that asked
+  for the cut, because that lens reads for tone. The instruction was *move to Methods*, not delete.
+  Restored as a Methods **Uncertainty** paragraph; every floor gate re-run green afterwards.
+
+  Also: `manuscript/render.sh` now binds DOCX rendering to normalising the audit-source path.
+  `/verify-refs` writes the absolute path it was handed into its audit JSON, the repository's PII
+  gate rejects it, and scrubbing it by hand after each render was forgotten twice. Binding the two
+  makes the leak unable to survive a render.
+
 ## [5.24.0] - 2026-07-31
 
 **Hotfix:** several shipped detectors produced a wrong result a user could have believed —
