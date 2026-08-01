@@ -11,6 +11,7 @@ Accuracy is not reported (target ~0.2-0.4% of volume). Dice/HD95 on scored cases
 | rung2 AMOS CT (external) | 298 | 0.8932 [0.8633-0.9108] | 270 | 5.6784 [4.8546-8.4253] | -0.0662 [-0.0996--0.0416] |
 | rung3 AMOS MRI (modality shift) | 59 | 0.0152 [0.0000-0.0626] | 40 | 70.0457 [45.6939-129.6796] | -0.9443 [-0.9715--0.8813] |
 | rung3b AMOS MRI rescaled (counterfactual) | 59 | 0.3016 [0.1744-0.4048] | 45 | 39.9848 [31.0653-56.7757] | -0.6579 [-0.7924--0.5392] |
+| rung3c AMOS MRI z-scored (counterfactual) | 59 | 0.2870 [0.1348-0.3546] | 45 | 52.4516 [33.9854-59.0842] | -0.6724 [-0.8302--0.5927] |
 
 ## Target-free cases (§4 - never a silent zero)
 
@@ -18,6 +19,7 @@ Accuracy is not reported (target ~0.2-0.4% of volume). Dice/HD95 on scored cases
 - rung2 AMOS CT (external): 2 target-free; 2 predicted a (false) organ ['amos_0057', 'amos_0115']
 - rung3 AMOS MRI (modality shift): 1 target-free; 0 predicted a (false) organ 
 - rung3b AMOS MRI rescaled (counterfactual): 1 target-free; 0 predicted a (false) organ 
+- rung3c AMOS MRI z-scored (counterfactual): 1 target-free; 0 predicted a (false) organ 
 
 ## Pre-specified subgroups (§7 - identical cut-points across arms)
 
@@ -61,4 +63,14 @@ Volume edges [100.0, 250.0] mL; slice-thickness edges [2.0, 5.0] mm (fixed, reco
 - **Slice thickness (spacing_z)**
     - thin (<2 mm): n=26, Dice 0.3561 [0.2521-0.5089]
     - mid (2-5 mm): n=33, Dice 0.1865 [0.0018-0.3910]
+    - thick (>=5 mm): n=0, Dice n/a
+
+### rung3c AMOS MRI z-scored (counterfactual)
+- **Spleen volume (gt_ml)**
+    - small (<100 mL): n=7, Dice 0.0000 [0.0000-0.3221]
+    - normal (100-250 mL): n=41, Dice 0.2947 [0.1247-0.4333]
+    - enlarged (>=250 mL): n=11, Dice 0.3546 [0.0119-0.5618]
+- **Slice thickness (spacing_z)**
+    - thin (<2 mm): n=26, Dice 0.3283 [0.1989-0.4924]
+    - mid (2-5 mm): n=33, Dice 0.1773 [0.0036-0.3546]
     - thick (>=5 mm): n=0, Dice n/a

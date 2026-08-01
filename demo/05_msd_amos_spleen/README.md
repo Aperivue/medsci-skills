@@ -38,7 +38,8 @@ Third-party Hugging Face / Kaggle mirrors were rejected for provenance. **No dat
 | 1 internal | MSD held-out | 9 | **0.9595** [0.9367–0.9734] | 1.78 (9) | — |
 | 2 genuine external | AMOS **CT** | 298 / 300 | **0.8932** [0.8633–0.9108] | 5.68 (270) | **−0.0662** [−0.0996, −0.0416] |
 | 3 modality shift | AMOS **MRI** | 59 / 60 | **0.0152** [0.0000–0.0626] | 70.05 (40) | **−0.9443** [−0.9715, −0.8813] |
-| 3b counterfactual | AMOS MRI, **rescaled** | 59 / 60 | **0.3016** [0.1744–0.4048] | 39.98 (45) | **−0.6579** [−0.7924, −0.5392] |
+| 3b counterfactual | AMOS MRI, **input rescaled** | 59 / 60 | **0.3016** [0.1744–0.4048] | 39.98 (45) | **−0.6579** [−0.7924, −0.5392] |
+| 3c counterfactual | AMOS MRI, **z-score normaliser** | 59 / 60 | **0.2870** [0.1348–0.3546] | 52.45 (45) | **−0.6724** [−0.8302, −0.5927] |
 
 **HD95 carries its own n, and it is smaller than the Dice n.** A case whose prediction is empty has
 a Dice of 0 but no predicted surface, so no boundary distance exists for it — and those are exactly
@@ -121,9 +122,24 @@ failure the network was not misreading MRI so much as never receiving it. The re
 real: an affine map restores dynamic range and cannot make an MR sequence's tissue contrast agree
 with the ordering a Hounsfield window encodes.
 
-The pre-written prediction was "partial recovery, 0.1 to 0.6, around 0.3 if pressed". That is a wide
-interval and one prediction; it is recorded as a calibration point, not as proof the reasoning was
-sound.
+**A second arm, by a different route, lands in the same place.** Rung 3b keeps the wrong normaliser
+and repairs the input. Rung 3c does the opposite: it keeps the original images and patches the
+trained plan's `normalization_schemes` to `ZScoreNormalization` — the normaliser nnU-Net *would*
+have chosen had `dataset.json` not declared a collection of 100 MRI volumes to be CT. Only that one
+field differs from the trained plan; the five checkpoints are the same files, and the plan nnU-Net
+wrote into its own output directory is committed as evidence
+([`qc/rung3c_plans_used.json`](qc/rung3c_plans_used.json)) because a run's log echoes a path rather
+than proving what it loaded.
+
+**3c − 3b = −0.0146 [−0.2136, +0.1575] — the interval spans zero.** Both arms leave the same 15 empty
+predictions, and their per-case Dice correlate at **r = 0.939**: they succeed and fail on the same
+images. Two unrelated repairs reaching the same place means the **intensity domain is the whole of
+the preprocessing story** and the form of the transform is not. It also answers the metadata
+question — fixing the mislabelled modality field alone would have reached 0.2870, not 0.8932.
+
+Both predictions were written before their runs. The first ("around 0.3") landed on the nose; the
+second ("around 0.35, plausibly above 3b") was inside its range but **wrong in direction**. Recorded
+together, because the second lowers the weight the first deserves.
 
 ### The toolkit saw half of it, and filed it as Minor
 

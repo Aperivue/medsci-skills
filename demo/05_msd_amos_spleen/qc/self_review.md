@@ -62,9 +62,12 @@ and sufficient to account for the magnitude, with an explicit paragraph on what 
 separate, repeated in Limitations. **Closed by measurement 2026-08-01**: rung 3b changed only the
 input intensity scale and recovered median Dice 0.0152 → **0.3016** (difference **+0.2864**
 [+0.1204, +0.4048]) while staying **−0.5916** [−0.7259, −0.4674] below external CT. Both mechanisms
-are real and their sizes differ — roughly 0.29 preprocessing, 0.59 representation. The hedge is
-replaced by a decomposition, which is a *stronger* claim than the hedge and a weaker one than the
-draft's original "located the cause".
+are real and their sizes differ. A **second** counterfactual (rung 3c) then swapped the normaliser
+instead of the input and reached 0.2870 — indistinguishable from 3b (−0.0146 [−0.2136, +0.1575]),
+same 15 empty predictions, per-case r = 0.939 — so the decomposition rests on two independent
+routes: roughly **0.28 intensity domain, 0.60 representation**. The hedge is replaced by a
+decomposition, which is a *stronger* claim than the hedge and a weaker one than the draft's original
+"located the cause".
 
 **M3. One authored example cannot support general claims about tooling** [D · Fatal] — *R3*
 One organ, one architecture, one dataset pair, one deliberately chosen mismatch, no independent

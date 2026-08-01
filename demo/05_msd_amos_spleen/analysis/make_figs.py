@@ -28,11 +28,13 @@ F = Path("../figures")
 F.mkdir(exist_ok=True)
 
 NAVY, CORAL, GREY = "#1B2A4E", "#B83E3A", "#8A8A8A"
-ARMS = ["rung1_msd_heldout", "rung2_amos_ct", "rung3_amos_mri", "rung3b_amos_mri_rescaled"]
+ARMS = ["rung1_msd_heldout", "rung2_amos_ct", "rung3_amos_mri",
+        "rung3b_amos_mri_rescaled", "rung3c_amos_mri_zscore"]
 SHORT = {"rung1_msd_heldout": "rung 1\nMSD held-out\n(internal)",
          "rung2_amos_ct": "rung 2\nAMOS CT\n(external)",
          "rung3_amos_mri": "rung 3\nAMOS MRI\n(as shipped)",
-         "rung3b_amos_mri_rescaled": "rung 3b\nAMOS MRI\n(rescaled)"}
+         "rung3b_amos_mri_rescaled": "rung 3b\nMRI input\nrescaled",
+         "rung3c_amos_mri_zscore": "rung 3c\nMRI z-score\nnormaliser"}
 RNG = np.random.default_rng(20260725)          # jitter only; never a reported quantity
 
 
@@ -53,7 +55,7 @@ def dice_of(rows: list[dict]) -> np.ndarray:
 def fig1() -> None:
     data = {a: dice_of(per_case(a)) for a in ARMS}
     data = {a: v for a, v in data.items() if v.size}
-    fig, ax = plt.subplots(figsize=(8.6, 4.2))
+    fig, ax = plt.subplots(figsize=(10.0, 4.4))
     pos = np.arange(len(data)) + 1
     ax.boxplot(list(data.values()), positions=pos, widths=0.45, showfliers=False,
                medianprops=dict(color=CORAL, lw=2),
@@ -67,7 +69,8 @@ def fig1() -> None:
     ax.set_xticklabels([SHORT[a] for a in data], fontsize=9)
     ax.set_ylabel("per-case Dice")
     ax.set_ylim(-0.04, 1.10)
-    ax.set_title("Per-case Dice by cohort — and what one input rescaling recovers", fontsize=11)
+    ax.set_title("Per-case Dice by cohort — and what two independent preprocessing fixes recover",
+                 fontsize=11)
     ax.axhline(0, ls=":", lw=0.8, color=GREY)
     fig.tight_layout()
     fig.savefig(F / "fig1_dice_by_arm.png", dpi=300, bbox_inches="tight")

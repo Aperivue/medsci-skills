@@ -43,6 +43,7 @@ sub = [r for r in table("table3_subgroups.csv") if r["arm"].startswith("rung2")]
 R1, R2, R3 = ("rung1 MSD held-out (internal)", "rung2 AMOS CT (external)",
               "rung3 AMOS MRI (modality shift)")
 R3B = "rung3b AMOS MRI rescaled (counterfactual)"
+R3C = "rung3c AMOS MRI z-scored (counterfactual)"
 prof = json.loads((DEMO / "qc" / "amos22_dataset_profile_spleen.json").read_text())
 intensity_claim = next(c for c in prof["claims"] if c["verdict"] == "INTENSITY_SCALE_INCONSISTENT")
 naive = json.loads((DEMO / "qc" / "preprocessing_leakage_naive.json").read_text())
@@ -176,25 +177,28 @@ add_content_slide(
 
 add_content_slide(
     prs,
-    title="Change only the input scale, and a fifth of the loss comes back",
+    title="Two different repairs recover the same third of the loss",
     bullets=[
         f"**{t2[R3]['dice_median_95CI'].split(' ')[0]} → "
         f"{t2[R3B]['dice_median_95CI'].split(' ')[0]}** — no retraining, same checkpoint",
-        f"  vs as-shipped MRI: **{t2[R3B]['delta_dice_vs_internal_95CI'].split(' ')[0]}** below internal",
-        "**Still far below CT: both mechanisms are real, and unequal.**",
+        f"  A second arm swaps the **normaliser** instead: "
+        f"**{t2[R3C]['dice_median_95CI'].split(' ')[0]}**",
+        "**Two unrelated repairs, same place — the domain is the story.**",
     ],
-    notes="대조군입니다. 강도 스케일 하나만 바꿨고 재학습은 없습니다. Dice가 0.015에서 0.302로 "
-          "스무 배 올랐지만 CT의 0.893에는 한참 못 미칩니다. 즉 원래 붕괴의 상당 부분은 전처리 "
-          "계약 탓이었고, 나머지는 진짜 표현 전이 실패입니다. 예측은 실행 전에 적어뒀습니다.")
+    notes="대조군 두 개입니다. 하나는 잘못된 정규화기를 두고 입력을 고쳤고, 다른 하나는 입력을 두고 "
+          "정규화기를 바꿨습니다. 둘 다 재학습 없이 0.29 부근에 도달했고 차이의 구간이 0을 포함합니다. "
+          "케이스별 상관은 0.94 — 같은 영상에서 성공하고 같은 영상에서 실패합니다. 즉 중요한 건 "
+          "데이터가 학습된 강도 도메인에 도달하느냐 하나뿐입니다. 두 예측 모두 실행 전에 적었고, "
+          "두 번째는 방향이 틀렸습니다.")
 
 add_closing_slide(
     prs,
     title="What this establishes, and what it does not",
     bullets=[
         "**Establishes:** the run exited 0 and reported a number that means nothing",
-        "**Measured:** ~0.29 Dice preprocessing, ~0.59 representation",
+        "**Measured:** ~0.28 Dice intensity domain, ~0.60 representation",
         "**Does not:** support general claims — one organ, one team",
-        "**Open:** a volume-wise z-score is a different counterfactual",
+        "**Open:** what a model *trained* on MR would do",
     ],
     contact="demo/05_msd_amos_spleen · every number re-derivable from the shipped CSVs",
     notes="마무리입니다. 이 연구가 세운 것과 세우지 못한 것을 나눠 말씀드립니다. "

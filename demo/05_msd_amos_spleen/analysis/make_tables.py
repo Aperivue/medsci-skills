@@ -35,12 +35,13 @@ SEED = 20260725
 N_BOOT = 10_000
 
 ARM_ORDER = ["rung1_msd_heldout", "rung2_amos_ct", "rung3_amos_mri",
-             "rung3b_amos_mri_rescaled"]
+             "rung3b_amos_mri_rescaled", "rung3c_amos_mri_zscore"]
 ARM_LABEL = {
     "rung1_msd_heldout": "rung1 MSD held-out (internal)",
     "rung2_amos_ct": "rung2 AMOS CT (external)",
     "rung3_amos_mri": "rung3 AMOS MRI (modality shift)",
     "rung3b_amos_mri_rescaled": "rung3b AMOS MRI rescaled (counterfactual)",
+    "rung3c_amos_mri_zscore": "rung3c AMOS MRI z-scored (counterfactual)",
 }
 # Cut-points are half-open on the LEFT of each edge: `bin_of` increments on `value >= edge`, so a
 # case sitting exactly on an edge falls into the UPPER stratum. The labels say so literally

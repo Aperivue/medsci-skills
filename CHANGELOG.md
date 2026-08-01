@@ -39,6 +39,29 @@
   authored example cannot ground general claims — stand as narrowed claims, untouched by this
   result.
 
+- **Demo 5 rung 3c — the second counterfactual, and two routes that agree.** Rung 3b kept the wrong
+  normaliser and repaired its input. Rung 3c does the opposite: the original images, with the trained
+  `plans.json` copied and **only** `normalization_schemes` patched to `ZScoreNormalization` — what
+  nnU-Net *would* have selected had `dataset.json` not declared a collection containing 100 MRI
+  volumes to be CT. Every other configuration field is byte-identical and the five fold checkpoints
+  are the same files. Pre-specified with its own written prediction before it ran.
+
+  **Median Dice 0.2870** (95% CI 0.1348–0.3546). Against rung 3b: **−0.0146 [−0.2136, +0.1575] — the
+  interval spans zero.** Both arms leave the same 15 empty predictions of 60, and their per-case Dice
+  correlate at **r = 0.939**: they succeed and fail on the same images rather than trading wins.
+
+  **Two unrelated repairs reaching the same place means the intensity *domain* is the whole of the
+  preprocessing story and the *form* of the transform is not.** It also settles the metadata
+  question: correcting the mislabelled modality field alone would have reached 0.2870, not 0.8932.
+
+  The prediction ("0.20–0.50, around 0.35, plausibly above 3b") was inside its range and **wrong in
+  direction**, and is recorded as such — it lowers the weight the previous arm's on-the-nose
+  prediction deserves.
+
+  Because a run's log echoes a hardcoded path rather than proving what it loaded, the plan nnU-Net
+  wrote into the arm's own output directory is committed as the evidence
+  (`qc/rung3c_plans_used.json`: `["ZScoreNormalization"]`, against 3b's `["CTNormalization"]`).
+
 ## [Unreleased]
 
 ### Added

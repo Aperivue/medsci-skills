@@ -26,14 +26,17 @@ median Dice was 0.0152 (0.0000 to 0.0626), and the pipeline reported no error wh
 file for all 60 cases, 20 of them empty. Replaying the trained plan's normalisation located an
 incompatibility present in every MRI case and no CT case: all 300 CT cases contain negative voxels
 and 2.7% of voxels exceed the clip ceiling, while **no** MRI case contains a negative voxel and a
-median 23.2% exceed it. A counterfactual arm that changed **only the input intensity scale** — same
-checkpoint, same folds, no retraining — recovered median Dice to 0.3016 (0.1744 to 0.4048), a
-difference of **+0.2864** (+0.1204 to +0.4048), while remaining **−0.5916** (−0.7259 to −0.4674)
-below the external CT arm.
+median 23.2% exceed it. Two counterfactual arms, each changing one thing and neither retraining, recovered median Dice to
+0.3016 (0.1744 to 0.4048) by rescaling the input and 0.2870 (0.1348 to 0.3546) by replacing the
+normaliser. They are indistinguishable from each other (difference −0.0146, −0.2136 to +0.1575) and
+both remain about 0.60 below the external CT arm.
 
 **Conclusion.** Both mechanisms are real and their sizes differ: of the collapse observed against the
-internal arm, roughly 0.29 Dice is attributable to the preprocessing contract and roughly 0.59 to a
-representation that does not transfer. The third rung is a **constructed** test — the plan named the
+internal arm, roughly 0.28 Dice is attributable to the intensity domain the network is handed and
+roughly 0.60 to a representation that does not transfer. Two unrelated repairs reach the same place,
+so what mattered is only whether the data arrives in the trained domain, not how that is achieved —
+and correcting the dataset's mislabelled modality field, which is what the second arm simulates,
+would not have been enough. The third rung is a **constructed** test — the plan named the
 normalisation contract and predicted the collapse before inference ran — so it demonstrates that the
 pipeline stays silent about a known incompatibility, not that the failure was discovered in unaided
 work. Within that
@@ -175,6 +178,17 @@ checkpoint, the five folds, the ensemble, the test-time augmentation, the ground
 metric rule are unchanged, and nothing is retrained. The arm, its rationale, the rejected
 alternatives and a **written prediction** were fixed in `COUNTERFACTUAL_PLAN.md` before it was run.
 
+**A second counterfactual (rung 3c).** Rung 3b keeps the wrong normaliser and repairs its input. The
+complementary question is what the pipeline would have done had the normaliser been right. AMOS
+declares `"modality": {"0": "CT"}` for a collection containing 100 MRI volumes, and nnU-Net selects
+`ZScoreNormalization` when a dataset declares a non-CT modality, so rung 3c is that world: the
+trained `plans.json` was copied and its `normalization_schemes` field alone patched to
+`ZScoreNormalization`, with the **original unrescaled images**. Every other configuration field is
+byte-identical to the trained plan and the five fold checkpoints are the same files. Because a
+run's own log echoes a path rather than proving what it loaded, the plan nnU-Net wrote into the
+arm's output directory is committed as the evidence (`qc/rung3c_plans_used.json`). Rung 3c was
+pre-specified, with its own written prediction, before it was run.
+
 **Normalisation evidence.** To characterise what the trained plan does to each arm, the normalisation recorded in the trained `plans.json` was replayed over every image of
 both external arms, measuring per case the presence of negative voxels, the fraction of voxels above
 the clip ceiling, and the number of intensity levels surviving the clip.
@@ -186,8 +200,8 @@ all 9 cases. On external CT, 298 of 300 cases were scored, with median Dice 0.89
 0.9108) and HD95 5.68 mm over the 270 cases that produced a predicted surface; the difference in
 population medians against the internal arm is −0.0662 (95% CI −0.0996 to −0.0416). On MRI, 59 of 60
 cases were scored, with median Dice 0.0152 (0.0000 to 0.0626), HD95 70.05 mm over 40 of those 59,
-and a difference of −0.9443 (−0.9715 to −0.8813). The counterfactual arm (rung 3b) scored 0.3016
-(0.1744 to 0.4048) on the same 59 cases (Table 2). Figure 1 shows the per-case distributions behind
+and a difference of −0.9443 (−0.9715 to −0.8813). The two counterfactual arms scored 0.3016 (0.1744 to 0.4048) and
+0.2870 (0.1348 to 0.3546) on the same 59 cases (Table 2). Figure 1 shows the per-case distributions behind
 those medians and Figure 2 the across-cohort comparison with its intervals. For context,
 nnU-Net's own cross-validation over the 32 training cases gave fold Dice values of 0.8437, 0.9304,
 0.9659, 0.9696 and 0.9507.
@@ -224,9 +238,18 @@ plan's intensity domain — one change, no retraining — raised median Dice fro
 and reduced empty predictions from 20 to 15 of 60. The same arm remains **−0.5916** (−0.7259 to
 −0.4674) below external CT. Neither interval crosses zero.
 
-So of the −0.9443 observed against the internal arm, roughly **0.29 Dice is attributable to the
-preprocessing contract** and roughly **0.59 to a representation that does not transfer to this
-modality**. A twenty-fold recovery from an input rescaling alone is not a rounding effect: for much
+**The second counterfactual lands in the same place, by a different route.** Replacing the
+normaliser instead of the input gave median Dice **0.2870** (0.1348 to 0.3546). The two arms differ
+by −0.0146, with an interval (−0.2136 to +0.1575) that comfortably spans zero; both leave the same
+15 empty predictions of 60; and their per-case Dice correlate at **r = 0.939** across the 59 scored
+cases, so they succeed and fail on the same images rather than trading wins. What mattered was
+whether the data reached the network in the intensity domain it was trained in — not how that was
+achieved. It also settles the metadata question: had `dataset.json` declared the modality correctly,
+nnU-Net would have chosen the z-score, and the arm shows that this alone reaches 0.2870.
+
+So of the −0.9443 observed against the internal arm, roughly **0.28 Dice is attributable to the
+intensity domain the network is handed** and roughly **0.60 to a representation that does not
+transfer to this modality**. A twenty-fold recovery from an input rescaling alone is not a rounding effect: for much
 of the original collapse, the network was not failing to read MRI so much as never receiving it.
 Neither is the residual: a correctly-scaled MRI still loses most of the performance the CT cohort
 retains, because an affine map restores dynamic range and cannot make an MR sequence's tissue
@@ -291,11 +314,12 @@ determined. The slice-thickness axis is the third voxel dimension, which is the 
 for every CT case but **not** for 26 of the 60 MRI volumes; nine scored MRI cases would change
 stratum under a coarsest-axis rule, so the MRI subgroup rows should be read with that in mind.
 
-The counterfactual arm separates preprocessing failure from representation failure but does not
-exhaust the question: percentile matching is the weakest intervention that fixes the declared
-defect, and a volume-wise z-score — what nnU-Net would have chosen had the dataset been declared MR
-— is a different counterfactual that was not run. No model trained for multi-modality use was
-attempted here [@wasserthal2023totalsegmentator]. Finally, this is one worked example authored by the people
+The two counterfactual arms separate preprocessing failure from representation failure and agree
+with each other, but both hold the CT-trained representation fixed: neither says what a model
+*trained* on MR would do, and no model built for multi-modality use was attempted here
+[@wasserthal2023totalsegmentator]. Rung 3c also edits a trained plan after the fact, which nnU-Net
+does not intend; that is deliberate, because it isolates the normalisation choice from everything
+else the fingerprint fixes, but it is not a configuration anyone should ship. Finally, this is one worked example authored by the people
 who built the toolkit — no independent users, no comparator workflow, no repetition.
 
 ## Conclusion

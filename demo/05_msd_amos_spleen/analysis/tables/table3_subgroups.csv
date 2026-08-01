@@ -23,3 +23,9 @@ rung3b AMOS MRI rescaled (counterfactual),spleen volume,enlarged (>=250 mL),11,0
 rung3b AMOS MRI rescaled (counterfactual),slice thickness,thin (<2 mm),26,0.3561 [0.2521-0.5089]
 rung3b AMOS MRI rescaled (counterfactual),slice thickness,mid (2-5 mm),33,0.1865 [0.0018-0.3910]
 rung3b AMOS MRI rescaled (counterfactual),slice thickness,thick (>=5 mm),0,n/a
+rung3c AMOS MRI z-scored (counterfactual),spleen volume,small (<100 mL),7,0.0000 [0.0000-0.3221]
+rung3c AMOS MRI z-scored (counterfactual),spleen volume,normal (100-250 mL),41,0.2947 [0.1247-0.4333]
+rung3c AMOS MRI z-scored (counterfactual),spleen volume,enlarged (>=250 mL),11,0.3546 [0.0119-0.5618]
+rung3c AMOS MRI z-scored (counterfactual),slice thickness,thin (<2 mm),26,0.3283 [0.1989-0.4924]
+rung3c AMOS MRI z-scored (counterfactual),slice thickness,mid (2-5 mm),33,0.1773 [0.0036-0.3546]
+rung3c AMOS MRI z-scored (counterfactual),slice thickness,thick (>=5 mm),0,n/a

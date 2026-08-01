@@ -114,3 +114,107 @@ cause": the normalisation contract is a major cause and not the only one.
 **What does not change.** This still compares two input scalings of one model on one modality pair.
 The panel's finding that a single authored example cannot ground general claims about tooling stands
 untouched.
+
+---
+
+# Rung 3c — the normaliser counterfactual, pre-specified
+
+**Written before the arm was run**, 2026-08-01, after rung 3b was scored. Same chronology caveat.
+
+## Why a second counterfactual
+
+Rung 3b fixed the **input** so the CT normaliser would behave. It left the obvious alternative
+unasked: what if the **normaliser itself** had been the right one? nnU-Net picks
+`ZScoreNormalization` when a dataset declares a non-CT modality, and AMOS's `dataset.json` declares
+`"modality": {"0": "CT"}` for a collection containing 100 MRI volumes. So this arm asks what the
+pipeline would have done had that one field been correct.
+
+The two arms are not redundant. 3b keeps the wrong normaliser and repairs its input; 3c keeps the
+original input and replaces the normaliser. If they land in the same place, the mechanism is the
+intensity domain and nothing else. If they differ, the *form* of the transform matters too — a
+per-volume z-score preserves the full intensity distribution, while a percentile match into a fixed
+window compresses it into 213 levels and discards the tails.
+
+## The intervention, and what it must not change
+
+`normalization_schemes` in the trained `plans.json` is patched from `["CTNormalization"]` to
+`["ZScoreNormalization"]`, in a **copy** of the results directory. Nothing else changes: the same
+five fold checkpoints, the same target spacing, the same patch size, the same ensemble, the same
+test-time augmentation, the **original unrescaled MRI images**, the same ground truth, the same
+metric rules. The weights never see a gradient.
+
+This is deliberately a *misuse* of nnU-Net in one narrow sense — the plan a model was trained under
+is not meant to be edited afterwards — and that is exactly the point: it isolates the normalisation
+choice from everything the fingerprint otherwise fixes. A model trained under a z-score plan would
+be a different experiment, and is not this one.
+
+## Prediction, written before the run
+
+A per-volume z-score maps each MRI onto zero mean and unit variance without a fixed window, so it
+preserves the distribution's shape and its tails, which the percentile match into `[-38, 174]` does
+not. Against that, the network's learned filters expect the *specific* intensity statistics of the
+CT fingerprint, and a z-score puts MR soft tissue at a different place in that space than CT soft
+tissue sits.
+
+**Predicted: rung 3c lands close to rung 3b, plausibly a little above it. A range of 0.20 to 0.50,
+and around 0.35 if pressed for one number. I do not expect it to approach the CT arm's 0.8932.**
+
+Interpretation fixed in advance:
+
+| Outcome | What it establishes |
+|---|---|
+| 3c ≈ 3b | The intensity **domain** is the whole of the preprocessing story; the form of the transform does not matter. |
+| 3c clearly > 3b | The form matters too — discarding the tails into a fixed window costs real performance beyond the domain mismatch. |
+| 3c clearly < 3b | A z-score is *worse* than matching the CT window, i.e. the network depends on the absolute CT intensity scale and not merely on having usable dynamic range. |
+| 3c ≈ 0.015 | The whole preprocessing account is wrong and rung 3b's recovery came from something the plan did not name. This would be the most damaging outcome and is why the arm is worth running. |
+
+## What neither counterfactual can establish
+
+Both keep a CT-trained representation fixed. Neither says what a model trained on MR would do, and
+neither makes this single worked example generalisable.
+
+---
+
+## Outcome, rung 3c (2026-08-01, appended after the run — the prediction above is unedited)
+
+**Median Dice 0.2870 (95% CI 0.1348–0.3546)**, against rung 3b's 0.3016 and rung 3's 0.0152. Empty
+predictions 15 of 60, the same as 3b (the arm as shipped had 20).
+
+| contrast | difference [95% CI] |
+|---|---|
+| 3c − 3 (z-score − as shipped) | **+0.2718** [+0.0947, +0.3546] |
+| **3c − 3b** (z-score − rescaled input) | **−0.0146** [−0.2136, **+0.1575**] — **includes zero** |
+| 3c − 2 (z-score − external CT) | −0.6062 [−0.7613, −0.5168] |
+
+**This is the first row of the interpretation table: the intensity *domain* is the whole of the
+preprocessing story, and the *form* of the transform does not matter.** Three independent signals
+agree: the medians differ by 0.015 with an interval that comfortably spans zero; both arms leave the
+same 15 empty predictions; and the two arms' per-case Dice correlate at **r = 0.939** across 59
+cases, so they succeed and fail on the same images rather than trading wins.
+
+Two entirely different repairs — rescale the input under the wrong normaliser, or swap the
+normaliser and leave the input alone — arrive at the same place. What mattered was only whether the
+data reached the network in the intensity domain it was trained in.
+
+**The prediction was inside its stated range and wrong in direction.** It said "0.20 to 0.50, around
+0.35, plausibly a little above 3b", reasoning that a per-volume z-score preserves distribution tails
+that a percentile match into a fixed window discards. The measured difference is −0.0146 and its
+interval spans zero: that reasoning is not supported. Recorded here rather than quietly dropped —
+and it lowers the weight the previous arm's on-the-nose prediction should carry.
+
+**What this settles about `dataset.json`.** AMOS declares `"modality": {"0": "CT"}` for a collection
+containing 100 MRI volumes, and nnU-Net would have selected `ZScoreNormalization` had that field
+been right. Rung 3c is that world, and it reaches **0.2870** — far short of the CT arm's 0.8932.
+**Correcting the metadata field would not have been enough.**
+
+## Verifying that the arm did what it claims
+
+The sbatch log echoes a hardcoded results path and is therefore not evidence that the patched plan
+was used. nnU-Net writes its plan into its own output directory; that file is the evidence, and it
+is committed at `qc/rung3c_plans_used.json`:
+
+- rung 3c output plan → `["ZScoreNormalization"]`
+- rung 3b output plan → `["CTNormalization"]`
+
+Only `normalization_schemes` differs from the trained plan; every other configuration field is
+byte-identical and the five fold checkpoints are the same files.
