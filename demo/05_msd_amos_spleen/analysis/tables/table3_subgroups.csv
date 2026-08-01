@@ -17,3 +17,9 @@ rung3 AMOS MRI (modality shift),spleen volume,enlarged (>=250 mL),11,0.0000 [0.0
 rung3 AMOS MRI (modality shift),slice thickness,thin (<2 mm),26,0.0057 [0.0000-0.1021]
 rung3 AMOS MRI (modality shift),slice thickness,mid (2-5 mm),33,0.0343 [0.0000-0.2717]
 rung3 AMOS MRI (modality shift),slice thickness,thick (>=5 mm),0,n/a
+rung3b AMOS MRI rescaled (counterfactual),spleen volume,small (<100 mL),7,0.0000 [0.0000-0.3801]
+rung3b AMOS MRI rescaled (counterfactual),spleen volume,normal (100-250 mL),41,0.3086 [0.1744-0.5011]
+rung3b AMOS MRI rescaled (counterfactual),spleen volume,enlarged (>=250 mL),11,0.3321 [0.0514-0.6257]
+rung3b AMOS MRI rescaled (counterfactual),slice thickness,thin (<2 mm),26,0.3561 [0.2521-0.5089]
+rung3b AMOS MRI rescaled (counterfactual),slice thickness,mid (2-5 mm),33,0.1865 [0.0018-0.3910]
+rung3b AMOS MRI rescaled (counterfactual),slice thickness,thick (>=5 mm),0,n/a

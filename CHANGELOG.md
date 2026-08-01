@@ -4,6 +4,45 @@
 
 ### Added
 
+- **Demo 5 rung 3b — the counterfactual arm, and the panel's second Fatal finding closed by
+  measurement.** The review panel was right that the study asserted a cause its design could not
+  identify: `CTNormalization` demonstrably treats CT and MRI differently, but that does not show the
+  transform *caused* the MRI collapse rather than a CT-trained representation failing to transfer.
+  That could not be answered by rewording, so it was answered by running one more arm.
+
+  **Rung 3b changes exactly one thing: the input intensity scale.** Each MRI is affinely mapped so
+  its in-body percentile range lands on the CT fingerprint's window, read from the trained
+  `plans.json`. The normaliser is not bypassed — it is handed input in the domain it assumes, so on
+  MRI it does what it does on CT. Clipping at the ceiling falls from a median of **23.2 % to 0.4 %**.
+  Same checkpoint, same folds, same TTA, **no retraining**.
+
+  The arm, its rationale, the rejected alternatives and a **written prediction** were fixed in
+  `COUNTERFACTUAL_PLAN.md` before it ran, with the interpretation of each possible outcome fixed in
+  advance so the result could not be read whichever way flattered the paper.
+
+  **Median Dice 0.0152 → 0.3016** (95% CI 0.1744–0.4048). Differences in population medians, both
+  arms resampled independently: **+0.2864** [+0.1204, +0.4048] against the arm as shipped, and
+  **−0.5916** [−0.7259, −0.4674] against external CT. Neither interval crosses zero. Empty
+  predictions fell from 20 of 60 to 15.
+
+  **Both mechanisms are real and unequal**: of the −0.944 collapse, roughly **0.29 Dice is the
+  preprocessing contract** and roughly **0.59 a representation that does not transfer**. An input
+  rescaling alone multiplied median Dice by twenty — for much of the original failure the network
+  was not misreading MRI so much as never receiving it — and the residual is equally real, because
+  an affine map restores dynamic range and cannot make an MR sequence's tissue contrast agree with
+  the ordering a Hounsfield window encodes.
+
+  The manuscript's identification hedge is replaced by that decomposition, which is a **stronger**
+  claim than the hedge and a **weaker** one than the draft's original "located the cause". Tables,
+  figures, both READMEs, the reproducibility lock (16 artifacts) and the conference deck all carry
+  the fourth arm. The panel's other two Fatal findings — rung 3 is a constructed test, and one
+  authored example cannot ground general claims — stand as narrowed claims, untouched by this
+  result.
+
+## [Unreleased]
+
+### Added
+
 - **Demo 5 — MSD to AMOS spleen ladder** (`demo/05_msd_amos_spleen/`). The fifth live demo, and the
   first that leaves a laptop: nnU-Net v2 trained on MSD Task09 and evaluated on three labelled rungs
   (internal held-out n=9, genuinely external AMOS **CT** n=300, and AMOS **MRI** n=60 as a modality

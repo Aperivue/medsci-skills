@@ -37,7 +37,8 @@ Third-party Hugging Face / Kaggle mirrors were rejected for provenance. **No dat
 |---|---|---:|---|---|---|
 | 1 internal | MSD held-out | 9 | **0.9595** [0.9367–0.9734] | 1.78 (9) | — |
 | 2 genuine external | AMOS **CT** | 298 / 300 | **0.8932** [0.8633–0.9108] | 5.68 (270) | **−0.0662** [−0.0996, −0.0416] |
-| 3 modality shift | AMOS **MRI** | 59 / 60 | **0.0152** [0.0000–0.0626] | 70.05 (**40**) | **−0.9443** [−0.9715, −0.8813] |
+| 3 modality shift | AMOS **MRI** | 59 / 60 | **0.0152** [0.0000–0.0626] | 70.05 (40) | **−0.9443** [−0.9715, −0.8813] |
+| 3b counterfactual | AMOS MRI, **rescaled** | 59 / 60 | **0.3016** [0.1744–0.4048] | 39.98 (45) | **−0.6579** [−0.7924, −0.5392] |
 
 **HD95 carries its own n, and it is smaller than the Dice n.** A case whose prediction is empty has
 a Dice of 0 but no predicted surface, so no boundary distance exists for it — and those are exactly
@@ -96,12 +97,33 @@ all 60 cases — **20 of them empty**, and five more under 1 mL against referenc
 **Only ground truth made this loud.** On an unlabelled clinical MRI series the same run produces 60
 files and no signal at all that anything is wrong.
 
-**What this establishes, and what it does not.** It establishes that the trained plan applies a
-Hounsfield transform to images that are not in Hounsfield units, in 60 of 60 cases, and that the run
-says nothing about it. It does **not** isolate that transform as the sole cause of the collapse: a
-CT-trained representation might fail on MRI even under a correct normaliser, and **the
-correctly-normalised MRI counterfactual was not run**. The incompatibility is documented and
-sufficient to account for the magnitude; it is not proven to be the only thing wrong.
+### The counterfactual: both mechanisms are real, and they are not the same size
+
+The obvious objection is that a CT-trained model might fail on MRI anyway, normaliser or not. That
+objection was correct, and it needed an arm rather than an argument.
+
+**Rung 3b changes exactly one thing: the input intensity scale.** Each MRI is affinely mapped so its
+in-body percentile range lands on the CT fingerprint's window, read from the trained `plans.json` —
+the normaliser is *handed input in the domain it assumes*, not bypassed. Clipping at the ceiling
+falls from a median of 23.2 % to **0.4 %**. Same checkpoint, same folds, same TTA, **no retraining**.
+The arm and a **written prediction** were fixed in [`COUNTERFACTUAL_PLAN.md`](COUNTERFACTUAL_PLAN.md)
+before it ran.
+
+| contrast | difference in medians [95% CI] |
+|---|---|
+| 3b − 3 (rescaled − as shipped) | **+0.2864** [+0.1204, +0.4048] |
+| 3b − 2 (rescaled − external CT) | **−0.5916** [−0.7259, −0.4674] |
+
+Neither interval crosses zero. **Of the −0.944 collapse, roughly 0.29 Dice is the preprocessing
+contract and roughly 0.59 is a representation that does not transfer.** An input rescaling alone
+multiplied median Dice by twenty and cut empty predictions from 20 to 15 — for much of the original
+failure the network was not misreading MRI so much as never receiving it. The residual is equally
+real: an affine map restores dynamic range and cannot make an MR sequence's tissue contrast agree
+with the ordering a Hounsfield window encodes.
+
+The pre-written prediction was "partial recovery, 0.1 to 0.6, around 0.3 if pressed". That is a wide
+interval and one prediction; it is recorded as a calibration point, not as proof the reasoning was
+sound.
 
 ### The toolkit saw half of it, and filed it as Minor
 

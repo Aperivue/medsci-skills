@@ -59,8 +59,12 @@ Table 4 shows the normaliser treats CT and MRI differently. It does not show tha
 correctly-normalised MRI arm was run. **Action (applied)**: "located the cause" and "is a
 preprocessing failure" are gone. The claim is now that the incompatibility is present in 60/60 cases
 and sufficient to account for the magnitude, with an explicit paragraph on what the design does not
-separate, repeated in Limitations. **Not fixed by analysis** — the counterfactual arm remains unrun,
-and that is stated rather than hedged.
+separate, repeated in Limitations. **Closed by measurement 2026-08-01**: rung 3b changed only the
+input intensity scale and recovered median Dice 0.0152 → **0.3016** (difference **+0.2864**
+[+0.1204, +0.4048]) while staying **−0.5916** [−0.7259, −0.4674] below external CT. Both mechanisms
+are real and their sizes differ — roughly 0.29 preprocessing, 0.59 representation. The hedge is
+replaced by a decomposition, which is a *stronger* claim than the hedge and a weaker one than the
+draft's original "located the cause".
 
 **M3. One authored example cannot support general claims about tooling** [D · Fatal] — *R3*
 One organ, one architecture, one dataset pair, one deliberately chosen mismatch, no independent
@@ -164,9 +168,9 @@ subtraction.
 
 **Revise before circulation, not ready to submit.** The three Fatals are answered by narrowing the
 claims rather than by new evidence, which is legitimate but leaves the paper smaller than the draft
-pretended. The one finding that analysis could close and did not — the correctly-normalised MRI
-counterfactual (M2) — is the single highest-value next experiment, and it is affordable: it needs one
-inference pass, no retraining.
+pretended. **Update 2026-08-01**: M2 has since been closed by running that experiment (rung 3b, one inference
+pass, no retraining). M1 and M3 stand as narrowed claims rather than new evidence, which is the
+honest position for a single authored worked example.
 
 ## R0 pre-submission findings (for `/revise` cross-reference)
 

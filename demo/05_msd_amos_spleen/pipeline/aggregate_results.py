@@ -46,11 +46,13 @@ THK_EDGES = [2.0, 5.0]              # mm: thin | mid | thick
 THK_LABELS = ["thin (<2 mm)", "mid (2-5 mm)", "thick (>=5 mm)"]
 
 # Arm ordering + display; rung1 is the internal reference.
-ARM_ORDER = ["rung1_msd_heldout", "rung2_amos_ct", "rung3_amos_mri"]
+ARM_ORDER = ["rung1_msd_heldout", "rung2_amos_ct", "rung3_amos_mri",
+             "rung3b_amos_mri_rescaled"]
 ARM_LABEL = {
     "rung1_msd_heldout": "rung1 MSD held-out (internal)",
     "rung2_amos_ct": "rung2 AMOS CT (external)",
     "rung3_amos_mri": "rung3 AMOS MRI (modality shift)",
+    "rung3b_amos_mri_rescaled": "rung3b AMOS MRI rescaled (counterfactual)",
 }
 
 

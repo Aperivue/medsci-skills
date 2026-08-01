@@ -42,6 +42,7 @@ t4 = {r["arm"]: r for r in table("table4_normalisation_evidence.csv")}
 sub = [r for r in table("table3_subgroups.csv") if r["arm"].startswith("rung2")]
 R1, R2, R3 = ("rung1 MSD held-out (internal)", "rung2 AMOS CT (external)",
               "rung3 AMOS MRI (modality shift)")
+R3B = "rung3b AMOS MRI rescaled (counterfactual)"
 prof = json.loads((DEMO / "qc" / "amos22_dataset_profile_spleen.json").read_text())
 intensity_claim = next(c for c in prof["claims"] if c["verdict"] == "INTENSITY_SCALE_INCONSISTENT")
 naive = json.loads((DEMO / "qc" / "preprocessing_leakage_naive.json").read_text())
@@ -173,14 +174,27 @@ add_content_slide(
           "아무도 다시 읽지 않는 디렉터리에. 그러니 문제는 탐지가 아니라 전달과 심각도입니다. "
           "이건 이 사례가 제기하는 가설이지, 이 사례가 증명한 성질은 아닙니다.")
 
+add_content_slide(
+    prs,
+    title="Change only the input scale, and a fifth of the loss comes back",
+    bullets=[
+        f"**{t2[R3]['dice_median_95CI'].split(' ')[0]} → "
+        f"{t2[R3B]['dice_median_95CI'].split(' ')[0]}** — no retraining, same checkpoint",
+        f"  vs as-shipped MRI: **{t2[R3B]['delta_dice_vs_internal_95CI'].split(' ')[0]}** below internal",
+        "**Still far below CT: both mechanisms are real, and unequal.**",
+    ],
+    notes="대조군입니다. 강도 스케일 하나만 바꿨고 재학습은 없습니다. Dice가 0.015에서 0.302로 "
+          "스무 배 올랐지만 CT의 0.893에는 한참 못 미칩니다. 즉 원래 붕괴의 상당 부분은 전처리 "
+          "계약 탓이었고, 나머지는 진짜 표현 전이 실패입니다. 예측은 실행 전에 적어뒀습니다.")
+
 add_closing_slide(
     prs,
     title="What this establishes, and what it does not",
     bullets=[
         "**Establishes:** the run exited 0 and reported a number that means nothing",
-        "**Does not:** separate preprocessing from representation failure",
+        "**Measured:** ~0.29 Dice preprocessing, ~0.59 representation",
         "**Does not:** support general claims — one organ, one team",
-        "**Next:** one inference pass, no retraining",
+        "**Open:** a volume-wise z-score is a different counterfactual",
     ],
     contact="demo/05_msd_amos_spleen · every number re-derivable from the shipped CSVs",
     notes="마무리입니다. 이 연구가 세운 것과 세우지 못한 것을 나눠 말씀드립니다. "
