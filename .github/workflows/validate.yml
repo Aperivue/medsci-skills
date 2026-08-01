@@ -733,7 +733,12 @@ jobs:
 
       - name: Verify demo manifest.lock files (reproducibility lock)
         run: |
-          for d in demo/01_wisconsin_bc demo/02_metafor_bcg demo/03_nhanes_obesity; do
+          # All five demos. Demos 4 and 5 were added late: on 2026-08-01 demo/04's lock was
+          # found stale in main — its reference_audit.json had been edited after the lock was
+          # built — which is exactly the drift a reproducibility lock exists to catch and which
+          # nothing was checking, because the loop stopped at demo 3.
+          for d in demo/01_wisconsin_bc demo/02_metafor_bcg demo/03_nhanes_obesity \
+                   demo/04_pneumoniamnist_cnn demo/05_msd_amos_spleen; do
             python3 skills/version-dataset/scripts/version_dataset.py verify \
               --manifest "$d/manifest.lock.json" --base "$d" --strict
           done

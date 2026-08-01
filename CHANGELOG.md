@@ -91,6 +91,19 @@
   an arbitrary-unit cohort must raise a Major, and an unreadable contract must not succeed.
   **58 skills / 47 guidelines / 85 integrity detectors.**
 
+### Fixed
+
+- **The demo reproducibility-lock CI step stopped at demo 3, and a stale lock had already reached
+  main.** `demo/04_pneumoniamnist_cnn/manifest.lock.json` did not verify: its
+  `qc/reference_audit.json` was edited after the lock was built (an absolute path scrubbed out), so
+  the recorded hash no longer matched the file. Nothing caught it, because the CI loop covered
+  demos 1–3 only — the lock existed, was committed, and was never checked. That is precisely the
+  drift a content-hash lock exists to detect, sitting undetected inside the mechanism meant to
+  detect it.
+
+  The lock is rebuilt and the loop now covers **all five demos**. Verified in both directions:
+  every demo verifies clean, and perturbing one byte of a locked file makes the gate fail.
+
 ## [Unreleased]
 
 ### Added
