@@ -1,0 +1,4 @@
+arm,n_evaluated,n_scored,n_target_free,n_empty_prediction,n_false_positive_on_target_free,dice_median_95CI,dice_mean,dice_min,n_with_hd95,hd95_mm_median_95CI,delta_dice_vs_internal_95CI
+rung1 MSD held-out (internal),9,9,0,0,0,0.9595 [0.9367-0.9734],0.9564,0.9205,9,1.78 [1.59-2.50],
+rung2 AMOS CT (external),300,298,2,28,2,0.8932 [0.8633-0.9108],0.7116,0.0000,270,5.68 [4.85-8.43],-0.0662 [-0.0996--0.0416]
+rung3 AMOS MRI (modality shift),60,59,1,20,0,0.0152 [0.0000-0.0626],0.1775,0.0000,40,70.05 [45.69-129.68],-0.9443 [-0.9715--0.8813]

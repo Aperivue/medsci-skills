@@ -1,0 +1,260 @@
+{
+ "dataset": "MSD Task09 Spleen (MSKCC) \u2014 Demo 5 internal arm",
+ "note": "COUNTERFACTUAL: all 41 cases placed in nnUNet_raw before the split was applied.",
+ "split_seed": 42,
+ "transforms": [
+  {
+   "name": "resample_to_fingerprint_median_spacing",
+   "type": "resample",
+   "fit_scope": "all",
+   "stage": "before_split",
+   "applies_to": [
+    "train",
+    "val",
+    "test"
+   ],
+   "note": "target spacing is the median of the TRAINING fingerprint (Stage-0 profile: 0.61-0.98 mm in-plane, 1.5-8.0 mm through-plane), applied unchanged to held-out cases at inference"
+  },
+  {
+   "name": "ct_foreground_percentile_clip",
+   "type": "clip_percentile",
+   "fit_scope": "all",
+   "stage": "before_split",
+   "applies_to": [
+    "train",
+    "val",
+    "test"
+   ],
+   "note": "0.5/99.5 percentiles of foreground voxels from the training fingerprint"
+  },
+  {
+   "name": "ct_global_zscore",
+   "type": "standardize",
+   "fit_scope": "all",
+   "stage": "before_split",
+   "applies_to": [
+    "train",
+    "val",
+    "test"
+   ],
+   "note": "dataset-level mean/sd of training foreground voxels \u2014 a dataset-fitted transform, not per-image"
+  },
+  {
+   "name": "spatial_and_intensity_augmentation",
+   "type": "augmentation",
+   "fit_scope": "none",
+   "stage": "after_split",
+   "applies_to": [
+    "train"
+   ],
+   "note": "nnU-Net default training augmentation; not applied at validation or inference"
+  }
+ ],
+ "split_assignment": [
+  {
+   "patient_id": "spleen_10",
+   "unit_id": "spleen_10",
+   "split": "train"
+  },
+  {
+   "patient_id": "spleen_12",
+   "unit_id": "spleen_12",
+   "split": "train"
+  },
+  {
+   "patient_id": "spleen_13",
+   "unit_id": "spleen_13",
+   "split": "train"
+  },
+  {
+   "patient_id": "spleen_14",
+   "unit_id": "spleen_14",
+   "split": "test"
+  },
+  {
+   "patient_id": "spleen_16",
+   "unit_id": "spleen_16",
+   "split": "train"
+  },
+  {
+   "patient_id": "spleen_17",
+   "unit_id": "spleen_17",
+   "split": "test"
+  },
+  {
+   "patient_id": "spleen_18",
+   "unit_id": "spleen_18",
+   "split": "test"
+  },
+  {
+   "patient_id": "spleen_19",
+   "unit_id": "spleen_19",
+   "split": "test"
+  },
+  {
+   "patient_id": "spleen_2",
+   "unit_id": "spleen_2",
+   "split": "test"
+  },
+  {
+   "patient_id": "spleen_20",
+   "unit_id": "spleen_20",
+   "split": "test"
+  },
+  {
+   "patient_id": "spleen_21",
+   "unit_id": "spleen_21",
+   "split": "test"
+  },
+  {
+   "patient_id": "spleen_22",
+   "unit_id": "spleen_22",
+   "split": "train"
+  },
+  {
+   "patient_id": "spleen_24",
+   "unit_id": "spleen_24",
+   "split": "train"
+  },
+  {
+   "patient_id": "spleen_25",
+   "unit_id": "spleen_25",
+   "split": "train"
+  },
+  {
+   "patient_id": "spleen_26",
+   "unit_id": "spleen_26",
+   "split": "train"
+  },
+  {
+   "patient_id": "spleen_27",
+   "unit_id": "spleen_27",
+   "split": "train"
+  },
+  {
+   "patient_id": "spleen_28",
+   "unit_id": "spleen_28",
+   "split": "train"
+  },
+  {
+   "patient_id": "spleen_29",
+   "unit_id": "spleen_29",
+   "split": "train"
+  },
+  {
+   "patient_id": "spleen_3",
+   "unit_id": "spleen_3",
+   "split": "train"
+  },
+  {
+   "patient_id": "spleen_31",
+   "unit_id": "spleen_31",
+   "split": "train"
+  },
+  {
+   "patient_id": "spleen_32",
+   "unit_id": "spleen_32",
+   "split": "train"
+  },
+  {
+   "patient_id": "spleen_33",
+   "unit_id": "spleen_33",
+   "split": "train"
+  },
+  {
+   "patient_id": "spleen_38",
+   "unit_id": "spleen_38",
+   "split": "train"
+  },
+  {
+   "patient_id": "spleen_40",
+   "unit_id": "spleen_40",
+   "split": "train"
+  },
+  {
+   "patient_id": "spleen_41",
+   "unit_id": "spleen_41",
+   "split": "train"
+  },
+  {
+   "patient_id": "spleen_44",
+   "unit_id": "spleen_44",
+   "split": "train"
+  },
+  {
+   "patient_id": "spleen_45",
+   "unit_id": "spleen_45",
+   "split": "train"
+  },
+  {
+   "patient_id": "spleen_46",
+   "unit_id": "spleen_46",
+   "split": "test"
+  },
+  {
+   "patient_id": "spleen_47",
+   "unit_id": "spleen_47",
+   "split": "train"
+  },
+  {
+   "patient_id": "spleen_49",
+   "unit_id": "spleen_49",
+   "split": "train"
+  },
+  {
+   "patient_id": "spleen_52",
+   "unit_id": "spleen_52",
+   "split": "train"
+  },
+  {
+   "patient_id": "spleen_53",
+   "unit_id": "spleen_53",
+   "split": "train"
+  },
+  {
+   "patient_id": "spleen_56",
+   "unit_id": "spleen_56",
+   "split": "train"
+  },
+  {
+   "patient_id": "spleen_59",
+   "unit_id": "spleen_59",
+   "split": "train"
+  },
+  {
+   "patient_id": "spleen_6",
+   "unit_id": "spleen_6",
+   "split": "test"
+  },
+  {
+   "patient_id": "spleen_60",
+   "unit_id": "spleen_60",
+   "split": "train"
+  },
+  {
+   "patient_id": "spleen_61",
+   "unit_id": "spleen_61",
+   "split": "train"
+  },
+  {
+   "patient_id": "spleen_62",
+   "unit_id": "spleen_62",
+   "split": "train"
+  },
+  {
+   "patient_id": "spleen_63",
+   "unit_id": "spleen_63",
+   "split": "train"
+  },
+  {
+   "patient_id": "spleen_8",
+   "unit_id": "spleen_8",
+   "split": "train"
+  },
+  {
+   "patient_id": "spleen_9",
+   "unit_id": "spleen_9",
+   "split": "train"
+  }
+ ]
+}

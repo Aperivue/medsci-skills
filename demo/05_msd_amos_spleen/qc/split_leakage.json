@@ -1,0 +1,21 @@
+{
+  "detector": "check_split_leakage",
+  "splits": "splits/split_assignment.csv",
+  "id_col": "patient_id",
+  "split_col": "split",
+  "n_rows": 41,
+  "n_subjects": 41,
+  "partitions": {
+    "test": 9,
+    "train": 32
+  },
+  "seed": "42",
+  "claims": [],
+  "summary": {
+    "n_claims": 0,
+    "n_major": 0,
+    "n_minor": 0,
+    "n_overlapping_subjects": 0,
+    "verdict": "OK"
+  }
+}

@@ -1,0 +1,20 @@
+# medsci-skills Demo 5 — MSD -> AMOS spleen ladder.
+#
+# Two tiers, because the demo has two tiers (see ../README.md "What you can re-run").
+#
+# Tier A — the analysis, runnable on any laptop from the per-case CSVs shipped in ../results/.
+#   Regenerates the headline table, the bootstrap CIs and the figure. No data download, no GPU.
+numpy                 # aggregate_results.py — bootstrap CIs, subgroup tables
+matplotlib            # aggregate_results.py --figure (optional; the analysis runs without it)
+#
+# Tier B — the imaging steps, which need the two public datasets on disk.
+nibabel               # NIfTI I/O: profiling, split, evaluation, normalisation evidence
+scipy                 # evaluate_segmentation.py — distance transforms for HD95
+#
+# Tier C — training and inference. NOT installed by this file and not reproducible on a laptop:
+#   nnU-Net v2 (github.com/MIC-DKFZ/nnUNet) inside a CUDA container, ~50 GPU-hours.
+#   See ../README.md and ../FRICTION.md for what the published run actually used and why the
+#   schedule deviates from nnU-Net's default.
+#
+# Deliberately unpinned: no exact version set was captured for the published run, and inventing
+# pins would be a claim never tested. Record your own `pip freeze` in REPRODUCIBILITY.md.

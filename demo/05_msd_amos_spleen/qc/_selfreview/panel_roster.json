@@ -1,0 +1,12 @@
+{
+  "manuscript": "demo/05_msd_amos_spleen/manuscript/writeup.md",
+  "research_type": "dta",
+  "note": "Model-development / external-validation study of a 3-D segmentation network. Routed to the dta reviewer set, with the model_development (MD0-MD8) and ai_overclaiming (AO0-AO7) probe modules.",
+  "generator_substrate": "claude",
+  "reviewers": [
+    {"reviewer_id": "R1", "expertise_area": "Study design, partitions and leakage", "substrate": "claude", "probe_module": "model_development.md"},
+    {"reviewer_id": "R2", "expertise_area": "Statistics, metric selection and uncertainty", "substrate": "claude", "probe_module": "metrics + CLAIM 2024"},
+    {"reviewer_id": "R3", "expertise_area": "Adversarial reject-hunter", "substrate": "codex", "probe_module": "ai_overclaiming.md"},
+    {"reviewer_id": "R4", "expertise_area": "Handling-editor desk impression (ceiling lens)", "substrate": "claude", "probe_module": "none (category L)"}
+  ]
+}

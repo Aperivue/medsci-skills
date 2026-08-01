@@ -1,0 +1,7 @@
+{
+  "detector": "check_table_percentages",
+  "source": "manuscript/writeup.md",
+  "verdict": "OK",
+  "n_mismatch": 0,
+  "findings": []
+}

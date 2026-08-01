@@ -1,0 +1,192 @@
+{
+  "research_type": "dta",
+  "reviewers": [
+    {
+      "reviewer_id": "R2",
+      "expertise_area": "Statistics, metric selection and uncertainty",
+      "overall_assessment": "RECOVERED FROM AN INTERRUPTED RUN. The agent was cut off by an API error before returning its schema output; these findings were reconstructed from its transcript and every numeric claim was independently recomputed by the editor before being recorded.",
+      "strengths": [
+        "Medians and target-free denominators recompute exactly from the per-case CSVs.",
+        "Subgroup counts recompute exactly (37/194/67 and 5/74/219 on external CT)."
+      ],
+      "major": [
+        {
+          "heading": "HD95 is reported against the Dice denominator although it has a smaller one",
+          "comment": "HD95 exists for 9/9, 270/298 and 40/59 cases; the missing ones are exactly the empty predictions, i.e. the worst cases, so every HD95 median is optimistic by a one-directional selection.",
+          "location": "analysis/tables/table2_performance.csv; manuscript Results",
+          "severity": "Fixable",
+          "suggested_fix": "Carry n beside every HD95 and label it success-conditioned.",
+          "concern_family": "metrics"
+        },
+        {
+          "heading": "The bootstrap CI depends on arm processing order",
+          "comment": "All arms drew from one rng stream, so 'seed 20260725' pinned the run, not the arm: adding an arm moves already-published intervals.",
+          "location": "pipeline/aggregate_results.py; analysis/make_tables.py",
+          "severity": "Fixable",
+          "suggested_fix": "Seed per (arm, metric) with a process-stable hash.",
+          "concern_family": "statistics"
+        },
+        {
+          "heading": "Stratum labels describe a different rule from the binning code",
+          "comment": "Labels read 'thin (<=2 mm)' while the code increments on value >= edge; 67 external CT cases sit at exactly 2.00 mm and are placed in 'mid'.",
+          "location": "analysis/make_tables.py; pipeline/aggregate_results.py",
+          "severity": "Fixable",
+          "suggested_fix": "Make the labels state the implemented closure.",
+          "concern_family": "reporting"
+        }
+      ],
+      "minor": [
+        {
+          "heading": "Text and Table 1 disagree on the MRI reference-volume median",
+          "comment": "Prose said 186.8 mL over 60 cases; Table 1 reports 187.6 mL over the 59 scored.",
+          "location": "manuscript Results; analysis/tables/table1_cohort_characteristics.csv",
+          "suggested_fix": "Quote one denominator and name it.",
+          "concern_family": "reporting"
+        },
+        {
+          "heading": "spacing_z is not the through-plane axis for much of the MRI arm",
+          "comment": "In 26 of 60 MRI volumes spacing_z is not the coarsest axis; 9 of 59 scored cases would change slice-thickness stratum under the coarsest-axis rule.",
+          "location": "analysis/tables/table3_subgroups.csv",
+          "suggested_fix": "State the caveat, or define the axis by the coarsest dimension.",
+          "concern_family": "metrics"
+        }
+      ]
+    },
+    {
+      "reviewer_id": "R3",
+      "expertise_area": "Adversarial reject-hunter",
+      "overall_assessment": "Reject. The manuscript's central example is not an observed failure of an unaided workflow: before inference, the authors had already inspected the preprocessing configuration, identified the CT-to-MRI incompatibility, and predicted near-zero Dice. Moreover, the design never isolates preprocessing from cross-modality model failure, yet repeatedly presents preprocessing as the located cause. The careful accounting and unusually candid limitations do not rescue these construct-validity defects.",
+      "strengths": [
+        "The patient-level split, per-case results, target-free-case accounting, and separate Dice/HD95 denominators provide substantially more auditability than is typical for a demonstration study.",
+        "The manuscript explicitly discloses the shortened training schedule, single configuration, benchmark-provenance limitation, conditional HD95 denominator, and absence of clinical-utility evidence."
+      ],
+      "major": [
+        {
+          "heading": "The MRI rung is a knowingly handicapped stress test, not evidence of where an unaided workflow naturally breaks",
+          "comment": "Before inference, the evaluation plan already identifies CTNormalization, records its exact clipping parameters, inspects an extreme MRI case, and predicts that MRI Dice will collapse because of the preprocessing contract. The authors therefore knowingly run an input through a pipeline they have already diagnosed as incompatible, then frame the result as a silent failure encountered by an unaided clinician. This artificial arm cannot support claims that the study discovered where the clinician-led path breaks, that no workflow step asks anyone to inspect the configuration, or that the result would otherwise have been mistaken for modality-transfer failure. The investigator had already inspected the configuration and anticipated the outcome.",
+          "location": "EVALUATION_PLAN.md:70-90; manuscript/writeup.md:10-14,33-46,170-201,227-234",
+          "severity": "Fatal",
+          "suggested_fix": "Either redesign the study prospectively so users encounter the workflow without advance knowledge of the failure and analyze unconditioned workflow outcomes, or reframe the paper explicitly as a constructed adversarial test case rather than evidence about unaided clinician research.",
+          "concern_family": "design"
+        },
+        {
+          "heading": "The asserted preprocessing cause is not identified by the experiment",
+          "comment": "Table 4 shows that CTNormalization transforms CT and MRI differently, but it does not show that this transformation caused the MRI Dice collapse rather than the CT-trained representation's inability to segment MRI, or an interaction between both. No correctly configured MRI counterfactual was attempted, which the manuscript itself acknowledges. Label verification and modality verification exclude bookkeeping mistakes; they do not distinguish preprocessing failure from cross-modality model failure. The headings and claims that replaying normalization 'located the cause' and that the collapse 'is a preprocessing failure' therefore exceed the design.",
+          "location": "manuscript/writeup.md:33-46,130-133,155-168,203-223; analysis/tables/table4_normalisation_evidence.csv:1-3",
+          "severity": "Fatal",
+          "suggested_fix": "Remove the exclusive causal attribution and report only a documented preprocessing incompatibility associated with failure, or add a controlled experiment that varies preprocessing while otherwise holding the evaluand fixed and defines in advance what result would distinguish preprocessing from representation failure.",
+          "concern_family": "overclaiming"
+        },
+        {
+          "heading": "A single authored demonstration cannot establish general properties of agentic tooling or unaided clinicians",
+          "comment": "The study evaluates one organ, one architecture, one reduced training schedule, one dataset pair, and one deliberately selected modality mismatch. It includes no independent clinician users, alternative toolkit, comparator workflow, repeated task, or prospective friction measurement. Consequently, conclusions about where 'the unaided path' breaks, what agentic tooling should target, or routing and severity being as important as detection are hypotheses generated by one worked example, not findings supported by the design.",
+          "location": "manuscript/writeup.md:10-14,41-67,99-104,177-201,211-234",
+          "severity": "Fatal",
+          "suggested_fix": "Restrict all claims to this single constructed example and present broader tooling implications as hypotheses, or add prospective replication across users, tasks, modalities, and toolchains with predefined workflow outcomes.",
+          "concern_family": "generalizability"
+        },
+        {
+          "heading": "The claimed prospective chronology and central tooling evidence are not auditable",
+          "comment": "The manuscript repeatedly calls the prediction fixed or registered before inference, but EVALUATION_PLAN.md and the rung-3 per-case result first appear in the same git commit (918a230); the inspected artifacts therefore do not establish temporal precedence. Likewise, the load-bearing claims that the profiler emitted INTENSITY_SCALE_INCONSISTENT for 500/600 cases before training, assigned Minor severity, remained unread for nine days, and was not routed forward are unsupported by any inspected log, timestamped gate output, or routing trace. For a tooling-demonstration paper, these are primary results rather than incidental implementation details.",
+          "location": "EVALUATION_PLAN.md:3-6; manuscript/writeup.md:22-26,90-97,190-209,227-234,266-272; git history for EVALUATION_PLAN.md and results/per_case_rung3_amos_mri.csv",
+          "severity": "Fixable",
+          "suggested_fix": "Provide immutable pre-inference provenance for the plan and machine-readable, timestamped profiler and routing artifacts. If earlier provenance does not exist, replace 'registered' and verified prospective language with 'documented internally' and treat chronology as unverified.",
+          "concern_family": "reproducibility"
+        },
+        {
+          "heading": "The Abstract's '60 plausible segmentations' claim is contradicted by the result artifact",
+          "comment": "The manuscript provides no visual-plausibility assessment, readers, rubric, or acceptance criterion. More importantly, Table 2 records 20 empty MRI predictions, and the per-case CSV contains five additional nonempty predictions below 1 mL despite reference spleen volumes near hundreds of millilitres. Calling all 60 outputs 'plausible segmentations' converts syntactic pipeline completion into anatomical plausibility and materially strengthens the silent-failure rhetoric without evidence.",
+          "location": "manuscript/writeup.md:33-39; analysis/tables/table2_performance.csv:4; results/per_case_rung3_amos_mri.csv:12,28,32,40,53",
+          "severity": "Fixable",
+          "suggested_fix": "Replace '60 plausible segmentations' with the defensible claim that the pipeline returned output files without an execution error, or add a blinded, predefined plausibility assessment and report its results.",
+          "concern_family": "overclaiming"
+        }
+      ],
+      "minor": [
+        {
+          "heading": "The boundary metric remains a success-conditioned estimand",
+          "comment": "The revised text now discloses the denominator, but HD95 is still available only for 270/298 CT and 40/59 MRI scored cases because empty predictions are removed. Thus the reported HD95 medians describe progressively selected successful subsets, not boundary performance of each evaluation arm. This is particularly awkward because Dice-plus-boundary-metric reporting is presented as a methodological strength.",
+          "location": "manuscript/writeup.md:106-119,137-153; analysis/tables/table2_performance.csv:1-4; pipeline/evaluate_segmentation.py:14-16,88-93",
+          "suggested_fix": "Label HD95 explicitly as conditional on a nonempty prediction and pair it with a failure-aware boundary estimand or make empty-prediction frequency a co-primary component of boundary-performance interpretation.",
+          "concern_family": "metrics"
+        },
+        {
+          "heading": "The supposedly pre-specified subgroup contract disagrees with the executable boundaries",
+          "comment": "aggregate_results.py documents enlarged as >250 mL and thin as <=2 mm, while its executable labels and binning implement >=250 mL and <2 mm. The manuscript also says 'above 250 mL.' In the MRI artifact, two scored cases lie exactly at 2.0 mm, so this is not merely typographic: they are assigned to the mid stratum by code but would be thin under the documented rule.",
+          "location": "manuscript/writeup.md:30-32,124-125,149-153; pipeline/aggregate_results.py:9-15,39-59; analysis/make_tables.py:43-51,116-121; results/per_case_rung3_amos_mri.csv:6,12",
+          "suggested_fix": "Define interval closure once in EVALUATION_PLAN.md and import or validate the same definitions in both analysis scripts, tables, and prose.",
+          "concern_family": "reproducibility"
+        },
+        {
+          "heading": "Missing predictions warn but do not fail evaluation",
+          "comment": "evaluate_segmentation.py correctly states that a missing prediction changes the denominator, but it only emits a warning, writes a shortened CSV, and returns exit status 0. An automated reproduction can therefore succeed with silently reduced n downstream despite the manuscript's emphasis on deterministic denominator protection.",
+          "location": "pipeline/evaluate_segmentation.py:105-127,137-145; analysis/make_tables.py:54-65,143-192",
+          "suggested_fix": "Require an expected-case manifest and return nonzero when any prediction is missing unless an explicit incomplete-analysis override is supplied and propagated into every table.",
+          "concern_family": "reproducibility"
+        },
+        {
+          "heading": "Operational runtime numbers have no support in the inspected artifacts",
+          "comment": "The reported 360-417-second epoch time, approximately 21-day default schedule, and approximately 50 GPU-hours are not recorded in the evaluation plan, tables, evaluation code, aggregation code, or supplied per-case result. This conflicts with the categorical statement that every number comes from an executed run.",
+          "location": "manuscript/writeup.md:25-26,99-104,266-272",
+          "suggested_fix": "Add the underlying timestamped training log and the exact runtime calculation, or remove/qualify these operational numbers.",
+          "concern_family": "reporting"
+        }
+      ]
+    },
+    {
+      "reviewer_id": "R4",
+      "expertise_area": "Handling-editor desk impression",
+      "overall_assessment": "Reads as a confident narrative rather than a defensive audit; I would send it out. The barrier to a reader finishing it is the front door: a 492-word Abstract whose middle third is verification bookkeeping.",
+      "strengths": [
+        "Title and Conclusion carry a mechanism, not a caveat.",
+        "The self-indicting profiler finding is turned into the central claim rather than suppressed.",
+        "Rival explanations are tested and rejected before the finding is accepted.",
+        "Results are quantitative where papers usually go adjectival."
+      ],
+      "major": [],
+      "minor": [
+        {
+          "heading": "Abstract is 492 words and spends its middle third on verification bookkeeping",
+          "comment": "Two seeds, the resample count, two gate names and the full normaliser constants arrive before the finding does; no journal Abstract limit accommodates it.",
+          "location": "writeup.md Abstract",
+          "suggested_fix": "Cut to ~250 words; move seeds, gate names and constants to Methods/Results.",
+          "action": "TIGHTEN",
+          "concern_family": "editorial_impression"
+        },
+        {
+          "heading": "The no-clinical-claim disclaimer is restated four times across the package",
+          "comment": "Abstract, Limitations, and twice on the title page. Past the second occurrence it reads as a paper expecting to be misread.",
+          "location": "writeup.md Abstract + Limitations; title_page.md",
+          "suggested_fix": "Keep one instance per document.",
+          "action": "REMOVE",
+          "concern_family": "editorial_impression"
+        },
+        {
+          "heading": "Half of Limitations restates Methods and Introduction",
+          "comment": "Three of six sentences repeat the schedule, the internal-rung provenance and the clinical-claim guard; the genuinely new items get crowded.",
+          "location": "writeup.md Limitations",
+          "suggested_fix": "Delete the repeats; keep configuration, external-only subgroups, splenectomy-vs-omission.",
+          "action": "REMOVE",
+          "concern_family": "editorial_impression"
+        },
+        {
+          "heading": "The written prediction is introduced as a confession",
+          "comment": "The paragraph leads with the error rather than with the fact that the mechanism was called in advance and confirmed.",
+          "location": "writeup.md Discussion",
+          "suggested_fix": "Open with what the plan got right, then the over-generalised degree.",
+          "action": "MOVE",
+          "concern_family": "editorial_impression"
+        },
+        {
+          "heading": "Table legends are repository paths",
+          "comment": "All four legends are a title plus a CSV path; the Data-and-code statement already points at the directory.",
+          "location": "writeup.md Tables",
+          "suggested_fix": "Strip the paths; let each legend describe what the table shows.",
+          "action": "MOVE",
+          "concern_family": "editorial_impression"
+        }
+      ]
+    }
+  ],
+  "note_underreturn": "R1 (design/leakage) was spawned but never returned: two API-terminated runs and a stalled resume. Recorded rather than hidden; the synthesis states which axes therefore rest on a single reviewer."
+}

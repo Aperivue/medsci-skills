@@ -1,5 +1,138 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- **Demo 5 — MSD to AMOS spleen ladder** (`demo/05_msd_amos_spleen/`). The fifth live demo, and the
+  first that leaves a laptop: nnU-Net v2 trained on MSD Task09 and evaluated on three labelled rungs
+  (internal held-out n=9, genuinely external AMOS **CT** n=300, and AMOS **MRI** n=60 as a modality
+  shift). Median Dice **0.9595 → 0.8932 → 0.0152**. Every number comes from an executed run, and the
+  evaluation plan — including a written prediction for the MRI rung — was fixed before any prediction
+  existed and ships unedited.
+
+  It is also the first demo whose headline is a **failure**. The MRI collapse is not the network
+  failing to generalise: the trained `plans.json` carries `CTNormalization` into inference and
+  `nnUNetv2_predict` has no argument that declares the incoming modality, so a Hounsfield-unit clip
+  (`[-38, 174]`) is applied to arbitrary-unit images. Replaying that contract over **both** external
+  arms measures it — **0 of 60** MRI cases contain a negative voxel against **300 of 300** on CT, and
+  a median **23.2%** of voxels are flattened at the clip ceiling against **2.7%** — while the run
+  still exits 0 and writes 60 plausible contours. Without ground truth it is silent. The control arm
+  is what makes that a measurement instead of an anecdote.
+
+  The uncomfortable part is that **`/profile-imaging` already caught it, and filed it as a Minor**.
+  Before any training it returned `INTENSITY_SCALE_INCONSISTENT` — "500/600 cases bottom out near air
+  and the rest do not, mixed modality, or a rescale not applied to part of the cohort" — naming the
+  exact property that later broke the MRI rung, and that claim sat in the study's `qc/` directory for
+  nine days. So the gap the demo documents is **not detection**: it is **routing and severity**.
+  Nothing carries a profiling-stage claim to the inference stage, nothing compares a trained plan's
+  assumed intensity domain against the arm about to be predicted, and a finding worth a Dice of 0.015
+  ranked below the level at which anyone stops. A gate that fires into a directory no later step
+  reads is, operationally, a gate that did not fire. No new detector is added here; the finding is
+  recorded so the fix can be decided rather than assumed.
+
+  Shipped with the demo: the leakage counterfactual as a **declared manifest that must fail** the
+  same gate that passes the real one (`manifests/preprocessing_manifest_naive.json` → 3 ×
+  `PREPROCESS_BEFORE_SPLIT`), the per-case CSVs behind every reported number, 18 metric unit tests on
+  synthetic volumes with answers derived on paper, a reference audit recording that a fuzzy CrossRef
+  query returned the **wrong paper for two of four** citations before DOI lookup was used instead,
+  and `FRICTION.md` — every point in nine days that needed engineering knowledge, which is what makes
+  "can a clinician do this without an engineer?" an honest question to ask.
+
+  `reproduce.sh` runs both gates, the counterfactual, the unit tests and the full across-cohort
+  analysis on a laptop from the shipped CSVs, and **prints rather than pretends** for the two tiers
+  that need ~25 GB of public data and ~50 GPU-hours.
+
+- **Demo 5, second pass — the manuscript layer, and a cross-substrate review panel that rejected it.**
+  Added the analysis and reporting artifacts that Demos 1–3 ship and Demo 5 lacked: five derived
+  tables, five figures (including a STARD-style case-flow diagram built through the shipped
+  `/make-figures` R pipeline), a title page, a 13-entry DOI-verified bibliography, a rendered DOCX, a
+  **44-item CLAIM 2024 assessment**, a reproducibility lock, and a pipeline log.
+
+  Then `/self-review --panel` was run with a **cross-substrate roster** — the manuscript was drafted
+  by Claude, so a Claude-only panel would inherit the drafter's blind spots and one lens was routed
+  to Codex. **The Codex reviewer returned a Reject and was substantially right**, on points every
+  deterministic gate had passed. Eight Majors were accepted; three changed what the paper claims:
+
+  - **Rung 3 is a *constructed* test, not a discovered failure.** The evaluation plan named the
+    normalisation contract and predicted the collapse before inference ran — so framing it as a
+    clinician landing on a defect "no step asked them to read" overclaimed, because the investigator
+    had read exactly that field in advance. The claim is now narrower and defensible: the pipeline is
+    *silent* about a known incompatibility.
+  - **The causal attribution exceeded the design.** No correctly-normalised MRI arm was run, so
+    preprocessing failure and representation failure are not separated. "Located the cause" is gone.
+  - **One authored example cannot support general claims about tooling.** The routing-and-severity
+    argument is now labelled a hypothesis this example motivates.
+
+  Two of the author's own statements were false against the shipped artifacts and are corrected in
+  place: the Abstract said "60 plausible segmentations" while Table 2 records **20 empty predictions**
+  (and five more under 1 mL), and "registered in advance" is unprovable here because the plan and the
+  results first appear in the same commit.
+
+  Numerical defects the panel found and the gates had not: **HD95 was quoted against the Dice
+  denominator** although it is undefined exactly where predictions are empty — the worst cases — so it
+  was optimistic by a one-directional selection that grows with the failure rate (9/9, 270/298,
+  **40/59**); the **bootstrap interval depended on arm processing order**, so `seed 20260725` pinned the
+  run rather than the arm; **Δ-Dice was called a "drop" with no interval** on the difference; and the
+  subgroup **labels described a different interval closure from the binning code** (67 external CT
+  cases sit at exactly 2.00 mm). All fixed. While fixing the seeding the first patch reached for
+  `hash()`, which Python randomises per process — it would have destroyed determinism in the act of
+  repairing it; replaced with blake2b and verified stable across `PYTHONHASHSEED`.
+
+  `evaluate_segmentation.py` now **fails** on a missing prediction instead of warning and exiting 0.
+
+- **Demo 4 brought to the same QC completeness, and a contradiction found doing it.** Added the
+  artifacts Demos 1–3 ship and Demo 4 lacked: a **CLAIM 2024 assessment** (44 items — 27 PRESENT /
+  6 PARTIAL / 7 MISSING / 4 N/A), a pipeline log, `manifest.lock.json` (11 artifacts, verify
+  11/11), and a rendered DOCX (pandoc **without** `--citeproc`, because the write-up carries a
+  hand-numbered reference list and citeproc would append a second bibliography — the rendered file
+  was checked and has none).
+
+  Two things surfaced. First, Demo 4's own self-review had left **RM1 ("references unverified") open
+  as a blocker** and nobody closed it. `/verify-refs --strict` now runs clean — 8 of 9 OK, 0
+  fabricated, `submission_safe: true` — and the ninth stays **UNVERIFIED by construction**: the
+  PyTorch NeurIPS 2019 paper has no CrossRef DOI and no PubMed record, so no registry can confirm
+  it. UNVERIFIED is not FABRICATED, and the distinction is now written down instead of left as a
+  dangling blocker.
+
+  Second, the checklist found what nothing else had: **the manuscript states package versions that
+  no shipped artifact records.** `writeup.md` gives torch 2.12.1 and four others; both
+  `pipeline/REPRODUCIBILITY.md` and `pipeline/requirements.txt` say no version set was captured at
+  run time ("inventing pins would be a claim never tested"), and `results/results.json` has no
+  environment block — while the Reproducibility section asserted the versions "are given in
+  Methods" alongside "none are hand-entered". The versions are **kept but flagged in place**: they
+  may well be correct, and deleting a possibly-true fact is not more honest than labelling it.
+
+- **A 10-minute conference talk for every demo** (`demo/*/presentation/`). Five decks, each built by
+  a `build_deck.py` that **reads every slide number from the shipped artifacts at build time** —
+  there is not one typed-in figure in any deck script, so a changed result changes the deck. Titles
+  state the finding rather than naming the section, and the figures are the ones the analysis
+  already produced.
+
+  Each ships `make_deck.sh`, which runs the two gates this repository requires of a deck and which
+  had teeth: `check_slide_tells.py` (chrome on every slide, scaffolding sentences, section-label
+  titles, repeated shapes, unlabelled arrows) and `check_deck_budget.py` (words per slide, slides
+  per minute, font floor, against the archetype in `deck.qc`). The budget gate rejected four of the
+  five decks on the first build and sent them back two or three times each.
+
+- **Demo 5 subtraction round (the deferred half of the panel).** The editor lens's five
+  REMOVE/MOVE/TIGHTEN findings, held back from the accuracy round so the two would stay separately
+  reviewable, are now applied: **Abstract 543 → 337 words**, Limitations ~230 → 182, body 3,972 →
+  3,721. Seeds, resample counts, gate names and the normaliser constants left the Abstract; the
+  contrast that does the work stayed. The clinical-claim guard now appears once, on the title page.
+  Table legends describe their table instead of naming a CSV path.
+
+  **A subtraction round can delete a fact the floor needed, and this one did.** `seed 20260725` and
+  `10,000 resamples` lived *only* in the Abstract, so cutting it removed the bootstrap parameters
+  from the manuscript entirely — a reproducibility regression invisible to the very lens that asked
+  for the cut, because that lens reads for tone. The instruction was *move to Methods*, not delete.
+  Restored as a Methods **Uncertainty** paragraph; every floor gate re-run green afterwards.
+
+  Also: `manuscript/render.sh` now binds DOCX rendering to normalising the audit-source path.
+  `/verify-refs` writes the absolute path it was handed into its audit JSON, the repository's PII
+  gate rejects it, and scrubbing it by hand after each render was forgotten twice. Binding the two
+  makes the leak unable to survive a render.
+
 ## [5.24.0] - 2026-07-31
 
 **Hotfix:** several shipped detectors produced a wrong result a user could have believed —

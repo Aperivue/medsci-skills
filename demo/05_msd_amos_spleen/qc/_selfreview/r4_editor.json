@@ -1,0 +1,54 @@
+{
+  "reviewer_id": "R4",
+  "expertise_area": "Handling-editor desk impression",
+  "overall_assessment": "Reads as a confident narrative rather than a defensive audit; I would send it out. The barrier to a reader finishing it is the front door: a 492-word Abstract whose middle third is verification bookkeeping.",
+  "strengths": [
+    "Title and Conclusion carry a mechanism, not a caveat.",
+    "The self-indicting profiler finding is turned into the central claim rather than suppressed.",
+    "Rival explanations are tested and rejected before the finding is accepted.",
+    "Results are quantitative where papers usually go adjectival."
+  ],
+  "major": [],
+  "minor": [
+    {
+      "heading": "Abstract is 492 words and spends its middle third on verification bookkeeping",
+      "comment": "Two seeds, the resample count, two gate names and the full normaliser constants arrive before the finding does; no journal Abstract limit accommodates it.",
+      "location": "writeup.md Abstract",
+      "suggested_fix": "Cut to ~250 words; move seeds, gate names and constants to Methods/Results.",
+      "action": "TIGHTEN",
+      "concern_family": "editorial_impression"
+    },
+    {
+      "heading": "The no-clinical-claim disclaimer is restated four times across the package",
+      "comment": "Abstract, Limitations, and twice on the title page. Past the second occurrence it reads as a paper expecting to be misread.",
+      "location": "writeup.md Abstract + Limitations; title_page.md",
+      "suggested_fix": "Keep one instance per document.",
+      "action": "REMOVE",
+      "concern_family": "editorial_impression"
+    },
+    {
+      "heading": "Half of Limitations restates Methods and Introduction",
+      "comment": "Three of six sentences repeat the schedule, the internal-rung provenance and the clinical-claim guard; the genuinely new items get crowded.",
+      "location": "writeup.md Limitations",
+      "suggested_fix": "Delete the repeats; keep configuration, external-only subgroups, splenectomy-vs-omission.",
+      "action": "REMOVE",
+      "concern_family": "editorial_impression"
+    },
+    {
+      "heading": "The written prediction is introduced as a confession",
+      "comment": "The paragraph leads with the error rather than with the fact that the mechanism was called in advance and confirmed.",
+      "location": "writeup.md Discussion",
+      "suggested_fix": "Open with what the plan got right, then the over-generalised degree.",
+      "action": "MOVE",
+      "concern_family": "editorial_impression"
+    },
+    {
+      "heading": "Table legends are repository paths",
+      "comment": "All four legends are a title plus a CSV path; the Data-and-code statement already points at the directory.",
+      "location": "writeup.md Tables",
+      "suggested_fix": "Strip the paths; let each legend describe what the table shows.",
+      "action": "MOVE",
+      "concern_family": "editorial_impression"
+    }
+  ]
+}

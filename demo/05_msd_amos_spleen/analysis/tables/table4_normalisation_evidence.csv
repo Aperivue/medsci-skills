@@ -1,0 +1,3 @@
+arm,n_cases,normalisation_scheme_from_trained_plan,clip_window_HU,zscore_mean_sd,cases_with_any_negative_voxel,pct_voxels_above_clip_ceiling_median_range,intensity_levels_surviving_clip_median_range
+rung2 AMOS CT (external),300,CTNormalization,"[-38, 174]",89.8 / 39.8,300/300,2.7% (1.0-6.9),213 (213-213)
+rung3 AMOS MRI (modality shift),60,CTNormalization,"[-38, 174]",89.8 / 39.8,0/60,23.2% (0.3-68.6),175 (2-175)

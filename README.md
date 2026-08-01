@@ -170,9 +170,9 @@ protocol scaffolding, screening/extraction structure, PRISMA-consistent counts a
 diagram, pooled-estimate figures, and a manuscript draft. *Safety:* screening and
 extraction decisions stay with the human review team.
 
-## Live Demos: Four Study Types, Four Full Pipelines
+## Live Demos: Five Study Types, Five Full Pipelines
 
-Four public datasets. Four study types. Demos 1–3 each produce a complete manuscript, publication-ready figures, and a reporting-compliance audit; Demo 4 runs the medical-AI **model-engineering lane** end to end (scaffold → gates → training → evaluation → interpretability).
+Five public datasets. Five study types. Demos 1–3 each produce a complete manuscript, publication-ready figures, and a reporting-compliance audit; Demo 4 runs the medical-AI **model-engineering lane** end to end (scaffold → gates → training → evaluation → interpretability); Demo 5 takes that lane onto a GPU cluster and out to a **genuinely external cohort**, then reports where it broke.
 
 | Demo | Dataset | Study Type | Compliance |
 |------|---------|------------|------------|
@@ -180,6 +180,7 @@ Four public datasets. Four study types. Demos 1–3 each produce a complete manu
 | [Demo 2: BCG Vaccine](demo/02_metafor_bcg/) | `metafor::dat.bcg` (13 RCTs) | Meta-analysis | PRISMA 2020 |
 | [Demo 3: NHANES Obesity](demo/03_nhanes_obesity/) | CDC NHANES 2017-18 | Epidemiology (survey) | STROBE |
 | [Demo 4: PneumoniaMNIST CNN](demo/04_pneumoniamnist_cnn/) | `medmnist` (CC BY 4.0) | Medical-AI model engineering (CNN) | CLAIM / TRIPOD+AI |
+| [Demo 5: MSD → AMOS spleen](demo/05_msd_amos_spleen/) | MSD Task09 + AMOS22 (CC BY 4.0) | 3-D segmentation, external validation + modality shift | CLAIM / Metrics Reloaded |
 
 ### Demo 1: Diagnostic Accuracy — Wisconsin Breast Cancer
 
@@ -263,6 +264,38 @@ data(dat.bcg)  # 13 RCTs, 357,347 participants (Colditz et al. 1994)
 </details>
 
 **Pipeline:** `analyze-stats` &rarr; `make-figures` &rarr; `write-paper` &rarr; AI pattern scan &rarr; `check-reporting` (STROBE) &rarr; `self-review` &rarr; DOCX build &rarr; `present-paper`
+
+### Demo 5: External Validation — MSD &rarr; AMOS spleen segmentation
+
+The only demo that leaves the laptop, and the only one that reports a **failure**. It asks whether a
+clinician can carry a deep-learning study to a defensible result without an engineer, then answers by
+running a three-rung external-validation ladder on a GPU cluster and logging every point where the
+answer was no.
+
+| Rung | Cohort | n scored | Dice median [95% CI] |
+|---|---|---:|---|
+| 1 internal | MSD held-out | 9 | **0.9595** [0.9367–0.9734] |
+| 2 genuine external | AMOS **CT** | 298 / 300 | **0.8932** [0.8633–0.9108] |
+| 3 modality shift | AMOS **MRI** | 59 / 60 | **0.0152** [0.0000–0.0626] |
+
+Rung 3 is a **constructed** test, and the demo says so: the evaluation plan named the normalisation
+contract and predicted the collapse *before* inference ran. The trained plan carries `CTNormalization`
+into inference and there is no flag that says "this is MRI", so a Hounsfield-unit clip is applied to
+arbitrary-unit images: **0 of 60 MRI cases contain a negative voxel** (against 300 of 300 on CT), and a
+median **23.2 %** of voxels are flattened at the clip ceiling (against 2.7 %). The run exits 0 and
+returns a file for all 60 cases, 20 of them empty. Only ground truth made it loud.
+
+And `/profile-imaging` **had already flagged the mixed intensity scale before training — as a
+Minor**, where it sat in `qc/` for nine days. So the gap this demo found is not detection; it is
+**routing and severity**. A gate that fires correctly into a directory no later step reads is,
+operationally, a gate that did not fire. See [the full demo](demo/05_msd_amos_spleen/) — including
+[`FRICTION.md`](demo/05_msd_amos_spleen/FRICTION.md), which lists every point that needed engineering
+knowledge, because the headline question is not answerable honestly without it.
+
+**Pipeline:** `profile-imaging` &rarr; `model-sourcing` &rarr; `preprocess-imaging` (leakage gate, plus the
+counterfactual that must fail) &rarr; `model-validation` (split gate) &rarr; nnU-Net training &rarr;
+`model-evaluation` &rarr; `make-figures` &rarr; write-up. `bash reproduce.sh` re-runs the gates and the whole
+across-cohort analysis on a laptop; training needs ~50 GPU-hours and says so.
 
 ### Project Folder Structure
 

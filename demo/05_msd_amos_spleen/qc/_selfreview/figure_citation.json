@@ -1,0 +1,20 @@
+{
+  "detector": "check_figure_citation",
+  "manuscript": "manuscript/writeup.md",
+  "claims": [
+    {
+      "verdict": "FIGURE_NOT_EMBEDDED",
+      "severity": "Minor",
+      "detail": "no image is embedded anywhere in the manuscript, while 5 figure(s) are captioned (Figure 1, Figure 2, Figure 3, Figure 4, Figure 5); confirm they are embedded or attached as separate files before submission",
+      "where": "**Figure 1.** Per-case Dice by cohort. Box plots with jittered per-case points; the spread is what"
+    }
+  ],
+  "summary": {
+    "n_claims": 1,
+    "n_major": 0,
+    "n_flag": 1,
+    "n_orphan": 0,
+    "n_not_embedded": 1,
+    "verdict": "REVIEW"
+  }
+}
