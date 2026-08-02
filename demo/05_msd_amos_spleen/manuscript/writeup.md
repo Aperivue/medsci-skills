@@ -251,7 +251,9 @@ nnU-Net would have chosen the z-score, and the arm shows that this alone reaches
 
 So of the −0.878 separating the external CT cohort from MRI, roughly **0.29 Dice is attributable to
 the intensity domain the network is handed** and roughly **0.59 to a representation that does not
-transfer to this modality**; those two terms account for that gap in full. They deliberately do not
+transfer to this modality**. Those two terms partition that gap by construction — an arm placed
+between two others always splits the interval between them — so the result is the **position** of the
+split, not the fact that it closes. They deliberately do not
 sum to the −0.9443 observed against the *internal* arm: that comparison additionally carries the
 −0.0662 (−0.0996 to −0.0416) internal-to-external CT drop, a same-modality cohort shift that the
 modality decomposition has no claim on.

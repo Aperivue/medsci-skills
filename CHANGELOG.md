@@ -136,13 +136,22 @@
   shipped documents said, in one wording or another, *"of the −0.944 collapse, roughly 0.29 Dice is
   the preprocessing contract and roughly 0.59 a representation that does not transfer"* — and
   0.29 + 0.59 = 0.88, not 0.944. Re-derived from the shipped per-case CSVs, the two terms are
-  **+0.2864** and **+0.5916**, and they sum to **0.8781**, which is exactly the external-CT-to-MRI
-  gap (0.8932 → 0.0152). The −0.9443 they were attributed to is measured against the *internal* arm
+  **+0.2864** and **+0.5916**, and they sum to **0.8780** — the external-CT-to-MRI gap
+  (0.8932 → 0.0152). (0.878073 unrounded; every figure here is quoted so that the displayed numbers
+  reproduce the displayed total, which is the discipline this entry exists to restore.) The −0.9443
+  they were attributed to is measured against the *internal* arm
   and additionally carries the internal-to-external CT drop of **0.0662** — a same-modality cohort
   shift the repository reports separately, with an interval excluding zero, and which the modality
   decomposition has no claim on. The denominator is now the gap the two terms actually explain, with
   the omitted term named. Any reader who added the two numbers would have found the 0.07 in about
   five seconds, and this is the demo whose argument is that a plausible-looking number can be wrong.
+
+  The exact closure is a **diagnostic, not a result**, and the corrected prose now says so. Any arm
+  placed between two others partitions the interval between them exactly — `(3b−3) + (2−3b) ≡ (2−3)`
+  holds whatever 3b scores — so "the two account for the gap in full" would have dressed an identity
+  as a finding. What the counterfactual actually buys is the **position** of the split: 0.29 / 0.59
+  rather than any other partition of the same 0.878. The closure earned its place only as the check
+  that exposed the wrong denominator.
 
   Two smaller defects in the same passage. `README.md` rounded 0.2864 and 0.5916 to **~0.28 and
   ~0.60** where every other document rounded them to 0.29 and 0.59; both directions were wrong at two

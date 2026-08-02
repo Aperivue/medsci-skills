@@ -122,7 +122,9 @@ before it ran.
 
 Neither interval crosses zero. **Of the −0.878 separating external CT from MRI, roughly 0.29 Dice is
 the preprocessing contract and roughly 0.59 is a representation that does not transfer** — the two
-account for that gap in full. They do not add up to the −0.944 measured against the *internal* arm,
+partition that gap. The partition itself is arithmetic — any arm placed between two others splits the
+interval between them exactly, whatever its Dice — so the finding is **where** 3b lands, not that the
+two terms close. They do not add up to the −0.944 measured against the *internal* arm,
 and should not: the remaining −0.0662 [−0.0996, −0.0416] is the internal-to-external CT drop, a
 same-modality cohort shift reported separately above and no part of the modality story. An input
 rescaling alone

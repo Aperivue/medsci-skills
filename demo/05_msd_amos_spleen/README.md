@@ -47,7 +47,9 @@ Two counterfactual arms, each changing one thing and neither retraining, put a n
 
 They are indistinguishable (−0.0146, interval spans zero; per-case r = 0.939). **So of the −0.878
 separating external CT from MRI, 0.29 Dice is the intensity domain and 0.59 a representation that
-does not transfer** — the two account for that gap in full. The further 0.07 down to the internal arm
+does not transfer**. Inserting an arm between two others partitions the interval between them by
+construction, so what the counterfactual buys is not the closure but **where the boundary falls**.
+The further 0.07 down to the internal arm
 is a CT-to-CT cohort shift, not modality. Both predictions were written before their runs and the
 second was wrong in direction and is kept — though this repository cannot prove that ordering, and
 [`CASE_STUDY.md`](CASE_STUDY.md) says so.
