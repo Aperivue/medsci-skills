@@ -21,7 +21,12 @@ schema the editor already collects) and reports these diversity and panel-indepe
                      reviewer already covered — a fully-redundant lens that
                      added no independent signal. Distinct from healthy
                      CONSENSUS (a reviewer agreeing on SOME themes but also
-                     raising at least one family nobody else did). (Flag)
+                     raising at least one family nobody else did). Exempt when
+                     the roster declares that reviewer on a DIFFERENT substrate
+                     from the generator: agreement reached from another substrate
+                     is corroboration, not a redundant assignment, and it is the
+                     very lens SUBSTRATE_MONOCULTURE requires. Exempted ids are
+                     reported in summary.lens_collapse_substrate_exempt. (Flag)
   SUBSTRATE_MONOCULTURE  every reviewer the roster declares shares the *generator's*
                      model substrate — a same-model panel inherits the blind spots that
                      produced the draft and is not an independent check. Fires only when
@@ -336,7 +341,19 @@ def check(reviewers: list[dict], research_type: str | None,
                     f"{f}={c}" for f, c in sorted(family_hist.items(), key=lambda kv: -kv[1])),
             })
 
-    # 3) LENS_COLLAPSE — a reviewer whose every family is also covered by another
+    # 3) LENS_COLLAPSE — a reviewer whose every family is also covered by another.
+    #
+    # Exempt: a reviewer whose declared substrate DIFFERS from the generator's. For a
+    # same-substrate lens, raising only families others already raised is evidence of a
+    # redundant assignment. For a cross-substrate lens it is close to the opposite —
+    # independent corroboration is the strongest signal a panel can produce, and that lens is
+    # exactly what SUBSTRATE_MONOCULTURE (0b, above) requires the panel to contain. Firing
+    # here told the editor to reconsider the one reviewer keeping the panel independent.
+    # Gated on both substrates being declared, so an unlabelled roster is unaffected.
+    gen_sub = (generator_substrate or "").strip().lower()
+    declared_subs = {rid: str(s).strip().lower()
+                     for rid, s in (reviewer_substrates or {}).items() if s}
+    cross_substrate_exempt: list[str] = []
     for rid, fams in rev_families.items():
         own = {f for f in fams if f != "other"}
         if not own:
@@ -345,6 +362,11 @@ def check(reviewers: list[dict], research_type: str | None,
         for other_rid, other_fams in rev_families.items():
             if other_rid != rid:
                 others |= {f for f in other_fams if f != "other"}
+        if own and own <= others and gen_sub and declared_subs.get(rid, gen_sub) != gen_sub:
+            # Recorded, never silent: a skipped check that prints nothing is
+            # indistinguishable from a check that passed.
+            cross_substrate_exempt.append(rid)
+            continue
         if own and own <= others:  # fully subsumed by other reviewers
             claims.append({
                 "verdict": "LENS_COLLAPSE",
@@ -377,6 +399,7 @@ def check(reviewers: list[dict], research_type: str | None,
         "covered_axes": sorted(covered),
         "uncovered_axes": uncovered,
         "research_type_known": bool(research_type and research_type in EXPECTED_AXES),
+        "lens_collapse_substrate_exempt": sorted(cross_substrate_exempt),
     }
     return claims, summary
 
@@ -457,6 +480,11 @@ def main() -> int:
         if not s["research_type_known"]:
             print("NOTE: research type unknown — UNCOVERED_AXIS skipped "
                   "(pass --research-type to enable axis-coverage checks).")
+        if s.get("lens_collapse_substrate_exempt"):
+            print("NOTE: LENS_COLLAPSE exempt for "
+                  f"{', '.join(s['lens_collapse_substrate_exempt'])} — declared on a different "
+                  f"substrate from the generator, so full agreement reads as cross-substrate "
+                  f"corroboration, not a redundant lens.")
         if s["n_major"]:
             print(f"MAJOR candidate: {s['n_major']} diversity failure(s); "
                   f"covered axes: {', '.join(s['covered_axes']) or '(none)'}.")

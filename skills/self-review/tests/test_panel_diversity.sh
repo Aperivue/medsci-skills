@@ -97,5 +97,39 @@ check "no SUBSTRATE_MONOCULTURE with an independent lens" no_verdict SUBSTRATE_M
 python3 "$SCRIPT" --panel "$GOOD" --roster "$ROSTER3" --out "$OUT" --quiet >/dev/null 2>&1
 check "no SUBSTRATE_MONOCULTURE without substrate info (backward compatible)" no_verdict SUBSTRATE_MONOCULTURE
 
+# (11) LENS_COLLAPSE must NOT fire on a reviewer declared on a DIFFERENT substrate from the
+#      generator. In COLLAPSE, R3's families are fully subsumed by R1's; under INDEPSUB, R3 is
+#      the non-claude lens — the very one whose presence stops SUBSTRATE_MONOCULTURE (case 9).
+#      Firing here told the editor that the panel's only independent lens "added no independent
+#      axis", i.e. to consider dropping it. Agreement reached from another substrate is
+#      corroboration, not a redundant assignment. Observed live in a Codex-reviewer panel.
+python3 "$SCRIPT" --panel "$COLLAPSE" --roster "$INDEPSUB" --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "exit 0 (cross-substrate reviewer is not a collapsed lens)" test "$?" -eq 0
+check "no LENS_COLLAPSE on a cross-substrate reviewer" no_verdict LENS_COLLAPSE
+check "the exemption is recorded, not silent" python3 -c "
+import json
+d=json.load(open('$OUT'))
+ex=d['summary'].get('lens_collapse_substrate_exempt')
+assert ex == ['R3'], f'expected R3 recorded as exempt, got {ex!r}'
+"
+
+# (12) ...and the exemption is NOT a blanket disable: the same panel with an all-same-substrate
+#      roster must still raise LENS_COLLAPSE on R3. Without this, case (11) could be passed by
+#      simply deleting the check.
+python3 "$SCRIPT" --panel "$COLLAPSE" --roster "$MONOSUB" --out "$OUT" --quiet >/dev/null 2>&1
+check "LENS_COLLAPSE still fires when the redundant lens shares the generator substrate" \
+    has_verdict LENS_COLLAPSE
+check "nothing exempted when every substrate matches the generator" python3 -c "
+import json
+d=json.load(open('$OUT'))
+ex=d['summary'].get('lens_collapse_substrate_exempt')
+assert ex == [], f'expected no exemptions, got {ex!r}'
+"
+
+# (13) substrate-gated, as everywhere else: with no substrate info the pre-existing behaviour
+#      is unchanged — LENS_COLLAPSE fires exactly as it did before this exemption existed.
+python3 "$SCRIPT" --panel "$COLLAPSE" --roster "$ROSTER3" --out "$OUT" --quiet >/dev/null 2>&1
+check "LENS_COLLAPSE unchanged on a roster without substrate fields" has_verdict LENS_COLLAPSE
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"
