@@ -1,0 +1,21 @@
+{
+  "_what": "The normalisation scheme nnU-Net ACTUALLY applied in rung 3c, as written by the run into its own output directory. The sbatch log echoes a hardcoded path and is not evidence; this file is. Compare with rung 3b's, which reads CTNormalization.",
+  "arm": "rung3c_amos_mri_zscore",
+  "normalization_schemes": [
+    "ZScoreNormalization"
+  ],
+  "use_mask_for_norm": [
+    false
+  ],
+  "spacing": [
+    2.55,
+    0.7890625,
+    0.7890625
+  ],
+  "patch_size": [
+    56,
+    192,
+    192
+  ],
+  "note": "Only normalization_schemes differs from the trained plan; every other configuration field is byte-identical, and the five fold checkpoints are the same files."
+}

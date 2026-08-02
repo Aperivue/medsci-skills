@@ -1,0 +1,555 @@
+{
+  "transform": "affine percentile match of in-body voxels to the trained plan's foreground window",
+  "target_window": [
+    -38.0,
+    174.0
+  ],
+  "n_cases": 60,
+  "frac_above_target_hi": {
+    "min": 0.002421,
+    "median": 0.003778,
+    "max": 0.004699
+  },
+  "cases": [
+    {
+      "case": "amos_0507_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 581.0,
+      "scale": 0.365517,
+      "out_min": -38.37,
+      "out_max": 361.14,
+      "frac_above_target_hi": 0.00425
+    },
+    {
+      "case": "amos_0508_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 376.0,
+      "scale": 0.565333,
+      "out_min": -38.57,
+      "out_max": 336.82,
+      "frac_above_target_hi": 0.004617
+    },
+    {
+      "case": "amos_0510_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 550.0,
+      "scale": 0.386157,
+      "out_min": -38.39,
+      "out_max": 490.65,
+      "frac_above_target_hi": 0.00465
+    },
+    {
+      "case": "amos_0514_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 675.0,
+      "scale": 0.31454,
+      "out_min": -38.31,
+      "out_max": 360.52,
+      "frac_above_target_hi": 0.004699
+    },
+    {
+      "case": "amos_0517_0000.nii.gz",
+      "src_p0_5": 116.403,
+      "src_p99_5": 81482.188,
+      "scale": 0.002606,
+      "out_min": -38.3,
+      "out_max": 406.32,
+      "frac_above_target_hi": 0.002421
+    },
+    {
+      "case": "amos_0518_0000.nii.gz",
+      "src_p0_5": 100.655,
+      "src_p99_5": 74283.117,
+      "scale": 0.002858,
+      "out_min": -38.29,
+      "out_max": 522.06,
+      "frac_above_target_hi": 0.003815
+    },
+    {
+      "case": "amos_0522_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 628.0,
+      "scale": 0.338118,
+      "out_min": -38.34,
+      "out_max": 482.03,
+      "frac_above_target_hi": 0.003599
+    },
+    {
+      "case": "amos_0530_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 827.0,
+      "scale": 0.256659,
+      "out_min": -38.26,
+      "out_max": 438.36,
+      "frac_above_target_hi": 0.003679
+    },
+    {
+      "case": "amos_0532_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 649.0,
+      "scale": 0.32716,
+      "out_min": -38.33,
+      "out_max": 446.52,
+      "frac_above_target_hi": 0.003514
+    },
+    {
+      "case": "amos_0538_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 544.0,
+      "scale": 0.390424,
+      "out_min": -38.39,
+      "out_max": 375.46,
+      "frac_above_target_hi": 0.003505
+    },
+    {
+      "case": "amos_0540_0000.nii.gz",
+      "src_p0_5": 4385.221,
+      "src_p99_5": 2021587.0,
+      "scale": 0.000105,
+      "out_min": -38.46,
+      "out_max": 306.73,
+      "frac_above_target_hi": 0.003039
+    },
+    {
+      "case": "amos_0541_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 731.0,
+      "scale": 0.290411,
+      "out_min": -38.29,
+      "out_max": 355.51,
+      "frac_above_target_hi": 0.003357
+    },
+    {
+      "case": "amos_0544_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 338.0,
+      "scale": 0.62908,
+      "out_min": -38.63,
+      "out_max": 389.77,
+      "frac_above_target_hi": 0.003137
+    },
+    {
+      "case": "amos_0545_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 640.0,
+      "scale": 0.331768,
+      "out_min": -38.33,
+      "out_max": 296.09,
+      "frac_above_target_hi": 0.004657
+    },
+    {
+      "case": "amos_0546_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 343.0,
+      "scale": 0.619883,
+      "out_min": -38.62,
+      "out_max": 414.51,
+      "frac_above_target_hi": 0.003897
+    },
+    {
+      "case": "amos_0547_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 236.0,
+      "scale": 0.902128,
+      "out_min": -38.9,
+      "out_max": 365.25,
+      "frac_above_target_hi": 0.003467
+    },
+    {
+      "case": "amos_0548_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 717.0,
+      "scale": 0.296089,
+      "out_min": -38.3,
+      "out_max": 287.99,
+      "frac_above_target_hi": 0.003327
+    },
+    {
+      "case": "amos_0549_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 538.0,
+      "scale": 0.394786,
+      "out_min": -38.39,
+      "out_max": 260.46,
+      "frac_above_target_hi": 0.004514
+    },
+    {
+      "case": "amos_0550_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 588.0,
+      "scale": 0.361158,
+      "out_min": -38.36,
+      "out_max": 262.84,
+      "frac_above_target_hi": 0.002855
+    },
+    {
+      "case": "amos_0551_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 570.0,
+      "scale": 0.372583,
+      "out_min": -38.37,
+      "out_max": 260.81,
+      "frac_above_target_hi": 0.003419
+    },
+    {
+      "case": "amos_0552_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 574.0,
+      "scale": 0.369983,
+      "out_min": -38.37,
+      "out_max": 261.69,
+      "frac_above_target_hi": 0.003608
+    },
+    {
+      "case": "amos_0553_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 565.0,
+      "scale": 0.375887,
+      "out_min": -38.38,
+      "out_max": 274.74,
+      "frac_above_target_hi": 0.004022
+    },
+    {
+      "case": "amos_0554_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 896.0,
+      "scale": 0.236872,
+      "out_min": -38.24,
+      "out_max": 333.65,
+      "frac_above_target_hi": 0.003689
+    },
+    {
+      "case": "amos_0555_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 486.0,
+      "scale": 0.437113,
+      "out_min": -38.44,
+      "out_max": 410.48,
+      "frac_above_target_hi": 0.003621
+    },
+    {
+      "case": "amos_0556_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 752.0,
+      "scale": 0.28229,
+      "out_min": -38.28,
+      "out_max": 331.52,
+      "frac_above_target_hi": 0.003535
+    },
+    {
+      "case": "amos_0557_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 1257.0,
+      "scale": 0.16879,
+      "out_min": -38.17,
+      "out_max": 254.01,
+      "frac_above_target_hi": 0.003814
+    },
+    {
+      "case": "amos_0558_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 1268.0,
+      "scale": 0.167324,
+      "out_min": -38.17,
+      "out_max": 470.83,
+      "frac_above_target_hi": 0.004084
+    },
+    {
+      "case": "amos_0559_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 514.0,
+      "scale": 0.413255,
+      "out_min": -38.41,
+      "out_max": 271.94,
+      "frac_above_target_hi": 0.004526
+    },
+    {
+      "case": "amos_0561_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 441.0,
+      "scale": 0.481818,
+      "out_min": -38.48,
+      "out_max": 401.9,
+      "frac_above_target_hi": 0.002536
+    },
+    {
+      "case": "amos_0562_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 481.0,
+      "scale": 0.441667,
+      "out_min": -38.44,
+      "out_max": 368.77,
+      "frac_above_target_hi": 0.004538
+    },
+    {
+      "case": "amos_0563_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 790.0,
+      "scale": 0.268695,
+      "out_min": -38.27,
+      "out_max": 241.98,
+      "frac_above_target_hi": 0.003765
+    },
+    {
+      "case": "amos_0568_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 610.0,
+      "scale": 0.348112,
+      "out_min": -38.35,
+      "out_max": 266.6,
+      "frac_above_target_hi": 0.003143
+    },
+    {
+      "case": "amos_0570_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 294.0,
+      "scale": 0.723549,
+      "out_min": -38.72,
+      "out_max": 315.82,
+      "frac_above_target_hi": 0.003392
+    },
+    {
+      "case": "amos_0571_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 634.0,
+      "scale": 0.334913,
+      "out_min": -38.33,
+      "out_max": 316.0,
+      "frac_above_target_hi": 0.003607
+    },
+    {
+      "case": "amos_0572_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 329.0,
+      "scale": 0.646341,
+      "out_min": -38.65,
+      "out_max": 397.63,
+      "frac_above_target_hi": 0.003386
+    },
+    {
+      "case": "amos_0573_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 178.0,
+      "scale": 1.19774,
+      "out_min": -39.2,
+      "out_max": 357.25,
+      "frac_above_target_hi": 0.00273
+    },
+    {
+      "case": "amos_0575_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 460.0,
+      "scale": 0.461874,
+      "out_min": -38.46,
+      "out_max": 303.32,
+      "frac_above_target_hi": 0.004647
+    },
+    {
+      "case": "amos_0576_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 346.0,
+      "scale": 0.614493,
+      "out_min": -38.61,
+      "out_max": 291.37,
+      "frac_above_target_hi": 0.003844
+    },
+    {
+      "case": "amos_0578_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 1131.0,
+      "scale": 0.187611,
+      "out_min": -38.19,
+      "out_max": 249.23,
+      "frac_above_target_hi": 0.003792
+    },
+    {
+      "case": "amos_0580_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 848.0,
+      "scale": 0.250295,
+      "out_min": -38.25,
+      "out_max": 518.16,
+      "frac_above_target_hi": 0.004463
+    },
+    {
+      "case": "amos_0581_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 566.0,
+      "scale": 0.375221,
+      "out_min": -38.38,
+      "out_max": 287.32,
+      "frac_above_target_hi": 0.003723
+    },
+    {
+      "case": "amos_0582_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 822.0,
+      "scale": 0.258222,
+      "out_min": -38.26,
+      "out_max": 262.05,
+      "frac_above_target_hi": 0.004561
+    },
+    {
+      "case": "amos_0583_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 614.0,
+      "scale": 0.34584,
+      "out_min": -38.35,
+      "out_max": 292.28,
+      "frac_above_target_hi": 0.004553
+    },
+    {
+      "case": "amos_0584_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 725.0,
+      "scale": 0.292818,
+      "out_min": -38.29,
+      "out_max": 287.61,
+      "frac_above_target_hi": 0.003557
+    },
+    {
+      "case": "amos_0585_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 833.0,
+      "scale": 0.254808,
+      "out_min": -38.25,
+      "out_max": 276.94,
+      "frac_above_target_hi": 0.003963
+    },
+    {
+      "case": "amos_0586_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 394.0,
+      "scale": 0.53944,
+      "out_min": -38.54,
+      "out_max": 280.27,
+      "frac_above_target_hi": 0.004594
+    },
+    {
+      "case": "amos_0587_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 663.0,
+      "scale": 0.320242,
+      "out_min": -38.32,
+      "out_max": 563.41,
+      "frac_above_target_hi": 0.004334
+    },
+    {
+      "case": "amos_0588_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 1132.0,
+      "scale": 0.187445,
+      "out_min": -38.19,
+      "out_max": 305.59,
+      "frac_above_target_hi": 0.004311
+    },
+    {
+      "case": "amos_0589_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 725.0,
+      "scale": 0.292818,
+      "out_min": -38.29,
+      "out_max": 355.84,
+      "frac_above_target_hi": 0.004557
+    },
+    {
+      "case": "amos_0590_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 1094.0,
+      "scale": 0.193962,
+      "out_min": -38.19,
+      "out_max": 351.86,
+      "frac_above_target_hi": 0.004277
+    },
+    {
+      "case": "amos_0591_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 359.0,
+      "scale": 0.592179,
+      "out_min": -38.59,
+      "out_max": 416.2,
+      "frac_above_target_hi": 0.003618
+    },
+    {
+      "case": "amos_0592_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 1411.0,
+      "scale": 0.150355,
+      "out_min": -38.15,
+      "out_max": 277.74,
+      "frac_above_target_hi": 0.004035
+    },
+    {
+      "case": "amos_0593_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 473.0,
+      "scale": 0.449153,
+      "out_min": -38.45,
+      "out_max": 262.03,
+      "frac_above_target_hi": 0.003628
+    },
+    {
+      "case": "amos_0594_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 604.0,
+      "scale": 0.351575,
+      "out_min": -38.35,
+      "out_max": 301.62,
+      "frac_above_target_hi": 0.004181
+    },
+    {
+      "case": "amos_0595_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 332.0,
+      "scale": 0.640483,
+      "out_min": -38.64,
+      "out_max": 357.82,
+      "frac_above_target_hi": 0.003252
+    },
+    {
+      "case": "amos_0596_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 1599.0,
+      "scale": 0.132666,
+      "out_min": -38.13,
+      "out_max": 361.85,
+      "frac_above_target_hi": 0.003534
+    },
+    {
+      "case": "amos_0597_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 681.475,
+      "scale": 0.311547,
+      "out_min": -38.31,
+      "out_max": 257.97,
+      "frac_above_target_hi": 0.004551
+    },
+    {
+      "case": "amos_0598_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 558.0,
+      "scale": 0.38061,
+      "out_min": -38.38,
+      "out_max": 455.65,
+      "frac_above_target_hi": 0.004211
+    },
+    {
+      "case": "amos_0599_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 317.0,
+      "scale": 0.670886,
+      "out_min": -38.67,
+      "out_max": 556.41,
+      "frac_above_target_hi": 0.004179
+    },
+    {
+      "case": "amos_0600_0000.nii.gz",
+      "src_p0_5": 1.0,
+      "src_p99_5": 337.0,
+      "scale": 0.630952,
+      "out_min": -38.63,
+      "out_max": 333.63,
+      "frac_above_target_hi": 0.003224
+    }
+  ]
+}

@@ -17,3 +17,15 @@ rung3_amos_mri_dice_median,0.0152
 rung3_amos_mri_dice_ci_low,0.0000
 rung3_amos_mri_dice_ci_high,0.0626
 rung3_amos_mri_n_empty_prediction,20
+rung3b_amos_mri_rescaled_n_evaluated,60
+rung3b_amos_mri_rescaled_n_scored,59
+rung3b_amos_mri_rescaled_dice_median,0.3016
+rung3b_amos_mri_rescaled_dice_ci_low,0.1744
+rung3b_amos_mri_rescaled_dice_ci_high,0.4048
+rung3b_amos_mri_rescaled_n_empty_prediction,15
+rung3c_amos_mri_zscore_n_evaluated,60
+rung3c_amos_mri_zscore_n_scored,59
+rung3c_amos_mri_zscore_dice_median,0.2870
+rung3c_amos_mri_zscore_dice_ci_low,0.1348
+rung3c_amos_mri_zscore_dice_ci_high,0.3546
+rung3c_amos_mri_zscore_n_empty_prediction,15

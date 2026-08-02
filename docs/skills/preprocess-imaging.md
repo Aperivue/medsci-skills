@@ -40,6 +40,8 @@
 
 **Scripts** (`skills/preprocess-imaging/scripts/`):
 
+- `check_normalizer_domain.py`
+- `check_normalizer_domain_challenge/` (7 files)
 - `check_preprocessing_leakage.py`
 - `check_preprocessing_leakage_challenge/` (6 files)
 

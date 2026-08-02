@@ -3648,13 +3648,53 @@
     },
     {
       "path": "skills/preprocess-imaging/SKILL.md",
-      "size": 7539,
-      "sha256": "a15d5cc9da4f5d434ebac30e2ec8694363b5bfa403c741af8a93262698ef1659"
+      "size": 8297,
+      "sha256": "df11b628031f7713317459fce2bf8cbf2c459db3b44fe846cf479e97f71f5089"
     },
     {
       "path": "skills/preprocess-imaging/references/preprocessing_guide.md",
       "size": 5023,
       "sha256": "fdab6d435ff6bce7b6787319acda9b0b160411bc2e1109e15154bbb8a68c8282"
+    },
+    {
+      "path": "skills/preprocess-imaging/scripts/check_normalizer_domain.py",
+      "size": 10298,
+      "sha256": "41fc867fdc0b78e1c7327f05c2a0853a4333c8219bca3dc546a1c6d2ca1d01b4"
+    },
+    {
+      "path": "skills/preprocess-imaging/scripts/check_normalizer_domain_challenge/expected/arbitrary_mismatch.txt",
+      "size": 831,
+      "sha256": "2242f2ce6d2d9f9e7945601c83b666cbab926e1d21f351fa9f1f03ad247eb743"
+    },
+    {
+      "path": "skills/preprocess-imaging/scripts/check_normalizer_domain_challenge/expected/hu_clean.txt",
+      "size": 364,
+      "sha256": "1d167d500fe89dac825702f8777c65dcf1241d73847a197d2d59a170851063d4"
+    },
+    {
+      "path": "skills/preprocess-imaging/scripts/check_normalizer_domain_challenge/fixture/plan_ct.json",
+      "size": 486,
+      "sha256": "57610f7e55e7935ef900f1a5aa7cfc9d88726122c20c8eceaa839f75e76dbcc6"
+    },
+    {
+      "path": "skills/preprocess-imaging/scripts/check_normalizer_domain_challenge/fixture/profile_arbitrary.json",
+      "size": 4497,
+      "sha256": "e47c3f65fed42fa73d90558b45aadc8390efb07449d5774fb979a5f62c339046"
+    },
+    {
+      "path": "skills/preprocess-imaging/scripts/check_normalizer_domain_challenge/fixture/profile_hu.json",
+      "size": 2740,
+      "sha256": "676222e981c53ed582adb2f2683b309893d2a9698b0d5d5f53a86dea319efb1c"
+    },
+    {
+      "path": "skills/preprocess-imaging/scripts/check_normalizer_domain_challenge/problem.md",
+      "size": 2404,
+      "sha256": "76859e918c74e17baad62980dd58e8ef75eb372214a343b8d7dc0e85714ab8f0"
+    },
+    {
+      "path": "skills/preprocess-imaging/scripts/check_normalizer_domain_challenge/verify.sh",
+      "size": 3075,
+      "sha256": "f365c66f43db20f2bb450d3e1408e95971db9fd3e2975fe0572cd4d3b9d9ff7d"
     },
     {
       "path": "skills/preprocess-imaging/scripts/check_preprocessing_leakage.py",

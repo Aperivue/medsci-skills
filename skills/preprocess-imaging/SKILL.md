@@ -91,6 +91,17 @@ have is decided by the fingerprint's scope, not by the word "resample".
 ```bash
 python3 scripts/check_preprocessing_leakage.py --manifest preprocessing_manifest.json --strict
 ```
+
+That gate asks whether a transform was fit on the right **scope**. Before an *inference* run on a
+cohort the model was not trained on, ask the other question — is that cohort in the intensity
+**domain** the trained normaliser assumes?
+
+```bash
+python3 scripts/check_normalizer_domain.py \
+    --profile eda/<cohort>_profile.json \
+    --contract work/nnUNet_results/.../plans.json \
+    --splits external_mri --out qc/normalizer_domain.json --strict
+```
 Verdicts: `PREPROCESS_BEFORE_SPLIT`, `NORMALIZATION_LEAKAGE`, `PATIENT_CROSS_SPLIT` (Major);
 `AUGMENTATION_ON_EVAL`, `UNSPECIFIED_FIT_SCOPE`, `MISSING_SEED` (Minor). The verdict is reproduced
 by set arithmetic + rule on the manifest, never asserted from prose. A green gate is a precondition
@@ -119,5 +130,9 @@ for handing the manifest to `/model-scaffold`.
   normalisation/resampling implementation or claim results for one.
 
 ## Reproducible challenge
+`scripts/check_normalizer_domain_challenge/` ships a synthetic profile/contract triple: a cohort in
+the contract's own domain that must come back **clean** (the false-positive guard), an arbitrary-unit
+cohort that must raise a Major, and an unreadable contract that must **refuse** rather than pass.
+
 `scripts/check_preprocessing_leakage_challenge/` ships a synthetic leak/clean manifest pair with a
 network-free `verify.sh` wired into the skill's validation commands.

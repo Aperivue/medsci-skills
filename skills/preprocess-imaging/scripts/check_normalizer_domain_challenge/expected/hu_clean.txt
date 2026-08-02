@@ -1,0 +1,9 @@
+=========================================
+ Normaliser-Domain Gate (preprocess-imaging)
+=========================================
+  contract: CTNormalization (assumes hounsfield), clip [-38, 174]
+| Check | Severity | Detail |
+|---|---|---|
+| (none) | — | every split is in the domain the contract assumes |
+
+OK: every split is in the domain the contract assumes.

@@ -1,0 +1,10 @@
+=========================================
+ Normaliser-Domain Gate (preprocess-imaging)
+=========================================
+  contract: CTNormalization (assumes hounsfield), clip [-38, 174]
+| Check | Severity | Detail |
+|---|---|---|
+| NORMALIZER_DOMAIN_MISMATCH | Major | the contract applies CTNormalization, which assumes Hounsfield units, but 0 of 10 case(s) in 'external_mri' contain a voxel at or below -500. Hounsfield units are defined by an air floor near -1000; a cohort that never goes negative is not in them. Per-case minima range 0 to 0. |
+| NORMALIZER_SPLIT_DIVERGENCE | Flag | 6 of 10 case(s) in 'unlabelled_pool' bottom out near air and the rest do not — mixed modality, or a rescale applied to part of the cohort. One normalisation contract cannot be right for both. |
+
+MAJOR candidate: 1 domain issue(s).

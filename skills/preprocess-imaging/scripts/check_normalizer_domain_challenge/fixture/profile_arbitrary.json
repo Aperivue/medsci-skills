@@ -1,0 +1,236 @@
+{
+  "_synthetic": "Not real patients. Ten synthetic MR-like cases with no air floor, plus a deliberately mixed pool where 6 of 10 bottom out near air.",
+  "dataset": "synthetic mixed",
+  "splits": [
+    {
+      "name": "external_mri",
+      "labelled": true
+    },
+    {
+      "name": "unlabelled_pool",
+      "labelled": false
+    }
+  ],
+  "cases": [
+    {
+      "case": "mr_000",
+      "split": "external_mri",
+      "intensity": {
+        "min": 0.0,
+        "p01": 0.0,
+        "p50": 120.0,
+        "p99": 640.0,
+        "max": 1180.0
+      }
+    },
+    {
+      "case": "mr_001",
+      "split": "external_mri",
+      "intensity": {
+        "min": 0.0,
+        "p01": 0.0,
+        "p50": 120.0,
+        "p99": 640.0,
+        "max": 1180.0
+      }
+    },
+    {
+      "case": "mr_002",
+      "split": "external_mri",
+      "intensity": {
+        "min": 0.0,
+        "p01": 0.0,
+        "p50": 120.0,
+        "p99": 640.0,
+        "max": 1180.0
+      }
+    },
+    {
+      "case": "mr_003",
+      "split": "external_mri",
+      "intensity": {
+        "min": 0.0,
+        "p01": 0.0,
+        "p50": 120.0,
+        "p99": 640.0,
+        "max": 1180.0
+      }
+    },
+    {
+      "case": "mr_004",
+      "split": "external_mri",
+      "intensity": {
+        "min": 0.0,
+        "p01": 0.0,
+        "p50": 120.0,
+        "p99": 640.0,
+        "max": 1180.0
+      }
+    },
+    {
+      "case": "mr_005",
+      "split": "external_mri",
+      "intensity": {
+        "min": 0.0,
+        "p01": 0.0,
+        "p50": 120.0,
+        "p99": 640.0,
+        "max": 1180.0
+      }
+    },
+    {
+      "case": "mr_006",
+      "split": "external_mri",
+      "intensity": {
+        "min": 0.0,
+        "p01": 0.0,
+        "p50": 120.0,
+        "p99": 640.0,
+        "max": 1180.0
+      }
+    },
+    {
+      "case": "mr_007",
+      "split": "external_mri",
+      "intensity": {
+        "min": 0.0,
+        "p01": 0.0,
+        "p50": 120.0,
+        "p99": 640.0,
+        "max": 1180.0
+      }
+    },
+    {
+      "case": "mr_008",
+      "split": "external_mri",
+      "intensity": {
+        "min": 0.0,
+        "p01": 0.0,
+        "p50": 120.0,
+        "p99": 640.0,
+        "max": 1180.0
+      }
+    },
+    {
+      "case": "mr_009",
+      "split": "external_mri",
+      "intensity": {
+        "min": 0.0,
+        "p01": 0.0,
+        "p50": 120.0,
+        "p99": 640.0,
+        "max": 1180.0
+      }
+    },
+    {
+      "case": "mix_000",
+      "split": "unlabelled_pool",
+      "intensity": {
+        "min": -1024.0,
+        "p01": -1000.0,
+        "p50": -60.0,
+        "p99": 300.0,
+        "max": 1400.0
+      }
+    },
+    {
+      "case": "mix_001",
+      "split": "unlabelled_pool",
+      "intensity": {
+        "min": -1024.0,
+        "p01": -1000.0,
+        "p50": -60.0,
+        "p99": 300.0,
+        "max": 1400.0
+      }
+    },
+    {
+      "case": "mix_002",
+      "split": "unlabelled_pool",
+      "intensity": {
+        "min": -1024.0,
+        "p01": -1000.0,
+        "p50": -60.0,
+        "p99": 300.0,
+        "max": 1400.0
+      }
+    },
+    {
+      "case": "mix_003",
+      "split": "unlabelled_pool",
+      "intensity": {
+        "min": -1024.0,
+        "p01": -1000.0,
+        "p50": -60.0,
+        "p99": 300.0,
+        "max": 1400.0
+      }
+    },
+    {
+      "case": "mix_004",
+      "split": "unlabelled_pool",
+      "intensity": {
+        "min": -1024.0,
+        "p01": -1000.0,
+        "p50": -60.0,
+        "p99": 300.0,
+        "max": 1400.0
+      }
+    },
+    {
+      "case": "mix_005",
+      "split": "unlabelled_pool",
+      "intensity": {
+        "min": -1024.0,
+        "p01": -1000.0,
+        "p50": -60.0,
+        "p99": 300.0,
+        "max": 1400.0
+      }
+    },
+    {
+      "case": "mix_006",
+      "split": "unlabelled_pool",
+      "intensity": {
+        "min": 0.0,
+        "p01": 0.0,
+        "p50": 90.0,
+        "p99": 520.0,
+        "max": 900.0
+      }
+    },
+    {
+      "case": "mix_007",
+      "split": "unlabelled_pool",
+      "intensity": {
+        "min": 0.0,
+        "p01": 0.0,
+        "p50": 90.0,
+        "p99": 520.0,
+        "max": 900.0
+      }
+    },
+    {
+      "case": "mix_008",
+      "split": "unlabelled_pool",
+      "intensity": {
+        "min": 0.0,
+        "p01": 0.0,
+        "p50": 90.0,
+        "p99": 520.0,
+        "max": 900.0
+      }
+    },
+    {
+      "case": "mix_009",
+      "split": "unlabelled_pool",
+      "intensity": {
+        "min": 0.0,
+        "p01": 0.0,
+        "p50": 90.0,
+        "p99": 520.0,
+        "max": 900.0
+      }
+    }
+  ]
+}

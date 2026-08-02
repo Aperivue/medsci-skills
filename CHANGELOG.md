@@ -4,6 +4,110 @@
 
 ### Added
 
+- **Demo 5 rung 3b — the counterfactual arm, and the panel's second Fatal finding closed by
+  measurement.** The review panel was right that the study asserted a cause its design could not
+  identify: `CTNormalization` demonstrably treats CT and MRI differently, but that does not show the
+  transform *caused* the MRI collapse rather than a CT-trained representation failing to transfer.
+  That could not be answered by rewording, so it was answered by running one more arm.
+
+  **Rung 3b changes exactly one thing: the input intensity scale.** Each MRI is affinely mapped so
+  its in-body percentile range lands on the CT fingerprint's window, read from the trained
+  `plans.json`. The normaliser is not bypassed — it is handed input in the domain it assumes, so on
+  MRI it does what it does on CT. Clipping at the ceiling falls from a median of **23.2 % to 0.4 %**.
+  Same checkpoint, same folds, same TTA, **no retraining**.
+
+  The arm, its rationale, the rejected alternatives and a **written prediction** were fixed in
+  `COUNTERFACTUAL_PLAN.md` before it ran, with the interpretation of each possible outcome fixed in
+  advance so the result could not be read whichever way flattered the paper.
+
+  **Median Dice 0.0152 → 0.3016** (95% CI 0.1744–0.4048). Differences in population medians, both
+  arms resampled independently: **+0.2864** [+0.1204, +0.4048] against the arm as shipped, and
+  **−0.5916** [−0.7259, −0.4674] against external CT. Neither interval crosses zero. Empty
+  predictions fell from 20 of 60 to 15.
+
+  **Both mechanisms are real and unequal**: of the −0.944 collapse, roughly **0.29 Dice is the
+  preprocessing contract** and roughly **0.59 a representation that does not transfer**. An input
+  rescaling alone multiplied median Dice by twenty — for much of the original failure the network
+  was not misreading MRI so much as never receiving it — and the residual is equally real, because
+  an affine map restores dynamic range and cannot make an MR sequence's tissue contrast agree with
+  the ordering a Hounsfield window encodes.
+
+  The manuscript's identification hedge is replaced by that decomposition, which is a **stronger**
+  claim than the hedge and a **weaker** one than the draft's original "located the cause". Tables,
+  figures, both READMEs, the reproducibility lock (16 artifacts) and the conference deck all carry
+  the fourth arm. The panel's other two Fatal findings — rung 3 is a constructed test, and one
+  authored example cannot ground general claims — stand as narrowed claims, untouched by this
+  result.
+
+- **Demo 5 rung 3c — the second counterfactual, and two routes that agree.** Rung 3b kept the wrong
+  normaliser and repaired its input. Rung 3c does the opposite: the original images, with the trained
+  `plans.json` copied and **only** `normalization_schemes` patched to `ZScoreNormalization` — what
+  nnU-Net *would* have selected had `dataset.json` not declared a collection containing 100 MRI
+  volumes to be CT. Every other configuration field is byte-identical and the five fold checkpoints
+  are the same files. Pre-specified with its own written prediction before it ran.
+
+  **Median Dice 0.2870** (95% CI 0.1348–0.3546). Against rung 3b: **−0.0146 [−0.2136, +0.1575] — the
+  interval spans zero.** Both arms leave the same 15 empty predictions of 60, and their per-case Dice
+  correlate at **r = 0.939**: they succeed and fail on the same images rather than trading wins.
+
+  **Two unrelated repairs reaching the same place means the intensity *domain* is the whole of the
+  preprocessing story and the *form* of the transform is not.** It also settles the metadata
+  question: correcting the mislabelled modality field alone would have reached 0.2870, not 0.8932.
+
+  The prediction ("0.20–0.50, around 0.35, plausibly above 3b") was inside its range and **wrong in
+  direction**, and is recorded as such — it lowers the weight the previous arm's on-the-nose
+  prediction deserves.
+
+  Because a run's log echoes a hardcoded path rather than proving what it loaded, the plan nnU-Net
+  wrote into the arm's own output directory is committed as the evidence
+  (`qc/rung3c_plans_used.json`: `["ZScoreNormalization"]`, against 3b's `["CTNormalization"]`).
+
+- **`/preprocess-imaging` `check_normalizer_domain.py` — the demo's finding, promoted to a gate
+  (85th detector).** Demo 5 measured what a normaliser-domain mismatch costs: **~0.28 Dice**,
+  established by two independent counterfactuals neither of which retrained the model. The toolkit's
+  own profiler had already recorded the underlying property *before training* — as a **Minor**, in a
+  directory no later step reads. **The gap was routing and severity, not detection**, so the gate
+  re-reads an existing `/profile-imaging` profile against the contract that will actually be
+  applied, at the moment where ignoring it costs something. Two JSON files in, stdlib only: no
+  imaging library, no pixels, no model.
+
+  `NORMALIZER_DOMAIN_MISMATCH` (Major) fires when a contract assuming Hounsfield units meets a split
+  with no negative voxel — HU is *defined* by an air floor near −1000, so a cohort that never goes
+  negative is not in it, whatever a metadata field claims. `NORMALIZER_SPLIT_DIVERGENCE` (Flag)
+  fires when splits inside one cohort disagree about the domain.
+
+  **A third check was written and deleted.** `NORMALIZER_CLIP_DESTRUCTIVE` compared each split's 99th
+  percentile against the contract's clip ceiling. Run against the cohorts this repository already
+  produces, it fired on **100 % of the CT arm and 100 % of the MSD training set** — the data the plan
+  was fit on. Of course it did: a CT volume's p99 is bone, and clipping bone above a soft-tissue
+  window is what `CTNormalization` is *for*. Deleted rather than tuned, and the reason is recorded in
+  the module docstring and the challenge card so it is not re-invented. This is the repository's
+  dominant defect class — a checker that rejects the notation the world actually uses — caught by
+  running the new detector on the repository's own correct data before shipping it.
+
+  The contract loader also **refuses** input it cannot parse instead of scoring it as "assumes
+  arbitrary" and returning OK; the first version did the latter and returned a green on a file it had
+  not understood. Challenge card guards all three: the contract's own domain must come back clean,
+  an arbitrary-unit cohort must raise a Major, and an unreadable contract must not succeed.
+  **58 skills / 47 guidelines / 85 integrity detectors.**
+
+### Fixed
+
+- **The demo reproducibility-lock CI step stopped at demo 3, and a stale lock had already reached
+  main.** `demo/04_pneumoniamnist_cnn/manifest.lock.json` did not verify: its
+  `qc/reference_audit.json` was edited after the lock was built (an absolute path scrubbed out), so
+  the recorded hash no longer matched the file. Nothing caught it, because the CI loop covered
+  demos 1–3 only — the lock existed, was committed, and was never checked. That is precisely the
+  drift a content-hash lock exists to detect, sitting undetected inside the mechanism meant to
+  detect it.
+
+  The lock is rebuilt and the loop now covers **all five demos**. Verified in both directions:
+  every demo verifies clean, and perturbing one byte of a locked file makes the gate fail.
+
+## [Unreleased]
+
+### Added
+
 - **Demo 5 — MSD to AMOS spleen ladder** (`demo/05_msd_amos_spleen/`). The fifth live demo, and the
   first that leaves a laptop: nnU-Net v2 trained on MSD Task09 and evaluated on three labelled rungs
   (internal held-out n=9, genuinely external AMOS **CT** n=300, and AMOS **MRI** n=60 as a modality

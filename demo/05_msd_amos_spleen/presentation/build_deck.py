@@ -42,6 +42,8 @@ t4 = {r["arm"]: r for r in table("table4_normalisation_evidence.csv")}
 sub = [r for r in table("table3_subgroups.csv") if r["arm"].startswith("rung2")]
 R1, R2, R3 = ("rung1 MSD held-out (internal)", "rung2 AMOS CT (external)",
               "rung3 AMOS MRI (modality shift)")
+R3B = "rung3b AMOS MRI rescaled (counterfactual)"
+R3C = "rung3c AMOS MRI z-scored (counterfactual)"
 prof = json.loads((DEMO / "qc" / "amos22_dataset_profile_spleen.json").read_text())
 intensity_claim = next(c for c in prof["claims"] if c["verdict"] == "INTENSITY_SCALE_INCONSISTENT")
 naive = json.loads((DEMO / "qc" / "preprocessing_leakage_naive.json").read_text())
@@ -173,14 +175,30 @@ add_content_slide(
           "아무도 다시 읽지 않는 디렉터리에. 그러니 문제는 탐지가 아니라 전달과 심각도입니다. "
           "이건 이 사례가 제기하는 가설이지, 이 사례가 증명한 성질은 아닙니다.")
 
+add_content_slide(
+    prs,
+    title="Two different repairs recover the same third of the loss",
+    bullets=[
+        f"**{t2[R3]['dice_median_95CI'].split(' ')[0]} → "
+        f"{t2[R3B]['dice_median_95CI'].split(' ')[0]}** — no retraining, same checkpoint",
+        f"  A second arm swaps the **normaliser** instead: "
+        f"**{t2[R3C]['dice_median_95CI'].split(' ')[0]}**",
+        "**Two unrelated repairs, same place — the domain is the story.**",
+    ],
+    notes="대조군 두 개입니다. 하나는 잘못된 정규화기를 두고 입력을 고쳤고, 다른 하나는 입력을 두고 "
+          "정규화기를 바꿨습니다. 둘 다 재학습 없이 0.29 부근에 도달했고 차이의 구간이 0을 포함합니다. "
+          "케이스별 상관은 0.94 — 같은 영상에서 성공하고 같은 영상에서 실패합니다. 즉 중요한 건 "
+          "데이터가 학습된 강도 도메인에 도달하느냐 하나뿐입니다. 두 예측 모두 실행 전에 적었고, "
+          "두 번째는 방향이 틀렸습니다.")
+
 add_closing_slide(
     prs,
     title="What this establishes, and what it does not",
     bullets=[
         "**Establishes:** the run exited 0 and reported a number that means nothing",
-        "**Does not:** separate preprocessing from representation failure",
+        "**Measured:** ~0.28 Dice intensity domain, ~0.60 representation",
         "**Does not:** support general claims — one organ, one team",
-        "**Next:** one inference pass, no retraining",
+        "**Open:** what a model *trained* on MR would do",
     ],
     contact="demo/05_msd_amos_spleen · every number re-derivable from the shipped CSVs",
     notes="마무리입니다. 이 연구가 세운 것과 세우지 못한 것을 나눠 말씀드립니다. "
