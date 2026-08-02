@@ -120,8 +120,12 @@ before it ran.
 | 3b − 3 (rescaled − as shipped) | **+0.2864** [+0.1204, +0.4048] |
 | 3b − 2 (rescaled − external CT) | **−0.5916** [−0.7259, −0.4674] |
 
-Neither interval crosses zero. **Of the −0.944 collapse, roughly 0.29 Dice is the preprocessing
-contract and roughly 0.59 is a representation that does not transfer.** An input rescaling alone
+Neither interval crosses zero. **Of the −0.878 separating external CT from MRI, roughly 0.29 Dice is
+the preprocessing contract and roughly 0.59 is a representation that does not transfer** — the two
+account for that gap in full. They do not add up to the −0.944 measured against the *internal* arm,
+and should not: the remaining −0.0662 [−0.0996, −0.0416] is the internal-to-external CT drop, a
+same-modality cohort shift reported separately above and no part of the modality story. An input
+rescaling alone
 multiplied median Dice by twenty and cut empty predictions from 20 to 15 — for much of the original
 failure the network was not misreading MRI so much as never receiving it. The residual is equally
 real: an affine map restores dynamic range and cannot make an MR sequence's tissue contrast agree

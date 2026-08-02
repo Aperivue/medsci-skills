@@ -132,6 +132,32 @@
   Gated on both substrates being declared, so a roster without substrate fields behaves exactly as
   before. Three regression cases were added, including one asserting the check **still fires** on a
   same-substrate redundant lens, so the exemption cannot be satisfied by deleting the check.
+- **Demo 5's headline decomposition named a denominator its two components do not add up to.** Six
+  shipped documents said, in one wording or another, *"of the −0.944 collapse, roughly 0.29 Dice is
+  the preprocessing contract and roughly 0.59 a representation that does not transfer"* — and
+  0.29 + 0.59 = 0.88, not 0.944. Re-derived from the shipped per-case CSVs, the two terms are
+  **+0.2864** and **+0.5916**, and they sum to **0.8781**, which is exactly the external-CT-to-MRI
+  gap (0.8932 → 0.0152). The −0.9443 they were attributed to is measured against the *internal* arm
+  and additionally carries the internal-to-external CT drop of **0.0662** — a same-modality cohort
+  shift the repository reports separately, with an interval excluding zero, and which the modality
+  decomposition has no claim on. The denominator is now the gap the two terms actually explain, with
+  the omitted term named. Any reader who added the two numbers would have found the 0.07 in about
+  five seconds, and this is the demo whose argument is that a plausible-looking number can be wrong.
+
+  Two smaller defects in the same passage. `README.md` rounded 0.2864 and 0.5916 to **~0.28 and
+  ~0.60** where every other document rounded them to 0.29 and 0.59; both directions were wrong at two
+  decimal places, and one result now ships as one pair of numbers. And `README.md` asserted flatly
+  that *"Both predictions were written before their runs"*, which `CASE_STUDY.md` in the same
+  directory explicitly declines to claim: *"this repository cannot prove that ordering — the plan and
+  the rung-3 results first appear in the same commit."* The summary asserted what its own detail
+  disclaims; the README now carries the caveat and points at it.
+
+  Corrected in `README.md`, `CASE_STUDY.md`, `COUNTERFACTUAL_PLAN.md`, `manuscript/writeup.md` (two
+  passages) and the talk. `qc/self_review.md` records what that review concluded at the time and is
+  left standing, with a bracketed correction rather than a rewrite. The deck was **rebuilt** from
+  `presentation/build_deck.py` — editing the generator and shipping the old `.pptx` is the failure
+  this repository has logged before — and the rebuilt file was re-read to confirm it carries the new
+  figure; both deck gates pass.
 
 - **The demo reproducibility-lock CI step stopped at demo 3, and a stale lock had already reached
   main.** `demo/04_pneumoniamnist_cnn/manifest.lock.json` did not verify: its

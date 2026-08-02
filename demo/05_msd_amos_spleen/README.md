@@ -45,9 +45,12 @@ Two counterfactual arms, each changing one thing and neither retraining, put a n
 | 3b | rescale the **input** into the plan's domain | 0.3016 |
 | 3c | swap the **normaliser** to a z-score | 0.2870 |
 
-They are indistinguishable (−0.0146, interval spans zero; per-case r = 0.939). **So of the −0.944
-collapse, ~0.28 Dice is the intensity domain and ~0.60 a representation that does not transfer.**
-Both predictions were written before their runs; the second was wrong in direction and is kept.
+They are indistinguishable (−0.0146, interval spans zero; per-case r = 0.939). **So of the −0.878
+separating external CT from MRI, 0.29 Dice is the intensity domain and 0.59 a representation that
+does not transfer** — the two account for that gap in full. The further 0.07 down to the internal arm
+is a CT-to-CT cohort shift, not modality. Both predictions were written before their runs and the
+second was wrong in direction and is kept — though this repository cannot prove that ordering, and
+[`CASE_STUDY.md`](CASE_STUDY.md) says so.
 
 **The uncomfortable part:** `/profile-imaging` had already flagged the mixed intensity scale before
 training — as a **Minor**, in a directory no later step reads.

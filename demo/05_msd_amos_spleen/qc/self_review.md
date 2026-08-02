@@ -65,7 +65,10 @@ input intensity scale and recovered median Dice 0.0152 → **0.3016** (differenc
 are real and their sizes differ. A **second** counterfactual (rung 3c) then swapped the normaliser
 instead of the input and reached 0.2870 — indistinguishable from 3b (−0.0146 [−0.2136, +0.1575]),
 same 15 empty predictions, per-case r = 0.939 — so the decomposition rests on two independent
-routes: roughly **0.28 intensity domain, 0.60 representation**. The hedge is replaced by a
+routes: roughly **0.28 intensity domain, 0.60 representation**. *[Corrected after this review: the
+terms are 0.29 and 0.59, and they decompose the 0.878 separating external CT from MRI — not the
+0.9443 measured against the internal arm, which additionally carries a same-modality CT cohort
+shift. This line is left as the review recorded it.]* The hedge is replaced by a
 decomposition, which is a *stronger* claim than the hedge and a weaker one than the draft's original
 "located the cause".
 

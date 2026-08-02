@@ -31,9 +31,11 @@ median 23.2% exceed it. Two counterfactual arms, each changing one thing and nei
 normaliser. They are indistinguishable from each other (difference −0.0146, −0.2136 to +0.1575) and
 both remain about 0.60 below the external CT arm.
 
-**Conclusion.** Both mechanisms are real and their sizes differ: of the collapse observed against the
-internal arm, roughly 0.28 Dice is attributable to the intensity domain the network is handed and
-roughly 0.60 to a representation that does not transfer. Two unrelated repairs reach the same place,
+**Conclusion.** Both mechanisms are real and their sizes differ: of the 0.878 separating the external
+CT cohort from MRI, roughly 0.29 Dice is attributable to the intensity domain the network is handed
+and roughly 0.59 to a representation that does not transfer. The collapse measured against the
+*internal* arm is larger still (0.9443) because it also carries a same-modality CT cohort shift,
+which this decomposition does not speak for. Two unrelated repairs reach the same place,
 so what mattered is only whether the data arrives in the trained domain, not how that is achieved —
 and correcting the dataset's mislabelled modality field, which is what the second arm simulates,
 would not have been enough. The third rung is a **constructed** test — the plan named the
@@ -247,9 +249,13 @@ whether the data reached the network in the intensity domain it was trained in �
 achieved. It also settles the metadata question: had `dataset.json` declared the modality correctly,
 nnU-Net would have chosen the z-score, and the arm shows that this alone reaches 0.2870.
 
-So of the −0.9443 observed against the internal arm, roughly **0.28 Dice is attributable to the
-intensity domain the network is handed** and roughly **0.60 to a representation that does not
-transfer to this modality**. A twenty-fold recovery from an input rescaling alone is not a rounding effect: for much
+So of the −0.878 separating the external CT cohort from MRI, roughly **0.29 Dice is attributable to
+the intensity domain the network is handed** and roughly **0.59 to a representation that does not
+transfer to this modality**; those two terms account for that gap in full. They deliberately do not
+sum to the −0.9443 observed against the *internal* arm: that comparison additionally carries the
+−0.0662 (−0.0996 to −0.0416) internal-to-external CT drop, a same-modality cohort shift that the
+modality decomposition has no claim on.
+A twenty-fold recovery from an input rescaling alone is not a rounding effect: for much
 of the original collapse, the network was not failing to read MRI so much as never receiving it.
 Neither is the residual: a correctly-scaled MRI still loses most of the performance the CT cohort
 retains, because an affine map restores dynamic range and cannot make an MR sequence's tissue

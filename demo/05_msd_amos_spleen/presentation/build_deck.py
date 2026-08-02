@@ -196,7 +196,7 @@ add_closing_slide(
     title="What this establishes, and what it does not",
     bullets=[
         "**Establishes:** the run exited 0 and reported a number that means nothing",
-        "**Measured:** ~0.28 Dice intensity domain, ~0.60 representation",
+        "**Measured** on CT→MRI: 0.29 intensity, 0.59 representation",
         "**Does not:** support general claims — one organ, one team",
         "**Open:** what a model *trained* on MR would do",
     ],
