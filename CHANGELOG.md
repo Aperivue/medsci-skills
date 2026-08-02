@@ -93,6 +93,46 @@
 
 ### Fixed
 
+- **The submission tag gate printed `PASS ... tag-clean` on a package carrying live `TODO` and
+  `FIXME`, and which answer you got depended on whether ripgrep was installed.**
+  `scripts/tag_cleanup_gate.sh` has two scan backends. The `grep -r` fallback reads every file
+  under the scaffold directories; the ripgrep branch honoured `.gitignore`/`.ignore` and skipped
+  dotfiles. So a draft tag sitting in an ignored `build/` directory, or in a hidden working note,
+  was invisible to one backend and caught by the other — and the blind backend was the one that
+  exits 0. Reproduced end to end: a package with `FIXME` in `7_Manuscript/.draft_note.md` and a
+  `TODO` in an ignored `7_Manuscript/build/generated.md` returned
+  `PASS: 0 hits. Submission package is tag-clean.` The rg branch now passes `--no-ignore --hidden`,
+  restoring parity.
+
+  The same PASS sentence carried a quieter overclaim. The scan covers only whichever of the six
+  scaffold directories exist, yet it spoke for "the submission package" — a project laid out under
+  different names would have received a clean bill of health from a scan that read nothing of it.
+  It now names the directories it read and, when any declared directory is absent, says so and
+  states that the result does not cover the tree.
+
+  `tests/test_tag_cleanup_gate.sh` is new and CI-wired: the gate previously shipped with **no test
+  at all**. It builds its fixtures at runtime (so this repository ships no live draft tags of its
+  own), runs the gate under both backends, and asserts the property that actually matters — the two
+  reach the **same verdict on the same tree**. Against the pre-fix script it fails 8 of its 16
+  checks. The exclusion globs and the `DI-8:ignore-file` opt-out are asserted under both backends,
+  so the widened scan cannot quietly break them.
+
+- **The panel diversity gate told the editor that the panel's only independent reviewer had added
+  nothing.** `LENS_COLLAPSE` (`skills/self-review/scripts/check_panel_diversity.py`) fires when one
+  reviewer's concern families are all covered by others — reasonable evidence of a redundant
+  assignment when that reviewer shares the generator's model substrate, and close to backwards when
+  it does not. Cross-substrate agreement is corroboration, and that reviewer is the very lens
+  `SUBSTRATE_MONOCULTURE` (in the same file) requires the panel to contain. It fired for real on a
+  panel containing a Codex reviewer, recommending the editor reconsider the one thing making the
+  review independent.
+
+  `LENS_COLLAPSE` is now exempt when the roster declares a reviewer on a different substrate from
+  the generator, and the exemption is **recorded** in `summary.lens_collapse_substrate_exempt` and
+  printed — a skipped check that prints nothing is indistinguishable from a check that passed.
+  Gated on both substrates being declared, so a roster without substrate fields behaves exactly as
+  before. Three regression cases were added, including one asserting the check **still fires** on a
+  same-substrate redundant lens, so the exemption cannot be satisfied by deleting the check.
+
 - **The demo reproducibility-lock CI step stopped at demo 3, and a stale lock had already reached
   main.** `demo/04_pneumoniamnist_cnn/manifest.lock.json` did not verify: its
   `qc/reference_audit.json` was edited after the lock was built (an absolute path scrubbed out), so

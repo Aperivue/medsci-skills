@@ -114,6 +114,9 @@ jobs:
       - name: "Run script-reachability self-test (de-wired script and undocumented allowlist entry fail)"
         run: bash tests/test_script_reachability.sh
 
+      - name: "Run tag-cleanup-gate self-test (both scan backends must reach the same verdict)"
+        run: bash tests/test_tag_cleanup_gate.sh
+
       - name: "Run check_bundled_media_license.py (an MIT package may only ship what it holds — including inside a .pptx)"
         run: python3 scripts/check_bundled_media_license.py --strict
 

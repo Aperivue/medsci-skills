@@ -34,7 +34,13 @@ EXCLUDE_GLOBS=(
 # (Handled post-scan by filtering hits whose file starts with that marker.)
 
 if command -v rg >/dev/null 2>&1; then
-    GREP_CMD=(rg -n --no-heading -e "$PATTERN")
+    # --no-ignore --hidden are load-bearing. Without them rg honours .gitignore/.ignore and
+    # skips dotfiles, so an ignored build/ directory or a hidden draft inside the submission
+    # package is never read — while the grep fallback below reads both. That made the gate's
+    # verdict depend on which tool happened to be installed, and the rg side was the one that
+    # printed PASS on a package carrying live TODO/FIXME tags.
+    # Regressed by tests/test_tag_cleanup_gate.sh.
+    GREP_CMD=(rg -n --no-heading --no-ignore --hidden -e "$PATTERN")
     for g in "${EXCLUDE_GLOBS[@]}"; do
         GREP_CMD+=(-g "!$g")
     done
@@ -46,8 +52,9 @@ else
 fi
 
 EXISTING_DIRS=()
+MISSING_DIRS=()
 for d in "${DIRS[@]}"; do
-    [[ -d "$d" ]] && EXISTING_DIRS+=("$d")
+    if [[ -d "$d" ]]; then EXISTING_DIRS+=("$d"); else MISSING_DIRS+=("$d"); fi
 done
 
 if [[ ${#EXISTING_DIRS[@]} -eq 0 ]]; then
@@ -83,5 +90,12 @@ if [[ -n "$HITS" ]]; then
     exit 1
 fi
 
-echo "PASS: 0 hits. Submission package is tag-clean."
+# Name what was actually read. The scan covers only the scaffold dirs that exist, so an
+# unqualified "the submission package is tag-clean" claims coverage the run never had — a
+# package whose manuscript lives outside these names would pass on an empty scan.
+echo "PASS: 0 hits in: ${EXISTING_DIRS[*]}"
+if [[ ${#MISSING_DIRS[@]} -gt 0 ]]; then
+    echo "      NOT scanned (absent from $PROJECT_ROOT): ${MISSING_DIRS[*]}"
+    echo "      This is a clean result for the directories above, not for the whole tree."
+fi
 exit 0
