@@ -96,9 +96,14 @@ independently:
 
 Neither interval crosses zero.
 
-**This is the second row of the interpretation table: both mechanisms are real.** Of the −0.944
-observed against internal, roughly **0.29 is attributable to the preprocessing contract** and roughly
-**0.59 to a representation that does not transfer**. Fixing the input scale — no retraining, same
+**This is the second row of the interpretation table: both mechanisms are real.** Of the −0.878
+separating external CT from MRI, roughly **0.29 is attributable to the preprocessing contract** and
+roughly **0.59 to a representation that does not transfer**. The two partition that gap by
+construction — an intermediate arm always does — so the informative quantity is the position of the
+split, not its closure.
+Measured against *internal* instead, the residual after rescaling is the larger −0.6579 row above,
+because that comparison also carries the same-modality internal-to-external CT drop — which is why
+0.29 and 0.59 do not sum to the −0.944 headline. Fixing the input scale — no retraining, same
 checkpoint, same folds, same TTA — multiplied median Dice by twenty, and still left the arm far below
 the CT cohort.
 
