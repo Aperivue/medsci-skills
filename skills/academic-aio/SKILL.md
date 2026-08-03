@@ -2,7 +2,7 @@
 name: academic-aio
 description: Medical AI paper optimization for AI search engines (Perplexity, ChatGPT web, Elicit, Consensus, SciSpace) and RAG-based literature tools. Applies when drafting or reviewing titles, abstracts, structured summary boxes (Key Points / Research in Context / Plain-Language Summary), manuscripts for high-impact medical AI journals (Lancet Digital Health, Radiology, Radiology-AI, npj Digital Medicine, Nature Medicine), preprints (medRxiv/arXiv), GitHub README + CITATION.cff + Zenodo archives, and Hugging Face model/dataset cards. Integrates TRIPOD+AI, CLAIM 2024, STARD-AI, TRIPOD-LLM, DECIDE-AI reporting requirements with generative engine optimization (GEO) principles. Produces a visible pass/fail checklist.
 triggers: AIO, LLMO, GEO, AI search optimization, discoverability, abstract optimization, structured abstract, Key Points, Research in context, plain-language summary, preprint strategy, GitHub README, CITATION.cff, Zenodo DOI, Hugging Face model card, dataset card, Perplexity, Elicit, Consensus, SciSpace, RAG visibility, reporting guideline compliance, TRIPOD-AI, CLAIM, STARD-AI, taxonomy review paper, Radiology Key Points, Lancet Digital Health Research in context, npj Digital Medicine
-tools: Read, Write, Edit, Grep, Glob
+tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit
 ---
 

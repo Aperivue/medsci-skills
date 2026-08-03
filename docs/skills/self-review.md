@@ -4,7 +4,7 @@
 
 > Pre-submission self-review for the user's own manuscripts, applying a reviewer perspective. Systematic check across 10 categories with research-type branching. Outputs Anticipated Major/Minor Comments with severity framing and optional R0 numbering for /revise pipeline integration.
 
-**Invoke:** `/self-review` · **Tools:** Read, Write, Edit, Grep, Glob · **Model:** inherit
+**Invoke:** `/self-review` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
 
 ## When to use
 

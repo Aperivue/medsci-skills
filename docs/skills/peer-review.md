@@ -4,7 +4,7 @@
 
 > Peer review assistant for medical journals. Generates structured review drafts with journal-specific formatting. Constructive developmental tone with systematic manuscript analysis.
 
-**Invoke:** `/peer-review` · **Tools:** Read, Write, Edit, Grep, Glob · **Model:** inherit
+**Invoke:** `/peer-review` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
 
 ## When to use
 

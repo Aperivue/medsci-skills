@@ -77,7 +77,19 @@ def run_compare(original: Path, revised: Path, out: Path, author: str, timeout: 
         )
 
     # Seed the destination with the original so Word opens — and may therefore write — it.
+    #
+    # That seeding is why every failure below must delete `out`. A Compare that dies leaves this
+    # copy behind: a plausible .docx of plausible size, carrying zero tracked changes, sitting at
+    # exactly the path the user asked the marked manuscript to be written to. Observed on an AJNR
+    # major revision, where a near-total rewrite blew past the old 180-second default and the
+    # AppleEvent failed -1712 — the run reported the failure, but the file it left was
+    # indistinguishable by inspection from a marked manuscript with nothing to mark.
     shutil.copyfile(original, out)
+
+    def _abandon(message: str) -> "SystemExit":
+        out.unlink(missing_ok=True)
+        return SystemExit(message)
+
     script = APPLESCRIPT.format(
         timeout=timeout,
         out=_as_literal(str(out)),
@@ -89,12 +101,21 @@ def run_compare(original: Path, revised: Path, out: Path, author: str, timeout: 
             ["osascript", "-e", script], capture_output=True, text=True, timeout=timeout + 30
         )
     except subprocess.TimeoutExpired:
-        raise SystemExit(
+        raise _abandon(
             "Word did not respond. It is most likely showing a modal sheet — check for a "
-            '"Grant File Access" dialog and dismiss it, then re-run.'
+            '"Grant File Access" dialog and dismiss it, then re-run. '
+            f"({out.name} was removed; it held no comparison.)"
         )
     if p.returncode != 0:
-        raise SystemExit(f"Word Compare failed: {p.stderr.strip()}")
+        err = p.stderr.strip()
+        hint = ""
+        if "-1712" in err or "timed out" in err.lower():
+            hint = (
+                f"\nThat is the AppleEvent timeout: Compare needed longer than --timeout "
+                f"({timeout}s). A whole-manuscript revision routinely does. Re-run with a "
+                f"larger --timeout."
+            )
+        raise _abandon(f"Word Compare failed: {err}{hint}\n({out.name} was removed.)")
 
 
 def inject_line_numbers(path: Path) -> None:
@@ -131,7 +152,18 @@ def main() -> int:
         "--author", required=True, help="name to attribute every revision to (the submitting author)"
     )
     ap.add_argument("--line-numbers", action="store_true", help="inject continuous line numbering")
-    ap.add_argument("--timeout", type=int, default=180)
+    # 180 was the old default and it is not enough. A major revision is measured in whole
+    # sections moved, not sentences edited, and Word's Compare on one (149 paragraphs and no
+    # tables against 193 paragraphs and two) ran past 180s and failed; the same pair completed
+    # in well under 600. Waiting is cheap here — the cost of the low default was a failed run
+    # and a file that looked like a result.
+    ap.add_argument(
+        "--timeout",
+        type=int,
+        default=600,
+        help="seconds Word may spend comparing (default 600; a whole-manuscript revision needs "
+             "minutes, and the old 180 failed on one)",
+    )
     a = ap.parse_args()
 
     for f in (a.original, a.revised):
