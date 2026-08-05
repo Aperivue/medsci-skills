@@ -64,6 +64,18 @@ EXCLUDE_RELPATHS = {
     "metadata/distribution_files.json",
     "provenance.json",
     "metadata/provenance.json",
+    # A maintainer document that happens to sit at the skills/ root. `skills` is a payload root,
+    # so the walk swept it into the inventory — while `install.py` never placed it, because that
+    # copies directories carrying a SKILL.md. The manifest therefore described a payload no
+    # install reproduces: the classroom ZIP shipped it, a local install did not, and nothing
+    # compared the two. This file's own docstring calls the inventory "the classroom/common
+    # install payload", so the inventory is the side that was wrong.
+    #
+    # The document stays where it is. Seven live references name `skills/MAINTENANCE.md` — the
+    # run-once-tool allowlist in check_script_reachability.py cites it by path to justify three
+    # exemptions, and tests/test_script_reachability.sh copies and restores it. Moving the file
+    # for tidiness would cost all of that; excluding it from the payload costs one line.
+    "skills/MAINTENANCE.md",
 }
 # ".logs" excludes installers/.logs/ — the gitignored, per-machine install logs
 # install.py writes; without this, running install.py locally then regenerating would
