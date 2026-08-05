@@ -39,6 +39,14 @@ def run(*args: str) -> int:
 def classroom_payload() -> set[str]:
     excl = {"__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache", "node_modules", ".git", "tests", ".logs"}
     exclf = {".DS_Store"}
+    # Named exclusions, mirrored deliberately from gen_distribution_manifest.EXCLUDE_RELPATHS.
+    #
+    # `skills/MAINTENANCE.md` is a maintainer document at the skills/ root. install.py places
+    # skill DIRECTORIES, so it was inventoried and never installed — the ZIP and a local install
+    # disagreed and nothing compared them. Narrowing the payload is a scope change, so per the
+    # note below it is made in BOTH places on purpose; this test failing on the one-sided edit is
+    # the mechanism working, not an obstacle to route around by importing the generator.
+    exclrel = {"skills/MAINTENANCE.md"}
     payload: set[str] = set()
     # Deliberately re-derived here rather than imported: this is the independent oracle that
     # catches the payload scope widening by accident. Widening it on purpose means editing
@@ -52,7 +60,8 @@ def classroom_payload() -> set[str]:
             for f in p.rglob("*"):
                 rel = f.relative_to(ROOT)
                 if (f.is_file() and not (set(rel.parts) & excl)
-                        and f.name not in exclf and not f.name.endswith(".pyc")):
+                        and f.name not in exclf and rel.as_posix() not in exclrel
+                        and not f.name.endswith(".pyc")):
                     payload.add(rel.as_posix())
     return payload
 
@@ -89,6 +98,27 @@ def main() -> int:
           gdm._included(f"installers/.logs/{log_name}", log_name) is False)
     check("a normal installer file is still included",
           gdm._included("installers/install.py", "install.py") is True)
+
+    # regression: the inventory must describe a payload install.py can actually reproduce.
+    #
+    # install.py places skill DIRECTORIES — `p.is_dir() and (p / "SKILL.md").exists()`. Anything
+    # else under skills/ is inventoried but never installed, so the ZIP and a local install
+    # diverge and nothing compares them. `skills/MAINTENANCE.md` sat that way: a maintainer
+    # document shipped to every classroom, absent from every install. Assert the two agree by
+    # construction rather than by anyone remembering to look.
+    skills_root = ROOT / "skills"
+    installable = {p.name for p in skills_root.iterdir() if p.is_dir() and (p / "SKILL.md").is_file()}
+    orphans = sorted(
+        e for e in inv
+        if e.startswith("skills/")
+        and (len(e.split("/")) < 3 or e.split("/")[1] not in installable)
+    )
+    check(f"every skills/ inventory entry lands in an installed skill dir (orphans: {orphans})",
+          not orphans)
+    # negative control: the rule must be about installability, not about the count. A real skill
+    # file has to still be in the inventory, or "0 orphans" would also be true of an empty one.
+    sample = next((e for e in sorted(inv) if e.startswith("skills/") and e.endswith("/SKILL.md")), None)
+    check("a real skill's SKILL.md is still inventoried", sample is not None)
 
     print("----")
     print(f"test_distribution_manifest: {PASS} passed, {FAIL} failed")
