@@ -341,7 +341,7 @@ E2E 管道 (`orchestrate --e2e`) 生产直至 `qc/` 的所有产品。 `submissi
 
 ---
 
-＃＃ 什么是新的
+## 什么是新的
 
 **v5.24.0** — a precision release: the gates were wrong about correct work. Fourteen shipped detectors were telling users something false, and the pattern behind most of them is one thing — a checker that accepts only its own generator's output and rejects the notation the world actually uses. `check_xref` did not recognise **"Figures 1 and 2"**, so a float cited the ordinary way scored `UNCITED` and the submission blocker **turned itself off** (`submission_safe: true` on a package missing a figure). `verify_refs` read BibTeX's own **`and others`** — the et-al. every reference manager writes — as `AUTHOR MISMATCH`, the render-aborting verdict, on correct consortium references; and an entry whose **last** field was the DOI parsed as having none, silently disabling the CrossRef and author cross-checks that skill exists to perform. `check_table_percentages` **invented a denominator** for the most common table in clinical research and printed specific wrong replacement percentages at MAJOR. `lint_consistency` advised writing **"type two diabetes"**. `check_asset_anonymization` passed a **double-blind institution leak** because it sat in a `.yaml`. `check_slide_tells` flagged the page numbers **this repository's own template generator** writes. `fill_journal_abbrev.py` had **never run** — it raised on its first entry, for every input, while another gate named it to the user as the remedy. And `refinement_stop` called a leftover `TODO` an *optional Minor* and told the loop to stop. Also: the release job's own failure had left v5.23.0 with **zero assets** and npm a version behind, with no way to retry a pushed tag — now create-or-update, outcome-asserted, and dispatchable; two of the four documented install paths were broken, and the worse one **succeeded** while making `~/.claude/skills` itself the skill; and the front page said **36** detectors while the catalog, the audit document and the paper said 84. Every fix ships a regression test that goes red against the previous behaviour. No new skill or detector; **58 skills / 47 guidelines / 84 integrity detectors / 23 domain-probe modules**. (See the [CHANGELOG](CHANGELOG.md) for v5.0–v5.23.)
 
@@ -460,7 +460,7 @@ E2E 管道 (`orchestrate --e2e`) 生产直至 `qc/` 的所有产品。 `submissi
 | **久经考验** |用于执业医师研究员提交的真实手稿 |来源和验证未知 |
 | **每项技能的深度** | 150-600 行文档 + 捆绑的参考文件（精选期刊资料库、清单、公式表、代码模板）|通常很薄的 SKILL.md 模板 |
 
-**MedSci-Audit** — the verification edge in the first rows above is a named suite of **85 deterministic detectors** (citation & reference integrity, cohort & pool arithmetic, scope/estimand contracts, reporting compliance, and more) that catch fabricated or drifted content before a manuscript reaches a reviewer. See **[`MEDSCI_AUDIT.md`](MEDSCI_AUDIT.md)** for the suite, its six families, and its evaluation evidence.
+**MedSci-Audit** — 上方前几行中的验证优势来自一套具名的**确定性检测器**套件（引文与参考文献完整性、队列与合并样本量算术、范围/估计量契约、报告合规等），用于在稿件送达审稿人之前捕获虚构或漂移的内容。该套件、其六个族系及评估证据见 **[`MEDSCI_AUDIT.md`](MEDSCI_AUDIT.md)**。
 
 ---
 
@@ -527,7 +527,7 @@ ma-scout -> search-lit -> fulltext-retrieval -> design-study ──> write-proto
 
 ### 按研究阶段
 
-All 58 skills, grouped by where they fit in the clinical-manuscript and medical-AI lifecycle. Full descriptions are in the table below; one page per skill lives in the [per-skill reference](docs/skills/).
+全部技能，按其在临床稿件与医学 AI 生命周期中的位置分组。完整说明见下表；每个技能的单独页面位于[逐技能参考](docs/skills/)。
 
 |舞台|技能 |
 |--------|--------|
@@ -601,7 +601,7 @@ All 58 skills, grouped by where they fit in the clinical-manuscript and medical-
 | **填充-icmje-coi** |批量生成每位作者 ICMJE 利益冲突披露表 (`coi_disclosure.docx`)，用于稿件提交。将所有 13 个披露项目预先填写为“☒无”，加上使用合成种子模板的最终认证，然后克隆每个作者的种子，并替换日期/姓名/稿件标题。专为医院观察研究的常见情况而设计，其中作者没有真正的财务冲突；对于大多数作者来说，传阅的表格变成“回复변경 없음 + 符号”，并且只标记那些需要修改的人。 |
 | **设置-medsci** | MedSci Skills 运行时的诊断清单。验证 Python、R、Node、代理主机、Git、Zotero 和配置的 MCP 服务器，然后打印通过/失败表，其中包含指向任何缺失组件的正确设置文档的链接。只读 — 不安装任何内容。 |
 
-＃＃ 安装
+## 安装
 
 > **没有终端？** 使用教室安装程序 ZIP。下载、解压缩、双击安装程序，然后重新启动桌面代理应用程序。
 
@@ -772,7 +772,7 @@ the [update privacy & data notice](docs/update_privacy.md).
 
 该工具包*旨在减少常见的稿件准备错误*；它**不**保证正确性，并且**未**经过临床验证。
 
-＃＃ 设置
+## 设置
 
 **New to Python, R, or the command line?** The full step-by-step guide for clinicians is in [`docs/setup/`](docs/setup/README.md):
 
@@ -787,7 +787,7 @@ the [update privacy & data notice](docs/update_privacy.md).
 ```
 打印一份清单，显示哪些组件存在、哪些组件缺失，以及针对任何差距应遵循哪个文档。
 
-＃＃ 要求
+## 要求
 
 **Python 3.9+ 和代理主机。这就是整个硬性要求。** 每个完整性检测器都是
 仅限 stdlib，起草、审阅和审核手稿也是如此。如果你没有Python，
@@ -1021,9 +1021,9 @@ always resolves to the latest release; [`CITATION.cff`](CITATION.cff) carries th
 
 - `make-figures` Critic Loop is inspired by [PaperBanana](https://github.com/dwzhu-pku/PaperBanana) (Zhu et al., *Automating Academic Illustration for AI Scientists*, arXiv:2601.23265, 2025) and by prior self-refinement research — Self-Refine (Madaan et al., 2023), Reflexion (Shinn et al., 2023), and Constitutional AI (Anthropic, 2022). The implementation in this repository is a clean-room reconstruction specialized for medical publication figures; no code, prompts, or configurations are derived from PaperBanana's repository.
 - 与 `check-reporting` 捆绑在一起的报告指南清单根据其原始知识共享许可证重新分发（请参阅每个清单以了解归属）。
-- Wong 色盲安全调色板：Wong B. *观点：色盲。*《自然方法》8:441 (2011)。
+- Wong 色盲安全调色板：Wong B. *Points of view: Color blindness.* Nature Methods 8:441 (2011).
 
-＃＃ 执照
+## 执照
 
 MIT License. See [LICENSE](LICENSE) for details.
 
@@ -1039,7 +1039,7 @@ Optional dependency: `pdf_to_md.py` uses [pymupdf4llm](https://pymupdf.readthedo
   <img src="https://api.star-history.com/svg?repos=Aperivue/medsci-skills&type=Date" alt="MedSci Skills star history" width="640">
 </a>
 
-＃＃ 关于
+## 关于
 
 Built by [Aperivue](https://aperivue.com) -- tools for medical AI research and education.
 
