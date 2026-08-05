@@ -2,6 +2,8 @@
 
 # MedSci Skills
 
+[English](README.md) | [简体中文](README.zh-CN.md)
+
 **58 skills that actually work.** Built by a physician-researcher, tested on real publications.
 
 *MedSci Skills is an end-to-end research tool for physician and medical-engineering researchers — design → scaffold → validate → publish — for the clinical manuscript and the medical-AI model behind it. Its moat is the compliance layer — 47 reporting guidelines and risk-of-bias tools, reference/citation verification, and deterministic integrity gates before peer review — now extended by a model-engineering lane that scaffolds reproducible, leakage-safe training repos and audits model validation. Clinical AI model research engineering is in scope; a general AI-scientist platform is not. It competes on clinical submission reliability, not skill count.*
