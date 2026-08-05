@@ -178,9 +178,9 @@ SR/MA。 *技能：* `/meta-analysis`（与`/search-lit`、`/make-figures`、
 
 |演示 |数据集 |学习类型 |合规|
 |------|---------|------------|------------|
-| [Demo 1: Wisconsin BC](demo/01_wisconsin_bc/) | `sklearn` built-in | Diagnostic accuracy | STARD 2015 |
-| [Demo 2: BCG Vaccine](demo/02_metafor_bcg/) | `metafor::dat.bcg` (13 RCTs) | Meta-analysis | PRISMA 2020 |
-| [Demo 3: NHANES Obesity](demo/03_nhanes_obesity/) | CDC NHANES 2017-18 | Epidemiology (survey) | STROBE |
+| [演示 1：Wisconsin 乳腺癌](demo/01_wisconsin_bc/) | `sklearn` 内置数据集 | 诊断准确性 | STARD 2015 |
+| [演示 2：卡介苗疫苗](demo/02_metafor_bcg/) | `metafor::dat.bcg`（13 项 RCT） | 荟萃分析 | PRISMA 2020 |
+| [演示 3：NHANES 肥胖](demo/03_nhanes_obesity/) | CDC NHANES 2017-18 | 流行病学（抽样调查） | STROBE |
 | [Demo 4: PneumoniaMNIST CNN](demo/04_pneumoniamnist_cnn/) | `medmnist` (CC BY 4.0) | Medical-AI model engineering (CNN) | CLAIM / TRIPOD+AI |
 | [Demo 5: MSD → AMOS spleen](demo/05_msd_amos_spleen/) | MSD Task09 + AMOS22 (CC BY 4.0) | 3-D segmentation, external validation + modality shift | CLAIM / Metrics Reloaded |
 
@@ -191,22 +191,22 @@ from sklearn.datasets import load_breast_cancer
 data = load_breast_cancer()  # 569 samples, zero download
 ```
 
-**Output from `orchestrate --e2e`** ([see full demo](demo/01_wisconsin_bc/)):
+**`orchestrate --e2e` 的产出**（[查看完整演示](demo/01_wisconsin_bc/)）：
 
 <details>
 <summary>完整输出列表 - 手稿、图表、STARD流程、清单（点击展开）</summary>
 
 |输出|描述 |
 |--------|-------------|
-| [Manuscript](demo/01_wisconsin_bc/manuscript/manuscript.md) | IMRAD draft, ~1,800 words |
-| [Title Page](demo/01_wisconsin_bc/manuscript/title_page.md) | STARD title page with key points |
-| [DOCX](demo/01_wisconsin_bc/manuscript/manuscript_final.docx) | Submission-ready Word document |
-| [ROC Curve](demo/01_wisconsin_bc/analysis/figures/roc_curve.png) | 3-model comparison with DeLong 95% CIs |
-| [Confusion Matrices](demo/01_wisconsin_bc/analysis/figures/confusion_matrices.png) | Per-model confusion matrices at threshold 0.5 |
-| [STARD Flow](demo/01_wisconsin_bc/figures/stard_flow.svg) | D2-generated STARD 2015 flow diagram |
-| [Reporting Checklist](demo/01_wisconsin_bc/qc/reporting_checklist.md) | STARD 2015 — 60.9% compliance (14/23 applicable) |
+| [稿件](demo/01_wisconsin_bc/manuscript/manuscript.md) | IMRAD 草稿，约 1,800 词 |
+| [扉页](demo/01_wisconsin_bc/manuscript/title_page.md) | 含要点的 STARD 扉页 |
+| [DOCX](demo/01_wisconsin_bc/manuscript/manuscript_final.docx) | 可直接投稿的 Word 文档 |
+| [ROC 曲线](demo/01_wisconsin_bc/analysis/figures/roc_curve.png) | 三模型比较，含 DeLong 95% CI |
+| [混淆矩阵](demo/01_wisconsin_bc/analysis/figures/confusion_matrices.png) | 阈值 0.5 下各模型的混淆矩阵 |
+| [STARD 流程图](demo/01_wisconsin_bc/figures/stard_flow.svg) | 由 D2 生成的 STARD 2015 流程图 |
+| [报告清单](demo/01_wisconsin_bc/qc/reporting_checklist.md) | STARD 2015 — 合规率 60.9%（适用条目 14/23） |
 | [Self-Review](demo/01_wisconsin_bc/qc/self_review.md) | Initial 82 (REVISE) → 88 (PASS) after 1 fix iteration; final 0 major / 1 minor |
-| [Pipeline Log](demo/01_wisconsin_bc/qc/_pipeline_log.md) | 7-step E2E execution trace |
+| [流水线日志](demo/01_wisconsin_bc/qc/_pipeline_log.md) | 7 步端到端执行记录 |
 
 </details>
 
@@ -219,22 +219,22 @@ library(metafor)
 data(dat.bcg)  # 13 RCTs, 357,347 participants (Colditz et al. 1994)
 ```
 
-**Output from `orchestrate --e2e`** ([see full demo](demo/02_metafor_bcg/)):
+**`orchestrate --e2e` 的产出**（[查看完整演示](demo/02_metafor_bcg/)）：
 
 <details>
 <summary>完整输出列表 - 手稿、森林/漏斗图、PRISMA 流程、清单（点击展开）</summary>
 
 |输出|描述 |
 |--------|-------------|
-| [Manuscript](demo/02_metafor_bcg/manuscript/manuscript.md) | Pooled RR = 0.489 (95% CI: 0.344–0.696), ~2,200 words |
-| [Title Page](demo/02_metafor_bcg/manuscript/title_page.md) | PRISMA title page with key points |
-| [DOCX](demo/02_metafor_bcg/manuscript/manuscript_final.docx) | Submission-ready Word document |
-| [Forest Plot](demo/02_metafor_bcg/analysis/figures/forest.png) | 13 studies, RE model (REML), 300 dpi |
-| [Funnel Plot](demo/02_metafor_bcg/analysis/figures/funnel.png) | Small-study / publication-bias visual |
-| [PRISMA Flow](demo/02_metafor_bcg/analysis/figures/prisma_flow.svg) | D2-generated PRISMA 2020 flow diagram |
+| [稿件](demo/02_metafor_bcg/manuscript/manuscript.md) | 合并 RR = 0.489（95% CI：0.344–0.696），约 2,200 词 |
+| [扉页](demo/02_metafor_bcg/manuscript/title_page.md) | 含要点的 PRISMA 扉页 |
+| [DOCX](demo/02_metafor_bcg/manuscript/manuscript_final.docx) | 可直接投稿的 Word 文档 |
+| [森林图](demo/02_metafor_bcg/analysis/figures/forest.png) | 13 项研究，随机效应模型（REML），300 dpi |
+| [漏斗图](demo/02_metafor_bcg/analysis/figures/funnel.png) | 小样本效应／发表偏倚的可视化 |
+| [PRISMA 流程图](demo/02_metafor_bcg/analysis/figures/prisma_flow.svg) | 由 D2 生成的 PRISMA 2020 流程图 |
 | [Reporting Checklist](demo/02_metafor_bcg/qc/reporting_checklist.md) | PRISMA 2020 — 57.1% (24/42) at check-reporting → 61.9% (26/42) after self-review fix |
 | [Self-Review](demo/02_metafor_bcg/qc/self_review.md) | Initial 78 → 82 (REVISE) after 1 fix iteration; 3 major / 4 minor (majors are out-of-scope RoB/GRADE/references) |
-| [Pipeline Log](demo/02_metafor_bcg/qc/_pipeline_log.md) | 7-step E2E execution trace |
+| [流水线日志](demo/02_metafor_bcg/qc/_pipeline_log.md) | 7 步端到端执行记录 |
 
 </details>
 
@@ -247,21 +247,21 @@ data(dat.bcg)  # 13 RCTs, 357,347 participants (Colditz et al. 1994)
 # 5,010 US adults after exclusions
 ```
 
-**Output from `orchestrate --e2e`** ([see full demo](demo/03_nhanes_obesity/)):
+**`orchestrate --e2e` 的产出**（[查看完整演示](demo/03_nhanes_obesity/)）：
 
 <details>
 <summary>完整输出列表 - 手稿、OR 森林图、STROBE 流、清单（点击展开）</summary>
 
 |输出|描述 |
 |--------|-------------|
-| [Manuscript](demo/03_nhanes_obesity/manuscript/manuscript.md) | Adjusted OR = 3.03 (95% CI: 2.29–4.02), ~1,850 words |
-| [Title Page](demo/03_nhanes_obesity/manuscript/title_page.md) | STROBE title page with key points |
-| [DOCX](demo/03_nhanes_obesity/manuscript/manuscript_final.docx) | Submission-ready Word document |
-| [OR Forest Plot](demo/03_nhanes_obesity/analysis/figures/forest_or.png) | Adjusted odds ratios for 7 variables |
-| [Study Flow](demo/03_nhanes_obesity/analysis/figures/strobe_flow.svg) | D2-generated participant flow diagram |
-| [Reporting Checklist](demo/03_nhanes_obesity/qc/reporting_checklist.md) | STROBE — 83.3% compliance (25/30 applicable) |
+| [稿件](demo/03_nhanes_obesity/manuscript/manuscript.md) | 校正后 OR = 3.03（95% CI：2.29–4.02），约 1,850 词 |
+| [扉页](demo/03_nhanes_obesity/manuscript/title_page.md) | 含要点的 STROBE 扉页 |
+| [DOCX](demo/03_nhanes_obesity/manuscript/manuscript_final.docx) | 可直接投稿的 Word 文档 |
+| [OR 森林图](demo/03_nhanes_obesity/analysis/figures/forest_or.png) | 7 个变量的校正后比值比 |
+| [研究流程图](demo/03_nhanes_obesity/analysis/figures/strobe_flow.svg) | 由 D2 生成的受试者流程图 |
+| [报告清单](demo/03_nhanes_obesity/qc/reporting_checklist.md) | STROBE — 合规率 83.3%（适用条目 25/30） |
 | [Self-Review](demo/03_nhanes_obesity/qc/self_review.md) | ACCEPT-WITH-NOTES after 1 fix iteration; 0 genuine majors remaining |
-| [Pipeline Log](demo/03_nhanes_obesity/qc/_pipeline_log.md) | 7-step E2E execution trace |
+| [流水线日志](demo/03_nhanes_obesity/qc/_pipeline_log.md) | 7 步端到端执行记录 |
 
 </details>
 
@@ -776,10 +776,10 @@ the [update privacy & data notice](docs/update_privacy.md).
 
 **New to Python, R, or the command line?** The full step-by-step guide for clinicians is in [`docs/setup/`](docs/setup/README.md):
 
-- [Mac setup](docs/setup/mac.md) — Homebrew → Python 3.11 → R → Node → Claude Code (~30 min)
-- [Windows setup](docs/setup/windows.md) — winget-based, no WSL required
-- [MCP server setup](docs/setup/mcp-setup.md) — Zotero, Google Drive, PubMed integration
-- [Common issues](docs/setup/common-issues.md) — top 10 fixes (PATH, Apple Silicon, antivirus, JSON syntax)
+- [Mac 安装](docs/setup/mac.md) — Homebrew → Python 3.11 → R → Node → Claude Code（约 30 分钟）
+- [Windows 安装](docs/setup/windows.md) — 基于 winget，无需 WSL
+- [MCP 服务器配置](docs/setup/mcp-setup.md) — Zotero、Google Drive、PubMed 集成
+- [常见问题](docs/setup/common-issues.md) — 十大修复（PATH、Apple Silicon、杀毒软件、JSON 语法）
 
 **使用诊断技能验证您的环境**（只读，不安装任何内容）：
 ```
@@ -916,12 +916,12 @@ Pick a [**good first issue**](https://github.com/Aperivue/medsci-skills/contribu
 
 |想要添加... |如何|问题 |
 |---|---|---|
-| **A CSL citation style** for a journal that lacks one | drop one `.csl` into `manage-refs/citation_styles/` | [#117](https://github.com/Aperivue/medsci-skills/issues/117) |
-| **A de-identification locale pack** for one more country | add one patterns file under `deidentify/` | [#116](https://github.com/Aperivue/medsci-skills/issues/116) |
-| **A README translation** (e.g., zh-CN) | one translated `README` file | [#119](https://github.com/Aperivue/medsci-skills/issues/119) |
+| 为尚未收录的期刊添加 **CSL 引文样式** | 将一个 `.csl` 放入 `manage-refs/citation_styles/` | [#117](https://github.com/Aperivue/medsci-skills/issues/117) |
+| 为另一个国家添加 **去标识化语言包** | 在 `deidentify/` 下新增一个模式文件 | [#116](https://github.com/Aperivue/medsci-skills/issues/116) |
+| 添加 **README 翻译**（如 zh-CN） | 一个翻译后的 `README` 文件 | [#119](https://github.com/Aperivue/medsci-skills/issues/119) |
 | **A figure exemplar** (ROC, KM, forest, Bland–Altman, confusion matrix…) | one `make-figures/references/exemplar_plots/*.md` anatomy model | [#118](https://github.com/Aperivue/medsci-skills/issues/118) |
 | **A journal profile** (submission rules for a journal we don't cover) | `/add-journal`, or copy an existing `journal_profiles/*.md` | [#115](https://github.com/Aperivue/medsci-skills/issues/115) |
-| **A reporting checklist or peer-review exemplar** | one reference file in the matching skill | [#120](https://github.com/Aperivue/medsci-skills/issues/120) |
+| 添加 **报告清单或同行评议范例** | 在对应技能中新增一个参考文件 | [#120](https://github.com/Aperivue/medsci-skills/issues/120) |
 
 其中每一个都添加**恰好一个新文件** - 不需要编辑计数、生成的文件
 页面，或构建配置，以及目录一致性检查自动派生配置文件计数
