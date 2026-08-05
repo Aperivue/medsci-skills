@@ -96,10 +96,11 @@ cat > "$FIXTURE_DIR/references/neg-table-cell.md" <<'EOF'
 | 3 | Numbers must come from the CSV | `~/.claude/rules/numerical-safety.md` |
 EOF
 
-OUT="$(bash "$REPO_ROOT/scripts/validate_skills.sh" 2>&1)"
-FLAGGED="$(printf '%s\n' "$OUT" | grep "$VERDICT" || true)"
-
 FIXTURE_NAME="$(basename "$FIXTURE_DIR")"
+# Scoped to the fixture — see the same note in tests/test_validator_scope.sh. Both assertions and
+# negative controls live inside this one skill's references/, so scanning the repo bought nothing.
+OUT="$(bash "$REPO_ROOT/scripts/validate_skills.sh" --only "$FIXTURE_NAME" 2>&1)"
+FLAGGED="$(printf '%s\n' "$OUT" | grep "$VERDICT" || true)"
 named() { printf '%s\n' "$FLAGGED" | grep -q "$FIXTURE_NAME/references/$1"; }
 
 named 'pos-apply.md';      ck "an 'apply <personal rule path>' instruction is caught"        0 "$?"

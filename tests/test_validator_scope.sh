@@ -74,10 +74,13 @@ printf -- 'note: "%s"\n'                   "$LEAK" > "$FIXTURE_DIR/skill.yml"
 # the rule is that this scan matches what the public sees, not what is on disk.
 printf -- '- scratch: %s\n'                "$LEAK" > "$FIXTURE_DIR/TODO_scratch.md"
 
-OUT="$(bash "$REPO_ROOT/scripts/validate_skills.sh" 2>&1)"
-FLAGGED="$(printf '%s\n' "$OUT" | grep 'Personal path in' || true)"
-
 FIXTURE_NAME="$(basename "$FIXTURE_DIR")"
+# Scoped to the fixture. Every assertion below is about locations INSIDE one skill, so the other
+# 57 and the whole-repo scan were pure cost — this test alone was ~90 s of CI, and it runs on every
+# push. `--only` errors out on a name it cannot find, so a typo here fails loudly rather than
+# validating nothing and letting `[ -n "$FLAGGED" ]` be the only thing standing.
+OUT="$(bash "$REPO_ROOT/scripts/validate_skills.sh" --only "$FIXTURE_NAME" 2>&1)"
+FLAGGED="$(printf '%s\n' "$OUT" | grep 'Personal path in' || true)"
 seen() { printf '%s\n' "$FLAGGED" | grep -q "$FIXTURE_NAME/$1"; }
 
 seen 'references/note.md';    ck "references/ is scanned"                    0 "$?"

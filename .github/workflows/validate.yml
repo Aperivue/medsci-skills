@@ -47,6 +47,9 @@ jobs:
       - name: "Validator scope self-test (it must READ every directory it claims to scan)"
         run: bash tests/test_validator_scope.sh
 
+      - name: "Validator --only self-test (a scoped run must not read like a full one)"
+        run: bash tests/test_validator_only_flag.sh
+
       - name: "Run check_frontmatter_scope.py (a manuscript detector must not read YAML front matter as prose)"
         run: python3 scripts/check_frontmatter_scope.py --strict
 
