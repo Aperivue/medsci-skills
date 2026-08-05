@@ -183,4 +183,6 @@ New skills should target **Mid** tier minimum. Core pipeline skills (write-paper
 - [ ] No hardcoded personal paths (use `${SKILL_DIR}` or `${CLAUDE_SKILL_DIR}`)
 - [ ] No PII or institution-specific content in examples
 - [ ] Triggers include both English and Korean keywords
-- [ ] `validate_skills.sh` passes for this skill
+- [ ] `bash scripts/validate_skills.sh --only <your-skill>` passes — seconds, instead of the whole
+      repo. It prints `SCOPED PASS`, not `ALL CHECKS PASSED`: the unscoped run is still the gate,
+      and CI runs it that way on your PR.

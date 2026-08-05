@@ -1,11 +1,48 @@
 #!/usr/bin/env bash
 # validate_skills.sh — Lint all medsci-skills for required structure
 # Run from repo root: bash scripts/validate_skills.sh
+#                     bash scripts/validate_skills.sh --only <skill-name>
+#
+# `--only` exists because the validator's own self-tests were paying for the whole repo. Fixing the
+# find-glob bug (#435) took this script from reading 58 files to ~1,200, and the two tests written
+# to prove that fix works each invoke the validator again — so CI ran the full scan three times and
+# the `validate` job went from 3m57s to 5-7 minutes. Nothing was wrong with either test; the cost
+# was structural, because the validator took no arguments and a test that needs to observe ONE
+# fixture skill had no way to ask for less than all of them.
+#
+# It is a test affordance, not a release gate. A scoped run deliberately does NOT print the verdict
+# a full run prints — see the exit block. A cheap gate is one that actually gets run; a gate whose
+# partial result reads identically to its full result is worse than a slow one.
 
 set -uo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SKILLS_DIR="$REPO_ROOT/skills"
+
+ONLY_SKILL=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --only)
+      [ $# -ge 2 ] || { echo "--only requires a skill name" >&2; exit 2; }
+      ONLY_SKILL="$2"; shift 2 ;;
+    --only=*)
+      ONLY_SKILL="${1#--only=}"; shift ;;
+    -h|--help)
+      echo "usage: validate_skills.sh [--only <skill-name>]"
+      echo "  (no args)       validate every skill + the public-surface scan + the repo-wide gates"
+      echo "  --only <name>   validate just skills/<name>/ — for self-tests; NOT a release gate"
+      exit 0 ;;
+    *)
+      echo "unknown argument: $1" >&2; exit 2 ;;
+  esac
+done
+
+# A name matching nothing must be an error, never an empty loop. #435 was a gate that scanned zero
+# files and printed PASS; a silently-unmatched --only would rebuild exactly that shape.
+if [ -n "$ONLY_SKILL" ] && [ ! -f "$SKILLS_DIR/$ONLY_SKILL/SKILL.md" ]; then
+  echo "no such skill: $ONLY_SKILL (expected $SKILLS_DIR/$ONLY_SKILL/SKILL.md)" >&2
+  exit 2
+fi
 # Precedent / personal-identifier scanner. Structural shapes stay as plaintext
 # regex inside it; real names / mentors / institutions / project codes are
 # matched against SHA-256 digests (scripts/precedent_hashes.txt) so this public
@@ -66,8 +103,16 @@ _personal_path_hit() {
 RULE_IMPERATIVE='(apply|applies|follow|enforce|obey|adhere to|refer to|as required by|as specified in|read)[^|]{0,40}\.claude/rules/'
 
 echo "========================================="
-echo " MedSci Skills Validator"
+if [ -n "$ONLY_SKILL" ]; then
+  echo " MedSci Skills Validator — SCOPED to '$ONLY_SKILL'"
+else
+  echo " MedSci Skills Validator"
+fi
 echo "========================================="
+if [ -n "$ONLY_SKILL" ]; then
+  echo " Per-skill rules for this one skill only."
+  echo " NOT run: the other skills, the public-surface PII scan, the repo-wide gates."
+fi
 echo ""
 
 # Tool dependencies. exiftool is required for rule 10 (binary EXIF metadata
@@ -82,7 +127,13 @@ if ! command -v exiftool >/dev/null 2>&1; then
   exit 2
 fi
 
-for skill_dir in "$SKILLS_DIR"/*/; do
+if [ -n "$ONLY_SKILL" ]; then
+  SKILL_DIRS=("$SKILLS_DIR/$ONLY_SKILL/")
+else
+  SKILL_DIRS=("$SKILLS_DIR"/*/)
+fi
+
+for skill_dir in "${SKILL_DIRS[@]}"; do
   skill_name=$(basename "$skill_dir")
   skill_file="$skill_dir/SKILL.md"
 
@@ -474,6 +525,10 @@ PY
   echo ""
 done
 
+META_FAIL=0
+META_SCANNED=0
+if [ -z "$ONLY_SKILL" ]; then
+
 echo "========================================="
 echo " Public-surface PII scan (all tracked text outside skills/)"
 echo "========================================="
@@ -494,8 +549,6 @@ echo "========================================="
 # those files the precedent scan runs with --allow-author (the author's own name
 # digest is exempted), so other PII (hospital, project codes, personal paths) on
 # the same line is still caught. The author name is no longer spelled out here.
-META_FAIL=0
-META_SCANNED=0
 AUTHOR_ATTRIB_RE='^(README\.md|CITATION\.cff|paper\.md|\.zenodo\.json|MAINTAINERS\.md)$'
 while IFS= read -r rel; do
   case "$rel" in
@@ -535,6 +588,8 @@ echo "  Scanned $META_SCANNED tracked non-skills text files"
 [ "$META_FAIL" -eq 0 ] && pass "Public-surface PII scan clean (docs/, root, metadata)"
 echo ""
 
+fi  # end: whole-repo public-surface scan (skipped under --only)
+
 echo "========================================="
 echo " Summary"
 echo "========================================="
@@ -542,26 +597,34 @@ echo -e " Skills checked: ${TOTAL}"
 echo -e " ${GREEN}PASS${NC}: ${PASS}"
 echo -e " ${YELLOW}WARN${NC}: ${WARN}"
 echo -e " ${RED}FAIL${NC}: ${FAIL}"
-echo -e " Meta-doc FAIL: ${META_FAIL}"
+[ -z "$ONLY_SKILL" ] && echo -e " Meta-doc FAIL: ${META_FAIL}"
 echo ""
 
-python3 "$REPO_ROOT/scripts/validate_skill_contracts.py"
-contract_status=$?
-echo ""
+# The three repo-wide gates below reason about the whole skills/ tree (contracts, vendoring drift,
+# script reachability). Under --only they would either scan everything — defeating the point — or
+# report on a set the caller did not ask about. They are skipped, and the exit block says so.
+contract_status=0
+domain_probe_status=0
+script_reach_status=0
+if [ -z "$ONLY_SKILL" ]; then
+  python3 "$REPO_ROOT/scripts/validate_skill_contracts.py"
+  contract_status=$?
+  echo ""
 
-# Vendoring drift gate (all vendored sets: domain probes + RoB checklists + any undeclared
-# cross-skill duplicate). Capture the exit status explicitly: this script runs under
-# `set -uo pipefail` (not `set -e`), so a bare call would not abort and the failure would be
-# silently buried before the summary.
-python3 "$REPO_ROOT/scripts/check_domain_probe_sync.py" --strict
-domain_probe_status=$?
-echo ""
+  # Vendoring drift gate (all vendored sets: domain probes + RoB checklists + any undeclared
+  # cross-skill duplicate). Capture the exit status explicitly: this script runs under
+  # `set -uo pipefail` (not `set -e`), so a bare call would not abort and the failure would be
+  # silently buried before the summary.
+  python3 "$REPO_ROOT/scripts/check_domain_probe_sync.py" --strict
+  domain_probe_status=$?
+  echo ""
 
-# Script reachability. A script no SKILL.md invokes never runs for a user, however well it is
-# tested — the non-detector sibling of check_detector_reachability.py.
-python3 "$REPO_ROOT/scripts/check_script_reachability.py" --strict
-script_reach_status=$?
-echo ""
+  # Script reachability. A script no SKILL.md invokes never runs for a user, however well it is
+  # tested — the non-detector sibling of check_detector_reachability.py.
+  python3 "$REPO_ROOT/scripts/check_script_reachability.py" --strict
+  script_reach_status=$?
+  echo ""
+fi
 
 if [ "$FAIL" -gt 0 ]; then
   echo -e "${RED}VALIDATION FAILED${NC} — fix $FAIL issue(s) before release"
@@ -578,6 +641,12 @@ elif [ "$domain_probe_status" -ne 0 ]; then
 elif [ "$script_reach_status" -ne 0 ]; then
   echo -e "${RED}VALIDATION FAILED${NC} — a skill script is never invoked by any SKILL.md (see check_script_reachability.py)"
   exit 1
+elif [ -n "$ONLY_SKILL" ]; then
+  # Deliberately NOT "ALL CHECKS PASSED". A caller grepping for that string — a human skimming, a
+  # test, a future CI step — must not be able to get it out of a run that looked at one skill and
+  # skipped every repo-wide gate. The scoped verdict names its own scope.
+  echo -e "${GREEN}SCOPED PASS${NC} — skills/$ONLY_SKILL only; repo-wide gates NOT run"
+  exit 0
 else
   echo -e "${GREEN}ALL CHECKS PASSED${NC}"
   exit 0
