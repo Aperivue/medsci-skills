@@ -114,7 +114,17 @@ GUIDELINE_CLAIM_FILES = [
 SKILLS_TAGLINE_FILES = ["README.md"]
 # README shields badge (img.shields.io/badge/Skills-N-...). Scoped to the badge URL so
 # only the literal badge count is checked, never arbitrary "Skills" prose.
-SKILLS_BADGE_FILES = ["README.md"]
+#
+# Translated READMEs are included by GLOB, not by enumeration. The badge is a shields.io URL
+# with the count written into it as a literal, and a translation copies that URL
+# character-for-character — so the number rides along into a file no gate was watching, and the
+# translated page goes quietly wrong the first time a skill is added while the English page stays
+# green. Because the URL is identical across locales, no new pattern is needed: the existing
+# `badge_re` matches it wherever it appears. A glob also means the next language is covered on
+# arrival rather than after someone remembers to add it here.
+SKILLS_BADGE_FILES = ["README.md"] + sorted(
+    p.name for p in ROOT.glob("README.*.md") if p.name != "README.md"
+)
 # Catalog-total SKILL claim in prose (not the tagline/badge). README "All N skills"
 # (skill-table intro) and paper.md "N task-bounded skills" (JOSS Summary) drifted
 # because only the tagline+badge were gated. Anchored to those two phrasings so

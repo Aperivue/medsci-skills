@@ -549,7 +549,15 @@ echo "========================================="
 # those files the precedent scan runs with --allow-author (the author's own name
 # digest is exempted), so other PII (hospital, project codes, personal paths) on
 # the same line is still caught. The author name is no longer spelled out here.
-AUTHOR_ATTRIB_RE='^(README\.md|CITATION\.cff|paper\.md|\.zenodo\.json|MAINTAINERS\.md)$'
+#
+# `README.<locale>.md` is matched as a FAMILY rather than enumerated. The first translated
+# README (zh-CN) failed CI on its byline — the same "Created & maintained by ..." line README.md
+# carries and is allowlisted for. A translation carries that byline by definition, so every
+# future locale hits the identical wall, and enumerating them one at a time rebuilds the wall
+# per language. The allowance stays narrow: `--allow-author` exempts only the author-name digest,
+# so a hospital name, a project code or a personal path in a translated README is still caught
+# exactly as it is in the English one.
+AUTHOR_ATTRIB_RE='^(README\.md|README\.[A-Za-z]{2}(-[A-Za-z]{2,4})?\.md|CITATION\.cff|paper\.md|\.zenodo\.json|MAINTAINERS\.md)$'
 while IFS= read -r rel; do
   case "$rel" in
     scripts/validate_skills.sh|scripts/check_precedent.py|scripts/precedent_hashes.txt|scripts/precedent_author_hashes.txt) continue ;;  # self-exempt: blocklist machinery
