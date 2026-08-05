@@ -69,6 +69,30 @@ def _make_blank_paragraph() -> "OxmlElement":
     return p
 
 
+def _append_text_with_breaks(run_elem, text: str) -> None:
+    """Fill a `w:r` with `text`, turning every `\\n` into a real `w:br`.
+
+    Word does not read a newline inside `w:t` as a line break — it collapses it to a space. So
+    `t.text = chunk` on multi-line content produces a document that opens cleanly, validates, and
+    has silently run the author's list together. Three call sites built runs by hand and only one
+    of them split on `\\n`, which meant `section_replace` content kept its line breaks in the FIRST
+    paragraph and lost them in every paragraph after it — an IRB form's inclusion criteria arriving
+    as a single flowed sentence, under a `[OK]` line and a clean `validate()`. Nothing but opening
+    the rendered PDF could see it.
+
+    Every run-building path goes through here now, so the class cannot come back one call site at
+    a time.
+    """
+    for i, line in enumerate(text.split("\n")):
+        if i > 0:
+            run_elem.append(OxmlElement("w:br"))
+        if line:
+            t = OxmlElement("w:t")
+            t.text = line
+            t.set(qn("xml:space"), "preserve")
+            run_elem.append(t)
+
+
 def _replace_paragraph_text_keep_style(para: Paragraph, new_text: str,
                                         korean_font: str | None = None) -> None:
     """Replace the entire text content of a paragraph while keeping its style.
@@ -97,17 +121,7 @@ def _replace_paragraph_text_keep_style(para: Paragraph, new_text: str,
         from copy import deepcopy
         new_run.append(deepcopy(template_rPr))
 
-    # Split on \n — insert w:br between lines, w:t for text segments
-    lines = new_text.split("\n")
-    for i, line in enumerate(lines):
-        if i > 0:
-            br = OxmlElement("w:br")
-            new_run.append(br)
-        if line:
-            t = OxmlElement("w:t")
-            t.text = line
-            t.set(qn("xml:space"), "preserve")
-            new_run.append(t)
+    _append_text_with_breaks(new_run, new_text)
 
     para._element.append(new_run)
 
@@ -160,10 +174,7 @@ def _replace_cell_text(cell: _Cell, new_text: str,
             new_r = OxmlElement("w:r")
             if first_rPr is not None:
                 new_r.append(deepcopy(first_rPr))
-            t = OxmlElement("w:t")
-            t.text = line
-            t.set(qn("xml:space"), "preserve")
-            new_r.append(t)
+            _append_text_with_breaks(new_r, line)
             new_p.append(new_r)
             cell._tc.append(new_p)
 
@@ -304,10 +315,7 @@ class FormFiller:
                 new_p = OxmlElement("w:p")
                 # New paragraph should NOT have header style — use default (no pPr)
                 new_r = OxmlElement("w:r")
-                t = OxmlElement("w:t")
-                t.text = chunk
-                t.set(qn("xml:space"), "preserve")
-                new_r.append(t)
+                _append_text_with_breaks(new_r, chunk)
                 new_p.append(new_r)
                 insert_after.addnext(new_p)
                 # Apply Korean font
@@ -356,10 +364,7 @@ class FormFiller:
             new_r = OxmlElement("w:r")
             if first_rPr is not None:
                 new_r.append(deepcopy(first_rPr))
-            t = OxmlElement("w:t")
-            t.text = chunk
-            t.set(qn("xml:space"), "preserve")
-            new_r.append(t)
+            _append_text_with_breaks(new_r, chunk)
             new_p.append(new_r)
             insert_after.addnext(new_p)
             from docx.text.run import Run
@@ -459,7 +464,27 @@ class FormFiller:
             warnings.append(f"[TABLE-MISS] Label not found: {label!r}")
         for header in self._paragraph_results.unmatched:
             warnings.append(f"[SECTION-MISS] Header not found: {header!r}")
+        warnings.extend(self._raw_newline_warnings())
         return warnings
+
+    def _raw_newline_warnings(self) -> list[str]:
+        """A newline that survived into `w:t` is a line break the reader will never see.
+
+        This is the only failure in this tool that both fills and validates cleanly: every label
+        matches, every section is found, the file opens in Word — and the list the author wrote is
+        one flowed sentence, because Word treats a newline inside `w:t` as a space. It went to an
+        institutional review board that way once. Checking the produced XML is what makes the
+        `[OK]` line mean something; checking the fill results only ever proved the fill ran.
+        """
+        out: list[str] = []
+        for t in self.doc.element.body.iter(qn("w:t")):
+            if t.text and "\n" in t.text:
+                shown = t.text.strip().replace("\n", "\\n")[:60]
+                out.append(
+                    f"[RAW-NEWLINE] A line break will render as a space: {shown!r} "
+                    "— the text needs a w:br or a new paragraph, not a newline in w:t"
+                )
+        return out
 
     def report(self) -> str:
         n_table_ok = len(self._table_results.matched)

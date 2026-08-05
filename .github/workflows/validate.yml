@@ -324,6 +324,9 @@ jobs:
       - name: Run sync-submission preflight gate test (A6)
         run: bash skills/sync-submission/tests/test_preflight_gate.sh
 
+      - name: "Run sync-submission marked-build failure test (a failed Compare leaves no file behind)"
+        run: bash skills/sync-submission/tests/test_marked_build_failure.sh
+
       - name: "Run sync-submission portal-field-residue challenge (paste-verbatim .txt with markdown -> fires; clean -> clean)"
         run: bash skills/sync-submission/scripts/check_portal_field_residue_challenge/verify.sh
 
@@ -350,6 +353,9 @@ jobs:
 
       - name: "Run verify-refs last-field test (an entry's final field has no trailing comma)"
         run: bash skills/verify-refs/tests/test_bib_last_field.sh
+
+      - name: "Run verify-refs audit-source test (a committed audit must not carry an absolute path)"
+        run: bash skills/verify-refs/tests/test_audit_source_path.sh
 
       - name: "Run verify-refs claim-fidelity challenge (a real citation carrying a claim its source never makes)"
         run: bash skills/verify-refs/scripts/claim_fidelity_challenge/verify.sh
@@ -483,6 +489,9 @@ jobs:
 
       - name: Run fill-protocol form-fill test
         run: bash skills/fill-protocol/tests/test_fill_form.sh
+
+      - name: "Run fill-protocol newline test (a line break must reach the page, not hide in w:t)"
+        run: bash skills/fill-protocol/tests/test_fill_form_newlines.sh
 
       - name: Run fulltext-retrieval pdf_to_md helper test
         run: python3 skills/fulltext-retrieval/tests/test_pdf_to_md.py

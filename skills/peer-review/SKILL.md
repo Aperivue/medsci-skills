@@ -2,7 +2,7 @@
 name: peer-review
 description: Peer review assistant for medical journals. Generates structured review drafts with journal-specific formatting. Constructive developmental tone with systematic manuscript analysis.
 triggers: peer review, manuscript review, review paper, reviewer comments, 리뷰, 논문 리뷰, review invitation, journal review
-tools: Read, Write, Edit, Grep, Glob
+tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit
 ---
 

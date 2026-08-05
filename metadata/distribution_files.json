@@ -83,8 +83,8 @@
     },
     {
       "path": "skills/academic-aio/SKILL.md",
-      "size": 32767,
-      "sha256": "5ed6874b7aa1036b1867f96149247eebffb2e61332c39696027811530de5282f"
+      "size": 32773,
+      "sha256": "9e43ec3cc38ab1988770cd0e071be92431bdef0d596d8f80b86abe79379c0117"
     },
     {
       "path": "skills/academic-aio/references/ai_tool_citation_framing.md",
@@ -1328,8 +1328,8 @@
     },
     {
       "path": "skills/fill-protocol/scripts/fill_form.py",
-      "size": 24311,
-      "sha256": "da014f1fcd965297765d3e383750c5ea20b10e303383a9d3da7715fbe751e19a"
+      "size": 25981,
+      "sha256": "1cbb68a6653df6e2a08c02882fa6937619babe2ac913c200999b857f60958122"
     },
     {
       "path": "skills/fill-protocol/scripts/inspect_template.py",
@@ -1388,8 +1388,8 @@
     },
     {
       "path": "skills/find-journal/SKILL.md",
-      "size": 18598,
-      "sha256": "fe4188fc24ecaecf1af22ad8a889525746fa6a98b0e03726e5c27ea7ef0b5f54"
+      "size": 18604,
+      "sha256": "7cfe761e0cb7fff71b7d4016c64052b2df6800c221838b8103a57452b3823461"
     },
     {
       "path": "skills/find-journal/references/acceptance_signals_schema.md",
@@ -3293,8 +3293,8 @@
     },
     {
       "path": "skills/peer-review/SKILL.md",
-      "size": 81702,
-      "sha256": "18d9c54589be0e30086b43ff50ac285815e1e852ae527905cf2225977492c35d"
+      "size": 81708,
+      "sha256": "68d3fd70d945dc6f0c8b5dd9a7f15e276d35d55b315f0029a79c34b0ce8f65ee"
     },
     {
       "path": "skills/peer-review/references/aczel_2021_reviewer2_patterns.md",
@@ -4243,8 +4243,8 @@
     },
     {
       "path": "skills/self-review/SKILL.md",
-      "size": 62498,
-      "sha256": "891b019237132a910e1157a9f0d6e5ac58bcab2a7077ab969b68e95e3ae5a63b"
+      "size": 62504,
+      "sha256": "1381805c3b91171c9bac2bcac9c5b8b061164ccdfeb86044517dbe82881c21f3"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
@@ -5323,8 +5323,8 @@
     },
     {
       "path": "skills/sync-submission/scripts/build_marked_manuscript.py",
-      "size": 6413,
-      "sha256": "259d027039bc05d41d6bdcd5e0648aa35aed88b053449015f3736e38107afe31"
+      "size": 8145,
+      "sha256": "9c2d6ab487bc15088aadc8b9c95c57e458f9598488e210a46459b70cb37dcb58"
     },
     {
       "path": "skills/sync-submission/scripts/check_asset_anonymization.py",
@@ -5648,8 +5648,8 @@
     },
     {
       "path": "skills/verify-refs/scripts/verify_refs.py",
-      "size": 47979,
-      "sha256": "4631625bb9a5bb2514d6c3f910d1f6d1cf443710e8aec554e5d35522ca6deebb"
+      "size": 49238,
+      "sha256": "5e631278ab1b38960d6ba1865cc360855fb2d600024fb67a8e3a9c5a82d5ba9c"
     },
     {
       "path": "skills/verify-refs/skill.yml",

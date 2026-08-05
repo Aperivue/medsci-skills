@@ -2,7 +2,7 @@
 name: find-journal
 description: Journal recommendation engine for medical manuscripts. 2-pass matching against a curated public profile library plus any user-local private profiles, enriched with detailed write-paper profiles for top-5 output. Returns ranked recommendations with scope fit rationale, AI disclosure policy, and homepage links. Impact-factor and APC figures in a profile are point-in-time and may be stale — verify current metrics at the journal site. A pre-ranking acceptance-readiness pre-flight scans the manuscript for design-ceiling, unfixable-defect, and importance-risk signals to add an acceptance-feasibility axis alongside scope fit, and the output includes a reject-fallback cascade plan.
 triggers: find journal, recommend journal, where to submit, which journal, journal selection, target journal, journal match
-tools: Read, Write, Edit, Grep, Glob
+tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit
 ---
 

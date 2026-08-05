@@ -998,6 +998,30 @@ def flag_pagination_placeholder(record: RefRecord) -> None:
         record.evidence = f"{record.evidence} | {ev}".strip(" |") if record.evidence else ev
 
 
+def portable_source(source: Path, project_root: Path) -> str:
+    """Render the audited file's path so the audit can travel with the manuscript.
+
+    `source` was written with `str()`, i.e. whatever the caller passed — and the caller
+    resolves it, so on a real run that is an absolute path. On a maintainer's machine an
+    absolute path contains the home directory, and therefore a username, inside
+    `qc/reference_audit.json`, which is a COMMITTED artifact. The public-surface PII gate
+    caught exactly that three times between 2026-07-31 and 2026-08-01; the field is
+    rewritten on every render, so hand-scrubbing it lost twice.
+
+    Nothing consumes the absolute form. The audit file lives beside the manuscript and
+    moves with it, so a path relative to the project root is not merely PII-free, it is
+    the correct referent. Falls back to the CWD, then to the bare filename, so a source
+    outside the project (a shared .bib) still yields something readable and still carries
+    no home directory.
+    """
+    for base in (project_root, Path.cwd()):
+        try:
+            return source.resolve().relative_to(base.resolve()).as_posix()
+        except ValueError:
+            continue
+    return source.name
+
+
 def write_outputs(records: list[RefRecord], project_root: Path, source: Path,
                   duplicate_findings: list[dict]) -> None:
     """Audit-only writer (v1.3.0).
@@ -1024,7 +1048,7 @@ def write_outputs(records: list[RefRecord], project_root: Path, source: Path,
         counts[rec.status] = counts.get(rec.status, 0) + 1
     audit = {
         "schema_version": 4,
-        "source": str(source),
+        "source": portable_source(source, project_root),
         "total_references": len(records),
         "counts": counts,
         "duplicate_findings": duplicate_findings,
