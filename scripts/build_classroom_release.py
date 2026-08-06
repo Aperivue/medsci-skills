@@ -54,9 +54,32 @@ EXCLUDE_FILE_NAMES = {
 }
 EXCLUDE_NAME_PREFIXES = ("TODO_", "HANDOFF_", "PLAN_", "PLANNED_")
 EXCLUDE_SUFFIXES = {".pyc", ".pyo", ".swp"}
+# Excluded by full relative path rather than by name — mirrors
+# gen_distribution_manifest.EXCLUDE_RELPATHS.
+#
+# `skills/MAINTENANCE.md` is a maintainer document sitting at the skills/ root. `skills` is an
+# include path here, so the walk picked it up, while `install.py` never placed it (that copies
+# directories carrying a SKILL.md). The ZIP shipped it to every classroom and no install had it.
+#
+# "What ships" is implemented THREE times: here, in gen_distribution_manifest.py, and in the
+# independent oracle inside installers/tests/test_distribution_manifest.py. The duplication is
+# deliberate — the oracle exists so the payload scope cannot change by accident — and it is
+# guarded: the release-ZIP round-trip test builds the ZIP and runs the updater's safe-extract
+# against the inventory, so any two of the three disagreeing turns the build red. It is what
+# caught this file being removed from two of them and not the third.
+EXCLUDE_RELPATHS = {"skills/MAINTENANCE.md"}
 
 
 def _is_excluded(path: Path) -> bool:
+    # Callers pass ABSOLUTE paths (add_path walks `path.rglob("*")` from a repo-rooted dir), so
+    # the relpath comparison has to normalise first. Comparing `path.as_posix()` directly matches
+    # nothing and fails open — the file ships and the check reads as if it ran.
+    try:
+        rel = path.relative_to(REPO_ROOT).as_posix()
+    except ValueError:
+        rel = path.as_posix()
+    if rel in EXCLUDE_RELPATHS:
+        return True
     if path.name in EXCLUDE_FILE_NAMES:
         return True
     if path.name.startswith(EXCLUDE_NAME_PREFIXES):
