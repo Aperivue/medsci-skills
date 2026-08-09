@@ -91,7 +91,65 @@
   an arbitrary-unit cohort must raise a Major, and an unreadable contract must not succeed.
   **58 skills / 47 guidelines / 85 integrity detectors.**
 
+- **`/meta-analysis` now carries where published radiology SR/MAs actually fail PRISMA 2020, not
+  only the checklist.** The 27-item / 42-sub-item instrument has always been in `/check-reporting`;
+  what a drafting skill was missing is the empirical prior over it. Park 2022 (Korean J Radiol;
+  PMID:35213097) scored 24 published SR/MAs and found **24 of the 42 items reported by fewer than
+  80%**. Phase 8 now lists the worst of them with their observed rates, because they are not the
+  items a compliance run flags loudest: **item 20a — a per-synthesis summary of the contributing
+  studies' characteristics and risk of bias — was reported by 0 of 24**, as were data availability
+  (27) and registration (24a–c), and the PRISMA-for-Abstracts eligibility and registration items.
+  Certainty of evidence sat at 9%, sensitivity analysis at 28%, per-study risk of bias at 32%.
+
+  Two of those are now handled where the work happens rather than only where it is audited. Phase 7
+  states that certainty is rated **per outcome** — five domains resolve differently for an outcome
+  pooled from 12 studies than from 3, and one review-level "moderate certainty" sentence answers
+  nobody's question. Phase 8 gains a data-availability step that names the artifacts being shared,
+  and notes that "available from the corresponding author on reasonable request" no longer
+  satisfies item 27.
+
+- **Correlated effect sizes from the same participants are now a named decision in Phase 6.** When
+  one study contributes several outcomes, readers, thresholds, or time points to the same
+  synthesis, those estimates share patients; pooling them as independent counts the same
+  participants twice and narrows every interval in the forest plot. The reference gives the three
+  legitimate routes — one pre-specified estimate per study, a multivariate model
+  (`metafor::rma.mv` over a block-diagonal V), or robust variance estimation — and requires the
+  assumed correlation to be stated and varied, since primary studies almost never report it. DTA
+  was already covered by the bivariate/HSROC requirement; nothing else was.
+
 ### Fixed
+
+- **`/meta-analysis` handed every binary outcome the one specification Cochrane says to avoid for
+  rare events.** `references/phase6_statistical_synthesis.md` prescribed
+  `method = "Inverse"`, `method.tau = "DL"`, `incr = 0.5` unconditionally, and told the reader in
+  as many words to prefer `"Inverse"` over `"MH"` — a choice made to dodge a `method.tau` conflict,
+  not for any property of the data. Inverse-variance weights rest on a large-sample normal
+  approximation that fails with few events, and adding 0.5 to every cell biases the estimate toward
+  the null and distorts its variance. Cochrane Handbook §10.4.4.1, restated for radiology SR/MA in
+  Park 2022 (PMID:35213097): inverse-variance methods **including DerSimonian-Laird** are to be
+  avoided in meta-analyses of rare events.
+
+  The default is now conditional. A pooled event rate below 1%, or any zero-event arm, branches
+  onto Peto, Mantel-Haenszel **without** a zero-cell correction, or a binomial-normal GLMM, each
+  with runnable `metabin` calls and the trade-off that decides between them — Peto's advantage
+  disappears under unbalanced arms or a large effect, which is precisely when it gets reached for.
+  The reference also warns against the way the branch is most easily undone: Peto and MH are
+  fixed-effect estimators, and `meta` builds their random-effects companions by inverse-variance
+  weighting with τ² added, restoring the weighting the branch existed to escape. Modelling
+  heterogeneity in a rare-event pool is what the GLMM is for. Handling of double-zero studies and
+  the alternative specification as a sensitivity analysis are now required in the write-up. The
+  interesting part is that none of this was visible to any gate in the repository: the code was
+  valid R, it converged, and it produced a number.
+
+- **The rationale for the synthesis model was nowhere in the skill, and it is the rationale
+  reviewers reject.** PRISMA item 13d asks *why* a model was chosen and was reported by 35% of the
+  scored papers — but the common failure is a stated reason of the wrong kind. Fixed versus random
+  effects is a judgment about whether the studies estimate one identical true effect; Cochran's Q
+  and I² describe scatter and cannot answer it, Q being underpowered at small k. Phase 6 now names
+  the forbidden phrasings ("a random-effects model was used because I² was 65%") against a worked
+  replacement that locates the reason in the studies — scanner platform, reader experience,
+  positivity threshold — and sets random effects as the radiology default, since a fixed-effect
+  primary there needs an argument rather than a p-value.
 
 - **The submission tag gate printed `PASS ... tag-clean` on a package carrying live `TODO` and
   `FIXME`, and which answer you got depended on whether ripgrep was installed.**
