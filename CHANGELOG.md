@@ -140,6 +140,41 @@
 
 ### Fixed
 
+- **Four items in the vendored PRISMA 2020 checklist did not match the published checklist, and two
+  of them would have changed a score.** The file carried a bare `Source:` URL, no DOI, no licence
+  line and no statement of how faithful it was, and it had never been compared against the official
+  checklist. Run character-for-character against the official PDF, 42 of 42 sub-items present, five
+  cells divergent:
+
+  | Item | This file said | The statement says |
+  |---|---|---|
+  | **4** | "…the review addresses **using the PICO framework or similar**" | "…the review addresses." — PICO is PRISMA **2009** wording |
+  | **13b** | "…such as handling of **multi-arm studies and multiple outcome measures**" | "…such as handling of **missing summary statistics, or data conversions**" |
+  | 16a | reordered, "PRISMA flow diagram" | "…ideally using a flow diagram" |
+  | 19 | "structured tables or **forest** plots" | "structured tables or plots" |
+  | 2 | an editorial gloss appended in-cell | "See the PRISMA 2020 for Abstracts checklist." |
+
+  Items 4 and 13b are not cosmetic. A reviewer scoring against item 4 would mark down a manuscript
+  that states its objectives without a PICO frame, which the guideline does not ask for; item 13b
+  sent an assessor looking for multi-arm handling when the item is about missing summary statistics
+  and data conversions. All five are restored to the official wording, and the 42/42 verbatim
+  comparison now runs clean. The file gains a full citation, DOI, CC BY licence line, and a fidelity
+  statement; editorial comment moved out of the item cells into *Notes for Assessors*, because an
+  assessor must read the guideline's words rather than ours.
+
+- **`PRISMA_DTA.md` carries a warning: one item is known wrong and the rest are unverified.** Its
+  item 2 asks a *diagnostic test accuracy* review to summarise **"interventions"** — the same
+  PRISMA 2009 inheritance, never adapted. The published checklist is in JAMA and was not available
+  to run the comparison, so the remaining items are neither confirmed nor corrected. The file now
+  says so at the top and tells the reader to complete the official checklist for anything they
+  submit, rather than presenting itself as submission-ready.
+
+  This is a first result, not a survey: **one of 48 vendored checklists has been audited.** The
+  audited one was in the better-documented tier — it had a source line and a LICENSES row — and it
+  still carried four divergences. Twelve files carry no provenance at all, thirty-five carry no
+  licence statement, and fifteen declare themselves faithful in-house summaries rather than
+  reproductions, which leaves thirty-three reading as verbatim without saying so.
+
 - **`/meta-analysis` handed every binary outcome the one specification Cochrane says to avoid for
   rare events.** `references/phase6_statistical_synthesis.md` prescribed
   `method = "Inverse"`, `method.tau = "DL"`, `incr = 0.5` unconditionally, and told the reader in
