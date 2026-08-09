@@ -460,7 +460,9 @@ with its precision alongside the certainty rating (high / moderate / low / very 
 
 > **Failure-mode cross-ref** → `references/submission_package_drift.md` — apply the `_build.sh` pattern + `DO_NOT_EDIT_HERE` gate when staging multi-journal submission folders.
 
-1. **Check reporting compliance**: Use `/check-reporting` with PRISMA-DTA or PRISMA 2020
+1. **Check reporting compliance**: Use `/check-reporting` with PRISMA-DTA or PRISMA 2020, then
+   run it a second time over the **abstract** with PRISMA 2020 for Abstracts — 12 items, its own
+   denominator. One run does not cover both.
 2. **Write manuscript**: Use `/write-paper` with meta-analysis type selected
 3. **Figures**: Use `/make-figures` for:
    - PRISMA flow diagram
@@ -492,9 +494,12 @@ with its precision alongside the certainty rating (high / moderate / low / very 
    | **16b** | Studies that look eligible but were excluded, cited individually with the reason | 25% |
    | Abstract **#3, #12** | Eligibility criteria and registration inside the structured abstract | 0/24 each |
 
-   The abstract items are the cheapest of these and the most reliably forgotten: the
-   PRISMA 2020 abstract checklist is its own 12-item instrument, and a manuscript can
-   satisfy all 42 main-text items while failing it.
+   The abstract items are the cheapest of these and the most reliably forgotten. PRISMA 2020
+   devotes a **separate 12-item instrument** to the abstract — item 2 of the main checklist does
+   nothing but defer to it — so a manuscript can satisfy all 42 main-text items and still fail
+   most of the twelve. `/check-reporting` carries it as `PRISMA_2020_Abstracts.md`; run it as its
+   own pass and report its score separately, because folding twelve items into a 42-item total is
+   how they stay invisible.
 
 6. **Data availability statement**: name what is being shared (extraction template,
    locked dataset, analysis code, RoB judgments) and where — repository, DOI, or

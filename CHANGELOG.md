@@ -108,6 +108,27 @@
   and notes that "available from the corresponding author on reasonable request" no longer
   satisfies item 27.
 
+- **PRISMA 2020 for Abstracts is now a vendored checklist — the twelve items nobody was scoring.**
+  `/check-reporting` shipped the 27-item main checklist and, in item 2, a paragraph of PRISMA
+  *2009* wording where the 2020 statement says only "see the PRISMA 2020 for Abstracts checklist."
+  The abstract instrument was absent, so a systematic review could pass a compliance run at a high
+  percentage while its abstract was never assessed at all. In the audit above, **item 3 (eligibility
+  criteria) and item 12 (registration) were reported by 0 of 24 abstracts**, and risk-of-bias
+  methods by 3 of 23 — these items fail together, because the abstract is written last, to a word
+  limit, from whatever template the journal supplied.
+
+  `references/checklists/PRISMA_2020_Abstracts.md` carries all twelve items grouped by abstract
+  section, verbatim under the statement's CC BY licence with attribution, plus assessor notes for
+  the distinctions that decide a score: item 3 asks what *would have been excluded* and is not
+  satisfied by item 7's description of what was included; item 5 wants the named tool, not its
+  result; item 9 is a limitation of the **evidence**, where "we searched only English-language
+  studies" is a limitation of the review process and belongs to main-text item 23c. Item 2 of the
+  main checklist now defers to it as the statement does, the guideline-selection table routes SR/MA
+  and DTA-SR to both instruments, and `/meta-analysis` Phase 8 calls for a second `/check-reporting`
+  pass over the abstract. Scored with its own denominator throughout — folding twelve items into a
+  42-item total is how they stayed invisible. **58 skills / 48 guidelines / 85 integrity
+  detectors.**
+
 - **Correlated effect sizes from the same participants are now a named decision in Phase 6.** When
   one study contributes several outcomes, readers, thresholds, or time points to the same
   synthesis, those estimates share patients; pooling them as independent counts the same
