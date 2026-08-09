@@ -1,7 +1,24 @@
 # PRISMA-DTA Checklist
 
 Preferred Reporting Items for Systematic Reviews and Meta-Analyses of Diagnostic Test Accuracy Studies.
-Reference: McInnes MDF et al. JAMA 2018;319(4):388-396.
+Reference: McInnes MDF, Moher D, Thombs BD, McGrath TA, Bossuyt PM, et al. Preferred Reporting Items
+for a Systematic Review and Meta-analysis of Diagnostic Test Accuracy Studies: the PRISMA-DTA
+statement. *JAMA* 2018;319(4):388-396 (DOI 10.1001/jama.2017.19163).
+
+> ⚠️ **This file has not been verified against the published statement, and at least one item is
+> known to be wrong. Do not use it as the checklist you submit.**
+>
+> Item 2 below asks for a structured abstract summarising, among other things, **"interventions"** —
+> a diagnostic test accuracy review has no interventions. That wording is inherited from the
+> PRISMA 2009 intervention-review checklist and was never adapted; the same defect was found and
+> corrected in `PRISMA_2020.md`, whose 42 sub-items are now verified character-for-character
+> against the official checklist. PRISMA-DTA is published in JAMA and the official checklist was
+> not available to run that comparison, so the remaining items here are **unverified** — they may
+> be faithful, and no one has checked.
+>
+> Complete the official checklist from the statement or EQUATOR for anything you submit. Use this
+> file to organise a first pass only, and read every item you rely on against the source.
+
 
 ## Checklist Items
 

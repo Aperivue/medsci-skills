@@ -738,8 +738,8 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/PRISMA_2020.md",
-      "size": 10054,
-      "sha256": "339237f8d53cbfd8c3d3d3a82243885477e9d475e14d1d763ba8179bb5ee8461"
+      "size": 11111,
+      "sha256": "2929a83ada5e5aca614109beefffff467bc8ebc7560ae44b929372352a9d7afa"
     },
     {
       "path": "skills/check-reporting/references/checklists/PRISMA_2020_Abstracts.md",
@@ -748,8 +748,8 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/PRISMA_DTA.md",
-      "size": 3705,
-      "sha256": "9147e4b491d70a6afaab9ce3f24e044965ff268b97d40f8410fc633e19ca060f"
+      "size": 4896,
+      "sha256": "35dbc17de6a993f972295c552632a3426c12f8e81db6981318d8450ceb69ede0"
     },
     {
       "path": "skills/check-reporting/references/checklists/PRISMA_P.md",
@@ -2713,8 +2713,8 @@
     },
     {
       "path": "skills/meta-analysis/references/checklists/PRISMA_DTA.md",
-      "size": 3705,
-      "sha256": "9147e4b491d70a6afaab9ce3f24e044965ff268b97d40f8410fc633e19ca060f"
+      "size": 4896,
+      "sha256": "35dbc17de6a993f972295c552632a3426c12f8e81db6981318d8450ceb69ede0"
     },
     {
       "path": "skills/meta-analysis/references/checklists/PROBAST.md",

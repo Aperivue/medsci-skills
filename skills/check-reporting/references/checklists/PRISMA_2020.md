@@ -1,8 +1,16 @@
 # PRISMA 2020 Checklist
 
 **Preferred Reporting Items for Systematic Reviews and Meta-Analyses**
-Version: PRISMA 2020
-Source: https://www.prisma-statement.org
+Version: PRISMA 2020 — 27 items / 42 sub-items.
+Source: Page MJ, McKenzie JE, Bossuyt PM, Boutron I, Hoffmann TC, Mulrow CD, et al. The PRISMA 2020
+statement: an updated guideline for reporting systematic reviews. *BMJ* 2021;372:n71
+(DOI 10.1136/bmj.n71). Official checklist: https://www.prisma-statement.org
+Licence: CC BY 4.0. Item text is reproduced verbatim from the official checklist with attribution.
+
+> **Fidelity**: every one of the 42 sub-item cells below has been compared, normalised and
+> character-for-character, against the official PRISMA 2020 checklist PDF. Any editorial comment
+> of ours lives in *Notes for Assessors*, never inside an item cell — an assessor scoring a
+> manuscript must read the guideline's words, not ours.
 
 ## Checklist Items (27 items)
 
@@ -16,14 +24,14 @@ Source: https://www.prisma-statement.org
 
 | # | Item | Description |
 |---|------|-------------|
-| 2 | Abstract | See the PRISMA 2020 for Abstracts checklist — the statement devotes a separate 12-item instrument to the abstract rather than describing it here. Assess it with `PRISMA_2020_Abstracts.md` and report that score with its own denominator; a manuscript can satisfy every main-text item and still fail most of the twelve. |
+| 2 | Abstract | See the PRISMA 2020 for Abstracts checklist. |
 
 ### Introduction
 
 | # | Item | Description |
 |---|------|-------------|
 | 3 | Rationale | Describe the rationale for the review in the context of existing knowledge. |
-| 4 | Objectives | Provide an explicit statement of the objective(s) or question(s) the review addresses using the PICO framework or similar. |
+| 4 | Objectives | Provide an explicit statement of the objective(s) or question(s) the review addresses. |
 
 ### Methods
 
@@ -39,7 +47,7 @@ Source: https://www.prisma-statement.org
 | 11 | Study risk of bias assessment | Specify the methods used to assess risk of bias in the included studies, including details of the tool(s) used, how many reviewers assessed each study and whether they worked independently, and if applicable, details of automation tools used in the process. |
 | 12 | Effect measures | Specify for each outcome the effect measure(s) (e.g., risk ratio, mean difference) used in the synthesis or presentation of results. |
 | 13a | Synthesis methods | Describe the processes used to decide which studies were eligible for each synthesis (e.g., tabulating the study intervention characteristics and comparing against the planned groups for each synthesis). |
-| 13b | Synthesis methods | Describe any methods required to prepare the data for presentation or synthesis, such as handling of multi-arm studies and multiple outcome measures. |
+| 13b | Synthesis methods | Describe any methods required to prepare the data for presentation or synthesis, such as handling of missing summary statistics, or data conversions. |
 | 13c | Synthesis methods | Describe any methods used to tabulate or visually display results of individual studies and syntheses. |
 | 13d | Synthesis methods | Describe any methods used to synthesize results and provide a rationale for the choice(s). If meta-analysis was performed, describe the model(s), method(s) to identify the presence and extent of statistical heterogeneity, and software package(s) used. |
 | 13e | Synthesis methods | Describe any methods used to explore possible causes of heterogeneity among study results (e.g., subgroup analysis, meta-regression). |
@@ -51,11 +59,11 @@ Source: https://www.prisma-statement.org
 
 | # | Item | Description |
 |---|------|-------------|
-| 16a | Study selection | Describe the results of the search and selection process, ideally with a PRISMA flow diagram, from the number of records identified to the number of studies included in the review. |
+| 16a | Study selection | Describe the results of the search and selection process, from the number of records identified in the search to the number of studies included in the review, ideally using a flow diagram. |
 | 16b | Study selection | Cite studies that might appear to meet the inclusion criteria, but which were excluded, and explain why they were excluded. |
 | 17 | Study characteristics | Cite each included study and present its characteristics. |
 | 18 | Risk of bias in studies | Present assessments of risk of bias for each included study. |
-| 19 | Results of individual studies | For all outcomes, present, for each study: (a) summary statistics for each group (where appropriate) and (b) an effect estimate and its precision (e.g., confidence/credible interval), ideally using structured tables or forest plots. |
+| 19 | Results of individual studies | For all outcomes, present, for each study: (a) summary statistics for each group (where appropriate) and (b) an effect estimate and its precision (e.g. confidence/credible interval), ideally using structured tables or plots. |
 | 20a | Results of syntheses | For each synthesis, briefly summarise the characteristics and risk of bias among contributing studies. |
 | 20b | Results of syntheses | Present results of all statistical syntheses conducted. If meta-analysis was done, present for each the summary estimate and its precision (e.g., confidence/credible interval) and measures of statistical heterogeneity. If comparing groups, describe the direction of the effect. |
 | 20c | Results of syntheses | Present results of all investigations of possible causes of heterogeneity among study results. |
@@ -127,7 +135,9 @@ INCLUDED
 ## Notes for Assessors
 
 - PRISMA 2020 expanded from the original 27-item checklist; several items now have sub-items (e.g., 10a/10b, 13a-13f, 16a/16b).
-- Item 2 delegates to a **separate 12-item abstract checklist** (`PRISMA_2020_Abstracts.md`). Run it as its own pass — a high main-text compliance percentage carries no information about it, and its items fail together because the abstract is written last, to a word limit.
+- Item 2 delegates to a **separate 12-item abstract checklist** (`PRISMA_2020_Abstracts.md`). The statement's own item 2 is that one sentence and nothing more. Run the abstract checklist as its own pass and report its score with its own denominator — a manuscript can satisfy every main-text item and still fail most of the twelve, and a high main-text percentage carries no information about it.
+- **Item 4 does not require PICO.** This file previously read "using the PICO framework or similar", which is PRISMA *2009* wording; the 2020 item asks only for an explicit statement of the objective(s) or question(s). Do not score a manuscript down for stating its objectives without a PICO frame.
+- **Item 13b is about missing summary statistics and data conversions**, not about multi-arm studies or multiple outcome measures — this file previously asked for the latter, which is a different requirement and sent assessors looking for the wrong thing.
 - Item 7 (full search strategy): the complete strategy for at least one database must be provided, either in the manuscript or supplementary materials.
 - Item 15 (certainty assessment): GRADE is the most common framework; mark as MISSING if no certainty assessment is reported.
 - Item 24 (registration): PROSPERO is the standard registry for systematic reviews. If not registered, the authors should explicitly state this.
