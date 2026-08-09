@@ -628,13 +628,13 @@
     },
     {
       "path": "skills/check-reporting/SKILL.md",
-      "size": 40028,
-      "sha256": "8b0de01f805febed31de0218f64ebcbde0cc8b5fb89efb7ace3bab79c468b270"
+      "size": 40493,
+      "sha256": "95e2789b7a9040fbe6a4de447ae27055098e364c5fd65b8ca9e66d0eeef8e02e"
     },
     {
       "path": "skills/check-reporting/references/LICENSES.md",
-      "size": 3740,
-      "sha256": "2ae9bdaa7fd326950607f293689663bb4866051ccaa73d3d09a392d4550e6337"
+      "size": 3831,
+      "sha256": "f2d5070aff9a2f3a616b8bd9051ed7df4f758fc70919922adcb6ded2614653ad"
     },
     {
       "path": "skills/check-reporting/references/appraisal_tools/METRICS.md",
@@ -738,8 +738,13 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/PRISMA_2020.md",
-      "size": 9759,
-      "sha256": "4c46054c90dc40cf2b282f141c8d4d164880995346b7925228691f0d93e3538a"
+      "size": 10054,
+      "sha256": "339237f8d53cbfd8c3d3d3a82243885477e9d475e14d1d763ba8179bb5ee8461"
+    },
+    {
+      "path": "skills/check-reporting/references/checklists/PRISMA_2020_Abstracts.md",
+      "size": 5803,
+      "sha256": "77cb1edb0cbddfa956e0b2273ca25eb524a8cc3d1674cb47826158df1d6ccca5"
     },
     {
       "path": "skills/check-reporting/references/checklists/PRISMA_DTA.md",
@@ -2269,7 +2274,7 @@
     {
       "path": "skills/make-figures/references/reporting_guideline_figure_map.md",
       "size": 7149,
-      "sha256": "1d1c3b0f6972de1a1c4b234a72511e3ab91503cbabbe87fc30ee5c63732b809a"
+      "sha256": "29c721cd0241dae6a18252ba80a650c7b44bf018c333dca8c74ac5dbaf35e661"
     },
     {
       "path": "skills/make-figures/references/visual_abstract_templates/jacc_central_illustration.pptx",
@@ -2678,8 +2683,8 @@
     },
     {
       "path": "skills/meta-analysis/SKILL.md",
-      "size": 40889,
-      "sha256": "be26a0fe7dc29e46f53ab9362d4095beb822f7648093e1a1721e0fb48306aa6c"
+      "size": 45157,
+      "sha256": "0cf89b6a7b7e85d0d6fef60c155bfde6798968cb31427830ef64af5a06c0c517"
     },
     {
       "path": "skills/meta-analysis/references/LICENSES.md",
@@ -2768,8 +2773,8 @@
     },
     {
       "path": "skills/meta-analysis/references/phase6_statistical_synthesis.md",
-      "size": 5775,
-      "sha256": "33ddbe80bf95f0a8d843d91049357e9ba08173fbe733892191c3e9a6df9e5b54"
+      "size": 12820,
+      "sha256": "ba08295d2c953080eb5b77e9e82e3ce9afd5b92d8c29ee09d2c977c9e689a4c8"
     },
     {
       "path": "skills/meta-analysis/references/phase9_circulation.md",
@@ -3264,7 +3269,7 @@
     {
       "path": "skills/orchestrate/SKILL.md",
       "size": 41766,
-      "sha256": "c3deb040d4d8e7881b32210513b93e1629e0a25e25ab8fa8e45e21ca531c0f51"
+      "sha256": "9b72dde92177d7b21df7548df650349d8f77c48c9cb5aabdff89f734cdb4ae21"
     },
     {
       "path": "skills/orchestrate/references/dialogue_nodes.md",

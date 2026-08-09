@@ -340,6 +340,21 @@ for the full R code templates, the dual-approach decision table (comparative vs
 single-arm), practical cautions (method.tau, HK CI, zero-cell correction),
 publication-bias test power, sensitivity-analysis menu, and error-handling rules.
 
+**Three checks before the pool is written up** — each is a Methods sentence, not only a
+setting. R and detail in the same reference:
+
+1. **Is the event rare?** A pooled event rate < 1%, or any zero-event arm, moves the
+   analysis off the inverse-variance default onto Peto / Mantel-Haenszel without a
+   zero-cell correction / GLMM. Inverse-variance methods including DerSimonian-Laird are
+   to be *avoided* for rare events, and so are 0.5 continuity corrections with them.
+2. **Why this model?** Fixed vs random is a judgment about whether one common true effect
+   exists — never derived from Cochran's Q or I². "A random-effects model was used
+   because I² was 65%" is a reviewer catch, not a rationale.
+3. **Does one study contribute several correlated effect sizes?** Multiple outcomes,
+   readers, thresholds, or time points from the same participants need one pre-specified
+   estimate per study, a multivariate model, or robust variance estimation — not
+   independent pooling.
+
 ### Phase 6b: Post-Analysis Source Fidelity Audit (MANDATORY)
 
 **Goal**: Catch numerical hallucinations that survived the forward pipeline (CSV → .R → manuscript).
@@ -429,7 +444,15 @@ For DTA meta-analysis, apply GRADE-DTA framework:
 
 For intervention meta-analysis, apply standard GRADE.
 
-Output: Summary of Findings table.
+**Certainty is assessed per outcome, not once for the review.** The five domains resolve
+differently for each outcome — an outcome pooled from 12 studies with narrow CIs and one
+pooled from 3 with a wide CI do not share a rating, and a single review-level "moderate
+certainty" sentence tells a reader nothing about the outcome they came for. Rate every
+outcome carried into the Summary of Findings table, and state the reason for each
+downgrade (which domain, why) rather than the resulting label alone.
+
+Output: Summary of Findings table — one row per outcome, carrying the pooled estimate
+with its precision alongside the certainty rating (high / moderate / low / very low).
 
 ### Phase 8: Reporting & Manuscript
 
@@ -437,7 +460,9 @@ Output: Summary of Findings table.
 
 > **Failure-mode cross-ref** → `references/submission_package_drift.md` — apply the `_build.sh` pattern + `DO_NOT_EDIT_HERE` gate when staging multi-journal submission folders.
 
-1. **Check reporting compliance**: Use `/check-reporting` with PRISMA-DTA or PRISMA 2020
+1. **Check reporting compliance**: Use `/check-reporting` with PRISMA-DTA or PRISMA 2020, then
+   run it a second time over the **abstract** with PRISMA 2020 for Abstracts — 12 items, its own
+   denominator. One run does not cover both.
 2. **Write manuscript**: Use `/write-paper` with meta-analysis type selected
 3. **Figures**: Use `/make-figures` for:
    - PRISMA flow diagram
@@ -449,9 +474,41 @@ Output: Summary of Findings table.
    - Characteristics of included studies
    - 2x2 data per study (DTA)
    - RoB assessment results
-   - Summary of findings / GRADE table
+   - Summary of findings / GRADE table (one row per outcome — Phase 7)
 
-5. **Supplementary & analysis-code pre-submission gate** (run before Phase 9 circulation and before portal upload). Presence of the 8-file package (Empirical Lesson 5) is necessary but not sufficient — each item must also be reviewer-ready:
+5. **The items published radiology SR/MA most often drop.** Park 2022 (Korean J Radiol;
+   PMID:35213097) scored 24 SR/MAs against PRISMA 2020 and found 24 of 42 items reported
+   by fewer than 80%. The checklist itself lives in `/check-reporting`; what follows is
+   where drafts actually fail, so check these by hand before the compliance run rather
+   than after it:
+
+   | PRISMA item | What is missing | Observed |
+   |---|---|---|
+   | **20a** | For **each** synthesis, a brief summary of the contributing studies' characteristics and risk of bias — not one global paragraph covering all pools | 0/24 |
+   | **27** | Data availability: which of the extraction forms, extracted data, analysis dataset, and analytic code are public, and where | 0/24 |
+   | **24a–c** | Registration number, where the protocol can be read, and any amendment — an explicit "not registered" satisfies 24a | 0/24 |
+   | **22 / 15** | Certainty of evidence per outcome, and the method used to assess it | 9% |
+   | **13f / 20d** | Sensitivity analysis: method and result | 28% |
+   | **18** | Risk of bias **per study**, shown study-by-study rather than as a pooled proportion | 32% |
+   | **13d** | Rationale for the synthesis model (see Phase 6 check 2) | 35% |
+   | **16b** | Studies that look eligible but were excluded, cited individually with the reason | 25% |
+   | Abstract **#3, #12** | Eligibility criteria and registration inside the structured abstract | 0/24 each |
+
+   The abstract items are the cheapest of these and the most reliably forgotten. PRISMA 2020
+   devotes a **separate 12-item instrument** to the abstract — item 2 of the main checklist does
+   nothing but defer to it — so a manuscript can satisfy all 42 main-text items and still fail
+   most of the twelve. `/check-reporting` carries it as `PRISMA_2020_Abstracts.md`; run it as its
+   own pass and report its score separately, because folding twelve items into a 42-item total is
+   how they stay invisible.
+
+6. **Data availability statement**: name what is being shared (extraction template,
+   locked dataset, analysis code, RoB judgments) and where — repository, DOI, or
+   supplementary file. "Available from the corresponding author on reasonable request"
+   satisfies few journals now and no longer satisfies item 27. If a Zenodo DOI is minted
+   post-acceptance, `references/post_submission_release_ops.md` covers propagating it
+   back into this statement.
+
+7. **Supplementary & analysis-code pre-submission gate** (run before Phase 9 circulation and before portal upload). Presence of the 8-file package (Empirical Lesson 5) is necessary but not sufficient — each item must also be reviewer-ready:
    - **De-scaffold**: strip internal-QC / tool artifacts before bundling — raw `/check-reporting` output ("Assessed by: <tool>", JSON blocks, "READY FOR SUBMISSION" verdicts, action-item lists), search-development planning docs (decision logs, expected-yield estimates, `[Check on execution]` placeholders, version-history dev notes), and stale version stamps. Ship a clean PRISMA 2020 checklist (27-item / 42-subitem table only) and an executed-method search-strategy doc, not the working drafts.
    - **Blind**: supplementary goes to reviewers — remove author names/initials and sibling-project cross-references ("Designed by: <name>", "identical to a sibling review"). Same standard as the blinded manuscript.
    - **Cross-consistency with the manuscript**: every supplementary number must match the main text — PRISMA counts, pool k/N, the Cochrane/CENTRAL search description, RoB counts. A supplement that says "Cochrane — NOT SEARCHED" while Methods report a confirmatory CENTRAL search is a contradiction reviewers catch.

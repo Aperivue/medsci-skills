@@ -16,7 +16,7 @@ Source: https://www.prisma-statement.org
 
 | # | Item | Description |
 |---|------|-------------|
-| 2 | Abstract | Provide a structured summary including, as applicable: background; objectives; data sources; study eligibility criteria, participants, and interventions; study appraisal and synthesis methods; results; limitations; conclusions and implications of key findings; systematic review registration number. |
+| 2 | Abstract | See the PRISMA 2020 for Abstracts checklist — the statement devotes a separate 12-item instrument to the abstract rather than describing it here. Assess it with `PRISMA_2020_Abstracts.md` and report that score with its own denominator; a manuscript can satisfy every main-text item and still fail most of the twelve. |
 
 ### Introduction
 
@@ -127,6 +127,7 @@ INCLUDED
 ## Notes for Assessors
 
 - PRISMA 2020 expanded from the original 27-item checklist; several items now have sub-items (e.g., 10a/10b, 13a-13f, 16a/16b).
+- Item 2 delegates to a **separate 12-item abstract checklist** (`PRISMA_2020_Abstracts.md`). Run it as its own pass — a high main-text compliance percentage carries no information about it, and its items fail together because the abstract is written last, to a word limit.
 - Item 7 (full search strategy): the complete strategy for at least one database must be provided, either in the manuscript or supplementary materials.
 - Item 15 (certainty assessment): GRADE is the most common framework; mark as MISSING if no certainty assessment is reported.
 - Item 24 (registration): PROSPERO is the standard registry for systematic reviews. If not registered, the authors should explicitly state this.

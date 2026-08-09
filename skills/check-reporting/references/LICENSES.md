@@ -12,6 +12,7 @@ Attribution for bundled reporting guideline checklists.
 | CONSORT_AI.md | CONSORT-AI 2020 | Liu X et al. Nat Med 2020;26(9):1364-1374 | CC BY 4.0 |
 | SPIRIT_AI.md | SPIRIT-AI 2020 | Cruz Rivera S et al. Nat Med 2020;26(9):1351-1363 | CC BY 4.0 |
 | PRISMA_2020.md | PRISMA 2020 | Page MJ et al. BMJ 2021 | CC BY |
+| PRISMA_2020_Abstracts.md | PRISMA 2020 for Abstracts | Page MJ et al. BMJ 2021 | CC BY |
 | ARRIVE_2.md | ARRIVE 2.0 | Percie du Sert N et al. PLoS Biol 2020 | CC0 |
 | PRISMA_DTA.md | PRISMA-DTA 2018 | McInnes MDF et al. JAMA 2018 | CC BY |
 | QUADAS2.md | QUADAS-2 | Whiting PF et al. Ann Intern Med 2011 | CC BY |
