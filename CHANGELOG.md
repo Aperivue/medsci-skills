@@ -140,6 +140,38 @@
 
 ### Fixed
 
+- **QUADAS-2 verified against the published article, and three things it got wrong are corrected.**
+  Read through institutional access (Whiting et al., *Ann Intern Med* 2011;155(8):529-536). The good
+  news first: the four domains, the **3 / 2 / 2 / 3 split of the ten signalling questions**, what each
+  asks, the answer options, the judgement levels, and the restriction of applicability to the first
+  three domains all match. Unlike PROBAST and PRISMA-DTA, nothing here was invented.
+
+  What was wrong:
+
+  - **"No to any signalling question → High risk of bias."** The statement says a No establishes that
+    *potential for bias exists*, and the reviewer then applies the review-specific guidance to reach
+    the judgement. The file had replaced a judgement with an automatic rule, which over-rates bias and
+    removes the step the tool exists to structure.
+  - **The four phases were missing entirely** — state the review question, **tailor the tool to the
+    review**, draw the study's flow diagram, then judge. Tailoring is not optional in QUADAS-2; the
+    tool is meant to be adapted per review with written guidance, piloted by two people. A file that
+    presents ten fixed questions has quietly dropped the phase that makes the rest defensible.
+  - **The prohibition on summary quality scores was absent.** The statement is explicit that QUADAS-2
+    must not be used to produce one.
+
+  Also added: that Yes is phrased to mean low risk of bias, that Unclear is for insufficient
+  reporting rather than difficult judgement, how to report the assessment across studies, and that
+  QUADAS-2 does not cover comparisons of multiple index tests — the development group considered it
+  and found the evidence base insufficient.
+
+  **Licence.** Still *Annals of Internal Medicine*, still no open licence. The signalling questions
+  are now stated as what each asks in our own words, with numbering and structure — which are fact —
+  reproduced exactly. Same treatment as `PROBAST.md`.
+
+  The header's fidelity note is upgraded from "has not been compared against the published tool" to
+  what was actually checked, and a duplicate `Reference:` line left behind by the previous revision is
+  removed.
+
 - **`PRISMA_DTA.md` was not PRISMA-DTA. It was PRISMA 2009, renumbered.** Verified against the
   statement itself (McInnes et al., *JAMA* 2018;319(4):388-396, read through institutional access,
   including its 2020 correction). PRISMA-DTA keeps the count of 27 by **deleting items 15 and 22** and
