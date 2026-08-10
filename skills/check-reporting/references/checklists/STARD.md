@@ -1,133 +1,120 @@
 # STARD 2015 Checklist
 
-**Standards for Reporting of Diagnostic Accuracy Studies**
-Version: STARD 2015
-Source: https://www.stard-statement.org
+**Standards for Reporting Diagnostic Accuracy Studies**
+Version: STARD 2015 — **30 items in 34 rows**; items 10, 12, 13 and 21 each split into **a** and **b**.
+Source: Bossuyt PM, Reitsma JB, Bruns DE, Gatsonis CA, Glasziou PP, Irwig L, et al. STARD 2015: an
+updated list of essential items for reporting diagnostic accuracy studies. *BMJ* 2015;351:h5527
+(DOI 10.1136/bmj.h5527).
+Licence: CC BY 4.0 — confirmed via the PubMed Central record (PMC4623764). Item text below is
+reproduced from the published checklist with attribution.
+Verification: all 34 rows were extracted from the published checklist and compared programmatically;
+the id set matches exactly.
 
-Source: Bossuyt PM, Reitsma JB, Bruns DE, Gatsonis CA, Glasziou PP, Irwig L, et al. STARD 2015: an updated list of essential items for reporting diagnostic accuracy studies. *BMJ* 2015;351:h5527 (DOI 10.1136/bmj.h5527).
-Licence: CC BY 4.0 — confirmed via the PubMed Central record (PMC4623764).
-Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+> **What this file used to be.** It listed 30 rows ending at item 28. It **invented a split at item 8**
+> (8a/8b, where the statement has a single item), **collapsed the a/b pairs at 12, 13 and 21** into
+> single rows, and **omitted items 29 and 30 entirely** — where the full study protocol can be
+> accessed, and sources of funding and the role of funders. A reviewer scoring against it never asked
+> for either.
 
-## Checklist Items (30 items)
 
-### Title and Abstract
+## Title or abstract
 
-| # | Item | Description |
-|---|------|-------------|
-| 1 | Title | Identification as a study of diagnostic accuracy using at least one measure of accuracy (such as sensitivity, specificity, predictive values, or AUC). |
-| 2 | Abstract | Structured abstract with: study design, methods (participants, index test, reference standard), results (number of participants, estimates of diagnostic accuracy with confidence intervals), conclusions. |
+| # | Checklist item |
+|---|----------------|
+| 1 | Identification as a study of diagnostic accuracy using at least one measure of accuracy (such as sensitivity, specificity, predictive values, or AUC) Abstract |
 
-### Introduction
+## Abstract
 
-| # | Item | Description |
-|---|------|-------------|
-| 3 | Scientific background | Scientific and clinical background, including the intended use and clinical role of the index test. |
-| 4 | Objectives | Study objectives and hypotheses. |
+| # | Checklist item |
+|---|----------------|
+| 2 | Structured summary of study design, methods, results, and conclusions (for specific guidance, see STARD for Abstracts) Introduction |
 
-### Methods
+## Introduction
 
-#### Participants
+| # | Checklist item |
+|---|----------------|
+| 3 | Scientific and clinical background, including the intended use and clinical role of the index test |
+| 4 | Study objectives and hypotheses |
 
-| # | Item | Description |
-|---|------|-------------|
-| 5 | Study design | Whether data collection was planned before the index test and reference standard were performed (prospective study) or after (retrospective study). |
-| 6 | Eligibility criteria | Eligibility criteria: inclusion and exclusion criteria, settings and locations where data were collected. |
-| 7 | Sampling | Whether participants formed a consecutive, random, or convenience series. |
+## Methods — Study design
 
-#### Test Methods
+| # | Checklist item |
+|---|----------------|
+| 5 | Whether data collection was planned before the index test and reference standard were performed (prospective study) or after (retrospective study) |
 
-| # | Item | Description |
-|---|------|-------------|
-| 8a | Index test | Index test, in sufficient detail to allow replication. |
-| 8b | Reference standard | Reference standard, in sufficient detail to allow replication. |
-| 9 | Rationale for reference standard | Rationale for choosing the reference standard (if alternatives exist). |
-| 10a | Pre-specification | Definition of and rationale for test positivity cut-offs or result categories of the index test, distinguishing pre-specified from exploratory. |
-| 10b | Pre-specification | Definition of and rationale for test positivity cut-offs or result categories of the reference standard, distinguishing pre-specified from exploratory. |
-| 11 | Blinding | Whether clinical information and reference standard results were available to the performers/readers of the index test and vice versa. |
-| 12 | Additional analyses | Methods for estimating or comparing measures of diagnostic accuracy. Methods for calculating test reproducibility, if done. |
-| 13 | Sample size | How the sample size was determined (power analysis, convenience, or other rationale). |
+## Methods — Participants
 
-### Results
+| # | Checklist item |
+|---|----------------|
+| 6 | Eligibility criteria |
+| 7 | On what basis potentially eligible participants were identified (such as symptoms, results from previous tests, inclusion in registry) |
+| 8 | Where and when potentially eligible participants were identified (setting, location, and dates) |
+| 9 | Whether participants formed a consecutive, random, or convenience series |
 
-#### Participants
+## Methods — Test methods
 
-| # | Item | Description |
-|---|------|-------------|
-| 14 | Dates and setting | When the study was done, including beginning and end dates of recruitment. |
-| 15 | Demographics | Clinical and demographic characteristics of participants (age, sex, disease spectrum, comorbidities, current treatments, recruitment centers). |
-| 16 | Participant numbers | The number of participants satisfying the criteria for inclusion who did or did not undergo the index test and/or the reference standard; describe why participants failed to receive either test (a flow diagram is strongly recommended). |
+| # | Checklist item |
+|---|----------------|
+| 10a | Index test, in sufficient detail to allow replication |
+| 10b | Reference standard, in sufficient detail to allow replication |
+| 11 | Rationale for choosing the reference standard (if alternatives exist) |
+| 12a | Definition of and rationale for test positivity cut-offs or result categories of the index test, distinguishing pre-specified from exploratory |
+| 12b | Definition of and rationale for test positivity cut-offs or result categories of the reference standard, distinguishing pre-specified from exploratory |
+| 13a | Whether clinical information and reference standard results were available to the performers or readers of the index test |
+| 13b | Whether clinical information and index test results were available to the assessors of the reference standard |
 
-#### Test Results
+## Methods — Analysis
 
-| # | Item | Description |
-|---|------|-------------|
-| 17 | Time interval | Time interval and any clinical interventions between index test and reference standard. |
-| 18 | Distribution of severity | Distribution of severity of disease in those with the target condition; distribution of alternative diagnoses in those without the target condition. |
-| 19 | Cross-tabulation | A cross tabulation of the index test results (or their distribution) by the results of the reference standard. |
-| 20 | Indeterminate results | Any adverse events from performing the index test or the reference standard. |
-| 21 | Accuracy estimates | Estimates of diagnostic accuracy and their precision (such as 95% confidence intervals). |
-| 22 | Handling of indeterminate | How indeterminate index test or reference standard results were handled. |
-| 23 | Subgroup analyses | Any analyses of variability in diagnostic accuracy, distinguishing pre-specified from exploratory (subgroup analyses by age, sex, disease severity, etc.). |
+| # | Checklist item |
+|---|----------------|
+| 14 | Methods for estimating or comparing measures of diagnostic accuracy |
+| 15 | How indeterminate index test or reference standard results were handled |
+| 16 | How missing data on the index test and reference standard were handled |
+| 17 | Any analyses of variability in diagnostic accuracy, distinguishing pre-specified from exploratory |
+| 18 | Intended sample size and how it was determined |
 
-### Discussion
+## Results — Participants
 
-| # | Item | Description |
-|---|------|-------------|
-| 24 | Study limitations | Study limitations, including sources of potential bias, statistical uncertainty, and generalisability. |
-| 25 | Clinical applicability | Implications for practice, including the intended use and clinical role of the index test. |
+| # | Checklist item |
+|---|----------------|
+| 19 | Flow of participants, using a diagram |
+| 20 | Baseline demographic and clinical characteristics of participants |
+| 21a | Distribution of severity of disease in those with the target condition |
+| 21b | Distribution of alternative diagnoses in those without the target condition |
+| 22 | Time interval and any clinical interventions between index test and reference standard |
 
-### Other Information
+## Results — Test results
 
-| # | Item | Description |
-|---|------|-------------|
-| 26 | Registration | Registration number and name of registry. |
-| 27 | Protocol | Where the full study protocol can be accessed. |
-| 28 | Funding | Sources of funding and other support; role of funders. |
+| # | Checklist item |
+|---|----------------|
+| 23 | Cross tabulation of the index test results (or their distribution) by the results of the reference standard |
+| 24 | Estimates of diagnostic accuracy and their precision (such as 95% confidence intervals) |
+| 25 | Any adverse events from performing the index test or the reference standard |
 
----
+## Discussion
 
-## STARD Flow Diagram
+| # | Checklist item |
+|---|----------------|
+| 26 | Study limitations, including sources of potential bias, statistical uncertainty, and generalisability |
+| 27 | Implications for practice, including the intended use and clinical role of the index test |
 
-The STARD flow diagram is **strongly recommended** (item 16). It should show:
+## Other information
 
-```
-Eligible patients (N = ?)
-  |
-  v
-Enrolled (N = ?)
-  |
-  +-- Did not receive index test (N = ?, reasons)
-  |
-  v
-Received index test (N = ?)
-  |
-  +-- Did not receive reference standard (N = ?, reasons)
-  |
-  v
-Received both index test AND reference standard (N = ?)
-  |
-  +-- Index test results:
-  |     Positive (N = ?)
-  |     Negative (N = ?)
-  |     Inconclusive (N = ?)
-  |
-  +-- Reference standard results:
-        Target condition present (N = ?)
-        Target condition absent (N = ?)
-```
-
----
-
-## STARD-AI Extension
-
-For studies evaluating AI-based diagnostic tests, use the dedicated **STARD-AI checklist** (`STARD_AI.md`) instead of this file. STARD-AI (Sounderajah et al., Nat Med 2025) provides a comprehensive 40-item checklist that incorporates all STARD 2015 items plus 14 new and 4 modified AI-specific items. Do NOT apply both STARD 2015 and STARD-AI simultaneously.
-
----
+| # | Checklist item |
+|---|----------------|
+| 28 | Registration number and name of registry |
+| 29 | Where the full study protocol can be accessed |
+| 30 | Sources of funding and other support; role of funders |
 
 ## Notes for Assessors
 
-- Item 16 (flow diagram): if not provided as a figure, check whether the same information is conveyed in the text.
-- Item 11 (blinding): in retrospective studies with AI, consider whether the AI had access to clinical information beyond the intended input.
-- Item 19 (cross-tabulation): a 2x2 table is the minimum; report TP, FP, TN, FN counts.
-- Items 26-27 (registration/protocol): many diagnostic accuracy studies are not registered, but this is increasingly expected. Mark as MISSING if absent, with a note that registration is recommended.
-- For AI studies, use the dedicated STARD-AI checklist (`STARD_AI.md`).
+- **Score 34 rows, not 30.** The a/b halves of items 10, 12, 13 and 21 are separate requirements: the
+  index test and the reference standard are described, cut-offs defined, blinding stated, and severity
+  distributions reported **for each side separately**. A file that collapses them lets a study satisfy
+  half an item and be marked complete.
+- **Items 29 and 30 are commonly dropped** — where the protocol can be accessed, and funding with the
+  role of funders.
+- **Item 2** defers to STARD for Abstracts for the abstract's own requirements.
+- For a systematic review of diagnostic accuracy studies use `PRISMA_DTA.md`; for risk of bias in the
+  included studies, `QUADAS2.md`.
+

@@ -783,8 +783,8 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/RECORD.md",
-      "size": 6788,
-      "sha256": "1500b2584f32000be5e9186fe9643f9826fb615a5639c83cba1cad917279aa4e"
+      "size": 6887,
+      "sha256": "fd6d3aa584d475693cc91ce13d5766a7c5ffb70e8bb149a8eeac9f1a85a5849d"
     },
     {
       "path": "skills/check-reporting/references/checklists/REMARK.md",
@@ -843,8 +843,8 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/STARD.md",
-      "size": 6926,
-      "sha256": "c69579312a8d9905dbf04e7fe2bb2ff14b8e06f079550c687e260349dd87275c"
+      "size": 5806,
+      "sha256": "69336af1f8ed0f39708049b80df33abd04674271325cd1382bae78727d282e02"
     },
     {
       "path": "skills/check-reporting/references/checklists/STARD_AI.md",
@@ -853,8 +853,8 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/STROBE.md",
-      "size": 6689,
-      "sha256": "8e29276d9dc8a2b466c3cea26d3d67547f5159a653141b9b8ac57fbcdf295a7d"
+      "size": 6843,
+      "sha256": "00dcee112c0f8b717750cd006eb1394fbff8e3ee73746dc2d267855e6eac26e0"
     },
     {
       "path": "skills/check-reporting/references/checklists/STROBE_MR.md",
