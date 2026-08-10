@@ -208,6 +208,26 @@
   additional obligations — reporting an Elaboration as though CONSORT 2010 or SPIRIT 2013 had been
   silent overstates what the extension added. Elaborations are now marked **(E)**.
 
+### Changed
+
+- **MOOSE verified against the published table — clean, 35/35 — and the backlog shrinks to 31.**
+  Read through institutional access (Stroup et al., *JAMA* 2000;283(15):2008-2012). The item set,
+  the six groups and their counts (Background 6, Search strategy 10, Methods 8, Results 4,
+  Discussion 3, Conclusions 4), and the order all match. Nothing missing, nothing added.
+
+  The file now declares its DOI, its licence position (*JAMA*, no open licence — the descriptions
+  are an in-house summary, not the published wording) and what it was verified against, so it
+  leaves the provenance gate's backlog. **This is the ratchet doing the job it exists for:** the
+  backlog can only shrink, and `--audit-backlog` fails if an entry becomes compliant and is not
+  removed.
+
+  MOOSE also sharpens a claim this audit has been making. It is **paywalled and correct**, so
+  "paywalled" is not a rule — the honest statement is that **every structural defect found so far
+  occurred in a paywalled file, while not every paywalled file is defective**. A risk factor, not a
+  law. The audit has now over-generalised twice (first "extensions are the dangerous class", then
+  "paywalled sources are"), and both times the correction came from widening the sample rather than
+  from reasoning about it.
+
 ### Fixed
 
 - **`PRISMA_ScR.md` had renumbered the instrument, and 10 of its 22 items carried the wrong number.**
