@@ -148,7 +148,7 @@ def check_file(path: Path) -> list[Finding]:
 # ---------------------------------------------------------------------------
 BACKLOG = {
     "AMSTAR2.md", "ARRIVE_2.md", "CARE.md", "CHEERS_2022.md", "CLAIM_2024.md",
-    "CLEAR.md", "CONSORT.md", "COSMIN_RoB.md",     "DECIDE_AI.md", "GATHER.md", "GRRAS.md", "MI_CLEAR_LLM.md", "MOOSE.md",
+    "CLEAR.md", "CONSORT.md", "COSMIN_RoB.md",     "DECIDE_AI.md", "GATHER.md", "GRRAS.md", "MI_CLEAR_LLM.md",
     "NOS.md", "PGS_RS.md", "PRISMA_P.md", "PROBAST_AI.md", "QUADAS_C.md",
     "RECORD.md", "REMARK.md", "ROBINS_E.md", "ROBIS.md", "ROB_ME.md",
     "RoB_NMA.md", "SPIRIT.md", "SQUIRE_2.md",     "STARD.md", "STROBE.md", "SWiM.md", "TARGET.md",

@@ -1,9 +1,16 @@
 # MOOSE Checklist
 
 **Meta-analysis Of Observational Studies in Epidemiology**
-Version: MOOSE 2000
-Source: https://doi.org/10.1001/jama.283.15.2008
-Reference: Stroup DF, Berlin JA, Morton SC, et al. Meta-analysis of observational studies in epidemiology: a proposal for reporting. JAMA. 2000;283(15):2008-2012. doi:10.1001/jama.283.15.2008
+Version: MOOSE 2000 — 35 items in six groups (Background 6, Search strategy 10, Methods 8,
+Results 4, Discussion 3, Conclusions 4).
+Source: Stroup DF, Berlin JA, Morton SC, Olkin I, Williamson GD, Rennie D, et al. Meta-analysis of
+observational studies in epidemiology: a proposal for reporting. *JAMA* 2000;283(15):2008-2012
+(DOI 10.1001/jama.283.15.2008).
+Licence: *JAMA* (© American Medical Association) — **no open licence**. The descriptions below are
+an in-house summary of what each item asks, in our own words, not the published wording.
+Verification: all 35 items were compared against the checklist table published in the statement.
+The item set, the six groups, their counts and their order all match; nothing is missing and
+nothing has been added.
 
 ## Checklist Items (35 items)
 
