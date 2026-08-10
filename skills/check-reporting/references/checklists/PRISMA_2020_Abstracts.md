@@ -5,6 +5,8 @@ Version: PRISMA 2020 for Abstracts — 12 items, grouped by the sections of a st
 Source: Page MJ, McKenzie JE, Bossuyt PM, Boutron I, Hoffmann TC, Mulrow CD, et al. The PRISMA 2020
 statement: an updated guideline for reporting systematic reviews. *BMJ* 2021;372:n71
 (DOI 10.1136/bmj.n71). Published under CC BY 4.0; item text is reproduced with attribution.
+Verification: all 12 items were transcribed from, and checked against, the abstract checklist
+published in that statement.
 
 Apply to the **abstract of a systematic review or meta-analysis**. This is a separate instrument
 from the 27-item main checklist in `PRISMA_2020.md`, not a subset of it: the main checklist devotes
