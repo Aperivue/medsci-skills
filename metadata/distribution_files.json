@@ -683,8 +683,8 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/CONSORT_AI.md",
-      "size": 4376,
-      "sha256": "e923b3d2f550351f952334053978d5f0ca726ddb4798f3c1e4adba36939bd662"
+      "size": 5209,
+      "sha256": "b1c0b76ee5c84ae0fdd515c98e26594b318366f1cb1cd3db4cedb28bc2c44ecd"
     },
     {
       "path": "skills/check-reporting/references/checklists/COREQ.md",
@@ -828,8 +828,8 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/SPIRIT_AI.md",
-      "size": 4163,
-      "sha256": "d4ac52674c7f7d92ae1f042ed85631ab13b03ca57349abd261ff08031b30ae51"
+      "size": 4994,
+      "sha256": "0174d3b05e4ec68eee8e3ec686cd7c6d57bbc9e5120921a7c09687abb9937021"
     },
     {
       "path": "skills/check-reporting/references/checklists/SQUIRE_2.md",

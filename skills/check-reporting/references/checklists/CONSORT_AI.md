@@ -8,6 +8,17 @@ Reference: Liu X, Cruz Rivera S, Moher D, et al. Nat Med 2020;26(9):1364-1374. d
 > Educational summary, authored in our own words from the CC BY 4.0 source. Use the official
 > CONSORT-AI checklist for a submission-ready form and cite Liu et al. 2020.
 
+> **Verified against the published statement.** All 14 AI items were enumerated from the article's
+> own checklist table via the PMC XML and compared label-by-label: **11 Extensions and
+> 3 Elaborations**, matching exactly with no item missing and none invented.
+
+> **Extension vs Elaboration — the statement distinguishes them, and it matters.** An **Extension**
+> is a *new* reporting requirement that CONSORT 2010 does not contain. An **Elaboration** clarifies how an
+> existing CONSORT 2010 item applies when the intervention involves AI; the requirement already existed,
+> the guidance is what is new. Both are assessed, but only the Extensions are additional obligations —
+> do not report an Elaboration as though the base instrument had been silent on it. Elaborations are
+> marked **(E)** below.
+
 ## Naming and scope (read first)
 
 - CONSORT-AI is an **extension** of **CONSORT 2010**, for reports of randomized clinical trials of
@@ -26,8 +37,8 @@ Status each PRESENT / PARTIAL / MISSING / N/A.
 
 | # | Item | Description (intent) |
 |---|------|----------------------|
-| 1a,b (i) | AI identification | State in the title/abstract that the intervention involves AI/ML and specify the type of model. |
-| 1a,b (ii) | Intended use | State the intended use of the AI intervention in the title/abstract. |
+| 1a,b (i) **(E)** | AI identification | State in the title/abstract that the intervention involves AI/ML and specify the type of model. |
+| 1a,b (ii) **(E)** | Intended use | State the intended use of the AI intervention in the title/abstract. |
 
 ### Introduction — Background and objectives
 
@@ -39,7 +50,7 @@ Status each PRESENT / PARTIAL / MISSING / N/A.
 
 | # | Item | Description (intent) |
 |---|------|----------------------|
-| 4a (i) | Participant eligibility | State the participant-level inclusion and exclusion criteria. |
+| 4a (i) **(E)** | Participant eligibility | State the participant-level inclusion and exclusion criteria. |
 | 4a (ii) | Input-data eligibility | State the inclusion and exclusion criteria at the level of the **input data** to the AI system. |
 | 4b | Setting integration | Describe how the AI intervention was integrated into the trial setting, including any onsite or offsite requirements. |
 | 5 (i) | Algorithm version | State which version of the AI algorithm was used. |
