@@ -42,7 +42,7 @@ TorchIO — those produce the model, this validates and publishes it.
 - General study/validity review → `/design-study`.
 - Statistical execution (DeLong, ICC, bootstrap CIs, calibration tables) → `/analyze-stats`.
 - Item-by-item reporting-guideline audit of a finished manuscript → `/check-reporting`.
-- Reviewing a finished manuscript → `/self-review` or `/peer-review` (which load the MD0–MD8
+- Reviewing a finished manuscript → `/self-review` or `/peer-review` (which load the MD0–MD11
   reviewer-side probe).
 
 ## Workflow
@@ -132,7 +132,7 @@ decision-support AI) or **CONSORT-AI / SPIRIT-AI** (full AI trials / protocols).
 ### Phase 8 — Handoffs
 Carry the audited design into `/write-paper` (Methods), `/calc-sample-size` (sizing), `/check-reporting`
 (compliance), and — for the reviewer-side audit of the finished draft — `/self-review`, which loads the
-`model_development.md` (MD0–MD8) probe.
+`model_development.md` (MD0–MD11) probe.
 
 ## Deterministic gate
 
@@ -165,7 +165,7 @@ design-study (general validity)
        ├─ calc-sample-size        (test-set / event sizing)
        ├─ design-ai-benchmarking  (reader-comparison rubric / IRR)
        ├─ check-reporting         (CLAIM 2024 / TRIPOD+AI / STARD-AI)
-       └─ write-paper -> self-review / peer-review (MD0–MD8 reviewer probe)
+       └─ write-paper -> self-review / peer-review (MD0–MD11 reviewer probe)
 ```
 
 It does not build the model (integrate MONAI / nnU-Net), compute publication statistics (`/analyze-stats`

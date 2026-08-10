@@ -3213,13 +3213,13 @@
     },
     {
       "path": "skills/model-validation/SKILL.md",
-      "size": 11524,
-      "sha256": "ac326c03451282a5adeeb3592f511dac47720bba9338dba761bf6ea4679d7c0b"
+      "size": 11527,
+      "sha256": "be75cfcf232c991b0c177d659ce4cd0106dc67a2c9ccb3c176639fe354236ef3"
     },
     {
       "path": "skills/model-validation/references/validation_design.md",
-      "size": 13780,
-      "sha256": "c7ad02c2679b241d94af70c05f22740a6ad75c61c0c70d71ba2e48c4f3d64bf5"
+      "size": 13781,
+      "sha256": "7d7a91cd486f38cf376b50c20db5a8c724dc0c64276e9d8031b483f7f3548d2a"
     },
     {
       "path": "skills/model-validation/scripts/check_split_leakage.py",
@@ -3293,8 +3293,8 @@
     },
     {
       "path": "skills/peer-review/SKILL.md",
-      "size": 81708,
-      "sha256": "68d3fd70d945dc6f0c8b5dd9a7f15e276d35d55b315f0029a79c34b0ce8f65ee"
+      "size": 82124,
+      "sha256": "0b59b08046b4977a7e7b7ca62c0e6dca01822fd83bbf385fb23051ccf1525a7e"
     },
     {
       "path": "skills/peer-review/references/aczel_2021_reviewer2_patterns.md",
@@ -3318,8 +3318,8 @@
     },
     {
       "path": "skills/peer-review/references/domain-probes/diagnostic_accuracy.md",
-      "size": 12675,
-      "sha256": "06f8a8e6fcfaf00f25d04e98b58ddf3344ddc1d772057c401a83ef71d012be90"
+      "size": 14885,
+      "sha256": "2d4351fba4362a58f7ba4956ce1e9aa530a3604f8afe35a41f541beb394f0129"
     },
     {
       "path": "skills/peer-review/references/domain-probes/equity_fairness.md",
@@ -3348,8 +3348,8 @@
     },
     {
       "path": "skills/peer-review/references/domain-probes/model_development.md",
-      "size": 10438,
-      "sha256": "263db14ecedfc51caffb8b4966bade4566706b3ae4ce67d0b15840bdbbcdba07"
+      "size": 15847,
+      "sha256": "ea729356c212976adb5c3e86920e27abe9cd653f39f4e5d388a2e8157157ad82"
     },
     {
       "path": "skills/peer-review/references/domain-probes/narrative_review.md",
@@ -4243,8 +4243,8 @@
     },
     {
       "path": "skills/self-review/SKILL.md",
-      "size": 62504,
-      "sha256": "1381805c3b91171c9bac2bcac9c5b8b061164ccdfeb86044517dbe82881c21f3"
+      "size": 62648,
+      "sha256": "00453644f66011fd1994ac456d25e81ca6f52dd615668d34c6f92b5d004583cb"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
@@ -4263,8 +4263,8 @@
     },
     {
       "path": "skills/self-review/references/domain-probes/diagnostic_accuracy.md",
-      "size": 12675,
-      "sha256": "06f8a8e6fcfaf00f25d04e98b58ddf3344ddc1d772057c401a83ef71d012be90"
+      "size": 14885,
+      "sha256": "2d4351fba4362a58f7ba4956ce1e9aa530a3604f8afe35a41f541beb394f0129"
     },
     {
       "path": "skills/self-review/references/domain-probes/equity_fairness.md",
@@ -4293,8 +4293,8 @@
     },
     {
       "path": "skills/self-review/references/domain-probes/model_development.md",
-      "size": 10438,
-      "sha256": "263db14ecedfc51caffb8b4966bade4566706b3ae4ce67d0b15840bdbbcdba07"
+      "size": 15847,
+      "sha256": "ea729356c212976adb5c3e86920e27abe9cd653f39f4e5d388a2e8157157ad82"
     },
     {
       "path": "skills/self-review/references/domain-probes/narrative_review.md",
