@@ -140,6 +140,47 @@
 
 ### Fixed
 
+- **Five checklist licence claims were wrong, and one of them conflicts with this repository's own
+  licence.** `LICENSES.md` presented itself as the attribution record for the bundled checklists and
+  asserted **CC BY** for ROBINS-I, RoB 2, QUADAS-2, PROBAST and PRISMA-DTA. Every entry was resolved
+  against the article DOI through the Crossref `license` field and, where Crossref carried only a
+  text-and-data-mining policy, the PubMed Central `<license>` element:
+
+  | Instrument | Claimed | Actually |
+  |---|---|---|
+  | **ROBINS-I** (BMJ 2016) | CC BY | **CC BY-NC 3.0** — non-commercial |
+  | RoB 2 (BMJ 2019) | CC BY | no CC licence found (BMJ TDM policy only) |
+  | QUADAS-2 (Ann Intern Med 2011) | CC BY | © ACP, no open licence |
+  | PROBAST (Ann Intern Med 2019) | CC BY | © ACP, no open licence |
+  | PRISMA-DTA (JAMA 2018) | CC BY | © AMA, no licence field |
+
+  The ROBINS-I row is the one that bites: **NC is incompatible with redistributing a verbatim
+  reproduction under this repository's MIT licence**, and the toolkit ships through npm, GitHub and a
+  classroom ZIP without restriction. The claim had been inherited rather than checked.
+
+  Eight rows were confirmed correct on the same evidence — STROBE, STARD, TRIPOD+AI, PRISMA 2020 and
+  its abstract checklist, CONSORT 2025, SPIRIT 2025 (all CC BY 4.0) and ARRIVE 2.0 (CC0 1.0) — so the
+  table is now split by verified status rather than presented as uniform, and it states the method
+  so the next person can re-run it. Files whose licence has not been resolved are named as
+  unresolved: an absent licence statement is not evidence of permissive licensing.
+
+- **`RoB2.md`, `ROBINS_I.md` and `QUADAS2.md` now say what they are.** All three carried a bare
+  `Reference:` line — no version, no licence, no statement of fidelity — while reading as though they
+  reproduced the instruments. Each now carries the full citation with DOI, the verified licence
+  status, and an explicit statement that it is an in-house summary of the tool's **structure**
+  (domains, answer options, judgement levels) which has not been compared against the official
+  document, with a direction to complete the official form for anything reported.
+
+  Their content is deliberately left alone. Rewriting signalling questions without the official
+  source in hand is precisely how the wrong text arrived in these files, and the sources are
+  subscription-access. What could be checked was checked: ROBINS-I's seven domains, their order and
+  the Low / Moderate / Serious / Critical scale match the article.
+
+  `ROBINS_I.md` also records that **ROBINS-I V2 exists and is still in draft** (revised November
+  2025), adding algorithms from signalling questions to domain judgements and covering immortal-time
+  bias, which the 2016 version omits. A reader appraising against the 2016 tool should know a
+  successor is in progress.
+
 - **`PROBAST.md` presented four invented bullets as the AI extension, and dropped three assessment
   criteria from the official signalling questions.** Audited against the published statement
   (Wolff et al., *Ann Intern Med* 2019;170:51-58). The domain structure and the count are right —

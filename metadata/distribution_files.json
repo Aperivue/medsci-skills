@@ -633,8 +633,8 @@
     },
     {
       "path": "skills/check-reporting/references/LICENSES.md",
-      "size": 3831,
-      "sha256": "f2d5070aff9a2f3a616b8bd9051ed7df4f758fc70919922adcb6ded2614653ad"
+      "size": 5410,
+      "sha256": "2c5b159691e4c2c4c329e21e9d30b14082b66713dd09974e590b06d9ea6a93cf"
     },
     {
       "path": "skills/check-reporting/references/appraisal_tools/METRICS.md",
@@ -773,8 +773,8 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/QUADAS2.md",
-      "size": 2881,
-      "sha256": "816b520d2a647b646c1c3b745b21629799a20ff3ddcfa4fafc05d8ea9efc3dc2"
+      "size": 3718,
+      "sha256": "fe644deaa01b54dd92dcde7bbbf3dfece2473b3f80e0d6840e8a443e6330f2f4"
     },
     {
       "path": "skills/check-reporting/references/checklists/QUADAS_C.md",
@@ -798,8 +798,8 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/ROBINS_I.md",
-      "size": 3349,
-      "sha256": "982419521d31bf713a59b3acd16392402f5efa06fa00d2744de0ba7df8d2a922"
+      "size": 4652,
+      "sha256": "ae51ab50d38d2ac2d69d80cdf7cbac756368bba02e00ee6f93334fc03aec24de"
     },
     {
       "path": "skills/check-reporting/references/checklists/ROBIS.md",
@@ -813,8 +813,8 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/RoB2.md",
-      "size": 3871,
-      "sha256": "76e9909a9673a69c70f60198123daf331e9ebbf00cb29f1e5598e14fe6db298a"
+      "size": 4825,
+      "sha256": "0e4a37428f7485ba4ce6a54f509e3b8733ad73b42f5a140533f5320261b3a2f5"
     },
     {
       "path": "skills/check-reporting/references/checklists/RoB_NMA.md",
@@ -2723,18 +2723,18 @@
     },
     {
       "path": "skills/meta-analysis/references/checklists/QUADAS2.md",
-      "size": 2881,
-      "sha256": "816b520d2a647b646c1c3b745b21629799a20ff3ddcfa4fafc05d8ea9efc3dc2"
+      "size": 3718,
+      "sha256": "fe644deaa01b54dd92dcde7bbbf3dfece2473b3f80e0d6840e8a443e6330f2f4"
     },
     {
       "path": "skills/meta-analysis/references/checklists/ROBINS_I.md",
-      "size": 3349,
-      "sha256": "982419521d31bf713a59b3acd16392402f5efa06fa00d2744de0ba7df8d2a922"
+      "size": 4652,
+      "sha256": "ae51ab50d38d2ac2d69d80cdf7cbac756368bba02e00ee6f93334fc03aec24de"
     },
     {
       "path": "skills/meta-analysis/references/checklists/RoB2.md",
-      "size": 3871,
-      "sha256": "76e9909a9673a69c70f60198123daf331e9ebbf00cb29f1e5598e14fe6db298a"
+      "size": 4825,
+      "sha256": "0e4a37428f7485ba4ce6a54f509e3b8733ad73b42f5a140533f5320261b3a2f5"
     },
     {
       "path": "skills/meta-analysis/references/data_integrity_checklist.md",
