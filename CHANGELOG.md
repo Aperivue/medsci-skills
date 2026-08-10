@@ -138,6 +138,48 @@
   assumed correlation to be stated and varied, since primary studies almost never report it. DTA
   was already covered by the bivariate/HSROC requirement; nothing else was.
 
+### Added
+
+- **A gate that makes every vendored checklist say what it is and what was checked.**
+  `scripts/check_checklist_provenance.py`, wired to CI with a challenge card. It requires four
+  declarations per file — **version, source with DOI, licence, and verification status** — and it
+  fails a file that claims **"Verified"** without naming what it was compared against. That exact
+  shape appeared twice in this audit (`STROBE_MR.md`, `PRISMA_ScR.md`); between them those two files
+  were wrong in ten ways under their stamps. **A file that honestly says "not compared" passes** —
+  the gate is about honesty, not about having done the work.
+
+  On first run it found **two more bare claims nobody had spotted by hand**: `QUADAS_C.md` and
+  `REMARK.md`.
+
+  **What it deliberately does not do.** It never reads the instrument. It cannot: the sources are
+  copyrighted and cannot ship here, so CI can never re-derive content. Automating even the *DOIs*
+  was tried and abandoned — a Crossref bibliographic query returned a **Who's Who biography** for
+  NOS, a **Letter to the Editor** for ROBIS, and a **code listing** for QUADAS-C, all above the
+  similarity threshold that looked reasonable. Writing those in would have mass-produced the exact
+  defect this audit exists to remove. The gate's scope is the honest one: declarations, not content.
+
+  **Backlog ratchet.** 32 files predate the gate and several need a DOI read off the actual article.
+  They are named in a `BACKLOG` set: a file *not* on the list must satisfy every declaration, so new
+  files comply from the start; a listed file is reported but does not block. `--audit-backlog` fails
+  if an entry has quietly become compliant and was not removed, so the list can only shrink and
+  cannot decay into a rubber stamp. It earned its keep immediately — it caught six entries that were
+  already compliant when the list was first written.
+
+  The challenge card builds its fixtures at runtime (this repository ships no deliberately
+  undeclared checklist) and asserts **exit codes**, including that an empty input directory exits 2
+  rather than reporting success. Two of its eight cases are the real defect shapes; against a gate
+  without the check they fail.
+
+  **The first draft of this gate rejected four files whose wording was correct** — it demanded the
+  word "verified" and broke on markdown emphasis inside `has **not** been compared`. That is this
+  repository's dominant historical defect, a checker that accepts only its own preferred notation,
+  reproduced by the person auditing it. It now matches against a de-emphasised copy and accepts the
+  notation the files actually use. A later draft also fired on an item description reading "when
+  groups are **compared**"; a verification *claim* is now the word itself, and ordinary prose is not
+  a claim.
+
+  **241 gates** (was 238).
+
 ### Changed
 
 - **CONSORT-AI and SPIRIT-AI verified clean — and they correct the pattern this audit had been

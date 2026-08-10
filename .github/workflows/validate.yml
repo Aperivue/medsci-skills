@@ -421,6 +421,15 @@ jobs:
       - name: Run clean-data reverse-coding test
         run: bash skills/clean-data/tests/test_reverse_coding.sh
 
+      - name: Run check_checklist_provenance.py (a checklist must say what it is and what was checked)
+        run: python3 scripts/check_checklist_provenance.py --strict
+
+      - name: Checklist-provenance backlog ratchet (the list may only shrink)
+        run: python3 scripts/check_checklist_provenance.py --audit-backlog
+
+      - name: Run checklist-provenance challenge (a bare "Verified" claim must fail)
+        run: bash scripts/checklist_provenance_challenge/verify.sh
+
       - name: Run lit-sync poll-logic test
         run: bash skills/lit-sync/tests/test_poll_logic.sh
 
