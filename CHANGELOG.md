@@ -140,6 +140,51 @@
 
 ### Fixed
 
+- **`PROBAST.md` presented four invented bullets as the AI extension, and dropped three assessment
+  criteria from the official signalling questions.** Audited against the published statement
+  (Wolff et al., *Ann Intern Med* 2019;170:51-58). The domain structure and the count are right —
+  20 signalling questions, 2 / 3 / 6 / 9 across the four domains — but:
+
+  - A section headed **"PROBAST+AI Extensions (2024)"** listed four bullets ("Data: training/
+    validation/test split…", "Model: architecture transparency…") that appear nowhere in any
+    version of the tool. PROBAST+AI is a real instrument with 16 development and 18 evaluation
+    signalling questions, it is dated **2025** not 2024, and this repository already vendors it
+    correctly as `PROBAST_AI.md`. An assessor following that section was appraising against
+    something a maintainer made up.
+  - **4.8 dropped "underfitting"** — the official question asks about overfitting, underfitting
+    *and* optimism.
+  - **4.6 dropped its examples** — censoring, competing risks, and sampling of control participants
+    are what make that question assessable.
+  - 3.6 dropped "determination" (the interval runs to when the outcome was *determined*), and 4.9
+    dropped "results from the".
+
+  All restored, and the AI section replaced by a pointer to `PROBAST_AI.md` with the correct
+  citation. The file also now records that **PROBAST 2019 is superseded by PROBAST+AI 2025** for new
+  assessments, which the tool's own authors state and this file did not.
+
+  **Licence.** PROBAST is published in *Annals of Internal Medicine* (© American College of
+  Physicians) under **no open licence**, and this file had been reproducing its signalling questions
+  near-verbatim with no licence statement. The questions are now an **in-house summary of what each
+  asks**, labelled as such, with the numbering and structure (which are facts, not expression)
+  verified against the statement, and a direction to complete the official tool for anything
+  reported. This is the first file where the audit's two risks pointed in opposite directions:
+  diverging from the original makes the instrument wrong, and matching it too closely makes it a
+  reproduction we have no licence for.
+
+- **`TRIPOD_AI.md` verified clean — 52/52 against the official supplements.** Compared
+  character-for-character against ST1 (expanded checklist) and ST2 (fillable checklist); every
+  sub-item matches and the D/E designations match the statement exactly. Five orthographic
+  differences were normalised to the published wording (an added "the" in items 2 and 5a, hyphenation
+  in 12c and 22, and British spellings of "generalizability" in 26 and 27c). Two official footnotes
+  that qualify how items are scored were not being carried and now are: item 12c is assessed
+  **separately for each model-building approach**, and 18f (analysis code) is a different question
+  from 22 (code to implement the model for a new individual). The header records what it was verified
+  against, so the next person does not have to redo it to find out.
+
+  This file was already the best of the ones audited so far — it carried a citation, a DOI, a
+  licence line, a correct 27-item/52-sub-item count, and an explicit "NOT official items" fence
+  around the toolkit's own supplemental checks. That is the shape the rest should be brought to.
+
 - **Four items in the vendored PRISMA 2020 checklist did not match the published checklist, and two
   of them would have changed a score.** The file carried a bare `Source:` URL, no DOI, no licence
   line and no statement of how faithful it was, and it had never been compared against the official
