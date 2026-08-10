@@ -61,6 +61,7 @@ FAMILY_BY_ID: dict[str, str] = {
     # Citation & reference integrity
     "verify_refs": "citation_reference",
     "check_citation_keys": "citation_reference",
+    "check_citekey_provenance": "citation_reference",
     "check_xref": "citation_reference",
     "check_csl_render": "citation_reference",
     "check_bib_title_markup": "citation_reference",

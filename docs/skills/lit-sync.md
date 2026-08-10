@@ -35,7 +35,12 @@
 
 **References** (`skills/lit-sync/references/`):
 
+- `bbt_lookup.md`
 - `locale/` (1 file)
+
+**Scripts** (`skills/lit-sync/scripts/`):
+
+- `check_citekey_provenance.py`
 
 ## Source
 
