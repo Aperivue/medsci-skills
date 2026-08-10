@@ -180,6 +180,19 @@
 
   **241 gates** (was 238).
 
+### Changed
+
+- **Six checklists gain a partial verification record — item count checked, item text not — and say
+  so in those words.** SWiM (9), CHEERS 2022 (28), CLEAR (58), GATHER (18), REMARK (20) and
+  CONSORT 2025 (30) each match the count their own statement gives, confirmed against the PubMed
+  Central record.
+
+  **They are not marked verified**, and the header says why: *a matching count is not evidence that
+  the items would match*. STARD carried the right count of 30 while omitting two items, collapsing
+  three sub-item pairs and inventing a fourth (#483). Recording a count check as verification would
+  be the same false stamp this audit spent its whole length removing — the difference is that this
+  time the temptation was mine.
+
 ### Fixed
 
 - **STARD 2015 was missing two items and had invented a sub-item split.** Extracted from the

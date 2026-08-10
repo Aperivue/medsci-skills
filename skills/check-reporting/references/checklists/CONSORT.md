@@ -9,7 +9,11 @@ Reference: Hopewell S, Chan AW, Collins GS, et al. CONSORT 2025 statement: updat
 
 Source: Hopewell S, Chan AW, Collins GS, Hróbjartsson A, Moher D, Schulz KF, et al. CONSORT 2025 statement: updated guideline for reporting randomised trials. *BMJ* 2025;389:e081123 (DOI 10.1136/bmj-2024-081123).
 Licence: CC BY 4.0 — confirmed via Crossref.
-Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+Verification: **PARTIAL — item count only.** The number of items here matches the published
+statement (the statement says CONSORT 2025 “consists of a 30-item checklist”), checked against its PubMed Central record. The **item text has not been
+compared**, and a matching count is not evidence that it would match: STARD carried the right
+count of 30 while omitting two items, collapsing three sub-item pairs and inventing a fourth.
+Complete the official checklist for anything you report.
 
 ## Checklist Items (30 items)
 

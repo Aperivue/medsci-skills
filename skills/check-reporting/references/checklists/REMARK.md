@@ -6,7 +6,11 @@ Source: In-house faithful summary of the 20 REMARK item intents (own-words parap
 
 Source: McShane LM, Altman DG, Sauerbrei W, Taube SE, Gion M, Clark GM. Reporting recommendations for tumour marker prognostic studies (REMARK). *Br J Cancer* 2005;93(4):387-391. Explanation and elaboration: Altman DG, McShane LM, Sauerbrei W, Taube SE. *PLoS Med* 2012;9(5):e1001216 (DOI 10.1371/journal.pmed.1001216).
 Licence: The *PLoS Medicine* explanation-and-elaboration paper is CC BY 4.0 (confirmed via Crossref); the original *Br J Cancer* statement is not openly licensed.
-Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+Verification: **PARTIAL — item count only.** The number of items here matches the published
+statement (the statement discusses “the 20 items in the REMARK checklist”), checked against its PubMed Central record. The **item text has not been
+compared**, and a matching count is not evidence that it would match: STARD carried the right
+count of 30 while omitting two items, collapsing three sub-item pairs and inventing a fourth.
+Complete the official checklist for anything you report.
 
 ## Checklist Items (20 items)
 
