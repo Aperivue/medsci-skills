@@ -4,6 +4,10 @@
 Version: STARD 2015
 Source: https://www.stard-statement.org
 
+Source: Bossuyt PM, Reitsma JB, Bruns DE, Gatsonis CA, Glasziou PP, Irwig L, et al. STARD 2015: an updated list of essential items for reporting diagnostic accuracy studies. *BMJ* 2015;351:h5527 (DOI 10.1136/bmj.h5527).
+Licence: CC BY 4.0 — confirmed via the PubMed Central record (PMC4623764).
+Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+
 ## Checklist Items (30 items)
 
 ### Title and Abstract

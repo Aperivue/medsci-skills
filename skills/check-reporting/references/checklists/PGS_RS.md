@@ -6,6 +6,9 @@ Source: Wand H, Lambert SA, Tamburro C, et al. *Improving reporting standards fo
 
 Apply when the manuscript develops, validates, or applies a **polygenic risk score / polygenic score (PRS / PGS)** as a predictor or risk-stratifier. For the design-validity review of the same study, pair with the PG1–PG8 domain probes in `peer-review` / `self-review` `references/domain-probes/polygenic_risk_score.md`; for the analysis, with `analyze-stats` `analysis_guides/polygenic_risk_score.md`. PGS-RS is a domain extension of the TRIPOD prediction-model reporting principles — for the general prediction-model items also consult `TRIPOD.md` / `TRIPOD_AI.md`.
 
+Source: Wand H, Lambert SA, Tamburro C, Iacocca MA, O'Sullivan JW, Sillari C, et al. Improving reporting standards for polygenic scores in risk prediction studies. *Nature* 2021;591(7849):211-219 (DOI 10.1038/s41586-021-03243-6).
+Licence: Crossref returns only a Springer Nature text-and-data-mining licence; no Creative Commons licence.
+
 ## Checklist Items (22 items)
 
 ### Background

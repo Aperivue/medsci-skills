@@ -4,6 +4,10 @@ Risk Of Bias In Non-randomized Studies — of Exposures.
 Reference: Higgins JPT et al. Environment International 2024;186:108602. doi: 10.1016/j.envint.2024.108602.
 Website: https://www.riskofbias.info/welcome/robins-e-tool
 
+Version: ROBINS-E (2024)
+Licence: CC BY-NC 4.0 (non-commercial) — confirmed via Crossref. Not redistributable verbatim under this repository's MIT licence.
+Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+
 ## Purpose
 
 ROBINS-E assesses the risk of **material bias** in individual observational studies examining the effect of an **exposure** on an outcome. Designed for follow-up (cohort) studies. Material bias = bias sufficient to affect the direction of the estimated effect or impact the ability to draw conclusions.

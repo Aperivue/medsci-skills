@@ -4,6 +4,11 @@ COnsensus-based Standards for the selection of health Measurement INstruments â€
 Reference: Mokkink LB et al. BMC Medical Research Methodology 2020;20:293.
 Website: https://www.cosmin.nl
 
+Version: COSMIN Risk of Bias tool (2018 guideline)
+Source: Prinsen CAC, Mokkink LB, Bouter LM, Alonso J, Patrick DL, de Vet HCW, et al. COSMIN guideline for systematic reviews of patient-reported outcome measures. *Qual Life Res* 2018;27(5):1147-1157 (DOI 10.1007/s11136-018-1798-3).
+Licence: CC BY 4.0 â€” confirmed via Crossref.
+Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+
 ## Purpose
 
 The COSMIN Risk of Bias tool assesses the methodological quality of studies on **reliability** and **measurement error** of outcome measurement instruments (e.g., questionnaires, imaging measurements, lab tests).

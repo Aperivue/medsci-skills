@@ -4,6 +4,9 @@
 Version: AMSTAR 2 (2017)
 Source: Shea BJ et al. BMJ 2017;358:j4008. doi: 10.1136/bmj.j4008
 
+Licence: *BMJ* — Crossref returns no Creative Commons licence for this article.
+Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+
 ## Checklist Items (16 items)
 
 ### Items

@@ -5,6 +5,10 @@ Version: CARE 2013
 Source: https://www.care-statement.org
 Reference: Gagnier JJ, Kienle G, Altman DG, Moher D, Sox H, Riley D. The CARE guidelines: consensus-based clinical case report guideline development. J Clin Epidemiol 2014;67(1):46-51.
 
+Source: Gagnier JJ, Kienle G, Altman DG, Moher D, Sox H, Riley D, et al. The CARE guidelines: consensus-based clinical case report guideline development. *J Clin Epidemiol* 2014;67(1):46-51 (DOI 10.1016/j.jclinepi.2013.08.003).
+Licence: Crossref returns only an Elsevier text-and-data-mining licence. A CC BY-NC 4.0 claim circulates for the CARE materials; it is **not confirmed** here. Treat as non-open.
+Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+
 ## Checklist Items (13 topics)
 
 ### Title and Key Words

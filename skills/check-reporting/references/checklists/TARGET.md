@@ -4,6 +4,9 @@
 Version: TARGET 2025 (21 items across 6 sections; items 6 and 7 pair the target-trial *specification* with its *emulation* in the data)
 Source: In-house faithful summary of the TARGET item intents (own-words paraphrase, not verbatim). Cashin AG, Hansford HJ, Hernán MA, et al. Transparent Reporting of Observational Studies Emulating a Target Trial: The TARGET Statement. JAMA 2025;334(12):1084-1093. DOI 10.1001/jama.2025.13350. Official checklist: https://target-guideline.org. Complete the official TARGET instrument for a submission checklist. Pairs with the `/design-study` target-trial-emulation design module.
 
+Licence: *JAMA* (© American Medical Association) — no open licence.
+Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+
 ## Checklist Items (21 items)
 
 ### Title and Abstract

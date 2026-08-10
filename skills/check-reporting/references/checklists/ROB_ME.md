@@ -4,6 +4,11 @@ Risk Of Bias due to Missing Evidence in a meta-analysis.
 Reference: Page MJ et al. BMJ 2023;383:e076"; ROB-ME Cribsheet Version 1, October 2023.
 Website: https://www.riskofbias.info/welcome/rob-me-tool
 
+Version: ROB-ME (2023)
+Source: Page MJ, Sterne JAC, Boutron I, Hróbjartsson A, Kirkham JJ, Li T, et al. ROB-ME: a tool for assessing risk of bias due to missing evidence in systematic reviews with meta-analysis. *BMJ* 2023;383:e076754 (DOI 10.1136/bmj-2023-076754).
+Licence: Crossref returns only a BMJ text-and-data-mining policy; no Creative Commons licence.
+Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+
 ## Purpose
 
 ROB-ME assesses the risk of bias in a **pairwise meta-analysis result** due to missing evidence — encompassing both non-reporting biases (selective reporting of results) and non-publication biases (unpublished studies). It is applied at the synthesis level (not individual study level).

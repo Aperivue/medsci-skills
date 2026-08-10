@@ -9,6 +9,8 @@ Reference: Vasey B, et al. Nat Med 2022;28(5):924-933. doi:10.1038/s41591-022-01
 > paraphrases the *intent* of each item and copies no verbatim guideline wording. Complete the
 > official DECIDE-AI checklist for a submission-ready form and cite Vasey et al. 2022.
 
+Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+
 ## Naming and scope (read first)
 
 - DECIDE-AI reports the **early-stage (live) clinical evaluation** of an AI decision-support system —

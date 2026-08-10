@@ -3,6 +3,11 @@
 Quality Assessment of Diagnostic Accuracy Studies — Comparative (extension to QUADAS-2).
 Reference: Yang B et al. Guidance on how to use QUADAS-C. 2021. Available from: https://osf.io/hq8mf/files/
 
+Version: QUADAS-C (2021)
+Source: Yang B, Mallett S, Takwoingi Y, Davenport CF, Hyde CJ, Whiting PF, et al. QUADAS-C: a tool for assessing risk of bias in comparative diagnostic accuracy studies. *Ann Intern Med* 2021;174(11):1592-1599 (DOI 10.7326/M21-2234).
+Licence: *Annals of Internal Medicine* (© American College of Physicians) — no open licence.
+Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+
 ## Purpose
 
 QUADAS-C is an extension (add-on) to QUADAS-2 for assessing risk of bias in **comparative diagnostic test accuracy studies** — studies comparing two or more index tests in the same population.

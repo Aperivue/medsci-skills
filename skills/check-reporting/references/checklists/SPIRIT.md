@@ -7,6 +7,10 @@ Reference: Chan AW, Hopewell S, Moher D, et al. SPIRIT 2025 statement: updated g
 
 > Note: SPIRIT 2025 supersedes SPIRIT 2013. It is a 34-item checklist (two new items, five revised, five deleted/merged) restructured with a new Open Science section. Use for clinical trial *protocols* (CONSORT is for the completed trial report).
 
+Source: Chan AW, Boutron I, Hopewell S, Moher D, Schulz KF, Collins GS, et al. SPIRIT 2025 statement: updated guideline for protocols of randomised trials. *BMJ* 2025;389:e081477 (DOI 10.1136/bmj-2024-081477).
+Licence: CC BY 4.0 — confirmed via Crossref.
+Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+
 ## Checklist Items (34 items)
 
 ### Administrative Information

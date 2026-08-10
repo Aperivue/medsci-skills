@@ -48,6 +48,10 @@ VERSION_RE = _label("version")
 SOURCE_RE = _label("source|citation|reference")
 LICENCE_RE = _label("licen[cs]e|licensing|fidelity and licen[cs]e")
 DOI_RE = re.compile(r"\b10\.\d{4,9}/\S+", re.I)
+# Some instruments genuinely have no DOI — the Newcastle-Ottawa Scale is distributed from an
+# institute web page and was never issued one. The requirement is a DOI *or* a statement of why
+# there is none; demanding a DOI unconditionally would push someone to invent one.
+NO_DOI_EXPLAINED_RE = re.compile(r"no\s+DOI\b|never\s+been\s+issued\s+one|has\s+no\s+DOI", re.I)
 
 # Licence may also be stated inline in a fidelity paragraph rather than as a labelled field.
 LICENCE_INLINE_RE = re.compile(
@@ -105,7 +109,7 @@ def check_file(path: Path) -> list[Finding]:
     if not SOURCE_RE.search(head):
         out.append(Finding(path, "NO_SOURCE", "no Source:/Citation:/Reference: declaration — "
                                               "a file with no named source cannot be audited."))
-    elif not DOI_RE.search(head):
+    elif not DOI_RE.search(head) and not NO_DOI_EXPLAINED_RE.search(deemphasise(head)):
         out.append(Finding(path, "NO_DOI", "a source is cited but carries no DOI. Add one, or state "
                                            "why the instrument has none (e.g. a web-only tool)."))
 
@@ -146,13 +150,7 @@ def check_file(path: Path) -> list[Finding]:
 #   * the list may only SHRINK — `--audit-backlog` fails if an entry has become
 #     compliant and was not removed, so it cannot quietly become a rubber stamp
 # ---------------------------------------------------------------------------
-BACKLOG = {
-    "AMSTAR2.md", "ARRIVE_2.md", "CARE.md", "CHEERS_2022.md", "CLAIM_2024.md",
-    "CLEAR.md", "CONSORT.md", "COSMIN_RoB.md",     "DECIDE_AI.md", "GATHER.md", "GRRAS.md", "MI_CLEAR_LLM.md",
-    "NOS.md", "PGS_RS.md", "PRISMA_P.md", "PROBAST_AI.md", "QUADAS_C.md",
-    "RECORD.md", "REMARK.md", "ROBINS_E.md", "ROBIS.md", "ROB_ME.md",
-    "RoB_NMA.md", "SPIRIT.md", "SQUIRE_2.md",     "STARD.md", "STROBE.md", "SWiM.md", "TARGET.md",
-    "TRIPOD.md", "TRIPOD_LLM.md", }
+BACKLOG: set[str] = set()  # emptied: every checklist now declares itself
 
 
 def main() -> int:

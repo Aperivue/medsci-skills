@@ -648,38 +648,38 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/AMSTAR2.md",
-      "size": 4566,
-      "sha256": "065863e9072d1f88f660f043fe3be23c00181dffd580bb9b737a44c89ef060fb"
+      "size": 4837,
+      "sha256": "ed8483d880c40ccd9779e0c460dfcdf789654deaeead324a692c468d42ba7e51"
     },
     {
       "path": "skills/check-reporting/references/checklists/ARRIVE_2.md",
-      "size": 11181,
-      "sha256": "9f737ea8b415991df8108269f1fd53f11be36e94ff8320b5208f9046171c3d6b"
+      "size": 11730,
+      "sha256": "1d1346f9056948889828580b1f60a4ace7343dac3bd157919c1d5f446d4389eb"
     },
     {
       "path": "skills/check-reporting/references/checklists/CARE.md",
-      "size": 5746,
-      "sha256": "4bac869891f4b334cdc211409062a1dd3d6a31a0b62218ad4d9ced1a34000f77"
+      "size": 6341,
+      "sha256": "5a8a16a79900b5296f2ed8582ae9b4126bc9265798cad0cf889c58eb2fb64b8f"
     },
     {
       "path": "skills/check-reporting/references/checklists/CHEERS_2022.md",
-      "size": 8054,
-      "sha256": "830dc33cc4d74a3ebd4f024bb05fd064174002b150b363c3f3f03a13e2bd9a4f"
+      "size": 8294,
+      "sha256": "e381939bf6b857a06ad2404a2d3371875a5e39d73dda40b4565bd22fd4aa1b92"
     },
     {
       "path": "skills/check-reporting/references/checklists/CLAIM_2024.md",
-      "size": 6678,
-      "sha256": "1e9fefe06160cf1b498e6a44c8c4ae2863d66cfdeecadcaa15976e025f3c08dd"
+      "size": 6974,
+      "sha256": "abdf5dde20240bc2f33b191b084fb74741e0321f47c94141d6ac77de0e9acdf9"
     },
     {
       "path": "skills/check-reporting/references/checklists/CLEAR.md",
-      "size": 7781,
-      "sha256": "0bbfe04ffbea69bc1099086ad1489f09289ba13a3160d0f9f69e1edf75655333"
+      "size": 7970,
+      "sha256": "5811cdba2c7c0e1834c8d2438b3fb383a6a1961a30f108c72331f22d66b8a12c"
     },
     {
       "path": "skills/check-reporting/references/checklists/CONSORT.md",
-      "size": 6629,
-      "sha256": "339edfb5cd3787d21b9b53d73ee7475f53e15e2b67f4240322d1f0a605a606d4"
+      "size": 7079,
+      "sha256": "6f93c173e37fa31abeaa70a709ed984af32ed0d4eac13178ac8e904a367b8955"
     },
     {
       "path": "skills/check-reporting/references/checklists/CONSORT_AI.md",
@@ -693,8 +693,8 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/COSMIN_RoB.md",
-      "size": 5535,
-      "sha256": "d5c677b029a9f7a8ecff6cd2cb9d532149d29de6026b89bc7d4d4d8e1571be94"
+      "size": 6055,
+      "sha256": "9c87adc8c3b7828121383e81e2f09f67384fff540299aad13c687f1a823cb2cb"
     },
     {
       "path": "skills/check-reporting/references/checklists/CROSS.md",
@@ -703,23 +703,23 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/DECIDE_AI.md",
-      "size": 5321,
-      "sha256": "f2ad5827ecc061a04b4e33dc307a85b5eaf9031b2a34f8db9be3ed7132ed88b6"
+      "size": 5510,
+      "sha256": "fdc2462c224d4a1265fab4ef2300d4d1ac3288106ea8ad3b68472310165c308f"
     },
     {
       "path": "skills/check-reporting/references/checklists/GATHER.md",
-      "size": 6271,
-      "sha256": "71a950e0c69f37d7b3b5d3b5f2a091dd1c54c7b8197e3af3e83c52752fd254c2"
+      "size": 6772,
+      "sha256": "f4d1bc97326864035988f21f3a64ad5dc003c58a399e34a82507c6d732a50972"
     },
     {
       "path": "skills/check-reporting/references/checklists/GRRAS.md",
-      "size": 5214,
-      "sha256": "f7a533e5dfc4cfced60fd6d26c1f1f1072cb23d4e89c9f4d3787d5de2fb15543"
+      "size": 5469,
+      "sha256": "bbcab67e5c4da74ec72805ec1f46e79dde24071c8a0018c616bd5cc187d92ad9"
     },
     {
       "path": "skills/check-reporting/references/checklists/MI_CLEAR_LLM.md",
-      "size": 8468,
-      "sha256": "8e369bd75d4d2c6646693f856c719825ff4135d231c754518575116ea8f7a112"
+      "size": 8657,
+      "sha256": "d39193b755f71c47986dd06d7fbee049f030874184ca44131bdaf0625a932c64"
     },
     {
       "path": "skills/check-reporting/references/checklists/MOOSE.md",
@@ -728,13 +728,13 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/NOS.md",
-      "size": 2725,
-      "sha256": "ebdbf8f3024d74e74ce0dbc54d946388377ce800e8f2d695440cf9cf7e55a43a"
+      "size": 3338,
+      "sha256": "44c2a0161189cf7583e57643800286b102379bd0ac2c6cdb5c500ad3deec40b3"
     },
     {
       "path": "skills/check-reporting/references/checklists/PGS_RS.md",
-      "size": 6030,
-      "sha256": "aa4912c11f980c90b1945d45849f175febd81d798f99df9d37cfa624eab6229f"
+      "size": 6369,
+      "sha256": "cd8576f104a0a6ca1117f4c05742066082c1341682bdd30e19b6a108aead2fe7"
     },
     {
       "path": "skills/check-reporting/references/checklists/PRISMA_2020.md",
@@ -753,8 +753,8 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/PRISMA_P.md",
-      "size": 4780,
-      "sha256": "4727f5970496e5fe4928b426e3eff72a1181e6ae83ea0163cd5b4ec623aa8282"
+      "size": 5290,
+      "sha256": "11103b1c6c9570a4a5b7ce8536c5ba0413a6ead54ff0e08f3c6f81df76dea3a3"
     },
     {
       "path": "skills/check-reporting/references/checklists/PRISMA_ScR.md",
@@ -768,8 +768,8 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/PROBAST_AI.md",
-      "size": 5644,
-      "sha256": "d446b9b12141071a18b0d82b15fdd161ad4e84c36fc1f1cbbb9860d6c1214f9c"
+      "size": 6063,
+      "sha256": "0789104531cf1b4f9f26aba1c282cb6c85529bc74290a919381a319ac87e2e05"
     },
     {
       "path": "skills/check-reporting/references/checklists/QUADAS2.md",
@@ -778,23 +778,23 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/QUADAS_C.md",
-      "size": 7571,
-      "sha256": "f3527f32851fbf4d446e7f9961b134d455c2fa19d7615ea65168ae0479fb6685"
+      "size": 8115,
+      "sha256": "4f7b4a3ef029896dadf3f1ade76c1f2c8b22a78fe358cf53b78c3e9d02454914"
     },
     {
       "path": "skills/check-reporting/references/checklists/RECORD.md",
-      "size": 6530,
-      "sha256": "186000d9cd72e025ce483995735c05400450d9356f89f8f95b855d5815e925fa"
+      "size": 6788,
+      "sha256": "1500b2584f32000be5e9186fe9643f9826fb615a5639c83cba1cad917279aa4e"
     },
     {
       "path": "skills/check-reporting/references/checklists/REMARK.md",
-      "size": 6020,
-      "sha256": "bfe8781663c33fc8a906d2d07f790f7237012ca100351bf2676e0d1f7ec89e11"
+      "size": 6692,
+      "sha256": "6186d680d1dda3f426ea00685e577ac78661caeb4d49bd65b83c2e83c96610d0"
     },
     {
       "path": "skills/check-reporting/references/checklists/ROBINS_E.md",
-      "size": 8206,
-      "sha256": "268b634aeead53804b6d278d38398fa10575887b440ee882ed1ee5108f8561b8"
+      "size": 8553,
+      "sha256": "6b55b3f348ab9f04bf57e7afec9c1241391694753ade34d73c540f737ecaf780"
     },
     {
       "path": "skills/check-reporting/references/checklists/ROBINS_I.md",
@@ -803,13 +803,13 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/ROBIS.md",
-      "size": 5640,
-      "sha256": "af838d6c3cc1565421450aeb3bf66df6960c7fb2633eb1bfd1e5e14abad9f7df"
+      "size": 6237,
+      "sha256": "1508a9ecd8b10f20eff59df2ec163a31a87ff1a125464ad1952d3714b511e9f7"
     },
     {
       "path": "skills/check-reporting/references/checklists/ROB_ME.md",
-      "size": 6768,
-      "sha256": "252612c191a42f9a577a5a01db31eb9dc78887ccfcedd9c8cd289cfa77dd3e60"
+      "size": 7319,
+      "sha256": "20918a7d00dacd919932fff4b6736243fad3d027819e9d30c5d84d375fa847a3"
     },
     {
       "path": "skills/check-reporting/references/checklists/RoB2.md",
@@ -818,13 +818,13 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/RoB_NMA.md",
-      "size": 4678,
-      "sha256": "78502dae50b6ea130ccc61029878449b3cdd87ea5cf16ea4eb0b91a0230c3cb6"
+      "size": 5120,
+      "sha256": "c29f5fc99f64560e0e0294b482bdde70f5f01f916a0e6ad1c886e74fa56484b0"
     },
     {
       "path": "skills/check-reporting/references/checklists/SPIRIT.md",
-      "size": 10562,
-      "sha256": "ecd48ad87a66173b57392936df54042b8960a74777cc4758d8930633843f6956"
+      "size": 11008,
+      "sha256": "29902802575b06aeabe4e45702149103d1a93cef225b0fd3d0972efbdea4fd6c"
     },
     {
       "path": "skills/check-reporting/references/checklists/SPIRIT_AI.md",
@@ -833,8 +833,8 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/SQUIRE_2.md",
-      "size": 5730,
-      "sha256": "d145e612c8fb7a182d8212257790f2599cd218810a57ae97c0c6309cd6c4f613"
+      "size": 5974,
+      "sha256": "3693117194d0cc46719b828354bc8d2126945b5bf9a5c710d318d7ed9e3855c8"
     },
     {
       "path": "skills/check-reporting/references/checklists/SRQR.md",
@@ -843,8 +843,8 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/STARD.md",
-      "size": 6440,
-      "sha256": "afa913b1059945513e83cf146281b5f58cff3e856ca2f74be0ce3cdf60289b60"
+      "size": 6926,
+      "sha256": "c69579312a8d9905dbf04e7fe2bb2ff14b8e06f079550c687e260349dd87275c"
     },
     {
       "path": "skills/check-reporting/references/checklists/STARD_AI.md",
@@ -853,8 +853,8 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/STROBE.md",
-      "size": 6185,
-      "sha256": "4c7752f7c086a737f7f74935897bc5dcd0dbb12e3529006ecf7207a78f1005f3"
+      "size": 6689,
+      "sha256": "8e29276d9dc8a2b466c3cea26d3d67547f5159a653141b9b8ac57fbcdf295a7d"
     },
     {
       "path": "skills/check-reporting/references/checklists/STROBE_MR.md",
@@ -863,18 +863,18 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/SWiM.md",
-      "size": 3516,
-      "sha256": "118171e304491812709ee2311b1b968f8caac92e689431622a8fb81b2684e970"
+      "size": 3752,
+      "sha256": "046c4331ce92aa0bf7775d169737a6b517dc72b99cd445e210cf6acaf3b19d40"
     },
     {
       "path": "skills/check-reporting/references/checklists/TARGET.md",
-      "size": 7406,
-      "sha256": "0ddbbe10245d902a191a23a5832d24ada3515314e3b08ce562dd12200356f452"
+      "size": 7666,
+      "sha256": "c9bbf72a8a44284ec5b1e88609b99359755483541e9c4f14d3bc6026de761437"
     },
     {
       "path": "skills/check-reporting/references/checklists/TRIPOD.md",
-      "size": 8625,
-      "sha256": "e0d9de4afe9ba3809ab66f1ecca077605ad500a37635459e423ba8bca3e410d5"
+      "size": 9129,
+      "sha256": "90bb1334304dc893360b08fef6c521794c05060a10b74c3344e5d8c4281f8256"
     },
     {
       "path": "skills/check-reporting/references/checklists/TRIPOD_AI.md",
@@ -883,8 +883,8 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/TRIPOD_LLM.md",
-      "size": 10333,
-      "sha256": "82724c868b49f8f5b0e6fa78af8468fd36e124697a941357b57ffff5e7c4c870"
+      "size": 10738,
+      "sha256": "d9a4f8f610dfd6bdb99f83a9c39c765f32e387b4f5734120639a351772cd867b"
     },
     {
       "path": "skills/check-reporting/references/critical_item_floor.md",
@@ -2718,8 +2718,8 @@
     },
     {
       "path": "skills/meta-analysis/references/checklists/NOS.md",
-      "size": 2725,
-      "sha256": "ebdbf8f3024d74e74ce0dbc54d946388377ce800e8f2d695440cf9cf7e55a43a"
+      "size": 3338,
+      "sha256": "44c2a0161189cf7583e57643800286b102379bd0ac2c6cdb5c500ad3deec40b3"
     },
     {
       "path": "skills/meta-analysis/references/checklists/PRISMA_DTA.md",

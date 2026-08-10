@@ -4,6 +4,10 @@
 Version: STROBE 2007 (combined checklist for cohort, case-control, and cross-sectional studies)
 Source: https://www.strobe-statement.org
 
+Source: von Elm E, Altman DG, Egger M, Pocock SJ, Gøtzsche PC, Vandenbroucke JP. The Strengthening the Reporting of Observational Studies in Epidemiology (STROBE) statement. *PLoS Med* 2007;4(10):e296 (DOI 10.1371/journal.pmed.0040296).
+Licence: CC BY 4.0 — confirmed via the PubMed Central record (PMC2020495).
+Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+
 ## Checklist Items (22 items)
 
 ### Title and Abstract

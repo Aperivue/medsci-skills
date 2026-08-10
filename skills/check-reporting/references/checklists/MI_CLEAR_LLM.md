@@ -23,6 +23,8 @@ disclosing LLM use in manuscript *writing* — for that, see ICMJE/COPE policies
 disclosure feature. MI-CLEAR-LLM supplements, and does not replace, a primary reporting guideline (STARD /
 STARD-AI, CLAIM 2024, or TRIPOD+AI) chosen for the study design.
 
+Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+
 ## Checklist Items (8 items)
 
 | # | Item category | What must be reported |

@@ -4,6 +4,11 @@ Risk of Bias in Network Meta-Analysis Tool, Version 1 (March 2024).
 Reference: Lunny C et al. Developed by the Knowledge Translation Foundation.
 Website: https://www.riskofbias.info
 
+Version: RoB NMA (2025) — 17 items
+Source: Lunny C, Higgins JPT, White IR, Dias S, Hutton B, Pham B, et al. Risk of Bias in Network Meta-Analysis (RoB NMA) tool. *BMJ* 2025 (DOI 10.1136/bmj-2024-079839).
+Licence: CC BY 4.0 — confirmed via Crossref.
+Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+
 ## Purpose
 
 The RoB NMA tool identifies potential limitations in the way a **network meta-analysis (NMA)** was conducted, including aspects of how the evidence was assembled that may lead to bias in the NMA's results or conclusions.

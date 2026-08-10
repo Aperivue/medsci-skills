@@ -7,6 +7,9 @@ Reference: Tejani AS, Klontzas ME, Gatti AA, Mongan JT, Moy L, Park SH, Kahn CE 
 
 > Note: The 2024 update replaces "ground truth" with "reference standard" and discourages "validation" in favour of "internal/external testing". Each item is answered Yes / No / Not Applicable with the manuscript location cited.
 
+Licence: © RSNA, open access. Consult RSNA for reuse terms; Crossref returns no Creative Commons licence.
+Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+
 ## Checklist Items (44 items)
 
 ### Title and Abstract

@@ -6,6 +6,8 @@ Source: Husereau D, Drummond M, Augustovski F, et al. *BMJ* 2022;376:e067975 (th
 
 Apply when the manuscript is a **health economic evaluation** — a comparative analysis of costs and consequences of two or more courses of action: cost-effectiveness (CEA), cost-utility (CUA), cost-benefit (CBA), or cost-minimisation analysis, whether trial-based or decision-model-based (decision tree, Markov/state-transition, discrete-event simulation), including budget-impact and HTA submissions. For the design/validity review of the same study, pair with the HE1–HE8 domain probes in `peer-review` / `self-review` `references/domain-probes/health_economic_evaluation.md`; for the analysis, with `analyze-stats` `references/analysis_guides/health_economic_evaluation.md`.
 
+Source: Husereau D, Drummond M, Augustovski F, de Bekker-Grob E, Briggs AH, Carswell C, et al. Consolidated Health Economic Evaluation Reporting Standards 2022 (CHEERS 2022) statement. *BMJ* 2022;376:e067975 (DOI 10.1136/bmj-2021-067975).
+
 ## Checklist Items (28 items)
 
 ### Title
