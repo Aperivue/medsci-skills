@@ -6,7 +6,11 @@ Source: Campbell M et al. BMJ 2020;368:l6890. doi: 10.1136/bmj.l6890
 Website: https://swim.sphsu.gla.ac.uk/
 
 Licence: CC BY 4.0 — confirmed via Crossref.
-Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+Verification: **PARTIAL — item count only.** The number of items here matches the published
+statement (the statement describes “the nine SWiM reporting items”), checked against its PubMed Central record. The **item text has not been
+compared**, and a matching count is not evidence that it would match: STARD carried the right
+count of 30 while omitting two items, collapsing three sub-item pairs and inventing a fourth.
+Complete the official checklist for anything you report.
 
 ## Checklist Items (9 items)
 

@@ -6,7 +6,11 @@ Version: GATHER 2016 (18 items). Source: Stevens GA, Alkema L, Black RE, et al. 
 Apply when the manuscript **reports population health estimates produced by a statistical or mathematical model that synthesizes multiple data sources** — Global Burden of Disease (GBD/IHME) analyses and satellite papers, WHO/UN-agency burden estimates, attributable-burden (comparative-risk / population-attributable-fraction) studies, cause-of-death modeling, prevalence/incidence/mortality estimation, disability-adjusted or quality-adjusted life-year estimation, and their forecasts. GATHER is the reporting standard those estimates are held to; it is orthogonal to STROBE/RECORD (which govern primary and routinely-collected-data studies of *individuals*). A single-institution cohort that only **contextualizes** its finding against a published burden number does not itself trigger GATHER, but a paper that **re-estimates or re-projects** burden does. Pair the analytic methods with `/analyze-stats` `references/analysis_guides/burden_decomposition_forecasting.md` (decomposition, joinpoint/AAPC, forecasting, PAF); pair the reproducibility items (15, 17) with `/verify-refs` and the project's data/code-availability discipline.
 
 Source: Stevens GA, Alkema L, Black RE, Boerma JT, Collins GS, Ezzati M, et al. Guidelines for Accurate and Transparent Health Estimates Reporting: the GATHER statement. *Lancet* 2016;388(10062):e19-e23 (DOI 10.1016/S0140-6736(16)30388-9); also *PLoS Med* 2016;13(6):e1002056 (DOI 10.1371/journal.pmed.1002056).
-Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+Verification: **PARTIAL — item count only.** The number of items here matches the published
+statement (the statement says GATHER “comprises a checklist of 18 items”), checked against its PubMed Central record. The **item text has not been
+compared**, and a matching count is not evidence that it would match: STARD carried the right
+count of 30 while omitting two items, collapsing three sub-item pairs and inventing a fourth.
+Complete the official checklist for anything you report.
 
 ## Checklist Items (18 items)
 

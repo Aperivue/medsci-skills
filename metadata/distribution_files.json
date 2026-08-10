@@ -663,8 +663,8 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/CHEERS_2022.md",
-      "size": 8294,
-      "sha256": "e381939bf6b857a06ad2404a2d3371875a5e39d73dda40b4565bd22fd4aa1b92"
+      "size": 8785,
+      "sha256": "fc78fbed277fa82dd0700e372d7f6f8d7e7fa6637db4be13e07cf958dffa69f7"
     },
     {
       "path": "skills/check-reporting/references/checklists/CLAIM_2024.md",
@@ -673,13 +673,13 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/CLEAR.md",
-      "size": 7970,
-      "sha256": "5811cdba2c7c0e1834c8d2438b3fb383a6a1961a30f108c72331f22d66b8a12c"
+      "size": 8273,
+      "sha256": "fdd8b4f20c33f51d738680b8431af94cde164d9495be1766e077e971196f79c1"
     },
     {
       "path": "skills/check-reporting/references/checklists/CONSORT.md",
-      "size": 7079,
-      "sha256": "6f93c173e37fa31abeaa70a709ed984af32ed0d4eac13178ac8e904a367b8955"
+      "size": 7385,
+      "sha256": "c6076444e3af376c22bbf9cfb0cd196256b90560b96790eb8ad5a2b2dcc85426"
     },
     {
       "path": "skills/check-reporting/references/checklists/CONSORT_AI.md",
@@ -708,8 +708,8 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/GATHER.md",
-      "size": 6772,
-      "sha256": "f4d1bc97326864035988f21f3a64ad5dc003c58a399e34a82507c6d732a50972"
+      "size": 7074,
+      "sha256": "71cd717281705685af77b6b75bc5eefe9183b9a2f350b20bb45cd21d40a272e1"
     },
     {
       "path": "skills/check-reporting/references/checklists/GRRAS.md",
@@ -788,8 +788,8 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/REMARK.md",
-      "size": 6692,
-      "sha256": "6186d680d1dda3f426ea00685e577ac78661caeb4d49bd65b83c2e83c96610d0"
+      "size": 6995,
+      "sha256": "5cc74ca8eb56289213d3c19042e083989dde89d4cee9ccaf1974d3537b9e87a0"
     },
     {
       "path": "skills/check-reporting/references/checklists/ROBINS_E.md",
@@ -863,8 +863,8 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/SWiM.md",
-      "size": 3752,
-      "sha256": "046c4331ce92aa0bf7775d169737a6b517dc72b99cd445e210cf6acaf3b19d40"
+      "size": 4048,
+      "sha256": "c75ae57ec109bdbdcfbce4e8c5ae1e79039f11b66eef729ef2477f0c2b8150ce"
     },
     {
       "path": "skills/check-reporting/references/checklists/TARGET.md",
