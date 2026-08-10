@@ -140,6 +140,38 @@
 
 ### Fixed
 
+- **`PRISMA_DTA.md` was not PRISMA-DTA. It was PRISMA 2009, renumbered.** Verified against the
+  statement itself (McInnes et al., *JAMA* 2018;319(4):388-396, read through institutional access,
+  including its 2020 correction). PRISMA-DTA keeps the count of 27 by **deleting items 15 and 22** and
+  **adding items D1 and D2**. The file had:
+
+  - **items 15 and 22 present** — both deleted by the guideline;
+  - **D1 and D2 absent** — the two DTA-specific items the extension exists to add. **D1** asks for the
+    index test's intended use and clinical role, and the rationale for a minimally acceptable accuracy;
+    **D2** asks for the statistical methods used in the meta-analysis. A generic PRISMA checklist
+    cannot surface either, which is the whole reason the extension was written;
+  - **23 of the 25 shared items worded differently from the published item**, including item 4 asking
+    for "PIRD elements" where the statement asks for participants, index test and target conditions,
+    and item 2 asking a diagnostic-accuracy review to summarise "interventions".
+
+  Anyone who scored a DTA systematic review with this file scored two items the guideline had removed
+  and never scored the two it had introduced.
+
+  Rebuilt. The structure — which items exist, their numbering, section placement and topic labels —
+  now matches the statement exactly and is asserted by comparison against the parsed original. The
+  **abstract checklist** the statement carries (and to which its item 2 defers) is captured too, with
+  its own DTA-specific item A1, and scored with its own denominator like `PRISMA_2020_Abstracts.md`.
+  Item 20 reflects the published correction: "receiver operating characteristic **plot**", not "curve".
+
+  **Licence.** *JAMA* publishes this under no open licence — free to read is not free to reuse. The
+  descriptions are an in-house summary of what each item asks, in our own words; the longest run of
+  the published wording that survives anywhere in the file is eleven words of unavoidable terminology.
+  Structure is fact and is reproduced exactly; expression is ours.
+
+  Assessor notes name the two failure modes this file used to cause: scoring items 15 and 22, and
+  missing the unit-of-assessment requirement in item 13 (per patient vs per lesion), which changes
+  what every downstream accuracy estimate means.
+
 - **Five checklist licence claims were wrong, and one of them conflicts with this repository's own
   licence.** `LICENSES.md` presented itself as the attribution record for the bundled checklists and
   asserted **CC BY** for ROBINS-I, RoB 2, QUADAS-2, PROBAST and PRISMA-DTA. Every entry was resolved

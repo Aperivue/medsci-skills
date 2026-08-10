@@ -748,8 +748,8 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/PRISMA_DTA.md",
-      "size": 4896,
-      "sha256": "35dbc17de6a993f972295c552632a3426c12f8e81db6981318d8450ceb69ede0"
+      "size": 10219,
+      "sha256": "2404f5f702975fb5365a408f3c20cc401b7f066a6885f3ec5fa954f38f520d50"
     },
     {
       "path": "skills/check-reporting/references/checklists/PRISMA_P.md",
@@ -2713,8 +2713,8 @@
     },
     {
       "path": "skills/meta-analysis/references/checklists/PRISMA_DTA.md",
-      "size": 4896,
-      "sha256": "35dbc17de6a993f972295c552632a3426c12f8e81db6981318d8450ceb69ede0"
+      "size": 10219,
+      "sha256": "2404f5f702975fb5365a408f3c20cc401b7f066a6885f3ec5fa954f38f520d50"
     },
     {
       "path": "skills/meta-analysis/references/checklists/PROBAST.md",
