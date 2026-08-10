@@ -6,6 +6,11 @@
 
 ---
 
+Version: ARRIVE 2.0 (2020) — Essential 10 + Recommended Set
+Source: Percie du Sert N, Hurst V, Ahluwalia A, Alam S, Avey MT, Baker M, et al. The ARRIVE guidelines 2.0: updated guidelines for reporting animal research. *PLoS Biol* 2020;18(7):e3000410 (DOI 10.1371/journal.pbio.3000410).
+Licence: CC0 1.0 (public domain dedication) — confirmed via Crossref.
+Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+
 ## How to Use This Checklist
 
 ARRIVE 2.0 has two tiers:

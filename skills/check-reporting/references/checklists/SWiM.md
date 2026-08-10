@@ -5,6 +5,9 @@ Version: SWiM 2020
 Source: Campbell M et al. BMJ 2020;368:l6890. doi: 10.1136/bmj.l6890
 Website: https://swim.sphsu.gla.ac.uk/
 
+Licence: CC BY 4.0 — confirmed via Crossref.
+Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+
 ## Checklist Items (9 items)
 
 ### Reporting Items

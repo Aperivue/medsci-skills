@@ -3,6 +3,11 @@
 Risk Of Bias In Systematic Reviews, version 1.2.
 Reference: Whiting P et al. J Clin Epidemiol 2016;69:225-234.
 
+Version: ROBIS (2016) — 4 domains in 3 phases
+Source: Whiting P, Savović J, Higgins JPT, Caldwell DM, Reeves BC, Shea B, et al. ROBIS: a new tool to assess risk of bias in systematic reviews was developed. *J Clin Epidemiol* 2016;69:225-234 (DOI 10.1016/j.jclinepi.2015.06.005).
+Licence: CC BY 4.0 — confirmed via Crossref. (`LICENSES.md` previously recorded no open licence for ROBIS; that was wrong.)
+Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+
 ## Purpose
 
 ROBIS assesses the risk of bias **in systematic reviews themselves** (not in individual studies). It evaluates whether the review process was conducted appropriately and whether the conclusions are trustworthy.

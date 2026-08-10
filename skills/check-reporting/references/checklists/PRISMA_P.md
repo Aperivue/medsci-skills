@@ -4,6 +4,10 @@
 Version: PRISMA-P 2015
 Source: Shamseer L et al. BMJ 2015;349:g7647.
 
+Source: Shamseer L, Moher D, Clarke M, Ghersi D, Liberati A, Petticrew M, et al. Preferred reporting items for systematic review and meta-analysis protocols (PRISMA-P) 2015: elaboration and explanation. *BMJ* 2015;350:g7647 (DOI 10.1136/bmj.g7647).
+Licence: Crossref returns no Creative Commons licence for this article.
+Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+
 ## Checklist Items (17 items, 26 sub-items)
 
 ### Administrative Information

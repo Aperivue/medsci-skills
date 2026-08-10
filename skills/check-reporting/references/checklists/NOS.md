@@ -3,6 +3,11 @@
 Quality assessment tool for non-randomised studies in meta-analyses.
 Reference: Wells GA et al. Ottawa Hospital Research Institute.
 
+Version: Newcastle-Ottawa Scale (current web version)
+Source: Wells GA, Shea B, O'Connell D, Peterson J, Welch V, Losos M, Tugwell P. The Newcastle-Ottawa Scale (NOS) for assessing the quality of nonrandomised studies in meta-analyses. Ottawa Hospital Research Institute. **No DOI: the tool is distributed from the institute's website and has never been issued one.**.
+Licence: No formal licence is published with the tool.
+Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+
 ## Structure
 
 NOS uses a "star system" (maximum 9 stars) across 3 categories.

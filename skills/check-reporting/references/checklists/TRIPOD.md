@@ -4,6 +4,10 @@
 Version: TRIPOD 2015
 Source: Moons KGM et al. Ann Intern Med. 2015;162:55-63. https://www.tripod-statement.org
 
+Source: Collins GS, Reitsma JB, Altman DG, Moons KGM. Transparent reporting of a multivariable prediction model for individual prognosis or diagnosis (TRIPOD). *Ann Intern Med* 2015;162(1):55-63 (DOI 10.7326/M14-0697).
+Licence: *Annals of Internal Medicine* (© American College of Physicians) — no open licence.
+Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+
 ## Applicability
 
 Items apply to different study types:

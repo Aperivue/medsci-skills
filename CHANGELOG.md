@@ -228,6 +228,37 @@
   "paywalled sources are"), and both times the correction came from widening the sample rather than
   from reasoning about it.
 
+### Changed
+
+- **Every one of the 48 vendored checklists now declares what it is, where it came from, and whether
+  it has been checked. The provenance backlog is zero.**
+
+  31 files were carrying gaps — no DOI, no licence, or silence about verification. Each now states
+  all four. The facts were not guessed: **every DOI was resolved through Crossref and confirmed by
+  the title it returned**, and every licence is the Crossref `license` URL or the PMC `<license>`
+  element. Two candidate DOIs were rejected by that check — one for TARGET returned 404, and one for
+  the RoB NMA tool resolved to a paper on Kenward-Roger corrections. Both were replaced with the real
+  articles rather than shipped.
+
+  **Three files carried bare "Verified" stamps** — `GATHER.md`, `QUADAS_C.md`, `REMARK.md` — found by
+  the gate, not by hand. They now say what was and was not compared.
+
+  **What most of these files now say is "NOT VERIFIED".** 32 of 48 have not been compared against
+  their published table, and they say so in the header rather than leaving a reader to assume
+  otherwise. That is the point: the gate cannot make a checklist correct, but it can stop one from
+  implying it has been checked when it has not.
+
+  Two licence corrections fell out of the sweep:
+
+  - **ROBIS is CC BY 4.0.** `LICENSES.md` recorded "no open licence found" for it in #472; that was
+    wrong, and the Crossref record is unambiguous.
+  - **PROBAST+AI and ROBINS-E are CC BY-NC 4.0** — non-commercial, and so in the same position as
+    ROBINS-I: not redistributable verbatim under this repository's MIT licence. Both are now labelled.
+
+  The gate gains one exception it was always meant to have: **an instrument with no DOI may say so**.
+  The Newcastle-Ottawa Scale is distributed from an institute web page and has never been issued one.
+  Demanding a DOI unconditionally is how a checker pressures someone into inventing a fact.
+
 ### Fixed
 
 - **`PRISMA_ScR.md` had renumbered the instrument, and 10 of its 22 items carried the wrong number.**

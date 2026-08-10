@@ -19,6 +19,8 @@ essential; score a missing essential item as a reporting gap, and a missing [n/e
 justified. CLEAR is written for **hand-crafted radiomics**; for deep-learning pipelines without radiomic
 features, CLAIM 2024 or TRIPOD+AI may fit better (a study that does both should be assessed against both).
 
+Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+
 ## Checklist Items
 
 ### Title

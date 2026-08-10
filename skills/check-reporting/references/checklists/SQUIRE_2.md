@@ -5,6 +5,9 @@ Version: SQUIRE 2.0 (2015)
 Source: http://squire-statement.org
 Reference: Ogrinc G, Davies L, Goodman D, Batalden P, Davidoff F, Stevens D. SQUIRE 2.0 (Standards for QUality Improvement Reporting Excellence): revised publication guidelines from a detailed consensus process. BMJ Qual Saf. 2016;25(12):986-992. doi:10.1136/bmjqs-2015-004411
 
+Licence: Crossref returns no Creative Commons licence.
+Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+
 ## Checklist Items (18 items)
 
 ### Title and Abstract

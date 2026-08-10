@@ -15,6 +15,9 @@ Reference: Gallifant J, ..., Bitterman DS. Nat Med 2025;31(1):60-69. doi:10.1038
 > 18 subitems are **task- or design-specific** (marked *task-specific*) and are N/A when that
 > component is absent — justify the N/A.
 
+Licence: The published *Nature Medicine* article returns no Creative Commons licence via Crossref (DOI 10.1038/s41591-024-03425-5); the author-accepted manuscript is CC BY 4.0 through institutional rights retention.
+Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+
 ## Naming and scope (read first)
 
 - TRIPOD-LLM is an **extension** of the **TRIPOD** family (TRIPOD 2015 → TRIPOD+AI 2024 →

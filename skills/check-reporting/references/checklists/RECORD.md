@@ -6,6 +6,8 @@ Source: Benchimol EI, Smeeth L, Guttmann A, et al. *PLoS Medicine* 2015;12(10):e
 
 Apply when the manuscript is an **observational study conducted using routinely-collected health data** — administrative claims, electronic health records (EHR), disease/population registries, health-administrative or health-checkup databases, or linked versions of these — i.e. data **not collected for the purpose of the specific study**. RECORD extends the base **STROBE** items with reporting specific to secondary-use data: database identity, the codes/algorithms used to define the population and the variables, data linkage and its quality, and the limitations of analysing data collected for another purpose. For a drug safety/effectiveness study in such data, also apply **RECORD-PE**. For the design/validity review of the same study, pair with the RD1–RD8 domain probes in `peer-review` / `self-review` `references/domain-probes/record_routinely_collected_data.md`, and with the observational-confounding probes (`observational_confounding.md`).
 
+Source: Benchimol EI, Smeeth L, Guttmann A, Harron K, Moher D, Petersen I, et al. The REporting of studies Conducted using Observational Routinely-collected health Data (RECORD) statement. *PLoS Med* 2015;12(10):e1001885 (DOI 10.1371/journal.pmed.1001885).
+
 ## Checklist Items (13 items, extending STROBE)
 
 ### Title and Abstract (STROBE item 1)
