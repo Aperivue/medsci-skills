@@ -180,6 +180,38 @@
 
   **241 gates** (was 238).
 
+### Fixed
+
+- **STARD 2015 was missing two items and had invented a sub-item split.** Extracted from the
+  published checklist (Bossuyt et al., *BMJ* 2015;351:h5527, CC BY 4.0) and compared programmatically.
+  The statement has **30 items in 34 rows** — items 10, 12, 13 and 21 each split into **a** and **b**.
+  The file had 30 rows ending at item 28. It:
+
+  - **invented a split at item 8** (8a/8b, where the statement has one item);
+  - **collapsed the a/b pairs at 12, 13 and 21** into single rows;
+  - **omitted items 29 and 30 entirely** — where the full study protocol can be accessed, and sources
+    of funding with the role of funders.
+
+  The collapsed pairs matter: the a/b halves are separate requirements, describing the index test and
+  the reference standard, defining cut-offs, stating blinding, and reporting severity distributions
+  **for each side separately**. Collapsed into one row, a study satisfies half an item and scores
+  complete. Rebuilt to all 34 rows, asserted against the extracted original.
+
+  **STARD is CC BY**, which breaks the pattern this audit has been reporting for a third time. It is
+  neither an extension nor paywalled, and it had a structural defect. The three generalisations
+  offered so far — "extensions are the dangerous class", "paywalled sources are", and now anything
+  narrower than "any file that was never compared" — have each survived until the sample widened.
+  **The only predictor that has held is whether the file was ever checked against its source.**
+
+- **RECORD verified clean, 13/13.** The item set (1.1, 1.2, 1.3, 6.1, 6.2, 6.3, 7.1, 12.1, 12.2, 12.3,
+  13.1, 19.1, 22.1) matches the statement exactly. A duplicate `Source:` line left by the
+  backlog sweep is removed.
+
+- **STROBE now says *why* it is unverified.** The checklist table is not carried in the statement's
+  PubMed Central record — it lives in the explanation-and-elaboration paper and on the STROBE website
+  — so it could not be compared here. Saying which is more useful to a reader than a bare
+  "not verified".
+
 ### Changed
 
 - **CONSORT-AI and SPIRIT-AI verified clean — and they correct the pattern this audit had been
