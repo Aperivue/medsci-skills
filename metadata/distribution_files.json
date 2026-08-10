@@ -763,8 +763,8 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/PROBAST.md",
-      "size": 3184,
-      "sha256": "5220ab27658cb9a372b39d94a208147abc15559d221ab528beab885d1c8a9eca"
+      "size": 5099,
+      "sha256": "b05dd5e132c569fd0b0cb7884a437a59b5084e73cdd45044bd55010907e3be5b"
     },
     {
       "path": "skills/check-reporting/references/checklists/PROBAST_AI.md",
@@ -878,8 +878,8 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/TRIPOD_AI.md",
-      "size": 13826,
-      "sha256": "0ec248b9846a06bf4e13890daaa1f61e69b7588b390d0612dcabefed78c42975"
+      "size": 14461,
+      "sha256": "64ea85b19951d297274559c5a668dd16a37f93a6fd6ee11bbcadd3ec89309e0d"
     },
     {
       "path": "skills/check-reporting/references/checklists/TRIPOD_LLM.md",
@@ -2718,8 +2718,8 @@
     },
     {
       "path": "skills/meta-analysis/references/checklists/PROBAST.md",
-      "size": 3184,
-      "sha256": "5220ab27658cb9a372b39d94a208147abc15559d221ab528beab885d1c8a9eca"
+      "size": 5099,
+      "sha256": "b05dd5e132c569fd0b0cb7884a437a59b5084e73cdd45044bd55010907e3be5b"
     },
     {
       "path": "skills/meta-analysis/references/checklists/QUADAS2.md",

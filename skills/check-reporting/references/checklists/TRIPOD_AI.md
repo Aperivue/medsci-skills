@@ -6,7 +6,8 @@
 - **Citation:** Collins GS, Moons KGM, Dhiman P, et al. *TRIPOD+AI statement: updated guidance for reporting clinical prediction models that use regression or machine learning methods.* BMJ 2024;385:e078378.
 - **DOI:** 10.1136/bmj-2023-078378
 - **Source:** https://www.tripod-statement.org — official expanded checklist: https://www.tripod-statement.org/wp-content/uploads/2024/04/TRIPODAI-Supplement.pdf
-- **Licence:** CC BY 4.0. Item wording below is reproduced faithfully from the published statement with attribution.
+- **Licence:** CC BY 4.0. Item wording below is reproduced from the published statement with attribution.
+- **Verified:** all 52 sub-items compared against the official supplements (ST1 expanded checklist, ST2 fillable checklist). 52/52 match in substance; the D/E designations match the statement exactly. Differences are orthographic only.
 
 **TRIPOD+AI 2024 supersedes and replaces TRIPOD 2015.** It is not TRIPOD 2015 plus AI addenda — it is a
 complete rewrite, applicable to prediction-model studies using **either** regression **or** machine-learning
@@ -32,7 +33,7 @@ and Discussion (25–27).
 
 | Item | Topic | D/E | Checklist item |
 |---|---|---|---|
-| 2 | Abstract | D;E | See the TRIPOD+AI for Abstracts checklist. |
+| 2 | Abstract | D;E | See TRIPOD+AI for Abstracts checklist. |
 
 ### Introduction
 
@@ -47,7 +48,7 @@ and Discussion (25–27).
 
 | Item | Topic | D/E | Checklist item |
 |---|---|---|---|
-| 5a | Data | D;E | Describe the sources of data separately for the development and evaluation datasets (e.g., randomised trial, cohort, routine care or registry data), the rationale for using these data, and the representativeness of the data. |
+| 5a | Data | D;E | Describe the sources of data separately for the development and evaluation datasets (e.g., randomised trial, cohort, routine care or registry data), the rationale for using these data, and representativeness of the data. |
 | 5b | Data | D;E | Specify the dates of the collected participant data, including start and end of participant accrual; and, if applicable, end of follow-up. |
 | 6a | Participants | D;E | Specify key elements of the study setting (e.g., primary care, secondary care, general population) including the number and location of centres. |
 | 6b | Participants | D;E | Describe the eligibility criteria for study participants. |
@@ -63,7 +64,7 @@ and Discussion (25–27).
 | 11 | Missing data | D;E | Describe how missing data were handled. Provide reasons for omitting any data. |
 | 12a | Analytical methods | D | Describe how the data were used (e.g., for development and evaluation of model performance) in the analysis, including whether the data were partitioned, considering any sample size requirements. |
 | 12b | Analytical methods | D | Depending on the type of model, describe how predictors were handled in the analyses (functional form, rescaling, transformation, or any standardisation). |
-| 12c | Analytical methods | D | Specify the type of model, rationale, all model building steps, including any hyperparameter tuning, and method for internal validation. |
+| 12c | Analytical methods | D | Specify the type of model, rationale, all model-building steps, including any hyperparameter tuning, and method for internal validation. |
 | 12d | Analytical methods | D;E | Describe if and how any heterogeneity in estimates of model parameter values and model performance was handled and quantified across clusters (e.g., hospitals, countries). See TRIPOD-Cluster for additional considerations. |
 | 12e | Analytical methods | D;E | Specify all measures and plots used (and their rationale) to evaluate model performance (e.g., discrimination, calibration, clinical utility) and, if relevant, to compare multiple models. |
 | 12f | Analytical methods | E | Describe any model updating (e.g., recalibration) arising from the model evaluation, either overall or for particular sociodemographic groups or settings. |
@@ -99,7 +100,7 @@ and Discussion (25–27).
 | 20b | Participants | D;E | Report the characteristics overall and, where applicable, for each data source or setting, including the key dates, key predictors (including demographics), treatments received, sample size, number of outcome events, follow-up time, and amount of missing data. A table may be helpful. Report any differences across key demographic groups. |
 | 20c | Participants | E | For model evaluation, show a comparison with the development data of the distribution of important predictors (demographics, predictors, and outcome). |
 | 21 | Model development | D;E | Specify the number of participants and outcome events in each analysis (e.g., for model development, hyperparameter tuning, model evaluation). |
-| 22 | Model specification | D | Provide details of the full prediction model (e.g., formula, code, object, application programming interface) to allow predictions in new individuals and to enable third party evaluation and implementation, including any restrictions to access or reuse (e.g., freely available, proprietary). |
+| 22 | Model specification | D | Provide details of the full prediction model (e.g., formula, code, object, application programming interface) to allow predictions in new individuals and to enable third-party evaluation and implementation, including any restrictions to access or re-use (e.g., freely available, proprietary). |
 | 23a | Model performance | D;E | Report model performance estimates with confidence intervals, including for any key subgroups (e.g., sociodemographic). Consider plots to aid presentation. |
 | 23b | Model performance | D;E | If examined, report results of any heterogeneity in model performance across clusters. See TRIPOD-Cluster for additional details. |
 | 24 | Model updating | E | Report the results from any model updating, including the updated model and subsequent performance. |
@@ -109,10 +110,10 @@ and Discussion (25–27).
 | Item | Topic | D/E | Checklist item |
 |---|---|---|---|
 | 25 | Interpretation | D;E | Give an overall interpretation of the main results, including issues of fairness in the context of the objectives and previous studies. |
-| 26 | Limitations | D;E | Discuss any limitations of the study (such as a non-representative sample, sample size, overfitting, missing data) and their effects on any biases, statistical uncertainty, and generalisability. |
+| 26 | Limitations | D;E | Discuss any limitations of the study (such as a non-representative sample, sample size, overfitting, missing data) and their effects on any biases, statistical uncertainty, and generalizability. |
 | 27a | Usability of the model in the context of current care | D | Describe how poor quality or unavailable input data (e.g., predictor values) should be assessed and handled when implementing the prediction model. |
 | 27b | Usability of the model in the context of current care | D | Specify whether users will be required to interact in the handling of the input data or use of the model, and what level of expertise is required of users. |
-| 27c | Usability of the model in the context of current care | D;E | Discuss any next steps for future research, with a specific view to applicability and generalisability of the model. |
+| 27c | Usability of the model in the context of current care | D;E | Discuss any next steps for future research, with a specific view to applicability and generalizability of the model. |
 
 ---
 
@@ -135,6 +136,12 @@ Official item **14 (Fairness)**, **18f (Code sharing)**, **22 (Model specificati
 under their official items, not as extras here.
 
 ## Notes for assessors
+
+- **Footnotes carried from the official checklist.** Item 12c is assessed **separately for every
+  model-building approach** used, not once for the study. Item 18f (code sharing) refers to the
+  *analysis* code — data cleaning, feature engineering, model building, evaluation — while item 22
+  refers to the code needed to *implement* the model for a new individual; a study can satisfy one
+  and not the other.
 
 - **Applicability.** Mark items labelled `D` (development-only) or `E` (evaluation-only) as N/A when they do
   not apply to the study design; `D;E` items apply to both.
