@@ -152,7 +152,7 @@ comparison to current practice, reproducibility).
 - Reader-comparison rubric + inter-rater design → `/design-ai-benchmarking`.
 - Per-case metric computation + reporting gate → `/model-evaluation` → `/analyze-stats`.
 - Item-by-item compliance → `/check-reporting`; Methods write-up → `/write-paper`; reviewer-side
-  audit of the finished draft → `/self-review` (MD0–MD8 `model_development.md` probe).
+  audit of the finished draft → `/self-review` (MD0–MD11 `model_development.md` probe).
 
 ## Verification notes (what each claim is grounded on)
 - **Leakage taxonomy / three categories, reproducibility crisis** — Kapoor & Narayanan, "Leakage and
