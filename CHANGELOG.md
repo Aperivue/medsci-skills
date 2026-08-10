@@ -138,6 +138,34 @@
   assumed correlation to be stated and varied, since primary studies almost never report it. DTA
   was already covered by the bivariate/HSROC requirement; nothing else was.
 
+### Changed
+
+- **CONSORT-AI and SPIRIT-AI verified clean — and they correct the pattern this audit had been
+  claiming.** Both enumerated from the articles' own checklist tables via PMC XML and compared
+  label-by-label. **CONSORT-AI: 14/14** (11 Extensions, 3 Elaborations). **SPIRIT-AI: 15/15**
+  (12 Extensions, 3 Elaborations). Nothing missing, nothing invented, labels exact.
+
+  The audit had been reporting that *extension* checklists were the dangerous class — four for four
+  at the time. That generalisation does not survive these two. The variable that actually separates
+  the good files from the bad is **whether the source could be opened**:
+
+  | Source | Files | Worst defect found |
+  |---|---|---|
+  | **Open (CC BY)** | TRIPOD+AI, CONSORT-AI, SPIRIT-AI, PRISMA 2020 | wording drift — PRISMA 2020's items 4 and 13b |
+  | **Paywalled (JAMA, ACP)** | PRISMA-DTA, STROBE-MR, PRISMA-ScR, PROBAST, QUADAS-2 | **structural** — an instrument that was not the instrument, all 30 sub-items dropped, a renumbered checklist, an invented section |
+
+  Every structural defect came from a file whose source was behind a paywall. Where the table could
+  be opened and transcribed, it was transcribed. Where it could not, someone reconstructed it from
+  the base instrument or from memory — and that is where invented sections, dropped sub-items and
+  closed numbering gaps come from. This predicts the risk in the 35 files not yet audited far better
+  than "is it an extension".
+
+  Both files also gain a distinction the statements make and the files did not: an **Extension** is a
+  new reporting requirement the base instrument does not contain; an **Elaboration** clarifies how an
+  existing base item applies to an AI intervention. Both are assessed, but only Extensions are
+  additional obligations — reporting an Elaboration as though CONSORT 2010 or SPIRIT 2013 had been
+  silent overstates what the extension added. Elaborations are now marked **(E)**.
+
 ### Fixed
 
 - **`PRISMA_ScR.md` had renumbered the instrument, and 10 of its 22 items carried the wrong number.**

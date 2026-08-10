@@ -8,6 +8,17 @@ Reference: Cruz Rivera S, Liu X, Chan AW, et al. Nat Med 2020;26(9):1351-1363. d
 > Educational summary, authored in our own words from the CC BY 4.0 source. Use the official
 > SPIRIT-AI checklist for a submission-ready form and cite Cruz Rivera et al. 2020.
 
+> **Verified against the published statement.** All 15 AI items were enumerated from the article's
+> own checklist table via the PMC XML and compared label-by-label: **12 Extensions and
+> 3 Elaborations**, matching exactly with no item missing and none invented.
+
+> **Extension vs Elaboration — the statement distinguishes them, and it matters.** An **Extension**
+> is a *new* reporting requirement that SPIRIT 2013 does not contain. An **Elaboration** clarifies how an
+> existing SPIRIT 2013 item applies when the intervention involves AI; the requirement already existed,
+> the guidance is what is new. Both are assessed, but only the Extensions are additional obligations —
+> do not report an Elaboration as though the base instrument had been silent on it. Elaborations are
+> marked **(E)** below.
+
 ## Naming and scope (read first)
 
 - SPIRIT-AI is an **extension** of **SPIRIT 2013**, for **protocols** of randomized clinical trials of
@@ -25,8 +36,8 @@ Status each PRESENT / PARTIAL / MISSING / N/A.
 
 | # | Item | Description (intent) |
 |---|------|----------------------|
-| 1 (i) | AI identification | State in the title that the intervention involves AI/ML and specify the type of model. |
-| 1 (ii) | Intended use | State the intended use of the AI intervention. |
+| 1 (i) **(E)** | AI identification | State in the title that the intervention involves AI/ML and specify the type of model. |
+| 1 (ii) **(E)** | Intended use | State the intended use of the AI intervention. |
 
 ### Introduction — Background and rationale
 
@@ -40,7 +51,7 @@ Status each PRESENT / PARTIAL / MISSING / N/A.
 | # | Item | Description (intent) |
 |---|------|----------------------|
 | 9 | Setting integration | Describe the onsite and offsite requirements needed to integrate the AI intervention into the trial setting. |
-| 10 (i) | Participant eligibility | State the participant-level inclusion and exclusion criteria. |
+| 10 (i) **(E)** | Participant eligibility | State the participant-level inclusion and exclusion criteria. |
 | 10 (ii) | Input-data eligibility | State the inclusion and exclusion criteria at the level of the **input data**. |
 | 11a (i) | Algorithm version | Specify which version of the AI algorithm will be used. |
 | 11a (ii) | Input acquisition | Specify how the input data will be acquired and selected. |
