@@ -140,6 +140,42 @@
 
 ### Fixed
 
+- **`STROBE_MR.md` cited a non-existent author, cited the wrong paper, dropped all 30 sub-items,
+  shifted the last four items by one, invented an item that does not exist — and carried a
+  "Verified" stamp.** Checked against the statement (Skrivankova et al., *JAMA*
+  2021;326(16):1614-1621).
+
+  - **Citation.** The file credited "Skidmore ME / Davey Smith G, Davies NM, et al. *BMJ*
+    2021;375:n2233". There is no such first author, and n2233 is the **Explanation and Elaboration**
+    paper, not the statement. The statement is in *JAMA*.
+  - **All 30 sub-items were absent.** The file listed items 1–20 only — which is close to a
+    re-lettered STROBE. Everything that makes a report a Mendelian-randomization report lives in the
+    sub-items: variant measurement, quality control and selection (**4c**), the MR estimator
+    (**6c**), preregistration (**9b**), 2-sample similarity and **participant overlap** (**10d**),
+    assumption-validity results (**12a/b**), direction of causation (**13c**), and gene-environment
+    equivalence (**16b**). None were scoreable.
+  - **Items 17–20 were shifted by one**: Funding sat at 17, where the statement has Generalizability;
+    Data sharing at 18; conflicts at 19 — and the file **invented an item 20, "Other"**, where the
+    statement has Conflicts of interest.
+  - **Licence claim wrong**: the statement was described as CC BY. It is *JAMA*, under no open
+    licence. (The E&E is a separate BMJ paper.)
+  - The assessor notes cited item numbers that do not exist in the instrument ("9c / 12e", "16" for
+    ancestry generalisability, which is 17).
+
+  The "Verified" stamp is the part worth dwelling on. A file can assert it was checked and be wrong
+  in six ways at once; the stamp is only as good as what was compared, and nothing here had been
+  compared against the published table.
+
+  Rebuilt: 20 items and 30 sub-items, asserted programmatically against the official structure,
+  section grouping restored, wording in our own words under the JAMA licence position, and the
+  relationship to STROBE stated correctly — a stand-alone extension in which every item and sub-item
+  was modified **except 6d**. The statement's own instruction that the checklist is **not** an
+  instrument for evaluating research quality is now carried.
+
+  **Fifth extension file audited, fifth with a structural defect.** PRISMA-DTA, PROBAST, PRISMA-ScR,
+  STROBE-MR — all four of the worst showed the same signature: the base instrument's skeleton with
+  the extension's substance dropped, renumbered, or invented.
+
 - **QUADAS-2 verified against the published article, and three things it got wrong are corrected.**
   Read through institutional access (Whiting et al., *Ann Intern Med* 2011;155(8):529-536). The good
   news first: the four domains, the **3 / 2 / 2 / 3 split of the ten signalling questions**, what each
