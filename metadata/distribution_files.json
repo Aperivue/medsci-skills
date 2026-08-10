@@ -773,8 +773,8 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/QUADAS2.md",
-      "size": 3718,
-      "sha256": "fe644deaa01b54dd92dcde7bbbf3dfece2473b3f80e0d6840e8a443e6330f2f4"
+      "size": 7526,
+      "sha256": "556af8732884095eca550d915146dd6e93f335d667686703b7ac45d5f37b2f44"
     },
     {
       "path": "skills/check-reporting/references/checklists/QUADAS_C.md",
@@ -2723,8 +2723,8 @@
     },
     {
       "path": "skills/meta-analysis/references/checklists/QUADAS2.md",
-      "size": 3718,
-      "sha256": "fe644deaa01b54dd92dcde7bbbf3dfece2473b3f80e0d6840e8a443e6330f2f4"
+      "size": 7526,
+      "sha256": "556af8732884095eca550d915146dd6e93f335d667686703b7ac45d5f37b2f44"
     },
     {
       "path": "skills/meta-analysis/references/checklists/ROBINS_I.md",
