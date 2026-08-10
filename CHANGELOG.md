@@ -140,6 +140,50 @@
 
 ### Fixed
 
+- **`PRISMA_ScR.md` had renumbered the instrument, and 10 of its 22 items carried the wrong number.**
+  Checked against the statement's table (Tricco et al., *Ann Intern Med* 2018;169(7):467-473).
+
+  PRISMA-ScR keeps PRISMA's **1–27 numbering**. Five rows are marked *"Not applicable for scoping
+  reviews"* — **13** (summary measures), **15** and **22** (risk of bias across studies and its
+  results counterpart), **16** and **23** (additional analyses and its counterpart) — and two are
+  optional, phrased *"If done"*: **12** and **19**, the critical-appraisal pair. That is how
+  27 rows come to be described as "20 essential items + 2 optional".
+
+  The file had deleted the five N/A rows and closed the gaps, renumbering everything from 13 onward:
+
+  | Official | This file said |
+  |---|---|
+  | 14 Synthesis of results (Methods) | 13 |
+  | 17 Selection of sources of evidence | 14 |
+  | 18 Characteristics of sources | 15 |
+  | **19 Critical appraisal within sources** | **16** |
+  | 20 Results of individual sources | 17 |
+  | 21 Synthesis of results (Results) | 18 |
+  | 24 Summary of evidence | 19 |
+  | 25 Limitations | 20 |
+  | 26 Conclusions | 21 |
+  | 27 Funding | 22 |
+
+  Item numbers are how authors, reviewers and editors refer to a checklist. A reviewer asking about
+  "PRISMA-ScR item 25" means Limitations; this file had no item 25 and put Limitations at 20. A
+  compliance report citing "item 19" from it meant Summary of evidence, where the guideline's item 19
+  is the critical-appraisal results.
+
+  Compounding it, the header and the assessor notes named the optional pair as **"12 and 16"**. Item
+  16 is *Additional analyses* and is **N/A** — a different item with a different status. An assessor
+  following the file would have looked for optional appraisal data under 16 and never scored item 19
+  at all.
+
+  Restored to 1–27 with the five N/A rows present and labelled, and the optional pair at 12 and 19 —
+  asserted programmatically (`ids == 1..27`, N/A set `[13, 15, 16, 22, 23]`, optional set `[12, 19]`,
+  20 essential). The item descriptions, which were sound, are unchanged apart from the numbering and
+  the cross-references in the notes. The statement's terminology footnote is now carried: *critical
+  appraisal* rather than risk of bias, *sources of evidence* rather than studies, *charting* rather
+  than extraction — and why.
+
+  The previous revision carried a "Verified" stamp, as `STROBE_MR.md` did. Neither had been compared
+  against the published table.
+
 - **`STROBE_MR.md` cited a non-existent author, cited the wrong paper, dropped all 30 sub-items,
   shifted the last four items by one, invented an item that does not exist — and carried a
   "Verified" stamp.** Checked against the statement (Skrivankova et al., *JAMA*
