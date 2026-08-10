@@ -88,7 +88,11 @@ The user-specified .bib file path, or the .bib just produced by `/search-lit`.
 ```python
 # Parse .bib entries with regex.
 # Extract per entry:
-#   - citekey (e.g., Kim_2024_Validation)
+#   - citekey — read it from the entry, never compose one.
+#     Better BibTeX keys look like `smithDeepLearningRadiology2024`
+#     (author + title words + year). A key shaped like `Smith_2024_Validation`
+#     or `smith2024validation` was almost certainly invented rather than read,
+#     and will not resolve against the library. See Step 3.2 §Citekey provenance.
 #   - doi
 #   - pmid
 #   - title
@@ -174,19 +178,25 @@ Read `SSOT.yaml` → `truth.refs_bib`. Default: `manuscript/_src/refs.bib`. If a
 
 Before entering the 10s polling loop in Step 2.5.2, verify both preconditions. If **either** fails, abort Phase 2.5 with setup instructions instead of waiting for a timeout that will never resolve.
 
-1. **BBT auto-export registered.** `~/Zotero/better-bibtex/read-only.json` must be a non-empty JSON list. Check with:
+1. **Better BibTeX is answering.** Probe the running plugin, not a file on disk:
 
    ```bash
-   python3 -c 'import json,sys,pathlib; p=pathlib.Path.home()/".zotero"/"zotero"/"Profiles"; \
-     f=pathlib.Path.home()/"Zotero"/"better-bibtex"/"read-only.json"; \
-     sys.exit(0 if f.exists() and json.loads(f.read_text() or "[]") else 1)'
+   curl -s -m 5 -o /dev/null -w "%{http_code}" \
+     http://127.0.0.1:23119/better-bibtex/json-rpc    # expect 200
    ```
 
-   Or equivalent shell: `[ -s ~/Zotero/better-bibtex/read-only.json ] && [ "$(jq 'length' ~/Zotero/better-bibtex/read-only.json)" -gt 0 ]`.
+   A non-200 means Zotero is closed or BBT has not finished starting. Retry once after
+   Zotero's window is up; BBT registers its endpoint a few seconds after the app does.
+
+   ⚠️ **Do not gate on `~/Zotero/better-bibtex/read-only.json`.** Current BBT releases keep
+   auto-export registrations in their own store, so that file is routinely `[]` on a
+   perfectly healthy install. Treating an empty list as "not configured" skips this phase
+   on working setups — and a skipped Phase 2.5 is how a stale `refs.bib` and an invented
+   citekey reach a manuscript.
 
    On failure print:
 
-   > Phase 2.5 skipped: BBT auto-export not configured (`~/Zotero/better-bibtex/read-only.json` is empty or missing). Set up "Keep updated" auto-export per `docs/zotero_policy.md` §Setup, then re-run `/lit-sync`.
+   > Phase 2.5 skipped: Better BibTeX did not answer on `127.0.0.1:23119` (HTTP `<code>`). Open Zotero, wait for it to finish loading, then re-run `/lit-sync`.
 
 2. **Target refs.bib exists.** The resolved `truth.refs_bib` path from Step 2.5.1 must exist on disk (even empty is OK — BBT will overwrite). On failure print:
 
@@ -215,7 +225,7 @@ Append to the JSON written in Step 2.3:
   "refs_bib_path": "manuscript/_src/refs.bib",
   "refs_bib_mtime": "2026-04-24T14:32:11Z",
   "refs_bib_refreshed": true,
-  "citekeys_verified": ["Kim_2024_Validation", "..."]
+  "citekeys_verified": ["smithDeepLearningRadiology2024", "..."]
 }
 ```
 
@@ -293,6 +303,34 @@ ls "$VAULT/Literature/" | grep -v "📊" | wc -l
 
 For each .bib entry, create `Literature/{citekey}.md` (or the vault's existing literature folder).
 **Skip if the file already exists** (never overwrite).
+
+#### Citekey provenance — the note filename is a claim about the library
+
+A literature note's filename and its `citekey:` field assert that an entry with that key
+exists in Zotero. Every downstream use depends on it: `[@key]` in a manuscript, `[[key]]`
+between notes, the Zotero Integration plugin writing `{{citekey}}.md` into the same folder.
+A key that resolves to nothing turns all three into dead ends at once — and the note still
+looks correct, which is why this goes unnoticed for months.
+
+So the key is **read, never composed**:
+
+1. Take it from the `.bib` entry, or ask Better BibTeX
+   (`item.search` over json-rpc — see `references/bbt_lookup.md`).
+2. If the paper is not in Zotero, **add it first** (`zotero_add_by_doi`) and let BBT mint
+   the key. Phase 2 owns that step for a reason: a note written ahead of its library entry
+   has no key to be right about.
+3. If it cannot be added (no DOI, offline), write the note with `citekey: ""` and the tag
+   `_needs-citekey`. An empty field is recoverable; an invented one is not, because nothing
+   downstream can tell it apart from a real key.
+
+Verify before finishing:
+
+```bash
+python3 scripts/check_citekey_provenance.py --vault "$VAULT" --bib "$REFS_BIB"
+```
+
+Every reported `INVENTED` is a note whose key exists nowhere — fix it here rather than
+letting it reach a manuscript.
 
 #### Template
 
