@@ -1,6 +1,16 @@
 # QUADAS-2 Assessment Guide
 
 Quality Assessment of Diagnostic Accuracy Studies, version 2.
+Version: QUADAS-2 (2011) — 4 domains, each rated for risk of bias, with applicability for the first three.
+Source: Whiting PF, Rutjes AWS, Westwood ME, Mallett S, Deeks JJ, Reitsma JB, et al. QUADAS-2: a
+revised tool for the quality assessment of diagnostic accuracy studies. *Ann Intern Med*
+2011;155(8):529-536 (DOI 10.7326/0003-4819-155-8-201110180-00009).
+
+> **Fidelity and licence.** QUADAS-2 is published in *Annals of Internal Medicine* (© American
+> College of Physicians) under **no open licence**; `LICENSES.md` previously claimed CC BY for it on
+> no evidence. This file is an **in-house summary of the tool's structure** and has **not** been
+> compared against the published tool, so the signalling questions below may be abbreviated or
+> incomplete. **Complete the official QUADAS-2 form for any assessment you report.**
 Reference: Whiting PF et al. Ann Intern Med 2011;155(8):529-536.
 
 ## Structure

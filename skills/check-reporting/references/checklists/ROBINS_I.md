@@ -1,6 +1,23 @@
 # ROBINS-I Assessment Guide
 
 Risk Of Bias In Non-randomised Studies - of Interventions.
+Version: ROBINS-I (2016), the original version. Tool home: https://www.riskofbias.info
+Source: Sterne JAC, Hernán MA, Reeves BC, Savović J, Berkman ND, Viswanathan M, et al. ROBINS-I: a
+tool for assessing risk of bias in non-randomised studies of interventions. *BMJ* 2016;355:i4919
+(DOI 10.1136/bmj.i4919).
+
+> **Fidelity and licence.** The source article is **CC BY-NC 3.0** — non-commercial. This repository
+> is MIT-licensed and redistributed without restriction, so the tool's wording cannot be carried
+> verbatim here. This file is an **in-house summary of the tool's structure**: the seven domains,
+> their order, the answer options and the judgement levels, all of which were checked against the
+> article. The per-domain questions below are abbreviated and are **not** the tool's signalling
+> questions. **Complete the official ROBINS-I form from riskofbias.info for any assessment you
+> report.**
+>
+> **A version 2 exists and is still in draft.** ROBINS-I V2 adds algorithms mapping signalling-question
+> answers onto domain judgements, and covers bias due to immortal time, which the 2016 version omits.
+> A revised draft was posted in November 2025 and is subject to change. Check riskofbias.info before
+> choosing which version to appraise against; this file documents the 2016 version.
 Reference: Sterne JAC et al. BMJ 2016;355:i4919.
 
 ## Structure

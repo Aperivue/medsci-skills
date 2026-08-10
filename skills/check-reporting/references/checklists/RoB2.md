@@ -1,6 +1,18 @@
 # RoB 2 Assessment Guide
 
 Revised Cochrane Risk-of-Bias tool for Randomised Trials.
+Version: RoB 2 (2019). Full guidance and the current tool: https://www.riskofbias.info
+Source: Sterne JAC, Savović J, Page MJ, Elbers RG, Blencowe NS, Boutron I, et al. RoB 2: a revised
+tool for assessing risk of bias in randomised trials. *BMJ* 2019;366:l4898 (DOI 10.1136/bmj.l4898;
+PMID 31462531).
+
+> **Fidelity and licence.** **No open licence was found for this article** — Crossref returns only
+> BMJ's text-and-data-mining policy, and `LICENSES.md` previously claimed CC BY for it on no
+> evidence. This file is therefore an **in-house summary of the tool's structure**: the domains,
+> the answer options and the judgement levels. It has **not** been compared against the official
+> guidance document, so the signalling questions below may be incomplete or abbreviated relative to
+> the tool. **Complete the official RoB 2 form from riskofbias.info for any assessment you report**,
+> and treat this file as a way to organise a first pass only.
 Reference: Sterne JAC et al. BMJ 2019;366:l4898. PMID: 31462531.
 
 ## Structure
