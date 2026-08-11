@@ -430,6 +430,12 @@ jobs:
       - name: Run checklist-provenance challenge (a bare "Verified" claim must fail)
         run: bash scripts/checklist_provenance_challenge/verify.sh
 
+      - name: Run citekey-provenance challenge (a composed citekey must be caught)
+        run: bash skills/lit-sync/tests/citekey_provenance_challenge.sh
+
+      - name: Run citekey-provenance self-test (mutate the detector; the card must FAIL)
+        run: bash skills/lit-sync/tests/citekey_provenance_challenge_selftest.sh
+
       - name: Run lit-sync poll-logic test
         run: bash skills/lit-sync/tests/test_poll_logic.sh
 
