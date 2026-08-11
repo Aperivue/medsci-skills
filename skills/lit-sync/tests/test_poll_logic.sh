@@ -78,14 +78,24 @@ echo "Phase 2.5 polling regression (4 scenarios)"
 echo "  Tmpdir: $TMP"
 echo
 
+# Timing slack. The poller reads `date +%s`, so both START and the `>= TIMEOUT`
+# comparison are whole seconds: the deadline can fire up to ~1s early on top of any
+# sleep overshoot. Each scenario therefore needs its write and its deadline several
+# seconds apart, not one or two.
+#
+# Widening a DETECT scenario's window costs no runtime — it exits the moment it sees
+# the mtime change, so the window is only a deadline. Narrowing a TIMEOUT scenario's
+# window shortens it. The slack column is the gap these margins buy.
+#
+#                                              window  write_at   slack
 # 1. BBT write within window → detect
-run_scenario "detect-within-window" 10 3 0
+run_scenario "detect-within-window" 10 3 0   #     10         3      7s
 # 2. No write, short window → timeout
-run_scenario "timeout-silent" 3 none 1
+run_scenario "timeout-silent" 3 none 1       #      3      none     n/a
 # 3. BBT debounce, late-but-within write → detect
-run_scenario "debounce-late" 10 8 0
+run_scenario "debounce-late" 14 8 0          #     14         8      6s
 # 4. Slow BBT, write outside window → timeout (Phase 2.5 fallback prompt)
-run_scenario "slow-bbt-timeout" 4 8 1
+run_scenario "slow-bbt-timeout" 2 8 1        #      2         8      6s
 
 echo
 echo "Summary: $PASS passed, $FAIL failed"
