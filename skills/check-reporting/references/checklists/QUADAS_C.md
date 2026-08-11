@@ -18,7 +18,8 @@ repositories sit behind a browser challenge; the group's own distribution made t
 > that QUADAS-C "cannot be used alone and must be used alongside the main QUADAS tool", and now
 > recommends pairing it with **QUADAS-3** rather than QUADAS-2 — with adaptation, for which the
 > QUADAS-3 E&E document gives guidance. This file documents QUADAS-C as published against
-> QUADAS-2. See also `QUADAS2.md`.
+> QUADAS-2. See **`QUADAS3.md`** for the current base tool, and `QUADAS2.md` for the one this
+> extension was written against.
 
 ## Purpose
 

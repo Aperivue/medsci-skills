@@ -22,8 +22,8 @@ https://www.bristol.ac.uk/population-health-sciences/projects/quadas/
 > iteration of the QUADAS tool and is the current recommended version" — it extends QUADAS-2 by
 > introducing an explicit ideal-test-accuracy-trial comparator and by moving assessment **from the
 > study level to the level of individual accuracy estimates**. This file documents QUADAS-2, which
-> remains what most published reviews used. For a new review, check the group's page above and use
-> QUADAS-3; `QUADAS_C.md` should now be paired with QUADAS-3 rather than with this tool.
+> remains what most published reviews used. For a new review use **`QUADAS3.md`**;
+> `QUADAS_C.md` should now be paired with QUADAS-3 rather than with this tool.
 
 ## How the tool is applied — four phases
 
