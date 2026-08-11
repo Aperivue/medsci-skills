@@ -6,7 +6,9 @@ domain and applicability for the first three only.
 Source: Whiting PF, Rutjes AWS, Westwood ME, Mallett S, Deeks JJ, Reitsma JB, et al. QUADAS-2: a
 revised tool for the quality assessment of diagnostic accuracy studies. *Ann Intern Med*
 2011;155(8):529-536 (DOI 10.7326/0003-4819-155-8-201110180-00009). The tool itself, training material
-and worked examples: www.quadas.org.
+and worked examples were distributed from www.quadas.org; that domain no longer resolves, and the
+QUADAS group now distributes its tools from
+https://www.bristol.ac.uk/population-health-sciences/projects/quadas/
 
 > **Fidelity and licence.** QUADAS-2 is published in *Annals of Internal Medicine* (© American College
 > of Physicians) under **no open licence**. **Verified against the published article**: the four
@@ -15,6 +17,13 @@ and worked examples: www.quadas.org.
 > match. The descriptions below state what each question asks **in our own words** rather than
 > reproducing the published wording. **Complete the official QUADAS-2 form from www.quadas.org for
 > any assessment you report.**
+>
+> **QUADAS-3 has superseded this tool.** The QUADAS group states that "QUADAS-3 is the current
+> iteration of the QUADAS tool and is the current recommended version" — it extends QUADAS-2 by
+> introducing an explicit ideal-test-accuracy-trial comparator and by moving assessment **from the
+> study level to the level of individual accuracy estimates**. This file documents QUADAS-2, which
+> remains what most published reviews used. For a new review, check the group's page above and use
+> QUADAS-3; `QUADAS_C.md` should now be paired with QUADAS-3 rather than with this tool.
 
 ## How the tool is applied — four phases
 

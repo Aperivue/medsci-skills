@@ -1,18 +1,24 @@
 # QUADAS-C Assessment Guide
 
 Quality Assessment of Diagnostic Accuracy Studies — Comparative (extension to QUADAS-2).
-Reference: Yang B et al. Guidance on how to use QUADAS-C. 2021. Available from: https://osf.io/hq8mf/files/
+Reference: Yang B et al. *Guidance on how to use QUADAS-C*. Official tool, guidance document and templates are distributed by the QUADAS group at
+https://www.bristol.ac.uk/population-health-sciences/projects/quadas/quadas-c/
 
 Version: QUADAS-C (2021)
 Source: Yang B, Mallett S, Takwoingi Y, Davenport CF, Hyde CJ, Whiting PF, et al. QUADAS-C: a tool for assessing risk of bias in comparative diagnostic accuracy studies. *Ann Intern Med* 2021;174(11):1592-1599 (DOI 10.7326/M21-2234).
 Licence: *Annals of Internal Medicine* (© American College of Physicians) — no open licence.
-Verification: **NOT VERIFIED — retrieval blocked.** The statement is in *Annals of Internal
-Medicine* (paywalled). Author-accepted manuscripts are deposited at the University of Birmingham
-research portal (`research.birmingham.ac.uk/files/150681379/QUADAS_C_manuscript_resubmission_2021.08.30.pdf`)
-and at Amsterdam UMC Pure (`pure.amsterdamumc.nl/files/150147580/Quadas-c.pdf`); both return a
-browser challenge to automated retrieval, so neither was read. The items below have **not** been
-compared against the published tool — fetch one of those two files manually and compare before
-relying on this file.
+Verification: every comparative signalling question (C1.1–C1.5, C2.1–C2.5, C3.1–C3.3, C4.1–C4.5),
+the five comparative study designs, the four completion phases, the domain judgement rules and the
+five optional Table 4 questions were compared against the **official QUADAS-C tool (`QUADAS-C
+tool.docx`) and guidance document**, both distributed by the QUADAS group at the University of
+Bristol. All matched. The article itself is paywalled and the author manuscripts at two university
+repositories sit behind a browser challenge; the group's own distribution made those unnecessary.
+
+> **QUADAS-3 is now the current recommended version of the base tool.** The QUADAS group states
+> that QUADAS-C "cannot be used alone and must be used alongside the main QUADAS tool", and now
+> recommends pairing it with **QUADAS-3** rather than QUADAS-2 — with adaptation, for which the
+> QUADAS-3 E&E document gives guidance. This file documents QUADAS-C as published against
+> QUADAS-2. See also `QUADAS2.md`.
 
 ## Purpose
 
@@ -60,7 +66,7 @@ Designs #1, #2, and #3 protect against confounding. Designs #4 and #5 have serio
 4. **(C1.4)** Was the allocation sequence concealed until patients were enrolled and assigned? *(only applicable to randomized designs)*
    - Appropriate: central randomization, telephone/internet service, sealed opaque envelopes
 
-### Risk of Bias Judgment
+### Risk of Bias Judgment — **C1.5** Could the selection of patients have introduced bias in the comparison?
 - **Low**: 'Yes' to all applicable signalling questions
 - **High**: 'No' to C1.2 (not fully paired/randomized) almost always → high risk; 'No' to other questions raises concern
 - **Unclear**: Insufficient information to judge
@@ -77,7 +83,7 @@ Designs #1, #2, and #3 protect against confounding. Designs #4 and #5 have serio
 4. **(C2.4)** Were the index tests conducted and interpreted without advantaging one of the tests?
    - Tests should be performed under similar conditions; differences in sample handling, equipment generation, or operator experience may bias the comparison
 
-### Risk of Bias Judgment
+### Risk of Bias Judgment — **C2.5** Could the conduct or interpretation of the index tests have introduced bias in the comparison?
 - **Low**: 'Yes' to all applicable signalling questions
 - **High**: 'No' to any question suggesting the comparison is unfairly biased
 - **Unclear**: Insufficient information
@@ -90,7 +96,7 @@ Designs #1, #2, and #3 protect against confounding. Designs #4 and #5 have serio
 2. **(C3.2)** Did the reference standard avoid incorporating any of the index tests?
    - If one index test is part of the reference standard, its accuracy is artificially inflated relative to the other test
 
-### Risk of Bias Judgment
+### Risk of Bias Judgment — **C3.3** Could the reference standard, its conduct, or its interpretation have introduced bias in the comparison?
 - **Low**: 'Yes' to all signalling questions
 - **High**: 'No' to any, particularly if incorporation affects tests asymmetrically
 - **Unclear**: Insufficient information
@@ -110,10 +116,12 @@ Designs #1, #2, and #3 protect against confounding. Designs #4 and #5 have serio
    - Differential missing data between test groups can bias the comparison
    - Consider both proportion and mechanism of missingness
 
-### Risk of Bias Judgment
+### Risk of Bias Judgment — **C4.5** Could the patient flow have introduced bias in the comparison?
 - **Low**: 'Yes' to all signalling questions
 - **High**: 'No' to any question, particularly C4.3 (differential verification) or C4.4 (differential missing data)
 - **Unclear**: Insufficient information
+
+'Unclear' does not mean 'moderate' risk of bias — it means there is insufficient information to judge.
 
 ## Optional Additional Signalling Questions (Table 4)
 
@@ -132,7 +140,7 @@ These are not part of the core tool but can be added to tailor for specific revi
 - Present QUADAS-2 and QUADAS-C results side by side
 - QUADAS-C results are specific to each test comparison (present separately if multiple comparisons)
 - Use traffic-light tables: + (low risk, green), - (high risk, red), ? (unclear, yellow)
-- Templates available at www.quadas.org
+- The guidance document points to www.quadas.org for templates; that domain no longer resolves, and the tabular and graphical templates are distributed from the QUADAS group's Bristol page (see the Reference line above)
 
 ## When to Use
 

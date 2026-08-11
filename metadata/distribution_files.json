@@ -713,8 +713,8 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/GRRAS.md",
-      "size": 5846,
-      "sha256": "b0923a9a7e61ed6e89c4e947205e82cf50b13e170c016be781fa308725e70047"
+      "size": 6589,
+      "sha256": "4eec0fce5d129d6de4a230f6f2ebb207ec55483c059d54133e8adc3fbf6cbf2f"
     },
     {
       "path": "skills/check-reporting/references/checklists/MI_CLEAR_LLM.md",
@@ -773,13 +773,13 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/QUADAS2.md",
-      "size": 7526,
-      "sha256": "556af8732884095eca550d915146dd6e93f335d667686703b7ac45d5f37b2f44"
+      "size": 8282,
+      "sha256": "09a6ef807cf77def7343ed2c0b4a6177317f563dcb2088bd1a9ed22438a7b8dc"
     },
     {
       "path": "skills/check-reporting/references/checklists/QUADAS_C.md",
-      "size": 8539,
-      "sha256": "2127aefb62603febcdec6375f8e58023905b2d4d019afafa44a2af96f2496738"
+      "size": 9724,
+      "sha256": "bda64cd1c3315690405355017819d38e2c7ea3e3b3e829e639da47e5c133c795"
     },
     {
       "path": "skills/check-reporting/references/checklists/RECORD.md",
@@ -2733,8 +2733,8 @@
     },
     {
       "path": "skills/meta-analysis/references/checklists/QUADAS2.md",
-      "size": 7526,
-      "sha256": "556af8732884095eca550d915146dd6e93f335d667686703b7ac45d5f37b2f44"
+      "size": 8282,
+      "sha256": "09a6ef807cf77def7343ed2c0b4a6177317f563dcb2088bd1a9ed22438a7b8dc"
     },
     {
       "path": "skills/meta-analysis/references/checklists/ROBINS_I.md",
