@@ -118,7 +118,7 @@ user specification.
 | Risk of bias (RCTs) | RoB 2 | -- |
 | Risk of bias (non-randomised intervention studies) | ROBINS-I | -- |
 | Risk of bias (non-randomised exposure studies) | ROBINS-E | -- |
-| Risk of bias (comparative DTA studies) | QUADAS-C | **QUADAS-3** (use both; QUADAS-C needs adaptation — see the QUADAS-3 E&E) |
+| Risk of bias (comparative DTA studies) | QUADAS-C | **QUADAS-3** (use both; C4 has no single QUADAS-3 domain — see *Using QUADAS-C with QUADAS-3* in `QUADAS3.md`) |
 | Risk of bias (prediction models) | PROBAST | PROBAST+AI |
 | Risk of bias (systematic reviews) | ROBIS | AMSTAR 2 |
 | Risk of bias (missing evidence in MA) | ROB-ME | -- |
