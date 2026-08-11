@@ -4,6 +4,24 @@
 
 ### Added
 
+- **`/obsidian-paper-vault` — a folder of PDFs becomes an Obsidian vault.** The reference
+  pipeline could sync a Zotero library into literature notes (`/lit-sync`), but not start from the
+  PDFs themselves. This skill writes one templated note per paper — frontmatter that Dataview can
+  query, an embed link to the source, a summary written from the paper's own text — and, once ten
+  notes exist, drafts atomic concept notes for the ideas that recur across three or more of them.
+
+  **Batch notes are written from pre-extracted text, never from PDF paths handed to subagents.**
+  A subagent that cannot open a file does not report the failure; it writes the note from training
+  data, and the output is fluent, correctly formatted, and wrong in its sample sizes and p-values.
+  `scripts/extract_pdfs.py` (PyMuPDF) makes the text the only thing a subagent can read, and an
+  acceptance gate spot-checks two values per batch against the source text.
+
+  It shares vault folders with `/lit-sync` and enters them from the opposite end — citekey-named
+  notes from bibliographic records, title-named notes from PDFs — so neither skill overwrites the
+  other's notes. Korean-structured vaults are supported through
+  `references/locale/ko/note_templates.md`, mirroring the `/lit-sync` ko locale, and the skill
+  honors whatever folder layout a vault already uses rather than imposing its own.
+
 - **Demo 5 rung 3b — the counterfactual arm, and the panel's second Fatal finding closed by
   measurement.** The review panel was right that the study asserted a cause its design could not
   identify: `CTNormalization` demonstrably treats CT and MRI differently, but that does not show the

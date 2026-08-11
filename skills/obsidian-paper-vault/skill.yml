@@ -1,0 +1,54 @@
+schema_version: 2
+name: obsidian-paper-vault
+layer: A
+owner_domain: pdf_to_vault_notes
+maturity: official
+when_to_use:
+  - User has a folder of research PDFs and wants Obsidian literature notes
+  - Batch-summarizing papers into one consistent template
+  - Building or extending a research "second brain" vault
+  - Extracting atomic concept notes once enough literature notes have accumulated
+when_NOT_to_use:
+  - Notes should come from a Zotero collection or refs.bib (use /lit-sync)
+  - Literature search without note-building (use /search-lit)
+  - Downloading open-access full texts (use /fulltext-retrieval)
+  - Verifying citations in a manuscript (use /verify-refs)
+inputs:
+  - a folder of PDF files
+  - vault root + literature/concept folder names (asked, never assumed)
+outputs:
+  - obsidian_literature_notes
+  - obsidian_concept_notes
+  - PAPER_QUEUE.md  # resumable batch progress
+deterministic_scripts:
+  - scripts/extract_pdfs.py  # PyMuPDF text pre-extraction; batch notes are written from .txt, never from PDFs
+side_effects:
+  - may_write_obsidian_notes
+  - writes_text_cache  # ~/.local/cache/paper-vault-texts/ by default
+downstream_consumers:
+  - lit-sync  # concept-note extraction over the same vault folders
+ssot_boundary:
+  - Never overwrites an existing note. /lit-sync is the sole writer of manuscript/_src/refs.bib and of citekey-named literature notes; this skill writes title-named notes from PDFs.
+quality_gates:
+  - text_first: batch notes are written from extracted .txt files, never from PDF paths handed to subagents
+  - filename_fidelity: every PDF embed link reproduces the source filename character for character
+  - frontmatter_contract: field names match references/templates.md so Dataview queries resolve
+forbidden_actions:
+  - fabricate_numbers_authors_or_dates
+  - pass_pdf_paths_to_subagents
+  - overwrite_existing_notes
+  - invent_top_level_tags
+
+# v2.1 quality card
+purpose: "Convert a folder of research PDFs into templated Obsidian literature notes plus atomic concept notes synthesized across them."
+safety_boundaries:
+  - "Every number, author, and date is transcribed from extracted PDF text; nothing is written from model knowledge."
+  - "Existing notes are never overwritten."
+known_limitations:
+  - "Requires PyMuPDF; scanned PDFs with poor OCR yield thin notes."
+  - "Default extraction is the first 12 pages, so appendix-only content is missed unless max_pages is raised."
+  - "Effects land in the user's Obsidian vault, so there is no self-contained demo."
+validation_commands:
+  - "python3 scripts/extract_pdfs.py <pdf_folder> <cache_folder>"
+  - "grep -c 'date_published' <vault>/<literature_folder>/*.md"
+evidence_surface: manual_workflow

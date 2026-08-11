@@ -15,6 +15,7 @@
         "./skills/fulltext-retrieval",
         "./skills/lit-sync",
         "./skills/manage-refs",
+        "./skills/obsidian-paper-vault",
         "./skills/search-lit",
         "./skills/verify-refs"
       ]
