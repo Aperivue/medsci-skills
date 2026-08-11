@@ -43,8 +43,43 @@ Condition** (the index-test-to-reference-standard interval), and participant exc
 data and the unit of analysis moved into the new **Analysis** domain.
 
 **Comparative accuracy reviews**: the group recommends using **QUADAS-C in addition to QUADAS-3**
-(`QUADAS_C.md`). QUADAS-C was written against QUADAS-2 and needs adaptation; the QUADAS-3 E&E
-report gives guidance on how.
+(`QUADAS_C.md`). QUADAS-C was written against QUADAS-2 and needs adaptation — see the next section.
+
+## Using QUADAS-C with QUADAS-3
+
+Both tools say to pair them: the QUADAS-3 tool states that "for reviews involving comparative
+accuracy, we recommend using the QUADAS-C tool in addition to QUADAS-3", and the QUADAS group says
+QUADAS-C "cannot be used alone and must be used alongside the main QUADAS tool", now meaning
+QUADAS-3.
+
+**They do not slot together unchanged, and it is worth knowing where before you start.** Each of
+QUADAS-C's four opening questions hard-references a QUADAS-2 question number:
+
+| QUADAS-C | asks whether | referencing | QUADAS-3 counterpart |
+|---|---|---|---|
+| C1.1 | each index test was low risk for this domain | QUADAS-2 **1.4** | Domain 1 **Participants** judgement |
+| C2.1 | 〃 | QUADAS-2 **2.3** | Domain 2 **Index Test** judgement |
+| C3.1 | 〃 | QUADAS-2 **3.3** | Domain 3 **Target Condition** judgement (the domain was renamed from Reference Standard) |
+| C4.1 | 〃 | QUADAS-2 **4.5** | **no single counterpart** |
+
+**C4 is the one that does not map.** QUADAS-C's domain 4 is *Flow and Timing*, and QUADAS-3 split
+that domain: the index-test-to-reference-standard interval became **3.8** inside Target Condition,
+while exclusions, missing data and the unit of analysis became the new **Analysis** domain. So
+QUADAS-C's C4.1 has no one judgement to read, and its C4.2 (interval between the index tests),
+C4.3 (same reference standard for all index tests) and C4.4 (missing data comparable across index
+tests) sit astride two QUADAS-3 domains.
+
+There is a second mismatch of granularity: **QUADAS-3 judges each set of accuracy estimates, while
+QUADAS-C judges a test comparison**, which spans at least two estimates. Decide, and record, which
+estimates a given QUADAS-C assessment is standing on.
+
+> **The authority for this adaptation is the QUADAS-3 E&E report, which this file has not read.**
+> Davenport C, Rutjes A, Mallett S, Tomlinson E, Yang B, et al. QUADAS-3 explanation and
+> elaboration. *Ann Intern Med* 2026;179:e2504943 (DOI 10.7326/ANNALS-25-04943). It is **CC BY**
+> and open access, but every route to it — the ACP site, the Bristol repository landing page, and
+> the handle — returns a bot challenge to automated retrieval, so it was not fetched. The mapping
+> above is **our reading of the two tool documents**, not the E&E's guidance. Read the E&E before
+> relying on it for a review you will publish.
 
 ## The six phases
 
