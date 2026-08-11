@@ -28,6 +28,8 @@
 
 - `confirm refs.bib mtime refreshed via Better BibTeX`
 - `zotero_find_duplicates after sync`
+- `bash skills/lit-sync/tests/citekey_provenance_challenge.sh`
+- `bash skills/lit-sync/tests/citekey_provenance_challenge_selftest.sh`
 
 **Evidence** — `manual_workflow`
 
