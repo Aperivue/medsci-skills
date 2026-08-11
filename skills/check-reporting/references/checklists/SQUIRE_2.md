@@ -6,7 +6,9 @@ Source: http://squire-statement.org
 Reference: Ogrinc G, Davies L, Goodman D, Batalden P, Davidoff F, Stevens D. SQUIRE 2.0 (Standards for QUality Improvement Reporting Excellence): revised publication guidelines from a detailed consensus process. BMJ Qual Saf. 2016;25(12):986-992. doi:10.1136/bmjqs-2015-004411
 
 Licence: Crossref returns no Creative Commons licence.
-Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+Verification: all 18 items were compared against Table 1 of the published guidelines (Europe PMC
+full text, PMC5256233); 18/18 match, with no item missing and none invented. Item 2's abstract
+specification, which had been condensed away, has been restored.
 
 ## Checklist Items (18 items)
 
@@ -15,7 +17,7 @@ Verification: **NOT VERIFIED.** The items below have not been compared against t
 | # | Item | Description |
 |---|------|-------------|
 | 1 | Title | Indicate that the manuscript concerns an initiative to improve healthcare (broadly defined to include the quality, safety, or value of care). |
-| 2 | Abstract | a) Provide adequate information to aid in searching and indexing. b) Summarize all key information from each section of the text. |
+| 2 | Abstract | a) Provide adequate information to aid in searching and indexing. b) Summarise all key information from various sections of the text using the abstract format of the intended publication or a structured summary such as: background, local problem, methods, interventions, results, conclusions. |
 
 ### Introduction
 

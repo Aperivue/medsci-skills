@@ -19,11 +19,8 @@ essential; score a missing essential item as a reporting gap, and a missing [n/e
 justified. CLEAR is written for **hand-crafted radiomics**; for deep-learning pipelines without radiomic
 features, CLAIM 2024 or TRIPOD+AI may fit better (a study that does both should be assessed against both).
 
-Verification: **PARTIAL — item count only.** The number of items here matches the published
-statement (the statement says “with its 58 items, the CLEAR checklist…”), checked against its PubMed Central record. The **item text has not been
-compared**, and a matching count is not evidence that it would match: STARD carried the right
-count of 30 while omitting two items, collapsing three sub-item pairs and inventing a fourth.
-Complete the official checklist for anything you report.
+Verification: all 58 items were compared against Table 1 of the published checklist (Europe PMC
+full text, PMC10160267); 58/58 match, with no item missing and none invented.
 
 ## Checklist Items
 

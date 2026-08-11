@@ -23,14 +23,17 @@ disclosing LLM use in manuscript *writing* — for that, see ICMJE/COPE policies
 disclosure feature. MI-CLEAR-LLM supplements, and does not replace, a primary reporting guideline (STARD /
 STARD-AI, CLAIM 2024, or TRIPOD+AI) chosen for the study design.
 
-Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+Verification: all 8 item categories were compared, by name and order, against Table 1 of the
+published statement (Europe PMC full text, PMC12683746); 8/8 match. The wording below stays our
+own condensed summary because the source is CC BY-**NC**, which cannot be redistributed under
+this repository's licence.
 
 ## Checklist Items (8 items)
 
 | # | Item category | What must be reported |
 |---|---|---|
 | 1 | Model identification | Model name, version, developer, proprietary/open-source status, access date(s), and training-data cutoff. |
-| 2 | Access mode | Whether a web chatbot, an API, or a self-managed local deployment was used, with rationale and version/endpoint or weights. |
+| 2 | Access mode | Whether a web chatbot, an API, or a self-managed local deployment was used, and why; any known system-level features beyond the LLM itself (system prompts, intersession memory); and, for a local deployment, key computational-environment details. |
 | 3 | Input data type | The type and format of data supplied with the prompt, in enough detail for a reader to replicate. |
 | 4 | Adaptation strategy used | Whether model weights were altered (e.g., fine-tuning) or non-parametric methods (e.g., prompting, RAG) were used — or neither. |
 | 5 | Prompt optimization procedures | How prompts were created and optimized, the rationale, and the full executable prompt text. |

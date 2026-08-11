@@ -8,221 +8,193 @@
 
 Version: ARRIVE 2.0 (2020) — Essential 10 + Recommended Set
 Source: Percie du Sert N, Hurst V, Ahluwalia A, Alam S, Avey MT, Baker M, et al. The ARRIVE guidelines 2.0: updated guidelines for reporting animal research. *PLoS Biol* 2020;18(7):e3000410 (DOI 10.1371/journal.pbio.3000410).
-Licence: CC0 1.0 (public domain dedication) — confirmed via Crossref.
-Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+Licence: CC0 1.0 (public domain dedication) — confirmed via Crossref. Item text below is reproduced from the published Tables 1 and 2.
+Verification: all 21 items were extracted from the article's own Table 1 (Essential 10) and Table 2 (Recommended Set) via the Europe PMC full text (PMC7360023) and compared item by item. **This file previously carried an invented item 19 "Limitations", renumbered items 20–21, and omitted item 21 "Declaration of interests" entirely**; the item text below is now the published text.
 
 ## How to Use This Checklist
 
 ARRIVE 2.0 has two tiers:
-- **Essential 10** (Items 1–10): Non-negotiable. All journals require these. Missing any = REJECTED.
-- **Recommended** (Items 11–21): Best practice. Complete if possible.
+- **Essential 10** (Items 1–10): the minimum that must be reported for a reader to assess the reliability of the findings.
+- **Recommended Set** (Items 11–21): add context and completeness. Report these too whenever possible.
 
 For each item: **PRESENT** / **PARTIAL** / **MISSING**
 
+Where a "How to satisfy it" note appears below, it is **our guidance, not part of the instrument** — the **Description** is the published item text.
+
 ---
 
-## ESSENTIAL 10 — Non-Negotiable
+## ESSENTIAL 10
 
-### Item 1 — Study Design ⚠️ commonly missed
-**Description:** For each experiment, provide brief details of the study design.
-**Required content:**
-- Type of study design (e.g., parallel group, crossover, factorial, dose-response)
-- Number of experimental groups and description of each
-- Independent experimental units (e.g., animal, litter, cage)
-- For any within-animal design: outline the design clearly
+### Item 1 — Study design
+**Description:** For each experiment, provide brief details of study design including:
+a. The groups being compared, including control groups. If no control group has been used, the rationale should be stated.
+b. The experimental unit (e.g., a single animal, litter, or cage of animals).
 
-**Example:** "Animals were randomly allocated to one of three parallel groups: (1) vehicle control (n=10), (2) low-dose treatment (n=10), (3) high-dose treatment (n=10). Each animal was an independent experimental unit."
+*How to satisfy it:* name the design (parallel group, crossover, factorial, dose–response), the groups and their sizes, and state explicitly what the experimental unit was — animal, litter, or cage.
 
 **Status:** [ ] PRESENT [ ] PARTIAL [ ] MISSING
 **Location:** ___
 
 ---
 
-### Item 2 — Sample Size ⚠️ commonly missed
-**Description:** Specify the number of animals used and rationale for this number.
-**Required content:**
-- Total number of animals used AND number per group
-- Method of sample size determination:
-  - Formal power calculation (provide effect size, α, power, formula, software) **OR**
-  - Pragmatic reasons (limited number of animals available, pilot study) — state explicitly
+### Item 2 — Sample size
+**Description:**
+a. Specify the exact number of experimental units allocated to each group, and the total number in each experiment. Also indicate the total number of animals used.
+b. Explain how the sample size was decided. Provide details of any a priori sample size calculation, if done.
 
-**Power calculation example:**
-"Sample size was estimated using G*Power 3.1 based on a two-sample t-test, assuming an expected effect size of Cohen's d = 1.2 (derived from [Author Year]), α = 0.05 (two-tailed), and 80% power. The calculation indicated 15 animals per group were required. Accounting for 20% expected attrition, 18 animals per group were enrolled."
+*How to satisfy it:* a formal power calculation states the effect size, α, power, test, and software; a pragmatic justification (animal availability, pilot study) is acceptable but must be stated as such.
 
 **Status:** [ ] PRESENT [ ] PARTIAL [ ] MISSING
 **Location:** ___
 
 ---
 
-### Item 3 — Inclusion/Exclusion Criteria ⚠️ commonly missed
-**Description:** Describe any criteria used for including or excluding animals or data.
-**Required content:**
-- Criteria for excluding animals from the experiment (pre-specified, not post-hoc)
-- Criteria for excluding data from analysis (e.g., outliers — method for outlier detection)
-- Any animals that were excluded and why
-
-**Example:** "Animals were excluded if: (a) weight loss exceeded 20% at any time point, (b) technical failure of surgical procedure occurred, or (c) infection was detected. Any exclusion was documented in the study log at the time of occurrence. Two animals were excluded (one from Group A due to procedure failure; one from Group C due to infection)."
+### Item 3 — Inclusion and exclusion criteria
+**Description:**
+a. Describe any criteria used for including and excluding animals (or experimental units) during the experiment, and data points during the analysis. Specify if these criteria were established a priori. If no criteria were set, state this explicitly.
+b. For each experimental group, report any animals, experimental units, or data points not included in the analysis and explain why. If there were no exclusions, state so.
+c. For each analysis, report the exact value of n in each experimental group.
 
 **Status:** [ ] PRESENT [ ] PARTIAL [ ] MISSING
 **Location:** ___
 
 ---
 
-### Item 4 — Randomization ⚠️ commonly missed
-**Description:** Describe how animals were allocated to experimental groups.
-**Required content:**
-- Method of randomization (computer-generated, random number table)
-- Type: simple, block, stratified
-- Who performed randomization (and whether separate from who conducted experiments)
-- If randomization not used, justify
-
-**Example:** "Animals were randomly allocated to groups using computer-generated random numbers (R version 4.2.0). Block randomization (block size = 6) was used to ensure balanced allocation across experimental days. Allocation was performed by a researcher (initials) not involved in data collection."
+### Item 4 — Randomisation
+**Description:**
+a. State whether randomisation was used to allocate experimental units to control and treatment groups. If done, provide the method used to generate the randomisation sequence.
+b. Describe the strategy used to minimise potential confounders such as the order of treatments and measurements, or animal/cage location. If confounders were not controlled, state this explicitly.
 
 **Status:** [ ] PRESENT [ ] PARTIAL [ ] MISSING
 **Location:** ___
 
 ---
 
-### Item 5 — Blinding ⚠️ commonly missed
-**Description:** Describe who was aware of group allocation during different stages.
-**Required content:**
-State who was blinded (or not) at each stage:
-- During the experiment (treatment administration)
-- During outcome assessment
-- During data analysis
+### Item 5 — Blinding
+**Description:** Describe who was aware of the group allocation at the different stages of the experiment (during the allocation, the conduct of the experiment, the outcome assessment, and the data analysis).
 
-"Outcome assessors were blinded to group allocation during behavioral testing and histological analysis. The researcher administering treatments could not be blinded due to the nature of the procedure; however, outcome assessment was performed by a blinded assessor."
+*How to satisfy it:* state the position at each of the four stages, including where blinding was impossible and why.
 
 **Status:** [ ] PRESENT [ ] PARTIAL [ ] MISSING
 **Location:** ___
 
 ---
 
-### Item 6 — Outcome Measures ⚠️ commonly missed
-**Description:** Clearly define all outcome measures used and how they were assessed.
-**Required content:**
-- Primary outcome: define explicitly (what is measured, how, by whom)
-- Secondary outcomes: same level of detail
-- Timing of measurements (baseline, Day 7, Day 14, etc.)
-- Observer reliability: intra- and inter-observer variability assessed?
+### Item 6 — Outcome measures
+**Description:**
+a. Clearly define all outcome measures assessed (e.g., cell death, molecular markers, or behavioural changes).
+b. For hypothesis-testing studies, specify the primary outcome measure, i.e., the outcome measure that was used to determine the sample size.
 
 **Status:** [ ] PRESENT [ ] PARTIAL [ ] MISSING
 **Location:** ___
 
 ---
 
-### Item 7 — Statistical Methods ⚠️ commonly missed
-**Description:** Describe the statistical methods used for each analysis.
-**Required content:**
-- Primary statistical test for primary outcome
-- Rationale for choice (parametric vs. non-parametric, based on what?)
-- Handling of repeated measures (linear mixed-effects model preferred over repeated ANOVA)
-- Multiple comparison correction: which method (Bonferroni, FDR)?
-- Significance threshold (α)
-- Software: R (version), SPSS (version), GraphPad Prism (version)
+### Item 7 — Statistical methods
+**Description:**
+a. Provide details of the statistical methods used for each analysis, including software used.
+b. Describe any methods used to assess whether the data met the assumptions of the statistical approach, and what was done if the assumptions were not met.
 
 **Status:** [ ] PRESENT [ ] PARTIAL [ ] MISSING
 **Location:** ___
 
 ---
 
-### Item 8 — Experimental Animals ⚠️ commonly missed
-**Description:** Provide details of animals used in the study.
-**Required content:**
-- Species and strain/substrain (with substrain details — this matters!)
-- Source (commercial vendor; in-house breeding)
-- Sex (justify if single sex)
-- Age and weight at start of experiment (mean ± SD or range)
-- Health status (specific pathogen-free, germ-free, defined flora, conventional)
-- For transgenic animals: complete genotype
-
-**Example:** "Male C57BL/6J mice (Jackson Laboratory, Bar Harbor, ME; stock #000664) aged 8–10 weeks (weight: 22.3 ± 1.8 g at enrollment) were used. Only males were used because [biological justification]. All animals were specific pathogen-free."
+### Item 8 — Experimental animals
+**Description:**
+a. Provide species-appropriate details of the animals used, including species, strain and substrain, sex, age or developmental stage, and, if relevant, weight.
+b. Provide further relevant information on the provenance of animals, health/immune status, genetic modification status, genotype, and any previous procedures.
 
 **Status:** [ ] PRESENT [ ] PARTIAL [ ] MISSING
 **Location:** ___
 
 ---
 
-### Item 9 — Experimental Procedures ⚠️ commonly missed
-**Description:** For each experiment and each experimental group, including controls, describe the procedures in enough detail to allow replication.
-**Required content:**
-- Exact procedure steps
-- Anesthesia: agent, dose, route, monitoring (temperature, heart rate)
-- Analgesia: pre- and post-operative
-- Humane endpoints: pre-specified criteria for euthanasia
-- Equipment: manufacturer, model, settings
-- Any details that could affect reproducibility (time of day, number of animals per session)
+### Item 9 — Experimental procedures
+**Description:** For each experimental group, including controls, describe the procedures in enough detail to allow others to replicate them, including:
+a. What was done, how it was done, and what was used.
+b. When and how often.
+c. Where (including detail of any acclimatisation periods).
+d. Why (provide rationale for procedures).
+
+*How to satisfy it:* anaesthesia and analgesia agents with dose and route, monitoring, equipment make/model/settings, and anything else that would change the result if varied.
 
 **Status:** [ ] PRESENT [ ] PARTIAL [ ] MISSING
 **Location:** ___
 
 ---
 
-### Item 10 — Results ⚠️ commonly missed
-**Description:** Report the results for each experiment conducted, with a measure of precision (e.g., SD, SEM, 95% CI).
-**Required content:**
-- All pre-specified outcomes (not just significant ones)
-- Effect size with 95% CI
-- Exact p-values
-- N at each time point (with attrition documented)
-- Adverse events (even if none: "No adverse events were observed")
-- Individual data points for small groups (dot plots)
+### Item 10 — Results
+**Description:** For each experiment conducted, including independent replications, report:
+a. Summary/descriptive statistics for each experimental group, with a measure of variability where applicable (e.g., mean and SD, or median and range).
+b. If applicable, the effect size with a confidence interval.
+
+Adverse events belong to item 16b, not here.
 
 **Status:** [ ] PRESENT [ ] PARTIAL [ ] MISSING
 **Location:** ___
 
 ---
 
-## RECOMMENDED ITEMS — Best Practice
+## RECOMMENDED SET
 
-### Item 11 — Abstract ⚠️ commonly missed
-**Description:** Provide an accurate summary of the research objectives, animal species used, key methods, principal findings, and study conclusions.
-**Required content:** Abstract should contain enough information for readers to understand: what species, what procedure, primary result with magnitude, conclusion.
+### Item 11 — Abstract
+**Description:** Provide an accurate summary of the research objectives, animal species, strain and sex, key methods, principal findings, and study conclusions.
 **Status:** [ ] PRESENT [ ] PARTIAL [ ] MISSING
 
 ### Item 12 — Background
-**Description:** Explain why the study was done; include sufficient background to inform the reader why this animal model was chosen.
+**Description:**
+a. Include sufficient scientific background to understand the rationale and context for the study, and explain the experimental approach.
+b. Explain how the animal species and model used address the scientific objectives and, where appropriate, the relevance to human biology.
 **Status:** [ ] PRESENT [ ] PARTIAL [ ] MISSING
 
 ### Item 13 — Objectives
-**Description:** Clearly describe the research question, hypothesis, and the specific objectives of the study.
+**Description:** Clearly describe the research question, research objectives and, where appropriate, specific hypotheses being tested.
 **Status:** [ ] PRESENT [ ] PARTIAL [ ] MISSING
 
-### Item 14 — Ethical Statement ⚠️ commonly missed
-**Description:** Provide the name of the ethics committee or equivalent, and the approval ID.
-**Required content:** "All animal experiments were approved by the Institutional Animal Care and Use Committee of [Institution] (protocol number [XXX])."
+### Item 14 — Ethical statement
+**Description:** Provide the name of the ethical review committee or equivalent that has approved the use of animals in this study, and any relevant licence or protocol numbers (if applicable). If ethical approval was not sought or granted, provide a justification.
 **Status:** [ ] PRESENT [ ] PARTIAL [ ] MISSING
 
-### Item 15 — Housing and Husbandry ⚠️ commonly missed
-**Description:** Describe the conditions under which animals were housed and cared for.
-**Required content:** Cage type and dimensions, group or individual housing (N per cage), temperature (°C), humidity (%), light cycle, food and water access (ad libitum or restricted; diet specification), acclimatization period, enrichment.
+### Item 15 — Housing and husbandry
+**Description:** Provide details of housing and husbandry conditions, including any environmental enrichment.
+
+*How to satisfy it:* cage type and dimensions, animals per cage, temperature, humidity, light cycle, food and water access and diet, acclimatisation period, enrichment.
+
 **Status:** [ ] PRESENT [ ] PARTIAL [ ] MISSING
 
-### Item 16 — Animal Care and Monitoring
-**Description:** Describe the welfare assessments that were carried out before, during, and after the experiment.
+### Item 16 — Animal care and monitoring
+**Description:**
+a. Describe any interventions or steps taken in the experimental protocols to reduce pain, suffering, and distress.
+b. Report any expected or unexpected adverse events.
+c. Describe the humane endpoints established for the study, the signs that were monitored, and the frequency of monitoring. If the study did not have humane endpoints, state this.
 **Status:** [ ] PRESENT [ ] PARTIAL [ ] MISSING
 
-### Item 17 — Interpretation
-**Description:** Interpret the results, taking into account the study objectives and hypotheses, current theory, and other relevant studies.
+### Item 17 — Interpretation/scientific implications ⚠️ limitations belong here
+**Description:**
+a. Interpret the results, taking into account the study objectives and hypotheses, current theory, and other relevant studies in the literature.
+b. Comment on the study limitations, including potential sources of bias, limitations of the animal model, and imprecision associated with the results.
+
+ARRIVE 2.0 has **no standalone "Limitations" item** — limitations are sub-item 17b.
+
 **Status:** [ ] PRESENT [ ] PARTIAL [ ] MISSING
 
-### Item 18 — Generalisability/Translation
-**Description:** Comment on whether, and how, the findings of this study are likely to translate to other species or systems, and the relevance to human biology.
+### Item 18 — Generalisability/translation
+**Description:** Comment on whether, and how, the findings of this study are likely to generalise to other species or experimental conditions, including any relevance to human biology (where appropriate).
 **Status:** [ ] PRESENT [ ] PARTIAL [ ] MISSING
 
-### Item 19 — Limitations ⚠️ commonly missed
-**Description:** Discuss the potential limitations of the study.
-**Required content:** At minimum: (a) model limitations relative to human disease, (b) single sex (if applicable), (c) single center/vendor, (d) follow-up duration, (e) sample size for secondary outcomes.
+### Item 19 — Protocol registration
+**Description:** Provide a statement indicating whether a protocol (including the research question, key design features, and analysis plan) was prepared before the study, and if and where this protocol was registered.
 **Status:** [ ] PRESENT [ ] PARTIAL [ ] MISSING
 
-### Item 20 — Protocol Registration
-**Description:** Provide a statement indicating whether a study protocol was pre-registered.
-**Required content:** OSF (osf.io), PROSPERO for systematic reviews, or equivalent. State registration ID or that registration was not done (with justification if exploratory study).
-**Status:** [ ] PRESENT [ ] PARTIAL [ ] MISSING
-
-### Item 21 — Data Availability ⚠️ commonly missed
+### Item 20 — Data access
 **Description:** Provide a statement describing if and where study data are available.
-**Required content:** "Data supporting this study are available at [repository/DOI]." or "Data are available upon reasonable request from the corresponding author."
+**Status:** [ ] PRESENT [ ] PARTIAL [ ] MISSING
+
+### Item 21 — Declaration of interests
+**Description:**
+a. Declare any potential conflicts of interest, including financial and nonfinancial. If none exist, this should be stated.
+b. List all funding sources (including grant identifier) and the role of the funder(s) in the design, analysis, and reporting of the study.
 **Status:** [ ] PRESENT [ ] PARTIAL [ ] MISSING
 
 ---
@@ -232,7 +204,7 @@ State who was blinded (or not) at each stage:
 | Category | PRESENT | PARTIAL | MISSING |
 |----------|---------|---------|---------|
 | Essential 10 | /10 | /10 | /10 |
-| Recommended | /11 | /11 | /11 |
+| Recommended Set | /11 | /11 | /11 |
 | **TOTAL** | /21 | /21 | /21 |
 
 **Verdict:** [ ] All Essential 10 PRESENT → proceed to submission

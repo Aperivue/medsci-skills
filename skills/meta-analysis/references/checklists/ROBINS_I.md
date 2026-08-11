@@ -14,6 +14,11 @@ tool for assessing risk of bias in non-randomised studies of interventions. *BMJ
 > questions. **Complete the official ROBINS-I form from riskofbias.info for any assessment you
 > report.**
 >
+> **Verification.** The seven domains, their order, their pre-/at-/post-intervention grouping and
+> the five judgement levels with their across-domain criteria were compared against Tables 1 and 2
+> of the article (Europe PMC full text, PMC5062054). All matched. The **No information** overall
+> judgement, which the file omitted, has been added.
+>
 > **A version 2 exists and is still in draft.** ROBINS-I V2 adds algorithms mapping signalling-question
 > answers onto domain judgements, and covers bias due to immortal time, which the 2016 version omits.
 > A revised draft was posted in November 2025 and is subject to change. Check riskofbias.info before
@@ -22,7 +27,10 @@ Reference: Sterne JAC et al. BMJ 2016;355:i4919.
 
 ## Structure
 
-ROBINS-I assesses 7 domains + overall judgment.
+ROBINS-I assesses 7 domains + overall judgment. The article groups them by when the bias arises:
+**pre-intervention** (domains 1–2, where assessment is mainly distinct from randomised trials),
+**at intervention** (domain 3, also mainly distinct), and **post-intervention** (domains 4–7,
+which overlap substantially with assessments of randomised trials).
 - **Signalling questions**: Yes / Probably yes / Probably no / No / No information
 - **Domain judgment**: Low / Moderate / Serious / Critical / No information
 - **Overall judgment**: Lowest of all domain judgments (most conservative)
@@ -46,7 +54,7 @@ Before applying ROBINS-I, specify:
 - **Serious**: Important confounders not adequately controlled
 - **Critical**: Confounding so severe that no useful estimate possible
 
-## Domain 2: Bias in Selection of Participants
+## Domain 2: Bias in Selection of Participants into the Study
 
 ### Key Questions
 - Was selection into the study related to both intervention and outcome?
@@ -82,7 +90,7 @@ Before applying ROBINS-I, specify:
 - Were outcome assessors blinded?
 - Were outcome measures comparable across groups?
 
-## Domain 7: Bias in Selection of Reported Result
+## Domain 7: Bias in Selection of the Reported Result
 
 ### Key Questions
 - Were multiple outcome measurements reported?
@@ -91,11 +99,12 @@ Before applying ROBINS-I, specify:
 
 ## Overall Risk of Bias
 
-The overall judgment is the most conservative across all domains:
-- **Low**: Low risk in all domains
-- **Moderate**: Low or moderate in all domains
-- **Serious**: Serious in at least one domain, but not critical in any
-- **Critical**: Critical in at least one domain
+The overall judgment follows the criteria in the article's Table 2:
+- **Low**: the study is judged at low risk of bias for all domains — comparable to a well performed randomised trial
+- **Moderate**: low or moderate for all domains — sound evidence for a non-randomised study, but not comparable to a well performed randomised trial
+- **Serious**: serious in at least one domain, but not critical in any
+- **Critical**: critical in at least one domain — too problematic to provide useful evidence, and should not be included in any synthesis
+- **No information**: no clear indication that the study is at serious or critical risk of bias, and information is lacking in one or more key domains
 
 ## Recommendation for Synthesis
 

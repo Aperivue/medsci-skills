@@ -6,7 +6,12 @@ Reference: Whiting P et al. J Clin Epidemiol 2016;69:225-234.
 Version: ROBIS (2016) — 4 domains in 3 phases
 Source: Whiting P, Savović J, Higgins JPT, Caldwell DM, Reeves BC, Shea B, et al. ROBIS: a new tool to assess risk of bias in systematic reviews was developed. *J Clin Epidemiol* 2016;69:225-234 (DOI 10.1016/j.jclinepi.2015.06.005).
 Licence: CC BY 4.0 — confirmed via Crossref. (`LICENSES.md` previously recorded no open licence for ROBIS; that was wrong.)
-Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+Verification: all 24 questions (21 phase-2 signalling questions plus phase-3 A/B/C) were compared
+word by word against the **official ROBIS 1.2 tool PDF** distributed by the University of Bristol
+(`ROBIS 1.2 Clean.pdf`), and the judgement guidance against the statement's full text (Europe PMC,
+PMC4687950). The questions matched 24/24. **The judgement guidance did not**: this file previously
+carried a "Judgment Algorithm" stating that high concern in any domain means high risk of bias,
+which the statement contradicts, and omitted the domain rule that the statement does give.
 
 ## Purpose
 
@@ -105,10 +110,22 @@ C. Did the reviewers avoid emphasizing results on the basis of their statistical
 
 **Risk of bias in the review:** LOW / HIGH / UNCLEAR
 
-### Judgment Algorithm
-- **Low risk**: Concerns are low across all domains and Phase 3 questions are favorable
-- **High risk**: High concerns in one or more domains, or the interpretation does not adequately address identified concerns
-- **Unclear**: Insufficient information to make a judgment
+### How the judgements are reached
+
+ROBIS gives a rule for **domain concern** and deliberately declines to give one for overall risk of
+bias — a design goal of the tool was "an overall risk of bias rating for a single review without
+using summary quality scores."
+
+**Phase 2, per domain.** If the answers to all signalling questions for a domain are *yes* or
+*probably yes*, the level of concern can be judged **low**. If any signalling question is answered
+*no* or *probably no*, potential for concern exists. Use *no information* only when insufficient
+data are reported to permit a judgment.
+
+**Phase 3.** Concerns identified in phase 2 do **not** automatically make the review high risk. The
+statement is explicit: where concerns were identified in earlier domains but "these were
+appropriately considered when interpreting results and drawing conclusions, then this may also be
+rated as 'yes,' and depending on the rating of the other signaling questions, the review may still
+be rated as 'low risk of bias.'" The phase-3 judgement is the assessor's, recorded with a rationale.
 
 ## When to Use
 
