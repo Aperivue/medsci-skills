@@ -6,7 +6,13 @@ Reference: Yang B et al. Guidance on how to use QUADAS-C. 2021. Available from: 
 Version: QUADAS-C (2021)
 Source: Yang B, Mallett S, Takwoingi Y, Davenport CF, Hyde CJ, Whiting PF, et al. QUADAS-C: a tool for assessing risk of bias in comparative diagnostic accuracy studies. *Ann Intern Med* 2021;174(11):1592-1599 (DOI 10.7326/M21-2234).
 Licence: *Annals of Internal Medicine* (© American College of Physicians) — no open licence.
-Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+Verification: **NOT VERIFIED — retrieval blocked.** The statement is in *Annals of Internal
+Medicine* (paywalled). Author-accepted manuscripts are deposited at the University of Birmingham
+research portal (`research.birmingham.ac.uk/files/150681379/QUADAS_C_manuscript_resubmission_2021.08.30.pdf`)
+and at Amsterdam UMC Pure (`pure.amsterdamumc.nl/files/150147580/Quadas-c.pdf`); both return a
+browser challenge to automated retrieval, so neither was read. The items below have **not** been
+compared against the published tool — fetch one of those two files manually and compare before
+relying on this file.
 
 ## Purpose
 

@@ -9,7 +9,12 @@ Reference: Vasey B, et al. Nat Med 2022;28(5):924-933. doi:10.1038/s41591-022-01
 > paraphrases the *intent* of each item and copies no verbatim guideline wording. Complete the
 > official DECIDE-AI checklist for a submission-ready form and cite Vasey et al. 2022.
 
-Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+Verification: all 17 AI-specific items and all 10 generic items were compared, by number, label and
+order, against Table 2 of the *BMJ* co-publication of the same guideline (Europe PMC full text,
+PMC9116198). 17/17 and 10/10 match, and the 28 AI-specific sub-items were counted from that table.
+The generic items had been glossed with a list that named things the guideline does not contain
+and omitted two that it does; they are now listed. Wording stays paraphrased: DECIDE-AI is
+CC BY-**NC**, which cannot be redistributed under this repository's MIT licence.
 
 ## Naming and scope (read first)
 
@@ -43,12 +48,12 @@ Status each PRESENT / PARTIAL / MISSING / N/A.
 
 | # | Item | Description (intent) |
 |---|------|----------------------|
-| 3 | Participants | Describe recruitment and inclusion/exclusion of both **patients and users** (clinicians), and the setting. |
+| 3 | Participants | Describe how patients were recruited and the inclusion/exclusion criteria at both patient and data level, how the number was arrived at, and the corresponding information for the **users** (clinicians). |
 | 4 | AI system | Describe the system: algorithm type, training data and provenance, inputs, outputs, and version. |
 | 5 | Implementation | Describe how the system was integrated into the **clinical workflow** and the evaluation settings (how/where it was used in practice). |
 | 6 | Safety and errors | Pre-define what counts as a significant error/malfunction and how such events were identified and captured. |
 | 7 | Human factors | Describe the human-factors approach: tools, methods/frameworks, and the users involved (usability evaluation plan). |
-| 8 | Ethics | Describe methods addressing ethics-related goals (e.g., algorithmic fairness, oversight, consent, governance). |
+| 8 | Ethics | Describe whether specific methodologies were used to fulfil an ethics-related goal (such as algorithmic fairness), and their rationale. |
 
 ### Results
 
@@ -78,8 +83,10 @@ Status each PRESENT / PARTIAL / MISSING / N/A.
 
 ## Notes for Assessors
 
-- Apply the **10 generic items** as well (study identifiers, objectives, setting, sample-size rationale,
-  statistical methods, funding/COI, registration) — DECIDE-AI assumes standard reporting underneath.
+- Apply the **10 generic items** as well. They are, in the guideline's own order: **I** Abstract,
+  **II** Objectives, **III** Research governance, **IV** Outcomes, **V** Analysis, **VI** Patient
+  involvement, **VII** Main results, **VIII** Subgroups analysis, **IX** Strengths and limitations,
+  **X** Conflicts of interest. DECIDE-AI assumes standard reporting underneath.
 - **Human factors / learning curve (7, 14)** and **human–computer agreement / override (12)** are what
   make DECIDE-AI distinct from offline-accuracy guidelines; a study that reports only model metrics and
   no real-use human-interaction data is PARTIAL/MISSING on the core of DECIDE-AI.

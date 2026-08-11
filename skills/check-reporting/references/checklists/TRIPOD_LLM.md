@@ -16,7 +16,12 @@ Reference: Gallifant J, ..., Bitterman DS. Nat Med 2025;31(1):60-69. doi:10.1038
 > component is absent — justify the N/A.
 
 Licence: The published *Nature Medicine* article returns no Creative Commons licence via Crossref (DOI 10.1038/s41591-024-03425-5); the author-accepted manuscript is CC BY 4.0 through institutional rights retention.
-Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+Verification: all 49 sub-items were compared, by number and order, against Table 2 of the published
+guideline (PubMed Central record PMC12104976). 49/49 are now present. **This file previously
+collapsed item 16's four sub-items into a single row**, which is the shape that lets an assessor
+tick one box while three requirements go unchecked; they are expanded below. Wording stays
+paraphrased — Crossref returns only a Springer Nature text-and-data-mining licence for this
+article.
 
 ## Naming and scope (read first)
 
@@ -124,7 +129,10 @@ Status each PRESENT / PARTIAL / MISSING / N/A.
 
 | # | Item | Description (intent) |
 |---|------|----------------------|
-| 16a–d | Participants / data flow *(task-specific)* | Describe the flow of cases/records through the study, characteristics, available clinical variables, and sample sizes, including comparison between development and external data. |
+| 16a | Participants — data flow *(patient/EHR data)* | Describe the flow of text/EHR/patient data through the study, including the number of documents/questions/participants with and without the outcome/label, and follow-up where applicable. |
+| 16b | Participants — characteristics *(patient/EHR data)* | Report characteristics overall and for each data source or setting, and for the development/evaluation splits, including key dates and key characteristics. |
+| 16c | Participants — distribution comparison *(evaluations with clinical outcomes)* | Show a comparison of the distribution of important clinical variables that may be associated with the outcome, between development and evaluation data. |
+| 16d | Participants — analysis sample sizes *(patient/EHR data)* | Specify the number of participants and outcome events in each analysis — LLM development, hyperparameter tuning, and LLM evaluation. |
 | 17 | Performance | Report performance/quality results with appropriate uncertainty, including human-evaluation results and, where relevant, subgroup/fairness performance. |
 | 18 | LLM updating | If the model or prompts were updated during the study, report results before and after. |
 

@@ -6,7 +6,12 @@ Source: https://doi.org/10.1016/j.jclinepi.2010.03.002
 Reference: Kottner J, Audige L, Brorson S, et al. Guidelines for Reporting Reliability and Agreement Studies (GRRAS) were proposed. J Clin Epidemiol. 2011;64(1):96-106. doi:10.1016/j.jclinepi.2010.03.002
 
 Licence: Crossref returns no Creative Commons licence (Elsevier).
-Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+Verification: **NOT VERIFIED — and not verifiable from here.** GRRAS was published in *J Clin
+Epidemiol* and *Int J Nurs Stud*, both Elsevier and both paywalled; OpenAlex reports **no open-
+access location for either**, and neither has a PubMed Central record. Unlike every other
+instrument in this directory, no accessible copy of the checklist was found. The items below have
+**not** been compared against the published table; they are an in-house summary. Obtain the
+article through an institution and complete the official instrument for anything you report.
 
 ## Checklist Items (15 items)
 

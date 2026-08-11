@@ -1,13 +1,22 @@
 # ROB-ME Assessment Guide
 
 Risk Of Bias due to Missing Evidence in a meta-analysis.
-Reference: Page MJ et al. BMJ 2023;383:e076"; ROB-ME Cribsheet Version 1, October 2023.
+Reference: Page MJ et al. BMJ 2023;383:e076754; ROB-ME cribsheet Version 1, October 2023.
 Website: https://www.riskofbias.info/welcome/rob-me-tool
 
 Version: ROB-ME (2023)
 Source: Page MJ, Sterne JAC, Boutron I, Hróbjartsson A, Kirkham JJ, Li T, et al. ROB-ME: a tool for assessing risk of bias due to missing evidence in systematic reviews with meta-analysis. *BMJ* 2023;383:e076754 (DOI 10.1136/bmj-2023-076754).
 Licence: Crossref returns only a BMJ text-and-data-mining policy; no Creative Commons licence.
-Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+Verification: the five steps, the Results Matrix symbols, all eleven signalling questions
+(3.1–3.3, 4.1–4.8) with their conditions and response options, and the judgement scale were
+compared word by word against the **official ROB-ME cribsheet Version 1 (October 2023)** and the
+completion template distributed at riskofbias.info. All matched; only the truncated citation on
+line 4 was wrong.
+
+> A newer cribsheet exists, generalised from "meta-analysis" to "**synthesis**". Its question 4.5
+> takes Y / PY / PN / N rather than Y / N, and 4.7's condition widens to "Y to 4.1 or 4.3 **or
+> Y/PY to 4.5**". This file documents Version 1, which its citation names; check riskofbias.info
+> before appraising against a version.
 
 ## Purpose
 
