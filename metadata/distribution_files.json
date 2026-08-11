@@ -3277,9 +3277,69 @@
       "sha256": "4891c0698445f98552ab2a2315bc8288a6cc4744f8711e20f939c8af8739e434"
     },
     {
+      "path": "skills/obsidian-paper-vault/SKILL.md",
+      "size": 8013,
+      "sha256": "dbd654e5d3f740e235208cbfd8ea80b68b1aeb10fe1038e16aa461c9a88db1b5"
+    },
+    {
+      "path": "skills/obsidian-paper-vault/assets/example_concept_note.md",
+      "size": 2202,
+      "sha256": "02a466b5298f5f9f172cddbcd5a5467aa65274dd73dd4e2913c3b076859334a6"
+    },
+    {
+      "path": "skills/obsidian-paper-vault/assets/example_paper_note.md",
+      "size": 2059,
+      "sha256": "822cf41d8b6ccbe1b31371094cc2337efab25bf20667e828820acc5e1d55748e"
+    },
+    {
+      "path": "skills/obsidian-paper-vault/assets/example_queue.md",
+      "size": 1755,
+      "sha256": "188c769385057303a52ad3078b6d2365146ec5211d1a6911c6eb07f81855b0bd"
+    },
+    {
+      "path": "skills/obsidian-paper-vault/references/concept-extraction.md",
+      "size": 3656,
+      "sha256": "5695c273dc6db2860ca817b79c30a7d9ef549ff881c70436d6eae38701665cdb"
+    },
+    {
+      "path": "skills/obsidian-paper-vault/references/locale/ko/note_templates.md",
+      "size": 3979,
+      "sha256": "9e31fb6491130e35907d292ed7646150560908174a6d23d98b6dc40e9fb549b3"
+    },
+    {
+      "path": "skills/obsidian-paper-vault/references/subagent-prompt.md",
+      "size": 3337,
+      "sha256": "66d9d119205a9b17ead18b2feac54a2f6d149ac4b86a26b696e14cb2ca0dc10f"
+    },
+    {
+      "path": "skills/obsidian-paper-vault/references/tag-vocabulary.md",
+      "size": 2300,
+      "sha256": "5ba1e7a9f89140ca6af3391f2724a42b801265855a9ed3c99b7e4753b8f3cbe1"
+    },
+    {
+      "path": "skills/obsidian-paper-vault/references/templates.md",
+      "size": 4866,
+      "sha256": "d1a4a46cdbf4a964983a20b9b1304b2c8640bfee20466f1b32546e4a0707763e"
+    },
+    {
+      "path": "skills/obsidian-paper-vault/references/workflow.md",
+      "size": 4373,
+      "sha256": "1ef1a1fbfeeb60b3b6c119f7249acffb84d0b876e0f2be0541bb4dafe8275860"
+    },
+    {
+      "path": "skills/obsidian-paper-vault/scripts/extract_pdfs.py",
+      "size": 2555,
+      "sha256": "dc6320e3e4a07f58015eac104a1077dbb7ecd169022f376f946b5b95e13bdae0"
+    },
+    {
+      "path": "skills/obsidian-paper-vault/skill.yml",
+      "size": 2694,
+      "sha256": "365b5843e14d945626a0316da83d6a024330f6b16b9888a9c6b8042d8aa3ae3f"
+    },
+    {
       "path": "skills/orchestrate/SKILL.md",
-      "size": 41766,
-      "sha256": "9b72dde92177d7b21df7548df650349d8f77c48c9cb5aabdff89f734cdb4ae21"
+      "size": 42218,
+      "sha256": "6848f23cef7a0ea8df0e3113a259933cf588261ec579a51805e08a7c1fc6e633"
     },
     {
       "path": "skills/orchestrate/references/dialogue_nodes.md",

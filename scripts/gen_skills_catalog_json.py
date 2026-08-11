@@ -42,6 +42,7 @@ CATEGORY_BY_OWNER_DOMAIN: dict[str, tuple[str, str]] = {
     # Literature & references
     "literature_discovery": ("literature_references", "Literature & References"),
     "zotero_sync": ("literature_references", "Literature & References"),
+    "pdf_to_vault_notes": ("literature_references", "Literature & References"),
     "reference_integrity": ("literature_references", "Literature & References"),
     "manuscript_lifecycle": ("literature_references", "Literature & References"),
     # Data & study design

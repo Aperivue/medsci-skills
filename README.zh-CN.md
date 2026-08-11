@@ -11,7 +11,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Release](https://img.shields.io/github/v/release/Aperivue/medsci-skills?style=flat-square&color=blue)](https://github.com/Aperivue/medsci-skills/releases/latest)
 [![CI](https://img.shields.io/github/actions/workflow/status/Aperivue/medsci-skills/validate.yml?branch=main&style=flat-square&label=CI)](https://github.com/Aperivue/medsci-skills/actions/workflows/validate.yml)
-![Skills](https://img.shields.io/badge/Skills-58-brightgreen?style=flat-square)
+![Skills](https://img.shields.io/badge/Skills-59-brightgreen?style=flat-square)
 [![npm](https://img.shields.io/npm/v/medsci-skills?style=flat-square&label=npm&color=cb3837)](https://www.npmjs.com/package/medsci-skills)
 [![npm downloads](https://img.shields.io/npm/dw/medsci-skills?style=flat-square&label=npm%20downloads&color=cb3837)](https://www.npmjs.com/package/medsci-skills)
 [![Watch the 2-min intro](https://img.shields.io/badge/▶_Watch-2--min_intro-FF0000?style=flat-square&logo=youtube&logoColor=white)](https://youtu.be/MclQ_RIofpE)

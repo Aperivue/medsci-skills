@@ -66,6 +66,7 @@ You do NOT do the work yourself. You classify, plan, and delegate.
 | **verify-refs** | Reference audit | Read-only PubMed/CrossRef audit of manuscript references; first-author cross-check; sole writer of `qc/reference_audit.json`. Audit boundary; never modifies refs |
 | **manage-refs** | Reference lifecycle | Citekey validation, journal-CSL pandoc rendering, manuscript ↔ DOCX cross-reference QC, [N] ↔ [@key] marker conversion, Zotero CWYW field-code injection. Sole writer of `manuscript_final.docx`, `qc/xref_audit.json`. Pairs with `lit-sync` (refs.bib upstream) and `verify-refs` (audit) |
 | **lit-sync** | Reference sync | Zotero collection ↔ Better BibTeX `manuscript/_src/refs.bib` ↔ Obsidian literature notes. Sole writer of refs.bib (auto-export); upstream of `manage-refs` |
+| **obsidian-paper-vault** | Vault build | A folder of PDFs → templated Obsidian literature notes + atomic concept notes synthesized across them. Enters the same vault folders as `lit-sync` from the PDF side; never overwrites an existing note |
 | **humanize** | Quality | AI-pattern density sweep (<2.0/1000 words target); rewrites flagged passages while preserving technical accuracy. Phase 7.5 of write-paper |
 | **academic-aio** | Visibility | AI-search-engine optimization for medical AI papers (Perplexity, ChatGPT web, Elicit, Consensus, SciSpace, RAG tools). Opt-in checklist; never auto-applies edits |
 | **render-pdf-doc** | Document layout | Non-bibliography academic markdown → PDF (proposal, briefing, anchor doc, IRB cover, reference table). CJK font + content-proportional table column widths. Boundary opposite of `manage-refs scripts/render_pandoc.sh` |
@@ -138,6 +139,7 @@ When the user's request arrives, classify it into one of these intents:
 | "Sync submission" / "Retarget journal" / "Check SSOT drift" | `/sync-submission` |
 | "Render manuscript to DOCX" / "Build final .docx" / "Cascade reformat references" / "Apply journal CSL" / "Re-render with Vancouver" / "회람용 docx" / "Zotero CWYW injection" | `/manage-refs` |
 | "Sync Zotero" / "Refresh refs.bib" / "Better BibTeX export" / "Zotero ↔ Obsidian 동기화" / "literature note 만들어줘" | `/lit-sync` |
+| "PDF를 Obsidian 노트로" / "논문 요약 노트 만들어줘" / "이 폴더의 PDF 정리해줘" / "build a paper vault" / "second brain" / "extract concepts from papers" | `/obsidian-paper-vault` |
 | "Render proposal to PDF" / "Anchor doc PDF" / "한글 학술 PDF" / "Briefing handout PDF" / "IRB cover PDF" / "non-bib markdown → PDF" | `/render-pdf-doc` |
 | "Fill IRB protocol form" / "기관 양식 채워줘" / "심사면제 요청서 채움" / "동의면제 양식" | `/fill-protocol` |
 | "ICMJE COI 양식 일괄 생성" / "공저자 COI 폼 만들기" / "Disclosure form batch" | `/fill-icmje-coi` |

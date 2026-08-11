@@ -4,14 +4,14 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-**58 skills that actually work.** Built by a physician-researcher, tested on real publications.
+**59 skills that actually work.** Built by a physician-researcher, tested on real publications.
 
 *MedSci Skills is an end-to-end research tool for physician and medical-engineering researchers — design → scaffold → validate → publish — for the clinical manuscript and the medical-AI model behind it. Its moat is the compliance layer — 48 reporting guidelines and risk-of-bias tools, reference/citation verification, and deterministic integrity gates before peer review — now extended by a model-engineering lane that scaffolds reproducible, leakage-safe training repos and audits model validation. Clinical AI model research engineering is in scope; a general AI-scientist platform is not. It competes on clinical submission reliability, not skill count.*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Release](https://img.shields.io/github/v/release/Aperivue/medsci-skills?style=flat-square&color=blue)](https://github.com/Aperivue/medsci-skills/releases/latest)
 [![CI](https://img.shields.io/github/actions/workflow/status/Aperivue/medsci-skills/validate.yml?branch=main&style=flat-square&label=CI)](https://github.com/Aperivue/medsci-skills/actions/workflows/validate.yml)
-![Skills](https://img.shields.io/badge/Skills-58-brightgreen?style=flat-square)
+![Skills](https://img.shields.io/badge/Skills-59-brightgreen?style=flat-square)
 [![npm](https://img.shields.io/npm/v/medsci-skills?style=flat-square&label=npm&color=cb3837)](https://www.npmjs.com/package/medsci-skills)
 [![npm downloads](https://img.shields.io/npm/dw/medsci-skills?style=flat-square&label=npm%20downloads&color=cb3837)](https://www.npmjs.com/package/medsci-skills)
 [![Watch the 2-min intro](https://img.shields.io/badge/▶_Watch-2--min_intro-FF0000?style=flat-square&logo=youtube&logoColor=white)](https://youtu.be/MclQ_RIofpE)
@@ -527,11 +527,11 @@ ma-scout -> search-lit -> fulltext-retrieval -> design-study ──> write-proto
 
 ### By research stage
 
-All 58 skills, grouped by where they fit in the clinical-manuscript and medical-AI lifecycle. Full descriptions are in the table below; one page per skill lives in the [per-skill reference](docs/skills/).
+All 59 skills, grouped by where they fit in the clinical-manuscript and medical-AI lifecycle. Full descriptions are in the table below; one page per skill lives in the [per-skill reference](docs/skills/).
 
 | Stage | Skills |
 |-------|--------|
-| 🔭 **Discover & scope** | `ma-scout` · `find-cohort-gap` · `search-lit` · `fulltext-retrieval` · `lit-sync` · `author-strategy` |
+| 🔭 **Discover & scope** | `ma-scout` · `find-cohort-gap` · `search-lit` · `fulltext-retrieval` · `lit-sync` · `obsidian-paper-vault` · `author-strategy` |
 | 📐 **Design & plan** | `design-study` · `calc-sample-size` · `define-variables` · `write-protocol` · `fill-protocol` · `design-ai-benchmarking` |
 | 🧹 **Data & analysis** | `deidentify` · `clean-data` · `generate-codebook` · `version-dataset` · `analyze-stats` · `batch-cohort` · `cross-national` · `replicate-study` |
 | 🤖 **Medical-AI model engineering** | `profile-imaging` · `preprocess-imaging` · `architecture-zoo` · `model-scaffold` · `model-validation` · `model-evaluation` · `uncertainty-imaging` · `explainability` · `radiomics-ml` · `model-card` · `mllm-eval` |
@@ -590,6 +590,7 @@ All 58 skills, grouped by where they fit in the clinical-manuscript and medical-
 | **peer-review** | Structured peer review drafting for medical journals. Systematic manuscript analysis, journal-specific formatting (RYAI, INSI, EURE, AJR, KJR), conciseness targets (500-800 words), and pre-submission QC checklist. Constructive developmental tone. |
 | **ma-scout** | Meta-analysis topic discovery and feasibility assessment. Two modes: (A) Professor-first — profile → pillar analysis → MA gaps, (B) Topic-first — question → landscape scan → co-author matching. Multi-source validation (PubMed, PROSPERO, bioRxiv) with realistic k estimation (15-30% discount). |
 | **lit-sync** | Sync research references from .bib files to Zotero library + Obsidian literature notes. Concept extraction from 10+ literature notes with cross-cutting theme discovery. Works after `/search-lit` or standalone. |
+| **obsidian-paper-vault** | Turn a folder of research PDFs into an Obsidian vault: templated literature notes with frontmatter, PDF embed links, and atomic concept notes synthesized across papers. Batch notes are written from pre-extracted text, never from PDF paths handed to subagents. Shares vault folders with `/lit-sync` and never overwrites an existing note. |
 | **academic-aio** | AI search engine (Perplexity / ChatGPT web / Elicit / Consensus / SciSpace) and RAG visibility checklist for medical AI papers. Integrates TRIPOD+AI, CLAIM, STARD-AI, TRIPOD-LLM, DECIDE-AI reporting anchors with generative-engine-optimization (GEO) principles. Covers title, abstract, structured summary boxes (Key Points / Research in Context / Plain-Language Summary), preprints, GitHub README, `CITATION.cff`, Zenodo, and Hugging Face model/dataset cards. Explicit defense against LLM citation fabrication (Agarwal 2025, Nat Commun). Produces a visible PASS/PARTIAL/FAIL checklist; never applies edits silently. Pairs with `write-paper` Phase 4/6/7, runs after `self-review` + `humanize`. |
 | **polish-language** | Academic English consistency linting and non-native (ESL) clarity polish. A deterministic linter (`lint_consistency.py`) flags abbreviation define-once violations, US/UK spelling drift, hyphen-vs-en-dash numeric ranges, `P`/`p` case and impossible `P = 0.000`, hyphenation variants, small-number style, and value/unit spacing — then a gated, style-only clarity pass fixes wording without ever changing numbers, citations, or scientific meaning. Distinct from `humanize` (AI-tell removal) and `check-reporting` (guideline items); bundles a reproducible challenge card. |
 | **manage-refs** | Reference lifecycle as a single skill: citekey ↔ `.bib` validation, journal-CSL pandoc rendering (`render_pandoc.sh`), manuscript ↔ rendered DOCX cross-reference QC (`check_xref.py --strict` is the submission gate), `[N]` ↔ `[@key]` marker conversion, and native Zotero CWYW field-code injection for co-author Word workflows. Hybrid 3-phase strategy (pandoc draft → CWYW transition → Zotero CWYW for circulation/revision/submission). Sole writer of `manuscript_final.docx` and `qc/xref_audit.json`. Split out of `write-paper` Phase 7.6 so `revise`, `peer-review`, `sync-submission`, and `find-journal` can render directly without depending on a sibling skill. |

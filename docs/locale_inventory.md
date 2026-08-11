@@ -62,7 +62,6 @@ Buckets:
 | `skills/replicate-study/references/harmonization_knhanes_nhanes.csv` | A | KNHANES authoritative Korean variable labels (`개인아이디`, `조사연도`). Notes already English. |
 | `skills/replicate-study/references/harmonization_3country.csv` | A | KNHANES authoritative Korean variable labels. |
 | `skills/define-variables/SKILL.md` | A/D | KNHANES-style dictionary sheet/row example (`5-1.복부초음파 r12`) + bilingual trigger. |
-| `skills/find-journal/SKILL.md` | A | Bilingual section-heading recognition patterns (`## 추가 필요` / `## Missing`). |
 | `skills/render-pdf-doc/references/pandoc_korean_cheatsheet.md` | A | Korean-PDF rendering reference (the skill renders Korean academic PDFs). +label in PR3. |
 | `skills/render-pdf-doc/references/known_pitfalls.md` | A | Korean-PDF rendering failure-mode demonstrations. +label in PR3. |
 
@@ -135,6 +134,7 @@ English defaults, each with a `_ko` sibling below).
 | `skills/orchestrate/references/report_template_ko.md` | C-ko | Korean REPORT variant; English default is `report_template.md`. |
 | `skills/ma-scout/references/project_readme_template_ko.md` | C-ko | Korean PI-facing README variant; English default is `project_readme_template.md`. |
 | `skills/lit-sync/references/locale/ko/note_templates.md` | C-ko | Korean Obsidian vault layout + note templates; English defaults inline in lit-sync SKILL.md. |
+| `skills/obsidian-paper-vault/references/locale/ko/note_templates.md` | C-ko | Korean Obsidian vault layout + note templates for the PDF-side builder; English defaults inline in obsidian-paper-vault SKILL.md. Mirrors the lit-sync ko locale so both skills write one vault the same way. |
 
 ### Reclassified survivors (Korean is functional; remain inventoried)
 
@@ -144,6 +144,8 @@ English defaults, each with a `_ko` sibling below).
 | `skills/render-pdf-doc/SKILL.md` | D | Body + skill.yml translated; only the `triggers:` line remains. |
 | `skills/orchestrate/SKILL.md` | A | PHI prompts + §-name translated; bilingual routing-table recognition phrases kept (functional, validator-skipped table rows). |
 | `skills/lit-sync/SKILL.md` | D | English-default vault/headings; `triggers:` line + honor-existing Korean-folder examples documenting the detect-and-honor behavior. |
+| `skills/obsidian-paper-vault/SKILL.md` | D | English-default vault/headings; `triggers:` line + one honor-existing Korean-folder example documenting the detect-and-honor behavior. |
+| `skills/obsidian-paper-vault/references/workflow.md` | A | Korean folder names appear as honor-what-exists examples of real vault layouts, not as output prose. |
 | `skills/present-paper/references/generate_pptx_templates.py` | A | Legacy Korean slide-marker parser regex (backward compatibility). |
 | `skills/present-paper/references/slide_visual_styles/nature_lancet.md` | A | Korean-glyph rendering verification grep. |
 | `skills/present-paper/scripts/check_deck_budget.py` | A | Backup-section markers a divider may carry in Korean (백업 / 부록 / 예비), so a Korean deck's Q&A section stops the clock like an English one. Recognition data, not prose. |

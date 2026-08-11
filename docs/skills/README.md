@@ -41,6 +41,7 @@ One reference page per skill, generated from each skill's `SKILL.md` and `skill.
 - [model-scaffold](model-scaffold.md) — Generate a reproducible, runnable PyTorch training repo for a medical-imaging task — segmentation, classification, detection, image-to-image synthesis, self-supervised pretraining, or fine-tuning a pr… _(evidence: ci_validator)_
 - [model-sourcing](model-sourcing.md) — Vet the concrete third-party model a study will be built on — this repository, this revision, this checkpoint — not the architecture family. _(evidence: ci_validator)_
 - [model-validation](model-validation.md) — Design or audit the clinical-validation study for an engineer-built medical-imaging model (segmentation, classification, or detection) before the validation report or manuscript is written. _(evidence: ci_validator)_
+- [obsidian-paper-vault](obsidian-paper-vault.md) — Turn a folder of research PDFs into an Obsidian knowledge vault — consistently formatted literature notes with frontmatter, PDF embed links, and cross-referenced atomic concept notes. _(evidence: manual_workflow)_
 - [orchestrate](orchestrate.md) — General-purpose research orchestrator. _(evidence: demo)_
 - [peer-review](peer-review.md) — Peer review assistant for medical journals. _(evidence: ci_validator)_
 - [polish-language](polish-language.md) — Academic English consistency linting and non-native (ESL) language polish for medical manuscripts. _(evidence: bundled_script)_
