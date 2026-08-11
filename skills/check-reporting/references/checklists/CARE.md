@@ -7,7 +7,11 @@ Reference: Gagnier JJ, Kienle G, Altman DG, Moher D, Sox H, Riley D. The CARE gu
 
 Source: Gagnier JJ, Kienle G, Altman DG, Moher D, Sox H, Riley D, et al. The CARE guidelines: consensus-based clinical case report guideline development. *J Clin Epidemiol* 2014;67(1):46-51 (DOI 10.1016/j.jclinepi.2013.08.003).
 Licence: Crossref returns only an Elsevier text-and-data-mining licence. A CC BY-NC 4.0 claim circulates for the CARE materials; it is **not confirmed** here. Treat as non-open.
-Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+Verification: all 13 topics and their 23 sub-items were compared against the official CARE 2013
+checklist published at care-statement.org, and cross-checked against the checklist table of the
+CC BY-NC co-publication in *Global Advances in Health and Medicine* (Europe PMC full text,
+PMC3833570). The topics, their order and their sub-elements match. Wording stays paraphrased —
+the licence is unconfirmed and treated as non-open.
 
 ## Checklist Items (13 topics)
 
@@ -60,7 +64,7 @@ Verification: **NOT VERIFIED.** The items below have not been compared against t
 |---|------|-------------|
 | 8a | Diagnostic Assessment | Diagnostic methods (e.g., physical examination, laboratory testing, imaging, questionnaires). |
 | 8b | Diagnostic Assessment | Diagnostic challenges (e.g., access to testing, financial, or cultural). |
-| 8c | Diagnostic Assessment | Diagnostic reasoning including other diagnoses considered. |
+| 8c | Diagnostic Assessment | The diagnosis, including other diagnoses that were considered. |
 | 8d | Diagnostic Assessment | Prognostic characteristics (e.g., staging) where applicable. |
 
 ### Therapeutic Intervention

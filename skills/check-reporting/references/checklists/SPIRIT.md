@@ -9,7 +9,9 @@ Reference: Chan AW, Hopewell S, Moher D, et al. SPIRIT 2025 statement: updated g
 
 Source: Chan AW, Boutron I, Hopewell S, Moher D, Schulz KF, Collins GS, et al. SPIRIT 2025 statement: updated guideline for protocols of randomised trials. *BMJ* 2025;389:e081477 (DOI 10.1136/bmj-2024-081477).
 Licence: CC BY 4.0 — confirmed via Crossref.
-Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+Verification: all 53 sub-items (1a–34) were compared against Table 1 of the published statement
+(Europe PMC full text, PMC12035670); 53/53 match, with no item missing and none invented. Two
+labels carried over from SPIRIT 2013 have been corrected to their 2025 names.
 
 ## Checklist Items (34 items)
 
@@ -55,7 +57,7 @@ Verification: **NOT VERIFIED.** The items below have not been compared against t
 
 | # | Item | Description |
 |---|------|-------------|
-| 13 | Study setting | Settings (e.g., community, hospital) and locations (e.g., countries, sites) where the trial will be conducted. |
+| 13 | Trial setting | Settings (e.g., community, hospital) and locations (e.g., countries, sites) where the trial will be conducted. |
 | 14a | Eligibility — participants | Eligibility criteria for participants. |
 | 14b | Eligibility — sites/deliverers | If applicable, eligibility criteria for sites and for individuals who will deliver the interventions (e.g., surgeons, physiotherapists). |
 | 15a | Interventions — description | Intervention and comparator with sufficient details to allow replication including how, when, and by whom they will be administered. If relevant, where additional materials describing the intervention and comparator (e.g., intervention manual) can be accessed. |
@@ -100,7 +102,7 @@ Verification: **NOT VERIFIED.** The items below have not been compared against t
 | 28b | Interim analyses | Explanation of any interim analyses and stopping guidelines, including who will have access to these interim results and make the final decision to terminate the trial. |
 | 29 | Trial monitoring | Frequency and procedures for monitoring trial conduct. If there is no monitoring, give explanation. |
 
-### Ethics and Dissemination
+### Ethics
 
 | # | Item | Description |
 |---|------|-------------|

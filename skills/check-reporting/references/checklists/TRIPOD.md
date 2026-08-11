@@ -6,7 +6,11 @@ Source: Moons KGM et al. Ann Intern Med. 2015;162:55-63. https://www.tripod-stat
 
 Source: Collins GS, Reitsma JB, Altman DG, Moons KGM. Transparent reporting of a multivariable prediction model for individual prognosis or diagnosis (TRIPOD). *Ann Intern Med* 2015;162(1):55-63 (DOI 10.7326/M14-0697).
 Licence: *Annals of Internal Medicine* (© American College of Physicians) — no open licence.
-Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+Verification: all 37 sub-items and every D / V / D;V designation were compared against the
+official TRIPOD checklist for prediction-model development **and** validation, distributed at
+tripod-statement.org (`Tripod-Checklist-Prediction-Model-Development-and-Validation-PDF.pdf`).
+37/37 items and 37/37 designations match. Item 17 stated the wrong parenthetical and item 16
+presented our own guidance as though it were the item text; both are corrected.
 
 ## Applicability
 
@@ -124,13 +128,13 @@ Items apply to different study types:
 
 | # | Item | Applies | Description |
 |---|------|---------|-------------|
-| 16 | Model performance | DV | Report performance measures (with CIs) for the prediction model. Report discrimination (e.g., C-statistic/AUC) and calibration (e.g., calibration plot, Hosmer-Lemeshow, calibration slope and intercept). |
+| 16 | Model performance | DV | Report performance measures (with CIs) for the prediction model. *(In practice this means discrimination — e.g., C-statistic/AUC — and calibration — e.g., calibration plot, calibration slope and intercept; the item itself does not enumerate them.)* |
 
 #### Model Updating
 
 | # | Item | Applies | Description |
 |---|------|---------|-------------|
-| 17 | Model updating | V | If done, report the results from any model updating (e.g., model recalibration). |
+| 17 | Model updating | V | If done, report the results from any model updating (i.e., model specification, model performance). |
 
 ### Discussion
 

@@ -3,11 +3,8 @@
 **Consolidated Health Economic Evaluation Reporting Standards 2022**
 Version: CHEERS 2022 (28 items; replaces CHEERS 2013).
 Source: Husereau D, Drummond M, Augustovski F, et al. *BMJ* 2022;376:e067975 (the CHEERS 2022 statement), co-published simultaneously across BMJ, *Value in Health*, *PharmacoEconomics*, *Int J Technol Assess Health Care* and others. CC BY 4.0. https://www.equator-network.org/reporting-guidelines/cheers/ · ISPOR CHEERS Task Force.
-Verification: **PARTIAL — item count only.** The number of items here matches the published
-statement (the statement presents “the new CHEERS 2022 28-item checklist”), checked against its PubMed Central record. The **item text has not been
-compared**, and a matching count is not evidence that it would match: STARD carried the right
-count of 30 while omitting two items, collapsing three sub-item pairs and inventing a fourth.
-Complete the official checklist for anything you report.
+Verification: all 28 items were compared against Table 1 of the published statement (Europe PMC
+full text, PMC8749494); 28/28 match, with no item missing and none invented.
 
 Apply when the manuscript is a **health economic evaluation** — a comparative analysis of costs and consequences of two or more courses of action: cost-effectiveness (CEA), cost-utility (CUA), cost-benefit (CBA), or cost-minimisation analysis, whether trial-based or decision-model-based (decision tree, Markov/state-transition, discrete-event simulation), including budget-impact and HTA submissions. For the design/validity review of the same study, pair with the HE1–HE8 domain probes in `peer-review` / `self-review` `references/domain-probes/health_economic_evaluation.md`; for the analysis, with `analyze-stats` `references/analysis_guides/health_economic_evaluation.md`.
 

@@ -5,7 +5,20 @@ Version: AMSTAR 2 (2017)
 Source: Shea BJ et al. BMJ 2017;358:j4008. doi: 10.1136/bmj.j4008
 
 Licence: *BMJ* — Crossref returns no Creative Commons licence for this article.
-Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+Verification: the 16 item stems, the critical-domain list and the overall-confidence scheme were
+compared against the official AMSTAR 2 checklist and Boxes 1–2 of the statement (Europe PMC full
+text, PMC5833365, plus the article's own supplementary appendix `sheb036104.wf1.pdf`). Stems 1–6
+and 11–16 matched verbatim; the stems of items 7–10 were not recoverable from the appendix's
+column layout, so for those four the **response criteria** were compared instead and matched.
+Critical domains 2, 4, 7, 9, 11, 13 and 15 and the four confidence levels matched Boxes 1 and 2.
+Two omissions were corrected: the **Partial Yes** response category, which the file did not
+mention at all, and item 4's "search within 24 months" criterion.
+
+## Response Options
+
+Each item is answered **Yes** / **No**, and for items 2, 4, 7, 8 and 9 also **Partial Yes** — a
+partial answer means the minimum criteria were met but not the fuller set. Items 11, 12 and 15
+additionally allow **No meta-analysis**. There is no numeric score.
 
 ## Checklist Items (16 items)
 
@@ -16,7 +29,7 @@ Verification: **NOT VERIFIED.** The items below have not been compared against t
 | 1 | PICO components | Did the research questions and inclusion criteria for the review include the components of PICO? | No |
 | 2 | Protocol registered | Did the report of the review contain an explicit statement that the review methods were established prior to the conduct of the review and did the report justify any significant deviations from the protocol? | Yes |
 | 3 | Study design selection | Did the review authors explain their selection of the study designs for inclusion in the review? | No |
-| 4 | Comprehensive search | Did the review authors use a comprehensive literature search strategy? (searched at least 2 databases, provided search strategy, justified publication restrictions, searched reference lists, searched trial registries, consulted experts, searched grey literature) | Yes |
+| 4 | Comprehensive search | Did the review authors use a comprehensive literature search strategy? *Partial Yes*: searched at least 2 databases relevant to the question, provided key words and/or search strategy, justified publication restrictions. *Yes* also requires: searched reference lists of included studies, searched trial/study registries, included or consulted content experts, searched grey literature where relevant, and conducted the search within 24 months of completing the review. | Yes |
 | 5 | Duplicate selection | Did the review authors perform study selection in duplicate? | No |
 | 6 | Duplicate extraction | Did the review authors perform data extraction in duplicate? | No |
 | 7 | Excluded studies | Did the review authors provide a list of excluded studies and justify the exclusions? | Yes |

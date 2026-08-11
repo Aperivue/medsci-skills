@@ -6,7 +6,13 @@ Reference: Wells GA et al. Ottawa Hospital Research Institute.
 Version: Newcastle-Ottawa Scale (current web version)
 Source: Wells GA, Shea B, O'Connell D, Peterson J, Welch V, Losos M, Tugwell P. The Newcastle-Ottawa Scale (NOS) for assessing the quality of nonrandomised studies in meta-analyses. Ottawa Hospital Research Institute. **No DOI: the tool is distributed from the institute's website and has never been issued one.**.
 Licence: No formal licence is published with the tool.
-Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+Verification: both scales were compared item by item and response-option by response-option
+against the official NOS rating sheet distributed by the Ottawa Hospital Research Institute
+(`nosgen.pdf`), with the accompanying manual (`nos_manual.pdf`) checked for the scoring rules.
+The items, their order, the star allocations and the two-star comparability rule all match. **Two
+numbers did not**: the scale leaves the follow-up percentages blank for the reviewer to set, and
+this file had hardcoded them; and the Good/Fair/Poor star bands appear nowhere in the NOS
+documents. Both are corrected below.
 
 ## Structure
 
@@ -55,9 +61,12 @@ Higher stars = higher quality.
 
 8. **Adequacy of follow-up of cohorts** (1 star)
    - a) Complete follow-up (all subjects accounted for) *
-   - b) Subjects lost to follow-up unlikely to introduce bias (<=20% lost, or description provided) *
-   - c) Follow-up rate <80% and no description of those lost
+   - b) Subjects lost to follow-up unlikely to introduce bias — small number lost, above a threshold **you select**, or description provided of those lost *
+   - c) Follow-up rate below the threshold **you select**, and no description of those lost
    - d) No statement
+
+   The scale prints these two percentages as blanks ("select an adequate %"). NOS does not supply a
+   number; pre-specify yours in the protocol and report it.
 
 ## Case-Control Studies (max 9 stars)
 
@@ -77,13 +86,19 @@ Higher stars = higher quality.
 
 ## Interpretation
 
-| Stars | Quality |
-|-------|---------|
-| 7-9 | Good (high quality) |
-| 4-6 | Fair (moderate quality) |
-| 0-3 | Poor (low quality) |
+**The NOS does not define quality bands.** Neither the rating sheet nor the manual maps a star
+total onto "good", "fair" or "poor". The bands below are a widely used external convention (they
+come from AHRQ-derived practice, not from the scale) and are reproduced here only because reviews
+so often cite them:
 
-Alternative thresholds may be pre-specified in the protocol.
+| Stars | Convention |
+|-------|------------|
+| 7-9 | Good |
+| 4-6 | Fair |
+| 0-3 | Poor |
+
+If you use them, say where they came from and pre-specify them in the protocol. A different
+threshold is equally defensible, and the scale's authors leave the choice to you.
 
 ## When to Use
 

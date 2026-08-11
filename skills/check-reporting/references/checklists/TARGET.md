@@ -5,7 +5,11 @@ Version: TARGET 2025 (21 items across 6 sections; items 6 and 7 pair the target-
 Source: In-house faithful summary of the TARGET item intents (own-words paraphrase, not verbatim). Cashin AG, Hansford HJ, Hernán MA, et al. Transparent Reporting of Observational Studies Emulating a Target Trial: The TARGET Statement. JAMA 2025;334(12):1084-1093. DOI 10.1001/jama.2025.13350. Official checklist: https://target-guideline.org. Complete the official TARGET instrument for a submission checklist. Pairs with the `/design-study` target-trial-emulation design module.
 
 Licence: *JAMA* (© American Medical Association) — no open licence.
-Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+Verification: all 39 sub-items across the 21 numbered items were compared, by number and order,
+against the checklist tables of the published statement (PubMed Central record PMC13084563).
+39/39 are present, including the paired 6a–h specification and 7a–7h(ii) emulation columns.
+Three items dropped a required clause (6c, 6d, 7d) and are corrected. Wording stays paraphrased —
+the statement is © American Medical Association with no open licence.
 
 ## Checklist Items (21 items)
 
@@ -37,8 +41,8 @@ Verification: **NOT VERIFIED.** The items below have not been compared against t
 |---|------|-------------|
 | 6a | Eligibility criteria | Describe the eligibility criteria defining the target population. |
 | 6b | Treatment strategies | Describe the treatment strategies to be compared, in sufficient detail (e.g., dose, duration, start/stop rules). |
-| 6c | Assignment | State that eligible individuals would be randomly assigned to the treatment strategies. |
-| 6d | Start of follow-up | Clarify that follow-up would start at the time of assignment to a treatment strategy (time zero). |
+| 6c | Assignment | Report that eligible individuals would be randomly assigned to the treatment strategies, and may be aware of their treatment allocation. |
+| 6d | Follow-up | Clarify that follow-up would start at the time of assignment to the treatment strategies, and specify when follow-up would end. |
 | 6e | Outcomes | Describe the outcomes, including their measurement and timing. |
 | 6f | Causal contrasts | Describe the causal contrasts of interest, including the effect measures. |
 | 6g | Identifying assumptions | Describe the assumptions that would be made to identify each causal estimand. |
@@ -51,7 +55,7 @@ Verification: **NOT VERIFIED.** The items below have not been compared against t
 | 7a | Eligibility (emulation) | Describe how the eligibility criteria were operationalized with the data. |
 | 7b | Treatment strategies (emulation) | Describe how the treatment strategies were operationalized with the data. |
 | 7c | Assignment (emulation) | Describe how assignment to treatment strategies was operationalized with the data. |
-| 7d | Start of follow-up (emulation) | Clarify that follow-up starts at the time individuals were assigned to a strategy; misaligning eligibility, assignment, and start of follow-up introduces immortal-time bias. |
+| 7d | Follow-up (emulation) | Clarify that follow-up starts at the time individuals were assigned to the treatment strategies, and describe how the end of follow-up was operationalized with the data. *(Misaligning eligibility, assignment and start of follow-up is what introduces immortal-time bias.)* |
 | 7e | Outcomes (emulation) | Describe how the outcomes were operationalized with the data. |
 | 7f | Causal contrasts (emulation) | Describe how the causal contrasts were operationalized with the data. |
 | 7g(i) | Identifying assumptions (emulation) | For each causal estimand, describe the assumptions made, including baseline confounding. |

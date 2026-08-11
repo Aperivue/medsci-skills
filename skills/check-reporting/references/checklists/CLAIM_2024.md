@@ -8,7 +8,11 @@ Reference: Tejani AS, Klontzas ME, Gatti AA, Mongan JT, Moy L, Park SH, Kahn CE 
 > Note: The 2024 update replaces "ground truth" with "reference standard" and discourages "validation" in favour of "internal/external testing". Each item is answered Yes / No / Not Applicable with the manuscript location cited.
 
 Licence: © RSNA, open access. Consult RSNA for reuse terms; Crossref returns no Creative Commons licence.
-Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+Verification: all 44 items were compared, by number and content, against the item-by-item text of
+the published update (PubMed Central record PMC11304031, whose body carries each item in full).
+44/44 match, with no item missing and none invented. Item labels below are our own short names;
+item 21's official name is "Intended sample size" and it does concern the testing set, as our
+description says. Wording stays paraphrased — Crossref returns no Creative Commons licence.
 
 ## Checklist Items (44 items)
 

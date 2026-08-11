@@ -65,4 +65,8 @@ Licence: Crossref returns only a Springer Nature text-and-data-mining licence; n
 - The highest-yield items are **5 / 17 / 20** (ancestry reporting and per-ancestry/subgroup performance — the central PGS transferability problem), **15** (incremental value over the clinical model, not score-alone discrimination), **16** (absolute-risk calibration, not discrimination alone), and **22** (reproducibility via deposited variants+weights / a PGS Catalog ID).
 - PGS-RS is a domain extension of general prediction-model reporting; for items on model development/validation also apply `TRIPOD.md` / `TRIPOD_AI.md`, and cite both the base instrument and PGS-RS rather than PGS-RS alone.
 - The guideline is abbreviated both **PGS-RS** and **PRS-RS** in the literature; they refer to the same Wand et al. 2021 standard.
-- This checklist was authored as a faithful summary of the PGS-RS standard (Wand H, et al. Nature 2021;591:211–219; checklist as reproduced by the PGS Catalog) for item-by-item assessment; verify against the published Table 1 for full item wording. Verified 2026-06-27.
+- Verification: all 22 items were compared, by label and order, against Table 1 of the published
+  standard (PubMed Central record PMC8609771). 22/22 match, with no item missing and none
+  invented. The wording stays a condensed summary — Crossref returns only a Springer Nature
+  text-and-data-mining licence, so the item text cannot be reproduced here. Consult the published
+  Table 1 for the full wording.

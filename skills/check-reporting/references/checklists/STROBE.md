@@ -6,10 +6,11 @@ Source: https://www.strobe-statement.org
 
 Source: von Elm E, Altman DG, Egger M, Pocock SJ, Gøtzsche PC, Vandenbroucke JP. The Strengthening the Reporting of Observational Studies in Epidemiology (STROBE) statement. *PLoS Med* 2007;4(10):e296 (DOI 10.1371/journal.pmed.0040296).
 Licence: CC BY 4.0 — confirmed via the PubMed Central record (PMC2020495).
-Verification: **NOT VERIFIED.** The checklist table is not carried in the statement's PubMed Central
-record (PMC2020495) — it lives in the explanation-and-elaboration paper and on the STROBE website —
-so the items below have not been compared against it. Complete the official checklist from
-strobe-statement.org for anything you report.
+Verification: all 34 sub-items (1a–22) were compared against the official combined STROBE
+checklist PDF distributed by the EQUATOR Network (`STROBE_checklist_v4_combined.pdf`), parsed
+sub-item by sub-item. 34/34 match, with no item missing and none invented. The statement's own
+PubMed Central record carries its checklist as an image, not as text, which is why the audit
+used the distributed checklist rather than the article.
 
 ## Checklist Items (22 items)
 

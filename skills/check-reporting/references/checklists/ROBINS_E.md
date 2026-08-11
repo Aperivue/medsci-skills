@@ -6,7 +6,13 @@ Website: https://www.riskofbias.info/welcome/robins-e-tool
 
 Version: ROBINS-E (2024)
 Licence: CC BY-NC 4.0 (non-commercial) — confirmed via Crossref. Not redistributable verbatim under this repository's MIT licence.
-Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+Verification: the seven bias domains and their order were compared against Table 1 of the article
+(Europe PMC full text, PMC11098530), and the preliminary-considerations parts A–E, the four
+domain-judgement levels, the three per-domain outputs and the domain-1 label
+"Low risk of bias (except for concerns about uncontrolled confounding)" against its section 4–6
+text. All matched. Item wording stays paraphrased: the source is CC BY-**NC**, which cannot be
+redistributed under this repository's MIT licence. Complete the official instrument for anything
+you report.
 
 ## Purpose
 
@@ -57,9 +63,10 @@ If Yes, complete Appendix 1 (Parts I, II, III).
 - Define the causal effect of exposure being estimated
 - This is essential: the causal effect defines what the result would be in the absence of bias
 
-### E. Evaluation of Confounding Factors
-- Identify which important confounders (from P1) are controlled for in the analysis
-- Assess whether control is adequate
+### E. Specify Important Confounding Factors
+- Specify the known important confounding factors likely to influence the exposure–outcome association
+- Identify them by reviewing the literature **and** consulting experts, including members of the review team
+- Parts C and D may be completed in either order, but both come before part E
 
 ## Domain 1: Risk of Bias Due to Confounding
 

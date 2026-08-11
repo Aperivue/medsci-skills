@@ -2,15 +2,15 @@
 
 **REporting recommendations for tumour MARKer prognostic studies**
 Version: REMARK 2005 (McShane et al.), with the 2012 Explanation and Elaboration (Altman et al.)
-Source: In-house faithful summary of the 20 REMARK item intents (own-words paraphrase, not verbatim). McShane LM, Altman DG, Sauerbrei W, Taube SE, Gion M, Clark GM. Br J Cancer 2005;93(4):387-391. Explanation and Elaboration: Altman DG, McShane LM, Sauerbrei W, Taube SE. PLoS Med 2012;9(5):e1001216. Complete the official REMARK instrument for a submission checklist.
+Source: Item text reproduced from Table 1 of the CC BY explanation-and-elaboration paper. McShane LM, Altman DG, Sauerbrei W, Taube SE, Gion M, Clark GM. Br J Cancer 2005;93(4):387-391. Explanation and Elaboration: Altman DG, McShane LM, Sauerbrei W, Taube SE. PLoS Med 2012;9(5):e1001216. Complete the official REMARK instrument for a submission checklist.
 
 Source: McShane LM, Altman DG, Sauerbrei W, Taube SE, Gion M, Clark GM. Reporting recommendations for tumour marker prognostic studies (REMARK). *Br J Cancer* 2005;93(4):387-391. Explanation and elaboration: Altman DG, McShane LM, Sauerbrei W, Taube SE. *PLoS Med* 2012;9(5):e1001216 (DOI 10.1371/journal.pmed.1001216).
 Licence: The *PLoS Medicine* explanation-and-elaboration paper is CC BY 4.0 (confirmed via Crossref); the original *Br J Cancer* statement is not openly licensed.
-Verification: **PARTIAL — item count only.** The number of items here matches the published
-statement (the statement discusses “the 20 items in the REMARK checklist”), checked against its PubMed Central record. The **item text has not been
-compared**, and a matching count is not evidence that it would match: STARD carried the right
-count of 30 while omitting two items, collapsing three sub-item pairs and inventing a fourth.
-Complete the official checklist for anything you report.
+Verification: all 20 items were extracted from Table 1 of the CC BY explanation-and-elaboration
+paper (Europe PMC full text, PMC3362085) and compared item by item. **The count matched while the
+second half did not**: this file previously replaced item 14 with "Assay performance" and item 17
+with "report all endpoints", dropped item 18 (further investigations) entirely, invented item 19
+"Analyses reported", and shifted items 18–20.
 
 ## Checklist Items (20 items)
 
@@ -62,33 +62,33 @@ Complete the official checklist for anything you report.
 
 | # | Item | Description |
 |---|------|-------------|
-| 11 | Marker coding | Describe how the marker was coded for analysis; if it was categorized, justify the choice of cutpoint(s) and report the frequency distribution across categories. |
-| 12 | Patient flow | Report the flow of patients through the study, including the number of patients at each stage of the analysis (a flow diagram may help) and the key characteristics of the study profile. |
+| 11 | Marker values in analysis | Clarify how marker values were handled in the analyses; if relevant, describe methods used for cutpoint determination. |
+| 12 | Patient flow | Describe the flow of patients through the study, including the number of patients included in each stage of the analysis (a diagram may be helpful) and reasons for dropout. Specifically, both overall and for each subgroup extensively examined, report the number of patients and the number of events. |
+| 13 | Baseline distributions | Report distributions of basic demographic characteristics (at least age and sex), standard (disease-specific) prognostic variables, and tumour marker, including numbers of missing values. |
 
 #### Analysis and presentation
 
 | # | Item | Description |
 |---|------|-------------|
-| 13 | Baseline data | Present baseline demographic and clinical characteristics of the patients, overall and stratified by marker value (e.g., positive vs negative). |
-| 14 | Assay performance | Indicate assay performance for the marker (reproducibility and completeness of data), reporting the frequency of missing values. |
-| 15 | Univariable associations | Show the unadjusted association between the marker and the outcome(s), with confidence intervals and, where relevant, P values; for a time-to-event outcome a Kaplan-Meier plot is recommended. |
-| 16 | Multivariable results | Present the results of the marker in a multivariable model adjusted for established (standard) prognostic variables, reporting estimated effects (e.g., hazard ratios) with confidence intervals for the marker and, at least for the final model, the other variables. |
-| 17 | All endpoints | Report results for all endpoints examined, not only those that were statistically significant. |
+| 14 | Marker vs standard variables | Show the relation of the marker to standard prognostic variables. |
+| 15 | Univariable analyses | Present univariable analyses showing the relation between the marker and outcome, with the estimated effect (for example, hazard ratio and survival probability). Preferably provide similar analyses for all other variables being analysed. For the effect of a tumour marker on a time-to-event outcome, a Kaplan-Meier plot is recommended. |
+| 16 | Multivariable analyses | For key multivariable analyses, report estimated effects (for example, hazard ratio) with confidence intervals for the marker and, at least for the final model, all other variables in the model. |
+| 17 | Marker with standard variables | Among reported results, provide estimated effects with confidence intervals from an analysis in which the marker and standard prognostic variables are included, regardless of their statistical significance. |
+| 18 | Further investigations | If done, report results of further investigations, such as checking assumptions, sensitivity analyses, and internal validation. |
 
 ### Discussion
 
 | # | Item | Description |
 |---|------|-------------|
-| 18 | Interpretation | Interpret the results in the context of the pre-specified hypotheses and other relevant studies; discuss study limitations, data quality, and assumptions. |
-| 19 | Analyses reported | Distinguish pre-specified analyses from exploratory ones, and address the problem of multiple comparisons where relevant. |
-| 20 | Clinical value | Discuss the potential clinical value of the marker and the need for validation in independent cohorts before use. |
+| 19 | Interpretation | Interpret the results in the context of the pre-specified hypotheses and other relevant studies; include a discussion of limitations of the study. |
+| 20 | Implications | Discuss implications for future research and clinical value. |
 
 ---
 
 ## Notes for Assessors
 
 - REMARK primarily targets **single-marker** prognostic studies, but most items apply equally to studies of **multiple markers**, studies that **develop a prognostic model**, and studies that **predict response to treatment**. Apply the relevant items rather than marking them N/A by default.
-- The items most often MISSING in review are **item 11** (cutpoint justification when a continuous marker is dichotomized) and **item 17** (reporting all endpoints, not only significant ones) — flag these explicitly.
+- The items most often MISSING in review are **item 11** (how marker values were handled, including cutpoint determination) and **item 17** (effects with confidence intervals from the analysis containing the marker *and* the standard prognostic variables, **regardless of statistical significance**) — flag these explicitly.
 - For a time-to-event marker study, expect a **Kaplan-Meier plot** (item 15) and a **multivariable model adjusted for established prognostic variables** (item 16), not a marker-alone analysis.
 - Pair REMARK with **STROBE** for the observational-design items (setting, eligibility, bias, missing data), and with **TRIPOD / TRIPOD+AI** when the study develops or validates a prognostic model. Name the base instrument and any extension and cite each (Step 4e).
-- The vendored checklist is an educational own-words summary of item intent; complete the official REMARK instrument for a submission checklist.
+- Item text is reproduced from Table 1 of the CC BY explanation-and-elaboration paper with attribution. Complete the official REMARK instrument for a submission checklist.

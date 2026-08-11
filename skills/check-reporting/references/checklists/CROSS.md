@@ -8,71 +8,91 @@ Apply when the manuscript is a **self-report survey / questionnaire study** — 
 
 > Licensing note: the CROSS statement is © Society of General Internal Medicine (not a Creative Commons licence). The items below are an **in-house, faithful summary of the reportable elements (facts/intents, paraphrased — not the verbatim CROSS wording)** for item-by-item assessment; consult the published CROSS article for exact item text. The CHERRIES e-survey items are grounded in the CC BY JMIR source.
 
-## Reportable elements (grouped by section)
+Verification: every item was compared against Table 1 of the published statement (PubMed Central
+record PMC8481359). **This file previously carried 19 items of its own devising** — the count
+happened to look plausible, but from item 8 onwards nothing lined up with CROSS, and the header's
+"40 reportable elements" was not what the file listed. The numbering below is now the statement's:
+19 topics carrying 40 sub-items. The CHERRIES items, which CROSS does not contain, are kept in a
+clearly separate section.
 
-### Title and Abstract
-| # | Element | What to check is reported |
-|---|---------|---------------------------|
-| 1 | Title/abstract | The study is identified as a survey/questionnaire study; the abstract summarises objectives, design, sample, response, and key findings. |
+## Reportable elements (19 topics, 40 sub-items)
+
+### Title and abstract
+| # | Topic | What to check is reported |
+|---|-------|---------------------------|
+| 1a | Title and abstract | The word "survey", with a commonly used design term, appears in the title or abstract. |
+| 1b | Title and abstract | The abstract summarises background, objectives, methods, findings, interpretation and conclusions. |
 
 ### Introduction
-| # | Element | What to check is reported |
-|---|---------|---------------------------|
-| 2 | Background & objectives | Rationale for the survey and explicit objectives / research questions or hypotheses. |
+| # | Topic | What to check is reported |
+|---|-------|---------------------------|
+| 2 | Background | Rationale for the survey, what has been done before, and why this survey is needed. |
+| 3 | Purpose/aim | Specific purposes, aims, goals or objectives. |
 
-### Methods — Study design
-| # | Element | What to check is reported |
-|---|---------|---------------------------|
-| 3 | Design & timeframe | Survey design (cross-sectional, repeated/longitudinal), and the dates/period of data collection. |
-| 4 | Data sources/setting | Setting and the source/channel through which respondents were reached. |
+### Methods
+| # | Topic | What to check is reported |
+|---|-------|---------------------------|
+| 4 | Study design | The design named in Methods with a commonly used term (cross-sectional, longitudinal). |
+| 5a | Data collection methods | The questionnaire itself — number of sections, number of questions, number and names of instruments used. |
+| 5b | Data collection methods | Each instrument used to measure a concept: target population, reported validity and reliability, scoring/classification procedure, reference links. |
+| 5c | Data collection methods | Pretesting, if performed: method, how many rounds, number and demographics of pretest participants, and how similar they were to the sample population. |
+| 5d | Data collection methods | The questionnaire provided in full where possible, in the article or as an appendix/online supplement. |
+| 6a | Sample characteristics | The study population — background, locations, eligibility criteria, exclusion criteria. |
+| 6b | Sample characteristics | The sampling technique (single- or multistage, simple random, stratified, cluster, convenience), with the locations of participants when clustered sampling was used. |
+| 6c | Sample characteristics | Sample size, with the details of its calculation. |
+| 6d | Sample characteristics | How representative the sample is of the study (or target) population — particularly for population-based surveys. |
+| 7a | Survey administration | Modes of administration: type and number of contacts, and where the survey was conducted (clinic room, an online tool). |
+| 7b | Survey administration | The survey's time frame — recruitment, exposure and follow-up periods. |
+| 7c | Survey administration | The entry process: for non-web surveys, how human data-entry error was minimised; for web surveys, how multiple participation was prevented. |
+| 8 | Study preparation | Any preparation before fielding — interviewer training, advertising the survey. |
+| 9a | Ethical considerations | Ethical approval where obtained: informed consent, IRB approval, Helsinki declaration, GCP declaration as appropriate. |
+| 9c | Ethical considerations | Anonymity and confidentiality, and the mechanisms used to prevent unauthorised access. |
+| 10a | Statistical analysis | Statistical methods and analytical approach, and the software used. |
+| 10b | Statistical analysis | Any modification of variables used in the analysis, with a reference where available. |
+| 10c | Statistical analysis | Missing data: rate of missing items, the missing-data mechanism (MCAR / MAR / MNAR), and the methods used to handle it. |
+| 10d | Statistical analysis | How non-response error was addressed. |
+| 10e | Statistical analysis | For longitudinal surveys, how loss to follow-up was addressed. |
+| 10f | Statistical analysis | Whether weighting or propensity scores were used to adjust for non-representativeness. |
+| 10g | Statistical analysis | Any sensitivity analysis conducted. |
 
-### Methods — Sample
-| # | Element | What to check is reported |
-|---|---------|---------------------------|
-| 5 | Target population & sampling frame | The target population and the **sampling frame** used to reach it, with comment on how well the frame covers the population (coverage). |
-| 6 | Sample selection | The **sampling method** (probability vs non-probability/convenience) and selection procedure; eligibility criteria. |
-| 7 | Sample size | An a-priori **sample-size or precision justification** (not a post-hoc rationalisation of whoever responded). |
-
-### Methods — Survey administration
-| # | Element | What to check is reported |
-|---|---------|---------------------------|
-| 8 | Administration mode | Mode(s) of administration (web, email, postal, telephone, in-person) and the implications for coverage/selection. |
-| 9 | E-survey specifics (CHERRIES) | For internet surveys: open vs closed (invited) survey; how the **denominator and completion/response** were defined; voluntariness and any incentive; **duplicate-submission control** (IP/cookie/log-in); use of adaptive/mandatory questions and completeness. |
-
-### Methods — Study preparation (instrument)
-| # | Element | What to check is reported |
-|---|---------|---------------------------|
-| 10 | Instrument development | Whether the questionnaire was newly developed or adopted/adapted from a validated instrument (with citation). |
-| 11 | Pre-testing/piloting | Pilot testing / cognitive pre-testing of the instrument before fielding. |
-| 12 | Validity & reliability | Evidence of **validity** (content/construct) and **reliability** (e.g. Cronbach's α, test–retest) for multi-item scales. |
-
-### Methods — Ethics & analysis
-| # | Element | What to check is reported |
-|---|---------|---------------------------|
-| 13 | Ethics & data protection | Informed consent, ethics-committee approval/exemption, and respondent data protection/anonymity. |
-| 14 | Statistical methods | Analysis methods, handling of **missing/incomplete responses**, and any **weighting / post-stratification** for representativeness. |
+*The published table numbers ethical considerations 9a and 9c with no 9b. That gap is the statement's; do not renumber to close it.*
 
 ### Results
-| # | Element | What to check is reported |
-|---|---------|---------------------------|
-| 15 | Response & representativeness | **Response rate with a defined denominator** (e.g. an AAPOR/CASRO definition), respondent flow, and an assessment of **non-response/representativeness** (responders vs non-responders or vs the population). |
-| 16 | Descriptive results | Respondent characteristics and results with appropriate denominators (per-item N where it varies); uncertainty (CIs) for key estimates. |
+| # | Topic | What to check is reported |
+|---|-------|---------------------------|
+| 11a | Respondent characteristics | Numbers of individuals at each stage of the study; a flow diagram where possible. |
+| 11b | Respondent characteristics | Reasons for non-participation at each stage, where possible. |
+| 11c | Respondent characteristics | The response rate, **with the definition or formula used to calculate it**. |
+| 11d | Respondent characteristics | How unique visitors were determined, and their number with the relevant proportions (view, participation, completion). |
+| 12 | Descriptive results | Characteristics of participants, plus information on potential confounders and assessed outcomes. |
+| 13a | Main findings | Unadjusted estimates and, where applicable, confounder-adjusted estimates with 95% confidence intervals and p values. |
+| 13b | Main findings | For multivariable analysis: the model-building process, model fit statistics and model assumptions. |
+| 13c | Main findings | Any sensitivity analysis; with substantial missing data, a comparison of complete cases against the imputed dataset. |
 
 ### Discussion
-| # | Element | What to check is reported |
-|---|---------|---------------------------|
-| 17 | Limitations | Coverage, sampling, non-response, and self-report/social-desirability biases; their likely direction. |
-| 18 | Interpretation & generalisability | Conclusions matched to the sampled population — no over-generalisation from a convenience/low-response/single-setting sample. |
+| # | Topic | What to check is reported |
+|---|-------|---------------------------|
+| 14 | Limitations | Sources of potential bias and imprecision — non-representativeness of the sample, the design, important uncontrolled confounders. |
+| 15 | Interpretations | A cautious overall interpretation given those biases and imprecisions, and areas for future research. |
+| 16 | Generalizability | The external validity of the results. |
 
-### Other
-| # | Element | What to check is reported |
-|---|---------|---------------------------|
-| 19 | Funding, COI, availability | Funding source and role, conflicts of interest, and availability of the instrument/data where possible. |
+### Other sections
+| # | Topic | What to check is reported |
+|---|-------|---------------------------|
+| 17 | Role of the funding source | Whether any funding organisation had a role in the survey's design, implementation or analysis. |
+| 18 | Conflict of interest | Any potential conflict of interest. |
+| 19 | Acknowledgements | Organisations/persons acknowledged, with their contribution. |
 
----
+## CHERRIES companion items (internet/e-surveys)
+
+**Not part of CROSS.** For a web or email survey, the CHERRIES items add: open versus closed
+(invited) survey; how the denominator and completion/response were defined; voluntariness and any
+incentive; duplicate-submission control (IP address, cookie, log-in); and the use of adaptive or
+mandatory questions and their effect on completeness. Source: Eysenbach G. *J Med Internet Res*
+2004;6(3):e34 (CC BY). CROSS covers some of this ground at 7c and 11d; the rest is CHERRIES only.
 
 ## Notes for Assessors
 
-- The **highest-yield** elements (where surveys most often fail review): **5/6** (a named sampling frame and a probability-vs-convenience statement — a self-selected web panel generalised to "clinicians"/"patients" is the commonest over-reach), **15** (a **response rate with a defined denominator** plus a **non-response/representativeness** assessment — "N responded" with no denominator and no non-response analysis is non-compliant), **10–12** (instrument **development, piloting, and validity/reliability** — a novel unvalidated questionnaire carrying the headline), **9** (for e-surveys, CHERRIES denominator/duplicate-control reporting), and **14** (weighting for a skewed sample; consistent denominators).
-- A survey reporting only a raw count of respondents, with no sampling frame, no defined-denominator response rate, no non-response assessment, and an unvalidated instrument, is non-compliant on elements 5/6/10–12/15 and its population-level claims should be downgraded to "among respondents."
-- This is an **in-house faithful summary of the CROSS reportable elements (paraphrased intents, not verbatim)** complemented by the CHERRIES e-survey items; map the manuscript's content to the elements rather than to exact CROSS item numbering, and verify against the published CROSS (Sharma et al. *JGIM* 2021) and CHERRIES (Eysenbach *JMIR* 2004, CC BY) sources. Verified 2026-06-29.
+- The **highest-yield** items (where surveys most often fail review): **6b/6d** (the sampling technique named, probability versus convenience, and how representative the sample is — a self-selected web panel generalised to "clinicians"/"patients" is the commonest over-reach), **11c** (a response rate **with its definition or formula** — "N responded" with no denominator is non-compliant), **11b/10d** (non-response), **5b/5c** (instrument validity, reliability and pretesting — a novel unvalidated questionnaire carrying the headline), **10f** (weighting for a skewed sample), and the CHERRIES denominator/duplicate-control items for e-surveys.
+- A survey reporting only a raw count of respondents, with no sampling description, no defined-denominator response rate, no non-response assessment, and an unvalidated instrument, is non-compliant on 6a–6d, 5b, 10d and 11c, and its population-level claims should be downgraded to "among respondents."
+- This is an **in-house faithful summary of the CROSS reportable elements (paraphrased intents, not verbatim)**; the numbering is the statement's. Consult the published CROSS article (Sharma et al. *JGIM* 2021) for the exact item text.

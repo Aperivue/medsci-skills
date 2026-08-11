@@ -6,7 +6,23 @@ Source: https://doi.org/10.1016/j.jclinepi.2010.03.002
 Reference: Kottner J, Audige L, Brorson S, et al. Guidelines for Reporting Reliability and Agreement Studies (GRRAS) were proposed. J Clin Epidemiol. 2011;64(1):96-106. doi:10.1016/j.jclinepi.2010.03.002
 
 Licence: Crossref returns no Creative Commons licence (Elsevier).
-Verification: **NOT VERIFIED.** The items below have not been compared against the published table. They are an in-house summary; complete the official instrument for anything you report.
+Verification: **NOT VERIFIED — no accessible copy exists.** GRRAS was published simultaneously in
+*J Clin Epidemiol* 2011;64(1):96-106 and *Int J Nurs Stud* 2011;48(6):661-671, both Elsevier and
+both paywalled. **Two independent open-access indexes agree there is no free copy of either**:
+OpenAlex returns no OA location and Unpaywall returns `is_oa: false` with an empty location list
+for both DOIs. Neither has a PubMed Central record; the EQUATOR page links only to PubMed; the
+GRRAS authors publish no tool document of their own (unlike QUADAS, ROBIS, RoB 2, TRIPOD, NOS and
+CARE, whose own sites carry the instrument). ScienceDirect serves a CAPTCHA to automated retrieval,
+which this audit does not complete.
+
+**What is confirmed** is only internal: the file declares 15 items and carries 15, numbered 1–15
+with no gaps, across Title/Abstract, Introduction, Methods, Results and Discussion. That says
+nothing about whether they are GRRAS's items — the count matched on GATHER, REMARK and COSMIN
+while the items underneath were wrong.
+
+**To finish this file**: download either article through an institutional subscription and compare
+its checklist table item by item. Until then the items below are an in-house summary, and anything
+you report should be scored against the published instrument.
 
 ## Checklist Items (15 items)
 
