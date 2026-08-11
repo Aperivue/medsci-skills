@@ -48,6 +48,7 @@ complete the official instrument.
 
 | File | Guideline | Reference | Status | Verified via |
 |------|-----------|-----------|--------|--------------|
+| QUADAS3.md | QUADAS-3 | Whiting PF et al. Ann Intern Med 2026;179(4):548-555 | © ACP — no open licence | Crossref (TDM policy only) |
 | QUADAS2.md | QUADAS-2 | Whiting PF et al. Ann Intern Med 2011;155(8):529-536 | © ACP — no open licence | Crossref (TDM policy only) |
 | PROBAST.md | PROBAST 2019 | Wolff RF et al. Ann Intern Med 2019;170(1):51-58 | © ACP — no open licence | Crossref (TDM policy only) |
 | RoB2.md | RoB 2 2019 | Sterne JAC et al. BMJ 2019;366:l4898 | no CC licence found | Crossref (TDM policy only) |

@@ -1,7 +1,7 @@
 ---
 name: meta-analysis
 description: Systematic review and meta-analysis pipeline for medical research. Covers protocol registration (PROSPERO), search strategy, screening, data extraction, risk of bias assessment (QUADAS-2/ROBINS-I), statistical synthesis (bivariate/HSROC for DTA, random-effects for intervention), and PRISMA-compliant reporting. Supports both DTA and intervention meta-analyses.
-triggers: meta-analysis, systematic review, PROSPERO, forest plot, funnel plot, PRISMA, QUADAS, ROBINS, HSROC, bivariate model, pooled sensitivity, pooled specificity, search strategy, study selection, data extraction form
+triggers: meta-analysis, systematic review, PROSPERO, QUADAS-3, forest plot, funnel plot, PRISMA, QUADAS, ROBINS, HSROC, bivariate model, pooled sensitivity, pooled specificity, search strategy, study selection, data extraction form
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit
 ---
@@ -27,7 +27,8 @@ with specialized support for diagnostic test accuracy (DTA) meta-analyses.
 - **R templates**: `${CLAUDE_SKILL_DIR}/references/r_templates.md`
 - **Checklists**: `${CLAUDE_SKILL_DIR}/references/checklists/`
   - `PRISMA_DTA.md` -- 27-item checklist
-  - `QUADAS2.md` -- 4 domains + signalling questions
+  - `QUADAS3.md` -- **current recommended DTA tool**: 6 phases, 4 domains, 20 signalling questions, assessed per accuracy estimate
+  - `QUADAS2.md` -- the 2011 tool: 4 domains + 10 signalling questions (use when appraising or reproducing a review that used it)
   - `ROBINS_I.md` -- 7 domains + pre-assessment + synthesis recommendation
   - `RoB2.md` -- 5 domains + signalling questions + overall judgment
   - `PROBAST.md` -- 4 domains + AI extension + validation studies
@@ -60,7 +61,7 @@ with specialized support for diagnostic test accuracy (DTA) meta-analyses.
 
 | Type | RoB Tool | Statistical Model | Reporting Guideline |
 |------|----------|-------------------|-------------------|
-| **DTA** (diagnostic test accuracy) | QUADAS-2 | Bivariate / HSROC | PRISMA-DTA |
+| **DTA** (diagnostic test accuracy) | **QUADAS-3** (QUADAS-2 for legacy reviews) | Bivariate / HSROC | PRISMA-DTA |
 | **Intervention** (treatment effect) | RoB 2 (RCT) / ROBINS-I (NRSI) | Random-effects (DL/REML) | PRISMA 2020 |
 | **Prognostic** (prediction model) | QUIPS / PROBAST | Random-effects | PRISMA 2020 |
 | **Observational** (prevalence/association) | NOS / JBI | Random-effects | MOOSE |
@@ -309,7 +310,8 @@ Select tool based on meta-analysis type (see table above), then read the corresp
 
 | Tool | Checklist File |
 |------|---------------|
-| QUADAS-2 (DTA) | `${CLAUDE_SKILL_DIR}/references/checklists/QUADAS2.md` |
+| QUADAS-3 (DTA, current) | `${CLAUDE_SKILL_DIR}/references/checklists/QUADAS3.md` |
+| QUADAS-2 (DTA, legacy) | `${CLAUDE_SKILL_DIR}/references/checklists/QUADAS2.md` |
 | RoB 2 (RCT) | `${CLAUDE_SKILL_DIR}/references/checklists/RoB2.md` |
 | ROBINS-I (NRSI) | `${CLAUDE_SKILL_DIR}/references/checklists/ROBINS_I.md` |
 | PROBAST (Prediction) | `${CLAUDE_SKILL_DIR}/references/checklists/PROBAST.md` |

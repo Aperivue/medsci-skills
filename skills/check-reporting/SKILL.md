@@ -1,7 +1,7 @@
 ---
 name: check-reporting
-description: Check manuscript compliance with medical research reporting guidelines. Supports 48 guidelines including STROBE, STROBE-MR, RECORD, REMARK (prognostic tumor-marker studies), TARGET (target trial emulation), GATHER (burden-of-disease / health-estimate modeling), CONSORT, CONSORT-AI, STARD, STARD-AI, TRIPOD, TRIPOD+AI, TRIPOD-LLM, PGS-RS, ARRIVE, PRISMA, PRISMA 2020 for Abstracts, PRISMA-DTA, PRISMA-P, PRISMA-ScR (scoping reviews), CARE, SPIRIT, SPIRIT-AI, CLAIM, DECIDE-AI, MI-CLEAR-LLM, SQUIRE 2.0, CLEAR, MOOSE, GRRAS, SWiM, AMSTAR 2, CHEERS 2022, CROSS (survey studies), SRQR and COREQ (qualitative research), and risk of bias tools (QUADAS-2, QUADAS-C, RoB 2, ROBINS-I, ROBINS-E, ROBIS, ROB-ME, PROBAST, PROBAST+AI, NOS, COSMIN, RoB NMA). Generates item-by-item assessment with PRESENT/MISSING/PARTIAL status.
-triggers: checklist, abstract checklist, structured abstract, reporting guideline, STROBE, STROBE-MR, Mendelian randomization, CONSORT, CONSORT-AI, STARD, STARD-AI, TRIPOD, TRIPOD-LLM, PGS-RS, PRS-RS, polygenic risk score, polygenic score, PRISMA, PRISMA-DTA, PRISMA-P, PRISMA-ScR, scoping review, scoping, evidence map, ARRIVE, CARE, CLAIM, DECIDE-AI, MI-CLEAR-LLM, SPIRIT, SPIRIT-AI, QUADAS, QUADAS-C, RoB, ROBINS, ROBINS-E, ROBIS, ROB-ME, PROBAST, NOS, COSMIN, AMSTAR, SWiM, CHEERS, economic evaluation, cost-effectiveness, cost-utility, QALY, ICER, RECORD, RECORD-PE, routinely-collected data, registry, claims, electronic health records, EHR, real-world data, CROSS, CHERRIES, survey, questionnaire, KAP, e-survey, response rate, SRQR, COREQ, qualitative research, interviews, focus groups, thematic analysis, grounded theory, reflexivity, REMARK, tumor marker, prognostic marker, prognostic biomarker, molecular residual disease, TARGET, target trial emulation, target trial, causal inference, estimand, immortal time bias, GATHER, burden of disease, global burden, GBD, health estimates, attributable burden, comparative risk assessment, population attributable fraction, disability-adjusted life years, DALY, forecasting, decomposition, risk of bias, compliance check, LLM accuracy, large language model, clinical deployment
+description: Check manuscript compliance with medical research reporting guidelines. Supports 49 guidelines including STROBE, STROBE-MR, RECORD, REMARK (prognostic tumor-marker studies), TARGET (target trial emulation), GATHER (burden-of-disease / health-estimate modeling), CONSORT, CONSORT-AI, STARD, STARD-AI, TRIPOD, TRIPOD+AI, TRIPOD-LLM, PGS-RS, ARRIVE, PRISMA, PRISMA 2020 for Abstracts, PRISMA-DTA, PRISMA-P, PRISMA-ScR (scoping reviews), CARE, SPIRIT, SPIRIT-AI, CLAIM, DECIDE-AI, MI-CLEAR-LLM, SQUIRE 2.0, CLEAR, MOOSE, GRRAS, SWiM, AMSTAR 2, CHEERS 2022, CROSS (survey studies), SRQR and COREQ (qualitative research), and risk of bias tools (QUADAS-3, QUADAS-2, QUADAS-C, RoB 2, ROBINS-I, ROBINS-E, ROBIS, ROB-ME, PROBAST, PROBAST+AI, NOS, COSMIN, RoB NMA). Generates item-by-item assessment with PRESENT/MISSING/PARTIAL status.
+triggers: checklist, QUADAS-3, abstract checklist, structured abstract, reporting guideline, STROBE, STROBE-MR, Mendelian randomization, CONSORT, CONSORT-AI, STARD, STARD-AI, TRIPOD, TRIPOD-LLM, PGS-RS, PRS-RS, polygenic risk score, polygenic score, PRISMA, PRISMA-DTA, PRISMA-P, PRISMA-ScR, scoping review, scoping, evidence map, ARRIVE, CARE, CLAIM, DECIDE-AI, MI-CLEAR-LLM, SPIRIT, SPIRIT-AI, QUADAS, QUADAS-C, RoB, ROBINS, ROBINS-E, ROBIS, ROB-ME, PROBAST, NOS, COSMIN, AMSTAR, SWiM, CHEERS, economic evaluation, cost-effectiveness, cost-utility, QALY, ICER, RECORD, RECORD-PE, routinely-collected data, registry, claims, electronic health records, EHR, real-world data, CROSS, CHERRIES, survey, questionnaire, KAP, e-survey, response rate, SRQR, COREQ, qualitative research, interviews, focus groups, thematic analysis, grounded theory, reflexivity, REMARK, tumor marker, prognostic marker, prognostic biomarker, molecular residual disease, TARGET, target trial emulation, target trial, causal inference, estimand, immortal time bias, GATHER, burden of disease, global burden, GBD, health estimates, attributable burden, comparative risk assessment, population attributable fraction, disability-adjusted life years, DALY, forecasting, decomposition, risk of bias, compliance check, LLM accuracy, large language model, clinical deployment
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit
 ---
@@ -25,7 +25,7 @@ compliance report suitable for journal submission.
   - `STROBE_MR.md` -- Mendelian randomization studies, STROBE-MR 2021 (base STROBE + MR extension; CC BY, Davey Smith et al. BMJ 2021)
   - `STARD.md` -- diagnostic accuracy studies (CC BY 4.0)
   - `STARD_AI.md` -- AI diagnostic accuracy studies (CC BY, Sounderajah et al. Nat Med 2025)
-  - `TRIPOD.md` -- prediction models, classic 2015 version (CC BY, Moons et al. Ann Intern Med 2015)
+  - `TRIPOD.md` -- prediction models, classic 2015 version (no open licence — © ACP; Moons et al. Ann Intern Med 2015)
   - `TRIPOD_AI.md` -- prediction models with AI/ML (CC BY 4.0, Collins et al. BMJ 2024)
   - `TRIPOD_LLM.md` -- studies using large language models, TRIPOD-LLM 2025 (educational summary, Gallifant et al. Nat Med 2025)
   - `PGS_RS.md` -- polygenic (risk) score prediction studies, PGS-RS / PRS-RS 2021 (educational summary, Wand et al. Nature 2021)
@@ -40,28 +40,29 @@ compliance report suitable for journal submission.
   - `PRISMA_2020.md` -- systematic reviews (CC BY)
   - `PRISMA_2020_Abstracts.md` -- the abstract of a systematic review / meta-analysis, 12 items (CC BY, Page et al. BMJ 2021). A separate instrument from the 27-item checklist, not a subset: item 2 of the main checklist defers to it. Score it with its own denominator.
   - `ARRIVE_2.md` -- animal studies (CC0)
-  - `PRISMA_DTA.md` -- DTA systematic reviews (CC BY, McInnes et al. JAMA 2018)
-  - `QUADAS2.md` -- diagnostic accuracy risk of bias (CC BY, Whiting et al. Ann Intern Med 2011)
+  - `PRISMA_DTA.md` -- DTA systematic reviews (no open licence — © AMA; McInnes et al. JAMA 2018)
+  - `QUADAS3.md` -- diagnostic accuracy risk of bias, **current recommended version** (no open licence -- (c) ACP; Whiting et al. Ann Intern Med 2026)
+  - `QUADAS2.md` -- diagnostic accuracy risk of bias (no open licence — © ACP; Whiting et al. Ann Intern Med 2011)
   - `RoB2.md` -- RCT risk of bias (CC BY, Sterne et al. BMJ 2019)
-  - `ROBINS_I.md` -- non-randomised studies risk of bias (CC BY, Sterne et al. BMJ 2016)
-  - `PROBAST.md` -- prediction model risk of bias (CC BY, Wolff et al. Ann Intern Med 2019)
+  - `ROBINS_I.md` -- non-randomised studies risk of bias (CC BY-**NC** 3.0 — non-commercial; Sterne et al. BMJ 2016)
+  - `PROBAST.md` -- prediction model risk of bias (no open licence — © ACP; Wolff et al. Ann Intern Med 2019)
   - `NOS.md` -- observational study quality (public domain, Ottawa Hospital)
   - `CONSORT.md` -- randomised controlled trials, CONSORT 2025 (CC BY 4.0, Hopewell et al. BMJ 2025)
   - `CONSORT_AI.md` -- AI clinical-trial reports, CONSORT-AI 2020 (CC BY 4.0, Liu et al. Nat Med 2020)
-  - `CARE.md` -- case reports, CARE 2013 (CC BY-NC 4.0, Gagnier et al. J Clin Epidemiol 2014)
+  - `CARE.md` -- case reports, CARE 2013 (no confirmed open licence — Elsevier TDM only; Gagnier et al. J Clin Epidemiol 2014)
   - `SPIRIT.md` -- clinical trial protocols, SPIRIT 2025 (CC BY 4.0, Chan et al. BMJ 2025)
   - `SPIRIT_AI.md` -- AI clinical-trial protocols, SPIRIT-AI 2020 (CC BY 4.0, Cruz Rivera et al. Nat Med 2020)
   - `CLAIM_2024.md` -- AI/ML in clinical imaging, CLAIM 2024 Update (RSNA open access, Tejani et al. Radiol Artif Intell 2024)
   - `DECIDE_AI.md` -- early-stage clinical evaluation of AI decision-support systems, DECIDE-AI 2022 (educational summary, CC BY-NC, Vasey et al. Nat Med 2022)
   - `MI_CLEAR_LLM.md` -- LLM accuracy studies in healthcare (CC BY-NC 4.0, Park et al. KJR 2024; 2025 update)
-  - `SQUIRE_2.md` -- quality improvement in healthcare/education (CC BY, Ogrinc et al. BMJ Qual Saf 2016)
+  - `SQUIRE_2.md` -- quality improvement in healthcare/education (no open licence — Crossref returns none; Ogrinc et al. BMJ Qual Saf 2016)
   - `CLEAR.md` -- radiomics studies (CC BY 4.0, Kocak et al. Insights Imaging 2023)
   - `MOOSE.md` -- meta-analysis of observational studies (Stroup et al. JAMA 2000)
   - `GRRAS.md` -- reliability and agreement studies (Kottner et al. J Clin Epidemiol 2011)
-  - `QUADAS_C.md` -- comparative DTA risk of bias, extension to QUADAS-2 (CC BY 4.0, Yang et al. 2021)
+  - `QUADAS_C.md` -- comparative DTA risk of bias, extension to QUADAS-2 (no open licence — © ACP; Yang et al. Ann Intern Med 2021)
   - `ROBINS_E.md` -- non-randomised exposure studies risk of bias (CC BY-NC-ND 4.0, Higgins et al. Environ Int 2024)
   - `ROBIS.md` -- risk of bias in systematic reviews (Whiting et al. J Clin Epidemiol 2016)
-  - `ROB_ME.md` -- risk of bias due to missing evidence in meta-analysis (CC BY-NC-ND 4.0, Page et al. BMJ 2023)
+  - `ROB_ME.md` -- risk of bias due to missing evidence in meta-analysis (no open licence — BMJ TDM policy only; Page et al. BMJ 2023)
   - `PROBAST_AI.md` -- prediction model risk of bias, updated for AI/ML (Moons et al. BMJ 2025)
   - `COSMIN_RoB.md` -- reliability/measurement error risk of bias (Mokkink et al. BMC Med Res Methodol 2020)
   - `RoB_NMA.md` -- risk of bias in network meta-analysis (Lunny et al. 2024)
@@ -113,11 +114,11 @@ user specification.
 | Systematic review / meta-analysis | PRISMA 2020 | PRISMA 2020 for Abstracts (run on the abstract, scored separately) |
 | DTA systematic review / meta-analysis | PRISMA-DTA | PRISMA 2020 for Abstracts (run on the abstract, scored separately) |
 | Meta-analysis of observational studies | MOOSE | PRISMA 2020 (use both) |
-| Risk of bias (DTA studies) | QUADAS-2 | -- |
+| Risk of bias (DTA studies) | **QUADAS-3** (current recommended version) | QUADAS-2 only when appraising or reproducing a review that used it |
 | Risk of bias (RCTs) | RoB 2 | -- |
 | Risk of bias (non-randomised intervention studies) | ROBINS-I | -- |
 | Risk of bias (non-randomised exposure studies) | ROBINS-E | -- |
-| Risk of bias (comparative DTA studies) | QUADAS-C | QUADAS-2 (use both) |
+| Risk of bias (comparative DTA studies) | QUADAS-C | **QUADAS-3** (use both; QUADAS-C needs adaptation — see the QUADAS-3 E&E) |
 | Risk of bias (prediction models) | PROBAST | PROBAST+AI |
 | Risk of bias (systematic reviews) | ROBIS | AMSTAR 2 |
 | Risk of bias (missing evidence in MA) | ROB-ME | -- |

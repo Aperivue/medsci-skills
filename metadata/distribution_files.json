@@ -628,13 +628,13 @@
     },
     {
       "path": "skills/check-reporting/SKILL.md",
-      "size": 40493,
-      "sha256": "95e2789b7a9040fbe6a4de447ae27055098e364c5fd65b8ca9e66d0eeef8e02e"
+      "size": 41059,
+      "sha256": "db06fd060469f2215c86e9616800710f288a8ab8c9f5f6f55adf8e0b3054daa0"
     },
     {
       "path": "skills/check-reporting/references/LICENSES.md",
-      "size": 5410,
-      "sha256": "2c5b159691e4c2c4c329e21e9d30b14082b66713dd09974e590b06d9ea6a93cf"
+      "size": 5549,
+      "sha256": "ab367cc5716ec07f514405244683443464dca0c710a82ccb13d3772c26e1f685"
     },
     {
       "path": "skills/check-reporting/references/appraisal_tools/METRICS.md",
@@ -773,13 +773,18 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/QUADAS2.md",
-      "size": 8282,
-      "sha256": "09a6ef807cf77def7343ed2c0b4a6177317f563dcb2088bd1a9ed22438a7b8dc"
+      "size": 8256,
+      "sha256": "800f71eaad6c40211682087ba94db466bc8c62d525814d2b564c5e25bf3c4ae5"
+    },
+    {
+      "path": "skills/check-reporting/references/checklists/QUADAS3.md",
+      "size": 9474,
+      "sha256": "61083d6ab470c387c550c631435106a205aec722d968e72452e740ae152bc407"
     },
     {
       "path": "skills/check-reporting/references/checklists/QUADAS_C.md",
-      "size": 9724,
-      "sha256": "bda64cd1c3315690405355017819d38e2c7ea3e3b3e829e639da47e5c133c795"
+      "size": 9816,
+      "sha256": "6a521a0936960264eb7913a1fa252618c4d5cd88e4085451c04229aa4392519c"
     },
     {
       "path": "skills/check-reporting/references/checklists/RECORD.md",
@@ -2284,7 +2289,7 @@
     {
       "path": "skills/make-figures/references/reporting_guideline_figure_map.md",
       "size": 7149,
-      "sha256": "29c721cd0241dae6a18252ba80a650c7b44bf018c333dca8c74ac5dbaf35e661"
+      "sha256": "2143690e052bf9b8e99d36825ca8672da8c3a5f433424e7a96f537f623566807"
     },
     {
       "path": "skills/make-figures/references/visual_abstract_templates/jacc_central_illustration.pptx",
@@ -2693,8 +2698,8 @@
     },
     {
       "path": "skills/meta-analysis/SKILL.md",
-      "size": 45157,
-      "sha256": "0cf89b6a7b7e85d0d6fef60c155bfde6798968cb31427830ef64af5a06c0c517"
+      "size": 45502,
+      "sha256": "2f2947e7fb73b25b96690f78f9871b239c060ef3fd382c4bb039152ec4210d91"
     },
     {
       "path": "skills/meta-analysis/references/LICENSES.md",
@@ -2733,8 +2738,13 @@
     },
     {
       "path": "skills/meta-analysis/references/checklists/QUADAS2.md",
-      "size": 8282,
-      "sha256": "09a6ef807cf77def7343ed2c0b4a6177317f563dcb2088bd1a9ed22438a7b8dc"
+      "size": 8256,
+      "sha256": "800f71eaad6c40211682087ba94db466bc8c62d525814d2b564c5e25bf3c4ae5"
+    },
+    {
+      "path": "skills/meta-analysis/references/checklists/QUADAS3.md",
+      "size": 9474,
+      "sha256": "61083d6ab470c387c550c631435106a205aec722d968e72452e740ae152bc407"
     },
     {
       "path": "skills/meta-analysis/references/checklists/ROBINS_I.md",
@@ -3339,7 +3349,7 @@
     {
       "path": "skills/orchestrate/SKILL.md",
       "size": 42218,
-      "sha256": "6848f23cef7a0ea8df0e3113a259933cf588261ec579a51805e08a7c1fc6e633"
+      "sha256": "5cbc88b21de39f34bd458ddb785627c3521f1dac45a5d12aaa2297ebc71c4f46"
     },
     {
       "path": "skills/orchestrate/references/dialogue_nodes.md",

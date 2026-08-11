@@ -8,7 +8,7 @@
 
 ## When to use
 
-`meta-analysis` activates on requests such as: meta-analysis, systematic review, PROSPERO, forest plot, funnel plot, PRISMA, QUADAS, ROBINS, HSROC, bivariate model, pooled sensitivity, pooled specificity, search strategy, study selection, data extraction form.
+`meta-analysis` activates on requests such as: meta-analysis, systematic review, PROSPERO, QUADAS-3, forest plot, funnel plot, PRISMA, QUADAS, ROBINS, HSROC, bivariate model, pooled sensitivity, pooled specificity, search strategy, study selection, data extraction form.
 
 ## Quality Card
 
@@ -40,7 +40,7 @@
 - `LICENSES.md`
 - `PROSPERO_template.md`
 - `ai_pre_screening_template.py`
-- `checklists/` (7 files)
+- `checklists/` (8 files)
 - `data_integrity_checklist.md`
 - `empirical_lessons.md`
 - `icmje_coi_guide.md`
