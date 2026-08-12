@@ -18,9 +18,11 @@ repositories sit behind a browser challenge; the group's own distribution made t
 > that QUADAS-C "cannot be used alone and must be used alongside the main QUADAS tool", and now
 > recommends pairing it with **QUADAS-3** rather than QUADAS-2 — with adaptation, for which the
 > QUADAS-3 E&E document gives guidance. This file documents QUADAS-C as published against
-> QUADAS-2. See **`QUADAS3.md`** for the current base tool (its *Using QUADAS-C with QUADAS-3*
-> section maps the four Cx.1 questions onto QUADAS-3's domains and shows where **C4 does not map**),
-> and `QUADAS2.md` for the tool this extension was written against.
+> QUADAS-2. **`QUADAS3.md`** carries the E&E's own adaptation: the four domains are renamed onto
+> QUADAS-3's (Flow and Timing becomes **Analysis**), **C3.2 is removed** as overlapping QUADAS-3
+> item 3.4, **C4.2 moves to Index Test** and **C4.3 moves to Target Condition**, and the unit
+> assessed is a **comparative measure** you will usually have to compute yourself. An updated
+> QUADAS-C is in development. `QUADAS2.md` is the tool this extension was written against.
 
 ## Purpose
 
