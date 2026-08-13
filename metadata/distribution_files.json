@@ -628,8 +628,8 @@
     },
     {
       "path": "skills/check-reporting/SKILL.md",
-      "size": 41090,
-      "sha256": "6f932d046b9e5c2e2968c047b84cb4f981478604e4f74208b5f1ca01244d2b4e"
+      "size": 41742,
+      "sha256": "b57ffd0bab3807cbe8f8c456a9af045c3fd41bd17d2d934abb7fe4fbc1ced03d"
     },
     {
       "path": "skills/check-reporting/references/LICENSES.md",
@@ -2698,8 +2698,8 @@
     },
     {
       "path": "skills/meta-analysis/SKILL.md",
-      "size": 45502,
-      "sha256": "2f2947e7fb73b25b96690f78f9871b239c060ef3fd382c4bb039152ec4210d91"
+      "size": 46982,
+      "sha256": "b10cb9ab372858792bcddcc6675c3c2c0d3211b3e5283b9874b1bdc7e931cfde"
     },
     {
       "path": "skills/meta-analysis/references/LICENSES.md",

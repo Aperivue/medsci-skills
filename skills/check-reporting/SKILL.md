@@ -140,6 +140,14 @@ user specification.
 | Educational / QI study | SQUIRE 2.0 | -- |
 | Generative AI **images ARE the study object** (realism / real-vs-synthetic reader study / model-vs-model quality) | (no single guideline -- assemble) | see decision aid below |
 
+> **QUADAS-3 has two protocol-stage phases, and this skill usually runs too late for them.**
+> Phase 1 (state the synthesis question) and phase 2 (define the **ideal test accuracy trial**
+> each judgement is made against) are review-level and belong in the protocol, alongside the
+> review-specific guidance for answering each signalling question. Reaching them for the first
+> time during manuscript QC means writing the comparator after seeing the results.
+> If they are missing, say so as a limitation rather than reconstructing them — and route the
+> protocol work to `/meta-analysis` Phase 1. Phases 3–6 are what a QC pass can genuinely run.
+
 **Rules:**
 - If the study involves AI/ML, always apply the AI extension in addition to the base guideline.
   - **Exception — TRIPOD**: TRIPOD+AI 2024 (Collins et al., BMJ 2024) is a complete rewrite, not an addendum to TRIPOD 2015 (Moons et al., Ann Intern Med 2015). For non-AI prediction models, use TRIPOD 2015 only. For AI/ML prediction models, use TRIPOD+AI 2024 only. Do NOT apply both simultaneously.
