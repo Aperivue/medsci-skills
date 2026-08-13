@@ -628,8 +628,8 @@
     },
     {
       "path": "skills/check-reporting/SKILL.md",
-      "size": 41096,
-      "sha256": "2da6526d5b044b483f0b85cfcd913d3f4d85f994009a16dc0d471d134057cc93"
+      "size": 41090,
+      "sha256": "6f932d046b9e5c2e2968c047b84cb4f981478604e4f74208b5f1ca01244d2b4e"
     },
     {
       "path": "skills/check-reporting/references/LICENSES.md",
@@ -778,13 +778,13 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/QUADAS3.md",
-      "size": 11822,
-      "sha256": "f6edd64e37a58823007c7f4412f0fad5fbab2c447e03c0697ea0ba6d5860b316"
+      "size": 13191,
+      "sha256": "f3555841f8d7c0865991032325fe0513bf8f906b6f1b4fdaeedbe13880ce705f"
     },
     {
       "path": "skills/check-reporting/references/checklists/QUADAS_C.md",
-      "size": 9953,
-      "sha256": "1438ede70887883c4dae2d7a80acf64d37f55f62aab55fa2994868664728c8c4"
+      "size": 10162,
+      "sha256": "a18909843ab83fe5db4c1337ce8a7e19caec2fca051887ca4736e9e958a48092"
     },
     {
       "path": "skills/check-reporting/references/checklists/RECORD.md",
@@ -2743,8 +2743,8 @@
     },
     {
       "path": "skills/meta-analysis/references/checklists/QUADAS3.md",
-      "size": 11822,
-      "sha256": "f6edd64e37a58823007c7f4412f0fad5fbab2c447e03c0697ea0ba6d5860b316"
+      "size": 13191,
+      "sha256": "f3555841f8d7c0865991032325fe0513bf8f906b6f1b4fdaeedbe13880ce705f"
     },
     {
       "path": "skills/meta-analysis/references/checklists/ROBINS_I.md",

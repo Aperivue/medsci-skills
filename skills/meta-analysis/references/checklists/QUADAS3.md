@@ -7,6 +7,10 @@ revised tool for the quality assessment of diagnostic test accuracy studies. *An
 2026;179(4):548-555 (DOI 10.7326/ANNALS-25-02104). The tool itself, the Explanation & Elaboration
 report and an introductory video are distributed by the QUADAS group at
 https://www.bristol.ac.uk/population-health-sciences/projects/quadas/quadas-3/
+Explanation & Elaboration: Davenport CF, Rutjes AWS, Mallett S, Tomlinson E, Yang B, et al.
+QUADAS-3 explanation and elaboration: guidance for quality assessment of diagnostic test accuracy
+studies. *Ann Intern Med* 2026;179(4):e2504943 (DOI 10.7326/ANNALS-25-04943).
+Resource site: **www.quadas.info** (the older www.quadas.org no longer resolves).
 
 > **Fidelity and licence.** QUADAS-3 is published in *Annals of Internal Medicine* (© American
 > College of Physicians) under **no open licence** — Crossref returns only ACP's text-and-data-mining
@@ -17,7 +21,9 @@ https://www.bristol.ac.uk/population-health-sciences/projects/quadas/quadas-3/
 > Verification: the six phases and when each is completed, the four domains, all 20 signalling
 > questions, the response options, the domain-level rule, which domains carry an applicability
 > judgement, and the overall-judgement rules were compared against **the official tool document
-> v1.2** distributed by the QUADAS group. All matched.
+> v1.2** distributed by the QUADAS group. All matched. The *Using QUADAS-C with QUADAS-3*,
+> *Tailoring* and *no "moderate" grade* sections below are taken from the **Explanation and
+> Elaboration paper**, read directly.
 
 ## QUADAS-3 supersedes QUADAS-2
 
@@ -47,39 +53,47 @@ data and the unit of analysis moved into the new **Analysis** domain.
 
 ## Using QUADAS-C with QUADAS-3
 
-Both tools say to pair them: the QUADAS-3 tool states that "for reviews involving comparative
-accuracy, we recommend using the QUADAS-C tool in addition to QUADAS-3", and the QUADAS group says
-QUADAS-C "cannot be used alone and must be used alongside the main QUADAS tool", now meaning
-QUADAS-3.
+For comparative accuracy studies — where two or more index tests are compared — the guideline says
+to use **QUADAS-C alongside QUADAS-3**, because such studies carry additional sources of bias
+(confounding between tests, and interference of one test with another).
 
-**They do not slot together unchanged, and it is worth knowing where before you start.** Each of
-QUADAS-C's four opening questions hard-references a QUADAS-2 question number:
+QUADAS-C was written as an extension of QUADAS-2, so it needs adapting. **An updated QUADAS-C is
+in development**; what follows are the E&E's own *preliminary* modifications, not a finished tool.
 
-| QUADAS-C | asks whether | referencing | QUADAS-3 counterpart |
-|---|---|---|---|
-| C1.1 | each index test was low risk for this domain | QUADAS-2 **1.4** | Domain 1 **Participants** judgement |
-| C2.1 | 〃 | QUADAS-2 **2.3** | Domain 2 **Index Test** judgement |
-| C3.1 | 〃 | QUADAS-2 **3.3** | Domain 3 **Target Condition** judgement (the domain was renamed from Reference Standard) |
-| C4.1 | 〃 | QUADAS-2 **4.5** | **no single counterpart** |
+### What you assess
 
-**C4 is the one that does not map.** QUADAS-C's domain 4 is *Flow and Timing*, and QUADAS-3 split
-that domain: the index-test-to-reference-standard interval became **3.8** inside Target Condition,
-while exclusions, missing data and the unit of analysis became the new **Analysis** domain. So
-QUADAS-C's C4.1 has no one judgement to read, and its C4.2 (interval between the index tests),
-C4.3 (same reference standard for all index tests) and C4.4 (missing data comparable across index
-tests) sit astride two QUADAS-3 domains.
+The unit is a **comparative measure** — for example the difference in sensitivity or in specificity
+between two tests. Most primary studies report only the separate estimate for each index test, so
+**you will usually have to compute the comparative measure yourself.** Specify which estimate a
+QUADAS-C assessment refers to, exactly as you do in QUADAS-3 phase 4.
 
-There is a second mismatch of granularity: **QUADAS-3 judges each set of accuracy estimates, while
-QUADAS-C judges a test comparison**, which spans at least two estimates. Decide, and record, which
-estimates a given QUADAS-C assessment is standing on.
+### Domains are renamed onto QUADAS-3's
 
-> **The authority for this adaptation is the QUADAS-3 E&E report, which this file has not read.**
-> Davenport C, Rutjes A, Mallett S, Tomlinson E, Yang B, et al. QUADAS-3 explanation and
-> elaboration. *Ann Intern Med* 2026;179:e2504943 (DOI 10.7326/ANNALS-25-04943). It is **CC BY**
-> and open access, but every route to it — the ACP site, the Bristol repository landing page, and
-> the handle — returns a bot challenge to automated retrieval, so it was not fetched. The mapping
-> above is **our reading of the two tool documents**, not the E&E's guidance. Read the E&E before
-> relying on it for a review you will publish.
+| QUADAS-C (as published) | becomes |
+|---|---|
+| Patient Selection | **Participants** |
+| Index Test | Index Test *(unchanged)* |
+| Reference Standard | **Target Condition** |
+| Flow and Timing | **Analysis** |
+
+### Three signalling questions change (E&E Table 8)
+
+| QUADAS-C question | Change |
+|---|---|
+| **C3.2** Did the reference standard avoid incorporating any of the index tests? | **Removed** — it overlaps QUADAS-3 item 3.4 |
+| **C4.2** Was there an appropriate interval between the index tests? | **Moved to domain 2** (Index Test) |
+| **C4.3** Was the same reference standard used for all index tests? | **Moved to domain 3** (Target Condition) |
+
+Everything else carries over unchanged.
+
+### Answers and judgements follow QUADAS-3
+
+Signalling questions take **Y / PY / PN / N / NI**; each domain is judged **low / high /
+insufficient information**. The overall judgement for the comparative estimate:
+
+- **low** if all domains are low
+- **high** if at least one domain is high
+- **insufficient information** if at least one domain is II and none is high
 
 ## The six phases
 
@@ -197,6 +211,25 @@ a middle rating between low and high.
 - any domain **insufficient information** and none high → overall **insufficient information**
 
 Record a rationale naming the major limitations behind the overall judgement.
+
+**Do not add a "moderate" grade.** Reviewers sometimes want one, to separate a study that is high
+risk in a single domain from one that is high risk in several. The E&E says plainly that the
+authors *do not support* this: if an estimate is high risk for one domain, it is high risk,
+whatever the other domains say.
+
+## Tailoring the tool to your review
+
+Phase 2's tailoring is the step most often skipped, and the E&E is specific about it.
+
+- Do it **at the protocol stage, alongside phases 1 and 2** — not when you reach the studies.
+- Write review-specific guidance on how to answer each signalling question, adapting the general
+  guidance tables. Publish it as a web appendix so the application is auditable.
+- Draw on **both clinical and methodological** expertise in the review area.
+- **Do not remove signalling questions.** Keep them even when they cannot bite: if two-gate designs
+  were excluded, every study answers "yes" to 1.1, and recording that shows the issue was
+  considered. Deleting the question hides that.
+- If you add a question, it must: address **one** issue only; concern **risk of bias, not reporting
+  quality**; and be **factual**, phrased so that "yes"/"probably yes" means bias is absent.
 
 ## When to Use
 
