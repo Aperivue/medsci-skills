@@ -80,7 +80,19 @@ Auto-detect type from the research question or accept user specification.
    - DTA: PIRD (Population, Index test, Reference standard, Diagnosis)
    - Intervention: PICO (Population, Intervention, Comparator, Outcome)
 
-2. **Define eligibility criteria**:
+2. **DTA only — do QUADAS-3 phases 1 and 2 now, not at risk-of-bias time**:
+   QUADAS-3's first two phases are **review-level and belong in the protocol**:
+   phase 1 states the **synthesis question(s)** (population, index test(s), target
+   condition — a review may have more than one), and phase 2 defines the **ideal test
+   accuracy trial** for each: objective, participants, index test(s), definition of the
+   target condition, analysis. Every later risk-of-bias and applicability judgement is
+   made against that trial.
+   Write the review-specific guidance for answering each signalling question here too,
+   with clinical **and** methodological input, and publish it as a web appendix.
+   Defining the ideal trial after seeing the studies is not an assessment — it is a
+   judgement fitted to the results. See `references/checklists/QUADAS3.md`.
+
+3. **Define eligibility criteria**:
    - Study design (cross-sectional DTA, cohort, RCT, etc.)
    - Population characteristics
    - Index test / intervention specifics
@@ -88,26 +100,26 @@ Auto-detect type from the research question or accept user specification.
    - Outcome measures (Se/Sp for DTA; effect size for intervention)
    - Exclusion criteria with justification
 
-3. **Plan the search**:
+4. **Plan the search**:
    - Minimum 3 databases: PubMed, Embase, and Cochrane CENTRAL (add Scopus, Web of Science as needed)
    - Draft Boolean search strategy using PIRD/PICO components
    - Grey literature plan (conference abstracts, trial registries)
    - Language restrictions (state explicitly)
    - Date range with justification
 
-4. **Plan RoB assessment**:
+5. **Plan RoB assessment**:
    - Select tool based on type (see table above)
    - State number of independent assessors (minimum 2)
    - Plan for disagreement resolution (consensus, third reviewer)
 
-5. **Plan synthesis**:
+6. **Plan synthesis**:
    - DTA: bivariate random-effects model (Reitsma) or HSROC (Rutter & Gatsonis)
    - Intervention: random-effects (DerSimonian-Laird or REML)
    - Heterogeneity assessment plan
    - Subgroup / sensitivity analysis plan
    - Publication bias assessment plan
 
-6. **Generate PROSPERO registration document**:
+7. **Generate PROSPERO registration document**:
    - Read `${CLAUDE_SKILL_DIR}/references/PROSPERO_template.md` for field-by-field guidance
    - Generate all fields with word counts (stay within limits per field)
    - Structure: title, review question, PICO, searches, data collection, outcomes, synthesis, subgroups, stage, affiliation
@@ -306,6 +318,11 @@ analysis excluding one of the pair. Cross-links: `/peer-review` Phase 2A P1 + P2
 
 **Goal**: Guide structured RoB assessment with the appropriate tool.
 
+**DTA**: this phase runs QUADAS-3 **phases 3–6** (flow diagram, identify the estimates to
+assess, assess, overall judgement). Phases 1–2 — the synthesis question and the ideal test
+accuracy trial — were written in Phase 1 above. If they were not, stop and write them before
+judging anything; they are the comparator every judgement is made against.
+
 Select tool based on meta-analysis type (see table above), then read the corresponding checklist:
 
 | Tool | Checklist File |
@@ -438,7 +455,7 @@ occurred inside a "minor" revision-era re-analysis.
 **Goal**: Assess certainty of the body of evidence.
 
 For DTA meta-analysis, apply GRADE-DTA framework:
-1. Risk of bias (from QUADAS-2)
+1. Risk of bias (from QUADAS-3, or QUADAS-2 for a legacy review)
 2. Indirectness (applicability concerns)
 3. Inconsistency (heterogeneity)
 4. Imprecision (wide CIs, small sample)
@@ -633,7 +650,8 @@ de-scaffolding, self-contained reproducible analysis scripts, sidecar re-sync, m
 | Standard funnel plot for DTA | Inappropriate | Use Deeks' funnel plot |
 | I-squared only for heterogeneity | Doesn't capture threshold effect | Use prediction region on SROC |
 | Missing GRADE | Common omission in DTA MA | Apply GRADE-DTA. If <4 studies, assess each domain narratively and state the limitation explicitly |
-| Partial verification bias | Inflates sensitivity | Assess in QUADAS-2 Flow & Timing domain |
+| Partial verification bias | Inflates sensitivity | QUADAS-3 **3.2** (target condition assessed in all participants). QUADAS-3 has no Flow & Timing domain — that was QUADAS-2 |
+| Differential verification bias | Distorts both Se and Sp | QUADAS-3 **3.3** (target condition assessed the same way in all participants) |
 | Unevaluable results excluded | Biases accuracy estimates | Report intent-to-diagnose analysis |
 
 ---
