@@ -564,6 +564,21 @@ report actually working when they hand slide-making to an agent:
 
 Then insert the rendered PNG (≥300 dpi) with `add_picture()`.
 
+**Check the rendered PNG before you insert it.** Drawing in code buys a second coordinate system,
+and a stroke laid on the figure's boundary is half-cut by the render. On the slide that does not
+read as a crop; it reads as a box with a side missing:
+
+```bash
+python3 scripts/check_diagram_edges.py diagrams/ --json qc/diagram_edges.json
+```
+
+`DIAGRAM_EDGE_CLIP` reports ink within a few pixels of the image border, and leaves full-bleed
+images alone (a photograph has ink on all four edges by construction). Run it straight after
+`savefig`, where the fix is an inner margin plus `bbox_inches="tight"` and a pad — once the PNG
+exists the stroke is already half gone and cropping cannot bring it back. People find these one at
+a time: the first time this guard ran it immediately found a second clipped diagram beside the one
+a reader had noticed.
+
 **Why the ban.** Building a diagram out of autoshapes produces both AI tells at once: a row of
 identical rounded rectangles (`SHAPE_MONOTONY`) joined by arrows nobody labelled
 (`ARROW_NO_SEMANTICS`). Graphviz makes the second one *structurally hard to get wrong* — a DOT edge
@@ -606,8 +621,31 @@ NAVY    = #1B2A4A   # title text, section divider background
 TEAL    = #0072B2   # subtitle, underline, table header bg, quote bar
 ORANGE  = #D55E00   # highlight box border
 GRAY    = #333333   # body text
-FONT    = 'Apple SD Gothic Neo'   # use a Latin-only font on non-Korean decks
+FONT    = 'Arial'   # present on both platforms; see the font-portability check below
 ```
+
+### The font is a delivery decision, not a taste decision
+
+A typeface that is not installed on the machine the deck opens on is substituted silently: the
+words stay, the metrics change, line breaks move, and a box that fitted stops fitting. It is
+invisible on the authoring machine by construction — you have the font — and it surfaces on the
+projector.
+
+```bash
+python3 scripts/check_font_portability.py output/presentation.pptx --json qc/font_portability.json
+```
+
+`FONT_NOT_PORTABLE` names any typeface bundled with one operating system and absent on the other,
+with a count per font so a 1,000-run body face reads differently from a stray monospace in three
+code lines. It is a blocklist, not an allowlist: a hospital's licensed brand face is not this
+check's business. It exempts fonts the deck **embeds**, and it treats a theme-level default as
+inert until the deck actually contains text of the script that slot serves.
+
+Two ways to be safe, and both have a cost worth knowing:
+
+- **Embed the fonts** (PowerPoint: Save > Embed fonts in the file). Licence permitting.
+- **Carry a PDF.** The portable fallback — but **PDF drops embedded video**, so a deck with a clip
+  must ship its MP4s separately or the fallback is not one.
 
 ### Fixed coordinate zones (16:9 = 13.333" × 7.5")
 
@@ -799,6 +837,35 @@ that is missing.
 
 If you see `ZERO_AREA_TEXT`, fix the geometry and run the check again. Treat the first run's silence
 on everything else as unread, not as passed.
+
+### Step 3.8 — Does it fit? Measure the render; never estimate it
+
+`python-pptx` will write more text than a box can show and say nothing about it. PowerPoint reveals
+it on the screen, which is where the audience is.
+
+The tempting check is arithmetic — font size × line spacing × lines — and it fails in **both**
+directions. A line-height constant of 1.42 under-estimated CJK line pitch and let a body block cross
+into the footer; measuring the render gave 1.60; raising the constant to 1.62 then refused about 290
+passages that rendered perfectly well. Separately, sizing a block at font × 1.06 while forgetting the
+roughly **1.2 leading PowerPoint adds on top** made a 21-line list compute to 4.1 in when it needed
+5.1. Those two numbers are why there is no estimator in this skill: they are what the estimate is
+wrong by, in each direction.
+
+The render already knows. You are exporting a PDF anyway — it is half the Mac-compatibility check
+and the portable fallback for a venue without your fonts:
+
+```bash
+soffice --headless --convert-to pdf output/presentation.pptx
+python3 scripts/check_text_overflow.py output/presentation.pptx --pdf output/presentation.pdf \
+        --json qc/text_overflow.json
+```
+
+`OFF_SLIDE` is a line ending in the reserved band at the foot of the slide; `CARD` is a line whose
+bottom passes the bottom of the filled block it sits in. Both report the measured distance, because
+"0.03 in below the block" and "0.6 in below the block" call for different repairs.
+
+Without a render it **exits 2 — could not measure** — rather than reporting a pass. A check that
+answers when it did not look is worse than no check, because the answer gets quoted.
 
 **Mode B: Add notes to existing slides** (more common)
 
