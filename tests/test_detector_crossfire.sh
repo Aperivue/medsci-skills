@@ -198,10 +198,15 @@ echo
 echo "== 6. zero pairs is a FAILURE, not a pass =="
 # A test that silently exercises nothing is worse than no test: it is a green light over a hole.
 NOPAIRS="$WORK/nopairs"; seal "$NOPAIRS" model-card
-# Remove both deck detectors but KEEP the challenge cards, so the decks still build and the only
+# Remove EVERY deck detector but KEEP the challenge cards, so the decks still build and the only
 # detector left (check_model_card_complete) belongs to neither family. Nothing can pair.
-rm -f "$NOPAIRS/skills/present-paper/scripts/check_slide_tells.py" \
-      "$NOPAIRS/skills/present-paper/scripts/check_deck_budget.py"
+#
+# By glob, not by name. This used to name check_slide_tells and check_deck_budget, and a third deck
+# detector added later left one of them behind to pair happily with the clean decks -- at which
+# point this sub-test asserts nothing and says PASS while doing it, which is the exact failure it
+# was written to detect, one level up. The challenge cards live in check_*_challenge/ directories,
+# so a non-recursive glob leaves the deck builders in place.
+rm -f "$NOPAIRS"/skills/present-paper/scripts/check_*.py
 out="$(python3 "$NOPAIRS/scripts/check_detector_crossfire.py" 2>&1)"; rc=$?
 ck "a run with no runnable pairs fails" 1 "$rc"
 if printf '%s\n' "$out" | grep -q 'zero (detector x fixture) pairs'; then

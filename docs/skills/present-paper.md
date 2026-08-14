@@ -22,6 +22,8 @@
 **Known limitations**
 
 - Figure cropping and notes parsing are heuristic; verify the built PPTX in PowerPoint.
+- Overflow is measured from a rendered PDF, so it needs one: without a render the check exits 2 rather than reporting a pass.
+- Font portability is a blocklist of platform-bundled faces. A font absent from it may still be missing at the venue; embedding, or a PDF, is the only guarantee.
 - A per-slide script is required, not a topic. Given only a topic, the deck comes out generic in the way every reviewer can see -- the skill asks for the narrative instead of inventing one.
 - It does not draw diagrams from autoshapes: flows and mechanisms are rendered as code (matplotlib / Graphviz) and inserted, because an unlabelled arrow is read differently by every person in the room.
 - Mac OOXML quirks require the bundled compatibility checks; not every host renders identically.
@@ -31,8 +33,14 @@
 - `unzip the .pptx and confirm 0 markdown-raw notes / 0 TIFF / app.xml counts synced`
 - `python3 scripts/check_slide_tells.py output/presentation.pptx --strict`
 - `python3 scripts/check_deck_budget.py output/presentation.pptx --archetype <venue> --minutes <N> --strict`
+- `python3 scripts/check_font_portability.py output/presentation.pptx --strict`
+- `python3 scripts/check_diagram_edges.py diagrams/ --strict`
+- `python3 scripts/check_text_overflow.py output/presentation.pptx --pdf output/presentation.pdf --strict`
 - `bash scripts/check_slide_tells_challenge/verify.sh`
 - `bash scripts/check_deck_budget_challenge/verify.sh`
+- `bash scripts/check_font_portability_challenge/verify.sh`
+- `bash scripts/check_diagram_edges_challenge/verify.sh`
+- `bash scripts/check_text_overflow_challenge/verify.sh`
 - `python3 scripts/strip_notes_for_sharing.py before sharing`
 
 **Evidence** — `bundled_script`
@@ -55,8 +63,14 @@
 
 - `check_deck_budget.py`
 - `check_deck_budget_challenge/` (2 files)
+- `check_diagram_edges.py`
+- `check_diagram_edges_challenge/` (2 files)
+- `check_font_portability.py`
+- `check_font_portability_challenge/` (2 files)
 - `check_slide_tells.py`
 - `check_slide_tells_challenge/` (2 files)
+- `check_text_overflow.py`
+- `check_text_overflow_challenge/` (2 files)
 - `extract_pdf_figures.py`
 - `inject_pronunciation_notes.py`
 - `inject_speaker_notes.py`

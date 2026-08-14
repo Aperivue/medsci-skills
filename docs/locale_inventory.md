@@ -168,3 +168,5 @@ also destroy it: the point of quoting a reviewer verbatim is that it is what the
 | `skills/present-paper/templates/build_pptx_nature_lancet.py` | A | One Korean quote in a comment, explaining why the eyebrow/footer default was removed. |
 | `skills/present-paper/tests/test_builder_no_chrome.py` | A | Same quote, explaining what the test is defending against. |
 | `skills/present-paper/references/presentation_archetypes.md` | A | One verbatim quote from an investor explaining why they tell founders never to use AI for an IR deck — the sentence is the evidence for the archetype's warning, and paraphrasing a quote is not translation. |
+| `skills/present-paper/scripts/check_font_portability.py` | A | The blocklist matches typeface names as a deck writes them, and a Windows Korean face is written `맑은 고딕` in the OOXML as often as `Malgun Gothic`. Translating the key would stop it matching. |
+| `skills/present-paper/scripts/check_font_portability_challenge/make_fixtures.py` | A | The fixture that proves an inherited default fires needs real Korean on the slides — with Latin text the theme's East-Asian fallback is inert and the test would assert nothing. |
