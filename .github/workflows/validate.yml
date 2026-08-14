@@ -105,6 +105,12 @@ jobs:
       - name: "Run check_named_skills_exist.py (a skill may not send you to a skill that does not exist)"
         run: python3 scripts/check_named_skills_exist.py --strict
 
+      - name: "Run check_probe_declaration.py (a module must declare the probes it contains)"
+        run: python3 scripts/check_probe_declaration.py --strict
+
+      - name: "Run probe-declaration challenge (restore each defect; the gate must FAIL)"
+        run: bash scripts/probe_declaration_challenge/verify.sh
+
       - name: Run check_domain_probe_sync.py (vendored domain probes must be byte-identical)
         run: python3 scripts/check_domain_probe_sync.py --strict
 
