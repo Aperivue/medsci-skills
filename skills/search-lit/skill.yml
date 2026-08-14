@@ -18,6 +18,7 @@ outputs:
   - references/library.bib  # search-result candidate pool; NOT the manuscript SSOT bib
   - references/search_results.tsv
 deterministic_scripts:
+  - scripts/check_doi_record_match.py  # screening-row DOI provenance; challenge card in scripts/check_doi_record_match_challenge/
   - references/pubmed_eutils.sh
   - references/parse_pubmed.py
   - references/snowball.py  # Phase 2.5 citation snowballing (S2 Graph API); challenge card in references/snowball_challenge/
@@ -42,8 +43,11 @@ safety_boundaries:
 known_limitations:
   - "Depends on PubMed/Semantic Scholar availability; rate limits/outages reduce recall."
   - "Verification confirms existence/metadata, not topical relevance."
+  - "A DOI whose resolved title matches its row is consistent with that row; it is not proof the record was extracted correctly. The check rules out one recurring way of being wrong, not all of them."
 validation_commands:
   - "bash references/pubmed_eutils.sh <query>"
+  - "python3 scripts/check_doi_record_match.py --table <screening.tsv> --strict"
+  - "bash scripts/check_doi_record_match_challenge/verify.sh  # deterministic, network-free"
   - "bash references/snowball_challenge/verify.sh  # deterministic, network-free"
   - "/verify-refs --strict"
 evidence_surface: bundled_script

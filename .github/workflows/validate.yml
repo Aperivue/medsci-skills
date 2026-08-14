@@ -752,6 +752,9 @@ jobs:
       - name: "Run search-lit snowball challenge"
         run: bash skills/search-lit/references/snowball_challenge/verify.sh
 
+      - name: "Run DOI-record-match challenge (a resolvable DOI can belong to a different paper)"
+        run: bash skills/search-lit/scripts/check_doi_record_match_challenge/verify.sh
+
       - name: Run meta-analysis screening-reconcile test
         run: bash skills/meta-analysis/tests/test_screening_reconcile.sh
 

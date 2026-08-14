@@ -134,6 +134,45 @@ The script auto-sleeps 350ms between calls. For batch operations, keep calls seq
 
 6. Ask the user to select which papers to include.
 
+#### Record what the source said existed, not only what you downloaded
+
+Search code reports its own haul. Nothing errors when the haul is wrong, and a PRISMA flow built on
+a wrong number is fiction that nothing downstream contradicts. Two signatures, both real, both from
+a single run:
+
+- **A count that equals a page cap exactly.** arXiv returned 2,000 records — which was the loop's
+  own `if start >= 2000: break`, not the total (1,528 once the query was fixed). The round number
+  was the only tell. Every source reports a total: `esearchresult.count`,
+  `opensearch:totalResults`, `meta.count`. **Record `api_total` beside `downloaded`, and fail loudly
+  when `downloaded < api_total`, or when `downloaded` equals a page or loop cap exactly.** Print
+  `TRUNCATED` and refuse to write the search record.
+- **A boolean that was never applied.** OpenAlex returned 35,345 hits because the query went to
+  `search=`, a relevance-ranked free-text parameter that **silently ignores AND/OR**; the parameter
+  that honours them is `filter=title_and_abstract.search:` (true count: 5,282). So run the query
+  once more with one mandatory clause negated. **If the hit count does not drop, the boolean is
+  being ignored** — the engine is ranking, not filtering.
+
+PubMed via E-utilities is the one place where the naive pattern happens to be safe. Everywhere
+else, do both.
+
+#### A DOI in a screening row is not necessarily that row's DOI
+
+When a `doi` column was **filled by the pipeline** rather than handed over with the record — matched
+against Crossref by title similarity, at some threshold — a wrong match is a valid, resolvable
+identifier for a different paper, and nothing downstream can tell. Resolve it and read the title
+back before any decision rests on it:
+
+```bash
+python3 scripts/check_doi_record_match.py --table 2_Screening/round3.tsv \
+        --email <contact> --json qc/doi_record_match.json
+```
+
+`DOI_NOT_THIS_RECORD` is a DOI that resolves to another paper; `DOI_IS_CONTAINER` is one that
+resolves to an issue, supplement or proceedings rather than an article; `DOI_UNRESOLVED` is
+reported rather than dropped. This is not `/verify-refs`, which audits a finished reference list —
+it runs at screening, where a wrong DOI is still cheap. In one review two of these appeared within
+two days, and one produced a limitation about a "missed eligible paper" that did not exist.
+
 ### Phase 2.5: Citation Searching (Snowballing)
 
 Optional but recommended for systematic reviews and thorough background work
@@ -352,6 +391,34 @@ to `references/library.bib` — the candidate pool for `/lit-sync` to import int
 write to `manuscript/_src/refs.bib`; that SSOT belongs to `/lit-sync`. This mode produces
 candidates; it does not decide inclusion (the user does) and it does not insert references into the
 manuscript bib.
+
+### Mode: Crowding Check
+
+Run **before a study is designed**, not after. The question is not "what has been written about this
+topic" — a background search answers that and still leaves the trap open. It is narrower and it is
+four questions:
+
+| Ask of | Verdict |
+|---|---|
+| the **research question** | taken / partly taken / open |
+| the **sampling frame** (what population, which records, which years) | taken / partly taken / open |
+| the **measurement axis** (what is being coded or measured, and at what granularity) | taken / partly taken / open |
+| the **target journal** | already published there / adjacent / open |
+
+Each gets its own verdict. A design can be original on one axis and fully occupied on another, and
+collapsing the four into one answer is what hides that.
+
+Why the fourth row is not vanity: a design once matched an existing paper on frame, coding axis
+**and** target journal, and that paper was already published in the journal it was first choice
+for. A redesign on a different axis then turned out to be partly occupied too — three papers were
+already coding the same thing as a single item — which did not kill it but did change the claim
+that could honestly be made, from "nobody has looked at this" to "nobody has decomposed it by
+provenance". That is a real result of this mode: **most of the time it narrows a claim rather than
+ending a project**, and a narrowed claim survives review where the broad one would not.
+
+Search the way a competitor would: the exact frame, the exact measure, and the journal's own site,
+not only the topic. Report the four verdicts and the papers behind each, then let the user decide.
+`/design-study` and `/orchestrate` should route here first when a new study is being scoped.
 
 ### Mode: Systematic Search
 
