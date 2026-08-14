@@ -205,6 +205,70 @@ def parse_shape(el: ET.Element, kind: str) -> Optional[Shape]:
                  has_arrow=has_arrow, is_textbox=is_textbox)
 
 
+def unmeasurable_text_shapes(path: Path) -> List[Tuple[int, str, str]]:
+    """Shapes carrying text that `parse_shape` throws away — and why that is a hole, not a nicety.
+
+    A placeholder inherits its position and size from the layout. Assign ONE of them —
+    `shape.width = Inches(11.5)` — and python-pptx materialises an `<a:xfrm>` for the whole
+    shape, writes the value it was given, and records the rest as **absent or zero** rather than
+    as inherited. What renders is a box with no width, or no height: the text is in the file and
+    is not on the slide.
+
+    That is a rendering bug, and it is also a hole in this toolkit. `parse_shape` requires both
+    `<a:off>` and `<a:ext>` and returns None without them, so such a shape — with its word count
+    and its type size — leaves the deck before any check sees it. On 2026-08-09 a title slide
+    carrying 69 words at 11.5 pt passed `check_deck_budget`; fixing the coordinates surfaced
+    three findings that had been there the whole time. **The green was produced by the defect** —
+    the one shape of passing check that proves nothing at all. The same builder mistake recurred
+    on 2026-08-14 on a different deck, by which point it had cost twice.
+
+    Returns (slide number, what is wrong, the first line of the text that is hiding).
+
+    A placeholder with **no** `<a:xfrm>` at all is the normal case — full inheritance, correct,
+    and common — and is not reported. The signature here is a *partial* xfrm, which nothing but a
+    half-finished assignment writes.
+    """
+    out: List[Tuple[int, str, str]] = []
+    with zipfile.ZipFile(path) as z:
+        names = sorted(
+            (n for n in z.namelist() if re.fullmatch(r"ppt/slides/slide\d+\.xml", n)),
+            key=lambda n: int(re.search(r"(\d+)", n.rsplit("/", 1)[1]).group(1)),
+        )
+        for i, n in enumerate(names, start=1):
+            root = ET.fromstring(z.read(n))
+            tree = root.find(f".//{P}cSld/{P}spTree")
+            if tree is None:
+                continue
+            for child in tree:
+                if child.tag.split("}")[-1] not in {"sp", "graphicFrame", "grpSp"}:
+                    continue
+                text = "".join(t.text or "" for t in child.iter(f"{A}t")).strip()
+                if not text:
+                    continue
+                xfrm = child.find(f".//{A}xfrm")
+                if xfrm is None:  # inherited outright — the correct case
+                    continue
+                off, ext = xfrm.find(f"{A}off"), xfrm.find(f"{A}ext")
+                why: List[str] = []
+                if off is None:
+                    why.append("no <a:off> — position never written")
+                if ext is None:
+                    why.append("no <a:ext> — size never written")
+                else:
+                    try:
+                        cx, cy = int(ext.get("cx") or 0), int(ext.get("cy") or 0)
+                    except ValueError:
+                        cx = cy = -1
+                    if cx == 0:
+                        why.append("width 0")
+                    if cy == 0:
+                        why.append("height 0")
+                if why:
+                    head = next((ln.strip() for ln in text.splitlines() if ln.strip()), text)
+                    out.append((i, ", ".join(why), head))
+    return out
+
+
 def read_deck(path: Path) -> Tuple[List[List[Shape]], List[str], int, int]:
     """-> (shapes per slide, notes per slide, slide width, slide height) in EMU."""
     with zipfile.ZipFile(path) as z:

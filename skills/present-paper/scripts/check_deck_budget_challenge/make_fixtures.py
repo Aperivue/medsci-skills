@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Four decks, to test one claim: the same slides are right for one room and wrong for another.
+"""Six decks. Four test one claim; two test the claim that a green can be made of the defect.
 
   academic.pptx    ordinary academic slides — ~40 words, 20 pt. Fits a 10-minute oral. As a KEYNOTE
                    the same deck is a wall of text, and that is the point: no single global
@@ -7,6 +7,16 @@
   keynote.pptx     six words and a big number. Would be an empty academic slide; is a good keynote.
   bloated.pptx     60 slides for a 10-minute talk — a talk whose ending gets taken away at the mic.
   tiny_type.pptx   12-pt body text. The back row exists.
+
+  zero_area.pptx       the 2026-08-09 defect, reproduced: a builder assigns ONE coordinate on an
+                       inherited placeholder, python-pptx writes a partial <a:xfrm>, and the shape
+                       renders with no height and no width. Carries ~70 words at 11.5 pt.
+  zero_area_fixed.pptx the SAME text and the SAME type size with all four coordinates written.
+
+  The pair is the regression, and it has to be a pair. Before ZERO_AREA_TEXT existed, the broken
+  deck was SILENT and the fixed one reported two findings — the deck that could not be read passed
+  and the deck that could be read failed. A single fixture proves the new verdict fires; only the
+  pair proves what it is for.
 
 Written wherever the caller says (a temp dir, in practice). Nothing built lands in the repo tree.
 Needs python-pptx (CI installs it).
@@ -86,6 +96,51 @@ def build_tiny_type(path: Path) -> None:
     prs.save(str(path))
 
 
+# ~70 words at 11.5 pt: over the conference-oral ceiling of 60 and well under its 20-pt floor. Both
+# facts are invisible while the shape holding them has no area.
+HIDDEN_BODY = (
+    "Across 546 records the primary estimate was 26.3% (95% CI 24.6-28.7) and the secondary "
+    "estimate was 44.7%; of 72 eligible studies 11 reported a paired design, 1 reported blinding "
+    "and 7 reported both, with 25.0% of the remainder unclassified, a further 24.6% carrying no "
+    "reference standard in any published form, and 28.7% reporting only a single reader whose "
+    "agreement with the panel was never measured at all."
+)
+
+PLACEHOLDER_LAYOUT = 1  # Title and Content — placeholders that inherit their geometry
+
+
+def _fill(slide, title_text, body_text, pt):
+    title, body = slide.shapes.title, slide.placeholders[1]
+    title.text = title_text
+    body.text_frame.word_wrap = True
+    body.text_frame.text = body_text
+    for p in body.text_frame.paragraphs:
+        for r in p.runs:
+            r.font.size = Pt(pt)
+    return title, body
+
+
+def build_zero_area(path: Path) -> None:
+    """One coordinate assigned on an inherited placeholder. That is the entire bug."""
+    prs = deck()
+    s = prs.slides.add_slide(prs.slide_layouts[PLACEHOLDER_LAYOUT])
+    title, body = _fill(s, "Results", HIDDEN_BODY, 11.5)
+    title.width = Inches(11.5)   # <- python-pptx now writes <a:ext cy="0"> and no <a:off>
+    body.height = Inches(4.0)    # <- and here <a:ext cx="0">
+    prs.save(str(path))
+
+
+def build_zero_area_fixed(path: Path) -> None:
+    """The same words at the same size, in shapes that exist. Now the deck can be judged."""
+    prs = deck()
+    s = prs.slides.add_slide(prs.slide_layouts[PLACEHOLDER_LAYOUT])
+    title, body = _fill(s, "Results", HIDDEN_BODY, 11.5)
+    for shape, (x, y, w, h) in ((title, (0.8, 0.6, 11.5, 1.0)), (body, (0.8, 2.0, 11.5, 4.0))):
+        shape.left, shape.top, shape.width, shape.height = (
+            Inches(x), Inches(y), Inches(w), Inches(h))
+    prs.save(str(path))
+
+
 if __name__ == "__main__":
     out = Path(sys.argv[1]) if len(sys.argv) > 1 else Path.cwd()
     out.mkdir(parents=True, exist_ok=True)
@@ -93,4 +148,6 @@ if __name__ == "__main__":
     build_keynote(out / "keynote.pptx")
     build_bloated(out / "bloated.pptx")
     build_tiny_type(out / "tiny_type.pptx")
-    print(f"wrote 4 decks into {out}")
+    build_zero_area(out / "zero_area.pptx")
+    build_zero_area_fixed(out / "zero_area_fixed.pptx")
+    print(f"wrote 6 decks into {out}")

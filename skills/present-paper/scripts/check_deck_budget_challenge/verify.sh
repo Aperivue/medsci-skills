@@ -64,6 +64,46 @@ else
   bad "12-pt text passed the type floor"
 fi
 
+# --- text nothing can measure ---------------------------------------------------------------------
+# The regression is the PAIR, not the fire. Same words, same 11.5 pt, two geometries:
+#   broken -> the shape is dropped before any check sees it, so the deck reads as clean
+#   fixed  -> the density and the type floor were always breached and now say so
+# Assert the fixed deck's findings explicitly: if this pair ever stops differing, ZERO_AREA_TEXT has
+# stopped meaning anything and is just another verdict that fires.
+if verdicts "$FIX/zero_area.pptx" conference_oral 10 | grep -q ZERO_AREA_TEXT; then
+  pass "a half-written placeholder xfrm is caught (text in a shape with no area)"
+else
+  bad "text in a zero-area shape passed — the deck that cannot be read reads as clean"
+  python3 "$DET" "$FIX/zero_area.pptx" --archetype conference_oral --minutes 10
+fi
+
+if verdicts "$FIX/zero_area_fixed.pptx" conference_oral 10 | grep -q ZERO_AREA_TEXT; then
+  bad "ZERO_AREA_TEXT fired on a deck whose four coordinates are all written (false positive)"
+else
+  pass "...and does NOT fire once left/top/width/height are all set"
+fi
+
+fixed_verdicts="$(verdicts "$FIX/zero_area_fixed.pptx" conference_oral 10)"
+if grep -q SLIDE_TOO_DENSE <<<"$fixed_verdicts" && grep -q TYPE_TOO_SMALL <<<"$fixed_verdicts"; then
+  pass "the SAME text, once measurable, breaches both the density ceiling and the type floor"
+else
+  bad "the fixed deck reported no density/type finding — then the pair proves nothing"
+  echo "$fixed_verdicts"
+fi
+
+if verdicts "$FIX/zero_area.pptx" conference_oral 10 | grep -qE 'SLIDE_TOO_DENSE|TYPE_TOO_SMALL'; then
+  pass "(those two are now visible on the broken deck as well)"
+else
+  pass "the broken deck hides both of them — which is what the green was made of"
+fi
+
+# --- one clean deck, to be sure the new verdict is not simply always on -----------------------------
+if verdicts "$FIX/academic.pptx" conference_oral 10 | grep -q ZERO_AREA_TEXT; then
+  bad "ZERO_AREA_TEXT fired on the clean academic deck"
+else
+  pass "ZERO_AREA_TEXT is silent on a well-formed deck"
+fi
+
 # --- --strict, and the artifact contract ----------------------------------------------------------
 if python3 "$DET" "$FIX/bloated.pptx" --archetype conference_oral --minutes 10 --strict >/dev/null 2>&1; then
   bad "--strict returned 0 on an over-budget deck"

@@ -6,13 +6,16 @@ right for a fifty-minute lecture and fatal for a ten-minute oral abstract. There
 threshold for "too much text" — there is only too much text *for this podium*, which is why this
 takes an archetype instead of pretending one number fits every room.
 
-It checks the three things about a deck that are mechanical, and therefore checkable:
+It checks the things about a deck that are mechanical, and therefore checkable:
 
   DECK_OVER_BUDGET    slides against the clock. A 40-slide deck for a 10-minute oral is not a
                       style choice; it is a talk that will be cut off at the microphone.
   SLIDE_TOO_DENSE     words on a slide, against what this archetype's audience can absorb while
                       also listening to you. A keynote audience is not reading.
   TYPE_TOO_SMALL      the back row exists. Below the floor, the slide is decoration.
+  ZERO_AREA_TEXT      text sitting in a box with no width or no height. Nothing below can measure
+                      it, so the three checks above are unreliable until it is fixed — and a deck
+                      in this state passes them by being unreadable rather than by being right.
 
 The clock stops at the backup section. Nearly every conference deck carries one — the slides you
 do not present, and open only if someone asks. Counting them against the clock told people to
@@ -48,7 +51,7 @@ from typing import Dict, List, Optional
 from xml.etree import ElementTree as ET
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from check_slide_tells import is_page_number, read_deck  # noqa: E402
+from check_slide_tells import is_page_number, read_deck, unmeasurable_text_shapes  # noqa: E402
 
 DETECTOR = "check_deck_budget"
 
@@ -146,6 +149,24 @@ def audit(deck: Path, archetype: str, minutes: float) -> List[Finding]:
     slides, _notes, _w, h = read_deck(deck)
     mark_chrome(slides, h)
     out: List[Finding] = []
+
+    # --- text nothing can measure ------------------------------------------------------------
+    # Reported first, and deliberately so: everything after it is computed from the shapes that
+    # survived parsing, and these did not. A deck with one of these is not a deck that passed.
+    hidden = unmeasurable_text_shapes(deck)
+    if hidden:
+        out.append(Finding(
+            DETECTOR, "ZERO_AREA_TEXT", None,
+            f"{len(hidden)} text block(s) sit in a shape with no measurable geometry. They are in "
+            "the file and not on the slide, and every other verdict below was computed without "
+            "them.",
+            [f"slide {i}: {why} — {txt[:44]!r}" for i, why, txt in hidden[:6]]
+            + ["A placeholder inherits its position and size. Assign one of them and python-pptx "
+               "writes an <a:xfrm> for the whole shape and records the rest as zero or absent — so "
+               "set left, top, width and height together, or none of them.",
+               "Re-run this check after fixing the coordinates. The findings it reports then were "
+               "always there; the silence was the defect talking."],
+        ))
 
     # --- the clock -------------------------------------------------------------------------
     # Backup slides are not part of the talk, so they are not part of its clock.
