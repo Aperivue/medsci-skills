@@ -134,6 +134,14 @@ preference and the talk is a medical academic talk, default to **Nature / Lancet
 (`~/.claude/rules/academic-lecture-style.md`). Style choice does not change the outline,
 script, or Q&A — only Phase 3 rendering.
 
+**Q3 — conference decks only: is slide 1 a submission requirement?** Many societies require the
+title slide to carry the title, authors, affiliations and country **exactly as entered in the
+abstract submission**. Those fields are not yours to improve. A crowded title slide is a real
+temptation to shorten an affiliation to its institution, and doing so breaks the requirement while
+satisfying the density check — which is the one place in this skill where a gate and a rule point in
+opposite directions. **The requirement wins.** Read the fields off the submission portal, copy them,
+and record `SLIDE_TOO_DENSE` on slide 1 as consciously overruled with that reason.
+
 ### Paper Analysis
 
 Read the paper and produce a structured analysis:
@@ -414,6 +422,30 @@ narrative). >1,000 chars + ≥5 stat tokens → compress to narrative tone and
 point at the slide body. Exact numbers belong in the slide body and
 footnotes (SSOT), not the notes.
 
+### Numbers in the notes are numbers you will say out loud
+
+Everything the rest of this toolkit enforces about figures in the slide body applies to the notes,
+because the notes are what the speaker reads at the microphone. Two failures, both observed:
+
+- **A quoted benchmark typed from memory.** "95% of 152 models were rated high risk" — the source
+  said 87%, of 148 of 171; a second note said "98% of 62 oncology models" where the source said 84%
+  and 62 was the number of *papers*, not models. The papers were cited correctly in the reference
+  list. Only the digits were remembered. **Every external number in the notes is checked against the
+  source, exactly like a number in the body.**
+- **An injected value hand-typed during a rewrite.** When a build script draws numbers from an
+  artifact — `f"{N['primary']}"` — compressing the prose is where they get flattened into literals.
+  Twelve of them went that way in one 14-minute-to-9-minute pass. The slide body was gated and the
+  notes were not, so the deck would have said one number while the speaker said another. **When you
+  edit generated text, the count of injection expressions must not fall.** Before and after:
+
+```python
+import re
+len(re.findall(r"\{N\[", src))   # must not decrease across a rewrite
+```
+
+Pull the hand-typed numbers out for checking with the same regex, inverted — anything numeric that
+is *not* inside an injection expression is a literal somebody typed.
+
 ### Sharing-ready notes-stripped variant
 
 After the presentation, when the deck is shared with the audience (e.g. a
@@ -446,6 +478,31 @@ Recommended 3-file sharing package (filename pattern `<topic>_<initials>`):
 
 In the cover email, mention the PPTX is included specifically so the
 recipient can reuse individual slides if useful.
+
+### The companion documents leave with the deck — check them too
+
+`_qa_prep.md`, `_quick_review.md` and any handout are drafted from the same working material as the
+notes, and they travel further. Three things to check before any of them goes out:
+
+- **Retired numbers.** A gate on the deck is not a gate on its siblings. In one talk the slides said
+  26.3% and the last-minute review sheet still said 54.1% — the deck was right and the document the
+  speaker would answer questions from was wrong, which is the worse way round. Sweep the sibling
+  `.md` files for the superseded values whenever the deck's numbers move. Where an old figure is
+  deliberately quoted, fence it (`<!-- superseded-quotation -->`) rather than exempting the file.
+- **Operator material in an audience document.** A brief written to prepare *you* for a meeting
+  carries the register it was written in — "the point they will push back on", "the fallback
+  position", a minute-by-minute plan. Handed to the person it describes, it reads as a strategy for
+  managing them. When one document has to serve both purposes, it is two documents: an internal one
+  with the contingencies, and a neutral one with the findings and what you are asking them to
+  confirm. This is the same rule as stripping the speaker notes, applied to the files beside them.
+- **Live-only devices, and what points at them.** A redistributed deck is read at a desk, not
+  attended: a break slide, a timer, "as we just saw in the exercise" mean nothing there, and another
+  speaker's break is their own decision. Remove them — **and then grep the whole deck, bodies and
+  notes, for the sentences that referred to them**, because those are left dangling by the deletion.
+  While you are there, re-verify anything the material asserts about an upstream project (install
+  commands, counts, versions) against that project's own source rather than against the copy you
+  wrote months ago: an exact number with a date stays accurate longer than a vague one, which drifts
+  silently and cannot be checked.
 
 ### Architecture
 
@@ -484,6 +541,11 @@ When the deck pulls figures from `analysis/figures/` produced by `/make-figures`
 - **Vector source available**: prefer PDF only if the slide will be projected at >1080p or printed as a handout — convert PDF → PNG at the target DPI (`pdftoppm -r 300 input.pdf out_prefix`) before insertion, because python-pptx PDF embedding is unreliable across PowerPoint versions.
 - **Forbidden**: TIFF (Mac PowerPoint silently drops it — see Mac compatibility checklist below); JPEG for line art (compression artifacts on diagonal lines); raw SVG (PowerPoint Mac handles it inconsistently).
 - **Caption / legend**: re-draft for spoken-narration context, not the journal legend verbatim. The journal legend assumes a reader; the slide caption assumes a listener with 5–10 seconds of attention.
+- **Put the claim in the slide, not in the raster.** A figure carries data; a conclusion drawn *into*
+  the PNG ("Value = triage & safety net", a headline percentage) stops tracking the talk the moment
+  the bullet above it is edited. Nothing catches that: text search sees the slide and not the image,
+  so the only thing that finds it is a person looking at the render. Numbers and conclusions live in
+  the slide's own text where they can be read, grepped, and corrected.
 
 ### Diagrams and plots are drawn as CODE, then inserted (not out of autoshapes)
 
@@ -561,6 +623,14 @@ BODY_Y  ≈ 1.9"    BODY_H  ≈ 5.1"
 
 A from-scratch generation script must:
 
+- **Reference every input by a path relative to the presentation directory, and keep every input
+  that produced an artifact inside it.** A build script written during a session tends to point at
+  wherever the work happened to be — a session scratch directory, a temp path. That directory is
+  gone next week, and with it the ability to rebuild: the figure PNGs survive, the scripts that drew
+  them do not, and a label baked into a figure can no longer be corrected to match a body line that
+  has since changed. Save the figure-generation scripts next to the deck, not next to the session.
+- Assign all four placeholder coordinates together (see Step 3.7) — a partial assignment writes a
+  shape with no area *and* hides it from every check.
 - Convert TIFF images to PNG before `add_picture` (Mac PowerPoint silently drops TIFF).
 - Apply EXIF transpose to iPhone photos before insertion.
 - After inserting/removing slides, sync `docProps/app.xml` (`<Slides>`, `<Notes>`, `HeadingPairs`, `TitlesOfParts`) to the actual count, or PowerPoint Mac will raise a recovery dialog on open.
@@ -664,16 +734,25 @@ Record `critic_pass: yes | partial | no` and `refine_rounds: N` in `_quick_revie
 ### Step 3.6 — AI-tell audit (deterministic; run on the built deck, not the build script)
 
 ```bash
-python3 scripts/check_slide_tells.py  output/presentation.pptx --json output/qc/slide_tells.json
-python3 scripts/check_deck_budget.py  output/presentation.pptx --json output/qc/deck_budget.json \
+python3 scripts/check_slide_tells.py  output/presentation.pptx --json qc/slide_tells.json
+python3 scripts/check_deck_budget.py  output/presentation.pptx --json qc/deck_budget.json \
         --archetype <from Q0> --minutes <from Q0>
 ```
+
+**Write the `--json` under the project's own `qc/` directory**, not only to the terminal. A verdict
+that exists solely in scrollback cannot be counted later: how often a check fires, and on what, is
+the only evidence that it is worth keeping, and a check nobody can measure is one nobody can retire
+either. `qc/` is where the rest of this toolkit leaves its envelopes, and each one names the
+detector that wrote it.
 
 `check_deck_budget.py` is the mechanical half of the archetype: slides against the clock
 (`DECK_OVER_BUDGET`), words per slide against what *this* room can absorb while also listening
 (`SLIDE_TOO_DENSE`), and the type floor for the back row (`TYPE_TOO_SMALL`). It takes an archetype
 rather than a universal threshold because a single global number would have to be wrong for most
 venues. `--list` prints the budgets.
+
+It also reports `ZERO_AREA_TEXT`, which is not about the room at all — it is about whether the
+other three verdicts mean anything. See "Placeholders inherit geometry" below.
 
 Six verdicts, each one a mark reviewers say they can spot instantly. **Every one must be cleared or
 consciously overruled**, with the reason written down:
@@ -693,7 +772,45 @@ you, or one you did not build here.
 **It is not a style opinion, and it does not detect "was AI used".** Used as a booster, AI leaves
 none of these marks. Used as a button, it leaves all of them.
 
+### Step 3.7 — Placeholders inherit geometry: assign all four coordinates, or none
+
+A layout placeholder gets its position **and** its size from the layout. Assign one of them —
+
+```python
+title.width = Inches(11.5)          # ← and nothing else
+```
+
+— and `python-pptx` materialises an `<a:xfrm>` for the whole shape, writes the value you gave it,
+and records the rest as **zero or absent** rather than as inherited. The box renders with no height,
+or no width. The text is in the file and is not on the slide.
+
+```python
+shape.left, shape.top, shape.width, shape.height = (       # all four, together
+    Inches(0.8), Inches(0.6), Inches(11.5), Inches(1.0))
+```
+
+The reason this has its own step, rather than a line in a checklist, is what it does to the checks
+above it. A shape in that state has no `<a:off>`, the deck reader drops it, and its words and its
+type size leave the deck before `check_deck_budget` counts anything. A title slide carrying 69 words
+at 11.5 pt passed the budget check for exactly this reason; correcting the coordinates surfaced
+three findings that had been there all along. **The green was made out of the defect.** `ZERO_AREA_TEXT`
+now reports it, and reports it first, because every verdict after it was computed without the text
+that is missing.
+
+If you see `ZERO_AREA_TEXT`, fix the geometry and run the check again. Treat the first run's silence
+on everything else as unread, not as passed.
+
 **Mode B: Add notes to existing slides** (more common)
+
+Before touching the deck, run the two Step 3.6 checks **on the deck you were given** and report what
+they say. A request phrased as "just fix the style" is not a diagnosis, and taking it as one is how
+an afternoon goes into underlines while the actual defect — 120 words a slide, the keyword buried in
+the fourth line, slides ordered the way the thought arrived rather than the way it lands — survives
+untouched. `SLIDE_TOO_DENSE`, `TYPE_TOO_SMALL`, `SCAFFOLD_PHRASE` and `TOPIC_TITLE` answer "is this
+a content problem or a design problem?" in about ten seconds. Put the answer in front of the user
+and let them choose what you work on. Often the design was fine.
+
+Then:
 - Read existing PPTX to understand slide structure and count
 - Map speaker script sections to corresponding slides
 - Generate `inject_notes.py` script tailored to the specific presentation
@@ -719,7 +836,12 @@ template with a fixed logo and theme), **fill it — do not redesign it**. This 
 
 1. **Inspect**: `python3 ${CLAUDE_SKILL_DIR}/scripts/inspect_pptx_template.py <template>`
    → lists every layout (index, name) with its placeholders (idx, type, size) plus theme
-   fonts/colors. Read it before writing content.
+   fonts/colors. Read it before writing content. **The template has already drawn things**: a
+   society layout often carries a full-bleed background image whose colour band *is* the header,
+   and a master that already has a title frame. Deleting the placeholders and drawing your own
+   boxes puts your title half on the band and half off it. Find the existing design region — the
+   placeholder rectangles from the inspector, and if the header is painted into a background image,
+   where its colour changes — and put text **inside** it rather than over it.
 2. **Map** each outline slide to one of the template's existing layouts (Title /
    Title+Content / Section Header / Closing). Do not invent layouts.
 3. **Fill** by `placeholder_format.idx` (from the inspector) so the institution's fonts,

@@ -3818,13 +3818,13 @@
     },
     {
       "path": "skills/present-paper/SKILL.md",
-      "size": 39588,
-      "sha256": "d7179b91b4b1146302731ce6b8fb9d114171040748a403162213bebb07f00b61"
+      "size": 48209,
+      "sha256": "9f8ae3d7e816e310cd063606450911c37fbbb759ecd7b892b6f2d696550b3ed0"
     },
     {
       "path": "skills/present-paper/references/ai_slide_tells.md",
-      "size": 8182,
-      "sha256": "f1837c6c8058086a0b96993905016e83e6f796d8b711fe9021e57fd53574f71a"
+      "size": 10916,
+      "sha256": "9e474b172f747528d9066dbf9bc19e63a5cdf25743b358991c04493926262e8b"
     },
     {
       "path": "skills/present-paper/references/critic_rubrics/slide.md",
@@ -3893,23 +3893,23 @@
     },
     {
       "path": "skills/present-paper/scripts/check_deck_budget.py",
-      "size": 11412,
-      "sha256": "d8f031df3fae3bf21b86729bd416fd4be9e8f45ea7ff78997e7e09d4a7f210b6"
+      "size": 12905,
+      "sha256": "f81f11ed131a453f609b610fa936db9b1025242ee342577d75f4b9dd704863f1"
     },
     {
       "path": "skills/present-paper/scripts/check_deck_budget_challenge/make_fixtures.py",
-      "size": 3778,
-      "sha256": "5f07853ca0ebe6df8f5c139337f353e3a43396a376a29b0f242328086c4e993f"
+      "size": 6605,
+      "sha256": "5b2db5e214fb07e59ed6508fdb8686a40ff39a9aadca6191b051233f051d5cff"
     },
     {
       "path": "skills/present-paper/scripts/check_deck_budget_challenge/verify.sh",
-      "size": 3688,
-      "sha256": "bbde1a8486ff18c14f1bb630c67d087e26945d17334e8fc7eb4634737a52a0d5"
+      "size": 5780,
+      "sha256": "a55d15bfdb714793fdcb47b5c80965e7d3b8a6f27829d92f3d33e64c1bc4fe28"
     },
     {
       "path": "skills/present-paper/scripts/check_slide_tells.py",
-      "size": 26077,
-      "sha256": "7f41906b49d38663cc64de2f9dea69208d73f7f45648b4b65c294efbc88de831"
+      "size": 29422,
+      "sha256": "5b8722d2fe2239e4cf689c25f45d562993d39d9de38e2350211487e91b8e1a72"
     },
     {
       "path": "skills/present-paper/scripts/check_slide_tells_challenge/make_fixtures.py",
