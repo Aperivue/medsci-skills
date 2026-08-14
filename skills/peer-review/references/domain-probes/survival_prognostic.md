@@ -97,3 +97,13 @@ Co-apply these when the manuscript develops or validates a **multivariable predi
 
 **Output template (S5 example)**:
 > "The chosen baseline nomogram was originally designed and validated for prediction of long-horizon endpoints (5- and 10-year). In this study, median follow-up in [external cohort] is substantially shorter than that horizon, so the comparator's apparent underperformance may partly reflect a horizon mismatch rather than intrinsic inferiority. I'd suggest (a) stating explicitly the time horizon at which both models were evaluated, (b) reporting time-dependent C-indices at a clinically anchored horizon, and (c) clarifying whether the comparator was applied as published, recalibrated locally, or refit as a new Cox model with similar variables."
+
+## When this module does not apply
+
+These probes are out of scope for:
+
+- Pure diagnostic accuracy (sensitivity / specificity / AUC, binary classification with no time component)
+- Cross-sectional risk model without time-to-event endpoint
+- Replication of a documented prior methodology
+
+Moved here from the consuming skill so the scope travels with the probes.

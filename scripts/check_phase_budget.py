@@ -74,15 +74,7 @@ EXEMPT: dict[str, str] = {}
 
 # Whole-file exemptions. Key is the skill name, value is the reason AND the plan -- an exemption
 # without a plan is how a deferral becomes permanent.
-FILE_EXEMPT: dict[str, str] = {
-    "peer-review": (
-        "~20,200 tokens, of which ~10,000 are 24 study-type Extension blocks that each re-summarise "
-        "a references/domain-probes module. Collapsing them to one routing table is the fix, but the "
-        "Exempt conditions and highest-yield probe rankings live ONLY in SKILL.md, so the prose has "
-        "to be moved into the modules (byte-identical in two vendored copies) rather than deleted. "
-        "Tracked as its own change; delete this entry when it lands."
-    ),
-}
+FILE_EXEMPT: dict[str, str] = {}
 
 # A section starts at a level-2 or level-3 ATX heading and ends at the next one.
 HEADING_RE = re.compile(r"^(#{2,3})\s+(\S.*?)\s*$")

@@ -6,9 +6,9 @@
        - self-review: Anticipated Major / Minor Comments (Fatal / Fixable) mapped to category letters.
      Do NOT edit one copy only — run `python3 scripts/check_domain_probe_sync.py --sync`. -->
 
-# Observational / Confounding probes (O1–O17)
+# Observational / Confounding probes (O1–O18)
 
-A 17-probe checklist for observational studies (cohort, case-control, cross-sectional, health-screening registry) where the central claim is an exposure–outcome association estimated by adjustment rather than randomization. These probes complement (do not replace) the generic Phase 2 issue checklist and the STROBE reporting items; they target the gap between what a manuscript *says* it adjusted for and what the exposure-stratified data show. O1, O7, and O8 are data-checkable and the highest-yield probes — the self-review skill automates O1 as a deterministic gate (Phase 2.5e, `scripts/check_confounding_completeness.py`, which resolves DB column codes against a prose adjustment set via an alias map) and O8 via `scripts/check_cohort_arithmetic.py --id-col` (records-vs-subjects). O1 (measured-but-unadjusted) and O7 (over-adjustment) are opposite-direction failures — a model can be confounded and over-adjusted at once — so run both.
+An 18-probe checklist for observational studies (cohort, case-control, cross-sectional, health-screening registry) where the central claim is an exposure–outcome association estimated by adjustment rather than randomization. These probes complement (do not replace) the generic Phase 2 issue checklist and the STROBE reporting items; they target the gap between what a manuscript *says* it adjusted for and what the exposure-stratified data show. O1, O7, and O8 are data-checkable and the highest-yield probes — the self-review skill automates O1 as a deterministic gate (Phase 2.5e, `scripts/check_confounding_completeness.py`, which resolves DB column codes against a prose adjustment set via an alias map) and O8 via `scripts/check_cohort_arithmetic.py --id-col` (records-vs-subjects). O1 (measured-but-unadjusted) and O7 (over-adjustment) are opposite-direction failures — a model can be confounded and over-adjusted at once — so run both.
 
 **O1 — Confounding completeness (measured-but-unadjusted)**:
 - Does the exposure-stratified baseline table (Table 1 by exposure) show covariates that are **significantly imbalanced** across exposure groups (p < 0.05, or a standardized mean difference > 0.1) yet are **absent from the adjustment set**?
@@ -129,3 +129,13 @@ A 17-probe checklist for observational studies (cohort, case-control, cross-sect
 
 **Output template (O17 example)**:
 > "The Methods describe an exposome-wide scan of 164 exposures against mortality, but the Results lead with the strongest associations and the full tested set is not tabulated. With 164 tests this is uninterpretable without a stated correction and its denominator, and a single-cohort scan — even after FDR — carries a high false-discovery proportion. I'd suggest (1) reporting the multiple-testing method (an FDR q-value for a discovery framing, or a permutation-based exposome-wide threshold for a confirmatory one) together with the number of exposures tested; (2) an independent replication (a held-out split or a second cohort/cycle) requiring directional concordance, with the replication rate reported; and (3) a supplementary table of all tested exposures with effect sizes and q-values, framing the surviving associations as screening rather than established effects. Because the exposures are correlated, a top univariate hit should be read as a marker pending a co-exposure/mixture model, not as an isolated causal effect."
+
+## When this module does not apply
+
+These probes are out of scope for:
+
+- Randomized trials (confounding controlled by design → Phase 2 + CONSORT)
+- Purely descriptive / prevalence reports with no adjusted association claim
+- Diagnostic-accuracy studies with no exposure–outcome estimand (→ Phase 2A DTA cells + categories A–C)
+
+Moved here from the consuming skill so the scope travels with the probes.

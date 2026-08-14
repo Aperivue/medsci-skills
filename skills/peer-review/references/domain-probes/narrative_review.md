@@ -56,3 +56,13 @@ Also separate "volume of methods papers" from "clinical evidence": an axis can b
 > "The central thesis — that the field has invested heavily in image generation while neglecting detection and education — is presented as a property of the field, but the evidence is a curated, non-systematic reference set, so the asymmetry could equally reflect the authors' selection. As written, an opposing reviewer could re-curate the citations and reach the reverse conclusion. We suggest either (a) restating the claim throughout as 'within the literature surveyed here' and removing the field-level phrasings in the Abstract, figure captions, and Conclusion, or (b) adding a brief documented search (sources, window, per-theme counts) so the asymmetry is reproducible. Relatedly, the 'mature' provenance axis is dense in engineering/IP methods but, by the manuscript's own admission, carries no clinical or reader validation; distinguishing 'volume of methods papers' from 'clinical evidence' would make the contrast sharper and harder to rebut."
 
 This module gives review/narrative manuscripts a dedicated audit gate, on the principle that constructive gap-filling is an expected part of appraising a review article.
+
+## When this module does not apply
+
+These probes are out of scope for:
+
+- Original research / development / validation / trial (→ Phase 2 + 2A/2B/2C)
+- Systematic review **with pooling** (meta-analysis) → Phase 2A
+- Case report / editorial / commentary (opinion form; no recommendation gating)
+
+Moved here from the consuming skill so the scope travels with the probes.
