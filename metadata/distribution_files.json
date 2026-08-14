@@ -4313,8 +4313,8 @@
     },
     {
       "path": "skills/search-lit/SKILL.md",
-      "size": 20281,
-      "sha256": "608644e83ffc357f3b43b65cf7c439c9381f5948c51798672929f7a38aea5024"
+      "size": 24427,
+      "sha256": "7b3b355e1cf8089b061e1dd5412cf69338a82b993c2e64bc6afd50708051c84d"
     },
     {
       "path": "skills/search-lit/references/parse_pubmed.py",
@@ -4367,9 +4367,44 @@
       "sha256": "fe78f15b64daff006c4a3b421bb35e943461b2de7ec00ddb2213ceb843da868e"
     },
     {
+      "path": "skills/search-lit/scripts/check_doi_record_match.py",
+      "size": 11486,
+      "sha256": "ee1b48751d64cdf8fa56957950c38d65d1825004bb0e23925ac09eefe1ac5a07"
+    },
+    {
+      "path": "skills/search-lit/scripts/check_doi_record_match_challenge/fixture/cache/10.1000%2Fmarkup.005.json",
+      "size": 180,
+      "sha256": "93efc0bb39bd634e6c2d60e7daa7168e6132b8358d1301b425c5af829031fc4b"
+    },
+    {
+      "path": "skills/search-lit/scripts/check_doi_record_match_challenge/fixture/cache/10.1000%2Fmatch.001.json",
+      "size": 183,
+      "sha256": "e36890e26b0b49bbdfcf9d4966402adb67d2fe6c0709dbb891191580639079d2"
+    },
+    {
+      "path": "skills/search-lit/scripts/check_doi_record_match_challenge/fixture/cache/10.1000%2Fother.002.json",
+      "size": 154,
+      "sha256": "eeb2db8a08ed59b2ac87c6d4e1e45389dd02aed71ed97c193dfd1556fd1ecf86"
+    },
+    {
+      "path": "skills/search-lit/scripts/check_doi_record_match_challenge/fixture/cache/10.1000%2Fsuppl.003.json",
+      "size": 135,
+      "sha256": "1495ead4a558dfdbc464429105e52da0d65b3b53dd36fb42999c0d2d8d07ba05"
+    },
+    {
+      "path": "skills/search-lit/scripts/check_doi_record_match_challenge/fixture/screening.tsv",
+      "size": 615,
+      "sha256": "63fe9a58d6c3aa80426f8e2b958edfc0f93cc260e5bb68abefdf99ced648f575"
+    },
+    {
+      "path": "skills/search-lit/scripts/check_doi_record_match_challenge/verify.sh",
+      "size": 4604,
+      "sha256": "a4d6014a1c366a4386309f1397d1fd3f834cba50ff5db67e219bb0226c6da9e1"
+    },
+    {
       "path": "skills/search-lit/skill.yml",
-      "size": 2403,
-      "sha256": "4a5c162baf239fa76a5d539417eb9fec5316f9ba0e3d71c2b391a4ad8ab52f52"
+      "size": 2909,
+      "sha256": "e2012645dc4296fdb1096f2e711969698e832051ab3ede8de8ce28d3a9735ea2"
     },
     {
       "path": "skills/self-review/SKILL.md",

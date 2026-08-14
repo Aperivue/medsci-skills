@@ -1,0 +1,7 @@
+record_id	title	doi	source
+R-001	Deep learning for intracranial aneurysm detection on CT angiography: a multicentre validation	10.1000/match.001	round-3
+R-002	Automated segmentation of the hippocampus in paediatric epilepsy	10.1000/other.002	round-3
+R-003	Machine learning triage of emergency head CT: a single-centre pilot	10.1000/suppl.003	round-3
+R-004	Radiomic prediction of recurrence after thermal ablation	10.1000/missing.004	round-3
+R-005	Reader variability in coronary calcium scoring		round-2
+R-006	Transfer learning for chest radiograph classification in low-resource settings	10.1000/markup.005	round-3

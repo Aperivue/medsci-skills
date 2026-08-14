@@ -23,10 +23,13 @@
 
 - Depends on PubMed/Semantic Scholar availability; rate limits/outages reduce recall.
 - Verification confirms existence/metadata, not topical relevance.
+- A DOI whose resolved title matches its row is consistent with that row; it is not proof the record was extracted correctly. The check rules out one recurring way of being wrong, not all of them.
 
 **Validation**
 
 - `bash references/pubmed_eutils.sh <query>`
+- `python3 scripts/check_doi_record_match.py --table <screening.tsv> --strict`
+- `bash scripts/check_doi_record_match_challenge/verify.sh  # deterministic, network-free`
 - `bash references/snowball_challenge/verify.sh  # deterministic, network-free`
 - `/verify-refs --strict`
 
@@ -40,6 +43,11 @@
 - `pubmed_eutils.sh`
 - `snowball.py`
 - `snowball_challenge/` (7 files)
+
+**Scripts** (`skills/search-lit/scripts/`):
+
+- `check_doi_record_match.py`
+- `check_doi_record_match_challenge/` (6 files)
 
 ## Source
 
