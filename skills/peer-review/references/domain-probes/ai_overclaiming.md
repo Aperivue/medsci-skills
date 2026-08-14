@@ -6,9 +6,9 @@
        - self-review: Anticipated Major / Minor Comments (Fatal / Fixable) mapped to category letters.
      Do NOT edit one copy only — run `python3 scripts/check_domain_probe_sync.py --sync`. -->
 
-# AI / ML overclaiming probes (AO0–AO6)
+# AI / ML overclaiming probes (AO0–AO7)
 
-A 5-probe checklist (AO1–AO5, with AO0 as a gate) for medical-AI/ML primary studies (diagnostic, prognostic, triage, detection) where the **conclusion's reach exceeds the evidence**. These probes complement (do not replace) the generic Phase 2 issue checklist and the signature "Overclaiming vs evidence level" check. The aim is to keep a framing-level over-reach from passing as a wording nitpick: a paper can report sound metrics yet draw a clinical claim — generalizable, outperforms clinicians, deployment-ready — that the design does not support, and that claim is what a reader carries away. AO1–AO4 target over-reach in the *claim sentences*; AO5 targets over-reach baked into the *reported metric itself* (an optimistically- or unreproducibly-reported number that makes the result look stronger than a faithful estimate). Run AO0 first.
+A 7-probe checklist (AO1–AO7, with AO0 as a gate) for medical-AI/ML primary studies (diagnostic, prognostic, triage, detection) where the **conclusion's reach exceeds the evidence**. These probes complement (do not replace) the generic Phase 2 issue checklist and the signature "Overclaiming vs evidence level" check. The aim is to keep a framing-level over-reach from passing as a wording nitpick: a paper can report sound metrics yet draw a clinical claim — generalizable, outperforms clinicians, deployment-ready — that the design does not support, and that claim is what a reader carries away. AO1–AO4 target over-reach in the *claim sentences*; AO5 targets over-reach baked into the *reported metric itself* (an optimistically- or unreproducibly-reported number that makes the result look stronger than a faithful estimate). Run AO0 first.
 
 **AO0 — Locate the strongest claim, then its support (run before AO1; gates any over-reach finding)**:
 - Identify the load-bearing claims in the Title, Abstract, and Conclusion (the sentences a reader quotes). For each, find the specific evidence cited (which dataset, which comparison, which metric + uncertainty).

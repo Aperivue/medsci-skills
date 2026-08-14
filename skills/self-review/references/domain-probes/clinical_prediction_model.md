@@ -6,9 +6,9 @@
        - self-review: Anticipated Major / Minor Comments (Fatal / Fixable) mapped to category letters.
      Do NOT edit one copy only — run `python3 scripts/check_domain_probe_sync.py --sync`. -->
 
-# Clinical Prediction-Model probes (CP1–CP4)
+# Clinical Prediction-Model probes (CP1–CP6)
 
-A 4-probe checklist for **cross-sectional / observational clinical prediction models** — a binary or multinomial outcome predicted from a covariate set, reported under TRIPOD / TRIPOD+AI, usually as a **nested predictor-set comparison** ("does adding marker X to a base model improve prediction of Y?"). This is the diagnostic/prognostic *prediction* counterpart to `survival_prognostic.md` (time-to-event) and complements the `observational_confounding.md` probes (a prediction model still has an analysis unit (O8) and can be over-adjusted (O7)). Route here when the manuscript develops or compares prediction models and reports discrimination (AUC/C-statistic), calibration, or decision-curve / net-benefit analysis.
+A 6-probe checklist for **cross-sectional / observational clinical prediction models** — a binary or multinomial outcome predicted from a covariate set, reported under TRIPOD / TRIPOD+AI, usually as a **nested predictor-set comparison** ("does adding marker X to a base model improve prediction of Y?"). This is the diagnostic/prognostic *prediction* counterpart to `survival_prognostic.md` (time-to-event) and complements the `observational_confounding.md` probes (a prediction model still has an analysis unit (O8) and can be over-adjusted (O7)). Route here when the manuscript develops or compares prediction models and reports discrimination (AUC/C-statistic), calibration, or decision-curve / net-benefit analysis.
 
 **CP1 — Apparent vs optimism-corrected performance**:
 - Discrimination, **calibration** (slope / intercept / calibration plot), and **decision-curve / net-benefit** all suffer optimism when computed in the same sample used to fit the model. A manuscript that optimism-corrects *only* the C-statistic (bootstrap / cross-validation) but reports calibration and net benefit **in-sample** has corrected one axis and left two apparent.

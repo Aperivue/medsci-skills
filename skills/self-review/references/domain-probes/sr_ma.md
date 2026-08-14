@@ -6,9 +6,9 @@
        - self-review: Anticipated Major / Minor Comments (Fatal / Fixable) mapped to category letters.
      Do NOT edit one copy only — run `python3 scripts/check_domain_probe_sync.py --sync`. -->
 
-# Systematic Review / Meta-Analysis probes (P0–P17)
+# Systematic Review / Meta-Analysis probes (P0–P19)
 
-Internal-consistency-first gate (P0) plus an 11-probe checklist (P1–P11). These probes complement (do not replace) the generic Phase 2 issue checklist.
+Internal-consistency-first gate (P0) plus a 19-probe checklist (P1–P19). These probes complement (do not replace) the generic Phase 2 issue checklist.
 
 **P0 — Internal-consistency-first gate (run before P1; gates any fabrication claim)**:
 - Before alleging fabrication on a manuscript that "feels AI-generated", reproduce the headline pooled statistics, paired study counts (k), and subgroup counts directly from the extracted data table (or supplement included-studies table).

@@ -36,3 +36,13 @@ A 4-probe checklist for radiomic feature reliability/reproducibility, acquisitio
 
 **Output template (R4 example)**:
 > "The reported gains come from a grid of [N models] × [M thresholds] one-sided comparisons; with [N×M] tests, roughly one positive is expected by chance alone, and the external cohort (n = [k]) yields bootstrap ΔAUC intervals that cross zero for several thresholds. I'd suggest reporting a multiplicity-adjusted analysis (or stating the expected false-positive count), restricting the headline claim to the classifier family that survives, and marking the ΔAUC intervals that cross zero in the figure."
+
+## When this module does not apply
+
+These probes are out of scope for:
+
+- Single fixed-protocol radiomic model with no parameter sweep and no reliability-filtering claim
+- Pure deep-learning end-to-end imaging model (handcrafted feature reproducibility not at issue)
+- Replication of a documented prior radiomic pipeline with no new reliability/transportability claim
+
+Moved here from the consuming skill so the scope travels with the probes.
