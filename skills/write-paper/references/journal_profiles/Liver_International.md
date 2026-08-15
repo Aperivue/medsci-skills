@@ -11,7 +11,7 @@
 - **Open Access**: Hybrid (standard copyright OR Creative Commons under OA fee; APC applies when OA chosen). >9 published pages = GBP 100/page (excess), unless fully OA.
 - **Acceptance rate**: [VERIFY at journal site]
 - **Peer review**: Single-blind; 2 independent reviewers plus Editors; early rejection without external review permitted; Peer Review Transparency pilot via Publons (opt-out during submission)
-- **Verification date**: 2026-05-21 (AGL PDF); submission mechanics verified 2026-06-24 (live Research Exchange submission)
+- **Verification date**: 2026-05-21 (author-guidelines PDF); submission mechanics verified in-portal 2026-06
 
 ## Manuscript Types and Word Limits
 
@@ -166,7 +166,7 @@ Editorial Office: LIVeditorialoffice@wiley.com
 
 ---
 
-## Submission Mechanics (Research Exchange / Free Format) — verified 2026-06-24
+## Submission Mechanics (Research Exchange / Free Format) — verified in-portal 2026-06
 
 Liver International submits via **Wiley Research Exchange** (https://authors.wiley.com/journal/LIV), **Free Format**:
 
