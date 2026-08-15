@@ -37,10 +37,18 @@ cat > "$TMP/leaky.md" <<'MD'
 The pipeline failed on patient MRN 4471903 during the review.
 Subject 880101-1234567 was excluded after chart review.
 Approved under IRB 2024-0451 at Severance Hospital.
-I was reviewing EURE-D-26-00203 when this happened.
 Prof. Alan Poe suggested the change; reach me at a.poe@hospital.or.kr.
 Output was written to /Users/apoe/manuscripts/draft.docx.
 MD
+
+# The submission ID is ASSEMBLED, never written out: a file whose job is to carry identifier-shaped
+# strings must not carry one as a literal, or the repo's own precedent gate flags the test that
+# proves the gate works. Two forms, because the plain one shipped working and the revision one --
+# the form a reviewer actually handles -- did not: `\d{3,6}\b` cannot match `00203R2` (R is a word
+# character), so every revised ID was invisible until 2026-08-15.
+J=EURE; Y=26
+printf 'I was reviewing %s-D-%s-00203 when this happened.\n' "$J" "$Y" >> "$TMP/leaky.md"
+printf 'and %s-D-%s-00203R2 the round after that.\n' "$J" "$Y" >> "$TMP/leaky.md"
 
 # --- an ordinary, entirely publishable contribution -------------------------------------------
 cat > "$TMP/clean.md" <<'MD'
@@ -73,6 +81,35 @@ assert r["safe_to_send"] is False
 assert all(f["advice"] for f in r["findings"])
 PY
 ck "MRN, national ID, IRB, manuscript ID, name, path all caught" 0 "$?"
+
+# 1b) BOTH submission-ID forms, because only one of them used to work.
+#
+# The plain form was caught from the day this shipped. The revision form was not: `\d{3,6}\b`
+# cannot match `00203R2`, since R is a word character and there is no boundary before it. Revised
+# IDs are the ones a reviewer handles most, and one had been sitting in a shipped reviewer profile
+# in this repository while the scanner reported the file clean.
+python3 - "$TMP/leaky.json" <<'PY'
+import json, sys
+found = {f["match"] for f in json.load(open(sys.argv[1]))["findings"]
+         if f["verdict"] == "MANUSCRIPT_ID"}
+assert any(x.endswith("00203") for x in found), f"plain submission ID missed: {found}"
+assert any(x.endswith("R2") for x in found), f"REVISED submission ID missed: {found}"
+PY
+ck "both the plain and the revised submission-ID forms are caught" 0 "$?"
+
+# 1c) ...and a published DOI is not a manuscript under review.
+#
+# Annals of Internal Medicine mints DOIs shaped exactly like a submission ID
+# (10.7326/ANNALS-25-02104), so the vendored QUADAS-3 checklist citing its own source drew a MAJOR
+# finding. A DOI is public by definition; flagging one teaches the author to ignore this scanner.
+cat > "$TMP/doi.md" <<'MD'
+# Vendored checklist provenance
+
+Source: *Ann Intern Med* 2026;179(4):548-555 (DOI 10.7326/ANNALS-25-02104), and the
+Explanation & Elaboration paper at https://doi.org/10.7326/ANNALS-25-04943.
+MD
+python3 "$S" --text "$TMP/doi.md" --quiet > /dev/null 2>&1
+ck "a published DOI is not read as a submission ID" 0 "$?"
 
 # 2) THE FALSE-POSITIVE GUARD: an ordinary journal profile must sail through
 python3 "$S" --text "$TMP/clean.md" --quiet > /dev/null 2>&1
