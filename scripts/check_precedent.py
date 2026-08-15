@@ -45,7 +45,19 @@ STRUCTURAL = [
     re.compile(r"screening_consensus_final\.md"),
     re.compile(r"fulltext_screening_final\.tsv"),
     re.compile(r"VIF\s+Diag"),
+    # A journal submission ID (LETTERS-D-YY-NNNNN, with or without an RN revision suffix).
+    # `/contribute` has blocked this shape from CONTRIBUTIONS since it shipped, rated major, on the
+    # grounds that a manuscript under review is confidential and its ID identifies it. Nothing
+    # applied the same rule to the repository's OWN files, and one had been sitting in a shipped
+    # reviewer profile: the toolkit held contributors to a standard it did not hold itself to.
+    # See also reviewer_profiles/README.md, which now requires round + date and forbids the ID.
+    re.compile(r"\b[A-Z]{2,6}(?:-[A-Z])?-\d{2}-\d{3,6}(?:R\d{1,2})?\b"),
 ]
+
+# A published DOI can end in the same shape (Annals of Internal Medicine mints
+# `10.7326/ANNALS-25-02104`), and a vendored checklist citing its own source is not a disclosure.
+# A DOI is public by definition; a submission ID is the opposite.
+DOI_SUFFIX = re.compile(r"\b10\.\d{4,9}/\S*$")
 
 _HERE = Path(__file__).resolve().parent
 # Paths are overridable via env for testing (so regression tests can exercise
@@ -92,8 +104,9 @@ def line_ngrams(line: str) -> set[str]:
 def scan_text(text: str, hashes: set[str]) -> tuple[int, str] | None:
     for lineno, line in enumerate(text.splitlines(), 1):
         for rx in STRUCTURAL:
-            m = rx.search(line)
-            if m:
+            for m in rx.finditer(line):
+                if DOI_SUFFIX.search(line[:m.start()]):
+                    continue
                 return lineno, m.group(0)
         if hashes:
             for gram in line_ngrams(line):

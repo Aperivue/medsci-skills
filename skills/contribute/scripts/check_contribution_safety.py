@@ -83,9 +83,32 @@ APPROVAL_ID = re.compile(
     re.I,
 )
 
-# A submission ID: LETTERS-D-YY-NNNNN, LETTERS-YY-NNNN, etc. A manuscript under review is
-# confidential; leaking its ID in a public commit is a real disclosure.
-MANUSCRIPT_ID = re.compile(r"\b[A-Z]{2,6}(?:-[A-Z])?-\d{2}-\d{3,6}\b")
+# A submission ID: LETTERS-D-YY-NNNNN, LETTERS-YY-NNNN, and the revision forms LETTERS-D-YY-NNNNNR1.
+# A manuscript under review is confidential; leaking its ID in a public commit is a real disclosure.
+#
+# This got both directions wrong at once, which is worth keeping in view because it is this repo's
+# most common detector defect wearing a new hat:
+#
+#   MISSED  the revision suffix. `\d{3,6}\b` cannot match a five-digit serial followed by `R1`
+#           (R is a word character, so there is no boundary), so EVERY revised ID was invisible.
+#           Revised IDs are the ones a reviewer handles most, and one had been sitting in a shipped
+#           reviewer profile in this repository. Writing the offending literal here would have put
+#           it straight back into a public file -- the repo's own precedent gate caught that too.
+#   FIRED   `10.7326/ANNALS-25-02104` — a published DOI. Annals of Internal Medicine mints DOIs in
+#           exactly this shape, so the vendored QUADAS-3 checklist citing its own source tripped a
+#           MAJOR finding.
+#
+# So: accept the revision suffix, and do not read a DOI as a submission ID. A DOI is public by
+# definition; a submission ID is the opposite.
+MANUSCRIPT_ID = re.compile(r"\b[A-Z]{2,6}(?:-[A-Z])?-\d{2}-\d{3,6}(?:R\d{1,2})?\b")
+
+# `10.7326/ANNALS-25-02104`, `doi.org/10.…` — the registrant's own suffix, not a submission.
+_DOI_CONTEXT = re.compile(r"\b10\.\d{4,9}/\S*$")
+
+
+def _is_doi_suffix(line: str, start: int) -> bool:
+    """Is the match the tail of a DOI rather than a submission ID?"""
+    return bool(_DOI_CONTEXT.search(line[:start]))
 
 LOCAL_PATH = re.compile(r"(?:/Users/|/home/|C:\\Users\\)(?!(?:runner|user|you|username|<)\b)[\w.-]+")
 
@@ -148,8 +171,11 @@ def scan_text(text: str, source: str) -> list[dict]:
             add("INSTITUTION", i, line, m.group(0), "institution")
         if (m := APPROVAL_ID.search(line)):
             add("APPROVAL_ID", i, line, m.group(0), "approval")
-        if (m := MANUSCRIPT_ID.search(line)):
+        for m in MANUSCRIPT_ID.finditer(line):
+            if _is_doi_suffix(line, m.start()):
+                continue  # a published DOI, not a manuscript under review
             add("MANUSCRIPT_ID", i, line, m.group(0), "submission_id")
+            break
         if (m := LOCAL_PATH.search(line)):
             add("LOCAL_PATH", i, line, m.group(0), "home_dir")
 

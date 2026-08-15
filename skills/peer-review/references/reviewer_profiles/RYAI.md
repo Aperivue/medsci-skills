@@ -53,10 +53,34 @@ The Daily-practice field is easily left as Yes by a portal default selection or 
 
 ## Recommendation Options
 
-- Accept
-- Accept with Minor Revision
-- Reject: Encourage major revision and resubmission (**= Major Revision** for practical purposes)
-- Reject
+**⚠ PARTIALLY VERIFIED — transcribe the list from the form before you use it.**
+**Verified against:** the live form, rendered (one R1 and one later invitation). Last updated: 2026-08-05.
+
+This section previously listed four options as fact, including **"Accept with Minor Revision"**.
+That label **is not on the form.** A reviewer was told to select it, reached the portal, and had
+to report back what the form actually said. The list below records only what has been read off a
+rendered form; the remaining labels have not been transcribed and are deliberately left blank
+rather than guessed.
+
+- The form presents **six** options, not four.
+- The minor-revision tier is **two separate options**, not one:
+  - `Accept Revisions with final approval: **by Editor**`
+  - `Accept Revisions with final approval: **by this reviewer**`
+- `Reject: Encourage major revision and resubmission` — for practical purposes this is the
+  **Major Revision** tier.
+- `Reject`, and `Reject: Another Journal` (the latter is what makes **Specify Journal** appear).
+
+**Choosing between the two Accept-Revisions options.** This is a substantive decision about whether
+the manuscript comes back to you, and the old profile did not mention that the choice exists:
+
+| Your review | Choose |
+|---|---|
+| States the expected values, so an editor can compare the revision against them without you | **by Editor** |
+| Asks for a recomputation, a new analysis, or a figure whose correct result you did not print | **by this reviewer** |
+
+**Before submitting, read the recommendation dropdown on the form and use its wording.** A
+ScholarOne *confirmation PDF* carries no form widgets, so the dropdown's contents cannot be
+recovered from it — verifying the option list means rendering the live page as an image.
 
 ## Draft Structure Template
 
