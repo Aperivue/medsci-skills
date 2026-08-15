@@ -173,9 +173,9 @@ https://submit.jkms.org
 
 ---
 
-## Submission verification log (verified 2026-06-03, Original Article)
+## Submission mechanics (Original Article) — verified in-portal 2026-06
 
-End-to-end submission learnings — use as the JKMS submission checklist.
+End-to-end submission mechanics — use as the JKMS submission checklist.
 
 **References (author-guide ≠ Zotero CSL):**
 - Format: **superscript** Arabic numerals · **NLM abbreviation** (`Ann Intern Med`) · **no DOI** · ≤6 authors then `et al.` · **year only** (no month/day) · issue `(n)` · `J Abbrev Year;Vol(Issue):Page.` (no period after abbrev).
@@ -193,8 +193,8 @@ End-to-end submission learnings — use as the JKMS submission checklist.
 - Build non-AI (matplotlib + Servier/BioArt) per `journal-ai-image-policies`. 4-block layout (Purpose/Methods/Results/Conclusions) works well. python-pptx + Mac-compat (`app.xml` sync, no TIFF).
 
 **Portal declaration answers (typical observational study):**
-- Article type Original Article · subspecialty leaf (e.g. 23.1.3 Chest Radiology) · IRB Yes + approval# + consent-waiver text · COI per ICMJE · AI use Yes→Proofreading (**must match manuscript AI disclosure** — never tick Statistics/Analysis if disclosure says otherwise) · Professional English proofreading No (unless paid service) · Suggested reviewers optional.
-- **"Submitted elsewhere?"** — cascade (prior reject → JKMS) is sequential not simultaneous → **No** for "currently/under consideration"; **Yes** only for "ever/previously". Check project cascade history (`submission-portal-verification.md` §2B).
+- Article type Original Article · the numbered subspecialty leaf for your topic · IRB Yes + approval# + consent-waiver text · COI per ICMJE · AI use Yes→Proofreading (**must match manuscript AI disclosure** — never tick Statistics/Analysis if disclosure says otherwise) · Professional English proofreading No (unless paid service) · Suggested reviewers optional.
+- **"Submitted elsewhere?"** — a cascade submission (declined elsewhere, then here) is sequential, not simultaneous → **No** for "currently/under consideration"; **Yes** only for "ever/previously". Check the project's own cascade history (`submission-portal-verification.md` §2B).
 - Corresponding **Tel is a required portal field**; JKMS Information also wants phone on the title page.
 - ICMJE COI form per author (all). Co-first = "First Author" ×N + title-page equal-contribution footnote.
 

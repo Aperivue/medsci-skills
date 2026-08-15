@@ -89,7 +89,7 @@ Present the flag report as a structured table:
 | sex | Category inconsistency | 12 | Low | Harmonize: Male/male/M -> "Male" |
 | lab_date | Type mismatch | 45 | High | Parse to datetime |
 | pack_years | Categorical-implied zero | 12421 | High | Set 0 where smoking_status=='never' (structural zero, not missing) |
-| trust_E3 | Reverse-coded item (raw α=-0.57) | n/a | High | Recode (6 - x) before reliability; negative α is a coding bug |
+| scale_item_4 | Reverse-worded item (raw α negative) | n/a | High | Recode (6 - x) before reliability; a negative α is a coding bug, not a finding |
 
 Severity levels:
 - **High**: Likely data errors that will affect analysis (type mismatches, impossible values)

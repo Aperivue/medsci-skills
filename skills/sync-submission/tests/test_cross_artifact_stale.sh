@@ -19,14 +19,14 @@ trap 'rm -rf "$WORK"' EXIT
 cat > "$WORK/manuscript_v8.md" <<'EOF'
 ## Results
 The complete-case analysis included 95.7% of the cohort.
-Inter-rater agreement was substantial (kappa = 0.923).
+Inter-rater agreement was substantial (kappa = 0.871).
 EOF
 
 # stale supplement: disagreeing values for the same labels
 mkdir -p "$WORK/aux"
 cat > "$WORK/aux/supplement.md" <<'EOF'
 Footnote: complete-case retention was 7.5% after exclusions.
-Reliability sub-analysis: kappa = 0.904.
+Reliability sub-analysis: kappa = 0.842.
 EOF
 
 # checklist built against an older manuscript version
@@ -39,7 +39,7 @@ EOF
 mkdir -p "$WORK/clean"
 cat > "$WORK/clean/supplement.md" <<'EOF'
 Footnote: complete-case retention was 95.7%.
-Reliability: kappa = 0.923.
+Reliability: kappa = 0.871.
 EOF
 
 run() { python3 "$SCRIPT" "$@" 2>/dev/null; }

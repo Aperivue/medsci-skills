@@ -187,7 +187,7 @@ https://academic.oup.com/eurjpc/pages/general-instructions
 
 ## Verification Notes
 
-Audit performed 2026-05-20. Sources opened:
+Audit performed 2026-05. Sources opened:
 - Homepage: https://academic.oup.com/eurjpc (ISSN, society sponsorship, author-guidelines link)
 - General Instructions: https://academic.oup.com/eurjpc/pages/general-instructions (article types, word limits, abstract structure, references, AI policy verbatim, submission portal)
 

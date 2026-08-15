@@ -36,5 +36,5 @@ Editor-in-Chief Paul M. Stewart, MD. Original Articles do not have a stated uppe
 
 ## Verification
 - **Source:** https://academic.oup.com/jcem/pages/Author_Guidelines
-- **Date (harvested from private profile):** 2026-05-20
+- **Date (harvested from a local profile library):** 2026-05
 - **Date (promoted to public):** 2026-05-21

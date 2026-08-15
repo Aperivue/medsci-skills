@@ -41,10 +41,22 @@ check "structural edit_plan.md"      3 "$(ec_in 'draft v3_edit_plan.md')"
 check "structural Korean honorific"  3 "$(ec_in '김철수 교수님 reviewed it')"
 check "structural VIF Diag"          3 "$(ec_in 'ran VIF  Diag')"
 
+# The BARE 교수, without 님. This is the form third-person prose actually uses -- every
+# occurrence in this repository's own commit messages and planning notes was bare -- and it was
+# invisible until 2026-08-15 because the pattern demanded the polite ADDRESS form. This case
+# fails against the pre-fix pattern; that is what makes it worth running.
+check "bare 교수 (third-person)"      3 "$(ec_in '김철수 교수 회신에서 지적')"
+
 # ---- 2. Clean text must NOT trigger (false-positive guard) ----
 check "clean prose"                  0 "$(ec_in 'STROBE checklist for observational studies')"
 check "clean common surname alone"   0 "$(ec_in 'Kim and Lee analysed 12 sites')"
 check "clean stats line"             0 "$(ec_in 'AUC 0.89 (95% CI 0.85-0.93)')"
+# Dropping 님 lets the name slot swallow whatever Korean word precedes the role, so these are
+# the cases that decide whether the broadening was worth doing. A job description is not a
+# person, and a gate that fires on a template placeholder is one people route around.
+check "clean role description"       0 "$(ec_in '지도 교수 배정과 담당 교수 승인 절차')"
+check "clean templated placeholder"  0 "$(ec_in '- Supervisor: {교수님 성함} ({소속 이력})')"
+check "clean skill trigger phrase"   0 "$(ec_in 'triggers: MA 주제 찾기, professor MA, 연구 분석')"
 
 # ---- 3. Hashed n-gram path via SYNTHETIC digest set ----
 syn_term="acme widget corporation"

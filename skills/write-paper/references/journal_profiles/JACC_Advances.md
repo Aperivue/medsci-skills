@@ -191,7 +191,7 @@ https://www.sciencedirect.com/journal/jacc-advances/publish/guide-for-authors
 
 ## Verification Notes
 
-Audit performed 2026-05-20. Sources opened:
+Audit performed 2026-05. Sources opened:
 - Homepage: https://www.sciencedirect.com/journal/jacc-advances (ISSN, EIC, APC, scope)
 - Guide for Authors: https://www.sciencedirect.com/journal/jacc-advances/publish/guide-for-authors (article types, word limits, abstract structure, references, figures, submission portal)
 - Elsevier publisher AI policy: https://www.elsevier.com/about/policies-and-standards/the-use-of-generative-ai-and-ai-assisted-technologies-in-writing-for-elsevier (AI policy verbatim source)

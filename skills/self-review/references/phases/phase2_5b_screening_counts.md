@@ -123,5 +123,7 @@ parentheses, dataframe `df$` qualifiers and commutative `&`-operands are normali
 emits `DERIVED_DEF_DRIFT` (Major) when one variable carries ≥2 distinct atom sets across scripts.
 Precedent: `mets_bp <- as.integer(bl_he_sbp>=130 | bl_he_dbp>=85 | bl_tx_hypertension_med==1 |
 bl_hypertension==1)` in the benchmark script vs the same name without the final
-`| bl_hypertension==1` in a re-analysis script — the metabolic-syndrome C-index then read 0.6704
-in one table and 0.6712 in another.
+`| bl_hypertension==1` in a re-analysis script. The two definitions classify different
+participants, so the metabolic-syndrome C-index computed from each disagreed in the fourth
+decimal — enough to put two different values for one quantity into a main table and its
+supplement, and small enough that nobody reading either artifact alone would notice.

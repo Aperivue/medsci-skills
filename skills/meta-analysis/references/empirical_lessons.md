@@ -38,7 +38,8 @@ Synthesized from recent SR-MA peer-review cycles. Drives the Phase 4 extraction 
 
 ## Empirical Lessons (2026-06)
 
-From a CBCT lung-ablation SR-MA submission cycle (Springer / CVIR Editorial Manager). Submission-stage; complements the 2026-05 lessons.
+Submission-stage lessons from an SR-MA cycle on an Editorial Manager journal; complements the
+2026-05 lessons.
 
 11. **Supplementary materials need the same blinding + de-scaffolding + cross-consistency pass as the manuscript.** The largest source of pre-submission defects this cycle was the supplement shipping as raw internal artifacts — `/check-reporting` output carrying an "Assessed by: <AI tool>" line and a JSON verdict block, and a pre-search planning doc with the author's real name, sibling-project cross-references, unresolved `[Check on execution]` placeholders, and estimate tables that contradicted the actual PRISMA counts. Presence (Lesson 5) is not enough; apply the Phase 8 supplementary gate.
 

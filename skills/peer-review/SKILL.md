@@ -194,15 +194,15 @@ evaluation instrument). When both classes are present, the **unfixable** class g
 do not let a long list of fixable items reframe an unfixable core as "addressable in revision."
 
 **Salvage-reframe that shrinks the contribution is NOT a fixable major revision.** When your proposed fix
-for a construct/validity flaw is to *narrow the claim* (e.g. "reframe from a clinical classifier to a
-re-identifiability signal", "scope down to a proof-of-concept"), check whether that narrower framing survives
-the novelty/importance bar. If novelty/importance is ALREADY weak — a co-reviewer or your own scorecard flags
-the work as "expected / well-known finding / unconvincing motivation / limited use case" (Originality or
-Reader-interest ≤ mid) — then the reframe *reduces* the contribution and makes the importance problem worse,
-not better. A contribution shrunk to survive a validity flaw is a **Reject-leaning** outcome (the contribution
-is the product, not addressable-in-revision), not an encourage-major-revision. Deterministic trigger to
-self-audit: if your confidential note says the claim is "narrower than / more modest than claimed" AND your
-recommendation is Reject-family-adjacent, do not upgrade it to major revision on the strength of the reframe.
+for a construct/validity flaw is to *narrow the claim* (a clinical claim reframed as a weaker technical
+signal, a full study reframed as a proof-of-concept), check whether that narrower framing survives
+the novelty/importance bar. If novelty/importance is ALREADY weak — your own scorecard, or a second
+opinion, puts Originality or Reader-interest at or below mid — then the reframe *reduces* the
+contribution and makes the importance problem worse, not better. A contribution shrunk to survive a
+validity flaw is a **Reject-leaning** outcome (the contribution is the product, not
+addressable-in-revision), not an encourage-major-revision. Deterministic trigger to self-audit: if
+your confidential note calls the claim narrower or more modest than the manuscript claims AND your
+recommendation is Reject-family-adjacent, do not upgrade it to major revision on the reframe.
 
 **Review/narrative/primer escalation** *(the contribution IS the product)*: for a review article there is no
 data to re-analyze; the distinct contribution — novelty, integrative synthesis, domain-specificity — is the

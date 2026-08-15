@@ -332,12 +332,15 @@ for skill_dir in "${SKILL_DIRS[@]}"; do
   #     wjgnet, kams, wiley, aasld) + `your@email.com` style placeholders.
   email_hits=0
   email_pattern='[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}'
-  email_whitelist='example\.com|example\.org|your@email\.com|user@host|name@|placeholder|noreply@|users\.noreply\.github\.com|git@github\.com|@lancet\.com|@strokeahajournal\.org|@aasld\.org|@wjgnet\.com|@wiley\.com|@kams\.or\.kr|@nejm\.org|@journal\.|aim-aicro\.com'
-  # Note: `aim-aicro.com` is a corporate domain that historically appeared in a
-  #   personal author roster. We allow the bare domain here only because the
-  #   precedent blocklist already catches the full `kyungwon.kim@aim-aicro.com`
-  #   string by way of the personal-name patterns above; remove from this
-  #   whitelist if the bare domain ever surfaces on its own.
+  email_whitelist='example\.com|example\.org|your@email\.com|user@host|name@|placeholder|noreply@|users\.noreply\.github\.com|git@github\.com|@lancet\.com|@strokeahajournal\.org|@aasld\.org|@wjgnet\.com|@wiley\.com|@kams\.or\.kr|@nejm\.org|@journal\.'
+  # A corporate domain from a personal author roster used to sit on that whitelist, and the note
+  # justifying it SPELLED OUT the full address it claimed was covered elsewhere. So the one file
+  # exempt from the precedent scan (this one — see the self-exemption below) was the file
+  # publishing a colleague's name and work address in cleartext, inside the comment explaining
+  # why doing so was safe. It was neither safe nor true: that address was run against the
+  # blocklist and MISSED. Entry and note are both gone; the address and its bare domain are now
+  # hashed in precedent_hashes.txt, so a reappearance anywhere scannable fails instead of being
+  # waved through. A whitelist entry must never carry the string it exempts.
   # `@nejm.org` and `users.noreply.github.com` joined the list in 2026-07-29, when
   #   this rule started scanning references/ and scripts/ for the first time: a
   #   journal's published editorial-office address and a GitHub noreply sender are
@@ -348,10 +351,25 @@ for skill_dir in "${SKILL_DIRS[@]}"; do
   # that prove the PII detectors fire. `deidentify` needs Korean PHI shapes
   # (resident-registration numbers, phone numbers, addresses) and `contribute`
   # needs a message that leaks an author's address, so that each skill's scanner
-  # can be shown catching them. Both are fully synthetic — verified name by name
-  # when this exemption was written — and neither ships (tests/ is excluded from
-  # the distribution bundle). Every other rule still applies to them; only this
+  # can be shown catching them. Every other rule still applies to them; only this
   # one is skipped, and only for these two paths.
+  #
+  # This note used to carry two further claims, and a 2026-08-15 audit found BOTH false:
+  #
+  #   "Both are fully synthetic." The names, national IDs, addresses and hospital ARE
+  #   invented. A journal submission ID in the `contribute` fixture was not — it belonged
+  #   to a manuscript the maintainer had actually reviewed. The verification behind the
+  #   word "synthetic" had been done name by name, and the ID is not a name, so it was
+  #   never in scope. State what a check covered, not what it felt like it covered.
+  #
+  #   "Neither ships (tests/ is excluded from the distribution bundle)." True of the
+  #   classroom ZIP. FALSE of the npm package, which ships `skills/**/tests/`. The claim
+  #   was written from one distribution channel and asserted over all of them.
+  #
+  # An exemption is a place where nothing downstream will check the reasoning, so the
+  # reasoning has to be checked here. Anything added to this list is exempt from the
+  # scanner AND from the review the scanner would have prompted. Verify the claim you
+  # write, against every channel, before adding a path below.
   PII_FIXTURE_PATHS='^skills/deidentify/tests/test_phi_[a-z]+\.csv$|^skills/contribute/tests/test_contribution_safety\.sh$'
   for f in "${integrity_files[@]}"; do
     rel_f="${f#$REPO_ROOT/}"

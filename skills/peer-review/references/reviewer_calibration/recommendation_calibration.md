@@ -47,15 +47,17 @@ demonstrated — so **condition 3 defaults to YES (weak novelty) unless separate
 prior art.** Without this, an audit finding and a "the contribution is real" answer sit in the same QC
 log four lines apart and nothing notices.
 
-**Why this is here.** A review recorded, four lines apart: *task-formulation audit: mismatch found —
-claimed = objective replacement of a subjective assessment; measured = a distribution conditioned on
-that same subjective assessment*, and *weak novelty NO (the contribution is real) → Major Revision
-correct*. Condition 3 had been answered by citing the very claim the audit had just invalidated;
-condition 2 from the clinical need rather than the artifact. Neither answer cited anything. The
-co-reviewer wrote ~180 words, all on priority — each component already validated, commercial tools
-already delivering the output — and the editor **rejected outright**, two tiers below the
-recommendation. The technical review was the stronger of the two on execution and still landed in the
-wrong tier, because the gate that was supposed to price contribution accepted an unsourced answer.
+**Why this is here.** This is a lived failure, not a hypothetical. A QC log recorded, four lines
+apart, a task-formulation audit finding that the claimed task and the measured task differed — and,
+below it, condition 3 answered *no* on the grounds that the contribution was real. Condition 3 had
+been answered by citing the very claim the audit had just invalidated; condition 2 from the clinical
+need rather than the artifact. Neither answer cited anything. The recommendation that followed
+landed well below its tier. The review was strong on execution and still came out in the wrong
+place, because the gate that was supposed to price contribution accepted an unsourced answer.
+
+*(Written from the reviewer's own QC log. A review is confidential in three directions — the
+manuscript, any co-reviewer's report, and the editor's decision — so none of the three is described
+here. The failure is in the gate, and the gate is what this file is for.)*
 
 **Fixable vs unfixable tier-domination**: separate defects that a revision can repair (extraction errors,
 missing supplementary, a mislabeled table, an over-claiming sentence) from defects that cannot be repaired
@@ -64,15 +66,15 @@ evaluation instrument). When both classes are present, the **unfixable** class g
 do not let a long list of fixable items reframe an unfixable core as "addressable in revision."
 
 **Salvage-reframe that shrinks the contribution is NOT a fixable major revision.** When your proposed fix
-for a construct/validity flaw is to *narrow the claim* (e.g. "reframe from a clinical classifier to a
-re-identifiability signal", "scope down to a proof-of-concept"), check whether that narrower framing survives
-the novelty/importance bar. If novelty/importance is ALREADY weak — a co-reviewer or your own scorecard flags
-the work as "expected / well-known finding / unconvincing motivation / limited use case" (Originality or
-Reader-interest ≤ mid) — then the reframe *reduces* the contribution and makes the importance problem worse,
-not better. A contribution shrunk to survive a validity flaw is a **Reject-leaning** outcome (the contribution
-is the product, not addressable-in-revision), not an encourage-major-revision. Deterministic trigger to
-self-audit: if your confidential note says the claim is "narrower than / more modest than claimed" AND your
-recommendation is Reject-family-adjacent, do not upgrade it to major revision on the strength of the reframe.
+for a construct/validity flaw is to *narrow the claim* (a clinical claim reframed as a weaker technical
+signal, a full study reframed as a proof-of-concept), check whether that narrower framing survives
+the novelty/importance bar. If novelty/importance is ALREADY weak — your own scorecard, or a second
+opinion, puts Originality or Reader-interest at or below mid — then the reframe *reduces* the
+contribution and makes the importance problem worse, not better. A contribution shrunk to survive a
+validity flaw is a **Reject-leaning** outcome (the contribution is the product, not
+addressable-in-revision), not an encourage-major-revision. Deterministic trigger to self-audit: if
+your confidential note calls the claim narrower or more modest than the manuscript claims AND your
+recommendation is Reject-family-adjacent, do not upgrade it to major revision on the reframe.
 
 **Review/narrative/primer escalation** *(the contribution IS the product)*: for a review article there is no
 data to re-analyze; the distinct contribution — novelty, integrative synthesis, domain-specificity — is the

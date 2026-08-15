@@ -953,8 +953,8 @@
     },
     {
       "path": "skills/clean-data/SKILL.md",
-      "size": 11378,
-      "sha256": "512e040feffade7f7598e5bd04f2e3ab7c52714cee024c6dba36e5b4588baba5"
+      "size": 11403,
+      "sha256": "a860659a204359bb60615fcd7ff5478a439a7d17964cbe4cc0a94139c4704b0d"
     },
     {
       "path": "skills/clean-data/references/cleaning_patterns.md",
@@ -1498,8 +1498,8 @@
     },
     {
       "path": "skills/find-journal/references/journal_profiles/European_Journal_of_Preventive_Cardiology.md",
-      "size": 3021,
-      "sha256": "8da6b757d86f034ca38225d2b83535398108cb1c3b4358fc71147faf8230010b"
+      "size": 3026,
+      "sha256": "ed773df2411d56a781430e1539df2e9781a6f3320cc9ade23080f1586d1dea6c"
     },
     {
       "path": "skills/find-journal/references/journal_profiles/European_Radiology.md",
@@ -1538,8 +1538,8 @@
     },
     {
       "path": "skills/find-journal/references/journal_profiles/JACC_Advances.md",
-      "size": 3658,
-      "sha256": "46ca40b297ac514f644b77db48bbae15abf557d2016e1f669b7191f3f5665be9"
+      "size": 3660,
+      "sha256": "6e9ec7b55e1661b8f7e467721bef1cec713cb0b7e2882e8ce49e0304763e1209"
     },
     {
       "path": "skills/find-journal/references/journal_profiles/JACC_Asia.md",
@@ -1603,8 +1603,8 @@
     },
     {
       "path": "skills/find-journal/references/journal_profiles/Journal_of_Clinical_Endocrinology_and_Metabolism.md",
-      "size": 2832,
-      "sha256": "90d39fcb447d14aabc7b6f141eafc98418c18037f133075e97e8cca284fa0f87"
+      "size": 2837,
+      "sha256": "8c40a36ec7409b86d4e222a71b4bb39deb453d038ca83da1d7761ade2517657f"
     },
     {
       "path": "skills/find-journal/references/journal_profiles/Journal_of_Magnetic_Resonance_Imaging.md",
@@ -1638,8 +1638,8 @@
     },
     {
       "path": "skills/find-journal/references/journal_profiles/Korean_Circulation_Journal.md",
-      "size": 2567,
-      "sha256": "1fb3a43896f9332d225a39ea6235665e271d49477c6696606e77c00a48882d27"
+      "size": 2572,
+      "sha256": "6c894aa0b110fe65eec3eb2834788852e7393e484eb9eb32b0b1f51b7f4bf9ba"
     },
     {
       "path": "skills/find-journal/references/journal_profiles/Korean_Journal_of_Internal_Medicine.md",
@@ -1723,8 +1723,8 @@
     },
     {
       "path": "skills/find-journal/references/journal_profiles/Nutrition_Metabolism_and_Cardiovascular_Diseases.md",
-      "size": 2768,
-      "sha256": "127a3d4e1f2d0994d39690a37d169c6dc315aed39ac9e48c19f79607056c2fba"
+      "size": 2773,
+      "sha256": "81b3c1dd3f8342b3ee1ee1d3e6b26db93bab6be0f19c720ed0d8fba733e3d8e4"
     },
     {
       "path": "skills/find-journal/references/journal_profiles/PLOS_Medicine.md",
@@ -2763,8 +2763,8 @@
     },
     {
       "path": "skills/meta-analysis/references/empirical_lessons.md",
-      "size": 7616,
-      "sha256": "f49ebc21369095d19661d39186d1c41368811fbe689c77762daf60c74cd73ee8"
+      "size": 7590,
+      "sha256": "7db1f004caf8f0dd974d072c190beda1ea9a28ed23720f0eac5b84064105b353"
     },
     {
       "path": "skills/meta-analysis/references/icmje_coi_guide.md",
@@ -3373,8 +3373,8 @@
     },
     {
       "path": "skills/peer-review/SKILL.md",
-      "size": 51910,
-      "sha256": "fa96bed959cde9ca66d37311da8832cad5de30de2f4bab00c7d24dbb8fc392f4"
+      "size": 51812,
+      "sha256": "6c1ae78b6802e57924e10bef4e7d55dcac277474bacae2087ab4a77e78b1f50e"
     },
     {
       "path": "skills/peer-review/references/aczel_2021_reviewer2_patterns.md",
@@ -3553,8 +3553,8 @@
     },
     {
       "path": "skills/peer-review/references/reviewer_calibration/recommendation_calibration.md",
-      "size": 7152,
-      "sha256": "65a10ae731c12aa55729e8f6cbb2db316b98c639bbb9b0910323709e4549f890"
+      "size": 7118,
+      "sha256": "63bbef5b05b9fb31794e0942062147bd845001ae0ccfdd95f2909e1c2ec902e1"
     },
     {
       "path": "skills/peer-review/references/reviewer_profiles/AJR.md",
@@ -4078,8 +4078,8 @@
     },
     {
       "path": "skills/publish-skill/scripts/audit_skill.sh",
-      "size": 10256,
-      "sha256": "cffed0a565876e4992792a36dba80c74a5f9d1cc62467a9cf877791f07f22e40"
+      "size": 10602,
+      "sha256": "23c2253855e27cf20256e44f18447d3344ff9f29c56d5201e620900f2a297c06"
     },
     {
       "path": "skills/publish-skill/skill.yml",
@@ -4588,8 +4588,8 @@
     },
     {
       "path": "skills/self-review/references/phases/phase2_5b_screening_counts.md",
-      "size": 7535,
-      "sha256": "0d594614b1f41692d6a6034f9fc88d90bcdd3ba90b8ba6b4697cdfcb0a62cef2"
+      "size": 7753,
+      "sha256": "35ade6925477a93dd67f827d4b55f971fa12523a9eff5e0a990f421ae00faa32"
     },
     {
       "path": "skills/self-review/references/phases/phase2_5c_reference_scans.md",
@@ -4743,8 +4743,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_binning_consistency.py",
-      "size": 20121,
-      "sha256": "fde5fcfec8992d5c26d5de2165e58c8014d7ef38434d17176f170f593c6a0d1a"
+      "size": 20339,
+      "sha256": "942b25348cffddd4226e1c0f783b28f71c5528886a110615ed46c167144043d7"
     },
     {
       "path": "skills/self-review/scripts/check_citation_order.py",
@@ -6033,8 +6033,8 @@
     },
     {
       "path": "skills/write-paper/references/journal_profiles/European_Journal_of_Preventive_Cardiology.md",
-      "size": 9387,
-      "sha256": "015a6771a91129c995ed644bef6185305f616806123835066d0f4401f31e1b0f"
+      "size": 9384,
+      "sha256": "c742c651737363dc65b78f16ca31e3004ae20999aa5aa5c4d517e1280a419501"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/European_Radiology.md",
@@ -6068,8 +6068,8 @@
     },
     {
       "path": "skills/write-paper/references/journal_profiles/JACC_Advances.md",
-      "size": 11751,
-      "sha256": "d9a32d002b7745fe0a8c2be80364e6f4a7953d37e688cc3c98aa119b93f96a85"
+      "size": 11748,
+      "sha256": "04a68743d59d14bee992894538f29847938cb1c47d9c9ccd5547aef41d8d9734"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/JACC_Asia.md",
@@ -6103,8 +6103,8 @@
     },
     {
       "path": "skills/write-paper/references/journal_profiles/JKMS.md",
-      "size": 11381,
-      "sha256": "39460faa9763c703dc019d392d4f56049e1c2af240d49f4c5faac95b49e65982"
+      "size": 11414,
+      "sha256": "7761d5b40a01cd1aa2b82a49afa19620df01cd20ce78b09eab237f893427cf59"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/JMIR.md",
@@ -6128,8 +6128,8 @@
     },
     {
       "path": "skills/write-paper/references/journal_profiles/Journal_of_Clinical_Endocrinology_and_Metabolism.md",
-      "size": 9603,
-      "sha256": "dc71092139693688c654f4bb07d6c588b1a5f1aafd4e7daaf13b7ecd099ea3e8"
+      "size": 9600,
+      "sha256": "2cade69fc364915be5ff06cee7a6b77b9bde0c5499fac75f05007332affca8d8"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/Journal_of_Stroke.md",
@@ -6148,8 +6148,8 @@
     },
     {
       "path": "skills/write-paper/references/journal_profiles/Korean_Circulation_Journal.md",
-      "size": 8764,
-      "sha256": "a6b6e5d1f5a334943070b551883b00098d92661e4be08f35a83216430730d080"
+      "size": 8761,
+      "sha256": "c0f3ed994b25f552bf726d39c67b5b3d0c96fa309573f3319294f8bb27d6e257"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/Korean_Journal_of_Internal_Medicine.md",
@@ -6163,8 +6163,8 @@
     },
     {
       "path": "skills/write-paper/references/journal_profiles/Liver_International.md",
-      "size": 12381,
-      "sha256": "bebb22c281a8494d5c5b2f0bcb3f94010a54d4c5096915460a0ba772c398e0bb"
+      "size": 12373,
+      "sha256": "f6ff23ae9ca9b7d6cbc6d3250a6098c45c4e1c9c36f263a77647acac9a2bcadd"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/Medical_Image_Analysis.md",
@@ -6193,8 +6193,8 @@
     },
     {
       "path": "skills/write-paper/references/journal_profiles/Nutrition_Metabolism_and_Cardiovascular_Diseases.md",
-      "size": 8445,
-      "sha256": "3a0c89d7eb14ed037eb7e3fe3820d375532dd2217a73eed349c962411c2e7ce8"
+      "size": 8442,
+      "sha256": "b080347afd5f77afd103054c2057041d5a4bde83df77e613c4a7bbcfea238943"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/PLOS_Medicine.md",
