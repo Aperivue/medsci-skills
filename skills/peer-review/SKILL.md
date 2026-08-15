@@ -169,6 +169,18 @@ gate. It prevents a valid issue list from under-weighting contribution and prior
 3. **Weak novelty**: Is the work hard to distinguish from close prior AI/LLM extraction or validation
    papers, or does it omit the baseline needed to show that the proposed adaptation adds value?
 
+**These take evidence, not opinions.** Answered from the manuscript's own framing they fail in one
+direction only — toward the revision tier. Three rules, with the incident, in
+`references/reviewer_calibration/recommendation_calibration.md`:
+
+- **3 answered "no"** must name what was checked: the validation status of each component
+  (composition of individually established parts is engineering, not a finding) and the tools already
+  delivering the claimed output.
+- **2 answered "no"** may not rest on the clinical need. The need is a fact about the world; the
+  question is this artifact's pathway to a decision.
+- **If the Phase 2 task-formulation audit fired, 3 defaults to YES** unless separately evidenced —
+  a contribution whose measured task differs from its claimed task has not been demonstrated.
+
 If 2 and 3 both hold, do not default to Major Revision simply because the review is constructive. In the
 confidential comments, state that the manuscript has a priority/contribution problem in addition to the
 fixable technical issues, and calibrate the recommendation toward the journal's stronger option (for

@@ -628,8 +628,8 @@
     },
     {
       "path": "skills/check-reporting/SKILL.md",
-      "size": 41742,
-      "sha256": "b57ffd0bab3807cbe8f8c456a9af045c3fd41bd17d2d934abb7fe4fbc1ced03d"
+      "size": 43252,
+      "sha256": "6a7cc1d829f42be42a8c57e52bbf29b40daa61dc669745fd268d4b83f8e8f43f"
     },
     {
       "path": "skills/check-reporting/references/LICENSES.md",
@@ -3373,8 +3373,8 @@
     },
     {
       "path": "skills/peer-review/SKILL.md",
-      "size": 51094,
-      "sha256": "5971df020a89d5bafffdd3c729d0a24cefae0f5cf6bc9cd059b550667d76af68"
+      "size": 51910,
+      "sha256": "fa96bed959cde9ca66d37311da8832cad5de30de2f4bab00c7d24dbb8fc392f4"
     },
     {
       "path": "skills/peer-review/references/aczel_2021_reviewer2_patterns.md",
@@ -3553,8 +3553,8 @@
     },
     {
       "path": "skills/peer-review/references/reviewer_calibration/recommendation_calibration.md",
-      "size": 4405,
-      "sha256": "a00496308fb805e2ace48de023cef8f0373fb8262f0b9c49b6075f45f9fbb1e7"
+      "size": 7152,
+      "sha256": "65a10ae731c12aa55729e8f6cbb2db316b98c639bbb9b0910323709e4549f890"
     },
     {
       "path": "skills/peer-review/references/reviewer_profiles/AJR.md",
@@ -4568,8 +4568,8 @@
     },
     {
       "path": "skills/self-review/references/panel_review_template.md",
-      "size": 15095,
-      "sha256": "f9c084e950602ec88f7465dc953ed2309148cab37a3bef5f1b4c80deca2707a4"
+      "size": 16949,
+      "sha256": "8cb34e24a3e94c658ba59565fb413c137f005ab282a870edbb15e37bd43e9b9a"
     },
     {
       "path": "skills/self-review/references/phases/confounding_completeness.md",
