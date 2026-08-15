@@ -20,6 +20,43 @@ fixable technical issues, and calibrate the recommendation toward the journal's 
 example, reject/resubmission where that tier exists). If only 1 holds and the value/novelty case is strong,
 Major Revision remains appropriate.
 
+## The three questions take evidence, not opinions
+
+Answering "no" to 2 or 3 is a claim about the literature and about the artifact. Answered from the
+manuscript's own framing, it is the manuscript grading itself — and it fails in one direction only,
+toward the revision tier.
+
+**Condition 3 ("weak novelty") may not be answered *no* without naming what was checked.** At minimum:
+
+- **Per component.** A study assembling two or more established parts — an off-the-shelf model, a
+  standard pipeline, a published score — must be assessed component by component. *Composition of
+  individually validated components is engineering, not a finding*, unless the composition itself
+  yields something neither component gives. Where every component is separately established, the
+  burden shifts: the manuscript must show what the combination produces that its parts do not.
+- **Existing products.** Name the tools or commercial systems already delivering the claimed output,
+  or state that a search for them found none. "I am not aware of one" is not that search.
+
+**Condition 2 ("speculative value") may not be answered *no* by asserting the clinical need.** That the
+problem matters is a fact about the world; condition 2 asks about *this artifact's* pathway to a
+decision, a workflow change, or a downstream validation. A strong need with no pathway is exactly the
+case the condition exists to catch.
+
+**Wiring: a task-formulation mismatch feeds condition 3.** If the task-formulation audit found that the
+*claimed* task and the *measured* task differ, then the contribution as claimed has not been
+demonstrated — so **condition 3 defaults to YES (weak novelty) unless separately evidenced against the
+prior art.** Without this, an audit finding and a "the contribution is real" answer sit in the same QC
+log four lines apart and nothing notices.
+
+**Why this is here.** A review recorded, four lines apart: *task-formulation audit: mismatch found —
+claimed = objective replacement of a subjective assessment; measured = a distribution conditioned on
+that same subjective assessment*, and *weak novelty NO (the contribution is real) → Major Revision
+correct*. Condition 3 had been answered by citing the very claim the audit had just invalidated;
+condition 2 from the clinical need rather than the artifact. Neither answer cited anything. The
+co-reviewer wrote ~180 words, all on priority — each component already validated, commercial tools
+already delivering the output — and the editor **rejected outright**, two tiers below the
+recommendation. The technical review was the stronger of the two on execution and still landed in the
+wrong tier, because the gate that was supposed to price contribution accepted an unsourced answer.
+
 **Fixable vs unfixable tier-domination**: separate defects that a revision can repair (extraction errors,
 missing supplementary, a mislabeled table, an over-claiming sentence) from defects that cannot be repaired
 within the current submission (poolability of incommensurable studies, a broken construct, an invalid
