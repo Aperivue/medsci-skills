@@ -332,12 +332,15 @@ for skill_dir in "${SKILL_DIRS[@]}"; do
   #     wjgnet, kams, wiley, aasld) + `your@email.com` style placeholders.
   email_hits=0
   email_pattern='[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}'
-  email_whitelist='example\.com|example\.org|your@email\.com|user@host|name@|placeholder|noreply@|users\.noreply\.github\.com|git@github\.com|@lancet\.com|@strokeahajournal\.org|@aasld\.org|@wjgnet\.com|@wiley\.com|@kams\.or\.kr|@nejm\.org|@journal\.|aim-aicro\.com'
-  # Note: `aim-aicro.com` is a corporate domain that historically appeared in a
-  #   personal author roster. We allow the bare domain here only because the
-  #   precedent blocklist already catches the full `kyungwon.kim@aim-aicro.com`
-  #   string by way of the personal-name patterns above; remove from this
-  #   whitelist if the bare domain ever surfaces on its own.
+  email_whitelist='example\.com|example\.org|your@email\.com|user@host|name@|placeholder|noreply@|users\.noreply\.github\.com|git@github\.com|@lancet\.com|@strokeahajournal\.org|@aasld\.org|@wjgnet\.com|@wiley\.com|@kams\.or\.kr|@nejm\.org|@journal\.'
+  # A corporate domain from a personal author roster used to sit on that whitelist, and the note
+  # justifying it SPELLED OUT the full address it claimed was covered elsewhere. So the one file
+  # exempt from the precedent scan (this one — see the self-exemption below) was the file
+  # publishing a colleague's name and work address in cleartext, inside the comment explaining
+  # why doing so was safe. It was neither safe nor true: that address was run against the
+  # blocklist and MISSED. Entry and note are both gone; the address and its bare domain are now
+  # hashed in precedent_hashes.txt, so a reappearance anywhere scannable fails instead of being
+  # waved through. A whitelist entry must never carry the string it exempts.
   # `@nejm.org` and `users.noreply.github.com` joined the list in 2026-07-29, when
   #   this rule started scanning references/ and scripts/ for the first time: a
   #   journal's published editorial-office address and a GitHub noreply sender are

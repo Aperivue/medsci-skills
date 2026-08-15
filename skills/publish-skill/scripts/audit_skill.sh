@@ -233,9 +233,12 @@ scan_text "IP Addresses / Internal URLs" \
 scan_text "Institutional References" \
     '\b(SNUH|AMC|SMC|KAIST|SNU|ASAN|MGH|UCSF)\b|Mayo Clinic|Johns Hopkins|Samsung Medical|Severance|Asan Medical'
 
-# rule 6 cont.: titled academic roles with adjacent surname.
+# rule 6 cont.: titled academic roles with adjacent surname. The 님 is optional — it is the
+# polite form for ADDRESSING someone, and prose mentioning a colleague in the third person drops
+# it (`김OO 교수 회신에서…`). Requiring it calibrated this scan to the one shape such a mention
+# does not take. Kept in step with scripts/check_precedent.py and check_contribution_safety.py.
 scan_text "Academic Roles with Names" \
-    'professor [A-Z][a-z]+|Prof\. [A-Z]|Dr\. [A-Z][a-z]+|PGY[0-9]|[가-힣]{2,4}[[:space:]]*(교수님|선생님|박사님)'
+    'professor [A-Z][a-z]+|Prof\. [A-Z]|Dr\. [A-Z][a-z]+|PGY[0-9]|[가-힣]{2,4}[[:space:]]*(교수님?|선생님?|박사님?|원장님?)'
 
 # Language-default hardcoding.
 scan_text "Language Hardcoding" \

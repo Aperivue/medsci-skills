@@ -4078,8 +4078,8 @@
     },
     {
       "path": "skills/publish-skill/scripts/audit_skill.sh",
-      "size": 10256,
-      "sha256": "cffed0a565876e4992792a36dba80c74a5f9d1cc62467a9cf877791f07f22e40"
+      "size": 10602,
+      "sha256": "23c2253855e27cf20256e44f18447d3344ff9f29c56d5201e620900f2a297c06"
     },
     {
       "path": "skills/publish-skill/skill.yml",

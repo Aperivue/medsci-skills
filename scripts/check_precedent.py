@@ -39,7 +39,22 @@ STRUCTURAL = [
     re.compile(r"\bMA-[0-9]+\b"),
     re.compile(r"\bMA0[0-9]\b"),
     re.compile(r"CAC>[0-9]+"),
-    re.compile(r"[가-힣]{2,4}\s*(?:교수님|선생님)"),  # <Korean name> 교수님/선생님
+    # <Korean name> + academic honorific. On 교수 the 님 is OPTIONAL, and that is the point: the
+    # pattern was written against `교수님`, the polite form used when ADDRESSING someone, while
+    # prose MENTIONING a colleague in the third person drops it — `김OO 교수 회신에서…`. Every
+    # real occurrence in this repository's own commit messages and planning notes was bare, so
+    # the pattern was calibrated to the one shape the leaks do not take and read clean on all of
+    # them. `check_contribution_safety.py` had `교수님?` from the start; three copies of one
+    # check disagreed and the strictest was not the one guarding the repository.
+    #
+    # The stoplist is why this is safe to broaden. Without 님 the name slot will swallow whatever
+    # Korean word precedes the role — `지도 교수`, `담당 교수` are job descriptions, not people,
+    # and a gate that fires on those is one people route around. The lookahead blocks the match
+    # at that position, and the leftover single syllable cannot satisfy {2,4}, so the whole
+    # phrase is skipped. 선생 stays 님-only: no leak here has ever used the bare form, and
+    # broadening it on speculation buys false positives for nothing.
+    re.compile(r"(?!지도|담당|책임|주임|객원|초빙|겸임|특임|임상|명예|정년|외래)"
+               r"[가-힣]{2,4}\s*(?:교수님?|선생님)"),
     re.compile(r"[A-Z]+[0-9]+_Consensus_Sheet"),
     re.compile(r"v[0-9]+_edit_plan\.md"),
     re.compile(r"screening_consensus_final\.md"),
