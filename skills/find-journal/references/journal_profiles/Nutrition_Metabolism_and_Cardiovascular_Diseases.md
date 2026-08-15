@@ -35,5 +35,5 @@ Editor-in-Chief Giovanni Targher, MD (Verona, Italy). Original Articles capped a
 
 ## Verification
 - **Source:** https://www.sciencedirect.com/journal/nutrition-metabolism-and-cardiovascular-diseases/publish/guide-for-authors
-- **Date (harvested from private profile):** 2026-05-20
+- **Date (harvested from a local profile library):** 2026-05
 - **Date (promoted to public):** 2026-05-21

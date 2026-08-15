@@ -35,5 +35,5 @@ Full Research Papers are capped at **5,000 words**, 6 figures/tables, and 100 re
 
 ## Verification
 - **Source:** https://academic.oup.com/eurjpc/pages/general-instructions
-- **Date (harvested from private profile):** 2026-05-20
+- **Date (harvested from a local profile library):** 2026-05
 - **Date (promoted to public):** 2026-05-21

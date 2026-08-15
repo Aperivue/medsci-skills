@@ -30,12 +30,12 @@ cardiovascular medicine, cardiovascular research, epidemiology, prevention, card
 - **Field:** Cardiovascular medicine — broad
 
 ## Special Notes
-Editor-in-Chief Candice K. Silversides, MD (University Health Network, University of Toronto). Original Research is capped at **5,000 words** (including text, references, and figure legends) with a **structured 250-word abstract using Background / Objectives / Methods / Results / Conclusions**. State-of-the-Art Reviews and Expert Panels permit ≤10,000 words with an unstructured 150-word abstract; Brief Reports ≤1,200 words and Research Letters ≤1,000 words, each capped at 1 simple figure/table. References use **Vancouver superscript numerals** with "list all authors if 6 or fewer, otherwise list the first 3 and add et al." (journal titles italicized). The Guide for Authors does not display a journal-specific AI policy; Elsevier publisher-level policy applies — AI cannot be listed as an author, AI use in writing must be disclosed in a dedicated declaration immediately before the references, and AI may not be used to create or alter images. Submission portal: https://www.jaccsubmit-advances.org. As of 2026-05-20 the journal is not yet indexed for an Impact Factor (Web of Science indexing pending) — use it for novel framework applications where AHA-aligned editorial assessment is helpful and a global open-access audience matters more than IF.
+Editor-in-Chief Candice K. Silversides, MD (University Health Network, University of Toronto). Original Research is capped at **5,000 words** (including text, references, and figure legends) with a **structured 250-word abstract using Background / Objectives / Methods / Results / Conclusions**. State-of-the-Art Reviews and Expert Panels permit ≤10,000 words with an unstructured 150-word abstract; Brief Reports ≤1,200 words and Research Letters ≤1,000 words, each capped at 1 simple figure/table. References use **Vancouver superscript numerals** with "list all authors if 6 or fewer, otherwise list the first 3 and add et al." (journal titles italicized). The Guide for Authors does not display a journal-specific AI policy; Elsevier publisher-level policy applies — AI cannot be listed as an author, AI use in writing must be disclosed in a dedicated declaration immediately before the references, and AI may not be used to create or alter images. Submission portal: https://www.jaccsubmit-advances.org. As of 2026-05 the journal is not yet indexed for an Impact Factor (Web of Science indexing pending) — use it for novel framework applications where AHA-aligned editorial assessment is helpful and a global open-access audience matters more than IF.
 
 
 ---
 
 ## Verification
 - **Source:** https://www.sciencedirect.com/journal/jacc-advances/publish/guide-for-authors
-- **Date (harvested from private profile):** 2026-05-20
+- **Date (harvested from a local profile library):** 2026-05
 - **Date (promoted to public):** 2026-05-21

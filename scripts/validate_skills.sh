@@ -351,10 +351,25 @@ for skill_dir in "${SKILL_DIRS[@]}"; do
   # that prove the PII detectors fire. `deidentify` needs Korean PHI shapes
   # (resident-registration numbers, phone numbers, addresses) and `contribute`
   # needs a message that leaks an author's address, so that each skill's scanner
-  # can be shown catching them. Both are fully synthetic — verified name by name
-  # when this exemption was written — and neither ships (tests/ is excluded from
-  # the distribution bundle). Every other rule still applies to them; only this
+  # can be shown catching them. Every other rule still applies to them; only this
   # one is skipped, and only for these two paths.
+  #
+  # This note used to carry two further claims, and a 2026-08-15 audit found BOTH false:
+  #
+  #   "Both are fully synthetic." The names, national IDs, addresses and hospital ARE
+  #   invented. A journal submission ID in the `contribute` fixture was not — it belonged
+  #   to a manuscript the maintainer had actually reviewed. The verification behind the
+  #   word "synthetic" had been done name by name, and the ID is not a name, so it was
+  #   never in scope. State what a check covered, not what it felt like it covered.
+  #
+  #   "Neither ships (tests/ is excluded from the distribution bundle)." True of the
+  #   classroom ZIP. FALSE of the npm package, which ships `skills/**/tests/`. The claim
+  #   was written from one distribution channel and asserted over all of them.
+  #
+  # An exemption is a place where nothing downstream will check the reasoning, so the
+  # reasoning has to be checked here. Anything added to this list is exempt from the
+  # scanner AND from the review the scanner would have prompted. Verify the claim you
+  # write, against every channel, before adding a path below.
   PII_FIXTURE_PATHS='^skills/deidentify/tests/test_phi_[a-z]+\.csv$|^skills/contribute/tests/test_contribution_safety\.sh$'
   for f in "${integrity_files[@]}"; do
     rel_f="${f#$REPO_ROOT/}"

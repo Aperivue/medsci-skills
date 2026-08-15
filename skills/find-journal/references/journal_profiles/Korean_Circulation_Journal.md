@@ -34,5 +34,5 @@ Editor-in-Chief In-Ho Chae, MD, PhD. Original Research capped at **5,000 words**
 
 ## Verification
 - **Source:** https://e-kcj.org/index.php?body=instructions
-- **Date (harvested from private profile):** 2026-05-20
+- **Date (harvested from a local profile library):** 2026-05
 - **Date (promoted to public):** 2026-05-21
