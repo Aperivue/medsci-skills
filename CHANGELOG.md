@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [5.25.0] - 2026-08-17
+
 ### Added
 
 - **`/obsidian-paper-vault` — a folder of PDFs becomes an Obsidian vault.** The reference
