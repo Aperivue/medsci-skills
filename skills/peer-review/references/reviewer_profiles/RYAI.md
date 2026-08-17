@@ -57,10 +57,9 @@ The Daily-practice field is easily left as Yes by a portal default selection or 
 **Verified against:** the live form, rendered. Last updated: 2026-08.
 
 This section previously listed four options as fact, including **"Accept with Minor Revision"**.
-That label **is not on the form.** A reviewer was told to select it, reached the portal, and had
-to report back what the form actually said. The list below records only what has been read off a
-rendered form; the remaining labels have not been transcribed and are deliberately left blank
-rather than guessed.
+That label **is not on the form.** The list below records only what has been read off a rendered
+form; the remaining labels have not been transcribed and are deliberately left blank rather than
+guessed.
 
 - The form presents **six** options, not four.
 - The minor-revision tier is **two separate options**, not one:
