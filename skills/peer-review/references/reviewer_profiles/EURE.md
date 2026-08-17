@@ -38,12 +38,12 @@ Use INSI-style base; substitute journal name and scorecard fields when confirmed
 
 ## Confirmed Form Fields
 
-**Verified against:** two submitted-review confirmation PDFs, rounds R1 and R2. Last updated: 2026-08-06.
+**Verified against:** a completed review form. Last updated: 2026-08.
 
 This list previously said "from a recent reviewer invitation", and that was the defect: an
 invitation advertises the review, it is not the form you fill in. One field carried over from it —
 **ORCID Reviewer Credit** — does not exist on the scorecard at all (zero occurrences of the string
-in either confirmation PDF; it is an account-level setting). It had been copied into a submission
+on the form; it is an account-level setting). It had been copied into a submission
 checklist as a field to answer before the PDFs were compared.
 
 Editorial Manager scorecard differs from INSI H/M/L base. Actual fields:

@@ -31,7 +31,7 @@ expensive, and it has now happened twice on two different journals.
   reviewer was told to pick the non-existent option and had to report back from the portal. Filed,
   then observed a second time two weeks later, still uncorrected.
 - Another profile listed **ORCID Reviewer Credit** under *Confirmed Form Fields*. It is not a
-  scorecard field at all — zero occurrences in either round's confirmation PDF; it is an
+  scorecard field at all — zero occurrences on the form; it is an
   account-level setting. It reached a submission checklist as a field to answer.
 
 Both entries came from the same place: **a review invitation, or the author guidelines.** An
@@ -43,9 +43,14 @@ nothing in this directory used to say so.
 1. **Source of truth is a completed form or its confirmation PDF** — never the invitation, never the
    author guidelines. Guidelines describe the journal's policy; the form is the journal's software.
 2. **Every form-field list carries an evidence pointer**, or it may not be called *confirmed*:
-   `Verified against {R1/R2/…} confirmation PDF, {YYYY-MM-DD}`. **Date and round only — never the
-   manuscript ID** (Design Principle 3: the set of manuscripts a reviewer has handled can identify
-   the reviewer).
+   `Verified against a completed review form, {YYYY-MM}`. **Evidence class and month only.**
+   Never the manuscript ID, and — added 2026-08-17 — never the round, the count, or the day.
+   Design Principle 3 says the set of manuscripts a reviewer has handled can identify the
+   reviewer; so does the set of *reviews*. A round number and a day-precision date say how many
+   reviews were done and when, which is a reviewing timeline, and correlating five profiles
+   rebuilds it. Worse, a day-precision date is a join key: an ID scrubbed from this file survives
+   in already-published package versions, and a shared date links the two back together. The month
+   carries the staleness signal a date exists for; nothing else here needs to.
 3. **A confirmation PDF cannot verify a dropdown.** It carries no form widgets, so the *contents* of
    a recommendation or rating menu are not recoverable from it. Verifying an option list means
    rendering the live page as an image. Until that is done, mark the list partially verified and

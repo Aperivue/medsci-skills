@@ -3563,13 +3563,13 @@
     },
     {
       "path": "skills/peer-review/references/reviewer_profiles/EURE.md",
-      "size": 2934,
-      "sha256": "b5adbd2bc617efe3500daf12df03ca2d06ce66265a663541a71e6c29decdc94f"
+      "size": 2883,
+      "sha256": "f39641698ebeec91328872ada36d7c06c9c838bb9857a915d7635e599f2dce04"
     },
     {
       "path": "skills/peer-review/references/reviewer_profiles/INSI.md",
-      "size": 1872,
-      "sha256": "4a933d32363ad566f2054c740c9c93bc1cc3a8e924f3b050ce59dc9408e3c2f5"
+      "size": 1870,
+      "sha256": "70d73a0b51ce3e15bcc0ccd9a3a9379c9e6d3a4fe03eba8777dd9cc495245d8a"
     },
     {
       "path": "skills/peer-review/references/reviewer_profiles/KJR.md",
@@ -3578,13 +3578,13 @@
     },
     {
       "path": "skills/peer-review/references/reviewer_profiles/README.md",
-      "size": 4752,
-      "sha256": "470b0bbd324f7203c3cef4805283ff32599e7936bb78234ab78ca2ab7ac39730"
+      "size": 5254,
+      "sha256": "6bd85fecf935552a53e5d64797e0381a6af27765c7f2c28faa79773a2f96a1b4"
     },
     {
       "path": "skills/peer-review/references/reviewer_profiles/RYAI.md",
-      "size": 4813,
-      "sha256": "a23c19c19261305f7f088ca4235e5385ab715b28f1d33c41d01753a6ad39289c"
+      "size": 4776,
+      "sha256": "144f9fb659961827ce34db79c7f5335097296530000edd029d291b756c0f9b01"
     },
     {
       "path": "skills/peer-review/scripts/check_pdf_injection.py",
