@@ -12,7 +12,7 @@ Rating scale: High / Medium / Low
 1. Interest
 2. Innovation
 3. Importance
-4. Language editing — categorical. Editorial Manager dropdown labels (verified against an R1 confirmation PDF, 2026-05-16): "No (minor)" / "Yes (minor)" / "Yes (major)". The profile previously listed these as "No minor editing needed" / "Yes minor editing needed" / "Yes major editing needed"; the portal uses the parenthesized short form. Semantics: "No (minor)" = best/most favorable (well written, only minor polish possible); "Yes (minor)" = minor editing needed; "Yes (major)" = major editing needed.
+4. Language editing — categorical. Editorial Manager dropdown labels (verified against a completed review form, 2026-05): "No (minor)" / "Yes (minor)" / "Yes (major)". The profile previously listed these as "No minor editing needed" / "Yes minor editing needed" / "Yes major editing needed"; the portal uses the parenthesized short form. Semantics: "No (minor)" = best/most favorable (well written, only minor polish possible); "Yes (minor)" = minor editing needed; "Yes (major)" = major editing needed.
 
 ## Additional Required Fields
 

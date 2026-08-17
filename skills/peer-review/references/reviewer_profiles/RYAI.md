@@ -54,7 +54,7 @@ The Daily-practice field is easily left as Yes by a portal default selection or 
 ## Recommendation Options
 
 **⚠ PARTIALLY VERIFIED — transcribe the list from the form before you use it.**
-**Verified against:** the live form, rendered (one R1 and one later invitation). Last updated: 2026-08-05.
+**Verified against:** the live form, rendered. Last updated: 2026-08.
 
 This section previously listed four options as fact, including **"Accept with Minor Revision"**.
 That label **is not on the form.** A reviewer was told to select it, reached the portal, and had
