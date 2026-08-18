@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Regression test for the claim-vs-artifact cross-check (self-review Phase 2.5f).
 # Synthetic fixture reproduces: (a) a primary re-designated at manuscript stage,
-# (b) an E-value (2.79) that does not recompute from its stated primary HR 1.34,
+# (b) an E-value (3.10) that does not recompute from its stated primary HR 1.52,
 # (c) a correctly-arithmetic E-value attached to a non-primary (cancer) estimate.
 # Stdlib-only (python3).
 set -u
@@ -30,7 +30,7 @@ python3 "$SCRIPT" --manuscript "$MAN" --prereg "$PRE" --out "$OUT" --strict >/de
 check "exit 1 under --strict (Major present)" test "$?" -eq 1
 check "JSON artifact written" test -s "$OUT"
 check "PRIMARY_REASSIGNED detected"  has_verdict PRIMARY_REASSIGNED
-check "EVALUE_ARITHMETIC detected (2.79 vs HR 1.34)" has_verdict EVALUE_ARITHMETIC
+check "EVALUE_ARITHMETIC detected (3.10 vs HR 1.52)" has_verdict EVALUE_ARITHMETIC
 check "EVALUE_NON_PRIMARY detected (cancer sHR)"     has_verdict EVALUE_NON_PRIMARY
 
 # Clean case: primary matches prereg, correct primary E-value, no reassignment.
@@ -41,7 +41,7 @@ cat > "$CLEAN" <<'EOF'
 The primary analysis was the association between emphysema and all-cause mortality
 in the complete-case multivariable Cox model.
 ## Results
-The E-value for the primary association (HR 1.34) was 2.02.
+The E-value for the primary association (HR 1.52) was 2.41.
 EOF
 python3 "$SCRIPT" --manuscript "$CLEAN" --prereg "$PRE" --strict >/dev/null 2>&1
 check "exit 0 on clean manuscript (matching primary, correct E-value)" test "$?" -eq 0
@@ -59,7 +59,7 @@ in the complete-case multivariable Cox model. Using the multiple-imputation mode
 the estimation approach was a manuscript-stage analytical decision, disclosed here and
 reported coequally with the pre-specified complete-case analysis.
 ## Results
-The E-value for the primary association (HR 1.34) was 2.02.
+The E-value for the primary association (HR 1.52) was 2.41.
 EOF
 python3 "$SCRIPT" --manuscript "$DISC" --prereg "$PRE" --out "$OUT" --strict >/dev/null 2>&1
 check "exit 0 on honest manuscript-stage disclosure (advisory, not Major)" test "$?" -eq 0

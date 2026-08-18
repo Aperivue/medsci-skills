@@ -68,7 +68,7 @@ Before opening the extraction form: if a senior mentor or collaborator has share
 - Record any reconciled discrepancy in `extraction_consensus_log.md` with a verbatim quote of the AI-draft value and the corrected value with PDF page coordinate.
 - Trust hierarchy for this phase: **SSOT (source PDF + own analysis stdout) > mentor's direct text (email / track-changes) > attached AI-draft**. Do not promote an AI-draft from tier 3 to tier 2.
 
-Precedent (an active meta-analysis project): Ishikawa 2017 "treatment support 5/70 vs no support 12/33" in Claude-drafted directive → source PDF was 35/68 (single arm). Verbatim absorption would have produced a denominator-hallucinated meta-analysis.
+The failure it prevents: an AI-drafted directive presents a study as a two-arm comparison ("x/n vs y/m") when the source PDF reports a single arm with a different denominator entirely. Verbatim absorption would produce a denominator-hallucinated meta-analysis.
 
 #### 4.0.1 AI-assisted extraction suggestions (optional, suggestions not decisions)
 

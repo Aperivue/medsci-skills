@@ -158,6 +158,36 @@ MedSci Skills is public. Do not include:
 
 The validator blocklist is intentionally conservative. If it catches a false positive, explain the case in the pull request rather than bypassing the check silently.
 
+### Ship the mechanism, keep the coordinates out
+
+A gate here is expected to say which failure it exists for — a detector validated only against
+fixtures authored beside it has no severity, and naming the failure is what gives it any. That is
+worth keeping. What does not belong in a public file is the arithmetic identifying **which paper**
+the failure happened to.
+
+The blocklist cannot help you here: it matches tokens — names, IDs, paths, emails — and a sentence
+like *"the revision came back 613 words longer and it took three rounds"* contains none. It is
+still the most identifying line on the page, because those numbers occur in exactly one manuscript.
+
+So write the precedent as a **failure pattern**, in the present tense, with the mechanism intact
+and the coordinates removed:
+
+| Keep | Drop |
+|---|---|
+| What goes wrong, and why the obvious check misses it | Word counts, version labels (`v18`, `v2.0.38`), before/after count pairs |
+| The study type, when it changes the failure | Effect sizes, p-values, E-values, κ, AUC from a real analysis |
+| Which artifacts disagree with which | Round numbers, reviewer counts, dates, journal names |
+| The detection move that finds it | An outcome — accepted, rejected, withdrawn, desk-rejected |
+
+Two more places the coordinates travel to, both easy to miss:
+
+- **Test fixtures.** A fixture that reuses a real effect-size pair publishes it. Renumber it — but
+  preserve the property the fixture exists to test (a planted arithmetic error must stay wrong),
+  and re-run the owning test afterwards to prove the detector still fires.
+- **Commit messages and PR bodies.** These are separate storage from the file. A commit that
+  removes a line and then quotes it in its own message has published it, and neither is
+  editable afterwards. Describe the class, never the string.
+
 ## Language Policy
 
 MedSci Skills is **English-canonical**. Write skill mechanics and prose in English so that any

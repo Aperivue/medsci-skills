@@ -94,7 +94,7 @@ the locked extraction CSV. The resulting numbers then flow into the response let
 revised manuscript, and regenerated figures, and they can be internally consistent everywhere
 while still being wrong at the source.
 
-**Precedent failure pattern — treat as a lived failure, not hypothetical:**
+**The failure pattern — treat as a lived failure, not hypothetical:**
 > An R1 revision introduced a new comparative-arm analysis script to answer a reviewer
 > request. The Fisher exact matrix was hand-typed from the primary source Table, with an
 > adjacent severity-grade column misread as the event count. The script, the revised

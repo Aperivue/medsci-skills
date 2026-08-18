@@ -10,7 +10,7 @@ estimate was found to be more favourable.
 ## Results
 
 In the primary model, emphysema was not associated with all-cause mortality. The
-E-value for the primary association (HR 1.34) was 2.79, which we interpret as robust
+E-value for the primary association (HR 1.52) was 3.10, which we interpret as robust
 to unmeasured confounding.
 
 In an exploratory analysis, the E-value for the cancer-specific subdistribution hazard

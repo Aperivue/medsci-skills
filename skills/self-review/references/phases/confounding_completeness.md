@@ -19,11 +19,11 @@ deterministic gate so the finding lands without the `--panel` cost.
 cross-sectional, health-screening registry) and the central claim is an
 adjusted exposure–outcome association. Skip for RCTs and descriptive studies.
 
-**Precedent failure pattern:**
+**The failure pattern:**
 > A cross-sectional screening-cohort manuscript reported an adjusted association
-> while Table 1 showed uric acid, smoking pack-years, HDL, total cholesterol, and
-> HbA1c all significantly imbalanced across the exposure groups — none of which
-> were in the age/sex/BMI/hypertension/diabetes adjustment set. The single-pass
+> while Table 1 showed several laboratory and lifestyle covariates significantly
+> imbalanced across the exposure groups — none of which were in a
+> demographic-and-comorbidity adjustment set. The single-pass
 > review passed it; only an epidemiology panel reviewer who read the Table 1 CSV
 > against the Methods caught the gap. After refitting with extended adjustment the
 > primary estimate held, but the manuscript had claimed robustness it had not shown.

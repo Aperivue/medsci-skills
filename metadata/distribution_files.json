@@ -1293,8 +1293,8 @@
     },
     {
       "path": "skills/fill-icmje-coi/SKILL.md",
-      "size": 9997,
-      "sha256": "033425065ed9a7429b071e6e2310fdf0666a8a3993a448eb53c9f239c578dc12"
+      "size": 9954,
+      "sha256": "8aa0c34d18e197b0b21ec35c6e53e40c8f5ca3b610ae801441352b99be6968f6"
     },
     {
       "path": "skills/fill-icmje-coi/scripts/fill_icmje_coi.py",
@@ -1933,8 +1933,8 @@
     },
     {
       "path": "skills/intake-project/SKILL.md",
-      "size": 8531,
-      "sha256": "8e4edebfb2b971edf69289d62b4c880321ed2ef9c4f2480c0788ebba9c08ebfc"
+      "size": 8479,
+      "sha256": "c65caf5bcdc53d522c049ea7cb3a48faa8bf2f11bd6a440794d3c4077e951a92"
     },
     {
       "path": "skills/intake-project/skill.yml",
@@ -2698,8 +2698,8 @@
     },
     {
       "path": "skills/meta-analysis/SKILL.md",
-      "size": 47005,
-      "sha256": "7d9c05842e8835ee72afc71d8f87beb5a3dcab799d3e11965c60edbbc8c67d0d"
+      "size": 46945,
+      "sha256": "ad348da8d8ea24843239ddf7f2e4455101d18ffca23281d1c48e8c3e3ad79487"
     },
     {
       "path": "skills/meta-analysis/references/LICENSES.md",
@@ -2783,8 +2783,8 @@
     },
     {
       "path": "skills/meta-analysis/references/phase4_extraction_detail.md",
-      "size": 11216,
-      "sha256": "ab7a10591f6c6c49e70ad6ba68061fcb5ed0d9435b8fdb8746f7042e31a39220"
+      "size": 11224,
+      "sha256": "d6888235230a53ecc829dd73ef48dfa561cb71467d794a2f6896b486d1787051"
     },
     {
       "path": "skills/meta-analysis/references/phase4_km_composite.md",
@@ -3623,8 +3623,8 @@
     },
     {
       "path": "skills/peer-review/scripts/check_review_boxes.py",
-      "size": 8897,
-      "sha256": "5ddf3ea77569a6ad6b22e7b6ee1a912f9ea36c1c147f7f61cfdf4b2b4d3afcb9"
+      "size": 8941,
+      "sha256": "9ff6d2a02191e9a7dafa039ce5d3b37d7b7395960c59f89e779caab38bd9e94c"
     },
     {
       "path": "skills/peer-review/scripts/check_review_length.py",
@@ -4258,8 +4258,8 @@
     },
     {
       "path": "skills/revise/SKILL.md",
-      "size": 32218,
-      "sha256": "2d207cbad97f2b725d4ddb42d0f23c9fecb805163eb5c31148b30ea465549a0f"
+      "size": 32212,
+      "sha256": "4733786ab5f53316d041ec8ec721ad05a41c9e0366856d1622189ba3132984c2"
     },
     {
       "path": "skills/revise/references/r2r_voice.md",
@@ -4544,7 +4544,7 @@
     {
       "path": "skills/self-review/references/exemplar_findings/estimand_drift_posthoc_primary.md",
       "size": 2179,
-      "sha256": "44dba78272478ff96e0edaee1837832ed9367be00a829dfc4395b6f18816fda6"
+      "sha256": "e9f41030329aa02b6bc3db7910fa26e57f59c8c0ae75349bf3df64a4d996248d"
     },
     {
       "path": "skills/self-review/references/exemplar_findings/over_adjustment_collider.md",
@@ -4573,18 +4573,18 @@
     },
     {
       "path": "skills/self-review/references/phases/confounding_completeness.md",
-      "size": 5344,
-      "sha256": "051f2b066d2d708b161c1e97d666d9e214d128f1413a9c4822f0333e748bda14"
+      "size": 5305,
+      "sha256": "23101938c07c6d8d5ac14e81c007db35b3b4d5e7922238cf6e36fd719565b629"
     },
     {
       "path": "skills/self-review/references/phases/phase2_5a2_design_power.md",
-      "size": 4353,
-      "sha256": "2df5c97fcbb77fb867fd24b116b5e8349f218e3abf5221c4282157f7b2475470"
+      "size": 4301,
+      "sha256": "79183f2ffe7e53733c2680fbb2c00a102538bd2902d49e18314d7e2f1de390ec"
     },
     {
       "path": "skills/self-review/references/phases/phase2_5a_source_fidelity.md",
-      "size": 5989,
-      "sha256": "565eb2ee2f2eaa0be92f04ab2781c5b3ede5d716c9e5caa40b1fea82f87b53ff"
+      "size": 5983,
+      "sha256": "bd781081c756c439bc0f1207adafeab43e3fa8d03a06c3cf8ed459b7805a0297"
     },
     {
       "path": "skills/self-review/references/phases/phase2_5b_screening_counts.md",
@@ -4603,8 +4603,8 @@
     },
     {
       "path": "skills/self-review/references/phases/phase2_5f_claim_artifact.md",
-      "size": 12382,
-      "sha256": "c4e83d109e67ca331de1c1f0ee514457426d2be6c6a4fbe56ed0be2a6fc45b25"
+      "size": 12351,
+      "sha256": "dad54cf52b05507df05e48346e0b2aec78c7239ff91f370b8be6c4d71f762b2d"
     },
     {
       "path": "skills/self-review/references/phases/phase2_6_panel.md",
@@ -4999,7 +4999,7 @@
     {
       "path": "skills/self-review/scripts/check_paren_spans.py",
       "size": 6462,
-      "sha256": "bb6ba881fba0c026cae4087d954e6f954be9c9325bfaa4210e4d7ff02310524d"
+      "sha256": "62f44ba1dd11dc4e396b94fe16f82a2d9dd4cae4554d2e7d119aadea9713cc06"
     },
     {
       "path": "skills/self-review/scripts/check_perspective_structure.py",
@@ -6303,8 +6303,8 @@
     },
     {
       "path": "skills/write-paper/references/phase7_integrity_audits.md",
-      "size": 12540,
-      "sha256": "53adeb794576bc580bd34b0173b14cf2483396e25cde12051903145426fd91e3"
+      "size": 12521,
+      "sha256": "9c0ea2eb972af505101c90af5a4bca6ce442ec6bdfc90b2b7ec9b9c4164f60d6"
     },
     {
       "path": "skills/write-paper/references/phase7_polish_detail.md",
