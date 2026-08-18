@@ -218,11 +218,11 @@ is easiest to lose in a systematic review, where you read each paper *in order t
 An item asking "are the results clearly reported?" is not asking "were they reported in the unit my
 pool needs".
 
-A reviewer scoring a case-series quality tool marked four papers down on the outcome-reporting item
-because their analysis unit did not match the pool's — treatment-level results against a
-patient-level denominator. A second assessor's correction was one sentence, *that is a limit of our
-extraction, not a defect in their reporting*, and all four scores went back up. Single-scorer
-appraisal is where this happens, because there is nobody to say it.
+A scorer working a case-series quality tool marks a paper down on the outcome-reporting item
+because its analysis unit does not match the pool's — treatment-level results against a
+patient-level denominator. The correction is one sentence, *that is a limit of our extraction, not
+a defect in their reporting*, and the score goes back up. Single-scorer appraisal is where this
+happens, because there is nobody to say it.
 
 So: if a downgrade's stated reason turns on a **denominator, an analysis unit, a subgroup you needed
 and they did not report separately, or a format you could not parse**, it is an extraction note, not

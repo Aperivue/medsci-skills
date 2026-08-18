@@ -4,9 +4,9 @@ Several `--manuscript` detectors in this skill roll their own body extractor tha
 lines starting with `#`, `|`, `>`, `!`, list markers and code fences. A `---`-fenced YAML
 front-matter block matches none of those, so the `status:`, changelog and build-note lines
 that projects keep at the top of a pandoc manuscript were read as body prose. Two shipped
-detectors fired on it on a live submission: `check_citation_order` reported floats "cited out
-of order" from a `status:` block narrating a display-item renumber, and `check_aphorism_density`
-listed build notes among the manuscript's "very short declaratives".
+detectors fired on it: `check_citation_order` reported floats "cited out of order" from a
+`status:` block narrating a display-item renumber, and `check_aphorism_density` listed build
+notes among the manuscript's "very short declaratives".
 
 `strip_frontmatter` removes exactly the pandoc/YAML front-matter block: an opening `---` fence
 on the FIRST line and its matching closing `---` fence. If the first line is not a fence, or the

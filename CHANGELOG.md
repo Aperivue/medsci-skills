@@ -2619,10 +2619,10 @@ below; the release does not wait the usual 14 days because a wrong result is alr
 ### Added
 
 - **`check_density_complaint` (detector 66 -> 67, `/revise`): "too dense" is the one comment you
-  cannot address by adding text.** A DTA meta-analysis was told by four reviewers it was too dense;
-  the point-by-point revision answered each comment by adding a sentence and came back **613 words
-  longer**, every named term higher than before. It took three rounds to land 733 words below where
-  it started. The detector is arithmetic: if the decision letter carries a density/length complaint
+  cannot address by adding text.** A point-by-point revision answers each density comment by adding
+  a sentence and comes back **longer** than the version that drew the complaint, every named term
+  higher than before, and the shrink the letter asked for slips another round away. The detector is
+  arithmetic: if the decision letter carries a density/length complaint
   AND the revised body (Introduction through Discussion, citation markers excluded) did not shrink,
   it fires `DENSITY_COMPLAINT_UNADDRESSED`. With no complaint it stays silent — it is not a
   "shorter is always better" nag. Ships a challenge card reproducing the v_prev -> longer -> shorter
@@ -5254,7 +5254,7 @@ Resolves the meta-analysis project → medsci-skills handoff P1+P2.
 
 New 3-way audit catches the failure mode where in-text Table/Figure citations resolve to a different rendered caption because the build script carries its own legacy SSOT. Internal consistency (Phase 2.5) cannot detect it — both the prose and the build artifact echo their own divergent truths cleanly.
 
-**Precedent:** in a STROBE cohort manuscript, the body cited "Supp Table S4 (sensitivity analysis)" but the rendered DOCX S4 was a different table; S1, S6, S7 mismatched and S8, S9 were cited but absent from the DOCX entirely. Caught only on co-author circulation review.
+**The failure pattern:** the body cites a supplementary table as a sensitivity analysis while the rendered DOCX carries a different table under that number, further supplement numbers mismatch the same way, and some are cited but absent from the DOCX entirely. Caught only on co-author circulation review.
 
 - `skills/write-paper/scripts/check_xref.py` — extracts (a) `(Supplementary )?(Table|Figure)\s+(S?\d+[A-Z]?)` in-text citations, (b) caption definitions from `## Tables` / `## Figures` / `## Supplementary {Tables,Figures}` body sections, (c) rendered DOCX caption paragraphs via python-docx. Emits `qc/xref_audit.json` with status codes `OK | MISSING_DOCX | MISSING_BODY | MISMATCH | UNCITED | NOT_CITED_NO_BODY`. Caption agreement via Jaccard ≥0.40. Panel-letter fallback (`Figure 2A` cite resolves to `Figure 2` caption). `--strict` exits 1 on any P0 finding.
 - `/write-paper` Step 7.6a (new) — runs after Step 7.6 DOCX build, before Step 7.7 final gate. Submission gate; HALT pipeline on non-OK. Routing table for fixes by symptom (body update vs build-script update) — body caption is the SSOT, never the reverse.

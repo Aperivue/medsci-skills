@@ -1,21 +1,21 @@
 #!/usr/bin/env python3
 """"Your paper is too dense" is the one comment you cannot address by adding text.
 
-A real revision, measured straight out of the .docx files of a DTA meta-analysis:
+The failure this gate catches, in the shape it takes:
 
-    v18  submitted       7,172 words  ->  four reviewers: "too dense / shorten / move to supplement"
-    v20  THE revision    7,785 words  ->  +613.  Every named term went UP (kappa 5->6, Deeks 10->11)
-         answering those                    because each comment was answered point-by-point, and
-         comments                           point-by-point response REWARDS adding text.
-    v21  proof revision  6,439 words  ->  -1,346 (733 below the original).  <- the accepted version.
+    previous   as the reviewers saw it  ->  "too dense / shorten / move to supplement"
+    revised    THE revision answering   ->  LONGER.  Every named term goes UP, because each
+               those comments               comment is answered point-by-point, and point-by-point
+                                            response REWARDS adding text.
+    next       the cut version          ->  below where it started.  <- what the letter asked for.
 
-Answering "your text is too dense" comment-by-comment made it denser. It took three rounds to do
-what four reviewers asked in round one, because point-by-point culture rewards showing you addressed
-each comment — and length is the one comment adding text cannot address.
+Answering "your text is too dense" comment-by-comment makes it denser, because point-by-point
+culture rewards showing you addressed each comment — and length is the one comment adding text
+cannot address. The shrink then slips another round away.
 
 This gate is pure arithmetic. If the reviewer comments contain a density/length complaint AND the
 revised manuscript body did not get SHORTER than the previous version, the complaint was not
-addressed — it was made worse. It fires on v20 immediately, and stays silent on v21.
+addressed — it was made worse. It fires on the longer revision immediately, and stays silent on the cut one.
 
 It reads:
   --comments   the reviewer decision letter (where the complaint lives)
@@ -178,10 +178,10 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"  reviewer: {c}")
             print(
                 "\n'Too dense' is the one comment you cannot address by adding text, and point-by-point\n"
-                "response rewards adding it. Answering each density comment individually made the last\n"
-                "manuscript that hit this LONGER by 613 words; the accepted version was 733 words below\n"
-                "where it started. Cut, or move detail to the supplement — do not defend length by\n"
-                "adding a paragraph that explains it."
+                "response rewards adding it: answering each density comment individually is how a\n"
+                "revision comes back longer than the version that drew the complaint. Cut, or move\n"
+                "detail to the supplement — do not defend length by adding a paragraph that explains\n"
+                "it."
             )
     return 1 if (fired and a.strict) else 0
 

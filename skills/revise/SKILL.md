@@ -397,10 +397,10 @@ human to eyeball and do **not** fail `--strict`; only a genuinely absent quote d
 
 **If a reviewer called the manuscript too long or too dense, prove the body got shorter.** Answering
 a density comment point-by-point is a trap: each point is answered by adding a sentence, so the
-revision that responds to "shorten this" comes back *longer*. One real revision did exactly that —
-four reviewers said too dense, the point-by-point answer added 613 words, and it took three rounds
-to land at 733 words below where it started. This gate is arithmetic: if the decision letter
-contains a density/length complaint and the revised body did not shrink, it fires.
+revision that responds to "shorten this" comes back *longer*. Revisions do exactly that: the
+point-by-point answer adds words, the shrink the letter asked for slips another round away, and
+nothing in the response letter records that it happened. This gate is arithmetic: if the decision
+letter contains a density/length complaint and the revised body did not shrink, it fires.
 
 ```bash
 python3 ${CLAUDE_SKILL_DIR}/scripts/check_density_complaint.py \

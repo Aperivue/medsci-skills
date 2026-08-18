@@ -210,9 +210,9 @@ document remains the human explanation. Three hard rules:
    from the consensus artifact altogether** — no adjudication was ever recorded. An exclusion is a
    decision; silence is a gap. Never let it settle into narrative-only (why: reference file).
 
-The set algebra, the reconciliation-table template, and the precedent (a manuscript shipped 32/10/46
-where the ID sets said 24/2/54, with four artifacts echoing the same unreconciled prose total) are
-in the reference file.
+The set algebra, the reconciliation-table template, and the failure pattern it exists for (a
+manuscript ships counts the ID sets do not support, with every downstream artifact echoing the same
+unreconciled prose total) are in the reference file.
 
 **3f.5 Pool composition lock (MANDATORY at adjudication freeze).** Once 3f passes, freeze the pool
 into a single source-of-truth YAML that every downstream artifact can be checked against:
