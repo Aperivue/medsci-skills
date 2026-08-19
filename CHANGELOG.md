@@ -5227,7 +5227,7 @@ Lessons from senior meta-analysis mentor circulation feedback promoted into glob
 - **Global rules (5 files)** under `~/.claude/rules/`:
   - `manuscript-style-classical.md` (new) — 11-item style policy: `## **METHODS**` heading, abstract sub-headers `**Objectives:**`, eligibility numbered list, no `§` symbol, no AI Disclosure paragraph in body, em-dash <25, Vancouver 6+ et al., ORCID one-per-line, table header punctuation, British/American per journal.
   - `senior-mentor-circulation.md` (new) — mandatory `8_Review_Comments/` folder layout, 1차 source preservation, 1:1 verification, mentor README (per-mentor preference accumulation).
-  - `ai-drafted-document-policy.md` (new) — verbatim absorption forbidden when senior mentors attach AI-drafted documents; `_DO_NOT_USE_VERBATIM` filename suffix mandatory; trust hierarchy SSOT > mentor direct text > AI-draft. Motivation: 2026-04-12 Ishikawa 2017 denominator hallucination (5/70 vs 12/33 → real 35/68).
+  - `ai-drafted-document-policy.md` (new) — verbatim absorption forbidden when senior mentors attach AI-drafted documents; `_DO_NOT_USE_VERBATIM` filename suffix mandatory; trust hierarchy SSOT > mentor direct text > AI-draft. Motivation: an AI-drafted directive presented a single-arm study as a two-arm comparison, with a denominator that did not exist in the source.
   - `data-integrity.md` — one-line augmentation cross-linking the AI-drafted policy.
   - `agent-skill-routing.md` — new "Cross-cutting 룰 (Manuscript / 회람)" table referencing the six rule files.
 
@@ -5241,7 +5241,7 @@ Lessons from senior meta-analysis mentor circulation feedback promoted into glob
 
 - **`/meta-analysis` Phase 4.0 — AI-drafted starting document gate**:
   - `skills/meta-analysis/SKILL.md` — new sub-step at the top of Phase 4 (Data Extraction) requiring `_DO_NOT_USE_VERBATIM` filename suffix and source-PDF re-verification of every per-study N, denominator, event count, and effect estimate carried over from a senior mentor's AI-drafted directive. Trust hierarchy: SSOT > mentor direct text > AI-draft (never promote tier 3 to tier 2).
-  - Cross-links `~/.claude/rules/ai-drafted-document-policy.md` (motivation: 2026-04-12 Ishikawa 2017 denominator hallucination caught at SSOT re-verification).
+  - Cross-links `~/.claude/rules/ai-drafted-document-policy.md` (motivation: a denominator hallucination in an AI-drafted directive, caught at SSOT re-verification).
 
 - **`/check-reporting prisma` Step 4d — PRISMA Figure 1 arithmetic & cross-reference audit**:
   - `skills/check-reporting/scripts/check_prisma_figure.py` (new) — extracts PRISMA numbers from manuscript body and Figure 1 source, runs 4 arithmetic equations (`screened = identified - duplicates`, etc.) and a body↔figure 1:1 cross-reference, emits `qc/prisma_figure_audit.json` + table. Exits 1 on any MISMATCH.
@@ -5517,8 +5517,8 @@ triggers even in non-skill workflows.
 A real incident during a revision run exposed that the citation-safety pipeline did not have
 a symmetric counterpart for numerical claims. Citations were verified end-to-end against
 PubMed (0 fabricated refs), while a hand-typed `matrix()` in a revision-era R script silently
-reversed a Fisher exact 2x2 ("3/45 vs 0/56, p=0.085" where the source said "0/45 vs 1/56,
-p=0.37"). Every internal consistency check passed because every artifact echoed the same
+reversed a Fisher exact 2x2, flipping the arm-level events and therefore the p-value relative
+to what the source Table recorded. Every internal consistency check passed because every artifact echoed the same
 wrong number. Detection required an explicitly requested second-pass audit with random
 sampling against the primary paper.
 

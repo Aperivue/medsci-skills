@@ -30,7 +30,7 @@ check and the source-fidelity audit above.
 
 3. **Recompute independently** with a standard tool, then classify:
    - **Not reproducible by any standard method** → likely a calculation error (Major; P0 if it
-     is a headline claim). This is the d = 1.67-vs-1.24 case above.
+     is a headline claim). This is the minimum-detectable-effect case above.
    - **Reproducible only by a method the committed script does not implement** (e.g. the
      manuscript value is noncentral-t but the script is a normal approximation) → provenance /
      method drift. The number may be correct, but update the committed code so it reproduces the
