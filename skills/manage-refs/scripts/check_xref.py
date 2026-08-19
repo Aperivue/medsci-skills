@@ -7,11 +7,11 @@ Supplementary Tables / Supplementary Figures point to labels that either
 the manuscript body, or (c) carry a caption text in the rendered DOCX
 that disagrees with the body's caption definition.
 
-Precedent: an STROBE cohort manuscript revision — body cited
-"Supp Table S4 (a sensitivity-analysis)" but the rendered DOCX S4 was
-a diagnostics table; S1, S6, S7 mismatched; S8, S9 cited but absent
-from DOCX. Internal consistency checks did not catch this because the
-build script carried its own legacy SSOT.
+The failure it catches: the body cites a supplementary table as a
+sensitivity analysis while the rendered DOCX carries a diagnostics table
+under that number, further numbers mismatch the same way, and some are
+cited but absent from the DOCX. Internal consistency checks do not catch
+this because the build script carries its own legacy SSOT.
 
 Inputs
 ------

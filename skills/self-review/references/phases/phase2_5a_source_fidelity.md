@@ -26,7 +26,7 @@ unrounded values. Fix: report components and the delta at one precision, or foot
 is computed on unrounded values. A higher-precision component pair (`0.703` vs `0.726`) with a 2-dp
 delta is the legitimate unrounded case and is not flagged.
 
-**Precedent failure pattern:**
+**The failure pattern:**
 > A revision-era comparative meta-analysis reported a safety-outcome 2x2 with the
 > arm-level events direction-reversed relative to the primary-source Table. Internal
 > consistency passed because Abstract, Discussion, Table, and the R script all echoed

@@ -217,9 +217,9 @@ Build the final submission-ready documents from the assembled components:
 Catches the failure mode where in-text Table/Figure citations resolve to the
 wrong rendered caption. Internal consistency (Phase 2.5 of `/self-review`)
 does NOT catch this because both the body prose and the build script can echo
-their own divergent SSOTs cleanly. Precedent: an STROBE cohort manuscript revision —
-body cited "Supplementary Table S4 (a sensitivity-analysis)" but the rendered DOCX S4
-was a diagnostics table; S1, S6, S7 mismatched and S8, S9 were cited but absent from
+their own divergent SSOTs cleanly: the body cites a supplementary table as a
+sensitivity analysis, the rendered DOCX carries a diagnostics table under that number,
+further supplement numbers mismatch the same way, and some are cited but absent from
 the DOCX entirely.
 
 **Run after Step 7.6 DOCX build and before Step 7.7 final gate:**

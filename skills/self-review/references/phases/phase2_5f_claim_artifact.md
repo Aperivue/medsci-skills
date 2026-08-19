@@ -16,13 +16,13 @@ value, deterministic instances; figure/flow-count reconciliation, Methods-promis
 analysis completeness, and imputation-input integrity are separate subchecks (run
 `/make-figures` legend reconciliation and `/write-paper`'s Methods-promised gate).
 
-**Precedent failure pattern:**
+**The failure pattern:**
 > A manuscript reported a null primary association from a multiple-imputation model
 > and described it as "pre-specified," while the registered primary had been the
 > complete-case model that was significant — the primary had been re-designated after
-> the results were known. In the same paper an E-value of 2.79 was attached to the
-> primary HR of 1.34, but 2.79 does not recompute from 1.34 (it came from a different,
-> non-primary estimate), and a second E-value bounded an exploratory cancer-specific
+> the results were known. In the same paper an E-value was attached to the primary
+> HR but does not recompute from it (it came from a different,
+> non-primary estimate), and a second E-value bounded an exploratory cause-specific
 > hazard, not the headline contrast. None of these tripped the internal-consistency
 > checks; all three are deterministic against the registration and the arithmetic.
 

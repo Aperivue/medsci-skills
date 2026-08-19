@@ -27,10 +27,11 @@ build script carries its own legacy SSOT. Internal consistency (Phase 2.5)
 cannot detect it — both the prose and the build artifact echo their own
 divergent truths cleanly.
 
-**Precedent failure pattern (an STROBE cohort manuscript revision):**
-> Body prose cited Supp Table S4 as a sensitivity analysis; the rendered DOCX
-> S4 instead contained a diagnostics table. S1, S6, S7 also mismatched. S8 and S9
-> were cited in the manuscript but absent from the rendered DOCX entirely.
+**The failure pattern:**
+> Body prose cites a supplementary table as a sensitivity analysis; under that
+> number the rendered DOCX carries a diagnostics table instead. Several further
+> supplement numbers mismatch the same way, and two more are cited in the
+> manuscript but absent from the rendered DOCX entirely.
 > Caught only on co-author circulation review.
 
 **When to run:** every manuscript at self-review when a rendered DOCX exists

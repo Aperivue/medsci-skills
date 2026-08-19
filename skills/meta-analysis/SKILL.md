@@ -210,9 +210,9 @@ document remains the human explanation. Three hard rules:
    from the consensus artifact altogether** — no adjudication was ever recorded. An exclusion is a
    decision; silence is a gap. Never let it settle into narrative-only (why: reference file).
 
-The set algebra, the reconciliation-table template, and the precedent (a manuscript shipped 32/10/46
-where the ID sets said 24/2/54, with four artifacts echoing the same unreconciled prose total) are
-in the reference file.
+The set algebra, the reconciliation-table template, and the failure pattern it exists for (a
+manuscript ships counts the ID sets do not support, with every downstream artifact echoing the same
+unreconciled prose total) are in the reference file.
 
 **3f.5 Pool composition lock (MANDATORY at adjudication freeze).** Once 3f passes, freeze the pool
 into a single source-of-truth YAML that every downstream artifact can be checked against:
@@ -378,10 +378,10 @@ setting. R and detail in the same reference:
 
 **Goal**: Catch numerical hallucinations that survived the forward pipeline (CSV → .R → manuscript).
 
-**Precedent failure pattern** — treat this as a lived near-miss, not hypothetical:
-> In a revision-era comparative meta-analysis, a safety outcome was reported as "3/45 vs
-> 0/56, p=0.085." The primary-source Table actually recorded "0/45 vs 1/56, p=0.37" —
-> direction reversed. The extraction CSV was correct; the R script's Fisher exact
+**The failure pattern** — treat this as a lived near-miss, not hypothetical:
+> A safety outcome is reported with its arm-level events, and therefore its p-value,
+> direction-reversed relative to what the primary-source Table actually recorded.
+> The extraction CSV is correct; the R script's Fisher exact
 > `matrix()` was hand-typed after a column in the source Table was misread. Internal
 > consistency checks passed because every downstream artifact (Abstract, Discussion,
 > Table, forest caption) echoed the same wrong number. The reversal was caught only on
@@ -432,9 +432,9 @@ setting. R and detail in the same reference:
    - The underlying means/SDs/counts will change even when the effect size looks similar; if the
      effect sizes are byte-identical while the inputs differ, that is the tell. Probability of ≥4
      independent values coinciding to 2 decimals by chance is ≈ (0.01)^4 — essentially zero.
-   - Precedent: a revision-era sensitivity analysis (1-voxel erosion) reported 8 effect-size values
-     (Cohen's dz + f across 4 VOIs) byte-identical to the primary tables while the means/SDs
-     differed — the erosion analysis had not actually been recomputed. Caught only by external QC.
+   - The failure it catches: a sensitivity analysis reports a block of effect-size values
+     byte-identical to the primary tables while the underlying means/SDs differ — the
+     sensitivity analysis was never actually recomputed. Internal consistency cannot see it.
 
 6. **A "fixed" / "resolved" audit note requires re-run evidence, not a claim.**
    - When a prior audit note records a number as `fixed`, `resolved`, or `corrected`, that status is

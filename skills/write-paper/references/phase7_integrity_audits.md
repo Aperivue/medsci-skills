@@ -13,7 +13,7 @@ the pipeline and route to **Step 7.4a (Audit Recovery Branch)**.
 Citation verification protects against fabricated references; this step protects against
 fabricated numbers. They are different failure modes and Step 7.3 does not catch the latter.
 
-**Precedent failure pattern:**
+**The failure pattern:**
 > A revision-era comparative meta-analysis reached Step 7.3 with 0 citation errors (all
 > PMIDs verified against PubMed) yet carried a silent numerical reversal on a safety
 > outcome — the reported arm-level events were direction-flipped relative to the primary
@@ -33,11 +33,11 @@ fabricated numbers. They are different failure modes and Step 7.3 does not catch
   and percentages. The matrix cells are the authoritative source; headline numbers are
   derivations and must be recomputed from cells via code before prose drafting.
 
-**Precedent failure pattern for the reporting-quality trigger:**
-> A reporting-quality systematic review reported corpus PRESENT at ~61% in v1.0; cell-level
-> recomputation on v1.1 produced ~51% (delta ~10 percentage points). The error survived
+**The failure pattern for the reporting-quality trigger:**
+> A reporting-quality systematic review reports a corpus PRESENT percentage that cell-level
+> recomputation later moves by roughly ten percentage points. The error survives
 > internal consistency because every downstream table, figure caption, and abstract
-> sentence echoed the hand-tallied v1.0 total. Recomputation from matrix cells — not from
+> sentence echoes the same hand-tallied total. Recomputation from matrix cells — not from
 > hand-tallied per-study totals — is the only reliable source for headline numbers.
 
 **Procedure:**

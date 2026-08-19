@@ -16,7 +16,7 @@ Reporting.
 > report both models coequally, disclose the change in the Abstract and a Limitations
 > paragraph, and lodge the corresponding registration amendment.
 >
-> The reported E-value of 2.79 should also be recomputed from, and attached to, the primary
+> The reported E-value of 3.10 should also be recomputed from, and attached to, the primary
 > estimate (it currently appears to derive from a different model).
 
 ## Severity / category rationale

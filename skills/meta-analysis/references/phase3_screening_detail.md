@@ -92,7 +92,7 @@ ID sets. The Markdown consensus document remains the human explanation.
    | k_bivariate | ... | ... | |T| |
    | k_narrative-only | ... | ... (explicit IDs listed) | (A ∪ C) \ B \ T |
 
-**Precedent incident (a PRISMA-DTA meta-analysis revision):** a late-revision manuscript shipped with k_qualitative = 32 / k_narrative-only = 10 / k_FT-excluded = 46. ID-set reconciliation (performed only after an adversarial audit at post-Stage 4 QC) revealed true counts 24/2/54. An early-draft prose total ("30 → 32 after FLAG consensus") had been carried forward without ever being reconciled against the screening TSV intersected with the consensus spreadsheet; four downstream artifacts echoed the same wrong total. This gate would have caught the drift at the Phase 5 hand-off.
+**The failure pattern:** a late-revision manuscript ships with qualitative / narrative-only / full-text-excluded counts that ID-set reconciliation later moves in every column. An early-draft prose total is carried forward without ever being reconciled against the screening TSV intersected with the consensus spreadsheet, and the downstream artifacts echo the same wrong total back to each other. This gate catches the drift at the Phase 5 hand-off, rather than at a post-Stage 4 audit.
 
 ##### Why `STAGE_TRANSFER_LOSS` needs its own verdict
 
@@ -114,15 +114,14 @@ where the record is already absent.
 `consensus_ids`) as a blocking issue, and splits `narrative_only` into `_adjudicated` (a decision
 exists) and `_unadjudicated` (none does). Only the first is a legitimate category.
 
-**Precedent incident (a single-arm intervention review):** the review reached journal submission
-with 15 studies and was withdrawn by the authors when 5 eligible studies were found **inside its
-own retrieved records** — none were search failures. One had passed both title/abstract screening
-passes and was never entered into the consensus stage; three others sat under an exclusion code
-that contradicted the registered eligibility criteria (single-arm case series were eligible by
-protocol but were coded "not comparative"). A pre-specified sensitivity analysis flipped from
-P = 0.064 to P = 0.033 once the pool was corrected to 18 studies. Note the shape: every count in
-the submitted manuscript reconciled, because each had been recomputed from an artifact the lost
-studies had already dropped out of.
+**The failure pattern:** a review reaches journal submission with eligible studies missing from
+its pool that were sitting **inside its own retrieved records** — none of them search failures. One
+passes both title/abstract screening passes and is never entered into the consensus stage; others
+sit under an exclusion code that contradicts the registered eligibility criteria (a design the
+protocol declared eligible, coded as though it were not). A pre-specified sensitivity analysis can
+cross its own significance threshold once the pool is corrected, which is how much can ride on this.
+Note the shape: every count in the submitted manuscript reconciles, because each was recomputed from
+an artifact the lost studies had already dropped out of.
 
 #### 3f.5 Pool composition lock (MANDATORY at adjudication freeze)
 

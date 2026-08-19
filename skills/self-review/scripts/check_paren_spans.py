@@ -5,8 +5,8 @@ Reducing em-dashes to satisfy a classical-style gate (`" — X — "` appositive
 `(X)`) is a common edit. When a bulk regex pairs two *unrelated* single em-dashes
 across a sentence boundary, it wraps a whole sentence inside one parenthesis:
 
-    "... E-value 2.79 — Sixth, the lean-MASLD subgroup was small — and ..."
-  → "... E-value 2.79 (Sixth, the lean-MASLD subgroup was small) and ..."
+    "... E-value 3.10 — Sixth, the lean-MASLD subgroup was small — and ..."
+  → "... E-value 3.10 (Sixth, the lean-MASLD subgroup was small) and ..."
 
 The result is grammatically broken but **paren-balanced**, so a balance check
 misses it; only a human re-read (or this scan) catches it. This gate flags any

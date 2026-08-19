@@ -59,10 +59,10 @@ proven), and a caption nobody wrote becomes visible again.
 Internal consistency in `/self-review` Phase 2.5 does NOT catch
 cross-reference defects because both the body prose and the build script
 can echo their own divergent SSOTs cleanly — each looks self-consistent in
-isolation. Precedent: an STROBE cohort manuscript revision — body cited
-"Supplementary Table S4 (a sensitivity-analysis)" but the rendered DOCX S4 was
-a diagnostics table; S1, S6, S7 mismatched and S8, S9 were cited but absent
-from the DOCX entirely. The 3-way matrix between citations, body captions,
+isolation. The failure it misses: the body cites a supplementary table as a
+sensitivity analysis while the rendered DOCX carries a diagnostics table under
+that number, further supplement numbers mismatch the same way, and some are
+cited but absent from the DOCX entirely. The 3-way matrix between citations, body captions,
 and DOCX captions is the only place those drifts surface.
 
 ## Pipeline placement
