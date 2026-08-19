@@ -23,16 +23,14 @@ Canonical per-journal reviewer formatting profiles. Consumed by both the OSS `pe
 
 These profiles are trusted precisely because they are specific: a reviewer reads the recommendation
 options here and picks one without opening the portal first. That is what makes a wrong entry
-expensive, and it has now happened twice on two different journals.
+expensive, and two entries in this directory were wrong.
 
 - A profile listed **"Accept with Minor Revision"** as a recommendation option. The live form does
   not have that label, and its minor-revision tier is **two** options — final approval *by Editor*
-  versus *by this reviewer*, a real decision about whether the paper returns to the reviewer. The
-  reviewer was told to pick the non-existent option and had to report back from the portal. Filed,
-  then observed a second time two weeks later, still uncorrected.
+  versus *by this reviewer*, a real decision about whether the paper returns to the reviewer.
 - Another profile listed **ORCID Reviewer Credit** under *Confirmed Form Fields*. It is not a
   scorecard field at all — zero occurrences on the form; it is an
-  account-level setting. It reached a submission checklist as a field to answer.
+  account-level setting.
 
 Both entries came from the same place: **a review invitation, or the author guidelines.** An
 invitation advertises the review. The form is what you fill in. They are not the same document, and
@@ -56,8 +54,8 @@ nothing in this directory used to say so.
    rendering the live page as an image. Until that is done, mark the list partially verified and
    **leave the unread labels blank rather than filling them in** — a plausible guess in a confident
    file is worse than an admitted gap.
-4. **When a profile is wrong, correct the profile.** Reading it and working around it in one session
-   leaves the next reader to hit the same wall.
+4. **When a profile is wrong, correct the profile.** Reading it, working around the error and
+   moving on leaves the next reader to hit the same wall.
 
 ## Adding a New Journal
 
