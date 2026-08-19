@@ -166,8 +166,10 @@ worth keeping. What does not belong in a public file is the arithmetic identifyi
 the failure happened to.
 
 The blocklist cannot help you here: it matches tokens — names, IDs, paths, emails — and a sentence
-like *"the revision came back 613 words longer and it took three rounds"* contains none. It is
-still the most identifying line on the page, because those numbers occur in exactly one manuscript.
+naming a word count and a round count contains none of them. It is still the most identifying line
+on the page, because that pair of numbers occurs in exactly one manuscript. (Note what this
+paragraph does not do: quote one. A rule that illustrates itself with a real example publishes the
+example.)
 
 So write the precedent as a **failure pattern**, in the present tense, with the mechanism intact
 and the coordinates removed:
