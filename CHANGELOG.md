@@ -17,8 +17,17 @@
   `rule_path.write_text(body)` — the regression test drives that behaviour into `apply_routing` and
   watches the "user content survives" case fail, so the property is tested rather than asserted.
   Also covered: idempotent re-runs, in-place replacement of a stale block, removal that deletes a
-  file holding nothing else, a refusal when only one of the two markers is present (guessing where
-  the block ends could eat the user's text), and `--dry-run` writing nothing.
+  file holding nothing else, and `--dry-run` writing nothing.
+
+  **A pre-merge review of this change found three defects in it, all one root cause** — the splice
+  located the *first* marker of each kind instead of reasoning about all of them. Markers in reverse
+  order passed the half-fence guard and then spliced a duplicate of the user's text while leaving a
+  dangling fence; two blocks in one file never converged; and `--remove-routing` on two blocks
+  reported `removed` while one survived, which is a success message that is not true. The fix counts
+  markers and refuses anything that is not one clean fence, and the five assertions covering those
+  cases were confirmed to fail against the pre-fix code. A fourth, smaller finding in the same pass:
+  the Windows arm of the no-local-path assertion was written `"C:\\\\"`, a string that cannot
+  occur, so it could never fail.
 
   The block names skills without a leading slash and says why: how one is invoked depends on the
   install path (`/write-paper` vs `/medsci-writing:write-paper`), so a hardcoded command form would

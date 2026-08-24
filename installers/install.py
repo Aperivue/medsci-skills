@@ -169,13 +169,29 @@ def apply_routing(md_path: Path, remove: bool, dry_run: bool, log_lines: list[st
     existing = md_path.read_text(encoding="utf-8") if md_path.is_file() else None
     head = existing if existing is not None else ""
 
-    begin, end = head.find(ROUTING_BEGIN), head.find(ROUTING_END)
-    if (begin == -1) != (end == -1):
-        # Half a fence means someone edited inside it. Guessing where the block stops could eat
-        # their text, so refuse and let them look.
+    # Count every marker rather than finding the first of each. Reasoning from `find()` alone
+    # gets three cases wrong, and all three were reachable: markers in reverse order spliced a
+    # duplicate of the user's text and left a dangling fence; two blocks in one file never
+    # converged; and `--remove-routing` on two blocks reported "removed" while one survived --
+    # a success message that was not true. Anything other than one clean fence is refused, which
+    # is what the half-marker case already did.
+    n_begin, n_end = head.count(ROUTING_BEGIN), head.count(ROUTING_END)
+    if n_begin != n_end:
         raise RuntimeError(
-            f"{md_path} has one routing marker but not the other; refusing to guess where the "
-            f"block ends. Remove the stray marker by hand, then re-run."
+            f"{md_path} has {n_begin} '{ROUTING_BEGIN}' and {n_end} '{ROUTING_END}'; refusing to "
+            f"guess where the block ends. Fix the markers by hand, then re-run."
+        )
+    if n_begin > 1:
+        raise RuntimeError(
+            f"{md_path} contains {n_begin} routing blocks. Refusing to touch it: removing one "
+            f"would leave the rest while reporting success. Delete the extra blocks by hand, "
+            f"then re-run."
+        )
+    begin, end = head.find(ROUTING_BEGIN), head.find(ROUTING_END)
+    if begin != -1 and begin > end:
+        raise RuntimeError(
+            f"{md_path} has the routing markers in reverse order (END before BEGIN). Splicing "
+            f"that would duplicate the text between them. Fix the markers by hand, then re-run."
         )
 
     if remove:

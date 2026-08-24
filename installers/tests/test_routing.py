@@ -92,6 +92,35 @@ def run() -> int:
             check("half marker refused", True)
         check("half-marker file untouched", p4.read_text(encoding="utf-8") == half)
 
+        # 7b. Markers in REVERSE order. Both are present, so the half-marker guard passes them
+        #     through; splicing on find() duplicated the text between them and left a dangling
+        #     fence. Refusal is the only safe answer.
+        p6 = tmp / "reversed" / "CLAUDE.md"
+        p6.parent.mkdir(parents=True)
+        rev = f"HEAD\n{install.ROUTING_END}\nIMPORTANT USER NOTES\n{install.ROUTING_BEGIN}\nTAIL\n"
+        p6.write_text(rev, encoding="utf-8")
+        try:
+            install.apply_routing(p6, remove=False, dry_run=False, log_lines=[])
+            check("reversed markers refused", False, "it spliced instead of raising")
+        except RuntimeError:
+            check("reversed markers refused", True)
+        check("reversed-marker file untouched", p6.read_text(encoding="utf-8") == rev)
+
+        # 7c. Two blocks in one file. The old code replaced the first and left the second, so a
+        #     re-run never converged and --remove-routing reported "removed" with a block still
+        #     in the file. A success message that is not true is worse than an error.
+        p7 = tmp / "double" / "CLAUDE.md"
+        p7.parent.mkdir(parents=True)
+        dbl = f"A\n{install.ROUTING_BLOCK}\nB\n{install.ROUTING_BLOCK}\nC\n"
+        p7.write_text(dbl, encoding="utf-8")
+        for mode in (False, True):
+            try:
+                install.apply_routing(p7, remove=mode, dry_run=False, log_lines=[])
+                check(f"two blocks refused (remove={mode})", False, "it reported success")
+            except RuntimeError:
+                check(f"two blocks refused (remove={mode})", True)
+        check("two-block file untouched", p7.read_text(encoding="utf-8") == dbl)
+
         # 8. --dry-run writes nothing.
         p5 = tmp / "dry" / "CLAUDE.md"
         out = install.apply_routing(p5, remove=False, dry_run=True, log_lines=[])
@@ -101,7 +130,8 @@ def run() -> int:
         # 9. The block carries nothing machine-specific. A CLAUDE.md gets committed, and the
         #    absolute path of a home directory is the installer's name.
         blk = install.ROUTING_BLOCK
-        check("no home path in block", "/Users/" not in blk and "/home/" not in blk and "C:\\\\" not in blk)
+        check("no home path in block",
+              "/Users/" not in blk and "/home/" not in blk and "C:\\" not in blk)
         check("no repo path in block", str(install.REPO_ROOT) not in blk)
         check("block stays small", len(blk.split()) < 350, f"{len(blk.split())} words on every request")
 
