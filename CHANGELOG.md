@@ -2,6 +2,30 @@
 
 ## [Unreleased]
 
+### Added
+
+- **Opt-in: a routing block in a project's `CLAUDE.md`, so a plain-language request finds the
+  skills.** `/orchestrate` was the only reliable way in, and it only works for someone who knows to
+  type it. `install.py --claude-project <folder>` now writes ~25 lines — a task-to-skill table and
+  the `orchestrate` fallback — into that folder's `CLAUDE.md`; `--claude-user` writes the same block
+  to `~/.claude/CLAUDE.md`, which loads everywhere. Both are off by default and `--remove-routing`
+  takes it back out.
+
+  **It splices; it does not overwrite.** The block sits between two markers and every other byte of
+  the file is written back unchanged, because a `CLAUDE.md` is where a user keeps their *own*
+  standing instructions. The sibling this sits next to, `install_cursor_rule`, calls
+  `rule_path.write_text(body)` — the regression test drives that behaviour into `apply_routing` and
+  watches the "user content survives" case fail, so the property is tested rather than asserted.
+  Also covered: idempotent re-runs, in-place replacement of a stale block, removal that deletes a
+  file holding nothing else, a refusal when only one of the two markers is present (guessing where
+  the block ends could eat the user's text), and `--dry-run` writing nothing.
+
+  The block names skills without a leading slash and says why: how one is invoked depends on the
+  install path (`/write-paper` vs `/medsci-writing:write-paper`), so a hardcoded command form would
+  be wrong for half the readers. It carries no home-directory or repository path — a `CLAUDE.md`
+  gets committed, and `install_cursor_rule` embeds `REPO_ROOT` into a file under `.cursor/rules/`
+  for the same reason it should not.
+
 ### Changed
 
 - **The docs never said that the install path decides a skill's slash-command name.** A skill

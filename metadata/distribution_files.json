@@ -48,8 +48,8 @@
     },
     {
       "path": "installers/install.py",
-      "size": 18509,
-      "sha256": "7dc0eac5c52077d8e97cf8b7fb653056bc45475fedb772e650f4370ebd7d392b"
+      "size": 25410,
+      "sha256": "e8787d831edee7f7ea1aa1493c9b0865b9e8b5b294bb8af93181c2a45982290d"
     },
     {
       "path": "installers/medsci_txn.py",

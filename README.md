@@ -689,6 +689,24 @@ gh skill install --all Aperivue/medsci-skills            # or install all of the
 
 See [docs/classroom_distribution_plan.md](docs/classroom_distribution_plan.md) and [docs/classroom_materials.md](docs/classroom_materials.md) for instructor distribution, email templates, and first-class exercises.
 
+### Optional: let plain-language requests find the skills
+
+Typing `/orchestrate` is the reliable way in. If you would rather just describe what you want, the
+installer can write a short routing table into a project's `CLAUDE.md` so Claude Code reaches for
+the right skill on its own whenever you work in that folder:
+
+```bash
+python3 installers/install.py --claude-project ~/research/my-study   # this project only
+python3 installers/install.py --claude-user                          # every project (larger footprint)
+python3 installers/install.py --claude-project ~/research/my-study --remove-routing
+```
+
+Both are **off by default**. The block is ~25 lines between `<!-- BEGIN/END medsci-skills routing -->`
+markers, carries no machine-specific paths, and is spliced in: an existing `CLAUDE.md` full of your
+own instructions keeps every line, re-running updates the block in place, and `--remove-routing`
+takes it back out. Prefer `--claude-project` — `--claude-user` loads in every project you ever open,
+including work unrelated to research.
+
 > **Tip:** Not sure which skill to use? Start with `/orchestrate` -- it will classify your request and route you to the right tool.
 
 ## Updating

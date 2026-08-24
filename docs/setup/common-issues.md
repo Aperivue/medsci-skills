@@ -191,6 +191,21 @@ request ("look over my paper") matches several weakly rather than one strongly.
    [README skill table](../../README.md#skills) lists all of them by task.
 3. **Say what the output should be.** "Audit this manuscript against STROBE" selects a skill;
    "check my paper" does not.
+4. **Make it standing, for one project.** If you would rather not think about it again, the
+   installer can write a short routing table into a project's `CLAUDE.md`, which Claude Code reads
+   whenever you work in that folder:
+
+   ```bash
+   python3 installers/install.py --claude-project ~/research/my-study
+   ```
+
+   It adds ~25 lines between two `<!-- BEGIN/END medsci-skills routing -->` markers and changes
+   nothing else in the file — an existing `CLAUDE.md` with your own instructions keeps every line.
+   Re-running updates the block in place; `--remove-routing` takes it back out.
+
+   `--claude-user` writes the same block to `~/.claude/CLAUDE.md` instead, which loads in **every**
+   project, including work that has nothing to do with research. Prefer `--claude-project` unless
+   you want it everywhere.
 
 ---
 

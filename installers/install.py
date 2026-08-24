@@ -121,6 +121,109 @@ Repository path:
     log("  installed Cursor project rule", log_lines)
 
 
+ROUTING_BEGIN = "<!-- BEGIN medsci-skills routing -->"
+ROUTING_END = "<!-- END medsci-skills routing -->"
+
+# Deliberately carries no local path. The Cursor rule above embeds REPO_ROOT, which is fine for a
+# file nobody shares — but a CLAUDE.md sits in a project folder and gets committed, and the absolute
+# path of a home directory is the installer's name. Nothing here is machine-specific.
+ROUTING_BLOCK = f"""{ROUTING_BEGIN}
+## MedSci Skills
+
+MedSci Skills is installed. When a request matches a row below, invoke that skill rather than
+answering from scratch. When the right one is not obvious, invoke `orchestrate` — it classifies the
+request and routes to the rest.
+
+| Request | Skill |
+|---|---|
+| Find papers; check that a citation is real; build a reference list | `search-lit`, `verify-refs`, `manage-refs` |
+| Plan a study; sample size; define variables; de-identify data | `design-study`, `calc-sample-size`, `define-variables`, `deidentify` |
+| Run statistics; draw a publication figure | `analyze-stats`, `make-figures` |
+| Draft or revise a manuscript; write an IRB protocol | `write-paper`, `revise`, `write-protocol` |
+| Audit against a reporting guideline (STROBE, PRISMA, CONSORT, STARD, TRIPOD) or a risk-of-bias tool | `check-reporting` |
+| Self-review before submitting; answer reviewers; review someone else's paper | `self-review`, `revise`, `peer-review` |
+| Choose a journal; assemble a submission package | `find-journal`, `sync-submission` |
+| Medical-research work that is not obviously one of the above | `orchestrate` |
+
+How a skill is invoked depends on how it was installed: bare (`/write-paper`) for a skills-folder
+install, namespaced (`/medsci-writing:write-paper`) for a plugin install. Skip any skill that is not
+installed, and never invent one.
+
+These skills draft and audit. They do not replace authors, statisticians, reviewers, or an IRB, and
+every output needs human-expert verification.
+{ROUTING_END}
+"""
+
+
+def apply_routing(md_path: Path, remove: bool, dry_run: bool, log_lines: list[str]) -> str:
+    """Splice the routing block into a CLAUDE.md, leaving every other byte of the file alone.
+
+    Returns one of: added | updated | unchanged | removed | absent.
+
+    The file is never truncated and never overwritten wholesale. An existing file is read, the
+    region between the two markers is replaced (or the block appended when the markers are absent),
+    and the rest is written back as it was. That matters more here than for the Cursor rule this
+    sits next to: a CLAUDE.md is somewhere the user keeps their own standing instructions, and
+    `write_text(body)` on one of those is a data-loss bug, not an install step.
+    """
+    existing = md_path.read_text(encoding="utf-8") if md_path.is_file() else None
+    head = existing if existing is not None else ""
+
+    begin, end = head.find(ROUTING_BEGIN), head.find(ROUTING_END)
+    if (begin == -1) != (end == -1):
+        # Half a fence means someone edited inside it. Guessing where the block stops could eat
+        # their text, so refuse and let them look.
+        raise RuntimeError(
+            f"{md_path} has one routing marker but not the other; refusing to guess where the "
+            f"block ends. Remove the stray marker by hand, then re-run."
+        )
+
+    if remove:
+        if begin == -1:
+            return "absent"
+        rest = head[:begin].rstrip("\n") + "\n" + head[end + len(ROUTING_END):].lstrip("\n")
+        if dry_run:
+            return "removed"
+        if rest.strip():
+            md_path.write_text(rest, encoding="utf-8")
+        else:
+            md_path.unlink()
+        return "removed"
+
+    if begin != -1:
+        if head[begin:end + len(ROUTING_END)] == ROUTING_BLOCK.rstrip("\n"):
+            return "unchanged"
+        merged = head[:begin] + ROUTING_BLOCK.rstrip("\n") + head[end + len(ROUTING_END):]
+        outcome = "updated"
+    else:
+        sep = "" if not head else ("\n" if head.endswith("\n") else "\n\n")
+        merged = head + sep + ROUTING_BLOCK
+        outcome = "added"
+
+    if not dry_run:
+        md_path.parent.mkdir(parents=True, exist_ok=True)
+        md_path.write_text(merged, encoding="utf-8")
+    return outcome
+
+
+def install_claude_routing(md_path: Path, remove: bool, log_lines: list[str], dry_run: bool) -> None:
+    """Add or remove the routing block in one CLAUDE.md, reporting exactly what happened."""
+    verb = "removing" if remove else "writing"
+    log(f"\n[routing] {verb} the routing block in {md_path}", log_lines)
+    if dry_run:
+        outcome = apply_routing(md_path, remove, True, log_lines)
+        log(f"  DRY RUN would report: {outcome}", log_lines)
+        return
+    outcome = apply_routing(md_path, remove, False, log_lines)
+    log({
+        "added": "  added the routing block (the rest of the file was left as it was)",
+        "updated": "  updated the existing routing block (nothing outside the markers changed)",
+        "unchanged": "  already present and identical; no write",
+        "removed": "  removed the routing block",
+        "absent": "  no routing block was there; nothing to remove",
+    }[outcome], log_lines)
+
+
 def run_self_test() -> int:
     """Simulate installs into throwaway temp dirs, assert every skill is discoverable, and
     prove no real host directory is touched. Returns 0 on pass, 1 on failure. Writes nothing
@@ -214,6 +317,27 @@ def parse_args() -> argparse.Namespace:
         type=Path,
         default=None,
         help="Project folder where a .cursor/rules/medsci-skills.mdc rule should be written.",
+    )
+    parser.add_argument(
+        "--claude-project",
+        type=Path,
+        default=None,
+        help="Opt in: add a short skill-routing block to <folder>/CLAUDE.md so plain-language "
+             "requests in that project reach the right skill. Scoped to that folder; nothing else "
+             "in the file is touched.",
+    )
+    parser.add_argument(
+        "--claude-user",
+        action="store_true",
+        help="Opt in: add the same routing block to ~/.claude/CLAUDE.md, which Claude Code loads in "
+             "EVERY project. Larger footprint than --claude-project; prefer that one unless you "
+             "want it everywhere.",
+    )
+    parser.add_argument(
+        "--remove-routing",
+        action="store_true",
+        help="Remove the routing block from whichever target you name with --claude-project / "
+             "--claude-user. Leaves the rest of the file alone.",
     )
     parser.add_argument("--dry-run", action="store_true", help="Print actions without changing files.")
     parser.add_argument(
@@ -342,6 +466,25 @@ def main() -> int:
     except Exception as exc:  # noqa: BLE001
         failures.append("cursor")
         log(f"\n[cursor] FAILED: {exc}", log_lines)
+
+    try:
+        if args.claude_project:
+            install_claude_routing(
+                args.claude_project.expanduser().resolve() / "CLAUDE.md",
+                args.remove_routing, log_lines, args.dry_run,
+            )
+        if args.claude_user:
+            install_claude_routing(
+                Path.home() / ".claude" / "CLAUDE.md",
+                args.remove_routing, log_lines, args.dry_run,
+            )
+        if args.remove_routing and not (args.claude_project or args.claude_user):
+            log("\n[routing] --remove-routing needs a target: pass --claude-project <folder> "
+                "and/or --claude-user.", log_lines)
+    except Exception as exc:  # noqa: BLE001
+        failures.append("routing")
+        log(f"\n[routing] FAILED: {exc}", log_lines)
+        log("  the CLAUDE.md was left exactly as it was.", log_lines)
 
     # Place the one-click updater under ~/.medsci-skills/updater/ so a future update needs no
     # GitHub/terminal even if this download folder is deleted (best-effort; never fatal).
