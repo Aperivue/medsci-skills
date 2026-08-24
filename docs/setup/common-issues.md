@@ -152,6 +152,48 @@ Or in OneDrive settings, exclude the `medsci-skills` folder from sync.
 
 ---
 
+## 11. A skill's slash command is longer than the docs show, or a plain prompt starts no skill
+
+Two different things, often reported together.
+
+### The name is namespaced: `/medsci-analysis:analyze-stats`, not `/analyze-stats`
+
+**Cause**: not a fault — the install path decides the name. Claude Code prefixes a skill
+that arrives inside a plugin with that plugin's name.
+
+| How you installed | Where skills land | What you type |
+|---|---|---|
+| `/plugin install medsci-analysis@medsci-skills` | plugin cache | `/medsci-analysis:analyze-stats` |
+| `npx medsci-skills install` | `~/.claude/skills/` | `/analyze-stats` |
+| `gh skill install --all Aperivue/medsci-skills` | `~/.claude/skills/` | `/analyze-stats` |
+| Classroom installer, or `python3 installers/install.py` | `~/.claude/skills/` | `/analyze-stats` |
+
+Both forms run the same skill. If the long name is only a typing problem, press `/` and use
+Tab completion rather than reinstalling.
+
+**To get the short names**: open `/plugin` and remove the MedSci plugins you enabled, then
+install by one of the folder paths above and restart Claude Code.
+Keeping both is supported but means every skill is listed twice — once namespaced, once bare —
+so pick one.
+
+### Typing a request in plain language starts no skill
+
+**Cause**: a skill is selected by matching your request against that skill's own description.
+With the full bundle installed there are dozens of descriptions to choose between, and a broad
+request ("look over my paper") matches several weakly rather than one strongly.
+
+**Fix**, in order of effort:
+
+1. **Use `/orchestrate`.** It exists for exactly this: it classifies the request and routes to
+   the right skill, or chains several for a multi-step task. It is the documented entry point —
+   if you remember one command, remember this one.
+2. **Name the skill.** `/self-review`, `/check-reporting`, `/verify-refs` — the
+   [README skill table](../../README.md#skills) lists all of them by task.
+3. **Say what the output should be.** "Audit this manuscript against STROBE" selects a skill;
+   "check my paper" does not.
+
+---
+
 ## Still Stuck?
 
 1. Run `/setup-medsci` inside Claude Code — it prints a diagnostic checklist with the specific failure point.

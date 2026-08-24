@@ -2,6 +2,25 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **The docs never said that the install path decides a skill's slash-command name.** A skill
+  installed as a plugin is invoked under its plugin's namespace (`/medsci-analysis:analyze-stats`);
+  the same skill installed into `~/.claude/skills/` by the `npx`, `gh skill`, classroom, or manual
+  paths is invoked bare (`/analyze-stats`). The README showed the namespaced form in the plugin
+  section and the bare form everywhere else, and never connected them — so a reader who followed the
+  plugin path had every other page of the documentation naming a command their install does not
+  have. Reported from a live workshop, where it read as a broken install rather than a second
+  correct name.
+
+  `docs/setup/common-issues.md` gains the mapping as issue 11, with how to switch, and the FAQ and
+  the README plugin section point at it.
+
+  The same section answers the question asked alongside it: **why a plain-language request starts no
+  skill.** A skill is selected by matching the request against that skill's description, so a broad
+  ask ("look over my paper") matches many weakly instead of one strongly. `/orchestrate` is the
+  documented answer and was not findable from the symptom.
+
 ## [5.25.0] - 2026-08-17
 
 ### Added
