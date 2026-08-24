@@ -137,6 +137,8 @@ Install a single category and invoke its skills under that namespace:
 
 All nine plugins share the same repository source, so this groups and enables skills by category — it is not a partial download. The marketplace tracks `main`, so a plugin's version is its git commit.
 
+**Note the name.** A skill installed as a plugin is invoked under its plugin's namespace (`/medsci-analysis:analyze-stats`); the same skill installed into the skills folder by the `npx`, `gh skill`, classroom, or manual paths is invoked bare (`/analyze-stats`). Both run the same skill — press `/` and use Tab completion rather than typing the long form.
+
 **Want just one capability?** Two skills are also published as focused standalone repos (generated mirrors; this repo stays the source of truth), each installable on its own with `/plugin marketplace add Aperivue/<repo>`:
 
 - [`Aperivue/verify-refs`](https://github.com/Aperivue/verify-refs) — catch fabricated/mismatched citations (PubMed + CrossRef).

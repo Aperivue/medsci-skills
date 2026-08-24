@@ -69,6 +69,15 @@ biology, and it is not an autonomous research agent. It is one physician-researc
 clinical-manuscript pipeline with integrity gates (see
 [`ROADMAP.md`](../ROADMAP.md) for the scope boundary).
 
+## Why is my slash command `/medsci-analysis:analyze-stats` instead of `/analyze-stats`?
+
+Because the install path decides the name. Skills installed **as a plugin** are prefixed
+with their plugin's name; skills installed into the **skills folder** (`npx medsci-skills
+install`, `gh skill install`, the classroom installer, or `installers/install.py`) are
+invoked bare. Both run the same skill. See
+[common setup issues](setup/common-issues.md#11-a-skills-slash-command-is-longer-than-the-docs-show-or-a-plain-prompt-starts-no-skill)
+for how to switch, and what to do when a plain-language request starts no skill at all.
+
 ## Is it free and open-source?
 
 Yes — MIT licensed (see [`LICENSE`](../LICENSE); note any per-file carve-outs noted
