@@ -2,6 +2,47 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- **The routing splice claimed to preserve the user's file and did not.** An independent Codex
+  review of the feature below found six defects in it. Four were real losses and are fixed here; the
+  other two are answered rather than coded around.
+
+  The docstring said the file "is never truncated" while the code called `Path.write_text`, which
+  opens in `w` mode and truncates before writing — an interrupted install left a zero-byte
+  `CLAUDE.md`, and the error handler then logged *"the CLAUDE.md was left exactly as it was"*, which
+  is the false-success report this feature was built to avoid. Writes now go through
+  `medsci_txn.atomic_write_bytes` (extracted from `atomic_write_json`, so the repo keeps one fsync
+  implementation) and land with `os.replace`, so that log line is now true.
+
+  `--remove-routing` called `unlink()` on a path that may be a **symlink**, deleting the user's link
+  while the block stayed in the file it pointed at. The splice now resolves through to the target and
+  never deletes a link.
+
+  Removal ran `rstrip` over the head, so a file ending in two newlines came back with one — the
+  user's own blank line. And the whole file was read and rewritten as text, so `read_text`'s
+  universal-newline translation silently rewrote every line of a **CRLF** file. Reads are now
+  `read_bytes`, the block is emitted with the file's own line ending, and add-then-remove returns the
+  original bytes.
+
+  The atomic rewrite introduced a hazard of its own that the review did not have to catch: replacing
+  a file loses its mode, so a `chmod 600` `CLAUDE.md` would have been widened. The mode is now
+  re-applied, following `update._write_settings`.
+
+  **The tests are why this was invisible.** They asserted preservation with a substring check, which
+  cannot see a collapsed blank line, a rewritten line ending, or a changed mode. They now compare
+  bytes. Eleven of the new assertions were confirmed to fail against the previous release, and the
+  mode assertion against an atomic write without the chmod step.
+
+  Not fixed, and stated instead: a file with **no trailing newline** gains one and removal does not
+  take it back (nothing records that the newline was ours); two installers racing on one file can
+  still lose an update, though neither can now corrupt it; and a `CLAUDE.md` that already contains
+  our exact marker pair has that region replaced — the block now says so inside itself.
+
+  Found and deferred: `install_cursor_rule` has the same unconditional `write_text` and embeds an
+  absolute home path into `.cursor/rules/`, a directory people commit. That needs its own change,
+  because whether Cursor requires the path is an open question.
+
 ### Added
 
 - **Opt-in: a routing block in a project's `CLAUDE.md`, so a plain-language request finds the

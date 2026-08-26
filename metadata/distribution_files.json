@@ -48,13 +48,13 @@
     },
     {
       "path": "installers/install.py",
-      "size": 26398,
-      "sha256": "6603b073a49013d6d4ced309e05b65d7c245e5642be2d1dc6d214647849cc9e6"
+      "size": 28830,
+      "sha256": "04f51767d3a19f50fe4262252d93248857fb00cb7840b12c7d6a2d83d52d791c"
     },
     {
       "path": "installers/medsci_txn.py",
-      "size": 17498,
-      "sha256": "13da36ce2a07f8c0880dcf44dabc9867ae32b7f6388fa695a63a7a0dedd08f3d"
+      "size": 18454,
+      "sha256": "7634cdaf1189b7ad4928c1333badb46d79c5d57ec6403f2dea7f7ab75f7fef00"
     },
     {
       "path": "installers/session_update_check.py",

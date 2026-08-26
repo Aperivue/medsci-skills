@@ -84,15 +84,33 @@ def assert_contained(path: Path, container: Path) -> None:
 
 # ---------------------------------------------------------------- json io
 
-def atomic_write_json(path: Path, obj) -> None:
+def atomic_write_bytes(path: Path, data: bytes) -> None:
+    """Replace `path` with `data`, atomically: a reader sees either the old file or the whole new
+    one, never a half-written or truncated file.
+
+    Extracted from `atomic_write_json` so there is one fsync implementation in the repo rather than
+    two. The caller that forced the split writes a user's CLAUDE.md, where the alternative --
+    `Path.write_text`, which opens in "w" mode and truncates before writing -- turns an interrupted
+    install into a lost file.
+
+    Bytes, not text: the caller decides the encoding and the line endings, so nothing here can
+    translate a CRLF file into an LF one on the way through.
+    """
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(path.suffix + f".tmp.{os.getpid()}")
-    data = (json.dumps(obj, indent=2, ensure_ascii=False) + "\n").encode("utf-8")
-    with open(tmp, "wb") as f:
-        f.write(data)
-        f.flush()
-        os.fsync(f.fileno())
-    os.replace(tmp, path)
+    try:
+        with open(tmp, "wb") as f:
+            f.write(data)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp, path)
+    except BaseException:
+        # Leave nothing behind: the destination is still whatever it was before this call.
+        try:
+            os.unlink(tmp)
+        except OSError:
+            pass
+        raise
     # fsync the directory so the rename is durable.
     try:
         dfd = os.open(str(path.parent), os.O_RDONLY)
@@ -102,6 +120,10 @@ def atomic_write_json(path: Path, obj) -> None:
             os.close(dfd)
     except (OSError, AttributeError):
         pass  # directory fsync unsupported (e.g. Windows) — os.replace is still atomic.
+
+
+def atomic_write_json(path: Path, obj) -> None:
+    atomic_write_bytes(path, (json.dumps(obj, indent=2, ensure_ascii=False) + "\n").encode("utf-8"))
 
 
 def read_json_strict(path: Path):

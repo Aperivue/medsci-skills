@@ -702,9 +702,10 @@ python3 installers/install.py --claude-project ~/research/my-study --remove-rout
 ```
 
 Both are **off by default**. The block is ~25 lines between `<!-- BEGIN/END medsci-skills routing -->`
-markers, carries no machine-specific paths, and is spliced in: an existing `CLAUDE.md` full of your
-own instructions keeps every line, re-running updates the block in place, and `--remove-routing`
-takes it back out. Prefer `--claude-project` — `--claude-user` loads in every project you ever open,
+markers and carries no machine-specific paths. It is spliced in, not written over: an existing
+`CLAUDE.md` keeps its bytes outside the markers — line endings and file permissions included — the
+write is atomic so an interrupted run cannot leave a truncated file, re-running updates the block in
+place, and `--remove-routing` takes it back out. Prefer `--claude-project` — `--claude-user` loads in every project you ever open,
 including work unrelated to research.
 
 > **Tip:** Not sure which skill to use? Start with `/orchestrate` -- it will classify your request and route you to the right tool.
