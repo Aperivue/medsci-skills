@@ -151,23 +151,72 @@ installed, and never invent one.
 
 These skills draft and audit. They do not replace authors, statisticians, reviewers, or an IRB, and
 every output needs human-expert verification.
+
+Everything between the two markers above and below is managed by the MedSci Skills installer and is
+replaced or removed wholesale when it runs. Put your own notes outside them.
 {ROUTING_END}
 """
 
 
-def apply_routing(md_path: Path, remove: bool, dry_run: bool, log_lines: list[str]) -> str:
-    """Splice the routing block into a CLAUDE.md, leaving every other byte of the file alone.
+LF = "\n"
+CRLF = "\r\n"
 
-    Returns one of: added | updated | unchanged | removed | absent.
 
-    The file is never truncated and never overwritten wholesale. An existing file is read, the
-    region between the two markers is replaced (or the block appended when the markers are absent),
-    and the rest is written back as it was. That matters more here than for the Cursor rule this
-    sits next to: a CLAUDE.md is somewhere the user keeps their own standing instructions, and
-    `write_text(body)` on one of those is a data-loss bug, not an install step.
+def _dominant_newline(text: str) -> str:
+    """Which line ending this file already uses, so the block matches it instead of mixing."""
+    crlf = text.count(CRLF)
+    return CRLF if crlf > text.count(LF) - crlf else LF
+
+
+def _write_preserving_mode(path: Path, text: str, newline: str) -> None:
+    """Atomically replace `path`, keeping the permissions it already had.
+
+    The mode step mirrors update._write_settings: a user who ran `chmod 600` on their CLAUDE.md
+    should not have it widened to the umask default as a side effect of an install.
     """
-    existing = md_path.read_text(encoding="utf-8") if md_path.is_file() else None
-    head = existing if existing is not None else ""
+    prev_mode = os.stat(path).st_mode & 0o777 if path.is_file() else None
+    medsci_txn.atomic_write_bytes(path, text.encode("utf-8"))
+    if prev_mode is not None:
+        try:
+            os.chmod(path, prev_mode)
+        except OSError:
+            pass
+
+
+def apply_routing(md_path: Path, remove: bool, dry_run: bool, log_lines: list[str]) -> str:
+    """Splice the routing block into a CLAUDE.md. Returns: added | updated | unchanged | removed | absent.
+
+    What is actually guaranteed, because the first version of this docstring claimed more than the
+    code delivered and an external review said so:
+
+    * **The write is atomic.** Content goes to a temp file beside the target and is `os.replace`d
+      into position (medsci_txn.atomic_write_bytes), so an interrupted run leaves the previous file
+      intact. The previous version called `Path.write_text`, which opens in "w" mode and therefore
+      truncates before writing -- an interrupt there left a zero-byte CLAUDE.md.
+    * **Bytes outside the two markers are preserved, line endings included.** The file is read with
+      `read_bytes` and decoded here, so nothing on the path performs universal-newline translation;
+      a CRLF file stays CRLF, and the block is emitted with the file's own line ending rather than
+      mixing one in.
+    * **Permissions are preserved.**
+
+    The one thing it does NOT preserve, stated rather than hidden: a file with no trailing newline
+    gains one, and removal does not take it back. The newline is needed to put the block on its own
+    line, and nothing in the file records that it was ours.
+
+    A CLAUDE.md is where a user keeps their own standing instructions. Anything less than the above
+    is a data-loss bug, not an install step.
+    """
+    # A symlinked CLAUDE.md must be edited through to its target: `os.replace` onto the link would
+    # replace the link itself with a regular file, and unlinking it would delete the user's link
+    # while leaving the block sitting in the file it pointed at.
+    linked = md_path.is_symlink()
+    target = md_path.resolve() if linked else md_path
+
+    raw = target.read_bytes() if target.is_file() else None
+    head = raw.decode("utf-8") if raw is not None else ""
+    nl = _dominant_newline(head)
+    block = ROUTING_BLOCK if nl == LF else ROUTING_BLOCK.replace(LF, nl)
+    region = block[: -len(nl)]  # the block without its own trailing newline
 
     # Count every marker rather than finding the first of each. Reasoning from `find()` alone
     # gets three cases wrong, and all three were reachable: markers in reverse order spliced a
@@ -197,28 +246,31 @@ def apply_routing(md_path: Path, remove: bool, dry_run: bool, log_lines: list[st
     if remove:
         if begin == -1:
             return "absent"
-        rest = head[:begin].rstrip("\n") + "\n" + head[end + len(ROUTING_END):].lstrip("\n")
+        # Exact slice. The previous version ran rstrip("\n") + "\n" over the head, which silently
+        # collapsed the user's own blank lines: "KEEP\n\n" came back as "KEEP\n".
+        tail = head[end + len(ROUTING_END):]
+        if tail.startswith(nl):
+            tail = tail[len(nl):]
+        rest = head[:begin] + tail
         if dry_run:
             return "removed"
-        if rest.strip():
-            md_path.write_text(rest, encoding="utf-8")
+        if rest.strip() or linked or not target.is_file():
+            _write_preserving_mode(target, rest, nl)
         else:
-            md_path.unlink()
+            target.unlink()
         return "removed"
 
     if begin != -1:
-        if head[begin:end + len(ROUTING_END)] == ROUTING_BLOCK.rstrip("\n"):
+        if head[begin:end + len(ROUTING_END)] == region:
             return "unchanged"
-        merged = head[:begin] + ROUTING_BLOCK.rstrip("\n") + head[end + len(ROUTING_END):]
+        merged = head[:begin] + region + head[end + len(ROUTING_END):]
         outcome = "updated"
     else:
-        sep = "" if not head else ("\n" if head.endswith("\n") else "\n\n")
-        merged = head + sep + ROUTING_BLOCK
+        merged = (head if not head or head.endswith(nl) else head + nl) + block
         outcome = "added"
 
     if not dry_run:
-        md_path.parent.mkdir(parents=True, exist_ok=True)
-        md_path.write_text(merged, encoding="utf-8")
+        _write_preserving_mode(target, merged, nl)
     return outcome
 
 
