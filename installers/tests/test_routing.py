@@ -151,13 +151,20 @@ def run() -> int:  # noqa: PLR0915 - a flat list of cases reads better than nest
         check("interrupted write left no temp file behind", leftovers == ["CLAUDE.md"], str(leftovers))
 
         # 9. Permissions survive. A user who ran chmod 600 should not have it widened by an install.
-        p8 = tmp / "mode" / "CLAUDE.md"
-        p8.parent.mkdir(parents=True)
-        p8.write_bytes(original)
-        os.chmod(p8, 0o600)
-        install.apply_routing(p8, remove=False, dry_run=False, log_lines=[])
-        check("file mode preserved", (os.stat(p8).st_mode & 0o777) == 0o600,
-              oct(os.stat(p8).st_mode & 0o777))
+        #    POSIX only, and skipped out loud rather than silently: on Windows os.chmod toggles the
+        #    read-only attribute and nothing else, so st_mode reports 0o666 whatever we set. An
+        #    assertion that cannot distinguish a preserved mode from a widened one there would be a
+        #    green light with no meaning behind it.
+        if os.name != "posix":
+            print("SKIP  file mode preserved (POSIX modes are not meaningful on this platform)")
+        else:
+            p8 = tmp / "mode" / "CLAUDE.md"
+            p8.parent.mkdir(parents=True)
+            p8.write_bytes(original)
+            os.chmod(p8, 0o600)
+            install.apply_routing(p8, remove=False, dry_run=False, log_lines=[])
+            check("file mode preserved", (os.stat(p8).st_mode & 0o777) == 0o600,
+                  oct(os.stat(p8).st_mode & 0o777))
 
         # 10. A symlinked CLAUDE.md is edited through to its target. Deleting the link would remove
         #     the user's link and leave the block in the file it pointed at -- wrong twice.
