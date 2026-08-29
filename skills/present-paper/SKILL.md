@@ -74,6 +74,8 @@ animation discipline) plus the G1–G10 self-check the Phase 3.5 critic scores a
 | `references/medical_presentation_templates.md` | the venue is one of the five medical ones — then read **that section only** | ~3,700 tokens, of which you use a fifth |
 | `references/slide_visual_styles/CATALOG.md` → one style file | Q2 has chosen a style | ~2,300 tokens per style |
 | `references/slide_design_principles.md` | you are stuck on *why* a slide is not landing — Reynolds / Duarte / Knaflic / Tufte, the theory under the rules in **C** | ~2,600 tokens of theory you mostly already applied |
+| `references/generated_illustrations.md` | you are about to generate any image for a slide, or a text-only slide keeps failing the critic | ~1,300 tokens; the first rule (never generate a medical image) is not optional |
+| `references/spoken_notes_and_bilingual.md` | you are drafting speaker notes, or the deck is not monolingual | ~1,700 tokens; both halves are about delivery, not design |
 
 These mirror the entry-point pattern used in
 `make-figures/references/design_principles.md` (Step 1 "Specify"). Both skills share
@@ -259,6 +261,11 @@ Draft a complete speaker script with these requirements:
    - Example: "lecanemab (leh-KAN-eh-mab)" or local equivalent
 4. **Timing markers**: Note approximate time per slide
 5. **Transition phrases**: Connect each slide to the narrative arc
+
+Those five govern *what the notes contain*. How the sentences are built — which is a separate and
+more common failure, because notes are spoken and not read — is in
+`references/spoken_notes_and_bilingual.md`, together with the language split for a deck that is not
+monolingual. Read it before drafting if either applies.
 
 ### Structure
 
@@ -546,6 +553,10 @@ When the deck pulls figures from `analysis/figures/` produced by `/make-figures`
   the bullet above it is edited. Nothing catches that: text search sees the slide and not the image,
   so the only thing that finds it is a person looking at the render. Numbers and conclusions live in
   the slide's own text where they can be read, grepped, and corrected.
+- **Generating an illustration instead of sourcing one**: allowed for concepts and scenes, never
+  for anything that could be mistaken for a measurement — no generated CT, MRI, histology, or
+  radiograph, not even "as an illustration". Read `references/generated_illustrations.md` before
+  the first prompt; it also covers palette, text-in-image, provenance, and disclosure.
 
 ### Diagrams and plots are drawn as CODE, then inserted (not out of autoshapes)
 

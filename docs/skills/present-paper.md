@@ -52,11 +52,13 @@
 - `ai_slide_tells.md`
 - `critic_rubrics/` (1 file)
 - `generate_pptx_templates.py`
+- `generated_illustrations.md`
 - `medical_presentation_templates.md`
 - `presentation_archetypes.md`
 - `presentation_design_guidelines.md`
 - `slide_design_principles.md`
 - `slide_visual_styles/` (6 files)
+- `spoken_notes_and_bilingual.md`
 - `workflow-checklist.md`
 
 **Scripts** (`skills/present-paper/scripts/`):
