@@ -84,6 +84,9 @@ jobs:
       - name: Opt-in CLAUDE.md routing block test (a splice must not clobber the user's own file)
         run: python3 installers/tests/test_routing.py
 
+      - name: Cursor project-rule test (no machine path in a file people commit; atomic write)
+        run: python3 installers/tests/test_cursor_rule.py
+
       - name: Release-ZIP provenance + updater-consumability round-trip (build -> safe-extract)
         run: bash installers/tests/test_release_zip.sh
 
@@ -831,5 +834,7 @@ jobs:
         run: python installers/tests/test_session_hook.py
       - name: Opt-in CLAUDE.md routing block test
         run: python installers/tests/test_routing.py
+      - name: Cursor project-rule test
+        run: python installers/tests/test_cursor_rule.py
       - name: install.py transactional self-test
         run: python installers/install.py --self-test
