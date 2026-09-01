@@ -45,6 +45,30 @@
 
 ### Added
 
+- **`/present-paper`: two references for the parts of a deck that are not design.** Both come out of
+  a 20-minute society lecture where the deck passed every existing gate and still had two problems
+  no gate looks at.
+
+  `references/generated_illustrations.md` — an image API removes the friction that used to stop a
+  deck filling with decoration, so the rules put it back. First rule: **never generate a medical
+  image**, not even as an illustration. The obvious reason is that a generated scan next to real
+  numbers reads as data. The reason that bites is narrower — a talk presenting a reader study on
+  experts failing to distinguish generated medical images, which then shows a generated CT as a
+  segmentation result, has refuted itself in front of the people best equipped to notice. Also:
+  keeping text out of the image, putting the deck's palette in the prompt rather than fixing it in
+  post, one `assets/SOURCES.md` row per image, and the disclosure line that a lecture needs versus
+  the journal rule that governs a figure (`journal-ai-image-policies`, which is a different
+  decision).
+
+  `references/spoken_notes_and_bilingual.md` — speaker notes are **spoken**, and prose that reads
+  well on the page jams the mouth. Markdown renders literally in the notes pane; a dash has no
+  sound, so the presenter invents one mid-sentence; a parallel list that drops its predicate is
+  grammatical and unspeakable. Plus the check nobody runs — the first six words of every slide's
+  notes, in a column, because notes drafted one slide at a time independently reach for the same
+  opener. The second half is the language split for a domestic audience: English titles, labels and
+  terms; local-language body and notes; never both on the same content. An all-English deck makes
+  the audience read, and while they read they are not listening.
+
 - **Opt-in: a routing block in a project's `CLAUDE.md`, so a plain-language request finds the
   skills.** `/orchestrate` was the only reliable way in, and it only works for someone who knows to
   type it. `install.py --claude-project <folder>` now writes ~25 lines — a task-to-skill table and

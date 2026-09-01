@@ -3823,8 +3823,8 @@
     },
     {
       "path": "skills/present-paper/SKILL.md",
-      "size": 51996,
-      "sha256": "61bf339f3c778790591b63d4e98a60d693a795d5b671a90942d6c794b81e902d"
+      "size": 53093,
+      "sha256": "d94632764cd473f79ccf594bb6ecbd49bc270447a81d1f9cfce3d1d43701bbea"
     },
     {
       "path": "skills/present-paper/references/ai_slide_tells.md",
@@ -3840,6 +3840,11 @@
       "path": "skills/present-paper/references/generate_pptx_templates.py",
       "size": 23387,
       "sha256": "21d216c8ffeb5488be3a6544ae800506385f345edebf044078584cf7eb751830"
+    },
+    {
+      "path": "skills/present-paper/references/generated_illustrations.md",
+      "size": 6364,
+      "sha256": "11c9a1db8b8d335e08bef14c6b1c098ca50bc8746556c69f784ed6be582c50f5"
     },
     {
       "path": "skills/present-paper/references/medical_presentation_templates.md",
@@ -3890,6 +3895,11 @@
       "path": "skills/present-paper/references/slide_visual_styles/nature_lancet.md",
       "size": 9116,
       "sha256": "fd70cbe0edbc39b05a8c6f53da5637913c15182aeb4878983615a77af20c5846"
+    },
+    {
+      "path": "skills/present-paper/references/spoken_notes_and_bilingual.md",
+      "size": 8099,
+      "sha256": "40c5c399d09d09c5f227ccf875a46efe69d57a4338af3455d4e10934462bf5df"
     },
     {
       "path": "skills/present-paper/references/workflow-checklist.md",
