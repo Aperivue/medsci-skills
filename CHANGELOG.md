@@ -4,6 +4,25 @@
 
 ### Fixed
 
+- **The Cursor project rule embedded the installer's home directory into a file people commit.**
+  `install_cursor_rule` wrote `REPO_ROOT` — an absolute path naming the user who ran the installer —
+  into `<project>/.cursor/rules/medsci-skills.mdc`, and `.cursor/rules/` is a directory that goes
+  into git. It was also pointing at the wrong place: `docs/host_compatibility.md` already records
+  that this rule is **legacy for discovery**, because Cursor reads `~/.claude/skills/` and
+  `~/.agents/skills/` directly. The path was therefore leaking something while steering nothing, so
+  the rule now names those two installed locations and `orchestrate` as the entry point.
+
+  It also wrote with `Path.write_text`, the same truncate-then-write that the CLAUDE.md splice was
+  fixed for. This file is ours to replace, but a half-written one after an interrupt is nobody's; it
+  now goes through `medsci_txn.atomic_write_bytes` and keeps the destination's mode.
+
+  Four of the new assertions fail against the previous release. The one that matters most is the
+  repository-path check — the generic home-path check passes in CI, where the checkout is not under
+  a home directory, and would only have fired on a real user's machine.
+
+
+### Fixed
+
 - **The routing splice claimed to preserve the user's file and did not.** An independent Codex
   review of the feature below found six defects in it. Four were real losses and are fixed here; the
   other two are answered rather than coded around.

@@ -683,7 +683,7 @@ gh skill install --all Aperivue/medsci-skills            # or install all of the
 
 - Claude Code: skills are copied to `~/.claude/skills/` (also read by GitHub Copilot and Cursor).
 - Codex: skills are copied to `~/.agents/skills/` (also read by Cursor and GitHub Copilot).
-- Cursor: no separate step needed — Cursor reads `~/.claude/skills/` and `~/.agents/skills/` directly. The installer can still write an optional `.cursor/rules/` steering rule with `--cursor-project`.
+- Cursor: no separate step needed — Cursor reads `~/.claude/skills/` and `~/.agents/skills/` directly. The installer can still write an optional `.cursor/rules/` steering rule with `--cursor-project`; it carries no machine-specific path, so it is safe to commit.
 - See [`docs/host_compatibility.md`](docs/host_compatibility.md) for the verified per-host install paths and their official sources.
 - Windows users do not need WSL for the basic classroom workflow. Use WSL only for advanced reproducible Linux toolchains.
 

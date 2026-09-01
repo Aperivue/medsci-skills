@@ -86,38 +86,55 @@ def copy_skills(target: str, dest: Path, log_lines: list[str], dry_run: bool) ->
 
 
 def install_cursor_rule(project: Path, log_lines: list[str], dry_run: bool) -> None:
-    rules_dir = project / ".cursor" / "rules"
-    rule_path = rules_dir / "medsci-skills.mdc"
-    body = f"""---
+    """Write the optional Cursor steering rule into <project>/.cursor/rules/medsci-skills.mdc.
+
+    Two things this deliberately does NOT do any more:
+
+    * It does not embed the repository path. `.cursor/rules/` is a directory people commit, and the
+      absolute path of a home directory is the installer's name, so it travelled into shared repos.
+      It was also pointing at the wrong place: per docs/host_compatibility.md this rule is legacy
+      for discovery -- Cursor reads `~/.claude/skills/` and `~/.agents/skills/` directly -- so the
+      rule steers, and the skills are found where they are installed rather than in a checkout.
+    * It does not call `Path.write_text`, which opens in "w" mode and truncates before writing. This
+      file is ours to replace, but a half-written one after an interrupt is nobody's.
+    """
+    rule_path = project / ".cursor" / "rules" / "medsci-skills.mdc"
+    body = """---
 description: Use MedSci Skills for medical research writing, literature search, statistics, figures, and submission workflows.
 alwaysApply: false
 ---
 
 # MedSci Skills
 
-When the user asks for medical research workflows, inspect the relevant
-`skills/<skill-name>/SKILL.md` file in this repository before acting.
+This file is written by the MedSci Skills installer and is replaced whenever it runs.
+
+When the user asks for a medical research workflow, use the installed MedSci skill rather than
+answering from scratch. Cursor reads them from `~/.claude/skills/` and `~/.agents/skills/`; open the
+relevant `<skill-name>/SKILL.md` before acting.
 
 Start with these entry points:
 
-- `skills/search-lit/SKILL.md` for literature search and verified citations
-- `skills/analyze-stats/SKILL.md` for statistical tables and analysis code
-- `skills/make-figures/SKILL.md` for publication figures
-- `skills/write-paper/SKILL.md` for manuscript sections
-- `skills/check-reporting/SKILL.md` for reporting guideline audits
+- `orchestrate` — unsure which one fits; it classifies the request and routes
+- `search-lit` — literature search and verified citations
+- `analyze-stats` — statistical tables and analysis code
+- `make-figures` — publication figures
+- `write-paper` — manuscript sections
+- `check-reporting` — reporting-guideline audits
 
-Use small single-skill tasks first. Avoid running the full end-to-end pipeline
-unless the user explicitly asks and provides the required project files.
-
-Repository path:
-`{REPO_ROOT}`
+Prefer small single-skill tasks. Do not run the full end-to-end pipeline unless the user asks for it
+and provides the required project files.
 """
     log(f"\n[cursor] writing project rule to {rule_path}", log_lines)
     if dry_run:
         log("  DRY RUN write Cursor rule", log_lines)
         return
-    rules_dir.mkdir(parents=True, exist_ok=True)
-    rule_path.write_text(body, encoding="utf-8")
+    prev_mode = os.stat(rule_path).st_mode & 0o777 if rule_path.is_file() else None
+    medsci_txn.atomic_write_bytes(rule_path, body.encode("utf-8"))
+    if prev_mode is not None:
+        try:
+            os.chmod(rule_path, prev_mode)
+        except OSError:
+            pass
     log("  installed Cursor project rule", log_lines)
 
 
