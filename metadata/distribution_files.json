@@ -5468,8 +5468,8 @@
     },
     {
       "path": "skills/sync-submission/SKILL.md",
-      "size": 40770,
-      "sha256": "016b88b1d495a094104d7154724632178751f843623683fb8ebe447735ff5557"
+      "size": 40790,
+      "sha256": "45b228823952b028f0ec8160cd3e457f95b37a0a8fe692a09349a49d1e91054a"
     },
     {
       "path": "skills/sync-submission/references/journal_availability_policy.json",
@@ -5828,8 +5828,8 @@
     },
     {
       "path": "skills/verify-refs/scripts/verify_refs.py",
-      "size": 49238,
-      "sha256": "5e631278ab1b38960d6ba1865cc360855fb2d600024fb67a8e3a9c5a82d5ba9c"
+      "size": 49027,
+      "sha256": "289a91883045bbc38d8e16f65d3e858a106edbb3413ecf6e2d723f353b733362"
     },
     {
       "path": "skills/verify-refs/skill.yml",

@@ -2,6 +2,19 @@
 
 ## [Unreleased]
 
+## [5.26.1] - 2026-09-05
+
+**Hotfix:** published examples retained manuscript-specific details after the privacy cleanup.
+
+### Fixed
+
+- Complete the privacy cleanup of illustrative cover-letter output and citation-order
+  test data and reference-check commentary with synthetic values and neutral prose.
+  The expected arithmetic
+  and citation-order findings are preserved; no detector behavior changes.
+- This patch supersedes v5.26.0. Existing tags and published package versions remain
+  unchanged.
+
 ## [5.26.0] - 2026-09-05
 
 ### Fixed

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Regression test for the float citation-ORDER gate (journal technical-check pass).
-# Synthetic, PII-free fixtures: a manuscript whose main Tables (3,1,2,4) and
-# supplementary Tables (S4,S9,S16,S12,S6,S2) are cited out of numerical order, and
+# Synthetic, PII-free fixtures: a manuscript whose main Tables (4,2,1,3) and
+# supplementary Tables (S3,S1,S8,S2,S6,S4) are cited out of numerical order, and
 # a clean manuscript where every series is cited in ascending order (incl. a plural
 # list "Tables S4, S5", a back-matter legends block that must be excluded, and a
 # non-float "S1 through S6" sensitivity label that must NOT be parsed as tables).

@@ -1,24 +1,21 @@
 # Abstract
 
-We report a cohort study. Baseline characteristics are summarized later.
+This is a synthetic document for testing citation order.
 
 # Methods
 
-The reference tier had zero events by design and enters Table 3 descriptively.
-Number-at-risk tables are provided in Table S4, and the endpoint decomposition in
-Table S9. Baseline characteristics by alternative strata appear in Table S16.
+The planned groups are listed in Table 4. Additional setup information is in
+Table S3, and the variable glossary is in Table S1. The example protocol is in Table S8.
 
 # Results
 
-Of the cohort, the eligible adults are described in Table 1; tier-specific rates
-use the denominator roadmap in Table 2. The discrimination metrics are in Table S12,
-and the exploratory model in Table S6. Five-year incidences are in Table 3, and the
-landmark model in Table 4. The returner comparison is in Table S2.
+Group summaries appear in Table 2 and Table 1. Further summaries are in Table S2
+and Table S6. The final comparison appears in Table 3, with an example in Table S4.
 
 # Discussion
 
-The gradient held across sensitivity analyses S1 through S6 (these are analysis-plan
-labels, not supplementary tables). Schematic in Supplementary Figure S1.
+Sensitivity analyses S1 through S6 are analysis-plan labels, not supplementary tables.
+The schematic appears in Supplementary Figure S1.
 
 # References
 
@@ -26,6 +23,6 @@ labels, not supplementary tables). Schematic in Supplementary Figure S1.
 
 # Figure Legends
 
-**Figure 1.** Cohort flow.
+**Figure 1.** Synthetic flow diagram.
 
-**Figure 2.** Tier-stratified curves; numbers at risk in Table S4.
+**Figure 2.** Example comparison; additional details in Table S3.

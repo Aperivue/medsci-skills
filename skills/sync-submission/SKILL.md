@@ -261,18 +261,18 @@ Body words are matched with a 5% tolerance ("approximately N words"
 phrasing). Abstract words tolerate ±5. Reference / table / figure counts
 require exact match.
 
-Output `qc/cover_letter_drift.json`:
+Example `qc/cover_letter_drift.json` (synthetic values):
 
 ```json
 {
   "submission_safe": false,
-  "truth": {"body_words": 3036, "abstract_words": 319, "references": 12,
+  "truth": {"body_words": 2400, "abstract_words": 210, "references": 10,
             "tables": 3, "figures": 4},
-  "claims": {"body_words": 3790, "abstract_words": 250, "references": 12},
+  "claims": {"body_words": 2800, "abstract_words": 250, "references": 10},
   "drifts": [
-    {"field": "body_words", "truth": 3036, "cover_letter_claim": 3790,
+    {"field": "body_words", "truth": 2400, "cover_letter_claim": 2800,
      "severity": "MAJOR",
-     "note": "|claim - truth| = 754 > tolerance 151"}
+     "note": "|claim - truth| = 400 > tolerance 120"}
   ]
 }
 ```
