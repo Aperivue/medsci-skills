@@ -43,7 +43,8 @@ python fetch_oa.py dois.txt -o pdfs/ -e your@email.com --verbose
 10.1002/mp.12524
 ```
 
-**TSV / CSV with header** — must contain a `DOI` column; optional `PMID` and `Title` columns:
+**TSV / CSV with header** — must contain a `DOI` column; optional `PMID`, `Title`, and
+`FirstAuthor` columns (first author's surname or full name for corroboration):
 ```tsv
 ID	Title	DOI	PMID	Year
 1	Some paper	10.1007/s00330-010-1783-x	20628747	2010
@@ -56,7 +57,9 @@ ID	Title	DOI	PMID	Year
 | 10.1007/s00330-010-1783-x | 20628747 | Some paper |
 ```
 
-When a PMID is available, the PMC lookup is more reliable (PMID → PMCID conversion). When a `Title` column is present, downloaded PDFs get a best-effort title cross-check (see *Retrieval report* below).
+When a PMID is available, the PMC lookup is more reliable (PMID → PMCID conversion).
+Supply `Title` where available: a DOI-only worklist can download a PDF but cannot
+establish title agreement. `FirstAuthor` is optional additional evidence.
 
 ## PMC Download (JS-Challenge Resistant)
 
@@ -100,22 +103,54 @@ override with `--report PATH`):
 
 ```json
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "generated_by": "fetch_oa.py",
-  "counts": {"total": 10, "retrieved": 6, "not_retrieved": 4, "title_mismatch": 1},
+  "counts": {"total": 4, "retrieved": 3, "not_retrieved": 1, "title_mismatch": 1,
+             "source_identity": {"consistent": 1, "conflict": 1, "unresolved": 1, "unavailable": 1}},
   "items": [
-    {"doi": "10.1007/...", "pmid": "20628747", "title": "...",
-     "status": "oa", "source": "unpaywall", "file": "10.1007_....pdf",
-     "size_bytes": 482113, "title_match": "match"}
+    {"doi": "10.1000/synthetic.example", "pmid": "", "title": "Example title",
+     "first_author": "", "status": "oa", "source": "unpaywall",
+     "file": "10.1000_synthetic.example.pdf", "size_bytes": 482113,
+     "file_sha256": "<SHA-256 of the downloaded file>", "title_match": "match",
+     "source_identity": {"status": "consistent", "reason": "title_and_identifier_agree",
+                         "text_scope": "first_page_front_matter", "title_match": "match",
+                         "doi_match": "match", "observed_identifiers": ["10.1000/synthetic.example"],
+                         "first_author_match": "unavailable"}}
   ]
 }
 ```
 
-- `status` ∈ `arxiv | oa | pmc | skip | fail`; `source` names the resolver that succeeded.
-- `title_match` ∈ `match | mismatch | unavailable` (tri-state). It is **best-effort**:
-  it needs a `Title` column **and** `pdftotext` (poppler). When either is missing it is
-  `unavailable`; a `mismatch` is **flagged** for review and **never** auto-rejects a PDF
-  (guards against a publisher serving a wrong/redirect PDF that still passes the `%PDF-` check).
+The example abbreviates `items`. Legacy `status` (`arxiv | oa | pmc | skip | fail`),
+`source`, and `counts.retrieved` retain their resolver-result meaning, including existing
+files (`skip`). **They do not count identity-verified papers.** Report schema 2 adds the
+file hash and separate identity evidence; no PDF is automatically deleted or rejected.
+
+| `source_identity.status` | Meaning / action |
+|---|---|
+| `consistent` | Complete normalized title and a compatible DOI/arXiv identifier occur in the bounded first-page front matter; an optional supplied author must also match. Evidence agrees, but this is not independent source verification or claim validation. |
+| `conflict` | Both the title and observed identifier differ. Inspect the PDF and requested record. |
+| `unresolved` | Evidence is incomplete or ambiguous: title-only, DOI-only, missing author, multiple identifiers, or a matching title with another DOI/version. Inspect before using as evidence. |
+| `unavailable` | No usable extracted text, Poppler unavailable, no output PDF, or the PDF changed during assessment. No current identity assessment was possible. |
+
+`title_match` keeps its tri-state shape. A `match` now requires the complete normalized
+title on up to six consecutive front-matter lines. Case, punctuation and line wrapping
+are normalized. Scattered matching words cannot establish a match; partial overlap is
+`unavailable`, and low overlap is an advisory `mismatch`.
+
+Evidence is limited to the first page, before a recognized abstract/body/reference
+heading, at most 40 lines / 4,000 characters. Thus a title cited in the body or references
+does not establish a title match. These are conservative layout heuristics: cover sheets,
+unrecognized headings, short or changed titles, unusual reading order and DOI footers
+outside that area can remain unresolved. PDF metadata and the filename alone are not
+identity evidence. The CLI compares hashes before extraction and when reporting;
+changed files cannot inherit the previous text's assessment. Explicit arXiv versions
+must agree; preprint/published-version DOI
+differences require review rather than automatic rejection.
+
+Downstream reports must preserve `source_identity` and `file_sha256`, keep unresolved
+items visible, and check the hash still identifies the file being used. Older reports
+without identity evidence remain **unassessed**; do not infer identity from `retrieved`
+or `title_match=match`. Full-text conversion does not resolve an identity warning.
 
 ## Attach PDFs into Zotero ("Find Available PDF")
 

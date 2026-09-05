@@ -1823,23 +1823,23 @@
     },
     {
       "path": "skills/fulltext-retrieval/SKILL.md",
-      "size": 8248,
-      "sha256": "d97c19a64d92f66e3c8a1445d893c0f55364f21dc99404fb6f012a3566556e73"
+      "size": 10954,
+      "sha256": "4d1defdcb710f727c15779fbeb9a10dee6088a1b70b250f6fe2339c87a76c3a1"
     },
     {
       "path": "skills/fulltext-retrieval/fetch_oa.py",
-      "size": 24810,
-      "sha256": "12bfbf094d338ac461267cea133c0a63a66bc0d2dadd28727921149bc5b72855"
+      "size": 32245,
+      "sha256": "09ca16bec5232d778940e2e3b49681c2e548720a1f20184130c39b23ca23d73e"
     },
     {
       "path": "skills/fulltext-retrieval/fetch_oa_report_challenge/expected/projection.json",
-      "size": 522,
-      "sha256": "f24bdb507f66932c0429acefc171abf5221bd644cacdeba5cd7b5c07670b04aa"
+      "size": 614,
+      "sha256": "cd983f0ce56d9fd500eeff4f8432bbb66759cc4b56983214d548ea40cf2ecccd"
     },
     {
       "path": "skills/fulltext-retrieval/fetch_oa_report_challenge/extracted_text.json",
-      "size": 351,
-      "sha256": "9b512bbea3780727e79355dd4b3689be182f086d4afb4184737524449fc44e4d"
+      "size": 407,
+      "sha256": "b55cd1dc0704527ca9c34ff6320e49cfa14a5b1310b50c7a8e7c39f1c2d9d3d2"
     },
     {
       "path": "skills/fulltext-retrieval/fetch_oa_report_challenge/results.json",
@@ -1873,8 +1873,8 @@
     },
     {
       "path": "skills/fulltext-retrieval/skill.yml",
-      "size": 2420,
-      "sha256": "7a457e5f5fde09f57a8ef9d2207dbaab241e56a9bca59ba577d26351bf225346"
+      "size": 2831,
+      "sha256": "cce683497dcb52905d603d7bab326dfc480d83436350d9435b75f7f67cdb9ed4"
     },
     {
       "path": "skills/generate-codebook/SKILL.md",
@@ -1943,8 +1943,8 @@
     },
     {
       "path": "skills/lit-sync/SKILL.md",
-      "size": 22758,
-      "sha256": "b0fc43eed00b1813f453614b89d9a29d2573115789c00daacca2f82a65d6350c"
+      "size": 23559,
+      "sha256": "d41481e90c1b4ca804f9686d4dcb066d5a2ba23504ed9e0080581991e45061ae"
     },
     {
       "path": "skills/lit-sync/references/bbt_lookup.md",
@@ -4328,8 +4328,8 @@
     },
     {
       "path": "skills/search-lit/SKILL.md",
-      "size": 24427,
-      "sha256": "7b3b355e1cf8089b061e1dd5412cf69338a82b993c2e64bc6afd50708051c84d"
+      "size": 24942,
+      "sha256": "f16110416385b53317c0367da792cce91e1e86c5c1a35cff2afc2224fc5fd24e"
     },
     {
       "path": "skills/search-lit/references/parse_pubmed.py",

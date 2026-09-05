@@ -12,12 +12,13 @@ Usage:
     python fetch_oa.py worklist.csv -o pdfs/ -e user@example.com --report pdfs/retrieval_report.json
 
 Worklist formats: plain DOI-per-line, or TSV/CSV/Markdown-table with a DOI
-column (optional PMID and Title columns). A Title column enables a best-effort
-title cross-check (via `pdftotext` if installed) that flags mislabeled PDFs.
+column (optional PMID, Title and FirstAuthor columns). A separate source-identity
+report compares first-page title and identifiers via `pdftotext` if installed.
 """
 
 import argparse
 import csv
+import hashlib
 import io
 import json
 import logging
@@ -26,6 +27,7 @@ import re
 import shutil
 import subprocess
 import time
+import unicodedata
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -34,7 +36,7 @@ from pathlib import Path
 
 MIN_PDF_BYTES = 10 * 1024
 USER_AGENT = "medsci-skills/1.0"
-REPORT_SCHEMA_VERSION = 1
+REPORT_SCHEMA_VERSION = 2
 TITLE_MATCH_THRESHOLD = 0.6
 RETRIEVED_STATUSES = ("oa", "pmc", "arxiv", "skip")
 
@@ -85,14 +87,26 @@ def existing_pdf_ok(path: Path) -> bool:
         return False
 
 
+def pdf_sha256(path: Path) -> str:
+    """Hash the PDF bytes without loading a potentially large file into memory."""
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for block in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
 # ============================================================
-# Title cross-check (pure, offline-testable)
+# Source-identity evidence (pure, offline-testable; advisory, not verification)
 # ============================================================
 
 def normalize_title(text: str) -> str:
-    """Lowercase, strip punctuation, collapse whitespace."""
-    text = (text or "").lower()
-    text = re.sub(r"[^a-z0-9\s]", " ", text)
+    """Normalize Unicode, punctuation and PDF line-end hyphenation."""
+    text = unicodedata.normalize("NFKD", text or "").casefold()
+    text = "".join(c for c in text if not unicodedata.combining(c))
+    text = text.replace("\u00ad", "")
+    text = re.sub(r"(?<=\w)[-\u2010]\s*\n\s*(?=\w)", "", text)
+    text = "".join(c if c.isalnum() or c.isspace() else " " for c in text)
     return " ".join(text.split())
 
 
@@ -113,16 +127,124 @@ def classify_title_match(expected_title: str, extracted_text,
                          threshold: float = TITLE_MATCH_THRESHOLD) -> str:
     """Tri-state title check: 'match' | 'mismatch' | 'unavailable'.
 
-    'unavailable' when no expected title is supplied or no extracted text is
-    available (e.g. pdftotext absent). A low overlap is 'mismatch' — flagged,
-    never used to auto-reject a downloaded PDF.
+    A match requires the complete normalized title on up to six consecutive
+    front-matter lines. Token overlap can only mark ambiguous text unavailable;
+    it can never establish a match. Mismatch is advisory, never auto-rejection.
     """
-    if not expected_title or not extracted_text:
+    expected = normalize_title(expected_title)
+    front = first_page_front_matter(extracted_text)
+    if not expected or not front:
         return "unavailable"
-    return "match" if title_overlap(expected_title, extracted_text) >= threshold else "mismatch"
+    lines = [re.sub(r"^title\s*:\s*", "", ln.strip(), flags=re.I)
+             for ln in front.splitlines() if ln.strip()]
+    for start in range(len(lines)):
+        for length in range(1, min(6, len(lines) - start) + 1):
+            if normalize_title("\n".join(lines[start:start + length])) == expected:
+                return "match"
+    return "unavailable" if title_overlap(expected_title, front) >= threshold else "mismatch"
 
 
-def extract_pdf_text(path: Path, max_pages: int = 2) -> str | None:
+_BODY_START_RE = re.compile(
+    r"^\s*(?:(?:\d+|[IVX]+)[.\s]+)?"
+    r"(?:abstract|summary|introduction|background|references|bibliography|literature cited)"
+    r"(?:\s*[:.\u2014\u2013-]|\s*$)", re.I,
+)
+
+
+def first_page_front_matter(extracted_text: str | None) -> str:
+    """Bound evidence to page 1 before a body/reference heading, at most 40 lines.
+
+    This is a conservative text-layout heuristic, not a PDF title-zone parser.
+    Cover sheets, unusual layouts and unrecognized headings need human review.
+    """
+    if not extracted_text:
+        return ""
+    lines = []
+    for line in extracted_text.split("\f", 1)[0][:4000].splitlines()[:40]:
+        if _BODY_START_RE.match(line):
+            break
+        lines.append(line)
+    return "\n".join(lines).strip()
+
+
+def normalize_identifier(value: str) -> str:
+    """Normalize DOI URL/prefix and equivalent arXiv DOI/id spellings."""
+    value = re.sub(r"^(?:https?://(?:dx\.)?doi\.org/|doi:\s*)", "",
+                   (value or "").strip(), flags=re.I).rstrip(".,;")
+    aid = arxiv_id_from_doi(value)
+    return (f"10.48550/arxiv.{aid}" if aid else value).casefold()
+
+
+def front_matter_identifiers(front: str) -> list[str]:
+    """Find DOI/arXiv evidence only in the bounded front matter, never PDF metadata."""
+    values = re.findall(r"\b10\.\d{4,9}/[^\s<>\"\[\]]+", front, re.I)
+    # Drop a citation's closing parenthesis, but retain balanced DOI suffixes.
+    cleaned = []
+    for value in values:
+        value = value.rstrip(".,;")
+        while value.endswith(")") and value.count(")") > value.count("("):
+            value = value[:-1]
+        cleaned.append(normalize_identifier(value))
+    for aid in re.findall(r"\barxiv\s*:\s*((?:\d{4}\.\d{4,5}|[a-z-]+/\d{7})(?:v\d+)?)\b",
+                          front, re.I):
+        cleaned.append(normalize_identifier("arXiv:" + aid))
+    return sorted(set(cleaned))
+
+
+def identifier_matches(expected: str, observed: str) -> bool:
+    """Unversioned arXiv requests accept a version; explicit versions must agree."""
+    if expected == observed:
+        return True
+    aid = arxiv_id_from_doi(expected)
+    return bool(aid and not re.search(r"v\d+$", aid, re.I)
+                and re.sub(r"v\d+$", "", observed, flags=re.I) == expected)
+
+
+def assess_source_identity(record: dict, extracted_text: str | None,
+                           threshold: float = TITLE_MATCH_THRESHOLD) -> dict:
+    """Report corroboration and uncertainty; never certify a source or delete it.
+
+    'consistent' needs a complete title and only compatible identifiers in the
+    same bounded first-page area. A supplied first-author name must also occur.
+    Matching titles with a different DOI may be another version: unresolved.
+    """
+    front = first_page_front_matter(extracted_text)
+    title_match = classify_title_match(record.get("title", ""), extracted_text, threshold)
+    expected = normalize_identifier(record["doi"])
+    observed = front_matter_identifiers(front)
+    doi_match = ("unavailable" if not observed else
+                 "match" if any(identifier_matches(expected, v) for v in observed)
+                 else "mismatch")
+    author = normalize_title(record.get("first_author", ""))
+    author_text = normalize_title(front).replace(normalize_title(record.get("title", "")), "", 1)
+    author_match = ("unavailable" if not author or not front else
+                    "match" if f" {author} " in f" {author_text} " else "mismatch")
+    status, reason = "unresolved", "title_not_matched"
+    if not extracted_text or not extracted_text.strip():
+        status, reason = "unavailable", "text_unavailable"
+    elif not front:
+        reason = "front_matter_unavailable"
+    elif not normalize_title(record.get("title", "")):
+        reason = "expected_title_missing"
+    elif title_match == "match":
+        if doi_match == "unavailable":
+            reason = "identifier_not_found"
+        elif doi_match == "mismatch":
+            reason = "title_matches_other_identifier"
+        elif not all(identifier_matches(expected, v) for v in observed):
+            reason = "multiple_identifiers"
+        elif author_match == "mismatch":
+            reason = "first_author_not_found"
+        else:
+            status, reason = "consistent", "title_and_identifier_agree"
+    elif title_match == "mismatch" and doi_match == "mismatch":
+        status, reason = "conflict", "title_and_identifier_differ"
+    return {"status": status, "reason": reason, "text_scope": "first_page_front_matter",
+            "title_match": title_match, "doi_match": doi_match,
+            "observed_identifiers": observed, "first_author_match": author_match}
+
+
+def extract_pdf_text(path: Path, max_pages: int = 1) -> str | None:
     """Best-effort first-page text via `pdftotext` (poppler). None if unavailable."""
     if not shutil.which("pdftotext"):
         return None
@@ -432,13 +554,16 @@ def process_doi(doi: str, outdir: Path, email: str,
 
 def build_report(records: list[dict], results: dict[str, tuple[str, str]],
                  outdir: Path, extracted_text_by_doi: dict[str, str] | None = None,
-                 threshold: float = TITLE_MATCH_THRESHOLD) -> dict:
+                 threshold: float = TITLE_MATCH_THRESHOLD, *,
+                 extracted_sha256_by_doi: dict[str, str] | None = None) -> dict:
     """Assemble a deterministic retrieval report (no network, no I/O writes).
 
-    records: list of {"doi", "pmid", "title"}.
+    records: list of {"doi", "pmid", "title"}, optionally "first_author".
     results: doi -> (status, source) as returned by process_doi.
     outdir:  directory where PDFs were written (used for file/size lookup).
     extracted_text_by_doi: optional doi -> first-page text for title cross-check.
+    extracted_sha256_by_doi: hashes captured before extraction by the CLI. When
+        supplied, missing/different hashes invalidate that text's assessment.
     """
     extracted_text_by_doi = extracted_text_by_doi or {}
     items = []
@@ -448,20 +573,27 @@ def build_report(records: list[dict], results: dict[str, tuple[str, str]],
         path = outdir / f"{safe_doi_name(doi)}.pdf"
         have_file = status in RETRIEVED_STATUSES and path.exists()
         size = path.stat().st_size if have_file else 0
-        if have_file:
-            title_match = classify_title_match(
-                rec.get("title", ""), extracted_text_by_doi.get(doi), threshold)
-        else:
-            title_match = "unavailable"
+        digest = pdf_sha256(path) if have_file else ""
+        text = extracted_text_by_doi.get(doi) if have_file else None
+        changed = bool(text and extracted_sha256_by_doi is not None
+                       and extracted_sha256_by_doi.get(doi) != digest)
+        identity = assess_source_identity(rec, None if changed else text, threshold)
+        if not have_file:
+            identity["reason"] = "pdf_not_available"
+        elif changed:
+            identity["reason"] = "pdf_changed_during_assessment"
         items.append({
             "doi": doi,
             "pmid": rec.get("pmid", ""),
             "title": rec.get("title", ""),
+            "first_author": rec.get("first_author", ""),
             "status": status,
             "source": source,
             "file": path.name if have_file else "",
             "size_bytes": size,
-            "title_match": title_match,
+            "file_sha256": digest,
+            "title_match": identity["title_match"],
+            "source_identity": identity,
         })
 
     retrieved = [i for i in items if i["status"] in RETRIEVED_STATUSES]
@@ -474,6 +606,10 @@ def build_report(records: list[dict], results: dict[str, tuple[str, str]],
             "retrieved": len(retrieved),
             "not_retrieved": len(not_retrieved),
             "title_mismatch": sum(1 for i in items if i["title_match"] == "mismatch"),
+            "source_identity": {
+                state: sum(i["source_identity"]["status"] == state for i in items)
+                for state in ("consistent", "conflict", "unresolved", "unavailable")
+            },
         },
         "items": items,
     }
@@ -489,7 +625,9 @@ def _records_from_dictrows(rows) -> list[dict]:
         rec = {"doi": "", "pmid": "", "title": ""}
         for k, v in row.items():
             nk = _norm_key(k)
-            if nk in rec:
+            if nk in ("firstauthor", "first_author", "first author"):
+                rec["first_author"] = (v or "").strip()
+            elif nk in rec:
                 rec[nk] = (v or "").strip()
         if rec["doi"]:
             records.append(rec)
@@ -514,11 +652,15 @@ def _records_from_markdown(lines: list[str]) -> list[dict]:
         row = dict(zip(header, c))
         doi = (row.get("doi") or "").strip()
         if doi:
-            records.append({
+            rec = {
                 "doi": doi,
                 "pmid": (row.get("pmid") or "").strip(),
                 "title": (row.get("title") or "").strip(),
-            })
+            }
+            for key in ("firstauthor", "first_author", "first author"):
+                if key in row:
+                    rec["first_author"] = (row[key] or "").strip()
+            records.append(rec)
     return records
 
 
@@ -526,8 +668,8 @@ def read_doi_file(path: Path) -> list[dict]:
     """Read a worklist of DOIs.
 
     Supports: plain DOI-per-line; TSV/CSV with a DOI header (optional PMID,
-    Title columns); and a Markdown pipe table with a DOI column. Each record is
-    {"doi", "pmid", "title"}.
+    Title and FirstAuthor columns); and a Markdown pipe table with a DOI column.
+    Each record is {"doi", "pmid", "title"}, optionally "first_author".
     """
     text = Path(path).read_text(encoding="utf-8")
     lines = text.splitlines()
@@ -560,7 +702,7 @@ def main():
         description="Batch download open-access PDFs by DOI.")
     parser.add_argument("input", type=Path,
                         help="Worklist: DOIs (one per line) or TSV/CSV/Markdown "
-                             "with a DOI column (optional PMID, Title)")
+                             "with a DOI column (optional PMID, Title, FirstAuthor)")
     parser.add_argument("-o", "--output", type=Path, default=Path("pdfs"),
                         help="Output directory (default: pdfs/)")
     parser.add_argument("-e", "--email", default=os.environ.get("MEDSCI_CONTACT_EMAIL"),
@@ -599,29 +741,29 @@ def main():
         results[doi] = (status, source)
         stats[status] += 1
 
-        labels = {"arxiv": "OK (arXiv)", "oa": "OK (OA)", "pmc": "OK (PMC)",
-                  "fail": "FAIL", "skip": "SKIP"}
+        labels = {"arxiv": "DOWNLOADED (arXiv)", "oa": "DOWNLOADED (OA)",
+                  "pmc": "DOWNLOADED (PMC)", "fail": "FAIL", "skip": "EXISTS"}
         print(labels[status])
         time.sleep(0.5)
 
-    # Best-effort title cross-check on successful downloads (needs pdftotext).
+    # Identity evidence is separate from retrieval, including DOI-only worklists.
     extracted: dict[str, str] = {}
-    have_titles = any(r.get("title") for r in records)
-    if have_titles and shutil.which("pdftotext"):
+    extracted_hashes: dict[str, str] = {}
+    if shutil.which("pdftotext"):
         for rec in records:
             doi = rec["doi"]
-            if not rec.get("title"):
-                continue
             status, _ = results.get(doi, ("fail", ""))
             if status not in RETRIEVED_STATUSES:
                 continue
             path = args.output / f"{safe_doi_name(doi)}.pdf"
             if path.exists():
+                extracted_hashes[doi] = pdf_sha256(path)
                 text = extract_pdf_text(path)
                 if text:
                     extracted[doi] = text
 
-    report = build_report(records, results, args.output, extracted)
+    report = build_report(records, results, args.output, extracted,
+                          extracted_sha256_by_doi=extracted_hashes)
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
 
@@ -634,10 +776,14 @@ def main():
     total = stats["arxiv"] + stats["oa"] + stats["pmc"] + stats["fail"]
     if total > 0:
         pct = (stats["arxiv"] + stats["oa"] + stats["pmc"]) / total * 100
-        print(f"  Success: {pct:.0f}%")
+        print(f"  Download success: {pct:.0f}% (excludes existing files; not identity verification)")
     mismatches = report["counts"]["title_mismatch"]
     if mismatches:
         print(f"  Title mismatches flagged: {mismatches} (see report)")
+    identity_counts = report["counts"]["source_identity"]
+    print("  Source identity (advisory): " + ", ".join(
+        f"{state}={count}" for state, count in identity_counts.items()))
+    print("  Review source_identity and file_sha256 before using a PDF as evidence.")
     print(f"  Report:  {report_path}")
 
     # Write failed DOIs for manual retrieval

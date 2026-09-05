@@ -325,9 +325,16 @@ Pass the verified candidate DOIs from `references/library.bib`:
 
 ```bash
 ENGINE="${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/fulltext-retrieval/fetch_oa.py"
-# extract DOIs from references/library.bib → dois.txt (one per line)
-python3 "$ENGINE" dois.txt -o pdfs/ -e <contact-email> --report pdfs/retrieval_report.json
+# extract DOI + Title (and PMID/FirstAuthor when available) → worklist.tsv
+python3 "$ENGINE" worklist.tsv -o pdfs/ -e <contact-email> --report pdfs/retrieval_report.json
 ```
+
+Use the verified bibliographic title rather than discarding it into a DOI-only list.
+Keep `source_identity` and `file_sha256` from the retrieval report with the record.
+Download success and title agreement alone do not verify the PDF: inspect conflicts,
+unresolved/unavailable evidence, and files whose hashes have changed before citing them.
+Missing identity fields in older reports mean unassessed. Even `consistent` is advisory
+front-matter corroboration, not verification of the claims in the paper.
 
 For Zotero-resident PDFs and higher-yield, proxy-aware retrieval, use `/lit-sync` Phase 2.7,
 which also invokes `/fulltext-retrieval` and triggers Zotero's native "Find Available PDF".

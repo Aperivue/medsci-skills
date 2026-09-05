@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Full-text retrieval no longer treats scattered title words or body/reference mentions
+  as a title match. Report schema 2 separates download results from advisory first-page
+  title/identifier evidence and records the PDF hash; related versions and incomplete
+  evidence remain visible for review. Existing retrieval counts and downloaded files are
+  preserved. Search and library-sync guidance carries the identity evidence downstream.
+
 ## [5.26.1] - 2026-09-05
 
 **Hotfix:** published examples retained manuscript-specific details after the privacy cleanup.
