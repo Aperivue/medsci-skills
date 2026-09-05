@@ -12,7 +12,8 @@
 #   - Output path = <input>.pdf
 #   - geometry = margin=0.85in, fontsize = 11pt (override via frontmatter)
 #
-# The frontmatter in input.md takes precedence over CLI/auto-detected defaults.
+# Frontmatter overrides wrapper/OS defaults. Explicit pandoc -V/-M arguments
+# after -- retain pandoc's normal precedence over frontmatter.
 
 set -euo pipefail
 
@@ -33,8 +34,8 @@ Options:
   -i  Input markdown
   -o  Output PDF (default: <input>.pdf)
   --infer-colwidths     Run scripts/infer_colwidths.py on a temp copy first
-  --font NAME           mainfont (default: OS-detected)
-  --cjk-font NAME       CJKmainfont (default: OS-detected)
+  --font NAME           mainfont fallback when absent from frontmatter (default: OS-detected)
+  --cjk-font NAME       CJKmainfont fallback when absent from frontmatter (default: OS-detected)
   -h | --help           Help
 
 Pass-through: any args after '--' go directly to pandoc.
@@ -99,27 +100,40 @@ esac
 
 command -v pandoc >/dev/null || { echo "ERROR: pandoc not installed" >&2; exit 3; }
 command -v xelatex >/dev/null || { echo "ERROR: xelatex not installed (install mactex / texlive-xetex / MiKTeX)" >&2; exit 3; }
+command -v python3 >/dev/null || { echo "ERROR: python3 not installed" >&2; exit 3; }
 
 WORK="$INPUT"
-TMPDIR=""
+RENDER_TMP="$(mktemp -d)"
+trap 'rm -rf "$RENDER_TMP"' EXIT
 if [[ "$INFER_COLWIDTHS" == "1" ]]; then
-  TMPDIR="$(mktemp -d)"
-  trap 'rm -rf "$TMPDIR"' EXIT
-  WORK="$TMPDIR/$(basename "$INPUT")"
+  WORK="$RENDER_TMP/$(basename "$INPUT")"
   python3 "$SCRIPT_DIR/infer_colwidths.py" "$INPUT" --out "$WORK"
 fi
 
+# --metadata-file supplies defaults that document metadata can override. -V,
+# -M, and a --defaults file's metadata would override the document instead.
+# JSON is accepted by pandoc; serialize arguments without interpolating code.
+python3 - "$MAINFONT" "$CJKFONT" > "$RENDER_TMP/metadata.json" <<'PY'
+import json
+import sys
+
+json.dump({
+    "mainfont": sys.argv[1],
+    "CJKmainfont": sys.argv[2],
+    "geometry": "margin=0.85in",
+    "fontsize": "11pt",
+    "linestretch": "1.25",
+    "colorlinks": True,
+}, sys.stdout)
+PY
+
 ARGS=(
   --pdf-engine=xelatex
-  -V "mainfont=${MAINFONT}"
-  -V "CJKmainfont=${CJKFONT}"
-  -V "geometry:margin=0.85in"
-  -V "fontsize=11pt"
-  -V "linestretch=1.25"
-  -V "colorlinks=true"
+  --metadata-file "$RENDER_TMP/metadata.json"
   -o "$OUTPUT"
 )
 
-echo "[render_pdf] in=$INPUT out=$OUTPUT mainfont='$MAINFONT' CJK='$CJKFONT' infer=$INFER_COLWIDTHS" >&2
+echo "[render_pdf] in=$INPUT out=$OUTPUT infer=$INFER_COLWIDTHS" >&2
+echo "[render_pdf] font fallbacks: mainfont='$MAINFONT' CJK='$CJKFONT'; frontmatter overrides fallbacks, explicit pandoc -V/-M overrides frontmatter" >&2
 pandoc "${ARGS[@]}" ${EXTRA[@]+"${EXTRA[@]}"} "$WORK"
 echo "[render_pdf] ok → $OUTPUT" >&2

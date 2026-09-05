@@ -2,7 +2,7 @@
 
 **Status: migration complete (PR1–PR4).** The English-canonical migration has landed — incidental
 Korean prose is translated (PR2) and the Korean-default skills now default to English with opt-in
-`*_ko` variants (PR3). The rows below are the **steady state**: 50 Korean-bearing files, each a
+`*_ko` variants (PR3). The rows below document the Korean-bearing files, each a
 functional locale feature (A), a Korean-jurisdiction mode (A2), a bilingual trigger (D), or an
 opt-in `*_ko`/locale variant. `check_locale_inventory.py --strict` is clean.
 
@@ -64,6 +64,7 @@ Buckets:
 | `skills/define-variables/SKILL.md` | A/D | KNHANES-style dictionary sheet/row example (`5-1.복부초음파 r12`) + bilingual trigger. |
 | `skills/render-pdf-doc/references/pandoc_korean_cheatsheet.md` | A | Korean-PDF rendering reference (the skill renders Korean academic PDFs). +label in PR3. |
 | `skills/render-pdf-doc/references/known_pitfalls.md` | A | Korean-PDF rendering failure-mode demonstrations. +label in PR3. |
+| `skills/render-pdf-doc/tests/test_font_faces.py` | A | Synthetic Hangul glyphs distinguish CJK coverage from Greek coverage across font collection faces. |
 
 ## KEEP — Korean-domain mode (Bucket A2)
 

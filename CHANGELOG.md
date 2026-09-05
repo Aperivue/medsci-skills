@@ -4,6 +4,11 @@
 
 ### Fixed
 
+- PDF rendering now honors frontmatter before wrapper/OS defaults for fonts,
+  page geometry, font size, line spacing and link colors. Explicit pandoc overrides
+  remain available. Glyph scans support an explicitly selected TTC/OTC face and
+  report why font coverage could not be checked; different faces are never combined.
+  Synthetic font and pandoc regressions extend the existing render test step.
 - Full-text retrieval no longer treats scattered title words or body/reference mentions
   as a title match. Report schema 2 separates download results from advisory first-page
   title/identifier evidence and records the PDF hash; related versions and incomplete

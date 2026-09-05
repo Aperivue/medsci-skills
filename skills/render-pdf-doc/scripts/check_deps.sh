@@ -36,6 +36,7 @@ esac
 
 check "pandoc" command -v pandoc
 check "xelatex" command -v xelatex
+check "python3" command -v python3
 
 case "$(uname -s)" in
   Darwin)

@@ -92,7 +92,9 @@ suite uses synthetic fixtures and needs no private data or network access.
 To run the same gates CI runs, install the test dependencies and run the mirror:
 
 ```bash
-pip install pyyaml pandas numpy python-pptx python-docx
+pip install pyyaml pandas numpy python-pptx python-docx fonttools
+# Also install pandoc, exiftool and poppler with your OS package manager.
+# Render regression tests generate LaTeX with pandoc; CI does not install TeX.
 
 # Runs every gate in the CI `validate` job, in order, locally. The step list is
 # parsed from validate.yml itself, so it can never drift from a hand-copied subset,

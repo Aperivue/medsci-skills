@@ -44,6 +44,9 @@ Manual fixes work but the same pattern recurs across proposals, briefings, IRB c
 
 ## Dependencies
 
+Python 3 is required by the wrapper. FontTools is optional for the font-file
+coverage check (`python3 -m pip install fonttools`).
+
 ```bash
 # macOS
 brew install pandoc
@@ -69,7 +72,7 @@ so `xelatex` can read as `[MISS]` even after install. Both `check_deps.sh` and
 `render_pdf.sh` now auto-probe that location; if `xelatex` still isn't found, add the
 directory to your `PATH` (or run from the *MiKTeX Console → Settings*-configured shell).
 The Windows CJK/main font default is **Malgun Gothic** (preinstalled); override per document
-via frontmatter, or with `--font` / `--cjk-font`.
+via frontmatter, or set fallbacks with `--font` / `--cjk-font`.
 
 ## Workflow
 
@@ -116,10 +119,16 @@ Or one-shot:
 bash scripts/render_pdf.sh -i input.md -o output.pdf --infer-colwidths
 ```
 
+Frontmatter wins over wrapper defaults, including `--font` / `--cjk-font`.
+Missing fields use the wrapper or OS defaults. This also applies to `geometry`,
+`fontsize`, `linestretch` and `colorlinks` (including `false`). Explicit pandoc
+`-V` / `-M` arguments after `--` still override frontmatter; for example,
+`-- -V fontsize=10pt`. The wrapper logs font **fallbacks**, not the final fonts.
+
 ### Step 3.5 — Scientific-symbol + CJK glyph scan (before render)
 
-xelatex **silently drops** any character the chosen font does not cover — the PDF
-renders with the glyph simply missing, no error or warning. Academic markdown
+xelatex can finish successfully with missing glyphs; warnings may appear in the
+render log. Academic markdown
 routinely carries glyphs a default Latin font misses: transition arrows (→ ↑ ↓),
 math operators (− ≤ ≥ ± √ ∪ × ≈ ≠), stats Greek (κ μ σ β), bullets/marks (• ★ ✓),
 and CJK. Scan the source first so a silent drop is caught before it ships:
@@ -128,10 +137,24 @@ and CJK. Scan the source first so a silent drop is caught before it ships:
 python3 scripts/scan_glyph_coverage.py input.md --strict
 # real cmap check when you have the font file + fonttools:
 python3 scripts/scan_glyph_coverage.py input.md --font "/path/to/body.otf" --strict
+# TTC/OTC collections require the zero-based face index used by the renderer:
+python3 scripts/scan_glyph_coverage.py input.md --font "/path/to/body.ttc" --font-index 0 --strict --json glyphs.json
 ```
 
 It groups the risky glyphs by class (advisory), or — with `--font` + `fonttools`
-— reports which are genuinely absent from the font's cmap. If risky glyphs are
+— reports which are absent from one face's preferred Unicode cmap. It never
+combines coverage across collection faces. The report includes the selected
+face index and PostScript name; choose the face that matches the rendered font.
+A missing dependency, unreadable font, missing face selection or invalid index
+is reported as `font_checked: false` with a reason in `font_check`.
+An empty `missing_in_font` list then means **unverified**, not full coverage.
+The default mode remains advisory (exit 0); `--strict` exits 1 when risky glyphs
+are unverified or missing. ASCII-only input still exits 0 with an unavailable
+font, with `font_checked: false` visible.
+
+This checks only the listed risky character classes and the selected cmap;
+it does not verify shaping, fallback fonts, math fonts or final PDF glyphs.
+If risky glyphs are
 present, ensure `mainfont`/`CJKmainfont` cover them (a CJK-capable font such as
 *Apple SD Gothic Neo* / *Noto Sans CJK* usually covers arrows + Hangul but can
 still miss the true-minus `−` U+2212 and `★`). **The DOCX is authoritative; the
