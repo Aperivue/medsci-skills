@@ -3,7 +3,8 @@
     "total": 4,
     "retrieved": 3,
     "not_retrieved": 1,
-    "title_mismatch": 1
+    "title_mismatch": 1,
+    "source_identity": {"consistent": 1, "conflict": 1, "unresolved": 0, "unavailable": 2}
   },
   "items": [
     {"doi": "10.1111/valid.match", "status": "oa", "source": "unpaywall", "title_match": "match"},

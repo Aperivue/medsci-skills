@@ -255,7 +255,8 @@ python3 "$ENGINE" <worklist> -o pdfs/ -e <contact-email> --report pdfs/retrieval
 `<worklist>` is the DOI/PMID(/Title) list — the Phase-1 `.bib` DOIs, the worklist supplied
 in the standalone mode below, or the project collection's DOIs. Output: `pdfs/*.pdf` for
 `/meta-analysis` and `pdf_to_md.py`, plus
-`pdfs/retrieval_report.json` (per-DOI `status`/`source`/`title_match`).
+`pdfs/retrieval_report.json` (schema 2: retrieval `status`/`source`, `source_identity`,
+and `file_sha256`). Keep the distinction between having a file and assessing its identity.
 
 ### Route B — in-library PDFs (Zotero-native, higher yield, proxy-aware)
 
@@ -274,16 +275,24 @@ Merge Route A's `pdfs/retrieval_report.json` (and the user-reported Route B summ
 
 ```json
 {
-  "schema_version": 1,
-  "retrieved_oa_disk": [{"doi": "...", "source": "unpaywall", "file": "...", "title_match": "match"}],
+  "schema_version": 2,
+  "retrieved_oa_disk": [{"doi": "...", "source": "unpaywall", "file": "...",
+                         "file_sha256": "...", "title_match": "match",
+                         "source_identity": {"status": "unresolved", "reason": "identifier_not_found"}}],
   "retrieved_zotero_native": [{"doi": "...", "via": "addAvailablePDF"}],
   "not_retrieved": [{"doi": "...", "journal": "..."}],
   "institutional_fallback": ["<DOIs needing institutional access / ILL / author contact>"],
-  "title_mismatch_flagged": ["<DOIs whose downloaded PDF title did not match>"]
+  "title_mismatch_flagged": ["<DOIs whose downloaded PDF title did not match>"],
+  "identity_review_needed": ["<DOIs with conflict, unresolved, unavailable, or absent identity evidence>"]
 }
 ```
 
 Also append a short `fulltext` block (counts) to `references/zotero_collection.json`.
+Copy each Route A `source_identity` object in full (abbreviated above), its file hash,
+and the identity-status counts. `retrieved_oa_disk` counts file retrieval, not verified
+papers. A `consistent` status is advisory corroboration, not claim verification; a
+changed file hash needs re-assessment. Route B attachments and legacy reports without
+identity evidence remain unassessed and appear in `identity_review_needed` until reviewed.
 `not_retrieved` DOIs are candidates for institutional access, interlibrary loan, or author
 contact — never bypass paywalls or access controls from this skill.
 

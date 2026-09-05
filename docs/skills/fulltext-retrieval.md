@@ -23,12 +23,14 @@
 
 - Only open-access content is retrievable; non-OA DOIs fail by design rather than fetching from unauthorized sources.
 - Higher-yield in-library retrieval (find_available_pdf.js) is user-initiated inside Zotero and uses the user's own proxy/OpenURL config; it is not reproducible CI evidence.
-- Title cross-check is best-effort: it needs a Title column plus pdftotext (poppler); otherwise title_match is 'unavailable'. A mismatch is flagged, never auto-rejected.
+- Retrieval success is not source verification. Source identity uses bounded first-page title/DOI evidence plus optional FirstAuthor; ambiguous or unavailable evidence stays visible, and no PDF is auto-rejected.
+- Identity is advisory: unusual layouts, cover sheets, changed titles, and preprint/publication DOI differences need review. Downstream consumers must preserve source_identity and file_sha256; old reports are unassessed.
 - PDF-to-Markdown conversion requires the optional pymupdf4llm dependency (AGPL-3.0 or commercial license).
 
 **Validation**
 
-- `bash fetch_oa_report_challenge/verify.sh   # offline report-builder + title tri-state (CI-wired)`
+- `bash fetch_oa_report_challenge/verify.sh   # offline report projection (CI-wired)`
+- `python3 tests/test_source_identity.py   # synthetic identity cases + real PDF CLI round trips with Poppler (CI-wired)`
 - `python fetch_oa.py dois.txt -o pdfs/ -e <email> --report pdfs/retrieval_report.json --verbose   # per-DOI source trace`
 - `verify each output begins with %PDF- and is at least 10 KB`
 
