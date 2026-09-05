@@ -318,8 +318,15 @@ canonical template libraries:
   Use for **academic lecture multi-paper survey** (template #5). Functions:
   `new_presentation`, `add_title_slide`, `add_toc_slide`, `add_section_divider`,
   `add_transition_slide`, `add_content_slide`, `add_glossary_slide`,
-  `add_closing_slide`, plus `fix_app_xml()` helper. Style spec:
+  `add_closing_slide`, plus `apply_fonts(prs, en=..., ko=...)` and `fix_app_xml()` helpers. Style spec:
   `references/slide_visual_styles/nature_lancet.md`.
+
+The Nature/Lancet defaults use 20 pt body text, subtitles and glossary entries.
+They suit the `conference_oral`, `critique`, `case_anchored`, `didactic` and
+`defence` budget profiles with concise content. `keynote`, `lay_talk` and
+`decision_brief` require larger type and layout adaptation; selecting a profile
+in the checker does not restyle the deck. Outline/glossary capacity bounds do not
+guarantee readable density or text fit. Render the actual content and inspect it.
 
 For lecture decks pulling figures from PDFs (rather than from `/make-figures`
 output), use `${CLAUDE_SKILL_DIR}/scripts/extract_pdf_figures.py` — pdftoppm + PIL
@@ -651,6 +658,11 @@ with a count per font so a 1,000-run body face reads differently from a stray mo
 code lines. It is a blocklist, not an allowlist: a hospital's licensed brand face is not this
 check's business. It exempts fonts the deck **embeds**, and it treats a theme-level default as
 inert until the deck actually contains text of the script that slot serves.
+A pass does not verify font installation or renderer substitution. For the
+Nature/Lancet builder, call `apply_fonts` after adding slides and before saving to
+select installed Latin and East Asian faces without changing text or formatting.
+It does not embed fonts or modify fonts inside images, tables or charts. Verify
+the actual exported PDF's fonts as well as its visible layout.
 
 Two ways to be safe, and both have a cost worth knowing:
 
@@ -853,6 +865,11 @@ on everything else as unread, not as passed.
 
 `python-pptx` will write more text than a box can show and say nothing about it. PowerPoint reveals
 it on the screen, which is where the audience is.
+
+The measured-overflow check uses `pdftotext -bbox-layout` line rectangles. It
+checks bottom edges against the slide and filled blocks; it does not certify all
+intersections, top/right clipping, or text omitted entirely from the PDF export.
+Inspect the render against the slide source, including long captions and titles.
 
 The tempting check is arithmetic — font size × line spacing × lines — and it fails in **both**
 directions. A line-height constant of 1.42 under-estimated CJK line pitch and let a body block cross

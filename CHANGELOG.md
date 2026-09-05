@@ -4,6 +4,16 @@
 
 ### Fixed
 
+- Presentation overflow checks now request line coordinates from poppler instead of
+  silently treating word-only output as a clean measurement. Real-PDF regression
+  tests run in the existing CI step. The Nature/Lancet builder uses readable
+  outline/glossary text and native bullets, reserves space for wrapped headings
+  and captions, and supports choosing installed fonts without rewriting content.
+  Font-check success no longer implies the fonts are installed at the venue.
+- Consistency linting no longer reports a single COVID-19 spelling as mixed, splits
+  numeric/hyphenated abbreviations into partial tokens, or treats grammatical
+  follow-up/follow up and long-term/in the long term pairs as spelling drift.
+  Synthetic US/UK normal controls supplement the existing seeded-error challenge.
 - PDF rendering now honors frontmatter before wrapper/OS defaults for fonts,
   page geometry, font size, line spacing and link colors. Explicit pandoc overrides
   remain available. Glyph scans support an explicitly selected TTC/OTC face and

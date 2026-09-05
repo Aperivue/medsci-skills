@@ -26,6 +26,7 @@
 - Font portability is a blocklist of platform-bundled faces. A font absent from it may still be missing at the venue; embedding, or a PDF, is the only guarantee.
 - A per-slide script is required, not a topic. Given only a topic, the deck comes out generic in the way every reviewer can see -- the skill asks for the narrative instead of inventing one.
 - It does not draw diagrams from autoshapes: flows and mechanisms are rendered as code (matplotlib / Graphviz) and inserted, because an unlabelled arrow is read differently by every person in the room.
+- The Nature/Lancet defaults target academic profiles; larger-type venues need adaptation. Capacity limits do not guarantee text fit or acceptable density.
 - Mac OOXML quirks require the bundled compatibility checks; not every host renders identically.
 
 **Validation**
@@ -41,6 +42,8 @@
 - `bash scripts/check_font_portability_challenge/verify.sh`
 - `bash scripts/check_diagram_edges_challenge/verify.sh`
 - `bash scripts/check_text_overflow_challenge/verify.sh`
+- `python3 tests/test_overflow_pdf.py`
+- `python3 tests/test_builder_layout.py`
 - `python3 scripts/strip_notes_for_sharing.py before sharing`
 
 **Evidence** — `bundled_script`

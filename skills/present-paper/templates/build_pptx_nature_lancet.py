@@ -176,6 +176,48 @@ def add_notes(slide, text: str | None) -> None:
             add_styled(p, line, size=13)
 
 
+def apply_fonts(prs: Presentation, *, en: str, ko: str) -> None:
+    """Choose installed fonts for this builder's text and notes before saving.
+
+    Does not install/embed fonts or change sizes. This helper handles text frames
+    produced here, not fonts inside images, equations, tables or charts.
+    """
+    if not en.strip() or not ko.strip():
+        raise ValueError("Both Latin and East Asian font names must be nonempty")
+    for slide in prs.slides:
+        frames = [s.text_frame for s in slide.shapes if s.has_text_frame]
+        if slide.has_notes_slide:
+            frames.append(slide.notes_slide.notes_text_frame)
+        for tf in frames:
+            for p in tf.paragraphs:
+                for font in p._p.iter(f"{{{A_NS}}}buFont"):
+                    font.set("typeface", en)
+                for r in p.runs:
+                    r.font.name = en
+                    rPr = r._r.get_or_add_rPr()
+                    ea = rPr.find(f"{{{A_NS}}}ea")
+                    if ea is None:
+                        ea = etree.SubElement(rPr, f"{{{A_NS}}}ea")
+                    ea.set("typeface", ko)
+
+
+def _bullet(p, text: str, *, sub: bool = False, size: float = 20) -> None:
+    """Native paragraph bullet: wrapped lines align with the text, not the marker."""
+    p.level = 1 if sub else 0
+    pPr = p._p.get_or_add_pPr()
+    pPr.set("marL", str(Inches(0.65 if sub else 0.3)))
+    pPr.set("indent", str(-Inches(0.2)))
+    for child in list(pPr):
+        if etree.QName(child).localname.startswith("bu"):
+            pPr.remove(child)
+    color = etree.SubElement(pPr, f"{{{A_NS}}}buClr")
+    etree.SubElement(color, f"{{{A_NS}}}srgbClr").set(
+        "val", str(COLOR_MUTED if sub else COLOR_HIGHLIGHT))
+    etree.SubElement(pPr, f"{{{A_NS}}}buFont").set("typeface", FONT_EN)
+    etree.SubElement(pPr, f"{{{A_NS}}}buChar").set("char", "–" if sub else "▪")
+    add_styled(p, text, size=size, color=COLOR_TEXT_SUB if sub else COLOR_TEXT)
+
+
 # ============================================================================
 # Presentation initialization
 # ============================================================================
@@ -243,7 +285,7 @@ def add_title_slide(prs: Presentation, *,
     if subtitle:
         p2 = tf.add_paragraph(); p2.alignment = PP_ALIGN.LEFT
         r2 = p2.add_run(); r2.text = subtitle
-        set_run(r2, size=18, italic=True, color=COLOR_TEXT_SUB)
+        set_run(r2, size=20, italic=True, color=COLOR_TEXT_SUB)
 
     if meta_top or meta_bottom:
         _rule(s, x=1.1, y=5.95, w=2.0, color=COLOR_NAVY, pt=1.0)
@@ -356,7 +398,7 @@ def add_content_slide(prs: Presentation, *,
         r = p.add_run(); r.text = eyebrow
         set_run(r, size=20, bold=True, color=COLOR_MUTED, letter_space="300")
 
-    title_box = s.shapes.add_textbox(Inches(0.7), Inches(0.75), Inches(12.0), Inches(1.1))
+    title_box = s.shapes.add_textbox(Inches(0.7), Inches(0.75), Inches(12.0), Inches(1.6))
     ttf = title_box.text_frame; ttf.word_wrap = True
     p = ttf.paragraphs[0]; p.alignment = PP_ALIGN.LEFT
     r = p.add_run(); r.text = title
@@ -365,18 +407,21 @@ def add_content_slide(prs: Presentation, *,
     if subtitle:
         p2 = ttf.add_paragraph(); p2.alignment = PP_ALIGN.LEFT
         r2 = p2.add_run(); r2.text = subtitle
-        set_run(r2, size=15, italic=True, color=COLOR_TEXT_SUB)
+        set_run(r2, size=20, italic=True, color=COLOR_TEXT_SUB)
 
-    _rule(s, x=0.7, y=2.06, w=0.6, color=COLOR_HIGHLIGHT, pt=2.5)
+    _rule(s, x=0.7, y=2.45, w=0.6, color=COLOR_HIGHLIGHT, pt=2.5)
 
     has_fig = figure_path is not None and Path(figure_path).exists()
     if has_fig:
         bullet_w = Inches(6.8)
-        fig_x_in, fig_w_in, fig_h_in = 7.9, 5.0, 4.0
+        # Leave a caption band above the source footer. A long caption still
+        # needs a render; never shrink the text to make it fit.
+        fig_x_in, fig_w_in = 7.9, 5.0
+        fig_h_in = 3.0 if fig_caption else 4.0
     else:
         bullet_w = Inches(12.0)
 
-    bullet_box = s.shapes.add_textbox(Inches(0.7), Inches(2.4), bullet_w, Inches(4.6))
+    bullet_box = s.shapes.add_textbox(Inches(0.7), Inches(2.7), bullet_w, Inches(4.3))
     btf = bullet_box.text_frame; btf.word_wrap = True
     for i, raw in enumerate(bullets):
         p = btf.paragraphs[0] if i == 0 else btf.add_paragraph()
@@ -385,21 +430,12 @@ def add_content_slide(prs: Presentation, *,
         p.line_spacing = 1.25
 
         is_sub = raw.startswith("  ")
-        if is_sub:
-            p.level = 1
-            text = raw[2:]
-            r = p.add_run(); r.text = "— "
-            set_run(r, size=15, color=COLOR_MUTED)
-            add_styled(p, text, size=16, color=COLOR_TEXT_SUB)
-        else:
-            r = p.add_run(); r.text = "▪  "
-            set_run(r, size=14, bold=True, color=COLOR_HIGHLIGHT)
-            add_styled(p, raw, size=20, color=COLOR_TEXT)
+        _bullet(p, raw[2:] if is_sub else raw, sub=is_sub)
 
     if has_fig:
         from PIL import Image as PILImage
-        img = PILImage.open(figure_path)
-        iw, ih = img.size
+        with PILImage.open(figure_path) as img:
+            iw, ih = img.size
         ar = iw / ih  # width / height
         if ar > fig_w_in / fig_h_in:
             w_in = fig_w_in
@@ -409,7 +445,7 @@ def add_content_slide(prs: Presentation, *,
             w_in = fig_h_in * ar
 
         fx_in = fig_x_in + (fig_w_in - w_in) / 2
-        fy_in = 2.4 + (fig_h_in - h_in) / 2
+        fy_in = 2.7 + (fig_h_in - h_in) / 2
 
         shadow = s.shapes.add_shape(MSO_SHAPE.RECTANGLE,
                                     Inches(fx_in + 0.06), Inches(fy_in + 0.06),
@@ -424,9 +460,9 @@ def add_content_slide(prs: Presentation, *,
         pic.line.width = Emu(6000)
 
         if fig_caption:
-            cap_y_in = min(fy_in + h_in + 0.10, 6.55)
+            cap_y_in = fy_in + h_in + 0.10
             cap = s.shapes.add_textbox(Inches(fig_x_in), Inches(cap_y_in),
-                                       Inches(fig_w_in), Inches(0.6))
+                                       Inches(fig_w_in), Inches(1.2))
             ctf = cap.text_frame; ctf.word_wrap = True
             cp = ctf.paragraphs[0]; cp.alignment = PP_ALIGN.CENTER
             cr = cp.add_run(); cr.text = "Figure  ·  "
@@ -457,8 +493,11 @@ def add_toc_slide(prs: Presentation, *,
                    notes: str | None = None):
     """Outline slide. `sections` = [(num, title, summary, time_label), ...].
 
-    Use num="·" for non-numbered final entry (e.g., wrap-up).
+    Use num="·" for non-numbered final entry (e.g., wrap-up). Up to five rows;
+    split longer outlines across slides instead of silently placing rows off-slide.
     """
+    if len(sections) > 5:
+        raise ValueError("Outline supports at most five rows; split it across slides")
     s = _blank(prs)
 
     eye = s.shapes.add_textbox(Inches(0.7), Inches(0.32), Inches(8), Inches(0.4))
@@ -473,12 +512,12 @@ def add_toc_slide(prs: Presentation, *,
     if subtitle:
         p2 = tb.text_frame.add_paragraph()
         r2 = p2.add_run(); r2.text = subtitle
-        set_run(r2, size=16, italic=True, color=COLOR_TEXT_SUB)
+        set_run(r2, size=20, italic=True, color=COLOR_TEXT_SUB)
 
     _rule(s, x=0.7, y=2.1, w=0.6, color=COLOR_HIGHLIGHT, pt=2.5)
 
-    y_start = 2.5
-    row_h = 0.85
+    y_start = 2.4
+    row_h = 0.9
     for i, (num, sec_title, summary, time_label) in enumerate(sections):
         y = y_start + i * row_h
 
@@ -491,26 +530,25 @@ def add_toc_slide(prs: Presentation, *,
         tb2 = s.shapes.add_textbox(Inches(1.9), Inches(y), Inches(9.5), Inches(row_h))
         tt = tb2.text_frame; tt.word_wrap = True
         p = tt.paragraphs[0]; p.alignment = PP_ALIGN.LEFT
+        p.line_spacing = 1.0
         r = p.add_run(); r.text = sec_title
         set_run(r, size=22, bold=True, color=COLOR_NAVY)
         p.space_after = Pt(2)
         p2 = tt.add_paragraph()
+        p2.line_spacing = 1.0
         r2 = p2.add_run(); r2.text = summary
-        set_run(r2, size=13, color=COLOR_TEXT_SUB)
+        set_run(r2, size=20, color=COLOR_TEXT_SUB)
 
         if time_label:
             time_b = s.shapes.add_textbox(Inches(11.5), Inches(y + 0.1),
                                           Inches(1.5), Inches(0.5))
             p = time_b.text_frame.paragraphs[0]; p.alignment = PP_ALIGN.RIGHT
             r = p.add_run(); r.text = time_label
-            set_run(r, size=12, color=COLOR_MUTED)
+            set_run(r, size=20, color=COLOR_MUTED)
 
         if i < len(sections) - 1:
-            divider = s.shapes.add_shape(MSO_SHAPE.RECTANGLE,
-                                         Inches(0.7), Inches(y + row_h - 0.04),
-                                         Inches(12.0), Emu(6000))
-            divider.fill.solid(); divider.fill.fore_color.rgb = COLOR_HAIRLINE
-            divider.line.fill.background()
+            _rule(s, x=0.7, y=y + row_h - 0.02, w=12.0,
+                  color=COLOR_HAIRLINE, pt=0.5)
 
     if page_brand:
         pf = s.shapes.add_textbox(Inches(0.7), Inches(7.05), Inches(12.0), Inches(0.35))
@@ -536,6 +574,8 @@ def add_glossary_slide(prs: Presentation, *,
 
     See ~/.claude/rules/multidisciplinary-presentation.md §1.
     """
+    if len(tier1) > 7 or len(tier2) > 12:
+        raise ValueError("Glossary supports at most seven main and twelve secondary entries; split it across slides")
     s = _blank(prs)
 
     if eyebrow:  # OFF by default. An eyebrow on every slide is the AI tell —
@@ -552,35 +592,41 @@ def add_glossary_slide(prs: Presentation, *,
 
     _rule(s, x=0.7, y=1.65, w=0.6, color=COLOR_HIGHLIGHT, pt=2.5)
 
+    # Reserve rows for the entries supplied. These are layout slots, not a text-fit
+    # prediction: keep definitions brief and verify the rendered PDF.
+    tier1_h = len(tier1) * 0.36 + 0.1 if tier1 else 0
+    tier2_y = 1.9 + tier1_h + (0.15 if tier1 else 0)
     # Tier 1 — full width
     if tier1:
-        box = s.shapes.add_textbox(Inches(0.7), Inches(1.9), Inches(12.0), Inches(2.3))
+        box = s.shapes.add_textbox(Inches(0.7), Inches(1.9), Inches(12.0), Inches(tier1_h))
         tf = box.text_frame; tf.word_wrap = True
         for i, (abbr, ctx) in enumerate(tier1):
             p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
             p.alignment = PP_ALIGN.LEFT
-            p.space_after = Pt(6)
+            p.space_after = Pt(4)
+            p.line_spacing = 1.0
             r = p.add_run(); r.text = f"{abbr}  "
-            set_run(r, size=15, bold=True, color=COLOR_NAVY)
+            set_run(r, size=20, bold=True, color=COLOR_NAVY)
             r2 = p.add_run(); r2.text = ctx
-            set_run(r2, size=14, color=COLOR_TEXT_SUB)
+            set_run(r2, size=20, color=COLOR_TEXT_SUB)
 
     # Tier 2 — 2-column
     if tier2:
         half = (len(tier2) + 1) // 2
         for col, items in enumerate((tier2[:half], tier2[half:])):
             x_in = 0.7 + col * 6.3
-            box = s.shapes.add_textbox(Inches(x_in), Inches(4.3),
-                                        Inches(6.0), Inches(2.7))
+            box = s.shapes.add_textbox(Inches(x_in), Inches(tier2_y),
+                                        Inches(6.0), Inches(7.0 - tier2_y))
             tf = box.text_frame; tf.word_wrap = True
             for i, (abbr, defn) in enumerate(items):
                 p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
                 p.alignment = PP_ALIGN.LEFT
                 p.space_after = Pt(3)
+                p.line_spacing = 1.0
                 r = p.add_run(); r.text = f"{abbr}  "
-                set_run(r, size=12, bold=True, color=COLOR_NAVY)
+                set_run(r, size=20, bold=True, color=COLOR_NAVY)
                 r2 = p.add_run(); r2.text = defn
-                set_run(r2, size=11, color=COLOR_TEXT_SUB)
+                set_run(r2, size=20, color=COLOR_TEXT_SUB)
 
     if page_brand:
         pb = s.shapes.add_textbox(Inches(0.7), Inches(7.05), Inches(4.0), Inches(0.35))
@@ -620,9 +666,7 @@ def add_closing_slide(prs: Presentation, *,
             p.alignment = PP_ALIGN.LEFT
             p.space_after = Pt(14)
             p.line_spacing = 1.3
-            r = p.add_run(); r.text = "▪  "
-            set_run(r, size=16, bold=True, color=COLOR_HIGHLIGHT)
-            add_styled(p, raw, size=22, color=COLOR_TEXT)
+            _bullet(p, raw, size=22)
 
     if contact:
         cb = s.shapes.add_textbox(Inches(0.7), Inches(6.5), Inches(12.0), Inches(0.5))

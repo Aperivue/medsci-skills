@@ -17,7 +17,7 @@
 **Safety boundaries**
 
 - Edits style only; never alters numeric values, p-values, units, citations, or scientific meaning.
-- Deterministic linter is the authority for mechanical issues; no edit without user approval.
+- Linter findings remain advisory and need contextual review; no edit without user approval.
 
 **Known limitations**
 
@@ -28,6 +28,7 @@
 
 - `python3 scripts/lint_consistency.py <manuscript.md>`
 - `bash scripts/lint_challenge/verify.sh  # deterministic, network-free`
+- `python3 tests/test_consistency_controls.py`
 - `python3 scripts/lint_figure_locale.py --manuscript <manuscript.md> --figures-dir <figures/>`
 - `bash scripts/lint_figure_locale_challenge/verify.sh  # deterministic, network-free`
 
@@ -37,7 +38,7 @@
 
 **Scripts** (`skills/polish-language/scripts/`):
 
-- `lint_challenge/` (4 files)
+- `lint_challenge/` (6 files)
 - `lint_consistency.py`
 - `lint_figure_locale.py`
 - `lint_figure_locale_challenge/` (2 files)
