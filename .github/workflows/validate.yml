@@ -88,7 +88,9 @@ jobs:
         run: python3 installers/tests/test_cursor_rule.py
 
       - name: Release-ZIP provenance + updater-consumability round-trip (build -> safe-extract)
-        run: bash installers/tests/test_release_zip.sh
+        run: |
+          bash installers/tests/test_release_zip.sh
+          python3 tests/test_release_payloads.py
 
       - name: Run validate_routing_assets.py (SKILL.md asset references must exist)
         run: python3 scripts/validate_routing_assets.py --strict
@@ -818,7 +820,7 @@ jobs:
         run: bash tests/test_npm_package.sh
 
       - name: npm pack content audit (real pack, package/ prefix normalized)
-        run: python3 scripts/check_npm_package_contents.py --real
+        run: python3 scripts/check_npm_package_contents.py --real --privacy
 
   # Cross-platform safety for the transactional installer + updater (PR-1a/PR-1b). Ubuntu-only CI
   # cannot assert macOS/Windows path/journal/os.replace/extraction behavior; this matrix runs the
