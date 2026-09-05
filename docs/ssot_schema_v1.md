@@ -162,7 +162,7 @@ Any fields not in this table are dropped with a migration warning (`migrate_proj
 
 ```yaml
 schema_version: 1
-project_id: skullfx_p2
+project_id: example_study
 project_type: original_research
 
 truth:

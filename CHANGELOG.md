@@ -2,141 +2,38 @@
 
 ## [Unreleased]
 
-### Fixed
-
-- **The Cursor project rule embedded the installer's home directory into a file people commit.**
-  `install_cursor_rule` wrote `REPO_ROOT` — an absolute path naming the user who ran the installer —
-  into `<project>/.cursor/rules/medsci-skills.mdc`, and `.cursor/rules/` is a directory that goes
-  into git. It was also pointing at the wrong place: `docs/host_compatibility.md` already records
-  that this rule is **legacy for discovery**, because Cursor reads `~/.claude/skills/` and
-  `~/.agents/skills/` directly. The path was therefore leaking something while steering nothing, so
-  the rule now names those two installed locations and `orchestrate` as the entry point.
-
-  It also wrote with `Path.write_text`, the same truncate-then-write that the CLAUDE.md splice was
-  fixed for. This file is ours to replace, but a half-written one after an interrupt is nobody's; it
-  now goes through `medsci_txn.atomic_write_bytes` and keeps the destination's mode.
-
-  Four of the new assertions fail against the previous release. The one that matters most is the
-  repository-path check — the generic home-path check passes in CI, where the checkout is not under
-  a home directory, and would only have fired on a real user's machine.
-
+## [5.26.0] - 2026-09-05
 
 ### Fixed
 
-- **The routing splice claimed to preserve the user's file and did not.** An independent Codex
-  review of the feature below found six defects in it. Four were real losses and are fixed here; the
-  other two are answered rather than coded around.
-
-  The docstring said the file "is never truncated" while the code called `Path.write_text`, which
-  opens in `w` mode and truncates before writing — an interrupted install left a zero-byte
-  `CLAUDE.md`, and the error handler then logged *"the CLAUDE.md was left exactly as it was"*, which
-  is the false-success report this feature was built to avoid. Writes now go through
-  `medsci_txn.atomic_write_bytes` (extracted from `atomic_write_json`, so the repo keeps one fsync
-  implementation) and land with `os.replace`, so that log line is now true.
-
-  `--remove-routing` called `unlink()` on a path that may be a **symlink**, deleting the user's link
-  while the block stayed in the file it pointed at. The splice now resolves through to the target and
-  never deletes a link.
-
-  Removal ran `rstrip` over the head, so a file ending in two newlines came back with one — the
-  user's own blank line. And the whole file was read and rewritten as text, so `read_text`'s
-  universal-newline translation silently rewrote every line of a **CRLF** file. Reads are now
-  `read_bytes`, the block is emitted with the file's own line ending, and add-then-remove returns the
-  original bytes.
-
-  The atomic rewrite introduced a hazard of its own that the review did not have to catch: replacing
-  a file loses its mode, so a `chmod 600` `CLAUDE.md` would have been widened. The mode is now
-  re-applied, following `update._write_settings`.
-
-  **The tests are why this was invisible.** They asserted preservation with a substring check, which
-  cannot see a collapsed blank line, a rewritten line ending, or a changed mode. They now compare
-  bytes. Eleven of the new assertions were confirmed to fail against the previous release, and the
-  mode assertion against an atomic write without the chmod step.
-
-  Not fixed, and stated instead: a file with **no trailing newline** gains one and removal does not
-  take it back (nothing records that the newline was ours); two installers racing on one file can
-  still lose an update, though neither can now corrupt it; and a `CLAUDE.md` that already contains
-  our exact marker pair has that region replaced — the block now says so inside itself.
-
-  Found and deferred: `install_cursor_rule` has the same unconditional `write_text` and embeds an
-  absolute home path into `.cursor/rules/`, a directory people commit. That needs its own change,
-  because whether Cursor requires the path is an open question.
+- Remove local source paths from the bundled DOCX's hidden custom properties.
+  The reference renderer now strips CSL and bibliography source metadata after
+  citation processing; rendered citations remain intact. The existing asset
+  anonymization check also inspects all DOCX XML parts and relationships, including
+  custom properties and Windows paths. Repository validation checks tracked DOCX files.
+- Extend the existing hashed-identifier check to path and project-slug components.
+  Replace private project examples and manuscript-specific anecdotes with generic
+  descriptions and synthetic challenge values. Public author attribution stays permitted.
+- Cursor project rules no longer embed the installer's local checkout path; writes
+  are atomic and preserve file permissions.
+- Opt-in CLAUDE.md routing updates use atomic writes, preserve CRLF and permissions,
+  follow symlinks without deleting them, and reject malformed or duplicate markers.
+  A file without a final newline still gains one; concurrent installers are not locked.
+- Correct stale contribution and evaluation inventory counts.
 
 ### Added
 
-- **`/present-paper`: two references for the parts of a deck that are not design.** Both come out of
-  a 20-minute society lecture where the deck passed every existing gate and still had two problems
-  no gate looks at.
-
-  `references/generated_illustrations.md` — an image API removes the friction that used to stop a
-  deck filling with decoration, so the rules put it back. First rule: **never generate a medical
-  image**, not even as an illustration. The obvious reason is that a generated scan next to real
-  numbers reads as data. The reason that bites is narrower — a talk presenting a reader study on
-  experts failing to distinguish generated medical images, which then shows a generated CT as a
-  segmentation result, has refuted itself in front of the people best equipped to notice. Also:
-  keeping text out of the image, putting the deck's palette in the prompt rather than fixing it in
-  post, one `assets/SOURCES.md` row per image, and the disclosure line that a lecture needs versus
-  the journal rule that governs a figure (`journal-ai-image-policies`, which is a different
-  decision).
-
-  `references/spoken_notes_and_bilingual.md` — speaker notes are **spoken**, and prose that reads
-  well on the page jams the mouth. Markdown renders literally in the notes pane; a dash has no
-  sound, so the presenter invents one mid-sentence; a parallel list that drops its predicate is
-  grammatical and unspeakable. Plus the check nobody runs — the first six words of every slide's
-  notes, in a column, because notes drafted one slide at a time independently reach for the same
-  opener. The second half is the language split for a domestic audience: English titles, labels and
-  terms; local-language body and notes; never both on the same content. An all-English deck makes
-  the audience read, and while they read they are not listening.
-
-- **Opt-in: a routing block in a project's `CLAUDE.md`, so a plain-language request finds the
-  skills.** `/orchestrate` was the only reliable way in, and it only works for someone who knows to
-  type it. `install.py --claude-project <folder>` now writes ~25 lines — a task-to-skill table and
-  the `orchestrate` fallback — into that folder's `CLAUDE.md`; `--claude-user` writes the same block
-  to `~/.claude/CLAUDE.md`, which loads everywhere. Both are off by default and `--remove-routing`
-  takes it back out.
-
-  **It splices; it does not overwrite.** The block sits between two markers and every other byte of
-  the file is written back unchanged, because a `CLAUDE.md` is where a user keeps their *own*
-  standing instructions. The sibling this sits next to, `install_cursor_rule`, calls
-  `rule_path.write_text(body)` — the regression test drives that behaviour into `apply_routing` and
-  watches the "user content survives" case fail, so the property is tested rather than asserted.
-  Also covered: idempotent re-runs, in-place replacement of a stale block, removal that deletes a
-  file holding nothing else, and `--dry-run` writing nothing.
-
-  **A pre-merge review of this change found three defects in it, all one root cause** — the splice
-  located the *first* marker of each kind instead of reasoning about all of them. Markers in reverse
-  order passed the half-fence guard and then spliced a duplicate of the user's text while leaving a
-  dangling fence; two blocks in one file never converged; and `--remove-routing` on two blocks
-  reported `removed` while one survived, which is a success message that is not true. The fix counts
-  markers and refuses anything that is not one clean fence, and the five assertions covering those
-  cases were confirmed to fail against the pre-fix code. A fourth, smaller finding in the same pass:
-  the Windows arm of the no-local-path assertion was written `"C:\\\\"`, a string that cannot
-  occur, so it could never fail.
-
-  The block names skills without a leading slash and says why: how one is invoked depends on the
-  install path (`/write-paper` vs `/medsci-writing:write-paper`), so a hardcoded command form would
-  be wrong for half the readers. It carries no home-directory or repository path — a `CLAUDE.md`
-  gets committed, and `install_cursor_rule` embeds `REPO_ROOT` into a file under `.cursor/rules/`
-  for the same reason it should not.
+- Optional task routing with `install.py --claude-project <folder>` or `--claude-user`.
+  Both are off by default; `--remove-routing` removes the managed block.
+- Presentation guidance for generated illustrations, source attribution, spoken
+  notes and bilingual decks.
 
 ### Changed
 
-- **The docs never said that the install path decides a skill's slash-command name.** A skill
-  installed as a plugin is invoked under its plugin's namespace (`/medsci-analysis:analyze-stats`);
-  the same skill installed into `~/.claude/skills/` by the `npx`, `gh skill`, classroom, or manual
-  paths is invoked bare (`/analyze-stats`). The README showed the namespaced form in the plugin
-  section and the bare form everywhere else, and never connected them — so a reader who followed the
-  plugin path had every other page of the documentation naming a command their install does not
-  have. Reported from a live workshop, where it read as a broken install rather than a second
-  correct name.
-
-  `docs/setup/common-issues.md` gains the mapping as issue 11, with how to switch, and the FAQ and
-  the README plugin section point at it.
-
-  The same section answers the question asked alongside it: **why a plain-language request starts no
-  skill.** A skill is selected by matching the request against that skill's description, so a broad
-  ask ("look over my paper") matches many weakly instead of one strongly. `/orchestrate` is the
-  documented answer and was not findable from the symptom.
+- Explain why plugin installations use namespaced skill commands while direct
+  installations use bare names, and document `orchestrate` for broad requests.
+- No new manuscript detector or blocking gate is introduced in this release.
+  Historical Git objects and previously published package versions are unchanged.
 
 ## [5.25.0] - 2026-08-17
 
@@ -2496,11 +2393,9 @@ four days early to be citable.
   count unchanged.
 
 - **`/self-review` `check_scope_coherence` — `GRADIENT_WITHOUT_INTERACTION`: a "gradient across
-  strata" claim with no interaction test.** An age×CMB "gradient" was claimed via joint
-  stratification (primary table + heatmap + Central Illustration) with no interaction term or LRT
-  anywhere; re-analysis showed the interaction was non-significant (LRT P=0.67) — the narrative was
-  difference-in-significance across strata, not a tested interaction. Because the manuscript used
-  "gradient" rather than "synergy/interaction", the existing token trigger never fired. The gate now
+  strata" claim with no interaction test.** A directional claim across strata can be mistaken for a tested interaction.
+  Wording such as "gradient" needs the same interaction-test check as "synergy"
+  or "interaction". The gate now
   flags a cross-strata directional claim ("shortest in the high-risk tertile", "monotonically across
   the age strata", "more pronounced in") that carries a stratification context but reports no
   interaction test (interaction term / LRT / p-interaction / effect modification) anywhere (Minor).
@@ -2612,18 +2507,14 @@ four days early to be citable.
   enumerates the real gates and excludes setup steps. Not a detector (catalog unchanged).
 
 - **`/self-review` — `check_incorporation_bias` (detector 68 → 69): the reference standard and the
-  predictor are the same construct.** A nodule study classified nodules benign by "complete resolution
-  / decrease in diameter / size stability" — every tier a form of *not growing* — and then reported
-  **growth** as associated with malignancy (OR 50.9). A resolved nodule cannot be malignant under that
-  standard, so the growth–malignancy association is partly definitional. Two panel reviewers reached it
-  independently and called it fatal; nothing fired. The detector reads trajectory tokens **only from the
+  predictor are the same construct.** A reference standard defined by lesion trajectory can overlap with a trajectory
+  predictor, making the reported association partly definitional. The detector reads trajectory tokens **only from the
   reference-standard/outcome-defining sentences** and emits `INCORPORATION_BIAS` (Major) when a
   trajectory-named predictor (growth, interval change, increase/decrease in size) is reported as
   associated with the outcome in the same sentence — unless the manuscript already discloses the overlap
   ("incorporation bias", "partly definitional", "not independent of the reference standard"). Covers the
   deterministic size/trajectory sub-class only. Ships a challenge card (trajectory-standard + growth-OR
-  positive vs a pathology + follow-up standard negative) run in CI. Grounding: real-failure,
-  panel-confirmed against the data (72/81 benign labels were trajectory labels).
+  positive vs a pathology + follow-up standard negative) run in CI. The challenge fixtures are synthetic and preserve that overlap.
 
 - **Four more field-backlog verdicts on detectors that already run (no new counted detector).**
   - **`check_cohort_arithmetic` — `FOLLOWUP_VS_CRITERION` (Minor).** A reported "median follow-up was
@@ -2662,17 +2553,15 @@ four days early to be citable.
     (never also comma-grouped) does not false-fire.
 
 - **`/self-review` — `check_effect_stability` (detector 67 → 68): a wide interval is a direction, not a
-  magnitude.** A manuscript's Conclusions reported **OR 50.9 (95% CI 5.8–443.6)** as a magnitude — a
-  76-fold interval — fit on **19 events for 2 covariates** (EPV 9.5). Two independent reviewers and the
-  editor flagged exactly those numbers and the paper was rejected. The detector recomputes both from
+  magnitude.** A wide confidence interval and sparse events can make a headline effect estimate
+  unstable even when its direction is supported. The detector recomputes both from
   the printed cells: `UNSTABLE_EFFECT_ESTIMATE` when a headline OR/HR/RR/IRR has a 95% CI upper/lower
   ratio above 10 (`--ratio-threshold`) with no co-located imprecision caveat (exploratory /
   hypothesis-generating / underpowered / imprecise / wide-CI / interpret-with-caution — the same
   suppression discipline as `check_null_calibration`), and `EPV_LOW` when events/covariates < 10. Pure
   arithmetic, no judgment; reads only the headline regions for the ratio so a labelled-exploratory
-  subgroup deep in the Results does not fire. Ships a challenge card (the 76-fold + low-EPV positive
-  vs a tight CI + a caveat-labelled wide CI negative) run in CI. Grounding: external-review (a held
-  journal decision letter, two independent reviewers).
+  subgroup deep in the Results does not fire. Ships a challenge card (a synthetic wide-interval + low-EPV positive
+  vs a tight CI + a caveat-labelled wide CI negative) run in CI. The fixture numbers are synthetic.
 
 - **Two more field-backlog gates, again as verdicts on detectors that already run (no new counted
   detector).**
@@ -2867,13 +2756,10 @@ below; the release does not wait the usual 14 days because a wrong result is alr
      structure — and the windowed search fired on it. It flagged a clean manuscript for exactly the reason
      it flagged a rejected one. The declaration is now sought across the **whole Methods section**.
 
-  **This makes the check sound but deliberately narrower**, and the honest consequence must be stated: it
-  no longer fires on the rejected manuscript that motivated it. That paper declares three outcomes and
-  never says which one a given Cox model used — a real defect, and one a reader can see and a regex cannot.
-  The original detector appeared to catch it, but only because the outcome paragraph happened to sit more
-  than 400 characters from the model sentence, which is true of every well-structured paper. **One
-  manuscript, three findings matching three reviewer comments, and I called it validated. That was luck,
-  and the second manuscript exposed it.**
+  **This makes the check sound but deliberately narrower.** A model whose outcome is
+  never identified still needs semantic review. Distance between paragraphs is
+  insufficient evidence that the outcome is missing, so the detector no longer
+  treats that proxy as validation.
 
   `REFERENCE_STANDARD_UNDEFINED` likewise now honours a declared outcome: *reference standard* is
   diagnostic-accuracy vocabulary, and a prognostic model scores its predictions against the outcome it has
@@ -4653,9 +4539,7 @@ reporting-guideline counts are unchanged (51 / 42 / 44).
   tolerates plural lists ("Tables S4, S5"), ranges, and non-float sensitivity-spec
   labels ("S1–S6"). `CITATION_ORDER` (Major) is a pre-peer-review desk/technical-check
   item editorial offices "unsubmit" for; `CITATION_GAP` (Minor) flags non-contiguous
-  numbering. Motivated by a journal technical-check unsubmit where main Table 3 was
-  cited before Tables 1–2 and the supplementary tables were cited wildly out of order
-  (S4, S9, S16, S12, …). Wired into `/self-review`'s technical-check pass; synthetic
+  numbering. Nonascending first citations can trigger a journal technical-check return. Wired into `/self-review`'s technical-check pass; synthetic
   positive/negative fixtures + regression test. Analysis-integrity detectors
   **33 → 34** (Reporting compliance family 8 → 9); skills 45 and reporting guidelines
   36 unchanged. Additive and backward-compatible.
@@ -4670,7 +4554,7 @@ reporting-guideline counts are unchanged (51 / 42 / 44).
   Author-Contributions on the Title Page only, reporting checklist cited as "Supplementary
   Material 1", IRB number in Methods even when blinded, and ICMJE forms only after
   acceptance. No detector-count change (existing detector extended; profiles updated, not
-  added). Motivated by a 2026-06 KJR technical-check unsubmit.
+  added). Check the current journal instructions when applying these conventions.
 
 - **Audit-dump leak gate** — new `check_checklist_dump_leak.py` (`/sync-submission`)
   scans every `.md`/`.docx`/`.pdf` in a submission directory for the residue of a

@@ -1,8 +1,8 @@
 # Challenge: the reference standard and the predictor are the same construct
 
-A nodule study classifies nodules benign by **resolution / decrease / stability**
+A synthetic nodule-study example classifies nodules benign by **resolution / decrease / stability**
 (all forms of *not growing*) and then reports **growth** as associated with
-malignancy (OR 50.9). A resolved nodule cannot be malignant under that standard —
+malignancy (OR 24.0). A resolved nodule cannot be malignant under that standard —
 the growth–malignancy association is partly definitional (incorporation bias). Two
 reviewers called it fatal; no gate fired.
 

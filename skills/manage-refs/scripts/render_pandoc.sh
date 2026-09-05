@@ -113,7 +113,10 @@ if [[ -z "$FORMAT" ]]; then
   esac
 fi
 
-ARGS=(--citeproc --csl="$CSL_FILE" --bibliography="$BIB" -t "$FORMAT" -o "$OUTPUT")
+# Run after citeproc: source locations are needed to resolve citations, but must
+# not survive as custom document properties in an artifact shared with others.
+ARGS=(--citeproc --csl="$CSL_FILE" --bibliography="$BIB"
+      --lua-filter="${SCRIPT_DIR}/strip_source_metadata.lua" -t "$FORMAT" -o "$OUTPUT")
 [[ -n "$REFDOC" && -f "$REFDOC" ]] && ARGS+=(--reference-doc="$REFDOC")
 
 echo "[render] journal=$JOURNAL csl=$(basename "$CSL_FILE") in=$INPUT bib=$BIB out=$OUTPUT" >&2

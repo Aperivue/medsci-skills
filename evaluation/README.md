@@ -30,11 +30,11 @@ scope here by design.
 ## Coverage status, and the planned refresh
 
 The harnesses above are **v3.8-era**: E1 rests on 19 `DefectSpec` rows / 17 offline injectors and
-E7 is n=21, while the current catalog is **80 detectors**. Detectors added since are covered by
+E7 is n=21, while the current catalog is **90 detectors**. Detectors added since are covered by
 per-detector CI challenge cards — regression tripwires, not a benchmark.
 
 [`REFRESH_PROTOCOL.md`](REFRESH_PROTOCOL.md) pre-registers the refresh that closes that gap:
-family-stratified coverage of all 80 detectors with hard negatives (Arm A), an alert-burden
+family-stratified coverage of the detector catalog with hard negatives (Arm A), an alert-burden
 measurement on clean manuscripts (Arm B), and an out-of-band real-use precision ledger (Arm C).
 It is a protocol only — **no results exist yet** — and it records two constraints up front: an
 injection benchmark cannot report precision (there is no defined defect prevalence), and the

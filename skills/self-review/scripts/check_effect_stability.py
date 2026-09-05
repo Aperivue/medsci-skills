@@ -7,8 +7,8 @@ reviewers hit the same number when they occur:
 
   1. UNSTABLE_EFFECT_ESTIMATE  an OR / HR / RR / IRR reported in the Abstract or
                                Conclusions whose 95% CI upper/lower ratio exceeds
-                               ~10 (default --ratio-threshold 10). "OR 50.9; 95%
-                               CI 5.8-443.6" is a 76-fold interval: the data
+                               ~10 (default --ratio-threshold 10). "OR 24.0; 95%
+                               CI 3.0-240.0" is a 80-fold interval: the data
                                support a direction, not the point estimate. Fires
                                only when the estimate is presented as a magnitude
                                with NO co-located caveat (exploratory /

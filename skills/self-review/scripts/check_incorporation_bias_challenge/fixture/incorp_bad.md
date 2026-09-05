@@ -8,4 +8,4 @@ histologically.
 
 ## Results
 
-Growth was strongly associated with malignancy (OR 50.9, 95% CI 5.8–443.6).
+Growth was strongly associated with malignancy (OR 24.0, 95% CI 3.0–240.0).

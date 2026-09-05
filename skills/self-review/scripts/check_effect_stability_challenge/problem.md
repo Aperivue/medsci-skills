@@ -1,10 +1,10 @@
 # Challenge: an effect estimate whose CI spans an order of magnitude
 
-A manuscript's Conclusions report **OR 50.9 (95% CI 5.8–443.6)** as a magnitude.
-The interval spans **76-fold** — the data support a direction, not the point
-estimate — and the model was fit on **19 events for 2 covariates** (EPV 9.5 < 10).
-Two independent reviewers and the editor flagged exactly these numbers, and the
-paper was rejected.
+A manuscript's Conclusions report **OR 24.0 (95% CI 3.0–240.0)** as a magnitude.
+The interval spans **80-fold** — the data support a direction, not the point
+estimate — and the model was fit on **18 events for 3 covariates** (EPV 6.0 < 10).
+This is a synthetic counterexample: the expected findings are a wide-interval
+warning and a low events-per-variable warning.
 
 `check_effect_stability.py` recomputes both from the printed cells:
 `UNSTABLE_EFFECT_ESTIMATE` when a headline OR/HR/RR has a CI upper/lower ratio > 10

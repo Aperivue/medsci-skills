@@ -34,7 +34,7 @@ appearance sequence is not ascending (or, for references, is gapped or overruns 
 Verdicts:
   CITATION_ORDER (Major)  a float series is cited out of numerical order (e.g., Table 3
                           first-cited before Table 1, or Suppl. Tables cited
-                          S4, S9, S16, S12, …). Technical-check-fatal.
+                          S3, S1, S2, …). Technical-check-fatal.
   CITATION_GAP  (Minor)   a float series' cited numbers are not contiguous from 1
                           (a possible missing / mis-numbered float). Report-only.
   REFERENCE_ORDER (Major) in-text reference numbers are cited out of order (e.g. [12]

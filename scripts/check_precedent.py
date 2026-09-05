@@ -107,12 +107,16 @@ def load_hashes(allow_author: bool = False) -> set[str]:
 
 
 def line_ngrams(line: str) -> set[str]:
-    toks = [t.strip(_STRIP) for t in line.split()]
-    toks = [t for t in toks if t]
     grams: set[str] = set()
-    for n in range(1, MAX_NGRAM + 1):
-        for i in range(len(toks) - n + 1):
-            grams.add(" ".join(toks[i:i + n]).lower())
+    # Identifiers also occur inside paths and compound project slugs. Keep the
+    # original n-grams (some literals contain punctuation) and check components
+    # separated by path/slug delimiters without matching arbitrary substrings.
+    for source in (line, re.sub(r"[/\\\\_-]+", " ", line)):
+        toks = [t.strip(_STRIP) for t in source.split()]
+        toks = [t for t in toks if t]
+        for n in range(1, MAX_NGRAM + 1):
+            for i in range(len(toks) - n + 1):
+                grams.add(" ".join(toks[i:i + n]).lower())
     return grams
 
 

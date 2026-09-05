@@ -112,13 +112,13 @@ deprecation:
       - research-fellow   # -> /orchestrate
   project_specific_skills:
     sunset_date: "2026-10-24"
-    # D-4: project-specific skills (e.g., /skullfx-paper2) replaced by
+    # Project-specific skills are replaced by
     # /manage-project + per-project SSOT.yaml config.
     pattern: "^skills/[a-z0-9]+_[a-z0-9_]+$"  # project-id prefixed skills
     replacement: "/manage-project + SSOT.yaml"
     examples:
-      - skullfx-paper2
-      - ck1-submission-build
+      - example-project-writing
+      - example-submission-build
   skills_superseded:
     # Skills replaced during Phase 1~2. Listed here as they are planned;
     # move to `archive` once sunset confirmed.

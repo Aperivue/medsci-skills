@@ -57,4 +57,28 @@ else
   pass "no temp-dir leak"
 fi
 
+# The production wrapper must keep citation rendering intact while removing
+# source locations from custom Word properties. A real render exercises filter
+# ordering: stripping bibliography before citeproc would lose the reference.
+if command -v pandoc >/dev/null 2>&1; then
+  work="$(mktemp -d)"
+  trap 'rm -rf "$work"' EXIT
+  printf 'A synthetic citation [@sample2020].\n' > "$work/manuscript.md"
+  printf '@article{sample2020, author={Example, A.}, title={Synthetic study}, journal={Example Journal}, year={2020}}\n' > "$work/refs.bib"
+  bash "$HERE/../scripts/render_pandoc.sh" -S -j vancouver -i "$work/manuscript.md" \
+    -b "$work/refs.bib" -o "$work/manuscript.docx" >/dev/null 2>&1
+  python3 - "$work/manuscript.docx" <<'PY'
+import sys, zipfile
+with zipfile.ZipFile(sys.argv[1]) as z:
+    body = z.read("word/document.xml").decode()
+    custom = z.read("docProps/custom.xml").decode() if "docProps/custom.xml" in z.namelist() else ""
+assert "Synthetic study" in body, "citeproc did not render the reference"
+assert 'name="csl"' not in custom and 'name="bibliography"' not in custom
+PY
+  [[ $? -eq 0 ]] && pass "rendered references survive; source-path properties do not" \
+    || bad "source metadata removal broke rendering or missed a property"
+else
+  echo "  SKIP  source-property render check (pandoc unavailable)"
+fi
+
 if [[ $fail -eq 0 ]]; then echo "  OK"; exit 0; else echo "  $fail check(s) failed"; exit 1; fi
