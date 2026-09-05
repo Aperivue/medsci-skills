@@ -3,9 +3,8 @@
 #
 # author_cross_check() is the sole decision surface behind an AUTHOR MISMATCH status
 # (family-by-family + author-count). It is the repo's most trust-critical citation
-# check: a real AI-assembled bib once registered 7 of 10 fabricated co-author names
-# with a correct first author + DOI, and only the family/count cross-check catches
-# that. This test locks the logic so a refactor cannot silently drop the MISMATCH
+# check: a correct first author and DOI can coexist with fabricated co-author
+# names. This test locks the logic so a refactor cannot silently drop the MISMATCH
 # path. Stdlib-only, no network (the pure function is tested in isolation, so no
 # PubMed/CrossRef/OpenAlex call is made).
 set -u

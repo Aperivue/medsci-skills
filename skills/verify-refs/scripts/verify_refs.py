@@ -735,8 +735,7 @@ def author_cross_check(
     Returns ``(mismatches, notes)``: ``mismatches`` — human-readable mismatch strings
     (empty = clean); ``notes`` — non-mismatch evidence strings (the truncation note).
     This is the sole decision surface behind an AUTHOR MISMATCH status, extracted so
-    the fabricated-co-author path (a real AI-assembled bib once registered 7 of 10
-    fabricated co-author names) has a network-free regression test
+    the fabricated-co-author path has a network-free regression test
     (``tests/test_fabricated_author.sh``). Behaviour is identical to the inline logic
     it replaced in ``verify_record``.
     """
@@ -786,7 +785,7 @@ def verify_record(record: RefRecord, offline: bool, timeout: int,
       1. PubMed efetch (XML full-record) — best (motivation: CrossRef returned a
          wrong given name "Vasileios" vs PubMed efetch authoritative "Victoria";
          also catches AI-generated bib entries with hallucinated #2..#N family
-         names — a real AI-assembled bib registered 7 of 10 fabricated co-author names).
+         names).
       2. CrossRef DOI (fallback when no PMID).
       3. OpenAlex (tertiary; conference proceedings / non-DOI / non-biomedical works
          that PubMed and CrossRef miss — the free analogue of a portal's Scopus pass).
@@ -1037,8 +1036,7 @@ def write_outputs(records: list[RefRecord], project_root: Path, source: Path,
     v1.3.0 (2026-05): full-author cross-check. records[] now carry cited_authors[],
     actual_authors[], and author counts; schema_version bumps to 4. MISMATCH now
     fires on any #2..#N family hallucination or author-count mismatch, not just the
-    first author (motivation: a bib entry with a real first author but 7/10
-    fabricated co-author given names previously passed audit).
+    first author. A correct lead author does not verify the remaining author list.
     """
     qc_dir = project_root / "qc"
     qc_dir.mkdir(parents=True, exist_ok=True)
