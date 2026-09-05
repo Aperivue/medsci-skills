@@ -14,3 +14,15 @@ else
   echo "FAIL: linter output drifted from expected/report.txt" >&2
   exit 1
 fi
+
+# Normal US and UK prose must also stay quiet, including grammatical noun/verb
+# pairs and a defined numeric/hyphenated abbreviation.
+for variant in us uk; do
+  clean="$(python3 "$LINTER" "$HERE/fixture/consistent_${variant}.md" --strict)"
+  if ! grep -q '^Summary: 0 issue(s) across 0 category(ies)\.$' <<<"$clean"; then
+    echo "FAIL: consistent $variant prose produced findings" >&2
+    printf '%s\n' "$clean" >&2
+    exit 1
+  fi
+  echo "PASS: consistent $variant control has zero findings under --strict."
+done

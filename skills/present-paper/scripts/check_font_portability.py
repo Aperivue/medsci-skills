@@ -338,7 +338,8 @@ def main() -> int:
             indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
     if not findings:
-        print("OK: every typeface this deck names is available on both platforms, or embedded.")
+        print("OK: no unembedded platform-specific fonts found in the supported checks. "
+              "Font installation and substitution in the renderer still need verification.")
         return 0
 
     for f in findings:

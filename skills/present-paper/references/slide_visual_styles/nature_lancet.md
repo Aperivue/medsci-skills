@@ -34,10 +34,10 @@ single 6pt offset on figure tiles.
 | Role | Font (Latin) | Font (EastAsia / Korean) | Size | Weight |
 |---|---|---|---|---|
 | Slide title | Inter | Pretendard | 28–32 pt | Bold |
-| Subtitle / sentence-headline | Inter | Pretendard | 15–18 pt | Italic |
-| Body bullet (main) | Inter | Pretendard | 18–20 pt | Regular |
-| Body bullet (sub) | Inter | Pretendard | 15–16 pt | Regular |
-| Eyebrow text | Inter | Pretendard | 10–14 pt | Bold, letter-spaced 300–400 |
+| Subtitle | Inter | Pretendard | 20 pt | Italic |
+| Body bullet (main) | Inter | Pretendard | 20 pt (closing: 22 pt) | Regular |
+| Body bullet (sub) | Inter | Pretendard | 20 pt | Regular |
+| Eyebrow text | Inter | Pretendard | 20 pt (outline/closing edge label: 11 pt) | Bold, letter-spaced 300–400 |
 | Section title (divider) | Inter | Pretendard | 48–52 pt | Bold |
 | Transition quote | Inter | Pretendard | 36 pt | Bold |
 | Page-brand footer | Inter | Pretendard | 9 pt | Regular, letter-spaced 300 |
@@ -52,17 +52,35 @@ EastAsia attribute **must** be set on every run that may contain Korean text —
 PowerPoint falls back to Times New Roman otherwise. See
 `~/.claude/rules/pptx-mac-compatibility.md` §6.
 
+The font checker reports known platform-specific faces; a pass does not establish
+that Inter/Pretendard is installed or used by the renderer. To choose installed
+faces without changing text, size, bold or italic formatting, call after adding
+slides and before `prs.save(...)`:
+
+```python
+apply_fonts(prs, en="<installed Latin face>", ko="<installed East Asian face>")
+```
+
+This updates the builder's text runs, native bullet fonts and existing notes. It
+does not install/embed fonts or alter fonts inside images, equations, tables or
+charts. Inspect the exported PDF's actual fonts and its visible line breaks.
+
+The default body sizes match the academic `conference_oral`, `critique`,
+`case_anchored`, `didactic` and `defence` profiles for concise content. They do not
+meet the larger body sizes for `keynote`, `lay_talk` or `decision_brief`; adapt the
+layout and type before using those profiles. A budget pass alone is not a render check.
+
 ## 3. Layout grid (16:9, 13.333" × 7.5")
 
 | Region | Position | Content |
 |---|---|---|
 | Eyebrow | x=0.7", y=0.32", w=8", h=0.4" | **Title + dividers only** — see below |
-| Title | x=0.7", y=0.75", w=12.0", h=1.1" | Slide title + optional subtitle |
-| Hairline | x=0.7", y=2.05", w=0.6", h≈0.02" | Coral hairline (separator) |
-| Body (no figure) | x=0.7", y=2.4", w=12.0", h=4.6" | Bullets full width |
-| Body (with figure) | x=0.7", y=2.4", w=6.8", h=4.6" | Bullets left half |
-| Figure (right half) | x=7.9", y=2.4", w=5.0", h=4.0" | Centered within tile |
-| Figure caption | x=7.9", y=fig+0.10", w=5.0", h=0.6" | "Figure · {caption}" centered |
+| Title | x=0.7", y=0.75", w=12.0", h=1.6" | Slide title + optional subtitle |
+| Hairline | x=0.7", y=2.45", w=0.6", 2.5 pt line | Coral hairline (separator) |
+| Body (no figure) | x=0.7", y=2.7", w=12.0", h=4.3" | Bullets full width |
+| Body (with figure) | x=0.7", y=2.7", w=6.8", h=4.3" | Bullets left half |
+| Figure (right half) | x=7.9", y=2.7", w=5.0", h=3.0" with caption (4.0" without) | Centered within tile |
+| Figure caption | x=7.9", y=fig+0.10", w=5.0", h=1.2" | "Figure · {caption}" centered |
 | Page number | x=12.6", y=7.0", w=0.4", h=0.3" | A bare numeral. Keep it. |
 | Footnote | x=0.7", y=7.05", w=12.0", h=0.35" | Right-aligned source ref (only where there is a source) |
 
@@ -91,19 +109,19 @@ legitimate override — record it, and move on.
 
 ### 4a. Title slide
 - Left navy bar (40k EMU wide × 3.5" tall) at x=0.7"
-- "REVIEW LECTURE" eyebrow (14pt, coral, letter-spaced 300)
+- "REVIEW LECTURE" eyebrow (20pt, coral, letter-spaced 300)
 - 48pt navy bold title
-- 18pt italic subtitle (TEXT_SUB)
-- Bottom block: 16pt bold navy line ("Course · Professor · Date"), 13pt sub line
+- 20pt italic subtitle (TEXT_SUB)
+- Bottom block: 20pt bold navy line ("Course · Professor · Date"), 20pt sub line
   ("Presenter Name · Affiliation"), separated by 2" navy hairline above
 
 ### 4b. Section divider
 - Full-bleed deep navy background (`DIVIDER_BG`)
 - 1.8"-tall coral accent strip at x=1.2", y=3.0", 15k EMU wide
-- "SECTION {N}" 18pt coral eyebrow letter-spaced 400
+- "SECTION {N}" 20pt coral eyebrow letter-spaced 400
 - 52pt white bold section title
 - 20pt italic light-navy (`#C0CBDC`) subtitle
-- Bottom-right "{N} MIN" badge (13pt muted)
+- Bottom-right "{N} MIN" badge (20pt muted)
 
 ### 4c. Transition slide
 - Full-bleed deep navy background
@@ -115,8 +133,10 @@ legitimate override — record it, and move on.
   (left if figure, full-width if no figure) → figure tile (shadow offset 0.06",
   hairline border) → optional figure caption → footnote (right) + page brand (left)
 - Bullet markers:
-  - Main: `▪` (14pt coral bold) + 20pt body text
-  - Sub (lines prefixed with 2 spaces): `—` (15pt muted) + 16pt sub text
+  - Main: native `▪` coral paragraph bullet + 20pt body text
+  - Sub (lines prefixed with 2 spaces): native `–` muted paragraph bullet + 20pt text
+  - Hanging indents keep wrapped lines aligned with the text. Markers are not typed
+    into text runs; bold/italic text remains editable.
 - Inline `**bold**` and `*italic*` markdown is parsed into per-run styling (see
   `pptx-mac-compatibility.md` §4 for the parser pattern)
 
@@ -124,13 +144,17 @@ legitimate override — record it, and move on.
 - Eyebrow "OUTLINE"
 - Title "Outline" + sentence subtitle
 - Coral hairline
-- N rows, each: 22pt coral section number (or `·` for wrap-up), 22pt navy bold section
-  title, 13pt sub-text English summary, 12pt muted time badge (right-aligned). Hairline
-  divider between rows.
+- Up to five rows, each: 22pt coral section number (or `·` for wrap-up), 22pt navy bold section
+  title, 20pt sub-text English summary, 20pt muted time badge (right-aligned). Native
+  line dividers between rows. Longer outlines raise `ValueError` before adding a slide;
+  split them. Keep each title and summary to one line.
 
 ### 4f. Glossary slide (optional, for multidisciplinary audiences)
-- Tier 1 (top, 4–7 items): disease/concept abbreviations with one-line context
-- Tier 2 (bottom, 2-column, 8–12): method/statistics abbreviations with short defs
+- Tier 1 (top, up to 7 items): disease/concept abbreviations with one-line context
+- Tier 2 (bottom, 2-column, up to 12): method/statistics abbreviations with short defs
+- Both tiers use 20pt text. Excess entries raise `ValueError` before adding a slide.
+  Maximum capacity is not a density target: split a crowded glossary even when it
+  fits on the canvas. Wrapped definitions need a rendered review.
 - See `~/.claude/rules/multidisciplinary-presentation.md` §1
 
 ### 4g. Closing slide
@@ -140,7 +164,8 @@ legitimate override — record it, and move on.
 
 ## 5. Figure handling
 
-- Aspect-ratio preserving fit inside the figure tile (5.0" × 4.0" max)
+- Aspect-ratio preserving fit inside the figure tile (5.0" wide, 3.0" high with
+  caption or 4.0" without). The caption has a separate 1.2" band above the footnote.
 - Shadow rectangle (hairline gray) offset +0.06" / +0.06" before image
 - Image border: hairline gray (~6000 EMU)
 - Caption format: `Figure  ·  {caption}` (coral "Figure" eyebrow, italic muted caption)

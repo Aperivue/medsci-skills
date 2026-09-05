@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""One deck, and three recorded measurements of it.
+"""One deck, and three synthetic measurements of it.
 
 The detector's whole argument is that the render already knows the answer, so the fixture supplies
-a render — as `pdftotext -bbox` output, which is exactly what the detector reads. Recording the
-measurement rather than producing a PDF keeps the card deterministic and free of poppler and
-LibreOffice, and it exercises the same parser and the same comparison on the same geometry.
+synthetic line rectangles in the `pdftotext -bbox-layout` structure. These are computed
+coordinates, not a recorded renderer export. They exercise the parser and comparisons without
+poppler or LibreOffice. tests/test_overflow_pdf.py separately exercises real poppler output.
 
   deck.pptx        two slides. Slide 1 carries a filled block with a known rectangle.
   clean.xml        every line inside its block and clear of the foot of the slide.

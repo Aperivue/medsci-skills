@@ -12,9 +12,10 @@
 # and, of course, it has to catch the two real failures: a line leaving its block, and a line
 # ending in the reserved band at the foot of the slide.
 #
-# WHAT THIS DOES NOT COVER: the `pdftotext` invocation itself. The card supplies a recorded
+# WHAT THIS DOES NOT COVER: the `pdftotext` invocation itself. The card supplies a synthetic
 # measurement so that it needs neither poppler nor LibreOffice; the parser and the comparison it
-# feeds are the same code that runs on a real PDF.
+# feeds are the same code that runs on a real PDF. The existing CI step also runs
+# tests/test_overflow_pdf.py against actual poppler, using tiny controlled PDFs.
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 DET="$HERE/../check_text_overflow.py"

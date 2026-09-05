@@ -85,9 +85,11 @@ SPELLING_US = {
 
 # Hyphenation/terminology variant families (all lowercase match, word-ish).
 HYPHEN_FAMILIES = [
-    ("follow-up", [r"\bfollow-up\b", r"\bfollowup\b", r"\bfollow up\b"]),
+    # The spaced verb "follow up" is grammatical beside the noun "follow-up".
+    # Likewise "in the long term" is not a misspelling of the adjective.
+    ("follow-up", [r"\bfollow-up\b", r"\bfollowup\b"]),
     ("health care", [r"\bhealthcare\b", r"\bhealth care\b", r"\bhealth-care\b"]),
-    ("long-term", [r"\blong-term\b", r"\blongterm\b", r"\blong term\b"]),
+    ("long-term", [r"\blong-term\b", r"\blongterm\b"]),
     ("well-being", [r"\bwell-being\b", r"\bwellbeing\b"]),
     ("decision-making", [r"\bdecision-making\b", r"\bdecision making\b"]),
     ("COVID-19", [r"\bCOVID-19\b", r"\bCOVID19\b", r"\bCovid-19\b"]),
@@ -101,8 +103,10 @@ UNIT_RE = re.compile(
     r"(?<![\w.])(\d+(?:\.\d+)?)(" + "|".join(sorted(UNIT_TOKENS, key=len, reverse=True)) + r")(?![\w])"
 )
 
-ABBR_DEF_RE = re.compile(r"\(([A-Z][A-Z0-9]{1,5})\)")            # (CT), (MRI), (DKA), (COVID)
-ABBR_USE_RE = re.compile(r"(?<![A-Za-z])([A-Z]{2,6})(?![A-Za-z])")  # standalone caps token
+# Keep numeric/hyphenated identifiers whole: a definition of (COVID-19) must
+# match uses of COVID-19, not manufacture an undefined abbreviation "COVID".
+ABBR_DEF_RE = re.compile(r"\(([A-Z][A-Z0-9]{1,5}[0-9]*(?:-[A-Z0-9]{1,6})*)\)")
+ABBR_USE_RE = re.compile(r"(?<![A-Za-z0-9-])([A-Z]{2,6}[0-9]*(?:-[A-Z0-9]{1,6})*)(?![A-Za-z0-9-])")
 NUM_RANGE_RE = re.compile(r"(?<![\w/.\-])(\d+(?:\.\d+)?)-(\d+(?:\.\d+)?)(?![\w/.\-])")
 PVAL_RE = re.compile(r"(?<![A-Za-z])([Pp])\s*([=<>])\s*(0?\.\d+|\d+\.\d+|\.\d+)")
 SMALL_NUM_RE = re.compile(r"(?<![\w.=<>+\-/])([1-9])\s+([a-z]{3,})")
@@ -236,10 +240,13 @@ def check_pvalues(lines):
 def check_hyphenation(lines):
     out = []
     for canon, variants in HYPHEN_FAMILIES:
+        # These variants intentionally differ in case. Ignoring case makes a
+        # single COVID-19 occurrence match both patterns and report a false mix.
+        flags = 0 if canon == "COVID-19" else re.I
         present = []
         per_variant = {}
         for vre in variants:
-            vlines = [i for i, line in enumerate(lines, 1) if re.search(vre, line, re.I)]
+            vlines = [i for i, line in enumerate(lines, 1) if re.search(vre, line, flags)]
             if vlines:
                 present.append(vre)
                 per_variant[vre] = vlines

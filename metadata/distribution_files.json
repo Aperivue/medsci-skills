@@ -3688,13 +3688,23 @@
     },
     {
       "path": "skills/polish-language/SKILL.md",
-      "size": 7649,
-      "sha256": "27c9d79d48c6b4b3e5a840e30962c4e731f8486e9dab75c16ac70d6067bc4c76"
+      "size": 7709,
+      "sha256": "db2a3d7705c611185daed6d363d606cbda11b5e041bc84c41a61c5b28dc45058"
     },
     {
       "path": "skills/polish-language/scripts/lint_challenge/expected/report.txt",
       "size": 1032,
       "sha256": "bf7be677cd12d583fd958468a6e5ee7f08493cc5fd01a4f7c27af3770331da66"
+    },
+    {
+      "path": "skills/polish-language/scripts/lint_challenge/fixture/consistent_uk.md",
+      "size": 524,
+      "sha256": "1b77ed2c859da126ce1aa6a8557d180e8e845c97271b2b898ca718df10e3de0c"
+    },
+    {
+      "path": "skills/polish-language/scripts/lint_challenge/fixture/consistent_us.md",
+      "size": 763,
+      "sha256": "3bd1ce288b08e27296dd67a5a2ad1261e61e1219344c3e2c59b9070e8f6ccda4"
     },
     {
       "path": "skills/polish-language/scripts/lint_challenge/fixture/manuscript.md",
@@ -3703,18 +3713,18 @@
     },
     {
       "path": "skills/polish-language/scripts/lint_challenge/problem.md",
-      "size": 2169,
-      "sha256": "69037c9d85cf1a29a77dc77cd61e879b9a6befcec945b808d71468fff4278490"
+      "size": 2949,
+      "sha256": "df7c892a1131d76ee2f7614b465e0d677d09d595492eef2ece4f21bd9ff36583"
     },
     {
       "path": "skills/polish-language/scripts/lint_challenge/verify.sh",
-      "size": 615,
-      "sha256": "31ddc7fb64ac2f9180cdfa6a6ee15a29844c2e9c0955b83250b2c1b62f9e8fa6"
+      "size": 1132,
+      "sha256": "6b3faa91892bb4651795e4943b04171ef87e6162acce58a65390446e14251560"
     },
     {
       "path": "skills/polish-language/scripts/lint_consistency.py",
-      "size": 15665,
-      "sha256": "f380439fae1fd41b966862957ca4232467a1d1701dd5a19c35c1864b3df9aea2"
+      "size": 16136,
+      "sha256": "cc892d682ea4ccd648effb1facf8d404503d9c5d89b2cf954acfedd12a967857"
     },
     {
       "path": "skills/polish-language/scripts/lint_figure_locale.py",
@@ -3733,8 +3743,8 @@
     },
     {
       "path": "skills/polish-language/skill.yml",
-      "size": 2033,
-      "sha256": "1a513a7d532d5a335acd6fa91566a551b5dc17d6ba3021f9d39a52848a7df571"
+      "size": 2081,
+      "sha256": "aff8fcd8108ca1df38de11ce594005dfa94baec8947e14dba9214538e77b1eaa"
     },
     {
       "path": "skills/preprocess-imaging/SKILL.md",
@@ -3828,8 +3838,8 @@
     },
     {
       "path": "skills/present-paper/SKILL.md",
-      "size": 53093,
-      "sha256": "d94632764cd473f79ccf594bb6ecbd49bc270447a81d1f9cfce3d1d43701bbea"
+      "size": 54313,
+      "sha256": "f57f6bfcfdf4a016defcce34732e264c7ac11258f825e1244c681d0d6a52db5d"
     },
     {
       "path": "skills/present-paper/references/ai_slide_tells.md",
@@ -3898,8 +3908,8 @@
     },
     {
       "path": "skills/present-paper/references/slide_visual_styles/nature_lancet.md",
-      "size": 9116,
-      "sha256": "fd70cbe0edbc39b05a8c6f53da5637913c15182aeb4878983615a77af20c5846"
+      "size": 10721,
+      "sha256": "7f6bc69354220de042a8074d00e5e015972f232384efda72587208fbacd078e6"
     },
     {
       "path": "skills/present-paper/references/spoken_notes_and_bilingual.md",
@@ -3943,8 +3953,8 @@
     },
     {
       "path": "skills/present-paper/scripts/check_font_portability.py",
-      "size": 15788,
-      "sha256": "192f7107e47364ebe14e6db287d4e3c91b62d6c24391ac5669532f0461695c98"
+      "size": 15874,
+      "sha256": "182a214f32f4f9c73b7e4717d334cd81e94da77c78bc660a7367d69921451528"
     },
     {
       "path": "skills/present-paper/scripts/check_font_portability_challenge/make_fixtures.py",
@@ -3973,18 +3983,18 @@
     },
     {
       "path": "skills/present-paper/scripts/check_text_overflow.py",
-      "size": 11729,
-      "sha256": "211a6fd3b73d5d8b107f24648db2b0de5628ae6f52c7331253ec9f7664d8179b"
+      "size": 12150,
+      "sha256": "c0dde521a02b7f3d495a627003430c29eae199cd8fa4e1c5be4f778b32ff6c5b"
     },
     {
       "path": "skills/present-paper/scripts/check_text_overflow_challenge/make_fixtures.py",
-      "size": 4169,
-      "sha256": "6f9d577e43f10ad6f9d98bfa3d8a02f0cf1bb8a5b7c722c11054363dacf39b67"
+      "size": 4162,
+      "sha256": "473b8a58e8fefc62c1d3cf0f974aeb1b7ca1ddb3bb31abf2aa7ec612bded3fdd"
     },
     {
       "path": "skills/present-paper/scripts/check_text_overflow_challenge/verify.sh",
-      "size": 4013,
-      "sha256": "77366b614425a859c09942b233a9616b21bd1f33c50fdf20d5ca25a18eba837e"
+      "size": 4126,
+      "sha256": "5467d119389fb9b2787d18b5f67283c804cd22a5b112c3c82ece55f6ed720269"
     },
     {
       "path": "skills/present-paper/scripts/extract_pdf_figures.py",
@@ -4018,13 +4028,13 @@
     },
     {
       "path": "skills/present-paper/skill.yml",
-      "size": 3238,
-      "sha256": "6d45223886fa651661d13afbe18a8cd80907f11cbe1afadd94656630a83729ba"
+      "size": 3482,
+      "sha256": "28d8a5a32fc4a0c5ab63c7a506911e3c022a1b8c77ecccef350298b1755d0e37"
     },
     {
       "path": "skills/present-paper/templates/build_pptx_nature_lancet.py",
-      "size": 30327,
-      "sha256": "8a08bb4e981c76aa8b3d262037c7456dc4eab2ef12c809a26297c85be9508f6e"
+      "size": 32525,
+      "sha256": "9e14b3845d961d3bb9ab12bffc9709414ac1b517b08c345a85556868a619afb3"
     },
     {
       "path": "skills/profile-imaging/SKILL.md",

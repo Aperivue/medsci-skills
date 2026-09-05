@@ -13,7 +13,7 @@ failure walks straight into the other, and the same trap was hit again five mont
 different direction: sizing a block at font x 1.06 without accounting for the roughly 1.2 leading
 PowerPoint adds on top, so a 21-line list computed to 4.1 in and needed 5.1.
 
-None of that arithmetic is necessary. **The render already knows.** `pdftotext -bbox` gives every
+None of that arithmetic is necessary. **The render already knows.** `pdftotext -bbox-layout` gives every
 line's rectangle in points, and the .pptx gives every shape's rectangle. Two comparisons:
 
     OFF_SLIDE   a line's bottom crosses into the reserved band at the foot of the page, or past it
@@ -91,7 +91,7 @@ def run_pdftotext(pdf: Path) -> str:
             "pdftotext is not on PATH. It ships with poppler (macOS: brew install poppler; "
             "Debian/Ubuntu: apt install poppler-utils).")
     try:
-        return subprocess.run(["pdftotext", "-bbox", str(pdf), "-"],
+        return subprocess.run(["pdftotext", "-bbox-layout", str(pdf), "-"],
                               capture_output=True, text=True, check=True).stdout
     except subprocess.CalledProcessError as exc:
         raise CannotMeasure(f"pdftotext could not read {pdf} ({exc})") from exc
@@ -111,6 +111,11 @@ def parse_bbox(xml: str) -> Dict[int, List[Tuple[float, float, float, float, str
             txt = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", m.group(7))).strip()
             pages[cur].append((float(m.group(3)), float(m.group(4)),
                                float(m.group(5)), float(m.group(6)), txt))
+    # Plain -bbox contains words but no line rectangles. Treat that as an
+    # incompatible measurement, not an empty clean slide.
+    for i, page in enumerate(re.finditer(r'<page\b[^>]*>(.*?)</page>', xml, re.S), 1):
+        if re.search(r'<word\b', page.group(1)) and not pages.get(i):
+            raise CannotMeasure("word coordinates have no usable line rectangles; use pdftotext -bbox-layout")
     return pages
 
 
@@ -207,7 +212,7 @@ def main() -> int:
     ap.add_argument("deck", type=Path, help="the .pptx")
     ap.add_argument("--pdf", type=Path, help="the rendered PDF of that same deck (required)")
     ap.add_argument("--bbox-xml", type=Path,
-                    help="a recorded `pdftotext -bbox` output to use instead of running it. "
+                    help="a recorded `pdftotext -bbox-layout` output to use instead of running it. "
                          "Same measurement, same parser, supplied from a file — this is how the "
                          "challenge card stays deterministic without poppler.")
     ap.add_argument("--bottom-reserve-in", type=float, default=0.10,

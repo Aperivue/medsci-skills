@@ -127,7 +127,7 @@ A deterministic, network-free challenge card lives in
 `expected/report.txt` + `verify.sh`):
 
 ```bash
-bash scripts/lint_challenge/verify.sh   # PASS = 10 seeded issues across 7 categories
+bash scripts/lint_challenge/verify.sh   # PASS = 11 seeded issues across 8 categories + 2 clean controls
 ```
 
 ## What This Skill Does NOT Do
@@ -142,9 +142,9 @@ bash scripts/lint_challenge/verify.sh   # PASS = 10 seeded issues across 7 categ
 
 ## Anti-Hallucination
 
-- The deterministic linter (`lint_consistency.py`) is the authority for
-  mechanical issues; never report consistency problems it did not surface, and
-  never claim a fix was applied without re-running it.
+- Report deterministic findings as linter findings, and other observations as
+  editorial suggestions. The fixed rules do not resolve every grammar or journal
+  preference; triage flags in context. Never claim a fix without re-running the linter.
 - Clarity edits are constrained to wording. Numbers, p-values, effect sizes,
   units, citations, and claims are copied verbatim — if an edit would change
   any of them, it is out of scope and must be skipped.
