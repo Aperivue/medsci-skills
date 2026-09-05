@@ -17,7 +17,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import shutil
 import subprocess
 import zipfile
 from pathlib import Path
@@ -149,12 +148,25 @@ def build_zip(platform: str, version: str, provenance: dict | None = None) -> Pa
 
 
 def main() -> int:
+    global REPO_ROOT, DIST_DIR, MANIFEST_PATH, TRACKED_FILES
     parser = argparse.ArgumentParser(description="Build classroom release ZIPs.")
     parser.add_argument("--version", default="latest", help="Version label for the ZIP root folder (ignored when --tag is given).")
     parser.add_argument("--tag", default=None, help="Release tag (e.g. v4.7.0). Injects a verified provenance.json and pins the root version.")
-    parser.add_argument("--git-sha", default=None, help="Commit SHA to record in provenance.json (release workflow supplies ${{ github.sha }}).")
+    parser.add_argument("--git-sha", default=None, help="Commit SHA to record in provenance.json (release workflow supplies the checked-out tag commit).")
     parser.add_argument("--built-at", default=None, help="Build timestamp (ISO-8601 UTC) to record in provenance.json.")
+    parser.add_argument('--source-root', type=Path, help='selected release checkout (may differ from the verification tools)')
+    parser.add_argument('--output-dir', type=Path, help='directory reserved for generated release artifacts')
     args = parser.parse_args()
+    if args.source_root:
+        REPO_ROOT = args.source_root.resolve()
+        MANIFEST_PATH = REPO_ROOT / 'metadata/distribution_manifest.json'
+        TRACKED_FILES = _git_tracked_files()
+        if not TRACKED_FILES:
+            parser.error('--source-root must contain tracked release source files')
+    if args.output_dir:
+        DIST_DIR = args.output_dir.resolve()
+        if DIST_DIR == REPO_ROOT or REPO_ROOT.is_relative_to(DIST_DIR):
+            parser.error('--output-dir must not contain the source checkout')
 
     provenance: dict | None = None
     version = args.version
@@ -179,9 +191,8 @@ def main() -> int:
             "built_at": args.built_at or "",
         }
 
-    if DIST_DIR.exists():
-        shutil.rmtree(DIST_DIR)
-    DIST_DIR.mkdir(parents=True)
+    # Only replace the two owned ZIPs; do not delete unrelated caller files.
+    DIST_DIR.mkdir(parents=True, exist_ok=True)
 
     outputs = [build_zip("windows", version, provenance), build_zip("macos", version, provenance)]
     for out in outputs:

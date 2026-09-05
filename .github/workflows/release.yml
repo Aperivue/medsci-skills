@@ -10,7 +10,8 @@ name: Release
 #
 # The npm publish step runs only when the `NPM_TOKEN` repo secret is set (a granular/automation token
 # scoped to medsci-skills with publish rights + 2FA bypass), and skips if that version is already on
-# npm, so re-running a tag is safe. It runs AFTER the GitHub Release so an npm hiccup never blocks it.
+# npm, and verifies that the existing payload matches. It runs AFTER the GitHub Release;
+# a later npm failure leaves the ZIP release published and requires recovery.
 #
 # Supply-chain posture (see SECURITY.md "Release integrity & revocation"): the self-updater verifies
 # each download's sha256 against the github.com API digest, which detects transport/asset tampering
@@ -21,7 +22,8 @@ name: Release
 #   * a version-consistency gate (CITATION == package.json == manifest == the pushed tag);
 #   * build-provenance attestation of the ZIP artifacts;
 #   * a post-build check that each ZIP round-trips through the updater's own safe-extract + provenance
-#     validation, so a release can never ship a ZIP the updater would refuse.
+#     validation, selected-source byte comparison and existing privacy scanners;
+#   * downloaded ZIP byte and npm payload comparison after publication.
 
 on:
   push:
@@ -45,6 +47,11 @@ env:
 
 # Least privilege: contents:write to publish the release; id-token + attestations for the build
 # provenance attestation. Nothing else.
+# Serialize recovery runs for the same tag; never cancel a publication midway.
+concurrency:
+  group: release-${{ inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
 permissions:
   contents: write
   id-token: write
@@ -69,6 +76,32 @@ jobs:
           # compares the tag against the CHECKED-OUT manifest — so a republish must check out the tag
           # or it would validate the wrong tree.
           ref: ${{ inputs.tag || github.ref_name }}
+
+      # Keep verification tools at the workflow commit on recovery runs. The
+      # payload remains the selected tag, including tags predating these checks.
+      - name: Checkout verification tools
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.workflow_sha }}
+          path: .release-tools
+          persist-credentials: false
+
+      - name: Resolve the selected release commit
+        run: |
+          set -euo pipefail
+          [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          SOURCE_SHA="$(git rev-parse HEAD)"
+          test "$SOURCE_SHA" = "$(git rev-parse "refs/tags/${RELEASE_TAG}^{commit}")"
+          echo "SOURCE_SHA=$SOURCE_SHA" >> "$GITHUB_ENV"
+
+      - name: Set up Node for packing and npm publish
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install metadata inspection tools
+        run: sudo apt-get update && sudo apt-get install -y libimage-exiftool-perl poppler-utils
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -96,28 +129,33 @@ jobs:
         run: |
           set -euo pipefail
           BUILT_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          python3 scripts/build_classroom_release.py \
+          python3 .release-tools/scripts/build_classroom_release.py --source-root . --output-dir dist \
             --tag "${RELEASE_TAG}" \
-            --git-sha "${GITHUB_SHA}" \
+            --git-sha "${SOURCE_SHA}" \
             --built-at "${BUILT_AT}"
+
+      - name: Pack the exact npm artifact before publication
+        run: |
+          set -euo pipefail
+          npm pack --json --pack-destination dist > dist/npm-pack.json
 
       - name: Verify ZIPs are consumable by the self-updater (provenance + safe-extract round-trip)
         run: |
           set -euo pipefail
           for zip in dist/medsci-skills-classroom-*.zip; do
-            python3 scripts/check_release_zip.py --zip "$zip" \
-              --expect-tag "${RELEASE_TAG}" --require-provenance
+            python3 .release-tools/scripts/check_release_zip.py --zip "$zip" \
+              --expect-tag "${RELEASE_TAG}" --require-provenance \
+              --expect-sha "${SOURCE_SHA}" --source-root . --privacy \
+              --report "${zip%.zip}-verification.json"
           done
 
-      - name: List built artifacts
+      - name: Verify actual npm payload and privacy
         run: |
-          ls -lh dist/
-          echo "---"
-          echo "ZIP contents preview:"
-          for zip in dist/*.zip; do
-            echo "## ${zip}"
-            unzip -l "${zip}" | head -20
-          done
+          set -euo pipefail
+          python3 .release-tools/scripts/check_npm_package_contents.py \
+            --tarball "dist/medsci-skills-${RELEASE_TAG#v}.tgz" \
+            --source-root . --expect-version "${RELEASE_TAG#v}" --privacy \
+            --report dist/npm-verification.json
 
       - name: Attest build provenance of the release ZIPs
         uses: actions/attest-build-provenance@v2
@@ -127,6 +165,7 @@ jobs:
       - name: Extract release notes from CHANGELOG.md
         id: notes
         run: |
+          set -euo pipefail
           TAG="${RELEASE_TAG}"
           # Tags are "vX.Y.Z" but CHANGELOG headers are "## [X.Y.Z]" (no leading v).
           # Strip the v so the section is actually found (else notes fall back).
@@ -137,25 +176,33 @@ jobs:
               $0 ~ "^## \\[?"ver"\\]?" { found=1; next }
               found && /^## / { exit }
               found { print }
-            ' CHANGELOG.md > /tmp/release_notes.md
+            ' CHANGELOG.md > dist/release-notes.md
           else
-            echo "Release ${TAG}" > /tmp/release_notes.md
+            echo "Release ${TAG}" > dist/release-notes.md
           fi
 
           # Fallback if CHANGELOG section was empty
-          if [ ! -s /tmp/release_notes.md ]; then
-            echo "Release ${TAG}" > /tmp/release_notes.md
-            echo "" >> /tmp/release_notes.md
-            echo "See [CHANGELOG.md](CHANGELOG.md) for details." >> /tmp/release_notes.md
+          if [ ! -s dist/release-notes.md ]; then
+            echo "Release ${TAG}" > dist/release-notes.md
+            echo "" >> dist/release-notes.md
+            echo "See [CHANGELOG.md](CHANGELOG.md) for details." >> dist/release-notes.md
           fi
 
-          echo "Release notes preview:"
-          cat /tmp/release_notes.md
+          # Inspect notes before any preview or public upload; findings never quote values.
+          python3 - <<'PY'
+          import sys
+          from pathlib import Path
+          sys.path.insert(0, '.release-tools/scripts')
+          from release_payload import privacy
+          findings, _ = privacy({'release-notes.md': Path('dist/release-notes.md').read_bytes()})
+          if findings:
+              raise SystemExit('Release notes failed privacy inspection')
+          PY
 
       - name: Create GitHub Release with classroom ZIP attached
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        # Publish the SAME classroom artifacts that were verified (line ~75) and attested (line ~97);
+        # Publish the SAME classroom artifacts that were verified (above) and attested (above);
         # the glob is identical so a release can only ship a ZIP that round-tripped + was attested.
         # Nothing modifies dist/ between those steps and this upload, so the API sha256 the updater
         # later checks covers exactly the verified bytes.
@@ -172,12 +219,12 @@ jobs:
             echo "Release $TAG already exists — updating notes and (re)uploading assets."
             gh release edit "$TAG" \
               --title "MedSci Skills ${TAG}" \
-              --notes-file /tmp/release_notes.md
+              --notes-file dist/release-notes.md
             gh release upload "$TAG" dist/medsci-skills-classroom-*.zip --clobber
           else
             gh release create "$TAG" \
               --title "MedSci Skills ${TAG}" \
-              --notes-file /tmp/release_notes.md \
+              --notes-file dist/release-notes.md \
               dist/medsci-skills-classroom-*.zip
           fi
           # Assert the outcome rather than the command's exit code: a release that ends with no
@@ -189,14 +236,23 @@ jobs:
             exit 1
           fi
 
-      # --- npm publish (last, gated on NPM_TOKEN, idempotent) so a npm issue never blocks the release ---
-      - name: Set up Node for npm publish
-        if: env.HAS_NPM_TOKEN == 'true'
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          registry-url: "https://registry.npmjs.org"
+      - name: Download and compare published ZIPs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh release download "$RELEASE_TAG" --pattern 'medsci-skills-classroom-*.zip' \
+            --dir dist/downloaded
+          for platform in macos windows; do
+            asset="medsci-skills-classroom-${platform}.zip"
+            python3 .release-tools/scripts/check_release_zip.py \
+              --zip "dist/downloaded/$asset" --reference "dist/$asset" \
+              --expect-tag "$RELEASE_TAG" --expect-sha "$SOURCE_SHA" \
+              --require-provenance --source-root . \
+              --report "dist/${platform}-published-verification.json"
+          done
 
+      # npm is published from the already inspected tarball. No second pack.
       - name: Publish to npm (idempotent; npm provenance via OIDC)
         if: env.HAS_NPM_TOKEN == 'true'
         env:
@@ -211,5 +267,22 @@ jobs:
           fi
           # --provenance links the published package to this GitHub Actions build via OIDC
           # (uses the id-token permission already granted above).
-          npm publish --provenance --access public
+          npm publish "./dist/medsci-skills-${VER}.tgz" --ignore-scripts --provenance --access public
           echo "Published medsci-skills@${VER} to npm."
+
+      - name: Download and compare published npm payload
+        if: env.HAS_NPM_TOKEN == 'true'
+        run: |
+          set -euo pipefail
+          python3 .release-tools/scripts/check_npm_package_contents.py \
+            --published-version "${RELEASE_TAG#v}" \
+            --reference "dist/medsci-skills-${RELEASE_TAG#v}.tgz" --source-root . \
+            --report dist/npm-published-verification.json
+
+      - name: Retain successful verification records
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-verification-${{ env.RELEASE_TAG }}
+          path: |
+            dist/*-verification.json
+          retention-days: 30

@@ -239,6 +239,16 @@ For JOSS readiness, contributions should strengthen open-source practice signals
 
 ## Releasing (maintainers)
 
+Before tagging, run the full local CI mirror and regenerate the distribution manifest.
+The release workflow builds the selected tag, compares the actual ZIP/npm payloads to that
+checkout and runs the existing privacy scanners on the packaged bytes. npm publication uses
+the verified `.tgz`; do not replace it with a fresh directory-based `npm publish`.
+After upload, downloaded ZIP bytes and npm file contents/executable modes must match the
+verified artifacts. Inspect the `release-verification-vX.Y.Z` workflow artifact for hashes and
+coverage; absence of a successful report is not a pass. npm requires `NPM_TOKEN`, and skipped
+npm steps leave that channel unverified. See [SECURITY.md](SECURITY.md#release-integrity--revocation)
+for inspection limits and recovery behavior.
+
 **A release is an event, not a commit.** Merge to `main` continuously — that is what `main` is for —
 and let the work accumulate into something a person would actually want to read about.
 

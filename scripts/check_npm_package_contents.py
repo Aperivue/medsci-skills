@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 """npm tarball content audit (allowlist/denylist gate).
 
-Parses the file list that `npm pack` would publish and asserts that
+The default mode parses the file list from `npm pack --dry-run` and asserts that
 (1) no private / dev / heavy / copyright-bearing path leaks into the tarball, and
 (2) the required public files are present.
+
+Actual --tarball/--real/--published-version modes also compare every payload file
+against the selected checkout; --privacy inspects text and binary metadata.
 
 This is defense-in-depth on top of the `files` allowlist in package.json: if the
 allowlist is ever loosened, this gate still blocks the dangerous paths.
@@ -20,9 +23,19 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import subprocess
 import sys
+import tempfile
+import tarfile
+import base64
+import hashlib
+import re
+import time
+import urllib.request
+import urllib.error
+import urllib.parse
+
+import release_payload as payload
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -104,20 +117,6 @@ def get_file_list(args) -> tuple[list[str], dict[str, int]]:
             sys.stderr.write("Could not locate JSON in npm pack output.\n")
             sys.exit(2)
         data = json.loads(out[start:])
-        if args.real:
-            # `npm pack` (no dry-run) writes a .tgz in the repo root; remove it to avoid churn.
-            entries = data if isinstance(data, list) else [data]
-            for entry in entries:
-                if not isinstance(entry, dict):
-                    continue
-                tgz = entry.get("filename")
-                if tgz:
-                    tgz_path = REPO_ROOT / tgz
-                    if tgz_path.exists():
-                        try:
-                            tgz_path.unlink()
-                        except OSError:
-                            pass
 
     # npm versions differ: --json may emit a single object instead of an array.
     if isinstance(data, dict):
@@ -150,11 +149,110 @@ def is_denied(p: str) -> bool:
     return False
 
 
+def download_published(version, dest):
+    """Read an exact public version; retry short registry propagation delays."""
+    if not re.fullmatch(r'[0-9]+\.[0-9]+\.[0-9]+', version):
+        raise payload.PayloadError('published version must be an exact release version')
+    for attempt in range(5):
+        try:
+            request = urllib.request.Request(f'https://registry.npmjs.org/medsci-skills/{version}',
+                                             headers={'Cache-Control': 'no-cache'})
+            with urllib.request.urlopen(request, timeout=15) as response:
+                info = json.loads(response.read(2 * 1024 * 1024))
+            if not isinstance(info, dict) or info.get('name') != 'medsci-skills' or info.get('version') != version:
+                raise payload.PayloadError('registry returned a different package/version')
+            url = info['dist']['tarball']
+            parsed = urllib.parse.urlparse(url)
+            if parsed.scheme != 'https' or parsed.hostname != 'registry.npmjs.org':
+                raise payload.PayloadError('registry tarball URL is outside the public npm registry')
+            with urllib.request.urlopen(url, timeout=30) as response:
+                final_url = urllib.parse.urlparse(response.geturl())
+                if final_url.scheme != 'https' or final_url.hostname != 'registry.npmjs.org':
+                    raise payload.PayloadError('registry download redirected to a different host')
+                data = response.read(payload.update.MAX_TOTAL_UNCOMPRESSED + 1)
+            if len(data) > payload.update.MAX_TOTAL_UNCOMPRESSED:
+                raise payload.PayloadError('registry tarball exceeds size limit')
+            sri = info['dist'].get('integrity', '').split()
+            sha512 = 'sha512-' + base64.b64encode(hashlib.sha512(data).digest()).decode()
+            if sha512 not in sri:
+                raise payload.PayloadError('registry tarball integrity mismatch or unavailable')
+            dest.write_bytes(data)
+            return
+        except (urllib.error.URLError, TimeoutError):
+            if attempt == 4:
+                raise payload.PayloadError('registry download unavailable after bounded retries')
+            time.sleep(2 ** (attempt + 1))
+
+
+def check_tarball(path, *, source_root, expect_version=None, privacy_check=False,
+                  report_path=None, reference=None):
+    files, modes = payload.tar_files(path)
+    problems = [f'denied npm path: {payload.label(p)}' for p in files if is_denied(p)]
+    problems.extend(payload.compare_source(files, source_root, 'npm'))
+    config = json.loads(files.get('package.json', b'{}'))
+    expected = json.loads((source_root / 'package.json').read_text())
+    if not isinstance(config, dict) or config.get('name') != 'medsci-skills' or config.get('version') != (expect_version or expected['version']):
+        problems.append('npm package identity/version differs from the selected release')
+    if not modes.get('bin/medsci-skills.js', 0) & 0o111:
+        problems.append('npm CLI has no executable bit')
+    if reference is not None:
+        # Registries or npm versions may change gzip/tar headers. Compare payload
+        # paths, bytes and executable modes, not timestamps or compression headers.
+        before, before_modes = payload.tar_files(reference)
+        if files != before or any((modes[p] & 0o111) != (before_modes.get(p, 0) & 0o111) for p in files):
+            problems.append('downloaded npm payload differs from the verified pre-publish payload')
+    counts = None
+    if privacy_check:
+        findings, counts = payload.privacy(files)
+        problems.extend(findings)
+    payload.write_report(report_path, path, files, problems, channel='npm', counts=counts)
+    return problems
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="npm tarball content audit.")
     ap.add_argument("--real", action="store_true", help="Run a real `npm pack` (then delete the tarball).")
     ap.add_argument("--json-file", help="Parse a saved `npm pack --json` file list instead of running npm.")
+    ap.add_argument('--tarball', type=Path, help='inspect an existing tarball without repacking')
+    ap.add_argument('--source-root', type=Path, default=REPO_ROOT, help='selected release checkout')
+    ap.add_argument('--expect-version', help='version to require inside the tarball')
+    ap.add_argument('--privacy', action='store_true', help='inspect actual text and binary metadata')
+    ap.add_argument('--report', type=Path)
+    ap.add_argument('--reference', type=Path, help='verified pre-publish tarball to compare by payload')
+    ap.add_argument('--published-version', help='download and inspect this exact public npm version')
     args = ap.parse_args()
+    if args.report:
+        args.report.unlink(missing_ok=True)
+    if sum(bool(x) for x in (args.tarball, args.json_file, args.real, args.published_version)) > 1:
+        ap.error('--tarball, --json-file, --real and --published-version are mutually exclusive')
+    if any((args.privacy, args.report, args.reference, args.expect_version)) and not (args.tarball or args.real or args.published_version):
+        ap.error('privacy, reports, reference and version checks require actual artifact bytes')
+    if args.tarball or args.real or args.published_version:
+        try:
+            with tempfile.TemporaryDirectory(prefix='npm-audit-') as temp:
+                path = args.tarball
+                if args.published_version:
+                    path = Path(temp) / 'downloaded.tgz'
+                    download_published(args.published_version, path)
+                    args.expect_version = args.published_version
+                if args.real:
+                    proc = subprocess.run(['npm', 'pack', '--json', '--pack-destination', temp],
+                        cwd=args.source_root, capture_output=True, text=True, check=True)
+                    info = json.loads(proc.stdout)
+                    if len(info) != 1:
+                        raise payload.PayloadError('expected one tarball')
+                    path = Path(temp) / info[0]['filename']
+                problems = check_tarball(path, source_root=args.source_root,
+                    expect_version=args.expect_version, privacy_check=args.privacy,
+                    report_path=args.report, reference=args.reference)
+            for problem in problems:
+                print('FAIL: ' + problem, file=sys.stderr)
+            if not problems:
+                print('OK: actual npm payload matches the selected source checkout.')
+            return 1 if problems else 0
+        except (OSError, ValueError, KeyError, TypeError, AttributeError, tarfile.TarError, subprocess.SubprocessError, payload.PayloadError):
+            print('FAIL: npm payload inspection could not complete', file=sys.stderr)
+            return 2
 
     paths, modes = get_file_list(args)
     if not paths:

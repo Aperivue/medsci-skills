@@ -74,6 +74,23 @@ What the release pipeline adds to make a published release trustworthy:
   anyone can verify a downloaded asset with `gh attestation verify <zip> --repo Aperivue/medsci-skills`.
 - A **pre-publish round-trip check** (`scripts/check_release_zip.py`) that runs the updater's own
   safe-extract + provenance validation, so a release cannot ship a ZIP the updater would reject.
+- **Selected-source comparison** for both classroom ZIPs and the actual npm tarball:
+  exact file sets and bytes must match the release checkout. The npm CLI must be executable.
+  Recovery runs use verification tools from the workflow commit while recording the selected
+  tag commit in ZIP provenance.
+- **Payload privacy inspection** reuses the existing hashed-identifier, credential and asset
+  metadata scanners. It includes packaged text, extracted PDF text and Office XML/relationships.
+  Missing extraction tools or unreadable assets fail verification. It does not perform OCR or
+  certify the absence of every possible personal identifier; public author attribution remains
+  allowed in root READMEs and one exact synthetic credential fixture is hash-allowlisted.
+- **Post-publication comparison** downloads both ZIPs and requires exact pre-upload bytes.
+  The published npm version must have valid registry SHA-512 integrity and the same file contents
+  and executable modes as the inspected tarball, including when publication is skipped because
+  that version already exists. Only tar/gzip headers may differ. Successful runs retain hash and
+  coverage reports for 30 days. A skipped npm job means that channel was not published or verified.
+
+Post-publication failures require recovery; they do not roll back an already public release.
+These checks apply to runs using the updated workflow, not retroactively to historical releases.
 
 ### If a release is compromised
 

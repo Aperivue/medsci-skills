@@ -2,8 +2,19 @@
 
 ## [Unreleased]
 
+## [5.26.2] - 2026-09-06
+
+**Hotfix:** shipped PDF identity and presentation overflow checks could report a match or clean result without measuring the relevant evidence.
+
 ### Fixed
 
+- Inspect the actual npm tarball and classroom ZIPs against the selected release
+  source, including file hashes, existing private-identifier/credential patterns,
+  PDF text and binary/Office metadata. Publish the inspected tarball and download
+  both channels to compare the delivered payload. Recovery runs record the selected
+  tag commit and also verify npm versions that are already published.
+- Replace a contextual comment in an npm-shipped synthetic R fixture with neutral
+  wording. The test computation and expected result are unchanged.
 - Presentation overflow checks now request line coordinates from poppler instead of
   silently treating word-only output as a clean measurement. Real-PDF regression
   tests run in the existing CI step. The Nature/Lancet builder uses readable
