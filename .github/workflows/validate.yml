@@ -27,10 +27,10 @@ jobs:
           python-version: "3.11"
 
       - name: Install Python test dependencies
-        run: pip install pyyaml pandas numpy python-pptx python-docx
+        run: pip install pyyaml pandas numpy python-pptx python-docx fonttools
 
-      - name: Install exiftool + poppler (EXIF scan + check_asset_anonymization PDF text/metadata)
-        run: sudo apt-get update && sudo apt-get install -y libimage-exiftool-perl poppler-utils
+      - name: Install exiftool + poppler + pandoc (artifact and render tests; no TeX)
+        run: sudo apt-get update && sudo apt-get install -y libimage-exiftool-perl poppler-utils pandoc
 
       - name: "Workflow files parse (a broken one runs ZERO jobs and reports no checks)"
         run: python3 scripts/check_workflow_yaml.py --strict
@@ -411,8 +411,11 @@ jobs:
       - name: Run sync-submission supplement-assembler test (A12)
         run: bash skills/sync-submission/tests/test_assemble_supplement.sh
 
-      - name: Run render-pdf-doc glyph-coverage scan test (A13)
-        run: bash skills/render-pdf-doc/tests/test_glyph_coverage.sh
+      - name: Run render-pdf-doc glyph and render regressions (A13)
+        run: |
+          bash skills/render-pdf-doc/tests/test_glyph_coverage.sh
+          python3 skills/render-pdf-doc/tests/test_font_faces.py
+          python3 skills/render-pdf-doc/tests/test_render_pdf.py
 
       - name: Run author-strategy archetype-classifier test (A14)
         run: bash skills/author-strategy/tests/test_archetype_classifier.sh

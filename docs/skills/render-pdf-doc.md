@@ -22,13 +22,16 @@
 **Known limitations**
 
 - Output fidelity depends on installed render dependencies (checked by check_deps.sh).
+- Glyph scans cover selected risky classes in one font face; final PDF rendering requires visual verification.
 - Institutional Word forms are out of scope (use fill-protocol).
 
 **Validation**
 
 - `bash scripts/check_deps.sh`
-- `bash scripts/render_pdf.sh <manuscript.md>`
+- `bash scripts/render_pdf.sh -i <manuscript.md>`
 - `bash tests/test_glyph_coverage.sh`
+- `python3 tests/test_font_faces.py`
+- `python3 tests/test_render_pdf.py`
 
 **Evidence** — `bundled_script`
 
