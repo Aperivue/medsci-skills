@@ -115,9 +115,9 @@ bash skills/self-review/scripts/check_reported_p_from_counts_challenge/verify.sh
 ```
 
 New deterministic scripts are expected to add one. Coverage of what already exists
-is **partial, and deliberately stated rather than implied**: 48 challenge directories
-exist against 85 detectors, and they are named after the feature under test — which
-is not always one script — so 26 detectors have a directory bearing their own name.
+is **partial, and deliberately stated rather than implied**: 51 challenge directories
+exist against 90 detectors, and they are named after the feature under test — which
+is not always one script — so 31 detectors have a directory bearing their own name.
 A pull request that adds a challenge directory for a detector that lacks one is a
 welcome contribution on its own. To see which those are:
 

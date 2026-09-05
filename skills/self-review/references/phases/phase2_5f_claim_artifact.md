@@ -133,7 +133,7 @@ analysis completeness, and imputation-input integrity are separate subchecks (ru
    ```
 
    `CITATION_ORDER` (Major) — a series cited out of numerical order (e.g. Table 3 before
-   Tables 1–2, or Supplementary Tables cited S4, S9, S16, S12, …); fix by renumbering the
+   Tables 1–2, or Supplementary Tables cited S3, S1, S2, …); fix by renumbering the
    series by first-citation order (and reordering the float/supplement document + remapping
    every cross-reference, expanding ranges like `S12–S15` by hand and leaving non-float
    sensitivity-spec labels such as `S1–S6` untouched) or by rephrasing away the early

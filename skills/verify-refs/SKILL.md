@@ -92,7 +92,7 @@ to restrict verification to PubMed + CrossRef.
 
 **v1.2.0 (2026-05)** adds `duplicate_findings[]` to the audit JSON. Verbatim PMID or DOI duplicates within the reference list are flagged as MAJOR findings (resolves `/peer-review` Phase 2A P7). DOI normalization strips `https://doi.org/`, `http://dx.doi.org/`, `doi:` prefixes plus trailing slashes before comparison so `https://doi.org/10.x/abc/` and `10.x/abc` collapse to one key. Both `submission_safe` and `fully_verified` now require `duplicate_findings` to be empty.
 
-**v1.3.0 (2026-05)** extends the author cross-check from first-author-only to the **full author list** and bumps `schema_version` to 4. For BibTeX inputs, every cited author family name is compared index-by-index against the authoritative source, and the cited-vs-source author counts are compared. PubMed `efetch.fcgi` (XML full record) is the truth source when a PMID is present — it is authoritative for given/family names where CrossRef is not (a documented case where CrossRef returned a wrong given name that PubMed efetch corrected). Records now carry `cited_authors[]`, `actual_authors[]`, `cited_author_count`, and `actual_author_count`. Motivation: a real AI-assisted manuscript registered a reference with a correct first author but seven of ten fabricated co-author names, and the first-author-only check passed it. Plain-text / TSV inputs, which cannot be parsed into a confident full list, degrade gracefully to the first-author check.
+**v1.3.0 (2026-05)** extends the author cross-check from first-author-only to the **full author list** and bumps `schema_version` to 4. For BibTeX inputs, every cited author family name is compared index-by-index against the authoritative source, and the cited-vs-source author counts are compared. PubMed `efetch.fcgi` (XML full record) is the truth source when a PMID is present — it is authoritative for given/family names where CrossRef is not (a documented case where CrossRef returned a wrong given name that PubMed efetch corrected). Records now carry `cited_authors[]`, `actual_authors[]`, `cited_author_count`, and `actual_author_count`. A correct first author does not establish that the remaining author names are authentic. Plain-text / TSV inputs, which cannot be parsed into a confident full list, degrade gracefully to the first-author check.
 
 **Removed in Phase 1A.2** (per `docs/artifact_contract.md`):
 - `references/verified_references.tsv` — record-level details now live inside `reference_audit.json` under `records[]`.
@@ -154,13 +154,10 @@ mismatch between a DOI suffix and an article number.
 
 ## Author Cross-Check (Detail)
 
-Driven by two actual incidents. First (Gate 4 origin): a manuscript had a
-reference cited with a plausible lead author but the correct DOI for an entirely
-different author's whitepaper. Pre-patch verify-refs marked it OK because the
-DOI resolved; post-patch it is `MISMATCH`. Second (v1.3.0 extension): an
-AI-assembled `.bib` registered a reference with the correct first author but
-seven of ten fabricated co-author names — the first-author-only check passed it,
-and it would have shipped to reviewers. The full-author cross-check catches it.
+Two failure patterns motivate the author checks: a real DOI can be paired with
+the wrong first author, and a correct first author can be followed by fabricated
+co-author names. DOI resolution and first-author agreement alone cannot verify
+the full author list.
 
 - The authoritative author list is taken from PubMed `efetch.fcgi` (XML) when a
   PMID is present, falling back to CrossRef (DOI) and then PubMed esummary.

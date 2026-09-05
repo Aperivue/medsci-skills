@@ -2,14 +2,10 @@
 """Incorporation-bias gate — the reference standard and a reported predictor are
 the same construct (self-review Phase 2.5, category B. Reference Standard).
 
-A nodule study classified nodules benign by "(b) complete resolution / (c)
-decrease in diameter / (d) size stability" — every tier a form of NOT GROWING —
-and then reported, as a headline finding, that "growth carried an OR of 50.9 for
-malignancy". A resolved nodule cannot be malignant under that reference standard,
-so the growth–malignancy association is partly definitional: the predictor was
-built into the outcome. Two panel reviewers (a chest radiologist and a
-methodologist) reached this independently and both called it fatal; nothing in
-the gate stack fired.
+A reference standard defined by lesion trajectory can overlap with a trajectory
+predictor. If absence of growth defines a benign outcome, an association between
+growth and malignancy can be partly definitional rather than independent
+predictive evidence.
 
 This is textbook incorporation bias, and its commonest form — a size/trajectory
 reference standard with a size/trajectory predictor — is deterministic from the

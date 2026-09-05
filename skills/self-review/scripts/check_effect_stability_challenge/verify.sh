@@ -6,8 +6,8 @@
 # "fixture/..." (portable across CI checkout locations).
 #
 # Fixtures (synthetic only — no real manuscript, no PII):
-#   effect_bad.md — Conclusions "OR 50.9; 95% CI 5.8-443.6" (76-fold, no caveat) +
-#                   Methods "19 events for 2 covariates" (EPV 9.5)
+#   effect_bad.md — Conclusions "OR 24.0; 95% CI 3.0-240.0" (80-fold, no caveat) +
+#                   Methods "18 events for 3 covariates" (EPV 6.0)
 #                   -> UNSTABLE_EFFECT_ESTIMATE + EPV_LOW.
 #   effect_ok.md  — a tight CI (OR 2.4; 1.3-4.4, ratio 3.4) plus the SAME wide CI
 #                   explicitly labelled "exploratory and imprecise ... a direction
@@ -35,7 +35,7 @@ python3 "$DET" --manuscript fixture/effect_ok.md  --strict --quiet >/dev/null 2>
 [ "$rc_ok" -eq 0 ]       || { echo "FAIL: ok fixture should exit 0 under --strict (got $rc_ok)" >&2; pass=0; }
 
 if [ "$pass" -eq 1 ]; then
-  echo "PASS: effect-stability gate flags the 76-fold interval + low EPV and clears the tight CI + caveat-labelled control."
+  echo "PASS: effect-stability gate flags the 80-fold interval + low EPV and clears the tight CI + caveat-labelled control."
 else
   exit 1
 fi

@@ -7,7 +7,7 @@
 # Fixtures (synthetic only — no real manuscript, no PII):
 #   incorp_bad.md — reference standard defines benign by resolution/decrease/stability
 #                   (a size trajectory) AND Results reports "Growth ... associated with
-#                   malignancy (OR 50.9)" -> INCORPORATION_BIAS (the predictor is the
+#                   malignancy (OR 24.0)" -> INCORPORATION_BIAS (the predictor is the
 #                   reference standard).
 #   incorp_ok.md  — reference standard is surgical pathology + imaging follow-up (no
 #                   trajectory tier); the growth-OR is then independent -> silent.

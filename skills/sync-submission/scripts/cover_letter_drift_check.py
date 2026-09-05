@@ -19,13 +19,9 @@ limit retarget, abstract restructure, new reference batch), the cover letter
 is routinely forgotten. The free-text claims in `## Article details` or the
 opening paragraph remain frozen at the v_N counts.
 
-Cross-project observation (anonymized): a CK-line manuscript was compressed
-to 3,036 body words and a 319-word abstract during the alignment round, but
-the cover letter still said "approximately 3,790 words", "250 words", and
-"12 verified references". All three claims surfaced only via a manual grep
-sweep at the portal-upload stage. Editor desk reviewers compare cover-letter
-claims against the manuscript body — a mismatch is read as either careless
-preparation or a late-edit failure.
+A cover letter can retain obsolete body, abstract, and reference counts after
+the manuscript changes. Comparing those claims with the current source
+artifacts catches drift that a body-text scan cannot see.
 
 Usage
 =====
@@ -203,7 +199,7 @@ def count_figure_labels(manuscript_path: Path) -> int:
 # Cover-letter claim extraction
 # ---------------------------------------------------------------------------
 
-# "approximately 3,790 words" / "3790 words" / "approx. 3,036 words"
+# Optional approximation markers and thousands separators in a word count.
 BODY_WORDS_RE = re.compile(
     r"(?:approximately|approx\.?|about|roughly|~)?\s*"
     r"([0-9][0-9,]*)\s*(?:body\s+)?words?\b",

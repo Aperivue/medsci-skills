@@ -913,8 +913,8 @@
     },
     {
       "path": "skills/check-reporting/references/step4d_prisma_figure_audit.md",
-      "size": 6818,
-      "sha256": "d4ea43e7ac61e4b7f94bab4fd65078e5cbef6e967a3c9543c693fc76d5d2b5d0"
+      "size": 6704,
+      "sha256": "af74f1a128cc9c5485ea16dac73ca133a8391488fdc4a8e5416c8def19a32ce8"
     },
     {
       "path": "skills/check-reporting/scripts/check_checklist_exists.py",
@@ -2688,8 +2688,13 @@
     },
     {
       "path": "skills/manage-refs/scripts/render_pandoc.sh",
-      "size": 4546,
-      "sha256": "92670903c312440db911e02abdd70ace4281e911f716a5b1cbbae7dd6cc5f77b"
+      "size": 4767,
+      "sha256": "ab1c887d4b78df6daec50300ac605a8ce616f90aba9a47334c3a2a61127aca38"
+    },
+    {
+      "path": "skills/manage-refs/scripts/strip_source_metadata.lua",
+      "size": 237,
+      "sha256": "38a47436d3c06f0b17c99871a5ce660ff9f6e527ec0ffc50a5fe4a07f810331c"
     },
     {
       "path": "skills/manage-refs/skill.yml",
@@ -4613,8 +4618,8 @@
     },
     {
       "path": "skills/self-review/references/phases/phase2_5f_claim_artifact.md",
-      "size": 12351,
-      "sha256": "dad54cf52b05507df05e48346e0b2aec78c7239ff91f370b8be6c4d71f762b2d"
+      "size": 12345,
+      "sha256": "4ef439ff666b77c03a817b0bf779cd4eb63bbcaf4a962d6555c0cc0e74119c01"
     },
     {
       "path": "skills/self-review/references/phases/phase2_6_panel.md",
@@ -4758,8 +4763,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_citation_order.py",
-      "size": 22760,
-      "sha256": "47c50a1ec4e2d64e33c90756b4c83a72721e5cff5e45c93a383549e48ba6e5b7"
+      "size": 22754,
+      "sha256": "edfc03e95da9abcf464e16b4a58ee6ee0d2da7ea600731806671a7f9beeac97d"
     },
     {
       "path": "skills/self-review/scripts/check_claim_artifact.py",
@@ -4829,12 +4834,12 @@
     {
       "path": "skills/self-review/scripts/check_effect_stability.py",
       "size": 10553,
-      "sha256": "cbf1381fc5210743b89ee9d39412b5a6442de0855ef2af34704be5b55d86ed5a"
+      "sha256": "26d278236525f666e3bb50649f9bd505d908670c8272d537e9544c0fa5bf256e"
     },
     {
       "path": "skills/self-review/scripts/check_effect_stability_challenge/expected/bad.txt",
       "size": 726,
-      "sha256": "2c4a2be7afe23c2139ee03ed475f223323ce3342642eb75e80b34822a253ef4d"
+      "sha256": "d6394c98150ca83b9a7617b61de38ed4821b4c09e84837318b858f20d8289bc0"
     },
     {
       "path": "skills/self-review/scripts/check_effect_stability_challenge/expected/ok.txt",
@@ -4844,22 +4849,22 @@
     {
       "path": "skills/self-review/scripts/check_effect_stability_challenge/fixture/effect_bad.md",
       "size": 233,
-      "sha256": "919a56101f463944c0373d59cb4a0b3ee6297271c628873fbdbb87d834855f32"
+      "sha256": "edcb234cfbc0c382f7dedeb2c134f96172ece961a4b2dbe9a3c6f98451474f95"
     },
     {
       "path": "skills/self-review/scripts/check_effect_stability_challenge/fixture/effect_ok.md",
       "size": 309,
-      "sha256": "1752ccaba0dbda6c58093afb8c9b71799748828fec1efbd9e002b20cb11fd322"
+      "sha256": "3b13e941aeee438e51ffa037d1133c13a57fa2c9e41ad72b9630f558da49b5de"
     },
     {
       "path": "skills/self-review/scripts/check_effect_stability_challenge/problem.md",
-      "size": 928,
-      "sha256": "9860f0421ddba2978eaea14e569623a00674fa9398260bdcfedc7df9fb43d805"
+      "size": 953,
+      "sha256": "098c89eaefde0283909b23b42710b9ef594b7acd0751d8e8a70b2ee600c16355"
     },
     {
       "path": "skills/self-review/scripts/check_effect_stability_challenge/verify.sh",
       "size": 2103,
-      "sha256": "09474025e798514ed82d476ea5db4d2deabb08cce2a7c6473889550dc6f3b86d"
+      "sha256": "72aa930e5b3a97ab0dbd6e4ed263b422ef503d42e5bb820d3b2d65b073e10a69"
     },
     {
       "path": "skills/self-review/scripts/check_emphasis_density.py",
@@ -4893,8 +4898,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_incorporation_bias.py",
-      "size": 9107,
-      "sha256": "52ed8e0d9893a013ad00a13a19160ca86a7bffc75965d42a67398dff23044fb4"
+      "size": 8787,
+      "sha256": "d8d03f0b90df81e0a579cd0380530ec06f424cd95118fa8f081abc2b45a43eb1"
     },
     {
       "path": "skills/self-review/scripts/check_incorporation_bias_challenge/expected/bad.txt",
@@ -4909,7 +4914,7 @@
     {
       "path": "skills/self-review/scripts/check_incorporation_bias_challenge/fixture/incorp_bad.md",
       "size": 347,
-      "sha256": "c0678f621accf279853ae3818ff11158e1164c741c173d96a3dbe3e4f5b4cb49"
+      "sha256": "248ce3f847d8f741f8f1f67c147e1762911ae73b13a276e8a2be9584298a1709"
     },
     {
       "path": "skills/self-review/scripts/check_incorporation_bias_challenge/fixture/incorp_ok.md",
@@ -4918,13 +4923,13 @@
     },
     {
       "path": "skills/self-review/scripts/check_incorporation_bias_challenge/problem.md",
-      "size": 931,
-      "sha256": "d02337496e24fea4821813fa3c5dccccef1d3d9f8d8bda1004e3da40e2d70d92"
+      "size": 949,
+      "sha256": "0ba5a3500183fee2854e88390957c4336d7022bb8a92c74a79f7f905707b5bf7"
     },
     {
       "path": "skills/self-review/scripts/check_incorporation_bias_challenge/verify.sh",
       "size": 1796,
-      "sha256": "7b24e2ee7c74f07f9df209fb5747b68f3c119ff10f2512951acb28b858d15206"
+      "sha256": "3771bf79e2f824537eb498e6a4a3af9e9c1e7c6849c2cb871ad4ffbaa277be00"
     },
     {
       "path": "skills/self-review/scripts/check_nested_group_comparison.py",
@@ -5503,8 +5508,8 @@
     },
     {
       "path": "skills/sync-submission/scripts/check_asset_anonymization.py",
-      "size": 14907,
-      "sha256": "9d826fc7f408ccc5d679774cd8e9c8921763b2a0066536b14173610301265587"
+      "size": 14918,
+      "sha256": "41c3f6720f5c7df9943752cd5395768d787ae3961a48d8a78ce6ba2283e0d2f2"
     },
     {
       "path": "skills/sync-submission/scripts/check_checklist_dump_leak.py",
@@ -5578,8 +5583,8 @@
     },
     {
       "path": "skills/sync-submission/scripts/cover_letter_drift_check.py",
-      "size": 19379,
-      "sha256": "9a1ef365e6aae53582a87570ce7bde327ed9302a9834571f681b2972b87b2d5d"
+      "size": 19101,
+      "sha256": "d38c3d60cb2c6397f61975acc4ff23fc76d5068e0a9f65709d7108108924ece3"
     },
     {
       "path": "skills/sync-submission/scripts/credit_integrity_challenge/fixture/manuscript_bad.md",
@@ -5758,8 +5763,8 @@
     },
     {
       "path": "skills/verify-refs/SKILL.md",
-      "size": 14260,
-      "sha256": "95d6608cf1592c91393e65a3b609bb501fd33d629516508e66025d05cf260954"
+      "size": 13883,
+      "sha256": "783cf8b9fb181cb1d0ae05770f8ed6732f4e834decd58b8eb2431ed72acd9e05"
     },
     {
       "path": "skills/verify-refs/references/manual_checkpoint_guide.md",
@@ -6148,8 +6153,8 @@
     },
     {
       "path": "skills/write-paper/references/journal_profiles/KJR.md",
-      "size": 13088,
-      "sha256": "42d45781f252ada19a4086f200c407bd3c85d3d9a88c30151d9c14390616354d"
+      "size": 13051,
+      "sha256": "13d697c98f566c008511afef9f23ab6c2d93f516c79e5e5327a44d3b9dccbe64"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/Kidney_International.md",

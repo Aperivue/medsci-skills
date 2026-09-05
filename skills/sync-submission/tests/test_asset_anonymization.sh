@@ -18,6 +18,7 @@ trap 'rm -rf "$WORK"' EXIT
 
 # --- fixtures ---
 mkdir -p "$WORK/leaky/figures" "$WORK/clean/figures" "$WORK/pathleak"
+mkdir -p "$WORK/custompath" "$WORK/relationshippath"
 
 # figure script with an institution token (review-severity)
 cat > "$WORK/leaky/figures/flow.R" <<'EOF'
@@ -65,6 +66,15 @@ make_docx(
          'descr="/Users/testuser/proj/figures/funnel.png"/>'
          '</pic:nvPicPr></pic:pic></w:document>',
 )
+# Build-input properties and external relationships live outside word/*.xml.
+make_docx(os.path.join(work, "custompath", "manuscript.docx"), "Pandoc")
+with zipfile.ZipFile(os.path.join(work, "custompath", "manuscript.docx"), "a") as z:
+    z.writestr("docProps/custom.xml", '<Properties><property name="csl">'
+               '<value>/Users/testuser/styles/journal.csl</value></property></Properties>')
+make_docx(os.path.join(work, "relationshippath", "manuscript.docx"), "Pandoc")
+with zipfile.ZipFile(os.path.join(work, "relationshippath", "manuscript.docx"), "a") as z:
+    z.writestr("word/_rels/document.xml.rels", '<Relationships><Relationship '
+               'Target="C:\\Users\\testuser\\figures\\plot.png"/></Relationships>')
 PY
 
 run() { python3 "$SCRIPT" "$@" 2>/dev/null; }
@@ -113,6 +123,18 @@ d=json.load(open('$WORK/r3.json'))
 types={f['type'] for f in d['findings']}
 sys.exit(0 if 'docx_embedded_abs_path' in types and d['submission_safe'] is False else 1)
 " && ok "JSON: docx_embedded_abs_path finding present" || bad "abs-path finding missing"
+
+for case in custompath relationshippath; do
+  run --dir "$WORK/$case" --out "$WORK/$case.json" --quiet
+  [ $? -eq 1 ] && ok "$case fails with clean author metadata" || bad "$case leak was missed"
+  python3 - "$WORK/$case.json" <<'PY'
+import json, sys
+d = json.load(open(sys.argv[1]))
+assert not d["submission_safe"]
+assert any(f["type"] == "docx_embedded_abs_path" for f in d["findings"])
+PY
+  [ $? -eq 0 ] && ok "$case reports the path leak" || bad "$case finding missing"
+done
 
 echo ""
 echo "test_asset_anonymization: $PASS passed, $FAIL failed"

@@ -53,6 +53,7 @@
 - `md_marker_convert.py`
 - `pre_submission_gate.sh`
 - `render_pandoc.sh`
+- `strip_source_metadata.lua`
 
 ## Source
 

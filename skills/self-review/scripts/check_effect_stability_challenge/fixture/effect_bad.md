@@ -2,8 +2,8 @@
 
 ## Conclusions
 
-Interval growth was strongly associated with malignancy (OR 50.9; 95% CI 5.8–443.6).
+Interval growth was strongly associated with malignancy (OR 24.0; 95% CI 3.0–240.0).
 
 ## Methods
 
-The multivariable logistic model was estimated on 19 events for 2 covariates.
+The multivariable logistic model was estimated on 18 events for 3 covariates.

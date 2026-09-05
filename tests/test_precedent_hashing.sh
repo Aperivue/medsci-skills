@@ -58,6 +58,22 @@ check "clean role description"       0 "$(ec_in '지도 교수 배정과 담당 
 check "clean templated placeholder"  0 "$(ec_in '- Supervisor: {교수님 성함} ({소속 이력})')"
 check "clean skill trigger phrase"   0 "$(ec_in 'triggers: MA 주제 찾기, professor MA, 연구 분석')"
 
+# A known identifier inside a path or compound slug must not evade the hashed
+# lookup. Terms and home-directory names here are entirely synthetic.
+python3 - "$SCRIPT" <<'PY'
+import hashlib, importlib.util, sys
+spec = importlib.util.spec_from_file_location("precedent", sys.argv[1])
+m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+hashes = {hashlib.sha256(s.encode()).hexdigest()
+          for s in ("acme widget corporation", "syntheticperson")}
+for text in ("/acme-widget-corporation_paper2", "/Users/syntheticperson/study/",
+             "/home/syntheticperson/study/", r"C:\Users\syntheticperson\study"):
+    assert m.scan_text(text, hashes), "compound/path identifier was missed"
+assert m.scan_text("acmewidgetcorporation", hashes) is None
+assert m.scan_text("syntheticpersonification", hashes) is None
+PY
+check "hashed compound/path identifiers and substring controls" 0 "$?"
+
 # ---- 3. Hashed n-gram path via SYNTHETIC digest set ----
 syn_term="acme widget corporation"
 printf '%s\n' "$(printf '%s' "$syn_term" | shasum -a 256 | cut -d' ' -f1)" > "$TMP/syn_hashes.txt"

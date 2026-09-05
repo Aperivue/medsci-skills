@@ -148,7 +148,7 @@ KJR runs a production "technical check" *before* peer review and **"unsubmits"**
 8. **IRB approval number in Materials and Methods even under double-blind review** — KJR requests it for transparency; keep the IRB number while blinding the institution name.
 9. **ICMJE COI forms are collected only after acceptance** — do not upload them at initial submission (delete them from the portal if already uploaded).
 
-(Global rule: `~/.claude/rules/journal-technical-check-gate.md`. Motivated by a 2026-06 KJR technical-check unsubmit on items 1, 2, 6, 7.)
+Verify these technical-check requirements against the current journal instructions before submission.
 
 ---
 

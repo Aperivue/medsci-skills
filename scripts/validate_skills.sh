@@ -70,7 +70,9 @@ fail() { echo -e "  ${RED}FAIL${NC} $1"; ((FAIL++)); }
 # are documented install targets across README / docs/setup / many SKILL.md and
 # must NOT be blocked. Matching `\.claude/(plans|projects|private)` (no leading
 # anchor) catches ~/ , $HOME/ and absolute forms alike.
-PERSONAL_PATH='/Users/eugene/|/home/eugene/|\.claude/(plans|projects|private)'
+# Known personal usernames are hash-only in check_precedent.py; never repeat
+# a real home-directory path in the rule that is meant to prevent its publication.
+PERSONAL_PATH='\.claude/(plans|projects|private)'
 
 # Returns the first "lineno:line" personal-path violation read from stdin, or
 # nothing. Allowlists the documented `private-journal-profiles` skill-convention
@@ -312,7 +314,7 @@ for skill_dir in "${SKILL_DIRS[@]}"; do
   done
   [ "$precedent_hits" -eq 0 ] && pass "Precedent blocklist (no project-specific identifiers)"
 
-  # 7. Personal path leak (/Users/eugene/, /home/<user>/, ~/.claude/{plans,
+  # 7. Personal path leak (known home-directory names, ~/.claude/{plans,
   #    projects,private-*}). Generic ~/.claude/{skills,rules,hooks,...} paths
   #    are documented install targets and intentionally NOT matched (see
   #    PERSONAL_PATH definition near the top).
@@ -531,7 +533,7 @@ PY
       [ -z "$current_file" ] && continue
       _exif_rc=0
       printf '%s' "$line" | python3 "$CHECK_PRECEDENT" - >/dev/null 2>&1 || _exif_rc=$?
-      if echo "$line" | grep -qE "/Users/eugene/|/home/eugene/" || [ "$_exif_rc" -eq 3 ]; then
+      if [ "$_exif_rc" -eq 3 ]; then
         rel="${current_file#$REPO_ROOT/}"
         fail "Binary EXIF PII in $rel: $line"
         ((exif_hits++))
@@ -575,7 +577,7 @@ echo "========================================="
 # per language. The allowance stays narrow: `--allow-author` exempts only the author-name digest,
 # so a hospital name, a project code or a personal path in a translated README is still caught
 # exactly as it is in the English one.
-AUTHOR_ATTRIB_RE='^(README\.md|README\.[A-Za-z]{2}(-[A-Za-z]{2,4})?\.md|CITATION\.cff|paper\.md|\.zenodo\.json|MAINTAINERS\.md)$'
+AUTHOR_ATTRIB_RE='^(README\.md|README\.[A-Za-z]{2}(-[A-Za-z]{2,4})?\.md|CITATION\.cff|paper\.md|\.zenodo\.json|MAINTAINERS\.md|CONTRIBUTORS\.md)$'
 while IFS= read -r rel; do
   case "$rel" in
     scripts/validate_skills.sh|scripts/check_precedent.py|scripts/precedent_hashes.txt|scripts/precedent_author_hashes.txt) continue ;;  # self-exempt: blocklist machinery
@@ -610,6 +612,35 @@ while IFS= read -r rel; do
     ((META_FAIL++))
   fi
 done < <(git -C "$REPO_ROOT" ls-files -- '*.md' '*.yml' '*.yaml' '*.json' '*.cff' '*.bib' '*.txt' '*.csv' '*.tsv' '*.py' '*.sh')
+
+# The public surface also contains demonstration Word documents. Reuse the
+# submission scanner's package-level path check, including custom properties
+# and relationships, rather than relying on visible text or selected EXIF keys.
+python3 - "$REPO_ROOT" <<'PY'
+import importlib.util
+import subprocess
+import sys
+from pathlib import Path
+root = Path(sys.argv[1])
+source = root / "skills/sync-submission/scripts/check_asset_anonymization.py"
+spec = importlib.util.spec_from_file_location("asset_privacy", source)
+module = importlib.util.module_from_spec(spec)
+sys.modules[spec.name] = module
+spec.loader.exec_module(module)
+paths = subprocess.check_output(["git", "-C", str(root), "ls-files", "-z", "--", "*.docx"])
+failed = 0
+for raw in paths.decode().split("\0"):
+    if not raw or raw.startswith("_corpus/") or not (root / raw).is_file():
+        continue
+    if module._docx_embedded_abs_paths(root / raw):
+        print(f"  FAIL {raw}: embedded home-directory path in document package")
+        failed += 1
+sys.exit(1 if failed else 0)
+PY
+if [ "$?" -ne 0 ]; then
+  fail "Public Word document packages contain embedded personal paths"
+  ((META_FAIL++))
+fi
 echo "  Scanned $META_SCANNED tracked non-skills text files"
 [ "$META_FAIL" -eq 0 ] && pass "Public-surface PII scan clean (docs/, root, metadata)"
 echo ""

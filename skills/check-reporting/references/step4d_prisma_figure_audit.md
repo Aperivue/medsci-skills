@@ -134,4 +134,3 @@ For each key in `KEYWORDS`:
   not flow diagram)
 - `/make-figures` (PRISMA flow diagram generation — produces `Figure1_PRISMA.md` manifest
   this step consumes)
-- Sample primary source (motivation): an active meta-analysis project v3 Figure 1 PRISMA verification, 2026-04-26
