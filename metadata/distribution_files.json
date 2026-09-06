@@ -183,8 +183,8 @@
     },
     {
       "path": "skills/analyze-stats/SKILL.md",
-      "size": 59999,
-      "sha256": "62fec491713bd24d0c44d87280a39bc52a6dc439fa0fb2004d80d4c6f8dea3ef"
+      "size": 60456,
+      "sha256": "c541c8811b918bb5b5cb380297a52659b4bda88537841574dc1272a8f7918aa8"
     },
     {
       "path": "skills/analyze-stats/references/analysis_guides/agreement_reliability.md",
@@ -275,6 +275,11 @@
       "path": "skills/analyze-stats/references/analysis_guides/test_selection.md",
       "size": 3439,
       "sha256": "105476a719db4d728dece0c03e620c322597e1ce56afa8a685782075d2f5bad1"
+    },
+    {
+      "path": "skills/analyze-stats/references/analysis_run_workflow.md",
+      "size": 7675,
+      "sha256": "9b6c18cad4a5171ae17c70b87b1cca35c21500734889b04254e1141ab3f87c59"
     },
     {
       "path": "skills/analyze-stats/references/style/figure_style.mplstyle",
@@ -383,8 +388,8 @@
     },
     {
       "path": "skills/analyze-stats/references/templates/diagnostic_accuracy.py",
-      "size": 14943,
-      "sha256": "25caa62a5a4d1635cee9b2248d729d817697c32290674726c65421aa8d159abc"
+      "size": 14976,
+      "sha256": "5931adbc672332a7b1f1d1f10fa79ccde9d4c38ac67b8c253b01733543ac3f32"
     },
     {
       "path": "skills/analyze-stats/references/templates/dta_meta_analysis.R",
@@ -442,6 +447,16 @@
       "sha256": "752ca6383ce0b11974436a8fc7a41209fe6a2caab4c630e5ae096271bf324329"
     },
     {
+      "path": "skills/analyze-stats/scripts/analysis_run_challenge/README.md",
+      "size": 761,
+      "sha256": "13ce9ddeacf6c4ec38469976f62ee79c2c4e9bf30fac5440296ca147927c73fa"
+    },
+    {
+      "path": "skills/analyze-stats/scripts/analysis_run_challenge/verify.sh",
+      "size": 1555,
+      "sha256": "ee75660797507253fd8b6f75c109cad95c1637ad81c3a644356592883ab071ff"
+    },
+    {
       "path": "skills/analyze-stats/scripts/check_generated_code.py",
       "size": 15064,
       "sha256": "acf06d2ed995242a3332b496fdce116cc364dfb1758a03ad6fee3a8c7f1d0180"
@@ -452,14 +467,24 @@
       "sha256": "92dbe9eca972bf1800954ac9b95c52e93f94b2c5d33b57dd1cad378a6b69f356"
     },
     {
+      "path": "skills/analyze-stats/scripts/demo_analysis_run.py",
+      "size": 2086,
+      "sha256": "93eee505392f44919ad472b31ecfffd06179f7eac2b1daed4f98b0fc84ae2bf2"
+    },
+    {
       "path": "skills/analyze-stats/scripts/rating_monotonicity.py",
       "size": 5494,
       "sha256": "b7f8f36c7af060e2dec60f51185ef4cc5a0f2ef20c1d509fb845b36521f420b3"
     },
     {
+      "path": "skills/analyze-stats/scripts/run_analysis.py",
+      "size": 17834,
+      "sha256": "9eaaabe34689ab6ec6a65ced1afff5c6162d2c9ed21108dd2336ee19503547da"
+    },
+    {
       "path": "skills/analyze-stats/skill.yml",
-      "size": 1421,
-      "sha256": "912c52e9289a7ccb014aa8a18105b6dfe04c2cc040e970c73b4bbc6b2d8a8a39"
+      "size": 1798,
+      "sha256": "eb88eddff554dcfd5ee3ba59a82f523c128b02bbc38affaf149c673b51fbc582"
     },
     {
       "path": "skills/architecture-zoo/SKILL.md",

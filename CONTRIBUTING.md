@@ -92,7 +92,7 @@ suite uses synthetic fixtures and needs no private data or network access.
 To run the same gates CI runs, install the test dependencies and run the mirror:
 
 ```bash
-pip install pyyaml pandas numpy python-pptx python-docx fonttools
+pip install pyyaml pandas numpy scipy scikit-learn matplotlib python-pptx python-docx fonttools
 # Also install pandoc, exiftool and poppler with your OS package manager.
 # Render regression tests generate LaTeX with pandoc; CI does not install TeX.
 

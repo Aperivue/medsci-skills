@@ -14,6 +14,7 @@ outputs:
   - "analysis code (Python/R)"
   - "result tables"
   - "analysis figures"
+  - "_analysis_outputs.md (bound execution record for prespecified binary predictions)"
 side_effects:
   - writes_project_artifacts
   - executes_analysis_code
@@ -29,11 +30,14 @@ forbidden_actions:
 purpose: "Produce reproducible statistical code and publication-ready output for a specified design (DTA, agreement, survival, regression, survey, etc.)."
 safety_boundaries:
   - "All numbers come from executed code on the supplied data; never hand-typed (seed-fixed transforms)."
-  - "Primary estimates report effect size with 95% CI and exact p-values."
+  - "Primary estimates report 95% CIs; planned hypothesis tests also report effect sizes and exact p-values."
 known_limitations:
   - "Correctness depends on a correct analysis plan and clean data (use design-study / clean-data first)."
   - "Does not adjudicate clinical validity of the chosen test."
+  - "The bound binary workflow requires declared independent units and fixed 0/1 predictions; hashes do not establish design validity or data rights."
 validation_commands:
+  - "python3 tests/test_analysis_run.py"
+  - "python3 scripts/demo_analysis_run.py --out demo-project"
   - "re-run the emitted script and diff results"
   - "/self-review"
 evidence_surface: demo

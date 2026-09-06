@@ -17,19 +17,10 @@ import os
 import datetime
 import numpy as np
 import pandas as pd
+import scipy
 from scipy import stats
 
-np.random.seed(42)
-print(f"Date: {datetime.date.today()}")
-print(f"Python: {sys.version}")
-print(f"numpy: {np.__version__}, pandas: {pd.__version__}, scipy: {stats.scipy.__version__}")
-
-try:
-    import sklearn
-    print(f"sklearn: {sklearn.__version__}")
-except ImportError:
-    print("Warning: scikit-learn not installed. Install with: pip install scikit-learn")
-    sys.exit(1)
+import sklearn
 
 import matplotlib
 matplotlib.use("Agg")
@@ -38,8 +29,6 @@ import matplotlib.pyplot as plt
 STYLE_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "style", "figure_style.mplstyle")
 if os.path.exists(STYLE_PATH):
     plt.style.use(STYLE_PATH)
-
-print()
 
 # === CONFIGURATION (modify for your study) ===
 INPUT_FILE = "data.csv"           # Path to input data
@@ -57,7 +46,7 @@ POSITIVE_LABEL = 1                # Value representing positive class
 def wilson_ci(p: float, n: int, alpha: float = 0.05) -> tuple:
     """Wilson score confidence interval for a proportion."""
     if n == 0:
-        return (0.0, 0.0)
+        return (np.nan, np.nan)  # No denominator: undefined, not zero performance.
     z = stats.norm.ppf(1 - alpha / 2)
     denominator = 1 + z**2 / n
     center = (p + z**2 / (2 * n)) / denominator
@@ -144,11 +133,11 @@ def compute_metrics(y_true: np.ndarray, y_pred: np.ndarray,
     fn = np.sum((y_pred == 0) & (y_true == 1))
     n = len(y_true)
 
-    sens = tp / (tp + fn) if (tp + fn) > 0 else 0.0
-    spec = tn / (tn + fp) if (tn + fp) > 0 else 0.0
-    ppv = tp / (tp + fp) if (tp + fp) > 0 else 0.0
-    npv = tn / (tn + fn) if (tn + fn) > 0 else 0.0
-    acc = (tp + tn) / n if n > 0 else 0.0
+    sens = tp / (tp + fn) if (tp + fn) > 0 else np.nan
+    spec = tn / (tn + fp) if (tn + fp) > 0 else np.nan
+    ppv = tp / (tp + fp) if (tp + fp) > 0 else np.nan
+    npv = tn / (tn + fn) if (tn + fn) > 0 else np.nan
+    acc = (tp + tn) / n if n > 0 else np.nan
 
     metrics = {
         "Sensitivity": (sens, *wilson_ci(sens, tp + fn)),
@@ -207,7 +196,7 @@ def plot_confusion_matrix(y_true: np.ndarray, pred_dict: dict,
 
     for ax, (name, y_pred) in zip(axes, pred_dict.items()):
         from sklearn.metrics import confusion_matrix as cm_func
-        cm = cm_func(y_true, y_pred)
+        cm = cm_func(y_true, y_pred, labels=[0, 1])
         cm_pct = cm.astype(float) / cm.sum() * 100
 
         im = ax.imshow(cm, interpolation="nearest", cmap=plt.cm.Blues)
@@ -230,7 +219,8 @@ def plot_confusion_matrix(y_true: np.ndarray, pred_dict: dict,
     fig.tight_layout()
     pdf_path = os.path.join(output_dir, "confusion_matrix.pdf")
     png_path = os.path.join(output_dir, "confusion_matrix.png")
-    fig.savefig(pdf_path, format="pdf", bbox_inches="tight")
+    fig.savefig(pdf_path, format="pdf", bbox_inches="tight",
+                metadata={"CreationDate": None, "ModDate": None})
     fig.savefig(png_path, format="png", dpi=300, bbox_inches="tight")
     plt.close(fig)
     print(f"Saved: {pdf_path}")
@@ -320,6 +310,11 @@ def print_results_text(results: dict) -> None:
 
 # === MAIN ===
 if __name__ == "__main__":
+    np.random.seed(42)
+    print(f"Date: {datetime.date.today()}")
+    print(f"Python: {sys.version}")
+    print(f"numpy: {np.__version__}, pandas: {pd.__version__}, scipy: {scipy.__version__}")
+    print(f"sklearn: {sklearn.__version__}")
     print("=" * 60)
     print("Diagnostic Accuracy Analysis")
     print("=" * 60)

@@ -169,25 +169,22 @@ Before running parametric tests, always check and report:
 
 #### Output Manifest
 
-After all analyses complete, save a manifest file `_analysis_outputs.md` in the output directory:
-
-```markdown
-# Analysis Outputs
-Generated: {YYYY-MM-DD}
-Study type: {detected or user-specified type}
-
-## Tables
-- `table1_demographics.csv` -- Baseline characteristics
-- `diagnostic_accuracy_table.csv` -- Performance metrics with 95% CIs
-
-## Figures  
-- `roc_curve.pdf` / `roc_curve.png` -- ROC curves (vector / 300 DPI)
-
-## Data
-- `predictions.csv` -- Per-subject model predictions with ground truth
-```
+After all analyses complete, save `_analysis_outputs.md` in the output directory.
+Use the [output format and bound binary workflow](references/analysis_run_workflow.md)
+when producing the analysis outputs.
 
 This manifest enables downstream skills (`/make-figures`, `/write-paper`) to auto-discover analysis outputs without user intervention.
+
+For **prespecified binary predictions on independent units**, use the bundled
+`scripts/run_analysis.py run` workflow described in
+[`references/analysis_run_workflow.md`](references/analysis_run_workflow.md).
+It executes the existing diagnostic template and embeds data/configuration/code/
+output hashes, exact counts, metric-specific denominators and the reproduction
+command in this same manifest. `audit` checks recorded versions without rewriting
+them; `compare` separates declared context and recorded numeric equality from byte
+drift. It does not select thresholds or establish study validity, privacy clearance
+or reuse rights. The original synthetic example runs with
+`python3 ${CLAUDE_SKILL_DIR}/scripts/demo_analysis_run.py --out demo-project`.
 
 ### Phase 3.5: Generated-Code Quality Gate
 
