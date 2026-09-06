@@ -45,7 +45,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[3]
 SCRIPTS_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPTS_DIR))
-from sync_submission import resolve_canonical, submission_md_path  # noqa: E402
+from sync_submission import resolve_canonical, submission_md_path, bundle_binding  # noqa: E402
 
 PY = sys.executable
 
@@ -448,6 +448,8 @@ def run_check(spec, ctx, args):
         status = "blocker" if effective_p0 else "warn"
     elif base == "warn_post":
         status = "warn"
+    elif base == "skipped" and in_require:
+        status = "error"
     else:
         status = base  # ok / skipped / error
 
@@ -461,6 +463,7 @@ def run_check(spec, ctx, args):
             "script": _rel(S[_script_key(cid)]), "ran": True, "exit_code": rc,
             "status": status, "blocker": status == "blocker",
             "artifact": _rel(artifact_path) if (artifact_path and artifact_path.exists()) else None,
+            "invocation": [_rel(Path(a)) if Path(a).is_absolute() else a for a in argv],
             "message": msg}
 
 
@@ -536,7 +539,16 @@ def main() -> int:
         sys.stderr.write(f"ERROR: project root not found: {ctx.root}\n")
         return 2
 
+    # This identifies the declared bundle present during the run. It is not
+    # per-file inspection coverage (some checks inspect only a selected DOCX).
+    def snapshot():
+        try:
+            return bundle_binding(ctx.root, ctx.journal)
+        except (OSError, ValueError, KeyError, TypeError):
+            return None
+    binding_before = snapshot()
     checks = [run_check(spec, ctx, args) for spec in CHECKS]
+    binding_after = snapshot()
 
     summary = {k: 0 for k in ("ok", "warn", "blocker", "skipped", "error")}
     for c in checks:
@@ -545,14 +557,30 @@ def main() -> int:
     gate_error = any(c["status"] == "error" for c in checks)
 
     report = {
-        "schema_version": 1,
+        "schema_version": 2,
         "generated_by": "preflight_gate.py",
         "project_root": str(ctx.root),
         "journal": ctx.journal,
         "strict": args.strict,
         "online": args.online,
         "double_blind": args.double_blind,
-        "submission_safe": not halt,
+        # Compatibility field: no configured blocker/error, NOT submission approval.
+        "submission_safe": not halt and not gate_error,
+        "submission_safe_scope": "configured_checks_only",
+        "readiness": "not_assessed",
+        "coverage": {
+            "status": "incomplete" if summary["skipped"] or summary["error"] else "executed",
+            "invoked": [c["id"] for c in checks if c["ran"]],
+            "executed": [c["id"] for c in checks if c["status"] in {"ok", "warn", "blocker"}],
+            "skipped": [c["id"] for c in checks if c["status"] == "skipped"],
+            "errors": [c["id"] for c in checks if c["status"] == "error"],
+            "visual_review": "not_assessed",
+            "source_claim_fidelity": "not_assessed",
+            "reuse_permissions": "not_assessed",
+        },
+        "bundle_binding": binding_before,
+        "bundle_unchanged_during_checks": bool(binding_before and binding_before == binding_after),
+        "bundle_binding_scope": "declared sources, render dependencies and package bytes; other check inputs are not bound",
         "halt": halt,
         "summary": summary,
         "checks": checks,
@@ -579,8 +607,9 @@ def main() -> int:
             blockers = [c["id"] for c in checks if c["blocker"]]
             print(f"\nHALT: {len(blockers)} blocker(s) — {', '.join(blockers)}. Submission is NOT safe.")
         else:
-            print("\nOK: no blockers. Submission pre-flight passed"
-                  + (" (P1 warnings may remain — see table)." if summary["warn"] else "."))
+            print("\nNo configured blockers. "
+                  f"{summary['skipped']} checks skipped; {summary['warn']} warnings. "
+                  "Submission readiness, visual fidelity and permissions are not assessed.")
 
     if gate_error:
         return 2

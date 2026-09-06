@@ -5478,8 +5478,18 @@
     },
     {
       "path": "skills/sync-submission/SKILL.md",
-      "size": 40790,
-      "sha256": "45b228823952b028f0ec8160cd3e457f95b37a0a8fe692a09349a49d1e91054a"
+      "size": 41988,
+      "sha256": "f7b831bc599966f0b9e2fbcb78b7802d19ea05d3c066ace673a67604ea91e24c"
+    },
+    {
+      "path": "skills/sync-submission/examples/build_synthetic_bundle.py",
+      "size": 3690,
+      "sha256": "35ec00892fcc1f188784c1113ec107dde40f6b859693d975f4e88b6219b604a9"
+    },
+    {
+      "path": "skills/sync-submission/references/bundle_workflow.md",
+      "size": 7344,
+      "sha256": "d4295e169cea53b79a93458a937f8c4ffaa544951907de02758426aee9ab8c78"
     },
     {
       "path": "skills/sync-submission/references/journal_availability_policy.json",
@@ -5703,8 +5713,8 @@
     },
     {
       "path": "skills/sync-submission/scripts/preflight_gate.py",
-      "size": 27400,
-      "sha256": "958e18e4ca4f48390a68c6c7407d341f396bc6673f9c8d918a7a51b72d000a7e"
+      "size": 29080,
+      "sha256": "af5688aa499b6890270d1367260d1460f180a9f57decbdc3542c74c24e4fdf8e"
     },
     {
       "path": "skills/sync-submission/scripts/scope_drift_check.py",
@@ -5713,13 +5723,13 @@
     },
     {
       "path": "skills/sync-submission/scripts/sync_submission.py",
-      "size": 6439,
-      "sha256": "dc6f6a81e846bc218a37e2d655659a02fa38bd738a42036cc8854d7e1ea32308"
+      "size": 21796,
+      "sha256": "c6c0adaf9f58357f3f8241c71ac7b47e72a4d56a06156f5e310bc1bc6f964c23"
     },
     {
       "path": "skills/sync-submission/skill.yml",
-      "size": 2309,
-      "sha256": "f291953988db61d64ee9f4649971236d5474e3b71e4b92fad8987cdf81a82daf"
+      "size": 2736,
+      "sha256": "ed880953ab130995994e371baa5347cffe8c79bef21a0fa1f4fd48f115b03acf"
     },
     {
       "path": "skills/uncertainty-imaging/SKILL.md",

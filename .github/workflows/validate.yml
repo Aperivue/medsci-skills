@@ -339,7 +339,9 @@ jobs:
         run: bash skills/write-paper/tests/test_placeholders.sh
 
       - name: Run sync-submission preflight gate test (A6)
-        run: bash skills/sync-submission/tests/test_preflight_gate.sh
+        run: |
+          bash skills/sync-submission/tests/test_preflight_gate.sh
+          python3 skills/sync-submission/tests/test_submission_bundle.py
 
       - name: "Run sync-submission marked-build failure test (a failed Compare leaves no file behind)"
         run: bash skills/sync-submission/tests/test_marked_build_failure.sh
