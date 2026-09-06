@@ -15,6 +15,7 @@ when_NOT_to_use:
 inputs:
   - project.yaml
   - manuscript/manuscript.md
+  - "optional bundle.json declaring final files and pinned render dependencies"
 outputs:
   - submission/{journal}/.journal_meta.json
   - qc/submission_sync_{journal}.json
@@ -38,6 +39,8 @@ safety_boundaries:
   - "Never silently edits the canonical manuscript; a drifted submission is not frozen until reconciled."
   - "Submission packages are derived from canonical sources, not hand-assembled."
 known_limitations:
+  - "Build copies declared final files byte for byte; rendering remains with existing renderers. Hashes do not establish visual or semantic fidelity or reuse permission."
+  - "Preflight bundle binding covers declared sources/dependencies and package bytes, not every external check input. Skipped checks and unassessed readiness remain explicit."
   - "Detects drift it is configured to scan (counts, cover-letter fields, scope); portal free-text fields still need a human check."
   - "A clean audit is necessary, not sufficient, for acceptance."
   - "Building a marked (tracked-changes) manuscript drives Microsoft Word and therefore needs macOS + Word; the round-trip verification of a marked file is portable and runs anywhere."

@@ -4,6 +4,10 @@
 
 ### Added
 
+- Submission build accepts a declared bundle of final Word/PDF, supplement,
+  cover-letter and other files. Existing metadata/manifest outputs record byte
+  hashes, pinned render inputs, declared reuse rights and unassessed visual and
+  content fidelity. Preflight records executed/skipped checks and bundle binding.
 - Claim-fidelity reports include sentence/citation evidence rows and an optional
   Markdown table linking source hashes, retrieval identity, metadata audit context,
   and attributed source comparisons. Existing JSON remains the evidence store;
@@ -11,6 +15,10 @@
 
 ### Fixed
 
+- Submission sync refuses missing-package freeze, frozen/edited output overwrite,
+  unregistered-file loss and colliding paths. Malformed metadata fails explicitly;
+  staged copies preserve source bytes and cooperating mutations share a lock.
+  A required preflight check that exits without running cannot report a safe pass.
 - Claim-fidelity output no longer equates an absence of automated findings with
   source support. Citation prefixes and page locators are preserved in the evidence
   inventory. New controls run within the existing validation job.
