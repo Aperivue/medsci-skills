@@ -27,7 +27,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install Python test dependencies
-        run: pip install pyyaml pandas numpy python-pptx python-docx fonttools
+        run: pip install pyyaml pandas numpy scipy scikit-learn matplotlib python-pptx python-docx fonttools
 
       - name: Install exiftool + poppler + pandoc (artifact and render tests; no TeX)
         run: sudo apt-get update && sudo apt-get install -y libimage-exiftool-perl poppler-utils pandoc
@@ -305,8 +305,11 @@ jobs:
       - name: Run analyze-stats separation gate test (complete / quasi-complete separation)
         run: bash skills/analyze-stats/tests/test_separation.sh
 
-      - name: Run analyze-stats survival template test (A1)
-        run: bash skills/analyze-stats/tests/test_survival_template.sh
+      - name: Run analyze-stats survival template and bound analysis tests
+        run: |
+          bash skills/analyze-stats/tests/test_survival_template.sh
+          python3 skills/analyze-stats/tests/test_analysis_run.py
+          bash skills/analyze-stats/scripts/analysis_run_challenge/verify.sh
 
       - name: Run sync-submission asset-anonymization gate test (A2)
         run: bash skills/sync-submission/tests/test_asset_anonymization.sh

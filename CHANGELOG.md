@@ -4,6 +4,12 @@
 
 ### Added
 
+- Prespecified binary diagnostic-accuracy runs produce full precision tables,
+  confusion-matrix PDF/PNG and an execution record in the existing analysis
+  manifest. Data/configuration/code/output hashes, exact denominators and read-only
+  audit/compare commands expose changed versions without implying study validity.
+  An original synthetic demo and independent arithmetic/interval controls run
+  within the existing analysis CI step.
 - Submission build accepts a declared bundle of final Word/PDF, supplement,
   cover-letter and other files. Existing metadata/manifest outputs record byte
   hashes, pinned render inputs, declared reuse rights and unassessed visual and
@@ -15,6 +21,9 @@
 
 ### Fixed
 
+- The diagnostic-accuracy template uses a valid SciPy version lookup, preserves
+  a 2-by-2 confusion matrix when a class is absent, and reports zero-denominator
+  metrics as undefined rather than zero performance. Importing the template is quiet.
 - Submission sync refuses missing-package freeze, frozen/edited output overwrite,
   unregistered-file loss and colliding paths. Malformed metadata fails explicitly;
   staged copies preserve source bytes and cooperating mutations share a lock.
