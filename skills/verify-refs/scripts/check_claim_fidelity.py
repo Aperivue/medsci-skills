@@ -9,10 +9,8 @@ citing it* is true of it. A citation can be perfectly real and still be attached
 the source never makes. That failure survives every existing gate: the DOI resolves, the
 authors match, the reference list renders, and the sentence is wrong.
 
-The incident this was built from: a manuscript sentence read "the field has begun to offer
-the chair [41]". The cited work uses the word "chair" zero times; it uses "advocate" four
-times, twice in the sense the manuscript was reaching for. A co-author caught it by reading
-the source. Nothing in the toolkit could have.
+A source can discuss one concept while the manuscript attributes a different concept to it.
+Bibliographic identity checks do not inspect that attribution; source reading is still needed.
 
 THREE PROBES, ORDERED BY HOW CHECKABLE THE CLAIM IS
 
@@ -62,8 +60,8 @@ searched. Two guards make that argument honest:
     source is downgraded to unresolved, never to a defect.
   * Quote matching goes through `_quote_match.py`, so a correct quote read through a dirty
     extraction (a bled reference column, PDF line numbers, a hyphen split across a line) is
-    reported as UNRESOLVED rather than as a fabrication. That module exists because a
-    contiguous-substring test produced thirteen false absences in one day.
+    reported as UNRESOLVED rather than as a fabrication. That module exists because
+    contiguous-substring tests can mistake extraction damage for an absent quotation.
 
 INPUT CONTRACT
 
@@ -95,6 +93,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _quote_match import match_quality, normalize, tokens  # noqa: E402  (vendored, same-dir)
+from _claim_evidence import build_evidence, render_table, sha256  # noqa: E402
 
 DETECTOR = "check_claim_fidelity"
 
@@ -296,6 +295,7 @@ class Resolver:
         self.refmap = refmap
         self.unresolved: set[str] = set()
         self._cache: dict[str, tuple[Path, str] | None] = {}
+        self._source_hashes: dict[Path, str | None] = {}
 
     def _file_for(self, token: str) -> Path | None:
         mapped = self.refmap.get(token)
@@ -316,7 +316,12 @@ class Resolver:
         if token in self._cache:
             return self._cache[token]
         path = self._file_for(token)
+        before = sha256(path)
         got = (path, read_text(path)) if path else None
+        if path:
+            if before != sha256(path):
+                raise ValueError("source changed while reading")
+            self._source_hashes[path] = before
         if got is None:
             self.unresolved.add(token)
         self._cache[token] = got
@@ -326,8 +331,7 @@ class Resolver:
     def citations_in(text: str) -> list[str]:
         out: list[str] = []
         for m in CITE_KEY.finditer(text):
-            out += [k.strip().lstrip("@").strip()
-                    for k in re.split(r"[;,]", m.group(1)) if "@" in k]
+            out += re.findall(r"@([A-Za-z0-9_][A-Za-z0-9_:.#$%&+?<>~/\-]*)", m.group(1))
         for m in CITE_NUM.finditer(text):
             out += expand_numeric(m.group(1))
         return [t for t in out if t]
@@ -561,7 +565,23 @@ def probe_cardinal(md: str, res: Resolver, findings: list[dict]) -> int:
 # ------------------------------------------------------------------------------------ main
 
 def build_report(manuscript: Path, fulltext_dir: Path, bib: Path | None,
-                 refmap: dict[str, str]) -> dict:
+                 refmap: dict[str, str], *, retrieval_report: Path | None = None,
+                 pdf_dir: Path | None = None, reference_audit: Path | None = None,
+                 reviewed_report: Path | None = None) -> dict:
+    def optional_json(path):
+        if path is None:
+            return None
+        value = json.loads(path.read_text(encoding="utf-8"))
+        if not isinstance(value, dict):
+            raise ValueError(f"expected a JSON object: {path.name}")
+        return value
+
+    inputs = [p for p in (manuscript, bib, retrieval_report, reference_audit, reviewed_report) if p]
+    initial_hashes = {p: sha256(p) for p in inputs}
+    # Read review input before writing --out, which may intentionally be the same report.
+    retrieval = optional_json(retrieval_report)
+    audit = optional_json(reference_audit)
+    reviewed = optional_json(reviewed_report)
     raw = read_text(manuscript)
     body = strip_noise(raw)
     res = Resolver(
@@ -579,7 +599,8 @@ def build_report(manuscript: Path, fulltext_dir: Path, bib: Path | None,
     resolved = {t: v for t, v in res._cache.items() if v}
     short = sorted({v[0].name for t, v in resolved.items()
                     if len(tokens(v[1])) < MIN_SOURCE_TOKENS})
-    return {
+    report = {
+        "schema_version": 2,
         "detector": DETECTOR,
         "manuscript": str(manuscript),
         "fulltext_dir": str(fulltext_dir),
@@ -589,6 +610,27 @@ def build_report(manuscript: Path, fulltext_dir: Path, bib: Path | None,
         "claims_checked": {"quotes": n_quote, "attributions": n_attr, "cardinals": n_card},
         "findings": findings,
     }
+    report.update(build_evidence(
+        raw, manuscript, fulltext_dir, res, ABBREV,
+        binding={"manuscript_sha256": initial_hashes[manuscript], "bib_sha256": initial_hashes.get(bib),
+                 "retrieval_report_sha256": initial_hashes.get(retrieval_report),
+                 "reference_audit_sha256": initial_hashes.get(reference_audit),
+                 "refmap": refmap},
+        retrieval=retrieval, pdf_dir=pdf_dir or (retrieval_report.parent if retrieval_report else None),
+        reference_audit=audit, reviewed_report=reviewed,
+    ))
+    for row in report["evidence_rows"]:
+        sentence = " ".join(row["manuscript"]["text"].split())
+        row["automatic_finding_indices"] = [
+            i for i, finding in enumerate(findings)
+            if finding["citation"] == row["citation"] and (
+                (finding.get("sentence") and " ".join(finding["sentence"].split()) == sentence[:300])
+                or (finding.get("quote") and " ".join(finding["quote"].split()) in sentence))]
+    if any(sha256(p) != digest for p, digest in initial_hashes.items()):
+        raise ValueError("input changed while building report")
+    if any(sha256(p) != digest for p, digest in res._source_hashes.items()):
+        raise ValueError("source changed while building report")
+    return report
 
 
 def main() -> int:
@@ -600,8 +642,20 @@ def main() -> int:
     ap.add_argument("--refmap", type=Path,
                     help='JSON {"41": "10.1000/xyz"} for citations neither bib nor list resolves')
     ap.add_argument("--out", type=Path, help="write the JSON report here")
+    ap.add_argument("--retrieval-report", type=Path,
+                    help="existing fetch_oa report; advisory identity and PDF hashes, not claim support")
+    ap.add_argument("--pdf-dir", type=Path,
+                    help="PDF directory, when different from the retrieval report's directory")
+    ap.add_argument("--reference-audit", type=Path, help="existing reference_audit.json (read-only)")
+    ap.add_argument("--reviewed-report", type=Path,
+                    help="prior claim_fidelity.json containing assessor-entered evidence_rows")
+    ap.add_argument("--evidence-table", type=Path, help="optional Markdown view derived from this report")
     ap.add_argument("--strict", action="store_true", help="exit 1 if any major verdict fires")
     args = ap.parse_args()
+
+    if args.evidence_table and not args.out:
+        print("ERROR: --evidence-table requires --out to preserve the source JSON", file=sys.stderr)
+        return 2
 
     if not args.manuscript.is_file():
         print(f"ERROR: manuscript not found: {args.manuscript}", file=sys.stderr)
@@ -609,16 +663,41 @@ def main() -> int:
     if not args.fulltext_dir.is_dir():
         print(f"ERROR: --fulltext-dir not a directory: {args.fulltext_dir}", file=sys.stderr)
         return 2
-    refmap: dict[str, str] = {}
-    if args.refmap:
-        refmap = {str(k): str(v)
-                  for k, v in json.loads(args.refmap.read_text(encoding="utf-8")).items()}
-
-    report = build_report(args.manuscript, args.fulltext_dir, args.bib, refmap)
+    protected = [args.manuscript, args.bib, args.refmap, args.retrieval_report, args.reference_audit]
+    protected += list(index_fulltext(args.fulltext_dir).values())
+    protected = {p.resolve() for p in protected if p}
+    outputs = [p.resolve() for p in (args.out, args.evidence_table) if p]
+    if any(p in protected for p in outputs) or len(outputs) != len(set(outputs)):
+        print("ERROR: output paths must be distinct and must not overwrite source inputs", file=sys.stderr)
+        return 2
+    if args.reviewed_report and args.evidence_table and args.reviewed_report.resolve() == args.evidence_table.resolve():
+        print("ERROR: the table must not overwrite the reviewed JSON", file=sys.stderr)
+        return 2
+    try:
+        refmap: dict[str, str] = {}
+        if args.refmap:
+            refmap = {str(k): str(v)
+                      for k, v in json.loads(args.refmap.read_text(encoding="utf-8")).items()}
+        report = build_report(args.manuscript, args.fulltext_dir, args.bib, refmap,
+                              retrieval_report=args.retrieval_report, pdf_dir=args.pdf_dir,
+                              reference_audit=args.reference_audit, reviewed_report=args.reviewed_report)
+        selected_pdf_dir = args.pdf_dir or (args.retrieval_report.parent if args.retrieval_report else None)
+        if selected_pdf_dir:
+            protected.update((selected_pdf_dir / row["source"]["pdf"]["file"]).resolve()
+                             for row in report["evidence_rows"] if row["source"]["pdf"]["file"])
+        if any(p in protected for p in outputs):
+            raise ValueError("output would overwrite a source PDF")
+        table_text = render_table(report) if args.evidence_table else None
+    except (OSError, ValueError, TypeError, KeyError, AttributeError) as exc:
+        print(f"ERROR: cannot build claim evidence report: {exc}", file=sys.stderr)
+        return 2
 
     if args.out:
         args.out.parent.mkdir(parents=True, exist_ok=True)
         args.out.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
+    if args.evidence_table:
+        args.evidence_table.parent.mkdir(parents=True, exist_ok=True)
+        args.evidence_table.write_text(table_text, encoding="utf-8")
 
     c = report["claims_checked"]
     print(f"{DETECTOR}: {report['sources_resolved']} source(s) resolved; "
@@ -632,8 +711,11 @@ def main() -> int:
               f"{', '.join(report['sources_too_short'][:8])}")
 
     majors = [f for f in report["findings"] if f["severity"] == "major"]
+    e = report["evidence_counts"]
+    print(f"  evidence table: {e['sentence_citation_pairs']} sentence/citation pair(s); "
+          f"recorded review outcomes: {json.dumps(e['verdicts'], sort_keys=True)}")
     if not report["findings"]:
-        print("OK: every checkable claim is supported by its cited source.")
+        print("No automated findings. Claim support has not been established by this check.")
         return 0
     for f in report["findings"]:
         print(f"  [{f['severity']}] {f['verdict']}: {f['message']}")

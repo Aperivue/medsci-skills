@@ -375,7 +375,9 @@ jobs:
         run: bash skills/verify-refs/tests/test_audit_source_path.sh
 
       - name: "Run verify-refs claim-fidelity challenge (a real citation carrying a claim its source never makes)"
-        run: bash skills/verify-refs/scripts/claim_fidelity_challenge/verify.sh
+        run: |
+          bash skills/verify-refs/scripts/claim_fidelity_challenge/verify.sh
+          python3 skills/verify-refs/tests/test_claim_evidence.py
 
       - name: Run manage-refs bib-title publisher-markup gate test
         run: bash skills/manage-refs/tests/test_bib_title_markup.sh
