@@ -88,7 +88,7 @@ to restrict verification to PubMed + CrossRef.
 
 | Artifact | Path | Purpose |
 |---|---|---|
-| Audit JSON | `qc/reference_audit.json` | Sole output — row-level status (OK/MISMATCH/UNVERIFIED/FABRICATED), counts, `cited_authors[]`/`actual_authors[]`, `duplicate_findings[]`, submission-safe flag, full records |
+| Audit JSON | `qc/reference_audit.json` | Metadata audit output — row-level status (OK/MISMATCH/UNVERIFIED/FABRICATED), counts, `cited_authors[]`/`actual_authors[]`, `duplicate_findings[]`, submission-safe flag, full records |
 
 **v1.2.0 (2026-05)** adds `duplicate_findings[]` to the audit JSON. Verbatim PMID or DOI duplicates within the reference list are flagged as MAJOR findings (resolves `/peer-review` Phase 2A P7). DOI normalization strips `https://doi.org/`, `http://dx.doi.org/`, `doi:` prefixes plus trailing slashes before comparison so `https://doi.org/10.x/abc/` and `10.x/abc` collapse to one key. Both `submission_safe` and `fully_verified` now require `duplicate_findings` to be empty.
 
@@ -210,12 +210,38 @@ unresolved and never guessed at, and a source whose extracted text is an abstrac
 as too short to judge — absence proves nothing against an abstract. Silence from this
 detector means "nothing checkable was wrong", which is not the same as "everything is right".
 
+### Sentence-level source evidence table
+
+The same `qc/claim_fidelity.json` now includes `evidence_rows`: recognized prose
+sentence/citation pairs, manuscript coordinates, source-text and PDF hashes,
+advisory retrieval identity, and a separate assessor-entered comparison. Initial
+rows are `not_assessed`, even when bibliographic status is OK and no probe fires.
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/check_claim_fidelity.py" \
+  --manuscript manuscript/manuscript.md --bib manuscript/_src/refs.bib \
+  --fulltext-dir fulltext/ --retrieval-report pdfs/retrieval_report.json \
+  --reference-audit qc/reference_audit.json \
+  --out qc/claim_fidelity.json --evidence-table qc/claim_fidelity.md
+```
+
+Inspect the actual source before entering pages, excerpts, metric/unit/denominator,
+population, direction, and a named assessment. Neither equal numbers nor matching
+words establish support. Record whether the assessor used AI assistance; do not
+describe an AI-generated assessment as human approval. Rerun with
+`--reviewed-report qc/claim_fidelity.json` to retain annotations. Changed inputs
+leave old assessments unresolved; unmatched rows remain in the JSON for review.
+The Markdown table is a derived view, not a second editable evidence store.
+
+See `references/claim_evidence_workflow.md` for field meanings, re-review steps,
+source-identity limitations, and the difference between recorded and verified.
+
 ## What This Skill Does NOT Do
 
 - Does not fetch full texts (use `/fulltext-retrieval`); claim fidelity reads converted text
   off disk so it stays deterministic and CI-runnable.
-- Does not judge whether a citation is topically appropriate — only whether the specific
-  quoted, attributed, or counted claim is supported by the source's own words.
+- Does not automatically judge topical fit or semantic support. The probes check limited
+  wording patterns; the evidence table records attributed assessments, not verified facts.
 - Does not generate new references from memory.
 - Does not replace missing citations with plausible alternatives without
   `/search-lit` or user approval.

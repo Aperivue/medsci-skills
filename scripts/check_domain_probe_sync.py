@@ -133,6 +133,8 @@ VENDOR_SETS: tuple[VendorSet, ...] = (
         # /revise owns other scripts; only the helpers it publishes are vendored.
         canonical_exhaustive=False,
         pattern="_*.py",
+        # Claim evidence is owned by verify-refs, not copied from revise.
+        vendored_local=("_claim_evidence.py",),
     ),
     VendorSet(
         name="quote-match-helper-sync",

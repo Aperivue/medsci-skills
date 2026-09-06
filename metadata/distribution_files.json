@@ -5773,13 +5773,23 @@
     },
     {
       "path": "skills/verify-refs/SKILL.md",
-      "size": 13883,
-      "sha256": "783cf8b9fb181cb1d0ae05770f8ed6732f4e834decd58b8eb2431ed72acd9e05"
+      "size": 15318,
+      "sha256": "09d8f8899feb9f89aedd92225bfe2cca9be9a24e841f1edbead9aaffd3e28e8f"
+    },
+    {
+      "path": "skills/verify-refs/references/claim_evidence_workflow.md",
+      "size": 6466,
+      "sha256": "20765c9c23122fef6c44eea6327d29a79c73929cf710800addab5f9b1ff29468"
     },
     {
       "path": "skills/verify-refs/references/manual_checkpoint_guide.md",
       "size": 4031,
       "sha256": "4da6bd649d672bcae7505098d4712d6fb253fea8fa3be41c95870587cc6553a4"
+    },
+    {
+      "path": "skills/verify-refs/scripts/_claim_evidence.py",
+      "size": 13992,
+      "sha256": "4b471cb1f6c20c09746af5b7f51093b4f4cc5be7ff2ab972285158b797abd2ca"
     },
     {
       "path": "skills/verify-refs/scripts/_quote_match.py",
@@ -5788,8 +5798,8 @@
     },
     {
       "path": "skills/verify-refs/scripts/check_claim_fidelity.py",
-      "size": 28138,
-      "sha256": "e90932f24c794c35ed525ac578e51658599bf7bef2b0efee32d4e75be82f7c3c"
+      "size": 33348,
+      "sha256": "a654a537e6cc00c62ecaa1edcf4ee8bc137d77eeb3d40ddc2ff616059ac85480"
     },
     {
       "path": "skills/verify-refs/scripts/claim_fidelity_challenge/fixture/fulltext/10.1000_synthetic.oversight.md",
@@ -5828,8 +5838,8 @@
     },
     {
       "path": "skills/verify-refs/scripts/claim_fidelity_challenge/verify.sh",
-      "size": 9306,
-      "sha256": "19bec2649a74ff92d7f58913b70d04716d8e7838ba075d905dabb0b0697f92ff"
+      "size": 8835,
+      "sha256": "8553470dcbaa3890b5964762ac6c3c87656752e44c56a96438b2a234b3e1fe97"
     },
     {
       "path": "skills/verify-refs/scripts/verify_cli.sh",
@@ -5843,8 +5853,8 @@
     },
     {
       "path": "skills/verify-refs/skill.yml",
-      "size": 3092,
-      "sha256": "54b90d79ba5eec1d8d1776e08c7740c7b9d461c9fc5a6c32f1cf24ce71c3d9ac"
+      "size": 3422,
+      "sha256": "f96396276ad8cfb10b0c671d3813033105dc2e8894be3dbbf40c8e7451d93686"
     },
     {
       "path": "skills/version-dataset/SKILL.md",

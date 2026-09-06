@@ -44,6 +44,8 @@ Dual-path behavior: `SSOT.yaml` preferred, `project.yaml` warns, neither fails.
 | `artifact_manifest.json` | `/render`, `/sync-submission` (auto) | all | advisory | Derived inventory. |
 | `qc/status.json` | pipeline runner | all | advisory | Runtime pipeline state. |
 | `qc/reference_audit.json` | `/verify-refs` | `/render`, pre-save hooks | read-only (consumers) | Citation audit output. |
+| `qc/claim_fidelity.json` | `/verify-refs` | `/self-review`, `/sync-submission`, human reviewers | read-only (consumers) | Existing probe findings plus sentence-level evidence rows. Assessor annotations are preserved by explicit `--reviewed-report`; input changes invalidate their current status. |
+| `qc/claim_fidelity.md` | `/verify-refs` (derived view) | human reviewers | read-only | Optional table generated from the same JSON; edit assessments in JSON, not in this view. No automatic claim-support certification. |
 | `references/library.bib` | `/search-lit` (produces verified candidates) | `/lit-sync` (imports to Zotero), `/verify-refs` | advisory | Not the SSOT bibliography; that is `manuscript/_src/refs.bib`. |
 | `references/fulltext_retrieval.json` | `/lit-sync` (Phase 2.7) | `/meta-analysis`, human reviewers | advisory | Opt-in fulltext-retrieval report: retrieved (OA-disk / Zotero-native, user-reported) vs not-retrieved + institutional-fallback list + title-match flags. |
 | `pdfs/` + `pdfs/retrieval_report.json` | `/fulltext-retrieval` (engine) | `/lit-sync`, `/meta-analysis`, `/obsidian-paper-vault` | none | OA PDFs + per-DOI `status` (arxiv/oa/pmc/skip/fail), `source`, and `title_match` (match / mismatch / unavailable). Engine report; `/lit-sync` merges it into `references/fulltext_retrieval.json`. |

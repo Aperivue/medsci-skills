@@ -2,6 +2,19 @@
 
 ## [Unreleased]
 
+### Added
+
+- Claim-fidelity reports include sentence/citation evidence rows and an optional
+  Markdown table linking source hashes, retrieval identity, metadata audit context,
+  and attributed source comparisons. Existing JSON remains the evidence store;
+  changed inputs and unmatched review records stay visible on rerun.
+
+### Fixed
+
+- Claim-fidelity output no longer equates an absence of automated findings with
+  source support. Citation prefixes and page locators are preserved in the evidence
+  inventory. New controls run within the existing validation job.
+
 ## [5.26.2] - 2026-09-06
 
 **Hotfix:** shipped PDF identity and presentation overflow checks could report a match or clean result without measuring the relevant evidence.
