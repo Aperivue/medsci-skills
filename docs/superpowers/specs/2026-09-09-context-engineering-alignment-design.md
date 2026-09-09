@@ -107,17 +107,33 @@ content judgment, not a deduplication, and does not belong in a mechanical trim 
 
 ### Verification
 
-Every PR in this program runs, before push:
+CI is the authoritative gate for this program. The local toolchain on the authoring machine is
+only partly able to mirror it, and the limits are load-bearing rather than incidental:
 
 ```bash
-python3 scripts/gen_skill_docs.py          # docs/skills/ is generated from SKILL.md
-python3 scripts/gen_distribution_manifest.py  # shipped-file hashes for the self-updater
-scripts/run_ci_mirror.sh                   # every gate in the CI validate job, in order
+python scripts/gen_skill_docs.py --check   # runnable locally; green today
 ```
 
-`gen_skill_docs.py --check` and the distribution-manifest check are CI gates, so the regenerated
-`docs/skills/` and `metadata/` outputs are committed with the change. A PR is not ready while the
-mirror is red.
+- **`python3` does not exist on this machine** — it resolves to the Microsoft Store alias stub. The
+  interpreter is `python` (3.13.9). `scripts/run_ci_mirror.sh` calls `python3` internally and so
+  cannot run locally without a shim; `scripts/validate_skills.sh` additionally requires `exiftool`,
+  which is absent.
+- **`gen_distribution_manifest.py` must NOT be run in write mode locally.** `core.autocrlf=true`
+  with no `.gitattributes` means the working tree is CRLF while committed blobs are LF. The
+  generator hashes working-tree bytes, so a local write-mode run rewrites all **1264** shipped-file
+  hashes to CRLF values and breaks the self-updater's download verification. Its `--check` is
+  therefore structurally red here and carries no signal.
+- Consequently, a PR in this program edits shipped files without refreshing `metadata/`, and the
+  `Distribution manifests in sync` check is **expected red** — the path `CONTRIBUTING.md` documents
+  for contributors who cannot run the generator. Each PR body says so and asks the maintainer to
+  refresh on an LF checkout.
+- `docs/skills/` pages are generated from frontmatter, `skill.yml`, and bundled-resource listings,
+  and do not embed `## Anti-Hallucination` body text, so prose edits inside that section produce no
+  `docs/skills/` diff. Where a change type *does* reach the generated pages, run
+  `python scripts/gen_skill_docs.py` and commit the regenerated output with the change.
+
+Per-change-type assertions (exact grep counts before and after) live in the implementation plan
+rather than here.
 
 ## Backlog — later change types, each its own PR
 
@@ -136,7 +152,9 @@ Listed for sequencing only; each needs its own design pass before implementation
 - **Breadth.** The prompt surface is the product; a careless mass edit degrades skill behavior.
   Mitigated by one change type per PR, a 2-file pilot each, and the CI mirror as the gate.
 - **Generated-artifact drift.** `SKILL.md` edits propagate to `docs/skills/` and to the
-  distribution manifests. Mitigated by running both generators in every PR.
+  distribution manifests. Mitigated by running `gen_skill_docs.py --check` in every PR and by
+  declaring the manifest refresh in the PR body, since it cannot be generated correctly from a CRLF
+  working tree.
 - **Over-application of upstream advice.** The upstream guidance targets over-constrained system
   prompts, not safety-critical deterministic gates. Locked decision 3 is the fence; any change that
   would relax a gate is out of scope by construction.
