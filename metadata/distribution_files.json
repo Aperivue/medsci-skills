@@ -653,8 +653,8 @@
     },
     {
       "path": "skills/check-reporting/SKILL.md",
-      "size": 43221,
-      "sha256": "7ea44b9b6c93e4215324dc153e6febb8595c973ba96c4cf40db56a0d255036d0"
+      "size": 42940,
+      "sha256": "7e4c0a30554f8f3cdfec03c1cb3fea5c336d4616891d4448930895d2cd1aff71"
     },
     {
       "path": "skills/check-reporting/references/LICENSES.md",
@@ -1188,8 +1188,8 @@
     },
     {
       "path": "skills/design-study/SKILL.md",
-      "size": 18884,
-      "sha256": "46269424deac0a1ebcbbc6b4cfc5c19cd8fc1368e90c7edb2d435f531214f2d0"
+      "size": 18603,
+      "sha256": "392181a1d425341380be95e482b712048edb22d9a454316358b59d2c29ab5086"
     },
     {
       "path": "skills/design-study/references/combine_models_ablation_design.md",
@@ -1338,8 +1338,8 @@
     },
     {
       "path": "skills/fill-protocol/SKILL.md",
-      "size": 11570,
-      "sha256": "848b3711a0d1df4c7687fe0ffa102cf153bb8b7ff7e957bffb47b8aa3c219c3f"
+      "size": 11289,
+      "sha256": "64880365203bc95d6b950f17a593f5c6eace147cbc2b9f2eb68568381b66f037"
     },
     {
       "path": "skills/fill-protocol/examples/example_irb_template.yaml",
@@ -1378,8 +1378,8 @@
     },
     {
       "path": "skills/find-cohort-gap/SKILL.md",
-      "size": 16508,
-      "sha256": "5a8f96af2b3f44853231fb677efb9ab92395fcfab1d58283ebe24fba0656a8c1"
+      "size": 16227,
+      "sha256": "acb5f91afb84010a744c0171f189819bff9f8d22c0c6d4e49d3b5c8cad06e6da"
     },
     {
       "path": "skills/find-cohort-gap/references/cohort_profile_template.md",
@@ -1923,8 +1923,8 @@
     },
     {
       "path": "skills/grant-builder/SKILL.md",
-      "size": 7420,
-      "sha256": "33b7848d79f9268ac7f8c35d12441c19b104c7abafa4a22d616cd94b8f5bf8b7"
+      "size": 7139,
+      "sha256": "b4b6d5d042941412b07dab327a97d1ecc83464b20a584a00263297bef7723054"
     },
     {
       "path": "skills/grant-builder/skill.yml",
@@ -2013,8 +2013,8 @@
     },
     {
       "path": "skills/make-figures/SKILL.md",
-      "size": 48072,
-      "sha256": "e343de9c90b9d36dae85a580305daa6cb769f67e0f8484f2db0365b64f2e37ad"
+      "size": 47791,
+      "sha256": "0bb57c398397d21e0da740dbf55c83c3fab70c253ef3ff250bd9943e3acc0c66"
     },
     {
       "path": "skills/make-figures/references/critic_rubrics/data_plot.md",
@@ -3863,8 +3863,8 @@
     },
     {
       "path": "skills/present-paper/SKILL.md",
-      "size": 54313,
-      "sha256": "f57f6bfcfdf4a016defcce34732e264c7ac11258f825e1244c681d0d6a52db5d"
+      "size": 54032,
+      "sha256": "768f1e4a044f3ca2a0861e82a6c787eb1bc7d7dd29840c182760cfd2ebdf45ac"
     },
     {
       "path": "skills/present-paper/references/ai_slide_tells.md",
@@ -4308,8 +4308,8 @@
     },
     {
       "path": "skills/revise/SKILL.md",
-      "size": 32212,
-      "sha256": "4733786ab5f53316d041ec8ec721ad05a41c9e0366856d1622189ba3132984c2"
+      "size": 31931,
+      "sha256": "3f4224b166a6f48ea77b1edc83deb742160a2933683c4822ce0dd1bf391359de"
     },
     {
       "path": "skills/revise/references/r2r_voice.md",
@@ -4458,8 +4458,8 @@
     },
     {
       "path": "skills/self-review/SKILL.md",
-      "size": 62648,
-      "sha256": "00453644f66011fd1994ac456d25e81ca6f52dd615668d34c6f92b5d004583cb"
+      "size": 62367,
+      "sha256": "69f70f778ebf5422e2e9daa876209440de518efa83881906d78d8842d41900fb"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
@@ -5913,8 +5913,8 @@
     },
     {
       "path": "skills/write-paper/SKILL.md",
-      "size": 50120,
-      "sha256": "6ac3072d67dfabfaeae11a0bf1890e9d616d073cd56b0758669d3b3f4ff59c50"
+      "size": 49839,
+      "sha256": "88280152ff13b89402b4dd7a1490245b274795d0b1acb2e96edab1a275164c00"
     },
     {
       "path": "skills/write-paper/references/exemplar_abstract.md",
@@ -6443,8 +6443,8 @@
     },
     {
       "path": "skills/write-protocol/SKILL.md",
-      "size": 11580,
-      "sha256": "3d2041be27da4aa32c648ae4eba6036fdcb99a648ab003721ccfaf7c93bd2c06"
+      "size": 11299,
+      "sha256": "8548d8bbebe14aacf9acab19ee3c895259022552fcef11ac7fbd8dadd778db88"
     },
     {
       "path": "skills/write-protocol/references/ethics_checklist.md",
