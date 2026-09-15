@@ -273,15 +273,27 @@ ck "the safety scan reads no preferences (cannot be turned down)" 0 "$?"
 STAR="$REPO_ROOT/skills/contribute/scripts/star_repo.py"
 SHOME="$TMP/star"
 
+# "No GitHub CLI" is simulated by pointing PATH at an empty directory, because star_repo.py finds
+# gh with shutil.which() and an empty PATH hides it on every platform. Two things this must NOT do.
+# It must not hardcode a PATH that still contains gh: on Debian-family runners gh lives in
+# /usr/bin, so `PATH=/usr/bin:/bin` leaves it visible and the fallback below is reached through
+# failed auth rather than absence — the assertion passes while testing something else. And it must
+# not let the stripped PATH also decide which interpreter runs: /usr/bin/python3 is an Xcode stub
+# on macOS, which exits 69 before star_repo.py runs at all, failing all five assertions here for a
+# reason that has nothing to do with the code under test.
+PY="$(command -v python3)"
+NOGH="$TMP/nogh"
+mkdir -p "$NOGH"
+
 # a machine with no GitHub CLI (most clinicians) must still get a usable answer
-OUT="$(PATH=/usr/bin:/bin MEDSCI_HOME="$SHOME" python3 "$STAR" --how 2>&1)"
+OUT="$(PATH="$NOGH" MEDSCI_HOME="$SHOME" "$PY" "$STAR" --how 2>&1)"
 echo "$OUT" | grep -q "github.com/Aperivue/medsci-skills"
 ck "no GitHub CLI -> a clickable link, not a dead end" 0 "$?"
 echo "$OUT" | grep -qi "free GitHub account"
 ck "...and says what is actually required (an account)" 0 "$?"
 
 # --now must never fail silently when it cannot act
-PATH=/usr/bin:/bin MEDSCI_HOME="$SHOME" python3 "$STAR" --now > /dev/null 2>&1
+PATH="$NOGH" MEDSCI_HOME="$SHOME" "$PY" "$STAR" --now > /dev/null 2>&1
 ck "--now without gh falls back to the link (does not error)" 0 "$?"
 
 # it explains WHAT a star is for — the whole point is that people were never told
