@@ -97,6 +97,25 @@ the figure types that do not yet have a generator.
   channel (volcano axis or Manhattan direction track), sparse hit labelling with the full set in a
   supplement, domain banding, and replication encoding. Pairs `analyze-stats` `multiplicity.md` and
   review probe O17.
+- `waterfall_plot.md` — waterfall plot of best tumor response: one bar per evaluable patient sorted by
+  magnitude, -30% / +20% threshold lines, bar fill = confirmed best overall response, markers for
+  new-lesion / non-target progression, evaluable-of-treated denominator, ORR with an exact CI in the
+  caption; no silent truncation, no sorting by arm, no time. The depth-of-response view; pairs the
+  response table in `analyze-stats` and the two companions below.
+- `swimmer_plot.md` — swimmer plot of time on treatment and response duration: one lane per patient
+  from a single time origin, in-response segment, event markers (response onset, confirmation,
+  progression, discontinuation, death), **ongoing-status arrows**, data cut-off, group lane fill,
+  median duration of response with CI in the caption; never an arm comparison. The durability view.
+- `spider_plot.md` — spider plot of per-patient tumor-burden trajectory: lines from (0, 0%) through
+  every assessment at actual scan times, threshold lines, **terminal event markers**, faceting by
+  group under overplotting, no interpolation across missing scans, no unqualified mean trajectory.
+  The kinetics view; completes the waterfall / swimmer / spider trio.
+- `cumulative_incidence.md` — cumulative incidence function under competing risks: Aalen-Johansen
+  estimator named, one curve per event type (or a stacked display), Gray's test and the
+  subdistribution vs cause-specific HR each labelled, number-at-risk table, CI band or fixed-time
+  estimates with CIs, the competing event never omitted, never a relabelled 1 - KM. The
+  competing-risks counterpart of `km_curve.md`; pairs the survival table-type and
+  `analysis_guides/survival.md`.
 
 ## Curator guidelines (for adding more)
 
