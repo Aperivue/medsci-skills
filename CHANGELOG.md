@@ -2,8 +2,26 @@
 
 ## [Unreleased]
 
+## [5.27.0] - 2026-09-23
+
 ### Added
 
+- Eleven oncology and breast-cancer citation styles: Journal of Clinical Oncology,
+  Annals of Oncology, Journal of Breast Cancer, the AACR house style (with Clinical
+  Cancer Research dependent on it), The Lancet (with The Lancet Oncology), the
+  Elsevier Vancouver house style (with The Breast), Breast Cancer Research and
+  Treatment and Clinical Breast Cancer. Every file is an unmodified copy from the
+  Citation Style Language project with its `<rights>` element intact, and each
+  dependent style's parent ships beside it. The registry also records four journals
+  that have no dedicated style, with the fallback each one's own guide specifies.
+  Contributed by @dr-jeong.
+- Four figure-anatomy exemplars for oncology treatment studies: the waterfall plot
+  of best response, the swimmer plot of time on treatment, the spider plot of
+  tumour-burden trajectory, and the cumulative incidence function under competing
+  risks. Each names the elements the figure must carry and, more usefully, the ways
+  it misleads when one is missing — an unmarked new-lesion progression, an absent
+  ongoing-status arrow, a relabelled Kaplan-Meier complement. The study-type table
+  routes oncology trials to them. Contributed by @dr-jeong.
 - Prespecified binary diagnostic-accuracy runs produce full precision tables,
   confusion-matrix PDF/PNG and an execution record in the existing analysis
   manifest. Data/configuration/code/output hashes, exact denominators and read-only
@@ -21,6 +39,10 @@
 
 ### Fixed
 
+- Three of the new oncology exemplars and their index pointed readers to a response
+  table in `analyze-stats` that does not exist; they now describe the table the user
+  builds. The cumulative-incidence exemplar's cross-reference to the survival table
+  type carried the wrong directory.
 - The bundled STARD-AI checklist's header declared a split that its own table
   contradicted: the numbered-item denominator (40) was applied to a row-level
   split, giving 22 unchanged items where the table carries 30 across 48 rows.
@@ -38,6 +60,13 @@
 - Claim-fidelity output no longer equates an absence of automated findings with
   source support. Citation prefixes and page locators are preserved in the evidence
   inventory. New controls run within the existing validation job.
+
+### Changed
+
+- Skill documentation no longer repeats generic anti-hallucination instructions that
+  the surrounding guidance already carries. Contributed by @embed-Rayn.
+- The contributing checklist is the source of its own counts; the prose above it no
+  longer states a number that can drift from the table.
 
 ## [5.26.2] - 2026-09-06
 
