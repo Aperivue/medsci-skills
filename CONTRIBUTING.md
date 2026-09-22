@@ -52,6 +52,16 @@ The heavier **Pull Request Checklist**, **Skill Addition Workflow**, and validat
 - Public demo improvements using open or synthetic datasets.
 - Documentation that helps clinicians install, test, or safely adapt the skills.
 
+The bundled reporting checklists under `skills/check-reporting/references/checklists/` treat **the
+table as the only source of their counts**. Prose above a table may summarise it, but every number
+that prose states must name its denominator and reconcile against the rows, because the two obvious
+denominators are not the same number: a guideline's numbered items and the rows they render as
+diverge as soon as items carry sub-items. STARD-AI's header read "Of the 40 items, 22 are UNCHANGED
+from STARD 2015, 4 are MODIFIED, and 14 are NEW" — that 22 is `40 - 4 - 14`, the item denominator
+applied to a 48-row split, where the table itself says 30 (#529). Nothing in the repository reads
+that sentence, so the cheapest version of this rule is to not restate in prose a split the table
+already carries; when a summary is worth writing anyway, give both denominators.
+
 Per-skill documentation under `docs/skills/` is **generated** from each `skills/<skill-name>/SKILL.md` by `scripts/gen_skill_docs.py` — do not hand-edit those pages (a parallel copy drifts). Improve the `SKILL.md` itself, then run `python3 scripts/gen_skill_docs.py` and commit the regenerated `docs/skills/`. CI runs `gen_skill_docs.py --check` and fails the build if the pages are out of sync.
 
 ## Skill Addition Workflow
