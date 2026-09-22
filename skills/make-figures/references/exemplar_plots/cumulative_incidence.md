@@ -6,7 +6,7 @@ recurrence, cancer-specific death) can be precluded by a competing event (e.g., 
 other causes), 1 minus Kaplan-Meier overestimates the incidence of the event of interest, and
 the CIF (Aalen-Johansen estimator) is the correct quantity to draw. Synthetic — describes
 *what each element must show*; not an image to copy. Pairs the survival table-type in
-`analyze-stats` (`table-types/survival_results.md`) and its competing-risks guidance in
+`analyze-stats` (`table-standards/table-types/survival_results.md`) and its competing-risks guidance in
 `analysis_guides/survival.md`.
 
 ## Elements

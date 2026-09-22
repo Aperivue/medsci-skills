@@ -4,7 +4,8 @@ A worked **anatomy model** for a publication-grade spider plot: one line per pat
 the **percentage change from baseline in the sum of target-lesion diameters at each
 assessment**, all lines starting at 0 at baseline. It is the *trajectory* view of the response
 trio (waterfall = depth, swimmer = duration, spider = kinetics). Synthetic — describes *what
-each element must show*; not an image to copy. Pairs the response table in `analyze-stats`.
+each element must show*; not an image to copy. Pairs the response table you build with
+`/analyze-stats`.
 
 ## Elements
 - **One line per patient** from (time 0, 0%) through every post-baseline assessment; points

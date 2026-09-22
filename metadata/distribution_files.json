@@ -14,7 +14,7 @@
     {
       "path": "THIRD-PARTY-NOTICES.md",
       "size": 3430,
-      "sha256": "40a64f857160a35c82cb8a0bdb2243c0c18521f586330fd481e3cebdba044ba4"
+      "sha256": "ed487bcd00c30da4b9d01a51132d71d7b4cc0245722ed02b2a2d1152e919a9a4"
     },
     {
       "path": "installers/check-setup-macos.command",
@@ -2013,8 +2013,8 @@
     },
     {
       "path": "skills/make-figures/SKILL.md",
-      "size": 47791,
-      "sha256": "0bb57c398397d21e0da740dbf55c83c3fab70c253ef3ff250bd9943e3acc0c66"
+      "size": 48325,
+      "sha256": "66f08bb072fc011c5d2c9124a8e9edc399c8dacfeaf48501a9a5f651e1869316"
     },
     {
       "path": "skills/make-figures/references/critic_rubrics/data_plot.md",
@@ -2198,8 +2198,8 @@
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/README.md",
-      "size": 8751,
-      "sha256": "824baf7dbcc820909e2d812bcb021a09af5f592dad2958a2f3be779881546504"
+      "size": 10492,
+      "sha256": "8840d2b36492f10afc4f17340903c8c052fa78f0966a3379d401996830c41f70"
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/ai_assistance_effect.md",
@@ -2225,6 +2225,11 @@
       "path": "skills/make-figures/references/exemplar_plots/confusion_matrix.md",
       "size": 3416,
       "sha256": "d35c31d357ff3e4d60666cdfed499eae9126dcb676b3493709ba5eb5442f18bf"
+    },
+    {
+      "path": "skills/make-figures/references/exemplar_plots/cumulative_incidence.md",
+      "size": 3496,
+      "sha256": "57e306d5452d991ed849d339ed71209d975217588b4bd9b6099ce159f3d53563"
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/decision_curve.md",
@@ -2275,6 +2280,21 @@
       "path": "skills/make-figures/references/exemplar_plots/segmentation_failure_panel.md",
       "size": 4581,
       "sha256": "9bedf2f0b762702b1b9f794d6e83abc512a0bd504101ac27133558074a788b04"
+    },
+    {
+      "path": "skills/make-figures/references/exemplar_plots/spider_plot.md",
+      "size": 3114,
+      "sha256": "c57f59fa6f99e7add76c1bed0f57576c21ec2fb10cf3b6d673405343f5057f42"
+    },
+    {
+      "path": "skills/make-figures/references/exemplar_plots/swimmer_plot.md",
+      "size": 3239,
+      "sha256": "a239eb48e8c4910af337165a87973d6015172037c22a2e81340e35e23396b42d"
+    },
+    {
+      "path": "skills/make-figures/references/exemplar_plots/waterfall_plot.md",
+      "size": 3519,
+      "sha256": "fb03cca0d6a2bc20ced3ed04d7ebe31a8b081014fa35452c4a305df568693a9a"
     },
     {
       "path": "skills/make-figures/references/figure_manifest.md",
@@ -2548,8 +2568,13 @@
     },
     {
       "path": "skills/manage-refs/citation_styles/README.md",
-      "size": 4358,
-      "sha256": "b8935886559c1491a8aa06f8f809f82a492bfc0fceb4b32f2fbc19ccc379e83f"
+      "size": 6979,
+      "sha256": "c08122700197e0f91614cbd92f848e196c2c259b7e753d8cefa9ff4009b63b74"
+    },
+    {
+      "path": "skills/manage-refs/citation_styles/american-association-for-cancer-research.csl",
+      "size": 8011,
+      "sha256": "b7bdbe6892121701bce476cf9a72bee4eb785417cf7e007af6455160fe085683"
     },
     {
       "path": "skills/manage-refs/citation_styles/american-journal-of-roentgenology.csl",
@@ -2562,9 +2587,34 @@
       "sha256": "d70f843d93c2b1e8c59c0e26e2396bea4ed99fb4a1aac69b6dddc249a10fadf7"
     },
     {
+      "path": "skills/manage-refs/citation_styles/annals-of-oncology.csl",
+      "size": 10478,
+      "sha256": "abf48f4b1eff63b9a85f16b3ec3d65db394279ee160a7a958d917a0ba025b5da"
+    },
+    {
+      "path": "skills/manage-refs/citation_styles/breast-cancer-research-and-treatment.csl",
+      "size": 1270,
+      "sha256": "572bea8275f786315bbe4c81227301970d56f18eee6a5b2cf809679f2273284e"
+    },
+    {
       "path": "skills/manage-refs/citation_styles/cardiovascular-and-interventional-radiology.csl",
       "size": 1299,
       "sha256": "46fdf5c9a281f95295387f781fe0e50f796b4e7af1006e64a2771602e1fcc1a5"
+    },
+    {
+      "path": "skills/manage-refs/citation_styles/clinical-breast-cancer.csl",
+      "size": 832,
+      "sha256": "3fdc07b8c914974a208ed68ca3885de792a1f8cd317ad6c17ef3c7bfd7a480f1"
+    },
+    {
+      "path": "skills/manage-refs/citation_styles/clinical-cancer-research.csl",
+      "size": 1036,
+      "sha256": "e5c9c968cc530d5566837b27ed00ea4469a849ea4c1f905a032f18d716f511f6"
+    },
+    {
+      "path": "skills/manage-refs/citation_styles/elsevier-vancouver.csl",
+      "size": 5802,
+      "sha256": "005e915c3419eb2b84eb2b31bffc411dce3890619d3fd0ed23ac6591ac128335"
     },
     {
       "path": "skills/manage-refs/citation_styles/european-radiology.csl",
@@ -2572,9 +2622,19 @@
       "sha256": "10b3d7ca195b76ae846bff001ed33c20867b69a255e8ac222ca6838c8c4e031f"
     },
     {
+      "path": "skills/manage-refs/citation_styles/journal-of-breast-cancer.csl",
+      "size": 8137,
+      "sha256": "9b0f1503f2d3d2949dc3a2421d7c4b756cd1e78fe98bd1bd74d7e5ddee057a93"
+    },
+    {
       "path": "skills/manage-refs/citation_styles/journal-of-cachexia-sarcopenia-and-muscle.csl",
       "size": 5377,
       "sha256": "b8eb85b4b75617e4677f7a9b84221f1df9fd07acb90b510c0c71b02d3fd2e9a6"
+    },
+    {
+      "path": "skills/manage-refs/citation_styles/journal-of-clinical-oncology.csl",
+      "size": 4836,
+      "sha256": "43b3d78a2698adb5834bd1f5b42eef4a754912b994757fc54d506f33bc86c542"
     },
     {
       "path": "skills/manage-refs/citation_styles/journal-of-korean-medical-science-strict.csl",
@@ -2620,6 +2680,21 @@
       "path": "skills/manage-refs/citation_styles/springer-vancouver-brackets.csl",
       "size": 9191,
       "sha256": "9caa8271cbad8cd64b47986a3531d049f53e09d21285b970272519febebfe47a"
+    },
+    {
+      "path": "skills/manage-refs/citation_styles/the-breast.csl",
+      "size": 786,
+      "sha256": "2415acd647b8ba1aaf76d3804d9a3ef15a0f077fa4fce039d5cd695c87772511"
+    },
+    {
+      "path": "skills/manage-refs/citation_styles/the-lancet-oncology.csl",
+      "size": 882,
+      "sha256": "d7e5e9194425e336291a3b5b11cd4c2f7fccddfb3934f874245782752796ae62"
+    },
+    {
+      "path": "skills/manage-refs/citation_styles/the-lancet.csl",
+      "size": 6410,
+      "sha256": "327b4f4b08765ddc05a68cbaa1fe898442da9f0e669b0eae279cd75f631c412b"
     },
     {
       "path": "skills/manage-refs/citation_styles/vancouver-superscript.csl",
