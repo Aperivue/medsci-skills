@@ -101,7 +101,7 @@ the figure types that do not yet have a generator.
   magnitude, -30% / +20% threshold lines, bar fill = confirmed best overall response, markers for
   new-lesion / non-target progression, evaluable-of-treated denominator, ORR with an exact CI in the
   caption; no silent truncation, no sorting by arm, no time. The depth-of-response view; pairs the
-  response table in `analyze-stats` and the two companions below.
+  response table the user builds with `/analyze-stats` and the two companions below.
 - `swimmer_plot.md` — swimmer plot of time on treatment and response duration: one lane per patient
   from a single time origin, in-response segment, event markers (response onset, confirmation,
   progression, discontinuation, death), **ongoing-status arrows**, data cut-off, group lane fill,

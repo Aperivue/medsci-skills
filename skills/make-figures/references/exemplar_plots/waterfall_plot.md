@@ -3,7 +3,7 @@
 A worked **anatomy model** for a publication-grade waterfall plot: one bar per evaluable patient
 showing the **best percentage change from baseline** in the sum of target-lesion diameters
 (RECIST 1.1 convention), sorted by magnitude. The figure side of the objective-response
-pair; the table side is the response table in `analyze-stats` (ORR with an exact binomial CI,
+pair; the table side is the response table you build with `/analyze-stats` (ORR with an exact binomial CI,
 per-category counts). Synthetic — describes *what each element must show*; not an image to copy.
 
 ## Elements
@@ -45,4 +45,4 @@ per-category counts). Synthetic — describes *what each element must show*; not
 - The **threshold lines** and the **non-target/new-lesion progression markers** — without both,
   a bar below -30% is read as a responder when the patient actually progressed, and the
   visual ORR disagrees with the reported ORR. Cross-reference `critic_rubrics/data_plot.md`
-  (general axes/legend items) and the response table-type in `analyze-stats`.
+  (general axes/legend items) and the response table that carries the same ORR.

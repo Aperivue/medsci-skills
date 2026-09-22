@@ -4,7 +4,7 @@ A worked **anatomy model** for a publication-grade swimmer plot: one horizontal 
 patient, bar length = time on treatment (or time in the study), with response onset,
 progression, death, and ongoing status marked along the lane. It is the *durability* view of
 the objective-response pair (waterfall = depth, swimmer = duration). Synthetic — describes
-*what each element must show*; not an image to copy. Pairs the response table and the
+*what each element must show*; not an image to copy. Pairs the response table you build and the
 survival table-type in `analyze-stats` (median duration of response with its CI).
 
 ## Elements
