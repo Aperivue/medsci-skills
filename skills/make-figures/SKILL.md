@@ -454,6 +454,7 @@ When the study type is known (from `/write-paper` Phase 0 or user specification)
 | Observational cohort (STROBE) | Flow diagram, Kaplan-Meier curves (if survival endpoint) |
 | RCT (CONSORT) | CONSORT flow diagram, primary endpoint figure |
 | Case report / series (CARE) | Clinical timeline figure (`exemplar_plots/clinical_timeline.md`), annotated multimodality imaging panel when visually load-bearing (`exemplar_plots/imaging_panel.md`); for a series, an all-cases summary table |
+| Oncology treatment study (CONSORT RCT or single-arm phase II; REMARK for biomarker subsets) | CONSORT or cohort flow diagram, Kaplan-Meier PFS/OS with number-at-risk table (`exemplar_plots/km_curve.md`), waterfall plot of best response (`exemplar_plots/waterfall_plot.md`), swimmer plot for durability (`exemplar_plots/swimmer_plot.md`), spider plot when response kinetics matter (`exemplar_plots/spider_plot.md`), cumulative incidence instead of 1 - KM when competing risks are present (`exemplar_plots/cumulative_incidence.md`) |
 
 **The manifest is mandatory.** After generating all figures, write
 `figures/_figure_manifest.md` — one row per figure (`Figure | Path | Type | Tool | Critic |
