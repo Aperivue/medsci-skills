@@ -97,29 +97,6 @@ jobs:
           NPATH=$(echo "$PJSON" | jq -r 'if type=="array" then length else 0 end')
           echo "Referrers captured: $NREF; paths captured: $NPATH (0 = no PAT / no traffic data)"
 
-      # A release publishes to several channels and can succeed on some and not others.
-      # On 2026-09-22 the v5.27.0 tag produced a GitHub Release while npm stayed on
-      # 5.26.2 (an expired token; the registry answers an unauthorised PUT with a 404),
-      # so `npx medsci-skills@latest install` quietly kept installing the old version.
-      # Nothing was watching the published channels against each other. This does, once
-      # a week, and reports rather than fails: a stale registry is not a reason to lose
-      # the traffic snapshot this job exists to capture.
-      - name: Published channels agree (npm vs the version this repo declares)
-        continue-on-error: true
-        run: |
-          set -uo pipefail
-          DECLARED="$(python3 -c "import yaml;print(yaml.safe_load(open('CITATION.cff'))['version'])")"
-          NPM="$(npm view medsci-skills version 2>/dev/null || echo 'unknown')"
-          GH="$(gh release view --json tagName --jq '.tagName' 2>/dev/null | sed 's/^v//' || echo 'unknown')"
-          echo "declared=${DECLARED}  npm=${NPM}  github-release=${GH}"
-          if [ "$NPM" != "$DECLARED" ] || [ "$GH" != "$DECLARED" ]; then
-            echo "::warning::channel drift - this repo declares ${DECLARED}, npm serves ${NPM}, the latest GitHub Release is ${GH}. Someone installing from the lagging channel gets a different toolkit than the one this repository documents."
-          else
-            echo "All published channels carry ${DECLARED}."
-          fi
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Commit snapshot
         run: |
           git config user.name  "github-actions[bot]"
@@ -127,3 +104,35 @@ jobs:
           git add metrics/traffic_log.csv metrics/referrers_log.csv metrics/paths_log.csv
           git diff --staged --quiet || git commit -m "chore(metrics): weekly adoption snapshot [skip ci]"
           git push
+
+      # A release publishes to several channels and can succeed on some and not others.
+      # On 2026-09-22 the v5.27.0 tag produced a GitHub Release while npm stayed on
+      # 5.26.2 (an expired token; the registry answers an unauthorised PUT with a 404),
+      # so `npx medsci-skills@latest install` quietly kept installing the old version.
+      # Nothing was watching the published channels against each other. This does.
+      #
+      # It runs AFTER the snapshot is committed, so it can fail loudly without costing
+      # the traffic data this job exists to capture, and it reads CITATION.cff with sed
+      # rather than a yaml import: this job installs no Python packages, and a check
+      # that dies on a missing dependency under `continue-on-error` is the same silent
+      # pass it was written to prevent.
+      - name: Published channels agree (npm vs the version this repo declares)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -uo pipefail
+          DECLARED="$(sed -n 's/^version:[[:space:]]*"\{0,1\}\([^"]*\)"\{0,1\}[[:space:]]*$/\1/p' CITATION.cff | head -1)"
+          if [ -z "$DECLARED" ]; then
+            echo "::error::could not read the declared version from CITATION.cff - this check cannot run, which is not the same as passing."
+            exit 1
+          fi
+          NPM="$(npm view medsci-skills version 2>/dev/null || echo '')"
+          GH="$(gh release view --json tagName --jq '.tagName' 2>/dev/null | sed 's/^v//' || echo '')"
+          echo "declared=${DECLARED}  npm=${NPM:-unreachable}  github-release=${GH:-unreachable}"
+          if [ -z "$NPM" ] || [ -z "$GH" ]; then
+            echo "::warning::could not reach npm or the GitHub releases API; channel agreement is UNKNOWN this week, not confirmed."
+          elif [ "$NPM" != "$DECLARED" ] || [ "$GH" != "$DECLARED" ]; then
+            echo "::warning::channel drift - this repo declares ${DECLARED}, npm serves ${NPM}, the latest GitHub Release is ${GH}. Someone installing from the lagging channel gets a different toolkit than the one this repository documents."
+          else
+            echo "All published channels carry ${DECLARED}."
+          fi
