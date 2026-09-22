@@ -21,6 +21,13 @@
 
 ### Fixed
 
+- The bundled STARD-AI checklist's header declared a split that its own table
+  contradicted: the numbered-item denominator (40) was applied to a row-level
+  split, giving 22 unchanged items where the table carries 30 across 48 rows.
+  The header now states both denominators, the section heading names the row
+  count, and the split reconciles with the published statement's own count of
+  new-or-modified items. The reference now also carries the guideline's 2026
+  author correction, with a note that it changes no checklist item.
 - The diagnostic-accuracy template uses a valid SciPy version lookup, preserves
   a 2-by-2 confusion matrix when a class is absent, and reports zero-denominator
   metrics as undefined rather than zero performance. Importing the template is quiet.
