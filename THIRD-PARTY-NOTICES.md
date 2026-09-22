@@ -47,7 +47,7 @@ long time after the 2025 versions had replaced them.
 
 ### Citation styles (`skills/manage-refs/citation_styles/*.csl`)
 
-15 CSL files from the Citation Style Language project: **CC BY-SA 3.0**, unmodified, each retaining
+27 CSL files from the Citation Style Language project: **CC BY-SA 3.0**, unmodified, each retaining
 its own `<rights>` element. See `skills/manage-refs/NOTICE.md`.
 
 ### Not bundled — download these yourself
