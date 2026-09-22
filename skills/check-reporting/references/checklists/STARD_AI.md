@@ -4,13 +4,15 @@
 Version: STARD-AI 2025
 Source: https://doi.org/10.1038/s41591-025-03953-8
 
-**Reference:** STARD-AI Steering Committee, STARD-AI Consensus Group, Sounderajah V, Guni A, Liu X, Collins GS, Karthikesalingam A, Markar SR, Golub RM, Denniston AK, Shetty S, Moher D, Bossuyt PM, Darzi A, Ashrafian H. The STARD-AI reporting guideline for diagnostic accuracy studies using artificial intelligence. Nat Med. 2025;31:3283-3289. PMID: 40954311
+**Reference:** STARD-AI Steering Committee, STARD-AI Consensus Group, Sounderajah V, Guni A, Liu X, Collins GS, Karthikesalingam A, Markar SR, Golub RM, Denniston AK, Shetty S, Moher D, Bossuyt PM, Darzi A, Ashrafian H. The STARD-AI reporting guideline for diagnostic accuracy studies using artificial intelligence. Nat Med. 2025;31(10):3283-3289. PMID: 40954311. DOI: 10.1038/s41591-025-03953-8
+
+**Author Correction:** Nat Med. 2026;32(9):3493 (published online 13 July 2026). PMID: 42443516. DOI: 10.1038/s41591-026-04570-9. The correction adds one omitted name to the STARD-AI Steering Committee consortium list. It does not touch Table 2 — no item, sub-item, description, numbering or NEW/MODIFIED classification changes, so this checklist is unaffected by it.
 
 **License:** Creative Commons Attribution (CC BY)
 
 **Scope:** AI-centred diagnostic test accuracy studies. Applies to studies evaluating the diagnostic accuracy of AI systems including machine learning, deep learning models, natural language processing tools, and foundation models that generate or support diagnostic outputs. Does NOT apply to static/manually programmed rule-based systems or simple decision trees.
 
-**Relationship to STARD 2015:** STARD-AI extends STARD 2015 (Bossuyt et al. BMJ 2015). Of the 40 items, 22 are UNCHANGED from STARD 2015, 4 are MODIFIED, and 14 are NEW. Items are numbered to maintain alignment with STARD 2015 where possible.
+**Relationship to STARD 2015:** STARD-AI extends STARD 2015 (Bossuyt et al. BMJ 2015). The checklist has 40 numbered items rendered as 48 rows (items 15, 16, 17, 26 and 40 have sub-items): 30 rows are UNCHANGED from STARD 2015, 4 are MODIFIED, and 14 are NEW. The published abstract states 18 new or modified items, which matches 14 + 4. Items are numbered to maintain alignment with STARD 2015 where possible.
 
 **Relationship to other guidelines:**
 - CONSORT-AI: for clinical trials of AI interventions
@@ -21,7 +23,7 @@ Source: https://doi.org/10.1038/s41591-025-03953-8
 
 ---
 
-## Checklist Items (40 items; items 15, 16, 17, 26, and 40 have sub-items)
+## Checklist Items (40 numbered items in 48 rows; items 15, 16, 17, 26, and 40 have sub-items)
 
 ### Title and Abstract
 
@@ -208,4 +210,34 @@ Based on the systematic review that informed STARD-AI development (Aggarwal et a
 
 ## Verification Note
 
-This checklist was verified against the published Table 2 of the STARD-AI paper in Nature Medicine (2025;31:3283-3289, DOI: 10.1038/s41591-025-03953-8). Item numbering, descriptions, and NEW/MODIFIED/UNCHANGED classifications match the published version. Verified 2026-04-11 via Nature Medicine online full-size Table 2 (https://www.nature.com/articles/s41591-025-03953-8/tables/2) and STARD 2015 checklist (EQUATOR Network). The STARD 2015 original checklist (Bossuyt et al. BMJ 2015) was used to confirm UNCHANGED items.
+**2026-04-11 — item inventory.** This checklist was verified against the published Table 2 of the
+STARD-AI paper in Nature Medicine (2025;31(10):3283-3289, DOI 10.1038/s41591-025-03953-8). Item
+numbering, descriptions, and NEW/MODIFIED/UNCHANGED classifications match the published version.
+Verified via the Nature Medicine online full-size Table 2
+(https://www.nature.com/articles/s41591-025-03953-8/tables/2) and the STARD 2015 checklist (EQUATOR
+Network). The STARD 2015 original checklist (Bossuyt et al. BMJ 2015) was used to confirm UNCHANGED
+items.
+
+**2026-09-22 — header arithmetic, re-verified against Table 2.** The header above previously read
+"Of the 40 items, 22 are UNCHANGED from STARD 2015, 4 are MODIFIED, and 14 are NEW". That is 40 − 4 −
+14: the *numbered-item* denominator applied to a *row-level* split. The two denominators differ,
+because items 15, 16, 17, 26 and 40 carry sub-items. Measured on the table below, the split is 30
+UNCHANGED / 4 MODIFIED / 14 NEW = 48 rows across 40 numbered items. The table itself, the Summary of
+Changes section and the published statement were all already consistent with 30; only the header
+sentence was wrong.
+
+Re-verified row by row against Table 2 in the accepted manuscript deposited at the University of
+Birmingham repository (https://pure-oai.bham.ac.uk/ws/files/282528526/STARD_AI_accepted.pdf), the
+Nature version of record being paywalled. Every row, sub-item letter and marker matched: Table 2
+marks †Modified on items 1, 3, 7, 25 (4 items) and *New on items 6, 11, 12, 13, 14, 15b, 15d, 23,
+28, 29, 35, 39, 40a, 40b (14 items), leaving 30 unmarked rows; the same 48 rows in the same order
+and grouping appear below. The statement's own body text says the same in prose: "Four items were
+modified from the STARD 2015 statement (items 1, 3, 7 and 25), while fourteen new items have been
+introduced". The abstract's "18 new or modified items" is 14 + 4. Item descriptions below follow
+Nature house style ("for example" for "e.g.", "test sets" for "test set") rather than the accepted
+manuscript's wording, consistent with their having been taken from the version of record in the
+2026-04-11 pass; no description was changed in this pass.
+
+The 2026 Author Correction (Nat Med 2026;32(9):3493, DOI 10.1038/s41591-026-04570-9) was read in
+full at nature.com. Its entire content is the addition of one omitted name to the Steering Committee
+consortium list. It changes nothing in Table 2 and nothing in this file's items.
