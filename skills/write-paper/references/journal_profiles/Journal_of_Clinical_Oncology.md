@@ -7,9 +7,9 @@
 - **Publisher**: American Society of Clinical Oncology (ASCO)
 - **ISSN**: 0732-183X (print), 1527-7755 (online)
 - **Frequency**: Three times per month, 36 issues per year
+- **Acceptance rate**: Not stated on the journal's public pages
 - **Impact Factor**: 44.7 (JCR 2025, as reported on the ASCO author pages; confirm current value)
 - **Open Access**: Hybrid. Gold OA with APC (CC BY or CC BY-NC-ND); Original Reports become free to read 12 months after online publication
-- **Acceptance rate**: ~11% for Original Reports (ASCO author FAQ)
 - **Peer review**: Not stated on the author pages; ~30 days to first decision per the FAQ
 
 ## Manuscript Types and Word Limits

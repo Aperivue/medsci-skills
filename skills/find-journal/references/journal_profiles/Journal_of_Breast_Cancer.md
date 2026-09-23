@@ -38,7 +38,7 @@ breast cancer, breast neoplasms, breast surgery, medical oncology, adjuvant ther
 - **Cascade / transfer:** no formal transfer program; a natural fallback for breast-specific manuscripts declined at international breast or oncology journals
 
 ## Special Notes
-Original Articles are 4,000 words with a 300-word structured abstract (Purpose, Methods, Results, Conclusion) and at most 50 references; Brief Communications are 2,000 words with at most two tables and two figures. Author and institutional identifiers must be masked outside the separately submitted title page. The journal homepage reports an impact factor of 2.4 (2024); confirm current values on the journal site.
+Original Articles are 4,000 words with a 300-word structured abstract (Purpose, Methods, Results, Conclusion); the instructions state no reference cap for Original Articles. Brief Communications are 2,000 words with at most two tables and two figures. Author and institutional identifiers must be masked outside the separately submitted title page. The journal homepage reports an impact factor of 2.4 (2024); confirm current values on the journal site.
 
 ## AI Writing Disclosure Policy
 - **Requirement level:** Not specified in the Instructions for Authors reviewed; follows ICMJE recommendations

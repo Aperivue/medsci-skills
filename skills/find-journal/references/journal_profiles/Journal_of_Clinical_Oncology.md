@@ -39,7 +39,7 @@ clinical oncology, randomized controlled trial, phase III trial, practice-changi
 - **Cascade / transfer:** ASCO sibling journals (JCO Precision Oncology, JCO Oncology Practice, JCO Global Oncology) or a broad oncology venue after rejection; a Fast-Track Presubmission pathway exists for manuscripts previously reviewed at other high-profile journals
 
 ## Special Notes
-Strict limits: Original Reports are 3,000 words with a 275-word structured abstract (PURPOSE / PATIENTS AND METHODS / RESULTS / CONCLUSION) and at most 6 figures and tables; a graphical abstract is required for Original Reports. Kaplan-Meier plots must show numbers at risk and, for trials, numbers censored. The ASCO author FAQ reports approximately 11% acceptance for Original Reports and an impact factor of 44.7 (JCR 2025); confirm current values on the journal site.
+Strict limits: Original Reports are 3,000 words with a 275-word structured abstract (PURPOSE / PATIENTS AND METHODS / RESULTS / CONCLUSION) and at most 6 figures and tables; a graphical abstract is required for Original Reports. Kaplan-Meier plots must show numbers at risk and, for trials, numbers censored. The journal reports an impact factor of 44.7 (JCR 2025); confirm current values on the journal site.
 
 ## AI Writing Disclosure Policy
 - **Requirement level:** Required for writing assistance and for AI used in data analysis; no disclosure needed for grammar, spelling, formatting, or reference tools

@@ -16,7 +16,7 @@
 
 | Type | Body Word Limit | Abstract | References | Figures/Tables |
 |------|----------------|----------|------------|----------------|
-| Original Article | 4,000 | Structured, 300 words or fewer | 50 or fewer | No combined maximum stated |
+| Original Article | 4,000 | Structured, 300 words or fewer | No limit stated | No combined maximum stated |
 | Review Article | Not stated | Unstructured, 300 words or fewer | No limit stated | No limit stated |
 | Special Article | Not stated | Unstructured, 300 words or fewer | No limit stated | Not stated |
 | Study Protocol | Not stated | 300 words or fewer | 30 or fewer | Not stated |
@@ -94,7 +94,7 @@ _Editorial-risk summary drawn from the official instructions._
 2. Insufficient originality, or concerns about duplicate publication, plagiarism, image manipulation, or data integrity (CrossCheck screening is applied).
 3. Failure to blind the manuscript, or title-page separation errors under double-blind review.
 4. Missing IRB approval, informed-consent, or clinical-trial-registration statements where required.
-5. Noncompliance with article-type limits or required structure, particularly the 4,000-word Original Article limit, the 300-word structured abstract, and the 50-reference cap.
+5. Noncompliance with article-type limits or required structure, particularly the 4,000-word Original Article limit and the 300-word structured abstract.
 
 ---
 
