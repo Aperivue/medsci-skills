@@ -64,8 +64,12 @@ jobs:
     # so publishing a release requires explicit approval. Harmless before that setting exists.
     environment: release
     env:
-      # 'true' only when the secret exists, so the npm steps are skipped on forks / before setup.
-      HAS_NPM_TOKEN: ${{ secrets.NPM_TOKEN != '' }}
+      # The npm steps run on the canonical repository only, so a fork cannot try to
+      # publish. This deliberately does NOT key off the presence of a secret: under
+      # trusted publishing there is no secret, and a guard that reads one would turn
+      # "npm was never published" into a green skip. See the assertion after the
+      # publish step, which fails the release if npm did not actually receive it.
+      NPM_PUBLISH: ${{ github.repository == 'Aperivue/medsci-skills' }}
 
     steps:
       - name: Checkout repository (with full history for tag annotation)
@@ -99,6 +103,16 @@ jobs:
         with:
           node-version: "20"
           registry-url: "https://registry.npmjs.org"
+
+      # Node 20 bundles npm 10, which cannot exchange the Actions OIDC token for a
+      # registry credential. Trusted publishing needs npm >= 11.5.1, so the bundled
+      # version is upgraded rather than the Node major, which would change what the
+      # packed tarball is built with.
+      - name: Upgrade npm (trusted publishing needs >= 11.5.1)
+        run: |
+          set -euo pipefail
+          npm install -g npm@^11.5.1
+          npm --version
 
       - name: Install metadata inspection tools
         run: sudo apt-get update && sudo apt-get install -y libimage-exiftool-perl poppler-utils
@@ -254,7 +268,7 @@ jobs:
 
       # npm is published from the already inspected tarball. No second pack.
       - name: Publish to npm (idempotent; npm provenance via OIDC)
-        if: env.HAS_NPM_TOKEN == 'true'
+        if: env.NPM_PUBLISH == 'true'
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
@@ -270,8 +284,27 @@ jobs:
           npm publish "./dist/medsci-skills-${VER}.tgz" --ignore-scripts --provenance --access public
           echo "Published medsci-skills@${VER} to npm."
 
+      # The step above can end without publishing in more ways than it can with: a
+      # skipped `if`, an expired credential, a registry that answers a PUT with 404.
+      # v5.27.0 was tagged, released and announced while npm stayed on 5.26.2, because
+      # nothing downstream asserted the registry actually carried it. This step runs
+      # whenever the publish step was reached at all — skipped or succeeded — and reads
+      # the registry rather than the job's own opinion of what it did.
+      - name: npm must actually carry this version
+        if: env.NPM_PUBLISH == 'true'
+        run: |
+          set -euo pipefail
+          VER="${RELEASE_TAG#v}"
+          PUBLISHED="$(npm view "medsci-skills@${VER}" version 2>/dev/null || true)"
+          if [ "$PUBLISHED" != "$VER" ]; then
+            LATEST="$(npm view medsci-skills version 2>/dev/null || echo 'unknown')"
+            echo "::error::npm does not carry ${VER}; registry latest is ${LATEST}. The GitHub Release exists, so the channels have diverged: npx medsci-skills@latest installs ${LATEST}."
+            exit 1
+          fi
+          echo "npm carries ${VER}."
+
       - name: Download and compare published npm payload
-        if: env.HAS_NPM_TOKEN == 'true'
+        if: env.NPM_PUBLISH == 'true'
         run: |
           set -euo pipefail
           python3 .release-tools/scripts/check_npm_package_contents.py \

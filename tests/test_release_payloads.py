@@ -277,13 +277,31 @@ class PayloadControls(unittest.TestCase):
         self.assertLess(index('Verify actual npm'), index('Create GitHub Release'))
         self.assertLess(index('Extract release notes'), index('Create GitHub Release'))
         self.assertLess(index('Create GitHub Release'), index('Download and compare published ZIPs'))
-        self.assertLess(index('Publish to npm'), index('Download and compare published npm'))
+        self.assertLess(index('Publish to npm'), index('npm must actually carry'))
+        self.assertLess(index('npm must actually carry'), index('Download and compare published npm'))
         checkout = steps[index('Checkout verification tools')]['with']
         self.assertEqual(checkout['ref'], '${{ github.workflow_sha }}')
         self.assertFalse(checkout['persist-credentials'])
         after = steps[index('Download and compare published npm')]
-        self.assertEqual(after['if'], "env.HAS_NPM_TOKEN == 'true'")
+        self.assertEqual(after['if'], "env.NPM_PUBLISH == 'true'")
         self.assertIn('--published-version', after['run']); self.assertIn('--reference', after['run'])
+
+        # v5.27.0 was tagged and released while npm stayed on 5.26.2: the credential had
+        # expired, and nothing downstream read the registry. Two things keep that from
+        # recurring, and both are asserted here because both are one edit from gone.
+        guard = workflow['jobs']['release']['env']['NPM_PUBLISH']
+        self.assertNotIn('secrets.', guard,
+                         'gating the npm steps on a secret turns a lost credential into a green skip')
+        assertion = steps[index('npm must actually carry')]
+        self.assertEqual(assertion['if'], "env.NPM_PUBLISH == 'true'")
+        # Not merely "the word `npm view` appears somewhere in the step" — the value that
+        # is COMPARED has to come from the registry. Weakening the assignment to
+        # PUBLISHED="${VER}" leaves a second `npm view` in the error branch, and a
+        # substring check passes while the gate no longer checks anything.
+        self.assertIn('PUBLISHED="$(npm view "medsci-skills@${VER}" version', assertion['run'],
+                      'the compared value must come from the registry, not from the job itself')
+        self.assertIn('[ "$PUBLISHED" != "$VER" ]', assertion['run'])
+        self.assertIn('exit 1', assertion['run'])
 
     def registry_responses(self, data, *, version='9.9.9', integrity=None, url=None):
         url = url or 'https://registry.npmjs.org/medsci-skills/-/medsci-skills-9.9.9.tgz'
