@@ -1457,6 +1457,11 @@
       "sha256": "2d6a19ecd70d20211a31ab0be294793dea4b0ec1c0410f6e2147cb2022c7a3a6"
     },
     {
+      "path": "skills/find-journal/references/journal_profiles/Annals_of_Oncology.md",
+      "size": 3589,
+      "sha256": "aa0cd7dea78e4fb362a0c3d4957043e039f09013095a116a2675150b30ef9f9f"
+    },
+    {
       "path": "skills/find-journal/references/journal_profiles/Artificial_Intelligence_in_Medicine.md",
       "size": 1554,
       "sha256": "1025d7b47de5cdc7f5ae43689774571e4c15711fc75714730fa91564c5fe2101"
@@ -1487,9 +1492,19 @@
       "sha256": "a28b761930d158def0153408ea8d152c1a27d7122c2043178509405090efad1f"
     },
     {
+      "path": "skills/find-journal/references/journal_profiles/Cancer_Research_and_Treatment.md",
+      "size": 4035,
+      "sha256": "db77b323ad97b74f39e3a4c3a570e7e95699ed5210d3776c4417da5f3a7fe4e7"
+    },
+    {
       "path": "skills/find-journal/references/journal_profiles/Chest.md",
       "size": 3386,
       "sha256": "99f7780968ba1457dda311c48e6613b34d752f0165665094fc516a8258d06801"
+    },
+    {
+      "path": "skills/find-journal/references/journal_profiles/Clinical_Cancer_Research.md",
+      "size": 4384,
+      "sha256": "2004b1c6be36216e0a51fa42f6b4f15773556b70ea8743efb2054f0fe657926c"
     },
     {
       "path": "skills/find-journal/references/journal_profiles/Clinical_Radiology.md",
@@ -1515,6 +1530,11 @@
       "path": "skills/find-journal/references/journal_profiles/Diagnostic_and_Interventional_Radiology.md",
       "size": 2210,
       "sha256": "ea2ba5ab54862bea842c799614c3ed16617d50ff40178d3d721fbd6af6541aef"
+    },
+    {
+      "path": "skills/find-journal/references/journal_profiles/ESMO_Open.md",
+      "size": 4033,
+      "sha256": "d25d6fac8392fb3f7dd588f43fc61c422511e9573a74c4674287102a9b7af601"
     },
     {
       "path": "skills/find-journal/references/journal_profiles/Endocrinology_and_Metabolism.md",
@@ -1627,9 +1647,19 @@
       "sha256": "b0a2a7aa791e86b375ba19e63036106ab712cb14f4c9ca0398de75dc19e3f946"
     },
     {
+      "path": "skills/find-journal/references/journal_profiles/Journal_of_Breast_Cancer.md",
+      "size": 3388,
+      "sha256": "c4e12a03b9e5ff8580404f814c3cc715683a23deec4c8776b99973e88e7078c8"
+    },
+    {
       "path": "skills/find-journal/references/journal_profiles/Journal_of_Clinical_Endocrinology_and_Metabolism.md",
       "size": 2837,
       "sha256": "8c40a36ec7409b86d4e222a71b4bb39deb453d038ca83da1d7761ade2517657f"
+    },
+    {
+      "path": "skills/find-journal/references/journal_profiles/Journal_of_Clinical_Oncology.md",
+      "size": 4271,
+      "sha256": "4f3506d6dd4763781db1cfdf66808496ef0afac1cf70b440d0039fe058dad250"
     },
     {
       "path": "skills/find-journal/references/journal_profiles/Journal_of_Magnetic_Resonance_Imaging.md",
@@ -1800,6 +1830,11 @@
       "path": "skills/find-journal/references/journal_profiles/World_Journal_of_Hepatology.md",
       "size": 3707,
       "sha256": "912a14910717f00306a8f94a7b1ec4cd81a2690dae0dcabe1a85d7e82e109eb2"
+    },
+    {
+      "path": "skills/find-journal/references/journal_profiles/npj_Breast_Cancer.md",
+      "size": 4592,
+      "sha256": "0ffc9150664c56e12f336bfa2f0426d3150c8516bdb5aa1ffc462b9c5d4eee82"
     },
     {
       "path": "skills/find-journal/references/journal_profiles/npj_Digital_Medicine.md",
@@ -6132,6 +6167,11 @@
       "sha256": "58e6ee1186985e75054194070a8e97e871fe6207bfaab07264d8ea1e5cc330eb"
     },
     {
+      "path": "skills/write-paper/references/journal_profiles/Annals_of_Oncology.md",
+      "size": 7862,
+      "sha256": "c422c2dce1ebac2052a37b897233f7986d8b24ddfb263011aec8abbcd852afc9"
+    },
+    {
       "path": "skills/write-paper/references/journal_profiles/Artificial_Intelligence_in_Medicine.md",
       "size": 3492,
       "sha256": "12a515fe526cb9cfcd09cabf168b9c47f2d1b6cb6918c74751bbb0f91d6558ff"
@@ -6147,9 +6187,19 @@
       "sha256": "db438eb8e86a2f6f6da37c9495eaf65d45bb6139f42b409a3c3a16ca1da78ea8"
     },
     {
+      "path": "skills/write-paper/references/journal_profiles/Cancer_Research_and_Treatment.md",
+      "size": 7487,
+      "sha256": "1a8a783ad00786dc7ed517a819845d9ad795b1b04b7fc6ef5b423524881b0c10"
+    },
+    {
       "path": "skills/write-paper/references/journal_profiles/Chest.md",
       "size": 16319,
       "sha256": "092cd7c888e1075abc13b59941de604b21201addf27301751db1b28ba975cd21"
+    },
+    {
+      "path": "skills/write-paper/references/journal_profiles/Clinical_Cancer_Research.md",
+      "size": 10005,
+      "sha256": "776b6364dbd6c6cb29c6ba4fc205c57ea291c068c09263ca26b9bdc04ef7e424"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/Clinical_Radiology.md",
@@ -6170,6 +6220,11 @@
       "path": "skills/write-paper/references/journal_profiles/Diagnostic_and_Interventional_Radiology.md",
       "size": 12383,
       "sha256": "3ebcba0749b4a70c4f7b0d2dc1ec09cc28b982f942d879db9719808315829c0e"
+    },
+    {
+      "path": "skills/write-paper/references/journal_profiles/ESMO_Open.md",
+      "size": 8043,
+      "sha256": "26f5154e6f3ae96580660300bccf039435bf4394b5159d7eaaf0cd1373f164e0"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/Endocrinology_and_Metabolism.md",
@@ -6272,9 +6327,19 @@
       "sha256": "313604759c6e6471ec82e55ab0db489058fe2a7a2628f4fae92471423fb64f60"
     },
     {
+      "path": "skills/write-paper/references/journal_profiles/Journal_of_Breast_Cancer.md",
+      "size": 6952,
+      "sha256": "fe74fa28c83722cbd100bd1a79241061d16fcfe38bb868a01c4cfe34d0b93fc5"
+    },
+    {
       "path": "skills/write-paper/references/journal_profiles/Journal_of_Clinical_Endocrinology_and_Metabolism.md",
       "size": 9600,
       "sha256": "2cade69fc364915be5ff06cee7a6b77b9bde0c5499fac75f05007332affca8d8"
+    },
+    {
+      "path": "skills/write-paper/references/journal_profiles/Journal_of_Clinical_Oncology.md",
+      "size": 9175,
+      "sha256": "f99ee052189fee1b1adcfca8f8cb76c0cf98bd24604f0b631ec87aa2ee8060a8"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/Journal_of_Stroke.md",
@@ -6385,6 +6450,11 @@
       "path": "skills/write-paper/references/journal_profiles/World_Journal_of_Hepatology.md",
       "size": 7289,
       "sha256": "4f8594e07080dafb56dc6945addf45e7ceddbc3185f781f4edcd211744a8fb24"
+    },
+    {
+      "path": "skills/write-paper/references/journal_profiles/npj_Breast_Cancer.md",
+      "size": 10168,
+      "sha256": "3357ffd44ecfc0d4d05f2e81293215ce8f3f70e78ca2af60613cc5f3fd14d901"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/npj_Digital_Medicine.md",
