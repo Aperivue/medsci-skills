@@ -290,17 +290,32 @@ jobs:
       # nothing downstream asserted the registry actually carried it. This step runs
       # whenever the publish step was reached at all — skipped or succeeded — and reads
       # the registry rather than the job's own opinion of what it did.
+      # npm answers `npm publish` with "Your package is being processed and may take a
+      # few minutes to become available", and it means it: on 2026-09-24 the version took
+      # 5 min 20 s to appear. The first version of this check read the registry once,
+      # immediately, and failed a release whose publish had in fact succeeded - and because
+      # it failed, the payload comparison below never ran, so a spurious gate cost a real
+      # verification. It waits for propagation now; what it must not do is give up waiting
+      # and call that success.
       - name: npm must actually carry this version
         if: env.NPM_PUBLISH == 'true'
         run: |
-          set -euo pipefail
+          set -uo pipefail
           VER="${RELEASE_TAG#v}"
-          PUBLISHED="$(npm view "medsci-skills@${VER}" version 2>/dev/null || true)"
-          if [ "$PUBLISHED" != "$VER" ]; then
-            LATEST="$(npm view medsci-skills version 2>/dev/null || echo 'unknown')"
-            echo "::error::npm does not carry ${VER}; registry latest is ${LATEST}. The GitHub Release exists, so the channels have diverged: npx medsci-skills@latest installs ${LATEST}."
-            exit 1
-          fi
+          # Overridable so the regression test can prove that running out of time FAILS.
+          WINDOW="${NPM_PROPAGATION_WINDOW:-600}"
+          DEADLINE=$(( $(date +%s) + WINDOW ))
+          while :; do
+            PUBLISHED="$(npm view "medsci-skills@${VER}" version 2>/dev/null || true)"
+            [ "$PUBLISHED" = "$VER" ] && break
+            if [ "$(date +%s)" -ge "$DEADLINE" ]; then
+              LATEST="$(npm view medsci-skills version 2>/dev/null || echo 'unknown')"
+              echo "::error::npm still does not carry ${VER} after ${WINDOW}s; registry latest is ${LATEST}. The GitHub Release exists, so the channels have diverged: npx medsci-skills@latest installs ${LATEST}."
+              exit 1
+            fi
+            echo "registry does not carry ${VER} yet; retrying ($(( DEADLINE - $(date +%s) ))s left)"
+            sleep "${NPM_PROPAGATION_INTERVAL:-30}"
+          done
           echo "npm carries ${VER}."
 
       - name: Download and compare published npm payload

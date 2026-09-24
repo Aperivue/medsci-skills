@@ -300,8 +300,28 @@ class PayloadControls(unittest.TestCase):
         # substring check passes while the gate no longer checks anything.
         self.assertIn('PUBLISHED="$(npm view "medsci-skills@${VER}" version', assertion['run'],
                       'the compared value must come from the registry, not from the job itself')
-        self.assertIn('[ "$PUBLISHED" != "$VER" ]', assertion['run'])
         self.assertIn('exit 1', assertion['run'])
+
+    def test_npm_propagation_wait_fails_when_the_version_never_appears(self):
+        # npm publishes asynchronously ("may take a few minutes to become available"; 5 min 20 s
+        # observed on 2026-09-24), so this step waits. The failure mode a string check cannot see
+        # is a wait that gives up and calls it success - then a release that never reached the
+        # registry goes green. Both branches are executed here against a stubbed `npm`.
+        self.out.mkdir(exist_ok=True)
+        stub = self.out / 'npm'
+        stub.write_text('#!/bin/bash\n[ "$STUB_HAS_VERSION" = "1" ] && echo 9.9.9\nexit 0\n')
+        stub.chmod(0o755)
+        env = dict(PATH=str(self.out) + os.pathsep + os.environ['PATH'],
+                   NPM_PROPAGATION_WINDOW='1', NPM_PROPAGATION_INTERVAL='0')
+
+        never = self.step('npm must actually carry', STUB_HAS_VERSION='0', **env)
+        self.assertNotEqual(never.returncode, 0,
+                            'a version that never reaches the registry must fail the release')
+        self.assertIn('still does not carry', never.stdout + never.stderr)
+
+        arrives = self.step('npm must actually carry', STUB_HAS_VERSION='1', **env)
+        self.assertEqual(arrives.returncode, 0, arrives.stdout + arrives.stderr)
+        self.assertIn('npm carries 9.9.9', arrives.stdout)
 
     def registry_responses(self, data, *, version='9.9.9', integrity=None, url=None):
         url = url or 'https://registry.npmjs.org/medsci-skills/-/medsci-skills-9.9.9.tgz'
