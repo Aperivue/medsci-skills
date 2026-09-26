@@ -663,7 +663,41 @@ echo ""
 contract_status=0
 domain_probe_status=0
 script_reach_status=0
+provenance_status=0
 if [ -z "$ONLY_SKILL" ]; then
+  # Provenance router, BLOCKING tier only. The blocklist above matches literals; this refuses the
+  # three things no legitimate precedent block in this repository does — describing a co-reviewer's
+  # report or an editor's decision, carrying a submission ID, or quoting assessment language. All
+  # three have a standing count of ZERO here, which is what makes them safe to refuse outright.
+  #
+  # The ROUTING tier (a fetch date, a rounded statistic, a block with no public citation) is
+  # deliberately NOT enforced here. It fires on 39 perfectly good blocks, because the distinction
+  # it is reaching for — "does this identify someone" — is semantic, and no threshold over it
+  # separates the two. An earlier version of this wiring used a threshold that gave zero standing
+  # hits and caught ZERO of the six findings the audit had actually produced: tuned for silence,
+  # and silent. That tier goes to a reader instead.
+  # `mapfile` is bash 4+. macOS ships bash 3.2, where the first version of this block failed with
+  # "mapfile: command not found" and the run still printed ALL CHECKS PASSED — the gate did not
+  # run and nothing said so. An empty path list is now a FAILURE, not a skip: a scanner with
+  # nothing to scan is the oldest way for a check to be green while checking nothing.
+  _prov_list="$(git -C "$REPO_ROOT" ls-files 'skills/*.md' 'skills/**/*.md' 'docs/*.md' 2>/dev/null)"
+  _prov_n="$(printf '%s\n' "$_prov_list" | grep -c . || true)"
+  if [ "${_prov_n:-0}" -lt 100 ]; then
+    echo -e "${RED}FAIL${NC} provenance router: expected 100+ markdown paths, found ${_prov_n:-0} — the scan did not run"
+    provenance_status=1
+  else
+    printf '%s\n' "$_prov_list" | sed "s|^|$REPO_ROOT/|" \
+      | xargs python3 "$REPO_ROOT/scripts/check_provenance_blocks.py" --mode block --threshold 1 --strict
+    provenance_status=$?
+  fi
+  echo ""
+
+  bash "$REPO_ROOT/tests/test_provenance_blocks.sh" >/dev/null 2>&1 || {
+    echo -e "${RED}FAIL${NC} provenance-router self-test (tests/test_provenance_blocks.sh)"
+    provenance_status=1
+  }
+  echo ""
+
   python3 "$REPO_ROOT/scripts/validate_skill_contracts.py"
   contract_status=$?
   echo ""
@@ -697,6 +731,11 @@ elif [ "$domain_probe_status" -ne 0 ]; then
   exit 1
 elif [ "$script_reach_status" -ne 0 ]; then
   echo -e "${RED}VALIDATION FAILED${NC} — a skill script is never invoked by any SKILL.md (see check_script_reachability.py)"
+  exit 1
+elif [ "$provenance_status" -ne 0 ]; then
+  echo -e "${RED}VALIDATION FAILED${NC} — a block that grounds a rule in a real case may leave the case identifiable."
+  echo "  Keep the grounding, drop the identification, then re-run."
+  echo "  See docs/grounding_without_identifying.md for the four questions."
   exit 1
 elif [ -n "$ONLY_SKILL" ]; then
   # Deliberately NOT "ALL CHECKS PASSED". A caller grepping for that string — a human skimming, a
