@@ -170,6 +170,27 @@ MedSci Skills is public. Do not include:
 
 The validator blocklist is intentionally conservative. If it catches a false positive, explain the case in the pull request rather than bypassing the check silently.
 
+**The list above is all literals, and that is its limit.** A 2026-08 audit found the surviving
+leaks in prose that contained none of them — the sentence that grounds a rule in a real case,
+written specifically enough that a reader could identify the case. Rules here are supposed to be
+grounded in things that actually happened, so the fix is never to stop grounding them:
+
+> Keep the grounding, drop the identification.
+
+Read [`docs/grounding_without_identifying.md`](docs/grounding_without_identifying.md) before writing
+a block that opens with *Precedent*, *Why this is here*, *Source*, *Motivation*, or *verified
+&lt;date&gt;*. Its four questions take under a minute, and the third and fourth ("does the number need
+that many digits?", "does the date need the day?") resolve most cases on their own.
+
+Two things it will tell you that are easy to get wrong: a peer review is confidential in **three**
+directions — the manuscript, any co-reviewer's report, and the editor's decision — and an author's
+own submission history, especially a cascade after a decline elsewhere, is not public either.
+
+CI refuses three things outright, because nothing legitimate here does them: describing a
+co-reviewer's report or an editor's decision, a submission ID, or quoted assessment language.
+Everything else is *routed*, not judged — `scripts/check_provenance_blocks.py` narrows the repo to
+the paragraphs worth a second read and stops there. Deciding on those is a person's job.
+
 ### Ship the mechanism, keep the coordinates out
 
 A gate here is expected to say which failure it exists for — a detector validated only against
