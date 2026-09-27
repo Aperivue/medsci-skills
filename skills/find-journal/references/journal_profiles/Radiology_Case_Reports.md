@@ -27,4 +27,4 @@ radiology case report, imaging findings, CT, MRI, ultrasound, PET/CT, nuclear me
 The natural home for a radiology trainee/fellow case whose contribution is the **image**. Expects high-quality, de-identified, annotated image panels and explicit modality-by-modality description (finding vs impression). Patient consent for publication of images is required. Pairs well with `make-figures` `exemplar_plots/imaging_panel.md`.
 
 ## Verification
-Identity (Elsevier, OA/CC-BY, imaging case-report scope) verified 2026-06-15 against a current CC-BY article in the journal (Europe PMC). ISSN and submission limits not independently fetched (ScienceDirect page returned 403) — confirm ISSN and word/figure/APC details at the guide-for-authors URL before submission.
+Identity (Elsevier, OA/CC-BY, imaging case-report scope) verified 2026-06 against a current CC-BY article in the journal (Europe PMC). ISSN and submission limits not independently fetched (ScienceDirect page returned 403) — confirm ISSN and word/figure/APC details at the guide-for-authors URL before submission.

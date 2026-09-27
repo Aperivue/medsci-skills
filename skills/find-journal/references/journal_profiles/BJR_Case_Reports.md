@@ -34,6 +34,6 @@ for publication of images is required. Pairs with `write-paper` `exemplar_case_r
 and `make-figures` `exemplar_plots/imaging_panel.md`.
 
 ## Verification
-Identity (BIR/Oxford, ISSN 2055-7159, CC-BY, imaging case-report scope) verified 2026-06-15 against a
+Identity (BIR/Oxford, ISSN 2055-7159, CC-BY, imaging case-report scope) verified 2026-06 against a
 current CC-BY article in the journal (Europe PMC). Specific word/figure/reference limits and the
 current APC were not independently fetched — confirm at the author-guidelines URL before submission.

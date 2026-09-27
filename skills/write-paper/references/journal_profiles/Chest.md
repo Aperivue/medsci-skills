@@ -267,4 +267,4 @@ https://journal.chestnet.org/content/authors
 
 ---
 
-<!-- Source verification: Author guidelines text pasted in full by maintainer on 2026-04-20 (equivalent to directly opened guidelines page). ISSN and publisher confirmed against journal homepage https://journal.chestnet.org/. Promoted from private tier to public on 2026-04-20 after reconciliation with official guidelines. -->
+<!-- Source verification: Author guidelines text pasted in full by maintainer on 2026-04 (equivalent to directly opened guidelines page). ISSN and publisher confirmed against journal homepage https://journal.chestnet.org/. Promoted from private tier to public on 2026-04-20 after reconciliation with official guidelines. -->

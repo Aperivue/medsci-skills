@@ -151,4 +151,4 @@ Do not submit here for single-center retrospective series, hypothesis-generating
 | Impact factor | 44.7 (JCR 2025) | 80.4 (JCR 2025 release) | 10.6 (JCR 2025) |
 | Emphasis | Definitive practice impact, strict limits, graphical abstract required | Clinical significance with strong guideline linkage | Faster open-access route, transfers from Annals |
 
-<!-- Profile verified 2026-09-20 against: https://ascopubs.org/jco/authors/manuscript-guidelines, https://ascopubs.org/authors/article-types, https://ascopubs.org/authors/manuscript-format, https://ascopubs.org/authors/statistical-guidelines, https://ascopubs.org/authors/open-access, https://ascopubs.org/authors/faq, https://ascopubs.org/doi/full/10.1200/JCO.23.00819; ISSN checked at portal.issn.org -->
+<!-- Profile verified 2026-09 against: https://ascopubs.org/jco/authors/manuscript-guidelines, https://ascopubs.org/authors/article-types, https://ascopubs.org/authors/manuscript-format, https://ascopubs.org/authors/statistical-guidelines, https://ascopubs.org/authors/open-access, https://ascopubs.org/authors/faq, https://ascopubs.org/doi/full/10.1200/JCO.23.00819; ISSN checked at portal.issn.org -->

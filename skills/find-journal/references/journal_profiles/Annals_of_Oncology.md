@@ -44,4 +44,4 @@ Original Articles are 4,500 words with a 300-word structured abstract (Backgroun
 - **AI-generated images:** Not permitted for creating or altering figures
 - **Policy URL:** https://www.annalsofoncology.org/content/authorinfo
 
-<!-- Profile verified 2026-09-20 against: https://www.annalsofoncology.org/content/authorinfo, https://www.sciencedirect.com/journal/annals-of-oncology/publish/guide-for-authors, https://www.annalsofoncology.org/; ISSN checked at portal.issn.org -->
+<!-- Profile verified 2026-09 against: https://www.annalsofoncology.org/content/authorinfo, https://www.sciencedirect.com/journal/annals-of-oncology/publish/guide-for-authors, https://www.annalsofoncology.org/; ISSN checked at portal.issn.org -->

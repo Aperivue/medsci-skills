@@ -135,4 +135,4 @@ Do not prioritize CRT for a narrowly breast-specific manuscript better served by
 | Impact factor | See journal homepage | 10.6 (JCR 2025) | 2.4 (2024) |
 | Emphasis | Broad oncology, translational-to-clinical continuum, open access | International oncology audience, broad clinical impact | Breast specificity, regional breast data |
 
-<!-- Profile verified 2026-09-20 against: https://www.e-crt.org/authors/authors.php, https://www.e-crt.org/about/index.php, https://www.e-crt.org/about/subscription.php, https://www.e-crt.org/; ISSN checked at portal.issn.org -->
+<!-- Profile verified 2026-09 against: https://www.e-crt.org/authors/authors.php, https://www.e-crt.org/about/index.php, https://www.e-crt.org/about/subscription.php, https://www.e-crt.org/; ISSN checked at portal.issn.org -->

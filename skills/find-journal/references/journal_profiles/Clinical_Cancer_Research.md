@@ -50,4 +50,4 @@ Research Articles are 5,000 words with a 250-word structured abstract (Purpose, 
 - **AI-generated images:** Permitted only if disclosed, with the tool credited in Acknowledgments
 - **Policy URL:** https://aacrjournals.org/pages/editorial-policies#ai
 
-<!-- Profile verified 2026-09-20 against: https://aacrjournals.org/clincancerres/pages/journal-ifora, https://aacrjournals.org/clincancerres/pages/about, https://aacrjournals.org/pages/editorial-policies, https://aacrjournals.org/pages/article-style-and-format, https://aacrjournals.org/pages/editorial-process, https://aacrjournals.org/pages/impact-factor; ISSN checked at portal.issn.org -->
+<!-- Profile verified 2026-09 against: https://aacrjournals.org/clincancerres/pages/journal-ifora, https://aacrjournals.org/clincancerres/pages/about, https://aacrjournals.org/pages/editorial-policies, https://aacrjournals.org/pages/article-style-and-format, https://aacrjournals.org/pages/editorial-process, https://aacrjournals.org/pages/impact-factor; ISSN checked at portal.issn.org -->
