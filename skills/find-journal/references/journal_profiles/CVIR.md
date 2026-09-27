@@ -34,4 +34,4 @@ CVIR is the official journal of CIRSE. It readily accepts meta-analyses of IR pr
 
 ## Verification
 - Source: CVIR Manuscript Type Manual (December 2025) + Springer Instructions for Authors.
-- Last verified: 2026-06-14.
+- Last verified: 2026-06.
