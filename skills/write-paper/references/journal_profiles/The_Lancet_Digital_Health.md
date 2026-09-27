@@ -158,7 +158,7 @@ Follows Lancet Group statistical conventions:
 
 ## Verification
 
-- **Last verified**: 2026-06-11.
+- **Last verified**: 2026-06.
 - **Gate source**: official Information for Authors PDF — https://www.thelancet.com/pb-assets/Lancet/authors/tldh-info-for-authors-1778587678573.pdf (plus the Observational/Meta/RCT guideline PDFs and the artwork guidelines).
 
 - **AI-use disclosure placement**: Methods or Acknowledgements
