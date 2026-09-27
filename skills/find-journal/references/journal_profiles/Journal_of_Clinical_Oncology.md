@@ -48,4 +48,4 @@ Strict limits: Original Reports are 3,000 words with a 275-word structured abstr
 - **AI-generated images:** Not addressed in the JCO policy
 - **Policy URL:** https://ascopubs.org/doi/full/10.1200/JCO.23.00819
 
-<!-- Profile verified 2026-09-20 against: https://ascopubs.org/jco/authors/manuscript-guidelines, https://ascopubs.org/authors/article-types, https://ascopubs.org/authors/manuscript-format, https://ascopubs.org/authors/statistical-guidelines, https://ascopubs.org/authors/faq, https://ascopubs.org/doi/full/10.1200/JCO.23.00819; ISSN checked at portal.issn.org -->
+<!-- Profile verified 2026-09 against: https://ascopubs.org/jco/authors/manuscript-guidelines, https://ascopubs.org/authors/article-types, https://ascopubs.org/authors/manuscript-format, https://ascopubs.org/authors/statistical-guidelines, https://ascopubs.org/authors/faq, https://ascopubs.org/doi/full/10.1200/JCO.23.00819; ISSN checked at portal.issn.org -->

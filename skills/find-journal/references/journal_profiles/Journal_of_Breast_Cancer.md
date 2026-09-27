@@ -47,5 +47,5 @@ Original Articles are 4,000 words with a 300-word structured abstract (Purpose, 
 - **AI-generated images:** Not specified
 - **Policy URL:** https://ejbc.kr/index.php?body=instruction
 
-<!-- Reference limit re-verified 2026-09-23 ("References should be limited in number to fifty"). -->
-<!-- Profile verified 2026-09-20 against: https://ejbc.kr/index.php?body=instruction, https://ejbc.kr/index.php?body=about, https://ejbc.kr/index.php?body=charge, https://ejbc.kr/; ISSN checked at portal.issn.org -->
+<!-- Reference limit re-verified 2026-09 ("References should be limited in number to fifty"). -->
+<!-- Profile verified 2026-09 against: https://ejbc.kr/index.php?body=instruction, https://ejbc.kr/index.php?body=about, https://ejbc.kr/index.php?body=charge, https://ejbc.kr/; ISSN checked at portal.issn.org -->

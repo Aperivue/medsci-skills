@@ -138,4 +138,4 @@ Do not submit here for descriptive single-center series, mechanistic biology wit
 | Impact factor | 80.4 (JCR 2025 release) | 44.7 (JCR 2025) | 10.6 (JCR 2025) |
 | Emphasis | Clinical significance, presubmission enquiry encouraged, hybrid access | Strict format limits, definitive comparative evidence | Fast open-access route and Annals transfer destination |
 
-<!-- Profile verified 2026-09-20 against: https://www.annalsofoncology.org/content/authorinfo, https://www.sciencedirect.com/journal/annals-of-oncology/publish/guide-for-authors, https://www.annalsofoncology.org/; ISSN checked at portal.issn.org -->
+<!-- Profile verified 2026-09 against: https://www.annalsofoncology.org/content/authorinfo, https://www.sciencedirect.com/journal/annals-of-oncology/publish/guide-for-authors, https://www.annalsofoncology.org/; ISSN checked at portal.issn.org -->

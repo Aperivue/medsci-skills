@@ -101,5 +101,5 @@ Single-blind; ≥2 outside reviewers for original research + dedicated **statist
 - Archived via Portico; published under MMS copyright with Publishing Agreement + Authorship Statement at acceptance.
 
 ## Verification
-- Source: NEJM AI Author Center / Editorial Policies / Article Types / Peer Review & Publication Process (author-guide text, verified 2026-06-14).
+- Source: NEJM AI Author Center / Editorial Policies / Article Types / Peer Review & Publication Process (author-guide text, verified 2026-06).
 - Re-verify before submission: exact reference formatting (Formatting Guide PDF), current JCR/CiteScore status, and whether the study is classified as a "clinical trial" for registration.

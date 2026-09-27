@@ -44,4 +44,4 @@ Original Articles have no explicit body word limit but require a 250-word abstra
 - **AI-generated images:** Not permitted for creating or altering images, except where AI is integral to the research methods and described in Methods; basic brightness, contrast, or color adjustments acceptable
 - **Policy URL:** https://www.e-crt.org/authors/authors.php
 
-<!-- Profile verified 2026-09-20 against: https://www.e-crt.org/authors/authors.php, https://www.e-crt.org/about/index.php, https://www.e-crt.org/about/subscription.php, https://www.e-crt.org/; ISSN checked at portal.issn.org -->
+<!-- Profile verified 2026-09 against: https://www.e-crt.org/authors/authors.php, https://www.e-crt.org/about/index.php, https://www.e-crt.org/about/subscription.php, https://www.e-crt.org/; ISSN checked at portal.issn.org -->

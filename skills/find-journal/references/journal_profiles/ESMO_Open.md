@@ -46,4 +46,4 @@ Original Articles are up to 4,000 words with a structured abstract up to 300 wor
 - **AI-generated images:** Not addressed in the guide for authors
 - **Policy URL:** https://www.elsevier.com/about/policies-and-standards/generative-ai-policies-for-journals
 
-<!-- Profile verified 2026-09-20 against: https://www.sciencedirect.com/journal/esmo-open/publish/guide-for-authors, https://www.esmoopen.com/content/authorinfo, https://www.esmoopen.com/, https://www.esmo.org/about-esmo/discover-esmo-journals/esmo-open, https://www.sciencedirect.com/journal/esmo-open/publish/open-access-options; ISSN checked at portal.issn.org -->
+<!-- Profile verified 2026-09 against: https://www.sciencedirect.com/journal/esmo-open/publish/guide-for-authors, https://www.esmoopen.com/content/authorinfo, https://www.esmoopen.com/, https://www.esmo.org/about-esmo/discover-esmo-journals/esmo-open, https://www.sciencedirect.com/journal/esmo-open/publish/open-access-options; ISSN checked at portal.issn.org -->

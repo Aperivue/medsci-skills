@@ -151,4 +151,4 @@ Do not submit here for a purely clinical outcomes analysis with no translational
 | Impact factor | 10.9 (JCR, AACR metrics page) | See AACR metrics page | 44.7 (JCR 2025) |
 | Emphasis | Translational Relevance requirement, correlative science with trials | Conceptual novelty and discovery | Definitive comparative clinical evidence |
 
-<!-- Profile verified 2026-09-20 against: https://aacrjournals.org/clincancerres/pages/journal-ifora, https://aacrjournals.org/clincancerres/pages/about, https://aacrjournals.org/pages/editorial-policies, https://aacrjournals.org/pages/article-style-and-format, https://aacrjournals.org/pages/editorial-process, https://aacrjournals.org/pages/impact-factor; ISSN checked at portal.issn.org -->
+<!-- Profile verified 2026-09 against: https://aacrjournals.org/clincancerres/pages/journal-ifora, https://aacrjournals.org/clincancerres/pages/about, https://aacrjournals.org/pages/editorial-policies, https://aacrjournals.org/pages/article-style-and-format, https://aacrjournals.org/pages/editorial-process, https://aacrjournals.org/pages/impact-factor; ISSN checked at portal.issn.org -->

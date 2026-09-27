@@ -135,7 +135,7 @@ Cover letter is **required** with all submissions. Should include:
 - **Permitted scope:** Disclosure of all generative AI and AI-assisted technologies used in manuscript preparation. AI tools cannot be listed as authors. Basic grammar/spelling/reference tools are exempt.
 - **Disclosure location:** **Methods** (if AI was used in study/data-analysis pipeline) or **Acknowledgements** (if AI was used in drafting/editing). Specify software name, version, developer, and scope of use. (Wiley publisher-wide ICMJE policy applies; AGL itself silent on AI specifics.)
 - **AI-generated images:** Not specified in the journal's author guidelines; Wiley publisher policy applies (treat as restricted unless explicit permission obtained).
-- **Policy URL:** https://authors.wiley.com/author-resources/Journal-Authors/open-access/ethics/index.html (Wiley publisher-wide; redirected from authorservices.wiley.com per 2026-05-21 fetch)
+- **Policy URL:** https://authors.wiley.com/author-resources/Journal-Authors/open-access/ethics/index.html (Wiley publisher-wide; redirected from authorservices.wiley.com per 2026-05 fetch)
 
 ---
 
