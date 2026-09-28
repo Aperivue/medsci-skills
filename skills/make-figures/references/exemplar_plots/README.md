@@ -116,6 +116,17 @@ the figure types that do not yet have a generator.
   estimates with CIs, the competing event never omitted, never a relabelled 1 - KM. The
   competing-risks counterpart of `km_curve.md`; pairs the survival table-type and
   `analysis_guides/survival.md`.
+- `shap_beeswarm.md` — SHAP summary (beeswarm) feature-attribution plot: features ordered by
+  mean |SHAP| with the **ordering stated** (the ordering is the claim), SHAP axis with a zero
+  line and the **explained output and class named**, colour = the feature's own value with its
+  **clipping range in the caption**, **every explained instance plotted** so per-feature spread
+  rather than a mean is visible, features whose colours split across 0 flagged as
+  interaction-dependent, and the **explainer, background distribution and n stated**; never read
+  as causal, and with correlated predictors credit is split arbitrarily so the ranking is
+  model-conditional. The across-features view — the attribution counterpart to
+  `model_comparison_leaderboard.md` (across models) and `external_validation_comparison.md`
+  (across cohorts); fills a real gap in `critic_rubrics/data_plot.md` §G, whose five Medical-AI
+  items cover discrimination, calibration, subgroup, colour and utility but not attribution.
 
 ## Curator guidelines (for adding more)
 
