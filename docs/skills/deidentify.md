@@ -2,7 +2,7 @@
 
 # deidentify
 
-> De-identify clinical research data before LLM-assisted analysis. Standalone Python CLI detects PHI via regex + heuristics with 10 country locale packs (kr, us, jp, cn, de, uk, fr, ca, au, in). Interactive terminal review. No LLM touches raw data — the script runs locally without any network or AI calls.
+> De-identify clinical research data before LLM-assisted analysis. Standalone Python CLI detects PHI via regex + heuristics with 11 country locale packs (kr, us, jp, cn, de, uk, fr, ca, au, in, it). Interactive terminal review. No LLM touches raw data — the script runs locally without any network or AI calls.
 
 **Invoke:** `/deidentify` · **Tools:** Read, Bash, Glob · **Model:** inherit
 
@@ -23,7 +23,7 @@
 **Known limitations**
 
 - Regex and heuristic detection across 10 country locale packs is not a substitute for expert disclosure review or an IRB determination.
-- PHI coverage is limited to the bundled locale packs (kr, us, jp, cn, de, uk, fr, ca, au, in).
+- PHI coverage is limited to the bundled locale packs (kr, us, jp, cn, de, uk, fr, ca, au, in, it).
 
 **Validation**
 

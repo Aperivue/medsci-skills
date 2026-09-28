@@ -24,3 +24,19 @@ These fixtures exist to verify that the de-identifier:
 If you need to add a new fixture, follow the same rule: every value must
 be either a published format example or a constructed synthetic string.
 Never copy real EMR data into this directory, even for one-off debugging.
+
+## Italian PHI fixture (`test_phi_italian.csv`)
+
+Exercises the `it` locale pack (see `../locales/it.json` and issue #116):
+
+- **Codice fiscale** values follow the public 16-character format specification
+  but are constructed — they do not correspond to any real person's fiscal code.
+- **Phone numbers** (`333 123 4567`, `+39 02 1234567`, `06 1234567`) are
+  sequential placeholder digits in valid Italian formats.
+- **Names** (`Marco`, `Giulia`, `Anna`) are generic first names equivalent to
+  "John Doe" / "Jane Doe" — unattributable to any real individual.
+- **Addresses** (`Via Roma 12, Milano`, …) are landmark-style placeholder
+  streets, not real residences.
+- **Dates of birth** are arbitrary; **diagnoses** (`diabete tipo 2`, …) and
+  **measurements** (`5.6`, …) are filler values included so the fixture also
+  asserts non-PHI columns stay `SAFE`.

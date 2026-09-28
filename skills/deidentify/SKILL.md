@@ -2,8 +2,8 @@
 name: deidentify
 description: >
   De-identify clinical research data before LLM-assisted analysis. Standalone Python CLI
-  detects PHI via regex + heuristics with 10 country locale packs (kr, us, jp, cn, de, uk,
-  fr, ca, au, in). Interactive terminal review. No LLM touches raw data — the script runs
+  detects PHI via regex + heuristics with 11 country locale packs (kr, us, jp, cn, de, uk,
+  fr, ca, au, in, it). Interactive terminal review. No LLM touches raw data — the script runs
   locally without any network or AI calls.
 triggers: deidentify, de-identify, anonymize, 비식별화, 익명화, remove PHI, remove PII, strip patient info
 tools: Read, Bash, Glob
@@ -56,7 +56,7 @@ Based on answers, recommend the appropriate command:
 - Step-by-step (cautious): `python deidentify.py scan <file> --locale <code>` first
 
 Available locale codes: `kr` (Korea), `us` (USA), `jp` (Japan), `cn` (China), `de` (Germany),
-`uk` (United Kingdom), `fr` (France), `ca` (Canada), `au` (Australia), `in` (India).
+`uk` (United Kingdom), `fr` (France), `ca` (Canada), `au` (Australia), `in` (India), `it` (Italy).
 If `--locale` is omitted, the script shows an interactive country selection menu.
 Users can provide a custom locale file via `--locale-file custom.json`.
 
@@ -88,7 +88,7 @@ python ${CLAUDE_SKILL_DIR}/deidentify.py apply ./deidentified/reviewed_report.js
 ```
 
 **Options:**
-- `--locale CODE`: Country locale for PHI patterns (kr, us, jp, cn, de, uk, fr, ca, au, in)
+- `--locale CODE`: Country locale for PHI patterns (kr, us, jp, cn, de, uk, fr, ca, au, in, it)
 - `--locale-file PATH`: Custom locale JSON file (copy `locales/_template.json` to create one)
 - `--auto-accept-safe`: Skip confirmation for columns classified as SAFE (faster for large datasets)
 - `--hash-mapping`: Store SHA-256 hashes instead of original values in mapping file (one-way, more secure)
@@ -174,7 +174,7 @@ Customize based on the actual audit log statistics.
 
 **Supported (v1)**:
 - Structured tabular data: CSV, TSV, Excel (.xlsx)
-- 10 country locales with country-specific PHI patterns:
+- 11 country locales with country-specific PHI patterns:
   - Korea (kr): RRN (주민번호), phone, email, address, Hangul names, dates
   - USA (us): SSN, US phone, US address, zip codes
   - Japan (jp): マイナンバー, Japanese phone, 都道府県 address, Kanji names
@@ -185,6 +185,7 @@ Customize based on the actual audit log statistics.
   - Canada (ca): SIN, Canadian phone, postal codes
   - Australia (au): TFN, Medicare number, AU phone
   - India (in): Aadhaar, PAN, Indian phone, pin codes
+  - Italy (it): Codice Fiscale, Italian phone, Via address
 - Universal patterns (all locales): email, ISO dates, high-cardinality numeric IDs (MRN)
 - English column names recognized across all locales
 - Custom locale support via `--locale-file` with template

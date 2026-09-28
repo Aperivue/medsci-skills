@@ -37,7 +37,7 @@ safety_boundaries:
   - "Only the scan report (no raw values), the hash-only audit log, and the de-identified output may be read."
 known_limitations:
   - "Regex and heuristic detection across 10 country locale packs is not a substitute for expert disclosure review or an IRB determination."
-  - "PHI coverage is limited to the bundled locale packs (kr, us, jp, cn, de, uk, fr, ca, au, in)."
+  - "PHI coverage is limited to the bundled locale packs (kr, us, jp, cn, de, uk, fr, ca, au, in, it)."
 validation_commands:
   - "python deidentify.py scan <file> --locale <code>   # review column classifications before stripping"
   - "inspect the SHA-256 audit log after a full run"
