@@ -2233,8 +2233,8 @@
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/README.md",
-      "size": 10492,
-      "sha256": "8840d2b36492f10afc4f17340903c8c052fa78f0966a3379d401996830c41f70"
+      "size": 11082,
+      "sha256": "55d62362fa4d5a3a08899d869739a2d81ceae9c53a1f42ef84d463caf5f70be6"
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/ai_assistance_effect.md",
@@ -2315,6 +2315,11 @@
       "path": "skills/make-figures/references/exemplar_plots/segmentation_failure_panel.md",
       "size": 4581,
       "sha256": "9bedf2f0b762702b1b9f794d6e83abc512a0bd504101ac27133558074a788b04"
+    },
+    {
+      "path": "skills/make-figures/references/exemplar_plots/shap_beeswarm.md",
+      "size": 4850,
+      "sha256": "bc3de2226c96d4d935d5291b4058e0cdd1dc03e807004391347b3ba32a6311d5"
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/spider_plot.md",
