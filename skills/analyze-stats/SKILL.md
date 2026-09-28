@@ -415,16 +415,16 @@ tbl %>% as_flex_table() %>% flextable::save_as_docx(path = "table.docx")
 - Always report: sensitivity, specificity, PPV, NPV, accuracy, AUC
 - CIs: Wilson score for proportions, DeLong for AUC
 - ROC curve: include diagonal reference line, AUC in legend
-- If comparing models: DeLong test for AUC comparison
+- If comparing models: paired DeLong test for two separate scores on the same patients. For a nested "baseline + new term" model fitted and evaluated on the same data, do not use it as the added-value test; test the term (likelihood ratio) and report ΔAUC with its CI (see the table guide below)
 - Youden's index for optimal threshold when applicable
 - Include calibration assessment (Brier score, calibration plot) for prediction models
-- **NRI/IDI**: When comparing two models (e.g., base model vs model + AI score), report:
-  - Category-based NRI (with clinically defined risk categories)
-  - Continuous NRI (note: tends to be inflated — report alongside category-based)
+- **NRI/IDI**: If reported when comparing two models (e.g., base model vs model + AI score):
+  - NRI separately for events and non-events (with two risk categories these are the changes in sensitivity and specificity)
+  - Categorical NRI only with prespecified, clinically defined risk categories; never the continuous (category-free) NRI as evidence of added value — it can overstate it even in validation data
   - IDI (Integrated Discrimination Improvement)
   - Bootstrap 95% CIs (1000+ iterations)
-  - These supplement, not replace, DeLong AUC comparison
-- Table type guide (added value beyond a baseline): `references/table-standards/table-types/incremental_value.md` (paired ΔAUC + DeLong CI, continuous NRI with event/non-event split, IDI, net benefit at a prespecified threshold, same-patient/calibrated-first discipline). Pairs the decision-curve exemplar `make-figures` `references/exemplar_plots/decision_curve.md`.
+  - These supplement the added-value test and ΔAUC with its CI; net benefit is the preferred single summary
+- Table type guide (added value beyond a baseline): `references/table-standards/table-types/incremental_value.md` (likelihood-ratio test of the new term, paired ΔAUC with CI as an estimate, NRI split by events/non-events, IDI, net benefit at a prespecified threshold, same-patient/calibrated-first discipline). Pairs the decision-curve exemplar `make-figures` `references/exemplar_plots/decision_curve.md`.
 - Reader study (MRMC): `references/table-standards/table-types/reader_study.md` (per-reader + reader-averaged AUC with an Obuchowski–Rockette/DBM reader+case CI, per-patient vs per-lesion unit, superiority vs non-inferiority margin). Use an MRMC method (not a fixed-reader DeLong CI) for a claim that generalises to readers. Pairs `make-figures` `references/exemplar_plots/mrmc_roc.md`.
 
 ### Inter-rater Agreement

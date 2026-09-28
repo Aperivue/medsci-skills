@@ -183,8 +183,8 @@
     },
     {
       "path": "skills/analyze-stats/SKILL.md",
-      "size": 60456,
-      "sha256": "c541c8811b918bb5b5cb380297a52659b4bda88537841574dc1272a8f7918aa8"
+      "size": 60966,
+      "sha256": "dca033657405001ba3e6f421a258edd1c9cc17c62e7661d0f987109cd4db33cf"
     },
     {
       "path": "skills/analyze-stats/references/analysis_guides/agreement_reliability.md",
@@ -338,8 +338,8 @@
     },
     {
       "path": "skills/analyze-stats/references/table-standards/table-types/incremental_value.md",
-      "size": 4488,
-      "sha256": "7a79208ff425c306e877b0938dbe8e1c8f6e663d32f5509496ef1ff87ff18b04"
+      "size": 8288,
+      "sha256": "8cd2c321a7e902e730ad77f30e45be95e489bd9344171e176c558009f8bec153"
     },
     {
       "path": "skills/analyze-stats/references/table-standards/table-types/meta_analysis.md",
