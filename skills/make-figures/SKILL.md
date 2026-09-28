@@ -448,7 +448,7 @@ When the study type is known (from `/write-paper` Phase 0 or user specification)
 | Study Type (Guideline) | Required Figures |
 |---|---|
 | Diagnostic accuracy (STARD) | STARD flow diagram, ROC curve, confusion matrix, calibration plot |
-| AI validation (TRIPOD+AI / CLAIM) | Flow diagram, ROC curve, confusion matrix, calibration plot, feature attribution (`exemplar_plots/shap_beeswarm.md`), Grad-CAM (if imaging) |
+| AI validation (TRIPOD+AI / CLAIM) | Flow diagram, ROC curve, confusion matrix, calibration plot, feature importance or SHAP, Grad-CAM (if imaging) |
 | Meta-analysis (PRISMA) | PRISMA flow diagram, forest plot, funnel plot |
 | DTA meta-analysis (PRISMA-DTA) | PRISMA flow diagram, paired forest plot (Se + Sp), SROC curve, Deeks funnel plot |
 | Observational cohort (STROBE) | Flow diagram, Kaplan-Meier curves (if survival endpoint) |
