@@ -34,6 +34,8 @@ models, authored from scratch**, not extracted from any published review.
   class rebalancing.
 - `selective_outcome_reporting.md` — a reported trial primary outcome that differs from
   the registered/protocol primary, or outcomes dropped/added without a disclosed amendment.
+- `comparator_adequacy.md` — an added-value claim whose comparator is absent, trivial,
+  outdated, or answering a different question, so the reported gain is uninterpretable.
 
 ## Curator guidelines (for adding more)
 
