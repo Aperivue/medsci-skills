@@ -116,6 +116,12 @@ the figure types that do not yet have a generator.
   estimates with CIs, the competing event never omitted, never a relabelled 1 - KM. The
   competing-risks counterpart of `km_curve.md`; pairs the survival table-type and
   `analysis_guides/survival.md`.
+- `shap_beeswarm.md` — SHAP summary (beeswarm) feature-attribution plot: features ordered by mean
+  |SHAP| with the **ordering stated** (the ordering is the claim), zero line with the **explained
+  output and class named**, colour = the feature's own value with its **clipping range in the
+  caption**, **every explained instance plotted** so spread rather than a mean is visible, and the
+  **explainer, background + n stated**; never causal, and with correlated predictors the credit split
+  is explainer-dependent, so the ranking is model-conditional. Fills the `data_plot.md` §G gap.
 
 ## Curator guidelines (for adding more)
 

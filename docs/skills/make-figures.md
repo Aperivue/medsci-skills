@@ -41,7 +41,7 @@
 - `critic_rubrics/` (2 files)
 - `design_principles.md`
 - `exemplar_diagrams/` (33 files)
-- `exemplar_plots/` (20 files)
+- `exemplar_plots/` (21 files)
 - `figure_manifest.md`
 - `figure_specs.md`
 - `flow_diagram_lessons.md`
