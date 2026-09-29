@@ -405,13 +405,18 @@ Self-reference parentheticals of the form `(Methods §X)`, `(Results §Y)`, `(Me
 
 ### Pattern 21: AI Disclosure Boilerplate (Body)
 
-Boilerplate paragraphs such as "Artificial Intelligence Disclosure" / "Generative AI was not used to create..." / "AI Acknowledgement" appearing in the manuscript body. These are needed on submission forms and cover letters, but placing them in the body reads to a reviewer as a declaration that "this was written by AI" — an AI-generated signal.
+An AI-use disclosure belongs wherever the target journal asks for it, and journals disagree:
+some require it in Methods or Acknowledgments, others want it only in the cover letter, title
+page or submission form. The pattern is a disclosure in the wrong place for the target, or one
+repeated in several places when the journal asks for one. Take the location from the journal
+profile's `Disclosure location`; `/self-review` `check_classical_style.py` (`INBODY_AI_DISCLOSURE`)
+reports a body disclosure only when the target does not accept it there.
 
 | # | BAD | GOOD |
 |---|-----|------|
-| 1 | An "## Artificial Intelligence Disclosure" paragraph at the end of the body | Delete the whole paragraph → state it only in the cover letter or submission form |
-| 2 | "Generative AI was not used to create, modify, or alter any images, figures, or tables in this manuscript." (in body Methods) | (delete) — the `~/.claude/rules/journal-ai-image-policies.md` boilerplate belongs only in the cover letter |
-| 3 | "We acknowledge the use of ChatGPT for language editing" in the Acknowledgments section | Move to the cover letter per journal policy, or reduce to "Language editing was performed" |
+| 1 | A generic "## Artificial Intelligence Disclosure" section in the body of a journal that wants disclosure only in the cover letter or submission form | Move it to the place the journal asks for |
+| 2 | The same disclosure in Methods, Acknowledgments and the cover letter when the journal asks for one place | Keep it where the journal asks; remove the copies |
+| 3 | A required disclosure reworded into something vaguer ("Language editing was performed") so the tool is not named | Never. Name the tool and the tasks wherever the journal requires disclosure |
 
 **Detection:** `grep -inE "artificial intelligence disclosure|generative ai was not used|ai acknowledg(e)?ment" manuscript.md` → 0 lines (body).
 **Fix strategy:** Remove from the body → keep only on the submission form / cover letter. Exception only when the journal requires an in-body statement.
@@ -684,7 +689,7 @@ Run this checklist on the final manuscript before submission:
 - [ ] AI pattern density < 2.0 per 1000 words
 - [ ] § (section sign): 0 occurrences (Pattern 19) — `grep -c "§"` = 0
 - [ ] (Methods §X) / (Results §Y) self-reference: 0 occurrences (Pattern 20)
-- [ ] AI Disclosure boilerplate in body: 0 occurrences (Pattern 21) — cover letter / submission form only
+- [ ] AI disclosure placed where the target journal asks for it, once, naming the tool (Pattern 21)
 - [ ] Inline-emphasis over-use (Pattern 25) — `check_emphasis_density.py`; strip single-word and whole-clause italics, keep stat symbols / Latin / gene-species
 - [ ] Aphorism density (Pattern 26) — `check_aphorism_density.py`; a run of negative definitions plus very short declaratives; absorb most into neighbouring sentences, keep two or three
 - [ ] Antithesis / cleft density (Pattern 27) — `check_rhetorical_density.py`; "rather than" / "not X but Y" / "X, not Y" and sentence-initial "What … is …" / "It is … that …"; delete the negative half and rewrite positive, keep two or three

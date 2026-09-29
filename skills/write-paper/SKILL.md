@@ -619,24 +619,39 @@ disclosure of AI writing assistance. Omitting disclosure risks rejection or retr
 The default-on design protects the user; they can opt out for journals with no such policy
 or when LLM assistance was minimal.
 
-### Disclosure Locations (3 places)
+### Disclosure Locations
+
+Where the disclosure goes is a fact about the target journal, and journals disagree: some want
+it in Methods, some in Acknowledgments, some only in the cover letter, title page or submission
+form. Take the location from the loaded journal profile (**Journal-Specific Overrides** below)
+and use only the templates for the places that journal asks for. With no target journal
+recorded, fall back to ICMJE (Methods + Acknowledgments) and treat the placement as
+unconfirmed: the Phase 7.1 check (`check_classical_style.py`, `INBODY_AI_DISCLOSURE`) reports
+it as a Minor item until a target is set, and as Major if the target does not accept a body
+disclosure.
+
+The statements about what the authors did (reviewed, verified, approved; what the tool was not
+used for) are the authors' to make. Draft them inside a `[TODO authors confirm: …]` marker and
+leave the marker for the authors to resolve — `check_placeholders.py` blocks submission while a
+`TODO` or an unfilled `[tool]`/`[version]` token remains.
 
 #### 1. Methods Section — Last Paragraph
 
-Insert at the end of the Methods section, after the ethics statement:
+When the target journal wants it in Methods, place it at the end of the Methods section, after
+the ethics statement:
 
 **Template (adapt to specifics):**
 ```
 [AI-Assisted Writing Disclosure]
-An artificial intelligence language model (Claude, Anthropic) was used to assist with
-manuscript drafting, including structuring sections, refining prose, and verifying
-internal consistency of reported statistics. All content was critically reviewed,
-verified against source data, and approved by all authors. The AI tool was not involved
-in study design, data collection, data analysis, or interpretation of results.
+An artificial intelligence language model ([tool] [version], [developer]) was used to assist
+with [tasks actually performed, e.g. structuring sections, refining prose, checking the
+internal consistency of reported statistics]. [TODO authors confirm: All content was
+critically reviewed, verified against source data, and approved by all authors. The tool was
+not involved in study design, data collection, data analysis, or interpretation of results.]
 ```
 
 **Customization rules:**
-- Replace "Claude, Anthropic" with the actual tool(s) used.
+- Replace `[tool] [version], [developer]` with the actual tool(s) used.
 - List specific tasks the LLM performed (drafting, editing, literature search, statistical code).
 - If the LLM was also used for data analysis (e.g., statistical code generation via
   `/analyze-stats`), state this explicitly: "was also used to generate statistical
@@ -657,10 +672,11 @@ for the content.
 **Template:**
 ```
 In accordance with [Journal Name]'s policy on AI-assisted writing, we disclose that
-[Claude/tool name] was used to assist with manuscript preparation, specifically
-[list tasks: drafting, language editing, statistical code review]. All authors have
-reviewed and take responsibility for the final content. The AI tool was not listed
-as an author and did not contribute to study conception, design, or data interpretation.
+[tool] [version] was used to assist with manuscript preparation, specifically
+[list tasks: drafting, language editing, statistical code review]. [TODO authors confirm:
+All authors have reviewed and take responsibility for the final content. The AI tool was
+not listed as an author and did not contribute to study conception, design, or data
+interpretation.]
 ```
 
 ### What NOT to Disclose
@@ -724,7 +740,7 @@ Severity levels: **ENFORCED** = pipeline halts on failure (cannot proceed to nex
 | 0 | Backbone-article auto-proposal (Phase 0 "Identify a backbone article" action) | ADVISORY | refs.bib has methodologically similar candidate | Surface to user; user accepts/declines |
 | 7.0 | Citekey resolution (delegate `/manage-refs scripts/check_citation_keys.py`) | ENFORCED | UNDEFINED keys present | Halt; resolve via `/lit-sync` then re-run |
 | 7.0 | NEW_PLACEHOLDER drain (delegate `/manage-refs`) | ENFORCED at 7.6 entry | `[@NEW:topic]` markers remain | Resolve each before DOCX render |
-| 7.1 | Classical-style QC (manuscript-style-classical 11 items) | ENFORCED | § symbol > 0 OR AI Disclosure paragraph in body OR em-dash > 25 | Auto-fix or HALT for senior MA reviewer prep |
+| 7.1 | Classical-style QC (manuscript-style-classical 11 items) | ENFORCED | § symbol > 0 OR an AI disclosure in the body of a journal that does not accept one there (per profile) OR more than 25 prose em-dashes | Auto-fix or HALT for senior MA reviewer prep |
 | 7.2 | Reporting guideline compliance (`/check-reporting`) | ENFORCED at submission | <100% mandatory items present | Auto-fix MISSING; ADVISORY for partial |
 | 7.3 | Reference audit (`/verify-refs --strict`) | ENFORCED | FABRICATED or HIGH_MISMATCH_FIRST_AUTHOR > 0 | Halt; fix in Zotero, re-render refs.bib via `/lit-sync` |
 | 7.4 | Self-review fix loop (`/self-review --json --fix`) | ENFORCED | score below threshold after 2 iterations | Route to Step 7.4a Audit Recovery |
