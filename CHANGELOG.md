@@ -2,6 +2,71 @@
 
 ## [Unreleased]
 
+## [5.28.0] - 2026-09-29
+
+**Hotfix:** `/deidentify scan` could classify a column that carries PHI as SAFE, and a SAFE column is passed through un-stripped.
+
+This happened in two ways. First, lower-case letter-bearing IDs and postcodes were never matched. Second, a column with only a few PHI values was judged from a random sample that could miss them. If you de-identified data with an earlier version, scan it again.
+
+### Fixed
+
+- **`/deidentify`: a column is called SAFE only after every value has been checked.**
+  The scan judged each column from a random sample of at most 500 values. A column with
+  only a few PHI values could therefore come out SAFE: three phone numbers in 2,000
+  clinical notes did in 4 of 10 runs. The same file could also classify differently from
+  one run to the next. Every non-empty value is now checked, and `sample_size` in the
+  scan report counts them. Scanning 2 million cells now takes about 6 s instead of under
+  1 s.
+- **`/deidentify`: letter-bearing IDs and postcodes are matched in any case.** UK
+  National Insurance numbers, Indian PAN numbers, and UK and Canadian postcodes written
+  in lower case were not recognised, so a column of them under an unmapped name was
+  classified SAFE. National-ID and postcode patterns are now case-insensitive in every
+  locale pack, including a custom `--locale-file`.
+- **`/analyze-stats`: the incremental-value table guide no longer treats a DeLong test of
+  ΔAUC as the test of added value.** When nested models are fitted and evaluated on the
+  same data, that test is conservative and underpowered (Demler, Pencina & D'Agostino,
+  *Stat Med* 2012; Vickers, Cronin & Begg, *BMC Med Res Methodol* 2011).
+  - Added value is now tested through the new term's coefficient, with a likelihood-ratio
+    test.
+  - ΔAUC is reported as an estimate with its confidence interval.
+  - Paired DeLong remains for comparing two models that were frozen before evaluation on
+    held-out patients.
+  - The guide no longer recommends the continuous NRI as evidence of added value, because
+    it can overstate a marker's value even in independent validation data (Kerr et al.,
+    *Epidemiology* 2014).
+- **Journal of Breast Cancer profile: the fifty-reference limit is restored.** The author
+  guidelines state it in words ("limited in number to fifty"), which an earlier review
+  missed. Contributed by @dr-jeong.
+
+### Added
+
+- Seven oncology journal profiles for `/find-journal` and `/write-paper`:
+  - Journal of Clinical Oncology
+  - Annals of Oncology
+  - Clinical Cancer Research
+  - ESMO Open
+  - npj Breast Cancer
+  - Journal of Breast Cancer
+  - Cancer Research and Treatment
+
+  Contributed by @dr-jeong.
+- A figure-anatomy exemplar for the SHAP summary (beeswarm) plot. It covers the
+  elements the figure must state: the ordering of features, the output and class being
+  explained, the explainer and its background distribution, and the spread of values for
+  each feature. It also covers the readings it does not support: SHAP values are not
+  causal effects, they are not changes in the patient's risk, and a ranking of correlated
+  predictors depends on the model. Contributed by @aniruddhaadak80.
+
+### Changed
+
+- The skill validator now refuses three kinds of disclosure that a literal blocklist
+  cannot see: co-reviewer and editor-decision prose, submission IDs, and quoted
+  assessment language.
+- Journal profiles record when a guideline was checked to the month. Journal facts keep
+  day precision.
+- Release integrity: after publishing, the release workflow now reads the npm registry
+  directly. It retries while the registry catches up, and treats a timeout as a failure.
+
 ## [5.27.0] - 2026-09-23
 
 ### Added
