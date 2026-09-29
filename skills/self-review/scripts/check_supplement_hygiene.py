@@ -29,7 +29,10 @@ Verdicts (all Major — each reaches a reviewer/editor as a non-anonymous slip):
                          re-identifiable datum in a reader-facing/public supplement. A
                          byline/roster without individual responses does not fire.
   SUPP_XREF_UNRESOLVED   (needs --manuscript) a body "Supplementary Table/Figure/
-                         Material N" callout with no matching supplement section.
+                         Material N" callout — or an S-prefixed / plural / range form
+                         ("Table S4", "Supplementary Figures S2 and S3", "Figs S1–S3") —
+                         with no matching supplement section. Tables and figures are
+                         matched by kind: a "Table S2" does not resolve a cited "Figure S2".
 
 Exit codes: 0 clean (or report-only), 1 with --strict when any Major exists, 2 usage.
 Stdlib-only (json / re / argparse / pathlib).
@@ -168,50 +171,138 @@ def lint_file(path: Path) -> list[dict]:
 # --- body ↔ supplement cross-reference resolution --------------------------
 
 # A body callout like "Supplementary Table 3", "Supplementary Figure 2",
-# "Supplementary Material 5", "Supplementary Methods 1", "Supplementary Appendix 4".
+# "Supplementary Material 5", "Supplementary Methods 1", "Supplementary Appendix 4" —
+# and the forms people actually write for figures and tables: S-prefixed ("Table S4",
+# "Fig. S1"), plural lists ("Supplementary Figures S2 and S3") and ranges ("Figs S1–S3").
+# The S-prefixed and plural forms used to match nothing, so a cited-but-absent
+# supplementary figure passed. A bare S-prefixed callout needs no "Supplementary"
+# (the S is the supplement marker); a main-text "Figure 2" / "Tables 1-3" never matches.
+_NUMTAIL = r"(?:\s*(?:,|&|–|—|-|and|to|through)\s*S?\d{1,3}[a-z]?)*"
 BODY_CALLOUT = re.compile(
-    r"Supplementary\s+(Table|Figure|Fig\.?|Material|Methods?|Appendix|Data|Note)\s+(\d{1,3})\b",
+    # "Supplementary Figures S2 and S3", "Supplementary Tables 1-3"
+    r"Supplementary\s+(?P<pk>Tables|Figures|Figs\.?|Materials|Notes)\s+"
+    r"(?P<plist>S?\d{1,3}[a-z]?" + _NUMTAIL + r")"
+    # "Supplementary Table 3", "Supplementary Fig. S2", "Supplementary Material 5"
+    r"|Supplementary\s+(?P<k>Table|Figure|Fig\.?|Material|Methods?|Appendix|Data|Note)\s+"
+    r"S?(?P<n>\d{1,3})(?!\d)"
+    # "Figs S1–S3", "Tables S2 and S4" (the S marks the supplement)
+    r"|(?<![A-Za-z])(?P<spk>Tables|Figures|Figs\.?)\s+(?P<splist>S\d{1,3}[a-z]?" + _NUMTAIL + r")"
+    # "Table S4", "Fig. S1"
+    r"|(?<![A-Za-z])(?P<sk>Table|Figure|Fig\.?)\s+S(?P<sn>\d{1,3})(?!\d)",
     re.IGNORECASE)
 
-# A supplement section identity: a heading that ends in / contains a number, or an
-# explicit "Supplementary Table/Material N" / "Table SN" title line.
-SUPP_SECTION = re.compile(
-    r"^#{1,4}\s.*?\b(?:Supplementary\s+)?(?:Table|Figure|Material|Methods?|Appendix|Section|Data|Note)\s+S?(\d{1,3})\b"
-    r"|^#{1,4}\s.*?\bS(\d{1,3})\b",
-    re.IGNORECASE | re.MULTILINE)
+# One token of a callout number list, with an optional range tail ("S1–S3" = S1, S2, S3).
+_NUM_TOKEN = re.compile(r"S?(\d{1,3})[a-z]?(?:\s*(?:[–—-]|to|through)\s*S?(\d{1,3})[a-z]?)?",
+                        re.IGNORECASE)
+
+_KIND_WORDS = (r"Tables?|Figures?|Figs?\.?|Materials?|Methods?|Appendix|Appendices"
+               r"|Sections?|Data|Notes?")
+# A supplement section identity: a heading naming a kind + number ("## Supplementary
+# Figure S2. ..."), a heading with only a bare S-number ("## S3. ..."), or a caption
+# definition line ("Figure S2. ..." / "**Table S4.** ...") as a captions file carries it.
+_HEADING = re.compile(r"^#{1,4}\s")
+_KINDED = re.compile(r"\b(?:Supplementary\s+)?(" + _KIND_WORDS + r")\s+S?(\d{1,3})[a-z]?\b",
+                     re.IGNORECASE)
+_BARE_S = re.compile(r"\bS(\d{1,3})[a-z]?\b")
+_CAPTION_DEF = re.compile(
+    r"^\s*(?:\*\*)?\s*(?:Supplementary\s+)?(Table|Figure|Fig\.?)\s+S?(\d{1,3})[a-z]?"
+    r"\s*(?:\*\*)?\s*[.:|]", re.IGNORECASE)
 
 
-def supplement_section_numbers(texts: list[str]) -> set[int]:
-    nums: set[int] = set()
+def _kind_of(word: str, generic: str = "other") -> str:
+    """table / figure, or ``generic`` for a container (Material, Methods, Appendix...)."""
+    w = word.lower()
+    if w.startswith("tab"):
+        return "table"
+    if w.startswith("fig"):
+        return "figure"
+    return generic
+
+
+def _label_of(word: str) -> str:
+    w = word.rstrip(".").lower()
+    if w.startswith("tab"):
+        return "Table"
+    if w.startswith("fig"):
+        return "Figure"
+    return {"materials": "Material", "notes": "Note"}.get(w, w.title())
+
+
+def _numbers_in(numlist: str) -> list[int]:
+    out: list[int] = []
+    for m in _NUM_TOKEN.finditer(numlist):
+        a = int(m.group(1))
+        b = int(m.group(2)) if m.group(2) else None
+        if b is not None and b >= a:
+            out.extend(range(a, b + 1))
+        else:
+            out.append(a)
+            if b is not None:
+                out.append(b)
+    return out
+
+
+def supplement_sections(texts: list[str]) -> set[tuple[str, int]]:
+    """(kind, number) of every supplement section. kind is table / figure, or 'any' for a
+    section that cannot be typed (a generic container such as "Supplementary Material 2",
+    or a heading carrying only a bare S-number)."""
+    present: set[tuple[str, int]] = set()
     for t in texts:
-        for m in SUPP_SECTION.finditer(t):
-            g = m.group(1) or m.group(2)
-            if g:
-                nums.add(int(g))
-    return nums
+        for line in t.splitlines():
+            if _HEADING.match(line):
+                kinded = list(_KINDED.finditer(line))
+                if kinded:
+                    for m in kinded:
+                        present.add((_kind_of(m.group(1), "any"), int(m.group(2))))
+                else:
+                    for m in _BARE_S.finditer(line):
+                        present.add(("any", int(m.group(1))))
+                continue
+            m = _CAPTION_DEF.match(line)
+            if m:
+                present.add((_kind_of(m.group(1)), int(m.group(2))))
+    return present
+
+
+def _resolves(kind: str, num: int, present: set[tuple[str, int]]) -> bool:
+    if (kind, num) in present or ("any", num) in present:
+        return True
+    # A generic container callout ("Supplementary Material 5") resolves against any
+    # section with that number; a Table / Figure callout needs a Table / Figure (or
+    # untyped) section — a "Table S2" no longer stands in for a cited "Figure S2".
+    return kind == "other" and any(n == num for _, n in present)
 
 
 def check_xref(manuscript_text: str, supplement_texts: list[str]) -> list[dict]:
     claims: list[dict] = []
-    present = supplement_section_numbers(supplement_texts)
+    present = supplement_sections(supplement_texts)
     seen: set[tuple[str, int]] = set()
     for m in BODY_CALLOUT.finditer(manuscript_text):
-        kind = m.group(1).rstrip(".").title()
-        num = int(m.group(2))
-        key = (kind, num)
-        if key in seen:
-            continue
-        seen.add(key)
-        if num not in present:
-            ln = _line_of(manuscript_text, m.start())
-            claims.append({
-                "verdict": "SUPP_XREF_UNRESOLVED",
-                "severity": "Major",
-                "detail": (f"body cites 'Supplementary {kind} {num}' but no supplement "
-                           f"section numbered {num} was found (renumber drift or a "
-                           f"silently-skipped/unrendered section)"),
-                "where": f"manuscript:{ln}",
-            })
+        if m.group("pk") or m.group("spk"):
+            word = m.group("pk") or m.group("spk")
+            nums = _numbers_in(m.group("plist") or m.group("splist"))
+        else:
+            word = m.group("k") or m.group("sk")
+            nums = [int(m.group("n") or m.group("sn"))]
+        kind = _kind_of(word)
+        label = _label_of(word)
+        for num in nums:
+            key = (label, num)
+            if key in seen:
+                continue
+            seen.add(key)
+            if not _resolves(kind, num, present):
+                ln = _line_of(manuscript_text, m.start())
+                what = (f"supplementary {label.lower()}" if kind != "other"
+                        else "supplement section")
+                claims.append({
+                    "verdict": "SUPP_XREF_UNRESOLVED",
+                    "severity": "Major",
+                    "detail": (f"body cites 'Supplementary {label} {num}' but no {what} "
+                               f"numbered {num} was found (renumber drift, a table/figure "
+                               f"mix-up, or a silently-skipped/unrendered section)"),
+                    "where": f"manuscript:{ln}",
+                })
     return claims
 
 

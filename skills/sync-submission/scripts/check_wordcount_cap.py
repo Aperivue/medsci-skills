@@ -10,14 +10,16 @@ cheap enough to re-run after every `/revise` pass.
 It counts the manuscript **body** (Introduction → Discussion), excluding YAML
 front matter, the abstract, references, tables/figures, supplementary, and the
 declaration sections (the same skip set as the cover-letter drift check, vendored
-here so this script is self-contained), and compares it to a word cap.
+here so this script is self-contained), and compares it to a word cap. The body's
+own subheadings ("Study population", "Statistical analysis") are counted, because
+the rendered DOCX carries each one as a line of text and Word counts it.
 
 THE BINDING NUMBER IS THE RENDERED WORD COUNT. pandoc citeproc expands each
 `[@key]` to "(Author Year)", so the rendered DOCX counts higher than the markdown.
 This gate approximates the rendered count as `body_words + n_inline_citations *
---citation-expansion` (default 1.6). When you have the authoritative rendered
-count (e.g. Word's count on the built DOCX), pass it with `--rendered-words N` and
-that is used verbatim.
+--citation-expansion` (default 1.6), where body_words includes subheading words.
+When you have the authoritative rendered count (e.g. Word's count on the built
+DOCX), pass it with `--rendered-words N` and that is used verbatim.
 
 CAP SOURCE
   --limit N                 the body word cap (deterministic; preferred).
@@ -28,8 +30,8 @@ CAP SOURCE
 
 OUTPUT
   stdout summary and, with --out, a JSON artifact:
-    {manuscript, body_words, n_inline_citations, rendered_words_est, limit,
-     near_threshold, ratio, verdict}
+    {manuscript, body_words, heading_words, n_inline_citations, rendered_words_est,
+     limit, near_threshold, ratio, verdict}
   WORDCOUNT_OVER_CAP (Major) when the effective count exceeds the cap;
   WORDCOUNT_NEAR_CAP (Minor) when it exceeds near_threshold * cap (default 0.95).
   Exit 1 (with --strict) when WORDCOUNT_OVER_CAP fires.
@@ -78,14 +80,28 @@ SETEXT_SKIP_RE = re.compile(
     SKIP_SECTION_RE.pattern.replace(r"^#{1,6}\s+", "^", 1), re.IGNORECASE)
 
 
-def measure_body(manuscript_path: Path) -> tuple[int, int]:
-    """Return (body_words, n_inline_citations) over the non-skipped body."""
+def _heading_words(text: str) -> int:
+    """Words in a body subheading's own text (markup stripped)."""
+    return len(WORD_RE.findall(re.sub(r"^#{1,6}\s+|[*_`]", " ", text)))
+
+
+def measure_body(manuscript_path: Path) -> tuple[int, int, int]:
+    """Return (body_words, n_inline_citations, heading_words) over the non-skipped body.
+
+    ``body_words`` INCLUDES the words of every body subheading ("Study population",
+    "Statistical analysis"); ``heading_words`` reports that share separately. A rendered
+    DOCX — the binding number — puts each heading on its own line and Word counts it, so
+    an estimate that dropped them read a real overage as NEAR_CAP (fifteen four-word
+    subheadings are 60 words). Headings of skipped sections (Abstract, References, ...)
+    are not counted, like the sections themselves.
+    """
     lines = manuscript_path.read_text(encoding="utf-8").splitlines()
     _, body_lines = split_yaml_front_matter(lines)
     in_skip = False
     in_code_fence = False
     words = 0
     cites = 0
+    heading_words = 0
     for idx, line in enumerate(body_lines):
         stripped = line.rstrip()
         if stripped.startswith("```"):
@@ -100,9 +116,13 @@ def measure_body(manuscript_path: Path) -> tuple[int, int]:
         nxt = body_lines[idx + 1].rstrip() if idx + 1 < len(body_lines) else ""
         if stripped.strip() and SETEXT_UNDERLINE_RE.match(nxt):
             in_skip = bool(SETEXT_SKIP_RE.match(stripped.strip()))
+            if not in_skip:
+                heading_words += _heading_words(stripped)
             continue
         if HEADER_RE.match(stripped):
             in_skip = bool(SKIP_SECTION_RE.match(stripped))
+            if not in_skip:
+                heading_words += _heading_words(stripped)
             continue
         if in_skip:
             continue
@@ -112,7 +132,7 @@ def measure_body(manuscript_path: Path) -> tuple[int, int]:
         # Don't count the citation tokens themselves as prose words.
         prose = CITE_RE.sub(" ", stripped)
         words += len(WORD_RE.findall(prose))
-    return words, cites
+    return words + heading_words, cites, heading_words
 
 
 # --- cap from a journal profile --------------------------------------------
@@ -151,7 +171,7 @@ def analyze(manuscript: Path, limit: int, citation_expansion: float,
     if not manuscript.is_file():
         sys.stderr.write(f"ERROR: manuscript not found: {manuscript}\n")
         sys.exit(2)
-    body_words, n_cites = measure_body(manuscript)
+    body_words, n_cites, heading_words = measure_body(manuscript)
     if rendered_words is not None:
         effective = rendered_words
         basis = "rendered_words (authoritative)"
@@ -168,6 +188,7 @@ def analyze(manuscript: Path, limit: int, citation_expansion: float,
     return {
         "manuscript": str(manuscript),
         "body_words": body_words,
+        "heading_words": heading_words,
         "n_inline_citations": n_cites,
         "rendered_words_est": effective,
         "rendered_basis": basis,
@@ -212,6 +233,7 @@ def main() -> int:
         print(" Word-Count vs Journal Cap")
         print("=" * 41)
         print(f"body words (md)      : {result['body_words']:,}")
+        print(f"  of which subheadings: {result['heading_words']:,}")
         print(f"inline citations     : {result['n_inline_citations']:,}")
         print(f"rendered est         : {result['rendered_words_est']:,}  [{result['rendered_basis']}]")
         print(f"journal cap          : {result['limit']:,}  (ratio {result['ratio']:.2f})")

@@ -146,7 +146,6 @@ for skill_dir in "${SKILL_DIRS[@]}"; do
 
   ((TOTAL++))
   echo "[$skill_name]"
-  lines=$(wc -l < "$skill_file")
 
   # 1. Frontmatter: required fields
   has_name=$(head -20 "$skill_file" | grep -c "^name:" || true)
@@ -167,31 +166,10 @@ for skill_dir in "${SKILL_DIRS[@]}"; do
     fail "Frontmatter missing:$missing"
   fi
 
-  # 2. Anti-Hallucination section
-  if grep -qi "anti.hallucination\|Anti-Hallucination" "$skill_file"; then
-    pass "Anti-Hallucination section"
-  else
-    fail "Anti-Hallucination section MISSING"
-  fi
-
-  # 3. Quality gates (look for "Gate" or "user approval" or "user review")
-  gate_count=$(grep -ci "gate\|user approval\|user review\|user confirms\|present.*user" "$skill_file" || true)
-  if [ "$gate_count" -ge 3 ]; then
-    pass "Quality gates ($gate_count references)"
-  elif [ "$gate_count" -ge 1 ]; then
-    warn "Quality gates ($gate_count — recommend 3+)"
-  else
-    warn "Quality gates (0 found)"
-  fi
-
-  # 4. Line count tier
-  if [ "$lines" -ge 300 ]; then
-    pass "Size: $lines lines (HIGH tier)"
-  elif [ "$lines" -ge 150 ]; then
-    pass "Size: $lines lines (MID tier)"
-  else
-    warn "Size: $lines lines (THIN tier — consider expanding)"
-  fi
+  # (Former checks 2-4 removed 2026-09-30: a required "Anti-Hallucination" heading, a quota of
+  #  "gate" words, and a size tier that warned "THIN — consider expanding" under 150 lines. They
+  #  rewarded boilerplate and length, the opposite of what a skill should carry; the upper bound
+  #  lives in check_phase_budget.py.)
 
   # 5. Reference file integrity
   ref_count=0
@@ -305,7 +283,7 @@ for skill_dir in "${SKILL_DIRS[@]}"; do
     hit=$(python3 "$CHECK_PRECEDENT" "$f"); rc=$?
     rel="${f#$REPO_ROOT/}"
     if [ "$rc" -eq 3 ]; then
-      fail "Personal precedent in $rel: $hit"
+      fail "Personal precedent in $rel: line ${hit%%:*}"
       ((precedent_hits++))
     elif [ "$rc" -ne 0 ]; then
       fail "check_precedent.py error on $rel (rc=$rc)"
@@ -323,7 +301,7 @@ for skill_dir in "${SKILL_DIRS[@]}"; do
     hit=$(_personal_path_hit < "$f")
     if [ -n "$hit" ]; then
       rel="${f#$REPO_ROOT/}"
-      fail "Personal path in $rel: $hit"
+      fail "Personal path in $rel: line ${hit%%:*}"
       ((path_hits++))
     fi
   done
@@ -382,7 +360,7 @@ for skill_dir in "${SKILL_DIRS[@]}"; do
     if [ -n "$matches" ]; then
       rel="${f#$REPO_ROOT/}"
       first=$(echo "$matches" | head -1)
-      fail "Real email leak in $rel: $first"
+      fail "Real email leak in $rel: line ${first%%:*}"
       ((email_hits++))
     fi
   done
@@ -432,7 +410,7 @@ for skill_dir in "${SKILL_DIRS[@]}"; do
     if [ -n "$matched" ]; then
       rel="${f#$REPO_ROOT/}"
       first=$(echo "$matched" | head -1)
-      fail "Dated precedent blockquote in $rel: $first"
+      fail "Dated precedent blockquote in $rel: line ${first%%:*}"
       ((blockdate_hits++))
     fi
   done
@@ -492,7 +470,7 @@ PY
     first=$(echo "$korean_lines" | head -1)
     # WARN-only: Korean-native SKILL.md migration is a separate translation task.
     # Precedent/path/blockquote rules (6-8) remain FAIL to block regressions.
-    warn "Korean prose in SKILL.md: $count line(s), first $first"
+    warn "Korean prose in SKILL.md: $count line(s), first at line ${first%%:*}"
   fi
 
   # 10. Binary EXIF metadata scan (DOCX / PPTX / XLSX / PDF / PNG / JPG / TIFF).
@@ -535,7 +513,7 @@ PY
       printf '%s' "$line" | python3 "$CHECK_PRECEDENT" - >/dev/null 2>&1 || _exif_rc=$?
       if [ "$_exif_rc" -eq 3 ]; then
         rel="${current_file#$REPO_ROOT/}"
-        fail "Binary EXIF PII in $rel: $line"
+        fail "Binary EXIF PII in $rel: field ${line%%:*}"
         ((exif_hits++))
       fi
     done <<< "$exif_dump"
@@ -594,7 +572,7 @@ while IFS= read -r rel; do
     precedent_hit=$(printf '%s' "$scan_src" | python3 "$CHECK_PRECEDENT" -); precedent_rc=$?
   fi
   if [ "$precedent_rc" -eq 3 ]; then
-    fail "Personal precedent in $rel: $precedent_hit"
+    fail "Personal precedent in $rel: line ${precedent_hit%%:*}"
     ((META_FAIL++))
   elif [ "$precedent_rc" -ne 0 ]; then
     fail "check_precedent.py error on $rel (rc=$precedent_rc)"
@@ -602,16 +580,17 @@ while IFS= read -r rel; do
   fi
   hit=$(printf '%s\n' "$scan_src" | _personal_path_hit)
   if [ -n "$hit" ]; then
-    fail "Personal path in $rel: $hit"
+    fail "Personal path in $rel: line ${hit%%:*}"
     ((META_FAIL++))
   fi
   matches=$(echo "$scan_src" | grep -nE "$email_pattern" | grep -vE "$email_whitelist" || true)
   if [ -n "$matches" ]; then
     first=$(echo "$matches" | head -1)
-    fail "Real email leak in $rel: $first"
+    fail "Real email leak in $rel: line ${first%%:*}"
     ((META_FAIL++))
   fi
-done < <(git -C "$REPO_ROOT" ls-files -- '*.md' '*.yml' '*.yaml' '*.json' '*.cff' '*.bib' '*.txt' '*.csv' '*.tsv' '*.py' '*.sh')
+done < <(git -C "$REPO_ROOT" ls-files -- '*.md' '*.yml' '*.yaml' '*.json' '*.jsonl' '*.jsonld' '*.cff' '*.bib' '*.txt' '*.csv' '*.tsv' '*.py' '*.sh' \
+  '*.R' '*.qmd' '*.js' '*.ps1' '*.cmd' '*.command' '*.template' '*.svg' '*.xml' '*.tape')
 
 # The public surface also contains demonstration Word documents. Reuse the
 # submission scanner's package-level path check, including custom properties

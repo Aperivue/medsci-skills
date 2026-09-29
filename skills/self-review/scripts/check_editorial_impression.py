@@ -61,6 +61,8 @@ import re
 import sys
 from pathlib import Path
 
+from _frontmatter import strip_frontmatter
+
 # --------------------------------------------------------------------------- #
 # Section segmentation
 # --------------------------------------------------------------------------- #
@@ -382,7 +384,9 @@ def analyze(manuscript: str, **kw) -> dict:
     if not p.is_file():
         sys.stderr.write(f"ERROR: manuscript not found: {manuscript}\n")
         sys.exit(2)
-    claims = check(p.read_text(encoding="utf-8"), **kw)
+    # A `status:` / changelog YAML block is not narrative: its "hypothesis-generating"
+    # history lines were counted as HEDGE_REPEAT motifs in the manuscript's own prose.
+    claims = check(strip_frontmatter(p.read_text(encoding="utf-8")), **kw)
     by_action = {"REMOVE": 0, "MOVE": 0, "TIGHTEN": 0}
     for c in claims:
         by_action[c["action"]] = by_action.get(c["action"], 0) + 1

@@ -56,5 +56,48 @@ else
   printf '  PASS  %s\n' "--strict exits 1 on an invariant violation"
 fi
 
+# (direction) "18% lower than arm B" -> "18% above that of arm A": every digit survives, the
+#   claim reverses. The percentage is bound to its comparator word, so the flip must fire.
+DBEFORE="$HERE/fixtures/rewrite_direction_before.md"
+python3 "$SCRIPT" --before "$DBEFORE" --after "$HERE/fixtures/rewrite_direction_after_flip.md" \
+  --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "--strict exits 1 on a flipped comparison direction" test "$?" -eq 1
+check "NUMBER_DRIFT names the flipped percentage (18% down -> up)" python3 -c "
+import json
+d=json.load(open('$OUT'))
+c=[x for x in d['claims'] if x['verdict']=='NUMBER_DRIFT']
+assert c and c[0]['severity']=='Major', d['claims']
+toks={t['token']:(t['before'],t['after']) for t in c[0]['tokens']}
+assert toks.get('18% (down)')==(1,0) and toks.get('18% (up)')==(0,1), toks
+"
+# (minus) a dropped leading minus (U+2212 and ASCII '-') reverses a value and must fire.
+python3 "$SCRIPT" --before "$DBEFORE" --after "$HERE/fixtures/rewrite_direction_after_minus.md" \
+  --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "--strict exits 1 when a leading minus is dropped" test "$?" -eq 1
+check "NUMBER_DRIFT names both dropped minus signs (-2.4, -0.35)" python3 -c "
+import json
+d=json.load(open('$OUT'))
+toks={t['token'] for c in d['claims'] if c['verdict']=='NUMBER_DRIFT' for t in c['tokens']}
+assert {'-2.4','2.4','-0.35','0.35'} <= toks, toks
+"
+# Negative control: same direction in other words ("lower by 18%"), U+2212 -> ASCII '-',
+# and range hyphens ("-3.1 to -1.7") -> clean.
+check "same direction reworded + minus-sign normalisation stays clean" \
+  python3 "$SCRIPT" --before "$DBEFORE" --after "$HERE/fixtures/rewrite_direction_after_same.md" --strict --quiet
+
+# (context) each changed token carries one short before/after snippet, in the JSON and in the
+#   printed report, so a human can tell a renumber from a changed statistic without re-reading.
+python3 "$SCRIPT" --before "$BOUNDED" --after "$NUMDRIFT" --out "$OUT" --quiet >/dev/null 2>&1
+check "NUMBER_DRIFT tokens carry before/after context snippets" python3 -c "
+import json
+d=json.load(open('$OUT'))
+toks={t['token']:t for c in d['claims'] if c['verdict']=='NUMBER_DRIFT' for t in c['tokens']}
+assert '78% to 91%' in (toks['91'].get('before_context') or ''), toks['91']
+assert '78% to 93%' in (toks['93'].get('after_context') or ''), toks['93']
+"
+check "the printed report shows the context lines" bash -c "
+python3 '$SCRIPT' --before '$BOUNDED' --after '$NUMDRIFT' | grep -q 'before: .*78% to 91%'
+"
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

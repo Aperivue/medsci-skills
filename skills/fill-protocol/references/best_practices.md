@@ -116,6 +116,6 @@ Look for:
 - **HWP / HWPX input**: chain with `hwp-pipeline` first (HWP → HWPX → DOCX)
 - **PDF form filling**: use the `pdf` skill or a dedicated PDF-form library
 - **Free-form research writing**: use `write-paper` or `write-protocol`
-- **Slides / presentations**: use `generate-pptx`
+- **Slides / presentations**: use `present-paper`
 - **Templates with Word "content controls"** (interactive form fields): not
   yet supported by this skill
