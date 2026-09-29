@@ -37,9 +37,12 @@ so its side of the comparison is measured on a different question.
 > predictors in routine use**, fitted on the same patients as the full model, so the
 > nested comparison is paired.
 >
-> Reported as two separate AUCs, the gain also has no interval. A paired difference in
-> discrimination (ΔAUC or ΔC-index) with its confidence interval, plus a test of that
-> difference, would let readers judge whether the improvement is distinguishable from
+> Reported as two separate AUCs, the gain also has no interval. I'd suggest reporting
+> the paired difference in discrimination (ΔAUC or ΔC-index) with its confidence interval
+> as the size of the gain, and testing whether the marker adds anything through its
+> coefficient in the full model (a likelihood-ratio test) rather than through a test of
+> ΔAUC, which is unreliable when nested models are fitted and evaluated on the same
+> patients. That would let readers judge whether the improvement is distinguishable from
 > noise — and would honestly show the result if the interval is wide.
 >
 > On the comparator's side, the published nomogram was developed for a [time-horizon]
@@ -49,10 +52,10 @@ so its side of the comparison is measured on a different question.
 > recalibrated locally, or refit — would close that gap.
 >
 > Finally, since the claim is about what the marker *adds for decisions*, the comparison
-> would be most useful with the remaining two axes: reclassification reported as a
-> continuous measure with its event and non-event components given separately, and
-> decision-curve net benefit against treat-all / treat-none. Both depend on calibrated
-> probabilities, so this pairs with `calibration_missing.md` rather than replacing it.
+> would be most useful with the remaining two axes: reclassification, if reported, with
+> its event and non-event components given separately, and decision-curve net benefit
+> against treat-all / treat-none. Both depend on calibrated probabilities, so this pairs
+> with `calibration_missing.md` rather than replacing it.
 
 ## Severity calibration
 
