@@ -29,8 +29,11 @@ Never copy real EMR data into this directory, even for one-off debugging.
 
 Exercises the `it` locale pack (see `../locales/it.json` and issue #116):
 
-- **Codice fiscale** values follow the public 16-character format specification
-  but are constructed — they do not correspond to any real person's fiscal code.
+- **Codice fiscale** values follow the public 16-character format specification,
+  including one omocodic variant (digit positions written with the
+  `L M N P Q R S T U V` substitutions the Agenzia delle Entrate uses when two
+  people would otherwise share a code). Check characters are deliberately
+  invalid, so none of these can be a real person's code.
 - **Phone numbers** (`333 123 4567`, `+39 02 1234567`, `06 1234567`) are
   sequential placeholder digits in valid Italian formats.
 - **Names** (`Marco`, `Giulia`, `Anna`) are generic first names equivalent to
