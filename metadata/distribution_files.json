@@ -1083,8 +1083,8 @@
     },
     {
       "path": "skills/deidentify/deidentify.py",
-      "size": 46786,
-      "sha256": "0087c4cc92321812254fa94d5548484a56a10ef5644484317a5cffa6ef55f003"
+      "size": 46778,
+      "sha256": "5931af2083887f202842f7e1a9df79a501436c004f749ce1e8d833d7d814601a"
     },
     {
       "path": "skills/deidentify/locales/_template.json",

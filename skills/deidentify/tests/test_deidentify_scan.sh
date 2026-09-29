@@ -64,18 +64,6 @@ cl={x['column']: x['classification'] for x in d['classifications']}
 for i in (7, 8):
     assert cl.get(hdr[i])=='SAFE', (i, hdr[i], cl.get(hdr[i]))"
 
-# --- Fixture 2: clean (no PHI) -> PHI == 0 (false-positive guard) ---
-python3 "$SCRIPT" scan "$HERE/test_clean.csv" --locale kr -o "$OUTDIR" >/dev/null 2>&1
-CLEAN_REPORT="$OUTDIR/scan_report.json"
-check "clean fixture: PHI == 0" test "$(count "$CLEAN_REPORT" PHI)" -eq 0
-
-# --- Fixture 3: edge cases -> REVIEW_NEEDED=1, SAFE=5 (no crash, fixed contract) ---
-python3 "$SCRIPT" scan "$HERE/test_edge_cases.csv" --locale kr -o "$OUTDIR" >/dev/null 2>&1
-check "edge fixture: exit 0 (no crash)" test "$?" -eq 0
-EDGE_REPORT="$OUTDIR/scan_report.json"
-check "edge fixture: REVIEW_NEEDED == 1" test "$(count "$EDGE_REPORT" REVIEW_NEEDED)" -eq 1
-check "edge fixture: SAFE == 5"          test "$(count "$EDGE_REPORT" SAFE)"          -eq 5
-
 # --- Fixture 4: Italian PHI (7 columns) -> PHI=5, REVIEW_NEEDED=0, SAFE=2 ---
 python3 "$SCRIPT" scan "$HERE/test_phi_italian.csv" --locale it -o "$OUTDIR" >/dev/null 2>&1
 IT_REPORT="$OUTDIR/scan_report.json"
@@ -101,6 +89,19 @@ with open('$HERE/test_phi_italian.csv', encoding='utf-8') as f:
 cl={x['column']: x['classification'] for x in d['classifications']}
 for i in (5, 6):
     assert cl.get(hdr[i])=='SAFE', (i, hdr[i], cl.get(hdr[i]))"
+
+# --- Fixture 2: clean (no PHI) -> PHI == 0 (false-positive guard) ---
+python3 "$SCRIPT" scan "$HERE/test_clean.csv" --locale kr -o "$OUTDIR" >/dev/null 2>&1
+CLEAN_REPORT="$OUTDIR/scan_report.json"
+check "clean fixture: PHI == 0" test "$(count "$CLEAN_REPORT" PHI)" -eq 0
+
+# --- Fixture 3: edge cases -> REVIEW_NEEDED=1, SAFE=5 (no crash, fixed contract) ---
+python3 "$SCRIPT" scan "$HERE/test_edge_cases.csv" --locale kr -o "$OUTDIR" >/dev/null 2>&1
+check "edge fixture: exit 0 (no crash)" test "$?" -eq 0
+EDGE_REPORT="$OUTDIR/scan_report.json"
+check "edge fixture: REVIEW_NEEDED == 1" test "$(count "$EDGE_REPORT" REVIEW_NEEDED)" -eq 1
+check "edge fixture: SAFE == 5"          test "$(count "$EDGE_REPORT" SAFE)"          -eq 5
+
 # --- Case-insensitive ID and postcode detection (runtime-built fixtures) ---
 # Letter-bearing national IDs and postcodes are often exported in lower case.
 # A missed match classifies the column SAFE, so it is passed through
