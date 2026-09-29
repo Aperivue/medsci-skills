@@ -88,7 +88,7 @@ to restrict verification to PubMed + CrossRef.
 
 | Artifact | Path | Purpose |
 |---|---|---|
-| Audit JSON | `qc/reference_audit.json` | Metadata audit output — row-level status (OK/MISMATCH/UNVERIFIED/FABRICATED), counts, `cited_authors[]`/`actual_authors[]`, `duplicate_findings[]`, submission-safe flag, full records |
+| Audit JSON | `qc/reference_audit.json` | Metadata audit output — row-level status (OK/MISMATCH/UNVERIFIED/FABRICATED), counts, `cited_authors[]`/`actual_authors[]`, `duplicate_findings[]`, submission-safe flag, full records, plus `source_sha256` and `audited_ref_ids` (what was audited — a later reader compares them with the current bib, and a changed bib makes the audit stale) |
 
 **v1.2.0 (2026-05)** adds `duplicate_findings[]` to the audit JSON. Verbatim PMID or DOI duplicates within the reference list are flagged as MAJOR findings (resolves `/peer-review` Phase 2A P7). DOI normalization strips `https://doi.org/`, `http://dx.doi.org/`, `doi:` prefixes plus trailing slashes before comparison so `https://doi.org/10.x/abc/` and `10.x/abc` collapse to one key. Both `submission_safe` and `fully_verified` now require `duplicate_findings` to be empty.
 

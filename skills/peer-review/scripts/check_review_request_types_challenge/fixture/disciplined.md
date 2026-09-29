@@ -17,3 +17,8 @@ Suggested revisions:
 
 Suggested revisions:
 - Give the analysed subset's characteristics beside the parent cohort's, without a significance test — the groups are nested.
+
+**3.4 The adjudicated reference standard**
+
+Suggested revisions:
+- Give the 40 adjudicated examinations as a cross-table of extracted label, final label and model result; these are fields your adjudication files already hold.

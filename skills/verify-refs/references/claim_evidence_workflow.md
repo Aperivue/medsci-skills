@@ -13,9 +13,14 @@ DOI's PDF filename, hash and advisory identity assessment. PDFs are looked up ne
 to that report unless `--pdf-dir` selects another directory. The converted texts
 can be in a different `--fulltext-dir`.
 
-`--reference-audit` reads existing `records[]` from the metadata audit. Its recorded
-OK status has no input hash binding in that artifact and is shown as context only.
-It cannot establish PDF identity, a current bibliography audit, or source support.
+`--reference-audit` reads existing `records[]` from the metadata audit. The audit
+records the hash of the `.bib` it audited (`source_sha256`) and the keys it audited
+(`audited_ref_ids`); with `--bib`, the report's `reference_audit_freshness` says
+whether that is still the current bibliography. If the bib changed since, the audit
+is `stale`, every row's `input_binding` is `stale_audit`, and the keys the audit never
+saw are listed in `unaudited_keys` (the run prints them). An audit written before
+these fields existed is `not_recorded`. Recorded OK status is context only either way:
+it cannot establish PDF identity or source support.
 Missing/ambiguous links remain visible. No network or bibliography writes occur.
 
 `qc/claim_fidelity.json` schema 2 retains the existing `findings`, probe counts,

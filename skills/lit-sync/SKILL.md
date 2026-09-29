@@ -341,6 +341,15 @@ python3 scripts/check_citekey_provenance.py --vault "$VAULT" --bib "$REFS_BIB"
 Every reported `INVENTED` is a note whose key exists nowhere — fix it here rather than
 letting it reach a manuscript.
 
+A citekey is a label, not an identity: match notes to papers by **DOI**, never by key.
+`AMBIGUOUS` (one key on two or more library entries, common with `Author_Year` keys from
+content negotiation) and `UNUSABLE` (a key containing `/` or a URL) mean the key names no
+single paper — refresh keys in Better BibTeX, and never merge notes on it.
+`UNRESOLVED` means the note's DOI/PMID was not found in the library you searched, and
+`NO_IDENTIFIER` means the note has no DOI or PMID to search with. Neither proves the paper
+was never added: search the full library (`--live`) before importing, or you create a
+duplicate.
+
 #### Template
 
 ```markdown

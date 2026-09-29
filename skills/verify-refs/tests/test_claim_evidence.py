@@ -251,6 +251,55 @@ class ClaimEvidenceTests(unittest.TestCase):
         self.assertEqual(json.loads(output.read_text())["schema_version"], 2)
         self.assertEqual(before, {p:p.read_bytes() for p in paths})
 
+    # --- a reference audit must say what it audited, and go stale when the bib moves on ---
+    # The green `submission_safe` of an audit run on an older bib used to carry over to a bib
+    # that had since gained an entry: the new entry shipped never having been checked.
+
+    def write_audit(self):
+        """Run verify_refs' own writer (offline records) against the current bib."""
+        import verify_refs
+        records = verify_refs.parse_bib(self.bib.read_text(encoding="utf-8"))
+        for rec in records:
+            rec.status = "OK"
+        verify_refs.write_outputs(records, self.root, self.bib, [])
+        return self.root / "qc" / "reference_audit.json"
+
+    def test_audit_records_the_bib_hash_and_the_keys_it_audited(self):
+        audit = json.loads(self.write_audit().read_text(encoding="utf-8"))
+        self.assertEqual(audit["source_sha256"], hashlib.sha256(self.bib.read_bytes()).hexdigest())
+        self.assertEqual(audit["audited_ref_ids"], ["demo"])
+
+    def test_audit_of_an_older_bib_is_stale_and_names_the_unaudited_key(self):
+        audit = self.write_audit()
+        with self.bib.open("a", encoding="utf-8") as fh:
+            fh.write("@article{addedlater,\n title={Synthetic entry added after the audit},\n"
+                     " doi={10.0000/example.2}\n}\n")
+        # What the user sees first: the run must say the audit is stale and name the new key.
+        result = self.cli("--reference-audit", audit)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("STALE reference audit", result.stdout)
+        self.assertIn("never audited: addedlater", result.stdout)
+        report = self.report(reference_audit=audit)
+        self.assertEqual(report["reference_audit_freshness"]["status"], "stale")
+        self.assertEqual(report["reference_audit_freshness"]["unaudited_keys"], ["addedlater"])
+        row = report["evidence_rows"][0]
+        self.assertEqual(row["reference_audit"]["recorded_status"], "OK")  # kept as context
+        self.assertEqual(row["reference_audit"]["input_binding"], "stale_audit")
+
+    def test_audit_of_the_same_bib_is_current(self):
+        report = self.report(reference_audit=self.write_audit())
+        self.assertEqual(report["reference_audit_freshness"]["status"], "current")
+        row = report["evidence_rows"][0]
+        self.assertEqual(row["reference_audit"]["input_binding"], "current_bibliography")
+        self.assertNotIn("STALE", self.cli("--reference-audit", self.root / "qc" / "reference_audit.json").stdout)
+
+    def test_legacy_audit_without_a_hash_is_reported_as_unbound(self):
+        # The setUp fixture is an audit written before the hash existed.
+        report = self.report()
+        self.assertEqual(report["reference_audit_freshness"]["status"], "not_recorded")
+        self.assertEqual(report["evidence_rows"][0]["reference_audit"]["input_binding"],
+                         "not_recorded_by_reference_audit")
+
     def test_cli_rejects_outputs_over_source_files(self):
         for path in (self.manuscript, self.text, self.pdf, self.retrieval):
             with self.subTest(path=path.name):

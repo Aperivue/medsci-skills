@@ -1883,13 +1883,13 @@
     },
     {
       "path": "skills/fulltext-retrieval/SKILL.md",
-      "size": 10954,
-      "sha256": "4d1defdcb710f727c15779fbeb9a10dee6088a1b70b250f6fe2339c87a76c3a1"
+      "size": 11343,
+      "sha256": "6aa6e1a99ac09f211b8b2165497686b93f36c5963989e97e72f371a565c71794"
     },
     {
       "path": "skills/fulltext-retrieval/fetch_oa.py",
-      "size": 32245,
-      "sha256": "09ca16bec5232d778940e2e3b49681c2e548720a1f20184130c39b23ca23d73e"
+      "size": 35265,
+      "sha256": "5d938845a01bd0299f9b4c3258b0aca6fef5bf0acd9d05c1fb88e5e494c745ce"
     },
     {
       "path": "skills/fulltext-retrieval/fetch_oa_report_challenge/expected/projection.json",
@@ -2003,8 +2003,8 @@
     },
     {
       "path": "skills/lit-sync/SKILL.md",
-      "size": 23485,
-      "sha256": "362c4108b9005b2b3fe40d5da7ceec4ade150a7297a487d1b14e2de780f3b027"
+      "size": 24103,
+      "sha256": "876676883fb5b84cd05d629193a4cda0b9aecc2c427a6b33f1caf66a701d9afc"
     },
     {
       "path": "skills/lit-sync/references/bbt_lookup.md",
@@ -2018,8 +2018,8 @@
     },
     {
       "path": "skills/lit-sync/scripts/check_citekey_provenance.py",
-      "size": 7765,
-      "sha256": "3f4bdecfc38a5bc1f0d0e197afa52222c63038b0f26e017af25920504e95a0fb"
+      "size": 12162,
+      "sha256": "99fc4e0486fcab6bba1ec1bb6c58443482e3203b9194b1dc0c9713871ab0595b"
     },
     {
       "path": "skills/lit-sync/skill.yml",
@@ -2808,8 +2808,8 @@
     },
     {
       "path": "skills/manage-refs/scripts/check_csl_render.py",
-      "size": 7750,
-      "sha256": "2e5955d8a8717faad5bc11599d15985d163e3deb3a1b33e82785e9eef5eb07b4"
+      "size": 10167,
+      "sha256": "6f497c9400d33348ac9ec84431f366e0353e80090d2b46e08804a5a9bff3211c"
     },
     {
       "path": "skills/manage-refs/scripts/check_reference_duplication.py",
@@ -3808,28 +3808,28 @@
     },
     {
       "path": "skills/peer-review/scripts/check_review_request_types.py",
-      "size": 13450,
-      "sha256": "a83738d726c72a489a3eca86a57c9ef00a17197058263fec494261bac22aa7db"
+      "size": 14060,
+      "sha256": "3a8c143f294eda415e283f869787a1ef3426322fb4d253906881d1e13fffc05e"
     },
     {
       "path": "skills/peer-review/scripts/check_review_request_types_challenge/expected/disciplined.txt",
       "size": 155,
-      "sha256": "c36118924771be470852c8a8ca678c36a20dc5816020dda5877d30cb56c34009"
+      "sha256": "3974dd4241db1e253f435ed6ac7c40e8c48a424c2e0dfabccc18e6154dfe39b5"
     },
     {
       "path": "skills/peer-review/scripts/check_review_request_types_challenge/expected/undisciplined.txt",
-      "size": 1348,
-      "sha256": "67744143d99aebc69ce21931ce5244f03bfbd9db2a1cb5768ea4833b30f978a1"
+      "size": 1720,
+      "sha256": "301f77498e96e71536a48afb54f82db48e3d245c8738b2ab6943b4c37f6aab08"
     },
     {
       "path": "skills/peer-review/scripts/check_review_request_types_challenge/fixture/disciplined.md",
-      "size": 866,
-      "sha256": "5c6ae5c34e55a825586e2ac6310dbb855baf5522e7dfab8b640c8433237a7bf0"
+      "size": 1093,
+      "sha256": "b9fecdcfd79a2ba3174b9ce551f1296244d52c798a454e40579b7392d2d2e77d"
     },
     {
       "path": "skills/peer-review/scripts/check_review_request_types_challenge/fixture/undisciplined.md",
-      "size": 736,
-      "sha256": "df98f217c01d65292ab2f06d0f72f1118cffdc5733e4af9ce7595bf587e5ad5e"
+      "size": 965,
+      "sha256": "7b120dc88c02f617f977f6ae657c52b2f97cb8ea263af746902cb87fba64d1de"
     },
     {
       "path": "skills/peer-review/scripts/check_review_request_types_challenge/problem.md",
@@ -3838,8 +3838,8 @@
     },
     {
       "path": "skills/peer-review/scripts/check_review_request_types_challenge/verify.sh",
-      "size": 1846,
-      "sha256": "7b3704e4c2148799650c60c934781e76cd55be6af163a005b5abdbd27f1f5b5f"
+      "size": 2049,
+      "sha256": "ea7f2d0db6940aa0529dc32e4322531a6fa223b3102bb736c8f5084a398670c2"
     },
     {
       "path": "skills/peer-review/scripts/check_self_improvement_claims.py",
@@ -4473,8 +4473,8 @@
     },
     {
       "path": "skills/revise/scripts/check_response_claims.py",
-      "size": 13516,
-      "sha256": "9da2d8852dc70bb15f758e374c0d5b55e3dbfd6a3c22257be0f0b0a205f5ac11"
+      "size": 15619,
+      "sha256": "9c2d2555178f66c9abc49becf214b410c3d3ed962ef30bcf410533e5cc6b4f85"
     },
     {
       "path": "skills/revise/scripts/density_complaint_challenge/fixture/decision_letter.md",
@@ -5958,13 +5958,13 @@
     },
     {
       "path": "skills/verify-refs/SKILL.md",
-      "size": 15338,
-      "sha256": "2a1343fd236abdbde2d20a1e2e8d03631b5c1cca53343c252c41d92ac7feb307"
+      "size": 15496,
+      "sha256": "1978537acddefafe0e5c84c30b2d4d733d24fa6a5f35b4fe91f49ae8791ee7e0"
     },
     {
       "path": "skills/verify-refs/references/claim_evidence_workflow.md",
-      "size": 6466,
-      "sha256": "20765c9c23122fef6c44eea6327d29a79c73929cf710800addab5f9b1ff29468"
+      "size": 6854,
+      "sha256": "68e8b8e8d3994635af037119fa2cc29b0181e40efaa02c25f5df79580b587011"
     },
     {
       "path": "skills/verify-refs/references/manual_checkpoint_guide.md",
@@ -5973,8 +5973,8 @@
     },
     {
       "path": "skills/verify-refs/scripts/_claim_evidence.py",
-      "size": 13992,
-      "sha256": "4b471cb1f6c20c09746af5b7f51093b4f4cc5be7ff2ab972285158b797abd2ca"
+      "size": 16048,
+      "sha256": "fc000fcec82fd3ab61b4a4275bfc3344d3e61813c9cd67292b4381374ab63fce"
     },
     {
       "path": "skills/verify-refs/scripts/_quote_match.py",
@@ -5983,8 +5983,8 @@
     },
     {
       "path": "skills/verify-refs/scripts/check_claim_fidelity.py",
-      "size": 33348,
-      "sha256": "a654a537e6cc00c62ecaa1edcf4ee8bc137d77eeb3d40ddc2ff616059ac85480"
+      "size": 33930,
+      "sha256": "eea3f2d6ec474c68c089401181403ce7a163b414b043962873cab7ecb9a5bf0c"
     },
     {
       "path": "skills/verify-refs/scripts/claim_fidelity_challenge/fixture/fulltext/10.1000_synthetic.oversight.md",
@@ -6033,8 +6033,8 @@
     },
     {
       "path": "skills/verify-refs/scripts/verify_refs.py",
-      "size": 49027,
-      "sha256": "289a91883045bbc38d8e16f65d3e858a106edbb3413ecf6e2d723f353b733362"
+      "size": 50812,
+      "sha256": "65a44ca3cc1b440719488dd824eebfc1f96e2b63f7d9d794d975fcf22201212f"
     },
     {
       "path": "skills/verify-refs/skill.yml",

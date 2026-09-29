@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import html
 import json
 import os
@@ -490,6 +491,32 @@ def http_json(url: str, timeout: int) -> dict | None:
         return None
 
 
+def crossref_year(msg: dict) -> str:
+    """The year to show for a CrossRef record: print, then online, then issued.
+
+    `issued` is the EARLIEST publication date, so an article published online in December
+    and in a print issue the next January reports the online year there, while journals
+    cite the issue year. Showing `issued` alone invites "correcting" a bib year that was
+    right. When the candidates disagree, both are shown, e.g. "2023 (print; online 2022)".
+    """
+    years: list[tuple[str, str]] = []
+    for field_name, label in (("published-print", "print"), ("published-online", "online"),
+                              ("issued", "issued")):
+        parts = ((msg.get(field_name) or {}).get("date-parts") or [[None]])[0]
+        if parts and parts[0]:
+            years.append((label, str(parts[0])))
+    if not years:
+        return ""
+    primary_label, primary = years[0]
+    others: list[tuple[str, str]] = []
+    for label, value in years[1:]:
+        if value != primary and all(value != seen for _, seen in others):
+            others.append((label, value))
+    if not others:
+        return primary
+    return f"{primary} ({primary_label}; " + "; ".join(f"{l} {v}" for l, v in others) + ")"
+
+
 def verify_crossref(doi: str, timeout: int) -> tuple[str, str, list]:
     """Returns (status, evidence, family_names).
 
@@ -504,8 +531,7 @@ def verify_crossref(doi: str, timeout: int) -> tuple[str, str, list]:
         return "UNVERIFIED", "CrossRef DOI lookup failed", []
     msg = data.get("message", {})
     title = " ".join(msg.get("title") or [])
-    year_parts = (((msg.get("issued") or {}).get("date-parts") or [[None]])[0])
-    year = str(year_parts[0]) if year_parts and year_parts[0] else ""
+    year = crossref_year(msg)
     authors_raw = msg.get("author") or []
     families: list[str] = []
     for a in authors_raw:
@@ -1037,16 +1063,28 @@ def write_outputs(records: list[RefRecord], project_root: Path, source: Path,
     actual_authors[], and author counts; schema_version bumps to 4. MISMATCH now
     fires on any #2..#N family hallucination or author-count mismatch, not just the
     first author. A correct lead author does not verify the remaining author list.
+
+    The audit also records WHAT it audited: `source_sha256` (the input file's hash) and
+    `audited_ref_ids`. Without them a green `submission_safe` outlives the file it
+    describes — the bib gains a reference, nobody reruns the audit, and the new entry is
+    shipped never having been checked. A consumer reading the audit later compares both
+    against the current bib (see check_claim_fidelity.py --reference-audit).
     """
     qc_dir = project_root / "qc"
     qc_dir.mkdir(parents=True, exist_ok=True)
 
+    try:
+        source_sha256 = hashlib.sha256(source.read_bytes()).hexdigest()
+    except OSError:
+        source_sha256 = ""
     counts: dict[str, int] = {}
     for rec in records:
         counts[rec.status] = counts.get(rec.status, 0) + 1
     audit = {
         "schema_version": 4,
         "source": portable_source(source, project_root),
+        "source_sha256": source_sha256,
+        "audited_ref_ids": [rec.ref_id.strip() for rec in records],
         "total_references": len(records),
         "counts": counts,
         "duplicate_findings": duplicate_findings,
