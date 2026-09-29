@@ -76,5 +76,39 @@ EDGE_REPORT="$OUTDIR/scan_report.json"
 check "edge fixture: REVIEW_NEEDED == 1" test "$(count "$EDGE_REPORT" REVIEW_NEEDED)" -eq 1
 check "edge fixture: SAFE == 5"          test "$(count "$EDGE_REPORT" SAFE)"          -eq 5
 
+# --- Case-insensitive ID and postcode detection (runtime-built fixtures) ---
+# Letter-bearing national IDs and postcodes are often exported in lower case.
+# A missed match classifies the column SAFE, so it is passed through
+# un-stripped. Column names are deliberately NOT in any locale's name map,
+# so only the value patterns can decide. Each case carries a positive control
+# (upper case), the regression (the same values in lower case), and a
+# false-positive control (ordinary lower-case text that must stay SAFE).
+# Values are published format examples or constructed strings, not people's IDs.
+classify() {  # usage: classify <report.json> <column>
+    python3 -c "
+import json,sys
+d=json.load(open(sys.argv[1]))
+print(next(x['classification'] for x in d['classifications'] if x['column']==sys.argv[2]))" "$1" "$2"
+}
+case_check() {  # usage: case_check <locale> <label> <v1> <v2> <v3>
+    local loc="$1" label="$2" csv="$OUTDIR/case_$1_$2.csv" out="$OUTDIR/case_$1_$2"
+    local lo1 lo2 lo3
+    lo1="$(printf '%s' "$3" | tr 'A-Z' 'a-z')"; lo2="$(printf '%s' "$4" | tr 'A-Z' 'a-z')"
+    lo3="$(printf '%s' "$5" | tr 'A-Z' 'a-z')"
+    printf 'ref_upper,ref_lower,note\n%s,%s,stable on review\n%s,%s,no acute findings\n%s,%s,follow up as planned\n' \
+        "$3" "$lo1" "$4" "$lo2" "$5" "$lo3" > "$csv"
+    python3 "$SCRIPT" scan "$csv" --locale "$loc" -o "$out" >/dev/null 2>&1
+    check "case $loc $label: upper case is PHI (positive control)" \
+        test "$(classify "$out/scan_report.json" ref_upper)" = PHI
+    check "case $loc $label: lower case is PHI" \
+        test "$(classify "$out/scan_report.json" ref_lower)" = PHI
+    check "case $loc $label: ordinary lower-case text stays SAFE" \
+        test "$(classify "$out/scan_report.json" note)" = SAFE
+}
+case_check in pan      ABCDE1234F PQRST5678Z LMNOP9012K
+case_check uk nino     AB123456C  CE654321A  JK112233D
+case_check uk postcode "SW1A 1AA" "M1 1AE"   "B33 8TH"
+case_check ca postcode "K1A 0B1"  "M5V 3L9"  "H2X 1Y4"
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"
