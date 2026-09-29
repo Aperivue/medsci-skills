@@ -27,7 +27,7 @@
 **Validation**
 
 - `python3 scripts/validate_skill_contracts.py`
-- `python3 scripts/validate_project_contract.py`
+- `python3 skills/manage-project/scripts/validate_project_contract.py`
 
 **Evidence** — `demo`
 

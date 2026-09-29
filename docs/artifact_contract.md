@@ -22,7 +22,7 @@ See `docs/ssot_schema_v1.md` for the canonical schema. Projects in the 6-month t
 Validate a project with:
 
 ```bash
-python3 scripts/validate_project_contract.py --project-root path/to/project
+python3 skills/manage-project/scripts/validate_project_contract.py --project-root path/to/project
 ```
 
 Dual-path behavior: `SSOT.yaml` preferred, `project.yaml` warns, neither fails.

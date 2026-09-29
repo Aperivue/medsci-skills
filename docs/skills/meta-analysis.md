@@ -65,7 +65,10 @@
 - `dta_extraction_qc.py`
 - `extract_assist.py`
 - `extract_assist_challenge/` (6 files)
+- `extraction_consensus_log_init.py`
+- `prisma_5way_consistency.py`
 - `screening_reconcile.py`
+- `tag_cleanup_gate.sh`
 
 **Templates** (`skills/meta-analysis/templates/`):
 
