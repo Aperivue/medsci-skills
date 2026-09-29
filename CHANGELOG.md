@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **The skill validator no longer rewards length or boilerplate.** `scripts/validate_skills.sh`
+  failed any SKILL.md without an "Anti-Hallucination" heading, counted occurrences of the word
+  "gate", and warned "THIN tier — consider expanding" below 150 lines. Those checks pushed every
+  skill toward the same generic sections and more text. They are removed; the size ceiling in
+  `check_phase_budget.py` stays. The contributor template (`docs/SKILL_TEMPLATE.md`) replaces its
+  fixed Anti-Hallucination and Language blocks (the latter hard-coded one user's language) and
+  its length-based quality tiers with a short Gotchas section and a size limit.
+
 ### Fixed
 
 - **Scripts that skills tell you to run now ship with those skills.** `/meta-analysis`,

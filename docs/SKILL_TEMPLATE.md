@@ -140,28 +140,22 @@ This skill has {N} mandatory user-approval gates:
 - Explicit scope boundary 1
 - Explicit scope boundary 2
 
-## Anti-Hallucination
+## Gotchas
 
-- **Never fabricate {domain-specific items}.** If uncertain, output `[VERIFY: item]` and ask the user.
-- **Never generate references from memory.** Use `/search-lit` for all citations.
-- If a tool, package, or resource does not exist, say so explicitly rather than guessing.
-
-## Language
-
-- Communication with user: Korean
-- Code and variable names: English
-- Manuscript content: English
-- Medical terminology: always English
+- {Something an agent gets wrong in this domain without being told, and why.} Example: a
+  number or reference the skill cannot verify is marked `[VERIFY: item]`, not filled in.
 ```
 
 ---
 
-## Quality Tiers
+## Size
 
-Skills are classified by documentation depth and verification rigor:
+Keep SKILL.md short: under about 500 lines (≈5k tokens). Worked examples, long tables and
+templates go in `references/` and are read when a step needs them. For each line ask whether the
+agent would get the task wrong without it; if not, cut it. Give the reason for a rule instead of
+writing MUST. `scripts/check_phase_budget.py` enforces the upper bound; nothing rewards length.
 
-| Tier | SKILL.md Lines | Min Gates | Anti-Halluc | Output Contract | Reference Files |
-|------|---------------|-----------|-------------|-----------------|-----------------|
+------|---------------|-----------|-------------|-----------------|-----------------|
 | **High** | 300+ | 3+ | Required | Required | Required |
 | **Mid** | 150-300 | 2+ | Required | Required | Recommended |
 | **Thin** | <150 | 1+ | Required | Recommended | Optional |
@@ -173,8 +167,8 @@ New skills should target **Mid** tier minimum. Core pipeline skills (write-paper
 ## Checklist Before Publishing
 
 - [ ] YAML frontmatter has all 5 required fields (name, description, triggers, tools, model)
-- [ ] Anti-Hallucination section present with domain-specific rules
-- [ ] At least 2 quality gates with explicit user-approval language
+- [ ] Every instruction is one the agent would otherwise get wrong (no generic boilerplate)
+- [ ] Steps that need the user's approval say so where they happen
 - [ ] Output Contract section lists all files the skill produces
 - [ ] Reference files mentioned in SKILL.md actually exist in `references/`
 - [ ] Skill Interactions section documents upstream/downstream dependencies
