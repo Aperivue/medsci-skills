@@ -110,5 +110,36 @@ case_check uk nino     AB123456C  CE654321A  JK112233D
 case_check uk postcode "SW1A 1AA" "M1 1AE"   "B33 8TH"
 case_check ca postcode "K1A 0B1"  "M5V 3L9"  "H2X 1Y4"
 
+# --- Sparse PHI in a long column: every value is checked, deterministically ---
+# The scan used to check a random sample of at most 500 values. A column
+# where one value in 5,000 carries a phone number came out SAFE about nine
+# runs in ten, and SAFE columns are passed through un-stripped. The verdict
+# must not depend on luck, and must not change between runs.
+SPARSE_CSV="$OUTDIR/sparse.csv"
+python3 - "$SPARSE_CSV" <<'PY'
+import csv, sys
+with open(sys.argv[1], "w", newline="") as f:
+    w = csv.writer(f)
+    w.writerow(["clinical_note", "value"])
+    for i in range(5000):
+        note = f"Routine follow up visit, stable, plan unchanged, entry {i}."
+        if i == 4321:
+            note = "Asked to call back at 555-201-3344 about scheduling."
+        w.writerow([note, 1])
+PY
+python3 "$SCRIPT" scan "$SPARSE_CSV" --locale us -o "$OUTDIR/sparse1" >/dev/null 2>&1
+python3 "$SCRIPT" scan "$SPARSE_CSV" --locale us -o "$OUTDIR/sparse2" >/dev/null 2>&1
+check "sparse: one phone in 5,000 notes is not SAFE" \
+    test "$(classify "$OUTDIR/sparse1/scan_report.json" clinical_note)" != SAFE
+check "sparse: all 5,000 values were checked" python3 -c "
+import json,sys
+d=json.load(open(sys.argv[1]))
+x=next(c for c in d['classifications'] if c['column']=='clinical_note')
+assert x.get('sample_size')==5000, x" "$OUTDIR/sparse1/scan_report.json"
+check "sparse: two runs give identical classifications" python3 -c "
+import json,sys
+a,b=(json.load(open(p))['classifications'] for p in sys.argv[1:3])
+assert a==b" "$OUTDIR/sparse1/scan_report.json" "$OUTDIR/sparse2/scan_report.json"
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

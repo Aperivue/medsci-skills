@@ -387,12 +387,17 @@ def scan_column_names(headers: list[str],
     return results
 
 
-def _sample_values(values: list[str], n: int = 500) -> list[str]:
-    """Return up to n non-empty values for scanning."""
-    non_empty = [v for v in values if v and v.strip()]
-    if len(non_empty) <= n:
-        return non_empty
-    return random.sample(non_empty, n)
+def _values_to_scan(values: list[str]) -> list[str]:
+    """Return every non-empty value in the column.
+
+    This used to be a random sample of at most 500 values, and that caused
+    two defects. First, the same file could classify differently from one
+    run to the next. Second, a column where only a few values carry PHI
+    (three phone numbers in 2,000 notes) came out SAFE whenever the sample
+    missed them, and a SAFE column is passed through un-stripped. A SAFE
+    verdict asserts that no value matched, so every value has to be checked.
+    """
+    return [v for v in values if v and v.strip()]
 
 
 def scan_column_values(col: str, values: list[str],
@@ -411,7 +416,7 @@ def scan_column_values(col: str, values: list[str],
     if name_columns is None:
         name_columns = [k for k, v in UNIVERSAL_COLUMN_NAMES.items() if v == "name"]
 
-    sample = _sample_values(values)
+    sample = _values_to_scan(values)
     if not sample:
         return None
 
@@ -540,7 +545,7 @@ def classify_columns(data: list[dict], headers: list[str],
             if avg_len > 50:
                 # Scan for embedded PHI in free text
                 embedded_phi = False
-                for val in _sample_values(non_empty, 100):
+                for val in non_empty:  # every value; the loop exits on the first hit
                     for regex, _ in val_patterns:
                         if regex.search(val):
                             embedded_phi = True
