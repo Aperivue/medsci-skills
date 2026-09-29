@@ -154,7 +154,6 @@ DETECTOR_CLAIM_PATTERNS = [
     r"\b(\d{1,3})\s+deterministic detectors\b",
     r"\bThe\s+(\d{1,3})\s+detectors\s+fall into\b",
     r"Current detector catalog:\s*(\d{1,3})\b",
-    r'"(\d{1,3})\s+detectors,\s*validated\b',
     r"\bcover all\s+(\d{1,3})\s+detectors\b",
 ]
 
@@ -213,6 +212,20 @@ def family_table_failures() -> list[str]:
     return out
 
 
+def _quoted(line: str, pos: int) -> bool:
+    """True when ``pos`` lies inside a double-quoted span on ``line`` ("..." or “...”).
+
+    A number in quotes is being mentioned, not claimed: MEDSCI_AUDIT.md warns that the
+    suite should not be collapsed into a single "N detectors, validated by E1/E7" claim, and
+    a style note may say do not write "All 57 skills". Reading those as live counts failed
+    the build, and the only way through was to make the document worse.
+    """
+    before = line[:pos]
+    if before.count('"') % 2 == 1:
+        return True
+    return before.rfind("\u201c") > before.rfind("\u201d")
+
+
 def doc_claims() -> list[tuple[str, int, int, str]]:
     """Return (file, claimed, expected, context) for every count claim found.
 
@@ -254,6 +267,8 @@ def doc_claims() -> list[tuple[str, int, int, str]]:
             if version_note_re.match(line):
                 continue  # dated version note: records a superseded count on purpose
             for m in guide_re.finditer(line):
+                if _quoted(line, m.start(1)):
+                    continue
                 out.append((rel, int(m.group(1)), g, f"L{i} guidelines"))
 
     for rel in SKILLS_TAGLINE_FILES:
@@ -262,6 +277,8 @@ def doc_claims() -> list[tuple[str, int, int, str]]:
             continue
         for i, line in enumerate(f.read_text(encoding="utf-8").splitlines(), 1):
             for m in skills_re.finditer(line):
+                if _quoted(line, m.start(1)):
+                    continue
                 out.append((rel, int(m.group(1)), s, f"L{i} skills tagline"))
 
     for rel in SKILLS_BADGE_FILES:
@@ -280,6 +297,8 @@ def doc_claims() -> list[tuple[str, int, int, str]]:
             if version_note_re.match(line):
                 continue  # dated version note: records a superseded count on purpose
             for m in skills_prose_re.finditer(line):
+                if _quoted(line, m.start()):
+                    continue
                 tok = next(g for g in m.groups() if g)
                 out.append((rel, int(tok), s, f"L{i} skills prose"))
 
@@ -292,6 +311,8 @@ def doc_claims() -> list[tuple[str, int, int, str]]:
         for i, line in enumerate(f.read_text(encoding="utf-8").splitlines(), 1):
             for rx in det_res:
                 for m in rx.finditer(line):
+                    if _quoted(line, m.start(1)):
+                        continue
                     out.append((rel, int(m.group(1)), d, f"L{i} detector total"))
 
     # Plugin marketplace count: a number word or digit shortly before "category
@@ -312,6 +333,8 @@ def doc_claims() -> list[tuple[str, int, int, str]]:
             if version_note_re.match(line):
                 continue  # dated version note: records a superseded count on purpose
             for m in plugin_re.finditer(line):
+                if _quoted(line, m.start(1)):
+                    continue
                 tok = m.group(1).lower()
                 n = NUM_WORDS.get(tok, int(tok) if tok.isdigit() else None)
                 if n is not None:

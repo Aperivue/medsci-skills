@@ -537,13 +537,15 @@ def download_pdf(url: str, outpath: Path, email: str) -> bool:
 # ============================================================
 
 def process_doi(doi: str, outdir: Path, email: str,
-                pmid: str = "") -> tuple[str, str]:
+                pmid: str = "", found: dict | None = None) -> tuple[str, str]:
     """Try to download a PDF for one DOI.
 
     Returns (status, source):
       status ∈ {"arxiv", "oa", "pmc", "skip", "fail"}
       source identifies the resolver that succeeded (e.g. "unpaywall", "pmc",
       "openalex", "crossref", "landing", "arxiv", "existing", "").
+    found, when given, receives {"pmcid": ...} if a PMCID was resolved, so a
+    failed download can still point the user at the PubMed Central article.
     """
     outpath = outdir / f"{safe_doi_name(doi)}.pdf"
 
@@ -570,6 +572,8 @@ def process_doi(doi: str, outdir: Path, email: str,
     pmcid = id_to_pmcid(pmid, email) if pmid else None
     if not pmcid:
         pmcid = id_to_pmcid(doi, email)
+    if pmcid and found is not None:
+        found["pmcid"] = pmcid
     if pmcid and download_pmc_pdf(pmcid, outpath, email):
         return ("pmc", "pmc")
 
@@ -784,14 +788,18 @@ def main():
 
     stats = {"arxiv": 0, "oa": 0, "pmc": 0, "fail": 0, "skip": 0}
     results: dict[str, tuple[str, str]] = {}
+    pmcids: dict[str, str] = {}
 
     for i, rec in enumerate(records, 1):
         doi = rec["doi"]
         pmid = rec.get("pmid", "")
         print(f"  [{i}/{len(records)}] {doi}", end=" … ", flush=True)
 
-        status, source = process_doi(doi, args.output, args.email, pmid)
+        found: dict = {}
+        status, source = process_doi(doi, args.output, args.email, pmid, found=found)
         results[doi] = (status, source)
+        if found.get("pmcid"):
+            pmcids[doi] = found["pmcid"]
         stats[status] += 1
 
         labels = {"arxiv": "DOWNLOADED (arXiv)", "oa": "DOWNLOADED (OA)",
@@ -855,12 +863,17 @@ def main():
         fail_path = args.output / "manual_needed.txt"
         with open(fail_path, "w") as f:
             f.write("# DOIs needing manual retrieval\n")
-            f.write("# Options: institutional access, ILL\n\n")
+            f.write("# Options: institutional access, ILL\n")
+            f.write("# A PMCID means the article is in PubMed Central: open its URL in a browser\n\n")
             for rec in records:
                 doi = rec["doi"]
                 pdf = args.output / f"{safe_doi_name(doi)}.pdf"
                 if not existing_pdf_ok(pdf):
-                    f.write(f"{doi}\n")
+                    pmcid = pmcids.get(doi)
+                    if pmcid:
+                        f.write(f"{doi}\t{pmcid}\thttps://pmc.ncbi.nlm.nih.gov/articles/{pmcid}/\n")
+                    else:
+                        f.write(f"{doi}\n")
         print(f"  Manual list: {fail_path}")
 
 

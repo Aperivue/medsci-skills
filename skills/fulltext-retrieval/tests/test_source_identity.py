@@ -246,6 +246,31 @@ class SourceIdentityTests(unittest.TestCase):
             self.assertEqual(missing["items"][0]["source_identity"]["reason"], "pdf_not_available")
             self.assertEqual(missing["items"][0]["file_sha256"], "")
 
+    def test_manual_list_carries_pmcid_and_article_url_when_pdf_fetch_fails(self):
+        # A PMCID was resolved but every PDF route failed: manual_needed.txt listed only the DOI,
+        # so the user could not tell a PubMed Central article from a subscription one.
+        pmc = "PMC1234567"
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            worklist = root / "dois.txt"
+            worklist.write_text(f"{DOI}\n{OTHER}\n")
+            argv = [str(ENGINE), str(worklist), "-o", str(root), "-e", "test@example.com"]
+            with patch.object(sys, "argv", argv), \
+                    patch.object(m.time, "sleep"), \
+                    patch.object(m.urllib.request, "urlopen", side_effect=AssertionError("network forbidden")), \
+                    patch.object(m, "unpaywall_lookup", return_value=None), \
+                    patch.object(m, "id_to_pmcid", side_effect=lambda ident, _e: pmc if ident == DOI else None), \
+                    patch.object(m, "download_pmc_pdf", return_value=False), \
+                    patch.object(m, "openalex_lookup", return_value=[]), \
+                    patch.object(m, "crossref_lookup", return_value=[]), \
+                    patch.object(m, "download_from_landing", return_value=False), \
+                    contextlib.redirect_stdout(io.StringIO()):
+                m.main()
+            rows = [ln for ln in (root / "manual_needed.txt").read_text().splitlines()
+                    if ln and not ln.startswith("#")]
+            self.assertIn(f"{DOI}\t{pmc}\thttps://pmc.ncbi.nlm.nih.gov/articles/{pmc}/", rows)
+            self.assertIn(OTHER, rows)  # no PMCID resolved: the DOI alone, as before
+
 
 @unittest.skipUnless(shutil.which("pdftotext"), "Poppler needed for actual PDF/CLI round trips")
 class PDFIntegrationTests(unittest.TestCase):

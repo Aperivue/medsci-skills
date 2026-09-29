@@ -1883,13 +1883,13 @@
     },
     {
       "path": "skills/fulltext-retrieval/SKILL.md",
-      "size": 11343,
-      "sha256": "6aa6e1a99ac09f211b8b2165497686b93f36c5963989e97e72f371a565c71794"
+      "size": 11454,
+      "sha256": "05c5919bf1a92c5688d779b5f164f5194ac162a89cd77823c9ed111304ab84d9"
     },
     {
       "path": "skills/fulltext-retrieval/fetch_oa.py",
-      "size": 35265,
-      "sha256": "5d938845a01bd0299f9b4c3258b0aca6fef5bf0acd9d05c1fb88e5e494c745ce"
+      "size": 35960,
+      "sha256": "63d61a567d05d0e4e66cd9012132420ec19aa998a8e3d568fc99c9a557585b6e"
     },
     {
       "path": "skills/fulltext-retrieval/fetch_oa_report_challenge/expected/projection.json",
@@ -2818,8 +2818,8 @@
     },
     {
       "path": "skills/manage-refs/scripts/check_xref.py",
-      "size": 31128,
-      "sha256": "c1d7d8f99d948f2d381c2be2bb13539c2ec8b3a56bd57485271155223e692fa8"
+      "size": 32075,
+      "sha256": "e50428a1883bf40407f00c1b690ab77f2cf4200dff6905477561d7e4787b19b0"
     },
     {
       "path": "skills/manage-refs/scripts/fill_journal_abbrev.py",
@@ -3323,8 +3323,8 @@
     },
     {
       "path": "skills/model-scaffold/scripts/scaffold.py",
-      "size": 51482,
-      "sha256": "150abbc4864a92913b202893962c29cda8ec6ce1918f35558aa5b02514b6a0cb"
+      "size": 52694,
+      "sha256": "a356c4a2022b7829b0c8a9ae65c29e5a3df2527bbf47c86357e4fd311c809468"
     },
     {
       "path": "skills/model-scaffold/scripts/scaffold_challenge/expected/split_assignment.csv",
@@ -4093,8 +4093,8 @@
     },
     {
       "path": "skills/present-paper/scripts/check_deck_budget.py",
-      "size": 12905,
-      "sha256": "f81f11ed131a453f609b610fa936db9b1025242ee342577d75f4b9dd704863f1"
+      "size": 13544,
+      "sha256": "b3b2979615e70023aad54fdf42e1efac0be122f52d1d3189e248ce2ffd2de448"
     },
     {
       "path": "skills/present-paper/scripts/check_deck_budget_challenge/make_fixtures.py",
@@ -4103,8 +4103,8 @@
     },
     {
       "path": "skills/present-paper/scripts/check_deck_budget_challenge/verify.sh",
-      "size": 5780,
-      "sha256": "a55d15bfdb714793fdcb47b5c80965e7d3b8a6f27829d92f3d33e64c1bc4fe28"
+      "size": 7636,
+      "sha256": "a52bc174ea397110cc22ec6b6395b4b3f0e12cc874e5a08fdba22ac08395a7d1"
     },
     {
       "path": "skills/present-paper/scripts/check_diagram_edges.py",
@@ -5648,8 +5648,8 @@
     },
     {
       "path": "skills/sync-submission/SKILL.md",
-      "size": 42238,
-      "sha256": "2d5204f7ec7520a7a27dd5b2008de7c01e240f412a56d13b364f51ba1abb5379"
+      "size": 42494,
+      "sha256": "c99dadbf041e1131ee57978818a83f1c69e8d7d032a662fc64fce1b534978cad"
     },
     {
       "path": "skills/sync-submission/examples/build_synthetic_bundle.py",
@@ -5703,8 +5703,8 @@
     },
     {
       "path": "skills/sync-submission/scripts/check_checklist_dump_leak.py",
-      "size": 8790,
-      "sha256": "c1d637afa5ef98b24758ea2131a79af37ce1ab7921beb7a13bebfd8e24fd9583"
+      "size": 10056,
+      "sha256": "482e7cd22e7ba7c219a541657ee3ca6e2783718221d07d16de8e17a9b0458023"
     },
     {
       "path": "skills/sync-submission/scripts/check_credit_integrity.py",
@@ -5773,8 +5773,8 @@
     },
     {
       "path": "skills/sync-submission/scripts/cover_letter_drift_check.py",
-      "size": 19101,
-      "sha256": "d38c3d60cb2c6397f61975acc4ff23fc76d5068e0a9f65709d7108108924ece3"
+      "size": 21393,
+      "sha256": "c14eac63515fe8d3c44bd5e4a9aef49cc39fa0ddc0f96ddedcd2728cb67ef24b"
     },
     {
       "path": "skills/sync-submission/scripts/credit_integrity_challenge/fixture/manuscript_bad.md",

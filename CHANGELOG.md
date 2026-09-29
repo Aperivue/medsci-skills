@@ -141,6 +141,41 @@
 - **`/self-review` editorial-impression check no longer reads the YAML front matter as prose.**
   A changelog in the front matter that said "hypothesis-generating" four times made the check
   report the phrase as repeated in the manuscript when the body said it once.
+- **Word text split across formatting runs is read as one word.** Word often stores a single
+  word in two pieces when its formatting or spell-check state changes partway through. The
+  `/manage-refs` check that new manuscript text reached the rebuilt Word file, and the
+  `/sync-submission` check for internal audit text left in a submission file, put a space
+  between the pieces, so text that was in the document was reported missing and an audit
+  token split this way was not found. Both now join the pieces and break only at paragraph
+  ends, tabs and line breaks.
+- **`/model-scaffold` evaluation scripts fail when they predict nothing.** A generated
+  `evaluate.py` given an empty or wrongly pointed test set finished normally and exited 0 with
+  an empty predictions file. Every generated evaluation script now stops with an error unless
+  it produced a prediction for every test case and there was at least one.
+- **`/sync-submission` cover-letter check holds a word count stated next to the journal's
+  limit to the room left under it.** A cover letter saying "3,998/4,000 words" passed against
+  a measured 3,940 because body counts are allowed about 5% either way, and the stated limit
+  was itself read as the word count. When the letter states the limit and the count is that
+  close to it, the count must now match the measured body within the words left under the
+  limit.
+- **`/present-paper` deck-density message reports what it measured.** The deck-level
+  `SLIDE_TOO_DENSE` finding called a high median "the deck's habit", including after sparse
+  divider slides were deleted, which raises the median without making any slide denser. It
+  now gives the median and the 75th percentile and the number of slides they were measured
+  over, and says that removing sparse slides raises the median. When it fires is unchanged.
+- **The local CI mirror names the jobs it does not run.** `scripts/run_ci_mirror.py` runs the
+  `validate` job only, but its summary said nothing about the workflow's other jobs, so a
+  green mirror was read as a green CI while the macOS/Windows `foundation-os` job failed. The
+  summary and `--list` now name every job it skipped.
+- **The catalog-count check ignores numbers inside quotation marks.**
+  `validate_catalog_consistency.py` read a quoted example of what not to write (such as a
+  single "N detectors, validated by …" claim) as the current count and failed the build. A
+  count inside double quotes is now treated as a mention; the same count written unquoted is
+  still checked.
+- **`/fulltext-retrieval`: `manual_needed.txt` names the PubMed Central copy.** When a PMCID
+  was found but no PDF could be downloaded, the list gave only the DOI, so an article that is
+  freely available in PubMed Central looked the same as a subscription one. The line now also
+  carries the PMCID and the article's PubMed Central address.
 
 ### Security
 

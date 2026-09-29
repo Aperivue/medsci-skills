@@ -16,7 +16,7 @@ LIST="$(python3 "$S" --list)"; rc=$?
 ck "--list exits 0" 0 "$rc"
 
 # (1) enumerates many gates — the validate job has well over 100 run-steps.
-n="$(printf '%s\n' "$LIST" | grep -cvE '^\s*$|gate step\(s\) mirrored')"
+n="$(printf '%s\n' "$LIST" | grep -cvE '^\s*$|gate step\(s\) mirrored|^NOT mirrored')"
 if [ "$n" -ge 100 ]; then printf '  PASS  --list enumerates >=100 gates (%s)\n' "$n"; else printf '  FAIL  --list only %s gates\n' "$n"; fail=$((fail+1)); fi
 
 # (2) includes a real gate that must always be there.
@@ -33,6 +33,26 @@ fi
 # (4) --only narrows the set and still parses.
 python3 "$S" --only 'workflow' --list >/dev/null 2>&1
 ck "--only narrows and exits 0" 0 "$?"
+
+# (5) the summary names every workflow job it does NOT mirror. A green mirror was quoted as
+#     "CI will be green" while foundation-os (macOS/Windows) went red: the summary never said
+#     that job exists. Expected names come from the workflow itself, so this cannot drift.
+others="$(python3 -c "
+import yaml
+d = yaml.safe_load(open('$ROOT/.github/workflows/validate.yml'))
+print('\n'.join(j for j in d['jobs'] if j != 'validate'))")"
+if [ -z "$others" ]; then
+  printf '  PASS  (no other jobs in validate.yml to name)\n'
+else
+  # the final summary: --only with no match runs zero gates and still prints it (fast)
+  SUMMARY="$(python3 "$S" --only 'zz-no-such-gate-zz')"
+  while IFS= read -r job; do
+    printf '%s\n' "$LIST" | grep -q "NOT mirrored.*$job" && ck "--list names unmirrored job $job" yes yes \
+      || ck "--list names unmirrored job $job" yes no
+    printf '%s\n' "$SUMMARY" | grep -q "NOT mirrored.*$job" && ck "final summary names unmirrored job $job" yes yes \
+      || ck "final summary names unmirrored job $job" yes no
+  done <<<"$others"
+fi
 
 echo "test_run_ci_mirror: $fail failure(s)"
 [ "$fail" -eq 0 ]
