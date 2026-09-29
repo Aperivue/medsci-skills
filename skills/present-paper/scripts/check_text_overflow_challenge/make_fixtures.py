@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""One deck, and three synthetic measurements of it.
+"""One deck, and four synthetic measurements of it.
 
 The detector's whole argument is that the render already knows the answer, so the fixture supplies
 synthetic line rectangles in the `pdftotext -bbox-layout` structure. These are computed
@@ -12,6 +12,8 @@ poppler or LibreOffice. tests/test_overflow_pdf.py separately exercises real pop
                    reserved band at the foot of the slide.
   short.xml        one page for a two-slide deck — a handout export, where page N is not slide N.
                    The detector must refuse to compare rather than compare the wrong things.
+  unrendered.xml   slide 1's paragraph never reached its page: the page carries only its number.
+                   There is no line to measure, so the line comparisons alone call this clean.
 
 The coordinates in the XML are computed from the same constants that place the shapes, so the
 fixture cannot drift away from the deck it describes.
@@ -100,4 +102,7 @@ if __name__ == "__main__":
 
     write(out / "short.xml", [page([inside])])
 
-    print(f"wrote deck.pptx + 3 recorded measurements into {out}")
+    page_number = line(SLIDE_W_IN * PT - 60, 20, SLIDE_W_IN * PT - 40, 36, "1")
+    write(out / "unrendered.xml", [page([page_number]), page([high_up])])
+
+    print(f"wrote deck.pptx + 4 synthetic measurements into {out}")

@@ -749,6 +749,8 @@ cd /tmp/work && zip -rq ../patched.pptx . -x '*.DS_Store'
 `**bold**` / `*italic*` into run-level styling by default (python-pptx stores `text`
 verbatim, so the markers would otherwise show literally in Presenter View — the failure
 mode `pptx-speaker-notes.md` warns against); pass `--no-markdown` for legacy plain text.
+Every note run is written at an explicit size, `--font-pt` (default 18) — without one, notes
+inherit the notes master's 12 pt — and a blank line is an empty paragraph, not an empty run.
 A reproducible check lives at `tests/test_speaker_notes_markdown.py`.
 
 ### Standard structure (10–15 min paper talk)
@@ -867,8 +869,10 @@ on everything else as unread, not as passed.
 it on the screen, which is where the audience is.
 
 The measured-overflow check uses `pdftotext -bbox-layout` line rectangles. It
-checks bottom edges against the slide and filled blocks; it does not certify all
-intersections, top/right clipping, or text omitted entirely from the PDF export.
+checks bottom edges against the slide and filled blocks, and looks for every
+paragraph's opening in its slide's page text, so text that never reached the
+page is reported. It does not certify all intersections, top/right clipping, or
+text covered by another shape.
 Inspect the render against the slide source, including long captions and titles.
 
 The tempting check is arithmetic — font size × line spacing × lines — and it fails in **both**
@@ -890,7 +894,9 @@ python3 scripts/check_text_overflow.py output/presentation.pptx --pdf output/pre
 
 `OFF_SLIDE` is a line ending in the reserved band at the foot of the slide; `CARD` is a line whose
 bottom passes the bottom of the filled block it sits in. Both report the measured distance, because
-"0.03 in below the block" and "0.6 in below the block" call for different repairs.
+"0.03 in below the block" and "0.6 in below the block" call for different repairs. `UNRENDERED` is
+a paragraph of the deck (12+ letters or digits) whose opening is absent from its slide's page — a
+line pushed entirely off the slide leaves no rectangle to measure, so the first two cannot see it.
 
 Without a render it **exits 2 — could not measure** — rather than reporting a pass. A check that
 answers when it did not look is worse than no check, because the answer gets quoted.

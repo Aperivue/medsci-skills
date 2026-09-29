@@ -4008,8 +4008,8 @@
     },
     {
       "path": "skills/present-paper/SKILL.md",
-      "size": 54032,
-      "sha256": "768f1e4a044f3ca2a0861e82a6c787eb1bc7d7dd29840c182760cfd2ebdf45ac"
+      "size": 54540,
+      "sha256": "1629253aba89dd1339f939dab71832ff0a8ef938f2ab8960e39c547391f0d3a0"
     },
     {
       "path": "skills/present-paper/references/ai_slide_tells.md",
@@ -4123,18 +4123,18 @@
     },
     {
       "path": "skills/present-paper/scripts/check_font_portability.py",
-      "size": 15874,
-      "sha256": "182a214f32f4f9c73b7e4717d334cd81e94da77c78bc660a7367d69921451528"
+      "size": 16760,
+      "sha256": "74ec1f060089345461781368131f2f9c6097d7c1cea25300756db8a9beef7970"
     },
     {
       "path": "skills/present-paper/scripts/check_font_portability_challenge/make_fixtures.py",
-      "size": 4803,
-      "sha256": "c124153aedca9891a10c9224296b68302aabb723d593dc3b8ef043011ab3eaa1"
+      "size": 7517,
+      "sha256": "c2d3c213bcf60486205147b93d902b5946625d92ecec4564c5080aa63f03e9c6"
     },
     {
       "path": "skills/present-paper/scripts/check_font_portability_challenge/verify.sh",
-      "size": 3962,
-      "sha256": "bed0cc97988b920d1e766f5ab75494edba779e8f3b72e0369cd5d8e2fc6b644d"
+      "size": 5006,
+      "sha256": "613a3e55704052fe34b6f8fa17267ef050d4721b562bab900419c809394fe4ab"
     },
     {
       "path": "skills/present-paper/scripts/check_slide_tells.py",
@@ -4153,18 +4153,18 @@
     },
     {
       "path": "skills/present-paper/scripts/check_text_overflow.py",
-      "size": 12150,
-      "sha256": "c0dde521a02b7f3d495a627003430c29eae199cd8fa4e1c5be4f778b32ff6c5b"
+      "size": 17384,
+      "sha256": "df6c3eeed8142bc6d3447d975c9049bdcf5bf2e63b42b50689ff9455407e4220"
     },
     {
       "path": "skills/present-paper/scripts/check_text_overflow_challenge/make_fixtures.py",
-      "size": 4162,
-      "sha256": "473b8a58e8fefc62c1d3cf0f974aeb1b7ca1ddb3bb31abf2aa7ec612bded3fdd"
+      "size": 4509,
+      "sha256": "012b11a0351e5d9032fd15964a606d7540a80f676efd63f0ae62b18ad1765b90"
     },
     {
       "path": "skills/present-paper/scripts/check_text_overflow_challenge/verify.sh",
-      "size": 4126,
-      "sha256": "5467d119389fb9b2787d18b5f67283c804cd22a5b112c3c82ece55f6ed720269"
+      "size": 4818,
+      "sha256": "568ce6a5fb51de50205d3e2f0121e399c75e0982da662c8a23cd32d6108628ef"
     },
     {
       "path": "skills/present-paper/scripts/extract_pdf_figures.py",
@@ -4178,8 +4178,8 @@
     },
     {
       "path": "skills/present-paper/scripts/inject_speaker_notes.py",
-      "size": 7592,
-      "sha256": "c81c7d7b67eb216644f91c59ba7221b0f0bed4b38669cf0fbdc76f511394ee83"
+      "size": 9799,
+      "sha256": "00298238268b6b21d1aec5073215ee27dcfa84d9595e5c5d066f7e1c7e7aab9d"
     },
     {
       "path": "skills/present-paper/scripts/inspect_pptx_template.py",
@@ -4333,8 +4333,8 @@
     },
     {
       "path": "skills/render-pdf-doc/SKILL.md",
-      "size": 10667,
-      "sha256": "cb3856e4b0aefb6dd0f038a7c8389620c4b933d381d7ff6f653c1f5246abb16a"
+      "size": 11331,
+      "sha256": "6eb5d087fb4634a440b4119d50946471189417b5b7222928f6088a4bfcb1a990"
     },
     {
       "path": "skills/render-pdf-doc/references/known_pitfalls.md",
@@ -4358,8 +4358,8 @@
     },
     {
       "path": "skills/render-pdf-doc/scripts/render_pdf.sh",
-      "size": 4711,
-      "sha256": "0892681945d7599ca5c4dc5411297f8904a8595efe8f7401004c3dac06d68764"
+      "size": 9635,
+      "sha256": "5f38a20fb99630ac7f8eb164074b904351749c9c2e83bfdd04d454b62576c810"
     },
     {
       "path": "skills/render-pdf-doc/scripts/scan_glyph_coverage.py",

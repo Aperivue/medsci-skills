@@ -17,6 +17,30 @@
   `${CLAUDE_SKILL_DIR}/../<skill>/`, which resolves the same way in an installed skills folder
   and in a clone. Nine more cross-skill references in `/humanize`, `/analyze-stats`, `/revise` and
   `/self-review` that named another skill's script only in prose now give its full path.
+- **`/present-paper`: the font-portability check now looks inside charts and SmartArt.** A
+  font that exists on only one operating system passed the check when it was used only in a
+  chart or a SmartArt diagram. The check read slides, notes, layouts, masters and the theme,
+  but charts and diagrams keep their text in separate parts of the file.
+- **`/present-paper`: the text-overflow check now reports text that never reached the page.**
+  A text box pushed past the edge of the slide leaves nothing in the exported PDF to measure,
+  so the check passed it. Each paragraph of 12 or more letters or digits is now looked for on
+  its slide's page, and a missing one is reported as `UNRENDERED`. The all-clear message now
+  says what was checked instead of claiming that no line leaves the slide.
+- **`/present-paper`: speaker notes are written at a readable size.** `inject_speaker_notes.py`
+  set no font size, so notes fell back to the notes master's 12 pt, which is hard to read on a
+  presenter monitor. Every note run now has an explicit size, set with the new `--font-pt`
+  option (default 18), and a blank line becomes an empty paragraph instead of an empty text
+  run. This changes the notes the script writes: they are now 18 pt unless you pass
+  `--font-pt`.
+- **`/render-pdf-doc`: a PDF with missing characters no longer reports success.** xelatex
+  leaves out any character the font has no glyph for (emoji, warning signs, sometimes the minus
+  sign) and still finishes, and the wrapper printed "ok". `render_pdf.sh` now lists each
+  missing character and exits with code 4. The PDF is still written. Pass
+  `--allow-missing-glyphs` to get the list and exit 0.
+- **`/render-pdf-doc`: font sizes other than 10, 11 and 12 pt now take effect.** The default
+  LaTeX class ignores any other size without warning, so `fontsize: 8.5pt` came out at 10 pt.
+  When no document class is set, the wrapper now switches to KOMA-Script's `scrartcl` and
+  says so in its log.
 
 ## [5.28.0] - 2026-09-29
 
