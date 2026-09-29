@@ -57,5 +57,34 @@ assert d['summary']['n_claims']==0, d['claims']
 python3 "$SCRIPT" --manuscript "$CLEAN" --strict --quiet >/dev/null 2>&1
 check "exit 0 on clean manuscript" test "$?" -eq 0
 
+# (5) YAML front matter is not narrative. The clean manuscript with a changelog block that
+#     says "hypothesis-generating" four times used to fire HEDGE_REPEAT ("appears 4 times")
+#     although the body never says it.
+FM="$HERE/fixtures/editorial_frontmatter_hedges.md"
+python3 "$SCRIPT" --manuscript "$FM" --out "$OUT" --quiet >/dev/null 2>&1
+check "hedge tokens only in YAML front matter yield no flags" python3 -c "
+import json
+d=json.load(open('$OUT'))
+assert d['summary']['n_claims']==0, d['claims']
+"
+# Positive control: the same front matter + three body mentions -> HEDGE_REPEAT counts the
+# body's 3, not 3 + the YAML's 4.
+FMPOS="$(mktemp -t editorial_fmpos_XXXX).md"
+trap 'rm -f "$OUT" "$FMPOS"' EXIT
+python3 - "$FM" "$FMPOS" <<'PY'
+import sys
+src = open(sys.argv[1]).read()
+extra = ("\n## Conclusion\n\nThe marker is hypothesis-generating. Its subgroup result is "
+         "hypothesis-generating. The threshold analysis is hypothesis-generating.\n")
+open(sys.argv[2], "w").write(src + extra)
+PY
+python3 "$SCRIPT" --manuscript "$FMPOS" --out "$OUT" --quiet >/dev/null 2>&1
+check "body hedges still fire, counted without the YAML (appears 3 times)" python3 -c "
+import json
+d=json.load(open('$OUT'))
+r=[c for c in d['claims'] if c['verdict']=='HEDGE_REPEAT' and 'hypothesis_generating' in c['detail']]
+assert r and 'appears 3 times' in r[0]['detail'], d['claims']
+"
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"
