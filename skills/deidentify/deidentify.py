@@ -163,11 +163,14 @@ def build_locale_patterns(locale: dict) -> tuple[
     # Value patterns: universal + locale-specific
     value_patterns = list(UNIVERSAL_VALUE_PATTERNS)
 
-    # National ID
+    # National ID. Compiled case-insensitively: locale packs write letter
+    # classes in upper case (UK NINO, Indian PAN), but IDs are often exported
+    # in lower case, and a missed match classifies the column SAFE, so it is
+    # passed through un-stripped. A miss here is a leak, not a lost warning.
     nid = locale.get("national_id", {})
     nid_type = nid.get("phi_type", "national_id")
     for pat in nid.get("patterns", []):
-        value_patterns.append((re.compile(pat), nid_type))
+        value_patterns.append((re.compile(pat, re.IGNORECASE), nid_type))
 
     # Phone
     for phone in locale.get("phone", []):
@@ -186,9 +189,11 @@ def build_locale_patterns(locale: dict) -> tuple[
         # Build a regex from keywords (case-insensitive word boundary match)
         escaped = [re.escape(kw) for kw in addr_cfg["keywords"]]
         address_re = re.compile(r"(?:" + "|".join(escaped) + r")", re.IGNORECASE)
-    # Postcode pattern (if available, add to value_patterns as address type)
+    # Postcode pattern (if available, add to value_patterns as address type).
+    # Case-insensitive for the same reason as national IDs above.
     if addr_cfg.get("postcode_pattern"):
-        value_patterns.append((re.compile(addr_cfg["postcode_pattern"]), "address"))
+        value_patterns.append(
+            (re.compile(addr_cfg["postcode_pattern"], re.IGNORECASE), "address"))
 
     # Name heuristic
     name_cfg = locale.get("name_heuristic", {})
