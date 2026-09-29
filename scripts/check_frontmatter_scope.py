@@ -75,7 +75,6 @@ ALLOWLIST: dict[str, str] = {
     "skills/self-review/scripts/check_cohort_arithmetic.py": "not yet swept",
     "skills/self-review/scripts/check_cv_leakage.py": "not yet swept",
     "skills/self-review/scripts/check_dta_denominators.py": "not yet swept",
-    "skills/self-review/scripts/check_editorial_impression.py": "not yet swept",
     "skills/self-review/scripts/check_effect_stability.py": "not yet swept",
     "skills/self-review/scripts/check_emphasis_density.py": "not yet swept",
     "skills/self-review/scripts/check_figure_citation.py": "not yet swept",

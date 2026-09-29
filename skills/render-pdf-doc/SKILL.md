@@ -125,10 +125,19 @@ Missing fields use the wrapper or OS defaults. This also applies to `geometry`,
 `-V` / `-M` arguments after `--` still override frontmatter; for example,
 `-- -V fontsize=10pt`. The wrapper logs font **fallbacks**, not the final fonts.
 
+The standard `article` class honours only `10pt`, `11pt` and `12pt` and silently
+ignores any other size. When the effective `fontsize` is anything else and no
+`documentclass` is set, the wrapper switches to KOMA-Script `scrartcl` (pandoc's
+documented route), adds `classoption: fontsize=<size>` when you set no
+`classoption` (KOMA reads a fractional size such as `8.5pt` only that way), and
+logs the switch. Set `documentclass` yourself to override it.
+
 ### Step 3.5 — Scientific-symbol + CJK glyph scan (before render)
 
-xelatex can finish successfully with missing glyphs; warnings may appear in the
-render log. Academic markdown
+xelatex can finish successfully with missing glyphs. `render_pdf.sh` counts the
+`Missing character` warnings pandoc relays: if there are any, it lists each glyph
+(code point, count, font) and **exits 4** — the PDF is written but incomplete.
+`--allow-missing-glyphs` prints the same list and exits 0. Academic markdown
 routinely carries glyphs a default Latin font misses: transition arrows (→ ↑ ↓),
 math operators (− ≤ ≥ ± √ ∪ × ≈ ≠), stats Greek (κ μ σ β), bullets/marks (• ★ ✓),
 and CJK. Scan the source first so a silent drop is caught before it ships:

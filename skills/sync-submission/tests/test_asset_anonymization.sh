@@ -136,6 +136,33 @@ PY
   [ $? -eq 0 ] && ok "$case reports the path leak" || bad "$case finding missing"
 done
 
+# 8. tracked-change / comment authors: a real-looking name fails even when core.xml is
+#    clean; a neutral "Author" does not. Core metadata alone never showed these.
+python3 - "$WORK" <<'PY'
+import os, sys, zipfile
+work = sys.argv[1]
+W = 'xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"'
+def marked(path, author):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    core = ('<cp:coreProperties xmlns:cp="c" xmlns:dc="d"><dc:creator>Pandoc</dc:creator>'
+            '</cp:coreProperties>')
+    doc = (f'<w:document {W}><w:body><w:p><w:ins w:id="1" w:author="{author}" '
+           f'w:date="2026-01-01T00:00:00Z"><w:r><w:t>added</w:t></w:r></w:ins></w:p></w:body></w:document>')
+    with zipfile.ZipFile(path, "w") as z:
+        z.writestr("docProps/core.xml", core)
+        z.writestr("word/document.xml", doc)
+marked(os.path.join(work, "revleak", "marked.docx"), "Casey Q. Reviewer")
+marked(os.path.join(work, "revneutral", "marked.docx"), "Author")
+PY
+run --dir "$WORK/revleak" --out "$WORK/revleak.json" --quiet
+[ $? -eq 1 ] && ok "tracked-change author name fails (core.xml clean)" || bad "revision author leak was missed"
+python3 -c "
+import json,sys; d=json.load(open('$WORK/revleak.json'))
+sys.exit(0 if any(f['type']=='docx_revision_author' for f in d['findings']) else 1)
+" && ok "JSON: docx_revision_author finding present" || bad "revision author finding missing"
+run --dir "$WORK/revneutral" --quiet
+[ $? -eq 0 ] && ok "neutral tracked-change author passes" || bad "neutral author should pass"
+
 echo ""
 echo "test_asset_anonymization: $PASS passed, $FAIL failed"
 [ "$FAIL" -eq 0 ]

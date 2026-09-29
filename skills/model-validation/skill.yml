@@ -5,7 +5,7 @@ owner_domain: model_validation
 maturity: official
 
 when_to_use: "Design or audit the clinical-validation study for an engineer-built medical-imaging model (segmentation / classification / detection): patient-level split disjointness and the data-leakage taxonomy, internal vs genuine external validation, comparator design, test-set sizing handoff, seed / run variance, task-correct metric selection, and CLAIM 2024 / TRIPOD+AI / STARD-AI reporting fit — before the validation report or manuscript is written."
-when_NOT_to_use: "Building or training the model (out of scope — do not rebuild MONAI / nnU-Net); benchmarking AI against a human-expert panel (use design-ai-benchmarking); evaluating an LLM / MLLM (use mllm-eval when available); general study/validity review (use design-study); statistical execution such as DeLong / ICC / bootstrap CIs (use analyze-stats); item-by-item reporting-guideline audit of a finished manuscript (use check-reporting); reviewing a finished manuscript (use self-review or peer-review)."
+when_NOT_to_use: "Building or training the model (out of scope — do not rebuild MONAI / nnU-Net); benchmarking AI against a human-expert panel (use design-ai-benchmarking); evaluating an LLM / MLLM (use mllm-eval); general study/validity review (use design-study); statistical execution such as DeLong / ICC / bootstrap CIs (use analyze-stats); item-by-item reporting-guideline audit of a finished manuscript (use check-reporting); reviewing a finished manuscript (use self-review or peer-review)."
 
 inputs:
   - "trained-model description (task, architecture provenance, intended use)"

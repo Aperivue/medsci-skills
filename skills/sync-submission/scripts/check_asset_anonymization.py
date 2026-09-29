@@ -22,6 +22,10 @@ classes of leak:
   3. **document metadata author** — a `.docx` `dc:creator`/`cp:lastModifiedBy`
      or a `.pdf` Author/Creator is a real person/identifier (not empty / not a
      known tool).
+     Tracked changes and comments carry their own author (`w:author` on
+     `w:ins`/`w:del`/`w:comment`, and `word/people.xml`), which core.xml does not
+     show: a marked-up file whose metadata is scrubbed can still name every
+     editor on every change.
   4. **docx embedded absolute path** — any XML part or relationship carries
      an absolute home-dir path (Unix or Windows), including drawing descriptions
      and custom properties. Pandoc can retain local CSL/bibliography source paths
@@ -88,6 +92,10 @@ def _is_tool_author(value: str) -> bool:
 FIG_SCRIPT_GLOBS = ("*.R", "*.r", "*.py")
 DC_CREATOR_RE = re.compile(r"<dc:creator>([^<]*)</dc:creator>")
 LAST_MOD_RE = re.compile(r"<cp:lastModifiedBy>([^<]*)</cp:lastModifiedBy>")
+# Revision / comment authors: w:author on w:ins, w:del, w:comment (and friends), and
+# w15:author on the w15:person entries of word/people.xml.
+REVISION_AUTHOR_RE = re.compile(r'\bw(?:15)?:author="([^"]*)"')
+REVISION_PARTS_RE = re.compile(r"^word/(document|comments\w*|people|footnotes|endnotes|header\d*|footer\d*)\.xml$")
 # Absolute home-dir path leaked into an OOXML attribute (e.g. a drawing's
 # <pic:cNvPr descr="/Users/<user>/.../fig.png">). pandoc embeds the source image
 # path as the picture description when given an absolute path; it carries the
@@ -200,6 +208,24 @@ def _docx_authors(docx: Path) -> list[str]:
     return vals
 
 
+def _docx_revision_authors(docx: Path) -> list[str]:
+    """Distinct tracked-change / comment author names that are not a tool or placeholder."""
+    seen: list[str] = []
+    try:
+        with zipfile.ZipFile(docx) as z:
+            for name in z.namelist():
+                if not REVISION_PARTS_RE.match(name):
+                    continue
+                xml = z.read(name).decode("utf-8", errors="replace")
+                for m in REVISION_AUTHOR_RE.finditer(xml):
+                    v = m.group(1).strip()
+                    if v and not _is_tool_author(v) and v not in seen:
+                        seen.append(v)
+    except Exception:
+        return []
+    return seen
+
+
 def _docx_embedded_abs_paths(docx: Path) -> list[str]:
     """Home paths in OOXML content, custom properties, or relationships.
 
@@ -270,6 +296,11 @@ def build_report(root: Path, names: list[str], poppler: bool) -> Report:
                 rep.findings.append(Finding(
                     "docx_metadata_author", "leak", rel,
                     f"docx author metadata: '{a}'"))
+            for a in _docx_revision_authors(p):
+                rep.findings.append(Finding(
+                    "docx_revision_author", "leak", rel,
+                    f"tracked-change/comment author: '{a}' — a blinded file needs a neutral "
+                    f"author (e.g. 'Author') or none; set it when the changes are made"))
             # 4. absolute home-dir path embedded in word/*.xml (e.g. pic descr)
             for ap_ in _docx_embedded_abs_paths(p):
                 rep.findings.append(Finding(

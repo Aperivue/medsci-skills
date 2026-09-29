@@ -72,6 +72,7 @@ DETECTOR = "check_font_portability"
 
 A = "{http://schemas.openxmlformats.org/drawingml/2006/main}"
 P = "{http://schemas.openxmlformats.org/presentationml/2006/main}"
+C = "{http://schemas.openxmlformats.org/drawingml/2006/chart}"
 
 
 # Fonts that ship with macOS and are not present on a stock Windows install. Keys are lowercased
@@ -132,7 +133,11 @@ class Finding:
 
 # Where a typeface can be named. Slides first because a run-level font is the one that actually
 # renders; the theme matters because everything inheriting from it moves at once.
-_PART_ORDER = ("slide", "notes", "layout", "master", "theme")
+#
+# Charts and SmartArt keep their text in parts of their own. A slide holds only a graphicFrame
+# pointing at them, so a scan of slides alone passes a deck whose macOS-only face lives entirely
+# inside a chart — the axis labels still reflow on the other platform.
+_PART_ORDER = ("slide", "notes", "chart", "diagram", "layout", "master", "theme")
 
 
 def _part_kind(name: str) -> Optional[str]:
@@ -140,6 +145,10 @@ def _part_kind(name: str) -> Optional[str]:
         return "slide"
     if re.fullmatch(r"ppt/notesSlides/notesSlide\d+\.xml", name):
         return "notes"
+    if re.fullmatch(r"ppt/charts/chart\d+\.xml", name):
+        return "chart"
+    if re.fullmatch(r"ppt/diagrams/(?:data|drawing)\d+\.xml", name):
+        return "diagram"
     if re.fullmatch(r"ppt/slideLayouts/slideLayout\d+\.xml", name):
         return "layout"
     if re.fullmatch(r"ppt/slideMasters/slideMaster\d+\.xml", name):
@@ -168,7 +177,9 @@ def embedded_fonts(z: zipfile.ZipFile) -> set:
     return out
 
 
-_DIRECT = {"slide", "notes"}          # a run: this renders
+# A chart's or diagram's text properties are not a template default: they are the only font that
+# chart text is drawn in, so they count like a run.
+_DIRECT = {"slide", "notes", "chart", "diagram"}  # a run: this renders
 _INHERITED = {"theme", "layout", "master"}  # a default: this renders only if something asks for it
 
 # The scripts a font slot serves. `ea` is the East-Asian slot; `latin` the Latin one; `cs` complex
@@ -200,7 +211,11 @@ def collect_typefaces(path: Path) -> Tuple[Dict[str, Usage], set, Dict[str, bool
             except ET.ParseError:
                 continue
             if kind in _DIRECT:
-                for t in root.iter(f"{A}t"):
+                # A chart's category labels are cached as <c:v>, not <a:t>.
+                texts = list(root.iter(f"{A}t"))
+                if kind == "chart":
+                    texts += list(root.iter(f"{C}v"))
+                for t in texts:
                     txt = t.text or ""
                     if _CJK.search(txt):
                         scripts["cjk"] = True

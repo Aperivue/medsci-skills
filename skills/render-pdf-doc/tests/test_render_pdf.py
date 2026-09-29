@@ -3,6 +3,11 @@
 
 A failing xelatex stub satisfies the wrapper's dependency lookup. It must never
 execute: these tests stop at LaTeX generation; they do not certify a rendered PDF.
+
+MissingGlyphs goes one step further with a different stub: real pandoc runs it
+as the PDF engine, and it writes the log xelatex writes when a font has no glyph
+for a character. That exercises pandoc's relay of the warning and the wrapper's
+verdict on it; it does not typeset anything.
 """
 import os
 from pathlib import Path
@@ -110,10 +115,104 @@ class RenderPrecedence(unittest.TestCase):
         self.assert_frontmatter(tex)
         self.assertIn(r"\begin{longtable}", tex)
 
+    def test_nonstandard_fontsize_switches_to_koma(self):
+        # article honours only 10/11/12pt; 8.5pt would be dropped without a word.
+        result, tex = self.render("---\nfontsize: 8.5pt\n---\n\nBody.\n")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("]{scrartcl}", tex)
+        self.assertIn("fontsize=8.5pt", tex)  # KOMA reads a fractional size only this way
+        self.assertIn("scrartcl", result.stderr)
+
+    def test_cli_fontsize_switches_to_koma(self):
+        result, tex = self.render("Body.\n", extra=("-V", "fontsize=9pt"))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("]{scrartcl}", tex)
+
+    def test_explicit_documentclass_and_standard_sizes_are_left_alone(self):
+        result, tex = self.render("---\nfontsize: 9pt\ndocumentclass: extarticle\n---\n\nBody.\n")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("]{extarticle}", tex)
+        self.assertNotIn("scrartcl", result.stderr)
+        self.assertNotIn("fontsize=9pt", tex)
+        for text in ("Body.\n", FRONTMATTER):
+            with self.subTest(text=text[:12]):
+                result, tex = self.render(text)
+                self.assertIn("]{article}", tex)
+                self.assertNotIn("scrartcl", result.stderr)
+
     def test_failed_pandoc_propagates_failure_and_cleans_temp(self):
         result, _ = self.render(FRONTMATTER, ("--infer-colwidths",), ("--invalid-render-test-option",))
         self.assertNotEqual(result.returncode, 0)
         self.assertNotIn("[render_pdf] ok", result.stderr)
+
+
+# Writes what xelatex writes when the font lacks a character: the PDF, and a log
+# line pandoc turns into a "Missing character" warning. STUB_MISSING=0 is a clean run.
+ENGINE_STUB = r"""#!/bin/sh
+outdir=""; tex=""; prev=""
+for a in "$@"; do
+  case "$prev" in -output-directory) outdir="$a" ;; esac
+  case "$a" in -output-directory=*) outdir="${a#-output-directory=}" ;; *.tex) tex="$a" ;; esac
+  prev="$a"
+done
+job=$(basename "$tex" .tex)
+[ -n "$outdir" ] || outdir=$(dirname "$tex")
+{
+  echo "This is a xelatex stub"
+  if [ "$STUB_MISSING" = "1" ]; then
+    printf 'Missing character: There is no \342\232\240 (U+26A0) in font Stub Sans/OT!\n'
+    printf 'Missing character: There is no \342\232\240 (U+26A0) in font Stub Sans/OT!\n'
+  fi
+  echo "Output written on $job.pdf (1 page)."
+} > "$outdir/$job.log"
+cat "$outdir/$job.log"
+printf '%%PDF-1.4\n%%stub\n' > "$outdir/$job.pdf"
+"""
+
+
+class MissingGlyphs(unittest.TestCase):
+    """xelatex drops a character its font lacks and still exits 0."""
+
+    def setUp(self):
+        self.assertIsNotNone(shutil.which("pandoc"), "Install pandoc to run render regressions")
+        self.temp = tempfile.TemporaryDirectory(prefix="render glyph test ")
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        bindir = self.root / "bin"
+        bindir.mkdir()
+        stub = bindir / "xelatex"
+        stub.write_text(ENGINE_STUB)
+        stub.chmod(0o755)
+        self.source = self.root / "input.md"
+        self.source.write_text("Status \u26a0 pending.\n", encoding="utf-8")
+        self.output = self.root / "out.pdf"
+        self.env = dict(os.environ, PATH=str(bindir) + os.pathsep + os.environ["PATH"])
+
+    def render(self, missing, *wrapper):
+        env = dict(self.env, STUB_MISSING="1" if missing else "0")
+        return subprocess.run(["bash", str(SCRIPT), "-i", str(self.source), "-o", str(self.output),
+                               *wrapper], env=env, capture_output=True, text=True)
+
+    def test_missing_glyph_fails_and_names_it(self):
+        result = self.render(True)
+        self.assertEqual(result.returncode, 4, result.stderr)
+        self.assertNotIn("[render_pdf] ok", result.stderr)
+        self.assertIn("U+26A0", result.stderr)
+        self.assertIn("x2", result.stderr)          # counted, not just noticed
+        self.assertIn("Missing character", result.stderr)  # pandoc's own warning is re-emitted
+        self.assertTrue(self.output.exists())        # written, but reported incomplete
+
+    def test_allow_missing_glyphs_reports_and_exits_zero(self):
+        result = self.render(True, "--allow-missing-glyphs")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("U+26A0", result.stderr)
+        self.assertIn("--allow-missing-glyphs", result.stderr)
+
+    def test_clean_render_is_ok(self):
+        result = self.render(False)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("[render_pdf] ok", result.stderr)
+        self.assertNotIn("not drawn", result.stderr)
 
 
 if __name__ == "__main__":

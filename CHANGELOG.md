@@ -2,8 +2,48 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **The skill validator no longer rewards length or boilerplate.** `scripts/validate_skills.sh`
+  failed any SKILL.md without an "Anti-Hallucination" heading, counted occurrences of the word
+  "gate", and warned "THIN tier — consider expanding" below 150 lines. Those checks pushed every
+  skill toward the same generic sections and more text. They are removed; the size ceiling in
+  `check_phase_budget.py` stays. The contributor template (`docs/SKILL_TEMPLATE.md`) replaces its
+  fixed Anti-Hallucination and Language blocks (the latter hard-coded one user's language) and
+  its length-based quality tiers with a short Gotchas section and a size limit.
+
 ### Fixed
 
+- **AI-use disclosure now follows the target journal, and the authors confirm their own
+  statements.** `/write-paper` put a disclosure in Methods by default while its own Phase 7.1
+  gate halted on a disclosure in the body, and `/humanize` told you to delete body disclosures
+  even for journals that require one in Methods. Both now take the location from the journal
+  profile, as the classical-style check already did. The drafted statements about what the
+  authors did (reviewed, verified, approved; what the tool was not used for) sit inside a
+  `[TODO authors confirm: …]` marker, and the placeholder check blocks submission until an
+  author resolves it. `/humanize` no longer suggests rewording a required disclosure into a
+  vaguer one that does not name the tool.
+- **`/humanize` states one em-dash threshold** (per 1000 words, as its pattern reference does)
+  instead of "per page" in one place and "per 1000 words" in another.
+- **Stale references:** `/model-validation` pointed to `/mllm-eval` "when available" (it is),
+  `/fill-protocol` pointed to the retired `generate-pptx` (now `/present-paper`), and the
+  `render_pandoc.sh` usage text still showed its old file name.
+- **`/sync-submission` cross-artifact check now reads Word files, and no longer passes after
+  reading nothing.** `check_cross_artifact_stale.py` skipped `.docx` files in an `--aux` folder
+  and read an explicitly named `.docx` as raw zip bytes, then printed PASS. A retired claim or a
+  superseded number left in a Word supplement therefore went unreported, although this check is
+  the one the skill relies on for exactly that. It now reads the text of `.docx` files, sweeps
+  figure scripts (`.py`/`.R`) for stale hard-coded values, lists documents it cannot read, and
+  exits 2 when an `--aux` path holds no readable file.
+- **Blinded submissions: tracked-change and comment authors are checked.**
+  `check_asset_anonymization.py` read the author only from the file properties. The name
+  recorded on every tracked change and comment (and in `word/people.xml`) was not checked, so a
+  marked-up blinded manuscript could name its editors while the check passed. A real-looking
+  name there is now reported; neutral names such as "Author" are not.
+- **`/peer-review` reviewer-profile guide no longer contradicts itself.** Its "adding a journal"
+  steps asked for the review round and date in the evidence pointer, which the rules a few lines
+  above forbid because a round and a day-precision date identify the reviewer's timeline. The
+  step now says month only.
 - **Scripts that skills tell you to run now ship with those skills.** `/meta-analysis`,
   `/sync-submission` and `/manage-project` pointed at seven scripts in the repository's
   root `scripts/` folder (`prisma_5way_consistency.py`, `extraction_consensus_log_init.py`,
@@ -54,6 +94,64 @@
   quote that ran past about 320 characters lost its closing mark and was skipped, and a quote
   given under a "Changes to text:" label was never checked. Each quote is now read to its closing
   mark, and the label counts as a claim of new text.
+- **`/present-paper`: the font-portability check now looks inside charts and SmartArt.** A
+  font that exists on only one operating system passed the check when it was used only in a
+  chart or a SmartArt diagram. The check read slides, notes, layouts, masters and the theme,
+  but charts and diagrams keep their text in separate parts of the file.
+- **`/present-paper`: the text-overflow check now reports text that never reached the page.**
+  A text box pushed past the edge of the slide leaves nothing in the exported PDF to measure,
+  so the check passed it. Each paragraph of 12 or more letters or digits is now looked for on
+  its slide's page, and a missing one is reported as `UNRENDERED`. The all-clear message now
+  says what was checked instead of claiming that no line leaves the slide.
+- **`/present-paper`: speaker notes are written at a readable size.** `inject_speaker_notes.py`
+  set no font size, so notes fell back to the notes master's 12 pt, which is hard to read on a
+  presenter monitor. Every note run now has an explicit size, set with the new `--font-pt`
+  option (default 18), and a blank line becomes an empty paragraph instead of an empty text
+  run. This changes the notes the script writes: they are now 18 pt unless you pass
+  `--font-pt`.
+- **`/render-pdf-doc`: a PDF with missing characters no longer reports success.** xelatex
+  leaves out any character the font has no glyph for (emoji, warning signs, sometimes the minus
+  sign) and still finishes, and the wrapper printed "ok". `render_pdf.sh` now lists each
+  missing character and exits with code 4. The PDF is still written. Pass
+  `--allow-missing-glyphs` to get the list and exit 0.
+- **`/render-pdf-doc`: font sizes other than 10, 11 and 12 pt now take effect.** The default
+  LaTeX class ignores any other size without warning, so `fontsize: 8.5pt` came out at 10 pt.
+  When no document class is set, the wrapper now switches to KOMA-Script's `scrartcl` and
+  says so in its log.
+- **`/manage-refs` duplicate-bibliography check: every reference entry is counted.** An entry
+  whose first author has a lowercase particle ("van der Berg", "de Vries") or a guideline whose
+  title starts with its year ("2021 … Guidelines") was not recognised, so a 4-entry list was
+  reported as 1 entry — and a duplicated list made of such entries passed as a single list.
+- **`/sync-submission` word-count gate counts the body's subheadings.** The rendered document,
+  and Word's count of it, include every subheading, but the estimate left them out. A
+  manuscript with many subheadings could be over the journal's limit while the gate reported
+  it as only near the limit, and `--strict` let it through.
+- **`/self-review` supplement check resolves "Table S4", "Supplementary Figures S2 and S3" and
+  "Figs S1–S3", and tells tables from figures.** Those forms used to match nothing, and a
+  figure callout resolved against a table with the same number, so a supplementary figure
+  cited in the text but missing from the supplement passed.
+- **`/humanize` fidelity check catches a reversed comparison or a dropped minus sign.** A
+  rewrite that turned "18% lower" into "18% above", or "−2.4" into "2.4", kept every digit and
+  passed. A percentage is now read together with its direction word and a leading minus is
+  kept, so either change is reported as `NUMBER_DRIFT`.
+- **`/humanize` fidelity report shows where each changed number sits.** `NUMBER_DRIFT` listed
+  bare tokens and counts, so telling a renumbered slide from a changed statistic meant
+  searching both files by hand. Each changed token now carries a short before/after snippet,
+  in the printed report and the JSON.
+- **`/self-review` editorial-impression check no longer reads the YAML front matter as prose.**
+  A changelog in the front matter that said "hypothesis-generating" four times made the check
+  report the phrase as repeated in the manuscript when the body said it once.
+
+### Security
+
+- **The repository's publication check no longer prints the value it caught.** When
+  `scripts/validate_skills.sh` found a personal name, home-directory path or email address in a
+  file, the failure message included the matched text. CI logs of a public repository are public
+  and outlive a force-push that removes the offending commit, so the check republished what it
+  had just caught. It now reports the file and line (for document metadata, the field name). The
+  text scan also covers `.jsonl`, `.jsonld`, `.R`, `.qmd`, `.js`, `.svg`, `.xml` and the
+  installer scripts, which it previously skipped. A regression test plants a leak and fails if
+  the matched token appears in the output.
 
 ## [5.28.0] - 2026-09-29
 

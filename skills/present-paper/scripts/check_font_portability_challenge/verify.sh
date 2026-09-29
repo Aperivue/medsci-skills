@@ -72,6 +72,26 @@ else
   python3 "$DET" "$FIX/korean_text.pptx" --list-fonts
 fi
 
+# Charts and SmartArt keep their text in parts of their own. Every slide run in these two decks is
+# portable; the only macOS-only face is inside the chart / the diagram. A scan that reads slides,
+# notes, layouts, masters and theme — and nothing else — passes both.
+out_chart="$(python3 "$DET" "$FIX/chart_font.pptx" || true)"
+if grep -q FONT_NOT_PORTABLE <<<"$out_chart" && grep -q "Helvetica Neue" <<<"$out_chart" \
+   && grep -q "chart: " <<<"$out_chart"; then
+  pass "a macOS-only face used only inside a chart is caught, and the report says it is in the chart"
+else
+  bad "a macOS-only face inside a chart passed — the scan never opened ppt/charts/"
+  echo "$out_chart"
+fi
+
+out_dgm="$(python3 "$DET" "$FIX/diagram_font.pptx" || true)"
+if grep -q FONT_NOT_PORTABLE <<<"$out_dgm" && grep -qE "Menlo.*diagram: 2" <<<"$out_dgm"; then
+  pass "a macOS-only face used only inside SmartArt (data + drawing parts) is caught"
+else
+  bad "a macOS-only face inside SmartArt passed — the scan never opened ppt/diagrams/"
+  echo "$out_dgm"
+fi
+
 # Exit codes: deck detectors report on stdout and exit 0; --strict is their verdict.
 if python3 "$DET" "$FIX/mac_fonts.pptx" >/dev/null 2>&1; then
   pass "exits 0 without --strict (a report, not a build failure)"
