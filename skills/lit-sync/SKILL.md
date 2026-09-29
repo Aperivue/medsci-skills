@@ -248,7 +248,7 @@ Delegate to the `/fulltext-retrieval` engine (do **not** re-implement the OA cas
 import its code; invoke it by path). Resolve the engine as:
 
 ```bash
-ENGINE="${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/fulltext-retrieval/fetch_oa.py"
+ENGINE="${CLAUDE_SKILL_DIR}/../fulltext-retrieval/fetch_oa.py"
 python3 "$ENGINE" <worklist> -o pdfs/ -e <contact-email> --report pdfs/retrieval_report.json
 ```
 
@@ -260,7 +260,7 @@ and `file_sha256`). Keep the distinction between having a file and assessing its
 
 ### Route B — in-library PDFs (Zotero-native, higher yield, proxy-aware)
 
-Emit `${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/fulltext-retrieval/references/find_available_pdf.js`
+Emit `${CLAUDE_SKILL_DIR}/../fulltext-retrieval/references/find_available_pdf.js`
 for the user to paste into Zotero (*Tools → Developer → Run JavaScript*) with the project
 collection selected. It triggers Zotero's own `addAvailablePDF`/`addAvailablePDFs`, which
 reuse the **user's** OpenURL resolver / institutional proxy — so it typically retrieves more

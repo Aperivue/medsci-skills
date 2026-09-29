@@ -439,7 +439,7 @@ Latin (*in vivo*, *et al.*, *post hoc*), gene and species names (*BRCA1*, *E. co
 titles. A **bold run-in subheading** at line start is correct Nature/npj style
 (`manuscript-style-classical.md` §1.2) and is not counted.
 
-**Detection:** `/self-review` `scripts/check_emphasis_density.py --manuscript manuscript.md`
+**Detection:** `python3 "${CLAUDE_SKILL_DIR}/../self-review/scripts/check_emphasis_density.py" --manuscript manuscript.md`
 → `EMPHASIS_OVERUSE` (Minor). Counts non-allowlisted *italic* spans per 1,000 body words;
 bold is deliberately excluded so the gate does not fight the run-in-subheading rule. Fires
 only when density and raw count both clear a floor, so one stray italic in a short note is
@@ -473,7 +473,7 @@ prose, the negative-definition rate ran 0.00–0.45% of sentences (seven of eigh
 and the short-declarative share 0.94–10.47%. A manuscript at 2% and 24% is outside that
 range on both axes.
 
-**Detection:** `/self-review` `scripts/check_aphorism_density.py --manuscript manuscript.md`
+**Detection:** `python3 "${CLAUDE_SKILL_DIR}/../self-review/scripts/check_aphorism_density.py" --manuscript manuscript.md`
 → `APHORISM_DENSITY` (Minor). Fires only when BOTH rates clear thresholds set above the
 observed published maxima, so ordinary emphatic prose does not trip it. Use `--calibrate`
 to regenerate thresholds on your own corpus; the shipped numbers come from argumentative
@@ -515,7 +515,7 @@ than" runs 1.4–3.8 per 1,000 body words and sentence-initial clefts are absent
 thresholds (antithesis 6.0 / 1,000, cleft 2.5 / 1,000, each behind a raw-count floor) sit
 above that range, so a lone functional "rather than" or one pseudo-cleft never trips it.
 
-**Detection:** `/self-review` `scripts/check_rhetorical_density.py --manuscript manuscript.md`
+**Detection:** `python3 "${CLAUDE_SKILL_DIR}/../self-review/scripts/check_rhetorical_density.py" --manuscript manuscript.md`
 → `ANTITHESIS_DENSITY` / `CLEFT_DENSITY` (both Minor, independent). Each fires only when the
 per-1,000 rate AND the raw count both clear a floor, so functional use in ordinary prose does
 not trip it.

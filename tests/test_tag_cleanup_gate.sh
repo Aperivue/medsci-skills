@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Regression test for scripts/tag_cleanup_gate.sh (DI-8 draft-tag submission gate).
+# Regression test for skills/meta-analysis/scripts/tag_cleanup_gate.sh (DI-8 draft-tag submission gate).
 #
 # The defect this exists for: the gate has two scan backends and they read DIFFERENT file
 # sets. ripgrep honours .gitignore/.ignore and skips dotfiles; the `grep -r` fallback reads
@@ -21,7 +21,7 @@
 set -u
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-GATE="$HERE/../scripts/tag_cleanup_gate.sh"
+GATE="$HERE/../skills/meta-analysis/scripts/tag_cleanup_gate.sh"
 TMP="$(mktemp -d -t di8gate_XXXX)"
 trap 'rm -rf "$TMP"' EXIT
 

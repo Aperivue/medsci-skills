@@ -174,7 +174,7 @@ analysis completeness, and imputation-input integrity are separate subchecks (ru
     collapses opposite (call × confidence) cells and silently mis-estimates the AUC; a
     prose review cannot see an estimator bug. Run the encoding through the reusable
     monotonicity probe and ship its 10-combination unit test:
-    `python3 "${MEDSCI_SKILLS_ROOT}/skills/analyze-stats/scripts/rating_monotonicity.py" --encoding score_def.json`.
+    `python3 "${CLAUDE_SKILL_DIR}/../analyze-stats/scripts/rating_monotonicity.py" --encoding score_def.json`.
 
 11. **Figure-embedded numbers are text-grep blind.** PRISMA/flow/forest/statistic figures
     are rasterised, so every numeric audit above is blind to the numbers *inside* them.

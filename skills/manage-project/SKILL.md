@@ -33,11 +33,11 @@ Create a complete project scaffold for a new research paper.
 `--zotero-collection`, `library_id` / `collection_key` stay `null` until the owner links an
 existing collection.
 
-**Implementation:** backed by `scripts/init_project.py`. Invoke it directly when running outside
-the skill harness (from the `medsci-skills` repo root):
+**Implementation:** backed by `scripts/init_project.py` in this skill. Invoke it directly when running
+outside the skill harness:
 
 ```bash
-python3 scripts/init_project.py \
+python3 "${CLAUDE_SKILL_DIR}/scripts/init_project.py" \
     --name {name} --type {type} --journal {journal} [--ssot] \
     --project-root {target_dir}
 ```
@@ -63,7 +63,7 @@ to the migrate pipeline.
 Thin wrapper over `scripts/migrate_project_to_ssot.py` that converts a legacy `project.yaml` project into SSOT.yaml form and, by default, touches `qc/migration_complete` so Phase 1C `auto` mode switches from `warn` to `enforce`.
 
 ```bash
-python3 scripts/migrate_project_to_ssot.py \
+python3 "${CLAUDE_SKILL_DIR}/scripts/migrate_project_to_ssot.py" \
     --project-root . --write --mark-complete
 ```
 

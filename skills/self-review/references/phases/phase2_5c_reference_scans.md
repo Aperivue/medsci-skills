@@ -25,7 +25,7 @@ Numerical audits (2.5/2.5a/2.5b) cover in-text numbers; they do **not** cover re
    `qc/pre_submission_gate.json` as the single submission-readiness artifact:
 
    ```bash
-   bash "${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/manage-refs/scripts/pre_submission_gate.sh" \
+   bash "${CLAUDE_SKILL_DIR}/../manage-refs/scripts/pre_submission_gate.sh" \
        --md manuscript/manuscript.md \
        --bib manuscript/_src/refs.bib \
        --docx submission/<journal>/manuscript.docx \
@@ -70,7 +70,7 @@ Phase 2.5c covers reference **integrity** — are the cited references real (fab
 1. **Run the deterministic checker.** Resolve the article type from `project.yaml` (passed verbatim; the script's alias map handles repo paper-type names) and the journal cap from the target journal profile when known:
 
    ```bash
-   python3 "${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/self-review/scripts/check_reference_adequacy.py" \
+   python3 "${CLAUDE_SKILL_DIR}/scripts/check_reference_adequacy.py" \
      --manuscript manuscript/manuscript.md --bib "$BIB" \
      --article-type "$TYPE" ${CAP:+--journal-cap "$CAP"} \
      --out qc/reference_adequacy.json --strict

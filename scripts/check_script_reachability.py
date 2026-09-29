@@ -15,7 +15,7 @@ quietly become a way to be exempt from being used at all.
 
 A script is REACHABLE if:
   * a SKILL.md names it (any skill's — a SKILL.md may shell out to another skill's script via
-    MEDSCI_SKILLS_ROOT, and six of them do), or
+    `${CLAUDE_SKILL_DIR}/../<skill>/`, and six of them do), or
   * a reachable script names it (a bundle runner shelling out), or
   * a reachable Python script IMPORTS it from its own directory.
 

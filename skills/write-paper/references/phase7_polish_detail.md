@@ -26,7 +26,7 @@ Scan for and remove AI writing patterns (see AI Pattern Avoidance below). Edit `
 | Trigger | Action |
 |---------|--------|
 | Manuscript type = MA, systematic review, or a senior co-author review is expected | Load `references/section_guides/step7_1_classical_qc.md` → run the 7 grep checks together (§ symbol, AI Disclosure paragraph, heading style, eligibility numbered list, Funding placeholder, PROSPERO chronology, em-dash overuse) |
-| Verify all at once with a deterministic lint | `python3 "${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/self-review/scripts/check_classical_style.py" --manuscript manuscript/manuscript.md --strict` — `SECTION_SYMBOL`/`INBODY_AI_DISCLOSURE` (Major) + `ELIGIBILITY_PROSE`/`DECIMAL_INCONSISTENCY`/`EM_DASH_OVERUSE` (Minor). The machine-checkable subset of the same conventions as the 7-grep checklist. |
+| Verify all at once with a deterministic lint | `python3 "${CLAUDE_SKILL_DIR}/../self-review/scripts/check_classical_style.py" --manuscript manuscript/manuscript.md --strict` — `SECTION_SYMBOL`/`INBODY_AI_DISCLOSURE` (Major) + `ELIGIBILITY_PROSE`/`DECIMAL_INCONSISTENCY`/`EM_DASH_OVERUSE` (Minor). The machine-checkable subset of the same conventions as the 7-grep checklist. |
 | Global-rule cross-reference | `~/.claude/rules/manuscript-style-classical.md` (motivation for the 11 items) |
 | Pattern 19–21 body rewrite | `/humanize` (§, self-reference, AI Disclosure boilerplate) |
 
@@ -184,7 +184,7 @@ Build the final submission-ready documents from the assembled components:
 
    The validation + render scripts live in `/manage-refs` (split out 2026-05-01). Either invoke `/manage-refs` directly (recommended), or call the scripts manually:
    ```bash
-   MR="${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/manage-refs"
+   MR="${CLAUDE_SKILL_DIR}/../manage-refs"
 
    # 1. Validate keys vs .bib first (fail fast on UNDEFINED keys; [@NEW:topic] placeholders pass through)
    python "$MR/scripts/check_citation_keys.py" \
@@ -225,7 +225,7 @@ the DOCX entirely.
 **Run after Step 7.6 DOCX build and before Step 7.7 final gate:**
 
 ```bash
-MR="${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/manage-refs"
+MR="${CLAUDE_SKILL_DIR}/../manage-refs"
 python3 "$MR/scripts/check_xref.py" \
   --md manuscript/manuscript.md \
   --docx manuscript/manuscript_final.docx \
