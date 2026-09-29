@@ -18,6 +18,46 @@
 - **Stale references:** `/model-validation` pointed to `/mllm-eval` "when available" (it is),
   `/fill-protocol` pointed to the retired `generate-pptx` (now `/present-paper`), and the
   `render_pandoc.sh` usage text still showed its old file name.
+- **`/sync-submission` cross-artifact check now reads Word files, and no longer passes after
+  reading nothing.** `check_cross_artifact_stale.py` skipped `.docx` files in an `--aux` folder
+  and read an explicitly named `.docx` as raw zip bytes, then printed PASS. A retired claim or a
+  superseded number left in a Word supplement therefore went unreported, although this check is
+  the one the skill relies on for exactly that. It now reads the text of `.docx` files, sweeps
+  figure scripts (`.py`/`.R`) for stale hard-coded values, lists documents it cannot read, and
+  exits 2 when an `--aux` path holds no readable file.
+- **Blinded submissions: tracked-change and comment authors are checked.**
+  `check_asset_anonymization.py` read the author only from the file properties. The name
+  recorded on every tracked change and comment (and in `word/people.xml`) was not checked, so a
+  marked-up blinded manuscript could name its editors while the check passed. A real-looking
+  name there is now reported; neutral names such as "Author" are not.
+- **`/peer-review` reviewer-profile guide no longer contradicts itself.** Its "adding a journal"
+  steps asked for the review round and date in the evidence pointer, which the rules a few lines
+  above forbid because a round and a day-precision date identify the reviewer's timeline. The
+  step now says month only.
+- **Scripts that skills tell you to run now ship with those skills.** `/meta-analysis`,
+  `/sync-submission` and `/manage-project` pointed at seven scripts in the repository's
+  root `scripts/` folder (`prisma_5way_consistency.py`, `extraction_consensus_log_init.py`,
+  `tag_cleanup_gate.sh`, `verify_package_integrity.py`, `init_project.py`,
+  `migrate_project_to_ssot.py`, `validate_project_contract.py`). An installed copy does not
+  contain that folder, so those steps failed anywhere except a clone of the repository. Each
+  script now lives in the skill that owns it; the old root paths still work.
+- **Cross-skill commands no longer assume one particular folder.** Seventeen commands in
+  `/self-review`, `/write-paper`, `/lit-sync`, `/search-lit` and `/sync-submission` fell back to
+  `$HOME/workspace/medsci-skills`, which exists only on the maintainer's computer. They now use
+  `${CLAUDE_SKILL_DIR}/../<skill>/`, which resolves the same way in an installed skills folder
+  and in a clone. Nine more cross-skill references in `/humanize`, `/analyze-stats`, `/revise` and
+  `/self-review` that named another skill's script only in prose now give its full path.
+
+### Security
+
+- **The repository's publication check no longer prints the value it caught.** When
+  `scripts/validate_skills.sh` found a personal name, home-directory path or email address in a
+  file, the failure message included the matched text. CI logs of a public repository are public
+  and outlive a force-push that removes the offending commit, so the check republished what it
+  had just caught. It now reports the file and line (for document metadata, the field name). The
+  text scan also covers `.jsonl`, `.jsonld`, `.R`, `.qmd`, `.js`, `.svg`, `.xml` and the
+  installer scripts, which it previously skipped. A regression test plants a leak and fails if
+  the matched token appears in the output.
 
 ## [5.28.0] - 2026-09-29
 

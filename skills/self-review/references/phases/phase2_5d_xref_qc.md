@@ -47,7 +47,7 @@ DOCX build has occurred yet (early drafts).
 2. **Invoke the shared script** (lives in `/manage-refs`):
 
    ```bash
-   python3 "${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/manage-refs/scripts/check_xref.py" \
+   python3 "${CLAUDE_SKILL_DIR}/../manage-refs/scripts/check_xref.py" \
      --md manuscript/manuscript.md \
      --docx manuscript/manuscript_final.docx \
      --out qc/xref_audit.json \

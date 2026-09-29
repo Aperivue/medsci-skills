@@ -74,6 +74,7 @@
 - `preflight_gate.py`
 - `scope_drift_check.py`
 - `sync_submission.py`
+- `verify_package_integrity.py`
 
 ## Source
 

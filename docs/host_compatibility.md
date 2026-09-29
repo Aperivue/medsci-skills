@@ -44,7 +44,7 @@ These are points where the repository or a workflow assumes a Claude Code enviro
 - `~/.claude/rules`, `~/.claude/hooks` — **host-local user configuration**, not part of any skill package and not installed by this repo. Behaviors that depend on user rules or hooks do not transfer to other hosts.
 
 **Runtime references inside skills.**
-- `${CLAUDE_SKILL_DIR}` — used by ~150 asset references across the skills to locate bundled `scripts/`/`references/`. Hosts that set this variable (or an equivalent skill-root variable) resolve them; a few skills also accept `${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}` as a fallback. On a host that sets neither, bundled-asset paths must be resolved relative to the skill root.
+- `${CLAUDE_SKILL_DIR}` — used by ~150 asset references across the skills to locate bundled `scripts/`/`references/`. Hosts that set this variable (or an equivalent skill-root variable) resolve them; a skill that calls another skill's script uses `${CLAUDE_SKILL_DIR}/../<skill>/`, which resolves the same way in a repository clone and in an installed skills directory. On a host that sets neither, bundled-asset paths must be resolved relative to the skill root.
 - **MCP tool names** — some skills reference Claude MCP servers in their bodies (for example PubMed / CrossRef / Zotero / Google Drive, named like `mcp__claude_ai_*` or `mcp__zotero__*`). These are **not declared in the `tools` frontmatter** and are **host-specific**: off-Claude hosts without the same MCP servers fall back to the skills' deterministic scripts or to manual workflow.
 
 ## Skill portability vs full-workflow portability

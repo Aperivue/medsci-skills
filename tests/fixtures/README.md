@@ -6,10 +6,10 @@ Two minimal projects for `validate_project_contract.py` dual-path testing.
 
 ```bash
 # Legacy path: project.yaml only -> warn, valid
-python3 scripts/validate_project_contract.py --project-root tests/fixtures/legacy_project
+python3 skills/manage-project/scripts/validate_project_contract.py --project-root tests/fixtures/legacy_project
 
 # SSOT path: SSOT.yaml only -> clean, valid
-python3 scripts/validate_project_contract.py --project-root tests/fixtures/ssot_project
+python3 skills/manage-project/scripts/validate_project_contract.py --project-root tests/fixtures/ssot_project
 ```
 
 Expected exit codes: both 0 (valid). Legacy emits a sunset warning until 2026-10-24.

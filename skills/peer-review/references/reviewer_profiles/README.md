@@ -63,7 +63,7 @@ nothing in this directory used to say so.
 2. Record form fields from a **completed submission form or its confirmation PDF** (scorecard items,
    rating scales, required text boxes, recommendation options) — see the rules above. If you have
    only an invitation so far, write what you have and mark it unverified.
-3. Add the evidence pointer (round + date, no manuscript ID).
+3. Add the evidence pointer: evidence class and month only (rule 2 above) — no manuscript ID, round, count or day.
 4. Commit under `{JOURNAL_SHORTNAME}.md` using established abbreviations (KJR, RYAI, INSI, AJR, EURE; full name if no common abbreviation).
 5. Update this README table.
 

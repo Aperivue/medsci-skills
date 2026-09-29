@@ -305,7 +305,7 @@ for skill_dir in "${SKILL_DIRS[@]}"; do
     hit=$(python3 "$CHECK_PRECEDENT" "$f"); rc=$?
     rel="${f#$REPO_ROOT/}"
     if [ "$rc" -eq 3 ]; then
-      fail "Personal precedent in $rel: $hit"
+      fail "Personal precedent in $rel: line ${hit%%:*}"
       ((precedent_hits++))
     elif [ "$rc" -ne 0 ]; then
       fail "check_precedent.py error on $rel (rc=$rc)"
@@ -323,7 +323,7 @@ for skill_dir in "${SKILL_DIRS[@]}"; do
     hit=$(_personal_path_hit < "$f")
     if [ -n "$hit" ]; then
       rel="${f#$REPO_ROOT/}"
-      fail "Personal path in $rel: $hit"
+      fail "Personal path in $rel: line ${hit%%:*}"
       ((path_hits++))
     fi
   done
@@ -382,7 +382,7 @@ for skill_dir in "${SKILL_DIRS[@]}"; do
     if [ -n "$matches" ]; then
       rel="${f#$REPO_ROOT/}"
       first=$(echo "$matches" | head -1)
-      fail "Real email leak in $rel: $first"
+      fail "Real email leak in $rel: line ${first%%:*}"
       ((email_hits++))
     fi
   done
@@ -432,7 +432,7 @@ for skill_dir in "${SKILL_DIRS[@]}"; do
     if [ -n "$matched" ]; then
       rel="${f#$REPO_ROOT/}"
       first=$(echo "$matched" | head -1)
-      fail "Dated precedent blockquote in $rel: $first"
+      fail "Dated precedent blockquote in $rel: line ${first%%:*}"
       ((blockdate_hits++))
     fi
   done
@@ -492,7 +492,7 @@ PY
     first=$(echo "$korean_lines" | head -1)
     # WARN-only: Korean-native SKILL.md migration is a separate translation task.
     # Precedent/path/blockquote rules (6-8) remain FAIL to block regressions.
-    warn "Korean prose in SKILL.md: $count line(s), first $first"
+    warn "Korean prose in SKILL.md: $count line(s), first at line ${first%%:*}"
   fi
 
   # 10. Binary EXIF metadata scan (DOCX / PPTX / XLSX / PDF / PNG / JPG / TIFF).
@@ -535,7 +535,7 @@ PY
       printf '%s' "$line" | python3 "$CHECK_PRECEDENT" - >/dev/null 2>&1 || _exif_rc=$?
       if [ "$_exif_rc" -eq 3 ]; then
         rel="${current_file#$REPO_ROOT/}"
-        fail "Binary EXIF PII in $rel: $line"
+        fail "Binary EXIF PII in $rel: field ${line%%:*}"
         ((exif_hits++))
       fi
     done <<< "$exif_dump"
@@ -594,7 +594,7 @@ while IFS= read -r rel; do
     precedent_hit=$(printf '%s' "$scan_src" | python3 "$CHECK_PRECEDENT" -); precedent_rc=$?
   fi
   if [ "$precedent_rc" -eq 3 ]; then
-    fail "Personal precedent in $rel: $precedent_hit"
+    fail "Personal precedent in $rel: line ${precedent_hit%%:*}"
     ((META_FAIL++))
   elif [ "$precedent_rc" -ne 0 ]; then
     fail "check_precedent.py error on $rel (rc=$precedent_rc)"
@@ -602,16 +602,17 @@ while IFS= read -r rel; do
   fi
   hit=$(printf '%s\n' "$scan_src" | _personal_path_hit)
   if [ -n "$hit" ]; then
-    fail "Personal path in $rel: $hit"
+    fail "Personal path in $rel: line ${hit%%:*}"
     ((META_FAIL++))
   fi
   matches=$(echo "$scan_src" | grep -nE "$email_pattern" | grep -vE "$email_whitelist" || true)
   if [ -n "$matches" ]; then
     first=$(echo "$matches" | head -1)
-    fail "Real email leak in $rel: $first"
+    fail "Real email leak in $rel: line ${first%%:*}"
     ((META_FAIL++))
   fi
-done < <(git -C "$REPO_ROOT" ls-files -- '*.md' '*.yml' '*.yaml' '*.json' '*.cff' '*.bib' '*.txt' '*.csv' '*.tsv' '*.py' '*.sh')
+done < <(git -C "$REPO_ROOT" ls-files -- '*.md' '*.yml' '*.yaml' '*.json' '*.jsonl' '*.jsonld' '*.cff' '*.bib' '*.txt' '*.csv' '*.tsv' '*.py' '*.sh' \
+  '*.R' '*.qmd' '*.js' '*.ps1' '*.cmd' '*.command' '*.template' '*.svg' '*.xml' '*.tape')
 
 # The public surface also contains demonstration Word documents. Reuse the
 # submission scanner's package-level path check, including custom properties
