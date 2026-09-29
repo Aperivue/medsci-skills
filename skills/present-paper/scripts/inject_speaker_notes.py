@@ -9,12 +9,18 @@ Inline ``**bold**`` / ``*italic*`` in a note is parsed into run-level styling so
 asterisks do not show literally in Presenter View (python-pptx stores text verbatim).
 Use --no-markdown for the legacy plain-text behavior.
 
+Every note run is written at an explicit size (--font-pt, default 18). A run with no size inherits
+the notes master, which is 12 pt in the default template — too small to read on a presenter
+monitor. A blank line in a note becomes an empty paragraph carrying that size in its
+``<a:endParaRPr>``, not an empty run.
+
 Usage:
     python inject_speaker_notes.py input.pptx
     python inject_speaker_notes.py input.pptx -o output.pptx
     python inject_speaker_notes.py input.pptx --append
     python inject_speaker_notes.py input.pptx --dry-run
     python inject_speaker_notes.py input.pptx --no-markdown
+    python inject_speaker_notes.py input.pptx --font-pt 16
 
 Requirements:
     pip install python-pptx
@@ -29,6 +35,7 @@ from pathlib import Path
 
 try:
     from pptx import Presentation
+    from pptx.util import Pt
 except ImportError:
     print("Error: python-pptx is required. Install with: pip install python-pptx")
     sys.exit(1)
@@ -43,6 +50,9 @@ notes: dict[int, str] = {
     # 1: """Speaker note for slide 1.""",
     # 2: """Speaker note for slide 2.""",
 }
+
+# Size of every note run, in points. Unset, notes inherit the notes master (12 pt by default).
+DEFAULT_NOTE_PT = 18.0
 
 
 # ---------------------------------------------------------------------------
@@ -63,7 +73,22 @@ _MD_RE = (
 _MD_INLINE = re.compile(_MD_RE)
 
 
-def _add_markdown_line(paragraph, line: str) -> None:
+def _size_blank_paragraph(paragraph, font_pt: float) -> None:
+    """A blank line is an empty paragraph; its height comes from ``<a:endParaRPr sz>``."""
+    paragraph._p.get_or_add_endParaRPr().sz = Pt(font_pt).centipoints
+
+
+def _size_note_paragraphs(paragraphs, font_pt: float) -> None:
+    """Give every run an explicit size, and every blank paragraph an explicit end size."""
+    for paragraph in paragraphs:
+        runs = paragraph.runs
+        for run in runs:
+            run.font.size = Pt(font_pt)
+        if not runs:
+            _size_blank_paragraph(paragraph, font_pt)
+
+
+def _add_markdown_line(paragraph, line: str, font_pt: float = DEFAULT_NOTE_PT) -> None:
     """Emit one note line as styled runs, parsing **bold** / *italic*.
 
     Non-nested by design (matches the ``add_styled_note_line`` convention in
@@ -74,12 +99,14 @@ def _add_markdown_line(paragraph, line: str) -> None:
     asterisk of an allele. Never raises; never drops a character.
     """
     if not line:
-        paragraph.add_run().text = ""
+        # An empty run is not a blank line: renderers may drop it. An empty paragraph is.
+        _size_blank_paragraph(paragraph, font_pt)
         return
     for part in _MD_INLINE.split(line):
         if not part:
             continue
         run = paragraph.add_run()
+        run.font.size = Pt(font_pt)
         if part.startswith("**") and part.endswith("**") and len(part) > 4:
             run.text = part[2:-2]
             run.font.bold = True
@@ -91,7 +118,8 @@ def _add_markdown_line(paragraph, line: str) -> None:
             run.text = part
 
 
-def _render_notes_markdown(tf, text: str, append: bool) -> None:
+def _render_notes_markdown(tf, text: str, append: bool,
+                           font_pt: float = DEFAULT_NOTE_PT) -> None:
     """Write text into the notes text frame with inline-markdown run styling.
 
     Preserves the line structure (one paragraph per line). With ``append`` and
@@ -99,15 +127,14 @@ def _render_notes_markdown(tf, text: str, append: bool) -> None:
     """
     lines = text.split("\n")
     if append and tf.text.strip():
-        sep = tf.add_paragraph()
-        sep.add_run().text = "---"
+        _add_markdown_line(tf.add_paragraph(), "---", font_pt)
         for ln in lines:
-            _add_markdown_line(tf.add_paragraph(), ln)
+            _add_markdown_line(tf.add_paragraph(), ln, font_pt)
     else:
         tf.clear()  # leaves a single empty paragraph
-        _add_markdown_line(tf.paragraphs[0], lines[0])
+        _add_markdown_line(tf.paragraphs[0], lines[0], font_pt)
         for ln in lines[1:]:
-            _add_markdown_line(tf.add_paragraph(), ln)
+            _add_markdown_line(tf.add_paragraph(), ln, font_pt)
 
 
 def inject_notes(
@@ -116,6 +143,7 @@ def inject_notes(
     append: bool = False,
     dry_run: bool = False,
     markdown: bool = True,
+    font_pt: float = DEFAULT_NOTE_PT,
 ) -> None:
     """Inject speaker notes into a PPTX file.
 
@@ -124,6 +152,7 @@ def inject_notes(
         output_path: Path to output PPTX file. Defaults to input with _notes suffix.
         append: If True, append to existing notes instead of replacing.
         dry_run: If True, print what would be done without saving.
+        font_pt: Size in points written on every note run (and on blank lines).
     """
     input_file = Path(input_path)
     if not input_file.exists():
@@ -154,11 +183,13 @@ def inject_notes(
 
         tf = slide.notes_slide.notes_text_frame
         if markdown:
-            _render_notes_markdown(tf, notes[i], append)
-        elif append and tf.text.strip():
-            tf.text = tf.text + "\n\n---\n\n" + notes[i]
+            _render_notes_markdown(tf, notes[i], append, font_pt)
         else:
-            tf.text = notes[i]
+            if append and tf.text.strip():
+                tf.text = tf.text + "\n\n---\n\n" + notes[i]
+            else:
+                tf.text = notes[i]
+            _size_note_paragraphs(tf.paragraphs, font_pt)
         updated += 1
 
     if dry_run:
@@ -167,6 +198,17 @@ def inject_notes(
 
     prs.save(str(output_file))
     print(f"Done: {output_file} ({updated}/{total_slides} slides updated)")
+
+
+def _font_pt(value: str) -> float:
+    try:
+        pt = float(value)
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"not a number: {value!r}")
+    # OOXML font sizes run from 1 pt to 4000 pt.
+    if not 1 <= pt <= 4000:
+        raise argparse.ArgumentTypeError(f"font size must be between 1 and 4000 pt, got {value}")
+    return pt
 
 
 def main() -> None:
@@ -194,6 +236,13 @@ def main() -> None:
         action="store_true",
         help="Disable inline-markdown parsing (write **bold**/*italic* verbatim — legacy)",
     )
+    parser.add_argument(
+        "--font-pt",
+        type=_font_pt,
+        default=DEFAULT_NOTE_PT,
+        help="Font size in points for every note run (default: %(default)s). Without one, "
+             "notes inherit the notes master's 12 pt.",
+    )
     args = parser.parse_args()
 
     if not notes:
@@ -206,7 +255,7 @@ def main() -> None:
         sys.exit(0)
 
     inject_notes(args.input, args.output, args.append, args.dry_run,
-                 markdown=not args.no_markdown)
+                 markdown=not args.no_markdown, font_pt=args.font_pt)
 
 
 if __name__ == "__main__":

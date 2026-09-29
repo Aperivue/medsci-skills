@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Four decks. The last two are the ones that keep the rule from collapsing in either direction.
+"""Six decks. embedded and korean_text keep the rule from collapsing in either direction; the last
+two keep it looking in every part a font can live in.
 
   mac_fonts.pptx   the real failure: a body font bundled with macOS, plus a stray monospace. This
                    is what a deck built on a laptop and shipped to a Windows house PC looks like.
@@ -13,6 +14,12 @@
                    it, "an inherited default only counts when the script is present" could be
                    implemented as "an inherited default never counts" and every test would still
                    be green.
+  chart_font.pptx  portable fonts on every slide; a macOS-only face ONLY inside a chart. A chart
+                   keeps its text in ppt/charts/chartN.xml, which a slide-only scan never opens.
+  diagram_font.pptx the same, for SmartArt: a macOS-only face only in ppt/diagrams/dataN.xml and
+                   drawingN.xml. python-pptx cannot author SmartArt, so the two parts are written
+                   into the package directly — the detector reads parts by name, which is the
+                   claim under test.
 
 Written wherever the caller says (a temp dir, in practice). Nothing built lands in the repo tree.
 Needs python-pptx (CI installs it).
@@ -27,6 +34,8 @@ import zipfile
 from pathlib import Path
 
 from pptx import Presentation
+from pptx.chart.data import CategoryChartData
+from pptx.enum.chart import XL_CHART_TYPE
 from pptx.util import Inches, Pt
 
 BLANK = 6
@@ -100,6 +109,48 @@ def build_korean(path: Path) -> None:
     prs.save(str(path))
 
 
+def build_chart(path: Path) -> None:
+    """Every run portable. The only macOS-only face is the chart's own text font."""
+    build(path, "Inter", "Noto Sans Mono")
+    prs = Presentation(str(path))
+    s = prs.slides.add_slide(prs.slide_layouts[BLANK])
+    data = CategoryChartData()
+    data.categories = ["Ablation", "Surgery alone"]
+    data.add_series("Local recurrence (%)", (12, 26))
+    frame = s.shapes.add_chart(XL_CHART_TYPE.COLUMN_CLUSTERED, Inches(0.8), Inches(1.0),
+                               Inches(11.5), Inches(5.5), data)
+    frame.chart.font.name = "Helvetica Neue"
+    prs.save(str(path))
+
+
+_DGM = ('xmlns:dgm="http://schemas.openxmlformats.org/drawingml/2006/diagram" '
+        'xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"')
+_RUN = ('<a:p><a:r><a:rPr lang="en-US"><a:latin typeface="Menlo"/></a:rPr>'
+        '<a:t>Screen, ablate, follow up</a:t></a:r></a:p>')
+DIAGRAM_PARTS = {
+    "ppt/diagrams/data1.xml": (
+        f'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><dgm:dataModel {_DGM}>'
+        f'<dgm:ptLst><dgm:pt modelId="1"><dgm:t><a:bodyPr/><a:lstStyle/>{_RUN}</dgm:t></dgm:pt>'
+        '</dgm:ptLst></dgm:dataModel>'),
+    "ppt/diagrams/drawing1.xml": (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<dsp:drawing xmlns:dsp="http://schemas.microsoft.com/office/drawing/2008/diagram" '
+        f'{_DGM}><dsp:spTree><dsp:sp modelId="1"><dsp:txBody><a:bodyPr/><a:lstStyle/>{_RUN}'
+        '</dsp:txBody></dsp:sp></dsp:spTree></dsp:drawing>'),
+}
+
+
+def build_diagram(path: Path) -> None:
+    build(path, "Inter", "Noto Sans Mono")
+    tmp = path.with_suffix(".tmp.pptx")
+    with zipfile.ZipFile(path) as zin, zipfile.ZipFile(tmp, "w", zipfile.ZIP_DEFLATED) as zout:
+        for item in zin.namelist():
+            zout.writestr(item, zin.read(item))
+        for name, xml in DIAGRAM_PARTS.items():
+            zout.writestr(name, xml)
+    shutil.move(str(tmp), str(path))
+
+
 if __name__ == "__main__":
     out = Path(sys.argv[1]) if len(sys.argv) > 1 else Path.cwd()
     out.mkdir(parents=True, exist_ok=True)
@@ -108,4 +159,6 @@ if __name__ == "__main__":
     build(out / "embedded.pptx", "Apple SD Gothic Neo", "Menlo")
     add_embedded_font_list(out / "embedded.pptx")
     build_korean(out / "korean_text.pptx")
-    print(f"wrote 4 decks into {out}")
+    build_chart(out / "chart_font.pptx")
+    build_diagram(out / "diagram_font.pptx")
+    print(f"wrote 6 decks into {out}")

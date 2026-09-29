@@ -14,10 +14,21 @@ different direction: sizing a block at font x 1.06 without accounting for the ro
 PowerPoint adds on top, so a 21-line list computed to 4.1 in and needed 5.1.
 
 None of that arithmetic is necessary. **The render already knows.** `pdftotext -bbox-layout` gives every
-line's rectangle in points, and the .pptx gives every shape's rectangle. Two comparisons:
+line's rectangle in points, and the .pptx gives every shape's rectangle. Three comparisons:
 
     OFF_SLIDE   a line's bottom crosses into the reserved band at the foot of the page, or past it
     CARD        a line's bottom passes the bottom of the filled block it is sitting in
+    UNRENDERED  a paragraph the deck contains is not in its slide's render at all
+
+TEXT THAT NEVER REACHED THE PAGE HAS NO RECTANGLE
+    The first two comparisons measure lines, and a line that fell entirely off the slide is not in the
+    PDF to be measured — poppler drops glyphs outside the page. A body frame parked on the footnote
+    row once pushed most of a slide's references off the page while this check reported a single
+    line barely clipping the reserved band. So every paragraph of the .pptx (at least 12 letters or
+    digits before any field) is looked for in its own page's text by its opening; one that is
+    absent is reported. This is still a reading of the render, not of declared geometry: a box drawn
+    larger than its text, or overlapping another box, is not a finding unless the words are actually
+    missing.
 
 WHY THERE IS NO ESTIMATOR IN HERE AS A FALLBACK
     Because two backends that nobody asserts agree are not a safety net; they are a second opinion
@@ -43,11 +54,13 @@ Exit: 0 clean (or findings without --strict), 1 findings with --strict, 2 could 
 from __future__ import annotations
 
 import argparse
+import html
 import json
 import re
 import shutil
 import subprocess
 import sys
+import unicodedata
 import zipfile
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -70,6 +83,18 @@ CARD_TOL_PT = 5.0
 # and treating them as such turns every divider into a container with text overflowing it.
 MIN_CARD_W_IN = 2.0
 MIN_CARD_H_IN = 0.9
+
+# A paragraph is looked for in the render only if its opening has at least this many letters and
+# digits. Shorter text ("n = 12", "Figure 2") recurs anywhere on a slide and proves nothing, and
+# only the OPENING is looked for: a longer key straddles a wrapped line, and a neighbouring box set
+# on the same baseline can be merged into that line by poppler — a missing word that is not missing.
+MIN_PARA_CHARS = 12
+OPENING_CHARS = 12
+
+# Slide chrome PowerPoint and LibreOffice each draw from their own header/footer settings, not from
+# the text stored in the placeholder. Its absence from a render is a setting, not a lost paragraph.
+_CHROME_PH = {"dt", "ftr", "hdr", "sldNum"}
+MC = "{http://schemas.openxmlformats.org/markup-compatibility/2006}"
 
 
 @dataclass
@@ -164,6 +189,72 @@ def deck_geometry(pptx: Path) -> Tuple[float, float, Dict[int, List[Tuple[float,
     return w_emu / EMU_PER_INCH * PT_PER_INCH, h_emu / EMU_PER_INCH * PT_PER_INCH, blocks
 
 
+def _norm(text: str) -> str:
+    """Letters and digits only, compatibility-folded and case-folded.
+
+    Spaces, punctuation, bullets and hyphens differ between the .pptx and the extracted text for
+    reasons that are not lost text (line wraps, typed vs. drawn bullets, ligatures, all-caps runs,
+    smart quotes), so they are not compared.
+    """
+    folded = unicodedata.normalize("NFKC", text).casefold()
+    return "".join(ch for ch in folded if ch.isalnum())
+
+
+def _para_opening(p: ET.Element) -> str:
+    """The paragraph's text up to its first field. A field (slide number, date) is filled in by
+    the renderer, so its stored text is not what reaches the page."""
+    parts: List[str] = []
+    for el in p:
+        if el.tag == f"{A}r":
+            t = el.find(f"{A}t")
+            parts.append((t.text or "") if t is not None else "")
+        elif el.tag == f"{A}br":
+            parts.append(" ")
+        elif el.tag == f"{A}fld":
+            break
+    return "".join(parts)
+
+
+def _collect_paragraphs(node: ET.Element, out: List[str]) -> None:
+    for child in node:
+        tag = child.tag
+        # AlternateContent carries the same object twice (a newer form and a fallback); which one
+        # a renderer draws is its choice, so neither is looked for.
+        if tag == f"{MC}AlternateContent":
+            continue
+        if tag not in (f"{P}sp", f"{P}grpSp", f"{P}graphicFrame"):
+            continue
+        nv = child.find(f"./*/{P}cNvPr")
+        if nv is not None and nv.get("hidden") in ("1", "true"):
+            continue
+        if tag == f"{P}grpSp":
+            _collect_paragraphs(child, out)
+            continue
+        ph = child.find(f"./*/{P}nvPr/{P}ph")
+        if ph is not None and ph.get("type") in _CHROME_PH:
+            continue
+        for para in child.iter(f"{A}p"):
+            out.append(_para_opening(para))
+
+
+def deck_paragraphs(pptx: Path) -> Dict[int, List[str]]:
+    """{slide: [paragraph opening text]} for every visible shape, table cell and group member."""
+    paras: Dict[int, List[str]] = {}
+    with zipfile.ZipFile(pptx) as z:
+        names = sorted(
+            (n for n in z.namelist() if re.fullmatch(r"ppt/slides/slide\d+\.xml", n)),
+            key=lambda n: int(re.search(r"(\d+)", n.rsplit("/", 1)[1]).group(1)),
+        )
+        for i, n in enumerate(names, start=1):
+            root = ET.fromstring(z.read(n))
+            tree = root.find(f".//{P}cSld/{P}spTree")
+            found: List[str] = []
+            if tree is not None:
+                _collect_paragraphs(tree, found)
+            paras[i] = found
+    return paras
+
+
 _PAGE_NUMBER = re.compile(r"^\s*\d{1,3}\s*(?:[/|]\s*\d{1,3}\s*)?$")
 
 
@@ -204,6 +295,23 @@ def audit(pptx: Path, bbox_xml: str, reserve_in: float) -> List[Finding]:
                          f"{cy1 / PT_PER_INCH:.2f} in — {txt[:44]!r}"],
                     ))
                     break
+
+    # Text that never reached the page: it has no line above to measure.
+    for pg, texts in sorted(deck_paragraphs(pptx).items()):
+        rendered = _norm(html.unescape(" ".join(t for *_xy, t in pages.get(pg, []))))
+        for text in texts:
+            key = _norm(text)
+            if len(key) < MIN_PARA_CHARS:
+                continue
+            if key[:OPENING_CHARS] in rendered:
+                continue
+            shown = re.sub(r"\s+", " ", text).strip()
+            out.append(Finding(
+                DETECTOR, "UNRENDERED", pg,
+                f"Slide {pg}: a paragraph in the deck is not in the render of this slide — "
+                "typically a box pushed past the edge of the slide.",
+                [f"not found on page {pg}: {shown[:60]!r}"],
+            ))
     return out
 
 
@@ -254,10 +362,12 @@ def main() -> int:
             indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
     if not findings:
-        print("OK: measured the render; no line leaves its block or the slide.")
+        print("OK: measured the render; no rendered line ends in the reserved foot band or below "
+              "its filled block, and every paragraph of 12+ letters/digits appears on its slide's "
+              "page. Clipping at the top or sides and text covered by other shapes are not checked.")
         return 0
 
-    print(f"{len(findings)} overflow(s), measured\n")
+    print(f"{len(findings)} finding(s), measured\n")
     for f in findings:
         print(f"  [{f.verdict}] (slide {f.slide})")
         print(f"      {f.summary}")
