@@ -4,7 +4,7 @@
 set -uo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
-SCRIPT="$REPO_ROOT/scripts/verify_package_integrity.py"
+SCRIPT="$REPO_ROOT/skills/sync-submission/scripts/verify_package_integrity.py"
 TMP="$(mktemp -d -t vNdocx.XXXXXX)"
 trap 'rm -rf "$TMP"' EXIT
 

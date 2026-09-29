@@ -93,7 +93,7 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/check_scope_coherence.py" \
 | Ethics | All participating institutions' IRB approval documented? Patient consent described? |
 | Missing data | Handling of incomplete cases described? |
 | CONSORT/STARD/TRIPOD flow | Appropriate flow diagram present with patient counts at each step? |
-| Body word count vs journal cap | Is the body within the target journal's word limit? A revise loop monotonically adds words and silently breaches the cap. Run `/sync-submission` `scripts/check_wordcount_cap.py` (`--journal-profile` or `--limit`; the binding number is the rendered DOCX count). Over cap → Major; within 0.95× → Minor (a further pass will likely breach). |
+| Body word count vs journal cap | Is the body within the target journal's word limit? A revise loop monotonically adds words and silently breaches the cap. Run `python3 "${CLAUDE_SKILL_DIR}/../sync-submission/scripts/check_wordcount_cap.py"` (`--journal-profile` or `--limit`; the binding number is the rendered DOCX count). Over cap → Major; within 0.95× → Minor (a further pass will likely breach). |
 | Funding & COI | Funding sources and competing interests disclosed? |
 
 ## G. Reporting Guideline Compliance

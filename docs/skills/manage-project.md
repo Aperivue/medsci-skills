@@ -41,6 +41,12 @@
 - `status_output_format.md`
 - `timeline_example.md`
 
+**Scripts** (`skills/manage-project/scripts/`):
+
+- `init_project.py`
+- `migrate_project_to_ssot.py`
+- `validate_project_contract.py`
+
 **Templates** (`skills/manage-project/templates/`):
 
 - `SSOT.yaml.template`

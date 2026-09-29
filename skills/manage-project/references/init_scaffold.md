@@ -23,7 +23,7 @@ Create a complete project scaffold for a new research paper.
 **Implementation:** `/manage-project init` is backed by `scripts/init_project.py`. Invoke directly when running outside the skill harness:
 
 ```bash
-python3 scripts/init_project.py \
+python3 "${CLAUDE_SKILL_DIR}/scripts/init_project.py" \
     --name {name} --type {type} --journal {journal} [--ssot] \
     --project-root {target_dir}
 ```

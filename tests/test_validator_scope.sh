@@ -101,6 +101,16 @@ seen 'TODO_scratch.md';       ck "a gitignored scratchpad is NOT scanned"     1 
 [ -n "$FLAGGED" ]
 ck "the personal-path rule emitted a verdict at all"                         0 "$?"
 
+# The verdict names the file and line, never the matched value. CI logs of a public repository
+# are public and outlive a force-push that removes the leaking commit, so a gate that echoes the
+# value it caught republishes it (and the precedent scan's hashed blocklist exists precisely so
+# names are never printed in cleartext).
+# The precedent scan reports the matched token (the name segment), not the whole path, so look
+# for that token: grepping for the full planted path passed against the old validator too.
+LEAK_TOKEN="${LEAK#/Users/}"; LEAK_TOKEN="${LEAK_TOKEN%%/*}"
+printf '%s\n' "$FLAGGED" | grep -qF -- "$LEAK_TOKEN"
+ck "the verdict does not print the matched value"                            1 "$?"
+
 cleanup
 
 echo "----"

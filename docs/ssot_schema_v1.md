@@ -2,7 +2,7 @@
 
 **Status**: Frozen (Phase 0.5.1, 2026-04-24)
 **Supersedes**: `project.yaml` schema v1 (6-month transition, sunset 2026-10-24)
-**Validator**: `scripts/validate_project_contract.py` (dual-path: SSOT.yaml enforce, project.yaml warn)
+**Validator**: `skills/manage-project/scripts/validate_project_contract.py` (dual-path: SSOT.yaml enforce, project.yaml warn)
 
 Single Source of Truth (SSOT) configuration for a medsci research project. One file per project root. Canonical for all downstream skills (`/write-paper`, `/analyze-stats`, `/render`, `/verify-refs`, `/sync-submission`, etc.).
 
@@ -151,10 +151,10 @@ Any fields not in this table are dropped with a migration warning (`migrate_proj
 
 ## Validator behavior (Phase 0.5.4)
 
-`scripts/validate_project_contract.py` dual-path logic:
+`skills/manage-project/scripts/validate_project_contract.py` dual-path logic:
 
 1. `SSOT.yaml` exists → enforce SSOT schema. `project.yaml` presence → WARN with sunset date.
-2. Only `project.yaml` exists → WARN "SSOT.yaml missing — migrate with `scripts/migrate_project_to_ssot.py`" and enforce legacy schema.
+2. Only `project.yaml` exists → WARN "SSOT.yaml missing — migrate with `skills/manage-project/scripts/migrate_project_to_ssot.py`" and enforce legacy schema.
 3. Neither exists → FAIL.
 4. After `legacy.sunset_date`, case 2 escalates to FAIL.
 

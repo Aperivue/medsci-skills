@@ -84,7 +84,7 @@ by a pass it does not need.
    or heading that did not propagate to the other copy) is a P0 that must clear first:
 
    ```bash
-   python3 "${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/sync-submission/scripts/detect_copy_divergence.py" \
+   python3 "${CLAUDE_SKILL_DIR}/../sync-submission/scripts/detect_copy_divergence.py" \
      --ssot <ssot>.md --copy <other-copy>.md
    ```
 
@@ -404,7 +404,7 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/check_binning_consistency.py" \
 Two scans run on the bibliography: **2.5c** catches a citation that does not exist or whose first author is invented, and **2.5c-2** catches a claim that carries no citation at all. Both need a bibliography — a draft with no `refs.bib` and no reference list skips them entirely. Run `/verify-refs --strict` first; these scans read its audit rather than re-deriving it, then run the adequacy checker:
 
 ```bash
-python3 "${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/self-review/scripts/check_reference_adequacy.py" \
+python3 "${CLAUDE_SKILL_DIR}/scripts/check_reference_adequacy.py" \
   --manuscript manuscript/manuscript.md --bib "$BIB" \
   --article-type "$TYPE" ${CAP:+--journal-cap "$CAP"} \
   --out qc/reference_adequacy.json --strict
@@ -441,7 +441,7 @@ in-text citation — the early, no-build counterpart to `check_xref`'s `UNCITED`
 checks. Skip on early drafts with no build):
 
 ```bash
-python3 "${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/manage-refs/scripts/check_xref.py" \
+python3 "${CLAUDE_SKILL_DIR}/../manage-refs/scripts/check_xref.py" \
   --md manuscript/manuscript.md --docx manuscript/manuscript_final.docx \
   --out qc/xref_audit.json [--allow-separate-attachments]
 ```
@@ -550,7 +550,7 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/check_incorporation_bias.py" \
 
 # 6. reader/observer study only — prove the (call × confidence) → score encoding is strictly
 #    monotonic; a folded score silently mis-estimates the AUC and no prose review can see it
-python3 "${MEDSCI_SKILLS_ROOT}/skills/analyze-stats/scripts/rating_monotonicity.py" \
+python3 "${CLAUDE_SKILL_DIR}/../analyze-stats/scripts/rating_monotonicity.py" \
   --encoding score_def.json
 ```
 

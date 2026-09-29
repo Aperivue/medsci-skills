@@ -20,6 +20,30 @@
   steps asked for the review round and date in the evidence pointer, which the rules a few lines
   above forbid because a round and a day-precision date identify the reviewer's timeline. The
   step now says month only.
+- **Scripts that skills tell you to run now ship with those skills.** `/meta-analysis`,
+  `/sync-submission` and `/manage-project` pointed at seven scripts in the repository's
+  root `scripts/` folder (`prisma_5way_consistency.py`, `extraction_consensus_log_init.py`,
+  `tag_cleanup_gate.sh`, `verify_package_integrity.py`, `init_project.py`,
+  `migrate_project_to_ssot.py`, `validate_project_contract.py`). An installed copy does not
+  contain that folder, so those steps failed anywhere except a clone of the repository. Each
+  script now lives in the skill that owns it; the old root paths still work.
+- **Cross-skill commands no longer assume one particular folder.** Seventeen commands in
+  `/self-review`, `/write-paper`, `/lit-sync`, `/search-lit` and `/sync-submission` fell back to
+  `$HOME/workspace/medsci-skills`, which exists only on the maintainer's computer. They now use
+  `${CLAUDE_SKILL_DIR}/../<skill>/`, which resolves the same way in an installed skills folder
+  and in a clone. Nine more cross-skill references in `/humanize`, `/analyze-stats`, `/revise` and
+  `/self-review` that named another skill's script only in prose now give its full path.
+
+### Security
+
+- **The repository's publication check no longer prints the value it caught.** When
+  `scripts/validate_skills.sh` found a personal name, home-directory path or email address in a
+  file, the failure message included the matched text. CI logs of a public repository are public
+  and outlive a force-push that removes the offending commit, so the check republished what it
+  had just caught. It now reports the file and line (for document metadata, the field name). The
+  text scan also covers `.jsonl`, `.jsonld`, `.R`, `.qmd`, `.js`, `.svg`, `.xml` and the
+  installer scripts, which it previously skipped. A regression test plants a leak and fails if
+  the matched token appears in the output.
 
 ## [5.28.0] - 2026-09-29
 
