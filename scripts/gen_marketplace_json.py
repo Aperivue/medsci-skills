@@ -3,8 +3,8 @@
 
 Why: the one-line `/plugin marketplace add Aperivue/medsci-skills` + `/plugin`
 discovery flow is the highest-ROI distribution channel for this repo. Rather than
-one monolithic plugin, the 8 research-lifecycle categories already defined in
-`metadata/skills_catalog.json` become 8 themed `medsci-*` plugins, so a user can
+one monolithic plugin, the research-lifecycle categories already defined in
+`metadata/skills_catalog.json` become themed `medsci-*` plugins, so a user can
 browse and enable just the categories they want.
 
 This is a PURE DOWNSTREAM TRANSFORM of metadata/skills_catalog.json (it does NOT

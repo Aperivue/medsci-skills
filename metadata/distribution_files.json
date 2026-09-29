@@ -1349,7 +1349,7 @@
     {
       "path": "skills/fill-protocol/references/best_practices.md",
       "size": 4196,
-      "sha256": "79f57070f936600becb00ddb8c0717605354d11ea625a5b931d67e4acfab3727"
+      "sha256": "fc1c81b283d6fd1582fe8e7657f911d1610423704df0777bbe9dc1206eb2f10e"
     },
     {
       "path": "skills/fill-protocol/scripts/doc_to_docx.py",
@@ -1968,13 +1968,13 @@
     },
     {
       "path": "skills/humanize/SKILL.md",
-      "size": 19135,
-      "sha256": "0372a021d140a8fb6be3ab5eac67ef8cdcb6e525f0c5b8202e259dfe42ad5d3f"
+      "size": 19481,
+      "sha256": "923b536892e1d2e88ca9e25f68bc898863481b182d54a304c2857bd1f3fe2ee2"
     },
     {
       "path": "skills/humanize/references/ai_patterns.md",
-      "size": 41392,
-      "sha256": "f0e10e027be8f4ecc788f9c688d0aa1197ee68025e1f570f86004b7ccd7696ab"
+      "size": 41544,
+      "sha256": "5d6920eed03b579e1dbc68e406700f3349fb02ade2f2a379c06d02b1b566c407"
     },
     {
       "path": "skills/humanize/scripts/check_rewrite_fidelity.py",
@@ -2828,8 +2828,8 @@
     },
     {
       "path": "skills/manage-refs/scripts/render_pandoc.sh",
-      "size": 4767,
-      "sha256": "ab1c887d4b78df6daec50300ac605a8ce616f90aba9a47334c3a2a61127aca38"
+      "size": 4759,
+      "sha256": "c01b1cff88a77d8cbd3884f96e2879b8a51e213f2d21d086b8c4f4f937414d04"
     },
     {
       "path": "skills/manage-refs/scripts/strip_source_metadata.lua",
@@ -3428,8 +3428,8 @@
     },
     {
       "path": "skills/model-validation/skill.yml",
-      "size": 3079,
-      "sha256": "4891c0698445f98552ab2a2315bc8288a6cc4744f8711e20f939c8af8739e434"
+      "size": 3064,
+      "sha256": "ca5cd8d671d1674b3d6e968b6e86f2b65fd2cc4af39ab1cf5e8d8c00b9196a71"
     },
     {
       "path": "skills/obsidian-paper-vault/SKILL.md",
@@ -6028,8 +6028,8 @@
     },
     {
       "path": "skills/write-paper/SKILL.md",
-      "size": 49839,
-      "sha256": "88280152ff13b89402b4dd7a1490245b274795d0b1acb2e96edab1a275164c00"
+      "size": 51020,
+      "sha256": "063fcb55372307586ea5145b3619ecd7f72232f4e507e78897a202b98b1dc2bf"
     },
     {
       "path": "skills/write-paper/references/exemplar_abstract.md",

@@ -2,6 +2,23 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- **AI-use disclosure now follows the target journal, and the authors confirm their own
+  statements.** `/write-paper` put a disclosure in Methods by default while its own Phase 7.1
+  gate halted on a disclosure in the body, and `/humanize` told you to delete body disclosures
+  even for journals that require one in Methods. Both now take the location from the journal
+  profile, as the classical-style check already did. The drafted statements about what the
+  authors did (reviewed, verified, approved; what the tool was not used for) sit inside a
+  `[TODO authors confirm: …]` marker, and the placeholder check blocks submission until an
+  author resolves it. `/humanize` no longer suggests rewording a required disclosure into a
+  vaguer one that does not name the tool.
+- **`/humanize` states one em-dash threshold** (per 1000 words, as its pattern reference does)
+  instead of "per page" in one place and "per 1000 words" in another.
+- **Stale references:** `/model-validation` pointed to `/mllm-eval` "when available" (it is),
+  `/fill-protocol` pointed to the retired `generate-pptx` (now `/present-paper`), and the
+  `render_pandoc.sh` usage text still showed its old file name.
+
 ## [5.28.0] - 2026-09-29
 
 **Hotfix:** `/deidentify scan` could classify a column that carries PHI as SAFE, and a SAFE column is passed through un-stripped.
