@@ -142,7 +142,7 @@ analyses (interaction, subgroup, sensitivity, multiple imputation). Skip for cas
    globs the analysis directory) and reconciles every output file against the manuscript body:
 
    ```bash
-   python3 "${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/self-review/scripts/check_artifact_coverage.py" \
+   python3 "${CLAUDE_SKILL_DIR}/../self-review/scripts/check_artifact_coverage.py" \
      --manuscript manuscript/index.qmd --analysis-dir output/analysis --strict
    ```
 
@@ -169,7 +169,7 @@ Delegate the detection to the self-review checker (same cross-skill pattern Step
 reference cap from the chosen `references/journal_profiles/<journal>.md` when known.
 
 ```bash
-python3 "${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/self-review/scripts/check_reference_adequacy.py" \
+python3 "${CLAUDE_SKILL_DIR}/../self-review/scripts/check_reference_adequacy.py" \
   --manuscript "$MANUSCRIPT" --bib "$BIB" \
   --article-type "$TYPE" ${CAP:+--journal-cap "$CAP"} \
   --out qc/reference_adequacy.json   # no --strict: write-paper decides the action from the JSON

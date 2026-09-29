@@ -12,6 +12,21 @@
   text scan also covers `.jsonl`, `.jsonld`, `.R`, `.qmd`, `.js`, `.svg`, `.xml` and the
   installer scripts, which it previously skipped. A regression test plants a leak and fails if
   the matched token appears in the output.
+### Fixed
+
+- **Scripts that skills tell you to run now ship with those skills.** `/meta-analysis`,
+  `/sync-submission` and `/manage-project` pointed at seven scripts in the repository's
+  root `scripts/` folder (`prisma_5way_consistency.py`, `extraction_consensus_log_init.py`,
+  `tag_cleanup_gate.sh`, `verify_package_integrity.py`, `init_project.py`,
+  `migrate_project_to_ssot.py`, `validate_project_contract.py`). An installed copy does not
+  contain that folder, so those steps failed anywhere except a clone of the repository. Each
+  script now lives in the skill that owns it; the old root paths still work.
+- **Cross-skill commands no longer assume one particular folder.** Seventeen commands in
+  `/self-review`, `/write-paper`, `/lit-sync`, `/search-lit` and `/sync-submission` fell back to
+  `$HOME/workspace/medsci-skills`, which exists only on the maintainer's computer. They now use
+  `${CLAUDE_SKILL_DIR}/../<skill>/`, which resolves the same way in an installed skills folder
+  and in a clone. Nine more cross-skill references in `/humanize`, `/analyze-stats`, `/revise` and
+  `/self-review` that named another skill's script only in prose now give its full path.
 
 ## [5.28.0] - 2026-09-29
 

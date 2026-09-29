@@ -98,7 +98,7 @@ to restrict verification to PubMed + CrossRef.
 - `references/verified_references.tsv` — record-level details now live inside `reference_audit.json` under `records[]`.
 - `references/library.bib` — never this skill's concern. `/search-lit` produces candidates; `/lit-sync` (via Better BibTeX) writes `manuscript/_src/refs.bib`.
 
-Sole-writer enforcement: `scripts/validate_project_contract.py` will flag any `references/*` file written by this skill as drift.
+Sole-writer enforcement: `/manage-project`'s `scripts/validate_project_contract.py` will flag any `references/*` file written by this skill as drift.
 
 ## Workflow
 

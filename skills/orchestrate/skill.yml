@@ -20,7 +20,7 @@ outputs:
   - qc/_pipeline_log.md
 deterministic_scripts:
   - scripts/validate_skill_contracts.py
-  - scripts/validate_project_contract.py
+  - skills/manage-project/scripts/validate_project_contract.py
 side_effects:
   - routes_to_worker_skills
 downstream_consumers:
@@ -41,5 +41,5 @@ known_limitations:
   - "--e2e halts on missing expected outputs rather than proceeding with gaps."
 validation_commands:
   - "python3 scripts/validate_skill_contracts.py"
-  - "python3 scripts/validate_project_contract.py"
+  - "python3 skills/manage-project/scripts/validate_project_contract.py"
 evidence_surface: demo

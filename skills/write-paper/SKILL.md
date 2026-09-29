@@ -347,7 +347,7 @@ begins.** Every HALT stops the pipeline; none is advisory. Rationale, tables and
 **7.1 — AI Pattern Scan.** Remove AI writing patterns (see AI Pattern Avoidance below), editing
 `manuscript/manuscript.md` in place. Then run the deterministic lint — the machine-checkable
 subset of the classical-style conventions a senior reviewer flags on sight:
-`python3 "${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/self-review/scripts/check_classical_style.py" --manuscript manuscript/manuscript.md --strict`.
+`python3 "${CLAUDE_SKILL_DIR}/../self-review/scripts/check_classical_style.py" --manuscript manuscript/manuscript.md --strict`.
 For an MA / systematic review, or when a senior co-author review is expected, also work the
 7-grep checklist in `references/section_guides/step7_1_classical_qc.md`. Pattern 19–21 body
 rewrites (§, self-reference, AI-disclosure boilerplate) go to `/humanize`.
@@ -397,7 +397,7 @@ Prefer `/manage-refs` (pandoc + citeproc + journal CSL) for any submission with 
 **7.6a — Cross-Reference QC.** After the build, before the final gate:
 
 ```bash
-python3 "${MEDSCI_SKILLS_ROOT:-$HOME/workspace/medsci-skills}/skills/manage-refs/scripts/check_xref.py" \
+python3 "${CLAUDE_SKILL_DIR}/../manage-refs/scripts/check_xref.py" \
   --md manuscript/manuscript.md --docx manuscript/manuscript_final.docx \
   --out qc/xref_audit.json --strict
 ```

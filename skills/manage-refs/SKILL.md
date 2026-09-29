@@ -212,7 +212,7 @@ When building v_(N+1) from a frozen v_N, the v_(N+1) docx MUST differ
 from v_N docx by content — a byte-identical copy is a silent seed-copy
 that will revert markdown edits at peer review. `check_xref.py` carries
 two flags for the build-time companion to the submission-time gate
-in `scripts/verify_package_integrity.py --assert-vN-docx-changed`:
+in `/sync-submission`'s `scripts/verify_package_integrity.py --assert-vN-docx-changed`:
 
 ```bash
 python3 "${CLAUDE_SKILL_DIR}/scripts/check_xref.py" \
