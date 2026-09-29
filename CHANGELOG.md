@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+### Security
+
+- **The repository's publication check no longer prints the value it caught.** When
+  `scripts/validate_skills.sh` found a personal name, home-directory path or email address in a
+  file, the failure message included the matched text. CI logs of a public repository are public
+  and outlive a force-push that removes the offending commit, so the check republished what it
+  had just caught. It now reports the file and line (for document metadata, the field name). The
+  text scan also covers `.jsonl`, `.jsonld`, `.R`, `.qmd`, `.js`, `.svg`, `.xml` and the
+  installer scripts, which it previously skipped. A regression test plants a leak and fails if
+  the matched token appears in the output.
+
 ## [5.28.0] - 2026-09-29
 
 **Hotfix:** `/deidentify scan` could classify a column that carries PHI as SAFE, and a SAFE column is passed through un-stripped.
