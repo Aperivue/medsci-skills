@@ -55,6 +55,29 @@ x=[c for c in d['claims'] if c['verdict']=='SUPP_XREF_UNRESOLVED']
 assert len(x)==1 and '9' in x[0]['detail'], x
 "
 
+# (3b) S-prefixed / plural / range callouts, matched by KIND. The old callout regex saw
+#      only "Supplementary <Kind> <digits>", so "Supplementary Figures S2 and S3" and
+#      "Figs S6–S8" matched nothing, and "Supplementary Figure 4" resolved against a
+#      "Table S4" by number alone. Expected unresolved: Figure 3 (plural list), Figure 7
+#      (range interior), Figure 4 (only a Table S4 exists). Table S1 / Fig. S1 / Figure
+#      S2 / S6 / S8 / Table S4 resolve; main-text "Table 1" / "Figures 1–3" are ignored.
+KBODY="$HERE/fixtures/supp_xref_kind_body.md"
+KSUPP="$HERE/fixtures/supp_xref_kind_supp.md"
+KCAPS="$HERE/fixtures/supp_xref_kind_captions.md"
+python3 "$SCRIPT" --supplement "$KSUPP" --manuscript "$KBODY" --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "exit 1 under --strict on cited-but-absent supplementary figures" test "$?" -eq 1
+check "exactly Figure 3, 4, 7 unresolved (S-prefix list, range, kind mismatch)" python3 -c "
+import json, re
+d=json.load(open('$OUT'))
+got={re.search(r\"'Supplementary (\w+) (\d+)'\", c['detail']).groups()
+     for c in d['claims'] if c['verdict']=='SUPP_XREF_UNRESOLVED'}
+assert got=={('Figure','3'),('Figure','4'),('Figure','7')}, got
+"
+# Negative control: the same body resolves once a captions file defines the missing figures
+# as caption lines ("**Figure S3.** ...", "Figure S7: ..."), not headings.
+python3 "$SCRIPT" --supplement "$KSUPP" --supplement "$KCAPS" --manuscript "$KBODY" --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "exit 0 when a captions file defines the cited figures" test "$?" -eq 0
+
 # (4) missing --supplement -> usage error (exit 2)
 python3 "$SCRIPT" --manuscript "$XBODY" --quiet >/dev/null 2>&1
 check "exit 2 when no --supplement given" test "$?" -eq 2

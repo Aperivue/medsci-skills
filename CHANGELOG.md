@@ -17,6 +17,29 @@
   `${CLAUDE_SKILL_DIR}/../<skill>/`, which resolves the same way in an installed skills folder
   and in a clone. Nine more cross-skill references in `/humanize`, `/analyze-stats`, `/revise` and
   `/self-review` that named another skill's script only in prose now give its full path.
+- **`/manage-refs` duplicate-bibliography check: every reference entry is counted.** An entry
+  whose first author has a lowercase particle ("van der Berg", "de Vries") or a guideline whose
+  title starts with its year ("2021 … Guidelines") was not recognised, so a 4-entry list was
+  reported as 1 entry — and a duplicated list made of such entries passed as a single list.
+- **`/sync-submission` word-count gate counts the body's subheadings.** The rendered document,
+  and Word's count of it, include every subheading, but the estimate left them out. A
+  manuscript with many subheadings could be over the journal's limit while the gate reported
+  it as only near the limit, and `--strict` let it through.
+- **`/self-review` supplement check resolves "Table S4", "Supplementary Figures S2 and S3" and
+  "Figs S1–S3", and tells tables from figures.** Those forms used to match nothing, and a
+  figure callout resolved against a table with the same number, so a supplementary figure
+  cited in the text but missing from the supplement passed.
+- **`/humanize` fidelity check catches a reversed comparison or a dropped minus sign.** A
+  rewrite that turned "18% lower" into "18% above", or "−2.4" into "2.4", kept every digit and
+  passed. A percentage is now read together with its direction word and a leading minus is
+  kept, so either change is reported as `NUMBER_DRIFT`.
+- **`/humanize` fidelity report shows where each changed number sits.** `NUMBER_DRIFT` listed
+  bare tokens and counts, so telling a renumbered slide from a changed statistic meant
+  searching both files by hand. Each changed token now carries a short before/after snippet,
+  in the printed report and the JSON.
+- **`/self-review` editorial-impression check no longer reads the YAML front matter as prose.**
+  A changelog in the front matter that said "hypothesis-generating" four times made the check
+  report the phrase as repeated in the manuscript when the body said it once.
 
 ## [5.28.0] - 2026-09-29
 

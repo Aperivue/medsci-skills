@@ -12,7 +12,10 @@ It also enforces the two invariants the humanize skill declares but never checke
 and every citation present before the rewrite must still be present after it.
 
 Verdicts:
-  NUMBER_DRIFT (Major)         a numeric token's count changed across the rewrite.
+  NUMBER_DRIFT (Major)         a numeric token's count changed across the rewrite — including a
+                               dropped leading minus ("-2.4" -> "2.4") and a flipped comparison
+                               ("24% lower" -> "24% above"). Each changed token is reported with
+                               a short before/after context snippet.
   CITATION_DROP (Major)        a citation present before is absent after.
   EDIT_FOOTPRINT_HIGH (Minor)  more than --warn-pct of the words changed — re-read the diff.
 
@@ -58,9 +61,34 @@ FENCE_RE = re.compile(r"```.*?```", re.S)
 CITEKEY_RE = re.compile(r"\[@[^\]\s]+\]")
 NUMMARK_RE = re.compile(r"\[\d+(?:\s*[-–,]\s*\d+)*\]")
 WORD_RE = re.compile(r"[A-Za-z0-9''-]+")
-# A numeric token: integer, decimal, or percentage. Sign and thousands separators kept out
-# so that "1,200" and "1200" compare equal after separator removal.
-NUMBER_RE = re.compile(r"\d+(?:\.\d+)?")
+# A numeric token: integer, decimal, or percentage. Thousands separators are dropped so that
+# "1,200" and "1200" compare equal. A LEADING minus (U+2212 or "-") is kept, because a rewrite
+# that drops it reverses the value: "-2.4" and "2.4" must not compare equal. A hyphen that joins
+# two tokens ("0.91-0.97", "COVID-19", "0.91 - 0.97") is a range or compound, not a sign.
+NUMBER_RE = re.compile(
+    r"(?P<sign>[−-])?"
+    r"(?P<num>\d{1,3}(?:,\d{3})+(?!\d)(?:\.\d+)?|\d+(?:\.\d+)?)"
+    r"(?P<pct>\s?%|\s+percent\b)?", re.IGNORECASE)
+# A relative change carries its direction in the word next to it: "24% lower" and "24% above"
+# share every digit and say opposite things. A percentage bound to such a word becomes
+# "24% (down)" / "24% (up)", so flipping the direction changes the token and fires
+# NUMBER_DRIFT. Synonyms share a polarity, so "12% lower" -> "lower by 12%" or "a 12%
+# reduction" does not fire. Absolute levels ("decreased to 3.2%", "more than 5%") are not bound.
+_UP = (r"higher|greater|larger|more|above|increase[sd]?|increasing|rise[sn]?|rose"
+       r"|gain(?:ed|s)?")
+_DOWN = (r"lower|less|fewer|smaller|below|decrease[sd]?|decreasing|reduction|reduced|reduces?"
+         r"|decline[sd]?|drop(?:ped|s)?|fell|falls?")
+_UP_RE = re.compile(rf"^(?:{_UP})$", re.IGNORECASE)
+# Word right after the percentage: "24% lower", "a 12% increase", "5 percent fewer".
+_AFTER_RE = re.compile(rf"\s*(?P<w>{_UP}|{_DOWN})\b", re.IGNORECASE)
+# Word right before it: a change verb/noun ("increased by 12%", "a reduction of 12%",
+# "rose 12%") or a comparative with "by" ("lower by 12%").
+_CHANGE = (r"increase[sd]?|increasing|rise[sn]?|rose|gain(?:ed|s)?|decrease[sd]?|decreasing"
+           r"|reduction|reduced|reduces?|decline[sd]?|drop(?:ped|s)?|fell|falls?")
+_BEFORE_RE = re.compile(
+    rf"\b(?:(?P<w>{_CHANGE})\s+(?:by\s+|of\s+)?"
+    r"|(?P<c>higher|greater|larger|more|lower|less|fewer|smaller)\s+by\s+)$", re.IGNORECASE)
+_CONTEXT = 45  # characters of context either side of a changed token in the report
 
 
 def _strip_fences(text: str) -> str:
@@ -73,12 +101,66 @@ def _citations(text: str) -> Counter:
     return Counter(k.strip() for k in keys + marks)
 
 
-def _numbers(text: str) -> Counter:
-    """Numeric tokens with citation markers removed first, so a reference number is not
+def _is_minus(text: str, i: int) -> bool:
+    """Is the sign character at ``text[i]`` a leading minus (not a range/compound hyphen)?"""
+    if i == 0:
+        return True
+    prev = text[i - 1]
+    if prev.isalnum() or prev in ".%)]":
+        return False  # joined: "0.91-0.97", "COVID-19"
+    if prev.isspace():
+        j = i - 1
+        while j >= 0 and text[j].isspace():
+            j -= 1
+        return j < 0 or not (text[j].isdigit() or text[j] in "%)")  # "0.91 - 0.97" is a range
+    return True  # "(-0.3", "=-0.3", ":-0.3"
+
+
+def _number_tokens(text: str) -> list[tuple[str, int, int]]:
+    """(token, start, end) for every numeric token. Citation markers are blanked first (with
+    equal-length spaces, so offsets still index ``text``) so a reference number is not
     double-counted as a statistic."""
-    without_cites = NUMMARK_RE.sub(" ", CITEKEY_RE.sub(" ", text))
-    without_seps = without_cites.replace(",", "")
-    return Counter(NUMBER_RE.findall(without_seps))
+    blank = lambda m: " " * len(m.group(0))  # noqa: E731
+    masked = NUMMARK_RE.sub(blank, CITEKEY_RE.sub(blank, text))
+    out: list[tuple[str, int, int]] = []
+    for m in NUMBER_RE.finditer(masked):
+        sign = m.group("sign")
+        minus = bool(sign) and _is_minus(masked, m.start("sign"))
+        token = ("-" if minus else "") + m.group("num").replace(",", "")
+        if m.group("pct"):
+            a = _AFTER_RE.match(masked, m.end())
+            b = _BEFORE_RE.search(masked[max(0, m.start() - 40):m.start()])
+            word = a.group("w") if a else (b.group("w") or b.group("c")) if b else None
+            if word:
+                token += "% (up)" if _UP_RE.match(word) else "% (down)"
+        start = m.start("num") if not minus else m.start("sign")
+        out.append((token, start, m.end()))
+    return out
+
+
+def _snippet(text: str, start: int, end: int) -> str:
+    a, b = max(0, start - _CONTEXT), min(len(text), end + _CONTEXT)
+    body = re.sub(r"\s+", " ", text[a:b]).strip()
+    return ("…" if a > 0 else "") + body + ("…" if b < len(text) else "")
+
+
+def _context(token: str, toks: list[tuple[str, int, int]], text: str, other: str) -> str | None:
+    """One short snippet showing where ``token`` sits in ``text``: preferably an occurrence
+    whose surroundings the other side does not share (the edited one). If the token is absent
+    here but the same number appears with a different direction, show that occurrence — a
+    flipped "24% (down)" then lands next to its "24% (up)"."""
+    hits = [(s, e) for t, s, e in toks if t == token]
+    if not hits:
+        base = token.split("%")[0].lstrip("-")
+        hits = [(s, e) for t, s, e in toks if t.split("%")[0].lstrip("-") == base]
+    if not hits:
+        return None
+    flat_other = re.sub(r"\s+", " ", other)
+    for s, e in hits:
+        snip = _snippet(text, s, e)
+        if snip.strip("…") not in flat_other:
+            return snip
+    return _snippet(text, *hits[0])
 
 
 def _words(text: str) -> list[str]:
@@ -126,7 +208,14 @@ def main(argv: list[str] | None = None) -> int:
 
     changed = _changed_fraction(_words(before_raw), _words(after_raw))
     changed_pct = round(changed * 100, 1)
-    num_delta = _diff_counter(_numbers(before_raw), _numbers(after_raw))
+    before_toks, after_toks = _number_tokens(before_raw), _number_tokens(after_raw)
+    num_delta = _diff_counter(Counter(t for t, _, _ in before_toks),
+                              Counter(t for t, _, _ in after_toks))
+    # A bare token list sends the reader back to search both files; carry one short snippet
+    # from each side so a renumbered slide and a changed statistic can be told apart at once.
+    for d in num_delta[:40]:
+        d["before_context"] = _context(d["token"], before_toks, before_raw, after_raw)
+        d["after_context"] = _context(d["token"], after_toks, after_raw, before_raw)
     cite_delta = _diff_counter(_citations(before_raw), _citations(after_raw))
 
     claims: list[dict] = []
@@ -182,6 +271,11 @@ def main(argv: list[str] | None = None) -> int:
               f"({len(_words(before_raw))} -> {len(_words(after_raw))})")
         for claim in claims:
             print(f"  [{claim['severity']}] {claim['verdict']}: {claim['message']}")
+            if claim["verdict"] == "NUMBER_DRIFT":
+                for d in claim["tokens"]:
+                    print(f"      {d['token']}: {d['before']} -> {d['after']}")
+                    print(f"        before: {d.get('before_context') or '(absent)'}")
+                    print(f"        after:  {d.get('after_context') or '(absent)'}")
         if not claims:
             print("  clean: footprint within bounds, numbers and citations preserved")
 
