@@ -3758,8 +3758,8 @@
     },
     {
       "path": "skills/peer-review/references/reviewer_profiles/README.md",
-      "size": 5021,
-      "sha256": "4e27cb134047238da76a2cb5e25801102e8ddc0ea6de1339a7ecfd07bc303cb7"
+      "size": 5076,
+      "sha256": "46d604d4c14af4ef47d0496a782723e84b39cd7c03a6b0e29ea7f0134dd37ba4"
     },
     {
       "path": "skills/peer-review/references/reviewer_profiles/RYAI.md",
@@ -5653,8 +5653,8 @@
     },
     {
       "path": "skills/sync-submission/SKILL.md",
-      "size": 41970,
-      "sha256": "f0b6f897c2ca866d9998e4ea15bf1e1ecbb6566758660411ad9407c52e350066"
+      "size": 42238,
+      "sha256": "2d5204f7ec7520a7a27dd5b2008de7c01e240f412a56d13b364f51ba1abb5379"
     },
     {
       "path": "skills/sync-submission/examples/build_synthetic_bundle.py",
@@ -5703,8 +5703,8 @@
     },
     {
       "path": "skills/sync-submission/scripts/check_asset_anonymization.py",
-      "size": 14918,
-      "sha256": "41c3f6720f5c7df9943752cd5395768d787ae3961a48d8a78ce6ba2283e0d2f2"
+      "size": 16518,
+      "sha256": "f02f564d08bffbd52d93120a464df0b99e3bf3af0d49be43867a68a30ab510f5"
     },
     {
       "path": "skills/sync-submission/scripts/check_checklist_dump_leak.py",
@@ -5718,8 +5718,8 @@
     },
     {
       "path": "skills/sync-submission/scripts/check_cross_artifact_stale.py",
-      "size": 11725,
-      "sha256": "62314a6a052e0a71e40dd00a76c96692b6a19d66ef0c9bd706e0b2f1d3959a04"
+      "size": 14675,
+      "sha256": "4846443ea13d0ffa27b5e0ce7e83590a408c9f3748e72b0a5b61566a46f58b51"
     },
     {
       "path": "skills/sync-submission/scripts/check_disclosure_availability.py",

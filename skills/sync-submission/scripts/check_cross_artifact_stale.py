@@ -36,7 +36,14 @@ Two deterministic checks:
      claims to have made "throughout" is verified across all artifacts, not a
      sample.
 
-Exit: 0 = clean, 1 = findings, 2 = usage/error. Stdlib-only.
+Aux files read: .md .txt .csv .tsv .yaml .yml and .docx (body, footnotes, endnotes, headers,
+footers, comments). Figure-source scripts (.py, .R) are read for the retired-term / old-value
+sweep only — a superseded number hard-coded in a plotting script re-renders into the figure.
+Other document types (.pdf, .doc, .rtf, .odt, .pptx, .xlsx) cannot be read here and are listed
+as skipped in the report rather than silently ignored.
+
+Exit: 0 = clean, 1 = findings, 2 = usage/error — including --aux paths that held no readable
+file, which used to print PASS after scanning nothing. Stdlib-only.
 
 Usage:
     python3 check_cross_artifact_stale.py --manuscript manuscript.md \
@@ -51,6 +58,8 @@ import argparse
 import json
 import re
 import sys
+import zipfile
+import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
 
@@ -155,15 +164,48 @@ def label_values(text: str) -> dict[str, set[str]]:
     return out
 
 
-def _iter_files(paths: list[Path]) -> list[Path]:
+TEXT_SUFFIXES = (".md", ".txt", ".csv", ".tsv", ".yaml", ".yml", ".docx")
+CODE_SUFFIXES = (".py", ".r")  # figure-source literals: retired-term / old-value sweep only
+UNREADABLE_DOCS = (".pdf", ".doc", ".rtf", ".odt", ".pptx", ".xlsx")
+_W = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
+_DOCX_PARTS = re.compile(r"^word/(document|footnotes|endnotes|comments|header\d*|footer\d*)\.xml$")
+
+
+def _docx_text(path: Path) -> str | None:
+    """Paragraph text of a .docx, one paragraph per line; runs are joined without spaces."""
+    try:
+        with zipfile.ZipFile(path) as z:
+            names = sorted(n for n in z.namelist() if _DOCX_PARTS.match(n))
+            lines: list[str] = []
+            for name in names:
+                root = ET.fromstring(z.read(name))
+                for para in root.iter(_W + "p"):
+                    lines.append("".join(t.text or "" for t in para.iter(_W + "t")))
+    except (zipfile.BadZipFile, ET.ParseError, KeyError, OSError):
+        return None
+    return "\n".join(lines)
+
+
+def _read_aux(path: Path) -> str | None:
+    if path.suffix.lower() == ".docx":
+        return _docx_text(path)
+    return path.read_text(encoding="utf-8", errors="replace")
+
+
+def _iter_files(paths: list[Path]) -> tuple[list[Path], list[Path]]:
+    """(readable aux files, document files that could not be read)."""
     files: list[Path] = []
+    skipped: list[Path] = []
+    readable = TEXT_SUFFIXES + CODE_SUFFIXES
     for p in paths:
-        if p.is_dir():
-            files += [q for q in sorted(p.rglob("*"))
-                      if q.is_file() and q.suffix.lower() in (".md", ".txt", ".csv", ".tsv", ".yaml", ".yml")]
-        elif p.is_file():
-            files.append(p)
-    return files
+        cands = sorted(q for q in p.rglob("*") if q.is_file()) if p.is_dir() else [p] if p.is_file() else []
+        for q in cands:
+            suf = q.suffix.lower()
+            if suf in readable:
+                files.append(q)
+            elif suf in UNREADABLE_DOCS or not p.is_dir():
+                skipped.append(q)
+    return files, skipped
 
 
 def _manuscript_version(manuscript: Path, explicit: str | None) -> int | None:
@@ -188,14 +230,22 @@ def build_report(manuscript: Path, aux_paths: list[Path], version: int | None,
     if retired_terms or old_values:
         rep.findings += scan_survivors(body, str(manuscript), retired_terms, old_values)
 
-    aux_files = [f for f in _iter_files(aux_paths) if f.resolve() != manuscript.resolve()]
+    found, skipped = _iter_files(aux_paths)
+    aux_files = [f for f in found if f.resolve() != manuscript.resolve()]
+    read = 0
     for f in aux_files:
-        text = f.read_text(encoding="utf-8", errors="replace")
+        text = _read_aux(f)
         rel = str(f)
+        if text is None:
+            skipped.append(f)
+            continue
+        read += 1
 
         # 3. retired-term / old-value survivors in this aux artifact
         if retired_terms or old_values:
             rep.findings += scan_survivors(text, rel, retired_terms, old_values)
+        if f.suffix.lower() in CODE_SUFFIXES:
+            continue  # a plotting script is swept for stale literals, not label drift
 
         # 1. labeled-value drift vs the body
         for key, vals in label_values(text).items():
@@ -217,7 +267,8 @@ def build_report(manuscript: Path, aux_paths: list[Path], version: int | None,
                     "checklist_version_stale", "version_stale", rel,
                     f"references manuscript version(s) v{older} but current is v{version}"))
 
-    rep.scanned = {"aux_files": len(aux_files), "body_labels": len(body_labels)}
+    rep.scanned = {"aux_files": read, "body_labels": len(body_labels),
+                   "skipped": [str(f) for f in skipped]}
     return rep
 
 
@@ -250,13 +301,23 @@ def main(argv: list[str] | None = None) -> int:
     rep = build_report(args.manuscript, args.aux, version,
                        retired_terms=args.retired_term, old_values=args.old_value)
 
+    if args.aux and rep.scanned["aux_files"] == 0:
+        print("ERROR: none of the --aux paths held a readable file (read: .md .txt .csv .tsv "
+              ".yaml .yml .docx, plus .py/.R for the stale-literal sweep); nothing was checked. "
+              f"Skipped: {rep.scanned['skipped'][:5]}", file=sys.stderr)
+        return 2
+
     if args.out is not None:
         args.out.parent.mkdir(parents=True, exist_ok=True)
         args.out.write_text(json.dumps({"detector": "check_cross_artifact_stale", **rep.as_dict()}, indent=2), encoding="utf-8")
 
     if not args.quiet:
+        if rep.scanned["skipped"]:
+            print(f"NOTE: {len(rep.scanned['skipped'])} file(s) could not be read and were not "
+                  f"checked: {rep.scanned['skipped'][:5]}")
         if rep.submission_safe:
-            print(f"PASS: no cross-artifact staleness ({rep.scanned}).")
+            print(f"PASS: no cross-artifact staleness ({rep.scanned['aux_files']} aux file(s), "
+                  f"{rep.scanned['body_labels']} body label(s)).")
         else:
             print(f"FAIL: cross-artifact staleness — {rep.as_dict()['summary']}")
             for f in rep.findings:
