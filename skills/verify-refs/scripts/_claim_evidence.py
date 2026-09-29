@@ -69,7 +69,41 @@ def binding_hash(binding: dict) -> str:
     return hashlib.sha256(json.dumps(binding, sort_keys=True).encode()).hexdigest()
 
 
-def reference_record(audit: dict | None, token: str, doi: str) -> dict:
+BIB_KEY_RE = re.compile(r"^\s*@(\w+)\s*\{\s*([^,\s]+)\s*,", re.M)
+
+
+def audit_freshness(audit: dict | None, bib: Path | None) -> dict | None:
+    """Does the metadata audit still describe THIS bibliography?
+
+    verify_refs.py records the hash of the file it audited and the keys it audited. A green
+    audit of an older bib says nothing about an entry added since, so when the current bib's
+    hash differs the audit is stale, and every current key the audit never saw is listed.
+    """
+    if audit is None:
+        return None
+    recorded = audit.get("source_sha256")
+    if not recorded:
+        return {"status": "not_recorded",
+                "reason": "the audit does not record what it audited; rerun verify_refs.py"}
+    if not str(audit.get("source", "")).lower().endswith(".bib"):
+        return {"status": "not_comparable",
+                "reason": "the audit was run on a reference list, not a .bib"}
+    if bib is None or not bib.is_file():
+        return {"status": "not_compared", "reason": "no --bib to compare the audit against"}
+    if sha256(bib) == recorded:
+        return {"status": "current", "reason": "bibliography unchanged since the audit"}
+    audited = {str(k).strip() for k in audit.get("audited_ref_ids") or []}
+    text = bib.read_text(encoding="utf-8", errors="replace")
+    current = {key for kind, key in BIB_KEY_RE.findall(text)
+               if kind.lower() not in ("comment", "string", "preamble")}
+    return {"status": "stale",
+            "reason": ("the bibliography changed after the audit, so its OK / submission_safe "
+                       "no longer describe this file; rerun verify_refs.py"),
+            "unaudited_keys": sorted(current - audited)}
+
+
+def reference_record(audit: dict | None, token: str, doi: str,
+                     freshness: dict | None = None) -> dict:
     """Metadata audit is contextual, never proof of source identity or claim support."""
     records = (audit or {}).get("records", [])
     matches = [r for r in records if r.get("ref_id") == token]
@@ -79,9 +113,12 @@ def reference_record(audit: dict | None, token: str, doi: str) -> dict:
         return {"link": "ambiguous" if matches else "not_available", "recorded_status": None}
     row = matches[0]
     same_doi = not doi or normalized_doi(row.get("doi", "")) == doi
+    state = (freshness or {}).get("status")
+    binding = {"current": "current_bibliography", "stale": "stale_audit"}.get(
+        state, "not_recorded_by_reference_audit")
     return {"link": "matched_identifier" if same_doi else "identifier_conflict",
             "recorded_status": row.get("status"), "doi": row.get("doi", ""),
-            "input_binding": "not_recorded_by_reference_audit"}
+            "input_binding": binding}
 
 
 def pdf_record(retrieval: dict | None, pdf_dir: Path | None, doi: str) -> dict:
@@ -161,7 +198,8 @@ def assessment_state(assessment: dict, row: dict, binding_matches: bool) -> tupl
 def build_evidence(raw: str, manuscript: Path, fulltext_dir: Path, resolver,
                    abbrev: re.Pattern, *, binding: dict, retrieval: dict | None = None,
                    pdf_dir: Path | None = None, reference_audit: dict | None = None,
-                   reviewed_report: dict | None = None) -> dict:
+                   reviewed_report: dict | None = None,
+                   reference_audit_freshness: dict | None = None) -> dict:
     previous_rows = (reviewed_report or {}).get("evidence_rows", [])
     previous = {r["id"]: r for r in previous_rows}
     if len(previous) != len(previous_rows):
@@ -195,7 +233,8 @@ def build_evidence(raw: str, manuscript: Path, fulltext_dir: Path, resolver,
                                   "coordinate_system": "read_text character offsets; lines are not rendered pages"},
                    "source": {"text_file": source[0].relative_to(fulltext_dir).as_posix() if source else None,
                               "text_sha256": source_hash, "pdf": pdf},
-                   "reference_audit": reference_record(reference_audit, token, doi),
+                   "reference_audit": reference_record(reference_audit, token, doi,
+                                                       reference_audit_freshness),
                    "binding": current_binding, "assessment": blank_assessment(),
                    "verdict": "not_assessed", "review_state": "not_assessed"}
             row["binding_sha256"] = binding_hash(current_binding)

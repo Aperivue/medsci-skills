@@ -338,8 +338,8 @@ Verify before finishing:
 python3 scripts/check_citekey_provenance.py --vault "$VAULT" --bib "$REFS_BIB"
 ```
 
-Every reported `INVENTED` is a note whose key exists nowhere — fix it here rather than
-letting it reach a manuscript.
+`INVENTED` means the key exists nowhere; fix it here. Match notes to papers by DOI, never by key (`AMBIGUOUS`, `UNUSABLE`,
+`NO_IDENTIFIER`: see the script's `--help`), and search the full library (`--live`) before importing anything it reports missing.
 
 #### Template
 

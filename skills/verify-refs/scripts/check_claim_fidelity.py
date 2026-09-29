@@ -93,7 +93,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _quote_match import match_quality, normalize, tokens  # noqa: E402  (vendored, same-dir)
-from _claim_evidence import build_evidence, render_table, sha256  # noqa: E402
+from _claim_evidence import audit_freshness, build_evidence, render_table, sha256  # noqa: E402
 
 DETECTOR = "check_claim_fidelity"
 
@@ -599,6 +599,7 @@ def build_report(manuscript: Path, fulltext_dir: Path, bib: Path | None,
     resolved = {t: v for t, v in res._cache.items() if v}
     short = sorted({v[0].name for t, v in resolved.items()
                     if len(tokens(v[1])) < MIN_SOURCE_TOKENS})
+    freshness = audit_freshness(audit, bib)
     report = {
         "schema_version": 2,
         "detector": DETECTOR,
@@ -610,6 +611,8 @@ def build_report(manuscript: Path, fulltext_dir: Path, bib: Path | None,
         "claims_checked": {"quotes": n_quote, "attributions": n_attr, "cardinals": n_card},
         "findings": findings,
     }
+    if freshness is not None:
+        report["reference_audit_freshness"] = freshness
     report.update(build_evidence(
         raw, manuscript, fulltext_dir, res, ABBREV,
         binding={"manuscript_sha256": initial_hashes[manuscript], "bib_sha256": initial_hashes.get(bib),
@@ -618,6 +621,7 @@ def build_report(manuscript: Path, fulltext_dir: Path, bib: Path | None,
                  "refmap": refmap},
         retrieval=retrieval, pdf_dir=pdf_dir or (retrieval_report.parent if retrieval_report else None),
         reference_audit=audit, reviewed_report=reviewed,
+        reference_audit_freshness=freshness,
     ))
     for row in report["evidence_rows"]:
         sentence = " ".join(row["manuscript"]["text"].split())
@@ -710,6 +714,13 @@ def main() -> int:
         print(f"  extracted text too short to judge absence: "
               f"{', '.join(report['sources_too_short'][:8])}")
 
+    fresh = report.get("reference_audit_freshness") or {}
+    if fresh.get("status") == "stale":
+        unaudited = fresh.get("unaudited_keys") or []
+        print(f"  STALE reference audit: {fresh['reason']}")
+        if unaudited:
+            print(f"    never audited: {', '.join(unaudited[:12])}"
+                  + (f" (+{len(unaudited) - 12} more)" if len(unaudited) > 12 else ""))
     majors = [f for f in report["findings"] if f["severity"] == "major"]
     e = report["evidence_counts"]
     print(f"  evidence table: {e['sentence_citation_pairs']} sentence/citation pair(s); "

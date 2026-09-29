@@ -17,11 +17,19 @@ This script renders a 2-citation sample through pandoc + the CSL and checks:
 Compares against expected spec (from REFERENCE_STYLE_SPECS.md or CLI flags) and
 exits non-zero on mismatch — run this BEFORE submission, not after the proof PDF.
 
+The abbreviation check does not rely on the two-citation sample alone: a CSL that
+asks for the short journal title silently falls back to the full title for any entry
+without ``shortjournal``, so with an abbreviation expected EVERY bib entry that names
+a journal (``journal``/``journaltitle``) but carries no ``shortjournal`` fails the
+check by key. That scan reads only the .bib, so it is reported even when pandoc is
+unavailable (exit 1, with a note that the render checks did not run).
+
 Exit codes:
   0  output matches journal spec
   1  spec mismatch (in-text / DOI / abbreviation)
   2  environment / input error (pandoc or python-docx missing, bib not found,
-     pandoc render failed) — reported with a clear message, never a raw traceback
+     pandoc render failed) — reported with a clear message, never a raw traceback.
+     An abbreviation failure already proven from the .bib still exits 1.
 
 Usage:
   python check_csl_render.py --csl path/to.csl --bib refs.bib \\
@@ -53,6 +61,10 @@ SPECS = {
 
 SAMPLE = ("Risk is elevated [@A; @B].\n\n# References\n")
 
+BIB_ENTRY_RE = re.compile(r"@(\w+)\s*\{\s*([^,\s]+)\s*,(.*?)(?=\n\s*@|\Z)", re.S)
+JOURNAL_FIELD_RE = re.compile(r"\b(?:journal|journaltitle)\s*=\s*[{\"]\s*[^}\"\s]", re.I)
+SHORTJOURNAL_RE = re.compile(r"\bshortjournal\s*=\s*[{\"]\s*[^}\"\s]", re.I)
+
 
 class RenderError(RuntimeError):
     """Environment/input failure that should exit 2 with a clear message."""
@@ -67,6 +79,21 @@ def _read_bib(bib: str) -> str:
         return p.read_text(encoding="utf-8")
     except OSError as exc:
         raise RenderError(f"could not read bib file {bib}: {exc}") from exc
+
+
+def keys_missing_shortjournal(bib_text: str) -> list[str]:
+    """Keys of every entry that names a journal but carries no non-empty shortjournal.
+
+    Those are exactly the entries a short-form CSL renders with the FULL journal title,
+    whether or not they happen to be among the two keys the render sample uses.
+    """
+    missing = []
+    for entry_type, key, body in BIB_ENTRY_RE.findall(bib_text):
+        if entry_type.lower() in ("comment", "string", "preamble"):
+            continue
+        if JOURNAL_FIELD_RE.search(body) and not SHORTJOURNAL_RE.search(body):
+            missing.append(key)
+    return missing
 
 
 def render(csl: str, bib: str, fmt: str, first: str, second: str, outdir: str) -> str:
@@ -142,13 +169,31 @@ def main():
     if a.expect_intext: exp["intext"] = a.expect_intext
     if a.expect_doi is not None: exp["doi"] = a.expect_doi
     if a.expect_abbrev: exp["abbrev"] = a.expect_abbrev
+    fails = []
+    missing_short: list[str] = []
+    if exp.get("abbrev") == "yes":
+        try:
+            missing_short = keys_missing_shortjournal(_read_bib(a.bib))
+        except RenderError as exc:
+            print(f"ERROR: {exc}", file=sys.stderr)
+            sys.exit(2)
+        if missing_short:
+            shown = ", ".join(missing_short[:20])
+            more = f" (+{len(missing_short) - 20} more)" if len(missing_short) > 20 else ""
+            fails.append(f"{len(missing_short)} journal entr{'y' if len(missing_short) == 1 else 'ies'} "
+                         f"without shortjournal will render the FULL title: {shown}{more} "
+                         "(fill_journal_abbrev.py adds shortjournal)")
     try:
         got = analyze(a.csl, a.bib)
     except RenderError as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
+        if fails:
+            # The .bib alone already fails the spec; a missing renderer does not undo that.
+            print("FAIL:", "; ".join(fails), "(render checks did not run)", file=sys.stderr)
+            sys.exit(1)
         sys.exit(2)
+    got["missing_shortjournal"] = missing_short
     print(json.dumps({"detector": "check_csl_render", "csl": os.path.basename(a.csl), "expected": exp, "got": got}, indent=2))
-    fails = []
     if exp.get("intext") and got["intext"] != exp["intext"]:
         fails.append(f"in-text {got['intext']} != expected {exp['intext']}")
     if "doi" in exp and got["doi"] != exp["doi"]:

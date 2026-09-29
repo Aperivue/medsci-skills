@@ -83,11 +83,19 @@ COMPUTE_RE = re.compile(
     r"GAMLSS|\bLMS\b|E-values?"
     r")\b", re.I)
 
+# Adjudication counts only as a request for NEW adjudication (re-, second, additional,
+# independent, new, further). Bare "adjudicated/adjudication" is how a reviewer names
+# records the authors already hold ("the adjudicated examinations", "your adjudication
+# files"), and flagging that pushed a valid disclosure ask to be reworded away.
+# A second reader may be called by any role name: operator, annotator, segmenter, labeller.
+_SECOND_ROLE = r"(?:reader|rater|observer|operator|annotator|segmenter|label(?:l)?er)"
 NEW_DATA_RE = re.compile(
     r"\b(?:"
-    r"(?:a\s+)?second\s+(?:reader|rater|observer)|two\s+(?:readers|raters|observers)|"
-    r"independently\s+(?:label|re-?read|re-?assess|score|rate)|"
-    r"re-?read|re-?assess|re-?segment\w*|re-?annotat\w*|adjudicat\w+|"
+    rf"(?:a\s+)?second\s+{_SECOND_ROLE}s?|two\s+{_SECOND_ROLE}s|"
+    r"independently\s+(?:label|re-?read|re-?assess|score|rate|segment|annotate)|"
+    r"re-?read|re-?assess|re-?segment\w*|re-?annotat\w*|"
+    r"(?:re-?|second\s+|additional(?:ly)?\s+|independent(?:ly)?\s+|new\s+|further\s+)"
+    r"adjudicat\w+|"
     r"recruit\w*|prospectively\s+collect|collect\s+(?:new|additional)|"
     r"repeat\s+the\s+validation|external\s+(?:validation\s+)?cohort"
     r")\b", re.I)

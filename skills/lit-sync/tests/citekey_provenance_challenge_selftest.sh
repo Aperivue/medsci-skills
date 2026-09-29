@@ -2,16 +2,21 @@
 # Self-test for the citekey-provenance challenge card.
 #
 # A card that passes proves it RAN. It proves nothing about whether it would catch a
-# defect. So: mutate the detector five ways, each removing a behaviour the card claims to
-# assert, and require the card to FAIL every time. If any mutation slips through green,
+# defect. So: mutate the detector several ways, each removing a behaviour the card claims
+# to assert, and require the card to FAIL every time. If any mutation slips through green,
 # the card is blind on that axis and this exits 1.
 #
-# The five mutations are the mistakes this detector is actually exposed to:
+# The mutations are the mistakes this detector is actually exposed to:
 #   1. --strict fails on UNRESOLVED too      (a paper never added != a composed citekey)
 #   2. the empty-library guard is dropped    (an empty .bib condemns every note, saying nothing)
 #   3. the notetype filter is dropped        (concept notes get judged as literature notes)
 #   4. the DOI suggestion is disabled        (INVENTED silently degrades to UNRESOLVED)
 #   5. the filename check is dropped         (a note whose filename disagrees reads as OK)
+#   6. the duplicate-key check is dropped    (a key on two papers reads as OK)
+#   7. the URL/slash key check is dropped    (a key that cannot be a filename reads as OK)
+#   8. NO_IDENTIFIER folds into UNRESOLVED   (a note with no DOI is called "never added")
+#   9. the PMID lookup is dropped            (a DOI-less note cannot find its real key)
+#  10. an ambiguous key is still suggested   (the rename that merges two papers' notes)
 set -uo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -49,6 +54,26 @@ MUTATIONS = {
     "filename check removed": (
         'verdict = "OK" if path.stem == citekey else "FILENAME"',
         'verdict = "OK"',
+    ),
+    "duplicate-key check removed": (
+        "elif citekey in ambiguous:",
+        "elif False:",
+    ),
+    "URL/slash key check removed": (
+        "elif unusable(citekey):",
+        "elif False:",
+    ),
+    "NO_IDENTIFIER folded into UNRESOLVED": (
+        "elif doi or pmid:",
+        "elif True:",
+    ),
+    "PMID lookup removed": (
+        'suggestion = pmid_to_key.get(pmid, "")',
+        'suggestion = ""',
+    ),
+    "ambiguous key still suggested": (
+        "if suggestion in ambiguous or unusable(suggestion):",
+        "if False:",
     ),
 }
 

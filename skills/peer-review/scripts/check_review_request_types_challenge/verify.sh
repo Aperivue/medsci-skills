@@ -3,13 +3,15 @@
 # cd HERE so the reported source path is the stable relative "fixture/...".
 # Fixtures (synthetic only — no real review, no manuscript, no PII):
 #   undisciplined.md — propagate / bootstrap / a second reader / a subset-vs-parent
-#                      P value / modelling, none justified -> COMPUTATION_HEAVY,
-#                      COMPUTATION_UNJUSTIFIED, NEW_DATA_REQUESTED,
-#                      NESTED_P_REQUESTED, ESTIMATOR_UNNAMED.
+#                      P value / modelling / a second OPERATOR / re-adjudication, none
+#                      justified -> COMPUTATION_HEAVY, COMPUTATION_UNJUSTIFIED,
+#                      NEW_DATA_REQUESTED, NESTED_P_REQUESTED, ESTIMATOR_UNNAMED.
 #   disciplined.md   — the same review rewritten: disclosure asks, one computation
 #                      carrying an explicit "the present tables cannot answer this",
-#                      and a subset table requested *without* a significance test
-#                      -> OK (no false positive on the ask that declines the invalid test).
+#                      a subset table requested *without* a significance test, and a
+#                      cross-table of "adjudicated examinations" the authors' files
+#                      already hold -> OK (no false positive on the ask that declines
+#                      the invalid test, nor on naming records that already exist).
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"; DET="$HERE/../check_review_request_types.py"; cd "$HERE"
 und="$(python3 "$DET" --review fixture/undisciplined.md)"

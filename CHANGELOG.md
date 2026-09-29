@@ -57,6 +57,43 @@
   `${CLAUDE_SKILL_DIR}/../<skill>/`, which resolves the same way in an installed skills folder
   and in a clone. Nine more cross-skill references in `/humanize`, `/analyze-stats`, `/revise` and
   `/self-review` that named another skill's script only in prose now give its full path.
+- **`/lit-sync`: a citekey shared by two papers is no longer reported as OK.** Keys such as
+  `Author_Year` repeat across a library, and some arrive as URLs. The citekey check now reports a
+  key carried by two or more library entries as `AMBIGUOUS` and a key containing `/` or starting
+  with `http` as `UNUSABLE`, and it never suggests renaming a note to such a key. Match notes to
+  papers by DOI, not by key.
+- **`/lit-sync`: a note without a DOI is no longer called "never added".** A note with no DOI and
+  no PMID is now reported as `NO_IDENTIFIER`, a PMID is used to find the library entry when the DOI
+  is missing, and `UNRESOLVED` now says "not found with this note's identifiers". The old wording
+  led to re-importing papers the library already held.
+- **`/manage-refs`: the journal-abbreviation check looks at every reference.** With an
+  abbreviation expected, `check_csl_render.py` judged only the two references in its render
+  sample. It now fails, naming the keys, on every journal entry without `shortjournal`, which a
+  short-title style would print with the full journal name. This part runs without pandoc.
+- **`/verify-refs`: a reference audit goes stale when the bibliography changes.**
+  `reference_audit.json` now records the hash of the file it audited and the keys it audited.
+  `check_claim_fidelity.py --reference-audit` compares them with the current bib, marks an audit
+  of an older bib as stale, and lists the keys that were never audited, instead of carrying the
+  old green result forward.
+- **`/verify-refs`: the CrossRef year shown is the print year.** The evidence line used the
+  online-first date, so an article published online in December and in print in January showed
+  the earlier year and made a correct bib year look wrong. It now shows the print year, and both
+  years when they differ.
+- **`/fulltext-retrieval`: a supplement or preface is no longer accepted as the paper.** A PDF
+  whose first page is headed Supplementary Information, Supplementary Material, Preface, Front
+  Matter or Table of Contents is now marked `unresolved` (reason `supplement_or_front_matter`)
+  even when the title and DOI match, and the report records each file's page count.
+- **`/fulltext-retrieval`: the PMC ID lookup uses NCBI's current ID Converter address.** The old
+  address was reported returning non-JSON, which made every PMC lookup fail silently.
+- **`/peer-review`: asking about records the authors already hold is no longer flagged as a
+  request for new data.** The request-type check flagged any ask containing "adjudicated", such as
+  a cross-table of adjudicated examinations from the authors' own files. It now flags only a
+  request for new adjudication (re-adjudicate, a second or additional adjudication), and it now
+  catches a request for a second operator, annotator or segmenter.
+- **`/revise`: long quotes and "Changes to text:" quotes in a response letter are checked.** A
+  quote that ran past about 320 characters lost its closing mark and was skipped, and a quote
+  given under a "Changes to text:" label was never checked. Each quote is now read to its closing
+  mark, and the label counts as a claim of new text.
 - **`/present-paper`: the font-portability check now looks inside charts and SmartArt.** A
   font that exists on only one operating system passed the check when it was used only in a
   chart or a SmartArt diagram. The check read slides, notes, layouts, masters and the theme,
