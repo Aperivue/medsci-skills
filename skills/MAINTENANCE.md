@@ -71,7 +71,7 @@ make it *run*. `assemble_supplement.py` had every one of those and was invoked b
 
 `scripts/check_script_reachability.py --strict` (CI) enforces this for **all** scripts, resolving
 shell-outs (including cross-skill ones, which are legitimate — six SKILL.md files call another
-skill's script via `MEDSCI_SKILLS_ROOT`) and same-directory Python imports.
+skill's script via `${CLAUDE_SKILL_DIR}/../<skill>/`) and same-directory Python imports.
 
 ## 3c. Vendored content must be declared
 
