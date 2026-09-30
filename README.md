@@ -987,7 +987,7 @@ Every citation we know of is logged in [`docs/citations.md`](docs/citations.md).
 ### Adoption
 
 Adoption is tracked openly in [`IMPACT.md`](IMPACT.md) (stars, forks, traffic,
-release downloads — snapshotted weekly into [`metrics/traffic_log.csv`](metrics/traffic_log.csv))
+release downloads — snapshotted weekly into [`traffic_log.csv`](https://github.com/Aperivue/medsci-skills/blob/metrics/traffic_log.csv) on the `metrics` branch)
 and academic use is logged in [`docs/citations.md`](docs/citations.md).
 
 **Used MedSci Skills in your research?** Please

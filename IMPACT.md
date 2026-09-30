@@ -9,10 +9,11 @@ are expected to fill over time.
 How the numbers are captured:
 
 - **Automated**: a weekly workflow ([`.github/workflows/metrics.yml`](.github/workflows/metrics.yml))
-  appends to [`metrics/traffic_log.csv`](metrics/traffic_log.csv) (stars, forks, release
+  appends, on the [`metrics` branch](https://github.com/Aperivue/medsci-skills/tree/metrics),
+  to [`traffic_log.csv`](https://github.com/Aperivue/medsci-skills/blob/metrics/traffic_log.csv) (stars, forks, release
   downloads, 14-day traffic, Zenodo views/downloads) and — so the *source* of each wave is not
-  lost after GitHub's 14-day window — to [`metrics/referrers_log.csv`](metrics/referrers_log.csv)
-  (top referring sites) and [`metrics/paths_log.csv`](metrics/paths_log.csv) (top viewed paths).
+  lost after GitHub's 14-day window — to [`referrers_log.csv`](https://github.com/Aperivue/medsci-skills/blob/metrics/referrers_log.csv)
+  (top referring sites) and [`paths_log.csv`](https://github.com/Aperivue/medsci-skills/blob/metrics/paths_log.csv) (top viewed paths).
 - **Manual**: academic citations and named downstream use are logged in
   [`docs/citations.md`](docs/citations.md) as they are discovered.
 
@@ -31,7 +32,7 @@ How the numbers are captured:
 | Repo clones (trailing 14 days) | 8,566 (791 unique) | traffic API |
 | Zenodo archive | DOI [10.5281/zenodo.20155321](https://doi.org/10.5281/zenodo.20155321) | Zenodo |
 
-Trend over time lives in [`metrics/traffic_log.csv`](metrics/traffic_log.csv); a
+Trend over time lives in [`traffic_log.csv`](https://github.com/Aperivue/medsci-skills/blob/metrics/traffic_log.csv); a
 star-history chart is available at
 [star-history.com](https://star-history.com/#Aperivue/medsci-skills&Date). The
 Snapshot block is a point-in-time capture; the live figures are in the traffic log.
@@ -45,7 +46,7 @@ confirmed use:
 - **Forks** may indicate experimentation or reuse — a somewhat stronger signal than a star.
 - **Clones / downloads** are inflated by CI and mirroring traffic; the *unique* columns are more meaningful.
 - **Confirmed use cases and academic citations** are the strongest evidence, and are scarcer than raw stars.
-- **AI-mediated discovery** is a distinct and growing channel: the referrer log ([`metrics/referrers_log.csv`](metrics/referrers_log.csv)) captures visits arriving from LLM assistants such as ChatGPT and Claude. Because agent-recommended installs are often cloned or run via `npx` without ever loading the GitHub page, this channel — and the real usage behind it — is systematically undercounted by the star count.
+- **AI-mediated discovery** is a distinct and growing channel: the referrer log ([`referrers_log.csv`](https://github.com/Aperivue/medsci-skills/blob/metrics/referrers_log.csv)) captures visits arriving from LLM assistants such as ChatGPT and Claude. Because agent-recommended installs are often cloned or run via `npx` without ever loading the GitHub page, this channel — and the real usage behind it — is systematically undercounted by the star count.
 - **Current status: early community interest for a niche biomedical-workflow repository — not widespread adoption.** This page never claims adoption that has not been observed; a thin section is a truthful section.
 
 ---

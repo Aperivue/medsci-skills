@@ -11,6 +11,16 @@
   `check_phase_budget.py` stays. The contributor template (`docs/SKILL_TEMPLATE.md`) replaces its
   fixed Anti-Hallucination and Language blocks (the latter hard-coded one user's language) and
   its length-based quality tiers with a short Gotchas section and a size limit.
+- **A first pull request now sees every check, not only the manifest.** The distribution-manifest
+  checks fail whenever a change adds or edits a shipped file without regenerating `metadata/`,
+  which is the usual state of a first contribution. They ran early, and a CI job stops at its
+  first failing step, so a contributor saw that one failure and none of the checks after it. They
+  now run last and still fail the job.
+- **`main` accepts changes only through a pull request whose CI passed.** `CONTRIBUTING.md` now
+  lists what to run before pushing and leaves the full suite to CI; the local mirror stays for
+  reproducing a CI failure. The weekly adoption snapshot can no longer commit to `main`, so it
+  appends to the data-only [`metrics` branch](https://github.com/Aperivue/medsci-skills/tree/metrics)
+  instead, and `IMPACT.md` and the README link there.
 
 ### Fixed
 

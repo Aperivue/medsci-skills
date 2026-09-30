@@ -99,24 +99,32 @@ push and pull request. The authoritative list of every check is
 [`.github/workflows/validate.yml`](.github/workflows/validate.yml); the whole
 suite uses synthetic fixtures and needs no private data or network access.
 
-To run the same gates CI runs, install the test dependencies and run the mirror:
+**CI is the gate.** It runs every check on your pull request in about seven minutes, and `main`
+accepts a change only after CI has passed on it combined with the latest `main` (a repository
+ruleset). Before you push, run what your change touches:
 
 ```bash
 pip install pyyaml pandas numpy scipy scikit-learn matplotlib python-pptx python-docx fonttools
 # Also install pandoc, exiftool and poppler with your OS package manager.
 # Render regression tests generate LaTeX with pandoc; CI does not install TeX.
 
-# Runs every gate in the CI `validate` job, in order, locally. The step list is
-# parsed from validate.yml itself, so it can never drift from a hand-copied subset,
-# and each gate's flags (--strict, --check) come along. If this is green, CI's
-# validate job will be too. (--list to see the gates; --fail-fast to stop at the
-# first failure; --only SUBSTR to run one.)
-scripts/run_ci_mirror.sh
+# the tests of the skill you changed (search validate.yml for its name), then:
+bash scripts/validate_skills.sh --only <skill-name>
+python3 scripts/check_phase_budget.py --strict
+python3 scripts/gen_distribution_manifest.py --check   # if you added or edited a shipped file
 ```
 
-Do not maintain a shorter list by hand: a gate added to the workflow, or a `--strict`
-flag, silently drifts out of a copied list and is only caught by a red CI after you
-push. `run_ci_mirror.sh` reads the workflow, so it stays exact.
+That short list is a convenience, not a gate: if it misses something, CI catches it before the
+merge. Copy flags from the workflow, not from memory — several gates exit 0 without `--strict`.
+
+To reproduce the whole CI job locally, for instance to debug a failure the log does not explain,
+run the mirror. It parses the step list from validate.yml itself, flags included, so it cannot
+drift from a hand-copied subset (`--list` shows the gates, `--only SUBSTR` runs one, `--fail-fast`
+stops at the first failure). Expect 15–40 minutes on a laptop.
+
+```bash
+scripts/run_ci_mirror.sh
+```
 
 Deterministic work additionally ships a self-contained `<feature>_challenge/`
 directory — a positive case, a negative control, and a `verify.sh` — so it can be
@@ -270,7 +278,7 @@ For JOSS readiness, contributions should strengthen open-source practice signals
 
 ## Releasing (maintainers)
 
-Before tagging, run the full local CI mirror and regenerate the distribution manifest.
+Before tagging, regenerate the distribution manifest and confirm CI passed on the exact commit you tag.
 The release workflow builds the selected tag, compares the actual ZIP/npm payloads to that
 checkout and runs the existing privacy scanners on the packaged bytes. npm publication uses
 the verified `.tgz`; do not replace it with a fresh directory-based `npm publish`.

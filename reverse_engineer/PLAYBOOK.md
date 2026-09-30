@@ -130,10 +130,9 @@ knowledge in `references/` loaded on demand.
    it only to verify a factual claim: an instrument name, a citation, a statistic). Read the
    output critically; apply only verified findings; record rejections with a reason. A 40-line
    reference markdown does not need a 150k-token review — keep the prompt tight.
-2. **Local CI mirror.** Run every step in `.github/workflows/validate.yml`
-   (validate_skills, routing assets, domain-probe sync, locale inventory, the catalog/
-   marketplace/detector/skill-doc generators + self-tests, A1–A6, demo manifest). All
-   green.
+2. **Checks.** Run the touched skill's tests, `validate_skills.sh --only <skill>`,
+   `check_phase_budget.py --strict` and the generators' `--check`; CI runs the rest on the
+   PR and must pass before the merge (see `CONTRIBUTING.md` → Running the tests).
 3. **Anti-leak grep.** Confirm the diff carries no verbatim source prose, no figure from a
    non-CC source, no code copied from a linked repo whose license was not verified-permissive
    (`distill.py --authorize id#N verbatim`), and nothing under `_corpus/`.

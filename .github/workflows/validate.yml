@@ -59,15 +59,9 @@ jobs:
       - name: "Unshipped-rule gate self-test (an instruction we do not ship is not an instruction)"
         run: bash tests/test_personal_rule_refs.sh
 
-      # --- self-update foundation (PR-1a): manifests, version drift, transactional installer ---
-      - name: Distribution manifests in sync (gen_distribution_manifest.py --check)
-        run: python3 scripts/gen_distribution_manifest.py --check
-
+      # --- self-update foundation (PR-1a): version drift, transactional installer (manifest checks run last) ---
       - name: Version consistency (CITATION == package.json == distribution_manifest)
         run: python3 scripts/check_version_consistency.py
-
-      - name: Distribution manifest + scope-pinning test
-        run: python3 installers/tests/test_distribution_manifest.py
 
       - name: Transactional installer crash-recovery + legacy-migration test
         run: python3 installers/tests/test_txn.py
@@ -86,11 +80,6 @@ jobs:
 
       - name: Cursor project-rule test (no machine path in a file people commit; atomic write)
         run: python3 installers/tests/test_cursor_rule.py
-
-      - name: Release-ZIP provenance + updater-consumability round-trip (build -> safe-extract)
-        run: |
-          bash installers/tests/test_release_zip.sh
-          python3 tests/test_release_payloads.py
 
       - name: Run validate_routing_assets.py (SKILL.md asset references must exist)
         run: python3 scripts/validate_routing_assets.py --strict
@@ -190,9 +179,6 @@ jobs:
 
       - name: Run setup-check test (hide pandoc; the report must NOTICE, and must install nothing)
         run: bash installers/tests/test_doctor.sh
-
-      - name: Run manifest-drift message test (a contributor's red X must be actionable)
-        run: bash tests/test_manifest_drift_message.sh
 
       - name: Run check_release_cadence.py (a release is an event, not a commit)
         run: python3 scripts/check_release_cadence.py --strict
@@ -831,6 +817,26 @@ jobs:
 
       - name: npm pack content audit (real pack, package/ prefix normalized)
         run: python3 scripts/check_npm_package_contents.py --real --privacy
+
+      # --- distribution manifest: last on purpose ---
+      # These four fail whenever a change adds or edits a shipped file without regenerating
+      # metadata/, which is the normal state of a first contribution (CONTRIBUTING: "One check
+      # may go red"). A job stops at its first failing step, so while they ran early a contributor
+      # saw that one red step and none of the gates after it. Here they still fail the job, after
+      # every other gate has reported.
+      - name: Distribution manifests in sync (gen_distribution_manifest.py --check)
+        run: python3 scripts/gen_distribution_manifest.py --check
+
+      - name: Distribution manifest + scope-pinning test
+        run: python3 installers/tests/test_distribution_manifest.py
+
+      - name: Release-ZIP provenance + updater-consumability round-trip (build -> safe-extract)
+        run: |
+          bash installers/tests/test_release_zip.sh
+          python3 tests/test_release_payloads.py
+
+      - name: Run manifest-drift message test (a contributor's red X must be actionable)
+        run: bash tests/test_manifest_drift_message.sh
 
   # Cross-platform safety for the transactional installer + updater (PR-1a/PR-1b). Ubuntu-only CI
   # cannot assert macOS/Windows path/journal/os.replace/extraction behavior; this matrix runs the
