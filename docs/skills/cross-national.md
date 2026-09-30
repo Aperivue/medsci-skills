@@ -31,6 +31,13 @@
 
 **Evidence** — `manual_workflow`
 
+## Bundled resources
+
+**References** (`skills/cross-national/references/`):
+
+- `additional_variables.md`
+- `chns_coding.md`
+
 ## Source
 
 Canonical definition: [`skills/cross-national/SKILL.md`](../../skills/cross-national/SKILL.md)

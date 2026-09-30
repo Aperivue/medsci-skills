@@ -30,6 +30,12 @@
 
 **Evidence** — `manual_workflow`
 
+## Bundled resources
+
+**References** (`skills/intake-project/references/`):
+
+- `memory_templates.md`
+
 ## Source
 
 Canonical definition: [`skills/intake-project/SKILL.md`](../../skills/intake-project/SKILL.md)

@@ -32,6 +32,10 @@
 
 ## Bundled resources
 
+**References** (`skills/fill-icmje-coi/references/`):
+
+- `seeds.md`
+
 **Scripts** (`skills/fill-icmje-coi/scripts/`):
 
 - `fill_icmje_coi.py`

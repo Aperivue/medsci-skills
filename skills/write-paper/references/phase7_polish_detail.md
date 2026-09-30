@@ -77,8 +77,8 @@ contract, its sole output is `qc/reference_audit.json` (no longer writes
 `references/*`). Parse that file: if `submission_safe: false`, stop the pipeline
 and surface the `FABRICATED` / `MISMATCH` records AND any `duplicate_findings[]`
 entries (duplicate PMID/DOI; cite renumbering required) to the user. If
-`/verify-refs` is unavailable, fall back to `/search-lit --verify-only` and flag
-any unverified references with `[UNVERIFIED]` markers.
+`/verify-refs` is unavailable, flag every reference not confirmed by DOI/PMID with
+`[UNVERIFIED - NEEDS MANUAL CHECK]` rather than treating it as verified.
 
 #### Steps 7.3a / 7.3b / 7.3c: Integrity audits (numerical / estimand / reference-adequacy)
 

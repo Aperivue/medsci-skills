@@ -11,10 +11,6 @@ model: inherit
 Converts a folder of research PDFs into a two-layer Obsidian vault: **literature notes**
 (one per paper, templated) and **atomic concept notes** (synthesized across papers).
 
-The rules below are not style preferences. Each one is here because its absence produced a
-specific, silent failure — a fabricated patient count, a broken PDF link, an empty Dataview
-table — in a vault of 100+ papers.
-
 ## Relationship to /lit-sync
 
 Both skills write literature and concept notes into the same vault folders. They enter from
@@ -50,17 +46,19 @@ Also confirm PyMuPDF is available: `python3 -c "import fitz; print(fitz.__versio
 ## Step 1: Pre-extract PDF text — always, for any batch
 
 ```bash
-python3 scripts/extract_pdfs.py <pdf_folder> <text_cache_folder> [max_pages]
+python3 "${CLAUDE_SKILL_DIR}/scripts/extract_pdfs.py" <pdf_folder> <text_cache_folder> [max_pages]
 ```
 
-Defaults to 12 pages, which covers abstract through discussion for most papers.
+Defaults to 12 pages, which covers abstract through discussion for most papers. If notes come
+out generic, the text file is abstract-only or its OCR is poor: re-extract with more pages or
+check the source PDF.
 
 **Never hand a PDF path to a subagent.** A subagent that cannot open a file does not report
 failure — it writes the note from training data, and the result is a plausible note with
 invented numbers. Pass the `.txt` paths instead. Single-paper interactive work may read the
 PDF directly (the Read tool handles PDFs); batches may not.
 
-## Step 2: Launch subagents in parallel
+## Step 2: Write the notes — subagents in parallel
 
 Five subagents × 5–6 papers is the working batch size: enough parallelism to clear 25 papers
 in one pass, small enough that per-agent quality holds. Group papers thematically per agent
@@ -69,6 +67,28 @@ so each one can spot recurring concepts.
 Give each subagent: its assigned text-file paths with destination filenames, the template
 from `references/templates.md` verbatim, the list of concept notes that already exist, and
 the prohibition on inventing anything. `references/subagent-prompt.md` holds the full prompt.
+
+Every note, batch or single, follows these rules:
+
+1. **Numbers, authors, and dates come from the extracted text only** — never from model
+   knowledge, however familiar the paper, because well-known papers drift between versions
+   and that is exactly where invented values look most plausible.
+2. **What the text does not state, the note does not claim.** Write "not stated in the
+   extracted text" instead of filling the gap.
+3. **Preserve the PDF filename exactly** in `![[filename.pdf]]`: take the text filename and
+   swap `.txt` for `.pdf`, character for character (embeds are sensitive to case, spaces, and
+   punctuation).
+4. **Match the frontmatter field names** in `references/templates.md`. Dataview queries break
+   on a renamed field, and they break by returning an empty table, not an error.
+5. **Use the existing tag vocabulary** (`references/tag-vocabulary.md`) rather than inventing
+   top-level tags.
+6. **Name notes with 3–5 keyword concepts**, not the PDF's full title and not `paper_001`.
+
+See `assets/example_paper_note.md` when unsure about literature-note formatting.
+
+**Gate — before a batch is accepted**: spot-check two notes against their text files (one
+sample size, one effect estimate). If either value is absent from the text, stop the batch
+and report it rather than continuing. This gate is the user's call to waive, not the skill's.
 
 ## Step 3: Track progress in a queue file
 
@@ -80,65 +100,15 @@ progress) so a 200-paper vault survives across sessions. Update it after each ba
 A phrase earns a concept note when it appears in 3+ notes, carries pedagogical value, and is
 treated differently by different papers. Model names, datasets, and journals are entities,
 not concepts. See `references/concept-extraction.md` for the full criteria, the frequency
-scan, and the seedling/growing/mature lifecycle.
+scan, and the seedling/growing/mature lifecycle, and `assets/example_concept_note.md` for the
+format.
 
 Roughly one new concept note per 5–7 literature notes is healthy. Faster than that is concept
 inflation, and it shows up as dozens of stub notes the user never edits.
-
-## Anti-Hallucination rules (non-negotiable)
-
-A note that is fluent, correctly formatted, and wrong in its numbers is worse than no note:
-the user cites it. These three rules exist to make that failure impossible rather than
-unlikely.
-
-1. **Numbers, authors, and dates come from the extracted text only** — never from model
-   knowledge, however familiar the paper. Well-known papers drift between versions, and that
-   is exactly where invented values look most plausible.
-2. **Subagents receive `.txt` paths, never PDF paths.** A subagent that cannot open a file
-   does not report the failure; it writes from training data. The text indirection is the
-   only reliable guard.
-3. **What the text does not state, the note does not claim.** Write "not stated in the
-   extracted text" instead of filling the gap.
-
-**Gate — before a batch is accepted**: spot-check two notes against their text files (one
-sample size, one effect estimate). If either value is absent from the text, stop the batch
-and report it rather than continuing. This gate is the user's call to waive, not the skill's.
-
-## Structural rules
-
-4. **Preserve the PDF filename exactly** in `![[filename.pdf]]`. Obsidian embeds are
-   sensitive to case, spaces, and punctuation — take the text filename and swap `.txt` for
-   `.pdf`, character for character.
-5. **Match the frontmatter field names** in `references/templates.md`. Dataview queries break
-   on a renamed field, and they break by returning an empty table, not an error.
-6. **Use the existing tag vocabulary** (`references/tag-vocabulary.md`) rather than inventing
-   top-level tags.
-7. **Name notes with 3–5 keyword concepts**, not the PDF's full title and not `paper_001`.
-8. **Never overwrite an existing note** — see the `/lit-sync` boundary above.
 
 **Gate — before concept notes are presented as done**: concept notes ship as 🌱Seedling with
 the definition marked as a placeholder, and require user review before they count as the
 reader's own. Say so explicitly when handing them over.
 
-## Reference files
-
-| File | Read it when |
-|---|---|
-| `references/templates.md` | writing any literature or concept note |
-| `references/subagent-prompt.md` | launching a batch |
-| `references/concept-extraction.md` | extracting concepts across notes |
-| `references/tag-vocabulary.md` | choosing tags |
-| `references/workflow.md` | the user asks how the layers fit together |
-| `references/locale/ko/note_templates.md` | the vault is Korean-structured |
-| `assets/example_paper_note.md` | unsure about literature-note formatting |
-| `assets/example_concept_note.md` | unsure about concept-note formatting |
-
-## Troubleshooting
-
-| Symptom | Cause | Fix |
-|---|---|---|
-| Subagent says it could not read the PDF | it was given a PDF path | run `extract_pdfs.py`, pass `.txt` paths |
-| Note reads plausibly but numbers are wrong | subagent wrote from training data | re-run against the text file; verify n, CI, p-values |
-| Dataview table is empty | frontmatter field renamed | match `references/templates.md` exactly |
-| PDF embed shows a broken tile | filename mismatch | compare character by character, including case |
-| Note content is generic | text file is abstract-only or OCR is poor | re-extract with more pages, or check the source PDF |
+Read `references/workflow.md` when the user asks how the layers fit together or why the skill
+will not write certain notes.

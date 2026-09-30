@@ -4,6 +4,14 @@
 
 ### Changed
 
+- **Imaging and model-engineering skills consolidated, 12 → 7 (v6).** `model-selection` replaces
+  `architecture-zoo` and `model-sourcing`; `imaging-data` replaces `profile-imaging` and
+  `preprocess-imaging`; `model-assessment` replaces `model-evaluation`, `model-validation`,
+  `uncertainty-imaging` and `explainability`. Each keeps the absorbed skills' steps as phases, and
+  every detector keeps its script name, flags and JSON output. The eight old names still work as
+  name-only aliases (not chosen by the model on its own) until v7. The installer backs up a
+  locally modified old skill before replacing it with its alias.
+
 - **The skill validator no longer rewards length or boilerplate.** `scripts/validate_skills.sh`
   failed any SKILL.md without an "Anti-Hallucination" heading, counted occurrences of the word
   "gate", and warned "THIN tier — consider expanding" below 150 lines. Those checks pushed every

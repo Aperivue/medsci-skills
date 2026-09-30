@@ -26,7 +26,7 @@
 
 **증상**: `—` 양쪽 공백 없이 사용 시 xelatex가 줄바꿈 안 함 → 우측 마진 침범.
 
-**해결**: 본문에서는 em-dash 25개 미만 권장 (`~/.claude/rules/manuscript-style-classical.md` §8). 필요 시 양쪽 공백 추가 또는 `\,—\,`.
+**해결**: 본문에서는 em-dash 25개 미만 권장. 필요 시 양쪽 공백 추가 또는 `\,—\,`.
 
 ## 5. 회람 PDF에 변경이력 / 버전번호 / PI attribution 노출
 
