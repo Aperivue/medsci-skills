@@ -673,8 +673,8 @@
     },
     {
       "path": "skills/check-reporting/SKILL.md",
-      "size": 30003,
-      "sha256": "9b6da4c1b4c65ae11af1c08eca226a7d67f7143053d12ad6d6e6bede4bc14047"
+      "size": 30568,
+      "sha256": "f324b142e09d1eca137a6b78f8aa8b3f96abe3946db747cbc1f1b99518841a8d"
     },
     {
       "path": "skills/check-reporting/references/LICENSES.md",
@@ -2878,8 +2878,8 @@
     },
     {
       "path": "skills/meta-analysis/SKILL.md",
-      "size": 33987,
-      "sha256": "8e82fc466c96713408de8d9a2b4fef02020e7bed4789f4a3070343106b20aa70"
+      "size": 34159,
+      "sha256": "08880a65a16f6f0a24db1f513aefc0a938171a6da53840279cd7fa3b2cb0c097"
     },
     {
       "path": "skills/meta-analysis/references/LICENSES.md",
@@ -5669,7 +5669,7 @@
     {
       "path": "skills/sync-submission/SKILL.md",
       "size": 29451,
-      "sha256": "ac3835e78b70bfd257bf148848981e57e8758e2e2da8f9b5e45b070b1ea4c5fd"
+      "sha256": "6adaa3c32eba1614fbc5db1679defa68697b7abf2aeb683e91ef24c91abe583d"
     },
     {
       "path": "skills/sync-submission/examples/build_synthetic_bundle.py",

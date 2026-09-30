@@ -184,6 +184,13 @@ references often sit there).
 
 ### Step 4: Assess Each Item
 
+Items most often missing in medical manuscripts — look for these first, whichever guideline applies:
+registration number and registration/amendment date consistency (run Step 4c), sample-size
+justification, missing-data handling, blinding, funding and conflicts of interest, ethics approval
+with committee name and approval number, and a data availability statement; for AI studies, the
+training/validation/test split, model architecture and hyperparameters, failure-mode analysis,
+fairness/bias assessment, and commercial interests with data/code availability.
+
 For every checklist item, determine:
 
 | Status | Criteria |

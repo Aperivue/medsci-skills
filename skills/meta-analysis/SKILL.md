@@ -25,7 +25,9 @@ If the type is ambiguous (DTA vs intervention), ask the user to clarify before p
 
 ### Phase 1: Protocol Development
 
-**Goal**: Produce a PROSPERO-ready protocol document.
+**Goal**: Produce a PROSPERO-ready protocol document. Write the protocol, extraction forms and
+manuscript text in English whatever language the user writes in — PROSPERO records and the
+target journals are English-language.
 
 1. **Research question**: PIRD (Population, Index test, Reference standard, Diagnosis) for DTA;
    PICO (Population, Intervention, Comparator, Outcome) for intervention.
