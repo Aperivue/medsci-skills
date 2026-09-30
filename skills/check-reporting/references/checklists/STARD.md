@@ -21,13 +21,13 @@ the id set matches exactly.
 
 | # | Checklist item |
 |---|----------------|
-| 1 | Identification as a study of diagnostic accuracy using at least one measure of accuracy (such as sensitivity, specificity, predictive values, or AUC) Abstract |
+| 1 | Identification as a study of diagnostic accuracy using at least one measure of accuracy (such as sensitivity, specificity, predictive values, or AUC) |
 
 ## Abstract
 
 | # | Checklist item |
 |---|----------------|
-| 2 | Structured summary of study design, methods, results, and conclusions (for specific guidance, see STARD for Abstracts) Introduction |
+| 2 | Structured summary of study design, methods, results, and conclusions (for specific guidance, see STARD for Abstracts) |
 
 ## Introduction
 
