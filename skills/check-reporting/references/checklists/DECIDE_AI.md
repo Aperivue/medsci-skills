@@ -22,9 +22,9 @@ CC BY-**NC**, which cannot be redistributed under this repository's MIT licence.
   the development-to-implementation gap *between* offline model validation (TRIPOD+AI / STARD-AI /
   CLAIM) and a definitive trial (CONSORT-AI). It is **not** a model-accuracy guideline; it is about
   how the AI behaves, is used, and is kept safe in real clinical workflow during first-in-human use.
-- It has **17 AI-specific items** (28 subitems) plus **10 generic** reporting items (study identifiers,
-  objectives, setting, sample-size rationale, statistics, funding/COI, registration, etc. — apply
-  these like any reporting guideline). The AI-specific items below are the core.
+- It has **17 AI-specific items** (28 subitems) plus **10 generic** reporting items (listed under
+  Notes for Assessors — apply these like any reporting guideline). The AI-specific items below are
+  the core.
 - Distinct from CONSORT-AI (definitive RCT report) and SPIRIT-AI (trial protocol); use DECIDE-AI for
   the exploratory/early live-clinical evaluation stage.
 
@@ -48,10 +48,10 @@ Status each PRESENT / PARTIAL / MISSING / N/A.
 
 | # | Item | Description (intent) |
 |---|------|----------------------|
-| 3 | Participants | Describe how patients were recruited and the inclusion/exclusion criteria at both patient and data level, how the number was arrived at, and the corresponding information for the **users** (clinicians). |
+| 3 | Participants | Describe how patients were recruited and the inclusion/exclusion criteria at both patient and data level, how the number was arrived at, and the corresponding information for the **users** (clinicians); also how users were familiarised with the system, including any training before the study. |
 | 4 | AI system | Describe the system: algorithm type, training data and provenance, inputs, outputs, and version. |
 | 5 | Implementation | Describe how the system was integrated into the **clinical workflow** and the evaluation settings (how/where it was used in practice). |
-| 6 | Safety and errors | Pre-define what counts as a significant error/malfunction and how such events were identified and captured. |
+| 6 | Safety and errors | Pre-define what counts as a significant error/malfunction and how such events were identified and captured; and how patient-safety risks and harms were detected, analysed, and mitigated. |
 | 7 | Human factors | Describe the human-factors approach: tools, methods/frameworks, and the users involved (usability evaluation plan). |
 | 8 | Ethics | Describe whether specific methodologies were used to fulfil an ethics-related goal (such as algorithmic fairness), and their rationale. |
 
@@ -60,7 +60,7 @@ Status each PRESENT / PARTIAL / MISSING / N/A.
 | # | Item | Description (intent) |
 |---|------|----------------------|
 | 9 | Participants | Report baseline characteristics of patients/users and data missingness. |
-| 10 | Implementation | Report user exposure to the system and adherence to the intended use (how it was actually used). |
+| 10 | Implementation | Report user exposure to the system and adherence to the intended use (how it was actually used), and any substantial change the system brought to the clinical workflow or care pathway. |
 | 11 | Modifications | Report any changes made to the AI system during the study (versioning, retraining, threshold changes). |
 | 12 | Human–computer agreement | Report how often and how users agreed with / overrode the AI recommendations. |
 | 13 | Safety and errors | List significant errors, malfunctions, and patient-safety events observed. |

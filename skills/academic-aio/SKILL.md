@@ -11,7 +11,7 @@ metadata:
 
 - Surface the checklist in the response. Never apply AIO edits silently.
 - When a rule conflicts with journal formatting, defer to the journal and mark the item NA with the reason.
-- When introducing a rule, cite its source (TRIPOD+AI, CLAIM, STARD-AI, Agarwal 2025, Algaba 2024, Aggarwal 2024 GEO) by DOI or arXiv ID from External References. Never invent a citation, DOI, arXiv ID, or reporting-guideline item number; mark anything you cannot verify `[VERIFY]`.
+- When introducing a rule, cite its source (TRIPOD+AI, CLAIM, STARD-AI, Wu 2025, Algaba 2024, Aggarwal 2024 GEO) by DOI or arXiv ID from External References. Never invent a citation, DOI, arXiv ID, or reporting-guideline item number; mark anything you cannot verify `[VERIFY]`.
 
 ## Section 1 — Title and Abstract Optimization
 
@@ -37,7 +37,7 @@ Every abstract must contain at least one numeric primary outcome with a confiden
 Name the guideline in the abstract or the opening sentence of Methods: "Reported following TRIPOD+AI (Collins 2024) and CLAIM 2024 (Tejani 2024)". Add STARD-AI 2025, DECIDE-AI, or TRIPOD-LLM when applicable. AIO-rule ↔ guideline-item mapping: `references/reporting_guideline_mapping.md`.
 
 ### 1.7 Keyword, MeSH, and RadLex coverage
-Title, abstract, and keywords together should cover ≥ 3× the surface area of the concept, without repeating title terms in the keywords (92 % of papers do; Royal Society 2024, doi:10.1098/rspb.2024.1222). Include:
+Title, abstract, and keywords together should cover the concept's key terms, without repeating title terms in the keywords (92 % of the surveyed papers repeated key terms across title, abstract and keywords; Royal Society 2024, doi:10.1098/rspb.2024.1222). Include:
 - Core MeSH terms (verify against the NLM MeSH browser) and RadLex terms where applicable.
 - Modality synonyms ("chest radiograph (CXR)", "non-contrast CT (NCCT)").
 - Both US and UK spellings when relevant.
@@ -122,7 +122,7 @@ Read `${CLAUDE_SKILL_DIR}/references/repository_and_cards.md` when the artifact 
 
 ## Section 7 — LLM-Citation Fabrication Defense
 
-Up to 78–90 % of LLM medical citations can be fabricated (Agarwal et al., Nat Commun 2025, doi:10.1038/s41467-025-58551-6). Defend the paper's identifiers:
+Between 50 % and 90 % of LLM answers to medical questions are not fully supported by the sources they cite (Wu et al., Nat Commun 2025, doi:10.1038/s41467-025-58551-6). Defend the paper's identifiers:
 
 - Surface DOI and PMID in copy-friendly text at the top of the paper's landing page and README (for example, `DOI: 10.xxxx/yyyy • PMID: 12345678`).
 - Add a "How to cite" section with BibTeX, APA, Vancouver, and the plain-text line in one place.
@@ -201,7 +201,7 @@ At `post-acceptance` / `post-publication`, read `${CLAUDE_SKILL_DIR}/references/
 ## External References
 
 - GEO: Generative Engine Optimization — Aggarwal et al., KDD 2024, arXiv:2311.09735.
-- LLM medical citation fabrication — Agarwal et al., Nat Commun 2025, doi:10.1038/s41467-025-58551-6.
+- LLM medical citation support — Wu et al., Nat Commun 2025, doi:10.1038/s41467-025-58551-6.
 - LLM citation bias — Algaba et al., 2024, arXiv:2405.15739.
 - ExpertQA attribution — Malaviya et al., 2024, arXiv:2309.07852.
 - TRIPOD+AI — Collins et al., BMJ 2024. EQUATOR Network.
@@ -210,5 +210,5 @@ At `post-acceptance` / `post-publication`, read `${CLAUDE_SKILL_DIR}/references/
 - TRIPOD-LLM — Gallifant et al., Nat Med 2024, doi:10.1038/s41591-024-03425-5.
 - DECIDE-AI — Vasey et al., Nat Med 2022, doi:10.1038/s41591-022-01772-9.
 - Title, abstract, keywords guide — Royal Society Proc B 2024, doi:10.1098/rspb.2024.1222.
-- GitHub repository citation advantage — Yan et al., Inf Process Manag 2024, doi:10.1016/j.ipm.2023.103569.
+- GitHub repository citation advantage — Kang et al., Inf Process Manag 2023, doi:10.1016/j.ipm.2023.103477.
 - Semantic Scholar Open Data Platform — Kinney et al., arXiv:2301.10140.

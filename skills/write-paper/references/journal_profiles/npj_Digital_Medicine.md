@@ -15,21 +15,16 @@
 
 | Type | Abstract | Manuscript Body | References | Notes |
 |------|----------|----------------|------------|-------|
-| Article | Structured | No strict limit (concise recommended) | No cap | Primary research |
-| Review | Structured | No strict limit | No cap | |
-| Brief Communication | Unstructured | Shorter than Article | No cap | |
-| Perspective | Unstructured | ~3,000 | No cap | |
-| Comment | Unstructured | ~1,500 | No cap | |
-| Matters Arising | Brief summary | ≤ 1,200 | 15 | No APC; on npj Digit. Med. papers only |
+| Article | Unstructured, ≤ 150 words | No strict limit (concise recommended) | ~60 (not strictly enforced) | Primary research; systematic reviews, scoping reviews and meta-analyses are submitted as Articles |
+| Review | Unstructured, ≤ 70 words | ~3,000-4,000 | ~60 (not strictly enforced) | Narrative reviews |
+| Brief Communication | Unstructured, ≤ 70 words | 1,000-1,500 (excluding abstract, Methods, references, legends) | ~20 | |
+| Perspective | Unstructured, ≤ 70 words | ≤ 3,000 | ~70 (not strictly enforced) | |
+| Comment | Unstructured, ≤ 70 words | ~1,000-2,000 | ≤ 25 | |
+| Matters Arising | Unstructured, ≤ 70 words | ≤ 1,200 | 15 | No APC; on npj Digit. Med. papers only |
 
 ## Abstract Format
 
-Structured with three headings:
-1. **Background**
-2. **Methods**
-3. **Results**
-
-Typical length 250-350 words (no explicit cap stated).
+Unstructured: a single paragraph with no subheadings, up to 150 words for an Article (70 words for other content types).
 
 ## Keywords
 

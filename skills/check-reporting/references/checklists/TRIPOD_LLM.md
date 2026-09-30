@@ -60,7 +60,7 @@ Status each PRESENT / PARTIAL / MISSING / N/A.
 |---|------|----------------------|
 | 5a | Data sources | Describe all data sources and input data types (clinical text, notes, structured fields, image-to-text). |
 | 5b | Data description / distribution | Describe the dataset and how data were partitioned (train / tune / validation / held-out test, internal vs external), and steps to prevent train–test contamination and leakage of evaluation data into pretraining/prompts. |
-| 5c | Study dates | Specify key dates (data accrual start/end, and the model knowledge-cutoff relative to the data). |
+| 5c | Study dates | State the dates of the oldest and newest text items used in development (training, fine-tuning, reward modelling) and in the evaluation datasets. |
 | 5d | Preprocessing | Describe text preprocessing, de-identification, and any filtering. |
 | 5e | Missing / inadequate / imbalanced data | Describe handling of missing, truncated, out-of-context, or class-imbalanced inputs. |
 
@@ -68,7 +68,7 @@ Status each PRESENT / PARTIAL / MISSING / N/A.
 
 | # | Item | Description (intent) |
 |---|------|----------------------|
-| 6a | LLM identity and version | Name the model, exact version/snapshot or weights, provider/access route (API vs local), and date of access — versions drift, so this is essential for reproducibility. |
+| 6a | LLM identity and version | Name the model and its exact version/snapshot or weights, and state its last date of training; the provider/access route (API vs local) also aids reproducibility, since versions drift. |
 | 6b | Development / adaptation | Describe how the LLM was developed or adapted (zero/few-shot prompting, retrieval augmentation, fine-tuning, instruction-tuning) in enough detail to reproduce. |
 | 6c | Text generation settings | Report decoding/generation parameters (temperature, top-p, max tokens, stop criteria, seed/determinism where available). |
 | 6d | Output | Define the expected output format and how free-text outputs were mapped to the study endpoint. |
@@ -80,7 +80,7 @@ Status each PRESENT / PARTIAL / MISSING / N/A.
 |---|------|----------------------|
 | 7a | Quality / performance metrics | Specify all performance/quality metrics, including task-specific measures. |
 | 7b | Downstream / clinical relevance | Describe how the metrics relate to downstream clinical relevance. |
-| 7c | Outcome definition | Define the outcome / reference standard and who set it. |
+| 7c | Outcome definition | Define the outcome, how the LLM predictions were computed (formula, code, object, or API), the inference date for closed-source LLMs, and the evaluation metrics. |
 | 7d | Subjective / human assessment | Describe any human rating: rubric, anchors, number and expertise of raters, blinding, and inter-rater agreement. |
 | 7e | Comparisons | Describe comparators (clinicians, prior models, guidelines) and ensure same-data, same-task comparison. |
 

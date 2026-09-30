@@ -13,7 +13,7 @@ SANRA (Scale for the Assessment of Narrative Review Articles) is a brief **criti
 5. **Scientific reasoning** — evidence is appraised and synthesized critically rather than selectively reported.
 6. **Endpoint data** — relevant data are presented appropriately (tables, figures, summary elements).
 
-Source: Mertens S, Goldbeck-Wood S, Baethge C. *SANRA — a scale for the quality assessment of narrative review articles.* Research Integrity and Peer Review (2019). https://doi.org/10.1186/s41073-019-0064-8
+Source: Baethge C, Goldbeck-Wood S, Mertens S. *SANRA — a scale for the quality assessment of narrative review articles.* Research Integrity and Peer Review (2019). https://doi.org/10.1186/s41073-019-0064-8
 
 > Mapping to Phase 2D probes: RV2 ↔ items 1–2; RV3 ↔ item 3 (suggestion-level); RV6 ↔ items 4–5. RV1 (novelty) and RV7 (load-bearing figures/tables) are **editorial value-add axes**, not SANRA items — keep them separate so SANRA is not over-applied.
 

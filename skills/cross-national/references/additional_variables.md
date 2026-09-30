@@ -8,14 +8,14 @@ composite score such as LE8.
 
 | Variable | Raw Var | Coding |
 |----------|---------|--------|
-| Asthma | DJ2_dg | 0=No, 1=Yes (physician dx), 9=Don't know → exclude |
-| Asthma treatment | DJ2_pt | 0=No, 1=Yes, 8=N/A, 9=Don't know |
+| Asthma | DJ4_dg | 0=No, 1=Yes (physician dx), 8=N/A, 9=Don't know → exclude |
+| Asthma medication | DJ4_3 | 1=Regular treatment, 2=Only when symptomatic, 3=None, 8=N/A, 9=Don't know (check the survey year's codebook) |
 | Sleep (2017-18) | BP16_11/12/13/14 | **Clock times, NOT hours!** 11=bed hour, 12=bed min, 13=wake hour, 14=wake min. Calculate: duration = wake_time - bed_time (handle midnight crossing). 99=Don't know→NA |
 | Sleep (2017-18 weekend) | BP16_21/22/23/24 | Same format as weekday |
 | Sleep (2019-20) | BP16_1/2 | Direct sleep hours (weekday/weekend). 99=Don't know→NA |
 | PA aerobic | pa_aerobic | 0=Doesn't meet, 1=Meets guidelines. **Note: values are 0/1, NOT 1/2** |
-| HTN treatment | DI1_pr | 1=Yes, 0=No (currently treating hypertension) |
-| Dyslipidemia tx | DI3_pr | 1=Yes, 0=No (if available) |
+| HTN treatment | DI1_pt | 1=Yes, 0=No, 8=N/A (not diagnosed), 9=Don't know (DI1_pr is current prevalence, not treatment) |
+| Dyslipidemia tx | DI2_pt | 1=Yes, 0=No, 8=N/A (not diagnosed), 9=Don't know (DI2_* is the dyslipidemia block) |
 | Non-HDL chol | HE_chol - HE_HDL_st2 | Derived: total cholesterol minus HDL |
 
 ## Additional NHANES Variables (validated via LE8-Asthma replication)
@@ -29,8 +29,8 @@ composite score such as LE8.
 | PA vigorous work | PAQ605/PAQ610/PAD615 | Yes/No, days/week, min/day |
 | PA moderate work | PAQ620/PAQ625/PAD630 | Yes/No, days/week, min/day |
 | PA walk/bike | PAQ635/PAQ640/PAD645 | Yes/No, days/week, min/day |
-| PA vigorous rec | PAQ665/PAQ670/PAD675 | Yes/No, days/week, min/day |
-| PA moderate rec | PAQ650/PAQ655/PAD660 | Yes/No, days/week, min/day |
+| PA vigorous rec | PAQ650/PAQ655/PAD660 | Yes/No, days/week, min/day |
+| PA moderate rec | PAQ665/PAQ670/PAD675 | Yes/No, days/week, min/day |
 | Dietary fiber | DR1TFIBE (DR1TOT_J) | Numeric (grams, day 1 recall) |
 | Dietary sodium | DR1TSODI (DR1TOT_J) | Numeric (mg) |
 | Dietary sat fat | DR1TSFAT (DR1TOT_J) | Numeric (grams) |

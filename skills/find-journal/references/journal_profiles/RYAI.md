@@ -15,7 +15,8 @@ artificial intelligence, deep learning, machine learning, medical imaging AI, co
 
 ## Article Types Accepted
 - Original Research
-- Technical Note
+- Technical Developments
+- AI in Brief
 - Review Article
 - Letter to the Editor
 

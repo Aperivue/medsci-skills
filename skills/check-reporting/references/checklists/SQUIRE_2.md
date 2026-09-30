@@ -16,7 +16,7 @@ specification, which had been condensed away, has been restored.
 
 | # | Item | Description |
 |---|------|-------------|
-| 1 | Title | Indicate that the manuscript concerns an initiative to improve healthcare (broadly defined to include the quality, safety, or value of care). |
+| 1 | Title | Indicate that the manuscript concerns an initiative to improve healthcare (broadly defined to include the quality, safety, effectiveness, patient-centredness, timeliness, cost, efficiency, and equity of healthcare). |
 | 2 | Abstract | a) Provide adequate information to aid in searching and indexing. b) Summarise all key information from various sections of the text using the abstract format of the intended publication or a structured summary such as: background, local problem, methods, interventions, results, conclusions. |
 
 ### Introduction
@@ -43,7 +43,7 @@ specification, which had been condensed away, has been restored.
 
 | # | Item | Description |
 |---|------|-------------|
-| 13 | Results | a) Initial steps of the intervention(s) and their evolution over time, including modifications made to the intervention during the project. b) Details of the process measures and outcome. c) Contextual elements that interacted with the intervention(s). d) Observed associations between outcomes, interventions, and relevant contextual elements. e) Unintended consequences such as unexpected benefits, problems, failures, or costs associated with the intervention(s). f) Details about missing data. |
+| 13 | Results | a) Initial steps of the intervention(s) and their evolution over time (e.g., time-line diagram, flow chart, or table), including modifications made to the intervention during the project. b) Details of the process measures and outcome. c) Contextual elements that interacted with the intervention(s). d) Observed associations between outcomes, interventions, and relevant contextual elements. e) Unintended consequences such as unexpected benefits, problems, failures, or costs associated with the intervention(s). f) Details about missing data. |
 
 ### Discussion
 

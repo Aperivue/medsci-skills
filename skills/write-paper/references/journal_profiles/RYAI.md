@@ -11,14 +11,15 @@
 
 ## Manuscript Types and Word Limits
 
-| Type | Abstract | Manuscript Body | Figures | Tables |
-|------|----------|----------------|---------|--------|
-| Original Research | 250 | 3500 | 7 | 5 |
-| Technical Note | 250 | 1500 | 4 | 3 |
-| Review Article | 250 | 5000 | 10 | 5 |
-| Letter to Editor | none | 500 | 1 | 1 |
+| Type | Abstract | Manuscript Body | Figures | Tables | References |
+|------|----------|----------------|---------|--------|------------|
+| Original Research | Structured, ≤ 250 | 3,000 | 6 | 4 | 35 |
+| Technical Developments | Structured, ≤ 250 | 2,000 | 6 | 2 | 25 |
+| AI in Brief | Unstructured, ≤ 200 | 1,500 | 4 figures and tables in total | — | 20 |
+| Review Article | Unstructured, ≤ 200 | 3,000 | 6 | 4 | 50 |
+| Letter to the Editor | none | 350 | 0 | 0 | 5 |
 
-Word counts exclude abstract, references, figure legends, and tables.
+Word counts run from the Introduction to the Discussion (Conclusion for Reviews).
 
 ## Abstract Format
 

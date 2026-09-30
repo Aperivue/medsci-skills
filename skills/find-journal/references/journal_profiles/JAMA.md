@@ -34,7 +34,7 @@ JAMA and JAMA Network journals (JAMA Internal Medicine, JAMA Surgery, JAMA Netwo
 
 ## AI Writing Disclosure Policy
 - **Requirement level:** Required
-- **Permitted scope:** Language editing only
-- **Disclosure location:** Methods + Cover letter
-- **AI-generated images:** Not specified — disclosure required if used
+- **Permitted scope:** Content creation, revision, and formatting assistance allowed with disclosure and author responsibility; not for generating references or drafting Opinion pieces, Letters, or Online Comments
+- **Disclosure location:** Acknowledgment section (Methods when AI is part of the research design or methods)
+- **AI-generated images:** Not permitted for clinical images and illustrations unless part of formal research design or methods, fully disclosed
 - **Policy URL:** https://jamanetwork.com/journals/jama/pages/instructions-for-authors#702720037

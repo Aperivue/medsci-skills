@@ -1,15 +1,15 @@
 # Effective Scientific Figure Design
 
-> **Primary source**: Brunner et al., "Designing effective figures for
-> scientific communication." *Nat Hum Behav* (2026).
+> **Primary source**: Fujii R., "How to design effective scientific
+> figures." *Nat Hum Behav* 2026;10(5):825-827.
 > DOI: 10.1038/s41562-026-02466-9 — communication-context strategies.
 >
 > **Companion sources** (cite in figure legends / Methods when used):
 > - Rougier et al., "Ten simple rules for better figures." *PLoS Comput
 >   Biol* 2014;10:e1003833 (PMID 25210732). General-purpose, foundational
 >   ten-item checklist.
-> - Crameri F., "Choosing the right colors: a perceptually uniform,
->   colorblind-safe approach." *Curr Protoc* 2024;4:e1126
+> - Crameri F., Shephard G.E., Heron P.J., "Choosing suitable color palettes
+>   for accessible and accurate science figures." *Curr Protoc* 2024;4(8):e1126
 >   (DOI 10.1002/cpz1.1126). Definitive 2024 reference for `viridis`,
 >   `cividis`, `batlow` palettes and redundant encoding.
 >

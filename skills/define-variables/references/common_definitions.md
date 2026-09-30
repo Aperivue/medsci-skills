@@ -22,12 +22,12 @@ Update cadence: review annually or when a major guideline revision drops.
 
 ### MetALD
 - **Source**: Same AASLD 2023 consensus
-- **Definition**: MASLD criteria + moderate alcohol (M 140–350 g/wk, F 70–210 g/wk)
+- **Definition**: MASLD criteria + greater alcohol intake (F 140–350 g/wk, M 210–420 g/wk; average daily 20–50 g F, 30–60 g M)
 - **BibTeX**: `@rinella2023_aasld_masld`
 
 ### ALD (Alcohol-associated Liver Disease)
 - **Source**: AASLD 2023 consensus + Crabb et al., AASLD practice guidance 2020
-- **Definition**: Steatosis + alcohol >350 g/wk (M) / >210 g/wk (F)
+- **Definition**: Steatosis + alcohol above the MetALD range (>350 g/wk F / >420 g/wk M; Rinella 2023)
 - **BibTeX**: `@crabb2020_aasld_ald`, `@rinella2023_aasld_masld`
 
 ### MAFLD (legacy, 2020)
@@ -46,7 +46,7 @@ Update cadence: review annually or when a major guideline revision drops.
 - **BibTeX**: `@aasld_idsa_hcv_guidance`
 
 ### Liver fibrosis non-invasive scores
-- **FIB-4**: Sterling et al. 2006. Cutoffs <1.3 exclude advanced fibrosis (<65 y); <2.0 (≥65 y). >2.67 rule-in. `@sterling2006_fib4`
+- **FIB-4**: Sterling et al. 2006 (index; HIV/HCV derivation cutoffs <1.45 exclude / >3.25 rule-in advanced fibrosis). `@sterling2006_fib4`. NAFLD cutoffs ≤1.30 exclude / ≥2.67 rule-in: Shah et al., *Clin Gastroenterol Hepatol* 2009 (DOI 10.1016/j.cgh.2009.05.033). Age ≥65 y: 2.0 (McPherson et al., *Am J Gastroenterol* 2017; DOI 10.1038/ajg.2016.453).
 - **NFS (NAFLD fibrosis score)**: Angulo et al. 2007. `@angulo2007_nfs`
 
 ---
@@ -60,7 +60,7 @@ Update cadence: review annually or when a major guideline revision drops.
   - 2h-PG ≥200 mg/dL on 75g OGTT
   - HbA1c ≥6.5%
   - Classic hyperglycemia symptoms + random PG ≥200
-  - Physician diagnosis OR antidiabetic medication
+- **Operational add-on (epidemiological, not an ADA criterion)**: Physician diagnosis OR antidiabetic medication
 - **BibTeX**: `@ada2024_standards`
 - **DOI**: 10.2337/dc24-S002
 
@@ -81,8 +81,8 @@ Update cadence: review annually or when a major guideline revision drops.
 
 ### Obesity (BMI)
 - **WHO global**: Overweight ≥25, obese ≥30 kg/m². `@who2000_obesity`
-- **WHO Asian (2004, *Lancet*)**: Overweight ≥23, obese ≥25. `@who2004_asian_bmi`
-- **Korean Society for the Study of Obesity (KSSO) 2022**: Same 23/25 thresholds. `@ksso2022_obesity`
+- **WHO expert consultation (2004, *Lancet*)**: Retains the WHO international cut-offs; adds public-health action points at 23.0, 27.5, 32.5 and 37.5 kg/m² for Asian populations. `@who2004_asian_bmi`
+- **Korean Society for the Study of Obesity (KSSO) 2022**: Overweight ≥23, obese ≥25 kg/m². `@ksso2022_obesity`
 
 ### Hypertension
 - **ACC/AHA 2017**: ≥130/80 = stage 1. `@whelton2017_accaha_htn`
@@ -110,9 +110,9 @@ Update cadence: review annually or when a major guideline revision drops.
 
 ### Incidental Renal Mass
 - **Source**: ACR White Paper 2018 (Herts et al., *JACR*)
-- **Cutoffs**: <1 cm too small to characterize; ≥1 cm workup per size/attenuation; growth >5 mm/y concerning
+- **Cutoffs**: Too small to characterize = smaller than twice the reconstructed slice thickness; solid mass <1 cm → surveillance, >1 cm → referral for management (tiers 1–4 cm and >4 cm); growth = average ≥4 mm/y; stable = no morphologic change and average growth ≤3 mm/y for ≥5 years
 - **BibTeX**: `@herts2018_acr_renal`
-- **DOI**: 10.1016/j.jacr.2017.10.028
+- **DOI**: 10.1016/j.jacr.2017.04.028
 
 ### Bosniak Classification (cystic renal mass)
 - **Source**: Silverman et al., *Radiology* 2019 update
@@ -158,7 +158,7 @@ Update cadence: review annually or when a major guideline revision drops.
 - **European joint guideline 2022**: Foley et al., *Eur Radiol*. `@foley2022_gb_polyp`
 
 ### Adrenal incidentaloma
-- **ACR 2023 white paper**: Mayo-Smith et al. `@mayosmith2023_acr_adrenal`
+- **ACR 2017 white paper**: Mayo-Smith et al., *JACR*. `@mayosmith2017_acr_adrenal`
 - **ESE 2023 clinical**: Fassnacht et al., *Eur J Endocrinol*. `@fassnacht2023_ese_adrenal`
 
 ### Pancreatic cystic lesion
