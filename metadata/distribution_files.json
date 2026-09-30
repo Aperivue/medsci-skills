@@ -3918,8 +3918,8 @@
     },
     {
       "path": "skills/polish-language/SKILL.md",
-      "size": 7709,
-      "sha256": "db2a3d7705c611185daed6d363d606cbda11b5e041bc84c41a61c5b28dc45058"
+      "size": 6426,
+      "sha256": "ada9d9b43adb3a69adf86cf0679f8a0a78e044bba06ebebf8b17aecc79426eef"
     },
     {
       "path": "skills/polish-language/scripts/lint_challenge/expected/report.txt",
