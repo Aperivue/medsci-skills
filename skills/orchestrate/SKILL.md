@@ -11,27 +11,9 @@ model: inherit
 
 # Orchestrate Skill
 
-You are a research workflow orchestrator for the **medsci-skills** bundle. Your job is to
-understand what the user needs and route them to the right skill -- or chain multiple skills in the
-correct order.
-
-You do NOT do the work yourself. You classify, plan, and delegate.
-
----
-
-## When This Skill Activates
-
-- The user describes a research goal without naming a specific skill.
-- The user asks "what should I do next?" or "where do I start?"
-- The user's request clearly spans multiple skills.
-- Another skill or agent is unsure where to route a sub-task.
-
----
-
-## Communication Rules
-
-- Communicate with the user in their preferred language.
-- Use English for skill names, medical terminology, and file references.
+Route research requests in the **medsci-skills** bundle to the right skill, or chain several skills
+in the correct order. You classify, plan and delegate: never produce a routed skill's output
+yourself — invoke the skill that owns it.
 
 ---
 
@@ -53,7 +35,7 @@ You do NOT do the work yourself. You classify, plan, and delegate.
 | **grant-builder** | Funding | Structure grant proposals: significance, innovation, approach, milestones |
 | **present-paper** | Presentation | Prepare academic talks: analyze paper, draft scripts, inject slide notes, Q&A prep |
 | **publish-skill** | Packaging | Convert a personal skill into an open-source distributable package |
-| **calc-sample-size** | Statistics | Sample size calculation (11 tests including Cox EPV), power analysis, IRB justification text |
+| **calc-sample-size** | Statistics | Sample size calculation (17 tests including Cox EPV), power analysis, IRB justification text |
 | **find-journal** | Submission | Journal recommendation based on abstract/scope matching, post-rejection re-targeting |
 | **add-journal** | Journal DB | Add a new journal to the profile database; extracts metadata from author guidelines |
 | **fulltext-retrieval** | Literature | Batch download open-access PDFs by DOI using Unpaywall, PMC, OpenAlex APIs |
@@ -62,96 +44,83 @@ You do NOT do the work yourself. You classify, plan, and delegate.
 | **generate-codebook** | Data | Generate a citable data dictionary/codebook from a dataset; flags coded variables as [NEEDS DICTIONARY]; feeds /define-variables |
 | **version-dataset** | Data | Content-hash manifest of a dataset; verify drift (schema/rows/values) and diff versions; reproducibility lock |
 | **write-protocol** | Protocol | IRB/ethics protocol drafting, 4 core sections + 6 skeleton sections with TODO markers |
-| **define-variables** | Operationalization | Literature-grounded variable definitions, cutoffs, DB-variable mappings; prevents ad-hoc phenotype definitions; runs between `/search-lit` and `/write-protocol` for observational studies |
-| **verify-refs** | Reference audit | Read-only PubMed/CrossRef audit of manuscript references; first-author cross-check; sole writer of `qc/reference_audit.json`. Audit boundary; never modifies refs |
-| **manage-refs** | Reference lifecycle | Citekey validation, journal-CSL pandoc rendering, manuscript ↔ DOCX cross-reference QC, [N] ↔ [@key] marker conversion, Zotero CWYW field-code injection. Sole writer of `manuscript_final.docx`, `qc/xref_audit.json`. Pairs with `lit-sync` (refs.bib upstream) and `verify-refs` (audit) |
+| **define-variables** | Operationalization | Literature-grounded variable definitions, cutoffs, DB-variable mappings; runs between `/search-lit` and `/write-protocol` for observational studies |
+| **verify-refs** | Reference audit | Read-only PubMed/CrossRef audit of manuscript references; first-author cross-check; sole writer of `qc/reference_audit.json`. Never modifies refs |
+| **manage-refs** | Reference lifecycle | Citekey validation, journal-CSL pandoc rendering, manuscript ↔ DOCX cross-reference QC, [N] ↔ [@key] marker conversion, Zotero CWYW field-code injection. Sole writer of `manuscript_final.docx`, `qc/xref_audit.json` |
 | **lit-sync** | Reference sync | Zotero collection ↔ Better BibTeX `manuscript/_src/refs.bib` ↔ Obsidian literature notes. Sole writer of refs.bib (auto-export); upstream of `manage-refs` |
-| **obsidian-paper-vault** | Vault build | A folder of PDFs → templated Obsidian literature notes + atomic concept notes synthesized across them. Enters the same vault folders as `lit-sync` from the PDF side; never overwrites an existing note |
+| **obsidian-paper-vault** | Vault build | A folder of PDFs → templated Obsidian literature notes + atomic concept notes synthesized across them. Enters the same vault folders as `lit-sync` from the PDF side |
 | **humanize** | Quality | AI-pattern density sweep (<2.0/1000 words target); rewrites flagged passages while preserving technical accuracy. Phase 7.5 of write-paper |
 | **academic-aio** | Visibility | AI-search-engine optimization for medical AI papers (Perplexity, ChatGPT web, Elicit, Consensus, SciSpace, RAG tools). Opt-in checklist; never auto-applies edits |
-| **render-pdf-doc** | Document layout | Non-bibliography academic markdown → PDF (proposal, briefing, anchor doc, IRB cover, reference table). CJK font + content-proportional table column widths. Boundary opposite of `manage-refs scripts/render_pandoc.sh` |
-| **fill-protocol** | Form filling | Institutional Word form filling (.doc/.docx) for IRB/ethics/grant templates. Pairs with `write-protocol` (content) — fill-protocol renders content into the institutional template |
+| **render-pdf-doc** | Document layout | Non-bibliography academic markdown → PDF (proposal, briefing, anchor doc, IRB cover, reference table), CJK-aware. Boundary opposite of `manage-refs scripts/render_pandoc.sh` |
+| **fill-protocol** | Form filling | Institutional Word form filling (.doc/.docx) for IRB/ethics/grant templates; renders `write-protocol` content into the institutional template |
 | **fill-icmje-coi** | Form filling | Batch ICMJE COI Disclosure Form generation per author from a synthetic seed |
 | **sync-submission** | Submission | SSOT-to-submission drift audit; journal-specific submission manifest creation from canonical manuscript artifacts |
 | **peer-review** | Review | External manuscript peer review draft generation (journal-specific formatting). Use ONLY for reviewing other authors' work, never for self-review |
-| **review-paper** | Writing | Scaffold/draft a literature review (narrative / scoping PRISMA-ScR / systematic); reuses the self-review narrative-review probes for QC. Distinct from `write-paper` (original research) and `meta-analysis` (pooling) |
-| **polish-language** | Quality | Academic-English consistency lint + non-native clarity polish (abbreviation define-once, US/UK spelling drift, hyphen/en-dash ranges, P/p case, value/unit spacing). Style-only; distinct from `humanize` (AI-tell removal) and `check-reporting` (guideline items) |
+| **review-paper** | Writing | Scaffold/draft a literature review (narrative / scoping PRISMA-ScR / systematic). Distinct from `write-paper` (original research) and `meta-analysis` (pooling) |
+| **polish-language** | Quality | Academic-English consistency lint + non-native clarity polish (abbreviations, US/UK spelling, ranges, P/p case, units). Style-only; distinct from `humanize` (AI-tell removal) and `check-reporting` (guideline items) |
 | **author-strategy** | Analysis | PubMed author-profile analysis: study-type classification, trajectory-archetype, publication-strategy report from a name |
 | **batch-cohort** | Analysis | Generate N analysis scripts from one validated methodology template × many exposure/outcome combinations (same method, swap variables) + summary matrix |
 | **replicate-study** | Analysis | Replicate an existing cohort study's methodology on a different database: design extraction, variable-harmonization table, replication-difference report |
 | **cross-national** | Analysis | Cross-national comparison study (KNHANES + NHANES + CHNS or parallel surveys): variable harmonization + parallel weighted analysis |
 | **ma-scout** | Systematic review | Meta-analysis topic discovery + feasibility (professor-first profile→gap, or topic-first question→gap→co-author) before a protocol exists |
 | **find-cohort-gap** | Methodology | Research-gap discovery from a longitudinal cohort DB: profile strengths, match PI expertise, literature-saturation scan, ranked topic proposals |
-| **design-ai-benchmarking** | Methodology | Design/validity review for benchmarking one or more AI systems against a human-expert reference panel (decoupled rubrics, planted calibration probes, reviewer-panel construction, IRR targets, rating-export schema) — before data collection |
-| **architecture-zoo** | Modeling | Choose a medical-imaging model architecture (classification / segmentation / detection / transfer) before scaffolding — maps task + modality + labelled-data scale + imbalance to a paper-grounded shortlist |
-| **model-sourcing** | Modeling | Vet the concrete third-party model a study will be built on (repo / revision / checkpoint): a dossier of licence, version pin, weight provenance, task fit and reported validation, gated for the conflict a licence check cannot see — an evaluation arm sitting on the benchmark the model was developed or tuned on |
-| **profile-imaging** | Modeling | Profile an imaging dataset before any modelling decision (spacing/orientation spread, intensity domain, label integrity, foreground fraction, target volume) and gate that profile against the declared plan; emits the dataset profile the rest of the lane reads |
+| **design-ai-benchmarking** | Methodology | Design/validity review for benchmarking AI systems against a human-expert reference panel (rubrics, calibration probes, panel construction, IRR targets) — before data collection |
+| **architecture-zoo** | Modeling | Choose a medical-imaging model architecture (classification / segmentation / detection / transfer) before scaffolding — task + modality + data scale + imbalance → paper-grounded shortlist |
+| **model-sourcing** | Modeling | Vet the concrete third-party model (repo / revision / checkpoint) a study builds on: licence, version pin, weight provenance, task fit, reported validation; flags an evaluation arm on the benchmark the model was developed or tuned on |
+| **profile-imaging** | Modeling | Profile an imaging dataset before any modelling decision (spacing/orientation, intensity domain, label integrity, foreground fraction, target volume) and gate it against the declared plan |
 | **preprocess-imaging** | Modeling | Design/audit DICOM/NIfTI intake, resampling, normalisation, and augmentation so the pipeline is leakage-safe before `model-scaffold`; emits a preprocessing manifest + data-stage leakage gate |
-| **model-scaffold** | Modeling | Generate a reproducible runnable PyTorch training repo (patient-level seed-locked split, task model, train/eval scripts, repro record) — the link between choosing an architecture and validating a trained model |
-| **radiomics-ml** | Modeling | Produce/audit a radiomics / tabular-ML study (imaging or clinical features → penalised logistic / SVM / RF / gradient-boosting / MLP → outcome) with a learner-agnostic nested-CV / feature-stability / calibration / external-validation gate (no GPU) |
-| **model-validation** | Validation | Design/audit the clinical-validation study for an engineer-built imaging model (segmentation / classification / detection): patient-level split disjointness, internal-vs-external validation, comparator, metric fit — with a deterministic split-leakage gate |
+| **model-scaffold** | Modeling | Generate a reproducible runnable PyTorch training repo (patient-level seed-locked split, task model, train/eval scripts, repro record) — between choosing an architecture and validating a trained model |
+| **radiomics-ml** | Modeling | Produce/audit a radiomics / tabular-ML study (imaging or clinical features → penalised logistic / SVM / RF / gradient-boosting / MLP → outcome) with a nested-CV / feature-stability / calibration / external-validation gate (no GPU) |
+| **model-validation** | Validation | Design/audit the clinical-validation study for an engineer-built imaging model: patient-level split disjointness, internal vs external validation, comparator, metric fit — with a split-leakage gate |
 | **model-evaluation** | Evaluation | Compute task-correct held-out metrics for a trained imaging model (segmentation Dice + boundary; classification AUROC + AUPRC + Se/Sp with bootstrap CIs; detection FROC/mAP; calibration; subgroup slices) → per-case results table |
-| **mllm-eval** | Evaluation | Design/audit a model-agnostic evaluation harness for an LLM/MLLM clinical task (report generation, VQA, extraction/classification): adjudicated reference, clinical-efficacy metrics beyond BLEU/ROUGE, hallucination, contamination, prompt-sensitivity, reader study |
-| **explainability** | Modeling | Produce/audit a medical-imaging model's interpretability analysis (Grad-CAM / saliency / integrated-gradients) held to the reviewer bar — Adebayo sanity checks, quantitative localisation vs ground truth, cohort-level results, attribution-not-validation framing |
-| **uncertainty-imaging** | Modeling | Design/audit the uncertainty-quantification / OOD-detection / selective-prediction layer of a deployment-framed imaging model (MC-dropout / ensemble / conformal, held-out OOD set, abstention at a pre-specified point) + deployment-claim gate |
-| **model-card** | Documentation | Generate a Model Card + Datasheet + METRIC-informed data-quality pass for an engineer-built imaging model, filled from user-supplied facts, with a completeness gate (never fabricates numbers/provenance/licence) |
-| **contribute** | Setup | Offer a local edit back to the project — a journal profile you added, a fix you made — as a pull request or an issue, without typing a git command. Compares the installed skills against the shipped hashes, **scans the diff for patient data and identifiers (blocking)**, shows every line, and sends nothing until the author confirms. Also files a false positive or a failed step, which is the only evidence of how a detector behaves on a real manuscript |
-| **setup-medsci** | Setup | Diagnostic checklist for the runtime (Python, R, Node, Claude Code, Git, Zotero, MCP servers) — read-only pass/fail table pointing to the right setup doc for any missing component |
+| **mllm-eval** | Evaluation | Design/audit an evaluation harness for an LLM/MLLM clinical task (report generation, VQA, extraction/classification): adjudicated reference, clinical-efficacy metrics beyond BLEU/ROUGE, hallucination, contamination, prompt-sensitivity, reader study |
+| **explainability** | Modeling | Produce/audit a medical-imaging model's interpretability analysis (Grad-CAM / saliency / integrated-gradients) to the reviewer bar: sanity checks, quantitative localisation, cohort-level results |
+| **uncertainty-imaging** | Modeling | Design/audit the uncertainty / OOD-detection / selective-prediction layer of a deployment-framed imaging model (MC-dropout / ensemble / conformal, held-out OOD set, abstention) + deployment-claim gate |
+| **model-card** | Documentation | Generate a Model Card + Datasheet + data-quality pass for an engineer-built imaging model from user-supplied facts, with a completeness gate |
+| **contribute** | Setup | Offer a local edit (a journal profile, a fix) back as a pull request or issue without typing git; blocks on patient data in the diff and sends nothing until confirmed. Also files a false positive or a failed step |
+| **setup-medsci** | Setup | Read-only runtime diagnostic (Python, R, Node, Claude Code, Git, Zotero, MCP servers): pass/fail table with the setup doc for each missing component |
 
 ---
 
 ## Classification Logic
 
-When the user's request arrives, classify it into one of these intents:
+Classify each request into one of these intents.
 
 ### Single-skill requests (route directly)
 
+Route to the skill whose Available Skills row matches: name it with a one-line reason, then invoke
+it. The rows below cover modes and flags, look-alike skills, and non-English phrasings:
+
 | User says something like... | Route to |
 |-----------------------------|----------|
-| "Find papers about X" / "Search PubMed for X" | `/search-lit` |
-| "Is my study design sound?" / "Check for data leakage" | `/design-study` |
 | "I have a messy folder, help me organize" | `/intake-project` |
 | "Set up a new project" / "Create project scaffold" | `/manage-project init` |
-| "Run the statistics" / "Make Table 1" | `/analyze-stats` |
-| "Create a forest plot" / "Make a PRISMA diagram" | `/make-figures` |
-| "I'm doing a meta-analysis" / "Start systematic review" | `/meta-analysis` |
-| "Write the methods section" / "Draft my paper" | `/write-paper` |
 | "Review my manuscript before submission" | `/self-review` |
 | "Brutally / harshly check before submission" / "top-tier journal final check" / "multi-reviewer / panel review" / "review it from stats, clinical, and imaging angles" / "혹독하게 제출 전 점검" | `/self-review --panel --json` |
-| "Check STROBE compliance" / "Run reporting checklist" | `/check-reporting` |
-| "I got reviewer comments" / "Help me respond to reviewers" | `/revise` |
-| "Write a grant proposal" / "Structure my aims page" | `/grant-builder` |
-| "Prepare a presentation" / "I have a journal club talk" | `/present-paper` |
-| "Package this skill for distribution" | `/publish-skill` |
-| "How many patients do I need?" / "Calculate sample size" / "Power analysis" | `/calc-sample-size` |
+| "Review someone else's manuscript" / "Journal club critique draft" / "외부 논문 리뷰 답변" | `/peer-review` |
 | "Which journal should I submit to?" / "Find a journal" / "I was rejected, where else?" | `/find-journal` |
+| "Sync submission" / "Retarget journal" / "Check SSOT drift" | `/sync-submission` |
 | "Add a journal profile" / "저널 프로필 추가" | `/add-journal` |
 | "Download PDFs" / "Get full texts" / "PDF 다운로드" | `/fulltext-retrieval` |
 | "Visual abstract 만들어줘" / "Graphical abstract" / "GA 생성" | `/make-figures` |
-| "Logistic regression" / "Propensity score" / "PSM" / "IPTW" / "Repeated measures" / "Mixed model" / "GEE" | `/analyze-stats` |
-| "Clean my data" / "Check data quality" / "Profile my dataset" | `/clean-data` |
 | "De-identify my data" / "Remove PHI" / "비식별화" / "익명화" / "Anonymize patient data" | `/deidentify` |
 | "Write an IRB protocol" / "Draft ethics submission" / "Research protocol" | `/write-protocol` |
+| "Fill IRB protocol form" / "기관 양식 채워줘" / "심사면제 요청서 채움" / "동의면제 양식" | `/fill-protocol` |
 | "Define my variables" / "Justify cutoff" / "Phenotype definition" / "변수 정의 근거" / "ad-hoc 정의 피하기" | `/define-variables` |
 | "Write a case report" / "I have an interesting case" | `/write-paper` (case-report mode) |
 | "Generate a cover letter" / "Write cover letter for submission" | `/write-paper` (Phase 8+, requires completed manuscript) |
-| "Verify references" / "Check citation hallucinations" / "Reference audit" | `/verify-refs` |
-| "Sync submission" / "Retarget journal" / "Check SSOT drift" | `/sync-submission` |
 | "Render manuscript to DOCX" / "Build final .docx" / "Cascade reformat references" / "Apply journal CSL" / "Re-render with Vancouver" / "회람용 docx" / "Zotero CWYW injection" | `/manage-refs` |
+| "Render proposal to PDF" / "Anchor doc PDF" / "한글 학술 PDF" / "Briefing handout PDF" / "IRB cover PDF" / "non-bib markdown → PDF" | `/render-pdf-doc` |
 | "Sync Zotero" / "Refresh refs.bib" / "Better BibTeX export" / "Zotero ↔ Obsidian 동기화" / "literature note 만들어줘" | `/lit-sync` |
 | "PDF를 Obsidian 노트로" / "논문 요약 노트 만들어줘" / "이 폴더의 PDF 정리해줘" / "build a paper vault" / "second brain" / "extract concepts from papers" | `/obsidian-paper-vault` |
-| "Render proposal to PDF" / "Anchor doc PDF" / "한글 학술 PDF" / "Briefing handout PDF" / "IRB cover PDF" / "non-bib markdown → PDF" | `/render-pdf-doc` |
-| "Fill IRB protocol form" / "기관 양식 채워줘" / "심사면제 요청서 채움" / "동의면제 양식" | `/fill-protocol` |
 | "ICMJE COI 양식 일괄 생성" / "공저자 COI 폼 만들기" / "Disclosure form batch" | `/fill-icmje-coi` |
 | "AI search optimization" / "Perplexity-friendly abstract" / "RAG visibility" / "GEO checklist" / "Elicit/Consensus 노출" | `/academic-aio` |
 | "Remove AI patterns" / "AI 티 제거" / "humanize this section" / "GPT 흔적 지워줘" | `/humanize` |
-| "Review someone else's manuscript" / "Journal club critique draft" / "외부 논문 리뷰 답변" | `/peer-review` |
 
 ### Multi-skill workflows (plan then execute sequentially)
 
-The **Nodes** column lists decision forks that should be rendered in interactive mode
-(see Workflow Execution — Dialogue Protocol). Nodes are numbered N1 – N9 per
-`${SKILL_DIR}/references/dialogue_nodes.md`.
+The **Nodes** column lists the decision forks to render in interactive mode (Dialogue Protocol
+below); N1–N11 are defined in `${SKILL_DIR}/references/dialogue_nodes.md`.
 
 | Scenario | Skill chain | Nodes |
 |----------|-------------|-------|
@@ -176,12 +145,17 @@ The **Nodes** column lists decision forks that should be rendered in interactive
 | **Post-rejection resubmission** | `find-journal` (exclude rejected journal) -> `write-paper` (Phase 8+ new cover letter) | N4 |
 | **Case report pipeline** | `search-lit` (similar cases) -> `write-paper` (case-report mode) -> `self-review` -> `check-reporting` (CARE) -> `find-journal` | N2 (option 2), N4 |
 
-**Panel mode (`/self-review --panel`) is opt-in, never automatic.** The submission chains above use single-pass `self-review`. Add `--panel` only for a deliberate high-stakes final pass (it spawns several reviewer agents plus an editor, so it costs several times more tokens); do not apply it by default, and do not auto-enable it in `--e2e` unless the user explicitly asks. A panel diagnoses and prioritizes, so keep it separate from the auto-fix loop — do not call `--panel` together with `--fix`.
+**Panel mode (`/self-review --panel`) is opt-in, never automatic.** The chains above use
+single-pass `self-review`. Add `--panel` only when the user asks for a high-stakes final pass,
+because it spawns several reviewer agents plus an editor (several times the tokens); never enable it
+by default, including in `--e2e`. Never combine `--panel` with `--fix`: a panel diagnoses and
+prioritizes, and the fix loop is a separate pass.
 
 ### Ambiguous requests (ask before routing)
 
-If the intent is genuinely unclear, ask ONE clarifying question. Do not ask more than one question
-at a time. Examples:
+If the intent is genuinely unclear, ask ONE clarifying question — never two in one turn. If you can
+make a reasonable inference, act on it and confirm; inside a pipeline, render the matching node
+instead of asking. Examples:
 
 - "Help with my paper" -> Ask: "Do you want to start writing, review an existing draft, or respond to reviewer comments?"
 - "What should I do next?" -> Check for `project_state.json` or `STATUS.md` in the working directory first. If found, read it and suggest the next logical step. If not found, ask what they're working on.
@@ -190,58 +164,43 @@ at a time. Examples:
 
 ## Workflow Execution — Dialogue Protocol (interactive default)
 
-Multi-skill orchestration uses an RPG-style decision-node protocol. At each major fork,
-render a decision node (context, numbered options, per-option `unlocks` / `locks` /
-`recovery_cost`), wait for the user to pick a number, then proceed. This replaces the
-older "announce plan → shall I proceed?" pattern and prevents silent commitment to
-paper type, study design, target journal, or recovery branch.
+Without `--e2e`, a multi-skill chain runs one decision node per fork. Never replace a node with a
+plan list and "Shall I proceed?", because that silently commits the paper type, study design, target
+journal or recovery branch. Also pause at write-paper's built-in gates (outline approval, discussion
+planning).
 
-**When to load the node reference.** Load `${SKILL_DIR}/references/dialogue_nodes.md`
-the first time the pipeline enters a decision fork in the current session. The
-reference lists 9 primary nodes (N1 entry classification, N2 paper type, N3 study
-design, N4 journal timing, N5 MA synthesis scope, N6 PHI gate, N7 autonomy flag,
-N8 audit recovery branch, N9 section entry point) with rendering templates and
-autonomous defaults. In `--autonomous` / `--e2e` mode do not load this reference —
-apply each node's default and log the choice to `qc/_pipeline_log.md`.
+Load `${SKILL_DIR}/references/dialogue_nodes.md` the first time the pipeline enters a decision fork
+in the current session; it holds each node's options, rendering template and autonomous default.
 
 **Per-fork execution sequence:**
 
-1. **Identify the node** that fits the current fork (see the Multi-Skill Workflows
-   table below for the scenario → node mapping).
-2. **Render the node** using the template in `dialogue_nodes.md` §"Rendering Template".
-   Keep the rendering under ~15 lines; surface `unlocks` / `locks` / `recovery_cost`
-   for each option; announce the autonomous default.
-3. **Wait for a numeric choice** (`1` / `2` / ...) or a control word (`back`, `pause`,
-   `skip`). One node at a time — never stack two nodes in the same turn.
-4. **Echo the lock.** Before invoking the downstream skill, confirm in one line what the
-   choice commits ("Locking: CARE reporting guideline; abstract = structured 250w.").
-5. **Invoke the downstream skill** matching the chosen option, then return to step 1
-   for the next fork or continue the chain.
-6. **Adapt on skill output.** If a skill's result invalidates a prior lock (e.g.,
-   `/self-review` surfaces a Step 7.4a trigger), route to the relevant recovery node
-   (N8) rather than continuing the current chain.
+1. **Identify the node** for the fork (Nodes column of the Multi-skill workflows table).
+2. **Render it** with the reference's §"Rendering Template": under ~15 lines, `unlocks` / `locks` /
+   `recovery_cost` per option, autonomous default announced.
+3. **Wait for a numeric choice** or a control word. One node per turn — never stack two.
+4. **Echo the lock** in one line before invoking the skill ("Locking: CARE reporting guideline;
+   abstract = structured 250w.").
+5. **Invoke the downstream skill** for the chosen option, then return to step 1 for the next fork.
+6. **Adapt on skill output.** If a result invalidates a prior lock (e.g., `/self-review` surfaces a
+   Step 7.4a trigger), route to the recovery node (N8) instead of continuing the chain.
 
-**One-question rule.** Never ask two clarifying questions in one turn. If the orchestrator
-has no good inference, render the corresponding node and let the user pick.
-
-**Interrupt-safe.** `back` re-enters the previous node. `pause` halts the pipeline and
-returns control to the user. `skip` is only allowed for nodes whose `locks` scope
-is empty (rare) — otherwise the orchestrator explains why skipping is not available.
+**Control words.** `back` re-enters the previous node. `pause` halts the pipeline and returns
+control to the user. `skip` is allowed only for a node whose `locks` scope is empty (rare) —
+otherwise explain why skipping is not available.
 
 ---
 
 ## Full Pipeline Mode
 
-When the user requests "run the full pipeline," "end-to-end," or similar, execute the complete research-to-manuscript chain.
+When the user asks to "run the full pipeline" or similar, run the Standard Pipeline below.
 
 ### `--e2e` Flag
 
 #### Pre-flight Validation (run once at `--e2e` entry)
 
-Before invoking any downstream skill in `--e2e` mode, run the following 4 checks.
-A failure on any one halts the pipeline and is recorded to
-`manuscript/<id>/REPORT.md` (see §"REPORT.md Generation") under
-`Frozen / Version status` + `Source artifacts checked`.
+Before invoking any downstream skill in `--e2e` mode, run the following 4 checks. A failure on any
+one halts the pipeline. Write all four outcomes verbatim to `manuscript/<id>/REPORT.md` (see
+§"REPORT.md Generation") under `Frozen / Version status` + `Source artifacts checked`.
 
 1. **STATUS / project_state**: read `STATUS.md` or `project_state.json` in the
    working directory and confirm the current phase. If neither exists, halt with
@@ -249,7 +208,7 @@ A failure on any one halts the pipeline and is recorded to
 2. **Frozen artifact**: scan `manuscript/<id>/v_*_package/`. If the latest `v_N`
    carries a `_FROZEN` marker file or `INDEX.md::frozen=true`, this run is
    restricted to a `v_(N+1)_package/` branch. Any attempt to write directly into
-   `v_N` halts with `FROZEN_VIOLATION` (see `~/.claude/rules/manuscript-versioning.md`).
+   `v_N` halts with `FROZEN_VIOLATION`.
 3. **Required inputs**: confirm input artifacts for the requested phase exist.
    Examples: Phase 4 figure requires `analysis/_analysis_outputs.md`; Phase 7
    self-review requires `manuscript/manuscript.md`. Missing → halt with
@@ -258,10 +217,6 @@ A failure on any one halts the pipeline and is recorded to
    incomplete, halt with `DEPENDENCY_MISS: [Phase i, Phase j]` by default. Only
    when the user explicitly passes `--auto-extend` may the orchestrator prepend
    the missing phases and continue.
-
-PHI Safety Gate (node N6) remains the only legitimate interrupt of an autonomous
-run after pre-flight passes. All four pre-flight outcomes are written to REPORT
-verbatim.
 
 #### `--e2e` Pipeline Behavior
 
@@ -272,26 +227,22 @@ When `--e2e` is passed (or the user says "end-to-end", "Arm A", or "fully autono
 4. Skip all orchestrator-level confirmations ("Shall I proceed?") and do NOT render any
    Dialogue Protocol nodes.
 5. For each node the pipeline would have rendered interactively, apply the node's
-   `default` and log the choice to `qc/_pipeline_log.md` as:
+   `default` (from `dialogue_nodes.md`) and log the choice to `qc/_pipeline_log.md` as:
    `[orchestrate] N{id}: defaulted to option {n} ({label}) — {autonomous_rationale}`.
 6. DO still respect data-safety gates (PHI Safety Gate / node N6): if PHI status is
-   unknown, HALT the autonomous run with a single prompt. PHI is the only node that
-   can interrupt autonomous mode.
+   unknown, HALT the autonomous run with a single prompt. After pre-flight passes, PHI is
+   the only node that can interrupt autonomous mode.
 7. Audit Recovery (node N8): auto-invoke the routed recovery skill. If the route itself
    fails validation twice, HALT with `RECOVERY_HALT_HUMAN_DECISION` in the log.
-8. AIO (academic-aio) is OFF by default in `--e2e`: AI-search-engine visibility work
-   is a pre-submission, not a pre-draft, concern — running it on every autonomous
-   iteration would be wasted tokens and would invite silent rewrites that violate the
-   skill's "never edit silently" contract. Enable it only when the user explicitly
-   adds `--aio` (or the pipeline is preparing a preprint / GitHub README / HF card
-   alongside submission). When enabled, schedule it after `/humanize` so the
-   checklist anchors on QC-confirmed and human-readable text, and surface the
-   PASS/PARTIAL/FAIL report to the user — never auto-apply its edits.
-9. After each skill completes, run post-skill validation (see below).
-
-Without `--e2e`, the Dialogue Protocol is the default: render one node per fork, wait
-for a numeric choice, echo the lock, invoke the skill, and respect write-paper's
-built-in gates (outline approval, discussion planning).
+8. AIO (academic-aio) is OFF by default in `--e2e`, because AI-search visibility is a
+   pre-submission concern and running it on every autonomous iteration would waste tokens
+   and invite silent rewrites that violate the skill's "never edit silently" contract.
+   Enable it only when the user explicitly adds `--aio` (or the pipeline is preparing a
+   preprint / GitHub README / HF card alongside submission). When enabled, schedule it
+   after `/humanize` so the checklist anchors on QC-confirmed and human-readable text, and
+   surface the PASS/PARTIAL/FAIL report to the user — never auto-apply its edits.
+9. After each skill completes, run post-skill validation (see below); once it passes,
+   proceed to the next skill without asking.
 
 ### Standard Pipeline: Data → Manuscript
 
@@ -306,16 +257,18 @@ built-in gates (outline approval, discussion planning).
 
 ### Post-Skill Validation
 
-After each skill completes, verify that expected output files exist. If validation fails, report the error and do NOT proceed to the next skill.
+After each skill completes, verify that expected output files exist, then pass the discovered file
+paths to the next skill as context. If validation fails, report the error and do NOT proceed to the
+next skill.
 
 | Skill | Expected Outputs | Validation |
 |-------|-----------------|------------|
 | `/analyze-stats` | At least one file in `analysis/tables/*.csv` OR `analysis/_analysis_outputs.md` | Check file existence and non-empty |
 | `/make-figures` | `analysis/figures/_figure_manifest.md` with at least 1 entry | Parse manifest, verify listed files exist |
-| `/write-paper` | `manuscript/manuscript.md` (required) | Check file existence and non-empty. Do NOT require the DOCX here — `manuscript_final.docx` is rendered later by `/manage-refs` (step 7); requiring it at this step would halt an `--e2e` run before the DOCX exists |
+| `/write-paper` | `manuscript/manuscript.md` (required) | Check file existence and non-empty. Do NOT require the DOCX here — `manuscript_final.docx` is rendered later by `/manage-refs` (step 7), so requiring it would halt an `--e2e` run before the DOCX exists |
 | `/check-reporting` | `qc/reporting_checklist.md` or inline report | Check file existence |
 | `/verify-refs` | `qc/reference_audit.json` (sole output) | Parse JSON; halt if `submission_safe == false` (i.e., `FABRICATED` / `MISMATCH` count > 0 OR `duplicate_findings[]` nonempty) |
-| `/self-review` | Review report with JSON block (when --json) | Check JSON block is parseable. In `--panel` mode each issue may carry an additional optional `consensus` array plus R1/R2/R3 attribution annotations on the `M`/`m` comments — these are additive and backwards-compatible; accept them |
+| `/self-review` | Review report with JSON block (when --json) | Check JSON block is parseable. Accept the optional `consensus` array and R1/R2/R3 attributions that `--panel` adds to issues (additive, backwards-compatible) |
 | `/manage-refs` | `manuscript/manuscript_final.docx`, `qc/xref_audit.json` | DOCX exists and non-empty; xref_audit.json has `submission_safe: true` (no P0 blocker rows) |
 | `/lit-sync` | `manuscript/_src/refs.bib` (mtime updated), `references/zotero_collection.json` | refs.bib mtime newer than collection snapshot; `refs_bib_refreshed: true` in collection JSON |
 
@@ -331,10 +284,8 @@ halted at pre-flight, or halted on post-skill validation — the Worker MUST wri
 `manuscript/<id>/REPORT.md` using the template at
 `${SKILL_DIR}/references/report_template.md`.
 
-Rules:
-
-- Copy all 11 sections from the template verbatim. Never delete a section. Empty
-  fields are filled with `(none)` or `(unknown)` — never omitted, never collapsed.
+- Copy every section of the template verbatim. Never delete a section. Empty fields are
+  filled with `(none)` or `(unknown)` — never omitted, never collapsed.
 - The §"Pipeline log" entry is a 5-line summary of `qc/_pipeline_log.md` (Dialogue
   node defaults applied, skill invocations, halt reason if any) — not a paste of
   the full log.
@@ -353,7 +304,7 @@ REPORT.md §"Tier-3 Blocked Items" as `tier3_pending: <command>`. Hook-confirmed
 blocks and prompt-only blocks are listed separately so a future hook regression
 cannot silently re-open a prompt-only block.
 
-**Hook-confirmed (`~/.claude/hooks/tier3-confirm.sh` enforces)**:
+**Hook-confirmed (where a Tier-3 confirm hook is installed)**:
 - `gws gmail +send` / `+reply`
 - YouTube upload
 
@@ -366,43 +317,18 @@ cannot silently re-open a prompt-only block.
 - Senior mentor automatic email reply
 
 `git commit` is allowed; a subsequent `git push` attempt halts. Circulation
-emails are written via `gws-draft.py` to a Gmail Draft only — never sent.
-
-Phase 8 (Post-E2E Journal Selection & Submission Prep, see §"Post-E2E" below)
-is explicitly outside `--e2e` and requires explicit user invocation. The Tier-3
-guard reinforces that boundary.
+emails are saved as a Gmail Draft only — never sent.
 
 ### Data Flow Contract
 
-| Skill | Reads | Writes |
-|-------|-------|--------|
-| deidentify | raw data with PHI (CSV/Excel) | `*_deidentified.*`, `mapping.json`, `audit_log.csv` |
-| fulltext-retrieval | DOI list (CSV/text) | `pdfs/*.pdf`, retrieval report |
-| analyze-stats | raw data (CSV/Excel) | analysis/tables/*.csv, analysis/figures/*, `analysis/_analysis_outputs.md` |
-| make-figures | `analysis/_analysis_outputs.md`, data files | analysis/figures/*.pdf, analysis/figures/*.png, `analysis/figures/_figure_manifest.md` |
-| write-paper | analysis/figures/, analysis/tables/, manifests, journal profile | manuscript/manuscript.md, manuscript/title_page.md (DOCX rendering now delegated to manage-refs) |
-| check-reporting | manuscript/manuscript.md | qc/reporting_checklist.md |
-| verify-refs | manuscript/manuscript.md or a bib input | qc/reference_audit.json (sole writer; see skills/verify-refs/SKILL.md §Output Contract) |
-| self-review | manuscript/manuscript.md | qc/self_review.md (with JSON block) |
-| lit-sync | Zotero collection (live), `manuscript/_src/refs.bib` (Better BibTeX auto-export) | `manuscript/_src/refs.bib` (refreshed), `references/zotero_collection.json`, Obsidian literature notes (sole writer of refs.bib) |
-| manage-refs | manuscript/manuscript.md, manuscript/_src/refs.bib, n_to_zotero_key map (optional) | manuscript/manuscript_final.docx (or _cwyw.docx), qc/xref_audit.json (sole writer) |
-| render-pdf-doc | non-bib markdown (proposal/briefing/anchor doc/IRB cover) | PDF (same dir, same stem) |
-| fill-protocol | content markdown + institutional Word template (.doc/.docx) | filled `*.docx` preserving original styles, table layouts, fonts, geometry |
-| fill-icmje-coi | author roster (JSON), seed `coi_disclosure.docx` (synthetic shipped) | per-author `coi_disclosure_{author}.docx` (Date, Name, Manuscript Title replaced) |
-| sync-submission | manuscript/, qc/ artifacts, journal profile | submission/{journal}/manifest.md, drift report |
-| peer-review | external manuscript (.docx/.pdf), journal scope | review draft (review.md) following the medical imaging peer-review guideline |
-
-### Rules
-1. After each skill completes, run post-skill validation before proceeding.
-2. Pass discovered file paths as context to the next skill.
-3. In `--e2e` mode: do NOT ask "shall I proceed?" between skills — proceed automatically after validation passes.
-4. Without `--e2e`: pause at write-paper's built-in gates (outline approval, discussion planning) and confirm between skills.
-5. If a skill fails or validation fails, report the error. In `--e2e` mode, halt the pipeline.
+Read `${SKILL_DIR}/references/data_flow_contract.md` when chaining a skill and you need what it
+reads or writes (the Standard Pipeline above already names its own files).
 
 ### Post-E2E: Journal Selection & Submission Prep
 
-After the E2E pipeline completes (or when the user requests journal targeting), the following
-manual-trigger workflow is available:
+After the E2E pipeline completes (or when the user requests journal targeting), this workflow
+is available. It is NOT part of `--e2e`: it runs only on explicit user invocation, because it
+needs the user's journal selection.
 
 1. `/find-journal` → top 5 recommendations based on `manuscript/manuscript.md` abstract
 2. `/verify-refs` → block fabricated or mismatched references before packaging
@@ -411,10 +337,8 @@ manual-trigger workflow is available:
 5. Generate inside `submission/{journal_short}/`:
    - `cover_letter.md`: via `/write-paper` Phase 8+
    - `checklist.md`: journal-specific submission checklist
-   - `manuscript_final.docx`: reformatted for target journal (if format differs)
-6. `/peer-review` (journal scope-aware) → `submission/{journal_short}/peer_review.md`
-
-This workflow is NOT part of `--e2e`. It requires user interaction (journal selection).
+   - `manuscript_final.docx`: re-rendered by `/manage-refs` for the target journal (if format differs)
+6. `/self-review` with the selected journal as the target → journal scope-aware final pass (not `/peer-review`, which reviews other authors' work only)
 
 ---
 
@@ -423,17 +347,14 @@ This workflow is NOT part of `--e2e`. It requires user interaction (journal sele
 Before routing to any data-handling skill (`clean-data`, `analyze-stats`, `make-figures`),
 check if the data might contain PHI:
 
-1. If CSV/Excel files exist in the working directory AND no `*_deidentified.*` files exist:
-   Ask (in the user's preferred language): "Does the data contain patient identifiers (PHI)? (names, national ID / RRN, date of birth, contact details, etc.)"
+1. If CSV/Excel files exist in the working directory AND no `*_deidentified.*` files exist, ask:
+   "Does the data contain patient identifiers (PHI)? (names, national ID / RRN, date of birth, contact details, etc.)"
    - If yes → Route to `/deidentify` first, then continue to the originally requested skill
-   - If no → Proceed directly
-   - If already de-identified (user confirms or `*_deidentified.*` files exist) → Proceed directly
+     using the `*_deidentified.*` output file
+   - If no, or the user confirms the data is already de-identified → Proceed directly
 
 2. De-identification is an INTERACTIVE process requiring the researcher's active participation.
-   Warn (in the user's preferred language): "De-identification requires the researcher's direct review. You must run the script in the terminal and verify each item."
-
-3. After deidentify completes, continue to the originally requested skill using the
-   `*_deidentified.*` output file.
+   Warn: "De-identification requires the researcher's direct review. You must run the script in the terminal and verify each item."
 
 ---
 
@@ -461,74 +382,5 @@ Before routing, check for context clues in the working directory:
 
 ## Guardrails
 
-- **Never do the work yourself.** Your role is classification and routing, not execution.
-- **Never invent a skill.** Only route to skills listed in the table above.
-- **Never skip user confirmation** for multi-skill workflows.
-- **One clarifying question max.** If you can make a reasonable inference, do so and confirm.
+- **Never invent a skill.** Only route to skills listed in the Available Skills table.
 - **Respect existing state.** If a project scaffold exists, do not re-initialize it.
-
----
-
-## Output Format
-
-### For single-skill routing:
-
-```
-I'll route this to **{skill-name}** -- {one-line reason}.
-
-Invoking `/skill-name`...
-```
-
-Then invoke the skill.
-
-### For multi-skill workflows (Dialogue Protocol):
-
-Render one decision node per fork. Do NOT stack a plain bullet list with "Shall I
-proceed?" — use the node template. Example rendering:
-
-```
-This looks like a {scenario} workflow. First fork:
-
-▸ N2 — Paper type (locks reporting guideline + abstract template)
-
-  Context: analysis outputs exist in analysis/; you want a manuscript.
-
-  Which kind of manuscript?
-
-    1) Original article (STROBE / CONSORT / STARD per design)
-       unlocks: /write-paper  locks: IMRAD, 300w abstract  recovery: high
-    2) Case report (CARE)
-       unlocks: /write-paper case-report mode  locks: CARE checklist  recovery: medium
-    3) Systematic review / meta-analysis (PRISMA / PRISMA-DTA)
-       unlocks: /meta-analysis  locks: protocol registration  recovery: high
-    4) Protocol (SPIRIT / PRISMA-P)
-       unlocks: /write-protocol  locks: SPIRIT structure  recovery: medium
-    5) Grant proposal
-       unlocks: /grant-builder  locks: internal only  recovery: low
-
-  Pick 1–5, or type `back` / `pause`. (autonomous default: 1)
-```
-
-After the user picks, echo the lock in one line and invoke the matched skill. Return
-here for the next fork when the skill completes.
-
-### For ambiguous requests:
-
-```
-I can help with that. To route you to the right tool, one quick question:
-{single clarifying question}
-```
-
-## Anti-Hallucination
-
-- **Never fabricate file paths, URLs, DOIs, or package names.** Verify existence before recommending.
-- **Never invent journal metadata, impact factors, or submission policies** without verification at the journal's website.
-- If a tool, package, or resource does not exist or you are unsure, say so explicitly rather than guessing.
-
-## Global-rule references
-
-Some passages in this skill cite a path of the form `~/.claude/rules/<name>.md`. Those are the
-maintainer's personal global rules, kept outside this repository. They are **not shipped with
-this skill** and will not exist on your machine; they appear only as provenance for where a
-convention came from. If one of them looks like it is standing in for an instruction you actually
-need, that is a bug — please open an issue, because the instruction belongs here.

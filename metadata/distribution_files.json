@@ -3543,23 +3543,28 @@
     },
     {
       "path": "skills/orchestrate/SKILL.md",
-      "size": 42218,
-      "sha256": "5cbc88b21de39f34bd458ddb785627c3521f1dac45a5d12aaa2297ebc71c4f46"
+      "size": 32896,
+      "sha256": "811fd9cb724a80121248cdcef5c739f82e7be3b5845a077dfb75a7ad498baf14"
+    },
+    {
+      "path": "skills/orchestrate/references/data_flow_contract.md",
+      "size": 2305,
+      "sha256": "5c8d6d58073c6e7fa19f09cb3dec183a3077fba50d7928f341856ad53915049e"
     },
     {
       "path": "skills/orchestrate/references/dialogue_nodes.md",
-      "size": 10989,
-      "sha256": "db9555efaa3cbb4ac55d23e48eb873bc2a2f91394ed6bb90f598a0ebfa90f993"
+      "size": 10934,
+      "sha256": "8819d90ec1db9c255538800e95e0119c47fc6b49c1964725d45e52f7deb60789"
     },
     {
       "path": "skills/orchestrate/references/report_template.md",
-      "size": 4180,
-      "sha256": "c9657cee0c01a9a16318e7a18ce33508c1ff32a93a9ec5ce40333bd63a61eca9"
+      "size": 4174,
+      "sha256": "a319f7f4ee6159f5b7dd719271ce4584a74423bff5e6099701352b7a4455d6e5"
     },
     {
       "path": "skills/orchestrate/references/report_template_ko.md",
-      "size": 3235,
-      "sha256": "e47c59a2db1c9ea4cc5e32f759860c0023ee121f1aaa229a3dfcd5e8b1d193b1"
+      "size": 3228,
+      "sha256": "c60f1f21138f1bf552995e26a28d0e9fe5d0dbc87e4ee546246417ba07dee568"
     },
     {
       "path": "skills/orchestrate/skill.yml",
