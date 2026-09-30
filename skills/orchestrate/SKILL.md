@@ -338,7 +338,8 @@ needs the user's journal selection.
 Before routing to any data-handling skill (`clean-data`, `analyze-stats`, `make-figures`),
 check if the data might contain PHI:
 
-1. If CSV/Excel files exist in the working directory AND no `*_deidentified.*` files exist, ask:
+1. For each CSV/Excel file the task will read that is not itself a `*_deidentified.*` output (a
+   de-identified copy of one file says nothing about the others), ask:
    "Does the data contain patient identifiers (PHI)? (names, national ID / RRN, date of birth, contact details, etc.)"
    - If yes → Route to `/deidentify` first, then continue to the originally requested skill
      using the `*_deidentified.*` output file
@@ -365,7 +366,7 @@ Before routing, check for context clues in the working directory:
 | `PRISMA_*.md` or `QUADAS*.md` | Meta-analysis or systematic review |
 | Decision letter / reviewer PDF | Route to `/revise` |
 | CSV/Excel data files without analysis scripts | Raw data may need cleaning -- suggest `/clean-data` first |
-| `*_deidentified.*` or `audit_log.csv` | Data already de-identified -- skip PHI Safety Gate |
+| `*_deidentified.*` or `audit_log.csv` | Some data was de-identified -- skip the PHI Safety Gate only for the `*_deidentified.*` outputs themselves; run it on every other data file the task will read |
 | `protocol_draft.md` | Protocol drafting in progress -- may need `/write-protocol` |
 | `sample_size_*.csv` or `sample_size_*.R` | Sample size calculation done -- check if protocol or manuscript next |
 

@@ -91,7 +91,7 @@ autonomous_rationale: why this default is safe for unattended runs
 
 ### N6. PHI Safety Gate
 - **phase:** before any data-handling skill
-- **context:** CSV/Excel detected, no `*_deidentified.*` marker
+- **context:** a CSV/Excel file the task will read that is not itself a `*_deidentified.*` output
 - **question:** "Does this data contain PHI (names, RRN, DOB, contact)?"
 - **options:**
   1. Yes — route to /deidentify first (blocking, interactive script)
