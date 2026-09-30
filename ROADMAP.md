@@ -7,8 +7,8 @@ is a direction document, not a delivery commitment; priorities shift with real
 manuscript, review, and submission experience.
 
 See also [`docs/competitive_positioning.md`](docs/competitive_positioning.md) for
-where the toolkit sits relative to broad agent-skill catalogs, and
-[`README.md` § What This Is NOT](README.md) for the scope boundary.
+where the toolkit sits relative to broad agent-skill catalogs and what it does not do
+([§ What MedSci Skills does not do](docs/competitive_positioning.md#what-medsci-skills-does-not-do)).
 
 ## Near-term priorities
 

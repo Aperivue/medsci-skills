@@ -38,9 +38,9 @@ makes no clinical-validation claim about itself. It supports manuscript and rese
 Yes. It bundles a set of EQUATOR-network reporting checklists and risk-of-bias /
 appraisal tools (STROBE, CONSORT and CONSORT-AI, STARD and STARD-AI, PRISMA and
 PRISMA-DTA, TRIPOD and TRIPOD+AI, QUADAS-2, RoB 2, ROBINS-I, AMSTAR 2, and more) and
-audits a manuscript item by item. The authoritative current list and count are in
-[`metadata/catalog_counts.json`](../metadata/catalog_counts.json) and the
-[README](../README.md).
+audits a manuscript item by item. The authoritative current count is in
+[`metadata/catalog_counts.json`](../metadata/catalog_counts.json); the full list is on the
+[`check-reporting` reference page](skills/check-reporting.md).
 
 ## Can it verify references and citations?
 
