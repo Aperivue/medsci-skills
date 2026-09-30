@@ -39,6 +39,7 @@
 
 **References** (`skills/search-lit/references/`):
 
+- `embase_browser.md`
 - `parse_pubmed.py`
 - `pubmed_eutils.sh`
 - `snowball.py`

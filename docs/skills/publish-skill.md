@@ -35,6 +35,7 @@
 
 **References** (`skills/publish-skill/references/`):
 
+- `classroom-distribution.md`
 - `license-compatibility-matrix.md`
 - `pii-patterns.md`
 
