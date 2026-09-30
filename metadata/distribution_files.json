@@ -703,8 +703,8 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/CONSORT.md",
-      "size": 7252,
-      "sha256": "45e96036e25059c07a23b3d26a2fd42584dccac0c7d4f46f2a1c49912dd9103f"
+      "size": 8002,
+      "sha256": "695c118e24b76b4d1e30ee3921d201320f0469dbac5298f1bbcb4d3b746bd14a"
     },
     {
       "path": "skills/check-reporting/references/checklists/CONSORT_AI.md",
@@ -853,8 +853,8 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/SPIRIT.md",
-      "size": 11072,
-      "sha256": "ac10eb09b5bf792b989dae16b88900fe24aa33c30af3792e557da62efce97cac"
+      "size": 11314,
+      "sha256": "b298e8af745219db356e767350d021907a523b3d2a1ebcc55595b07650863765"
     },
     {
       "path": "skills/check-reporting/references/checklists/SPIRIT_AI.md",
@@ -873,8 +873,8 @@
     },
     {
       "path": "skills/check-reporting/references/checklists/STARD.md",
-      "size": 5806,
-      "sha256": "69336af1f8ed0f39708049b80df33abd04674271325cd1382bae78727d282e02"
+      "size": 6039,
+      "sha256": "c3b6447b618e43454a2f5a67fe54f3b0dccf1b56fd6feb040a57cedb0136688e"
     },
     {
       "path": "skills/check-reporting/references/checklists/STARD_AI.md",
@@ -968,8 +968,8 @@
     },
     {
       "path": "skills/check-reporting/scripts/verify_checklist_fidelity.py",
-      "size": 8662,
-      "sha256": "0ac1606bb3cd3ccd94a3bcf61b70c004acba268c8cf8e6d6e3cce3b62bfed2e5"
+      "size": 12392,
+      "sha256": "153bc555e00783845e0beccd73b0997a68404e4e4366f1b8770fa5d5aa604c8a"
     },
     {
       "path": "skills/check-reporting/skill.yml",

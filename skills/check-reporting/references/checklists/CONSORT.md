@@ -9,9 +9,12 @@ Reference: Hopewell S, Chan AW, Collins GS, et al. CONSORT 2025 statement: updat
 
 Source: Hopewell S, Chan AW, Collins GS, Hróbjartsson A, Moher D, Schulz KF, et al. CONSORT 2025 statement: updated guideline for reporting randomised trials. *BMJ* 2025;389:e081123 (DOI 10.1136/bmj-2024-081123).
 Licence: CC BY 4.0 — confirmed via Crossref.
-Verification: all 42 sub-items were compared against Table 1 of the published statement (Europe
-PMC full text, PMC11995449); 42/42 match. Item 13's label and its second sentence, which were
-missing, have been restored.
+Verification: every item's text is compared word for word against Table 1 of the published statement
+(Europe PMC full text, PMC11995449), extracted without a model by
+`tests/checklist_sources/refresh_from_europepmc.py`; `verify_checklist_fidelity.py` runs the
+comparison in CI. On 2026-09-30 that comparison found six items shortened in transcription (9, 12b,
+14, 18, 24a, 26: examples, the concealment steps, and the binary-outcome requirement) and they were
+restored. Item 13's label and its second sentence had been restored earlier.
 
 ## Checklist Items (30 items)
 
@@ -44,19 +47,19 @@ missing, have been restored.
 | # | Item | Description |
 |---|------|-------------|
 | 8 | Patient and public involvement | Details of patient or public involvement in the design, conduct and reporting of the trial. |
-| 9 | Trial design | Description of trial design including type of trial (e.g., parallel group, crossover), allocation ratio, and framework. |
+| 9 | Trial design | Description of trial design including type of trial (e.g., parallel group, crossover), allocation ratio, and framework (e.g., superiority, equivalence, non-inferiority, exploratory). |
 | 10 | Changes to trial | Important changes to the trial after it commenced including any outcomes or analyses that were not prespecified, with reason. |
 | 11 | Settings and locations | Settings (e.g., community, hospital) and locations (e.g., countries, sites) where the trial was conducted. |
 | 12a | Eligibility — participants | Eligibility criteria for participants. |
-| 12b | Eligibility — sites/deliverers | If applicable, eligibility criteria for sites and for individuals delivering the interventions. |
+| 12b | Eligibility — sites/deliverers | If applicable, eligibility criteria for sites and for individuals delivering the interventions (e.g., surgeons, physiotherapists). |
 | 13 | Intervention and comparator | Intervention and comparator with sufficient details to allow replication. If relevant, where additional materials describing the intervention and comparator (e.g., intervention manual) can be accessed. |
-| 14 | Outcomes | Prespecified primary and secondary outcomes, including the specific measurement variable, analysis metric, method of aggregation, and time point for each outcome. |
+| 14 | Outcomes | Prespecified primary and secondary outcomes, including the specific measurement variable (e.g., systolic blood pressure), analysis metric (e.g., change from baseline, final value, time to event), method of aggregation (e.g., median, proportion), and time point for each outcome. |
 | 15 | Harms | How harms were defined and assessed (e.g., systematically, non-systematically). |
 | 16a | Sample size | How sample size was determined, including all assumptions supporting the sample size calculation. |
 | 16b | Interim analyses | Explanation of any interim analyses and stopping guidelines. |
 | 17a | Randomisation — sequence | Who generated the random allocation sequence and the method used. |
 | 17b | Randomisation — restriction | Type of randomisation and details of any restriction (e.g., stratification, blocking and block size). |
-| 18 | Allocation concealment | Mechanism used to implement the random allocation sequence (e.g., central computer/telephone; sequentially numbered, opaque, sealed containers). |
+| 18 | Allocation concealment | Mechanism used to implement the random allocation sequence (e.g., central computer/telephone; sequentially numbered, opaque, sealed containers), describing any steps to conceal the sequence until interventions were assigned. |
 | 19 | Implementation | Whether the personnel who enrolled and those who assigned participants to the interventions had access to the random allocation sequence. |
 | 20a | Blinding — who | Who was blinded after assignment to interventions (e.g., participants, care providers, outcome assessors, data analysts). |
 | 20b | Blinding — how | If blinded, how blinding was achieved and description of the similarity of interventions. |
@@ -73,10 +76,10 @@ missing, have been restored.
 | 22b | Participant flow — losses | For each group, losses and exclusions after randomisation, together with reasons. |
 | 23a | Recruitment — dates | Dates defining the periods of recruitment and follow-up for outcomes of benefits and harms. |
 | 23b | Recruitment — stopping | If relevant, why the trial ended or was stopped. |
-| 24a | Intervention as administered | Intervention and comparator as they were actually administered (e.g., where appropriate, who delivered the intervention/comparator, how participants adhered, whether they were delivered as intended). |
+| 24a | Intervention as administered | Intervention and comparator as they were actually administered (e.g., where appropriate, who delivered the intervention/comparator, how participants adhered, whether they were delivered as intended (fidelity)). |
 | 24b | Concomitant care | Concomitant care received during the trial for each group. |
 | 25 | Baseline data | A table showing baseline demographic and clinical characteristics for each group. |
-| 26 | Outcomes and estimation | For each primary and secondary outcome, by group: the number of participants included in the analysis, the number with available data at the outcome time point, result for each group, and the estimated effect size and its precision. |
+| 26 | Outcomes and estimation | For each primary and secondary outcome, by group: the number of participants included in the analysis; the number of participants with available data at the outcome time point; result for each group, and the estimated effect size and its precision (such as 95% confidence interval); for binary outcomes, presentation of both absolute and relative effect size. |
 | 27 | Harms | All harms or unintended events in each group. |
 | 28 | Ancillary analyses | Any other analyses performed, including subgroup and sensitivity analyses, distinguishing pre-specified from post hoc. |
 
