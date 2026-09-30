@@ -133,7 +133,9 @@ jobs:
           WINDOW="${VALIDATE_WAIT_WINDOW:-1800}"
           DEADLINE=$(( $(date +%s) + WINDOW ))
           while :; do
-            RUNS="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/validate.yml/runs?head_sha=${SOURCE_SHA}&per_page=100" \
+            # Every page: a failed run on page 2 must not be read as absent. Each entry is one run
+            # as of its latest attempt.
+            RUNS="$(gh api --paginate "repos/${GITHUB_REPOSITORY}/actions/workflows/validate.yml/runs?head_sha=${SOURCE_SHA}&per_page=100" \
               --jq '.workflow_runs[] | "\(.status) \(.conclusion // "none") \(.html_url)"')"
             if [ -z "$RUNS" ]; then
               echo "::error::no Validate run exists for ${SOURCE_SHA}. Push the commit to main and let CI finish before tagging." >&2
@@ -361,16 +363,23 @@ jobs:
       # Carrying the version is not enough when this is the newest release: `npx
       # medsci-skills@latest` resolves the `latest` dist-tag, and a recovery run that finds the
       # version already published skips the publish without ever looking at it. So for the newest
-      # release tag, `latest` must name this version too. An older tag being recovered is exempt:
+      # release, `latest` must name this version too. An older release being recovered is exempt:
       # npm refuses to move `latest` backwards on its own, and it must not be moved there.
+      # "Newest" is the highest PUBLISHED GitHub Release (not a draft, not a prerelease), never the
+      # highest tag: a stray tag that never became a release (say v99.0.0 on a commit that failed
+      # the preflight) would otherwise make every real release look old and waive this check.
       - name: npm must actually carry this version
         if: env.NPM_PUBLISH == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -uo pipefail
           VER="${RELEASE_TAG#v}"
-          NEWEST="$(git tag --list 'v*' --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n 1 || true)"
+          NEWEST="$(gh api --paginate "repos/${GITHUB_REPOSITORY}/releases?per_page=100" \
+              --jq '.[] | select(.draft == false and .prerelease == false) | .tag_name' \
+            | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -t. -k1.2,1n -k2,2n -k3,3n | tail -n 1 || true)"
           if [ -z "$NEWEST" ]; then
-            echo "::error::could not list the release tags, so whether ${RELEASE_TAG} should be npm's latest is unknown."
+            echo "::error::could not list the published GitHub Releases, so whether ${RELEASE_TAG} should be npm's latest is unknown."
             exit 1
           fi
           WANT_LATEST=0

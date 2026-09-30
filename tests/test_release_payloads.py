@@ -285,10 +285,12 @@ class PayloadControls(unittest.TestCase):
 
     def preflight(self, source_sha, runs, **env):
         # `gh api --jq` prints one "status conclusion url" line per Validate run; the stub prints
-        # the lines the case supplies, one set per call, and records what it was asked.
+        # the lines the case supplies, one set per call, and records what it was asked. Like gh,
+        # it returns the second page only when asked to --paginate.
         path = self.stub('gh', 'echo "$*" >> "$CALLS"\n'
                                'var="STUB_RUNS_$(grep -c "" "$CALLS")"; val="${!var}"\n'
-                               'printf "%s" "${val:-$STUB_RUNS}"\n')
+                               'printf "%s" "${val:-$STUB_RUNS}"\n'
+                               'case "$*" in *--paginate*) printf "%s" "${STUB_RUNS_PAGE2:-}" ;; esac\n')
         calls = self.out / 'gh-calls'
         calls.unlink(missing_ok=True)
         env = dict(dict(VALIDATE_WAIT_WINDOW='0', VALIDATE_WAIT_INTERVAL='0'), **env)
@@ -316,6 +318,12 @@ class PayloadControls(unittest.TestCase):
                 result, _ = self.preflight(on_main, runs)
                 self.assertNotEqual(result.returncode, 0, f'{runs!r} must not publish')
                 self.assertIn(why, result.stderr)
+
+        # A failed run on the second page of results is still a failed run.
+        page1 = ''.join(f'completed success https://example.org/runs/{i}\n' for i in range(100))
+        result, calls = self.preflight(on_main, page1, STUB_RUNS_PAGE2='completed failure https://example.org/runs/101\n')
+        self.assertNotEqual(result.returncode, 0, 'a failure on page 2 must not publish')
+        self.assertIn('runs/101', result.stderr)
 
         # A run still in progress is waited for, not failed on sight.
         result, calls = self.preflight(on_main, ok, STUB_RUNS_1='queued none https://example.org/runs/5\n',
@@ -424,18 +432,34 @@ class PayloadControls(unittest.TestCase):
                       'the compared value must come from the registry, not from the job itself')
         self.assertIn('exit 1', assertion['run'])
 
+    def releases(self, *pages):
+        # Stub `gh api [--paginate] .../releases --jq EXPR`: the step's own jq expression is applied
+        # (with real jq, as gh would) to canned API pages, the second page only under --paginate.
+        # Returns the env that points the step at it.
+        self.stub('gh', 'expr=""; all=0\n'
+                        'while [ $# -gt 0 ]; do case "$1" in --jq) expr="$2"; shift 2 ;; '
+                        '--paginate) all=1; shift ;; *) shift ;; esac; done\n'
+                        'printf "%s" "$STUB_REL_1" | jq -r "$expr"\n'
+                        '[ "$all" = 1 ] && [ -n "${STUB_REL_2:-}" ] && printf "%s" "$STUB_REL_2" | jq -r "$expr"\n'
+                        'exit 0\n')
+        env = {'GITHUB_REPOSITORY': 'Synthetic/repo', 'STUB_REL_1': '[]', 'STUB_REL_2': ''}
+        for i, page in enumerate(pages, 1):
+            env[f'STUB_REL_{i}'] = json.dumps([{'tag_name': t, 'draft': d, 'prerelease': pre}
+                                               for t, d, pre in page])
+        return env
+
     def test_npm_propagation_wait_fails_when_the_version_never_appears(self):
         # npm publishes asynchronously ("may take a few minutes to become available"; 5 min 20 s
         # observed on 2026-09-24), so this step waits. The failure mode a string check cannot see
         # is a wait that gives up and calls it success - then a release that never reached the
         # registry goes green. Both branches are executed here against a stubbed `npm`.
         self.out.mkdir(exist_ok=True)
-        self.commit_and_tag('v9.9.9')
         stub = self.out / 'npm'
         stub.write_text('#!/bin/bash\n[ "$STUB_HAS_VERSION" = "1" ] && echo 9.9.9\nexit 0\n')
         stub.chmod(0o755)
         env = dict(PATH=str(self.out) + os.pathsep + os.environ['PATH'],
-                   NPM_PROPAGATION_WINDOW='1', NPM_PROPAGATION_INTERVAL='0')
+                   NPM_PROPAGATION_WINDOW='1', NPM_PROPAGATION_INTERVAL='0',
+                   **self.releases([('v9.9.9', False, False)]))
 
         never = self.step('npm must actually carry', STUB_HAS_VERSION='0', **env)
         self.assertNotEqual(never.returncode, 0,
@@ -452,23 +476,33 @@ class PayloadControls(unittest.TestCase):
         # it went green while `npx medsci-skills@latest` kept installing the old one.
         path = self.stub('npm', 'case "$*" in *dist-tags.latest*) echo "$STUB_LATEST" ;; *) echo 9.9.9 ;; esac\n')
         env = dict(PATH=path, NPM_PROPAGATION_WINDOW='0', NPM_PROPAGATION_INTERVAL='0')
+        run = lambda latest, *pages: self.step('npm must actually carry', STUB_LATEST=latest,
+                                               **env, **self.releases(*pages))
 
-        untagged = self.step('npm must actually carry', STUB_LATEST='9.9.9', **env)
-        self.assertNotEqual(untagged.returncode, 0, 'unreadable tags must not skip the latest check')
+        nothing = run('9.9.9')
+        self.assertNotEqual(nothing.returncode, 0, 'unreadable releases must not skip the latest check')
 
-        self.commit_and_tag('v9.9.9')
-        stale = self.step('npm must actually carry', STUB_LATEST='9.9.8', **env)
+        this = ('v9.9.9', False, False)
+        stale = run('9.9.8', [this])
         self.assertNotEqual(stale.returncode, 0, 'the newest release with a stale latest must fail')
         self.assertIn('npm dist-tag add medsci-skills@9.9.9 latest', stale.stdout)
-        current = self.step('npm must actually carry', STUB_LATEST='9.9.9', **env)
+        current = run('9.9.9', [this])
         self.assertEqual(current.returncode, 0, current.stdout)
         self.assertIn('latest points to it', current.stdout)
 
-        # v9.10.0 sorts after v9.9.9 as a version (not as text), so v9.9.9 is now an older tag
-        # being recovered, and `latest` must stay where it is.
-        self.commit_and_tag('v9.10.0')
-        older = self.step('npm must actually carry', STUB_LATEST='9.10.0', **env)
+        # Higher versions that are not published releases do not make this one old: a draft, a
+        # prerelease, and a stray tag with no release at all (v99.0.0 on a commit that failed the
+        # preflight). Before, the highest TAG decided, and the stray tag waived this very check.
+        self.commit_and_tag('v99.0.0')
+        unpublished = run('9.9.8', [this, ('v98.0.0', True, False), ('v97.0.0', False, True)])
+        self.assertNotEqual(unpublished.returncode, 0, 'an unpublished higher version must not waive the check')
+        self.assertIn('npm dist-tag add medsci-skills@9.9.9 latest', unpublished.stdout)
+
+        # v9.10.0, a published release on the SECOND page of results, sorts after v9.9.9 as a
+        # version (not as text), so v9.9.9 is an older release being recovered and `latest` stays.
+        older = run('9.10.0', [this], [('v9.10.0', False, False)])
         self.assertEqual(older.returncode, 0, older.stdout)
+        self.assertIn('older than v9.10.0', older.stdout)
         self.assertIn('left alone', older.stdout)
 
     def registry_responses(self, data, *, version='9.9.9', integrity=None, url=None):
