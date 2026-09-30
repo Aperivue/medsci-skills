@@ -8,47 +8,6 @@ model: inherit
 
 # Find Journal Skill
 
-You are a journal recommendation engine for medical researchers. Given a manuscript's
-abstract, key findings, and study type, you match it against the curated public profile
-library plus any user-local private profiles, and return the top 5 ranked recommendations
-with scope fit rationale. Detailed write-paper profiles enrich the top-5 output when
-available.
-
-## Communication Rules
-
-- Communicate with the user in their preferred language.
-- Journal names, scope descriptions, and URLs are always in English.
-- Medical terminology is always in English.
-
-## Key Directories
-
-### Compact profiles for matching (two-tier discovery)
-
-1. **Public library** (shipped with the skill, curated + verified):
-   `${CLAUDE_SKILL_DIR}/references/journal_profiles/`
-2. **User-local private library** (per-user, never pushed to git, optional):
-   `$HOME/.claude/private-journal-profiles/find-journal/`
-
-The skill reads both directories and merges the results. Filenames must be unique across
-the two locations; on collision the private file wins (user override).
-
-### Detail profiles for top-5 enrichment (two-tier discovery)
-
-1. **Public:** `${CLAUDE_SKILL_DIR}/../write-paper/references/journal_profiles/`
-2. **User-local private:** `$HOME/.claude/private-journal-profiles/write-paper/`
-
-Same merge rule — private wins on filename collision.
-
-### Why two tiers?
-
-Profiles in the public library must meet a hard verification bar (direct source reading of
-the journal's homepage and author guidelines — no inference from adjacent journals, no
-family-policy copy-paste). Profiles that a single user wants for their own workflow but
-that have not cleared the public bar live in the private library. See
-`${CLAUDE_SKILL_DIR}/POLICY.md` for the promotion checklist (private → public).
-
----
-
 ## Phase 1: Input Collection
 
 ### Required Inputs
@@ -59,40 +18,31 @@ that have not cleared the public bar live in the private library. See
 3. **Preferred tier**: Q1 / Q1-Q2 / any (default: any)
 4. **OA preference**: Full OA / Hybrid OK / No preference (default: no preference)
 5. **Field focus**: radiology, medical AI, clinical specialty, methodology, education, general medicine
-6. **Journals to exclude**: list any journals that have previously rejected this manuscript
+6. **Journals to exclude**: journals that have already rejected this manuscript
 
-If the user provides only an abstract, extract the study type from context. If ambiguous, ask.
+If only an abstract is given, infer the study type from it. When called from `/write-paper` or
+another skill, take the abstract and study type from the calling context and skip these questions.
 
 ---
 
 ## Phase 2: Theme Extraction
 
-From the abstract/key findings, extract:
-
-1. **Disease/condition**: e.g., hepatocellular carcinoma, pulmonary embolism, scoliosis
-2. **Modality/technique**: e.g., CT, MRI, ultrasound, deep learning, meta-analysis
-3. **Methodology**: e.g., retrospective cohort, diagnostic accuracy, systematic review, RCT
-4. **Population**: e.g., pediatric, adult, screening population, surgical patients
-5. **Innovation type**: e.g., new algorithm, clinical validation, workflow improvement, educational tool
+From the abstract or key findings, extract: disease/condition; modality/technique; methodology
+(e.g., retrospective cohort, diagnostic accuracy, systematic review, RCT); population; and
+innovation type (new algorithm, clinical validation, workflow improvement, educational tool).
 
 ---
 
 ## Phase 2.5: Acceptance-Readiness & Design-Ceiling Pre-flight
 
-Editors apply two filters in sequence: **(1) importance/novelty + design-ceiling**
-(the desk screen, before review — the #1 desk-rejection driver is lack of
-novelty/importance, ahead of scope) and **(2) scope fit**. Scope matching (Phase 3)
-handles filter 2. This phase handles filter 1, so the skill can gate the venue
-**tier** a manuscript's design can credibly support instead of recommending a
-high-impact venue whose bar the design cannot clear.
-
-This is **advisory** — a risk/ceiling band with reasons, never an acceptance
-probability (there is no acceptance-rate data source and ML predictors cap well
-below certainty), and the flags are **not auto-fixable**: the author decides.
+Editors screen importance/novelty and the design ceiling before scope fit (lack of
+novelty/importance is the top desk-rejection cause). This phase estimates that first filter, so
+the skill does not recommend a venue whose bar the design cannot clear. It is advisory, and its
+flags are **not auto-fixable**: the author decides.
 
 ### 2.5.1 Run the deterministic pre-flight (preferred)
 
-If a manuscript or abstract file is available, run the bundled lexical scan:
+If a manuscript or abstract file is available, run:
 
 ```
 python3 ${CLAUDE_SKILL_DIR}/scripts/assess_acceptance_readiness.py <manuscript_or_abstract.md>
@@ -103,27 +53,18 @@ It returns flags in four categories — DESIGN_CEILING, UNFIXABLE_DEFECT,
 IMPORTANCE_RISK, CLAIM_MISMATCH — and a ceiling verdict
 (`NO STRUCTURAL CEILING …` / `IMPORTANCE-FRAMING REVIEW …` /
 `SPECIALTY / TOLERANT-VENUE OR DESIGN FIX …` / `HIGH-IMPACT VENUE UNLIKELY …`).
-The taxonomy and verdict bands are defined in
-`${CLAUDE_SKILL_DIR}/references/acceptance_signals_schema.md`.
 
 ### 2.5.2 If only pasted text is available
 
-When the user pasted an abstract with no file to scan, apply the **same taxonomy**
-(`references/acceptance_signals_schema.md` §3) with judgement: note any
-design-ceiling (cross-sectional / surrogate-only endpoint / single-center /
-no external validation / pilot framing), unfixable defect (leakage / circularity /
-missing comparator / single-vendor), importance risk (null or incremental or
-me-too framing), or endpoint-vs-claim mismatch, and assign the same ceiling verdict.
+Read `${CLAUDE_SKILL_DIR}/references/acceptance_signals_schema.md` §3 (taxonomy and verdict
+bands), apply the same taxonomy to the pasted text with judgement, and assign the same ceiling
+verdict.
 
 ### 2.5.3 Carry the verdict forward
 
-Record the **ceiling verdict + its top flags**. It feeds:
-- Phase 3.2 Axis 2 (acceptance feasibility) — to demote/annotate venues whose bar
-  the ceiling cannot clear;
-- Phase 4 — the Acceptance-Readiness Summary and the Cascade plan.
-
-Do not block the recommendation on a ceiling. A ceiling means *route to a venue the
-design can clear (or recommend a design change / presubmission inquiry)*, not *stop*.
+Record the ceiling verdict and its top flags for Phase 3.2 Axis 2 and for the Phase 4
+Acceptance-Readiness Summary and Cascade plan. Do not block the recommendation on a ceiling:
+route to a venue the design can clear, or recommend a design change or presubmission inquiry.
 
 ---
 
@@ -131,7 +72,7 @@ design can clear (or recommend a design change / presubmission inquiry)*, not *s
 
 ### 3.1 Pass 1: Load Compact Profiles
 
-Read journal profiles from both tiers:
+Read both tiers and merge them into one profile set:
 
 ```
 # Public (shipped with the skill)
@@ -141,26 +82,22 @@ ${CLAUDE_SKILL_DIR}/references/journal_profiles/*.md
 $HOME/.claude/private-journal-profiles/find-journal/*.md
 ```
 
-Merge into a single profile set. If a filename exists in both locations, the private copy
-takes precedence (user override). If the private directory does not exist, proceed with
-public-only — do not fail.
+On a filename collision the private copy wins (user override). If either directory is missing or
+empty, continue with the other and say which tier was unavailable. Count the profiles actually
+loaded after the merge and state the total in the output — never hard-code the count.
 
-These are compact profiles (~30 lines each) optimized for matching. Parse each profile's
-Scope, Scope Keywords, Article Types Accepted, Classification (Tier, OA, Field),
-Special Notes (includes 1-line AI policy summary), and the optional **Acceptance Signals**
-block (selectivity band, desk-reject triggers, design expectations, cascade/transfer — see
-`${CLAUDE_SKILL_DIR}/references/acceptance_signals_schema.md`). A profile without an
-Acceptance Signals block falls back to its Special Notes plus the Phase 2.5 taxonomy.
+From each profile parse Scope, Scope Keywords, Article Types Accepted, Classification (Tier, OA,
+Field), Special Notes (includes a 1-line AI policy summary), and the optional **Acceptance
+Signals** block (format: `${CLAUDE_SKILL_DIR}/references/acceptance_signals_schema.md` §1).
 
-Do NOT read write-paper profiles during this phase — they are 4-5x larger and contain
-formatting details irrelevant to journal matching.
+Do NOT read write-paper profiles in this pass — they are 4-5x larger and carry formatting detail
+irrelevant to matching.
 
 ### 3.2 Two-Axis Scoring (scope fit × acceptance feasibility)
 
-Score each journal on **two independent axes**. Scope fit answers "does this journal
-cover my topic?"; acceptance feasibility answers "can this manuscript's design +
-importance clear this journal's bar?" Keep them separate — a venue can be a perfect
-scope match yet desk-reject the design.
+Score each journal on two independent axes: scope fit ("does this journal cover my topic?") and
+acceptance feasibility ("can this manuscript's design and importance clear this journal's bar?").
+Keep them separate — a perfect scope match can still desk-reject the design.
 
 **Axis 1 — Scope fit.** Compute a composite scope-fit score:
 
@@ -172,39 +109,38 @@ scope match yet desk-reject the design.
 | OA match | 10% | Alignment with user's OA preference (if specified) |
 | Special fit | 5% | Bonus for unique alignment with journal's Special Notes |
 
-**Axis 2 — Acceptance feasibility.** Weigh the Phase 2.5 ceiling verdict against each
-journal's Acceptance Signals (selectivity band + desk-reject triggers + design
-expectations; fall back to Special Notes + the Phase 2.5 taxonomy when no block exists).
-Assign **High / Medium / Low** feasibility:
-- **Low / ceiling-mismatch** when the journal's bar is one the manuscript's ceiling
-  cannot clear (e.g., a `highly-selective` venue that desk-rejects single-center
-  surrogate-endpoint designs, and the manuscript is exactly that).
+**Axis 2 — Acceptance feasibility.** Weigh the Phase 2.5 ceiling verdict against each journal's
+Acceptance Signals (selectivity band, desk-reject triggers, design expectations); for a profile
+without that block, use its Special Notes plus the Phase 2.5 taxonomy. Assign **High / Medium /
+Low**:
+- **Low / ceiling-mismatch** when the journal's bar is one the manuscript's ceiling cannot clear
+  (e.g., a `highly-selective` venue that desk-rejects single-center surrogate-endpoint designs,
+  and the manuscript is exactly that).
 - **High** when no ceiling signal collides with the journal's stated bar.
 
-Output is a **band with reasons, never an acceptance probability** (see
-`references/acceptance_signals_schema.md` §4).
+Report a band with reasons, NEVER an acceptance probability, because no acceptance-rate data
+source exists and a number would be false precision (schema §4).
 
 ### 3.3 Filtering
 
-Before scoring, exclude:
-- Journals in the user's exclusion list
-- Journals that do not accept the manuscript's study type (e.g., case report to a journal that only takes original research)
-- If case report mode: only keep journals whose Article Types include case reports
+Before scoring, exclude journals on the user's exclusion list and journals that do not accept the
+manuscript's study type (e.g., a case report to a journal that only takes original research). If
+no journal survives, relax the filters — OA constraint first, then tier — and re-score.
 
 ### 3.4 Ranking
 
 Rank primarily by the Axis-1 scope-fit score, then apply Axis 2:
-- **Demote** (or, if the mismatch is severe, drop below a better-feasibility peer)
-  any journal whose acceptance feasibility is Low / ceiling-mismatch.
+- **Demote** (or, if the mismatch is severe, drop below a better-feasibility peer) any journal
+  whose acceptance feasibility is Low / ceiling-mismatch.
 - **Never silently demote** — always carry the reason so Phase 4 can surface it.
-- Select the top 5 by the feasibility-adjusted order. If a strong scope match is
-  demoted for feasibility, still mention it in the comparison note with the mismatch
-  spelled out (the author may choose to fix the design rather than change venue).
+- Select the top 5 by the feasibility-adjusted order. If a strong scope match is demoted for
+  feasibility, still mention it in the comparison note with the mismatch spelled out (the author
+  may choose to fix the design rather than change venue).
 
 ### 3.5 Pass 2: Enrich Top-5
 
-For each of the top-5 ranked journals, check both tiers for a detailed write-paper
-profile:
+For each top-5 journal, look for a detailed write-paper profile in both tiers (private wins on
+collision):
 
 ```
 # Public
@@ -214,24 +150,18 @@ ${CLAUDE_SKILL_DIR}/../write-paper/references/journal_profiles/{journal_filename
 $HOME/.claude/private-journal-profiles/write-paper/{journal_filename}
 ```
 
-Private takes precedence on collision. If found, read it to extract additional detail
-for the output:
-- Manuscript types and word limits
-- Abstract format and requirements
-- Statistical reporting requirements
-- AI Writing Disclosure Policy (full 5-field version)
-- Common rejection reasons
-- Acceptance Signals (selectivity band, desk-reject triggers, design expectations,
-  cascade/transfer targets) — these sharpen the Axis-2 feasibility call and the
-  Phase 4 cascade plan
-
-This enriches the recommendation output without loading all write-paper profiles.
-If no write-paper profile exists, use the compact profile data only.
-
+If found, take from it: manuscript types and word limits, abstract format, statistical reporting
+requirements, the full 5-field AI Writing Disclosure Policy, common rejection reasons, and
+Acceptance Signals (these sharpen the Axis-2 call and the cascade plan). If none is found or the
+directory is not accessible, use the compact profile only.
 
 ---
 
 ## Phase 4: Output
+
+Every journal fact you print (URLs, article types, OA model, AI policy) comes from the loaded
+profile or from the journal's own website; never invent journal metadata, an impact factor, an
+APC or a submission policy.
 
 For each of the top 5 recommended journals, present:
 
@@ -256,12 +186,9 @@ designs — add external validation or target a selective/accessible venue"]
 **AI disclosure:** [Required / Recommended / Not specified] — [brief summary of permitted scope and disclosure location, if available in profile]
 ```
 
-After all 5 recommendations, add a brief comparison note (2-3 sentences) highlighting
-the key tradeoffs between the top choices (e.g., scope breadth vs. specialty depth,
-tier vs. acceptance feasibility).
-
-Then add the two blocks below,
-then the Mandatory Disclaimer.
+After all 5, add a 2-3 sentence comparison note on the key tradeoffs between the top choices
+(e.g., scope breadth vs. specialty depth, tier vs. acceptance feasibility). Then add the two
+blocks below, then the Mandatory Disclaimer.
 
 ### Acceptance-Readiness Summary
 
@@ -326,54 +253,36 @@ Recommended verification sources:
 
 ### Post-Rejection Mode
 
-When the user indicates a manuscript was rejected from a specific journal:
+When the manuscript was rejected by a specific journal:
 
-1. Exclude the rejecting journal from recommendations
+1. Exclude the rejecting journal.
 2. **Distinguish the rejection type — it changes the advice:**
    - **Desk-reject (no peer review)** — usually an importance/novelty or design-ceiling
-     verdict, not a fixable-revision signal. Re-run Phase 2.5; if a ceiling/importance
-     flag is present, recommending the next same-tier venue will likely desk-reject
-     again. Route **one or two tiers down** (or to a tolerant/`accessible` venue), or
-     advise the design/importance fix first, and consider a **presubmission inquiry**.
-   - **Post-peer-review reject** — there may be a transfer offer and salvageable
-     reviews. Prefer a **same-publisher transfer** (Springer Nature Transfer Desk /
-     Elsevier Article Transfer Service / Wiley / Nature Portfolio) that carries the
-     referee reports; transferred manuscripts are reviewed and published at
-     above-average rates. Otherwise same tier or one down with the fatal flaw addressed.
-3. Prioritize journals at the **same tier or one tier lower** than the rejecting journal
-   (lower if the rejection was a desk-reject on importance/ceiling)
-4. If rejected from Q1, recommend mix of Q1 (different scope angle) and strong Q2
-5. In the scope fit explanation, note how the recommendation differs from the rejected journal's focus
-6. Suggest any scope adjustments — or, when Phase 2.5 found a ceiling, any design
-   changes — that might improve feasibility for the new target
+     verdict, not a fixable-revision signal. Re-run Phase 2.5; if a ceiling or importance flag
+     is present, the next same-tier venue will likely desk-reject again. Route **one or two
+     tiers down** (or to a tolerant/`accessible` venue), or advise the design/importance fix
+     first, and consider a **presubmission inquiry**.
+   - **Post-peer-review reject** — prefer a **same-publisher transfer** (Springer Nature
+     Transfer Desk / Elsevier Article Transfer Service / Wiley / Nature Portfolio) that carries
+     the referee reports; otherwise same tier or one down, with the fatal flaw addressed.
+3. If rejected from Q1 other than by a ceiling/importance desk-reject, recommend a mix of Q1
+   (different scope angle) and strong Q2.
+4. In each scope-fit explanation, note how the recommendation differs from the rejected
+   journal's focus.
+5. Suggest scope adjustments — or, when Phase 2.5 found a ceiling, design changes — that might
+   improve feasibility for the new target.
 
 ### Case Report Mode
 
-When study type is "case report":
-
-1. Filter the compact profiles to only journals whose Article Types include case reports
-2. Prioritize journals known for valuing educational or rare cases
-3. If fewer than 5 journals accept case reports, note this and suggest the user consider
-   case-report-specific journals outside the profile set
-
-### Cross-Skill Integration
-
-This skill feeds into other skills in the pipeline:
-
-- **write-paper Phase 8+**: Once a target journal is selected, the write-paper skill
-  uses the journal profile for cover letter drafting and formatting
-- **self-review**: The selected journal's scope and requirements inform the self-review
-  checklist priorities
-- **check-reporting**: The journal's preferred reporting guidelines are passed to
-  check-reporting for compliance verification
-
-When called from write-paper or another skill, accept the abstract and study type
-from the calling context and skip redundant input collection.
+When the study type is case report, prioritize journals known for valuing educational or rare
+cases. If fewer than 5 profiled journals accept case reports, say so and suggest the user
+consider case-report-specific journals outside the profile set.
 
 ### Submission Directory Scaffolding
 
-When the user selects a target journal from the recommendations, create the
-`submission/{journal_short}/` directory structure:
+When the user selects a target journal, create `submission/{journal_short}/` (lowercase with
+underscores, e.g., `radiology_ai`, `european_radiology`, `ajr`) and report the path so
+`/write-paper` Phase 8+ and `/peer-review` know where to write:
 
 ```
 submission/
@@ -382,23 +291,3 @@ submission/
     ├── checklist.md          # Journal-specific submission checklist
     └── peer_review.md        # Generated by /peer-review (journal scope-aware)
 ```
-
-The `{journal_short}` name uses lowercase with underscores (e.g., `radiology_ai`,
-`european_radiology`, `ajr`). Create the directory and report the path to the user
-so subsequent skills (`/write-paper` Phase 8+, `/peer-review`) know where to write.
-
----
-
-## Error Handling
-
-- Count the compact profiles actually found (public + private after merge) at runtime and note the total in the output — never hard-code the count
-- If either tier directory is missing or empty, proceed with the other tier and note which tier was unavailable
-- If the write-paper profiles directory is not accessible for Pass 2 enrichment, output recommendations using compact profile data only
-- If no journals match after filtering, relax filters (remove OA constraint first, then tier) and re-score
-- Never fabricate journal information not present in the profiles
-
-## Anti-Hallucination
-
-- **Never fabricate file paths, URLs, DOIs, or package names.** Verify existence before recommending.
-- **Never invent journal metadata, impact factors, or submission policies** without verification at the journal's website.
-- If a tool, package, or resource does not exist or you are unsure, say so explicitly rather than guessing.
