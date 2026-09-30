@@ -2,10 +2,12 @@
 # sample_size.R — Sample Size Calculations for Medical Research
 # =============================================================
 # Covers: diagnostic accuracy, ICC agreement, kappa, proportions,
-#         continuous outcomes, survival/log-rank, and survey studies.
+#         continuous outcomes, and survival/log-rank.
+# Each section's example reproduces the package value noted beside it; the
+# formulas and their checks are documented in calc-sample-size references/formulas.md.
 #
-# Dependencies: pwr, epiR, MKpower (install if needed)
-# Install: install.packages(c("pwr", "epiR", "MKpower"))
+# Dependencies: pwr, epiR (install if needed)
+# Install: install.packages(c("pwr", "epiR"))
 #
 # Usage:
 #   Rscript sample_size.R
@@ -29,13 +31,6 @@ for (pkg in pkgs) {
   suppressPackageStartupMessages(library(pkg, character.only = TRUE))
 }
 
-# MKpower is optional (for ICC sample size)
-mk_available <- requireNamespace("MKpower", quietly = TRUE)
-if (!mk_available) {
-  cat("Note: MKpower not available. ICC-based sample size will be skipped.\n")
-  cat("  Install with: install.packages('MKpower')\n\n")
-}
-
 results <- list()
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -45,33 +40,39 @@ results <- list()
 
 cat("═══ 1. DIAGNOSTIC ACCURACY ═══════════════════════════════════════════\n")
 
-# Clopper-Pearson interval approach:
-# Desired: sensitivity ≥ 0.85, width of 95% CI ≤ 0.10 (i.e., ±5%)
-# Prevalence in study population: 30%
+# Buderer (1996), Wald interval: sensitivity is estimated in the diseased,
+# specificity in the non-diseased; N is the larger of the two requirements.
+# Check: Se 0.85, Sp 0.90, prevalence 0.30, half-width 0.05 -> 654
+#        (epiR::epi.ssdxsesp(0.85, 0.90, Py = 0.3, epsilon = 0.05, error = "absolute"))
 
 sensitivity_expected <- 0.85
+specificity_expected <- 0.90
 ci_half_width       <- 0.05    # desired half-width of 95% CI
 prevalence          <- 0.30    # prevalence in study population
 alpha               <- 0.05
 
-# For a proportion p, n needed for 95% CI width 2*w:
-# n = (z_{alpha/2} / w)^2 * p * (1 - p)
 z <- qnorm(1 - alpha / 2)
-n_positives <- ceiling((z / ci_half_width)^2 * sensitivity_expected *
-                         (1 - sensitivity_expected))
-n_total_diag <- ceiling(n_positives / prevalence)
+n_for_se <- ceiling(z^2 * sensitivity_expected * (1 - sensitivity_expected) /
+                      (ci_half_width^2 * prevalence))
+n_for_sp <- ceiling(z^2 * specificity_expected * (1 - specificity_expected) /
+                      (ci_half_width^2 * (1 - prevalence)))
+n_total_diag <- max(n_for_se, n_for_sp)
+n_positives <- ceiling(n_total_diag * prevalence)
 
-cat(sprintf("Expected sensitivity:         %.2f\n", sensitivity_expected))
+cat(sprintf("Expected sensitivity / specificity: %.2f / %.2f\n",
+            sensitivity_expected, specificity_expected))
 cat(sprintf("Desired 95%% CI half-width:   ±%.2f\n", ci_half_width))
 cat(sprintf("Disease prevalence:           %.1f%%\n", prevalence * 100))
-cat(sprintf("N disease-positive cases:     %d\n", n_positives))
-cat(sprintf("Total N (accounting for %.0f%% prevalence): %d\n",
-            prevalence * 100, n_total_diag))
+cat(sprintf("N for sensitivity:            %d\n", n_for_se))
+cat(sprintf("N for specificity:            %d\n", n_for_sp))
+cat(sprintf("Total N (larger of the two):  %d (%d expected disease-positive)\n",
+            n_total_diag, n_positives))
 cat(sprintf("With 15%% attrition: N = %d\n\n", ceiling(n_total_diag / 0.85)))
 
 results[["diagnostic_accuracy"]] <- data.frame(
   Analysis = "Diagnostic accuracy",
   Expected_metric = sensitivity_expected,
+  Expected_specificity = specificity_expected,
   CI_half_width = ci_half_width,
   Prevalence = prevalence,
   N_positive = n_positives,
@@ -86,84 +87,67 @@ results[["diagnostic_accuracy"]] <- data.frame(
 
 cat("═══ 2. INTER-RATER AGREEMENT (ICC) ═══════════════════════════════════\n")
 
-# Bonett (2002) formula
+# Walter, Eliasziw & Donner (1998): test H0: ICC <= icc_null (one-sided), k ratings/subject.
+# Check: 0.75 vs 0.50, k = 2 -> 36; k = 3 -> 24
+#        (ICC.Sample.Size::calculateIccSampleSize(p = 0.75, p0 = 0.5, k = 2, tails = 1))
+# For a CI-width (precision) aim use Bonett (2002) instead: presize::prec_icc().
 icc_expected    <- 0.75    # expected ICC (good agreement)
 icc_null        <- 0.50    # null hypothesis ICC (acceptable lower bound)
 n_raters        <- 2       # number of raters
 alpha_icc       <- 0.05
 power_icc       <- 0.80
 
-# Approximate formula (Bonett 2002, Psychol Methods)
-# Requires icc_exp > icc_null
-if (mk_available) {
-  library(MKpower)
-  n_icc <- tryCatch({
-    result <- sampleSize.ICC(
-      rho0 = icc_null,
-      rho1 = icc_expected,
-      k = n_raters,
-      alpha = alpha_icc,
-      power = power_icc
-    )
-    result$n
-  }, error = function(e) NA)
-} else {
-  # Manual approximation using Fisher z-transformation
-  z_exp  <- 0.5 * log((1 + icc_expected) / (1 - icc_expected))
-  z_null <- 0.5 * log((1 + icc_null) / (1 - icc_null))
-  z_diff <- z_exp - z_null
-  n_icc <- ceiling(
-    ((qnorm(1 - alpha_icc) + qnorm(power_icc)) / z_diff)^2 + 3
-  )
-}
+C0 <- (1 + n_raters * icc_null / (1 - icc_null)) /
+  (1 + n_raters * icc_expected / (1 - icc_expected))
+n_icc <- ceiling(1 + 2 * n_raters * (qnorm(1 - alpha_icc) + qnorm(power_icc))^2 /
+                   ((n_raters - 1) * log(C0)^2))
 
 cat(sprintf("Expected ICC:             %.2f\n", icc_expected))
 cat(sprintf("Null ICC (lower bound):   %.2f\n", icc_null))
 cat(sprintf("Number of raters:         %d\n", n_raters))
 cat(sprintf("Power:                    %.0f%%\n", power_icc * 100))
-if (!is.na(n_icc)) {
-  cat(sprintf("Required N:               %d\n", n_icc))
-  cat(sprintf("With 10%% attrition:       %d\n\n", ceiling(n_icc / 0.90)))
-} else {
-  cat("  N calculation failed — install MKpower\n\n")
-}
+cat(sprintf("Required N:               %d\n", n_icc))
+cat(sprintf("With 10%% attrition:       %d\n\n", ceiling(n_icc / 0.90)))
 
 results[["icc"]] <- data.frame(
   Analysis = "ICC agreement",
   Expected_ICC = icc_expected,
   Null_ICC = icc_null,
   N_raters = n_raters,
-  N_required = ifelse(is.na(n_icc), NA, n_icc),
-  N_with_attrition = ifelse(is.na(n_icc), NA, ceiling(n_icc / 0.90))
+  N_required = n_icc,
+  N_with_attrition = ceiling(n_icc / 0.90)
 )
 
 # ══════════════════════════════════════════════════════════════════════════════
 # 3. KAPPA STATISTIC
-#    Sample size for desired precision of kappa
+#    Sample size to test kappa against a null value
 # ══════════════════════════════════════════════════════════════════════════════
 
 cat("═══ 3. KAPPA AGREEMENT ════════════════════════════════════════════════\n")
 
-# Donner & Eliasziw (1992) approximation
+# Donner & Eliasziw (1992) goodness-of-fit, two raters, binary rating.
+# The variance of kappa depends on the trait prevalence, so N does too.
+# Check: 0.70 vs 0.40, prevalence 0.50 -> 74; prevalence 0.20 -> 107
+#        (kappaSize::PowerBinary(kappa0 = 0.4, kappa1 = 0.7, props = 0.5, raters = 2));
+# 3-6 raters or 3-5 categories: use kappaSize directly.
 kappa_expected  <- 0.70    # expected kappa (substantial agreement)
 kappa_null      <- 0.40    # null hypothesis kappa
-po_expected     <- 0.75    # expected proportion of agreement
-alpha_kappa     <- 0.05
+prevalence_k    <- 0.50    # proportion of subjects with the trait
+alpha_kappa     <- 0.05    # two-sided
 power_kappa     <- 0.80
 
-pe <- (po_expected - kappa_expected) / (1 - kappa_expected)
-se_kappa <- sqrt((po_expected * (1 - po_expected)) /
-                   (length(c(po_expected)) * (1 - pe)^2))
-
-# Simple z-test approximation
-n_kappa <- ceiling(
-  ((qnorm(1 - alpha_kappa) + qnorm(power_kappa))^2 *
-     (kappa_expected * (1 - kappa_expected))) /
-    (kappa_expected - kappa_null)^2 + 1
-)
+cell_probs <- function(k, p) {
+  q <- 1 - p
+  c(q^2 + k * p * q, 2 * (1 - k) * p * q, p^2 + k * p * q)
+}
+p_alt  <- cell_probs(kappa_expected, prevalence_k)
+p_null <- cell_probs(kappa_null, prevalence_k)
+chi2_k <- sum((p_alt - p_null)^2 / p_null)
+n_kappa <- ceiling((qnorm(1 - alpha_kappa / 2) + qnorm(power_kappa))^2 / chi2_k)
 
 cat(sprintf("Expected kappa:           %.2f\n", kappa_expected))
 cat(sprintf("Null kappa:               %.2f\n", kappa_null))
+cat(sprintf("Trait prevalence:         %.2f\n", prevalence_k))
 cat(sprintf("Required N:               %d\n", n_kappa))
 cat(sprintf("With 10%% attrition:       %d\n\n", ceiling(n_kappa / 0.90)))
 
@@ -278,37 +262,47 @@ results[["t_test"]] <- data.frame(
 
 cat("═══ 7. SURVIVAL ANALYSIS (LOG-RANK TEST) ═════════════════════════════\n")
 
+# Schoenfeld (1983) events, with the allocation term p(1 - p); patients from the
+# event probability under uniform accrual, exponential survival and exponential dropout.
+# Check: HR 0.65, 1:1 -> 170 events (gsDesign::nEvents(hr = 0.65, alpha = 0.05,
+#        beta = 0.2, sided = 2) = 169.18); N 356 (gsDesign::nSurv(lambdaC = log(2)/24,
+#        hr = 0.65, eta = -log(0.95)/12, R = 12, T = 36, minfup = 24, method = "Schoenfeld")
+#        n = 355.40 -> 178 per arm)
 hr        <- 0.65    # expected hazard ratio (treatment vs. control)
+p_alloc   <- 0.5     # proportion randomised to treatment
 median_ctrl <- 24    # median survival control arm (months)
 accrual_time <- 12   # accrual period (months)
-follow_up    <- 24   # follow-up after accrual (months)
-drop_rate    <- 0.05 # annual dropout rate
+follow_up    <- 24   # minimum follow-up after accrual (months)
+drop_rate    <- 0.05 # proportion lost to follow-up per year
 alpha_lr     <- 0.05
 power_lr     <- 0.80
 
-# Schoenfeld (1981) formula: required events
-n_events <- ceiling(
-  (qnorm(1 - alpha_lr / 2) + qnorm(power_lr))^2 /
-    (log(hr))^2
-)
+d_raw <- (qnorm(1 - alpha_lr / 2) + qnorm(power_lr))^2 /
+  (p_alloc * (1 - p_alloc) * log(hr)^2)
+n_events <- ceiling(d_raw)
 
-# Total N: approximate
 lambda_ctrl <- log(2) / median_ctrl
 lambda_trt  <- lambda_ctrl * hr
-p_event_ctrl <- 1 - exp(-lambda_ctrl * follow_up)
-p_event_trt  <- 1 - exp(-lambda_trt  * follow_up)
-avg_p_event  <- (p_event_ctrl + p_event_trt) / 2
-n_lr <- ceiling(n_events / avg_p_event)
+eta <- -log(1 - drop_rate) / 12          # monthly dropout hazard
+total_time <- accrual_time + follow_up
+p_event <- function(lambda) {
+  a <- lambda + eta
+  lambda / a * (1 - (exp(-a * follow_up) - exp(-a * total_time)) / (a * accrual_time))
+}
+p_bar <- p_alloc * p_event(lambda_trt) + (1 - p_alloc) * p_event(lambda_ctrl)
+n_trt  <- ceiling(p_alloc * d_raw / p_bar)
+n_ctrl <- ceiling((1 - p_alloc) * d_raw / p_bar)
+n_lr <- n_trt + n_ctrl
 
 cat(sprintf("Expected hazard ratio:    %.2f\n", hr))
 cat(sprintf("Median OS (control):      %d months\n", median_ctrl))
 cat(sprintf("Accrual period:           %d months\n", accrual_time))
-cat(sprintf("Follow-up period:         %d months\n", follow_up))
+cat(sprintf("Minimum follow-up:        %d months\n", follow_up))
+cat(sprintf("Dropout:                  %.0f%% per year (inside P(event))\n", drop_rate * 100))
 cat(sprintf("Required events:          %d\n", n_events))
-cat(sprintf("Estimated total N:        %d per group (%d total)\n",
-            ceiling(n_lr / 2), n_lr))
-cat(sprintf("With dropout:             +%.0f%% → %d total\n\n",
-            drop_rate * 100, ceiling(n_lr / (1 - drop_rate))))
+cat(sprintf("P(event) averaged:        %.4f\n", p_bar))
+cat(sprintf("Total N:                  %d (%d treatment + %d control)\n\n",
+            n_lr, n_trt, n_ctrl))
 
 results[["survival"]] <- data.frame(
   Analysis = "Log-rank test",
@@ -316,7 +310,7 @@ results[["survival"]] <- data.frame(
   Median_OS_ctrl = median_ctrl,
   N_events = n_events,
   N_total = n_lr,
-  N_with_dropout = ceiling(n_lr / (1 - drop_rate))
+  N_with_dropout = n_lr   # dropout is already inside P(event)
 )
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -375,7 +369,7 @@ cat("\nSaved: sample_size_results.csv\n")
 cat("\n── Session Info ─────────────────────────────────────────────────────\n")
 cat(sprintf("R: %s\n", R.version$version.string))
 cat(sprintf("Date: %s\n", format(Sys.time())))
-for (pkg in c("pwr", "epiR", "MKpower")) {
+for (pkg in c("pwr", "epiR")) {
   if (requireNamespace(pkg, quietly = TRUE)) {
     cat(sprintf("  %-12s %s\n", pkg, packageVersion(pkg)))
   }

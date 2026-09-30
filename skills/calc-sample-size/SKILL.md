@@ -57,14 +57,14 @@ methodological reference.
 | # | Test | Use when |
 |---|------|----------|
 | 1 | Diagnostic accuracy — Se/Sp precision | desired 95% CI half-width for sensitivity or specificity |
-| 2 | ICC agreement (Bonett 2002) | inter-/intra-rater agreement on continuous measurements (tumor size, angle) |
-| 3 | Kappa agreement (Donner & Eliasziw 1992) | agreement on categorical ratings (BI-RADS category, lesion present/absent) |
+| 2 | ICC agreement (Walter 1998 test; Bonett 2002 CI width) | inter-/intra-rater agreement on continuous measurements (tumor size, angle) |
+| 3 | Kappa agreement (Donner & Eliasziw 1992; needs the trait prevalence) | agreement on categorical ratings (BI-RADS category, lesion present/absent) |
 | 4 | Two-proportion comparison (chi-square) | two independent groups (AI vs conventional detection rate) |
 | 5 | McNemar (paired proportions) | paired binary outcomes (two readers on the same cases, before/after) |
 | 6 | Independent t-test | means in two independent groups (lesion size, malignant vs benign) |
-| 7 | Survival / log-rank (Schoenfeld 1981) | time-to-event between two groups |
+| 7 | Survival / log-rank (Schoenfeld events, then patients) | time-to-event between two groups |
 | 8 | One-way ANOVA | means across 3+ independent groups |
-| 9 | Logistic regression (Peduzzi EPV + Hsieh 1989) | multivariable binary outcome, single-predictor hypothesis test |
+| 9 | Logistic regression (Peduzzi EPV + Hsieh 1998, continuous or binary predictor) | multivariable binary outcome, single-predictor hypothesis test |
 | 10 | Non-inferiority / equivalence | new method not worse than standard by more than a pre-specified margin, or equivalent within it |
 | 11 | Cox regression EPV | multivariable Cox model — enough events for stable estimates |
 
@@ -72,8 +72,9 @@ methodological reference.
   a clinical prediction / medical-AI model intended for use, EPV-10 is outdated and
   reviewer-vulnerable — use Test 12 (development) / Test 13 (validation). Always report both Peduzzi
   and Hsieh and recommend the larger N.
-- **Test 10**: NI alpha is one-sided (typically 0.025); equivalence is TOST. The margin must be clinically
-  justified (see `formulas.md` § Margin selection).
+- **Test 10**: NI alpha is one-sided (typically 0.025); orient the difference so > 0 favours the new
+  method. Equivalence is TOST, powered jointly. The margin must be clinically justified (see
+  `formulas.md` § Margin selection).
 - **Test 11**: EPV ensures model stability, not power for a specific HR. If an HR is available, also
   run Test 7 (Schoenfeld) and recommend the larger N.
 
@@ -83,7 +84,8 @@ Each has its own reference file (parameters, method, reporting); read it once th
 
 - **Test 12 — Prediction-model development (Riley).** Developing a clinical prediction /
   classification model (including a medical-AI model evaluated as one) for use. EPV-10 does not
-  apply: N is the largest satisfying all four Riley criteria (R `pmsampsize`).
+  apply: N is the largest satisfying all Riley criteria — three for a binary or time-to-event
+  outcome, four for a continuous one (R `pmsampsize`).
 - **Test 13 — External validation (Riley).** Validating an existing prediction/AI model: size for the
   CI width of the C-statistic, calibration slope, O:E and (if claimed) net benefit (R
   `pmvalsampsize`); ≥ 100 events and ≥ 100 non-events is only a floor.
@@ -95,15 +97,17 @@ Each has its own reference file (parameters, method, reporting); read it once th
   `${CLAUDE_SKILL_DIR}/references/mrmc_reader_study_sample_size.md`.
 - **Test 15 — Segmentation-metric precision (Dice / HD95 / NSD).** The outcome is a per-case score,
   not a proportion: `n ≈ (1.96·SD/δ)²` from the pilot SD of per-case Dice, sized on the worst
-  structure; CI by patient-level bootstrap (BCa). Read
+  structure; CI by patient-level bootstrap (BCa). This is precision; a comparison is Test 16. Read
   `${CLAUDE_SKILL_DIR}/references/segmentation_metric_sample_size.md`.
 - **Test 16 — Between-model comparison.** Model A beats B, C, …: power the paired per-case
-  *difference*, not each model's precision; for > 2 models pre-specify one primary contrast or pay the
+  *difference*, `n = ((z₁₋α/₂ + z₁₋β)·SD_Δ/Δ)²` (a CI sized to just exclude zero has ~50% power), not
+  each model's precision; for > 2 models pre-specify one primary contrast or pay the
   family-wise correction; a ranking claim needs multiple seeds. Read
   `${CLAUDE_SKILL_DIR}/references/multi_model_comparison_sample_size.md`.
 - **Test 17 — Segmentation usability.** Clinicians can use it (acceptability rate, catastrophic-failure
-  bound, edit time): acceptability is a proportion sized per structure class; ratings by m readers are
-  nested (`DE ≈ 1 + (m−1)ρ`); bounding failures at ≤ 1% needs ~300 clean cases (rule of three). Read
+  bound, edit time): acceptability is a proportion sized per structure class; `DE ≈ 1 + (m−1)ρ` holds
+  only when each case has its own readers — the same readers on every case (crossed) add a reader term
+  more cases cannot shrink; bounding failures at ≤ 1% needs ~300 clean cases (rule of three). Read
   `${CLAUDE_SKILL_DIR}/references/segmentation_acceptability_sample_size.md`.
 
 ## Out of Scope

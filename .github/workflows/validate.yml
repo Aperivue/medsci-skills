@@ -27,7 +27,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install Python test dependencies
-        run: pip install pyyaml pandas numpy scipy scikit-learn matplotlib python-pptx python-docx fonttools
+        run: pip install pyyaml pandas numpy scipy scikit-learn matplotlib python-pptx python-docx fonttools statsmodels
 
       - name: Install exiftool + poppler + pandoc (artifact and render tests; no TeX)
         run: sudo apt-get update && sudo apt-get install -y libimage-exiftool-perl poppler-utils pandoc
@@ -305,6 +305,9 @@ jobs:
           bash skills/analyze-stats/tests/test_survival_template.sh
           python3 skills/analyze-stats/tests/test_analysis_run.py
           bash skills/analyze-stats/scripts/analysis_run_challenge/verify.sh
+
+      - name: "Run calc-sample-size worked-example test (every formula block reproduces its package value)"
+        run: python3 skills/calc-sample-size/tests/test_worked_examples.py
 
       - name: Run sync-submission asset-anonymization gate test (A2)
         run: bash skills/sync-submission/tests/test_asset_anonymization.sh
