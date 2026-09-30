@@ -2063,8 +2063,8 @@
     },
     {
       "path": "skills/lit-sync/skill.yml",
-      "size": 2919,
-      "sha256": "516cb1ea69464e76b5868500d04429f5ea40e428be2ecbf54214fd888040984e"
+      "size": 2949,
+      "sha256": "648560c259451cfaf060efd40ed667038745868b18718470787e6c21f0cd20b6"
     },
     {
       "path": "skills/ma-scout/SKILL.md",
@@ -6633,8 +6633,8 @@
     },
     {
       "path": "skills/write-paper/references/phase7_polish_detail.md",
-      "size": 19483,
-      "sha256": "87af6eed4ac11fe741f32cdad97c7d7dee5e3c2bb0df564930f64dcb5cdfe021"
+      "size": 19503,
+      "sha256": "e7a45dadf7de624c914c958b204b646887a6bcf8651dbd5d7e6608fd855e0f58"
     },
     {
       "path": "skills/write-paper/references/phase8_cover_letter.md",
