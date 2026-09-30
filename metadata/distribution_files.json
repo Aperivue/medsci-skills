@@ -2593,13 +2593,13 @@
     },
     {
       "path": "skills/manage-project/SKILL.md",
-      "size": 10343,
-      "sha256": "36053eb120111d61cc342741143c31647f27f209deb869571f4402924c2fdbc4"
+      "size": 5757,
+      "sha256": "469e613516d2d75ee51c9ba9fedb721d24ce852c9b4df4c0f139de874e16abaf"
     },
     {
       "path": "skills/manage-project/references/init_scaffold.md",
-      "size": 5288,
-      "sha256": "08ae11ce7709cecd2d9ab157605d7f4ff72b91b86907a31b5edc4c82e6a8da8c"
+      "size": 2445,
+      "sha256": "454e6d0d9103133398f901ca228af78777a057d7842ea06afb97dd8e60408dcb"
     },
     {
       "path": "skills/manage-project/references/pre_submission_checklist.md",
@@ -2613,18 +2613,18 @@
     },
     {
       "path": "skills/manage-project/references/scaffold_templates.md",
-      "size": 2069,
-      "sha256": "c08548ad3ca3c4d7c3fdaa1a7bce6aa2738f4772409e29efe7bbb8a7099ee755"
+      "size": 1228,
+      "sha256": "4f46fe139b9f6d1bafedcfd8853acfa5f69e7b4f1bbdc9af73c63f8d2dca2199"
     },
     {
       "path": "skills/manage-project/references/status_output_format.md",
-      "size": 1261,
-      "sha256": "9f59f1996617ed4dd697ac5cecb95659a3d288809e2c06dd46a164c31bcd8c7b"
+      "size": 1153,
+      "sha256": "70f32e4872db0f0401e1b08494c48fce303dc1b6d449f8bb3dd8c91c5be15276"
     },
     {
       "path": "skills/manage-project/references/timeline_example.md",
-      "size": 803,
-      "sha256": "f38cb7887eb459808aca6aeda38efeac8f8ddc59ff89f5f15585568c1cd0c5b4"
+      "size": 812,
+      "sha256": "36a6ce663938e2959be3c811b7274d6489f13cc57e2403b552830e76d0f95bd9"
     },
     {
       "path": "skills/manage-project/scripts/init_project.py",
