@@ -205,6 +205,13 @@
   carries only a text-and-data-mining licence and treats it as non-open. The row moves to the
   non-open table.
 
+- **`/verify-refs`: an in-press or e000 reference is no longer reported OK.** Gate 6 was meant to
+  downgrade a resolved reference whose pagination is a placeholder (`e000–e000`, "in press", "TBD")
+  to UNVERIFIED, but it compared against a `VERIFIED` status the script never emits (it emits OK),
+  so online such a reference stayed OK and passed `--strict`. The offline regression test could not
+  see it, because offline every record is already UNVERIFIED; it now also calls the gate on a
+  resolved record.
+
 ### Security
 
 - **`/manage-refs`: the CWYW example no longer carries a real Zotero user id.** The documented
