@@ -18,10 +18,14 @@ PHI data.
 1. **NEVER ask the user to paste, show, or upload raw data containing PHI.**
    The script processes data locally. You never need to see patient-level data.
 2. **NEVER read or display the mapping file contents.** It contains original PHI values.
-3. **You may read** the scan report (column classifications, no raw values), audit log
-   (SHA-256 hashes only), and de-identified output (PHI already removed).
+3. **You may read** the scan and reviewed reports (column classifications; no cell values)
+   and the audit log (keyed hashes; no original values). Read the de-identified output only
+   after the researcher has run the review and confirmed it; it has the identifiers they
+   chose to anonymize removed, and nothing more (see "What the tool does not do").
 4. **Always communicate in the user's preferred language** about the process, but use
    English for technical terms (PHI, HIPAA, Safe Harbor, etc.).
+5. **The researcher runs the script in their own terminal**, not through you (no `!` prefix,
+   no Bash tool call): the review prints sample values of every column.
 
 ## Reference Files
 
@@ -33,7 +37,7 @@ Read relevant references before advising the researcher.
 
 ## Prerequisites
 
-- Python 3.10+
+- Python 3.9+
 - `openpyxl` (for .xlsx files): `pip install openpyxl`
 - Supported formats: CSV, TSV, Excel (.xlsx)
 
@@ -48,8 +52,8 @@ Ask the researcher:
 4. Do you need to re-identify later? (affects mapping file choice)
 
 Based on answers, recommend the appropriate command:
-- Full pipeline (most common): `python deidentify.py full <file> --locale <code>`
-- Step-by-step (cautious): `python deidentify.py scan <file> --locale <code>` first
+- Full pipeline (most common): `python3 deidentify.py full <file> --locale <code>`
+- Step-by-step (cautious): `python3 deidentify.py scan <file> --locale <code>` first
 
 Available locale codes: `kr` (Korea), `us` (USA), `jp` (Japan), `cn` (China), `de` (Germany),
 `uk` (United Kingdom), `fr` (France), `ca` (Canada), `au` (Australia), `in` (India).
@@ -65,29 +69,32 @@ ${CLAUDE_SKILL_DIR}/deidentify.py
 
 **Full pipeline** (recommended for most users):
 ```bash
-python ${CLAUDE_SKILL_DIR}/deidentify.py full data.xlsx \
+python3 ${CLAUDE_SKILL_DIR}/deidentify.py full data.xlsx \
     --locale kr \
-    --output-dir ./deidentified/ \
-    --auto-accept-safe
+    --output-dir ./deidentified/
 ```
 
 **Step-by-step** (for careful review):
 ```bash
 # Step 1: Scan
-python ${CLAUDE_SKILL_DIR}/deidentify.py scan data.xlsx --locale kr --output-dir ./deidentified/
+python3 ${CLAUDE_SKILL_DIR}/deidentify.py scan data.xlsx --locale kr --output-dir ./deidentified/
 
 # Step 2: Review (interactive)
-python ${CLAUDE_SKILL_DIR}/deidentify.py review ./deidentified/scan_report.json
+python3 ${CLAUDE_SKILL_DIR}/deidentify.py review ./deidentified/scan_report.json
 
-# Step 3: Apply
-python ${CLAUDE_SKILL_DIR}/deidentify.py apply ./deidentified/reviewed_report.json
+# Step 3: Apply (refuses a report that was not reviewed, or has a column without a decision)
+python3 ${CLAUDE_SKILL_DIR}/deidentify.py apply ./deidentified/reviewed_report.json
 ```
 
 **Options:**
 - `--locale CODE`: Country locale for PHI patterns (kr, us, jp, cn, de, uk, fr, ca, au, in)
 - `--locale-file PATH`: Custom locale JSON file (copy `locales/_template.json` to create one)
-- `--auto-accept-safe`: Skip confirmation for columns classified as SAFE (faster for large datasets)
-- `--hash-mapping`: Store SHA-256 hashes instead of original values in mapping file (one-way, more secure)
+- `--auto-accept-safe`: Keep SAFE columns without showing them. Not recommended: SAFE means
+  no pattern matched, not that the column holds no identifiers (a name typed into a short
+  comment matches no pattern), and this option means nobody looks at those columns
+- `--hash-mapping`: Store unkeyed SHA-256 hashes instead of original names/IDs in the mapping
+  file. Dates and numeric IDs can be recovered from such hashes by trying every candidate, so
+  mapping.json stays restricted either way
 - `--output-dir`: Where to save de-identified file, mapping, and audit log
 - `-v/--verbose`: Enable debug logging
 
@@ -95,31 +102,40 @@ python ${CLAUDE_SKILL_DIR}/deidentify.py apply ./deidentified/reviewed_report.js
 
 The script's terminal review has three passes:
 
-1. **Pass 1 — Column Classification**: Each column is shown as PHI / REVIEW_NEEDED / SAFE.
-   The researcher confirms or overrides each classification.
+1. **Pass 1 — Column Classification**: Each column is shown as PHI / REVIEW_NEEDED / SAFE,
+   with sample values. The researcher confirms or overrides each classification.
 2. **Pass 2 — Undecided Items**: Columns that weren't resolved in Pass 1 get a second look
    with more sample values displayed.
 3. **Pass 3 — Final Summary**: A table of all planned actions. The researcher can edit
    individual decisions before confirming.
+4. **Patient key** (only when dates will be shifted): the researcher picks the column that
+   identifies the patient, or `row` if every row is a different patient. Each patient gets
+   their own offset; without a key the tool does not shift dates.
 
 Coach the researcher. Deliver these prompts in the researcher's preferred language:
 - "Columns classified as PHI are anonymized by default. Press 'k' to keep the original value."
-- "REVIEW_NEEDED are columns the script could not classify. Check the sample values and decide."
-- "SAFE means no PHI detected. Press 'r' to request re-review if any column looks suspicious."
+- "REVIEW_NEEDED are columns the script could not vouch for: free text, a PHI word inside a
+  longer column name, ID-like numbers, a rare address. Read the sample values and type 'a'
+  or 'k' — Enter alone is not accepted for these."
+- "SAFE means no pattern matched, not that the column is free of identifiers. Read its sample
+  values too, and press 'r' if a column holds names or anything else identifying."
+- For free-text columns, 'a' replaces each whole text with `[REDACTED]`: the script cannot
+  find a name inside a sentence, so it does not try to keep the rest of the text.
 
 ### Phase 4: Verify and Document
 
 After the script completes, help the researcher verify:
 
-1. **Read the audit log** (safe — contains only hashes):
+1. **Read the audit log** (no original values; `before_hash` is an HMAC-SHA256 under a
+   per-run key that is kept only in mapping.json):
    ```bash
    cat ./deidentified/audit_log.csv | head -20
    ```
    Verify the number of changes, affected columns, and PHI types.
 
-2. **Spot-check the de-identified file** (safe — PHI already removed):
-   Read a few rows to confirm pseudonyms (P0001, etc.), date shifts, and [REDACTED] markers
-   appear where expected.
+2. **Ask the researcher to spot-check the de-identified file first**, in their own terminal:
+   pseudonyms (P0001, etc.), shifted dates and [REDACTED] markers where expected, and no
+   names in the columns they kept. Read it yourself only after they confirm.
 
 3. **Check that sensitive columns are actually removed**:
    Verify no original names, phone numbers, or RRN values remain.
@@ -134,7 +150,7 @@ After the script completes, help the researcher verify:
 Generate a de-identification methods paragraph for the manuscript or IRB:
 
 Template:
-> Protected health information was removed from the dataset prior to analysis using
+> Direct identifiers were removed from the dataset prior to analysis using
 > a rule-based de-identification tool (deidentify.py, medsci-skills) with the [COUNTRY]
 > locale pattern pack. The tool scanned column names and cell values using regex patterns
 > for country-specific identifiers (e.g., national ID numbers, phone numbers), email
@@ -146,7 +162,9 @@ Template:
 > columns were de-identified. The de-identification mapping file was stored separately
 > under restricted access (file permissions 0600).
 
-Customize based on the actual audit log statistics.
+Customize based on the actual audit log statistics. Do not call the dataset "de-identified
+under HIPAA Safe Harbor" (or anonymised under another law) unless the gaps listed in
+"What the tool does not do" were closed as well, or an expert determination covers them.
 
 ## Cross-Skill Integration
 
@@ -160,11 +178,33 @@ Customize based on the actual audit log statistics.
 
 | File | Contains PHI? | Safe for Claude? | Purpose |
 |------|:------------:|:----------------:|---------|
-| `*_deidentified.xlsx/csv` | No | Yes | De-identified data for analysis |
-| `mapping.json` | **YES** | **No** | Original ↔ pseudonym mapping |
-| `audit_log.csv` | No (hashes only) | Yes | What was changed and where |
-| `scan_report.json` | No | Yes | Column classification results |
-| `reviewed_report.json` | No | Yes | Researcher-reviewed classifications |
+| `*_deidentified.xlsx/csv` | Only what the researcher kept, and what the tool cannot detect (see below) | After the researcher confirms it | Data for analysis |
+| `mapping.json` | **YES** | **No** | Original ↔ pseudonym mapping, date-shift seed, audit hash key |
+| `audit_log.csv` | No original values (keyed hashes) | Yes | What was changed and where |
+| `scan_report.json` | No cell values | Yes | Column classification results |
+| `reviewed_report.json` | No cell values | Yes | Researcher-reviewed classifications and patient key column |
+
+## What the tool does not do
+
+The tool removes or replaces the identifiers the researcher marked for anonymization. It does
+not by itself make a dataset HIPAA Safe Harbor de-identified, or anonymous under other laws:
+
+- **Ages over 89 are kept as they are.** Safe Harbor requires ages 90 and over to be grouped
+  (e.g. "90+"); do it before sharing.
+- **Shifted dates keep a day and a month.** Safe Harbor removes every date element except the
+  year; date shifting is a different method (typically justified by an expert determination
+  or used within a limited data set). Dates the script cannot parse become `[DATE_SHIFTED]`.
+- **Names in text are not found.** Free-text columns are REVIEW_NEEDED and, if anonymized,
+  replaced as a whole. A name in a short comment column can still be classified SAFE: the
+  review shows every column's sample values so the researcher can catch it.
+- **Rare combinations are not assessed.** Small cells, rare diagnoses, or quasi-identifiers
+  (age + sex + ZIP + admission month) can identify a patient; no k-anonymity check is run.
+- **Geography is only as fine as the patterns.** ZIP codes and addresses are detected per
+  locale; truncating ZIP codes to three digits (Safe Harbor) is not done.
+- **Not detected:** URLs, IP addresses, account, licence, vehicle and device numbers (fax
+  numbers only where they look like the locale's phone numbers), and identifiers written in
+  column names or file names. Only the first sheet of an Excel file is processed (the other
+  sheets are not written to the output).
 
 ## Scope and Limitations
 
