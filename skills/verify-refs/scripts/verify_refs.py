@@ -769,13 +769,15 @@ def _title_similarity(a: str, b: str) -> float:
 
     Guards title-search matches (OpenAlex, PubMed fallback): a fabricated title must not
     earn a spurious OK just because a search returned some unrelated work. Connective
-    stopwords and stray single letters are dropped so they do not inflate similarity;
-    dropping every token of <=2 characters made "... in CT" match "... in MR".
+    stopwords are dropped so they do not inflate similarity, and a possessive "'s" is
+    removed first so "Alzheimer's" and "Alzheimer" agree. Every other token counts, however
+    short: dropping tokens of <=2 characters made "... in CT" match "... in MR", and dropping
+    single letters made "hepatitis B" match "hepatitis C".
     """
     def toks(s: str) -> set:
-        s = re.sub(r"[^a-z0-9 ]", " ", s.lower())
-        return {w for w in s.split()
-                if w not in _TITLE_STOPWORDS and (len(w) > 1 or w.isdigit())}
+        s = re.sub(r"['\u2019]s\b", "", s.lower())
+        s = re.sub(r"[^a-z0-9 ]", " ", s)
+        return {w for w in s.split() if w not in _TITLE_STOPWORDS}
     ta, tb = toks(a), toks(b)
     if not ta or not tb:
         return 0.0

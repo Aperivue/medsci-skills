@@ -367,7 +367,8 @@ before v6, re-run it before relying on the result:
   registered elsewhere (DataCite, for example) is never flagged, and a failed lookup stays
   UNVERIFIED. A DOI is looked up as cited (a trailing `/` or a legacy SICI DOI ending in `#` is
   kept, and a SICI DOI is never called FABRICATED), and the title comparison counts short words
-  such as CT and MR, so a paper on the other modality is not taken for the cited one. In Markdown
+  such as CT and MR and single letters such as the B in hepatitis B, so a paper on the other
+  modality or virus is not taken for the cited one. In Markdown
   manuscripts a `# References` heading is recognised, so body text is no
   longer read as references, and the `/manage-refs` render step reports how many references are
   UNVERIFIED instead of "clean".

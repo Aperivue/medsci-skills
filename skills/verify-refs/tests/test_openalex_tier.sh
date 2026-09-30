@@ -34,6 +34,12 @@ check("title sim exact == 1.0", abs(vr._title_similarity(t, t) - 1.0) < 1e-9)
 check("title sim unrelated < 0.3",
       vr._title_similarity(t, "A meta-analysis of CT screening for lung cancer") < 0.3)
 check("title sim empty == 0.0", vr._title_similarity("", t) == 0.0)
+check("title sim: hepatitis B vs hepatitis C below the match threshold",
+      vr._title_similarity("Tenofovir for chronic hepatitis B", "Tenofovir for chronic hepatitis C")
+      < vr.TITLE_MATCH_MIN)
+check("title sim: a possessive 's does not lower the score",
+      abs(vr._title_similarity("Alzheimer's disease biomarkers in plasma",
+                               "Alzheimer disease biomarkers in plasma") - 1.0) < 1e-9)
 
 # --- _openalex_families ---------------------------------------------------------
 work = {"authorships": [
