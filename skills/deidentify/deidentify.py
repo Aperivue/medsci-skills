@@ -931,8 +931,11 @@ class DateShifter:
         self.seed = seed
 
     def _get_offset(self, entity_id: str) -> int:
+        # Never 0: a zero offset (one patient in 731 under randint(-365, 365))
+        # wrote the original date to the output and the audit log.
         if entity_id not in self._offsets:
-            self._offsets[entity_id] = self._rng.randint(-self._max_days, self._max_days)
+            days = self._rng.randint(1, self._max_days)
+            self._offsets[entity_id] = days if self._rng.random() < 0.5 else -days
         return self._offsets[entity_id]
 
     def shift(self, date_str: str, entity_id: str) -> str:

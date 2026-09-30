@@ -11,7 +11,9 @@ could identify individuals.
 
 The recommended approach, used by PCORI Clinical Data Research Networks:
 
-1. **Generate offset**: For each patient, draw a random integer from [-365, +365] days
+1. **Generate offset**: For each patient, draw a random integer from [-365, +365] days,
+   excluding 0 (the script draws 1-365 days and a random direction; a zero offset
+   would leave the original date in place)
 2. **Apply uniformly**: Shift ALL dates for that patient by the same offset
 3. **Truncate edges**: Remove records near dataset boundaries where shifting would
    push dates outside the study period

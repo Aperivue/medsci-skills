@@ -155,7 +155,7 @@ Template:
 > for country-specific identifiers (e.g., national ID numbers, phone numbers), email
 > addresses, dates, and addresses. Each column classification was reviewed by the
 > researcher in an interactive terminal session. Names were replaced with pseudonyms
-> (P0001, P0002, ...), dates were shifted by a random per-patient offset (±365 days)
+> (P0001, P0002, ...), dates were shifted by a random per-patient offset (1-365 days, either direction)
 > preserving relative temporal intervals, and direct identifiers (phone numbers, email
 > addresses, national ID numbers) were suppressed. A total of [N] cells across [M]
 > columns were de-identified. The de-identification mapping file was stored separately

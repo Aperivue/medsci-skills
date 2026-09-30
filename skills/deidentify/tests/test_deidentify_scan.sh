@@ -429,5 +429,28 @@ check "short row: review and apply run (exit 0)" test "$?" -eq 0
 check "short row: both rows written" \
     python3 -c "import csv, sys; assert len(list(csv.reader(open(sys.argv[1])))) == 3" "$G/short/s_deidentified.csv"
 
+# --- A shifted date is never the original date ---
+# Offsets were drawn from [-365, 365], so about one patient in 731 got 0:
+# with seed 827 the first patient's date of birth came out unchanged, and
+# the audit log's after_value showed it next to the keyed before_hash.
+check "date shift: no offset is zero (seeds 0-2999)" python3 -c "
+import sys; sys.path.insert(0, sys.argv[1])
+import deidentify as d
+same = [s for s in range(3000) if d.DateShifter(seed=s).shift('2001-02-03', 'p') == '2001-02-03']
+assert not same, same[:5]" "$SKILL"
+check "date shift: output and audit never repeat an input date (seeds 0-999)" python3 -c "
+import sys; sys.path.insert(0, sys.argv[1])
+import deidentify as d
+data = [{'mrn': '10000001', 'dob': '2001-02-03'}, {'mrn': '10000002', 'dob': '1999-12-31'}]
+rep = {'reviewed': True, 'patient_key': {'type': 'column', 'column': 'mrn'},
+       'classifications': [{'column': 'mrn', 'phi_type': 'id', 'approved_action': 'keep'},
+                           {'column': 'dob', 'phi_type': 'date', 'approved_action': 'anonymize'}]}
+for seed in range(1000):
+    out, _, audit = d.apply_anonymization(data, rep, date_shift_seed=seed)
+    for row, orig in zip(out, data):
+        assert row['dob'] != orig['dob'], (seed, row)
+    for a in audit:
+        assert a['after_value'] not in ('2001-02-03', '1999-12-31'), (seed, a)" "$SKILL"
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"
