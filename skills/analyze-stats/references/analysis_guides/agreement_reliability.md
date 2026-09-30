@@ -35,9 +35,10 @@ Two correct paths — pick one and state it:
 1. **Aggregate to the independent unit first**, then compute agreement per subject. This is the
    simplest defensible analysis when a per-subject summary is meaningful (e.g. mean measurement,
    majority label, or one index lesion per subject).
-2. **Model the clustering** — a mixed-effects / variance-components ICC with a **subject random
-   effect** (or a GEE with an exchangeable working correlation), so the within-subject correlation
-   is estimated rather than ignored.
+2. **Keep every measurement and carry the clustering into the CI** — the ICC's targets are the
+   rated units (the lesions), so the point estimate uses them; the CI resamples **subjects** (a
+   cluster bootstrap), or a variance-components model puts lesions within patients and a rater
+   term in the denominator (below).
 
 A pooled-pairwise test can *flip* on correction: e.g. Mann–Whitney p = 0.02 on 448 pooled
 pairwise distances became p = 0.59 at the per-aneurysm level (n = 112). **Report the unit of
@@ -47,6 +48,7 @@ sensitivity analysis.
 ### Produce the pseudoreplication-safe version
 
 ```python
+import numpy as np
 import pandas as pd
 import pingouin as pg   # ICC with model/type + CI
 
@@ -59,22 +61,56 @@ if n_rows > n_subjects:
     print(f"CLUSTERED: {n_rows} measurements from {n_subjects} subjects "
           f"({n_rows / n_subjects:.1f} per subject) — do NOT pool as independent.")
 
+def icc_table(d, targets):
+    t = pg.intraclass_corr(data=d, targets=targets, raters="rater", ratings="score",
+                           nan_policy="omit")
+    ci = "CI95%" if "CI95%" in t.columns else "CI95"      # renamed in pingouin 0.7
+    return t.rename(columns={ci: "CI95"})
+
+def icc_agreement(t):   # ICC(A,1): two-way random, absolute agreement, single rater
+    return float(t.loc[t["Type"].isin(["ICC2", "ICC(A,1)"]), "ICC"].iloc[0])
+
 # 2a) PER-SUBJECT AGGREGATION (continuous): mean per subject, then ICC on subject means
 per_subj = df.groupby("subject_id")[["rater1", "rater2"]].mean().reset_index()
-long = per_subj.melt(id_vars="subject_id", var_name="rater", value_name="score")
-icc = pg.intraclass_corr(data=long, targets="subject_id", raters="rater", nan_policy="omit")
-print(icc[["Type", "ICC", "CI95%"]])   # report Type (e.g. ICC2/ICC2k) + CI
+long_s = per_subj.melt(id_vars="subject_id", var_name="rater", value_name="score")
+print(icc_table(long_s, "subject_id")[["Type", "ICC", "CI95"]])   # report Type + CI
 
-# 2b) OR MODEL THE CLUSTERING (keep every measurement, subject random effect)
-import statsmodels.formula.api as smf
-df_long = df.melt(id_vars="subject_id", value_vars=["rater1", "rater2"],
-                  var_name="rater", value_name="score")
-m = smf.mixedlm("score ~ 1", data=df_long, groups=df_long["subject_id"])
-res = m.fit()
-var_between = float(res.cov_re.iloc[0, 0]); var_resid = float(res.scale)
-icc_clustered = var_between / (var_between + var_resid)
-print(f"variance-components ICC (subject random effect) = {icc_clustered:.3f}")
+# 2b) OR KEEP EVERY MEASUREMENT: the rated target is the lesion, so the point estimate
+#     uses lesion-level targets; the clustering goes into the CI by resampling SUBJECTS.
+long = df.melt(id_vars=["subject_id", "lesion_id"], value_vars=["rater1", "rater2"],
+               var_name="rater", value_name="score")
+point = icc_agreement(icc_table(long, "lesion_id"))
+rng = np.random.default_rng(42)
+subjects = long["subject_id"].unique()
+by_subj = {s: g for s, g in long.groupby("subject_id")}
+boots = []
+for _ in range(1000):
+    draw = rng.choice(subjects, size=len(subjects), replace=True)
+    b = pd.concat([by_subj[s].assign(lesion_id=by_subj[s]["lesion_id"].astype(str) + f"#{k}")
+                   for k, s in enumerate(draw)])        # a subject drawn twice = new targets
+    boots.append(icc_agreement(icc_table(b, "lesion_id")))
+lo, hi = np.percentile(boots, [2.5, 97.5])
+print(f"ICC(A,1), lesion targets = {point:.3f} (95% CI {lo:.3f}-{hi:.3f}, bootstrap over subjects)")
 ```
+
+The bootstrap holds the raters fixed (it resamples subjects, the independent units). In R, the
+same estimand as a variance-components model, with lesions nested in patients and raters
+crossed:
+
+```r
+library(lme4)
+m <- lmer(score ~ 1 + (1 | subject_id) + (1 | subject_id:lesion_id) + (1 | rater), data = long)
+v <- as.data.frame(VarCorr(m)); g <- setNames(v$vcov, v$grp)
+# ICC(A,1) = (patient + lesion-within-patient) / (patient + lesion + rater + residual)
+(g["subject_id"] + g["subject_id:lesion_id"]) / sum(g)
+```
+
+Do **not** compute `var_patient / (var_patient + var_residual)` from a model with only a
+patient random effect: the lesion-to-lesion variance then sits in the residual and there is no
+rater term, so the ratio measures how alike a patient's lesions are, not how well raters agree.
+On synthetic data (60 patients x 3 lesions, 2 raters, rater error SD 0.5) that ratio was 0.33
+while ICC(A,1) on the lesions was 0.977 (pingouin) and 0.977 (the `lmer` model above).
+
 
 ---
 
@@ -112,7 +148,8 @@ print(f"variance-components ICC (subject random effect) = {icc_clustered:.3f}")
 ## Common failures (flag at review)
 
 - **Pooled/pairwise agreement on clustered data** (pseudoreplication) — the headline coefficient's
-  CI is too narrow; re-run per-subject or with a subject random effect (probe O18).
+  CI is too narrow; re-run per-subject, or keep the measurements as targets with a subject-level
+  (cluster) bootstrap CI (probe O18). A patient-only random-effect ratio is not an ICC.
 - **ICC reported with no model/type** — uninterpretable; the same data yields different ICCs.
 - **Reliability coefficient used to claim agreement** (or vice versa) — a high consistency ICC does
   not establish that the two methods are interchangeable.

@@ -102,13 +102,26 @@ ru <- roc(d$truth, d$call,  quiet = TRUE)
 roc.test(rw, ru, method = "delong", paired = TRUE)   # paired, SAME cases (fixed-reader)
 ```
 
-A portable Python bootstrap CI (use when a DeLong implementation is unavailable):
+A portable Python bootstrap CI (use when a DeLong implementation is unavailable). DeLong,
+Wilson and a row bootstrap all assume **one independent unit per row**. With several lesions
+per patient, pass `groups=` (patient IDs) so the bootstrap resamples patients with all their
+rows (Genders et al. 2012, doi:10.1148/radiol.12120509; Obuchowski 1997,
+doi:10.2307/2533958); `diagnostic_accuracy.py` does this for every metric when `CLUSTER_COL`
+is set.
 
 ```python
-def auc_ci_bootstrap(y, s, n_boot=2000, seed=42):
-    rng = np.random.default_rng(seed); y = np.asarray(y); s = np.asarray(s); n = len(y)
-    boots = [roc_auc_score(y[i], s[i]) for i in (rng.integers(0, n, n) for _ in range(n_boot))
-             if len(np.unique(y[i])) == 2]
+def auc_ci_bootstrap(y, s, n_boot=2000, seed=42, groups=None):
+    rng = np.random.default_rng(seed); y = np.asarray(y); s = np.asarray(s)
+    if groups is None:                               # independent rows
+        units = [np.array([i]) for i in range(len(y))]
+    else:                                            # resample patients, keep their rows
+        groups = np.asarray(groups)
+        units = [np.flatnonzero(groups == g) for g in np.unique(groups)]
+    boots = []
+    for _ in range(n_boot):
+        i = np.concatenate([units[k] for k in rng.integers(0, len(units), len(units))])
+        if len(np.unique(y[i])) == 2:
+            boots.append(roc_auc_score(y[i], s[i]))
     return tuple(np.percentile(boots, [2.5, 97.5]))
 ```
 

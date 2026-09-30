@@ -303,6 +303,7 @@ jobs:
       - name: Run analyze-stats survival template and bound analysis tests
         run: |
           bash skills/analyze-stats/tests/test_survival_template.sh
+          bash skills/analyze-stats/tests/test_stats_templates.sh
           python3 skills/analyze-stats/tests/test_analysis_run.py
           bash skills/analyze-stats/scripts/analysis_run_challenge/verify.sh
 

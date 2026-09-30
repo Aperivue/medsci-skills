@@ -141,12 +141,18 @@ np.random.seed(42)
 
 #### Assumption Checking
 
-Before running parametric tests, check and report:
+Choose the summary and test from the design and the variable's distribution, not from a
+preliminary significance test:
 
-- **Normality**: Shapiro-Wilk (n < 50) or Kolmogorov-Smirnov (n >= 50), plus a QQ plot.
-- **Homogeneity of variance**: Levene's test.
-- **If assumptions are violated**: use the non-parametric alternative and say why. Choose by
-  these checks, not by convenience.
+- **Shape**: QQ plot / histogram and skewness. For Table 1, `|skewness| > 1` → median (IQR) with a
+  rank test; otherwise mean (SD) (`table-types/table1_demographics.md`). Do not gate on a
+  Shapiro-Wilk or Kolmogorov-Smirnov P value: they reject trivial departures at large n and miss
+  real ones at small n, KS with an estimated mean/SD is miscalibrated (no Lilliefors
+  correction), and test-then-test pipelines distort the type I error (Rochon et al. 2012).
+- **Unequal variances**: default to **Welch's** t-test / Welch ANOVA; Levene's test is not a gate,
+  and switching to Mann-Whitney does not fix unequal variances (it tests a different
+  hypothesis).
+- State the choice and the reason in Methods.
 
 #### Stratified & Ordinal-Trend Reporting
 
@@ -229,13 +235,14 @@ say so and recommend biostatistician review before the results are reported.
 7. **Decimal places**: p-values to 3 decimals, proportions to 1 decimal, means/SDs to the
    precision of the measurement.
 8. **Design/power statistics are code outputs, never hand-computed.** Any minimum detectable
-   effect (MDE), a-priori or post-hoc power, or required sample size that will appear in the
+   effect (MDE), a-priori power, or required sample size that will appear in the
    manuscript MUST be printed by the committed script with its method and inputs (n per arm,
    alpha, power, allocation ratio, one/two-sided), not computed in a side tool (G*Power, an
    online calculator) and pasted in, because a manuscript value no script reproduces cannot be
    checked. Use one method family throughout (e.g. the exact noncentral-t via `statsmodels`
    `TTestIndPower` or `scipy`'s `nct`); do not mix a normal approximation for some values with
-   exact-t for others.
+   exact-t for others. Do not report **post-hoc (observed) power**: it is a function of the P value
+   and adds nothing (Hoenig & Heisey 2001); report the CI of the effect instead.
 9. **Estimand & CI output contract.** Every primary point estimate — including quantile
    estimands (T25, median time-to-event), pooled proportions and subdistribution HRs, not just
    ORs/HRs/AUCs — MUST be emitted with its 95% CI, because `/self-review` treats a primary
@@ -276,8 +283,10 @@ expert-elicitation studies, clinical-utility framing, abstracts and figure capti
 - **Prediction / classification (incl. medical-AI) models** → calibration (Brier score,
   calibration plot, or calibration slope/intercept) alongside discrimination, because AUC alone
   is insufficient; a **decision-curve / net-benefit** pass at the relevant threshold is standard
-  output. An incremental claim reports added **net benefit / NRI / IDI over the established
-  clinical model**, not the new model's AUC alone. See
+  output. An incremental claim reports the **added-value test on the new term** (likelihood
+  ratio / Wald in the nested model), **ΔC-statistic with its CI** and **Δnet benefit** over the
+  established clinical model, not the new model's AUC alone; NRI only as the categorical,
+  event/non-event-split version, and IDI with caution. See
   `references/table-standards/table-types/incremental_value.md` and the `make-figures`
   `decision_curve` exemplar (and `render_core_figures.py` for the rendered curve).
 
@@ -345,7 +354,7 @@ Before generating code for any row, read the files listed for it (paths relative
 | Propensity score (PSM, IPTW, SIPTW, overlap weighting) | `references/analysis_guides/propensity_score.md` | `references/templates/propensity_score.py` |
 | Survey-weighted (KNHANES, NHANES, KCHS) | `references/analysis_guides/survey_weighted.md` | `references/templates/survey_weighted_analysis.py` |
 | NHIS claims-based studies (ICD-10 definitions) | `references/analysis_guides/nhis_icd10_mapping.md` | — |
-| Repeated measures (LMM, GEE, RM ANOVA) | `references/analysis_guides/repeated_measures.md`; if missing > 5%, also `references/analysis_guides/missing_data.md` and apply MICE before analysis | `references/templates/repeated_measures.py` |
+| Repeated measures (LMM, GEE, RM ANOVA) | `references/analysis_guides/repeated_measures.md`; for missing data see `references/analysis_guides/missing_data.md` (an LMM already uses every observed outcome under MAR, so missing outcomes alone do not call for MICE) | `references/templates/repeated_measures.py` |
 | Mediation | `references/analysis_guides/mediation.md` | — |
 | Multiple testing, many-exposure scans (ExWAS/EWAS) | `references/analysis_guides/multiplicity.md` | — |
 | Mendelian randomization | `references/analysis_guides/mendelian_randomization.md` | — |

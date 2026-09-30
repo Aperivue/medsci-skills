@@ -36,16 +36,35 @@ non-representative point estimates.
 | Dataset | Strata variable | Cluster/PSU variable | Weight variable | Notes |
 |---------|----------------|---------------------|-----------------|-------|
 | **KNHANES** | `kstrata` | `psu` | `wt_itvex` (interview+exam) or `wt_ntr` (nutrition) | Years may be non-consecutive (PHQ-9 only in certain cycles) |
-| **NHANES** | `SDMVSTRA` | `SDMVPSU` | `WTMECXYR` (exam) or `WTINTXYR` (interview) | 2-year cycles; combine cycles with adjusted weights |
+| **NHANES** | `SDMVSTRA` | `SDMVPSU` | `WTMEC2YR` (exam) or `WTINT2YR` (interview); subsample weights such as `WTSAF2YR` (fasting); 2017–March 2020 pre-pandemic files: `WTMECPRP` / `WTINTPRP` / `WTSAFPRP` | 2-year cycles; combine cycles with the NCHS rules below |
 | **KCHS** | varies by year | varies by year | `wt` | Annual community survey; single-stage cluster design |
 
 ### Weight Selection Rules
 
-- **Interview-only variables**: use interview weight
-- **Exam/lab variables**: use exam weight (smaller denominator)
-- **Nutrition variables (KNHANES)**: use nutrition weight
-- **Multi-cycle NHANES**: divide weight by number of cycles combined (e.g., 4 cycles: weight/4)
-- **Single-cycle analysis**: use the cycle-specific weight as-is
+- **Use the weight of the smallest subsample that contains every variable in the analysis**
+  (NCHS: "You must use the weight of the smallest subpopulation that includes all the variables
+  you want to include in your analysis").
+  - Interview-only variables: interview weight.
+  - Exam variables: exam (MEC) weight.
+  - **Subsample laboratory variables use their own subsample weight**, not the MEC weight:
+    NHANES fasting glucose `LBXGLU` and fasting triglycerides `LBXTR` come with `WTSAF2YR`
+    (`WTSAFPRP` in the pre-pandemic file); environmental/other subsamples likewise carry their own
+    weight in the component file. Check each component's documentation. The standard
+    biochemistry profile (`LBXSGL`, `LBXSTR`) is drawn regardless of fasting status and is not a
+    fasting value.
+  - Nutrition variables (KNHANES): nutrition weight.
+- **Multi-cycle NHANES** (NCHS weighting tutorial):
+  - 2001–2002 onward: divide each 2-year weight by the number of 2-year cycles combined
+    (e.g. 2011–2018, four cycles: `WTMEC2YR / 4`).
+  - **1999–2002**: the 2-year weights for 1999–2000 and 2001–2002 are not comparable; NCHS
+    requires the 4-year weights (`WTMEC4YR`, `WTINT4YR`). Combined with later cycles, give
+    1999–2002 the share 2/k: e.g. 1999–2006 is `2/4 * WTMEC4YR` for 1999–2002 and
+    `1/4 * WTMEC2YR` for 2003–2006.
+  - **2017–March 2020 pre-pandemic** covers 3.2 years, so weights are proportional to time, not
+    divided by the number of files: combined with 2015–2016, `2/5.2 * WTMEC2YR` (2015–2016) and
+    `3.2/5.2 * WTMECPRP` (2017–March 2020). The pre-pandemic weights are in `P_DEMO`, not
+    `DEMO_J`.
+- **Single-cycle analysis**: use the cycle-specific weight as-is.
 
 ### Subpopulation (domain) analysis — never row-delete
 
@@ -53,7 +72,9 @@ A restricted analysis (adults only, one sex, a disease subgroup) must keep the *
 
 - R `survey`: `subset(design, age >= 18)` on the **design object** (or `svyby`), not `svydesign(data = df[df$age>=18, ])`.
 - Stata: `svy, subpop(if age>=18):` — never `keep if age>=18` before `svy:`.
-- Python `samplics` / R is preferred; statsmodels has no native domain estimator.
+- Python: `references/templates/survey_weighted_analysis.py` treats subgroups and complete cases
+  as domains of the full design (it reproduces `svyglm` on `subset(design, …)`). statsmodels
+  alone has no survey design object: `freq_weights`/`var_weights` give design-free SEs.
 
 ### Reporting & common errors (these invalidate the inference, flag at review)
 
@@ -71,12 +92,12 @@ A restricted analysis (adults only, one sex, a disease subgroup) must keep the *
 
 Always declare the design before any analysis. This ensures correct variance estimation.
 
-**Python (statsmodels)**:
-```python
-# statsmodels does not have a native survey design object.
-# Use linearmodels or manual weight application.
-# For publication-quality survey analysis, R is strongly recommended.
-```
+**Python**: use `references/templates/survey_weighted_analysis.py`. It computes Taylor-
+linearization variance from weights + strata + PSUs (the `svyglm` estimator, t-based CIs on the
+design df) and writes a matching `survey_analysis.R` for cross-checking. Do not use
+`statsmodels` GLM with `freq_weights` for survey inference: it treats each respondent as *w*
+people, so the "n" becomes the population total and the CI collapses (synthetic check,
+30 strata x 6 PSUs: 1.24 (1.24–1.25) vs `svyglm` 1.24 (0.90–1.72)).
 
 **R (survey package)**:
 ```r
@@ -91,11 +112,11 @@ design_kr <- svydesign(
   nest = TRUE
 )
 
-# NHANES (2-year cycle)
+# NHANES (2-year cycle; exam variables. Use WTSAF2YR for fasting-subsample labs)
 design_us <- svydesign(
   id = ~SDMVPSU,
   strata = ~SDMVSTRA,
-  weights = ~WTMECXYR,
+  weights = ~WTMEC2YR,
   data = df_us,
   nest = TRUE
 )
@@ -115,7 +136,7 @@ RUN;
 PROC SURVEYLOGISTIC DATA=us;
   STRATA SDMVSTRA;
   CLUSTER SDMVPSU;
-  WEIGHT WTMECXYR;
+  WEIGHT WTMEC2YR;
   MODEL outcome(event='1') = exposure covariates;
 RUN;
 ```
@@ -183,15 +204,15 @@ model2 <- svyglm(
   family = quasibinomial()
 )
 
-# Extract weighted OR (wOR) with 95% CI
+# Extract weighted OR (wOR) with 95% CI. confint() on an svyglm uses a t quantile on the
+# design degrees of freedom -- the same reference distribution as the P value. A hand-built
+# coef +/- 1.96*SE interval does not, and can disagree with the P value when the design
+# df is small.
 extract_wor <- function(model, var) {
-  coef_val <- coef(model)[var]
-  se_val <- summary(model)$coefficients[var, "Std. Error"]
-  or <- exp(coef_val)
-  ci_lo <- exp(coef_val - 1.96 * se_val)
-  ci_hi <- exp(coef_val + 1.96 * se_val)
-  p_val <- summary(model)$coefficients[var, "Pr(>|t|)"]
-  data.frame(wOR = or, CI_lower = ci_lo, CI_upper = ci_hi, P = p_val)
+  ci <- exp(confint(model))[var, ]
+  data.frame(wOR = exp(coef(model)[var]), CI_lower = ci[1], CI_upper = ci[2],
+             P = summary(model)$coefficients[var, "Pr(>|t|)"],
+             design_df = model$df.residual)
 }
 ```
 
@@ -230,7 +251,7 @@ for the stratification variable."
 ```r
 library(rms)
 design_rms <- svydesign(id = ~psu, strata = ~kstrata,
-                         weights = ~wt_itvex, data = df)
+                         weights = ~wt_itvex, data = df, nest = TRUE)
 model_rcs <- svyglm(
   outcome ~ rcs(continuous_exposure, 3) + age + sex + covariates,
   design = design_rms,
@@ -238,9 +259,13 @@ model_rcs <- svyglm(
 )
 ```
 
-**Weighted quantile sum (WQS) regression**:
+**Weighted quantile sum (WQS) regression — not design-based.** `gWQS::gwqs()` fits an ordinary
+GLM: `weights =` enters the sampling weights as case weights, and strata and PSUs are ignored, so
+its CIs and P values are **not** survey-valid inference (contrast "Model-based SEs on weighted
+points" above). Use it only as an exploratory mixture analysis, label it as such, and keep the
+design-based `svyglm` models as the inferential results.
 ```r
-library(gWQS)
+library(gWQS)   # exploratory only: no strata/PSU in the variance
 # WQS for composite exposure (e.g., LE8 components)
 result_wqs <- gwqs(
   outcome ~ wqs + age + sex + covariates,
@@ -306,14 +331,27 @@ When comparing two countries using parallel surveys:
 1. **Never pool** raw data across countries into a single regression
 2. Analyze each country **independently** with country-specific survey design
 3. Present results **side-by-side** in the same table
-4. Compare effect magnitudes narratively (not via interaction terms)
+4. **Test the between-country difference** — a cross-national paper's headline is the
+   contrast, and "significant in Korea, not in the US" is the difference-in-significance
+   fallacy (Gelman & Stern 2006, doi:10.1198/000313006X152649). The two samples are
+   independent, so the ratio of wORs has a closed-form CI (Altman & Bland 2003,
+   doi:10.1136/bmj.326.7382.219), using each country's **design-based** SE:
+
+```r
+# m_kr, m_us: svyglm fits from the two country designs; "exposure" = the coefficient name
+b1 <- coef(m_kr)["exposure"]; s1 <- SE(m_kr)["exposure"]
+b2 <- coef(m_us)["exposure"]; s2 <- SE(m_us)["exposure"]
+d <- b1 - b2; se_d <- sqrt(s1^2 + s2^2)
+ratio <- exp(d); ci <- exp(d + c(-1, 1) * qnorm(0.975) * se_d)
+p_diff <- 2 * pnorm(-abs(d / se_d))
+```
 
 ### Standard Output Table Format
 
-| Variable | Korea (KNHANES) | | US (NHANES) | |
-|----------|------|------|------|------|
-| | Model 1 wOR (95% CI) | Model 2 wOR (95% CI) | Model 1 wOR (95% CI) | Model 2 wOR (95% CI) |
-| Exposure | 1.42 (1.21-1.67) | 1.35 (1.14-1.59) | 1.28 (1.10-1.49) | 1.22 (1.04-1.43) |
+| Variable | Korea (KNHANES) | | US (NHANES) | | Korea vs US |
+|----------|------|------|------|------|------|
+| | Model 1 wOR (95% CI) | Model 2 wOR (95% CI) | Model 1 wOR (95% CI) | Model 2 wOR (95% CI) | Ratio of Model 2 wORs (95% CI); P |
+| Exposure | [X.XX (X.XX-X.XX)] | [X.XX (X.XX-X.XX)] | [X.XX (X.XX-X.XX)] | [X.XX (X.XX-X.XX)] | [X.XX (X.XX-X.XX)]; [P] |
 
 ---
 
@@ -330,9 +368,11 @@ for Statistical Computing)]. A two-sided P value of less than 0.05 was
 considered statistically significant."
 
 **Results**:
-"In the weighted analysis of [N] participants from [DATASET], [EXPOSURE] was
-significantly associated with [OUTCOME] (wOR [X.XX]; 95% CI [X.XX-X.XX]) after
-adjusting for [covariates] (Model 2)."
+"In the weighted analysis of [unweighted N] participants from [DATASET], the
+Model 2 weighted odds ratio for [OUTCOME] comparing [EXPOSURE] with [REFERENCE] was
+[X.XX] (95% CI [X.XX-X.XX]; P = [exact]), adjusted for [covariates]." Describe the
+association in words only after reading the interval; do not write "significantly
+associated" into a template.
 
 ---
 
@@ -340,8 +380,10 @@ adjusting for [covariates] (Model 2)."
 
 1. Survey weights not applied (unweighted analysis of survey data)
 2. Strata/cluster variables not specified (incorrect SE estimation)
-3. Wrong weight variable used (interview weight for lab variables)
-4. Multi-cycle NHANES weights not adjusted (divided by number of cycles)
+3. Wrong weight variable used (interview weight for lab variables; MEC weight for a fasting- or
+   other subsample variable)
+4. Multi-cycle NHANES weights not combined by the NCHS rules (divide by the number of 2-year
+   cycles from 2001–2002 on; 4-year weights for 1999–2002; 3.2/total years for 2017–March 2020)
 5. Data pooled across countries instead of analyzed separately
 6. Weighted proportions not reported (using raw counts instead)
 7. Subgroup analysis includes the stratification variable as covariate
@@ -353,15 +395,15 @@ adjusting for [covariates] (Model 2)."
 
 | Task | Recommended | Reason |
 |------|-------------|--------|
-| Survey-weighted regression | **R (survey)** | Native support, correct variance estimation |
+| Survey-weighted logistic regression | R (survey) or `survey_weighted_analysis.py` | Both design-based (linearization); the Python template writes the matching R script |
 | Survey-weighted Table 1 | **R (tableone)** | `svyCreateTableOne()` handles design |
-| WQS regression | **R (gWQS)** | Only available in R |
+| WQS regression | R (gWQS) | Exploratory only — not design-based |
 | Dose-response (RCS) | **R (rms + survey)** | Integrated with survey design |
 | Quick descriptives | Python (statsmodels) | Adequate for simple weighted means |
 
-For publication-quality survey analysis, **R is strongly recommended** over Python.
-Python's statsmodels supports basic weighted regression but lacks full survey
-design support (no strata/cluster specification for variance estimation).
+For designs or models beyond weighted logistic regression (replicate weights, Cox, Poisson,
+calibration, svyby tables), use R `survey`. Plain statsmodels weighting is not survey
+inference: it has no strata/PSU in the variance.
 
 ---
 
@@ -370,7 +412,7 @@ design support (no strata/cluster specification for variance estimation).
 - `survey` -- core survey design and analysis
 - `tableone` -- survey-weighted baseline tables with SMD
 - `rms` -- restricted cubic splines with survey design
-- `gWQS` -- weighted quantile sum regression
+- `gWQS` -- weighted quantile sum regression (not design-based; exploratory)
 - `srvyr` -- tidyverse-compatible survey analysis wrapper
 
 ## SAS Procedures
