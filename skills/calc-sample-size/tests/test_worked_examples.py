@@ -57,13 +57,14 @@ class Case:
     file: str
     section: str          # prefix of the "## " heading that owns the block
     var: str              # variable the block assigns; locates the block and is compared
-    expected: float
+    expected: float | None  # None -> the block must stop with `error` in its message
     source: str           # where the expected value comes from
     inputs: dict = field(default_factory=dict)
     langs: tuple = ("python", "r")
     needle: str | None = None
     tol: float = 0.0      # 0 -> exact equality
     r_expr: str | None = None   # R expression to report (default: var)
+    error: str | None = None    # expected error text when no N can reach the target
 
 
 T = FORMULAS
@@ -128,10 +129,19 @@ CASES = [
          inputs={"p_new": 0.80}),
     Case(T, "Test 10:", "n_ni_cont", 63, "TrialSize::TwoSampleMean.NIS(0.025, 0.2, 1, 1, 0, -0.5) = 62.79",
          needle="**63 per group**"),
+    Case(T, "Test 10:", "n_ni_cont", None, "true_diff -1 lies inside H0 (<= -0.5): no N reaches 80% power",
+         inputs={"true_diff": -1}, error="beyond the non-inferiority margin"),
+    Case(T, "Test 10:", "n_ni_prop", None, "p_new 0.70 vs 0.85 lies inside H0 (<= -0.10): no N reaches 80% power",
+         inputs={"p_new": 0.70}, error="beyond the non-inferiority margin"),
     Case(T, "Test 10:", "n_eq_cont", 70, "TOSTER::power_t_TOST(delta=0, sd=1, eqb=0.5, alpha=0.05, power=0.8) n = 69.20",
          needle="**70 per group**"),
     Case(T, "Test 10:", "n_eq_cont", 82, "TOSTER::power_t_TOST(delta=0.1, sd=1, eqb=0.5, ...) n = 81.44",
          inputs={"true_diff": 0.1}),
+    Case(T, "Test 10:", "n_eq_cont", 4947, "TOSTER::power_t_TOST(delta=0.45, sd=1, eqb=0.5, ...) n = 4946.72 "
+         "(the non-central t CDF returned NaN at n = 3073 and stopped the search there)",
+         inputs={"true_diff": 0.45}),
+    Case(T, "Test 10:", "n_eq_cont", None, "true_diff 0.6 lies outside +/-0.5: no N reaches 80% power",
+         inputs={"true_diff": 0.6}, error="outside the equivalence margin"),
     Case(T, "Test 10:", "n_eq_prop", 219, "TrialSize::TwoSampleProportion.Equivalence(0.05, 0.2, 0.85, 0.85, 1, 0, 0.10) = 218.38",
          needle="**219 per group**"),
     # Test 11 -- arithmetic.
@@ -334,9 +344,15 @@ def main() -> int:
                             continue
                         got = run_r(code, c.r_expr or c.var, work)
                 except Exception as e:  # noqa: BLE001 - report any failure of the block itself
-                    fail(f"{tag}: block raised {type(e).__name__}: {e}")
+                    if c.error and c.error in str(e):
+                        passed += 1
+                        print(f"  PASS: {tag} stops: {c.error}")
+                    else:
+                        fail(f"{tag}: block raised {type(e).__name__}: {e}")
                     continue
-                if close(got, c.expected, c.tol):
+                if c.error:
+                    fail(f"{tag} = {got:g}, expected it to stop with {c.error!r} ({c.source})")
+                elif close(got, c.expected, c.tol):
                     passed += 1
                     print(f"  PASS: {tag} = {got:g}")
                 else:

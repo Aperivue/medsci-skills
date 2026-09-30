@@ -914,7 +914,7 @@ n_per_group = (z_{1−α} + z_{1−β})² · (p_ref(1 − p_ref) + p_new(1 − p
 
 ### Non-Inferiority (Continuous)
 ```
-n_per_group = 2σ²(z_{1−α} + z_{1−β})² / (Δ + M)²
+n_per_group = 2σ²(z_{1−α} + z_{1−β})² / (Δ + M)²      requires Δ + M > 0
 ```
 **Check**: σ 1, M 0.5, Δ 0, α 0.025, 80% → 62.8 → **63 per group**
 (`TrialSize::TwoSampleMean.NIS(alpha = 0.025, beta = 0.2, sigma = 1, k = 1, delta = 0, margin = -0.5)` → 62.79).
@@ -924,6 +924,7 @@ n_per_group = 2σ²(z_{1−α} + z_{1−β})² / (Δ + M)²
 power(n) ≈ Φ((M − Δ)/SE − z_{1−α}) + Φ((M + Δ)/SE − z_{1−α}) − 1
            SE = σ·√(2/n)   or   √((p_ref(1 − p_ref) + p_new(1 − p_new))/n)
 Δ = 0:  n_per_group = 2σ²(z_{1−α} + z_{1−β/2})² / M²          (proportions: 2p(1 − p) in place of 2σ²)
+requires |Δ| < M
 ```
 At Δ = 0 both one-sided tests must succeed, so the power term is z_{1−β/2}, not z_{1−β}. Reusing the
 NI formula gives about 60% power where 80% was intended. For Δ ≠ 0 solve power(n) numerically, as
@@ -933,7 +934,7 @@ the code below does.
 (`TrialSize::TwoSampleMean.Equivalence(alpha = 0.05, beta = 0.2, sigma = 1, k = 1, delta = 0.5, margin = 0)`
 → 68.51; in this function `delta` is the equivalence limit and `margin` the true difference); t-based
 **70 per group** (`TOSTER::power_t_TOST(delta = 0, sd = 1, eqb = 0.5, alpha = 0.05, power = 0.8, type = "two.sample")`,
-TOSTER 0.8.6 → 69.20); Δ 0.1 → 82 (→ 81.44).
+TOSTER 0.8.6 → 69.20); Δ 0.1 → 82 (→ 81.44); Δ 0.45 → 4947 (→ 4946.72).
 **Check (proportions)**: p_ref = p_new = 0.85, M 0.10, α 0.05, 80% → 218.4 → **219 per group**
 (`TrialSize::TwoSampleProportion.Equivalence(alpha = 0.05, beta = 0.2, p1 = 0.85, p2 = 0.85, k = 1, delta = 0, margin = 0.10)` → 218.38).
 
@@ -948,7 +949,7 @@ alpha <- 0.025
 power <- 0.80
 
 delta <- if (higher_is_better) p_new - p_reference else p_reference - p_new   # > 0 favours new
-stopifnot(delta + margin > 0)
+if (delta + margin <= 0) stop("the anticipated difference lies beyond the non-inferiority margin: no N reaches the target power")
 n_ni_prop <- ceiling((qnorm(1 - alpha) + qnorm(power))^2 *
                        (p_reference * (1 - p_reference) + p_new * (1 - p_new)) / (delta + margin)^2)
 cat(sprintf("NI (proportions): %d per group\n", n_ni_prop))
@@ -962,6 +963,7 @@ true_diff <- 0
 alpha <- 0.025
 power <- 0.80
 
+if (true_diff + margin <= 0) stop("the anticipated difference lies beyond the non-inferiority margin: no N reaches the target power")
 n_ni_cont <- ceiling(2 * sd^2 * (qnorm(1 - alpha) + qnorm(power))^2 / (true_diff + margin)^2)
 cat(sprintf("NI (continuous): %d per group\n", n_ni_cont))
 ```
@@ -975,6 +977,7 @@ true_diff <- 0
 alpha <- 0.05
 power <- 0.80
 
+if (abs(true_diff) >= margin) stop("the anticipated difference lies outside the equivalence margin: no N reaches the target power")
 res <- power_t_TOST(n = NULL, delta = true_diff, sd = sd, eqb = margin,
                     alpha = alpha, power = power, type = "two.sample")
 n_eq_cont <- ceiling(res$n)
@@ -991,14 +994,19 @@ alpha <- 0.05
 power <- 0.80
 
 delta <- if (higher_is_better) p_new - p_reference else p_reference - p_new
-stopifnot(abs(delta) < margin)
+if (abs(delta) >= margin) stop("the anticipated difference lies outside the equivalence margin: no N reaches the target power")
 tost_power <- function(n) {
   se <- sqrt((p_reference * (1 - p_reference) + p_new * (1 - p_new)) / n)
   pnorm((margin - delta) / se - qnorm(1 - alpha)) +
     pnorm((margin + delta) / se - qnorm(1 - alpha)) - 1
 }
 n_eq_prop <- 2
-while (tost_power(n_eq_prop) < power) n_eq_prop <- n_eq_prop + 1
+repeat {
+  p_now <- tost_power(n_eq_prop)
+  if (!is.finite(p_now)) stop(sprintf("power is not finite at n = %d", n_eq_prop))
+  if (p_now >= power) break
+  n_eq_prop <- n_eq_prop + 1
+}
 cat(sprintf("Equivalence (proportions): %d per group\n", n_eq_prop))
 ```
 
@@ -1016,7 +1024,8 @@ alpha = 0.025
 power = 0.80
 
 delta = (p_new - p_reference) if higher_is_better else (p_reference - p_new)   # > 0 favours new
-assert delta + margin > 0, "the anticipated difference lies beyond the margin"
+if delta + margin <= 0:
+    raise ValueError("the anticipated difference lies beyond the non-inferiority margin: no N reaches the target power")
 n_ni_prop = math.ceil((norm.ppf(1 - alpha) + norm.ppf(power))**2
                       * (p_reference * (1 - p_reference) + p_new * (1 - p_new)) / (delta + margin)**2)
 print(f"NI (proportions): {n_ni_prop} per group")
@@ -1033,6 +1042,8 @@ true_diff = 0
 alpha = 0.025
 power = 0.80
 
+if true_diff + margin <= 0:
+    raise ValueError("the anticipated difference lies beyond the non-inferiority margin: no N reaches the target power")
 n_ni_cont = math.ceil(2 * sd**2 * (norm.ppf(1 - alpha) + norm.ppf(power))**2 / (true_diff + margin)**2)
 print(f"NI (continuous): {n_ni_cont} per group")
 ```
@@ -1048,14 +1059,26 @@ true_diff = 0
 alpha = 0.05
 power = 0.80
 
+if abs(true_diff) >= margin:
+    raise ValueError("the anticipated difference lies outside the equivalence margin: no N reaches the target power")
+
 def tost_power(n):
     df = 2 * n - 2
     se = sd * math.sqrt(2 / n)
     t_crit = t.ppf(1 - alpha, df)
-    return nct.cdf(-t_crit, df, (true_diff - margin) / se) - nct.cdf(t_crit, df, (true_diff + margin) / se)
+    # P(T_upper < -t) - P(T_lower <= t). The second term is written as the survival function of
+    # the mirrored variable: nct.cdf(t, df, ncp) returns NaN deep in its tail at a large ncp
+    # (SciPy 1.17: n = 3073 at true_diff 0.45), and NaN < power would end the search early.
+    return (nct.cdf(-t_crit, df, (true_diff - margin) / se)
+            - nct.sf(-t_crit, df, -(true_diff + margin) / se))
 
 n_eq_cont = 2
-while tost_power(n_eq_cont) < power:
+while True:
+    p_now = tost_power(n_eq_cont)
+    if not math.isfinite(p_now):
+        raise ValueError(f"power is not finite at n = {n_eq_cont}")
+    if p_now >= power:
+        break
     n_eq_cont += 1
 print(f"Equivalence (continuous): {n_eq_cont} per group")
 ```
@@ -1073,7 +1096,8 @@ alpha = 0.05
 power = 0.80
 
 delta = (p_new - p_reference) if higher_is_better else (p_reference - p_new)
-assert abs(delta) < margin, "the anticipated difference lies outside the equivalence margin"
+if abs(delta) >= margin:
+    raise ValueError("the anticipated difference lies outside the equivalence margin: no N reaches the target power")
 
 def tost_power(n):
     se = math.sqrt((p_reference * (1 - p_reference) + p_new * (1 - p_new)) / n)
@@ -1081,7 +1105,12 @@ def tost_power(n):
     return norm.cdf((margin - delta) / se - z) + norm.cdf((margin + delta) / se - z) - 1
 
 n_eq_prop = 2
-while tost_power(n_eq_prop) < power:
+while True:
+    p_now = tost_power(n_eq_prop)
+    if not math.isfinite(p_now):
+        raise ValueError(f"power is not finite at n = {n_eq_prop}")
+    if p_now >= power:
+        break
     n_eq_prop += 1
 print(f"Equivalence (proportions): {n_eq_prop} per group")
 ```
