@@ -5,7 +5,9 @@ Version: SQUIRE 2.0 (2015)
 Source: http://squire-statement.org
 Reference: Ogrinc G, Davies L, Goodman D, Batalden P, Davidoff F, Stevens D. SQUIRE 2.0 (Standards for QUality Improvement Reporting Excellence): revised publication guidelines from a detailed consensus process. BMJ Qual Saf. 2016;25(12):986-992. doi:10.1136/bmjqs-2015-004411
 
-Licence: Crossref returns no Creative Commons licence.
+Licence: CC BY-NC (the licence recorded for PMC5256233 in Europe PMC; Crossref returns none).
+Item text is reproduced from Table 1 with attribution for non-commercial use; it is not covered by
+this repository's MIT licence (see `references/LICENSES.md`).
 Verification: all 18 items were compared against Table 1 of the published guidelines (Europe PMC
 full text, PMC5256233); 18/18 match, with no item missing and none invented. Item 2's abstract
 specification, which had been condensed away, has been restored.
