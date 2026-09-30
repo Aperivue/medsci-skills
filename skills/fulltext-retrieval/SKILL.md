@@ -9,6 +9,8 @@ model: inherit
 # Fulltext Retrieval Skill
 
 Batch download open-access full-text PDFs from a DOI list using legitimate OA APIs only.
+Paywalled articles fail by design and are listed in `manual_needed.txt` for institutional access
+or ILL; never work around a paywall or publisher access control.
 
 ## Pipeline
 
@@ -16,91 +18,43 @@ Batch download open-access full-text PDFs from a DOI list using legitimate OA AP
 DOI → arXiv (10.48550/arXiv.* DOIs) → Unpaywall → PMC (Europe PMC / OA FTP / web) → OpenAlex → Crossref → landing page
 ```
 
-Each DOI goes through these sources in order until a valid PDF (≥10 KB, `%PDF-` header) is found. arXiv DOIs (`10.48550/arXiv.2401.01234`, version suffixes, old-style `hep-th/9901001`, or a bare `arXiv:` id) resolve directly to the arXiv PDF first.
+Each DOI goes through these sources in order until a valid PDF (≥10 KB, `%PDF-` header) is found.
+arXiv DOIs (`10.48550/arXiv.2401.01234`, version suffixes, old-style `hep-th/9901001`, or a bare
+`arXiv:` id) resolve directly to the arXiv PDF first.
 
-## Quick Start
+## Run
 
-```bash
-# Prepare a DOI list (one per line)
-cat > dois.txt << 'EOF'
-10.1007/s00330-010-1783-x
-10.1002/mp.12524
-10.1148/radiol.13131265
-EOF
-
-# Run
-python fetch_oa.py dois.txt --output pdfs/ --email your@email.com
-
-# Verbose mode for debugging
-python fetch_oa.py dois.txt -o pdfs/ -e your@email.com --verbose
-```
-
-## Input Formats
-
-**Plain text** — one DOI per line:
-```
-10.1007/s00330-010-1783-x
-10.1002/mp.12524
-```
-
-**TSV / CSV with header** — must contain a `DOI` column; optional `PMID`, `Title`, and
-`FirstAuthor` columns (first author's surname or full name for corroboration):
-```tsv
-ID	Title	DOI	PMID	Year
-1	Some paper	10.1007/s00330-010-1783-x	20628747	2010
-```
-
-**Markdown table** — a pipe table with a `DOI` column also works:
-```markdown
-| DOI | PMID | Title |
-|-----|------|-------|
-| 10.1007/s00330-010-1783-x | 20628747 | Some paper |
-```
-
-When a PMID is available, the PMC lookup is more reliable (PMID → PMCID conversion).
-Supply `Title` where available: a DOI-only worklist can download a PDF but cannot
-establish title agreement. `FirstAuthor` is optional additional evidence.
-
-## PMC Download (JS-Challenge Resistant)
-
-PMC web pages may block automated downloads with JavaScript proof-of-work challenges. This tool uses three fallback methods:
-
-### Method A: Europe PMC REST API (most reliable)
+Requires Python 3.10+ (stdlib only) and a contact email, which Unpaywall's Terms of Service
+require. The script paces its requests (0.3–0.5 s delays) for the APIs' rate limits.
 
 ```bash
-PMCID="PMC9733600"
-curl -sLo output.pdf \
-  "https://europepmc.org/backend/ptpmcrender.fcgi?accid=${PMCID}&blobtype=pdf"
+python "${CLAUDE_SKILL_DIR}/fetch_oa.py" dois.txt --output pdfs/ --email your@email.com
+
+# Verbose mode for debugging (per-DOI source trace)
+python "${CLAUDE_SKILL_DIR}/fetch_oa.py" dois.txt -o pdfs/ -e your@email.com --verbose
 ```
 
-### Method B: PMC OA FTP Service
+Input formats:
 
-```bash
-curl -s "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=${PMCID}" | \
-    grep -oE 'href="[^"]*\.pdf"' | head -1 | \
-    sed 's/href="//;s/"//' | xargs curl -sLo output.pdf
-```
+- **Plain text** — one DOI per line.
+- **TSV / CSV with header**, or a **Markdown pipe table** — must contain a `DOI` column; optional
+  `PMID`, `Title`, and `FirstAuthor` (surname or full name) columns.
 
-### DOI/PMID → PMCID Conversion
-
-```bash
-# Works with both DOI and PMID
-curl -s "https://pmc.ncbi.nlm.nih.gov/tools/idconv/api/v1/articles/?ids=${DOI}&format=json&tool=medsci-skills&email=${EMAIL}" | \
-    python3 -c "import sys,json; print(json.load(sys.stdin)['records'][0].get('pmcid',''))"
-```
+A PMID makes the PMC lookup more reliable (PMID → PMCID conversion). Supply `Title` where
+available: a DOI-only worklist can download a PDF but cannot establish title agreement.
+`FirstAuthor` is optional additional evidence.
 
 ## Output
 
-- PDFs saved as `{DOI_safe}.pdf` (slashes replaced with underscores)
-- `pdfs/retrieval_report.json` — structured per-DOI report (see below)
-- `manual_needed.txt` — DOIs that could not be retrieved via OA; when a PMCID was resolved, the
-  line also carries it and the PubMed Central article URL to open in a browser
-- Summary with arXiv/OA/PMC/fail/skip counts
+- PDFs saved as `{DOI_safe}.pdf` (slashes replaced with underscores).
+- `pdfs/retrieval_report.json` — structured per-DOI report (below); override with `--report PATH`.
+- `<output>/manual_needed.txt` — DOIs that could not be retrieved via OA; when a PMCID was
+  resolved, the line also carries it and the PubMed Central article URL to open in a browser.
+- Summary with arXiv/OA/PMC/fail/skip counts.
 
 ## Retrieval report (`--report`)
 
-Every run writes a structured report (default `<output>/retrieval_report.json`,
-override with `--report PATH`):
+Every run writes the report (default `<output>/retrieval_report.json`), schema 2:
 
 ```json
 {
@@ -121,12 +75,11 @@ override with `--report PATH`):
 }
 ```
 
-The example abbreviates `items`. Legacy `status` (`arxiv | oa | pmc | skip | fail`),
-`source`, and `counts.retrieved` retain their resolver-result meaning, including existing
-files (`skip`). **They do not count identity-verified papers.** Report schema 2 adds the
-file hash and separate identity evidence; no PDF is automatically deleted or rejected.
-`page_count` comes from Poppler's `pdfinfo` (null without it) and is recorded, not
-judged — a 3-page "article" or a 4-page "book" is worth opening.
+`status` (`arxiv | oa | pmc | skip | fail`), `source`, and `counts.retrieved` describe the
+resolver result, including existing files (`skip`). **They do not count identity-verified
+papers.** No PDF is automatically deleted or rejected. `page_count` comes from Poppler's
+`pdfinfo` (null without it) and is recorded, not judged — a 3-page "article" or a 4-page "book"
+is worth opening.
 
 | `source_identity.status` | Meaning / action |
 |---|---|
@@ -135,125 +88,52 @@ judged — a 3-page "article" or a 4-page "book" is worth opening.
 | `unresolved` | Evidence is incomplete or ambiguous: title-only, DOI-only, missing author, multiple identifiers, a matching title with another DOI/version, or a supplement / preface / table-of-contents file that names the work without being it (`supplement_or_front_matter`). Inspect before using as evidence. |
 | `unavailable` | No usable extracted text, Poppler unavailable, no output PDF, or the PDF changed during assessment. No current identity assessment was possible. |
 
-`title_match` keeps its tri-state shape. A `match` now requires the complete normalized
-title on up to six consecutive front-matter lines. Case, punctuation and line wrapping
-are normalized. Scattered matching words cannot establish a match; partial overlap is
-`unavailable`, and low overlap is an advisory `mismatch`.
+Evidence is limited to the first page before a recognized abstract/body/reference heading (at
+most 40 lines / 4,000 characters), so a title cited in the body or references does not count. A
+`title_match` of `match` needs the complete normalized title on up to six consecutive lines;
+partial overlap is `unavailable` and low overlap an advisory `mismatch`. Cover sheets, unusual
+reading order, short or changed titles and DOI footers outside that area can stay unresolved.
+PDF metadata and the filename alone are not identity evidence. Explicit arXiv versions must
+agree; a preprint/published-version DOI difference needs review, not automatic rejection.
 
-Evidence is limited to the first page, before a recognized abstract/body/reference
-heading, at most 40 lines / 4,000 characters. Thus a title cited in the body or references
-does not establish a title match. These are conservative layout heuristics: cover sheets,
-unrecognized headings, short or changed titles, unusual reading order and DOI footers
-outside that area can remain unresolved. PDF metadata and the filename alone are not
-identity evidence. The CLI compares hashes before extraction and when reporting;
-changed files cannot inherit the previous text's assessment. Explicit arXiv versions
-must agree; preprint/published-version DOI
-differences require review rather than automatic rejection.
-
-Downstream reports must preserve `source_identity` and `file_sha256`, keep unresolved
-items visible, and check the hash still identifies the file being used. Older reports
-without identity evidence remain **unassessed**; do not infer identity from `retrieved`
-or `title_match=match`. Full-text conversion does not resolve an identity warning.
+Downstream reports must preserve `source_identity` and `file_sha256`, keep unresolved items
+visible, and check the hash still identifies the file being used. Older reports without identity
+evidence remain **unassessed**; do not infer identity from `retrieved` or `title_match=match`.
+Full-text conversion does not resolve an identity warning.
 
 ## Attach PDFs into Zotero ("Find Available PDF")
 
-OA-only resolvers miss paywalled-but-licensed papers. To attach full text **inside
-Zotero** at a much higher yield, use `references/find_available_pdf.js` — a user-run
-snippet for Zotero's *Tools → Developer → Run JavaScript*. It triggers Zotero's own
-`addAvailablePDF` / `addAvailablePDFs` and therefore reuses **your** OpenURL resolver /
-institutional proxy config; **no credentials, proxy hosts, or institutional identifiers
-are hard-coded or leave your Zotero client**. The no-code equivalent is right-click →
-"Find Available PDF".
-
-This path is **user-initiated** and depends on your live Zotero session, so its results
-are recorded manually (not reproducible CI evidence). `/lit-sync` Phase 2.7 orchestrates
-both routes (disk OA via this script + in-library via the snippet) and reconciles them in
-a report.
-
-## Requirements
-
-- Python 3.10+ (stdlib only, no pip dependencies)
-- Contact email (required by Unpaywall Terms of Service)
-
-## API Policies
-
-| Source | Rate Limit | Notes |
-|--------|-----------|-------|
-| Unpaywall | 100 req/sec | Email required |
-| NCBI PMC | 3 req/sec without API key | Add `&api_key=` for higher limits |
-| OpenAlex | 100k req/day | Polite pool with email in User-Agent |
-| Crossref | 50 req/sec with email | Plus service with `mailto:` in UA |
-| Europe PMC | No documented limit | Be polite, ≤1 req/sec recommended |
-
-The script uses 0.3–0.5 second delays between requests.
+For paywalled-but-licensed papers the OA resolvers miss, `references/find_available_pdf.js` is a
+user-run snippet for Zotero's *Tools → Developer → Run JavaScript* (no-code equivalent:
+right-click → "Find Available PDF"). It triggers Zotero's own `addAvailablePDF` /
+`addAvailablePDFs`, so it reuses **the user's** OpenURL resolver / institutional proxy config;
+**no credentials, proxy hosts, or institutional identifiers are hard-coded or leave the Zotero
+client**. It is user-initiated and depends on the live Zotero session, so record its results
+manually — they are not reproducible CI evidence. `/lit-sync` Phase 2.7 orchestrates both routes
+and reconciles them in a report.
 
 ## PDF → Markdown Conversion (Optional)
 
-After downloading PDFs, convert them to LLM-friendly Markdown for token-efficient repeated analysis. Uses [pymupdf4llm](https://github.com/pymupdf/RAG) — optimized for academic papers with two-column layout handling and table preservation.
-
-### Quick Start
+Convert downloaded PDFs to Markdown when the same papers will be read repeatedly (data extraction
+from k≥5 studies, a meta-analysis pipeline); for one-pass screening, read the PDF directly.
 
 ```bash
 # Install (one-time)
 pip install pymupdf4llm
 
-# Convert all PDFs in a directory
-python pdf_to_md.py pdfs/
-
-# Convert with verbose output
-python pdf_to_md.py pdfs/ -v
+# Convert all PDFs in a directory (.md files land alongside the .pdf files)
+python "${CLAUDE_SKILL_DIR}/pdf_to_md.py" pdfs/ -v
 
 # Custom output directory
-python pdf_to_md.py pdfs/ -o markdown/
+python "${CLAUDE_SKILL_DIR}/pdf_to_md.py" pdfs/ -o markdown/
 
 # First 10 pages only (useful for long supplements)
-python pdf_to_md.py pdfs/ --pages 0-9
+python "${CLAUDE_SKILL_DIR}/pdf_to_md.py" pdfs/ --pages 0-9
 
 # Overwrite existing conversions
-python pdf_to_md.py pdfs/ --force
+python "${CLAUDE_SKILL_DIR}/pdf_to_md.py" pdfs/ --force
 ```
 
-### Combined Workflow
-
-```bash
-# Step 1: Download PDFs
-python fetch_oa.py dois.txt -o pdfs/ -e your@email.com
-
-# Step 2: Convert to Markdown (only successful downloads)
-python pdf_to_md.py pdfs/ -v
-```
-
-After conversion, `.md` files sit alongside `.pdf` files. Claude Code can then use `Read` for full content or `Grep` for targeted extraction — significantly more token-efficient than re-reading PDFs.
-
-### When to Convert
-
-| Scenario | Recommendation |
-|----------|---------------|
-| Screening/triage (read once) | Skip — read PDF directly |
-| Data extraction from k≥5 studies | Convert — repeated reads save tokens |
-| Meta-analysis full pipeline | Convert — papers referenced across multiple phases |
-| Single paper deep review | Optional — marginal benefit |
-
-### Academic Paper Defaults
-
-- **Images**: Skipped (saves tokens; figures referenced by caption text)
-- **Tables**: `lines_strict` strategy (preserves grid-line tables accurately)
-- **Layout**: Two-column academic layout handled automatically
-- **Headers/footers**: Removed by pymupdf4llm
-
-### Dependency Note
-
-`pdf_to_md.py` requires [pymupdf4llm](https://pypi.org/project/pymupdf4llm/) (AGPL-3.0). This is an **optional** dependency — `fetch_oa.py` remains stdlib-only with zero external dependencies. The AGPL license applies to pymupdf4llm itself, not to this skill.
-
-## Limitations
-
-- Only retrieves **open-access** articles. Paywalled articles require institutional access.
-- Landing page scraping may fail on publisher-specific JavaScript-heavy pages.
-- Some recent articles may not yet be indexed by OA sources.
-- PDF→Markdown quality depends on the PDF's text layer. Scanned-only PDFs may produce poor output.
-
-## Anti-Hallucination
-
-- **Never fabricate file paths, URLs, DOIs, or package names.** Verify existence before recommending.
-- **Never invent journal metadata, impact factors, or submission policies** without verification at the journal's website.
-- If a tool, package, or resource does not exist or you are unsure, say so explicitly rather than guessing.
+Images are skipped, so figures survive only as caption text. Scanned-only PDFs (no text layer)
+convert poorly. `pdf_to_md.py` needs [pymupdf4llm](https://pypi.org/project/pymupdf4llm/)
+(AGPL-3.0), an **optional** dependency; `fetch_oa.py` stays stdlib-only.

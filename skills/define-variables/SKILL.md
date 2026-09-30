@@ -12,26 +12,10 @@ model: inherit
 
 # Define-Variables Skill
 
-## Purpose
-
-Every observational study operationalizes abstract constructs (MASLD, CKD, emphysema, obesity, incidentaloma) into concrete rules against the available data dictionary. When that operationalization is invented ad-hoc from the dictionary alone, reviewers reject on construct validity regardless of downstream statistics.
-
-This skill forces a **literature-first** pass: each variable is mapped to a canonical guideline/consensus definition, cross-checked against prior operationalizations in comparable cohorts, then mapped to available DB variables. Ad-hoc deviations are flagged explicitly and justified, not hidden.
-
-Use it when:
-- a study question is known and variables are being selected
-- inclusion/exclusion criteria or phenotype definitions need citation backing
-- a data dictionary has ambiguous or derived variables (eGFR formula, BMI class, liver steatosis criteria, etc.)
-- a reviewer asked "why this cutoff?"
-- a retrospective audit reveals drifted definitions across projects in the same cohort
-
-Call after `/design-study`, before `/write-protocol`.
-
-## Communication Rules
-
-- Communicate in the user's preferred language.
-- All variable names, guideline names, cutoffs in English.
-- Produce one artifact: `variable_operationalization.md` in the project root (or path the user specifies).
+Map each exposure, outcome, covariate, and eligibility variable to a canonical guideline/consensus
+definition, cross-check it against prior operationalizations in comparable cohorts, then map it to
+the available DB variables. Call after `/design-study` (and `/search-lit`), before
+`/write-protocol`.
 
 ## Inputs
 
@@ -46,11 +30,11 @@ Missing inputs → ask once, then proceed.
 
 ### Tier 0 — DB codebook lookup (mandatory for DB-backed observational studies)
 
-**Trigger**: project has a `project.yaml::db.dictionary_path` field pointing to a machine-readable codebook (xlsx/csv/markdown), OR user supplied a dictionary path in inputs. If neither, skip to Tier 1.
+**Trigger**: project has a `project.yaml::db.dictionary_path` field pointing to a machine-readable codebook (xlsx/csv/markdown), OR the user supplied a dictionary path in inputs. If neither, skip to Tier 1.
 
-For every candidate DB variable — **before** touching literature — open the dictionary and record, verbatim, the sheet name, row number, and code→meaning mapping. This prevents the single most common observational-study error: assuming a column code (`status == 0`, `grade == 4`) means what it intuitively reads like, when the codebook says otherwise.
+For every candidate DB variable — **before** touching literature — open the dictionary and record, verbatim, the sheet name, row number, and code→meaning mapping. This prevents the most common observational-study error: assuming a column code (`status == 0`, `grade == 4`) means what it intuitively reads like, when the codebook says otherwise.
 
-Concrete procedure per variable:
+Per variable:
 
 1. Locate the variable in the dictionary by exact column name.
 2. Copy verbatim: the sheet title, row number, and full code→meaning mapping (or unit/range statement for continuous vars).
@@ -59,42 +43,32 @@ Concrete procedure per variable:
 
 Empirical checks (value distributions, cross-tabs with related columns) are useful for sanity testing **after** the verbatim codebook meaning is recorded — never as a substitute for it.
 
-Project-level binding (recommended): commit a `DICTIONARY_FIRST_POLICY.md` at the project root (or shared-config path) capturing the canonical dictionary path + escalation contact. Cross-project rule template: `~/.claude/rules/dictionary-first.md`.
+Recommend committing a `DICTIONARY_FIRST_POLICY.md` at the project root (or shared-config path) with the canonical dictionary path and the escalation contact.
 
-**Exit gate**: `check_dictionary_citations.py` (or equivalent) PASS on the operationalization table before running Tier 1.
+**Exit gate**: before Tier 1, cross-check every row's `Dict. sheet & row` and `Dict. verbatim` against the source dictionary; no DB-backed row may be left blank.
 
 ### Tier 1 — Canonical index lookup (no API calls)
 
-Check `references/common_definitions.md` (shipped with skill) for the variable. Covers high-frequency constructs:
-
-- Liver: MASLD (AASLD 2023), MetALD (AASLD 2023), MAFLD (2020), NAFLD (legacy), ALD, viral hepatitis (AASLD 2022/2024 HBV, AASLD-IDSA HCV)
-- Metabolic: T2DM (ADA 2024), prediabetes (ADA 2024), metabolic syndrome (IDF 2009 / NCEP ATP III / K-NCEP), obesity/BMI (WHO Asian 2004 + WHO global), HTN (ACC/AHA 2017 + JNC-8), dyslipidemia (NCEP ATP III, 2023 AHA/ACC)
-- Renal: CKD (KDIGO 2024), eGFR formulas (CKD-EPI 2021 race-free, MDRD legacy), incidental renal mass (ACR 2018 white paper, Bosniak 2019)
-- Pulmonary: COPD (GOLD 2024), emphysema imaging (Fleischner 2015)
-- CV: CAC scoring (Agatston 1990, MESA percentiles), CAD risk (2018 ACC/AHA cholesterol, PREVENT 2023)
-- Cancer: gastric cancer H. pylori (Maastricht VI 2022), thyroid nodule (ACR TI-RADS 2017), gallbladder polyp (European 2022 joint guideline)
-- Imaging incidentalomas: adrenal (ACR 2023), pancreas (ACR 2017), renal (ACR 2018), thyroid (ACR 2017)
-
-If the variable hits Tier 1, record: guideline, year, canonical cutoff, BibTeX key. Done — no `/search-lit` call.
+Look the variable up in `references/common_definitions.md` (hepatology, metabolic/endocrine, renal, pulmonary, cardiovascular, oncology/imaging incidentalomas, alcohol exposure). On a hit, record the guideline, year, canonical cutoff, and BibTeX key. Done — no `/search-lit` call.
 
 ### Tier 2 — Targeted `/search-lit` (focused queries only)
 
-For variables NOT in Tier 1, OR when subgroup justification is needed (Asian-specific cutoff, pediatric, young-adult, pregnancy, etc.), call `/search-lit` with **one query per variable** — not a general sweep. Query pattern:
+For variables NOT in Tier 1, OR when subgroup justification is needed (Asian-specific cutoff, pediatric, young-adult, pregnancy, etc.), call `/search-lit` with **one query per variable** — never a general sweep, which buries the signal. Query pattern:
 
 ```
 "{construct} definition {cohort type} {subgroup qualifier}"
 e.g., "obstructive sleep apnea prevalence Korean health screening cohort"
 ```
 
-Cap: 5 queries per session. Stop early if first 1-2 papers converge on the same definition.
+Cap: 5 queries per session. Stop early if the first 1-2 papers converge on the same definition.
 
 ### Tier 3 — Verification
 
-Before finalizing, run `/verify-refs` on the accumulated BibTeX to confirm every citation exists in PubMed/CrossRef. Ad-hoc choices (no canonical source found) must be flagged `Ad-hoc: yes` and justified with 1-2 sentences — never hidden.
+Every definition, cutoff, and era anchor must come from a verified source — a clinical guideline, a peer-reviewed paper with DOI, or an established registry data dictionary. Never take a phenotype threshold from the model's prior or a reference from memory. Before finalizing, run `/verify-refs` on the accumulated BibTeX to confirm every citation exists in PubMed/CrossRef. A choice with no canonical source is flagged `Ad-hoc: yes`, justified in 1-2 sentences, and confirmed by the user before it propagates into `/write-protocol` or `/analyze-stats`.
 
 ## Output Template
 
-Write to `{project_root}/variable_operationalization.md` using `templates/variable_operationalization.md`. Required structure:
+Write `{project_root}/variable_operationalization.md` (or the path the user specifies) from `templates/variable_operationalization.md`. Required structure:
 
 1. **Header**: research question, cohort type, date, author
 2. **Operationalization table** — one row per variable:
@@ -103,52 +77,23 @@ Write to `{project_root}/variable_operationalization.md` using `templates/variab
 
    - `Role`: exposure / outcome / covariate / eligibility
    - `Dict. sheet & row`: e.g. `5-1.복부초음파 r12` — mandatory if a DB dictionary exists
-   - `Dict. verbatim`: full code→meaning string copied from the dictionary — mandatory same condition
-   - `Canonical source`: BibTeX key (e.g., `@rinella2023_aasld_masld`)
-   - `Definition`: one line, verbatim from guideline where possible
+   - `Dict. verbatim`: full code→meaning string copied from the dictionary — mandatory under the same condition
+   - `Canonical source`: BibTeX key (e.g., `@rinella2023_aasld_masld`), so downstream skills can re-verify
+   - `Definition`: one line, verbatim from the guideline where possible
    - `Cutoff`: numeric + units
    - `DB vars`: exact dictionary column names used
    - `Implementation`: SQL/pandas-style pseudocode (e.g., `bmi>=25 & (b_tg>=150 | b_hdl<40)`)
-   - `Ad-hoc?`: yes/no. If yes, justification below table
+   - `Ad-hoc?`: yes/no. If yes, justification below the table
 
 3. **Ad-hoc justifications** — for each yes row
 4. **Mapping gaps** — variables in the protocol with no DB equivalent; list proxy / omit / request decisions
 5. **References** — BibTeX block
 
-## Non-Goals
-
-- Statistical analysis → `/analyze-stats`
-- Manuscript drafting → `/write-paper`
-- Data cleaning / missingness → `/clean-data`
-- Sample size → `/calc-sample-size`
-
-## Pipeline Position
-
-```
-intake-project → design-study → search-lit → define-variables → write-protocol → analyze-stats → write-paper
-                                              ^^^^^^^^^^^^^^^
-```
-
-`/orchestrate` should insert this skill between `/search-lit` and `/write-protocol` for any observational cohort or registry study.
-
-## Anti-Hallucination
-
-Every variable definition, cutoff, and era anchor must be grounded in a verified source — a clinical guideline, a peer-reviewed paper with DOI, or an established registry data dictionary. Never invent a phenotype threshold from the model's prior; if the source is unknown, mark the row `Ad-hoc: yes` and require user confirmation before it propagates into `/write-protocol` or `/analyze-stats`. When citing papers to justify a cutoff, verify the citation via `/search-lit` or `/verify-refs` — do not carry references from memory alone. The output table must carry explicit `source`, `year`, and `guideline_version` columns so downstream skills can re-verify.
+Out of scope: statistical analysis → `/analyze-stats`; manuscript drafting → `/write-paper`; data cleaning / missingness → `/clean-data`; sample size → `/calc-sample-size`.
 
 ## Failure Modes to Avoid
 
-0. **Ad-hoc DB code interpretation** (the single most costly observational-study error). Interpreting a column value (`status == 0`, `grade == 4`) by its surface reading without consulting the codebook. Tier 0 exists specifically to prevent this. Distinguish from Failure #1: Tier 0 says "once you've picked the DB column, quote the codebook verbatim before using its values." Failure #1 says "don't pick DB columns before picking definitions from literature." Both rules co-exist.
-1. **Dictionary-first framing** — starting from what columns exist, then picking a definition that matches. Always flip: definition first, then map.
+1. **Column-first framing** — starting from what columns exist, then picking a definition that matches. Always flip: definition first, then map. Tier 0 still applies once a column is picked: quote its codebook entry verbatim before using its values.
 2. **Cutoff drift** — using a different cutoff than the cited guideline without justification (e.g., BMI≥23 cited as WHO Asian while text says ≥25).
 3. **Mixing eras** — 2020 MAFLD criteria with 2023 MASLD criteria in the same analysis. Pick one and note why.
-4. **Silent ad-hoc** — introducing a novel cutoff without the `Ad-hoc: yes` flag.
-5. **Sweep-style /search-lit** — running a generic lit search instead of one focused query per gap variable. Wastes tokens and buries the signal.
-6. **Dose/duration structural-missingness** — operationalizing a dose/duration covariate (pack-years, cessation-years, alcohol grams/week) anchored to a categorical exposure (smoking status, alcohol use) without specifying what the *reference level* (never-smoker, never-drinker) does to the dose. A never-smoker's pack-years is a structural zero, not a missing value; conflating the two collapses the analytic sample under complete-case modeling and lets MICE fabricate a non-zero dose for the unexposed. Operationalize it explicitly — add a row with `Role = covariate` and `Implementation = "IF status == 'never' THEN dose = 0 ELSE measured_value"` — and adjust on the categorical **status** variable, reserving the continuous **dose** for an exposed-only secondary analysis. `/clean-data` (categorical-implied-zero flag) and `/analyze-stats` ("Covariate Pitfalls") enforce this downstream.
-
-## Global-rule references
-
-Some passages in this skill cite a path of the form `~/.claude/rules/<name>.md`. Those are the
-maintainer's personal global rules, kept outside this repository. They are **not shipped with
-this skill** and will not exist on your machine; they appear only as provenance for where a
-convention came from. If one of them looks like it is standing in for an instruction you actually
-need, that is a bug — please open an issue, because the instruction belongs here.
+4. **Dose/duration structural-missingness** — operationalizing a dose/duration covariate (pack-years, cessation-years, alcohol grams/week) anchored to a categorical exposure (smoking status, alcohol use) without specifying what the *reference level* (never-smoker, never-drinker) does to the dose. A never-smoker's pack-years is a structural zero, not a missing value; conflating the two collapses the analytic sample under complete-case modeling and lets MICE fabricate a non-zero dose for the unexposed. Operationalize it explicitly — add a row with `Role = covariate` and `Implementation = "IF status == 'never' THEN dose = 0 ELSE measured_value"` — and adjust on the categorical **status** variable, reserving the continuous **dose** for an exposed-only secondary analysis. `/clean-data` (categorical-implied-zero flag) and `/analyze-stats` ("Covariate Pitfalls") enforce this downstream.

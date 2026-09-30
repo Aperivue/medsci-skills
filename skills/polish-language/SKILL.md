@@ -8,92 +8,73 @@ model: inherit
 
 # Polish-Language Skill
 
-You help a medical researcher tighten a manuscript's **mechanical language
-consistency and clarity** before circulation or submission — the copy-editor
-pass that content-focused skills skip. The author is frequently a non-native
-(ESL) English writer, so clarity edits must preserve the formal academic
-register while never touching facts.
+Tighten a manuscript's **mechanical language consistency and clarity** before circulation or
+submission — the copy-editor pass content-focused skills skip. The author is often a non-native
+(ESL) English writer, so clarity edits keep the formal academic register and never touch facts.
+Manuscript edits are in English.
 
-## Communication Rules
+This skill **never** rewrites scientific claims, changes numeric values, edits citations, or
+judges study quality; it standardizes house style and improves sentence-level clarity, with
+explicit user approval for every edit. Out of scope: AI-tell removal (`humanize`, which does not
+do general copy-editing), drafting or restructuring (`write-paper`), reporting-guideline items
+(`check-reporting`), AI-search optimization (`academic-aio`), reference formatting and citation
+integrity (`manage-refs`, `verify-refs`), and translation.
 
-- Manuscript content and edits in English.
-- Converse with the user in their preferred language.
-- Report issues first; only edit after the user approves (see gates below).
-
-## Scope boundary (what this skill is, and is not)
-
-| Concern | Skill |
-|---|---|
-| Mechanical consistency + ESL clarity (this skill) | **polish-language** |
-| Removing AI writing tells / de-AI | `humanize` (it explicitly does **not** do general copy-editing) |
-| Drafting or restructuring content | `write-paper` |
-| Reporting-guideline item compliance (STROBE, CLAIM, …) | `check-reporting` |
-| AI-search-engine optimization (GEO) | `academic-aio` |
-| Reference formatting / citation integrity | `manage-refs`, `verify-refs` |
-
-This skill **never** rewrites scientific claims, changes numeric values, edits
-citations, or judges study quality. It only standardizes house style and
-improves sentence-level clarity with explicit user approval.
-
-## Inputs / Outputs
-
-- **Input**: a manuscript or section (Markdown / plain text).
-- **Output**: (1) a deterministic consistency report, and (2) — only after a
-  user gate — a clarity-polished revision with a change log limited to style.
+**Input**: a manuscript or section (Markdown / plain text). **Output**: (1) the deterministic
+consistency report, and (2) — only after a user gate — a clarity-polished revision with a change
+log limited to style.
 
 ## Workflow
 
 ### Phase 1: Deterministic consistency lint (no LLM judgement)
 
-Run the bundled deterministic linter — it reports, never edits:
+Run the bundled linter — it reports, never edits:
 
 ```bash
-python3 scripts/lint_consistency.py path/to/manuscript.md
+python3 "${CLAUDE_SKILL_DIR}/scripts/lint_consistency.py" path/to/manuscript.md
 # add --strict to exit non-zero when any issue is found (CI / pre-submission gate)
 ```
 
-It flags seven families, each with line numbers and a per-category + total
-count:
+It flags eight families, each with line numbers and a per-category + total count:
 
 1. **Abbreviations** — used-before-defined, defined-but-unused, defined-twice,
    used-but-never-defined (define-once discipline).
-2. **Spelling** — mixed US/UK variants (analyze/analyse, tumor/tumour, …);
-   reports the minority side against the document's dominant variant.
-3. **Numeric ranges** — hyphen between numbers where an en-dash belongs
-   (`5-10` → `5–10`).
+2. **Spelling** — mixed US/UK variants (analyze/analyse, tumor/tumour, …); reports the minority
+   side against the document's dominant variant.
+3. **Numeric ranges** — hyphen between numbers where an en-dash belongs (`5-10` → `5–10`).
 4. **p-values** — mixed `P`/`p` case; impossible `P = 0.000`.
-5. **Hyphenation / terminology** — variant forms of one term
-   (follow-up / followup / "follow up").
+5. **Hyphenation / terminology** — variant forms of one term (follow-up / followup / "follow up").
 6. **Small numbers** — single digits 1–9 written as digits in prose.
 7. **Units** — missing space between value and unit (`5mg` → `5 mg`).
+8. **Thousands separator (title vs body)** — a float title writes a number with a period
+   separator (`3.681`) that the body writes with a comma (`3,681`).
 
-Present the report to the user. The linter output is the source of truth for
-what is mechanically wrong; do not invent additional "issues" from memory.
+Present the report to the user. The linter output is the source of truth for what is
+mechanically wrong: do not invent further "issues" from memory, and label anything else you
+notice as an editorial suggestion, not a linter finding. The fixed rules do not settle every
+grammar or journal preference, so triage flags in context.
 
-### Phase 1b: Figure-SOURCE locale drift (text no grep can reach)
+### Phase 1b: Figure-SOURCE locale drift
 
-Phase 1 only sees prose. Text baked into a **figure** lives in a rendered raster, so a
-co-author who types "Behavioural alignment" in a PowerPoint panel or a plotting script ships
-a UK word into a US manuscript and no text gate sees it — it surfaces when someone opens the
-image, typically on submission day. Scan the figure **sources** instead (no OCR):
+Text baked into a figure never reaches Phase 1, so a UK word typed into a PowerPoint panel or
+plotting script ships in a US manuscript unseen. Scan the figure **sources** (no OCR):
 
 ```bash
-python3 scripts/lint_figure_locale.py --manuscript path/to/manuscript.md --figures-dir figures/
+python3 "${CLAUDE_SKILL_DIR}/scripts/lint_figure_locale.py" --manuscript path/to/manuscript.md --figures-dir figures/
 # --spelling us|uk forces the target; otherwise it reads a `spelling:` front-matter field,
 # then falls back to the body's own US/UK majority. --strict exits non-zero on any drift.
 ```
 
-It reads `<a:t>` runs inside `*.pptx` slide XML and the text of `*.py` / `*.R` plotting
-scripts, and reuses Phase 1's US↔UK families verbatim so the two gates never disagree.
-`FIGURE_LOCALE_DRIFT` is **Minor** — copy-edit the source before the raster is re-exported.
-A missing figures directory is not an error; it exits 0 with nothing judged.
+It reads `<a:t>` runs inside `*.pptx` slide XML and the text of `*.py` / `*.R` plotting scripts,
+with the same US↔UK families as Phase 1. `FIGURE_LOCALE_DRIFT` is **Minor** — copy-edit the
+source before the raster is re-exported. A missing figures directory is not an error; it exits 0
+with nothing judged.
 
 ### Phase 2: Triage with the user (gate)
 
-Walk the user through the report. Some flags are author choices (a journal may
-mandate UK spelling, or digits for all numbers). **User approval is required**
-before any edit — confirm per category which to apply and which to keep. Record
-the decisions; do not auto-apply.
+Walk the user through the report. Some flags are author choices (a journal may mandate UK
+spelling, or digits for all numbers). **User approval is required** before any edit — confirm
+per category which to apply and which to keep. Record the decisions; do not auto-apply.
 
 ### Phase 3: Apply mechanical fixes (style-only)
 
@@ -104,51 +85,29 @@ For each **approved** category, apply the deterministic fix with `Edit`:
 - unify hyphenation, spell out small numbers, add value/unit spaces,
 - define each abbreviation once at first use; remove redundant redefinitions.
 
-Re-run `lint_consistency.py` after editing — the count should drop to the
-issues the user chose to keep. This re-run is the verification gate.
+Re-run `lint_consistency.py` after editing — the count should drop to the issues the user chose
+to keep. This re-run is the verification gate; never claim a fix without it.
 
 ### Phase 4: ESL clarity polish (optional, gated, style-only)
 
-If the user requests a clarity pass, improve readability sentence by sentence
-while preserving meaning, register, numbers, and citations:
+If the user requests a clarity pass, improve readability sentence by sentence while preserving
+meaning, register, numbers, and citations:
 - split run-on sentences; fix article (a/an/the) and preposition usage;
 - correct subject–verb agreement and awkward non-native phrasings;
 - prefer active voice only where it does not change emphasis or claims.
 
-Show each proposed change as a before/after diff and get **user review** before
-writing. If a sentence's meaning is even slightly uncertain, leave it and ask —
-do not guess. Never merge, add, or drop a scientific claim, number, or
-reference during clarity polishing.
+Show each proposed change as a before/after diff and get **user review** before writing. Numbers,
+p-values, effect sizes, units, citations, and claims are copied verbatim; an edit that would
+change any of them is out of scope — skip it. Never merge, add, or drop a scientific claim,
+number, or reference. If a sentence's meaning is even slightly uncertain, leave it and ask; do
+not invent domain facts to smooth a sentence. Every applied change must trace to a linter flag
+or a user-approved clarity suggestion in the change log.
 
 ## Reproducible challenge card
 
-A deterministic, network-free challenge card lives in
-`scripts/lint_challenge/` (synthetic manuscript with seeded defects +
-`expected/report.txt` + `verify.sh`):
+Deterministic and network-free (synthetic manuscript with seeded defects +
+`expected/report.txt`):
 
 ```bash
-bash scripts/lint_challenge/verify.sh   # PASS = 11 seeded issues across 8 categories + 2 clean controls
+bash "${CLAUDE_SKILL_DIR}/scripts/lint_challenge/verify.sh"   # PASS = 11 seeded issues across 8 categories + 2 clean controls
 ```
-
-## What This Skill Does NOT Do
-
-- Does not rewrite or generate scientific content, claims, or conclusions.
-- Does not change any numeric value, statistic, or result.
-- Does not add, remove, or reformat citations or references.
-- Does not assess reporting-guideline or journal compliance.
-- Does not remove AI writing patterns (use `humanize`).
-- Does not translate between languages.
-- Applies no edit without explicit user approval (gates in Phases 2–4).
-
-## Anti-Hallucination
-
-- Report deterministic findings as linter findings, and other observations as
-  editorial suggestions. The fixed rules do not resolve every grammar or journal
-  preference; triage flags in context. Never claim a fix without re-running the linter.
-- Clarity edits are constrained to wording. Numbers, p-values, effect sizes,
-  units, citations, and claims are copied verbatim — if an edit would change
-  any of them, it is out of scope and must be skipped.
-- When a sentence's intended meaning is ambiguous, ask the user rather than
-  inferring; do not invent domain facts to "smooth" a sentence.
-- Every applied change is style-only and traceable to a linter flag or an
-  explicit user-approved clarity suggestion.
