@@ -2,7 +2,7 @@
 
 # radiomics-ml
 
-> Produce or audit a radiomics / tabular clinical-ML study — imaging or clinical features → any classical learner (penalised logistic [LASSO / ridge / elastic-net], SVM, k-NN, naive Bayes, LDA/QDA, decision tree, random forest, gradient boosting [XGBoost / LightGBM / CatBoost], shallow MLP, stacked ensembles) → a clinical outcome — so it clears the rigor bar reviewers expect: nested cross-validation (tuning never on the reported folds), dimensionality control for the features-far-exceed-events regime, feature selection inside the fold, feature-stability (ICC / test-retest) filtering, calibration, and external/temporal validation. The deterministic gate is learner-agnostic (it audits the pipeline, not the algorithm). Emits a pipeline manifest and the gate. The most common solo-doable clinical-ML workflow — no GPU, no engineer. Integrates scikit-learn / xgboost / lightgbm / catboost / pyradiomics; it does not reimplement them.
+> Use when building or auditing a radiomics or tabular clinical-ML prediction model with a classical learner (LASSO, SVM, random forest, XGBoost and similar). Enforces nested CV, dimensionality control, in-fold feature selection, feature stability, calibration and external validation.
 
 **Invoke:** `/radiomics-ml` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
 

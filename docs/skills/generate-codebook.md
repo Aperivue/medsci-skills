@@ -2,7 +2,7 @@
 
 # generate-codebook
 
-> Generate a citable data dictionary / codebook from a tabular dataset (CSV/TSV/Excel/Parquet/Stata/SAS). Profiles every variable — role, type, units placeholder, level frequencies, range/quantiles, missingness — and emits codebook.md + codebook.json. Flags coded variables whose level meanings are unknown as [NEEDS DICTIONARY] rather than guessing them, feeding /define-variables and the dictionary-first workflow.
+> Use when a tabular dataset (CSV, Excel, Parquet, Stata, SAS) needs a data dictionary. Profiles every variable (type, levels, range, missingness) into codebook.md and codebook.json and flags coded values of unknown meaning as [NEEDS DICTIONARY] instead of guessing.
 
 **Invoke:** `/generate-codebook` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
 

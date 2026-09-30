@@ -2,7 +2,7 @@
 
 # intake-project
 
-> Intake and normalize a new radiology research project. Classifies project type, summarizes current state, identifies missing inputs, recommends next steps, and scaffolds lightweight project memory files.
+> Use when starting or inheriting a radiology research project and need to know what it is. Classifies the project type, summarizes its current state, lists missing inputs, recommends next steps and scaffolds lightweight project memory files.
 
 **Invoke:** `/intake-project` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
 

@@ -1,6 +1,6 @@
 ---
 name: search-lit
-description: Literature search and citation management for medical research. Searches PubMed, Semantic Scholar, and bioRxiv/medRxiv with verified citations. Anti-hallucination — every reference verified via API before inclusion. Generates BibTeX entries.
+description: Use when finding papers or building a reference list. Searches PubMed, Semantic Scholar and bioRxiv/medRxiv, includes only references verified through an API, and generates BibTeX. Auditing an existing reference list is /verify-refs.
 triggers: literature search, find papers, citation, references, bibliography, PubMed search, related work
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit

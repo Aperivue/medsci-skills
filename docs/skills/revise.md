@@ -2,7 +2,7 @@
 
 # revise
 
-> Parse peer reviewer comments and generate a structured Response to Reviewers document with tracked manuscript changes. Classifies comments as MAJOR/MINOR/REBUTTAL, coordinates new analyses with /analyze-stats and /make-figures, and produces cover letter for editor.
+> Use when a manuscript comes back with reviewer or editor comments. Numbers every comment, classifies it MAJOR/MINOR/REBUTTAL, drafts a point-by-point response with tracked manuscript changes, routes new analyses to /analyze-stats and writes the cover letter.
 
 **Invoke:** `/revise` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
 

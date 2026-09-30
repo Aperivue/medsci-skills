@@ -2,7 +2,7 @@
 
 # imaging-data
 
-> Use before modelling a medical-imaging dataset: profile it (spacing, orientation, intensity domain, label integrity, foreground fraction, target volume) and gate it against the plan, then plan and audit preprocessing and augmentation (DICOM/NIfTI, resampling, normalisation) for leakage.
+> Use when preparing a medical-imaging dataset (DICOM/NIfTI) for modelling. Profiles spacing, orientation, intensity, label integrity, foreground fraction and target volume, gates them against the plan, then plans and audits preprocessing and augmentation for leakage.
 
 **Invoke:** `/imaging-data` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
 

@@ -1,6 +1,6 @@
 ---
 name: ma-scout
-description: Meta-analysis topic discovery and feasibility assessment. Professor-first (profile → gap) or Topic-first (question → gap → co-author). Pre-protocol phase from idea to ranked topic list.
+description: Use when looking for a meta-analysis topic before any protocol exists. Starts from a professor's publication profile or from a clinical question, finds gaps, assesses feasibility and returns a ranked topic list. Running the review itself is /meta-analysis.
 triggers: ma-scout, MA 주제 찾기, professor MA, 메타분석 주제, MA gap, topic-first MA, 트렌드 MA, meta-analysis topic, 교수님 분석, 연구 분석
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: opus

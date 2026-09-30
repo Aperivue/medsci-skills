@@ -1,15 +1,6 @@
 ---
 name: manage-refs
-description: >
-  Cross-cutting reference manager for medical manuscripts. Single entry point
-  for citation-key validation, journal-CSL pandoc rendering, manuscript ↔ DOCX
-  cross-reference QC, marker conversion (``[N]`` ↔ ``[@key]``), and native
-  Zotero CWYW field-code injection. Replaces the inline reference-handling
-  that previously lived in ``/write-paper`` Phase 7.6 and is reused by
-  ``/revise``, ``/peer-review``, ``/sync-submission``, and any skill that
-  produces a journal submission. Audit-only verification stays in
-  ``/verify-refs`` — this skill writes (renders, injects, converts); that
-  skill only reads.
+description: Use when references must be written, rendered or converted. Checks [@key] citation keys, renders the reference list with a journal CSL via pandoc, converts [N] markers, injects Zotero Word field codes and runs manuscript-DOCX cross-reference QC. Read-only auditing is /verify-refs.
 triggers: manage-refs, references, citation, citation keys, pandoc citeproc, journal CSL, CSL swap, cascade rejection re-render, cross-reference QC, [@bibkey], Zotero CWYW, ADDIN ZOTERO_ITEM, marker conversion, [N] to [@key], reference manager, render manuscript, check_citation_keys, check_xref
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit

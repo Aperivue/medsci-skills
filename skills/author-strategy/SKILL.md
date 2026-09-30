@@ -1,6 +1,6 @@
 ---
 name: author-strategy
-description: PubMed author profile analysis. Author name → PubMed fetch → study-type classification → visualization → strategy report → optional trajectory-archetype classification.
+description: Use when analyzing a researcher's publication record from PubMed. Fetches an author's papers, classifies study types and author position, charts the patterns and writes a strategy report, with an optional trajectory-archetype classification. Works from PubMed metadata only.
 triggers: author-strategy, 저자 분석, publication analysis, 다작 분석, 연구 전략 분석, author profile, reverse engineer strategy, trajectory archetype, career archetype
 tools: Read, Write, Edit, Bash, Glob, Grep
 model: inherit

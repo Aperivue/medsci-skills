@@ -1,6 +1,6 @@
 ---
 name: humanize
-description: Detect and remove AI writing patterns from academic manuscripts and response-to-reviewers letters. Scans for 27 common AI-generated text patterns and rewrites flagged passages to sound naturally human-written while preserving technical accuracy, bounding how much of the text a rewrite is allowed to touch.
+description: Use when a manuscript or response-to-reviewers letter reads as AI-written. Scans for 27 AI writing patterns and rewrites flagged passages, preserving technical accuracy and bounding how much text changes. Not general copy-editing; that is /polish-language.
 triggers: humanize, AI patterns, AI 문체, remove AI writing, make it sound natural, 자연스럽게, de-AI
 tools: Read, Write, Edit, Grep, Glob, Bash
 model: inherit

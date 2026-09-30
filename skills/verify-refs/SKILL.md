@@ -1,6 +1,6 @@
 ---
 name: verify-refs
-description: Audit-only verification of manuscript references against PubMed and CrossRef. Detects fabricated or mismatched citations and writes qc/reference_audit.json. Does not modify references/ or refs.bib.
+description: Use when checking whether a manuscript's references are real. Audits each citation against PubMed and CrossRef, flags fabricated or mismatched entries and writes qc/reference_audit.json. Audit-only; never edits references or refs.bib. Citation-key checks are /manage-refs.
 triggers: verify refs, verify references, citation audit, reference hallucination, fabricated references, bibliography check, PMID check, DOI check
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit

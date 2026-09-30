@@ -1,12 +1,6 @@
 ---
 name: fill-protocol
-description: >
-  Fill institutional Word form templates (.doc/.docx) for IRB protocols, ethics
-  applications, grant proposals, and other structured research documents while
-  preserving the original styles, table layouts, fonts, and page geometry. Pairs
-  with write-protocol — write-protocol drafts the scientific content, fill-protocol
-  renders it into the institutional template. Korean-aware (CJK eastAsia font
-  enforcement, table cantSplit) but works for any language template.
+description: Use when an institutional Word form (.doc/.docx IRB protocol, ethics application, grant template) must be filled without breaking its styles, tables, fonts or page layout. Renders content drafted by /write-protocol into the template; CJK-aware.
 triggers: fill protocol, fill template, fill IRB form, IRB template, ethics template, grant template, 양식 채우기, 연구계획서 작성, 신청서 작성, 정부 양식, 병원 양식, 워드 템플릿
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit

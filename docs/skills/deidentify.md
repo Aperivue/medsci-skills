@@ -2,7 +2,7 @@
 
 # deidentify
 
-> De-identify clinical research data before LLM-assisted analysis. Standalone Python CLI detects PHI via regex + heuristics with 10 country locale packs (kr, us, jp, cn, de, uk, fr, ca, au, in). Interactive terminal review. No LLM touches raw data — the script runs locally without any network or AI calls.
+> Use when clinical data may contain PHI and must be de-identified before any LLM-assisted analysis. A local Python script (no network or AI calls) detects identifiers with regex and heuristics in 10 country locale packs, with interactive terminal review.
 
 **Invoke:** `/deidentify` · **Tools:** Read, Bash, Glob · **Model:** inherit
 

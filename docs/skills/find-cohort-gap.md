@@ -2,7 +2,7 @@
 
 # find-cohort-gap
 
-> Research gap finder for longitudinal cohort databases. Profiles cohort strengths, matches PI expertise, scans literature saturation, and outputs ranked topic proposals with gap evidence. Works with any cohort: NHIS, UK Biobank, institutional EMR, health checkup registries, or disease-specific registries.
+> Use when looking for research topics a longitudinal cohort database can answer (NHIS, UK Biobank, an institutional EMR or registry). Profiles the cohort, matches PI expertise, scans literature saturation and returns ranked topic proposals with gap evidence.
 
 **Invoke:** `/find-cohort-gap` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** opus
 

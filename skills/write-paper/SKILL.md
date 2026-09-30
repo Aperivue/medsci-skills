@@ -1,6 +1,6 @@
 ---
 name: write-paper
-description: Full-pipeline medical/scientific paper writing. 8-phase IMRAD workflow from outline to submission-ready manuscript. Supports original articles, case reports, case series, meta-analyses, AI validation studies, animal studies, and technical notes. Do NOT trigger for self-checking (use self-review instead).
+description: Use when drafting a medical research manuscript or any IMRAD section. Runs an 8-phase pipeline from outline to submission-ready draft for original articles, AI validation studies, case reports, meta-analyses, technical notes and more. Checking a draft is /self-review.
 triggers: write paper, manuscript, draft paper, start writing, write methods, write results, write discussion, write introduction
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit

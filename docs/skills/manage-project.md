@@ -2,7 +2,7 @@
 
 # manage-project
 
-> Research project management for medical manuscripts. Scaffold project structure, track writing progress across phases, maintain project memory files, generate submission checklists and backwards timelines. Commands: init, status, sync-memory, checklist, timeline.
+> Use when managing a manuscript project over time. Scaffolds the project structure, tracks writing progress across phases, maintains project memory files, and generates submission checklists and backwards timelines (commands init, status, sync-memory, checklist, timeline).
 
 **Invoke:** `/manage-project` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
 

@@ -2,7 +2,7 @@
 
 # cross-national
 
-> End-to-end cross-national comparison study using KNHANES + NHANES + CHNS (or other parallel surveys). Variable harmonization, parallel weighted analysis, and comparison tables. Supports 2-country (KR+US) and 3-country (KR+US+CN) designs.
+> Use when comparing an exposure-outcome association across countries with parallel national surveys (KNHANES, NHANES, CHNS). Harmonizes variables, runs parallel weighted analyses and builds comparison tables for 2-country (KR+US) or 3-country (KR+US+CN) designs.
 
 **Invoke:** `/cross-national` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** opus
 

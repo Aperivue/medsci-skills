@@ -2,7 +2,7 @@
 
 # mllm-eval
 
-> Design or audit a model-agnostic evaluation harness for an LLM or multimodal LLM on a clinical task (radiology report generation, visual question answering, clinical text extraction/classification) — the adjudicated reference standard, clinical-efficacy metrics (RadGraph-F1 / CheXbert-F1 beyond BLEU/ROUGE), faithfulness and hallucination, pretraining-contamination of public benchmarks, prompt-sensitivity and determinism, answer-matching, and a reader study — and gate the plan for those axes. Works on a closed API or open weights. Never fabricates outputs or scores, and never reports n-gram overlap as clinical correctness.
+> Use when designing or auditing how an LLM or multimodal LLM is evaluated on a clinical task (report generation, VQA, text extraction). Covers reference standard, clinical-efficacy metrics beyond BLEU/ROUGE, hallucination, contamination and prompt sensitivity. Imaging models are /model-assessment.
 
 **Invoke:** `/mllm-eval` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
 

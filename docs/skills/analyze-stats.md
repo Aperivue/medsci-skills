@@ -2,7 +2,7 @@
 
 # analyze-stats
 
-> Statistical analysis for medical research papers. Generates reproducible Python/R code with publication-ready tables and figures. Supports diagnostic accuracy, inter-rater agreement, meta-analysis, survival analysis, survey data, group comparisons, regression, propensity score, and repeated measures.
+> Use when you have data and need the statistics run. Generates and runs reproducible Python/R code for Table 1, diagnostic accuracy, agreement, regression, survival, propensity score, survey-weighted, repeated-measures and meta-analysis, with publication tables. Sample size is /calc-sample-size.
 
 **Invoke:** `/analyze-stats` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
 

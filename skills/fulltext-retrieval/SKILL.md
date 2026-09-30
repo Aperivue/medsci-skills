@@ -1,6 +1,6 @@
 ---
 name: fulltext-retrieval
-description: Batch download open-access PDFs by DOI using legitimate OA APIs (Unpaywall, PMC, OpenAlex, Crossref). Optional PDF→Markdown conversion for token-efficient LLM analysis.
+description: Use when you need full-text PDFs for a list of DOIs, such as a meta-analysis screening set. Batch-downloads open-access copies via Unpaywall, PMC, OpenAlex and Crossref, lists paywalled papers for manual access, and can convert PDFs to Markdown.
 triggers: PDF download, fulltext retrieval, open access PDF, batch download papers, meta-analysis PDF, PDF to markdown, convert PDF
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit

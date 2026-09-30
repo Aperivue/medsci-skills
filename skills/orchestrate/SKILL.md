@@ -1,9 +1,6 @@
 ---
 name: orchestrate
-description: >
-  General-purpose research orchestrator. Routes ambiguous or multi-step requests to the right skill(s)
-  from the medsci-skills bundle. Use when the user describes a research goal without naming
-  a specific skill, or when a task spans multiple skills.
+description: Use when the user describes a research goal without naming a skill, or the task spans several skills. Classifies the request, plans the order and routes to the right medsci-skills skill(s) instead of producing their output itself.
 triggers: orchestrate, research help, what should I do next, where do I start, help me with my paper, run the pipeline, which skill, end-to-end, e2e
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit
