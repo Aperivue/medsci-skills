@@ -2618,8 +2618,8 @@
     },
     {
       "path": "skills/manage-refs/SKILL.md",
-      "size": 20750,
-      "sha256": "16a16ca23833a9ba86850b556c94df3ca0bc948a98dfa54140358951428e16ab"
+      "size": 20758,
+      "sha256": "8cb8206abfb46d3ba23a711c251269c1d5fc512a09bd75a2f164f87d33b6af09"
     },
     {
       "path": "skills/manage-refs/citation_styles/README.md",
@@ -2828,8 +2828,8 @@
     },
     {
       "path": "skills/manage-refs/scripts/inject_zotero_cwyw.py",
-      "size": 5359,
-      "sha256": "2c90ca7dd823cde538847db047330d7c8302a76516d386bad61aae28bc3a5e5d"
+      "size": 5375,
+      "sha256": "0f63a4b16d0b9d96f8c3704b5e054150b0038130e5ec33f5a7614d4a520bf729"
     },
     {
       "path": "skills/manage-refs/scripts/md_marker_convert.py",

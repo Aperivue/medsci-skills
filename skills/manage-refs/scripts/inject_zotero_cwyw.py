@@ -17,9 +17,9 @@ Workflow:
 
 Usage:
   inject_zotero_cwyw.py --input markers.docx --output cwyw.docx \\
-    --user-id 16613550 --keys ABC123,DEF456,...
+    --user-id <zotero-user-id> --keys ABC123,DEF456,...
   inject_zotero_cwyw.py --input markers.docx --output cwyw.docx \\
-    --user-id 16613550 --keys-from keys.txt
+    --user-id <zotero-user-id> --keys-from keys.txt
 
 Known limitations (carry-over from an active meta-analysis project validation, 2026-05-01):
   - First build: BIBL field is an empty stub. User must run "Add/Edit

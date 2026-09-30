@@ -199,6 +199,11 @@
 
 ### Security
 
+- **`/manage-refs`: the CWYW example no longer carries a real Zotero user id.** The documented
+  `inject_zotero_cwyw.py` command (SKILL.md and the script's usage text) passed a concrete
+  `--user-id`. The script writes that id into every citation link, so a copied example would point
+  a user's citations at someone else's library. It is now a `<zotero-user-id>` placeholder.
+
 - **The repository's publication check no longer prints the value it caught.** When
   `scripts/validate_skills.sh` found a personal name, home-directory path or email address in a
   file, the failure message included the matched text. CI logs of a public repository are public
