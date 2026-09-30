@@ -341,6 +341,33 @@ def test_mode_preserved() -> None:
         check((os.stat(sp).st_mode & 0o777) == 0o600, "0600 preserved across unregister")
 
 
+def test_enable_flag_installs() -> None:
+    """`install --enable-update-notify` is the command the README recommends to clinicians
+    ("install + in-app update reminders"). It used to opt in and return before copying a single
+    skill, exit 0, and so look like a finished install."""
+    print("install.py --enable-update-notify:")
+    with tempfile.TemporaryDirectory(prefix="medsci-hook-") as t:
+        tmp = Path(t)
+        env = {k: v for k, v in os.environ.items() if k not in ("MEDSCI_HOME", "MEDSCI_CLAUDE_SETTINGS")}
+        env.update({"HOME": str(tmp), "USERPROFILE": str(tmp), "PYTHONDONTWRITEBYTECODE": "1"})
+
+        def run(*flags):
+            return subprocess.run([sys.executable, str(INSTALLERS / "install.py"), "--target", "claude", *flags],
+                                  env=env, capture_output=True, text=True, timeout=600)
+
+        r = run("--enable-update-notify")
+        shipped = sorted(p.name for p in (INSTALLERS.parent / "skills").iterdir() if (p / "SKILL.md").is_file())
+        dest = tmp / ".claude" / "skills"
+        installed = sorted(p.name for p in dest.iterdir() if (p / "SKILL.md").is_file()) if dest.is_dir() else []
+        check(r.returncode == 0, "exits 0")
+        check(installed == shipped, f"installs every skill ({len(installed)}/{len(shipped)})")
+        check(_settings(tmp).is_file() and _count_ours(_settings(tmp)) == 1, "and registers the hook, once")
+        r = run("--disable-update-notify")
+        check(r.returncode == 0 and _count_ours(_settings(tmp)) == 0, "--disable-update-notify removes it")
+        check(dest.is_dir() and sorted(p.name for p in dest.iterdir()) == installed,
+              "...and leaves the installed skills alone")
+
+
 if __name__ == "__main__":
     test_settings_merge()
     test_matcher_precision()
@@ -348,5 +375,6 @@ if __name__ == "__main__":
     test_mode_preserved()
     test_hook_logic()
     test_hook_subprocess_smoke()
+    test_enable_flag_installs()
     print(f"\ntest_session_hook: {passed} passed, {failed} failed")
     sys.exit(1 if failed else 0)

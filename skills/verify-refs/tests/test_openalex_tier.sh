@@ -34,6 +34,12 @@ check("title sim exact == 1.0", abs(vr._title_similarity(t, t) - 1.0) < 1e-9)
 check("title sim unrelated < 0.3",
       vr._title_similarity(t, "A meta-analysis of CT screening for lung cancer") < 0.3)
 check("title sim empty == 0.0", vr._title_similarity("", t) == 0.0)
+check("title sim: hepatitis B vs hepatitis C below the match threshold",
+      vr._title_similarity("Tenofovir for chronic hepatitis B", "Tenofovir for chronic hepatitis C")
+      < vr.TITLE_MATCH_MIN)
+check("title sim: a possessive 's does not lower the score",
+      abs(vr._title_similarity("Alzheimer's disease biomarkers in plasma",
+                               "Alzheimer disease biomarkers in plasma") - 1.0) < 1e-9)
 
 # --- _openalex_families ---------------------------------------------------------
 work = {"authorships": [
@@ -141,7 +147,7 @@ ONLINE_FIRST = {"status": "ok", "message": {
     "published-online": {"date-parts": [[2022, 12, 14]]},
     "published-print": {"date-parts": [[2023, 2]]},
     "author": [{"family": "Example"}]}}
-vr.http_json = make_http({"api.crossref.org/works/": ONLINE_FIRST})
+vr.http_fetch = lambda url, timeout: (200, ONLINE_FIRST)  # verify_crossref reads the HTTP status
 st, ev, fams = vr.verify_crossref("10.0000/example.1", 5)
 check("crossref year prefers the print year", st == "OK" and "year=2023" in ev)
 check("crossref year also shows the differing online year", "online 2022" in ev)
@@ -150,7 +156,7 @@ ISSUED_ONLY = {"status": "ok", "message": {
     "title": ["A synthetic record with one date"],
     "issued": {"date-parts": [[2021]]},
     "author": [{"family": "Example"}]}}
-vr.http_json = make_http({"api.crossref.org/works/": ISSUED_ONLY})
+vr.http_fetch = lambda url, timeout: (200, ISSUED_ONLY)  # verify_crossref reads the HTTP status
 st, ev, fams = vr.verify_crossref("10.0000/example.2", 5)
 check("crossref single-date year is shown plainly", "year=2021;" in ev + ";" and "(print" not in ev)
 

@@ -329,9 +329,11 @@ def _cache_store(home: Path, tag: str) -> None:
         pass
 
 
-def check_update(home: Path, get_json=_real_get_json, asset_name: str | None = None, force: bool = False) -> int:
+def check_update(home: Path, get_json=_real_get_json, asset_name: str | None = None, force: bool = False,
+                 store_cache: bool = True) -> int:
     """Compare the installed version with the latest release. Silent when up to date.
-    Returns a distinct exit code (CHK_*). Uses a clock-sane 24h cache."""
+    Returns a distinct exit code (CHK_*). Uses a clock-sane 24h cache; `store_cache=False` reads
+    it but never writes it (install.py --dry-run, which promises to write nothing)."""
     inst = installed_version(home)
     inst_v = parse_semver(inst)
     if inst_v is None:
@@ -343,7 +345,8 @@ def check_update(home: Path, get_json=_real_get_json, asset_name: str | None = N
         try:
             rel = resolve_latest(get_json, asset_name or os_asset_name())
             tag = rel["tag"]
-            _cache_store(home, tag)
+            if store_cache:
+                _cache_store(home, tag)
         except UpdateError as exc:
             print(f"MedSci Skills: could not check for updates ({exc}).", file=sys.stderr)
             return CHK_NETWORK_FAILURE

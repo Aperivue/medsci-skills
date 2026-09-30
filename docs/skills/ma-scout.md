@@ -2,9 +2,9 @@
 
 # ma-scout
 
-> Meta-analysis topic discovery and feasibility assessment. Professor-first (profile → gap) or Topic-first (question → gap → co-author). Pre-protocol phase from idea to ranked topic list.
+> Use when looking for a meta-analysis topic before any protocol exists. Starts from a professor's publication profile or from a clinical question, finds gaps, assesses feasibility and returns a ranked topic list. Running the review itself is /meta-analysis.
 
-**Invoke:** `/ma-scout` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** opus
+**Invoke:** `/ma-scout` · **Model:** opus
 
 ## When to use
 
@@ -36,6 +36,7 @@
 
 - `project_readme_template.md`
 - `project_readme_template_ko.md`
+- `topic_discovery_heuristics.md`
 
 ## Source
 

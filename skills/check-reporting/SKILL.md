@@ -1,77 +1,67 @@
 ---
 name: check-reporting
-description: Check manuscript compliance with medical research reporting guidelines. Supports 49 guidelines including STROBE, STROBE-MR, RECORD, REMARK (prognostic tumor-marker studies), TARGET (target trial emulation), GATHER (burden-of-disease / health-estimate modeling), CONSORT, CONSORT-AI, STARD, STARD-AI, TRIPOD, TRIPOD+AI, TRIPOD-LLM, PGS-RS, ARRIVE, PRISMA, PRISMA 2020 for Abstracts, PRISMA-DTA, PRISMA-P, PRISMA-ScR (scoping reviews), CARE, SPIRIT, SPIRIT-AI, CLAIM, DECIDE-AI, MI-CLEAR-LLM, SQUIRE 2.0, CLEAR, MOOSE, GRRAS, SWiM, AMSTAR 2, CHEERS 2022, CROSS (survey studies), SRQR and COREQ (qualitative research), and risk of bias tools (QUADAS-3, QUADAS-2, QUADAS-C, RoB 2, ROBINS-I, ROBINS-E, ROBIS, ROB-ME, PROBAST, PROBAST+AI, NOS, COSMIN, RoB NMA). Generates item-by-item assessment with PRESENT/MISSING/PARTIAL status.
-triggers: checklist, QUADAS-3, abstract checklist, structured abstract, reporting guideline, STROBE, STROBE-MR, Mendelian randomization, CONSORT, CONSORT-AI, STARD, STARD-AI, TRIPOD, TRIPOD-LLM, PGS-RS, PRS-RS, polygenic risk score, polygenic score, PRISMA, PRISMA-DTA, PRISMA-P, PRISMA-ScR, scoping review, scoping, evidence map, ARRIVE, CARE, CLAIM, DECIDE-AI, MI-CLEAR-LLM, SPIRIT, SPIRIT-AI, QUADAS, QUADAS-C, RoB, ROBINS, ROBINS-E, ROBIS, ROB-ME, PROBAST, NOS, COSMIN, AMSTAR, SWiM, CHEERS, economic evaluation, cost-effectiveness, cost-utility, QALY, ICER, RECORD, RECORD-PE, routinely-collected data, registry, claims, electronic health records, EHR, real-world data, CROSS, CHERRIES, survey, questionnaire, KAP, e-survey, response rate, SRQR, COREQ, qualitative research, interviews, focus groups, thematic analysis, grounded theory, reflexivity, REMARK, tumor marker, prognostic marker, prognostic biomarker, molecular residual disease, TARGET, target trial emulation, target trial, causal inference, estimand, immortal time bias, GATHER, burden of disease, global burden, GBD, health estimates, attributable burden, comparative risk assessment, population attributable fraction, disability-adjusted life years, DALY, forecasting, decomposition, risk of bias, compliance check, LLM accuracy, large language model, clinical deployment
-tools: Read, Write, Edit, Bash, Grep, Glob
-model: inherit
+description: Use when auditing a manuscript item by item against a reporting guideline or risk-of-bias tool. Covers 49 reporting guidelines and risk-of-bias tools (STROBE, CONSORT, STARD, TRIPOD+AI, PRISMA, QUADAS and more), marking each item PRESENT, PARTIAL or MISSING. Not a reviewer critique (/self-review).
+metadata:
+  triggers: "checklist, QUADAS-3, abstract checklist, structured abstract, reporting guideline, STROBE, STROBE-MR, Mendelian randomization, CONSORT, CONSORT-AI, STARD, STARD-AI, TRIPOD, TRIPOD-LLM, PGS-RS, PRS-RS, polygenic risk score, polygenic score, PRISMA, PRISMA-DTA, PRISMA-P, PRISMA-ScR, scoping review, scoping, evidence map, ARRIVE, CARE, CLAIM, DECIDE-AI, MI-CLEAR-LLM, SPIRIT, SPIRIT-AI, QUADAS, QUADAS-C, RoB, ROBINS, ROBINS-E, ROBIS, ROB-ME, PROBAST, NOS, COSMIN, AMSTAR, SWiM, CHEERS, economic evaluation, cost-effectiveness, cost-utility, QALY, ICER, RECORD, RECORD-PE, routinely-collected data, registry, claims, electronic health records, EHR, real-world data, CROSS, CHERRIES, survey, questionnaire, KAP, e-survey, response rate, SRQR, COREQ, qualitative research, interviews, focus groups, thematic analysis, grounded theory, reflexivity, REMARK, tumor marker, prognostic marker, prognostic biomarker, molecular residual disease, TARGET, target trial emulation, target trial, causal inference, estimand, immortal time bias, GATHER, burden of disease, global burden, GBD, health estimates, attributable burden, comparative risk assessment, population attributable fraction, disability-adjusted life years, DALY, forecasting, decomposition, risk of bias, compliance check, LLM accuracy, large language model, clinical deployment"
 ---
 
 # Check-Reporting Skill
 
-You are helping a medical researcher verify that their manuscript complies with the appropriate
-medical research reporting guideline. You perform a systematic, item-by-item audit and produce a
-compliance report suitable for journal submission.
-
-## Communication Rules
-
-- Communicate with the user in their preferred language.
-- Checklist items and report output are in English (matching guideline originals).
-- Medical terminology is always in English.
-
 ## Reference Files
 
-- **Checklists (bundled, open license)**: `${CLAUDE_SKILL_DIR}/references/checklists/`
-  - `STROBE.md` -- observational studies (CC BY)
-  - `STROBE_MR.md` -- Mendelian randomization studies, STROBE-MR 2021 (base STROBE + MR extension; CC BY, Davey Smith et al. BMJ 2021)
-  - `STARD.md` -- diagnostic accuracy studies (CC BY 4.0)
-  - `STARD_AI.md` -- AI diagnostic accuracy studies (CC BY, Sounderajah et al. Nat Med 2025)
-  - `TRIPOD.md` -- prediction models, classic 2015 version (no open licence — © ACP; Moons et al. Ann Intern Med 2015)
-  - `TRIPOD_AI.md` -- prediction models with AI/ML (CC BY 4.0, Collins et al. BMJ 2024)
-  - `TRIPOD_LLM.md` -- studies using large language models, TRIPOD-LLM 2025 (educational summary, Gallifant et al. Nat Med 2025)
-  - `PGS_RS.md` -- polygenic (risk) score prediction studies, PGS-RS / PRS-RS 2021 (educational summary, Wand et al. Nature 2021)
-  - `CHEERS_2022.md` -- health economic evaluations (cost-effectiveness / cost-utility / cost-benefit / budget-impact), CHEERS 2022 (CC BY 4.0, Husereau et al. BMJ 2022)
-  - `RECORD.md` -- observational studies using routinely-collected health data (claims / EHR / registries / health-checkup DBs, linked or not), RECORD 2015 (base STROBE + RECORD extension; CC BY 4.0, Benchimol et al. PLoS Med 2015; RECORD-PE for drug studies)
-  - `CROSS.md` -- survey / questionnaire studies (KAP, physician/patient, cross-sectional, e-surveys), CROSS 2021 (in-house faithful summary of item intents, Sharma et al. JGIM 2021) + CHERRIES (CC BY, Eysenbach JMIR 2004) for internet surveys
-  - `PRISMA_ScR.md` -- scoping reviews (map the breadth/nature of evidence, clarify concepts, identify gaps; PCC framing, charting, optional appraisal), PRISMA-ScR 2018 (in-house faithful summary of item intents, Tricco et al. Ann Intern Med 2018; DOI 10.7326/M18-0850)
-  - `SRQR.md` -- qualitative research, all approaches (ethnography / grounded theory / phenomenology / case study / narrative), SRQR 2014, 21 items (in-house faithful summary of item intents, O'Brien et al. Acad Med 2014; DOI 10.1097/ACM.0000000000000388)
-  - `COREQ.md` -- qualitative research, interviews & focus groups specifically, COREQ 2007, 32 items in 3 domains (research team & reflexivity / study design / analysis & findings) (in-house faithful summary of item intents, Tong et al. Int J Qual Health Care 2007; DOI 10.1093/intqhc/mzm042)
-  - `REMARK.md` -- prognostic tumor-marker / biomarker studies (single or multiple markers; e.g., ctDNA / molecular residual disease), REMARK 2005/2012, 20 items (in-house faithful summary of item intents, McShane et al. Br J Cancer 2005 + Altman et al. PLoS Med 2012)
-  - `TARGET.md` -- observational studies emulating a target trial (causal / comparative-effectiveness questions on routinely-collected / registry / EHR data), TARGET 2025, 21 items (in-house faithful summary of item intents, Cashin/Hansford/Hernán et al. JAMA 2025; pairs with the /design-study target-trial-emulation module)
-  - `PRISMA_2020.md` -- systematic reviews (CC BY)
-  - `PRISMA_2020_Abstracts.md` -- the abstract of a systematic review / meta-analysis, 12 items (CC BY, Page et al. BMJ 2021). A separate instrument from the 27-item checklist, not a subset: item 2 of the main checklist defers to it. Score it with its own denominator.
-  - `ARRIVE_2.md` -- animal studies (CC0)
-  - `PRISMA_DTA.md` -- DTA systematic reviews (no open licence — © AMA; McInnes et al. JAMA 2018)
-  - `QUADAS3.md` -- diagnostic accuracy risk of bias, **current recommended version** (no open licence -- (c) ACP; Whiting et al. Ann Intern Med 2026)
-  - `QUADAS2.md` -- diagnostic accuracy risk of bias (no open licence — © ACP; Whiting et al. Ann Intern Med 2011)
-  - `RoB2.md` -- RCT risk of bias (CC BY, Sterne et al. BMJ 2019)
-  - `ROBINS_I.md` -- non-randomised studies risk of bias (CC BY-**NC** 3.0 — non-commercial; Sterne et al. BMJ 2016)
-  - `PROBAST.md` -- prediction model risk of bias (no open licence — © ACP; Wolff et al. Ann Intern Med 2019)
-  - `NOS.md` -- observational study quality (public domain, Ottawa Hospital)
-  - `CONSORT.md` -- randomised controlled trials, CONSORT 2025 (CC BY 4.0, Hopewell et al. BMJ 2025)
-  - `CONSORT_AI.md` -- AI clinical-trial reports, CONSORT-AI 2020 (CC BY 4.0, Liu et al. Nat Med 2020)
-  - `CARE.md` -- case reports, CARE 2013 (no confirmed open licence — Elsevier TDM only; Gagnier et al. J Clin Epidemiol 2014)
-  - `SPIRIT.md` -- clinical trial protocols, SPIRIT 2025 (CC BY 4.0, Chan et al. BMJ 2025)
-  - `SPIRIT_AI.md` -- AI clinical-trial protocols, SPIRIT-AI 2020 (CC BY 4.0, Cruz Rivera et al. Nat Med 2020)
-  - `CLAIM_2024.md` -- AI/ML in clinical imaging, CLAIM 2024 Update (RSNA open access, Tejani et al. Radiol Artif Intell 2024)
-  - `DECIDE_AI.md` -- early-stage clinical evaluation of AI decision-support systems, DECIDE-AI 2022 (educational summary, CC BY-NC, Vasey et al. Nat Med 2022)
-  - `MI_CLEAR_LLM.md` -- LLM accuracy studies in healthcare (CC BY-NC 4.0, Park et al. KJR 2024; 2025 update)
-  - `SQUIRE_2.md` -- quality improvement in healthcare/education (no open licence — Crossref returns none; Ogrinc et al. BMJ Qual Saf 2016)
-  - `CLEAR.md` -- radiomics studies (CC BY 4.0, Kocak et al. Insights Imaging 2023)
-  - `MOOSE.md` -- meta-analysis of observational studies (Stroup et al. JAMA 2000)
-  - `GRRAS.md` -- reliability and agreement studies (Kottner et al. J Clin Epidemiol 2011)
-  - `QUADAS_C.md` -- comparative DTA risk of bias, extension to QUADAS-2 (no open licence — © ACP; Yang et al. Ann Intern Med 2021)
-  - `ROBINS_E.md` -- non-randomised exposure studies risk of bias (CC BY-NC-ND 4.0, Higgins et al. Environ Int 2024)
-  - `ROBIS.md` -- risk of bias in systematic reviews (Whiting et al. J Clin Epidemiol 2016)
-  - `ROB_ME.md` -- risk of bias due to missing evidence in meta-analysis (no open licence — BMJ TDM policy only; Page et al. BMJ 2023)
-  - `PROBAST_AI.md` -- prediction model risk of bias, updated for AI/ML (Moons et al. BMJ 2025)
-  - `COSMIN_RoB.md` -- reliability/measurement error risk of bias (Mokkink et al. BMC Med Res Methodol 2020)
-  - `RoB_NMA.md` -- risk of bias in network meta-analysis (Lunny et al. 2024)
-  - `AMSTAR2.md` -- quality of systematic reviews (Shea et al. BMJ 2017)
-  - `PRISMA_P.md` -- systematic review protocols (Shamseer et al. BMJ 2015)
-  - `SWiM.md` -- synthesis without meta-analysis reporting (Campbell et al. BMJ 2020)
-  - `GATHER.md` -- health-estimate / burden-of-disease modeling studies (GBD and GBD-satellite, comparative-risk / population-attributable-fraction, cause-of-death and prevalence/incidence estimation, with or without forecasts), GATHER 2016 (in-house faithful summary; CC BY, Stevens et al. Lancet 2016;388:e19-23 / PLoS Med 2016;13(6):e1002056). Pairs with `/analyze-stats` `references/analysis_guides/burden_decomposition_forecasting.md` for the analytic methods.
-- Fail-fast contract: if a routed guideline has no vendored checklist file, the skill does **not** silently construct items from memory. It halts with a `MISSING_CHECKLIST_CONTRACT_VIOLATION` and surfaces the gap. A from-memory assessment is allowed only with the explicit `--allow-from-memory` opt-in, and that report must be clearly labelled NON-AUTHORITATIVE. See Step 2 and `scripts/check_checklist_exists.py`.
-- **Critical-item floor**: `${CLAUDE_SKILL_DIR}/references/critical_item_floor.md` -- the small set of non-waivable items per study type (presence outranks the headline %), plus the AI/radiomics methodological-quality / risk-of-bias instruments (PROBAST+AI, METRICS/RQS, APPRAISE-AI) kept distinct from their reporting counterparts. Loaded in Step 4f.
+Checklists are vendored under `${CLAUDE_SKILL_DIR}/references/checklists/`, one file per
+instrument. Each file's header gives its version, source citation and licence, and says when its
+item text is an own-words summary rather than the published wording.
+
+- `STROBE.md` -- STROBE
+- `STROBE_MR.md` -- STROBE-MR 2021
+- `RECORD.md` -- RECORD 2015 (RECORD-PE for drug studies)
+- `REMARK.md` -- REMARK
+- `TARGET.md` -- TARGET 2025
+- `GATHER.md` -- GATHER 2016
+- `CHEERS_2022.md` -- CHEERS 2022
+- `CROSS.md` -- CROSS 2021 + CHERRIES (internet surveys)
+- `SRQR.md` -- SRQR 2014 (all qualitative approaches)
+- `COREQ.md` -- COREQ 2007 (interviews and focus groups)
+- `STARD.md` -- STARD 2015
+- `STARD_AI.md` -- STARD-AI 2025
+- `TRIPOD.md` -- TRIPOD 2015
+- `TRIPOD_AI.md` -- TRIPOD+AI 2024
+- `TRIPOD_LLM.md` -- TRIPOD-LLM 2025
+- `PGS_RS.md` -- PGS-RS / PRS-RS 2021
+- `CONSORT.md` -- CONSORT 2025
+- `CONSORT_AI.md` -- CONSORT-AI 2020
+- `SPIRIT.md` -- SPIRIT 2025
+- `SPIRIT_AI.md` -- SPIRIT-AI 2020
+- `CLAIM_2024.md` -- CLAIM 2024
+- `DECIDE_AI.md` -- DECIDE-AI 2022
+- `MI_CLEAR_LLM.md` -- MI-CLEAR-LLM
+- `CLEAR.md` -- CLEAR (radiomics)
+- `ARRIVE_2.md` -- ARRIVE 2.0
+- `CARE.md` -- CARE 2013
+- `SQUIRE_2.md` -- SQUIRE 2.0
+- `GRRAS.md` -- GRRAS
+- `PRISMA_2020.md` -- PRISMA 2020
+- `PRISMA_2020_Abstracts.md` -- PRISMA 2020 for Abstracts, 12 items. A separate instrument, not a subset of the 27-item checklist (main item 2 defers to it): score it with its own denominator.
+- `PRISMA_DTA.md` -- PRISMA-DTA
+- `PRISMA_P.md` -- PRISMA-P
+- `PRISMA_ScR.md` -- PRISMA-ScR
+- `MOOSE.md` -- MOOSE
+- `SWiM.md` -- SWiM
+- `AMSTAR2.md` -- AMSTAR 2
+- `QUADAS3.md` -- QUADAS-3
+- `QUADAS2.md` -- QUADAS-2
+- `QUADAS_C.md` -- QUADAS-C
+- `RoB2.md` -- RoB 2
+- `ROBINS_I.md` -- ROBINS-I
+- `ROBINS_E.md` -- ROBINS-E
+- `ROBIS.md` -- ROBIS
+- `ROB_ME.md` -- ROB-ME
+- `RoB_NMA.md` -- RoB NMA
+- `PROBAST.md` -- PROBAST
+- `PROBAST_AI.md` -- PROBAST+AI
+- `NOS.md` -- NOS
+- `COSMIN_RoB.md` -- COSMIN RoB
 
 ---
 
@@ -79,19 +69,25 @@ compliance report suitable for journal submission.
 
 ### Step 0: Existing-checklist staleness pre-check
 
-If a checklist already exists for this project (`qc/reporting_checklist.json` or a prior `.md` report), verify it targets the **current** manuscript before reusing it — a checklist generated against an older version carries stale section/line references and a stale version label that a reviewer who cross-checks will catch:
+If a checklist already exists for this project (`qc/reporting_checklist.json` or a prior `.md`
+report), verify it targets the **current** manuscript before reusing it — one generated against an
+older version carries stale section/line references and a stale version label:
 
 ```bash
 python3 "${CLAUDE_SKILL_DIR}/scripts/check_checklist_version.py" \
   --checklist qc/reporting_checklist.json --manuscript manuscript_v8.md
 ```
 
-A non-zero exit means the existing checklist is stale (older `target_version`, changed `source_sha256`, different `target_manuscript`) or pre-dates the version contract — regenerate it against the current manuscript (Steps 1–5) rather than reusing it. Every report you generate must carry the `target_manuscript` / `target_version` / `source_sha256` fields (Part A header + Part D JSON) so this check works next round.
+A non-zero exit means the checklist is stale (older `target_version`, changed `source_sha256`,
+different `target_manuscript`) or pre-dates the version contract: regenerate it against the current
+manuscript (Steps 1–5) rather than reusing it. Every report you generate carries the
+`target_manuscript` / `target_version` / `source_sha256` fields (Part A header + Part D JSON) so
+this check works next round.
 
 ### Step 1: Select Guideline
 
-Determine the appropriate reporting guideline. Auto-detect from the manuscript type or accept
-user specification.
+Use the guideline the user names; otherwise auto-detect it from the study type. If the study type
+is ambiguous, ask the user to confirm before selecting a guideline.
 
 **Auto-detection mapping:**
 
@@ -142,21 +138,26 @@ user specification.
 
 > **QUADAS-3 has two protocol-stage phases, and this skill usually runs too late for them.**
 > Phase 1 (state the synthesis question) and phase 2 (define the **ideal test accuracy trial**
-> each judgement is made against) are review-level and belong in the protocol, alongside the
+> each judgement is made against) are review-level and belong in the protocol, with the
 > review-specific guidance for answering each signalling question. Reaching them for the first
-> time during manuscript QC means writing the comparator after seeing the results.
-> If they are missing, say so as a limitation rather than reconstructing them — and route the
-> protocol work to `/meta-analysis` Phase 1. Phases 3–6 are what a QC pass can genuinely run.
+> time during manuscript QC means writing the comparator after seeing the results. If they are
+> missing, say so as a limitation rather than reconstructing them, and route the protocol work to
+> `/meta-analysis` Phase 1. Phases 3–6 are what a QC pass can genuinely run.
 
 **Rules:**
+- **A guideline the user names is the one you score.** The rules below choose the guideline only when
+  the user names none. If they call for a different or additional instrument (STARD-AI for an AI index
+  test, TRIPOD+AI for an ML prediction model, an AI extension), score the named guideline and put one
+  line at the top of the report saying which instrument fits better and the command to rerun, e.g.
+  `/check-reporting STARD-AI`. Do not switch or add instruments on your own: the user maps the report
+  to the checklist form the journal asked for.
 - If the study involves AI/ML, always apply the AI extension in addition to the base guideline.
   - **Exception — TRIPOD**: TRIPOD+AI 2024 (Collins et al., BMJ 2024) is a complete rewrite, not an addendum to TRIPOD 2015 (Moons et al., Ann Intern Med 2015). For non-AI prediction models, use TRIPOD 2015 only. For AI/ML prediction models, use TRIPOD+AI 2024 only. Do NOT apply both simultaneously.
-- **STARD-AI** (Sounderajah et al., Nat Med 2025) extends STARD 2015 with 14 new and 4 modified items (40 total). For AI diagnostic accuracy studies, use STARD-AI (which incorporates all STARD 2015 items). Do NOT apply both STARD 2015 and STARD-AI simultaneously — STARD-AI supersedes STARD 2015 for AI studies.
+- **STARD-AI** (Sounderajah et al., Nat Med 2025) extends STARD 2015 with 14 new and 4 modified items (40 total) and incorporates all STARD 2015 items. For AI diagnostic accuracy studies use STARD-AI only — do NOT apply STARD 2015 and STARD-AI simultaneously.
 - **TRIPOD-LLM** (Gallifant et al., Nat Med 2025) is the reporting guideline for studies that develop, fine-tune, prompt, or evaluate a large language model for a clinical/biomedical task. It extends the TRIPOD family (TRIPOD 2015 → TRIPOD+AI 2024 → TRIPOD-LLM 2025); name the base instrument and the extension and cite each. It is modular — task-specific items (Annotation, Prompting, Summarization, Instruction-tuning) are N/A when that component is absent. Use TRIPOD-LLM for LLM studies in place of TRIPOD+AI; pair with MI-CLEAR-LLM when LLM accuracy is an evaluated outcome. The vendored checklist is an educational summary (own-words paraphrase of item intent); complete the official instrument for a submission checklist.
-- **MI-CLEAR-LLM** is a supplementary checklist (8 item categories in the 2025 update; the 2024 original had 6), not a standalone reporting guideline. Always pair it with the study's primary guideline (e.g., STARD-AI for AI diagnostic accuracy, CLAIM for imaging AI). Apply MI-CLEAR-LLM whenever the study evaluates LLM accuracy as an outcome — do NOT apply it merely because the manuscript was written with LLM assistance. Its scope is **LLM accuracy** studies (including VLMs interpreting images); it does **not** apply at study level to studies where a generative model *produces* the images under study (see next bullet).
+- **MI-CLEAR-LLM** is a supplementary checklist (8 item categories in the 2025 update; the 2024 original had 6), not a standalone reporting guideline. Always pair it with the study's primary guideline (e.g., STARD-AI for AI diagnostic accuracy, CLAIM for imaging AI). Apply it whenever the study evaluates LLM accuracy as an outcome — do NOT apply it merely because the manuscript was written with LLM assistance. Its scope is **LLM accuracy** studies (including VLMs interpreting images); it does **not** apply at study level when a generative model *produces* the images under study (next bullet).
 - **Generative-AI images as the study object** (a generative model synthesizes images and the study evaluates their realism, controllability, real-vs-synthetic distinguishability, or model-vs-model quality) has **no single dominant checklist**. Assemble: CLAIM 2024 (imaging-AI umbrella; model-development items N/A when commercial models are used as-is) + FUTURE-AI traceability + MI-CLEAR-LLM **transparency items only** (prompt/model/version/params/runs — for generation provenance, not study-level compliance) on the generator side; STARD-AI (for real-vs-synthetic detection) + GRRAS (reader reliability) + MRMC reporting on the evaluation side. Map applicable items and cite base + extension; never claim wholesale compliance. Full decision aid: `${CLAUDE_SKILL_DIR}/references/genai_image_study_object_decision_aid.md`.
 - If multiple guidelines apply (e.g., a diagnostic accuracy study that is also an AI study), check against all relevant guidelines and merge into one report.
-- If the user requests a specific guideline, use that one regardless of auto-detection.
 
 ### Step 2: Load Checklist
 
@@ -168,35 +169,32 @@ user specification.
 
    - Exit 0 → the vendored checklist exists; read it from
      `${CLAUDE_SKILL_DIR}/references/checklists/` and proceed.
-   - Exit 1 (`MISSING_CHECKLIST_CONTRACT_VIOLATION`) → the guideline is routed
-     but no checklist file is vendored. **Do not construct items from memory.**
-     Halt, report the violation to the user, and stop unless they explicitly
-     opt in (next bullet).
-   - Exit 2 (`UNKNOWN_GUIDELINE`) → the name is not recognised; confirm the
-     correct guideline with the user.
+   - Exit 1 (`MISSING_CHECKLIST_CONTRACT_VIOLATION`) → the guideline is routed but no checklist
+     file is vendored. **Do not construct items from memory.** Halt, report the violation to the
+     user, and stop unless they explicitly opt in (next bullet).
+   - Exit 2 (`UNKNOWN_GUIDELINE`) → the name is not recognised; confirm the correct guideline
+     with the user.
 
-2. **No silent fallback.** A from-memory checklist is permitted only when the
-   user explicitly accepts it — re-run the guard with `--allow-from-memory`
-   (exit 0 + a NON-AUTHORITATIVE warning). In that case the output report MUST
-   carry a prominent banner that the assessment was constructed from model
-   knowledge and is not backed by a vendored checklist, and `submission_safe`
-   must not be asserted on its basis.
+2. **No silent fallback.** A from-memory checklist is permitted only when the user explicitly
+   accepts it — re-run the guard with `--allow-from-memory` (exit 0 + a NON-AUTHORITATIVE
+   warning). The report MUST then carry a prominent banner that the assessment was constructed
+   from model knowledge and is not backed by a vendored checklist, and `submission_safe` must not
+   be asserted on its basis.
 
 ### Step 3: Scan Manuscript
 
-Read all sections of the manuscript thoroughly:
-1. Title and abstract
-2. Introduction
-3. Methods (all subsections)
-4. Results (all subsections)
-5. Discussion
-6. Tables, figures, and their captions
-7. Supplemental materials (if available)
-8. References (for registration numbers, protocol references)
-
-Gather context from the full document before starting the item-by-item assessment.
+Read the whole manuscript before assessing any item — including tables, figures and their
+captions, supplementary material, and the reference list (registration numbers and protocol
+references often sit there).
 
 ### Step 4: Assess Each Item
+
+Items most often missing in medical manuscripts — look for these first, whichever guideline applies:
+registration number and registration/amendment date consistency (run Step 4c), sample-size
+justification, missing-data handling, blinding, funding and conflicts of interest, ethics approval
+with committee name and approval number, and a data availability statement; for AI studies, the
+training/validation/test split, model architecture and hyperparameters, failure-mode analysis,
+fairness/bias assessment, and commercial interests with data/code availability.
 
 For every checklist item, determine:
 
@@ -212,26 +210,27 @@ For each item, record:
 - **Location**: Section name and paragraph or approximate position (e.g., "Methods, paragraph 3")
 - **Notes**: What was found (if PRESENT/PARTIAL) or what should be added (if MISSING)
 
+**Be strict.** PARTIAL means the item is mentioned but lacks specificity; a vague reference does
+not count as PRESENT — the detail level must match what the guideline expects. "We used
+appropriate statistical tests" = PARTIAL (which tests?); "We used the Mann-Whitney U test for
+continuous variables and Fisher's exact test for categorical variables" = PRESENT. If an item is
+genuinely unclear in its applicability, mark it N/A with justification.
+
+Two gaps that are easy to pass:
+
+- **Power-aware framing of a null result** (STROBE 16a / 18 / 20) — for an observational study whose headline is a **non-significant** association, a flat "X was not associated with Y" overreads the data when the analysis is not powered to *exclude* a clinically meaningful effect. Mark item 18/20 PARTIAL unless the manuscript states the precision as an exclusion (e.g., "the 95% CI excluded an eGFR difference larger than ~1.7") or reports a minimum detectable effect — "no effect" vs "could not exclude an effect of size X" are different claims, and a negative conclusion needs the latter.
+- **Confounder-selection rationale, not "adjust for everything that differs"** (STROBE 16a explicitly asks *which confounders were adjusted for and why*) — flag a kitchen-sink adjustment set chosen because variables differ in Table 1. The Methods must give a causal rationale (DAG / prior literature) and must not adjust for a **mediator or consequence of the outcome** (over-adjustment, e.g. serum uric acid in an eGFR model); both an unjustified inclusion and an unjustified omission are item-16a gaps.
+
 **What is appraised is the source paper's reporting — never your convenience in using it.** This
-holds for every instrument here, reporting checklists and risk-of-bias / quality tools alike, and it
-is easiest to lose in a systematic review, where you read each paper *in order to extract from it*.
+holds for every instrument here, reporting checklists and risk-of-bias / quality tools alike, and is
+easiest to lose in a systematic review, where you read each paper *in order to extract from it*.
 An item asking "are the results clearly reported?" is not asking "were they reported in the unit my
-pool needs".
-
-A scorer working a case-series quality tool marks a paper down on the outcome-reporting item
-because its analysis unit does not match the pool's — treatment-level results against a
-patient-level denominator. The correction is one sentence, *that is a limit of our extraction, not
-a defect in their reporting*, and the score goes back up. Single-scorer appraisal is where this
-happens, because there is nobody to say it.
-
-So: if a downgrade's stated reason turns on a **denominator, an analysis unit, a subgroup you needed
-and they did not report separately, or a format you could not parse**, it is an extraction note, not
-a scoring reason. Record it in a separate **extraction-note** column and restore the score.
-
-Both belong in the table. An extraction limitation is a real constraint on *your* synthesis and often
-belongs in your limitations paragraph — it just is not evidence about the paper being appraised, and
-folding it into the score makes the appraisal unreproducible: another assessor with a different pool
-would score the same paper differently.
+pool needs". If a downgrade's stated reason turns on a **denominator, an analysis unit, a subgroup
+you needed and they did not report separately, or a format you could not parse**, it is an
+extraction note, not a scoring reason: record it in a separate **extraction-note** column and
+restore the score. An extraction limitation often belongs in your limitations paragraph; folded
+into the score it makes the appraisal unreproducible, because another assessor with a different
+pool would score the same paper differently.
 
 ### Step 4b: Section Boundary Check
 
@@ -244,22 +243,25 @@ In addition to checklist items, verify that:
 
 ### Step 4c: Registration / Protocol Timing Consistency Check
 
-**Applies to:** systematic reviews, meta-analyses, and intervention studies with
-prospective registration (PRISMA 2020, PRISMA-DTA, PRISMA-P, MOOSE, CONSORT, SPIRIT).
+**Applies to:** systematic reviews, meta-analyses, and intervention studies with prospective
+registration (PRISMA 2020, PRISMA-DTA, PRISMA-P, MOOSE, CONSORT, SPIRIT). The registration
+identifier is a single checklist item and can pass Step 4 while the manuscript is inconsistent
+about *when* registration and amendments happened relative to the analysis.
 
-**Why this step exists:** the registration identifier is a single checklist item and can
-pass Step 4 even when the manuscript is internally inconsistent about *when* the
-registration or its amendments occurred relative to the analysis. An undisclosed
-post-hoc amendment is a common rejection trigger.
+Read `${CLAUDE_SKILL_DIR}/references/step4c_registration_timing.md` (item-by-item procedure,
+JSON schema, flagging edge cases) and run its five checks: (1) registration identifier present in
+Methods, Abstract, and cover letter; (2) initial registration date precedes — or is explicitly
+disclosed as post-dating — the extraction milestone; (3) amendment dates appear in Methods, the
+described change is visible in Methods, analysis was re-run if the amendment post-dates the lock,
+and no amendment post-dates submission; (4) Methods agree with the registry record (PROSPERO PDF,
+ClinicalTrials.gov export) — a silent discrepancy is a finding; (5) a retrospective-registration
+disclosure paragraph when evidence suggests post-extraction filing.
 
-**Five audit items (summary):** (1) registration identifier present in Methods, Abstract,
-and cover letter; (2) initial registration date precedes — or is explicitly disclosed as
-post-dating — the extraction milestone; (3) amendment dates appear in Methods, the
-described change is visible in Methods, analysis was re-run if amendment post-dates the
-lock, and no amendment post-dates submission; (4) cross-artifact agreement between
-Methods and the registry record (PROSPERO PDF, ClinicalTrials.gov export) — silent
-discrepancy is a finding; (5) retrospective-registration disclosure paragraph when
-evidence suggests post-extraction filing.
+**Flagging:** any failure is logged in Part C Action Items with label `[REGISTRATION-TIMING]`.
+`fixable_by_ai: false` when reconciliation requires an external amendment filing; `true` only when
+the fix is a Methods-text insertion of a date already disclosed elsewhere. Part D JSON includes a
+`registration_timing` object (registry, id, initial_registration_date, amendments[],
+timing_consistency, findings[]).
 
 **Registration-ID format gate:** a PROSPERO ID is `CRD42` + 9 digits = 14 characters
 (`^CRD42\d{9}$`, e.g. `CRD42024500001`). Run `grep -oE 'CRD42[0-9]+' manuscript.md` and
@@ -267,96 +269,71 @@ assert each match is 14 characters long; a 15-character ID (a stray inserted dig
 transcription error logged as `[REGISTRATION-TIMING]` (`fixable_by_ai: false` — verify against
 the live PROSPERO record, do not guess the correct digit).
 
-**Flagging:** any failure is logged in Part C Action Items with label
-`[REGISTRATION-TIMING]`. `fixable_by_ai: false` when reconciliation requires an external
-amendment filing; `true` only when the fix is a Methods-text insertion of a date already
-disclosed elsewhere. Part D JSON includes a `registration_timing` object
-(registry, id, initial_registration_date, amendments[], timing_consistency, findings[]).
-
-**Load-on-demand procedural detail** (exact item-by-item procedure, JSON schema,
-flagging edge cases): `${CLAUDE_SKILL_DIR}/references/step4c_registration_timing.md`.
-
 ### Step 4d: PRISMA Figure 1 Arithmetic & Cross-Reference Audit
 
 **Applies to:** systematic reviews and meta-analyses using PRISMA 2020 / PRISMA-DTA /
-PRISMA-P. Triggers when Item 16a (flow diagram) is PRESENT.
+PRISMA-P. Triggers when Item 16a (flow diagram) is PRESENT — the diagram can pass Step 4 while its
+numbers do not add up or disagree with the text.
 
-**Why this step exists:** the flow diagram is a single checklist item and can pass Step 4
-visually while still containing arithmetic errors (records screened ≠ identified − duplicates;
-sought-for-retrieval ≠ screened − excluded) or text↔figure number disagreements. Senior
-MA reviewers commonly require strict PRISMA 2020 diagram conformance and explicit body↔
-figure number agreement; reviewers who detect these mismatches lose confidence in the
-study's data integrity immediately.
+1. Choose the Figure 1 source, in this order: (a) `analysis/figures/Figure1_PRISMA.md` markdown
+   manifest, (b) caption text in `manuscript.md`, (c) PPTX text run if a `.pptx` exists,
+   (d) manual entry from PNG/SVG.
+2. Run the audit. It checks the four subtractions (screened = identified − duplicates;
+   sought-for-retrieval = screened − excluded at screening; retrieved = sought − not retrieved;
+   included = assessed for eligibility − excluded with reasons) and that the body-text PRISMA
+   numbers match the Figure 1 boxes 1:1, and writes `qc/prisma_figure_audit.json`:
 
-**Four arithmetic checks:**
-1. records screened = records identified − duplicates removed
-2. records sought-for-retrieval = records screened − records excluded (screening)
-3. reports retrieved = sought − reports not retrieved
-4. studies included = reports assessed for eligibility − reports excluded (with reasons)
+   ```bash
+   python3 ${CLAUDE_SKILL_DIR}/scripts/check_prisma_figure.py \
+     --md <manuscript.md> --figure <Figure 1 source: .md manifest / caption / text export> \
+     --out qc/prisma_figure_audit.json
+   ```
 
-**Two cross-reference checks:**
-- Body text PRISMA numbers (e.g., "315 records identified, 122 duplicates removed,
-  186 records screened") match Figure 1 box labels 1:1.
-- Reasons for exclusion (Methods + Figure legend) agree on counts and category names.
-
-**Procedure:**
-
-Run the deterministic implementation first — it performs steps 1, 4, 5, and 6 below
-automatically (same keyword regex, the four arithmetic equations, the body↔figure
-cross-reference) and writes `qc/prisma_figure_audit.json`:
-
-```bash
-python3 ${CLAUDE_SKILL_DIR}/scripts/check_prisma_figure.py \
-  --md <manuscript.md> --figure <Figure 1 source: .md manifest / caption / text export> \
-  --out qc/prisma_figure_audit.json
-```
-
-Exit `1` = an arithmetic or cross-reference MISMATCH (log a Part C Action Item labelled
-`[PRISMA-FIGURE]`, `fixable_by_ai: false` — the author must reconcile the numbers); exit
-`2` = missing/unparsable input. The manual algorithm below documents exactly what the
-script checks and is the fallback when Figure 1 numbers live only in a PNG/SVG that must
-be transcribed by hand:
-
-1. Extract numbers from manuscript Results / PRISMA flow paragraph (regex: integers near
-   keywords `identified`, `duplicates`, `screened`, `excluded`, `sought`, `retrieved`,
-   `assessed`, `included`).
-2. Extract numbers from Figure 1 source — preferred order: (a) `analysis/figures/Figure1_PRISMA.md`
-   markdown manifest, (b) caption text in `manuscript.md`, (c) PPTX text run if `.pptx`
-   exists, (d) manual entry from PNG/SVG.
-3. **Cross-check `analysis/figures/_figure_manifest.md`** (produced by `/make-figures`):
-   verify that the row whose `Type = prisma` (or `Type = prisma-dta`) points at the same
-   file path used as the audit source, and that the row's `Critic` field is `yes` or
-   `partial` (not `no`). A missing manifest row, mismatched path, or `Critic = no` flag
-   logs `[MANIFEST-XREF]` (advisory) — the arithmetic check still runs against the source
-   identified in step 2. Skip this sub-step if `_figure_manifest.md` does not exist (older
-   projects).
-4. Run 4 arithmetic checks; emit PRESENT / MISSING / MISMATCH per equation.
-5. Run 2 cross-reference checks; emit PRESENT / MISSING / MISMATCH per number.
-6. Output `qc/prisma_figure_audit.json` and a short table.
+   Exit `1` = an arithmetic or cross-reference MISMATCH; exit `2` = missing/unparsable input.
+   When the Figure 1 numbers exist only in a PNG/SVG, transcribe them by hand and run the same
+   checks manually as `${CLAUDE_SKILL_DIR}/references/step4d_prisma_figure_audit.md` specifies
+   (regex set, JSON schema, and edge cases: duplicates across databases, the citation-searching
+   strand, dual-reviewer screening).
+3. By hand (the script does not do this): the reasons for exclusion in Methods and the Figure
+   legend must agree on counts and category names.
+4. If `analysis/figures/_figure_manifest.md` (from `/make-figures`) exists, verify that the row
+   whose `Type = prisma` (or `Type = prisma-dta`) points at the same file used as the audit
+   source, and that its `Critic` field is `yes` or `partial` (not `no`). A missing row,
+   mismatched path, or `Critic = no` logs `[MANIFEST-XREF]` (advisory); the arithmetic check
+   still runs.
 
 **Flagging:** any MISMATCH or arithmetic failure logs a Part C Action Item with label
-`[PRISMA-FIGURE]`. `fixable_by_ai: false` (numbers must be reconciled by the author).
+`[PRISMA-FIGURE]`, `fixable_by_ai: false` (the author must reconcile the numbers).
 
-**Load-on-demand procedural detail** (exact regex set, JSON schema, edge cases —
-duplicates handled across databases, citation searching strand, dual-reviewer screening):
-`${CLAUDE_SKILL_DIR}/references/step4d_prisma_figure_audit.md`.
+### PRISMA Cascade Arithmetic Auto-Verify
 
-**Cross-cutting**: integrates with `~/.claude/rules/numerical-safety.md` (PRISMA 5-way
-consistency: text ↔ Figure ↔ extraction CSV ↔ analysis script ↔ supplementary).
+When PRISMA 2020 or PRISMA-DTA is selected and round-by-round screening TSV artifacts are
+available, recompute the screening cascade from the raw decisions. Off-by-one errors in the prose
+cascade are a high-frequency reviewer red flag (e.g., `151 + 108 + 39 + 1 + 1 + 4 = 304`
+followed by a prose summary "305" four lines later).
+
+```bash
+python "${CLAUDE_SKILL_DIR}/scripts/prisma_cascade_check.py" \
+    --round1 2_Screening/round1.tsv \
+    --round2 2_Screening/round2.tsv \
+    --round3 2_Screening/round3_adjudication.tsv \
+    --manuscript manuscript.md \
+    --out qc/prisma_cascade.json
+```
+
+The script counts `INCLUDE` / `EXCLUDE` / `MAYBE` decisions per round, computes the cascade, and
+reports per-stage drift where the manuscript's stage counts disagree. Treat any
+`manuscript_drift` entry as a P0 blocker — fix the prose to match the computed cascade and re-run.
 
 ### Step 4e: Reporting-Framework Naming Audit
 
 **Applies to:** any manuscript that invokes an AI/extension reporting framework
 (PROBAST+AI, STARD-AI, TRIPOD+AI, TRIPOD-LLM, CONSORT-AI, SPIRIT-AI, PRISMA-DTA, QUADAS-C).
-
-**Why this step exists:** a base reporting tool and its extension are distinct instruments
-with separate citations (manuscript-style-classical §14). Step 1 routes to the right
-checklist but does not police how the framework is *named* in prose. The recurring failures
-are: invoking an extension without ever naming or citing the base instrument it extends;
-mixing `+AI` and `-AI` hyphenation for one family within a single document; coining item
-labels like "12-AI"; and waving at "recent guidance" instead of naming the framework.
-
-**Run the deterministic gate:**
+A base reporting tool and its extension are distinct instruments with separate citations, and
+Step 1 does not police how the framework is *named* in prose. The recurring failures: invoking an
+extension without ever naming or citing the base instrument it extends; mixing `+AI` and `-AI`
+hyphenation for one family within a single document; coining item labels like "12-AI"; and waving
+at "recent guidance" instead of naming the framework.
 
 ```bash
 python3 "${CLAUDE_SKILL_DIR}/scripts/check_framework_naming.py" \
@@ -373,26 +350,15 @@ the script's `claims[]`.
 
 **Applies to:** every guideline assessment **for which the floor defines a row** (load and
 check only those; do not invent a floor for an unlisted guideline). After the item-by-item
-table, load `${CLAUDE_SKILL_DIR}/references/critical_item_floor.md` and check the small set
-of **non-waivable** items for this study type. A MISSING critical item is surfaced as a
-**Critical gap** and becomes the report's headline regardless of the overall percentage —
-a high percentage with a missing critical item (undefined reference standard, no
-leakage-controlled partition, calibration absent for a prediction model, an unreconciled
-flow diagram) is not "broadly acceptable."
-
-For AI/ML and radiomics manuscripts, also confirm the chosen **methodological-quality /
-risk-of-bias** instrument (PROBAST+AI, METRICS/RQS, APPRAISE-AI) and its non-waivable
-concerns — a fully *reported* paper can still be at high risk of bias. For radiomics, the
-fuller METRICS breakdown (9 categories / 30 weighted items) is in
-`${CLAUDE_SKILL_DIR}/references/appraisal_tools/METRICS.md` (an appraisal reference, not a counted
-reporting checklist). Keep these distinct
-from the reporting counterparts (CLEAR, DECIDE-AI), which route through the normal checklist
-flow. Do not assert a numeric journal desk-reject threshold; the hard signals are a missing
-critical item and the journal's own required elements.
+table, read `${CLAUDE_SKILL_DIR}/references/critical_item_floor.md` and check the small set of
+**non-waivable** items for this study type — and, for AI/ML and radiomics manuscripts, the
+methodological-quality / risk-of-bias instrument (PROBAST+AI, METRICS/RQS, APPRAISE-AI) and
+concerns it lists. A MISSING critical item is surfaced as a **Critical gap** and becomes the
+report's headline regardless of the overall percentage — a high percentage with a missing
+critical item (undefined reference standard, no leakage-controlled partition, calibration absent
+for a prediction model, an unreconciled flow diagram) is not "broadly acceptable."
 
 ### Step 5: Generate Report
-
-Produce a structured compliance report in four parts.
 
 This report is an **internal working audit** — it carries auto-fix annotations, a
 machine-readable JSON block (`compliance_pct`, `fixable_by_ai`, …), and Action Items. It is
@@ -407,10 +373,12 @@ its very first line**:
 report, not the official journal checklist. Do not upload to a submission portal. -->
 ```
 
-(`/sync-submission`'s `check_checklist_dump_leak` gate also catches this dump if it ever lands in
-a submission directory — but the banner is what makes it catchable.)
+Write the checklist content and report in English (matching the guideline originals), whatever
+language you use with the user. Save it as `qc/reporting_checklist.md` and the Part D JSON as
+`qc/reporting_checklist.json`.
 
-**The four parts** — literal templates in `${CLAUDE_SKILL_DIR}/references/report_templates.md`:
+Read `${CLAUDE_SKILL_DIR}/references/report_templates.md` when you write the report — it holds the
+literal templates for the four parts:
 
 - **Part A — Summary.** Header (manuscript file, version token, guideline, date), the
   PRESENT/PARTIAL/MISSING/N-A count table, and overall compliance. The **headline is the critical
@@ -434,99 +402,12 @@ a submission directory — but the banner is what makes it catchable.)
 - `source_sha256` — first 12 hex chars of the SHA-256 of the manuscript bytes, so a stale report
   cannot be silently attributed to a newer manuscript.
 
-**Read on demand:**
+In notes and suggested fixes, cite a reference only with a `/search-lit`-confirmed DOI or PMID and
+mark any other `[UNVERIFIED - NEEDS MANUAL CHECK]`; never invent clinical definitions, diagnostic
+criteria, or guideline recommendations — flag anything uncertain `[VERIFY]` and ask the user.
 
-| File | Read it when | Cost if read blindly |
-|---|---|---|
-| `references/report_templates.md` | you have finished the audit and are writing the report | ~1,900 tokens of pure output format — it informs no part of the assessment itself |
-
----
-## Assessment Standards
-
-### Be Strict
-
-- PARTIAL means the item is mentioned but lacks specificity. For example:
-  - "We used appropriate statistical tests" = PARTIAL (which tests?)
-  - "We used the Mann-Whitney U test for continuous variables and Fisher's exact test for categorical variables" = PRESENT
-- A vague reference does not count as PRESENT. The detail level must match what the guideline expects.
-
-### Be Specific in Suggestions
-
-- For MISSING items, provide a draft sentence the user can insert.
-- For PARTIAL items, point to the exact gap and suggest specific additions.
-- Reference the specific manuscript section where the addition should go.
-
-### Common Gaps to Watch For
-
-These items are frequently missing in medical manuscripts:
-
-1. **Study registration number** (CONSORT, PRISMA, STARD)
-2. **Registration / amendment date consistency** (PRISMA 2020, PRISMA-DTA, CONSORT, SPIRIT) — run Step 4c whenever a registration identifier is present
-3. **Sample size justification** (CONSORT, STROBE, STARD)
-4. **Missing data handling** (all guidelines)
-5. **Blinding details** (CONSORT, STARD)
-6. **Funding and conflicts of interest** (all guidelines)
-7. **Ethics approval with committee name and approval number** (all guidelines)
-8. **Data availability statement** (increasingly required)
-9. **AI-specific: training/validation/test split details** (TRIPOD+AI, CLAIM, STARD-AI)
-10. **AI-specific: model architecture and hyperparameters** (TRIPOD+AI, CLAIM, STARD-AI)
-11. **AI-specific: failure mode analysis** (CLAIM, STARD-AI)
-12. **AI-specific: fairness/bias assessment** (STARD-AI)
-13. **AI-specific: commercial interests and data/code availability** (STARD-AI)
-14. **Power-aware framing of a null result** (STROBE 16a / 18 / 20) — for an observational study whose headline is a **non-significant** association, a flat "X was not associated with Y" overreads the data when the analysis is not powered to *exclude* a clinically meaningful effect. Mark item 18/20 PARTIAL unless the manuscript states the precision as an exclusion (e.g., "the 95% CI excluded an eGFR difference larger than ~1.7") or reports a minimum detectable effect — "no effect" vs "could not exclude an effect of size X" are different claims, and a negative conclusion needs the latter.
-15. **Confounder-selection rationale, not "adjust for everything that differs"** (STROBE 16a explicitly asks *which confounders were adjusted for and why*) — flag a kitchen-sink adjustment set chosen because variables differ in Table 1. The Methods must give a causal rationale (DAG / prior literature) and must not adjust for a **mediator or consequence of the outcome** (over-adjustment, e.g. serum uric acid in an eGFR model); both an unjustified inclusion and an unjustified omission are item-16a gaps.
-
----
-
-## PRISMA Cascade Arithmetic Auto-Verify
-
-PRISMA 2020 flow diagrams chain a cascade of subtractions (database
-records → after dedup → title/abstract screened → full-text reviewed →
-included in synthesis). Off-by-one errors in the prose cascade are a
-high-frequency reviewer red flag (e.g., `151 + 108 + 39 + 1 + 1 + 4 =
-304` followed by a prose summary "305" four lines later).
-
-When PRISMA 2020 or PRISMA-DTA is selected and round-by-round
-screening TSV artifacts are available, run the cascade auto-verify:
-
-```bash
-python "${CLAUDE_SKILL_DIR}/scripts/prisma_cascade_check.py" \
-    --round1 2_Screening/round1.tsv \
-    --round2 2_Screening/round2.tsv \
-    --round3 2_Screening/round3_adjudication.tsv \
-    --manuscript manuscript.md \
-    --out qc/prisma_cascade.json
-```
-
-The script:
-1. Reads the round TSVs and counts `INCLUDE` / `EXCLUDE` / `MAYBE`
-   decisions per round.
-2. Computes the cascade arithmetic from raw decisions (no prose).
-3. Optionally grep the manuscript for matching stage-count claims and
-   emits per-stage drift when the prose disagrees.
-
-Treat any `manuscript_drift` entry as a P0 blocker — fix the prose to
-match the computed cascade and re-run.
-
-## Submission Checklist Export
-
-Many journals require a filled reporting checklist to be submitted alongside the manuscript.
-When the user asks for a submission-ready checklist, format the output as:
-
-```
-{Guideline Name} Checklist
-
-Manuscript title: {title}
-Date: {YYYY-MM-DD}
-
-| Item # | Checklist Item | Reported on Page # | Reported in Section |
-|--------|---------------|-------------------|-------------------|
-| 1 | {item text} | {page or N/A} | {section} |
-| 2 | {item text} | {page or N/A} | {section} |
-| ... | ... | ... | ... |
-```
-
-Page numbers should be filled in by the user after final formatting. Use section names as placeholders.
+When the user asks for the filled checklist a journal requires, build it from the *Submission
+checklist export* template in `${CLAUDE_SKILL_DIR}/references/report_templates.md`.
 
 ---
 
@@ -539,28 +420,6 @@ Page numbers should be filled in by the user after final formatting. Use section
 | Need statistical details | `/analyze-stats` | Generate missing statistical reporting |
 | Need flow diagram | `/make-figures` | Generate CONSORT/STARD/PRISMA diagram |
 
----
-
-## Error Handling
-
-- If the manuscript file cannot be read, ask the user for the correct path.
-- If the study type is ambiguous, ask the user to confirm before selecting a guideline.
-- If a checklist item is genuinely unclear in its applicability, mark as N/A with justification.
-- This is a pre-screening tool. Always remind the user that final compliance should be verified by all co-authors and ideally by a methodologist.
-
-## Language
-
-- Checklist content and compliance report: English
-- Communication with user: Match user's preferred language
-- Medical terms: English only
-
-## Anti-Hallucination
-
-- **Never fabricate references.** All citations must be verified via `/search-lit` with confirmed DOI or PMID. Mark unverified references as `[UNVERIFIED - NEEDS MANUAL CHECK]`.
-- **Never invent clinical definitions, diagnostic criteria, or guideline recommendations.** If uncertain, flag with `[VERIFY]` and ask the user.
-
----
-
 ## Gates
 
 | Gate | Severity | Trigger | Action on fail |
@@ -569,11 +428,3 @@ Page numbers should be filled in by the user after final formatting. Use section
 | Step 4d PRISMA Figure 1 arithmetic & cross-reference audit (PRISMA / PRISMA-DTA only) | ENFORCED for SR/MA | flow numbers don't sum (e.g., screened ≠ included + excluded), or in-text counts mismatch flow diagram | HALT; reconcile against extraction artifacts |
 | Optional items (e.g., supplementary AI declarations) | ADVISORY | < 80% of optional items present | warn; user accepts |
 | Cross-reporting-guideline routing (study type → guideline) | ENFORCED | study type undeclared or guideline missing | Ask user; do not silently default |
-
-## Global-rule references
-
-Some passages in this skill cite a path of the form `~/.claude/rules/<name>.md`. Those are the
-maintainer's personal global rules, kept outside this repository. They are **not shipped with
-this skill** and will not exist on your machine; they appear only as provenance for where a
-convention came from. If one of them looks like it is standing in for an instruction you actually
-need, that is a bug — please open an issue, because the instruction belongs here.

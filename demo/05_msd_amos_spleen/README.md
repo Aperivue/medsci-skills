@@ -54,7 +54,7 @@ is a CT-to-CT cohort shift, not modality. Both predictions were written before t
 second was wrong in direction and is kept — though this repository cannot prove that ordering, and
 [`CASE_STUDY.md`](CASE_STUDY.md) says so.
 
-**The uncomfortable part:** `/profile-imaging` had already flagged the mixed intensity scale before
+**The uncomfortable part:** `/imaging-data` had already flagged the mixed intensity scale before
 training — as a **Minor**, in a directory no later step reads.
 
 ## Run it

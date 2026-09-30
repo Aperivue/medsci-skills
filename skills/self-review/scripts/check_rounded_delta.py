@@ -3,12 +3,12 @@
 
 When a manuscript displays two metric values at a given precision and also states
 their difference, the stated difference must equal the subtraction of the DISPLAYED
-components at that same precision. A paper that reports "AUC 0.70 vs 0.73" (a shown
+components at that same precision. A paper that reports "AUC 0.79 vs 0.82" (a shown
 gap of 0.03) while stating the between-arm difference as "0.02" is self-consistent
 only at full unrounded precision — at the displayed two decimals it reads as a
 contradiction, and a reviewer flags it. (The usual cause: the delta is computed on
-unrounded values, e.g. 0.726 − 0.703 = 0.023 → 0.02, while the components are shown
-rounded to 0.70 / 0.73.)
+unrounded values, e.g. 0.816 − 0.794 = 0.022 → 0.02, while the components are shown
+rounded to 0.79 / 0.82.)
 
 Verdict:
   ROUNDED_DELTA_MISMATCH (Minor)  a stated difference does not equal the subtraction
@@ -21,7 +21,7 @@ Verdict:
 Conservative by construction: fires only when (a) two component values joined by a
 comparator (vs / versus / and / to / , ) appear in the same sentence as (b) an
 explicitly LABELLED difference (Δ / difference / delta), and (c) all three are at the
-SAME decimal precision. A higher-precision component pair (0.703 vs 0.726) with a
+SAME decimal precision. A higher-precision component pair (0.794 vs 0.816) with a
 2-dp delta is the legitimate unrounded-delta case and is NOT flagged.
 
 Exit codes: 0 clean/report-only, 1 with --strict when any Major (none here — Minor
@@ -40,7 +40,7 @@ import sys
 from decimal import Decimal
 from pathlib import Path
 
-# Two component values joined by a comparator (the "0.70 vs 0.73" construction).
+# Two component values joined by a comparator (the "0.79 vs 0.82" construction).
 COMP_PAIR = re.compile(
     r"(?P<a>\d?\.\d+|\d+\.\d+)\s*(?:vs\.?|versus|and|to|,|–|—|-)\s*(?P<b>\d?\.\d+|\d+\.\d+)",
     re.I)
@@ -59,7 +59,7 @@ def _prec(tok: str) -> int:
 
 
 # How far back from a labelled difference to look for its two component values.
-# Wide enough to bridge a "0.70 and 0.73; the difference was 0.02" clause boundary,
+# Wide enough to bridge a "0.79 and 0.82; the difference was 0.02" clause boundary,
 # narrow enough not to grab an unrelated pair from a previous sentence.
 _LOOKBACK = 170
 

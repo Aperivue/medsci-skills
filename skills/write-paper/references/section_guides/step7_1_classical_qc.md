@@ -1,6 +1,6 @@
 # Step 7.1 Extension — Classical Manuscript Style QC
 
-A grep-based checklist that automatically verifies the global rule `~/.claude/rules/manuscript-style-classical.md` (11 items) for senior-MA-reviewer readiness. Run alongside the Step 7.1 AI Pattern Scan.
+A grep-based checklist that automatically verifies the classical manuscript-style conventions (11 items) for senior-MA-reviewer readiness. Run alongside the Step 7.1 AI Pattern Scan.
 
 **Why**: Senior MA mentors routinely flag the § symbol, AI Disclosure boilerplate, prose-form eligibility criteria, em-dash overuse, and AI-style headings as "AI patterns." A manuscript-level automated grep blocks these in advance.
 
@@ -40,7 +40,7 @@ N=$(grep -o "—" "$MD" | wc -l | tr -d ' ')
 [ "$N" -lt 25 ] || echo "WARN: ${N} em-dashes (>=25) — an AI-generation signal; redistribute with commas/colons"
 
 # 8. 0 hand-typed reference-list entries
-# Per the manuscript-references.md rule, in-text citations may only be [@bibkey] or [N].
+# In-text citations may only be [@bibkey] or [N].
 # If the References section has hand-typed entries, the build artifact (.docx) must be verified — delegate to Step 7.6a.
 ```
 
@@ -60,8 +60,5 @@ This step performs **automated grep only**. The following are separate steps:
 
 ## Related
 
-- Global rule: `~/.claude/rules/manuscript-style-classical.md` (motivation for the 11 items)
-- Circulation workflow: `~/.claude/rules/senior-mentor-circulation.md`
-- AI-draft handling: `~/.claude/rules/ai-drafted-document-policy.md`
-- No hand-typed references: `~/.claude/rules/manuscript-references.md`
+- No hand-typed references: `/manage-refs`
 - Related skills: `/humanize` (Patterns 19–21), `/check-reporting prisma` (Step 4d)

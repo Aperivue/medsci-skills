@@ -30,6 +30,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from skill_aliases import alias_target  # noqa: E402
 
 # The router itself is never a route target. A skill that is genuinely not meant to
 # be reached through /orchestrate goes here with a reason (keep this near-empty).
@@ -48,8 +50,13 @@ def table_skills(skill_md: Path) -> set[str]:
     return set(ROW_RE.findall(section))
 
 
-def skill_dirs(skills_dir: Path) -> set[str]:
-    return {p.name for p in skills_dir.iterdir() if p.is_dir() and (p / "SKILL.md").exists()}
+def skill_dirs(skills_dir: Path) -> tuple[set[str], set[str]]:
+    """(canonical skills, compatibility aliases). The router routes to canonical skills only: an
+    alias stub is disable-model-invocation, so a row naming it routes to a skill the model is told
+    never to pick — the renamed skill's row is the route."""
+    dirs = [p for p in skills_dir.iterdir() if p.is_dir() and (p / "SKILL.md").exists()]
+    aliases = {p.name for p in dirs if alias_target(p) is not None}
+    return {p.name for p in dirs} - aliases, aliases
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -62,15 +69,16 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         routed = table_skills(Path(args.skill_md))
-        dirs = skill_dirs(Path(args.skills_dir))
+        dirs, aliases = skill_dirs(Path(args.skills_dir))
     except (OSError, ValueError) as e:
         print(f"error: {e}", file=sys.stderr)
         return 2
 
     required = dirs - set(DIRECT_ONLY)
     unreachable = sorted(required - routed)
-    # a table row naming a skill that no longer exists is also drift
-    ghost = sorted(routed - dirs - set(DIRECT_ONLY))
+    # a table row naming a skill that no longer exists is also drift; so is one naming an alias
+    ghost = sorted(routed - dirs - aliases - set(DIRECT_ONLY))
+    to_alias = sorted(routed & aliases)
 
     print(f"orchestrate reachability: {len(routed)} routed / {len(dirs)} skills "
           f"({len(DIRECT_ONLY) - 1} direct-only exempt)")
@@ -82,10 +90,14 @@ def main(argv: list[str] | None = None) -> int:
         print(f"  GHOST ({len(ghost)}) — routed to a skill directory that does not exist:")
         for s in ghost:
             print(f"    - {s}")
-    if not unreachable and not ghost:
+    if to_alias:
+        print(f"  ALIAS ({len(to_alias)}) — routed to a renamed skill's compatibility stub; route to its target:")
+        for s in to_alias:
+            print(f"    - {s}")
+    if not unreachable and not ghost and not to_alias:
         print("  OK: every skill is reachable from /orchestrate.")
 
-    return 1 if (args.strict and (unreachable or ghost)) else 0
+    return 1 if (args.strict and (unreachable or ghost or to_alias)) else 0
 
 
 if __name__ == "__main__":

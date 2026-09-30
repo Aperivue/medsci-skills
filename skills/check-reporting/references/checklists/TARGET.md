@@ -8,7 +8,8 @@ Licence: *JAMA* (© American Medical Association) — no open licence.
 Verification: all 39 sub-items across the 21 numbered items were compared, by number and order,
 against the checklist tables of the published statement (PubMed Central record PMC13084563).
 39/39 are present, including the paired 6a–h specification and 7a–7h(ii) emulation columns.
-Three items dropped a required clause (6c, 6d, 7d) and are corrected. Wording stays paraphrased —
+Items that had dropped a required clause (1a, 4, 5, 6c, 6d, 6g, 6h, 7d, 7f, 7h, 8, 10, 13, 16,
+19) are corrected. Wording stays paraphrased —
 the statement is © American Medical Association with no open licence.
 
 ## Checklist Items (21 items)
@@ -17,7 +18,7 @@ the statement is © American Medical Association with no open licence.
 
 | # | Item | Description |
 |---|------|-------------|
-| 1a | Study type | Identify that the study attempts to emulate a target trial using observational data. |
+| 1a | Study type | Identify that the study attempts to emulate a target trial using observational data; state the objectives and give a brief summary of the target trial that was specified. |
 | 1b | Data sources | Report the data sources used for the emulation. |
 | 1c | Key elements | Summarize the key assumptions, statistical methods, findings, and conclusions. |
 
@@ -27,13 +28,13 @@ the statement is © American Medical Association with no open licence.
 |---|------|-------------|
 | 2 | Background | Describe the scientific background and the gap in knowledge the study addresses. |
 | 3 | Causal question | Summarize the causal question specified by the target-trial protocol. |
-| 4 | Rationale | Describe the rationale for emulating a target trial with the available data. |
+| 4 | Rationale | Describe the rationale for emulating a target trial with the available data; where applicable, cite the randomized trials that informed the target-trial design. |
 
 ### Methods
 
 | # | Item | Description |
 |---|------|-------------|
-| 5 | Data sources | Cite the data sources and describe their original purpose, type, geographic locations, setting, and time period. |
+| 5 | Data sources | Cite the data sources and describe their original purpose, type, geographic locations, setting, and time period; if relevant, describe how data were linked or pooled. |
 
 #### Target-trial specification (the protocol you would run)
 
@@ -45,8 +46,8 @@ the statement is © American Medical Association with no open licence.
 | 6d | Follow-up | Clarify that follow-up would start at the time of assignment to the treatment strategies, and specify when follow-up would end. |
 | 6e | Outcomes | Describe the outcomes, including their measurement and timing. |
 | 6f | Causal contrasts | Describe the causal contrasts of interest, including the effect measures. |
-| 6g | Identifying assumptions | Describe the assumptions that would be made to identify each causal estimand. |
-| 6h | Data analysis plan | For each causal estimand, describe the data-analysis procedures and statistical models. |
+| 6g | Identifying assumptions | Describe the assumptions that would be made to identify each causal estimand, and any variables related to those assumptions. |
+| 6h | Data analysis plan | For each causal estimand, describe the data-analysis procedures and the statistical modelling assumptions, including how missing data would be handled. |
 
 #### Target-trial emulation (mapping to the observational data)
 
@@ -57,22 +58,22 @@ the statement is © American Medical Association with no open licence.
 | 7c | Assignment (emulation) | Describe how assignment to treatment strategies was operationalized with the data. |
 | 7d | Follow-up (emulation) | Clarify that follow-up starts at the time individuals were assigned to the treatment strategies, and describe how the end of follow-up was operationalized with the data. *(Misaligning eligibility, assignment and start of follow-up is what introduces immortal-time bias.)* |
 | 7e | Outcomes (emulation) | Describe how the outcomes were operationalized with the data. |
-| 7f | Causal contrasts (emulation) | Describe how the causal contrasts were operationalized with the data. |
+| 7f | Causal contrasts (emulation) | Describe how the causal contrasts, including the effect measures, were operationalized with the data. |
 | 7g(i) | Identifying assumptions (emulation) | For each causal estimand, describe the assumptions made, including baseline confounding. |
 | 7g(ii) | Assumption variables | Describe how the variables related to those assumptions were operationalized. |
-| 7h(i) | Data analysis (emulation) | Describe modifications to the data-analysis methods needed for the observational emulation. |
-| 7h(ii) | Sensitivity analyses | Describe any additional analyses assessing the sensitivity of results to the operationalization choices. |
+| 7h(i) | Data analysis (emulation) | For each causal estimand, describe the data-analysis procedures and statistical modelling assumptions used in the emulation, including how missing data were handled. |
+| 7h(ii) | Sensitivity analyses | For each causal estimand, describe any additional analyses assessing how sensitive the results are to the operationalization, assumption, and analysis choices. |
 
 ### Results
 
 | # | Item | Description |
 |---|------|-------------|
-| 8 | Participant selection | Report the numbers of individuals assessed for eligibility, eligible, and assigned to each treatment strategy. |
+| 8 | Participant selection | Report the numbers of individuals assessed for eligibility, eligible, and assigned to each treatment strategy; a flow diagram is strongly recommended. |
 | 9 | Baseline data | Describe the distribution of baseline characteristics of individuals, by treatment strategy. |
-| 10 | Follow-up | Summarize the length of follow-up and describe the reasons for its end. |
+| 10 | Follow-up | Summarize the length of follow-up and describe the reasons for its end, for each treatment strategy and causal contrast. |
 | 11 | Missing data | Describe the frequency of missing data in all variables, by treatment strategy. |
 | 12 | Outcomes | Describe the frequency or distribution of each outcome, by treatment strategy. |
-| 13 | Effect estimates | Report the effect estimate for each causal contrast, with its corresponding measure of precision. |
+| 13 | Effect estimates | Report the effect estimate for each causal contrast, with its corresponding measure of precision, giving both absolute and relative effect measures when applicable. |
 | 14 | Additional analyses | Report the results of all analyses assessing the sensitivity of the estimates to the choices made. |
 
 ### Discussion
@@ -80,7 +81,7 @@ the statement is © American Medical Association with no open licence.
 | # | Item | Description |
 |---|------|-------------|
 | 15 | Interpretation | Provide an interpretation of the key findings in the context of the causal question. |
-| 16 | Limitations | Discuss limitations, considering differences between the target trial and its emulation. |
+| 16 | Limitations | Discuss limitations, considering differences between the target trial and its emulation and how plausible the assumptions are, including those about baseline confounding in the absence of randomization. |
 
 ### Other Information
 
@@ -88,7 +89,7 @@ the statement is © American Medical Association with no open licence.
 |---|------|-------------|
 | 17 | Ethics | Provide the institutional review board or ethics committee approval information. |
 | 18 | Registration | State whether, when, and where the study protocol was registered. |
-| 19 | Data sharing | State whether the data, analytic code, and materials are accessible. |
+| 19 | Data sharing | State whether the data, analytic code, and materials are accessible, and where and how they can be obtained. |
 | 20 | Funding | Provide the sources of funding and detail the role of the funders. |
 | 21 | Conflicts of interest | State any conflicts of interest and financial disclosures for all authors. |
 

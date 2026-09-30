@@ -7,7 +7,7 @@ readme.md says "id numbers less than 500 belong to CT data, otherwise they belon
 the voxels settle it: amos_0500 is min -1024 HU on a 512x512x246 grid (CT), amos_0501 is min 0 /
 max 186451 on 1024x1024x48 (MRI). The boundary is id <= 500 = CT; the readme's prose rule is
 off by one.
-Every tool downstream -- including our own /profile-imaging -- takes directories, so the
+Every tool downstream -- including our own /imaging-data -- takes directories, so the
 modality split has to be materialised before anything can look at CT and MRI separately.
 
 Labelled data = imagesTr+labelsTr (240) and imagesVa+labelsVa (120). imagesTs (240) ships

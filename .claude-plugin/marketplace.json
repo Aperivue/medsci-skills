@@ -8,7 +8,22 @@
   "plugins": [
     {
       "name": "medsci-literature",
+      "displayName": "MedSci Literature & References",
       "description": "Literature search with anti-hallucination citation verification, full-text retrieval, Zotero/Obsidian sync, and reference-integrity audits.",
+      "author": {
+        "name": "Aperivue",
+        "url": "https://github.com/Aperivue"
+      },
+      "homepage": "https://github.com/Aperivue/medsci-skills#skills",
+      "repository": "https://github.com/Aperivue/medsci-skills",
+      "keywords": [
+        "medical-research",
+        "clinical-research",
+        "literature-search",
+        "pubmed",
+        "citation-verification",
+        "zotero"
+      ],
       "source": "./",
       "strict": false,
       "skills": [
@@ -22,7 +37,22 @@
     },
     {
       "name": "medsci-data",
+      "displayName": "MedSci Data & Study Design",
       "description": "Study design and validity review, literature-grounded variable operationalization, sample-size planning, data cleaning, de-identification, codebook generation, and dataset versioning.",
+      "author": {
+        "name": "Aperivue",
+        "url": "https://github.com/Aperivue"
+      },
+      "homepage": "https://github.com/Aperivue/medsci-skills#skills",
+      "repository": "https://github.com/Aperivue/medsci-skills",
+      "keywords": [
+        "medical-research",
+        "clinical-research",
+        "study-design",
+        "sample-size",
+        "de-identification",
+        "data-cleaning"
+      ],
       "source": "./",
       "strict": false,
       "skills": [
@@ -38,16 +68,34 @@
     },
     {
       "name": "medsci-modeling",
+      "displayName": "MedSci Model Engineering & Validation",
       "description": "Clinical AI model research engineering: choose a paper-grounded architecture, scaffold a reproducible PyTorch training repo, validate the model's split and validation design, document it (Model Card / Datasheet), and evaluate models or LLMs/MLLMs on clinical tasks. Integrates MONAI / nnU-Net, never replaces them.",
+      "author": {
+        "name": "Aperivue",
+        "url": "https://github.com/Aperivue"
+      },
+      "homepage": "https://github.com/Aperivue/medsci-skills#skills",
+      "repository": "https://github.com/Aperivue/medsci-skills",
+      "keywords": [
+        "medical-research",
+        "clinical-research",
+        "medical-imaging-ai",
+        "clinical-validation",
+        "pytorch",
+        "monai"
+      ],
       "source": "./",
       "strict": false,
       "skills": [
         "./skills/architecture-zoo",
         "./skills/explainability",
+        "./skills/imaging-data",
         "./skills/mllm-eval",
+        "./skills/model-assessment",
         "./skills/model-card",
         "./skills/model-evaluation",
         "./skills/model-scaffold",
+        "./skills/model-selection",
         "./skills/model-sourcing",
         "./skills/model-validation",
         "./skills/preprocess-imaging",
@@ -58,7 +106,21 @@
     },
     {
       "name": "medsci-analysis",
+      "displayName": "MedSci Analysis & Figures",
       "description": "Reproducible statistical analysis, publication-ready figures, batch/cross-national/replication analysis, and meta-analysis synthesis.",
+      "author": {
+        "name": "Aperivue",
+        "url": "https://github.com/Aperivue"
+      },
+      "homepage": "https://github.com/Aperivue/medsci-skills#skills",
+      "repository": "https://github.com/Aperivue/medsci-skills",
+      "keywords": [
+        "medical-research",
+        "clinical-research",
+        "biostatistics",
+        "meta-analysis",
+        "figures"
+      ],
       "source": "./",
       "strict": false,
       "skills": [
@@ -72,7 +134,21 @@
     },
     {
       "name": "medsci-writing",
+      "displayName": "MedSci Writing & Manuscript",
       "description": "IMRAD manuscript and IRB-protocol drafting, AI-pattern removal, AI-search optimization, and reviewer-response letters.",
+      "author": {
+        "name": "Aperivue",
+        "url": "https://github.com/Aperivue"
+      },
+      "homepage": "https://github.com/Aperivue/medsci-skills#skills",
+      "repository": "https://github.com/Aperivue/medsci-skills",
+      "keywords": [
+        "medical-research",
+        "clinical-research",
+        "manuscript-writing",
+        "irb-protocol",
+        "reviewer-response"
+      ],
       "source": "./",
       "strict": false,
       "skills": [
@@ -87,7 +163,21 @@
     },
     {
       "name": "medsci-review",
+      "displayName": "MedSci Review & Compliance",
       "description": "Pre-submission self-review, peer-review drafting, and reporting-guideline compliance audits against EQUATOR checklists.",
+      "author": {
+        "name": "Aperivue",
+        "url": "https://github.com/Aperivue"
+      },
+      "homepage": "https://github.com/Aperivue/medsci-skills#skills",
+      "repository": "https://github.com/Aperivue/medsci-skills",
+      "keywords": [
+        "medical-research",
+        "clinical-research",
+        "reporting-guidelines",
+        "peer-review",
+        "risk-of-bias"
+      ],
       "source": "./",
       "strict": false,
       "skills": [
@@ -98,7 +188,21 @@
     },
     {
       "name": "medsci-submission",
+      "displayName": "MedSci Submission & Journals",
       "description": "Submission packaging, journal recommendation and profiling, institutional form filling (ICMJE COI, IRB), and grant proposals.",
+      "author": {
+        "name": "Aperivue",
+        "url": "https://github.com/Aperivue"
+      },
+      "homepage": "https://github.com/Aperivue/medsci-skills#skills",
+      "repository": "https://github.com/Aperivue/medsci-skills",
+      "keywords": [
+        "medical-research",
+        "clinical-research",
+        "journal-selection",
+        "icmje",
+        "grant-proposal"
+      ],
       "source": "./",
       "strict": false,
       "skills": [
@@ -112,7 +216,21 @@
     },
     {
       "name": "medsci-project",
+      "displayName": "MedSci Project & Workflow",
       "description": "Research orchestration, project intake and management, research-gap and meta-analysis topic discovery, and author-strategy analysis.",
+      "author": {
+        "name": "Aperivue",
+        "url": "https://github.com/Aperivue"
+      },
+      "homepage": "https://github.com/Aperivue/medsci-skills#skills",
+      "repository": "https://github.com/Aperivue/medsci-skills",
+      "keywords": [
+        "medical-research",
+        "clinical-research",
+        "research-orchestration",
+        "project-management",
+        "research-gap"
+      ],
       "source": "./",
       "strict": false,
       "skills": [
@@ -126,7 +244,21 @@
     },
     {
       "name": "medsci-presentation",
-      "description": "Academic presentation and PPTX building, PDF/document rendering, environment setup, and skill publishing.",
+      "displayName": "MedSci Presentation & Tooling",
+      "description": "Academic presentation and PPTX building, PDF/document rendering, environment setup, skill publishing, and offering your changes back to the project.",
+      "author": {
+        "name": "Aperivue",
+        "url": "https://github.com/Aperivue"
+      },
+      "homepage": "https://github.com/Aperivue/medsci-skills#skills",
+      "repository": "https://github.com/Aperivue/medsci-skills",
+      "keywords": [
+        "medical-research",
+        "clinical-research",
+        "presentations",
+        "pptx",
+        "pdf"
+      ],
       "source": "./",
       "strict": false,
       "skills": [

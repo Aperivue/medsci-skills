@@ -33,7 +33,7 @@ Output contract (matches search-lit BibTeX section)
 Usage
 -----
     # Live (network) — expand one DOI in all directions, dedup against pool
-    python3 snowball.py --seed DOI:10.1148/radiol.2024123 \
+    python3 snowball.py --seed DOI:10.1000/synthetic.example \
         --pool references/library.bib --out references/library.bib
 
     # Multiple seeds from a file (one id per line), backward only
@@ -46,6 +46,8 @@ Usage
 Seed id formats accepted: `DOI:10.x/...`, `PMID:123456`, bare `10.x/...`
 (treated as DOI), bare digits (treated as PMID), or a raw S2 paper id.
 """
+
+from __future__ import annotations
 
 import argparse
 import json

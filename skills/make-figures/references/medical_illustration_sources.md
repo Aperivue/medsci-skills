@@ -94,5 +94,5 @@ manuscript figures. Consult this file when a standalone illustration (not a data
 - **Resolution check.** Ensure downloaded PNGs are ≥300 DPI for print. SVGs scale infinitely.
 - **Consistency.** Within one visual abstract, use illustrations from the same source to maintain
   visual coherence (mixing Servier flat style with NIAID 3D renders looks inconsistent).
-- **AI generation warning.** See the AI-Generated Figure Warning section in SKILL.md.
+- **AI generation warning.** See the Journal AI-Image Policies section in SKILL.md.
   AI-generated medical illustrations are recognizable to reviewers. Use sparingly and customize.

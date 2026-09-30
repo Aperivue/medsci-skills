@@ -1,6 +1,6 @@
 # Anti–"Reviewer 2" Tone Patterns
 
-Source: Aczel B, Szaszi B, Holcombe AO. *Don't be reviewer 2! Reflections on writing effective peer review comments.* Research Integrity and Peer Review. 2021;6:13. PMC8505560.
+Source: Watling C, Ginsburg S, Lingard L. *Don't be reviewer 2! Reflections on writing effective peer review comments.* Perspectives on Medical Education. 2021;10(5):299-303. PMC8505560.
 
 This reference codifies the linguistic patterns to avoid (and the partner-voice patterns to use) when drafting peer reviews. Apply during Phase 3 drafting and Phase 4 Self-QC.
 
@@ -31,7 +31,7 @@ This reference codifies the linguistic patterns to avoid (and the partner-voice 
 | **Distinguish reflection from request** | Numbered Minor items = actionable; Closing Remark = reflection. Do not blur. | Authors know what to do |
 | **Calibrate length to severity** | Minor Revision → 1-2 sentences per comment. Major Revision → 3-5 sentences with suggested fixes. | Length signals difficulty; mismatched length confuses authors |
 
-## Worked transformations (Aczel verbatim examples + skill-specific)
+## Worked transformations (Watling verbatim examples + skill-specific)
 
 ### From the paper
 
@@ -64,7 +64,7 @@ Add to the existing Pre-Submission QC checklist:
 
 ## When to escalate tone (override partner voice)
 
-Aczel's framework assumes the manuscript is fundamentally sound but needs revision. Escalate to firmer (still professional) language only when:
+Watling et al.'s framework assumes the manuscript is fundamentally sound but needs revision. Escalate to firmer (still professional) language only when:
 
 - Patient safety concern (dose, drug error, PHI leak)
 - Severe data leakage (training-test contamination, label leakage)
@@ -85,4 +85,4 @@ Even at escalation, retain:
 
 ## Citation
 
-Aczel B, Szaszi B, Holcombe AO. Don't be reviewer 2! Reflections on writing effective peer review comments. *Research Integrity and Peer Review.* 2021 Oct 11;6(1):13. doi:10.1186/s41073-021-00117-3. PMCID: PMC8505560.
+Watling C, Ginsburg S, Lingard L. Don't be reviewer 2! Reflections on writing effective peer review comments. *Perspectives on Medical Education.* 2021;10(5):299-303. doi:10.1007/s40037-021-00670-z. PMID: 34115335. PMCID: PMC8505560.

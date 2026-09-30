@@ -36,11 +36,14 @@ CONFIG <- list(
   model_labels  = c("AI Model", "Radiologist Score"), # Labels for legend
   threshold_lo  = 0.05,               # Lower threshold for DCA
   threshold_hi  = 0.50,               # Upper threshold for DCA
-  output_prefix = "dca"
+  output_prefix = "dca",
+  # TRUE only to try the script on simulated data. A missing or misnamed input file
+  # is an error, never a silent switch to simulated data.
+  use_example_data = FALSE
 )
 
 # ══════════════════════════════════════════════════════════════════════════════
-# EXAMPLE DATA — Replace with real data
+# EXAMPLE DATA — used only when CONFIG$use_example_data is TRUE
 # ══════════════════════════════════════════════════════════════════════════════
 
 set.seed(42)
@@ -63,21 +66,34 @@ example_data$model2 <- plogis(
 # ══════════════════════════════════════════════════════════════════════════════
 
 load_data <- function(config) {
-  if (file.exists(config$input_file)) {
-    df <- read.csv(config$input_file, stringsAsFactors = FALSE)
-    cat(sprintf("Loaded: %s (N = %d)\n\n", config$input_file, nrow(df)))
-
-    # Validate
-    for (col in c(config$outcome_col, config$model_cols)) {
-      if (!col %in% names(df)) {
-        stop(sprintf("Column '%s' not found in %s", col, config$input_file))
-      }
-    }
-    return(df)
-  } else {
-    cat("Input file not found. Using built-in example data.\n\n")
+  if (isTRUE(config$use_example_data)) {
+    cat("*** SIMULATED EXAMPLE DATA (use_example_data = TRUE) -- not a real analysis ***\n\n")
     return(example_data)
   }
+  if (!file.exists(config$input_file)) {
+    stop(sprintf("Input file '%s' not found (set CONFIG$input_file).", config$input_file))
+  }
+  df <- read.csv(config$input_file, stringsAsFactors = FALSE)
+  cat(sprintf("Loaded: %s (N = %d)\n\n", config$input_file, nrow(df)))
+
+  # Validate
+  for (col in c(config$outcome_col, config$model_cols)) {
+    if (!col %in% names(df)) {
+      stop(sprintf("Column '%s' not found in %s", col, config$input_file))
+    }
+  }
+  # DCA needs predicted probabilities. dca(as_probability = ...) would instead REFIT a
+  # logistic model of the outcome on the column, i.e. recalibrate it on these data,
+  # which hides exactly the miscalibration net benefit is meant to penalise.
+  for (col in config$model_cols) {
+    v <- df[[col]]
+    if (any(v < 0 | v > 1, na.rm = TRUE)) {
+      stop(sprintf(paste0("Column '%s' is not a probability (values outside 0-1). ",
+                          "Convert the score with a model fitted on development data first."),
+                   col))
+    }
+  }
+  return(df)
 }
 
 df <- load_data(CONFIG)
@@ -97,43 +113,40 @@ formula_str <- paste(outcome_var, "~",
                      paste(model_cols, collapse = " + "))
 dca_formula <- as.formula(formula_str)
 
+# The model columns are already probabilities: no as_probability (see load_data)
 dca_result <- dca(
   formula          = dca_formula,
   data             = df,
-  thresholds       = seq(CONFIG$threshold_lo, CONFIG$threshold_hi, by = 0.01),
-  as_probability   = model_cols  # our columns are already probabilities
+  thresholds       = seq(CONFIG$threshold_lo, CONFIG$threshold_hi, by = 0.01)
 )
 
 # ── Print net benefit at key thresholds ───────────────────────────────────────
 cat("\nNet Benefit at Selected Thresholds:\n")
 key_thresholds <- c(0.10, 0.20, 0.30, 0.40, 0.50)
+# thresholds come from seq(); match with a tolerance, not %in%
+at_key <- function(t) sapply(t, function(x) any(abs(x - key_thresholds) < 1e-9))
 
 nb_summary <- dca_result$dca %>%
-  filter(threshold %in% key_thresholds) %>%
+  filter(at_key(threshold)) %>%
   select(label, threshold, net_benefit) %>%
   tidyr::pivot_wider(names_from = label, values_from = net_benefit)
 
 print(nb_summary, digits = 3)
 
 # ── Standardized net benefit ──────────────────────────────────────────────────
-# NB_std = (NB_model - NB_treat-all) / (p / (1 - p))
-# where p = event prevalence
-
+# sNB = NB / p (p = event prevalence; the maximum achievable NB), so 1 = perfect.
 p_event <- mean(df[[outcome_var]], na.rm = TRUE)
 cat(sprintf("\nEvent prevalence: %.1f%%\n", p_event * 100))
 
-# ── Interventions avoided per 100 ────────────────────────────────────────────
-cat("\nInterventions Avoided per 100 Patients (vs treat-all):\n")
-ia_summary <- dca_result$dca %>%
-  filter(threshold %in% key_thresholds, !label %in% c("All", "None")) %>%
-  mutate(
-    nb_all = dca_result$dca$net_benefit[
-      dca_result$dca$label == "All" &
-        dca_result$dca$threshold %in% threshold
-    ][match(threshold, key_thresholds)],
-    ia_per_100 = (nb_all - net_benefit) / (threshold / (1 - threshold)) * 100
-  ) %>%
-  select(label, threshold, net_benefit, ia_per_100)
+# ── Net interventions avoided per 100 (vs treat-all) ─────────────────────────
+# (NB_model - NB_treat_all) / (pt / (1 - pt)) * 100  (Vickers, Van Calster &
+# Steyerberg 2016, doi:10.1136/bmj.i6), computed by dcurves itself
+cat("\nNet Interventions Avoided per 100 Patients (vs treat-all):\n")
+ia_summary <- dca_result %>%
+  net_intervention_avoided(nper = 100) %>%
+  as_tibble() %>%
+  filter(at_key(threshold), !variable %in% c("all", "none")) %>%
+  select(label, threshold, net_benefit, net_intervention_avoided)
 
 print(ia_summary, digits = 2)
 
@@ -151,11 +164,6 @@ MODEL_COLORS <- c(
 
 # Build label-color mapping (exclude "All" and "None" built-ins)
 model_labels_full <- c(CONFIG$model_labels)
-color_map <- c(
-  setNames(MODEL_COLORS[seq_along(CONFIG$model_cols)], CONFIG$model_cols),
-  "All"  = "#888888",
-  "None" = "#000000"
-)
 
 # Rename model labels for display
 dca_plot_data <- dca_result$dca %>%
@@ -165,11 +173,12 @@ dca_plot_data <- dca_result$dca %>%
     TRUE ~ label
   ))
 
-# Color map with renamed labels
+# Color map with renamed labels (dcurves labels its reference strategies
+# "Treat All" / "Treat None")
 color_map_renamed <- c(
   setNames(MODEL_COLORS[seq_along(CONFIG$model_labels)], CONFIG$model_labels),
-  "All"  = "#888888",
-  "None" = "#000000"
+  "Treat All"  = "#888888",
+  "Treat None" = "#000000"
 )
 
 p_dca <- ggplot(dca_plot_data,
@@ -180,7 +189,7 @@ p_dca <- ggplot(dca_plot_data,
   scale_linetype_manual(
     values = c(
       setNames(rep("solid", length(CONFIG$model_labels)), CONFIG$model_labels),
-      "All" = "dashed", "None" = "dotted"
+      "Treat All" = "dashed", "Treat None" = "dotted"
     ),
     name = NULL
   ) +
@@ -188,12 +197,9 @@ p_dca <- ggplot(dca_plot_data,
     limits = c(CONFIG$threshold_lo, CONFIG$threshold_hi),
     labels = scales::percent_format(accuracy = 1)
   ) +
-  scale_y_continuous(
-    limits = c(
-      -0.05,
-      max(dca_result$dca$net_benefit, na.rm = TRUE) * 1.1
-    )
-  ) +
+  # zoom (coord_cartesian) rather than scale limits, which would drop the
+  # treat-all segments below the axis instead of clipping them
+  coord_cartesian(ylim = c(-0.05, max(dca_result$dca$net_benefit, na.rm = TRUE) * 1.1)) +
   geom_hline(yintercept = 0, linetype = "solid", color = "#CCCCCC",
               linewidth = 0.5) +
   labs(
@@ -201,7 +207,9 @@ p_dca <- ggplot(dca_plot_data,
     y     = "Net benefit",
     title = "Decision Curve Analysis"
   ) +
-  theme_classic(base_size = 9, base_family = "Arial") +
+  # "sans" = Helvetica in PDF, Arial on Windows; the pdf() device has no "Arial"
+  # font family and stops with "invalid font type"
+  theme_classic(base_size = 9, base_family = "sans") +
   theme(
     legend.position   = "bottom",
     legend.text       = element_text(size = 8),
@@ -214,9 +222,9 @@ p_dca <- ggplot(dca_plot_data,
 # Save
 for (ext in c("pdf", "png")) {
   outfile <- paste0(CONFIG$output_prefix, "_dca.", ext)
-  dpi <- if (ext == "png") 300 else NULL
-  ggsave(outfile, plot = p_dca, width = 5.5, height = 4.0,
-         dpi = dpi, bg = "white")
+  args <- list(outfile, plot = p_dca, width = 5.5, height = 4.0, bg = "white")
+  if (ext == "png") args$dpi <- 300   # dpi = NULL is an error in ggsave
+  do.call(ggsave, args)
   cat(sprintf("Saved: %s\n", outfile))
 }
 
@@ -225,7 +233,8 @@ for (ext in c("pdf", "png")) {
 # ══════════════════════════════════════════════════════════════════════════════
 
 results_file <- paste0(CONFIG$output_prefix, "_results.csv")
-write.csv(dca_result$dca, results_file, row.names = FALSE)
+write.csv(as_tibble(net_intervention_avoided(dca_result, nper = 100)),
+          results_file, row.names = FALSE)
 cat(sprintf("Saved: %s\n", results_file))
 
 # ── Session info ───────────────────────────────────────────────────────────────

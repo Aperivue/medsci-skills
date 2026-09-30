@@ -15,23 +15,16 @@ Output: balance table CSV, Love plot PDF/PNG, PS distribution plot, outcome resu
 import sys
 import os
 import datetime
+import warnings
 import numpy as np
 import pandas as pd
+import scipy
 from scipy import stats
 
 np.random.seed(42)
 print(f"Date: {datetime.date.today()}")
 print(f"Python: {sys.version}")
-print(f"numpy: {np.__version__}, pandas: {pd.__version__}, scipy: {stats.scipy.__version__}")
-
-try:
-    from sklearn.linear_model import LogisticRegression
-    from sklearn.neighbors import NearestNeighbors
-    import sklearn
-    print(f"sklearn: {sklearn.__version__}")
-except ImportError:
-    print("Error: scikit-learn not installed. Install with: pip install scikit-learn")
-    sys.exit(1)
+print(f"numpy: {np.__version__}, pandas: {pd.__version__}, scipy: {scipy.__version__}")
 
 try:
     import statsmodels.api as sm
@@ -60,14 +53,17 @@ CONFIG = {
     "outcome": "outcome",           # Outcome variable
     "outcome_type": "continuous",    # "continuous" or "binary"
     "covariates": ["age", "sex", "bmi", "comorbidity_score"],
+    # Entered as k-1 indicator columns (reference = most frequent level) whatever
+    # their dtype; list numeric-coded nominal covariates here too.
     "categorical_covariates": ["sex"],
 
     # PS method: "matching", "iptw", "siptw", "overlap"
     "ps_method": "matching",
 
-    # Matching options
+    # Matching options (greedy nearest neighbour on the logit PS, without
+    # replacement, largest PS matched first -- the MatchIt defaults)
     "caliper_sd_multiplier": 0.2,   # caliper = 0.2 * SD(logit PS)
-    "matching_ratio": 1,            # 1:1 matching
+    "matching_ratio": 1,            # controls per treated unit (1 = 1:1, 3 = 1:3)
 
     # Balance threshold
     "smd_threshold": 0.10,
@@ -80,14 +76,30 @@ CONFIG = {
 
 # === HELPER FUNCTIONS ===
 
-def estimate_ps(df, treatment_col, covariates):
-    """Estimate propensity scores using logistic regression."""
-    X = df[covariates].values
-    y = df[treatment_col].values
-    model = LogisticRegression(max_iter=1000, random_state=42)
-    model.fit(X, y)
-    ps = model.predict_proba(X)[:, 1]
-    return ps
+def encode_covariates(df, covariates, categorical_covs):
+    """Continuous covariates as-is; categorical ones as k-1 indicator columns
+    (reference = most frequent level). Call on complete cases only: encoding
+    before dropping missing rows turns a missing category into a level."""
+    blocks, binary_cols = [], []
+    for var in covariates:
+        if var in categorical_covs:
+            counts = df[var].value_counts()
+            ref = counts.index[0]
+            levels = [lv for lv in sorted(counts.index, key=str) if lv != ref]
+            cols = {f"{var}={lv}": (df[var] == lv).astype(float) for lv in levels}
+            print(f"  {var}: reference = {ref!r}")
+            blocks.append(pd.DataFrame(cols, index=df.index))
+            binary_cols += list(cols)
+        else:
+            blocks.append(df[[var]].astype(float))
+    return pd.concat(blocks, axis=1), binary_cols
+
+
+def estimate_ps(X, treatment):
+    """Propensity scores from an (unpenalised) logistic regression."""
+    fit = sm.GLM(np.asarray(treatment), sm.add_constant(X.values),
+                 family=sm.families.Binomial()).fit()
+    return np.asarray(fit.fittedvalues)
 
 
 def calculate_smd(x1, x0, is_binary=False):
@@ -106,8 +118,11 @@ def calculate_smd(x1, x0, is_binary=False):
 
 
 def balance_table(df, treatment_col, covariates, categorical_covs, weights=None):
-    """Generate balance table with SMD before/after adjustment."""
-    treated = df[treatment_col] == 1
+    """Generate balance table with SMD before/after adjustment.
+
+    `covariates` are design-matrix columns; `categorical_covs` lists the ones
+    that are 0/1 indicators."""
+    treated = (df[treatment_col] == 1).values
     results = []
 
     for var in covariates:
@@ -199,43 +214,80 @@ def plot_ps_distribution(ps, treatment, output_dir):
 
 
 def ps_matching(df, ps, treatment_col, caliper_sd_mult=0.2, ratio=1):
-    """Perform 1:N nearest-neighbor PS matching with caliper."""
+    """Greedy 1:ratio nearest-neighbour matching on the logit PS, without
+    replacement, within a caliper of caliper_sd_mult * SD(logit PS).
+
+    Treated units are processed from the largest PS down; for ratio > 1 the
+    matching runs in rounds (every treated unit gets its 1st control before any
+    gets its 2nd). Each treated unit takes the nearest AVAILABLE control -- a
+    used nearest neighbour does not drop the unit if another control lies
+    within the caliper.
+
+    df must have a 0..n-1 RangeIndex aligned with `ps`. Returns the matched
+    rows with `subclass` (matched set) and `match_weight` (treated 1; each
+    control 1/m for a set with m controls, rescaled to sum to the number of
+    matched controls).
+    """
     logit_ps = np.log(ps / (1 - ps))
-    caliper = caliper_sd_mult * logit_ps.std()
+    caliper = caliper_sd_mult * np.std(logit_ps, ddof=1)
+    treat = df[treatment_col].values
 
-    treated_idx = df.index[df[treatment_col] == 1].values
-    control_idx = df.index[df[treatment_col] == 0].values
+    t_idx = np.flatnonzero(treat == 1)
+    c_idx = np.flatnonzero(treat == 0)
+    order = t_idx[np.argsort(-ps[t_idx], kind="stable")]
+    c_sorted = c_idx[np.argsort(logit_ps[c_idx], kind="stable")]
+    c_vals = logit_ps[c_sorted]
+    used = np.zeros(len(c_sorted), dtype=bool)
+    matches = {i: [] for i in order}
 
-    treated_logit = logit_ps[treated_idx].reshape(-1, 1)
-    control_logit = logit_ps[control_idx].reshape(-1, 1)
+    for rnd in range(ratio):
+        for i in order:
+            if len(matches[i]) < rnd:        # found nothing in an earlier round
+                continue
+            x = logit_ps[i]
+            pos = np.searchsorted(c_vals, x)
+            left, right = pos - 1, pos
+            while left >= 0 and used[left]:
+                left -= 1
+            while right < len(c_vals) and used[right]:
+                right += 1
+            cands = []
+            if left >= 0:
+                cands.append((x - c_vals[left], left))
+            if right < len(c_vals):
+                cands.append((c_vals[right] - x, right))
+            if not cands:
+                continue
+            dist, j = min(cands)
+            if dist <= caliper:
+                used[j] = True
+                matches[i].append(c_sorted[j])
 
-    nn = NearestNeighbors(n_neighbors=ratio, metric="euclidean")
-    nn.fit(control_logit)
-    distances, indices = nn.kneighbors(treated_logit)
+    rows, subclass, weight = [], [], []
+    for s_id, (i, ctrls) in enumerate((i, c) for i, c in matches.items() if c):
+        rows += [i] + ctrls
+        subclass += [s_id] * (1 + len(ctrls))
+        weight += [1.0] + [1.0 / len(ctrls)] * len(ctrls)
+    matched = df.loc[rows].copy()
+    matched["subclass"] = subclass
+    matched["match_weight"] = weight
+    is_c = matched[treatment_col].values == 0
+    matched.loc[is_c, "match_weight"] *= is_c.sum() / matched.loc[is_c, "match_weight"].sum()
 
-    matched_treated = []
-    matched_control = []
-    used_controls = set()
-
-    for i, (dist_arr, idx_arr) in enumerate(zip(distances, indices)):
-        for d, j in zip(dist_arr, idx_arr):
-            ctrl_orig_idx = control_idx[j]
-            if d <= caliper and ctrl_orig_idx not in used_controls:
-                matched_treated.append(treated_idx[i])
-                matched_control.append(ctrl_orig_idx)
-                used_controls.add(ctrl_orig_idx)
-                break
-
-    matched_indices = matched_treated + matched_control
-    n_unmatched = len(treated_idx) - len(matched_treated)
-
-    print(f"\nPS Matching Results:")
+    n_matched_t = sum(1 for c in matches.values() if c)
+    n_full = sum(1 for c in matches.values() if len(c) == ratio)
+    print(f"\nPS Matching Results (greedy NN, largest PS first, without replacement):")
     print(f"  Caliper: {caliper:.4f} (= {caliper_sd_mult} x SD(logit PS))")
-    print(f"  Matched pairs: {len(matched_treated)}")
-    print(f"  Unmatched treated: {n_unmatched}")
-    print(f"  Unmatched controls: {len(control_idx) - len(matched_control)}")
-
-    return df.loc[matched_indices].copy(), matched_indices
+    print(f"  Ratio 1:{ratio} -- treated with {ratio} control(s): {n_full}; "
+          f"with fewer: {n_matched_t - n_full}")
+    print(f"  Matched treated: {n_matched_t} / {len(t_idx)}; "
+          f"matched controls: {int(used.sum())} / {len(c_idx)}")
+    n_unmatched = len(t_idx) - n_matched_t
+    if n_unmatched:
+        print(f"  ⚠ {n_unmatched} treated unit(s) had no control within the caliper and are "
+              "excluded: the estimand is the effect in the MATCHED treated, not the ATT "
+              "of all treated. Report this number.")
+    return matched
 
 
 def iptw_weights(ps, treatment, stabilized=True, truncation=10.0):
@@ -307,35 +359,48 @@ def overlap_weights(ps, treatment):
     return w
 
 
-def weighted_outcome_analysis(df, treatment_col, outcome_col, outcome_type, weights):
-    """Perform weighted outcome analysis."""
-    import statsmodels.api as sm
+def weighted_outcome_analysis(df, treatment_col, outcome_col, outcome_type, weights,
+                              cluster=None):
+    """Treatment effect from a weighted regression of the outcome on treatment.
 
-    X = sm.add_constant(df[[treatment_col]])
-    y = df[outcome_col]
+    Weights enter as var_weights (not freq_weights: they are not case counts),
+    and the SE is sandwich-robust (HC0) -- or cluster-robust by matched set when
+    `cluster` is given. Model-based SEs from a weighted fit are wrong: the
+    unstabilised-IPTW CI covered the true null effect in 77% of simulated
+    studies (Austin 2016, doi:10.1002/sim.7084). The robust SE ignores the
+    estimation of the PS, which is conservative for the ATE; bootstrap the
+    whole pipeline if precision is load-bearing.
+    """
+    X = sm.add_constant(df[[treatment_col]].astype(float))
+    y = df[outcome_col].astype(float)
+    w = np.asarray(weights, dtype=float)
+    fit_kw = ({"cov_type": "cluster", "cov_kwds": {"groups": np.asarray(cluster)}}
+              if cluster is not None else {"cov_type": "HC0"})
+    se_label = "cluster-robust by matched set" if cluster is not None else "robust (HC0)"
 
+    families = [("mean difference", sm.families.Gaussian(), False)]
     if outcome_type == "binary":
-        model = sm.GLM(y, X, family=sm.families.Binomial(), freq_weights=weights)
-    else:
-        model = sm.WLS(y, X, weights=weights)
+        families = [("OR", sm.families.Binomial(), True),
+                    ("risk difference", sm.families.Gaussian(), False)]
 
-    result = model.fit()
-    print(f"\n--- Weighted Outcome Analysis ---")
-    print(result.summary2())
-
-    # Extract treatment effect
-    coef = result.params[treatment_col]
-    ci = result.conf_int().loc[treatment_col]
-    p_val = result.pvalues[treatment_col]
-
-    if outcome_type == "binary":
-        or_val = np.exp(coef)
-        or_ci = np.exp(ci)
-        print(f"\nTreatment effect (OR): {or_val:.2f} (95% CI: {or_ci[0]:.2f}-{or_ci[1]:.2f}), P = {p_val:.3f}")
-    else:
-        print(f"\nTreatment effect (β): {coef:.3f} (95% CI: {ci[0]:.3f}-{ci[1]:.3f}), P = {p_val:.3f}")
-
-    return result
+    print(f"\n--- Weighted Outcome Analysis ({se_label} SE) ---")
+    results = {}
+    for label, family, exponentiate in families:
+        with warnings.catch_warnings():
+            # statsmodels warns that robust covariances are "not fully supported"
+            # with var_weights; HC0 and cluster SEs here match R sandwich::vcovHC
+            # / vcovCL on the same weighted fits to 6 decimals.
+            warnings.filterwarnings("ignore", message="cov_type not fully supported")
+            res = sm.GLM(y, X, family=family, var_weights=w).fit(**fit_kw)
+        coef = res.params[treatment_col]
+        lo, hi = res.conf_int().loc[treatment_col]
+        p_val = res.pvalues[treatment_col]
+        if exponentiate:
+            coef, lo, hi = np.exp(coef), np.exp(lo), np.exp(hi)
+        print(f"Treatment effect ({label}): {coef:.3f} (95% CI: {lo:.3f} to {hi:.3f}), "
+              f"P = {p_val:.3f}")
+        results[label] = (coef, lo, hi, p_val)
+    return results
 
 
 # === MAIN ANALYSIS ===
@@ -350,18 +415,19 @@ def main():
     outcome_col = config["outcome"]
     covariates = config["covariates"]
 
-    # Encode categorical variables
-    for cat_var in config.get("categorical_covariates", []):
-        if cat_var in df.columns and df[cat_var].dtype == "object":
-            df[cat_var] = pd.Categorical(df[cat_var]).codes
-
-    # Drop missing
+    # Drop missing FIRST (and re-index so row positions match the PS array),
+    # then dummy-code categorical covariates
     analysis_vars = [treatment_col, outcome_col] + covariates
     n_before = len(df)
-    df = df.dropna(subset=analysis_vars)
+    df = df.dropna(subset=analysis_vars).reset_index(drop=True)
     n_after = len(df)
     if n_before != n_after:
         print(f"Excluded {n_before - n_after} rows with missing data ({100*(n_before-n_after)/n_before:.1f}%)")
+    X_cov, binary_cols = encode_covariates(df, covariates,
+                                           config.get("categorical_covariates", []))
+    df = pd.concat([df, X_cov.drop(columns=[c for c in X_cov.columns if c in df.columns])],
+                   axis=1)
+    covariates = list(X_cov.columns)
 
     treatment = df[treatment_col].values
     n_treated = treatment.sum()
@@ -376,14 +442,14 @@ def main():
 
     # Step 1: Estimate PS
     print(f"\n--- Step 1: PS Estimation ---")
-    ps = estimate_ps(df, treatment_col, covariates)
+    ps = estimate_ps(X_cov, treatment)
     df["ps"] = ps
     plot_ps_distribution(ps, treatment, output_dir)
 
     # Pre-adjustment balance
     print(f"\n--- Pre-adjustment Balance ---")
     bal_before = balance_table(df, treatment_col, covariates,
-                               config.get("categorical_covariates", []))
+                               binary_cols)
     print(bal_before[["Variable", "SMD_before"]].to_string(index=False))
     n_imbalanced = (bal_before["SMD_before"] > config["smd_threshold"]).sum()
     print(f"Variables with SMD > {config['smd_threshold']}: {n_imbalanced}/{len(covariates)}")
@@ -392,16 +458,16 @@ def main():
     weights = None
     if config["ps_method"] == "matching":
         print(f"\n--- Step 2: PS Matching ---")
-        df_matched, _ = ps_matching(
+        df_matched = ps_matching(
             df, ps, treatment_col,
             caliper_sd_mult=config["caliper_sd_multiplier"],
             ratio=config["matching_ratio"]
         )
-        # Balance after matching
-        bal_after = balance_table(df_matched, treatment_col, covariates,
-                                  config.get("categorical_covariates", []))
+        # Balance after matching (match weights: 1/m per control in a 1:m set)
+        bal_after = balance_table(df_matched, treatment_col, covariates, binary_cols,
+                                  weights=df_matched["match_weight"].values)
         bal_combined = bal_before.copy()
-        bal_combined["SMD_after"] = bal_after["SMD_before"].values
+        bal_combined["SMD_after"] = bal_after["SMD_after"].values
 
     elif config["ps_method"] == "iptw":
         print(f"\n--- Step 2: IPTW ---")
@@ -410,7 +476,7 @@ def main():
                                 truncation=config["weight_truncation"])
         df["weights"] = weights
         bal_combined = balance_table(df, treatment_col, covariates,
-                                     config.get("categorical_covariates", []),
+                                     binary_cols,
                                      weights=weights)
 
     elif config["ps_method"] == "siptw":
@@ -419,7 +485,7 @@ def main():
                                 truncation=config["weight_truncation"])
         df["weights"] = weights
         bal_combined = balance_table(df, treatment_col, covariates,
-                                     config.get("categorical_covariates", []),
+                                     binary_cols,
                                      weights=weights)
 
     elif config["ps_method"] == "overlap":
@@ -427,7 +493,7 @@ def main():
         weights = overlap_weights(ps, treatment)
         df["weights"] = weights
         bal_combined = balance_table(df, treatment_col, covariates,
-                                     config.get("categorical_covariates", []),
+                                     binary_cols,
                                      weights=weights)
 
     # Step 3: Balance assessment
@@ -451,20 +517,10 @@ def main():
     # Step 4: Outcome analysis
     print(f"\n--- Step 4: Outcome Analysis ---")
     if config["ps_method"] == "matching":
-        # Simple comparison in matched data
-        t_outcome = df_matched.loc[df_matched[treatment_col] == 1, outcome_col]
-        c_outcome = df_matched.loc[df_matched[treatment_col] == 0, outcome_col]
-        if config["outcome_type"] == "continuous":
-            stat, p = stats.ttest_ind(t_outcome, c_outcome)
-            diff = t_outcome.mean() - c_outcome.mean()
-            print(f"Mean difference: {diff:.3f}")
-            print(f"Treated: {t_outcome.mean():.3f} ± {t_outcome.std():.3f}")
-            print(f"Control: {c_outcome.mean():.3f} ± {c_outcome.std():.3f}")
-            print(f"t = {stat:.3f}, P = {p:.3f}")
-        else:
-            # For binary outcome in matched data
-            tab = pd.crosstab(df_matched[treatment_col], df_matched[outcome_col])
-            print(tab)
+        # Effect in the matched sample: match weights, SE clustered on the matched set
+        weighted_outcome_analysis(df_matched, treatment_col, outcome_col,
+                                  config["outcome_type"], df_matched["match_weight"],
+                                  cluster=df_matched["subclass"])
     else:
         # Weighted analysis for IPTW/OW
         weighted_outcome_analysis(df, treatment_col, outcome_col,

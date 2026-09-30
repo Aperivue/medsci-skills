@@ -10,12 +10,49 @@ If you find a security issue (for example, a script that could execute untrusted
 input, a dependency vulnerability, or a path that could exfiltrate local data),
 please report it privately rather than opening a public issue:
 
-- Use GitHub's **"Report a vulnerability"** (Security → Advisories) on the
+- Use GitHub's **"Report a vulnerability"** button (Security tab → Advisories) on the
   repository, or
-- contact the maintainer listed in [`CITATION.cff`](CITATION.cff).
+- if that button is not shown, contact the maintainer through the contact details on their
+  GitHub profile. Their GitHub handle is the owner listed in
+  [`.github/CODEOWNERS`](.github/CODEOWNERS), and [`CITATION.cff`](CITATION.cff) gives their name.
+  If you cannot reach them that way, a public issue that says only that you have a security
+  report, with no details, is fine.
 
 Please include reproduction steps and the affected version. We will acknowledge the
 report and work on a fix; please allow reasonable time before public disclosure.
+
+### Supported versions
+
+| Version | Receives security fixes |
+|---|---|
+| Latest release (6.x) | Yes |
+| Anything older, including 5.x | No. Fixes ship as a new release; update to it ([MIGRATION-v6.md](MIGRATION-v6.md) covers 5.x → 6.x) |
+
+There are no maintenance branches: every fix goes to `main` and out in the next release.
+
+### What is in scope for a skill collection
+
+A skill is instructions that an agent follows, plus scripts it may run, so the risks differ from an
+ordinary library. Report privately:
+
+- **Instructions that overreach.** A `SKILL.md` or a file under a skill's `references/` that steers
+  the agent toward something the user did not ask for: deleting or overwriting files, sending
+  content to a network service, installing or running downloaded code, or skipping a confirmation
+  step the skill promises.
+- **Bundled scripts** (`skills/*/scripts/`) that execute untrusted input (shell or code injection),
+  read credentials, write outside the folder they were pointed at, or make a network call their
+  skill's instructions do not mention.
+- **Untrusted text treated as instructions.** Skills read text that nobody in this project wrote:
+  fetched abstracts and full texts, web pages, co-authors' manuscripts, reviewer comments. That
+  text is data. A skill that lets such text direct the agent (indirect prompt injection), or acts
+  on it without the user's confirmation, is a vulnerability.
+- **Patient data leaving the machine**, for example `/deidentify` or a script it calls making a
+  network request.
+- **The installers and the self-updater**; see [Release integrity](#release-integrity--revocation).
+
+Not a vulnerability here, but still worth an ordinary issue: an agent output that is wrong
+(a fabricated reference, a miscounted checklist item). A vulnerability in the agent host itself
+(Claude Code, Codex, Cursor, Copilot) belongs with that host's vendor.
 
 ## Medical scope boundary
 

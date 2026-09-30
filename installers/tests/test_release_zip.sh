@@ -32,6 +32,18 @@ for plat in macos windows; do
 done
 echo "PASS  both ZIPs round-trip through update.safe_extract with provenance tag ${TAG}"
 
+# 2b. The classroom instructions say "double-click installers/install-macos.command". The builder
+#     keeps each file's mode, and install-macos.command was 100644 in git from the day it was added,
+#     so the double-click ended in "Permission denied". Every .command must be executable.
+python3 - "dist/medsci-skills-classroom-macos.zip" <<'PY' || fail "a .command in the macOS ZIP is not executable"
+import sys, zipfile
+entries = [i for i in zipfile.ZipFile(sys.argv[1]).infolist() if i.filename.endswith(".command")]
+assert entries, "no .command files in the ZIP"
+bad = [i.filename for i in entries if not (i.external_attr >> 16) & 0o111]
+assert not bad, bad
+PY
+echo "PASS  every .command in the macOS ZIP is executable"
+
 # 3. Version gate: building with a tag that disagrees with the manifest must fail the build.
 if python3 scripts/build_classroom_release.py --tag "v0.0.0" >/dev/null 2>&1; then
   fail "build accepted a tag that disagrees with distribution_manifest version"

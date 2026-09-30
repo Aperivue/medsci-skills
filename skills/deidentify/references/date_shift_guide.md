@@ -11,7 +11,9 @@ could identify individuals.
 
 The recommended approach, used by PCORI Clinical Data Research Networks:
 
-1. **Generate offset**: For each patient, draw a random integer from [-365, +365] days
+1. **Generate offset**: For each patient, draw a random integer from [-365, +365] days,
+   excluding 0 (the script draws 1-365 days and a random direction; a zero offset
+   would leave the original date in place)
 2. **Apply uniformly**: Shift ALL dates for that patient by the same offset
 3. **Truncate edges**: Remove records near dataset boundaries where shifting would
    push dates outside the study period
@@ -33,9 +35,12 @@ The recommended approach, used by PCORI Clinical Data Research Networks:
 
 ### Entity Identification
 
-The script looks for a patient/entity ID column to group dates:
-1. Columns classified as `id` type (차트번호, MRN, patient_id, etc.)
-2. If no ID column exists, all dates are shifted by the same global offset
+During review, whenever a date column is marked for anonymization, the researcher chooses
+the column that identifies the patient (ID-type columns such as 차트번호, MRN or patient_id
+are marked as candidates), or `row` if every row is a different patient. The script does
+not guess, and never shifts every row by one shared offset: one known original date would
+then reveal all the others. `apply` refuses a report with dates to shift and no patient key,
+and refuses rows whose patient key is empty.
 
 ### Supported Date Formats
 
@@ -45,6 +50,8 @@ The script looks for a patient/entity ID column to group dates:
 | Dot-separated | 2024.03.15 | Yes |
 | Slash-separated | 2024/03/15 | Yes |
 | Compact | 20240315 | Yes |
+| ISO with time | 2024-03-15 14:30:00 | Yes |
+| Excel date cells | (native date/datetime) | Yes — read as ISO text, written back as text |
 | Korean | 2024년 3월 15일 | Yes |
 
 ### Unparseable Dates

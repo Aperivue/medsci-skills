@@ -52,4 +52,23 @@ if python3 "$DET" --skill-md "$tmp/md_ghost.md" --skills-dir "$tmp/skills" --str
   echo "FAIL: a ghost route should exit 1" >&2; exit 1
 fi
 
-echo "PASS: orchestrate reachability gate — live repo reachable, missing-row and ghost-route both fail."
+# 5) a v6 compatibility alias (SKILL.md-only redirect) needs no row; a row routing to it must fail
+mkdir -p "$tmp/skills/old-alpha"
+printf -- '---\nname: old-alpha\ndescription: Renamed to /alpha in v6 (removed in v7).\ndisable-model-invocation: true\n---\nRun /alpha.\n' \
+  > "$tmp/skills/old-alpha/SKILL.md"
+python3 "$DET" --skill-md "$tmp/md_full.md" --skills-dir "$tmp/skills" --strict >/dev/null \
+  || { echo "FAIL: an alias stub without a table row should not be unreachable" >&2; exit 1; }
+cat > "$tmp/md_alias.md" <<'MD'
+## Available Skills
+| Skill | Domain | When to Route |
+|---|---|---|
+| **alpha** | X | route alpha |
+| **beta** | X | route beta |
+| **old-alpha** | X | route the renamed name |
+## Classification Logic
+MD
+if python3 "$DET" --skill-md "$tmp/md_alias.md" --skills-dir "$tmp/skills" --strict >/dev/null 2>&1; then
+  echo "FAIL: a row routing to an alias stub should exit 1" >&2; exit 1
+fi
+
+echo "PASS: orchestrate reachability gate — live repo reachable, missing-row, ghost-route and alias-route fail."

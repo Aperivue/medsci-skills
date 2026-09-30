@@ -76,19 +76,13 @@ journals:
 
   - id: npj-digital-medicine
     name: npj Digital Medicine
-    box_label: Plain Language Summary
-    ifa_url: https://www.nature.com/npjdigitalmed/submission-guidelines
-    last_verified: "2026-05-10"
-    placement: After Abstract; required for all primary research.
-    structure:
-      - id: pls
-        label: Plain Language Summary
-        word_target: 150-200
-        reading_level: 8th-grade
-        notes: |
-          Avoid jargon, define acronyms inline, prefer everyday vocabulary.
-          Should be readable by a non-specialist physician or informed lay
-          reader. No quantitative thresholds; describe magnitude in plain terms.
+    box_label: none
+    ifa_url: https://www.nature.com/npjdigitalmed/for-authors-and-referees/submission-guidelines
+    last_verified: "2026-09-30"
+    placement: >-
+      No summary box in the author guidelines. Articles have an unstructured abstract
+      (no subheadings, up to 150 words); that abstract is the fragment AI search engines copy.
+    structure: []
     user_must_verify: true
 
   - id: nature-medicine

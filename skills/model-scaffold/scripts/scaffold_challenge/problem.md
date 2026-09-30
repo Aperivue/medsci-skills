@@ -5,7 +5,7 @@ A clinician-researcher wants to *build* a medical-imaging model, not just valida
 an engineer handed over. But a hand-rolled training repo is where the metric-inflating
 mistakes start: an image-level (not patient-level) split, an unrecorded seed, dropout
 left on at inference, training that accidentally touches the test set. These are
-exactly the defects `/model-validation` (Phase 1) catches *after the fact*. This skill
+exactly the defects `/model-assessment` (Phase 1) catches *after the fact*. This skill
 prevents them *at generation time*.
 
 ## What the gate does
@@ -13,7 +13,7 @@ prevents them *at generation time*.
 reproducibility guarantees baked in **by construction**:
 - a **patient-level, seed-locked split** written as an auditable artifact
   (`splits/split_assignment.csv` + `split_seed.txt`) — disjoint by construction, so it
-  passes `/model-validation`'s `check_split_leakage.py`;
+  passes `/model-assessment`'s `check_split_leakage.py`;
 - a `train.py` that seeds every RNG + sets cuDNN deterministic + builds the training
   loader from the **train split only**, and an `evaluate.py` that infers under
   `model.eval()` + `torch.no_grad()` — so it passes this skill's

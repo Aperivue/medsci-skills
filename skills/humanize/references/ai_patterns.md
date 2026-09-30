@@ -122,8 +122,9 @@ Several publications, The literature suggests, It has been reported, Research in
 | 4 | "Research indicates that prompt engineering affects LLM output quality" | "Prompt structure affected diagnostic accuracy by up to 15 percentage points in GPT-4V evaluations (Wu et al., 2024)" |
 | 5 | "It has been reported that CAD systems reduce reading time" | "Park et al. (2023) reported a 25% reduction in reading time with AI-assisted detection" |
 
-**Fix strategy:** Replace every vague attribution with a specific citation. If you do not
-know the specific reference, flag it for the user to fill in with `[CITE NEEDED]`.
+**Fix strategy:** Name the specific study only when the sentence already carries its citation;
+a humanize pass never adds a citation. If the attribution has no citation, flag it for the user
+to fill in with `[CITE NEEDED]`.
 
 ---
 
@@ -418,7 +419,7 @@ reports a body disclosure only when the target does not accept it there.
 | 2 | The same disclosure in Methods, Acknowledgments and the cover letter when the journal asks for one place | Keep it where the journal asks; remove the copies |
 | 3 | A required disclosure reworded into something vaguer ("Language editing was performed") so the tool is not named | Never. Name the tool and the tasks wherever the journal requires disclosure |
 
-**Detection:** `grep -inE "artificial intelligence disclosure|generative ai was not used|ai acknowledg(e)?ment" manuscript.md` → 0 lines (body).
+**Detection:** `grep -inE "artificial intelligence disclosure|generative ai was not used|ai acknowledg(e)?ment" manuscript.md` → 0 lines in the body, unless the journal profile's `Disclosure location` puts it there.
 **Fix strategy:** Remove from the body → keep only on the submission form / cover letter. Exception only when the journal requires an in-body statement.
 
 ---
@@ -658,6 +659,16 @@ Apply all applicable patterns (1-21 and 25) with zero tolerance.
 - The conclusion should be 1-3 sentences stating the main finding and its specific implication.
 - No significance inflation, no generic optimism.
 
+### Meta-analysis / systematic review (Patterns 19, 20, 21)
+
+- Methods: `§` markers (19), self-reference parentheticals (20) and AI-disclosure boilerplate
+  (21) are senior-MA-reviewer red flags.
+- Discussion: self-reference parentheticals (19, 20) are especially common when discussing methods.
+
+### Any section (Pattern 21)
+
+- An AI-use disclosure goes where the target journal asks for it, once (Pattern 21).
+
 ### Response to Reviewers / Cover letter (Patterns 22, 23, 24 — plus 13, 16, 19)
 
 - Response letters and cover letters are reviewer-facing argument, not change-logs. The
@@ -694,7 +705,7 @@ Run this checklist on the final manuscript before submission:
 - [ ] Aphorism density (Pattern 26) — `check_aphorism_density.py`; a run of negative definitions plus very short declaratives; absorb most into neighbouring sentences, keep two or three
 - [ ] Antithesis / cleft density (Pattern 27) — `check_rhetorical_density.py`; "rather than" / "not X but Y" / "X, not Y" and sentence-initial "What … is …" / "It is … that …"; delete the negative half and rewrite positive, keep two or three
 - [ ] Sentence-length variety (SKILL.md Fix rule 7) — `check_sentence_variety.py`; short (8-12 words) and long (25-35 words) sentences both present
-- [ ] Rewrite footprint within bounds — `check_edit_footprint.py` when humanize rewrote a file; >30% changed warrants a re-read, >50% is a halt
+- [ ] Rewrite footprint reviewed — `check_rewrite_fidelity.py` when humanize rewrote a file; `EDIT_FOOTPRINT_HIGH` (over `--warn-pct`, default 70% of word tokens) means re-read the diff; it is advisory and never halts on its own
 
 ### Response letters / cover letters only (Patterns 22-24)
 

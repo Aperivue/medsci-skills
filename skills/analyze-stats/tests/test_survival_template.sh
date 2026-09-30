@@ -24,6 +24,11 @@ grep -qE 'Median survival[^\n]*median_survival_time_' "$TPL" && bad "bare median
 grep -q "cluster_col" "$TPL" && ok "Cox cluster_col (robust SE) param" || bad "no cluster_col param"
 grep -q -- "--cluster" "$TPL" && ok "--cluster CLI arg" || bad "no --cluster CLI arg"
 grep -qiE "EPV =|EPV <" "$TPL" && ok "Cox EPV gate present" || bad "no Cox EPV gate"
+# ST-8: the Cox fit must not be ridge-penalised by default (it shrank HR 2.05 -> 1.86)
+grep -q "CoxPHFitter(penalizer=0.1)" "$TPL" && bad "Cox fit penalised by default" || ok "Cox fit unpenalised by default"
+grep -q -- "--penalizer" "$TPL" && ok "penalisation is an explicit opt-in (--penalizer)" || bad "no --penalizer opt-in"
+# ST-34: number at risk is #{T >= t}, not the event table's previous risk set
+grep -q 'event_table\["at_risk"\]' "$TPL" && bad "at-risk read from the event table" || ok "at-risk counted from durations"
 
 # --- runtime smoke (optional, lifelines required) ---
 if python3 -c "import lifelines" 2>/dev/null; then
@@ -44,6 +49,25 @@ PY
   echo "$OUT" | grep -q "95% CI" && ok "runtime: median prints 95% CI" || bad "runtime: median CI missing"
   echo "$OUT" | grep -q "EPV =" && ok "runtime: EPV line printed" || bad "runtime: EPV missing"
   echo "$OUT" | grep -q "cluster-sandwich" && ok "runtime: cluster SE applied" || bad "runtime: cluster SE missing"
+  OUT2="$(python3 "$TPL" --input "$WORK/s.csv" --time t --event e --group g \
+        --covariates age --rmst-t 10 --output "$WORK/p" 2>&1)"
+  echo "$OUT2" | grep -qE "RMST difference .*95% CI" && ok "runtime: RMST difference with CI" || bad "runtime: RMST difference missing"
+  python3 - "$TPL" "$WORK" <<'PY' && ok "runtime: default HR = unpenalised MLE; RMST SE matches survival::survfit" || bad "runtime: HR penalised or RMST SE wrong"
+import importlib.util, sys
+import pandas as pd
+from lifelines import CoxPHFitter
+tpl, work = sys.argv[1], sys.argv[2]
+saved = pd.read_csv(f"{work}/p_cox_results.csv", index_col=0)
+d = pd.read_csv(f"{work}/s.csv")[["t", "e", "age"]]
+mle = CoxPHFitter().fit(d, "t", "e").params_["age"]
+assert abs(saved.loc["age", "coef"] - mle) < 1e-8, (saved.loc["age", "coef"], mle)
+sys.argv = ["x"]
+spec = importlib.util.spec_from_file_location("surv", tpl)
+m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+# R: summary(survfit(Surv(c(1,2,3,4), c(1,1,0,1)) ~ 1), rmean = 3.5) -> 2.5, se 0.53033
+r, se = m.rmst_with_se([1, 2, 3, 4], [1, 1, 0, 1], 3.5)
+assert abs(r - 2.5) < 1e-9 and abs(se - 0.5303301) < 1e-6, (r, se)
+PY
 else
   echo "  SKIP: lifelines not installed (static checks only)"
 fi

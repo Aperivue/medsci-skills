@@ -18,8 +18,10 @@ second pass is a sentence that produces a stumble.
 
 ### 1. No markdown in the notes pane
 
-`**강조**` renders **literally**. The presenter sees asterisks, reads around them, and the emphasis
-is lost exactly where it was wanted. The notes pane has no formatting; treat it as plain text.
+Written with raw python-pptx, `**강조**` renders **literally**: the presenter sees asterisks, reads
+around them, and the emphasis is lost exactly where it was wanted. `scripts/inject_speaker_notes.py`
+converts `**bold**` / `*italic*` into styled runs by default; nothing converts the rest, so otherwise
+treat the pane as plain text.
 
 For emphasis, use a parenthetical stage direction, which the presenter reads as an instruction
 rather than as content:
@@ -93,6 +95,23 @@ Presenter view requires the speaker's own machine, or a venue that provides a co
 Many society sessions collect slides in advance and run them from a house PC, where the notes are
 invisible. Confirm this before investing in notes at all — and if the house PC is unavoidable, the
 notes belong in a printed script or the lecture handout instead.
+
+### 8. Statistics density — measure it
+
+When the slide body already shows exact OR / 95% CI / p-values, the notes should not repeat them
+(SKILL.md "Speaker notes statistics density"). Quick measurement to spot dense slides during QC:
+
+```python
+import re
+text = slide.notes_slide.notes_text_frame.text.split(pron_header)[0]
+n_char = len(text)
+n_stat = len(re.findall(r"\b(?:OR|p|CI)\s*[=<>]?\s*\d|\d+\.\d+|\d+%|×10", text))
+needs_compression = n_char > 1000 and n_stat >= 5
+```
+
+Rule of thumb: 700–1,000 chars + 0–2 stat tokens is fine (30–60-second narrative). >1,000 chars +
+≥5 stat tokens → compress to narrative tone and point at the slide body. Exact numbers belong in the
+slide body and footnotes (SSOT), not the notes.
 
 ---
 

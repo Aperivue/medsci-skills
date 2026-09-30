@@ -22,6 +22,7 @@ CC BY-NC, and are therefore free to use and redistribute **for non-commercial pu
 attribution**; commercial use requires permission from the rights holders:
 
 - CARE, MI-CLEAR-LLM, DECIDE-AI: CC BY-NC 4.0
+- SQUIRE 2.0: CC BY-NC (Europe PMC record for PMC5256233)
 - CLAIM 2024: educational summary of an RSNA open-access checklist (© RSNA)
 
 See `skills/check-reporting/references/LICENSES.md` for the per-file detail.

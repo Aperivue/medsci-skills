@@ -8,7 +8,8 @@ is journal-specific, and a production/technical check rejects the wrong one:
   - Lancet family: "Research in context" — three labelled sub-blocks
     (Evidence before this study / Added value of this study / Implications of all
     the available evidence).
-  - npj Digital Medicine: "Plain-language summary" — ~150-200 words.
+  - A plain-language summary (150-200 words) for journals that require one; pass
+    --format plain_language_summary (no journal in the spec table maps to it).
 
 academic-aio already *generates* these boxes; this detector makes the spec
 deterministic so a wrong-bullet-count, missing-sub-block, or over/under-length
@@ -18,7 +19,7 @@ read from references/summary_box_specs.json (public facts, journal-keyed).
 INPUTS
   --manuscript   markdown file containing the summary box (required).
   --journal      journal stem to pick the format (e.g. radiology, lancet-digital-health,
-                 npj-digital-medicine). Optional if --format is given.
+                 lancet-digital-health). Optional if --format is given.
   --format       force a format: key_points | research_in_context | plain_language_summary.
   --specs        path to summary_box_specs.json (default: alongside this script's skill).
   --out          write a JSON report here (default: qc/summary_box_report.json).

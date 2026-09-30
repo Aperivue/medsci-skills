@@ -2,9 +2,9 @@
 
 # meta-analysis
 
-> Systematic review and meta-analysis pipeline for medical research. Covers protocol registration (PROSPERO), search strategy, screening, data extraction, risk of bias assessment (QUADAS-2/ROBINS-I), statistical synthesis (bivariate/HSROC for DTA, random-effects for intervention), and PRISMA-compliant reporting. Supports both DTA and intervention meta-analyses.
+> Use when running a systematic review and meta-analysis, DTA or intervention. Covers PROSPERO protocol, search, screening, extraction, risk of bias (QUADAS-3, RoB 2, ROBINS-I), bivariate/HSROC or random-effects pooling, forest plots, heterogeneity and PRISMA reporting. Topic scouting is /ma-scout.
 
-**Invoke:** `/meta-analysis` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
+**Invoke:** `/meta-analysis`
 
 ## When to use
 

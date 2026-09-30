@@ -2,9 +2,9 @@
 
 # model-card
 
-> Generate the documentation an engineer-built medical-imaging model must carry — a Model Card (Mitchell et al. 2019), a Datasheet for its dataset (Gebru et al. 2021), and a METRIC-informed data-quality pass — filled from user-supplied facts, then verify every required section is present and non-empty before the card ships to a repo, Hugging Face card, or manuscript supplement. Never fabricates numbers, provenance, consent, or licence; unfilled fields stay flagged. Ships a deterministic completeness gate. Model Card and Datasheet are documentation standards vendored here as templates, not counted reporting checklists.
+> Use when a trained medical-imaging model needs its documentation. Fills a Model Card and a Datasheet for its dataset from facts you supply, adds a METRIC-informed data-quality pass and gates that no required section is empty. Never invents numbers, provenance or licence.
 
-**Invoke:** `/model-card` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
+**Invoke:** `/model-card`
 
 ## When to use
 
@@ -17,7 +17,7 @@
 **Safety boundaries**
 
 - Templates are filled only from user-supplied facts; an empty required field stays [NEEDS INPUT] and is flagged, never auto-filled or guessed.
-- Completeness is reproduced by a stdlib script; it checks presence, not the truth of a stated fact (that is model-validation / check-reporting).
+- Completeness is reproduced by a stdlib script; it checks presence, not the truth of a stated fact (that is model-assessment / check-reporting).
 
 **Known limitations**
 

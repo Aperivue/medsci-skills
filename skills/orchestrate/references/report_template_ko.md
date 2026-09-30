@@ -13,7 +13,7 @@
 - Source artifact: {manuscript/<id>/v_N_package/draft.md, mtime, sha256}
 - Frozen version: v_{N} (freeze date YYYY-MM-DD, 회람 발송 시점)
 - This run wrote to: v_{N+1}_package/ (분기 OK) | OR v_{N} 직접 (**violation — halt**)
-- `manuscript-versioning.md` 룰 준수: ✅ / ❌
+- Frozen-version 룰 준수: ✅ / ❌
 
 ## Source artifacts checked
 - {path1} — read at {timestamp}, sha256 {hash}
@@ -60,7 +60,7 @@
 ## Tier-3 차단 항목
 이 작업들은 `--e2e` 자동 진입 영구 금지. 시도 발생 시 halt + 아래 기록.
 
-**Hook으로 차단 확인 (`~/.claude/hooks/tier3-confirm.sh`)**:
+**Hook으로 차단 확인 (Tier-3 confirm hook이 설치된 경우)**:
 - `gws gmail +send/+reply`
 - YouTube upload
 

@@ -2,9 +2,9 @@
 
 # contribute
 
-> Offer your local changes back to the project — a journal profile you added, a checklist item you fixed, a skill you adapted to your department — as a pull request or an issue, without ever typing a git command. Detects what you changed against the installed version, scans it for patient data and identifiers, shows you every line, and sends nothing until you confirm. Also files feedback: a detector that fired wrongly, a step that failed on your file.
+> Use when sending local changes back to the project (an added journal profile, a fixed checklist item, an adapted skill) or reporting a false positive or bug. Finds what changed, scans it for patient data, shows every line and sends nothing until you confirm.
 
-**Invoke:** `/contribute` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** sonnet
+**Invoke:** `/contribute` · **Model:** sonnet
 
 ## When to use
 

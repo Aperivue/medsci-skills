@@ -1,13 +1,8 @@
 # Write-paper journal profile — canonical template
 
-Load-on-demand companion to `/add-journal` Step 3.2. SKILL.md keeps the canonical
-11-section order and the fill rules; this file is the literal template to copy.
-
-Read it when you are actually writing a `write-paper` profile. Follow the 11-section
-order exactly — `/write-paper` Phase 7 and `/find-journal` both read these files
-positionally, so a reordered or renamed section silently degrades them.
-
-Follow the canonical 11-section order exactly:
+Load-on-demand companion to `/add-journal` Step 3.2, which keeps the canonical 11-section order
+and the fill rules. Copy this template and keep its section order exactly — `/write-paper` Phase 7
+and `/find-journal` both read these files positionally.
 
 ```markdown
 # Journal Profile: {Full Name}
@@ -102,7 +97,7 @@ Should include:
        collection, analysis or figures; cover letter for either (ICMJE II.A.4)
      - AI-generated images: Not specified
      - Policy URL: [author guidelines URL] (no dedicated AI policy page)
-     Add [VERIFY] tag if uncertain about any field. -->
+     Mark any uncertain field [TODO: verify at journal site]. -->
 
 ---
 

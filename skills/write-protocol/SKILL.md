@@ -1,81 +1,40 @@
 ---
 name: write-protocol
-description: >
-  IRB/ethics committee research protocol generator. Produces 4 core sections (Background,
-  Study Design, Sample Size, Statistical Plan) with full prose, plus 6 skeleton sections
-  with TODO markers for institution-specific content. Integrates outputs from design-study,
-  calc-sample-size, and search-lit.
-triggers: write protocol, IRB protocol, ethics protocol, research protocol, IRB submission, ethics submission, protocol draft
-tools: Read, Write, Edit, Bash, Grep, Glob
-model: inherit
+description: Use when drafting an IRB or ethics research protocol. Writes Background, Study Design, Sample Size and Statistical Plan in full prose and leaves institution-specific sections as TODO skeletons. Filling an institutional Word form is /fill-protocol.
+metadata:
+  triggers: "write protocol, IRB protocol, ethics protocol, research protocol, IRB submission, ethics submission, protocol draft"
 ---
 
 # Write-Protocol Skill
 
-You are helping a medical researcher draft a research protocol for IRB/ethics committee
-submission. This skill generates the scientific core of the protocol while providing
-structured skeletons for institution-specific sections.
+Draft the scientific core of an IRB/ethics protocol and leave institution-specific sections as
+`[TODO]` skeletons. Read both reference files before generating a protocol draft:
 
-## Scope
+- `${CLAUDE_SKILL_DIR}/references/protocol_template.md` -- the 10-section structure, per-section
+  guidance, and the `[TODO]` blocks for Sections 5-9
+- `${CLAUDE_SKILL_DIR}/references/ethics_checklist.md` -- jurisdiction-specific ethical requirements
 
-This skill generates **4 core sections** with full prose:
-1. Background and Rationale
-2. Study Design and Eligibility Criteria
-3. Sample Size Justification
-4. Statistical Analysis Plan
+## Inputs
 
-The remaining **6 sections** are provided as structured skeletons with `[TODO]` markers,
-because they vary significantly across institutions, countries, and regulatory frameworks.
+Collect the required inputs before generating; ask for any that are missing.
 
-**Important**: This protocol is a STARTING POINT. Every institution has its own IRB
-submission form and requirements. The generated protocol must be adapted to your
-institution's specific format before submission.
+- **Required**: research question / hypothesis (specific, testable); study type (retrospective
+  cohort, prospective cohort, cross-sectional, RCT, diagnostic accuracy, case-control, case
+  series); target population (who, where, when); primary outcome; secondary outcomes (if any).
+- **Optional**: key references (DOIs or search terms); institution name (header and ethics
+  guidance); regulatory context -- Korea (PIPA), US (HIPAA/Common Rule), EU (GDPR), other.
 
-## Reference Files
+Use prior skill outputs directly when they exist; when they do not, ask the user or call the skill:
 
-- **Protocol template**: `${CLAUDE_SKILL_DIR}/references/protocol_template.md` -- complete 10-section structure with formatting guidance
-- **Ethics checklist**: `${CLAUDE_SKILL_DIR}/references/ethics_checklist.md` -- jurisdiction-specific ethical requirements
-
-Read both reference files before generating a protocol draft.
-
-## Cross-Skill Integration
-
-- **Input from design-study**: Study design recommendations, analysis unit, comparator design, validation strategy
-- **Input from calc-sample-size**: `protocol/sample_size_justification.md` (canonical IRB-ready prose) + `protocol/sample_size_calc.{R,py}` (reproducible code). Embed `sample_size_justification.md` VERBATIM into Methods §Sample Size — do not rephrase numbers (per `~/.claude/rules/numerical-safety.md`).
-- **Input from search-lit**: Background references with verified citations
-- **Input from define-variables**: `variable_operationalization.md` — literature-grounded definitions, cutoffs, DB-variable mappings for the Methods section. **Precondition**: if the study is observational and no operationalization artifact exists, call `/define-variables` before drafting Methods. Do not invent phenotype/cutoff definitions from the data dictionary inside this skill.
-- **Pipeline position**: search-lit -> design-study -> calc-sample-size -> define-variables -> **write-protocol** -> manage-project
-
-When prior skill outputs are available, incorporate them directly. When they are not,
-prompt the user or call the relevant skill.
-
----
-
-## Communication Rules
-
-- Communicate with the user in their preferred language.
-- Use English for all protocol content, statistical terminology, and medical terminology.
-- Be explicit about what is generated versus what requires institutional input.
-
----
-
-## Required Inputs
-
-Collect all required inputs before generating. Ask one question at a time if information is missing.
-
-1. **Research question / hypothesis** -- specific, testable
-2. **Study type** -- retrospective cohort, prospective cohort, cross-sectional, RCT, diagnostic accuracy, case-control, case series
-3. **Target population** -- who, where, when
-4. **Primary outcome** -- what you are measuring
-5. **Secondary outcomes** (if any)
-
-## Optional Inputs (enhance quality if available)
-
-6. **design-study output** -- if `/design-study` was already run, load its recommendations
-7. **calc-sample-size output** -- if `/calc-sample-size` was already run, load its results and IRB text
-8. **Key references** -- DOIs or search terms for background section
-9. **Institution name** -- for header and ethics section guidance
-10. **Regulatory context** -- Korea (PIPA), US (HIPAA/Common Rule), EU (GDPR), other
+- **design-study**: design recommendations, analysis unit, comparator design, validation strategy.
+- **calc-sample-size**: `protocol/sample_size_justification.md` (canonical IRB-ready prose) and
+  `protocol/sample_size_calc.{R,py}` (reproducible code).
+- **search-lit**: Background references with verified citations.
+- **define-variables**: `variable_operationalization.md` -- literature-grounded definitions,
+  cutoffs, DB-variable mappings for the Methods section. **Precondition**: if the study is
+  observational and no operationalization artifact exists, call `/define-variables` before
+  drafting Methods. Do not invent phenotype/cutoff definitions from the data dictionary inside
+  this skill.
 
 ---
 
@@ -85,124 +44,55 @@ Collect all required inputs before generating. Ask one question at a time if inf
 
 #### Section 1: Background and Rationale (400-600 words)
 
-Generate full prose covering:
-- **Clinical context**: disease burden, current practice, knowledge gap
-- **Literature support**: call `/search-lit` if key references are not provided; every citation must have a verified DOI or PMID
-- **Rationale**: why this study is needed, what it adds to existing evidence
-- **Research question**: clear statement of the hypothesis or research question
-
-Do not use bullet points in the output. Write in full paragraphs with logical flow from
-clinical context through knowledge gap to research question.
+Full paragraphs, no bullet points, flowing from clinical context (disease burden, current
+practice) through the knowledge gap and rationale (what this study adds) to the research question
+or hypothesis. Call `/search-lit` if key references are not provided. Cite a reference only with a
+`/search-lit`-confirmed DOI or PMID; otherwise mark it `[UNVERIFIED - NEEDS MANUAL CHECK]`.
 
 #### Section 2: Study Design and Eligibility Criteria (300-500 words)
 
-Generate full prose plus structured criteria lists:
-- **Study design** with justification (why this design answers this question)
-- **Setting**: single-center vs multi-center, institution description
-- **Study period**: start and end dates or planned duration
-- **Inclusion criteria** (numbered list)
-- **Exclusion criteria** (numbered list)
-
-If design-study output is available, incorporate its recommendations on:
-- Analysis unit (patient vs lesion vs exam)
-- Comparator design
-- Validation strategy
-- Potential leakage risks and mitigations
+Prose covering the study design with its justification (why this design answers this question),
+the setting (single-center vs multi-center, institution description) and the study period,
+followed by numbered inclusion and numbered exclusion criteria. If design-study output is
+available, incorporate its analysis unit (patient vs lesion vs exam), comparator design,
+validation strategy, and leakage risks with mitigations. Mark any clinical definition, diagnostic
+criterion or guideline recommendation you cannot confirm `[VERIFY]` and ask the user.
 
 #### Section 3: Sample Size Justification (150-300 words)
 
-- If `protocol/sample_size_justification.md` exists (calc-sample-size output): embed VERBATIM. Do not rephrase numbers.
-- If not available: prompt the user to run `/calc-sample-size` first; only fall back to a basic justification if the user explicitly declines.
-- Must include: test type, expected effect size (with literature source), alpha level, power, attrition adjustment
+- If `protocol/sample_size_justification.md` exists (calc-sample-size output): embed it VERBATIM.
+  Do not rephrase numbers.
+- If not available: prompt the user to run `/calc-sample-size` first; only fall back to a basic
+  justification if the user explicitly declines.
+- Must include: test type, expected effect size (with literature source), alpha level, power,
+  attrition adjustment.
 - Final statement: "We plan to enroll N participants."
 
 #### Section 4: Statistical Analysis Plan (300-500 words)
 
-Generate full prose covering:
-- **Descriptive statistics**: continuous variables as mean (SD) or median (IQR); categorical variables as count (%)
-- **Primary analysis**: statistical test, assumptions, handling of violations
-- **Secondary analyses**: pre-specified
-- **Subgroup analyses**: pre-specified, with interaction tests
-- **Missing data**: handling strategy (complete case, multiple imputation, sensitivity analysis)
-- **Software**: name and version (e.g., R 4.4.0, Python 3.12, SAS 9.4)
-- **Significance level**: two-sided alpha = 0.05 unless otherwise justified
+Full prose covering: descriptive statistics (continuous as mean (SD) or median (IQR); categorical
+as count (%)); the primary analysis (test, assumptions, handling of violations); pre-specified
+secondary analyses; pre-specified subgroup analyses with interaction tests; missing-data handling
+(complete case, multiple imputation, sensitivity analysis); software name and version (e.g.,
+R 4.4.0, Python 3.12, SAS 9.4); two-sided alpha = 0.05 unless otherwise justified.
 
 ### Skeleton Sections (TODO Markers)
 
-#### Section 5: Study Title and Registration
+Sections 5-9 are the `[TODO]` blocks from `protocol_template.md`, copied as they are; never fill
+them with invented institutional content.
 
-```
-[TODO: Full study title]
-[TODO: Short title / acronym]
-[TODO: Clinical trial registry number if applicable (e.g., ClinicalTrials.gov, CRIS)]
-[TODO: Protocol version number and date]
-```
-
-#### Section 6: Data Collection and Management
-
-```
-[TODO: List variables to be collected -- use your institution's case report form (CRF) template]
-[TODO: Data collection method (chart review / prospective forms / electronic extraction)]
-[TODO: Data storage and security measures (encrypted database, access controls)]
-[TODO: Quality assurance procedures (double data entry, range checks)]
-[TODO: Data retention period per institutional policy]
-```
-
-#### Section 7: Ethical Considerations
-
-```
-[TODO: IRB/Ethics committee name and expected submission date]
-[TODO: Informed consent process -- or justification for waiver]
-[TODO: Patient privacy and data protection measures]
-```
-
-Include regulatory guidance by jurisdiction:
-- **Korea**: Personal Information Protection Act (PIPA), Bioethics and Safety Act
-- **United States**: HIPAA Privacy Rule, Common Rule (45 CFR 46)
-- **European Union**: GDPR Article 9 (health data), Clinical Trials Regulation (EU 536/2014)
-
-```
-[TODO: Confirm applicable regulations with your IRB office]
-```
-
-Refer to `${CLAUDE_SKILL_DIR}/references/ethics_checklist.md` for the full checklist.
-
-#### Section 8: Timeline and Milestones
-
-```
-[TODO: Adapt to your project schedule]
-
-| Phase | Activity                              | Duration    | Target Date |
-|-------|---------------------------------------|-------------|-------------|
-| 1     | IRB approval                          | [X] weeks   | [TODO]      |
-| 2     | Data collection / Patient enrollment  | [X] months  | [TODO]      |
-| 3     | Data cleaning and analysis            | [X] months  | [TODO]      |
-| 4     | Manuscript preparation                | [X] months  | [TODO]      |
-| 5     | Submission                            | --          | [TODO]      |
-```
-
-#### Section 9: Budget
-
-```
-[TODO: Use your institution's budget template]
-[TODO: Common cost categories below -- delete or add as needed]
-- Personnel (research coordinator, statistician)
-- Equipment and supplies
-- Software licenses
-- Statistical consultation
-- Publication fees (open access APC)
-- Patient compensation (if applicable)
-```
+- Section 5: Study Title and Registration
+- Section 6: Data Collection and Management
+- Section 7: Ethical Considerations -- also add the template's jurisdiction guidance for the
+  regulatory context, and use `ethics_checklist.md` for the full checklist.
+- Section 8: Timeline and Milestones
+- Section 9: Budget
 
 #### Section 10: References
 
-Generate a numbered reference list from:
-- Citations used in Section 1 (Background and Rationale)
-- Effect size sources from Section 3 (Sample Size Justification)
-- Any additional references from calc-sample-size output
-
-All references must have verified DOIs or PMIDs. Mark any unverified references
-as `[UNVERIFIED - NEEDS MANUAL CHECK]`.
+A numbered list of the Section 1 citations, the Section 3 effect-size sources, and any references
+in the calc-sample-size output. Every entry has a verified DOI or PMID or is marked
+`[UNVERIFIED - NEEDS MANUAL CHECK]`.
 
 ---
 
@@ -210,40 +100,24 @@ as `[UNVERIFIED - NEEDS MANUAL CHECK]`.
 
 Generate a single markdown file: `protocol_draft.md`
 
-Requirements:
 - All 10 sections with clear numbering (1. through 10.)
-- Core sections (1-4) in full prose, no bullet points in body text
+- Core sections (1-4) in full prose; the Section 2 eligibility criteria are the only lists
 - Skeleton sections (5-9) with `[TODO]` markers clearly visible
 - Word count targets noted in comments at the start of each core section
 - Institution name in the header if provided
 
-After generating, inform the user:
-1. Which sections are complete and ready for review
-2. Which `[TODO]` items require their input
-3. Recommended next steps (e.g., "Fill in Section 5 title and registration, then adapt Section 7 to your IRB form")
-
----
+After generating, tell the user which sections are ready for review, which `[TODO]` items need
+their input, and the next steps (e.g., "Fill in Section 5 title and registration, then adapt
+Section 7 to your IRB form").
 
 ## Quality Checks
 
 Before delivering the protocol:
 
-1. **Citation integrity**: Every reference has a DOI or PMID, or is marked `[UNVERIFIED]`
-2. **Internal consistency**: Sample size in Section 3 matches the analysis plan in Section 4
-3. **Design alignment**: Study type in Section 2 matches the statistical approach in Section 4
-4. **TODO completeness**: All institution-specific items have `[TODO]` markers
-5. **Word counts**: Core sections fall within target ranges
-6. **No AI patterns**: Avoid phrases like "it is worth noting", "comprehensive", "plays a crucial role"
-
-## Anti-Hallucination
-
-- **Never fabricate references.** All citations must be verified via `/search-lit` with confirmed DOI or PMID. Mark unverified references as `[UNVERIFIED - NEEDS MANUAL CHECK]`.
-- **Never invent clinical definitions, diagnostic criteria, or guideline recommendations.** If uncertain, flag with `[VERIFY]` and ask the user.
-
-## Global-rule references
-
-Some passages in this skill cite a path of the form `~/.claude/rules/<name>.md`. Those are the
-maintainer's personal global rules, kept outside this repository. They are **not shipped with
-this skill** and will not exist on your machine; they appear only as provenance for where a
-convention came from. If one of them looks like it is standing in for an instruction you actually
-need, that is a bug — please open an issue, because the instruction belongs here.
+1. **Citation integrity**: every reference has a DOI or PMID, or is marked
+   `[UNVERIFIED - NEEDS MANUAL CHECK]`
+2. **Internal consistency**: sample size in Section 3 matches the analysis plan in Section 4
+3. **Design alignment**: study type in Section 2 matches the statistical approach in Section 4
+4. **TODO completeness**: all institution-specific items have `[TODO]` markers
+5. **Word counts**: core sections fall within target ranges
+6. **No AI patterns**: avoid phrases like "it is worth noting", "comprehensive", "plays a crucial role"

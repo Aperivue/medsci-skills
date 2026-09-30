@@ -100,13 +100,14 @@ Common tool mapping:
 | RCT | Cochrane RoB 2 |
 | Non-randomized comparative | Newcastle-Ottawa Scale (NOS) or ROBINS-I |
 | Single-arm / case series | JBI Critical Appraisal Checklist (select "Other") |
-| DTA | QUADAS-2 |
+| DTA | QUADAS-3 (QUADAS-2 for a legacy review) |
 | Prediction model | PROBAST |
 
 State number of assessors and disagreement resolution.
 
 #### 13. Reporting bias assessment
-For pooled proportion (k>=10): funnel plot + Egger's regression test.
+For pooled proportions: do not promise funnel-asymmetry or Egger/Begg tests — they are
+uninterpretable for proportions (see `single_arm_proportion_ma.md` §7).
 For comparative (k<10): funnel plot visual inspection only.
 Do NOT promise trim-and-fill or contour-enhanced funnel unless actually planned.
 
@@ -133,7 +134,7 @@ List all secondary outcomes. Include exploratory outcomes that will be "extracte
 Structure as:
 1. **Primary analysis**: model, estimator, transformation
 2. **Secondary analysis**: model, estimator, CI adjustment
-3. **Heterogeneity**: I-squared, Q test, interpretation thresholds
+3. **Heterogeneity**: τ² (estimator named), I², and the 95% prediction interval — not I² threshold labels, since I² is not an absolute measure of heterogeneity (Borenstein et al. 2017, doi:10.1002/jrsm.1230). DTA: the bivariate variance components and the 95% prediction region, not univariate I² for sensitivity and specificity
 4. **Publication bias**: methods (reference field 13)
 5. **Software**: R packages with versions
 

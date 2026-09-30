@@ -5,7 +5,7 @@ owner_domain: model_evaluation
 maturity: official
 
 when_to_use: "Design or audit a model-agnostic evaluation harness for an LLM or multimodal LLM on a clinical task (radiology report generation, visual question answering, clinical text extraction/classification) — the reference standard, clinical-efficacy metrics (RadGraph-F1 / CheXbert-F1 beyond BLEU/ROUGE), faithfulness/hallucination, pretraining-contamination of public benchmarks, prompt-sensitivity/determinism, answer-matching, and a reader study — and check the plan covers them. Works on a closed API or open weights."
-when_NOT_to_use: "Benchmarking against a human-expert panel with a rated rubric (use design-ai-benchmarking); evaluating an imaging prediction/segmentation model (use model-evaluation + model-validation); image-to-image generative models (use the image_synthesis probe); training or serving the LLM (out of scope); item-level TRIPOD-LLM / MI-CLEAR-LLM compliance of a finished manuscript (use check-reporting)."
+when_NOT_to_use: "Benchmarking against a human-expert panel with a rated rubric (use design-ai-benchmarking); evaluating an imaging prediction/segmentation model (use model-assessment); image-to-image generative models (use the image_synthesis probe); training or serving the LLM (out of scope); item-level TRIPOD-LLM / MI-CLEAR-LLM compliance of a finished manuscript (use check-reporting)."
 
 inputs:
   - "the clinical task + the model(s) under test (API name/version or open-weights id) and decoding settings"

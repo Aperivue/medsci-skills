@@ -1,173 +1,115 @@
 ---
 name: add-journal
-description: >
-  Add a new journal to the MedSci Skills profile database. Extracts metadata from
-  author guidelines, generates write-paper (detailed) and find-journal (compact)
-  profiles in canonical format with quality gates.
-triggers: add journal, new journal, create journal profile, journal profile 추가
-tools: Read, Write, Edit, Grep, Glob
-model: inherit
+description: Use when a target journal has no profile yet. Reads the journal's author guidelines and writes a detailed /write-paper profile plus a compact /find-journal profile, public or user-local private, in the canonical format with quality gates.
+metadata:
+  triggers: "add journal, new journal, create journal profile, journal profile 추가"
 ---
 
 # Add Journal Skill
 
-You are helping a medical researcher add a new journal to the MedSci Skills profile database.
-You generate two reference profiles per journal -- a detailed write-paper profile (~100-150 lines)
-and a compact find-journal profile (~30 lines) -- using the journal's author guidelines as
-the primary data source.
-
-## Communication Rules
-
-- Communicate with the user in their preferred language.
-- Journal names, profile content, and URLs are always in English.
-- Medical terminology and field names are always in English.
-- Section headings within profiles must exactly match the canonical format defined below.
+Generate two profiles per journal from its author guidelines: a detailed write-paper profile
+(~100-150 lines) and a compact find-journal profile (~30 lines). Write profile content in English;
+the library is shared.
 
 ## Key Directories
 
-Profiles live in one of two tiers — public (shipped with the skill) or user-local private
-(per-user, never pushed to git). Pick the correct target in Phase 0 before any extraction.
+Profiles live in one of two tiers. Pick the target in Phase 0, before any extraction.
 
-### Public (shipped, must meet verification bar)
-- **Write-paper:** `${CLAUDE_SKILL_DIR}/../write-paper/references/journal_profiles/`
-- **Find-journal:** `${CLAUDE_SKILL_DIR}/../find-journal/references/journal_profiles/`
+- **Public** (shipped; must meet the verification bar in
+  `${CLAUDE_SKILL_DIR}/../find-journal/POLICY.md`):
+  - write-paper: `${CLAUDE_SKILL_DIR}/../write-paper/references/journal_profiles/`
+  - find-journal: `${CLAUDE_SKILL_DIR}/../find-journal/references/journal_profiles/`
+- **User-local private** (per-user, never pushed to git):
+  - write-paper: `$HOME/.claude/private-journal-profiles/write-paper/`
+  - find-journal: `$HOME/.claude/private-journal-profiles/find-journal/`
 
-### User-local private (per-user override, optional)
-- **Write-paper:** `$HOME/.claude/private-journal-profiles/write-paper/`
-- **Find-journal:** `$HOME/.claude/private-journal-profiles/find-journal/`
-
-Promotion workflow (private → public) is documented in
-`${CLAUDE_SKILL_DIR}/../find-journal/POLICY.md`.
+POLICY.md also documents promotion from private to public.
 
 ---
 
 ## Phase 0: Input Collection
 
-### Required
-1. **Journal name** -- full official name (e.g., "Journal of Clinical Oncology")
-2. **Target tier** -- `public` (shipped) or `private` (user-local only)
+- **Required:** full official journal name; target tier (`public` or `private`).
+- **Strongly encouraged:** Author Guidelines URL. If the user gives only a name, ask for this URL
+  before proceeding; it is the primary data source.
+- **Optional:** field focus (used in 3.1), tier estimate (Q1/Q2/Q3), ISSN.
 
-### Strongly Encouraged
-3. **Author Guidelines URL** -- primary data source for metadata extraction
-
-### Optional
-4. **Field focus** -- e.g., cardiology, oncology, surgery, general medicine, medical education, methodology
-5. **Tier estimate** -- Q1 / Q2 / Q3 (user's best guess)
-6. **ISSN** -- if known
-
-If the user provides only a journal name without a URL, ask for the Author Guidelines URL
-before proceeding. The guidelines page is the single most important data source for accurate
-profile generation.
+This skill does not judge whether a journal is legitimate. For an unfamiliar publisher, check DOAJ
+membership (for open-access titles) and indexing before writing a profile, and tell the user.
 
 ### Public vs. Private target selection
 
-If the user does not state the target tier, ASK explicitly before proceeding. Use these
-defaults and criteria to guide the question:
+If the user does not state the target tier, ASK before proceeding.
 
-- **Default to `private`** for any journal outside the user's stated area of deep
-  expertise. Private profiles only live on the user's machine and do not need to clear
-  the public verification bar line-by-line — but the journal's Author Guidelines page
-  must still be the primary source (no inference from adjacent journals, no AI policy
-  copy-paste from the publisher family).
-- **`public` is appropriate only when all of the following hold:**
-  1. The user intends to contribute the profile upstream for other researchers.
-  2. The user has opened the journal's homepage and author guidelines page and can
-     attest to each field against the live source, OR can paste the relevant sections.
-  3. AI policy wording is transcribed from the journal/publisher's own policy page,
-     not inferred from a sibling journal.
+- **Default to `private`** for any journal outside the user's stated area of deep expertise.
+  Private profiles need not clear the public bar line by line, but the journal's own Author
+  Guidelines page must still be the primary source: no inference from adjacent journals, no AI
+  policy copied from the publisher family.
+- **`public` only when all of these hold:**
+  1. The user intends to contribute the profile upstream.
+  2. The user has opened the journal's homepage and author guidelines page and can attest to each
+     field against the live source, or can paste the relevant sections.
+  3. AI policy wording is transcribed from the journal's or publisher's own policy page, not
+     inferred from a sibling journal.
   4. The user has completed or will complete the promotion checklist in
      `../find-journal/POLICY.md` before commit.
 
-If the target is `public` but the user cannot attest to (2) and (3), switch the target
-to `private` and tell the user: promotion to public can happen later after the checklist
-is cleared.
+If the target is `public` but the user cannot attest to (2) and (3), switch the target to
+`private` and say that promotion can happen later once the checklist is cleared.
 
 ---
 
 ## Phase 1: Duplicate Check
 
-Before any data extraction, check whether the journal already exists:
+Before any extraction:
 
-1. **Glob all four directories** (public + private across both skills):
+1. Glob all four directories:
    ```
    ${CLAUDE_SKILL_DIR}/../write-paper/references/journal_profiles/*.md
    ${CLAUDE_SKILL_DIR}/../find-journal/references/journal_profiles/*.md
    $HOME/.claude/private-journal-profiles/write-paper/*.md
    $HOME/.claude/private-journal-profiles/find-journal/*.md
    ```
+2. Check for an exact filename match on the normalized name (4.1 rules).
+3. Grep existing profiles for the journal's common abbreviation (e.g., "JCO").
 
-2. **Filename match:** Normalize the journal name (spaces to underscores, remove special characters)
-   and check for an exact filename match.
-
-3. **Abbreviation match:** Grep existing profiles for the journal's common abbreviation
-   (e.g., "JCO" for Journal of Clinical Oncology).
-
-### If found:
-- Report which directory/directories already have the profile, with file paths.
-- If present in only one directory, offer to create the missing counterpart.
-- If present in both, offer to update the existing profiles or abort.
-- Do NOT proceed to Phase 2 without user direction.
-
-### If not found:
-- Confirm to user: "No existing profile found. Proceeding with data extraction."
+If found, report the paths. If present in only one directory, offer to create only the missing
+counterpart; if in both, offer to update or abort. Do NOT proceed to Phase 2 without user
+direction.
 
 ---
 
 ## Phase 2: Data Extraction
 
-### Path A: WebFetch Available
-
-1. Attempt to fetch the Author Guidelines URL.
-2. Parse the page for metadata fields listed in the extraction checklist below.
-3. If the page is insufficient (login-gated, JavaScript-heavy, or sparse), fall back to Path B.
-
-### Path B: User-Provided Content
-
-1. Ask the user to paste the Author Guidelines content (or key sections).
-2. Accept pasted content and extract metadata from it.
+- **Path A (WebFetch available):** fetch the Author Guidelines URL and parse it. If the page is
+  login-gated, JavaScript-heavy, or sparse, fall back to Path B.
+- **Path B:** ask the user to paste the Author Guidelines content (or key sections). Never fail
+  silently when a fetch fails.
 
 ### Extraction Checklist
 
-Extract the following. Mark any field that cannot be determined as `[TODO: verify at journal site]`.
+Mark any field that cannot be determined as `[TODO: verify at journal site]`.
 
-**For write-paper profile:**
+**For the write-paper profile:** full name; abbreviation; publisher; ISSN (print/online);
+frequency; Impact Factor with its JCR year; OA model; acceptance rate; peer-review type; manuscript
+types with word, abstract, reference and figure limits; abstract format (structured or not,
+headings, word limit); required sections for an Original Article; statistical requirements
+(p-value format, CI, effect sizes); figure specs (DPI, format, color, max count); cover letter
+requirements.
 
-| Field | Example |
-|-------|---------|
-| Full name | Journal of Clinical Oncology |
-| Abbreviation | J Clin Oncol |
-| Publisher | Wolters Kluwer (ASCO) |
-| ISSN (print/online) | 0732-183X / 1527-7755 |
-| Frequency | 36 issues/year |
-| Impact Factor (with year) | ~45.3 (JCR 2023) |
-| OA model | Hybrid |
-| Acceptance rate | ~10-15% |
-| Peer review type | Single-blind, 2-3 reviewers |
-| Manuscript types with limits | Table: type, word limit, abstract, references, figures |
-| Abstract format | Structured/unstructured, headings, word limit |
-| Required sections | For Original Article |
-| Statistical requirements | p-value format, CI, effect sizes |
-| Figure specs | DPI, format, color, max count |
-| Cover letter requirements | What to include |
-
-**For find-journal profile:**
-
-| Field | Example |
-|-------|---------|
-| Scope paragraph | 1-2 sentence scope description |
-| Scope keywords | Comma-separated, 15-20 keywords |
-| Article types | List of accepted types |
-| Classification | Tier (Q1/Q2), OA, Field |
+**For the find-journal profile:** a 1-2 sentence scope paragraph; 15-20 comma-separated scope
+keywords; accepted article types; classification (tier Q1/Q2, OA, field).
 
 ### --- Gate 1: Metadata Confirmation ---
 
-Present extracted metadata as a structured summary. Ask the user:
+Present the extracted metadata as a structured summary. Ask:
 
 1. "Is this information accurate? Any corrections?"
 2. "What are the common rejection reasons for this journal?" (if not extractable)
 3. "How would you position this journal relative to similar journals in the field?"
 
-Do NOT proceed to Phase 3 until user confirms or provides corrections.
+If the user's information conflicts with the source, present the conflict and ask. Do NOT proceed
+to Phase 3 until the user confirms or corrects.
 
 ---
 
@@ -181,18 +123,19 @@ Read ONE existing write-paper profile from a similar field as a format reference
 |-------|-----------------|
 | Radiology | `Radiology.md` or `European_Radiology.md` |
 | General medicine | `The_BMJ.md` or `JAMA.md` |
-| Medical education | `Medical_Education.md` or `BMC_Medical_Education.md` |
+| Medical education | `JMIR_Medical_Education.md` |
 | AI / digital health | `npj_Digital_Medicine.md` or `JMIR.md` |
 | IR / interventional | `CVIR.md` or `JVIR.md` |
 | Surgery | `Annals_of_Internal_Medicine.md` |
 | Other | `The_BMJ.md` (safest general template) |
 
-Also read ONE existing find-journal profile from any field for the compact format reference.
+Also read ONE existing find-journal profile for the compact format.
 
 ### 3.2 Generate Write-Paper Profile
 
-The detailed profile `/write-paper` loads when drafting for this journal. Copy the literal
-template from `${CLAUDE_SKILL_DIR}/references/write_paper_profile_template.md` and fill it.
+The detailed profile `/write-paper` loads when drafting for this journal. Read
+`${CLAUDE_SKILL_DIR}/references/write_paper_profile_template.md` when writing it and fill the
+literal template.
 
 **Follow the canonical 11-section order exactly.** `/write-paper` Phase 7 and `/find-journal` read
 these profiles positionally — a reordered, renamed, or omitted section silently degrades both:
@@ -202,29 +145,28 @@ these profiles positionally — a reordered, renamed, or omitted section silentl
 2. **Manuscript Types and Word Limits**
 3. **Abstract Requirements** — word cap and heading structure
 4. **Required Sections (Original Article)**
-5. **Statistical Reporting**
+5. **Statistical Reporting** — MANDATORY. If the guidelines specify nothing, use these defaults
+   and mark them `[TODO: verify at journal site]`: exact p-values to 2-3 significant figures
+   (p < 0.001 below that); 95% CI for primary outcomes; effect sizes in clinically meaningful
+   units; statistical software and version identified.
 6. **Figures**
 7. **Common Rejection Reasons**
 8. **Cover Letter**
 9. **AI Writing Disclosure Policy** — permitted scope, disclosure location, AI-generated-image
    stance, and the policy URL
 10. **Author Guidelines URL**
-11. **Positioning** — when to submit here, when *not* to, and the comparison table against two
-    competitor journals
+11. **Positioning** — when to submit here, when *not* to, and a comparison table against 2-3
+    similar journals (society, scope emphasis, impact factor range, distinguishing features)
 
-**Fill rules.** Never guess a value. Tag any uncertain field with `[VERIFY]` rather than inventing
-a plausible number — an invented word limit or abstract structure propagates straight into a
-drafted manuscript. Where the journal publishes no dedicated AI policy, cite the publisher-level
-policy and say so explicitly.
+**Fill rules.** Never guess a value. NEVER invent an Impact Factor, acceptance rate, APC, ISSN,
+peer-review timeline, word limit or abstract structure, because an invented value propagates
+straight into a drafted manuscript: mark it `[TODO: verify at journal site]` instead. Use an
+approximate range (e.g., "~15-20%") only when the source supports it. Where the journal publishes no
+dedicated AI policy, cite the publisher-level policy and say so explicitly.
 
-**Read on demand:**
-
-| File | Read it when | Cost if read blindly |
-|---|---|---|
-| `references/write_paper_profile_template.md` | you are writing the profile and need the literal fill-in template | ~1,800 tokens of pure template; the section order above is all you need to plan the fetch |
 ### 3.3 Generate Find-Journal Profile
 
-Follow the canonical 5-section format exactly:
+Follow the canonical format exactly:
 
 ```markdown
 # {Full Name}
@@ -258,13 +200,13 @@ Follow the canonical 5-section format exactly:
 
 ### --- Gate 2: Profile Review ---
 
-Present BOTH complete draft profiles to the user. Ask:
+Present BOTH complete draft profiles. Ask:
 
 1. "Review these profiles. Any corrections needed?"
 2. "Is the Scope paragraph accurate?"
 3. "Are the Common Rejection Reasons realistic?"
 
-Do NOT write files until user approves both profiles.
+Do NOT write files until the user approves both profiles.
 
 ---
 
@@ -272,126 +214,36 @@ Do NOT write files until user approves both profiles.
 
 ### 4.1 Determine Filename
 
-Convert journal name to filename: spaces to underscores, remove special characters.
-
-Examples:
-- "Journal of Clinical Oncology" -> `Journal_of_Clinical_Oncology.md`
-- "JACC" -> `JACC.md`
-- "The Lancet Oncology" -> `The_Lancet_Oncology.md`
-- "JAMA Network Open" -> `JAMA_Network_Open.md`
+Spaces to underscores, special characters removed: "Journal of Clinical Oncology" ->
+`Journal_of_Clinical_Oncology.md`; "JACC" -> `JACC.md`; "JAMA Network Open" ->
+`JAMA_Network_Open.md`.
 
 ### 4.2 Write Profile Files
 
-Route to the directory pair chosen in Phase 0 (target = `public` or `private`).
-
-**If target = `public`:**
-
-1. Write the write-paper profile to:
-   `${CLAUDE_SKILL_DIR}/../write-paper/references/journal_profiles/{filename}.md`
-
-2. Write the find-journal profile to:
-   `${CLAUDE_SKILL_DIR}/../find-journal/references/journal_profiles/{filename}.md`
-
-**If target = `private`:**
-
-1. Ensure the private directories exist (create if missing):
-   - `$HOME/.claude/private-journal-profiles/write-paper/`
-   - `$HOME/.claude/private-journal-profiles/find-journal/`
-
-2. Write the write-paper profile to:
-   `$HOME/.claude/private-journal-profiles/write-paper/{filename}.md`
-
-3. Write the find-journal profile to:
-   `$HOME/.claude/private-journal-profiles/find-journal/{filename}.md`
-
-Do NOT write private profiles anywhere inside the medsci-skills git tree.
+Write the write-paper profile and the find-journal profile, each as `{filename}.md`, into the
+directory pair chosen in Phase 0 (Key Directories). For `private`, create the two private
+directories if missing. Do NOT write private profiles anywhere inside the medsci-skills git tree.
 
 ### 4.3 Update Profile Counts
 
-Skip this phase entirely when target = `private` — private profiles are not counted in
-public-facing descriptions.
-
-When target = `public`: the profile library uses runtime counting via Glob (no hard-coded
-totals). Do not edit `SKILL.md` or `README.md` to update numeric counts.
+Do not edit `SKILL.md`, `README.md` or any other file to update a profile count: counts are
+derived from disk at runtime, and private profiles are never counted.
 
 ### 4.4 Confirmation
 
-Report to user:
-- Target tier (`public` or `private`) and paths written
-- Reminder for `public`: "Run `git add -A && git commit` in the medsci-skills repo"
-- Reminder for `private`: "Files are local-only in your private profiles directory (outside this repo) — do not commit to the public repo"
+Report the target tier and the paths written, then:
+- `public`: remind the user to commit the two profile files (staged by path) with a message
+  recording which pages were opened and on what date, as POLICY.md requires.
+- `private`: "Files are local-only in your private profiles directory (outside this repo) — do not
+  commit to the public repo."
 
 ---
 
 ## Batch Mode
 
-When the user wants to add multiple journals in one session:
+For several journals in one session:
 
 1. Collect all journal names and URLs upfront.
 2. Run Phase 1 (duplicate check) for all journals first.
-3. For each journal, run Phases 2-3 individually with gates.
-4. Write all files in a single Phase 4 pass (one count update at the end).
-
-This avoids updating counts N times for N journals.
-
----
-
-## Quality Standards
-
-### Never Fabricate
-
-- Impact Factor, acceptance rate, APC, ISSN, or peer review timelines.
-- Mark unknown values as `[TODO: verify at journal site]`.
-- Use approximate ranges (e.g., "~15-20%") only when the source supports it.
-
-### Statistical Reporting Section Is Mandatory
-
-Every write-paper profile MUST include a Statistical Reporting section. If the journal's
-author guidelines do not specify statistical requirements, use these defaults and note
-they should be verified:
-
-- Report exact p-values to 2-3 significant figures; use p < 0.001 below that threshold.
-- 95% CI for primary outcomes.
-- Effect sizes with clinically meaningful units.
-- Statistical software and version must be identified.
-
-### Positioning Section Should Compare
-
-The Positioning section should include a comparison table against 2-3 similar journals,
-covering: society affiliation, scope emphasis, impact factor range, and distinguishing features.
-
----
-
-## Error Handling
-
-- If WebFetch fails or is unavailable: ask user to paste content. Never fail silently.
-- If author guidelines page is login-gated: ask user to paste accessible portions.
-- If insufficient information for a required field: mark as `[TODO: verify at journal site]`.
-- If journal exists in one directory but not the other: create only the missing profile.
-- If user provides conflicting information: present the conflict and ask for resolution.
-- Never fabricate metrics -- mark unknown values explicitly.
-
----
-
-## Skill Interactions
-
-| Context | Skill | Interaction |
-|---------|-------|-------------|
-| After adding | find-journal | New profile immediately available for journal matching |
-| After adding | write-paper | New profile available as target journal for manuscript formatting |
-| Verification | search-lit | Can verify journal exists in PubMed/NLM catalog if needed |
-
----
-
-## What This Skill Does NOT Do
-
-- Does not scrape paywalled content or bypass access restrictions.
-- Does not auto-commit changes to git.
-- Does not modify existing profiles without user confirmation.
-- Does not validate whether a journal is predatory (recommend user check Beall's list or DOAJ).
-
-## Anti-Hallucination
-
-- **Never fabricate file paths, URLs, DOIs, or package names.** Verify existence before recommending.
-- **Never invent journal metadata, impact factors, or submission policies** without verification at the journal's website.
-- If a tool, package, or resource does not exist or you are unsure, say so explicitly rather than guessing.
+3. Run Phases 2-3 per journal, with both gates.
+4. Write all files in a single Phase 4 pass.

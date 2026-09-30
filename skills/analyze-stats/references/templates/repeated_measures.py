@@ -17,12 +17,13 @@ import os
 import datetime
 import numpy as np
 import pandas as pd
+import scipy
 from scipy import stats
 
 np.random.seed(42)
 print(f"Date: {datetime.date.today()}")
 print(f"Python: {sys.version}")
-print(f"numpy: {np.__version__}, pandas: {pd.__version__}, scipy: {stats.scipy.__version__}")
+print(f"numpy: {np.__version__}, pandas: {pd.__version__}, scipy: {scipy.__version__}")
 
 try:
     import statsmodels.api as sm
@@ -59,6 +60,9 @@ CONFIG = {
     "id_col": "subject_id",
     "group_col": "group",                # between-subject factor (optional, None if single group)
     "time_columns": ["t0", "t1", "t2", "t3"],  # column names for each time point
+    # Actual time of each column (e.g. weeks [0, 2, 6, 12]). None = visit index
+    # 0, 1, 2, ... which assumes equally spaced visits -- a slope is then "per visit".
+    "time_values": None,
     "outcome_name": "score",             # name for the outcome in long format
 
     # Variables (for long format) -- used if data_format == "long"
@@ -68,8 +72,16 @@ CONFIG = {
     # Analysis method: "rm_anova", "lmm", "gee"
     "method": "lmm",
 
+    # Time in the fixed effects: False = linear in time; True = one mean per visit
+    # (categorical time, MMRM-style), no linearity assumption -- preferred for a few
+    # fixed visits (Fitzmaurice, Laird & Ware, Applied Longitudinal Analysis)
+    "time_as_factor": False,
+
     # LMM options
     "random_effects": "intercept",  # "intercept" or "intercept_slope"
+
+    # GEE options: "gaussian" (continuous), "binomial" (0/1), "poisson" (counts)
+    "gee_family": "gaussian",
 
     # Covariates (optional, for LMM/GEE only)
     "covariates": [],
@@ -78,7 +90,7 @@ CONFIG = {
 
 # === HELPER FUNCTIONS ===
 
-def wide_to_long(df, id_col, group_col, time_columns, outcome_name):
+def wide_to_long(df, id_col, group_col, time_columns, outcome_name, time_values=None):
     """Convert wide format to long format."""
     if group_col and group_col in df.columns:
         id_vars = [id_col, group_col]
@@ -92,8 +104,14 @@ def wide_to_long(df, id_col, group_col, time_columns, outcome_name):
         value_name=outcome_name
     )
 
-    # Create numeric time variable
-    time_map = {col: i for i, col in enumerate(time_columns)}
+    # Numeric time: the actual times if given, else the visit index
+    if time_values is None:
+        print("⚠ time = visit index 0..k-1 (equal spacing assumed); set "
+              "CONFIG['time_values'] to the actual times if visits are unequally spaced.")
+        time_values = list(range(len(time_columns)))
+    if len(time_values) != len(time_columns):
+        raise ValueError("time_values must have one entry per time column")
+    time_map = dict(zip(time_columns, time_values))
     df_long["time"] = df_long["time_label"].map(time_map)
 
     return df_long
@@ -228,18 +246,25 @@ def run_rm_anova(df_long, id_col, time_col, outcome_col, group_col):
     return aov
 
 
-def run_lmm(df_long, id_col, time_col, outcome_col, group_col, random_effects, covariates):
+def fixed_effects(time_col, group_col, covariates, columns, time_as_factor):
+    """Fixed-effect terms: time (linear or categorical), group, time x group."""
+    t = f"C({time_col})" if time_as_factor else time_col
+    parts = [t]
+    if group_col and group_col in columns:
+        parts += [group_col, f"{t}:{group_col}"]
+    return parts + list(covariates)
+
+
+def run_lmm(df_long, id_col, time_col, outcome_col, group_col, random_effects, covariates,
+            time_as_factor=False):
     """Run Linear Mixed Model."""
     print(f"\n{'='*60}")
     print("LINEAR MIXED MODEL")
     print(f"{'='*60}")
 
     # Build formula
-    fixed_parts = [time_col]
-    if group_col and group_col in df_long.columns:
-        fixed_parts.append(group_col)
-        fixed_parts.append(f"{time_col}:{group_col}")
-    fixed_parts.extend(covariates)
+    fixed_parts = fixed_effects(time_col, group_col, covariates, df_long.columns,
+                                time_as_factor)
 
     formula = f"{outcome_col} ~ " + " + ".join(fixed_parts)
     print(f"Formula: {formula}")
@@ -277,13 +302,16 @@ def run_lmm(df_long, id_col, time_col, outcome_col, group_col, random_effects, c
         print(f"BIC: {result.bic:.1f}")
         print(f"Log-likelihood: {result.llf:.1f}")
 
-        # Save results
+        # Save results (fixed effects only: conf_int()/pvalues also carry the
+        # variance-component rows, which made this table fail to build)
+        fe = result.fe_params.index
+        ci = result.conf_int().loc[fe]
         fe_table = pd.DataFrame({
-            "Variable": result.fe_params.index,
+            "Variable": fe,
             "Coefficient": result.fe_params.values,
-            "CI_lower": result.conf_int()[0].values,
-            "CI_upper": result.conf_int()[1].values,
-            "P_value": result.pvalues.values
+            "CI_lower": ci[0].values,
+            "CI_upper": ci[1].values,
+            "P_value": result.pvalues.loc[fe].values
         })
 
         return result, fe_table
@@ -293,13 +321,14 @@ def run_lmm(df_long, id_col, time_col, outcome_col, group_col, random_effects, c
             print(f"⚠ Model with random slope failed to converge: {e}")
             print("  Falling back to random intercept only...")
             return run_lmm(df_long, id_col, time_col, outcome_col,
-                           group_col, "intercept", covariates)
+                           group_col, "intercept", covariates, time_as_factor)
         else:
             print(f"Error: LMM failed: {e}")
             return None, None
 
 
-def run_gee(df_long, id_col, time_col, outcome_col, group_col, covariates):
+def run_gee(df_long, id_col, time_col, outcome_col, group_col, covariates,
+            family="gaussian", time_as_factor=False):
     """Run Generalized Estimating Equations."""
     from statsmodels.genmod.generalized_estimating_equations import GEE
     from statsmodels.genmod.cov_struct import Exchangeable
@@ -309,14 +338,19 @@ def run_gee(df_long, id_col, time_col, outcome_col, group_col, covariates):
     print(f"{'='*60}")
 
     # Build formula
-    fixed_parts = [time_col]
-    if group_col and group_col in df_long.columns:
-        fixed_parts.append(group_col)
-        fixed_parts.append(f"{time_col}:{group_col}")
-    fixed_parts.extend(covariates)
+    fixed_parts = fixed_effects(time_col, group_col, covariates, df_long.columns,
+                                time_as_factor)
 
     formula = f"{outcome_col} ~ " + " + ".join(fixed_parts)
     print(f"Formula: {formula}")
+    families = {"gaussian": sm.families.Gaussian(), "binomial": sm.families.Binomial(),
+                "poisson": sm.families.Poisson()}
+    if family not in families:
+        raise ValueError(f"gee_family must be one of {list(families)}")
+    print(f"Family: {family}" + ("  (coefficients are log-odds; exponentiate for ORs)"
+                                 if family == "binomial" else
+                                 "  (coefficients are log rate ratios)" if family == "poisson"
+                                 else ""))
 
     # Sort by id and time for proper correlation structure
     df_sorted = df_long.sort_values([id_col, time_col]).reset_index(drop=True)
@@ -331,7 +365,7 @@ def run_gee(df_long, id_col, time_col, outcome_col, group_col, covariates):
     try:
         model = GEE.from_formula(
             formula, groups=id_col, data=df_sorted,
-            cov_struct=Exchangeable(), family=sm.families.Gaussian()
+            cov_struct=Exchangeable(), family=families[family]
         )
         result = model.fit()
         print(f"\n{result.summary()}")
@@ -370,7 +404,8 @@ def main():
         print("Converting wide → long format...")
         df_long = wide_to_long(
             df, id_col, group_col,
-            config["time_columns"], config["outcome_name"]
+            config["time_columns"], config["outcome_name"],
+            config.get("time_values")
         )
         outcome_col = config["outcome_name"]
         time_col = "time"
@@ -412,7 +447,8 @@ def main():
     elif method == "lmm":
         result, fe_table = run_lmm(
             df_long, id_col, time_col, outcome_col, group_col,
-            config["random_effects"], config.get("covariates", [])
+            config["random_effects"], config.get("covariates", []),
+            config.get("time_as_factor", False)
         )
         if fe_table is not None:
             fe_table.to_csv(os.path.join(output_dir, "lmm_results.csv"), index=False)
@@ -420,7 +456,8 @@ def main():
     elif method == "gee":
         result = run_gee(
             df_long, id_col, time_col, outcome_col, group_col,
-            config.get("covariates", [])
+            config.get("covariates", []), config.get("gee_family", "gaussian"),
+            config.get("time_as_factor", False)
         )
     else:
         print(f"Error: Unknown method '{method}'")

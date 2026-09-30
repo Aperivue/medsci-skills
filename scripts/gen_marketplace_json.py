@@ -25,6 +25,13 @@ would falsely imply control. Consequence: this generator has no version logic an
 no CITATION.cff coupling — marketplace.json is a pure function of the catalog +
 the tables below (deterministic, so `--check` is meaningful).
 
+Why every entry's source stays `./` rather than a `github`/`url` source pinned to a tag
+(tested 2026-09-30 with Claude Code 2.1.285): only an entry whose source is the marketplace
+root loads just its listed `skills`; any other source loads the list IN ADDITION to the default
+`skills/` scan, so every plugin would carry every skill. The `github` plugin source also clones
+over SSH. A user who wants a fixed release adds the marketplace as
+`Aperivue/medsci-skills@<tag>` instead (docs/install.md).
+
 Stdlib-only, deterministic (sorted, no timestamps).
 
 Usage:
@@ -56,6 +63,17 @@ MARKETPLACE_DESCRIPTION = (
     "selection, peer review, and revision. Submission-grade, not a generic skill catalog."
 )
 OWNER = {"name": "Aperivue"}  # public org; no personal email (PII-safe)
+
+# Display fields every plugin entry carries. Claude Code shows `displayName`, `author`, `homepage`,
+# `repository` and `keywords` in plugin listings and details, before and after install
+# (code.claude.com/docs/en/plugins/marketplace-reference#entry-and-plugin-json). `license` is left
+# out on purpose: every entry's source is the whole repository, which bundles third-party material
+# under its own terms (THIRD-PARTY-NOTICES.md, some of it CC BY-NC), so a bare "MIT" would
+# overstate it; package.json says "SEE LICENSE IN LICENSE" for the same reason.
+PLUGIN_AUTHOR = {"name": "Aperivue", "url": "https://github.com/Aperivue"}
+PLUGIN_HOMEPAGE = "https://github.com/Aperivue/medsci-skills#skills"
+PLUGIN_REPOSITORY = "https://github.com/Aperivue/medsci-skills"
+PLUGIN_BASE_KEYWORDS = ["medical-research", "clinical-research"]
 
 # catalog category key -> plugin name (kebab-case, no spaces). Every category in
 # metadata/skills_catalog.json must appear here; an unmapped key fails generation.
@@ -110,8 +128,21 @@ PLUGIN_DESC_BY_CATEGORY: dict[str, str] = {
     ),
     "presentation_tooling": (
         "Academic presentation and PPTX building, PDF/document rendering, "
-        "environment setup, and skill publishing."
+        "environment setup, skill publishing, and offering your changes back to the project."
     ),
+}
+
+# catalog category key -> search keywords added to PLUGIN_BASE_KEYWORDS for that plugin.
+PLUGIN_KEYWORDS_BY_CATEGORY: dict[str, list[str]] = {
+    "literature_references": ["literature-search", "pubmed", "citation-verification", "zotero"],
+    "data_study_design": ["study-design", "sample-size", "de-identification", "data-cleaning"],
+    "model_engineering": ["medical-imaging-ai", "clinical-validation", "pytorch", "monai"],
+    "analysis_figures": ["biostatistics", "meta-analysis", "figures"],
+    "writing_manuscript": ["manuscript-writing", "irb-protocol", "reviewer-response"],
+    "review_compliance": ["reporting-guidelines", "peer-review", "risk-of-bias"],
+    "submission_journals": ["journal-selection", "icmje", "grant-proposal"],
+    "project_workflow": ["research-orchestration", "project-management", "research-gap"],
+    "presentation_tooling": ["presentations", "pptx", "pdf"],
 }
 
 
@@ -133,6 +164,16 @@ def build(catalog_path: Path = CATALOG) -> dict:
     if not isinstance(categories, list) or not categories:
         raise MarketplaceError(f"{catalog_path} has no 'categories' array")
 
+    # v6 compatibility aliases ship in their target skill's plugin, so a namespaced
+    # `/medsci-modeling:architecture-zoo` keeps resolving until the stub is removed in v7.
+    alias_slugs: dict[str, list[str]] = {}
+    for a in catalog.get("aliases") or []:
+        alias_slugs.setdefault(a.get("category"), []).append(a.get("slug"))
+    known = {cat.get("key") for cat in categories}
+    stray = sorted(k for k in alias_slugs if k not in known)
+    if stray:
+        raise MarketplaceError(f"alias category {stray} is not a catalog category")
+
     plugins: list[dict] = []
     for cat in categories:
         key = cat.get("key")
@@ -147,14 +188,27 @@ def build(catalog_path: Path = CATALOG) -> dict:
                 f"category '{key}' is not mapped to a plugin description in "
                 "gen_marketplace_json.py (PLUGIN_DESC_BY_CATEGORY). Add it before release."
             )
+        if key not in PLUGIN_KEYWORDS_BY_CATEGORY:
+            raise MarketplaceError(
+                f"category '{key}' is not mapped to plugin keywords in "
+                "gen_marketplace_json.py (PLUGIN_KEYWORDS_BY_CATEGORY). Add it before release."
+            )
         if not slugs:
             raise MarketplaceError(f"category '{key}' has no skills")
+        label = cat.get("label")
+        if not label:
+            raise MarketplaceError(f"category '{key}' has no label for the plugin's displayName")
         plugins.append({
             "name": PLUGIN_NAME_BY_CATEGORY[key],
+            "displayName": f"MedSci {label}",
             "description": PLUGIN_DESC_BY_CATEGORY[key],
+            "author": PLUGIN_AUTHOR,
+            "homepage": PLUGIN_HOMEPAGE,
+            "repository": PLUGIN_REPOSITORY,
+            "keywords": PLUGIN_BASE_KEYWORDS + PLUGIN_KEYWORDS_BY_CATEGORY[key],
             "source": "./",
             "strict": False,
-            "skills": [f"./skills/{slug}" for slug in sorted(slugs)],
+            "skills": [f"./skills/{slug}" for slug in sorted(slugs + alias_slugs.get(key, []))],
         })
 
     return {

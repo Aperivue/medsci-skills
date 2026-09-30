@@ -1,46 +1,17 @@
 ---
 name: render-pdf-doc
-description: >
-  Render academic Markdown documents (English or Korean) to publication-quality PDF via pandoc + xelatex.
-  Targets non-bibliography artifacts: research proposals, IRB cover letters, briefing
-  handouts, anchor docs (Q&A grids), and reference tables. Auto-infers pipe-table column
-  widths from content (label column shrinks to fit, data columns share remaining width).
-  CJK-aware font fallback for Korean text (Apple SD Gothic Neo on macOS, Noto Sans CJK KR on Linux).
-  NOT for: manuscripts with bibliography (use /manage-refs render_pandoc.sh), Word form
-  filling (/fill-protocol), figures (/make-figures).
-triggers: render PDF, PDF 렌더, korean PDF, 한글 PDF, anchor doc PDF, briefing PDF, proposal PDF, 연구계획서 PDF, 표 정렬 PDF, 표 폭 자동, tbl-colwidths, 학술 PDF
-tools: Read, Write, Edit, Bash, Grep, Glob
-model: inherit
+description: Use when rendering a Markdown document (English or Korean) such as a proposal, IRB cover letter, handout or reference table to PDF via pandoc and xelatex, with auto-fitted table widths and CJK fonts. Not for manuscripts with a bibliography (/manage-refs) or Word forms.
+metadata:
+  triggers: "render PDF, PDF 렌더, korean PDF, 한글 PDF, anchor doc PDF, briefing PDF, proposal PDF, 연구계획서 PDF, 표 정렬 PDF, 표 폭 자동, tbl-colwidths, 학술 PDF"
 ---
 
 # Render-PDF-Doc Skill
 
-Markdown + frontmatter → publication-quality academic PDF (English or Korean).
-
-## Why This Skill Exists
-
-In real circulation cycles for academic PDFs, two recurring failure patterns appear:
-1. v1 drafts: change-history, version numbers, and PI attribution leak into the attached PDF, confusing the first recipient.
-2. v2 drafts: pandoc pipe-table dash ratios are misjudged, narrowing the first column and forcing label wrapping that hurts readability.
-
-Manual fixes work but the same pattern recurs across proposals, briefings, IRB covers, exemption applications. This skill focuses on **layout** (CJK fonts + table column widths). Bibliography and CSL are handled by `/manage-refs`.
-
-## Boundary (separation from other skills)
-
-| Task | Skill |
-|---|---|
-| Manuscript + bibliography → DOCX/PDF | `/manage-refs scripts/render_pandoc.sh` (CSL + .bib) |
-| Filling an institutional .docx form | `/fill-protocol` |
-| ICMJE COI form | `/fill-icmje-coi` |
-| Figure / PPTX | `/make-figures`, `/present-paper` |
-| **This skill**: non-bib academic markdown → PDF (proposal, briefing, anchor doc, IRB cover) | `/render-pdf-doc` |
-
-## Core Principles
-
-1. **Pipe table column widths must be inferred from content.** No equal splitting. Size the first column (label) to the longest label, and distribute the remaining width content-proportionally across the data columns.
-2. **Set the CJK font explicitly** — `mainfont` + `CJKmainfont`. The default fallback is OS-detected.
-3. **For circulation PDFs, remove change history / version numbers / PI attribution** (or split them into a supplementary). Use the frontmatter `redact_internal: true` option.
-4. **No Quarto dependency** — raw pandoc + xelatex. Quarto's `tbl-colwidths` has reported PDF regressions (issues 6089/9200).
+This skill handles layout only (CJK fonts, table column widths) with raw pandoc + xelatex — no
+Quarto, whose `tbl-colwidths` has reported PDF regressions (issues 6089/9200). Not for: a
+manuscript with a bibliography (`/manage-refs` `scripts/render_pandoc.sh`), an institutional .docx
+form (`/fill-protocol`), the ICMJE COI form (`/fill-icmje-coi`), figures or PPTX (`/make-figures`,
+`/present-paper`).
 
 ## Dependencies
 
@@ -66,13 +37,9 @@ Detection:
 bash scripts/check_deps.sh
 ```
 
-**Windows / Git Bash note.** MiKTeX's binary directory
-(`%LOCALAPPDATA%\Programs\MiKTeX\miktex\bin\x64`) is often not on the Git Bash `PATH`,
-so `xelatex` can read as `[MISS]` even after install. Both `check_deps.sh` and
-`render_pdf.sh` now auto-probe that location; if `xelatex` still isn't found, add the
-directory to your `PATH` (or run from the *MiKTeX Console → Settings*-configured shell).
-The Windows CJK/main font default is **Malgun Gothic** (preinstalled); override per document
-via frontmatter, or set fallbacks with `--font` / `--cjk-font`.
+On Windows / Git Bash, MiKTeX's bin directory
+(`%LOCALAPPDATA%\Programs\MiKTeX\miktex\bin\x64`) is often not on `PATH`; both `check_deps.sh`
+and `render_pdf.sh` probe it. If `xelatex` still reads `[MISS]`, add that directory to `PATH`.
 
 ## Workflow
 
@@ -92,21 +59,31 @@ colorlinks: true
 ---
 ```
 
-For Linux/CI, use `Noto Sans CJK KR`; on Windows, use `Malgun Gothic`. The render script auto-detects the default per OS.
+- Set both `mainfont` and `CJKmainfont`: without `CJKmainfont`, Hangul falls back to Times New
+  Roman (broken glyphs or blanks). Use `Noto Sans CJK KR` on Linux/CI and `Malgun Gothic` on
+  Windows; the render script auto-detects the per-OS default when the fields are absent.
+- Read every number in a table from the source CSV or analysis output. Do not retype a number
+  from prose or carry one forward from an earlier draft — a table correct in v3 is not evidence
+  it is correct in v4.
+- A circulation PDF carries no change history, internal version numbers (e.g. v3.2.2) or PI
+  attribution: put them in a separate circulation file or a supplementary. Keep the received
+  primary source (the `.docx` or `.eml` a co-author sent) unmodified as its own artifact — the
+  PDF is a derivative, and the next round is diffed against the source. If that source was
+  AI-drafted by a collaborator, re-derive every number, denominator and author-year in it from
+  the underlying paper or analysis output before it reaches the PDF.
 
 ### Step 2 — Infer column widths
 
+Never split pipe-table columns equally: a column holding only short labels then gets the same
+width as the data columns, which cramps them. Size from content instead:
+
 ```bash
-python scripts/infer_colwidths.py input.md > input.colwidths.md
+python3 scripts/infer_colwidths.py input.md > input.colwidths.md
 ```
 
-The script:
-1. Finds every pipe table block.
-2. For each column, computes display width = `max(len(header), max(len(cell)))` (CJK = 2 cells, ASCII = 1).
-3. Generates dash-row separator with proportional dash counts.
-4. Writes a new file with separator rows replaced.
-
-Override per-table via attribute: `{tbl-colwidths="[20,40,40]"}` after caption — passes through unchanged.
+For each pipe table it computes per-column display width = `max(len(header), max(len(cell)))`
+(CJK = 2 cells, ASCII = 1) and rewrites the separator row with proportional dash counts. To set
+widths by hand, write the separator dashes yourself and render without `--infer-colwidths`.
 
 ### Step 3 — Render
 
@@ -150,79 +127,37 @@ python3 scripts/scan_glyph_coverage.py input.md --font "/path/to/body.otf" --str
 python3 scripts/scan_glyph_coverage.py input.md --font "/path/to/body.ttc" --font-index 0 --strict --json glyphs.json
 ```
 
-It groups the risky glyphs by class (advisory), or — with `--font` + `fonttools`
-— reports which are absent from one face's preferred Unicode cmap. It never
-combines coverage across collection faces. The report includes the selected
-face index and PostScript name; choose the face that matches the rendered font.
-A missing dependency, unreadable font, missing face selection or invalid index
-is reported as `font_checked: false` with a reason in `font_check`.
-An empty `missing_in_font` list then means **unverified**, not full coverage.
-The default mode remains advisory (exit 0); `--strict` exits 1 when risky glyphs
-are unverified or missing. ASCII-only input still exits 0 with an unavailable
-font, with `font_checked: false` visible.
+Without `--font` it groups the risky glyphs by class (advisory); with `--font` + `fonttools` it
+reports which are absent from one face's preferred Unicode cmap, never combining coverage across
+collection faces — choose the face (index and PostScript name are in the report) that matches the
+rendered font. A missing dependency, unreadable font, missing face selection or invalid index is
+reported as `font_checked: false` with a reason in `font_check`; an empty `missing_in_font` list
+then means **unverified**, not full coverage. Default mode exits 0; `--strict` exits 1 when risky
+glyphs are unverified or missing (ASCII-only input still exits 0). The scan does not verify
+shaping, fallback fonts, math fonts or final PDF glyphs.
 
-This checks only the listed risky character classes and the selected cmap;
-it does not verify shaping, fallback fonts, math fonts or final PDF glyphs.
-If risky glyphs are
-present, ensure `mainfont`/`CJKmainfont` cover them (a CJK-capable font such as
-*Apple SD Gothic Neo* / *Noto Sans CJK* usually covers arrows + Hangul but can
-still miss the true-minus `−` U+2212 and `★`). **The DOCX is authoritative; the
-PDF is a convenience copy** — never let a PDF render drop a glyph the document
-needs.
+If risky glyphs are present, make sure `mainfont`/`CJKmainfont` cover them — a CJK-capable font
+such as *Apple SD Gothic Neo* / *Noto Sans CJK* usually covers arrows and Hangul but can still
+miss the true-minus `−` U+2212 and `★`. **The DOCX is authoritative; the PDF is a convenience
+copy** — never let a PDF render drop a glyph the document needs.
 
 ### Step 4 — Visual verify
 
-Open the PDF. Check:
-- The first-column labels do not wrap and stay on a single line
-- Data columns have sufficient width
-- No broken Korean glyphs (a Times New Roman fallback means CJKmainfont was not applied)
-- No missing scientific symbols (arrows, −, ≤, ±, √) — the Step 3.5 scan flags candidates
-- No change history / internal version numbers exposed
+Open the PDF and check:
+- First-column labels stay on one line; data columns have enough width.
+- No broken Korean glyphs (a Times New Roman fallback means `CJKmainfont` was not applied).
+- No missing scientific symbols (arrows, −, ≤, ±, √) — the Step 3.5 scan flags candidates.
+- No change history or internal version numbers exposed.
+
+Read `references/known_pitfalls.md` when a render still looks wrong (em-dash overflow, smart
+quotes under `CJKmainfont`, `|` inside a cell), and `references/pandoc_korean_cheatsheet.md` for
+Korean frontmatter and font patterns.
 
 ## Templates
 
-Starter markdown in `templates/` (English default; a Korean variant `*_ko.md` ships alongside each):
+Starter markdown in `templates/` (English default; a Korean variant `*_ko.md` ships alongside
+each), with slots marked `<!-- TODO: -->`:
 - `anchor-doc.md` — Q&A grid
 - `proposal-cover.md` — research-proposal cover page
 - `briefing-handout.md` — meeting brief (1-page)
 - `reference-table.md` — comparison-table format
-
-Each template marks slots with a `<!-- TODO: -->` marker.
-
-## Anti-Patterns
-
-| Anti-pattern | Consequence |
-|---|---|
-| Equal dash split (`\|---\|---\|---\|`) | A column with only a short label gets the same width → cramped data columns |
-| `CJKmainfont` not set | Hangul falls back to Times New Roman (broken Latin glyphs or blanks) |
-| Change history / version (e.g. v3.2.2) / PI attribution exposed in a circulation PDF | Confuses the first recipient; leaks internal information |
-| Quarto `tbl-colwidths` for PDF | PDF regression in Quarto 1.4+ — trust HTML only |
-
-## Files
-
-- `scripts/render_pdf.sh` — pandoc + xelatex wrapper, OS font detection
-- `scripts/infer_colwidths.py` — auto-generates pipe-table separator dash ratios
-- `scripts/check_deps.sh` — checks for pandoc / xelatex / CJK font
-- `templates/` — 4 starters (English) + their `*_ko.md` Korean variants
-- `references/pandoc_korean_cheatsheet.md` — collection of frontmatter patterns (Korean-PDF reference)
-- `references/known_pitfalls.md` — em-dash line breaks, smart quotes, etc. (Korean-PDF reference)
-
-## Anti-Hallucination
-
-- Numerical content in tables: read every value from the source CSV or analysis output. Do not
-  retype a number from prose, and do not carry one forward from an earlier draft — a table that
-  was correct in v3 is not evidence it is correct in v4.
-- References: use `/manage-refs` separately — this skill does not handle bib.
-- When producing a circulation PDF, keep the received primary source (the `.docx` or `.eml` a
-  co-author sent) unmodified as its own artifact. The PDF is a derivative, not a replacement, and
-  the next round is diffed against that source. If the source was itself AI-drafted by a
-  collaborator, treat every number, denominator, and author-year in it as unverified: re-derive
-  each from the underlying paper or analysis output before it reaches the PDF.
-
-## Global-rule references
-
-Some passages in this skill cite a path of the form `~/.claude/rules/<name>.md`. Those are the
-maintainer's personal global rules, kept outside this repository. They are **not shipped with
-this skill** and will not exist on your machine; they appear only as provenance for where a
-convention came from. If one of them looks like it is standing in for an instruction you actually
-need, that is a bug — please open an issue, because the instruction belongs here.

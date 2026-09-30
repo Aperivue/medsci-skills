@@ -1,0 +1,1 @@
+{"_comment": "Butterfly: D sits on C->D->Y but is also a collider of C and U (C->D<-U->Y). Adjusting D alone opens X<-C->D<-U->Y, so {D} is NOT a valid set (dagitty isAdjustmentSet = FALSE); the omitted C must still be flagged.", "edges": [["C","X"],["C","D"],["U","D"],["U","Y"],["D","Y"],["X","Y"]]}

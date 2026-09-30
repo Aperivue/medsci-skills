@@ -1,79 +1,45 @@
 # `/manage-project init` — the scaffold it emits
 
-Load-on-demand companion to `/manage-project init`. SKILL.md keeps the parameters, the
-SSOT substitutions, and the invocation; this file records **what `scripts/init_project.py`
-writes** — the full directory tree and the `project_state.json` shape.
-
-Read it when you need to know where a scaffolded file lands, or what a field in
-`project_state.json` means. You do not need it to *run* init: the script builds all of
-this. Never hand-build the tree — a hand-built scaffold drifts from what
-`scripts/validate_project_contract.py` expects.
-
-Create a complete project scaffold for a new research paper.
-
-**Parameters:**
-- `{name}` -- Project identifier (e.g., `nnunet-skull-fracture`, `rfa-meta-analysis`)
-- `--type` -- Paper type: `original | meta | case | animal | technical | ai_validation | letter`
-- `--journal` -- Target journal: `RYAI | AJR | Radiology | European_Radiology | KJR | INSI | AJNR | generic`
-- `--ssot` -- Emit `SSOT.yaml` (schema v1) from `templates/SSOT.yaml.template` instead of legacy `project.yaml`. Required for Phase 1C auto-enforce (PostToolUse verify-refs hook blocks instead of warns). New projects on or after 2026-04-24 should pass `--ssot`. Legacy in-flight projects stay on `project.yaml` until `/manage-project migrate-ssot` is run.
-- `--zotero-collection NAME` -- Optional. Create a new Zotero collection with `NAME` via pyzotero and populate `library_id` + `collection_key` in the contract. Requires env vars `ZOTERO_API_KEY` + `ZOTERO_LIBRARY_ID` (and optionally `ZOTERO_LIBRARY_TYPE`, default `user`). Graceful degrade: if pyzotero is not installed or credentials are missing, the contract is scaffolded with `library_id: null` / `collection_key: null` and a WARN is printed.
-
-**SSOT template substitutions:** `{{PROJECT_ID}}` → `{name}`, `{{PROJECT_TYPE}}` → SSOT `project_type` enum mapped from `--type` (`original → original_research`, `meta → meta_analysis`, `case → case_report`, `ai_validation → ai_validation`, else `other`). Without `--zotero-collection`, `library_id` / `collection_key` stay `null` — populated manually when the owner links an existing Zotero collection.
-
-**Implementation:** `/manage-project init` is backed by `scripts/init_project.py`. Invoke directly when running outside the skill harness:
-
-```bash
-python3 "${CLAUDE_SKILL_DIR}/scripts/init_project.py" \
-    --name {name} --type {type} --journal {journal} [--ssot] \
-    --project-root {target_dir}
-```
-
-(Run from the `medsci-skills` repo root.)
-
-The helper writes the contract file (`SSOT.yaml` with `--ssot`, otherwise legacy `project.yaml`), the directory scaffold, minimal stubs required by `scripts/validate_project_contract.py` (`manuscript/index.qmd`, `artifact_manifest.json`, `qc/status.json`), the memory-file templates, and `project_state.json`. `qc/migration_complete` is **not** written by init — the migrate pipeline is responsible for that marker.
-
-**What it creates:**
+What `scripts/init_project.py` writes: the directory tree and the `project_state.json` shape.
+The script builds all of it; this file only answers "where does X land" and "what does field Y mean".
 
 ```
 {name}/
+├── SSOT.yaml                  <- Contract (with --ssot; otherwise legacy project.yaml)
+├── project_state.json         <- Progress tracking
+├── artifact_manifest.json     <- Contract stub
+├── PROJECT.md                 <- Project identity and scope
+├── STATUS.md                  <- Current phase, blockers, next actions
+├── CLAIMS.md                  <- Claim-to-result map
+├── DATA_DICTIONARY.md         <- Variable and outcome definitions
+├── ANALYSIS_PLAN.md           <- Primary/secondary analyses
+├── REVIEW_LOG.md              <- Reviewer comments and responses
+├── README.md                  <- Project overview
+├── manuscript/
+│   ├── index.qmd              <- Canonical manuscript stub
+│   ├── _src/
+│   │   └── refs.bib
+│   └── figures/
+├── qc/
+│   └── status.json
 ├── paper/
-│   ├── main.qmd               <- Main manuscript (Quarto)
 │   ├── sections/
-│   │   ├── abstract.qmd
-│   │   ├── introduction.qmd
-│   │   ├── methods.qmd
-│   │   ├── results.qmd
-│   │   ├── discussion.qmd
-│   │   └── conclusion.qmd
 │   ├── figures/
-│   │   └── .gitkeep
 │   ├── tables/
-│   │   └── table_shells.md    <- Table structure designed before prose
 │   └── supplementary/
-│       └── .gitkeep
 ├── analysis/
 │   ├── scripts/
-│   │   └── .gitkeep
 │   └── outputs/
-│       └── .gitkeep
 ├── references/
 │   ├── library.bib
-│   └── checklist_{GUIDELINE}.md  <- Loaded from /check-reporting
+│   └── checklist_{GUIDELINE}.md  <- Copied from /check-reporting after the script runs
 ├── revision/
-│   └── .gitkeep
-├── submission/
-│   └── .gitkeep
-├── PROJECT.md                <- Project identity and scope
-├── STATUS.md                 <- Current phase, blockers, next actions
-├── CLAIMS.md                 <- Claim-to-result map
-├── DATA_DICTIONARY.md        <- Variable and outcome definitions
-├── ANALYSIS_PLAN.md          <- Primary/secondary analyses
-├── REVIEW_LOG.md             <- Reviewer comments and responses
-├── project_state.json         <- Progress tracking
-└── README.md                  <- Project overview
+└── submission/
 ```
 
-**Also creates** `project_state.json`:
+Every directory the script creates gets a `.gitkeep`.
+
+`project_state.json`:
 
 ```json
 {
@@ -114,5 +80,3 @@ The helper writes the contract file (`SSOT.yaml` with `--ssot`, otherwise legacy
   }
 }
 ```
-
----
