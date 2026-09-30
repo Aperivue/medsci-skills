@@ -13,7 +13,10 @@ Used for risk factor identification and prediction model building.
 ### Assumptions
 1. Binary outcome
 2. Linear relationship between continuous predictors and log-odds (Box-Tidwell test)
-3. Independent observations (if repeated → GEE or mixed logistic)
+3. Independent observations (if repeated → GEE or mixed logistic). When rows are clustered within
+   subjects (multiple lesions/visits per patient), use cluster-robust standard errors
+   (`cov_type="cluster"`, `cov_kwds={"groups": id}` in statsmodels) or a mixed-effects logistic
+   model — a naive logit CI assumes independent rows and is too narrow
 4. No multicollinearity: VIF < 5
 5. Sufficient sample: EPV >= 10 (minimum), >= 20 (recommended)
 
@@ -25,8 +28,8 @@ Used for risk factor identification and prediction model building.
 ### Model Assessment
 
 **Calibration:**
-- Hosmer-Lemeshow test: P > 0.05 = adequate fit (overpowered with large N)
-- Calibration plot: predicted probability vs observed frequency
+- Calibration intercept + slope (bootstrap optimism-corrected) + flexible calibration plot —
+  **not** Hosmer–Lemeshow, which is deprecated; see `calibration.md`
 
 **Discrimination:**
 - C-statistic (= AUC): 0.7-0.8 acceptable, 0.8-0.9 excellent, > 0.9 outstanding
@@ -37,9 +40,10 @@ Used for risk factor identification and prediction model building.
 ### Required Outputs
 1. OR table: univariable AND multivariable OR (95% CI), P-value per variable
 2. C-statistic with 95% CI
-3. Hosmer-Lemeshow test result
+3. Calibration: intercept + slope + flexible calibration plot (`calibration.md`)
 4. VIF table (supplementary)
 5. Box-Tidwell results for continuous predictors (supplementary)
+6. Forest plot of adjusted ORs
 
 ### OR Table Format
 | Variable | Univariable OR (95% CI) | P | Multivariable OR (95% CI) | P |
@@ -47,7 +51,7 @@ Used for risk factor identification and prediction model building.
 | Age (per 10 yr) | 1.45 (1.12-1.88) | 0.005 | 1.32 (1.01-1.73) | 0.042 |
 
 ### Reporting Template
-"Multivariable logistic regression was performed to identify independent predictors of [outcome]. Variables with P < 0.10 in univariable analysis and clinically relevant confounders were included. The model showed good discrimination (C-statistic = 0.82, 95% CI 0.78-0.86) and calibration (Hosmer-Lemeshow P = 0.45). [Variable] was independently associated with [outcome] (adjusted OR = 2.15, 95% CI 1.43-3.24; P < 0.001)."
+"Multivariable logistic regression was performed to identify independent predictors of [outcome]. Variables with P < 0.10 in univariable analysis and clinically relevant confounders were included. The model showed good discrimination (C-statistic = 0.82, 95% CI 0.78-0.86) and calibration (optimism-corrected calibration slope = 0.95). [Variable] was independently associated with [outcome] (adjusted OR = 2.15, 95% CI 1.43-3.24; P < 0.001)."
 
 ### Pitfalls
 - OR != RR: when event rate > 10%, OR overestimates RR

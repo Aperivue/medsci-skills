@@ -198,8 +198,8 @@
     },
     {
       "path": "skills/analyze-stats/SKILL.md",
-      "size": 60996,
-      "sha256": "1db0afddb968fcdaf134e99b1795166a46ab8120d1dad87efd3c390ba6a87153"
+      "size": 26098,
+      "sha256": "ef2636be73838dcbeaf2fd761039331654e1becdc5ad70b024ba572a80d800ec"
     },
     {
       "path": "skills/analyze-stats/references/analysis_guides/agreement_reliability.md",
@@ -237,6 +237,11 @@
       "sha256": "57090d09151db48264139fc30fc832e915aa9e9d5995155227948b76672e0b38"
     },
     {
+      "path": "skills/analyze-stats/references/analysis_guides/meta_analysis.md",
+      "size": 3263,
+      "sha256": "653ea3f5c4aa55c05cd52ff4c2909df92197e6e5e6fdbc6d29cba27513343978"
+    },
+    {
       "path": "skills/analyze-stats/references/analysis_guides/missing_data.md",
       "size": 3762,
       "sha256": "1f247f4c01c9b90dfeef618b65377fbe545086059c0030116197505a140b196f"
@@ -268,8 +273,8 @@
     },
     {
       "path": "skills/analyze-stats/references/analysis_guides/regression.md",
-      "size": 4880,
-      "sha256": "54fd356d9dfb27421ba1175fe7ce5bec836201d797c58a22390101cb5326822a"
+      "size": 5294,
+      "sha256": "3d24f460d1ade3a40cb2906138907da3f9b3191d15c1d439963f163f5f8faa23"
     },
     {
       "path": "skills/analyze-stats/references/analysis_guides/repeated_measures.md",
@@ -283,8 +288,8 @@
     },
     {
       "path": "skills/analyze-stats/references/analysis_guides/survival.md",
-      "size": 7191,
-      "sha256": "6b7f220f2aa165fd16eda58b0b40ac743c122c03757bc00f61efc884b203f337"
+      "size": 11684,
+      "sha256": "a4043cdd9f79c7840ffa928acf45b5bbdeb38c4ad3f733dddc54100596924bab"
     },
     {
       "path": "skills/analyze-stats/references/analysis_guides/test_selection.md",
