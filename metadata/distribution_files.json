@@ -1348,8 +1348,13 @@
     },
     {
       "path": "skills/fill-icmje-coi/SKILL.md",
-      "size": 9954,
-      "sha256": "8aa0c34d18e197b0b21ec35c6e53e40c8f5ca3b610ae801441352b99be6968f6"
+      "size": 5549,
+      "sha256": "7fd32b786b63bc977d1b8d2bcc691a3e72665cdc039048f6f494db52d00d7b09"
+    },
+    {
+      "path": "skills/fill-icmje-coi/references/seeds.md",
+      "size": 1872,
+      "sha256": "0da077d646a19e3d9004ac66115533e23019db9e40f34e5866af45a52c5928e0"
     },
     {
       "path": "skills/fill-icmje-coi/scripts/fill_icmje_coi.py",
