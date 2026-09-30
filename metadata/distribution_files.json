@@ -1988,13 +1988,13 @@
     },
     {
       "path": "skills/humanize/SKILL.md",
-      "size": 19631,
-      "sha256": "71f3eeb71f6354dd6384ceae2f85ed8af9c12df135d10f3eca891bfd4356ee67"
+      "size": 11024,
+      "sha256": "68fc8038184d907b7c42117b60225f76f8d5b94397d76b8ce5f88ef2208ff9f7"
     },
     {
       "path": "skills/humanize/references/ai_patterns.md",
-      "size": 41634,
-      "sha256": "415e9f70ffe76a51fd32bd13ec03ee1c07ae483d0890d0bd251c0bfd1956685d"
+      "size": 42255,
+      "sha256": "0f800eac55fe883a1a45c8a532c997fa838e620861c152efe90d6bcd3e9addf0"
     },
     {
       "path": "skills/humanize/scripts/check_rewrite_fidelity.py",
