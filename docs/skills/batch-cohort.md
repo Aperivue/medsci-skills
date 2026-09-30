@@ -31,14 +31,6 @@
 
 **Evidence** — `manual_workflow`
 
-## Bundled resources
-
-**References** (`skills/batch-cohort/references/`):
-
-- `base_template_knhanes.R`
-- `batch_template_generator.R`
-- `variable_coding_registry.md`
-
 ## Source
 
 Canonical definition: [`skills/batch-cohort/SKILL.md`](../../skills/batch-cohort/SKILL.md)

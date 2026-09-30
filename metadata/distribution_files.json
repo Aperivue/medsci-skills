@@ -562,21 +562,6 @@
       "sha256": "11ea2e1365e982528387834ca8e1de58e5881974e26817bc7563960c22787144"
     },
     {
-      "path": "skills/batch-cohort/references/base_template_knhanes.R",
-      "size": 7872,
-      "sha256": "493da92ef6493c48212eae497676ad012bc17c2de4c1551fa4be519bdde18bdb"
-    },
-    {
-      "path": "skills/batch-cohort/references/batch_template_generator.R",
-      "size": 8740,
-      "sha256": "f019ab9a9323538fa1a3db007e7d14ffa301a71054d36363a2cd2d50af10b0cc"
-    },
-    {
-      "path": "skills/batch-cohort/references/variable_coding_registry.md",
-      "size": 5897,
-      "sha256": "35342ac888d8dd89184c2fc9d943ccf88cda9e67472d75bb38d60663c85c78e5"
-    },
-    {
       "path": "skills/batch-cohort/skill.yml",
       "size": 1304,
       "sha256": "9ba41af6e18f694dc6ec23e3be9cdd7eeb16d25624f30e982efeea4d63fe089b"
