@@ -1,4 +1,4 @@
-# Detection architectures (architecture-zoo)
+# Detection architectures (model-selection)
 
 For "find and localise lesions" questions — boxes / points, a count, and a per-lesion
 hit/miss (FROC). Distinct from segmentation (a pixel mask) and classification (a per-image
@@ -27,7 +27,7 @@ validation/experiment setup.**
 - **Reference impl**: `MIC-DKFZ/nnDetection` (Apache-2.0). Integrate, do not reimplement.
 - **Validation setup**: report **FROC** (sensitivity per false-positive-per-scan); its
   internal CV is development-time optimism correction, not external validation
-  (`/model-validation` MD3/MD6); keep the patient-level split consistent end to end.
+  (`/model-assessment` MD3/MD6); keep the patient-level split consistent end to end.
 
 ---
 
@@ -45,7 +45,7 @@ validation/experiment setup.**
 - **Reference impl**: torchvision `fasterrcnn_resnet50_fpn`; MONAI detection (RetinaNet).
 - **Validation setup**: report **FROC** (sensitivity per false-positive-per-scan) or **mAP
   with the IoU match criterion stated**; per-lesion analysis with patient-level clustering
-  disclosed; not patient-level accuracy (`/model-validation` MD6).
+  disclosed; not patient-level accuracy (`/model-assessment` MD6).
 
 ### Mask R-CNN (detect + segment instances)
 - **Paper**: He et al., Mask R-CNN, *ICCV* 2017.
@@ -95,4 +95,4 @@ instances → **Mask R-CNN**. Speed-critical → **YOLO** (mind the **AGPL-3.0**
 **RT-DETR** (Apache-2.0). Large data, anchor-free → **DETR**.
 Always report **FROC / mAP with the IoU criterion stated**, per-lesion with patient-level
 clustering disclosed. Record the choice + paper, hand to `/model-scaffold`, validate with
-`/model-validation` and `/model-evaluation`.
+`/model-assessment`.

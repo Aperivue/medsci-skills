@@ -1,4 +1,4 @@
-# Segmentation architectures (architecture-zoo)
+# Segmentation architectures (model-selection)
 
 For "delineate / measure structure X" questions — a pixel/voxel mask, a volume, a boundary.
 This is the family `/model-scaffold` currently generates (a configurable U-Net), so the
@@ -64,7 +64,7 @@ a 3-D model; do not collapse to independent slices if the structure is volumetri
   here, justify any custom architecture against it.
 - **Reference impl**: `nnunetv2` (MIC-DKFZ, Apache-2.0). Integrate, do not reimplement.
 - **Validation setup**: nnU-Net's own cross-validation is **development-time** optimism
-  correction, not external validation (`/model-validation` MD3). Preserve the patient-level
+  correction, not external validation (`/model-assessment` MD3). Preserve the patient-level
   split: build the nnU-Net `dataset.json` folds from `/model-scaffold`'s
   `splits/split_assignment.csv` so the partition is consistent end to end.
 - **Scaffold**: `/model-scaffold` emits the split + a `nnUNet`-compatible note; use its
@@ -88,7 +88,7 @@ U-Net still wins**: Transformer- and Mamba-based nets did not beat a properly sc
 and most headline gains came from confounded comparisons. An ablation showed **U-Mamba's
 Mamba layers contribute nothing** — its gain was the residual U-Net it was bolted onto. So
 "newer" here means *a bigger CNN*, not a new paradigm. Adopt a Transformer/Mamba seg model
-only after `/model-validation` reproduces its claim **on your data**, never on its headline.
+only after `/model-assessment` reproduces its claim **on your data**, never on its headline.
 
 ### nnU-Net ResEnc presets (M / L / XL) — the current strong default
 - **Paper**: Isensee et al., nnU-Net Revisited, *MICCAI* 2024 (the ResEnc presets ship in
@@ -103,7 +103,7 @@ only after `/model-validation` reproduces its claim **on your data**, never on i
   Apache-2.0. Integrate, do not reimplement.
 - **Validation setup**: identical to nnU-Net (its CV is development-time, not external);
   **disclose the preset used** — a reduced preset chosen for compute reasons is a stated
-  deviation (`/model-evaluation`).
+  deviation (`/model-assessment`).
 
 ### MedNeXt — a ConvNeXt-scaled CNN
 - **Paper**: Roy et al., "MedNeXt: Transformer-driven Scaling of ConvNets for Medical Image
@@ -128,7 +128,7 @@ only after `/model-validation` reproduces its claim **on your data**, never on i
   OK).
 - **Validation setup**: keep the fine-tuning set disjoint from the test patients; if the
   pretraining corpus (TotalSegmentator) overlaps your task's public data, state it
-  (contamination — `/model-validation` MD1).
+  (contamination — `/model-assessment` MD1).
 
 ---
 
@@ -145,7 +145,7 @@ only after `/model-validation` reproduces its claim **on your data**, never on i
   (Mask R-CNN + ResNet-FPN).
 - **Reference impl**: torchvision `maskrcnn_resnet50_fpn`; MONAI detection.
 - **Validation setup**: detection metrics — **FROC / sensitivity per false-positive or mAP
-  with the IoU match criterion stated** — not patient-level accuracy (`/model-validation`
+  with the IoU match criterion stated** — not patient-level accuracy (`/model-assessment`
   MD6); per-lesion analysis with patient-level clustering disclosed.
 
 ---
@@ -165,4 +165,4 @@ to fine-tune → **STU-Net**. Accelerate expert 3-D labelling → **interactive 
 VISTA3D)** — mind the weight licence.
 Count + localise instances → **Mask R-CNN + FPN**. Always patient-level split, always Dice
 **and** a boundary metric per structure. Record the choice + paper, hand to `/model-scaffold`,
-validate with `/model-validation`.
+validate with `/model-assessment`.

@@ -1,4 +1,4 @@
-# Image synthesis / translation architectures (architecture-zoo)
+# Image synthesis / translation architectures (model-selection)
 
 For "synthesise or translate a modality" questions — MRI→CT, non-contrast→contrast,
 low-dose→full-dose, denoising, super-resolution, or generating training images.
@@ -52,7 +52,7 @@ validation/experiment setup.**
   (3-D CT latent diffusion); HuggingFace `diffusers` (+ ControlNet).
 - **Validation setup**: fidelity metrics (SSIM/PSNR/FID) are necessary but **not sufficient** —
   a generative claim needs a **downstream-task efficacy** result (does a model trained/tested
-  on the synthetic data do the clinical task?), not similarity alone (`/model-evaluation`),
+  on the synthetic data do the clinical task?), not similarity alone (`/model-assessment`),
   plus hallucination disclosure; for reconstruction, compare against the acquired ground truth.
 
 ## Reconstruction / restoration
@@ -73,4 +73,4 @@ Paired translation → **Pix2Pix** (`/model-scaffold --task synthesis`). Unpaire
 compute available → **diffusion** (MONAI generative). Reconstruction / denoising → **U-Net /
 unrolled / fastMRI baselines**. In every case, **image-fidelity metrics are not enough** — add a
 downstream-task or reader validation and disclose hallucination risk. Record the choice + paper,
-hand to `/model-scaffold`, validate with `/model-validation` (and the `image_synthesis` probe).
+hand to `/model-scaffold`, validate with `/model-assessment` (and the `image_synthesis` probe).

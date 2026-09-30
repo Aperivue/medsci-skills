@@ -1,4 +1,4 @@
-# Architecture decision tree (architecture-zoo)
+# Architecture decision tree (model-selection)
 
 Pick an architecture from the **research question + modality + data scale + label
 availability**, not from what is fashionable. Read this index, then open the matching
@@ -34,7 +34,7 @@ per-paper detail and the `/model-scaffold` template to instantiate.
     self-supervised pretraining on your own unlabelled pool first.
 - **Class imbalance / small structures** → segmentation: Dice/Tversky/boundary-aware
   losses + a boundary metric; classification: AUPRC alongside AUROC. (Metric choice is
-  `/model-validation` / `/model-evaluation`; it constrains the loss here.)
+  `/model-assessment`; it constrains the loss here.)
 - **Interpretability / deployment need** → simpler, well-understood backbones
   (ResNet + Grad-CAM) over a marginally better but opaque model.
 
@@ -60,7 +60,7 @@ quote a benchmark number you have not cited. Then hand the choice to `/model-sca
 
 > The zoo describes **archetypes**, not a live leaderboard. SOTA churns; the task →
 > family → constraint logic does not. When a newer model claims to beat these, evaluate
-> it with `/model-validation` rather than adopting it on the strength of a headline. The
+> it with `/model-assessment` rather than adopting it on the strength of a headline. The
 > canonical warning is *nnU-Net Revisited* (Isensee et al., *MICCAI* 2024): under matched
 > compute, Transformer- and Mamba-based segmentors did **not** beat a scaled CNN nnU-Net,
 > and U-Mamba's Mamba layers ablated to zero contribution — the "advance" was a bigger CNN.

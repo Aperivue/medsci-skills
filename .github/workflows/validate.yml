@@ -282,8 +282,8 @@ jobs:
       - name: "Run peer-review request-type challenge (unjustified computation fires; disclosure-led review clears)"
         run: bash skills/peer-review/scripts/check_review_request_types_challenge/verify.sh
 
-      - name: "Run model-sourcing model-provenance challenge (contradictory facts fire; absent facts flagged; full dossier clears)"
-        run: bash skills/model-sourcing/scripts/check_model_provenance_challenge/verify.sh
+      - name: "Run model-selection model-provenance challenge (contradictory facts fire; absent facts flagged; full dossier clears)"
+        run: bash skills/model-selection/scripts/check_model_provenance_challenge/verify.sh
 
       - name: "Run manage-refs citation-keys challenge (an undefined [@key] fails; a fully-resolved bibliography clears)"
         run: bash skills/manage-refs/scripts/check_citation_keys_challenge/verify.sh
@@ -773,8 +773,8 @@ jobs:
       - name: Run meta-analysis screening-reconcile test
         run: bash skills/meta-analysis/tests/test_screening_reconcile.sh
 
-      - name: Run model-sourcing model-provenance test
-        run: bash skills/model-sourcing/tests/test_model_provenance.sh
+      - name: Run model-selection model-provenance test
+        run: bash skills/model-selection/tests/test_model_provenance.sh
 
       - name: Run present-paper backup-off-the-clock test
         run: python3 skills/present-paper/tests/test_backup_off_the_clock.py

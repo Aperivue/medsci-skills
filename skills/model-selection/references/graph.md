@@ -1,4 +1,4 @@
-# Graph neural networks — brain connectomes & population graphs (architecture-zoo)
+# Graph neural networks — brain connectomes & population graphs (model-selection)
 
 For when the data is a **graph, not an image grid**: a brain **connectome** (nodes = ROIs /
 parcels, edges = structural connectivity from DTI tractography or functional connectivity
@@ -54,7 +54,7 @@ reference impl → validation/experiment setup.**
   biomarkers.
 - **Reference impl**: PyTorch Geometric (`GATConv` / `GATv2Conv`) / DGL.
 - **Validation setup**: treat attention as a **hypothesis-generating** attribution, not proof
-  — sanity-check it (does it survive label permutation?) as `/explainability` requires of any
+  — sanity-check it (does it survive label permutation?) as `/model-assessment` requires of any
   saliency.
 
 ### GIN (graph isomorphism network)
@@ -89,22 +89,22 @@ reference impl → validation/experiment setup.**
 ## Connectome-specific validation traps (read before publishing)
 - **Subject-level split.** A subject's connectome must not appear in more than one split; on a
   population graph, hold test-subject **labels** out of training and (ideally, inductive)
-  their **nodes** out of message passing. This is `/model-validation`'s split-leakage discipline
+  their **nodes** out of message passing. This is `/model-assessment`'s split-leakage discipline
   at the subject level.
 - **Site / scanner harmonisation leakage.** Multi-site connectome data (ABIDE, ADNI) is
   harmonised with **ComBat** — fit it on the **training** fold only, never the whole cohort
-  (the graph analogue of `/preprocess-imaging`'s `NORMALIZATION_LEAKAGE`).
+  (the graph analogue of `/imaging-data`'s `NORMALIZATION_LEAKAGE`).
 - **p ≫ n.** A connectome has thousands of edges on tens–hundreds of subjects; treat it like
   radiomics — nested CV, regularisation, a **permutation test** for tiny cohorts, and don't
   over-read a single fold (`/radiomics-ml`).
 - **Interpretability ≠ proof.** Attention / ROI-saliency is hypothesis-generating; sanity-check
-  it (`/explainability`).
+  it (`/model-assessment`).
 
 ## Boundary — this family is not scaffolded by `/model-scaffold`
 `/model-scaffold` builds **image-grid** repos (CNN / U-Net / transformer); it has **no graph
 task template**. For GNNs, **integrate PyTorch Geometric / DGL directly** — they own the graph
 layers, loaders, and training loop; the lane does not reimplement them. The lane's
-**subject-level** gates still apply: `/model-validation` (split leakage), `/radiomics-ml`
-(nested-CV rigor for p ≫ n), `/explainability` (attribution sanity), `/uncertainty-imaging`
-(deployment uncertainty), and `/check-reporting` (TRIPOD+AI). Record the choice + paper in the
-decision note; validate the built model with `/model-validation`.
+**subject-level** gates still apply: `/model-assessment` (split leakage, attribution sanity,
+deployment uncertainty), `/radiomics-ml` (nested-CV rigor for p ≫ n), and `/check-reporting`
+(TRIPOD+AI). Record the choice + paper in the
+decision note; validate the built model with `/model-assessment`.

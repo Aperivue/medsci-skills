@@ -1,4 +1,4 @@
-# Classification architectures (architecture-zoo)
+# Classification architectures (model-selection)
 
 For "is finding X present / which class" questions — per image or per patient, binary or
 multi-label. Almost always start from a **pretrained** backbone (ImageNet via `timm`, or a
@@ -78,7 +78,7 @@ note; never quote a benchmark you have not cited.
   MIT but its ImageNet weights are CC-BY-NC** (non-commercial) — use V1 weights or your own
   pretraining if the model feeds a product.
 - **Validation setup**: as ResNet; if you use V2's self-supervised weights, keep the
-  pretraining corpus disjoint from the test patients (contamination — `/model-validation`
+  pretraining corpus disjoint from the test patients (contamination — `/model-assessment`
   MD1/MD3).
 
 ---
@@ -94,7 +94,7 @@ note; never quote a benchmark you have not cited.
   scratch.
 - **Reference impl**: `timm` (`vit_base_patch16_224`); pretrained essential.
 - **Validation setup**: as ResNet; be explicit that performance leans on the pretraining
-  corpus (contamination/transfer caveat — `/model-validation` MD3/MD7).
+  corpus (contamination/transfer caveat — `/model-assessment` MD3/MD7).
 
 ### Swin Transformer (hierarchical, windowed attention)
 - **Paper**: Liu et al., "Swin Transformer," *ICCV* 2021.
@@ -118,4 +118,4 @@ Small/medium labelled data → **pretrained ResNet/DenseNet/EfficientNet**, or *
 a modern CNN backbone (mind the V2 weight licence). Large data or a strong pretrained
 transformer → **ViT/Swin**. Always pretrained, always patient-level split,
 always AUROC **and** AUPRC with CIs. Record the choice + paper in the decision note and hand
-to `/model-scaffold`; validate with `/model-validation`, evaluate with `/model-evaluation`.
+to `/model-scaffold`; validate and evaluate with `/model-assessment`.

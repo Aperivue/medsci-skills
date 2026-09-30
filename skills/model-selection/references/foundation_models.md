@@ -1,4 +1,4 @@
-# Foundation models & self-supervised pretraining (architecture-zoo)
+# Foundation models & self-supervised pretraining (model-selection)
 
 For "I have few labels / many unlabelled scans" or "adapt a released medical model" — the
 label-efficient route. Two sub-families: **self-supervised pretraining** (learn features
@@ -24,7 +24,7 @@ validation/experiment setup.**
 - **Reference impl**: `lightly`, MONAI SSL tutorials; public SimCLR/MoCo repos.
 - **Validation setup**: report the **label-efficiency curve** (downstream metric vs. number
   of labels) to justify the pretraining; keep the pretraining pool disjoint from the test
-  patients (contamination — `/model-validation` MD1).
+  patients (contamination — `/model-assessment` MD1).
 
 ### DINO / DINOv2 (self-distillation) and MAE (masked autoencoding)
 - **Papers**: Caron et al., DINO, *ICCV* 2021; Oquab et al., DINOv2, 2023; He et al., MAE,
@@ -76,7 +76,7 @@ validation/experiment setup.**
   a product, not only a paper.
 - **Validation setup**: masks produced this way are **silver labels** — an expert must
   correct/adjudicate them, and model-derived labels must not evaluate the same or a related
-  model (circularity — `/model-validation` MD8). Report the **human-correction effort**
+  model (circularity — `/model-assessment` MD8). Report the **human-correction effort**
   (edits or time per case), not only the final Dice.
 
 ### TotalSegmentator / SegVol (automatic CT organ masks)
@@ -88,7 +88,7 @@ validation/experiment setup.**
 - **Reference impl**: `TotalSegmentator` (Apache-2.0).
 - **Validation setup**: if you use its masks as input or weak labels, disclose that the
   reference standard is **model-derived** (silver labels) — do not let model-derived labels
-  evaluate the same model (circularity — `/model-validation` MD8).
+  evaluate the same model (circularity — `/model-assessment` MD8).
 
 ### BiomedCLIP / PubMedCLIP (cross-modal retrieval + zero-shot)
 - **Papers**: Zhang et al., BiomedCLIP, 2023 (15M biomedical image–text pairs).
@@ -119,7 +119,7 @@ validation/experiment setup.**
   per model before anything beyond a paper — a product cannot ship on CC-BY-NC weights (same
   trap as nnInteractive / ConvNeXt V2).
 - **Validation setup**: keep the FM's pretraining corpus disjoint from your test patients
-  (many public benchmarks sit inside these corpora — contamination, `/model-validation`
+  (many public benchmarks sit inside these corpora — contamination, `/model-assessment`
   MD1/MD3); report the **label-efficiency curve** to justify the transfer.
 
 ---
@@ -134,4 +134,4 @@ Merlin)** — most weights are non-commercial / gated, verify before a product. 
 classification/retrieval → **BiomedCLIP**. In every case
 keep the pretraining/transfer corpus disjoint from the test patients and disclose
 model-derived labels. Record the choice + paper, then hand the fine-tuning to
-`/model-scaffold` and validate with `/model-validation`.
+`/model-scaffold` and validate with `/model-assessment`.
