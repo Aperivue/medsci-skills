@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Dataset-profile gate for a medical-imaging dataset (profile-imaging).
+"""Dataset-profile gate for a medical-imaging dataset (imaging-data).
 
 Before a single model trains, a dataset carries facts that decide the study: how
 heterogeneous the acquisition is, how rare the target is, whether the labels are
@@ -27,7 +27,7 @@ CHECKS (verdicts):
                               held-out set has to come from somewhere else.
   5. ACCURACY_UNDER_IMBALANCE the plan reports accuracy while the target occupies a tiny
                               fraction of the volume — predicting background everywhere
-                              scores near-perfect. (Pairs with model-evaluation's
+                              scores near-perfect. (Pairs with /model-assessment's
                               ACCURACY_ONLY, which catches the same error downstream.)
 
   MINOR (flags — each is a decision to declare, not necessarily a defect)
@@ -301,7 +301,7 @@ def main() -> int:
 
     if not args.quiet:
         print("=" * 41)
-        print("  Dataset-Profile Gate (profile-imaging)")
+        print("  Dataset-Profile Gate (imaging-data)")
         print("=" * 41)
         fg = result["median_foreground_fraction"]
         fg_s = f"{fg:.4%}" if fg is not None else "n/a"

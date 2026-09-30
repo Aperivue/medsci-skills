@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Profile a 3-D medical-imaging dataset (NIfTI) into the JSON the gate audits.
 
-This is the *describe* half of profile-imaging: it opens every image (and its label,
+This is the *describe* half of /imaging-data's profiling phases: it opens every image (and its label,
 when there is one) and records the facts that decide a study — the acquisition grid
 and spacing, orientation, intensity domain, which label values are actually present,
 how much of the volume the target occupies, and how big the target is in millilitres.

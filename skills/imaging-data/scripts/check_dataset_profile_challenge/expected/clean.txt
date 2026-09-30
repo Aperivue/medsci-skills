@@ -1,5 +1,5 @@
 =========================================
-  Dataset-Profile Gate (profile-imaging)
+  Dataset-Profile Gate (imaging-data)
 =========================================
   cases=6  splits={'train': 'labelled', 'test': 'labelled'}  median_fg=0.4000%
   thresholds: spacing_ratio=2.0  imbalance_frac=0.01

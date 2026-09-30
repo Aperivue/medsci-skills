@@ -1,4 +1,4 @@
-# Challenge card — task-correct metric reporting (model-evaluation)
+# Challenge card — task-correct metric reporting (model-assessment)
 
 ## Problem
 The metric must match the task and the prevalence. The recurrent failures are a

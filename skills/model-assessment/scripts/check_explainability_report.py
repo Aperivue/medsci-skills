@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Explainability-report rigor gate for a medical-imaging model (explainability).
+"""Explainability-report rigor gate for a medical-imaging model (model-assessment).
 
 A saliency / Grad-CAM map is the most over-interpreted artifact in medical-imaging AI:
 a colourful heat-map over the lesion is routinely presented as proof the model is
@@ -210,7 +210,7 @@ def main() -> int:
 
     if not args.quiet:
         print("=" * 41)
-        print(" Explainability-Report Gate (explainability)")
+        print(" Explainability-Report Gate (model-assessment)")
         print("=" * 41)
         print(f"  method={result['method']}  n_examples={result['n_examples']}  "
               f"cohort_level={result['cohort_level']}  "

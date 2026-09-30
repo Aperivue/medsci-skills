@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Regression test for the split-leakage gate (model-validation).
+# Regression test for the split-leakage gate (model-assessment).
 # Synthetic, PII-free fixtures reproduce: (a) a patient that crosses train/test,
 # (b) column auto-detection (subject_id / partition), (c) a missing split seed,
 # (d) the --no-require-seed / --seed downgrades, (e) a single-partition file, and

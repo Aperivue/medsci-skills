@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Regression test for the preprocessing-leakage gate (preprocess-imaging).
+# Regression test for the preprocessing-leakage gate (imaging-data).
 # Synthetic, PII-free JSON manifests reproduce each verdict class. Stdlib-only (python3).
 set -u
 

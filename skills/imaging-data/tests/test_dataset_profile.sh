@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Regression test for the dataset-profile gate (profile-imaging).
+# Regression test for the dataset-profile gate (imaging-data).
 # Synthetic, PII-free JSON profiles reproduce each verdict class. Stdlib-only (python3).
 set -u
 

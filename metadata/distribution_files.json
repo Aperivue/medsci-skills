@@ -1953,18 +1953,18 @@
     },
     {
       "path": "skills/imaging-data/scripts/check_dataset_profile.py",
-      "size": 16672,
-      "sha256": "3726e8205fe69cfcb06f4854cc97be95bd2c6fc89e02400fff11153a68be61e7"
+      "size": 16667,
+      "sha256": "08ed778d4d89fe5a21020eb27c1837b1123a8abaa3a67b6c0f38553c073a25a8"
     },
     {
       "path": "skills/imaging-data/scripts/check_dataset_profile_challenge/expected/clean.txt",
-      "size": 360,
-      "sha256": "9e5fddb88dd83dd32aea8d0651a0f66922e5b58fb010713fb5d550090d1b5a58"
+      "size": 357,
+      "sha256": "9b131f2418f88eaf4a30f4384686ba9a647b1baec0cfdf5002a14c2d62dd54f4"
     },
     {
       "path": "skills/imaging-data/scripts/check_dataset_profile_challenge/expected/defect.txt",
-      "size": 1600,
-      "sha256": "8eac4257e5904e777a7e7f2631e3680ae66a5366c3e4fb16b1a8f3bf2dc53525"
+      "size": 1597,
+      "sha256": "ca0369a95e5b3b2455561507e8469587c1310f2e6268049cef031ccf10b1937d"
     },
     {
       "path": "skills/imaging-data/scripts/check_dataset_profile_challenge/fixture/profile_clean.json",
@@ -1988,18 +1988,18 @@
     },
     {
       "path": "skills/imaging-data/scripts/check_normalizer_domain.py",
-      "size": 10298,
-      "sha256": "41fc867fdc0b78e1c7327f05c2a0853a4333c8219bca3dc546a1c6d2ca1d01b4"
+      "size": 10285,
+      "sha256": "de0db7919dd2e301bc3032accf4eab72df253dccf340a5986176c1d7676a753e"
     },
     {
       "path": "skills/imaging-data/scripts/check_normalizer_domain_challenge/expected/arbitrary_mismatch.txt",
-      "size": 831,
-      "sha256": "2242f2ce6d2d9f9e7945601c83b666cbab926e1d21f351fa9f1f03ad247eb743"
+      "size": 825,
+      "sha256": "74e32f81ab662de09b7d91ed875cda682dcd97a5b2ac406fb530eb8fbd38812a"
     },
     {
       "path": "skills/imaging-data/scripts/check_normalizer_domain_challenge/expected/hu_clean.txt",
-      "size": 364,
-      "sha256": "1d167d500fe89dac825702f8777c65dcf1241d73847a197d2d59a170851063d4"
+      "size": 358,
+      "sha256": "af8319f3a2fcf6ece323f1bb913a5aa3af29f6aca1e132ce42db38fb6f5b3e1a"
     },
     {
       "path": "skills/imaging-data/scripts/check_normalizer_domain_challenge/fixture/plan_ct.json",
@@ -2028,18 +2028,18 @@
     },
     {
       "path": "skills/imaging-data/scripts/check_preprocessing_leakage.py",
-      "size": 14121,
-      "sha256": "c0118907fb4382d4459700c7cf36d53966e59503ad03ad2b25df03894d85ce08"
+      "size": 14108,
+      "sha256": "007a63dbf526011ae850f01ff718a52b8f5e3e078a440acd4dcdd8ea84e5a373"
     },
     {
       "path": "skills/imaging-data/scripts/check_preprocessing_leakage_challenge/expected/clean.txt",
-      "size": 370,
-      "sha256": "bc1efcfc1d8575d78a0448752e60a3b58d654a5bc1a7b11360e4d9ba690665ac"
+      "size": 364,
+      "sha256": "d4d34ba2069a77bd4b2b2fa6d7d17f50e550084c3fab8445eebd24aa72710599"
     },
     {
       "path": "skills/imaging-data/scripts/check_preprocessing_leakage_challenge/expected/leak.txt",
-      "size": 1030,
-      "sha256": "fe046c81f20b34a6ff3fd6858f7832e786106ed56635b39f7e413b4853d4b7e8"
+      "size": 1024,
+      "sha256": "d53fa83b78eae13b4f840990df3e057c49a25a0a8190668bc53a4cec47fe9e62"
     },
     {
       "path": "skills/imaging-data/scripts/check_preprocessing_leakage_challenge/fixture/manifest_clean.json",
@@ -2063,8 +2063,8 @@
     },
     {
       "path": "skills/imaging-data/scripts/profile_imaging_dataset.py",
-      "size": 6996,
-      "sha256": "379283bde44c048664b5ba2c92b1742995c900749146108fb78c7a2fa1ccc3c2"
+      "size": 7013,
+      "sha256": "fa3735e9fcff43a75667085e14f4b2a28e6c52c00b2a26ec7a3f893c6e7d6442"
     },
     {
       "path": "skills/imaging-data/skill.yml",
@@ -3283,18 +3283,18 @@
     },
     {
       "path": "skills/model-assessment/scripts/check_explainability_report.py",
-      "size": 10830,
-      "sha256": "78c46fc1a6932f8d6390e1f2ea756bde71147c718b990c5694705684bcc13248"
+      "size": 10834,
+      "sha256": "4bf3967f8e26a35a0c54ebb420a4efac49c3efc2d6e9f7a8d856dfad45a2a1c4"
     },
     {
       "path": "skills/model-assessment/scripts/check_explainability_report_challenge/expected/strong.txt",
-      "size": 391,
-      "sha256": "317018eb7546f77b2de39ff1b73c9e82584a9d65c25eb91a940de76a4c7d2ec5"
+      "size": 393,
+      "sha256": "2c57d3cfc5688cf4839150dd3fc86138a25fb11b3c481a4e9281fe9a8dee4863"
     },
     {
       "path": "skills/model-assessment/scripts/check_explainability_report_challenge/expected/weak.txt",
-      "size": 876,
-      "sha256": "de5c090c1ee4c632d7d59bc0d5f20fac8d28342b74b68eb51066677658245451"
+      "size": 878,
+      "sha256": "20e0c26c5d2e88cd6e1e87004d6e0edf4f1526bfb5c9a1c2988e8395b102d3b4"
     },
     {
       "path": "skills/model-assessment/scripts/check_explainability_report_challenge/fixture/report_strong.json",
@@ -3319,22 +3319,22 @@
     {
       "path": "skills/model-assessment/scripts/check_metric_reporting.py",
       "size": 18006,
-      "sha256": "9eba3bd5d0a255825b232fe94003afa0dd6d489d8d02235b247e3da8eef18a30"
+      "sha256": "6257ea1d7437932f37df690084d6ed010791069cec165ce2a91f853294613af4"
     },
     {
       "path": "skills/model-assessment/scripts/check_split_leakage.py",
       "size": 11655,
-      "sha256": "479f1572e1754787d38d83004711deb2a8c33d2b0a13402498e9a9856a0d5285"
+      "sha256": "93450c7023f69f45724be51f3ad80429c97dd308663e626abcb4bccde610e18f"
     },
     {
       "path": "skills/model-assessment/scripts/check_split_leakage_challenge/expected/clean.txt",
       "size": 358,
-      "sha256": "5d1e203ebc6656c172f60f4cd4eb3954fdbcd77579a6768c6bbd56952a966e6c"
+      "sha256": "eeaa341e8bc7af61ec95dab02db41592780cb76e9083cd35b6584711c1101452"
     },
     {
       "path": "skills/model-assessment/scripts/check_split_leakage_challenge/expected/leak.txt",
       "size": 470,
-      "sha256": "34be75bbbabf10073a1fd11587e019491b7319e2030b166a1ab3e82e4899f3c2"
+      "sha256": "85858999ec8eaf1dcfbe0c881a2c6f1ec15a33d1f58d62d52e31e814e1773e79"
     },
     {
       "path": "skills/model-assessment/scripts/check_split_leakage_challenge/fixture/split_seed.txt",
@@ -3354,7 +3354,7 @@
     {
       "path": "skills/model-assessment/scripts/check_split_leakage_challenge/problem.md",
       "size": 2347,
-      "sha256": "f140095ec5d190120bf73dc62710b2ccac31c7f7d54307a0854c8438df61940e"
+      "sha256": "8f15a973cbc554e8a59fe72466df543b900ff6487f3a895ddfef20ee8ececa7b"
     },
     {
       "path": "skills/model-assessment/scripts/check_split_leakage_challenge/verify.sh",
@@ -3363,18 +3363,18 @@
     },
     {
       "path": "skills/model-assessment/scripts/check_uncertainty_reporting.py",
-      "size": 13089,
-      "sha256": "dcb3e0a897c69c723af0185bebe2318bc128872788d21e3b0162daaeac0e5f23"
+      "size": 13071,
+      "sha256": "c6f17dc034c485911039e85d50f82065cabe668d1fa5aa061828d6d91d1d9ec4"
     },
     {
       "path": "skills/model-assessment/scripts/check_uncertainty_reporting_challenge/expected/strong.txt",
-      "size": 414,
-      "sha256": "2d3f1cbeb88b00d1ef8968c276f17d276c152eafbf445d3879315bd727a16c61"
+      "size": 411,
+      "sha256": "9b40e794bd13dd0c50002251b6e6e9454848237154125d5ba8c9fef4e689acdf"
     },
     {
       "path": "skills/model-assessment/scripts/check_uncertainty_reporting_challenge/expected/weak.txt",
-      "size": 1077,
-      "sha256": "b37379da88b17881678d50534ad993823a9a7c3b96a9942ca45be21caed39aaf"
+      "size": 1074,
+      "sha256": "761793ef2d8bac6cfc2489eb2929fc943f89f82a6abfff9c324c958faf6a3357"
     },
     {
       "path": "skills/model-assessment/scripts/check_uncertainty_reporting_challenge/fixture/uncertainty_strong.json",
@@ -3388,8 +3388,8 @@
     },
     {
       "path": "skills/model-assessment/scripts/check_uncertainty_reporting_challenge/problem.md",
-      "size": 2460,
-      "sha256": "fb3350f915b3b4a36a91718f93837f4331410d209f66fbd7e7d751fd35af4cc9"
+      "size": 2445,
+      "sha256": "e3ccb641b80e3e0b861450b62df116113c98822e0067c44c58a50a6c71e89daa"
     },
     {
       "path": "skills/model-assessment/scripts/check_uncertainty_reporting_challenge/verify.sh",
@@ -3454,12 +3454,12 @@
     {
       "path": "skills/model-assessment/scripts/metric_reporting_challenge/problem.md",
       "size": 1599,
-      "sha256": "1f842374e3569d5fc27d7c26aa7f6bc6be43f7f38d2d9f3e2f9ab62fb29ddd65"
+      "sha256": "53610244ca42d3edb8d3f0aebb5da8ac892d8c6ccfc160e45e41b6daecc8522c"
     },
     {
       "path": "skills/model-assessment/scripts/metric_reporting_challenge/verify.sh",
       "size": 2642,
-      "sha256": "3efa9aff1f4ed223b7114740cac9cb67801456ffbfa3e5f7a7f1df7f46ada565"
+      "sha256": "d7fce98b7085b0ddeaad09237925c1a645db0f18940749d971c2bcadb133f6cf"
     },
     {
       "path": "skills/model-assessment/skill.yml",
@@ -3623,8 +3623,8 @@
     },
     {
       "path": "skills/model-selection/scripts/check_model_provenance.py",
-      "size": 12739,
-      "sha256": "36d81bf11180e0afaea2e6da2c420f39427f82f428802975af88dca63d9d2dcc"
+      "size": 12750,
+      "sha256": "3f7f7ca61af5f0126e71af93fbc8a2a3225dd65ab4c08167fa58e81984ee28bc"
     },
     {
       "path": "skills/model-selection/scripts/check_model_provenance_challenge/expected/clean.txt",

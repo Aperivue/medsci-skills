@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Data-stage preprocessing-leakage gate for a medical-imaging pipeline (preprocess-imaging).
+"""Data-stage preprocessing-leakage gate for a medical-imaging pipeline (imaging-data).
 
-`model-validation`'s split-leakage gate proves the train/val/test *split* is
+/model-assessment's split-leakage gate proves the train/val/test *split* is
 patient-disjoint. But leakage also enters one stage earlier — in **preprocessing** —
 and the split table cannot see it. The three classic data-stage leaks
 (Kapoor & Narayanan, Patterns 2023; Varoquaux & Cheplygina, npj Digit Med 2022;
@@ -282,7 +282,7 @@ def main() -> int:
 
     if not args.quiet:
         print("=" * 41)
-        print(" Preprocessing-Leakage Gate (preprocess-imaging)")
+        print(" Preprocessing-Leakage Gate (imaging-data)")
         print("=" * 41)
         p = result
         print(f"  transforms={p['n_transforms']}  units={p['n_units']}  "

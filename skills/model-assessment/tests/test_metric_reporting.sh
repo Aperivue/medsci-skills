@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Regression test for the metric-reporting gate (model-evaluation). Synthetic, PII-free.
+# Regression test for the metric-reporting gate (model-assessment). Synthetic, PII-free.
 set -u
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DET="$HERE/../scripts/check_metric_reporting.py"

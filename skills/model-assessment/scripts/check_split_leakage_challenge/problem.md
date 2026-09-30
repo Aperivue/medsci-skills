@@ -1,4 +1,4 @@
-# Challenge card — split-leakage gate (model-validation)
+# Challenge card — split-leakage gate (model-assessment)
 
 ## Problem
 A clinical team receives a trained medical-imaging model from an engineering

@@ -296,7 +296,7 @@
       "skill": "imaging-data",
       "family": "data_preparation",
       "family_label": "Data preparation & validation",
-      "description": "Dataset-profile gate for a medical-imaging dataset (profile-imaging)."
+      "description": "Dataset-profile gate for a medical-imaging dataset (imaging-data)."
     },
     {
       "id": "check_deck_budget",
@@ -373,7 +373,7 @@
       "skill": "model-assessment",
       "family": "reporting_compliance",
       "family_label": "Reporting compliance",
-      "description": "Explainability-report rigor gate for a medical-imaging model (explainability)."
+      "description": "Explainability-report rigor gate for a medical-imaging model (model-assessment)."
     },
     {
       "id": "check_figure_citation",
@@ -422,7 +422,7 @@
       "skill": "model-assessment",
       "family": "data_preparation",
       "family_label": "Data preparation & validation",
-      "description": "Task-correct metric-reporting gate for a medical-imaging model (model-evaluation)."
+      "description": "Task-correct metric-reporting gate for a medical-imaging model (model-assessment)."
     },
     {
       "id": "check_mllm_eval_completeness",
@@ -534,7 +534,7 @@
       "skill": "imaging-data",
       "family": "data_preparation",
       "family_label": "Data preparation & validation",
-      "description": "Data-stage preprocessing-leakage gate for a medical-imaging pipeline (preprocess-imaging)."
+      "description": "Data-stage preprocessing-leakage gate for a medical-imaging pipeline (imaging-data)."
     },
     {
       "id": "check_prisma_figure",
@@ -674,7 +674,7 @@
       "skill": "model-assessment",
       "family": "data_preparation",
       "family_label": "Data preparation & validation",
-      "description": "Train/validation/test split-leakage gate for a medical-imaging model (model-validation)."
+      "description": "Train/validation/test split-leakage gate for a medical-imaging model (model-assessment)."
     },
     {
       "id": "check_structural_zero",
@@ -723,7 +723,7 @@
       "skill": "model-assessment",
       "family": "reporting_compliance",
       "family_label": "Reporting compliance",
-      "description": "Uncertainty / OOD / selective-prediction reporting-rigor gate (uncertainty-imaging)."
+      "description": "Uncertainty / OOD / selective-prediction reporting-rigor gate (model-assessment)."
     },
     {
       "id": "check_wordcount_cap",

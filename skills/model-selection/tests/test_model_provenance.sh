@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Regression test for the model-provenance gate (model-sourcing).
+# Regression test for the model-provenance gate (model-selection).
 # Synthetic, PII-free JSON dossiers reproduce each verdict class. Stdlib-only (python3).
 set -u
 

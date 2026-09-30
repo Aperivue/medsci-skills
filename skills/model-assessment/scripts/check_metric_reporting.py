@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Task-correct metric-reporting gate for a medical-imaging model (model-evaluation).
+"""Task-correct metric-reporting gate for a medical-imaging model (model-assessment).
 
 A conservative presence linter for a metrics report / results section: it flags when
 the reported metric set does not match the task and prevalence, per Metrics Reloaded
@@ -262,7 +262,7 @@ def render(result: dict) -> str:
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="Task-correct metric-reporting gate (model-evaluation).")
+    ap = argparse.ArgumentParser(description="Task-correct metric-reporting gate (model-assessment).")
     ap.add_argument("--report", required=True, help="metrics report / results markdown")
     ap.add_argument("--task", required=True,
                     choices=["segmentation", "classification", "detection", "interactive", "generative"])
@@ -278,7 +278,7 @@ def main() -> int:
 
     if not args.quiet:
         print("=" * 41)
-        print(" Metric Reporting (model-evaluation)")
+        print(" Metric Reporting (model-assessment)")
         print("=" * 41)
         print(render(result))
         print()

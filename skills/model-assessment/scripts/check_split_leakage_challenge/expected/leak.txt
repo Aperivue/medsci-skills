@@ -1,5 +1,5 @@
 =========================================
- Split-Leakage Gate (model-validation)
+ Split-Leakage Gate (model-assessment)
 =========================================
   rows=14  subjects=12  partitions={'test': 4, 'train': 6, 'val': 4}  seed=42
 | Check | Severity | Detail |

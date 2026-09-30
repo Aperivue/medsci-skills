@@ -1,4 +1,4 @@
-# Challenge card — uncertainty-imaging (uncertainty / OOD reporting rigor)
+# Challenge card — uncertainty / OOD reporting rigor (model-assessment)
 
 ## Problem
 A medical-imaging model framed for deployment must carry more than a point prediction: a
@@ -21,7 +21,7 @@ TRIPOD+AI) ask for exactly these.
 It **integrates** MAPIE / captum / the pretrained-detector ecosystem by reference; it does
 not reimplement them and never runs a model on real patient data. The gate audits the
 declared spec — a mislabelled field can hide a real problem, so it complements, not
-replaces, `model-evaluation`'s executed calibration/subgroup metrics.
+replaces, Part B's executed calibration/subgroup metrics.
 
 ## Fixture (synthetic only — no real images, no PII)
 - `fixture/uncertainty_weak.json` — a deployment claim with point predictions, an OOD claim
