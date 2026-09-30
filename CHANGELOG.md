@@ -40,6 +40,13 @@
   `[TODO authors confirm: …]` marker, and the placeholder check blocks submission until an
   author resolves it. `/humanize` no longer suggests rewording a required disclosure into a
   vaguer one that does not name the tool.
+- **The ICMJE fallback for AI-use disclosure matches the ICMJE Recommendations.** With no journal
+  policy to follow, `/add-journal`'s profile template said ICMJE limits AI to language editing and
+  wants it disclosed in Methods, and `/write-paper` fell back to Methods + Acknowledgments. The
+  Recommendations (section II.A.4) put writing assistance in the Acknowledgments and use in data
+  collection, analysis or figures in the Methods, disclosed in the cover letter as well, and do not
+  limit what AI may be used for. Both skills now say so, as do the two journal profiles that had
+  copied the old default.
 - **`/humanize` states one em-dash threshold** (per 1000 words, as its pattern reference does)
   instead of "per page" in one place and "per 1000 words" in another.
 - **Stale references:** `/model-validation` pointed to `/mllm-eval` "when available" (it is),

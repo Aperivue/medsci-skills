@@ -42,8 +42,8 @@ Original Articles are 4,000 words with a 300-word structured abstract (Purpose, 
 
 ## AI Writing Disclosure Policy
 - **Requirement level:** Not specified in the Instructions for Authors reviewed; follows ICMJE recommendations
-- **Permitted scope:** Language editing only, per ICMJE guidance
-- **Disclosure location:** Methods
+- **Permitted scope:** Not specified by the journal; ICMJE requires disclosure but does not limit use
+- **Disclosure location:** Acknowledgments for writing assistance; Methods for use in data collection, analysis or figures; cover letter for either (ICMJE default)
 - **AI-generated images:** Not specified
 - **Policy URL:** https://ejbc.kr/index.php?body=instruction
 

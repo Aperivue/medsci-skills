@@ -610,11 +610,11 @@ If a called skill is not available, perform that step inline using the relevant 
 ## LLM Writing Disclosure
 
 When LLM disclosure is enabled (default), the skill generates transparency statements
-compliant with ICMJE 2025 and COPE guidelines. The user can disable this with `--no-llm-disclosure`.
+that follow the ICMJE Recommendations and COPE guidance. The user can disable this with `--no-llm-disclosure`.
 
 ### Why Default ON
 
-Major journals (Nature, Lancet, Radiology, JAMA) and the ICMJE (2025 update) require
+Major journals (Nature, Lancet, Radiology, JAMA) and the ICMJE Recommendations require
 disclosure of AI writing assistance. Omitting disclosure risks rejection or retraction.
 The default-on design protects the user; they can opt out for journals with no such policy
 or when LLM assistance was minimal.
@@ -625,7 +625,8 @@ Where the disclosure goes is a fact about the target journal, and journals disag
 it in Methods, some in Acknowledgments, some only in the cover letter, title page or submission
 form. Take the location from the loaded journal profile (**Journal-Specific Overrides** below)
 and use only the templates for the places that journal asks for. With no target journal
-recorded, fall back to ICMJE (Methods + Acknowledgments) and treat the placement as
+recorded, fall back to ICMJE — Acknowledgments for writing assistance, Methods for use in data
+collection, analysis or figures, and the cover letter for either — and treat the placement as
 unconfirmed: the Phase 7.1 check (`check_classical_style.py`, `INBODY_AI_DISCLOSURE`) reports
 it as a Minor item until a target is set, and as Major if the target does not accept a body
 disclosure.
@@ -705,8 +706,9 @@ Use these fields to adjust disclosure language automatically. Key known policies
 - **Nature/Springer Nature**: Required; language editing only; Methods; AI images banned.
 - **Science/AAAS**: Most restrictive. LLM use limited; treated as potential misconduct if undisclosed.
 
-If the loaded journal profile has no AI Writing Disclosure Policy section, fall back to
-ICMJE 2025 defaults (disclose in Methods + Acknowledgments, language editing scope).
+If the loaded journal profile has no AI Writing Disclosure Policy section, fall back to the
+ICMJE placement under Disclosure Locations. ICMJE requires disclosure; it does not limit what AI
+may be used for, so take any limit on scope from the journal.
 
 ---
 

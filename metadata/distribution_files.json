@@ -173,8 +173,8 @@
     },
     {
       "path": "skills/add-journal/references/write_paper_profile_template.md",
-      "size": 3202,
-      "sha256": "75ce89f650ccda8f4c98ea9f27c3a6afb15e705d6cd50568158b29709bb70643"
+      "size": 3363,
+      "sha256": "24aec412460baebb114f6900231d1b360af9415c2351590d6e290db5577eb767"
     },
     {
       "path": "skills/add-journal/skill.yml",
@@ -1648,8 +1648,8 @@
     },
     {
       "path": "skills/find-journal/references/journal_profiles/Journal_of_Breast_Cancer.md",
-      "size": 3517,
-      "sha256": "66d2fd34f44ca75e83008543886532c7dea2a8c89137d7851b7780f048cab52b"
+      "size": 3683,
+      "sha256": "5486e19b7a8647dcfbe279c9047fc746a05c3a63bcf6237c3ec66cb7c22a0383"
     },
     {
       "path": "skills/find-journal/references/journal_profiles/Journal_of_Clinical_Endocrinology_and_Metabolism.md",
@@ -6113,8 +6113,8 @@
     },
     {
       "path": "skills/write-paper/SKILL.md",
-      "size": 50946,
-      "sha256": "c1c23343dd5db0952a531ecef057ff0afb6ec239bbaab766c7a8de9dc7d016cc"
+      "size": 51145,
+      "sha256": "8cbfc75951bff6db68c2311548ad6758dcc7886fe344ff76648ef0e7df17b79e"
     },
     {
       "path": "skills/write-paper/references/exemplar_abstract.md",
@@ -6308,8 +6308,8 @@
     },
     {
       "path": "skills/write-paper/references/journal_profiles/Diagnostic_and_Interventional_Radiology.md",
-      "size": 12383,
-      "sha256": "3ebcba0749b4a70c4f7b0d2dc1ec09cc28b982f942d879db9719808315829c0e"
+      "size": 12534,
+      "sha256": "a91d4fc6351610cf9bea8ed43a452a6babf37a7ab4d223703f1298b6678a3bec"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/ESMO_Open.md",
@@ -6418,8 +6418,8 @@
     },
     {
       "path": "skills/write-paper/references/journal_profiles/Journal_of_Breast_Cancer.md",
-      "size": 7277,
-      "sha256": "0dc4bede6e74c540ce5b8326db5d49b245f76867e5951703abc2ad07c0c515af"
+      "size": 7443,
+      "sha256": "a713d0d3fa38ee7f0f59b2e212cbd92e76374d499d63c12c2a37432ab962aec6"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/Journal_of_Clinical_Endocrinology_and_Metabolism.md",
