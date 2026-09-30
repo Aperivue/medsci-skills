@@ -4398,13 +4398,13 @@
     },
     {
       "path": "skills/render-pdf-doc/SKILL.md",
-      "size": 11331,
-      "sha256": "6eb5d087fb4634a440b4119d50946471189417b5b7222928f6088a4bfcb1a990"
+      "size": 8324,
+      "sha256": "7f3d8e6910affa97f1a164e5650594d5c6b42b53c6ac5b2c7d585868e284d8be"
     },
     {
       "path": "skills/render-pdf-doc/references/known_pitfalls.md",
-      "size": 2692,
-      "sha256": "ff168454b5503a5ad0cf933f5bf3d79ad5eaa496b56ef570798610f0b3a4ce05"
+      "size": 2638,
+      "sha256": "539e25fb7788361df9ddb43d7f4273ce10d088105f687f3a773e8c16cc40a23a"
     },
     {
       "path": "skills/render-pdf-doc/references/pandoc_korean_cheatsheet.md",
