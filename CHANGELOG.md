@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 
-## [6.0.0] - 2026-09-30
+## [6.0.0] - 2026-10-01
 
 **Hotfix:** several results were wrong in ways a user may have relied on: `/calc-sample-size` returned sample sizes up to about four times too small, `/deidentify` wrote cell values into its reports and let columns it could not classify through on Enter, and `/verify-refs` could report a reference with a DOI that does not exist as OK. The first section below lists what to re-check.
 

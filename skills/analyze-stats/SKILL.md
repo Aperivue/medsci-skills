@@ -141,18 +141,14 @@ np.random.seed(42)
 
 #### Assumption Checking
 
-Choose the summary and test from the design and the variable's distribution, not from a
-preliminary significance test:
+Choose the summary and test from the design and the distribution, not a preliminary test:
 
-- **Shape**: QQ plot / histogram and skewness. For Table 1, `|skewness| > 1` → median (IQR) with a
-  rank test; otherwise mean (SD) (`table-types/table1_demographics.md`). Do not gate on a
-  Shapiro-Wilk or Kolmogorov-Smirnov P value: they reject trivial departures at large n and miss
-  real ones at small n, KS with an estimated mean/SD is miscalibrated (no Lilliefors
-  correction), and test-then-test pipelines distort the type I error (Rochon et al. 2012).
-- **Unequal variances**: default to **Welch's** t-test / Welch ANOVA; Levene's test is not a gate,
-  and switching to Mann-Whitney does not fix unequal variances (it tests a different
-  hypothesis).
-- State the choice and the reason in Methods.
+- **Shape**: QQ plot / histogram and skewness; for Table 1, `|skewness| > 1` → median (IQR) with a
+  rank test, else mean (SD) (`table-types/table1_demographics.md`). Never gate on a Shapiro-Wilk or
+  KS P value: it flags trivial departures at large n, misses real ones at small n, and
+  test-then-test inflates the type I error (Rochon et al. 2012).
+- **Unequal variances**: default to **Welch's** t / Welch ANOVA, not a Levene gate; Mann-Whitney
+  tests a different hypothesis and does not fix them. State the choice and reason in Methods.
 
 #### Stratified & Ordinal-Trend Reporting
 
