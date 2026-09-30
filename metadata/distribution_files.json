@@ -2063,8 +2063,8 @@
     },
     {
       "path": "skills/make-figures/SKILL.md",
-      "size": 48325,
-      "sha256": "66f08bb072fc011c5d2c9124a8e9edc399c8dacfeaf48501a9a5f651e1869316"
+      "size": 30678,
+      "sha256": "edd0ab7de89cede599b8a280c742cd5428d389934933642058aaac028262ef8c"
     },
     {
       "path": "skills/make-figures/references/critic_rubrics/data_plot.md",
@@ -2073,8 +2073,8 @@
     },
     {
       "path": "skills/make-figures/references/critic_rubrics/flow_diagram.md",
-      "size": 7716,
-      "sha256": "b41bb4ec0415a16cf385e55e42a68da36b3398ac706011a731668f632fcbdb62"
+      "size": 8273,
+      "sha256": "56f7526a08fee4a9b675bfcfd9f515b1a18c5e8bd932629fdeeaee1d599251db"
     },
     {
       "path": "skills/make-figures/references/design_principles.md",
@@ -2353,13 +2353,13 @@
     },
     {
       "path": "skills/make-figures/references/figure_manifest.md",
-      "size": 2215,
-      "sha256": "4f581ac3b6c40504c7e29e2d760265fab30b516ad06b0f97bb13a75f39d988e3"
+      "size": 2233,
+      "sha256": "0a4197133ba6f7066034858aaa54007a4617bcf8fb8bb9fd5e4427bb0c87428a"
     },
     {
       "path": "skills/make-figures/references/figure_specs.md",
-      "size": 11529,
-      "sha256": "45a04e5e1e68e670a805aa1cd79199cf67c00abeb7272c401d881d7daee4e04e"
+      "size": 12808,
+      "sha256": "75310279723508d02ab65e131cab053b3d4051ea6708a271888429116ad05294"
     },
     {
       "path": "skills/make-figures/references/flow_diagram_lessons.md",
@@ -2373,13 +2373,13 @@
     },
     {
       "path": "skills/make-figures/references/jacc_central_illustration_principles.md",
-      "size": 5987,
-      "sha256": "f916fa03143c9a6364b653dcad3faafe26bd074db8e060fca1304642001de522"
+      "size": 6047,
+      "sha256": "cd9021a0bc43808d1e16d39c7ed860a4e350d71f57b9e633c9a375004fbf31da"
     },
     {
       "path": "skills/make-figures/references/medical_illustration_sources.md",
-      "size": 4087,
-      "sha256": "64de09db1e1df1447ab28a8788680a15ee23811eb45b1d8df99301e755cca894"
+      "size": 4085,
+      "sha256": "1d798b236d4750c93b4afef8c375de583b2dea270f62f5cfa1a127f840cf8040"
     },
     {
       "path": "skills/make-figures/references/pipeline_concepts_medical_ai.md",
@@ -2403,8 +2403,8 @@
     },
     {
       "path": "skills/make-figures/references/visual_abstract_templates/template_guide.md",
-      "size": 6710,
-      "sha256": "9c151944b960fba4342dbfcae4004c529227598ab50ce0e80f7bbb5f3343f754"
+      "size": 7029,
+      "sha256": "79ff60f7ffb4a330c1cbf1ec8717196dbc5bf32726910ea4cbca575c8a4ecb65"
     },
     {
       "path": "skills/make-figures/scripts/_strobe_cascade.py",

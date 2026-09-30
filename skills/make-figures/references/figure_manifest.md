@@ -1,11 +1,11 @@
-# `figures/_figure_manifest.md` — format and field definitions
+# `analysis/figures/_figure_manifest.md` — format and field definitions
 
 Load-on-demand companion to `/make-figures`. SKILL.md states that the manifest is
 mandatory and who consumes it; this file is the literal format.
 
 Read it when you are writing the manifest.
 
-After generating all figures, create a structured manifest file at `figures/_figure_manifest.md`:
+After generating all figures, create a structured manifest file at `analysis/figures/_figure_manifest.md`:
 
 ```markdown
 # Figure Manifest
