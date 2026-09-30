@@ -126,11 +126,13 @@ def clean_doi(doi: str) -> str:
     return doi.rstrip(".,;)].").lower()
 
 
-def normalize_doi_for_dup(doi: str) -> str:
+def normalize_doi_for_dup(doi: str, keep_trailing_slash: bool = False) -> str:
     """Strict DOI normalization for duplicate detection.
 
     Beyond clean_doi(): strips common URL prefixes and trailing slashes so that
     `https://doi.org/10.1234/abc/` and `10.1234/abc` collapse to the same key.
+    A trailing slash is legal in a DOI, so a registry lookup also needs the form
+    that keeps it (`keep_trailing_slash=True`).
     """
     if not doi:
         return ""
@@ -140,7 +142,9 @@ def normalize_doi_for_dup(doi: str) -> str:
         if s.startswith(prefix):
             s = s[len(prefix):]
             break
-    s = s.strip().rstrip("/")
+    s = s.strip()
+    if not keep_trailing_slash:
+        s = s.rstrip("/")
     return clean_doi(s)
 
 
@@ -604,18 +608,24 @@ def verify_doi_handle(doi: str, timeout: int) -> tuple[str, str, list]:
     when a title search then finds the work: a real paper cited with a wrong DOI). A registered
     DOI (a DataCite one, say) stays UNVERIFIED for the later indexes to confirm; any other
     answer (5xx, unexpected JSON), a network error, or a string that is not a well-formed DOI
-    (a placeholder such as "n/a") is UNVERIFIED as before. Returns (status, evidence, family_names).
+    (a placeholder such as "n/a") is UNVERIFIED as before. A DOI may legally end in "/", which
+    normalization strips, so the cited form is looked up too: FABRICATED only when every form is
+    registered nowhere. Returns (status, evidence, family_names).
     """
     handle = normalize_doi_for_dup(doi)
     if not WELL_FORMED_DOI_RE.match(handle):
         return "UNVERIFIED", "CrossRef 404; not a well-formed DOI, doi.org not consulted", []
-    status, data = http_fetch("https://doi.org/api/handles/" + urllib.parse.quote(handle), timeout)
-    code = data.get("responseCode") if isinstance(data, dict) else None
-    if status == 404 and code == 100:
-        return "FABRICATED", "DOI does not exist in any registry (CrossRef 404; doi.org handle not found)", []
-    if status == 200 and code == 1:
+    answers = []
+    for form in dict.fromkeys([handle, normalize_doi_for_dup(doi, keep_trailing_slash=True)]):
+        status, data = http_fetch("https://doi.org/api/handles/" + urllib.parse.quote(form), timeout)
+        code = data.get("responseCode") if isinstance(data, dict) else None
+        answers.append("found" if (status, code) == (200, 1)
+                       else "not_found" if (status, code) == (404, 100) else "failed")
+    if "found" in answers:
         return "UNVERIFIED", "CrossRef 404; DOI registered with another agency (doi.org handle found)", []
-    return "UNVERIFIED", "CrossRef 404; doi.org handle lookup failed", []
+    if "failed" in answers:
+        return "UNVERIFIED", "CrossRef 404; doi.org handle lookup failed", []
+    return "FABRICATED", "DOI does not exist in any registry (CrossRef 404; doi.org handle not found)", []
 
 
 def verify_pubmed_pmid(pmid: str, timeout: int) -> tuple[str, str, list]:

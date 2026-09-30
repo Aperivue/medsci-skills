@@ -56,7 +56,7 @@ def route(crossref, handle, openalex_doi=None, pubmed_title=None):
         if "api.crossref.org" in url:
             return crossref
         if "doi.org/api/handles/" in url:
-            return handle
+            return handle(url) if callable(handle) else handle
         if "api.openalex.org/works/https://doi.org/" in url:
             return (200, openalex_doi) if openalex_doi else (404, None)
         if "api.openalex.org" in url:
@@ -148,6 +148,30 @@ recs = vr.parse_reference_lines(
     "2. Roe R. Another synthetic reference. J Synth Med. 2020. doi:10.0000/synthetic.0002\n")
 check("SICI DOI extracted whole from text", recs[0].doi == sici.lower())
 check("ordinary DOI still extracted", recs[1].doi == "10.0000/synthetic.0002")
+
+# 8. A trailing "/" is legal in a DOI. The handle lookup strips it for normalization, so the
+#    form the reference actually cites is looked up too: FABRICATED only when every form is
+#    registered nowhere, any registered form means registered, any failed lookup UNVERIFIED.
+def by_form(slashed, stripped):
+    return lambda url: slashed if url.endswith("/") else stripped
+recs = vr.parse_bib("@article{synthetic2024,\n  title = {%s},\n  doi = {10.0000/synthetic.dataset/}\n}\n"
+                    % FAKE_TITLE)
+check("bib keeps the trailing slash of a DOI", recs[0].doi == "10.0000/synthetic.dataset/")
+route(CROSSREF_404, by_form(REGISTERED, NOT_FOUND))
+out = run(recs[0])
+check("slashed form registered, stripped form not -> not FABRICATED", out.status == "UNVERIFIED")
+check("both forms looked up",
+      sum("doi.org/api/handles/" in u for u in calls) == 2)
+route(CROSSREF_404, by_form(NOT_FOUND, NOT_FOUND))
+out = run(recs[0])
+check("neither form registered -> FABRICATED", out.status == "FABRICATED")
+route(CROSSREF_404, by_form(NETWORK_DOWN, NOT_FOUND))
+out = run(recs[0])
+check("slashed form lookup fails, stripped not registered -> UNVERIFIED", out.status == "UNVERIFIED")
+route(CROSSREF_404, NOT_FOUND)
+out = run(record("10.0000/synthetic.0001"))
+check("DOI without a trailing slash -> one lookup",
+      sum("doi.org/api/handles/" in u for u in calls) == 1)
 
 print(f"fail={fail}")
 print("ALL PASS" if fail == 0 else f"FAILURES: {fail}")
