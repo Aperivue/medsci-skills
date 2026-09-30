@@ -1,9 +1,9 @@
 ---
 name: polish-language
-description: Academic English consistency linting and non-native (ESL) language polish for medical manuscripts. Deterministically flags abbreviation define-once violations, US/UK spelling drift, hyphen-vs-en-dash numeric ranges, P/p case, hyphenation variants, small-number style, and value/unit spacing, then guides a style-only clarity pass that never alters numbers, citations, or scientific meaning. Distinct from humanize (AI-tell removal) and check-reporting (guideline items).
-triggers: polish language, copy-edit, consistency check, ESL, non-native English, house style, abbreviation consistency, en-dash, US UK spelling, proofread manuscript, 일관성 검사, 교정
-tools: Read, Write, Edit, Grep, Glob, Bash
+description: Use when a manuscript needs a copy-edit for consistency and non-native English clarity. Flags abbreviation, US/UK spelling, en-dash range, P/p, hyphenation, number-style and unit-spacing issues, then polishes style only. AI-tell removal is /humanize.
 model: inherit
+metadata:
+  triggers: "polish language, copy-edit, consistency check, ESL, non-native English, house style, abbreviation consistency, en-dash, US UK spelling, proofread manuscript, 일관성 검사, 교정"
 ---
 
 # Polish-Language Skill

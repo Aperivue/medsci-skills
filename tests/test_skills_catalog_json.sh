@@ -18,7 +18,7 @@ trap 'rm -rf "$WORK"' EXIT
 mk_skill() {  # name owner_domain layer
   local d="$WORK/skills/$1"
   mkdir -p "$d"
-  printf -- '---\nname: %s\ndescription: A synthetic %s skill for testing. Second sentence ignored.\ntriggers: a, b\ntools: Read\nmodel: sonnet\n---\nbody\n' "$1" "$1" > "$d/SKILL.md"
+  printf -- '---\nname: %s\ndescription: A synthetic %s skill for testing. Second sentence ignored.\nmodel: sonnet\nmetadata:\n  triggers: "a, b"\n---\nbody\n' "$1" "$1" > "$d/SKILL.md"
   printf 'schema_version: 2\nname: %s\nlayer: %s\nowner_domain: %s\nmaturity: official\n' "$1" "$3" "$2" > "$d/skill.yml"
 }
 

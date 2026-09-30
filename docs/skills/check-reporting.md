@@ -2,9 +2,9 @@
 
 # check-reporting
 
-> Check manuscript compliance with medical research reporting guidelines. Supports 49 guidelines including STROBE, STROBE-MR, RECORD, REMARK (prognostic tumor-marker studies), TARGET (target trial emulation), GATHER (burden-of-disease / health-estimate modeling), CONSORT, CONSORT-AI, STARD, STARD-AI, TRIPOD, TRIPOD+AI, TRIPOD-LLM, PGS-RS, ARRIVE, PRISMA, PRISMA 2020 for Abstracts, PRISMA-DTA, PRISMA-P, PRISMA-ScR (scoping reviews), CARE, SPIRIT, SPIRIT-AI, CLAIM, DECIDE-AI, MI-CLEAR-LLM, SQUIRE 2.0, CLEAR, MOOSE, GRRAS, SWiM, AMSTAR 2, CHEERS 2022, CROSS (survey studies), SRQR and COREQ (qualitative research), and risk of bias tools (QUADAS-3, QUADAS-2, QUADAS-C, RoB 2, ROBINS-I, ROBINS-E, ROBIS, ROB-ME, PROBAST, PROBAST+AI, NOS, COSMIN, RoB NMA). Generates item-by-item assessment with PRESENT/MISSING/PARTIAL status.
+> Use when auditing a manuscript item by item against a reporting guideline or risk-of-bias tool. Covers 49 reporting guidelines and risk-of-bias tools (STROBE, CONSORT, STARD, TRIPOD+AI, PRISMA, QUADAS and more), marking each item PRESENT, PARTIAL or MISSING. Not a reviewer critique (/self-review).
 
-**Invoke:** `/check-reporting` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
+**Invoke:** `/check-reporting` · **Model:** inherit
 
 ## When to use
 

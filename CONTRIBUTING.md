@@ -248,7 +248,7 @@ justified**. Permitted categories:
   Korean-PDF rendering references, Korean PII-detection patterns.
 - **Locale-jurisdiction modes** — e.g. `grant-builder`'s "Korean Government Grant Mode", where the
   prose is English but real Korean program/artifact terms are preserved.
-- **Bilingual `triggers:`** — additive recognition aliases in SKILL.md frontmatter.
+- **Bilingual `triggers:`** — additive recognition aliases in SKILL.md frontmatter (`metadata.triggers`).
 - **Opt-in `*_ko` variants** — a Korean sibling of an English-default file.
 
 Every file containing non-English text must appear in

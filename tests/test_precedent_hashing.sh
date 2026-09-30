@@ -56,7 +56,7 @@ check "clean stats line"             0 "$(ec_in 'AUC 0.89 (95% CI 0.85-0.93)')"
 # person, and a gate that fires on a template placeholder is one people route around.
 check "clean role description"       0 "$(ec_in '지도 교수 배정과 담당 교수 승인 절차')"
 check "clean templated placeholder"  0 "$(ec_in '- Supervisor: {교수님 성함} ({소속 이력})')"
-check "clean skill trigger phrase"   0 "$(ec_in 'triggers: MA 주제 찾기, professor MA, 연구 분석')"
+check "clean skill trigger phrase"   0 "$(ec_in '  triggers: "MA 주제 찾기, professor MA, 연구 분석"')"
 
 # A known identifier inside a path or compound slug must not evade the hashed
 # lookup. Terms and home-directory names here are entirely synthetic.

@@ -1,16 +1,9 @@
 ---
 name: render-pdf-doc
-description: >
-  Render academic Markdown documents (English or Korean) to publication-quality PDF via pandoc + xelatex.
-  Targets non-bibliography artifacts: research proposals, IRB cover letters, briefing
-  handouts, anchor docs (Q&A grids), and reference tables. Auto-infers pipe-table column
-  widths from content (label column shrinks to fit, data columns share remaining width).
-  CJK-aware font fallback for Korean text (Apple SD Gothic Neo on macOS, Noto Sans CJK KR on Linux).
-  NOT for: manuscripts with bibliography (use /manage-refs render_pandoc.sh), Word form
-  filling (/fill-protocol), figures (/make-figures).
-triggers: render PDF, PDF 렌더, korean PDF, 한글 PDF, anchor doc PDF, briefing PDF, proposal PDF, 연구계획서 PDF, 표 정렬 PDF, 표 폭 자동, tbl-colwidths, 학술 PDF
-tools: Read, Write, Edit, Bash, Grep, Glob
+description: Use when rendering a Markdown document (English or Korean) such as a proposal, IRB cover letter, handout or reference table to PDF via pandoc and xelatex, with auto-fitted table widths and CJK fonts. Not for manuscripts with a bibliography (/manage-refs) or Word forms.
 model: inherit
+metadata:
+  triggers: "render PDF, PDF 렌더, korean PDF, 한글 PDF, anchor doc PDF, briefing PDF, proposal PDF, 연구계획서 PDF, 표 정렬 PDF, 표 폭 자동, tbl-colwidths, 학술 PDF"
 ---
 
 # Render-PDF-Doc Skill

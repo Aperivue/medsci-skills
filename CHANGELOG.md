@@ -24,6 +24,15 @@
   name-only aliases (not chosen by the model on its own) until v7. The installer backs up a
   locally modified old skill before replacing it with its alias.
 
+- **Skill descriptions say when to use the skill, in 300 characters or fewer (v6).** The model picks
+  a skill from its description, and those ran to 945 characters (median 304) of feature lists.
+  Each now opens with "Use when …", names the situation in the words a user would type, and
+  where two skills look alike, which one takes over (`verify-refs` audits, `manage-refs` writes;
+  `self-review` is your own manuscript, `peer-review` someone else's). The frontmatter follows
+  the Agent Skills shape: `name`, `description`, `model`, and `triggers` moved unchanged under
+  `metadata`. `tools` is removed because hosts ignore it; it was not turned into
+  `allowed-tools`, which pre-approves tools rather than listing them. `validate_skills.sh` checks
+  the shape, the length, and that `tools` stays gone.
 - **The skill validator no longer rewards length or boilerplate.** `scripts/validate_skills.sh`
   failed any SKILL.md without an "Anti-Hallucination" heading, counted occurrences of the word
   "gate", and warned "THIN tier — consider expanding" below 150 lines. Those checks pushed every

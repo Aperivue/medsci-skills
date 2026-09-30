@@ -1,9 +1,9 @@
 ---
 name: clean-data
-description: Interactive data profiling and cleaning assistant for medical research. Three-stage workflow (profile, flag, code-generate) with user approval gates at each step. Handles missing values, outliers, duplicates, and type mismatches in CSV/Excel clinical data. Does NOT auto-clean — all decisions require researcher confirmation.
-triggers: clean data, data cleaning, data preprocessing, data profiling, missing values, outliers, check my data, data quality
-tools: Read, Write, Edit, Bash, Grep, Glob
+description: Use when a clinical CSV/Excel dataset needs profiling and cleaning before analysis (missing values, outliers, duplicates, type mismatches). Profiles, flags and generates cleaning code in three stages, each gated on the researcher's approval. Never auto-cleans.
 model: inherit
+metadata:
+  triggers: "clean data, data cleaning, data preprocessing, data profiling, missing values, outliers, check my data, data quality"
 ---
 
 # Data Profiling and Cleaning Skill

@@ -2,9 +2,9 @@
 
 # version-dataset
 
-> Dataset version control for research reproducibility. Builds a deterministic content-hash manifest of a dataset (file SHA-256 + tabular schema + per-column value hashes), verifies a later copy against it to detect drift (schema change, row-count change, value changes), and diffs two manifests. Use to prove an analysis ran on the intended data, lock a dataset version, or reproducibility-lock bundled demos.
+> Use when you must prove an analysis ran on the intended data or lock a dataset version. Builds a deterministic content-hash manifest (file SHA-256, schema, per-column value hashes), verifies later copies against it for drift, and diffs two manifests.
 
-**Invoke:** `/version-dataset` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
+**Invoke:** `/version-dataset` · **Model:** inherit
 
 ## When to use
 

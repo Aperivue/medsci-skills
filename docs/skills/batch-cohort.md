@@ -2,9 +2,9 @@
 
 # batch-cohort
 
-> Generate N analysis scripts from a single methodology template × multiple exposure/outcome combinations. The "80-person team" pattern — same validated method, swap variables only. Produces batch R/Python code + summary matrix.
+> Use when one validated cohort analysis must be repeated across many exposure/outcome pairs. Generates one R/Python script per combination from a single methodology template, changing only the variables, and aggregates the results into a summary matrix.
 
-**Invoke:** `/batch-cohort` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** opus
+**Invoke:** `/batch-cohort` · **Model:** opus
 
 ## When to use
 

@@ -1,13 +1,9 @@
 ---
 name: calc-sample-size
-description: >
-  Interactive sample size calculator for medical research. Decision-tree guided test selection,
-  reproducible R/Python code, effect size interpretation, and IRB-ready justification text.
-  Supports diagnostic accuracy, agreement, proportions, continuous outcomes, survival,
-  ANOVA, logistic regression, and non-inferiority/equivalence designs.
-triggers: sample size, power analysis, power calculation, how many patients, how many subjects, IRB sample size
-tools: Read, Write, Edit, Bash, Grep, Glob
+description: Use when planning how many patients or cases a study needs before data collection (power analysis, IRB justification). Walks a decision tree to the right test and returns reproducible R/Python code and IRB-ready justification text. Analyzing collected data is /analyze-stats.
 model: inherit
+metadata:
+  triggers: "sample size, power analysis, power calculation, how many patients, how many subjects, IRB sample size"
 ---
 
 # Calc-Sample-Size Skill

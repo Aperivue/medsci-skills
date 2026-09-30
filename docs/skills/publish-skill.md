@@ -2,9 +2,9 @@
 
 # publish-skill
 
-> Convert a personal agent skill into a distributable, open-source-ready skill. Runs PII audit, generalization, license compatibility check, cross-platform adapter review, and packaging workflow.
+> Use when turning a personal agent skill into an open-source, distributable one. Runs a PII audit, generalizes personal details, checks licence compatibility, reviews cross-platform adapters and walks through packaging.
 
-**Invoke:** `/publish-skill` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
+**Invoke:** `/publish-skill` · **Model:** inherit
 
 ## When to use
 

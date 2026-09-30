@@ -2,9 +2,9 @@
 
 # model-assessment
 
-> Use to validate or evaluate a trained medical-imaging model: split-leakage and validation-design audit, task-correct held-out metrics (Dice + HD95, AUROC + AUPRC, FROC, calibration), uncertainty/OOD and selective prediction for deployment, and Grad-CAM/explainability rigour — each with a gate.
+> Use when validating or evaluating a trained medical-imaging model. Audits split leakage and validation design, computes task-correct held-out metrics (Dice + HD95, AUROC + AUPRC, FROC, calibration), and covers uncertainty/OOD and Grad-CAM explainability, each with a gate.
 
-**Invoke:** `/model-assessment` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
+**Invoke:** `/model-assessment` · **Model:** inherit
 
 ## When to use
 

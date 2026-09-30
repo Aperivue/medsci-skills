@@ -1,16 +1,9 @@
 ---
 name: model-card
-description: >
-  Generate the documentation an engineer-built medical-imaging model must carry — a Model Card
-  (Mitchell et al. 2019), a Datasheet for its dataset (Gebru et al. 2021), and a METRIC-informed
-  data-quality pass — filled from user-supplied facts, then verify every required section is present
-  and non-empty before the card ships to a repo, Hugging Face card, or manuscript supplement. Never
-  fabricates numbers, provenance, consent, or licence; unfilled fields stay flagged. Ships a
-  deterministic completeness gate. Model Card and Datasheet are documentation standards vendored here as
-  templates, not counted reporting checklists.
-triggers: model card, model cards, datasheet, datasheet for datasets, dataset documentation, model documentation, hugging face card, model metadata, intended use, out-of-scope, data quality, METRIC framework, model reporting, document a model
-tools: Read, Write, Edit, Bash, Grep, Glob
+description: Use when a trained medical-imaging model needs its documentation. Fills a Model Card and a Datasheet for its dataset from facts you supply, adds a METRIC-informed data-quality pass and gates that no required section is empty. Never invents numbers, provenance or licence.
 model: inherit
+metadata:
+  triggers: "model card, model cards, datasheet, datasheet for datasets, dataset documentation, model documentation, hugging face card, model metadata, intended use, out-of-scope, data quality, METRIC framework, model reporting, document a model"
 ---
 
 # Model-Card Skill

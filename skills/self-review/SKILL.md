@@ -1,9 +1,9 @@
 ---
 name: self-review
-description: Pre-submission self-review for the user's own manuscripts, applying a reviewer perspective. Systematic check across 10 categories with research-type branching. Outputs Anticipated Major/Minor Comments with severity framing and optional R0 numbering for /revise pipeline integration.
-triggers: self-review, pre-submission check, check my paper, reviewer perspective, manuscript self-check
-tools: Read, Write, Edit, Bash, Grep, Glob
+description: Use when checking your own manuscript before submission from a reviewer's perspective. Returns anticipated Major/Minor comments with fixes, including numerical, citation and leakage checks, with an optional multi-reviewer panel. Someone else's paper is /peer-review.
 model: inherit
+metadata:
+  triggers: "self-review, pre-submission check, check my paper, reviewer perspective, manuscript self-check"
 ---
 
 # Self-Review Skill

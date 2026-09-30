@@ -1,12 +1,9 @@
 ---
 name: add-journal
-description: >
-  Add a new journal to the MedSci Skills profile database. Extracts metadata from
-  author guidelines, generates write-paper (detailed) and find-journal (compact)
-  profiles in canonical format with quality gates.
-triggers: add journal, new journal, create journal profile, journal profile 추가
-tools: Read, Write, Edit, Grep, Glob
+description: Use when a target journal has no profile yet. Reads the journal's author guidelines and writes a detailed /write-paper profile plus a compact /find-journal profile, public or user-local private, in the canonical format with quality gates.
 model: inherit
+metadata:
+  triggers: "add journal, new journal, create journal profile, journal profile 추가"
 ---
 
 # Add Journal Skill

@@ -1,9 +1,9 @@
 ---
 name: replicate-study
-description: Replicate an existing cohort study's methodology on a different database. Extracts study design from a source paper, maps variables to the target DB via harmonization table, generates analysis code, and produces a replication difference report.
-triggers: replicate study, replicate paper, 논문 복제, 방법론 복제, reproduce study, replication, 다른 DB로, swap database, 데이터 교체
-tools: Read, Write, Edit, Bash, Grep, Glob
+description: Use when applying a published cohort study's methodology to a different database. Extracts the design from the source paper, maps variables to the target database with a harmonization table, generates the analysis code and reports every forced deviation.
 model: opus
+metadata:
+  triggers: "replicate study, replicate paper, 논문 복제, 방법론 복제, reproduce study, replication, 다른 DB로, swap database, 데이터 교체"
 ---
 
 # Replicate Study Skill

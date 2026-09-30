@@ -2,9 +2,9 @@
 
 # design-ai-benchmarking
 
-> Design and validity review for studies that benchmark one or more AI systems against a human-expert panel as the reference. Covers the evaluation question and arm definition, decoupled multi-dimensional rubrics with anchors, planted calibration probes, reviewer-panel construction, inter-rater reliability targets, LLM-as-judge versus human-as-judge adjudication, construct-independence guards, and a structured rating-export schema. Use before data collection on an AI-vs-expert evaluation.
+> Use when designing a study that benchmarks AI systems against a human-expert panel, before data collection. Plans the arms, decoupled rubrics with anchors, planted calibration probes, reviewer panel, inter-rater reliability targets and LLM-as-judge versus human adjudication.
 
-**Invoke:** `/design-ai-benchmarking` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
+**Invoke:** `/design-ai-benchmarking` · **Model:** inherit
 
 ## When to use
 

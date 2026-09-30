@@ -2,9 +2,9 @@
 
 # make-figures
 
-> Generate publication-ready figures and visual abstracts for medical research papers. Supports ROC curves, forest plots, CONSORT/STARD/PRISMA flow diagrams, calibration plots, Kaplan-Meier curves, Bland-Altman plots, confusion matrices, pipeline diagrams, and journal-specific visual/graphical abstracts (python-pptx template-based).
+> Use when a paper needs publication-ready figures or a visual abstract. Makes ROC, forest, calibration, Kaplan-Meier and Bland-Altman plots, CONSORT/STARD/PRISMA flow diagrams, confusion matrices, pipeline diagrams and journal visual abstracts, checking the journal's AI-image policy first.
 
-**Invoke:** `/make-figures` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
+**Invoke:** `/make-figures` · **Model:** inherit
 
 ## When to use
 
