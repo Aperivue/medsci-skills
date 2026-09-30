@@ -198,8 +198,8 @@
     },
     {
       "path": "skills/analyze-stats/SKILL.md",
-      "size": 26098,
-      "sha256": "ef2636be73838dcbeaf2fd761039331654e1becdc5ad70b024ba572a80d800ec"
+      "size": 26291,
+      "sha256": "009a36404b2df0cc3ce4c68a970a7978f373ea6e5402c304f23cf091aa41403e"
     },
     {
       "path": "skills/analyze-stats/references/analysis_guides/agreement_reliability.md",
@@ -623,8 +623,8 @@
     },
     {
       "path": "skills/calc-sample-size/SKILL.md",
-      "size": 11120,
-      "sha256": "1842599a04c41bb1dbf3faff87c6adce74db8044b5d29d714431629b7306f458"
+      "size": 11335,
+      "sha256": "367786449236fb61c0a6653e18aa3e1198dc9fb86a02de8dc3205c33face17e4"
     },
     {
       "path": "skills/calc-sample-size/references/formulas.md",
@@ -4623,8 +4623,8 @@
     },
     {
       "path": "skills/self-review/SKILL.md",
-      "size": 43807,
-      "sha256": "48e6ca7d8b64ba403b710cdf67648301f9f8f974359bd21270b179bedf9182fa"
+      "size": 43972,
+      "sha256": "f681999026df8c1910894398e86fb5c36b58645548b0bf189ce9fd2795f1c907"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",

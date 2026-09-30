@@ -211,7 +211,9 @@ After execution, generate manuscript-ready text from the script's output:
    section. Cite only references whose DOI/PMID `/search-lit` confirmed; mark any other
    `[UNVERIFIED - NEEDS MANUAL CHECK]`.
 
-Report statistical results; leave judgments of clinical significance to the user.
+Report statistical results; leave judgments of clinical significance to the user. For designs this
+skill does not cover (adaptive or Bayesian trials, complex multilevel or causal-mediation models),
+say so and recommend biostatistician review before the results are reported.
 
 ## Statistical Reporting Rules (Always Enforced)
 

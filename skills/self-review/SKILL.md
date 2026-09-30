@@ -13,7 +13,7 @@ reviewer comments, each with a specific fix — not a written review.
 
 ## Optional Flags
 
-- `--fix`: after the report, apply fixes for every issue with `fixable_by_ai: true`, editing the manuscript in place, then report a diff summary. Never fix `fixable_by_ai: false` issues (missing data, design flaws). Maximum 2 fix-and-re-review iterations.
+- `--fix`: after the report, apply fixes for every issue with `fixable_by_ai: true`, editing the manuscript in place, then report a diff summary. Never fix `fixable_by_ai: false` issues (missing data, design flaws). Maximum 2 fix-and-re-review iterations; if the score is still below threshold after the second, stop and report what remains as structural (inside `/write-paper` this routes to Phase 7.4a Audit Recovery).
 - `--json`: also emit the structured JSON block (Phase 3c). Default when called from `/write-paper` Phase 7.
 - `--panel`: run the multi-agent panel review (Phase 2.6) — domain-expert reviewers in parallel plus an editor synthesis — instead of the single-pass review. Opt-in and **off by default**, because it spawns N reviewer agents + 1 editor and costs several times more tokens; reserve it for a high-stakes final pass on a top-tier target. Do **not** combine with `--fix`: a panel diagnoses and prioritizes; run `--fix` as a separate pass once the author has triaged the panel's findings.
 
