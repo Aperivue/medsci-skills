@@ -198,12 +198,14 @@ def run():
         h3 = base / "home3"
         medsci_txn.atomic_write_json(h3 / "targets" / "claude" / "state.json", {"installed_version": "1.0.0"})
         real_resolve, real_argv, prev_home = U.resolve_latest, sys.argv, os.environ.get("MEDSCI_HOME")
+        real_asset = U.os_asset_name  # raises on Linux (no classroom ZIP), so pin it for this check
         U.resolve_latest = lambda _get_json, _asset: {"tag": "v2.0.0"}
+        U.os_asset_name = lambda: asset
         sys.argv, os.environ["MEDSCI_HOME"] = ["install.py", "--dry-run", "--check-update"], str(h3)
         try:
             rc = install.main()
         finally:
-            U.resolve_latest, sys.argv = real_resolve, real_argv
+            U.resolve_latest, U.os_asset_name, sys.argv = real_resolve, real_asset, real_argv
             if prev_home is None:
                 os.environ.pop("MEDSCI_HOME", None)
             else:
