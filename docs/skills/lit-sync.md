@@ -38,6 +38,8 @@
 **References** (`skills/lit-sync/references/`):
 
 - `bbt_lookup.md`
+- `concept_note_template.md`
+- `fulltext_report.md`
 - `locale/` (1 file)
 
 **Scripts** (`skills/lit-sync/scripts/`):

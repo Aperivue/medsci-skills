@@ -2033,13 +2033,23 @@
     },
     {
       "path": "skills/lit-sync/SKILL.md",
-      "size": 23618,
-      "sha256": "805a99cd27876d0aff97777415879f298608845abcdb0b782739f75dd84cfbc1"
+      "size": 18098,
+      "sha256": "1f443f8bdb53b42b4cb3df75cc23601ec1bc3ef8692a5f26f01ce9ace072df7d"
     },
     {
       "path": "skills/lit-sync/references/bbt_lookup.md",
       "size": 2236,
       "sha256": "862f4402f5f44861829f165f6df7eecc0c9e03d4824639190d7252fdc0391223"
+    },
+    {
+      "path": "skills/lit-sync/references/concept_note_template.md",
+      "size": 1052,
+      "sha256": "58ab3eb06d20c5ade0072053b421d5c68f6bd6c015a82603327f0177bc905740"
+    },
+    {
+      "path": "skills/lit-sync/references/fulltext_report.md",
+      "size": 1590,
+      "sha256": "71d371aa2bf697de0cd468daeb1ef495c0e74c32e73def980a1f071d5d828102"
     },
     {
       "path": "skills/lit-sync/references/locale/ko/note_templates.md",
