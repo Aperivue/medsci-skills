@@ -141,7 +141,7 @@ ONLINE_FIRST = {"status": "ok", "message": {
     "published-online": {"date-parts": [[2022, 12, 14]]},
     "published-print": {"date-parts": [[2023, 2]]},
     "author": [{"family": "Example"}]}}
-vr.http_json = make_http({"api.crossref.org/works/": ONLINE_FIRST})
+vr.http_fetch = lambda url, timeout: (200, ONLINE_FIRST)  # verify_crossref reads the HTTP status
 st, ev, fams = vr.verify_crossref("10.0000/example.1", 5)
 check("crossref year prefers the print year", st == "OK" and "year=2023" in ev)
 check("crossref year also shows the differing online year", "online 2022" in ev)
@@ -150,7 +150,7 @@ ISSUED_ONLY = {"status": "ok", "message": {
     "title": ["A synthetic record with one date"],
     "issued": {"date-parts": [[2021]]},
     "author": [{"family": "Example"}]}}
-vr.http_json = make_http({"api.crossref.org/works/": ISSUED_ONLY})
+vr.http_fetch = lambda url, timeout: (200, ISSUED_ONLY)  # verify_crossref reads the HTTP status
 st, ev, fams = vr.verify_crossref("10.0000/example.2", 5)
 check("crossref single-date year is shown plainly", "year=2021;" in ev + ";" and "(print" not in ev)
 

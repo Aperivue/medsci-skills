@@ -79,15 +79,21 @@ fi
 # mismatches) before they reach the PDF/DOCX. Best-effort: if verify-refs is not installed
 # alongside (and $MEDSCI_VERIFY_REFS is unset) the gate is skipped with a warning, so a
 # standalone manage-refs copy still renders. Opt out explicitly with -S.
+# UNVERIFIED rows (a lookup that confirmed nothing, including every row when the network is
+# down) exit 0 and do not block, but they are not "clean": the render says how many there are.
 if [[ "$SKIP_AUDIT" -eq 0 ]]; then
   VR="${MEDSCI_VERIFY_REFS:-${SCRIPT_DIR}/../../verify-refs/scripts/verify_refs.py}"
   if [[ -f "$VR" ]] && command -v python3 >/dev/null 2>&1; then
     echo "[render] pre-render reference audit (verify-refs) on $BIB ..." >&2
     set +e
-    python3 "$VR" "$BIB" >&2
+    audit_out="$(python3 "$VR" "$BIB")"
     audit_rc=$?
     set -e
-    if [[ "$audit_rc" -eq 0 ]]; then
+    [[ -n "$audit_out" ]] && printf '%s\n' "$audit_out" >&2
+    n_unverified="$(printf '%s\n' "$audit_out" | sed -n 's/^ *"UNVERIFIED": *\([0-9][0-9]*\).*/\1/p' | head -n 1)"
+    if [[ "$audit_rc" -eq 0 && -n "$n_unverified" && "$n_unverified" != "0" ]]; then
+      echo "[render] reference audit: NOT clean — $n_unverified reference(s) UNVERIFIED (nothing confirmed them; no FABRICATED / MISMATCH found). Continuing render; confirm each by hand before submission (see qc/reference_audit.json)." >&2
+    elif [[ "$audit_rc" -eq 0 ]]; then
       echo "[render] reference audit: clean" >&2
     elif [[ "$audit_rc" -eq 1 ]]; then
       echo "ERROR: reference audit found FABRICATED / MISMATCH / duplicate citations (see qc/reference_audit.json)." >&2

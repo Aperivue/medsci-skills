@@ -18,6 +18,7 @@ import os
 import re
 import sys
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 import zipfile
@@ -26,7 +27,11 @@ from pathlib import Path
 from xml.etree import ElementTree as ET
 
 
-DOI_RE = re.compile(r"\b10\.\d{4,9}/[-._;()/:A-Z0-9]+\b", re.I)
+# `<>` belong to legacy SICI DOIs (10.1002/(SICI)...17:8<857::AID-SIM777>3.0.CO;2-E). Without
+# them a text reference's DOI was cut at the `<`, and a cut DOI is not registered anywhere,
+# which the doi.org check below would report as FABRICATED.
+DOI_RE = re.compile(r"\b10\.\d{4,9}/[-._;()/:<>A-Z0-9]+\b", re.I)
+WELL_FORMED_DOI_RE = re.compile(r"^10\.\d{4,9}/\S+$")
 PMID_RE = re.compile(r"\bPMID\s*:?\s*(\d{5,9})\b", re.I)
 YEAR_RE = re.compile(r"\b(19|20)\d{2}\b")
 
@@ -267,11 +272,25 @@ def parse_tsv(text: str) -> list[RefRecord]:
     return records
 
 
+# A bare "References" line, or a Markdown heading ("## References", "**References**",
+# Quarto's "# References {.unnumbered}"). Missing the heading form parsed the whole .md/.qmd,
+# so body paragraphs and bullets became references (all UNVERIFIED; --strict never passed).
+REFERENCE_HEADING_RE = re.compile(
+    r"(?im)^[ \t]*(#{1,6})?[ \t]*\**[ \t]*(?:references|bibliography|reference list)"
+    r"[ \t]*\**[ \t]*:?[ \t]*(?:\{[^}\n]*\})?[ \t]*$"
+)
+
+
 def reference_section(text: str) -> str:
-    match = re.search(r"(?im)^\s*(references|bibliography|reference list)\s*$", text)
-    if match:
-        return text[match.end() :]
-    return text
+    match = REFERENCE_HEADING_RE.search(text)
+    if not match:
+        return text
+    section = text[match.end() :]
+    # The list ends at the next heading of the same or a higher level (Tables, Figure
+    # Legends); after a bare "References" line, at any Markdown heading.
+    level = len(match.group(1) or "") or 6
+    end = re.search(rf"(?m)^[ \t]*#{{1,{level}}}[ \t]", section)
+    return section[: end.start()] if end else section
 
 
 def parse_reference_lines(text: str) -> list[RefRecord]:
@@ -491,6 +510,31 @@ def http_json(url: str, timeout: int) -> dict | None:
         return None
 
 
+def http_fetch(url: str, timeout: int) -> tuple[int | None, dict | None]:
+    """(HTTP status, parsed JSON body) — unlike http_json, an error status is returned.
+
+    A registry's 404 is an answer ("no such DOI"), not a failed lookup, so the DOI path
+    needs to tell it apart from a timeout. Status is None when no HTTP response arrived;
+    the body is None when it is not JSON.
+    """
+    req = urllib.request.Request(url, headers={"User-Agent": _user_agent()})
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            status, body = resp.status, resp.read()
+    except urllib.error.HTTPError as err:
+        status = err.code
+        try:
+            body = err.read()
+        except Exception:
+            body = b""
+    except Exception:
+        return None, None
+    try:
+        return status, json.loads(body.decode("utf-8", "replace"))
+    except ValueError:
+        return status, None
+
+
 def crossref_year(msg: dict) -> str:
     """The year to show for a CrossRef record: print, then online, then issued.
 
@@ -526,8 +570,10 @@ def verify_crossref(doi: str, timeout: int) -> tuple[str, str, list]:
     Use verify_pubmed_efetch as the truth source when PMID is available.
     """
     url = "https://api.crossref.org/works/" + urllib.parse.quote(doi)
-    data = http_json(url, timeout)
-    if not data or data.get("status") != "ok":
+    status, data = http_fetch(url, timeout)
+    if status == 404:
+        return verify_doi_handle(doi, timeout)
+    if not isinstance(data, dict) or data.get("status") != "ok":
         return "UNVERIFIED", "CrossRef DOI lookup failed", []
     msg = data.get("message", {})
     title = " ".join(msg.get("title") or [])
@@ -546,6 +592,30 @@ def verify_crossref(doi: str, timeout: int) -> tuple[str, str, list]:
     if families:
         evidence += f"; authors={len(families)} (first={families[0]})"
     return "OK", evidence, families
+
+
+def verify_doi_handle(doi: str, timeout: int) -> tuple[str, str, list]:
+    """A DOI CrossRef answered 404 for: ask the DOI handle registry whether it exists at all.
+
+    CrossRef is one of several registration agencies (DataCite, mEDRA, JaLC, ...), so its 404
+    alone proves nothing. doi.org's handle API resolves across all of them: HTTP 404 with
+    responseCode 100 means the DOI is registered nowhere, i.e. it does not exist -> FABRICATED,
+    the same meaning as a PMID PubMed has no record of (verify_record turns it into MISMATCH
+    when a title search then finds the work: a real paper cited with a wrong DOI). A registered
+    DOI (a DataCite one, say) stays UNVERIFIED for the later indexes to confirm; any other
+    answer (5xx, unexpected JSON), a network error, or a string that is not a well-formed DOI
+    (a placeholder such as "n/a") is UNVERIFIED as before. Returns (status, evidence, family_names).
+    """
+    handle = normalize_doi_for_dup(doi)
+    if not WELL_FORMED_DOI_RE.match(handle):
+        return "UNVERIFIED", "CrossRef 404; not a well-formed DOI, doi.org not consulted", []
+    status, data = http_fetch("https://doi.org/api/handles/" + urllib.parse.quote(handle), timeout)
+    code = data.get("responseCode") if isinstance(data, dict) else None
+    if status == 404 and code == 100:
+        return "FABRICATED", "DOI does not exist in any registry (CrossRef 404; doi.org handle not found)", []
+    if status == 200 and code == 1:
+        return "UNVERIFIED", "CrossRef 404; DOI registered with another agency (doi.org handle found)", []
+    return "UNVERIFIED", "CrossRef 404; doi.org handle lookup failed", []
 
 
 def verify_pubmed_pmid(pmid: str, timeout: int) -> tuple[str, str, list]:
@@ -627,7 +697,14 @@ def verify_pubmed_efetch(pmid: str, timeout: int) -> tuple[str, str, list, list]
 
 
 def verify_pubmed_title(title: str, timeout: int) -> tuple[str, str, list]:
-    """Title-only search returns no confident author list."""
+    """Title-only search returns no confident author list.
+
+    esearch matches the words of a title, not the title, so a made-up title still returns
+    PMIDs and a hit proves nothing on its own. The candidates' titles are fetched and the best
+    one must pass the same similarity guard as the OpenAlex title search; otherwise the row
+    stays UNVERIFIED. Returning OK on the bare hit let a reference with a fabricated DOI and a
+    fabricated title end OK and fully verified.
+    """
     if not title:
         return "UNVERIFIED", "No DOI, PMID, or usable title", []
     url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?" + urllib.parse.urlencode(
@@ -639,15 +716,39 @@ def verify_pubmed_title(title: str, timeout: int) -> tuple[str, str, list]:
     ids = data.get("esearchresult", {}).get("idlist", [])
     if not ids:
         return "UNVERIFIED", "No PubMed title match", []
-    return "OK", f"PubMed title match; PMID candidates={','.join(ids)}", []
+    time.sleep(0.2)
+    url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?" + urllib.parse.urlencode(
+        {"db": "pubmed", "id": ",".join(ids), "retmode": "json", **_ncbi_extras()}
+    )
+    summary = http_json(url, timeout)
+    if not summary:
+        return "UNVERIFIED", f"PubMed title candidates could not be fetched; PMID candidates={','.join(ids)}", []
+    result = summary.get("result", {})
+    best_id, best_sim = "", 0.0
+    for pmid in ids:
+        sim = _title_similarity(title, html.unescape((result.get(pmid) or {}).get("title", "")))
+        if sim > best_sim:
+            best_id, best_sim = pmid, sim
+    if best_sim >= TITLE_MATCH_MIN:
+        return "OK", f"PubMed title match; PMID={best_id} (sim={best_sim:.2f})", []
+    return (
+        "UNVERIFIED",
+        f"No confident PubMed title match (best sim={best_sim:.2f}); PMID candidates={','.join(ids)}",
+        [],
+    )
+
+
+# Minimum _title_similarity for a title-search hit to count as the cited work (OpenAlex and
+# the PubMed title fallback share it).
+TITLE_MATCH_MIN = 0.8
 
 
 def _title_similarity(a: str, b: str) -> float:
     """Token Jaccard on normalized titles (stdlib-only).
 
-    Guards OpenAlex title matches: a fabricated title must not earn a spurious OK
-    just because a full-text search returned some unrelated work. Stop-short tokens
-    (<=2 chars) are dropped so connective words do not inflate similarity.
+    Guards title-search matches (OpenAlex, PubMed fallback): a fabricated title must not
+    earn a spurious OK just because a search returned some unrelated work. Stop-short
+    tokens (<=2 chars) are dropped so connective words do not inflate similarity.
     """
     def toks(s: str) -> set:
         s = re.sub(r"[^a-z0-9 ]", " ", s.lower())
@@ -722,7 +823,7 @@ def verify_openalex(doi: str, title: str, timeout: int) -> tuple[str, str, list]
             sim = _title_similarity(title, w.get("title") or w.get("display_name") or "")
             if sim > best_sim:
                 best, best_sim = w, sim
-        if best is not None and best_sim >= 0.8:
+        if best is not None and best_sim >= TITLE_MATCH_MIN:
             work = best
             via = f"title(sim={best_sim:.2f})"
     if work is None:
@@ -954,6 +1055,8 @@ def verify_record(record: RefRecord, offline: bool, timeout: int,
             record.note = "first-author hallucination suspected (DOI/PMID correct, family differs)"
         else:
             record.note = "non-first-author hallucination or count mismatch (DOI/PMID correct)"
+    if "OK" in statuses and "FABRICATED" in statuses and not record.note:
+        record.note = "wrong identifier: the cited DOI/PMID does not exist, but the work itself was found"
     record.evidence = " | ".join(p for p in evidence_parts if p)
     if sources_consulted:
         record.evidence += f" | source={'+'.join(sources_consulted)}"
@@ -1109,7 +1212,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Verify manuscript references.")
     parser.add_argument("input", help="Input .md, .docx, .bib, .txt, or .tsv file")
     parser.add_argument("--project-root", default=".", help="Project root for output artifacts")
-    parser.add_argument("--offline", action="store_true", help="Do not call PubMed/CrossRef/OpenAlex APIs")
+    parser.add_argument("--offline", action="store_true", help="Do not call PubMed/CrossRef/doi.org/OpenAlex APIs")
     parser.add_argument("--no-openalex", action="store_true",
                         help="Disable the OpenAlex tertiary index (restrict to PubMed + CrossRef)")
     parser.add_argument("--timeout", type=int, default=10, help="HTTP timeout seconds")

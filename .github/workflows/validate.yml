@@ -371,6 +371,15 @@ jobs:
       - name: "Run verify-refs audit-source test (a committed audit must not carry an absolute path)"
         run: bash skills/verify-refs/tests/test_audit_source_path.sh
 
+      - name: "Run verify-refs title-fallback test (a PubMed search hit alone does not verify a made-up title)"
+        run: bash skills/verify-refs/tests/test_title_fallback_guard.sh
+
+      - name: "Run verify-refs unregistered-DOI test (a DOI no registration agency holds is FABRICATED)"
+        run: bash skills/verify-refs/tests/test_doi_not_registered.sh
+
+      - name: "Run verify-refs Markdown heading test (a ## References heading opens the reference list)"
+        run: bash skills/verify-refs/tests/test_markdown_reference_heading.sh
+
       - name: "Run verify-refs claim-fidelity challenge (a real citation carrying a claim its source never makes)"
         run: |
           bash skills/verify-refs/scripts/claim_fidelity_challenge/verify.sh
@@ -512,6 +521,9 @@ jobs:
 
       - name: Run manage-refs CSL-render hardening test
         run: bash skills/manage-refs/tests/test_csl_render.sh
+
+      - name: "Run manage-refs render-audit test (UNVERIFIED references are not reported clean)"
+        run: bash skills/manage-refs/tests/test_render_audit_unverified.sh
 
       - name: Run polish-language consistency-linter challenge
         run: |
