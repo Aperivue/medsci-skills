@@ -36,7 +36,8 @@ scripts. If you run a detector by its path, keep the file name and change the fo
 
 - **Shorter skill files.** Many `SKILL.md` files are shorter; material that only some runs need
   moved into files in the skill's `references/` folder.
-- **SKILL.md frontmatter.** Descriptions are shorter; see [CHANGELOG.md](CHANGELOG.md).
+- **SKILL.md frontmatter.** Each description is at most 300 characters and starts with "Use
+  when"; `triggers` moved under `metadata`, and `tools` is gone. See [CHANGELOG.md](CHANGELOG.md).
 - **A short README.** Install options, updating and requirements moved to
   [docs/install.md](docs/install.md), the demos to [docs/demos.md](docs/demos.md), and workflows
   and skill boundaries to [docs/workflows.md](docs/workflows.md). Links to sections of the old

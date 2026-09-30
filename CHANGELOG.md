@@ -24,7 +24,7 @@
   name-only aliases (not chosen by the model on its own) until v7. The installer backs up a
   locally modified old skill before replacing it with its alias.
 
-- **Skill descriptions say when to use the skill, in 300 characters or fewer.** The model picks
+- **Skill descriptions say when to use the skill, in 300 characters or fewer (v6).** The model picks
   a skill from its description, and those ran to 945 characters (median 304) of feature lists.
   Each now opens with "Use when …", names the situation in the words a user would type, and
   where two skills look alike, which one takes over (`verify-refs` audits, `manage-refs` writes;
