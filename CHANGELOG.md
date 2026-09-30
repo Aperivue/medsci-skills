@@ -270,6 +270,19 @@
   freely available in PubMed Central looked the same as a subscription one. The line now also
   carries the PMCID and the article's PubMed Central address.
 
+- **`/check-reporting`: CONSORT 2025 and SPIRIT 2025 items say everything the statements say.**
+  Eight items had been shortened when the checklists were transcribed, while each file said its items
+  matched the published table. CONSORT 18 had lost "describing any steps to conceal the sequence
+  until interventions were assigned"; CONSORT 26 had lost the requirement to present both absolute
+  and relative effect sizes for binary outcomes; CONSORT 9, 12b, 14 and 24a had lost their examples;
+  SPIRIT 18 and 21b had been paraphrased. All eight now carry the published text. The checklist
+  fidelity check now compares each item's text, not only its number, with Table 1 of the statement
+  for STARD 2015, CONSORT 2025 and SPIRIT 2025; the published text is extracted from the Europe PMC
+  full text by a script, so no model retypes it. Those extracts stay in the repository's tests and are
+  not installed.
+- **`/check-reporting`: STARD items 1 and 2 end where the published items end.** The vendored
+  checklist carried the next section's heading ("Abstract", "Introduction") at the end of each
+  item's text, left over from extraction; the file's own check compared item ids only.
 - **`/check-reporting`: five bundled checklists are no longer reported as unknown.** The
   checklist guard answered QUADAS-3, PRISMA 2020 for Abstracts, GATHER, "SQUIRE 2.0" and "ARRIVE 2.0"
   with `UNKNOWN_GUIDELINE`, so the skill asked the user about instruments it ships. Three files had
