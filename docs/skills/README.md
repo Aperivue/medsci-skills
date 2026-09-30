@@ -6,7 +6,7 @@ One reference page per skill, generated from each skill's `SKILL.md` and `skill.
 
 - [academic-aio](academic-aio.md) — Use when a medical AI paper should be found and cited by AI search engines and RAG tools. _(evidence: bundled_script)_
 - [add-journal](add-journal.md) — Use when a target journal has no profile yet. _(evidence: manual_workflow)_
-- [analyze-stats](analyze-stats.md) — Use when you have data and need the statistics run. _(evidence: demo)_
+- [analyze-stats](analyze-stats.md) — Use when data needs statistical analysis. _(evidence: demo)_
 - [author-strategy](author-strategy.md) — Use when analyzing a researcher's publication record from PubMed. _(evidence: manual_workflow)_
 - [batch-cohort](batch-cohort.md) — Use when one validated cohort analysis must be repeated across many exposure/outcome pairs. _(evidence: manual_workflow)_
 - [calc-sample-size](calc-sample-size.md) — Use when planning how many patients or cases a study needs before data collection (power analysis, IRB justification). _(evidence: manual_workflow)_

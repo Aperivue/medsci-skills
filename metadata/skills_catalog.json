@@ -138,7 +138,7 @@
       "layer": "B",
       "owner_domain": "statistical_analysis",
       "maturity": "official",
-      "description": "Use when you have data and need the statistics run."
+      "description": "Use when data needs statistical analysis."
     },
     {
       "slug": "author-strategy",
