@@ -17,7 +17,7 @@ no per-case distribution, no clinician judgement, no statement of what a failure
 like. The reviewer's objection is not that 0.87 is low. It is that **0.87 is silent on the question
 being claimed**, and the study has no instrument that could have answered it.
 
-How wide that silence is, measured: in a multi-institution evaluation of one auto-contouring pipeline,
+How wide that silence is, measured: in a seven-site evaluation of one auto-contouring pipeline,
 physician-rated *use-as-is* rates ranged from **89% (head/neck normal tissue) to 40% (head/neck CTV)
 to 44% (postmastectomy breast)** — with **the same software** *(JCO Glob Oncol 2024
 `10.1200/GO.23.00376`, CC BY: 5-point Likert, 31 radiation oncologists across 16 institutions and 6
