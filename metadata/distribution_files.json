@@ -5668,8 +5668,8 @@
     },
     {
       "path": "skills/sync-submission/SKILL.md",
-      "size": 42494,
-      "sha256": "c99dadbf041e1131ee57978818a83f1c69e8d7d032a662fc64fce1b534978cad"
+      "size": 29451,
+      "sha256": "ac3835e78b70bfd257bf148848981e57e8758e2e2da8f9b5e45b070b1ea4c5fd"
     },
     {
       "path": "skills/sync-submission/examples/build_synthetic_bundle.py",
@@ -5685,6 +5685,16 @@
       "path": "skills/sync-submission/references/journal_availability_policy.json",
       "size": 1257,
       "sha256": "6d278675d7c734aa3589165817f5413cc46c44402ea15039e51052ab2f52c0a8"
+    },
+    {
+      "path": "skills/sync-submission/references/marked_manuscript.md",
+      "size": 1718,
+      "sha256": "990fbdc67270097599e7ed4e7d2f1848dac7186ed6d8e82ce0d90941a5fcdad6"
+    },
+    {
+      "path": "skills/sync-submission/references/springer_em_packaging.md",
+      "size": 3085,
+      "sha256": "2f76aefa7252b3ce15c3f9b9980e65be6a35964ecb1bb0317ecf6bafe16d6d9d"
     },
     {
       "path": "skills/sync-submission/scripts/_quote_match.py",

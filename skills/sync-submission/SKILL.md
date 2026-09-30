@@ -8,16 +8,8 @@ model: inherit
 
 # Sync Submission
 
-You help keep the canonical manuscript and journal-specific submission packages
-from drifting apart. The skill treats `submission/{journal}/` as derived output
-and records whether it is current, stale, or frozen.
-
-## When to Use
-
-- Before submitting a journal package.
-- After a journal portal or Word editor changed a submission manuscript.
-- After rejection, before retargeting to another journal.
-- Before `/orchestrate --e2e` marks a project as submission-ready.
+Keep the canonical manuscript and journal-specific submission packages from drifting apart.
+Treat `submission/{journal}/` as derived output and record whether it is current, stale, or frozen.
 
 ## Inputs
 
@@ -45,7 +37,7 @@ python "${CLAUDE_SKILL_DIR}/scripts/blind_sweep.py" \
   --backup-dir .cache/blind_sweep_backup
 ```
 
-The registry is a project-local YAML mapping author identifiers (full names, native scripts, initials with/without periods, email, ORCID) to role labels (e.g., "Reviewer 1"). See `scripts/author_registry_example.yaml` for schema. Never commit a populated registry to a public repository — keep it next to the manuscript.
+The registry is a project-local YAML mapping author identifiers (full names, native scripts, initials with/without periods, email, ORCID) to role labels (e.g., "Reviewer 1"); schema in `scripts/author_registry_example.yaml`. Never commit a populated registry to a public repository, because it lists the authors' identities — keep it next to the manuscript.
 
 ## Output Contract
 
@@ -57,30 +49,16 @@ The registry is a project-local YAML mapping author identifiers (full names, nat
 | Pre-flight gate | `qc/preflight_gate_report.json` | Aggregated halt-on-failure manifest (see "Pre-flight gate" below) |
 | Supplement structure | `qc/supplement_structure.json` | Gate 14: index↔file 1:1, sub-section gaps, callout coverage |
 
-For a complete bundle, use `build --bundle-spec bundle.json` after running the
-existing renderers. The declaration adds final Word/PDF, supplement, cover-letter,
-table/figure and notice files with pinned render-input hashes and reuse-rights
-records. Copies preserve file bytes; content and visual fidelity remain
-`not_assessed` until separately reviewed. Build refuses edited or frozen outputs
-and destructive path collisions. See [bundle workflow](references/bundle_workflow.md)
-for the schema, a runnable synthetic example and the limits of each recorded check.
+For a complete bundle, run the existing renderers first, then `build --bundle-spec bundle.json`.
+The declaration adds final Word/PDF, supplement, cover-letter, table/figure and notice files with
+pinned render-input hashes and reuse-rights records. Copies preserve file bytes; content and visual
+fidelity stay `not_assessed` until separately reviewed. Build refuses edited or frozen outputs and
+destructive path collisions. Read [bundle workflow](references/bundle_workflow.md) for the schema,
+a runnable synthetic example and the limits of each recorded check.
 
 ## Pre-flight gate (single command — last step before freeze)
 
-Run this once, right before `freeze`/submission. It orchestrates the existing
-deterministic checks and the `/verify-refs` audit into one halt-on-failure gate,
-writes a single aggregated manifest (`qc/preflight_gate_report.json`), and exits
-**non-zero** so a build wrapper or CI step can stop the freeze. It shells out to
-the per-check scripts and reimplements none of them — the halt decision is driven
-by each sub-check's normalized exit code.
-
-The report distinguishes executed, skipped and errored checks. Its legacy
-`submission_safe` field means no configured blocker/error, not submission
-approval; `readiness` remains `not_assessed`. The optional bundle hash binding
-identifies the package present during the run, not per-file visual inspection or
-all external check inputs. Run `audit` again after preflight to expose current,
-stale or unbound evidence. Freeze records a byte snapshot and its available check
-context; it does not run preflight or approve source fidelity or reuse permissions.
+Run this once, right before `freeze`/submission:
 
 ```bash
 python "${CLAUDE_SKILL_DIR}/scripts/preflight_gate.py" --project-root . --journal chest
@@ -89,25 +67,30 @@ python "${CLAUDE_SKILL_DIR}/scripts/preflight_gate.py" --project-root . --journa
 # add --double-blind to make the asset-anonymization scan halt
 ```
 
-By default the gate **halts only on the unambiguous, deterministic errors** (P0):
-leftover placeholder/markers (`check_placeholders.py`), undefined `[@key]`
-citations (`check_citation_keys.py`), duplicate references (`verify_refs.py`,
-offline-deterministic), a canonical-vs-submission hash mismatch
-(`sync_submission.py audit`), and an internal-audit dump leaked into a
-reviewer-facing file (`check_checklist_dump_leak.py` — see below). The heuristic or conditional checks — `check_xref`,
-`detect_copy_divergence`, `scope_drift_check`, `cover_letter_drift_check`,
-`cross_document_n_check`, `check_cross_artifact_stale` — **run and report as P1
-`warn` but do not halt** unless promoted with `--strict` or `--require ID`;
-`check_asset_anonymization` is P1 unless `--double-blind`. A check whose inputs are
-absent (no rendered docx, no cover letter, no copies, no journal) is recorded
-`skipped`, never a blocker. Exit codes: `0` clean, `1` halt (≥1 blocker), `2` gate
-config error (e.g. a `--require`'d check could not run).
+It shells out to the per-check scripts (reimplementing none), writes
+`qc/preflight_gate_report.json`, and exits `0` clean, `1` halt (≥1 blocker), `2` gate config error
+(e.g. a `--require`'d check could not run). A non-zero exit blocks the freeze.
 
-The gate's offline references pass is the deterministic subset (duplicates +
-pagination placeholders); an online `/verify-refs --strict` against PubMed/CrossRef
-remains the authoritative fabrication and author-name check before submission.
+- **P0 — halts by default** (unambiguous, deterministic errors): leftover placeholder/markers
+  (`check_placeholders.py`), undefined `[@key]` citations (`check_citation_keys.py`), duplicate
+  references (`verify_refs.py`, offline-deterministic), a canonical-vs-submission hash mismatch
+  (`sync_submission.py audit`), and an internal-audit dump in a reviewer-facing file
+  (`check_checklist_dump_leak.py`).
+- **P1 — runs and reports `warn`, halts only with `--strict` or `--require ID`:** `check_xref`,
+  `detect_copy_divergence`, `scope_drift_check`, `cover_letter_drift_check`,
+  `cross_document_n_check`, `check_cross_artifact_stale`; `check_asset_anonymization` is P1 unless
+  `--double-blind`.
+- A check whose inputs are absent (no rendered docx, no cover letter, no copies, no journal) is
+  recorded `skipped`, never a blocker.
 
-**Audit-dump leak check (P0).** A `/check-reporting` or `/self-review` report is an *internal working audit* — it carries auto-fix annotations, a raw JSON block (`compliance_pct`, `fixable_by_ai`, `check_reporting_version`), pipeline-log paths, and "Action Items". It is NOT the official reporting checklist a journal expects, and must never reach a reviewer. A near-miss: a prior project's `STROBE_checklist_v4.pdf` was actually this dump, reused by filename into a later submission and compiled into the reviewer-visible proof. `scripts/check_checklist_dump_leak.py --dir submission/` scans every `.md`/`.docx`/`.pdf` in the package for these tokens; any hit is a P0 `leak`. Run it (the pre-flight gate already does, over the journal asset directory) before freeze and confirm `submission_safe: true`. Writes `qc/checklist_dump_leak.json`.
+Do not read the report as approval. Its legacy `submission_safe` field means only "no configured
+blocker/error"; `readiness` stays `not_assessed`; the optional bundle hash binding identifies the
+package present during the run, not per-file visual inspection or every external check input. Run
+`audit` again after preflight to expose current, stale or unbound evidence. Freeze records a byte
+snapshot and its available check context; it does not run preflight or approve source fidelity or
+reuse permissions.
+
+**Audit-dump leak check (P0).** A `/check-reporting` or `/self-review` report is an internal working audit — auto-fix annotations, a raw JSON block (`compliance_pct`, `fixable_by_ai`, `check_reporting_version`), pipeline-log paths, "Action Items". It is not the official reporting checklist a journal expects and must never reach a reviewer, even when its filename looks official (e.g. `STROBE_checklist_v4.pdf` reused into a later package). `scripts/check_checklist_dump_leak.py --dir submission/` scans every `.md`/`.docx`/`.pdf` in the package for these tokens; any hit is a P0 `leak`. The pre-flight runs it over the journal asset directory; confirm `submission_safe: true` before freeze. Writes `qc/checklist_dump_leak.json`.
 
 **Disclosure & availability check (standalone).** Top medical-AI journals require, before review, an AI-use disclosure carrying four tokens (version + access channel + date/date-range + responsible party — the tool name only *triggers* the check) and Data/Code Availability statements. Run `python3 ${CLAUDE_SKILL_DIR}/scripts/check_disclosure_availability.py --manuscript <file> --journal <stem> [--ai-study] [--require data_availability ...] [--strict]` (reads `references/journal_availability_policy.json`). It blocks on a missing required statement or an AI disclosure that is present but missing a token / carrying a placeholder; "available on reasonable request" where the journal expects a repository is a P1 warning. Writes `qc/disclosure_availability_report.json`.
 
@@ -117,33 +100,37 @@ remains the authoritative fabrication and author-name check before submission.
 2. Run the script in the requested mode.
 3. If `audit` reports `DRIFT`, do not retarget or freeze until the user either
    patches the canonical manuscript or records the difference as journal-only.
+   Never silently merge submission edits back into the SSOT, and never hide a
+   journal-only difference — record it as drift or an explicit exception.
 4. If `build` succeeds, run `/verify-refs` before final submission.
+5. Call a package current only when its source hashes match, and mark it submitted
+   only through `freeze`, which writes `.journal_meta.json`.
 
 ## Quality Gates
 
-- Gate 0 (pre-flight, last step before freeze): run `scripts/preflight_gate.py --project-root . --journal {journal}` to aggregate the deterministic checks below into one halt-on-failure manifest (`qc/preflight_gate_report.json`). Non-zero exit blocks the freeze. See "Pre-flight gate" above for the P0/P1 tiering and flags. This orchestrates Gates 1–3, 5b, 8, 9, 11 plus the placeholder and citation-key checks; the individual gates remain runnable on their own.
+- Gate 0 (pre-flight, last step before freeze): run `scripts/preflight_gate.py` as in "Pre-flight gate" above; non-zero exit blocks the freeze. It orchestrates Gates 1–3, 5b, 5c, 5d, 8, 9, 11, 11b, the Phase 3b/3c checks, and the placeholder and citation-key checks; each gate also runs on its own.
 - Gate 1: block freezing when canonical manuscript is missing.
 - Gate 2: block retargeting when the previous submission has unresolved drift.
-- Gate 3: require `/verify-refs` audit before marking a package submission-safe.
-- Gate 4: docx audits must use a recursive walk (paragraphs + tables + nested-table cells); a flat `document.paragraphs` scan is insufficient.
-- Gate 5: before freeze, confirm portal free-text fields (cover letter, data availability, acknowledgements, abstract, author contributions) match the manuscript body.
-- Gate 5c (portal-field markdown residue): portal paste-verbatim `.txt` fields (`abstract.txt`, `keywords.txt`, …) are cut from the markdown but never stripped of it, so a trailing `---`, a `**bold**`, or a `cm^2^` superscript pastes into — and publishes in — the field literally. The pre-flight gate runs `scripts/check_portal_field_residue.py --dir portal_fields/` (P1, `--strict`-promotable) over `portal_fields/`; only `.txt` is scanned (a `.md` is meant to carry markdown), and the emphasis/super/sub patterns require paired markers so significance stars and approximation tildes do not fire. It also carries a Minor `char_expansion` advisory: `≥`/`≤` in a paste-verbatim field are verbose-expanded by ScholarOne to "{greater than or equal to}" (five words), inflating the word count — pre-substitute `>=`/`<=` (only `≥`/`≤`; `×` and the en-dash paste cleanly).
-- Gate 5d (figure portal readiness): a figure bounces at the upload button for reasons decidable from the file on disk — a byte size (JACC: Asia caps a figure at **25 MB**) and an extension (SNAPP accepts only `.tiff`/`.jpeg`/`.eps`, rejecting `.png`). The pre-flight gate runs `scripts/figure_portal_readiness_check.py --figures-dir <dir>` (P1) over `submission/<journal>/figures` (or `./figures`), emitting `FIGURE_OVERSIZE` and — when the portal's formats are supplied via `--figure-accept tiff jpeg eps` — `FIGURE_FORMAT_REJECTED`. Fix by regenerating with `/make-figures export_portal_tiff.py` (LZW + RGBA→RGB flatten). The check is skipped (never an error) when there is no figures directory.
-- Gate 6 (double-blind journals): before freeze, export the portal's blinded review PDF and grep for all author identifiers across the entire upload set — manuscript, supplementary, cover letter, registry record PDFs (PROSPERO/ClinicalTrials), portal Letter-field text. A clean manuscript blind does not imply a clean portal blind.
-- Gate 7 (text-only docx rebuilds): never use `pandoc --reference-doc=manuscript.docx` for response/cover/supplementary text-only docx — the reference docx ships its embedded media (figure files) into the new docx, bloating size 50–100×. Use plain `pandoc input.md -o output.docx` for text-only artifacts.
-- Gate 5b (Phase 4 cover-letter free-text drift): before freeze, run `scripts/cover_letter_drift_check.py` to verify the cover letter's word-count / reference-count / table-figure-count claims still match the manuscript. Cover letters routinely go stale across v_N → v_(N+1) branching and are not covered by any docx-level audit. See "Phase 4 — Cover-letter free-text drift" below.
-- Gate 8 (Phase 5 cross-document N consistency): before freeze, run `scripts/cross_document_n_check.py` over the manuscript bundle (abstract, body, PROSPERO record, cover letter, supplementary, INDEX, PRISMA flow caption). Any N category with >1 distinct integer value is a P0 drift. When a `FINAL_POOL_LOCK.yaml` is present, supply `--pool-lock` to make the locked counts the authoritative baseline. See "Phase 5 — Cross-document N consistency" below.
-- Gate 9 (Phase 6 intra-manuscript scope drift): run `scripts/scope_drift_check.py` against the manuscript (and optionally the PROSPERO record). Numeric anchors (AUC, OR/HR/RR, sensitivity/specificity) appearing in Limitations / Discussion but absent from Methods + Results are P0 SCOPE_DRIFT. PROSPERO ↔ Methods synthesis-method disagreement is a P0 PROSPERO_DRIFT.
-- Gate 10 (Phase 7 v_(N+1) docx regeneration): when building a new submission from a frozen prior version, run `${CLAUDE_SKILL_DIR}/scripts/verify_package_integrity.py --assert-vN-docx-changed --vN-docx <prev>.docx --new-docx <next>.docx`. Identical MD5 = unmodified seed copy = block submission. Defense-in-depth — required even when the upstream pipeline appears to have regenerated the docx.
-- Gate 11 (Phase 8 multi-copy divergence): when the project hand-maintains more than one manuscript copy (working SSOT, circulation, portal), run `scripts/detect_copy_divergence.py --ssot <ssot>.md --copy <copy>.md ...` before freeze or circulation. Any `STALE_COPY` (an SSOT numeric claim or heading that did not propagate to a copy) is a P0 drift. See "Phase 8 — Multi-copy manuscript divergence" below.
-- Gate 11b (reframe / headline-change survivor scan): after a revision that **reframes a claim class** (e.g. retires "location-stratified benchmark" for "overall pooled") or **changes a headline number**, a stale copy commonly survives in an un-touched body paragraph, a figure/table legend, the supplement, or the response letter — the response letter often claims the change was applied "throughout" while a sidecar still carries the old term/value. Pass the retired vocabulary and superseded values from the reframe diff to the cross-artifact gate, which scans the **body and every aux artifact**:
+- Gate 3: require `/verify-refs` audit before marking a package submission-safe. The pre-flight's offline references pass covers only duplicates and pagination placeholders; an online `/verify-refs --strict` against PubMed/CrossRef is the authoritative fabrication and author-name check.
+- Gate 4 (recursive docx walk): every docx stale-string audit must walk paragraphs + tables + nested-table cells recursively. `document.paragraphs` skips table cells, `document.tables` does not recurse, and `paragraph.runs` hides runs inside `<w:hyperlink>` — and figures, captions and reporting checklists often sit in 1×1 or nested tables. For run-level edits near hyperlinks or fields, inspect the paragraph XML, not `.runs`: a hidden inline element can look like an empty `()` and be "fixed" into a real defect.
+- Gate 5 (portal free-text fields): cover letter, data availability, acknowledgements, abstract and author contributions are often typed into the portal, outside any docx this skill audits. Before freeze, diff the portal's final review page against the manuscript body 1:1 and treat each field as its own drift target.
+- Gate 5c (portal-field markdown residue): portal paste-verbatim `.txt` fields (`abstract.txt`, `keywords.txt`, …) are cut from the markdown but never stripped of it, so a trailing `---`, a `**bold**`, or a `cm^2^` superscript publishes literally. The pre-flight runs `scripts/check_portal_field_residue.py --dir portal_fields/` (P1, `--strict`-promotable); only `.txt` is scanned (a `.md` is meant to carry markdown). Its Minor `char_expansion` advisory flags `≥`/`≤`, which ScholarOne expands to "{greater than or equal to}" (five words), inflating the word count — pre-substitute `>=`/`<=` (only `≥`/`≤`; `×` and the en-dash paste cleanly).
+- Gate 5d (figure portal readiness): a figure bounces at the upload button for reasons decidable from the file on disk — byte size (JACC: Asia caps a figure at **25 MB**) and extension (SNAPP accepts only `.tiff`/`.jpeg`/`.eps`, rejecting `.png`). The pre-flight runs `scripts/figure_portal_readiness_check.py --figures-dir <dir>` (P1) over `submission/<journal>/figures` (or `./figures`), emitting `FIGURE_OVERSIZE` and — when the portal's formats are supplied, e.g. `--figure-accept tiff --figure-accept jpeg --figure-accept eps` — `FIGURE_FORMAT_REJECTED`. Fix by regenerating with `/make-figures export_portal_tiff.py` (LZW + RGBA→RGB flatten). No figures directory → skipped, never an error.
+- Gate 6 (double-blind journals): a clean manuscript blind does not imply a clean portal blind. Before freeze, export the portal's blinded review PDF — the authoritative drift detector — and grep for all author identifiers across the entire upload set: manuscript; supplementary materials (especially methodology logs, agreement metrics, amendment logs); cover letter (a separately uploaded file is reviewer-visible unless toggled "Don't show in review PDF"); registry/approval PDFs (PROSPERO, ClinicalTrials.gov, IRB); portal Letter-field text if a signature was pasted; response-to-reviewers in revision rounds. Cover both period and no-period initials (`Y.N.` and `YN`), full names in roman + native scripts, institution names, ORCID IDs and submission email domains.
+- Gate 7 (text-only docx rebuilds): never use `pandoc --reference-doc=manuscript.docx` for response/cover/supplementary text-only docx, because the reference docx ships its embedded media (figure files) into the new docx, bloating it 50–100×. Use plain `pandoc input.md -o output.docx`. If such a file grows past 100 KB, `unzip -l output.docx | grep word/media/` should come back empty.
+- Gate 5b (cover-letter free-text drift): before freeze — see Phase 4.
+- Gate 8 (cross-document N consistency): before freeze — see Phase 5.
+- Gate 9 (intra-manuscript scope drift): see Phase 6.
+- Gate 10 (v_(N+1) docx regeneration): when building from a frozen prior version — see Phase 7.
+- Gate 11 (multi-copy divergence): before freeze or circulation — see Phase 8.
+- Gate 11b (reframe / headline-change survivor scan): after a revision that **reframes a claim class** (e.g. retires "location-stratified benchmark" for "overall pooled") or **changes a headline number**, the old term/value often survives in an untouched paragraph, legend, the supplement or the response letter — even when the letter claims the change was applied "throughout". Pass the retired vocabulary and superseded values from the reframe diff to the cross-artifact gate, which scans the **body and every aux artifact**:
   ```bash
   python3 "${CLAUDE_SKILL_DIR}/scripts/check_cross_artifact_stale.py" \
       --manuscript manuscript.md --aux supplement/ --aux figures/legends.md --aux revision/response_to_reviewers.md \
       --retired-term "location-stratified benchmark" --old-value 1.72
   ```
-  A `retired_framing_survivor` / `stale_old_value` finding is a P1 stale claim-site; this automates the claim-site grep of `manuscript-versioning.md` §6.1 across all artifacts rather than a sample. (Numeric survivors are digit-bounded, so `1.72` never matches `11.723`.) `--aux` takes files or folders: `.docx` sidecars are read, and figure scripts (`.py`/`.R`) are swept for stale literals only. An `--aux` that holds no readable file exits 2 instead of passing, and unreadable documents (`.pdf`, `.pptx`, …) are listed as not checked.
-- Gate 12 (target-journal metadata drift): on `build` / retarget, cross-check the target the manuscript is written *for* against the target the project is being submitted *to*. Compare `project.yaml` `target` (and any in-manuscript header/footer "for submission to X" string) against the journal the package is built for, and check the structural metadata the target dictates — abstract heading structure (4- vs 5-heading), body word limit, citation style (Vancouver / AMA), required elements (Highlights / Central Illustration / Key Points). A mismatch (e.g., a header still reading the previous journal after a cascade retarget, or a 4-heading abstract for a 5-heading target) is a target-restructure trigger — branch to v_(N+1) per `manuscript-versioning.md` §2 and sync every sidecar (cover letter, title page, ICMJE COI list) — not a silent build.
+  A `retired_framing_survivor` / `stale_old_value` finding is a P1 stale claim-site. `--aux` takes files or folders: `.docx` sidecars are read, and figure scripts (`.py`/`.R`) are swept for stale literals only. An `--aux` that holds no readable file exits 2 instead of passing, and unreadable documents (`.pdf`, `.pptx`, …) are listed as not checked. For any wording or number change, also grep the OLD string across the entire SSOT tree, never a subset, and watch for substring near-misses — an exact grep for `expertise-dependent patterns` passes while `expertise-dependent evaluation patterns` stays stale.
+- Gate 12 (target-journal metadata drift): on `build` / retarget, compare the target the manuscript is written *for* — `project.yaml` `target` (and any in-manuscript header/footer "for submission to X" string) — against the journal the package is built for, and check the structural metadata the target dictates — abstract heading structure (4- vs 5-heading), body word limit, citation style (Vancouver / AMA), required elements (Highlights / Central Illustration / Key Points). A mismatch (e.g., a header still reading the previous journal after a cascade retarget, or a 4-heading abstract for a 5-heading target) is a target-restructure trigger — branch to v_(N+1) and sync every sidecar (cover letter, title page, ICMJE COI list) — not a silent build.
 
   ```bash
   # header target vs project.yaml target
@@ -151,7 +138,7 @@ remains the authoritative fabrication and author-name check before submission.
   grep -niE 'for submission to|submitted to|prepared for' manuscript/manuscript.md   # compare against "$TGT"
   ```
 
-- Gate 13 (body word count vs journal cap — the revision-inflation trap): resolving reviewer majors monotonically *adds* words, so a revised body silently breaches the target journal's limit. Before freeze (and after **every** `/revise` pass), run `scripts/check_wordcount_cap.py` against the target journal profile's body cap. `WORDCOUNT_OVER_CAP` is a P0 (relocate methods/sensitivity detail to the Supplement); `WORDCOUNT_NEAR_CAP` (>0.95×) warns that the next pass will breach. The binding number is the **rendered** count (citeproc expands `[@key]` → "(Author Year)"), so prefer the built DOCX count with `--rendered-words N`; otherwise the script estimates it from the markdown body + inline-citation expansion.
+- Gate 13 (body word count vs journal cap — the revision-inflation trap): resolving reviewer majors adds words, so a revised body silently breaches the journal's limit. Before freeze and after **every** `/revise` pass, run `scripts/check_wordcount_cap.py` against the target journal profile's body cap. `WORDCOUNT_OVER_CAP` is a P0 (relocate methods/sensitivity detail to the Supplement); `WORDCOUNT_NEAR_CAP` (>0.95×) warns that the next pass will breach. The binding number is the **rendered** count (citeproc expands `[@key]` → "(Author Year)"), so prefer the built DOCX count with `--rendered-words N`; otherwise the script estimates it from the markdown body + inline-citation expansion.
 
   ```bash
   python3 "${CLAUDE_SKILL_DIR}/scripts/check_wordcount_cap.py" \
@@ -161,7 +148,7 @@ remains the authoritative fabrication and author-name check before submission.
   # or, deterministic: --limit 4000   (and --rendered-words N from the built DOCX when available)
   ```
 
-- Gate 14 (supplement structure — the numbering lock): a cohort/SR supplement is a directory of `S{N}_*.md` sections plus an index, hand-concatenated into `_combined.md`. Across revision rounds that set desynchronizes silently: an index row with no file, a file the index never lists, two files claiming the same `S{N}`, or a sub-section gap after an insert (`S6.3` then `S6.5`). A reviewer opening "Supplementary Table S9" and finding the wrong content is the failure mode. Before freeze, run `scripts/assemble_supplement.py` to validate index↔file 1:1, rebuild `_combined.md` in index order (so the assembly is reproducible rather than hand-maintained), and — with `--manuscript` — report callout coverage: body callouts with no section file (`CALLOUT_WITHOUT_SECTION`) and section files the body never cites (`SECTION_UNCITED`). The four structural kinds are P0 under `--strict`; coverage findings are advisory.
+- Gate 14 (supplement structure — the numbering lock): a supplement of `S{N}_*.md` sections plus an index, hand-concatenated into `_combined.md`, desynchronizes across revision rounds — an index row with no file, a file the index never lists, two files claiming the same `S{N}`, a sub-section gap after an insert (`S6.3` then `S6.5`) — and "Supplementary Table S9" opens the wrong content. Before freeze, run `scripts/assemble_supplement.py` to validate index↔file 1:1, rebuild `_combined.md` in index order (reproducible rather than hand-maintained), and — with `--manuscript` — report body callouts with no section file (`CALLOUT_WITHOUT_SECTION`) and section files the body never cites (`SECTION_UNCITED`). The four structural kinds are P0 under `--strict`; coverage findings are advisory.
 
   ```bash
   python3 "${CLAUDE_SKILL_DIR}/scripts/assemble_supplement.py" \
@@ -173,22 +160,18 @@ remains the authoritative fabrication and author-name check before submission.
 
 ## Phase 3b — Portal fields that REPLACE the manuscript
 
-Some portals publish the box, not the paper. SNAPP prints it on the form itself, at Author
-Contributions, Competing Interests, Data Availability and Acknowledgements:
+On some portals the box, not the manuscript, is what gets published. SNAPP says so at Author
+Contributions, Competing Interests, Data Availability and Acknowledgements: "This replaces any
+statement written within the manuscript and is the one that we will publish." A declaration that
+lives only in the manuscript then vanishes from the published record, and nothing warns you. Two
+that nearly did:
 
-> "This replaces any statement written within the manuscript and is the one that we will publish."
-
-So the manuscript file is the copy reviewers read and the portal box is the copy the world
-gets. A declaration that lives only in the manuscript is not a harmless duplicate — it will
-not exist in the published record, and nothing warns you, because neither document is wrong
-on its own. Two sentences that came one click from vanishing this way:
-
-- **Co-first authorship.** A `†` footnote on the title page. There is **no equal-contribution
-  checkbox** on the author page — unless "X and Y contributed equally to this work" is typed
-  into the Author Contributions box, the published paper has no co-first authors.
-- **"The funder had no role in study design…"** It lived in the manuscript's Acknowledgements.
-  The structured *Research funding* field takes a funder and a grant ID and has nowhere to put
-  a role disclaimer, so pasting only an AI-use note into the Acknowledgements box drops it.
+- **Co-first authorship.** A `†` title-page footnote. There is **no equal-contribution
+  checkbox** — unless "X and Y contributed equally to this work" is typed into the Author
+  Contributions box, the published paper has no co-first authors.
+- **"The funder had no role in study design…"** The structured *Research funding* field takes a
+  funder and a grant ID and has nowhere to put a role disclaimer, so pasting only an AI-use note
+  into the Acknowledgements box drops it.
 
 **Do not hand-compose the boxes.** Generate them from the manuscript, then check:
 
@@ -214,23 +197,16 @@ python3 "$SS/check_portal_mirror.py" --manuscript manuscript/manuscript.md \
 All three are major and exit 1; the pre-flight runs this as P1 (`--strict`-promotable).
 
 **Which fields replace is a journal fact, not a guess.** It is read from the journal profile's
-`## Portal Mechanics` block (`Fields that REPLACE the manuscript: …`). A journal whose portal
-contract has never been recorded makes this check exit 2 and assert nothing — record the block
-at first submission rather than letting the gate invent a contract. Matching is graded through
-`_quote_match.py`, so re-flowing a sentence while pasting is not reported as a loss.
-
-This is the complement of Gate 5c, not a duplicate: 5c asks whether what you paste is *clean*,
-this asks whether what you did *not* paste is quietly gone.
+`## Portal Mechanics` block (`Fields that REPLACE the manuscript: …`). For a journal whose portal
+contract was never recorded the check exits 2 and asserts nothing — record the block at first
+submission rather than inventing a contract. Matching is graded through `_quote_match.py`, so a
+sentence re-flowed while pasting is not reported as lost.
 
 ## Phase 3c — CRediT integrity (not author order)
 
-A contribution taxonomy is a factual claim, published with the paper, and every co-author
-reads it. Nothing ties a term to anything. During one byline negotiation three terms were
-requested in sequence — Visualization, Methodology, Formal analysis — each unsupported by the
-project record; a fourth, Conceptualization, was **entirely legitimate** and had no repository
-artifact at all, because it lived in email and in a critique that drove a restructure.
-
-That asymmetry is the design. The taxonomy is checkable; the work behind it often is not.
+A contribution taxonomy is a published factual claim, but the work behind a term often leaves no
+repository artifact (a legitimate Conceptualization may live only in email). So the taxonomy is
+gated and corroboration is only a prompt.
 
 ```bash
 python3 "${CLAUDE_SKILL_DIR}/scripts/check_credit_integrity.py" \
@@ -239,31 +215,24 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/check_credit_integrity.py" \
 
 | Verdict | Severity | Fires when |
 |---|---|---|
-| `CREDIT_TERM_INVALID` | major | A term outside the official fourteen in a section that says CRediT — "Statistical analysis", "Manuscript writing", "Study design" all read as CRediT and are not. The message names the term that was meant. |
-| `CREDIT_INITIALS_UNRESOLVED` | major | Initials matching no author, or two. This is the residue a byline edit leaves: the removed author's initials keep reading as valid. |
-| `CREDIT_AUTHOR_UNLISTED` | major | A byline author with no contribution attributed. Under ICMJE that is either an authorship question or a dropped clause. |
-| `CREDIT_UNCORROBORATED` | **prompt** | A term whose footprint is absent — Visualization on a paper with no figures, Software with no Code Availability statement, or (only if the project keeps one, passed with `--contribution-record`) a contributor absent from the record. |
+| `CREDIT_TERM_INVALID` | major | A term outside the official fourteen in a section that says CRediT — "Statistical analysis", "Manuscript writing", "Study design" read as CRediT and are not. The message names the intended term. |
+| `CREDIT_INITIALS_UNRESOLVED` | major | Initials matching no author, or two — the residue a byline edit leaves. |
+| `CREDIT_AUTHOR_UNLISTED` | major | A byline author with no contribution attributed (under ICMJE, an authorship question or a dropped clause). |
+| `CREDIT_UNCORROBORATED` | **prompt** | A term whose footprint is absent — Visualization on a paper with no figures, Software with no Code Availability statement, or (only with `--contribution-record`) a contributor absent from the record. |
 
-**Author order and equal-contribution designation are never gated.** They are negotiated, and
-negotiation is legitimate; conflating them with the taxonomy is why they get edited as one
-block. Corroboration is a prompt and can be answered with an attestation — a gate that failed
-the build on an off-repo contribution would be wrong, and would teach its user to disable it.
-
-Two things it declines to guess: with fewer than two resolvable byline names the
-author/initials cross-check is **skipped and says so** (a wrong byline would accuse every
-author at once), and with no contributions section it exits 2 and asserts nothing.
+**Never gate author order or equal-contribution designation** — they are negotiated, and
+negotiation is legitimate. Answer a corroboration prompt with an attestation; do not fail the
+build on an off-repo contribution. With fewer than two resolvable byline names the
+author/initials cross-check is **skipped and says so**; with no contributions section the script
+exits 2 and asserts nothing.
 
 ## Phase 4 — Cover-letter free-text drift
 
-Cover letters live outside the submission docx files but are read by the
-editor side-by-side with the manuscript. Their `## Article details`
-block — body word count, abstract word count, reference count,
-table/figure count — is a sidecar SSOT that routinely goes stale when a
-manuscript branches v_N → v_(N+1) (word limit retarget, abstract
-restructure, late reference batch).
-
-`scripts/cover_letter_drift_check.py` measures the manuscript truth and
-compares it to the cover letter's numeric claims:
+The cover letter's `## Article details` block — body word count, abstract word count, reference
+count, table/figure count — is a sidecar that goes stale when a manuscript branches v_N →
+v_(N+1) (word-limit retarget, abstract restructure, late reference batch), and no docx-level
+audit covers it. `scripts/cover_letter_drift_check.py` measures the manuscript and compares it
+to the letter's numeric claims:
 
 ```bash
 python "${CLAUDE_SKILL_DIR}/scripts/cover_letter_drift_check.py" \
@@ -273,47 +242,20 @@ python "${CLAUDE_SKILL_DIR}/scripts/cover_letter_drift_check.py" \
     --out qc/cover_letter_drift.json
 ```
 
-Body words are matched with a 5% tolerance ("approximately N words"
-phrasing) — except when the cover letter states the journal cap beside the
-count ("3,998/4,000 words", "limit: 4,000 words") and the declared count sits
-within that tolerance of it: such a count claims to be under the cap, so the
-tolerance shrinks to its headroom. Abstract words tolerate ±5. Reference /
-table / figure counts require exact match.
-
-Example `qc/cover_letter_drift.json` (synthetic values):
-
-```json
-{
-  "submission_safe": false,
-  "truth": {"body_words": 2400, "abstract_words": 210, "references": 10,
-            "tables": 3, "figures": 4},
-  "claims": {"body_words": 2800, "abstract_words": 250, "references": 10},
-  "drifts": [
-    {"field": "body_words", "truth": 2400, "cover_letter_claim": 2800,
-     "severity": "MAJOR",
-     "note": "|claim - truth| = 400 > tolerance 120"}
-  ]
-}
-```
-
-Drift resolution: regenerate the cover letter from the manuscript at
-v_(N+1) build time. The script never edits the cover letter — that is
-left to the manuscript build pipeline so the cover letter stays a
-deliberate authored artifact.
+Reference / table / figure counts must match exactly; abstract words tolerate ±5; body words
+tolerate 5%, narrowed to the headroom when the letter states the count against the cap
+("3,998/4,000 words"). Resolve drift by regenerating the cover letter from the manuscript at
+v_(N+1) build time. The script never edits the cover letter, which stays a deliberate authored
+artifact.
 
 ## Phase 5 — Cross-document N consistency
 
-Multi-document cohort-size drift is a high-frequency desk-reject pattern.
-Manuscript abstracts, body prose, PROSPERO records, supplementary extraction
-sheets, and PRISMA flow captions all repeat the same `k included` / `k excluded`
-/ `N patients` totals — and any disagreement between them is read by reviewers
-as either a data-integrity failure or a late-edit failure. Either reading
-ends the round.
-
-`scripts/cross_document_n_check.py` scans the submission package, extracts
-every "N <noun>" claim by category (patients, cases, included, excluded,
-nodules, tumors, studies_total), and groups them by category. A category with
-more than one distinct integer value is a P0 drift.
+Abstract, body prose, PROSPERO record, cover letter, supplementary extraction sheets, INDEX and
+PRISMA flow caption all repeat the same `k included` / `k excluded` / `N patients` totals, and
+any disagreement reads to reviewers as a data-integrity or late-edit failure.
+`scripts/cross_document_n_check.py` extracts every "N <noun>" claim by category (patients, cases,
+included, excluded, nodules, tumors, studies_total); a category with more than one distinct
+integer value is a P0 drift.
 
 ```bash
 python "${CLAUDE_SKILL_DIR}/scripts/cross_document_n_check.py" \
@@ -331,47 +273,21 @@ python "${CLAUDE_SKILL_DIR}/scripts/cross_document_n_check.py" \
     --out qc/cross_document_n.json
 ```
 
-Output `qc/cross_document_n.json`:
-
-```json
-{
-  "submission_safe": false,
-  "drift_count": 1,
-  "drifts": [
-    {
-      "category": "included",
-      "values": [63, 64],
-      "locations": [
-        {"file": "abstract.md", "line": 4, "value": 63, "context": "..."},
-        {"file": "supplementary/s1.md", "line": 12, "value": 64, "context": "..."}
-      ],
-      "severity": "MAJOR"
-    }
-  ],
-  "lock_violations": []
-}
-```
-
-Treat `submission_safe: false` as a halt. Resolve drift by tracing each
-location to its data artifact (extraction sheet, PRISMA cascade TSVs) and
-correcting the document(s) that disagree with the locked count.
+Treat `submission_safe: false` in `qc/cross_document_n.json` as a halt. Resolve drift by tracing
+each location to its data artifact (extraction sheet, PRISMA cascade TSVs) and correcting the
+document(s) that disagree with the locked count.
 
 ## Phase 6 — Intra-manuscript scope drift
 
-Late-revision sensitivity analyses sometimes get introduced in the
-Discussion or Limitations subsection without ever propagating back to
-Methods + Results. The manuscript then makes claims (with explicit AUC,
-OR, sensitivity numbers) whose primary report never exists. Reviewers
-read this as a fabrication-grade red flag, and editors desk-reject.
+`scripts/scope_drift_check.py` detects two P0 patterns:
 
-A second variant of the same anti-pattern: the PROSPERO record commits to
-a synthesis method (Freeman-Tukey, random-effects DerSimonian-Laird,
-bivariate, HSROC, Bayesian, etc.) but the Methods section uses a
-different one — or the PROSPERO record was updated and Methods stayed
-behind. When accompanied by a Methods line saying "no amendment lodged",
-this becomes a documented silent protocol deviation.
-
-`scripts/scope_drift_check.py` detects both patterns:
+- **SCOPE_DRIFT** — a numeric anchor (AUC, OR/HR/RR, sensitivity/specificity) in Limitations /
+  Discussion but absent from Methods + Results, typically a late sensitivity analysis whose
+  primary report never exists.
+- **PROSPERO_DRIFT** — the PROSPERO record commits to one synthesis method (Freeman-Tukey,
+  random-effects DerSimonian-Laird, bivariate, HSROC, Bayesian, etc.) and Methods uses another,
+  or the record was updated and Methods stayed behind. With a Methods line saying "no amendment
+  lodged", this is a documented silent protocol deviation.
 
 ```bash
 python "${CLAUDE_SKILL_DIR}/scripts/scope_drift_check.py" \
@@ -380,43 +296,26 @@ python "${CLAUDE_SKILL_DIR}/scripts/scope_drift_check.py" \
     --out qc/scope_drift.json
 ```
 
-Output:
+Resolution: either (a) propagate the anchor into Methods + Results as a primary report or (b)
+remove it from Limitations / Discussion. For synthesis-method drift, file a PROSPERO amendment
+and update Methods to match — both must agree before submission.
 
-```json
-{
-  "submission_safe": false,
-  "limitations_only_anchors": [
-    {
-      "anchor": "0.869",
-      "kind": "AUC",
-      "found_in": ["Limitations:31"],
-      "missing_from": ["Methods", "Results"]
-    }
-  ],
-  "synthesis_method_drift": [
-    {"method": "Freeman-Tukey", "prospero": true, "methods": false}
-  ]
-}
-```
-
-Resolution: either (a) propagate the anchor into Methods + Results as a
-primary report or (b) remove it from Limitations / Discussion. For
-synthesis-method drift, file a PROSPERO amendment and update Methods to
-match — both must agree before submission.
+PROSPERO's public-record "Print/PDF" export renders only the current amendment; older versions
+are reachable only through the version-history dropdown. When citing PROSPERO version state,
+never rely on a single PDF export — save each published version's PDF independently and state in
+the cover letter/supplement which version anchors the methodology and which reflects a
+documentation-only erratum. For such an erratum (a narrative fact, no change to
+methods/eligibility/synthesis), prefer a single Revision-Note append over a new structured
+amendment.
 
 ## Phase 7 — v_(N+1) docx regeneration gate
 
-When a v_N submission package was frozen and a v_(N+1) is being built
-(after a markdown body edit, reviewer round, or cascade-rejection
-re-target), the v_(N+1) docx MUST differ from the v_N docx. The most
-common silent-revert pattern is a `cp v_N/manuscript.docx
-v_(N+1)/manuscript.docx` step that skips the pandoc / Zotero CWYW
-regeneration entirely. The markdown body is then edited, but the docx
-the portal receives is the frozen v_N — the change silently reverts at
-peer review.
-
-Run the byte-identity assertion at the top of the v_(N+1) submission
-gate:
+When a v_(N+1) is built from a frozen v_N package (after a markdown body edit, reviewer round,
+or cascade-rejection re-target), the v_(N+1) docx MUST differ from the v_N docx. The common
+silent revert is a `cp v_N/manuscript.docx v_(N+1)/manuscript.docx` step that skips the pandoc /
+Zotero CWYW regeneration: the markdown is edited, but the portal receives the frozen v_N docx.
+Run the byte-identity assertion at the top of the v_(N+1) submission gate — even when the
+upstream pipeline appears to have regenerated the docx:
 
 ```bash
 python3 "${CLAUDE_SKILL_DIR}/scripts/verify_package_integrity.py" \
@@ -425,20 +324,14 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/verify_package_integrity.py" \
     --new-docx SUBMISSION/<journal>/v<N+1>/manuscript.docx
 ```
 
-Identical MD5 → exit 1 with explanatory error. Block submission until
-the regeneration step is fixed.
+Identical MD5 → exit 1. Block submission until the regeneration step is fixed.
 
 ## Phase 8 — Multi-copy manuscript divergence
 
-When a project keeps several hand-maintained manuscript copies — `manuscript.md`
-(the working SSOT), `manuscript_circulation.md` (co-author feedback), and
-`submission/<journal>/manuscript.md` (portal) — a batch of edits applied to the
-SSOT routinely lands in only some of the copies. The portal then receives a copy
-missing a subset of the edits, and the divergence surfaces (if at all) only when a
-reviewer notices the inconsistency.
-
-Before freezing a package or sending a circulation round, run the directional
-detector (SSOT → each copy):
+When a project hand-maintains several manuscript copies — `manuscript.md` (the working SSOT),
+`manuscript_circulation.md` (co-author feedback), and `submission/<journal>/manuscript.md`
+(portal) — SSOT edits routinely land in only some copies. Before freezing a package or sending a
+circulation round, run the directional detector (SSOT → each copy):
 
 ```bash
 python3 ${CLAUDE_SKILL_DIR}/scripts/detect_copy_divergence.py \
@@ -448,39 +341,23 @@ python3 ${CLAUDE_SKILL_DIR}/scripts/detect_copy_divergence.py \
   --out qc/copy_divergence.json --strict
 ```
 
-It reports, per copy, the SSOT *claims* (numeric assertions — `n = N`, percentages,
-`p`, OR/HR/RR, 95% CI — and section headings) that did not propagate. A `STALE_COPY`
-(`DIVERGENT` overall) is a **P0 blocker**: re-propagate the unpropagated claims, or —
-better — stop hand-maintaining parallel copies and **generate the circulation /
-submission variants from the single SSOT via a build step** (pandoc transform), so
-there is only one editable source. Claims are matched as normalized strings, so
-wording differences do not register — only a changed or absent number/heading does;
-legitimately copy-specific content (a circulation cover note) shows up as `copy_only`
-and can be ignored.
+It reports, per copy, the SSOT *claims* (numeric assertions — `n = N`, percentages, `p`,
+OR/HR/RR, 95% CI — and section headings) that did not propagate. A `STALE_COPY` (`DIVERGENT`
+overall) is a **P0 blocker**: re-propagate the claims, or — better — stop hand-maintaining
+parallel copies and **generate the circulation / submission variants from the single SSOT via a
+build step** (pandoc transform). Only a changed or absent number/heading registers, not wording;
+legitimately copy-specific content (a circulation cover note) shows up as `copy_only` and can be
+ignored.
 
 ## Phase 9 — Springer Editorial Manager packaging (no title-page slot)
 
-Some Springer Editorial Manager journals offer only **Manuscript / Figure / Table / Supplementary / LaTeX** upload item types — no separate Title Page or Cover Letter slot, and sometimes no Graphical Abstract slot. Common for observational / cohort submissions.
-
-- **Title page → page 1 of the Manuscript file.** Build via pandoc: title-page markdown (strip internal-only blocks such as a "Manuscript Metrics" QC block, plus any Funding / Author Contributions / Keywords that also appear later) + a real docx page break (raw OpenXML `<w:br w:type="page"/>`; a bare `\newpage` is silently dropped in docx output) + the manuscript body **with its byline / affiliations / corresponding-author footnote removed** so the title page is not duplicated.
-  - Verify: at least one page break; the affiliation block appears once; the article title is followed directly by the Abstract (no repeated byline); no internal QC strings leak.
-- **Cover letter → paste into the "comments to the publication office" free-text field.**
-- **Graphical Abstract (no dedicated slot) → upload as a Figure with Description = "Graphical Abstract".**
-- **Declarations completeness (portal hard checkbox).** The manuscript "Statements and Declarations" must carry all seven Springer subheadings: Funding; Competing Interests; Ethics Approval; Consent to Participate; Consent for Publication; Author Contributions; Data Availability. For de-identified observational / registry studies, Consent to Participate = waived (existing de-identified records) and Consent for Publication = "Not applicable; only de-identified data, no individual person's identifying details, images, or videos".
-
-```bash
-for s in Funding "Competing Interests" "Ethics Approval" "Consent to Participate" "Consent for Publication" "Author Contributions" "Data Availability"; do
-  unzip -p manuscript.docx word/document.xml | sed 's/<[^>]*>//g' | grep -q "$s" && echo "OK $s" || echo "MISSING $s"; done
-```
-
-- **Ethics approval / exemption number (observational or exempt cohort).** State the IRB approval or exemption reference number in the ethics statement. Institutional exemption notices carry the reference in the document body; filename digits are usually a receipt number, not the approval number — open the notice before writing the ethics block.
-- **Word limit "including references".** When the limit counts references, the binding constraint is body+references words, not the reference-count ceiling. Measure body+refs on the rendered docx before adding references; each Vancouver reference is roughly 25–33 rendered words.
-- **Submitting via a co-author's account.** Editorial Manager auto-adds the account holder at the top of the author list, tagged first/corresponding. De-duplicate, reorder to the intended position, reassign the first-author tag to the true first author, and fill missing co-author email/ORCID.
-- **Re-read the EM-compiled submission PDF before Approve** — author order, degrees, ethics number, references, declarations, and figures.
+Read `${CLAUDE_SKILL_DIR}/references/springer_em_packaging.md` when a Springer Editorial Manager
+journal offers only Manuscript / Figure / Table / Supplementary / LaTeX upload item types (no
+Title Page or Cover Letter slot).
 
 ## Phase 10 — Marked (tracked-changes) manuscript for a revision round
 
-Every revision round asks for a **marked** manuscript: the revised paper with tracked changes against the version the reviewers saw. Two rules, both load-bearing.
+Every revision round asks for a **marked** manuscript: the revised paper with tracked changes against the version the reviewers saw.
 
 **The baseline is R0, not the previous round.** The base of the diff is always the *originally reviewed* submission; only the target advances each round. An editor wants every change made since the version under review, so do not diff v7 against v8.
 
@@ -498,7 +375,7 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/build_marked_manuscript.py" \
 
 ### The gate: a round trip, not a grep
 
-Confirming that "the marked file contains sentence X" passes even when Compare has dropped a paragraph, duplicated one, or split the revisions between two authors. Verify it the only way that is correct by construction — **accepting every revision must reproduce the revised manuscript exactly, and rejecting every revision must reproduce the original**:
+"The marked file contains sentence X" passes even when Compare has dropped a paragraph, duplicated one, or split the revisions between two authors. Verify by construction — **accepting every revision must reproduce the revised manuscript exactly, and rejecting every revision must reproduce the original**:
 
 ```bash
 python3 "${CLAUDE_SKILL_DIR}/scripts/check_marked_manuscript.py" \
@@ -508,69 +385,4 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/check_marked_manuscript.py" \
   --author   "Submitting Author" --strict
 ```
 
-Verdicts: `MARKED_ACCEPT_MISMATCH`, `MARKED_REJECT_MISMATCH` (content dropped, duplicated, or invented), `MARKED_NO_REVISIONS` (Compare produced a clean copy), `MARKED_AUTHOR_MIXED`, `MARKED_TABLE_LOSS`, `MARKED_BASE_TRACKED` (a baseline still carrying live tracked changes, which makes the comparison ill-defined — accept or reject them first).
-
-**A move is not an insert plus a delete.** Word encodes relocated content as `w:moveFrom` / `w:moveTo`, and a verifier that knows only `w:ins` / `w:del` reconstructs the original with the moved paragraph in it *twice* — reporting a perfectly good file as corrupt. The gate resolves `revised = unchanged + w:ins + w:moveTo` and `original = unchanged + w:delText + w:moveFrom`. Any docx probe written here must walk exact `w:t` / `w:delText` elements: the regex `<w:t[^>]*>` also matches `<w:tbl>`, `<w:tc>` and `<w:tr>`, silently swallowing table markup as prose.
-
-### Upload failure on a large marked file
-
-The marked file carries the baseline's embedded images as deleted content, so it can exceed a portal's size cap even when the clean file is small. Before re-encoding, rule out the ordinary causes: the file is still open in Word (a `~$…docx` lock), the portal session expired, or the upload is transient — retry. If it is genuinely too large, downsample only `word/media/*` and repackage; tracked changes live in `word/document.xml` and are untouched. Re-run the gate afterwards and keep the full-resolution original as `*.full.docx`.
-
-## Verification Blind Spots
-
-Post-submission learnings (npj Digital Medicine R1, 2026-05): a clean docx-level audit still missed several stale artifacts that surfaced only at the portal review stage. Apply these whenever auditing a submission package.
-
-### B1. docx scanning must be recursive
-
-`python-docx` `paragraph.runs` does not expose runs inside `<w:hyperlink>`; `document.paragraphs` skips table cells; `document.tables` does not recurse into nested tables. Figures, captions, and reporting checklists are routinely wrapped in 1×1 or nested tables, so flat scans silently miss them.
-
-- Walk `paragraphs + tables + nested-table cells` recursively for every stale-string scan.
-- For run-level edits near hyperlinks or fields, inspect the paragraph XML, not just `.runs` — a missing inline element can be misread as an empty `()` artifact and "fixed" into a real defect.
-
-### B2. Portal input fields are a separate SSOT
-
-Cover letter, Data Availability, Acknowledgements, Abstract, and Author Contributions are often typed directly into the journal portal, outside any docx this skill audits. A clean docx audit does not imply a clean portal.
-
-- Before final submission, diff the portal's final review page against the manuscript body 1:1.
-- Treat each portal free-text field as its own drift target.
-
-### B3a. Double-blind compliance must cover ALL upload artifacts
-
-A clean manuscript-level blind sweep does not imply a clean portal-level blind. Author identifiers commonly leak through:
-
-- Supplementary materials (per-material `.md`/`.docx` files, especially methodology logs, agreement metrics, amendment logs)
-- Cover letter (separately-uploaded file is portal-default visible to reviewers unless explicitly toggled "Don't show in review PDF")
-- Registry record PDFs (PROSPERO, ClinicalTrials.gov, IRB approval PDFs)
-- Portal free-text Letter field if cover-letter signature was pasted
-- Response-to-reviewers (revision rounds)
-
-Blind sweep regex coverage must include both period and no-period initial forms (e.g., `Y.N.` and `YN`), full names in roman + native scripts, institution names, ORCID IDs, and submission email domains. The first blind PDF export from the portal is the authoritative drift detector — always export and grep before final submit.
-
-### B3b. PROSPERO public-record PDF shows only current amendment
-
-PROSPERO's "Print/PDF" export from the public record renders only the current amendment narrative. Previous versions are accessible only by selecting older versions in the public-record version-history dropdown. When citing PROSPERO version state, never rely on a single PDF export to verify cross-version consistency — record each published version's PDF independently and clarify in cover/supplementary which version anchors the methodology vs. which version reflects documentation-only erratum.
-
-For documentation-only PROSPERO errata (correcting a narrative fact without changing methods/eligibility/synthesis), prefer a single Revision-Note append over a new structured amendment entry. Preserves historical audit trail and minimizes portal edit surface.
-
-### B3c. Text-only docx rebuilds must not inherit manuscript media
-
-If `response_to_reviewers.docx` / `cover_letter.docx` / supplementary text-only docx grow to >100 KB after a rebuild, suspect `--reference-doc` pulling manuscript figure media. Verify with `unzip -l output.docx | grep word/media/` — should be empty for text-only artifacts.
-
-### B3. Verify change propagation across the whole SSOT tree
-
-A tone, wording, or number change applied to one file (e.g. the abstract) must propagate to every file that repeats it — discussion, response-to-reviewers quotes, reporting checklists, supplementary captions, title page.
-
-- grep the OLD string across the entire SSOT tree, never a subset of files.
-- Watch for substring near-misses (`expertise-dependent patterns` vs `expertise-dependent evaluation patterns`) — an exact-match grep on the short form passes while the long form remains stale.
-
-## What This Skill Does NOT Do
-
-- Does not invent journal formatting rules.
-- Does not silently merge submission edits back into the SSOT.
-- Does not replace `/write-paper`; it packages already canonical content.
-
-## Anti-Hallucination
-
-- Never claim a submission package is current without matching source hashes.
-- Never mark a package as submitted without writing `.journal_meta.json`.
-- Never hide journal-only differences; record them as drift or explicit exceptions.
+The gate is move-aware: Word encodes relocated content as `w:moveFrom` / `w:moveTo`, not `w:ins` / `w:del`, and a verifier that knew only insert/delete would see a moved paragraph twice and call a good file corrupt. Read `${CLAUDE_SKILL_DIR}/references/marked_manuscript.md` when the gate reports a verdict, before writing any other docx probe, or when the marked file is too large to upload.
