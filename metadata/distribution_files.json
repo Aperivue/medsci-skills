@@ -2023,8 +2023,13 @@
     },
     {
       "path": "skills/intake-project/SKILL.md",
-      "size": 8479,
-      "sha256": "c65caf5bcdc53d522c049ea7cb3a48faa8bf2f11bd6a440794d3c4077e951a92"
+      "size": 6300,
+      "sha256": "db6fb71fe5cd93609dc0d4a08171cd4cb32b0488b95db330ea2cd9d9034ba0e2"
+    },
+    {
+      "path": "skills/intake-project/references/memory_templates.md",
+      "size": 295,
+      "sha256": "6a8a579d092060269248d80e2421a001d38cfc7900c70013a4ffa4d2ef5dc8a9"
     },
     {
       "path": "skills/intake-project/skill.yml",
