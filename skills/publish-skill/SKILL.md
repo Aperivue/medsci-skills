@@ -10,16 +10,6 @@ model: inherit
 
 # Skill: publish-skill
 
-Convert a personal agent skill into a clean, distributable, open-source-ready skill package. This skill walks through a 7-phase pipeline that audits for personally identifiable information, generalizes language and role assumptions, verifies license compatibility, checks cross-platform adapter needs, and prepares the final package for commit.
-
-## Communication Rules
-
-- Communicate with the user in their preferred language
-- Use English for technical terms (PII, MIT, CC BY, GPL, YAML frontmatter)
-- Present audit findings in structured tables
-
----
-
 ## Phase 0: Init and Identify Source
 
 ### Required Inputs
@@ -28,7 +18,7 @@ Collect from the user:
 
 1. **Source skill path**: directory containing the personal skill (e.g., `~/.claude/skills/my-skill/` or `~/.agents/skills/my-skill/`)
 2. **Target package path**: directory of the distributable package (e.g., `~/workspace/<your-package>/`)
-3. **Target license**: license of the package (default: MIT)
+3. **Target license**: license of the package — ask; offer MIT as the default, never assume it
 
 ### Actions
 
@@ -45,17 +35,17 @@ Collect from the user:
 |------|-------|------|-------|
 ```
 
+Make every later fix on a working copy (`<cleaned_skill_path>` below) or in the target directory.
+NEVER modify the source skill in place, because it is the user's working original.
+
 **Gate**: User confirms source skill and target package before proceeding.
 
 ---
 
 ## Phase 0.5: Skill-Worthiness Gate
 
-Before spending effort on PII scrubbing and generalization, confirm the workflow is
-worth distributing *as a skill* at all. A skill earns its place by encoding a reusable
-decision heuristic, a hard-won constraint, or a verification step — not a snippet anyone
-could reconstruct in five minutes. Apply all three gates; **any "no" (or "yes" on the
-inverse) stops publication** in favor of documentation or a memory note instead.
+Before spending effort on PII scrubbing and generalization, confirm the workflow is worth
+distributing *as a skill* at all. Apply all three gates:
 
 | Gate | Question | Pass condition |
 |------|----------|----------------|
@@ -63,27 +53,19 @@ inverse) stops publication** in favor of documentation or a memory note instead.
 | **Specificity** | Does it encode a workflow, decision heuristic, constraint, or convention specific to this domain or a recurring task — rather than a generic code snippet or a standard-library example? | **Yes** |
 | **Effort** | Did discovering it take real debugging, study design, operational effort, or a reviewer-anticipation lesson (a pitfall, a verification step, a domain convention)? | **Yes** |
 
-Favor skills that encode reviewer-anticipation, reporting-guideline constraints,
-verification gates, and decision trees over thin wrappers or one-off snippets. This is
-the publish-time analogue of the "reusable pattern vs one-off hack" distinction: a
-workflow that fails the gate is better captured as a doc or a memory note than shipped as
-a skill that dilutes the catalog.
-
-**Gate**: If any of the three fails, recommend documentation/memory instead and stop. If
-the value is real but the skill delegates to private agents, route through Phase 1's
-orchestrator finding (refactor to standalone first). Only a clear three-way pass proceeds.
+**Gate**: Any "no" (or "yes" on the inverse) stops publication — recommend documentation or a
+memory note instead. If the value is real but the skill delegates to private agents, route through
+Phase 1's orchestrator finding (refactor to standalone first). Only a clear three-way pass proceeds.
 
 ---
 
 ## Phase 1: Originality Check
 
-Verify the skill is original work suitable for open-source distribution.
-
 ### Checks
 
 1. **External source**: Is this skill adapted from another package or author? Check for attribution headers, license blocks, or "based on" comments.
 2. **Third-party content**: Do any files in `references/` come from external sources (published guidelines, textbooks, standards bodies)?
-3. **Competitive sensitivity**: Does the skill reveal proprietary business logic or competitive advantage that should remain private?
+3. **Competitive sensitivity**: Does the skill reveal proprietary business logic or competitive advantage that should remain private? Ask the user; never make this judgment call yourself.
 
 ### Decision Matrix
 
@@ -91,7 +73,7 @@ Verify the skill is original work suitable for open-source distribution.
 |---------|--------|
 | Fully original | Proceed to Phase 2 |
 | Adapted with compatible license | Add attribution header, proceed |
-| Contains non-compatible third-party content | Flag for removal or URL manifest conversion |
+| Contains non-compatible third-party content | Flag for removal or URL reference conversion |
 | Orchestrator with private agent references | STOP -- requires refactoring to standalone first |
 | Competitive/proprietary logic | STOP -- not suitable for open-source |
 
@@ -103,7 +85,7 @@ Verify the skill is original work suitable for open-source distribution.
 
 ### Pre-scan Setup
 
-Before running, ask the user for everything that should also count as a PII hit but is unique to them:
+Before running, ask the user for everything unique to them that should also count as a PII hit:
 - Their name(s) in all languages and romanizations (a placeholder shape: `<First Last>|<native-script name>`)
 - Their institutional affiliation(s) (a placeholder shape: `<Institution>|<Hospital>`)
 - Any collaborator surnames that may appear in drafts or filenames
@@ -119,26 +101,24 @@ bash ${CLAUDE_SKILL_DIR}/scripts/audit_skill.sh <source_skill_path> \
     "<First Last>|<native-script name>|<Institution>|<Hospital>"
 ```
 
-The script runs nine categories that mirror the medsci-skills monorepo linter (`scripts/validate_skills.sh`):
+The script scans ten categories, plus the user pattern:
 
 1. **Hardcoded paths** (`/Users/<name>/`, `/home/<name>/`, `~/Documents`, `~/Desktop`, `~/Downloads`, `~/Projects`)
 2. **Email addresses** (any address-shaped string)
 3. **IP addresses / internal URLs** (`*.internal`, `*.local`, `*.corp`)
-4. **Institutional references** (SNUH / AMC / SMC / KAIST / SNU / ASAN / MGH / Mayo Clinic / Johns Hopkins / Samsung Medical / Severance / Asan Medical)
+4. **Institutional references** (SNUH / AMC / SMC / KAIST / SNU / ASAN / MGH / UCSF / Mayo Clinic / Johns Hopkins / Samsung Medical / Severance / Asan Medical)
 5. **Academic roles with names** (`professor <Surname>`, `Prof. <Surname>`, `Dr. <Surname>`, `PGY[0-9]`, `<한글이름> 교수님`)
 6. **Language hardcoding** ("in Korean", "한국어로", "in Japanese", "in Chinese")
 7. **Location specifics** (Seoul / Busan / Daegu / Tokyo / Beijing / Shanghai / Boston / Stanford and Korean variants)
 8. **Blockquote dated precedent** (`> YYYY-MM-DD ...` lines that reveal an internal review timeline)
 9. **Author-style filenames** (`<Surname>{Year}_*` pattern, e.g., `<Surname>2025_<Journal>_Fig01.png`; allow-list excludes generic tokens like `Issue2024_`, `Sample2025_`)
-10. **Binary EXIF metadata** (DOCX / PPTX / XLSX / PDF / PNG / JPG / TIFF — scanned via `exiftool` when installed; skipped silently otherwise with an install hint)
-
-False-positive guard: text scans use `grep --binary-files=without-match` so byte-stream collisions inside `.pyc`, `.png`, or `.docx` files do not trigger findings. `__pycache__/` is also explicitly skipped.
+10. **Binary EXIF metadata** (DOCX / PPTX / XLSX / PDF / PNG / JPG / TIFF — scanned via `exiftool` when installed; skipped otherwise, with an install hint)
 
 ### Cross-validation
 
-For categories the script flags, also manually verify with the Grep tool against `${CLAUDE_SKILL_DIR}/references/pii-patterns.md`. Pay particular attention to:
+For categories the script flags, also verify manually with the Grep tool against `${CLAUDE_SKILL_DIR}/references/pii-patterns.md`. Pay particular attention to:
 
-- Names not in the EXTRA_PATTERNS argument (e.g., a co-author who appeared only in one early draft)
+- Names not in the extra-patterns argument (e.g., a co-author who appeared only in one early draft)
 - Domain-specific institutional acronyms (your institution may not be in the default list)
 - Project-specific identifiers like `CK-NN`, `MA-NN`, dated cohort names
 
@@ -151,13 +131,11 @@ Present all findings in a remediation table:
 |---|-----------|----------|-------|---------------|
 ```
 
-**Gate**: User reviews all findings. Fix each one. Re-run audit. Proceed only when 0 hits confirmed.
+**Gate**: User reviews all findings. Fix each one in the working copy. Re-run the audit on the working copy. Proceed only when 0 hits are confirmed.
 
 ---
 
 ## Phase 3: Generalization
-
-Transform personal assumptions into universal defaults.
 
 ### Language
 
@@ -198,46 +176,17 @@ Show a unified diff of all generalization changes for user review.
 
 ## Phase 4: License Compatibility Check
 
-Verify all bundled files are compatible with the target package license.
-
-### Scan Process
-
 For each file in the skill's `references/` and `scripts/` directories:
 
 1. Check for license headers or declarations within the file
 2. Check for LICENSE files in the same directory
 3. If the file contains content from a known standard (reporting guidelines, clinical scores, etc.), identify the source and its license
 
-### Compatibility Matrix
-
-Reference `${CLAUDE_SKILL_DIR}/references/license-compatibility-matrix.md` for the full matrix.
-
-**Quick reference for MIT target:**
-
-| Source License | Can Bundle? | Action |
-|---------------|------------|--------|
-| CC0 / Public Domain | Yes | No changes needed |
-| CC BY 4.0 / 3.0 | Yes | Add attribution header |
-| MIT / BSD / Apache 2.0 | Yes | Include license notice |
-| CC BY-NC | No | Convert to URL reference |
-| CC BY-NC-ND | No | Convert to URL reference |
-| CC BY-SA | No | Copyleft risk -- convert to URL reference |
-| GPL v2/v3 | No | Mark as optional external dependency |
-| Unknown / Proprietary | No | Assume incompatible -- remove or get permission |
-
-### URL Manifest Pattern
-
-For non-compatible content, convert from bundled file to a URL manifest:
-
-```markdown
-## [Checklist Name]
-
-This checklist is not bundled due to license restrictions ([License Type]).
-
-**Official source**: [URL]
-**How to use**: Download the checklist from the official source and place it in
-`references/` before using this skill's reporting check feature.
-```
+Classify each file with `${CLAUDE_SKILL_DIR}/references/license-compatibility-matrix.md` (written
+for an MIT target; it also lists common checklist and package licenses). Bundle compatible content
+with the attribution header or license notice it requires; convert non-compatible content to the
+matrix's URL Reference Pattern; mark GPL/LGPL tools as optional external dependencies; treat an
+unknown license as incompatible (remove, or get permission).
 
 ### Output
 
@@ -262,7 +211,7 @@ Present license audit table:
 
 ### Final PII Re-check
 
-Run `audit_skill.sh` one final time. Must return exit code 0.
+Run `audit_skill.sh` one final time on the cleaned skill. Must return exit code 0.
 
 ### Cross-Platform Adapter Review
 
@@ -276,13 +225,9 @@ Check whether the skill can run in common desktop-agent environments:
 | Windows | Commands avoid Unix-only assumptions or provide PowerShell/Python alternatives. |
 | macOS/Linux | Shell examples use portable paths where possible. |
 
-If the package is intended for a workshop or classroom, prepare direct-download
-ZIPs rather than asking users to navigate GitHub manually:
-
-```text
-https://github.com/{owner}/{repo}/releases/latest/download/{package}-classroom-windows.zip
-https://github.com/{owner}/{repo}/releases/latest/download/{package}-classroom-macos.zip
-```
+If the package is intended for a workshop or classroom, read
+`${CLAUDE_SKILL_DIR}/references/classroom-distribution.md` and follow it (direct-download ZIPs,
+release assets, classroom checklist).
 
 ### README Entry Draft
 
@@ -337,34 +282,6 @@ git commit -m "Add <skill-name>: <one-line description>"
 ### Post-Publish
 
 Remind the user to:
-- Update any memory files tracking package status
 - Add the skill to any marketplace listings if applicable
 - Test installation from a clean clone: `git clone <repo> && cp -r <repo>/skills/<skill-name> ~/.claude/skills/`
-- For classroom distribution, create or update GitHub Release ZIP assets and test direct download links.
-
-### Classroom Package Checklist (if applicable)
-
-- [ ] Full skill set is installed once; lesson tasks use only 1-2 skills at a time
-- [ ] Windows ZIP includes `installers/install-windows.cmd`
-- [ ] macOS ZIP includes `installers/install-macos.command`
-- [ ] `README_FIRST.md` explains unzip -> double-click -> restart -> test prompt
-- [ ] Email announcement uses direct GitHub Release download links
-- [ ] WSL is documented as an advanced option, not a default requirement
-- [ ] First prompts avoid full end-to-end orchestration
-
----
-
-## What This Skill Does NOT Do
-
-- Never auto-executes `git push` -- push is always manual
-- Never modifies the source skill in place -- works on a copy or the target directory
-- Never makes judgment calls on competitive sensitivity -- always asks the user
-- Never bundles content with incompatible licenses -- converts to URL references
-- Never assumes a specific package license -- asks in Phase 0
-- Never skips the PII audit -- zero tolerance is enforced at Phase 2 and Phase 5
-
-## Anti-Hallucination
-
-- **Never fabricate file paths, URLs, DOIs, or package names.** Verify existence before recommending.
-- **Never invent journal metadata, impact factors, or submission policies** without verification at the journal's website.
-- If a tool, package, or resource does not exist or you are unsure, say so explicitly rather than guessing.
+- For classroom distribution, finish the release steps in `references/classroom-distribution.md`.

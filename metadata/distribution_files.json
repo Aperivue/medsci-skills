@@ -4298,8 +4298,13 @@
     },
     {
       "path": "skills/publish-skill/SKILL.md",
-      "size": 15504,
-      "sha256": "a81e8783f2947eb3c1f7df7f29b9640453bfe6cd6c22a122a6d258e63f77395c"
+      "size": 11975,
+      "sha256": "420169cef708548c16ed4cd277d6af9f9ac87358d77268b7b869c157f5662c4f"
+    },
+    {
+      "path": "skills/publish-skill/references/classroom-distribution.md",
+      "size": 1045,
+      "sha256": "e0366777bf4aece05e3d4a65297c8db3cd09b054f177dd14ba82462d533e9483"
     },
     {
       "path": "skills/publish-skill/references/license-compatibility-matrix.md",
