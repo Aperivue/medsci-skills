@@ -16,6 +16,8 @@ column (optional PMID, Title and FirstAuthor columns). A separate source-identit
 report compares first-page title and identifiers via `pdftotext` if installed.
 """
 
+from __future__ import annotations
+
 import argparse
 import csv
 import hashlib

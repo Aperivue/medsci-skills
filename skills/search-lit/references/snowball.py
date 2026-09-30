@@ -47,6 +47,8 @@ Seed id formats accepted: `DOI:10.x/...`, `PMID:123456`, bare `10.x/...`
 (treated as DOI), bare digits (treated as PMID), or a raw S2 paper id.
 """
 
+from __future__ import annotations
+
 import argparse
 import json
 import re

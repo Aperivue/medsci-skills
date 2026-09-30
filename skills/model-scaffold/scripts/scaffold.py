@@ -50,6 +50,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import json
 import sys
 from pathlib import Path
 
@@ -1327,8 +1328,18 @@ def split_patients(ids, seed, val_frac, test_frac):
     return assign
 
 
+# Values that come from the user's data or command line and land inside a Python string literal
+# (`ID_COL = "__ID_COL__"`). A CSV header or --from-pretrained value containing `"` or `\` used to be
+# pasted in raw: the generated repo did not parse, or ran whatever the value spelled.
+LITERAL_KEYS = ("__ID_COL__", "__MANIFEST_NAME__", "__PRETRAINED_SOURCE__")
+
+
 def render(tmpl, repl):
     out = tmpl
+    for k in LITERAL_KEYS:
+        # json.dumps writes a double-quoted literal with `"`, `\` and control characters escaped,
+        # all valid Python escapes, and leaves an ordinary value byte-identical ("patient_id").
+        out = out.replace(f'"{k}"', json.dumps(str(repl[k]), ensure_ascii=False))
     for k, v in repl.items():
         out = out.replace(k, str(v))
     return out

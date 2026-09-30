@@ -34,6 +34,19 @@ fi
 
 _sleep() { sleep "$SLEEP"; }
 
+# Values reach Python as argv, never as source code. A query is free text ("Crohn's disease",
+# "O'Brien[Author]"): pasted into a Python string literal, the first apostrophe was a SyntaxError
+# that left the search term silently empty, and a crafted query ran its own Python.
+_urlencode() {
+  python3 -c 'import sys, urllib.parse; print(urllib.parse.quote(sys.argv[1]))' "$1"
+}
+
+_count() {  # _count <value> <name>: retmax must be a whole number or the command stops
+  case "$1" in
+    '' | *[!0-9]*) echo "{\"error\": \"$2 must be a whole number\"}" >&2; return 2 ;;
+  esac
+}
+
 _curl() {
   local http_code body
   body=$(curl -sS -w '\n%{http_code}' -A "Mozilla/5.0 (${TOOL})" "$@")
@@ -48,8 +61,11 @@ _curl() {
 
 cmd_search() {
   local query="${1:?Usage: search <query> [retmax]}"
-  local retmax="${2:-20}"
-  local url="${BASE}/esearch.fcgi?db=${DB}&term=$(python3 -c "import urllib.parse; print(urllib.parse.quote('${query}'))")&retmax=${retmax}&retmode=json&tool=${TOOL}&email=${EMAIL}${API_KEY_PARAM}"
+  local retmax="${2:-20}" term
+  _count "$retmax" retmax
+  # A separate assignment, so an encoding failure stops the script instead of searching term=.
+  term="$(_urlencode "$query")"
+  local url="${BASE}/esearch.fcgi?db=${DB}&term=${term}&retmax=${retmax}&retmode=json&tool=${TOOL}&email=${EMAIL}${API_KEY_PARAM}"
   _curl "$url"
 }
 
@@ -68,6 +84,7 @@ cmd_fetch_json() {
 cmd_related() {
   local pmid="${1:?Usage: related <pmid> [retmax]}"
   local retmax="${2:-10}"
+  _count "$retmax" retmax
   local url="${BASE}/elink.fcgi?dbfrom=${DB}&db=${DB}&id=${pmid}&cmd=neighbor_score&retmode=json&tool=${TOOL}&email=${EMAIL}${API_KEY_PARAM}"
   local result
   result=$(_curl "$url")
@@ -75,14 +92,15 @@ cmd_related() {
   local linked_ids
   linked_ids=$(echo "$result" | python3 -c "
 import sys, json
+retmax = int(sys.argv[1])
 data = json.load(sys.stdin)
 links = data.get('linksets', [{}])[0].get('linksetdbs', [{}])
 for db in links:
     if db.get('linkname') == 'pubmed_pubmed':
-        ids = [str(l['id']) for l in db.get('links', [])[:${retmax}]]
+        ids = [str(l['id']) for l in db.get('links', [])[:retmax]]
         print(','.join(ids))
         break
-" 2>/dev/null || echo "")
+" "$retmax" 2>/dev/null || echo "")
   if [ -n "$linked_ids" ]; then
     _sleep
     cmd_fetch_json "$linked_ids"
