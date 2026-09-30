@@ -217,7 +217,7 @@ check "unreviewed report: nothing written" no_deid_output "$U"
 E="$OUTDIR/enter"; mkdir -p "$E"
 python3 -c "
 import sys
-rows = ['note,score'] + ['Routine visit, stable.,1'] * 9 + ['Call back at 555-201-3344 re results.,1']
+rows = ['note,score'] + ['Routine visit and stable.,1'] * 9 + ['Call back at 555-201-3344 re results.,1']
 open(sys.argv[1], 'w').write('\\n'.join(rows) + '\\n')" "$E/e.csv"
 python3 "$SCRIPT" scan "$E/e.csv" --locale us -o "$E" >/dev/null 2>&1
 check "sparse phone note is REVIEW_NEEDED" test "$(classify "$E/scan_report.json" note)" = REVIEW_NEEDED
@@ -398,6 +398,36 @@ for py in python3.9 /usr/bin/python3; do
         break
     fi
 done
+
+# --- A row with more fields than the header is refused, not passed through ---
+# csv.DictReader files the extra field under the key None. No column holds
+# it, so the review never showed it, and "keep" wrote it to the output.
+G="$OUTDIR/ragged"; mkdir -p "$G"
+printf 'score\n1,SYNTHETIC_SECRET_NAME\n' > "$G/r.csv"
+python3 "$SCRIPT" scan "$G/r.csv" --locale us -o "$G" > "$G/scan.out" 2>&1
+check "ragged row: scan refuses" test "$?" -ne 0
+check "ragged row: scan writes no report" test ! -e "$G/scan_report.json"
+check "ragged row: message gives the line, not the value" python3 -c "
+import sys
+out = open(sys.argv[1]).read()
+assert 'line 2' in out and 'SYNTHETIC_SECRET_NAME' not in out, out" "$G/scan.out"
+mkdir -p "$G/apply" && printf 'score\n1\n' > "$G/apply/r.csv"
+python3 "$SCRIPT" scan "$G/apply/r.csv" --locale us -o "$G/apply" >/dev/null 2>&1
+review_with "$G/apply/scan_report.json" "" ""
+printf 'score\n1,SYNTHETIC_SECRET_NAME\n' > "$G/apply/r.csv"
+python3 "$SCRIPT" apply "$G/apply/reviewed_report.json" > "$G/apply.out" 2>&1
+check "ragged row: apply refuses" test "$?" -ne 0
+check "ragged row: apply writes nothing" no_deid_output "$G/apply"
+check "ragged row: apply message has no value" \
+    python3 -c "import sys; assert 'SYNTHETIC_SECRET_NAME' not in open(sys.argv[1]).read()" "$G/apply.out"
+# A short row is only missing values; it is kept (and must not crash review).
+mkdir -p "$G/short" && printf 'mrn,dob\n10000001,2001-02-03\n10000002\n' > "$G/short/s.csv"
+python3 "$SCRIPT" scan "$G/short/s.csv" --locale us -o "$G/short" >/dev/null 2>&1
+review_with "$G/short/scan_report.json" "" "" "" 1
+python3 "$SCRIPT" apply "$G/short/reviewed_report.json" >/dev/null 2>&1
+check "short row: review and apply run (exit 0)" test "$?" -eq 0
+check "short row: both rows written" \
+    python3 -c "import csv, sys; assert len(list(csv.reader(open(sys.argv[1])))) == 3" "$G/short/s_deidentified.csv"
 
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

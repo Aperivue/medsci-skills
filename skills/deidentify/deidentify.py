@@ -336,9 +336,19 @@ def load_tabular(path: Path) -> tuple[list[dict], dict]:
         delimiter = "\t" if fmt == "tsv" else ","
         enc = detect_encoding(path)
         with open(path, newline="", encoding=enc) as f:
-            reader = csv.DictReader(f, delimiter=delimiter)
+            # A short row is only missing values (read as ""). A long row's
+            # extra fields land under the key None, in no column: the review
+            # never showed them and "keep" wrote them out. Refuse the file,
+            # naming the line but not the values.
+            reader = csv.DictReader(f, delimiter=delimiter, restval="")
             headers = reader.fieldnames or []
-            data = list(reader)
+            data = []
+            for row in reader:
+                if None in row:
+                    sys.exit(f"{path.name}, line {reader.line_num}: this row has more fields "
+                             f"than the header ({len(headers)} columns). Fix the file "
+                             "(for example an unquoted comma) and run again.")
+                data.append(row)
 
     meta["rows"] = len(data)
     meta["columns"] = len(headers) if data else 0
