@@ -45,7 +45,7 @@
 
 **Scripts** (`skills/design-study/scripts/`):
 
-- `adjustment_set_challenge/` (6 files)
+- `adjustment_set_challenge/` (8 files)
 - `adjustment_set_helper.py`
 
 ## Source

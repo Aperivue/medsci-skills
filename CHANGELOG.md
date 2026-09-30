@@ -2,6 +2,38 @@
 
 ## [Unreleased]
 
+## [6.0.0] - 2026-09-30
+
+**Hotfix:** several results were wrong in ways a user may have relied on: `/calc-sample-size` returned sample sizes up to about four times too small, `/deidentify` wrote cell values into its reports and let columns it could not classify through on Enter, and `/verify-refs` could report a reference with a DOI that does not exist as OK. The first section below lists what to re-check.
+
+v6 also shortens every skill, consolidates the imaging and model-engineering skills (the old names work as aliases until v7) and replaces the README with a short one. [`MIGRATION-v6.md`](MIGRATION-v6.md) lists the renamed skills and how to update from each install channel.
+
+### Re-check results made with an earlier version
+
+Several fixes in this release change numbers, not only wording. If you used one of these skills
+before v6, re-run it before relying on the result:
+
+- **`/calc-sample-size`.** Several formulas returned the wrong size, some about four times too
+  small (details under Fixed). Re-run every sample size computed with an earlier version.
+- **`/deidentify`.** Columns the scan could not classify (free text, ID-like numbers, a column
+  whose name contains an identifier word, a single address) were marked safe, and pressing Enter
+  kept them. Re-open any output made by accepting the recommendations and check those columns.
+  Scan reports from earlier versions contain cell values, and earlier audit logs use an unkeyed
+  hash; keep both with the raw data, not with the de-identified output.
+- **`/meta-analysis`.** `meta_analysis.R` exponentiated mean and standardised mean differences as
+  if they were ratios. Re-run any continuous-outcome analysis made with the template.
+- **`/verify-refs`.** A reference with a DOI that does not exist and an invented title could be
+  reported OK. Re-run the audit on any bibliography checked with an earlier version.
+- **`/radiomics-ml`.** The nested cross-validation template split by row, so lesions from one
+  patient could sit on both sides of a split and inflate AUROC. Re-run with the patient-grouped
+  template.
+- **`/analyze-stats` templates.** Re-run any of these produced with an earlier version: a
+  survey-weighted OR or CI (the CI ignored the design and was far too narrow), a Cox HR (the default
+  fit was penalised toward 1), a propensity-score effect or its SE, an OR for a categorical
+  predictor, a decision curve (models were recalibrated), a clustered ICC, calibration-in-the-large,
+  a Table 1 P value, or sensitivity and specificity at the default threshold (chosen on the same
+  data).
+
 ### Changed
 
 - **Shorter skill files (v6).** The `SKILL.md` files together went from about 159,000 to
@@ -34,11 +66,14 @@
   a skill from its description, and those ran to 945 characters (median 304) of feature lists.
   Each now opens with "Use when …", names the situation in the words a user would type, and
   where two skills look alike, which one takes over (`verify-refs` audits, `manage-refs` writes;
-  `self-review` is your own manuscript, `peer-review` someone else's). The frontmatter follows
-  the Agent Skills shape: `name`, `description`, `model`, and `triggers` moved unchanged under
-  `metadata`. `tools` is removed because hosts ignore it; it was not turned into
-  `allowed-tools`, which pre-approves tools rather than listing them. `validate_skills.sh` checks
-  the shape, the length, and that `tools` stays gone.
+  `self-review` is your own manuscript, `peer-review` someone else's). `triggers` moved unchanged
+  under `metadata`. `tools` is removed because hosts ignore it; it was not turned into
+  `allowed-tools`, which pre-approves tools rather than listing them. Two Claude Code fields
+  remain outside the Agent Skills standard, `model` in six skills and `disable-model-invocation`
+  in the eight aliases, so the standard's `skills-ref validate` and a claude.ai skill upload
+  reject those 14 files (see `docs/host_compatibility.md`). `model: inherit`, which is Claude
+  Code's default anyway, is removed from 48 skills. `validate_skills.sh` checks the shape, the
+  length, and that `tools` stays gone.
 - **The skill validator no longer rewards length or boilerplate.** `scripts/validate_skills.sh`
   failed any SKILL.md without an "Anti-Hallucination" heading, counted occurrences of the word
   "gate", and warned "THIN tier — consider expanding" below 150 lines. Those checks pushed every
@@ -63,6 +98,29 @@
   portal checklists are removed: they differ by journal and change without notice, so they are
   read from the live review form and kept out of a public repository. The Radiology: Artificial
   Intelligence profile now gives the double-anonymized review model its author instructions state.
+
+- **Releases publish only a commit that passed CI on `main` (v6).** The release workflow now
+  fails unless the tagged commit is on `main` and every Validate run on it succeeded, and a
+  recovery run dispatched from another commit is rejected, so the provenance attached to a
+  release names the commit whose files were published. Publishing uses npm trusted publishing
+  (Node 24), and the newest release must become npm `latest`. The maintainer guide and
+  `CONTRIBUTING.md` no longer say an `NPM_TOKEN` secret is required.
+- **Installer (v6).** The macOS classroom `install-macos.command` runs on double-click again (it
+  was never executable in git). `npx medsci-skills install --enable-update-notify` installs the
+  skills as well as turning on update reminders. `--target cursor` installs skills Cursor reads,
+  and an existing Cursor rule is backed up before it is replaced. Logs go to
+  `~/.medsci-skills/logs`, so a read-only package no longer fails after a good install, and
+  `--dry-run` writes nothing. The transaction journal records each move before making it,
+  rollback can be re-run, a lock stops two installs into the same target at once, and symlinks
+  you added inside a skill are backed up as links. The npm package now ships the setup check
+  (`installers/doctor.py`) and no longer ships skill test folders.
+- **Install and host documentation matches current behaviour (v6).** The install guide covers
+  staying on one release, `npx skills add` and the per-agent `gh skill` install paths; the setup
+  guides install Claude Code rather than the desktop app; the READMEs lead with the route that
+  needs no terminal; the migration guide notes that Codex shows the renamed-skill aliases to
+  the model.
+  Marketplace plugins carry a display name, author, homepage and keywords. `SECURITY.md` lists
+  supported versions and what counts as a vulnerability in a skill collection.
 
 ### Removed
 
@@ -300,6 +358,112 @@
   see it, because offline every record is already UNVERIFIED; it now also calls the gate on a
   resolved record.
 
+- **`/verify-refs`: a made-up reference no longer passes as verified (v6).** A reference with a
+  DOI that does not exist and an invented title came out OK: a CrossRef 404 was recorded as
+  UNVERIFIED, and the PubMed title fallback accepted any search hit without comparing titles. The
+  fallback now needs the same title similarity as the OpenAlex branch. After a CrossRef 404 the
+  DOI is looked up at doi.org, which covers every registration agency: a DOI registered nowhere is
+  FABRICATED (MISMATCH when a title search finds the real paper) and blocks rendering, a DOI
+  registered elsewhere (DataCite, for example) is never flagged, and a failed lookup stays
+  UNVERIFIED. A DOI is looked up as cited (a trailing `/` or a legacy SICI DOI ending in `#` is
+  kept, and a SICI DOI is never called FABRICATED), and the title comparison counts short words
+  such as CT and MR, so a paper on the other modality is not taken for the cited one. In Markdown
+  manuscripts a `# References` heading is recognised, so body text is no
+  longer read as references, and the `/manage-refs` render step reports how many references are
+  UNVERIFIED instead of "clean".
+- **`/self-review`: the documented Phase 2 gate commands run (v6).** Three of them passed a flag
+  their scripts reject, so no result reached the loop controller and it could report "no edits
+  required" while a Major finding was open. The commands and the named verdict codes now match the
+  scripts.
+- **`/calc-sample-size`: formulas reproduce the reference packages (v6).** Too small: log-rank
+  event counts lacked the allocation factor (62 vs 247 events at HR 0.7, 1:1); kappa (20 vs 74);
+  logistic regression with a binary predictor used the continuous-predictor formula (103 vs 424);
+  equivalence ignored the joint power of the two one-sided tests; diagnostic accuracy used
+  prevalence where specificity was the limiting target; reader studies treated crossed readers as
+  nested. Too large: one-way ANOVA multiplied statsmodels' total N by the number of groups (474 vs
+  159); non-inferiority lost its direction when the new method is expected to be better (683 vs
+  76); ICC with three or more raters. Equivalence with a true difference near the margin no longer
+  stops early on a non-finite power (3,073 vs 4,947 per group), and a non-inferiority or
+  equivalence input that no sample size can satisfy is an error instead of a number. Each formula
+  now records a check against gsDesign,
+  kappaSize, powerMediation, TrialSize, TOSTER, epiR, pwr or ICC.Sample.Size, and
+  `tests/test_worked_examples.py` recomputes them.
+- **`/meta-analysis`: templates and guides (v6).** `meta_analysis.R` no longer exponentiates MD
+  or SMD, uses REML with a Hartung-Knapp interval that cannot come out narrower than the
+  common-effect one, and picks the small-study test to suit the effect measure (none with fewer
+  than 10 studies). `dta_meta_analysis.R` runs again, gives a genuine Deeks test and LR and DOR
+  with intervals from the bivariate model plus a prediction region, and fits a binomial GLMM when
+  any cell is zero.
+  `forest_plot.py` works on Python 3.14 and matplotlib 3.10 and honours its flags. The guides pool
+  single-arm proportions with a GLMM, reconstruct Kaplan-Meier curves correctly, rank network
+  treatments in the right direction, and separate QUIPS (prognostic factors) from PROBAST
+  (prediction models). A rising curve is converted to survival only when the paper confirms it is
+  1 − KM: a competing-risk cumulative incidence is pooled as such, never rebuilt into a Cox HR. The
+  small-study test is skipped by the number of studies actually pooled, so a template run with
+  fewer than 10 usable studies no longer stops with an error.
+- **`/analyze-stats`: templates reproduce the reference implementations (v6).** Each defect was
+  reproduced on synthetic data, and each fixed template matches R. The survey template uses
+  design-based variance with strata and PSUs and analyses subgroups as domains (`svyglm`, including
+  the design degrees of freedom); it used frequency weights. The Cox fit is unpenalised (`coxph`),
+  the number at risk is counted correctly, and the RMST difference has a CI. Propensity-score
+  matching honours the ratio and caliper (matched sets equal MatchIt's), weighted fits use robust
+  SEs (`sandwich`), and rows dropped for missing data no longer crash the template or misalign the
+  score. Regression encodes categories after dropping missing rows, computes VIF with a constant
+  and no longer reports Hosmer-Lemeshow as calibration. The decision-curve template no longer
+  recalibrates predictions through `as_probability`, and interventions avoided come from dcurves.
+  Agreement needs the measurement level and gives CIs for every kappa; the clustered-ICC formula
+  measured lesion similarity, not rater agreement. The diagnostic template needs a prespecified
+  threshold (Youden only on request, and labelled). Table 1 chooses tests by skewness and uses
+  Welch's t, with no normality-test gate; repeated measures use actual visit times; six templates
+  that crashed on current SciPy run. The guides estimate calibration-in-the-large with the slope
+  fixed at 1, decide on missing data by mechanism and pool with Rubin's rules, prespecify the
+  survival estimand instead of switching on a Schoenfeld test, and their reporting templates carry
+  placeholders instead of conclusions ("significant", "adequate calibration"). `/check-reporting`'s
+  TRIPOD notes say Hosmer-Lemeshow is not calibration evidence and events per variable alone does
+  not justify a development sample size. `tests/test_stats_templates.sh` covers each fix.
+- **ML validation and study-design guidance (v6).** `/radiomics-ml`'s nested cross-validation
+  template splits by patient, and a test runs it on null data where a row split reports AUROC
+  near 0.99; "fewer features than events" is described as a floor, not a sample size.
+  `/model-assessment` reports a patient-level bootstrap interval as the headline uncertainty,
+  calibration by intercept, slope and a flexible curve, AUPRC with the test-set prevalence, and
+  conformal coverage on a test split disjoint from calibration; its Dice check needs a named
+  boundary metric. `/design-study`'s adjustment-set helper no longer flags a set the backdoor
+  criterion accepts; models are compared pairwise with Wilcoxon signed-rank or sign tests and Holm
+  correction (Benavoli, Corani & Mangili, *JMLR* 2016) instead of Nemenyi mean ranks, whose
+  verdict on two models depends on which other models are in the pool; target-trial emulations
+  are reported against TARGET; and a misquoted site count in a cited auto-contouring evaluation is
+  corrected. `/design-ai-benchmarking` uses planted controls to check raters, not as evidence of
+  reliability. `/mllm-eval` reports classification per class.
+- **Content checked against its primary sources (v6).** A peer-review paper was attributed to the
+  wrong authors, and other citations carried wrong authors or identifiers. `/define-variables` had
+  the MetALD/ALD alcohol ranges swapped between the sexes and credited FIB-4, BMI action points and
+  renal cutoffs to the wrong sources. NHANES diabetes used serum-panel glucose, which CDC says not
+  to use for this; it now uses fasting glucose (`GLU_J`) with fasting weights, and other table and
+  variable mappings are corrected. `/cross-national` and `/replicate-study` declare the survey
+  design on the full file and restrict it with `subset()`, and the KNHANES income variable is coded
+  as quartiles. In `/cross-national`, NHANES weights follow the files (WTMEC2YR with the
+  single-cycle `_J` tables, WTMECPRP only with the pre-pandemic `P_` files, NCHS rules for pooling
+  cycles), blood pressure is the mean of the 2nd and 3rd readings as in KNHANES, subgroup
+  differences are tested with an interaction term, and countries are compared by the ratio of their
+  odds ratios with its CI (Altman & Bland, *BMJ* 2003) instead of a direction-agreement tick.
+  Requirements dropped from CHEERS 2022, SQUIRE 2.0, TARGET, DECIDE-AI, TRIPOD-LLM, RECORD and CLEAR
+  are restored. Journal profiles match the current author guidelines of npj Digital Medicine, Nature
+  Medicine, European Radiology, JAMA, The BMJ, Radiology, Radiology: Artificial Intelligence, AJR
+  and KJR.
+- **`/academic-aio`: npj Digital Medicine has no plain-language summary box.** The skill said the
+  journal requires one for all primary research; its guidelines describe none, and Articles carry
+  an unstructured abstract of up to 150 words. The plain-language-summary format stays available
+  through `--format` for journals that do require one.
+- **`/check-reporting`: SQUIRE 2.0 is recorded as CC BY-NC.** The checklist reproduces Table 1 of
+  the statement and its header said no licence was found; the Europe PMC record gives CC BY-NC.
+  The header, `LICENSES.md` and `THIRD-PARTY-NOTICES.md` now say so, and the file is not covered by
+  the repository's MIT licence.
+- **Scripts and CI (v6).** Six scripts that crashed on import under Python 3.9 now start, and the
+  Python-floor check now catches import-time union annotations across `skills/`. The local CI
+  mirror exits non-zero when a selection matches nothing, labels subset runs as partial, and no
+  longer counts steps skipped after a failure as passed. The v5-to-v6 upgrade test also runs on
+  macOS and Windows. `check_xref.py` accepts `/write-paper`'s inline figure captions.
+
 ### Security
 
 - **`/manage-refs`: the CWYW example no longer carries a real Zotero user id.** The documented
@@ -315,6 +479,29 @@
   text scan also covers `.jsonl`, `.jsonld`, `.R`, `.qmd`, `.js`, `.svg`, `.xml` and the
   installer scripts, which it previously skipped. A regression test plants a leak and fails if
   the matched token appears in the output.
+
+- **`/deidentify`: uncertain columns need a decision, and reports carry no data values (v6).**
+  Columns the tool cannot classify (free text, a column whose name contains an identifier word,
+  ID-like numbers, a single address) are now REVIEW_NEEDED instead of SAFE, Enter no longer keeps
+  them, and the auto-accept recommendation is removed. `apply` refuses a report nobody reviewed and
+  any column without an explicit decision. Date shifting asks which column identifies the patient
+  instead of applying one offset to the whole file, and an offset is never zero (1 to 365 days in
+  either direction), so no date comes out unchanged. A row with more fields than the header stops
+  the run instead of passing its extra values through unreviewed. Scan and review reports contain no
+  cell values, and the audit log uses a keyed hash. Separators and country codes are normalised
+  before matching (a Korean RRN without its hyphen, a +82 phone number, and the same class in other
+  locales). Native Excel dates are shifted instead of replaced, keeping fractional seconds.
+  `SKILL.md` lists what the tool does not do (ages over 89, year-only dates, small cells).
+- **`/orchestrate`: the PHI safety gate runs for every data file (v6).** It fired only when no
+  `*_deidentified.*` file existed, and the project-state table skipped it whenever `audit_log.csv`
+  was present, so a de-identified copy of one file, or an audit log from an earlier run, let every
+  other raw file through without the PHI question. It now asks for each CSV or Excel file the task
+  will read that is not itself a de-identified output.
+- **`/search-lit` and `/model-scaffold`: user text can no longer run as code (v6).**
+  `pubmed_eutils.sh` pasted the query into Python source, so an apostrophe (Crohn's disease) broke
+  the search and a crafted query could run code; queries now reach Python as arguments.
+  `/model-scaffold` escapes the values it writes into generated Python literals (ID columns,
+  pretrained sources), so a quote no longer breaks or injects into the generated script.
 
 ## [5.28.0] - 2026-09-29
 

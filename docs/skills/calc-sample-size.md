@@ -27,6 +27,7 @@
 **Validation**
 
 - `re-run the emitted power code and confirm N matches the justification`
+- `python3 skills/calc-sample-size/tests/test_worked_examples.py  # every formula block vs its package Check; add --require-r where R and the reference packages are installed`
 
 **Evidence** — `manual_workflow`
 
