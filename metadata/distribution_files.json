@@ -4553,8 +4553,13 @@
     },
     {
       "path": "skills/search-lit/SKILL.md",
-      "size": 24905,
-      "sha256": "bd9b7dc313cd96c99d51fade5634c4c52300a94123ee75b6343c3e0ecd4ccbb6"
+      "size": 18052,
+      "sha256": "8cc3d97743e29c27df2979853b9721d35b0840f4c492c6348029f2d6715f0c85"
+    },
+    {
+      "path": "skills/search-lit/references/embase_browser.md",
+      "size": 1351,
+      "sha256": "8410b8ad6f099be3318baceabf1999862467e9eb8e48713dd7b17fc3c1210bce"
     },
     {
       "path": "skills/search-lit/references/parse_pubmed.py",
