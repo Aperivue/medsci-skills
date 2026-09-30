@@ -209,6 +209,9 @@
   freely available in PubMed Central looked the same as a subscription one. The line now also
   carries the PMCID and the article's PubMed Central address.
 
+- **`/check-reporting`: STARD items 1 and 2 end where the published items end.** The vendored
+  checklist carried the next section's heading ("Abstract", "Introduction") at the end of each
+  item's text, left over from extraction; the file's own check compared item ids only.
 - **`/check-reporting`: five bundled checklists are no longer reported as unknown.** The
   checklist guard answered QUADAS-3, PRISMA 2020 for Abstracts, GATHER, "SQUIRE 2.0" and "ARRIVE 2.0"
   with `UNKNOWN_GUIDELINE`, so the skill asked the user about instruments it ships. Three files had
