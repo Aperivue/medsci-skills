@@ -1,70 +1,57 @@
 # European Radiology (EURE) — Reviewer Profile
 
-## Submission System
-- **Platform:** Editorial Manager (Springer Nature)
-- **Review type:** Single-blind
-- **Publisher:** ESR (European Society of Radiology) / Springer Nature
+Only what European Radiology publishes, with the page each item comes from. Recommendation
+options and scorecard fields are not recorded here (see [README](README.md)).
 
-## Scorecard
+## Journal
 
-Follows INSI-style formatting as base (Springer Nature editorial system shared), adjusted per EURE specifics when confirmed from invitation email.
+- **Society:** European Society of Radiology (ESR)
+- **Submission system:** Editorial Manager — [For Authors](https://journals.myesr.org/eur-radiol/for-authors/)
+- **Review model:** single-blind since January 2023 — manuscripts reach reviewers unblinded and
+  reviewer names are not shown to authors. Do not sign the review.
+  [For Reviewers](https://journals.myesr.org/eur-radiol/for-reviewers/)
 
-Typical fields (confirm on each invitation):
+## Comment structure
 
-1. Interest / relevance to readership
-2. Novelty / originality
-3. Scientific quality
-4. Clarity of presentation
-5. Overall recommendation
+Sources: [For Reviewers](https://journals.myesr.org/eur-radiol/for-reviewers/) and the Review
+Template (PDF) that page links under "Structuring Reviewer Comments".
 
-Rating scale: generally 5-point Likert or High/Medium/Low — **verify from the current invitation form**.
+A reviewer report has four parts: a decision suggestion, the report form, comments to authors,
+and confidential comments to the editor. Only the last two are drafted here.
 
-## Recommendation Options
+**Comments to Authors** (Review Template)
 
-- Accept
-- Minor Revision
-- Major Revision
-- Reject (transfer allowed)
-- Reject
+1. **Overview** — a very brief summary; strengths and weaknesses in general terms only.
+2. **Detailed comments** — by section: Abstract, Keywords, Key Points, Abbreviations, Title,
+   Introduction, Material and Methods, Results, Discussion, Figures/Tables, Bibliography, Informed
+   consent / ethical considerations. The template puts the weight on Introduction, Methods and
+   Results.
 
-## Draft Structure Template
+From the For Reviewers page: give specific instructions rather than general remarks; separate minor
+changes from major issues; leave any publish / do-not-publish suggestion out of the comments to
+authors; do not correct language errors, but tell the editor if poor writing could lead to the
+science being misunderstood.
 
-Use INSI-style base; substitute journal name and scorecard fields when confirmed.
+**Confidential Comments to the Editor** (Review Template): what the authors investigated and
+concluded (about three sentences); the main strengths and major concerns, including ethical
+issues, and how they balance; the clinical or scientific relevance; how you reached your
+recommendation. The For Reviewers page adds that these comments should agree with your answers to
+the reviewer questions and with your comments to the authors.
 
-## Journal Notes
+**Decision guidance** (For Reviewers page): a methodological question, a potential
+misunderstanding or a major discrepancy between parts of the manuscript points to a major
+revision; several minor points usually make a minor revision a major one; "Accept" is not
+usually an appropriate suggestion for a first revision; reject when the changes would most likely
+need a new design and methodology.
 
-- ESR Key Points required in accepted manuscripts — reviewers can suggest strengthening these.
-- Transfer authorization common (to Springer Nature portfolio).
+For AI and radiomics manuscripts the journal also publishes a
+[Guide for reviewing AI papers](https://journals.myesr.org/eur-radiol/guide-for-reviewing-ai-papers/)
+(reference standard, a clinically meaningful comparator, a statistical comparison).
 
-## Confirmed Form Fields
+## Reviewer AI policy
 
-**Verified against:** a completed review form. Last updated: 2026-08.
-
-This list previously gave its source as a reviewer invitation, and that was the defect: an
-invitation advertises the review, it is not the form you fill in. One field carried over from it —
-**ORCID Reviewer Credit** — does not exist on the scorecard at all (zero occurrences of the string
-on the form; it is an account-level setting).
-
-Editorial Manager scorecard differs from INSI H/M/L base. Actual fields:
-
-1. **Recommendation** (top dropdown): Accept / Minor Revision / Major Revision / Reject (transfer allowed) / Reject
-2. **Transfer Authorization** (2 questions): Yes/No for (a) identifying info transfer, (b) original review transfer. Default Yes/Yes.
-3. **Level of interest** (4 options):
-   - An exceptional article
-   - An article of importance in its field
-   - An article whose findings are important to those with closely related research interests
-   - An article of limited interest
-4. **Quality of written English** (3 options):
-   - Not suitable for publication unless extensively edited
-   - Needs some language corrections before being published
-   - Acceptable
-5. **Declaration of competing interests**: free-text field, ≤300 chars. Standard "I declare that I have no competing interests." accepted.
-
-Author-facing comments follow the invitation's 4-section scheme:
-1. Comment on study design
-2. Short summary of the manuscript
-3. Major comments (strengths + weaknesses)
-4. Minor weaknesses (only if accept/revision)
-
-Markdown bold (`**...**`) renders as plain text in EM proof — use plain heading numbering instead of bold for sub-section titles if visual emphasis matters.
-
+The ESR Journals editors' joint statement on large language models, published simultaneously in
+European Radiology, Insights into Imaging and European Radiology Experimental: reviewers should not
+upload manuscripts to software or AI-assisted tools where confidentiality cannot be assured, and a
+reviewer who uses an AI tool in a way that does not breach confidentiality must name the tool and
+say how it was used. — [European Radiology](https://doi.org/10.1007/s00330-023-10511-8)

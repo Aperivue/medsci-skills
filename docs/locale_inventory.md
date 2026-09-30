@@ -100,8 +100,7 @@ Buckets:
 `check-reporting/references/step4d_prisma_figure_audit.md`,
 `write-paper/references/section_guides/step7_1_classical_qc.md`,
 `orchestrate/references/dialogue_nodes.md`, and
-`peer-review/references/reviewer_profiles/RYAI.md` (its ScholarOne field labels were already
-English, so the file is now fully English).
+`peer-review/references/reviewer_profiles/RYAI.md` (now fully English).
 
 Three files originally scoped as B were reclassified during translation and remain
 inventoried under their new bucket:

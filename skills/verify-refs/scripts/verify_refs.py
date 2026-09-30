@@ -1011,13 +1011,13 @@ PAGINATION_PLACEHOLDER_RE = re.compile(
 
 def flag_pagination_placeholder(record: RefRecord) -> None:
     """If the raw entry carries a pagination/publication-stage placeholder, attach a
-    note and downgrade a would-be VERIFIED record to UNVERIFIED (an in-press/e000
+    note and downgrade a resolved (OK) record to UNVERIFIED (an in-press/e000
     citation is not yet locatable to the page). Worse statuses are left unchanged."""
     if not PAGINATION_PLACEHOLDER_RE.search(record.raw or ""):
         return
     tag = "pagination_placeholder"
     record.note = f"{record.note} | {tag}".strip(" |") if record.note else tag
-    if record.status == "VERIFIED":
+    if record.status == "OK":
         record.status = "UNVERIFIED"
         ev = "identifier resolved but pagination/publication-stage placeholder unresolved"
         record.evidence = f"{record.evidence} | {ev}".strip(" |") if record.evidence else ev

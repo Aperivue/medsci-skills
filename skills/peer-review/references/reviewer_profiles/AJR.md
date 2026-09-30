@@ -1,45 +1,41 @@
 # American Journal of Roentgenology (AJR) — Reviewer Profile
 
-## Submission System
-- **Platform:** Editorial Manager
-- **Review type:** **Double-blind** (author identity masked from reviewer; do not guess or reference author identity in comments)
-- **Publisher:** ARRS (American Roentgen Ray Society)
+Only what AJR publishes, with the page each item comes from. Recommendation options and
+scorecard fields are not recorded here (see [README](README.md)).
 
-## Required Structure (Comments to Author)
+## Journal
 
-Per the AJR Reviewer Guide template, organize the author-facing comments as:
+- **Publisher:** American Roentgen Ray Society (ARRS)
+- **Submission system:** Editorial Manager — [Author Guidelines](https://www.ajronline.org/authorguidelines)
+- **Review model:** double-blind — [Author Guidelines](https://www.ajronline.org/authorguidelines).
+  Do not guess at, or refer to, the authors' identity.
 
-1. **Manuscript summary** — a few unnumbered sentences: purpose, essence of the design, key finding, ultimate conclusion.
-2. **General comments (including impact)** — itemized; strengths and weaknesses plus originality, impact on radiologists' practice, importance, advance-vs-replicate, citation potential.
-3. **Specific comments** — by manuscript section, with page and line numbers where appropriate.
+## Comment structure
 
-**Numbering:** consecutive across the *entire* review (general + specific together); do **not** restart per section. Favorable comments that need no author response are left unnumbered.
+Source: [AJR Reviewer Guide](https://www.ajronline.org/reviewerguide), which also gives the
+outline below for reviewers to copy.
 
-**Section list for original research (IMRAD):** Title, Highlights, Abstract, Introduction, Methods, Results, Discussion, References, Tables, Figures.
+**Comments to Authors**
 
-**Section list for Review / narrative articles (not IMRAD):** Title, Abstract, Introduction, thematic body sections (the manuscript's own headings), Conclusions, References, Tables, Figures (Methods/Results are N/A). Apply the Phase 2D 9-probe audit (RV1–RV9).
+1. **Manuscript summary** — a few sentences: the purpose, the essence of the design, the key
+   finding, the authors' conclusion.
+2. **General comments (including Impact)** — an itemized list of strengths and weaknesses:
+   originality, impact on radiologists' practice, importance, advance versus replication.
+3. **Specific comments** — with page and line numbers as appropriate, under the guide's headings:
+   Title, Highlights, Abstract, Introduction, Methods, Results, Discussion, References, Tables,
+   Figures.
 
-Do **not** focus the review on typographic errors (handled by copyeditors). Do **not** state an accept/reject decision in the author-facing comments.
+- Number comments consecutively across the whole review (general and specific together); do not
+  restart per section. Favorable comments that need no response from the authors are unnumbered.
+- Do not focus the review on typographic errors.
+- Do not state or imply an accept or reject decision in the Comments to Authors.
+- Give section-by-section comments even when you believe the manuscript should be rejected.
 
-## Scorecard
+**Confidential Comments to Editor** — required, not to be left blank: a brief summary of the
+work's merits, impact and interest to AJR's general-radiologist audience, and the fundamental
+reason for your recommendation. Do not repeat the comments to the authors.
 
-No numeric scorecard. The portal exposes two free-text boxes (Comments to Author, Confidential Comments to Editor) plus reviewer CME self-assessment questions (Likert Q1–6, a confidentiality attestation, and an optional named-peer-reviewer credit).
-
-## Recommendation Options (dropdown, percentile-based)
-
-- No Recommendation
-- Accept
-- **Reconsider (for top 25%)**
-- **Reconsider (for top 26–50%)**
-- Reject (for bottom 50%)
-
-There is **no "Major/Minor Revision" option**. A revise-and-resubmit maps to "Reconsider"; a standard major-revision-grade assessment typically maps to **Reconsider (for top 26–50%)** (top 25% is a strong, top-quartile revise).
-
-## Confidential Comments to Editor
-
-Mandatory (must not be left blank). Provide a brief gestalt of merits, impact, and interest to AJR's general radiologist audience, and the fundamental reason for the reconsider/reject/accept recommendation. Do not simply repeat the author-facing comments. State the conflict-of-interest answer (None / explain) at the top.
-
-## Draft Structure Template
+## Draft skeleton
 
 ```
 ## COMMENTS TO THE AUTHORS
@@ -47,36 +43,26 @@ Mandatory (must not be left blank). Provide a brief gestalt of merits, impact, a
 Manuscript summary
 <purpose, design, key finding, conclusion>
 
-General comments (including impact)
-<unnumbered strengths>
-1) <impact / originality / weakness>
+General comments (including Impact)
+<unnumbered favorable remarks>
+1) ...
 
 Specific comments
 
-Abstract (p. X)
+Title
 2) ...
 
-Introduction (pp. X–Y)
-3) ...
-
-<body sections / IMRAD sections, continuing the numbering>
-
-References (pp. X–Y)
+Highlights / Abstract / Introduction / Methods / Results / Discussion /
+References / Tables / Figures — numbering continues
 N) ...
 
-Tables
-N+1) ...
-
-Figures
-N+2) ...
-
 ## CONFIDENTIAL COMMENTS TO THE EDITOR
-Conflict of interest: None.
-<gestalt + recommendation rationale; do not repeat author comments>
+<merits, impact, interest to a general-radiologist audience; the reason for the recommendation>
 ```
 
-## Journal Notes
+## Reviewer AI policy
 
-- **Double-blind** — author identity is masked; never disclose or infer reviewer or author identity in comments.
-- Consecutive numbering across general + specific comments aids editor cross-reference to the author response letter.
-- Recommendation language belongs only in the Confidential box and the dropdown, never in author comments.
+Neither the Reviewer Guide nor the Author Guidelines states a reviewer-AI policy. The
+[ICMJE Recommendations](https://www.icmje.org/recommendations/browse/roles-and-responsibilities/responsibilities-in-the-submission-and-peer-peview-process.html)
+ask reviewers to request the journal's permission before using AI on a review and not to upload a
+manuscript where confidentiality cannot be assured.
