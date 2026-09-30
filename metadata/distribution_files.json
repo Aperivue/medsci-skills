@@ -1033,8 +1033,8 @@
     },
     {
       "path": "skills/contribute/SKILL.md",
-      "size": 12263,
-      "sha256": "776b8d63940088ee984de6e4849c7d21c2b120500a7db5300a299ff7e1e3b63e"
+      "size": 8939,
+      "sha256": "1612ec7c45355977db2b72bcf0c2f5eb521894afaf17d17f2f5c119632df46ed"
     },
     {
       "path": "skills/contribute/scripts/check_contribution_safety.py",
