@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Uncertainty / OOD / selective-prediction reporting-rigor gate (uncertainty-imaging).
+"""Uncertainty / OOD / selective-prediction reporting-rigor gate (model-assessment).
 
 A medical-imaging model framed for deployment must say more than a point prediction: it
 needs calibrated uncertainty, an out-of-distribution (OOD) guard validated on a held-out
@@ -11,7 +11,7 @@ conformal; Ovadia 2019 calibration-under-shift; DECIDE-AI deployment monitoring)
 
 This gate reads a declarative **uncertainty manifest** (JSON — the artifact this skill
 emits, or one the researcher writes) and decides each requirement by rule. It complements
-`model-evaluation`'s calibration/subgroup metrics: this one audits the uncertainty spec at
+Part B's calibration/subgroup metrics: this one audits the uncertainty spec at
 design/report time, so a deployment-framed claim carries the uncertainty machinery a
 reviewer expects.
 
@@ -234,7 +234,7 @@ def main() -> int:
 
     if not args.quiet:
         print("=" * 41)
-        print(" Uncertainty / OOD Reporting Gate (uncertainty-imaging)")
+        print(" Uncertainty / OOD Reporting Gate (model-assessment)")
         print("=" * 41)
         print(f"  task={result['task']}  deployment_claim={result['deployment_claim']}  "
               f"uncertainty_method={result['uncertainty_method']}  ood_method={result['ood_method']}")

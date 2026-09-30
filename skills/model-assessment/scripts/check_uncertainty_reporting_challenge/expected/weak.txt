@@ -1,5 +1,5 @@
 =========================================
- Uncertainty / OOD Reporting Gate (uncertainty-imaging)
+ Uncertainty / OOD Reporting Gate (model-assessment)
 =========================================
   task=classification  deployment_claim=True  uncertainty_method=none  ood_method=energy
 | Check | Severity | Detail |

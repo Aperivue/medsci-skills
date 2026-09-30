@@ -1,5 +1,5 @@
 =========================================
- Explainability-Report Gate (explainability)
+ Explainability-Report Gate (model-assessment)
 =========================================
   method=grad-cam  n_examples=4  cohort_level=False  localization_metric=none  interpretation=localization
 | Check | Severity | Detail |

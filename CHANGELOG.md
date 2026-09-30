@@ -20,7 +20,8 @@
   `architecture-zoo` and `model-sourcing`; `imaging-data` replaces `profile-imaging` and
   `preprocess-imaging`; `model-assessment` replaces `model-evaluation`, `model-validation`,
   `uncertainty-imaging` and `explainability`. Each keeps the absorbed skills' steps as phases, and
-  every detector keeps its script name, flags and JSON output. The eight old names still work as
+  every detector keeps its script name, flags and JSON output; the heading of its text report now
+  names the new skill. The eight old names still work as
   name-only aliases (not chosen by the model on its own) until v7. The installer backs up a
   locally modified old skill before replacing it with its alias.
 

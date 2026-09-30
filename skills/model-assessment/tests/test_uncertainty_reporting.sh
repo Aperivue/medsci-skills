@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Regression test for the uncertainty/OOD reporting-rigor gate (uncertainty-imaging).
+# Regression test for the uncertainty/OOD reporting-rigor gate (model-assessment).
 # Synthetic, PII-free JSON manifests reproduce each verdict class + the suppressions.
 # Stdlib-only (python3).
 set -u

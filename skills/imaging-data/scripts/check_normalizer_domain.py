@@ -15,7 +15,7 @@ images. Median Dice was 0.0152. Two independent counterfactual arms — rescale 
 normaliser — each recovered it to ~0.29 without retraining, so roughly **0.28 Dice** was the domain
 mismatch alone. The run exited 0 and wrote a plausible-looking segmentation for every case.
 
-The profiler had already seen it. `/profile-imaging` flagged `INTENSITY_SCALE_INCONSISTENT` on that
+The profiler had already seen it: /imaging-data flagged `INTENSITY_SCALE_INCONSISTENT` on that
 cohort *before training* — as a **Minor**, in a directory no later step reads. The gap this gate
 closes is therefore **routing and severity**, not detection: it re-reads an existing profile against
 the contract that will actually be applied, at the point where ignoring it costs something.
@@ -23,7 +23,7 @@ the contract that will actually be applied, at the point where ignoring it costs
 Reads two JSON files and nothing else — no imaging library, no pixels, no model. stdlib only, so it
 travels with the artifacts.
 
-  --profile   a /profile-imaging profile (`profile_imaging_dataset.py` output) with per-case
+  --profile   an /imaging-data profile (`profile_imaging_dataset.py` output) with per-case
               `intensity` {min, p01, p50, p99, max} and `split`
   --contract  the normalisation contract that will be applied. Either an nnU-Net-style `plans.json`
               (the scheme and the foreground statistics are read from it) or a small JSON of the
@@ -168,7 +168,7 @@ def main() -> int:
     }
 
     print("=" * 41)
-    print(" Normaliser-Domain Gate (preprocess-imaging)")
+    print(" Normaliser-Domain Gate (imaging-data)")
     print("=" * 41)
     print(f"  contract: {contract.get('scheme')} (assumes {contract.get('assumes')})"
           + (f", clip [{contract['clip'][0]:.0f}, {contract['clip'][1]:.0f}]"

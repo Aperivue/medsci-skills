@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Model-provenance gate for a third-party model you are about to build a study on.
 
-Choosing an architecture is a literature question and `/architecture-zoo` answers it. Choosing a
+Choosing an architecture is a literature question and /model-selection's first phases answer it. Choosing a
 *concrete artifact* — this repository, this checkpoint, this revision — is a provenance question,
 and the two facts a researcher usually checks (the licence, the citation count) are the two that
 cannot answer it.

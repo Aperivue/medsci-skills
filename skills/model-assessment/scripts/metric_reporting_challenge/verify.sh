@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Deterministic verifier for the metric-reporting challenge (model-evaluation).
+# Deterministic verifier for the metric-reporting challenge (model-assessment).
 # Network-free, stdlib-only. The gate flags a task-metric mismatch and clears a
 # task-correct report. Exit 0 = all expectations hold.
 set -euo pipefail

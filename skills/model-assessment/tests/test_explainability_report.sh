@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Regression test for the explainability-report rigor gate (explainability).
+# Regression test for the explainability-report rigor gate (model-assessment).
 # Synthetic, PII-free JSON manifests reproduce each verdict class. Stdlib-only (python3).
 set -u
 

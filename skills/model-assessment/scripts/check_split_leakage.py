@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Train/validation/test split-leakage gate for a medical-imaging model (model-validation).
+"""Train/validation/test split-leakage gate for a medical-imaging model (model-assessment).
 
 The single most common — and most metric-inflating — defect in an engineer-built
 imaging model is a data split that is NOT disjoint at the patient level: the same
@@ -225,7 +225,7 @@ def render(result: dict) -> str:
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="Train/val/test split-leakage gate (model-validation).")
+    ap = argparse.ArgumentParser(description="Train/val/test split-leakage gate (model-assessment).")
     ap.add_argument("--splits", required=True, help="split-assignment CSV (id column + split column)")
     ap.add_argument("--id-col", help="patient/subject ID column (auto-detected if omitted)")
     ap.add_argument("--split-col", help="split/partition column (auto-detected if omitted)")
@@ -244,7 +244,7 @@ def main() -> int:
 
     if not args.quiet:
         print("=" * 41)
-        print(" Split-Leakage Gate (model-validation)")
+        print(" Split-Leakage Gate (model-assessment)")
         print("=" * 41)
         print(f"  rows={result['n_rows']}  subjects={result['n_subjects']}  "
               f"partitions={result['partitions']}  seed={result['seed']}")
