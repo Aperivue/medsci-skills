@@ -21,6 +21,13 @@
   reproducing a CI failure. The weekly adoption snapshot can no longer commit to `main`, so it
   appends to the data-only [`metrics` branch](https://github.com/Aperivue/medsci-skills/tree/metrics)
   instead, and `IMPACT.md` and the README link there.
+- **`/peer-review` reviewer profiles now carry only what each journal publishes.** Each profile
+  in `references/reviewer_profiles/` keeps the journal's submission system, review model, the
+  comment structure from its public reviewer guide, and its reviewer-AI policy, each linked to the
+  journal's own page. Recommendation options, scorecard items and scales, required form fields and
+  portal checklists are removed: they differ by journal and change without notice, so they are
+  read from the live review form and kept out of a public repository. The Radiology: Artificial
+  Intelligence profile now gives the double-anonymized review model its author instructions state.
 
 ### Fixed
 

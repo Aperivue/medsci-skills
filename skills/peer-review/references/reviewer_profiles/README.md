@@ -1,73 +1,44 @@
 # Reviewer Profiles
 
-Canonical per-journal reviewer formatting profiles. Consumed by both the OSS `peer-review` skill (medsci-skills) and user-private peer-review skills (e.g., `~/.claude/skills/peer-review/`).
+Per-journal notes for `/peer-review`. Each profile carries only what the journal publishes, and
+links the public page every item comes from.
 
 ## Contents
 
-| File | Journal | System | Scorecard |
+| File | Journal | System | Review model |
 |---|---|---|---|
-| KJR.md | Korean Journal of Radiology | ScholarOne | 8 items, Excellent→Poor |
-| RYAI.md | Radiology: Artificial Intelligence | ScholarOne | 5 items, 1–9 |
-| INSI.md | Insights into Imaging | Editorial Manager | 4 items, H/M/L |
-| AJR.md | American Journal of Roentgenology | Editorial Manager | Section-by-section |
-| EURE.md | European Radiology | Editorial Manager | INSI-style base |
+| KJR.md | Korean Journal of Radiology | ScholarOne | Double-blind |
+| RYAI.md | Radiology: Artificial Intelligence | ScholarOne | Double-anonymized |
+| INSI.md | Insights into Imaging | Editorial Manager | Single-blind |
+| AJR.md | American Journal of Roentgenology | Editorial Manager | Double-blind |
+| EURE.md | European Radiology | Editorial Manager | Single-blind |
 
-## Design Principles
+## What a profile holds
 
-1. **Single source of truth** — each journal's reviewer-form fields live in exactly one file here.
-2. **Form fields, not opinions** — profiles describe what the editorial system expects (fields, scales, options); subjective calibration lives in the reviewer's own guideline.
-3. **OSS-safe** — no PII, no specific reviewer identity, no manuscript content, **no manuscript IDs**, **no specific editor names**, no topic-level hints that could identify a past review. Under COPE reviewer confidentiality obligations, publishing the set of manuscripts a reviewer has handled can itself identify the reviewer. Keep personal precedent logs in a private store (e.g., `~/.claude/skills/peer-review/`) — never commit them here.
-4. **Parallel to find-journal / write-paper profiles** — same directory-of-markdown pattern used elsewhere in medsci-skills.
+1. Journal name, submission system, and review model (single- or double-blind).
+2. The comment structure from the journal's public reviewer guide, if it publishes one.
+3. The journal's reviewer-AI policy: a short summary and the link.
 
-## A form field is a claim until you say what you read it off
+## What a profile does not hold
 
-These profiles are trusted precisely because they are specific: a reviewer reads the recommendation
-options here and picks one without opening the portal first. That is what makes a wrong entry
-expensive, and two entries in this directory were wrong.
+Recommendation options and scorecard fields differ by journal and change without notice. Read
+them from the live review form, keep any notes in a private store, and do not commit form-level
+details to a public repository.
 
-- A profile listed **"Accept with Minor Revision"** as a recommendation option. The live form does
-  not have that label, and its minor-revision tier is **two** options — final approval *by Editor*
-  versus *by this reviewer*, a real decision about whether the paper returns to the reviewer.
-- Another profile listed **ORCID Reviewer Credit** under *Confirmed Form Fields*. It is not a
-  scorecard field at all — zero occurrences on the form; it is an
-  account-level setting.
+Nothing here identifies a reviewer, a manuscript or a review: no names, no manuscript IDs, no
+manuscript content, no editor names.
 
-Both entries came from the same place: **a review invitation, or the author guidelines.** An
-invitation advertises the review. The form is what you fill in. They are not the same document, and
-nothing in this directory used to say so.
+## Adding a journal
 
-**Rules:**
+1. Copy the closest existing profile.
+2. Fill it only from the journal's public pages (reviewer guide, author instructions, AI policy),
+   and link each one. If a page cannot be opened, link it without summarising it, or leave the item
+   out.
+3. Name the file `{JOURNAL_SHORTNAME}.md` with the established abbreviation (KJR, RYAI, INSI, AJR,
+   EURE), or the full name when there is none.
+4. Add a row to the table above and to the Journal-Specific Formatting table in
+   `skills/peer-review/SKILL.md`.
 
-1. **Source of truth is a completed form or its confirmation PDF** — never the invitation, never the
-   author guidelines. Guidelines describe the journal's policy; the form is the journal's software.
-2. **Every form-field list carries an evidence pointer**, or it may not be called *confirmed*:
-   `Verified against a completed review form, {YYYY-MM}`. **Evidence class and month only.**
-   Never the manuscript ID, and — added 2026-08-17 — never the round, the count, or the day.
-   Design Principle 3 says the set of manuscripts a reviewer has handled can identify the
-   reviewer; so does the set of *reviews*. A round number and a day-precision date say how many
-   reviews were done and when, which is a reviewing timeline, and correlating five profiles
-   rebuilds it. Worse, a day-precision date is a join key: an ID scrubbed from this file survives
-   in already-published package versions, and a shared date links the two back together. The month
-   carries the staleness signal a date exists for; nothing else here needs to.
-3. **A confirmation PDF cannot verify a dropdown.** It carries no form widgets, so the *contents* of
-   a recommendation or rating menu are not recoverable from it. Verifying an option list means
-   rendering the live page as an image. Until that is done, mark the list partially verified and
-   **leave the unread labels blank rather than filling them in** — a plausible guess in a confident
-   file is worse than an admitted gap.
-4. **When a profile is wrong, correct the profile.** Reading it, working around the error and
-   moving on leaves the next reader to hit the same wall.
+## Consumed by
 
-## Adding a New Journal
-
-1. Copy the closest existing profile as a template.
-2. Record form fields from a **completed submission form or its confirmation PDF** (scorecard items,
-   rating scales, required text boxes, recommendation options) — see the rules above. If you have
-   only an invitation so far, write what you have and mark it unverified.
-3. Add the evidence pointer: evidence class and month only (rule 2 above) — no manuscript ID, round, count or day.
-4. Commit under `{JOURNAL_SHORTNAME}.md` using established abbreviations (KJR, RYAI, INSI, AJR, EURE; full name if no common abbreviation).
-5. Update this README table.
-
-## Consumed By
-
-- `medsci-skills/skills/peer-review/SKILL.md` — OSS public skill.
-- `~/.claude/skills/peer-review/SKILL.md` — user's private overlay (reads same profiles, adds PII-specific guideline path).
+- `skills/peer-review/SKILL.md` — Journal-Specific Formatting.

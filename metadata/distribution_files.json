@@ -1018,8 +1018,8 @@
     },
     {
       "path": "skills/contribute/scripts/check_contribution_safety.py",
-      "size": 12681,
-      "sha256": "23bd34f33304b5d9fabf8aff5d60dea6ba5452f07f5399d78ab620bad505dc7a"
+      "size": 12575,
+      "sha256": "edf644025d75bf217acca8a3cbc335ec483f1c0972f6e6f4e8af1d642438c159"
     },
     {
       "path": "skills/contribute/scripts/contribution_prefs.py",
@@ -3548,13 +3548,13 @@
     },
     {
       "path": "skills/peer-review/SKILL.md",
-      "size": 51893,
-      "sha256": "90ca47c66eb30d21bf6a7a1ff57c52341c20ec303236333951878e4f47e836e8"
+      "size": 52084,
+      "sha256": "4662200fd681e47adcabc67787270125d3a4abb509de0f87211224a730455512"
     },
     {
       "path": "skills/peer-review/references/aczel_2021_reviewer2_patterns.md",
-      "size": 6582,
-      "sha256": "112b152d276d9a9d1431ef90b2428e8b2c5390f70bbf64e01831e9ab39f2ce2c"
+      "size": 6617,
+      "sha256": "ff7e3eef436313cb29833d02e5c7cb1fa36458d4d40413744717dd083933a4e4"
     },
     {
       "path": "skills/peer-review/references/domain-probes/ai_overclaiming.md",
@@ -3718,13 +3718,13 @@
     },
     {
       "path": "skills/peer-review/references/reviewer_calibration/README.md",
-      "size": 2147,
-      "sha256": "e0a1a2c63918c7a8d6eaa3a6bb61b7869947ccc1c30c936ac784be33532a9fae"
+      "size": 2157,
+      "sha256": "245a75d110981eaf2a71201a7f518fe0d8590c0f5afbf9dfbb971cbf4417505c"
     },
     {
       "path": "skills/peer-review/references/reviewer_calibration/compliance_floor.md",
-      "size": 6331,
-      "sha256": "1ca0283205420acbc9c4265c25fdcd1ed980570643823d452d6f5073f0761f64"
+      "size": 6307,
+      "sha256": "3a9b61c146f747d75f29c9453b45799d731cf2bd2063f440d73f39f8154aef33"
     },
     {
       "path": "skills/peer-review/references/reviewer_calibration/recommendation_calibration.md",
@@ -3733,33 +3733,33 @@
     },
     {
       "path": "skills/peer-review/references/reviewer_profiles/AJR.md",
-      "size": 3547,
-      "sha256": "2c8c39459f0ef5e51ecf5bef084737966d6ba59214939515b714034d9b73611e"
+      "size": 2852,
+      "sha256": "b93170ae83eb6f9bf2d8fe05ba3c3e643951d1d913fff20794bfac90732d19fb"
     },
     {
       "path": "skills/peer-review/references/reviewer_profiles/EURE.md",
-      "size": 2784,
-      "sha256": "9deb7f135146c97646bbe60196d47b98226cb26d0907045b081a62a76ddc3d63"
+      "size": 3337,
+      "sha256": "ccdcc34df8dafa98a61e873bb7024e5039fbf5b3f514d9cb0f7b90c3250f408b"
     },
     {
       "path": "skills/peer-review/references/reviewer_profiles/INSI.md",
-      "size": 1870,
-      "sha256": "70d73a0b51ce3e15bcc0ccd9a3a9379c9e6d3a4fe03eba8777dd9cc495245d8a"
+      "size": 2672,
+      "sha256": "016758c5a3a11859478f556ebb719e2599c5131ab93e813f3b3efe8eae382983"
     },
     {
       "path": "skills/peer-review/references/reviewer_profiles/KJR.md",
-      "size": 3452,
-      "sha256": "78f7ea83a7db3fd777226f390d46b9fa373a72a315692a078d5cad6432f238db"
+      "size": 1658,
+      "sha256": "d6549c02eb54878fa9268314a038a0216dd1c81d23231b10c730556d49c2dc39"
     },
     {
       "path": "skills/peer-review/references/reviewer_profiles/README.md",
-      "size": 5076,
-      "sha256": "46d604d4c14af4ef47d0496a782723e84b39cd7c03a6b0e29ea7f0134dd37ba4"
+      "size": 1866,
+      "sha256": "ea221ca85c29d0cbc510b86b1141343661c956393aca977d09971f8e213ff847"
     },
     {
       "path": "skills/peer-review/references/reviewer_profiles/RYAI.md",
-      "size": 4670,
-      "sha256": "377ce54c842aeed6e6ddfcfdeddaf54e59e3cf4156e001a50a5b51c9af8201dc"
+      "size": 1656,
+      "sha256": "ff62cedbc724a77e7d381fb67c19aec6bc8204fe40463d2808b4cda05ff5287a"
     },
     {
       "path": "skills/peer-review/scripts/check_pdf_injection.py",
@@ -3858,8 +3858,8 @@
     },
     {
       "path": "skills/peer-review/scripts/check_review_request_types.py",
-      "size": 14060,
-      "sha256": "3a8c143f294eda415e283f869787a1ef3426322fb4d253906881d1e13fffc05e"
+      "size": 14001,
+      "sha256": "43ad156c42ee62d63ec86a4cbb56cb107f024bf8cbd7e9bc1727cce546cf925e"
     },
     {
       "path": "skills/peer-review/scripts/check_review_request_types_challenge/expected/disciplined.txt",
@@ -3883,8 +3883,8 @@
     },
     {
       "path": "skills/peer-review/scripts/check_review_request_types_challenge/problem.md",
-      "size": 4347,
-      "sha256": "7c967ee7252d0c0bc90c49af0f4812b7bdd7d4e3d610118dbac0e20a808bda6c"
+      "size": 4279,
+      "sha256": "223776d2efddce8a199c7dc3bc273fb6c96f49709df93f674d1961c80f2fe591"
     },
     {
       "path": "skills/peer-review/scripts/check_review_request_types_challenge/verify.sh",

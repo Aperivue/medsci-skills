@@ -18,11 +18,10 @@ review. Sort each ask into two kinds:
                 compliance.
 
 `/peer-review` Phase 3 already states this rule in prose, and Phase 6 already
-lists it as a checkbox. Prose did not bind: in the first live review after the
-rule shipped, a draft went out with four unjustified computation requests and
-passed every neighbouring gate (word count, em-dash density, forbidden words,
-attitude markers) because those are scripts and this one was a sentence. Hence
-this file.
+lists it as a checkbox. Prose does not bind: a draft with several unjustified
+computation requests passes every neighbouring gate (word count, em-dash density,
+forbidden words, attitude markers) because those are scripts and this one is a
+sentence. Hence this file.
 
 Fires on:
   COMPUTATION_UNJUSTIFIED  a computation request with no stated reason the
