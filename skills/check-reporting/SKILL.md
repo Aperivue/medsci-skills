@@ -146,6 +146,12 @@ is ambiguous, ask the user to confirm before selecting a guideline.
 > `/meta-analysis` Phase 1. Phases 3–6 are what a QC pass can genuinely run.
 
 **Rules:**
+- **A guideline the user names is the one you score.** The rules below choose the guideline only when
+  the user names none. If they call for a different or additional instrument (STARD-AI for an AI index
+  test, TRIPOD+AI for an ML prediction model, an AI extension), score the named guideline and put one
+  line at the top of the report saying which instrument fits better and the command to rerun, e.g.
+  `/check-reporting STARD-AI`. Do not switch or add instruments on your own: the user maps the report
+  to the checklist form the journal asked for.
 - If the study involves AI/ML, always apply the AI extension in addition to the base guideline.
   - **Exception — TRIPOD**: TRIPOD+AI 2024 (Collins et al., BMJ 2024) is a complete rewrite, not an addendum to TRIPOD 2015 (Moons et al., Ann Intern Med 2015). For non-AI prediction models, use TRIPOD 2015 only. For AI/ML prediction models, use TRIPOD+AI 2024 only. Do NOT apply both simultaneously.
 - **STARD-AI** (Sounderajah et al., Nat Med 2025) extends STARD 2015 with 14 new and 4 modified items (40 total) and incorporates all STARD 2015 items. For AI diagnostic accuracy studies use STARD-AI only — do NOT apply STARD 2015 and STARD-AI simultaneously.

@@ -25,6 +25,11 @@
   name-only aliases (not chosen by the model on its own) until v7. The installer backs up a
   locally modified old skill before replacing it with its alias.
 
+- **`/check-reporting` scores the guideline you name (v6).** Its rules pick a guideline when you
+  name none; when you do, it now scores that one and puts a line at the top of the report if another
+  instrument fits better (STARD-AI for an AI index test, for example) with the command to rerun. In an
+  isolated comparison, a request for STARD on an AI diagnostic-accuracy manuscript was sometimes
+  rescored as STARD-AI without being asked.
 - **Skill descriptions say when to use the skill, in 300 characters or fewer (v6).** The model picks
   a skill from its description, and those ran to 945 characters (median 304) of feature lists.
   Each now opens with "Use when …", names the situation in the words a user would type, and
