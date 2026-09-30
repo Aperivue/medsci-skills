@@ -2643,8 +2643,8 @@
     },
     {
       "path": "skills/manage-refs/SKILL.md",
-      "size": 20750,
-      "sha256": "16a16ca23833a9ba86850b556c94df3ca0bc948a98dfa54140358951428e16ab"
+      "size": 15788,
+      "sha256": "1e4390bc11b0283646ef0f201d4634f4739e4a015aace256d90d88cb4f26bbd2"
     },
     {
       "path": "skills/manage-refs/citation_styles/README.md",
@@ -2788,8 +2788,8 @@
     },
     {
       "path": "skills/manage-refs/references/REFERENCE_STYLE_SPECS.md",
-      "size": 3646,
-      "sha256": "c542bfee0d66dcc13d9a33c868730f32af8e97e452742da8ba80c0a6e2334f5f"
+      "size": 3503,
+      "sha256": "d3bed7ceabe6f081521b0ebb630762264370357c284301c9a1780b80d694909d"
     },
     {
       "path": "skills/manage-refs/references/check_xref_symptoms.md",
