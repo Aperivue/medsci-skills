@@ -1,9 +1,9 @@
 # Phase 2.5d — Cross-Reference QC (Manuscript ↔ rendered DOCX)
 
 Load-on-demand companion to `/self-review` Phase 2.5d. SKILL.md keeps the two gates,
-the severity policy table, and the no-auto-fix rule; this file carries the precedent
-failure, the input-location procedure, the reconciliation-block template, and the
-comment-emission convention.
+a severity summary, and the no-auto-fix rule; this file carries the full severity policy
+table, the precedent failure, the input-location procedure, the reconciliation-block
+template, and the comment-emission convention.
 
 Read it when a rendered DOCX exists and the xref gate has fired.
 
