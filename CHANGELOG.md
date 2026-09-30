@@ -2217,13 +2217,15 @@ four days early to be citable.
   of its observed fires on a real manuscript was false.** The arithmetic was never wrong; the
   inputs were. Three captures, three ways of latching onto the wrong digit:
 
-  - `"882 KSAR S4-1 events occurred"` bound the **1 of the label "S4-1"** as the event count
-    and declared 2.48 per 100 person-years irreconcilable with one event. A hyphen or slash
-    before the digit now means it belongs to a label, and when the numerator cannot be bound
-    the check says **nothing** — an unbindable count is not evidence of an arithmetic error.
-  - `"over 35,581.3 person-years"` — the integer part could not reach the noun past the decimal
-    point, so the **fractional digit** matched instead: a cohort of "3 person-years". Person-time
-    is now read with its decimal, and the same lookbehind stops a fractional tail standing alone.
+  - An event count followed by a hyphenated guideline label (`"<count> <label> X-1 events
+    occurred"`) bound the **last digit of the label** as the event count and declared the
+    reported rate irreconcilable with one event. A hyphen or slash before the digit now means it
+    belongs to a label, and when the numerator cannot be bound the check says **nothing** — an
+    unbindable count is not evidence of an arithmetic error.
+  - Person-time reported to one decimal — the integer part could not reach the noun past the
+    decimal point, so the **fractional digit** matched instead: a cohort of single-digit
+    person-years. Person-time is now read with its decimal, and the same lookbehind stops a
+    fractional tail standing alone.
   - A one-letter column hint matched a longer word: `"n"` found **`"Normal"`** in the header of
     an exposure-stratified Table 1, so characteristic rows were summed as if they were strata.
     Hints under three characters are now matched exactly, longer ones on a word boundary. The
@@ -2872,10 +2874,10 @@ four days early to be citable.
 
 - **`/self-review` `check_cohort_arithmetic` — `NESTED_MODEL_NO_BASELINE`: nested discrimination
   models with no base-model row.** A table reported C-indices for several nested models that all
-  embedded age + sex (CMB+age+sex = 0.667, MetS+age+sex = 0.671, …) but had **no age+sex-only baseline
-  row** — the section was even titled "(age + sex baseline)". "CMB comparable to MetS" was
-  uninterpretable because the shared age + sex could account for the discrimination; re-analysis put
-  C(age+sex) = 0.648 and the incremental ΔC at only 0.019/0.023. The gate now flags a table with a
+  embedded age + sex, two of them differing by less than 0.01, but had **no age+sex-only baseline
+  row**. "Model A comparable to model B" was uninterpretable because the shared age + sex could
+  account for most of the discrimination; re-analysis showed each model added little over age + sex
+  alone. The gate now flags a table with a
   discrimination column (C-index / AUC) where two or more additive ("X + Y") models share a common
   covariate set but no row reports those common covariates alone and no incremental ΔC is stated
   (Minor). Deterministic and header-gated: it only considers tables with a discrimination column and
@@ -2899,8 +2901,8 @@ four days early to be citable.
 
 - **`/self-review` `check_cohort_arithmetic` — `SUBGROUP_DUPLICATE_CI`: the same subgroup
   rendered twice in one table with two different confidence intervals.** A results table listed
-  "MetS ≥3 criteria" (OR 4.95, 4.32–5.94) and "MetS-positive (binary)" (OR 4.95, 4.26–5.83) — the
-  identical subgroup (same n, same events) relabeled, each with its own independently-resampled
+  one subgroup under two labels (a criteria-count definition and a binary one) with the same odds
+  ratio — the identical subgroup (same n, same events) relabeled, each with its own independently-resampled
   bootstrap interval; a biostatistics reviewer asks why one group has two CIs. The gate now flags,
   within a single GFM table, two rows sharing the **same effect estimate and identical count columns
   (n / events) but printing different CIs** (Minor). High precision by construction: it requires the

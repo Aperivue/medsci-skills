@@ -44,11 +44,12 @@ MD
 # The submission ID is ASSEMBLED, never written out: a file whose job is to carry identifier-shaped
 # strings must not carry one as a literal, or the repo's own precedent gate flags the test that
 # proves the gate works. Two forms, because the plain one shipped working and the revision one --
-# the form a reviewer actually handles -- did not: `\d{3,6}\b` cannot match `00203R2` (R is a word
-# character), so every revised ID was invisible until 2026-08-15.
-J=EURE; Y=26
-printf 'I was reviewing %s-D-%s-00203 when this happened.\n' "$J" "$Y" >> "$TMP/leaky.md"
-printf 'and %s-D-%s-00203R2 the round after that.\n' "$J" "$Y" >> "$TMP/leaky.md"
+# the form a reviewer actually handles -- did not: `\d{3,6}\b` cannot match `00001R2` (R is a word
+# character), so every revised ID was invisible until 2026-08-15. The journal code is not a real
+# journal's.
+J=ZZZZ; Y=99
+printf 'I was reviewing %s-D-%s-00001 when this happened.\n' "$J" "$Y" >> "$TMP/leaky.md"
+printf 'and %s-D-%s-00001R2 the round after that.\n' "$J" "$Y" >> "$TMP/leaky.md"
 
 # --- an ordinary, entirely publishable contribution -------------------------------------------
 cat > "$TMP/clean.md" <<'MD'
@@ -85,13 +86,13 @@ ck "MRN, national ID, IRB, manuscript ID, name, path all caught" 0 "$?"
 # 1b) BOTH submission-ID forms, because only one of them used to work.
 #
 # The plain form was caught from the day this shipped. The revision form was not: `\d{3,6}\b`
-# cannot match `00203R2`, since R is a word character and there is no boundary before it. Revised
+# cannot match `00001R2`, since R is a word character and there is no boundary before it. Revised
 # IDs are the ones a reviewer handles most, so missing them is the expensive miss.
 python3 - "$TMP/leaky.json" <<'PY'
 import json, sys
 found = {f["match"] for f in json.load(open(sys.argv[1]))["findings"]
          if f["verdict"] == "MANUSCRIPT_ID"}
-assert any(x.endswith("00203") for x in found), f"plain submission ID missed: {found}"
+assert any(x.endswith("00001") for x in found), f"plain submission ID missed: {found}"
 assert any(x.endswith("R2") for x in found), f"REVISED submission ID missed: {found}"
 PY
 ck "both the plain and the revised submission-ID forms are caught" 0 "$?"

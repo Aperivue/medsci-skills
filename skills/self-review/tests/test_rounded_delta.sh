@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Regression test for the rounded-component vs stated-difference gate (Phase 2.5a).
-# Synthetic fixtures: (bad) components 0.70/0.73 with a stated difference 0.02 (shown
+# Synthetic fixtures: (bad) components 0.79/0.82 with a stated difference 0.02 (shown
 # gap is 0.03) -> ROUNDED_DELTA_MISMATCH; (clean) a correct 0.03 delta, a legit
 # higher-precision unrounded 0.02 delta, and an unrelated decimal pair -> no flag.
 set -u
@@ -22,7 +22,7 @@ assert any(c['verdict']=='$1' for c in d['claims']), '$1 not found'
 [[ -f "$SCRIPT" ]] || { echo "ENV-ERR: script missing" >&2; exit 2; }
 
 python3 "$SCRIPT" --manuscript "$BAD" --out "$OUT" --quiet >/dev/null 2>&1
-check "ROUNDED_DELTA_MISMATCH on 0.70/0.73 vs stated 0.02" has_verdict ROUNDED_DELTA_MISMATCH
+check "ROUNDED_DELTA_MISMATCH on 0.79/0.82 vs stated 0.02" has_verdict ROUNDED_DELTA_MISMATCH
 check "JSON artifact written" test -s "$OUT"
 
 python3 "$SCRIPT" --manuscript "$CLEAN" --out "$OUT" --quiet >/dev/null 2>&1
