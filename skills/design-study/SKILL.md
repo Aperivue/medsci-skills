@@ -109,15 +109,12 @@ For any time-to-event or incident/transition design, check before drafting:
 - **Mediator-ascertainment-window survivorship.** A "progressor" / transition label conditional on
   *surviving to* a later ascertainment (a second scan, a follow-up visit) is survivorship-biased; plan
   a landmark time or an explicit intermediate-state (multistate / illness-death) model.
-- **Primary-analysis-set selection.** If the primary will not be the full cohort (e.g., complete-case
-  while a large fraction is missing), pre-specify the selection justification from the missingness
-  mechanism *relative to the outcome*: complete-case regression is unbiased when missingness is
-  independent of the outcome given the covariates (which can hold even when a covariate is missing
-  not at random), and generally biased when missingness depends on the outcome — including under
-  MAR, where multiple imputation is the usual primary (Hughes et al., *Int J Epidemiol* 2019; the
-  exception is logistic-regression odds ratios when missingness depends on the outcome alone). A
-  MAR rationale supports multiple imputation, not complete-case. Never make the complete-case model
-  primary because it is the significant one (an outcome-dependent choice).
+- **Primary-analysis-set selection.** If the primary is not the full cohort, pre-specify why, from
+  the missingness mechanism *relative to the outcome*: complete-case regression is unbiased when
+  missingness is independent of the outcome given the covariates (even with a covariate MNAR) and
+  generally biased when it depends on the outcome, including under MAR, where multiple imputation
+  is the usual primary (Hughes et al., *Int J Epidemiol* 2019; logistic-regression odds ratios are
+  the exception when missingness depends on the outcome alone). Never pick it for significance.
 - A design that cannot yet answer these should say so — but at review time a Methods/Limitations
   admission that it was *"not formally assessed"* is escalated to MAJOR by the survival probe (S1).
 
