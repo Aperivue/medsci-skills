@@ -5,9 +5,9 @@ compliance percentage. A percentage alone does not answer the reviewer's actual 
 **is this manuscript reporting-complete enough, and which gaps are serious?** This directory
 holds that judgment layer.
 
-It is deliberately **not** in `reviewer_profiles/` — that directory is "form fields, not
-opinions" (the scorecard a journal's editorial system shows). Calibration is opinion, so it
-lives here, as the reviewer's own guideline.
+It is deliberately **not** in `reviewer_profiles/` — that directory holds only what each
+journal publishes (review model, public reviewer-guide structure, reviewer-AI policy).
+Calibration is opinion, so it lives here, as the reviewer's own guideline.
 
 ## What it provides
 
@@ -29,8 +29,8 @@ a critical item is weaker than an 80%-compliant one that has them all.
 
 - **No fabricated thresholds.** This file does not assert "journal X desk-rejects below
   Y%." Journals rarely publish a numeric floor. The *only* hard signals are (a) a missing
-  critical item and (b) the journal's own stated required elements (which live in
-  `reviewer_profiles/` and the author guidelines — verify there, do not invent).
+  critical item and (b) the journal's own stated required elements (which live in the
+  journal's author guidelines — verify there, do not invent).
 - **Critical-item lists are methodological judgment**, grounded in the guideline's own item
   set (public), not in any single manuscript or review.
 - Keep it general and study-type-keyed; per-journal specifics belong in `reviewer_profiles/`

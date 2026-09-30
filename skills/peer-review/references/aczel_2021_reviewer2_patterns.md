@@ -80,7 +80,7 @@ Even at escalation, retain:
 ## Cross-references
 
 - Skill: `peer-review/SKILL.md` Phase 3 (Draft) and Phase 4 (Self-QC)
-- Companion: `peer-review/references/reviewer_profiles/{JOURNAL}.md` for journal-specific scorecard
+- Companion: `peer-review/references/reviewer_profiles/{JOURNAL}.md` for the journal's public comment structure and reviewer-AI policy
 - Related: `~/.claude/rules/writing-style.md` (active voice, no "we believe/think")
 
 ## Citation

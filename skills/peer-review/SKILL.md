@@ -445,21 +445,21 @@ For cross-modality image-synthesis manuscripts (MRI→PET / MRI→CT / non-contr
 **Canonical source:** per-journal profile files at
 `references/reviewer_profiles/{JOURNAL_SHORTNAME}.md`
 
-In Phase 1 (Setup), after identifying the journal, read the matching profile and render its scorecard template at the top of the draft in Phase 3, above Confidential Comments to the Editor. This avoids duplicating journal form fields across multiple skills.
+In Phase 1 (Setup), after identifying the journal, read the matching profile. It carries only what the journal publishes: its review model, the comment structure from its public reviewer guide, and its reviewer-AI policy. In Phase 3, follow that structure for the two comment blocks. Recommendation options and scorecard fields differ by journal and change without notice: ask the user for them, or read them from the user's private notes, and never write them into this repository.
 
 Current profiles:
 
-| Short | Journal | System | Scorecard |
+| Short | Journal | System | Review model |
 |---|---|---|---|
-| KJR | Korean Journal of Radiology | ScholarOne | 8 items, Excellent→Poor |
-| RYAI | Radiology: Artificial Intelligence | ScholarOne | 5 items, 1–9 |
-| INSI | Insights into Imaging | Editorial Manager | 4 items, H/M/L |
-| AJR | American Journal of Roentgenology | Editorial Manager | Section-by-section |
-| EURE | European Radiology | Editorial Manager | INSI-style base |
+| KJR | Korean Journal of Radiology | ScholarOne | Double-blind |
+| RYAI | Radiology: Artificial Intelligence | ScholarOne | Double-anonymized |
+| INSI | Insights into Imaging | Editorial Manager | Single-blind |
+| AJR | American Journal of Roentgenology | Editorial Manager | Double-blind |
+| EURE | European Radiology | Editorial Manager | Single-blind |
 
 ### Custom Journal
 
-If a journal has no profile yet, use the generic format from Phase 3 and ask the user for the invitation form's scorecard fields so a new profile can be added under `reviewer_profiles/`.
+If a journal has no profile yet, use the generic format from Phase 3. A new profile under `reviewer_profiles/` is written from the journal's public pages only (see its README); form fields come from the user, not from a profile.
 
 ## Output Contract
 
