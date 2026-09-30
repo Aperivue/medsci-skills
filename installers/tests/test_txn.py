@@ -170,6 +170,27 @@ def faults(base: Path) -> None:
         T._lock_file = real_lock
     check("a filesystem without locking proceeds unlocked, as before", unlockable_ok)
 
+    # 11b. a release that owns no skills (everything installed is pruned), killed right after the
+    #      empty manifest is written: recovery must leave dest and manifest agreeing, not restore
+    #      the pruned folders beside a manifest that no longer lists them.
+    src_v1 = make_source(base / "f11b_v1", {"a": {}, "gone": {}}, "1.0.0")
+    home, dest = base / "f11b_home", base / "f11b_dest"
+    os.environ["MEDSCI_HOME"] = str(home)
+    T.install_target(src_v1, dest, "claude", ["a", "gone"], home, _logger())
+    empty = base / "f11b_v2" / "skills"
+    undo = _fail_after_replace(lambda s, d: d.name == "installed-manifest.json")
+    try:
+        T.install_target(empty, dest, "claude", [], home, _logger())
+    except _Crash:
+        pass
+    finally:
+        undo()
+    T.recover_target("claude", home, _logger())
+    listed = sorted(T.read_json_strict(T.target_state_dir("claude", home) / "installed-manifest.json")["skills"])
+    on_disk = sorted(p.name for p in dest.iterdir() if p.name != T.TXN_DIRNAME)
+    check("empty release killed after its manifest was written: dest and manifest agree after recovery",
+          listed == on_disk and not (dest / T.TXN_DIRNAME).exists())
+
     # 12. a symlink the user added inside an installed skill is a modification: it is backed up, as
     #     a link, before the skill is replaced. A dangling one must not make the backup fail.
     src_v2, dest, home = _v1_then(base, "f12")

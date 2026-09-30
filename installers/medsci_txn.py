@@ -326,8 +326,10 @@ def _recover_target(target: str, home: Path, log) -> bool:
 
     # Point of no return = all new skills actually placed in dest. Roll FORWARD only when the
     # new content is fully in place (committed, or new_installed with every skill placed);
-    # otherwise ROLL BACK (the new content is still partly in staging).
-    fully_placed = len(placed_new) == len(owned) and len(owned) > 0
+    # otherwise ROLL BACK (the new content is still partly in staging). A release that owns no
+    # skills is fully placed as soon as new_installed begins; the old `len(owned) > 0` sent it
+    # to rollback, which restored the pruned folders beside an already-written empty manifest.
+    fully_placed = len(placed_new) == len(owned)
     roll_forward = phase == "committed" or (phase == "new_installed" and fully_placed)
 
     if roll_forward:
