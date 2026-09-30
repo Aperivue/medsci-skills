@@ -27,7 +27,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install Python test dependencies
-        run: pip install pyyaml pandas numpy scipy scikit-learn matplotlib python-pptx python-docx fonttools statsmodels
+        run: pip install pyyaml pandas numpy scipy scikit-learn matplotlib python-pptx python-docx fonttools statsmodels lifelines
 
       - name: Install exiftool + poppler + pandoc (artifact and render tests; no TeX)
         run: sudo apt-get update && sudo apt-get install -y libimage-exiftool-perl poppler-utils pandoc

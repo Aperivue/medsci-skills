@@ -104,7 +104,7 @@ accepts a change only after CI has passed on it combined with the latest `main` 
 ruleset; repository admins can bypass it). Before you push, run what your change touches:
 
 ```bash
-pip install pyyaml pandas numpy scipy scikit-learn matplotlib python-pptx python-docx fonttools statsmodels
+pip install pyyaml pandas numpy scipy scikit-learn matplotlib python-pptx python-docx fonttools statsmodels lifelines
 # Also install pandoc, exiftool and poppler with your OS package manager.
 # Render regression tests generate LaTeX with pandoc; CI does not install TeX.
 
