@@ -146,7 +146,6 @@ for skill_dir in "${SKILL_DIRS[@]}"; do
 
   ((TOTAL++))
   echo "[$skill_name]"
-  lines=$(wc -l < "$skill_file")
 
   # 1. Frontmatter: required fields
   has_name=$(head -20 "$skill_file" | grep -c "^name:" || true)
@@ -167,31 +166,10 @@ for skill_dir in "${SKILL_DIRS[@]}"; do
     fail "Frontmatter missing:$missing"
   fi
 
-  # 2. Anti-Hallucination section
-  if grep -qi "anti.hallucination\|Anti-Hallucination" "$skill_file"; then
-    pass "Anti-Hallucination section"
-  else
-    fail "Anti-Hallucination section MISSING"
-  fi
-
-  # 3. Quality gates (look for "Gate" or "user approval" or "user review")
-  gate_count=$(grep -ci "gate\|user approval\|user review\|user confirms\|present.*user" "$skill_file" || true)
-  if [ "$gate_count" -ge 3 ]; then
-    pass "Quality gates ($gate_count references)"
-  elif [ "$gate_count" -ge 1 ]; then
-    warn "Quality gates ($gate_count — recommend 3+)"
-  else
-    warn "Quality gates (0 found)"
-  fi
-
-  # 4. Line count tier
-  if [ "$lines" -ge 300 ]; then
-    pass "Size: $lines lines (HIGH tier)"
-  elif [ "$lines" -ge 150 ]; then
-    pass "Size: $lines lines (MID tier)"
-  else
-    warn "Size: $lines lines (THIN tier — consider expanding)"
-  fi
+  # (Former checks 2-4 removed 2026-09-30: a required "Anti-Hallucination" heading, a quota of
+  #  "gate" words, and a size tier that warned "THIN — consider expanding" under 150 lines. They
+  #  rewarded boilerplate and length, the opposite of what a skill should carry; the upper bound
+  #  lives in check_phase_budget.py.)
 
   # 5. Reference file integrity
   ref_count=0

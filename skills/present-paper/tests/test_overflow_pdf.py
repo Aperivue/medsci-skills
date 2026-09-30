@@ -71,6 +71,17 @@ class ActualPDFMeasurement(unittest.TestCase):
             '--pdf', str(self.pdf), '--strict'], text=True, capture_output=True)
         self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
 
+    def test_real_pdf_text_below_the_page_is_reported_unrendered(self):
+        # Baseline under the page: poppler drops the glyphs, so there is no line to measure.
+        write_pdf(self.pdf, baseline=-200)
+        xml = overflow.run_pdftotext(self.pdf)
+        self.assertNotIn('Synthetic', xml)  # the premise: off-page text is absent, not clipped
+        self.assertEqual({f.verdict for f in overflow.audit(self.deck, xml, .1)}, {'UNRENDERED'})
+        result = subprocess.run([sys.executable, str(Path(overflow.__file__)), str(self.deck),
+            '--pdf', str(self.pdf), '--strict'], text=True, capture_output=True)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn('Synthetic text', result.stdout)
+
     def test_plain_bbox_is_not_misreported_as_a_clean_measurement(self):
         write_pdf(self.pdf)
         xml = subprocess.run(['pdftotext', '-bbox', str(self.pdf), '-'],

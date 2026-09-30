@@ -59,9 +59,17 @@ HEADING_RE = re.compile(
 # does NOT depend on a text-level number, because Word auto-numbered lists keep
 # the number in list formatting (numPr), not in the paragraph text — so a hand
 # list and a citeproc list render entries that both start at the surname.
+#
+# Two ordinary entry shapes do not start with a capitalised surname, and both used to be
+# silently dropped from the count (a 4-entry list reported as 1): a surname carrying a
+# lowercase particle ("van der Berg K", "de Vries A", "d'Angelo M"), and a guideline or
+# corporate document whose title leads with its year ("2021 Society Guidelines on ...").
+_PARTICLES = (r"(?:(?:van|von|der|den|de|del|della|des|di|da|du|dos|das|la|le|ten|ter)\s+"
+              r"|d')*")
 ENTRY_RE = re.compile(
     r"^\s*(?P<num>\d{1,3})?\s*[.\)]?\s*"
-    r"(?P<surname>[A-Z][A-Za-zÀ-ɏ'\-]{1,})\s*,?\s+[A-Z]"
+    r"(?:(?P<surname>" + _PARTICLES + r"[A-Z][A-Za-zÀ-ɏ'\-]{1,})\s*,?\s+[A-Z]"
+    r"|(?:19|20)\d{2}\s+(?P<lead>[A-Z][\w/\-]*))"
 )
 YEAR_RE = re.compile(r"\b(19|20)\d{2}\b")
 SURNAME_RE = re.compile(r"[A-Z][A-Za-zÀ-ɏ'\-]+")
@@ -104,7 +112,7 @@ def analyze(lines: list[str], source: str) -> dict:
         if not YEAR_RE.search(ln):
             continue
         num = int(m.group("num")) if m.group("num") else None
-        surname = m.group("surname").lower()
+        surname = (m.group("surname") or m.group("lead")).lower()
         year = YEAR_RE.search(ln).group(0)
         dm = DOI_RE.search(ln)
         entries.append({"line": i, "num": num, "tail": ln,

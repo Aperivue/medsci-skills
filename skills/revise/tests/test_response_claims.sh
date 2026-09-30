@@ -154,6 +154,54 @@ ck "line-break hyphenation repaired (no finding)" 1 "$?"
 python3 "$V" --response "$TMP/resp_quote.md" --manuscript "$TMP/body_scattered.md" --strict > /dev/null 2>&1
 ck "scattered words are still MAJOR drift (--strict)" 1 "$?"
 
+# --- a long quote is checked whole, not dropped at the window edge ----------------------
+# The quote below opens right after its claim verb but closes ~440 chars later. Reading a
+# fixed 320-char window lost the closing mark, so the quote was never checked at all and a
+# stale response passed --strict. Synthetic text only.
+LONG_Q="Participants were enrolled consecutively at three synthetic sites between two fixed calendar dates, and every enrolled participant contributed exactly one baseline examination, one follow-up examination at a prespecified interval, and one adjudicated outcome record, so that no participant could contribute more than one observation to any analysis and the unit of analysis was the participant throughout the study rather than the examination"
+printf '**Response 3.** We added the sentence "%s." to the Methods.\n' "$LONG_Q" > "$TMP/resp_long.md"
+printf '## Methods\nBaseline characteristics were summarized descriptively.\n' > "$TMP/body_long_absent.md"
+printf '## Methods\n%s.\n' "$LONG_Q" > "$TMP/body_long_present.md"
+python3 "$V" --response "$TMP/resp_long.md" --manuscript "$TMP/body_long_absent.md" --strict > /dev/null 2>&1
+ck "long quote absent from body fails (--strict)" 1 "$?"
+python3 "$V" --response "$TMP/resp_long.md" --manuscript "$TMP/body_long_present.md" --strict > /dev/null 2>&1
+ck "long quote present in body passes (--strict)" 0 "$?"
+
+# --- "Changes to text:" labels anchor their quote --------------------------------------
+# Many letters give the new text under a label instead of an edit verb. Without the label
+# as an anchor, no claim verb was seen and the quoted text was never checked.
+cat > "$TMP/resp_changes.md" <<'MD'
+**Response 4.** We agree with the reviewer.
+
+Changes to text: "The index test was interpreted without knowledge of the reference standard." (Methods, page 5)
+
+**Response 5.** Thank you for this suggestion.
+
+Changes to Text (page 7, lines 3-4): "Readers were blinded to all clinical information other than the examination date."
+MD
+printf '## Methods\nBaseline characteristics were summarized descriptively.\n' > "$TMP/body_changes_absent.md"
+printf '## Methods\nThe index test was interpreted without knowledge of the reference standard. Readers were blinded to all clinical information other than the examination date.\n' > "$TMP/body_changes_present.md"
+python3 "$V" --response "$TMP/resp_changes.md" --manuscript "$TMP/body_changes_absent.md" --strict > /dev/null 2>&1
+ck "'Changes to text:' quote absent fails (--strict)" 1 "$?"
+N_UNVER="$(python3 "$V" --response "$TMP/resp_changes.md" --manuscript "$TMP/body_changes_absent.md" 2>&1 | grep -c RESPONSE_QUOTE_UNVERIFIED)"
+ck "both labelled quotes (text: / Text (page..):) checked" 2 "$N_UNVER"
+python3 "$V" --response "$TMP/resp_changes.md" --manuscript "$TMP/body_changes_present.md" --strict > /dev/null 2>&1
+ck "'Changes to text:' quote present passes (--strict)" 0 "$?"
+
+# an apostrophe inside a quote does not end it: the checked text is the whole sentence
+cat > "$TMP/resp_apos.md" <<'MD'
+**Response 6.** The sentence now reads "the model's threshold was fixed before the test set was opened".
+MD
+printf '## Methods\nThe model'"'"'s threshold was fixed before the test set was opened.\n' > "$TMP/body_apos.md"
+python3 "$V" --response "$TMP/resp_apos.md" --manuscript "$TMP/body_apos.md" --strict > /dev/null 2>&1
+ck "apostrophe inside a double-quoted quote is not its end" 0 "$?"
+# ...and the words BEFORE the apostrophe are checked too. Cutting the quote at the
+# apostrophe checked only "s threshold was fixed ...", which a different sentence
+# ("Each reader's threshold ...") also contains, so the claim looked verified.
+printf '## Methods\nEach reader'"'"'s threshold was fixed before the test set was opened.\n' > "$TMP/body_apos_other.md"
+python3 "$V" --response "$TMP/resp_apos.md" --manuscript "$TMP/body_apos_other.md" 2>&1 | grep -q RESPONSE_QUOTE
+ck "a different subject before the apostrophe is not verified" 0 "$?"
+
 echo "----"
 echo "test_response_claims: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]

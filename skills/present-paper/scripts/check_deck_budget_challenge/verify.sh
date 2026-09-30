@@ -121,6 +121,43 @@ assert all(f["detector"] == "check_deck_budget" for f in d["findings"])
 PY
 pass "qc JSON self-identifies and records the archetype it judged against"
 
+# --- the deck-level density message reports what it measured, not a cause --------------------------
+# Deleting two sparse divider slides raised the median and the finding said "This is the deck's
+# habit, not one bad slide" — no slide had got denser. The message must name the slide count it
+# measured over and a 75th percentile, and must not assert a cause. 16 slides: 4x30, 7x42, 5x55
+# words -> median 42 (> 40, fires), p75 55 (< 60, so no per-slide finding).
+python3 - "$FIX/median.pptx" <<'PY'
+import sys
+from pptx import Presentation
+from pptx.util import Inches, Pt
+prs = Presentation()
+prs.slide_width, prs.slide_height = Inches(13.333), Inches(7.5)
+for i, n in enumerate([30] * 4 + [42] * 7 + [55] * 5):
+    s = prs.slides.add_slide(prs.slide_layouts[6])
+    tb = s.shapes.add_textbox(Inches(1), Inches(2), Inches(11), Inches(3))
+    tb.text_frame.word_wrap = True
+    tb.text_frame.text = " ".join(f"s{i}w{j}" for j in range(n))
+    tb.text_frame.paragraphs[0].runs[0].font.size = Pt(24)
+prs.save(sys.argv[1])
+PY
+python3 "$DET" "$FIX/median.pptx" --archetype conference_oral --minutes 18 --json "$FIX/m.json" >/dev/null
+if python3 - "$FIX/m.json" <<'PY'
+import json, sys
+d = json.load(open(sys.argv[1]))
+deck = [f for f in d["findings"] if f["verdict"] == "SLIDE_TOO_DENSE" and f["slide"] is None]
+assert len(deck) == 1, d["findings"]
+text = deck[0]["summary"] + " " + " ".join(deck[0]["evidence"])
+assert "Median 42" in text and "75th percentile 55" in text, text
+assert "16 slides that carry words" in text, text
+assert "habit" not in text, text
+assert not [f for f in d["findings"] if f["verdict"] == "SLIDE_TOO_DENSE" and f["slide"]], d["findings"]
+PY
+then
+  pass "the median finding names its slide count and p75, and asserts no cause"
+else
+  bad "the median finding still diagnoses a 'habit' instead of reporting what it measured"
+fi
+
 [ "$fail" -eq 0 ] || exit 1
 echo "----"
 echo "deck-budget challenge: all checks passed"

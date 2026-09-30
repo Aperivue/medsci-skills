@@ -35,7 +35,6 @@ own words rather than reproductions.
 | File | Guideline | Reference | Licence | Verified via |
 |------|-----------|-----------|---------|--------------|
 | ROBINS_I.md | ROBINS-I 2016 | Sterne JAC et al. BMJ 2016;355:i4919 | **CC BY-NC 3.0** | PMC5062054 |
-| CARE.md | CARE 2013 | Gagnier JJ et al. J Clin Epidemiol 2014;67(1):46-51 | CC BY-NC 4.0 | publisher statement |
 | MI_CLEAR_LLM.md | MI-CLEAR-LLM | Park SH et al. Korean J Radiol 2024;25(10):865-868; 2025 update KJR 2025;26(12):1123-1132 | CC BY-NC 4.0 | publisher statement |
 | DECIDE_AI.md | DECIDE-AI 2022 | Vasey B et al. Nat Med 2022;28(5):924-933 | CC BY-NC 4.0 (DECIDE-AI materials) | publisher statement |
 
@@ -48,6 +47,7 @@ complete the official instrument.
 
 | File | Guideline | Reference | Status | Verified via |
 |------|-----------|-----------|--------|--------------|
+| CARE.md | CARE 2013 | Gagnier JJ et al. J Clin Epidemiol 2014;67(1):46-51 | Unconfirmed — a CC BY-NC 4.0 claim circulates; treated as non-open | Crossref (Elsevier TDM policy only) |
 | QUADAS3.md | QUADAS-3 | Whiting PF et al. Ann Intern Med 2026;179(4):548-555 | © ACP — no open licence | Crossref (TDM policy only) |
 | QUADAS2.md | QUADAS-2 | Whiting PF et al. Ann Intern Med 2011;155(8):529-536 | © ACP — no open licence | Crossref (TDM policy only) |
 | PROBAST.md | PROBAST 2019 | Wolff RF et al. Ann Intern Med 2019;170(1):51-58 | © ACP — no open licence | Crossref (TDM policy only) |

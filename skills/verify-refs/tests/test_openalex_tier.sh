@@ -131,6 +131,29 @@ out_off = vr.verify_record(rec_off, offline=False, timeout=5, use_openalex=False
 check("use_openalex=False skips OpenAlex (no openalex source)",
       "openalex" not in out_off.evidence)
 
+# --- CrossRef evidence year: print year first, both shown when they differ ---------
+# `issued` is the earliest date, i.e. online-first. An article online in December and in
+# the next January's print issue showed the online year only, so a correct bib year
+# looked wrong and invited a "fix" that would make it wrong.
+ONLINE_FIRST = {"status": "ok", "message": {
+    "title": ["A synthetic online-first article"],
+    "issued": {"date-parts": [[2022, 12, 14]]},
+    "published-online": {"date-parts": [[2022, 12, 14]]},
+    "published-print": {"date-parts": [[2023, 2]]},
+    "author": [{"family": "Example"}]}}
+vr.http_json = make_http({"api.crossref.org/works/": ONLINE_FIRST})
+st, ev, fams = vr.verify_crossref("10.0000/example.1", 5)
+check("crossref year prefers the print year", st == "OK" and "year=2023" in ev)
+check("crossref year also shows the differing online year", "online 2022" in ev)
+
+ISSUED_ONLY = {"status": "ok", "message": {
+    "title": ["A synthetic record with one date"],
+    "issued": {"date-parts": [[2021]]},
+    "author": [{"family": "Example"}]}}
+vr.http_json = make_http({"api.crossref.org/works/": ISSUED_ONLY})
+st, ev, fams = vr.verify_crossref("10.0000/example.2", 5)
+check("crossref single-date year is shown plainly", "year=2021;" in ev + ";" and "(print" not in ev)
+
 print(f"fail={fail}")
 print("ALL PASS" if fail == 0 else f"FAILURES: {fail}")
 sys.exit(fail)

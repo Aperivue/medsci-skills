@@ -14,8 +14,9 @@ It is deliberately conservative — it verifies only claims carrying a strong,
 checkable anchor, so paraphrase and honest rewording do not false-positive:
 
   * RESPONSE_QUOTE_UNVERIFIED (major) — the letter says specific text was
-    added / inserted / "now reads" and quotes it verbatim, but that quoted text
-    is absent from the revised manuscript body.
+    added / inserted / "now reads" (or labels it "Changes to text:") and quotes it
+    verbatim, but that quoted text is absent from the revised manuscript body. Each
+    quotation is read to its closing mark, so a long quote is checked whole.
   * RESPONSE_QUOTE_UNRESOLVED (minor) — the quoted text IS there in order, but
     only once foreign tokens are allowed between its words, or a word or two is
     missing. That is the signature of a dirty extraction (a bled reference
@@ -64,19 +65,56 @@ CLAIM_VERB = re.compile(
     r"now (?:reads|read|states|state)|"
     r"(?:revised|changed|reworded|rephrased|amended) [^.\n]{0,60}? to (?:read|state)|"
     r"now cites?|now cited|we (?:now )?cite|added (?:the )?(?:citation|reference)s?"
-    r")\b",
+    r")\b"
+    # The labelled form many letters use instead of a verb: 'Changes to text: "..."' or
+    # 'Changes to Text (page 5, lines 3-4): "..."'. Its quote is the claimed new text.
+    r"|\bchanges?\s+to\s+(?:the\s+)?text\b(?:\s*\([^)\n]{0,80}\))?\s*:",
     re.IGNORECASE,
 )
 
-# Quoted string: straight or curly, >= 12 chars (a sentence-like assertion).
-QUOTE = re.compile(r"[\"“‘']([^\"“”‘’']{12,600})[\"”’']")
+# A quotation opens at one of these marks and closes at a matching one. Single marks are
+# also apostrophes, so a single-quoted quotation closes only at a mark that is not followed
+# by a letter or digit ("the model's output" does not end the quotation).
+QUOTE_CLOSERS = {'"': '"”', "“": "”\"", "‘": "’'", "'": "'’"}
+MIN_QUOTE_CHARS = 12  # a sentence-like assertion, not a single quoted term
+PARA_BREAK = re.compile(r"\n[ \t]*\n")
 
 # Citation tokens claimed as added.
 CIT_NUMERIC = re.compile(r"\[(\d{1,3}(?:\s*[,–-]\s*\d{1,3})*)\]")
 CIT_BIBKEY = re.compile(r"\[@([A-Za-z0-9_:.\-]+)\]")
 CIT_AUTHOR = re.compile(r"\b([A-Z][A-Za-zÀ-ſ'-]{2,})\s+et\s+al\.?")
 
-WINDOW = 320  # chars after a claim verb to look for its object
+# Chars after a claim verb in which its object must START. A quotation that opens inside
+# the window is read to its own closing mark however long it runs: truncating it at the
+# window edge used to lose its closing mark, and the quote silently went unchecked.
+WINDOW = 320
+
+
+def _closing_mark(prose: str, i: int) -> int | None:
+    """Index of the mark that closes the quotation opened at prose[i], within its paragraph."""
+    closers = QUOTE_CLOSERS[prose[i]]
+    single = prose[i] in "‘'"
+    brk = PARA_BREAK.search(prose, i)
+    limit = brk.start() if brk else len(prose)
+    for j in range(i + 1, limit):
+        if prose[j] in closers:
+            if single and j + 1 < len(prose) and prose[j + 1].isalnum():
+                continue  # an apostrophe inside the quotation, not its end
+            return j
+    return None
+
+
+def quotes_opening_near(prose: str, start: int, window: int = WINDOW):
+    """Yield (open_index, text) for each quotation that opens within `window` of `start`."""
+    i, end = start, min(len(prose), start + window)
+    while i < end:
+        if prose[i] in QUOTE_CLOSERS and (i == 0 or not prose[i - 1].isalnum()):
+            j = _closing_mark(prose, i)
+            if j is not None:
+                yield i, prose[i + 1 : j]
+                i = j + 1
+                continue
+        i += 1
 
 
 def read_text(path: Path) -> str:
@@ -126,15 +164,18 @@ def extract_claims(response: str):
     """Yield (kind, anchor, context) for anchored addition claims in Response prose."""
     prose = strip_response_blockquotes(response)
     claims = []
+    seen_quotes: set[int] = set()
     for m in CLAIM_VERB.finditer(prose):
         start = m.start()
         window = prose[start : start + WINDOW]
         ctx = re.sub(r"\s+", " ", prose[max(0, start - 20) : start + 120]).strip()
-        # quoted additions
-        for q in QUOTE.finditer(window):
-            text = q.group(1).strip()
-            if len(text.split()) >= 4:
-                claims.append(("quote", text, ctx))
+        # quoted additions, each read to its own closing mark
+        for at, raw in quotes_opening_near(prose, start):
+            text = raw.strip()
+            if at in seen_quotes or len(text) < MIN_QUOTE_CHARS or len(text.split()) < 4:
+                continue
+            seen_quotes.add(at)
+            claims.append(("quote", text, ctx))
         # citation additions
         cits = []
         for cm in CIT_NUMERIC.finditer(window):

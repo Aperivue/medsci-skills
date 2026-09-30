@@ -151,6 +151,25 @@ _BODY_START_RE = re.compile(
 )
 
 
+# A supplement, a book's preface, or a table of contents can carry the work's own title
+# and DOI on page 1, so title + DOI agreement alone accepted it as the work. Only
+# heading-shaped lines count: "Supplementary material is available online" is a
+# sentence in a real article, not a marker, and neither is "Contents lists available at".
+_SUPPLEMENT_OR_FRONT_MATTER_RE = re.compile(
+    r"^\s*(?:"
+    r"(?:electronic\s+|online\s+)?supplement(?:ary|al)?"
+    r"(?:\s+(?:information|materials?|appendix|data|methods|figures?|tables?|file))?"
+    r"|preface|front\s+matter|table\s+of\s+contents"
+    r")\s*(?:$|[:.—–-]|\s+(?:for|to|of)\b)",
+    re.I,
+)
+
+
+def supplement_or_front_matter(front: str) -> bool:
+    """True when a line of the bounded front matter is a supplement/front-matter heading."""
+    return any(_SUPPLEMENT_OR_FRONT_MATTER_RE.match(line) for line in front.splitlines())
+
+
 def first_page_front_matter(extracted_text: str | None) -> str:
     """Bound evidence to page 1 before a body/reference heading, at most 40 lines.
 
@@ -207,6 +226,8 @@ def assess_source_identity(record: dict, extracted_text: str | None,
     'consistent' needs a complete title and only compatible identifiers in the
     same bounded first-page area. A supplied first-author name must also occur.
     Matching titles with a different DOI may be another version: unresolved.
+    A supplement / preface / table-of-contents heading in that area makes the
+    file unresolved even when title and DOI agree: it names the work, it is not it.
     """
     front = first_page_front_matter(extracted_text)
     title_match = classify_title_match(record.get("title", ""), extracted_text, threshold)
@@ -239,6 +260,8 @@ def assess_source_identity(record: dict, extracted_text: str | None,
             status, reason = "consistent", "title_and_identifier_agree"
     elif title_match == "mismatch" and doi_match == "mismatch":
         status, reason = "conflict", "title_and_identifier_differ"
+    if status not in ("conflict", "unavailable") and supplement_or_front_matter(front):
+        status, reason = "unresolved", "supplement_or_front_matter"
     return {"status": status, "reason": reason, "text_scope": "first_page_front_matter",
             "title_match": title_match, "doi_match": doi_match,
             "observed_identifiers": observed, "first_author_match": author_match}
@@ -258,6 +281,24 @@ def extract_pdf_text(path: Path, max_pages: int = 1) -> str | None:
     except (OSError, subprocess.SubprocessError):
         pass
     return None
+
+
+def pdf_page_count(path: Path) -> int | None:
+    """Page count via `pdfinfo` (poppler). None if unavailable or unreadable.
+
+    Recorded, not judged: a 3-page "article" or a 4-page "book" is worth a look, but the
+    expected length of a work is not known here.
+    """
+    if not shutil.which("pdfinfo"):
+        return None
+    try:
+        out = subprocess.run(["pdfinfo", str(path)], capture_output=True, timeout=20)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if out.returncode != 0:
+        return None
+    m = re.search(rb"^Pages:\s+(\d+)", out.stdout, re.M)
+    return int(m.group(1)) if m else None
 
 
 # ============================================================
@@ -319,12 +360,20 @@ def unpaywall_lookup(doi: str, email: str) -> str | None:
 # 2. PMC (3-method fallback, JS-challenge resistant)
 # ============================================================
 
+# Service root of the PMC ID Converter API as documented by NCBI at
+# https://pmc.ncbi.nlm.nih.gov/tools/id-converter-api/ (checked 2026-09-30). The former
+# www.ncbi.nlm.nih.gov/pmc/utils/idconv/v1.0/ root was reported answering with non-JSON;
+# the except below swallows that, so the PMC tier failed silently. `tool` and `email` are
+# required parameters of the documented API.
+IDCONV_ROOT = "https://pmc.ncbi.nlm.nih.gov/tools/idconv/api/v1/articles/"
+
+
 def id_to_pmcid(identifier: str, email: str) -> str | None:
     """Convert PMID or DOI to PMCID via NCBI ID converter."""
     if not identifier:
         return None
-    url = (f"https://www.ncbi.nlm.nih.gov/pmc/utils/idconv/v1.0/"
-           f"?ids={urllib.parse.quote(identifier, safe='/')}&format=json")
+    url = (f"{IDCONV_ROOT}?ids={urllib.parse.quote(identifier, safe='/')}&format=json"
+           f"&tool=medsci-skills&email={urllib.parse.quote(email)}")
     try:
         req = urllib.request.Request(url, headers={"User-Agent": _ua(email)})
         with urllib.request.urlopen(req, timeout=15) as resp:
@@ -488,13 +537,15 @@ def download_pdf(url: str, outpath: Path, email: str) -> bool:
 # ============================================================
 
 def process_doi(doi: str, outdir: Path, email: str,
-                pmid: str = "") -> tuple[str, str]:
+                pmid: str = "", found: dict | None = None) -> tuple[str, str]:
     """Try to download a PDF for one DOI.
 
     Returns (status, source):
       status ∈ {"arxiv", "oa", "pmc", "skip", "fail"}
       source identifies the resolver that succeeded (e.g. "unpaywall", "pmc",
       "openalex", "crossref", "landing", "arxiv", "existing", "").
+    found, when given, receives {"pmcid": ...} if a PMCID was resolved, so a
+    failed download can still point the user at the PubMed Central article.
     """
     outpath = outdir / f"{safe_doi_name(doi)}.pdf"
 
@@ -521,6 +572,8 @@ def process_doi(doi: str, outdir: Path, email: str,
     pmcid = id_to_pmcid(pmid, email) if pmid else None
     if not pmcid:
         pmcid = id_to_pmcid(doi, email)
+    if pmcid and found is not None:
+        found["pmcid"] = pmcid
     if pmcid and download_pmc_pdf(pmcid, outpath, email):
         return ("pmc", "pmc")
 
@@ -555,7 +608,8 @@ def process_doi(doi: str, outdir: Path, email: str,
 def build_report(records: list[dict], results: dict[str, tuple[str, str]],
                  outdir: Path, extracted_text_by_doi: dict[str, str] | None = None,
                  threshold: float = TITLE_MATCH_THRESHOLD, *,
-                 extracted_sha256_by_doi: dict[str, str] | None = None) -> dict:
+                 extracted_sha256_by_doi: dict[str, str] | None = None,
+                 page_count_by_doi: dict[str, int] | None = None) -> dict:
     """Assemble a deterministic retrieval report (no network, no I/O writes).
 
     records: list of {"doi", "pmid", "title"}, optionally "first_author".
@@ -564,8 +618,10 @@ def build_report(records: list[dict], results: dict[str, tuple[str, str]],
     extracted_text_by_doi: optional doi -> first-page text for title cross-check.
     extracted_sha256_by_doi: hashes captured before extraction by the CLI. When
         supplied, missing/different hashes invalidate that text's assessment.
+    page_count_by_doi: optional doi -> page count (pdfinfo), recorded as-is.
     """
     extracted_text_by_doi = extracted_text_by_doi or {}
+    page_count_by_doi = page_count_by_doi or {}
     items = []
     for rec in records:
         doi = rec["doi"]
@@ -591,6 +647,7 @@ def build_report(records: list[dict], results: dict[str, tuple[str, str]],
             "source": source,
             "file": path.name if have_file else "",
             "size_bytes": size,
+            "page_count": page_count_by_doi.get(doi) if have_file else None,
             "file_sha256": digest,
             "title_match": identity["title_match"],
             "source_identity": identity,
@@ -731,14 +788,18 @@ def main():
 
     stats = {"arxiv": 0, "oa": 0, "pmc": 0, "fail": 0, "skip": 0}
     results: dict[str, tuple[str, str]] = {}
+    pmcids: dict[str, str] = {}
 
     for i, rec in enumerate(records, 1):
         doi = rec["doi"]
         pmid = rec.get("pmid", "")
         print(f"  [{i}/{len(records)}] {doi}", end=" … ", flush=True)
 
-        status, source = process_doi(doi, args.output, args.email, pmid)
+        found: dict = {}
+        status, source = process_doi(doi, args.output, args.email, pmid, found=found)
         results[doi] = (status, source)
+        if found.get("pmcid"):
+            pmcids[doi] = found["pmcid"]
         stats[status] += 1
 
         labels = {"arxiv": "DOWNLOADED (arXiv)", "oa": "DOWNLOADED (OA)",
@@ -762,8 +823,19 @@ def main():
                 if text:
                     extracted[doi] = text
 
+    page_counts: dict[str, int] = {}
+    for rec in records:
+        doi = rec["doi"]
+        if results.get(doi, ("fail", ""))[0] not in RETRIEVED_STATUSES:
+            continue
+        path = args.output / f"{safe_doi_name(doi)}.pdf"
+        count = pdf_page_count(path) if path.exists() else None
+        if count is not None:
+            page_counts[doi] = count
+
     report = build_report(records, results, args.output, extracted,
-                          extracted_sha256_by_doi=extracted_hashes)
+                          extracted_sha256_by_doi=extracted_hashes,
+                          page_count_by_doi=page_counts)
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
 
@@ -791,12 +863,17 @@ def main():
         fail_path = args.output / "manual_needed.txt"
         with open(fail_path, "w") as f:
             f.write("# DOIs needing manual retrieval\n")
-            f.write("# Options: institutional access, ILL\n\n")
+            f.write("# Options: institutional access, ILL\n")
+            f.write("# A PMCID means the article is in PubMed Central: open its URL in a browser\n\n")
             for rec in records:
                 doi = rec["doi"]
                 pdf = args.output / f"{safe_doi_name(doi)}.pdf"
                 if not existing_pdf_ok(pdf):
-                    f.write(f"{doi}\n")
+                    pmcid = pmcids.get(doi)
+                    if pmcid:
+                        f.write(f"{doi}\t{pmcid}\thttps://pmc.ncbi.nlm.nih.gov/articles/{pmcid}/\n")
+                    else:
+                        f.write(f"{doi}\n")
         print(f"  Manual list: {fail_path}")
 
 

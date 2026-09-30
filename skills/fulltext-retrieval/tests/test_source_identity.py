@@ -121,6 +121,73 @@ class SourceIdentityTests(unittest.TestCase):
         self.assertEqual(result["status"], "unresolved")
         self.assertEqual(result["reason"], "first_author_not_found")
 
+    def test_supplement_preface_and_contents_are_not_the_work(self):
+        # Each file carries the work's own title and DOI on page 1, which is exactly why
+        # title + DOI agreement accepted it: an SI file and a book preface were once
+        # counted as successful retrievals of the article and the book.
+        for heading in ("Supplementary Information", "SUPPLEMENTARY MATERIAL",
+                        "Supplementary Appendix", "Supplementary information for:",
+                        "Electronic Supplementary Material", "Preface", "Front Matter",
+                        "Table of Contents"):
+            with self.subTest(heading=heading):
+                result = m.assess_source_identity(RECORD, f"{heading}\n{GOOD}")
+                self.assertEqual(result["status"], "unresolved")
+                self.assertEqual(result["reason"], "supplement_or_front_matter")
+
+    def test_supplement_words_inside_a_real_article_are_not_markers(self):
+        # Precision guard: an article that mentions its supplement, starts its title with
+        # "Supplemental", or sits under an Elsevier "Contents lists available" banner is
+        # still the work.
+        mentions = GOOD.replace("Abstract:", "Supplementary material is available online.\nAbstract:")
+        self.assertEqual(m.assess_source_identity(RECORD, mentions)["status"], "consistent")
+        banner = "Contents lists available at ScienceDirect\n" + GOOD
+        self.assertEqual(m.assess_source_identity(RECORD, banner)["status"], "consistent")
+        title = "Supplemental Oxygen after Synthetic Surgery"
+        text = f"{title}\nAlex Example\nhttps://doi.org/{DOI}\nAbstract: example"
+        self.assertEqual(m.assess_source_identity({**RECORD, "title": title}, text)["status"],
+                         "consistent")
+
+    def test_a_conflict_stays_a_conflict_with_a_supplement_heading(self):
+        text = f"Supplementary Information\nGenome-wide analysis of crop yield\nDOI: {OTHER}"
+        self.assertEqual(m.assess_source_identity(RECORD, text)["status"], "conflict")
+
+    def test_page_count_is_recorded_for_the_file_only(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write_pdf(root / (m.safe_doi_name(DOI) + ".pdf"), GOOD.splitlines())
+            report = m.build_report([RECORD], {DOI: ("skip", "existing")}, root, {DOI: GOOD},
+                                    page_count_by_doi={DOI: 3})
+            self.assertEqual(report["items"][0]["page_count"], 3)
+            none = m.build_report([RECORD], {DOI: ("fail", "")}, root, {}, page_count_by_doi={DOI: 3})
+            self.assertIsNone(none["items"][0]["page_count"])
+        with patch.object(m.shutil, "which", return_value=None):
+            self.assertIsNone(m.pdf_page_count(Path("not-read.pdf")))
+
+    def test_pmcid_lookup_uses_the_documented_id_converter_root(self):
+        # NCBI documents https://pmc.ncbi.nlm.nih.gov/tools/idconv/api/v1/articles/ with
+        # required tool/email; the old /pmc/utils/idconv/v1.0/ root was reported returning
+        # non-JSON, which the lookup swallowed. No network: urlopen is replaced.
+        seen = []
+
+        class Resp(io.BytesIO):
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *exc):
+                return False
+
+        def fake_urlopen(req, timeout=None):
+            seen.append(req.full_url)
+            return Resp(json.dumps({"status": "ok", "records": [
+                {"doi": "10.0000/example.1", "pmcid": "PMC0000001", "requested-id": "10.0000/example.1"}]}).encode())
+
+        with patch.object(m.urllib.request, "urlopen", side_effect=fake_urlopen):
+            self.assertEqual(m.id_to_pmcid("10.0000/example.1", "test@example.com"), "PMC0000001")
+        self.assertTrue(seen[0].startswith("https://pmc.ncbi.nlm.nih.gov/tools/idconv/api/v1/articles/?"))
+        self.assertIn("format=json", seen[0])
+        self.assertIn("tool=", seen[0])
+        self.assertIn("email=test%40example.com", seen[0])
+
     def test_missing_extraction_and_unusable_front_matter_are_visible(self):
         for text in (None, "", "   "):
             self.assertEqual(m.assess_source_identity(RECORD, text)["status"], "unavailable")
@@ -179,6 +246,31 @@ class SourceIdentityTests(unittest.TestCase):
             self.assertEqual(missing["items"][0]["source_identity"]["reason"], "pdf_not_available")
             self.assertEqual(missing["items"][0]["file_sha256"], "")
 
+    def test_manual_list_carries_pmcid_and_article_url_when_pdf_fetch_fails(self):
+        # A PMCID was resolved but every PDF route failed: manual_needed.txt listed only the DOI,
+        # so the user could not tell a PubMed Central article from a subscription one.
+        pmc = "PMC1234567"
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            worklist = root / "dois.txt"
+            worklist.write_text(f"{DOI}\n{OTHER}\n")
+            argv = [str(ENGINE), str(worklist), "-o", str(root), "-e", "test@example.com"]
+            with patch.object(sys, "argv", argv), \
+                    patch.object(m.time, "sleep"), \
+                    patch.object(m.urllib.request, "urlopen", side_effect=AssertionError("network forbidden")), \
+                    patch.object(m, "unpaywall_lookup", return_value=None), \
+                    patch.object(m, "id_to_pmcid", side_effect=lambda ident, _e: pmc if ident == DOI else None), \
+                    patch.object(m, "download_pmc_pdf", return_value=False), \
+                    patch.object(m, "openalex_lookup", return_value=[]), \
+                    patch.object(m, "crossref_lookup", return_value=[]), \
+                    patch.object(m, "download_from_landing", return_value=False), \
+                    contextlib.redirect_stdout(io.StringIO()):
+                m.main()
+            rows = [ln for ln in (root / "manual_needed.txt").read_text().splitlines()
+                    if ln and not ln.startswith("#")]
+            self.assertIn(f"{DOI}\t{pmc}\thttps://pmc.ncbi.nlm.nih.gov/articles/{pmc}/", rows)
+            self.assertIn(OTHER, rows)  # no PMCID resolved: the DOI alone, as before
+
 
 @unittest.skipUnless(shutil.which("pdftotext"), "Poppler needed for actual PDF/CLI round trips")
 class PDFIntegrationTests(unittest.TestCase):
@@ -210,6 +302,8 @@ class PDFIntegrationTests(unittest.TestCase):
                              {"consistent": 1, "conflict": 1, "unresolved": 0, "unavailable": 0})
             self.assertIn("Source identity (advisory): consistent=1, conflict=1", output.getvalue())
             self.assertTrue((pdfs / (m.safe_doi_name(requested_other) + ".pdf")).is_file())
+            if shutil.which("pdfinfo"):
+                self.assertEqual({i["page_count"] for i in report["items"]}, {1})
 
     def test_doi_only_cli_still_extracts_identifiers_and_reports_missing_title(self):
         with tempfile.TemporaryDirectory() as tmp:

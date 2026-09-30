@@ -85,7 +85,7 @@ curl -s "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=${PMCID}" | \
 
 ```bash
 # Works with both DOI and PMID
-curl -s "https://www.ncbi.nlm.nih.gov/pmc/utils/idconv/v1.0/?ids=${DOI}&format=json" | \
+curl -s "https://pmc.ncbi.nlm.nih.gov/tools/idconv/api/v1/articles/?ids=${DOI}&format=json&tool=medsci-skills&email=${EMAIL}" | \
     python3 -c "import sys,json; print(json.load(sys.stdin)['records'][0].get('pmcid',''))"
 ```
 
@@ -93,7 +93,8 @@ curl -s "https://www.ncbi.nlm.nih.gov/pmc/utils/idconv/v1.0/?ids=${DOI}&format=j
 
 - PDFs saved as `{DOI_safe}.pdf` (slashes replaced with underscores)
 - `pdfs/retrieval_report.json` — structured per-DOI report (see below)
-- `manual_needed.txt` — DOIs that could not be retrieved via OA
+- `manual_needed.txt` — DOIs that could not be retrieved via OA; when a PMCID was resolved, the
+  line also carries it and the PubMed Central article URL to open in a browser
 - Summary with arXiv/OA/PMC/fail/skip counts
 
 ## Retrieval report (`--report`)
@@ -110,7 +111,7 @@ override with `--report PATH`):
   "items": [
     {"doi": "10.1000/synthetic.example", "pmid": "", "title": "Example title",
      "first_author": "", "status": "oa", "source": "unpaywall",
-     "file": "10.1000_synthetic.example.pdf", "size_bytes": 482113,
+     "file": "10.1000_synthetic.example.pdf", "size_bytes": 482113, "page_count": 9,
      "file_sha256": "<SHA-256 of the downloaded file>", "title_match": "match",
      "source_identity": {"status": "consistent", "reason": "title_and_identifier_agree",
                          "text_scope": "first_page_front_matter", "title_match": "match",
@@ -124,12 +125,14 @@ The example abbreviates `items`. Legacy `status` (`arxiv | oa | pmc | skip | fai
 `source`, and `counts.retrieved` retain their resolver-result meaning, including existing
 files (`skip`). **They do not count identity-verified papers.** Report schema 2 adds the
 file hash and separate identity evidence; no PDF is automatically deleted or rejected.
+`page_count` comes from Poppler's `pdfinfo` (null without it) and is recorded, not
+judged — a 3-page "article" or a 4-page "book" is worth opening.
 
 | `source_identity.status` | Meaning / action |
 |---|---|
-| `consistent` | Complete normalized title and a compatible DOI/arXiv identifier occur in the bounded first-page front matter; an optional supplied author must also match. Evidence agrees, but this is not independent source verification or claim validation. |
+| `consistent` | Complete normalized title and a compatible DOI/arXiv identifier occur in the bounded first-page front matter, with no supplement / preface / table-of-contents heading there; an optional supplied author must also match. Evidence agrees, but this is not independent source verification or claim validation. |
 | `conflict` | Both the title and observed identifier differ. Inspect the PDF and requested record. |
-| `unresolved` | Evidence is incomplete or ambiguous: title-only, DOI-only, missing author, multiple identifiers, or a matching title with another DOI/version. Inspect before using as evidence. |
+| `unresolved` | Evidence is incomplete or ambiguous: title-only, DOI-only, missing author, multiple identifiers, a matching title with another DOI/version, or a supplement / preface / table-of-contents file that names the work without being it (`supplement_or_front_matter`). Inspect before using as evidence. |
 | `unavailable` | No usable extracted text, Poppler unavailable, no output PDF, or the PDF changed during assessment. No current identity assessment was possible. |
 
 `title_match` keeps its tri-state shape. A `match` now requires the complete normalized

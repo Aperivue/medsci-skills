@@ -36,5 +36,5 @@ exists because the fence was in a prompt instead of in the repository.
 
 ## Everything else
 
-`CONTRIBUTING.md` is the entry point: how to run the gate mirror before pushing, the worktree
-discipline, and what a change is expected to ship with.
+`CONTRIBUTING.md` is the entry point: what to run before pushing (CI is the merge gate), the
+worktree discipline, and what a change is expected to ship with.

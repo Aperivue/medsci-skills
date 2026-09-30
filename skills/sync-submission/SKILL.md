@@ -274,8 +274,11 @@ python "${CLAUDE_SKILL_DIR}/scripts/cover_letter_drift_check.py" \
 ```
 
 Body words are matched with a 5% tolerance ("approximately N words"
-phrasing). Abstract words tolerate ±5. Reference / table / figure counts
-require exact match.
+phrasing) — except when the cover letter states the journal cap beside the
+count ("3,998/4,000 words", "limit: 4,000 words") and the declared count sits
+within that tolerance of it: such a count claims to be under the cap, so the
+tolerance shrinks to its headroom. Abstract words tolerate ±5. Reference /
+table / figure counts require exact match.
 
 Example `qc/cover_letter_drift.json` (synthetic values):
 

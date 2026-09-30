@@ -14,3 +14,9 @@ Suggested revisions:
 - State the software version used.
 - Report the per-stratum n in every reference table.
 - Consider modelling the outcome as a continuous function of age rather than binning by decade.
+
+**3.3 The segmentation reference**
+
+Suggested revisions:
+- Have a second operator repeat the segmentation on a random subsample and report volume agreement.
+- Have an independent panel re-adjudicate the discordant examinations.

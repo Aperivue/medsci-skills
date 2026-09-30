@@ -45,13 +45,37 @@ def _is_setup(run: str) -> bool:
     return any(first.startswith(p) for p in _SETUP_PREFIXES)
 
 
-def gate_steps() -> list[tuple[str, str]]:
+def _workflow() -> dict:
     try:
         import yaml  # noqa: PLC0415
     except ModuleNotFoundError:
         sys.stderr.write("run_ci_mirror needs PyYAML (pip install pyyaml). It is a maintainer tool.\n")
         raise SystemExit(1)
-    doc = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))
+    return yaml.safe_load(WORKFLOW.read_text(encoding="utf-8")) or {}
+
+
+def unmirrored_jobs(doc: dict | None = None) -> list[str]:
+    """The workflow's other jobs, which this mirror never runs, with where they run.
+
+    A green mirror was being quoted as "CI will be green" while `foundation-os` (macOS,
+    Windows) went red: the summary never said that job exists. Naming it is the fix.
+    """
+    doc = _workflow() if doc is None else doc
+    out: list[str] = []
+    for name, job in (doc.get("jobs", {}) or {}).items():
+        if name == "validate":
+            continue
+        job = job or {}
+        where = job.get("runs-on", "")
+        matrix_os = ((job.get("strategy") or {}).get("matrix") or {}).get("os")
+        if isinstance(matrix_os, list) and matrix_os:
+            where = ", ".join(map(str, matrix_os))
+        out.append(f"{name} ({where})" if where else str(name))
+    return out
+
+
+def gate_steps(doc: dict | None = None) -> list[tuple[str, str]]:
+    doc = _workflow() if doc is None else doc
     steps = (doc.get("jobs", {}).get("validate", {}) or {}).get("steps", []) or []
     out: list[tuple[str, str]] = []
     for s in steps:
@@ -69,13 +93,19 @@ def main() -> int:
     ap.add_argument("--only", metavar="SUBSTR", help="run only gates whose name contains SUBSTR")
     a = ap.parse_args()
 
-    steps = gate_steps()
+    doc = _workflow()
+    steps = gate_steps(doc)
+    skipped_jobs = unmirrored_jobs(doc)
+    not_mirrored = ("NOT mirrored (this run says nothing about them): "
+                    + "; ".join(skipped_jobs)) if skipped_jobs else ""
     if a.only:
         steps = [(n, r) for (n, r) in steps if a.only.lower() in n.lower()]
     if a.list:
         for n, _ in steps:
             print(n)
         print(f"\n{len(steps)} gate step(s) mirrored from validate.yml.")
+        if not_mirrored:
+            print(not_mirrored)
         return 0
 
     fails: list[str] = []
@@ -93,8 +123,12 @@ def main() -> int:
     if fails:
         print(f"\n{len(steps) - len(fails)}/{len(steps)} gates passed; FAILED ({len(fails)}): "
               + "; ".join(fails))
+        if not_mirrored:
+            print(not_mirrored)
         return 1
     print(f"\nOK: all {len(steps)} validate-job gates passed — CI's validate job will be green.")
+    if not_mirrored:
+        print(not_mirrored)
     return 0
 
 

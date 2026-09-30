@@ -97,8 +97,9 @@ Should include:
 <!-- Use WebFetch to check the journal's Author Guidelines for AI policy.
      If no specific AI policy found, use ICMJE default:
      - Requirement level: Not specified — follows ICMJE recommendations
-     - Permitted scope: Language editing only — per ICMJE 2025
-     - Disclosure location: Methods
+     - Permitted scope: Not specified — ICMJE requires disclosure but does not limit use
+     - Disclosure location: Acknowledgments for writing assistance; Methods for use in data
+       collection, analysis or figures; cover letter for either (ICMJE II.A.4)
      - AI-generated images: Not specified
      - Policy URL: [author guidelines URL] (no dedicated AI policy page)
      Add [VERIFY] tag if uncertain about any field. -->

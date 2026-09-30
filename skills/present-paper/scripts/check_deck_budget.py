@@ -42,6 +42,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import re
 import sys
 import zipfile
@@ -200,13 +201,22 @@ def audit(deck: Path, archetype: str, minutes: float) -> List[Finding]:
                  "going to lose, and it will be you."],
             ))
     if content:
-        median = sorted(c for _i, c in content)[len(content) // 2]
+        ranked = sorted(c for _i, c in content)
+        median = ranked[len(ranked) // 2]
+        p75 = ranked[math.ceil(0.75 * len(ranked)) - 1]  # nearest-rank 75th percentile
         if median > b.words_median:
+            # Report what was measured, not a cause. The median is over the slides that carry
+            # words, so deleting sparse slides (dividers, a title card) raises it while no slide
+            # got any denser — "the deck's habit" was then a wrong diagnosis to act on.
             out.append(Finding(
                 DETECTOR, "SLIDE_TOO_DENSE", None,
-                f"The typical slide carries {median} words (median across {len(content)} content "
-                f"slides). For {b.label.lower()} the working figure is {b.words_median}.",
-                [b.note, "This is the deck's habit, not one bad slide."],
+                f"Median {median} words per slide, 75th percentile {p75}, over the "
+                f"{len(ranked)} slides that carry words. For {b.label.lower()} the working "
+                f"figure is {b.words_median}.",
+                [b.note,
+                 f"Measured over these {len(ranked)} slides only: removing sparse slides raises "
+                 "the median without making any slide denser. Before cutting, check which "
+                 "slides are above the working figure."],
             ))
 
     # --- the back row -----------------------------------------------------------------------

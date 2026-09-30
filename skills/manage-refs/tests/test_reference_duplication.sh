@@ -43,5 +43,22 @@ check "no claims on clean fixture" bash -c "
 python3 -c \"import json; d=json.load(open('$OUT')); assert not d['claims']\"
 "
 
+# (3) every entry counts: a surname with a lowercase particle ("van der ...", "de ...")
+#     and a year-leading guideline entry used to fail ENTRY_RE, so a 4-entry list was
+#     reported as 1 entry.
+PART="$HERE/fixtures/refcount_particles.md"
+python3 "$SCRIPT" --text "$PART" --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "exit 0 on a single particle/guideline list" test "$?" -eq 0
+check "4-entry list with particle + year-leading entries counts 4" python3 -c "
+import json; d=json.load(open('$OUT')); assert d['ref_entries']==4, d['ref_entries']
+"
+
+# (4) the same list duplicated (no second heading) -> the entries the old regex dropped
+#     are what carry the restart/signature evidence, so the duplication must now be Major.
+PDUP="$HERE/fixtures/refdup_particles.md"
+python3 "$SCRIPT" --text "$PDUP" --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "exit 1 under --strict on a duplicated particle/guideline list" test "$?" -eq 1
+check "REF_SIGNATURE_DUP on a duplicated particle/guideline list" has_verdict REF_SIGNATURE_DUP
+
 if [[ "$fail" -eq 0 ]]; then echo "  ALL PASS"; else echo "  $fail FAILED"; fi
 exit "$fail"

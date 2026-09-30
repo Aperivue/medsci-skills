@@ -56,5 +56,31 @@ check "cap parsed from profile == 4000" limit_is 4000
 python3 "$SCRIPT" --manuscript "$FIX" --quiet >/dev/null 2>&1
 check "exit 2 when no cap source given" test "$?" -eq 2
 
+# (6) subheadings are body words. The rendered DOCX carries every subheading as a line of
+#     text and Word counts it; an estimate that skipped them read a real overage as
+#     NEAR_CAP and exited 0 under --strict. Fixture: exactly 1,000 prose words (8-word
+#     sentence x 125), 3 section headings (1 word each) + 15 four-word subheadings = 63
+#     heading words, no citations. Cap 1,040: prose alone is NEAR (>0.95x); prose +
+#     headings (1,063) is OVER.
+SUBH="$(mktemp -t wc_subh_XXXX).md"
+trap 'rm -f "$OUT" "$SUBH"' EXIT
+python3 - "$SUBH" <<'PY'
+import sys
+s = "The intervention reduced mortality in the enrolled cohort. "
+parts = ["---", "title: Synthetic subheading fixture", "---", "", "## Abstract", "",
+         "Abstract words are excluded from the body count entirely here.", "",
+         "## Introduction", "", s * 10, "", "## Methods", ""]
+for i in range(1, 16):
+    parts += [f"### Synthetic subsection heading {i}", "", s * 5, ""]
+parts += ["## Discussion", "", s * 40, "", "## References", "",
+          "1. Alpha QZ. A synthetic reference entry. J Synth. 2020;1:1-2.", ""]
+open(sys.argv[1], "w").write("\n".join(parts))
+PY
+python3 "$SCRIPT" --manuscript "$SUBH" --limit 1040 --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "exit 1 under --strict when subheadings push the body over the cap" test "$?" -eq 1
+check "verdict WORDCOUNT_OVER_CAP (not NEAR) with subheadings counted" verdict_is WORDCOUNT_OVER_CAP
+check "heading_words == 63 (3 sections + 15 x 4-word subheadings; skipped headings excluded)" \
+    python3 -c "import json,sys; d=json.load(open('$OUT')); sys.exit(0 if d['heading_words']==63 and d['body_words']==1063 else 1)"
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

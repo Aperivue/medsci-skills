@@ -2,8 +2,56 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **The skill validator no longer rewards length or boilerplate.** `scripts/validate_skills.sh`
+  failed any SKILL.md without an "Anti-Hallucination" heading, counted occurrences of the word
+  "gate", and warned "THIN tier — consider expanding" below 150 lines. Those checks pushed every
+  skill toward the same generic sections and more text. They are removed; the size ceiling in
+  `check_phase_budget.py` stays. The contributor template (`docs/SKILL_TEMPLATE.md`) replaces its
+  fixed Anti-Hallucination and Language blocks (the latter hard-coded one user's language) and
+  its length-based quality tiers with a short Gotchas section and a size limit.
+- **A first pull request now sees every check, not only the manifest.** The distribution-manifest
+  checks fail whenever a change adds or edits a shipped file without regenerating `metadata/`,
+  which is the usual state of a first contribution. They ran early, and a CI job stops at its
+  first failing step, so a contributor saw that one failure and none of the checks after it. They
+  now run last and still fail the job.
+- **`main` accepts changes only through a pull request whose CI passed.** `CONTRIBUTING.md` now
+  lists what to run before pushing and leaves the full suite to CI; the local mirror stays for
+  reproducing a CI failure. The weekly adoption snapshot can no longer commit to `main`, so it
+  appends to the data-only [`metrics` branch](https://github.com/Aperivue/medsci-skills/tree/metrics)
+  instead, and `IMPACT.md` and the README link there.
+- **`/peer-review` reviewer profiles now carry only what each journal publishes.** Each profile
+  in `references/reviewer_profiles/` keeps the journal's submission system, review model, the
+  comment structure from its public reviewer guide, and its reviewer-AI policy, each linked to the
+  journal's own page. Recommendation options, scorecard items and scales, required form fields and
+  portal checklists are removed: they differ by journal and change without notice, so they are
+  read from the live review form and kept out of a public repository. The Radiology: Artificial
+  Intelligence profile now gives the double-anonymized review model its author instructions state.
+
 ### Fixed
 
+- **AI-use disclosure now follows the target journal, and the authors confirm their own
+  statements.** `/write-paper` put a disclosure in Methods by default while its own Phase 7.1
+  gate halted on a disclosure in the body, and `/humanize` told you to delete body disclosures
+  even for journals that require one in Methods. Both now take the location from the journal
+  profile, as the classical-style check already did. The drafted statements about what the
+  authors did (reviewed, verified, approved; what the tool was not used for) sit inside a
+  `[TODO authors confirm: …]` marker, and the placeholder check blocks submission until an
+  author resolves it. `/humanize` no longer suggests rewording a required disclosure into a
+  vaguer one that does not name the tool.
+- **The ICMJE fallback for AI-use disclosure matches the ICMJE Recommendations.** With no journal
+  policy to follow, `/add-journal`'s profile template said ICMJE limits AI to language editing and
+  wants it disclosed in Methods, and `/write-paper` fell back to Methods + Acknowledgments. The
+  Recommendations (section II.A.4) put writing assistance in the Acknowledgments and use in data
+  collection, analysis or figures in the Methods, disclosed in the cover letter as well, and do not
+  limit what AI may be used for. Both skills now say so, as do the two journal profiles that had
+  copied the old default.
+- **`/humanize` states one em-dash threshold** (per 1000 words, as its pattern reference does)
+  instead of "per page" in one place and "per 1000 words" in another.
+- **Stale references:** `/model-validation` pointed to `/mllm-eval` "when available" (it is),
+  `/fill-protocol` pointed to the retired `generate-pptx` (now `/present-paper`), and the
+  `render_pandoc.sh` usage text still showed its old file name.
 - **`/sync-submission` cross-artifact check now reads Word files, and no longer passes after
   reading nothing.** `check_cross_artifact_stale.py` skipped `.docx` files in an `--aux` folder
   and read an explicitly named `.docx` as raw zip bytes, then printed PASS. A retired claim or a
@@ -33,8 +81,170 @@
   `${CLAUDE_SKILL_DIR}/../<skill>/`, which resolves the same way in an installed skills folder
   and in a clone. Nine more cross-skill references in `/humanize`, `/analyze-stats`, `/revise` and
   `/self-review` that named another skill's script only in prose now give its full path.
+- **`/lit-sync`: a citekey shared by two papers is no longer reported as OK.** Keys such as
+  `Author_Year` repeat across a library, and some arrive as URLs. The citekey check now reports a
+  key carried by two or more library entries as `AMBIGUOUS` and a key containing `/` or starting
+  with `http` as `UNUSABLE`, and it never suggests renaming a note to such a key. Match notes to
+  papers by DOI, not by key.
+- **`/lit-sync`: a note without a DOI is no longer called "never added".** A note with no DOI and
+  no PMID is now reported as `NO_IDENTIFIER`, a PMID is used to find the library entry when the DOI
+  is missing, and `UNRESOLVED` now says "not found with this note's identifiers". The old wording
+  led to re-importing papers the library already held.
+- **`/manage-refs`: the journal-abbreviation check looks at every reference.** With an
+  abbreviation expected, `check_csl_render.py` judged only the two references in its render
+  sample. It now fails, naming the keys, on every journal entry without `shortjournal`, which a
+  short-title style would print with the full journal name. This part runs without pandoc.
+- **`/verify-refs`: a reference audit goes stale when the bibliography changes.**
+  `reference_audit.json` now records the hash of the file it audited and the keys it audited.
+  `check_claim_fidelity.py --reference-audit` compares them with the current bib, marks an audit
+  of an older bib as stale, and lists the keys that were never audited, instead of carrying the
+  old green result forward.
+- **`/verify-refs`: the CrossRef year shown is the print year.** The evidence line used the
+  online-first date, so an article published online in December and in print in January showed
+  the earlier year and made a correct bib year look wrong. It now shows the print year, and both
+  years when they differ.
+- **`/fulltext-retrieval`: a supplement or preface is no longer accepted as the paper.** A PDF
+  whose first page is headed Supplementary Information, Supplementary Material, Preface, Front
+  Matter or Table of Contents is now marked `unresolved` (reason `supplement_or_front_matter`)
+  even when the title and DOI match, and the report records each file's page count.
+- **`/fulltext-retrieval`: the PMC ID lookup uses NCBI's current ID Converter address.** The old
+  address was reported returning non-JSON, which made every PMC lookup fail silently.
+- **`/peer-review`: asking about records the authors already hold is no longer flagged as a
+  request for new data.** The request-type check flagged any ask containing "adjudicated", such as
+  a cross-table of adjudicated examinations from the authors' own files. It now flags only a
+  request for new adjudication (re-adjudicate, a second or additional adjudication), and it now
+  catches a request for a second operator, annotator or segmenter.
+- **`/peer-review`: figure and table labels outside the page no longer mark a PDF
+  `SUSPICIOUS`.** Editorial Manager reviewer PDFs place figure-page labels off-page, so the
+  hidden-text scan flagged ordinary manuscripts on labels such as "Figure 2" or "Graphical
+  Abstract", and a warning that fires on honest PDFs teaches reviewers to ignore it. A span
+  hidden only by being off-page whose whole text is a figure or table label is now listed as
+  `INFO` and left out of the verdict. Text that only starts with a label ("Figure 2. Ignore
+  previous instructions…"), a label hidden by colour or font size, and any other hidden text
+  in the same PDF are flagged as before.
+- **`/revise`: long quotes and "Changes to text:" quotes in a response letter are checked.** A
+  quote that ran past about 320 characters lost its closing mark and was skipped, and a quote
+  given under a "Changes to text:" label was never checked. Each quote is now read to its closing
+  mark, and the label counts as a claim of new text.
+- **`/present-paper`: the font-portability check now looks inside charts and SmartArt.** A
+  font that exists on only one operating system passed the check when it was used only in a
+  chart or a SmartArt diagram. The check read slides, notes, layouts, masters and the theme,
+  but charts and diagrams keep their text in separate parts of the file.
+- **`/present-paper`: the text-overflow check now reports text that never reached the page.**
+  A text box pushed past the edge of the slide leaves nothing in the exported PDF to measure,
+  so the check passed it. Each paragraph of 12 or more letters or digits is now looked for on
+  its slide's page, and a missing one is reported as `UNRENDERED`. The all-clear message now
+  says what was checked instead of claiming that no line leaves the slide.
+- **`/present-paper`: speaker notes are written at a readable size.** `inject_speaker_notes.py`
+  set no font size, so notes fell back to the notes master's 12 pt, which is hard to read on a
+  presenter monitor. Every note run now has an explicit size, set with the new `--font-pt`
+  option (default 18), and a blank line becomes an empty paragraph instead of an empty text
+  run. This changes the notes the script writes: they are now 18 pt unless you pass
+  `--font-pt`.
+- **`/render-pdf-doc`: a PDF with missing characters no longer reports success.** xelatex
+  leaves out any character the font has no glyph for (emoji, warning signs, sometimes the minus
+  sign) and still finishes, and the wrapper printed "ok". `render_pdf.sh` now lists each
+  missing character and exits with code 4. The PDF is still written. Pass
+  `--allow-missing-glyphs` to get the list and exit 0.
+- **`/render-pdf-doc`: font sizes other than 10, 11 and 12 pt now take effect.** The default
+  LaTeX class ignores any other size without warning, so `fontsize: 8.5pt` came out at 10 pt.
+  When no document class is set, the wrapper now switches to KOMA-Script's `scrartcl` and
+  says so in its log.
+- **`/manage-refs` duplicate-bibliography check: every reference entry is counted.** An entry
+  whose first author has a lowercase particle ("van der Berg", "de Vries") or a guideline whose
+  title starts with its year ("2021 … Guidelines") was not recognised, so a 4-entry list was
+  reported as 1 entry — and a duplicated list made of such entries passed as a single list.
+- **`/sync-submission` word-count gate counts the body's subheadings.** The rendered document,
+  and Word's count of it, include every subheading, but the estimate left them out. A
+  manuscript with many subheadings could be over the journal's limit while the gate reported
+  it as only near the limit, and `--strict` let it through.
+- **`/self-review` supplement check resolves "Table S4", "Supplementary Figures S2 and S3" and
+  "Figs S1–S3", and tells tables from figures.** Those forms used to match nothing, and a
+  figure callout resolved against a table with the same number, so a supplementary figure
+  cited in the text but missing from the supplement passed.
+- **`/humanize` fidelity check catches a reversed comparison or a dropped minus sign.** A
+  rewrite that turned "18% lower" into "18% above", or "−2.4" into "2.4", kept every digit and
+  passed. A percentage is now read together with its direction word and a leading minus is
+  kept, so either change is reported as `NUMBER_DRIFT`.
+- **`/humanize` fidelity report shows where each changed number sits.** `NUMBER_DRIFT` listed
+  bare tokens and counts, so telling a renumbered slide from a changed statistic meant
+  searching both files by hand. Each changed token now carries a short before/after snippet,
+  in the printed report and the JSON.
+- **`/self-review` editorial-impression check no longer reads the YAML front matter as prose.**
+  A changelog in the front matter that said "hypothesis-generating" four times made the check
+  report the phrase as repeated in the manuscript when the body said it once.
+- **Word text split across formatting runs is read as one word.** Word often stores a single
+  word in two pieces when its formatting or spell-check state changes partway through. The
+  `/manage-refs` check that new manuscript text reached the rebuilt Word file, and the
+  `/sync-submission` check for internal audit text left in a submission file, put a space
+  between the pieces, so text that was in the document was reported missing and an audit
+  token split this way was not found. Both now join the pieces and break only at paragraph
+  ends, tabs and line breaks.
+- **`/model-scaffold` evaluation scripts fail when they predict nothing.** A generated
+  `evaluate.py` given an empty or wrongly pointed test set finished normally and exited 0 with
+  an empty predictions file. Every generated evaluation script now stops with an error unless
+  it produced a prediction for every test case and there was at least one.
+- **`/sync-submission` cover-letter check holds a word count stated next to the journal's
+  limit to the room left under it.** A cover letter saying "3,998/4,000 words" passed against
+  a measured 3,940 because body counts are allowed about 5% either way, and the stated limit
+  was itself read as the word count. When the letter states the limit and the count is that
+  close to it, the count must now match the measured body within the words left under the
+  limit.
+- **`/present-paper` deck-density message reports what it measured.** The deck-level
+  `SLIDE_TOO_DENSE` finding called a high median "the deck's habit", including after sparse
+  divider slides were deleted, which raises the median without making any slide denser. It
+  now gives the median and the 75th percentile and the number of slides they were measured
+  over, and says that removing sparse slides raises the median. When it fires is unchanged.
+- **The local CI mirror names the jobs it does not run.** `scripts/run_ci_mirror.py` runs the
+  `validate` job only, but its summary said nothing about the workflow's other jobs, so a
+  green mirror was read as a green CI while the macOS/Windows `foundation-os` job failed. The
+  summary and `--list` now name every job it skipped.
+- **The catalog-count check ignores numbers inside quotation marks.**
+  `validate_catalog_consistency.py` read a quoted example of what not to write (such as a
+  single "N detectors, validated by …" claim) as the current count and failed the build. A
+  count inside double quotes is now treated as a mention; the same count written unquoted is
+  still checked.
+- **`/fulltext-retrieval`: `manual_needed.txt` names the PubMed Central copy.** When a PMCID
+  was found but no PDF could be downloaded, the list gave only the DOI, so an article that is
+  freely available in PubMed Central looked the same as a subscription one. The line now also
+  carries the PMCID and the article's PubMed Central address.
+
+- **`/check-reporting`: CONSORT 2025 and SPIRIT 2025 items say everything the statements say.**
+  Eight items had been shortened when the checklists were transcribed, while each file said its items
+  matched the published table. CONSORT 18 had lost "describing any steps to conceal the sequence
+  until interventions were assigned"; CONSORT 26 had lost the requirement to present both absolute
+  and relative effect sizes for binary outcomes; CONSORT 9, 12b, 14 and 24a had lost their examples;
+  SPIRIT 18 and 21b had been paraphrased. All eight now carry the published text. The checklist
+  fidelity check now compares each item's text, not only its number, with Table 1 of the statement
+  for STARD 2015, CONSORT 2025 and SPIRIT 2025; the published text is extracted from the Europe PMC
+  full text by a script, so no model retypes it. Those extracts stay in the repository's tests and are
+  not installed.
+- **`/check-reporting`: STARD items 1 and 2 end where the published items end.** The vendored
+  checklist carried the next section's heading ("Abstract", "Introduction") at the end of each
+  item's text, left over from extraction; the file's own check compared item ids only.
+- **`/check-reporting`: five bundled checklists are no longer reported as unknown.** The
+  checklist guard answered QUADAS-3, PRISMA 2020 for Abstracts, GATHER, "SQUIRE 2.0" and "ARRIVE 2.0"
+  with `UNKNOWN_GUIDELINE`, so the skill asked the user about instruments it ships. Three files had
+  no alias at all, and name normalisation drops a year but keeps a version number such as "2.0".
+  The test now also requires every bundled checklist to be reachable by some name.
+- **`/check-reporting`: the CARE licence record matches the checklist file.** `LICENSES.md` listed
+  CARE as CC BY-NC 4.0 from a publisher statement; the checklist's own header records that Crossref
+  carries only a text-and-data-mining licence and treats it as non-open. The row moves to the
+  non-open table.
+
+- **`/verify-refs`: an in-press or e000 reference is no longer reported OK.** Gate 6 was meant to
+  downgrade a resolved reference whose pagination is a placeholder (`e000–e000`, "in press", "TBD")
+  to UNVERIFIED, but it compared against a `VERIFIED` status the script never emits (it emits OK),
+  so online such a reference stayed OK and passed `--strict`. The offline regression test could not
+  see it, because offline every record is already UNVERIFIED; it now also calls the gate on a
+  resolved record.
 
 ### Security
+
+- **`/manage-refs`: the CWYW example no longer carries a real Zotero user id.** The documented
+  `inject_zotero_cwyw.py` command (SKILL.md and the script's usage text) passed a concrete
+  `--user-id`. The script writes that id into every citation link, so a copied example would point
+  a user's citations at someone else's library. It is now a `<zotero-user-id>` placeholder.
 
 - **The repository's publication check no longer prints the value it caught.** When
   `scripts/validate_skills.sh` found a personal name, home-directory path or email address in a

@@ -45,6 +45,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import html
 import json
 import re
 import shutil
@@ -137,6 +138,37 @@ def _pdftotext(pdf: Path) -> str | None:
         return None
 
 
+# Text-bearing tokens of WordprocessingML, in document order: a text node (including
+# deleted text and field codes, which are still in the file a reviewer receives), a tab
+# or line break, or the end of a paragraph.
+_DOCX_TEXT_TOKEN_RE = re.compile(
+    r"<w:(t|delText|instrText)(?:\s[^>]*)?>(.*?)</w:\1>"
+    r"|<w:(?:tab|br|cr)\b[^>]*/>|</w:p>|<w:p\b[^>]*/>",
+    re.DOTALL,
+)
+
+
+def _docx_xml_text(xml: str) -> str:
+    """Join a part's text nodes the way Word shows them.
+
+    Word splits one token across runs whenever formatting or proofing changes
+    mid-word ("compliance" + "_pct"). Text nodes are joined with NO separator inside
+    a paragraph; a paragraph ends with a newline, a tab or break becomes a space.
+    Replacing every tag with a space (the old approach) turned a split token into
+    "compliance _pct", which no pattern matched, and left no line starts for the
+    "Action Items" heading pattern to anchor on.
+    """
+    parts: list[str] = []
+    for m in _DOCX_TEXT_TOKEN_RE.finditer(xml):
+        if m.group(2) is not None:
+            parts.append(html.unescape(m.group(2)))
+        elif m.group(0).startswith(("</w:p", "<w:p")):
+            parts.append("\n")
+        else:
+            parts.append(" ")
+    return "".join(parts)
+
+
 def _docx_text(docx: Path) -> str | None:
     try:
         with zipfile.ZipFile(docx) as z:
@@ -145,8 +177,8 @@ def _docx_text(docx: Path) -> str | None:
             chunks = []
             for n in names:
                 xml = z.read(n).decode("utf-8", errors="replace")
-                chunks.append(re.sub(r"<[^>]+>", " ", xml))
-            return " ".join(chunks)
+                chunks.append(_docx_xml_text(xml))
+            return "\n".join(chunks)
     except Exception:
         return None
 

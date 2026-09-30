@@ -91,5 +91,38 @@ import json; d=json.load(open('$OUT'))
 c=next(c for c in d['claims'] if c['verdict']=='PRETRAINED_PROVENANCE_MISSING')
 assert c['severity']=='Minor', c['severity']"
 
+# (f) zero-case guard: a generated evaluate.py must not exit 0 having predicted nothing. An
+#     empty or mis-pointed test split (or a self-configuring CLI that found "0 cases") ran to
+#     completion, wrote an empty predictions file and exited 0. Every task's evaluate.py must
+#     call assert_case_count(...) in main(), and the emitted guard itself must reject an empty
+#     prediction set and a partial one. Run with no torch: the guard is extracted by AST.
+case_guard() { python3 - "$WORK/$1/evaluate.py" <<'PY'
+import ast, sys
+src = open(sys.argv[1]).read()
+tree = ast.parse(src)
+fn = next((n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == "assert_case_count"), None)
+assert fn is not None, "evaluate.py defines no assert_case_count"
+main = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == "main")
+calls = [n for n in ast.walk(main) if isinstance(n, ast.Call)
+         and getattr(n.func, "id", None) == "assert_case_count"]
+assert calls, "main() never calls assert_case_count"
+ns = {}
+exec(compile(ast.Module(body=[fn], type_ignores=[]), "evaluate.py", "exec"), ns)
+guard = ns["assert_case_count"]
+for n_pred, n_test in ((0, 0), (0, 3), (2, 3)):
+    try:
+        guard(n_pred, n_test)
+    except SystemExit as e:
+        assert e.code not in (None, 0), f"guard exited 0 for {n_pred}/{n_test}"
+    else:
+        raise AssertionError(f"guard accepted {n_pred} predictions for {n_test} test cases")
+guard(3, 3)  # a complete prediction set passes
+PY
+}
+check "segmentation evaluate.py fails on an empty prediction set" case_guard clean
+for t in classification detection synthesis ssl finetune; do
+    check "$t evaluate.py fails on an empty prediction set" case_guard "$t"
+done
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

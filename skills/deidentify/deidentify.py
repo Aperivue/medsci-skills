@@ -7,7 +7,7 @@ and column-name heuristics, walks the researcher through an interactive
 terminal review, then produces a de-identified copy with mapping and
 audit trail.
 
-Supports 10 country locales (kr, us, jp, cn, de, uk, fr, ca, au, in)
+Supports 11 country locales (kr, us, jp, cn, de, uk, fr, ca, au, in, it)
 with country-specific PHI patterns.  Custom locales via --locale-file.
 
 Usage:
@@ -1180,7 +1180,7 @@ def main() -> None:
     def _add_locale_args(p: argparse.ArgumentParser) -> None:
         g = p.add_mutually_exclusive_group()
         g.add_argument("--locale", type=str, metavar="CODE",
-                       help="Country code (kr, us, jp, cn, de, uk, fr, ca, au, in). "
+                       help="Country code (kr, us, jp, cn, de, uk, fr, ca, au, in, it). "
                             "If omitted, interactive selection is shown.")
         g.add_argument("--locale-file", type=str, metavar="PATH",
                        help="Path to a custom locale JSON file")

@@ -76,6 +76,43 @@ PY
 run --dir "$WORK/docxleak" --quiet
 [ $? -eq 1 ] && ok "docx audit-dump fails" || bad "docx audit-dump should fail"
 
+# 4b. Word splits a token across runs when formatting or proofing changes mid-word
+#     ("compliance" + "_pct"). Flattening every tag to a space read "compliance _pct",
+#     which no pattern matches, so the leak passed. Deflated, like a real .docx.
+mkdir -p "$WORK/docxsplit"
+python3 - "$WORK" <<'PY'
+import sys, os, zipfile
+work = sys.argv[1]
+body = ('<w:document><w:body><w:p><w:r><w:t>compliance</w:t></w:r>'
+        '<w:proofErr w:type="spellStart"/><w:r><w:rPr><w:i/></w:rPr><w:t>_pct</w:t></w:r>'
+        '<w:r><w:t xml:space="preserve">: 81.8</w:t></w:r></w:p></w:body></w:document>')
+with zipfile.ZipFile(os.path.join(work, "docxsplit", "checklist.docx"), "w",
+                     zipfile.ZIP_DEFLATED) as z:
+    z.writestr("word/document.xml", body)
+PY
+run --dir "$WORK/docxsplit" --out "$WORK/r_split.json" --quiet
+[ $? -eq 1 ] && ok "docx token split across runs still fails" || bad "split-run docx token should fail"
+python3 -c "
+import json,sys
+d=json.load(open('$WORK/r_split.json'))
+sys.exit(0 if any('compliance_pct' in f['detail'] for f in d['findings']) else 1)
+" && ok "split-run finding names compliance_pct" || bad "split-run finding should name compliance_pct"
+
+# 4c. The same halves in SEPARATE paragraphs are two words, not one token: joining must
+#     stop at the paragraph end or ordinary prose would be glued into false leaks.
+mkdir -p "$WORK/docxparas"
+python3 - "$WORK" <<'PY'
+import sys, os, zipfile
+work = sys.argv[1]
+body = ('<w:document><w:body><w:p><w:r><w:t>compliance</w:t></w:r></w:p>'
+        '<w:p><w:r><w:t>_pct was not reported</w:t></w:r></w:p></w:body></w:document>')
+with zipfile.ZipFile(os.path.join(work, "docxparas", "checklist.docx"), "w",
+                     zipfile.ZIP_DEFLATED) as z:
+    z.writestr("word/document.xml", body)
+PY
+run --dir "$WORK/docxparas" --quiet
+[ $? -eq 0 ] && ok "halves in separate paragraphs do not glue" || bad "paragraph boundary must not glue text"
+
 # 5. empty/clean dir with only an official checklist stays clean under repeat run
 run --dir "$WORK/clean" --out "$WORK/r2.json" --quiet
 python3 -c "
