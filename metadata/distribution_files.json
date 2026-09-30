@@ -1068,8 +1068,8 @@
     },
     {
       "path": "skills/cross-national/SKILL.md",
-      "size": 7033,
-      "sha256": "4ffb4f16be684b182d1b2aaa4b76651c9a5786daad2ac6a5b0f997a69fad2d6f"
+      "size": 7201,
+      "sha256": "8797d7da87110e14806b299540580ade98d02f3be93a0dda03afa5286ba54999"
     },
     {
       "path": "skills/cross-national/references/additional_variables.md",
@@ -1448,8 +1448,8 @@
     },
     {
       "path": "skills/find-journal/SKILL.md",
-      "size": 13463,
-      "sha256": "10658423aa481cc363c566e7104bbc9b03dfed2cfc13b94377eff32ba948345e"
+      "size": 13366,
+      "sha256": "0e138c438c1a7f5209c493170f39622688aae6867b1eaf4b50e4e8e8d6e7fa18"
     },
     {
       "path": "skills/find-journal/references/acceptance_signals_schema.md",
@@ -6118,8 +6118,8 @@
     },
     {
       "path": "skills/write-paper/SKILL.md",
-      "size": 35362,
-      "sha256": "b3aeacc345c5b288d1bc14d2f6a90ecfc21b8fd8591c13e764ecb045ff723e2f"
+      "size": 35421,
+      "sha256": "188390c500477355ed9afb8094dc3572ab43c52632c88370ce1f2f52a4d7a495"
     },
     {
       "path": "skills/write-paper/references/exemplar_abstract.md",

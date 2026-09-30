@@ -456,7 +456,7 @@ Severity levels: **ENFORCED** = pipeline halts on failure (cannot proceed to nex
 |---|---|---|---|---|
 | 0 | Backbone-article auto-proposal (Phase 0 "Identify a backbone article" action) | ADVISORY | refs.bib has methodologically similar candidate | Surface to user; user accepts/declines |
 | 7.0 | Citekey resolution (delegate `/manage-refs scripts/check_citation_keys.py`) | ENFORCED | UNDEFINED keys present | Halt; resolve via `/lit-sync` then re-run |
-| 7.0 | NEW_PLACEHOLDER drain (delegate `/manage-refs`) | ENFORCED at 7.6 entry | `[@NEW:topic]` markers remain | Resolve each before DOCX render |
+| 7.0 | `[@NEW:topic]` drain (delegate `/manage-refs`; `check_citation_keys.py` reports them as UNDEFINED, exit 1) | ENFORCED at 7.6 entry | `[@NEW:topic]` markers remain | Resolve each before DOCX render |
 | 7.1 | Classical-style QC (`check_classical_style.py`) | ENFORCED | § symbol > 0 OR an AI disclosure in the body of a journal that does not accept one there (per profile) OR more than 25 prose em-dashes | Auto-fix or HALT for senior MA reviewer prep |
 | 7.2 | Reporting guideline compliance (`/check-reporting`) | ENFORCED at submission | <100% mandatory items present | Auto-fix MISSING; ADVISORY for partial |
 | 7.3 | Reference audit (`/verify-refs --strict`) | ENFORCED | FABRICATED or HIGH_MISMATCH_FIRST_AUTHOR > 0 | Halt; fix in Zotero, re-render refs.bib via `/lit-sync` |

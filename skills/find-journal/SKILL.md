@@ -213,9 +213,8 @@ _Advisory only — a risk band, not an acceptance prediction; flags are not auto
 
 1. **Primary:** [top recommendation] — [why first]
 2. **If rejected:** [fallback 1] — [same-publisher transfer if applicable, else one tier
-   down / different scope angle]. Following the editor's transfer offer is worth it:
-   across publisher transfer desks more than half of transferred manuscripts are sent
-   to review and over a third are published — both above the average submission.
+   down / different scope angle]. An editor's transfer offer within the same publisher
+   is usually worth taking: the manuscript skips a fresh desk screen.
 3. **Then:** [fallback 2]
 
 [If the Phase 2.5 risk is IMPORTANCE rather than design, recommend a **presubmission

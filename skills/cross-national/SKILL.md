@@ -124,13 +124,15 @@ invented p-value, effect size, confidence interval, or sample size.
     └── results_draft.md
 ```
 
-Take every citation in the report or draft from `/search-lit`; never generate references from memory.
+Take every citation in the report or draft from `/search-lit` (confirmed DOI/PMID); mark any other
+`[UNVERIFIED - NEEDS MANUAL CHECK]`, and never generate references from memory.
 
 ## Critical Rules
 
 1. **NEVER pool data across countries**. Each country analyzed with its own survey design.
 2. **Country-specific BMI cutoffs**: Korea ≥25 (Asian), US ≥30 (WHO).
 3. **Country-specific income**: KNHANES quartile, NHANES PIR → harmonize to binary.
-4. **Weighted analysis mandatory**: Both KNHANES and NHANES are complex surveys.
+4. **Weighted analysis mandatory**: Both KNHANES and NHANES are complex surveys. CHNS has no
+   survey weights — analyse it unweighted (see `references/chns_coding.md`).
 5. **Document all harmonization decisions**: What matches, what needed recoding, what differs.
 6. **Same analytic approach**: Identical model specifications for both countries for fair comparison.
