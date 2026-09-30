@@ -155,7 +155,7 @@ a `[N] → ZoteroKey` mapping.
    ```bash
    python3 "${CLAUDE_SKILL_DIR}/scripts/inject_zotero_cwyw.py" \
      --input manuscript_keys.docx --output manuscript_cwyw.docx \
-     --user-id 16613550 --keys-from keys.txt
+     --user-id <zotero-user-id> --keys-from keys.txt
    ```
    The script fetches Zotero metadata via the local connector (port 23119);
    any HTTP failure aborts with non-zero exit.
