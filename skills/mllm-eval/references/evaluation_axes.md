@@ -93,9 +93,13 @@ score.
 - **An LLM judge is itself a model.** If a model adjudicates correctness, **validate the judge
   against a human-labelled subset** and report its agreement; route judge validation to
   `/design-ai-benchmarking`. An unvalidated LLM judge can launder the system's own errors.
-- **Operating discipline.** Report accuracy **at the real clinical prevalence**, not on an
-  artificially balanced QA set, and state **how refusals/abstentions are scored** (counted
-  wrong, excluded, or credited) — the choice can move the headline.
+- **Operating discipline.** Accuracy alone is dominated by the majority class: for a rare
+  finding (2% prevalence) a system that always answers "negative" scores 98%. Report
+  **per-class sensitivity/specificity** (or precision/recall/F1) with CIs, and **PPV/NPV at the
+  real clinical prevalence**, not on an artificially balanced QA set; give accuracy only
+  alongside them (Reinke et al., *Nat Methods* 2024, the accuracy pitfall under class
+  imbalance; STARD 2015). State **how refusals/abstentions are scored** (counted wrong,
+  excluded, or credited) — the choice can move the headline.
 
 ## Reader study for generated reports (ME7 → `READER_STUDY_MISSING`)
 

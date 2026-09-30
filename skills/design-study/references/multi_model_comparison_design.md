@@ -69,8 +69,12 @@ Put uncertainty on every model (a CI, or at least a tested delta) and **resist o
 rank against the right object: the **paired Δ and its CI**, not the overlap of two marginal CIs. Two
 marginal intervals can overlap heavily while the paired Δ excludes zero, because the covariance the
 paired test uses is invisible in the marginals; non-overlap implies a difference, overlap implies
-nothing either way. Models inside the critical difference are **not separated by the test** — leave
-them unranked rather than reporting a demonstrated tie. Disaggregate
+nothing either way. Models the test does not separate are **not separated** — leave them unranked
+rather than reporting a demonstrated tie. For many models across datasets, take the pairwise verdicts
+from **Wilcoxon signed-rank (or sign) tests with a Holm correction**, not Nemenyi's mean-rank
+critical difference: a mean-rank test makes the A-versus-B verdict depend on which other models are
+in the pool (Benavoli, Corani & Mangili, *JMLR* 2016;17(5):1-10). Mean ranks can still be shown
+descriptively. Disaggregate
 (per-structure / per-class) and show **where the winning model still fails** — the honest negative
 (a structure that collapses for all models, a fusion strategy at chance) is an acceptance asset, not a
 liability. A corollary the corpus surfaced: a CI must be **believable for the N** — an implausibly tight

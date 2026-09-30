@@ -96,20 +96,29 @@ current practice / an existing model.
 | Comparator | When | Hand-off |
 |---|---|---|
 | **Clinical / no-model baseline** | "does the model beat current standard of care?" | — |
-| **Incremental value over an existing score** | model added on top of an established risk score / radiologist read | added-value statistics (NRI / IDI / decision curve) → `/analyze-stats` |
+| **Incremental value over an existing score** | model added on top of an established risk score / radiologist read | → `/analyze-stats` `incremental_value.md`: likelihood-ratio (or Wald) test of the new term in the development data; ΔC with a paired CI as the effect size (DeLong only for models frozen before a held-out evaluation, never as the test of nested models fitted on the same data); NRI only categorical, pre-specified, by events and non-events; net benefit preferred |
 | **Reader comparison (standalone or AI-assisted)** | model vs / with radiologists | rubric, reader panel, inter-rater design → `/design-ai-benchmarking` |
 
 Name whether the claim is **standalone** (model alone) or **assistive** (clinician + model); they
 need different comparators and different reporting.
 
-## 4. Single-run vs multi-seed variance
+## 4. Test-set uncertainty vs multi-seed variance
 
-A single training run overstates precision: deep-model metrics move with the random seed
-(initialisation, data order, augmentation), and some GPU ops are non-deterministic even with cuDNN
-deterministic flags set (Varoquaux & Cheplygina, *npj Digit Med* 2022; reproducibility crisis,
-Kapoor & Narayanan 2023). Require the headline metric as **mean ± SD over ≥ 3 seeds / runs**, or a
-**single fixed reported seed with the determinism caveat stated**. A point estimate from one run,
-presented as if exact, is a reporting defect.
+Two different quantities, not interchangeable:
+
+- **Test-set sampling uncertainty** — how far the test-set estimate could be from the model's true
+  performance. It comes from resampling the test **patients** (patient-level bootstrap 95% CI) and
+  is the headline uncertainty. A point estimate without it, presented as if exact, is a reporting
+  defect.
+- **Seed variance** — deep-model metrics move with the random seed (initialisation, data order,
+  augmentation), and some GPU ops are non-deterministic even with cuDNN deterministic flags set
+  (Varoquaux & Cheplygina, *npj Digit Med* 2022; Kapoor & Narayanan 2023). This is training-run
+  variability and is usually smaller than the sampling uncertainty (Bouthillier et al.,
+  *MLSys* 2021). Report it **separately**, as an SD over ≥ 5 runs, when the claim is about the
+  training recipe or compares methods; three runs cannot estimate an SD. Never present a seed SD
+  as the CI of the headline: "AUROC 0.91 ± 0.01 (3 seeds)" understates an uncertainty that, with
+  60 positive test cases, is about ±0.04. For a frozen vendor or open-weights model there is no
+  retraining to vary; fix and report the inference seed and the determinism caveat.
 
 ## 5. Test-set sizing
 

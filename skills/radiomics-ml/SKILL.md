@@ -37,7 +37,15 @@ data.
 1. **No nested CV.** Tuning and reporting on the same folds inflates performance. Use nested CV or a
    held-out test set.
 2. **High dimensionality, low events.** Features ≥ events with no dimensionality reduction overfits —
-   the classic radiomics trap. Apply LASSO / PCA / a stability + redundancy filter.
+   the classic radiomics trap. The gate's `p ≥ events` rule is a floor that catches the worst case,
+   **not a sample-size criterion**: size the study with `/calc-sample-size` Test 12 (Riley criteria,
+   `pmsampsize`), counting every **candidate** feature that reaches outcome-driven selection or
+   fitting. At C = 0.75 and 35% prevalence that is about 48 patients per candidate parameter: 100
+   candidates need N = 4,755 (1,665 events), and the gate passes 100 features on 105 events. Reduce
+   candidates **without the outcome** first (stability, redundancy, clinical prior); LASSO or other
+   penalisation does not substitute for sample size, because the shrinkage it estimates is itself
+   unstable at small n (Riley et al., *J Clin Epidemiol* 2021; Van Calster et al., *Stat Methods Med
+   Res* 2020).
 3. **Selection outside the fold.** Feature selection fit on the whole dataset leaks the held-out folds.
    Nest selection inside each training fold.
 4. **No feature stability.** Radiomics features are unstable across acquisition/segmentation — filter
@@ -47,18 +55,32 @@ data.
 6. **No external validation.** A single-cohort model needs external / temporal validation for a
    clinical claim.
 
+Not in the gate, because the manifest cannot show it: **rows of one patient on both sides of a
+split.** Lesion-level tables with row-wise folds let the model recognise the patient; on null
+synthetic data this took nested-CV AUROC from 0.48 to 0.99. Split by patient and check the fold
+table (Phase 2).
+
 ## Workflow
 
 ### Phase 1 — Extract features (integrate, don't reimplement)
 For radiomics, extract with **pyradiomics** under reproducible, IBSI-aligned settings (fixed bin width,
 resampling, normalisation) — record them. For clinical/tabular data, assemble the feature table with a
-patient/subject ID and the outcome. See `references/radiomics_ml_guide.md`.
+patient/subject ID and the outcome. One row per lesion or ROI is fine; the ID is what the folds are
+split by. See `references/radiomics_ml_guide.md`.
 
 ### Phase 2 — Build the pipeline correctly
 - **Feature stability** — with test-retest / multi-rater data, keep features with ICC ≥ 0.75.
 - **Nested cross-validation** — outer folds estimate performance, inner folds tune; do **feature
-  selection and scaling inside each training fold** (never on the whole dataset).
-- **Dimensionality** — with features ≥ events, use LASSO / a stability+redundancy filter / PCA.
+  selection and scaling inside each training fold** (never on the whole dataset). **The CV unit is
+  the patient**: split both loops with `StratifiedGroupKFold(groups=patient_id)` so one patient's
+  lesions never straddle folds, write the fold table (`patient_id,split`), and prove it with
+  `/model-assessment`'s `check_split_leakage.py --splits cv_folds.csv --seed <seed> --strict`
+  (skeleton in the guide §4).
+- **Dimensionality** — reduce the candidate set without the outcome (ICC stability, |r| redundancy
+  filter, clinical prior; PCA fit inside the fold), then size the study for the candidates that
+  remain with `/calc-sample-size` Test 12 (`pmsampsize`). LASSO selects inside the fold but does not
+  make a small sample large enough; report the shortfall as a limitation if N falls below the Riley
+  minimum.
 - **Model** — pick from the full classical family for the task; a simple baseline (penalised logistic)
   is mandatory alongside any complex learner:
   - *penalised regression* — LASSO / ridge / elastic-net logistic (also the baseline)
@@ -80,7 +102,7 @@ patient/subject ID and the outcome. See `references/radiomics_ml_guide.md`.
 ```json
 {
   "task": "classification",
-  "n_features": 1200, "n_samples": 300, "n_events": 110,
+  "n_features": 40, "n_samples": 300, "n_events": 110,
   "cv_scheme": "nested",
   "feature_selection_stage": "inside_cv",
   "dimensionality_reduction": true,
@@ -90,6 +112,16 @@ patient/subject ID and the outcome. See `references/radiomics_ml_guide.md`.
   "model": "xgboost"
 }
 ```
+- `n_features` — the **candidate** features that reach outcome-driven selection or fitting, after
+  outcome-blind reduction (here 1,200 extracted → ICC ≥ 0.75 → |r| < 0.9 → 40). This example passes
+  the gate, yet `pmsampsize` (C = 0.75, prevalence 110/300) asks for N = 1,868 with 685 events for
+  40 candidate parameters: the gate does not size the study, Test 12 does.
+- `cv_scheme` — `nested`, or `held_out_test` / `single_split` when hyperparameters and model choice
+  were tuned on the training split only and the test split was touched once. A split that was also
+  used for tuning, model selection or a threshold is `flat` (choosing among 12 candidate models on
+  the test split of null data reported AUROC 0.63 instead of 0.51). At radiomics sample sizes a
+  single random split wastes data and is unstable; prefer (repeated) nested CV (Steyerberg,
+  *J Clin Epidemiol* 2018).
 
 ### Phase 4 — Gate the pipeline (deterministic)
 ```bash

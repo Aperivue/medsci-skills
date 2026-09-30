@@ -40,13 +40,21 @@ design** for an interactive evaluation — the human-as-operator reader arm and 
 `/design-study` and Part B Phase 8 (protocol fidelity).
 
 ## Classification
-- **Discrimination with CIs**: **AUROC and AUPRC** (AUPRC tracks the minority class under
-  imbalance), with bootstrap 95% CIs.
+- **Discrimination with CIs**: **AUROC and AUPRC**, with patient-level bootstrap 95% CIs. The PR
+  view adds the PPV-side information the ROC does not show. Report AUPRC **with the test-set
+  prevalence**, which is its no-skill value (Saito & Rehmsmeier 2015): AUPRC falls as prevalence
+  falls even when ranking is unchanged (one binormal classifier: AUROC 0.90 throughout, AUPRC
+  0.90 / 0.73 / 0.46 / 0.19 at 50% / 20% / 5% / 1% prevalence), so AUPRC from an enriched or
+  case-control test set does not transfer to deployment and is not comparable across datasets.
 - **Operating-point metrics at the deployment prevalence**: sensitivity/specificity and
   **PPV/NPV computed at the real base rate**, not on an artificially balanced set; fix the
   threshold on the training/tuning folds, never the test set.
-- **Calibration**: a reliability diagram + ECE; a discriminating model can still be
-  miscalibrated.
+- **Calibration** (a discriminating model can still be miscalibrated): for a binary risk or
+  diagnostic output, **calibration-in-the-large** (intercept), the **calibration slope** and a
+  **flexible (loess) calibration curve**, plus the Brier score (Van Calster et al., *BMC Med*
+  2019). Binned ECE mostly reflects where predictions cluster and hides overfitting: a simulated
+  overconfident model at 3.9% prevalence had ECE 0.030 with a calibration slope of 0.61. ECE is
+  at most a supplementary top-label summary for multi-class confidence, with its binning stated.
 - **Multiclass**: state the aggregation scheme (Park et al., *Radiol Med* 2024) — **one-vs-rest**
   with **macro** (unweighted) or **micro** (instance-weighted) averaging, all **pairwise** two-class
   combinations, or the prevalence-weighted **Obuchowski index**; a bare multiclass AUROC is ambiguous
@@ -56,6 +64,13 @@ design** for an interactive evaluation — the human-as-operator reader arm and 
 - **FROC / mAP with the IoU match criterion stated**: report sensitivity per false-positive
   (FROC) or mAP, and **state the IoU threshold** used to match predictions to ground truth —
   the metric is undefined without it. Patient-level accuracy is not a detection metric.
+- **CIs at the patient level**: a patient contributes several lesions and false positives, which
+  are correlated, so resample **patients** (carrying all their lesions and false positives) for
+  the bootstrap. A Wilson/binomial interval over lesions treats them as independent and is too
+  narrow (Genders et al., *Radiology* 2012): with 80 patients carrying 1-6 lesions each, it
+  covered the true lesion sensitivity in 86% of simulated studies, the patient bootstrap in 94%.
+- **Comparing two detectors**: JAFROC (RJafroc; Chakraborty & Berbaum, *Med Phys* 2004) on the
+  same patients, not per-lesion tests.
 
 ## Generative / synthesis (image generation or modification)
 Grounded in Park et al., *Radiol Med* 2024.
@@ -82,11 +97,20 @@ discrimination lives in `/analyze-stats`, not in this reporting gate (stated per
   severity); enough events per subgroup to estimate it (else say so). Defer fairness depth to
   Part A + the equity probe.
 
-## Run variance
-- Report the headline as **mean ± SD over ≥ 3 seeds/runs**, or a fixed reported seed with the
-  determinism caveat — a single run overstates precision.
+## Uncertainty of the headline, and run variance
+- The headline's uncertainty is a **patient-level bootstrap 95% CI** over the test cases. It is the
+  sampling uncertainty of the test-set estimate.
+- Seed-to-seed SD across training runs measures training-run variability, not that sampling
+  uncertainty, and is usually smaller: for AUROC 0.91 with 60 positives and 540 negatives the
+  test-set SD is about 0.02, so "0.91 ± 0.01 (3 seeds)" read as an interval covers the true AUROC
+  in about 69% of test sets. Report seed SD **separately**, over ≥ 5 runs, when the claim is about
+  the training recipe or compares methods (Bouthillier et al., *MLSys* 2021); never as the CI. A
+  frozen vendor or open-weights model has no runs to vary.
 
 ## Hand-off
 Emit `eval/per_case_metrics.csv` (one row per case, columns = the metrics) and hand to
-`/analyze-stats` for DeLong/NRI/IDI/decision-curve and the publication tables; `/make-figures`
+`/analyze-stats` for the paired comparison (DeLong or bootstrap ΔAUC of frozen models on the same
+test patients), added value over a baseline (`incremental_value.md`: likelihood-ratio test of the
+new term, ΔC as an estimate, NRI only categorical and by events / non-events, net benefit),
+decision curves and the publication tables; `/make-figures`
 for ROC/calibration/overlay; `/model-card` for the numbers + subgroup performance.

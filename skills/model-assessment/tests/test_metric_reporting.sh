@@ -38,6 +38,18 @@ printf 'We do NOT report pixel accuracy; instead Dice, HD95, ASSD with 95%% CIs.
 check "FP: 'do NOT report pixel accuracy' passes" ok0 "$W/neg.md" segmentation
 printf 'This diagnostic accuracy study reports sensitivity 0.83 and specificity 0.90 (95%% CI).\n' > "$W/dx.md"
 check "FP: 'diagnostic accuracy' study phrase + sens/spec passes" ok0 "$W/dx.md" classification
+# boundary metric must be NAMED and affirmed: the bare word 'boundary' or a disavowed HD95 does
+# not pair with Dice (Metrics Reloaded); a negation in an earlier clause does not disavow it.
+printf 'Test-set Dice was 0.86 (95%% CI 0.83-0.88). Boundary error was not assessed.\n' > "$W/bword.md"
+python3 "$DET" --report "$W/bword.md" --task segmentation --out "$OUT" --quiet >/dev/null 2>&1
+check "bare word 'boundary' does not count as a boundary metric" has NO_BOUNDARY_METRIC
+printf 'Dice 0.86 (95%% CI 0.83-0.88); HD95 was not computed.\n' > "$W/bneg.md"
+python3 "$DET" --report "$W/bneg.md" --task segmentation --out "$OUT" --quiet >/dev/null 2>&1
+check "'HD95 was not computed' -> NO_BOUNDARY_METRIC" has NO_BOUNDARY_METRIC
+printf 'Pixel accuracy was not used; Dice 0.81 and HD95 7.2 mm (95%% CI 6.1-8.3).\n' > "$W/bclause.md"
+check "FP: negation in an earlier clause leaves HD95 affirmed" ok0 "$W/bclause.md" segmentation
+printf 'Dice 0.81 and Boundary IoU 0.62, with 95%% CIs.\n' > "$W/biou.md"
+check "FP: 'Boundary IoU' is a boundary metric" ok0 "$W/biou.md" segmentation
 # negation: 'AUROC was not computed' -> the real ACCURACY_ONLY, no spurious AUPRC_MISSING
 printf 'Classification accuracy 0.92; AUROC was not computed.\n' > "$W/aur.md"
 python3 "$DET" --report "$W/aur.md" --task classification --out "$OUT" --quiet >/dev/null 2>&1

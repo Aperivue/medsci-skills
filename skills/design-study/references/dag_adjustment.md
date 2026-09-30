@@ -29,7 +29,7 @@ needs a path to Y that does **not** pass through X.
 ## Step 1 — draw the DAG, then sanity-check covariate roles deterministically
 
 Write the DAG as parent→child edges and run the helper to classify each proposed covariate
-and catch the four unambiguous errors before you write the Methods:
+and catch the four common errors before you write the Methods:
 
 ```bash
 # dag.json: {"edges": [["age","statin"], ["age","CVD"], ["statin","LDL"], ["LDL","CVD"], ["statin","CVD"]]}
@@ -43,6 +43,15 @@ It flags `MEDIATOR_ADJUSTMENT` (here `LDL`, on `statin→LDL→CVD`),
 **candidate** sufficient set (the open-backdoor common causes). The helper uses
 reachability only and **does not claim minimality** — it catches the errors, not the
 optimum.
+
+`CONFOUNDER_OMITTED` fires only when the omitted common cause still reaches the exposure,
+and still reaches the outcome without passing through it, once the adjusted nodes are
+removed. A common cause need not itself be in the set: in `C→X, C→D→Y`, adjusting the
+measured `D` blocks the only backdoor path, so `{D}` is sufficient without `C` — the usual
+design when `C` is unmeasured. An adjusted node with two or more unadjusted parents is not
+counted as a blocker, because conditioning on it can join its parents (in `C→D←U→Y`,
+`{D}` opens `X←C→D←U→Y`), so the helper can still flag a set that is in fact sufficient.
+It never certifies sufficiency: check the final set with dagitty `isAdjustmentSet` (Step 2).
 
 ## Step 2 — derive the minimal sufficient set with dagitty (the validated solver)
 
@@ -59,6 +68,7 @@ g <- dagitty('dag {
 exposures(g) <- "statin"; outcomes(g) <- "CVD"
 adjustmentSets(g, type = "minimal")     # the minimal sufficient set(s)
 adjustmentSets(g, type = "canonical")   # the all-common-causes set
+isAdjustmentSet(g, c("age"))            # is the proposed set sufficient?
 # Falsification: testable conditional independencies implied by the DAG
 impliedConditionalIndependencies(g)
 ```

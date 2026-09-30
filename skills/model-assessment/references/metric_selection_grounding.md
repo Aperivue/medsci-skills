@@ -44,13 +44,18 @@ is `scripts/check_metric_reporting.py`.
 
 ## Classification — discrimination, operating point at prevalence, then calibration
 
-- **AUROC and AUPRC.** AUROC summarises ranking across thresholds; under class imbalance the
-  precision–recall view (AUPRC) is more informative, because the ROC's false-positive rate uses the
-  large negative denominator and can look optimistic when negatives dominate (Saito & Rehmsmeier,
-  *PLoS ONE* 2015).
+- **AUROC and AUPRC.** AUROC summarises ranking across thresholds and does not depend on
+  prevalence. The precision–recall view adds the PPV side, which matters when positives are rare
+  (Saito & Rehmsmeier, *PLoS ONE* 2015). AUPRC is **prevalence-dependent**: its no-skill value is
+  the prevalence, so report it with the test-set prevalence, and do not carry an AUPRC from an
+  enriched or case-control test set over to deployment or compare it across datasets. Whether AUPRC
+  should be preferred to AUROC under imbalance is itself contested (McDermott et al., *NeurIPS*
+  2024); report both.
 - **Operating-point metrics at the deployment prevalence.** **PPV/NPV** (and accuracy) move with the
   base rate, so values read off an artificially balanced test set mislead at deployment — report
-  them at the real prevalence. Sensitivity and specificity are prevalence-independent but depend on
+  them at the real prevalence. Sensitivity and specificity do not depend on prevalence
+  arithmetically, but they often shift with it in practice, through spectrum and case-mix (Leeflang
+  et al., *CMAJ* 2013), so the test set's case-mix must match the intended use. They also depend on
   the operating threshold, so **fix the threshold on the training/tuning folds, never the test set**
   (choosing it on the test set is tuning-on-test and inflates the estimate).
 - Bootstrap **95% CIs at the patient level**.
@@ -64,15 +69,26 @@ is `scripts/check_metric_reporting.py`.
   localization category, the metric is undefined without that criterion.
 - **Patient-level accuracy is not a detection metric**, and a per-lesion result must not be reported
   as per-patient — respect the analysis unit set in Phase 1.
+- **CIs respect clustering.** Lesions and false positives within a patient are correlated, so a
+  binomial (Wilson) interval over lesions is too narrow; bootstrap **patients**, carrying all their
+  lesions and false positives (Genders et al., *Radiology* 2012; Obuchowski, *Biometrics* 1997).
+  Compare two detectors on the same patients with **JAFROC** (Chakraborty & Berbaum, *Med Phys*
+  2004; RJafroc), not with per-lesion tests.
 - Gate: `DETECTION_METRIC_MISSING`.
 
 ## Calibration — a separate axis from discrimination
 
 - A model can **discriminate well (high AUROC) and still be miscalibrated**; report calibration
-  separately (Guo et al., *ICML* 2017). Use a **reliability diagram** plus a summary (**ECE** or the
-  **Brier** score).
-- **ECE is binning-sensitive** — state the binning scheme (or prefer a binning-robust summary) and
-  do not over-read a single ECE value.
+  separately.
+- **Binary risk or diagnostic output** (the usual clinical case): **calibration-in-the-large**
+  (intercept), the **calibration slope**, and a **flexible (loess) calibration curve**, plus the
+  **Brier** score (Van Calster et al., *BMC Med* 2019, calibration hierarchy). The slope is what
+  exposes overfitting: predictions that are too extreme give a slope below 1.
+- **ECE** (Guo et al., *ICML* 2017) comes from multi-class top-label confidence. It is
+  binning-sensitive and mostly reflects where the predictions cluster; at low prevalence a model
+  with a calibration slope of 0.61 can show an ECE of 0.03. Use it only as a supplementary summary
+  for multi-class confidence, with the binning stated, never as the calibration evidence for a
+  binary risk model.
 - **TRIPOD+AI** requires reporting **both** discrimination and calibration for a clinical prediction
   model — calibration is not optional reporting.
 
@@ -99,7 +115,7 @@ owns the item-by-item CLAIM 2024 / TRIPOD+AI audit; this is the routing map.
 | Reference / ground-truth standard + how derived | Methods | Reader count, blinding, adjudication — state it. |
 | Held-out, patient-level data partition | Methods | Cross-link Part A Phase 2 (split leakage). |
 | Performance metrics **with uncertainty (CIs)** | Results | Bootstrap CIs at the analysis unit. |
-| Calibration (reliability diagram + ECE/Brier) | Results | Required alongside discrimination (TRIPOD+AI). |
+| Calibration (intercept + slope + flexible curve, Brier; ECE only for multi-class confidence) | Results | Required alongside discrimination (TRIPOD+AI). |
 | Subgroup + failure-case analysis | Results | Per-subgroup n; flag thin slices. |
 | Threshold + operating point at prevalence | Methods / Results | Threshold fixed on tuning folds, reported prevalence. |
 
@@ -110,8 +126,9 @@ owns the item-by-item CLAIM 2024 / TRIPOD+AI audit; this is the routing map.
 2. Advise the author to **state τ** (NSD), **state the IoU criterion** (detection), and **state the
    deployment prevalence** (operating-point metrics); report **per-structure / per-subgroup with n**;
    give **patient-level bootstrap CIs**; and report **calibration alongside discrimination**.
-3. Emit `eval/per_case_metrics.csv` for `/analyze-stats` (DeLong / NRI / IDI / decision curves /
-   MRMC) — numbers are never hand-typed, and an uncertain metric or CI method is flagged `[VERIFY]`.
+3. Emit `eval/per_case_metrics.csv` for `/analyze-stats` (paired comparison of frozen models,
+   added value per `incremental_value.md`, decision curves, MRMC) — numbers are never hand-typed,
+   and an uncertain metric or CI method is flagged `[VERIFY]`.
 
 ## Verification notes
 
@@ -125,9 +142,16 @@ owns the item-by-item CLAIM 2024 / TRIPOD+AI audit; this is the routing map.
 - **TRIPOD+AI** (Collins et al., *BMJ* 2024): named standard; grounds the calibration-and-
   discrimination requirement. Written as base TRIPOD + AI extension.
 - **AUPRC under imbalance** (Saito & Rehmsmeier, *PLoS ONE* 2015, **CC-BY**): principle only (ROC vs
-  PR on imbalanced data); no text copied.
-- **Calibration / ECE** (Guo et al., *ICML* 2017): named methods paper; reliability diagram + ECE,
-  with the binning-sensitivity caveat stated qualitatively.
+  PR on imbalanced data; the PR no-skill line is the prevalence); no text copied. The counterpoint
+  that AUPRC is not generally preferable under imbalance: McDermott et al., *NeurIPS* 2024
+  (arXiv:2401.06091).
+- **Calibration / ECE** (Guo et al., *ICML* 2017): named methods paper; ECE is scoped to
+  multi-class top-label confidence, with the binning-sensitivity caveat.
+- **Calibration hierarchy** (Van Calster et al., *BMC Med* 2019, doi:10.1186/s12916-019-1466-7):
+  intercept, slope and flexible curve for a binary risk model.
+- **Clustered detection data** (Genders et al., *Radiology* 2012, doi:10.1148/radiol.12120509;
+  Chakraborty & Berbaum, *Med Phys* 2004, doi:10.1118/1.1769352 — JAFROC).
+- **Prevalence and case-mix** (Leeflang et al., *CMAJ* 2013, doi:10.1503/cmaj.121286).
 - **NSD / surface Dice with tolerance**: the tolerance-based surface metric (e.g., Nikolov et al.,
   head-and-neck OAR segmentation) recommended for boundary error by Metrics Reloaded; **τ described
   qualitatively, no value invented**.

@@ -26,7 +26,7 @@ Unit of rating: (item / case / output)
 - n reviewers, metadata captured, per-reviewer randomized order
 
 ### Reliability plan
-- overall IRR target + control-item IRR (reported separately)
+- IRR target on the anchor set of real items (ICC form + 95% CI) + control-item hit rate (a competence check, reported separately)
 
 ### Judge strategy
 - human-as-judge / LLM-as-judge / both + adjudication rule
@@ -105,20 +105,33 @@ recruitment is finalized.
 
 ### Phase 5: Set inter-rater reliability targets
 
-- Pre-specify the agreement statistic (e.g., ICC for continuous ratings, weighted kappa for ordinal)
-  and a justified target.
-- **Report reliability on the planted control items separately** as primary evidence of rubric and
-  scale validity. A low overall ICC is interpretable only if raters converge on the controls;
-  reporting both prevents "low agreement => bad rubric" or "bad raters" misreads.
+- Pre-specify the reliability statistic **and its form** — for several raters, an ICC with the
+  model stated (e.g. ICC(2,1): two-way random, absolute agreement, single rater) or Krippendorff's α
+  (ordinal); weighted (Cohen's) kappa is a two-rater statistic — and a justified target. Size the
+  number of **items** for the CI width you need: ICC precision is driven mainly by the item count
+  (Koo & Li, *J Chiropr Med* 2016).
+- **Planted control items are a rater-competence check, not reliability evidence.** Report the hit
+  rate on known-good vs known-bad controls. Do not present an ICC computed on the controls as
+  evidence of rubric or scale validity: ICC scales with the spread between items, controls are
+  extreme by construction, so their ICC is high whatever the raters' reliability on real items (same
+  five raters, same noise: ICC(2,1) 0.89 on four planted controls, 0.16 on 40 real items), and it
+  rests on a handful of items.
+- **Report reliability on the representative anchor set of real items** — ICC with its 95% CI and
+  stated form — with an agreement measure alongside (exact agreement, SEM), since reliability
+  depends on how heterogeneous the rated items are (de Vet et al., *J Clin Epidemiol* 2006). A low
+  ICC on real items with a good control hit rate points to little true spread among the items or a
+  rubric that does not separate them, not to careless raters.
 - Plan the minimum ratings-per-item for a stable agreement estimate (the math goes to
   `/analyze-stats`).
 
 ### Phase 5b: Reader allocation under burden constraints (anchor-and-rotate)
 
 When the item pool exceeds what one reader can rate in a session, do **not** make every reader rate
-every item (that caps the pool at the per-reader limit). Use **anchor-and-rotate**
-(balanced-incomplete-block): all readers rate a shared **anchor set** (which carries the inter-rater
-ICC/kappa, alongside the planted controls) plus a **rotating unique block** each. The binding
+every item (that caps the pool at the per-reader limit). Use **anchor-and-rotate** (an anchor set
+plus rotating incomplete blocks — not a balanced incomplete block design, since reader pairs are
+not co-rated equally often): all readers rate a shared **anchor set** of real items (which carries
+the inter-rater reliability; the planted controls carry only the competence check) plus a
+**rotating unique block** each. The binding
 constraint is usually the number of available expert readers, so solve the reverse problem (largest
 pool for R readers) to size the must-rate set. Pre-specify anchor membership, raters-per-item, and the
 rotation seed before rating. Read `${CLAUDE_SKILL_DIR}/references/anchor_rotate_reader_allocation.md`
@@ -127,7 +140,8 @@ for the formulas, trade-offs, and a stdlib implementation.
 ### Phase 6: Choose the judge strategy and adjudication
 
 - Decide human-as-judge, LLM-as-judge, or both. An LLM judge is one more arm whose ratings must be
-  validated against the human panel on the control items.
+  validated against the human panel on the anchor set of real items, not only on the extreme
+  control items.
 - Pre-specify the **adjudication rule** for disagreement (majority, a third senior reviewer, consensus
   discussion) and who adjudicates.
 - Blind judges to arm identity wherever feasible; record any unavoidable unblinding.
@@ -155,7 +169,7 @@ compromise the comparison.
 
 ## Handoff Rules
 
-- route to `/analyze-stats` for ICC / weighted kappa / DeLong, agreement sample size, and effect-size real-world
+- route to `/analyze-stats` for ICC (stated form) / Krippendorff's α / kappa (two raters) / DeLong, agreement sample size, and effect-size real-world
   translation of the benchmark results
 - route to `/check-reporting` for STARD-AI, CLAIM, or TRIPOD+AI item-level reporting once the design is locked
 - route to `/design-study` when the broader study around the benchmark (cohort logic, analysis unit,
