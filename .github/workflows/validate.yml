@@ -248,6 +248,9 @@ jobs:
       - name: Run validate_catalog_consistency.py (doc counts must match disk SSOT)
         run: python3 scripts/validate_catalog_consistency.py
 
+      - name: "Run catalog-consistency quoted-claim test (a count in a quoted anti-example is not a claim)"
+        run: bash tests/test_catalog_quoted_claims.sh
+
       - name: Run check_frontmatter_schema.py (Agent Skills frontmatter spec — valid YAML, name, description)
         run: python3 scripts/check_frontmatter_schema.py
 

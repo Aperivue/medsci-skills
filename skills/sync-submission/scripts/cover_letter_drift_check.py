@@ -228,6 +228,18 @@ FIGURE_COUNT_RE = re.compile(
 )
 
 
+# A journal word cap stated beside the count: "3,998/4,000 words", "(limit: 4,000 words)",
+# "limit of 4,000 words", "the 4,000-word limit". The cap is not a count of this manuscript,
+# and it is what makes a declared count near it a claim of being UNDER it.
+WORD_CAP_RE = re.compile(
+    r"([0-9][0-9,]*)\s*/\s*([0-9][0-9,]*)\s*(?:body\s+)?words?\b"
+    r"|\b(?:limit|maximum|max\.?|cap)\b\W{0,3}(?:of\s+|is\s+)?([0-9][0-9,]*)"
+    r"(?![0-9,]*[\s-]*(?:characters?|chars?)\b)(?:[\s-]*words?\b)?"
+    r"|([0-9][0-9,]*)[\s-]*words?[\s-]+(?:limit|maximum|cap)\b",
+    re.IGNORECASE,
+)
+
+
 def _coalesce_match(match: re.Match) -> Optional[int]:
     for group in match.groups():
         if group:
@@ -241,7 +253,27 @@ def extract_claims(cover_letter_path: Path) -> dict:
 
     claims: dict = {}
 
-    body_matches = [_coalesce_match(m) for m in BODY_WORDS_RE.finditer(text)]
+    # A stated cap is not a body count: take it out of the body candidates (the largest
+    # number wins below, so "3,998 words (limit: 4,000 words)" used to read as 4,000).
+    cap_spans: list[tuple[int, int]] = []
+    caps: set[int] = set()
+    pair_counts: list[int] = []
+    for m in WORD_CAP_RE.finditer(text):
+        cap_spans.append(m.span())
+        if m.group(1):  # "N/M words": N is the count, M the cap
+            pair_counts.append(int(m.group(1).replace(",", "")))
+            caps.add(int(m.group(2).replace(",", "")))
+        else:
+            caps.add(int((m.group(3) or m.group(4)).replace(",", "")))
+    body_caps = {c for c in caps if c >= 500}
+    if len(body_caps) == 1:  # two different body caps: ambiguous, do not guess
+        claims["body_word_cap"] = body_caps.pop()
+
+    def _in_cap(span: tuple[int, int]) -> bool:
+        return any(span[0] < e and s < span[1] for s, e in cap_spans)
+
+    body_matches = [_coalesce_match(m) for m in BODY_WORDS_RE.finditer(text)
+                    if not _in_cap(m.span(1))] + pair_counts
     body_matches = [v for v in body_matches if v is not None and v >= 500]
     if body_matches:
         # Take the largest figure that could plausibly be body word count.
@@ -377,14 +409,20 @@ def evaluate_drift(
         tw = truth["body_words"]
         if tw > 0:
             slack = max(50, int(tw * body_tolerance_pct / 100))
+            note = f"|claim - truth| = {abs(cw - tw)} > tolerance {slack}"
+            # A count declared within that slack of a stated cap is a claim of being UNDER
+            # the cap, not an approximation ("3,998/4,000" vs a measured 3,940 passed on a
+            # 197-word slack). Near the cap the tolerance shrinks to the declared headroom,
+            # so the window can never reach past the cap.
+            cap = claims.get("body_word_cap")
+            if cap is not None and 0 <= cap - cw < slack:
+                slack = cap - cw
+                note = (f"|claim - truth| = {abs(cw - tw)} > tolerance {slack}: the declared "
+                        f"count sits {slack} word(s) under the stated {cap:,}-word cap, so it "
+                        f"must match the measured body to within that headroom. Re-count the "
+                        f"rendered DOCX and state the exact figure")
             if abs(cw - tw) > slack:
-                _record(
-                    "body_words",
-                    tw,
-                    cw,
-                    "MAJOR",
-                    f"|claim - truth| = {abs(cw - tw)} > tolerance {slack}",
-                )
+                _record("body_words", tw, cw, "MAJOR", note)
 
     # Abstract words.
     if "abstract_words" in claims and "abstract_words" in truth:

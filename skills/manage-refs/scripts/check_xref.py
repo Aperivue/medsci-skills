@@ -443,16 +443,40 @@ def _md5_of(path: Path) -> str:
     return h.hexdigest()
 
 
+# Text-bearing tokens of WordprocessingML, in document order: a text node, a tab or
+# line break (whitespace on the page), or the end of a paragraph.
+_DOCX_TEXT_TOKEN_RE = re.compile(
+    r"<w:t(?:\s[^>]*)?>(.*?)</w:t>|<w:(?:tab|br|cr)\b[^>]*/>|</w:p>|<w:p\b[^>]*/>",
+    re.DOTALL,
+)
+
+
 def _docx_body_text(docx_path: Path) -> str:
-    """Concatenate all w:t text content from a docx for substring search."""
+    """The visible text of a docx body, for verbatim substring search.
+
+    Word splits one word across several runs whenever formatting, proofing or
+    revision marks change mid-word ("wo" + "rd"). Text nodes are therefore joined
+    with NO separator inside a paragraph; a paragraph ends with a newline, and a
+    tab or line break becomes a space. Replacing every tag with a space (the old
+    approach) turned such a word into "wo rd", so a line that is verbatim in the
+    docx was reported missing.
+    """
+    import html
     import zipfile
     try:
         with zipfile.ZipFile(docx_path, "r") as z:
             xml = z.read("word/document.xml").decode("utf-8", errors="replace")
     except (zipfile.BadZipFile, KeyError, OSError):
         return ""
-    # Strip XML tags — we only need text content for verbatim grep.
-    return re.sub(r"<[^>]+>", " ", xml)
+    parts: list[str] = []
+    for m in _DOCX_TEXT_TOKEN_RE.finditer(xml):
+        if m.group(1) is not None:
+            parts.append(html.unescape(m.group(1)))
+        elif m.group(0).startswith(("</w:p", "<w:p")):
+            parts.append("\n")
+        else:
+            parts.append(" ")
+    return "".join(parts)
 
 
 def _markdown_diff_lines(vN_md: Path, new_md: Path) -> list[str]:

@@ -60,6 +60,41 @@ with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
 PY
 }
 
+# Helper: build a minimal (deflated) docx whose <w:body> is the given raw XML, so a
+# case can split one word across runs the way Word does.
+build_docx_xml() {
+    local body_xml="$1"
+    local out="$2"
+    python3 - "$body_xml" "$out" <<'PY'
+import sys, zipfile
+body_xml, out = sys.argv[1], sys.argv[2]
+doc_xml = (
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
+    '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+    '<w:body>' + body_xml + '</w:body></w:document>'
+)
+content_types = (
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+    '<Default Extension="xml" ContentType="application/xml"/>'
+    '<Override PartName="/word/document.xml" '
+    'ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>'
+    '</Types>'
+)
+rels = (
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+    '<Relationship Id="rId1" '
+    'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" '
+    'Target="word/document.xml"/></Relationships>'
+)
+with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
+    z.writestr("[Content_Types].xml", content_types)
+    z.writestr("_rels/.rels", rels)
+    z.writestr("word/document.xml", doc_xml)
+PY
+}
+
 # --------------------------------------------------------------------------
 # Setup: minimal manuscript markdown + docx
 # --------------------------------------------------------------------------
@@ -131,6 +166,36 @@ with open(sys.argv[1]) as fh: rep = json.load(fh)
 assert rep["vN_docx_check"]["identical_bytes"] is False, rep
 assert rep["vN_docx_check"]["diff_line_misses"], rep
 PY
+
+# --------------------------------------------------------------------------
+# Case 3b: Word split a word across runs ("si" + "tes", a proofing/format run
+# boundary) and a tab sits between "Figure 1" and its caption. The line IS
+# verbatim in the docx. Flattening every tag to a space read "si tes" and
+# reported it missing. PASS.
+# --------------------------------------------------------------------------
+NEW_DOCX_SPLIT="$TMP/v2_split.docx"
+build_docx_xml '<w:p><w:r><w:t xml:space="preserve">The cohort included 100 patients enrolled across three si</w:t></w:r><w:proofErr w:type="spellStart"/><w:r><w:rPr><w:b/></w:rPr><w:t>tes in this prospective study.</w:t></w:r></w:p><w:p><w:r><w:t>Figure 1</w:t></w:r><w:r><w:tab/><w:t>Pipeline overview.</w:t></w:r></w:p>' "$NEW_DOCX_SPLIT"
+python3 "$SCRIPT" --md "$NEW_MD" --docx "$NEW_DOCX_SPLIT" \
+    --vN-docx-md5 "$VN_DOCX" --vN-md "$VN_MD" \
+    --out "$TMP/c3b.json" --quiet
+assert_exit "case 3b: word split across runs is still verbatim" 0 $?
+python3 - "$TMP/c3b.json" <<'PY' || fail=$((fail + 1))
+import json, sys
+with open(sys.argv[1]) as fh: rep = json.load(fh)
+assert rep["vN_docx_check"]["diff_line_misses"] == [], rep
+PY
+
+# --------------------------------------------------------------------------
+# Case 3c: the same two halves in SEPARATE paragraphs are not one line. Joining
+# must stop at the paragraph end, or a line broken across paragraphs would be
+# certified verbatim. FAIL.
+# --------------------------------------------------------------------------
+NEW_DOCX_PARA="$TMP/v2_para.docx"
+build_docx_xml '<w:p><w:r><w:t>The cohort included 100 patients enrolled across three si</w:t></w:r></w:p><w:p><w:r><w:t>tes in this prospective study.</w:t></w:r></w:p>' "$NEW_DOCX_PARA"
+python3 "$SCRIPT" --md "$NEW_MD" --docx "$NEW_DOCX_PARA" \
+    --vN-docx-md5 "$VN_DOCX" --vN-md "$VN_MD" \
+    --out "$TMP/c3c.json" --quiet
+assert_exit "case 3c: halves in separate paragraphs (FAIL)" 1 $?
 
 # --------------------------------------------------------------------------
 # Case 4: --vN-docx-md5 without --docx. Should error (exit 2).

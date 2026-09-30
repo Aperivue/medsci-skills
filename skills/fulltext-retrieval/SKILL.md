@@ -93,7 +93,8 @@ curl -s "https://pmc.ncbi.nlm.nih.gov/tools/idconv/api/v1/articles/?ids=${DOI}&f
 
 - PDFs saved as `{DOI_safe}.pdf` (slashes replaced with underscores)
 - `pdfs/retrieval_report.json` — structured per-DOI report (see below)
-- `manual_needed.txt` — DOIs that could not be retrieved via OA
+- `manual_needed.txt` — DOIs that could not be retrieved via OA; when a PMCID was resolved, the
+  line also carries it and the PubMed Central article URL to open in a browser
 - Summary with arXiv/OA/PMC/fail/skip counts
 
 ## Retrieval report (`--report`)

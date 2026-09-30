@@ -67,6 +67,15 @@ SEED_FN = '''def seed_everything(seed):
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False'''
 
+# Shared case-count guard, interpolated into every evaluate.py via __CASE_COUNT_FN__. An
+# empty or mis-pointed test split (or a self-configuring CLI that found "0 cases") runs to
+# completion, writes an empty predictions file and exits 0; the exit code proves nothing.
+CASE_COUNT_FN = '''def assert_case_count(n_predicted, n_test):
+    """Fail loudly unless every test case was predicted and there was at least one."""
+    if not (n_predicted == n_test > 0):
+        raise SystemExit("ERROR: predicted %d of %d test cases; expected n_predicted == n_test > 0 "
+                         "(an empty or mis-pointed test split exits 0 otherwise)" % (n_predicted, n_test))'''
+
 # --------------------------------------------------------------------------- #
 # Per-task templates. Placeholders are __TOKENS__ replaced by render().         #
 # --------------------------------------------------------------------------- #
@@ -790,6 +799,9 @@ REPO_ROOT = "."
 MANIFEST = "__MANIFEST_NAME__"
 
 
+__CASE_COUNT_FN__
+
+
 def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     test_loader = DataLoader(ScaffoldDataset(MANIFEST, REPO_ROOT, split="test"), batch_size=1, shuffle=False)
@@ -801,6 +813,7 @@ def main():
         for i, (x, y) in enumerate(test_loader):
             probs = torch.sigmoid(model(x.to(device)))
             rows.append({"index": i, "pred_positive_voxels": int((probs > 0.5).sum().item())})
+    assert_case_count(len(rows), len(test_loader.dataset))
     with open("predictions.csv", "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=["index", "pred_positive_voxels"])
         w.writeheader()
@@ -824,6 +837,9 @@ REPO_ROOT = "."
 MANIFEST = "__MANIFEST_NAME__"
 
 
+__CASE_COUNT_FN__
+
+
 def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     test_loader = DataLoader(ScaffoldDataset(MANIFEST, REPO_ROOT, split="test"), batch_size=1, shuffle=False)
@@ -835,6 +851,7 @@ def main():
         for i, (x, y) in enumerate(test_loader):
             scores = torch.sigmoid(model(x.to(device))).squeeze(0).tolist()
             rows.append({"index": i, "scores": scores})
+    assert_case_count(len(rows), len(test_loader.dataset))
     with open("predictions.csv", "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=["index", "scores"])
         w.writeheader()
@@ -858,6 +875,9 @@ REPO_ROOT = "."
 MANIFEST = "__MANIFEST_NAME__"
 
 
+__CASE_COUNT_FN__
+
+
 def _collate(batch):
     return tuple(zip(*batch))
 
@@ -874,6 +894,7 @@ def main():
         for i, (images, _) in enumerate(test_loader):
             preds = model([img.to(device) for img in images])
             out.append({"index": i, "n_boxes": int(preds[0]["boxes"].shape[0])})
+    assert_case_count(len(out), len(test_loader.dataset))
     json.dump(out, open("predictions.json", "w"))
 
 
@@ -893,16 +914,22 @@ REPO_ROOT = "."
 MANIFEST = "__MANIFEST_NAME__"
 
 
+__CASE_COUNT_FN__
+
+
 def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     test_loader = DataLoader(ScaffoldDataset(MANIFEST, REPO_ROOT, split="test"), batch_size=1, shuffle=False)
     gen = build_model().to(device)
     gen.load_state_dict(torch.load("best.pt", map_location=device)["gen"])
     gen.eval()
+    n_predicted = 0
     with torch.no_grad():
         for i, (src, tgt) in enumerate(test_loader):
             fake = gen(src.to(device))
             torch.save(fake.cpu(), "synth_%d.pt" % i)
+            n_predicted += 1
+    assert_case_count(n_predicted, len(test_loader.dataset))
 
 
 if __name__ == "__main__":
@@ -921,6 +948,9 @@ REPO_ROOT = "."
 MANIFEST = "__MANIFEST_NAME__"
 
 
+__CASE_COUNT_FN__
+
+
 def _identity(x):
     return x
 
@@ -937,7 +967,8 @@ def main():
         for v1, _ in test_loader:
             h, _z = model(v1.to(device))
             feats.append(h.cpu())
-    torch.save(torch.cat(feats, dim=0) if feats else torch.empty(0), "embeddings.pt")
+    assert_case_count(sum(f.shape[0] for f in feats), len(test_ds))
+    torch.save(torch.cat(feats, dim=0), "embeddings.pt")
 
 
 if __name__ == "__main__":
@@ -1145,6 +1176,9 @@ REPO_ROOT = "."
 MANIFEST = "__MANIFEST_NAME__"
 
 
+__CASE_COUNT_FN__
+
+
 def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     test_loader = DataLoader(ScaffoldDataset(MANIFEST, REPO_ROOT, split="test"), batch_size=1, shuffle=False)
@@ -1156,6 +1190,7 @@ def main():
         for i, (x, y) in enumerate(test_loader):
             scores = torch.softmax(model(x.to(device)), dim=1).squeeze(0).tolist()
             rows.append({"index": i, "scores": scores})
+    assert_case_count(len(rows), len(test_loader.dataset))
     with open("predictions.csv", "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=["index", "scores"])
         w.writeheader()
@@ -1357,7 +1392,7 @@ def main() -> int:
         "__SEED__": args.seed, "__IN_CH__": args.in_channels, "__OUT_CH__": args.out_channels,
         "__BASE__": args.base_channels, "__TASK__": args.task, "__ARCH__": arch,
         "__ID_COL__": id_col, "__VAL_FRAC__": args.val_frac, "__TEST_FRAC__": args.test_frac,
-        "__MANIFEST_NAME__": man.name, "__SEED_FN__": SEED_FN,
+        "__MANIFEST_NAME__": man.name, "__SEED_FN__": SEED_FN, "__CASE_COUNT_FN__": CASE_COUNT_FN,
         "__PRETRAINED_SOURCE__": args.from_pretrained, "__PRETRAINED_BLOCK__": pretrained_block,
     }
     files = {
