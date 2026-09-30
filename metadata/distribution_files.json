@@ -183,13 +183,13 @@
     },
     {
       "path": "skills/add-journal/SKILL.md",
-      "size": 15266,
-      "sha256": "a472f46e92b65d27460b0400a902efeecac4285aed1caf37f45cf3debb64b4c6"
+      "size": 10129,
+      "sha256": "ad33af397d73f009cc120ff3f78b9ddf5d632a25395deaae09c0900907870998"
     },
     {
       "path": "skills/add-journal/references/write_paper_profile_template.md",
-      "size": 3202,
-      "sha256": "75ce89f650ccda8f4c98ea9f27c3a6afb15e705d6cd50568158b29709bb70643"
+      "size": 3014,
+      "sha256": "4048c630a5e3ef8d30be1a3acf166b8d04d9b0ecc10825067c723c235c59bd06"
     },
     {
       "path": "skills/add-journal/skill.yml",
