@@ -1918,8 +1918,8 @@
     },
     {
       "path": "skills/fulltext-retrieval/SKILL.md",
-      "size": 11454,
-      "sha256": "05c5919bf1a92c5688d779b5f164f5194ac162a89cd77823c9ed111304ab84d9"
+      "size": 7494,
+      "sha256": "85d310ac11260be79cdb11017ddf95e9b88273e9069910571280aeb62da758ad"
     },
     {
       "path": "skills/fulltext-retrieval/fetch_oa.py",
