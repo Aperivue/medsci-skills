@@ -27,10 +27,11 @@ from pathlib import Path
 from xml.etree import ElementTree as ET
 
 
-# `<>` belong to legacy SICI DOIs (10.1002/(SICI)...17:8<857::AID-SIM777>3.0.CO;2-E). Without
-# them a text reference's DOI was cut at the `<`, and a cut DOI is not registered anywhere,
-# which the doi.org check below would report as FABRICATED.
-DOI_RE = re.compile(r"\b10\.\d{4,9}/[-._;()/:<>A-Z0-9]+\b", re.I)
+# `<>` belong to legacy SICI DOIs (10.1002/(SICI)...17:8<857::AID-SIM777>3.0.CO;2-E), whose
+# check character after `;2-` can also be `#`. Without them a text reference's DOI was cut
+# short, and a cut DOI is not registered anywhere, which the doi.org check below would
+# report as FABRICATED.
+DOI_RE = re.compile(r"\b10\.\d{4,9}/[-._;()/:<>A-Z0-9]+(?:(?<=;2-)#|\b)", re.I)
 WELL_FORMED_DOI_RE = re.compile(r"^10\.\d{4,9}/\S+$")
 PMID_RE = re.compile(r"\bPMID\s*:?\s*(\d{5,9})\b", re.I)
 YEAR_RE = re.compile(r"\b(19|20)\d{2}\b")
@@ -610,7 +611,8 @@ def verify_doi_handle(doi: str, timeout: int) -> tuple[str, str, list]:
     answer (5xx, unexpected JSON), a network error, or a string that is not a well-formed DOI
     (a placeholder such as "n/a") is UNVERIFIED as before. A DOI may legally end in "/", which
     normalization strips, so the cited form is looked up too: FABRICATED only when every form is
-    registered nowhere. Returns (status, evidence, family_names).
+    registered nowhere. A legacy SICI DOI that is not found stays UNVERIFIED: its punctuation is
+    easily cut in extraction. Returns (status, evidence, family_names).
     """
     handle = normalize_doi_for_dup(doi)
     if not WELL_FORMED_DOI_RE.match(handle):
@@ -625,6 +627,9 @@ def verify_doi_handle(doi: str, timeout: int) -> tuple[str, str, list]:
         return "UNVERIFIED", "CrossRef 404; DOI registered with another agency (doi.org handle found)", []
     if "failed" in answers:
         return "UNVERIFIED", "CrossRef 404; doi.org handle lookup failed", []
+    if "(sici)" in handle:
+        # A SICI DOI's punctuation (<>, #, ;) is easily cut in extraction; not-found is not proof.
+        return "UNVERIFIED", "CrossRef 404; doi.org handle not found, but a legacy SICI DOI; extraction may be incomplete", []
     return "FABRICATED", "DOI does not exist in any registry (CrossRef 404; doi.org handle not found)", []
 
 

@@ -173,6 +173,21 @@ out = run(record("10.0000/synthetic.0001"))
 check("DOI without a trailing slash -> one lookup",
       sum("doi.org/api/handles/" in u for u in calls) == 1)
 
+# 9. A legacy SICI DOI can end in a "#" check character (Crossref's own documented example).
+#    It is extracted whole, and because SICI extraction from text is fragile, a SICI DOI that
+#    doi.org does not know is UNVERIFIED rather than FABRICATED.
+sici_hash = "10.1002/(SICI)1521-3951(199911)216:1<135::AID-PSSB135>3.0.CO;2-#"
+recs = vr.parse_reference_lines(
+    "References\n1. Doe J. A synthetic reference with a legacy DOI. Phys Status Solidi. 1999. doi:"
+    + sici_hash + "\n2. Roe R. Another synthetic reference. J Synth Med. 2020. "
+    "doi:10.0000/synthetic.0002#section\n")
+check("SICI DOI ending in '#' extracted whole", recs[0].doi == sici_hash.lower())
+check("'#' after an ordinary DOI is not taken in", recs[1].doi == "10.0000/synthetic.0002")
+route(CROSSREF_404, NOT_FOUND)
+out = run(record(sici_hash.lower()))
+check("SICI DOI not found at doi.org -> UNVERIFIED, not FABRICATED", out.status == "UNVERIFIED")
+check("evidence names the legacy SICI caveat", "legacy SICI DOI" in out.evidence)
+
 print(f"fail={fail}")
 print("ALL PASS" if fail == 0 else f"FAILURES: {fail}")
 sys.exit(fail)

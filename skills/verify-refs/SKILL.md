@@ -144,7 +144,9 @@ lookup found the work some other way. After a CrossRef 404 the DOI verdict is:
 | lookup failed (network, 5xx, unexpected reply) | no / yes | `UNVERIFIED` / `OK` |
 
 A DOI field that is not a well-formed DOI (a placeholder such as `n/a`) is not sent to doi.org and
-stays `UNVERIFIED`. A real identifier with wrong authors is `MISMATCH` (Gate 4).
+stays `UNVERIFIED`, and so does a legacy SICI DOI (`10.1002/(SICI)…`) that doi.org does not find,
+since its punctuation is easily cut in extraction. A real identifier with wrong authors is
+`MISMATCH` (Gate 4).
 
 ## Claim Fidelity — does the source say what you say it says?
 
