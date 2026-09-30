@@ -161,13 +161,6 @@ templates go in `references/` and are read when a step needs them. For each line
 agent would get the task wrong without it; if not, cut it. Give the reason for a rule instead of
 writing MUST. `scripts/check_phase_budget.py` enforces the upper bound; nothing rewards length.
 
-------|---------------|-----------|-------------|-----------------|-----------------|
-| **High** | 300+ | 3+ | Required | Required | Required |
-| **Mid** | 150-300 | 2+ | Required | Required | Recommended |
-| **Thin** | <150 | 1+ | Required | Recommended | Optional |
-
-New skills should target **Mid** tier minimum. Core pipeline skills (write-paper, analyze-stats, meta-analysis) must be **High** tier.
-
 ---
 
 ## Checklist Before Publishing
