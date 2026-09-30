@@ -2,7 +2,7 @@
 
 A running ledger of academic citations and named downstream use of MedSci Skills.
 This is the manual companion to the automated metrics in
-[`../IMPACT.md`](../IMPACT.md) and [`../metrics/traffic_log.csv`](../metrics/traffic_log.csv).
+[`../IMPACT.md`](../IMPACT.md) and [`traffic_log.csv`](https://github.com/Aperivue/medsci-skills/blob/metrics/traffic_log.csv).
 
 **How to cite:** see [`../CITATION.cff`](../CITATION.cff) or use the Zenodo DOI
 [10.5281/zenodo.20155321](https://doi.org/10.5281/zenodo.20155321).

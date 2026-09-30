@@ -18,5 +18,5 @@ reading one in order to write or justify a change is how a detector comes to kno
 
 ## Everything else
 
-`CONTRIBUTING.md` is the entry point: the CI mirror (`python3 scripts/run_ci_mirror.py`), the
+`CONTRIBUTING.md` is the entry point: what to run before pushing (CI is the merge gate), the
 worktree discipline, and what a change is expected to ship with.
