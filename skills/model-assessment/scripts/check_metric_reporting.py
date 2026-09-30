@@ -17,8 +17,8 @@ CHECKS (verdicts; which apply depends on --task):
   classification:
     ACCURACY_ONLY        (Major)  accuracy named but no AUROC (threshold-independent
                                   discrimination).
-    AUPRC_MISSING        (Minor)  AUROC named but no AUPRC (the minority-class metric
-                                  under imbalance).
+    AUPRC_MISSING        (Minor)  AUROC named but no AUPRC (the PPV-side view; report it
+                                  with the test-set prevalence, its no-skill value).
     MULTICLASS_NO_AVERAGING (Minor)  a multiclass claim with AUROC/accuracy but no stated
                                   aggregation scheme (one-vs-rest / macro / micro / pairwise /
                                   Obuchowski), per Park et al. (Radiol Med 2024).
@@ -62,10 +62,12 @@ from pathlib import Path
 
 P = {
     "dice_iou": r"\b(dice|dsc|jaccard|iou|intersection over union)\b",
+    # named boundary metrics only: the bare word 'boundary' ("boundary error was not
+    # assessed") names no metric and must not satisfy the Dice+boundary pairing
     "boundary": r"\b(hd95|hd 95|hausdorff|assd|\basd\b|\bmasd\b|\bmsd\b|nsd|"
                 r"normali[sz]ed surface dice|normali[sz]ed surface|surface dice similarity|"
                 r"surface dsc|surface dice|surface distance|mean (?:surface|boundary) distance|"
-                r"boundary)\b",
+                r"boundary[- ]?(?:iou|f1|f-?score))\b",
     "pixel_acc": r"\b(pixel[- ]?accuracy|voxel[- ]?accuracy|pixel-?wise accuracy)\b",
     "accuracy": r"\b(accuracy)\b",
     # 'diagnostic accuracy' / 'accuracy study' are study-type phrases, not the accuracy metric
@@ -139,6 +141,9 @@ NEG_AFTER = re.compile(
     r"\b(?:was|were|is|are|not)\s+not\s+\w+"
     r"|\bnot\s+(?:computed|reported|available|performed|calculated|presented|provided|assessed|"
     r"evaluated|measured)\b", re.IGNORECASE)
+# A negation only disavows a token in its own clause: "pixel accuracy was not used; HD95 7.2 mm"
+# reports HD95. A period inside a number ("7.2") is not a clause break.
+CLAUSE_BREAK = re.compile(r"[.;:!?](?:\s|$)")
 
 
 def has(text: str, key: str) -> bool:
@@ -150,8 +155,8 @@ def has_affirmative(text: str, key: str) -> bool:
     report pixel accuracy' or 'AUROC was not computed' is not treated as reporting it."""
     pat = re.compile(P[key], re.IGNORECASE)
     for m in pat.finditer(text):
-        before = text[max(0, m.start() - 28): m.start()]
-        after = text[m.end(): m.end() + 24]
+        before = CLAUSE_BREAK.split(text[max(0, m.start() - 28): m.start()])[-1]
+        after = CLAUSE_BREAK.split(text[m.end(): m.end() + 24])[0]
         if NEG_BEFORE.search(before) or NEG_AFTER.search(after):
             continue
         return True
@@ -172,7 +177,7 @@ def analyze(report: str, task: str) -> dict:
             add("PIXEL_ACCURACY_SEG", "Major",
                 "pixel/voxel accuracy is reported for segmentation — misleading on imbalanced masks; "
                 "report Dice/IoU with a boundary metric instead")
-        if has(text, "dice_iou") and not has(text, "boundary"):
+        if has(text, "dice_iou") and not has_affirmative(text, "boundary"):
             add("NO_BOUNDARY_METRIC", "Major",
                 "Dice/IoU is reported without a boundary metric (HD95 / NSD / surface distance) — "
                 "overlap alone is shape- and size-insensitive; pair it with a boundary metric, "
@@ -207,8 +212,9 @@ def analyze(report: str, task: str) -> dict:
                 "under imbalance; report threshold-independent discrimination (AUROC)")
         if auroc_reported and not has(text, "auprc"):
             add("AUPRC_MISSING", "Minor",
-                "AUROC is reported without AUPRC — AUPRC tracks the minority class and is informative "
-                "under imbalance")
+                "AUROC is reported without AUPRC — add AUPRC for the PPV-side view, reported with the "
+                "test-set prevalence (its no-skill value): AUPRC moves with prevalence, so a value from "
+                "an enriched test set does not carry over to deployment")
         if has(text, "multiclass") and (accuracy_metric or auroc_reported) and not has(text, "averaging"):
             add("MULTICLASS_NO_AVERAGING", "Minor",
                 "a multiclass classification reports AUROC/accuracy without stating the aggregation "

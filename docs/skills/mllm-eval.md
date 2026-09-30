@@ -4,7 +4,7 @@
 
 > Use when designing or auditing how an LLM or multimodal LLM is evaluated on a clinical task (report generation, VQA, text extraction). Covers reference standard, clinical-efficacy metrics beyond BLEU/ROUGE, hallucination, contamination and prompt sensitivity. Imaging models are /model-assessment.
 
-**Invoke:** `/mllm-eval` · **Model:** inherit
+**Invoke:** `/mllm-eval`
 
 ## When to use
 

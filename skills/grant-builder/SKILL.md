@@ -1,7 +1,6 @@
 ---
 name: grant-builder
 description: Use when drafting a grant or challenge proposal for a radiology or medical AI project, including a Korean government industry-academia plan. Structures significance, innovation, approach, aims, milestones and consortium roles, keeping claims evidence-based and executable.
-model: inherit
 metadata:
   triggers: "grant, proposal, aims page, grant proposal, significance, innovation, approach, milestones, 산학과제, 산학협력, 과제계획서, 연구계획서, 연구비 신청, 첨부3"
 ---

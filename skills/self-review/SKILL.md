@@ -1,7 +1,6 @@
 ---
 name: self-review
 description: Use when checking your own manuscript before submission from a reviewer's perspective. Returns anticipated Major/Minor comments with fixes, including numerical, citation and leakage checks, with an optional multi-reviewer panel. Someone else's paper is /peer-review.
-model: inherit
 metadata:
   triggers: "self-review, pre-submission check, check my paper, reviewer perspective, manuscript self-check"
 ---
@@ -110,7 +109,7 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/check_perspective_structure.py" \
 
 # Was every reported analysis ever defined (outcome, reference standard)?
 python3 "${CLAUDE_SKILL_DIR}/scripts/check_analysis_definitions.py" \
-  --manuscript manuscript.md --out qc/analysis_definitions.json --strict
+  --manuscript manuscript.md --json --strict > qc/analysis_definitions.json
 ```
 
 Verdict mapping: `CROSS_SECTIONAL_PROGNOSTIC`, `SURROGATE_CARE_DIRECTIVE`, `SECTION_SYMBOL`,
@@ -237,16 +236,16 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/check_table_percentages.py" \
 
 # Every reported P beside a 2×2 (or r×c) count, recomputed from the counts themselves.
 python3 "${CLAUDE_SKILL_DIR}/scripts/check_reported_p_from_counts.py" \
-  --manuscript manuscript.md --out qc/reported_p.json --strict
+  --manuscript manuscript.md --json --strict > qc/reported_p.json
 
 # Diagnostic-accuracy only: sensitivity/specificity against the reference-standard denominators.
 python3 "${CLAUDE_SKILL_DIR}/scripts/check_dta_denominators.py" \
-  --manuscript manuscript.md --out qc/dta_denominators.json --strict
+  --manuscript manuscript.md --json --strict > qc/dta_denominators.json
 ```
 
-`PCT_MISMATCH`, `P_MISMATCH` / `P_IMPOSSIBLE`, and `DENOM_MISMATCH` are **P0 Major** — not a
-rounding disagreement: one of the two numbers is wrong. Run the first two on **every** manuscript
-with a table; the third only on diagnostic-accuracy work.
+`PERCENT_MISMATCH`, `P_NOT_REPRODUCIBLE`, and `DTA_DENOMINATOR_MISMATCH` / `STAGE_ROWSUM` are
+**P0 Major** — not a rounding disagreement: one of the two numbers is wrong. Run the first two on
+**every** manuscript with a table; the third only on diagnostic-accuracy work.
 
 ### Phase 2.5a: Numerical Source-Fidelity Audit (External)
 
@@ -259,8 +258,8 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/check_rounded_delta.py" \
   --manuscript manuscript.md --out qc/rounded_delta.json
 ```
 
-`ROUNDED_DELTA_MISMATCH` (Minor) fires when AUCs shown as `0.70` and `0.73` are reported with a
-difference of `0.02`. A higher-precision pair (`0.703` vs `0.726`) with a 2-dp delta is legitimate
+`ROUNDED_DELTA_MISMATCH` (Minor) fires when AUCs shown as `0.79` and `0.82` are reported with a
+difference of `0.02`. A higher-precision pair (`0.794` vs `0.816`) with a 2-dp delta is legitimate
 and not flagged.
 
 **When to run the external audit:** MA revisions, submissions, or when the user says "check against

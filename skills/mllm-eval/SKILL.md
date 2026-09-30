@@ -1,7 +1,6 @@
 ---
 name: mllm-eval
 description: Use when designing or auditing how an LLM or multimodal LLM is evaluated on a clinical task (report generation, VQA, text extraction). Covers reference standard, clinical-efficacy metrics beyond BLEU/ROUGE, hallucination, contamination and prompt sensitivity. Imaging models are /model-assessment.
-model: inherit
 metadata:
   triggers: "MLLM evaluation, LLM evaluation, multimodal LLM, report generation, radiology report generation, visual question answering, VQA, RadGraph, CheXbert, faithfulness, hallucination, prompt sensitivity, contamination, GPT, LLaVA-Med, clinical LLM, medical VLM, reader study for reports"
 ---
@@ -49,8 +48,10 @@ outputs are scored against.
 Require an **adjudicated expert reference** (not a single unverified report or a model-derived label).
 For report generation, report a **clinical-efficacy metric** — **RadGraph-F1** (Jain et al., NeurIPS
 2021) or **CheXbert-F1** (Smit et al., 2020), or the composite **RadCliQ** (Yu et al., *Patterns* 2023)
-— **alongside** any BLEU/ROUGE, with CIs. For VQA/classification, report accuracy at the
-real prevalence with a stated answer-matching rule.
+— **alongside** any BLEU/ROUGE, with CIs. For VQA/classification, state the answer-matching rule and
+report **per-class sensitivity/specificity** (or precision/recall/F1) and **PPV at the real
+prevalence**, with CIs; accuracy only alongside them — at 2% prevalence, answering "negative" every
+time scores 98% accuracy.
 
 ### Phase 3 — Faithfulness + contamination (ME3, ME4)
 Add an **atomic-fact faithfulness** measure + a **false-premise / abstention** probe (MedVH, Med-HALT) —

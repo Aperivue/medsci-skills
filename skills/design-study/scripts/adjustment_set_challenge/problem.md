@@ -22,14 +22,26 @@ not pass through the exposure** (an open backdoor); because `X→Y` makes every 
 X an ancestor of Y, a naive `ancestors(X) ∩ ancestors(Y)` would mis-flag an instrument-like
 `A→X→Y` ancestor as an omitted confounder. The instrument fixture locks that fix.
 
+An omitted common cause is flagged only when its backdoor fork survives the adjustment set:
+it still reaches X, and still reaches Y by an X-free directed path, once the adjusted nodes
+are removed. Adjusting a measured node on the confounder→outcome path (`C→D→Y`, adjust `D`)
+blocks it, and that set is valid by the backdoor criterion; the proxy fixture locks this.
+An adjusted node with two or more unadjusted parents is not trusted as a blocker, because
+conditioning on it joins its parents; the butterfly fixture locks that guard.
+
 ## Fixtures (synthetic canonical DAGs — no data)
 - `confounder.json` — `C→X, C→Y, X→Y` (classic confounding).
 - `mediator.json` — `X→M→Y, X→Y` (mediation).
 - `mbias.json` — `Z1→X, Z1→C, Z2→C, Z2→Y, X→Y` (C is a collider; M-bias).
 - `instrument.json` — `A→X→Y` (instrument-like ancestor; **not** a confounder).
+- `proxy.json` — `C→X, C→D→Y, X→Y` (`{D}` is sufficient; dagitty `isAdjustmentSet` = TRUE).
+- `butterfly.json` — `C→X, C→D, U→D, U→Y, D→Y, X→Y` (`{D}` opens `X←C→D←U→Y`;
+  dagitty `isAdjustmentSet` = FALSE).
 
 ## Expected (`verify.sh`, network-free)
 - confounder + adjust `C` → clean; confounder + adjust `∅` → `CONFOUNDER_OMITTED`.
 - mediator + adjust `M` → `MEDIATOR_ADJUSTMENT`.
 - mbias + adjust `C` → `COLLIDER_ADJUSTMENT`, and **no** `CONFOUNDER_OMITTED`.
 - instrument + adjust `∅` → clean, and **no** `CONFOUNDER_OMITTED` (the soundness fix).
+- proxy + adjust `D` → clean; proxy + adjust `∅` → `CONFOUNDER_OMITTED`.
+- butterfly + adjust `D` → `CONFOUNDER_OMITTED` (`C` stays open through the collider at `D`).

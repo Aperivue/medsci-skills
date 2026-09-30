@@ -43,7 +43,7 @@ Never guess a variable name, dataset column name, or variable coding. If a mappi
 output `[VERIFY: variable_name]` and ask the user to confirm it against the data dictionary.
 
 **KNHANES (single CSV)**:
-1. Load CSV, filter age ≥20 (or per protocol)
+1. Load CSV and keep every row — the age ≥20 (or per-protocol) restriction is applied to the design in step 3
 2. Derive variables using KNHANES coding:
 
    | Variable | Raw Var | Coding |
@@ -55,12 +55,15 @@ output `[VERIFY: variable_name]` and ask the user to confirm it against the data
    | Diabetes | HE_glu, HE_HbA1c, DE1_dg | FPG≥126 or HbA1c≥6.5 or DE1_dg=1 |
    | CVD | DI4_dg, DI5_dg, DI6_dg | Any = 1 → CVD yes |
    | Education | edu | 1-3=Non-college; 4=College |
-   | Income | incm | 1-3=Bottom 80%; 4=Top 20% |
+   | Income | incm | Quartile (1=lowest … 4=highest): 1-3=Bottom 75%; 4=Top quartile |
 
-3. Set survey design: svydesign(id=~psu, strata=~kstrata, weights=~wt_itvex, nest=TRUE)
+3. Set survey design on the full file, then restrict to the analytic domain:
+   des <- svydesign(id=~psu, strata=~kstrata, weights=~wt_itvex, nest=TRUE, data=df);
+   des_ad <- subset(des, age >= 20). Never filter rows before svydesign() — dropping them
+   changes the standard errors (see `survey_weighted.md`, subpopulation analysis)
 
 **NHANES (multiple CSVs)**:
-1. Load and merge tables by SEQN (DEMO_J, DPQ_J, GHB_J, BIOPRO_J, BMX_J, SMQ_J, ALQ_J, DIQ_J, MCQ_J, BPQ_J)
+1. Load and merge tables by SEQN (DEMO_J, DPQ_J, GHB_J, GLU_J, BMX_J, SMQ_J, ALQ_J, DIQ_J, MCQ_J, BPQ_J, BPXO_J)
 2. Derive variables using NHANES coding. **CRITICAL**: NHANES data downloaded via R `nhanesA` package
    uses TEXT LABELS, not numeric codes.
 
@@ -71,13 +74,19 @@ output `[VERIFY: variable_name]` and ask the user to confirm it against the data
    | Alcohol | ALQ121 + ALQ111 | Frequent (current drinker): any ALQ121 frequency except "Never in the last year"; Occasional (past-year abstainer): "Never in the last year"; Never (lifetime non-drinker): ALQ111 == "No" (ALQ121 will be NA) |
    | Obesity | BMXBMI (BMX_J, kg/m²) | ≥30 (WHO cutoff, NOT Asian) |
    | PHQ-9 | DPQ010~DPQ090 | "Not at all"→0, "Several days"→1, "More than half the days"→2, "Nearly every day"→3; sum ≥10 = depression |
-   | Diabetes | LBXSGL (BIOPRO_J, mg/dL), LBXGH (GHB_J, %), DIQ010 | LBXSGL≥126 \| LBXGH≥6.5 \| DIQ010=="Yes" (DIQ010: "Yes" / "No" / "Borderline"). CRITICAL: LBXSGL not LBXSGLU |
+   | Diabetes | LBXGLU (GLU_J, fasting subsample, mg/dL), LBXGH (GHB_J, %), DIQ010 | LBXGLU≥126 \| LBXGH≥6.5 \| DIQ010=="Yes" (DIQ010: "Yes" / "No" / "Borderline"). CRITICAL: fasting glucose is GLU_J LBXGLU, not BIOPRO_J LBXSGL — CDC says the serum LBXSGL should not be used to determine undiagnosed diabetes; an analysis that uses LBXGLU needs the fasting-subsample weight (step 3) |
    | CVD | MCQ160B/C/D/E | MCQ160B=="Yes" (CHF) \| MCQ160C=="Yes" (CHD) \| MCQ160D=="Yes" (angina) \| MCQ160E=="Yes" (MI); labels "Yes" / "No" / "Don't know" |
-   | HTN | BPXOSY3, BPXODI3, BPQ020 | BPXOSY3≥140 \| BPXODI3≥90 \| BPQ020=="Yes" |
+   | HTN | BPXOSY2+3, BPXODI2+3, BPQ020 | mean(BPXOSY2, BPXOSY3)≥140 \| mean(BPXODI2, BPXODI3)≥90 \| BPQ020=="Yes" (BPXOSY3 is the 3rd reading, not an average; the mean of the 2nd and 3rd matches KNHANES) |
    | Education | DMDEDUC2 | 5 text levels |
 
-3. Set survey design: svydesign(id=~SDMVPSU, strata=~SDMVSTRA, weights=~WTMECPRP, nest=TRUE) — WTMECPRP
-   for the pre-pandemic pooled files; for a single cycle (e.g. the `_J` tables) use weights=~WTMEC2YR
+3. Set survey design on the full file, then `subset()` the design object to the analytic domain
+   (e.g. RIDAGEYR >= 20): svydesign(id=~SDMVPSU, strata=~SDMVSTRA, weights=~WTMEC2YR, nest=TRUE).
+   The weight follows the files: the single-cycle `_J` tables above take WTMEC2YR; WTMECPRP goes
+   only with the pre-pandemic `P_` files (P_DEMO, P_BMX, ...). A variable from the fasting
+   subsample (GLU_J LBXGLU, TRIGLY_J LBXTR/LBDLDL) takes the fasting weight instead: WTSAF2YR
+   (`_J`) or WTSAFPRP (`P_`). Pooling cycles follows the NCHS rules: divide each cycle's weight by
+   the number of cycles pooled (1999–2002 has its own 4-year weights), and to combine 2015–2016
+   with 2017–March 2020 use 2/5.2 × WTMEC2YR and 3.2/5.2 × WTMECPRP.
 
 **CHNS (3-country design)**: read `references/chns_coding.md` before preparing China data.
 
@@ -89,19 +98,28 @@ For EACH country independently:
    - Model 1 (unadjusted)
    - Model 2 (age + sex)
    - Model 3 (fully adjusted: + education, income, smoking, alcohol, obesity, CVD)
-3. **Subgroup analyses**: By sex, age group, education, income, alcohol, smoking, CVD, obesity
+3. **Subgroup analyses**: By sex, age group, education, income, alcohol, smoking, CVD, obesity.
+   Whether the association differs between subgroups is tested with an exposure × subgroup
+   interaction term fitted on the full design (`svyglm` on the whole sample), not by comparing
+   the subgroups' P values.
 4. **Dose-response** (if applicable): RCS with 3 knots
 
 ### Phase 4: Cross-National Comparison Table
 
 Generate a side-by-side comparison:
 
-| Analysis | Korea wOR (95% CI) | US wOR (95% CI) | Direction Agreement |
-|----------|-------------------|-----------------|---------------------|
-| Overall (fully adjusted) | ... | ... | ✓/✗ |
-| Male | ... | ... | |
-| Female | ... | ... | |
-| ... | ... | ... | |
+| Analysis | Korea wOR (95% CI) | US wOR (95% CI) | Ratio of wORs (95% CI); P |
+|----------|-------------------|-----------------|---------------------------|
+| Overall (fully adjusted) | ... | ... | ... |
+| Male | ... | ... | ... |
+| Female | ... | ... | ... |
+| ... | ... | ... | ... |
+
+Compare the countries with the ratio of their odds ratios, not with whether the directions
+agree: two estimates in the same direction can differ, and opposite directions can be
+compatible. With log odds ratios b₁, b₂ and their design-based standard errors SE₁, SE₂ from the
+two independent surveys, the ratio is exp(b₁ − b₂) with 95% CI exp(b₁ − b₂ ± 1.96·√(SE₁² + SE₂²))
+and z = (b₁ − b₂)/√(SE₁² + SE₂²) (Altman & Bland, *BMJ* 2003;326:219).
 
 Every number comes from executed code output (`analysis_korea.R`, `analysis_us.R`) — never an
 invented p-value, effect size, confidence interval, or sample size.

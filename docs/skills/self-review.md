@@ -4,7 +4,7 @@
 
 > Use when checking your own manuscript before submission from a reviewer's perspective. Returns anticipated Major/Minor comments with fixes, including numerical, citation and leakage checks, with an optional multi-reviewer panel. Someone else's paper is /peer-review.
 
-**Invoke:** `/self-review` · **Model:** inherit
+**Invoke:** `/self-review`
 
 ## When to use
 

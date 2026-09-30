@@ -1,7 +1,6 @@
 ---
 name: lit-sync
 description: Use when references in a .bib file (often from /search-lit) should land in Zotero and Obsidian. Syncs them to the Zotero library, writes Obsidian literature notes and extracts cross-cutting concept notes once enough accumulate. A folder of PDFs is /obsidian-paper-vault.
-model: inherit
 metadata:
   triggers: "lit-sync, 문헌 동기화, 레퍼런스 정리, 개념 노트 추출, lit sync, Zotero 동기화, reference sync, 참고문헌 옵시디언"
 ---

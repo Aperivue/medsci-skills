@@ -1,7 +1,6 @@
 ---
 name: make-figures
 description: Use when a paper needs publication-ready figures or a visual abstract. Makes ROC, forest, calibration, Kaplan-Meier and Bland-Altman plots, CONSORT/STARD/PRISMA flow diagrams, confusion matrices, pipeline diagrams and journal visual abstracts, checking the journal's AI-image policy first.
-model: inherit
 metadata:
   triggers: "figure, plot, graph, diagram, ROC curve, forest plot, flow diagram, CONSORT diagram, PRISMA flow, visualization, chart, visual abstract, graphical abstract, key message, figure design, figure planning, effective figure, cognitive load"
 ---

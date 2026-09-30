@@ -4,7 +4,7 @@
 
 > Use when turning a personal agent skill into an open-source, distributable one. Runs a PII audit, generalizes personal details, checks licence compatibility, reviews cross-platform adapters and walks through packaging.
 
-**Invoke:** `/publish-skill` · **Model:** inherit
+**Invoke:** `/publish-skill`
 
 ## When to use
 

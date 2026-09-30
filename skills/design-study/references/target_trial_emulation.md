@@ -71,8 +71,10 @@ primary result, not only when convenient.
 
 ## Reporting + registration
 
-- Report against **STROBE** (+ RECORD for routinely-collected data); state the target-trial
-  protocol table in the Methods or a supplement.
+- Report against **TARGET** (Cashin et al., *JAMA* 2025 — the reporting guideline for
+  target-trial emulations; `/check-reporting` ships it), plus RECORD for routinely-collected data;
+  state the target-trial protocol table (specification and emulation side by side) in the Methods
+  or a supplement.
 - For comparative-effectiveness emulations, pre-register the protocol (the seven components
   above) — a registered target-trial protocol is the strongest defense against post-hoc
   design choices.

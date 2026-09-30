@@ -1,7 +1,6 @@
 ---
 name: model-assessment
 description: Use when validating or evaluating a trained medical-imaging model. Audits split leakage and validation design, computes task-correct held-out metrics (Dice + HD95, AUROC + AUPRC, FROC, calibration), and covers uncertainty/OOD and Grad-CAM explainability, each with a gate.
-model: inherit
 metadata:
   triggers: "model validation, validate AI model, imaging model validation, data leakage, split leakage, train test split, patient-level split, internal validation, external validation, validation design, leakage audit, segmentation model validation, classification model validation, detection model validation, nnU-Net validation, deep learning validation, CLAIM 2024, generalizability, held-out test set, model evaluation, held-out metrics, test set metrics, Dice, HD95, NSD, surface distance, Metrics Reloaded, AUROC, AUPRC, bootstrap CI, calibration, ECE, reliability diagram, subgroup analysis, slice metrics, mAP, FROC, segmentation metrics, detection metrics, evaluate predictions, interactive segmentation, promptable segmentation, SAM2, MedSAM2, nnInteractive, number of clicks, NoC, interactions-to-threshold, click budget, generative metrics, image synthesis, SSIM, PSNR, SNR, CNR, downstream task, multiclass classification, Obuchowski index, Harrell's C, time-dependent ROC, uncertainty, uncertainty quantification, UQ, epistemic, aleatoric, MC-dropout, monte carlo dropout, deep ensemble, conformal prediction, split conformal, prediction interval, coverage, calibration under shift, out-of-distribution, OOD detection, distribution shift, Mahalanobis, energy score, ODIN, selective prediction, abstention, reject option, deployment safety, DECIDE-AI, predictive uncertainty, explainability, interpretability, saliency, saliency map, grad-cam, gradcam, grad-cam++, attention map, attention rollout, integrated gradients, captum, pytorch-grad-cam, heatmap, class activation map, CAM, feature attribution, sanity check, Adebayo, model randomization, localization metric, pointing game, IoU with ground truth, XAI, explainable AI, model looks at, faithfulness"
 ---
@@ -22,8 +21,9 @@ MONAI / nnU-Net, MAPIE, captum, pytorch-grad-cam and pretrained OOD scorers by r
 reimplement them, never build or train the model, never run a model on real patient data.
 
 Elsewhere: building/training → `/model-scaffold`; choosing or vetting the model →
-`/model-selection`; data-stage preprocessing leakage → `/imaging-data`; DeLong / NRI / IDI /
-decision curves / MRMC / ICC / calibration tables → `/analyze-stats`; AI-vs-expert reader rubric
+`/model-selection`; data-stage preprocessing leakage → `/imaging-data`; paired model comparison /
+added value over a baseline / decision curves / MRMC / ICC / calibration tables → `/analyze-stats`
+(added value: `incremental_value.md`); AI-vs-expert reader rubric
 and IRR → `/design-ai-benchmarking`; LLM/MLLM → `/mllm-eval`; general validity → `/design-study`;
 classical-ML tabular calibration → `/radiomics-ml`; item-by-item reporting audit →
 `/check-reporting`; a finished manuscript → `/self-review` or `/peer-review` (the MD0–MD11
@@ -95,11 +95,17 @@ evaluation **DECIDE-AI** or **CONSORT-AI / SPIRIT-AI**.
 ### Phase 8 — Compute task-correct metrics
 Generate and **execute** evaluation code on the held-out predictions (Metrics Reloaded —
 Maier-Hein & Reinke et al., *Nat Methods* 2024):
-- **segmentation** — Dice/IoU **and** a boundary metric (HD95 / NSD), **per structure**, bootstrap 95% CIs;
-- **classification** — **AUROC and AUPRC** with bootstrap CIs, sensitivity/specificity, and PPV/NPV
-  **at the deployment prevalence**, never bare accuracy on a balanced set; for **multiclass**, state the
-  aggregation (one-vs-rest / macro / micro / pairwise / Obuchowski);
-- **detection** — **FROC / mAP** with the **IoU match criterion stated**;
+- **segmentation** — Dice/IoU **and** a boundary metric (HD95 / NSD), **per structure**, 95% CIs by
+  **patient-level** bootstrap (resample patients, not pixels or slices);
+- **classification** — **AUROC and AUPRC** with patient-level bootstrap CIs, sensitivity/specificity,
+  and PPV/NPV **at the deployment prevalence**, never bare accuracy on a balanced set. Report AUPRC
+  with the test-set prevalence, which is its no-skill value: AUPRC moves with prevalence, so a value
+  from an enriched or case-control test set does not carry over to deployment or across datasets. For
+  **multiclass**, state the aggregation (one-vs-rest / macro / micro / pairwise / Obuchowski);
+- **detection** — **FROC / mAP** with the **IoU match criterion stated**. Lesions and false positives
+  cluster within patients, so CIs come from a **patient-level bootstrap** (resample patients, carrying
+  all their lesions and false positives), not a Wilson/binomial interval over lesions, which is too
+  narrow; compare two detectors' FROC curves with **JAFROC** (RJafroc), not per-lesion tests;
 - **interactive / promptable segmentation** (SAM2 / MedSAM2 / nnInteractive) — the segmentation
   metrics **plus** Dice-vs-interactions / number-of-clicks (NoC) to a target threshold,
   initial-vs-converged (or peak) Dice, and per-case interaction/inference time. With two arms
@@ -111,9 +117,16 @@ Maier-Hein & Reinke et al., *Nat Methods* 2024):
   (Park et al., *Radiol Med* 2024);
 - **time-to-event** discrimination (Harrell's C, time-dependent ROC) → `/analyze-stats`.
 
-Report the headline as **mean ± SD across ≥ 3 seeds/runs**, or a fixed reported seed with the
-determinism caveat. Add **calibration** (reliability diagram / ECE) and **subgroup** slices (the Model
-Card Factors). Emit `results.md` (metrics report) and a **per-case CSV** for `/analyze-stats`. Load
+Report the headline as the **point estimate with a patient-level bootstrap 95% CI** over the test
+cases: that is the uncertainty of the test-set estimate. Seed-to-seed SD across training runs is a
+different quantity (training-run variability, usually smaller) — report it separately, over ≥ 5
+runs, for a training-recipe or model-comparison claim, and never present it as the CI. A frozen
+vendor or open-weights model has no training runs to vary; its uncertainty is the test-set CI. Add
+**calibration** — for a binary risk or diagnostic output, calibration-in-the-large (intercept), the
+calibration slope and a flexible (loess) calibration curve, plus the Brier score; ECE only as a
+supplementary top-label summary for multi-class confidence, with its binning stated — and
+**subgroup** slices (the Model Card Factors). Emit `results.md` (metrics report) and a **per-case
+CSV** for `/analyze-stats`. Load
 `${CLAUDE_SKILL_DIR}/references/metric_guide.md` for the per-task checklist and
 `${CLAUDE_SKILL_DIR}/references/metric_selection_grounding.md` for why each pairing is required and
 the CLAIM 2024 fit map.
@@ -133,8 +146,9 @@ A deployment-framed model must say what it does when unsure or off-distribution.
 
 ### Phase 10 — Choose the uncertainty method, OOD guard and abstention rule
 - **Conformal** (MAPIE) — prediction sets/intervals at nominal coverage; the strongest default with a
-  calibration set. Exchangeability can fail on clinical data, so **measure** achieved coverage on a
-  held-out set — never report it as guaranteed.
+  calibration set. Its coverage guarantee is finite-sample but needs exchangeability, which can fail
+  on clinical data, so **measure** achieved coverage on a test split disjoint from the calibration
+  split and report it with its binomial CI — never report it as guaranteed.
 - **Deep ensemble** — K ≥ 2 independent members (distinct seeds/inits); shared seeds underestimate
   epistemic uncertainty.
 - **MC-dropout** — dropout **active at inference**, T passes; off, every pass is identical and the
@@ -217,7 +231,9 @@ Verdicts: `SALIENCY_AS_VALIDATION`, `NO_SANITY_CHECK`, `NO_LOCALIZATION_METRIC` 
 - Part C: `uncertainty_manifest.json` + `qc/uncertainty_reporting.json`.
 - Part D: `explainability_report.json` + `qc/explainability_report.json`.
 
-The per-case table → `/analyze-stats` (DeLong / NRI / IDI / decision curves, publication tables);
+The per-case table → `/analyze-stats` (paired ΔAUC of frozen models on the same test patients —
+DeLong or bootstrap; added value over a baseline per `incremental_value.md`; decision curves;
+publication tables);
 figures → `/make-figures`; numbers and subgroup performance → `/model-card`; Methods/Results →
 `/write-paper`; compliance → `/check-reporting`; sizing → `/calc-sample-size`; the reviewer-side audit
 of the draft → `/self-review`, whose `ai_overclaiming` / `image_synthesis` probes also check saliency

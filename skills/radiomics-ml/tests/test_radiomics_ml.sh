@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Regression test for the radiomics/classical-ML pipeline-rigor gate (radiomics-ml).
 # Synthetic, PII-free JSON manifests reproduce each verdict class + the suppressions.
-# Stdlib-only (python3).
+# Stdlib-only (python3), except check (8), which executes the guide's scikit-learn skeleton.
 set -u
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -80,9 +80,27 @@ cat > "$TMP/samplesonly.json" <<'EOF'
 EOF
 python3 "$SCRIPT" --manifest "$TMP/samplesonly.json" --out "$OUT" --quiet >/dev/null 2>&1
 check "HIGH_DIM_LOW_EVENTS uses n_samples fallback when n_events missing" has_verdict HIGH_DIM_LOW_EVENTS
+# the p >= events rule is a floor: its message must send the user to a sample-size calculation
+# and must not present LASSO/PCA as the cure for a small sample (Riley et al. 2020, 2021)
+detail_sizes_study() { python3 -c "
+import json
+d = json.load(open('$OUT'))
+m = [c['detail'] for c in d['claims'] if c['verdict'] == 'HIGH_DIM_LOW_EVENTS'][0]
+assert 'pmsampsize' in m and 'not a sample-size criterion' in m, m
+assert 'apply LASSO' not in m, m
+"; }
+check "HIGH_DIM_LOW_EVENTS detail points to pmsampsize, not LASSO as a cure" detail_sizes_study
 
 # (7) the shipped challenge card passes
 check "challenge verify.sh passes" bash "$CH/verify.sh"
+
+# (8) the guide's nested-CV skeleton, executed on synthetic lesion-level null data, keeps each
+#     patient in one outer fold and does not report patient identity as signal. Needs sklearn:
+#     SKIP locally without it, hard error when CI is set.
+if ! python3 "$HERE/nested_cv_skeleton_check.py" 2>"$TMP/skeleton.err"; then
+  printf '  FAIL  nested-CV skeleton check\n'; tail -5 "$TMP/skeleton.err" | sed 's/^/        /'
+  fail=$((fail+1))
+fi
 
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

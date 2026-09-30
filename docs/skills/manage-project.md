@@ -4,7 +4,7 @@
 
 > Use when managing a manuscript project over time. Scaffolds the project structure, tracks writing progress across phases, maintains project memory files, and generates submission checklists and backwards timelines (commands init, status, sync-memory, checklist, timeline).
 
-**Invoke:** `/manage-project` · **Model:** inherit
+**Invoke:** `/manage-project`
 
 ## When to use
 

@@ -20,9 +20,14 @@ SKIPPED (not gates):
     assumed already present locally. A gate that then needs a missing tool (exiftool,
     poppler) FAILS loudly here, which is the honest signal, not a silent skip.
 
+A run is only as strong as what it executed. `--only` that matches nothing is an error, not a
+green run of zero gates; a `--only` subset is reported as PARTIAL and never as a CI prediction;
+and after `--fail-fast` the gates that never ran are counted as not run, not as passed.
+
 Usage:
     scripts/run_ci_mirror.py [--fail-fast] [--list] [--only SUBSTR]
-Exit: 0 = every gate passed, 1 = one or more failed (or PyYAML is missing).
+Exit: 0 = every selected gate passed, 1 = one or more failed (or PyYAML is missing),
+      2 = the selection is empty (nothing would run).
 """
 
 from __future__ import annotations
@@ -94,39 +99,60 @@ def main() -> int:
     a = ap.parse_args()
 
     doc = _workflow()
-    steps = gate_steps(doc)
+    all_steps = gate_steps(doc)
     skipped_jobs = unmirrored_jobs(doc)
     not_mirrored = ("NOT mirrored (this run says nothing about them): "
                     + "; ".join(skipped_jobs)) if skipped_jobs else ""
+    steps = all_steps
     if a.only:
         steps = [(n, r) for (n, r) in steps if a.only.lower() in n.lower()]
+    if not steps:
+        what = f"--only {a.only!r} matched none of the {len(all_steps)}" if a.only else "found no"
+        sys.stderr.write(f"ERROR: {what} validate-job gate steps; nothing would run, so nothing "
+                         "can be reported as passing.\n")
+        return 2
+    partial = len(steps) < len(all_steps)
     if a.list:
         for n, _ in steps:
             print(n)
-        print(f"\n{len(steps)} gate step(s) mirrored from validate.yml.")
+        print(f"\n{len(steps)} gate step(s) mirrored from validate.yml"
+              + (f" (--only: {len(steps)} of {len(all_steps)})." if partial else "."))
         if not_mirrored:
             print(not_mirrored)
         return 0
 
+    passed = 0
     fails: list[str] = []
     for i, (name, run) in enumerate(steps, 1):
         p = subprocess.run(["bash", "-e", "-c", run], cwd=ROOT, capture_output=True, text=True)
         ok = p.returncode == 0
         print(f"{'PASS' if ok else 'FAIL'} [{i:>3}/{len(steps)}] {name[:82]}", flush=True)
-        if not ok:
+        if ok:
+            passed += 1
+        else:
             fails.append(name)
             tail = (p.stdout or "")[-1600:] + (p.stderr or "")[-1600:]
             sys.stdout.write(tail.rstrip() + "\n")
             if a.fail_fast:
                 break
+    not_run = len(steps) - passed - len(fails)
+    scope = (f"PARTIAL run (--only {a.only!r}): {len(all_steps) - len(steps)} of the "
+             f"{len(all_steps)} validate-job gates were not selected, so this does not predict CI.")
 
     if fails:
-        print(f"\n{len(steps) - len(fails)}/{len(steps)} gates passed; FAILED ({len(fails)}): "
-              + "; ".join(fails))
+        print(f"\n{passed}/{len(steps)} gates passed; FAILED ({len(fails)}): " + "; ".join(fails))
+        if not_run:
+            print(f"NOT RUN ({not_run}): --fail-fast stopped at the first failure; "
+                  "those gates were not executed and are not counted as passed.")
+        if partial:
+            print(scope)
         if not_mirrored:
             print(not_mirrored)
         return 1
-    print(f"\nOK: all {len(steps)} validate-job gates passed — CI's validate job will be green.")
+    if partial:
+        print(f"\nOK: {passed} selected gate(s) passed. {scope}")
+    else:
+        print(f"\nOK: all {passed} validate-job gates passed — CI's validate job will be green.")
     if not_mirrored:
         print(not_mirrored)
     return 0

@@ -79,4 +79,4 @@ The article body exhibits several patterns that map to Sections 10–11 of this 
 - KJR landing page: `https://www.kjronline.org/DOIx.php?id=10.3348/kjr.2025.0599`
 - PMC full text: `https://pmc.ncbi.nlm.nih.gov/articles/PMC12479233/`
 - GEO framework: Aggarwal et al., KDD 2024, arXiv:2311.09735.
-- LLM medical citation fabrication: Agarwal et al., Nat Commun 2025, doi:10.1038/s41467-025-58551-6.
+- LLM medical citation support: Wu et al., Nat Commun 2025, doi:10.1038/s41467-025-58551-6.

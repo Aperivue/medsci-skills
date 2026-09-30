@@ -1,7 +1,6 @@
 ---
 name: manage-refs
 description: Use when references must be written, rendered or converted. Checks [@key] citation keys, renders the reference list with a journal CSL via pandoc, converts [N] markers, injects Zotero Word field codes and runs manuscript-DOCX cross-reference QC. Read-only auditing is /verify-refs.
-model: inherit
 metadata:
   triggers: "manage-refs, references, citation, citation keys, pandoc citeproc, journal CSL, CSL swap, cascade rejection re-render, cross-reference QC, [@bibkey], Zotero CWYW, ADDIN ZOTERO_ITEM, marker conversion, [N] to [@key], reference manager, render manuscript, check_citation_keys, check_xref"
 ---
@@ -33,7 +32,7 @@ PubMed/CrossRef stays in `/verify-refs` — one read-only audit, one writer.
 | **Duplicate bibliography in the built artifact** | `scripts/check_reference_duplication.py --docx <built>.docx` (or `--text <rendered>.md`) | `DUP_REF_HEADING` / `REF_NUMBER_RESTART` / `REF_SIGNATURE_DUP` (Major). Catches a hand-typed `## References` list plus the pandoc `--citeproc` auto-bibliography, which renders **two** lists (the second often after the legends). Run after any citeproc build |
 | **Publisher markup in a `.bib` title** (renders as garbage) | `scripts/check_bib_title_markup.py --bib refs.bib --strict` | CrossRef titles carry `<scp>WHO</scp>` / `<i>IDH</i>`; BBT escapes them (`{$<$}scp{$>$}`) or strips them without restoring the space (`andTERTPromoter`). `verify_refs` proves the reference is *true*; this proves it will *print*. `TITLE_MARKUP` / `TITLE_FUSION` (Major) |
 | **Master pre-submission gate** (recommended before any submission) | `scripts/pre_submission_gate.sh` | Chains `check_citation_keys` → `check_bib_title_markup` → `verify_refs --strict` → `render_pandoc` (optional) → `check_xref --strict`; single artifact `qc/pre_submission_gate.json` |
-| Direct render with a built-in reference audit | `scripts/render_pandoc.sh` (audits the `.bib` via `/verify-refs` first; blocks on FABRICATED/MISMATCH/duplicates) | Best-effort (skips with a warning if `/verify-refs` is not alongside); opt out with `-S`. The master gate passes `-S` because it runs `verify_refs` in its stage 3 |
+| Direct render with a built-in reference audit | `scripts/render_pandoc.sh` (audits the `.bib` via `/verify-refs` first; blocks on FABRICATED/MISMATCH/duplicates; reports UNVERIFIED rows as not clean, without blocking) | Best-effort (skips with a warning if `/verify-refs` is not alongside); opt out with `-S`. The master gate passes `-S` because it runs `verify_refs` in its stage 3 |
 | Bibliographic audit against PubMed / CrossRef | **delegate** to `/verify-refs` | Audit-only — keep writer/auditor separation |
 
 ## Workflows

@@ -63,11 +63,14 @@ database forced a deviation.
 
 1. Generate self-contained, reproducible analysis code (Python with `pandas` + R via
    `subprocess` for survey-weighted analysis):
-   a. **Data loading & cleaning**: read target DB, apply inclusion/exclusion
+   a. **Data loading & cleaning**: read target DB, derive inclusion/exclusion flags (keep every row)
    b. **Variable derivation**: recode variables per mapping table
-   c. **Survey design setup**: define svydesign object (strata, PSU, weights). Weighted analysis
-      is mandatory for KNHANES/NHANES — never run unweighted models. Never pool data across
-      surveys; analyze each country's data with its own survey design.
+   c. **Survey design setup**: define svydesign object (strata, PSU, weights) on the full file,
+      then restrict it with `subset(design, <inclusion flag>)`; deleting rows before the design is
+      declared gives wrong standard errors (`/analyze-stats` `survey_weighted.md`, subpopulation
+      analysis). Weighted analysis is mandatory for KNHANES/NHANES — never run unweighted
+      models. Never pool data across surveys; analyze each country's data with its own survey
+      design.
    d. **Table 1**: demographics by exposure group (weighted)
    e. **Main analysis**: replicate the primary model (logistic/Cox/linear regression)
    f. **Subgroup analyses**: if specified in source paper

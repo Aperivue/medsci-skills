@@ -11,7 +11,7 @@ Input CSV columns (required):
 
 Input CSV columns (optional):
     n_total         : int   — Total sample size (shown in table)
-    weight          : float — Study weight % (determines box size)
+    weight          : float — Study weight % (box AREA is proportional to it)
     subgroup        : str   — Subgroup label (adds subgroup header rows)
     events_treat    : int   — Events in treatment/index group
     events_control  : int   — Events in control/comparator group
@@ -37,11 +37,13 @@ Outputs:
 
 import argparse
 import sys
+from typing import Optional
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib.lines import Line2D
+from matplotlib.ticker import MaxNLocator
 from datetime import datetime
 
 # ── Reproducibility ───────────────────────────────────────────────────────────
@@ -80,13 +82,26 @@ def load_data(filepath: str) -> pd.DataFrame:
     return df
 
 
-def compute_box_size(weights: pd.Series, min_size=0.08, max_size=0.35) -> np.ndarray:
-    """Scale box heights proportional to study weight."""
+RATIO_MEASURES = {"OR", "RR", "HR", "IRR", "DOR", "ROM"}
+
+
+def compute_box_size(weights: pd.Series, n: int, max_size=0.35) -> np.ndarray:
+    """Box side length such that box AREA is proportional to study weight.
+
+    Side ∝ sqrt(weight / max weight): the heaviest study gets `max_size`.
+    (Min-max rescaling would give the lightest study the minimum box whatever
+    its weight, so box areas would not be proportional to weight.)
+    """
     if weights is None or weights.isna().all():
-        return np.full(len(weights), (min_size + max_size) / 2)
-    w = weights.fillna(weights.mean())
-    w_norm = (w - w.min()) / (w.max() - w.min() + 1e-9)
-    return min_size + w_norm * (max_size - min_size)
+        return np.full(n, max_size * 0.6)
+    w = weights.fillna(weights.mean()).clip(lower=0)
+    return max_size * np.sqrt(w / w.max())
+
+
+def format_ci(est: float, lo: float, hi: float) -> str:
+    """'0.72 (0.51–1.02)'; 'to' instead of the dash once a limit is negative."""
+    sep = " to " if min(lo, hi) < 0 else "–"
+    return f"{est:.2f} ({lo:.2f}{sep}{hi:.2f})"
 
 
 def make_forest_plot(
@@ -98,13 +113,30 @@ def make_forest_plot(
     tau_squared: float,
     q_p_value: float,
     effect_label: str = "OR",
-    null_value: float = 1.0,
-    log_scale: bool = True,
+    null_value: Optional[float] = None,
+    log_scale: Optional[bool] = None,
     favor_left: str = "Favors Treatment",
     favor_right: str = "Favors Control",
     output_path: str = "forest_plot",
 ) -> None:
-    """Generate and save the forest plot."""
+    """Generate and save the forest plot.
+
+    log_scale=None chooses automatically: log axis for ratio measures
+    (OR, RR, HR, IRR, DOR, ROM), linear axis for differences (MD, SMD, ...).
+    null_value=None likewise gives 1 for ratio measures and 0 otherwise.
+    """
+
+    is_ratio = effect_label.upper() in RATIO_MEASURES
+    if log_scale is None:
+        log_scale = is_ratio
+    if null_value is None:
+        null_value = 1.0 if is_ratio else 0.0
+    all_values = (list(df["effect_size"]) + list(df["ci_lower"]) + list(df["ci_upper"])
+                  + [pooled_effect, pooled_ci_lower, pooled_ci_upper])
+    if log_scale and min(all_values) <= 0:
+        raise ValueError(
+            "Log scale needs positive effect sizes and CI limits. Ratio measures "
+            "(OR/RR/HR) are > 0; for MD/SMD use --no-log-scale (null value 0).")
 
     n_studies = len(df)
     has_subgroups = "subgroup" in df.columns and df["subgroup"].notna().any()
@@ -130,23 +162,20 @@ def make_forest_plot(
     col_plot_right = 0.87
     col_effect = 0.89
 
-    # ── All effect values for x-axis range ───────────────────────────────────
-    all_effects = list(df["effect_size"]) + [pooled_effect,
-                                              pooled_ci_lower, pooled_ci_upper]
+    # ── All effect values (estimates and CI limits) for x-axis range ─────────
+    all_effects = all_values + [null_value]
     if log_scale:
-        all_log = [np.log(x) for x in all_effects if x > 0]
+        all_log = [np.log(x) for x in all_effects]
         x_min_log = min(all_log) - 0.5
         x_max_log = max(all_log) + 0.5
     else:
-        x_min_log = min(all_effects) - abs(min(all_effects)) * 0.2
-        x_max_log = max(all_effects) + abs(max(all_effects)) * 0.2
+        span = max(all_effects) - min(all_effects)
+        x_min_log = min(all_effects) - 0.1 * span
+        x_max_log = max(all_effects) + 0.1 * span
 
     def to_plot_x(value):
         """Map effect value to normalized plot x position."""
-        if log_scale and value > 0:
-            log_val = np.log(value)
-        else:
-            log_val = value
+        log_val = np.log(value) if log_scale else value
         frac = (log_val - x_min_log) / (x_max_log - x_min_log)
         return col_plot_left + frac * (col_plot_right - col_plot_left)
 
@@ -166,7 +195,7 @@ def make_forest_plot(
     # ── Y positions for each row ───────────────────────────────────────────────
     y_start = 0.90
     y_step = row_height / fig_height
-    box_sizes = compute_box_size(df.get("weight"))
+    box_sizes = compute_box_size(df.get("weight"), len(df))
 
     current_subgroup = None
     y = y_start
@@ -229,7 +258,7 @@ def make_forest_plot(
             fig.add_artist(rect)
 
             # Effect value text
-            val_str = f"{row['effect_size']:.2f} ({row['ci_lower']:.2f}–{row['ci_upper']:.2f})"
+            val_str = format_ci(row["effect_size"], row["ci_lower"], row["ci_upper"])
             fig.text(col_effect, y, val_str, fontsize=7.5,
                      transform=fig.transFigure, va="center")
 
@@ -237,9 +266,10 @@ def make_forest_plot(
 
         elif row_type == "pooled":
             # Separator line
-            y_sep = y + y_step * 0.3
-            ax.axhline(y=0, xmin=col_label, xmax=0.98, color="#888888",
-                        linewidth=0.5, transform=fig.transFigure, zorder=1)
+            y_sep = y + y_step * 0.5
+            fig.add_artist(Line2D([col_label, 0.98], [y_sep, y_sep],
+                                   transform=fig.transFigure,
+                                   color="#888888", linewidth=0.5, zorder=1))
 
             # Diamond
             x_lo = to_plot_x(pooled_ci_lower)
@@ -257,7 +287,7 @@ def make_forest_plot(
             fig.add_artist(diamond)
 
             # Pooled estimate text
-            val_str = f"{pooled_effect:.2f} ({pooled_ci_lower:.2f}–{pooled_ci_upper:.2f})"
+            val_str = format_ci(pooled_effect, pooled_ci_lower, pooled_ci_upper)
             fig.text(col_label, y, "Pooled estimate", fontsize=8, fontweight="bold",
                      transform=fig.transFigure, va="center")
             fig.text(col_effect, y, val_str, fontsize=7.5, fontweight="bold",
@@ -272,10 +302,10 @@ def make_forest_plot(
 
     # ── X-axis ticks ─────────────────────────────────────────────────────────
     if log_scale:
-        tick_values_raw = [0.25, 0.5, 1.0, 2.0, 4.0]
+        tick_values_raw = [0.1, 0.25, 0.5, 1.0, 2.0, 4.0, 10.0]
     else:
-        span = x_max_log - x_min_log
-        tick_values_raw = np.linspace(x_min_log, x_max_log, 5)
+        tick_values_raw = [round(float(v), 6) for v in
+                           MaxNLocator(nbins=5).tick_values(x_min_log, x_max_log)]
 
     y_axis = y - y_step * 1.2
     for tv in tick_values_raw:
@@ -332,16 +362,16 @@ def main():
     parser = argparse.ArgumentParser(description="Generate publication-ready forest plot")
     parser.add_argument("--input", required=True, help="Path to CSV file")
     parser.add_argument("--pooled", nargs=3, type=float, metavar=("EFFECT", "CI_LO", "CI_HI"),
-                        required=True, help="Pooled effect size and 95% CI")
-    parser.add_argument("--i2", type=float, default=0.0, help="I² (%)")
+                        required=True, help="Pooled effect size and 95%% CI")
+    parser.add_argument("--i2", type=float, default=0.0, help="I² (%%)")
     parser.add_argument("--tau2", type=float, default=0.0, help="τ²")
     parser.add_argument("--q-p", type=float, default=1.0, dest="q_p",
                         help="Cochran Q p-value")
     parser.add_argument("--effect-label", default="OR", help="Label for effect measure")
-    parser.add_argument("--null-value", type=float, default=1.0,
-                        help="Null value (1.0 for OR/RR; 0 for MD)")
-    parser.add_argument("--log-scale", action="store_true", default=True,
-                        help="Use log scale for OR/RR (default: True)")
+    parser.add_argument("--null-value", type=float, default=None,
+                        help="Null value (default: 1 for ratio measures, 0 otherwise)")
+    parser.add_argument("--log-scale", action="store_true", default=None,
+                        help="Force a log axis (default: log for OR/RR/HR, linear for MD/SMD)")
     parser.add_argument("--no-log-scale", action="store_false", dest="log_scale")
     parser.add_argument("--favor-left", default="Favors Treatment")
     parser.add_argument("--favor-right", default="Favors Control")

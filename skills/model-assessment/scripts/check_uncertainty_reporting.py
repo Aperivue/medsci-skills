@@ -20,9 +20,11 @@ CHECKS (verdicts):
                                     predictions only (uncertainty_method `none`); no
                                     MC-dropout / deep ensemble / conformal / Bayesian UQ.
   2. CONFORMAL_NO_COVERAGE_VALIDATION (Major)  conformal (or split-conformal) intervals are
-                                    reported without empirical coverage validated on a
-                                    held-out calibration/test set — the coverage guarantee
-                                    is only asymptotic/assumption-bound until measured.
+                                    reported without empirical coverage measured on a test
+                                    split disjoint from the calibration split — the
+                                    finite-sample guarantee holds only under exchangeability,
+                                    and coverage on the calibration split holds by
+                                    construction, so it proves nothing.
   3. OOD_NO_HELDOUT_SET      (Major)  an OOD-detection claim with no held-out OOD test set
                                     (only in-distribution data) — the detector's operating
                                     point and AUROC are unmeasured.
@@ -45,7 +47,7 @@ MANIFEST (JSON)
     "deployment_claim": true,             // is a deployment / clinical-use claim made?
     "uncertainty_method": "conformal",    // conformal / mc_dropout / deep_ensemble / bayesian / none
     "coverage_target": 0.90,              // nominal coverage (conformal / selective); null if n/a
-    "coverage_validated": true,           // empirical coverage measured on held-out cal/test
+    "coverage_validated": true,           // coverage measured on a test split disjoint from calibration
     "ensemble_members": 5,                // deep_ensemble member count
     "ensemble_independent": true,         // members trained with distinct seeds / inits
     "mc_dropout_active_at_inference": true,  // dropout kept ON at inference for MC sampling
@@ -120,9 +122,10 @@ def check(m: dict) -> list[dict]:
     if method in CONFORMAL and coverage_validated is not True:
         claims.append({
             "verdict": "CONFORMAL_NO_COVERAGE_VALIDATION", "severity": "Major",
-            "detail": ("conformal intervals are reported without empirical coverage validated on a "
-                       "held-out calibration/test set; measure achieved coverage against the nominal "
-                       "target (exchangeability can fail on clinical data — verify, do not assume)"),
+            "detail": ("conformal intervals are reported without empirical coverage measured on a test "
+                       "split disjoint from the calibration split; report achieved coverage with its "
+                       "binomial CI against the nominal target (the finite-sample guarantee needs "
+                       "exchangeability, which can fail on clinical data — verify, do not assume)"),
             "where": "coverage_validated",
         })
 

@@ -1,7 +1,6 @@
 ---
 name: verify-refs
 description: Use when checking whether a manuscript's references are real. Audits each citation against PubMed and CrossRef, flags fabricated or mismatched entries and writes qc/reference_audit.json. Audit-only; never edits references or refs.bib. Citation-key checks are /manage-refs.
-model: inherit
 metadata:
   triggers: "verify refs, verify references, citation audit, reference hallucination, fabricated references, bibliography check, PMID check, DOI check"
 ---
@@ -49,9 +48,12 @@ Manual pre-submission strict run:
 `--strict` forbids `--offline` and exits non-zero on any UNVERIFIED row. Read
 `references/manual_checkpoint_guide.md` for when to run it and what to do per status.
 
-Lookups run PubMed (PMID) → CrossRef (DOI) → OpenAlex, with a PubMed title search last. Every
+Lookups run PubMed (PMID) → CrossRef (DOI; doi.org's handle registry when CrossRef answers
+404) → OpenAlex, with a PubMed title search last. Every
 `OK` row rests on DOI, PMID, CrossRef, or PubMed title evidence; a failed lookup is recorded as
-`UNVERIFIED`, never silently passed.
+`UNVERIFIED`, never silently passed. A title search, in either index, counts only when a returned
+title matches the cited one (the same token-similarity guard), so a made-up title cannot earn `OK`
+from a search that merely returned something.
 
 **OpenAlex tier.** It recovers conference and non-DOI citations (NeurIPS / ICLR / ACL, common
 in medical-AI manuscripts) that PubMed and CrossRef miss, and is called only when no author list
@@ -66,9 +68,17 @@ is `UNVERIFIED`, never `FABRICATED`. `--no-openalex` restricts verification to P
 `qc/reference_audit.json` (`schema_version` 4) is the only output; this skill is its sole writer
 and writes no TSV and no `library.bib`.
 
-- `records[]`: per reference, `status` (`OK` / `MISMATCH` / `UNVERIFIED` / `FABRICATED`),
-  `note`, `evidence`, `cited_authors[]` / `actual_authors[]`, `cited_author_count` /
-  `actual_author_count`.
+- `records[]`: per reference, `status`, `note`, `evidence`, `cited_authors[]` /
+  `actual_authors[]`, `cited_author_count` / `actual_author_count`. `status` is one of:
+  - `OK`: a lookup confirmed the work (DOI, PMID, or a title search passing the similarity
+    guard) and the authors agree.
+  - `MISMATCH`: the work exists but the citation is wrong: its authors differ (Gate 4), or its
+    DOI/PMID does not exist while a lookup still found the work (`note = "wrong identifier…"`).
+  - `FABRICATED`: the cited identifier does not exist and nothing else found the work (details
+    below).
+  - `UNVERIFIED`: nothing confirmed or refuted it (a failed lookup, a DOI held only by another
+    registration agency that no index confirmed, no identifier and no title match, or
+    `--offline`).
 - `counts` and `duplicate_findings[]` (Gate 5).
 - `submission_safe`: no `FABRICATED`, no `MISMATCH`, and `duplicate_findings` empty.
   `fully_verified` additionally requires no `UNVERIFIED`.
@@ -121,8 +131,22 @@ and writes no TSV and no `library.bib`.
 **Citation-metadata confusion is not fabrication.** DOI-suffix digits that look like, but differ
 from, the article number (a DOI tail "77196" against article 26068) are cosmetic. When the
 identifier resolves and the authors match, do not report the row as fabricated: the script
-returns `FABRICATED` only for an identifier that does not resolve, and a real identifier with
-wrong authors is `MISMATCH` (Gate 4).
+returns `FABRICATED` only for an identifier that does not exist — a PMID PubMed has no record of,
+or a DOI that CrossRef answers 404 for and that doi.org's handle registry (which spans every
+registration agency: CrossRef, DataCite, mEDRA, JaLC) reports as not found — and only when no
+lookup found the work some other way. After a CrossRef 404 the DOI verdict is:
+
+| doi.org handle registry | another lookup finds the work | status |
+|---|---|---|
+| not found | no | `FABRICATED` |
+| not found | yes (a title search passing the similarity guard) | `MISMATCH` — a real paper cited with a wrong DOI |
+| found (registered with another agency) | no / yes | `UNVERIFIED` / `OK` |
+| lookup failed (network, 5xx, unexpected reply) | no / yes | `UNVERIFIED` / `OK` |
+
+A DOI field that is not a well-formed DOI (a placeholder such as `n/a`) is not sent to doi.org and
+stays `UNVERIFIED`, and so does a legacy SICI DOI (`10.1002/(SICI)…`) that doi.org does not find,
+since its punctuation is easily cut in extraction. A real identifier with wrong authors is
+`MISMATCH` (Gate 4).
 
 ## Claim Fidelity — does the source say what you say it says?
 

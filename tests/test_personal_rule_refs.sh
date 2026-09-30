@@ -47,7 +47,6 @@ cat > "$FIXTURE_DIR/SKILL.md" <<'EOF'
 ---
 name: zz-ruleref-fixture
 description: Throwaway fixture created and deleted by tests/test_personal_rule_refs.sh.
-model: inherit
 metadata:
   triggers: "none"
 ---

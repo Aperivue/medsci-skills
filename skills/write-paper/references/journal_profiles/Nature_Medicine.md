@@ -14,16 +14,16 @@
 
 ## Manuscript Types and Word Limits
 
-| Type | Body Word Limit | Abstract | References | Figures |
+| Type | Body Word Limit | Abstract | References | Display items |
 |------|----------------|----------|------------|---------|
-| Article | No strict limit (typically 3000-5000) | 150 words (unstructured) | 50 | 8 |
-| Brief Communication | 1500 words | 3 sentences (unstructured) | 20 | 4 |
-| Review | No strict limit | 150 words | No limit | No limit |
-| Analysis | 3000 words | 150 words | 50 | 6 |
-| Correspondence | 500 words | None | 10 | 1 |
-| Resource | No strict limit | 150 words | 50 | 8 |
+| Article | 4,000 words | 150 words (unstructured) | ~60 (guideline) | 6 (figures and/or tables) |
+| Brief Communication | 2,000 words, including abstract, references and figure legends; no headings | 150 words, unreferenced | ~20 (guideline) | 2 |
+| Review | 4,000 words | 150 words | 100 | Illustrations encouraged |
+| Analysis | 4,000 words | 150 words | ~60 (guideline) | 6 |
+| Correspondence | 1,000 words | None | 10 | 2 |
+| Resource | 4,000 words | 150 words | ~60 (guideline) | 6 |
 
-Word counts include Methods summary in main text. Detailed Methods go in Online Methods.
+For Article, Analysis and Resource, the word limit excludes the abstract, online Methods, references and figure legends. Detailed Methods go in Online Methods.
 
 ---
 
@@ -106,7 +106,7 @@ Nature Medicine follows Nature Research statistical guidelines:
 
 ## Figures
 
-- **Maximum 8 figures** for Articles, 4 for Brief Communications
+- **Maximum 6 display items** (figures and/or tables) for Articles, 2 for Brief Communications
 - **Extended Data**: up to 10 additional figures/tables (peer-reviewed, unlike Supplementary)
 - **Supplementary Information**: unlimited (not peer-reviewed, for completeness)
 - **Resolution**: 300 DPI (bitmap), vector preferred (PDF, EPS, AI)
@@ -166,16 +166,16 @@ Not appropriate for: pure technical methodology (use Nature Methods or Nature Ma
 | Dimension | Article | Brief Communication |
 |-----------|---------|-------------------|
 | Scope | Full study, multiple analyses | Single key finding |
-| Abstract | 150 words | 3 sentences |
-| Body | ~3000-5000 words | 1500 words |
-| Figures | 8 | 4 |
+| Abstract | 150 words | 150 words |
+| Body | 4,000 words (excluding abstract, Methods, references, legends) | 2,000 words (including abstract, references, legends) |
+| Display items | 6 | 2 |
 | Use when | Comprehensive study | Striking result, rapid publication |
 
 ---
 
 ## AI Writing Disclosure Policy
-- **Requirement level:** Required
-- **Permitted scope:** Language editing only — AI/LLM tools (e.g., ChatGPT, Claude) may assist with language, grammar, and readability but cannot be listed as authors; AI must not generate scientific content, interpret results, or draw conclusions; authors bear full responsibility for accuracy and integrity
-- **Disclosure location:** Methods — describe the AI tool name, version, and how it was used in the Methods section; Nature Portfolio requires disclosure in the manuscript body, not just a cover letter; also captured in the Nature Research Reporting Summary
-- **AI-generated images:** Banned — AI-generated images are not permitted in published figures; any image manipulation must follow Nature's image integrity policies; computational visualizations from AI research tools must be clearly labeled
+- **Requirement level:** Nature Portfolio tiered framework. Assistive use is permitted, and disclosure is encouraged; evaluative or interpretive use is permitted only with disclosure and demonstrable human oversight; use that replaces human judgment is not permitted. AI cannot be an author.
+- **Permitted scope:** Language polishing, structuring, translation, data cleaning, and similar assistive tasks are green-tier. Suggesting analytic approaches, drafting explanatory summaries, and extensive copy editing or writing support are amber-tier and require verification and accountability. Generating hypotheses, analyses, or conclusions presented as human-derived, fabricating data or citations, and generating core research reasoning without disclosure are prohibited.
+- **Disclosure location:** Methods (Nature Portfolio guidance, or a suitable alternative if there is no Methods section); the policy page itself does not name a section.
+- **AI-generated images:** Photorealistic AI images and deepfakes are not permitted; image integrity policies apply.
 - **Policy URL:** https://www.nature.com/nature-portfolio/editorial-policies/ai

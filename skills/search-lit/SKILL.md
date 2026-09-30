@@ -1,7 +1,6 @@
 ---
 name: search-lit
 description: Use when finding papers or building a reference list. Searches PubMed, Semantic Scholar and bioRxiv/medRxiv, includes only references verified through an API, and generates BibTeX. Auditing an existing reference list is /verify-refs.
-model: inherit
 metadata:
   triggers: "literature search, find papers, citation, references, bibliography, PubMed search, related work"
 ---
@@ -145,7 +144,7 @@ the Semantic Scholar Graph API helper:
 
 ```bash
 python3 "${CLAUDE_SKILL_DIR}/references/snowball.py" \
-  --seed DOI:10.1148/radiol.2024123,PMID:38000001 \
+  --seed DOI:10.1000/synthetic.example,PMID:00000000 \
   --direction all \
   --pool references/library.bib \
   --out references/library.bib

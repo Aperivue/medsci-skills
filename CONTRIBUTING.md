@@ -101,10 +101,10 @@ suite uses synthetic fixtures and needs no private data or network access.
 
 **CI is the gate.** It runs every check on your pull request in about seven minutes, and `main`
 accepts a change only after CI has passed on it combined with the latest `main` (a repository
-ruleset). Before you push, run what your change touches:
+ruleset; repository admins can bypass it). Before you push, run what your change touches:
 
 ```bash
-pip install pyyaml pandas numpy scipy scikit-learn matplotlib python-pptx python-docx fonttools
+pip install pyyaml pandas numpy scipy scikit-learn matplotlib python-pptx python-docx fonttools statsmodels lifelines
 # Also install pandoc, exiftool and poppler with your OS package manager.
 # Render regression tests generate LaTeX with pandoc; CI does not install TeX.
 
@@ -135,7 +135,7 @@ bash skills/self-review/scripts/check_reported_p_from_counts_challenge/verify.sh
 ```
 
 New deterministic scripts are expected to add one. Coverage of what already exists
-is **partial, and deliberately stated rather than implied**: 51 challenge directories
+is **partial, and deliberately stated rather than implied**: 54 challenge directories
 exist against 90 detectors, and they are named after the feature under test — which
 is not always one script — so 31 detectors have a directory bearing their own name.
 A pull request that adds a challenge directory for a detector that lacks one is a
@@ -284,8 +284,8 @@ checkout and runs the existing privacy scanners on the packaged bytes. npm publi
 the verified `.tgz`; do not replace it with a fresh directory-based `npm publish`.
 After upload, downloaded ZIP bytes and npm file contents/executable modes must match the
 verified artifacts. Inspect the `release-verification-vX.Y.Z` workflow artifact for hashes and
-coverage; absence of a successful report is not a pass. npm requires `NPM_TOKEN`, and skipped
-npm steps leave that channel unverified. See [SECURITY.md](SECURITY.md#release-integrity--revocation)
+coverage; absence of a successful report is not a pass. npm is published through trusted
+publishing (no stored token), and skipped npm steps leave that channel unverified. See [SECURITY.md](SECURITY.md#release-integrity--revocation)
 for inspection limits and recovery behavior.
 
 **A release is an event, not a commit.** Merge to `main` continuously — that is what `main` is for —
@@ -301,6 +301,13 @@ The rule is enforced by `scripts/check_release_cadence.py` (CI):
   it is a security problem, or it produced a wrong result that a user may have believed. Those go out
   immediately. Say so, and the gate stands aside:
 
+  ```markdown
+  ## [5.20.1] - 2026-07-11
+
+  **Hotfix:** `/orchestrate --e2e` halted at step 3 requiring a DOCX only rendered at step 7,
+  so an end-to-end run could not complete.
+  ```
+
 - **Exception — a pinned reference.** An external artifact has to cite an exact version: a paper
   reporting a measurement taken against this toolkit, for instance. A git SHA is a worse coordinate
   for a reader trying to reproduce that number than a release is, so waiting would not serve the
@@ -310,13 +317,6 @@ The rule is enforced by `scripts/check_release_cadence.py` (CI):
 
   ```markdown
   **Pinned reference:** the held-out validation study must report the exact version it measured.
-  ```
-
-  ```markdown
-  ## [5.20.1] - 2026-07-11
-
-  **Hotfix:** `/orchestrate --e2e` halted at step 3 requiring a DOCX only rendered at step 7,
-  so an end-to-end run could not complete.
   ```
 
 ### Why this is a gate and not a preference

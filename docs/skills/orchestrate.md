@@ -4,7 +4,7 @@
 
 > Use when the user describes a research goal without naming a skill, or the task spans several skills. Classifies the request, plans the order and routes to the right medsci-skills skill(s) instead of producing their output itself.
 
-**Invoke:** `/orchestrate` · **Model:** inherit
+**Invoke:** `/orchestrate`
 
 ## When to use
 

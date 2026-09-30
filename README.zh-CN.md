@@ -26,13 +26,15 @@ MedSci Skills 是一套面向临床研究的 [Agent Skills](https://agentskills.
 
 ## 安装
 
-在终端中运行（需要 Node 18+ 和 Python 3.9+）：
+**无需终端**（Windows 或 macOS）：下载 [classroom 安装包](https://github.com/Aperivue/medsci-skills/blob/v6.0.0/docs/install.md#classroom-installer-no-terminal)，解压后双击其中的安装程序。它还会开启更新提醒，并在桌面放置 **Update MedSci Skills** 图标。如果还没有安装 Claude Code、Python 或 Node，可按 Mac 和 Windows 的[安装指南](https://github.com/Aperivue/medsci-skills/blob/v6.0.0/docs/setup/README.md)（英文）逐步操作。
+
+**在终端中**运行（需要 Node 18+ 和 Python 3.9+）：
 
 ```bash
 npx medsci-skills install
 ```
 
-该命令把所有技能复制到 `~/.claude/skills/`（Claude Code、Cursor 和 GitHub Copilot 读取）和 `~/.agents/skills/`（Codex、Cursor 和 GitHub Copilot 读取）。
+该命令把所有技能复制到 `~/.claude/skills/`（Claude Code、Cursor 和 VS Code 中的 Copilot 读取）和 `~/.agents/skills/`（Codex、Cursor 和 GitHub Copilot 读取）。
 重启 agent，输入 `/orchestrate` 并描述你要做的事，它会把请求转给合适的技能。
 如需在新版本发布时收到提醒，可加上 `--enable-update-notify`：Claude Code 会话开始时显示一行通知，默认关闭，没有遥测。
 

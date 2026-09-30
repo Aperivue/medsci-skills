@@ -1,9 +1,13 @@
 #!/usr/bin/env Rscript
 # meta_analysis.R — Comprehensive Meta-Analysis Script
 # =====================================================
-# Random-effects meta-analysis with DerSimonian-Laird estimator.
-# Supports binary outcomes (OR/RR), continuous outcomes (MD/SMD),
-# and diagnostic accuracy (sensitivity/specificity via bivariate model).
+# Random-effects pairwise meta-analysis: REML estimator of tau^2 (Paule-Mandel
+# if REML fails to converge), Hartung-Knapp CI with the ad hoc variance
+# correction, t-based prediction interval.
+# Supports binary outcomes (OR/RR) and continuous outcomes (MD/SMD).
+# Diagnostic accuracy (Se/Sp) is NOT handled here: use dta_meta_analysis.R.
+# Rare binary events (pooled rate < 1% or zero-event arms) need the rare-event
+# branch (Peto / MH without correction / GLMM), not this inverse-variance pool.
 #
 # Dependencies: meta, metafor, dplyr, ggplot2
 # Install: install.packages(c("meta", "metafor", "dplyr", "ggplot2"))
@@ -12,6 +16,7 @@
 #
 # Usage:
 #   Rscript meta_analysis.R --input studies.csv --effect OR --output meta_results
+#   Optional: --subgroup <column>
 #   Or source() interactively — edit parameters in CONFIGURATION section
 
 set.seed(42)
@@ -33,16 +38,35 @@ cat(sprintf("meta: %s | metafor: %s\n\n",
 
 CONFIG <- list(
   input_file   = "studies.csv",        # Path to study data CSV
-  effect_type  = "OR",                 # "OR", "RR", "MD", "SMD", "AUC"
+  effect_type  = "OR",                 # "OR", "RR", "MD", "SMD"
   outcome_name = "Primary outcome",    # Label for forest plot
   alpha        = 0.05,                 # Significance threshold
   output_dir   = ".",                  # Output directory
   output_prefix = "meta",             # File name prefix
   # Subgroup column name in CSV (NA to skip)
-  subgroup_col = NA,                   # e.g., "scanner_type"
-  # Trim-and-fill parameters
-  n_iter_trimfill = 50
+  subgroup_col = NA                    # e.g., "scanner_type"
 )
+
+# Command-line flags override CONFIG (see Usage above)
+cli_args <- commandArgs(trailingOnly = TRUE)
+cli_value <- function(flag) {
+  i <- match(flag, cli_args)
+  if (is.na(i) || i == length(cli_args)) NULL else cli_args[i + 1]
+}
+input_given <- !is.null(cli_value("--input"))
+if (input_given)                     CONFIG$input_file    <- cli_value("--input")
+if (!is.null(cli_value("--effect")))   CONFIG$effect_type   <- toupper(cli_value("--effect"))
+if (!is.null(cli_value("--output")))   CONFIG$output_prefix <- cli_value("--output")
+if (!is.null(cli_value("--subgroup"))) CONFIG$subgroup_col  <- cli_value("--subgroup")
+
+if (!CONFIG$effect_type %in% c("OR", "RR", "MD", "SMD")) {
+  stop(sprintf("Unsupported effect type: %s. Use OR, RR, MD, or SMD.", CONFIG$effect_type))
+}
+
+# Ratio measures are pooled on the log scale and back-transformed;
+# differences (MD/SMD) are pooled and reported on their natural scale.
+is_ratio <- CONFIG$effect_type %in% c("OR", "RR")
+bt <- if (is_ratio) exp else identity
 
 # ══════════════════════════════════════════════════════════════════════════════
 # EXAMPLE DATA — Replace with real data or load from CSV
@@ -78,14 +102,10 @@ load_data <- function(config) {
     df <- read.csv(config$input_file, stringsAsFactors = FALSE)
     cat(sprintf("Loaded: %s (%d studies)\n\n", config$input_file, nrow(df)))
     return(df)
-  } else {
-    cat("Input file not found. Using built-in example data.\n\n")
-    if (config$effect_type %in% c("OR", "RR")) {
-      return(example_data_OR)
-    } else {
-      return(example_data_MD)
-    }
   }
+  if (input_given) stop(sprintf("Input file not found: %s", config$input_file))
+  cat("Input file not found. Using built-in EXAMPLE data — these are not your studies.\n\n")
+  if (config$effect_type %in% c("OR", "RR")) example_data_OR else example_data_MD
 }
 
 df <- load_data(CONFIG)
@@ -94,69 +114,80 @@ df <- load_data(CONFIG)
 # PRIMARY META-ANALYSIS
 # ══════════════════════════════════════════════════════════════════════════════
 
-run_meta <- function(df, effect_type, subgroup_col = NA) {
-
-  cat(sprintf("═══ META-ANALYSIS: %s ═══════════════════════════════════\n",
-              effect_type))
-
+fit_meta <- function(df, effect_type, method.tau) {
+  # Random-effects weights are inverse-variance in every branch. The HK CI uses
+  # the ad hoc variance correction (adhoc.hakn.ci = "se"): without it, HK can
+  # give a CI narrower than the common-effect CI when tau^2 is estimated as 0.
   if (effect_type %in% c("OR", "RR")) {
-    # Binary outcomes
-    m <- metabin(
-      event.e = events_treat,
-      n.e     = n_treat,
-      event.c = events_control,
-      n.c     = n_control,
-      studlab = study_label,
-      data    = df,
-      sm      = effect_type,
-      method  = "Inverse",    # Inverse-variance (avoids method.tau conflict with MH)
-      method.tau = "DL",      # DerSimonian-Laird for τ²
-      method.random.ci = "HK", # Hartung-Knapp adjustment
-      common  = FALSE,        # replaces deprecated 'fixed'
-      random  = TRUE,         # replaces deprecated 'comb.random'
-      prediction = TRUE,      # Show prediction interval
-      title   = paste("Meta-analysis:", effect_type)
-    )
-
-  } else if (effect_type %in% c("MD", "SMD")) {
-    # Continuous outcomes
-    m <- metacont(
-      n.e    = n_treat,
-      mean.e = mean_treat,
-      sd.e   = sd_treat,
-      n.c    = n_control,
-      mean.c = mean_control,
-      sd.c   = sd_control,
-      studlab = study_label,
-      data   = df,
-      sm     = effect_type,
-      method.tau = "DL",
-      random = TRUE,
-      fixed  = FALSE,
-      prediction = TRUE
+    metabin(
+      event.e = events_treat, n.e = n_treat,
+      event.c = events_control, n.c = n_control,
+      studlab = study_label, data = df,
+      sm = effect_type,
+      method = "Inverse",
+      method.tau = method.tau,
+      method.random.ci = "HK", adhoc.hakn.ci = "se",
+      common = FALSE, random = TRUE,
+      prediction = TRUE,
+      title = paste("Meta-analysis:", effect_type)
     )
   } else {
-    stop(sprintf("Unsupported effect type: %s. Use OR, RR, MD, or SMD.", effect_type))
+    metacont(
+      n.e = n_treat, mean.e = mean_treat, sd.e = sd_treat,
+      n.c = n_control, mean.c = mean_control, sd.c = sd_control,
+      studlab = study_label, data = df,
+      sm = effect_type,
+      method.tau = method.tau,
+      method.random.ci = "HK", adhoc.hakn.ci = "se",
+      common = FALSE, random = TRUE,
+      prediction = TRUE
+    )
   }
+}
 
-  return(m)
+run_meta <- function(df, effect_type, verbose = TRUE) {
+  if (verbose) {
+    cat(sprintf("═══ META-ANALYSIS: %s ═══════════════════════════════════\n",
+                effect_type))
+  }
+  # REML is the default tau^2 estimator (Cochrane Handbook v6.5 §10.10.4.4);
+  # Paule-Mandel always has a solution, so it is the fallback, not DL.
+  tryCatch(
+    fit_meta(df, effect_type, "REML"),
+    error = function(e) {
+      cat(sprintf("  REML did not converge (%s); using Paule-Mandel.\n", conditionMessage(e)))
+      fit_meta(df, effect_type, "PM")
+    }
+  )
 }
 
 m <- run_meta(df, CONFIG$effect_type)
 
+if (is_ratio) {
+  total_events <- sum(df$events_treat + df$events_control)
+  total_n      <- sum(df$n_treat + df$n_control)
+  if (any(c(df$events_treat, df$events_control) == 0) || total_events / total_n < 0.01) {
+    cat("  WARNING: zero-event arm(s) or pooled event rate < 1%. Inverse-variance pooling\n",
+        "          with a 0.5 correction is the wrong tool for rare events: use Peto,\n",
+        "          MH without a zero-cell correction, or a GLMM (meta-analysis skill,\n",
+        "          phase6_statistical_synthesis.md, 'Rare Events').\n", sep = "")
+  }
+}
+
 # ── Print summary ─────────────────────────────────────────────────────────────
 cat("\n─── Pooled Estimate ─────────────────────────────────────────────────\n")
-cat(sprintf("  %s (random-effects): %.3f (95%% CI: %.3f – %.3f)\n",
-            CONFIG$effect_type,
-            exp(m$TE.random),  # exponentiate if OR/RR
-            exp(m$lower.random),
-            exp(m$upper.random)))
+cat(sprintf("  %s (random-effects, %s, HK CI): %.3f (95%% CI: %.3f – %.3f)\n",
+            CONFIG$effect_type, m$method.tau,
+            bt(m$TE.random), bt(m$lower.random), bt(m$upper.random)))
 cat(sprintf("  95%% Prediction interval: %.3f – %.3f\n",
-            exp(m$lower.predict), exp(m$upper.predict)))
+            bt(m$lower.predict), bt(m$upper.predict)))
+m_classic <- update(m, method.random.ci = "classic")
+cat(sprintf("  Sensitivity analysis, Wald-type (classic) CI: %.3f – %.3f\n",
+            bt(m_classic$lower.random), bt(m_classic$upper.random)))
 cat(sprintf("\n─── Heterogeneity ──────────────────────────────────────────────────\n"))
 cat(sprintf("  I² = %.1f%% (95%% CI: %.1f%% – %.1f%%)\n",
             m$I2 * 100, m$lower.I2 * 100, m$upper.I2 * 100))
-cat(sprintf("  τ² = %.4f (τ = %.4f)\n", m$tau^2, m$tau))
+cat(sprintf("  τ² = %.4f (τ = %.4f), estimator: %s\n", m$tau^2, m$tau, m$method.tau))
 cat(sprintf("  Cochran Q = %.2f, df = %d, P = %.3f\n",
             m$Q, m$df.Q, m$pval.Q))
 
@@ -171,14 +202,11 @@ if (!is.na(CONFIG$subgroup_col) && CONFIG$subgroup_col %in% names(df)) {
   m_sub <- update(m, subgroup = df[[CONFIG$subgroup_col]])
 
   cat("  Subgroup estimates:\n")
-  for (sg in unique(df[[CONFIG$subgroup_col]])) {
-    idx <- df[[CONFIG$subgroup_col]] == sg
-    sub_df <- df[idx, ]
-    m_s <- run_meta(sub_df, CONFIG$effect_type)
-    cat(sprintf("  %s: %s = %.3f (95%% CI: %.3f – %.3f), I² = %.1f%%\n",
-                sg, CONFIG$effect_type,
-                exp(m_s$TE.random), exp(m_s$lower.random), exp(m_s$upper.random),
-                m_s$I2 * 100))
+  for (j in seq_along(m_sub$subgroup.levels)) {
+    cat(sprintf("  %s (k = %d): %s = %.3f (95%% CI: %.3f – %.3f), I² = %.1f%%\n",
+                m_sub$subgroup.levels[j], m_sub$k.w[j], CONFIG$effect_type,
+                bt(m_sub$TE.random.w[j]), bt(m_sub$lower.random.w[j]),
+                bt(m_sub$upper.random.w[j]), m_sub$I2.w[j] * 100))
   }
 
   # Test for subgroup interaction
@@ -210,15 +238,15 @@ loo_results <- data.frame(
 for (i in 1:nrow(df)) {
   df_loo <- df[-i, ]
   m_loo <- tryCatch(
-    run_meta(df_loo, CONFIG$effect_type),
+    run_meta(df_loo, CONFIG$effect_type, verbose = FALSE),
     error = function(e) NULL
   )
   if (!is.null(m_loo)) {
     loo_results <- rbind(loo_results, data.frame(
       Study_removed = df$study_label[i],
-      Pooled_effect = round(exp(m_loo$TE.random), 3),
-      CI_lower = round(exp(m_loo$lower.random), 3),
-      CI_upper = round(exp(m_loo$upper.random), 3),
+      Pooled_effect = round(bt(m_loo$TE.random), 3),
+      CI_lower = round(bt(m_loo$lower.random), 3),
+      CI_upper = round(bt(m_loo$upper.random), 3),
       I2 = round(m_loo$I2 * 100, 1)
     ))
   }
@@ -233,47 +261,57 @@ write.csv(loo_results, loo_file, row.names = FALSE)
 cat(sprintf("\nSaved: %s\n", loo_file))
 
 # ══════════════════════════════════════════════════════════════════════════════
-# PUBLICATION BIAS — Egger's test + Trim-and-Fill
+# SMALL-STUDY EFFECTS — funnel asymmetry test + trim-and-fill sensitivity
 # ══════════════════════════════════════════════════════════════════════════════
 
-if (nrow(df) >= 10) {
-  cat("\n═══ PUBLICATION BIAS ════════════════════════════════════════════════\n")
+# The original Egger test is not recommended for OR or SMD because the effect
+# and its SE are artefactually correlated (Cochrane Handbook v6.5 ch.13).
+bias_method <- switch(CONFIG$effect_type,
+                      OR  = "Harbord",      # Harbord et al. 2006
+                      RR  = "Peters",       # regression on 1/N, not on the SE
+                      SMD = "Pustejovsky",  # Pustejovsky & Rodgers 2019
+                      MD  = "Egger")
 
-  # Egger's test via metafor
-  rma_fit <- rma(
-    yi = m$TE,
-    sei = m$seTE,
-    method = "DL"
-  )
+# k counts the studies actually pooled: studies with no events (or only events)
+# in both arms are excluded from an OR/RR pool, so m$k can be < nrow(df).
+if (m$k >= 10) {
+  cat("\n═══ SMALL-STUDY EFFECTS ═════════════════════════════════════════════\n")
 
-  egger <- regtest(rma_fit)
-  cat(sprintf("  Egger's test: z = %.3f, P = %.3f\n",
-              egger$zval, egger$pval))
-  if (egger$pval < 0.05) {
-    cat("  → Funnel plot asymmetry detected (possible publication bias)\n")
+  pb <- metabias(m, method.bias = bias_method, k.min = 10)
+  if (is.null(pb$pval)) {
+    # metabias() returns no test when fewer than k.min studies are usable
+    cat(sprintf("  %s test not computed by metabias() (too few usable studies)\n", bias_method))
   } else {
-    cat("  → No significant funnel plot asymmetry\n")
+    cat(sprintf("  %s test for funnel plot asymmetry: t = %.3f, df = %d, P = %.3f\n",
+                bias_method, pb$statistic, pb$df, pb$pval))
+    if (pb$pval < CONFIG$alpha) {
+      cat("  → Funnel plot asymmetry (small-study effects) detected; publication bias is\n",
+          "    only one possible cause (heterogeneity, chance, and poorer small-study\n",
+          "    quality are others).\n", sep = "")
+    } else {
+      cat("  → No evidence of funnel plot asymmetry (low power; not proof of no bias).\n")
+    }
   }
 
-  # Trim-and-fill
-  tf <- trimfill(rma_fit, estimator = "L0",
-                  maxiter = CONFIG$n_iter_trimfill)
-  cat(sprintf("\n  Trim-and-fill: imputed %d studies\n", tf$k0))
-  cat(sprintf("  Adjusted pooled %s: %.3f (95%% CI: %.3f – %.3f)\n",
+  # Trim-and-fill is a sensitivity analysis, not a bias-corrected estimate
+  # (Peters et al. 2007, doi:10.1002/sim.2889).
+  tf <- trimfill(m)
+  cat(sprintf("\n  Trim-and-fill (sensitivity analysis only): %d studies imputed\n", tf$k0))
+  cat(sprintf("  %s with imputed studies: %.3f (95%% CI: %.3f – %.3f)\n",
               CONFIG$effect_type,
-              exp(tf$b), exp(tf$ci.lb), exp(tf$ci.ub)))
+              bt(tf$TE.random), bt(tf$lower.random), bt(tf$upper.random)))
 
   # Funnel plot
   funnel_file <- file.path(CONFIG$output_dir,
                             paste0(CONFIG$output_prefix, "_funnel.pdf"))
   pdf(funnel_file, width = 5, height = 5)
-  funnel(tf, main = "Funnel Plot with Trim-and-Fill",
-         xlab = paste("Effect estimate:", CONFIG$effect_type),
-         ylab = "Standard error")
+  funnel(m, type = "contour", studlab = FALSE)
+  title(main = "Contour-enhanced funnel plot")
   dev.off()
   cat(sprintf("\nSaved: %s\n", funnel_file))
 } else {
-  cat("\nPub bias: Skipped (< 10 studies; low power for Egger's test)\n")
+  cat(sprintf("\nSmall-study effects: not tested (k = %d studies pooled < 10; tests have too little power)\n",
+              m$k))
 }
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -287,14 +325,12 @@ forest_file_pdf <- file.path(CONFIG$output_dir,
 forest_file_png <- file.path(CONFIG$output_dir,
                               paste0(CONFIG$output_prefix, "_forest.png"))
 
-# PDF
+# PDF (default meta column labels match the columns shown for each outcome type)
 pdf(forest_file_pdf, width = 10, height = max(6, nrow(df) * 0.35 + 3))
 forest(m,
        sortvar    = TE,
        prediction = TRUE,
        print.tau2 = TRUE,
-       leftlabs   = c("Study", "N treated", "N control"),
-       rightlabs  = c(CONFIG$effect_type, "95% CI", "Weight"),
        col.diamond = "#D55E00",
        col.predict = "#009E73",
        fontsize   = 10,
@@ -322,23 +358,27 @@ cat(sprintf("Saved: %s\n", forest_file_png))
 summary_df <- data.frame(
   Metric = c(
     paste("Pooled", CONFIG$effect_type, "(random-effects)"),
-    "95% CI lower",
-    "95% CI upper",
+    "95% CI lower (Hartung-Knapp, ad hoc corrected)",
+    "95% CI upper (Hartung-Knapp, ad hoc corrected)",
+    "95% CI lower (classic, sensitivity)",
+    "95% CI upper (classic, sensitivity)",
     "95% Prediction interval lower",
     "95% Prediction interval upper",
     "I² (%)",
-    "τ²",
+    paste0("τ² (", m$method.tau, ")"),
     "Cochran Q",
     "Q p-value",
     "N studies",
     "Total N (estimated)"
   ),
   Value = c(
-    round(exp(m$TE.random), 3),
-    round(exp(m$lower.random), 3),
-    round(exp(m$upper.random), 3),
-    round(exp(m$lower.predict), 3),
-    round(exp(m$upper.predict), 3),
+    round(bt(m$TE.random), 3),
+    round(bt(m$lower.random), 3),
+    round(bt(m$upper.random), 3),
+    round(bt(m_classic$lower.random), 3),
+    round(bt(m_classic$upper.random), 3),
+    round(bt(m$lower.predict), 3),
+    round(bt(m$upper.predict), 3),
     round(m$I2 * 100, 1),
     round(m$tau^2, 4),
     round(m$Q, 2),

@@ -4,7 +4,7 @@
 
 > Use when a target journal has no profile yet. Reads the journal's author guidelines and writes a detailed /write-paper profile plus a compact /find-journal profile, public or user-local private, in the canonical format with quality gates.
 
-**Invoke:** `/add-journal` · **Model:** inherit
+**Invoke:** `/add-journal`
 
 ## When to use
 

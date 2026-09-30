@@ -25,6 +25,8 @@ If --template is a bare name (no path), the script looks for it in the templates
 If not found, falls back to medsci_default.pptx.
 """
 
+from __future__ import annotations
+
 import argparse
 import os
 import re

@@ -15,12 +15,18 @@ Asserted: the three new skills are installed; every retired name is now the stub
 (its scripts are gone, not merged); the user's modified copy is in the permanent backup, byte for
 byte; nothing was pruned; and a second run is idempotent (no new backup, identical tree and manifest).
 
+The same runs also pin what an installer run does outside the skills folder: the v5 install runs from
+a read-only package dir and must still exit 0, with its log under ~/.medsci-skills/logs; the candidate
+counts skills and renamed-skill aliases separately, as the README does, and in English; and --dry-run
+writes nothing anywhere.
+
 Deterministic, network-free, touches only a temp HOME. Run: python3 installers/tests/test_v6_upgrade.py
 """
 from __future__ import annotations
 
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -64,7 +70,7 @@ def make_v5_repo(root: Path) -> None:
     """A v5-shaped source checkout: this repo's installers, and the twelve v5 imaging skills as
     full skills (SKILL.md + a script), which is what a v5 user has on disk."""
     shutil.copytree(REPO / "installers", root / "installers",
-                    ignore=shutil.ignore_patterns("tests", "__pycache__"))
+                    ignore=shutil.ignore_patterns("tests", "__pycache__", ".logs"))
     for name in list(RETIRED) + UNCHANGED:
         d = root / "skills" / name
         (d / "scripts").mkdir(parents=True)
@@ -78,11 +84,12 @@ def make_v5_repo(root: Path) -> None:
     ) + "\n", encoding="utf-8")
 
 
-def run_install(installer: Path, home: Path) -> subprocess.CompletedProcess:
+def run_install(installer: Path, home: Path, *flags: str) -> subprocess.CompletedProcess:
     env = dict(os.environ)
     env.pop("MEDSCI_HOME", None)  # default state home under the temp HOME, as a real user has
+    env.pop("MEDSCI_CLAUDE_SETTINGS", None)
     env.update({"HOME": str(home), "USERPROFILE": str(home), "PYTHONDONTWRITEBYTECODE": "1"})
-    return subprocess.run([sys.executable, str(installer), "--target", "claude"],
+    return subprocess.run([sys.executable, str(installer), "--target", "claude", *flags],
                           env=env, capture_output=True, text=True, timeout=600)
 
 
@@ -99,11 +106,23 @@ def main() -> int:
         dest = home / ".claude" / "skills"
         manifest = home / ".medsci-skills" / "targets" / "claude" / "installed-manifest.json"
 
-        # 1. v5 install
+        # 1. v5 install -- from a package directory the user cannot write to, as after an
+        #    administrator's global `npm i -g`. The log used to go beside the installer, so the
+        #    install finished, printed "Done." and then died with a PermissionError (exit 1).
         v5 = base / "v5"
         make_v5_repo(v5)
-        r = run_install(v5 / "installers" / "install.py", home)
-        check("v5 install exits 0", r.returncode == 0)
+        pkg = v5 / "installers"
+        read_only = os.name == "posix" and os.geteuid() != 0
+        if read_only:
+            os.chmod(pkg, 0o555)
+        try:
+            r = run_install(pkg / "install.py", home)
+        finally:
+            os.chmod(pkg, 0o755)
+        check("v5 install exits 0" + (" from a read-only package dir" if read_only else ""), r.returncode == 0)
+        logs = home / ".medsci-skills" / "logs"
+        check("the install log is saved under ~/.medsci-skills/logs, not beside the installer",
+              len(list(logs.glob("*-medsci-skills-install-log.txt"))) == 1 and not (pkg / ".logs").exists())
         check("v5 install placed the twelve imaging skills",
               all((dest / n / "scripts" / "check_v5.py").is_file() for n in list(RETIRED) + UNCHANGED))
 
@@ -151,6 +170,26 @@ def main() -> int:
         check("second run: manifest unchanged", manifest.read_text(encoding="utf-8") == before_manifest)
         check("second run: no new backup", backups(home) == before_backups)
         check("no transaction left behind", not (dest / ".medsci-txn").exists())
+
+        # 5. what the candidate tells the person installing it: the README counts 54 skills, so the
+        #    installer does too and names the renamed-skill stubs as such; and it says it in English.
+        aliases = [n for n in shipped
+                   if "Renamed to /" in (REPO / "skills" / n / "SKILL.md").read_text(encoding="utf-8")]
+        said = f"installing {len(shipped) - len(aliases)} skills (+ {len(aliases)} renamed-skill aliases)"
+        check(f"reports '{said}'", said in r.stdout)
+        check("the installer's output is English (no Hangul)", not re.search("[가-힣]", r.stdout))
+
+        # 6. --dry-run writes nothing: not the skills, not the preference file, not a log, and not
+        #    the update-notice opt-in it was asked to show.
+        dry = base / "dry-home"
+        dry.mkdir()
+        pkg_logs = REPO / "installers" / ".logs"
+        logs_before = sorted(pkg_logs.glob("*")) if pkg_logs.is_dir() else []
+        r = run_install(INSTALL, dry, "--dry-run", "--enable-update-notify")
+        check("--dry-run exits 0", r.returncode == 0)
+        check("--dry-run left the home folder empty", sorted(p.name for p in dry.iterdir()) == [])
+        check("--dry-run wrote no log in the package either",
+              (sorted(pkg_logs.glob("*")) if pkg_logs.is_dir() else []) == logs_before)
 
     print(f"\ntest_v6_upgrade: {PASS} passed, {FAIL} failed")
     return 0 if FAIL == 0 else 1

@@ -1,7 +1,6 @@
 ---
 name: meta-analysis
 description: Use when running a systematic review and meta-analysis, DTA or intervention. Covers PROSPERO protocol, search, screening, extraction, risk of bias (QUADAS-3, RoB 2, ROBINS-I), bivariate/HSROC or random-effects pooling, forest plots, heterogeneity and PRISMA reporting. Topic scouting is /ma-scout.
-model: inherit
 metadata:
   triggers: "meta-analysis, systematic review, PROSPERO, QUADAS-3, forest plot, funnel plot, PRISMA, QUADAS, ROBINS, HSROC, bivariate model, pooled sensitivity, pooled specificity, search strategy, study selection, data extraction form"
 ---
@@ -13,8 +12,9 @@ metadata:
 | Type | RoB Tool | Statistical Model | Reporting Guideline |
 |------|----------|-------------------|-------------------|
 | **DTA** (diagnostic test accuracy) | **QUADAS-3** (QUADAS-2 for legacy reviews) | Bivariate / HSROC | PRISMA-DTA |
-| **Intervention** (treatment effect) | RoB 2 (RCT) / ROBINS-I (NRSI) | Random-effects (DL/REML) | PRISMA 2020 |
-| **Prognostic** (prediction model) | QUIPS / PROBAST | Random-effects | PRISMA 2020 |
+| **Intervention** (treatment effect) | RoB 2 (RCT) / ROBINS-I (NRSI) | Random-effects (REML, Hartung-Knapp CI) | PRISMA 2020 |
+| **Prognostic factor** (association of one factor with outcome) | QUIPS | Random-effects | PRISMA 2020 |
+| **Prediction model** (model performance) | PROBAST | Random-effects | PRISMA 2020 |
 | **Observational** (prevalence/association) | NOS / JBI | Random-effects | MOOSE |
 
 If the type is ambiguous (DTA vs intervention), ask the user to clarify before proceeding.
@@ -284,7 +284,7 @@ against the data dictionary.
 | Analysis family | Primary tool | Key output |
 |-----------------|-------------|-----------|
 | DTA | `mada::reitsma()` (bivariate) | Pooled Se/Sp + SROC with confidence/prediction regions |
-| Intervention | `meta::metagen()` / `meta::metabin()` | Pooled OR/RR, I², Egger's test, leave-one-out |
+| Intervention | `meta::metagen()` / `meta::metabin()` | Pooled OR/RR, τ² + I² + prediction interval, measure-matched funnel test (k ≥ 10), leave-one-out |
 | Dual (comparative + single-arm) | `metabin` + `metaprop` | PRIMARY vs SECONDARY per pre-specified protocol |
 
 Read `${CLAUDE_SKILL_DIR}/references/phase6_statistical_synthesis.md` before running the pooled
@@ -511,7 +511,7 @@ loop).
 | Pitfall | Problem | Solution |
 |---------|---------|----------|
 | Separate pooling of Se/Sp | Ignores correlation | Use bivariate/HSROC model |
-| Ignoring threshold effect | False heterogeneity | Check Spearman correlation, SROC plot |
+| Ignoring threshold effect | False heterogeneity | Judge from the SROC plot and the bivariate Se–FPR correlation (Spearman is descriptive only) |
 | Standard funnel plot for DTA | Inappropriate | Use Deeks' funnel plot |
 | I-squared only for heterogeneity | Doesn't capture threshold effect | Use prediction region on SROC |
 | Missing GRADE | Common omission in DTA MA | Apply GRADE-DTA. If <4 studies, assess each domain narratively and state the limitation explicitly |

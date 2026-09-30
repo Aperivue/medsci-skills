@@ -1,7 +1,6 @@
 ---
 name: design-study
 description: Use when checking a radiology or medical AI study design before drafting or submission. Reviews the analysis unit, cohort logic, leakage risks, comparator, validation strategy and reporting-guideline fit. AI-vs-expert benchmarks are /design-ai-benchmarking.
-model: inherit
 metadata:
   triggers: "study design, leakage check, cohort design, analysis plan, validation strategy, comparator design, bias check"
 ---
@@ -110,10 +109,12 @@ For any time-to-event or incident/transition design, check before drafting:
 - **Mediator-ascertainment-window survivorship.** A "progressor" / transition label conditional on
   *surviving to* a later ascertainment (a second scan, a follow-up visit) is survivorship-biased; plan
   a landmark time or an explicit intermediate-state (multistate / illness-death) model.
-- **Primary-analysis-set selection.** If the primary will not be the full cohort (e.g., complete-case
-  while a large fraction is missing), pre-specify the selection justification and a MAR rationale;
-  never make the complete-case model primary because it is the significant one (an outcome-dependent
-  choice).
+- **Primary-analysis-set selection.** If the primary is not the full cohort, pre-specify why, from
+  the missingness mechanism *relative to the outcome*: complete-case regression is unbiased when
+  missingness is independent of the outcome given the covariates (even with a covariate MNAR) and
+  generally biased when it depends on the outcome, including under MAR, where multiple imputation
+  is the usual primary (Hughes et al., *Int J Epidemiol* 2019; logistic-regression odds ratios are
+  the exception when missingness depends on the outcome alone). Never pick it for significance.
 - A design that cannot yet answer these should say so — but at review time a Methods/Limitations
   admission that it was *"not formally assessed"* is escalated to MAJOR by the survival probe (S1).
 
@@ -153,10 +154,15 @@ Ask whether the comparator and endpoint support the stated claim:
 - Does performance translate to action?
 - **incremental value**: if the model/marker is framed as adding value *beyond* / *on top of* /
   *incremental to* an existing tool (a clinical score, a routine test, a baseline model), pre-specify
-  the baseline comparator built from the in-routine-use predictors **and** an incremental-value
-  metric — ΔC-index / ΔAUC (with a paired CI, e.g. DeLong), categorical or continuous NRI, IDI, or
-  decision-curve net benefit. A standalone discrimination number does not support a "beyond X" claim,
-  and the nested-model comparison cannot be added post hoc without the baseline model.
+  the baseline comparator built from the in-routine-use predictors **and** how added value will be
+  shown: test it with the likelihood-ratio (or Wald) test of the new term in the development data;
+  report ΔC-index / ΔAUC with a paired CI as the size of the gain, not as a second test (a DeLong
+  test of nested models fitted and evaluated on the same data is invalid; DeLong is for two models
+  frozen before a held-out evaluation); prefer the change in decision-curve net benefit at a
+  pre-specified threshold; NRI only as a pre-specified categorical NRI reported separately for
+  events and non-events, never the continuous NRI (analyze-stats `incremental_value.md`; Kerr et
+  al., *Epidemiology* 2014). A standalone discrimination number does not support a "beyond X"
+  claim, and the nested-model comparison cannot be added post hoc without the baseline model.
 - **fine-tuning contribution baseline**: if an NLP/LLM study claims that fine-tuning, LoRA, prompt
   engineering, or a multi-agent wrapper improves extraction/classification, pre-specify a
   same-backbone zero-shot or few-shot comparator on the identical input, output schema, and test
@@ -181,8 +187,8 @@ Ask whether the comparator and endpoint support the stated claim:
 
 ### Phase 4: Reporting fit
 
-Recommend one primary guideline — `TRIPOD+AI`, `CLAIM`, `STARD`, `STROBE`, `PRISMA`, `CARE`, or
-`ARRIVE` — plus journal-specific additions if needed.
+Recommend one primary guideline — `TRIPOD+AI`, `CLAIM`, `STARD`, `STROBE` (`TARGET` for a
+target-trial emulation), `PRISMA`, `CARE`, or `ARRIVE` — plus journal-specific additions if needed.
 
 ---
 

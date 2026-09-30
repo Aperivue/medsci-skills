@@ -1,7 +1,6 @@
 ---
 name: obsidian-paper-vault
 description: Use when turning a folder of research PDFs into Obsidian notes, even if Obsidian is not named. Writes one templated literature note per paper and extracts cross-linked atomic concept notes, never overwriting existing ones. A .bib or Zotero library is /lit-sync.
-model: inherit
 metadata:
   triggers: "obsidian-paper-vault, paper vault, second brain, PDF를 Obsidian 노트로, 논문 요약 노트, 논문 노트 만들어줘, 이 폴더의 PDF 정리해줘, batch process papers, add papers to vault, extract concepts from papers, literature vault"
 ---

@@ -28,6 +28,11 @@ Recovery on every run, before any new work:
   * corrupt / unreadable journal: FAIL CLOSED (raise) — do not auto-proceed; the holding
     dir + backups are intact for manual recovery.
 
+A rollback checks the journal against the holding and staging dirs on disk, so it is right after
+a kill between a move and the journal write recording it, and safe to re-run if it is itself
+interrupted. Each target's run holds an OS lock (``<state>/targets/<t>/lock``); a second
+concurrent run is refused instead of rolling back the live transaction.
+
 Two backup kinds, never conflated: *transaction temp* = the displaced dirs the journal
 keeps under ``<dest>/.medsci-txn/<id>/old`` until commit, then deleted; *user permanent* =
 ``<state>/backups/...`` snapshots of legacy collisions and user-modified owned skills.
@@ -39,12 +44,15 @@ so staging + holding dirs are kept on the destination's filesystem.
 from __future__ import annotations
 
 import datetime
+import errno
 import hashlib
 import json
 import os
 import shutil
 import sys
+import tempfile
 import time
+from contextlib import contextmanager
 from pathlib import Path
 
 JOURNAL_PHASES = ("prepared", "old_moved", "new_installed", "committed")
@@ -95,14 +103,31 @@ def atomic_write_bytes(path: Path, data: bytes) -> None:
 
     Bytes, not text: the caller decides the encoding and the line endings, so nothing here can
     translate a CRLF file into an LF one on the way through.
+
+    The temp file comes from `mkstemp`: a fresh name, created exclusively with mode 0600, so a
+    symlink planted at a predictable name (the old `<name>.tmp.<pid>`) cannot redirect the write
+    into another file. Its final mode is set BEFORE the replace -- the destination's own mode when
+    there is one, so a chmod-600 settings.json is never readable more widely, not even for the
+    moment between the replace and a caller's chmod; otherwise what a plain open() would create.
     """
     path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_suffix(path.suffix + f".tmp.{os.getpid()}")
     try:
-        with open(tmp, "wb") as f:
+        mode = os.stat(path).st_mode & 0o777
+    except OSError:
+        mask = os.umask(0)
+        os.umask(mask)
+        mode = 0o666 & ~mask
+    fd, name = tempfile.mkstemp(dir=str(path.parent), prefix=path.name + ".", suffix=".tmp")
+    tmp = Path(name)
+    try:
+        with os.fdopen(fd, "wb") as f:
             f.write(data)
             f.flush()
             os.fsync(f.fileno())
+        try:
+            os.chmod(tmp, mode)
+        except OSError:
+            pass  # it stays 0600: narrower than intended, never wider
         os.replace(tmp, path)
     except BaseException:
         # Leave nothing behind: the destination is still whatever it was before this call.
@@ -137,16 +162,26 @@ def read_json_strict(path: Path):
 # ---------------------------------------------------------------- hashing
 
 def skill_inventory(skill_dir: Path) -> dict[str, str]:
-    """Deterministic {relpath(posix): sha256} over every file in a skill dir."""
+    """Deterministic {relpath(posix): sha256} over every file in a skill dir.
+
+    A symlink is recorded as ``symlink:<where it points>`` and never followed. It used to be
+    skipped, so a link a user added to an installed skill left the inventory unchanged: no backup
+    was made, and the update then deleted the link along with the old directory.
+    """
     inv: dict[str, str] = {}
-    for f in sorted(skill_dir.rglob("*")):
-        if f.is_file() and not f.is_symlink():
-            h = hashlib.sha256()
-            with f.open("rb") as fh:
-                for chunk in iter(lambda: fh.read(65536), b""):
-                    h.update(chunk)
-            inv[f.relative_to(skill_dir).as_posix()] = h.hexdigest()
-    return inv
+    for root, dirs, files in os.walk(skill_dir):  # never descends into a symlinked directory
+        for name in dirs + files:
+            f = Path(root) / name
+            rel = f.relative_to(skill_dir).as_posix()
+            if f.is_symlink():
+                inv[rel] = "symlink:" + os.readlink(f)
+            elif f.is_file():
+                h = hashlib.sha256()
+                with f.open("rb") as fh:
+                    for chunk in iter(lambda: fh.read(65536), b""):
+                        h.update(chunk)
+                inv[rel] = h.hexdigest()
+    return dict(sorted(inv.items()))
 
 
 def _dir_size(p: Path) -> int:
@@ -162,7 +197,10 @@ def _timestamp() -> str:
 def permanent_backup(skill_path: Path, target: str, home: Path, reason: str, log) -> Path:
     dest = home / "backups" / _timestamp() / target / skill_path.name
     dest.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copytree(skill_path, dest)
+    # symlinks=True: a link is backed up as the link the user made, not as a copy of whatever it
+    # points at (which may be large, outside the skill, or gone -- a dangling link used to fail the
+    # whole backup, and with it the install).
+    shutil.copytree(skill_path, dest, symlinks=True)
     log(f"  backed up {skill_path.name} ({reason}) -> {dest}")
     return dest
 
@@ -213,9 +251,64 @@ def _mark_reminded(home: Path) -> None:
 
 # ---------------------------------------------------------------- recovery
 
+@contextmanager
+def _target_lock(tdir: Path):
+    """Hold an OS lock on <state>/targets/<t>/lock from recovery to cleanup.
+
+    Without it a second install started while the first was mid-transaction (two double-clicks,
+    or an install alongside an update) read the live journal as an interrupted one and rolled it
+    back underneath the first. The OS drops the lock when the process dies, so a killed install
+    never leaves a stale lock behind to block the next one.
+
+    Only "someone else holds it" refuses. A filesystem that cannot lock at all (some network
+    homes) proceeds unlocked, as every install did before, rather than never installing again.
+    """
+    tdir.mkdir(parents=True, exist_ok=True)
+    f = open(tdir / "lock", "a+b")
+    try:
+        try:
+            _lock_file(f, True)
+            held = True
+        except OSError as exc:
+            if exc.errno in _LOCK_BUSY:
+                raise TxnError(f"another MedSci Skills install or update is already running for "
+                               f"'{tdir.name}'. Let it finish, then run this again.") from None
+            held = False
+        try:
+            yield
+        finally:
+            if held:
+                try:
+                    _lock_file(f, False)  # explicit: Windows may release a closed handle's lock late
+                except OSError:
+                    pass
+    finally:
+        f.close()
+
+
+_LOCK_BUSY = {errno.EAGAIN, errno.EWOULDBLOCK, errno.EACCES, getattr(errno, "EDEADLK", -1),
+              getattr(errno, "EDEADLOCK", -1)}
+
+
+def _lock_file(f, lock: bool) -> None:
+    if os.name == "nt":
+        import msvcrt
+        f.seek(0)
+        msvcrt.locking(f.fileno(), msvcrt.LK_NBLCK if lock else msvcrt.LK_UNLCK, 1)
+    else:
+        import fcntl
+        fcntl.flock(f.fileno(), (fcntl.LOCK_EX | fcntl.LOCK_NB) if lock else fcntl.LOCK_UN)
+
+
 def recover_target(target: str, home: Path, log) -> bool:
     """Run journal recovery for a target before any new transaction. Returns True if a
     recovery was performed. Raises TxnError (fail closed) on a corrupt journal."""
+    tdir = target_state_dir(target, home)
+    with _target_lock(tdir):
+        return _recover_target(target, home, log)
+
+
+def _recover_target(target: str, home: Path, log) -> bool:
     tdir = target_state_dir(target, home)
     jpath = tdir / "journal.json"
     if not jpath.exists():
@@ -233,21 +326,35 @@ def recover_target(target: str, home: Path, log) -> bool:
 
     # Point of no return = all new skills actually placed in dest. Roll FORWARD only when the
     # new content is fully in place (committed, or new_installed with every skill placed);
-    # otherwise ROLL BACK (the new content is still partly in staging).
-    fully_placed = len(placed_new) == len(owned) and len(owned) > 0
+    # otherwise ROLL BACK (the new content is still partly in staging). A release that owns no
+    # skills is fully placed as soon as new_installed begins; the old `len(owned) > 0` sent it
+    # to rollback, which restored the pruned folders beside an already-written empty manifest.
+    fully_placed = len(placed_new) == len(owned)
     roll_forward = phase == "committed" or (phase == "new_installed" and fully_placed)
 
     if roll_forward:
         atomic_write_json(tdir / "installed-manifest.json", j["intended_manifest"])
         atomic_write_json(tdir / "state.json", j["intended_state"])
     else:
-        for name in placed_new:          # undo any partially-placed new dirs
+        # Reconcile with the disk instead of trusting the journal's lists alone. A kill can land
+        # between a move and the journal write that records it, and this rollback can itself be
+        # interrupted and re-run; either way the lists misstate what actually moved. Replaying
+        # them used to delete an old skill the journal had not yet recorded (it went with the
+        # holding dir) and, on a re-run, an old skill the previous rollback had already restored.
+        #  * Whatever is in holding is an old dir set aside, recorded or not: put it back,
+        #    displacing any new copy that took its place.
+        #  * In new_installed, a skill that has left staging was placed in dest. If no old dir was
+        #    set aside for it, that dest dir is ours and goes; if one was and it is no longer in
+        #    holding, it has already been put back, so it is left alone.
+        held = sorted(p.name for p in holding.iterdir()) if holding.is_dir() else []
+        for name in held:
             _rm(dest / name)
-        for name in moved_old:           # restore old dirs set aside
-            src = holding / name
-            if src.exists():
+            os.replace(holding / name, dest / name)
+        if phase == "new_installed":
+            staging = Path(j["staging"])
+            placed = set(placed_new) | {n for n in owned if not (staging / n).exists()}
+            for name in sorted(placed - set(moved_old) - set(held)):
                 _rm(dest / name)
-                os.replace(src, dest / name)
 
     _rm(Path(j["txn_root"]))             # discard the whole .medsci-txn/<id> (staging + holding)
     try:
@@ -281,12 +388,19 @@ def install_target(
     """Transactionally install `owned_skills` from source into dest. Returns a result dict.
     Recovery for this target is run first. Raises TxnError on fail-closed conditions.
     `crash_hook(journal)` (test-only) is called after every journal write and may raise to
-    simulate a SIGKILL at a consistent point; recovery is then exercised on the next run."""
+    simulate a SIGKILL at a consistent point; recovery is then exercised on the next run.
+    The whole run, recovery included, holds the target's lock; a concurrent run gets TxnError."""
     home.mkdir(parents=True, exist_ok=True)
     tdir = target_state_dir(target, home)
-    tdir.mkdir(parents=True, exist_ok=True)
+    with _target_lock(tdir):
+        return _install_target(source_skills_dir, dest, target, owned_skills, home, log,
+                               min_free_bytes_extra, crash_hook)
 
-    recover_target(target, home, log)  # may raise (fail closed)
+
+def _install_target(source_skills_dir, dest, target, owned_skills, home, log,
+                    min_free_bytes_extra, crash_hook) -> dict:
+    tdir = target_state_dir(target, home)
+    _recover_target(target, home, log)  # may raise (fail closed)
 
     dest.mkdir(parents=True, exist_ok=True)
     # Canonical-home containment (production only). When MEDSCI_HOME is set (tests / a custom
@@ -422,7 +536,7 @@ def install_target(
         pass
     jpath.unlink()
 
-    log(f"[{target}] installed {len(owned_skills)} skills, pruned {len(prune)} (transaction {txn_id} committed)")
+    log(f"[{target}] installed {len(owned_skills)} skill folders, pruned {len(prune)} (transaction {txn_id} committed)")
     return {"target": target, "installed": len(owned_skills), "pruned": len(prune), "txn_id": txn_id}
 
 

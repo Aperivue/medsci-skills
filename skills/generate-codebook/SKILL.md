@@ -1,7 +1,6 @@
 ---
 name: generate-codebook
 description: Use when a tabular dataset (CSV, Excel, Parquet, Stata, SAS) needs a data dictionary. Profiles every variable (type, levels, range, missingness) into codebook.md and codebook.json and flags coded values of unknown meaning as [NEEDS DICTIONARY] instead of guessing.
-model: inherit
 metadata:
   triggers: "generate codebook, data dictionary, codebook, profile variables, variable dictionary, describe dataset, what variables, column dictionary, build codebook"
 ---

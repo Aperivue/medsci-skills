@@ -120,4 +120,47 @@ assert hit[0]["severity"] == "Minor", f"FAIL: expected Minor, got {hit[0]['sever
 print("  fine-tuning provenance gate OK (scaffold passes; stripped repo fires Minor)")
 PY
 
-echo "PASS: 6 tasks scaffold to a disjoint+seeded split (frozen) with hygiene-clean code; segmentation forward tier + fine-tuning provenance gate verified."
+# (7) VALUES ARE DATA: the ID column header, the manifest file name and --from-pretrained land
+#     inside Python string literals (ID_COL = "..."). Pasted in raw, a `"` or `\` made the
+#     generated repo unparseable while scaffold exited 0, and a crafted header became code that
+#     runs on import. Each value must parse back out of the emitted AST exactly as given.
+python3 - "$SCAFFOLD" "$WORK/values" <<'PY' || exit 1
+import ast, csv, subprocess, sys
+from pathlib import Path
+scaffold, work = sys.argv[1], Path(sys.argv[2])
+work.mkdir()
+source = 'hf:org/model"v2\\final'
+cases = {"quote-and-backslash": 'patient"id\\x',
+         "breakout": 'x"; __import__("os").system("exit 3"); y="'}
+for label, id_col in cases.items():
+    manifest = work / f'{label}"manifest.csv'
+    with manifest.open("w", newline="", encoding="utf-8") as f:
+        w = csv.writer(f)
+        w.writerow([id_col, "image"])
+        w.writerows([f"P{i:02d}", f"img{i}.png"] for i in range(12))
+    for task in ("segmentation", "finetune"):
+        out = work / f"{label}-{task}"
+        r = subprocess.run([sys.executable, scaffold, "--manifest", str(manifest), "--id-col", id_col,
+                            "--task", task, "--from-pretrained", source, "--out", str(out),
+                            "--seed", "42", "--quiet"], capture_output=True, text=True)
+        assert r.returncode == 0, f"FAIL: {label}/{task}: scaffold exited {r.returncode}: {r.stderr}"
+        found = {}
+        for py in sorted(out.glob("*.py")):
+            try:
+                tree = ast.parse(py.read_text(encoding="utf-8"))
+            except SyntaxError as e:
+                raise SystemExit(f"FAIL: {label}/{task}: emitted {py.name} does not parse: {e}")
+            for n in tree.body:
+                if isinstance(n, ast.Assign) and len(n.targets) == 1 and isinstance(n.targets[0], ast.Name):
+                    found.setdefault(n.targets[0].id, []).append(getattr(n.value, "value", n.value))
+        want = {"ID_COL": id_col, "MANIFEST": manifest.name}
+        if task == "finetune":
+            want["PRETRAINED_SOURCE"] = source
+        for name, value in want.items():
+            got = found.get(name, [])
+            assert got and all(v == value for v in got), f"FAIL: {label}/{task}: {name} = {got!r}, want {value!r}"
+        assert "y" not in found, f"FAIL: {label}/{task}: a header value became a statement"
+print("  hostile values OK (quote, backslash, breakout header, manifest name, pretrained source)")
+PY
+
+echo "PASS: 6 tasks scaffold to a disjoint+seeded split (frozen) with hygiene-clean code; segmentation forward tier + fine-tuning provenance gate verified; user values stay inside their string literals."

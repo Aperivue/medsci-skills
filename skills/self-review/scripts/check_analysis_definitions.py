@@ -101,8 +101,8 @@ REFSTD_DECL_RE = re.compile(
     r")\b", re.I)
 
 TIER_LABEL_RE = re.compile(r"\b([TC][1-9]|Group\s+[A-D]|Class\s+[1-4]|Tier\s+[1-4])\b")
-# A tier is defined when its label sits next to a criterion: "T1 (≥15 mm)", "T1 = ...",
-# "T1 was defined as", "T1 (6–9 mm)".
+# A tier is defined when its label sits next to a criterion: "T1 (≥6.5 mg/dL)", "T1 = ...",
+# "T1 was defined as", "Group C (5.5–6.4)".
 TIER_DEF_TMPL = (r"{lab}\s*(?:\(|,|:|=|\bwas\s+defined\b|\bwere\s+defined\b|\bdenote|\brefer)"
                  r"[^.\n]{{0,60}}?(?:[<>≥≤]|\d|\bmm\b|\bcm\b|defined)")
 

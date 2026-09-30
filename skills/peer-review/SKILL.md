@@ -1,7 +1,6 @@
 ---
 name: peer-review
 description: Use when reviewing someone else's manuscript for a journal, such as after a review invitation or for a revised R1/R2 version. Drafts a structured, constructive review in the journal's format. Never for your own manuscript; that is /self-review.
-model: inherit
 metadata:
   triggers: "peer review, manuscript review, review paper, reviewer comments, 리뷰, 논문 리뷰, review invitation, journal review"
 ---
@@ -279,7 +278,7 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/check_self_improvement_claims.py" \
 Before writing comments, skim the relevant model in `references/exemplar_reviews/` for the
 finding type at hand (AI overclaiming, reference-standard validity, data leakage, missing
 calibration, optimistic validation reporting, selective outcome reporting). Each shows the same four moves — anchor the location, state the gap, phrase
-it as a partner (Aczel-compliant), and calibrate severity (design-level → Major #1). Model
+it as a partner (Watling-compliant), and calibrate severity (design-level → Major #1). Model
 the anchoring and phrasing; do not copy — they are synthetic teaching examples.
 
 **Request-type discipline (classify every Major's ask before it ships).** Sort each request into two kinds:
@@ -358,7 +357,7 @@ After drafting, verify mechanically:
 6. **Major #1 = task formulation flaw** (if present): if §3C-1 audit found framing mismatch, place it as Major #1. Do not let it be downgraded into adjacent measurement-level issues (selection bias, sample size).
 7. **Request-type gate (deterministic)**: run `check_review_request_types.py --review <draft> --strict` on your own draft. Any MAJOR verdict blocks: reword the ask as disclosure, justify why the existing tables cannot answer it, or drop it. This is the Phase 3 rule with a script behind it.
 8. **AI pattern density (quantified threshold)**: em-dash ≤2 per 1000 words, structural rule-of-three ≤2 per Major comment, significance inflation ("genuinely", "truly", "indeed") 0 per Major, hedged Minor proportion ≥50% ("could", "would help", "I'd suggest" vs bare "Please [verb]").
-9. **Aczel tone audit** (`references/aczel_2021_reviewer2_patterns.md`):
+9. **Watling tone audit** (`references/aczel_2021_reviewer2_patterns.md`):
    - 0 attitude markers (reject/absurd/ridiculous/naive/oblivious/fail)
    - 0 personal attacks ("the authors seem...", "the authors do not understand")
    - ≥2 first-person rapport instances in General Comments / Closing Remark
@@ -411,7 +410,7 @@ Fix all issues found, then present to user.
 ## Tone and Calibration
 
 - **Default**: Developmental, constructive, partner-voice (not gatekeeper-voice)
-- **Aczel 2021 patterns** (`references/aczel_2021_reviewer2_patterns.md`): avoid attitude markers ("reject," "absurd," "oblivious"), boosters, personal attacks on authors, vague dismissals, and typo nitpicking; prefer first-person rapport ("I appreciate," "I stumbled over"), hedged suggestions ("I'd suggest," "could," "would help"), and critique aimed at the work rather than the people. Apply throughout drafting, not just QC.
+- **Watling 2021 patterns** (`references/aczel_2021_reviewer2_patterns.md`): avoid attitude markers ("reject," "absurd," "oblivious"), boosters, personal attacks on authors, vague dismissals, and typo nitpicking; prefer first-person rapport ("I appreciate," "I stumbled over"), hedged suggestions ("I'd suggest," "could," "would help"), and critique aimed at the work rather than the people. Apply throughout drafting, not just QC.
 - **Escalate tone** only when: clinical validity threatened, patient safety concern, severe data leakage, or reference standard fundamentally flawed
 - **Default recommendation**: Major Revision (unless issues are purely reporting/clarity → Minor Revision)
 - **Fatal flaw signal**: State in Confidential Comments which issue(s) represent fundamental design limitations, rather than recommending Reject directly

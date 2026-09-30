@@ -17,12 +17,13 @@ import os
 import datetime
 import numpy as np
 import pandas as pd
+import scipy
 from scipy import stats
 
 np.random.seed(42)
 print(f"Date: {datetime.date.today()}")
 print(f"Python: {sys.version}")
-print(f"numpy: {np.__version__}, pandas: {pd.__version__}, scipy: {stats.scipy.__version__}")
+print(f"numpy: {np.__version__}, pandas: {pd.__version__}, scipy: {scipy.__version__}")
 
 try:
     import statsmodels.api as sm
@@ -60,23 +61,99 @@ CONFIG = {
     # Variables
     "outcome": "event",
     "predictors": ["age", "sex", "bmi", "smoking"],
+    # Categorical predictors are entered as k-1 indicator (dummy) columns against a
+    # reference level, whatever their dtype -- a nominal variable coded 1/2/3 is not
+    # a linear term. List every categorical predictor here, numeric-coded or not.
     "categorical_vars": ["sex", "smoking"],
+    # Reference level per categorical variable, e.g. {"smoking": "never"}.
+    # Unlisted variables use their most frequent level; the choice is printed.
+    "reference_levels": {},
 
     # Options
-    "run_univariable": True,  # Run univariable analysis before multivariable
+    # Crude (unadjusted) estimates for the table. They are descriptive only: do not
+    # choose adjustment covariates by univariable P value (see regression.md).
+    "run_univariable": True,
     "vif_threshold": 5.0,
     "epv_minimum": 10,
+    # Bootstrap refits for the optimism-corrected C-statistic and calibration slope
+    # (logistic only; Harrell/Steyerberg). Set to 0 to skip.
+    "n_bootstrap_optimism": 200,
 }
 
 
 # === HELPER FUNCTIONS ===
 
+def encode_predictors(df, predictors, categorical_vars, reference_levels):
+    """Build the design matrix: continuous predictors as-is, categorical predictors
+    as k-1 indicator columns against a stated reference level.
+
+    Call this on complete cases only. Encoding before dropping missing rows is how
+    a missing category turns into a numeric level (pandas codes NaN as -1).
+
+    Returns (X without constant, {predictor: [design columns]}).
+    """
+    blocks, term_columns = [], {}
+    for var in predictors:
+        if var in categorical_vars:
+            counts = df[var].value_counts()
+            ref = reference_levels.get(var, counts.index[0])
+            if ref not in counts.index:
+                raise ValueError(f"Reference level {ref!r} for '{var}' not found; "
+                                 f"levels are {list(counts.index)}")
+            levels = [lv for lv in sorted(counts.index, key=str) if lv != ref]
+            cols = {f"{var}: {lv} vs {ref}": (df[var] == lv).astype(float) for lv in levels}
+            print(f"  {var}: reference = {ref!r}; levels {[str(lv) for lv in levels]}")
+            blocks.append(pd.DataFrame(cols, index=df.index))
+            term_columns[var] = list(cols)
+        else:
+            blocks.append(df[[var]].astype(float))
+            term_columns[var] = [var]
+    return pd.concat(blocks, axis=1), term_columns
+
+
 def calculate_vif(X):
-    """Calculate VIF for each predictor."""
-    vif_data = pd.DataFrame()
-    vif_data["Variable"] = X.columns
-    vif_data["VIF"] = [variance_inflation_factor(X.values, i) for i in range(X.shape[1])]
+    """VIF for each column of X (no constant column in X).
+
+    The constant is added here on purpose: variance_inflation_factor regresses each
+    column on the other columns of the matrix it is given and does not add an
+    intercept, so without one the VIF of any variable with a non-zero mean is
+    inflated (two independent predictors, age and BMI, came out at ~19).
+    """
+    Xc = sm.add_constant(X, has_constant="add")
+    vif_data = pd.DataFrame({
+        "Variable": X.columns,
+        "VIF": [variance_inflation_factor(Xc.values, i) for i in range(1, Xc.shape[1])],
+    })
     return vif_data
+
+
+def optimism_corrected_logistic(X, y, n_boot, seed=42):
+    """Bootstrap optimism correction (Harrell 1996; Steyerberg 2001) for the
+    C-statistic and the calibration slope of a logistic model.
+
+    Each bootstrap sample refits the model; optimism = performance of the refit on
+    its own bootstrap sample minus its performance on the original data.
+    """
+    rng = np.random.default_rng(seed)
+    y = np.asarray(y); Xv = np.asarray(X, dtype=float); n = len(y)
+
+    def slope(y_, lp_):
+        return sm.GLM(y_, sm.add_constant(lp_), family=sm.families.Binomial()).fit().params[1]
+
+    opt_c, opt_s = [], []
+    for _ in range(n_boot):
+        idx = rng.integers(0, n, n)
+        yb = y[idx]
+        if yb.min() == yb.max():
+            continue
+        try:
+            fit = sm.Logit(yb, Xv[idx]).fit(disp=0)
+        except Exception:
+            continue
+        lp_boot, lp_orig = Xv[idx] @ fit.params, Xv @ fit.params
+        opt_c.append(roc_auc_score(yb, lp_boot) - roc_auc_score(y, lp_orig))
+        opt_s.append(slope(yb, lp_boot) - slope(y, lp_orig))
+    return float(np.mean(opt_c)), float(np.mean(opt_s)), len(opt_c)
 
 
 def logistic_or_table(model, var_names):
@@ -110,23 +187,6 @@ def linear_coef_table(model, var_names):
         lambda r: f"{r['Coefficient']:.3f} ({r['CI_lower']:.3f} to {r['CI_upper']:.3f})", axis=1
     )
     return table
-
-
-def hosmer_lemeshow_test(y_true, y_pred, n_groups=10):
-    """Hosmer-Lemeshow goodness-of-fit test."""
-    data = pd.DataFrame({"y": y_true, "p": y_pred})
-    data["group"] = pd.qcut(data["p"], n_groups, duplicates="drop")
-    grouped = data.groupby("group").agg(
-        obs=("y", "sum"),
-        exp=("p", "sum"),
-        n=("y", "count"),
-        mean_p=("p", "mean")
-    )
-    chi2 = ((grouped["obs"] - grouped["exp"]) ** 2 /
-            (grouped["exp"] * (1 - grouped["mean_p"]))).sum()
-    df = len(grouped) - 2
-    p_value = 1 - stats.chi2.cdf(chi2, df)
-    return chi2, df, p_value
 
 
 def plot_diagnostic_4panel(model, outcome_name, output_dir):
@@ -225,69 +285,79 @@ def run_logistic(df, config):
     output_dir = config["output_dir"]
 
     y = df[outcome]
-    n_events = y.sum()
+    n_events = int(y.sum())
     n_total = len(y)
-    epv = n_events / len(predictors)
+    X_raw, term_columns = encode_predictors(
+        df, predictors, config.get("categorical_vars", []),
+        config.get("reference_levels", {}))
+    n_params = X_raw.shape[1]
+    # EPV counts model parameters (each dummy column is one), and the limiting
+    # outcome class
+    epv = min(n_events, n_total - n_events) / n_params
 
     print(f"\n{'='*60}")
     print(f"LOGISTIC REGRESSION")
     print(f"{'='*60}")
     print(f"Outcome: {outcome}")
     print(f"N = {n_total}, Events = {n_events} ({100*n_events/n_total:.1f}%)")
-    print(f"Predictors: {len(predictors)}")
-    print(f"EPV = {epv:.1f} (minimum recommended: {config['epv_minimum']})")
+    print(f"Predictors: {len(predictors)} ({n_params} model parameters)")
+    print(f"EPV = {epv:.1f} per parameter (minimum recommended: {config['epv_minimum']})")
     if epv < config["epv_minimum"]:
         print(f"⚠ WARNING: EPV < {config['epv_minimum']}. Model may be unstable. "
               "Consider reducing predictors or using penalized regression.")
+    print("  For a prediction model, justify N with the Riley et al. criteria "
+          "(pmsampsize), not EPV alone.")
 
-    # --- Univariable analysis ---
+    # --- Univariable (crude) analysis: descriptive, not a selection step ---
     if config["run_univariable"]:
-        print(f"\n--- Univariable Analysis ---")
+        print(f"\n--- Univariable (crude) Analysis ---")
         uni_results = []
         for var in predictors:
-            X_uni = sm.add_constant(df[[var]])
+            cols = term_columns[var]
+            X_uni = sm.add_constant(X_raw[cols])
             try:
                 model_uni = sm.Logit(y, X_uni).fit(disp=0)
-                or_val = np.exp(model_uni.params[var])
-                ci = np.exp(model_uni.conf_int().loc[var])
-                p_val = model_uni.pvalues[var]
-                uni_results.append({
-                    "Variable": var,
-                    "Uni_OR": or_val,
-                    "Uni_CI_lower": ci[0],
-                    "Uni_CI_upper": ci[1],
-                    "Uni_P": p_val,
-                    "Uni_OR_CI": f"{or_val:.2f} ({ci[0]:.2f}-{ci[1]:.2f})"
-                })
+                for col in cols:
+                    or_val = np.exp(model_uni.params[col])
+                    ci = np.exp(model_uni.conf_int().loc[col])
+                    uni_results.append({
+                        "Variable": col,
+                        "Uni_OR": or_val,
+                        "Uni_CI_lower": ci[0],
+                        "Uni_CI_upper": ci[1],
+                        "Uni_P": model_uni.pvalues[col],
+                        "Uni_OR_CI": f"{or_val:.2f} ({ci[0]:.2f}-{ci[1]:.2f})"
+                    })
             except Exception as e:
                 print(f"  {var}: failed ({e})")
-                uni_results.append({"Variable": var, "Uni_OR": np.nan})
+                uni_results.extend({"Variable": col, "Uni_OR": np.nan} for col in cols)
         uni_df = pd.DataFrame(uni_results)
         print(uni_df[["Variable", "Uni_OR_CI", "Uni_P"]].to_string(index=False))
 
     # --- Multivariable analysis ---
     print(f"\n--- Multivariable Analysis ---")
-    X = sm.add_constant(df[predictors])
+    X = sm.add_constant(X_raw)
     model = sm.Logit(y, X).fit(disp=0)
     print(model.summary2())
 
     # OR table
-    var_names = ["const"] + predictors
-    multi_table = logistic_or_table(model, var_names)
+    multi_table = logistic_or_table(model, list(model.params.index))
 
     # VIF (exclude intercept)
-    vif_df = calculate_vif(df[predictors])
+    vif_df = calculate_vif(X_raw)
     print(f"\n--- VIF ---")
     print(vif_df.to_string(index=False))
     high_vif = vif_df[vif_df["VIF"] > config["vif_threshold"]]
     if len(high_vif) > 0:
-        print(f"⚠ WARNING: Variables with VIF > {config['vif_threshold']}: "
-              f"{', '.join(high_vif['Variable'])}")
+        print(f"⚠ NOTE: VIF > {config['vif_threshold']}: {', '.join(high_vif['Variable'])}. "
+              "Inspect these; collinearity among adjustment covariates does not bias the "
+              "exposure estimate, so do not drop a confounder on VIF alone. Dummy columns "
+              "of one variable are collinear with each other by design (use GVIF).")
 
-    # C-statistic
+    # Discrimination and calibration. Everything computed on the data the model was
+    # fitted to is APPARENT (optimistic); the bootstrap refit gives the corrected value.
     y_pred = model.predict(X)
     c_stat = roc_auc_score(y, y_pred)
-    # Bootstrap CI for C-statistic
     n_boot = 1000
     c_boots = []
     for i in range(n_boot):
@@ -298,15 +368,26 @@ def run_logistic(df, config):
         except ValueError:
             continue
     c_ci = np.percentile(c_boots, [2.5, 97.5])
-    print(f"\nC-statistic (AUC) = {c_stat:.3f} (95% CI: {c_ci[0]:.3f}-{c_ci[1]:.3f})")
+    print(f"\nApparent C-statistic (AUC) = {c_stat:.3f} (95% CI: {c_ci[0]:.3f}-{c_ci[1]:.3f}; "
+          "development data, not optimism-corrected)")
 
-    # Hosmer-Lemeshow
-    hl_chi2, hl_df, hl_p = hosmer_lemeshow_test(y, y_pred)
-    print(f"Hosmer-Lemeshow: chi2 = {hl_chi2:.2f}, df = {hl_df}, P = {hl_p:.3f}")
+    b_opt = config.get("n_bootstrap_optimism", 0)
+    c_corr = slope_corr = None
+    if b_opt:
+        opt_c, opt_s, b_used = optimism_corrected_logistic(X, y, b_opt)
+        c_corr = c_stat - opt_c
+        slope_corr = 1.0 - opt_s  # apparent slope of an ML logistic fit is 1 by construction
+        print(f"Optimism-corrected C-statistic = {c_corr:.3f} "
+              f"(bootstrap, {b_used} refits; optimism {opt_c:.3f})")
+        print(f"Optimism-corrected calibration slope = {slope_corr:.3f} "
+              f"(apparent slope is 1.00 by construction)")
+    print("Calibration: report the corrected slope, calibration-in-the-large and a "
+          "flexible calibration curve (analysis_guides/calibration.md). "
+          "Hosmer-Lemeshow is not reported (TRIPOD E&E; Van Calster 2016).")
 
     # Brier score
     brier = brier_score_loss(y, y_pred)
-    print(f"Brier score = {brier:.4f}")
+    print(f"Apparent Brier score = {brier:.4f}")
 
     # Merge univariable + multivariable
     if config["run_univariable"]:
@@ -319,11 +400,14 @@ def run_logistic(df, config):
     # Forest plot
     plot_forest_or(multi_table, output_dir)
 
-    # Results text
+    # Results text: numbers only; the reader judges adequacy from them
     print(f"\n--- Manuscript Text ---")
-    print(f"The logistic regression model demonstrated a C-statistic of {c_stat:.3f} "
-          f"(95% CI, {c_ci[0]:.3f}-{c_ci[1]:.3f}) and adequate calibration "
-          f"(Hosmer-Lemeshow P = {hl_p:.2f}).")
+    text = (f"The apparent C-statistic of the logistic regression model was {c_stat:.3f} "
+            f"(95% CI, {c_ci[0]:.3f}-{c_ci[1]:.3f})")
+    if c_corr is not None:
+        text += (f"; after bootstrap optimism correction ({b_opt} resamples) the "
+                 f"C-statistic was {c_corr:.3f} and the calibration slope {slope_corr:.3f}")
+    print(text + ".")
 
     return model
 
@@ -346,13 +430,14 @@ def run_linear(df, config):
     print(f"N per predictor: {n_total / len(predictors):.0f} (recommended >= 10-20)")
 
     # --- Model fitting ---
-    X = sm.add_constant(df[predictors])
+    X_raw, _ = encode_predictors(df, predictors, config.get("categorical_vars", []),
+                                 config.get("reference_levels", {}))
+    X = sm.add_constant(X_raw)
     model = sm.OLS(y, X).fit()
     print(model.summary2())
 
     # Coefficient table
-    var_names = ["const"] + predictors
-    coef_table = linear_coef_table(model, var_names)
+    coef_table = linear_coef_table(model, list(model.params.index))
     coef_table["R_squared"] = ""
     coef_table.loc[0, "R_squared"] = f"R²={model.rsquared:.3f}, Adj.R²={model.rsquared_adj:.3f}"
     coef_table.to_csv(os.path.join(output_dir, "linear_regression_table.csv"), index=False)
@@ -360,25 +445,22 @@ def run_linear(df, config):
     print(f"Adjusted R² = {model.rsquared_adj:.3f}")
 
     # VIF
-    vif_df = calculate_vif(df[predictors])
+    vif_df = calculate_vif(X_raw)
     print(f"\n--- VIF ---")
     print(vif_df.to_string(index=False))
     high_vif = vif_df[vif_df["VIF"] > config["vif_threshold"]]
     if len(high_vif) > 0:
-        print(f"⚠ WARNING: Variables with VIF > {config['vif_threshold']}: "
-              f"{', '.join(high_vif['Variable'])}")
+        print(f"⚠ NOTE: VIF > {config['vif_threshold']}: {', '.join(high_vif['Variable'])}. "
+              "Inspect these; do not drop a confounder on VIF alone.")
 
     # Diagnostic plots
     plot_diagnostic_4panel(model, outcome, output_dir)
 
-    # Normality of residuals
-    if n_total < 50:
-        stat, p = stats.shapiro(model.resid)
-        print(f"\nShapiro-Wilk test on residuals: W = {stat:.4f}, P = {p:.3f}")
-    else:
-        stat, p = stats.kstest(model.resid, "norm",
-                               args=(model.resid.mean(), model.resid.std()))
-        print(f"\nKolmogorov-Smirnov test on residuals: D = {stat:.4f}, P = {p:.3f}")
+    # Residual normality is judged from the Normal Q-Q panel. A normality test is not
+    # used to pick the model: it rejects trivially at large n and misses departures at
+    # small n (the KS test with estimated mean/SD is also miscalibrated).
+    print(f"\nResidual skewness = {stats.skew(model.resid):.2f} "
+          "(inspect the Normal Q-Q panel in diagnostic_plots)")
 
     # Results text
     print(f"\n--- Manuscript Text ---")
@@ -396,21 +478,18 @@ if __name__ == "__main__":
     df = pd.read_csv(CONFIG["data_path"])
     print(f"Data loaded: {df.shape[0]} rows x {df.shape[1]} columns")
 
-    # Encode categorical variables if needed
-    for cat_var in CONFIG.get("categorical_vars", []):
-        if cat_var in df.columns and df[cat_var].dtype == "object":
-            df[cat_var] = pd.Categorical(df[cat_var]).codes
-
-    # Drop rows with missing values in analysis variables
+    # Drop rows with missing values in analysis variables FIRST; categorical
+    # predictors are dummy-coded afterwards, inside the model functions
     analysis_vars = [CONFIG["outcome"]] + CONFIG["predictors"]
     n_before = len(df)
     df_complete = df[analysis_vars].dropna()
     n_after = len(df_complete)
     if n_before != n_after:
-        print(f"Missing data: {n_before - n_after} rows excluded ({100*(n_before-n_after)/n_before:.1f}%)")
-        if (n_before - n_after) / n_before > 0.05:
-            print("⚠ Consider multiple imputation (> 5% missing). "
-                  "See analysis_guides/missing_data.md")
+        print(f"Missing data: {n_before - n_after} rows excluded "
+              f"({100*(n_before-n_after)/n_before:.1f}%); complete-case analysis.")
+        print("  Whether complete-case analysis is adequate depends on which variables "
+              "are missing and why, not on the percentage. See "
+              "analysis_guides/missing_data.md")
 
     # Run appropriate regression
     if CONFIG["regression_type"] == "logistic":

@@ -6,7 +6,7 @@
 - **Citation:** Kocak B, Baessler B, Bakas S, et al. *CheckList for EvaluAtion of Radiomics research (CLEAR): a step-by-step reporting guideline for authors and reviewers endorsed by ESR and EuSoMII.* Insights Imaging. 2023;14(1):75.
 - **DOI:** 10.1186/s13244-023-01415-8
 - **Source:** https://pmc.ncbi.nlm.nih.gov/articles/PMC10160267/ · official item list: https://clearchecklist.github.io/clear_checklist/CLEAR.html
-- **Licence:** CC BY 4.0. Item wording below is reproduced faithfully from the published statement with attribution.
+- **Licence:** CC BY 4.0. Item wording below is reproduced faithfully from Table 1 of the published statement with attribution. An italic *(Gloss: …)* after an item is our own explanation and is not part of the published item.
 
 CLEAR is a **58-item** step-by-step reporting guideline for radiomics research, ordered by **manuscript
 section** to follow a paper from title to open science: Title (1), Abstract (2), Keywords (3),
@@ -28,27 +28,27 @@ full text, PMC10160267); 58/58 match, with no item missing and none invented.
 
 | Item | Checklist item |
 |---|---|
-| 1 | Relevant title, specifying the radiomic methodology (generally identifying the study as radiomics-related). |
+| 1 | Relevant title, specifying the radiomic methodology. *(Gloss: Generally identifying the study as radiomics-related.)* |
 
 ### Abstract
 
 | Item | Checklist item |
 |---|---|
-| 2 | Structured summary with relevant information (with a structured or unstructured summary presenting key information). |
+| 2 | Structured summary with relevant information. *(Gloss: A structured summary of purpose, methods, results, and conclusions.)* |
 
 ### Keywords
 
 | Item | Checklist item |
 |---|---|
-| 3 | Relevant keywords for radiomics (providing keywords most relevant to the topic). |
+| 3 | Relevant keywords for radiomics. *(Gloss: Providing keywords most relevant to the topic.)* |
 
 ### Introduction
 
 | Item | Checklist item |
 |---|---|
-| 4 | Scientific or clinical background (mentioning the current scientific or clinical background). |
-| 5 | Rationale for using a radiomic approach (explaining the rationale for using a radiomic approach). |
-| 6 | Study objective(s) (stating the study objectives, hypotheses, or aims). |
+| 4 | Scientific or clinical background. *(Gloss: Mentioning the current scientific or clinical background.)* |
+| 5 | Rationale for using a radiomic approach. *(Gloss: Explaining the rationale for using a radiomic approach.)* |
+| 6 | Study objective(s). *(Gloss: Stating the study objectives, hypotheses, or aims.)* |
 
 ### Methods — Study design
 
@@ -56,18 +56,18 @@ full text, PMC10160267); 58/58 match, with no item missing and none invented.
 |---|---|
 | 7 | Adherence to guidelines or checklists (e.g., CLEAR checklist). |
 | 8 | Ethical details (e.g., approval, consent, data protection). |
-| 9 | Sample size calculation (with a statistical power analysis, if performed). |
+| 9 | Sample size calculation. *(Gloss: With a statistical power analysis, if performed.)* |
 | 10 | Study nature (e.g., retrospective, prospective). |
-| 11 | Eligibility criteria (with inclusion and exclusion criteria). |
-| 12 | Flowchart for technical pipeline (presenting a technical pipeline flowchart). |
+| 11 | Eligibility criteria. *(Gloss: With inclusion and exclusion criteria.)* |
+| 12 | Flowchart for technical pipeline. *(Gloss: Presenting a technical pipeline flowchart.)* |
 
 ### Methods — Data
 
 | Item | Checklist item |
 |---|---|
 | 13 | Data source (e.g., private, public). |
-| 14 | Data overlap (declaring any data overlap with previous studies). |
-| 15 | Data split methodology (describing how the data were split, e.g., training/validation/test). |
+| 14 | Data overlap. *(Gloss: Declaring any data overlap with previous studies.)* |
+| 15 | Data split methodology. *(Gloss: Describing how the data were split, e.g., training/validation/test.)* |
 | 16 | Imaging protocol (i.e., image acquisition and processing). |
 | 17 | Definition of non-radiomic predictor variables. |
 | 18 | Definition of the reference standard (i.e., outcome variable). |
@@ -76,8 +76,8 @@ full text, PMC10160267); 58/58 match, with no item missing and none invented.
 
 | Item | Checklist item |
 |---|---|
-| 19 | Segmentation strategy (2D/3D, manual/automatic, software, region of interest). |
-| 20 | Details of operators performing segmentation (number, experience, qualifications). |
+| 19 | Segmentation strategy. *(Gloss: 2D/3D, manual/automatic, software, region of interest.)* |
+| 20 | Details of operators performing segmentation. *(Gloss: Number, experience, qualifications.)* |
 
 ### Methods — Pre-processing
 
@@ -85,16 +85,16 @@ full text, PMC10160267); 58/58 match, with no item missing and none invented.
 |---|---|
 | 21 | Image pre-processing details. |
 | 22 | Resampling method and its parameters. |
-| 23 | Discretization method and its parameters (e.g., fixed bin width or count). |
+| 23 | Discretization method and its parameters. *(Gloss: e.g., fixed bin width or count.)* |
 | 24 | Image types (e.g., original, filtered, transformed). |
 
 ### Methods — Feature extraction
 
 | Item | Checklist item |
 |---|---|
-| 25 | Feature extraction method (software and version). |
-| 26 | Feature classes (e.g., shape, first-order, texture). |
-| 27 | Number of features (extracted per region and in total). |
+| 25 | Feature extraction method. *(Gloss: Software and version.)* |
+| 26 | Feature classes. *(Gloss: e.g., shape, first-order, texture.)* |
+| 27 | Number of features. *(Gloss: Extracted per region and in total.)* |
 | 28 | Default configuration statement for remaining parameters. |
 
 ### Methods — Data preparation
@@ -103,16 +103,16 @@ full text, PMC10160267); 58/58 match, with no item missing and none invented.
 |---|---|
 | 29 | Handling of missing data. |
 | 30 | Details of class imbalance. |
-| 31 | Details of segmentation reliability analysis (e.g., inter-/intra-observer agreement). |
+| 31 | Details of segmentation reliability analysis. *(Gloss: e.g., inter-/intra-observer agreement.)* |
 | 32 | Feature scaling details (e.g., normalization, standardization). |
-| 33 | Dimension reduction details (e.g., feature selection). |
+| 33 | Dimension reduction details. *(Gloss: e.g., feature selection.)* |
 
 ### Methods — Modeling
 
 | Item | Checklist item |
 |---|---|
-| 34 | Algorithm details (name and characteristics of the modeling algorithm[s]). |
-| 35 | Training and tuning details (including hyperparameter optimization). |
+| 34 | Algorithm details. *(Gloss: Name and characteristics of the modeling algorithm[s].)* |
+| 35 | Training and tuning details. *(Gloss: Including hyperparameter optimization.)* |
 | 36 | Handling of confounders. |
 | 37 | Model selection strategy. |
 
@@ -131,10 +131,10 @@ full text, PMC10160267); 58/58 match, with no item missing and none invented.
 
 | Item | Checklist item |
 |---|---|
-| 44 | Baseline demographic and clinical characteristics (across data partitions). |
-| 45 | Flowchart for eligibility criteria (participant flow). |
+| 44 | Baseline demographic and clinical characteristics. *(Gloss: Across data partitions.)* |
+| 45 | Flowchart for eligibility criteria. *(Gloss: Participant flow.)* |
 | 46 | Feature statistics (e.g., reproducibility, feature selection). |
-| 47 | Model performance evaluation (with the pre-specified metrics). |
+| 47 | Model performance evaluation. *(Gloss: With the pre-specified metrics.)* |
 | 48 | Comparison with non-radiomic and combined approaches. |
 
 ### Discussion

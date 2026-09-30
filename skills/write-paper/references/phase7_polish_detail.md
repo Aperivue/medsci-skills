@@ -234,7 +234,9 @@ python3 "$MR/scripts/check_xref.py" \
 The script extracts (a) every `(Supplementary )?(Table|Figure)\s+(S?\d+[A-Z]?)`
 in-text citation, (b) caption definitions from `## Tables` / `## Figures` /
 `## Figure Legends` / `## Supplementary {Tables,Figures}` sections in the body,
-and (c) caption paragraphs in the rendered DOCX (via python-docx). It then
+or from an embedded figure's own caption (`![Figure N. Caption](path)`, the Phase 2
+embed form) when no legend section defines that figure, and (c) caption paragraphs
+in the rendered DOCX (via python-docx). It then
 emits a 3-way matrix to `qc/xref_audit.json`:
 
 | Status | Meaning | Severity |

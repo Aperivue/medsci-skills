@@ -33,7 +33,9 @@ from __future__ import annotations
 import argparse
 import importlib.util
 import json
+import os
 import platform
+import shlex
 import shutil
 import subprocess
 import sys
@@ -277,7 +279,22 @@ def py() -> str:
                 return "python3"
         except OSError:
             pass
-    return sys.executable
+    return shell_quote(sys.executable)
+
+
+def shell_quote(arg: str) -> str:
+    """One argument, quoted so a printed command still runs when pasted: `C:\\Program Files\\...`
+    on Windows, an apostrophe (`/Users/o'brien/...`) or a space on macOS and Linux."""
+    return subprocess.list2cmdline([arg]) if os.name == "nt" else shlex.quote(arg)
+
+
+def this_script() -> str:
+    """This file's absolute path, quoted for the shell, for the --fix command we print.
+
+    The installer's tail used to print `installers/doctor.py --fix`, relative to a folder the
+    person is usually not in -- after `npx medsci-skills install`, never.
+    """
+    return shell_quote(str(Path(__file__).resolve()))
 
 
 # --------------------------------------------------------------------------------------------
@@ -383,7 +400,7 @@ def report(emit: Callable[[str], None], brief: bool = False) -> int:
                 emit("  - " + cap.title)
         emit("")
         emit("  See what they are, and install them (it asks before each one):")
-        emit("    " + py() + " installers/doctor.py --fix")
+        emit("    " + py() + " " + this_script() + " --fix")
         return essential_missing
 
     if not broken:
@@ -410,7 +427,7 @@ def report(emit: Callable[[str], None], brief: bool = False) -> int:
     emit("  [  ] = a skill you are likely to want      [--] = optional, most people never need it")
     emit("")
     emit("To install these, with a question before each one:")
-    emit("    " + py() + " " + str(__file__) + " --fix")
+    emit("    " + py() + " " + this_script() + " --fix")
     emit("")
     emit("Big things (a TeX distribution, R, PyTorch) are never installed for you — the command is")
     emit("printed above and the choice stays yours.")

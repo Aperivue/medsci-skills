@@ -4,7 +4,7 @@
 
 > Use when building or auditing a radiomics or tabular clinical-ML prediction model with a classical learner (LASSO, SVM, random forest, XGBoost and similar). Enforces nested CV, dimensionality control, in-fold feature selection, feature stability, calibration and external validation.
 
-**Invoke:** `/radiomics-ml` · **Model:** inherit
+**Invoke:** `/radiomics-ml`
 
 ## When to use
 
@@ -23,6 +23,7 @@
 **Known limitations**
 
 - Audits the declared pipeline manifest, not the executed code; a mislabelled field (e.g. flat CV recorded as nested) can hide a real problem — complements, does not replace, self-review/check_cv_leakage (prose audit).
+- The manifest carries no grouping field, so the gate cannot see lesion rows of one patient split across folds; the guide's nested-CV skeleton splits by patient and writes a fold table that model-assessment's check_split_leakage.py audits.
 - A clean pipeline audit is necessary, not sufficient — external validation and clinical-utility evidence still govern the clinical claim.
 
 **Validation**

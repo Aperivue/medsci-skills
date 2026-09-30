@@ -129,9 +129,9 @@ Compare structures using **AIC/BIC** (lower = better).
 
 ## Reporting Templates
 
-**RM ANOVA**: "Repeated-measures ANOVA was performed with Greenhouse-Geisser correction for violation of sphericity (Mauchly's test P < 0.001, ε = 0.42). There was a significant time × group interaction (F(X, Y) = Z, P = exact)."
+**RM ANOVA**: "Repeated-measures ANOVA was performed with the Greenhouse-Geisser correction (ε = [X.XX]). For the time × group interaction, F([df1], [df2]) = [X.XX], P = [exact]."
 
-**LMM**: "A linear mixed-effects model with random intercepts for subjects and [CS/AR(1)] correlation structure was fitted. The time × group interaction was significant (β = -2.34, 95% CI -3.87 to -0.81; P = 0.003), indicating that the rate of change in [outcome] differed between groups."
+**LMM**: "A linear mixed-effects model with [random intercepts / random intercepts and slopes] for subjects was fitted, with time as [a continuous variable in [units] / a categorical variable]. The time × group interaction was β = [X.XX] (95% CI [X.XX to X.XX]; P = [exact])." Say that the rate of change differed between groups only if the interval supports it; with categorical time, report the per-visit contrasts.
 
 **GEE**: "GEE with exchangeable correlation structure was used to estimate population-averaged effects. The time × group interaction was ..."
 

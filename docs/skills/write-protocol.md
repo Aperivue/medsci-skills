@@ -4,7 +4,7 @@
 
 > Use when drafting an IRB or ethics research protocol. Writes Background, Study Design, Sample Size and Statistical Plan in full prose and leaves institution-specific sections as TODO skeletons. Filling an institutional Word form is /fill-protocol.
 
-**Invoke:** `/write-protocol` · **Model:** inherit
+**Invoke:** `/write-protocol`
 
 ## When to use
 

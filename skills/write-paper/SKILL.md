@@ -1,7 +1,6 @@
 ---
 name: write-paper
 description: Use when drafting a medical research manuscript or any IMRAD section. Runs an 8-phase pipeline from outline to submission-ready draft for original articles, AI validation studies, case reports, meta-analyses, technical notes and more. Checking a draft is /self-review.
-model: inherit
 metadata:
   triggers: "write paper, manuscript, draft paper, start writing, write methods, write results, write discussion, write introduction"
 ---

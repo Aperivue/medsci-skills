@@ -33,18 +33,20 @@ separately from the non-diseased count `[N_nondiseased]` and is satisfied at thi
 **precision, not power** — no comparison hypothesis is tested." (Cite Hajian-Tilaki / Buderer.)
 
 **Survival (log-rank).** "To detect a hazard ratio of `[HR]` (median `[m1]` vs `[m2]`) with
-two-sided α = 0.05 and 80% power, `[E]` events are required (Schoenfeld); with an accrual of
-`[a]` over `[t]` and follow-up `[f]`, this needs `[N]` participants. The **event count**, not N,
-drives power."
+two-sided α = 0.05 and 80% power and `[1:1]` allocation, `[E]` events are required (Schoenfeld,
+1983); with uniform accrual over `[a]`, a minimum follow-up of `[f]` and `[d]%` loss to follow-up per
+year, this needs `[N]` participants. The **event count**, not N, drives power."
 
 **Agreement / reliability (ICC).** "Assuming a true ICC of `[ρ]` with `[k]` raters per subject,
-`[n]` subjects give a 95% CI half-width of `[w]` (a **precision** aim, Bonett/Walter) —
-*or*, framed as **assurance**, `[n]` subjects so the 95% CI lower bound exceeds the minimally
-acceptable `[ρ0]`. State which of the two aims you used; report the CI target, not power."
+`[n]` subjects give a 95% CI width of `[w]` (a **precision** aim, Bonett 2002) —
+*or*, framed as a **test**, `[n]` subjects give `[power]`% power to show the ICC exceeds the minimally
+acceptable `[ρ0]` at one-sided α `[α]` (Walter, Eliasziw & Donner 1998). State which of the two aims
+you used; the two give different n."
 
 **Non-inferiority.** "With a non-inferiority margin of `[m]` (justified clinically and by
-`[regulatory/prior]` precedent), assuming true equivalence and a control rate `[p]`, one-sided
-α = 0.025 and 90% power require `[n/arm]` per arm. The margin and its rationale are pre-specified."
+`[regulatory/prior]` precedent), assuming no true difference (or a true difference of `[Δ]` in
+favour of the new method) and a control rate `[p]`, one-sided α = 0.025 and 90% power require
+`[n/arm]` per arm. The margin and its rationale are pre-specified."
 
 ## Discipline
 - The calculation must match the **planned primary analysis** (do not power for a t-test and

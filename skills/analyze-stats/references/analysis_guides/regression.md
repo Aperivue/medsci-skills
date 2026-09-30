@@ -17,12 +17,25 @@ Used for risk factor identification and prediction model building.
    subjects (multiple lesions/visits per patient), use cluster-robust standard errors
    (`cov_type="cluster"`, `cov_kwds={"groups": id}` in statsmodels) or a mixed-effects logistic
    model — a naive logit CI assumes independent rows and is too narrow
-4. No multicollinearity: VIF < 5
-5. Sufficient sample: EPV >= 10 (minimum), >= 20 (recommended)
+4. Collinearity inspected (VIF computed **with an intercept** in the design matrix — without one,
+   any predictor with a non-zero mean looks collinear)
+5. Sufficient sample: EPV >= 10 (minimum), >= 20 (recommended), counting **parameters** (a
+   k-level categorical predictor uses k-1) and the rarer outcome class. For a prediction model,
+   justify N with the Riley et al. criteria (`pmsampsize`), not EPV alone
 
 ### Variable Selection
-- **Clinical rationale first** — avoid purely data-driven stepwise selection
-- Include: variables significant at P < 0.10 in univariable analysis + known confounders
+Do **not** select covariates by univariable P value (e.g. "P < 0.10 in univariable analysis").
+Screening drops confounders whose marginal association is masked and makes prediction models
+optimistic (Sun, Shook & Kay 1996, doi:10.1016/0895-4356(96)00025-X; Heinze, Wallisch & Dunkler
+2018, doi:10.1002/bimj.201700067).
+- **Etiologic (effect of one exposure)**: covariates prespecified from a DAG / subject-matter
+  knowledge (confounders; not mediators or colliders) — see "Covariate Selection" in
+  `SKILL.md`.
+- **Prediction**: prespecified candidate predictors, penalisation or shrinkage where the sample
+  is limited, and no univariable filter; any data-driven selection is repeated inside the
+  bootstrap so the optimism correction covers it.
+- Crude (univariable) ORs may be tabled beside adjusted ORs as description, not as a selection
+  step.
 - STROBE/TRIPOD guideline compliance required
 
 ### Model Assessment
@@ -35,11 +48,16 @@ Used for risk factor identification and prediction model building.
 - C-statistic (= AUC): 0.7-0.8 acceptable, 0.8-0.9 excellent, > 0.9 outstanding
 
 **Multicollinearity:**
-- VIF > 5 → remove or combine variables
+- VIF > 5 → inspect. Collinearity among **adjustment covariates** does not bias the exposure
+  estimate, so do not drop a confounder on VIF alone (O'Brien 2007,
+  doi:10.1007/s11135-006-9018-6). If the **exposure** itself is collinear, its CI widens — report
+  it, and consider whether the two variables measure the same construct. For a multi-level
+  categorical term use the generalised VIF (GVIF); its dummy columns are collinear by design.
 
 ### Required Outputs
 1. OR table: univariable AND multivariable OR (95% CI), P-value per variable
-2. C-statistic with 95% CI
+2. C-statistic with 95% CI — labelled **apparent**, plus the bootstrap optimism-corrected value
+   (`regression.py` prints both)
 3. Calibration: intercept + slope + flexible calibration plot (`calibration.md`)
 4. VIF table (supplementary)
 5. Box-Tidwell results for continuous predictors (supplementary)
@@ -51,7 +69,10 @@ Used for risk factor identification and prediction model building.
 | Age (per 10 yr) | 1.45 (1.12-1.88) | 0.005 | 1.32 (1.01-1.73) | 0.042 |
 
 ### Reporting Template
-"Multivariable logistic regression was performed to identify independent predictors of [outcome]. Variables with P < 0.10 in univariable analysis and clinically relevant confounders were included. The model showed good discrimination (C-statistic = 0.82, 95% CI 0.78-0.86) and calibration (optimism-corrected calibration slope = 0.95). [Variable] was independently associated with [outcome] (adjusted OR = 2.15, 95% CI 1.43-3.24; P < 0.001)."
+"Multivariable logistic regression was used to estimate the association of [exposure] with [outcome], adjusted for [covariates], which were prespecified from [a directed acyclic graph / prior literature]. The apparent C-statistic was [X.XXX] (95% CI [X.XXX-X.XXX]); after bootstrap optimism correction ([B] resamples) it was [X.XXX], with a calibration slope of [X.XX]. [Exposure] was associated with [outcome] (adjusted OR [X.XX], 95% CI [X.XX-X.XX]; P = [exact])."
+
+Fill every bracket from the script output. Words such as "good discrimination" or "adequate
+calibration" are a judgement the numbers must support; do not write them by default.
 
 ### Pitfalls
 - OR != RR: when event rate > 10%, OR overestimates RR
@@ -71,9 +92,10 @@ Used for identifying determinants and estimating adjusted effects.
 ### Assumptions (LINE + No Multicollinearity)
 1. **L**inearity: residuals vs fitted plot
 2. **I**ndependence: no repeated measures (if repeated → LMM/GEE)
-3. **N**ormality of residuals: Q-Q plot, Shapiro-Wilk on residuals
+3. **N**ormality of residuals: Q-Q plot (a normality test is not used to choose the model; with
+   n > ~30 per parameter, coefficient CIs are robust to non-normal residuals)
 4. **E**qual variance (homoscedasticity): residuals vs fitted, Scale-Location plot
-5. No multicollinearity: VIF < 5
+5. Collinearity inspected: VIF (with intercept)
 6. No influential outliers: Cook's distance < 4/n
 
 ### Assumption Violations → Alternatives
@@ -82,7 +104,7 @@ Used for identifying determinants and estimating adjusted effects.
 | Non-linearity | Log transform, polynomial terms, GAM |
 | Heteroscedasticity | Robust SE, WLS |
 | Non-normal residuals | Transform outcome, bootstrap CI |
-| Multicollinearity | Remove variable, combine, Ridge/LASSO |
+| Multicollinearity | Inspect; combine variables measuring one construct, or Ridge; do not drop a confounder on VIF alone |
 
 ### Model Evaluation
 - R² (coefficient of determination): proportion of variance explained
@@ -110,7 +132,7 @@ Used for identifying determinants and estimating adjusted effects.
 | Adjusted R² | 0.33 | |
 
 ### Reporting Template
-"Multiple linear regression was performed with [outcome] as the dependent variable. The model explained X% of the variance (adjusted R² = 0.XX). After adjusting for [covariates], [variable] was significantly associated with [outcome] (β = X.XX, 95% CI X.XX to X.XX; P = exact). Model assumptions were verified using diagnostic plots."
+"Multiple linear regression was performed with [outcome] as the dependent variable. The model explained [X]% of the variance (adjusted R² = [0.XX]). After adjusting for [covariates], [variable] had a coefficient of [X.XX] (95% CI [X.XX to X.XX]; P = [exact]). Model assumptions were assessed with residual diagnostic plots ([state what they showed])."
 
 ### Pitfalls
 - Always report β units (per 1 year, per 10 kg/m², etc.)

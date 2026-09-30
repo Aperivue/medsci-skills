@@ -4,7 +4,7 @@
 
 > Use when rendering a Markdown document (English or Korean) such as a proposal, IRB cover letter, handout or reference table to PDF via pandoc and xelatex, with auto-fitted table widths and CJK fonts. Not for manuscripts with a bibliography (/manage-refs) or Word forms.
 
-**Invoke:** `/render-pdf-doc` · **Model:** inherit
+**Invoke:** `/render-pdf-doc`
 
 ## When to use
 

@@ -59,13 +59,12 @@ it simply does not gate.)
 4. **Tag** `vX.Y.Z` and push → `release.yml` runs. It gates on the version-consistency
    check (tag must equal the manifest version), pauses for `release`-environment approval,
    attests the ZIPs, verifies each is updater-consumable, publishes the GitHub Release, and
-   then **publishes to npm** (idempotent, with npm provenance — needs the `NPM_TOKEN` repo
-   secret; skips if that version is already on npm). **Approve** the run, then confirm the
-   GitHub Release, npm (`npm view medsci-skills version`), and the Zenodo archive.
-   - **One-time:** add an `NPM_TOKEN` repo secret — a granular/automation npm token scoped to
-     `medsci-skills` with publish rights and **2FA bypass enabled** (a 2FA `auth-and-writes`
-     account otherwise demands an OTP the CI cannot provide). Without the secret the npm step
-     is skipped and you publish manually (`npm publish --otp=<code>`).
+   then **publishes to npm** through npm trusted publishing (the job's OIDC token, no stored
+   secret; idempotent, with npm provenance; skips if that version is already on npm).
+   **Approve** the run, then confirm the GitHub Release, npm (`npm view medsci-skills
+   dist-tags.latest`), and the Zenodo archive.
+   - **One-time:** the npm package's trusted-publisher setting must name this repository and
+     `release.yml`. The `NPM_TOKEN` secret is only a legacy fallback.
 5. **Sync downstream surfaces** that live outside this repo's CI: the homepage
    `skills.json` counts and any hero-skill mirrors (`sync_hero_skill.py`).
 6. **Record evidence** — refresh [`IMPACT.md`](../IMPACT.md) (run the metrics

@@ -18,12 +18,18 @@ data and is what flags OOD/novel cases; ensembles and Bayesian methods capture i
 softmax does not.
 
 ## Conformal prediction — the coverage check is the point
-Conformal guarantees marginal coverage **only under exchangeability**, which clinical data
-routinely violates (scanner drift, temporal shift, site mix). So the guarantee is a promise
-until you **measure achieved coverage** on a held-out calibration/test split against the
-nominal target (e.g. nominal 90% → empirical 88–92%). Report the interval width too — a set
-that always contains every class is vacuously "covered". For classification use APS/RAPS;
-for regression use CQR. `CONFORMAL_NO_COVERAGE_VALIDATION` fires when coverage is unmeasured.
+Split-conformal coverage is a **finite-sample** guarantee, not an asymptotic one, but it holds
+**only under exchangeability** of calibration and test cases (Lei et al., *JASA* 2018;
+Angelopoulos & Bates 2023), which clinical data routinely violates (scanner drift, temporal
+shift, site mix). So the guarantee is a promise until you **measure achieved coverage** on a
+**test split disjoint from the calibration split** — coverage on the calibration split itself
+holds by construction and tells you nothing. Judge the result against the binomial variation
+of the test size, not a fixed band: at n_test = 200 and nominal 90% the SE is about 0.021, so a
+correct procedure lands outside 88–92% in about 29% of test sets. Report the achieved coverage
+with its binomial 95% CI and ask whether it contains the nominal level. Report the interval
+width too — a set that always contains every class is vacuously "covered". For classification
+use APS/RAPS; for regression use CQR. `CONFORMAL_NO_COVERAGE_VALIDATION` fires when coverage is
+unmeasured.
 
 ## Deep ensembles — members must be independent
 The uncertainty comes from **disagreement between members**, which requires each member to be
@@ -56,7 +62,8 @@ report the **risk–coverage curve** (and AURC), and state who handles abstained
 
 ## Calibration under shift
 In-distribution calibration decays under deployment shift (Ovadia 2019). Report calibration
-(ECE / a reliability diagram) and conformal coverage on **shifted or external** data, not
+(for a binary risk output: intercept, slope and a flexible calibration curve, as in Part B; ECE
+only as a supplementary multi-class summary) and conformal coverage on **shifted or external** data, not
 in-distribution only (`NO_CALIBRATION_UNDER_SHIFT`). Temporal (later-year) or external-site
 data is the realistic stress; synthetic corruptions (noise, blur) are a weaker supplement.
 

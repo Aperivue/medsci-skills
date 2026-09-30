@@ -37,6 +37,7 @@ own words rather than reproductions.
 | ROBINS_I.md | ROBINS-I 2016 | Sterne JAC et al. BMJ 2016;355:i4919 | **CC BY-NC 3.0** | PMC5062054 |
 | MI_CLEAR_LLM.md | MI-CLEAR-LLM | Park SH et al. Korean J Radiol 2024;25(10):865-868; 2025 update KJR 2025;26(12):1123-1132 | CC BY-NC 4.0 | publisher statement |
 | DECIDE_AI.md | DECIDE-AI 2022 | Vasey B et al. Nat Med 2022;28(5):924-933 | CC BY-NC 4.0 (DECIDE-AI materials) | publisher statement |
+| SQUIRE_2.md | SQUIRE 2.0 (2015) | Ogrinc G et al. BMJ Qual Saf 2016;25(12):986-992 | CC BY-NC (version not stated in the record); item text reproduced from Table 1, not yet summarised | PMC5256233 (Europe PMC licence field) |
 
 ## No open licence found — summaries only, never reproductions
 
