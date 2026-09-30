@@ -165,8 +165,8 @@ Must include:
 ## AI Writing Disclosure Policy
 
 - **Requirement level:** Not specified — follows ICMJE recommendations.
-- **Permitted scope:** Language editing only — per ICMJE 2025 (DIR explicitly endorses ICMJE Recommendations May 2022 for manuscript preparation).
-- **Disclosure location:** Methods.
+- **Permitted scope:** Not specified by the journal; ICMJE requires disclosure but does not limit use (DIR endorses the ICMJE Recommendations for manuscript preparation).
+- **Disclosure location:** Acknowledgments for writing assistance; Methods for use in data collection, analysis or figures; cover letter for either (ICMJE default).
 - **AI-generated images:** Not specified.
 - **Policy URL:** https://www.dirjournal.org/ (Instructions to Authors; no dedicated AI policy page as of 2026-04).
 
