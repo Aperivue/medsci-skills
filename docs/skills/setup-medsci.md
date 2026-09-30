@@ -12,11 +12,11 @@
 
 ## Quality Card
 
-**Purpose** — Check and prepare the local toolchain (Python/R/CLI deps) needed to run the skills.
+**Purpose** — Check the local toolchain (Python/R/CLI deps, MCP servers) the skills need and report what is missing.
 
 **Safety boundaries**
 
-- Confirms before destructive or system-wide changes; surfaces what is missing.
+- Read-only: reports what is missing and links the setup doc; installs and configures nothing.
 - Operates locally; does not transmit machine state.
 
 **Known limitations**

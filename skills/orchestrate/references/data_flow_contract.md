@@ -17,6 +17,6 @@ output files; the Standard Pipeline in SKILL.md already names the files for its 
 | manage-refs | manuscript/manuscript.md, manuscript/_src/refs.bib, n_to_zotero_key map (optional) | manuscript/manuscript_final.docx (or _cwyw.docx), qc/xref_audit.json (sole writer) |
 | render-pdf-doc | non-bib markdown (proposal/briefing/anchor doc/IRB cover) | PDF (same dir, same stem) |
 | fill-protocol | content markdown + institutional Word template (.doc/.docx) | filled `*.docx` preserving original styles, table layouts, fonts, geometry |
-| fill-icmje-coi | author roster (JSON), seed `coi_disclosure.docx` (synthetic shipped) | per-author `coi_disclosure_{author}.docx` (Date, Name, Manuscript Title replaced) |
+| fill-icmje-coi | author roster (JSON), seed `coi_disclosure.docx` (synthetic shipped) | per-author `ICMJE_COI_{NN}_{Name}.docx` (Date, Name, Manuscript Title replaced) |
 | sync-submission | manuscript/, qc/ artifacts, journal profile | submission/{journal}/manifest.md, drift report |
 | peer-review | external manuscript (.docx/.pdf), journal scope | review draft (review.md) following the medical imaging peer-review guideline |

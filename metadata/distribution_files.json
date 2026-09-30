@@ -183,8 +183,8 @@
     },
     {
       "path": "skills/add-journal/SKILL.md",
-      "size": 10129,
-      "sha256": "ad33af397d73f009cc120ff3f78b9ddf5d632a25395deaae09c0900907870998"
+      "size": 10323,
+      "sha256": "58d1d3102bbec41568f3552edeca1364381c9f610609ecc7f775d501a6bbe2c8"
     },
     {
       "path": "skills/add-journal/references/write_paper_profile_template.md",
@@ -3583,8 +3583,8 @@
     },
     {
       "path": "skills/orchestrate/references/data_flow_contract.md",
-      "size": 2305,
-      "sha256": "5c8d6d58073c6e7fa19f09cb3dec183a3077fba50d7928f341856ad53915049e"
+      "size": 2303,
+      "sha256": "587a6411e1d6351008fd751b56b0f53af0003679374941deb6fd2873212dca08"
     },
     {
       "path": "skills/orchestrate/references/dialogue_nodes.md",
@@ -4433,8 +4433,8 @@
     },
     {
       "path": "skills/render-pdf-doc/skill.yml",
-      "size": 3329,
-      "sha256": "3d7f542a2fe9a5d0de2e2e462f4177f68424dfbdc6f34a69758d847a954752cd"
+      "size": 3258,
+      "sha256": "218bb31bb8d3cd7c32dbedb336542158405c881eed5e08b61d02b97f7c484f78"
     },
     {
       "path": "skills/render-pdf-doc/templates/anchor-doc.md",
@@ -5713,8 +5713,8 @@
     },
     {
       "path": "skills/setup-medsci/skill.yml",
-      "size": 1067,
-      "sha256": "0459275091e6a91084d9685cce757e10ef4bca736f9d9cb738cf21590ec38899"
+      "size": 1151,
+      "sha256": "299c3f2de2a2ba8bc0c0fe44f66a3b72207875826e794a5637ae293d51d877bd"
     },
     {
       "path": "skills/sync-submission/SKILL.md",

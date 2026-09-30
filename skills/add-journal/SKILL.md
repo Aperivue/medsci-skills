@@ -38,6 +38,9 @@ POLICY.md also documents promotion from private to public.
   before proceeding; it is the primary data source.
 - **Optional:** field focus (used in 3.1), tier estimate (Q1/Q2/Q3), ISSN.
 
+This skill does not judge whether a journal is legitimate. For an unfamiliar publisher, check DOAJ
+membership (for open-access titles) and indexing before writing a profile, and tell the user.
+
 ### Public vs. Private target selection
 
 If the user does not state the target tier, ASK before proceeding.
