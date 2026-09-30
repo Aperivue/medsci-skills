@@ -78,8 +78,8 @@
     },
     {
       "path": "skills/academic-aio/SKILL.md",
-      "size": 32773,
-      "sha256": "9e43ec3cc38ab1988770cd0e071be92431bdef0d596d8f80b86abe79379c0117"
+      "size": 18813,
+      "sha256": "11890f8246a86f2fecd0dbf1f3e094d749f878627fa256c7a02650069039d9c2"
     },
     {
       "path": "skills/academic-aio/references/ai_tool_citation_framing.md",
@@ -102,14 +102,29 @@
       "sha256": "f6f0bf270a25b6f0f8588c4f77ba096f01be7414afc57b9be8f5c35384d1df7d"
     },
     {
+      "path": "skills/academic-aio/references/launch_sequencing.md",
+      "size": 2815,
+      "sha256": "0a1b626521c4765bce598a180ead576aa62c4d2264a64f5252cca17b176d8ea8"
+    },
+    {
       "path": "skills/academic-aio/references/oac_funding_checklist.yaml",
       "size": 4977,
       "sha256": "ef2a957bd1098b1e9fc2393379840cf6566058442a164c21266a8ced86c27a25"
     },
     {
+      "path": "skills/academic-aio/references/pre_draft_strategy.md",
+      "size": 3415,
+      "sha256": "0b95b3110549adbd85cc3df114d9c86bfa8e8303333b4e38bb9b4c44c0f15f1c"
+    },
+    {
       "path": "skills/academic-aio/references/reporting_guideline_mapping.md",
       "size": 3571,
       "sha256": "8704259253d86404f4a8f9feb411d7aff3def38fb8bea8650634f9779014c9c1"
+    },
+    {
+      "path": "skills/academic-aio/references/repository_and_cards.md",
+      "size": 2793,
+      "sha256": "50aead1852510b1925c94e0c8402ceb193713deddda3a97198e552b57946c656"
     },
     {
       "path": "skills/academic-aio/references/schema_markup_templates/CodeRepository.jsonld",
@@ -603,18 +618,18 @@
     },
     {
       "path": "skills/calc-sample-size/SKILL.md",
-      "size": 33435,
-      "sha256": "623d9b99d03e21fd8a164d467ed54e3390f5edffc059c4d6145750aa09808eda"
+      "size": 11120,
+      "sha256": "1842599a04c41bb1dbf3faff87c6adce74db8044b5d29d714431629b7306f458"
     },
     {
       "path": "skills/calc-sample-size/references/formulas.md",
-      "size": 20436,
-      "sha256": "e6b9e32f8999a06b9bdf7ffe14f88c3e348306635de65071327d47e4527e8cde"
+      "size": 28254,
+      "sha256": "2df24827146509fbd256c6d59bb1889b33a2f52549e1240da6c6ee46eb042045"
     },
     {
       "path": "skills/calc-sample-size/references/justification_examples.md",
-      "size": 3676,
-      "sha256": "66c9fbf593d9e9a4264da8fa3cdbfca7bd24dddefd88265609dcfb3d099c3a3d"
+      "size": 4603,
+      "sha256": "82de204731a4cf335019fd93d75193f38321f699379fe5390af27ed6b5f51d5f"
     },
     {
       "path": "skills/calc-sample-size/references/mrmc_reader_study_sample_size.md",
