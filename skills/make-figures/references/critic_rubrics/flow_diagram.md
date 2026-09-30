@@ -167,3 +167,14 @@ reviewed venue.
 
 Record `critic_pass: yes | partial | no` and `refine_rounds: N` in the
 `_figure_manifest.md` for this figure after the final round.
+
+---
+
+## Credits
+
+The Critic Loop (SKILL.md Step 4b) is inspired by PaperBanana (Zhu et al., *Automating
+Academic Illustration for AI Scientists*, arXiv:2601.23265, 2025) and by prior self-refinement
+research — Self-Refine (Madaan et al., 2023), Reflexion (Shinn et al., 2023), and Constitutional
+AI (Anthropic, 2022). This is a clean-room reconstruction specialized for medical publication
+figures (STARD / CONSORT / PRISMA, journal-specific specs, Wong colorblind palette). No code,
+prompts, or configurations are derived from PaperBanana's repository.

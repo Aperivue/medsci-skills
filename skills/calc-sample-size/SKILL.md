@@ -157,7 +157,9 @@ Instructions for Authors require a power analysis, or the IRB requires it.
 1. Generate R code (primary) and Python code (alternative) from the reference formula.
 2. Run the R code via Bash; the reported N is the number it prints, not a hand calculation.
 3. Present the result in the Output Format below. Cite methodological sources only from
-   `formulas.md` or the test's reference file.
+   `formulas.md` or the test's reference file; any other reference needs a DOI/PMID confirmed via
+   `/search-lit`, otherwise mark it `[UNVERIFIED - NEEDS MANUAL CHECK]`. Mark an effect size,
+   clinical definition or threshold you could not confirm `[VERIFY]`.
 4. In a project, save the IRB text as `protocol/sample_size_justification.md` and the scripts as
    `protocol/sample_size_calc.R` / `.py`: `/write-protocol` and `/write-paper` embed that text
    verbatim, so the numbers are never retyped.

@@ -2,6 +2,14 @@
 
 How `generate_visual_abstract.py` maps content to PPTX template shapes.
 
+## Journal Requirements
+
+| Status | Example Journals |
+|--------|-----------------|
+| **Mandatory** | European Radiology (from 1st revision, all Original Articles) |
+| **Encouraged** | Abdominal Radiology, JCO, Annals of Internal Medicine |
+| **Voluntary** | Most other journals — improves social media visibility |
+
 ## Matching Rules
 
 The script iterates through all shapes on slide index 0 and matches by **text content**
