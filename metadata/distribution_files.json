@@ -5703,13 +5703,13 @@
     },
     {
       "path": "skills/setup-medsci/SKILL.md",
-      "size": 5906,
-      "sha256": "d346a9b883f67cfe0fb4f9a965b02d192704156450c93d949845f8603778627b"
+      "size": 3952,
+      "sha256": "913a21426684d81b1a9998c19f0a0059b9d5d7c59b8eb817dbc3515adc584bf3"
     },
     {
       "path": "skills/setup-medsci/references/setup-checklist.md",
-      "size": 3802,
-      "sha256": "e7faf607767e15529eb2224ad246954f59f0c5f6b9f16bda557c8b102cfc4f3f"
+      "size": 3845,
+      "sha256": "c302eea5b18902dcfdbbb1d514e9f50e144679cbc401262be3ce5fab547d717d"
     },
     {
       "path": "skills/setup-medsci/skill.yml",
