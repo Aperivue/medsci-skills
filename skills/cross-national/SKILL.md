@@ -80,10 +80,13 @@ output `[VERIFY: variable_name]` and ask the user to confirm it against the data
    | Education | DMDEDUC2 | 5 text levels |
 
 3. Set survey design on the full file, then `subset()` the design object to the analytic domain
-   (e.g. RIDAGEYR >= 20): svydesign(id=~SDMVPSU, strata=~SDMVSTRA, weights=~WTMECPRP, nest=TRUE) — WTMECPRP
-   for the pre-pandemic pooled files; for a single cycle (e.g. the `_J` tables) use weights=~WTMEC2YR.
-   When a variable comes from the fasting subsample (GLU_J LBXGLU, TRIGLY_J LBXTR/LBDLDL), use the
-   fasting-subsample weight instead: WTSAF2YR (single cycle) or WTSAFPRP (pre-pandemic)
+   (e.g. RIDAGEYR >= 20): svydesign(id=~SDMVPSU, strata=~SDMVSTRA, weights=~WTMEC2YR, nest=TRUE).
+   The weight follows the files: the single-cycle `_J` tables above take WTMEC2YR; WTMECPRP goes
+   only with the pre-pandemic `P_` files (P_DEMO, P_BMX, ...). A variable from the fasting
+   subsample (GLU_J LBXGLU, TRIGLY_J LBXTR/LBDLDL) takes the fasting weight instead: WTSAF2YR
+   (`_J`) or WTSAFPRP (`P_`). Pooling cycles follows the NCHS rules: divide each cycle's weight by
+   the number of cycles pooled (1999–2002 has its own 4-year weights), and to combine 2015–2016
+   with 2017–March 2020 use 2/5.2 × WTMEC2YR and 3.2/5.2 × WTMECPRP.
 
 **CHNS (3-country design)**: read `references/chns_coding.md` before preparing China data.
 
@@ -95,19 +98,28 @@ For EACH country independently:
    - Model 1 (unadjusted)
    - Model 2 (age + sex)
    - Model 3 (fully adjusted: + education, income, smoking, alcohol, obesity, CVD)
-3. **Subgroup analyses**: By sex, age group, education, income, alcohol, smoking, CVD, obesity
+3. **Subgroup analyses**: By sex, age group, education, income, alcohol, smoking, CVD, obesity.
+   Whether the association differs between subgroups is tested with an exposure × subgroup
+   interaction term fitted on the full design (`svyglm` on the whole sample), not by comparing
+   the subgroups' P values.
 4. **Dose-response** (if applicable): RCS with 3 knots
 
 ### Phase 4: Cross-National Comparison Table
 
 Generate a side-by-side comparison:
 
-| Analysis | Korea wOR (95% CI) | US wOR (95% CI) | Direction Agreement |
-|----------|-------------------|-----------------|---------------------|
-| Overall (fully adjusted) | ... | ... | ✓/✗ |
-| Male | ... | ... | |
-| Female | ... | ... | |
-| ... | ... | ... | |
+| Analysis | Korea wOR (95% CI) | US wOR (95% CI) | Ratio of wORs (95% CI); P |
+|----------|-------------------|-----------------|---------------------------|
+| Overall (fully adjusted) | ... | ... | ... |
+| Male | ... | ... | ... |
+| Female | ... | ... | ... |
+| ... | ... | ... | ... |
+
+Compare the countries with the ratio of their odds ratios, not with whether the directions
+agree: two estimates in the same direction can differ, and opposite directions can be
+compatible. With log odds ratios b₁, b₂ and their design-based standard errors SE₁, SE₂ from the
+two independent surveys, the ratio is exp(b₁ − b₂) with 95% CI exp(b₁ − b₂ ± 1.96·√(SE₁² + SE₂²))
+and z = (b₁ − b₂)/√(SE₁² + SE₂²) (Altman & Bland, *BMJ* 2003;326:219).
 
 Every number comes from executed code output (`analysis_korea.R`, `analysis_us.R`) — never an
 invented p-value, effect size, confidence interval, or sample size.
