@@ -4023,8 +4023,8 @@
     },
     {
       "path": "skills/present-paper/SKILL.md",
-      "size": 54540,
-      "sha256": "1629253aba89dd1339f939dab71832ff0a8ef938f2ab8960e39c547391f0d3a0"
+      "size": 35836,
+      "sha256": "7e5b45605490d568e3f02d273e1c628a8bd0d2685c6c94305454f4505fbf71ee"
     },
     {
       "path": "skills/present-paper/references/ai_slide_tells.md",
@@ -4033,8 +4033,8 @@
     },
     {
       "path": "skills/present-paper/references/critic_rubrics/slide.md",
-      "size": 9390,
-      "sha256": "5bfe547c5e5d60d977f71ddb487bf1c85dcd1a048c240394b7902326d322cabe"
+      "size": 9883,
+      "sha256": "4c90c7cc2001cccfb48c4d00588a36b17d761d53005eaeb1f73320a2832d284d"
     },
     {
       "path": "skills/present-paper/references/generate_pptx_templates.py",
@@ -4063,8 +4063,8 @@
     },
     {
       "path": "skills/present-paper/references/slide_design_principles.md",
-      "size": 10436,
-      "sha256": "7f2a5e03c8f2ddbb2d84a163506c5f3a2d1cca1353a694abd7bfb14225324826"
+      "size": 10657,
+      "sha256": "bb65031fa2acf592b59dd3847ad3353fb8fd15a95a132449426054304c22a7c4"
     },
     {
       "path": "skills/present-paper/references/slide_visual_styles/CATALOG.md",
@@ -4098,8 +4098,8 @@
     },
     {
       "path": "skills/present-paper/references/spoken_notes_and_bilingual.md",
-      "size": 8099,
-      "sha256": "40c5c399d09d09c5f227ccf875a46efe69d57a4338af3455d4e10934462bf5df"
+      "size": 8977,
+      "sha256": "f488b43cde59b2a654d44460ec5f7cd82ff820e00223334fabff8820d56c6586"
     },
     {
       "path": "skills/present-paper/references/workflow-checklist.md",
