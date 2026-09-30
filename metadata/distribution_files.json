@@ -603,18 +603,18 @@
     },
     {
       "path": "skills/calc-sample-size/SKILL.md",
-      "size": 33435,
-      "sha256": "623d9b99d03e21fd8a164d467ed54e3390f5edffc059c4d6145750aa09808eda"
+      "size": 10881,
+      "sha256": "aa0351806b8bccfed8e2f0d1bbc306fa3ff1339a05325114fb78a0d32903ad28"
     },
     {
       "path": "skills/calc-sample-size/references/formulas.md",
-      "size": 20436,
-      "sha256": "e6b9e32f8999a06b9bdf7ffe14f88c3e348306635de65071327d47e4527e8cde"
+      "size": 28254,
+      "sha256": "2df24827146509fbd256c6d59bb1889b33a2f52549e1240da6c6ee46eb042045"
     },
     {
       "path": "skills/calc-sample-size/references/justification_examples.md",
-      "size": 3676,
-      "sha256": "66c9fbf593d9e9a4264da8fa3cdbfca7bd24dddefd88265609dcfb3d099c3a3d"
+      "size": 4603,
+      "sha256": "82de204731a4cf335019fd93d75193f38321f699379fe5390af27ed6b5f51d5f"
     },
     {
       "path": "skills/calc-sample-size/references/mrmc_reader_study_sample_size.md",

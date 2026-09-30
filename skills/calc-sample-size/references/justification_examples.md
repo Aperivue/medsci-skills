@@ -1,9 +1,10 @@
 # Sample-size justification — worked prose exemplars (IRB / Methods)
 
 Reviewer-safe **justification paragraphs** for the prospective designs this skill computes,
-complementing `formulas.md` (the math) and the retrospective/experience-based templates in
-SKILL.md Phase 2b. Each shows the same five elements a methods reviewer or IRB looks for; fill
-the `[brackets]` from the actual calculation — never invent the inputs. These are synthetic
+complementing `formulas.md` (the math); the retrospective/experience-based templates (SKILL.md
+Phase 2b) are at the end of this file. Each exemplar shows the same five elements a methods
+reviewer or IRB looks for; fill the `[brackets]` from the actual calculation — never invent the
+inputs. These are synthetic
 teaching models of *standard* justification structure, not copied text.
 
 ## The five elements (every justification states all five)
@@ -52,3 +53,17 @@ acceptable `[ρ0]`. State which of the two aims you used; report the CI target, 
   do not invent a comparison hypothesis to manufacture a power statement.
 - Never reverse-engineer the effect size from an achievable n (post-hoc justification); the
   assumed effect comes from a cited source or an MCID. Post-hoc/observed power is uninformative.
+
+## Retrospective / experience-based (SKILL.md Phase 2b)
+
+**Institution volume-based** (`exams in period × prevalence × (1 − exclusion rate) = expected N`):
+> Based on approximately [X] [modality] examinations performed annually at [institution],
+> and an estimated prevalence of [condition] of [Y]%, we anticipate identifying approximately
+> [N] eligible patients over the [Z]-year study period. After accounting for an estimated
+> [W]% exclusion rate (due to [reasons]), we expect a final sample of approximately [N_adj]
+> patients for analysis.
+
+**Prior study-based** (3–5 comparable published studies, cited):
+> Previous studies evaluating [similar topic] with [similar design] enrolled [N1] (Author1
+> et al., Year), [N2] (Author2 et al., Year), and [N3] (Author3 et al., Year) patients.
+> Our anticipated sample of [N] patients is [comparable to / larger than] these prior studies.

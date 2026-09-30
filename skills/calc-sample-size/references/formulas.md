@@ -1,10 +1,21 @@
 # Sample Size Formulas Reference
 
-Mathematical formulas, R/Python implementations, and effect size conventions for all 10 supported tests.
+Per-test parameter tables (with defaults), effect-size interpretation, formulas, R/Python implementations, and key references for Tests 1-11, plus effect-size conventions and attrition rates.
 
 ---
 
 ## Test 1: Diagnostic Accuracy (Sensitivity/Specificity Precision)
+
+### Parameters (ask the user; offer the default)
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `sensitivity_expected` | Expected sensitivity | 0.85 |
+| `ci_half_width` | Desired half-width of 95% CI | 0.05 |
+| `prevalence` | Disease prevalence in study population | 0.30 |
+| `alpha` | Significance level | 0.05 |
+| `attrition_rate` | Expected dropout/exclusion rate | 0.15 |
+
+**Effect size interpretation**: The CI half-width determines precision. A half-width of 0.05 means the 95% CI for sensitivity will be within +/-5 percentage points. Narrower CIs require larger samples.
 
 ### Formula
 For estimating a single proportion p with desired 95% CI half-width w:
@@ -48,6 +59,18 @@ Buderer NMF. Statistical methodology: I. Incorporating the prevalence of disease
 ---
 
 ## Test 2: ICC Agreement (Bonett 2002)
+
+### Parameters (ask the user; offer the default)
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `icc_expected` | Expected ICC value | 0.75 |
+| `icc_null` | Null hypothesis ICC (lower bound) | 0.50 |
+| `n_raters` | Number of raters | 2 |
+| `alpha` | Significance level | 0.05 |
+| `power` | Desired power | 0.80 |
+| `attrition_rate` | Expected dropout rate | 0.10 |
+
+**Effect size interpretation**: ICC < 0.50 = poor, 0.50-0.75 = moderate, 0.75-0.90 = good, > 0.90 = excellent (Koo & Li, 2016).
 
 ### Formula
 Fisher z-transformation approach:
@@ -101,6 +124,18 @@ Bonett DG. Sample size requirements for estimating intraclass correlations with 
 
 ## Test 3: Kappa Agreement (Donner & Eliasziw 1992)
 
+### Parameters (ask the user; offer the default)
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `kappa_expected` | Expected kappa value | 0.70 |
+| `kappa_null` | Null hypothesis kappa | 0.40 |
+| `po_expected` | Expected proportion of agreement | 0.75 |
+| `alpha` | Significance level | 0.05 |
+| `power` | Desired power | 0.80 |
+| `attrition_rate` | Expected dropout rate | 0.10 |
+
+**Effect size interpretation**: Kappa < 0.20 = slight, 0.21-0.40 = fair, 0.41-0.60 = moderate, 0.61-0.80 = substantial, 0.81-1.00 = almost perfect (Landis & Koch, 1977).
+
 ### Formula
 Z-test approximation for testing kappa_1 vs kappa_0:
 
@@ -143,6 +178,17 @@ Donner A, Eliasziw M. A goodness-of-fit approach to inference procedures for the
 
 ## Test 4: Two-Proportion Comparison (Chi-Square)
 
+### Parameters (ask the user; offer the default)
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `p1` | Proportion in group 1 | -- |
+| `p2` | Proportion in group 2 | -- |
+| `alpha` | Significance level | 0.05 |
+| `power` | Desired power | 0.80 |
+| `attrition_rate` | Expected dropout rate | 0.15 |
+
+**Effect size interpretation**: Cohen's h = 2 * arcsin(sqrt(p1)) - 2 * arcsin(sqrt(p2)). Small = 0.20, medium = 0.50, large = 0.80.
+
 ### Formula
 Based on Cohen's h effect size (arcsine transformation):
 
@@ -182,6 +228,17 @@ Cohen J. Statistical Power Analysis for the Behavioral Sciences. 2nd ed. Lawrenc
 ---
 
 ## Test 5: McNemar Test (Paired Proportions)
+
+### Parameters (ask the user; offer the default)
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `p01` | P(Method A negative, Method B positive) | -- |
+| `p10` | P(Method A positive, Method B negative) | -- |
+| `alpha` | Significance level | 0.05 |
+| `power` | Desired power | 0.80 |
+| `attrition_rate` | Expected dropout rate | 0.10 |
+
+**Effect size interpretation**: The ratio p10/p01 (discordant ratio) drives the required sample size. Larger asymmetry in discordant pairs means fewer subjects needed. Only discordant pairs contribute information.
 
 ### Formula
 ```
@@ -227,6 +284,17 @@ Connor RJ. Sample size for testing differences in proportions for the paired-sam
 
 ## Test 6: Independent t-Test
 
+### Parameters (ask the user; offer the default)
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `mean_diff` | Expected mean difference | -- |
+| `pooled_sd` | Pooled standard deviation (from literature/pilot) | -- |
+| `alpha` | Significance level | 0.05 |
+| `power` | Desired power | 0.80 |
+| `attrition_rate` | Expected dropout rate | 0.15 |
+
+**Effect size interpretation**: Cohen's d = mean_diff / pooled_sd. Small = 0.20, medium = 0.50, large = 0.80. In clinical terms, d = 0.50 means the groups differ by half a standard deviation.
+
 ### Formula
 ```
 d = mean_diff / pooled_sd    (Cohen's d)
@@ -263,6 +331,19 @@ Cohen J. Statistical Power Analysis for the Behavioral Sciences. 2nd ed. Lawrenc
 ---
 
 ## Test 7: Survival / Log-Rank Test (Schoenfeld 1981)
+
+### Parameters (ask the user; offer the default)
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `hr` | Expected hazard ratio | -- |
+| `median_ctrl` | Median survival in control arm (months) | -- |
+| `accrual_time` | Accrual period (months) | 12 |
+| `follow_up` | Follow-up after accrual (months) | 24 |
+| `drop_rate` | Annual dropout rate | 0.05 |
+| `alpha` | Significance level | 0.05 |
+| `power` | Desired power | 0.80 |
+
+**Effect size interpretation**: HR < 1 favors treatment. HR = 0.50 means treatment halves the hazard (strong effect). HR = 0.80 is a modest 20% reduction. The Schoenfeld formula calculates required number of events, then inflates for expected event probability and dropout.
 
 ### Formula
 Step 1 -- Required number of events:
@@ -320,6 +401,17 @@ Schoenfeld DA. The asymptotic properties of nonparametric tests for comparing su
 
 ## Test 8: One-Way ANOVA
 
+### Parameters (ask the user; offer the default)
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `k` | Number of groups | -- |
+| `f` | Cohen's f effect size | -- |
+| `alpha` | Significance level | 0.05 |
+| `power` | Desired power | 0.80 |
+| `attrition_rate` | Expected dropout rate | 0.15 |
+
+**Effect size interpretation**: Cohen's f = 0.25 (medium) means the group means span about half a pooled SD. In clinical terms, this is typically a meaningful difference across treatment arms or measurement methods. To help the user estimate f, use the formulas below (group means + pooled SD, or eta-squared).
+
 ### Formula
 Using Cohen's f effect size:
 
@@ -365,6 +457,19 @@ Cohen J. Statistical Power Analysis for the Behavioral Sciences. 2nd ed. Lawrenc
 ---
 
 ## Test 9: Logistic Regression
+
+### Parameters (ask the user; offer the default)
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `n_predictors` | Number of predictor variables | -- |
+| `event_rate` | Expected event rate (proportion with outcome) | -- |
+| `or_interest` | Odds ratio of interest (for Hsieh formula) | -- |
+| `r2_other` | R-squared of covariate with other predictors | 0.0 |
+| `alpha` | Significance level | 0.05 |
+| `power` | Desired power | 0.80 |
+| `attrition_rate` | Expected dropout rate | 0.10 |
+
+**Effect size interpretation**: OR = 1.5 is a small-to-moderate effect; OR = 2.0 is moderate; OR = 3.0+ is large. The Peduzzi rule ensures model stability; the Hsieh formula targets power for the primary predictor.
 
 ### Approach A: Peduzzi Rule of Thumb (EPV >= 10)
 
@@ -441,6 +546,30 @@ Base R. Also see `powerMediation` package for Hsieh's formula.
 ---
 
 ## Test 10: Non-Inferiority / Equivalence
+
+### Parameters (ask the user; offer the default)
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `design` | "non-inferiority" or "equivalence" | "non-inferiority" |
+| `outcome_type` | "proportion" or "continuous" | -- |
+| `p_reference` | Reference group proportion (if proportion) | -- |
+| `margin` | Non-inferiority or equivalence margin (delta) | -- |
+| `sd` | Standard deviation (if continuous) | -- |
+| `alpha` | One-sided alpha for NI; two one-sided for equivalence | 0.025 (NI) / 0.05 (equiv) |
+| `power` | Desired power | 0.80 |
+| `attrition_rate` | Expected dropout rate | 0.15 |
+
+### Margin selection
+- The margin must be clinically justified and smaller than the effect of the reference treatment vs. placebo.
+- Common approach: margin = 50% of the established treatment effect (preservation of effect).
+- For proportions: absolute difference margin (e.g., delta = 0.10 means new method can be at most 10 percentage points worse).
+- For continuous: margin in the same unit as the outcome.
+
+### Hypotheses
+- **Non-inferiority (one-sided test)**: H0: new - reference <= -margin (new is inferior); H1: new - reference > -margin (new is non-inferior). Alpha is one-sided (typically 0.025).
+- **Equivalence (TOST)**: H0: |new - reference| >= margin; H1: |new - reference| < margin. Two one-sided tests, each at alpha (typically 0.05 overall).
+
+**Effect size interpretation**: The margin defines the largest clinically acceptable difference. A smaller margin requires a larger sample. Always justify the margin based on clinical reasoning and prior literature.
 
 ### Non-Inferiority (Proportions)
 
@@ -534,6 +663,21 @@ Base R. Also see `TrialSize`, `PowerTOST` packages.
 ---
 
 ## Test 11: Cox Regression EPV (Events Per Variable)
+
+### Parameters (ask the user; offer the default)
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `n_predictors` | Number of predictor variables in Cox model | -- |
+| `event_rate` | Expected proportion of subjects experiencing the event | -- |
+| `epv` | Events per variable target | 10 |
+| `attrition_rate` | Expected dropout rate | 0.10 |
+
+### EPV guidelines
+- EPV >= 10: minimum for stable estimates (Peduzzi et al., 1995)
+- EPV >= 20: recommended for reliable CI coverage and type I error control
+- EPV < 5: model likely unstable — reduce predictors or use penalized methods
+
+**Effect size interpretation**: The EPV rule ensures model stability, not power for a specific HR.
 
 ### Formula
 ```
