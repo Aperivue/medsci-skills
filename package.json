@@ -16,8 +16,10 @@
   },
   "files": [
     "skills/",
+    "!skills/*/tests/",
     "installers/install.py",
     "installers/medsci_txn.py",
+    "installers/doctor.py",
     "installers/update.py",
     "installers/session_update_check.py",
     "installers/install-macos.command",

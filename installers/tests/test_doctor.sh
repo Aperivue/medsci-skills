@@ -104,6 +104,22 @@ for cap in doctor.CAPABILITIES:
 PY
 ck "brief_summary() (the installer's tail) never raises" 0 "$?"
 
+# --- 6. The --fix command the installer's tail prints must work from wherever the person is -------
+#
+# After `npx medsci-skills install` the current folder is not the package, so a relative
+# `installers/doctor.py --fix` names a file that is not there. Run from $TMP with pandoc hidden and
+# require the printed path to exist from there.
+( cd "$TMP" && PATH="$SANDBOX" python3 -B "$DOCTOR" --brief ) > "$TMP/brief" 2>&1
+( cd "$TMP" && python3 - "$TMP/brief" <<'PY'
+import pathlib, shlex, sys
+lines = [l for l in open(sys.argv[1], encoding="utf-8") if l.rstrip().endswith("--fix")]
+assert lines, "the brief summary printed no --fix command although pandoc was hidden"
+args = shlex.split(lines[0])
+assert pathlib.Path(args[-2]).is_file(), f"--fix names a path that does not exist from here: {args[-2]}"
+PY
+)
+ck "the --fix command the installer prints works from any folder" 0 "$?"
+
 echo "----"
 echo "test_doctor: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]

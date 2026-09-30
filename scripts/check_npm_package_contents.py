@@ -80,6 +80,7 @@ DENY_ROOT_PREFIXES = ("HANDOFF", "PLAN_")
 REQUIRED_PREFIXES = ("skills/",)
 REQUIRED_FILES = (
     "installers/install.py",
+    "installers/doctor.py",  # install.py's closing setup summary; docs/install.md says to run it
     "LICENSE",
     "bin/medsci-skills.js",
     "README.md",

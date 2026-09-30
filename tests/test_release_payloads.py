@@ -139,6 +139,38 @@ class PayloadControls(unittest.TestCase):
         files['package.json'] = json.dumps(config).encode()
         self.assertTrue(any('identity/version' in p for p in self.check_npm(self.tar(files))))
 
+    def write_config(self, entries):
+        files = dict(self.files); config = json.loads(files['package.json']); config['files'] = entries
+        files['package.json'] = json.dumps(config).encode()
+        (self.root / 'package.json').write_bytes(files['package.json'])
+        return files
+
+    def test_npm_files_exclusion_is_predicted_segment_by_segment(self):
+        test_file = 'skills/demo/tests/test_demo.sh'
+        (self.root / test_file).parent.mkdir(parents=True); (self.root / test_file).write_bytes(b'Synthetic.\n')
+        subprocess.run(['git', '-C', str(self.root), 'add', '--', test_file], check=True)
+        files = self.write_config(['skills/', '!skills/*/tests/', 'installers/install.py', 'bin/medsci-skills.js',
+                                   'README.md', 'README_FIRST.md', 'LICENSE', 'metadata/'])
+        expected = payload.npm_expected(self.root)
+        self.assertNotIn(test_file, expected); self.assertIn('skills/demo/SKILL.md', expected)
+        self.assertEqual(self.check_npm(self.tar(files)), [])
+        files[test_file] = b'Synthetic.\n'
+        self.assertTrue(any('unexpected' in p for p in self.check_npm(self.tar(files))))
+
+    def test_npm_files_patterns_it_cannot_predict_are_refused(self):
+        for entry in ('skills/*/', '!skills/**/tests/', '!skills/de?o/', '!'):
+            with self.subTest(entry=entry):
+                self.write_config(['skills/', entry, 'README.md'])
+                with self.assertRaises(payload.PayloadError): payload.npm_expected(self.root)
+
+    def test_repository_npm_payload_ships_doctor_and_no_skill_tests(self):
+        # install.py imports doctor.py for its closing "what else this computer needs" summary, and
+        # docs/install.md tells people to run it; skill tests stay in the repository, as in the ZIP.
+        expected = payload.npm_expected(ROOT)
+        self.assertIn('installers/doctor.py', expected)
+        self.assertEqual([p for p in expected if p.startswith('skills/') and p.split('/')[2:3] == ['tests']], [])
+        self.assertIn('skills/orchestrate/SKILL.md', expected)
+
     def test_npm_executable_bit_is_verified(self):
         self.assertTrue(any('executable' in p for p in self.check_npm(self.tar(cli_mode=0o644))))
 

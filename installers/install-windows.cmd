@@ -89,7 +89,11 @@ if not defined PY (
   exit /b 1
 )
 
-%PY% installers\install.py --target all --desktop-launcher
+rem --enable-update-notify also turns on the in-app "update available" reminder for this turnkey
+rem install, so you are told when a new version ships instead of staying on this one forever. It is
+rem best-effort inside the installer: a failure there is reported, not a failed install. Turn it off
+rem later with `install.py --disable-update-notify`.
+%PY% installers\install.py --target all --desktop-launcher --enable-update-notify
 if not !errorlevel!==0 (
   set "RC=!errorlevel!"
   echo.
@@ -102,11 +106,6 @@ if not !errorlevel!==0 (
   pause
   exit /b !RC!
 )
-
-rem Turn on the in-app "update available" reminder for this turnkey install, so you are told when a
-rem new version ships instead of staying on this one forever. Best-effort: a failure here is not a
-rem failed install.
-%PY% installers\install.py --enable-update-notify >nul 2>nul
 
 echo.
 pause

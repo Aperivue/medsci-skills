@@ -107,14 +107,26 @@ def tracked_files(source):
 
 def npm_expected(source):
     config = json.loads((source / 'package.json').read_text())
-    include = config.get('files', [])
-    if not isinstance(include, list) or not include or any(
-            not isinstance(p, str) or not p or any(c in p for c in '*?[]') for p in include):
+    entries = config.get('files', [])
+    if not isinstance(entries, list) or not entries or any(not isinstance(p, str) or not p for p in entries):
         raise PayloadError('npm source requires an explicit files allowlist')
+    include = [p for p in entries if not p.startswith('!')]
+    # A `!` entry excludes (e.g. `!skills/*/tests/`). Its one allowed wildcard is `*` as a whole
+    # path segment, where npm's matcher and a segment-by-segment comparison agree; anything richer
+    # is refused rather than guessed at.
+    exclude = [p[1:].rstrip('/').split('/') for p in entries if p.startswith('!')]
+    if not include or any(any(c in p for c in '*?[]') for p in include) or any(
+            not seg or (seg != '*' and any(c in seg for c in '*?[]!')) for pat in exclude for seg in pat):
+        raise PayloadError('npm source requires an explicit files allowlist')
+
+    def excluded(p):
+        parts = p.split('/')
+        return any(len(parts) > len(pat) and all(s in ('*', q) for s, q in zip(pat, parts)) for pat in exclude)
+
     # npm always includes root README/licence files as well as package.json.
     return {p for p in tracked_files(source) if p == 'package.json'
             or ('/' not in p and p.lower().startswith(('readme', 'license', 'licence')))
-            or any(p == x.rstrip('/') or p.startswith(x.rstrip('/') + '/') for x in include)}
+            or (any(p == x.rstrip('/') or p.startswith(x.rstrip('/') + '/') for x in include) and not excluded(p))}
 
 
 def compare_source(files, source, channel):

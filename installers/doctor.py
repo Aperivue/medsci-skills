@@ -280,6 +280,16 @@ def py() -> str:
     return sys.executable
 
 
+def this_script() -> str:
+    """This file's absolute path, quoted if it has a space, for the --fix command we print.
+
+    The installer's tail used to print `installers/doctor.py --fix`, relative to a folder the
+    person is usually not in -- after `npx medsci-skills install`, never.
+    """
+    path = str(Path(__file__).resolve())
+    return f'"{path}"' if " " in path else path
+
+
 # --------------------------------------------------------------------------------------------
 # Probing
 # --------------------------------------------------------------------------------------------
@@ -383,7 +393,7 @@ def report(emit: Callable[[str], None], brief: bool = False) -> int:
                 emit("  - " + cap.title)
         emit("")
         emit("  See what they are, and install them (it asks before each one):")
-        emit("    " + py() + " installers/doctor.py --fix")
+        emit("    " + py() + " " + this_script() + " --fix")
         return essential_missing
 
     if not broken:
@@ -410,7 +420,7 @@ def report(emit: Callable[[str], None], brief: bool = False) -> int:
     emit("  [  ] = a skill you are likely to want      [--] = optional, most people never need it")
     emit("")
     emit("To install these, with a question before each one:")
-    emit("    " + py() + " " + str(__file__) + " --fix")
+    emit("    " + py() + " " + this_script() + " --fix")
     emit("")
     emit("Big things (a TeX distribution, R, PyTorch) are never installed for you — the command is")
     emit("printed above and the choice stays yours.")

@@ -15,7 +15,8 @@ MedSci Skills가 설치됐는지 확인하고, 오늘 실습에 쓸 대표 스�
 
 If Windows shows a security warning, choose **More info** and then **Run anyway**.
 The installer copies the `skills/` folder into local agent skill folders and writes
-an install log in this folder.
+an install log to the `.medsci-skills/logs` folder in your home folder; its last line
+shows the exact path.
 
 ## macOS
 
