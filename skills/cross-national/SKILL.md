@@ -76,7 +76,7 @@ output `[VERIFY: variable_name]` and ask the user to confirm it against the data
    | PHQ-9 | DPQ010~DPQ090 | "Not at all"→0, "Several days"→1, "More than half the days"→2, "Nearly every day"→3; sum ≥10 = depression |
    | Diabetes | LBXGLU (GLU_J, fasting subsample, mg/dL), LBXGH (GHB_J, %), DIQ010 | LBXGLU≥126 \| LBXGH≥6.5 \| DIQ010=="Yes" (DIQ010: "Yes" / "No" / "Borderline"). CRITICAL: fasting glucose is GLU_J LBXGLU, not BIOPRO_J LBXSGL — CDC says the serum LBXSGL should not be used to determine undiagnosed diabetes; an analysis that uses LBXGLU needs the fasting-subsample weight (step 3) |
    | CVD | MCQ160B/C/D/E | MCQ160B=="Yes" (CHF) \| MCQ160C=="Yes" (CHD) \| MCQ160D=="Yes" (angina) \| MCQ160E=="Yes" (MI); labels "Yes" / "No" / "Don't know" |
-   | HTN | BPXOSY3, BPXODI3, BPQ020 | BPXOSY3≥140 \| BPXODI3≥90 \| BPQ020=="Yes" |
+   | HTN | BPXOSY2+3, BPXODI2+3, BPQ020 | mean(BPXOSY2, BPXOSY3)≥140 \| mean(BPXODI2, BPXODI3)≥90 \| BPQ020=="Yes" (BPXOSY3 is the 3rd reading, not an average; the mean of the 2nd and 3rd matches KNHANES) |
    | Education | DMDEDUC2 | 5 text levels |
 
 3. Set survey design on the full file, then `subset()` the design object to the analytic domain
