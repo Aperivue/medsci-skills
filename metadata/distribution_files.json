@@ -658,8 +658,8 @@
     },
     {
       "path": "skills/check-reporting/references/LICENSES.md",
-      "size": 5549,
-      "sha256": "ab367cc5716ec07f514405244683443464dca0c710a82ccb13d3772c26e1f685"
+      "size": 5621,
+      "sha256": "ca412282dd4b240b513ba0c701459a62374d79f5f7affebcd761d1467f4d7078"
     },
     {
       "path": "skills/check-reporting/references/appraisal_tools/METRICS.md",
@@ -943,8 +943,8 @@
     },
     {
       "path": "skills/check-reporting/scripts/check_checklist_exists.py",
-      "size": 7051,
-      "sha256": "0fdefb2deb36ba3774d7255aa020e10409484be10113cdc16779fc95786abaf3"
+      "size": 7407,
+      "sha256": "45fa3db227b192581d3c1143b35da398c1950290512e6378e6c6c02c4da7870b"
     },
     {
       "path": "skills/check-reporting/scripts/check_checklist_version.py",
