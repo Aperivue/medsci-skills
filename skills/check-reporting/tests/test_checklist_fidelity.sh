@@ -144,6 +144,51 @@ seed "$FIX"
 python3 "$G" --root "$FIX" --strict >/dev/null 2>&1
 ck "NEGATIVE: a corrected fixture tree passes" 0 "$?"
 
+# --- Text mode: vendored item text vs the published statement (checklist_sources/*.json) ---------
+SRC="skills/check-reporting/tests/checklist_sources"
+seed_text() {
+  seed "$1"
+  mkdir -p "$1/$SRC"
+  cp "$REPO_ROOT/$SRC/"*.json "$1/$SRC/"
+  for f in STARD.md CONSORT.md SPIRIT.md; do cp "$REPO_ROOT/$CK_DIR/$f" "$1/$CK_DIR/"; done
+}
+
+# 6) NEGATIVE — the live STARD / CONSORT / SPIRIT text matches the published statements
+seed_text "$FIX"
+python3 "$G" --root "$FIX" --strict >/dev/null 2>&1
+ck "TEXT NEGATIVE: live checklists match the published text" 0 "$?"
+
+# 7) REGRESSION — CONSORT 26 as it was vendored before: the binary-outcome requirement dropped
+seed_text "$FIX"
+python3 - "$FIX/$CK_DIR/CONSORT.md" <<'PY'
+import re, sys
+p = sys.argv[1]; s = open(p).read()
+s = re.sub(r"(?m)^(\| 26 \|[^|]*\|).*\|$",
+           r"\1 For each primary and secondary outcome, by group: the number of participants included in the analysis, the number with available data at the outcome time point, result for each group, and the estimated effect size and its precision. |", s)
+open(p, "w").write(s)
+PY
+python3 "$G" --root "$FIX" --strict >/dev/null 2>&1
+ck "TEXT REGRESSION: truncated CONSORT item 26 fails" 1 "$?"
+python3 "$G" --root "$FIX" 2>&1 | grep -q "CONSORT.md item 26: text differs" \
+  && ck "  names CONSORT item 26" 0 0 || ck "  names CONSORT item 26" 0 1
+
+# 8) REGRESSION — STARD 1 carrying the next section's heading (the extraction leftover fixed in #583)
+seed_text "$FIX"
+sed -i.bak 's/predictive values, or AUC) |/predictive values, or AUC) Abstract |/' "$FIX/$CK_DIR/STARD.md" && rm -f "$FIX/$CK_DIR/STARD.md.bak"
+python3 "$G" --root "$FIX" --strict >/dev/null 2>&1
+ck "TEXT REGRESSION: a heading carried into STARD item 1 fails" 1 "$?"
+
+# 9) REGRESSION — an item row dropped altogether
+seed_text "$FIX"
+grep -v '^| 18 |' "$FIX/$CK_DIR/CONSORT.md" > "$FIX/c.md" && mv "$FIX/c.md" "$FIX/$CK_DIR/CONSORT.md"
+python3 "$G" --root "$FIX" 2>&1 | grep -q "CONSORT.md item 18: missing" \
+  && ck "TEXT REGRESSION: a dropped item is named as missing" 0 0 || ck "TEXT REGRESSION: a dropped item is named as missing" 0 1
+
+# 10) An installed copy has no sources: text mode is skipped and says so, not silently green
+seed "$FIX"; rm -rf "$FIX/$SRC"
+python3 "$G" --root "$FIX" 2>&1 | grep -q "text mode skipped" \
+  && ck "NO SOURCES: text mode reports that it was skipped" 0 0 || ck "NO SOURCES: text mode reports that it was skipped" 0 1
+
 echo
 echo "  $pass passed, $fail failed"
 [ "$fail" -eq 0 ] || exit 1
