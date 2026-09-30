@@ -1373,8 +1373,8 @@
     },
     {
       "path": "skills/fill-protocol/SKILL.md",
-      "size": 11289,
-      "sha256": "64880365203bc95d6b950f17a593f5c6eace147cbc2b9f2eb68568381b66f037"
+      "size": 6443,
+      "sha256": "a2ac5dba8a6561898c2bd503411f14b0ad69e7f437f0865a3cecee0378ed95c3"
     },
     {
       "path": "skills/fill-protocol/examples/example_irb_template.yaml",
@@ -1383,8 +1383,8 @@
     },
     {
       "path": "skills/fill-protocol/references/best_practices.md",
-      "size": 4196,
-      "sha256": "fc1c81b283d6fd1582fe8e7657f911d1610423704df0777bbe9dc1206eb2f10e"
+      "size": 6919,
+      "sha256": "2e9a9dcab8dc5481c2c9df5a62dae657d9785a2e39bae775b25051c0f7aac2a0"
     },
     {
       "path": "skills/fill-protocol/scripts/doc_to_docx.py",
