@@ -150,14 +150,14 @@ MIT License. See [LICENSE](https://github.com/Aperivue/medsci-skills/blob/v6.0.0
 
 Some bundled material is **not** ours and is not MIT: the official guideline templates, the CSL citation styles, and a few checklist summaries carry their own terms — including CC BY-NC, which restricts commercial use. Those are indexed in [THIRD-PARTY-NOTICES.md](https://github.com/Aperivue/medsci-skills/blob/v6.0.0/THIRD-PARTY-NOTICES.md), which ships with every copy and is checked against the tree on every build.
 
-Bundled reporting guideline checklists retain their original Creative Commons licenses. See each checklist file for attribution.
+Reporting-guideline checklists keep their sources' terms, and several have no open licence, so those are included only as summaries in our own words; [check-reporting's LICENSES.md](https://github.com/Aperivue/medsci-skills/blob/v6.0.0/skills/check-reporting/references/LICENSES.md) records each one.
 
 Optional dependency: `pdf_to_md.py` uses [pymupdf4llm](https://pymupdf.readthedocs.io) (AGPL-3.0). Not bundled -- installed separately by the user via `pip install pymupdf4llm`.
 
 ### Acknowledgements
 
 - `make-figures` Critic Loop is inspired by [PaperBanana](https://github.com/dwzhu-pku/PaperBanana) (Zhu et al., *Automating Academic Illustration for AI Scientists*, arXiv:2601.23265, 2025) and by prior self-refinement research — Self-Refine (Madaan et al., 2023), Reflexion (Shinn et al., 2023), and Constitutional AI (Anthropic, 2022). The implementation in this repository is a clean-room reconstruction specialized for medical publication figures; no code, prompts, or configurations are derived from PaperBanana's repository.
-- Reporting-guideline checklists bundled with `check-reporting` are redistributed under their original Creative Commons licenses (see each checklist for attribution).
+- Reporting-guideline checklists bundled with `check-reporting` credit their original authors in each file's header.
 - Wong colorblind-safe palette: Wong B. *Points of view: Color blindness.* Nature Methods 8:441 (2011).
 
 ## More
