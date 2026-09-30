@@ -187,6 +187,16 @@
   freely available in PubMed Central looked the same as a subscription one. The line now also
   carries the PMCID and the article's PubMed Central address.
 
+- **`/check-reporting`: five bundled checklists are no longer reported as unknown.** The
+  checklist guard answered QUADAS-3, PRISMA 2020 for Abstracts, GATHER, "SQUIRE 2.0" and "ARRIVE 2.0"
+  with `UNKNOWN_GUIDELINE`, so the skill asked the user about instruments it ships. Three files had
+  no alias at all, and name normalisation drops a year but keeps a version number such as "2.0".
+  The test now also requires every bundled checklist to be reachable by some name.
+- **`/check-reporting`: the CARE licence record matches the checklist file.** `LICENSES.md` listed
+  CARE as CC BY-NC 4.0 from a publisher statement; the checklist's own header records that Crossref
+  carries only a text-and-data-mining licence and treats it as non-open. The row moves to the
+  non-open table.
+
 ### Security
 
 - **The repository's publication check no longer prints the value it caught.** When

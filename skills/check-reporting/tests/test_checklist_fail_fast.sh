@@ -61,6 +61,25 @@ assert_exit "target-trial-emulation alias -> TARGET" 0 "$(run --guideline 'targe
 assert_exit "CONSORT-AI now vendored" 0 "$(run --guideline 'CONSORT-AI')"
 assert_exit "SPIRIT-AI now vendored" 0 "$(run --guideline 'SPIRIT-AI')"
 
+# 2c. Vendored checklists that had no alias, and version numbers _norm keeps ("2.0"): each
+#     returned UNKNOWN_GUIDELINE (exit 2) and sent the model to ask the user about a file it had.
+assert_exit "QUADAS-3 resolves" 0 "$(run --guideline QUADAS-3)"
+assert_exit "PRISMA 2020 for Abstracts resolves" 0 "$(run --guideline 'PRISMA 2020 for Abstracts')"
+assert_exit "GATHER resolves" 0 "$(run --guideline GATHER)"
+assert_exit "SQUIRE 2.0 resolves" 0 "$(run --guideline 'SQUIRE 2.0')"
+assert_exit "ARRIVE 2.0 resolves" 0 "$(run --guideline 'ARRIVE 2.0')"
+# Every vendored checklist must be reachable by at least one alias.
+unaliased="$(python3 - "$SCRIPT" "$REPO_ROOT/skills/check-reporting/references/checklists" <<'PY'
+import importlib.util, sys
+from pathlib import Path
+spec = importlib.util.spec_from_file_location("c", sys.argv[1]); m = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(m)
+stems = {p.stem for p in Path(sys.argv[2]).glob("*.md")} - {"README", "LICENSES"}
+print(" ".join(sorted(stems - set(m.ALIAS_TO_STEM.values()))))
+PY
+)"
+assert_exit "every vendored checklist has an alias (unaliased: ${unaliased:-none})" 0 "$([ -z "$unaliased" ] && echo 0 || echo 1)"
+
 # 3. Unrecognised guideline -> exit 2.
 assert_exit "unknown guideline" 2 "$(run --guideline NOT-A-REAL-GUIDELINE)"
 
