@@ -26,6 +26,9 @@ import re
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from skill_aliases import alias_problems, alias_target  # noqa: E402
+
 
 V1_SUNSET = "2026-07-24"
 
@@ -211,6 +214,12 @@ def main() -> int:
         skill_file = skill_dir / "SKILL.md"
         if not skill_file.exists():
             continue
+        # A v6 compatibility alias carries no contract by design (SKILL.md only); its shape and
+        # its target's `aliases:` declaration are checked below, so it is not silently exempt.
+        target = alias_target(skill_dir)
+        if target is not None:
+            print(f"ALIAS {skill_dir.name} -> {target}")
+            continue
         contract = skill_dir / "skill.yml"
         if not contract.exists():
             failures += 1
@@ -246,6 +255,10 @@ def main() -> int:
         else:
             failures += 1
             print(f"FAIL {skill_dir.name}: unknown schema_version {schema_version!r}")
+
+    for problem in alias_problems(skills_dir):
+        failures += 1
+        print(f"FAIL alias stub: {problem}")
 
     cap = repo / "capabilities.yml"
     if not cap.exists():

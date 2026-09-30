@@ -17,7 +17,7 @@
 **Safety boundaries**
 
 - Templates are filled only from user-supplied facts; an empty required field stays [NEEDS INPUT] and is flagged, never auto-filled or guessed.
-- Completeness is reproduced by a stdlib script; it checks presence, not the truth of a stated fact (that is model-validation / check-reporting).
+- Completeness is reproduced by a stdlib script; it checks presence, not the truth of a stated fact (that is model-assessment / check-reporting).
 
 **Known limitations**
 

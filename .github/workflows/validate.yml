@@ -66,6 +66,9 @@ jobs:
       - name: Transactional installer crash-recovery + legacy-migration test
         run: python3 installers/tests/test_txn.py
 
+      - name: "v5 -> v6 upgrade test (renamed skills become alias stubs; a user-modified one is backed up, never pruned)"
+        run: python3 installers/tests/test_v6_upgrade.py
+
       - name: Updater verify / safe-extract / check-update test (offline)
         run: python3 installers/tests/test_update.py
 

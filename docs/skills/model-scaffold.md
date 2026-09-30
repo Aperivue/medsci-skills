@@ -17,7 +17,7 @@
 **Safety boundaries**
 
 - The split is patient-level and seed-locked by construction (deterministic group split); the generator never emits an image-level or unseeded split.
-- No metric is fabricated — methods_stub.md carries [VERIFY] placeholders; numbers come only from the user's executed training and from model-evaluation / analyze-stats.
+- No metric is fabricated — methods_stub.md carries [VERIFY] placeholders; numbers come only from the user's executed training and from model-assessment / analyze-stats.
 
 **Known limitations**
 

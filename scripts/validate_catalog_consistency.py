@@ -45,6 +45,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SSOT = ROOT / "metadata" / "catalog_counts.json"
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from skill_aliases import alias_problems, partition  # noqa: E402
 
 # Counts that a drive-by contributor legitimately changes with a single-file PR
 # (adding one journal profile). These are AUTO-DERIVED from disk and deliberately
@@ -62,7 +64,11 @@ AUTO_DERIVED_KEYS = ("journal_profiles_find", "journal_profiles_write", "plugins
 
 
 def disk_counts() -> dict[str, int]:
-    skills = sum(1 for p in (ROOT / "skills").iterdir() if p.is_dir() and (p / "SKILL.md").exists())
+    # `skills` counts canonical skills only. A v6 compatibility alias (a SKILL.md-only redirect to
+    # a renamed skill, see scripts/skill_aliases.py) ships and installs, but it is not a skill a
+    # doc may advertise; it is counted separately as `skill_aliases` and asserted like `skills`.
+    canonical, aliases = partition(ROOT / "skills")
+    skills = len(canonical)
     checklists = len(list((ROOT / "skills" / "check-reporting" / "references" / "checklists").glob("*.md")))
     find_prof = len(list((ROOT / "skills" / "find-journal" / "references" / "journal_profiles").glob("*.md")))
     write_prof = len(list((ROOT / "skills" / "write-paper" / "references" / "journal_profiles").glob("*.md")))
@@ -86,6 +92,7 @@ def disk_counts() -> dict[str, int]:
             plugins = 0
     return {
         "skills": skills,
+        "skill_aliases": len(aliases),
         "reporting_guidelines": checklists,
         "journal_profiles_find": find_prof,
         "journal_profiles_write": write_prof,
@@ -370,6 +377,12 @@ def main() -> int:
         if claimed != expected:
             print(f"\nFAIL: {rel} {ctx}: claims {claimed}, expected {expected}", file=sys.stderr)
             failures += 1
+
+    # Layer 2b — every alias stub is a well-formed redirect its target declares (otherwise a stub
+    # could hide a real skill from the `skills` count).
+    for msg in alias_problems(ROOT / "skills"):
+        print(f"\nFAIL: alias stub: {msg}", file=sys.stderr)
+        failures += 1
 
     # Layer 4 — the MEDSCI_AUDIT family table must match the generated catalog.
     for msg in family_table_failures():

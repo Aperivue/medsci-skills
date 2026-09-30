@@ -65,6 +65,29 @@ JSON
 python3 "$SCRIPT" --catalog "$WORK/cat_bad.json" --out "$WORK/mk2.json" >/dev/null 2>&1
 [ $? -eq 1 ] && ok "unmapped category aborts (exit 1)" || bad "unmapped category must fail loud"
 
+# --- 3b. v6 compatibility aliases ride in their target's category plugin; a stray category fails ---
+cat > "$WORK/cat_alias.json" <<'JSON'
+{
+  "skill_count": 2, "alias_count": 1,
+  "categories": [
+    {"key": "analysis_figures", "label": "Analysis & Figures", "slugs": ["alpha"]},
+    {"key": "review_compliance", "label": "Review & Compliance", "slugs": ["gamma"]}
+  ],
+  "skills": [],
+  "aliases": [{"slug": "old-alpha", "target": "alpha", "category": "analysis_figures"}]
+}
+JSON
+python3 "$SCRIPT" --catalog "$WORK/cat_alias.json" --out "$WORK/mk_alias.json" >/dev/null 2>&1
+python3 -c "
+import json,sys
+d=json.load(open('$WORK/mk_alias.json'))
+p={x['name']:x['skills'] for x in d['plugins']}
+sys.exit(0 if p['medsci-analysis']==['./skills/alpha','./skills/old-alpha'] and p['medsci-review']==['./skills/gamma'] else 1)
+" && ok "alias listed in its target's plugin, sorted with the skills" || bad "alias placement wrong"
+sed 's/"category": "analysis_figures"}]/"category": "nowhere"}]/' "$WORK/cat_alias.json" > "$WORK/cat_alias_bad.json"
+python3 "$SCRIPT" --catalog "$WORK/cat_alias_bad.json" --out "$WORK/mk_alias_bad.json" >/dev/null 2>&1
+[ $? -eq 1 ] && ok "alias with an unknown category aborts (exit 1)" || bad "stray alias category must fail loud"
+
 # --- 4. the committed marketplace is in sync (the actual CI gate) ---
 python3 "$SCRIPT" --check >/dev/null 2>&1
 [ $? -eq 0 ] && ok "committed .claude-plugin/marketplace.json in sync" || bad "repo marketplace drifted — run the generator"
@@ -95,11 +118,18 @@ for p in mk['plugins']:
         slug=s[len('./skills/'):]
         if not (root/'skills'/slug/'SKILL.md').is_file(): errs.append(f'missing SKILL.md: {slug}')
         seen.append(slug)
-# union == all catalog slugs, each exactly once
-catalog_slugs=sorted(sk['slug'] for sk in cat['skills'])
-if sorted(seen)!=catalog_slugs: errs.append('skills union != catalog slugs')
+# union == all catalog slugs + compatibility aliases, each exactly once
+aliases=cat.get('aliases',[])
+catalog_slugs=sorted([sk['slug'] for sk in cat['skills']]+[a['slug'] for a in aliases])
+if sorted(seen)!=catalog_slugs: errs.append('skills union != catalog slugs + aliases')
 if len(seen)!=len(set(seen)): errs.append('a skill appears in >1 plugin')
-if len(seen)!=cat['skill_count']: errs.append(f'covered {len(seen)} != skill_count {cat[\"skill_count\"]}')
+if len(seen)!=cat['skill_count']+cat.get('alias_count',0):
+    errs.append(f'covered {len(seen)} != skill_count {cat[\"skill_count\"]} + alias_count {cat.get(\"alias_count\",0)}')
+# an alias rides in its target's plugin, so a namespaced old command still resolves
+plugin_of={s[len('./skills/'):]: p['name'] for p in mk['plugins'] for s in p['skills']}
+for a in aliases:
+    if plugin_of.get(a['slug'])!=plugin_of.get(a['target']):
+        errs.append('alias ' + a['slug'] + ' is not in the plugin of its target ' + a['target'])
 if errs:
     print('\n'.join(errs)); sys.exit(1)
 sys.exit(0)

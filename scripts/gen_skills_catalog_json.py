@@ -31,6 +31,9 @@ import re
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from skill_aliases import alias_problems, alias_target  # noqa: E402
+
 ROOT = Path(__file__).resolve().parent.parent
 SKILLS_DIR = ROOT / "skills"
 OUT = ROOT / "metadata" / "skills_catalog.json"
@@ -186,6 +189,16 @@ def build(skills_dir: Path = SKILLS_DIR) -> dict:
     if not skill_dirs:
         raise SkillError("no skills with a SKILL.md found")
 
+    # v6 compatibility aliases (SKILL.md-only redirects to a renamed skill) are listed apart from
+    # the skills: `skill_count` is what the storefront and README advertise, and a stub is not a
+    # skill. A malformed stub aborts generation like an unmapped owner_domain does.
+    problems = alias_problems(skills_dir)
+    if problems:
+        raise SkillError("alias stub: " + "; ".join(problems))
+    alias_of = {sd.name: alias_target(sd) for sd in skill_dirs}
+    alias_of = {k: v for k, v in alias_of.items() if v is not None}
+    skill_dirs = [sd for sd in skill_dirs if sd.name not in alias_of]
+
     skills: list[dict] = []
     for sd in skill_dirs:
         slug = sd.name
@@ -234,6 +247,11 @@ def build(skills_dir: Path = SKILLS_DIR) -> dict:
         for k in CATEGORY_ORDER
         if by_cat[k]
     ]
+    category_of = {s["slug"]: s["category"] for s in skills}
+    aliases = [
+        {"slug": a, "target": t, "category": category_of[t]}
+        for a, t in sorted(alias_of.items())
+    ]
 
     return {
         "_comment": (
@@ -244,8 +262,10 @@ def build(skills_dir: Path = SKILLS_DIR) -> dict:
             "python3 scripts/gen_skills_catalog_json.py --check."
         ),
         "skill_count": len(skills),
+        "alias_count": len(aliases),
         "categories": categories,
         "skills": skills,
+        "aliases": aliases,
     }
 
 
@@ -281,6 +301,7 @@ def main() -> int:
             return 1
         catalog = json.loads(content)
         print(f"OK: {out} in sync ({catalog['skill_count']} skills, "
+              f"{catalog['alias_count']} compatibility aliases, "
               f"{len(catalog['categories'])} categories).")
         return 0
 
@@ -288,6 +309,7 @@ def main() -> int:
     out.write_text(content, encoding="utf-8")
     catalog = json.loads(content)
     print(f"OK: wrote {out} ({catalog['skill_count']} skills, "
+          f"{catalog['alias_count']} compatibility aliases, "
           f"{len(catalog['categories'])} categories).")
     return 0
 

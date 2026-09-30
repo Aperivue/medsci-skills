@@ -154,7 +154,18 @@ for skill_dir in "${SKILL_DIRS[@]}"; do
   has_tools=$(head -20 "$skill_file" | grep -c "^tools:" || true)
   has_model=$(head -20 "$skill_file" | grep -c "^model:" || true)
 
-  if [ "$has_name" -ge 1 ] && [ "$has_desc" -ge 1 ] && [ "$has_triggers" -ge 1 ] && [ "$has_tools" -ge 1 ] && [ "$has_model" -ge 1 ]; then
+  # A v6 compatibility alias (scripts/skill_aliases.py) is a SKILL.md-only redirect the model is
+  # told never to pick on its own: name + description + disable-model-invocation, and deliberately
+  # NO triggers/tools/model — triggers on a stub would route requests to it. Its shape is held
+  # strict here (target and declaration by skill_aliases.py), not waved through.
+  if python3 "$REPO_ROOT/scripts/skill_aliases.py" --is-alias "$skill_dir"; then
+    stub_extra=$(find "$skill_dir" -type f ! -name SKILL.md ! -path '*/__pycache__/*' | head -1)
+    if [ "$has_name" -ge 1 ] && [ "$has_desc" -ge 1 ] && [ -z "$stub_extra" ]; then
+      pass "Alias stub (name + description + disable-model-invocation; SKILL.md only)"
+    else
+      fail "Alias stub malformed (needs name + description; SKILL.md must be its only file${stub_extra:+, found ${stub_extra#"$skill_dir"}})"
+    fi
+  elif [ "$has_name" -ge 1 ] && [ "$has_desc" -ge 1 ] && [ "$has_triggers" -ge 1 ] && [ "$has_tools" -ge 1 ] && [ "$has_model" -ge 1 ]; then
     pass "Frontmatter (all 5 fields)"
   else
     missing=""

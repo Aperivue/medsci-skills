@@ -293,7 +293,7 @@
     },
     {
       "id": "check_dataset_profile",
-      "skill": "profile-imaging",
+      "skill": "imaging-data",
       "family": "data_preparation",
       "family_label": "Data preparation & validation",
       "description": "Dataset-profile gate for a medical-imaging dataset (profile-imaging)."
@@ -370,7 +370,7 @@
     },
     {
       "id": "check_explainability_report",
-      "skill": "explainability",
+      "skill": "model-assessment",
       "family": "reporting_compliance",
       "family_label": "Reporting compliance",
       "description": "Explainability-report rigor gate for a medical-imaging model (explainability)."
@@ -419,7 +419,7 @@
     },
     {
       "id": "check_metric_reporting",
-      "skill": "model-evaluation",
+      "skill": "model-assessment",
       "family": "data_preparation",
       "family_label": "Data preparation & validation",
       "description": "Task-correct metric-reporting gate for a medical-imaging model (model-evaluation)."
@@ -440,7 +440,7 @@
     },
     {
       "id": "check_model_provenance",
-      "skill": "model-sourcing",
+      "skill": "model-selection",
       "family": "data_preparation",
       "family_label": "Data preparation & validation",
       "description": "Model-provenance gate for a third-party model you are about to build a study on."
@@ -454,7 +454,7 @@
     },
     {
       "id": "check_normalizer_domain",
-      "skill": "preprocess-imaging",
+      "skill": "imaging-data",
       "family": "data_preparation",
       "family_label": "Data preparation & validation",
       "description": "Normaliser-domain gate: is the cohort you are about to predict in the domain the trained normalisation contract assumes?"
@@ -531,7 +531,7 @@
     },
     {
       "id": "check_preprocessing_leakage",
-      "skill": "preprocess-imaging",
+      "skill": "imaging-data",
       "family": "data_preparation",
       "family_label": "Data preparation & validation",
       "description": "Data-stage preprocessing-leakage gate for a medical-imaging pipeline (preprocess-imaging)."
@@ -671,7 +671,7 @@
     },
     {
       "id": "check_split_leakage",
-      "skill": "model-validation",
+      "skill": "model-assessment",
       "family": "data_preparation",
       "family_label": "Data preparation & validation",
       "description": "Train/validation/test split-leakage gate for a medical-imaging model (model-validation)."
@@ -720,7 +720,7 @@
     },
     {
       "id": "check_uncertainty_reporting",
-      "skill": "uncertainty-imaging",
+      "skill": "model-assessment",
       "family": "reporting_compliance",
       "family_label": "Reporting compliance",
       "description": "Uncertainty / OOD / selective-prediction reporting-rigor gate (uncertainty-imaging)."
