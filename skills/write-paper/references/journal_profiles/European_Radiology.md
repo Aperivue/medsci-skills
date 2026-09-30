@@ -15,11 +15,15 @@
 
 | Type | Body Word Limit | Abstract | Figures | Tables | References |
 |------|----------------|----------|---------|--------|------------|
-| Original Article | 3500 words | 250 words | 8 (+ supplementary) | 6 | 40 |
-| Review Article | 5000 words | 250 words | 10 | 6 | 80 |
-| Technical Note | 2000 words | 150 words (unstructured) | 5 | 4 | 20 |
-| Case Report | 1500 words | 200 words | 6 | 2 | 15 |
-| Letter to Editor | 600 words | None | 2 | 1 | 5 |
+| Original Article | 3,000 words (systematic review / meta-analysis: 5,000) | 250 words (structured) | 6 (SR/MA: 12) | 5 | No cap stated |
+| Review (including Narrative Review) | 5,000 words | 250 words | 12 | 5 | No cap stated |
+| Technical Developments | 2,000 words | 250 words | 4 | 4 | No cap stated |
+| Special Report | 3,000 words | 250 words | 6 | 4 | No cap stated |
+| Guideline | 5,000 words | 250 words | 12 | 5 | No cap stated |
+| Statement | 3,000 words | 250 words | 6 | 5 | No cap stated |
+| Letter to the Editor | 1,000 words | None | Not listed | Not listed | 10 (max. 3 authors) |
+
+Systematic reviews and meta-analyses are submitted as Original Articles.
 
 *Word count excludes abstract, references, figure legends, and table captions.*
 
@@ -30,27 +34,28 @@
 **Structured abstract, 250 words maximum:**
 
 ```
-Objectives: [One sentence: what was studied]
-Methods: [Study design, participants, index test, reference standard, outcomes]
-Results: [Key results with statistics, 95% CI]
-Conclusions: [Main conclusion and clinical relevance]
-Key Points: [3 bullet points — required, see below]
+Objectives: [Main objective and context of the study]
+Materials and Methods: [Study design, modalities/interventions, data collection, participants]
+Results: [Outcome of the study, presented concisely]
+Conclusion: [Addresses the objective; derived from the results; no elaboration on importance]
 ```
 
-**Key Points** — 3 mandatory bullet points immediately after the abstract body:
+**Key Points** — 3 mandatory key points, in this format:
 
-- Maximum 85 characters each
-- Written as declarative statements in present tense
-- Cover: what was done (1), main finding (2), clinical implication (3)
-- Bold the most important word or phrase in each bullet
+- **Question** (20–25 words): the unmet need or clinical problem the study addresses
+- **Findings** (20–25 words): the main result, stated objectively
+- **Clinical relevance statement** (maximum 40 words): the benefit for the patient and/or the clinical relevance of the study
+- No abbreviations that are not spelled out (common ones such as CT, MRI, PET, US, BI-RADS, LI-RADS, PI-RADS excepted); no hypotheticals or vague language ("could", "might"); no claims the study does not prove; do not copy sentences from the main text or abstract
 
 Example:
 ```
 Key Points
-• [What was done] CT-based radiomics distinguishes malignant from benign thyroid nodules
-  with an AUC of 0.87.
-• [Finding] The model outperforms size-based criteria (AUC 0.62, P < .001).
-• [Implication] Radiomics may reduce unnecessary biopsies for indeterminate nodules.
+Question  Size-based criteria cannot reliably separate malignant from benign indeterminate
+          thyroid nodules, so many patients undergo biopsies that turn out benign.
+Findings  A CT radiomics model reached an AUC of 0.87 in the external test set, compared with
+          0.62 for size-based criteria (P < .001).
+Clinical relevance statement  Adding the radiomics model to size criteria identifies benign
+          indeterminate thyroid nodules on routine CT and reduces referrals for biopsy.
 ```
 
 ---

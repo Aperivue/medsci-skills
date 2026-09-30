@@ -1,0 +1,27 @@
+# Line endings. CI hashes files on a Linux checkout (metadata/distribution_files.json), so a
+# Windows checkout that converted text files to CRLF produced a manifest that could never match.
+# Text files are stored and checked out with LF on every platform.
+* text=auto eol=lf
+
+# CSV files are data: keep their bytes exactly as committed (some demo inputs use CRLF, and the
+# demo locks hash them).
+*.csv -text
+
+# Binary formats: never touch.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary
+*.zip binary
+*.docx binary
+*.pptx binary
+*.xlsx binary
+*.xls binary
+*.nii binary
+*.gz binary
+*.dcm binary
+*.ttf binary
+*.otf binary
+*.woff binary
+*.woff2 binary

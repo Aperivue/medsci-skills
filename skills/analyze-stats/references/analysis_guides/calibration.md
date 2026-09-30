@@ -33,18 +33,27 @@ in-sample. Produce the **bootstrap optimism-corrected** slope instead (Harrell/S
 import numpy as np, statsmodels.api as sm
 X = ...            # design matrix (add_constant), y = 0/1 outcome
 def cal_slope(y, lp):
+    """Calibration slope: coefficient of lp in logit(y) ~ a + b*lp."""
     m = sm.GLM(y, sm.add_constant(lp), family=sm.families.Binomial()).fit()
-    return m.params[1], m.params[0]          # slope, calibration-in-the-large intercept
+    return m.params[1]
+
+def citl(y, lp):
+    """Calibration-in-the-large: the intercept with the slope FIXED at 1 (lp as an offset).
+    The intercept of the joint model above is NOT calibration-in-the-large whenever the
+    slope differs from 1."""
+    m = sm.GLM(y, np.ones_like(lp), family=sm.families.Binomial(), offset=lp).fit()
+    return m.params[0]
 
 full = sm.GLM(y, X, family=sm.families.Binomial()).fit()
-app_slope, app_int = cal_slope(y, X @ full.params)     # apparent: slope ~1.00, intercept ~0
+app_slope = cal_slope(y, X @ full.params)              # apparent: exactly 1.00
+app_citl = citl(y, X @ full.params)                    # apparent: exactly 0
 
 rng = np.random.default_rng(42); n = len(y); opt = []
 for _ in range(500):                                    # bootstrap optimism (Harrell)
     idx = rng.integers(0, n, n)
     bm = sm.GLM(y[idx], X[idx], family=sm.families.Binomial()).fit()
-    s_boot, _ = cal_slope(y[idx], X[idx] @ bm.params)   # boot model on boot data (apparent)
-    s_orig, _ = cal_slope(y,      X      @ bm.params)   # boot model on original data (test)
+    s_boot = cal_slope(y[idx], X[idx] @ bm.params)      # boot model on boot data (apparent)
+    s_orig = cal_slope(y,      X      @ bm.params)      # boot model on original data (test)
     opt.append(s_boot - s_orig)
 corrected_slope = app_slope - float(np.mean(opt))       # < 1.00 when the model overfits
 print(f"apparent slope {app_slope:.3f} -> optimism-corrected {corrected_slope:.3f}")
@@ -53,14 +62,22 @@ print(f"apparent slope {app_slope:.3f} -> optimism-corrected {corrected_slope:.3
 A corrected slope **< 1** means predictions are too extreme (overfit) and should be shrunk
 (a penalized/uniform-shrinkage refit); a slope **> 1** means they are too moderate.
 
+On **held-out or external** data, compute both on that data's linear predictor
+(`lp = X_ext @ full.params`): `citl(y_ext, lp)` and `cal_slope(y_ext, lp)`. Synthetic external
+set (observed risk 26.2% vs mean predicted 16.8%, slope 0.62): the joint-model intercept was
+0.04, which reads as "calibrated in the large", while CITL was 0.65 (R `glm(y ~ offset(lp),
+binomial)`: 0.651). Note that `rms::val.prob` reports the joint intercept as "Intercept"; it is
+not calibration-in-the-large either (Van Calster et al. 2019, doi:10.1186/s12916-019-1466-7).
+
 ---
 
 ## The four levels of calibration (report weak calibration at least)
 
 Van Calster's hierarchy — report at minimum **weak calibration** (intercept + slope):
 
-- **Mean** (calibration-in-the-large): mean predicted = observed event rate (the intercept).
-- **Weak**: intercept ≈ 0 **and** slope ≈ 1.
+- **Mean** (calibration-in-the-large): mean predicted = observed event rate — the intercept
+  estimated with the slope fixed at 1 (`citl()` above), not the joint-model intercept.
+- **Weak**: calibration intercept ≈ 0 **and** slope ≈ 1.
 - **Moderate**: a **flexible calibration curve** (loess / spline of observed on predicted),
   not decile bins — the plot most reviewers now expect.
 - **Strong**: correct per-covariate (rarely achievable; not required).
@@ -70,7 +87,10 @@ import matplotlib.pyplot as plt
 from sklearn.calibration import calibration_curve
 phat = full.predict(X)
 frac_pos, mean_pred = calibration_curve(y, phat, n_bins=10, strategy="quantile")
-plt.plot([0, 1], [0, 1], "--"); plt.plot(mean_pred, frac_pos, "o-")   # add a loess curve for moderate
+plt.plot([0, 1], [0, 1], "--"); plt.plot(mean_pred, frac_pos, "o", alpha=0.6)   # grouped points
+from statsmodels.nonparametric.smoothers_lowess import lowess
+curve = lowess(y, phat, frac=2 / 3, it=0)                # flexible curve (moderate calibration)
+plt.plot(curve[:, 0], curve[:, 1], "-")
 plt.xlabel("Predicted probability"); plt.ylabel("Observed frequency")
 ```
 
@@ -101,7 +121,8 @@ State the horizon; a model can be well-calibrated at 1 year and not at 5.
 
 ## Reporting
 
-- Calibration **intercept and slope** with the **internal-validation method named**
+- **Calibration-in-the-large (slope fixed at 1) and slope** with the **internal-validation
+  method named**
   (bootstrap/CV), not the apparent slope of 1.00; the flexible calibration plot.
 - Scaled Brier; the horizon (survival); the cohort each metric was computed on (development vs
   held-out vs external) stated explicitly.

@@ -29,16 +29,16 @@ If a paper requires *both* a central illustration and a visual abstract (some JA
 
 ## CI mode validation rules (enforced by `generate_visual_abstract.py --type central-illustration`)
 
-A submission rejects with a warning if any of the following holds:
+The script refuses to render (exit 2) if any of the following holds:
 
 | Rule | Threshold | Rationale (Fuster-Mann) |
 |---|---|---|
 | `n_visual_zones` | ≤ 3 | "Simplicity is superior" |
 | `total_label_word_count` | ≤ 30 | "Avoid using too much text" |
-| `methods_terms_present` | none of: `cohort flow`, `inclusion`, `exclusion`, `study design`, `enrollment`, `randomized`, `sample size` | CI ≠ VA; methods belong in VA |
+| `methods_terms_present` | none of: `cohort flow`, `inclusion criteria`, `exclusion criteria`, `study design`, `enrollment`, `randomized`, `sample size`, `consort`, `prisma`, `stard` | CI ≠ VA; methods belong in VA |
 | `numerical_data_points` | ≤ 4 | "Avoid incorporating secondary messages" |
 
-Override a single rule with `--allow rule=name` and a justification note recorded in the output PPTX speaker notes.
+Override a single rule with `--ci-allow {zones|words|numerical|methods}` (repeatable) only when you have a defensible reason.
 
 ## JACC PPTX layout (verified from official submission templates)
 

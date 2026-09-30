@@ -2,9 +2,9 @@
 
 # model-scaffold
 
-> Generate a reproducible, runnable PyTorch training repo for a medical-imaging task — segmentation, classification, detection, image-to-image synthesis, self-supervised pretraining, or fine-tuning a pretrained backbone (transfer learning) — the missing middle link between choosing an architecture and validating a trained model. Emits a patient-level seed-locked split as an auditable artifact, a task-appropriate model, train and evaluate scripts that seed every RNG and infer under eval mode, a config, requirements, a reproducibility record, and a Methods stub with VERIFY placeholders (no fabricated numbers). Fine-tuning mode adds a frozen-then-unfrozen schedule, discriminative learning rates, and a pretrained-weight provenance record. The reproducibility guarantees hold by construction, so the build is leakage-safe before any training runs. Integrates with MONAI, nnU-Net, TorchIO, timm, and torchvision — it does not reimplement them.
+> Use when you need a runnable PyTorch training repo for a medical-imaging task (segmentation, classification, detection, synthesis, self-supervised, or fine-tuning a pretrained backbone). Emits a patient-level seed-locked split, train/evaluate scripts, config and a Methods stub.
 
-**Invoke:** `/model-scaffold` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
+**Invoke:** `/model-scaffold`
 
 ## When to use
 
@@ -17,7 +17,7 @@
 **Safety boundaries**
 
 - The split is patient-level and seed-locked by construction (deterministic group split); the generator never emits an image-level or unseeded split.
-- No metric is fabricated — methods_stub.md carries [VERIFY] placeholders; numbers come only from the user's executed training and from model-evaluation / analyze-stats.
+- No metric is fabricated — methods_stub.md carries [VERIFY] placeholders; numbers come only from the user's executed training and from model-assessment / analyze-stats.
 
 **Known limitations**
 

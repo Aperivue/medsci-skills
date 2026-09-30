@@ -5,7 +5,7 @@ owner_domain: model_validation
 maturity: official
 
 when_to_use: "Produce or audit a radiomics / tabular clinical-ML study — imaging or clinical features → random forest / XGBoost / regularised logistic → a clinical outcome — so it clears the rigor bar reviewers expect: nested cross-validation (tuning never on the reported folds), dimensionality control for the features-far-exceed-events regime, feature selection inside the fold, feature-stability (ICC / test-retest) filtering, calibration, and external/temporal validation. Emits a pipeline manifest and a deterministic rigor gate. The most common solo-doable clinical-ML workflow — no GPU, no engineer."
-when_NOT_to_use: "Deep-learning imaging models (use architecture-zoo / model-scaffold / model-validation); classical inferential statistics or a regression model as the primary estimand (use analyze-stats); LLM/MLLM evaluation (use mllm-eval); interpretability of a trained imaging network (use explainability); item-by-item reporting-guideline audit of a finished manuscript (use check-reporting — CLEAR / TRIPOD+AI / PROBAST-AI); reimplementing scikit-learn / xgboost / pyradiomics (out of scope — this skill wires and audits them)."
+when_NOT_to_use: "Deep-learning imaging models (use model-selection / model-scaffold / model-assessment); classical inferential statistics or a regression model as the primary estimand (use analyze-stats); LLM/MLLM evaluation (use mllm-eval); interpretability of a trained imaging network (use explainability); item-by-item reporting-guideline audit of a finished manuscript (use check-reporting — CLEAR / TRIPOD+AI / PROBAST-AI); reimplementing scikit-learn / xgboost / pyradiomics (out of scope — this skill wires and audits them)."
 
 inputs:
   - "a feature table (radiomics or clinical/tabular) with a patient/subject ID and the outcome"
@@ -39,6 +39,7 @@ safety_boundaries:
   - "Integrates scikit-learn / xgboost / pyradiomics by reference; it does not reimplement them and never runs a model on real patient data."
 known_limitations:
   - "Audits the declared pipeline manifest, not the executed code; a mislabelled field (e.g. flat CV recorded as nested) can hide a real problem — complements, does not replace, self-review/check_cv_leakage (prose audit)."
+  - "The manifest carries no grouping field, so the gate cannot see lesion rows of one patient split across folds; the guide's nested-CV skeleton splits by patient and writes a fold table that model-assessment's check_split_leakage.py audits."
   - "A clean pipeline audit is necessary, not sufficient — external validation and clinical-utility evidence still govern the clinical claim."
 validation_commands:
   - "python3 scripts/check_radiomics_ml.py --manifest <pipeline_manifest.json> --strict"

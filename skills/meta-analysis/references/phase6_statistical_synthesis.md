@@ -15,30 +15,48 @@ cautions (method.tau, HK CI, zero-cell correction, publication-bias test power).
 ## DTA Meta-Analysis
 
 ```r
-library(mada)      # bivariate model, forest/SROC plots
-library(meta)      # general meta-analysis utilities
+library(mada)      # bivariate model, SROC plot, paired forest plots
+library(meta)      # general meta-analysis utilities, Deeks' test
 library(metafor)   # advanced models
 
-# Bivariate model (recommended for DTA)
-fit <- reitsma(data, formula = cbind(tsens, tfpr) ~ 1)
-summary(fit)
+# data: one row per study with columns TP, FN, FP, TN
+# Bivariate model (recommended for DTA). The 0.5 zero-cell correction is
+# confined to the studies that need it; with ANY zero cell, report the
+# bivariate binomial GLMM as primary (analyze-stats dta_meta_analysis.R).
+fit <- reitsma(data, formula = cbind(tsens, tfpr) ~ 1, correction.control = "single")
+summary(fit)               # rows "sensitivity" / "false pos. rate": back-transformed CIs
+summary(SummaryPts(fit))   # LR+, LR-, DOR with CIs derived from the bivariate fit
 
-# SROC curve with confidence and prediction regions
-plot(fit, sroclwd = 2, main = "SROC Curve")
+# SROC curve with confidence and prediction regions (predict = FALSE by default)
+plot(fit, sroclwd = 2, predict = TRUE, predlty = 2, main = "SROC Curve")
+points(fpr(data), sens(data), pch = 2)
 
-# Forest plot (paired: sensitivity + specificity)
-forest(fit, type = "sens")
-forest(fit, type = "spec")
+# Paired forest plots come from the study-level data (madad), not the fit.
+# mada:: is needed because meta and metafor, attached later, mask forest().
+mada::forest(madad(data), type = "sens")
+mada::forest(madad(data), type = "spec")
 ```
 
 ### Key outputs for DTA
 - Pooled sensitivity (95% CI)
 - Pooled specificity (95% CI)
-- Pooled positive LR, negative LR
-- Pooled DOR
-- SROC curve with AUC, confidence region, prediction region
-- Heterogeneity: I-squared for sensitivity and specificity separately
-- Threshold effect: Spearman correlation between sensitivity and FPR
+- Positive LR, negative LR and DOR with 95% CIs, **derived from the bivariate model**
+  (`SummaryPts`) — never pooled separately (Zwinderman & Bossuyt 2008, doi:10.1002/sim.2992)
+- SROC curve with confidence region and 95% prediction region; if an AUC is quoted, give the
+  partial AUC over the observed FPR range, not an AUC extrapolated beyond the data
+- Heterogeneity: the between-study SDs of logit(Se) and logit(FPR), their correlation, and the
+  prediction region. **Not** univariate I² for sensitivity and specificity: Cochrane DTA
+  Handbook (v1.0, ch.10 §10.4.3) — univariate heterogeneity tests and I² "are not routinely
+  used in Cochrane DTA reviews as they do not account for heterogeneity explained by phenomena
+  such as positivity threshold effects". A correlation of ±1 or an SD near 0 is a boundary
+  estimate — say so rather than interpreting it
+- Threshold effect: judged from the SROC plot and the bivariate Se–FPR correlation. A Spearman
+  correlation, if reported, is descriptive: with few studies a non-significant test does not
+  show there is no threshold effect. If positivity thresholds differ across studies, the SROC
+  (HSROC) curve with its prediction region is the summary
+- Zero cells: the normal approximation with a 0.5 correction pulls Se/Sp towards 0.5; fit the
+  bivariate binomial GLMM (exact likelihood) as primary — §10.5.2.1: Chu (2006) "recommended
+  that software be used that can explicitly model the binomial within-study distributions"
 
 ---
 
@@ -48,15 +66,23 @@ forest(fit, type = "spec")
 library(meta)
 library(metafor)
 
-res <- metagen(TE, seTE, data = dat, studlab = study,
-               method.tau = "REML", sm = "OR")
+# dat: one row per study with ei/ni (intervention) and ec/nc (control) counts
+res <- metabin(ei, ni, ec, nc, data = dat, studlab = study, sm = "OR",
+               method.tau = "REML",                        # PM if REML does not converge
+               method.random.ci = "HK", adhoc.hakn.ci = "se",
+               common = FALSE, random = TRUE, prediction = TRUE)
 forest(res)
 funnel(res)
 
-summary(res)  # I-squared, tau-squared, Q test
-metabias(res, method.bias = "Egger")
+summary(res)  # I-squared, tau-squared, Q test, prediction interval
+metabias(res, method.bias = "Harbord")  # OR: Harbord or Peters, not the original Egger; k >= 10
 metainf(res, pooled = "random")  # leave-one-out
 ```
+
+When only estimates and standard errors are reported (e.g. adjusted ORs), use
+`metagen(TE, seTE, sm = "OR", ...)` with the same `method.tau`/`method.random.ci`
+arguments; Harbord and Peters need 2×2 counts, so without them present the funnel plot
+descriptively rather than running the original Egger test on log ORs.
 
 ---
 
@@ -81,19 +107,20 @@ throughout the manuscript.
 # one Cochrane tells you to avoid: do not reach for it by default.
 res_comp <- metabin(ei, ni, ec, nc, data = dat,
                      studlab = study, sm = "OR",
-                     method = "Inverse", method.tau = "DL",
+                     method = "Inverse", method.tau = "REML",
                      common = FALSE, random = TRUE,
-                     method.random.ci = "HK", incr = 0.5)
+                     method.random.ci = "HK", adhoc.hakn.ci = "se")
 
-# Single-arm pooled proportion
+# Single-arm pooled proportion: logit GLMM, no continuity correction
 res_prop <- metaprop(event, n, data = dat_single,
                       studlab = study, sm = "PLOGIT",
-                      method.tau = "DL", method.ci = "CP")
+                      method = "GLMM", method.ci = "CP",
+                      common = FALSE, random = TRUE, prediction = TRUE)
 ```
 
 ### Key points
 - Comparative answers "is adjunct effective?"; single-arm answers "what outcomes to expect?"
-- Single-arm uses `metaprop()` with logit transformation + Clopper-Pearson CI
+- Single-arm uses `metaprop()` with a logit GLMM (`method = "GLMM"`, no continuity correction) and Clopper-Pearson CIs for the individual studies; see `single_arm_proportion_ma.md`
 - GRADE certainty lower for single-arm — state explicitly
 - Report both in Results: label PRIMARY/SECONDARY per pre-specified assignment
 - **Selection bias warning**: Single-arm case series may introduce selection bias
@@ -105,19 +132,19 @@ res_prop <- metaprop(event, n, data = dat_single,
 
 ## Practical R Notes
 
-- For **non-rare** binary outcomes, use `method = "Inverse"`, not `"MH"`, to avoid a method.tau conflict. For **rare** events this reverses — see "Rare Events" below.
-- Use `method.tau = "DL"` (DerSimonian-Laird) — REML may not converge with sparse data. Not for rare events (below).
-- Use `method.random.ci = "HK"` (Hartung-Knapp) instead of the deprecated `hakn = TRUE`.
+- For **non-rare** binary outcomes the random-effects pool is inverse-variance weighted whatever `method` is set to (`"Inverse"` or `"MH"` changes only the common-effect estimate); there is no `method.tau` conflict with `"MH"` in current `meta`. For **rare** events see "Rare Events" below.
+- Use `method.tau = "REML"` — the Cochrane default (Handbook v6.5 §10.10.4.4; Veroniki et al. 2016, doi:10.1002/jrsm.1164). If REML fails to converge, use `"PM"` (Paule-Mandel), not DL. Name the estimator in Methods. Not for rare events (below).
+- Use `method.random.ci = "HK"` (Hartung-Knapp) **with `adhoc.hakn.ci = "se"`** instead of the deprecated `hakn = TRUE`. Plain HK can give a CI narrower than the common-effect CI when τ² is estimated as 0 — Handbook v6.5 §10.10.4.4: "When no heterogeneity is observed … the HKSJ method can yield overly narrow confidence intervals"; the ad hoc correction (Knapp & Hartung 2003) never lets the HK variance fall below the classic one. Report the classic (Wald-type) CI as a sensitivity analysis. (Not available for GLMMs.)
 - Use `common = FALSE, random = TRUE` instead of deprecated `comb.fixed/comb.random`.
-- For zero cells in **non-rare binary 2×2 outcomes** (OR/RR), apply `incr = 0.5` continuity correction. **Do NOT** apply a continuity correction when the event is **rare** (below) or when pooling **single-arm proportions**: use `metaprop(..., method = "GLMM", sm = "PLOGIT")`, which handles zero-event studies natively. See `single_arm_proportion_ma.md`.
-- Egger's test is underpowered for k < 10 — note this in results. **Egger/funnel tests are invalid for pooled proportions** (the SE is a deterministic function of the proportion); see `single_arm_proportion_ma.md`.
+- For zero cells in **non-rare binary 2×2 outcomes** (OR/RR), `meta` adds `incr = 0.5` to the zero-cell studies by default. **Do NOT** apply a continuity correction when the event is **rare** (below) or when pooling **single-arm proportions**: use `metaprop(..., method = "GLMM", sm = "PLOGIT")`, which handles zero-event studies natively. See `single_arm_proportion_ma.md`.
+- Funnel-asymmetry tests need k ≥ 10. Match the test to the measure: OR → Harbord or Peters; RR → Peters; SMD → Pustejovsky; MD → Egger. The original Egger test is "not recommended for application to odds ratios and SMDs" (Handbook v6.5 ch.13). **Egger/funnel tests are invalid for pooled proportions** (the SE is a deterministic function of the proportion); see `single_arm_proportion_ma.md`.
 
 ---
 
 ## Rare Events (sparse 2×2 data)
 
-The default specification above (`method = "Inverse"` + `method.tau = "DL"` + `incr = 0.5`)
-is chosen for convergence convenience, and it is the wrong tool once the event is rare.
+The default specification above (inverse-variance random-effects pooling, with 0.5 added to
+zero cells) is the wrong tool once the event is rare.
 Inverse-variance weights are derived from a large-sample normal approximation that fails
 with few events, and adding 0.5 to every cell biases the estimate toward the null and
 distorts its variance — Cochrane Handbook §10.4.4.1, restated for radiology SR/MA in
@@ -245,9 +272,11 @@ and separate univariate pooling of sensitivity and specificity is not acceptable
 
 ## Publication Bias
 
-- DTA: Deeks' funnel plot asymmetry test (standard funnel plots are inappropriate for DTA).
-- Intervention: Funnel plot + Egger's or Peters' test.
-- Note: tests are underpowered for <10 studies.
+- DTA: Deeks' funnel plot asymmetry test — `metabias(metabin(TP, TP + FN, FP, FP + TN, data = data, sm = "DOR"), method.bias = "Deeks")`, drawn with `funnel(..., yaxis = "ess")`. Standard funnel plots and the Egger, Begg, Harbord and Peters tests "should not be used with diagnostic studies" (Cochrane DTA Handbook v1.0 ch.10 §10.6.3).
+- Intervention: funnel plot + a test matched to the measure (OR → Harbord or Peters; RR → Peters; SMD → Pustejovsky; MD → Egger).
+- Single-arm proportions: no test (`single_arm_proportion_ma.md` §7).
+- Tests need k ≥ 10; below that, do not test.
+- Asymmetry means small-study effects, of which publication bias is only one possible cause (Sterne et al. 2011, doi:10.1136/bmj.d4002). Trim-and-fill, if reported, is a sensitivity analysis, not a corrected estimate (Peters et al. 2007, doi:10.1002/sim.2889).
 
 ---
 

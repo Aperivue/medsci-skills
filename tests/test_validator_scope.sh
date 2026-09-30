@@ -54,9 +54,8 @@ cat > "$FIXTURE_DIR/SKILL.md" <<'EOF'
 ---
 name: zz-scope-fixture
 description: Throwaway fixture created and deleted by tests/test_validator_scope.sh.
-triggers: none
-tools: Read
-model: inherit
+metadata:
+  triggers: "none"
 ---
 
 # Fixture
@@ -100,6 +99,12 @@ seen 'TODO_scratch.md';       ck "a gitignored scratchpad is NOT scanned"     1 
 # spoke at all.
 [ -n "$FLAGGED" ]
 ck "the personal-path rule emitted a verdict at all"                         0 "$?"
+
+# The fixture has no `model:` line. `model` is optional (Claude Code's default is the session's
+# model, and the Agent Skills spec and claude.ai upload reject the field), so the frontmatter rule
+# must pass it rather than report it missing.
+printf '%s\n' "$OUT" | grep -q 'PASS.*Frontmatter (name, description, metadata.triggers)'
+ck "a SKILL.md without model: passes the frontmatter rule"                   0 "$?"
 
 # The verdict names the file and line, never the matched value. CI logs of a public repository
 # are public and outlive a force-push that removes the leaking commit, so a gate that echoes the

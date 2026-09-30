@@ -7,8 +7,8 @@ uniform 0.90 are different clinical objects, and the mean cannot tell you which 
 Reverse-engineered from accepted open-access papers (cited by DOI as design facts). These are
 **design-time** decisions: an acceptability rate cannot be recovered from a finished experiment that
 never asked a clinician, and a failure taxonomy assigned after seeing the failures is a description,
-not a finding. Distinct from `/model-evaluation` (which metric, computed correctly) and
-`/uncertainty-imaging` (per-case uncertainty, abstention, risk–coverage).
+not a finding. Distinct from `/model-assessment` (which metric, computed correctly; per-case uncertainty,
+abstention, risk–coverage).
 
 ## The failure the reviewer expects
 
@@ -17,12 +17,14 @@ no per-case distribution, no clinician judgement, no statement of what a failure
 like. The reviewer's objection is not that 0.87 is low. It is that **0.87 is silent on the question
 being claimed**, and the study has no instrument that could have answered it.
 
-How wide that silence is, measured: in a seven-site evaluation of one auto-contouring pipeline,
-physician-rated *use-as-is* rates ranged from **89% (head/neck normal tissue) to 40% (head/neck CTV)
-to 44% (postmastectomy breast)** — with **the same software** *(JCO Glob Oncol 2024
-`10.1200/GO.23.00376`, CC BY: 5-point Likert, 31 radiation oncologists across 16 institutions and 6
-countries, ≥3 independent raters per case)*. A single pooled accuracy figure over those structures
-would have reported a usable system and concealed that a third of it was not.
+How wide that silence is, measured: in a 16-institution evaluation of one automated contouring and
+planning system, physician-rated *use-as-is* rates ranged from **89% (head/neck normal-tissue
+contours) to 40% (head/neck CTV contours) and 44% (postmastectomy breast plans)** — with **the same
+software** *(JCO Glob Oncol 2024 `10.1200/GO.23.00376`, CC BY: 5-point Likert, 31 radiation
+oncologists across 16 institutions and 6 countries, ≥3 independent raters per case, each from a
+different institution)*. A single pooled accuracy figure over those tasks would have reported a
+usable system and concealed that fewer than half of the head/neck CTV contours and the
+postmastectomy plans were usable as-is.
 
 ## Design the usability question (decide before you run anything)
 
@@ -71,9 +73,9 @@ would have reported a usable system and concealed that a third of it was not.
 
 ## What this does NOT replace
 
-**Which metric and how it is computed** (Dice + a boundary metric, per structure) →
-`/model-evaluation`; **per-case uncertainty, abstention, and risk–coverage failure detection** →
-`/uncertainty-imaging`; **split leakage, tuning-on-test, internal vs external** → `/model-validation`;
+**Which metric and how it is computed** (Dice + a boundary metric, per structure), **per-case
+uncertainty, abstention, and risk–coverage failure detection**, and **split leakage, tuning-on-test,
+internal vs external** → `/model-assessment`;
 **comparing several models fairly** → `multi_model_comparison_design.md`; **sizing the acceptability
 rate, the failure-rate bound, and the edit-time contrast** → `calc-sample-size`
 `references/segmentation_acceptability_sample_size.md` (Test 17); **showing the distribution and its

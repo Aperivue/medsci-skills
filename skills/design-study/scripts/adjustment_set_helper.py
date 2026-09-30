@@ -13,8 +13,15 @@ covariate by its DAG role and flags the adjustment errors reviewers reject:
                             collider-stratification on the causal pathway).
   - COLLIDER_ADJUSTMENT   — adjusting for a collider (≥2 parents, not a common cause)
                             opens a non-causal path (M-bias).
-  - CONFOUNDER_OMITTED    — a common cause of X and Y is NOT in the adjustment set, so a
-                            backdoor path is left open.
+  - CONFOUNDER_OMITTED    — a common cause of X and Y is NOT in the adjustment set and no
+                            adjusted node blocks it: it still reaches X, and still reaches Y
+                            by an X-free directed path, when the adjusted nodes are removed,
+                            so a backdoor path is left open. A common cause whose paths are
+                            all blocked by another adjusted node (e.g. a measured mediator of
+                            the confounder→outcome path, the usual handling of an unmeasured
+                            confounder) is not flagged (Pearl's backdoor criterion). An
+                            adjusted node with ≥2 unadjusted parents does not count as a
+                            blocker, since conditioning on it can open a path between them.
 
 It also proposes a *candidate* sufficient set — the pre-exposure common causes of X and
 Y — which is a valid (if not always minimal) backdoor adjustment set. Finding the
@@ -22,9 +29,13 @@ Y — which is a valid (if not always minimal) backdoor adjustment set. Finding 
 this helper prints ready-to-run dagitty code for that and never claims minimality.
 
 Soundness: every classification uses only reachability on the directed graph (ancestors
-/ descendants), which is unambiguous. It does NOT implement full d-separation, so it will
-not certify an arbitrary set as sufficient — it flags the four common, unambiguous errors
-and defers optimal minimisation to dagitty.
+/ descendants, and directed paths that avoid the adjusted nodes). A common cause is
+flagged when a directed path to X and an X-free directed path to Y both avoid the trusted
+blockers. It does NOT implement full d-separation, so it will not certify an arbitrary set
+as sufficient (a set that conditions on a descendant of a collider can still be
+insufficient), and a multi-parent adjusted node that does block a path can still draw a
+conservative CONFOUNDER_OMITTED — it flags the four common errors and defers sufficiency
+checks and optimal minimisation to dagitty (`isAdjustmentSet`, `adjustmentSets`).
 
 DAG input (JSON): {"edges": [["C","X"], ["C","Y"], ["X","Y"]]}  (parent → child).
 Stdlib-only. Exit codes: 0 clean (or report-only), 1 a Major flag exists (--strict),
@@ -52,16 +63,17 @@ def _build(edges):
     return nodes, children, parents
 
 
-def _reach(start: str, adj: dict[str, set[str]]) -> set[str]:
-    """Nodes reachable from `start` following `adj` (excludes start)."""
+def _reach(start: str, adj: dict[str, set[str]], blocked: frozenset[str] = frozenset()) -> set[str]:
+    """Nodes reachable from `start` following `adj` (excludes start). A node in `blocked`
+    is never entered, so paths through it are cut."""
     seen: set[str] = set()
-    stack = list(adj.get(start, ()))
+    stack = [n for n in adj.get(start, ()) if n not in blocked]
     while stack:
         n = stack.pop()
         if n in seen:
             continue
         seen.add(n)
-        stack.extend(adj.get(n, ()))
+        stack.extend(m for m in adj.get(n, ()) if m not in blocked)
     return seen
 
 
@@ -109,12 +121,24 @@ def classify(edges, exposure: str, outcome: str, adjust: list[str]) -> dict:
                            "verdict": "COLLIDER_ADJUSTMENT", "severity": "Major",
                            "detail": f"'{z}' is a collider (≥2 parents, not a common cause); "
                                      f"conditioning on it can open a non-causal path (M-bias)"})
-    # backdoor left open: a common cause not adjusted for
+    # backdoor left open: a common cause not adjusted for whose fork X <- ... <- c -> ... -> Y
+    # survives removing the adjusted nodes. Adjusting a node on every c->...->X path, or on
+    # every X-free c->...->Y path, blocks it (C->X, C->D->Y with D adjusted is a valid set).
+    # An adjusted node with two or more unadjusted parents is not trusted as a blocker:
+    # conditioning on it joins those parents (butterfly bias), which reachability cannot see.
+    adjusted = set(adjust)
+    cut = frozenset(z for z in adjusted
+                    if z in nodes and len(parents[z] - adjusted) <= 1) - {exposure, outcome}
     for c in sorted(common_causes - set(adjust)):
+        reaches_x = exposure in _reach(c, children, cut)
+        reaches_y = outcome in _reach(c, children, cut | {exposure})
+        if not (reaches_x and reaches_y):
+            continue
         claims.append({"node": c, "role": "confounder",
                        "verdict": "CONFOUNDER_OMITTED", "severity": "Major",
-                       "detail": f"'{c}' is a common cause of {exposure} and {outcome} but is not "
-                                 f"in the adjustment set; a backdoor path is left open"})
+                       "detail": f"'{c}' is a common cause of {exposure} and {outcome}, is not "
+                                 f"in the adjustment set, and no adjusted node lies on all of its "
+                                 f"paths; a backdoor path is left open"})
     return {
         "exposure": exposure, "outcome": outcome,
         "proposed_adjustment": sorted(adjust),

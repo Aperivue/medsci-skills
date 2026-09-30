@@ -119,6 +119,22 @@ CAPTION_RE = re.compile(
     re.IGNORECASE | re.MULTILINE,
 )
 
+# An embedded figure carries its own caption. /write-paper Phase 2 embeds every figure in Results as
+# `![Figure N. Caption](path)`, and pandoc renders that alt text as the figure's caption paragraph
+# ("Image Caption" style) in the DOCX. Recognising captions only under legend headings meant a
+# manuscript that followed those instructions literally was halted with MISSING_BODY for every
+# figure, and with a DOCX supplied it stayed a blocker under every attachment policy, although
+# the markdown defined the very caption the DOCX carried.
+IMAGE_CAPTION_RE = re.compile(
+    r"^\s*!\[\s*(?:\*\*)?\s*"
+    r"(Supplementary\s+|Supp\s+|Supp\.\s+)?"
+    r"(Figure|Fig\.|Fig)\s+"
+    r"(S?\d+[A-Za-z]?)"
+    r"\s*[.:]\s*(?:\*\*)?\s*"
+    r"(.*?)\s*\]\(",
+    re.IGNORECASE | re.MULTILINE,
+)
+
 # Section header patterns for the manuscript body's caption sections.
 # Longer alternatives MUST come first so that "FIGURE LEGENDS" is not
 # truncated to "FIGURE" by an earlier short match.
@@ -245,7 +261,8 @@ def find_caption_section_ranges(md_text: str) -> list[tuple[int, int]]:
 
 
 def extract_body_captions(md_text: str) -> dict[str, Caption]:
-    """Extract caption definitions from the manuscript body's caption sections."""
+    """Extract caption definitions from the manuscript body's caption sections, then from
+    embedded figures (`![Figure N. Caption](path)`) for any figure those sections do not define."""
     ranges = find_caption_section_ranges(md_text)
     captions: dict[str, Caption] = {}
     for start, end in ranges:
@@ -256,6 +273,12 @@ def extract_body_captions(md_text: str) -> dict[str, Caption]:
             # Keep first definition per label (later ones likely continuation lines)
             if label.key not in captions:
                 captions[label.key] = Caption(label=label, text=text, source="body")
+    # A legend section, where there is one, stays the definition compared with the DOCX.
+    for m in IMAGE_CAPTION_RE.finditer(md_text):
+        label = _normalize(m.group(2), m.group(1), m.group(3))
+        if label.key not in captions:
+            text = m.group(4).strip().rstrip("*").strip()
+            captions[label.key] = Caption(label=label, text=text, source="body")
     return captions
 
 

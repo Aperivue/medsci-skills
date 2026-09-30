@@ -4,6 +4,6 @@
 
 | Subgroup | n | Events | OR (95% CI) |
 |---|---|---|---|
-| MetS (>=3 criteria) | 969 | 209 | 4.95 (4.32-5.94) |
-| MetS-positive (binary) | 969 | 209 | 4.95 (4.26-5.83) |
-| Diabetes | 512 | 88 | 2.10 (1.60-2.75) |
+| Condition A (>=3 criteria) | 845 | 176 | 3.40 (2.95-3.92) |
+| Condition A-positive (binary) | 845 | 176 | 3.40 (2.91-3.97) |
+| Diabetes | 430 | 71 | 1.85 (1.41-2.43) |

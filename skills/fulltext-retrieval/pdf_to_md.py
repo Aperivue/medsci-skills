@@ -15,6 +15,8 @@ Usage:
     python pdf_to_md.py pdfs/ --force            # overwrite existing .md files
 """
 
+from __future__ import annotations
+
 import argparse
 import re
 import sys

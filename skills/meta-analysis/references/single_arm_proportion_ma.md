@@ -22,7 +22,7 @@ When most studies sit at the proportion boundary (e.g. 5/6 studies at 100%), the
 
 ## 4. Report the crude rate alongside the pooled estimate
 
-With sparse events the logit-scale random-effects estimate **shrinks below the crude rate** (Σevents/Σdenominator). Report both and say so (e.g. "crude 3.3%; pooled 2.2%, the pooled value lower because of logit-scale shrinkage with sparse events"), so a reviewer does not read pooled < crude as an error.
+The pooled estimate and the crude rate (Σevents/Σdenominator) are different summaries, so they need not agree. The back-transformed random-effects logit estimate is the **median (typical-study) proportion**; the crude rate is a sample-size-weighted mean. With between-study variance and proportions below 50%, the median usually lies below the mean, so pooled < crude is common — but a few large studies with low rates can put the crude rate below the pooled value, and with τ² ≈ 0 the two coincide. Report both and name what each is (e.g. "crude 3.3%; pooled 2.2%, the random-effects estimate of the median study-level proportion, which lies below the crude mean when between-study variance is present"), so a reviewer does not read the gap as an error (Stijnen et al. 2010, doi:10.1002/sim.4040).
 
 ## 5. Symmetric handling of zero-event studies
 
@@ -38,7 +38,10 @@ The standard error of a proportion is a deterministic function of the proportion
 
 ## 8. Unit of analysis
 
-Single-arm series mix per-patient, per-lesion, and per-session denominators. Use the most granular available unit per outcome, **disclose the mixing**, and treat the pooled CI as a descriptive-precision statement (study-level independence assumed), not an inferential interval. Where feasible, a within-study single-unit sensitivity analysis strengthens the key efficacy outcome.
+Single-arm series report per-patient, per-lesion, and per-session denominators. These are **different estimands** — a per-lesion success rate is not a per-patient success rate — so they must not be pooled together, and disclosing the mixing does not repair it. Instead:
+- **Pre-specify one unit per outcome** in the protocol (usually per patient for safety outcomes; the unit clinicians act on for efficacy).
+- **Pool each unit separately.** A study that reports only another unit goes to that unit's pool (or is described narratively), not into the primary pool.
+- **Account for clustering.** Lesions or sessions within one patient are not independent binomial trials; counting them as such makes the CI too narrow. Use the study's cluster-adjusted estimate where reported, or divide events and denominator by a design effect 1 + (m − 1)·ICC with a stated ICC, and show the result is robust to the ICC assumed (Cochrane Handbook v6.5 §6.2, "Study designs and identifying the unit of analysis": §6.2.4 repeated observations, §6.2.6 multiple treatment attempts, §6.2.7 multiple body parts; ch.23 for approximate analyses of clustered data).
 
 ## 9. Certainty of evidence
 

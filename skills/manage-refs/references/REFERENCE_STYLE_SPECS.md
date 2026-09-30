@@ -49,11 +49,9 @@ row (and `check_csl_render.py::SPECS`) when you next submit to that journal.
    alone is insufficient because citeproc auto-splits lowercase particles.
 4. **DOI hyperlinks survive surgical docx edits.** If you swap reference text in a
    Word file, a `<w:hyperlink>` carrying the DOI persists as a separate element
-   (python-docx `p.runs` doesn't see it). Remove hyperlinks explicitly. See
-   `~/.claude/rules/submission-portal-verification.md` §1.
+   (python-docx `p.runs` doesn't see it). Remove hyperlinks explicitly.
 
 ## Related
 - `scripts/check_csl_render.py` — acceptance test
 - `scripts/fill_journal_abbrev.py` — NLM abbreviation injection
 - `citation_styles/journal-of-korean-medical-science-strict.csl` — JKMS author-guide-faithful variant
-- `~/.claude/rules/manuscript-references.md` — hybrid pandoc/Zotero workflow

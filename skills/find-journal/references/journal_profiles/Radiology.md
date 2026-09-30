@@ -26,4 +26,4 @@ diagnostic radiology, interventional radiology, CT, MRI, ultrasound, PET, nuclea
 - **Field:** Radiology (general, flagship)
 
 ## Special Notes
-Radiology (IF ~19) is the highest-impact general radiology journal with approximately 5-8% acceptance rate. Requires a Summary Statement (single sentence, <=50 words) and 3 Advances in Knowledge bullets. Strictly enforces a 6-figure limit. Expects large sample sizes (N >= 200 typical, N >= 500 preferred for prospective studies). AI policy: language editing only, dual disclosure required, AI images banned.
+Radiology (IF ~19) is the highest-impact general radiology journal with approximately 5-8% acceptance rate. Requires a Summary Statement (single sentence, <=30 words) and up to 3 Key Results (<=75 words in total). Strictly enforces a 6-figure limit. Expects large sample sizes (N >= 200 typical, N >= 500 preferred for prospective studies). AI policy: language editing only, dual disclosure required, AI images banned.

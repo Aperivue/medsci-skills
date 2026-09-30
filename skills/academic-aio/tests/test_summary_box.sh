@@ -58,7 +58,7 @@ ck "research_in_context complete conformant" 0 "$(run --manuscript "$TMP/ric_ok.
 
 # 5) Plain-language summary over the band -> NONCONFORMANT
 { echo "## Plain-language summary"; for i in $(seq 1 260); do printf 'word '; done; echo; } > "$TMP/pls_bad.md"
-ck "plain_language over-length fails" 1 "$(run --manuscript "$TMP/pls_bad.md" --journal npj-digital-medicine --strict)"
+ck "plain_language over-length fails" 1 "$(run --manuscript "$TMP/pls_bad.md" --format plain_language_summary --strict)"
 
 # 6) absent box -> NONCONFORMANT
 echo "## Abstract" > "$TMP/none.md"

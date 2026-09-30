@@ -17,12 +17,13 @@ import os
 import datetime
 import numpy as np
 import pandas as pd
+import scipy
 from scipy import stats
 
 np.random.seed(42)
 print(f"Date: {datetime.date.today()}")
 print(f"Python: {sys.version}")
-print(f"numpy: {np.__version__}, pandas: {pd.__version__}, scipy: {stats.scipy.__version__}")
+print(f"numpy: {np.__version__}, pandas: {pd.__version__}, scipy: {scipy.__version__}")
 
 import matplotlib
 matplotlib.use("Agg")
@@ -40,7 +41,11 @@ print()
 INPUT_FILE = "data.csv"           # Path to input data
 OUTPUT_DIR = "."                  # Output directory
 RATER_COLS = []                   # Column names for each rater (wide format)
-DATA_TYPE = "auto"                # "categorical", "ordinal", "continuous", or "auto"
+# REQUIRED: "categorical" (nominal), "ordinal", or "continuous". The measurement level
+# is a property of the scale, not of the stored values: 1 = benign / 2 = malignant /
+# 3 = indeterminate is nominal even though it is stored as integers, and weighted kappa
+# or an ICC on it would be meaningless. There is deliberately no "auto".
+DATA_TYPE = None
 BOOTSTRAP_N = 1000                # Number of bootstrap iterations for CIs
 ALPHA = 0.05                      # Significance level
 # ==============================================
@@ -53,16 +58,12 @@ def load_data(filepath: str) -> pd.DataFrame:
     return pd.read_csv(filepath)
 
 
-def detect_data_type(df: pd.DataFrame, cols: list) -> str:
-    """Auto-detect whether ratings are categorical, ordinal, or continuous."""
+def describe_values(df: pd.DataFrame, cols: list) -> str:
+    """Summarise the stored rating values (to help the user set DATA_TYPE)."""
     combined = pd.concat([df[c] for c in cols], ignore_index=True).dropna()
-    n_unique = combined.nunique()
-
-    if combined.dtype == object or combined.dtype.name == "category":
-        return "categorical"
-    if n_unique <= 10 and all(combined == combined.astype(int)):
-        return "ordinal"
-    return "continuous"
+    levels = sorted(combined.unique(), key=str)
+    shown = ", ".join(map(str, levels[:12])) + (" ..." if len(levels) > 12 else "")
+    return f"{len(levels)} distinct values: {shown}"
 
 
 def interpret_kappa(kappa: float) -> str:
@@ -81,12 +82,14 @@ def interpret_kappa(kappa: float) -> str:
 
 
 def interpret_icc(icc: float) -> str:
-    """Interpret ICC using Cicchetti (1994) guidelines."""
-    if icc < 0.40:
+    """Interpret ICC using Koo & Li (2016) bands, the set used in
+    table-types/agreement.md: <0.50 poor, 0.50-0.75 moderate, 0.75-0.90 good,
+    >0.90 excellent. Judge the band from the CI, not the point estimate alone."""
+    if icc < 0.50:
         return "poor"
-    if icc < 0.60:
-        return "fair"
     if icc < 0.75:
+        return "moderate"
+    if icc < 0.90:
         return "good"
     return "excellent"
 
@@ -238,6 +241,28 @@ def _icc_for_bootstrap(data, cols, model="two-way", type_="agreement"):
     return compute_icc(data, cols, model=model, type_=type_)
 
 
+def rating_counts(data: pd.DataFrame, cols: list, categories: list) -> np.ndarray:
+    """n_items x n_categories matrix of how many raters chose each category."""
+    counts = np.zeros((len(data), len(categories)))
+    for j, cat in enumerate(categories):
+        counts[:, j] = (data[cols] == cat).sum(axis=1).values
+    return counts
+
+
+def _fleiss_for_bootstrap(data, cols, categories=()):
+    """Wrapper for Fleiss' kappa to use with bootstrap_ci."""
+    return fleiss_kappa(rating_counts(data, cols, list(categories)))
+
+
+def _wkappa_for_bootstrap(data, cols, weights="linear"):
+    """Wrapper for weighted kappa to use with bootstrap_ci."""
+    r1, r2 = data[cols[0]].values, data[cols[1]].values
+    mask = ~(pd.isna(r1) | pd.isna(r2))
+    if mask.sum() < 2:
+        return np.nan
+    return cohens_weighted_kappa(r1[mask], r2[mask], weights=weights)
+
+
 def _kappa_for_bootstrap_2raters(data, cols):
     """Wrapper for Cohen's kappa to use with bootstrap_ci."""
     r1 = data[cols[0]].values
@@ -283,21 +308,22 @@ def analyze_categorical(df: pd.DataFrame, cols: list, output_dir: str) -> list:
             "n_raters": 2,
         })
     else:
-        categories = sorted(set(pd.concat([df[c] for c in cols]).dropna().unique()))
-        rating_counts = np.zeros((n_items, len(categories)))
-        for i in range(n_items):
-            for c in cols:
-                val = df[c].iloc[i]
-                if pd.notna(val) and val in categories:
-                    rating_counts[i, categories.index(val)] += 1
-
-        fk = fleiss_kappa(rating_counts)
+        # Fleiss' formula assumes every item has the same number of ratings
+        complete = df.dropna(subset=cols)
+        if len(complete) < n_items:
+            print(f"  Fleiss' kappa: {n_items - len(complete)} item(s) with a missing "
+                  "rating excluded (complete cases).")
+        categories = sorted(set(pd.concat([complete[c] for c in cols]).unique()), key=str)
+        fk = fleiss_kappa(rating_counts(complete, cols, categories))
+        ci_lo, ci_hi = bootstrap_ci(complete, cols, _fleiss_for_bootstrap,
+                                    n_bootstrap=BOOTSTRAP_N, alpha=ALPHA,
+                                    categories=tuple(categories))
         results.append({
             "Metric": "Fleiss' kappa",
             "Value": f"{fk:.3f}",
-            "95% CI": "",
+            "95% CI": f"({ci_lo:.3f}-{ci_hi:.3f})",
             "Interpretation": interpret_kappa(fk),
-            "n_items": n_items,
+            "n_items": len(complete),
             "n_raters": n_raters,
         })
 
@@ -308,19 +334,24 @@ def analyze_continuous(df: pd.DataFrame, cols: list, output_dir: str) -> list:
     """Run agreement analysis for continuous data."""
     results = []
     n_raters = len(cols)
+    complete = df.dropna(subset=cols)   # the ANOVA ICC needs every rater on every item
+    if len(complete) < len(df):
+        print(f"  ICC: {len(df) - len(complete)} item(s) with a missing rating excluded.")
 
+    labels = {"agreement": "ICC(A,1) two-way random, absolute agreement, single rater",
+              "consistency": "ICC(C,1) two-way, consistency, single rater"}
     for type_ in ["agreement", "consistency"]:
-        icc = compute_icc(df, cols, model="two-way", type_=type_)
-        ci_lo, ci_hi = bootstrap_ci(df, cols, _icc_for_bootstrap,
+        icc = compute_icc(complete, cols, model="two-way", type_=type_)
+        ci_lo, ci_hi = bootstrap_ci(complete, cols, _icc_for_bootstrap,
                                      n_bootstrap=BOOTSTRAP_N, alpha=ALPHA,
                                      model="two-way", type_=type_)
-        label = f"ICC (two-way, {type_})"
         results.append({
-            "Metric": label,
+            "Metric": labels[type_],
             "Value": f"{icc:.3f}",
             "95% CI": f"({ci_lo:.3f}-{ci_hi:.3f})",
             "Interpretation": interpret_icc(icc),
-            "n_items": len(df),
+            "Quality": type_,
+            "n_items": len(complete),
             "n_raters": n_raters,
         })
 
@@ -329,12 +360,15 @@ def analyze_continuous(df: pd.DataFrame, cols: list, output_dir: str) -> list:
         r2 = df[cols[1]].values.astype(float)
         mask = ~(np.isnan(r1) | np.isnan(r2))
         ba = bland_altman_plot(r1[mask], r2[mask], cols[0], cols[1], output_dir)
+        n_ba = int(mask.sum())
+        half = stats.t.ppf(1 - ALPHA / 2, n_ba - 1) * ba["sd_diff"] / np.sqrt(n_ba)
         results.append({
-            "Metric": "Bland-Altman mean diff",
+            "Metric": "Bland-Altman bias (mean difference)",
             "Value": f"{ba['mean_diff']:.3f}",
-            "95% CI": f"LoA: ({ba['loa_lower']:.3f}-{ba['loa_upper']:.3f})",
+            "95% CI": f"({ba['mean_diff'] - half:.3f} to {ba['mean_diff'] + half:.3f}); "
+                      f"LoA {ba['loa_lower']:.3f} to {ba['loa_upper']:.3f}",
             "Interpretation": "",
-            "n_items": int(mask.sum()),
+            "n_items": n_ba,
             "n_raters": 2,
         })
 
@@ -353,10 +387,13 @@ def analyze_ordinal(df: pd.DataFrame, cols: list, output_dir: str) -> list:
 
         for weight in ["linear", "quadratic"]:
             wk = cohens_weighted_kappa(r1_clean, r2_clean, weights=weight)
+            ci_lo, ci_hi = bootstrap_ci(df, cols, _wkappa_for_bootstrap,
+                                        n_bootstrap=BOOTSTRAP_N, alpha=ALPHA,
+                                        weights=weight)
             results.append({
                 "Metric": f"Weighted kappa ({weight})",
                 "Value": f"{wk:.3f}",
-                "95% CI": "",
+                "95% CI": f"({ci_lo:.3f}-{ci_hi:.3f})",
                 "Interpretation": interpret_kappa(wk),
                 "n_items": int(mask.sum()),
                 "n_raters": 2,
@@ -392,7 +429,9 @@ def print_results_text(results: list, data_type: str) -> None:
         if ci:
             text += f" (95% CI: {ci})"
         if interp:
-            text += f", indicating {interp} agreement"
+            # a consistency ICC ignores systematic rater offsets: it is not agreement
+            quality = "consistency" if r.get("Quality") == "consistency" else "agreement"
+            text += f", a point estimate in the {interp} {quality} band"
         text += f" (n = {n_items} items, {n_raters} raters)."
         print(text)
     print()
@@ -413,8 +452,10 @@ if __name__ == "__main__":
             RATER_COLS = list(df.columns)
         print(f"Using rater columns: {RATER_COLS}")
 
-    if DATA_TYPE == "auto":
-        DATA_TYPE = detect_data_type(df, RATER_COLS)
+    if DATA_TYPE not in ("categorical", "ordinal", "continuous"):
+        raise ValueError(
+            "Set DATA_TYPE to 'categorical' (nominal), 'ordinal' or 'continuous' from the "
+            f"rating scale's definition. Stored ratings: {describe_values(df, RATER_COLS)}.")
     print(f"Data type: {DATA_TYPE}")
     print(f"Items: {len(df)}, Raters: {len(RATER_COLS)}")
 

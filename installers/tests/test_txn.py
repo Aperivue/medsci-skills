@@ -8,6 +8,7 @@ Run: python3 installers/tests/test_txn.py
 """
 from __future__ import annotations
 
+import errno
 import os
 import sys
 import tempfile
@@ -61,6 +62,196 @@ def consistent(dest: Path, owned: list[str]) -> bool:
 
 def install(src, dest, owned, home, **kw):
     return T.install_target(src, dest, "claude", owned, home, _logger(), **kw)
+
+
+class _Crash(Exception):
+    pass
+
+
+def _v1_then(base: Path, tag: str):
+    """A committed v1 install of a,b plus a v2 source; returns (src_v2, dest, home)."""
+    src_v1 = make_source(base / f"{tag}_v1", {"a": {"v": "1"}, "b": {"v": "1"}}, "1.0.0")
+    src_v2 = make_source(base / f"{tag}_v2", {"a": {"v": "2"}, "b": {"v": "2"}}, "2.0.0")
+    home, dest = base / f"{tag}_home", base / f"{tag}_dest"
+    os.environ["MEDSCI_HOME"] = str(home)
+    T.install_target(src_v1, dest, "claude", ["a", "b"], home, _logger())
+    return src_v2, dest, home
+
+
+def _fail_after_replace(when):
+    """Patch os.replace so the call matching `when(src, dst)` completes and THEN raises: a kill
+    between two lines, which crash_hook (run only after journal writes) cannot reach. Returns the
+    function that undoes the patch."""
+    real = T.os.replace
+
+    def fake(src, dst):
+        real(src, dst)
+        if when(Path(src), Path(dst)):
+            raise _Crash()
+
+    T.os.replace = fake
+    return lambda: setattr(T.os, "replace", real)
+
+
+def faults(base: Path) -> None:
+    """Fault injection at the points an external review named (transaction safety, #1-#5)."""
+    # 9. killed after an old skill was moved aside but before the journal recorded the move. Recovery
+    #    must find it in holding and put it back, not delete it along with the holding dir.
+    src_v2, dest, home = _v1_then(base, "f9")
+    undo = _fail_after_replace(lambda s, d: s == dest / "a" and d.parent.name == "old")
+    try:
+        install(src_v2, dest, ["a", "b"], home)
+    except _Crash:
+        pass
+    finally:
+        undo()
+    T.recover_target("claude", home, _logger())
+    check("killed between moving an old skill aside and journaling it: recovery restores it",
+          consistent(dest, ["a", "b"]) and (dest / "a" / "v").read_text() == "1")
+
+    # 10. a rollback interrupted halfway and then run again must not delete what it already restored.
+    src_v2, dest, home = _v1_then(base, "f10")
+
+    def at_first_placement(j):
+        if j["phase"] == "new_installed" and len(j["placed_new"]) == 1:
+            raise _Crash()
+
+    try:
+        install(src_v2, dest, ["a", "b"], home, crash_hook=at_first_placement)
+    except _Crash:
+        pass
+    undo = _fail_after_replace(lambda s, d: d == dest / "a" and s.parent.name == "old")
+    try:
+        T.recover_target("claude", home, _logger())
+    except _Crash:
+        pass
+    finally:
+        undo()
+    T.recover_target("claude", home, _logger())
+    check("rollback interrupted after restoring one skill, then re-run: both old skills survive",
+          consistent(dest, ["a", "b"])
+          and [(dest / n / "v").read_text() for n in ("a", "b")] == ["1", "1"])
+
+    # 11. a second install started while the first is mid-transaction must refuse, not "recover"
+    #     (roll back) the live transaction underneath it.
+    src_v2, dest, home = _v1_then(base, "f11")
+    seen: list[str] = []
+
+    def concurrent(j):
+        if j["phase"] == "old_moved" and len(j["moved_old"]) == 1 and not seen:
+            try:
+                install(src_v2, dest, ["a", "b"], home)
+                seen.append("ran")
+            except T.TxnError:
+                seen.append("refused")
+
+    first_ok = True
+    try:
+        install(src_v2, dest, ["a", "b"], home, crash_hook=concurrent)
+    except Exception:  # noqa: BLE001
+        first_ok = False
+    check("a second install of the same target is refused while the first is running", seen == ["refused"])
+    check("...and the first install still completes to v2",
+          first_ok and consistent(dest, ["a", "b"]) and (dest / "a" / "v").read_text() == "2")
+
+    # ...but a filesystem that cannot lock at all (ENOLCK) must not stop every install forever.
+    real_lock = T._lock_file
+
+    def no_locks(_f, _lock):
+        raise OSError(errno.ENOLCK, "No locks available")
+
+    T._lock_file = no_locks
+    try:
+        install(src_v2, dest, ["a", "b"], home)
+        unlockable_ok = consistent(dest, ["a", "b"])
+    except Exception:  # noqa: BLE001
+        unlockable_ok = False
+    finally:
+        T._lock_file = real_lock
+    check("a filesystem without locking proceeds unlocked, as before", unlockable_ok)
+
+    # 11b. a release that owns no skills (everything installed is pruned), killed right after the
+    #      empty manifest is written: recovery must leave dest and manifest agreeing, not restore
+    #      the pruned folders beside a manifest that no longer lists them.
+    src_v1 = make_source(base / "f11b_v1", {"a": {}, "gone": {}}, "1.0.0")
+    home, dest = base / "f11b_home", base / "f11b_dest"
+    os.environ["MEDSCI_HOME"] = str(home)
+    T.install_target(src_v1, dest, "claude", ["a", "gone"], home, _logger())
+    empty = base / "f11b_v2" / "skills"
+    undo = _fail_after_replace(lambda s, d: d.name == "installed-manifest.json")
+    try:
+        T.install_target(empty, dest, "claude", [], home, _logger())
+    except _Crash:
+        pass
+    finally:
+        undo()
+    T.recover_target("claude", home, _logger())
+    listed = sorted(T.read_json_strict(T.target_state_dir("claude", home) / "installed-manifest.json")["skills"])
+    on_disk = sorted(p.name for p in dest.iterdir() if p.name != T.TXN_DIRNAME)
+    check("empty release killed after its manifest was written: dest and manifest agree after recovery",
+          listed == on_disk and not (dest / T.TXN_DIRNAME).exists())
+
+    # 12. a symlink the user added inside an installed skill is a modification: it is backed up, as
+    #     a link, before the skill is replaced. A dangling one must not make the backup fail.
+    src_v2, dest, home = _v1_then(base, "f12")
+    notes = base / "f12_notes.md"
+    notes.write_text("my notes", encoding="utf-8")
+    linked = False
+    if os.name != "posix":
+        # Windows symlinks need a privilege, a file/dir flag, and may read back \\?\-prefixed.
+        print("  SKIP  symlink cases (POSIX only)")
+    else:
+        os.symlink(notes, dest / "a" / "notes.md")
+        os.symlink(base / "f12_gone", dest / "b" / "dangling")
+        linked = True
+    if linked:
+        try:
+            install(src_v2, dest, ["a", "b"], home)
+            ok = True
+        except Exception:  # noqa: BLE001
+            ok = False
+        root = home / "backups"
+        links = {p.name: os.readlink(p) for p in root.rglob("*") if p.is_symlink()} if root.exists() else {}
+        check("a user-added symlink triggers a backup that keeps it as a link",
+              ok and links.get("notes.md") == str(notes))
+        check("...a dangling one too, without failing the install",
+              ok and links.get("dangling") == str(base / "f12_gone") and consistent(dest, ["a", "b"]))
+
+    # 13. atomic_write_bytes: the temp file is created exclusively (a symlink planted at the old
+    #     predictable name is not followed) and already has the destination's mode when it replaces it.
+    if os.name != "posix":
+        print("  SKIP  temp-file mode cases (POSIX modes are not meaningful on this platform)")
+        return
+    secret = base / "f13_settings.json"
+    secret.write_text("{}", encoding="utf-8")
+    os.chmod(secret, 0o600)
+    victim = base / "f13_victim.txt"
+    victim.write_text("VICTIM", encoding="utf-8")
+    os.symlink(victim, secret.with_suffix(secret.suffix + f".tmp.{os.getpid()}"))
+    modes: list[int] = []
+    real = T.os.replace
+
+    def spy(src, dst):
+        modes.append(os.stat(src).st_mode & 0o777)
+        real(src, dst)
+
+    T.os.replace = spy
+    try:
+        T.atomic_write_bytes(secret, b'{"token": 1}\n')
+    finally:
+        T.os.replace = real
+    check("the temp file is already 0600, like its destination, before the replace", modes == [0o600])
+    check("a symlink planted at a predictable temp name is not followed",
+          victim.read_text(encoding="utf-8") == "VICTIM")
+    check("destination written, still a regular 0600 file",
+          not secret.is_symlink() and secret.read_bytes() == b'{"token": 1}\n'
+          and (os.stat(secret).st_mode & 0o777) == 0o600)
+    fresh = base / "f13_new.json"
+    T.atomic_write_bytes(fresh, b"{}\n")
+    mask = os.umask(0)
+    os.umask(mask)
+    check("a new file gets the ordinary umask mode, not 0600",
+          (os.stat(fresh).st_mode & 0o777) == (0o666 & ~mask))
 
 
 def run():
@@ -163,6 +354,8 @@ def run():
         except T.TxnError:
             esc = True
         check("assert_contained rejects escape", esc)
+
+        faults(base)
 
     os.environ.pop("MEDSCI_HOME", None)
     print("----")

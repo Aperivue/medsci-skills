@@ -154,7 +154,7 @@ together, because the second lowers the weight the first deserves.
 
 ### The toolkit saw half of it, and filed it as Minor
 
-Before any training, `/profile-imaging` returned `INTENSITY_SCALE_INCONSISTENT` on AMOS22:
+Before any training, `/imaging-data` returned `INTENSITY_SCALE_INCONSISTENT` on AMOS22:
 *"500/600 cases bottom out near air (<= -500) and the rest do not — mixed modality, or a rescale not
 applied to part of the cohort"* ([`qc/amos22_dataset_profile_spleen.json`](qc/amos22_dataset_profile_spleen.json)).
 A true positive. It names the exact property that later broke rung 3, and it sat in `qc/` for the

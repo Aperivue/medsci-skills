@@ -3,7 +3,9 @@
 `check_xref.py --strict` writes a 3-way matrix to `qc/xref_audit.json` that
 classifies every Table/Figure label across (a) in-text citations, (b) body
 captions in `## Tables` / `## Figures` / `## Figure Legends` /
-`## Supplementary {Tables,Figures}`, and (c) caption paragraphs in the
+`## Supplementary {Tables,Figures}`, or an embedded figure's own caption
+(`![Figure N. Caption](path)`, which pandoc renders as the caption) when no
+legend section defines that figure, and (c) caption paragraphs in the
 rendered DOCX (via `python-docx`).
 
 | Status | Meaning | Severity | Fix |

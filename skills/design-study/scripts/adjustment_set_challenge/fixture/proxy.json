@@ -1,0 +1,1 @@
+{"_comment": "Measured proxy on the confounder->outcome path: C->X, C->D->Y. {D} blocks the only backdoor path X<-C->D->Y, so it is a valid set even with C unadjusted (dagitty isAdjustmentSet = TRUE; sets {C}, {D}, {C,D}).", "edges": [["C","X"],["C","D"],["D","Y"],["X","Y"]]}

@@ -1,29 +1,18 @@
 ---
 name: humanize
-description: Detect and remove AI writing patterns from academic manuscripts and response-to-reviewers letters. Scans for 27 common AI-generated text patterns and rewrites flagged passages to sound naturally human-written while preserving technical accuracy, bounding how much of the text a rewrite is allowed to touch.
-triggers: humanize, AI patterns, AI 문체, remove AI writing, make it sound natural, 자연스럽게, de-AI
-tools: Read, Write, Edit, Grep, Glob, Bash
-model: inherit
+description: Use when a manuscript or response-to-reviewers letter reads as AI-written. Scans for 27 AI writing patterns and rewrites flagged passages, preserving technical accuracy and bounding how much text changes. Not general copy-editing; that is /polish-language.
+metadata:
+  triggers: "humanize, AI patterns, AI 문체, remove AI writing, make it sound natural, 자연스럽게, de-AI"
 ---
 
 # Humanize Skill
 
-You are assisting a medical researcher in detecting and removing AI writing patterns from
-academic manuscripts. Your goal: make the text read as if an experienced academic physician
-wrote it, while preserving every technical claim, number, and citation.
+This skill only removes AI patterns; it does not perform general copy-editing, evaluate
+scientific quality, check journal formatting, or translate.
 
-## Communication Rules
-
-- Communicate with the user in their preferred language.
-- All manuscript edits are in English.
-- Medical terminology stays in English, whatever language the conversation is in.
-
-## Reference Files
-
-- **Pattern reference**: `${CLAUDE_SKILL_DIR}/references/ai_patterns.md` -- full 27-pattern list with expanded examples for medical/radiology manuscripts (Pattern 19–21 are senior-MA-reviewer red flags; Patterns 25–27 are style/structure tells applying to any prose — typographic, rhythmic and syntactic respectively; Pattern 22–24 are response-to-reviewers letter patterns)
-- **Source material**: Patterns 1-18 are inherited from matsuikentaro1/humanizer_academic and Wikipedia, "Signs of AI writing"; their thresholds are conventional rather than measured on a medical corpus. Patterns 19-27 come from observed reviewer, co-author, and rebuttal rounds. `references/ai_patterns.md` records the grounding per pattern.
-
-Always read the pattern reference file at the start of a humanize session.
+Read `${CLAUDE_SKILL_DIR}/references/ai_patterns.md` at the start of every session, before
+scanning: the definitions, watch words, examples, detection greps, per-pattern fixes and the
+section-by-section priorities for all 27 patterns live only there.
 
 ---
 
@@ -31,14 +20,10 @@ Always read the pattern reference file at the start of a humanize session.
 
 ### Phase 1: Scan
 
-Read the manuscript section(s) provided by the user and scan for all 27 patterns. For
-response-to-reviewers letters and cover letters, prioritise patterns 22-24.
-
-**For each pattern found:**
-1. Record the pattern number and name.
-2. Count occurrences.
-3. Extract the exact passage from the text.
-4. Note the location (paragraph number or line range).
+Scan the section(s) the user provides for all 27 patterns. For response-to-reviewers letters and
+cover letters, prioritise Patterns 22-24. For a full manuscript, follow the per-section priorities
+in `ai_patterns.md` (Section-Specific Application Guide). For each pattern found, record its number
+and name, the count, the exact passage, and its location (paragraph number or line range).
 
 **Output: Pattern Frequency Table**
 
@@ -51,8 +36,6 @@ Word count: {N}
 | # | Pattern | Count | Severity | Example from text |
 |---|---------|-------|----------|-------------------|
 | 1 | Significance inflation | 3 | HIGH | "...pivotal role in diagnostic imaging..." |
-| 7 | AI vocabulary words | 5 | HIGH | "Additionally,...", "crucial finding..." |
-| 8 | Copula avoidance | 2 | MEDIUM | "...serves as the gold standard..." |
 | ... | ... | ... | ... | ... |
 
 Patterns not detected: 2, 4, 9, 14, 15
@@ -63,57 +46,37 @@ AI pattern density: {N per 1000 words}
 
 ### Phase 2: Report
 
-Present findings to the user with actionable summary.
-
-**Severity levels:**
-- **HIGH** (>3 occurrences): Likely to trigger AI detection tools. Fix immediately.
-- **MEDIUM** (1-3 occurrences): Noticeable to careful readers. Should fix.
-- **LOW** (0 occurrences): Clean for this pattern.
-
-**AI Pattern Score:**
-- Count total pattern instances across all 27 categories.
-- Compute density: instances per 1000 words.
-- Target: < 2.0 instances per 1000 words.
+- Severity per pattern: **HIGH** (>3 occurrences), **MEDIUM** (1-3), **LOW** (0, clean).
+- Density: total instances across all 27 patterns per 1000 words. Target: < 2.0.
 
 **Gate:** Present the report and ask the user which patterns to fix. Default: fix all HIGH and MEDIUM.
 
 ### Phase 3: Fix
 
-Rewrite flagged passages following these rules:
+Rewrite flagged passages with each pattern's fix from `ai_patterns.md`, under these rules:
 
 1. **Preserve technical accuracy.** Every number, statistic, p-value, confidence interval, and
    clinical fact must remain identical.
-2. **Preserve citation density.** Do not remove or relocate citations.
-3. **Preserve formal academic register.** Do not make the text casual or conversational.
-4. **Do not force casualness.** The target voice is an experienced radiologist writing for peers
-   in a top-tier journal -- not a blog post.
-5. **Keep domain-specific terminology intact.** "Convolutional neural network," "apparent diffusion
+2. **Preserve citations.** Never add, remove, or relocate a citation.
+3. **Keep the formal academic register** of an experienced radiologist writing for peers in a
+   top-tier journal. Never make the text casual or conversational.
+4. **Keep domain-specific terminology intact.** "Convolutional neural network," "apparent diffusion
    coefficient," "Fleiss' kappa" stay as-is.
-6. **Never introduce new claims** or remove existing ones.
+5. **Never introduce new claims, remove existing ones, or change a sentence's meaning** — rephrase,
+   never reinterpret. If a passage cannot be fixed without changing its meaning, leave it and flag
+   it for the user.
+6. **Use active voice** where natural: "We analyzed" rather than "Analysis was performed."
 7. **Vary sentence structure.** Mix short declarative sentences (8-12 words) with longer ones
-   (25-35 words). Avoid uniform length. A de-AI pass tends to *flatten* rhythm — it shortens the
-   long sentences and pads the short ones toward a comfortable middle, which is itself a tell.
+   (25-35 words). A de-AI pass tends to *flatten* rhythm — it shortens the long sentences and pads
+   the short ones toward a comfortable middle, which is itself a tell.
    `scripts/check_sentence_variety.py` verifies this rule in Phase 4.
-8. **Use active voice** where natural. "We analyzed" rather than "Analysis was performed."
-9. **Thin out antithesis and cleft constructions (Pattern 27, the M2 heuristic).** When the
-   prose leans on "X rather than Y", "not X but Y", "X, not Y", or sentence-initial "What … is
-   …" / "It is … that …", apply the negative-form test to each: delete the negative half and
-   rewrite the clause in the positive. If a fact disappears, the contrast was functional — keep
-   it; if nothing disappears, it was decoration — cut it. Judge by the manuscript's overall
-   rate, not instance by instance, and keep two or three for emphasis. Rewrite clefts in plain
-   subject-verb order ("What matters is X" → "X matters"). `scripts/check_rhetorical_density.py`
-   (in `/self-review`) measures this in Phase 4. (M2 test adapted from the SNL-UCSB paper-writing
-   skill, MIT.)
-
-**Fix strategies per pattern category:**
-
-| Category | Strategy |
-|----------|----------|
-| Content patterns (1-6) | Delete vague claims; replace with specific data or citations |
-| Language patterns (7-12) | Substitute with plain academic English; simplify verb constructions |
-| Style patterns (13-15) | Adjust formatting and punctuation |
-| Filler and hedging (16-18) | Delete filler; calibrate hedging to match evidence level |
-| Style/structure density (25-27) | Strip inline emphasis; absorb aphorisms; thin antithesis/cleft per the M2 test |
+8. **Thin out antithesis and cleft constructions (Pattern 27, the M2 heuristic).** For each "X
+   rather than Y", "not X but Y" or "X, not Y", apply the negative-form test: delete the negative
+   half and rewrite the clause in the positive. If a fact disappears, the contrast was functional —
+   keep it; if nothing disappears, it was decoration — cut it. Judge by the manuscript's overall
+   rate, not instance by instance, and keep two or three for emphasis. Rewrite clefts ("What … is
+   …", "It is … that …") in plain subject-verb order ("What matters is X" → "X matters").
+   `scripts/check_rhetorical_density.py` (in `/self-review`) measures this in Phase 4.
 
 **Output:** Present the rewritten text with changes highlighted using diff format or tracked changes.
 
@@ -121,7 +84,7 @@ Rewrite flagged passages following these rules:
 
 **Keep the pre-rewrite text.** Before editing in place, copy the original somewhere the fidelity
 check can read it (`cp manuscript.md /tmp/pre_humanize.md`). Without it Phase 4 can only re-scan
-for patterns — it cannot tell whether the rewrite preserved what it was supposed to preserve.
+for patterns — it cannot tell whether the rewrite preserved numbers and citations.
 
 Run both deterministic checks, then re-scan the rewritten text using the same 27 patterns.
 
@@ -133,10 +96,11 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/check_sentence_variety.py" \
     --manuscript manuscript.md --out qc/sentence_variety.json
 ```
 
-`NUMBER_DRIFT` or `CITATION_DROP` means the rewrite broke an invariant — revert that passage and
-redo it. `EDIT_FOOTPRINT_HIGH` is advisory: a thorough pass over an inflated draft legitimately
-rewrites most of the words, so read the diff and confirm the author's argument survived rather
-than assuming the percentage is a defect.
+`NUMBER_DRIFT` or `CITATION_DROP` means the rewrite broke an invariant — revert that passage, redo
+it, and flag it for the user. `EDIT_FOOTPRINT_HIGH` is advisory: Patterns 6 and 18 replace whole
+paragraphs by design, so a correct pass over an inflated draft can exceed 60% of words changed.
+Read the diff and confirm the author's argument survived rather than assuming the percentage is a
+defect.
 
 **Output: Verification Report**
 
@@ -156,115 +120,23 @@ Remaining issues:
 Verdict: PASS (density < 2.0)
 ```
 
-If the density remains above 2.0, run another fix-verify cycle (max 3 rounds).
+If the density remains above 2.0, run another fix-verify cycle (max 3 rounds). When called by
+another skill, return the verification report so the calling skill can check the pass/fail status.
 
 ---
 
 ## The 27 Detection Patterns
 
-### Content Patterns
-
-| # | Pattern | What to look for | Fix |
-|---|---------|------------------|-----|
-| 1 | Significance inflation | "pivotal," "evolving landscape," "underscores the critical importance" | Delete or state the specific importance with data |
-| 2 | Notability claims | "landmark trial," "renowned investigators," "groundbreaking" | Remove; let the data speak |
-| 3 | Superficial -ing analyses | "highlighting the cardioprotective effects," "underscoring the broad applicability" | End the sentence at the data; start a new sentence for interpretation |
-| 4 | Promotional language | "remarkable findings," "dramatic reductions," "profound impact" | State the actual numbers neutrally |
-| 5 | Vague attributions | "Studies have shown," "Experts argue," "Several publications" | Cite the specific study |
-| 6 | Formulaic challenges sections | "Despite challenges... future outlook... continues to provide" | State specific limitations factually |
-
-### Language Patterns
-
-| # | Pattern | What to look for | Fix |
-|---|---------|------------------|-----|
-| 7 | AI vocabulary words | Additionally, crucial, delve, enhance, fostering, pivotal, showcase, tapestry, underscore, landscape (abstract) | Delete or replace with plain English |
-| 8 | Copula avoidance | "serves as," "stands as," "represents a" | Use "is" |
-| 9 | Negative parallelisms | "not only X but also Y" | "X and Y" |
-| 10 | Rule of three overuse | Forcing ideas into groups of three repeatedly | Use natural grouping (2, 4, 5 items) |
-| 11 | Synonym cycling | patients/participants/subjects/individuals | Pick one term, use consistently |
-| 12 | False ranges | "from improved renal function to enhanced cardiac outcomes" | List the specific outcomes directly |
-
-### Style Patterns
+All 27 are defined in `references/ai_patterns.md`. Two carry rules to apply exactly as written:
 
 | # | Pattern | What to look for | Fix |
 |---|---------|------------------|-----|
 | 13 | Em dash overuse | More than 2 em dashes per 1000 words (the `/self-review` classical-style gate fails a manuscript above 25 prose em-dashes) | Use parentheses or restructure. **After converting `— X —` appositives to `(X)`, run the paren-span safety scan** (`python3 "${CLAUDE_SKILL_DIR}/../self-review/scripts/check_paren_spans.py"`): a bulk conversion can pair two *unrelated* dashes across a sentence boundary and wrap a whole sentence (or an ordinal "Sixth, …" limitation) inside one parenthesis — paren-balanced but broken, so a balance check misses it. Operate per-sentence; never match across `. ` |
-| 14 | Title case in headings | "Statistical Analysis And Primary Endpoints" | Sentence case per journal style |
-| 15 | Curly quotation marks | Curly quotes from ChatGPT | Straight quotes |
-
-### Filler and Hedging
-
-| # | Pattern | What to look for | Fix |
-|---|---------|------------------|-----|
-| 16 | Filler phrases | "It is important to note that," "In order to," "Due to the fact that" | Delete the filler; state the content directly |
-| 17 | Excessive hedging | "may potentially suggest the possibility" | Choose the appropriate certainty level: "suggests" |
-| 18 | Generic positive conclusions | "The future looks bright," "continues to reshape," "paves the way" | State the specific next step or implication |
-
-### Senior MA Reviewer and Typographic Patterns
-
-| # | Pattern | What to look for | Fix |
-|---|---------|------------------|-----|
-| 19 | § (section sign) marker | "as in §2.3", "(see §Discussion)", "§Results" | Delete or replace with section name ("Methods", "Results") — `grep -c "§"` = 0 |
-| 20 | Methods/Results self-reference parenthetical | "(Methods §X)", "(Results §3.1)", "(Methods, Section 2.3)" | Drop the parenthetical or shorten to "(see Methods)" |
 | 21 | AI Disclosure boilerplate (body) | "## Artificial Intelligence Disclosure", "Generative AI was not used to create..." in manuscript body | Put it where the target journal asks (the journal profile's `Disclosure location`): Methods or Acknowledgments for some journals, cover letter, title page or submission form only for others. Do not delete a disclosure the journal requires in the body |
-| 25 | Inline-emphasis over-use (typographic over-signposting) | Single-word italics (*into*, *passive*, *same*), whole-clause italics (*a redesign of the relationship itself*), bold used mid-paragraph to signpost | Remove inline emphasis; keep only legitimate italics — statistical symbols (*P*, *t*, *n*), Latin (*in vivo*, *et al.*), gene/species (*BRCA1*). A bold **run-in subheading** at line start is fine (Nature/npj style) |
 
-### Response-Letter Patterns (R2R)
-
-Patterns 22-24 apply only when scanning a response-to-reviewers letter or editor cover letter,
-not manuscript bodies. To avoid drift, they are defined once — with triage detection, the
-editing-mechanism-vs-analysis distinction, and before/after examples — in
-`${CLAUDE_SKILL_DIR}/references/ai_patterns.md` (Response-Letter Patterns section). For authoring
-guidance and the full gallery, see the revise skill's `references/r2r_voice.md`.
-
----
-
-## Section-Specific Focus
-
-When scanning a full manuscript, prioritize these patterns per section:
-
-| Section | Priority Patterns | Reason |
-|---------|------------------|--------|
-| Abstract | ALL (1-21, 25) | Most visible section; most scrutinized for AI patterns |
-| Introduction | 1, 2, 5, 7, 12 | AI inflates background importance and uses vague attributions |
-| Methods | 8, 16 | Methods should be straightforward; copula avoidance and filler are common |
-| Results | 3, 4, 6, 10, 11 | AI adds interpretive -ing clauses and promotional language to results |
-| Discussion | 1, 5, 6, 17, 18 | AI produces formulaic discussions with excessive hedging |
-| Conclusion | 1, 18 | AI generates generic positive conclusions |
-| Methods (MA / SR) | 19, 20, 21 | § markers, self-reference parentheticals, AI Disclosure boilerplate are senior-MA-reviewer red flags |
-| Discussion (MA / SR) | 19, 20 | Self-reference parentheticals especially common when discussing methods |
-| Body (any) | 21 | AI Disclosure belongs in cover letter / submission form, not manuscript body |
-| Response to Reviewers / cover letter | 22, 23, 24 (+ 13, 16, 19) | Editing-mechanism narration, internal draft line numbers, and tooling leaks are the dominant tells in machine-drafted rebuttals (see ai_patterns.md R2R section) |
-
----
-
-## Interaction with Other Skills
-
-| Calling skill | When this skill is invoked |
-|---------------|---------------------------|
-| `/write-paper` | Phase 7 (Polish) -- automatic scan before submission |
-| `/peer-review` | When reviewing one's own manuscript for AI patterns |
-| `/revise` | When drafting response-to-reviewers letters and cover letters -- patterns 22-24 are the enforced gate before submission |
-
-When called by another skill, return the verification report so the calling skill can check
-the pass/fail status.
-
----
-
-## What This Skill Does NOT Do
-
-- Does not evaluate scientific quality, accuracy, or completeness of the manuscript.
-- Does not add new content or citations.
-- Does not assess journal compliance or formatting.
-- Does not translate between languages.
-- Only removes AI patterns; does not perform general copy-editing.
-
-## Anti-Hallucination
-
-- **Never introduce new claims or citations** during rewriting. Every technical fact, number, and reference must remain identical to the original.
-- **Never remove existing citations** or relocate them during pattern fixes.
-- **Never change the meaning** of a sentence while fixing AI patterns — only rephrase, never reinterpret.
-- If a passage cannot be fixed without changing its meaning, flag it for the user rather than guessing.
+Patterns 22-24 apply only to response-to-reviewers letters and editor cover letters, not
+manuscript bodies. They are defined once in `ai_patterns.md` (Response-Letter Patterns); for
+authoring guidance, see the revise skill's `references/r2r_voice.md`.
 
 ---
 
@@ -278,18 +150,10 @@ the pass/fail status.
 | Pattern 20 — `(see Methods §X)` self-reference | ENFORCED | match found | rewrite to direct section name reference |
 | Pattern 21 — AI disclosure in the wrong place | ENFORCED | an AI-use disclosure in the body of a journal that wants it elsewhere, or repeated in several places | move it to where the target journal asks (journal profile); never reword a required disclosure to hide the tool |
 | Pattern 26 — aphorism density | ENFORCED | negative-definition rate AND short-declarative share both over threshold | run `python3 "${CLAUDE_SKILL_DIR}/../self-review/scripts/check_aphorism_density.py" --manuscript manuscript.md`; `APHORISM_DENSITY` (Minor) means the prose is a run of epigrams with the explanatory sentences compressed out — absorb most of them into the neighbouring sentence and write the explanation back, keeping two or three for emphasis; do NOT simply delete them, which shortens the prose further |
-| Pattern 27 — antithesis / cleft density | ENFORCED | "rather than" / "not X but Y" / "X, not Y" or "What … is …" / "It is … that …" over a per-1000 threshold AND raw-count floor | run `python3 "${CLAUDE_SKILL_DIR}/../self-review/scripts/check_rhetorical_density.py" --manuscript manuscript.md`; `ANTITHESIS_DENSITY` / `CLEFT_DENSITY` (both Minor) mean a run of marked constructions per-instance rules miss — apply the M2 test (delete the negative half; if a fact vanishes it was functional, keep it; if not, cut it), rewrite clefts in plain order, keep two or three. A lone functional "rather than" or "instead of" never fires |
+| Pattern 27 — antithesis / cleft density | ENFORCED | "rather than" / "not X but Y" / "X, not Y" or "What … is …" / "It is … that …" over a per-1000 threshold AND raw-count floor | run `python3 "${CLAUDE_SKILL_DIR}/../self-review/scripts/check_rhetorical_density.py" --manuscript manuscript.md`; `ANTITHESIS_DENSITY` / `CLEFT_DENSITY` (both Minor) — apply Fix rule 8 (the M2 test). A lone functional "rather than" or "instead of" never fires |
 | Pattern 25 — inline-emphasis over-use | ENFORCED | italic-emphasis density over threshold after allowlist | run `python3 "${CLAUDE_SKILL_DIR}/../self-review/scripts/check_emphasis_density.py" --manuscript manuscript.md`; `EMPHASIS_OVERUSE` (Minor) means strip inline italics (keep only stat symbols / Latin / gene-species); whole-clause italics are the strongest tell |
 | Patterns 22-24 — R2R editing-mechanism / draft line-number / tooling leak | TRIAGE (response letters); `§` = 0 hard | detection greps in ai_patterns.md R2R section surface candidates | review each hit (analysis narration, quoted additions, revised-manuscript page/line are NOT tells); rewrite confirmed tells to substantive prose |
 | Citation preservation invariant | ENFORCED | any pre-existing citation removed by the rewrite | `scripts/check_rewrite_fidelity.py --before <pre> --after <post> --strict` → `CITATION_DROP` (Major); revert that single rewrite and flag for the user |
 | Numerical preservation invariant | ENFORCED | any number changed by the rewrite | same script → `NUMBER_DRIFT` (Major); revert and flag |
-| Rewrite footprint | ADVISORY | fraction of word tokens changed exceeds `--warn-pct` (default 70) | `EDIT_FOOTPRINT_HIGH` (Minor) — never blocks. Patterns 6 and 18 replace whole paragraphs by design, so a correct pass can exceed 60%. Read the diff; confirm the argument survived, not just the phrasing |
+| Rewrite footprint | ADVISORY | fraction of word tokens changed exceeds `--warn-pct` (default 70) | `EDIT_FOOTPRINT_HIGH` (Minor) — never blocks; read the diff (Phase 4) |
 | Fix rule 7 — sentence-length uniformity | ADVISORY | prose has no short (≤12 words) or no long (≥25 words) sentences | `scripts/check_sentence_variety.py --manuscript <file>` → `SENTENCE_UNIFORM` (Minor); break up or combine sentences until both bands exist. Silent below 15 sentences |
-
-## Global-rule references
-
-Some passages in this skill cite a path of the form `~/.claude/rules/<name>.md`. Those are the
-maintainer's personal global rules, kept outside this repository. They are **not shipped with
-this skill** and will not exist on your machine; they appear only as provenance for where a
-convention came from. If one of them looks like it is standing in for an instruction you actually
-need, that is a bug — please open an issue, because the instruction belongs here.

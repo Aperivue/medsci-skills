@@ -6,7 +6,7 @@ Verbatim list of every check `setup-medsci` runs, with the exact command, the pa
 
 | ID | Component | Detect command | Version command | Min version | Doc link on failure |
 |---|---|---|---|---|---|
-| R1 | Python 3 | `command -v python3` | `python3 --version` | 3.11.0 | `docs/setup/mac.md#step-2` (Mac) / `docs/setup/windows.md#step-3` (Windows) |
+| R1 | Python 3 | `command -v python3` | `python3 --version` (Mac/Linux) / `python --version` (Windows) | 3.11.0 | `docs/setup/mac.md#step-2` (Mac) / `docs/setup/windows.md#step-3` (Windows) |
 | R2 | R | `command -v Rscript` | `Rscript --version` (stderr) | 4.0.0 | `docs/setup/mac.md#step-3` / `docs/setup/windows.md#step-4` |
 | R3 | Node.js | `command -v node` | `node --version` | 20.0.0 | `docs/setup/mac.md#step-4` / `docs/setup/windows.md#step-5` |
 | R4 | Git | `command -v git` | `git --version` | 2.30.0 | `docs/setup/mac.md#step-5` / `docs/setup/windows.md#step-6` |

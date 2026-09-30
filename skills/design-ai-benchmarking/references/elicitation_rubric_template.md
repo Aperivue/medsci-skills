@@ -22,7 +22,9 @@ Notes:
 ## Planted calibration probes
 
 `probe_arm` marks a control item; it is randomized across reviewers and excluded from the primary
-estimate but reported separately for scale validity.
+estimate. Report each rater's hit rate on the controls separately, as a rater-competence check; do
+not compute an ICC on them as reliability evidence (extreme controls give a high ICC whatever the
+raters' reliability on real items).
 
 | probe_arm | Flavor | What it tests | Expected behavior |
 |-----------|--------|---------------|-------------------|

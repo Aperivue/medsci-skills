@@ -1,7 +1,7 @@
 # Combine / adapt / fine-tune existing models — design the comparator as an ablation
 
 For a study whose model is built by **combining, adapting, or fine-tuning existing models** —
-nnU-Net, TotalSegmentator, SAM / MedSAM, a pretrained backbone (the models `/architecture-zoo`
+nnU-Net, TotalSegmentator, SAM / MedSAM, a pretrained backbone (the models `/model-selection`
 helps you choose) — the single decision that most determines acceptance is the **comparator**: you
 must show that the combination / adaptation **earns its complexity**. Reverse-engineered from
 accepted open-access papers (cited by DOI as design facts). It extends the Phase-3 *fine-tuning
@@ -48,7 +48,7 @@ statistic** — ICC / Bland–Altman / Lin's concordance *(CRLM total tumor volu
 ## The leakage trap specific to reusing pretrained models
 
 The base model you reuse may have been **developed on data that overlaps your test set** — the
-`/model-sourcing` trap (evaluating on the benchmark the base was trained or tuned on, so the arm
+`/model-selection` trap (evaluating on the benchmark the base was trained or tuned on, so the arm
 reads like validation while being closer to a training-set score). **Pin the base-model
 revision** and check its training corpus against your external set before you trust the number.
 nnU-Net's self-configuration is attractive precisely because hyperparameters are set from the
@@ -57,15 +57,14 @@ nnU-Net's self-configuration is attractive precisely because hyperparameters are
 ## Reproducibility is part of the design for a combine-existing study
 
 Reviewers of a "we built on X" paper expect to be able to run it. Decide **up front** to open
-weights / code and to pin the base-model revision (`/architecture-zoo` records the licence — mind
+weights / code and to pin the base-model revision (`/model-selection` records the licence — mind
 non-commercial base weights such as nnInteractive / ConvNeXt V2 / most medical FMs).
 
 ## What this does NOT replace
 
-- **metric selection** (Dice + a boundary/agreement metric) → `/model-evaluation`; **validation
-  design + the split-leakage gate** → `/model-validation`; **which venue tier** the design lands at
-  → `venue_accept_recipe.md`; **the model choice + its licence** → `/architecture-zoo` +
-  `/model-sourcing`.
+- **metric selection** (Dice + a boundary/agreement metric) → `/model-assessment`; **validation
+  design + the split-leakage gate** → `/model-assessment`; **which venue tier** the design lands at
+  → `venue_accept_recipe.md`; **the model choice + its licence** → `/model-selection`.
 
 This is the **comparator-design decision** for a combine-existing-models study — the one that turns
 "our model scored X" into "the combination is *why* it scored X". Decide it before data collection.

@@ -1,0 +1,76 @@
+schema_version: 2
+name: model-assessment
+layer: B
+owner_domain: model_evaluation
+maturity: official
+
+when_to_use: "Validate or evaluate a trained medical-imaging model (segmentation / classification / detection; in-house, vendor or open-weights), in the order the evidence is built: (A) design or audit the clinical-validation study — patient-level split disjointness (deterministic gate) and the leakage taxonomy, internal vs genuine external validation, comparator design, test-set sizing handoff, prospective/deployment horizon, CLAIM 2024 / TRIPOD+AI / STARD-AI fit; (B) compute task-correct held-out metrics — Dice + HD95/NSD per structure, AUROC + AUPRC + sensitivity/specificity with bootstrap CIs at the deployment prevalence, FROC/mAP with a stated IoU, the interaction axis for promptable segmentation, downstream-task efficacy for generative models, calibration and subgroup slices — emitting a per-case table for analyze-stats; (C) for a deployment claim, design or audit calibrated per-case uncertainty (conformal / deep ensemble / MC-dropout / Bayesian), a held-out-validated OOD guard, and a pre-specified abstention rule; (D) produce or audit a Grad-CAM / saliency / attention / integrated-gradients explainability analysis with Adebayo sanity checks, a quantitative cohort-level localisation metric and attribution framing."
+when_NOT_to_use: "Building or training the model (use model-scaffold; do not rebuild MONAI / nnU-Net); choosing or vetting the model (use model-selection); data-stage preprocessing leakage and dataset profiling (use imaging-data); comparative inference such as DeLong / NRI / IDI / decision curves / MRMC / ICC / calibration tables (hand the per-case table to analyze-stats); benchmarking AI against a human-expert panel (use design-ai-benchmarking); evaluating an LLM / MLLM (use mllm-eval); general study/validity review (use design-study); classical-ML tabular calibration (use radiomics-ml + analyze-stats); item-by-item reporting-guideline audit of a finished manuscript (use check-reporting); reviewing a finished manuscript (use self-review or peer-review); figure rendering (use make-figures); reimplementing MAPIE / captum / pytorch-grad-cam / an OOD library (out of scope — this skill wires and audits them)."
+
+inputs:
+  - "trained-model description (task, architecture provenance, intended use / deployment framing)"
+  - "split-assignment table (patient/subject ID + train/val/test partition) for the leakage gate"
+  - "held-out predictions (per-case scores / labels / masks), the ground truth, and the analysis unit (per-patient / per-lesion / per-image)"
+  - "the intended uncertainty method, OOD approach + held-out OOD set, and abstention target (when a deployment claim is made)"
+  - "the XAI method and its outputs (saliency/attribution maps) with the cases they were computed on, plus ground-truth localisation masks/boxes (optional)"
+outputs:
+  - "validation-design / audit decision notes (leakage, split, validation tier, comparator, metric selection, test-set sizing handoff to calc-sample-size, CLAIM 2024 / TRIPOD+AI / STARD-AI fit) and split-leakage audit JSON qc/split_leakage.json"
+  - "a metrics report results.md and a per-case metric table (CSV) for analyze-stats (task-correct metrics + CIs, calibration, subgroup slices), with metric-reporting audit JSON qc/metric_reporting.json"
+  - "an uncertainty manifest uncertainty_manifest.json and uncertainty/OOD reporting-rigor audit JSON qc/uncertainty_reporting.json"
+  - "an explainability-report manifest explainability_report.json and explainability-rigor audit JSON qc/explainability_report.json"
+deterministic_scripts:
+  - scripts/check_split_leakage.py
+  - scripts/check_metric_reporting.py
+  - scripts/check_uncertainty_reporting.py
+  - scripts/check_explainability_report.py
+side_effects:
+  - writes_project_artifacts
+  - executes_analysis_code
+  - writes_decision_notes
+downstream_consumers:
+  - analyze-stats
+  - make-figures
+  - calc-sample-size
+  - model-card
+  - check-reporting
+  - self-review
+  - write-paper
+forbidden_actions:
+  - fabricate_performance_metrics_split_assignments_or_seeds
+  - approve_a_validation_design_with_patient_overlap_across_splits
+  - report_pixel_accuracy_for_segmentation_or_bare_accuracy_under_imbalance
+  - report_a_per_lesion_metric_as_if_it_were_per_patient
+  - fabricate_coverage_ood_auroc_or_calibration_numbers
+  - report_conformal_coverage_as_guaranteed_without_measuring_it
+  - claim_ood_detection_without_a_held_out_ood_test_set
+  - fabricate_saliency_maps_localisation_metrics_or_sanity_check_results
+  - present_a_saliency_map_as_proof_of_model_correctness_or_causation
+  - report_a_split_metric_uncertainty_or_explainability_audit_pass_without_running_the_detector
+  - reimplement_mapie_captum_pytorch_grad_cam_or_an_ood_library
+aliases:
+  - model-validation
+  - model-evaluation
+  - uncertainty-imaging
+  - explainability
+
+# v2.1 quality card
+purpose: "Catch the structural validity failures of an engineer-built imaging model's evaluation — patient-level leakage, tuning on the test set, an internal split sold as external validation, a single-run or task-incorrect headline metric — and, where the claim reaches deployment or interpretability, the point predictions, unmeasured coverage, unvalidated OOD guard, or unsanity-checked saliency map that would otherwise reach a clinical manuscript."
+safety_boundaries:
+  - "Numbers come only from code executed on the supplied predictions or from the researcher's executed UQ/XAI code; never hand-typed, and never from running a model on real patient data."
+  - "Every gate verdict is reproduced by a stdlib script (set arithmetic on patient IDs, rules on the metrics report or a manifest), never asserted from prose; the skill never alters predictions, splits, maps or coverage."
+  - "Integrates MONAI / nnU-Net / MAPIE / captum / pytorch-grad-cam / OOD scorers by reference; it does not reimplement or replace them."
+known_limitations:
+  - "The split-leakage gate sees only the split table it is given; leakage in upstream preprocessing is imaging-data's gate."
+  - "The metric gate checks the reported metric choice; comparative inference (DeLong / NRI / IDI / decision curves / MRMC) is analyze-stats, and metric correctness depends on a correctly defined analysis unit."
+  - "The uncertainty and explainability gates audit the declared manifests, not the executed code; a mislabelled field (unvalidated coverage recorded as validated, an unrun sanity check recorded as run) can hide a real gap."
+  - "Clean audits are necessary, not sufficient: they audit the evaluation, not the model's clinical safety; prospective deployment monitoring (DECIDE-AI) still governs a clinical claim."
+validation_commands:
+  - "python3 scripts/check_split_leakage.py --splits <split_assignment.csv> --strict"
+  - "python3 scripts/check_metric_reporting.py --report <results.md> --task segmentation|classification|detection|interactive|generative --strict"
+  - "python3 scripts/check_uncertainty_reporting.py --manifest <uncertainty_manifest.json> --strict"
+  - "python3 scripts/check_explainability_report.py --manifest <explainability_report.json> --strict"
+  - "bash scripts/check_split_leakage_challenge/verify.sh  # deterministic, network-free"
+  - "bash scripts/metric_reporting_challenge/verify.sh  # deterministic, network-free"
+  - "bash scripts/check_uncertainty_reporting_challenge/verify.sh  # deterministic, network-free"
+  - "bash scripts/check_explainability_report_challenge/verify.sh  # deterministic, network-free"
+evidence_surface: ci_validator

@@ -17,6 +17,7 @@ each fetch.
 |---|---|---|---|---|
 | **PubMed / NCBI E-utilities** | `eutils.ncbi.nlm.nih.gov` | authoritative author/title/PMID verification (esummary / efetch / esearch) | verify-refs, search-lit, manage-refs, lit-sync, meta-analysis | keyless (optional `NCBI_API_KEY` for higher rate limit) |
 | **CrossRef** | `api.crossref.org` | DOI ↔ publisher metadata (title, authors, journal) | verify-refs, search-lit | keyless |
+| **DOI handle registry** | `doi.org` (`/api/handles/`) | whether a DOI CrossRef does not know exists with any registration agency | verify-refs | keyless |
 | **OpenAlex** | `api.openalex.org` | conference / non-DOI recovery, tertiary author cross-check | verify-refs | keyless |
 | **Unpaywall** | `api.unpaywall.org` | legal open-access location for a DOI | fulltext-retrieval, lit-sync | keyless; **requires a contact `email`** |
 | **Europe PMC** | `europepmc.org` | open-access full-text render | fulltext-retrieval | keyless |
@@ -36,7 +37,7 @@ call them programmatically.
 
 ### Tier 0 — nothing (the default)
 
-PubMed, CrossRef, OpenAlex, Europe PMC, and PMC are keyless. Install the skills and they
+PubMed, CrossRef, doi.org, OpenAlex, Europe PMC, and PMC are keyless. Install the skills and they
 work. There is no key to paste, no account to create.
 
 ### Tier 1 — authorise the domains (so your agent stops asking every fetch)
@@ -52,6 +53,7 @@ approve each fetch when prompted, or pre-authorise once. In Claude Code, add to
     "allow": [
       "WebFetch(domain:eutils.ncbi.nlm.nih.gov)",
       "WebFetch(domain:api.crossref.org)",
+      "WebFetch(domain:doi.org)",
       "WebFetch(domain:api.openalex.org)",
       "WebFetch(domain:api.unpaywall.org)",
       "WebFetch(domain:europepmc.org)",

@@ -27,7 +27,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install Python test dependencies
-        run: pip install pyyaml pandas numpy scipy scikit-learn matplotlib python-pptx python-docx fonttools
+        run: pip install pyyaml pandas numpy scipy scikit-learn matplotlib python-pptx python-docx fonttools statsmodels lifelines
 
       - name: Install exiftool + poppler + pandoc (artifact and render tests; no TeX)
         run: sudo apt-get update && sudo apt-get install -y libimage-exiftool-perl poppler-utils pandoc
@@ -65,6 +65,9 @@ jobs:
 
       - name: Transactional installer crash-recovery + legacy-migration test
         run: python3 installers/tests/test_txn.py
+
+      - name: "v5 -> v6 upgrade test (renamed skills become alias stubs; a user-modified one is backed up, never pruned)"
+        run: python3 installers/tests/test_v6_upgrade.py
 
       - name: Updater verify / safe-extract / check-update test (offline)
         run: python3 installers/tests/test_update.py
@@ -171,8 +174,11 @@ jobs:
       - name: "Run held-out acquisition self-test (seal must refuse a corpus that is not what was promised)"
         run: bash reverse_engineer/scripts/test_acquire_heldout.sh
 
-      - name: Run check_python_floor.py (everything a user runs must parse on the Python we promise)
+      - name: Run check_python_floor.py (everything a user runs must load on the Python we promise)
         run: python3 scripts/check_python_floor.py --strict
+
+      - name: "Python-floor self-test (a `str | None` signature parses on 3.9 but must still fail)"
+        run: bash tests/test_python_floor.sh
 
       - name: Run installer Python-guard test (old / missing Python must be refused, not crash)
         run: bash installers/tests/test_installer_python_guard.sh
@@ -282,8 +288,8 @@ jobs:
       - name: "Run peer-review request-type challenge (unjustified computation fires; disclosure-led review clears)"
         run: bash skills/peer-review/scripts/check_review_request_types_challenge/verify.sh
 
-      - name: "Run model-sourcing model-provenance challenge (contradictory facts fire; absent facts flagged; full dossier clears)"
-        run: bash skills/model-sourcing/scripts/check_model_provenance_challenge/verify.sh
+      - name: "Run model-selection model-provenance challenge (contradictory facts fire; absent facts flagged; full dossier clears)"
+        run: bash skills/model-selection/scripts/check_model_provenance_challenge/verify.sh
 
       - name: "Run manage-refs citation-keys challenge (an undefined [@key] fails; a fully-resolved bibliography clears)"
         run: bash skills/manage-refs/scripts/check_citation_keys_challenge/verify.sh
@@ -297,8 +303,12 @@ jobs:
       - name: Run analyze-stats survival template and bound analysis tests
         run: |
           bash skills/analyze-stats/tests/test_survival_template.sh
+          bash skills/analyze-stats/tests/test_stats_templates.sh
           python3 skills/analyze-stats/tests/test_analysis_run.py
           bash skills/analyze-stats/scripts/analysis_run_challenge/verify.sh
+
+      - name: "Run calc-sample-size worked-example test (every formula block reproduces its package value)"
+        run: python3 skills/calc-sample-size/tests/test_worked_examples.py
 
       - name: Run sync-submission asset-anonymization gate test (A2)
         run: bash skills/sync-submission/tests/test_asset_anonymization.sh
@@ -367,6 +377,15 @@ jobs:
 
       - name: "Run verify-refs audit-source test (a committed audit must not carry an absolute path)"
         run: bash skills/verify-refs/tests/test_audit_source_path.sh
+
+      - name: "Run verify-refs title-fallback test (a PubMed search hit alone does not verify a made-up title)"
+        run: bash skills/verify-refs/tests/test_title_fallback_guard.sh
+
+      - name: "Run verify-refs unregistered-DOI test (a DOI no registration agency holds is FABRICATED)"
+        run: bash skills/verify-refs/tests/test_doi_not_registered.sh
+
+      - name: "Run verify-refs Markdown heading test (a ## References heading opens the reference list)"
+        run: bash skills/verify-refs/tests/test_markdown_reference_heading.sh
 
       - name: "Run verify-refs claim-fidelity challenge (a real citation carrying a claim its source never makes)"
         run: |
@@ -501,6 +520,9 @@ jobs:
       - name: "Run manage-refs plural-citation test (phrasing must not change the verdict)"
         run: bash skills/manage-refs/tests/test_xref_plural_citations.sh
 
+      - name: "Run manage-refs inline-figure test (write-paper's own embed form is a caption, not MISSING_BODY)"
+        run: bash skills/manage-refs/tests/test_xref_inline_figures.sh
+
       - name: "Run manage-refs citation-key boundary test (a full stop is not part of the key)"
         run: bash skills/manage-refs/tests/test_citation_key_boundaries.sh
 
@@ -509,6 +531,9 @@ jobs:
 
       - name: Run manage-refs CSL-render hardening test
         run: bash skills/manage-refs/tests/test_csl_render.sh
+
+      - name: "Run manage-refs render-audit test (UNVERIFIED references are not reported clean)"
+        run: bash skills/manage-refs/tests/test_render_audit_unverified.sh
 
       - name: Run polish-language consistency-linter challenge
         run: |
@@ -553,32 +578,32 @@ jobs:
       - name: Run self-review cohort-arithmetic gate test
         run: bash skills/self-review/tests/test_cohort_arithmetic.sh
 
-      - name: Run model-validation split-leakage challenge
-        run: bash skills/model-validation/scripts/check_split_leakage_challenge/verify.sh
+      - name: Run model-assessment split-leakage challenge
+        run: bash skills/model-assessment/scripts/check_split_leakage_challenge/verify.sh
 
-      - name: Run model-validation split-leakage gate test
-        run: bash skills/model-validation/tests/test_split_leakage.sh
+      - name: Run model-assessment split-leakage gate test
+        run: bash skills/model-assessment/tests/test_split_leakage.sh
 
-      - name: Run profile-imaging dataset-profile challenge
-        run: bash skills/profile-imaging/scripts/check_dataset_profile_challenge/verify.sh
+      - name: Run imaging-data dataset-profile challenge
+        run: bash skills/imaging-data/scripts/check_dataset_profile_challenge/verify.sh
 
-      - name: Run profile-imaging dataset-profile gate test
-        run: bash skills/profile-imaging/tests/test_dataset_profile.sh
+      - name: Run imaging-data dataset-profile gate test
+        run: bash skills/imaging-data/tests/test_dataset_profile.sh
 
-      - name: Run preprocess-imaging leakage challenge
-        run: bash skills/preprocess-imaging/scripts/check_preprocessing_leakage_challenge/verify.sh
+      - name: Run imaging-data leakage challenge
+        run: bash skills/imaging-data/scripts/check_preprocessing_leakage_challenge/verify.sh
 
-      - name: Run preprocess-imaging normaliser-domain challenge
-        run: bash skills/preprocess-imaging/scripts/check_normalizer_domain_challenge/verify.sh
+      - name: Run imaging-data normaliser-domain challenge
+        run: bash skills/imaging-data/scripts/check_normalizer_domain_challenge/verify.sh
 
-      - name: Run preprocess-imaging leakage gate test
-        run: bash skills/preprocess-imaging/tests/test_preprocessing_leakage.sh
+      - name: Run imaging-data leakage gate test
+        run: bash skills/imaging-data/tests/test_preprocessing_leakage.sh
 
-      - name: Run explainability report challenge
-        run: bash skills/explainability/scripts/check_explainability_report_challenge/verify.sh
+      - name: Run model-assessment explainability-report challenge
+        run: bash skills/model-assessment/scripts/check_explainability_report_challenge/verify.sh
 
-      - name: Run explainability report gate test
-        run: bash skills/explainability/tests/test_explainability_report.sh
+      - name: Run model-assessment explainability-report gate test
+        run: bash skills/model-assessment/tests/test_explainability_report.sh
 
       - name: Run radiomics-ml pipeline challenge
         run: bash skills/radiomics-ml/scripts/check_radiomics_ml_challenge/verify.sh
@@ -592,11 +617,11 @@ jobs:
       - name: Run model-scaffold training-hygiene gate test
         run: bash skills/model-scaffold/tests/test_training_hygiene.sh
 
-      - name: Run uncertainty-imaging reporting challenge
-        run: bash skills/uncertainty-imaging/scripts/check_uncertainty_reporting_challenge/verify.sh
+      - name: Run model-assessment uncertainty-reporting challenge
+        run: bash skills/model-assessment/scripts/check_uncertainty_reporting_challenge/verify.sh
 
-      - name: Run uncertainty-imaging reporting gate test
-        run: bash skills/uncertainty-imaging/tests/test_uncertainty_reporting.sh
+      - name: Run model-assessment uncertainty-reporting gate test
+        run: bash skills/model-assessment/tests/test_uncertainty_reporting.sh
 
       - name: Run model-card completeness challenge
         run: bash skills/model-card/scripts/check_model_card_complete_challenge/verify.sh
@@ -604,11 +629,11 @@ jobs:
       - name: Run model-card completeness gate test
         run: bash skills/model-card/tests/test_model_card_complete.sh
 
-      - name: Run model-evaluation metric-reporting challenge
-        run: bash skills/model-evaluation/scripts/metric_reporting_challenge/verify.sh
+      - name: Run model-assessment metric-reporting challenge
+        run: bash skills/model-assessment/scripts/metric_reporting_challenge/verify.sh
 
-      - name: Run model-evaluation metric-reporting gate test
-        run: bash skills/model-evaluation/tests/test_metric_reporting.sh
+      - name: Run model-assessment metric-reporting gate test
+        run: bash skills/model-assessment/tests/test_metric_reporting.sh
 
       - name: Run mllm-eval completeness challenge
         run: bash skills/mllm-eval/scripts/mllm_eval_completeness_challenge/verify.sh
@@ -767,14 +792,17 @@ jobs:
       - name: "Run search-lit snowball challenge"
         run: bash skills/search-lit/references/snowball_challenge/verify.sh
 
+      - name: "Run search-lit E-utilities test (an apostrophe in a query is data, not code)"
+        run: bash skills/search-lit/tests/test_pubmed_eutils.sh
+
       - name: "Run DOI-record-match challenge (a resolvable DOI can belong to a different paper)"
         run: bash skills/search-lit/scripts/check_doi_record_match_challenge/verify.sh
 
       - name: Run meta-analysis screening-reconcile test
         run: bash skills/meta-analysis/tests/test_screening_reconcile.sh
 
-      - name: Run model-sourcing model-provenance test
-        run: bash skills/model-sourcing/tests/test_model_provenance.sh
+      - name: Run model-selection model-provenance test
+        run: bash skills/model-selection/tests/test_model_provenance.sh
 
       - name: Run present-paper backup-off-the-clock test
         run: python3 skills/present-paper/tests/test_backup_off_the_clock.py
@@ -857,6 +885,8 @@ jobs:
           python-version: "3.11"
       - name: Transactional installer crash-recovery + legacy-migration test
         run: python installers/tests/test_txn.py
+      - name: "v5 -> v6 upgrade test (the upgrade a macOS or Windows user runs, not only Ubuntu's)"
+        run: python installers/tests/test_v6_upgrade.py
       - name: Updater verify / safe-extract / check-update test (offline)
         run: python installers/tests/test_update.py
       - name: Opt-in SessionStart update-notify hook test (settings merge + hook logic)

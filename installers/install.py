@@ -12,6 +12,8 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import os
+import re
+import shutil
 import sys
 from pathlib import Path
 
@@ -60,9 +62,23 @@ def default_target_dir(target: str) -> Path:
 def verify_discoverable(dest: Path, skill_names: list[str], log_lines: list[str]) -> None:
     """Assert each installed skill landed at <dest>/<name>/SKILL.md so a host can discover it."""
     missing = [s for s in skill_names if not (dest / s / "SKILL.md").is_file()]
-    log(f"  verified {len(skill_names) - len(missing)}/{len(skill_names)} skills discoverable at {dest}", log_lines)
+    log(f"  verified {len(skill_names) - len(missing)}/{len(skill_names)} skill folders discoverable at {dest}", log_lines)
     if missing:
         raise RuntimeError(f"discoverability check failed at {dest}: missing SKILL.md for {', '.join(missing)}")
+
+
+def is_alias_stub(skill_dir: Path) -> bool:
+    """A renamed-skill redirect kept until the next major version, not a skill: its SKILL.md
+    frontmatter has `disable-model-invocation: true` and a description starting "Renamed to /".
+    The same test as scripts/skill_aliases.py, which the installer cannot import (it is not shipped).
+    """
+    try:
+        text = (skill_dir / "SKILL.md").read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return False
+    head = text.split("\n---", 1)[0]
+    return (re.search(r"^disable-model-invocation:\s*true\s*$", head, re.M) is not None
+            and re.search(r"^description:\s*Renamed to /", head, re.M) is not None)
 
 
 def copy_skills(target: str, dest: Path, log_lines: list[str], dry_run: bool) -> int:
@@ -70,7 +86,11 @@ def copy_skills(target: str, dest: Path, log_lines: list[str], dry_run: bool) ->
         raise FileNotFoundError(f"skills directory not found: {SKILLS_DIR}")
 
     owned = sorted(p.name for p in SKILLS_DIR.iterdir() if p.is_dir() and (p / "SKILL.md").exists())
-    log(f"\n[{target}] installing {len(owned)} skills to {dest}", log_lines)
+    # Count the way the README does. Installing "62 skills" to someone the README promised 54 reads
+    # as a mismatch; the 8 extra folders are redirects for renamed skills, and are named as such.
+    aliases = sum(1 for name in owned if is_alias_stub(SKILLS_DIR / name))
+    what = f"{len(owned) - aliases} skills" + (f" (+ {aliases} renamed-skill aliases)" if aliases else "")
+    log(f"\n[{target}] installing {what} to {dest}", log_lines)
 
     if dry_run:
         for name in owned:
@@ -97,6 +117,10 @@ def install_cursor_rule(project: Path, log_lines: list[str], dry_run: bool) -> N
       rule steers, and the skills are found where they are installed rather than in a checkout.
     * It does not call `Path.write_text`, which opens in "w" mode and truncates before writing. This
       file is ours to replace, but a half-written one after an interrupt is nobody's.
+
+    And one thing it now does: when a file already at that path differs from ours -- a rule the
+    user wrote under the same name, or edited -- it is copied to <state>/backups/ before being
+    replaced. An atomic replace is not a backup.
     """
     rule_path = project / ".cursor" / "rules" / "medsci-skills.mdc"
     body = """---
@@ -129,6 +153,11 @@ and provides the required project files.
         log("  DRY RUN write Cursor rule", log_lines)
         return
     prev_mode = os.stat(rule_path).st_mode & 0o777 if rule_path.is_file() else None
+    if prev_mode is not None and rule_path.read_bytes() != body.encode("utf-8"):
+        backup = medsci_txn.state_home() / "backups" / medsci_txn._timestamp() / "cursor" / rule_path.name
+        backup.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(rule_path, backup)
+        log(f"  backed up the rule that was there (it differs from ours) -> {backup}", log_lines)
     medsci_txn.atomic_write_bytes(rule_path, body.encode("utf-8"))
     if prev_mode is not None:
         try:
@@ -369,18 +398,29 @@ def run_self_test() -> int:
     return 0
 
 
-LOG_DIR = REPO_ROOT / "installers" / ".logs"
 LOG_KEEP = 10  # retain the most recent N install logs; prune older
 
 
-def write_log(log_lines: list[str]) -> Path:
-    """Write the timestamped install log to installers/.logs/ (gitignored) and keep only
-    the most recent LOG_KEEP — logs used to accumulate in the repo root."""
-    LOG_DIR.mkdir(parents=True, exist_ok=True)
-    stamp = dt.datetime.now().strftime("%Y%m%d-%H%M%S")
-    log_path = LOG_DIR / f"{stamp}-{LOG_NAME}"
-    log_path.write_text("\n".join(log_lines) + "\n", encoding="utf-8")
-    old = sorted(LOG_DIR.glob(f"*-{LOG_NAME}"))
+def write_log(log_lines: list[str]) -> Path | None:
+    """Write the timestamped install log to <state>/logs/ (~/.medsci-skills/logs) and keep only
+    the most recent LOG_KEEP. Returns None if the log could not be written.
+
+    It used to go to installers/.logs/ beside this file. A package directory is not always
+    writable -- an npm package installed globally by an administrator, a read-only checkout -- and
+    there the skills were installed, "Done." was printed, and the log write then crashed with a
+    traceback and exit 1. The log records the install; failing to write it never changes the
+    install's outcome.
+    """
+    log_dir = medsci_txn.state_home() / "logs"
+    try:
+        log_dir.mkdir(parents=True, exist_ok=True)
+        stamp = dt.datetime.now().strftime("%Y%m%d-%H%M%S")
+        log_path = log_dir / f"{stamp}-{LOG_NAME}"
+        log_path.write_text("\n".join(log_lines) + "\n", encoding="utf-8")
+    except OSError as exc:
+        print(f"\n(The install log could not be saved: {exc})")
+        return None
+    old = sorted(log_dir.glob(f"*-{LOG_NAME}"))
     for stale in old[:-LOG_KEEP]:
         try:
             stale.unlink()
@@ -395,7 +435,9 @@ def parse_args() -> argparse.Namespace:
         "--target",
         choices=["all", "claude", "codex", "cursor"],
         default="all",
-        help="Install target. 'all' installs Claude and Codex, and Cursor if --cursor-project is provided.",
+        help="Install target. 'all' installs to ~/.claude/skills and ~/.agents/skills (Cursor reads "
+             "both); 'cursor' installs to ~/.agents/skills, which Cursor reads natively. Add "
+             "--cursor-project for the optional Cursor project rule.",
     )
     parser.add_argument(
         "--cursor-project",
@@ -443,8 +485,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--enable-update-notify",
         action="store_true",
-        help="Opt in: show a one-line 'update available' notice at Claude Code session start "
-             "(merges a hook into ~/.claude/settings.json; 24h-cached; no telemetry).",
+        help="Install, and opt in to a one-line 'update available' notice at Claude Code session "
+             "start (merges a hook into ~/.claude/settings.json; 24h-cached; no telemetry).",
     )
     parser.add_argument(
         "--disable-update-notify",
@@ -502,25 +544,23 @@ def main() -> int:
     if args.check_update:
         try:
             import update  # noqa: PLC0415 - optional, only when explicitly requested
-            return update.check_update(medsci_txn.state_home())
+            # A dry run still checks, but does not refresh the 24h cache: --dry-run writes nothing.
+            return update.check_update(medsci_txn.state_home(), store_cache=not args.dry_run)
         except Exception as exc:  # noqa: BLE001
             print(f"MedSci Skills: update check unavailable ({exc}).", file=sys.stderr)
             return 1
-    if args.enable_update_notify or args.disable_update_notify:
+    # Opting OUT is a settings change and nothing else. Opting IN is part of an install (below): it
+    # used to return here too, so `npx medsci-skills install --enable-update-notify` -- the command
+    # the README recommends to clinicians -- installed no skills and still exited 0.
+    if args.disable_update_notify:
+        if args.dry_run:
+            print("DRY RUN would remove the session-start update notice (if it is on).")
+            return 0
         try:
             import update  # noqa: PLC0415
-            home = medsci_txn.state_home()
-            if args.disable_update_notify:
-                r = update.unregister_session_hook(home, update.default_settings_path())
-                print("Session-start update notice disabled." if r == "disabled"
-                      else "Session-start update notice was not enabled; nothing to do.")
-                return 0
-            # Opt-in: ensure the updater home (with the hook script) exists, then register the hook.
-            update.install_updater_home(REPO_ROOT, home, lambda _m: None)
-            r = update.register_session_hook(home, update.default_settings_path())
-            print("Opted in: Claude Code will show a one-line update notice at session start "
-                  "(24h-cached, no telemetry). Disable with: install.py --disable-update-notify"
-                  if r == "enabled" else "Already opted in to the session-start update notice; no change.")
+            r = update.unregister_session_hook(medsci_txn.state_home(), update.default_settings_path())
+            print("Session-start update notice disabled." if r == "disabled"
+                  else "Session-start update notice was not enabled; nothing to do.")
             return 0
         except Exception as exc:  # noqa: BLE001
             print(f"MedSci Skills: could not change the update-notify setting ({exc}).", file=sys.stderr)
@@ -533,7 +573,15 @@ def main() -> int:
 
     # Each target is an independent transaction: a failure on one (e.g. a fail-closed corrupt
     # journal) is logged and the others still proceed; successful targets are fully committed.
-    targets = [t for t in ("claude", "codex") if args.target in {"all", t}]
+    #
+    # Cursor has no skills folder of its own here: it reads ~/.agents/skills natively and
+    # ~/.claude/skills for compatibility (docs/host_compatibility.md). `--target cursor` used to
+    # write only the optional project rule and install no skills at all. It now installs into
+    # ~/.agents/skills under the codex target's record, because one folder must have one record.
+    targets = {"all": ["claude", "codex"], "cursor": ["codex"]}.get(args.target, [args.target])
+    if args.target == "cursor":
+        log("\n[cursor] Cursor reads skills from ~/.agents/skills (shared with Codex); installing there.",
+            log_lines)
     failures: list[str] = []
     for t in targets:
         try:
@@ -545,7 +593,7 @@ def main() -> int:
 
     try:
         if args.target == "cursor" and not args.cursor_project:
-            log("\n[cursor] skipped: pass --cursor-project <folder> to install a Cursor rule.", log_lines)
+            log("\n[cursor] no project rule written (optional: pass --cursor-project <folder>).", log_lines)
         if args.cursor_project:
             install_cursor_rule(args.cursor_project.expanduser().resolve(), log_lines, args.dry_run)
     except Exception as exc:  # noqa: BLE001
@@ -582,6 +630,29 @@ def main() -> int:
         except Exception as exc:  # noqa: BLE001
             log(f"\n[updater] could not install the one-click updater ({exc}); updates still work via re-running the installer.", log_lines)
 
+    # --enable-update-notify: opt in once the skills and the updater home (which holds the hook
+    # script) are in place, and only if the install completed. Best-effort, like the updater: the
+    # skills are installed either way, and the line below says which way it went.
+    if args.enable_update_notify:
+        if args.dry_run:
+            log("\n[update reminders] DRY RUN would turn on the session-start update notice", log_lines)
+        elif failures:
+            log("\n[update reminders] not turned on, because the install did not complete.", log_lines)
+        else:
+            try:
+                import update  # noqa: PLC0415
+                home = medsci_txn.state_home()
+                if not (home / "updater" / update.SESSION_HOOK_SCRIPT).is_file():
+                    raise RuntimeError("the updater (which runs the notice) is not in place")
+                r = update.register_session_hook(home, update.default_settings_path())
+                log("\n[update reminders] ON — Claude Code will show a one-line notice at session start "
+                    "when a new version is out (24h-cached, no telemetry). Turn off with: "
+                    "install.py --disable-update-notify" if r == "enabled"
+                    else "\n[update reminders] already on; no change.", log_lines)
+            except Exception as exc:  # noqa: BLE001
+                log(f"\n[update reminders] could not be turned on ({exc}). The skills are installed; "
+                    "run this command again to retry.", log_lines)
+
     # One-time nudge: if the in-app update reminder is not enabled, surface how to turn it on.
     # (The classroom installers enable it automatically; this covers npx / manual installs so a
     # clinician who installed via "install this repo" is told how to get update notices.) Read-only.
@@ -598,8 +669,7 @@ def main() -> int:
     if failures:
         log(f"\nCompleted with errors on: {', '.join(failures)}. Other targets are fully installed.", log_lines)
         log("If this happened during class, send the install log to the instructor.", log_lines)
-        log_path = write_log(log_lines)
-        print(f"\nInstall log: {log_path}")
+        _save_log(log_lines, args.dry_run)
         return 1
 
     # Say what ELSE this computer needs, while they are still looking at the screen.
@@ -618,13 +688,25 @@ def main() -> int:
         except Exception:  # noqa: BLE001 - a setup *check* must never break an install that worked
             pass
 
+    if args.dry_run:
+        log("\nDRY RUN finished. Nothing was written.", log_lines)
+        return 0
+
     _offer_contribution_reminders_once(log_lines)
     log("\nDone. Restart Claude Code, Codex, or Cursor before testing the skills.", log_lines)
     log("First test prompt:", log_lines)
-    log("MedSci Skills가 설치됐는지 확인하고, 오늘 실습에 쓸 대표 스킬 5개만 보여줘.", log_lines)
-    log_path = write_log(log_lines)
-    print(f"\nInstall log: {log_path}")
+    log("Check that MedSci Skills is installed and show me five skills to start with.", log_lines)
+    _save_log(log_lines, args.dry_run)
     return 0
+
+
+def _save_log(log_lines: list[str], dry_run: bool) -> None:
+    """Save the log and say where. A dry run writes nothing, a log included."""
+    if dry_run:
+        return
+    log_path = write_log(log_lines)
+    if log_path is not None:
+        print(f"\nInstall log: {log_path}")
 
 
 if __name__ == "__main__":

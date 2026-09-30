@@ -1,31 +1,22 @@
 ---
 name: manage-project
-description: "Research project management for medical manuscripts. Scaffold project structure, track writing progress across phases, maintain project memory files, generate submission checklists and backwards timelines. Commands: init, status, sync-memory, checklist, timeline."
-triggers: manage project, project init, project status, submission checklist, project scaffold, create project, new paper project
-tools: Read, Write, Edit, Bash, Grep, Glob
-model: inherit
+description: Use when managing a manuscript project over time. Scaffolds the project structure, tracks writing progress across phases, maintains project memory files, and generates submission checklists and backwards timelines (commands init, status, sync-memory, checklist, timeline).
+metadata:
+  triggers: "manage project, project init, project status, submission checklist, project scaffold, create project, new paper project"
 ---
 
 # Manage-Project Skill -- Research Project Management
 
-## Purpose
-
-Scaffold new research projects, track manuscript writing progress, maintain lightweight project memory, generate pre-submission checklists, and create backwards submission timelines. Integrates with all other writing skills and the project-manager agent.
-
----
-
 ## Commands
 
 ### `/manage-project init {name} --type {type} --journal {journal} [--ssot] [--zotero-collection NAME]`
-
-Create a complete project scaffold for a new research paper.
 
 **Parameters:**
 - `{name}` -- Project identifier (e.g., `nnunet-skull-fracture`, `rfa-meta-analysis`)
 - `--type` -- Paper type: `original | meta | case | animal | technical | ai_validation | letter`
 - `--journal` -- Target journal: `RYAI | AJR | Radiology | European_Radiology | KJR | INSI | AJNR | generic`
 - `--ssot` -- Emit `SSOT.yaml` (schema v1) from `templates/SSOT.yaml.template` instead of legacy `project.yaml`. Required for Phase 1C auto-enforce (the PostToolUse verify-refs hook blocks instead of warns). New projects should pass `--ssot`; legacy in-flight projects stay on `project.yaml` until `/manage-project migrate-ssot` is run.
-- `--zotero-collection NAME` -- Optional. Create a Zotero collection via pyzotero and populate `library_id` + `collection_key` in the contract. Requires `ZOTERO_API_KEY` + `ZOTERO_LIBRARY_ID` (optionally `ZOTERO_LIBRARY_TYPE`, default `user`). **Graceful degrade:** with pyzotero missing or credentials absent, the contract is scaffolded with `library_id: null` / `collection_key: null` and a WARN is printed.
+- `--zotero-collection NAME` -- Optional. Create a Zotero collection via pyzotero and populate `library_id` + `collection_key` in the contract. Requires `ZOTERO_API_KEY` + `ZOTERO_LIBRARY_ID` (optionally `ZOTERO_LIBRARY_TYPE`, default `user`). With pyzotero or the credentials missing, the contract is scaffolded with `library_id: null` / `collection_key: null` and a WARN is printed.
 
 **SSOT template substitutions:** `{{PROJECT_ID}}` → `{name}`; `{{PROJECT_TYPE}}` → the SSOT
 `project_type` enum mapped from `--type` (`original → original_research`, `meta → meta_analysis`,
@@ -33,8 +24,7 @@ Create a complete project scaffold for a new research paper.
 `--zotero-collection`, `library_id` / `collection_key` stay `null` until the owner links an
 existing collection.
 
-**Implementation:** backed by `scripts/init_project.py` in this skill. Invoke it directly when running
-outside the skill harness:
+Run `scripts/init_project.py`:
 
 ```bash
 python3 "${CLAUDE_SKILL_DIR}/scripts/init_project.py" \
@@ -42,230 +32,59 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/init_project.py" \
     --project-root {target_dir}
 ```
 
-The helper writes the contract file (`SSOT.yaml` with `--ssot`, else legacy `project.yaml`), the
+It writes the contract file (`SSOT.yaml` with `--ssot`, else legacy `project.yaml`), the
 directory scaffold, the minimal stubs `scripts/validate_project_contract.py` requires
-(`manuscript/index.qmd`, `artifact_manifest.json`, `qc/status.json`), the memory-file templates,
+(`manuscript/index.qmd`, `artifact_manifest.json`, `qc/status.json`), the memory-file stubs,
 and `project_state.json`. **`qc/migration_complete` is NOT written by init** — that marker belongs
 to the migrate pipeline.
 
 **Do not hand-build the scaffold.** The script is the source of truth for the tree and for
-`project_state.json`; a hand-built one drifts from what the contract validator expects.
+`project_state.json`; a hand-built one drifts from what the contract validator expects. Read
+`${CLAUDE_SKILL_DIR}/references/init_scaffold.md` only when you need to know where a scaffolded
+file lands or what a `project_state.json` field means.
 
-**Read on demand:**
+After the script, copy the matching reporting-guideline checklist from
+`${CLAUDE_SKILL_DIR}/../check-reporting/references/checklists/` into `references/checklist_{GUIDELINE}.md`.
 
-| File | Read it when | Cost if read blindly |
-|---|---|---|
-| `references/init_scaffold.md` | you need to know where a scaffolded file lands, or what a `project_state.json` field means | ~1,400 tokens describing output the script already produces for you |
-
----
 ### `/manage-project migrate-ssot [--no-mark-complete]`
 
-Thin wrapper over `scripts/migrate_project_to_ssot.py` that converts a legacy `project.yaml` project into SSOT.yaml form and, by default, touches `qc/migration_complete` so Phase 1C `auto` mode switches from `warn` to `enforce`.
+Converts a legacy `project.yaml` project into SSOT.yaml form and, by default, touches `qc/migration_complete` so Phase 1C `auto` mode switches from `warn` to `enforce`.
 
 ```bash
 python3 "${CLAUDE_SKILL_DIR}/scripts/migrate_project_to_ssot.py" \
     --project-root . --write --mark-complete
 ```
 
-- Default: `--write --mark-complete` (enforce-ready).
-- `--no-mark-complete` flag form: run with `--write` only. Use when the project still has open QC failures — enforcement is deferred until the migration is validated.
+- `--no-mark-complete`: run with `--write` only. Use it when the project still has open QC failures — enforcement is deferred until the migration is validated.
 - The migrate script refuses to touch `qc/migration_complete` unless the generated SSOT.yaml passes `validate_project_contract.py` AND `contract_mode=ssot`. Do not `touch qc/migration_complete` manually.
 
 Re-run after resolving failures; the script is idempotent.
 
----
-
 ### `/manage-project status`
 
-Report current progress. Reads `project_state.json`, scans existing files, and checks whether key project memory files are present and aligned.
-
-**Output format:**
-
-```
-## Project Status: {name}
-Journal: {journal} | Type: {type} | Created: {date}
-Target submission: {date or "not set"}
-
-### Phase Progress
-[check] Phase 0: Project Init (complete)
-[check] Phase 1: Outline (complete)
-[check] Phase 2: Tables & Figures (complete)
-[work]  Phase 3: Methods (IN PROGRESS)
-[wait]  Phase 4: Results (pending)
-[wait]  Phase 5: Discussion (pending)
-[wait]  Phase 6: Introduction & Abstract (pending)
-[wait]  Phase 7: Polish (pending)
-
-### Word Counts
-Abstract:     0 / 250 words
-Introduction: 0 / 600 words
-Methods:      847 / 1000 words  85%
-Results:      0 / 900 words
-Discussion:   0 / 800 words
-Total:        847 / 3500 words (journal limit)
-
-### Quality Gates
-Critic score (Methods): 87/100 PASS
-Citations verified: 12/12
-Reporting guideline: pending
-
-### Project Memory
-PROJECT.md: present
-STATUS.md: stale (last updated 12 days ago)
-CLAIMS.md: missing
-DATA_DICTIONARY.md: present
-ANALYSIS_PLAN.md: missing
-REVIEW_LOG.md: n/a (not in revision)
-
-### Next Steps
-1. Complete Methods draft (150 words remaining)
-2. Run /analyze-stats for Table 1 and diagnostic accuracy
-3. Begin Results (Phase 4)
-```
+Report current progress: read `project_state.json`, scan the existing files, and check whether the
+project memory files are present and aligned. Take word-count limits from the target journal's
+profile, `${CLAUDE_SKILL_DIR}/../write-paper/references/journal_profiles/{JOURNAL}.md`, not from
+memory. Lay the report out as in `${CLAUDE_SKILL_DIR}/references/status_output_format.md`.
 
 ### `/manage-project sync-memory`
 
-Audit and refresh project memory files so other agents can work with less ambiguity.
-
-**What it does:**
-- checks for presence of `PROJECT.md`, `STATUS.md`, `CLAIMS.md`, `DATA_DICTIONARY.md`, `ANALYSIS_PLAN.md`, `REVIEW_LOG.md`
-- identifies stale or contradictory project metadata
-- proposes the minimum files to create or update
-- aligns `project_state.json` with the current manuscript phase
-
-**Suggested use cases:**
-- before handing the project to `project-manager`
-- before a large revision cycle
-- when returning to an old folder after weeks or months
-- when multiple collaborators are editing in parallel
-
----
+Audit and refresh the project memory files:
+- check for `PROJECT.md`, `STATUS.md`, `CLAIMS.md`, `DATA_DICTIONARY.md`, `ANALYSIS_PLAN.md`, `REVIEW_LOG.md`
+- identify stale or contradictory project metadata
+- propose the minimum files to create or update; create them from `${CLAUDE_SKILL_DIR}/references/scaffold_templates.md`
+- align `project_state.json` with the current manuscript phase
 
 ### `/manage-project checklist`
 
-Generate a pre-submission checklist covering all quality dimensions.
-
-**Output:** `submission/pre_submission_checklist.md`
-
-Read and output the pre-submission checklist from
-`${CLAUDE_SKILL_DIR}/references/pre_submission_checklist.md`.
-
----
+Read the pre-submission checklist from `${CLAUDE_SKILL_DIR}/references/pre_submission_checklist.md`
+and write it to `submission/pre_submission_checklist.md`. Then recommend `/self-review` (manuscript
+quality gate), `/verify-refs` (citation verification) and AI pattern removal (`/write-paper` Phase 7).
 
 ### `/manage-project timeline {submission_date}`
 
-Generate a backwards timeline from submission date.
-
-**Example:** `/manage-project timeline 2026-05-01`
-
-**Output:**
-
-```
-## Backwards Timeline to Submission: 2026-05-01
-
-Week -8 (2026-03-06): Phase 0-2 complete (scaffold, outline, tables)
-Week -7 (2026-03-13): Methods draft -> critic pass
-Week -6 (2026-03-20): Results draft -> critic pass + /analyze-stats complete
-Week -5 (2026-03-27): Discussion draft -> critic pass
-Week -4 (2026-04-03): Introduction + Abstract -> critic pass
-Week -3 (2026-04-10): AI pattern removal + /check-reporting (reporting guideline)
-Week -2 (2026-04-17): /self-review + co-author review
-Week -1 (2026-04-24): Final revisions + figures at 300 DPI + /lit verification
-SUBMISSION (2026-05-01): Upload to journal portal
-
-Critical path: Statistics must be complete by Week -6.
-Run /analyze-stats as soon as data is available.
-```
-
----
-
-## Project Scaffold Templates
-
-### PROJECT.md Template
-
-```markdown
-# PROJECT
-
-- Title:
-- Type:
-- Primary question:
-- Target journal/venue:
-- Lead folder:
-- Collaborators:
-- Last updated:
-```
-
-### STATUS.md Template
-
-```markdown
-# STATUS
-
-- Current stage:
-- Current blocker:
-- Next actions:
-  1.
-  2.
-  3.
-- Last updated:
-```
-
-### CLAIMS.md Template
-
-```markdown
-# CLAIMS
-
-| Claim | Supporting result | Source table/figure | Citation status |
-|------|-------------------|---------------------|-----------------|
-| ...  | ...               | ...                 | ...             |
-```
-
-### DATA_DICTIONARY.md Template
-
-```markdown
-# DATA DICTIONARY
-
-| Variable | Definition | Timing | Notes |
-|----------|------------|--------|------|
-| ...      | ...        | ...    | ...  |
-```
-
-### ANALYSIS_PLAN.md Template
-
-```markdown
-# ANALYSIS PLAN
-
-- Primary endpoint:
-- Secondary endpoints:
-- Main comparator:
-- Statistical methods:
-- Validation strategy:
-- Sensitivity analyses:
-```
-
-### REVIEW_LOG.md Template
-
-```markdown
-# REVIEW LOG
-
-| Reviewer comment | Planned action | Status | Location updated |
-|------------------|----------------|--------|------------------|
-| ...              | ...            | ...    | ...              |
-```
-
----
-
-## Integration with Other Skills
-
-When called from `/manage-project init`, automatically:
-1. Load the correct journal profile from `write-paper/references/journal_profiles/{JOURNAL}.md`
-2. Load the correct paper type template from `write-paper/references/paper_types/{TYPE}.md`
-3. Copy the appropriate reporting guideline checklist from `check-reporting/references/checklists/`
-4. Set word count targets based on the journal profile
-
-After `/manage-project checklist`, recommend calling:
-- `/self-review` for manuscript quality gate
-- `/search-lit` to verify all citations
-- AI pattern removal (built into `/write-paper` Phase 7)
+Generate a backwards timeline from the submission date, in the layout of
+`${CLAUDE_SKILL_DIR}/references/timeline_example.md`.
 
 ---
 
@@ -282,9 +101,3 @@ After `/manage-project checklist`, recommend calling:
 - 7 = Polish complete (AI pattern removal + checklist + self-review >= 80)
 
 **Phase status values:** `pending | in_progress | complete | blocked`
-
-## Anti-Hallucination
-
-- **Never fabricate file paths, URLs, DOIs, or package names.** Verify existence before recommending.
-- **Never invent journal metadata, impact factors, or submission policies** without verification at the journal's website.
-- If a tool, package, or resource does not exist or you are unsure, say so explicitly rather than guessing.

@@ -93,19 +93,26 @@ git --version
 
 ## Step 7 — Install Claude Code
 
-**Option A — Desktop app** (easiest): Download from <https://claude.ai/download> and install.
+The commands are the ones in Anthropic's [Claude Code setup guide](https://code.claude.com/docs/en/setup).
 
-**Option B — Via winget** (if available):
+**Option A — Desktop app** (easiest, no terminal): download the Claude app from <https://claude.com/download>, install it and sign in. It runs Claude Code without a terminal; see Anthropic's [desktop quickstart](https://code.claude.com/docs/en/desktop-quickstart).
+
+**Option B — Terminal (CLI).** In PowerShell, Anthropic's installer, which keeps Claude Code up to date by itself:
 ```powershell
-winget install --id Anthropic.Claude -e
+irm https://claude.ai/install.ps1 | iex
 ```
+Or with winget (it does not update itself; run `winget upgrade Anthropic.ClaudeCode` from time to time):
+```powershell
+winget install Anthropic.ClaudeCode
+```
+(`Anthropic.Claude` without `Code` is the desktop app of Option A, not the `claude` command.)
 
-Verify:
+Verify Option B in a **new** PowerShell window:
 ```powershell
 claude --version
 ```
 
-After install, run `claude` once → it opens your browser to log in to your Anthropic account.
+Then run `claude` once → it opens your browser to log in to your Anthropic account.
 
 ---
 

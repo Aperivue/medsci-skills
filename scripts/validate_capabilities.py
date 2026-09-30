@@ -40,6 +40,9 @@ from pathlib import Path
 
 import yaml
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from skill_aliases import alias_target  # noqa: E402
+
 
 def _load_yaml(path: Path):
     """Return (data, error). error is a one-line string on parse failure."""
@@ -84,6 +87,9 @@ def validate(root: Path) -> list[str]:
     skills_dir = root / "skills"
     skill_owner_domain: dict[str, str] = {}
     skill_dirs = sorted(p for p in skills_dir.glob("*") if p.is_dir()) if skills_dir.is_dir() else []
+    # A v6 compatibility alias (SKILL.md-only redirect) owns no domain and ships no skill.yml; it
+    # can be neither an owner nor an overlap, so it is not a registry member at all.
+    skill_dirs = [sd for sd in skill_dirs if alias_target(sd) is None]
     for sd in skill_dirs:
         name = sd.name
         yml = sd / "skill.yml"

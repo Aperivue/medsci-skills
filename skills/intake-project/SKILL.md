@@ -1,83 +1,11 @@
 ---
 name: intake-project
-description: >
-  Intake and normalize a new radiology research project. Classifies project type, summarizes current state,
-  identifies missing inputs, recommends next steps, and scaffolds lightweight project memory files.
-triggers: new project, intake project, project intake, classify project, organize project, what is this project
-tools: Read, Write, Edit, Bash, Grep, Glob
-model: inherit
+description: Use when starting or inheriting a radiology research project and need to know what it is. Classifies the project type, summarizes its current state, lists missing inputs, recommends next steps and scaffolds lightweight project memory files.
+metadata:
+  triggers: "new project, intake project, project intake, classify project, organize project, what is this project"
 ---
 
 # Intake-Project Skill
-
-## Purpose
-
-This skill is the front door for a new or messy project. It converts a folder, document bundle, or mixed set of notes into a structured project state that other skills can use safely.
-
-Use this skill when:
-- a new paper or proposal folder has been created
-- an older folder exists but is poorly organized
-- the user asks "what is this project and what should I do next?"
-- another skill needs a reliable project summary before proceeding
-
----
-
-## Communication Rules
-
-- Communicate with the user in their preferred language.
-- Keep project labels and file names in the language already used by the workspace.
-- Use English for manuscript section names, study design names, and medical/statistical terminology.
-
----
-
-## Inputs
-
-Accept any of the following:
-- a project folder
-- a manuscript draft
-- an abstract or proposal
-- tables/figures plus notes
-- a mixed folder with PDFs, drafts, and analyses
-
-If information is incomplete, infer cautiously from file names and contents, then label uncertain items clearly.
-
----
-
-## Core Tasks
-
-### 1. Project classification
-
-Determine:
-- project type: `original | review | meta-analysis | case report | technical note | grant | peer review | challenge | career-doc`
-- primary domain: `radiology | medical AI | multimodal LLM | intervention | survival/prognostic | diagnostic accuracy | workflow`
-- target output: `paper | abstract | grant | review | rebuttal | CV`
-- likely target journal or venue, if recoverable
-
-### 2. State reconstruction
-
-Identify:
-- what already exists
-- what is missing
-- current phase
-- blocking dependencies
-
-### 3. Project memory scaffold
-
-If missing, propose or create lightweight anchor files:
-- `PROJECT.md`
-- `STATUS.md`
-- `CLAIMS.md`
-- `DATA_DICTIONARY.md`
-- `ANALYSIS_PLAN.md`
-- `REVIEW_LOG.md`
-
-Create only files that are justified by the project type.
-
-### 4. Action plan
-
-Produce the next 3-5 actions in dependency order.
-
----
 
 ## Canonical Manuscript Folder Structure
 
@@ -116,19 +44,18 @@ For any manuscript project (cohort, MA, RCT, case series), enforce this structur
 
 - **`manuscript/` = source; `submission/{journal}/` = derived artifacts.** Regenerate submission files from `manuscript/manuscript_v{N}.md`; never edit anonymized/title-page directly.
 - **One canonical working version** at `manuscript/manuscript_v{N}.{md,docx,pdf}`. Older versions move to `manuscript/archive/` immediately on version bump.
-- **No loose files at project root.** Only `HANDOFF.md`, `README.md`, folder entries.
+- **No loose files at project root.** Only `HANDOFF.md`, `README.md`, the project memory files (Phase 3), the contract files `/manage-project init` writes (`SSOT.yaml` or `project.yaml`, `project_state.json`, `artifact_manifest.json`), and folder entries.
 - **QC artifacts** (self_review, peer_review, STROBE, critic reports) live in `manuscript/reviews/`, not at manuscript top level.
 - **On rejection/retarget:** `cp -r submission/{old} submission/{new}`, then rewrite cover letter and reformat.
 - **Double-anonymized journals** (Chest, AJRCCM): title page and anonymized manuscript MUST be separate files under `submission/{journal}/`.
+- Keep existing project labels and file names in the language the workspace already uses.
 
 ### When to apply
 
-- At project intake: scaffold empty structure.
+- At project intake: scaffold empty structure — unless the user only wants a quick assessment.
 - At first submission prep: create `submission/{journal}/` and populate.
 - Mid-project cleanup: when `manuscript/` has >3 versioned files or QC docs at top level, reorganize.
 - Before session handoff: reorganize if structure is drifting.
-
-**Why it pays off:** moving version drafts and QC docs off the `manuscript/` top level makes retargeting a different journal a single `cp -r submission/<journal> submission/<new_journal>`.
 
 ---
 
@@ -145,17 +72,16 @@ For any manuscript project (cohort, MA, RCT, case series), enforce this structur
    - collaborators or institutions
    - venue/journal hints
 
-### Phase 2: Classify project stage
+### Phase 2: Classify project and stage
 
-Assign one current stage:
-- `idea`
-- `data assembly`
-- `analysis planning`
-- `analysis in progress`
-- `drafting`
-- `revision`
-- `submission prep`
-- `archived/unclear`
+Determine:
+- project type: `original | review | meta-analysis | case report | technical note | grant | peer review | challenge | career-doc`
+- primary domain: `radiology | medical AI | multimodal LLM | intervention | survival/prognostic | diagnostic accuracy | workflow`
+- target output: `paper | abstract | grant | review | rebuttal | CV`
+- likely target journal or venue — only if the files name one
+- one current stage: `idea | data assembly | analysis planning | analysis in progress | drafting | revision | submission prep | archived/unclear`
+
+If the folder mixes several studies, say so rather than collapsing them into one.
 
 **Gate:** Present the classification (project type, stage, target output) to the user.
 Confirm before creating any files — misclassification leads to wrong scaffold and
@@ -163,13 +89,17 @@ wrong skill routing.
 
 ### Phase 3: Surface missing inputs
 
-Check for common gaps:
+Check for blocking dependencies and common gaps:
 - no explicit study question
 - no target journal
 - no analysis plan
 - no variable dictionary
 - no claims-to-results map
 - no review log for revised manuscripts
+
+If missing, propose or create lightweight anchor files — `PROJECT.md`, `STATUS.md`, `CLAIMS.md`,
+`DATA_DICTIONARY.md`, `ANALYSIS_PLAN.md`, `REVIEW_LOG.md` — only those the project type justifies.
+Read `${CLAUDE_SKILL_DIR}/references/memory_templates.md` when creating `PROJECT.md` or `STATUS.md`.
 
 ### Phase 4: Produce normalized summary
 
@@ -191,52 +121,11 @@ Likely target: ...
 ### Risks / ambiguities
 - ...
 
-### Recommended next actions
+### Recommended next actions (3-5, in dependency order)
 1. ...
 2. ...
 3. ...
 ```
-
----
-
-## Optional File Templates
-
-### `PROJECT.md`
-
-```md
-# PROJECT
-
-- Title:
-- Type:
-- Primary question:
-- Target journal/venue:
-- Lead folder:
-- Collaborators:
-- Last updated:
-```
-
-### `STATUS.md`
-
-```md
-# STATUS
-
-- Current stage:
-- Current blocker:
-- Next actions:
-  1.
-  2.
-  3.
-- Last updated:
-```
-
----
-
-## Guardrails
-
-- Do not invent data values, outcomes, or collaborator roles.
-- Do not assume a target journal unless evidence exists in the files.
-- Do not create a large folder scaffold when the user only wants a quick assessment.
-- If a project appears to mix multiple studies, say so explicitly rather than collapsing them into one.
 
 ---
 
@@ -247,18 +136,3 @@ After intake:
 - route to `design-study` if the research question exists but design logic is unclear
 - route to `manage-project` if the folder should be scaffolded
 - route to `write-paper` only after the project phase is clearly `drafting`
-
----
-
-## What This Skill Does NOT Do
-
-- It does not write full manuscript sections
-- It does not perform statistical analysis
-- It does not verify citations deeply
-- It does not replace study design review
-
-## Anti-Hallucination
-
-- **Never fabricate file paths, URLs, DOIs, or package names.** Verify existence before recommending.
-- **Never invent journal metadata, impact factors, or submission policies** without verification at the journal's website.
-- If a tool, package, or resource does not exist or you are unsure, say so explicitly rather than guessing.

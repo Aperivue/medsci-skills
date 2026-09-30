@@ -36,7 +36,7 @@ All original-research article types require a **1–2 sentence short description
 
 ## Abstract Format
 
-**Structured: Background, Methods, Results, Conclusions** (4 headings), **≤300 words**, for all original research. Report key findings as **key data, not unsupported statements**. (Note: this differs from npj DM's 3-heading and Lancet DH's 5-heading abstracts — NEJM AI needs its own 4-heading variant.)
+**Structured: Background, Methods, Results, Conclusions** (4 headings), **≤300 words**, for all original research. Report key findings as **key data, not unsupported statements**. (Note: this differs from npj DM's unstructured 150-word abstract and Lancet DH's 5-heading abstract — NEJM AI needs its own 4-heading variant.)
 
 ## Required Sections / Submission Elements
 

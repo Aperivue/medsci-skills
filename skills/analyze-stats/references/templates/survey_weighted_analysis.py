@@ -3,10 +3,14 @@ Template: Survey-Weighted Analysis for National Health Surveys
 Supports KNHANES, NHANES, KCHS and similar complex survey data.
 Produces weighted descriptives, wOR tables, and subgroup analyses.
 
-NOTE: For publication-quality survey analysis, R (survey package) is strongly
-recommended. This Python template handles basic weighted analysis but cannot
-fully account for strata/cluster in variance estimation. Use the companion
-R code blocks in analysis_guides/survey_weighted.md for complex designs.
+Variance is design-based: Taylor linearization (Binder 1983) with strata and
+PSUs, the same estimator as R survey::svyglm, and CIs/P values use the design
+degrees of freedom (#PSU - #strata - #parameters + 1), as confint(svyglm) does.
+Subgroups and complete-case restrictions are DOMAIN analyses on the full design
+(rows outside the domain contribute zero scores but keep their PSU), which is
+what subset(design, ...) does in R -- the data frame is never row-filtered
+before the variance is computed. The script also writes survey_analysis.R so
+the numbers can be cross-checked in R.
 
 Usage:
     Modify the CONFIGURATION section below, then run:
@@ -22,12 +26,13 @@ import os
 import datetime
 import numpy as np
 import pandas as pd
+import scipy
 from scipy import stats
 
 np.random.seed(42)
 print(f"Date: {datetime.date.today()}")
 print(f"Python: {sys.version}")
-print(f"numpy: {np.__version__}, pandas: {pd.__version__}, scipy: {stats.scipy.__version__}")
+print(f"numpy: {np.__version__}, pandas: {pd.__version__}, scipy: {scipy.__version__}")
 
 try:
     import statsmodels.api as sm
@@ -51,10 +56,11 @@ CONFIG = {
     "data_path": "data.csv",
     "output_dir": ".",
 
-    # Survey design variables
-    "weight": "wt_itvex",       # Sampling weight column
-    "strata": "kstrata",        # Stratification variable (for R code generation)
-    "cluster": "psu",           # Cluster/PSU variable (for R code generation)
+    # Survey design variables (all three are used for the variance)
+    "weight": "wt_itvex",       # Sampling weight column (the one matching the
+                                # smallest subsample your variables come from)
+    "strata": "kstrata",        # Stratification variable
+    "cluster": "psu",           # PSU variable (nested within strata)
     "dataset_name": "KNHANES",  # "KNHANES", "NHANES", "KCHS"
 
     # Analysis variables
@@ -63,7 +69,9 @@ CONFIG = {
     "covariates_model1": ["age", "sex"],
     "covariates_model2": ["age", "sex", "income", "education",
                           "smoking", "alcohol", "bmi"],
+    # Entered as k-1 indicators whatever their dtype (a 1-4 income code is not linear)
     "categorical_vars": ["sex", "income", "education", "smoking"],
+    "reference_levels": {},     # e.g. {"income": 1}; default = lowest level (printed)
 
     # Subgroup stratification variables
     "subgroup_vars": ["sex", "age_group", "income", "obesity"],
@@ -141,8 +149,8 @@ def weighted_table1(df, group_col, continuous_vars, categorical_vars, weight_col
             for g in groups:
                 mask = df[group_col] == g
                 wp = weighted_proportion(binary[mask].values, df.loc[mask, weight_col].values)
-                n = mask.sum()
-                row[f"Group_{g}"] = f"{int(n * wp)} ({wp*100:.1f}%)"
+                n_level = int(binary[mask].sum())   # unweighted count; % is weighted
+                row[f"Group_{g}"] = f"{n_level} ({wp*100:.1f}%)"
             smd = weighted_smd(
                 binary.values, df[group_col].values,
                 df[weight_col].values, is_binary=True
@@ -153,46 +161,87 @@ def weighted_table1(df, group_col, continuous_vars, categorical_vars, weight_col
     return pd.DataFrame(results)
 
 
-def weighted_logistic(df, outcome_col, exposure_col, covariates, weight_col):
-    """Run weighted logistic regression and return wOR with 95% CI.
+def encode(df, variables, categorical_vars, reference_levels):
+    """Design matrix columns for `variables`; categorical ones as k-1 indicators."""
+    blocks, columns = [], {}
+    for var in variables:
+        if var in categorical_vars:
+            levels = sorted(df[var].dropna().unique(), key=lambda v: (str(type(v)), v))
+            ref = reference_levels.get(var, levels[0])
+            cols = {f"{var}={lv}": (df[var] == lv).astype(float) for lv in levels if lv != ref}
+            blocks.append(pd.DataFrame(cols, index=df.index))
+            columns[var] = list(cols)
+        else:
+            blocks.append(df[[var]].astype(float))
+            columns[var] = [var]
+    return pd.concat(blocks, axis=1), columns
 
-    NOTE: This uses frequency weights which approximate survey weights for
-    point estimates but do NOT correctly estimate variance for complex designs.
-    For publication, generate and run the R code from survey_weighted.md.
+
+def design_vcov(scores, strata, psu):
+    """Linearization variance of a total: sum over strata of
+    n_h/(n_h-1) * sum_i (z_hi - zbar_h)(z_hi - zbar_h)', z_hi = PSU score totals.
+    `scores` covers EVERY row of the design (zeros outside the analysis domain)."""
+    z = pd.DataFrame(scores)
+    z["_h"], z["_c"] = strata, psu
+    totals = z.groupby(["_h", "_c"], sort=False).sum()
+    p = scores.shape[1]
+    V = np.zeros((p, p))
+    for h, g in totals.groupby(level="_h", sort=False):
+        n_h = len(g)
+        if n_h < 2:
+            raise ValueError(f"Stratum {h!r} has a single PSU; collapse it with a "
+                             "neighbouring stratum (or see survey.lonely.psu in R).")
+        d = g.values - g.values.mean(axis=0)
+        V += n_h / (n_h - 1) * d.T @ d
+    return V
+
+
+def svy_logistic(df, design, outcome_col, exposure_col, covariates, domain,
+                 categorical_vars, reference_levels):
+    """Design-based weighted logistic regression on a domain of the full design.
+
+    df/design cover every row of the survey file; `domain` is a boolean mask
+    (subgroup AND complete cases). Returns (table of exposure rows, design df).
     """
-    formula_vars = [exposure_col] + covariates
-    X = pd.get_dummies(df[formula_vars], drop_first=True, dtype=float)
-    X = sm.add_constant(X)
-    y = df[outcome_col]
-    w = df[weight_col]
+    X_all, columns = encode(df, [exposure_col] + covariates, categorical_vars,
+                            reference_levels)
+    X_all = sm.add_constant(X_all)
+    dom = np.asarray(domain)
+    X, y = X_all[dom].values, df.loc[dom, outcome_col].astype(float).values
+    w = design["w"].values[dom]
+    w = w / w.mean()   # scaling cancels in the variance; keeps the IRLS well-conditioned
 
-    model = sm.GLM(y, X, family=sm.families.Binomial(), freq_weights=w)
-    result = model.fit()
+    fit = sm.GLM(y, X, family=sm.families.Binomial(), var_weights=w).fit()
+    mu = np.asarray(fit.mu)
+    A_inv = np.linalg.inv(X.T @ (X * (w * mu * (1 - mu))[:, None]))
+    scores = np.zeros((len(df), X.shape[1]))
+    scores[dom] = (X * (w * (y - mu))[:, None]) @ A_inv
+    V = design_vcov(scores, design["h"], design["c"])
 
-    # Extract exposure effect
-    # Find the exposure column(s) in the dummy-encoded X
-    exp_cols = [c for c in X.columns if c.startswith(exposure_col)]
-    if not exp_cols:
-        exp_cols = [exposure_col]
+    # design df as in survey::degf on the subgroup domain, minus the parameters
+    in_group = np.asarray(design["group_domain"])
+    degf = (design["c"][in_group].nunique() - design["h"][in_group].nunique())
+    df_resid = degf + 1 - X.shape[1]
+    tq = stats.t.ppf(0.975, df_resid)
 
-    output_rows = []
-    for col in exp_cols:
-        coef = result.params[col]
-        se = result.bse[col]
-        p = result.pvalues[col]
-        wor = np.exp(coef)
-        ci_lo = np.exp(coef - 1.96 * se)
-        ci_hi = np.exp(coef + 1.96 * se)
-        output_rows.append({
+    names = list(X_all.columns)
+    rows = []
+    for col in columns[exposure_col]:
+        k = names.index(col)
+        coef, se = fit.params[k], np.sqrt(V[k, k])
+        p = 2 * stats.t.sf(abs(coef / se), df_resid)
+        lo, hi = np.exp(coef - tq * se), np.exp(coef + tq * se)
+        rows.append({
             "Variable": col,
-            "wOR": wor,
-            "CI_lower": ci_lo,
-            "CI_upper": ci_hi,
+            "wOR": np.exp(coef),
+            "CI_lower": lo,
+            "CI_upper": hi,
             "P": p,
-            "formatted": f"{wor:.2f} ({ci_lo:.2f}-{ci_hi:.2f})",
+            "design_df": df_resid,
+            "n_unweighted": int(dom.sum()),
+            "formatted": f"{np.exp(coef):.2f} ({lo:.2f}-{hi:.2f})",
         })
-
-    return result, pd.DataFrame(output_rows)
+    return pd.DataFrame(rows)
 
 
 def generate_r_code(config):
@@ -203,8 +252,19 @@ def generate_r_code(config):
     cluster = config["cluster"]
     outcome = config["outcome"]
     exposure = config["exposure"]
-    covs_m1 = " + ".join(config["covariates_model1"])
-    covs_m2 = " + ".join(config["covariates_model2"])
+    refs = config.get("reference_levels", {})
+
+    def term(v):
+        if v not in config["categorical_vars"]:
+            return v
+        if v in refs:
+            return f'relevel(factor({v}), ref = "{refs[v]}")'
+        return f"factor({v})"
+
+    exposure_name = exposure
+    exposure = term(exposure)
+    covs_m1 = " + ".join(term(v) for v in config["covariates_model1"])
+    covs_m2 = " + ".join(term(v) for v in config["covariates_model2"])
     subgroups = config["subgroup_vars"]
 
     r_code = f"""# === R Code: Survey-Weighted Analysis ({dataset}) ===
@@ -224,11 +284,15 @@ design <- svydesign(
   data = df,
   nest = TRUE
 )
+# Analysis domain = complete cases on every Model 2 variable, so both models use the
+# same sample (a domain of the full design, not a row filter)
+cc_vars <- c({', '.join(f'"{v}"' for v in [config['outcome'], config['exposure']] + config['covariates_model2'])})
+design <- subset(design, complete.cases(df[, cc_vars]))
 
 # Step 2: Weighted Table 1
 tab1 <- svyCreateTableOne(
   vars = c({', '.join([f'"{v}"' for v in config['covariates_model2']])}),
-  strata = "{exposure}",
+  strata = "{exposure_name}",
   data = design,
   test = TRUE,
   smd = TRUE
@@ -256,15 +320,16 @@ exp(cbind(wOR = coef(model2), confint(model2)))
     for sg in subgroups:
         r_code += f"""
 # Subgroup: {sg}
-for (level in unique(df${sg})) {{
+for (level in sort(unique(na.omit(df${sg})))) {{
   sub_design <- subset(design, {sg} == level)
   sub_model <- svyglm(
-    {outcome} ~ {exposure} + {' + '.join([v for v in config['covariates_model2'] if v != sg])},
+    {outcome} ~ {exposure} + {' + '.join([term(v) for v in config['covariates_model2'] if v != sg])},
     design = sub_design,
     family = quasibinomial()
   )
   cat("\\n{sg} =", level, "\\n")
-  print(exp(cbind(wOR = coef(sub_model), confint(sub_model)))["{exposure}", ])
+  est <- exp(cbind(wOR = coef(sub_model), confint(sub_model)))
+  print(est[grepl("{exposure_name}", rownames(est)), , drop = FALSE])
 }}
 """
     return r_code
@@ -282,35 +347,44 @@ def main():
     print(f"Dataset: {config['dataset_name']}")
     print(f"Weight column: {weight_col}")
 
-    # Check weight column exists
-    if weight_col not in df.columns:
-        print(f"ERROR: Weight column '{weight_col}' not found in data.")
-        print(f"Available columns: {list(df.columns)}")
-        sys.exit(1)
+    for col in (weight_col, config["strata"], config["cluster"]):
+        if col not in df.columns:
+            print(f"ERROR: design column '{col}' not found in data.")
+            print(f"Available columns: {list(df.columns)}")
+            sys.exit(1)
 
-    # Drop missing
-    analysis_vars = ([config["outcome"], config["exposure"], weight_col] +
-                     config["covariates_model2"])
-    n_before = len(df)
-    df = df.dropna(subset=[v for v in analysis_vars if v in df.columns])
-    n_after = len(df)
-    if n_before != n_after:
-        print(f"Excluded {n_before - n_after} rows with missing data "
-              f"({100*(n_before-n_after)/n_before:.1f}%)")
+    # Rows without design information cannot be placed in the design at all
+    design_ok = df[[weight_col, config["strata"], config["cluster"]]].notna().all(axis=1)
+    if (~design_ok).any():
+        print(f"Dropped {int((~design_ok).sum())} rows with missing weight/strata/PSU.")
+    df = df[design_ok].reset_index(drop=True)
 
     outcome_col = config["outcome"]
     exposure_col = config["exposure"]
+    cat_vars = config["categorical_vars"]   # list the exposure here if it is categorical
+    refs = config.get("reference_levels", {})
 
-    # Weighted sample size
-    total_weight = df[weight_col].sum()
-    print(f"Unweighted N: {len(df):,}")
-    print(f"Weighted N: {total_weight:,.0f}")
+    # PSU ids are nested within strata (nest=TRUE)
+    design = {
+        "w": df[weight_col].astype(float),
+        "h": df[config["strata"]].astype(str),
+        "c": df[config["strata"]].astype(str) + "|" + df[config["cluster"]].astype(str),
+        "group_domain": pd.Series(True, index=df.index),
+    }
+
+    # Complete cases are a DOMAIN of the full design, not a row filter
+    analysis_vars = [outcome_col, exposure_col] + config["covariates_model2"]
+    complete = df[analysis_vars].notna().all(axis=1)
+    print(f"Unweighted N (complete cases): {int(complete.sum()):,} of {len(df):,}")
+    print(f"Weighted N (population estimate): {df.loc[complete, weight_col].sum():,.0f}")
+    print(f"Design: {design['h'].nunique()} strata, {design['c'].nunique()} PSUs, "
+          f"design df = {design['c'].nunique() - design['h'].nunique()}")
 
     print(f"\n{'='*60}")
-    print(f"SURVEY-WEIGHTED ANALYSIS")
+    print(f"SURVEY-WEIGHTED ANALYSIS (design-based, Taylor linearization)")
     print(f"{'='*60}")
 
-    # --- Weighted Table 1 ---
+    # --- Weighted Table 1 (point estimates; unweighted n, weighted %) ---
     print(f"\n--- Weighted Table 1 ---")
     continuous_vars = [v for v in config["covariates_model2"]
                        if v not in config["categorical_vars"]]
@@ -318,41 +392,41 @@ def main():
                         if v in config["categorical_vars"]]
 
     tab1 = weighted_table1(
-        df, exposure_col, continuous_vars, categorical_vars, weight_col
+        df[complete], exposure_col, continuous_vars, categorical_vars, weight_col
     )
     print(tab1.to_string(index=False))
     tab1.to_csv(os.path.join(output_dir, "weighted_table1.csv"), index=False)
     print("Saved: weighted_table1.csv")
 
+    fmt_p = lambda x: f"{x:.3f}" if x >= 0.001 else "<0.001"
+
     # --- Model 1: Minimal adjustment ---
     print(f"\n--- Model 1: Adjusted for {', '.join(config['covariates_model1'])} ---")
-    result1, wor1 = weighted_logistic(
-        df, outcome_col, exposure_col,
-        config["covariates_model1"], weight_col
-    )
-    print(wor1[["Variable", "formatted", "P"]].to_string(index=False))
+    wor1 = svy_logistic(df, design, outcome_col, exposure_col,
+                        config["covariates_model1"], complete, cat_vars, refs)
+    print(wor1[["Variable", "formatted", "P", "design_df"]].to_string(index=False))
 
     # --- Model 2: Full adjustment ---
     print(f"\n--- Model 2: Adjusted for {', '.join(config['covariates_model2'])} ---")
-    result2, wor2 = weighted_logistic(
-        df, outcome_col, exposure_col,
-        config["covariates_model2"], weight_col
-    )
-    print(wor2[["Variable", "formatted", "P"]].to_string(index=False))
+    wor2 = svy_logistic(df, design, outcome_col, exposure_col,
+                        config["covariates_model2"], complete, cat_vars, refs)
+    print(wor2[["Variable", "formatted", "P", "design_df"]].to_string(index=False))
 
     # Combine wOR results
     wor_combined = pd.DataFrame({
         "Exposure": wor1["Variable"],
         "Model1_wOR": wor1["formatted"],
-        "Model1_P": wor1["P"].map(lambda x: f"{x:.3f}" if x >= 0.001 else "<0.001"),
+        "Model1_P": wor1["P"].map(fmt_p),
         "Model2_wOR": wor2["formatted"],
-        "Model2_P": wor2["P"].map(lambda x: f"{x:.3f}" if x >= 0.001 else "<0.001"),
+        "Model2_P": wor2["P"].map(fmt_p),
+        "n_unweighted": wor2["n_unweighted"],
+        "design_df": wor2["design_df"],
     })
     wor_combined.to_csv(os.path.join(output_dir, "wor_results.csv"), index=False)
     print("\nSaved: wor_results.csv")
 
-    # --- Subgroup Analyses ---
-    print(f"\n--- Subgroup Analyses ---")
+    # --- Subgroup analyses: domains of the full design ---
+    print(f"\n--- Subgroup Analyses (domain estimation) ---")
     subgroup_results = []
 
     for sg_var in config["subgroup_vars"]:
@@ -361,21 +435,24 @@ def main():
             continue
 
         covs_no_sg = [v for v in config["covariates_model2"] if v != sg_var]
-        for level in sorted(df[sg_var].unique()):
-            subset = df[df[sg_var] == level]
-            if len(subset) < 30:
+        for level in sorted(df[sg_var].dropna().unique()):
+            in_group = df[sg_var] == level
+            domain = complete & in_group
+            if domain.sum() < 30:
                 continue
+            sg_design = dict(design, group_domain=in_group)
             try:
-                _, wor_sg = weighted_logistic(
-                    subset, outcome_col, exposure_col,
-                    covs_no_sg, weight_col
-                )
+                wor_sg = svy_logistic(df, sg_design, outcome_col, exposure_col,
+                                      covs_no_sg, domain, cat_vars, refs)
                 for _, row in wor_sg.iterrows():
                     subgroup_results.append({
                         "Subgroup": sg_var,
                         "Level": level,
+                        "Exposure": row["Variable"],
+                        "n_unweighted": row["n_unweighted"],
                         "wOR": row["formatted"],
-                        "P": f"{row['P']:.3f}" if row["P"] >= 0.001 else "<0.001",
+                        "P": fmt_p(row["P"]),
+                        "design_df": row["design_df"],
                     })
             except Exception as e:
                 print(f"  {sg_var}={level}: analysis failed ({e})")
@@ -385,6 +462,8 @@ def main():
         print(sg_df.to_string(index=False))
         sg_df.to_csv(os.path.join(output_dir, "subgroup_results.csv"), index=False)
         print("Saved: subgroup_results.csv")
+        print("  A difference between subgroups needs an interaction test on the full "
+              "design, not a comparison of subgroup P values.")
 
     # --- Generate R code ---
     print(f"\n--- R Code (for publication-quality analysis) ---")
@@ -392,8 +471,7 @@ def main():
     r_path = os.path.join(output_dir, "survey_analysis.R")
     with open(r_path, "w") as f:
         f.write(r_code)
-    print(f"Saved: {r_path}")
-    print("NOTE: Run the R code for correct variance estimation with strata/cluster.")
+    print(f"Saved: {r_path}  (cross-check: it reproduces the estimates above)")
 
     # --- Summary ---
     print(f"\n{'='*60}")
@@ -403,8 +481,6 @@ def main():
     if subgroup_results:
         print(f"  Subgroup results: subgroup_results.csv")
     print(f"  R code: survey_analysis.R")
-    print(f"\n⚠ Python results use frequency weights only.")
-    print(f"  For publication, run survey_analysis.R with full design specification.")
 
 
 if __name__ == "__main__":

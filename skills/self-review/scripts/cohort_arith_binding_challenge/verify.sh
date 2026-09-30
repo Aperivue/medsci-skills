@@ -3,18 +3,19 @@
 #
 # The arithmetic in this detector was never wrong. What was wrong is which numbers it fed
 # into it: on a real manuscript every one of its three observed fires was false, because each
-# capture latched onto a digit belonging to something else.
+# capture latched onto a digit belonging to something else. The shapes below are those
+# sentences; every number in them and in the fixtures is invented.
 #
-#   "882 KSAR S4-1 events occurred"        -> bound the 1 of the label "S4-1" as the event
-#                                             count, and declared 2.48 per 100 PY irreconcilable
+#   "417 ABC R2-1 events occurred"         -> bound the 1 of the label "R2-1" as the event
+#                                             count, and declared 3.30 per 100 PY irreconcilable
 #                                             with 1 event.
-#   "over 35,581.3 person-years"           -> the integer part could not reach the noun past
+#   "over 12,630.3 person-years"           -> the integer part could not reach the noun past
 #                                             the decimal point, so the FRACTIONAL DIGIT matched:
 #                                             a cohort of "3 person-years".
 #   "| Characteristic | Normal | ... |"     -> the one-letter column hint "n" matched the word
 #                                             "Normal", so each characteristic row's value was
-#                                             summed as a stratum size: 8,299 against a
-#                                             "stated total" of 194. (The identical
+#                                             summed as a stratum size and compared with the
+#                                             column's "stated total". (The identical
 #                                             one-character-substring bug was fixed once in
 #                                             check_confounding_completeness and never here.)
 #
@@ -37,10 +38,10 @@ ck() { if [ "$2" = "$3" ]; then printf '  PASS  %-58s got=%s\n' "$1" "$3"; pass=
 has() { if echo "$2" | grep -q "$3"; then ck "$1" 0 0; else ck "$1" 0 1; fi; }
 hasnt() { if echo "$2" | grep -q "$3"; then ck "$1" 0 1; else ck "$1" 0 0; fi; }
 
-echo "== the three real false positives are silent =="
-python3 "$DET" --manuscript "$FIX/real_negatives.md" --strict >/dev/null 2>&1
+echo "== the three false-positive shapes are silent =="
+python3 "$DET" --manuscript "$FIX/binding_negatives.md" --strict >/dev/null 2>&1
 ck "a manuscript whose arithmetic closes -> exit 0" 0 "$?"
-OUT="$(python3 "$DET" --manuscript "$FIX/real_negatives.md" 2>&1)"
+OUT="$(python3 "$DET" --manuscript "$FIX/binding_negatives.md" 2>&1)"
 hasnt "no rate back-calculation fired"        "$OUT" "RATE_BACKCALC"
 hasnt "no partition overlap fired"            "$OUT" "PARTITION_OVERLAP"
 hasnt "and the label digit was never read as a count" "$OUT" "1 events"
@@ -48,7 +49,7 @@ hasnt "nor the decimal tail as the person-time"       "$OUT" "/ 3 PY"
 
 echo "== a Table 1 is not a stratum partition =="
 # The header that broke it. "Normal" must not answer to the hint "n".
-printf '| Characteristic | Normal | Adverse |\n|---|---|---|\n| Age, years | 52.1 | 56.8 |\n| Male, n (%%) | 4,051 | 6,054 |\n| Body mass index | 23.1 | 29.7 |\n| Total, n | 194 | 6,054 |\n' > "$TMP/t1.md"
+printf '| Characteristic | Normal | Adverse |\n|---|---|---|\n| Age, years | 48.7 | 55.9 |\n| Male, n (%%) | 263 | 2,904 |\n| Body mass index | 22.4 | 28.9 |\n| Total, n | 517 | 5,118 |\n' > "$TMP/t1.md"
 OUT="$(python3 "$DET" --manuscript "$TMP/t1.md" 2>&1)"
 hasnt "an exposure-stratified Table 1 stays silent" "$OUT" "PARTITION_OVERLAP"
 
@@ -67,7 +68,7 @@ echo "== decimal person-time is now READ, not skipped =="
 python3 "$DET" --manuscript "$FIX/decimal_person_time.md" --strict >/dev/null 2>&1
 ck "a wrong rate over fractional person-time -> exit 1" 1 "$?"
 OUT="$(python3 "$DET" --manuscript "$FIX/decimal_person_time.md" 2>&1)"
-has "the whole person-time is used, not its tail" "$OUT" "35,581.3 PY"
+has "the whole person-time is used, not its tail" "$OUT" "12,630.3 PY"
 hasnt "and not the fractional digit"              "$OUT" "/ 3 PY"
 
 echo "== a column genuinely called n still resolves =="

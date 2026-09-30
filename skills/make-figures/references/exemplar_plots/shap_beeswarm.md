@@ -24,7 +24,7 @@ features on one model*. Synthetic — describes what each element must show, not
   sampling), the **background or reference distribution** the expected value is taken against, and
   the **number of instances explained** — plus that attribution is **model-conditional**: it
   describes *this fitted model*, not the data and not the pathophysiology. The baseline is
-  load-bearing; `explainability` `references/explainability_guide.md` states the same for imaging.
+  load-bearing; `/model-assessment` `references/explainability_guide.md` states the same for imaging.
 - **Presented alongside, not instead of, the other two model views** — discrimination
   (`roc_pr.md`) and calibration (`calibration_plot.md`), which §G item 21 requires anyway.
   Attribution is a third view and substitutes for neither.

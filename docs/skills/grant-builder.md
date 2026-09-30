@@ -2,9 +2,9 @@
 
 # grant-builder
 
-> Grant and challenge proposal support for radiology and medical AI projects. Structures significance, innovation, approach, milestones, and consortium roles while keeping claims evidence-based and executable.
+> Use when drafting a grant or challenge proposal for a radiology or medical AI project, including a Korean government industry-academia plan. Structures significance, innovation, approach, aims, milestones and consortium roles, keeping claims evidence-based and executable.
 
-**Invoke:** `/grant-builder` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
+**Invoke:** `/grant-builder`
 
 ## When to use
 

@@ -8,10 +8,11 @@ name: Release
 # automatically archives the GitHub Release if the integration is enabled at
 # https://zenodo.org/account/settings/github/
 #
-# The npm publish step runs only when the `NPM_TOKEN` repo secret is set (a granular/automation token
-# scoped to medsci-skills with publish rights + 2FA bypass), and skips if that version is already on
-# npm, and verifies that the existing payload matches. It runs AFTER the GitHub Release;
-# a later npm failure leaves the ZIP release published and requires recovery.
+# npm is published through trusted publishing: the job's OIDC token is exchanged for a short-lived
+# registry credential, so no npm secret is needed (5.27.0 onward were published this way). The npm
+# steps run on the canonical repository only, skip the publish if that version is already on npm,
+# and verify that the existing payload matches. They run AFTER the GitHub Release; a later npm
+# failure leaves the ZIP release published and requires recovery.
 #
 # Supply-chain posture (see SECURITY.md "Release integrity & revocation"): the self-updater verifies
 # each download's sha256 against the github.com API digest, which detects transport/asset tampering
@@ -19,6 +20,7 @@ name: Release
 #   * a protected `release` environment (configure a required reviewer in repo Settings → Environments
 #     so a human approves before any release is published);
 #   * least-privilege token scopes;
+#   * a preflight that the tagged commit is on `main` and that the Validate workflow passed on it;
 #   * a version-consistency gate (CITATION == package.json == manifest == the pushed tag);
 #   * build-provenance attestation of the ZIP artifacts;
 #   * a post-build check that each ZIP round-trips through the updater's own safe-extract + provenance
@@ -45,17 +47,19 @@ on:
 env:
   RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
 
-# Least privilege: contents:write to publish the release; id-token + attestations for the build
-# provenance attestation. Nothing else.
 # Serialize recovery runs for the same tag; never cancel a publication midway.
 concurrency:
   group: release-${{ inputs.tag || github.ref_name }}
   cancel-in-progress: false
 
+# Least privilege: contents:write to publish the release; id-token + attestations for the build
+# provenance attestation; actions:read to read the Validate workflow's result for the release
+# commit. Nothing else.
 permissions:
   contents: write
   id-token: write
   attestations: write
+  actions: read
 
 jobs:
   release:
@@ -81,8 +85,9 @@ jobs:
           # or it would validate the wrong tree.
           ref: ${{ inputs.tag || github.ref_name }}
 
-      # Keep verification tools at the workflow commit on recovery runs. The
-      # payload remains the selected tag, including tags predating these checks.
+      # Verification tools come from the workflow commit, checked out without credentials. The
+      # Resolve step below requires the run to be triggered from the tag's own commit, so this is
+      # the same tree as the payload; a tag predating these checks is recovered with its own workflow.
       - name: Checkout verification tools
         uses: actions/checkout@v4
         with:
@@ -96,18 +101,74 @@ jobs:
           [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
           SOURCE_SHA="$(git rev-parse HEAD)"
           test "$SOURCE_SHA" = "$(git rev-parse "refs/tags/${RELEASE_TAG}^{commit}")"
+          # The ZIP's provenance.json records SOURCE_SHA, but the build-provenance attestation and
+          # npm provenance sign the commit the RUN was triggered from (GITHUB_SHA). A recovery run
+          # dispatched from main for an older tag would sign main's commit as the source of that
+          # tag's payload, as the v5.27.0 recovery did. Dispatch from the tag itself instead.
+          if [ "${GITHUB_SHA}" != "$SOURCE_SHA" ]; then
+            echo "::error::this run was triggered from ${GITHUB_SHA}, but ${RELEASE_TAG} is ${SOURCE_SHA}; its provenance would name the wrong commit. Re-run from the tag: gh workflow run release.yml --ref ${RELEASE_TAG} -f tag=${RELEASE_TAG}" >&2
+            exit 1
+          fi
           echo "SOURCE_SHA=$SOURCE_SHA" >> "$GITHUB_ENV"
 
+      # Validate does not run on tag pushes, so nothing else links a published release to a green
+      # CI run: a tag on a commit whose Validate run failed, or never ran, would publish. Two checks,
+      # both on the exact commit being released:
+      #   * it is on main. The git-clone installer and the plugin marketplace read main; a tag cut
+      #     from another branch would ship a ZIP and an npm package that main never had.
+      #   * every Validate run for it completed with success (that workflow also holds the release
+      #     cadence gate, evaluated before this tag existed). A run still in progress is waited for;
+      #     a missing, failed or cancelled one fails the release before anything is built.
+      - name: Preflight - the release commit is on main and passed Validate
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git fetch --quiet --no-tags origin +refs/heads/main:refs/remotes/origin/main
+          if ! git merge-base --is-ancestor "$SOURCE_SHA" refs/remotes/origin/main; then
+            echo "::error::${RELEASE_TAG} (${SOURCE_SHA}) is not on main. Merge it into main, wait for CI on the merge commit, and tag that commit." >&2
+            exit 1
+          fi
+          # Overridable so the regression test can prove that running out of time FAILS.
+          WINDOW="${VALIDATE_WAIT_WINDOW:-1800}"
+          DEADLINE=$(( $(date +%s) + WINDOW ))
+          while :; do
+            # Every page: a failed run on page 2 must not be read as absent. Each entry is one run
+            # as of its latest attempt.
+            RUNS="$(gh api --paginate "repos/${GITHUB_REPOSITORY}/actions/workflows/validate.yml/runs?head_sha=${SOURCE_SHA}&per_page=100" \
+              --jq '.workflow_runs[] | "\(.status) \(.conclusion // "none") \(.html_url)"')"
+            if [ -z "$RUNS" ]; then
+              echo "::error::no Validate run exists for ${SOURCE_SHA}. Push the commit to main and let CI finish before tagging." >&2
+              exit 1
+            fi
+            BAD="$(printf '%s\n' "$RUNS" | awk '$1 == "completed" && $2 != "success"')"
+            if [ -n "$BAD" ]; then
+              echo "::error::Validate did not pass on ${SOURCE_SHA}:" >&2
+              printf '%s\n' "$BAD" >&2
+              exit 1
+            fi
+            PENDING="$(printf '%s\n' "$RUNS" | awk '$1 != "completed"')"
+            [ -z "$PENDING" ] && break
+            if [ "$(date +%s)" -ge "$DEADLINE" ]; then
+              echo "::error::Validate is still running on ${SOURCE_SHA} after ${WINDOW}s; re-run this release once it has passed:" >&2
+              printf '%s\n' "$PENDING" >&2
+              exit 1
+            fi
+            echo "waiting for Validate on ${SOURCE_SHA} ($(( DEADLINE - $(date +%s) ))s left)"
+            sleep "${VALIDATE_WAIT_INTERVAL:-30}"
+          done
+          echo "preflight OK: ${SOURCE_SHA} is on main and every Validate run on it passed:"
+          printf '%s\n' "$RUNS"
+
+      # npm documents trusted publishing as requiring Node >= 22.14.0 AND npm >= 11.5.1. Node 24
+      # meets the first; the step below guarantees the second whatever npm the image bundles.
+      # The tarball is packed by that npm, not by Node, so its contents do not depend on the Node major.
       - name: Set up Node for packing and npm publish
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
           registry-url: "https://registry.npmjs.org"
 
-      # Node 20 bundles npm 10, which cannot exchange the Actions OIDC token for a
-      # registry credential. Trusted publishing needs npm >= 11.5.1, so the bundled
-      # version is upgraded rather than the Node major, which would change what the
-      # packed tarball is built with.
       - name: Upgrade npm (trusted publishing needs >= 11.5.1)
         run: |
           set -euo pipefail
@@ -270,6 +331,8 @@ jobs:
       - name: Publish to npm (idempotent; npm provenance via OIDC)
         if: env.NPM_PUBLISH == 'true'
         env:
+          # Legacy fallback only. Publication goes through trusted publishing: when the OIDC
+          # exchange succeeds, npm uses that credential in place of this one. Nothing gates on it.
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           set -euo pipefail
@@ -297,26 +360,55 @@ jobs:
       # it failed, the payload comparison below never ran, so a spurious gate cost a real
       # verification. It waits for propagation now; what it must not do is give up waiting
       # and call that success.
+      # Carrying the version is not enough when this is the newest release: `npx
+      # medsci-skills@latest` resolves the `latest` dist-tag, and a recovery run that finds the
+      # version already published skips the publish without ever looking at it. So for the newest
+      # release, `latest` must name this version too. An older release being recovered is exempt:
+      # npm refuses to move `latest` backwards on its own, and it must not be moved there.
+      # "Newest" is the highest PUBLISHED GitHub Release (not a draft, not a prerelease), never the
+      # highest tag: a stray tag that never became a release (say v99.0.0 on a commit that failed
+      # the preflight) would otherwise make every real release look old and waive this check.
       - name: npm must actually carry this version
         if: env.NPM_PUBLISH == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -uo pipefail
           VER="${RELEASE_TAG#v}"
+          NEWEST="$(gh api --paginate "repos/${GITHUB_REPOSITORY}/releases?per_page=100" \
+              --jq '.[] | select(.draft == false and .prerelease == false) | .tag_name' \
+            | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -t. -k1.2,1n -k2,2n -k3,3n | tail -n 1 || true)"
+          if [ -z "$NEWEST" ]; then
+            echo "::error::could not list the published GitHub Releases, so whether ${RELEASE_TAG} should be npm's latest is unknown."
+            exit 1
+          fi
+          WANT_LATEST=0
+          [ "$NEWEST" = "$RELEASE_TAG" ] && WANT_LATEST=1
           # Overridable so the regression test can prove that running out of time FAILS.
           WINDOW="${NPM_PROPAGATION_WINDOW:-600}"
           DEADLINE=$(( $(date +%s) + WINDOW ))
           while :; do
             PUBLISHED="$(npm view "medsci-skills@${VER}" version 2>/dev/null || true)"
-            [ "$PUBLISHED" = "$VER" ] && break
+            LATEST="$(npm view medsci-skills dist-tags.latest 2>/dev/null || true)"
+            if [ "$PUBLISHED" = "$VER" ] && { [ "$WANT_LATEST" = 0 ] || [ "$LATEST" = "$VER" ]; }; then
+              break
+            fi
             if [ "$(date +%s)" -ge "$DEADLINE" ]; then
-              LATEST="$(npm view medsci-skills version 2>/dev/null || echo 'unknown')"
-              echo "::error::npm still does not carry ${VER} after ${WINDOW}s; registry latest is ${LATEST}. The GitHub Release exists, so the channels have diverged: npx medsci-skills@latest installs ${LATEST}."
+              if [ "$PUBLISHED" != "$VER" ]; then
+                echo "::error::npm still does not carry ${VER} after ${WINDOW}s; registry latest is ${LATEST:-unknown}. The GitHub Release exists, so the channels have diverged: npx medsci-skills@latest installs ${LATEST:-unknown}."
+              else
+                echo "::error::npm carries ${VER}, but its latest dist-tag is ${LATEST:-unknown} after ${WINDOW}s, and ${RELEASE_TAG} is the newest release: npx medsci-skills@latest installs ${LATEST:-unknown}. Point it with: npm dist-tag add medsci-skills@${VER} latest"
+              fi
               exit 1
             fi
-            echo "registry does not carry ${VER} yet; retrying ($(( DEADLINE - $(date +%s) ))s left)"
+            echo "registry: ${VER} published=${PUBLISHED:-no}, latest=${LATEST:-unknown}; retrying ($(( DEADLINE - $(date +%s) ))s left)"
             sleep "${NPM_PROPAGATION_INTERVAL:-30}"
           done
-          echo "npm carries ${VER}."
+          if [ "$WANT_LATEST" = 1 ]; then
+            echo "npm carries ${VER}, and latest points to it."
+          else
+            echo "npm carries ${VER} (older than ${NEWEST}; latest is ${LATEST:-unknown} and is left alone)."
+          fi
 
       - name: Download and compare published npm payload
         if: env.NPM_PUBLISH == 'true'

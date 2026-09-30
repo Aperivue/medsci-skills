@@ -47,9 +47,9 @@ n_findings() {  # file, threshold [, mode] -> count
 cat > "$TMP/leak.md" <<'MD'
 # Calibration
 
-**Why this is here.** A review recorded, four lines apart, an audit finding and a contradicting
-answer. The co-reviewer wrote ~180 words, all on priority, and the editor rejected outright, two
-tiers below the recommendation.
+**Why this is here.** A review recorded, in adjacent paragraphs, a missing-checklist finding and
+an author reply saying the checklist was attached. The co-reviewer wrote ~90 words, all on style,
+and the editor accepted after minor revision.
 MD
 ck "confidential-review block: CI refuses it outright" 1 "$(n_findings "$TMP/leak.md" 1 block)"
 
