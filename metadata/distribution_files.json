@@ -1968,8 +1968,8 @@
     },
     {
       "path": "skills/generate-codebook/SKILL.md",
-      "size": 7129,
-      "sha256": "043903ea13d5469f38c198301bd6872181d2a6e0a23a9c7c21db7326b3f7d81e"
+      "size": 4094,
+      "sha256": "577b5989e17e0f5f9683ed4e190f9d100d6f76924b4f25eb114f3c57206beaed"
     },
     {
       "path": "skills/generate-codebook/references/codebook_schema.md",
