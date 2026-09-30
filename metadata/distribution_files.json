@@ -1068,8 +1068,18 @@
     },
     {
       "path": "skills/cross-national/SKILL.md",
-      "size": 14912,
-      "sha256": "0bd9581d2033ccfa46d70e2afe0a4c2c5b85474cbbc0d526b4721341d83b8017"
+      "size": 7033,
+      "sha256": "4ffb4f16be684b182d1b2aaa4b76651c9a5786daad2ac6a5b0f997a69fad2d6f"
+    },
+    {
+      "path": "skills/cross-national/references/additional_variables.md",
+      "size": 3284,
+      "sha256": "961f7b3c0e90cb720cf914f7f37848517d882b5ea8b8d196df3c55a623eb99bd"
+    },
+    {
+      "path": "skills/cross-national/references/chns_coding.md",
+      "size": 3863,
+      "sha256": "6e59c22379171f4042ce155897115d2129c9909434c4fc1211542bef0d31e3b8"
     },
     {
       "path": "skills/cross-national/skill.yml",
