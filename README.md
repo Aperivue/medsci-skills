@@ -2,7 +2,7 @@
 
 # MedSci Skills
 
-English | [简体中文](https://github.com/Aperivue/medsci-skills/blob/v6.0.0/README.zh-CN.md)
+English | [简体中文](https://github.com/Aperivue/medsci-skills/blob/v6.0.0/README.zh-CN.md) | [한국어](https://github.com/Aperivue/medsci-skills/blob/v6.0.0/README.ko.md)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/Aperivue/medsci-skills/blob/v6.0.0/LICENSE)
 [![Release](https://img.shields.io/github/v/release/Aperivue/medsci-skills?style=flat-square&color=blue)](https://github.com/Aperivue/medsci-skills/releases/latest)
@@ -167,6 +167,7 @@ Optional dependency: `pdf_to_md.py` uses [pymupdf4llm](https://pymupdf.readthedo
 <a id="whats-new"></a><a id="key-features"></a><a id="autonomous-e2e-pipeline"></a><a id="anti-hallucination-citations"></a><a id="anti-hallucination-numerical-claims"></a><a id="reference-safety-phase-1"></a><a id="meta-analysis-failure-modes"></a><a id="49-reporting-guidelines--rob-tools-built-in"></a><a id="publication-ready-output"></a><a id="resultsdiscussion-boundary-enforcement"></a><a id="irb-protocol-to-submission-in-one-pipeline"></a><a id="skills-work-together"></a><a id="skill-boundaries--which-to-use-and-in-what-order"></a><a id="contributing"></a><a id="in-the-wild"></a><a id="cited-in-the-literature"></a><a id="adoption"></a><a id="star-history"></a><a id="why-this-repo"></a><a id="what-this-is-not"></a><a id="about"></a>
 
 - [Release notes](https://github.com/Aperivue/medsci-skills/blob/v6.0.0/CHANGELOG.md) — what changed in each version.
+- [Upgrading from v5](https://github.com/Aperivue/medsci-skills/blob/v6.0.0/MIGRATION-v6.md) — renamed skills, and how to update for each install channel.
 - [Workflows and skill boundaries](https://github.com/Aperivue/medsci-skills/blob/v6.0.0/docs/workflows.md) — skill chains, which skill to use when two look alike, and checks that span skills.
 - [Skill reference](https://github.com/Aperivue/medsci-skills/blob/v6.0.0/docs/skills/README.md) and [FAQ](https://github.com/Aperivue/medsci-skills/blob/v6.0.0/docs/faq.md).
 - [Host compatibility](https://github.com/Aperivue/medsci-skills/blob/v6.0.0/docs/host_compatibility.md) — verified install paths for Claude Code, Codex, Cursor and GitHub Copilot.
