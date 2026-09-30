@@ -272,18 +272,25 @@ bias_method <- switch(CONFIG$effect_type,
                       SMD = "Pustejovsky",  # Pustejovsky & Rodgers 2019
                       MD  = "Egger")
 
-if (nrow(df) >= 10) {
+# k counts the studies actually pooled: studies with no events (or only events)
+# in both arms are excluded from an OR/RR pool, so m$k can be < nrow(df).
+if (m$k >= 10) {
   cat("\n═══ SMALL-STUDY EFFECTS ═════════════════════════════════════════════\n")
 
   pb <- metabias(m, method.bias = bias_method, k.min = 10)
-  cat(sprintf("  %s test for funnel plot asymmetry: t = %.3f, df = %d, P = %.3f\n",
-              bias_method, pb$statistic, pb$df, pb$pval))
-  if (pb$pval < CONFIG$alpha) {
-    cat("  → Funnel plot asymmetry (small-study effects) detected; publication bias is\n",
-        "    only one possible cause (heterogeneity, chance, and poorer small-study\n",
-        "    quality are others).\n", sep = "")
+  if (is.null(pb$pval)) {
+    # metabias() returns no test when fewer than k.min studies are usable
+    cat(sprintf("  %s test not computed by metabias() (too few usable studies)\n", bias_method))
   } else {
-    cat("  → No evidence of funnel plot asymmetry (low power; not proof of no bias).\n")
+    cat(sprintf("  %s test for funnel plot asymmetry: t = %.3f, df = %d, P = %.3f\n",
+                bias_method, pb$statistic, pb$df, pb$pval))
+    if (pb$pval < CONFIG$alpha) {
+      cat("  → Funnel plot asymmetry (small-study effects) detected; publication bias is\n",
+          "    only one possible cause (heterogeneity, chance, and poorer small-study\n",
+          "    quality are others).\n", sep = "")
+    } else {
+      cat("  → No evidence of funnel plot asymmetry (low power; not proof of no bias).\n")
+    }
   }
 
   # Trim-and-fill is a sensitivity analysis, not a bias-corrected estimate
@@ -303,8 +310,8 @@ if (nrow(df) >= 10) {
   dev.off()
   cat(sprintf("\nSaved: %s\n", funnel_file))
 } else {
-  cat(sprintf("\nSmall-study effects: not tested (k = %d < 10; tests have too little power)\n",
-              nrow(df)))
+  cat(sprintf("\nSmall-study effects: not tested (k = %d studies pooled < 10; tests have too little power)\n",
+              m$k))
 }
 
 # ══════════════════════════════════════════════════════════════════════════════
