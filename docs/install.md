@@ -142,6 +142,17 @@ Install a single category and invoke its skills under that namespace:
 The plugins share the same repository source, so this groups and enables skills by category — it is
 not a partial download. The marketplace tracks `main`, so a plugin's version is its git commit.
 
+**Staying on one release.** Every change reaches `main` only after CI passes, and you receive it
+when you update. To stay on a release instead, add the marketplace with its tag and install the
+plugins as above:
+
+```text
+/plugin marketplace add Aperivue/medsci-skills@v6.0.0
+```
+
+To move to a later release, remove the marketplace (`/plugin marketplace remove medsci-skills`, which
+also uninstalls its plugins), add it again with the new tag, and reinstall the plugins you use.
+
 **Note the name.** A skill installed as a plugin is invoked under its plugin's namespace
 (`/medsci-analysis:analyze-stats`); the same skill installed into the skills folder by the `npx`,
 `gh skill`, classroom, or manual paths is invoked bare (`/analyze-stats`). Both run the same skill —

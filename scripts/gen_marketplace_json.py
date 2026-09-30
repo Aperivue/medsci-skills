@@ -25,6 +25,13 @@ would falsely imply control. Consequence: this generator has no version logic an
 no CITATION.cff coupling — marketplace.json is a pure function of the catalog +
 the tables below (deterministic, so `--check` is meaningful).
 
+Why every entry's source stays `./` rather than a `github`/`url` source pinned to a tag
+(tested 2026-09-30 with Claude Code 2.1.285): only an entry whose source is the marketplace
+root loads just its listed `skills`; any other source loads the list IN ADDITION to the default
+`skills/` scan, so every plugin would carry every skill. The `github` plugin source also clones
+over SSH. A user who wants a fixed release adds the marketplace as
+`Aperivue/medsci-skills@<tag>` instead (docs/install.md).
+
 Stdlib-only, deterministic (sorted, no timestamps).
 
 Usage:
