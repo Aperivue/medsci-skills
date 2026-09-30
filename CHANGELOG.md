@@ -4,6 +4,18 @@
 
 ### Changed
 
+- **Shorter skill files (v6).** The `SKILL.md` files together went from about 159,000 to
+  107,000 words. Repeated boilerplate (a generic anti-hallucination block, communication rules,
+  disclaimers, pointers to rule files that were never shipped) is gone, and material that only some
+  runs need moved into each skill's `references/` folder. Script paths, section numbers other files
+  cite, and the declared outputs in each `skill.yml` are unchanged.
+- **A short README (v6).** The front page went from 1,070 to under 200 lines. Install options and
+  updating moved to `docs/install.md`, workflows and skill boundaries to `docs/workflows.md`, and
+  the demos to `docs/demos.md`; links to the old README's sections still land on the right place.
+  The Simplified Chinese README is now a 100-line summary, a Korean summary (`README.ko.md`) is
+  new, and [`MIGRATION-v6.md`](MIGRATION-v6.md) lists the renamed skills and how to update from
+  each install channel.
+
 - **Imaging and model-engineering skills consolidated, 12 → 7 (v6).** `model-selection` replaces
   `architecture-zoo` and `model-sourcing`; `imaging-data` replaces `profile-imaging` and
   `preprocess-imaging`; `model-assessment` replaces `model-evaluation`, `model-validation`,
@@ -47,6 +59,23 @@
   Intelligence profile now gives the double-anonymized review model its author instructions state.
 
 ### Fixed
+
+- **Instructions that did not match the code, found while shortening the skills (v6).**
+  - `/revise` wrote the response letter only under `revision/R[N]/`, while its claim check and
+    `/sync-submission` read `revision/response_to_reviewers.md`, so the check read a file the skill
+    never wrote.
+  - `/orchestrate` sent the user's own manuscript to `/peer-review`, which that skill forbids; it now
+    uses `/self-review`.
+  - Several commands could not run from an installed skill: `/fill-icmje-coi` used `${SKILL_DIR}`,
+    which is never substituted, and other skills used paths relative to the current folder. They
+    now use `${CLAUDE_SKILL_DIR}`.
+  - `/sync-submission` documented `--figure-accept tiff jpeg eps`, which argparse rejects.
+  - `/publish-skill` re-audited the untouched original, so its PII re-audit could never reach zero.
+  - `/find-cohort-gap` graded every Green topic Blue; it now follows its own final-grade table.
+  - `/batch-cohort` required weighted analysis for NHIS, which has no sampling weights, and
+    `/cross-national` named the wrong NHANES single-cycle weight (`WTMEC2YR` is correct).
+  - `/fill-icmje-coi` counted the text "None" inside words such as "Nonenzymatic".
+  - `/verify-refs` described an author mismatch as FABRICATED; the script reports MISMATCH.
 
 - **AI-use disclosure now follows the target journal, and the authors confirm their own
   statements.** `/write-paper` put a disclosure in Methods by default while its own Phase 7.1
