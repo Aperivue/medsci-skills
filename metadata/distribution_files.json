@@ -3548,8 +3548,8 @@
     },
     {
       "path": "skills/peer-review/SKILL.md",
-      "size": 51812,
-      "sha256": "6c1ae78b6802e57924e10bef4e7d55dcac277474bacae2087ab4a77e78b1f50e"
+      "size": 51893,
+      "sha256": "90ca47c66eb30d21bf6a7a1ff57c52341c20ec303236333951878e4f47e836e8"
     },
     {
       "path": "skills/peer-review/references/aczel_2021_reviewer2_patterns.md",
@@ -3763,8 +3763,8 @@
     },
     {
       "path": "skills/peer-review/scripts/check_pdf_injection.py",
-      "size": 10905,
-      "sha256": "a034c1d9d78bf7f327553c92a354a612f9061e9647940ebc44b6bdbe65501e30"
+      "size": 12990,
+      "sha256": "6234cded85de3c31c8f29d7c74b735d649dca70c58e7e6f2eab14107510a2181"
     },
     {
       "path": "skills/peer-review/scripts/check_pdf_injection_challenge/expected/clean.txt",
@@ -3772,9 +3772,34 @@
       "sha256": "9f37abe54221df614502f460030e15d30fd3d0573fcc5f3af47feac736614a8b"
     },
     {
+      "path": "skills/peer-review/scripts/check_pdf_injection_challenge/expected/em_label.txt",
+      "size": 339,
+      "sha256": "5dc7ad7dea8151d63d6a1d03454c781ff6add8185a5f0a151aec3c572da72c88"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_pdf_injection_challenge/expected/em_label_variants.txt",
+      "size": 1742,
+      "sha256": "ef16255672bcff73a076b804f2e9a496b90948815b945e2e839ec5f66646ae96"
+    },
+    {
       "path": "skills/peer-review/scripts/check_pdf_injection_challenge/expected/inject.txt",
       "size": 1228,
       "sha256": "bd5788f40f87e599caa5e9883fe1374b204008fb8de89a4781068a74a08ddb3b"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_pdf_injection_challenge/expected/label_other_hidden.txt",
+      "size": 441,
+      "sha256": "b6a1309b38d41516334f918900ea4c9af5db9183853027f664954ee3931f924f"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_pdf_injection_challenge/expected/label_plus_white_text.txt",
+      "size": 458,
+      "sha256": "bd7eaaaf3f7295946eb4a54e73871d1713d7c1468b6e0a1fe22cd1f38b560a85"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_pdf_injection_challenge/expected/label_prefixed_injection.txt",
+      "size": 511,
+      "sha256": "86b0b9778ce68c05a41464f27dfd8b8318cf546a1e3d35c29fe28a35582aa68d"
     },
     {
       "path": "skills/peer-review/scripts/check_pdf_injection_challenge/fixture/manifest_clean.json",
@@ -3782,19 +3807,44 @@
       "sha256": "bb67c4f241be5603b70743a2f443c8221ad69f48433ad4fa846845eaea70737d"
     },
     {
+      "path": "skills/peer-review/scripts/check_pdf_injection_challenge/fixture/manifest_em_label.json",
+      "size": 671,
+      "sha256": "75e1f32ac3246eef39b10638557d56f0bd8698b71b3b8b759e28d74d7b178494"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_pdf_injection_challenge/fixture/manifest_em_label_variants.json",
+      "size": 1452,
+      "sha256": "e9e2bcd731710746ae2d007536b8405a732b5bf52850daf678efedc995800e96"
+    },
+    {
       "path": "skills/peer-review/scripts/check_pdf_injection_challenge/fixture/manifest_inject.json",
       "size": 1042,
       "sha256": "b77379a0e3ae35914528f8a0905bdaee887bcf5cce6913872c1d343d68da168b"
     },
     {
+      "path": "skills/peer-review/scripts/check_pdf_injection_challenge/fixture/manifest_label_other_hidden.json",
+      "size": 860,
+      "sha256": "e726b3babe378668182abb555be6baee2e18099c5fb8c1feecfc0c3b3384e42c"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_pdf_injection_challenge/fixture/manifest_label_plus_white_text.json",
+      "size": 705,
+      "sha256": "e85e04dbd05e18a41b3cc1c8904555ab09d5f1134080e650145320e8bc82a1bf"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_pdf_injection_challenge/fixture/manifest_label_prefixed_injection.json",
+      "size": 576,
+      "sha256": "567d91dc3154157a21833f9c61844f60ea5e17a3a50d2dcec920afb63093a2f7"
+    },
+    {
       "path": "skills/peer-review/scripts/check_pdf_injection_challenge/problem.md",
-      "size": 2614,
-      "sha256": "409bf859e9fafd5121ff5d7fb02c9e0b2bfcf818b8976acca1d0ab30b64ab1c6"
+      "size": 4309,
+      "sha256": "2889af81d50bd625e550428420660973a131694630c7ef85b80c1949c9485ada"
     },
     {
       "path": "skills/peer-review/scripts/check_pdf_injection_challenge/verify.sh",
-      "size": 2187,
-      "sha256": "6d149ab8d6737430937a0424dd4c66ea9332f25d83d1eca8e37104db33e97b0d"
+      "size": 4025,
+      "sha256": "07882fe87626db4b71a9c660957aea2d90f7cb9d17ef8781bc1ec5eb5763be99"
     },
     {
       "path": "skills/peer-review/scripts/check_review_boxes.py",

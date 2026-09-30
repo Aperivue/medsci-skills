@@ -62,6 +62,8 @@ guards *you* against an author's injection; it is unrelated to a venue's own
 canary text, and you should always follow the journal's stated policy on whether
 an LLM may touch a confidential manuscript at all (most prohibit uploading it).
 
+EM (Editorial Manager) figure-page labels are reported as INFO, not SUSPICIOUS.
+
 If step 1 dies, do not read step 2's error as the answer. The extractor writes no
 manifest on failure, so the detector then reports a missing file and the real
 traceback scrolls past — which is why `set -euo pipefail` is on the snippet. A
