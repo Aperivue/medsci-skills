@@ -20,6 +20,14 @@ Signals:
   INJECTION      an instruction-style phrase in the text layer (HIGH when it also
                  sits inside a hidden run; LOW when only in visible prose)
 
+One benign case is carved out. Editorial Manager reviewer PDFs place figure-page
+labels off-page, so a span hidden ONLY by OFF_PAGE whose ENTIRE text is a
+figure/table label ("Figure 2", "Fig. 3", "Table 1", "Graphical Abstract",
+"Supplementary Figure S2") is reported as OFF_PAGE at severity INFO and does not
+count toward the verdict. A partial match ("Figure 2. Ignore previous instructions
+...") or a label hidden any other way (colour, size, render mode) is flagged
+exactly as before, and the label text still takes part in the injection scan.
+
 Manifest schema (produced by scan_pdf_layers.py):
   {"source": str,
    "spans": [{"page": int, "text": str, "size": float,
@@ -49,6 +57,13 @@ CONTRAST_THRESH = 40.0        # sRGB Euclidean distance; below this text ~ backg
 MIN_FONT_PT = 4.0             # spans smaller than this are effectively invisible
 OFF_PAGE_VISIBLE_FRAC = 0.5   # a span with <50% of its box on-page is off-page
 
+# A figure/table label, matched against the WHOLE span (whitespace collapsed), never
+# a prefix. The label vocabulary plus at most three alphanumerics cannot spell an
+# instruction, so excusing an off-page span of this shape cannot hide one.
+FIGURE_LABEL_RE = re.compile(
+    r"(figure|fig\.?|table|graphical abstract|supplementary (figure|table|material))"
+    r"[ _]?[0-9a-z]{0,3}\.?", re.I)
+
 # Instruction-style phrases with no place in a manuscript body. Tuned to avoid
 # firing on ordinary scientific prose ("we recommend a larger cohort").
 INJECTION_PATTERNS = [
@@ -67,7 +82,7 @@ INJECTION_PATTERNS = [
 INJECTION_RE = [re.compile(p, re.I) for p in INJECTION_PATTERNS]
 
 _HIDDEN_KINDS = ("LOW_CONTRAST", "TINY_FONT", "OFF_PAGE", "INVISIBLE")
-_SEV_ORDER = {"HIGH": 0, "MEDIUM": 1, "LOW": 2}
+_SEV_ORDER = {"HIGH": 0, "MEDIUM": 1, "LOW": 2, "INFO": 3}
 _VERDICT_RANK = {"CLEAN": 0, "SUSPICIOUS": 1, "INJECTION DETECTED": 2}
 
 
@@ -75,7 +90,7 @@ _VERDICT_RANK = {"CLEAN": 0, "SUSPICIOUS": 1, "INJECTION DETECTED": 2}
 class Finding:
     page: int            # 1-indexed; 0 = document-level (metadata / whole-text scan)
     kind: str
-    severity: str        # HIGH / MEDIUM / LOW
+    severity: str        # HIGH / MEDIUM / LOW, or INFO (reported, not counted in the verdict)
     text: str
     detail: str = ""
 
@@ -92,11 +107,19 @@ class Report:
         if any(f.kind in ("INJECTION", "METADATA") and f.severity == "HIGH"
                for f in self.findings):
             return "INJECTION DETECTED"
-        return "SUSPICIOUS" if self.findings else "CLEAN"
+        return "SUSPICIOUS" if self.blocking() else "CLEAN"
+
+    def blocking(self) -> list[Finding]:
+        """Findings that count toward the verdict (everything except INFO)."""
+        return [f for f in self.findings if f.severity != "INFO"]
 
 
 def _dist(a: list[int], b: list[int]) -> float:
     return sum((x - y) ** 2 for x, y in zip(a, b)) ** 0.5
+
+
+def _is_figure_label(txt: str) -> bool:
+    return FIGURE_LABEL_RE.fullmatch(" ".join(txt.split())) is not None
 
 
 def audit(manifest: dict) -> tuple[Report, str]:
@@ -137,7 +160,15 @@ def audit(manifest: dict) -> tuple[Report, str]:
             reasons.append(f"TINY_FONT {size:.1f}pt")
         if vfrac < OFF_PAGE_VISIBLE_FRAC:
             reasons.append(f"OFF_PAGE {vfrac*100:.0f}% of box on-page")
-        if reasons:
+        if len(reasons) == 1 and reasons[0].startswith("OFF_PAGE") and _is_figure_label(txt):
+            # Kept in the hidden text the injection scan reads, so that scan behaves
+            # exactly as before; only this span's own finding stops counting.
+            hidden_chunks.append(txt)
+            rep.findings.append(Finding(
+                int(sp.get("page", 0)), "OFF_PAGE", "INFO", txt.strip()[:200],
+                f"{reasons[0]}; figure/table label only (Editorial Manager places "
+                "these off-page); not counted in the verdict"))
+        elif reasons:
             rep.hidden_char_count += len(txt)
             hidden_chunks.append(txt)
             rep.findings.append(Finding(
@@ -180,11 +211,14 @@ def format_report(rep: Report, color: bool) -> str:
     tag = {"CLEAN": "\033[92m", "SUSPICIOUS": "\033[93m",
            "INJECTION DETECTED": "\033[91m"}.get(rep.verdict, "") if color else ""
     end = "\033[0m" if color else ""
+    n_info = len(rep.findings) - len(rep.blocking())
     lines = [f"{tag}== {rep.verdict} =={end}  {rep.source}",
-             f"findings={len(rep.findings)} hidden_chars={rep.hidden_char_count} "
-             f"injection_hits={rep.injection_hits}"]
+             f"findings={len(rep.blocking())} hidden_chars={rep.hidden_char_count} "
+             f"injection_hits={rep.injection_hits}" + (f" info={n_info}" if n_info else "")]
+    if not rep.blocking():
+        lines.append("no hidden or injected text detected."
+                     + (" Off-page figure/table labels listed as INFO." if n_info else ""))
     if not rep.findings:
-        lines.append("no hidden or injected text detected.")
         return "\n".join(lines)
     for f in sorted(rep.findings, key=lambda x: (_SEV_ORDER.get(x.severity, 3),
                                                  x.kind, x.page)):

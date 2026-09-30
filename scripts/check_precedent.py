@@ -63,9 +63,8 @@ STRUCTURAL = [
     # A journal submission ID (LETTERS-D-YY-NNNNN, with or without an RN revision suffix).
     # `/contribute` has blocked this shape from CONTRIBUTIONS since it shipped, rated major, on the
     # grounds that a manuscript under review is confidential and its ID identifies it. Nothing
-    # applied the same rule to the repository's OWN files, and one had been sitting in a shipped
-    # reviewer profile: the toolkit held contributors to a standard it did not hold itself to.
-    # See also reviewer_profiles/README.md, which now requires round + date and forbids the ID.
+    # applied the same rule to the repository's OWN files: the toolkit held contributors to a
+    # standard it did not hold itself to.
     re.compile(r"\b[A-Z]{2,6}(?:-[A-Z])?-\d{2}-\d{3,6}(?:R\d{1,2})?\b"),
 ]
 

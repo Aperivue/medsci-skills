@@ -1,100 +1,32 @@
 # Korean Journal of Radiology (KJR) — Reviewer Profile
 
-## Submission System
-- **Platform:** ScholarOne (http://mc.manuscriptcentral.com/kjr)
-- **Review type:** Double-blind
-- **Two reviewers** assigned per manuscript
+Only what KJR publishes, with the page each item comes from. Recommendation options and scorecard
+fields are not recorded here (see [README](README.md)).
 
-## Required Scorecard (8 items)
+## Journal
 
-Auto-include in every KJR review draft as its own section, above Confidential Comments to the Editor.
+- **Society:** Korean Society of Radiology
+- **Submission system:** ScholarOne (Manuscript Central) — [Instructions for Authors](https://www.kjronline.org/index.php?body=Instruction)
+- **Review model:** double-blind; a submission is generally reviewed by two peer reviewers and the
+  editor(s) — [Instructions for Authors](https://www.kjronline.org/index.php?body=Instruction).
+  Keep the comments free of anything that identifies you.
 
-1. Reader interest
-2. Novelty
-3. Clinical impact
-4. Scientific impact
-5. Methodologic quality
-6. Educational or pictorial quality
-7. Clarity of organization, writing, and language
-8. Overall
+## Comment structure
 
-### Rating Scale (verbatim)
+No public reviewer comment template was found on the journal site. Use the generic two-block format
+in SKILL.md Phase 3 (Confidential Comments to the Editor; Comments to the Authors).
 
-`Not applicable / Excellent / Good / Average (for KJR) / Below Average / Poor`
+## Reviewer AI policy
 
-- **"Average (for KJR)"** is the calibration anchor — the journal's baseline quality bar.
-- Use Good/Excellent only when the manuscript clearly exceeds that bar.
+From the Instructions for Authors, section "Ethical and responsible use of generative artificial
+intelligence (AI)":
 
-### M-Score Mapping
+- Uploading manuscript content or review text to AI services is prohibited unless confidentiality
+  can be reliably assured.
+- AI tools may be used for non-core, assistive purposes under the reviewer's supervision, but core
+  reviewer functions must not be delegated to AI, and AI must not be used for the primary purpose
+  of generating peer-review comments.
+- Use of AI beyond routine linguistic assistance in peer review must be disclosed to the journal.
 
-Journal computes M-Score as mean of per-item ratings on a 0–4 scale:
-
-| Rating | Score |
-|---|---|
-| Excellent | 4 |
-| Good | 3 |
-| Average (for KJR) | 2 |
-| Below Average | 1 |
-| Poor | 0 |
-
-### Recommendation ↔ M-Score Alignment
-
-| Recommendation | M-Score range |
-|---|---|
-| Accept | ~3.5+ |
-| Minor Revision | ~2.5–3.0 |
-| Major Revision | ~1.5–2.5 |
-| Reject: Resubmission allowed | ~1.0–1.5 |
-| Reject | <1.0 |
-
-## Additional Required Fields
-
-- **Conflict of interest** (explicit "None" when applicable) — required form field.
-- **Recommendation options:** Accept / Minor Revision / Major Revision / Reject: Resubmission allowed / Reject.
-- **Web of Science recognition radio (`*` required):** Yes / No. Missing selection blocks submission; recommend Yes for peer-review credit accumulation.
-
-## Pre-submission portal verification (confirmation PDF)
-
-Before clicking submit, export confirmation PDF and verify against draft side by side:
-- [ ] All 8 scorecard items selected (no blank radios)
-- [ ] **Overall scorecard ↔ Recommendation alignment** — scorecard mean (M-Score) should land in the same band as the chosen Recommendation (see Recommendation ↔ M-Score table above). Mismatch is a reviewer credibility distractor for the editor.
-- [ ] Web of Science recognition radio explicitly Yes or No (not blank)
-- [ ] Confidential Comments to Editor body verbatim matches final draft
-- [ ] Comments to Author body verbatim matches final draft (incl. all Major and Minor numbering)
-- [ ] COI field has "none" or actual disclosure (not blank)
-- [ ] Recommendation radio matches final draft (not default Accept)
-
-## Draft Structure Template
-
-```
-## KJR Reviewer Scorecard (ScholarOne)
-
-Rating scale: Not applicable / Excellent / Good / Average (for KJR) / Below Average / Poor
-
-| Item | Rating | Rationale |
-|---|---|---|
-| Reader interest | ... | ... |
-| Novelty | ... | ... |
-| Clinical impact | ... | ... |
-| Scientific impact | ... | ... |
-| Methodologic quality | ... | ... |
-| Educational or pictorial quality | ... | ... |
-| Clarity of organization, writing, and language | ... | ... |
-| Overall | ... | ... |
-
-Conflict of interest: None.
-
----
-
-## CONFIDENTIAL COMMENTS TO THE EDITOR
-...
-
-## COMMENTS TO THE AUTHORS
-...
-```
-
-## Journal Notes
-
-- Double-blind: ensure comments do not reveal reviewer identity/affiliation.
-- AI policy: reviewers/editors must not upload manuscript content to AI services unless confidentiality is reliably assured; core reviewer functions (generating review comments) must not be delegated to AI. Any non-linguistic AI assistance must be disclosed.
-
+Source: [Instructions for Authors](https://www.kjronline.org/index.php?body=Instruction), which
+points to [doi:10.3348/kjr.2026.0166](https://doi.org/10.3348/kjr.2026.0166) for detail.

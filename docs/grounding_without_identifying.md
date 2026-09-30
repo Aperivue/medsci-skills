@@ -97,9 +97,8 @@ switched off. One case exists purely to stop tier 2 going quiet again.
 A model's verdict is an opinion, not a finding. Read the block yourself before acting on it — and
 before dismissing it.
 
-## Prior art in this repository
+## The rule taken to its end
 
-`skills/peer-review/references/reviewer_profiles/README.md` reached the same rule independently and
-earlier, for one directory: *"Date and round only — never the manuscript ID."* The audit found
-those profiles clean. A written convention held where an unwritten one did not, which is the
-argument for this page existing.
+`skills/peer-review/references/reviewer_profiles/` carries only what each journal publishes, with a
+link for every item, so there is no provenance in it to scrub. When the provenance is itself the
+risk, the strongest version of the rule is not to record it.

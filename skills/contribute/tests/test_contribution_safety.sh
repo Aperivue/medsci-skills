@@ -86,8 +86,7 @@ ck "MRN, national ID, IRB, manuscript ID, name, path all caught" 0 "$?"
 #
 # The plain form was caught from the day this shipped. The revision form was not: `\d{3,6}\b`
 # cannot match `00203R2`, since R is a word character and there is no boundary before it. Revised
-# IDs are the ones a reviewer handles most, and one had been sitting in a shipped reviewer profile
-# in this repository while the scanner reported the file clean.
+# IDs are the ones a reviewer handles most, so missing them is the expensive miss.
 python3 - "$TMP/leaky.json" <<'PY'
 import json, sys
 found = {f["match"] for f in json.load(open(sys.argv[1]))["findings"]

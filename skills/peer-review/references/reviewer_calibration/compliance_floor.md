@@ -15,8 +15,8 @@ weight**. Calibrate the reviewer comment to *which* items are missing, not just 
    journal has not published.
 3. **The journal's own required elements are hard.** A missing structured-abstract heading,
    a missing required panel (e.g., Key Points / Summary Statement), or the wrong reporting
-   checklist for the study type is a concrete, citable gap — but those facts live in
-   `reviewer_profiles/` and the author guidelines; verify there, never invent them.
+   checklist for the study type is a concrete, citable gap — but those facts live in the
+   journal's author guidelines; verify there, never invent them.
 
 ## Critical items by guideline (MISSING → Major / reject-risk)
 
@@ -66,7 +66,7 @@ rather than as a design-level risk-of-bias failure.
 - A **critical item is MISSING** (above) — the strongest single signal.
 - The manuscript uses the **wrong reporting guideline** for its design (e.g., a prediction
   model reported only against STROBE).
-- A journal **required element is absent** (per `reviewer_profiles/` + author guidelines).
+- A journal **required element is absent** (per the journal's author guidelines).
 - The **reporting checklist is not uploaded** or references a stale manuscript version.
 
 When several co-occur, say so in the Confidential Comments to the Editor as a coherent

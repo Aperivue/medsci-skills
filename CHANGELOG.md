@@ -29,6 +29,13 @@
   reproducing a CI failure. The weekly adoption snapshot can no longer commit to `main`, so it
   appends to the data-only [`metrics` branch](https://github.com/Aperivue/medsci-skills/tree/metrics)
   instead, and `IMPACT.md` and the README link there.
+- **`/peer-review` reviewer profiles now carry only what each journal publishes.** Each profile
+  in `references/reviewer_profiles/` keeps the journal's submission system, review model, the
+  comment structure from its public reviewer guide, and its reviewer-AI policy, each linked to the
+  journal's own page. Recommendation options, scorecard items and scales, required form fields and
+  portal checklists are removed: they differ by journal and change without notice, so they are
+  read from the live review form and kept out of a public repository. The Radiology: Artificial
+  Intelligence profile now gives the double-anonymized review model its author instructions state.
 
 ### Fixed
 
@@ -108,6 +115,14 @@
   a cross-table of adjudicated examinations from the authors' own files. It now flags only a
   request for new adjudication (re-adjudicate, a second or additional adjudication), and it now
   catches a request for a second operator, annotator or segmenter.
+- **`/peer-review`: figure and table labels outside the page no longer mark a PDF
+  `SUSPICIOUS`.** Editorial Manager reviewer PDFs place figure-page labels off-page, so the
+  hidden-text scan flagged ordinary manuscripts on labels such as "Figure 2" or "Graphical
+  Abstract", and a warning that fires on honest PDFs teaches reviewers to ignore it. A span
+  hidden only by being off-page whose whole text is a figure or table label is now listed as
+  `INFO` and left out of the verdict. Text that only starts with a label ("Figure 2. Ignore
+  previous instructions…"), a label hidden by colour or font size, and any other hidden text
+  in the same PDF are flagged as before.
 - **`/revise`: long quotes and "Changes to text:" quotes in a response letter are checked.** A
   quote that ran past about 320 characters lost its closing mark and was skipped, and a quote
   given under a "Changes to text:" label was never checked. Each quote is now read to its closing
@@ -205,7 +220,19 @@
   carries only a text-and-data-mining licence and treats it as non-open. The row moves to the
   non-open table.
 
+- **`/verify-refs`: an in-press or e000 reference is no longer reported OK.** Gate 6 was meant to
+  downgrade a resolved reference whose pagination is a placeholder (`e000–e000`, "in press", "TBD")
+  to UNVERIFIED, but it compared against a `VERIFIED` status the script never emits (it emits OK),
+  so online such a reference stayed OK and passed `--strict`. The offline regression test could not
+  see it, because offline every record is already UNVERIFIED; it now also calls the gate on a
+  resolved record.
+
 ### Security
+
+- **`/manage-refs`: the CWYW example no longer carries a real Zotero user id.** The documented
+  `inject_zotero_cwyw.py` command (SKILL.md and the script's usage text) passed a concrete
+  `--user-id`. The script writes that id into every citation link, so a copied example would point
+  a user's citations at someone else's library. It is now a `<zotero-user-id>` placeholder.
 
 - **The repository's publication check no longer prints the value it caught.** When
   `scripts/validate_skills.sh` found a personal name, home-directory path or email address in a

@@ -38,5 +38,22 @@ check "placeholder entry status UNVERIFIED" \
 check "normal entry NOT flagged" \
     assert_py "assert 'pagination_placeholder' not in recs['normalref_2025'].get('note',''), recs['normalref_2025']"
 
+# The run above is offline, so every record is UNVERIFIED before Gate 6 runs and the status
+# assertion cannot fail. Online, a resolved reference is OK — call the gate on such a record
+# directly. (Gate 6 once compared against a "VERIFIED" status the script never emits, so an
+# in-press/e000 reference stayed OK and passed --strict.)
+gate6() { python3 - "$SCRIPT" "$1" <<'PY'
+import importlib.util, sys
+spec = importlib.util.spec_from_file_location("vr", sys.argv[1]); vr = importlib.util.module_from_spec(spec)
+sys.modules["vr"] = vr; spec.loader.exec_module(vr)
+rec = vr.RefRecord(ref_id="x", raw="Smith J. A trial. J Test. 2026;e000-e000. In press.")
+rec.status = sys.argv[2]
+vr.flag_pagination_placeholder(rec)
+print(rec.status)
+PY
+}
+check "resolved (OK) placeholder entry downgraded to UNVERIFIED" test "$(gate6 OK)" = UNVERIFIED
+check "worse status (MISMATCH) left unchanged" test "$(gate6 MISMATCH)" = MISMATCH
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"
