@@ -48,7 +48,7 @@ Title, abstract, and keywords together should cover the concept's key terms, wit
 Include the journal-specific summary box verbatim when supported; it is the fragment AI search engines most often copy or paraphrase:
 - Lancet family: "Research in context" (Evidence before this study / Added value / Implications).
 - RSNA Radiology and RYAI: "Key Points" — 3 bullets, one claim each.
-- npj Digital Medicine: "Plain-language summary" (150–200 words, 8th-grade reading level).
+- npj Digital Medicine: no summary box; Articles carry an unstructured abstract of up to 150 words.
 - Nature Medicine: editor's summary (supplied by editorial, but draft one proactively).
 
 Journal-specific templates: `references/journal_summarybox_templates.yaml`. Never invent a summary-box rule: verify each template against the journal's current instructions for authors before applying it.
