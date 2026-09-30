@@ -452,5 +452,19 @@ for seed in range(1000):
     for a in audit:
         assert a['after_value'] not in ('2001-02-03', '1999-12-31'), (seed, a)" "$SKILL"
 
+# --- Excel timestamps keep fractional seconds ---
+# 12:00:00.100 and 12:00:00.900 were both read as 12:00:00, so a 0.8 s
+# interval became 0.
+check "excel dates: fractional seconds keep their interval" python3 -c "
+import sys; sys.path.insert(0, sys.argv[1])
+from datetime import datetime
+import deidentify as d
+a = d._cell_text(datetime(2021, 5, 3, 12, 0, 0, 100000))
+b = d._cell_text(datetime(2021, 5, 3, 12, 0, 0, 900000))
+s = d.DateShifter(seed=7)
+sa, sb = s.shift(a, 'p'), s.shift(b, 'p')
+assert (datetime.fromisoformat(sb) - datetime.fromisoformat(sa)).total_seconds() == 0.8, (a, b, sa, sb)
+assert d._cell_text(datetime(2021, 5, 3, 12, 0, 0)) == '2021-05-03 12:00:00'" "$SKILL"
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

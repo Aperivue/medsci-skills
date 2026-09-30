@@ -300,11 +300,14 @@ def detect_encoding(path: Path) -> str:
 def _cell_text(v) -> str:
     """Excel cell value as text. Native dates become ISO text the date
     shifter can parse; str() gave "2020-01-02 00:00:00", which it could not,
-    so every Excel date was replaced by [DATE_SHIFTED] and intervals were lost."""
+    so every Excel date was replaced by [DATE_SHIFTED] and intervals were lost.
+    Fractional seconds are kept: dropping them turned a 0.8 s interval into 0."""
     if v is None:
         return ""
     if isinstance(v, datetime):
-        return v.strftime("%Y-%m-%d") if v.time() == time(0) else v.strftime("%Y-%m-%d %H:%M:%S")
+        if v.time() == time(0):
+            return v.strftime("%Y-%m-%d")
+        return v.strftime("%Y-%m-%d %H:%M:%S.%f" if v.microsecond else "%Y-%m-%d %H:%M:%S")
     if isinstance(v, date):
         return v.isoformat()
     return str(v)
@@ -947,6 +950,7 @@ class DateShifter:
         for fmt_in, fmt_out in [
             ("%Y-%m-%d", "%Y-%m-%d"),
             ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M:%S"),
+            ("%Y-%m-%d %H:%M:%S.%f", "%Y-%m-%d %H:%M:%S.%f"),
             ("%Y-%m-%d %H:%M", "%Y-%m-%d %H:%M"),
             ("%Y-%m-%dT%H:%M:%S", "%Y-%m-%dT%H:%M:%S"),
             ("%Y.%m.%d", "%Y.%m.%d"),
