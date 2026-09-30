@@ -168,6 +168,10 @@ CI mode validates before rendering and rejects (exit 2) if any of: zones > 3, la
 
 ## Workflow
 
+Any reference in a caption, legend or illustration needs a DOI or PMID confirmed via `/search-lit`;
+mark one you cannot confirm `[UNVERIFIED - NEEDS MANUAL CHECK]`. Mark an unconfirmed clinical
+definition, criterion or guideline claim `[VERIFY]` and ask — the submission gates block on both.
+
 ### Step 1: Specify
 
 **Before specifying figure type, read `${CLAUDE_SKILL_DIR}/references/design_principles.md`** —
