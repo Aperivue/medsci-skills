@@ -59,6 +59,15 @@
   read from the live review form and kept out of a public repository. The Radiology: Artificial
   Intelligence profile now gives the double-anonymized review model its author instructions state.
 
+### Removed
+
+- **`/batch-cohort` no longer ships its unused KNHANES template, generator and variable list (v6).**
+  `SKILL.md` never pointed to them, and the template was wrong in two ways: the generator left its
+  data-path slot unfilled, so every generated script failed on its first read, and it dropped rows
+  before declaring the survey design, which `/analyze-stats`' survey guide forbids because it
+  misstates the standard errors. Its variable codings included definitions still to be checked
+  against the KNHANES codebook. The skill clones the validated script you bring, as before.
+
 ### Fixed
 
 - **Instructions that did not match the code, found while shortening the skills (v6).**
