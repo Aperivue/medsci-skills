@@ -1,4 +1,4 @@
-# Uncertainty / OOD guide (uncertainty-imaging)
+# Uncertainty / OOD guide (model-assessment, Part C)
 
 Load-on-demand notes for adding a defensible uncertainty / out-of-distribution (OOD) /
 abstention layer to a deployment-framed medical-imaging model. Integrate the libraries
@@ -61,7 +61,7 @@ in-distribution only (`NO_CALIBRATION_UNDER_SHIFT`). Temporal (later-year) or ex
 data is the realistic stress; synthetic corruptions (noise, blur) are a weaker supplement.
 
 ## Reporting
-Fill the uncertainty manifest and hand off to `/model-evaluation` (executed calibration /
+Fill the uncertainty manifest and hand off to Part B (executed calibration /
 subgroup) and `/analyze-stats` (calibration curve, risk–coverage plot). Deployment-framed
 claims are governed by **TRIPOD+AI** and **DECIDE-AI** (early-stage clinical evaluation +
 monitoring) — `/check-reporting` covers the items. State the method, the validation set, the
@@ -88,6 +88,6 @@ deployment claim.
 ```
 
 ## Hand-offs
-- Point-predictor metrics + calibration this layer sits on → `/model-evaluation` → `/analyze-stats`.
-- The split / validation-design audit → `/model-validation` (DECIDE-AI monitoring seam).
+- Point-predictor metrics + calibration this layer sits on → Part B → `/analyze-stats`.
+- The split / validation-design audit → Part A (DECIDE-AI monitoring seam, Phase 6).
 - Reporting fit → `/check-reporting` (TRIPOD+AI / DECIDE-AI).

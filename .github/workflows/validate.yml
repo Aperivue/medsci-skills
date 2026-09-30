@@ -553,11 +553,11 @@ jobs:
       - name: Run self-review cohort-arithmetic gate test
         run: bash skills/self-review/tests/test_cohort_arithmetic.sh
 
-      - name: Run model-validation split-leakage challenge
-        run: bash skills/model-validation/scripts/check_split_leakage_challenge/verify.sh
+      - name: Run model-assessment split-leakage challenge
+        run: bash skills/model-assessment/scripts/check_split_leakage_challenge/verify.sh
 
-      - name: Run model-validation split-leakage gate test
-        run: bash skills/model-validation/tests/test_split_leakage.sh
+      - name: Run model-assessment split-leakage gate test
+        run: bash skills/model-assessment/tests/test_split_leakage.sh
 
       - name: Run imaging-data dataset-profile challenge
         run: bash skills/imaging-data/scripts/check_dataset_profile_challenge/verify.sh
@@ -574,11 +574,11 @@ jobs:
       - name: Run imaging-data leakage gate test
         run: bash skills/imaging-data/tests/test_preprocessing_leakage.sh
 
-      - name: Run explainability report challenge
-        run: bash skills/explainability/scripts/check_explainability_report_challenge/verify.sh
+      - name: Run model-assessment explainability-report challenge
+        run: bash skills/model-assessment/scripts/check_explainability_report_challenge/verify.sh
 
-      - name: Run explainability report gate test
-        run: bash skills/explainability/tests/test_explainability_report.sh
+      - name: Run model-assessment explainability-report gate test
+        run: bash skills/model-assessment/tests/test_explainability_report.sh
 
       - name: Run radiomics-ml pipeline challenge
         run: bash skills/radiomics-ml/scripts/check_radiomics_ml_challenge/verify.sh
@@ -592,11 +592,11 @@ jobs:
       - name: Run model-scaffold training-hygiene gate test
         run: bash skills/model-scaffold/tests/test_training_hygiene.sh
 
-      - name: Run uncertainty-imaging reporting challenge
-        run: bash skills/uncertainty-imaging/scripts/check_uncertainty_reporting_challenge/verify.sh
+      - name: Run model-assessment uncertainty-reporting challenge
+        run: bash skills/model-assessment/scripts/check_uncertainty_reporting_challenge/verify.sh
 
-      - name: Run uncertainty-imaging reporting gate test
-        run: bash skills/uncertainty-imaging/tests/test_uncertainty_reporting.sh
+      - name: Run model-assessment uncertainty-reporting gate test
+        run: bash skills/model-assessment/tests/test_uncertainty_reporting.sh
 
       - name: Run model-card completeness challenge
         run: bash skills/model-card/scripts/check_model_card_complete_challenge/verify.sh
@@ -604,11 +604,11 @@ jobs:
       - name: Run model-card completeness gate test
         run: bash skills/model-card/tests/test_model_card_complete.sh
 
-      - name: Run model-evaluation metric-reporting challenge
-        run: bash skills/model-evaluation/scripts/metric_reporting_challenge/verify.sh
+      - name: Run model-assessment metric-reporting challenge
+        run: bash skills/model-assessment/scripts/metric_reporting_challenge/verify.sh
 
-      - name: Run model-evaluation metric-reporting gate test
-        run: bash skills/model-evaluation/tests/test_metric_reporting.sh
+      - name: Run model-assessment metric-reporting gate test
+        run: bash skills/model-assessment/tests/test_metric_reporting.sh
 
       - name: Run mllm-eval completeness challenge
         run: bash skills/mllm-eval/scripts/mllm_eval_completeness_challenge/verify.sh

@@ -1,4 +1,4 @@
-# Metric-selection grounding and CLAIM 2024 reporting fit (model-evaluation)
+# Metric-selection grounding and CLAIM 2024 reporting fit (model-assessment, Part B)
 
 The *why* behind the operational checklist in `metric_guide.md`. Where `metric_guide.md` says
 **what** to compute, this doc grounds **why** that pairing is required and where the outputs land
@@ -83,12 +83,12 @@ is `scripts/check_metric_reporting.py`.
   thin.
 - Need enough events per subgroup to estimate the metric; otherwise **say so** rather than report a
   noisy point estimate.
-- This is disaggregated *reporting*. The formal fairness/equity audit lives in `/model-validation`
+- This is disaggregated *reporting*. The formal fairness/equity audit lives in Part A
   plus the equity probe — cross-reference, do not duplicate it here.
 
 ## CLAIM 2024 reporting fit — where the eval outputs land
 
-CLAIM 2024 organises items under the manuscript sections. The model-evaluation deliverable feeds the
+CLAIM 2024 organises items under the manuscript sections. The Part B deliverable feeds the
 **Methods** (metric definitions, reference standard, data partition, threshold selection) and the
 **Results** (metrics with uncertainty, calibration, subgroup/failure analysis). `/check-reporting`
 owns the item-by-item CLAIM 2024 / TRIPOD+AI audit; this is the routing map.
@@ -97,7 +97,7 @@ owns the item-by-item CLAIM 2024 / TRIPOD+AI audit; this is the routing map.
 |---|---|---|
 | Metric definitions + how each was computed | Methods | Name the metric and its formula/library; no undefined "accuracy" headline. |
 | Reference / ground-truth standard + how derived | Methods | Reader count, blinding, adjudication — state it. |
-| Held-out, patient-level data partition | Methods | Cross-link `/model-validation` (split leakage). |
+| Held-out, patient-level data partition | Methods | Cross-link Part A Phase 2 (split leakage). |
 | Performance metrics **with uncertainty (CIs)** | Results | Bootstrap CIs at the analysis unit. |
 | Calibration (reliability diagram + ECE/Brier) | Results | Required alongside discrimination (TRIPOD+AI). |
 | Subgroup + failure-case analysis | Results | Per-subgroup n; flag thin slices. |

@@ -1,4 +1,4 @@
-# Validation-design reference (model-validation)
+# Validation-design reference (model-assessment, Part A)
 
 Load-on-demand backbone for Phases 2–7 — the leakage taxonomy, the internal-vs-external
 tier ladder, comparator design, run variance, test-set sizing, and the reporting map. Anchored
@@ -126,8 +126,8 @@ sensitivity can be statistically uninformative even when the cohort is large.
   sample size) to `/calc-sample-size`.
 
 Metric **selection** (Dice + boundary metric; AUROC + AUPRC under imbalance; FROC/mAP with the IoU
-criterion) is owned by `/model-evaluation` (`references/metric_guide.md`, anchored to Metrics
-Reloaded); this skill only checks that the chosen metric is task- and prevalence-correct.
+criterion) is owned by Part B (`references/metric_guide.md`, anchored to Metrics
+Reloaded); Part A only checks that the chosen metric is task- and prevalence-correct.
 
 ## 6. Reporting-guideline fit
 
@@ -150,7 +150,7 @@ comparison to current practice, reproducibility).
 - Patient-disjointness proof → `scripts/check_split_leakage.py` (Phase 2, run first).
 - Test-set / event sizing → `/calc-sample-size`.
 - Reader-comparison rubric + inter-rater design → `/design-ai-benchmarking`.
-- Per-case metric computation + reporting gate → `/model-evaluation` → `/analyze-stats`.
+- Per-case metric computation + reporting gate → Part B (Phases 8–9) → `/analyze-stats`.
 - Item-by-item compliance → `/check-reporting`; Methods write-up → `/write-paper`; reviewer-side
   audit of the finished draft → `/self-review` (MD0–MD11 `model_development.md` probe).
 
@@ -166,7 +166,7 @@ comparison to current practice, reproducibility).
 - **Internal vs external, optimism correction, CV ≠ external** — TRIPOD 2015 (Collins, Reitsma,
   Altman, Moons) and TRIPOD+AI (*BMJ* 2024). The tier ladder mirrors the skill's Phase 3.
 - **Metric selection deferral** — Metrics Reloaded (Maier-Hein & Reinke et al., *Nature Methods*
-  2024); detail lives in `/model-evaluation`.
+  2024); detail lives in Part B.
 - **Reporting map** — CLAIM 2024 update (Tejani et al., *Radiology: AI* 2024) on base CLAIM 2020
   (Mongan, Moy, Kahn); TRIPOD+AI (*BMJ* 2024); STARD-AI (Sounderajah et al., *Nature Medicine*
   2025) on base STARD 2015 (Bossuyt et al., *BMJ* 2015); PROBAST+AI (Moons et al., *BMJ* 2025) on

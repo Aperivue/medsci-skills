@@ -1,4 +1,4 @@
-# Metric guide (model-evaluation)
+# Metric guide (model-assessment, Part B)
 
 Load-on-demand reference for computing task-correct held-out metrics. Anchored to
 **Metrics Reloaded** (Maier-Hein & Reinke et al., *Nat Methods* 2024) and its pitfalls
@@ -37,7 +37,7 @@ the interaction axis (`INTERACTIVE_NO_INTERACTION_COUNT`, Major), the initial-vs
 (`INTERACTIVE_NO_CONVERGENCE`, Minor), or per-case time (`INTERACTIVE_NO_TIME`, Minor). The **study
 design** for an interactive evaluation — the human-as-operator reader arm and the two-arm
 (simulated-prompting + human-operator validation) protocol-fidelity check — is covered in
-`/design-study` and `/model-validation`.
+`/design-study` and Part B Phase 8 (protocol fidelity).
 
 ## Classification
 - **Discrimination with CIs**: **AUROC and AUPRC** (AUPRC tracks the minority class under
@@ -73,14 +73,14 @@ Grounded in Park et al., *Radiol Med* 2024.
 ## Time-to-event (survival)
 Discrimination for a time-to-event outcome uses **Harrell's C-index** and **time-dependent ROC/AUC**
 (Park et al., *Radiol Med* 2024), not a static AUROC. These — with the comparative inference and
-calibration-in-time — are computed and gated in **`/analyze-stats`** (survival domain); `/model-evaluation`
+calibration-in-time — are computed and gated in **`/analyze-stats`** (survival domain); this skill
 emits the per-case risk scores and hands them over, so the deterministic anchor for survival
 discrimination lives in `/analyze-stats`, not in this reporting gate (stated per the no-prose-only rule).
 
 ## Subgroup / fairness
 - Slice every headline metric by the Model Card **Factors** (scanner/vendor, site, age, sex,
   severity); enough events per subgroup to estimate it (else say so). Defer fairness depth to
-  `/model-validation` + the equity probe.
+  Part A + the equity probe.
 
 ## Run variance
 - Report the headline as **mean ± SD over ≥ 3 seeds/runs**, or a fixed reported seed with the

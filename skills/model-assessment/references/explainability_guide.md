@@ -1,6 +1,6 @@
 # Medical-imaging explainability — method, sanity, localisation
 
-Companion to `explainability`. This is *produce* knowledge: which XAI method fits which architecture,
+Companion to `model-assessment` Part D. This is *produce* knowledge: which XAI method fits which architecture,
 the sanity checks a faithful map must pass, how to measure localisation quantitatively, and how to
 frame the result honestly. It wires captum / pytorch-grad-cam by name; it does not reimplement them.
 
