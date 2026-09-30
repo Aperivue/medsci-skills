@@ -91,9 +91,8 @@ APPROVAL_ID = re.compile(
 #
 #   MISSED  the revision suffix. `\d{3,6}\b` cannot match a five-digit serial followed by `R1`
 #           (R is a word character, so there is no boundary), so EVERY revised ID was invisible.
-#           Revised IDs are the ones a reviewer handles most, and one had been sitting in a shipped
-#           reviewer profile in this repository. Writing the offending literal here would have put
-#           it straight back into a public file -- the repo's own precedent gate caught that too.
+#           Revised IDs are the ones a reviewer handles most. (No literal example here: writing
+#           one would put it into a public file, which the repo's precedent gate also blocks.)
 #   FIRED   `10.7326/ANNALS-25-02104` — a published DOI. Annals of Internal Medicine mints DOIs in
 #           exactly this shape, so the vendored QUADAS-3 checklist citing its own source tripped a
 #           MAJOR finding.

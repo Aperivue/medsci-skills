@@ -26,10 +26,10 @@ rounds of review.
 ## Why a script and not a sentence
 
 The rule already exists. `/peer-review` Phase 3 states it in prose; Phase 6 lists
-it as a checkbox. **Prose did not bind.** In the first live review after the rule
-shipped, a draft went out with fifteen asks, six of them computation and one
-requiring a second reader — and it **passed every neighbouring gate**: word count,
-em-dash density, forbidden recommendation words, attitude markers, hedging ratio.
+it as a checkbox. **Prose does not bind.** A draft dominated by computation
+requests, including one that needs a second reader, **passes every neighbouring
+gate**: word count, em-dash density, forbidden recommendation words, attitude
+markers, hedging ratio.
 
 Those gates held because they are scripts. This one failed because it was a
 sentence. The difference was not importance — request-type is the most important

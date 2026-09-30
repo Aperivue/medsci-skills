@@ -158,7 +158,7 @@ every PDF that actually carried a packet.
 
 ### Phase 2F: Recommendation Calibration for AI/Method and Review Papers
 
-Before finalizing **Major Revision** (or, for AJR-style forms, a Reconsider tier) for an original AI, LLM,
+Before finalizing **Major Revision** (or a journal's reconsider-after-revision tier) for an original AI, LLM,
 or methodology paper **— or for a Review / narrative / primer article —** explicitly run this calibration
 gate. It prevents a valid issue list from under-weighting contribution and priority.
 
@@ -210,7 +210,7 @@ deliverable itself. Therefore **weak novelty / no distinct contribution / not do
 unfixable-in-current-form**: "add a distinct contribution" asks for a substantially different paper, so each
 gap looking individually "addressable in revision" is a trap. When RV1 (novelty) is a Major in a saturated
 space and no distinct contribution exists, escalate the recommendation one tier toward Reject (e.g.,
-Reconsider → Reject) rather than defaulting to the revision tier.
+reconsider → reject) rather than defaulting to the revision tier.
 
 **Confidential-note Reject-grade self-grep**: before committing the recommendation, re-read your own
 Confidential Comments to the Editor. If they contain Reject-grade language — "hard to distinguish from work
@@ -253,7 +253,7 @@ does not apply* — read that before deciding a row does not fire.
 
 ### Phase 2F: Recommendation Calibration for AI/Method and Review Papers
 
-Before finalizing **Major Revision** (or an AJR-style Reconsider tier) for an original AI,
+Before finalizing **Major Revision** (or a journal's reconsider tier) for an original AI,
 LLM or methodology paper — or for a Review / narrative / primer article — run the calibration
 gate in `${CLAUDE_SKILL_DIR}/references/reviewer_calibration/recommendation_calibration.md`.
 It stops a valid issue list from under-weighting contribution and priority. Peer-review only:
@@ -287,7 +287,7 @@ the anchoring and phrasing; do not copy — they are synthetic teaching examples
 
 A computation request must carry an explicit justification that the existing tables cannot answer the question; otherwise reword it as disclosure or drop it. Prefer **naming the estimator** you want (e.g. *Hodges–Lehmann pseudomedian*) over a loose phrase (*"paired median differences"*), which authors adopt verbatim (an odd-n integer-scale "median difference" is impossible — `check_paired_difference_estimator.py`). A comment may be **both** — split it: never *request* a subset-vs-parent-cohort P value, because the groups are nested and the test is invalid (`check_nested_group_comparison.py`, and the observational/DTA domain probes); ask for the subset's characteristics (disclosure) and judge representativeness by magnitude. This is not "ask for less" — a short review with two computation requests is worse than a long one with ten disclosure requests.
 
-**This rule is enforced, not merely stated.** It shipped as prose once and did not bind: the first live review after it landed went out with six computation requests and a demand for a second reader, and passed every neighbouring gate (word count, em-dash density, forbidden words, attitude markers) because those are scripts and this was a sentence. Run the gate on your own draft before Phase 5:
+**This rule is enforced, not merely stated.** Stated only in prose it does not bind: a draft full of unjustified computation requests passes every neighbouring gate (word count, em-dash density, forbidden words, attitude markers), because those are scripts and this is a sentence. Run the gate on your own draft before Phase 5:
 
 ```bash
 python3 "${CLAUDE_SKILL_DIR}/scripts/check_review_request_types.py" \
@@ -366,7 +366,7 @@ After drafting, verify mechanically:
 10. **SR-MA-specific QC** (if Phase 2A applied): Confirm the P0 internal-consistency gate was run before any fabrication claim. For each P1–P19 probe used, verify the corresponding Major comment cites source PMID + source page/table reference + verbatim quote, and that no probe lead was promoted to a finding without source confirmation (leads-vs-findings discipline). Reviews citing extraction errors without source-page reference are not actionable for authors.
 11. **Radiomics-reproducibility QC** (if Phase 2C applied): If an acquisition-parameter sweep predicts an outcome from its own grid axes (R1 design-grid circularity) or the substantive result is a cross-domain failure framed as success (R3), confirm the recommendation reflects design-level severity and is not softened to a reporting fix. Where a model × threshold/cohort grid yields a few p < 0.05, confirm the multiplicity / expected-false-positive count is named (R4), not deferred to "statistical review needed."
 12. **Review-article QC** (if Phase 2D applied): Confirm RV1–RV9 are reflected — in particular that novelty/value-add (RV1) is raised for a saturated topic and that gap-filling (RV8) is present, not just error-spotting. Verify SANRA is used as an appraisal aid, not over-enforced as a reporting guideline (no PRISMA demand on a narrative review; only RV3 is SANRA-aligned and phrased as a suggestion). Verify every suggested addition uses "consider adding" phrasing (no "must cite"), is source-confirmed, and that preprints are labeled as preprints (not equated with peer-reviewed guidelines). Confirm Phase 2F was run for the recommendation: when RV1 novelty is a Major in a saturated space with no distinct contribution, the recommendation is escalated toward Reject (the contribution IS the product — weak novelty is unfixable-in-current-form), not defaulted to the revision/Reconsider tier.
-13. **AI/method/review priority QC**: Before a Major Revision (or Reconsider) recommendation, confirm Phase 2F
+13. **AI/method/review priority QC**: Before a Major Revision (or reconsider-tier) recommendation, confirm Phase 2F
     was run. If novelty and clinical/research utility are both weak, the recommendation must reflect that
     contribution-level concern rather than treating all issues as fixable reporting defects. When fixable and
     unfixable defects coexist, confirm the unfixable class governs the tier, and that the Confidential
@@ -404,7 +404,7 @@ Fix all issues found, then present to user.
 - [ ] Impossibility claims (requires/cannot/impossible/must/contradicts) restated as premise→conclusion + counterexample-tested; reviewer-requested new statistics re-derived from the manuscript's own cells (correctness ≠ presence)
 - [ ] Fatal flaw hierarchy stated in Confidential Comments (if applicable)
 - [ ] Reject recommendations (if used): §1C condition checklist (design-level flaw + speculative practical value 3-trigger + novelty gap) explicitly verified — at least 2 of 3 conditions met
-- [ ] AI/method/review Major Revision (or Reconsider) recommendations: Phase 2F contribution/value gate checked; weak novelty + weak utility not silently softened; for review articles, weak-novelty/no-distinct-contribution treated as unfixable-in-current-form (escalate toward Reject); unfixable defects govern tier over fixable list; confidential note carries no Reject-grade language left inconsistent with a softer recommendation
+- [ ] AI/method/review Major Revision (or reconsider-tier) recommendations: Phase 2F contribution/value gate checked; weak novelty + weak utility not silently softened; for review articles, weak-novelty/no-distinct-contribution treated as unfixable-in-current-form (escalate toward Reject); unfixable defects govern tier over fixable list; confidential note carries no Reject-grade language left inconsistent with a softer recommendation
 
 ## Tone and Calibration
 
