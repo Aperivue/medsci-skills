@@ -1,6 +1,6 @@
 # Medical-imaging preprocessing — modality-aware guidance
 
-Companion to `preprocess-imaging`. This is *produce* knowledge: what preprocessing is standard per
+Companion to `imaging-data` (Phases 4–7). This is *produce* knowledge: what preprocessing is standard per
 modality, which augmentations preserve versus break physiology, and where leakage hides. It wires
 MONAI / TorchIO transforms by name; it does not reimplement them.
 
