@@ -553,8 +553,8 @@
     },
     {
       "path": "skills/author-strategy/SKILL.md",
-      "size": 9209,
-      "sha256": "9c97ad0ff206f4b026aa8190d2d6cc79f81f1c127534b0fe190b64f0c33b1add"
+      "size": 7393,
+      "sha256": "27ea99d0cfb68b449dea5866dabfd1ab27ec199894f39c8f6d8dc3f21d140a0c"
     },
     {
       "path": "skills/author-strategy/analyze_patterns.py",
