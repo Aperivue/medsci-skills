@@ -276,7 +276,7 @@ The recommended end-to-end data cleaning workflow:
 
 ## 8. Key References
 
-1. Van den Broeck J, Cunningham SA,"; R,"; AB. Data cleaning: detecting,
+1. Van den Broeck J, Cunningham SA, Eeckels R, Herbst K. Data cleaning: detecting,
    diagnosing, and editing data abnormalities. *PLoS Med*. 2005;2(10):e267.
    DOI: 10.1371/journal.pmed.0020267
 

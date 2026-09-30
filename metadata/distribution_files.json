@@ -1003,8 +1003,8 @@
     },
     {
       "path": "skills/clean-data/references/cleaning_patterns.md",
-      "size": 11854,
-      "sha256": "f774ca7d6da6bf4cb95bf813a2b06332d37e755f55f31e669a8a4c675af7020a"
+      "size": 11864,
+      "sha256": "e39f89d2b3ef3dbe7010fed1e1a41c498259746d96561319441779ccb484f983"
     },
     {
       "path": "skills/clean-data/references/implausible_value_rules.md",
