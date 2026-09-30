@@ -5,7 +5,7 @@
 | Check | Severity | Detail |
 |---|---|---|
 | NO_NESTED_CV | Major | flat CV ('flat') tunes and reports on the same folds; use nested cross-validation or a held-out test set so tuning does not inflate the reported performance |
-| HIGH_DIM_LOW_EVENTS | Major | 1200 features vs 40 events (p >= events) with no dimensionality reduction / regularisation; radiomics overfits badly in this regime — apply LASSO / PCA / a stability+redundancy filter |
+| HIGH_DIM_LOW_EVENTS | Major | 1200 features vs 40 events (p >= events) with no dimensionality reduction / regularisation; radiomics overfits badly in this regime — reduce the candidates without the outcome (stability, redundancy, clinical prior), then size the study with pmsampsize (/calc-sample-size Test 12); p < events is a floor, not a sample-size criterion, and penalisation does not rescue a small sample |
 | SELECTION_OUTSIDE_CV | Major | feature selection is fit outside the CV fold (on the whole dataset), so the held-out folds leak into selection; nest selection inside each training fold |
 | NO_FEATURE_STABILITY | Minor | no test-retest / ICC feature-stability filtering; radiomics features are unstable across acquisition and segmentation — filter to reproducible features |
 | NO_CALIBRATION | Minor | a clinical prediction model is reported without calibration (slope/intercept or a flexible calibration curve), only discrimination |

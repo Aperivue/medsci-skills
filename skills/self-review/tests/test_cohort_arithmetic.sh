@@ -70,8 +70,8 @@ python3 "$SCRIPT" --manuscript "$DISC" --data "$REPEAT" --strict --quiet >/dev/n
 check "exit 0 when analysis unit disclosed" test "$?" -eq 0
 
 # (7) a tier label ("stratum 1") and "incident rate" sitting near a small integer
-#     must NOT mis-bind the numerator: the rate recomputes from 882 events /
-#     35,581 PY -> NO RATE_BACKCALC false positive, exit 0 (regression).
+#     must NOT mis-bind the numerator: the rate recomputes from 256 events /
+#     9,840 PY -> NO RATE_BACKCALC false positive, exit 0 (regression).
 RFP="$HERE/fixtures/cohort_rate_tier_fp.md"
 python3 "$SCRIPT" --manuscript "$RFP" --out "$OUT" --quiet >/dev/null 2>&1
 check "no RATE_BACKCALC false positive (tier + incident-rate)" python3 -c "

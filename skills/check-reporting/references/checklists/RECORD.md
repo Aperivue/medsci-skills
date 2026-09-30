@@ -18,7 +18,7 @@ Apply when the manuscript is an **observational study conducted using routinely-
 | # | Item | Description |
 |---|------|-------------|
 | 1.1 | Data type | The type of data used should be specified in the title or abstract. When possible, the name(s) of the database(s) used should be stated. |
-| 1.2 | Geography and timeframe | The geographic region and timeframe within which the study took place should be reported in the title or abstract. |
+| 1.2 | Geography and timeframe | If applicable, the geographic region and time frame within which the study took place should be reported in the title or abstract. |
 | 1.3 | Linkage | If linkage between databases was conducted for the study, this should be clearly stated in the title or abstract. |
 
 ### Methods — Setting / Participants (STROBE item 6)

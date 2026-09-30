@@ -50,4 +50,4 @@ show* and the errors to avoid; not an image to copy, no real citations.
   marketing chart. The case count behind a *separable* comparison is a design-time decision
   (`calc-sample-size/references/multi_model_comparison_sample_size.md`). Cross-reference
   `external_validation_comparison.md` (across-cohort sibling), `forest_plot.md` (layout kin),
-  `critic_rubrics/data_plot.md`, and `/model-validation` (fair comparison, tuning-on-test).
+  `critic_rubrics/data_plot.md`, and `/model-assessment` (fair comparison, tuning-on-test).

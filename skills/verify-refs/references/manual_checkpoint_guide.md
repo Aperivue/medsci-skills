@@ -3,9 +3,7 @@
 **Scope**: medsci-skills v1.1.1 Phase 1A.5
 **Audience**: Project owner before journal submission or before circulating a near-final draft to co-authors.
 
-`/verify-refs` runs automatically inside `/write-paper` Step 7.3 and via the
-pre-save hook `~/.claude/hooks/verify-refs-guard.sh` when a
-`submission/*/manuscript/*.docx` or `revision/R*/*circulation*.docx` is saved.
+`/verify-refs` runs automatically inside `/write-paper` Step 7.3.
 This guide documents the **manual strict-mode run** the owner should perform
 immediately before submitting or before the manuscript leaves the project
 workspace.
@@ -79,24 +77,13 @@ python3 -c "import json; a=json.load(open('qc/reference_audit.json')); \
 |---|---|
 | `FABRICATED` | STOP. Locate the citation in the manuscript. Either remove it or replace with a verified entry via `/search-lit` + `/lit-sync`. Never patch `refs.bib` by hand. |
 | `MISMATCH` | STOP. Usually a copy-paste error (wrong DOI for the title). Confirm the author's intent and correct via Zotero. |
-| `UNVERIFIED` | Review. If the reference genuinely lacks DOI/PMID (rare: old conference abstracts, grey literature), mark `verified: manual` in `refs.bib` via Zotero and re-run. Never keep UNVERIFIED rows in a submission package. |
+| `UNVERIFIED` | Review. If the reference genuinely lacks DOI/PMID (rare: old conference abstracts, grey literature), check it by hand against the publisher record and get the user's confirmation before accepting it (SKILL.md Gate 2). The script has no manual-override field, so `--strict` keeps failing on that row. |
 
 ## Relationship with `/lit-sync`
 
 `/verify-refs` is audit-only. All bibliographic corrections flow through
 `/lit-sync` (owner-only) → Zotero → Better BibTeX auto-export →
 `manuscript/_src/refs.bib`. Never edit `refs.bib` to satisfy `/verify-refs`.
-
-## Automation checkpoint (informational)
-
-The pre-save hook `verify-refs-guard.sh` already runs on every `.docx` save
-under `submission/` or `revision/R*/`. A `FABRICATED` status blocks the save.
-It additionally runs **warn-only** (never blocks) on pre-submission and
-mentor-circulation drafts that used to skip the audit — `outgoing/`,
-`8_Review_Comments/*/outgoing/`, and any `circulation/` path (issue #14) — so a
-missing citation audit is surfaced there without interrupting rapid iteration.
-The manual strict run is a belt-and-suspenders check at the checkpoints listed
-above; it is NOT a substitute for the inline hook.
 
 ## Change log
 

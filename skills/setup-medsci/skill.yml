@@ -12,16 +12,16 @@ inputs:
 outputs:
   - "verified environment / dependency report"
 side_effects:
-  - runs_setup_commands
+  - none  # read-only diagnostic: runs version/listing commands, installs nothing
 downstream_consumers:
   - none
 forbidden_actions:
-  - install_without_user_consent_for_destructive_actions
+  - installing_upgrading_or_configuring_anything
 
 # v2.1 quality card
-purpose: "Check and prepare the local toolchain (Python/R/CLI deps) needed to run the skills."
+purpose: "Check the local toolchain (Python/R/CLI deps, MCP servers) the skills need and report what is missing."
 safety_boundaries:
-  - "Confirms before destructive or system-wide changes; surfaces what is missing."
+  - "Read-only: reports what is missing and links the setup doc; installs and configures nothing."
   - "Operates locally; does not transmit machine state."
 known_limitations:
   - "Environment coverage is best-effort across OSes; some hosts need manual steps."

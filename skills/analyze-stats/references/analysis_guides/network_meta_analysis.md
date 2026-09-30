@@ -34,12 +34,16 @@ model, study-count thresholds) use the SR/MA workflow.
 
 ```r
 library(netmeta)              # frequentist
+# d: one row per pairwise comparison with TE, seTE, treat1, treat2, studlab
 nm <- netmeta(TE, seTE, treat1, treat2, studlab, data = d, sm = "OR", common = FALSE)
 netsplit(nm)                  # local incoherence (direct vs indirect per comparison)
 decomp.design(nm)             # global design-by-treatment / Q decomposition
-netheat(nm)                   # net heat plot for inconsistency hotspots
-netrank(nm, small.values = "bad")   # P-scores (frequentist ranking)
-funnel(nm, order = ...)       # comparison-adjusted funnel plot
+netheat(nm, random = TRUE)    # net heat plot for inconsistency hotspots
+# small.values: "desirable" when a smaller effect is better (e.g. OR for death or
+# complications), "undesirable" when larger is better. Wrong direction = reversed ranking.
+netrank(nm, small.values = "desirable")   # P-scores (frequentist ranking)
+trt_order <- nm$trts          # replace: treatments ordered oldest -> newest
+funnel(nm, order = trt_order) # comparison-adjusted funnel plot
 # Bayesian alternative: BUGSnet / gemtc / multinma (node-split, SUCRA, model fit via DIC)
 ```
 

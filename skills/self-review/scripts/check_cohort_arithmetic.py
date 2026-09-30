@@ -139,7 +139,7 @@ def _pick(header: list[str], hints: tuple[str, ...]):
     # Substring fallback, with the guard the exact pass does not need. A hint of one or two
     # characters has no business matching a longer word: the hint "n" found "Normal" in the
     # header of an exposure-stratified Table 1, so every characteristic row's Normal-column
-    # value was summed as if it were a stratum size (8,299 "strata" against a "total" of 194).
+    # value was summed as if it were a stratum size and compared with the column's "total".
     # The same one-character-substring bug was fixed once in check_confounding_completeness
     # and never here. Longer hints still match, but only on a word boundary.
     for hint in hints:
@@ -163,12 +163,12 @@ RATE_LINE_RE = re.compile(
 #   (b) drop the bare "incident" alternative, which matched the word in "incident
 #       rate" and bound the nearest stray small integer (the false-positive source).
 #   (c) a HYPHEN or slash before the digit means it belongs to a label, not to the count:
-#       "882 KSAR S4-1 events occurred" bound the 1 of "S4-1" and reported the rate as
+#       "417 ABC R2-1 events occurred" bound the 1 of "R2-1" and reported the rate as
 #       irreconcilable with 1 event. When the count cannot be bound the check must say
 #       nothing — an unbindable numerator is not evidence of an arithmetic error.
 EVENTS_NEAR_RE = re.compile(
     r"(?<![A-Za-z0-9.\-\u2013\u2014/])([0-9][0-9,]*)\s*(?:incident\s+)?(?:events?|cases?)\b", re.I)
-# Person-time is frequently reported to one decimal ("35,581.3 person-years"). Without the
+# Person-time is frequently reported to one decimal ("12,630.3 person-years"). Without the
 # decimal branch the integer part failed to reach the noun and the FRACTIONAL DIGIT matched
 # instead — a cohort of "3 person-years" — so the same lookbehind applies here.
 PY_NEAR_RE = re.compile(
@@ -647,7 +647,7 @@ def load_csv(path: str) -> list[dict]:
         return [r for r in csv.DictReader(f)]
 
 
-# Effect estimate with a bracketed CI: "4.95 (4.32-5.94)" / "4.95 [4.32 to 5.94]".
+# Effect estimate with a bracketed CI: "3.40 (2.95-3.92)" / "3.40 [2.95 to 3.92]".
 _EFFECT_CI_RE = re.compile(
     r"(?P<pt>\d+(?:\.\d+)?)\s*[\(\[]\s*"
     r"(?P<lo>\d+(?:\.\d+)?)\s*(?:[-–—]|to|,)\s*(?P<hi>\d+(?:\.\d+)?)\s*[\)\]]"
@@ -718,7 +718,7 @@ _CI_VAL_RE = re.compile(r"\b0\.[5-9]\d")
 
 
 def _covar_set(label: str) -> frozenset:
-    """'CMB + age + sex' -> {'cmb','age','sex'} (additive split on '+', notes and
+    """'Biomarker + age + sex' -> {'biomarker','age','sex'} (additive split on '+', notes and
     non-covariate words dropped)."""
     label = re.sub(r"\(.*?\)", " ", label)
     out = set()

@@ -40,5 +40,5 @@ no real citations.
   elements this figure most often drops, and the ones that turn "it generalizes" into a claim a
   reviewer can check. The case count behind a precise external estimate is a design-time decision
   (`calc-sample-size` `references/segmentation_metric_sample_size.md`). Cross-reference
-  `forest_plot.md` (layout kin), `critic_rubrics/data_plot.md`, and `/model-validation` (internal vs
+  `forest_plot.md` (layout kin), `critic_rubrics/data_plot.md`, and `/model-assessment` (internal vs
   external, tuning-on-test).

@@ -1,15 +1,20 @@
 name: metrics
 
 # Weekly adoption snapshot. GitHub only retains traffic for 14 days and exposes
-# it to repo admins only — without this job that data is lost every day. Appends:
-#   * metrics/traffic_log.csv   — one row/run: stars, forks, downloads, 14d views/clones, Zenodo
-#   * metrics/referrers_log.csv — top referrers/run (date, referrer, count, uniques)
-#   * metrics/paths_log.csv     — top viewed paths/run (date, path, title, count, uniques)
+# it to repo admins only — without this job that data is lost every day. Appends,
+# on the `metrics` branch (https://github.com/Aperivue/medsci-skills/tree/metrics):
+#   * traffic_log.csv   — one row/run: stars, forks, downloads, 14d views/clones, Zenodo
+#   * referrers_log.csv — top referrers/run (date, referrer, count, uniques)
+#   * paths_log.csv     — top viewed paths/run (date, path, title, count, uniques)
 # The referrer/path snapshots are the most strategically useful AND the most
 # ephemeral data GitHub exposes: they reveal which channel (Google / Reddit /
 # chatgpt.com / a directory) drove a wave, but are a top-10 point-in-time view
 # that vanishes after 14 days. Long-format rows let you pivot a channel's trend
 # over weeks (e.g. is AEO traffic from chatgpt.com / perplexity.ai compounding?).
+#
+# Why a separate branch: main accepts changes only through a pull request whose CI
+# passed (repository ruleset), so a bot commit straight to main is refused. Pushing
+# to main would need a token allowed to bypass that rule; a data-only branch needs none.
 #
 # Traffic endpoints (/traffic/*) require push access. The default GITHUB_TOKEN may
 # return 403; set a repo secret METRICS_PAT (a fine-grained PAT with
@@ -30,9 +35,16 @@ jobs:
     if: github.repository_owner == 'Aperivue'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4 # main: CITATION.cff for the channel check below
+
+      - name: Check out the metrics branch
+        uses: actions/checkout@v4
+        with:
+          ref: metrics
+          path: metrics-data
 
       - name: Capture metrics snapshot
+        working-directory: metrics-data
         env:
           GH_TOKEN: ${{ secrets.METRICS_PAT || secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
@@ -70,40 +82,40 @@ jobs:
           ZVIEWS=$(echo "$ZJSON" | jq -r '(.stats.version_views // .stats.views) // ""' 2>/dev/null || echo "")
           ZDL=$(echo "$ZJSON"    | jq -r '(.stats.version_downloads // .stats.downloads) // ""' 2>/dev/null || echo "")
 
-          mkdir -p metrics
-          if [ ! -f metrics/traffic_log.csv ]; then
-            echo "date,stars,forks,watchers,release_downloads,views_14d,unique_views_14d,clones_14d,unique_clones_14d,zenodo_views,zenodo_downloads" > metrics/traffic_log.csv
+          if [ ! -f traffic_log.csv ]; then
+            echo "date,stars,forks,watchers,release_downloads,views_14d,unique_views_14d,clones_14d,unique_clones_14d,zenodo_views,zenodo_downloads" > traffic_log.csv
           fi
-          echo "$DATE,$STARS,$FORKS,$WATCH,$DL,$VIEWS,$UVIEWS,$CLONES,$UCLONES,$ZVIEWS,$ZDL" >> metrics/traffic_log.csv
+          echo "$DATE,$STARS,$FORKS,$WATCH,$DL,$VIEWS,$UVIEWS,$CLONES,$UCLONES,$ZVIEWS,$ZDL" >> traffic_log.csv
           echo "Appended: $DATE stars=$STARS forks=$FORKS downloads=$DL views=$VIEWS clones=$CLONES"
 
           # Referrers (date,referrer,count,uniques). @csv quotes fields safely; `if type==array`
           # tolerates a 403/{} fallback by emitting nothing. Header written once.
-          if [ ! -f metrics/referrers_log.csv ]; then
-            echo "date,referrer,count,uniques" > metrics/referrers_log.csv
+          if [ ! -f referrers_log.csv ]; then
+            echo "date,referrer,count,uniques" > referrers_log.csv
           fi
           echo "$RJSON" | jq -r --arg d "$DATE" \
             'if type=="array" then .[] else empty end | [$d, .referrer, .count, .uniques] | @csv' \
-            >> metrics/referrers_log.csv
+            >> referrers_log.csv
           NREF=$(echo "$RJSON" | jq -r 'if type=="array" then length else 0 end')
 
           # Popular paths (date,path,title,count,uniques).
-          if [ ! -f metrics/paths_log.csv ]; then
-            echo "date,path,title,count,uniques" > metrics/paths_log.csv
+          if [ ! -f paths_log.csv ]; then
+            echo "date,path,title,count,uniques" > paths_log.csv
           fi
           echo "$PJSON" | jq -r --arg d "$DATE" \
             'if type=="array" then .[] else empty end | [$d, .path, .title, .count, .uniques] | @csv' \
-            >> metrics/paths_log.csv
+            >> paths_log.csv
           NPATH=$(echo "$PJSON" | jq -r 'if type=="array" then length else 0 end')
           echo "Referrers captured: $NREF; paths captured: $NPATH (0 = no PAT / no traffic data)"
 
       - name: Commit snapshot
+        working-directory: metrics-data
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add metrics/traffic_log.csv metrics/referrers_log.csv metrics/paths_log.csv
-          git diff --staged --quiet || git commit -m "chore(metrics): weekly adoption snapshot [skip ci]"
-          git push
+          git add traffic_log.csv referrers_log.csv paths_log.csv
+          git diff --staged --quiet || git commit -m "chore(metrics): weekly adoption snapshot"
+          git push origin HEAD:metrics
 
       # A release publishes to several channels and can succeed on some and not others.
       # On 2026-09-22 the v5.27.0 tag produced a GitHub Release while npm stayed on

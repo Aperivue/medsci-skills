@@ -15,12 +15,13 @@ import sys
 import datetime
 import numpy as np
 import pandas as pd
+import scipy
 from scipy import stats
 
 np.random.seed(42)
 print(f"Date: {datetime.date.today()}")
 print(f"Python: {sys.version}")
-print(f"numpy: {np.__version__}, pandas: {pd.__version__}, scipy: {stats.scipy.__version__}")
+print(f"numpy: {np.__version__}, pandas: {pd.__version__}, scipy: {scipy.__version__}")
 print()
 
 # === CONFIGURATION (modify for your study) ===
@@ -41,16 +42,35 @@ def load_data(filepath: str) -> pd.DataFrame:
     return pd.read_csv(filepath)
 
 
-def test_normality(series: pd.Series, alpha: float = 0.05) -> tuple:
-    """Test normality using Shapiro-Wilk (n<50) or Kolmogorov-Smirnov (n>=50)."""
+def is_symmetric(series: pd.Series) -> tuple:
+    """Summary choice by skewness (table-types/table1_demographics.md): |skewness| > 1
+    -> median (IQR) with a rank test; otherwise mean (SD) with Welch's test.
+
+    A normality test is not used to choose: it rejects trivial departures at large n,
+    misses real ones at small n, the KS test with an estimated mean/SD is miscalibrated
+    (no Lilliefors correction), and choosing the test by a preliminary test distorts
+    the type I error (Rochon, Gondan & Kieser 2012, doi:10.1186/1471-2288-12-81).
+    """
     clean = series.dropna()
     if len(clean) < 3:
         return False, np.nan
-    if len(clean) < 50:
-        stat, p = stats.shapiro(clean)
-    else:
-        stat, p = stats.kstest(clean, "norm", args=(clean.mean(), clean.std()))
-    return p >= alpha, p
+    skew = float(stats.skew(clean))
+    return abs(skew) <= 1, skew
+
+
+def welch_anova(groups: list) -> float:
+    """Welch's heteroscedastic one-way ANOVA (Welch 1951); returns the P value."""
+    n = np.array([len(g) for g in groups], dtype=float)
+    m = np.array([np.mean(g) for g in groups])
+    v = np.array([np.var(g, ddof=1) for g in groups])
+    w = n / v
+    k = len(groups)
+    mw = np.sum(w * m) / np.sum(w)
+    a = np.sum(w * (m - mw) ** 2) / (k - 1)
+    lam = np.sum((1 - w / np.sum(w)) ** 2 / (n - 1))
+    f = a / (1 + 2 * (k - 2) / (k ** 2 - 1) * lam)
+    df2 = (k ** 2 - 1) / (3 * lam)
+    return float(stats.f.sf(f, k - 1, df2))
 
 
 def format_continuous(series: pd.Series, is_normal: bool, dp: int = 1) -> str:
@@ -76,19 +96,20 @@ def format_categorical(series: pd.Series) -> dict:
 
 
 def compare_continuous(groups: list, is_normal: bool) -> tuple:
-    """Compare continuous variable between groups."""
+    """Compare continuous variable between groups (Welch for mean-type summaries:
+    it does not assume equal variances, and costs little when they are equal;
+    Delacre, Lakens & Leys 2017, doi:10.5334/irsp.82)."""
     clean_groups = [g.dropna() for g in groups]
     if len(clean_groups) == 2:
         if is_normal:
-            stat, p = stats.ttest_ind(*clean_groups)
-            return "t-test", p
+            stat, p = stats.ttest_ind(*clean_groups, equal_var=False)
+            return "Welch t-test", p
         else:
             stat, p = stats.mannwhitneyu(*clean_groups, alternative="two-sided")
             return "Mann-Whitney U", p
     else:
         if is_normal:
-            stat, p = stats.f_oneway(*clean_groups)
-            return "ANOVA", p
+            return "Welch ANOVA", welch_anova(clean_groups)
         else:
             stat, p = stats.kruskal(*clean_groups)
             return "Kruskal-Wallis", p
@@ -148,7 +169,7 @@ def build_table1(df: pd.DataFrame) -> pd.DataFrame:
             print(f"Warning: '{var}' not found in data, skipping.")
             continue
         label = VAR_LABELS.get(var, var)
-        is_normal, norm_p = test_normality(df[var])
+        is_normal, skewness = is_symmetric(df[var])
         stat_type = "mean +/- SD" if is_normal else "median (IQR)"
 
         row = {"Variable": f"{label}, {stat_type}"}

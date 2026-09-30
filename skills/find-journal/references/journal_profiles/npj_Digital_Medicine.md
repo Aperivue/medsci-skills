@@ -5,7 +5,7 @@
 - **Publisher:** Nature Portfolio (Springer Nature)
 - **ISSN:** 2398-6352 (online only)
 - **Homepage:** https://www.nature.com/npjdigitalmed/
-- **Author guidelines:** https://www.nature.com/npjdigitalmed/submission-guidelines
+- **Author guidelines:** https://www.nature.com/npjdigitalmed/for-authors-and-referees/submission-guidelines
 
 ## Scope
 High-impact Nature-family journal publishing original research on digital technologies transforming healthcare, including AI/ML diagnostics, wearables, mobile health, digital biomarkers, and clinical decision support. Emphasizes translational impact with rigorous validation and reproducibility (code/data availability mandatory).

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "version": "5.28.0",
+  "version": "6.0.0",
   "owned_skills": [
     "academic-aio",
     "add-journal",
@@ -26,6 +26,7 @@
     "generate-codebook",
     "grant-builder",
     "humanize",
+    "imaging-data",
     "intake-project",
     "lit-sync",
     "ma-scout",
@@ -34,9 +35,11 @@
     "manage-refs",
     "meta-analysis",
     "mllm-eval",
+    "model-assessment",
     "model-card",
     "model-evaluation",
     "model-scaffold",
+    "model-selection",
     "model-sourcing",
     "model-validation",
     "obsidian-paper-vault",

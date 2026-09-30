@@ -13,8 +13,8 @@ inputs:
     required: true
 outputs:
   - path: "de-identified data file"
-  - path: "scan report (column classifications, no raw values)"
-  - path: "audit log (SHA-256 hashes only)"
+  - path: "scan and reviewed reports (column classifications, no cell values)"
+  - path: "audit log (keyed hashes, no original values)"
 
 deterministic_scripts:
   - deidentify.py
@@ -34,11 +34,11 @@ purpose: "Detect and remove PHI from clinical tabular data with a local-only CLI
 safety_boundaries:
   - "The agent never sees raw PHI; de-identification runs in a standalone local script with no network or AI calls."
   - "Never reads or displays the re-identification mapping file (it holds original PHI values)."
-  - "Only the scan report (no raw values), the hash-only audit log, and the de-identified output may be read."
+  - "Only the reports (no cell values), the keyed-hash audit log, and the de-identified output once the researcher has confirmed it may be read."
 known_limitations:
   - "Regex and heuristic detection across 11 country locale packs is not a substitute for expert disclosure review or an IRB determination."
   - "PHI coverage is limited to the bundled locale packs (kr, us, jp, cn, de, uk, fr, ca, au, in, it)."
 validation_commands:
   - "python deidentify.py scan <file> --locale <code>   # review column classifications before stripping"
-  - "inspect the SHA-256 audit log after a full run"
+  - "inspect the audit log after a full run"
 evidence_surface: bundled_script

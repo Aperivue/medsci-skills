@@ -38,6 +38,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from skill_aliases import alias_target  # noqa: E402
 
 # A skill invocation as it is written in these files: `/name`, in backticks or parentheses.
 NAMED = re.compile(r"[`(]/([a-z][a-z0-9-]{2,})(?=[`)\s,.;])")
@@ -68,16 +70,24 @@ def main() -> int:
     a = ap.parse_args()
 
     skills_dir = a.root / "skills"
-    shipped = {d.name for d in skills_dir.iterdir() if (d / "SKILL.md").is_file()}
+    dirs = [d for d in skills_dir.iterdir() if (d / "SKILL.md").is_file()]
+    # A v6 compatibility alias ships, but only as a redirect the model is told never to pick: a
+    # skill that names it sends its user through a stub removed in v7. Name the target instead.
+    renamed = {d.name: t for d in dirs if (t := alias_target(d)) is not None}
+    shipped = {d.name for d in dirs} - set(renamed)
 
     bad: list[tuple[str, int, str, str]] = []
     for md in sorted(skills_dir.glob("*/SKILL.md")):
+        if md.parts[-2] in renamed:
+            continue  # the stub itself names its own old name and its target
         text = FENCE.sub(lambda m: "\n" * m.group(0).count("\n"), md.read_text(encoding="utf-8", errors="ignore"))
         for i, line in enumerate(text.splitlines(), 1):
             for m in NAMED.finditer(line):
                 name = m.group(1)
                 if name in shipped or name in NOT_A_SKILL:
                     continue
+                if name in renamed:
+                    name = f"{name}  (renamed to /{renamed[name]} in v6 — name the target)"
                 bad.append((md.parts[-2], i, name, line.strip()[:96]))
 
     if not bad:

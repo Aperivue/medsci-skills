@@ -11,26 +11,27 @@
 
 ## Manuscript Types and Word Limits
 
-| Type | Abstract | Manuscript Body | Figures | Tables |
-|------|----------|----------------|---------|--------|
-| Original Research | 250 | 3500 | 8 | 5 |
-| Brief Report | 250 | 1500 | 4 | 2 |
-| Review Article | 250 | 5000 | 10 | 5 |
-| Pictorial Essay | 250 | 3000 | 20 | 3 |
-| Letter to Editor | none | 500 | 1 | 1 |
-| Technical Innovation | 250 | 2000 | 6 | 3 |
+| Type | Abstract | Manuscript Body | Figures | Tables | References |
+|------|----------|----------------|---------|--------|------------|
+| Original Research | Structured (6 sections), ≤ 350 | 4,500 | 7 (15 parts) | 5 | 50 |
+| Systematic Review/Meta-Analysis | Structured (6 sections), ≤ 350 | 4,500 | 7 (15 parts) | 5 | 100 |
+| Review | Unstructured, ≤ 200 | 4,500 | 12 (30 parts) | 5 | 100 |
+| Research Letter | none | 700 | 2 figures and tables combined | — | 6 |
+| Letter to the Editor | none | 400 | 2 (4 parts) | 0 | 4 |
 
-Word counts exclude abstract, references, figure legends, and tables.
+Original Research and Systematic Review/Meta-Analysis word counts run from the Introduction through the Discussion.
 
 ## Abstract Format
 
-Structured with four headings:
-1. **Objective**
-2. **Materials and Methods**
-3. **Results**
-4. **Conclusion**
+Original Research: structured with six headings:
+1. **Background**
+2. **Objective**
+3. **Methods**
+4. **Results**
+5. **Conclusion**
+6. **Clinical Impact**
 
-Maximum 250 words. Must be self-contained.
+Maximum 350 words. Must be self-contained. (Systematic Review/Meta-Analysis: Background, Objective, Evidence Acquisition, Evidence Synthesis, Conclusion, Clinical Impact.)
 
 Note: AJR uses "Objective" (not "Purpose" as in RYAI).
 
@@ -52,9 +53,7 @@ Note: AJR uses "Objective" (not "Purpose" as in RYAI).
 ### For All Manuscripts
 
 - **Title page**: title, authors with degrees and affiliations, corresponding author with full contact, word count, number of figures/tables.
-- **"What Does This Article Add?"** box: Required for Original Research. Two to three bullet points (each 1 sentence) stating the specific new knowledge this study contributes beyond what was previously known.
-- **Key Points**: Required. Three bullet points summarizing the most important findings for the reader. These appear in the published article.
-  - Format: "Key Point 1: {finding}."
+- **Highlights**: Required for Original Research, in two sections — **Key Finding** (maximum 50 words, the study's most important result expressed with concrete content) and **Importance** (maximum 25 words, why the Key Finding matters). Reviews use three bulleted key points of at most 25 words each.
 - **Author Contributions**: Required.
 - **Conflict of Interest**: Required for all authors.
 - **Acknowledgments**: Including funding sources.
@@ -94,39 +93,28 @@ Completed checklists should be submitted as supplemental files.
 
 ### Original Research Structure
 1. Title page
-2. Abstract (structured: Objective, Materials and Methods, Results, Conclusion)
-3. "What Does This Article Add?" box
-4. Key Points
-5. Introduction
-6. Materials and Methods
-7. Results
-8. Discussion
-9. References
-10. Tables
-11. Figure legends
-12. Figures (separate files)
+2. Abstract (structured: Background, Objective, Methods, Results, Conclusion, Clinical Impact)
+3. Highlights (Key Finding, Importance)
+4. Introduction
+5. Methods
+6. Results
+7. Discussion
+8. References
+9. Tables
+10. Figure legends
+11. Figures (separate files)
 
-### "What Does This Article Add?" Box Format
+### Highlights Format
 ```
-WHAT DOES THIS ARTICLE ADD?
+HIGHLIGHTS
 
-- Previous studies have shown {known finding}.
-- This study demonstrates {new finding from this work}.
-- These results suggest {clinical implication or next step}.
-```
-
-### Key Points Format
-```
-KEY POINTS
-
-- Key Point 1: {most important finding, one sentence}.
-- Key Point 2: {second finding or methodological contribution}.
-- Key Point 3: {clinical implication}.
+Key Finding: {the study's most important result, with concrete data; ≤ 50 words}
+Importance: {why the Key Finding matters; ≤ 25 words}
 ```
 
 ## Review Process
 
-- Single-blind peer review.
+- Double-blind peer review (the initial submission is blinded).
 - Typical first decision: 4-6 weeks.
 - Statistical review for accepted manuscripts.
 - Revisions typically due within 45 days.
@@ -145,5 +133,5 @@ AJR endorses the SAMPL (Statistical Analyses and Methods in the Published Litera
 ## Special Considerations for Education-Research Manuscripts
 
 - Paper 3 (Educational Effectiveness) could fit AJR's scope if framed around radiology education and AI-assisted learning tools.
-- The "What Does This Article Add?" box and Key Points are mandatory and should be drafted early to clarify the paper's contribution.
+- The Highlights (Key Finding and Importance) are mandatory and should be drafted early to clarify the paper's contribution.
 - AJR values clinical relevance; frame AI findings in terms of educational or clinical impact rather than pure technical performance.

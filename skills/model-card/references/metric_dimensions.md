@@ -20,13 +20,13 @@ score; the goal is disclosure, not a number.
 | **Timeliness / recency** | Acquisition time frame; drift vs. current practice/scanners; temporal split if a temporal claim is made. | Datasheet Collection; Model Card Evaluation Data |
 | **Provenance / traceability** | Where each instance came from; can the dataset version be reproduced (pair with `/version-dataset`)? | Datasheet Motivation / Maintenance |
 | **Label provenance** | Human vs. automated / model-derived ("silver") labels; circularity if model-derived labels evaluate the same model. | Datasheet Preprocessing/Labeling |
-| **Fairness / subgroup coverage** | Are protected / clinically-relevant subgroups represented enough to estimate per-subgroup performance? | Model Card Quantitative Analyses; defer depth to `/model-validation` + equity probe |
-| **Leakage safety** | Patient-level disjoint split; preprocessing fit on the training fold only; no site/scanner shortcut. | Model Card Evaluation Data; verify with `/model-validation` `check_split_leakage` |
+| **Fairness / subgroup coverage** | Are protected / clinically-relevant subgroups represented enough to estimate per-subgroup performance? | Model Card Quantitative Analyses; defer depth to `/model-assessment` + equity probe |
+| **Leakage safety** | Patient-level disjoint split; preprocessing fit on the training fold only; no site/scanner shortcut. | Model Card Evaluation Data; verify with `/model-assessment` `check_split_leakage` |
 
 ## How to use
 1. Walk the table; for each dimension, write the relevant fact into the **Datasheet** (or note
    it as a Model Card caveat). Unknown → `[NEEDS INPUT]`, never a guess.
 2. Anything that affects the validity of the headline metric (leakage, representativeness,
-   label provenance) is also a `/model-validation` finding — cross-check there.
+   label provenance) is also a `/model-assessment` finding — cross-check there.
 3. The audit is **disclosure-oriented**: the deliverable is a complete, honest Datasheet +
    Model Card, not a quality score.

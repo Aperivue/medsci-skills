@@ -69,8 +69,12 @@ Put uncertainty on every model (a CI, or at least a tested delta) and **resist o
 rank against the right object: the **paired Δ and its CI**, not the overlap of two marginal CIs. Two
 marginal intervals can overlap heavily while the paired Δ excludes zero, because the covariance the
 paired test uses is invisible in the marginals; non-overlap implies a difference, overlap implies
-nothing either way. Models inside the critical difference are **not separated by the test** — leave
-them unranked rather than reporting a demonstrated tie. Disaggregate
+nothing either way. Models the test does not separate are **not separated** — leave them unranked
+rather than reporting a demonstrated tie. For many models across datasets, take the pairwise verdicts
+from **Wilcoxon signed-rank (or sign) tests with a Holm correction**, not Nemenyi's mean-rank
+critical difference: a mean-rank test makes the A-versus-B verdict depend on which other models are
+in the pool (Benavoli, Corani & Mangili, *JMLR* 2016;17(5):1-10). Mean ranks can still be shown
+descriptively. Disaggregate
 (per-structure / per-class) and show **where the winning model still fails** — the honest negative
 (a structure that collapses for all models, a fusion strategy at chance) is an acceptance asset, not a
 liability. A corollary the corpus surfaced: a CI must be **believable for the N** — an implausibly tight
@@ -78,12 +82,12 @@ interval on a small test set is a red flag, not reassurance.
 
 ## What this does NOT replace
 
-- **metric selection** (Dice + a boundary metric; AUROC + AUPRC) → `/model-evaluation`; **validation
-  design + the split-leakage gate** → `/model-validation`; **sizing the between-model delta** →
+- **metric selection** (Dice + a boundary metric; AUROC + AUPRC) → `/model-assessment`; **validation
+  design + the split-leakage gate** → `/model-assessment`; **sizing the between-model delta** →
   `calc-sample-size` `references/multi_model_comparison_sample_size.md` (Test 16); **presenting the
   comparison** → `make-figures` `exemplar_plots/model_comparison_leaderboard.md` + `analyze-stats`
   `table-standards/table-types/model_comparison.md`; **which architecture to consider at all** →
-  `/architecture-zoo`; **a model built by combining / adapting one set of parts** →
+  `/model-selection`; **a model built by combining / adapting one set of parts** →
   `combine_models_ablation_design.md`.
 
 This is the **fair-comparison decision** for a model-vs-model study — the one that turns "our model won"

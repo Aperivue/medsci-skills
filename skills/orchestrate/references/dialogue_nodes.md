@@ -1,6 +1,6 @@
 # Orchestrate Dialogue Nodes — RPG-style CLI UX (prototype v0.1)
 
-**Status:** Load-on-demand. The orchestrator reads this file only when entering interactive mode (default). `--autonomous` mode skips this file entirely and uses each node's `default` branch.
+**Status:** Load-on-demand. The orchestrator reads this file when entering interactive mode (default). `--autonomous` mode renders no node; it reads only each node's `default` and `autonomous_rationale` for the log line.
 
 ## Design Principles
 
@@ -8,7 +8,7 @@
 2. **Default = safest reversible path.** If the user cannot decide, the default is the lowest-commitment option (e.g., "draft first, journal later"), never the highest.
 3. **Recovery cost is visible.** When an option is hard to reverse ("locks journal format, 90-day revision clock"), the node shows this before the user picks.
 4. **One question at a time.** Never render two decision nodes in the same turn.
-5. **Interrupt-safe.** The user can always type `back`, `skip`, or `pause` to re-enter the previous node or stop the pipeline.
+5. **Interrupt-safe.** The user can always type `back` or `pause` to re-enter the previous node or stop the pipeline; `skip` works only on a node whose `locks` scope is empty.
 
 ## Node Structure
 
@@ -91,7 +91,7 @@ autonomous_rationale: why this default is safe for unattended runs
 
 ### N6. PHI Safety Gate
 - **phase:** before any data-handling skill
-- **context:** CSV/Excel detected, no `*_deidentified.*` marker
+- **context:** a CSV/Excel file the task will read that is not itself a `*_deidentified.*` output
 - **question:** "Does this data contain PHI (names, RRN, DOB, contact)?"
 - **options:**
   1. Yes — route to /deidentify first (blocking, interactive script)
@@ -142,7 +142,7 @@ autonomous_rationale: why this default is safe for unattended runs
   2. Workflow B — Zotero CWYW field-code injection (Word-tracked-changes-friendly, co-author live edit)
   3. Hybrid 3-phase — start A (draft), transition to B (circulation/revision/submission)
 - **default:** 3
-- **lock:** Workflow B `.docx` becomes editable SSOT; markdown re-render requires re-extraction. Hybrid is the documented default per `~/.claude/rules/manuscript-references.md`
+- **lock:** Workflow B `.docx` becomes editable SSOT; markdown re-render requires re-extraction.
 - **autonomous_rationale:** Hybrid 3-phase is the accumulated pattern; A→B transition only happens when circulation begins, so default is safe for solo drafting
 
 ### N11. Protocol Delivery Format (write-protocol → fill-protocol vs render-pdf-doc)
@@ -154,7 +154,7 @@ autonomous_rationale: why this default is safe for unattended runs
   2. `/render-pdf-doc` — no institutional template; markdown-driven layout (proposal cover, briefing handout, anchor doc, IRB cover letter)
 - **default:** 1 (when `${institutional_template_path}` resolves; else 2)
 - **lock:** option 1 inherits institutional layout (immutable styles, table cantSplit, eastAsia fonts); option 2 inherits markdown frontmatter + content-proportional pipe-table widths
-- **autonomous_rationale:** Most institutional submissions require option 1; default to scanning known template paths first (`~/.claude/rules/institutional-form-fill.md` table) before falling back to option 2
+- **autonomous_rationale:** Most institutional submissions require option 1; default to scanning known template paths first before falling back to option 2
 
 ## Rendering Template
 

@@ -35,8 +35,13 @@ fatigue, and (iii) audit the rubric and pipeline itself. Four useful flavors:
 - **Instability item** — an estimate that reverses or fails to replicate on holdout; tests caveat handling.
 - **Mechanism-contradiction item** — an empirical direction that opposes the proposed mechanism.
 
-Report inter-rater reliability **on the control items separately** as primary evidence of rubric and
-scale validity; a low overall ICC is interpretable only if raters at least converge on the controls.
+Use the control items as a **rater-competence check** — report each rater's hit rate on known-good vs
+known-bad controls — not as reliability evidence. ICC scales with the spread between items, and
+controls are extreme by construction, so an ICC on a handful of controls is high whatever the raters'
+reliability on real items (same raters and noise: ICC(2,1) 0.89 on four controls, 0.16 on 40 real
+items). Report reliability (ICC with its form stated and a 95% CI, or Krippendorff's α for ordinal
+ratings) on a representative anchor set of real items (Koo & Li, *J Chiropr Med* 2016; de Vet et
+al., *J Clin Epidemiol* 2006).
 
 **Operational rigor**
 - Randomize item order **per reviewer** (not one global seed); analyze order and fatigue effects.
@@ -54,9 +59,9 @@ Design for it explicitly:
 - Define the operator population and their onboarding; a **learning curve** (performance vs case index)
   is a first-class outcome, not noise to average away.
 - Fix the prompting protocol (allowed prompt types, stopping rule, target Dice) identically to any
-  simulated-prompting arm so the two are comparable — **protocol fidelity**, checked in `/model-validation`.
+  simulated-prompting arm so the two are comparable — **protocol fidelity**, checked in `/model-assessment`.
 - Pre-specify the interaction and timing metrics; their deterministic reporting gate is
-  `/model-evaluation --task interactive`. (A design document is free-form prose, so the deterministic
+  `/model-assessment --task interactive`. (A design document is free-form prose, so the deterministic
   anchor for these items sits at the reporting stage, not on the protocol text.)
 
 For an AI-system-versus-human-expert benchmark specifically, route to `/design-ai-benchmarking`, which

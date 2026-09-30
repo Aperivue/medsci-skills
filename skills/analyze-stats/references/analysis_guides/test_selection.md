@@ -23,11 +23,11 @@ Reference: Petrie & Sabin flowchart, Kirkwood Summary Guide.
 |--------|---------|---------|------|--------------------|
 | 1 | - | Yes | One-sample t-test | Group Comparison |
 | 1 | - | No | Wilcoxon signed-rank (one-sample) | Group Comparison |
-| 2 | Independent | Yes | Independent t-test | Group Comparison |
+| 2 | Independent | Yes | Welch t-test | Group Comparison |
 | 2 | Independent | No | Mann-Whitney U | Group Comparison |
 | 2 | Paired | Yes | Paired t-test | Group Comparison |
 | 2 | Paired | No | Wilcoxon signed-rank | Group Comparison |
-| 3+ | Independent | Yes | One-way ANOVA + post-hoc | Group Comparison |
+| 3+ | Independent | Yes | Welch ANOVA + post-hoc (Games-Howell) | Group Comparison |
 | 3+ | Independent | No | Kruskal-Wallis + post-hoc | Group Comparison |
 | 3+ | Repeated | Yes | RM ANOVA | **Repeated Measures** |
 | 3+ | Repeated | No | Friedman test | **Repeated Measures** |
@@ -66,14 +66,20 @@ Reference: Petrie & Sabin flowchart, Kirkwood Summary Guide.
 
 ## Normality Assessment
 
-| Method | When | Criterion |
-|--------|------|-----------|
-| Shapiro-Wilk | n < 50 | p >= 0.05 → normal |
-| Kolmogorov-Smirnov | n >= 50 | p >= 0.05 → normal |
-| Q-Q plot | Always (visual) | Points on diagonal |
-| Skewness/Kurtosis | Supplementary | |skew| < 2, |kurt| < 7 |
+Decide from the design, prior knowledge of the variable and its shape — not from a normality
+test's P value.
 
-Practical rule: n > 30 → t-test is generally robust (CLT), unless extreme skew or outliers.
+| Method | Use |
+|--------|-----|
+| Q-Q plot / histogram | Always (visual) |
+| Skewness | `|skew| > 1` → median (IQR) + rank test; otherwise mean (SD) + Welch (Table 1 rule, `table-types/table1_demographics.md`) |
+| Shapiro-Wilk / Kolmogorov-Smirnov | Not a gate. They reject trivial departures at large n and miss real ones at small n; KS with an estimated mean/SD is miscalibrated (Lilliefors 1967, doi:10.1080/01621459.1967.10482916); choosing the test by a preliminary test distorts the type I error (Rochon, Gondan & Kieser 2012, doi:10.1186/1471-2288-12-81) |
+
+- Two independent groups, mean-type summary: **Welch's t-test** by default (no equal-variance
+  assumption; Delacre, Lakens & Leys 2017, doi:10.5334/irsp.82). 3+ groups: Welch ANOVA. Levene's
+  test is not a gate, and Mann-Whitney is not a remedy for unequal variances.
+- Practical rule: n > 30 per group → the t-test is generally robust (CLT), unless extreme skew or
+  outliers.
 
 ---
 

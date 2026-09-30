@@ -75,7 +75,11 @@ if [ -z "$PY" ]; then
   exit 1
 fi
 
-"$PY" installers/install.py --target all --desktop-launcher
+# --enable-update-notify also turns on the in-app "update available" reminder for this turnkey
+# install, so you are told when a new version ships instead of staying on this one forever. It is
+# best-effort inside the installer: a failure there is reported, not a failed install. Turn it off
+# later with `install.py --disable-update-notify`.
+"$PY" installers/install.py --target all --desktop-launcher --enable-update-notify
 STATUS=$?
 
 if [ "$STATUS" -ne 0 ]; then
@@ -89,11 +93,6 @@ if [ "$STATUS" -ne 0 ]; then
   read -r -p "Press Enter to close..."
   exit "$STATUS"
 fi
-
-# Turn on the in-app "update available" reminder for this turnkey install, so you are told when a
-# new version ships instead of staying on this one forever. Best-effort: a failure here is not a
-# failed install. Turn it off later with `install.py --disable-update-notify`.
-"$PY" installers/install.py --enable-update-notify >/dev/null 2>&1 || true
 
 echo
 read -r -p "Press Enter to close..."

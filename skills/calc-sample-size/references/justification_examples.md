@@ -1,9 +1,10 @@
 # Sample-size justification — worked prose exemplars (IRB / Methods)
 
 Reviewer-safe **justification paragraphs** for the prospective designs this skill computes,
-complementing `formulas.md` (the math) and the retrospective/experience-based templates in
-SKILL.md Phase 2b. Each shows the same five elements a methods reviewer or IRB looks for; fill
-the `[brackets]` from the actual calculation — never invent the inputs. These are synthetic
+complementing `formulas.md` (the math); the retrospective/experience-based templates (SKILL.md
+Phase 2b) are at the end of this file. Each exemplar shows the same five elements a methods
+reviewer or IRB looks for; fill the `[brackets]` from the actual calculation — never invent the
+inputs. These are synthetic
 teaching models of *standard* justification structure, not copied text.
 
 ## The five elements (every justification states all five)
@@ -32,18 +33,20 @@ separately from the non-diseased count `[N_nondiseased]` and is satisfied at thi
 **precision, not power** — no comparison hypothesis is tested." (Cite Hajian-Tilaki / Buderer.)
 
 **Survival (log-rank).** "To detect a hazard ratio of `[HR]` (median `[m1]` vs `[m2]`) with
-two-sided α = 0.05 and 80% power, `[E]` events are required (Schoenfeld); with an accrual of
-`[a]` over `[t]` and follow-up `[f]`, this needs `[N]` participants. The **event count**, not N,
-drives power."
+two-sided α = 0.05 and 80% power and `[1:1]` allocation, `[E]` events are required (Schoenfeld,
+1983); with uniform accrual over `[a]`, a minimum follow-up of `[f]` and `[d]%` loss to follow-up per
+year, this needs `[N]` participants. The **event count**, not N, drives power."
 
 **Agreement / reliability (ICC).** "Assuming a true ICC of `[ρ]` with `[k]` raters per subject,
-`[n]` subjects give a 95% CI half-width of `[w]` (a **precision** aim, Bonett/Walter) —
-*or*, framed as **assurance**, `[n]` subjects so the 95% CI lower bound exceeds the minimally
-acceptable `[ρ0]`. State which of the two aims you used; report the CI target, not power."
+`[n]` subjects give a 95% CI width of `[w]` (a **precision** aim, Bonett 2002) —
+*or*, framed as a **test**, `[n]` subjects give `[power]`% power to show the ICC exceeds the minimally
+acceptable `[ρ0]` at one-sided α `[α]` (Walter, Eliasziw & Donner 1998). State which of the two aims
+you used; the two give different n."
 
 **Non-inferiority.** "With a non-inferiority margin of `[m]` (justified clinically and by
-`[regulatory/prior]` precedent), assuming true equivalence and a control rate `[p]`, one-sided
-α = 0.025 and 90% power require `[n/arm]` per arm. The margin and its rationale are pre-specified."
+`[regulatory/prior]` precedent), assuming no true difference (or a true difference of `[Δ]` in
+favour of the new method) and a control rate `[p]`, one-sided α = 0.025 and 90% power require
+`[n/arm]` per arm. The margin and its rationale are pre-specified."
 
 ## Discipline
 - The calculation must match the **planned primary analysis** (do not power for a t-test and
@@ -52,3 +55,17 @@ acceptable `[ρ0]`. State which of the two aims you used; report the CI target, 
   do not invent a comparison hypothesis to manufacture a power statement.
 - Never reverse-engineer the effect size from an achievable n (post-hoc justification); the
   assumed effect comes from a cited source or an MCID. Post-hoc/observed power is uninformative.
+
+## Retrospective / experience-based (SKILL.md Phase 2b)
+
+**Institution volume-based** (`exams in period × prevalence × (1 − exclusion rate) = expected N`):
+> Based on approximately [X] [modality] examinations performed annually at [institution],
+> and an estimated prevalence of [condition] of [Y]%, we anticipate identifying approximately
+> [N] eligible patients over the [Z]-year study period. After accounting for an estimated
+> [W]% exclusion rate (due to [reasons]), we expect a final sample of approximately [N_adj]
+> patients for analysis.
+
+**Prior study-based** (3–5 comparable published studies, cited):
+> Previous studies evaluating [similar topic] with [similar design] enrolled [N1] (Author1
+> et al., Year), [N2] (Author2 et al., Year), and [N3] (Author3 et al., Year) patients.
+> Our anticipated sample of [N] patients is [comparable to / larger than] these prior studies.

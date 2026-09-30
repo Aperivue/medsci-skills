@@ -22,7 +22,7 @@ This is the English default template. For a Korean-language report, use `report_
 - Source artifact: {manuscript/<id>/v_N_package/draft.md, mtime, sha256}
 - Frozen version: v_{N} (freeze date YYYY-MM-DD, at the time of circulation)
 - This run wrote to: v_{N+1}_package/ (branch OK) | OR v_{N} directly (**violation — halt**)
-- `manuscript-versioning.md` rule compliance: ✅ / ❌
+- Frozen-version rule compliance: ✅ / ❌
 
 ## Source artifacts checked
 - {path1} — read at {timestamp}, sha256 {hash}
@@ -69,7 +69,7 @@ The user must fill these in directly (autonomous authoring permanently forbidden
 ## Tier-3 Blocked Items
 These actions are permanently forbidden in `--e2e` autonomous flow. On any attempt, halt + record below.
 
-**Hook-confirmed blocks (`~/.claude/hooks/tier3-confirm.sh`)**:
+**Hook-confirmed blocks (where a Tier-3 confirm hook is installed)**:
 - `gws gmail +send/+reply`
 - YouTube upload
 

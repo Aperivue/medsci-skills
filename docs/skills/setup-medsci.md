@@ -2,9 +2,9 @@
 
 # setup-medsci
 
-> Diagnostic checklist for the MedSci Skills runtime. Verifies Python, R, Node, Claude Code, Git, Zotero, and configured MCP servers, and prints a pass/fail table with links to the right setup doc for any missing component. Read-only — does not install anything.
+> Use when a skill fails for a missing tool or the environment needs checking. Diagnoses Python, R, Node, Claude Code, Git, Zotero and configured MCP servers and prints a pass/fail table with links to the setup docs. Read-only; installs nothing.
 
-**Invoke:** `/setup-medsci` · **Tools:** Bash, Read · **Model:** inherit
+**Invoke:** `/setup-medsci`
 
 ## When to use
 
@@ -12,11 +12,11 @@
 
 ## Quality Card
 
-**Purpose** — Check and prepare the local toolchain (Python/R/CLI deps) needed to run the skills.
+**Purpose** — Check the local toolchain (Python/R/CLI deps, MCP servers) the skills need and report what is missing.
 
 **Safety boundaries**
 
-- Confirms before destructive or system-wide changes; surfaces what is missing.
+- Read-only: reports what is missing and links the setup doc; installs and configures nothing.
 - Operates locally; does not transmit machine state.
 
 **Known limitations**

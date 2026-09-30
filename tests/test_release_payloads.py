@@ -139,6 +139,38 @@ class PayloadControls(unittest.TestCase):
         files['package.json'] = json.dumps(config).encode()
         self.assertTrue(any('identity/version' in p for p in self.check_npm(self.tar(files))))
 
+    def write_config(self, entries):
+        files = dict(self.files); config = json.loads(files['package.json']); config['files'] = entries
+        files['package.json'] = json.dumps(config).encode()
+        (self.root / 'package.json').write_bytes(files['package.json'])
+        return files
+
+    def test_npm_files_exclusion_is_predicted_segment_by_segment(self):
+        test_file = 'skills/demo/tests/test_demo.sh'
+        (self.root / test_file).parent.mkdir(parents=True); (self.root / test_file).write_bytes(b'Synthetic.\n')
+        subprocess.run(['git', '-C', str(self.root), 'add', '--', test_file], check=True)
+        files = self.write_config(['skills/', '!skills/*/tests/', 'installers/install.py', 'bin/medsci-skills.js',
+                                   'README.md', 'README_FIRST.md', 'LICENSE', 'metadata/'])
+        expected = payload.npm_expected(self.root)
+        self.assertNotIn(test_file, expected); self.assertIn('skills/demo/SKILL.md', expected)
+        self.assertEqual(self.check_npm(self.tar(files)), [])
+        files[test_file] = b'Synthetic.\n'
+        self.assertTrue(any('unexpected' in p for p in self.check_npm(self.tar(files))))
+
+    def test_npm_files_patterns_it_cannot_predict_are_refused(self):
+        for entry in ('skills/*/', '!skills/**/tests/', '!skills/de?o/', '!'):
+            with self.subTest(entry=entry):
+                self.write_config(['skills/', entry, 'README.md'])
+                with self.assertRaises(payload.PayloadError): payload.npm_expected(self.root)
+
+    def test_repository_npm_payload_ships_doctor_and_no_skill_tests(self):
+        # install.py imports doctor.py for its closing "what else this computer needs" summary, and
+        # docs/install.md tells people to run it; skill tests stay in the repository, as in the ZIP.
+        expected = payload.npm_expected(ROOT)
+        self.assertIn('installers/doctor.py', expected)
+        self.assertEqual([p for p in expected if p.startswith('skills/') and p.split('/')[2:3] == ['tests']], [])
+        self.assertIn('skills/orchestrate/SKILL.md', expected)
+
     def test_npm_executable_bit_is_verified(self):
         self.assertTrue(any('executable' in p for p in self.check_npm(self.tar(cli_mode=0o644))))
 
@@ -201,8 +233,25 @@ class PayloadControls(unittest.TestCase):
     def step(self, name, **extra_env):
         steps = yaml.safe_load((ROOT / '.github/workflows/release.yml').read_text())['jobs']['release']['steps']
         run, = [s['run'] for s in steps if s.get('name', '').startswith(name)]
-        env = dict(os.environ, RELEASE_TAG='v9.9.9', SOURCE_SHA='a'*40, **extra_env)
+        env = dict(os.environ, RELEASE_TAG='v9.9.9', SOURCE_SHA='a'*40)
+        env.update(extra_env)
         return subprocess.run(['bash', '-e', '-c', run], cwd=self.root, env=env, capture_output=True, text=True)
+
+    def git(self, *args):
+        return subprocess.check_output(['git', '-C', str(self.root), '-c', 'user.name=Synthetic Test',
+                                        '-c', 'user.email=test@example.org', *args], text=True).strip()
+
+    def commit_and_tag(self, *tags, message='Synthetic source'):
+        self.git('commit', '-q', '--allow-empty', '-m', message)
+        for tag in tags:
+            self.git('tag', tag)
+        return self.git('rev-parse', 'HEAD')
+
+    def stub(self, name, body):
+        path = self.out / name
+        path.write_text('#!/bin/bash\n' + body)
+        path.chmod(0o755)
+        return str(self.out) + os.pathsep + os.environ['PATH']
 
     def tools_checkout(self):
         (self.root / '.release-tools').symlink_to(ROOT, target_is_directory=True)
@@ -219,15 +268,96 @@ class PayloadControls(unittest.TestCase):
             self.assertEqual(self.check_zip(path), [])
         self.assertEqual(self.step('Verify ZIPs are consumable').returncode, 0)
 
-    def test_workflow_records_tag_commit_not_dispatch_sha(self):
-        subprocess.run(['git', '-C', str(self.root), '-c', 'user.name=Synthetic Test',
-                        '-c', 'user.email=test@example.org', 'commit', '-qm', 'Synthetic source'], check=True)
-        subprocess.run(['git', '-C', str(self.root), 'tag', 'v9.9.9'], check=True)
-        expected = subprocess.check_output(['git', '-C', str(self.root), 'rev-parse', 'HEAD'], text=True).strip()
+    def test_run_triggered_from_another_commit_is_rejected(self):
+        # The attestation and npm provenance sign GITHUB_SHA, the commit the run was triggered
+        # from; the ZIP records the tag's commit. A recovery dispatched from main for an older tag
+        # (v5.27.0's was) therefore signed main's commit as the payload's source. The run must
+        # come from the tag's own commit, and the recorded SOURCE_SHA is still the tag's.
+        expected = self.commit_and_tag('v9.9.9')
         env_file = self.out / 'env'
-        result = self.step('Resolve the selected release commit', GITHUB_ENV=str(env_file), GITHUB_SHA='b'*40)
-        self.assertEqual(result.returncode, 0, result.stderr)
+        elsewhere = self.step('Resolve the selected release commit', GITHUB_ENV=str(env_file), GITHUB_SHA='b'*40)
+        self.assertNotEqual(elsewhere.returncode, 0, 'a run from another commit would sign the wrong provenance')
+        self.assertIn('--ref v9.9.9', elsewhere.stderr)
+        self.assertFalse(env_file.exists())
+        from_tag = self.step('Resolve the selected release commit', GITHUB_ENV=str(env_file), GITHUB_SHA=expected)
+        self.assertEqual(from_tag.returncode, 0, from_tag.stderr)
         self.assertEqual(env_file.read_text(), f'SOURCE_SHA={expected}\n')
+
+    def preflight(self, source_sha, runs, **env):
+        # `gh api --jq` prints one "status conclusion url" line per Validate run; the stub prints
+        # the lines the case supplies, one set per call, and records what it was asked. Like gh,
+        # it returns the second page only when asked to --paginate.
+        path = self.stub('gh', 'echo "$*" >> "$CALLS"\n'
+                               'var="STUB_RUNS_$(grep -c "" "$CALLS")"; val="${!var}"\n'
+                               'printf "%s" "${val:-$STUB_RUNS}"\n'
+                               'case "$*" in *--paginate*) printf "%s" "${STUB_RUNS_PAGE2:-}" ;; esac\n')
+        calls = self.out / 'gh-calls'
+        calls.unlink(missing_ok=True)
+        env = dict(dict(VALIDATE_WAIT_WINDOW='0', VALIDATE_WAIT_INTERVAL='0'), **env)
+        result = self.step('Preflight', SOURCE_SHA=source_sha, STUB_RUNS=runs, CALLS=str(calls), PATH=path,
+                           GITHUB_REPOSITORY='Synthetic/repo', **env)
+        return result, (calls.read_text() if calls.exists() else '')
+
+    def test_preflight_requires_the_commit_on_main_and_a_passing_validate_run(self):
+        # Validate does not run on tag pushes. Before this preflight, a tag on a commit whose
+        # Validate run failed, or that no Validate run ever saw, published anyway.
+        self.git('checkout', '-q', '-b', 'main')
+        on_main = self.commit_and_tag('v9.9.9')
+        self.git('remote', 'add', 'origin', str(self.root))
+        ok = 'completed success https://example.org/runs/1\n'
+
+        result, calls = self.preflight(on_main, ok)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('actions/workflows/validate.yml/runs?head_sha=' + on_main, calls)
+
+        for runs, why in [('', 'no Validate run'),
+                          ('completed failure https://example.org/runs/2\n', 'did not pass'),
+                          (ok + 'completed cancelled https://example.org/runs/3\n', 'did not pass'),
+                          ('in_progress none https://example.org/runs/4\n', 'still running')]:
+            with self.subTest(runs=runs):
+                result, _ = self.preflight(on_main, runs)
+                self.assertNotEqual(result.returncode, 0, f'{runs!r} must not publish')
+                self.assertIn(why, result.stderr)
+
+        # A failed run on the second page of results is still a failed run.
+        page1 = ''.join(f'completed success https://example.org/runs/{i}\n' for i in range(100))
+        result, calls = self.preflight(on_main, page1, STUB_RUNS_PAGE2='completed failure https://example.org/runs/101\n')
+        self.assertNotEqual(result.returncode, 0, 'a failure on page 2 must not publish')
+        self.assertIn('runs/101', result.stderr)
+
+        # A run still in progress is waited for, not failed on sight.
+        result, calls = self.preflight(on_main, ok, STUB_RUNS_1='queued none https://example.org/runs/5\n',
+                                       VALIDATE_WAIT_WINDOW='30')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(len(calls.splitlines()), 2)
+
+        # Green CI on a commit main never had is still not a release of main.
+        self.git('checkout', '-q', '-b', 'side')
+        off_main = self.commit_and_tag('v9.9.10', message='Synthetic side change')
+        self.git('checkout', '-q', 'main')
+        result, calls = self.preflight(off_main, ok, RELEASE_TAG='v9.9.10')
+        self.assertNotEqual(result.returncode, 0, 'a tag off main must not publish')
+        self.assertIn('not on main', result.stderr)
+        self.assertEqual(calls, '')
+
+    def test_preflight_runs_before_anything_is_built_with_a_read_only_scope(self):
+        workflow = yaml.safe_load((ROOT / '.github/workflows/release.yml').read_text())
+        names = [s['name'] for s in workflow['jobs']['release']['steps']]
+        index = lambda prefix: next(i for i, n in enumerate(names) if n.startswith(prefix))
+        self.assertLess(index('Resolve the selected release commit'), index('Preflight'))
+        self.assertLess(index('Preflight'), index('Build classroom release ZIPs'))
+        self.assertLess(index('Preflight'), index('Create GitHub Release'))
+        perms = workflow['permissions']
+        self.assertEqual(perms.get('actions'), 'read')
+        self.assertEqual({k for k, v in perms.items() if v == 'write'}, {'contents', 'id-token', 'attestations'})
+
+    def test_publish_job_node_supports_trusted_publishing(self):
+        # npm documents trusted publishing as needing Node >= 22.14.0 as well as npm >= 11.5.1.
+        steps = yaml.safe_load((ROOT / '.github/workflows/release.yml').read_text())['jobs']['release']['steps']
+        node, = [s['with']['node-version'] for s in steps if 'setup-node' in s.get('uses', '')]
+        parts = [int(x) for x in str(node).split('.')]
+        self.assertTrue(parts[0] > 22 or (parts[0] == 22 and (len(parts) == 1 or parts[1] >= 14)),
+                        f'node-version {node} is below the 22.14 trusted publishing requires')
 
     def test_workflow_publishes_the_inspected_tarball_and_skips_existing_version(self):
         stub = self.out / 'npm'
@@ -302,6 +432,22 @@ class PayloadControls(unittest.TestCase):
                       'the compared value must come from the registry, not from the job itself')
         self.assertIn('exit 1', assertion['run'])
 
+    def releases(self, *pages):
+        # Stub `gh api [--paginate] .../releases --jq EXPR`: the step's own jq expression is applied
+        # (with real jq, as gh would) to canned API pages, the second page only under --paginate.
+        # Returns the env that points the step at it.
+        self.stub('gh', 'expr=""; all=0\n'
+                        'while [ $# -gt 0 ]; do case "$1" in --jq) expr="$2"; shift 2 ;; '
+                        '--paginate) all=1; shift ;; *) shift ;; esac; done\n'
+                        'printf "%s" "$STUB_REL_1" | jq -r "$expr"\n'
+                        '[ "$all" = 1 ] && [ -n "${STUB_REL_2:-}" ] && printf "%s" "$STUB_REL_2" | jq -r "$expr"\n'
+                        'exit 0\n')
+        env = {'GITHUB_REPOSITORY': 'Synthetic/repo', 'STUB_REL_1': '[]', 'STUB_REL_2': ''}
+        for i, page in enumerate(pages, 1):
+            env[f'STUB_REL_{i}'] = json.dumps([{'tag_name': t, 'draft': d, 'prerelease': pre}
+                                               for t, d, pre in page])
+        return env
+
     def test_npm_propagation_wait_fails_when_the_version_never_appears(self):
         # npm publishes asynchronously ("may take a few minutes to become available"; 5 min 20 s
         # observed on 2026-09-24), so this step waits. The failure mode a string check cannot see
@@ -312,7 +458,8 @@ class PayloadControls(unittest.TestCase):
         stub.write_text('#!/bin/bash\n[ "$STUB_HAS_VERSION" = "1" ] && echo 9.9.9\nexit 0\n')
         stub.chmod(0o755)
         env = dict(PATH=str(self.out) + os.pathsep + os.environ['PATH'],
-                   NPM_PROPAGATION_WINDOW='1', NPM_PROPAGATION_INTERVAL='0')
+                   NPM_PROPAGATION_WINDOW='1', NPM_PROPAGATION_INTERVAL='0',
+                   **self.releases([('v9.9.9', False, False)]))
 
         never = self.step('npm must actually carry', STUB_HAS_VERSION='0', **env)
         self.assertNotEqual(never.returncode, 0,
@@ -322,6 +469,41 @@ class PayloadControls(unittest.TestCase):
         arrives = self.step('npm must actually carry', STUB_HAS_VERSION='1', **env)
         self.assertEqual(arrives.returncode, 0, arrives.stdout + arrives.stderr)
         self.assertIn('npm carries 9.9.9', arrives.stdout)
+
+    def test_newest_release_must_be_npm_latest_but_an_older_recovery_need_not(self):
+        # A recovery run finds the version already on npm and skips the publish; the old check
+        # then asked only whether the version existed. With `latest` still on the previous release,
+        # it went green while `npx medsci-skills@latest` kept installing the old one.
+        path = self.stub('npm', 'case "$*" in *dist-tags.latest*) echo "$STUB_LATEST" ;; *) echo 9.9.9 ;; esac\n')
+        env = dict(PATH=path, NPM_PROPAGATION_WINDOW='0', NPM_PROPAGATION_INTERVAL='0')
+        run = lambda latest, *pages: self.step('npm must actually carry', STUB_LATEST=latest,
+                                               **env, **self.releases(*pages))
+
+        nothing = run('9.9.9')
+        self.assertNotEqual(nothing.returncode, 0, 'unreadable releases must not skip the latest check')
+
+        this = ('v9.9.9', False, False)
+        stale = run('9.9.8', [this])
+        self.assertNotEqual(stale.returncode, 0, 'the newest release with a stale latest must fail')
+        self.assertIn('npm dist-tag add medsci-skills@9.9.9 latest', stale.stdout)
+        current = run('9.9.9', [this])
+        self.assertEqual(current.returncode, 0, current.stdout)
+        self.assertIn('latest points to it', current.stdout)
+
+        # Higher versions that are not published releases do not make this one old: a draft, a
+        # prerelease, and a stray tag with no release at all (v99.0.0 on a commit that failed the
+        # preflight). Before, the highest TAG decided, and the stray tag waived this very check.
+        self.commit_and_tag('v99.0.0')
+        unpublished = run('9.9.8', [this, ('v98.0.0', True, False), ('v97.0.0', False, True)])
+        self.assertNotEqual(unpublished.returncode, 0, 'an unpublished higher version must not waive the check')
+        self.assertIn('npm dist-tag add medsci-skills@9.9.9 latest', unpublished.stdout)
+
+        # v9.10.0, a published release on the SECOND page of results, sorts after v9.9.9 as a
+        # version (not as text), so v9.9.9 is an older release being recovered and `latest` stays.
+        older = run('9.10.0', [this], [('v9.10.0', False, False)])
+        self.assertEqual(older.returncode, 0, older.stdout)
+        self.assertIn('older than v9.10.0', older.stdout)
+        self.assertIn('left alone', older.stdout)
 
     def registry_responses(self, data, *, version='9.9.9', integrity=None, url=None):
         url = url or 'https://registry.npmjs.org/medsci-skills/-/medsci-skills-9.9.9.tgz'

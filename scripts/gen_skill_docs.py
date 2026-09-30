@@ -10,7 +10,8 @@ CI-gated with --check, exactly like metadata/catalog_counts.json gates the count
 
 Fail loud: a malformed SKILL.md (missing required field, name != directory, unclosed
 frontmatter, or an unsupported multiline value shape) aborts generation rather than
-emitting a silently wrong page.
+emitting a silently wrong page. The one nested value the schema allows is the Agent Skills
+`metadata:` map, one level deep (`metadata.triggers`); anything deeper still fails.
 
 Stdlib-only (runs anywhere, incl. the local pre-commit context). Deterministic — sorted,
 no timestamps — so --check is meaningful.
@@ -27,11 +28,21 @@ import re
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from skill_aliases import alias_target  # noqa: E402
+
 ROOT = Path(__file__).resolve().parent.parent
 SKILLS_DIR = ROOT / "skills"
 DOCS_DIR = ROOT / "docs" / "skills"
 
-REQUIRED = ("name", "description", "triggers", "tools", "model")
+# `metadata.triggers` is the `triggers:` key inside the one-level `metadata:` map (see
+# parse_frontmatter). `tools` is gone: hosts ignore it, and v6 removed it from every SKILL.md.
+# `model` is optional: only a skill that names a real model sets it (no value = the session's model).
+REQUIRED = ("name", "description", "metadata.triggers")
+# Top-level keys whose value may be a one-level mapping. Its children are returned flattened as
+# `<key>.<child>`; a child that opens its own block, a list item, or a line indented differently
+# from the first child fails loud.
+NESTED_MAPS = ("metadata",)
 RESOURCE_DIRS = ("references", "scripts", "templates")
 RESOURCE_LABELS = {"references": "References", "scripts": "Scripts", "templates": "Templates"}
 
@@ -44,6 +55,7 @@ CARD_SCALARS = ("purpose", "evidence_surface")
 CARD_LISTS = ("safety_boundaries", "known_limitations", "validation_commands")
 
 KEY_RE = re.compile(r"^([A-Za-z_][A-Za-z0-9_-]*):(.*)$")
+CHILD_RE = re.compile(r"^(\s+)([A-Za-z_][A-Za-z0-9_-]*):(.*)$")
 BLOCK_INDICATORS = {">", "|", ">-", "|-", ">+", "|+"}
 
 
@@ -51,9 +63,38 @@ class SkillError(Exception):
     """Raised when a SKILL.md cannot be parsed into a valid, complete page."""
 
 
+def _parse_nested_map(fm: list[str], i: int, parent: str, data: dict[str, str],
+                      skill: str) -> int:
+    """Read the indented `key: value` children of `parent:` into `data['<parent>.<key>']`,
+    starting at line `i`; return the index of the next top-level line. One level only."""
+    indent = None
+    n = len(fm)
+    while i < n:
+        line = fm[i]
+        if not line.strip():
+            i += 1
+            continue
+        if not line[:1].isspace():
+            break  # next top-level key
+        m = CHILD_RE.match(line)
+        if not m:
+            raise SkillError(f"{skill}: unsupported line under '{parent}:': {line!r}")
+        if indent is None:
+            indent = m.group(1)
+        elif m.group(1) != indent:
+            raise SkillError(f"{skill}: '{parent}:' must be one level deep; unsupported line: {line!r}")
+        child, rest = m.group(2), m.group(3).strip()
+        if rest == "" or rest in BLOCK_INDICATORS:
+            raise SkillError(f"{skill}: '{parent}.{child}' must be a single-line value")
+        data[f"{parent}.{child}"] = rest.strip('"').strip("'")
+        i += 1
+    return i
+
+
 def parse_frontmatter(text: str, skill: str) -> dict[str, str]:
-    """Parse the YAML frontmatter block. Supports single-line `key: value` and folded/
-    literal block scalars (`key: >` / `key: |`). Any other multiline shape fails loud."""
+    """Parse the YAML frontmatter block. Supports single-line `key: value`, folded/literal
+    block scalars (`key: >` / `key: |`), and the one-level `metadata:` map (children returned
+    as `metadata.<key>`). Any other multiline shape fails loud."""
     lines = text.splitlines()
     if not lines or lines[0].strip() != "---":
         raise SkillError(f"{skill}: SKILL.md must open with a '---' frontmatter line")
@@ -95,12 +136,15 @@ def parse_frontmatter(text: str, skill: str) -> dict[str, str]:
             data[key] = " ".join(block).strip()
             continue
 
-        if rest == "":  # empty value with indented followers == list/other — unsupported
+        if rest == "":  # empty value with indented followers: the metadata map, else unsupported
             j = i + 1
             while j < n and fm[j].strip() == "":
                 j += 1
             if j < n and fm[j][:1].isspace():
-                raise SkillError(f"{skill}: unsupported multiline/list value for '{key}'")
+                if key not in NESTED_MAPS:
+                    raise SkillError(f"{skill}: unsupported multiline/list value for '{key}'")
+                i = _parse_nested_map(fm, j, key, data, skill)
+                continue
             data[key] = ""
             i += 1
             continue
@@ -259,7 +303,7 @@ def render_quality_card(card: dict | None) -> list[str]:
 
 def render_page(name: str, fm: dict[str, str], resources: dict[str, list[str]],
                 card: dict | None = None) -> str:
-    triggers = ", ".join(t.strip() for t in fm["triggers"].split(",") if t.strip())
+    triggers = ", ".join(t.strip() for t in fm["metadata.triggers"].split(",") if t.strip())
     out = [
         f"<!-- AUTO-GENERATED from skills/{name}/SKILL.md by scripts/gen_skill_docs.py. Do not edit by hand. -->",
         "",
@@ -267,7 +311,7 @@ def render_page(name: str, fm: dict[str, str], resources: dict[str, list[str]],
         "",
         f"> {fm['description']}",
         "",
-        f"**Invoke:** `/{name}` · **Tools:** {fm['tools']} · **Model:** {fm['model']}",
+        f"**Invoke:** `/{name}`" + (f" · **Model:** {fm['model']}" if fm.get("model") else ""),
         "",
         "## When to use",
         "",
@@ -298,7 +342,8 @@ def render_page(name: str, fm: dict[str, str], resources: dict[str, list[str]],
     return "\n".join(out)
 
 
-def render_index(skills: list[tuple[str, dict[str, str], str]]) -> str:
+def render_index(skills: list[tuple[str, dict[str, str], str]],
+                 aliases: dict[str, str] | None = None) -> str:
     out = [
         "<!-- AUTO-GENERATED by scripts/gen_skill_docs.py. Do not edit by hand. -->",
         "",
@@ -318,6 +363,11 @@ def render_index(skills: list[tuple[str, dict[str, str], str]]) -> str:
         + (f" _(evidence: {ev})_" if ev else "")
         for name, fm, ev in skills
     ]
+    if aliases:
+        # A compatibility alias gets no page of its own (it has nothing to document); the index
+        # says where the old name now lives so an old link or muscle memory still lands somewhere.
+        out += ["", "## Renamed skills (compatibility aliases until v7)", ""]
+        out += [f"- `/{a}` → [{t}]({t}.md)" for a, t in sorted(aliases.items())]
     out.append("")
     return "\n".join(out)
 
@@ -333,12 +383,17 @@ def build() -> dict[Path, str]:
         raise SkillError("no skills with a SKILL.md found")
     expected: dict[Path, str] = {}
     loaded: list[tuple[str, dict[str, str], str]] = []
+    aliases: dict[str, str] = {}
     for sd in skill_dirs:
+        target = alias_target(sd)
+        if target is not None:
+            aliases[sd.name] = target
+            continue
         fm = load_skill(sd)
         card = parse_skill_yml(sd)
         expected[DOCS_DIR / f"{sd.name}.md"] = render_page(sd.name, fm, list_resources(sd), card)
         loaded.append((sd.name, fm, (card or {}).get("evidence_surface", "")))
-    expected[DOCS_DIR / "README.md"] = render_index(loaded)
+    expected[DOCS_DIR / "README.md"] = render_index(loaded, aliases)
     return expected
 
 

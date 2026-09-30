@@ -3,7 +3,8 @@
 Load-on-demand companion to `/check-reporting` Step 5. SKILL.md keeps the
 NOT-FOR-SUBMISSION rule, the part list, and the JSON field contract; this file carries
 the four literal output templates — Part A (summary), Part B (item-by-item checklist),
-Part C (action items), and Part D (the machine-readable JSON block).
+Part C (action items), and Part D (the machine-readable JSON block) — plus the format for the
+separate submission-checklist export.
 
 Read it when you are writing the report. Everything here is an output format: none of it
 informs the audit itself.
@@ -11,18 +12,6 @@ informs the audit itself.
 **The banner is not optional.** The report MUST begin with the NOT-FOR-SUBMISSION comment
 as its very first line — this is an internal working audit, never the official journal
 checklist an author fills in and uploads.
-
-Produce a structured compliance report in two parts.
-
-This report is an **internal working audit** — it carries auto-fix annotations, a
-machine-readable JSON block (`compliance_pct`, `fixable_by_ai`, …), and Action
-Items. It is **NOT** the official reporting checklist a journal expects (that is
-the blank guideline form with `Item | Recommendation | Reported in page/section`,
-which the authors fill in). Never submit this report as the submission checklist.
-To make the file self-identifying so it cannot be reused by filename into a later
-submission package, **the report MUST begin with the NOT-FOR-SUBMISSION banner
-below** as its very first line. (`/sync-submission`'s `check_checklist_dump_leak`
-gate also catches this dump if it ever lands in a submission directory.)
 
 #### Part A: Summary
 
@@ -138,3 +127,23 @@ Append a fenced JSON block at the end of the report. This enables `/write-paper`
 - `suggested_fix`: Concrete draft text that can be inserted or used to expand an existing sentence
 
 ---
+
+## Submission checklist export (separate deliverable)
+
+Many journals require a filled reporting checklist to be submitted alongside the manuscript.
+When the user asks for a submission-ready checklist, format the output as:
+
+```
+{Guideline Name} Checklist
+
+Manuscript title: {title}
+Date: {YYYY-MM-DD}
+
+| Item # | Checklist Item | Reported on Page # | Reported in Section |
+|--------|---------------|-------------------|-------------------|
+| 1 | {item text} | {page or N/A} | {section} |
+| 2 | {item text} | {page or N/A} | {section} |
+| ... | ... | ... | ... |
+```
+
+Page numbers should be filled in by the user after final formatting. Use section names as placeholders.

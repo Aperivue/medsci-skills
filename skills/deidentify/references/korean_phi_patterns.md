@@ -10,10 +10,10 @@ This file serves as documentation; the actual patterns are in the Python script.
 ### 주민등록번호 (Resident Registration Number)
 
 ```
-\d{6}-[1-4]\d{6}
+\d{6}-?[1-8]\d{6}
 ```
 
-- Format: `YYMMDD-GNNNNNN`
+- Format: `YYMMDD-GNNNNNN`; the hyphen is optional (`8503151234567` is matched too)
 - First 6 digits: birthdate (YYMMDD)
 - 7th digit (G): gender + birth century (1=1900s male, 2=1900s female, 3=2000s male, 4=2000s female)
 - Remaining 6: region code + serial + check digit
@@ -26,7 +26,7 @@ This file serves as documentation; the actual patterns are in the Python script.
 ```
 
 - Same format as 주민번호 but 7th digit is 5-8
-- Covered by the same regex when expanded to `[1-8]`
+- Covered by the 주민등록번호 regex above (`[1-8]`)
 
 ### 전화번호 — 휴대전화 (Mobile Phone)
 
@@ -35,7 +35,9 @@ This file serves as documentation; the actual patterns are in the Python script.
 ```
 
 - Prefixes: 010, 011, 016, 017, 018, 019
-- Dashes optional
+- Dashes optional. Before matching, the scanner also tries each value with the
+  spaces, dots and hyphens between digits removed and with `+82` written as `0`,
+  so `010 1234 5678`, `010.1234.5678` and `+82 10 1234 5678` are matched too
 - Examples: `010-1234-5678`, `01012345678`, `011-234-5678`
 
 ### 전화번호 — 유선전화 (Landline)

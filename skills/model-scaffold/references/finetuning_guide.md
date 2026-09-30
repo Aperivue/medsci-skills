@@ -10,7 +10,7 @@ record); this guide covers the decisions it deliberately leaves to you.
 Fine-tuning a pretrained backbone is the right default whenever the labelled clinical set is
 small (hundreds–low-thousands of patients) — the regime almost every solo clinical study is
 in. From-scratch training needs far more data to beat a fine-tuned ImageNet/medical backbone.
-Pick the backbone in `/architecture-zoo`; adapt it here.
+Pick the backbone in `/model-selection`; adapt it here.
 
 ## The provenance record is load-bearing — `PRETRAINED.md`
 A fine-tune is only reproducible if the **exact** pretrained weights are recorded. `--task
@@ -67,7 +67,7 @@ a novel method here). Two hard rules keep it leakage-safe:
 1. **Any generative model used for augmentation must be trained on the TRAIN split only.** If
    the diffusion (or GAN) model saw val/test images, its samples leak that distribution into
    training — the generative analogue of fitting a normaliser on full data
-   (`/preprocess-imaging` `NORMALIZATION_LEAKAGE`).
+   (`/imaging-data` `NORMALIZATION_LEAKAGE`).
 2. **Synthetic images augment TRAIN only, never val/test.** Evaluating on — or augmenting —
    the held-out split with synthetic data invalidates the metric. `check_preprocessing_leakage`
    flags `AUGMENTATION_ON_EVAL`; declare synthetic augmentation in the preprocessing manifest
@@ -80,12 +80,12 @@ Fill `methods_stub.md` and `PRETRAINED.md`, then hand off to `/write-paper` +
 `/check-reporting`. Fine-tuning specifics reviewers expect: the pretrained source + its
 pretraining data (contamination check), the freeze/unfreeze schedule and learning rates,
 and — for SAM/MedSAM — the prompt protocol. Report held-out metrics as **mean ± SD over ≥ 3
-seeds** (`/model-evaluation` → `/analyze-stats`); fine-tuning is seed-sensitive on small data.
+seeds** (`/model-assessment` → `/analyze-stats`); fine-tuning is seed-sensitive on small data.
 
 ## Hand-offs
-- Backbone / architecture choice (incl. SAM/MedSAM, diffusion) → `/architecture-zoo`.
+- Backbone / architecture choice (incl. SAM/MedSAM, diffusion) → `/model-selection`.
 - Data-stage leakage (normalisation fit, augmentation-on-eval, slice crossing) →
-  `/preprocess-imaging` (`check_preprocessing_leakage`).
-- Split / validation-design audit → `/model-validation` (`check_split_leakage.py`).
-- Held-out metrics + CIs → `/model-evaluation` → `/analyze-stats`.
+  `/imaging-data` (`check_preprocessing_leakage`).
+- Split / validation-design audit → `/model-assessment` (`check_split_leakage.py`).
+- Held-out metrics + CIs → `/model-assessment` → `/analyze-stats`.
 - Provenance/model documentation → `/model-card` (Model Card + Datasheet).

@@ -104,6 +104,43 @@ for cap in doctor.CAPABILITIES:
 PY
 ck "brief_summary() (the installer's tail) never raises" 0 "$?"
 
+# --- 6. The --fix command the installer's tail prints must work from wherever the person is -------
+#
+# After `npx medsci-skills install` the current folder is not the package, so a relative
+# `installers/doctor.py --fix` names a file that is not there. Run from $TMP with pandoc hidden and
+# require the printed path to exist from there.
+( cd "$TMP" && PATH="$SANDBOX" python3 -B "$DOCTOR" --brief ) > "$TMP/brief" 2>&1
+( cd "$TMP" && python3 - "$TMP/brief" <<'PY'
+import pathlib, shlex, sys
+lines = [l for l in open(sys.argv[1], encoding="utf-8") if l.rstrip().endswith("--fix")]
+assert lines, "the brief summary printed no --fix command although pandoc was hidden"
+args = shlex.split(lines[0])
+assert pathlib.Path(args[-2]).is_file(), f"--fix names a path that does not exist from here: {args[-2]}"
+PY
+)
+ck "the --fix command the installer prints works from any folder" 0 "$?"
+
+# --- 7. ...and survives a path the shell would split: an apostrophe, a space, C:\Program Files ----
+py - "$REPO_ROOT" <<'PY'
+import os, shlex, subprocess, sys, pathlib
+sys.path.insert(0, str(pathlib.Path(sys.argv[1]) / "installers"))
+import doctor
+exe, script = "/opt/My Python/bin/python3", "/x/O'Brien/medsci/installers/doctor.py"
+doctor.shutil.which = lambda _name: None           # never shorten to "python3"
+doctor.sys.executable, doctor.__file__ = exe, script
+line = doctor.py() + " " + doctor.this_script() + " --fix"
+assert shlex.split(line) == [exe, os.path.realpath(script), "--fix"], line
+real = os.name
+os.name = "nt"
+try:
+    win = doctor.shell_quote(r"C:\Program Files\Python314\python.exe")
+finally:
+    os.name = real
+assert win == subprocess.list2cmdline([r"C:\Program Files\Python314\python.exe"]) \
+    == r'"C:\Program Files\Python314\python.exe"', win
+PY
+ck "printed commands quote paths with an apostrophe or a space" 0 "$?"
+
 echo "----"
 echo "test_doctor: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]

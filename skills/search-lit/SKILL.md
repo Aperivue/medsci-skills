@@ -1,27 +1,14 @@
 ---
 name: search-lit
-description: Literature search and citation management for medical research. Searches PubMed, Semantic Scholar, and bioRxiv/medRxiv with verified citations. Anti-hallucination — every reference verified via API before inclusion. Generates BibTeX entries.
-triggers: literature search, find papers, citation, references, bibliography, PubMed search, related work
-tools: Read, Write, Edit, Bash, Grep, Glob
-model: inherit
+description: Use when finding papers or building a reference list. Searches PubMed, Semantic Scholar and bioRxiv/medRxiv, includes only references verified through an API, and generates BibTeX. Auditing an existing reference list is /verify-refs.
+metadata:
+  triggers: "literature search, find papers, citation, references, bibliography, PubMed search, related work"
 ---
 
 # Literature Search Skill
 
-You are assisting a medical researcher with literature searches and citation management for
-medical research papers. Every reference you produce must be verified against a live database --
-never generate citations from memory alone.
-
-## Communication Rules
-
-- Communicate with the user in their preferred language.
-- All citation content (titles, abstracts, BibTeX) in English.
-- Medical terminology is always in English.
-
-## Key Directories
-
-- **BibTeX output**: User-specified directory (default: current working directory)
-- **Manuscript workspace**: determined by the user or the calling skill
+Every reference you produce must come from a live database result — never generate a citation from
+memory alone, because a recalled citation can look real and not exist.
 
 ## Search Tools: MCP (Primary) + E-utilities (Fallback)
 
@@ -41,19 +28,10 @@ never generate citations from memory alone.
 
 ### Fallback: NCBI E-utilities (Direct API via Bash)
 
-When PubMed MCP is unavailable (session timeout, "MCP session has been terminated" error,
-or "No such tool available" error), fall back to NCBI E-utilities via bundled scripts.
-
-**Detection**: If any `mcp__claude_ai_PubMed__*` call returns an error containing
-"terminated", "not found", "not available", or "not connected", switch ALL subsequent
-PubMed calls in this session to E-utilities. Do not retry MCP after a disconnect — it
-will not recover within the same conversation.
-
-**Scripts** (in `${CLAUDE_SKILL_DIR}/references/`):
-- `pubmed_eutils.sh` — Bash wrapper for NCBI E-utilities API
-- `parse_pubmed.py` — Python parser for E-utilities responses
-
-**Usage patterns:**
+If any `mcp__claude_ai_PubMed__*` call returns an error containing "terminated", "not found",
+"not available", or "not connected", switch ALL subsequent PubMed calls in this session to the
+bundled E-utilities scripts. Do not retry MCP after a disconnect — it will not recover within the
+same conversation.
 
 ```bash
 EUTILS="${CLAUDE_SKILL_DIR}/references/pubmed_eutils.sh"
@@ -84,10 +62,8 @@ bash "$EUTILS" related "16168343" 10 \
   | python3 "$PARSER" esummary
 ```
 
-**Rate limiting**: 3 requests/second without API key, 10/sec with NCBI_API_KEY.
-The script auto-sleeps 350ms between calls. For batch operations, keep calls sequential.
-
-**E-utilities → MCP equivalence:**
+The script sleeps 350 ms between calls (NCBI allows 3 requests/s without an API key, 10/s with
+`NCBI_API_KEY`); keep batch calls sequential.
 
 | MCP Tool | E-utilities Command | Parser Mode |
 |----------|-------------------|-------------|
@@ -103,28 +79,21 @@ The script auto-sleeps 350ms between calls. For batch operations, keep calls seq
 
 ### Phase 1: Search Strategy
 
-1. **Understand the need**: Get the research topic, specific question, or manuscript section
-   that needs references.
-2. **Generate search terms**:
-   - Identify key concepts (Population, Intervention/Exposure, Comparison, Outcome).
-   - Generate MeSH terms for PubMed queries.
-   - Build Boolean queries: `(concept1 OR synonym1) AND (concept2 OR synonym2)`.
-3. **Define scope**:
-   - Date range (default: last 10 years unless user specifies).
-   - Article types (original research, review, meta-analysis, etc.).
-   - Language filter (default: English).
-4. **Present the search plan** to the user before executing. Include the Boolean query,
-   databases to search, and filters.
+1. Get the research topic, question, or manuscript section that needs references.
+2. Build the query from the key concepts (Population, Intervention/Exposure, Comparison, Outcome),
+   with MeSH terms for PubMed: `(concept1 OR synonym1) AND (concept2 OR synonym2)`.
+3. Set scope: date range (default: last 10 years unless the user specifies), article types, and
+   language (default: English).
+4. Present the Boolean query, databases, and filters to the user.
 
 **Gate:** Wait for user approval before running searches.
 
 ### Phase 2: Execute Search
 
-1. **Search PubMed** using `search_articles` with the Boolean query.
-2. **Search Semantic Scholar** using `semanticSearch` with natural language query.
-3. **Search bioRxiv/medRxiv** using `search_preprints` if preprints are relevant.
-4. **Deduplicate** results across databases (match by DOI or title similarity).
-5. **Present results** in a structured table:
+1. Search PubMed (`search_articles`, Boolean query), Semantic Scholar (`semanticSearch`, natural
+   language query), and bioRxiv/medRxiv (`search_preprints`) when preprints are relevant.
+2. Deduplicate across databases by DOI or title similarity.
+3. Present the results in this table, and write the same rows to `references/search_results.tsv`:
 
 ```
 | # | Title | Authors (first + last) | Year | Journal | PMID/DOI | Relevance |
@@ -132,126 +101,93 @@ The script auto-sleeps 350ms between calls. For batch operations, keep calls seq
 | 1 | ...   | Kim J, ... Lee S     | 2024 | Radiology | 12345678 | High      |
 ```
 
-6. Ask the user to select which papers to include.
+4. Ask the user to select which papers to include.
 
 #### Record what the source said existed, not only what you downloaded
 
-Search code reports its own haul. Nothing errors when the haul is wrong, and a PRISMA flow built on
-a wrong number is fiction that nothing downstream contradicts. Two signatures, both real, both from
-a single run:
+A wrong haul raises no error, and a PRISMA flow built on a wrong number is fiction that nothing
+downstream contradicts. Check both of these:
 
-- **A count that equals a page cap exactly.** arXiv returned 2,000 records — which was the loop's
-  own `if start >= 2000: break`, not the total (1,528 once the query was fixed). The round number
-  was the only tell. Every source reports a total: `esearchresult.count`,
-  `opensearch:totalResults`, `meta.count`. **Record `api_total` beside `downloaded`, and fail loudly
-  when `downloaded < api_total`, or when `downloaded` equals a page or loop cap exactly.** Print
+- **A count that equals a page cap exactly.** Every source reports a total:
+  `esearchresult.count`, `opensearch:totalResults`, `meta.count`. **Record `api_total` beside
+  `downloaded`, and fail loudly when `downloaded < api_total`, or when `downloaded` equals a page or
+  loop cap exactly** (e.g. a loop's own `if start >= 2000: break` reporting 2,000 records). Print
   `TRUNCATED` and refuse to write the search record.
-- **A boolean that was never applied.** OpenAlex returned 35,345 hits because the query went to
-  `search=`, a relevance-ranked free-text parameter that **silently ignores AND/OR**; the parameter
-  that honours them is `filter=title_and_abstract.search:` (true count: 5,282). So run the query
-  once more with one mandatory clause negated. **If the hit count does not drop, the boolean is
-  being ignored** — the engine is ranking, not filtering.
+- **A boolean that was never applied.** OpenAlex's `search=` is a relevance-ranked free-text
+  parameter that **silently ignores AND/OR**; `filter=title_and_abstract.search:` honours them. Run
+  the query once more with one mandatory clause negated. **If the hit count does not drop, the
+  boolean is being ignored** — the engine is ranking, not filtering.
 
-PubMed via E-utilities is the one place where the naive pattern happens to be safe. Everywhere
-else, do both.
+PubMed via E-utilities is the one place where the naive pattern is safe. Everywhere else, do both.
 
 #### A DOI in a screening row is not necessarily that row's DOI
 
-When a `doi` column was **filled by the pipeline** rather than handed over with the record — matched
-against Crossref by title similarity, at some threshold — a wrong match is a valid, resolvable
-identifier for a different paper, and nothing downstream can tell. Resolve it and read the title
-back before any decision rests on it:
+When the pipeline **filled** a `doi` column (matched against Crossref by title similarity) rather
+than receiving it with the record, a wrong match is a valid, resolvable DOI for a different paper.
+Resolve it and read the title back before any decision rests on it:
 
 ```bash
-python3 scripts/check_doi_record_match.py --table 2_Screening/round3.tsv \
+python3 "${CLAUDE_SKILL_DIR}/scripts/check_doi_record_match.py" --table 2_Screening/round3.tsv \
         --email <contact> --json qc/doi_record_match.json
 ```
 
-`DOI_NOT_THIS_RECORD` is a DOI that resolves to another paper; `DOI_IS_CONTAINER` is one that
-resolves to an issue, supplement or proceedings rather than an article; `DOI_UNRESOLVED` is
-reported rather than dropped. This is not `/verify-refs`, which audits a finished reference list —
-it runs at screening, where a wrong DOI is still cheap. In one review two of these appeared within
-two days, and one produced a limitation about a "missed eligible paper" that did not exist.
+`DOI_NOT_THIS_RECORD` is a DOI that resolves to another paper; `DOI_IS_CONTAINER` resolves to an
+issue, supplement or proceedings rather than an article; `DOI_UNRESOLVED` is reported rather than
+dropped. This runs at screening, where a wrong DOI is still cheap; `/verify-refs` audits a finished
+reference list.
 
 ### Phase 2.5: Citation Searching (Snowballing)
 
-Optional but recommended for systematic reviews and thorough background work
-(PRISMA item 7, "records identified through citation searching"). Expands a
-seed set along the citation graph instead of relying on Boolean recall alone.
-
-Use the deterministic helper `references/snowball.py` (Semantic Scholar Graph
-API; nothing generated from memory):
+Optional; recommended for systematic reviews and thorough background work (PRISMA item 7,
+"records identified through citation searching"). Expand a seed set along the citation graph with
+the Semantic Scholar Graph API helper:
 
 ```bash
-# Expand seed DOIs/PMIDs in all directions, dedup against the existing pool,
-# append verified candidates to references/library.bib
-python3 references/snowball.py \
-  --seed DOI:10.1148/radiol.2024123,PMID:38000001 \
+python3 "${CLAUDE_SKILL_DIR}/references/snowball.py" \
+  --seed DOI:10.1000/synthetic.example,PMID:00000000 \
   --direction all \
   --pool references/library.bib \
   --out references/library.bib
 ```
 
-- **Directions**: `backward` (references the seeds cite), `forward` (papers
-  citing the seeds), `similar` (S2 recommendations), or `all` (default).
-- **Dedup**: against the current `references/library.bib` by DOI and
-  normalized title, and within the harvested set.
-- **Trust flag**: snowball candidates are written `verified=false` +
-  `verified_by=semantic_scholar`. They are candidates, not confirmed
-  citations — run `/verify-refs` (or Phase 4 verification) to confirm each
-  against PubMed/CrossRef before citing.
-- **Output contract**: appends to `references/library.bib` only. NEVER writes
-  `manuscript/_src/refs.bib` (the script hard-refuses that path).
-- **PRISMA line**: the script prints, e.g., `Records identified through
-  citation searching (snowballing): N raw (backward=…, forward=…, similar=…);
-  after dedup against existing pool: M new candidates.` — record M in the
-  PRISMA flow's citation-searching box.
-
-A deterministic, network-free challenge card (recorded fixtures + expected
-output + `verify.sh`) lives in `references/snowball_challenge/`.
+- **Directions**: `backward` (references the seeds cite), `forward` (papers citing the seeds),
+  `similar` (S2 recommendations), or `all` (default). Dedup is against the `--pool` and within the
+  harvested set, by DOI and normalized title.
+- **Trust flag**: candidates are written `verified=false` + `verified_by=semantic_scholar`. Run
+  `/verify-refs` (or Phase 4 verification) on each before citing it.
+- **Output contract**: appends to `references/library.bib` only; the script hard-refuses
+  `manuscript/_src/refs.bib`.
+- **PRISMA line**: the script prints `Records identified through citation searching (snowballing):
+  N raw (backward=…, forward=…, similar=…); after dedup against existing pool: M new candidates.`
+  Record M in the PRISMA flow's citation-searching box.
 
 ### Phase 3: Deep Read
 
-For each selected paper:
-
-1. **Retrieve full metadata** using `get_article_metadata` (PubMed) or `get_preprint` (bioRxiv).
-2. **Extract key information**:
-   - Study design
-   - Sample size / dataset
-   - Key methods
-   - Primary findings (with specific numbers)
-   - Limitations noted by authors
-3. **Build a literature matrix** if multiple papers selected:
+For each selected paper, retrieve full metadata (`get_article_metadata` for PubMed, `get_preprint`
+for bioRxiv) and extract the study design, sample size/dataset, key methods, primary findings (with
+specific numbers), and the authors' stated limitations. For several papers, present a literature
+matrix for review:
 
 ```
 | Paper | Design | N | Key Finding | Limitation | Relevance to Our Study |
 |-------|--------|---|-------------|------------|----------------------|
 ```
 
-4. Present the matrix to the user for review.
-
 ### Phase 4: Citation Management
 
-#### Anti-Hallucination Protocol
+#### Verification
 
-This is the most critical part of the skill. Follow these rules without exception:
-
-1. **NEVER generate a reference from memory alone.** Every reference must come from an API search result.
-2. **NEVER fabricate DOIs or PMIDs.** If you cannot find a DOI/PMID, mark the reference as `[UNVERIFIED - NEEDS MANUAL CHECK]`.
-3. **Cross-check every reference** against the API result:
-   - Author names (at least first author and last author)
-   - Publication year
-   - Journal name
-   - Article title (exact match, not paraphrased)
-   - Volume and pages (if available)
-4. **If any field does not match**, flag the specific mismatch.
-5. **For DOI verification**, use WebFetch with `https://api.crossref.org/works/{DOI}` to confirm the DOI resolves correctly.
+1. **NEVER fabricate a DOI or PMID.** If you cannot find one, mark the reference
+   `[UNVERIFIED - NEEDS MANUAL CHECK]`.
+2. Cross-check every reference against the API result: first and last author, publication year,
+   journal, article title (exact, not paraphrased), and volume/pages when available. Flag each
+   field that does not match.
+3. Confirm each DOI resolves with WebFetch `https://api.crossref.org/works/{DOI}` (on CrossRef
+   errors, follow Error Handling).
 
 #### BibTeX Generation
 
-For each reference (verified or not), generate a BibTeX entry with an explicit
-`verified` flag so downstream skills (`/lit-sync`, `/verify-refs`,
-`/write-paper`) can reason about trust without re-running verification:
+Generate an entry for every reference, verified or not, with an explicit `verified` flag:
 
 ```bibtex
 @article{FirstAuthorLastName_Year_ShortKey,
@@ -270,27 +206,26 @@ For each reference (verified or not), generate a BibTeX entry with an explicit
 }
 ```
 
-**`verified` flag values** (required on every entry):
+| `verified` (required on every entry) | Meaning |
+|---|---|
+| `true` | DOI or PMID confirmed via PubMed/CrossRef; title, authors, year all match |
+| `false` | Parsed from text, but the API lookup failed or returned a mismatch; the manuscript MUST show `[UNVERIFIED - NEEDS MANUAL CHECK]` |
+| `manual` | User explicitly added it despite the lookup failure; still unverified |
 
-| Value | Meaning | Downstream behavior |
-|---|---|---|
-| `true` | DOI or PMID confirmed via PubMed/CrossRef; title, authors, year all match | Safe to cite; `/write-paper` citekey-only gate passes |
-| `false` | Parsed from text but API lookup failed or returned mismatch | `/verify-refs` flags as UNVERIFIED; manuscript MUST show `[UNVERIFIED - NEEDS MANUAL CHECK]` |
-| `manual` | User explicitly added despite lookup failure | Treated as verified=false by `/verify-refs` but suppresses repeat warnings |
+`verified_by` lists the confirming sources (`pubmed`, `crossref`, `semantic_scholar`, or a
+combination); `verified_on` is the ISO date of the most recent successful verification. No
+downstream script reads these fields — `/verify-refs` re-checks every entry — so they record trust
+rather than grant it.
 
-`verified_by` lists the data sources that confirmed the entry (e.g., `pubmed`,
-`crossref`, `semantic_scholar`, or a combination). `verified_on` is the ISO date
-of the most recent successful verification.
-
-**BibTeX key convention**: `FirstAuthorLastName_Year_OneWord` (e.g., `Kim_2024_Validation`).
+**BibTeX key convention**: `FirstAuthorLastName_Year_OneWord` (e.g., `Kim_2024_Validation`). The key
+is provisional: Better BibTeX assigns the citable key when `/lit-sync` imports the entry into Zotero.
 
 #### Output
 
-1. Save BibTeX entries to the specified .bib file (append, do not overwrite).
-   Target: `references/library.bib` (candidate pool for `/lit-sync` to import
-   into Zotero). NEVER write to `manuscript/_src/refs.bib` — that is `/lit-sync`'s
-   sole-writer path per `docs/artifact_contract.md`.
-2. Print a summary of all references with verification status:
+1. Append the entries to `references/library.bib` (do not overwrite) — the candidate pool
+   `/lit-sync` imports into Zotero. NEVER write to `manuscript/_src/refs.bib`, because `/lit-sync`
+   (via Better BibTeX) is its sole writer.
+2. Print a summary with verification status:
 
 ```
 Verified:    12 references (verified=true)
@@ -300,28 +235,15 @@ Total:       13 references
 
 ### Phase 4b: Zotero Library Integration
 
-If a Zotero MCP server is available, integrate search results with the user's library:
-
-1. **Check for duplicates first**: Use `zotero_search_items` (by DOI) to skip papers already in the library — this search-first step is what dedupes; `zotero_add_by_doi` does not dedupe on its own.
-2. **Add papers to Zotero**: Use `zotero_add_by_doi` for DOI-based import (its `attach_mode` argument governs the OA PDF attach attempt at add time).
-3. **Organize into collections**: Use `zotero_manage_collections` to file into the relevant project collection.
-4. **Leverage annotations**: Use `zotero_get_annotations` to reference the user's prior reading notes.
-5. **Write sync audit**: Record collection key, added/skipped/failed counts, and
-   unsynced entries in `references/zotero_collection.json` so Zotero status is
-   auditable rather than a hidden optional side effect.
-
-> Requires Zotero Desktop running with MCP server. Skip this phase if unavailable.
-> If skipped, still write `references/zotero_collection.json` with
-> `status: "skipped"` and the reason.
+Importing into Zotero belongs to `/lit-sync`, which owns Zotero writes and
+`references/zotero_collection.json`: hand it `references/library.bib`. If a Zotero MCP server is
+connected, you may read from it here — `zotero_search_items` (by DOI) to mark candidates already in
+the library, `zotero_get_annotations` to reference the user's prior reading notes.
 
 ### Phase 5: Full-Text Retrieval
 
-Full-text PDF retrieval is **delegated to `/fulltext-retrieval`** — the single authored
-home of the open-access cascade (arXiv → Unpaywall → PMC → OpenAlex → Crossref → landing
-page, each validated with a `%PDF-` header + ≥10 KB size). Do **not** re-implement OA
-fetching here.
-
-Pass the verified candidate DOIs from `references/library.bib`:
+Delegate to `/fulltext-retrieval`, the single home of the open-access cascade; do **not**
+re-implement OA fetching here. Pass the verified candidate DOIs from `references/library.bib`:
 
 ```bash
 ENGINE="${CLAUDE_SKILL_DIR}/../fulltext-retrieval/fetch_oa.py"
@@ -329,38 +251,23 @@ ENGINE="${CLAUDE_SKILL_DIR}/../fulltext-retrieval/fetch_oa.py"
 python3 "$ENGINE" worklist.tsv -o pdfs/ -e <contact-email> --report pdfs/retrieval_report.json
 ```
 
-Use the verified bibliographic title rather than discarding it into a DOI-only list.
-Keep `source_identity` and `file_sha256` from the retrieval report with the record.
-Download success and title agreement alone do not verify the PDF: inspect conflicts,
-unresolved/unavailable evidence, and files whose hashes have changed before citing them.
-Missing identity fields in older reports mean unassessed. Even `consistent` is advisory
-front-matter corroboration, not verification of the claims in the paper.
+Put the verified bibliographic title in the worklist rather than a DOI-only list. Keep
+`source_identity` and `file_sha256` from the retrieval report with the record. Download success and
+title agreement alone do not verify the PDF: inspect conflicts, unresolved/unavailable evidence, and
+files whose hashes have changed before citing them. Missing identity fields in older reports mean
+unassessed; even `consistent` is advisory front-matter corroboration, not verification of the
+paper's claims.
 
-For Zotero-resident PDFs and higher-yield, proxy-aware retrieval, use `/lit-sync` Phase 2.7,
-which also invokes `/fulltext-retrieval` and triggers Zotero's native "Find Available PDF".
-
-#### Alternative sources (legitimate only)
-
-For DOIs that open access cannot reach (listed in `pdfs/manual_needed.txt`):
-
-- **Institutional access / proxy / VPN** — through your library's own subscriptions.
-- **Interlibrary loan (ILL)** — request via library services.
-- **Author contact** — email the corresponding author for a copy or preprint.
-
-Never bypass paywalls or publisher access controls, and do not configure unauthorized
-PDF mirrors. Rate limits and PDF validation are handled inside `/fulltext-retrieval`.
+For Zotero-resident PDFs and proxy-aware retrieval, use `/lit-sync` Phase 2.7. For DOIs in
+`pdfs/manual_needed.txt`, use only institutional access (your library's own subscriptions, proxy or
+VPN), interlibrary loan, or the corresponding author. Never bypass paywalls or publisher access
+controls, and do not configure unauthorized PDF mirrors.
 
 ### Phase 6: Gap Analysis
 
-When called during manuscript writing (especially by `/write-paper` Phase 7):
-
-1. **Read the manuscript** to extract all inline citations.
-2. **Compare** cited references against the search results.
-3. **Identify gaps**:
-   - Key papers in the field that are not cited.
-   - Outdated references when newer versions exist.
-   - Missing methodological references (e.g., statistical methods, reporting guidelines).
-4. **Report** findings to the user with specific suggestions.
+When called during manuscript writing, extract the manuscript's inline citations, compare them with
+the search results, and report specific gaps: key papers not cited, outdated references with newer
+versions, and missing methodological references (statistical methods, reporting guidelines).
 
 ---
 
@@ -368,42 +275,35 @@ When called during manuscript writing (especially by `/write-paper` Phase 7):
 
 ### Mode: Manuscript Paper Reference Pool
 
-For supplying a manuscript's reference pool — typically invoked by `/write-paper` Step 7.3c (or
-`/self-review` Phase 2.5c-2) when the **reference adequacy** gate finds the draft under target or a
-named method uncited, but usable directly when building out an original-research bibliography.
+Supplies a manuscript's reference pool — typically invoked by `/write-paper` Step 7.3c (or
+`/self-review` Phase 2.5c-2) when the reference-adequacy gate finds the draft under target or a
+named method uncited; usable directly for an original-research bibliography.
 
-This mode is deliberately **broad**: for an original-research article, return **25–40** verified
-candidates, not the ~10 a quick search settles on. Do not stop early unless the field is genuinely
-sparse — and if it is, say so explicitly rather than returning a thin list silently. Respect a
-narrower journal reference cap or user scope when one is given.
+For an original-research article, return **25–40** verified candidates, not the ~10 a quick search
+settles on. If the field is genuinely sparse, say so explicitly rather than returning a thin list
+silently. Respect a narrower journal reference cap or user scope when one is given.
 
-Structure the pool across **six candidate categories** so the gaps the adequacy gate cares about
-are all covered:
+Cover **six candidate categories**:
 
-1. **Background / disease burden / clinical context** — establishes why the question matters.
+1. **Background / disease burden / clinical context** — why the question matters.
 2. **Gap-defining prior studies** — the work the manuscript extends or contradicts.
 3. **Comparator / comparable-design cohorts** — studies the Results will be measured against.
 4. **Methods / statistical canonical sources** — the originating reference for every named method,
    model, score, equation, or diagnostic criterion (e.g. competing-risk model, multiple
-   imputation, E-value, eGFR equation, concordance statistic). This is the category that clears
-   Methods named-method gaps.
+   imputation, E-value, eGFR equation, concordance statistic). This category clears Methods
+   named-method gaps.
 5. **Reporting-guideline sources** — STROBE, TRIPOD(+AI), CONSORT, PRISMA(-DTA), STARD, etc.
 6. **Interpretation / mechanism / limitation support** — grounds Discussion claims.
 
-For each candidate, report: **PMID/DOI**, **verification status**, **candidate category**, the
-**target manuscript section** it belongs in, and a one-line **why it is needed**.
-
-Boundary (unchanged): every entry is API-verified before inclusion, and BibTeX is appended **only**
-to `references/library.bib` — the candidate pool for `/lit-sync` to import into Zotero. **Never**
-write to `manuscript/_src/refs.bib`; that SSOT belongs to `/lit-sync`. This mode produces
-candidates; it does not decide inclusion (the user does) and it does not insert references into the
-manuscript bib.
+For each candidate, report **PMID/DOI**, **verification status**, **candidate category**, the
+**target manuscript section**, and a one-line **why it is needed**. Entries go through Phase 4 into
+`references/library.bib` only. This mode produces candidates: the user decides inclusion, and it
+does not insert references into the manuscript bib.
 
 ### Mode: Crowding Check
 
-Run **before a study is designed**, not after. The question is not "what has been written about this
-topic" — a background search answers that and still leaves the trap open. It is narrower and it is
-four questions:
+Run **before a study is designed**. A background search ("what has been written about this topic")
+leaves the trap open; ask four narrower questions instead:
 
 | Ask of | Verdict |
 |---|---|
@@ -412,20 +312,14 @@ four questions:
 | the **measurement axis** (what is being coded or measured, and at what granularity) | taken / partly taken / open |
 | the **target journal** | already published there / adjacent / open |
 
-Each gets its own verdict. A design can be original on one axis and fully occupied on another, and
-collapsing the four into one answer is what hides that.
-
-Why the fourth row is not vanity: a design once matched an existing paper on frame, coding axis
-**and** target journal, and that paper was already published in the journal it was first choice
-for. A redesign on a different axis then turned out to be partly occupied too — three papers were
-already coding the same thing as a single item — which did not kill it but did change the claim
-that could honestly be made, from "nobody has looked at this" to "nobody has decomposed it by
-provenance". That is a real result of this mode: **most of the time it narrows a claim rather than
-ending a project**, and a narrowed claim survives review where the broad one would not.
+Give each its own verdict: a design can be original on one axis and fully occupied on another, and
+collapsing the four into one answer hides that. The journal row is not vanity: a design once matched
+an existing paper on frame, coding axis **and** journal — its own first choice. Most of the time
+this mode **narrows a claim rather than ending a project** (e.g. from "nobody has looked at this" to
+"nobody has decomposed it by provenance"), and the narrowed claim survives review.
 
 Search the way a competitor would: the exact frame, the exact measure, and the journal's own site,
 not only the topic. Report the four verdicts and the papers behind each, then let the user decide.
-`/design-study` and `/orchestrate` should route here first when a new study is being scoped.
 
 ### Mode: Systematic Search
 
@@ -438,77 +332,37 @@ For systematic reviews or comprehensive literature sections:
 
 ### Mode: Quick Cite
 
-For quickly finding a single reference the user describes:
-
-1. User says something like "that 2023 paper by Smith about AI in chest X-ray."
-2. Search PubMed and Semantic Scholar with the described details.
-3. Present top 3 candidates.
-4. User confirms which one.
-5. Generate BibTeX entry.
+For a single reference the user describes ("that 2023 paper by Smith about AI in chest X-ray"):
+search PubMed and Semantic Scholar with the details, present the top 3 candidates, and generate the
+BibTeX entry for the one the user confirms.
 
 ### Mode: Related Papers
 
-For expanding from a known paper:
-
-1. User provides a PMID or DOI.
-2. Use `find_related_articles` to get related papers.
-3. Use Semantic Scholar for citation-based recommendations.
-4. Present results ranked by relevance.
-
-For a **structured, dedup-aware, PRISMA-countable** expansion (backward +
-forward + similar) prefer **Phase 2.5: Citation Searching** with
-`references/snowball.py`, which appends verified candidates to
-`references/library.bib` and reports a citation-searching count.
+From a PMID or DOI, get related papers with `find_related_articles` plus Semantic Scholar
+citation-based recommendations, ranked by relevance. For a structured, dedup-aware,
+PRISMA-countable expansion (backward + forward + similar), use **Phase 2.5: Citation Searching**
+with `references/snowball.py` instead.
 
 ### Mode: Embase Browser Automation
 
-Embase has no public API. Use Chrome browser automation (MCP) to search and export:
-
-1. Navigate to `embase.com` — institutional SSO authenticates automatically.
-   If cookie error (`login?error#`), clear Elsevier/Embase cookies and retry.
-2. Go to **Advanced Search** tab.
-3. Enter Embase-syntax query (Emtree `/exp` + `:ab,ti` field tags).
-   Uncheck "Map to preferred term in Emtree" when using explicit `/exp` terms.
-4. After results appear, use "Select number of items" dropdown → select total count.
-5. Click **Export** (in Results section) → choose **CSV** format → check fields:
-   Title, Author names, Source, Publication year, Publication type, DOI, Abstract,
-   Language of article, Medline PMID.
-6. Click Export → Download tab opens → click Download.
-7. CSV is in **row format** (records separated by blank rows) — parse with:
-   ```python
-   # Each record = consecutive rows until blank row
-   # Row format: [FIELD_NAME, value1, value2, ...]
-   # AUTHOR NAMES row has multiple values (one per author)
-   ```
-
-**PubMed → Embase query translation:**
-- MeSH `[Mesh]` → Emtree `/exp`
-- `[tiab]` → `:ab,ti`
-- `[Title/Abstract]` → `:ab,ti`
-- Boolean operators stay the same (AND, OR)
-- Phrase search: use single quotes in Embase (`'artificial ascites'`)
+Embase has no public API. Read `${CLAUDE_SKILL_DIR}/references/embase_browser.md` when the search
+must include Embase — it has the Chrome-automation export steps, the CSV row format, and the
+PubMed → Embase query translation.
 
 ---
 
 ## Error Handling
 
-- If a search returns 0 results, broaden the query (remove one concept or use broader MeSH terms) and retry.
+- If a search returns 0 results, broaden the query (remove one concept or use broader MeSH terms)
+  and retry.
 - **CrossRef HTTP errors (token-saving rules):**
-  - **403 (rate-limited):** Do NOT retry. Skip CrossRef silently → verify via PubMed title search instead.
+  - **403 (rate-limited):** Do NOT retry. Skip CrossRef → verify via PubMed title search instead.
   - **303 (redirect):** Follow the redirect if possible. If not, skip CrossRef → PubMed fallback.
-  - **Any repeated failure:** After the first CrossRef 403/303 in a session, assume CrossRef is
-    rate-limiting and skip CrossRef for ALL remaining references. Go directly to PubMed title
-    verification. This avoids N×retry token waste.
-  - **Never print raw error messages** like "Request failed with status code 403." Collect
-    failures silently and report a single summary line at the end:
-    `CrossRef unavailable for {N} references (rate-limited). Verified via PubMed instead.`
-- If a DOI does not resolve via CrossRef (after applying the rules above), try searching PubMed by title to confirm the reference exists.
-- If the user provides a reference that cannot be verified by any method, clearly state: "This reference could not be verified. Please check manually before submission."
-- Never silently include an unverified reference.
-
-## What This Skill Does NOT Do
-
-- Does not download from paywalled journals without user-provided credentials or institutional access.
-- Does not assess the quality of evidence (use `/analyze-stats` or `/check-reporting` for that).
-- Does not write the literature review text (use `/write-paper` for that).
-- Does not fabricate any part of a citation.
+  - After the first CrossRef 403/303 in a session, skip CrossRef for ALL remaining references and
+    go directly to PubMed title verification, to avoid N×retry token waste.
+  - Do not print raw error messages ("Request failed with status code 403."). Report one summary
+    line at the end: `CrossRef unavailable for {N} references (rate-limited). Verified via PubMed instead.`
+- If a DOI does not resolve via CrossRef (after the rules above), search PubMed by title to confirm
+  the reference exists.
+- If a reference cannot be verified by any method, state: "This reference could not be verified.
+  Please check manually before submission." Never silently include an unverified reference.

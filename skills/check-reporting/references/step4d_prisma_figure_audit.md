@@ -120,12 +120,10 @@ For each key in `KEYWORDS`:
 
 ## Cross-cutting rules
 
-- `~/.claude/rules/numerical-safety.md`: PRISMA 5-way consistency (text ↔ Figure ↔
-  extraction CSV ↔ analysis script ↔ supplementary). Step 4d covers text ↔ Figure;
-  extraction CSV ↔ script ↔ supplementary belong to `/meta-analysis` Phase 6 and
-  `/write-paper` Step 7.3a.
-- `~/.claude/rules/manuscript-style-classical.md`: number formatting (Arabic numerals,
-  thousands separator consistent with journal style).
+- PRISMA 5-way consistency (text ↔ Figure ↔ extraction CSV ↔ analysis script ↔
+  supplementary). Step 4d covers text ↔ Figure; extraction CSV ↔ script ↔ supplementary
+  belong to `/meta-analysis` Phase 6 and `/write-paper` Step 7.3a.
+- Number formatting: Arabic numerals, thousands separator consistent with journal style.
 
 ## Related
 

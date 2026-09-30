@@ -22,7 +22,7 @@ outputs:
   - manuscript/_src/refs.bib  # SOLE WRITER via Better BibTeX auto-export "Keep updated"
   - obsidian_literature_notes
 deterministic_scripts:
-  - none_required  # leverages Zotero MCP + Better BibTeX auto-export GUI; Phase 2.7 invokes /fulltext-retrieval fetch_oa.py
+  - scripts/check_citekey_provenance.py  # citekey ↔ library provenance; the rest uses Zotero MCP + Better BibTeX auto-export; Phase 2.7 invokes /fulltext-retrieval fetch_oa.py
 side_effects:
   - may_update_zotero
   - may_write_obsidian_notes
@@ -35,7 +35,7 @@ ssot_boundary:
   - SOLE writer of manuscript/_src/refs.bib. write-paper, manage-refs, verify-refs are read-only consumers.
 quality_gates:
   - refs_bib_refreshed: refs.bib mtime newer than collection snapshot in zotero_collection.json
-  - bbt_auto_export_active: Better BibTeX "Keep updated" must be ON for the project collection (verified per ~/.claude/rules/zotero-workflow.md)
+  - bbt_auto_export_active: Better BibTeX "Keep updated" must be ON for the project collection (a SKILL.md prerequisite)
 forbidden_actions:
   - fabricate_bibliographic_metadata
   - overwrite_existing_literature_notes

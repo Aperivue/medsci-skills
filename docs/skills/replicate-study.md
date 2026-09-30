@@ -2,9 +2,9 @@
 
 # replicate-study
 
-> Replicate an existing cohort study's methodology on a different database. Extracts study design from a source paper, maps variables to the target DB via harmonization table, generates analysis code, and produces a replication difference report.
+> Use when applying a published cohort study's methodology to a different database. Extracts the design from the source paper, maps variables to the target database with a harmonization table, generates the analysis code and reports every forced deviation.
 
-**Invoke:** `/replicate-study` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** opus
+**Invoke:** `/replicate-study` · **Model:** opus
 
 ## When to use
 

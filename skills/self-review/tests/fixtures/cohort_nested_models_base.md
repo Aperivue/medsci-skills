@@ -4,6 +4,6 @@
 
 | Model | C-index (95% CI) |
 |---|---|
-| Age + sex | 0.648 (0.60-0.69) |
-| CMB + age + sex | 0.667 (0.62-0.71) |
-| MetS + age + sex | 0.671 (0.63-0.72) |
+| Age + sex | 0.690 (0.65-0.73) |
+| Biomarker + age + sex | 0.700 (0.66-0.74) |
+| Risk score + age + sex | 0.705 (0.66-0.75) |

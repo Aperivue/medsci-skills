@@ -27,14 +27,14 @@ Skill count is not the axis of comparison. A larger catalog does not make a manu
 
 These are larger-scope catalogs that serve adjacent needs. Skill counts drift; the figures below are point-in-time and should be re-checked at the source.
 
-| Repository | Scope | Skill count (as of 2026-06-03; verify at source) |
+| Repository | Scope | `SKILL.md` files (counted in the repository tree on 2026-09-30; verify at source) |
 |---|---|---|
-| [K-Dense scientific-agent-skills](https://github.com/K-Dense-AI/scientific-agent-skills) | Multi-disciplinary science (cheminformatics, structural biology, genomics) | ~140 (verify at source) |
-| [OpenClaw Medical Skills](https://github.com/FreedomIntelligence/OpenClaw-Medical-Skills) | Broad biomedical aggregation across many source repos | ~870 (verify at source) |
-| [AIPOCH medical-research-skills](https://github.com/aipoch/medical-research-skills) | Medical research, with a published skill-audit framing | varies (verify at source) |
-| [Orchestra AI Research Skills](https://github.com/Orchestra-Research/AI-Research-SKILLs) | AI/ML research lifecycle | varies (verify at source) |
+| [K-Dense scientific-agent-skills](https://github.com/K-Dense-AI/scientific-agent-skills) | Multi-disciplinary science (cheminformatics, structural biology, genomics) | 168 |
+| [OpenClaw Medical Skills](https://github.com/FreedomIntelligence/OpenClaw-Medical-Skills) | Broad biomedical aggregation across many source repos | 896 |
+| [AIPOCH medical-research-skills](https://github.com/aipoch/medical-research-skills) | Medical research, with a published skill-audit framing | 605 |
+| [Orchestra AI Research Skills](https://github.com/Orchestra-Research/AI-Research-SKILLs) | AI/ML research lifecycle | not counted (verify at source) |
 
-If you need wet-lab protocols, drug discovery, single-cell genomics, broad bioinformatics, or generic AI/ML engineering, those catalogs are better fits.
+If you need wet-lab protocols, drug discovery, single-cell genomics, broad bioinformatics, or general-purpose (non-clinical) AI/ML engineering, those catalogs are better fits.
 
 ## Adjacent platforms: hosted AI-for-science workbenches
 
@@ -51,12 +51,12 @@ Point-in-time; verify capabilities at the source. If your work is bench/omics an
 - No skill-count race.
 - No omics / single-cell / broad bioinformatics.
 - No drug discovery or cheminformatics.
-- No generic AI/ML engineering.
+- No general-purpose AI/ML engineering. The model lane (`medsci-modeling`) covers medical-imaging and clinical models only, from choosing an architecture to validating it on an external cohort, and it integrates MONAI and nnU-Net rather than replacing them.
 - No hundreds of thin skills.
 
 ## Host compatibility
 
-MedSci Skills targets Claude Code today. A cross-agent host-compatibility roadmap (Codex, Cursor, and the generic Agent Skills standard) is planned; host support will be stated only where install and discovery have been verified against official documentation.
+The skills install into Claude Code, OpenAI Codex, Cursor and GitHub Copilot; install and discovery paths for each are verified against that host's official documentation in [`host_compatibility.md`](host_compatibility.md), which also lists what degrades off Claude Code. Other hosts are stated only once they are verified the same way.
 
 ---
 

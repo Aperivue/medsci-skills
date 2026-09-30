@@ -2,7 +2,7 @@
 
 A fast sanity readout on the GPU node — AUROC / AUPRC / accuracy from the real test
 predictions. The AUTHORITATIVE reporting (bootstrap 95% CIs, calibration, subgroup slices)
-is done afterwards with /model-evaluation + /analyze-stats; nothing here is hard-coded.
+is done afterwards with /model-assessment + /analyze-stats; nothing here is hard-coded.
 """
 import csv
 from sklearn.metrics import roc_auc_score, average_precision_score, accuracy_score

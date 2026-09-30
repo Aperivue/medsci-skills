@@ -19,7 +19,10 @@ CHECKS (verdicts):
                                     nested CV or a held-out test set is required.
   2. HIGH_DIM_LOW_EVENTS   (Major)  at least as many features as events (p >= events) with no
                                     dimensionality reduction / regularisation — the classic
-                                    radiomics overfitting trap.
+                                    radiomics overfitting trap. A floor for the worst case, not
+                                    a sample-size criterion: size the study with pmsampsize
+                                    (calc-sample-size Test 12); penalisation does not rescue a
+                                    small sample.
   3. SELECTION_OUTSIDE_CV  (Major)  feature selection is fit outside the CV fold (on the whole
                                     dataset), leaking the held-out folds into selection.
   4. NO_FEATURE_STABILITY  (Minor)  no test-retest / ICC feature-stability filtering; radiomics
@@ -32,10 +35,12 @@ CHECKS (verdicts):
 MANIFEST (JSON)
   {
     "task": "classification",
-    "n_features": 1200,
+    "n_features": 1200,                   // candidate features reaching outcome-driven selection
     "n_samples": 140,
     "n_events": 40,                       // minority-class count (for events-per-feature)
     "cv_scheme": "nested",                // nested / single_split / held_out_test / flat / loocv / none
+                                          // single_split / held_out_test: tuned on the training split
+                                          // only, test touched once; tuned on the test split = flat
     "feature_selection_stage": "inside_cv", // inside_cv / outside_cv / none
     "dimensionality_reduction": true,     // LASSO / PCA / regularisation applied
     "feature_stability": "icc",           // icc / test_retest / none
@@ -104,7 +109,10 @@ def check(m: dict) -> list[dict]:
                 "verdict": "HIGH_DIM_LOW_EVENTS", "severity": "Major",
                 "detail": (f"{n_features} features vs {int(denom)} {unit} (p >= {unit}) with no "
                            f"dimensionality reduction / regularisation; radiomics overfits badly "
-                           f"in this regime — apply LASSO / PCA / a stability+redundancy filter"),
+                           f"in this regime — reduce the candidates without the outcome "
+                           f"(stability, redundancy, clinical prior), then size the study with "
+                           f"pmsampsize (/calc-sample-size Test 12); p < events is a floor, not a "
+                           f"sample-size criterion, and penalisation does not rescue a small sample"),
                 "where": "n_features",
             })
 

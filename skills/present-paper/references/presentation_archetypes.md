@@ -69,7 +69,7 @@ changes. Methods are a service, not a performance: they exist so the finding is 
 **Slides:** roughly one per minute. Every content slide is Assertion-Evidence. **One figure per
 slide, and say what the figure shows in the headline.**
 
-**Steal:** the Radiology/RSNA convention of a single "Advances in Knowledge" line — decide what it
+**Steal:** the Radiology/RSNA convention of a one-sentence "Summary Statement" — decide what it
 is *before* you build the deck.
 
 **Fails when:** you present the methods you are proud of instead of the ones needed to believe the

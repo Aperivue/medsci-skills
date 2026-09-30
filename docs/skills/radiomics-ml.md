@@ -2,9 +2,9 @@
 
 # radiomics-ml
 
-> Produce or audit a radiomics / tabular clinical-ML study — imaging or clinical features → any classical learner (penalised logistic [LASSO / ridge / elastic-net], SVM, k-NN, naive Bayes, LDA/QDA, decision tree, random forest, gradient boosting [XGBoost / LightGBM / CatBoost], shallow MLP, stacked ensembles) → a clinical outcome — so it clears the rigor bar reviewers expect: nested cross-validation (tuning never on the reported folds), dimensionality control for the features-far-exceed-events regime, feature selection inside the fold, feature-stability (ICC / test-retest) filtering, calibration, and external/temporal validation. The deterministic gate is learner-agnostic (it audits the pipeline, not the algorithm). Emits a pipeline manifest and the gate. The most common solo-doable clinical-ML workflow — no GPU, no engineer. Integrates scikit-learn / xgboost / lightgbm / catboost / pyradiomics; it does not reimplement them.
+> Use when building or auditing a radiomics or tabular clinical-ML prediction model with a classical learner (LASSO, SVM, random forest, XGBoost and similar). Enforces nested CV, dimensionality control, in-fold feature selection, feature stability, calibration and external validation.
 
-**Invoke:** `/radiomics-ml` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
+**Invoke:** `/radiomics-ml`
 
 ## When to use
 
@@ -23,6 +23,7 @@
 **Known limitations**
 
 - Audits the declared pipeline manifest, not the executed code; a mislabelled field (e.g. flat CV recorded as nested) can hide a real problem — complements, does not replace, self-review/check_cv_leakage (prose audit).
+- The manifest carries no grouping field, so the gate cannot see lesion rows of one patient split across folds; the guide's nested-CV skeleton splits by patient and writes a fold table that model-assessment's check_split_leakage.py audits.
 - A clean pipeline audit is necessary, not sufficient — external validation and clinical-utility evidence still govern the clinical claim.
 
 **Validation**

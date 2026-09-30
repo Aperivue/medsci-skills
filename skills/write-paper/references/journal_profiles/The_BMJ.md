@@ -116,6 +116,6 @@
 ## AI Writing Disclosure Policy
 - **Requirement level:** Required
 - **Permitted scope:** All tasks — AI tools may be used for writing, editing, and other manuscript preparation tasks, but cannot be listed as authors; authors are accountable for all content including AI-generated text; follows ICMJE + COPE guidance
-- **Disclosure location:** Methods + Acknowledgments — must disclose the AI tool name, version, and how it was used; applies to all content types (text, audio, video, images, data, diagrams)
+- **Disclosure location:** Contributor section (a fuller description in Methods when AI was used in the course of the research) — state what AI technology was used, why, and how; applies to all content types (text, audio, video, images, data, diagrams)
 - **AI-generated images:** Must be declared — AI-generated or AI-manipulated images, diagrams, and data visualizations must be explicitly disclosed; not blanket banned but full transparency required
 - **Policy URL:** https://www.bmj.com/company/the-bmjs-position-on-ai-and-large-language-models/

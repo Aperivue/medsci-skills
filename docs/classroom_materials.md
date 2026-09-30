@@ -49,8 +49,10 @@ macOS:
 First test prompt:
 
 ```text
-MedSci Skills가 설치됐는지 확인하고, 오늘 실습에 쓸 대표 스킬 5개만 보여줘.
+Check that MedSci Skills is installed and show me five skills to start with.
 ```
+
+In Korean: `MedSci Skills가 설치됐는지 확인하고, 오늘 실습에 쓸 대표 스킬 5개만 보여줘.`
 
 ## First-Class Teaching Scope
 

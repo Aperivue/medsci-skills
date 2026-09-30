@@ -91,7 +91,9 @@ REGISTRY: list[DefectSpec] = [
 
     # --- citation (network-required; NOT_RUN unless --online) ---
     DefectSpec("CIT_FAKE_DOI", "citation", "verify_refs",
-               "inject_fake_doi", ("FABRICATED",), ("fixture",), "clean.bib",
+               # A made-up DOI on a real paper: MISMATCH when the title still matches the
+               # record, FABRICATED when nothing does. Both block submission.
+               "inject_fake_doi", ("FABRICATED", "MISMATCH"), ("fixture",), "clean.bib",
                network_required=True),
     DefectSpec("CIT_WRONG_AUTHOR", "citation", "verify_refs",
                "inject_wrong_author", ("MISMATCH",), ("fixture",), "clean.bib",

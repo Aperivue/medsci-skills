@@ -1,13 +1,13 @@
 domain,concept,concept_en,knhanes_var,knhanes_label,nhanes_table,nhanes_var,nhanes_label,harmonization_notes
-demographics,ID,ID,ID,개인아이디,DEMO_J,SEQN,Respondent sequence number,"Primary key — not linkable across surveys. CRITICAL: nhanesA R package exports TEXT LABELS not numeric codes. PHQ-9='Not at all'/0, Sex='Male'/'Female', Smoking='Yes'/'No'. WTMEC2YR for single-cycle, WTMECPRP for pre-pandemic pooled. Glucose=LBXSGL (not LBXSGLU)."
+demographics,ID,ID,ID,개인아이디,DEMO_J,SEQN,Respondent sequence number,"Primary key — not linkable across surveys. CRITICAL: nhanesA R package exports TEXT LABELS not numeric codes. PHQ-9='Not at all'/0, Sex='Male'/'Female', Smoking='Yes'/'No'. WTMEC2YR for single-cycle, WTMECPRP for pre-pandemic pooled. Fasting glucose=GLU_J LBXGLU with the fasting-subsample weight WTSAF2YR (not BIOPRO_J LBXSGL)."
 demographics,조사연도,Survey year,year,조사연도,DEMO_J,SDDSRVYR,Data release cycle number,KNHANES=calendar year; NHANES=cycle number
 demographics,성별,Sex,sex,성별 (1=남 2=여),DEMO_J,RIAGENDR,Gender (1=Male 2=Female),Direct match: 1=Male 2=Female
 demographics,나이,Age,age,만나이,DEMO_J,RIDAGEYR,Age in years at screening,Direct match (continuous)
 demographics,인종/민족,Race/ethnicity,—,없음 (단일민족),DEMO_J,RIDRETH3,Race/Hispanic origin w/ NH Asian,KNHANES lacks race; set country indicator instead
 demographics,가구소득,Household income,incm,소득4분위수(개인),DEMO_J,INDFMPIR,Ratio of family income to poverty,Recode: KNHANES quartile vs NHANES PIR ratio — harmonize to quartiles
 demographics,교육수준,Education,edu,교육수준 재분류 코드,DEMO_J,DMDEDUC2,Education level - Adults 20+,Recode: KNHANES 4-level → NHANES 5-level → harmonize to 3-level (≤HS/Some college/≥College)
-demographics,결혼상태,Marital status,marri_2,결혼상태,DEMO_J,DMDMARTZ,Marital status,Recode both to: married-cohabiting / single-divorced-widowed
-demographics,가중치(설문+검진),Sample weight (interview+exam),wt_itvex,설문검진조사 가중치,DEMO_J,WTMECPRP,Full sample MEC exam weight,Use survey-appropriate weight; never pool raw weights
+demographics,결혼상태,Marital status,marri_2,결혼상태,DEMO_J,DMDMARTL,Marital status,Recode both to: married-cohabiting / single-divorced-widowed
+demographics,가중치(설문+검진),Sample weight (interview+exam),wt_itvex,설문검진조사 가중치,DEMO_J,WTMEC2YR,Full sample 2 year MEC exam weight,Use survey-appropriate weight (P_DEMO WTMECPRP for the pre-pandemic pooled files); never pool raw weights
 demographics,층화변수,Stratification,kstrata,분산추정 층,DEMO_J,SDMVSTRA,Masked variance pseudo-stratum,Required for complex survey analysis
 demographics,집락변수,Cluster (PSU),psu,조사구번호,DEMO_J,SDMVPSU,Masked variance pseudo-PSU,Required for complex survey analysis
 exam,신장,Height (cm),HE_ht,신장,BMX_J,BMXHT,Standing height (cm),Direct match
@@ -15,17 +15,17 @@ exam,체중,Weight (kg),HE_wt,체중,BMX_J,BMXWT,Weight (kg),Direct match
 exam,BMI,BMI (kg/m²),HE_BMI,체질량지수,BMX_J,BMXBMI,Body mass index (kg/m²),Direct match
 exam,비만,Obesity status,HE_obe,비만 유병여부,BMX_J,BMXBMI,BMI,KNHANES uses Asian criteria (≥25); NHANES uses WHO (≥30). Report both.
 exam,허리둘레,Waist circumference (cm),HE_wc,허리둘레,BMX_J,BMXWAIST,Waist circumference (cm),Direct match (measurement protocol may differ slightly)
-exam,수축기혈압,Systolic BP (mmHg),HE_sbp,최종 수축기 혈압(2+3차 평균),BPX_J,BPXOSY3,Systolic: Average oscillometric,Both use average of 2nd+3rd readings
-exam,이완기혈압,Diastolic BP (mmHg),HE_dbp,최종 이완기 혈압(2+3차 평균),BPX_J,BPXODI3,Diastolic: Average oscillometric,Both use average of 2nd+3rd readings
-exam,고혈압,Hypertension status,HE_HP,고혈압 유병여부,BPX_J+BPQ_J,BPXOSY3+BPQ020,SBP/DBP + told HBP,Define uniformly: SBP≥140 or DBP≥90 or medication
-exam,맥박,Pulse rate (bpm),HE_mPLS,60초 맥박수,BPX_J,BPXOPULS3,Pulse: Average oscillometric,Direct match
-lab,공복혈당,Fasting glucose (mg/dL),HE_glu,공복혈당,BIOPRO_J,LBXSGL,Glucose: refrigerated serum (mg/dL),"Direct match (both fasting). CRITICAL: variable is LBXSGL not LBXSGLU in BIOPRO_J"
+exam,수축기혈압,Systolic BP (mmHg),HE_sbp,최종 수축기 혈압(2+3차 평균),BPXO_J,BPXOSY2+BPXOSY3,Systolic - 2nd and 3rd oscillometric readings,NHANES has no averaged variable: use mean(BPXOSY2 BPXOSY3) to match the KNHANES 2nd+3rd average
+exam,이완기혈압,Diastolic BP (mmHg),HE_dbp,최종 이완기 혈압(2+3차 평균),BPXO_J,BPXODI2+BPXODI3,Diastolic - 2nd and 3rd oscillometric readings,NHANES has no averaged variable: use mean(BPXODI2 BPXODI3) to match the KNHANES 2nd+3rd average
+exam,고혈압,Hypertension status,HE_HP,고혈압 유병여부,BPXO_J+BPQ_J,BPXOSY2/3+BPXODI2/3+BPQ020,SBP/DBP + told HBP,Define uniformly: SBP≥140 or DBP≥90 or medication
+exam,맥박,Pulse rate (bpm),HE_mPLS,60초 맥박수,BPX_J,BPXPLS,60 sec. pulse (30 sec. pulse * 2),Direct match (60-second pulse)
+lab,공복혈당,Fasting glucose (mg/dL),HE_glu,공복혈당,GLU_J,LBXGLU,Fasting Glucose (mg/dL),"Direct match (both fasting). NHANES fasting subsample: weight with WTSAF2YR. CRITICAL: not BIOPRO_J LBXSGL, which CDC says should not be used to determine undiagnosed diabetes or prediabetes"
 lab,당화혈색소,HbA1c (%),HE_HbA1c,당화혈색소,GHB_J,LBXGH,Glycohemoglobin (%),Direct match
-lab,당뇨병,Diabetes status,HE_DM,당뇨병 유병여부,GHB_J+BIOPRO_J+DIQ_J,LBXGH+LBXSGL+DIQ010,HbA1c+FPG+told DM,Define uniformly: FPG≥126 or HbA1c≥6.5 or medication or diagnosed
+lab,당뇨병,Diabetes status,HE_DM,당뇨병 유병여부,GHB_J+GLU_J+DIQ_J,LBXGH+LBXGLU+DIQ010,HbA1c+FPG+told DM,Define uniformly: FPG≥126 or HbA1c≥6.5 or medication or diagnosed. FPG is fasting-subsample only (WTSAF2YR)
 lab,총콜레스테롤,Total cholesterol (mg/dL),HE_chol,총콜레스테롤,TCHOL_J,LBXTC,Total cholesterol (mg/dL),Direct match
 lab,HDL콜레스테롤,HDL cholesterol (mg/dL),HE_HDL_st2,HDL-콜레스테롤,HDL_J,LBDHDD,Direct HDL-Cholesterol (mg/dL),Direct match
-lab,중성지방,Triglycerides (mg/dL),HE_TG,중성지방,BIOPRO_J,LBXSTR,Triglycerides: refrigerated serum (mg/dL),Direct match (fasting)
-lab,LDL콜레스테롤,LDL cholesterol (mg/dL),HE_LDL_drct,LDL-콜레스테롤(직접검사),BIOPRO_J,LBDLDL,LDL-Cholesterol (mg/dL),KNHANES=direct; NHANES=Friedewald calculation. Note in Methods.
+lab,중성지방,Triglycerides (mg/dL),HE_TG,중성지방,TRIGLY_J,LBXTR,Triglyceride (mg/dL),Direct match (fasting). NHANES fasting subsample: weight with WTSAF2YR (not the non-fasting BIOPRO_J LBXSTR)
+lab,LDL콜레스테롤,LDL cholesterol (mg/dL),HE_LDL_drct,LDL-콜레스테롤(직접검사),TRIGLY_J,LBDLDL,"LDL-Cholesterol, Friedewald (mg/dL)",KNHANES=direct; NHANES=Friedewald calculation in the fasting subsample (WTSAF2YR). Note in Methods.
 lab,이상지질혈증,Dyslipidemia,HE_HCHOL,고콜레스테롤혈증 유병여부,TCHOL_J+BPQ_J,LBXTC+BPQ080,TC + told high chol,Define uniformly: TC≥240 or medication
 lab,AST,AST (IU/L),HE_ast,AST(SGOT),BIOPRO_J,LBXSASSI,AST (IU/L),Direct match
 lab,ALT,ALT (IU/L),HE_alt,ALT(SGPT),BIOPRO_J,LBXSATSI,ALT (IU/L),Direct match
@@ -41,8 +41,8 @@ lab,혈소판,Platelet (10³/µL),HE_Bplt,혈소판,CBC_J,LBXPLTSI,Platelet coun
 lab,빈혈,Anemia status,HE_anem,빈혈 유병여부,CBC_J,LBXHGB,Hemoglobin,Define uniformly: male Hb<13 / female Hb<12 (WHO criteria)
 lab,요단백,Urine protein,HE_Upro,요단백,ALB_CR_J,URXUMA,Albumin urine (µg/mL),KNHANES=dipstick qualitative; NHANES=quantitative albumin. Use ACR for both.
 lab,요크레아티닌,Urine creatinine,HE_UCREA,요크레아티닌,ALB_CR_J,URXUCR,Creatinine urine (mg/dL),Direct match; use for ACR calculation
-lab,B형간염표면항원,HBsAg,HE_HBsAg,B형간염표면항원(수치),—,—,Not in 2017-2018 NHANES,NHANES Hepatitis B (HEPB_S_J) tests surface antibody not antigen
-lab,C형간염항체,Anti-HCV,HE_hcv,C형간염항체(수치),HEPC_J,LBXHCR,Hepatitis C antibody,Qualitative match (positive/negative)
+lab,B형간염표면항원,HBsAg,HE_HBsAg,B형간염표면항원(수치),HEPBD_J,LBDHBG,Hepatitis B surface antigen,Qualitative match (positive/negative). HEPB_S_J LBXHBS is surface antibody not antigen
+lab,C형간염항체,Anti-HCV,HE_hcv,C형간염항체(수치),HEPC_J,LBDHCI,Hepatitis C Antibody (confirmed),Qualitative match (positive/negative). LBXHCR is HCV RNA not antibody
 questionnaire,우울증(PHQ-9),Depression (PHQ-9),BP_PHQ_1~9 / mh_PHQ_S,PHQ-9 문항1-9 / PHQ-9점수,DPQ_J,DPQ010~DPQ090,PHQ-9 items,Identical instrument (PHQ-9). Sum scores directly comparable.
 questionnaire,자살생각,Suicidal ideation,BP6_10,1년간 자살 생각 여부,DPQ_J,DPQ090,PHQ-9 Q9 (thoughts of death),KNHANES=dedicated question; NHANES=PHQ-9 Q9 only. Not perfectly matched.
 questionnaire,스트레스,Perceived stress,BP1,평소 스트레스 인지 정도,—,—,—,No direct NHANES equivalent. Consider excluding or using PHQ-4.
@@ -59,10 +59,10 @@ questionnaire,천식진단,Asthma diagnosis,DJ4_dg,천식 의사진단여부,MCQ
 questionnaire,뇌졸중진단,Stroke diagnosis,DI3_dg,뇌졸중 의사진단여부,MCQ_J,MCQ160F,Ever told you had a stroke,Direct match (yes/no)
 questionnaire,심근경색진단,MI diagnosis,DI5_dg,심근경색증 의사진단여부,MCQ_J,MCQ160E,Ever told you had heart attack,Direct match (yes/no)
 questionnaire,암진단,Cancer diagnosis,DC1_dg~DC7_dg,위암~갑상선암 의사진단,MCQ_J,MCQ220,Ever told you had cancer/malignancy,KNHANES=site-specific; NHANES=any cancer. Recode to ever-cancer for comparison.
-questionnaire,체중조절,Weight control attempt,BO2_1,1년간 체중 조절 여부,WHQ_J,WHQ150,Tried to lose weight past 12 mo,Direct match (yes/no)
+questionnaire,체중조절,Weight control attempt,BO2_1,1년간 체중 조절 여부,WHQ_J,WHQ070,Tried to lose weight in past year,Direct match (yes/no)
 questionnaire,주관적건강,Self-rated health,D_1_1,주관적 건강상태,HUQ_J,HUQ010,General health condition,Both use 5-level Likert. Direct match.
 questionnaire,건강보험,Health insurance,tins,건강보험종류,HIQ_J,HIQ011,Covered by health insurance,KNHANES: NHI universal; NHANES: varies. Set as country-level variable.
 questionnaire,EQ-5D,Quality of life (EQ-5D),EQ5D,EQ-5D index,—,—,—,NHANES does not include EQ-5D. KNHANES-only variable.
 survey_design,가중치안내,Weight guidance,—,—,—,—,—,"CRITICAL: Never pool raw data. Analyze each country separately with its own survey design, then compare estimates."
 survey_design,복합표본설계(한국),Complex survey (Korea),kstrata + psu + wt_itvex,층 + 집락 + 가중치,—,—,—,"svydesign(id=~psu, strata=~kstrata, weights=~wt_itvex, nest=TRUE)"
-survey_design,복합표본설계(미국),Complex survey (US),—,—,DEMO_J,SDMVSTRA + SDMVPSU + WTMECPRP,Strata + PSU + Weight,"svydesign(id=~SDMVPSU, strata=~SDMVSTRA, weights=~WTMECPRP, nest=TRUE)"
+survey_design,복합표본설계(미국),Complex survey (US),—,—,DEMO_J,SDMVSTRA + SDMVPSU + WTMEC2YR,Strata + PSU + Weight,"svydesign(id=~SDMVPSU, strata=~SDMVSTRA, weights=~WTMEC2YR, nest=TRUE); P_DEMO pre-pandemic pooled: WTMECPRP; fasting-subsample variables: WTSAF2YR"

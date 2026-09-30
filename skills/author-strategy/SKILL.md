@@ -1,16 +1,16 @@
 ---
 name: author-strategy
-description: PubMed author profile analysis. Author name → PubMed fetch → study-type classification → visualization → strategy report → optional trajectory-archetype classification.
-triggers: author-strategy, 저자 분석, publication analysis, 다작 분석, 연구 전략 분석, author profile, reverse engineer strategy, trajectory archetype, career archetype
-tools: Read, Write, Edit, Bash, Glob, Grep
-model: inherit
+description: Use when analyzing a researcher's publication record from PubMed. Fetches an author's papers, classifies study types and author position, charts the patterns and writes a strategy report, with an optional trajectory-archetype classification. Works from PubMed metadata only.
+metadata:
+  triggers: "author-strategy, 저자 분석, publication analysis, 다작 분석, 연구 전략 분석, author profile, reverse engineer strategy, trajectory archetype, career archetype"
 ---
 
 # /author-strategy — PubMed Author Strategy Analysis
 
-## Purpose
-
-Analyze a researcher's PubMed publication portfolio to reverse-engineer their research strategy. Produces a CSV dataset, 7 visualizations, and a strategy report.
+Work from PubMed metadata and the title/abstract text already fetched — nothing else. Do not
+retrieve full text, follow external links, or resolve preprints. Signals that need citations,
+citation half-life, venue-impact tier, repository/preprint links, or corresponding-author role are
+`unavailable` and surface as `[VERIFY]` — never inferred.
 
 ## Prerequisites
 
@@ -26,6 +26,7 @@ Ask the user for:
 1. **Author name** (PubMed format, e.g., "Kim DK" or "Lee KS")
 2. **Last name** for position classification (auto-detected if ambiguous)
 3. **Output directory** (default: `~/.local/cache/author-strategy/{AuthorName}/`)
+4. **Email** for NCBI E-utilities (passed as `--email`)
 
 ### Step 2: Fetch PubMed Data
 
@@ -37,7 +38,8 @@ python "${CLAUDE_SKILL_DIR}/fetch_pubmed.py" "{Author Name}" \
 ```
 
 Review the console summary (total count, study type distribution, author position).
-If count is 0, suggest alternative name formats (e.g., "Yon DK" vs "Yon D" vs "Yon Dong Keon").
+If count is 0, suggest alternative name formats (e.g., "Kim DK" vs "Kim D" vs the full first
+name) rather than generating data.
 
 ### Step 3: Generate Visualizations and Report
 
@@ -47,13 +49,17 @@ python "${CLAUDE_SKILL_DIR}/analyze_patterns.py" "{output_dir}/data/{name}_publi
   --author-name "{Author Name}"
 ```
 
-This produces:
-- 7 PNG charts (01-07)
-- `analysis_report.md` with strategy breakdown
+This produces 7 PNG charts (01-07) and `analysis_report.md` with the strategy breakdown.
+
+Study types come from the keyword rules in `pubmed_parse.py`, first match in this order: GBD,
+SR/MA, NHIS/Claims, Cross-national, National survey, Biobank, AI/ML, Clinical trial, Case report,
+Letter/Commentary; anything else is "Other". Present the script's labels as they are — never
+reclassify a paper by guess.
 
 ### Step 4: Interpret and Present
 
-Read `analysis_report.md` and present to the user:
+Read `analysis_report.md` and present to the user; every count, rate and tier comes from that
+report or the fetched CSV, never from memory:
 
 1. **Executive summary**: total publications, growth trajectory, high-tier rate
 2. **Primary strategy**: what study type dominates and why
@@ -62,26 +68,27 @@ Read `analysis_report.md` and present to the user:
 5. **ROI quadrant**: which strategies yield high-tier + leadership vs. volume only
 6. **Replication opportunities**: which patterns are replicable with Claude Code + public databases
 
+State the classifier's limits when they matter: it is tuned for Korean epidemiology and public
+health researchers and may undercount specialized study types in other fields, and NHIS studies
+that lack its keywords fall into "Other".
+
 ### Step 5: Optional — MA Gap Identification
 
 If the user asks "what MA topics are feasible with this professor?":
-- Cross-reference topic clusters with existing MA plans in memory
+- Cross-reference topic clusters with the user's existing MA plans
 - Identify gaps where the professor has domain expertise but no MA published
 - Output a prioritized list of MA proposals
 
 ## Optional: Trajectory-Archetype Classification
 
-A second, opt-in capability that classifies the author's trajectory into abstract
-career archetypes (A1–A6 + a composite) as an **explainable, multi-label,
-confidence-scored heuristic — not an objective verdict**. The rubric is the canonical
-`references/trajectory_archetypes.yaml`. This path is **gated**: a surname alone does not
-resolve an author, so the corpus must pass an explicit disambiguation review before it
-can be classified.
+An opt-in path that classifies the trajectory into abstract career archetypes (A1–A6 + a
+composite) as an **explainable, multi-label, confidence-scored heuristic — not an objective
+verdict**, using the canonical rubric `references/trajectory_archetypes.yaml`.
 
 ### Step 6: Disambiguation Gate (required before classification)
 
-Pass disambiguators so the target author is uniquely attributed (a surname alone is never
-sufficient):
+A surname alone never resolves an author. Pass disambiguators so the target author is uniquely
+attributed:
 
 ```bash
 python "${CLAUDE_SKILL_DIR}/fetch_pubmed.py" "{Author Name}" \
@@ -120,7 +127,8 @@ Read `archetype_report.md` and present it to the user, **stating up front that t
 are explainable heuristics, not objective classifications**. For each surfaced archetype,
 show the score, confidence band, and the author's own evidence PMIDs. Honor the `[VERIFY]`
 markers (h-index/citation/venue-tier are unavailable) and the A5 participation flag. List
-the `insufficient evidence` archetypes too.
+the `insufficient evidence` archetypes too — below the minimum sample or with conflicting
+signals, never force a label.
 
 To retune the rubric, edit only the YAML and regenerate the narrative doc:
 
@@ -128,41 +136,6 @@ To retune the rubric, edit only the YAML and regenerate the narrative doc:
 python "${CLAUDE_SKILL_DIR}/render_archetype_doc.py"        # regenerate the .md
 python "${CLAUDE_SKILL_DIR}/render_archetype_doc.py" --check # CI/test sync gate
 ```
-
-## Study Type Classifier
-
-The classifier is tuned for Korean epidemiology and public health researchers. Categories:
-
-| Type | Detection Pattern |
-|------|------------------|
-| GBD | "global burden" or "gbd" in title/abstract |
-| SR/MA | "systematic review" or "meta-analysis" |
-| NHIS/Claims | "national health insurance", "nhis", "claims database", "nationwide cohort" |
-| Cross-national | Country pairs or "cross-national"/"binational" |
-| National survey | "knhanes", "nhanes", "kchs", "national survey" |
-| Biobank | "biobank" |
-| AI/ML | "machine learning", "deep learning", "artificial intelligence" |
-| Clinical trial | "randomized" or publication type |
-| Case report | "case report" |
-| Letter/Commentary | Publication type = letter/comment/editorial |
-
-**Known limitation**: The classifier may undercount NHIS studies when they appear in Cross-national or Other categories. The report notes this.
-
-## Known Limitations
-
-- The study type classifier is tuned for epidemiology and public health researchers. May undercount specialized study types for other fields.
-- NHIS studies may be undercounted when they appear in cross-national or "other" categories.
-- PubMed search requires an email for NCBI E-utilities (set via `--email` flag).
-
-## Anti-Hallucination
-
-- **Never fabricate publication counts, h-index, or journal metrics.** All numbers must come from PubMed API output.
-- **Never invent study classifications.** If a paper cannot be classified, label it as "Other" rather than guessing.
-- If PubMed returns 0 results, suggest alternative name formats rather than generating fake data.
-- **Archetype labels are explainable heuristics, not objective classifications.** Every label must carry a score, a confidence band, and evidence (the queried author's own PMIDs). Below the minimum sample or with conflicting signals, report `insufficient evidence` — never force a label.
-- **Metadata + stored abstract only.** Signals are computed from PubMed metadata and the title/abstract text already fetched. Do not retrieve full text, follow external links, or resolve preprints. Signals that need citations, citation half-life, venue-impact tier, repository/preprint links, or corresponding-author role are `unavailable` and surface as `[VERIFY]` — never inferred.
-- **Author position is a positional heuristic** (first/middle/last/unknown + real EqualContrib). Never present it as authoritative leadership or corresponding-author metadata.
-- **Never resolve an author by surname alone.** Classification requires an approved, CSV-bound `corpus_manifest.json`; present candidate clusters for the user to confirm.
 
 ## Output Structure
 

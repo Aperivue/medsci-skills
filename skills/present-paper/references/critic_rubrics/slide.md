@@ -55,12 +55,12 @@ item. Return the scored rubric + edit list to the user.
 
 ## E. Native objects (editability)
 
-18. **Charts are native PowerPoint objects** — double-clicking opens the data table,
-    not an image preview. (Co-authors must be able to update numbers in revision.)
+18. **Charts are drawn as code** (matplotlib / R, `/make-figures`) and inserted as PNG
+    ≥ 300 dpi, with the drawing script kept beside the deck so co-authors can update
+    numbers in revision — never hand-placed shapes pretending to be a chart (item 41).
 19. **Tables are native PowerPoint tables** — not pasted screenshots from the paper.
-20. **Flow diagrams are grouped shapes** — not embedded `make-figures` PNG exports
-    (PNG is acceptable only for visual abstracts and dataset-flow figures intended as
-    one-shot graphics).
+20. **Flow diagrams are drawn as code** (matplotlib / Graphviz) and inserted as PNG —
+    never assembled from `python-pptx` autoshapes (item 41).
 21. **Images are PNG ≥ 300 dpi or vector PDF** — TIFF prohibited (Mac PowerPoint silently
     drops TIFF — see `pptx-mac-compatibility` rule).
 
@@ -69,12 +69,19 @@ item. Return the scored rubric + edit list to the user.
 Run this once on the final deck before sending to a Mac viewer:
 
 22. **No TIFF in `ppt/media/`** — `find ppt/media -iname '*.tif*'` returns empty.
+    Fix: `sips -s format png in.tif --out out.png`, then replace `.tif`→`.png` in
+    `_rels/*.rels`.
 23. **No `<a:sp3d>` in slide XML** — `grep -l '<a:sp3d>' ppt/slides/*.xml` returns empty
-    (3-D bevel renders as red outline only on Mac).
+    (3-D bevel renders as red outline only on Mac). Fix: regex-strip the
+    `<a:sp3d>...</a:sp3d>` block.
 24. **`app.xml` count synced** — `<Slides>`, `<Notes>`, `HeadingPairs`, and `TitlesOfParts`
     match the actual file count (mismatch triggers Mac PowerPoint recovery dialog).
+    Detect: `grep -c '<Slides>\|<Notes>' docProps/app.xml` against
+    `ls ppt/slides/slide*.xml | wc -l`. Fix: sync all four fields to the real count.
 25. **No `<a:srcRect>` value > 100000** — values are in 1/1000-percent (cap 100000); a
-    unit-conversion bug crops 99% of the image off-slide.
+    unit-conversion bug crops 99% of the image off-slide. Detect:
+    `grep -oE '"[0-9]{6,}"' ppt/slides/*.xml | head`. Fix: compare with the original deck
+    and restore the values verbatim.
 
 ## G. Medical presentation specifics
 

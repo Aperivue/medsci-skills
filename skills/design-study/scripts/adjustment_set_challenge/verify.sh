@@ -40,6 +40,9 @@ has     mbias.json      X Y C   COLLIDER_ADJUSTMENT
 absent  mbias.json      X Y C   CONFOUNDER_OMITTED # M-bias collider has no open-backdoor confounder
 clean   instrument.json X Y ""                    # FP guard: A->X->Y instrument is not a confounder
 absent  instrument.json X Y ""  CONFOUNDER_OMITTED # omitting an instrument is not a bias
+clean   proxy.json      X Y D                     # FP guard: adjusted D blocks X<-C->D->Y (valid set)
+has     proxy.json      X Y ""  CONFOUNDER_OMITTED # nothing adjusted: C's backdoor is open
+has     butterfly.json  X Y D   CONFOUNDER_OMITTED # D is also a collider of C and U: {D} is not valid
 
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

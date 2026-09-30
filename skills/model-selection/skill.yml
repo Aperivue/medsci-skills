@@ -1,0 +1,60 @@
+schema_version: 2
+name: model-selection
+layer: D
+owner_domain: architecture_reference
+maturity: official
+
+when_to_use: "Choose the model a medical-imaging study will be built on, in two steps: (1) map the task (classification / segmentation / detection / synthesis / transfer), modality and dimensionality, labelled-data scale, and class imbalance to a paper-grounded architecture family with a runner-up and the matching /model-scaffold template; (2) vet the CONCRETE third-party repository, revision or checkpoint in a model dossier gated deterministically — licence and the file it was read from, version pin, pretrained-weight provenance, task fit, reported validation, and whether an evaluation arm sits on the benchmark the model was developed or tuned on."
+when_NOT_to_use: "Generating the runnable training repo (use model-scaffold); profiling the dataset or planning preprocessing (use imaging-data); validation design, split leakage, held-out metrics, uncertainty or explainability (use model-assessment); documenting a model you built yourself (use model-card); general study/validity design (use design-study); benchmarking AI vs a human-expert panel (use design-ai-benchmarking); evaluating an LLM / MLLM, including benchmark contamination in that setting (use mllm-eval). It does not chase SOTA leaderboards."
+
+inputs:
+  - "the research question + imaging modality and dimensionality (2-D / 3-D)"
+  - "labelled-data scale (events / structures), label availability, and class-imbalance / interpretability constraints"
+  - "the concrete artifact under consideration: repository or checkpoint URL, revision, licence file"
+  - "the model's published account of what it was developed, tuned, or competed on"
+  - "the study's evaluation arms (arm name -> dataset), the study's task, and the declared intended use (research / commercial / clinical deployment)"
+outputs:
+  - "architecture decision note decisions/architecture_choice.md (chosen architecture, source paper, reason vs constraints, runner-up + why not, matching model-scaffold template)"
+  - "model dossier JSON model_dossier.json (the provenance record downstream skills and the Methods section read)"
+  - "model-provenance audit JSON qc/model_provenance.json (deterministic verdicts)"
+  - "arm-by-arm decision: which arms may be claimed as independent validation and which may not"
+deterministic_scripts:
+  - scripts/check_model_provenance.py
+side_effects:
+  - writes_decision_notes
+downstream_consumers:
+  - model-scaffold
+  - model-assessment
+  - model-card
+  - design-study
+  - write-paper
+  - check-reporting
+forbidden_actions:
+  - recommend_an_architecture_without_naming_its_source_paper
+  - fabricate_benchmark_numbers_or_invent_paper_claims
+  - recommend_an_architecture_for_a_modality_or_data_scale_it_does_not_suit
+  - infer_a_provenance_fact_the_dossier_does_not_state
+  - record_a_licence_from_a_badge_or_summary_instead_of_the_licence_file
+  - mark_hardware_verified_without_executing_it
+  - report_an_arm_as_independent_validation_when_a_provenance_conflict_is_flagged
+  - download_or_execute_a_third_party_model_as_part_of_the_audit
+aliases:
+  - architecture-zoo
+  - model-sourcing
+
+# v2.1 quality card
+purpose: "Start a medical-imaging model study from a defensible, paper-grounded architecture archetype, then establish what the chosen third-party artifact's numbers are allowed to claim — by writing provenance facts that live in different documents into one record and auditing the relationships between them, chiefly whether an evaluation arm sits on the benchmark the model was developed against."
+safety_boundaries:
+  - "Advisory plus deterministic-audit only: writes decision notes and a dossier; never downloads, executes, fine-tunes, or benchmarks a model, and never fetches a repository or resolves a licence over the network."
+  - "Every architecture recommendation names its source paper; benchmark numbers are cited, never invented; the zoo describes archetypes, not a live leaderboard."
+  - "Every provenance verdict is decided by set arithmetic over the dossier JSON (stdlib-only); an unstated fact yields a finding rather than an inferred value."
+known_limitations:
+  - "The literature moves fast; the architecture cards are a curated archetype map (classification, segmentation, detection, synthesis, foundation/SSL, graph/GNN), not an exhaustive or current SOTA ranking."
+  - "The dossier is taken at face value: the gate cannot tell that a stated licence is wrong or that `developed_on` is incomplete, so reading the artifact is the researcher's responsibility and the gate audits the consequences."
+  - "Dataset matching is token-sequence based with a small family-alias table; two names for the same corpus that share no leading token (a private cohort renamed between papers) will not be matched."
+  - "A sound choice and a clean dossier are necessary, not sufficient: preprocessing leakage (imaging-data), split disjointness and metric choice (model-assessment) are separate gates."
+validation_commands:
+  - "python3 scripts/check_model_provenance.py --dossier <dossier.json> --strict"
+  - "bash scripts/check_model_provenance_challenge/verify.sh  # deterministic, network-free"
+  - "bash tests/test_model_provenance.sh"
+evidence_surface: ci_validator

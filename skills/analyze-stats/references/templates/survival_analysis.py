@@ -180,9 +180,10 @@ def km_analysis(df, time_col, event_col, group_col=None,
     row_offset = 1.0
 
     for i, (label, kmf) in enumerate(fitters.items()):
-        at_risk = [kmf.event_table["at_risk"].iloc[
-            max(0, (kmf.event_table.index <= t).sum() - 1)
-        ] for t in time_points]
+        # Number at risk at t = subjects whose time is >= t. (The event table's
+        # at_risk column is the risk set at the previous event time, which
+        # overstates it by everyone who left between that time and t.)
+        at_risk = [int((np.asarray(kmf.durations) >= t).sum()) for t in time_points]
         ax_risk.text(-0.01, row_offset - i * 0.35, str(label),
                      transform=ax_risk.transAxes, fontsize=7.5,
                      va="top", ha="right",
@@ -208,30 +209,38 @@ def km_analysis(df, time_col, event_col, group_col=None,
 
 
 def cox_analysis(df, time_col, event_col, covariates, output_path="survival",
-                 cluster_col=None):
+                 cluster_col=None, penalizer=0.0):
     """Cox proportional hazards model.
 
     cluster_col: id column for nested observation units (e.g. multiple lesions /
     eyes / repeated episodes per subject). When set, lifelines computes a robust
     (cluster-sandwich) variance so the HR CIs reflect within-subject correlation
     rather than treating correlated rows as independent.
+
+    penalizer: 0 (default) is the standard partial-likelihood MLE. A positive
+    value is a ridge penalty that shrinks every HR toward 1 -- an explicit
+    opt-in for sparse data, and its output is labelled as penalised.
     """
     keep = [time_col, event_col] + covariates + ([cluster_col] if cluster_col else [])
     model_df = df[keep].dropna()
     print(f"\n── Cox PH Model (N = {len(model_df)}) ───────────────────────")
 
     # Events-per-variable (EPV) gate — mirror of the logistic EPV rule. A Wald CI
-    # from a sparse-event model is not stable; warn and rely on the penalizer.
+    # from a sparse-event model is not stable.
     n_events = int(model_df[event_col].sum())
     epv = n_events / max(len(covariates), 1)
     print(f"EPV = {epv:.1f} ({n_events} events / {len(covariates)} covariates; "
           f"minimum recommended: 10)")
     if epv < 10:
-        print("⚠ WARNING: EPV < 10 — Cox estimates may be unstable. The penalized "
-              "fit (penalizer=0.1) shrinks coefficients; consider Firth/penalized "
-              "Cox or profile-likelihood CIs and interpret Wald CIs with caution.")
+        print("⚠ WARNING: EPV < 10 — Cox estimates may be unstable. Reduce the "
+              "covariates, or fit a Firth-penalised Cox with profile-likelihood CIs "
+              "(R coxphf); interpret Wald CIs with caution.")
 
-    cph = CoxPHFitter(penalizer=0.1)
+    if penalizer > 0:
+        print(f"⚠ PENALISED Cox fit (ridge, penalizer = {penalizer}): every HR is "
+              "shrunk toward 1 and the CIs are not those of the unpenalised "
+              "estimand. Report it as a penalised (shrunk) estimate.")
+    cph = CoxPHFitter(penalizer=penalizer)
     fit_kw = {"duration_col": time_col, "event_col": event_col}
     if cluster_col:
         fit_kw["cluster_col"] = cluster_col  # robust (cluster-sandwich) SE
@@ -249,6 +258,7 @@ def cox_analysis(df, time_col, event_col, covariates, output_path="survival",
     # Save results table
     summary = cph.summary.copy()
     summary.columns = [c.replace(" ", "_") for c in summary.columns]
+    summary["penalizer"] = penalizer
     outfile = f"{output_path}_cox_results.csv"
     summary.to_csv(outfile)
     print(f"\nSaved: {outfile}")
@@ -259,19 +269,53 @@ def cox_analysis(df, time_col, event_col, covariates, output_path="survival",
     return cph
 
 
+def rmst_with_se(time, event, tau):
+    """KM-based RMST up to tau and the SE of the ESTIMATOR.
+
+    Var = sum over event times t_j <= tau of A_j^2 * d_j / (n_j (n_j - d_j)),
+    A_j = area under the KM curve from t_j to tau (Klein & Moeschberger 2003;
+    the se(rmean) of R survival::survfit). lifelines'
+    restricted_mean_survival_time(return_variance=True) returns the variance of
+    min(T, tau) in the population instead, which is not a standard error.
+    """
+    t = np.asarray(time, dtype=float); e = np.asarray(event).astype(int)
+    ut = np.unique(t[(e == 1) & (t <= tau)])
+    n_j = np.array([(t >= u).sum() for u in ut])
+    d_j = np.array([((t == u) & (e == 1)).sum() for u in ut])
+    S = np.cumprod(1 - d_j / n_j)
+    knots = np.concatenate([[0.0], ut, [tau]])
+    s_step = np.concatenate([[1.0], S])          # S on [knots[k], knots[k+1])
+    widths = np.diff(knots)
+    rmst = float(np.sum(s_step * widths))
+    tail = np.cumsum((s_step * widths)[::-1])[::-1]   # area from knots[k] to tau
+    A = tail[1:len(ut) + 1]
+    with np.errstate(divide="ignore", invalid="ignore"):
+        terms = np.where(n_j > d_j, A ** 2 * d_j / (n_j * (n_j - d_j)), 0.0)
+    return rmst, float(np.sqrt(terms.sum()))
+
+
 def rmst_analysis(df, time_col, event_col, group_col, t_star, output_path="survival"):
-    """Restricted Mean Survival Time analysis."""
+    """Restricted Mean Survival Time per group and, for two groups, the
+    difference with its 95% CI (independent groups)."""
     if group_col not in df.columns:
         return
 
-    groups = df[group_col].dropna().unique()
+    groups = sorted(df[group_col].dropna().unique(), key=str)
     print(f"\n── Restricted Mean Survival Time (t* = {t_star}) ────────────")
+    est = {}
     for g in groups:
         d = df[df[group_col] == g]
-        kmf = KaplanMeierFitter()
-        kmf.fit(d[time_col], d[event_col])
-        rmst = restricted_mean_survival_time(kmf, t=t_star)
-        print(f"  {g}: RMST = {rmst:.2f}")
+        rmst, se = rmst_with_se(d[time_col], d[event_col], t_star)
+        est[g] = (rmst, se)
+        print(f"  {g}: RMST = {rmst:.2f} (95% CI {rmst - 1.96 * se:.2f}–"
+              f"{rmst + 1.96 * se:.2f})")
+    if len(groups) == 2:
+        (r0, s0), (r1, s1) = est[groups[0]], est[groups[1]]
+        diff, se = r1 - r0, np.sqrt(s0 ** 2 + s1 ** 2)
+        from scipy.stats import norm
+        p = 2 * norm.sf(abs(diff / se))
+        print(f"  RMST difference ({groups[1]} − {groups[0]}) = {diff:.2f} "
+              f"(95% CI {diff - 1.96 * se:.2f} to {diff + 1.96 * se:.2f}), P = {p:.3f}")
 
 
 def main():
@@ -283,6 +327,9 @@ def main():
     parser.add_argument("--covariates", nargs="+", default=None)
     parser.add_argument("--cluster", default=None,
                         help="ID column for nested units → robust cluster SE in Cox")
+    parser.add_argument("--penalizer", type=float, default=0.0,
+                        help="Ridge penalty for the Cox fit (default 0 = unpenalised MLE); "
+                             "a positive value shrinks HRs and is reported as penalised")
     parser.add_argument("--time-unit", default="Months")
     parser.add_argument("--rmst-t", type=float, default=None,
                         help="t* for RMST (in same units as time)")
@@ -300,7 +347,7 @@ def main():
 
     if args.covariates:
         cox_analysis(df, args.time, args.event, args.covariates, args.output,
-                     cluster_col=args.cluster)
+                     cluster_col=args.cluster, penalizer=args.penalizer)
 
     if args.rmst_t and args.group:
         rmst_analysis(df, args.time, args.event, args.group,

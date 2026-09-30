@@ -17,17 +17,24 @@ Usage:
     python deidentify.py full   input.xlsx [--locale kr] [--auto-accept-safe]
 """
 
+# Annotations such as `re.Pattern | None` are evaluated at import time on
+# Python 3.9 (macOS /usr/bin/python3) and crash it; postponing them keeps
+# the script importable there.
+from __future__ import annotations
+
 import argparse
 import csv
 import hashlib
+import hmac
 import json
 import logging
 import os
 import random
 import re
+import secrets
 import stat
 import sys
-from datetime import datetime, timedelta
+from datetime import date, datetime, time, timedelta
 from pathlib import Path
 
 log = logging.getLogger("deidentify")
@@ -66,7 +73,33 @@ UNIVERSAL_VALUE_PATTERNS: list[tuple[re.Pattern, str]] = [
     (re.compile(r"\b(19|20)\d{2}[-/.](0[1-9]|1[0-2])[-/.](0[1-9]|[12]\d|3[01])\b"), "date"),
     # YYMMDD (6 digits that look like a birthdate, standalone)
     (re.compile(r"\b([5-9]\d|0[0-4])(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\b"), "date"),
+    # YYYYMMDD (compact date, also inside text such as "visit=20260930")
+    (re.compile(r"\b(19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\b"), "date"),
 ]
+
+# Separators people put between digit groups ("010 1234 5678", "010.1234.5678").
+_DIGIT_SEPARATORS = re.compile(r"(?<=\d)[\s.\-/()]+(?=\d)")
+_INTL_PREFIX = {k: re.compile(r"\+\d{%d}" % k) for k in (1, 2, 3)}
+
+
+def _value_forms(val: str) -> list[str]:
+    """The value as written, plus the forms a locale pattern expects.
+
+    Locale patterns are written for the domestic, hyphenated form. The same
+    phone number written with spaces or dots, or with an international prefix
+    ("+82 10 1234 5678"), used to match nothing, and a column that matches
+    nothing is passed through. The extra forms drop the separators between
+    digits and rewrite a +CC prefix the domestic way (trunk "0", or none), so
+    every spelling meets the same pattern. The value itself is not changed.
+    """
+    forms = [val]
+    compact = _DIGIT_SEPARATORS.sub("", val)
+    if compact != val:
+        forms.append(compact)
+    if "+" in compact:
+        for prefix in _INTL_PREFIX.values():
+            forms.extend(prefix.sub(trunk, compact) for trunk in ("0", ""))
+    return forms
 
 
 def list_locales() -> list[dict]:
@@ -264,6 +297,22 @@ def detect_encoding(path: Path) -> str:
     return "utf-8"  # best effort
 
 
+def _cell_text(v) -> str:
+    """Excel cell value as text. Native dates become ISO text the date
+    shifter can parse; str() gave "2020-01-02 00:00:00", which it could not,
+    so every Excel date was replaced by [DATE_SHIFTED] and intervals were lost.
+    Fractional seconds are kept: dropping them turned a 0.8 s interval into 0."""
+    if v is None:
+        return ""
+    if isinstance(v, datetime):
+        if v.time() == time(0):
+            return v.strftime("%Y-%m-%d")
+        return v.strftime("%Y-%m-%d %H:%M:%S.%f" if v.microsecond else "%Y-%m-%d %H:%M:%S")
+    if isinstance(v, date):
+        return v.isoformat()
+    return str(v)
+
+
 def load_tabular(path: Path) -> tuple[list[dict], dict]:
     """Load CSV/TSV/XLSX into list of row-dicts + metadata dict."""
     fmt = detect_format(path)
@@ -284,15 +333,25 @@ def load_tabular(path: Path) -> tuple[list[dict], dict]:
         headers = [str(h) if h is not None else f"col_{i}" for i, h in enumerate(next(rows_iter))]
         data = []
         for row in rows_iter:
-            data.append({h: (str(v) if v is not None else "") for h, v in zip(headers, row)})
+            data.append({h: _cell_text(v) for h, v in zip(headers, row)})
         wb.close()
     else:
         delimiter = "\t" if fmt == "tsv" else ","
         enc = detect_encoding(path)
         with open(path, newline="", encoding=enc) as f:
-            reader = csv.DictReader(f, delimiter=delimiter)
+            # A short row is only missing values (read as ""). A long row's
+            # extra fields land under the key None, in no column: the review
+            # never showed them and "keep" wrote them out. Refuse the file,
+            # naming the line but not the values.
+            reader = csv.DictReader(f, delimiter=delimiter, restval="")
             headers = reader.fieldnames or []
-            data = list(reader)
+            data = []
+            for row in reader:
+                if None in row:
+                    sys.exit(f"{path.name}, line {reader.line_num}: this row has more fields "
+                             f"than the header ({len(headers)} columns). Fix the file "
+                             "(for example an unquoted comma) and run again.")
+                data.append(row)
 
     meta["rows"] = len(data)
     meta["columns"] = len(headers) if data else 0
@@ -365,6 +424,21 @@ def _col_name_matches(norm_col: str, pattern: str) -> bool:
     return False
 
 
+def _col_name_mention(col: str, column_names: dict[str, str]) -> str | None:
+    """PHI type of a PHI word that appears as a whole word inside a longer
+    column name ("legal_patient_name"), or None.
+
+    _col_name_matches deliberately ignores these, so that "cell" in
+    "atypical_cell_carcinoma" is not anonymized by default. Ignoring them
+    entirely called the column SAFE. They are review items instead.
+    """
+    padded = f"_{_normalize_col(col)}_"
+    for pattern, phi_type in column_names.items():
+        if f"_{pattern}_" in padded:
+            return phi_type
+    return None
+
+
 def scan_column_names(headers: list[str],
                       column_names: dict[str, str] | None = None) -> dict[str, dict]:
     """Match column names against PHI dictionary.
@@ -423,8 +497,9 @@ def scan_column_values(col: str, values: list[str],
     # Count matches per PHI type
     type_counts: dict[str, int] = {}
     for val in sample:
+        forms = _value_forms(val)
         for regex, phi_type in value_patterns:
-            if regex.search(val):
+            if any(regex.search(f) for f in forms):
                 type_counts[phi_type] = type_counts.get(phi_type, 0) + 1
                 break  # one match per value is enough
 
@@ -435,10 +510,12 @@ def scan_column_values(col: str, values: list[str],
             if name_count > len(sample) * name_min_ratio:
                 type_counts["name"] = name_count
 
-    # Address check
+    # Address check. Any match counts: one address among ten notes is
+    # still an address, and a column below a prevalence cut-off was passed
+    # through. How many rows match only sets the confidence below.
     if address_re is not None:
         addr_count = sum(1 for v in sample if address_re.search(v))
-        if addr_count > len(sample) * 0.3:
+        if addr_count:
             type_counts["address"] = addr_count
 
     if not type_counts:
@@ -460,15 +537,26 @@ def scan_column_values(col: str, values: list[str],
 
 def is_high_cardinality_numeric(values: list[str], threshold: float = 0.9) -> bool:
     """Detect columns that look like MRN/chart numbers:
-    high-cardinality pure-numeric values."""
+    high-cardinality pure-numeric values.
+
+    There is no minimum row count: nine chart numbers are as identifying
+    as ten, and a small file used to get these columns called SAFE."""
     non_empty = [v.strip() for v in values if v and v.strip()]
-    if len(non_empty) < 10:
+    if not non_empty:
         return False
     numeric_count = sum(1 for v in non_empty if v.isdigit() and len(v) >= 5)
     if numeric_count / len(non_empty) < threshold:
         return False
     unique_ratio = len(set(non_empty)) / len(non_empty)
     return unique_ratio > 0.8
+
+
+def looks_like_free_text(values: list[str]) -> bool:
+    """True if any value reads like prose (over 50 characters, or five or
+    more words). The scanner finds identifiers that have a shape (phone,
+    ID, date, address); it cannot find a name written into a sentence."""
+    return any(len(v) > 50 or len(v.split()) >= 5
+               for v in values if v and v.strip())
 
 
 def classify_columns(data: list[dict], headers: list[str],
@@ -524,43 +612,43 @@ def classify_columns(data: list[dict], headers: list[str],
             })
             continue
 
-        # Pass 3: high-cardinality numeric (possible MRN)
+        # Pass 2b: a PHI word inside a longer column name
+        mention = _col_name_mention(col, col_names)
+        if mention:
+            classifications.append({
+                "column": col,
+                "classification": "REVIEW_NEEDED",
+                "phi_type": mention,
+                "confidence": CONF_LOW,
+                "source": "column_name_partial",
+            })
+            continue
+
+        # Pass 3: high-cardinality numeric (possible MRN). No values are
+        # stored in the report: the report is read by the agent, and the
+        # review shows samples in the researcher's terminal instead.
         if is_high_cardinality_numeric(values):
-            # Show sample for user review
-            unique_sample = sorted(set(v.strip() for v in values if v.strip()))[:5]
             classifications.append({
                 "column": col,
                 "classification": "REVIEW_NEEDED",
                 "phi_type": "id",
                 "confidence": CONF_LOW,
                 "source": "high_cardinality_numeric",
-                "sample_values": unique_sample,
             })
             continue
 
-        # Pass 4: free-text detection (long strings, mixed content)
-        non_empty = [v for v in values if v and v.strip()]
-        if non_empty:
-            avg_len = sum(len(v) for v in non_empty) / len(non_empty)
-            if avg_len > 50:
-                # Scan for embedded PHI in free text
-                embedded_phi = False
-                for val in non_empty:  # every value; the loop exits on the first hit
-                    for regex, _ in val_patterns:
-                        if regex.search(val):
-                            embedded_phi = True
-                            break
-                    if embedded_phi:
-                        break
-                if embedded_phi:
-                    classifications.append({
-                        "column": col,
-                        "classification": "REVIEW_NEEDED",
-                        "phi_type": "free_text",
-                        "confidence": CONF_MEDIUM,
-                        "source": "free_text_with_phi",
-                    })
-                    continue
+        # Pass 4: free text. A pattern hit would have been caught in Pass 2;
+        # what is left is prose the scanner cannot vouch for, because a name
+        # inside a sentence has no pattern. Never SAFE: the researcher decides.
+        if looks_like_free_text(values):
+            classifications.append({
+                "column": col,
+                "classification": "REVIEW_NEEDED",
+                "phi_type": "free_text",
+                "confidence": CONF_LOW,
+                "source": "free_text",
+            })
+            continue
 
         # Default: SAFE
         classifications.append({
@@ -618,9 +706,59 @@ def _show_sample_values(col: str, data: list[dict], n: int = 10) -> None:
         print(f"  ... and {len(values) - n} more unique values")
 
 
+def _ask(prompt: str, choices: str, default: str | None = None) -> str:
+    """Read one of the single-letter `choices`. Enter gives `default`; with no
+    default the question repeats until it is answered. A column the scanner
+    was unsure of used to be kept when the researcher pressed Enter."""
+    while True:
+        try:
+            choice = input(prompt).strip().lower()[:1]
+        except EOFError:
+            sys.exit("\nReview stopped before every column was answered. Nothing was written.")
+        if not choice and default is not None:
+            return default
+        if choice and choice in choices:
+            return choice
+        print(f"  Please type one of: {', '.join(choices)}")
+
+
+def _ask_patient_key(classifications: list[dict]) -> dict:
+    """Ask which column identifies the patient, for date shifting.
+
+    Each patient's dates move by that patient's own offset, so intervals
+    within a patient are kept and one known date does not reveal everyone
+    else's. The tool used to guess the patient from ID-typed columns and,
+    finding none, shifted every row by one shared offset.
+    """
+    cols = [c["column"] for c in classifications]
+    print(f"\n{_bold('=== Patient key for date shifting ===')}")
+    print("Dates are shifted by a random offset per patient. "
+          "Which column identifies the patient?")
+    for n, c in enumerate(classifications, 1):
+        hint = "  (ID column)" if c.get("phi_type") == "id" else ""
+        print(f"  {n:2d}. {c['column']}{hint}")
+    print("  row. Every row is a different patient")
+    while True:
+        try:
+            answer = input("> ").strip()
+        except EOFError:
+            sys.exit("\nReview stopped: date shifting needs a patient key. Nothing was written.")
+        if answer.lower() == "row":
+            return {"type": "row"}
+        if answer.isdigit() and 1 <= int(answer) <= len(cols):
+            return {"type": "column", "column": cols[int(answer) - 1]}
+        if answer in cols:
+            return {"type": "column", "column": answer}
+        print(f"  Enter 1-{len(cols)}, a column name, or 'row'.")
+
+
 def review_scan_report(report: dict, data: list[dict],
                        auto_accept_safe: bool = False) -> dict:
-    """Interactive three-pass review.  Mutates and returns the report."""
+    """Interactive three-pass review.  Mutates and returns the report.
+
+    Sample values are printed to the researcher's terminal only; nothing
+    from the data is written into the report.
+    """
     classifications = report["classifications"]
     total = len(classifications)
 
@@ -638,26 +776,25 @@ def review_scan_report(report: dict, data: list[dict],
     for i, c in enumerate(classifications):
         col = c["column"]
         cls = c["classification"]
+        c.pop("sample_values", None)  # older scan reports stored raw values here
 
         if cls == "SAFE" and auto_accept_safe:
             c["approved_action"] = "keep"
             continue
 
         print(f"[{i + 1}/{total}] {_bold(col)}: {_format_classification(c)}")
-        if "sample_values" in c:
-            print(f"  Flagged samples: {c['sample_values']}")
-        if cls != "SAFE":
-            _show_sample_values(col, data)
+        # SAFE only means no pattern matched, so SAFE columns are shown too.
+        _show_sample_values(col, data)
 
         if cls == "SAFE":
-            choice = input("  Action [K]eep / (r)eview_needed? ").strip().lower()
+            choice = _ask("  Action [K]eep / (r)eview_needed? ", "kr", default="k")
             if choice == "r":
                 c["classification"] = "REVIEW_NEEDED"
                 c["approved_action"] = None
             else:
                 c["approved_action"] = "keep"
         elif cls == "PHI":
-            choice = input("  Action [A]nonymize / (k)eep / (r)eview? ").strip().lower()
+            choice = _ask("  Action [A]nonymize / (k)eep / (r)eview? ", "akr", default="a")
             if choice == "k":
                 c["approved_action"] = "keep"
             elif choice == "r":
@@ -665,14 +802,14 @@ def review_scan_report(report: dict, data: list[dict],
                 c["approved_action"] = None
             else:
                 c["approved_action"] = "anonymize"
-        else:  # REVIEW_NEEDED
-            _show_sample_values(col, data)
-            choice = input("  Action (a)nonymize / [K]eep / (f)lag_free_text? ").strip().lower()
+        else:  # REVIEW_NEEDED: no default, so Enter cannot keep an identifier
+            if c.get("phi_type") == "free_text":
+                print("  Anonymize replaces each whole text with [REDACTED]: "
+                      "names inside text cannot be found by pattern.")
+            choice = _ask("  Action (a)nonymize / (k)eep? ", "ak")
             if choice == "a":
                 c["approved_action"] = "anonymize"
                 c["classification"] = "PHI"
-            elif choice == "f":
-                c["approved_action"] = "flag"
             else:
                 c["approved_action"] = "keep"
 
@@ -684,25 +821,21 @@ def review_scan_report(report: dict, data: list[dict],
             col = c["column"]
             print(f"\n  {_bold(col)}: {_format_classification(c)}")
             _show_sample_values(col, data, n=15)
-            choice = input("  Action (a)nonymize / [K]eep? ").strip().lower()
+            choice = _ask("  Action (a)nonymize / (k)eep? ", "ak")
             c["approved_action"] = "anonymize" if choice == "a" else "keep"
 
     # ---- Pass 3: Final summary ----
     print(f"\n{_bold('=== Pass 3: Final Summary ===')}")
     to_anonymize = [c for c in classifications if c.get("approved_action") == "anonymize"]
     to_keep = [c for c in classifications if c.get("approved_action") == "keep"]
-    to_flag = [c for c in classifications if c.get("approved_action") == "flag"]
 
     print(f"\n  Anonymize ({len(to_anonymize)}): "
           + ", ".join(c["column"] for c in to_anonymize) if to_anonymize else "  Anonymize: none")
     print(f"  Keep ({len(to_keep)}): "
           + ", ".join(c["column"] for c in to_keep) if to_keep else "  Keep: none")
-    if to_flag:
-        print(f"  {_yellow(f'Flagged ({len(to_flag)})')}: "
-              + ", ".join(c["column"] for c in to_flag))
 
     print()
-    confirm = input("Proceed with these actions? [Y]es / (e)dit / (q)uit: ").strip().lower()
+    confirm = _ask("Proceed with these actions? [Y]es / (e)dit / (q)uit: ", "yeq", default="y")
     if confirm == "q":
         sys.exit("Aborted by user.")
     if confirm == "e":
@@ -716,17 +849,52 @@ def review_scan_report(report: dict, data: list[dict],
                 print(f"  Column '{col_name}' not found.")
                 continue
             c = match[0]
-            choice = input(f"  New action for {col_name} — (a)nonymize / (k)eep / (f)lag: ").strip().lower()
-            if choice == "a":
-                c["approved_action"] = "anonymize"
-            elif choice == "f":
-                c["approved_action"] = "flag"
-            else:
-                c["approved_action"] = "keep"
+            choice = _ask(f"  New action for {col_name} — (a)nonymize / (k)eep: ", "ak")
+            c["approved_action"] = "anonymize" if choice == "a" else "keep"
+
+    if any(c.get("approved_action") == "anonymize" and c.get("phi_type") == "date"
+           for c in classifications):
+        report["patient_key"] = _ask_patient_key(classifications)
 
     report["reviewed"] = True
     report["review_timestamp"] = datetime.now().isoformat()
     return report
+
+
+def review_problems(report: dict, data: list[dict], headers: list[str]) -> list[str]:
+    """Reasons a report must not be applied; an empty list means it may be.
+
+    Applying used to go ahead, with only a warning, on a report nobody had
+    reviewed, and wrote the input out unchanged under a *_deidentified name.
+    """
+    if not report.get("reviewed"):
+        return ["the report has not been reviewed. Run: deidentify.py review <scan_report.json>"]
+    problems = []
+    decided = {c["column"]: c.get("approved_action") for c in report["classifications"]}
+    unresolved = [col for col, act in decided.items() if act not in ("anonymize", "keep")]
+    if unresolved:
+        problems.append("no anonymize/keep decision for: " + ", ".join(unresolved)
+                        + ". Run review again.")
+    unscanned = [h for h in headers if h not in decided]
+    if unscanned:
+        problems.append("columns missing from the report (the file changed after the scan): "
+                        + ", ".join(unscanned) + ". Scan and review again.")
+    date_cols = [c["column"] for c in report["classifications"]
+                 if c.get("approved_action") == "anonymize" and c.get("phi_type") == "date"]
+    if date_cols:
+        key = report.get("patient_key") or {}
+        if key.get("type") == "column" and key.get("column") in headers:
+            k = key["column"]
+            blank = sum(1 for row in data if not row.get(k, "").strip()
+                        and any(row.get(dc, "").strip() for dc in date_cols))
+            if blank:
+                problems.append(f"{blank} rows with a date to shift have no value in the "
+                                f"patient key column '{k}'. Fill it, or run review again "
+                                "and choose another key (or 'row').")
+        elif key.get("type") != "row":
+            problems.append("dates are marked for shifting but no patient key was chosen. "
+                            "Run review again.")
+    return problems
 
 
 # ================================================================
@@ -766,11 +934,14 @@ class DateShifter:
         self.seed = seed
 
     def _get_offset(self, entity_id: str) -> int:
+        # Never 0: a zero offset (one patient in 731 under randint(-365, 365))
+        # wrote the original date to the output and the audit log.
         if entity_id not in self._offsets:
-            self._offsets[entity_id] = self._rng.randint(-self._max_days, self._max_days)
+            days = self._rng.randint(1, self._max_days)
+            self._offsets[entity_id] = days if self._rng.random() < 0.5 else -days
         return self._offsets[entity_id]
 
-    def shift(self, date_str: str, entity_id: str = "__default__") -> str:
+    def shift(self, date_str: str, entity_id: str) -> str:
         """Attempt to parse, shift, and re-format a date string."""
         offset = self._get_offset(entity_id)
         delta = timedelta(days=offset)
@@ -778,6 +949,10 @@ class DateShifter:
         # Try common formats
         for fmt_in, fmt_out in [
             ("%Y-%m-%d", "%Y-%m-%d"),
+            ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M:%S"),
+            ("%Y-%m-%d %H:%M:%S.%f", "%Y-%m-%d %H:%M:%S.%f"),
+            ("%Y-%m-%d %H:%M", "%Y-%m-%d %H:%M"),
+            ("%Y-%m-%dT%H:%M:%S", "%Y-%m-%dT%H:%M:%S"),
             ("%Y.%m.%d", "%Y.%m.%d"),
             ("%Y/%m/%d", "%Y/%m/%d"),
             ("%Y%m%d", "%Y%m%d"),
@@ -833,6 +1008,17 @@ def _sha256(val: str) -> str:
     return hashlib.sha256(val.encode("utf-8")).hexdigest()
 
 
+def _keyed_hash(key: bytes, val: str) -> str:
+    """HMAC-SHA256 of a value under a per-run key.
+
+    The audit log used a plain SHA-256, and a plain hash of a date or a chart
+    number is reversed by hashing every candidate (every date of a century
+    takes under a second). The key is stored only in mapping.json, which is
+    restricted like the original values it maps.
+    """
+    return hmac.new(key, val.encode("utf-8"), hashlib.sha256).hexdigest()
+
+
 def apply_anonymization(data: list[dict], report: dict,
                         date_shift_seed: int | None = None) -> tuple[list[dict], dict, list[dict]]:
     """Apply approved anonymization actions.
@@ -847,23 +1033,22 @@ def apply_anonymization(data: list[dict], report: dict,
         log.info("No columns marked for anonymization.")
         return data, {}, []
 
-    # Detect the entity/patient ID column for date shifting
-    id_columns = [col for col, c in to_anonymize.items() if c.get("phi_type") == "id"]
-    # Also check non-anonymized columns that look like IDs
-    all_id_cols = id_columns + [
-        c["column"] for c in classifications
-        if c.get("phi_type") == "id" and c.get("approved_action") == "keep"
-    ]
+    # The patient key the researcher chose in review (see review_problems).
+    # Without one, each row gets its own offset: never one shared offset.
+    key = report.get("patient_key") or {}
+    key_col = key.get("column") if key.get("type") == "column" else None
 
     # Initialize anonymizers
     name_gen = PseudonymGenerator(prefix="P")
     id_gen = IDReplacer(prefix="ID")
     seed = date_shift_seed if date_shift_seed is not None else random.randint(1, 999999)
     date_shifter = DateShifter(seed=seed)
+    audit_key = secrets.token_bytes(32)
 
     mapping: dict[str, dict] = {
         "_meta": {
             "date_shift_seed": seed,
+            "audit_hash_key": audit_key.hex(),
             "timestamp": datetime.now().isoformat(),
             "version": REPORT_VERSION,
         }
@@ -876,11 +1061,7 @@ def apply_anonymization(data: list[dict], report: dict,
         new_row = dict(row)
 
         # Determine entity ID for this row (for date shifting)
-        entity_id = "__default__"
-        for id_col in all_id_cols:
-            if row.get(id_col, "").strip():
-                entity_id = row[id_col].strip()
-                break
+        entity_id = (row.get(key_col, "").strip() if key_col else "") or f"row {row_idx + 1}"
 
         for col, spec in to_anonymize.items():
             original = row.get(col, "")
@@ -901,11 +1082,9 @@ def apply_anonymization(data: list[dict], report: dict,
             elif phi_type == "address":
                 replacement = _suppress(original_stripped)
             elif phi_type == "free_text":
-                # Redact known patterns within the text
-                replaced = original_stripped
-                for regex, _ in PHI_VALUE_PATTERNS:
-                    replaced = regex.sub("[REDACTED]", replaced)
-                replacement = replaced
+                # A name inside prose has no pattern, so redacting only the
+                # patterns would leave it in. The whole text is removed.
+                replacement = _suppress(original_stripped)
             else:
                 replacement = _suppress(original_stripped)
 
@@ -916,7 +1095,7 @@ def apply_anonymization(data: list[dict], report: dict,
                 "column": col,
                 "phi_type": phi_type,
                 "action": "anonymize",
-                "before_hash": _sha256(original_stripped),
+                "before_hash": _keyed_hash(audit_key, original_stripped),
                 "after_value": replacement,
             })
 
@@ -946,7 +1125,11 @@ def write_deidentified_file(data: list[dict], input_path: Path,
 
 
 def write_mapping(mapping: dict, path: Path, hash_mode: bool = False) -> Path:
-    """Write mapping file.  In hash mode, original values are SHA-256 hashed."""
+    """Write mapping file.  In hash mode, original values are SHA-256 hashed.
+
+    The hashes are not keyed, so a date or a numeric ID can be recovered from
+    them by trying every candidate: mapping.json stays restricted either way.
+    """
     if hash_mode:
         hashed = {"_meta": mapping.get("_meta", {})}
         for section in ("names", "ids"):
@@ -971,7 +1154,8 @@ def write_mapping(mapping: dict, path: Path, hash_mode: bool = False) -> Path:
 
 
 def write_audit_log(audit: list[dict], path: Path) -> Path:
-    """Write audit log CSV.  before_hash is SHA-256 of original value."""
+    """Write audit log CSV.  before_hash is an HMAC-SHA256 of the original
+    value under the per-run key kept in mapping.json (see _keyed_hash)."""
     if not audit:
         log.info("No changes made; audit log is empty.")
         return path
@@ -1062,6 +1246,12 @@ def cmd_review(args: argparse.Namespace) -> None:
     print(f"Next step: python deidentify.py apply {out_path}")
 
 
+def _exit_on_review_problems(report: dict, data: list[dict], headers: list[str]) -> None:
+    problems = review_problems(report, data, headers)
+    if problems:
+        sys.exit("Not applied; no de-identified file was written:\n  - " + "\n  - ".join(problems))
+
+
 def cmd_apply(args: argparse.Namespace) -> None:
     """Apply command: anonymize based on reviewed report."""
     report_path = Path(args.report_file)
@@ -1070,14 +1260,16 @@ def cmd_apply(args: argparse.Namespace) -> None:
 
     report = json.loads(report_path.read_text(encoding="utf-8"))
     if not report.get("reviewed"):
-        log.warning("Report has not been reviewed. Run 'review' first.")
+        sys.exit("Not applied; no de-identified file was written: the report has not been reviewed.\n"
+                 f"Run: deidentify.py review {report_path}")
 
     input_path = Path(report["input_file"])
     if not input_path.exists():
         sys.exit(f"Original file not found: {input_path}")
 
     output_dir = report_path.parent
-    data, _ = load_tabular(input_path)
+    data, meta = load_tabular(input_path)
+    _exit_on_review_problems(report, data, meta["headers"])
 
     log.info("Applying anonymization ...")
     clean_data, mapping, audit = apply_anonymization(data, report)
@@ -1131,7 +1323,8 @@ def cmd_full(args: argparse.Namespace) -> None:
     print(f"  {_red(f'PHI: {phi}')}  |  {_yellow(f'REVIEW_NEEDED: {review_n}')}  |  {_green(f'SAFE: {safe}')}")
 
     if phi == 0 and review_n == 0:
-        print(f"\n{_green('No PHI detected.')} Your data appears clean.")
+        print(f"\n{_green('No identifier patterns matched.')} That is not proof the data "
+              "holds none: the review shows each column's values.")
         confirm = input("Proceed anyway? (y/n) ").strip().lower()
         if confirm != "y":
             return
@@ -1143,6 +1336,7 @@ def cmd_full(args: argparse.Namespace) -> None:
     # Save report
     report_path = output_dir / "reviewed_report.json"
     report_path.write_text(json.dumps(reviewed, ensure_ascii=False, indent=2), encoding="utf-8")
+    _exit_on_review_problems(reviewed, data, meta["headers"])
 
     # Apply
     log.info("Applying anonymization ...")
@@ -1195,13 +1389,13 @@ def main() -> None:
     p_review = sub.add_parser("review", help="Interactive review of scan report")
     p_review.add_argument("report_file", help="Path to scan_report.json")
     p_review.add_argument("--auto-accept-safe", action="store_true",
-                          help="Automatically accept SAFE columns without prompting")
+                          help="Keep SAFE columns without showing them (SAFE means no pattern matched)")
 
     # apply
     p_apply = sub.add_parser("apply", help="Apply anonymization from reviewed report")
     p_apply.add_argument("report_file", help="Path to reviewed_report.json")
     p_apply.add_argument("--hash-mapping", action="store_true",
-                         help="Hash original values in mapping file (one-way)")
+                         help="Hash original values in mapping file (unkeyed: dates and IDs stay recoverable)")
 
     # full
     p_full = sub.add_parser("full", help="Full pipeline: scan + review + apply")
@@ -1209,9 +1403,9 @@ def main() -> None:
     p_full.add_argument("-o", "--output-dir", default=".", help="Output directory (default: .)")
     _add_locale_args(p_full)
     p_full.add_argument("--auto-accept-safe", action="store_true",
-                        help="Automatically accept SAFE columns without prompting")
+                        help="Keep SAFE columns without showing them (SAFE means no pattern matched)")
     p_full.add_argument("--hash-mapping", action="store_true",
-                        help="Hash original values in mapping file (one-way)")
+                        help="Hash original values in mapping file (unkeyed: dates and IDs stay recoverable)")
 
     args = parser.parse_args()
 

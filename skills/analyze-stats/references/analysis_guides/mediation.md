@@ -39,8 +39,10 @@ no exposure–outcome and no exposure–mediator confounding:
   (R `mediation`, `CMAverse`, or Hayes PROCESS; Python `pingouin`/`statsmodels`). For a binary
   outcome use the **counterfactual / natural-effects** decomposition (e.g. `CMAverse`,
   `regmedint`), not the naive product on the odds-ratio scale (non-collapsibility distorts it).
-- **Bootstrap** the indirect effect (≥ 2000, ideally 5000 resamples) and report the **bias-corrected
-  percentile CI** — not the Sobel test (Sobel assumes normality of a×b and is underpowered).
+- **Bootstrap** the indirect effect (≥ 2000, ideally 5000 resamples) and report the **percentile
+  (or BCa) CI** — not the Sobel test (Sobel assumes normality of a×b and is underpowered). Avoid
+  the plain bias-corrected (BC) bootstrap: its type I error is inflated when one path is zero
+  (Fritz, Taylor & MacKinnon 2012, doi:10.1080/00273171.2012.640596).
 - **Exposure–mediator interaction**: with the counterfactual approach, report the natural direct and
   indirect effects allowing X×M interaction rather than assuming it away.
 

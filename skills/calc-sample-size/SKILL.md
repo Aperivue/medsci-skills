@@ -1,48 +1,16 @@
 ---
 name: calc-sample-size
-description: >
-  Interactive sample size calculator for medical research. Decision-tree guided test selection,
-  reproducible R/Python code, effect size interpretation, and IRB-ready justification text.
-  Supports diagnostic accuracy, agreement, proportions, continuous outcomes, survival,
-  ANOVA, logistic regression, and non-inferiority/equivalence designs.
-triggers: sample size, power analysis, power calculation, how many patients, how many subjects, IRB sample size
-tools: Read, Write, Edit, Bash, Grep, Glob
-model: inherit
+description: Use when planning how many patients or cases a study needs before data collection (power analysis, IRB justification). Walks a decision tree to the right test and returns reproducible R/Python code and IRB-ready justification text. Analyzing collected data is /analyze-stats.
+metadata:
+  triggers: "sample size, power analysis, power calculation, how many patients, how many subjects, IRB sample size"
 ---
 
 # Calc-Sample-Size Skill
 
-You are assisting a medical researcher with sample size and power calculations. Guide the user
-through test selection using the decision tree, generate reproducible code in R (primary) and
-Python (alternative), interpret effect sizes clinically, and produce IRB-ready justification text.
-
-## Reference Files
-
-- **Formulas**: `${CLAUDE_SKILL_DIR}/references/formulas.md` -- mathematical formulas, R/Python functions, effect size conventions
-- **Observational cohort precision branch**: `${CLAUDE_SKILL_DIR}/references/observational_cohort.md`
-- **Prediction-model / medical-AI sample size (Riley)**: `${CLAUDE_SKILL_DIR}/references/prediction_model_sample_size.md` -- the current TRIPOD+AI-aligned standard for a clinical prediction/classification model (development via `pmsampsize`, external validation via `pmvalsampsize`, net-benefit precision). Use this instead of EPV-10 whenever the goal is risk prediction for use rather than a single-predictor hypothesis test (Tests 12-13).
-- **MRMC reader-study sample size (Obuchowski–Rockette)**: `${CLAUDE_SKILL_DIR}/references/mrmc_reader_study_sample_size.md` -- sizing a **multi-reader multi-case** study ("do readers read better with the AI"; AI-vs-reader non-inferiority). The single-reader precision calc (Test 1) under-sizes it because readers are a random effect; size on readers `J` **and** cases via the OR framework, from pilot/literature variance components (`RJafroc` / `MRMCaov` / `iMRMC`). Use whenever a reader study is the design (Test 14).
-- **Segmentation-metric precision (Dice / HD95 / NSD)**: `${CLAUDE_SKILL_DIR}/references/segmentation_metric_sample_size.md` -- sizing a segmentation validation by the precision of the per-case overlap/boundary score (not a proportion): `n ≈ (1.96·SD/δ)²` from the pilot SD of per-case Dice, per structure (size on the worst), bootstrap-BCa CI, paired for a model comparison, and size the external cohort. Use whenever the outcome is Dice/HD95/NSD (Test 15).
-- **Between-model comparison sample size**: `${CLAUDE_SKILL_DIR}/references/multi_model_comparison_sample_size.md` -- sizing a study whose claim is that **one model beats others** (several models head-to-head). Single-model precision under-sizes it: power the **difference**. Pair the design (same cases through all models) → size on the **SD of the per-case difference**; **DeLong** for a paired ΔAUC, bootstrap-paired for ΔDice; for **>2 models** pre-specify one primary contrast or pay the family-wise multiplicity; and for a ranking claim, seed for **rank stability** (Nadeau–Bengio variance, Demšar critical-difference). Use whenever the endpoint is "model A > B/C/…" (Test 16).
-- **Segmentation usability sample size**: `${CLAUDE_SKILL_DIR}/references/segmentation_acceptability_sample_size.md` -- sizing a **usability** claim rather than a metric: the acceptability endpoint is a **proportion** (`n ≈ (z/δ)²p(1−p)`, size on the pessimistic p, size **per structure class**); ratings by m readers are **nested**, so pooling n·m overstates precision by `1+(m−1)ρ`; bounding a **catastrophic-failure rate** needs the **rule of three** (≤1% ⇒ ~300 clean cases — a metric-precision study bounds nothing); **edit time** is a paired per-case difference sized per structure and per site. Use whenever the claim is "clinicians can use this" (Test 17).
-- **Justification prose exemplars**: `${CLAUDE_SKILL_DIR}/references/justification_examples.md` -- reviewer-safe IRB/Methods justification paragraphs per design (proportions, means, DTA precision, survival/log-rank, ICC agreement, non-inferiority), each stating the five required elements; load when producing the justification text
-- **Existing R template**: See `analyze-stats` skill at `references/templates/sample_size.R` for the 7 original tests
-
-Read `formulas.md` before generating calculation code.
-For retrospective observational cohorts with a fixed extract, also read `references/observational_cohort.md` and report event budget / confidence-interval precision instead of forcing a prospective recruitment-style power calculation.
-
-## Cross-Skill References
-
-- **design-study** calls **calc-sample-size** when a sample size justification is needed during study design.
-- **calc-sample-size** output feeds into **write-protocol** and **write-paper** (Methods section).
-- Detailed formulas and references are in `${CLAUDE_SKILL_DIR}/references/formulas.md`.
-
----
-
 ## Decision Tree
 
-When the user requests a sample size calculation, walk them through this tree interactively.
-Ask one question at a time. Do not assume answers.
+Walk the user through this tree one question at a time; do not assume answers. Reader studies,
+segmentation and model-comparison designs sit outside the tree: see Tests 14–17.
 
 ```
 What is your primary outcome?
@@ -80,501 +48,125 @@ What is your primary outcome?
     +--> [1] Diagnostic accuracy (precision-based)
 ```
 
----
-
-## Supported Tests
-
-### Test 1: Diagnostic Accuracy (Sensitivity/Specificity Precision)
-
-**When to use**: Estimating required sample size for desired precision of sensitivity or specificity in a diagnostic accuracy study.
-
-**Required parameters** (ask the user):
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| `sensitivity_expected` | Expected sensitivity | 0.85 |
-| `ci_half_width` | Desired half-width of 95% CI | 0.05 |
-| `prevalence` | Disease prevalence in study population | 0.30 |
-| `alpha` | Significance level | 0.05 |
-| `attrition_rate` | Expected dropout/exclusion rate | 0.15 |
-
-**Effect size interpretation**: The CI half-width determines precision. A half-width of 0.05 means the 95% CI for sensitivity will be within +/-5 percentage points. Narrower CIs require larger samples.
-
----
-
-### Test 2: ICC Agreement (Bonett 2002)
-
-**When to use**: Inter-rater or intra-rater agreement for continuous measurements (e.g., tumor size, angle measurement).
-
-**Required parameters**:
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| `icc_expected` | Expected ICC value | 0.75 |
-| `icc_null` | Null hypothesis ICC (lower bound) | 0.50 |
-| `n_raters` | Number of raters | 2 |
-| `alpha` | Significance level | 0.05 |
-| `power` | Desired power | 0.80 |
-| `attrition_rate` | Expected dropout rate | 0.10 |
-
-**Effect size interpretation**: ICC < 0.50 = poor, 0.50-0.75 = moderate, 0.75-0.90 = good, > 0.90 = excellent (Koo & Li, 2016).
-
----
-
-### Test 3: Kappa Agreement (Donner & Eliasziw 1992)
-
-**When to use**: Inter-rater agreement for categorical ratings (e.g., BI-RADS category, lesion present/absent).
-
-**Required parameters**:
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| `kappa_expected` | Expected kappa value | 0.70 |
-| `kappa_null` | Null hypothesis kappa | 0.40 |
-| `po_expected` | Expected proportion of agreement | 0.75 |
-| `alpha` | Significance level | 0.05 |
-| `power` | Desired power | 0.80 |
-| `attrition_rate` | Expected dropout rate | 0.10 |
-
-**Effect size interpretation**: Kappa < 0.20 = slight, 0.21-0.40 = fair, 0.41-0.60 = moderate, 0.61-0.80 = substantial, 0.81-1.00 = almost perfect (Landis & Koch, 1977).
-
----
-
-### Test 4: Two-Proportion Comparison (Chi-Square)
-
-**When to use**: Comparing proportions between two independent groups (e.g., AI detection rate vs. conventional detection rate).
-
-**Required parameters**:
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| `p1` | Proportion in group 1 | -- |
-| `p2` | Proportion in group 2 | -- |
-| `alpha` | Significance level | 0.05 |
-| `power` | Desired power | 0.80 |
-| `attrition_rate` | Expected dropout rate | 0.15 |
-
-**Effect size interpretation**: Cohen's h = 2 * arcsin(sqrt(p1)) - 2 * arcsin(sqrt(p2)). Small = 0.20, medium = 0.50, large = 0.80.
-
----
-
-### Test 5: McNemar Test (Paired Proportions)
-
-**When to use**: Paired binary outcomes (e.g., two readers reading same cases, before/after on same patients).
-
-**Required parameters**:
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| `p01` | P(Method A negative, Method B positive) | -- |
-| `p10` | P(Method A positive, Method B negative) | -- |
-| `alpha` | Significance level | 0.05 |
-| `power` | Desired power | 0.80 |
-| `attrition_rate` | Expected dropout rate | 0.10 |
-
-**Effect size interpretation**: The ratio p10/p01 (discordant ratio) drives the required sample size. Larger asymmetry in discordant pairs means fewer subjects needed. Only discordant pairs contribute information.
-
----
-
-### Test 6: Independent t-Test
-
-**When to use**: Comparing means between two independent groups (e.g., lesion size in malignant vs. benign).
-
-**Required parameters**:
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| `mean_diff` | Expected mean difference | -- |
-| `pooled_sd` | Pooled standard deviation (from literature/pilot) | -- |
-| `alpha` | Significance level | 0.05 |
-| `power` | Desired power | 0.80 |
-| `attrition_rate` | Expected dropout rate | 0.15 |
-
-**Effect size interpretation**: Cohen's d = mean_diff / pooled_sd. Small = 0.20, medium = 0.50, large = 0.80. In clinical terms, d = 0.50 means the groups differ by half a standard deviation.
-
----
-
-### Test 7: Survival / Log-Rank Test (Schoenfeld 1981)
-
-**When to use**: Comparing survival or time-to-event between two groups (e.g., treatment vs. control, RFA vs. surgery).
-
-**Required parameters**:
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| `hr` | Expected hazard ratio | -- |
-| `median_ctrl` | Median survival in control arm (months) | -- |
-| `accrual_time` | Accrual period (months) | 12 |
-| `follow_up` | Follow-up after accrual (months) | 24 |
-| `drop_rate` | Annual dropout rate | 0.05 |
-| `alpha` | Significance level | 0.05 |
-| `power` | Desired power | 0.80 |
-
-**Effect size interpretation**: HR < 1 favors treatment. HR = 0.50 means treatment halves the hazard (strong effect). HR = 0.80 is a modest 20% reduction. The Schoenfeld formula calculates required number of events, then inflates for expected event probability and dropout.
-
----
-
-### Test 8: One-Way ANOVA (NEW)
-
-**When to use**: Comparing means across 3 or more independent groups (e.g., comparing AI model performance across 3 architectures, comparing measurement accuracy across multiple readers).
-
-**Required parameters**:
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| `k` | Number of groups | -- |
-| `f` | Cohen's f effect size | -- |
-| `alpha` | Significance level | 0.05 |
-| `power` | Desired power | 0.80 |
-| `attrition_rate` | Expected dropout rate | 0.15 |
-
-**Help user estimate Cohen's f**:
-- If the user knows group means and pooled SD: f = sigma_means / pooled_SD
-- If the user knows eta-squared: f = sqrt(eta_sq / (1 - eta_sq))
-- Benchmarks: small = 0.10, medium = 0.25, large = 0.40
-
-**R function**: `pwr::pwr.anova.test(k, f, sig.level, power)`
-**Python equivalent**: `statsmodels.stats.power.FTestAnovaPower().solve_power(effect_size, nobs, alpha, power, k_groups)`
-
-**Effect size interpretation**: Cohen's f = 0.25 (medium) means the group means span about half a pooled SD. In clinical terms, this is typically a meaningful difference across treatment arms or measurement methods.
-
----
-
-### Test 9: Logistic Regression (NEW)
-
-**When to use**: Multivariable binary outcome models (e.g., predicting malignancy from multiple imaging features). Two approaches are provided.
-
-**Required parameters**:
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| `n_predictors` | Number of predictor variables | -- |
-| `event_rate` | Expected event rate (proportion with outcome) | -- |
-| `or_interest` | Odds ratio of interest (for Hsieh formula) | -- |
-| `r2_other` | R-squared of covariate with other predictors | 0.0 |
-| `alpha` | Significance level | 0.05 |
-| `power` | Desired power | 0.80 |
-| `attrition_rate` | Expected dropout rate | 0.10 |
-
-**Approach A: Peduzzi Rule of Thumb (EPV >= 10)**
-- N_events = 10 * n_predictors
-- N_total = N_events / event_rate
-- Simple, widely cited, conservative. Use as a minimum baseline **for a single-predictor
-  hypothesis test only**. For a **clinical prediction / medical-AI model intended for use**,
-  EPV-10 is outdated and reviewer-vulnerable — use the Riley criteria in Test 12
-  (development) / Test 13 (validation) instead.
-
-**Approach B: Hsieh (1989) Formula**
-- Uses the OR of interest for the primary predictor to calculate a more precise sample size.
-- Accounts for correlation with other predictors via R-squared adjustment.
-
-**Always report both approaches** and recommend the larger N.
-
-**Effect size interpretation**: OR = 1.5 is a small-to-moderate effect; OR = 2.0 is moderate; OR = 3.0+ is large. The Peduzzi rule ensures model stability; the Hsieh formula targets power for the primary predictor.
-
----
-
-### Test 10: Non-Inferiority / Equivalence (NEW)
-
-**When to use**: Demonstrating that a new method is not worse than the standard by more than a pre-specified margin (non-inferiority) or that two methods are equivalent within a margin (equivalence / TOST).
-
-**Required parameters**:
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| `design` | "non-inferiority" or "equivalence" | "non-inferiority" |
-| `outcome_type` | "proportion" or "continuous" | -- |
-| `p_reference` | Reference group proportion (if proportion) | -- |
-| `margin` | Non-inferiority or equivalence margin (delta) | -- |
-| `sd` | Standard deviation (if continuous) | -- |
-| `alpha` | One-sided alpha for NI; two one-sided for equivalence | 0.025 (NI) / 0.05 (equiv) |
-| `power` | Desired power | 0.80 |
-| `attrition_rate` | Expected dropout rate | 0.15 |
-
-**Key guidance for margin selection**:
-- The margin must be clinically justified and smaller than the effect of the reference treatment vs. placebo.
-- Common approach: margin = 50% of the established treatment effect (preservation of effect).
-- For proportions: absolute difference margin (e.g., delta = 0.10 means new method can be at most 10 percentage points worse).
-- For continuous: margin in the same unit as the outcome.
-
-**Non-inferiority (one-sided test)**:
-- H0: new - reference <= -margin (new is inferior)
-- H1: new - reference > -margin (new is non-inferior)
-- Alpha is one-sided (typically 0.025).
-
-**Equivalence (TOST)**:
-- H0: |new - reference| >= margin
-- H1: |new - reference| < margin
-- Two one-sided tests, each at alpha (typically 0.05 overall).
-
-**Effect size interpretation**: The margin defines the largest clinically acceptable difference. A smaller margin requires a larger sample. Always justify the margin based on clinical reasoning and prior literature.
-
----
-
-### Test 11: Cox Regression EPV (Events Per Variable)
-
-**When to use**: Multivariable Cox proportional hazards models — ensuring enough events for stable model estimates. Same EPV logic as logistic regression (Test 9), applied to time-to-event outcomes.
-
-**Required parameters**:
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| `n_predictors` | Number of predictor variables in Cox model | -- |
-| `event_rate` | Expected proportion of subjects experiencing the event | -- |
-| `epv` | Events per variable target | 10 |
-| `attrition_rate` | Expected dropout rate | 0.10 |
-
-**Formula**:
-```
-N_events = EPV × n_predictors
-N_total = N_events / event_rate
-N_adj = N_total / (1 - attrition_rate)
-```
-
-**EPV guidelines**:
-- EPV >= 10: minimum for stable estimates (Peduzzi et al., 1995)
-- EPV >= 20: recommended for reliable CI coverage and type I error control
-- EPV < 5: model likely unstable — reduce predictors or use penalized methods
-
-**Effect size interpretation**: The EPV rule ensures model stability, not power for a specific HR. If the user also needs power for detecting a specific HR, combine with Test 7 (log-rank/Schoenfeld) and report the larger N.
-
-**Always report both approaches** (EPV minimum + Schoenfeld power, if HR is available) and recommend the larger N.
-
----
-
-### Test 12: Prediction-Model Development (Riley)
-
-**When to use**: developing a clinical prediction / classification model (including a
-medical-AI model evaluated as one) — the goal is risk prediction *for use*, not a single
-predictor's hypothesis test. EPV-10 (Tests 9/11) is outdated here.
-
-**Approach**: the minimum N is the largest satisfying all four Riley criteria
-simultaneously — global shrinkage ≥ 0.9, apparent–adjusted R² gap ≤ 0.05, precise overall
-risk estimate, and (time-to-event) precise baseline survival. Implemented in R `pmsampsize`.
-
-**Required parameters**: number of **candidate predictor parameters** (count dummy/non-linear
-terms), a conservative expected **C-statistic or Cox-Snell R²** (with its literature source),
-and outcome **prevalence** (binary) or **event rate + mean follow-up** (time-to-event).
-
-Read `${CLAUDE_SKILL_DIR}/references/prediction_model_sample_size.md` for the criteria, the
-`pmsampsize` code, and the reporting requirements. Report N + required events + the binding
-criterion + the assumed C/R² and its source.
-
----
-
-### Test 13: External-Validation Sample Size (Riley)
-
-**When to use**: sizing an **external validation** of an existing prediction/AI model.
-
-**Approach**: size to estimate the key validation metrics *precisely enough to be
-conclusive* — target the CI width of the **C-statistic**, the **calibration slope**, the
-**calibration-in-the-large / O:E ratio**, and (if a utility claim) **net benefit**.
-Implemented in R `pmvalsampsize`. A floor of ≥ 100 events and ≥ 100 non-events applies, but
-the precise target is usually larger.
-
-**Required parameters**: expected **prevalence**, anticipated **C-statistic**, and the
-target CI widths.
-
-Read `${CLAUDE_SKILL_DIR}/references/prediction_model_sample_size.md` for the `pmvalsampsize`
-code. Report the targeted CI widths and the resulting events / non-events.
-
----
-
-### Test 14: MRMC Reader Study (Obuchowski–Rockette)
-
-**When to use**: sizing a **multi-reader multi-case (MRMC) reader study** — "do readers read
-better *with* the AI", or "is the AI non-inferior to readers". The single-reader AUC-precision
-calculation (Test 1) **under-sizes** this: readers as well as cases are random, so power must
-cover the **reader-variance** term, and a null from an under-sized reader study is *inconclusive,
-not negative*.
-
-**Approach**: invert the OR variance formula over the number of readers `J` and the case counts
-`N⁺`/`N⁻`; report the **`J × N` power grid** (past a modest case count, adding readers usually
-buys more power than adding cases). Requires **variance components** from a pilot or literature —
-the real bottleneck. Implemented in R `RJafroc` / `MRMCaov` / FDA `iMRMC` (integrate; do not
-hand-roll the OR algebra).
-
-**Required parameters**: the **effect** (ΔAUC, or the **non-inferiority margin** — an AI-vs-reader
-claim is usually NI), the expected AUC level, the **variance components** (pilot/literature), the
-**design** (fully-crossed vs crossover-with-washout), and power/α.
-
-Read `${CLAUDE_SKILL_DIR}/references/mrmc_reader_study_sample_size.md` for the framework, the
-readers-vs-cases trade-off, software, and reporting. Reader-study *design internals* live in
-`design-study` (`reader_elicitation_design.md`); an AI-vs-human-expert benchmark routes to
-`/design-ai-benchmarking`.
-
----
-
-### Test 15: Segmentation-metric precision (Dice / HD95 / NSD)
-
-**When to use**: sizing a **segmentation** validation — how many cases to estimate the segmentation
-metric (Dice / HD95 / NSD) precisely enough to be conclusive, or to separate two models. The
-proportion/events calcs (Tests 1, 12–13) do not apply: the outcome is a bounded, skewed per-case
-overlap/boundary score, not a proportion.
-
-**Approach**: precision sizing `n ≈ (1.96·SD/δ)²` from the **pilot/literature SD of per-case Dice**
-(per structure — size on the **worst** structure you must report, not the average); report the CI by
-**bootstrapping per-case values (BCa)** — a t-interval is closed-form but Dice is bounded and
-non-normal near the ceiling, so its coverage is not the coverage you asked for, and BCa must resample
-whole **patients**, not structures. A model comparison on the same cases is **paired** (size on the SD of the per-case
-*difference*, or an NI margin). **Size the external cohort too** — a precise external estimate is the
-#1 acceptance lever.
-
-**Required parameters**: the **per-structure SD of per-case Dice** (pilot/literature), the target
-**precision δ** or **NI margin**, and the metric.
-
-Read `${CLAUDE_SKILL_DIR}/references/segmentation_metric_sample_size.md` for the per-structure and
-paired-comparison detail. The comparator/ablation the size serves lives in `design-study`
-(`combine_models_ablation_design.md`); metric selection is `/model-evaluation`.
-
----
-
-### Test 16: Between-model comparison (is model A really better than B, C, …)
-
-**When to use**: the claim is that **one model outperforms others** — several architectures / families
-compared head-to-head on the same task. Single-model precision (Test 1 AUC, Test 15 Dice) under-sizes
-it: two models can each have a tight CI and still overlap, so the **difference** must be powered.
-
-**Approach**: run all models on the **same cases** (paired / within-case) and size on the **SD of the
-per-case difference** — `σ√(2(1−ρ))`, below either marginal SD once ρ > 0.5, which shared easy/hard cases
-usually clear. Use **DeLong** for a paired ΔAUC (or Obuchowski for the MRMC/clustered case) and a
-**bootstrap of the paired per-case differences** for ΔDice; size so the delta CI excludes zero, or so its
-lower bound clears the NI margin (the whole interval inside ±margin is *equivalence*, a stricter claim).
-For **>2 models**, pre-specify **one primary contrast** (proposed vs a strong, fairly-tuned baseline) at
-full α — or, if all pairwise are confirmatory, pay the **family-wise** correction (higher n per contrast).
-For a **ranking** claim, a single-run leaderboard ranks by luck: train over **multiple seeds**
-(Nadeau–Bengio corrected variance for repeated-CV differences) and leave models inside the **Demšar
-critical difference** unranked — not separated by the test is not a demonstrated tie, and Demšar's N
-counts independent datasets, not seeds.
-
-**Required parameters**: the **per-case-difference SD** of the primary metric (pilot / prior head-to-head;
-per structure for segmentation), the metric + paired-CI method, the target **δ or NI margin on the delta**,
-the **number of models + the primary contrast**, and (for ranking) the **seed-to-seed SD**.
-
-Read `${CLAUDE_SKILL_DIR}/references/multi_model_comparison_sample_size.md` for the paired-difference,
-multiplicity, and ranking-stability detail. The fair-comparison design the size serves lives in
-`design-study` (`multi_model_comparison_design.md`); presenting it is `make-figures`
-(`exemplar_plots/model_comparison_leaderboard.md`).
-
----
-
-### Test 17: Segmentation usability (acceptability rate, failure bound, edit time)
-
-**When to use**: the claim is that a segmentation model is **clinically usable** — a share of cases a
-clinician accepts, a bounded catastrophic-failure rate, a time saving — not that its mean metric is
-high. Test 15 sizes a mean Dice to a precision and says nothing about any of these.
-
-**Approach**: an acceptability endpoint is a **proportion**: `n ≈ (z/δ)²·p(1−p)` — ≈138 cases at
-p = 0.90, δ = 0.05, but ≈384 at p = 0.50, so size on the pessimistic p unless a pilot in the same
-anatomy says otherwise, and size **per structure class** (use-as-is rates for one pipeline have run
-from ~40% for target volumes to ~89% for normal tissue). When m readers rate each case the ratings
-are **nested**, not independent: pooling n·m overstates precision by `DE ≈ 1 + (m−1)ρ` (3 readers at
-ρ = 0.5 halves it) — pre-specify either a case-level consensus rule or a mixed-effects/GEE analysis.
-To bound a **catastrophic-failure rate**, zero events in n cases gives an upper bound of ≈ `3/n`
-(**rule of three**), so ≤1% needs ~300 clean cases; a 40–60-case study bounds nothing below ~5–8%.
-For an **edit-time** claim, size the paired per-case time difference (as Test 16) **per structure and
-per site** — pooled savings coexist with structures and centres showing none.
-
-**Required parameters**: the acceptability scale and which level counts as accepted (*use-as-is* vs
-*after minor edits* are different endpoints), the expected **p** per structure class and target **δ or
-threshold**, the **readers per case** + analysis unit + assumed **ρ**, the **catastrophic bound** you
-must state, and (for work saving) the **SD of the per-case time difference**.
-
-Read `${CLAUDE_SKILL_DIR}/references/segmentation_acceptability_sample_size.md` for the proportion,
-clustering, rule-of-three and edit-time detail. The usability design the size serves lives in
-`design-study` (`segmentation_failure_characterization_design.md`); presenting it is `make-figures`
-(`exemplar_plots/segmentation_failure_panel.md`).
-
----
-
-## Scope Limitations
-
-### Supported
-The 11 tests listed above cover the vast majority of sample size calculations needed in medical imaging research, diagnostic accuracy studies, and clinical trials.
-
-### NOT Supported
-The following designs require specialized software or biostatistician consultation:
-- **Adaptive trials** (group-sequential, sample size re-estimation)
-- **Cluster-randomized trials** (design effect, ICC-based inflation)
-- **Bayesian sample size determination**
-- **Crossover designs**
-- **Multi-endpoint correction** (mention Bonferroni adjustment if asked, but do not compute corrected sample sizes)
-
-If the user requests any of these, respond:
-> "This design requires specialized tools beyond this skill's scope. Consider using G*Power software (free, https://www.psychologie.hhu.de/gpower), PASS software, or consulting a biostatistician for [specific design]."
-
----
+## Tests 1–11
+
+Once the test is chosen, read `${CLAUDE_SKILL_DIR}/references/formulas.md` § Test N — the
+parameter table with defaults, the effect-size interpretation, the formula, R/Python code and the
+methodological reference.
+
+| # | Test | Use when |
+|---|------|----------|
+| 1 | Diagnostic accuracy — Se/Sp precision | desired 95% CI half-width for sensitivity or specificity |
+| 2 | ICC agreement (Walter 1998 test; Bonett 2002 CI width) | inter-/intra-rater agreement on continuous measurements (tumor size, angle) |
+| 3 | Kappa agreement (Donner & Eliasziw 1992; needs the trait prevalence) | agreement on categorical ratings (BI-RADS category, lesion present/absent) |
+| 4 | Two-proportion comparison (chi-square) | two independent groups (AI vs conventional detection rate) |
+| 5 | McNemar (paired proportions) | paired binary outcomes (two readers on the same cases, before/after) |
+| 6 | Independent t-test | means in two independent groups (lesion size, malignant vs benign) |
+| 7 | Survival / log-rank (Schoenfeld events, then patients) | time-to-event between two groups |
+| 8 | One-way ANOVA | means across 3+ independent groups |
+| 9 | Logistic regression (Peduzzi EPV + Hsieh 1998, continuous or binary predictor) | multivariable binary outcome, single-predictor hypothesis test |
+| 10 | Non-inferiority / equivalence | new method not worse than standard by more than a pre-specified margin, or equivalent within it |
+| 11 | Cox regression EPV | multivariable Cox model — enough events for stable estimates |
+
+- **Test 9**: Peduzzi EPV ≥ 10 is a minimum baseline for a single-predictor hypothesis test only. For
+  a clinical prediction / medical-AI model intended for use, EPV-10 is outdated and
+  reviewer-vulnerable — use Test 12 (development) / Test 13 (validation). Always report both Peduzzi
+  and Hsieh and recommend the larger N.
+- **Test 10**: NI alpha is one-sided (typically 0.025); orient the difference so > 0 favours the new
+  method. Equivalence is TOST, powered jointly. The margin must be clinically justified (see
+  `formulas.md` § Margin selection).
+- **Test 11**: EPV ensures model stability, not power for a specific HR. If an HR is available, also
+  run Test 7 (Schoenfeld) and recommend the larger N.
+
+## Tests 12–17 (specialised designs)
+
+Each has its own reference file (parameters, method, reporting); read it once the test is chosen.
+
+- **Test 12 — Prediction-model development (Riley).** Developing a clinical prediction /
+  classification model (including a medical-AI model evaluated as one) for use. EPV-10 does not
+  apply: N is the largest satisfying all Riley criteria — three for a binary or time-to-event
+  outcome, four for a continuous one (R `pmsampsize`).
+- **Test 13 — External validation (Riley).** Validating an existing prediction/AI model: size for the
+  CI width of the C-statistic, calibration slope, O:E and (if claimed) net benefit (R
+  `pmvalsampsize`); ≥ 100 events and ≥ 100 non-events is only a floor.
+  For Tests 12–13 read `${CLAUDE_SKILL_DIR}/references/prediction_model_sample_size.md`.
+- **Test 14 — MRMC reader study (Obuchowski–Rockette).** Readers with vs without the AI, or AI
+  non-inferior to readers. Test 1 under-sizes it because readers are a random effect: size readers
+  `J` × cases from pilot/literature variance components with `RJafroc` / `MRMCaov` / `iMRMC` (do not
+  hand-roll the OR algebra) and report the `J × N` power grid. Read
+  `${CLAUDE_SKILL_DIR}/references/mrmc_reader_study_sample_size.md`.
+- **Test 15 — Segmentation-metric precision (Dice / HD95 / NSD).** The outcome is a per-case score,
+  not a proportion: `n ≈ (1.96·SD/δ)²` from the pilot SD of per-case Dice, sized on the worst
+  structure; CI by patient-level bootstrap (BCa). This is precision; a comparison is Test 16. Read
+  `${CLAUDE_SKILL_DIR}/references/segmentation_metric_sample_size.md`.
+- **Test 16 — Between-model comparison.** Model A beats B, C, …: power the paired per-case
+  *difference*, `n = ((z₁₋α/₂ + z₁₋β)·SD_Δ/Δ)²` (a CI sized to just exclude zero has ~50% power), not
+  each model's precision; for > 2 models pre-specify one primary contrast or pay the
+  family-wise correction; a ranking claim needs multiple seeds. Read
+  `${CLAUDE_SKILL_DIR}/references/multi_model_comparison_sample_size.md`.
+- **Test 17 — Segmentation usability.** Clinicians can use it (acceptability rate, catastrophic-failure
+  bound, edit time): acceptability is a proportion sized per structure class; `DE ≈ 1 + (m−1)ρ` holds
+  only when each case has its own readers — the same readers on every case (crossed) add a reader term
+  more cases cannot shrink; bounding failures at ≤ 1% needs ~300 clean cases (rule of three). Read
+  `${CLAUDE_SKILL_DIR}/references/segmentation_acceptability_sample_size.md`.
+
+## Out of Scope
+
+Do not compute adaptive trials (group-sequential, sample size re-estimation), cluster-randomized
+trials (design effect, ICC-based inflation), Bayesian sample size determination, crossover designs, or
+multi-endpoint correction (mention Bonferroni if asked, but do not compute corrected sample sizes).
+Say the design is beyond this skill and point to G*Power (free, https://www.psychologie.hhu.de/gpower),
+PASS, or a biostatistician.
 
 ## Workflow
 
 ### Phase 1: Understand the Study
 
-1. Ask the user to describe their study briefly (design, primary outcome, groups).
-2. Walk through the decision tree to identify the appropriate test.
-3. Confirm the selected test with the user before proceeding.
+1. Ask the user to describe the study briefly (design, primary outcome, groups).
+2. Walk the decision tree to a test, and confirm it with the user before proceeding.
 
 ### Phase 2: Collect Parameters
 
-1. Present the parameter table for the selected test.
-2. For each parameter without a user-provided value, explain what it means and offer the default.
-3. Help the user estimate effect sizes from:
-   - Prior literature (ask for references)
-   - Pilot data
-   - Cohen's conventions (as a last resort, with a note that convention-based estimates are less precise)
+1. Present the selected test's parameter table.
+2. For each parameter without a user-provided value, explain it and offer the default.
+3. Estimate effect sizes from prior literature (ask for the references) or pilot data; use Cohen's
+   conventions only as a last resort, noting that convention-based estimates are less precise.
 
-### Phase 2b: Retrospective Study — Experience-Based Sample Size Justification
+### Phase 2b: Retrospective Studies
 
-For retrospective studies, formal power analysis is often impractical because the dataset
-already exists. In these cases, an experience-based justification is acceptable for IRB
-and many journals. Offer this path when the user describes a retrospective design.
+When the dataset already exists, formal power analysis is often impractical. Offer:
 
-**Two approaches**:
+- **Fixed extract**: read `${CLAUDE_SKILL_DIR}/references/observational_cohort.md` and report
+  event budget / confidence-interval precision instead of forcing a prospective recruitment-style
+  power calculation.
+- **Experience-based justification** (acceptable for IRB and many journals):
+  - *Institution volume*: `total exams in period × prevalence × (1 − exclusion rate) = expected N`.
+    Ask for the annual exam volume for the modality, study period, prevalence and exclusion rate. This
+    gives a realistic upper bound for N.
+  - *Prior studies*: report the N of 3–5 comparable published studies and cite them; the user's N
+    should be in the same range or larger.
+  - IRB templates for both: `${CLAUDE_SKILL_DIR}/references/justification_examples.md` § Retrospective.
 
-#### Approach A: Institution Volume-Based
-
-Estimate N from the number of examinations performed at the institution during the study period.
-
-```
-Total exams in period × prevalence of target condition × (1 - exclusion rate) = Expected N
-```
-
-- Ask the user for: annual exam volume for the modality, study period length, estimated
-  prevalence, and expected exclusion rate
-- This gives a realistic upper bound for N
-
-**IRB justification template**:
-> Based on approximately [X] [modality] examinations performed annually at [institution],
-> and an estimated prevalence of [condition] of [Y]%, we anticipate identifying approximately
-> [N] eligible patients over the [Z]-year study period. After accounting for an estimated
-> [W]% exclusion rate (due to [reasons]), we expect a final sample of approximately [N_adj]
-> patients for analysis.
-
-#### Approach B: Prior Study-Based
-
-Use sample sizes from published studies with similar designs as justification.
-
-- Search for 3-5 comparable studies and report their sample sizes
-- The user's N should be in the same range or larger
-- Cite the specific studies in the IRB justification
-
-**IRB justification template**:
-> Previous studies evaluating [similar topic] with [similar design] enrolled [N1] (Author1
-> et al., Year), [N2] (Author2 et al., Year), and [N3] (Author3 et al., Year) patients.
-> Our anticipated sample of [N] patients is [comparable to / larger than] these prior studies.
-
-#### When to Use Formal Calculation Instead
-
-Even for retrospective studies, a formal sample size calculation is preferred when:
-- The study is prospective or will prospectively enroll a subset
-- The primary analysis involves hypothesis testing (not just estimation)
-- The journal explicitly requires power analysis (check Instructions for Authors)
-- The IRB requires it for approval
-
-In these cases, proceed to Phase 3 with the appropriate test from the decision tree.
-
----
+Use a formal calculation (Phase 3) even for a retrospective study when a subset is enrolled
+prospectively, the primary analysis tests a hypothesis (not just estimation), the journal's
+Instructions for Authors require a power analysis, or the IRB requires it.
 
 ### Phase 3: Calculate and Report
 
-1. Read `${CLAUDE_SKILL_DIR}/references/formulas.md` for the exact formula.
-2. Generate the R code (primary) and Python code (alternative).
-3. Run the R code via Bash to produce the actual result.
-4. Present results in the output format below.
+1. Generate R code (primary) and Python code (alternative) from the reference formula.
+2. Run the R code via Bash; the reported N is the number it prints, not a hand calculation.
+3. Present the result in the Output Format below. Cite methodological sources only from
+   `formulas.md` or the test's reference file; any other reference needs a DOI/PMID confirmed via
+   `/search-lit`, otherwise mark it `[UNVERIFIED - NEEDS MANUAL CHECK]`. Mark an effect size,
+   clinical definition or threshold you could not confirm `[VERIFY]`.
+4. In a project, save the IRB text as `protocol/sample_size_justification.md` and the scripts as
+   `protocol/sample_size_calc.R` / `.py`: `/write-protocol` and `/write-paper` embed that text
+   verbatim, so the numbers are never retyped.
 
 ### Phase 4: Sensitivity Analysis (Optional)
 
-If the user is uncertain about parameters, offer a sensitivity table showing N across a range of plausible values (e.g., varying effect size or power from 0.80 to 0.90).
-
----
+If a parameter is uncertain or the effect-size estimate is vague, flag it and offer a table of N
+across plausible values (e.g., varying effect size, or power from 0.80 to 0.90).
 
 ## Output Format
 
@@ -619,30 +211,7 @@ Always structure the final output as follows:
 [Cohen's benchmark classification + clinical meaning in the context of this study]
 ```
 
----
-
-## IRB Justification Text Guidelines
-
-The IRB text must:
-1. State the required N clearly.
-2. Name the statistical test and its formula source.
-3. Specify all assumed parameters (effect size, alpha, power).
-4. State the attrition adjustment and final enrollment target.
-5. Cite the methodological reference (e.g., "Schoenfeld, 1981" for survival).
-6. Use formal, third-person language suitable for an ethics board.
-
----
-
-## Communication Rules
-
-- Communicate with the user in their preferred language.
-- Use English for all statistical terminology, effect size names, and test names.
-- Be explicit about assumptions and their impact on the result.
-- When the user provides vague effect size estimates, flag the uncertainty and suggest a sensitivity analysis.
-- Never fabricate references. Cite only verified methodological sources from `formulas.md`.
-
-## Anti-Hallucination
-
-- **Never fabricate file paths, URLs, DOIs, or package names.** Verify existence before recommending.
-- **Never invent journal metadata, impact factors, or submission policies** without verification at the journal's website.
-- If a tool, package, or resource does not exist or you are unsure, say so explicitly rather than guessing.
+The IRB text must state N; name the test and its formula source; give every assumed parameter
+(effect size, alpha, power); state the attrition adjustment and final enrollment target; cite the
+methodological reference (e.g., "Schoenfeld, 1981"); and use formal, third-person language. Read
+`${CLAUDE_SKILL_DIR}/references/justification_examples.md` for per-design exemplars when writing it.

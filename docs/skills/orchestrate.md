@@ -2,9 +2,9 @@
 
 # orchestrate
 
-> General-purpose research orchestrator. Routes ambiguous or multi-step requests to the right skill(s) from the medsci-skills bundle. Use when the user describes a research goal without naming a specific skill, or when a task spans multiple skills.
+> Use when the user describes a research goal without naming a skill, or the task spans several skills. Classifies the request, plans the order and routes to the right medsci-skills skill(s) instead of producing their output itself.
 
-**Invoke:** `/orchestrate` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
+**Invoke:** `/orchestrate`
 
 ## When to use
 
@@ -35,6 +35,7 @@
 
 **References** (`skills/orchestrate/references/`):
 
+- `data_flow_contract.md`
 - `dialogue_nodes.md`
 - `report_template.md`
 - `report_template_ko.md`
