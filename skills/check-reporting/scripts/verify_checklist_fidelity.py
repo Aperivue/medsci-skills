@@ -22,6 +22,14 @@ instrument is numbered by manuscript section (item 1 = Title, item 44 = baseline
 MI-CLEAR-LLM carried the 2024 six-item body under a "Version 2025" label when the official 2025 update
 has eight item categories.
 
+Text mode. Item counts and headings do not catch a checklist whose items are all present but
+reworded: a model transcribing a statement drops an example, a clause or a whole bullet, or carries
+the next section's heading into an item, and the inventory still matches. For open-licence statements
+the published item text is extracted mechanically into `skills/check-reporting/tests/checklist_sources/`
+(see `refresh_from_europepmc.py` there), and every item in the vendored file must match it after
+typographic normalisation (quotes, dashes, "e.g."/"eg", a trailing full stop, list bullets). Those
+sources are not shipped, so an installed copy skips this mode and says so.
+
 Not named `check_*` on purpose — it is a fidelity regression, run in CI, not one of the manuscript
 integrity detectors in the published count.
 
@@ -34,8 +42,10 @@ Stdlib only.
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import sys
+import unicodedata
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -94,6 +104,65 @@ EXPECTED = {
         "source": "Stevens GA et al. Lancet 2016;388:e19-23 / PLoS Med 2016;13(6):e1002056 (GATHER)",
     },
 }
+
+
+TEXT_SOURCES = "skills/check-reporting/tests/checklist_sources"
+ITEM_ID = re.compile(r"\d+[a-z]?")
+
+
+def normalise(s: str) -> str:
+    """Typographic differences only; any change of words still differs."""
+    s = unicodedata.normalize("NFKC", s)
+    for a, b in (("\u2019", "'"), ("\u2018", "'"), ("\u201c", '"'), ("\u201d", '"'), ("\u2013", "-"),
+                 ("\u2014", "-"), ("\u2010", "-"), ("\u00a0", " ")):
+        s = s.replace(a, b)
+    s = re.sub(r"\*\*|__|`", "", s)
+    s = re.sub(r"\s*[\u25cf\u2022]\s*", "; ", s)          # published list bullets vs "; " in a table cell
+    s = re.sub(r"\be\.g\.,?", "eg,", s)
+    s = re.sub(r"\bi\.e\.,?", "ie,", s)
+    s = s.replace("eg,,", "eg,").replace("ie,,", "ie,").replace(":;", ":")
+    s = re.sub(r"\s+", " ", s).strip()
+    return s.rstrip(".").strip().lower()
+
+
+def vendored_items(text: str) -> dict[str, str]:
+    """Item id (first cell) -> item text (last cell) for every checklist table row."""
+    out: dict[str, str] = {}
+    for line in text.splitlines():
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        if len(cells) >= 2 and ITEM_ID.fullmatch(cells[0].strip("*")) and len(cells[-1]) > 8:
+            out.setdefault(cells[0].strip("*"), cells[-1])
+    return out
+
+
+def check_text(root: Path) -> tuple[list[str], int, bool]:
+    """Returns (problems, statements checked, sources present)."""
+    src_dir = root / TEXT_SOURCES
+    sources = sorted(src_dir.glob("*.json")) if src_dir.is_dir() else []
+    if not sources:
+        return [], 0, False
+    out: list[str] = []
+    for sp in sources:
+        spec = json.loads(sp.read_text(encoding="utf-8"))
+        md = root / CHECKLISTS / spec["vendored_file"]
+        if not md.is_file():
+            out.append(f"{spec['vendored_file']}: file missing (text source {sp.name})")
+            continue
+        want, have = spec["items"], vendored_items(md.read_text(encoding="utf-8"))
+        cite = f"{spec['source']['citation']}, {spec['source']['table']}"
+        for k in sorted(set(want) - set(have), key=_key):
+            out.append(f"{md.name} item {k}: missing — the statement has it ({cite}).")
+        for k in sorted(set(have) - set(want), key=_key):
+            out.append(f"{md.name} item {k}: not in the statement ({cite}).")
+        for k in sorted(set(want) & set(have), key=_key):
+            if normalise(want[k]) != normalise(have[k]):
+                out.append(f"{md.name} item {k}: text differs from {cite}\n"
+                           f"        published: {want[k]}\n        vendored:  {have[k]}")
+    return out, len(sources), True
+
+
+def _key(k: str) -> tuple[int, str]:
+    return (int(re.match(r"\d+", k).group()), k)
 
 
 def official_slice(text: str, spec: dict) -> str:
@@ -155,9 +224,15 @@ def main() -> int:
     problems: list[str] = []
     for name, spec in EXPECTED.items():
         problems += check_one(a.root / CHECKLISTS / name, spec)
+    text_problems, n_text, have_sources = check_text(a.root)
+    problems += text_problems
 
     if not problems:
         print(f"OK: {len(EXPECTED)} bundled checklist(s) match their official item inventory.")
+        if have_sources:
+            print(f"OK: {n_text} checklist(s) match the published item text word for word.")
+        else:
+            print(f"NOTE: no text sources under {TEXT_SOURCES} (an installed copy) — text mode skipped.")
         return 0
 
     print(f"CHECKLIST_FIDELITY: {len(problems)} discrepanc(ies) — a bundled checklist does not match "
