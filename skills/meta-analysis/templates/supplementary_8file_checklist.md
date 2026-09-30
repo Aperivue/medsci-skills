@@ -61,9 +61,12 @@
 
 - Leave-one-out for primary outcome (forest plot or table)
 - Cohort overlap sensitivity analysis (exclude one of HIGH-confidence overlap pair)
-- Deeks' funnel asymmetry test for DTA studies (mada::funnel)
-- Funnel plot + Egger / Begg for prognostic AUC pooling
-- Trim-and-fill if asymmetry detected
+- Deeks' funnel asymmetry test for DTA studies, k ≥ 10:
+  `meta::metabias(meta::metabin(TP, TP + FN, FP, FP + TN, data = dta, sm = "DOR"), method.bias = "Deeks")`
+  (mada has no funnel function)
+- Prognostic AUC pooling: funnel plot descriptive only — no Begg, and no Egger on the AUC, whose
+  SE depends on the AUC itself (the same artefact as for proportions)
+- Trim-and-fill, if reported, labelled a sensitivity analysis — never a "bias-adjusted" estimate
 
 ## Submission gate check
 
