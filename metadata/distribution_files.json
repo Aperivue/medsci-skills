@@ -2048,18 +2048,23 @@
     },
     {
       "path": "skills/ma-scout/SKILL.md",
-      "size": 28036,
-      "sha256": "3ebbd36111d70cd4325fe6885ab346d608daece64fa33628d36ed6c3d47a58a9"
+      "size": 20719,
+      "sha256": "ab1cc85cae5b34714fdd7faf96b7d37c0cf84958f3f5e2a26d8d73cd1cf78bc7"
     },
     {
       "path": "skills/ma-scout/references/project_readme_template.md",
-      "size": 3735,
-      "sha256": "7454b287de5fc39c960580c2c04c4758b34b99cbf85e505563d16ba2c0848044"
+      "size": 4234,
+      "sha256": "d6b430e906036f609af86f7552c2e97e554a6faefb5907bc9402f87c451f8147"
     },
     {
       "path": "skills/ma-scout/references/project_readme_template_ko.md",
       "size": 3043,
       "sha256": "6eb273f476d5d31147e83e26d46758db3cc0657466453654531e2e9f6a8a227d"
+    },
+    {
+      "path": "skills/ma-scout/references/topic_discovery_heuristics.md",
+      "size": 1333,
+      "sha256": "3b7453aea95e36ec6be48543d64d18c927f703f0e3f2079081912cf0d4a276e1"
     },
     {
       "path": "skills/ma-scout/skill.yml",

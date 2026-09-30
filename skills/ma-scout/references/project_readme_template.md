@@ -85,11 +85,20 @@ Copy the block below into `{topic_folder}/README.md` and fill in the curly-brace
 
 ## Solo-Mode Adaptations (no supervisor)
 
-When a user runs `/ma-scout` in topic-first mode without a supervisor assignment,
+When a user runs `/ma-scout` in topic-first mode (T-Phase 5) without a supervisor assignment,
 substitute:
-- `## Overview` — drop the `Supervisor`, `Supervisor's area`, and timeline `Supervisor proposal` /
-  `Supervisor review` rows.
-- Replace `Supervisor approval` in the Timeline `Prerequisite` column with `self-approval` or
-  the lead author's own sign-off step.
-- `## Professor's Authority` — rename to `## Author Authority` and describe the
-  user's own prior publications that justify leading this MA.
+- `## Overview` — replace `Supervisor:` with `Lead: {user_name}` or `Lead: {user_name} + {co-author}`,
+  and the `Supervisor's area` row with `Domain: {subspecialty}`.
+- `## Professor's Authority` — rename to `## Team Expertise` and describe the user's credentials and
+  prior publications that justify leading this MA, plus the co-author's if any.
+- `## Timeline` — drop the supervisor-proposal step and start directly at PROSPERO registration:
+
+| Stage | Estimated time | Prerequisite |
+|-------|----------------|--------------|
+| PROSPERO registration | {YYYY-MM} | Topic confirmed |
+| Search complete | +1 week | PROSPERO registration |
+| Screening complete | +2 weeks | 2nd reviewer secured |
+| Data extraction | +3 weeks | Screening consensus |
+| Analysis + draft | +5 weeks | Data lock |
+| Co-author review | +7 weeks | Draft complete |
+| Submission | +8 weeks | Final approval |
