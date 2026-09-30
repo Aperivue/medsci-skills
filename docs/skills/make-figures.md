@@ -4,7 +4,7 @@
 
 > Use when a paper needs publication-ready figures or a visual abstract. Makes ROC, forest, calibration, Kaplan-Meier and Bland-Altman plots, CONSORT/STARD/PRISMA flow diagrams, confusion matrices, pipeline diagrams and journal visual abstracts, checking the journal's AI-image policy first.
 
-**Invoke:** `/make-figures` · **Model:** inherit
+**Invoke:** `/make-figures`
 
 ## When to use
 

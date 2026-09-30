@@ -3,14 +3,16 @@ message: "If you use MedSci Skills in your research, please cite it as below."
 type: software
 title: "MedSci Skills: Claude Code Skills for the Medical Research Lifecycle"
 abstract: >-
-  An opinionated, physician-built collection of Claude Code skills covering
-  the full medical research workflow — literature search with anti-hallucination
-  citation verification, study design, IRB protocols, statistical analysis,
-  publication-ready figures, IMRAD manuscript drafting, reporting compliance
-  audits against 49 EQUATOR guidelines (STARD, STARD-AI, TRIPOD+AI, CLAIM,
-  PRISMA-DTA, STROBE, CONSORT, etc.), journal selection, peer review, and
-  revision response. Four end-to-end demos with public datasets produce
-  submission-ready manuscripts.
+  An opinionated, physician-built collection of Agent Skills for Claude Code,
+  Codex, Cursor and GitHub Copilot covering the full medical research
+  workflow — literature search with anti-hallucination citation verification,
+  study design, IRB protocols, statistical analysis, publication-ready
+  figures, IMRAD manuscript drafting, reporting compliance audits against 49
+  reporting guidelines and risk-of-bias tools (STARD, STARD-AI, TRIPOD+AI,
+  CLAIM, PRISMA-DTA, STROBE, CONSORT, etc.), journal selection, peer review,
+  and revision response — plus a lane for building and validating
+  medical-imaging AI models. Five worked demos on public datasets, three of
+  which produce manuscript drafts.
 authors:
   - family-names: Nam
     given-names: Yoojin

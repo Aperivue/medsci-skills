@@ -1,7 +1,6 @@
 ---
 name: self-review
 description: Use when checking your own manuscript before submission from a reviewer's perspective. Returns anticipated Major/Minor comments with fixes, including numerical, citation and leakage checks, with an optional multi-reviewer panel. Someone else's paper is /peer-review.
-model: inherit
 metadata:
   triggers: "self-review, pre-submission check, check my paper, reviewer perspective, manuscript self-check"
 ---

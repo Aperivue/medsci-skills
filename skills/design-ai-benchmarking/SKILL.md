@@ -1,7 +1,6 @@
 ---
 name: design-ai-benchmarking
 description: Use when designing a study that benchmarks AI systems against a human-expert panel, before data collection. Plans the arms, decoupled rubrics with anchors, planted calibration probes, reviewer panel, inter-rater reliability targets and LLM-as-judge versus human adjudication.
-model: inherit
 metadata:
   triggers: "AI benchmarking, AI vs human expert, reader study design, expert panel evaluation, LLM-as-judge, AI evaluation rubric, model benchmark design, human baseline comparison, AI-output rating, evaluation rubric design"
 ---

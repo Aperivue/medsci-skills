@@ -4,7 +4,7 @@
 
 > Use when exposure, outcome, covariate or eligibility definitions and cutoffs need a citable basis before the protocol. Reads the data dictionary first, then maps each variable to a guideline or published definition and the database columns in a citation-backed table.
 
-**Invoke:** `/define-variables` · **Model:** inherit
+**Invoke:** `/define-variables`
 
 ## When to use
 

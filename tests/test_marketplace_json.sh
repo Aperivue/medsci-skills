@@ -43,9 +43,12 @@ ok = (d['name']=='medsci-skills'
       and analysis['source']=='./' and analysis['strict'] is False
       and analysis['skills']==['./skills/alpha','./skills/beta']  # slugs sorted
       and 'version' not in d
-      and all('version' not in p for p in d['plugins']))
+      and all('version' not in p for p in d['plugins'])
+      and analysis['displayName']=='MedSci Analysis & Figures'   # from the catalog label
+      and all(p['author'].get('name') and p['homepage'].startswith('https://')
+              and p['keywords'] for p in d['plugins']))
 sys.exit(0 if ok else 1)
-" && ok "JSON shape: name + plugin order + source/strict + sorted skills + no version" || bad "JSON shape wrong"
+" && ok "JSON shape: name + plugin order + source/strict + sorted skills + no version + display fields" || bad "JSON shape wrong"
 
 # --- 2. drift: editing the file makes --check fail ---
 printf '{"tampered":true}\n' > "$WORK/mk.json"

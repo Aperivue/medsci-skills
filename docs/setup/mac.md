@@ -101,21 +101,26 @@ brew install git
 
 ## Step 6 — Install Claude Code
 
-Two options:
+Two options. The commands are the ones in Anthropic's [Claude Code setup guide](https://code.claude.com/docs/en/setup).
 
-**Option A — Desktop app** (easiest): Download from <https://claude.ai/download> and install.
+**Option A — Desktop app** (easiest, no Terminal): download the Claude app from <https://claude.com/download>, install it and sign in. It runs Claude Code without a terminal; see Anthropic's [desktop quickstart](https://code.claude.com/docs/en/desktop-quickstart).
 
-**Option B — CLI** (if you prefer Terminal):
+**Option B — Terminal (CLI).** Anthropic's installer, which keeps Claude Code up to date by itself:
 ```bash
-brew install --cask claude
+curl -fsSL https://claude.ai/install.sh | bash
 ```
+Or with Homebrew (it does not update itself; run `brew upgrade claude-code` from time to time):
+```bash
+brew install --cask claude-code
+```
+(`brew install --cask claude` without `-code` installs the desktop app of Option A, not the `claude` command.)
 
-Verify:
+Verify Option B in a **new** Terminal window:
 ```bash
 claude --version
 ```
 
-After install, run `claude` once and follow the login prompt (opens browser → log in to your Anthropic account).
+Then run `claude` once and follow the login prompt (opens browser → log in to your Anthropic account).
 
 ---
 

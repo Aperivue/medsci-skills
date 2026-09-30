@@ -4,7 +4,7 @@
 
 > Use when data needs statistical analysis. Runs reproducible Python/R code for Table 1, diagnostic accuracy, agreement, regression, survival, propensity score, survey-weighted and repeated-measures models, with publication tables. Sample size is /calc-sample-size; pooling studies is /meta-analysis.
 
-**Invoke:** `/analyze-stats` · **Model:** inherit
+**Invoke:** `/analyze-stats`
 
 ## When to use
 

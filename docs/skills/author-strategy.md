@@ -4,7 +4,7 @@
 
 > Use when analyzing a researcher's publication record from PubMed. Fetches an author's papers, classifies study types and author position, charts the patterns and writes a strategy report, with an optional trajectory-archetype classification. Works from PubMed metadata only.
 
-**Invoke:** `/author-strategy` · **Model:** inherit
+**Invoke:** `/author-strategy`
 
 ## When to use
 

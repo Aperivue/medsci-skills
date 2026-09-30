@@ -26,22 +26,24 @@ The skills draft and check, bundled scripts recompute what can be recomputed, an
 ## Installation
 
 <a id="quick-start"></a><a id="install-with-gh-skill"></a><a id="install-as-a-claude-code-plugin"></a><a id="option-1-classroom-installer-recommended-for-non-programmers"></a><a id="option-2-install-all-skills-manually"></a><a id="option-3-install-individual-skills-manually"></a><a id="option-4-npm--npx-terminal-friendly-shortcut"></a><a id="option-5-github-cli-gh-skill"></a><a id="platform-notes"></a><a id="optional-let-plain-language-requests-find-the-skills"></a><a id="updating"></a><a id="setup"></a><a id="requirements"></a>
-In a terminal, with Node 18+ and Python 3.9+ installed:
+**Without a terminal** (Windows or macOS): download the [classroom installer](https://github.com/Aperivue/medsci-skills/blob/v6.0.0/docs/install.md#classroom-installer-no-terminal), unzip it and double-click the installer inside. It also turns on update reminders and puts an **Update MedSci Skills** icon on your Desktop. If you have not installed Claude Code, Python or Node yet, the [setup guides](https://github.com/Aperivue/medsci-skills/blob/v6.0.0/docs/setup/README.md) for Mac and Windows go step by step.
+
+**In a terminal**, with [Node 18+ and Python 3.9+](https://github.com/Aperivue/medsci-skills/blob/v6.0.0/docs/setup/README.md) installed:
 
 ```bash
 npx medsci-skills install
 ```
 
-This copies every skill into `~/.claude/skills/` (read by Claude Code, Cursor and GitHub Copilot) and `~/.agents/skills/` (read by Codex, Cursor and GitHub Copilot).
+This copies every skill into `~/.claude/skills/` (read by Claude Code, Cursor and Copilot in VS Code) and `~/.agents/skills/` (read by Codex, Cursor and GitHub Copilot).
 Restart your agent, type `/orchestrate`, and describe what you want to do; it routes the request to the right skill.
 To be told when a new version ships, add `--enable-update-notify`: a one-line notice at Claude Code session start, off by default, no telemetry.
 
 Other ways to install, each described in [docs/install.md](https://github.com/Aperivue/medsci-skills/blob/v6.0.0/docs/install.md):
 
-- **No terminal:** the [classroom installer](https://github.com/Aperivue/medsci-skills/blob/v6.0.0/docs/install.md#classroom-installer-no-terminal) for Windows or macOS — download, unzip, double-click.
 - **Claude Code plugin:** [`/plugin marketplace add Aperivue/medsci-skills`](https://github.com/Aperivue/medsci-skills/blob/v6.0.0/docs/install.md#claude-code-plugin-marketplace), then enable the plugins you want; skills are then namespaced, e.g. `/medsci-analysis:analyze-stats`.
-- **GitHub CLI 2.90+:** [`gh skill install --all Aperivue/medsci-skills`](https://github.com/Aperivue/medsci-skills/blob/v6.0.0/docs/install.md#github-cli-gh-skill), or name a single skill.
+- **GitHub CLI 2.90+:** [`gh skill install Aperivue/medsci-skills --all --agent claude-code --scope user`](https://github.com/Aperivue/medsci-skills/blob/v6.0.0/docs/install.md#github-cli-gh-skill), or name a single skill. The two flags put the skills where Claude Code looks; the linked section gives the values for other hosts.
 - **git:** [clone the repository](https://github.com/Aperivue/medsci-skills/blob/v6.0.0/docs/install.md#git-clone) and copy `skills/*` into `~/.claude/skills/`.
+- **A fixed version**, for a paper that cites the version it used: `npx medsci-skills@6.0.0 install`; the plugin and `gh` equivalents are in [docs/install.md](https://github.com/Aperivue/medsci-skills/blob/v6.0.0/docs/install.md#staying-on-one-version).
 
 [Updating](https://github.com/Aperivue/medsci-skills/blob/v6.0.0/docs/install.md#updating), [what individual skills need](https://github.com/Aperivue/medsci-skills/blob/v6.0.0/docs/install.md#requirements) (pandoc, R, PyTorch), [where the files go](https://github.com/Aperivue/medsci-skills/blob/v6.0.0/docs/install.md#where-the-skills-go) and the [optional routing block](https://github.com/Aperivue/medsci-skills/blob/v6.0.0/docs/install.md#optional-let-plain-language-requests-find-the-skills) for plain-language requests are on the same page.
 

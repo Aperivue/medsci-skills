@@ -26,13 +26,15 @@ Claude Code, Codex, Cursor, GitHub Copilot에서 일하는 의사와 의생명·
 
 ## 설치
 
-터미널에서 실행합니다(Node 18+와 Python 3.9+ 필요).
+**터미널 없이**(Windows, macOS): [classroom 설치 파일](https://github.com/Aperivue/medsci-skills/blob/v6.0.0/docs/install.md#classroom-installer-no-terminal)을 내려받아 압축을 풀고 안에 있는 설치 파일을 더블클릭하세요. 업데이트 알림도 함께 켜지고, 바탕화면에 **Update MedSci Skills** 아이콘이 생깁니다. Claude Code, Python, Node를 아직 설치하지 않았다면 Mac·Windows [설치 안내](https://github.com/Aperivue/medsci-skills/blob/v6.0.0/docs/setup/README.md)(영문)를 차례대로 따라 하면 됩니다.
+
+**터미널에서** 실행합니다(Node 18+와 Python 3.9+ 필요).
 
 ```bash
 npx medsci-skills install
 ```
 
-모든 스킬이 `~/.claude/skills/`(Claude Code, Cursor, GitHub Copilot이 읽는 곳)와 `~/.agents/skills/`(Codex, Cursor, GitHub Copilot이 읽는 곳)에 복사됩니다.
+모든 스킬이 `~/.claude/skills/`(Claude Code, Cursor, VS Code의 Copilot이 읽는 곳)와 `~/.agents/skills/`(Codex, Cursor, GitHub Copilot이 읽는 곳)에 복사됩니다.
 agent를 다시 시작하고 `/orchestrate`를 입력한 뒤 하려는 일을 설명하면 알맞은 스킬로 연결해 줍니다.
 새 버전이 나올 때 알림을 받고 싶다면 `--enable-update-notify`를 붙이세요. Claude Code 세션을 시작할 때 한 줄 알림이 뜹니다. 기본값은 꺼짐이고 telemetry는 없습니다.
 

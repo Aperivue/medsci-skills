@@ -4,7 +4,7 @@
 
 > Use when finding papers or building a reference list. Searches PubMed, Semantic Scholar and bioRxiv/medRxiv, includes only references verified through an API, and generates BibTeX. Auditing an existing reference list is /verify-refs.
 
-**Invoke:** `/search-lit` · **Model:** inherit
+**Invoke:** `/search-lit`
 
 ## When to use
 

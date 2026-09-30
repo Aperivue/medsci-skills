@@ -1,7 +1,6 @@
 ---
 name: mllm-eval
 description: Use when designing or auditing how an LLM or multimodal LLM is evaluated on a clinical task (report generation, VQA, text extraction). Covers reference standard, clinical-efficacy metrics beyond BLEU/ROUGE, hallucination, contamination and prompt sensitivity. Imaging models are /model-assessment.
-model: inherit
 metadata:
   triggers: "MLLM evaluation, LLM evaluation, multimodal LLM, report generation, radiology report generation, visual question answering, VQA, RadGraph, CheXbert, faithfulness, hallucination, prompt sensitivity, contamination, GPT, LLaVA-Med, clinical LLM, medical VLM, reader study for reports"
 ---

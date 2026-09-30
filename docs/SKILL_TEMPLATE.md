@@ -10,7 +10,6 @@ Use this template when creating a new medsci-skill. Copy the structure below and
 ---
 name: skill-name
 description: Use when {the situation the user is in}. {What the skill does, and which skill takes over at its boundary.}
-model: inherit
 metadata:
   triggers: "english trigger, 한국어 트리거, comma separated keywords"
 ---
@@ -22,9 +21,13 @@ metadata:
   situation in the words a user would type, because the model picks skills from this text. Name
   the boundary with the skill it is most easily confused with. No marketing, no implementation
   detail, no claim the SKILL.md body does not back.
-- `model`: Use `inherit` unless the skill requires complex reasoning (then `opus`).
 - `metadata.triggers`: Keywords that activate this skill. Include both English and Korean terms.
   It sits under the Agent Skills `metadata` map because a top-level `triggers` is non-standard.
+- `model` (optional, Claude Code only): leave it out, and the skill runs on the session's model.
+  Add `model: opus` only when the skill needs a stronger model than the user may have chosen. The
+  field belongs to Claude Code, not to the [Agent Skills spec](https://agentskills.io/specification):
+  other hosts do not act on it, and the spec's `skills-ref validate` and a claude.ai skill upload
+  reject a SKILL.md that has it.
 
 There is no `tools` field: hosts ignore it. Do not add `allowed-tools` in its place — that field
 pre-approves tools rather than listing them.
@@ -165,7 +168,7 @@ writing MUST. `scripts/check_phase_budget.py` enforces the upper bound; nothing 
 
 ## Checklist Before Publishing
 
-- [ ] YAML frontmatter has `name`, `description` (≤300 characters, led by "Use when"), `model` and `metadata.triggers`, and no `tools`
+- [ ] YAML frontmatter has `name`, `description` (≤300 characters, led by "Use when") and `metadata.triggers`, no `tools`, and `model` only if the skill needs a named model
 - [ ] Every instruction is one the agent would otherwise get wrong (no generic boilerplate)
 - [ ] Steps that need the user's approval say so where they happen
 - [ ] Output Contract section lists all files the skill produces

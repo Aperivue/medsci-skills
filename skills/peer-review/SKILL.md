@@ -1,7 +1,6 @@
 ---
 name: peer-review
 description: Use when reviewing someone else's manuscript for a journal, such as after a review invitation or for a revised R1/R2 version. Drafts a structured, constructive review in the journal's format. Never for your own manuscript; that is /self-review.
-model: inherit
 metadata:
   triggers: "peer review, manuscript review, review paper, reviewer comments, 리뷰, 논문 리뷰, review invitation, journal review"
 ---

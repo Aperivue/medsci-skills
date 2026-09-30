@@ -1,7 +1,6 @@
 ---
 name: orchestrate
 description: Use when the user describes a research goal without naming a skill, or the task spans several skills. Classifies the request, plans the order and routes to the right medsci-skills skill(s) instead of producing their output itself.
-model: inherit
 metadata:
   triggers: "orchestrate, research help, what should I do next, where do I start, help me with my paper, run the pipeline, which skill, end-to-end, e2e"
 ---

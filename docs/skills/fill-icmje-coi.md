@@ -4,7 +4,7 @@
 
 > Use when each author needs an ICMJE Conflict of Interest disclosure form (coi_disclosure.docx) for submission. Clones a pre-filled synthetic seed with every item marked None and replaces only date, name and manuscript title, so most authors just confirm or amend.
 
-**Invoke:** `/fill-icmje-coi` · **Model:** inherit
+**Invoke:** `/fill-icmje-coi`
 
 ## When to use
 

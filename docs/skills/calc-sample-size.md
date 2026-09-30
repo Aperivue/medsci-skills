@@ -4,7 +4,7 @@
 
 > Use when planning how many patients or cases a study needs before data collection (power analysis, IRB justification). Walks a decision tree to the right test and returns reproducible R/Python code and IRB-ready justification text. Analyzing collected data is /analyze-stats.
 
-**Invoke:** `/calc-sample-size` · **Model:** inherit
+**Invoke:** `/calc-sample-size`
 
 ## When to use
 

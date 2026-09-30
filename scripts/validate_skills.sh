@@ -150,14 +150,15 @@ for skill_dir in "${SKILL_DIRS[@]}"; do
   ((TOTAL++))
   echo "[$skill_name]"
 
-  # 1. Frontmatter: the v6 schema — name, description, model, and `triggers` inside the Agent
-  # Skills `metadata:` map. Fields are read from the frontmatter block itself (the lines between the
+  # 1. Frontmatter: the v6 schema — name, description, and `triggers` inside the Agent Skills
+  # `metadata:` map. `model` is optional: a skill sets it only to name a real model (opus, sonnet),
+  # because leaving it out already means "the session's model" in Claude Code, and the field is not
+  # in the Agent Skills spec. Fields are read from the frontmatter block itself (the lines between the
   # opening `---` and the next one), not the first 20 lines of the file, so a body line can never
   # stand in for a field and `triggers:` counts only where the schema puts it.
   fm_block=$(awk '{ sub(/\r$/, "") } NR == 1 { if ($0 != "---") exit; next } $0 == "---" { exit } { print }' "$skill_file")
   has_name=$(fm_count '^name:')
   has_desc=$(fm_count '^description:')
-  has_model=$(fm_count '^model:')
   has_metadata=$(fm_count '^metadata:[[:space:]]*$')
   has_tools=$(fm_count '^tools:')
   # An indented `triggers:` between `metadata:` and the next top-level key.
@@ -175,13 +176,12 @@ for skill_dir in "${SKILL_DIRS[@]}"; do
       fail "Alias stub malformed (needs name + description; SKILL.md must be its only file${stub_extra:+, found ${stub_extra#"$skill_dir"}})"
     fi
   else
-    if [ "$has_name" -ge 1 ] && [ "$has_desc" -ge 1 ] && [ "$has_model" -ge 1 ] && [ "$has_metadata" -ge 1 ] && [ "$has_meta_triggers" -ge 1 ]; then
-      pass "Frontmatter (name, description, model, metadata.triggers)"
+    if [ "$has_name" -ge 1 ] && [ "$has_desc" -ge 1 ] && [ "$has_metadata" -ge 1 ] && [ "$has_meta_triggers" -ge 1 ]; then
+      pass "Frontmatter (name, description, metadata.triggers)"
     else
       missing=""
       [ "$has_name" -eq 0 ] && missing="$missing name"
       [ "$has_desc" -eq 0 ] && missing="$missing description"
-      [ "$has_model" -eq 0 ] && missing="$missing model"
       [ "$has_metadata" -eq 0 ] && missing="$missing metadata"
       [ "$has_meta_triggers" -eq 0 ] && missing="$missing metadata.triggers"
       fail "Frontmatter missing:$missing"

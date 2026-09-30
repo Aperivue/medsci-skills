@@ -1,7 +1,6 @@
 ---
 name: verify-refs
 description: Use when checking whether a manuscript's references are real. Audits each citation against PubMed and CrossRef, flags fabricated or mismatched entries and writes qc/reference_audit.json. Audit-only; never edits references or refs.bib. Citation-key checks are /manage-refs.
-model: inherit
 metadata:
   triggers: "verify refs, verify references, citation audit, reference hallucination, fabricated references, bibliography check, PMID check, DOI check"
 ---

@@ -4,7 +4,7 @@
 
 > Use when you must prove an analysis ran on the intended data or lock a dataset version. Builds a deterministic content-hash manifest (file SHA-256, schema, per-column value hashes), verifies later copies against it for drift, and diffs two manifests.
 
-**Invoke:** `/version-dataset` · **Model:** inherit
+**Invoke:** `/version-dataset`
 
 ## When to use
 

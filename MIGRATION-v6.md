@@ -22,10 +22,12 @@ JSON output.
 | `explainability` | `model-assessment` | Part D, Phases 12–13 |
 
 **The old names keep working until v7, as name-only aliases.** `/model-evaluation` still runs: it
-hands the same arguments to `/model-assessment` and starts at the part in the table. The model never
-picks an alias on its own, so a plain-language request goes to the new skill. With the plugin
-install this works the same way under the plugin's namespace (`/medsci-modeling:model-evaluation`
-→ `/medsci-modeling:model-assessment`).
+hands the same arguments to `/model-assessment` and starts at the part in the table. In Claude Code
+(and Cursor and Copilot in VS Code) the model never picks an alias on its own, so a plain-language
+request goes to the new skill. Codex does not read the setting that hides them: it lists the eight
+aliases to its model with their one-line "Renamed to …" descriptions, and an alias it picks
+redirects to the new skill. With the plugin install this works the same way under the plugin's
+namespace (`/medsci-modeling:model-evaluation` → `/medsci-modeling:model-assessment`).
 
 **Script paths change now, not in v7.** An alias is a folder holding a single `SKILL.md` and no
 scripts. If you run a detector by its path, keep the file name and change the folder, e.g.

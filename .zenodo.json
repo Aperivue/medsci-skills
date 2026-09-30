@@ -1,6 +1,6 @@
 {
   "title": "MedSci Skills: Claude Code Skills for the Medical Research Lifecycle",
-  "description": "An opinionated, physician-built collection of Claude Code skills covering the full medical research workflow — literature search with anti-hallucination citation verification, study design, IRB protocols, statistical analysis, publication-ready figures, IMRAD manuscript drafting, reporting compliance audits against 38 EQUATOR reporting guidelines and risk-of-bias tools (STARD, STARD-AI, TRIPOD+AI, CLAIM, PRISMA-DTA, STROBE, STROBE-MR, PGS-RS, CONSORT, etc.), journal selection, peer review, and revision response. As of v5.0 it adds a clinical AI model-engineering lane: choose a paper-grounded architecture, scaffold a reproducible, leakage-safe PyTorch training repo, and validate, document, and evaluate a medical-imaging or LLM/MLLM model — integrating MONAI / nnU-Net, never replacing them. Three end-to-end demos with public datasets produce submission-ready manuscripts.",
+  "description": "An opinionated, physician-built collection of Agent Skills for Claude Code, Codex, Cursor and GitHub Copilot covering the full medical research workflow — literature search with anti-hallucination citation verification, study design, IRB protocols, statistical analysis, publication-ready figures, IMRAD manuscript drafting, reporting compliance audits against 49 reporting guidelines and risk-of-bias tools (STARD, STARD-AI, TRIPOD+AI, CLAIM, PRISMA-DTA, STROBE, STROBE-MR, PGS-RS, CONSORT, etc.), journal selection, peer review, and revision response. A clinical AI model-engineering lane chooses a paper-grounded architecture, scaffolds a reproducible, leakage-safe PyTorch training repo, and validates, documents, and evaluates a medical-imaging or LLM/MLLM model — integrating MONAI / nnU-Net, never replacing them. Five worked demos on public datasets: three produce manuscript drafts, and two run the model-engineering lane, one of them through validation on an external cohort.",
   "creators": [
     {
       "name": "Nam, Yoojin",
@@ -44,5 +44,5 @@
     }
   ],
   "language": "eng",
-  "notes": "If you use MedSci Skills in your research, please cite this Zenodo record. The repository contains comprehensive documentation, three end-to-end demos with public datasets (Wisconsin Breast Cancer, BCG meta-analysis, NHANES), and 38 EQUATOR reporting guideline and risk-of-bias checklists."
+  "notes": "If you use MedSci Skills in your research, please cite this Zenodo record. The repository contains the documentation, five worked demos on public datasets (Wisconsin Breast Cancer, BCG meta-analysis, NHANES, PneumoniaMNIST, and MSD/AMOS spleen segmentation), and summaries of 49 reporting guidelines and risk-of-bias tools."
 }

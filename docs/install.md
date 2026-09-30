@@ -9,7 +9,9 @@ the alternatives, where the files go, updating, and what individual skills need.
 - [Classroom installer (no terminal)](#classroom-installer-no-terminal)
 - [Claude Code plugin marketplace](#claude-code-plugin-marketplace)
 - [GitHub CLI (`gh skill`)](#github-cli-gh-skill)
+- [The `skills` CLI (`npx skills add`)](#the-skills-cli-npx-skills-add)
 - [git clone](#git-clone)
+- [Staying on one version](#staying-on-one-version)
 - [Single-skill repositories](#single-skill-repositories)
 - [Where the skills go](#where-the-skills-go)
 - [Optional: let plain-language requests find the skills](#optional-let-plain-language-requests-find-the-skills)
@@ -100,8 +102,10 @@ needed (see [Updating](#updating)).
 Then restart Claude Code Desktop, Codex Desktop, or Cursor and test with:
 
 ```text
-MedSci Skills가 설치됐는지 확인하고, 오늘 실습에 쓸 대표 스킬 5개만 보여줘.
+Check that MedSci Skills is installed and show me five skills to start with.
 ```
+
+In Korean: `MedSci Skills가 설치됐는지 확인하고, 오늘 실습에 쓸 대표 스킬 5개만 보여줘.`
 
 See [classroom_distribution_plan.md](classroom_distribution_plan.md) and
 [classroom_materials.md](classroom_materials.md) for instructor distribution, email templates, and
@@ -121,13 +125,13 @@ ones you want:
 |--------|--------|
 | `medsci-literature` | Literature search, full-text retrieval, Zotero sync, reference-integrity audits |
 | `medsci-data` | Study design, variable operationalization, sample size, data cleaning, de-identification, codebooks, dataset versioning |
-| `medsci-modeling` | Architecture selection, reproducible model-scaffold repos, model-validation audits, Model Card/Datasheet, model & LLM/MLLM evaluation |
+| `medsci-modeling` | Architecture selection, reproducible model-scaffold repos, split/leakage and validation audits, Model Card/Datasheet, model & LLM/MLLM evaluation |
 | `medsci-analysis` | Statistics, figures, batch/cross-national/replication analysis, meta-analysis |
 | `medsci-writing` | IMRAD & protocol drafting, AI-pattern removal, AI-search optimization, reviewer responses |
 | `medsci-review` | Self-review, peer review, reporting-guideline compliance |
 | `medsci-submission` | Submission packaging, journal selection, ICMJE/IRB form filling, grant proposals |
 | `medsci-project` | Orchestration, project intake/management, gap & topic discovery, author strategy |
-| `medsci-presentation` | Presentations/PPTX, PDF/document rendering, environment setup, skill publishing |
+| `medsci-presentation` | Presentations/PPTX, PDF/document rendering, environment setup, skill publishing, contributing changes back |
 
 The authoritative plugin list is [`.claude-plugin/marketplace.json`](../.claude-plugin/marketplace.json);
 the README's skill map shows which skills each plugin enables.
@@ -167,17 +171,55 @@ this repo — no clone. It is a `gh` **preview** feature, so the exact flags may
 ```bash
 gh skill search medsci                                   # list the whole collection
 gh skill preview Aperivue/medsci-skills check-reporting  # read a skill before installing
-gh skill install Aperivue/medsci-skills check-reporting  # install just that one
-gh skill install --all Aperivue/medsci-skills            # or install every skill
+gh skill install Aperivue/medsci-skills check-reporting --agent claude-code --scope user   # just that one
+gh skill install Aperivue/medsci-skills --all --agent claude-code --scope user            # every skill
 ```
 
-`gh skill install` places skills in the host-specific folder for the agent you pick with `--agent`
-(`claude-code` → `~/.claude/skills/`, `codex` → `~/.agents/skills/`, and many others), at user or
-project `--scope` — the same folders the npx and git paths populate.
+**Pass `--agent` and `--scope`.** `gh skill install` puts skills in the folder of the agent you name
+with `--agent`, either in your home folder (`--scope user`, available in every project) or inside the
+current project (`--scope project`, the default). Without `--agent` it asks which agent when run
+interactively, and installs for GitHub Copilot when run from a script, so a bare
+`gh skill install --all Aperivue/medsci-skills` in a script puts every skill into `./.agents/skills/`
+of whatever folder you are in. The user-scope folders (gh 2.96):
+
+| Agent | Flags | Folder |
+|---|---|---|
+| Claude Code | `--agent claude-code --scope user` | `~/.claude/skills/` |
+| Codex | `--agent codex --scope user` | `~/.codex/skills/` — Codex still reads it, but its documentation names `~/.agents/skills/`, which is where the npx install puts skills |
+| Cursor | `--agent cursor --scope user` | `~/.cursor/skills/` |
+| GitHub Copilot | `--agent github-copilot --scope user` | `~/.copilot/skills/` |
+
+By default `gh` installs from the latest tagged release, not the tip of `main`. It does not run the
+MedSci Skills installer, so it makes no backup of a skill you edited and sets up no update reminder;
+`gh skill update --all` updates what you installed. Some skills run another skill's scripts (for
+example `/ma-scout` runs `/search-lit`'s PubMed script), so a skill installed on its own may need
+its neighbour; install `--all` if you are unsure.
 
 Search by a skill's own name (`check-reporting`, `verify-refs`, `meta-analysis`) or by `medsci` to
 list them all — both return this repo directly. A broad topic word like `systematic review` is shared
 by hundreds of skills across GitHub, so add `--owner Aperivue` to see only ours.
+
+## The `skills` CLI (`npx skills add`)
+
+The [`skills` CLI](https://github.com/vercel-labs/skills) (a third-party tool from Vercel Labs, not
+part of MedSci Skills) also installs this repository, and [skills.sh](https://skills.sh/aperivue/medsci-skills)
+lists it with third-party security scans of each skill:
+
+```bash
+npx skills add Aperivue/medsci-skills --skill '*' -a claude-code -g
+```
+
+`-a` picks the agent and `-g` installs into your home folder rather than the current project. What
+it does not do, compared with `npx medsci-skills install`:
+
+- It does not run the MedSci Skills installer, so it makes no backup of a skill you edited and sets
+  up no update reminder. Upgrading from v5, follow the `gh skill` notes in
+  [MIGRATION-v6.md](../MIGRATION-v6.md#updating-by-install-channel).
+- `--skill '*'` also installs the eight v6 alias folders, which only redirect to the renamed skills.
+- It sends anonymous usage data to its developer unless you set `DISABLE_TELEMETRY=1`; MedSci
+  Skills itself sends none.
+
+Update with `npx skills update`. These flags are the tool's own and may change; check its README.
 
 ## git clone
 
@@ -197,6 +239,22 @@ mkdir -p ~/.claude/skills
 cp -r medsci-skills/skills/check-reporting ~/.claude/skills/
 ```
 
+## Staying on one version
+
+If a paper or protocol cites the MedSci Skills version it used, install that version rather than the
+latest:
+
+| Channel | Command |
+|---|---|
+| npx | `npx medsci-skills@6.0.0 install` |
+| Claude Code plugin | `/plugin marketplace add Aperivue/medsci-skills@v6.0.0` (see [Staying on one release](#claude-code-plugin-marketplace)) |
+| GitHub CLI | `gh skill install Aperivue/medsci-skills --all --pin v6.0.0 --agent claude-code --scope user` |
+| git | `git clone --branch v6.0.0 https://github.com/Aperivue/medsci-skills.git`, then `python3 medsci-skills/installers/install.py` |
+| Classroom ZIP | download the ZIP attached to that [release](https://github.com/Aperivue/medsci-skills/releases) instead of the latest one |
+
+The one-click updater and `npx medsci-skills@latest install` move you to the newest version, so skip
+them while you need to stay put.
+
 ## Single-skill repositories
 
 Two skills are also published as focused standalone repos (generated mirrors; this repo stays the
@@ -207,7 +265,7 @@ source of truth), each installable on its own with `/plugin marketplace add Aper
 
 ## Where the skills go
 
-- Claude Code: skills are copied to `~/.claude/skills/` (also read by GitHub Copilot and Cursor).
+- Claude Code: skills are copied to `~/.claude/skills/` (also read by Cursor and by Copilot in VS Code).
 - Codex: skills are copied to `~/.agents/skills/` (also read by Cursor and GitHub Copilot).
 - Cursor: no separate step needed — Cursor reads `~/.claude/skills/` and `~/.agents/skills/` directly. The installer can still write an optional `.cursor/rules/` steering rule with `--cursor-project`; it carries no machine-specific path, so it is safe to commit.
 - See [`host_compatibility.md`](host_compatibility.md) for the verified per-host install paths and their official sources.

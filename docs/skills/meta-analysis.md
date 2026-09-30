@@ -4,7 +4,7 @@
 
 > Use when running a systematic review and meta-analysis, DTA or intervention. Covers PROSPERO protocol, search, screening, extraction, risk of bias (QUADAS-3, RoB 2, ROBINS-I), bivariate/HSROC or random-effects pooling, forest plots, heterogeneity and PRISMA reporting. Topic scouting is /ma-scout.
 
-**Invoke:** `/meta-analysis` · **Model:** inherit
+**Invoke:** `/meta-analysis`
 
 ## When to use
 

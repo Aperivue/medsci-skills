@@ -37,7 +37,8 @@ DOCS_DIR = ROOT / "docs" / "skills"
 
 # `metadata.triggers` is the `triggers:` key inside the one-level `metadata:` map (see
 # parse_frontmatter). `tools` is gone: hosts ignore it, and v6 removed it from every SKILL.md.
-REQUIRED = ("name", "description", "model", "metadata.triggers")
+# `model` is optional: only a skill that names a real model sets it (no value = the session's model).
+REQUIRED = ("name", "description", "metadata.triggers")
 # Top-level keys whose value may be a one-level mapping. Its children are returned flattened as
 # `<key>.<child>`; a child that opens its own block, a list item, or a line indented differently
 # from the first child fails loud.
@@ -310,7 +311,7 @@ def render_page(name: str, fm: dict[str, str], resources: dict[str, list[str]],
         "",
         f"> {fm['description']}",
         "",
-        f"**Invoke:** `/{name}` · **Model:** {fm['model']}",
+        f"**Invoke:** `/{name}`" + (f" · **Model:** {fm['model']}" if fm.get("model") else ""),
         "",
         "## When to use",
         "",

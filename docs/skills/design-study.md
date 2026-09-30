@@ -4,7 +4,7 @@
 
 > Use when checking a radiology or medical AI study design before drafting or submission. Reviews the analysis unit, cohort logic, leakage risks, comparator, validation strategy and reporting-guideline fit. AI-vs-expert benchmarks are /design-ai-benchmarking.
 
-**Invoke:** `/design-study` · **Model:** inherit
+**Invoke:** `/design-study`
 
 ## When to use
 

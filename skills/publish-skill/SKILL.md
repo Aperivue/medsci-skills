@@ -1,7 +1,6 @@
 ---
 name: publish-skill
 description: Use when turning a personal agent skill into an open-source, distributable one. Runs a PII audit, generalizes personal details, checks licence compatibility, reviews cross-platform adapters and walks through packaging.
-model: inherit
 metadata:
   triggers: "publish skill, distribute skill, open-source skill, package skill, universalize skill"
 ---

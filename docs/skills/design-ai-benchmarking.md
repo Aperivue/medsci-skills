@@ -4,7 +4,7 @@
 
 > Use when designing a study that benchmarks AI systems against a human-expert panel, before data collection. Plans the arms, decoupled rubrics with anchors, planted calibration probes, reviewer panel, inter-rater reliability targets and LLM-as-judge versus human adjudication.
 
-**Invoke:** `/design-ai-benchmarking` · **Model:** inherit
+**Invoke:** `/design-ai-benchmarking`
 
 ## When to use
 

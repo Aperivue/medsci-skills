@@ -4,7 +4,7 @@
 
 > Use when a medical AI paper should be found and cited by AI search engines and RAG tools. Optimizes the title, abstract, summary box (Key Points, Research in Context), keywords, preprint, GitHub README/CITATION.cff and Hugging Face card, returning a visible pass/fail checklist.
 
-**Invoke:** `/academic-aio` · **Model:** inherit
+**Invoke:** `/academic-aio`
 
 ## When to use
 

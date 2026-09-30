@@ -1,7 +1,6 @@
 ---
 name: manage-refs
 description: Use when references must be written, rendered or converted. Checks [@key] citation keys, renders the reference list with a journal CSL via pandoc, converts [N] markers, injects Zotero Word field codes and runs manuscript-DOCX cross-reference QC. Read-only auditing is /verify-refs.
-model: inherit
 metadata:
   triggers: "manage-refs, references, citation, citation keys, pandoc citeproc, journal CSL, CSL swap, cascade rejection re-render, cross-reference QC, [@bibkey], Zotero CWYW, ADDIN ZOTERO_ITEM, marker conversion, [N] to [@key], reference manager, render manuscript, check_citation_keys, check_xref"
 ---

@@ -4,7 +4,7 @@
 
 > Use when choosing the model for a medical-imaging study. Picks a paper-grounded architecture family (CNN/ViT, U-Net/nnU-Net, detection, SAM/foundation, GNN), then vets the concrete repo or checkpoint for licence, version pin, weight provenance and benchmark overlap.
 
-**Invoke:** `/model-selection` · **Model:** inherit
+**Invoke:** `/model-selection`
 
 ## When to use
 

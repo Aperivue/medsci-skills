@@ -1,7 +1,6 @@
 ---
 name: calc-sample-size
 description: Use when planning how many patients or cases a study needs before data collection (power analysis, IRB justification). Walks a decision tree to the right test and returns reproducible R/Python code and IRB-ready justification text. Analyzing collected data is /analyze-stats.
-model: inherit
 metadata:
   triggers: "sample size, power analysis, power calculation, how many patients, how many subjects, IRB sample size"
 ---

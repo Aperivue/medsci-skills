@@ -4,7 +4,7 @@
 
 > Use when validating or evaluating a trained medical-imaging model. Audits split leakage and validation design, computes task-correct held-out metrics (Dice + HD95, AUROC + AUPRC, FROC, calibration), and covers uncertainty/OOD and Grad-CAM explainability, each with a gate.
 
-**Invoke:** `/model-assessment` · **Model:** inherit
+**Invoke:** `/model-assessment`
 
 ## When to use
 
