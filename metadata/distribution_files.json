@@ -6708,8 +6708,8 @@
     },
     {
       "path": "skills/write-protocol/SKILL.md",
-      "size": 11299,
-      "sha256": "8548d8bbebe14aacf9acab19ee3c895259022552fcef11ac7fbd8dadd778db88"
+      "size": 6481,
+      "sha256": "0b3896b2d1fe234d8339d5883ef70579cbc209f634047eba592c2d279b946a26"
     },
     {
       "path": "skills/write-protocol/references/ethics_checklist.md",
@@ -6723,8 +6723,8 @@
     },
     {
       "path": "skills/write-protocol/skill.yml",
-      "size": 1408,
-      "sha256": "c5f8dedf8b917862c5b3f9a64313d35a1fcaf0fd2f5f6cde54d6bbc91a9b6fe3"
+      "size": 1414,
+      "sha256": "3a6f4a38a15c7893f7d99dd937a6771de23e3256085f890cf48a3aa29b3988de"
     }
   ]
 }

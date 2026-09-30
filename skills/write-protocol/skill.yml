@@ -12,7 +12,7 @@ inputs:
   - "calc-sample-size output"
   - "search-lit output"
 outputs:
-  - "protocol.md (4 core sections + 6 TODO skeletons)"
+  - "protocol_draft.md (4 core sections + 6 TODO skeletons)"
 side_effects:
   - writes_project_artifacts
 downstream_consumers:
