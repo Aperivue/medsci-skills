@@ -1,0 +1,5 @@
+== CLEAN ==  synthetic_em_label.pdf
+findings=0 hidden_chars=0 injection_hits=0 info=1
+no hidden or injected text detected. Off-page figure/table labels listed as INFO.
+[INFO  ] OFF_PAGE        p3  OFF_PAGE 0% of box on-page; figure/table label only (Editorial Manager places these off-page); not counted in the verdict
+       > 'Figure 2'

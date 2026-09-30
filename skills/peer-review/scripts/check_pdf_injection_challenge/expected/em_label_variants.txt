@@ -1,0 +1,21 @@
+== CLEAN ==  synthetic_em_label_variants.pdf
+findings=0 hidden_chars=0 injection_hits=0 info=9
+no hidden or injected text detected. Off-page figure/table labels listed as INFO.
+[INFO  ] OFF_PAGE        p3  OFF_PAGE 0% of box on-page; figure/table label only (Editorial Manager places these off-page); not counted in the verdict
+       > 'Figure 1'
+[INFO  ] OFF_PAGE        p4  OFF_PAGE 0% of box on-page; figure/table label only (Editorial Manager places these off-page); not counted in the verdict
+       > 'Figure 2.'
+[INFO  ] OFF_PAGE        p5  OFF_PAGE 0% of box on-page; figure/table label only (Editorial Manager places these off-page); not counted in the verdict
+       > 'Figure_3'
+[INFO  ] OFF_PAGE        p6  OFF_PAGE 0% of box on-page; figure/table label only (Editorial Manager places these off-page); not counted in the verdict
+       > 'Figure5'
+[INFO  ] OFF_PAGE        p7  OFF_PAGE 0% of box on-page; figure/table label only (Editorial Manager places these off-page); not counted in the verdict
+       > 'Fig. 6b'
+[INFO  ] OFF_PAGE        p8  OFF_PAGE 0% of box on-page; figure/table label only (Editorial Manager places these off-page); not counted in the verdict
+       > 'Graphical Abstract'
+[INFO  ] OFF_PAGE        p9  OFF_PAGE 0% of box on-page; figure/table label only (Editorial Manager places these off-page); not counted in the verdict
+       > 'Table 1'
+[INFO  ] OFF_PAGE       p10  OFF_PAGE 20% of box on-page; figure/table label only (Editorial Manager places these off-page); not counted in the verdict
+       > 'Table\xa02'
+[INFO  ] OFF_PAGE       p11  OFF_PAGE 0% of box on-page; figure/table label only (Editorial Manager places these off-page); not counted in the verdict
+       > 'Supplementary Figure S2'

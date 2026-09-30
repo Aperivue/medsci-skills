@@ -49,7 +49,7 @@
 **Scripts** (`skills/peer-review/scripts/`):
 
 - `check_pdf_injection.py`
-- `check_pdf_injection_challenge/` (6 files)
+- `check_pdf_injection_challenge/` (16 files)
 - `check_review_boxes.py`
 - `check_review_length.py`
 - `check_review_request_types.py`

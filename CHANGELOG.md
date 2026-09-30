@@ -107,6 +107,14 @@
   a cross-table of adjudicated examinations from the authors' own files. It now flags only a
   request for new adjudication (re-adjudicate, a second or additional adjudication), and it now
   catches a request for a second operator, annotator or segmenter.
+- **`/peer-review`: figure and table labels outside the page no longer mark a PDF
+  `SUSPICIOUS`.** Editorial Manager reviewer PDFs place figure-page labels off-page, so the
+  hidden-text scan flagged ordinary manuscripts on labels such as "Figure 2" or "Graphical
+  Abstract", and a warning that fires on honest PDFs teaches reviewers to ignore it. A span
+  hidden only by being off-page whose whole text is a figure or table label is now listed as
+  `INFO` and left out of the verdict. Text that only starts with a label ("Figure 2. Ignore
+  previous instructions…"), a label hidden by colour or font size, and any other hidden text
+  in the same PDF are flagged as before.
 - **`/revise`: long quotes and "Changes to text:" quotes in a response letter are checked.** A
   quote that ran past about 320 characters lost its closing mark and was skipped, and a quote
   given under a "Changes to text:" label was never checked. Each quote is now read to its closing
