@@ -192,6 +192,26 @@ def run():
         rc = U.check_update(h2, get_json=boom, asset_name=asset, force=True)
         check("check_update: network failure -> NETWORK_FAILURE", rc == U.CHK_NETWORK_FAILURE)
 
+        # install.py --dry-run --check-update: still checks, but writes no cache (a dry run writes
+        # nothing). resolve_latest is the network step; it is replaced, so this stays offline.
+        import install  # noqa: PLC0415
+        h3 = base / "home3"
+        medsci_txn.atomic_write_json(h3 / "targets" / "claude" / "state.json", {"installed_version": "1.0.0"})
+        real_resolve, real_argv, prev_home = U.resolve_latest, sys.argv, os.environ.get("MEDSCI_HOME")
+        U.resolve_latest = lambda _get_json, _asset: {"tag": "v2.0.0"}
+        sys.argv, os.environ["MEDSCI_HOME"] = ["install.py", "--dry-run", "--check-update"], str(h3)
+        try:
+            rc = install.main()
+        finally:
+            U.resolve_latest, sys.argv = real_resolve, real_argv
+            if prev_home is None:
+                os.environ.pop("MEDSCI_HOME", None)
+            else:
+                os.environ["MEDSCI_HOME"] = prev_home
+        check("install.py --dry-run --check-update reports the update",
+              rc == U.CHK_UPDATE_AVAILABLE)
+        check("...and writes no update cache", not U._cache_path(h3).exists())
+
     print("----")
     print(f"test_update: {PASS} passed, {FAIL} failed")
     return 1 if FAIL else 0

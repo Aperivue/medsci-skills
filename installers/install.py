@@ -544,7 +544,8 @@ def main() -> int:
     if args.check_update:
         try:
             import update  # noqa: PLC0415 - optional, only when explicitly requested
-            return update.check_update(medsci_txn.state_home())
+            # A dry run still checks, but does not refresh the 24h cache: --dry-run writes nothing.
+            return update.check_update(medsci_txn.state_home(), store_cache=not args.dry_run)
         except Exception as exc:  # noqa: BLE001
             print(f"MedSci Skills: update check unavailable ({exc}).", file=sys.stderr)
             return 1
