@@ -33,7 +33,9 @@ from __future__ import annotations
 import argparse
 import importlib.util
 import json
+import os
 import platform
+import shlex
 import shutil
 import subprocess
 import sys
@@ -277,17 +279,22 @@ def py() -> str:
                 return "python3"
         except OSError:
             pass
-    return sys.executable
+    return shell_quote(sys.executable)
+
+
+def shell_quote(arg: str) -> str:
+    """One argument, quoted so a printed command still runs when pasted: `C:\\Program Files\\...`
+    on Windows, an apostrophe (`/Users/o'brien/...`) or a space on macOS and Linux."""
+    return subprocess.list2cmdline([arg]) if os.name == "nt" else shlex.quote(arg)
 
 
 def this_script() -> str:
-    """This file's absolute path, quoted if it has a space, for the --fix command we print.
+    """This file's absolute path, quoted for the shell, for the --fix command we print.
 
     The installer's tail used to print `installers/doctor.py --fix`, relative to a folder the
     person is usually not in -- after `npx medsci-skills install`, never.
     """
-    path = str(Path(__file__).resolve())
-    return f'"{path}"' if " " in path else path
+    return shell_quote(str(Path(__file__).resolve()))
 
 
 # --------------------------------------------------------------------------------------------

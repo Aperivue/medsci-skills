@@ -120,6 +120,27 @@ PY
 )
 ck "the --fix command the installer prints works from any folder" 0 "$?"
 
+# --- 7. ...and survives a path the shell would split: an apostrophe, a space, C:\Program Files ----
+py - "$REPO_ROOT" <<'PY'
+import os, shlex, subprocess, sys, pathlib
+sys.path.insert(0, str(pathlib.Path(sys.argv[1]) / "installers"))
+import doctor
+exe, script = "/opt/My Python/bin/python3", "/x/O'Brien/medsci/installers/doctor.py"
+doctor.shutil.which = lambda _name: None           # never shorten to "python3"
+doctor.sys.executable, doctor.__file__ = exe, script
+line = doctor.py() + " " + doctor.this_script() + " --fix"
+assert shlex.split(line) == [exe, os.path.realpath(script), "--fix"], line
+real = os.name
+os.name = "nt"
+try:
+    win = doctor.shell_quote(r"C:\Program Files\Python314\python.exe")
+finally:
+    os.name = real
+assert win == subprocess.list2cmdline([r"C:\Program Files\Python314\python.exe"]) \
+    == r'"C:\Program Files\Python314\python.exe"', win
+PY
+ck "printed commands quote paths with an apostrophe or a space" 0 "$?"
+
 echo "----"
 echo "test_doctor: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]
