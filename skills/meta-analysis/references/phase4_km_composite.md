@@ -20,9 +20,22 @@ When studies report outcomes only as Kaplan-Meier curves without raw event count
      (e.g., ×30 for months).
    - Clip negative Y values to 0 (digitisation artifact).
    - Export as CSV: `time, survival`, one file per arm. `IPDfromKM::preprocess()` expects
-     **survival probabilities**; if the figure plots cumulative incidence (a rising curve),
-     convert first (`survival = 1 - cumulative_incidence`). Feeding a cumulative-incidence
-     curve straight in reconstructs nonsense.
+     **survival probabilities**. A rising curve may be converted (`survival = 1 - y`) **only
+     when the paper confirms it is 1 − Kaplan-Meier** — one event type, or a composite
+     endpoint with no competing event. Feeding a rising curve in unconverted reconstructs
+     nonsense.
+   - ⚠️ **A cumulative incidence function (CIF) under competing risks is not 1 − KM.** If the
+     figure is a CIF (Aalen-Johansen, Gray's test, Fine-Gray, or "death as a competing risk" in
+     the Methods), do **not** convert it, reconstruct KM-type IPD from it, or take a Cox HR from
+     it. Example: 100 patients, 50 have the competing event first, 10 of the remaining 50 the
+     target event — CIF = 0.10 (1 − CIF = 0.90), but the KM that censors competing events gives
+     0.80. Instead extract what the paper reports on the competing-risk scale — the CIF at a
+     pre-specified time with its CI, or the subdistribution HR (Fine-Gray) or cause-specific
+     HR — and pool like with like; never pool CIF-derived estimates with KM-based HRs. The
+     survival package's vignette "Multi-state models and competing risks"
+     (`vignette("compete", package = "survival")`): "A common mistake with competing risks is
+     to use the Kaplan-Meier separately on each event type while treating other event types as
+     censored."
 
 2. **Extract number-at-risk**: Record from the table below the KM plot at each time point.
 

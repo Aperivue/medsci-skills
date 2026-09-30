@@ -97,8 +97,10 @@ library(IPDfromKM)
 library(survival)
 
 # Digitised curves: two columns, time and SURVIVAL probability, one file per arm.
-# preprocess() expects survival; if the figure shows cumulative incidence,
-# convert first (surv = 1 - cum).
+# preprocess() expects survival. Convert a rising curve (surv = 1 - y) ONLY when the
+# paper confirms it is 1 - Kaplan-Meier (no competing events). A cumulative incidence
+# function under competing risks is not 1 - KM: do not reconstruct IPD or a Cox HR
+# from it -- see phase4_km_composite.md step 1.
 ctrl <- read.csv("digitised_control.csv")
 trt  <- read.csv("digitised_treatment.csv")
 
@@ -123,6 +125,11 @@ summary(survfit(Surv(time, status) ~ 1, data = ipd_ctrl), times = 24)
 ```
 
 Key pitfalls:
+- Competing risks: a CIF (Aalen-Johansen / Fine-Gray / "death as a competing risk") is not
+  1 − KM. With 50 of 100 patients having the competing event first and 10 of the remaining 50
+  the target event, CIF = 0.10 but the KM censoring competing events gives 0.80 survival, not
+  0.90. Extract the reported CIF at a fixed time or the subdistribution / cause-specific HR and
+  pool like with like (survival package vignette "Multi-state models and competing risks")
 - Never use `sum(status) / nrow(ipd)` as events/N: it ignores censoring and has no time
   horizon. A 2×2 table is valid only when every patient's status at the time point is known.
   Time-to-event outcomes are synthesised as HRs (Tierney et al. 2007, doi:10.1186/1745-6215-8-16)
