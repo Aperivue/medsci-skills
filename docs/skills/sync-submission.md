@@ -45,6 +45,8 @@
 
 - `bundle_workflow.md`
 - `journal_availability_policy.json`
+- `marked_manuscript.md`
+- `springer_em_packaging.md`
 
 **Scripts** (`skills/sync-submission/scripts/`):
 

@@ -100,13 +100,14 @@ Common tool mapping:
 | RCT | Cochrane RoB 2 |
 | Non-randomized comparative | Newcastle-Ottawa Scale (NOS) or ROBINS-I |
 | Single-arm / case series | JBI Critical Appraisal Checklist (select "Other") |
-| DTA | QUADAS-2 |
+| DTA | QUADAS-3 (QUADAS-2 for a legacy review) |
 | Prediction model | PROBAST |
 
 State number of assessors and disagreement resolution.
 
 #### 13. Reporting bias assessment
-For pooled proportion (k>=10): funnel plot + Egger's regression test.
+For pooled proportions: do not promise funnel-asymmetry or Egger/Begg tests — they are
+uninterpretable for proportions (see `single_arm_proportion_ma.md` §7).
 For comparative (k<10): funnel plot visual inspection only.
 Do NOT promise trim-and-fill or contour-enhanced funnel unless actually planned.
 
