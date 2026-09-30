@@ -673,8 +673,8 @@
     },
     {
       "path": "skills/check-reporting/SKILL.md",
-      "size": 42940,
-      "sha256": "7e4c0a30554f8f3cdfec03c1cb3fea5c336d4616891d4448930895d2cd1aff71"
+      "size": 30003,
+      "sha256": "9b6da4c1b4c65ae11af1c08eca226a7d67f7143053d12ad6d6e6bede4bc14047"
     },
     {
       "path": "skills/check-reporting/references/LICENSES.md",
@@ -948,8 +948,8 @@
     },
     {
       "path": "skills/check-reporting/references/report_templates.md",
-      "size": 5775,
-      "sha256": "60ef41961934dd32ca9eda4db139441a67519222c661fe7de8a97476fbab3648"
+      "size": 5731,
+      "sha256": "bc6699d862ae5a46621f5bcd44acb7260ae2b18cb5e41799929cfbdf1c87e754"
     },
     {
       "path": "skills/check-reporting/references/step4c_registration_timing.md",
@@ -958,8 +958,8 @@
     },
     {
       "path": "skills/check-reporting/references/step4d_prisma_figure_audit.md",
-      "size": 6704,
-      "sha256": "af74f1a128cc9c5485ea16dac73ca133a8391488fdc4a8e5416c8def19a32ce8"
+      "size": 6611,
+      "sha256": "ec20f18b92cb5ca4745926f43d2cb406c96a4a5efeb9053f3246d1afcb865af9"
     },
     {
       "path": "skills/check-reporting/scripts/check_checklist_exists.py",
