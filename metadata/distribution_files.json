@@ -2878,8 +2878,8 @@
     },
     {
       "path": "skills/meta-analysis/SKILL.md",
-      "size": 46940,
-      "sha256": "9d2d6aa9fa3294283e45e8fce13cbb328e891dff2a3dfebbaa80f31691da5680"
+      "size": 33987,
+      "sha256": "8e82fc466c96713408de8d9a2b4fef02020e7bed4789f4a3070343106b20aa70"
     },
     {
       "path": "skills/meta-analysis/references/LICENSES.md",
@@ -2888,8 +2888,8 @@
     },
     {
       "path": "skills/meta-analysis/references/PROSPERO_template.md",
-      "size": 8274,
-      "sha256": "91aa60a963c9695da01f8d13459acbc355fe4491d2bbc5427a3b338fcc2f1b1b"
+      "size": 8397,
+      "sha256": "59d6e4f2d38971ad7bb7963ef6d2acb24325abec218bb6f8c898e125e1b47b57"
     },
     {
       "path": "skills/meta-analysis/references/ai_pre_screening_template.py",
@@ -2963,8 +2963,8 @@
     },
     {
       "path": "skills/meta-analysis/references/phase4_extraction_detail.md",
-      "size": 11224,
-      "sha256": "d6888235230a53ecc829dd73ef48dfa561cb71467d794a2f6896b486d1787051"
+      "size": 11232,
+      "sha256": "c0984a1cf8343f7b4f8d3df1085a2df9ceacd8e067b643f9cf4e4131b4d2ac9a"
     },
     {
       "path": "skills/meta-analysis/references/phase4_km_composite.md",

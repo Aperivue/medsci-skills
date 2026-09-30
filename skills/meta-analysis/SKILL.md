@@ -8,55 +8,6 @@ model: inherit
 
 # Meta-Analysis Skill
 
-You are helping a medical researcher conduct a systematic review and meta-analysis.
-You support the full pipeline from protocol development to submission-ready manuscript,
-with specialized support for diagnostic test accuracy (DTA) meta-analyses.
-
-## Communication Rules
-
-- Communicate with the user in their preferred language.
-- All output documents, code, and checklists in English.
-- Medical terminology always in English.
-
-## Reference Files
-
-### Built-in References (`${CLAUDE_SKILL_DIR}/references/`)
-
-- **PROSPERO template**: `${CLAUDE_SKILL_DIR}/references/PROSPERO_template.md` -- field-by-field guide with word limits, pitfalls checklist
-- **ICMJE COI guide**: `${CLAUDE_SKILL_DIR}/references/icmje_coi_guide.md` -- batch generation, python-docx pitfalls, form structure
-- **R templates**: `${CLAUDE_SKILL_DIR}/references/r_templates.md`
-- **Checklists**: `${CLAUDE_SKILL_DIR}/references/checklists/`
-  - `PRISMA_DTA.md` -- 27-item checklist
-  - `QUADAS3.md` -- **current recommended DTA tool**: 6 phases, 4 domains, 20 signalling questions, assessed per accuracy estimate
-  - `QUADAS2.md` -- the 2011 tool: 4 domains + 10 signalling questions (use when appraising or reproducing a review that used it)
-  - `ROBINS_I.md` -- 7 domains + pre-assessment + synthesis recommendation
-  - `RoB2.md` -- 5 domains + signalling questions + overall judgment
-  - `PROBAST.md` -- 4 domains + AI extension + validation studies
-  - `NOS.md` -- Cohort (8 items) + Case-control (8 items) + star interpretation
-  - `JBI_Case_Series.md` -- 10-item critical appraisal checklist for case series
-- **Phase 9 Co-author Circulation**: `${CLAUDE_SKILL_DIR}/references/phase9_circulation.md` -- thread continuity, attachment scope, recipient structure, 7-day window
-- **Phase 10 Self-Audit Recovery**: `${CLAUDE_SKILL_DIR}/references/phase10_recovery.md` -- trigger conditions, 12-step rebuild sprint, PROSPERO amendment, re-circulation framing
-- **Data integrity checklist**: `${CLAUDE_SKILL_DIR}/references/data_integrity_checklist.md` -- DI-1~DI-9 extraction/synthesis guardrails (prior anonymized MA projects)
-- **Review orchestration**: `${CLAUDE_SKILL_DIR}/references/review_orchestration.md` -- RO-1~RO-5 circulation discipline (extends phase9_circulation.md)
-- **Submission package drift**: `${CLAUDE_SKILL_DIR}/references/submission_package_drift.md` -- multi-journal folder hygiene, `DO_NOT_EDIT_HERE` gate, `_build.sh` pattern
-- **Post-submission release ops**: `${CLAUDE_SKILL_DIR}/references/post_submission_release_ops.md` -- Zenodo DOI gating, tag-cleanup gates, reject-retarget versioning
-- **Empirical peer-review lessons**: `${CLAUDE_SKILL_DIR}/references/empirical_lessons.md` -- 16 accumulated SR-MA peer-review / submission lessons (2026-05/06) that drive the Phase 4 extraction-form schema, Phase 4c QC, and Phase 8 submission gates. Load before designing the extraction form and before submission.
-
-### Built-in Templates (`${CLAUDE_SKILL_DIR}/templates/`)
-
-- **Extraction Form v2** (`templates/extraction_form_v2.md`) -- dual-extractor schema with `source_page_ref`, `source_verbatim_quote`, `cohort_source`, `overlap_flag_reviewer1/2`, `sample_n_dta_pool` vs `sample_n_prognostic_pool` columns. Required for SR-MA targeting high-impact radiology / medical AI journals.
-- **Supplementary 8-file Checklist** (`templates/supplementary_8file_checklist.md`) -- S1-S8 mandatory package (PRISMA, PROSPERO, search strategy, exclusion list, extraction table, per-study x per-domain RoB, subgroup forests, sensitivity / publication bias) with a submission-gate bash check.
-
-### Built-in Scripts (`${CLAUDE_SKILL_DIR}/scripts/`)
-
-- **`screening_reconcile.py`** -- Phase 3f ID-set screening reconciliation.
-- **`check_pool_consistency.py`** -- pool-composition / PRISMA count consistency.
-- **`cohort_overlap_check.py`** -- shared-database cohort-overlap detection.
-- **`extract_assist.py`** -- Phase 4 AI-assisted extraction *suggestions* (page ref + verbatim quote, `AI_SUGGESTED`/`needs_review`); human-confirm then `dta_extraction_qc.py`. Challenge card: `scripts/extract_assist_challenge/`.
-- **`dta_extraction_qc.py`** -- 2x2 cell ↔ source sens/spec QC on the **confirmed** extraction CSV.
-
----
-
 ## Meta-Analysis Types
 
 | Type | RoB Tool | Statistical Model | Reporting Guideline |
@@ -66,7 +17,7 @@ with specialized support for diagnostic test accuracy (DTA) meta-analyses.
 | **Prognostic** (prediction model) | QUIPS / PROBAST | Random-effects | PRISMA 2020 |
 | **Observational** (prevalence/association) | NOS / JBI | Random-effects | MOOSE |
 
-Auto-detect type from the research question or accept user specification.
+If the type is ambiguous (DTA vs intervention), ask the user to clarify before proceeding.
 
 ---
 
@@ -76,119 +27,89 @@ Auto-detect type from the research question or accept user specification.
 
 **Goal**: Produce a PROSPERO-ready protocol document.
 
-1. **Structure the research question**:
-   - DTA: PIRD (Population, Index test, Reference standard, Diagnosis)
-   - Intervention: PICO (Population, Intervention, Comparator, Outcome)
+1. **Research question**: PIRD (Population, Index test, Reference standard, Diagnosis) for DTA;
+   PICO (Population, Intervention, Comparator, Outcome) for intervention.
 
-2. **DTA only — do QUADAS-3 phases 1 and 2 now, not at risk-of-bias time**:
-   QUADAS-3's first two phases are **review-level and belong in the protocol**:
-   phase 1 states the **synthesis question(s)** (population, index test(s), target
-   condition — a review may have more than one), and phase 2 defines the **ideal test
-   accuracy trial** for each: objective, participants, index test(s), definition of the
-   target condition, analysis. Every later risk-of-bias and applicability judgement is
-   made against that trial.
-   Write the review-specific guidance for answering each signalling question here too,
-   with clinical **and** methodological input, and publish it as a web appendix.
-   Defining the ideal trial after seeing the studies is not an assessment — it is a
-   judgement fitted to the results. See `references/checklists/QUADAS3.md`.
+2. **DTA only — do QUADAS-3 phases 1 and 2 now, not at risk-of-bias time.** They are
+   review-level and belong in the protocol: phase 1 states the **synthesis question(s)**
+   (population, index test(s), target condition — a review may have more than one); phase 2
+   defines the **ideal test accuracy trial** for each (objective, participants, index test(s),
+   definition of the target condition, analysis). Every later risk-of-bias and applicability
+   judgement is made against that trial. Write the review-specific guidance for answering each
+   signalling question here too, with clinical **and** methodological input, and publish it as a
+   web appendix. Defining the ideal trial after seeing the studies is a judgement fitted to the
+   results, not an assessment. See `references/checklists/QUADAS3.md`.
 
-3. **Define eligibility criteria**:
-   - Study design (cross-sectional DTA, cohort, RCT, etc.)
-   - Population characteristics
-   - Index test / intervention specifics
-   - Comparator / reference standard
-   - Outcome measures (Se/Sp for DTA; effect size for intervention)
-   - Exclusion criteria with justification
+3. **Eligibility criteria**: study design, population, index test / intervention, comparator /
+   reference standard, outcomes (Se/Sp for DTA; effect size for intervention), and exclusion
+   criteria with justification.
 
-4. **Plan the search**:
-   - Minimum 3 databases: PubMed, Embase, and Cochrane CENTRAL (add Scopus, Web of Science as needed)
-   - Draft Boolean search strategy using PIRD/PICO components
-   - Grey literature plan (conference abstracts, trial registries)
-   - Language restrictions (state explicitly)
-   - Date range with justification
+4. **Search plan**: at least 3 databases — PubMed, Embase, and Cochrane CENTRAL (add Scopus / Web
+   of Science as needed); a Boolean strategy from the PIRD/PICO components; a grey-literature plan
+   (conference abstracts, trial registries); language restrictions and date range stated
+   explicitly, with justification.
 
-5. **Plan RoB assessment**:
-   - Select tool based on type (see table above)
-   - State number of independent assessors (minimum 2)
-   - Plan for disagreement resolution (consensus, third reviewer)
+5. **RoB plan**: tool by type (table above), at least 2 independent assessors, and the
+   disagreement-resolution method (consensus, third reviewer).
 
-6. **Plan synthesis**:
-   - DTA: bivariate random-effects model (Reitsma) or HSROC (Rutter & Gatsonis)
-   - Intervention: random-effects (DerSimonian-Laird or REML)
-   - Heterogeneity assessment plan
-   - Subgroup / sensitivity analysis plan
-   - Publication bias assessment plan
+6. **Synthesis plan**: bivariate random-effects (Reitsma) or HSROC (Rutter & Gatsonis) for DTA;
+   random-effects for intervention (Phase 6); heterogeneity, subgroup / sensitivity, and
+   publication-bias plans.
 
-7. **Generate PROSPERO registration document**:
-   - Read `${CLAUDE_SKILL_DIR}/references/PROSPERO_template.md` for field-by-field guidance
-   - Generate all fields with word counts (stay within limits per field)
-   - Structure: title, review question, PICO, searches, data collection, outcomes, synthesis, subgroups, stage, affiliation
-   - **Registration-ID format gate.** A PROSPERO ID is `CRD42` + 9 digits (14 characters total), e.g. `CRD42024500001`. Validate any ID that appears in the manuscript or registration doc with `grep -oE 'CRD42[0-9]+'` and assert a 14-character length / `^CRD42\d{9}$` — a 15-character ID (a stray digit) is a transcription error a reviewer will check against the live record.
-   - **Review-type selection.** Pick the *least-wrong* portal review type for the actual design and state any portal constraint in the protocol. A descriptive single-arm proportion synthesis is not an "Intervention review"; choosing "Intervention review" only to satisfy a portal field contradicts a later GRADE / effect-certainty statement. Whatever certainty language the protocol commits to (GRADE vs "evidence statements only") must match the manuscript verbatim — a guideline-style "we recommend" is not licensed by a descriptive review type.
-   - For mixed designs (comparative + single-arm): explicitly address comparator for both arms
-   - For RoB: map tool to study design (NOS for comparative, JBI for case series → select "Other" in form)
-   - Output: Markdown + DOCX (via pandoc) for copy-paste into PROSPERO web form
-   - Append Common Pitfalls Checklist (HTML entities, word limits, stage constraint)
-   - Save to project `7_Submission/` or equivalent directory
+7. **PROSPERO registration document**: read `${CLAUDE_SKILL_DIR}/references/PROSPERO_template.md`
+   and follow its field guide, word limits, output format (Markdown + DOCX via pandoc), and Common
+   Pitfalls Checklist. Save to the project's `7_Submission/` or equivalent directory.
+   - **Registration-ID format gate.** A PROSPERO ID is `CRD42` + 9 digits (14 characters total),
+     e.g. `CRD42024500001`. Validate any ID that appears in the manuscript or registration doc with
+     `grep -oE 'CRD42[0-9]+'` and assert a 14-character length / `^CRD42\d{9}$` — a 15-character ID
+     (a stray digit) is a transcription error a reviewer will check against the live record.
+   - **Review-type selection.** Pick the *least-wrong* portal review type for the actual design and
+     state any portal constraint in the protocol. A descriptive single-arm proportion synthesis is
+     not an "Intervention review"; choosing that type only to satisfy a portal field contradicts a
+     later GRADE / effect-certainty statement. Whatever certainty language the protocol commits to
+     (GRADE vs "evidence statements only") must match the manuscript verbatim — a guideline-style
+     "we recommend" is not licensed by a descriptive review type.
 
 ### Phase 2: Search Strategy
 
 **Goal**: Develop and validate reproducible search strategies.
 
-1. **Build search blocks** from PIRD/PICO:
-   - Population block (MeSH + free text)
-   - Index test / Intervention block
-   - Comparator / Reference standard block (optional)
-   - Study design filter (if applicable)
-
-2. **Combine with Boolean operators**:
-   - Within blocks: OR
-   - Between blocks: AND
-
-3. **Execute search per database** using `/search-lit`:
-   - PubMed: MeSH + free text
-   - Embase: Emtree + free text
-   - Additional databases as specified in protocol
-
-4. **Report search per PRISMA-S** (Rethlefsen et al. 2021, PMID:33499930):
-   Save search strategies as a structured document, one section per database,
-   with date of search, number of results, and any limits applied.
-
-5. **Merge and deduplicate**: Combine all database results into a single spreadsheet.
-   Deduplicate by DOI first, then PMID. Save raw counts for PRISMA flow.
+1. Build search blocks from the PIRD/PICO components and execute them per database with
+   `/search-lit` (PubMed: MeSH + free text; Embase: Emtree + free text; further databases as the
+   protocol specifies).
+2. **Report per PRISMA-S** (Rethlefsen et al. 2021, PMID:33499930): one section per database with
+   date of search, number of results, and any limits applied.
+3. **Merge and deduplicate** into a single spreadsheet: by DOI first, then PMID. Save raw counts
+   for the PRISMA flow.
 
 ### Phase 3: Screening & Selection
 
-**Goal**: Systematic title/abstract and full-text screening with two independent reviewers.
+**Goal**: Systematic title/abstract and full-text screening with two independent reviewers. Read
+`references/phase3_screening_detail.md` when executing a round (exclusion-code sets, AI pre-screening
+template and Methods boilerplate) or when a 3f/3f.5 gate fires (set algebra, reconciliation table).
 
-**3a. Round 1 — initial title/abstract screening (single reviewer).** Define the exclusion codes
-from the protocol (E1=Not target population, E2=Not intervention, E3=Ineligible type, E4=Non-human,
-E5=Duplicate). Mark every record INCLUDE / EXCLUDE / MAYBE with a reason code → `round1_{date}.tsv`.
+**3a. Round 1 — title/abstract (single reviewer).** Define the exclusion codes from the protocol.
+Mark every record INCLUDE / EXCLUDE / MAYBE with a reason code → `round1_{date}.tsv`.
 
-**3b. Round 2 — dual independent title/abstract screening.** A second independent reviewer (or AI
-as a *documented* second-pass tool with human verification) re-screens all R1 records. Compute
-Cohen's κ and report it in Methods. `round2_tag` = INCLUDE / EXCLUDE / MAYBE, where MAYBE means
-disagreement **or** either reviewer flagged uncertainty → `round2_tag`, `round2_reason` columns.
+**3b. Round 2 — dual independent title/abstract.** A second independent reviewer (or AI as a
+*documented* second-pass tool with human verification) re-screens all R1 records. Report Cohen's κ
+in Methods. `round2_tag` = INCLUDE / EXCLUDE / MAYBE (MAYBE = disagreement **or** either reviewer
+flagged uncertainty), plus `round2_reason`.
 
-**3c. Round 3 — adjudication of disagreements (first reviewer).** Build the R3 sheet with all MAYBE
-records first, then INCLUDE records for a brief confirmation pass. The first reviewer independently
-adjudicates each row (`round3_decision`, plus `round3_reason` only when overturning R2). Optional
-AI-assisted pre-screening can compress the effort — but **AI suggestions are not decisions**: the
-reviewer independently confirms or overturns every one. Template, sort priority, and the required
-Methods boilerplate are in the reference file.
+**3c. Round 3 — adjudication (first reviewer).** MAYBE records first, then INCLUDE records for a
+brief confirmation pass → `round3_decision` (plus `round3_reason` only when overturning R2).
+Optional AI pre-screening may compress the effort, but **AI suggestions are not decisions**: the
+reviewer independently confirms or overturns every one.
 
-**3d. Round 4 — full-text screening.** Retrieve full texts for `round3_decision = INCLUDE` (use
-`/fulltext-retrieval`), apply the full-text exclusion codes (F1=No extractable outcome, F2=No
-comparative data, F3=Cannot separate target population, F4=Inadequate sample/follow-up,
-F5=Full-text unavailable), with two independent reviewers, Cohen's κ, and consensus or a third
-reviewer for disagreements. Flag comparative studies for priority extraction.
+**3d. Round 4 — full text** (`/fulltext-retrieval`) for `round3_decision = INCLUDE`: full-text
+exclusion codes, two independent reviewers, Cohen's κ, consensus or a third reviewer. Flag
+comparative studies for priority extraction.
 
-**3e. PRISMA flow.** Track counts at every stage (R1 → R2 → R3 → R4 → final included); generate the
-diagram with `/make-figures` once the numbers are final.
+**3e. PRISMA flow.** Track counts at every stage (R1 → R2 → R3 → R4 → final included); draw it with
+`/make-figures` once final.
 
-**3f. Post-consensus count reconciliation gate (MANDATORY before Phase 5 write-up).** Reconcile the
-counts from the **raw ID sets, never from prose summaries**, and record the canonical totals in one
-source-of-truth file:
+**3f. Post-consensus count reconciliation gate (MANDATORY before Phase 5 write-up).** Reconcile
+counts from the **raw ID sets, never from prose summaries**, into one source-of-truth file:
 
 ```bash
 python "${CLAUDE_SKILL_DIR}/scripts/screening_reconcile.py" \
@@ -208,11 +129,21 @@ document remains the human explanation. Three hard rules:
    the Phase 5 hand-off.
 3. **`STAGE_TRANSFER_LOSS` is a P0.** Exit 1 when a record is included at screening but **absent
    from the consensus artifact altogether** — no adjudication was ever recorded. An exclusion is a
-   decision; silence is a gap. Never let it settle into narrative-only (why: reference file).
+   decision; silence is a gap. Never let it settle into narrative-only.
 
-The set algebra, the reconciliation-table template, and the failure pattern it exists for (a
-manuscript ships counts the ID sets do not support, with every downstream artifact echoing the same
-unreconciled prose total) are in the reference file.
+Two more gates at 3f; a non-zero exit from either blocks the Phase 5 write-up:
+
+```bash
+# every applied exclusion code vs the *registered* eligibility criteria
+python3 ${CLAUDE_SKILL_DIR}/scripts/check_exclusion_code_validity.py --protocol 0_Protocol/protocol.md --screening 2_Screening/*.tsv --strict
+# DI-6: PRISMA numbers on 5 surfaces (abstract/main text/flow figure/supplement/CSV) vs YAML SSOT;
+# re-run on every revision that touches PRISMA numbers
+python3 ${CLAUDE_SKILL_DIR}/scripts/prisma_5way_consistency.py --ssot prisma.yaml
+```
+
+Exclusion-code verdicts: `CODE_CONTRADICTS_ELIGIBILITY` (a code excludes a design the protocol
+includes — bulk study loss no arithmetic or inter-rater gate can see), `CODE_NOT_REGISTERED`
+(off-protocol code), `CODE_RENUMBERED` (same code, two meanings).
 
 **3f.5 Pool composition lock (MANDATORY at adjudication freeze).** Once 3f passes, freeze the pool
 into a single source-of-truth YAML that every downstream artifact can be checked against:
@@ -232,14 +163,12 @@ cp "${CLAUDE_SKILL_DIR}/templates/FINAL_POOL_LOCK.yaml.template" 2_Data/FINAL_PO
 - A late post-freeze change to the pool is a **formal PROSPERO amendment**: file it, re-freeze as
   `FINAL_POOL_LOCK_v2.yaml`, and propagate to every artifact.
 
-**Read on demand:**
-
-| File | Read it when | Cost if read blindly |
-|---|---|---|
-| `references/phase3_screening_detail.md` | you are executing a screening round, using AI pre-screening, or a reconciliation/lock gate fired | ~3,600 tokens; the round procedures are needed one round at a time, not all at invocation |
 ### Phase 4: Data Extraction
 
-**Goal**: Create standardized extraction forms and extract 2x2 or effect-size data.
+**Goal**: Create standardized extraction forms and extract 2x2 or effect-size data. Read
+`references/phase4_extraction_detail.md` when building the form (DTA / intervention field lists),
+when an AI draft was shared, for the optional `extract_assist.py` suggestions (`AI_SUGGESTED`, a
+human confirms each before `dta_extraction_qc.py`), or when a QC flag fires.
 
 **4.0 Entry gate (MANDATORY) — pool composition lock ↔ adjudication TSV.** Before any extraction
 work begins, confirm the round-3 adjudication TSV and `FINAL_POOL_LOCK.yaml` (Phase 3f.5) agree on
@@ -259,21 +188,25 @@ with the corrected UID set (and propagating downstream) or by correcting a mis-l
 NOT proceed with a mismatch — the extraction matrix will not align with the locked pool, and the
 drift surfaces as a fabrication-grade red flag at peer review.
 
+```bash
+# before the first extraction row (DI-1): comparative arm rows never live in R-script comments
+python3 ${CLAUDE_SKILL_DIR}/scripts/extraction_consensus_log_init.py --output 2_Data/extraction_consensus_log.md
+```
+
 > **Failure-mode cross-ref** → `references/data_integrity_checklist.md` DI-1~DI-5 are mandatory
 > during extraction (2x2 arm-swap, KM audit trail, methodology mismatch, PRISMA 5-way drift,
 > single-source k).
 
-**Extraction form.** For an SR-MA targeting high-impact radiology / medical AI journals use
-`${CLAUDE_SKILL_DIR}/templates/extraction_form_v2.md` — its dual-extractor, source-page-reference,
-and verbatim-quote columns are what close the 2x2 cell-swap and cohort-overlap blind spots. The
-DTA and intervention field lists are in the reference file.
+**Extraction form.** Read `${CLAUDE_SKILL_DIR}/references/empirical_lessons.md` before designing
+it. For high-impact radiology / medical AI targets use
+`${CLAUDE_SKILL_DIR}/templates/extraction_form_v2.md`: its dual-extractor, source-page-reference,
+and verbatim-quote columns close the 2x2 cell-swap and cohort-overlap blind spots.
 
 **AI-drafted starting document — treat as hallucination-suspect.** If a mentor or collaborator
 shared an AI-drafted study list, 2x2 set, or effect estimates (*even* flagged "for reference
 only"): save it with a `_DO_NOT_USE_VERBATIM` suffix and re-verify **every** N, denominator, event
 count, OR/CI, and author/year against the source PDF. Trust hierarchy: **source PDF + own analysis
 stdout > the mentor's direct text > the attached AI draft** — never promote a draft up that ladder.
-Procedure and precedent: reference file.
 
 **4b. Special cases (KM reconstruction, composite exposure).** When studies report outcomes only as
 Kaplan-Meier curves, or the intervention is a composite of techniques, load
@@ -286,7 +219,9 @@ decision tree. Pre-specify a sensitivity analysis excluding composite-exposure s
 differ across outcomes within one study**, so for each outcome back-calculate `event ÷ denominator`
 and confirm it reproduces the paper's reported percentage. Distinguish KM-curve estimates from raw
 event counts and record the data source (Table / KM / text). Log every consensus decision in
-`{project}/consensus_log.md`, then **lock the dataset**; later changes need a dated justification.
+`2_Data/extraction_consensus_log.md`, then **lock the dataset**; later changes need a dated
+justification. If 2x2 cells are missing, suggest contacting the authors or a sensitivity analysis
+with imputed values.
 
 **4c. Extraction QC & cohort overlap.** After dual-extractor consensus, run both before locking:
 
@@ -306,14 +241,8 @@ Any `FLAG_SWAP` / `FLAG_MISMATCH` requires third-reviewer adjudication before Ph
 confirmed flag is not resolved until the extraction form itself is edited** — a flag corrected only
 in a review note silently re-enters synthesis, so re-run the QC and confirm zero open flags before
 locking. HIGH-confidence overlap pairs require a Limitations acknowledgment plus a sensitivity
-analysis excluding one of the pair. Cross-links: `/peer-review` Phase 2A P1 + P2.
+analysis excluding one of the pair.
 
-**Read on demand:**
-
-| File | Read it when | Cost if read blindly |
-|---|---|---|
-| `references/phase4_extraction_detail.md` | building the extraction form, an AI draft was shared, you want the optional `extract_assist.py` scaffolding, or a QC flag fired | ~4,700 tokens; a clean dual-extraction with no AI draft needs none of it |
-| `references/phase4_km_composite.md` | studies report only KM curves, or the exposure is composite | ~2,200 tokens |
 ### Phase 5: Risk of Bias Assessment
 
 **Goal**: Guide structured RoB assessment with the appropriate tool.
@@ -323,7 +252,7 @@ assess, assess, overall judgement). Phases 1–2 — the synthesis question and 
 accuracy trial — were written in Phase 1 above. If they were not, stop and write them before
 judging anything; they are the comparator every judgement is made against.
 
-Select tool based on meta-analysis type (see table above), then read the corresponding checklist:
+Select the tool by meta-analysis type (see table above), then read its checklist:
 
 | Tool | Checklist File |
 |------|---------------|
@@ -345,8 +274,10 @@ For AI/ML prediction models, also apply PROBAST+AI extensions.
 
 > **Failure-mode cross-ref** → `references/data_integrity_checklist.md` DI-6/DI-7/DI-9 are the consistency gate (CSV ↔ script ↔ prose; single-source k; 3-way numeric reconciliation before Stage 4).
 
-**IMPORTANT**: Always use R for meta-analysis (packages: `meta`, `metafor`, `mada`).
-See `${CLAUDE_SKILL_DIR}/references/r_templates.md` for full code templates.
+**Always use R** (packages: `meta`, `metafor`, `mada`); every reported estimate, CI, p-value, and
+sample size comes from executed code output (Phase 6b audits this). Never guess dataset column names
+or codings — if a mapping is uncertain, output `[VERIFY: variable_name]` and ask the user to confirm
+against the data dictionary.
 
 | Analysis family | Primary tool | Key output |
 |-----------------|-------------|-----------|
@@ -354,10 +285,12 @@ See `${CLAUDE_SKILL_DIR}/references/r_templates.md` for full code templates.
 | Intervention | `meta::metagen()` / `meta::metabin()` | Pooled OR/RR, I², Egger's test, leave-one-out |
 | Dual (comparative + single-arm) | `metabin` + `metaprop` | PRIMARY vs SECONDARY per pre-specified protocol |
 
-**Load-on-demand**: Read `${CLAUDE_SKILL_DIR}/references/phase6_statistical_synthesis.md`
-for the full R code templates, the dual-approach decision table (comparative vs
-single-arm), practical cautions (method.tau, HK CI, zero-cell correction),
-publication-bias test power, sensitivity-analysis menu, and error-handling rules.
+Read `${CLAUDE_SKILL_DIR}/references/phase6_statistical_synthesis.md` before running the pooled
+analysis — full R code templates (companion: `${CLAUDE_SKILL_DIR}/references/r_templates.md`), the
+dual-approach decision table (comparative vs single-arm), practical cautions (method.tau, HK CI,
+zero-cell correction), publication-bias test power, the sensitivity-analysis menu, and
+error-handling rules. Write the pooled estimates, heterogeneity statistics, and k for each analysis,
+taken from the executed R output, to `analysis/meta_analysis_outputs.json`.
 
 **Three checks before the pool is written up** — each is a Methods sentence, not only a
 setting. R and detail in the same reference:
@@ -378,100 +311,75 @@ setting. R and detail in the same reference:
 
 **Goal**: Catch numerical hallucinations that survived the forward pipeline (CSV → .R → manuscript).
 
-**The failure pattern** — treat this as a lived near-miss, not hypothetical:
-> A safety outcome is reported with its arm-level events, and therefore its p-value,
-> direction-reversed relative to what the primary-source Table actually recorded.
-> The extraction CSV is correct; the R script's Fisher exact
-> `matrix()` was hand-typed after a column in the source Table was misread. Internal
-> consistency checks passed because every downstream artifact (Abstract, Discussion,
-> Table, forest caption) echoed the same wrong number. The reversal was caught only on
-> a second-pass audit with random extraction sampling against the primary paper.
+**When it runs:** every time Phase 6 outputs change (first draft, revision, reviewer-requested
+re-analysis) — including "minor" re-runs. The precedent: in a minor revision-era re-analysis, a
+safety outcome's arm-level events (and so its p-value) were reported direction-reversed because a
+Fisher `matrix()` was hand-typed from a misread source Table while the extraction CSV was correct.
+Every downstream artifact echoed the wrong number, so internal consistency checks passed; only a
+random back-check against the primary paper caught it.
 
 **Non-negotiable rules:**
 
-1. **No hand-typed numerical matrices when a CSV exists.**
-   - Use `read.csv(...)` + subset / filter. Never copy a 2x2 table from a paper's Table into
-     `matrix(c(...), ...)` by eye.
-   - If hand entry is truly unavoidable (e.g., text-only extraction), the `matrix`, `c()`, or
-     `data.frame` line MUST carry a comment citing the exact CSV row + column OR the exact
-     primary-source Table/Page coordinate. Example:
-     ```r
-     # source: data_extraction_final.csv row <N> (<first-author> <year>), cols <event_arm1>=0, <event_arm2>=1
-     # verified against primary source Table <X>, page <P>
-     fisher.test(matrix(c(0, 45, 1, 55), nrow = 2, byrow = FALSE))
-     ```
+1. **No hand-typed numerical matrices when a CSV exists.** Use `read.csv(...)` + subset / filter;
+   never copy a 2x2 table from a paper into `matrix(c(...), ...)` by eye. If hand entry is truly
+   unavoidable (e.g., text-only extraction), the `matrix`, `c()`, or `data.frame` line MUST carry a
+   comment citing the exact CSV row + column OR the exact primary-source Table/Page coordinate:
+   ```r
+   # source: data_extraction_final.csv row <N> (<first-author> <year>), cols <event_arm1>=0, <event_arm2>=1
+   # verified against primary source Table <X>, page <P>
+   fisher.test(matrix(c(0, 45, 1, 55), nrow = 2, byrow = FALSE))
+   ```
 
-2. **Comparative-arm subsets are a separate consensus-log row.**
-   - When one study's arm-specific values (e.g., one arm of a multi-arm study) are used in a
-     comparative analysis while the full cohort of that study appears elsewhere,
-     `extraction_consensus_log.md` must carry an explicit row for the arm-specific values.
-     Pooled totals and arm-specific values MUST NOT share a row.
+2. **Comparative-arm subsets are a separate consensus-log row.** When one study's arm-specific
+   values are used in a comparative analysis while its full cohort appears elsewhere,
+   `extraction_consensus_log.md` must carry an explicit row for the arm-specific values. Pooled
+   totals and arm-specific values MUST NOT share a row.
 
-3. **Random 3-claim back-check before closing Phase 6.**
-   - After the forest/funnel/subgroup outputs stabilize, randomly sample 3 numerical claims
-     from the Results section of the draft manuscript and trace each back to (a) the R output
-     log and (b) the original paper's Table/Figure.
-   - Record the back-check as a small table in `peer_review_<vN>_internal.md`:
+3. **Random 3-claim back-check before closing Phase 6.** After the forest/funnel/subgroup outputs
+   stabilize, randomly sample 3 numerical claims from the draft Results and trace each back to (a)
+   the R output log and (b) the original paper's Table/Figure. Record it in
+   `peer_review_<vN>_internal.md`:
 
-     | Claim (manuscript line) | R output file:line | Primary source (paper, Table/Fig, page) | Match? |
-     |---|---|---|---|
+   | Claim (manuscript line) | R output file:line | Primary source (paper, Table/Fig, page) | Match? |
+   |---|---|---|---|
 
-   - A single mismatch is a P0 blocker — do not advance to Phase 7 until resolved.
+   A single mismatch is a P0 blocker — do not advance to Phase 7 until resolved.
 
-4. **Revision-introduced numbers must be tagged.**
-   - Any new number added after v1 — including numbers produced by a new comparative / subgroup /
-     sensitivity script — MUST be wrapped inline as `[VERIFY-CSV]` in the manuscript until the
-     Phase 2.5a audit in `/self-review` clears it.
+4. **Revision-introduced numbers must be tagged.** Any new number added after v1 — including
+   numbers from a new comparative / subgroup / sensitivity script — MUST be wrapped inline as
+   `[VERIFY-CSV]` in the manuscript until the Phase 2.5a audit in `/self-review` clears it.
 
-5. **Sensitivity analyses must be recomputed on the modified data, not copied.**
-   - When you add a sensitivity / leave-one-out / erosion / alternative-model analysis, every
-     reported effect size (Cohen's dz/f, AUC, OR, HR, β, sens/spec, ICC) MUST be re-derived from
-     the modified dataset. If a sensitivity-table effect size is **identical to the primary
-     analysis to two decimals across ≥4 values**, the recomputation almost certainly did not run
-     and the primary values were transcribed — re-run the script on the modified data.
-   - The underlying means/SDs/counts will change even when the effect size looks similar; if the
-     effect sizes are byte-identical while the inputs differ, that is the tell. Probability of ≥4
-     independent values coinciding to 2 decimals by chance is ≈ (0.01)^4 — essentially zero.
-   - The failure it catches: a sensitivity analysis reports a block of effect-size values
-     byte-identical to the primary tables while the underlying means/SDs differ — the
-     sensitivity analysis was never actually recomputed. Internal consistency cannot see it.
+5. **Sensitivity analyses must be recomputed on the modified data, not copied.** Every reported
+   effect size in a sensitivity / leave-one-out / erosion / alternative-model analysis (Cohen's
+   dz/f, AUC, OR, HR, β, sens/spec, ICC) MUST be re-derived from the modified dataset. If a
+   sensitivity-table effect size is **identical to the primary analysis to two decimals across ≥4
+   values** while the underlying means/SDs/counts differ, the recomputation did not run (chance
+   coincidence ≈ (0.01)^4) and the primary values were transcribed — re-run the script on the
+   modified data.
 
-6. **A "fixed" / "resolved" audit note requires re-run evidence, not a claim.**
-   - When a prior audit note records a number as `fixed`, `resolved`, or `corrected`, that status is
-     only valid if it carries the re-run evidence: a timestamp and the relevant stdout / output-file
-     line showing the corrected value, or the commit that changed it. A bare "fixed in v10" with no
-     re-run artifact does NOT clear the finding — re-run the script and attach the output.
-   - The forward pipeline can echo a stale value through every artifact while an audit note claims it
-     was fixed (e.g., a major-comparison N still reading the old total after a "fixed" note). The
-     outcome-denominator cross-check (`/self-review` Phase 2.5b, the cohort-arithmetic / pool-lock
-     assertions) must pass against the *current* outputs before any "fixed" status is accepted.
-
-**When this phase triggers:** every time Phase 6 outputs change (first draft, revision, reviewer-
-requested re-analysis). Not optional on "minor" re-runs — the precedent reversal above
-occurred inside a "minor" revision-era re-analysis.
+6. **A "fixed" / "resolved" audit note requires re-run evidence, not a claim.** A number recorded
+   as `fixed`, `resolved`, or `corrected` counts only with a timestamp and the stdout / output-file
+   line showing the corrected value, or the commit that changed it. A bare "fixed in v10" does NOT
+   clear the finding — re-run the script and attach the output. The outcome-denominator
+   cross-check (`/self-review` Phase 2.5b, the cohort-arithmetic / pool-lock assertions) must pass
+   against the *current* outputs before any "fixed" status is accepted.
 
 ### Phase 7: GRADE / Certainty of Evidence
 
 **Goal**: Assess certainty of the body of evidence.
 
-For DTA meta-analysis, apply GRADE-DTA framework:
-1. Risk of bias (from QUADAS-3, or QUADAS-2 for a legacy review)
-2. Indirectness (applicability concerns)
-3. Inconsistency (heterogeneity)
-4. Imprecision (wide CIs, small sample)
-5. Publication bias
+DTA: GRADE-DTA — risk of bias (from QUADAS-3, or QUADAS-2 for a legacy review), indirectness
+(applicability concerns), inconsistency (heterogeneity), imprecision (wide CIs, small sample),
+publication bias. Intervention: standard GRADE.
 
-For intervention meta-analysis, apply standard GRADE.
+**Certainty is assessed per outcome, not once for the review.** The domains resolve differently
+for each outcome — one pooled from 12 studies with narrow CIs and one pooled from 3 with a wide CI
+do not share a rating, and a single review-level "moderate certainty" sentence tells a reader
+nothing about the outcome they came for. Rate every outcome carried into the Summary of Findings
+table, and state the reason for each downgrade (which domain, why), not only the resulting label.
 
-**Certainty is assessed per outcome, not once for the review.** The five domains resolve
-differently for each outcome — an outcome pooled from 12 studies with narrow CIs and one
-pooled from 3 with a wide CI do not share a rating, and a single review-level "moderate
-certainty" sentence tells a reader nothing about the outcome they came for. Rate every
-outcome carried into the Summary of Findings table, and state the reason for each
-downgrade (which domain, why) rather than the resulting label alone.
-
-Output: Summary of Findings table — one row per outcome, carrying the pooled estimate
-with its precision alongside the certainty rating (high / moderate / low / very low).
+Output: Summary of Findings table — one row per outcome, carrying the pooled estimate with its
+precision alongside the certainty rating (high / moderate / low / very low).
 
 ### Phase 8: Reporting & Manuscript
 
@@ -479,27 +387,24 @@ with its precision alongside the certainty rating (high / moderate / low / very 
 
 > **Failure-mode cross-ref** → `references/submission_package_drift.md` — apply the `_build.sh` pattern + `DO_NOT_EDIT_HERE` gate when staging multi-journal submission folders.
 
-1. **Check reporting compliance**: Use `/check-reporting` with PRISMA-DTA or PRISMA 2020, then
-   run it a second time over the **abstract** with PRISMA 2020 for Abstracts — 12 items, its own
-   denominator. One run does not cover both.
-2. **Write manuscript**: Use `/write-paper` with meta-analysis type selected
-3. **Figures**: Use `/make-figures` for:
-   - PRISMA flow diagram
-   - Forest plots (paired for DTA)
-   - SROC curve (DTA)
-   - Funnel plot
-   - RoB summary (traffic light plot)
-4. **Tables**:
-   - Characteristics of included studies
-   - 2x2 data per study (DTA)
-   - RoB assessment results
-   - Summary of findings / GRADE table (one row per outcome — Phase 7)
+Re-read `references/empirical_lessons.md` before submission.
 
-5. **The items published radiology SR/MA most often drop.** Park 2022 (Korean J Radiol;
-   PMID:35213097) scored 24 SR/MAs against PRISMA 2020 and found 24 of 42 items reported
-   by fewer than 80%. The checklist itself lives in `/check-reporting`; what follows is
-   where drafts actually fail, so check these by hand before the compliance run rather
-   than after it:
+1. **Check reporting compliance**: `/check-reporting` with PRISMA-DTA (bundled copy:
+   `references/checklists/PRISMA_DTA.md`) or PRISMA 2020, then a **second, separate** run over the
+   **abstract** with PRISMA 2020 for Abstracts (`PRISMA_2020_Abstracts.md`, 12 items, its own
+   denominator). Report that score separately: item 2 of the main checklist only defers to it, so a
+   manuscript can satisfy all 42 main-text items and still fail most of the twelve, and folding
+   them into one total is how they stay invisible.
+2. **Write the manuscript**: `/write-paper` with the meta-analysis type → `manuscript/manuscript.md`.
+   Never generate references from memory; use `/search-lit` for all citations.
+3. **Figures** (`/make-figures`): PRISMA flow diagram, forest plots (paired for DTA), SROC curve
+   (DTA), funnel plot (Deeks' for DTA — see DTA pitfalls), RoB summary (traffic light plot).
+4. **Tables**: characteristics of included studies; 2x2 data per study (DTA); RoB assessment
+   results; Summary of findings / GRADE table (one row per outcome — Phase 7).
+
+5. **The items published radiology SR/MAs most often drop** — check these by hand before the
+   compliance run. Park 2022 (Korean J Radiol; PMID:35213097) scored 24 SR/MAs against PRISMA
+   2020 and found 24 of 42 items reported by fewer than 80%:
 
    | PRISMA item | What is missing | Observed |
    |---|---|---|
@@ -513,37 +418,47 @@ with its precision alongside the certainty rating (high / moderate / low / very 
    | **16b** | Studies that look eligible but were excluded, cited individually with the reason | 25% |
    | Abstract **#3, #12** | Eligibility criteria and registration inside the structured abstract | 0/24 each |
 
-   The abstract items are the cheapest of these and the most reliably forgotten. PRISMA 2020
-   devotes a **separate 12-item instrument** to the abstract — item 2 of the main checklist does
-   nothing but defer to it — so a manuscript can satisfy all 42 main-text items and still fail
-   most of the twelve. `/check-reporting` carries it as `PRISMA_2020_Abstracts.md`; run it as its
-   own pass and report its score separately, because folding twelve items into a 42-item total is
-   how they stay invisible.
+   If the PROSPERO ID is missing, flag it as a limitation but continue.
 
-6. **Data availability statement**: name what is being shared (extraction template,
-   locked dataset, analysis code, RoB judgments) and where — repository, DOI, or
-   supplementary file. "Available from the corresponding author on reasonable request"
-   satisfies few journals now and no longer satisfies item 27. If a Zenodo DOI is minted
-   post-acceptance, `references/post_submission_release_ops.md` covers propagating it
-   back into this statement.
+6. **Data availability statement**: name what is being shared (extraction template, locked
+   dataset, analysis code, RoB judgments) and where — repository, DOI, or supplementary file.
+   "Available from the corresponding author on reasonable request" satisfies few journals now and
+   no longer satisfies item 27. If a Zenodo DOI is minted post-acceptance,
+   `references/post_submission_release_ops.md` covers propagating it back into this statement.
 
-7. **Supplementary & analysis-code pre-submission gate** (run before Phase 9 circulation and before portal upload). Presence of the 8-file package (Empirical Lesson 5) is necessary but not sufficient — each item must also be reviewer-ready:
-   - **De-scaffold**: strip internal-QC / tool artifacts before bundling — raw `/check-reporting` output ("Assessed by: <tool>", JSON blocks, "READY FOR SUBMISSION" verdicts, action-item lists), search-development planning docs (decision logs, expected-yield estimates, `[Check on execution]` placeholders, version-history dev notes), and stale version stamps. Ship a clean PRISMA 2020 checklist (27-item / 42-subitem table only) and an executed-method search-strategy doc, not the working drafts.
-   - **Blind**: supplementary goes to reviewers — remove author names/initials and sibling-project cross-references ("Designed by: <name>", "identical to a sibling review"). Same standard as the blinded manuscript.
-   - **Cross-consistency with the manuscript**: every supplementary number must match the main text — PRISMA counts, pool k/N, the Cochrane/CENTRAL search description, RoB counts. A supplement that says "Cochrane — NOT SEARCHED" while Methods report a confirmatory CENTRAL search is a contradiction reviewers catch.
-   - **Submitted analysis code must reproduce and be self-contained**: run it from a clean copy of the bundle. It must (a) read the bundled locked dataset (not an out-of-bundle path) and write to the working directory, and (b) regenerate every pool reported in the results table. A hard-coded study-id subset that drifts from the manuscript (e.g., a pool computed over k=7 while the manuscript reports k=9) is a P0 — fix and re-run; never ship stale code or stale figures derived from it.
-   - **Run a supplementary-only review pass** — the manuscript self-review/panel does not see the supplement; mirror `/self-review` Phase 2.5c–2.5d (reference + cross-reference QC) over the supplementary files.
+7. **Supplementary & analysis-code pre-submission gate** (before Phase 9 circulation and before
+   portal upload). Presence of the 8-file package (Empirical Lesson 5) is necessary but not
+   sufficient — each item must also be reviewer-ready:
+   - **De-scaffold**: strip internal-QC / tool artifacts — raw `/check-reporting` output ("Assessed by: <tool>", JSON blocks, "READY FOR SUBMISSION" verdicts, action-item lists), search-development planning docs (decision logs, expected-yield estimates, `[Check on execution]` placeholders, version-history dev notes), and stale version stamps. Ship a clean PRISMA 2020 checklist (27-item / 42-subitem table only) and an executed-method search-strategy doc, not the working drafts.
+   - **Blind**: remove author names/initials and sibling-project cross-references ("Designed by: <name>", "identical to a sibling review") — same standard as the blinded manuscript.
+   - **Cross-consistency**: every supplementary number matches the main text — PRISMA counts, pool k/N, the Cochrane/CENTRAL search description, RoB counts.
+   - **Reproducible, self-contained analysis code**: run it from a clean copy of the bundle. It must read the bundled locked dataset (not an out-of-bundle path), write to the working directory, and regenerate every pool in the results table. A hard-coded study-id subset that drifts from the manuscript (a pool over k=7 while the manuscript reports k=9) is a P0 — fix and re-run; never ship stale code or figures derived from it.
+   - **Supplementary-only review pass**: the manuscript self-review does not see the supplement; mirror `/self-review` Phase 2.5c–2.5d (reference + cross-reference QC) over the supplementary files.
+
+8. **Submission gates** (on Phase 8 pre-submission and every journal retarget; a non-zero exit
+   blocks submission):
+   - `/sync-submission` SR-MA gate: the supplementary package matches all 8 files in
+     `templates/supplementary_8file_checklist.md` (PRISMA, PROSPERO, search strategy, exclusion
+     list, extraction table, per-study x per-domain RoB, subgroup forests, sensitivity /
+     publication bias); AI Disclosure is present (cross-link `/peer-review` Phase 2A P8); no
+     duplicate PMID/DOI in the cite list (`/verify-refs` Gate 5).
+   - DI-8 tag gate — fails if `VERIFY-CSV`/`TODO`/`FIXME`/`XXX` survive in `7_Manuscript`,
+     `supplement`, `SUBMISSION`, etc.: `bash ${CLAUDE_SKILL_DIR}/scripts/tag_cleanup_gate.sh`
+   - SPD package integrity — checksum-based drift detection between the master manuscript and the
+     built `SUBMISSION/{journal}/` folder (journal-editable files — cover letter, response,
+     MANIFEST, `DO_NOT_EDIT_HERE.md` — are auto-excluded). On the first build per journal run
+     `python3 ${CLAUDE_SKILL_DIR}/../sync-submission/scripts/verify_package_integrity.py --record --journal <name>`,
+     then `--verify --journal <name>` before every re-submission.
+   - ICMJE COI forms for every author: `${CLAUDE_SKILL_DIR}/references/icmje_coi_guide.md`.
 
 ---
 
 ### Phase 9: Co-author Circulation
 
-**Goal**: Standardized pre-submission circulation of the manuscript to co-authors and
-senior methodologist / reviewer, with a bounded review window and a controlled attachment
-scope.
+**Goal**: Pre-submission circulation to co-authors and a senior methodologist / reviewer, with a
+bounded review window and a controlled attachment scope.
 
-**Trigger**: Phase 8 is complete, and the draft has cleared Phase 6b source-fidelity
-audit.
+**Trigger**: Phase 8 is complete, and the draft has cleared the Phase 6b source-fidelity audit.
 
 **Summary**: Reply to the prior-version email thread to preserve `In-Reply-To` continuity
 (v1 → v2 → v3 tracked in one place). Attach the manuscript body with figures inline and,
@@ -565,8 +480,6 @@ size-to-method table, journal-undetermined framing, response-tracking log):
 
 **Goal**: When an audit uncovers a structural data or protocol-application error,
 withdraw the current version, rebuild, and re-circulate with a transparent audit trail.
-Catching the error yourself before a journal reviewer does is the principal trust-building
-move in this phase.
 
 **Trigger conditions (any one):**
 
@@ -582,62 +495,12 @@ move in this phase.
 journal submission, withdraw the current version within 24 hours. Reviewer discovery is
 a strictly worse failure mode than self-withdrawal.
 
-**Sprint outline (12 steps)**: (10.1) audit log at `qc/audit_vN_to_vNplus1.md` →
-(10.2) CSV re-verification with `[VERIFY-CSV]` tagging → (10.3) fresh script re-run
-(fixed seed, logged) → (10.4) manuscript auto-sync (grep for v{N} residue) → (10.5)
-supplementary regeneration (consensus log, RoB, GRADE/SoF, PRISMA flow) → (10.6) figure
-regeneration via `/make-figures` → (10.7) change summary with delta table → (10.8)
-PROSPERO amendment (application correction, not criteria change) → (10.9) re-circulation
-in the Phase 9 thread with the "On re-review" framing → (10.10) anti-patterns to avoid
-(hide-and-submit, "minor revision" reframe, cover-letter-only disclosure) → (10.11) post-
-submission escalation path → (10.12) post-recovery loop (Phase 9 restart; tighten Phase
-6b if a second sprint is needed).
-
-**Load-on-demand procedural detail** (exact audit-log fields, delta-table template,
-amendment language template, re-circulation paragraph template, anti-pattern rationale):
-`${CLAUDE_SKILL_DIR}/references/phase10_recovery.md`.
+**Sprint**: read `${CLAUDE_SKILL_DIR}/references/phase10_recovery.md` and run its 12 steps, from
+10.1 (audit log at `qc/audit_vN_to_vNplus1.md`) through the PROSPERO amendment (application
+correction, not criteria change) and re-circulation in the Phase 9 thread to 10.12 (post-recovery
+loop).
 
 > **Failure-mode cross-ref** → `references/post_submission_release_ops.md` Gate 4 covers reject/revise Zenodo versioning, tag-cleanup gate, and re-target workflow (avoid "new version" misuse on re-target).
-
----
-
-## Failure Modes (prior MA projects, anonymized)
-
-Failure patterns observed across three prior MA projects (anonymized). Each topical reference extends the phase it cross-references above — consult alongside phase procedural docs, not in isolation.
-
-| Domain | Phase span | Load-on-demand reference |
-|---|---|---|
-| Data integrity (2x2 arm-swap, KM audit, methodology mismatch, PRISMA 5-way drift, single-source k) | Phase 3 → 6 | `references/data_integrity_checklist.md` (DI-1~DI-9) |
-| Review orchestration (2nd-reviewer blocking, dual-rating completeness, defensive-tone audit, response-matrix tracking) | Phase 9 circulation (extends `phase9_circulation.md`) | `references/review_orchestration.md` (RO-1~RO-5) |
-| Submission package drift (multi-journal folder hygiene, `DO_NOT_EDIT_HERE` gate, build artifact vs master) | Phase 8 → submission | `references/submission_package_drift.md` |
-| Post-submission release ops (Zenodo DOI timing, tag-cleanup gate, reject-retarget versioning) | Submission → Phase 10 | `references/post_submission_release_ops.md` |
-
-### Automation hooks (invoke at the phase listed)
-
-| When | Script | Gate |
-|---|---|---|
-| Phase 3f reconciliation (before Phase 5 write-up) | `python3 ${CLAUDE_SKILL_DIR}/scripts/check_exclusion_code_validity.py --protocol 0_Protocol/protocol.md --screening 2_Screening/*.tsv --strict` | validates each applied exclusion code against the *registered* eligibility criteria: `CODE_CONTRADICTS_ELIGIBILITY` (a code excludes a design the protocol includes — the bulk study-loss defect no arithmetic/inter-rater gate can see), `CODE_NOT_REGISTERED` (off-protocol code), `CODE_RENUMBERED` (same code, two meanings). Challenge card: `scripts/check_exclusion_code_validity_challenge/`. |
-| Phase 4 kickoff (before first extraction row) | `python3 ${CLAUDE_SKILL_DIR}/scripts/extraction_consensus_log_init.py --output 2_Data/extraction_consensus_log.md` | DI-1: creates standalone consensus log so comparative arm-specific rows are never folded into R-script comments. |
-| Phase 3f reconciliation + every revision touching PRISMA numbers | `python3 ${CLAUDE_SKILL_DIR}/scripts/prisma_5way_consistency.py --ssot prisma.yaml` | DI-6: 5-surface drift check (abstract / main text / flow figure / supplement / CSV) against YAML SSOT. Non-zero exit blocks Phase 5 writeup. |
-| Phase 8 pre-submission + every journal retarget | `bash ${CLAUDE_SKILL_DIR}/scripts/tag_cleanup_gate.sh` | DI-8: fails if `VERIFY-CSV`/`TODO`/`FIXME`/`XXX` survive in `7_Manuscript`, `supplement`, `SUBMISSION`, etc. |
-| Phase 8 on first build per journal (`--record`), then before every re-submission (`--verify`) | `python3 ${CLAUDE_SKILL_DIR}/../sync-submission/scripts/verify_package_integrity.py --record --journal <name>` then `--verify --journal <name>` | SPD: checksum-based drift detection between master manuscript and built `SUBMISSION/{journal}/` folder. Journal-editable files (cover letter, response, MANIFEST, `DO_NOT_EDIT_HERE.md`) are auto-excluded. |
-
-All four scripts are repo-shipped as of 2026-04 (FOLLOWUPS P10). Non-zero exit = gate failure; resolve before proceeding to the next phase.
-
----
-
-## Empirical Lessons (peer-review cycles)
-
-Sixteen accumulated SR-MA peer-review / submission lessons (2026-05 and 2026-06) — the
-drivers behind the Phase 4 extraction-form schema, the Phase 4c QC scripts, and the Phase 8
-submission gates. To keep this entry point lean they live load-on-demand in
-`${CLAUDE_SKILL_DIR}/references/empirical_lessons.md`. **Load that file when designing the
-extraction form (before Phase 4) and before submission (Phase 8)** — it covers dual-extractor
-2x2 integrity, cohort-overlap clustering, small-k subgroup caution, the supplementary 8-file
-bar, PROSPERO ID format, AI-disclosure presence, recompute-don't-copy sensitivity analyses,
-outcome harmonization, heterogeneous-RoB κ, survival-specific concerns, supplement blinding /
-de-scaffolding, self-contained reproducible analysis scripts, sidecar re-sync, methodological
-+ software citations, wide-table PDF rendering, and submission-portal journal-identity checks.
 
 ---
 
@@ -659,40 +522,9 @@ de-scaffolding, self-contained reproducible analysis scripts, sidecar re-sync, m
 ## Small Study Considerations
 
 When the number of included studies is small (< 10):
-- Bivariate/HSROC model may not converge -- consider univariate random-effects as fallback
-- Publication bias tests are underpowered -- state this limitation
+- Bivariate/HSROC model may not converge (warn the user when a DTA review has fewer than 4
+  studies) — consider univariate random-effects as fallback
+- Publication bias tests are underpowered — state this limitation
 - Subgroup/meta-regression analysis not recommended
-- Wide prediction regions expected -- emphasize uncertainty in conclusions
+- Wide prediction regions expected — emphasize uncertainty in conclusions
 - Consider narrative synthesis as alternative/complement
-
----
-
-## Skill Interactions
-
-| When | Call | Purpose |
-|------|------|---------|
-| Need literature search | `/search-lit` | PubMed/Semantic Scholar search with verified citations |
-| Need statistical code | `/analyze-stats` | Execute R/Python analysis scripts |
-| Need figures | `/make-figures` | PRISMA flow, forest plots, SROC, funnel plots |
-| Need reporting check | `/check-reporting` | PRISMA-DTA / PRISMA 2020 compliance (includes Step 4c registration / amendment timing) |
-| Need manuscript writing | `/write-paper` | Full IMRAD manuscript generation |
-| Need self-review | `/self-review` | Pre-submission quality check |
-| Self-audit recovery entrypoint (Phase 10) | `/write-paper` Step 7.4a | Recovery branch for polish pipelines that surface structural audit failures |
-| `/sync-submission` SR-MA gate | `/sync-submission` | Before submission, verify supplementary package matches all 8 files in `templates/supplementary_8file_checklist.md` (PRISMA, PROSPERO, search strategy, exclusion list, extraction table, per-study x per-domain RoB, subgroup forests, sensitivity / publication bias). AI Disclosure presence check (cross-link `/peer-review` Phase 2A P8). Cite-list duplicate check via `/verify-refs` Gate 5 (duplicate PMID/DOI). |
-
----
-
-## Error Handling
-
-- If study type is ambiguous (DTA vs intervention), ask user to clarify before proceeding.
-- If fewer than 4 studies for DTA, warn that bivariate model may not converge.
-- If data extraction is incomplete (missing 2x2 cells), suggest contacting authors or sensitivity analysis with imputed values.
-- If PROSPERO ID is missing, flag as a limitation but continue.
-- Always remind user: this is a methodological support tool; final decisions rest with the research team and ideally include a biostatistician/methodologist.
-
-## Anti-Hallucination
-
-- **Never fabricate variable names, dataset column names, or variable codings.** If a variable mapping is uncertain, output `[VERIFY: variable_name]` and ask the user to confirm against the data dictionary.
-- **Never fabricate statistical results** — no invented p-values, effect sizes, confidence intervals, or sample sizes. All numbers must come from executed code output.
-- **Never generate references from memory.** Use `/search-lit` for all citations.
-- If a function, package, or API does not exist or you are unsure, say so explicitly rather than guessing.
