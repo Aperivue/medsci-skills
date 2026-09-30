@@ -52,6 +52,7 @@
 - `phase0_init_detail.md`
 - `phase7_integrity_audits.md`
 - `phase7_polish_detail.md`
+- `phase8_cover_letter.md`
 - `section_guides/` (7 files)
 - `section_templates/` (1 file)
 

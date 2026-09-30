@@ -6083,8 +6083,8 @@
     },
     {
       "path": "skills/write-paper/SKILL.md",
-      "size": 50946,
-      "sha256": "c1c23343dd5db0952a531ecef057ff0afb6ec239bbaab766c7a8de9dc7d016cc"
+      "size": 35362,
+      "sha256": "b3aeacc345c5b288d1bc14d2f6a90ecfc21b8fd8591c13e764ecb045ff723e2f"
     },
     {
       "path": "skills/write-paper/references/exemplar_abstract.md",
@@ -6583,8 +6583,13 @@
     },
     {
       "path": "skills/write-paper/references/phase7_polish_detail.md",
-      "size": 19576,
-      "sha256": "56c09d822f62b652351c34081329687d90180614257ecb117217f3c5e8d2bfe9"
+      "size": 19483,
+      "sha256": "87af6eed4ac11fe741f32cdad97c7d7dee5e3c2bb0df564930f64dcb5cdfe021"
+    },
+    {
+      "path": "skills/write-paper/references/phase8_cover_letter.md",
+      "size": 1999,
+      "sha256": "9aa9b78e075d5fd3a16b0db5e67dad042aefa27ab1e34acfb2f0a2c7f2baacc3"
     },
     {
       "path": "skills/write-paper/references/section_guides/discussion.md",
@@ -6608,8 +6613,8 @@
     },
     {
       "path": "skills/write-paper/references/section_guides/step7_1_classical_qc.md",
-      "size": 3685,
-      "sha256": "68872c175f86333ac9dbe9b44dfd4869ca6908ddb475a22f513d55ded5557ee0"
+      "size": 3364,
+      "sha256": "2f8e7928f6c3bb67d440babdd05e91c8a4747875b71f0d27207cbf103750d2f3"
     },
     {
       "path": "skills/write-paper/references/section_guides/step7_4a_audit_recovery.md",

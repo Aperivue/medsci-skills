@@ -8,21 +8,6 @@ model: inherit
 
 # Write-Paper Skill
 
-You are helping a medical researcher write scientific manuscripts for journal submission.
-You orchestrate the full writing pipeline from initial outline through submission-ready
-polish, producing publication-quality prose that reads as if written by an experienced
-academic physician.
-
-## Key Directories
-
-- **Journal profiles (built-in)**: `${CLAUDE_SKILL_DIR}/references/journal_profiles/`
-- **Paper type templates**: `${CLAUDE_SKILL_DIR}/references/paper_types/`
-- **Section templates**: `${CLAUDE_SKILL_DIR}/references/section_templates/`
-- **Section guides**: `${CLAUDE_SKILL_DIR}/references/section_guides/` (on-demand per phase)
-- **Manuscript workspace**: determined at Phase 0 (typically `7_Manuscript/{PaperN}/`)
-
----
-
 ## 8-Phase Pipeline
 
 ### Phase 0: Init
@@ -47,7 +32,7 @@ Gather essential information from the user before any writing begins.
 4. **AI/LLM design-stage reporting map** (AI validation, LLM/MLLM, NLP extraction, report generation): map every required AI-reporting item to a manuscript section *before* drafting — model/version/access date, input fields, prompt or fine-tuning protocol, same-backbone zero-shot/few-shot baseline if an adaptation claim is made, test-data independence/contamination, repeatability, and the Methods subsection each will land in. **If any item cannot be placed, halt for design clarification** rather than burying it as a Phase 7 limitation.
 5. Create or confirm the project scaffold directory.
 6. Record the `--no-llm-disclosure` and `--autonomous` flag states for Phase 1–7 gate logic.
-7. **Identify a backbone article** — scan `manuscript/_src/refs.bib` first and propose proactively; ask only as a fallback. Record the chosen citekey in `project.yaml::backbone_article`. The ranking and proposal behaviour are in the reference file. Then gate on its full text — **a backbone whose full text is not extracted is a backbone in name only; the draft would follow an abstract:**
+7. **Identify a backbone article** — scan `manuscript/_src/refs.bib` first and propose proactively (ranking: Backbone ranking below); ask only as a fallback. Record the chosen citekey in `project.yaml::backbone_article`. Then gate on its full text — **a backbone whose full text is not extracted is a backbone in name only; the draft would follow an abstract:**
 
    ```bash
    python3 ${CLAUDE_SKILL_DIR}/scripts/gate_backbone_fulltext.py \
@@ -56,15 +41,11 @@ Gather essential information from the user before any writing begins.
    ```
 
    `BACKBONE_FULLTEXT_MISSING` / `BACKBONE_FULLTEXT_THIN` → **stop and retrieve it** (`/lit-sync` Phase 2.7, then `/fulltext-retrieval` `pdf_to_md.py`). Do not begin Methods drafting until this passes. If the article is genuinely unavailable in full text, record that limitation and get user confirmation before proceeding on the abstract alone.
-8. Summarize the setup to the user and confirm before proceeding.
-
-**Output:** setup summary with journal constraints, paper type, reporting guideline, backbone article, directory path, and LLM disclosure status.
+8. Summarize the setup — journal constraints, paper type, reporting guideline, backbone article, directory path, LLM-disclosure status — and confirm before proceeding.
 
 #### Phase 0 Gate: Citekey-only references
 
-LLM-generated reference strings inlined during drafting are a primary source of citation
-fabrication — in MA projects and solo manuscripts alike. Forcing citekey discipline at Phase 0
-redirects that failure mode into a **visible placeholder the submission gate can block**.
+Citekey discipline turns citation fabrication into a **visible placeholder the submission gate can block**.
 
 1. **Every in-text citation MUST be `[@citekey]`**, with `citekey` present in
    `manuscript/_src/refs.bib`. Pandoc/Quarto style only — no "(Smith et al., 2024)" free text.
@@ -73,16 +54,16 @@ redirects that failure mode into a **visible placeholder the submission gate can
 3. **Never** fabricate a citekey that "looks real" (`[@Smith_2024_AI]`) when the entry is not in
    `refs.bib`. `[@NEW:...]` is the *only* allowed placeholder.
 4. All `[@NEW:...]` placeholders must be resolved before Phase 7 (`/search-lit` → `/lit-sync`
-   imports verified entries; Better BibTeX refreshes `refs.bib`).
+   imports verified entries; Better BibTeX refreshes `refs.bib`). Cite only references whose DOI or
+   PMID `/search-lit` has confirmed; mark any other as `[UNVERIFIED - NEEDS MANUAL CHECK]`.
 5. Pre-submission check — must return zero matches before `/sync-submission` may freeze a package:
 
    ```bash
    grep -E '\[@NEW:[^]]+\]|\[N\]|\[N–N\]' manuscript/index.qmd
    ```
 
-   The bare `[N]` / `[N–N]` markers are the failure mode of a manuscript drafted outside this
-   pipeline (no `refs.bib`), with method-load-bearing citations left unresolved. Block them
-   exactly like `[@NEW:...]`.
+   Bare `[N]` / `[N–N]` markers mean a manuscript drafted outside this pipeline (no `refs.bib`)
+   with method-load-bearing citations left unresolved. Block them exactly like `[@NEW:...]`.
 
 If `refs.bib` is absent, create it empty with the comment
 `% refs.bib managed by /lit-sync via Zotero Better BibTeX. Do not hand-edit.`, record
@@ -91,98 +72,49 @@ will all be `[@NEW:...]` until the first `/lit-sync` run.
 
 **Read on demand — once the paper type is known (step 2), and only the row that matches:**
 
-| File | Read it when | Cost if read blindly |
-|---|---|---|
-| `references/phase0_init_detail.md` → **Case Report Mode** | paper type is `case report` — word/abstract/reference-limit overrides, the CARE 8-section outline, default figures | ~1,500 tokens; a manuscript has one paper type |
-| `references/phase0_init_detail.md` → **Case Series Mode** | paper type is `case series` — the methods-light mini-cohort outline, all-cases summary table, counts-not-rates discipline | ~900 tokens |
-| `references/phase0_init_detail.md` → **Backbone ranking** | `refs.bib` exists and you are proposing a backbone | ~700 tokens |
+| File | Read it when |
+|---|---|
+| `references/phase0_init_detail.md` → **Case Report Mode** | paper type is `case report` — word/abstract/reference-limit overrides, the CARE 8-section outline, default figures |
+| `references/phase0_init_detail.md` → **Case Series Mode** | paper type is `case series` — the methods-light mini-cohort outline, all-cases summary table, counts-not-rates discipline |
+| `references/phase0_init_detail.md` → **Backbone ranking** | `refs.bib` exists and you are proposing a backbone |
 
 ---
 ### Phase 1: Outline
 
-Create a structured IMRAD outline with section-level word budgets that respect journal limits.
+Build the outline on the paper-type template's section structure. Start with a header — working
+title, target journal, paper type, total word limit (excluding abstract, references and legends) —
+then give every section a word budget and a paragraph- or subsection-level plan, with the budgets
+summing within the journal limits. End with the planned tables, figures and supplemental
+materials, one line each.
 
-**Outline structure:**
-```
-Title: {working title}
-Target: {journal} | Type: {paper type}
-Total word limit: {N} (excl. abstract, references, legends)
-
-1. Abstract ({N} words, structured: {format per journal})
-2. Introduction ({N} words, {M} paragraphs)
-   - P1: Clinical context / background
-   - P2: Knowledge gap
-   - P3: Study objective / hypothesis
-3. Materials and Methods ({N} words)
-   - 3.1 Study Design and Setting
-   - 3.2 Participants / Dataset
-   - 3.3 Procedures / Intervention / Model
-   - 3.4 Outcome Measures
-   - 3.5 Statistical Analysis
-   - 3.6 Ethics
-4. Results ({N} words)
-   - 4.1 Study population (Table 1)
-   - 4.2 Primary endpoint
-   - 4.3 Secondary endpoints
-   - 4.4 Subgroup / sensitivity analyses
-5. Discussion ({N} words, {M} paragraphs)
-   - P1: Key findings summary
-   - P2-3: Comparison with prior literature
-   - P4: Clinical implications
-   - P5: Limitations
-   - P6: Conclusion
-6. Tables: {list with descriptions}
-7. Figures: {list with descriptions}
-8. Supplemental materials: {if applicable}
-```
-
-**Gate:** Present outline to user. Do NOT proceed until user approves or requests changes.
-**Autonomous mode:** If `--autonomous` is ON, skip this gate. Log the outline to `qc/_pipeline_log.md` and proceed to Phase 2.
+**Gate:** Present the outline to the user. Do NOT proceed until the user approves or requests changes.
+**Autonomous mode:** skip this gate; log the outline to `qc/_pipeline_log.md` and proceed to Phase 2.
 
 ---
 
 ### Phase 2: Tables & Figures
 
-Design all tables and figures BEFORE writing prose. This ensures the narrative serves the data, not the reverse.
+Design all tables and figures BEFORE writing prose, so the narrative serves the data.
 
-**Actions:**
-1. Review available data with the user.
-2. Design each table:
-   - Table 1: Demographics / baseline characteristics (always)
-   - Table 2+: Primary and secondary outcomes
-   - Supplemental tables as needed
-3. Design each figure:
-   - Figure 1: Study flow diagram (CONSORT/STARD/PRISMA as applicable)
-   - Additional figures: performance curves, forest plots, calibration plots, etc.
-4. Call `/analyze-stats` if statistical analysis is needed.
-5. Call `/make-figures` if figure generation is needed. **Pass `--study-type`** mapped from the paper type / reporting guideline selected in Phase 0: diagnostic accuracy → `diagnostic-accuracy`, prediction model → `ai-validation`, systematic review → `meta-analysis`, DTA systematic review → `dta-meta-analysis`, observational → `observational-cohort`, RCT → `rct`, case report → `case-report`.
-6. **Auto-detect required figures.** Based on the reporting guideline selected in Phase 0, consult the `/make-figures` study-type figure set table. Call `/make-figures` with the full figure set for the study type. Do not ask the user to name each figure individually.
-7. **Visual abstract check.** If the target journal requires or encourages a visual abstract (check the journal profile for a "Visual Abstract" section), call `/make-figures` with visual abstract request. Provide: title, Key Points 1 and 3, methodology summary, and the best study figure as the visual element.
-8. **Figure discovery and embedding.** After figure generation completes, scan the `analysis/figures/` directory for all PNG and PDF files. For each figure:
-   - Generate a markdown image reference: `![Figure N. Caption](analysis/figures/filename.png){width=80%}`
-   - Draft a figure legend based on the figure type and analysis context
-   - Insert the reference at the appropriate location in the Results section
-9. **Manifest verification (HALT gate).** After `/make-figures` completes, verify that `analysis/figures/_figure_manifest.md` exists and contains at least one figure entry. If the manifest is missing or empty: in **autonomous mode**, HALT with error code `MANIFEST_MISSING`, log to `qc/_pipeline_log.md`, and write a recovery note to `manuscript/<id>/REPORT.md` Tier-3 section ("rerun /make-figures or manually create _figure_manifest.md"). In **interactive mode**, report the error and ask the user how to proceed. **Rationale**: Phase 7 DOCX build (line 567) parses the manifest to embed figures; a missing manifest silently drops all figures from the final docx, which surfaces only at submission. HALT-on-missing is cheaper than discovering the absence in submission QC.
+1. Review available data with the user. Plan Table 1 (demographics / baseline characteristics — always), Table 2+ (primary and secondary outcomes) and supplemental tables; Figure 1 is the study flow diagram (CONSORT/STARD/PRISMA as applicable), followed by performance curves, forest plots, calibration plots, etc.
+2. Call `/analyze-stats` if statistical analysis is needed.
+3. Call `/make-figures` with the full figure set the study type requires — do not ask the user to name each figure. **Pass `--study-type`** mapped from the Phase 0 paper type / reporting guideline: diagnostic accuracy → `diagnostic-accuracy`, prediction model → `ai-validation`, systematic review → `meta-analysis`, DTA systematic review → `dta-meta-analysis`, observational → `observational-cohort`, RCT → `rct`, case report → `case-report`.
+4. **Visual abstract.** If the journal profile's "Visual Abstract" section requires or encourages one, call `/make-figures` with a visual abstract request: title, Key Points 1 and 3, methodology summary, and the best study figure as the visual element.
+5. **Figure embedding.** Scan `analysis/figures/` for every PNG and PDF. For each, insert `![Figure N. Caption](analysis/figures/filename.png){width=80%}` at the appropriate place in Results and draft its legend from the figure type and analysis context.
+6. **Manifest verification (HALT gate).** `analysis/figures/_figure_manifest.md` must exist with at least one figure entry — the Phase 7 DOCX build embeds figures from it, and a missing manifest silently drops every figure. If it is missing or empty: in **autonomous mode**, HALT with error code `MANIFEST_MISSING`, log to `qc/_pipeline_log.md`, and write a recovery note to `manuscript/<id>/REPORT.md` Tier-3 section ("rerun /make-figures or manually create _figure_manifest.md"); in **interactive mode**, report the error and ask the user how to proceed.
 
 **Gate:** Present T&F plan to user. Do NOT proceed until user approves.
-**Autonomous mode:** If `--autonomous` is ON, skip this gate. Log the T&F plan to `qc/_pipeline_log.md` and proceed to Phase 3.
+**Autonomous mode:** skip this gate; log the T&F plan to `qc/_pipeline_log.md` and proceed to Phase 3.
 
 ---
 
 ### Phase 3: Methods
 
-Write the Methods section first -- it is the most objective and anchors the rest of the paper.
+Write Methods first — it is the most objective section and anchors the rest of the paper.
 
-**Before writing:** Load `${CLAUDE_SKILL_DIR}/references/section_guides/methods.md` for PICO structure, backbone article usage, checklist cross-reference, and terminology conventions. For the matching study type, also skim the structure model in `${CLAUDE_SKILL_DIR}/references/exemplar_methods/` (diagnostic-accuracy/STARD, AI-validation/TRIPOD+AI·CLAIM, observational-cohort/STROBE, meta-analysis/PRISMA 2020, RCT/CONSORT 2010) — it lists, paragraph by paragraph, what each Methods paragraph must establish plus the element that type most often omits. Model the structure; the exemplars are synthetic, with placeholder specifics, not prose to copy.
+**Before writing:** Load `${CLAUDE_SKILL_DIR}/references/section_guides/methods.md` and skim the matching study type in `${CLAUDE_SKILL_DIR}/references/exemplar_methods/` (diagnostic-accuracy/STARD, AI-validation/TRIPOD+AI·CLAIM, observational-cohort/STROBE, meta-analysis/PRISMA 2020, RCT/CONSORT 2010): what each paragraph must establish, plus the element that type most often omits. Every exemplar used in Phases 3–6 is synthetic, with placeholder specifics — model its structure; it is not prose to copy.
 
-**Writing order within Methods:**
-1. Study Design and Setting
-2. Participants / Dataset (inclusion/exclusion, recruitment period)
-3. Procedures / Intervention / AI Model description
-4. Outcome Measures (primary and secondary endpoints)
-5. Statistical Analysis (reference `${CLAUDE_SKILL_DIR}/references/section_templates/methods_statistical.md`)
-6. Ethics statement
-7. AI/LLM disclosure (if `--no-llm-disclosure` was NOT set): insert the Methods disclosure paragraph from the [LLM Disclosure](#llm-writing-disclosure) section
+**Writing order:** (1) Study Design and Setting; (2) Participants / Dataset (inclusion/exclusion, recruitment period); (3) Procedures / Intervention / AI Model description; (4) Outcome Measures (primary and secondary endpoints); (5) Statistical Analysis (`${CLAUDE_SKILL_DIR}/references/section_templates/methods_statistical.md`); (6) Ethics statement; (7) AI/LLM disclosure (unless `--no-llm-disclosure`): when the target journal wants it in Methods, add the Methods paragraph from [LLM Writing Disclosure](#llm-writing-disclosure).
 
 **AI/LLM extraction add-ons (when applicable):**
 - In Dataset / Inputs, state exactly which text fields the model received and whether clinical history,
@@ -190,15 +122,8 @@ Write the Methods section first -- it is the most objective and anchors the rest
   the target label, Methods must either exclude it or describe a no-leaky-field sensitivity analysis.
 - In AI Model or Statistical Analysis, include a same-backbone zero-shot/few-shot comparator when the
   claim is that fine-tuning, LoRA, prompt engineering, or a multi-agent wrapper improves performance.
-- In Introduction, state the decision-impact path: what clinical or research workflow step changes if the
-  model works, not only that the extracted label is interesting.
 
-**Process:**
-1. **Writer pass**: Draft the full Methods section following the outline and paper type template.
-2. **Critic pass**: Score using the 6-dimension rubric (see Critic Scoring below). Provide specific line-level feedback.
-3. **Fixer pass**: Revise based on critic feedback.
-4. Repeat critic-fixer loop up to 3 rounds. Pass threshold: overall score >= 85/100.
-5. Present final Methods to user.
+**Process:** Run the critic-fixer loop ([Critic Scoring Rubric](#critic-scoring-rubric)), then present the final Methods to the user.
 
 ---
 
@@ -207,54 +132,24 @@ Write the Methods section first -- it is the most objective and anchors the rest
 Write Results aligned to the approved tables and figures. **Results = "What did we find?"
 — nothing more.** Every sentence must be a factual statement backed by a number.
 
-**Before writing:** Load `${CLAUDE_SKILL_DIR}/references/section_guides/results.md` for mirror-symmetry rules, flowchart requirements, missing data handling, and the anti-interpretation self-check. For the matching study type, also skim the structure model in `${CLAUDE_SKILL_DIR}/references/exemplar_results/` (diagnostic-accuracy/STARD, AI-validation/TRIPOD+AI·CLAIM, observational-cohort/STROBE, meta-analysis/PRISMA 2020, RCT/CONSORT 2010) — each follows its `exemplar_methods/` sibling in Methods order, listing what each Results paragraph must establish (flow → baseline/prevalence → primary estimate with CIs → calibration/agreement → subgroups → sensitivity; for meta-analysis, PRISMA flow → characteristics+provenance → RoB → pooled estimate with I²/τ²/prediction interval → subgroup interaction → publication bias; for an RCT, CONSORT flow → baseline-by-arm with no p-values → ITT primary with CI → secondary+harms → per-protocol beside ITT) plus the element that type most often omits. Model the structure; the exemplars are synthetic, with placeholder specifics, not prose to copy.
+**Before writing:** Load `${CLAUDE_SKILL_DIR}/references/section_guides/results.md` (mirror symmetry with Methods, flowchart, missing data, the anti-interpretation self-check) and skim the matching study type in `${CLAUDE_SKILL_DIR}/references/exemplar_results/` (the same five types, each in its Methods sibling's order).
 
 **Rules:**
-- Every number in the text must match the corresponding table cell exactly.
-- Start with study population description referencing Table 1.
-- Present primary endpoint results first, then secondary.
-- Reference every table and figure at least once in the text.
-- Report exact p-values (not "p < 0.05" unless truly < 0.001).
-- All primary metrics must include 95% confidence intervals.
+- Order: study population (enrollment, exclusions, demographics → Table 1); primary endpoint results (one paragraph per primary outcome); secondary endpoints; subgroup / sensitivity analyses.
+- Apply the results.md self-check to every sentence: no "why", no prior literature, no causal language ("caused," "led to," "due to" — use "was associated with"), no interpretive hedges ("suggests," "implies," "consistent with," "as expected"), no evaluative adjective without its number.
 - **Incremental value must be earned, not asserted.** If the paper claims the model/marker adds value *beyond* / *on top of* an existing tool (a clinical score, a routine test, a baseline model), Results must report the nested-model comparison — a baseline model from the in-routine-use predictors versus the augmented model — with an incremental metric: ΔC-index / ΔAUC (paired CI, e.g. DeLong), NRI, IDI, or decision-curve net benefit. A standalone discrimination number does not support a "beyond X" claim. If the design did not include the baseline comparator (see `/design-study` Phase 3), soften the claim to standalone performance rather than implying added value.
-- Do not interpret results in this section; state findings only.
 
-**Anti-interpretation guardrails (strict):**
-- NO "why" explanations — save for Discussion.
-- NO comparisons with prior literature — save for Discussion.
-- NO causal language ("caused," "led to," "due to") — use "was associated with."
-- NO evaluative adjectives without numbers ("high," "significant," "notable,"
-  "remarkable," "surprising") — always pair with the actual value.
-- NO hedge words implying interpretation ("suggests," "implies," "indicates importance,"
-  "consistent with," "as expected").
-- **Self-check heuristic (applied to every sentence):**
-  1. Does this sentence explain "why"? → Move to Discussion.
-  2. Does it reference another study? → Move to Discussion.
-  3. Does it use "suggests/implies/indicates importance"? → Rewrite as factual statement.
-  4. Does it use an adjective without a number? → Add the number or delete the adjective.
-  5. Does it contain "interestingly/notably/remarkably/surprisingly"? → Delete the word.
-
-**Structure:**
-1. Study population (enrollment, exclusions, demographics → Table 1).
-2. Primary endpoint results (one paragraph per primary outcome).
-3. Secondary endpoint results.
-4. Subgroup / sensitivity analyses (if applicable).
-
-**Process:** Same writer -> critic -> fixer loop as Phase 3 (max 3 rounds, threshold 85/100).
-
-**Gate:** Present final Results to user. Confirm before proceeding to Discussion.
+**Process:** critic-fixer loop. **Gate:** Present final Results to user. Confirm before proceeding to Discussion.
 
 ---
 
 ### Phase 5: Discussion
 
-**Before writing:** Load `${CLAUDE_SKILL_DIR}/references/section_guides/discussion.md` for the 4-paragraph structure, word limits, limitation writing guidelines, and Table/Figure citation rules. For the matching study type, also skim the structure model in `${CLAUDE_SKILL_DIR}/references/exemplar_discussion/` (diagnostic-accuracy/STARD, AI-validation/TRIPOD+AI·CLAIM, observational-cohort/STROBE, meta-analysis/PRISMA 2020, RCT/CONSORT 2010) — completing the exemplar trio, each lists what every Discussion paragraph must establish (key finding → interpretation/comparison → limitations → generalizability → conclusion matched to the evidence) plus the element that type most often omits (spectrum/verification bias; evidence-tier separation and optimism caveats; mandatory causal caution; for meta-analysis, GRADE certainty + heterogeneity source + non-independence/overlap caveat; for an RCT, blinding/attrition limitation + clinical-vs-statistical significance vs the MCID). For case reports, use `${CLAUDE_SKILL_DIR}/references/exemplar_case_report.md` instead: it controls literature-boundary wording, n=1 causal caution, and bedside teaching-point framing. Model the structure; the exemplars are synthetic, introduce no new results, and are not prose to copy.
-
-**Before drafting, collect user input (Discussion Planning Gate).**
+**Before writing:** Load `${CLAUDE_SKILL_DIR}/references/section_guides/discussion.md` and skim the matching study type in `${CLAUDE_SKILL_DIR}/references/exemplar_discussion/` (the same five types, each naming the element that type most often omits). For case reports, use `${CLAUDE_SKILL_DIR}/references/exemplar_case_report.md` instead (literature-boundary wording, n=1 causal caution, bedside teaching points).
 
 #### Step 5a: Discussion Planning (interactive)
 
-Ask the user the following questions (in the user's preferred language). Wait for answers before drafting.
+Ask the user the following questions. Wait for answers before drafting.
 
 ```
 Q1. List the 3-5 key findings of this study in order of importance.
@@ -269,50 +164,29 @@ Q5. Are there clinical implications you want to emphasize?
 ```
 
 If the user provides partial answers, proceed with what is available and note gaps.
-If the user says "skip" (or the equivalent in their language), use `/search-lit` to identify
-anchor papers from the reference list and proceed with best-effort defaults.
+If the user says "skip", use `/search-lit` to identify anchor papers from the reference list and
+proceed with best-effort defaults.
 
 **Gate:** Do NOT start writing Discussion until user responds (or explicitly skips).
-**Autonomous mode:** If `--autonomous` is ON, skip the interactive planning. Use `/search-lit` to identify anchor papers from the reference list and proceed with best-effort defaults (same as the "skip" path).
+**Autonomous mode:** skip the interactive planning and take the "skip" path.
 
 #### Step 5b: Discussion Drafting
 
-Write the Discussion using the inverted funnel structure:
-
-**Paragraph structure:**
-1. **Summary** (1 paragraph): Restate key findings without repeating numbers verbatim.
-   Bridge from Results — the reader should feel continuity.
-2. **Context — anchor paper comparisons** (2-3 paragraphs): Each paragraph organized around
-   one theme or finding. For each anchor paper:
-   - State the prior finding with citation.
-   - Compare: agreement or disagreement with our result.
-   - Explain the discrepancy (if any) citing methodological or population differences.
-3. **Clinical implications** (1 paragraph): What does this mean for practice or future research?
-4. **Limitations** (1 paragraph): Honest, specific, ordered by severity. For each limitation:
-   (a) what it is, (b) how it was mitigated, (c) direction of residual bias.
-   Do NOT use "our study has several limitations" as an opener.
-5. **Strengths** (optional, 1-2 sentences): Only if genuinely novel contribution.
-6. **Conclusion** (1-2 sentences): Single most important finding + implication.
-   Must be a citable statement. No "further studies are needed" as final sentence.
+Write an inverted funnel:
+1. **Summary** (1 paragraph): restate key findings without repeating numbers verbatim, bridging from Results.
+2. **Anchor-paper comparisons** (2-3 paragraphs, one theme or finding each): for each anchor paper, state the prior finding with citation, say whether our result agrees, and explain any discrepancy by methodological or population differences.
+3. **Clinical implications** (1 paragraph): what this means for practice or future research.
+4. **Limitations** (1 paragraph, ordered by severity): for each, (a) what it is, (b) how it was mitigated, (c) direction of residual bias. Do NOT open with "our study has several limitations".
+5. **Strengths** (optional, 1-2 sentences): only for a genuinely novel contribution.
+6. **Conclusion** (1-2 sentences): the single most important finding and its implication, as a citable statement. No "further studies are needed" as final sentence.
 
 **Rules:**
-- Do not introduce new data not presented in Results.
-- Avoid overclaiming: language must match evidence level.
+- Do not introduce data not presented in Results; match language to the evidence level; acknowledge alternative explanations for key findings.
 - **Endpoint↔conclusion scope.** The Clinical-implications and Conclusion sentences must not exceed what the design and endpoint support. A cross-sectional / single-visit / prevalence study cannot license a prognostic or surveillance claim (a rescreen interval, disease progression, predicting future risk) — that requires longitudinal follow-up. A binary surrogate endpoint (present/absent, >0, dichotomized) is risk stratification, not a patient-care directive (defer/withhold/initiate therapy). `/self-review` §D (`check_scope_coherence.py`) flags `CROSS_SECTIONAL_PROGNOSTIC` / `SURROGATE_CARE_DIRECTIVE`; keep the conclusion verb inside the design's reach.
-- Acknowledge alternative explanations for key findings.
-- Each comparison with prior work must cite the specific study.
-- NO "interestingly," "notably," "it is worth noting" — state the point directly.
 
-**Process:** Same writer -> critic -> fixer loop (max 3 rounds, threshold 85/100).
-
-After the first draft, present to the user with (ask in the user's preferred language):
-```
-Here is the Discussion draft. Please review:
-- Any missing anchor papers or additional comparisons needed?
-- Anything you want to change in the interpretation?
-- Any clinical implications to emphasize more or soften?
-```
-Incorporate user feedback before running the critic-fixer loop.
+After the first draft, ask the user: any missing anchor papers or comparisons, any change to the
+interpretation, and which clinical implications to emphasize or soften. Incorporate the feedback,
+then run the critic-fixer loop.
 
 ---
 
@@ -320,33 +194,24 @@ Incorporate user feedback before running the critic-fixer loop.
 
 Write these LAST because they frame the paper and depend on knowing what was actually found.
 
-**Before writing:** Load `${CLAUDE_SKILL_DIR}/references/section_guides/introduction.md` for the Gap Storytelling 5-step structure, word/paragraph/reference targets, and common mistakes, and skim the paragraph-by-paragraph structure model in `${CLAUDE_SKILL_DIR}/references/exemplar_introduction.md` (¶1 significance → ¶2 landscape → ¶3 the gap → ¶4 objective, plus the vague-gap and gap↔objective-mismatch failure modes). Also load `${CLAUDE_SKILL_DIR}/references/section_guides/title_abstract.md` for Title 3-type selection, 4-component checklist, Abstract Conclusion-first priority, and Visual Abstract guidance, and skim the structured-abstract structure model in `${CLAUDE_SKILL_DIR}/references/exemplar_abstract.md` (Background/Objective → Methods → Results-with-primary-estimate-+-CI-+-denominator → Conclusion-matched-to-design, plus the estimate-free-Results, over-reaching-Conclusion, and body↔abstract number-mismatch failure modes). For case reports, use `${CLAUDE_SKILL_DIR}/references/exemplar_case_report.md` for the 150-word Introduction / Case Presentation / Conclusion abstract anatomy rather than the IMRAD abstract model. Model the structure; the exemplars are synthetic, with placeholder specifics, not prose to copy.
+**Before writing:** Load `${CLAUDE_SKILL_DIR}/references/section_guides/introduction.md` and `${CLAUDE_SKILL_DIR}/references/section_guides/title_abstract.md`, and skim the structure models `${CLAUDE_SKILL_DIR}/references/exemplar_introduction.md` and `${CLAUDE_SKILL_DIR}/references/exemplar_abstract.md`. For case reports, use `${CLAUDE_SKILL_DIR}/references/exemplar_case_report.md` for the 150-word Introduction / Case Presentation / Conclusion abstract anatomy rather than the IMRAD abstract model.
 
-**Introduction structure (3-4 paragraphs):**
-1. Clinical context establishing importance (cite prevalence, burden, current practice).
-2. Knowledge gap that this study addresses.
-3. Study objective, stated precisely. Include hypothesis if applicable.
+**Introduction (3-4 paragraphs):** clinical context establishing importance (prevalence, burden, current practice) → the knowledge gap this study addresses → the study objective, stated precisely, with the hypothesis if applicable. For AI/LLM extraction studies, state the decision-impact path: what clinical or research workflow step changes if the model works, not only that the extracted label is interesting.
 
-**Abstract:**
-- Follow the journal's structured format exactly.
-- Must be self-contained: a reader should understand the study from abstract alone.
-- All numbers must match the main text and tables.
-- Final sentence: clinical implication, not "further studies are needed."
-- **Lead with the pre-specified primary estimand, not the largest effect.** It is tempting (and a critic/peer-sim pass may even suggest it) to foreground the strongest number to make the Abstract "land harder." Do not let that reframe which result is *primary*: tightening effect-size language is fine, but promoting a secondary, exploratory, or post-hoc estimate to the headline is estimand shopping. The Abstract's primary result must be the registered/protocol primary contrast — the same one Step 7.3b checks. If the primary is null or underpowered, report it as such (see `/self-review` category C, power-aware null) rather than substituting a more favourable secondary estimate.
+**Abstract:** self-contained; all numbers match the main text and tables; the final sentence is a clinical implication, not "further studies are needed."
+**Lead with the pre-specified primary estimand, not the largest effect** — even when a critic or peer-sim pass suggests foregrounding the strongest number. Tightening effect-size language is fine; promoting a secondary, exploratory, or post-hoc estimate to the headline is estimand shopping. The Abstract's primary result must be the registered/protocol primary contrast — the same one Step 7.3b checks. If the primary is null or underpowered, report it as such (see `/self-review` category C, power-aware null) rather than substituting a more favourable secondary estimate.
 
-**Process:** Same writer -> critic -> fixer loop (max 3 rounds, threshold 85/100).
+**Process:** critic-fixer loop.
 
 ---
 
 ### Phase 7: Polish
 
 Final quality pass. **Strict sequential execution — each step MUST complete before the next
-begins.** Every HALT stops the pipeline; none is advisory. Rationale, tables and greps:
-`${CLAUDE_SKILL_DIR}/references/phase7_polish_detail.md`.
+begins.** Every HALT stops the pipeline; none is advisory.
 
 **7.1 — AI Pattern Scan.** Remove AI writing patterns (see AI Pattern Avoidance below), editing
-`manuscript/manuscript.md` in place. Then run the deterministic lint — the machine-checkable
-subset of the classical-style conventions a senior reviewer flags on sight:
+`manuscript/manuscript.md` in place. Then run the deterministic classical-style lint:
 `python3 "${CLAUDE_SKILL_DIR}/../self-review/scripts/check_classical_style.py" --manuscript manuscript/manuscript.md --strict`.
 For an MA / systematic review, or when a senior co-author review is expected, also work the
 7-grep checklist in `references/section_guides/step7_1_classical_qc.md`. Pattern 19–21 body
@@ -379,8 +244,8 @@ direction reversal or a p<0.05↔p≥0.05 crossing is a **P0 blocker**). **7.3b*
 verdict, iteration count, and residual issues. **Any surviving `severity: "fatal"` issue routes to
 7.4a — do not proceed to 7.5.**
 
-**7.4a — Audit Recovery Branch.** Some findings are structural, not prose: the data, protocol, or
-analysis script is wrong, and polishing on top yields a clean manuscript on a broken foundation.
+**7.4a — Audit Recovery Branch.** When a finding is structural — the data, protocol, or analysis
+script is wrong — polishing yields a clean manuscript on a broken foundation.
 **Inline text fixes are forbidden** — recovery means re-extraction, re-analysis, or
 re-registration. Halt 7.5–7.6, log the branch, invoke the routed skill, re-enter at **7.3**.
 Loop budget: one cycle. Routing: `references/section_guides/step7_4a_audit_recovery.md`.
@@ -402,222 +267,98 @@ python3 "${CLAUDE_SKILL_DIR}/../manage-refs/scripts/check_xref.py" \
   --out qc/xref_audit.json --strict
 ```
 
-Catches in-text citations resolving to the **wrong rendered caption** — body prose and build
-script each echo their own divergent SSOT, so no internal-consistency check sees it. Any
+It catches in-text citations resolving to the **wrong rendered caption**. Any
 `MISSING_DOCX`/`MISSING_BODY`/`MISMATCH` → `submission_safe: false`, exit 1, **HALT**. The body
 caption is the SSOT — fix the build pipeline, never the reverse.
 
 **7.7 — Final Gate.** Autonomous: log completion; report word count, figure count, self-review
 score, reporting-compliance %, FATAL flags. Interactive: present summary, await confirmation.
 
-| File | Read it when | Cost if read blindly |
-|---|---|---|
-| `references/phase7_polish_detail.md` | you reach the build steps (7.5–7.6a), a HALT fires, or the manuscript has an AI-disclosure paragraph | ~7,300 tokens — a run that stops at a 7.3 blocker never builds a DOCX |
-| `references/phase7_integrity_audits.md` | running 7.3a / 7.3b / 7.3c | ~3,000 tokens |
-| `references/section_guides/step7_4a_audit_recovery.md` | 7.4 left a fatal finding | ~1,700 tokens; most runs never branch |
+| File | Read it when |
+|---|---|
+| `references/phase7_polish_detail.md` | you reach the build steps (7.5–7.6a), a HALT fires, or the manuscript has an AI-disclosure paragraph |
+| `references/phase7_integrity_audits.md` | running 7.3a / 7.3b / 7.3c |
+| `references/section_guides/step7_4a_audit_recovery.md` | 7.4 left a fatal finding |
 
 ---
 ### Phase 8+ (Optional): Cover Letter Generation
 
-Triggered when the user requests "generate cover letter" or after `/find-journal` recommendation.
-
-This is an optional post-pipeline step. Do NOT generate automatically — only when explicitly requested.
-
-**Required user inputs (MUST ask, never fabricate):**
-1. Editor name (if known; otherwise use "Dear Editor")
-2. Suggested reviewers (2-3 names with affiliations and email addresses)
-3. Excluded reviewers (if any, with brief reason)
-4. Any specific points to emphasize for the target journal
-
-**Cover letter structure:**
-
-1. **Salutation**: "Dear [Editor name / Editor],"
-2. **Submission statement**: "We submit our manuscript entitled '[Title]' for consideration as [article type] in [Journal Name]."
-3. **Novelty statement** (2-3 sentences): What is new and why it matters. Extract from abstract key findings.
-4. **Scope fit** (1-2 sentences): Why this journal is appropriate. Reference journal scope from profile if loaded.
-5. **Brief methods** (1 sentence): Study design and key numbers.
-6. **Ethical compliance**: IRB approval number, author agreement, COI statement, no dual submission.
-7. **AI disclosure** (if applicable): Specific AI tools used and human oversight statement.
-8. **Suggested reviewers**: Name, affiliation, email, expertise area (2-3 minimum).
-9. **Excluded reviewers** (if any): Name and reason.
-
-**Reviewer COI cross-check (mandatory for meta-analyses):**
-Cross-check all suggested and excluded reviewers against the included-study author list and their co-authors. Same-institution authors of included studies constitute automatic COI and must be excluded from reviewer suggestions.
-10. **Closing**: Corresponding author name and credentials.
-
-**Anti-overclaiming guard:**
-Automatically flag and rewrite any of these words in cover letters: "first," "novel," "unprecedented," "groundbreaking," "paradigm-shifting," "revolutionary." Replace with specific factual statements about what the study contributes.
-
-**Word limit:** 300-500 words. Cover letters exceeding 500 words should be trimmed.
-
----
-
-## LLM-Assisted Writing Principles
-
-When using this skill (or any LLM) for manuscript drafting, follow this 3-step process:
-
-1. **Structure first**: The user (or the skill) outlines the logical flow, key arguments, and paragraph-level plan *before* generating prose. An LLM cannot evaluate its own output without a pre-defined target.
-2. **LLM drafts**: Generate prose based on the structured plan.
-3. **Critical evaluation**: Review LLM output against the plan. Check for logical gaps, unsupported claims, AI pattern phrases, and deviation from the intended argument. Revise or reject sections that do not meet the standard.
-
-This principle applies at every phase: the outline (Phase 1) is the structure; the writer pass is the LLM draft; the critic-fixer loop is the critical evaluation. The user remains the final arbiter of scientific accuracy and narrative direction.
+Only when the user explicitly asks for a cover letter (for example after `/find-journal` picks a
+target) — never automatically. Read `${CLAUDE_SKILL_DIR}/references/phase8_cover_letter.md` for
+the inputs you must ask for, the letter structure, the reviewer-COI cross-check (mandatory for
+meta-analyses), and the overclaiming guard.
 
 ---
 
 ## Critic Scoring Rubric
 
-Each section goes through a critic-fixer loop. The critic scores 6 dimensions (0-20 each, total 0-120 scaled to 0-100).
+Phases 3–6 each run writer → critic → fixer: draft the section, have the critic score it with
+line-level feedback, revise, and repeat for up to 3 rounds. After 3 rounds without a pass, present
+the best version to the user with the remaining issues listed, and ask for guidance.
 
-### Dimensions
+The critic scores six dimensions 0-20 each (total 0-120, scaled to 0-100): **Accuracy** (every
+claim matches data/tables; effect directions correct), **Completeness** (all reporting-guideline
+elements and subsections present), **Clarity** (parseable on first read; no ambiguous referents),
+**Conciseness** (no filler or redundant hedging; within word budget), **Reporting** (this
+section's STARD/TRIPOD/CLAIM/etc. items addressed), **Humanness** (no AI Pattern Avoidance hits).
 
-| # | Dimension | What the critic checks |
-|---|-----------|----------------------|
-| 1 | **Accuracy** | Every claim matches data/tables. No fabricated numbers. Effect directions correct. |
-| 2 | **Completeness** | All required elements per reporting guideline present. No missing subsections. |
-| 3 | **Clarity** | Each sentence parseable on first read. No ambiguous referents. Logical paragraph flow. |
-| 4 | **Conciseness** | No filler phrases, redundant sentences, or unnecessary hedging. Within word budget. |
-| 5 | **Reporting** | Specific guideline items (STARD/TRIPOD/CLAIM/etc.) addressed in this section. |
-| 6 | **Humanness** | No AI writing patterns detected (see list below). Reads like an experienced physician wrote it. |
-| 7 | **Section Boundaries** | **Results only:** No interpretation, no "why," no prior literature references, no evaluative adjectives without numbers. **Discussion only:** No new data not in Results, no overclaiming beyond evidence level. Flag any sentence that belongs in the other section. |
+Scoring guide: 18-20 publication-ready · 14-17 minor revisions · 10-13 moderate (structural or
+content gaps) · 0-9 major rewrite. **Pass:** overall ≥ 85/100 and no dimension below 12/20;
+otherwise run a fixer round.
 
-> **Note:** Dimensions 1-6 are scored 0-20 each (total 0-120 scaled to 0-100). Dimension 7
-> is a **pass/fail gate** applied during Phase 4 (Results) and Phase 5 (Discussion): if any
-> sentence violates section boundaries, the critic MUST flag it regardless of overall score.
-> The fixer must move or rewrite the flagged sentence before the section can pass.
+**Section boundaries (pass/fail, Phases 4 and 5):** in Results, no interpretation, no "why," no
+prior-literature references, no evaluative adjectives without numbers; in Discussion, no data
+absent from Results and no overclaiming beyond the evidence level. The critic MUST flag every
+violating sentence regardless of overall score, and the section cannot pass until the fixer moves
+or rewrites it.
 
-### Scoring Guide
-
-- **18-20**: Publication-ready. No changes needed.
-- **14-17**: Minor revisions. Specific sentences flagged.
-- **10-13**: Moderate revisions. Structural or content gaps.
-- **0-9**: Major rewrite. Fundamental issues.
-
-### Pass Threshold
-
-- Overall score >= 85/100 to pass.
-- No single dimension below 12/20.
-- If either condition fails, trigger fixer round.
-
-### Critic Output Format
-
-```
-## Critic Report: {Section Name} -- Round {N}
-
-Overall: {score}/100
-Accuracy: {}/20 | Completeness: {}/20 | Clarity: {}/20
-Conciseness: {}/20 | Reporting: {}/20 | Humanness: {}/20
-
-### Issues (by priority)
-1. [Dimension] Line/paragraph reference: {specific issue} -> {suggested fix}
-2. ...
-
-### Verdict: {PASS | REVISE}
-```
+Report each round as `## Critic Report: {Section} -- Round {N}` with the overall and six dimension
+scores, issues by priority as `[Dimension] location: issue -> suggested fix`, and
+`Verdict: PASS | REVISE`.
 
 ---
 
 ## Manuscript Writing Rules
 
-### Prose Quality
-
 - **Full prose only.** NEVER use bullet points or numbered lists in manuscript sections (Methods, Results, Discussion, Introduction). Bullet points are acceptable only in structured abstracts if the journal format requires them.
-- **Active voice preferred.** "We analyzed" not "Analysis was performed." Use passive only when the agent is truly irrelevant.
-- **Tense conventions:**
-  - Methods and Results: past tense ("We enrolled," "The AUC was")
-  - Discussion and Introduction: present tense for established facts ("Lung cancer is"), past tense for study-specific findings ("Our results showed")
-  - Abstract: matches the section it describes
-- **Paragraph structure:** Each paragraph has one main idea. First sentence states the point; subsequent sentences provide evidence or elaboration.
-- **Transitions:** Every paragraph connects logically to the next. Use explicit transition phrases sparingly but effectively.
-
-### Data Integrity
-
-- All numbers in text must match the corresponding table cells exactly.
-- Report effect sizes with 95% confidence intervals for all primary endpoints.
-- Use exact p-values (p = 0.032) rather than thresholds (p < 0.05), except when p < 0.001.
-- Percentages must match: if 23 of 150, write "23 (15.3%)" -- verify the math.
-- Never round numbers differently between text and tables.
+- **Voice and tense.** Active voice preferred ("We analyzed" not "Analysis was performed"); passive only when the agent is truly irrelevant. Methods and Results: past tense. Discussion and Introduction: present tense for established facts, past tense for study-specific findings. Abstract: matches the section it describes.
+- **Numbers.** All numbers in text must match the corresponding table cells exactly, never rounded differently. Percentages must match: if 23 of 150, write "23 (15.3%)" -- verify the math. Report effect sizes with 95% confidence intervals for all primary endpoints. Use exact p-values (p = 0.032) rather than thresholds (p < 0.05), except when p < 0.001.
+- **Never invent clinical definitions, diagnostic criteria, or guideline recommendations.** If uncertain, flag with `[VERIFY]` and ask the user.
+- **Journal compliance.** Respect the loaded journal profile's word limits (if a section draft exceeds one, report the overage and suggest specific cuts) and structured-abstract format exactly, and include the journal-specific required elements (e.g., "Key Points" for AJR, CLAIM checklist for RYAI AI studies).
 
 ### AI Pattern Avoidance
 
 The manuscript must NOT contain these patterns commonly flagged as AI-generated:
 
-**Forbidden phrases:**
-- "In conclusion" (use "In summary" or rephrase)
-- "It is worth noting that"
-- "It is important to note that"
-- "Notably,"
-- "Interestingly,"
-- "Importantly,"
-- "Furthermore," at sentence start (use "In addition," or restructure)
-- "Moreover," at sentence start
-- "plays a crucial role"
-- "a comprehensive analysis"
-- "delve into"
-- "leverage" (use "use" or "apply")
-- "utilize" (use "use")
-- "in the realm of"
-- "underscores the importance of"
-- "sheds light on"
-- "paves the way for"
-- "a nuanced understanding"
-- "the landscape of"
-- "a paradigm shift"
-- "robust" (unless describing a statistical method)
+**Forbidden phrases:** "In conclusion" (use "In summary" or rephrase) · "It is worth noting that" ·
+"It is important to note that" · "Notably," · "Interestingly," · "Importantly," · "Furthermore,"
+or "Moreover," at sentence start (use "In addition," or restructure) · "plays a crucial role" ·
+"a comprehensive analysis" · "delve into" · "leverage" (use "use" or "apply") · "utilize" (use
+"use") · "in the realm of" · "underscores the importance of" · "sheds light on" · "paves the way
+for" · "a nuanced understanding" · "the landscape of" · "a paradigm shift" · "robust" (unless
+describing a statistical method).
 
-**Forbidden structural patterns:**
-- Three-part list sentences ("X, Y, and Z" repeated across paragraphs)
-- Excessive hedging chains ("may potentially be associated with possible")
-- Mirror-structure paragraphs (same template repeated with different content)
-- Grandstanding opening sentences ("In the rapidly evolving landscape of...")
+**Forbidden structural patterns:** three-part list sentences ("X, Y, and Z" repeated across
+paragraphs); excessive hedging chains ("may potentially be associated with possible");
+mirror-structure paragraphs (same template repeated with different content); grandstanding
+opening sentences ("In the rapidly evolving landscape of...").
 
-**Preferred alternatives:**
-- Vary sentence structure and length within paragraphs.
-- Use specific, concrete language over abstract generalizations.
-- Let data speak: "The AUC was 0.92" rather than "The model demonstrated remarkable performance."
+**Instead:** vary sentence structure and length, prefer specific concrete language, and let data
+speak: "The AUC was 0.92" rather than "The model demonstrated remarkable performance."
 
-### Journal Compliance
+## Resumption
 
-- Respect all word limits from the loaded journal profile.
-- Follow the journal's structured abstract format exactly.
-- Use the journal's citation style (Vancouver numbered for most radiology journals).
-- Include all journal-specific required elements (e.g., "Key Points" for AJR, CLAIM checklist for RYAI AI studies).
-
----
-
-## Skill Interactions
-
-This skill orchestrates other skills at specific phases:
-
-| Phase | Skill called | Purpose |
-|-------|-------------|---------|
-| 2 | `/analyze-stats` | Statistical analysis for tables |
-| 2 | `/make-figures --study-type` | Figure generation with study-type auto-detection |
-| 7.1 | (built-in) | AI pattern removal |
-| 7.2 | `/check-reporting` | Reporting guideline compliance + auto-fix MISSING items |
-| 7.3 | `/verify-refs` | Citation verification and reference artifact audit |
-| 7.4 | `/self-review --json` | Self-review with auto-fix loop (max 2 iterations) |
-| 7.4a | `/meta-analysis` Phase 10 (MA manuscripts) | Audit recovery branch — rebuild extraction/analysis/figures/body when self-review surfaces structural data or protocol issues |
-| 7.5 | `/humanize` | AI-pattern density sweep (<2.0 / 1000 words) |
-| 7.5a | `/academic-aio` (optional, off by default) | AI-search-engine and RAG visibility checklist — run after humanize so QC-confirmed claims and human-readable text anchor the PASS/PARTIAL/FAIL report. Opt-in via `--aio` or when preparing preprint / GitHub README / CITATION.cff / HF card alongside submission. Silent pipeline execution is explicitly prohibited by the skill's Communication Rules. |
-| 7.6 | `/manage-refs` (pandoc citeproc / Zotero CWYW) | DOCX build from manuscript/manuscript.md + analysis/figures + analysis/tables. Bibliography rendering delegated to `/manage-refs scripts/render_pandoc.sh` since 2026-05-01. |
-| 7.6a | `/manage-refs scripts/check_xref.py --strict` | Cross-reference QC: in-text Table/Figure citations ↔ body captions ↔ rendered DOCX captions (3-way matrix). Submission gate. |
-| 8+ | `/find-journal` | Journal scope for cover letter (optional) |
-
-If a called skill is not available, perform that step inline using the relevant section of this skill document as guidance.
+If the user returns to a partially completed manuscript, check the workspace for existing drafts,
+identify the last completed phase, summarize progress, and ask the user where to resume.
 
 ---
 
 ## LLM Writing Disclosure
 
-When LLM disclosure is enabled (default), the skill generates transparency statements
-compliant with ICMJE 2025 and COPE guidelines. The user can disable this with `--no-llm-disclosure`.
-
-### Why Default ON
-
-Major journals (Nature, Lancet, Radiology, JAMA) and the ICMJE (2025 update) require
-disclosure of AI writing assistance. Omitting disclosure risks rejection or retraction.
-The default-on design protects the user; they can opt out for journals with no such policy
-or when LLM assistance was minimal.
+When enabled (default), the skill generates transparency statements compliant with ICMJE 2025
+and COPE. It is ON by default because the ICMJE and major journals require disclosure of AI
+writing assistance and omitting it risks rejection or retraction; `--no-llm-disclosure` turns it
+off for journals with no such policy or when LLM assistance was minimal.
 
 ### Disclosure Locations
 
@@ -689,14 +430,11 @@ interpretation.]
 ### Journal-Specific Overrides
 
 When a journal profile is loaded in Phase 0, check for the `## AI Writing Disclosure Policy`
-section in the profile. Tier 1 profiles now include structured fields:
-- **Requirement level** (Required / Recommended / Not specified)
-- **Permitted scope** (All tasks / Language editing only / Not permitted)
-- **Disclosure location** (Methods / Acknowledgments / Cover letter / Submission form)
-- **AI-generated images** (Allowed / Banned / Not specified)
-- **Policy URL**
-
-Use these fields to adjust disclosure language automatically. Key known policies:
+section in the profile. Its structured fields — **Requirement level** (Required / Recommended /
+Not specified), **Permitted scope** (All tasks / Language editing only / Not permitted),
+**Disclosure location** (Methods / Acknowledgments / Cover letter / Submission form),
+**AI-generated images** (Allowed / Banned / Not specified), **Policy URL** — set the disclosure
+language automatically. Key known policies:
 - **Radiology/RSNA**: Required; language editing only; Methods + Acknowledgments; AI images banned.
 - **RYAI/RSNA**: Required; language editing only; Methods + Acknowledgments; AI images banned.
 - **JAMA/AMA**: Required; language editing only; Methods + Cover letter.
@@ -710,27 +448,6 @@ ICMJE 2025 defaults (disclose in Methods + Acknowledgments, language editing sco
 
 ---
 
-## Error Handling
-
-- If the user provides incomplete data for a table, flag specific missing values rather than inventing data.
-- If word count exceeds the journal limit after a section draft, report the overage and suggest specific cuts.
-- If the critic-fixer loop reaches 3 rounds without passing, present the best version to the user with the remaining issues listed, and ask for guidance.
-- Never fabricate references. If a citation is needed, describe the type of reference needed and ask the user to provide it, or call `/search-lit` to find a real one.
-
-## Resumption
-
-If the user returns to a partially completed manuscript:
-1. Check the workspace directory for existing drafts.
-2. Identify which phase was last completed.
-3. Summarize progress and ask the user where to resume.
-
-## Anti-Hallucination
-
-- **Never fabricate references.** All citations must be verified via `/search-lit` with confirmed DOI or PMID. Mark unverified references as `[UNVERIFIED - NEEDS MANUAL CHECK]`.
-- **Never invent clinical definitions, diagnostic criteria, or guideline recommendations.** If uncertain, flag with `[VERIFY]` and ask the user.
-
----
-
 ## Gates
 
 Severity levels: **ENFORCED** = pipeline halts on failure (cannot proceed to next phase). **ADVISORY** = warning logged, user may override. **OPT-IN** = runs only when explicitly invoked.
@@ -740,29 +457,14 @@ Severity levels: **ENFORCED** = pipeline halts on failure (cannot proceed to nex
 | 0 | Backbone-article auto-proposal (Phase 0 "Identify a backbone article" action) | ADVISORY | refs.bib has methodologically similar candidate | Surface to user; user accepts/declines |
 | 7.0 | Citekey resolution (delegate `/manage-refs scripts/check_citation_keys.py`) | ENFORCED | UNDEFINED keys present | Halt; resolve via `/lit-sync` then re-run |
 | 7.0 | NEW_PLACEHOLDER drain (delegate `/manage-refs`) | ENFORCED at 7.6 entry | `[@NEW:topic]` markers remain | Resolve each before DOCX render |
-| 7.1 | Classical-style QC (manuscript-style-classical 11 items) | ENFORCED | § symbol > 0 OR an AI disclosure in the body of a journal that does not accept one there (per profile) OR more than 25 prose em-dashes | Auto-fix or HALT for senior MA reviewer prep |
+| 7.1 | Classical-style QC (`check_classical_style.py`) | ENFORCED | § symbol > 0 OR an AI disclosure in the body of a journal that does not accept one there (per profile) OR more than 25 prose em-dashes | Auto-fix or HALT for senior MA reviewer prep |
 | 7.2 | Reporting guideline compliance (`/check-reporting`) | ENFORCED at submission | <100% mandatory items present | Auto-fix MISSING; ADVISORY for partial |
 | 7.3 | Reference audit (`/verify-refs --strict`) | ENFORCED | FABRICATED or HIGH_MISMATCH_FIRST_AUTHOR > 0 | Halt; fix in Zotero, re-render refs.bib via `/lit-sync` |
 | 7.4 | Self-review fix loop (`/self-review --json --fix`) | ENFORCED | score below threshold after 2 iterations | Route to Step 7.4a Audit Recovery |
 | 7.4a | Audit Recovery branch (route to `/meta-analysis` Phase 10 for MA manuscripts) | ENFORCED in `--e2e` | self-review surfaced structural data issue | HALT with `RECOVERY_HALT_HUMAN_DECISION` if recovery validation fails twice |
 | 7.5 | Humanize density (`/humanize`) | ADVISORY | AI patterns > 2.0 / 1000 words | Sweep + flag remaining; user reviews |
-| 7.5a | AIO checklist (`/academic-aio --aio`) | OPT-IN | user supplies `--aio` flag | PASS/PARTIAL/FAIL report; never auto-applies |
+| 7.5a | AIO checklist (`/academic-aio --aio`) — run after `/humanize`; also when preparing a preprint / GitHub README / CITATION.cff / HF card alongside submission. Never run it silently: academic-aio's Communication Rules prohibit that. | OPT-IN | user supplies `--aio` flag | PASS/PARTIAL/FAIL report; never auto-applies |
 | 7.6 | DOCX build (delegate `/manage-refs scripts/render_pandoc.sh`) | ENFORCED | render exits non-zero | Halt; report stderr to user |
 | 7.6a | Cross-reference QC (delegate `/manage-refs scripts/check_xref.py --strict`) | ENFORCED — submission gate | MISSING_DOCX / MISSING_BODY / MISMATCH > 0 (under `--allow-separate-attachments`: MISMATCH, or MISSING_BODY whose float is in the DOCX) | Halt; route fixes per `references/phase7_polish_detail.md` |
 | 7.7 | Final submission gate | ENFORCED | any of 7.0–7.6a above failed | Refuse to mark `submission_safe: true` |
 | 8+ | Cover letter generation | OPT-IN | user invokes `--cover-letter` | Renders against journal profile |
-
-Cross-cutting global rules applied during 7.x QC:
-- `manuscript-style-classical.md` (11 items, Phase 7.1 — ENFORCED)
-- `manuscript-references.md` (hand-typed References list — ENFORCED via Phase 7.6 delegation)
-- `numerical-safety.md`, `data-integrity.md`, `citation-safety.md` (Phase 7.3 + 7.6a — ENFORCED)
-- `senior-mentor-circulation.md` (post-7.7, when round 1 begins — ADVISORY)
-- `ai-drafted-document-policy.md` (Phase 0 if AI-draft attached — ENFORCED)
-
-## Global-rule references
-
-Some passages in this skill cite a path of the form `~/.claude/rules/<name>.md`. Those are the
-maintainer's personal global rules, kept outside this repository. They are **not shipped with
-this skill** and will not exist on your machine; they appear only as provenance for where a
-convention came from. If one of them looks like it is standing in for an instruction you actually
-need, that is a bug — please open an issue, because the instruction belongs here.
