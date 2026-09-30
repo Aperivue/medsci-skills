@@ -117,6 +117,30 @@ with tempfile.TemporaryDirectory() as td:
 check("audit: fully_verified is false", audit["fully_verified"] is False)
 check("audit: manual reference check required", audit["requires_manual_reference_check"] is True)
 
+# 6. Short tokens that carry meaning count. Dropping every token of <=2 characters made a
+#    title ending "CT" identical to the same title ending "MR"; only connective stopwords and
+#    stray single letters are ignored now.
+CT_TITLE = "Deep learning prediction of lung cancer in CT"
+check("'... in CT' vs '... in MR' is below the match threshold",
+      vr._title_similarity(CT_TITLE, "Deep learning prediction of lung cancer in MR.") < vr.TITLE_MATCH_MIN)
+check("'type 2' vs 'type 1' is not an exact match",
+      vr._title_similarity("Outcomes in type 2 diabetes", "Outcomes in type 1 diabetes") < 1.0)
+check("stopwords and case still ignored",
+      vr._title_similarity("The role of AI in CT triage", "Role of ai for CT triage.") == 1.0)
+MR_ONLY = {"result": {"uids": ["90000004"],
+    "90000004": {"title": "Deep learning prediction of lung cancer in MR."}}}
+def mr_http(url, timeout):
+    if "esearch.fcgi" in url:
+        return {"esearchresult": {"idlist": ["90000004"]}}
+    if "esummary.fcgi" in url:
+        return MR_ONLY
+    if "api.openalex.org" in url:
+        return {"results": []}
+    return None
+use(mr_http)
+out = vr.verify_record(fake_record(CT_TITLE), offline=False, timeout=5, use_openalex=True)
+check("CT title matched only by an MR record -> UNVERIFIED, not OK", out.status == "UNVERIFIED")
+
 print(f"fail={fail}")
 print("ALL PASS" if fail == 0 else f"FAILURES: {fail}")
 sys.exit(fail)

@@ -758,16 +758,24 @@ def verify_pubmed_title(title: str, timeout: int) -> tuple[str, str, list]:
 TITLE_MATCH_MIN = 0.8
 
 
+# Connective words ignored by _title_similarity. Other short tokens stay: CT, MR, US, AI, HR
+# and single digits are what tells two otherwise identical titles apart.
+_TITLE_STOPWORDS = frozenset(
+    "a an the of in on to for and or by with at as is vs from".split())
+
+
 def _title_similarity(a: str, b: str) -> float:
     """Token Jaccard on normalized titles (stdlib-only).
 
     Guards title-search matches (OpenAlex, PubMed fallback): a fabricated title must not
-    earn a spurious OK just because a search returned some unrelated work. Stop-short
-    tokens (<=2 chars) are dropped so connective words do not inflate similarity.
+    earn a spurious OK just because a search returned some unrelated work. Connective
+    stopwords and stray single letters are dropped so they do not inflate similarity;
+    dropping every token of <=2 characters made "... in CT" match "... in MR".
     """
     def toks(s: str) -> set:
         s = re.sub(r"[^a-z0-9 ]", " ", s.lower())
-        return {w for w in s.split() if len(w) > 2}
+        return {w for w in s.split()
+                if w not in _TITLE_STOPWORDS and (len(w) > 1 or w.isdigit())}
     ta, tb = toks(a), toks(b)
     if not ta or not tb:
         return 0.0
