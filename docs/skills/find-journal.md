@@ -4,7 +4,7 @@
 
 > Use when choosing where to submit a manuscript. Matches the abstract against curated journal profiles and returns ranked picks with scope fit, AI-disclosure policy, an acceptance-readiness pre-flight and a reject-fallback cascade. Impact and APC figures may be stale.
 
-**Invoke:** `/find-journal` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
+**Invoke:** `/find-journal` · **Model:** inherit
 
 ## When to use
 

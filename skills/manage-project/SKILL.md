@@ -1,9 +1,9 @@
 ---
 name: manage-project
 description: Use when managing a manuscript project over time. Scaffolds the project structure, tracks writing progress across phases, maintains project memory files, and generates submission checklists and backwards timelines (commands init, status, sync-memory, checklist, timeline).
-triggers: manage project, project init, project status, submission checklist, project scaffold, create project, new paper project
-tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit
+metadata:
+  triggers: "manage project, project init, project status, submission checklist, project scaffold, create project, new paper project"
 ---
 
 # Manage-Project Skill -- Research Project Management

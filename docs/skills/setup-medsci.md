@@ -4,7 +4,7 @@
 
 > Use when a skill fails for a missing tool or the environment needs checking. Diagnoses Python, R, Node, Claude Code, Git, Zotero and configured MCP servers and prints a pass/fail table with links to the setup docs. Read-only; installs nothing.
 
-**Invoke:** `/setup-medsci` · **Tools:** Bash, Read · **Model:** inherit
+**Invoke:** `/setup-medsci` · **Model:** inherit
 
 ## When to use
 

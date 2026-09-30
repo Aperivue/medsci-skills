@@ -4,7 +4,7 @@
 
 > Use when drafting a medical research manuscript or any IMRAD section. Runs an 8-phase pipeline from outline to submission-ready draft for original articles, AI validation studies, case reports, meta-analyses, technical notes and more. Checking a draft is /self-review.
 
-**Invoke:** `/write-paper` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
+**Invoke:** `/write-paper` · **Model:** inherit
 
 ## When to use
 

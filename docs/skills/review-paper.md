@@ -4,7 +4,7 @@
 
 > Use when writing a literature review article (narrative, scoping PRISMA-ScR or systematic). Scaffolds a 7-part skeleton with a scope and non-overlap statement, summary-table stubs and reporting-guideline wiring, without inventing citations. Original research is /write-paper.
 
-**Invoke:** `/review-paper` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
+**Invoke:** `/review-paper` · **Model:** inherit
 
 ## When to use
 

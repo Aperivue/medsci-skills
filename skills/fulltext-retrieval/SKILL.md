@@ -1,9 +1,9 @@
 ---
 name: fulltext-retrieval
 description: Use when you need full-text PDFs for a list of DOIs, such as a meta-analysis screening set. Batch-downloads open-access copies via Unpaywall, PMC, OpenAlex and Crossref, lists paywalled papers for manual access, and can convert PDFs to Markdown.
-triggers: PDF download, fulltext retrieval, open access PDF, batch download papers, meta-analysis PDF, PDF to markdown, convert PDF
-tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit
+metadata:
+  triggers: "PDF download, fulltext retrieval, open access PDF, batch download papers, meta-analysis PDF, PDF to markdown, convert PDF"
 ---
 
 # Fulltext Retrieval Skill

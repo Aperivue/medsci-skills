@@ -4,7 +4,7 @@
 
 > Use when preparing an academic talk such as a journal club, grand rounds, seminar, conference presentation, or lecture/teaching deck. Analyzes the source, drafts audience-adapted speaker scripts, builds or augments the PPTX with speaker notes and prepares Q&A.
 
-**Invoke:** `/present-paper` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
+**Invoke:** `/present-paper` · **Model:** inherit
 
 ## When to use
 

@@ -1,9 +1,9 @@
 ---
 name: setup-medsci
 description: Use when a skill fails for a missing tool or the environment needs checking. Diagnoses Python, R, Node, Claude Code, Git, Zotero and configured MCP servers and prints a pass/fail table with links to the setup docs. Read-only; installs nothing.
-triggers: setup, install, environment, diagnostic, check setup, why doesn't this work, missing python, missing R, MCP not connected, 환경 설정, 설치 점검
-tools: Bash, Read
 model: inherit
+metadata:
+  triggers: "setup, install, environment, diagnostic, check setup, why doesn't this work, missing python, missing R, MCP not connected, 환경 설정, 설치 점검"
 ---
 
 # Setup-MedSci Skill

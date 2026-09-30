@@ -4,7 +4,7 @@
 
 > Use when sending local changes back to the project (an added journal profile, a fixed checklist item, an adapted skill) or reporting a false positive or bug. Finds what changed, scans it for patient data, shows every line and sends nothing until you confirm.
 
-**Invoke:** `/contribute` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** sonnet
+**Invoke:** `/contribute` · **Model:** sonnet
 
 ## When to use
 

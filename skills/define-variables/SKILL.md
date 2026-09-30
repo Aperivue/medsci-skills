@@ -1,9 +1,9 @@
 ---
 name: define-variables
 description: Use when exposure, outcome, covariate or eligibility definitions and cutoffs need a citable basis before the protocol. Reads the data dictionary first, then maps each variable to a guideline or published definition and the database columns in a citation-backed table.
-triggers: variable definition, phenotype definition, operationalization, cutoff justification, inclusion criteria, case definition, grouping criteria, literature-grounded definition, canonical definition, 변수 정의, 정의 근거
-tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit
+metadata:
+  triggers: "variable definition, phenotype definition, operationalization, cutoff justification, inclusion criteria, case definition, grouping criteria, literature-grounded definition, canonical definition, 변수 정의, 정의 근거"
 ---
 
 # Define-Variables Skill

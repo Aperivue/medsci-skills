@@ -4,7 +4,7 @@
 
 > Use when a clinical CSV/Excel dataset needs profiling and cleaning before analysis (missing values, outliers, duplicates, type mismatches). Profiles, flags and generates cleaning code in three stages, each gated on the researcher's approval. Never auto-cleans.
 
-**Invoke:** `/clean-data` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
+**Invoke:** `/clean-data` · **Model:** inherit
 
 ## When to use
 

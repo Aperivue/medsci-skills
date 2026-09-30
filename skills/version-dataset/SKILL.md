@@ -1,9 +1,9 @@
 ---
 name: version-dataset
 description: Use when you must prove an analysis ran on the intended data or lock a dataset version. Builds a deterministic content-hash manifest (file SHA-256, schema, per-column value hashes), verifies later copies against it for drift, and diffs two manifests.
-triggers: version dataset, dataset version, data manifest, data hash, dataset drift, reproducibility lock, verify dataset, data provenance, did my data change, manifest.lock
-tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit
+metadata:
+  triggers: "version dataset, dataset version, data manifest, data hash, dataset drift, reproducibility lock, verify dataset, data provenance, did my data change, manifest.lock"
 ---
 
 # Version Dataset Skill

@@ -1,9 +1,9 @@
 ---
 name: design-study
 description: Use when checking a radiology or medical AI study design before drafting or submission. Reviews the analysis unit, cohort logic, leakage risks, comparator, validation strategy and reporting-guideline fit. AI-vs-expert benchmarks are /design-ai-benchmarking.
-triggers: study design, leakage check, cohort design, analysis plan, validation strategy, comparator design, bias check
-tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit
+metadata:
+  triggers: "study design, leakage check, cohort design, analysis plan, validation strategy, comparator design, bias check"
 ---
 
 # Design-Study Skill

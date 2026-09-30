@@ -4,7 +4,7 @@
 
 > Use when a manuscript needs a copy-edit for consistency and non-native English clarity. Flags abbreviation, US/UK spelling, en-dash range, P/p, hyphenation, number-style and unit-spacing issues, then polishes style only. AI-tell removal is /humanize.
 
-**Invoke:** `/polish-language` · **Tools:** Read, Write, Edit, Grep, Glob, Bash · **Model:** inherit
+**Invoke:** `/polish-language` · **Model:** inherit
 
 ## When to use
 

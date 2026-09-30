@@ -1,9 +1,9 @@
 ---
 name: contribute
 description: Use when sending local changes back to the project (an added journal profile, a fixed checklist item, an adapted skill) or reporting a false positive or bug. Finds what changed, scans it for patient data, shows every line and sends nothing until you confirm.
-triggers: contribute, 기여, send my changes, share my edit, report a false positive, feedback, my journal is missing, open a PR, pull request, 오탐 신고, report a bug
-tools: Read, Write, Edit, Bash, Grep, Glob
 model: sonnet
+metadata:
+  triggers: "contribute, 기여, send my changes, share my edit, report a false positive, feedback, my journal is missing, open a PR, pull request, 오탐 신고, report a bug"
 ---
 
 # Contribute

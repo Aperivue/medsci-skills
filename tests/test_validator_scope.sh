@@ -54,9 +54,9 @@ cat > "$FIXTURE_DIR/SKILL.md" <<'EOF'
 ---
 name: zz-scope-fixture
 description: Throwaway fixture created and deleted by tests/test_validator_scope.sh.
-triggers: none
-tools: Read
 model: inherit
+metadata:
+  triggers: "none"
 ---
 
 # Fixture

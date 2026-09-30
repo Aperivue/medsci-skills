@@ -4,7 +4,7 @@
 
 > Use when a manuscript comes back with reviewer or editor comments. Numbers every comment, classifies it MAJOR/MINOR/REBUTTAL, drafts a point-by-point response with tracked manuscript changes, routes new analyses to /analyze-stats and writes the cover letter.
 
-**Invoke:** `/revise` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
+**Invoke:** `/revise` · **Model:** inherit
 
 ## When to use
 

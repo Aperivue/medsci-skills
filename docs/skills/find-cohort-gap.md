@@ -4,7 +4,7 @@
 
 > Use when looking for research topics a longitudinal cohort database can answer (NHIS, UK Biobank, an institutional EMR or registry). Profiles the cohort, matches PI expertise, scans literature saturation and returns ranked topic proposals with gap evidence.
 
-**Invoke:** `/find-cohort-gap` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** opus
+**Invoke:** `/find-cohort-gap` · **Model:** opus
 
 ## When to use
 

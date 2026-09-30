@@ -4,7 +4,7 @@
 
 > Use when comparing an exposure-outcome association across countries with parallel national surveys (KNHANES, NHANES, CHNS). Harmonizes variables, runs parallel weighted analyses and builds comparison tables for 2-country (KR+US) or 3-country (KR+US+CN) designs.
 
-**Invoke:** `/cross-national` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** opus
+**Invoke:** `/cross-national` · **Model:** opus
 
 ## When to use
 

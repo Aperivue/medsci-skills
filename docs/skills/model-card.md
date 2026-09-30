@@ -4,7 +4,7 @@
 
 > Use when a trained medical-imaging model needs its documentation. Fills a Model Card and a Datasheet for its dataset from facts you supply, adds a METRIC-informed data-quality pass and gates that no required section is empty. Never invents numbers, provenance or licence.
 
-**Invoke:** `/model-card` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
+**Invoke:** `/model-card` · **Model:** inherit
 
 ## When to use
 

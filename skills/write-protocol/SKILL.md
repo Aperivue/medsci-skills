@@ -1,9 +1,9 @@
 ---
 name: write-protocol
 description: Use when drafting an IRB or ethics research protocol. Writes Background, Study Design, Sample Size and Statistical Plan in full prose and leaves institution-specific sections as TODO skeletons. Filling an institutional Word form is /fill-protocol.
-triggers: write protocol, IRB protocol, ethics protocol, research protocol, IRB submission, ethics submission, protocol draft
-tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit
+metadata:
+  triggers: "write protocol, IRB protocol, ethics protocol, research protocol, IRB submission, ethics submission, protocol draft"
 ---
 
 # Write-Protocol Skill

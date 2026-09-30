@@ -1,9 +1,9 @@
 ---
 name: clean-data
 description: Use when a clinical CSV/Excel dataset needs profiling and cleaning before analysis (missing values, outliers, duplicates, type mismatches). Profiles, flags and generates cleaning code in three stages, each gated on the researcher's approval. Never auto-cleans.
-triggers: clean data, data cleaning, data preprocessing, data profiling, missing values, outliers, check my data, data quality
-tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit
+metadata:
+  triggers: "clean data, data cleaning, data preprocessing, data profiling, missing values, outliers, check my data, data quality"
 ---
 
 # Data Profiling and Cleaning Skill

@@ -1,9 +1,9 @@
 ---
 name: sync-submission
 description: Use when building, auditing or freezing a journal submission package from the canonical manuscript. Detects drift between the source and the per-journal submission copy, builds byte-preserving packages with manifests, and records current, stale or frozen status.
-triggers: sync submission, build submission, submission drift, SSOT sync, journal package, retarget journal, freeze submission
-tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit
+metadata:
+  triggers: "sync submission, build submission, submission drift, SSOT sync, journal package, retarget journal, freeze submission"
 ---
 
 # Sync Submission

@@ -37,7 +37,7 @@ OpenClaw and Hermes stay on the roadmap with no install code or support claim un
 
 These are points where the repository or a workflow assumes a Claude Code environment. The skill **packages** are portable; some **workflows** are not.
 
-**Frontmatter (portable with a caveat).** Each `SKILL.md` uses `name`, `description`, `triggers`, `tools`, `model`. The open standard requires only `name` and `description`; `triggers`, `tools`, and `model` are **non-standard fields**. Compliant hosts ignore unknown fields, so they do not break discovery, but they are not interpreted off-Claude. (`tools` is also not the standard's `allowed-tools`.) A future alignment could move these under the standard's `metadata` map or add a `compatibility` field; out of scope here.
+**Frontmatter (portable with a caveat).** Each `SKILL.md` uses `name`, `description`, `model`, and `metadata.triggers`. The open standard requires only `name` and `description`; `triggers` sits under the standard's `metadata` map, and `model` is the one **non-standard field** left. Compliant hosts ignore unknown fields, so it does not break discovery, but it is not interpreted off-Claude. The former `tools` field was removed in v6 because hosts ignored it; it was not converted to the standard's `allowed-tools`, which pre-approves tools rather than listing them.
 
 **Install / config paths.**
 - `~/.claude/skills`, `~/.agents/skills` — install destinations (both verified above).
@@ -45,7 +45,7 @@ These are points where the repository or a workflow assumes a Claude Code enviro
 
 **Runtime references inside skills.**
 - `${CLAUDE_SKILL_DIR}` — used by ~150 asset references across the skills to locate bundled `scripts/`/`references/`. Hosts that set this variable (or an equivalent skill-root variable) resolve them; a skill that calls another skill's script uses `${CLAUDE_SKILL_DIR}/../<skill>/`, which resolves the same way in a repository clone and in an installed skills directory. On a host that sets neither, bundled-asset paths must be resolved relative to the skill root.
-- **MCP tool names** — some skills reference Claude MCP servers in their bodies (for example PubMed / CrossRef / Zotero / Google Drive, named like `mcp__claude_ai_*` or `mcp__zotero__*`). These are **not declared in the `tools` frontmatter** and are **host-specific**: off-Claude hosts without the same MCP servers fall back to the skills' deterministic scripts or to manual workflow.
+- **MCP tool names** — some skills reference Claude MCP servers in their bodies (for example PubMed / CrossRef / Zotero / Google Drive, named like `mcp__claude_ai_*` or `mcp__zotero__*`). These are **not declared in the frontmatter** and are **host-specific**: off-Claude hosts without the same MCP servers fall back to the skills' deterministic scripts or to manual workflow.
 
 ## Skill portability vs full-workflow portability
 

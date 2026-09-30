@@ -1,9 +1,9 @@
 ---
 name: find-cohort-gap
 description: Use when looking for research topics a longitudinal cohort database can answer (NHIS, UK Biobank, an institutional EMR or registry). Profiles the cohort, matches PI expertise, scans literature saturation and returns ranked topic proposals with gap evidence.
-triggers: cohort gap, research topic, DB 주제, 코호트 갭, gap analysis, 연구주제 찾기, find research gap, 주제 발굴
-tools: Read, Write, Edit, Bash, Grep, Glob
 model: opus
+metadata:
+  triggers: "cohort gap, research topic, DB 주제, 코호트 갭, gap analysis, 연구주제 찾기, find research gap, 주제 발굴"
 ---
 
 # Find-Cohort-Gap Skill

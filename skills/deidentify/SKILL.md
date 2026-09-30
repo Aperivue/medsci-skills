@@ -1,9 +1,9 @@
 ---
 name: deidentify
 description: Use when clinical data may contain PHI and must be de-identified before any LLM-assisted analysis. A local Python script (no network or AI calls) detects identifiers with regex and heuristics in 10 country locale packs, with interactive terminal review.
-triggers: deidentify, de-identify, anonymize, 비식별화, 익명화, remove PHI, remove PII, strip patient info
-tools: Read, Bash, Glob
 model: inherit
+metadata:
+  triggers: "deidentify, de-identify, anonymize, 비식별화, 익명화, remove PHI, remove PII, strip patient info"
 ---
 
 # De-identification Skill

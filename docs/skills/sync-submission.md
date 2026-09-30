@@ -4,7 +4,7 @@
 
 > Use when building, auditing or freezing a journal submission package from the canonical manuscript. Detects drift between the source and the per-journal submission copy, builds byte-preserving packages with manifests, and records current, stale or frozen status.
 
-**Invoke:** `/sync-submission` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
+**Invoke:** `/sync-submission` · **Model:** inherit
 
 ## When to use
 

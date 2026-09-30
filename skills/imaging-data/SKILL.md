@@ -1,9 +1,9 @@
 ---
 name: imaging-data
 description: Use when preparing a medical-imaging dataset (DICOM/NIfTI) for modelling. Profiles spacing, orientation, intensity, label integrity, foreground fraction and target volume, gates them against the plan, then plans and audits preprocessing and augmentation for leakage.
-triggers: profile dataset, dataset profile, EDA, exploratory data analysis, explore the data, what does the data look like, imaging dataset, NIfTI, voxel spacing, slice thickness, orientation, intensity distribution, Hounsfield, class imbalance, foreground fraction, label sanity, empty label, label QC, dataset QC, data audit, before training, target volume, organ volume, is my test set labelled, research direction, where do I start, profile imaging, preprocess imaging, preprocessing, data pipeline, DICOM, resample, spacing, intensity normalization, intensity normalisation, windowing, HU window, z-score, histogram matching, augmentation, augmentation plan, TorchIO, MONAI transforms, data leakage, normalization leakage, preprocessing manifest, fit on train, per-image normalization, patient-level split, slice-level leakage, imaging data prep
-tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit
+metadata:
+  triggers: "profile dataset, dataset profile, EDA, exploratory data analysis, explore the data, what does the data look like, imaging dataset, NIfTI, voxel spacing, slice thickness, orientation, intensity distribution, Hounsfield, class imbalance, foreground fraction, label sanity, empty label, label QC, dataset QC, data audit, before training, target volume, organ volume, is my test set labelled, research direction, where do I start, profile imaging, preprocess imaging, preprocessing, data pipeline, DICOM, resample, spacing, intensity normalization, intensity normalisation, windowing, HU window, z-score, histogram matching, augmentation, augmentation plan, TorchIO, MONAI transforms, data leakage, normalization leakage, preprocessing manifest, fit on train, per-image normalization, patient-level split, slice-level leakage, imaging data prep"
 ---
 
 # Imaging-Data Skill

@@ -4,7 +4,7 @@
 
 > Use when preparing a medical-imaging dataset (DICOM/NIfTI) for modelling. Profiles spacing, orientation, intensity, label integrity, foreground fraction and target volume, gates them against the plan, then plans and audits preprocessing and augmentation for leakage.
 
-**Invoke:** `/imaging-data` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
+**Invoke:** `/imaging-data` · **Model:** inherit
 
 ## When to use
 

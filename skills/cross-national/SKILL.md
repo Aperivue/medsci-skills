@@ -1,9 +1,9 @@
 ---
 name: cross-national
 description: Use when comparing an exposure-outcome association across countries with parallel national surveys (KNHANES, NHANES, CHNS). Harmonizes variables, runs parallel weighted analyses and builds comparison tables for 2-country (KR+US) or 3-country (KR+US+CN) designs.
-triggers: cross-national, 한미 비교, Korea US comparison, KNHANES NHANES, 양국 비교, binational, cross-country, 비교연구, 3국 비교, CHNS, 한미중
-tools: Read, Write, Edit, Bash, Grep, Glob
 model: opus
+metadata:
+  triggers: "cross-national, 한미 비교, Korea US comparison, KNHANES NHANES, 양국 비교, binational, cross-country, 비교연구, 3국 비교, CHNS, 한미중"
 ---
 
 # Cross-National Comparison Study Skill

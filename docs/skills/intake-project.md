@@ -4,7 +4,7 @@
 
 > Use when starting or inheriting a radiology research project and need to know what it is. Classifies the project type, summarizes its current state, lists missing inputs, recommends next steps and scaffolds lightweight project memory files.
 
-**Invoke:** `/intake-project` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
+**Invoke:** `/intake-project` · **Model:** inherit
 
 ## When to use
 

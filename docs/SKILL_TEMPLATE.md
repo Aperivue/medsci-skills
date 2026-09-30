@@ -9,19 +9,25 @@ Use this template when creating a new medsci-skill. Copy the structure below and
 ```yaml
 ---
 name: skill-name
-description: One-sentence description of what this skill does.
-triggers: english trigger, 한국어 트리거, comma separated keywords
-tools: Read, Write, Edit, Bash, Grep, Glob
+description: Use when {the situation the user is in}. {What the skill does, and which skill takes over at its boundary.}
 model: inherit
+metadata:
+  triggers: "english trigger, 한국어 트리거, comma separated keywords"
 ---
 ```
 
 **Fields**:
 - `name`: kebab-case, matches the directory name under `skills/`
-- `description`: Under 200 characters. Start with a verb or noun phrase.
-- `triggers`: Keywords that activate this skill. Include both English and Korean terms.
-- `tools`: Only list tools the skill actually uses. Most skills need `Read, Write, Edit, Bash, Grep, Glob`.
+- `description`: At most 300 characters. The first sentence starts "Use when …" and names the
+  situation in the words a user would type, because the model picks skills from this text. Name
+  the boundary with the skill it is most easily confused with. No marketing, no implementation
+  detail, no claim the SKILL.md body does not back.
 - `model`: Use `inherit` unless the skill requires complex reasoning (then `opus`).
+- `metadata.triggers`: Keywords that activate this skill. Include both English and Korean terms.
+  It sits under the Agent Skills `metadata` map because a top-level `triggers` is non-standard.
+
+There is no `tools` field: hosts ignore it. Do not add `allowed-tools` in its place — that field
+pre-approves tools rather than listing them.
 
 ---
 
@@ -166,7 +172,7 @@ New skills should target **Mid** tier minimum. Core pipeline skills (write-paper
 
 ## Checklist Before Publishing
 
-- [ ] YAML frontmatter has all 5 required fields (name, description, triggers, tools, model)
+- [ ] YAML frontmatter has `name`, `description` (≤300 characters, led by "Use when"), `model` and `metadata.triggers`, and no `tools`
 - [ ] Every instruction is one the agent would otherwise get wrong (no generic boilerplate)
 - [ ] Steps that need the user's approval say so where they happen
 - [ ] Output Contract section lists all files the skill produces

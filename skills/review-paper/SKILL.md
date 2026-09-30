@@ -1,9 +1,9 @@
 ---
 name: review-paper
 description: Use when writing a literature review article (narrative, scoping PRISMA-ScR or systematic). Scaffolds a 7-part skeleton with a scope and non-overlap statement, summary-table stubs and reporting-guideline wiring, without inventing citations. Original research is /write-paper.
-triggers: review article, scoping review, narrative review, literature review, PRISMA-ScR, write a review
-tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit
+metadata:
+  triggers: "review article, scoping review, narrative review, literature review, PRISMA-ScR, write a review"
 ---
 
 # Review-Paper Skill

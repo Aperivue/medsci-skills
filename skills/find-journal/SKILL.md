@@ -1,9 +1,9 @@
 ---
 name: find-journal
 description: Use when choosing where to submit a manuscript. Matches the abstract against curated journal profiles and returns ranked picks with scope fit, AI-disclosure policy, an acceptance-readiness pre-flight and a reject-fallback cascade. Impact and APC figures may be stale.
-triggers: find journal, recommend journal, where to submit, which journal, journal selection, target journal, journal match
-tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit
+metadata:
+  triggers: "find journal, recommend journal, where to submit, which journal, journal selection, target journal, journal match"
 ---
 
 # Find Journal Skill

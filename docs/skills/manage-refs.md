@@ -4,7 +4,7 @@
 
 > Use when references must be written, rendered or converted. Checks [@key] citation keys, renders the reference list with a journal CSL via pandoc, converts [N] markers, injects Zotero Word field codes and runs manuscript-DOCX cross-reference QC. Read-only auditing is /verify-refs.
 
-**Invoke:** `/manage-refs` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
+**Invoke:** `/manage-refs` · **Model:** inherit
 
 ## When to use
 

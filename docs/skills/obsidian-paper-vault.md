@@ -4,7 +4,7 @@
 
 > Use when turning a folder of research PDFs into Obsidian notes, even if Obsidian is not named. Writes one templated literature note per paper and extracts cross-linked atomic concept notes, never overwriting existing ones. A .bib or Zotero library is /lit-sync.
 
-**Invoke:** `/obsidian-paper-vault` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
+**Invoke:** `/obsidian-paper-vault` · **Model:** inherit
 
 ## When to use
 

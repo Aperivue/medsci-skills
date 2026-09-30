@@ -4,7 +4,7 @@
 
 > Use when auditing a manuscript item by item against a reporting guideline or risk-of-bias tool. Covers 49 reporting guidelines and risk-of-bias tools (STROBE, CONSORT, STARD, TRIPOD+AI, PRISMA, QUADAS and more), marking each item PRESENT, PARTIAL or MISSING. Not a reviewer critique (/self-review).
 
-**Invoke:** `/check-reporting` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
+**Invoke:** `/check-reporting` · **Model:** inherit
 
 ## When to use
 

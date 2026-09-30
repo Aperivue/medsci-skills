@@ -4,7 +4,7 @@
 
 > Use when a manuscript or response-to-reviewers letter reads as AI-written. Scans for 27 AI writing patterns and rewrites flagged passages, preserving technical accuracy and bounding how much text changes. Not general copy-editing; that is /polish-language.
 
-**Invoke:** `/humanize` · **Tools:** Read, Write, Edit, Grep, Glob, Bash · **Model:** inherit
+**Invoke:** `/humanize` · **Model:** inherit
 
 ## When to use
 

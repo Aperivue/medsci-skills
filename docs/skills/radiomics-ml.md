@@ -4,7 +4,7 @@
 
 > Use when building or auditing a radiomics or tabular clinical-ML prediction model with a classical learner (LASSO, SVM, random forest, XGBoost and similar). Enforces nested CV, dimensionality control, in-fold feature selection, feature stability, calibration and external validation.
 
-**Invoke:** `/radiomics-ml` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
+**Invoke:** `/radiomics-ml` · **Model:** inherit
 
 ## When to use
 

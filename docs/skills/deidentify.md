@@ -4,7 +4,7 @@
 
 > Use when clinical data may contain PHI and must be de-identified before any LLM-assisted analysis. A local Python script (no network or AI calls) detects identifiers with regex and heuristics in 10 country locale packs, with interactive terminal review.
 
-**Invoke:** `/deidentify` · **Tools:** Read, Bash, Glob · **Model:** inherit
+**Invoke:** `/deidentify` · **Model:** inherit
 
 ## When to use
 

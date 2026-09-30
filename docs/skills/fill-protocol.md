@@ -4,7 +4,7 @@
 
 > Use when an institutional Word form (.doc/.docx IRB protocol, ethics application, grant template) must be filled without breaking its styles, tables, fonts or page layout. Renders content drafted by /write-protocol into the template; CJK-aware.
 
-**Invoke:** `/fill-protocol` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
+**Invoke:** `/fill-protocol` · **Model:** inherit
 
 ## When to use
 

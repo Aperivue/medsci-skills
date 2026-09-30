@@ -1,9 +1,9 @@
 ---
 name: model-card
 description: Use when a trained medical-imaging model needs its documentation. Fills a Model Card and a Datasheet for its dataset from facts you supply, adds a METRIC-informed data-quality pass and gates that no required section is empty. Never invents numbers, provenance or licence.
-triggers: model card, model cards, datasheet, datasheet for datasets, dataset documentation, model documentation, hugging face card, model metadata, intended use, out-of-scope, data quality, METRIC framework, model reporting, document a model
-tools: Read, Write, Edit, Bash, Grep, Glob
 model: inherit
+metadata:
+  triggers: "model card, model cards, datasheet, datasheet for datasets, dataset documentation, model documentation, hugging face card, model metadata, intended use, out-of-scope, data quality, METRIC framework, model reporting, document a model"
 ---
 
 # Model-Card Skill

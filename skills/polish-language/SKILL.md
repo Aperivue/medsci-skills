@@ -1,9 +1,9 @@
 ---
 name: polish-language
 description: Use when a manuscript needs a copy-edit for consistency and non-native English clarity. Flags abbreviation, US/UK spelling, en-dash range, P/p, hyphenation, number-style and unit-spacing issues, then polishes style only. AI-tell removal is /humanize.
-triggers: polish language, copy-edit, consistency check, ESL, non-native English, house style, abbreviation consistency, en-dash, US UK spelling, proofread manuscript, 일관성 검사, 교정
-tools: Read, Write, Edit, Grep, Glob, Bash
 model: inherit
+metadata:
+  triggers: "polish language, copy-edit, consistency check, ESL, non-native English, house style, abbreviation consistency, en-dash, US UK spelling, proofread manuscript, 일관성 검사, 교정"
 ---
 
 # Polish-Language Skill

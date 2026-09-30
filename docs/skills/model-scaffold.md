@@ -4,7 +4,7 @@
 
 > Use when you need a runnable PyTorch training repo for a medical-imaging task (segmentation, classification, detection, synthesis, self-supervised, or fine-tuning a pretrained backbone). Emits a patient-level seed-locked split, train/evaluate scripts, config and a Methods stub.
 
-**Invoke:** `/model-scaffold` · **Tools:** Read, Write, Edit, Bash, Grep, Glob · **Model:** inherit
+**Invoke:** `/model-scaffold` · **Model:** inherit
 
 ## When to use
 
