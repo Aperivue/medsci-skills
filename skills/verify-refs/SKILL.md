@@ -72,6 +72,9 @@ and writes no TSV and no `library.bib`.
 - `counts` and `duplicate_findings[]` (Gate 5).
 - `submission_safe`: no `FABRICATED`, no `MISMATCH`, and `duplicate_findings` empty.
   `fully_verified` additionally requires no `UNVERIFIED`.
+- `submission_safe` tolerates `UNVERIFIED` rows because offline runs produce them; before a
+  submission, resolve each one (confirm it by hand and say how, or remove the citation) — do not
+  ship an `UNVERIFIED` reference as if it were checked.
 - `source_sha256` and `audited_ref_ids`: what was audited. A later reader compares them with the
   current bib; a changed bib makes the audit stale.
 
