@@ -158,6 +158,9 @@ Instructions for Authors require a power analysis, or the IRB requires it.
 2. Run the R code via Bash; the reported N is the number it prints, not a hand calculation.
 3. Present the result in the Output Format below. Cite methodological sources only from
    `formulas.md` or the test's reference file.
+4. In a project, save the IRB text as `protocol/sample_size_justification.md` and the scripts as
+   `protocol/sample_size_calc.R` / `.py`: `/write-protocol` and `/write-paper` embed that text
+   verbatim, so the numbers are never retyped.
 
 ### Phase 4: Sensitivity Analysis (Optional)
 
