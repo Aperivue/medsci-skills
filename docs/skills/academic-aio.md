@@ -40,8 +40,11 @@
 - `case_studies/` (1 file)
 - `checklists/` (1 file)
 - `journal_summarybox_templates.yaml`
+- `launch_sequencing.md`
 - `oac_funding_checklist.yaml`
+- `pre_draft_strategy.md`
 - `reporting_guideline_mapping.md`
+- `repository_and_cards.md`
 - `schema_markup_templates/` (5 files)
 - `summary_box_specs.json`
 

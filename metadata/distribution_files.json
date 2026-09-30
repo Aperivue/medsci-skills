@@ -78,8 +78,8 @@
     },
     {
       "path": "skills/academic-aio/SKILL.md",
-      "size": 32773,
-      "sha256": "9e43ec3cc38ab1988770cd0e071be92431bdef0d596d8f80b86abe79379c0117"
+      "size": 18813,
+      "sha256": "11890f8246a86f2fecd0dbf1f3e094d749f878627fa256c7a02650069039d9c2"
     },
     {
       "path": "skills/academic-aio/references/ai_tool_citation_framing.md",
@@ -102,14 +102,29 @@
       "sha256": "f6f0bf270a25b6f0f8588c4f77ba096f01be7414afc57b9be8f5c35384d1df7d"
     },
     {
+      "path": "skills/academic-aio/references/launch_sequencing.md",
+      "size": 2815,
+      "sha256": "0a1b626521c4765bce598a180ead576aa62c4d2264a64f5252cca17b176d8ea8"
+    },
+    {
       "path": "skills/academic-aio/references/oac_funding_checklist.yaml",
       "size": 4977,
       "sha256": "ef2a957bd1098b1e9fc2393379840cf6566058442a164c21266a8ced86c27a25"
     },
     {
+      "path": "skills/academic-aio/references/pre_draft_strategy.md",
+      "size": 3415,
+      "sha256": "0b95b3110549adbd85cc3df114d9c86bfa8e8303333b4e38bb9b4c44c0f15f1c"
+    },
+    {
       "path": "skills/academic-aio/references/reporting_guideline_mapping.md",
       "size": 3571,
       "sha256": "8704259253d86404f4a8f9feb411d7aff3def38fb8bea8650634f9779014c9c1"
+    },
+    {
+      "path": "skills/academic-aio/references/repository_and_cards.md",
+      "size": 2793,
+      "sha256": "50aead1852510b1925c94e0c8402ceb193713deddda3a97198e552b57946c656"
     },
     {
       "path": "skills/academic-aio/references/schema_markup_templates/CodeRepository.jsonld",
