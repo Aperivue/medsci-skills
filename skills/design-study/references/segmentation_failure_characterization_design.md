@@ -7,8 +7,8 @@ uniform 0.90 are different clinical objects, and the mean cannot tell you which 
 Reverse-engineered from accepted open-access papers (cited by DOI as design facts). These are
 **design-time** decisions: an acceptability rate cannot be recovered from a finished experiment that
 never asked a clinician, and a failure taxonomy assigned after seeing the failures is a description,
-not a finding. Distinct from `/model-evaluation` (which metric, computed correctly) and
-`/uncertainty-imaging` (per-case uncertainty, abstention, risk–coverage).
+not a finding. Distinct from `/model-assessment` (which metric, computed correctly; per-case uncertainty,
+abstention, risk–coverage).
 
 ## The failure the reviewer expects
 
@@ -71,9 +71,9 @@ would have reported a usable system and concealed that a third of it was not.
 
 ## What this does NOT replace
 
-**Which metric and how it is computed** (Dice + a boundary metric, per structure) →
-`/model-evaluation`; **per-case uncertainty, abstention, and risk–coverage failure detection** →
-`/uncertainty-imaging`; **split leakage, tuning-on-test, internal vs external** → `/model-validation`;
+**Which metric and how it is computed** (Dice + a boundary metric, per structure), **per-case
+uncertainty, abstention, and risk–coverage failure detection**, and **split leakage, tuning-on-test,
+internal vs external** → `/model-assessment`;
 **comparing several models fairly** → `multi_model_comparison_design.md`; **sizing the acceptability
 rate, the failure-rate bound, and the edit-time contrast** → `calc-sample-size`
 `references/segmentation_acceptability_sample_size.md` (Test 17); **showing the distribution and its

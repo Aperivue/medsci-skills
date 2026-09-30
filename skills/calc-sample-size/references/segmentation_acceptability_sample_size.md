@@ -94,4 +94,4 @@ per structure) → `segmentation_metric_sample_size.md` (Test 15); the paired be
 `multi_model_comparison_sample_size.md` (Test 16); reader-in-the-loop diagnostic sizing →
 `mrmc_reader_study_sample_size.md` (Test 14); presenting the result →
 `make-figures` `exemplar_plots/segmentation_failure_panel.md`; abstention and risk–coverage instead
-of a fixed acceptability rate → `/uncertainty-imaging`.
+of a fixed acceptability rate → `/model-assessment`.

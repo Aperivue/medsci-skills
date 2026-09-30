@@ -8,9 +8,9 @@ export PYTHONPATH="$PWD/pipeline"          # so `from dataset import ...` resolv
 SK="../../skills"                          # repo-relative path to the deterministic gates
 PY="${PYTHON:-python3}"
 
-echo "[1/6] official split + disjointness proof (model-validation)"
+echo "[1/6] official split + disjointness proof (model-assessment)"
 "$PY" pipeline/build_split.py              # writes ./splits/split_assignment.csv
-"$PY" "$SK/model-validation/scripts/check_split_leakage.py" \
+"$PY" "$SK/model-assessment/scripts/check_split_leakage.py" \
     --splits splits/split_assignment.csv --id-col sample_id --split-col split \
     --out qc/split_leakage.json --strict
 

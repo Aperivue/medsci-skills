@@ -7,7 +7,7 @@ dataset and only THEN cross-validation is run, the CV performance is optimistica
 inflated: the selection has already seen the held-out folds. The fix is to nest the
 selection inside each training fold (nested CV). This is a class a statistical
 reviewer catches deterministically, and it is distinct from patient-vs-image split
-leakage (`model-validation/check_split_leakage.py`).
+leakage (`model-assessment/check_split_leakage.py`).
 
 Verdict:
   CV_SELECTION_LEAKAGE (Major)  a feature-selection / vocabulary / threshold step

@@ -55,5 +55,5 @@ citations.
   failure rate is a design-time decision
   (`calc-sample-size/references/segmentation_acceptability_sample_size.md`). Cross-reference
   `model_comparison_leaderboard.md` (across-models sibling), `external_validation_comparison.md`
-  (across-cohorts sibling), `critic_rubrics/data_plot.md`, and `/uncertainty-imaging` when the tail
+  (across-cohorts sibling), `critic_rubrics/data_plot.md`, and `/model-assessment` when the tail
   is handled by abstention rather than reported as a rate.

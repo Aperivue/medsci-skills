@@ -1,7 +1,7 @@
 """Held-out evaluation (PneumoniaMNIST; medsci-skills CNN demo).
 Inference under model.eval() + torch.no_grad() on the TEST split (touched once); writes
 per-case positive-class probability + true label to predictions.csv. Compute AUROC + AUPRC
-with bootstrap CIs downstream via /model-evaluation + /analyze-stats — no metric is hard-coded
+with bootstrap CIs downstream via /model-assessment + /analyze-stats — no metric is hard-coded
 here."""
 import csv
 import torch

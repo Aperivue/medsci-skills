@@ -24,8 +24,8 @@ This skill produces the **documentation an engineer-built medical-imaging model 
 never invents a number, a provenance detail, a consent status, or a licence — and ships a deterministic
 gate that no required section is missing or left as an unfilled `[NEEDS INPUT]` placeholder.
 
-It is the **reporting** seam of the model-engineering lane: after `/model-validation` audits the design
-and `/model-evaluation` produces the numbers, this skill records them in a portable, auditable card that
+It is the **reporting** seam of the model-engineering lane: after `/model-assessment` audits the design
+and produces the numbers, this skill records them in a portable, auditable card that
 `/write-paper` and `/check-reporting` consume. It mirrors `/version-dataset` structurally (generate +
 deterministic verify).
 
@@ -33,7 +33,7 @@ deterministic verify).
 - A trained model needs a Model Card / Datasheet for a repo, Hugging Face card, or manuscript supplement.
 
 ## When NOT to use
-- Auditing the validation design / metrics → `/model-validation`, `/model-evaluation`.
+- Auditing the validation design / metrics → `/model-assessment`.
 - Versioning the dataset bytes → `/version-dataset`; tabular variable docs → `/generate-codebook`.
 - Item-by-item reporting-guideline compliance of the manuscript → `/check-reporting`.
 - Building / training the model → `/model-scaffold`.
@@ -48,7 +48,7 @@ supplied stays `[NEEDS INPUT]` — never guess.
 
 ### Phase 2 — Fill the Model Card
 Copy `${CLAUDE_SKILL_DIR}/references/model_card_template.md` to `MODEL_CARD.md` and fill each section
-from the facts. Keep the headings. Numbers come only from `/model-evaluation` / executed results.
+from the facts. Keep the headings. Numbers come only from `/model-assessment` / executed results.
 
 ### Phase 3 — Fill the Datasheet
 Copy `${CLAUDE_SKILL_DIR}/references/datasheet_template.md` to `DATASHEET.md` and fill the seven
@@ -59,7 +59,7 @@ Maintenance).
 Walk `${CLAUDE_SKILL_DIR}/references/metric_dimensions.md` (completeness, correctness, consistency,
 representativeness, timeliness, provenance, label provenance, fairness/coverage, leakage safety) and
 record each finding in the Datasheet. Anything that affects the headline metric's validity is also a
-`/model-validation` finding — cross-check there.
+`/model-assessment` finding — cross-check there.
 
 ### Phase 5 — Verify completeness (deterministic gate)
 ```bash
@@ -75,13 +75,13 @@ Carry the card into `/write-paper` (the Methods / supplement reference it), `/ch
 ## Anti-Hallucination
 
 - **Never invent evaluation numbers, subgroup results, or dataset provenance.** Every figure comes from
-  `/model-evaluation` or the user's executed results; every provenance / consent / licence statement is
+  `/model-assessment` or the user's executed results; every provenance / consent / licence statement is
   user-confirmed. Unknown → `[NEEDS INPUT]`, which the gate flags.
 - **Never mark a section complete without user-supplied content**, and never auto-fill a placeholder to
   pass the gate.
 - **Never assert a licence or consent status the user did not confirm.**
 - The gate checks **presence**, not truth — a complete card can still contain a wrong number; validity
-  is `/model-validation` and the human's responsibility.
+  is `/model-assessment` and the human's responsibility.
 
 ## Deterministic gate
 `scripts/check_model_card_complete.py` — verifies every required Model Card / Datasheet section is
@@ -97,7 +97,7 @@ not clinical reporting guidelines, so they live here as `references/` **template
 ## Boundaries
 
 ```
-model-validation (audit design) + model-evaluation (metrics)
+model-assessment (audit design + metrics)
   └─ model-card (this skill: Model Card + Datasheet + METRIC pass, completeness-gated)
        └─ write-paper + check-reporting (manuscript) ; version-dataset (dataset bytes)
 ```

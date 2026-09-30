@@ -20,13 +20,13 @@ echo "=============================================================="
 
 echo
 echo "[1/5] split-leakage gate: patient disjointness by set arithmetic"
-"$PY" "$SK/model-validation/scripts/check_split_leakage.py" \
+"$PY" "$SK/model-assessment/scripts/check_split_leakage.py" \
     --splits splits/split_assignment.csv --id-col patient_id --split-col split \
     --out qc/split_leakage.json --strict
 
 echo
 echo "[2/5] preprocessing-leakage gate: the manifest the published run actually used"
-"$PY" "$SK/preprocess-imaging/scripts/check_preprocessing_leakage.py" \
+"$PY" "$SK/imaging-data/scripts/check_preprocessing_leakage.py" \
     --manifest manifests/preprocessing_manifest.json \
     --out qc/preprocessing_leakage.json --strict
 
@@ -34,7 +34,7 @@ echo
 echo "[3/5] the counterfactual — the SAME gate must REJECT the obvious way of using nnU-Net"
 echo "      (dropping every case into nnUNet_raw and splitting afterwards fits the fingerprint,"
 echo "       including its resampling target and CT intensity statistics, on the held-out set)"
-if "$PY" "$SK/preprocess-imaging/scripts/check_preprocessing_leakage.py" \
+if "$PY" "$SK/imaging-data/scripts/check_preprocessing_leakage.py" \
         --manifest manifests/preprocessing_manifest_naive.json \
         --out qc/preprocessing_leakage_naive.json --strict; then
     echo "FAIL: the naive manifest passed the gate. A gate that cannot fail proves nothing." >&2
@@ -71,7 +71,7 @@ cat <<'TIERS'
    aws s3 sync --no-sign-request s3://msd-for-monai/Task09_Spleen data/msd_spleen
    # AMOS22: Zenodo record 7262581 -> data/amos22
    python3 pipeline/eda_imaging.py                  # -> eda/*_profile.json
-   python3 ../../skills/profile-imaging/scripts/check_dataset_profile.py --strict   # -> qc/dataset_profile_*.json
+   python3 ../../skills/imaging-data/scripts/check_dataset_profile.py --strict   # -> qc/dataset_profile_*.json
    python3 pipeline/build_split.py                  # -> splits/split_assignment.csv (seed 42)
    python3 pipeline/make_nnunet_dataset.py          # aborts if a held-out case reaches nnUNet_raw
    python3 pipeline/build_amos_views.py             # CT / MRI views by label-file inspection

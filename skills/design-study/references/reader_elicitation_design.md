@@ -54,9 +54,9 @@ Design for it explicitly:
 - Define the operator population and their onboarding; a **learning curve** (performance vs case index)
   is a first-class outcome, not noise to average away.
 - Fix the prompting protocol (allowed prompt types, stopping rule, target Dice) identically to any
-  simulated-prompting arm so the two are comparable — **protocol fidelity**, checked in `/model-validation`.
+  simulated-prompting arm so the two are comparable — **protocol fidelity**, checked in `/model-assessment`.
 - Pre-specify the interaction and timing metrics; their deterministic reporting gate is
-  `/model-evaluation --task interactive`. (A design document is free-form prose, so the deterministic
+  `/model-assessment --task interactive`. (A design document is free-form prose, so the deterministic
   anchor for these items sits at the reporting stage, not on the protocol text.)
 
 For an AI-system-versus-human-expert benchmark specifically, route to `/design-ai-benchmarking`, which

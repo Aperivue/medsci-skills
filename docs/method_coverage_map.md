@@ -16,21 +16,21 @@ Two facts make "all methods" tractable without a skill per algorithm:
    `check_preprocessing_leakage`, `check_metric_reporting`, `check_explainability_report`, and
    `check_uncertainty_reporting` audit the *pipeline* (leakage, nested CV, calibration, metric choice,
    saliency rigor, deployment uncertainty) — not the specific algorithm — so they apply to every method
-   in the same family. Deployment-framed models of any family route through `uncertainty-imaging`
+   in the same family. Deployment-framed models of any family route through `model-assessment`
    (calibrated uncertainty / OOD / abstention) as a cross-cutting safety layer.
 
 ## Deep learning (imaging)
 
 | Family | Examples | Select | Produce / fine-tune | Validate | Interpret | Report / evaluate |
 |---|---|---|---|---|---|---|
-| Classification CNN / transformer | ResNet, DenseNet, EfficientNet, ViT, Swin (timm) | `architecture-zoo` | `model-scaffold --task classification` / `--task finetune` (transfer learning) | `model-validation`, `preprocess-imaging` | `explainability` | `model-evaluation`, `check-reporting` (CLAIM / TRIPOD+AI) |
-| Segmentation | U-Net, 3D U-Net, Attention/Residual U-Net, **nnU-Net** | `architecture-zoo` | `model-scaffold --task segmentation` | `model-validation` | `explainability` | `model-evaluation` |
-| Detection | Faster R-CNN, RetinaNet, YOLO, Mask R-CNN | `architecture-zoo` | `model-scaffold --task detection` | `model-validation` | — | `model-evaluation` (FROC / mAP) |
-| Promptable / foundation segmentation | **SAM, MedSAM**, TotalSegmentator | `architecture-zoo` | `model-scaffold --task finetune` + MedSAM adapter recipe (`finetuning_guide.md`) | `model-validation` | `explainability` | `model-evaluation` |
-| Self-supervised pretraining | DINO, MAE, SimCLR | `architecture-zoo` | `model-scaffold --task ssl` | `model-validation` | — | — |
-| Generative / synthesis | GAN, **diffusion** | `architecture-zoo` | `model-scaffold --task synthesis`; train-only diffusion augmentation (`finetuning_guide.md`) | `model-validation` | — | `check-reporting` |
-| Vision-language / multimodal | CLIP, BiomedCLIP | `architecture-zoo` | `model-scaffold --task finetune` (transfer learning) | `model-validation` | — | `model-evaluation` |
-| Graph neural nets (connectomes) | GCN, GraphSAGE, GAT, GIN, **BrainGNN** | `architecture-zoo` (`graph.md`) | integrate PyTorch Geometric / DGL directly (no `model-scaffold` graph template) | `model-validation` (subject-level split); p≫n rigor → `radiomics-ml` | `explainability` (attention / salient-ROI sanity) | `check-reporting` (TRIPOD+AI) |
+| Classification CNN / transformer | ResNet, DenseNet, EfficientNet, ViT, Swin (timm) | `model-selection` | `model-scaffold --task classification` / `--task finetune` (transfer learning) | `model-assessment`, `imaging-data` | `model-assessment` | `model-assessment`, `check-reporting` (CLAIM / TRIPOD+AI) |
+| Segmentation | U-Net, 3D U-Net, Attention/Residual U-Net, **nnU-Net** | `model-selection` | `model-scaffold --task segmentation` | `model-assessment` | `model-assessment` | `model-assessment` |
+| Detection | Faster R-CNN, RetinaNet, YOLO, Mask R-CNN | `model-selection` | `model-scaffold --task detection` | `model-assessment` | — | `model-assessment` (FROC / mAP) |
+| Promptable / foundation segmentation | **SAM, MedSAM**, TotalSegmentator | `model-selection` | `model-scaffold --task finetune` + MedSAM adapter recipe (`finetuning_guide.md`) | `model-assessment` | `model-assessment` | `model-assessment` |
+| Self-supervised pretraining | DINO, MAE, SimCLR | `model-selection` | `model-scaffold --task ssl` | `model-assessment` | — | — |
+| Generative / synthesis | GAN, **diffusion** | `model-selection` | `model-scaffold --task synthesis`; train-only diffusion augmentation (`finetuning_guide.md`) | `model-assessment` | — | `check-reporting` |
+| Vision-language / multimodal | CLIP, BiomedCLIP | `model-selection` | `model-scaffold --task finetune` (transfer learning) | `model-assessment` | — | `model-assessment` |
+| Graph neural nets (connectomes) | GCN, GraphSAGE, GAT, GIN, **BrainGNN** | `model-selection` (`graph.md`) | integrate PyTorch Geometric / DGL directly (no `model-scaffold` graph template) | `model-assessment` (subject-level split); p≫n rigor → `radiomics-ml` | `model-assessment` (attention / salient-ROI sanity) | `check-reporting` (TRIPOD+AI) |
 
 ## Classical / statistical ML (radiomics & tabular)
 
@@ -70,7 +70,7 @@ PROBAST-AI reporting from `check-reporting`.
   the researcher's executed code.
 
 *Candidate gaps (open):* none outstanding — the six-item model-engineering produce-side depth
-roadmap is complete, and the `architecture-zoo` graph-neural-net entry for brain-connectome studies
+roadmap is complete, and the `model-selection` graph-neural-net entry for brain-connectome studies
 has landed (`references/graph.md`: GCN / GraphSAGE / GAT / GIN / BrainGNN; integrate PyTorch
 Geometric / DGL, no `model-scaffold` graph template). The fine-tuning / SAM-adaptation /
 diffusion-augmentation produce path landed in `model-scaffold --task finetune` +

@@ -29,8 +29,8 @@ reproducible before a single epoch runs. It is the imaging analogue of how `/ana
 runnable statistical code: the generator produces the repo, you run the training on your GPU / Colab,
 and the lane's deterministic gates verify the network-free parts.
 
-It is the **missing middle link** in the lane: `/architecture-zoo` (choose) → **model-scaffold (build)**
-→ `/model-validation` (validate the split / design) → `/model-evaluation` + `/analyze-stats` (metrics)
+It is the **missing middle link** in the lane: `/model-selection` (choose) → **model-scaffold (build)**
+→ `/model-assessment` (validate the split / design, compute metrics) → `/analyze-stats`
 → `/write-paper` + `/check-reporting` (publish). It **integrates** MONAI / nnU-Net / TorchIO (referenced
 in the generated `requirements.txt`); it does not reimplement them.
 
@@ -42,9 +42,9 @@ in the generated `requirements.txt`); it does not reimplement them.
   discriminative learning rates, and pretrained-weight provenance recorded (`--task finetune`).
 
 ## When NOT to use
-- Auditing an already-trained model's validation design → `/model-validation`.
-- Held-out metrics / calibration / bootstrap CIs → `/model-evaluation` then `/analyze-stats`.
-- Choosing the architecture for the research question → `/architecture-zoo` (when available).
+- Auditing an already-trained model's validation design → `/model-assessment`.
+- Held-out metrics / calibration / bootstrap CIs → `/model-assessment` then `/analyze-stats`.
+- Choosing the architecture for the research question → `/model-selection` (when available).
 - Reimplementing MONAI / nnU-Net → out of scope (the scaffold integrates them).
 - LLM / MLLM evaluation → `/mllm-eval`.
 
@@ -81,9 +81,9 @@ and the emitted code seeds every RNG, sets cuDNN deterministic, builds the train
 ```bash
 # this skill's own training-hygiene gate
 python3 ${CLAUDE_SKILL_DIR}/scripts/check_training_hygiene.py --repo model_repo --strict
-# the split-leakage gate (proves patient disjointness) — owned by /model-validation
+# the split-leakage gate (proves patient disjointness) — owned by /model-assessment
 ```
-Route the emitted `splits/split_assignment.csv` to `/model-validation`
+Route the emitted `splits/split_assignment.csv` to `/model-assessment`
 (`check_split_leakage.py --splits model_repo/splits/split_assignment.csv --strict`) for the
 patient-disjointness proof, and (optionally, locally with torch installed)
 `bash ${CLAUDE_SKILL_DIR}/scripts/scaffold_challenge/verify.sh` to smoke the forward pass.
@@ -98,8 +98,8 @@ adaptation and train-only diffusion augmentation). Run `python train.py` (best m
 **val** split), then `python evaluate.py` (predictions on the **test** split, touched once).
 
 ### Phase 5 — Validate, evaluate, publish
-Hand off to `/model-validation` (validation-tier + comparator + metric-selection audit),
-`/model-evaluation` + `/analyze-stats` (Dice + HD95/NSD with CIs), `/make-figures`, and `/write-paper`
+Hand off to `/model-assessment` (validation-tier + comparator + metric-selection audit; Dice +
+HD95/NSD with CIs) + `/analyze-stats`, `/make-figures`, and `/write-paper`
 (fill the `methods_stub.md` `[VERIFY]` placeholders) + `/check-reporting` (CLAIM 2024 / TRIPOD+AI). For
 reproducibility-safe wiring of experiment tracking (W&B / MLflow), config / data / environment
 versioning, and the MLOps reporting checklist, see `${CLAUDE_SKILL_DIR}/references/mlops_guide.md`
@@ -116,7 +116,7 @@ runnability.
 ## Anti-Hallucination
 
 - **Never fabricate training or evaluation metrics.** The scaffold emits `[VERIFY]` placeholders;
-  every number must come from the user's executed run and from `/model-evaluation` + `/analyze-stats`.
+  every number must come from the user's executed run and from `/model-assessment` + `/analyze-stats`.
 - **Never emit a split that is not patient-disjoint or not seed-locked.** The generator does this by
   construction; do not hand-edit the split table to introduce overlap or remove the seed.
 - **Never claim the generated repo was trained or that it achieved a result** — it is a starting point
@@ -136,10 +136,9 @@ runnability.
 ## Boundaries
 
 ```
-architecture-zoo (choose)
+model-selection (choose)
   └─ model-scaffold (this skill: generate the reproducible repo)
        ├─ check_training_hygiene.py   (training-code hygiene)
-       ├─ model-validation            (split-leakage proof + validation design)
-       ├─ model-evaluation -> analyze-stats   (metrics + CIs)
+       ├─ model-assessment -> analyze-stats   (split-leakage proof, validation design, metrics + CIs)
        └─ write-paper + check-reporting        (Methods stub -> compliant manuscript)
 ```

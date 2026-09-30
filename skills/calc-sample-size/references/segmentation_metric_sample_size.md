@@ -57,7 +57,7 @@ margin).
 
 ## Cross-links
 
-Metric **selection** (Dice + a boundary/agreement metric, per-structure) → `/model-evaluation`;
-validation design + the split-leakage gate → `/model-validation`; the comparator/ablation the size
+Metric **selection** (Dice + a boundary/agreement metric, per-structure) → `/model-assessment`;
+validation design + the split-leakage gate → `/model-assessment`; the comparator/ablation the size
 serves → `design-study/references/combine_models_ablation_design.md`; presenting the across-cohort
 result → `make-figures` `exemplar_plots/external_validation_comparison.md`.

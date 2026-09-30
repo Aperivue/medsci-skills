@@ -39,9 +39,9 @@ data.
 - You want to audit an existing radiomics/ML pipeline for the failure modes below.
 
 ## When NOT to use
-- Deep-learning imaging models → `/architecture-zoo` → `/model-scaffold` → `/model-validation`.
+- Deep-learning imaging models → `/model-selection` → `/model-scaffold` → `/model-assessment`.
 - Classical inferential statistics / a regression model as the estimand → `/analyze-stats`.
-- Interpretability of a trained network → `/explainability`.
+- Interpretability of a trained network → `/model-assessment`.
 - Reimplementing scikit-learn / xgboost / pyradiomics → out of scope (this skill wires and audits them).
 
 ## The failure modes (what the gate enforces)

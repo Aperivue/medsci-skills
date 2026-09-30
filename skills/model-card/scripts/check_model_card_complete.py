@@ -7,7 +7,7 @@ ACM FAccT 2019) and, optionally, its dataset Datasheet (Gebru et al., Commun. AC
 not missing and not left as an unfilled `[NEEDS INPUT]` / TODO placeholder. It is a
 presence check (the documentation analogue of check_disclosure_availability /
 check_summary_box); it does NOT judge whether a stated fact is true (that is
-/model-validation and the human).
+/model-assessment and the human).
 
 CHECKS (verdicts):
   1. MISSING_SECTION        (Major)  a required section heading is absent.
