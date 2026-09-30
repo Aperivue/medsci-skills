@@ -104,7 +104,7 @@ accepts a change only after CI has passed on it combined with the latest `main` 
 ruleset; repository admins can bypass it). Before you push, run what your change touches:
 
 ```bash
-pip install pyyaml pandas numpy scipy scikit-learn matplotlib python-pptx python-docx fonttools
+pip install pyyaml pandas numpy scipy scikit-learn matplotlib python-pptx python-docx fonttools statsmodels
 # Also install pandoc, exiftool and poppler with your OS package manager.
 # Render regression tests generate LaTeX with pandoc; CI does not install TeX.
 
@@ -284,8 +284,8 @@ checkout and runs the existing privacy scanners on the packaged bytes. npm publi
 the verified `.tgz`; do not replace it with a fresh directory-based `npm publish`.
 After upload, downloaded ZIP bytes and npm file contents/executable modes must match the
 verified artifacts. Inspect the `release-verification-vX.Y.Z` workflow artifact for hashes and
-coverage; absence of a successful report is not a pass. npm requires `NPM_TOKEN`, and skipped
-npm steps leave that channel unverified. See [SECURITY.md](SECURITY.md#release-integrity--revocation)
+coverage; absence of a successful report is not a pass. npm is published through trusted
+publishing (no stored token), and skipped npm steps leave that channel unverified. See [SECURITY.md](SECURITY.md#release-integrity--revocation)
 for inspection limits and recovery behavior.
 
 **A release is an event, not a commit.** Merge to `main` continuously — that is what `main` is for —
