@@ -130,16 +130,16 @@ CT arm. So both mechanisms are real and differently sized: roughly **0.29 Dice i
 contract, 0.59 a representation that does not transfer**. The arm and its prediction were written
 down before it ran.
 
-And `/profile-imaging` **had already flagged the mixed intensity scale before training — as a
+And `/imaging-data` (its profiling phase) **had already flagged the mixed intensity scale before training — as a
 Minor**, where it sat in `qc/` for nine days. So the gap this demo found is not detection; it is
 **routing and severity**. A gate that fires correctly into a directory no later step reads is,
 operationally, a gate that did not fire. See [the full demo](../demo/05_msd_amos_spleen/) — including
 [`FRICTION.md`](../demo/05_msd_amos_spleen/FRICTION.md), which lists every point that needed engineering
 knowledge, because the headline question is not answerable honestly without it.
 
-**Pipeline:** `profile-imaging` &rarr; `model-sourcing` &rarr; `preprocess-imaging` (leakage gate, plus the
-counterfactual that must fail) &rarr; `model-validation` (split gate) &rarr; nnU-Net training &rarr;
-`model-evaluation` &rarr; `make-figures` &rarr; write-up. `bash reproduce.sh` re-runs the gates and the whole
+**Pipeline:** `imaging-data` (profile) &rarr; `model-selection` (sourcing) &rarr; `imaging-data` (preprocessing: leakage gate, plus the
+counterfactual that must fail) &rarr; `model-assessment` (split gate) &rarr; nnU-Net training &rarr;
+`model-assessment` (metrics) &rarr; `make-figures` &rarr; write-up. `bash reproduce.sh` re-runs the gates and the whole
 across-cohort analysis on a laptop; training needs ~50 GPU-hours and says so.
 
 ## Project Folder Structure

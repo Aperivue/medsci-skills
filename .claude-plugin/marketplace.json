@@ -44,10 +44,13 @@
       "skills": [
         "./skills/architecture-zoo",
         "./skills/explainability",
+        "./skills/imaging-data",
         "./skills/mllm-eval",
+        "./skills/model-assessment",
         "./skills/model-card",
         "./skills/model-evaluation",
         "./skills/model-scaffold",
+        "./skills/model-selection",
         "./skills/model-sourcing",
         "./skills/model-validation",
         "./skills/preprocess-imaging",

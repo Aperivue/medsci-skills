@@ -133,6 +133,16 @@ def build(catalog_path: Path = CATALOG) -> dict:
     if not isinstance(categories, list) or not categories:
         raise MarketplaceError(f"{catalog_path} has no 'categories' array")
 
+    # v6 compatibility aliases ship in their target skill's plugin, so a namespaced
+    # `/medsci-modeling:architecture-zoo` keeps resolving until the stub is removed in v7.
+    alias_slugs: dict[str, list[str]] = {}
+    for a in catalog.get("aliases") or []:
+        alias_slugs.setdefault(a.get("category"), []).append(a.get("slug"))
+    known = {cat.get("key") for cat in categories}
+    stray = sorted(k for k in alias_slugs if k not in known)
+    if stray:
+        raise MarketplaceError(f"alias category {stray} is not a catalog category")
+
     plugins: list[dict] = []
     for cat in categories:
         key = cat.get("key")
@@ -154,7 +164,7 @@ def build(catalog_path: Path = CATALOG) -> dict:
             "description": PLUGIN_DESC_BY_CATEGORY[key],
             "source": "./",
             "strict": False,
-            "skills": [f"./skills/{slug}" for slug in sorted(slugs)],
+            "skills": [f"./skills/{slug}" for slug in sorted(slugs + alias_slugs.get(key, []))],
         })
 
     return {

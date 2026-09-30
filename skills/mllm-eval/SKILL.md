@@ -26,8 +26,8 @@ clinical-efficacy metrics (RadGraph-F1 / CheXbert-F1 via their published extract
 the model or computing the metrics itself.
 
 It is the LLM/MLLM **evaluation-design counterpart** in the lane — an auditor that hands the specified
-metrics to their extractors and `/analyze-stats`, parallel to how `/model-validation` audits an imaging
-model's design (the imaging metrics themselves are computed by `/model-evaluation`). The reviewer-side
+metrics to their extractors and `/analyze-stats`, parallel to how `/model-assessment` audits an imaging
+model's design and computes its metrics. The reviewer-side
 audit of a finished manuscript uses the `mllm_evaluation.md` (ME0–ME8) probe via `/self-review` and
 `/peer-review`; this skill is the author-side harness design. It routes the reader study to
 `/design-ai-benchmarking`, the sizing to `/calc-sample-size`, and TRIPOD-LLM / MI-CLEAR-LLM compliance to
@@ -40,7 +40,7 @@ audit of a finished manuscript uses the `mllm_evaluation.md` (ME0–ME8) probe v
 
 ## When NOT to use
 - AI-vs-human-expert benchmark with a rated rubric → `/design-ai-benchmarking`.
-- Imaging prediction/segmentation model → `/model-evaluation` + `/model-validation`.
+- Imaging prediction/segmentation model → `/model-assessment`.
 - Image-to-image generative model → the `image_synthesis` probe.
 - Training / serving the LLM → out of scope.
 - Item-level TRIPOD-LLM / MI-CLEAR-LLM audit of a finished manuscript → `/check-reporting`.

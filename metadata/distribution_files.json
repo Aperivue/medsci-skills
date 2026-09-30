@@ -508,48 +508,8 @@
     },
     {
       "path": "skills/architecture-zoo/SKILL.md",
-      "size": 6692,
-      "sha256": "0fc0139c83914bf10a705cef72a3e8db7ee68ba40966128d318ee46ba240e560"
-    },
-    {
-      "path": "skills/architecture-zoo/references/classification.md",
-      "size": 7279,
-      "sha256": "cf6f79be97395e672b06bc934c483735c827ff8ea89301e822bba30fbb7bbb8f"
-    },
-    {
-      "path": "skills/architecture-zoo/references/detection.md",
-      "size": 5994,
-      "sha256": "a651e6b5487fd6fe9726101d6068985b0aeb297bfaaefbaadd1af2b543bf3dfc"
-    },
-    {
-      "path": "skills/architecture-zoo/references/foundation_models.md",
-      "size": 9273,
-      "sha256": "65344180359e01ef2bd66a1f910a9a11445d1a0e0530e26baf336a0b93ef3e53"
-    },
-    {
-      "path": "skills/architecture-zoo/references/graph.md",
-      "size": 6913,
-      "sha256": "d6bea2d61a2f1d515810d1bf96bef80f156d816998134a3c911e6c4585728c2e"
-    },
-    {
-      "path": "skills/architecture-zoo/references/index.md",
-      "size": 5333,
-      "sha256": "e77ce445ffe345ea25ee6472f7d7cee561ff1271b5fd056ea583db7a92d1fa8a"
-    },
-    {
-      "path": "skills/architecture-zoo/references/segmentation.md",
-      "size": 10352,
-      "sha256": "33b22ddb466f22b0e0af0bbaec8f361f2b0264766f429ead364b259e44dc5c3a"
-    },
-    {
-      "path": "skills/architecture-zoo/references/synthesis.md",
-      "size": 4629,
-      "sha256": "8b28acf945627250add63a3cc294d28fd89d852feff0f1c51aa122d2f5e05327"
-    },
-    {
-      "path": "skills/architecture-zoo/skill.yml",
-      "size": 2851,
-      "sha256": "c9e03a47973bab737587d22ebac4cd7b27b5c5af55a271efb8f71abba7fa70cf"
+      "size": 428,
+      "sha256": "393fd0a313f64a9e80ffedc31b899b0cfc0ff23d1de76267e957becfd67bd120"
     },
     {
       "path": "skills/author-strategy/SKILL.md",
@@ -658,13 +618,13 @@
     },
     {
       "path": "skills/calc-sample-size/references/segmentation_acceptability_sample_size.md",
-      "size": 5855,
-      "sha256": "76c4cba1625df348e331d5dbf1a335ce67867d33da122eb14c45643152619396"
+      "size": 5852,
+      "sha256": "804dc72993a5e9cdffa309a5a9797983383f6b0e4a975d002b263a88b5db6b69"
     },
     {
       "path": "skills/calc-sample-size/references/segmentation_metric_sample_size.md",
       "size": 3987,
-      "sha256": "0a93b7d19c5183287598ba3a53a51b3f29714d8cff9f35b58c5b1bc1a83d62e5"
+      "sha256": "8578d5bab9a10554fc211c8bd5a42265cd3dbcf0c69c6a93c7aac4bc1c6ccb24"
     },
     {
       "path": "skills/calc-sample-size/skill.yml",
@@ -688,8 +648,8 @@
     },
     {
       "path": "skills/check-reporting/references/appraisal_tools/METRICS_RELOADED.md",
-      "size": 2384,
-      "sha256": "e06267be7ffa5b5e3f52de387b745bf2676f016c29b02a5872d38c68ddf762ec"
+      "size": 2340,
+      "sha256": "1610ff461128bedf8f2738ad96306d7609ee8133de3ca56da9ba656a4e644dc5"
     },
     {
       "path": "skills/check-reporting/references/checklists/AMSTAR2.md",
@@ -1218,13 +1178,13 @@
     },
     {
       "path": "skills/design-study/SKILL.md",
-      "size": 14813,
-      "sha256": "bc661563bbacc64f2362165e43a7a2af07992add1e4efc32a20de4d2ca27a5a8"
+      "size": 14810,
+      "sha256": "b96719a8b98fdbcaf1422987919545ea1d958af5f9272a57b161a4c9f0f089ed"
     },
     {
       "path": "skills/design-study/references/combine_models_ablation_design.md",
-      "size": 4757,
-      "sha256": "22bf79fafe2ad340aa90d70bc8bd1195e92cff1ce2add3627e8bbc37c258fb0e"
+      "size": 4733,
+      "sha256": "1e4f44d3f8d969ad4e60665aa7bb45e1128488453d16943759c63664c645bfec"
     },
     {
       "path": "skills/design-study/references/dag_adjustment.md",
@@ -1233,18 +1193,18 @@
     },
     {
       "path": "skills/design-study/references/multi_model_comparison_design.md",
-      "size": 7179,
-      "sha256": "73b0c806e2997b8620e694a43186ae46616b87635884f0f38a1d181b04b857ff"
+      "size": 7178,
+      "sha256": "06f7abcb25470e23683be2d16e348274fa7fe32c1f15ae35dea895fdb91e78f8"
     },
     {
       "path": "skills/design-study/references/reader_elicitation_design.md",
       "size": 6864,
-      "sha256": "01984bc2cd4a88616ae4fe94fa9da80cdf52e433a0c542d9c0afc0a3b8ec9e83"
+      "sha256": "4a2ebb07a4c1652e1c0338dc9884e2aa744838ed09a3ef8498f5bb3770eca627"
     },
     {
       "path": "skills/design-study/references/segmentation_failure_characterization_design.md",
-      "size": 6533,
-      "sha256": "46b747623ecf1a49e813e654d5ff0e8f2c98a0d11ea798219de483f35b46faf0"
+      "size": 6458,
+      "sha256": "7de9829efd7df0f14b9a2bcd27b642b1f5a8683b0e18b785c69d554a295d6abf"
     },
     {
       "path": "skills/design-study/references/target_trial_emulation.md",
@@ -1298,53 +1258,8 @@
     },
     {
       "path": "skills/explainability/SKILL.md",
-      "size": 6474,
-      "sha256": "4d1c082ad48393adb65203ffbedf63f772fdc521d873f657cbfc81150c7b36de"
-    },
-    {
-      "path": "skills/explainability/references/explainability_guide.md",
-      "size": 4203,
-      "sha256": "24bc06181e54801b148f142f9312fe0eede9f540a4e57810701506681e254b4b"
-    },
-    {
-      "path": "skills/explainability/scripts/check_explainability_report.py",
-      "size": 10830,
-      "sha256": "78c46fc1a6932f8d6390e1f2ea756bde71147c718b990c5694705684bcc13248"
-    },
-    {
-      "path": "skills/explainability/scripts/check_explainability_report_challenge/expected/strong.txt",
-      "size": 391,
-      "sha256": "317018eb7546f77b2de39ff1b73c9e82584a9d65c25eb91a940de76a4c7d2ec5"
-    },
-    {
-      "path": "skills/explainability/scripts/check_explainability_report_challenge/expected/weak.txt",
-      "size": 876,
-      "sha256": "de5c090c1ee4c632d7d59bc0d5f20fac8d28342b74b68eb51066677658245451"
-    },
-    {
-      "path": "skills/explainability/scripts/check_explainability_report_challenge/fixture/report_strong.json",
-      "size": 238,
-      "sha256": "b835871c1d98313f736575faf7f6adbb5cfabe4e3dfd1abe1279976c8c5f1867"
-    },
-    {
-      "path": "skills/explainability/scripts/check_explainability_report_challenge/fixture/report_weak.json",
-      "size": 163,
-      "sha256": "dfde5db357a83660f941fdde957bb3a9af25f60d26300322f04b3981b13c429a"
-    },
-    {
-      "path": "skills/explainability/scripts/check_explainability_report_challenge/problem.md",
-      "size": 805,
-      "sha256": "1b667c138ac54e38614e438efdb995adba208588007e95eed6f374233ff6dcdc"
-    },
-    {
-      "path": "skills/explainability/scripts/check_explainability_report_challenge/verify.sh",
-      "size": 2005,
-      "sha256": "5246897dc616e04fa1260e9b20d9970e1499f95ebb52034bba59482d401c1156"
-    },
-    {
-      "path": "skills/explainability/skill.yml",
-      "size": 3569,
-      "sha256": "5b3e135825470392867dc851627d9899bc512d9a5ee52556c205eea8fae4edb1"
+      "size": 422,
+      "sha256": "57f05bb3e77dc941280de79b6d5dfa9eccdbd52a78d5c3887777194eb4cddb4c"
     },
     {
       "path": "skills/fill-icmje-coi/SKILL.md",
@@ -2027,6 +1942,136 @@
       "sha256": "f34a891182ce1595b23e692fd8f04bdcc31bc0658d9c209aa0d1800b26b6cd2a"
     },
     {
+      "path": "skills/imaging-data/SKILL.md",
+      "size": 11129,
+      "sha256": "95d80e54cc61894c3890711dd70a64748311239d351d297f59820d9631a6f2be"
+    },
+    {
+      "path": "skills/imaging-data/references/preprocessing_guide.md",
+      "size": 5032,
+      "sha256": "117a3058a020b579ab332d2520d539bdf7513806f29522ee58f0cc277936a530"
+    },
+    {
+      "path": "skills/imaging-data/scripts/check_dataset_profile.py",
+      "size": 16672,
+      "sha256": "3726e8205fe69cfcb06f4854cc97be95bd2c6fc89e02400fff11153a68be61e7"
+    },
+    {
+      "path": "skills/imaging-data/scripts/check_dataset_profile_challenge/expected/clean.txt",
+      "size": 360,
+      "sha256": "9e5fddb88dd83dd32aea8d0651a0f66922e5b58fb010713fb5d550090d1b5a58"
+    },
+    {
+      "path": "skills/imaging-data/scripts/check_dataset_profile_challenge/expected/defect.txt",
+      "size": 1600,
+      "sha256": "8eac4257e5904e777a7e7f2631e3680ae66a5366c3e4fb16b1a8f3bf2dc53525"
+    },
+    {
+      "path": "skills/imaging-data/scripts/check_dataset_profile_challenge/fixture/profile_clean.json",
+      "size": 2887,
+      "sha256": "5527d34c123551319a8323f6c7a9536c94747e9cd11ed7de3c91edd41f802287"
+    },
+    {
+      "path": "skills/imaging-data/scripts/check_dataset_profile_challenge/fixture/profile_defect.json",
+      "size": 4536,
+      "sha256": "933c4a235f6b27a5f14c78e096744a664dbe16ae100478d3b77400a323f770b9"
+    },
+    {
+      "path": "skills/imaging-data/scripts/check_dataset_profile_challenge/problem.md",
+      "size": 1404,
+      "sha256": "feba54fdb80b99f757bb9d191b2be60008104d6ee0c2029b3d7fcba0f762d90d"
+    },
+    {
+      "path": "skills/imaging-data/scripts/check_dataset_profile_challenge/verify.sh",
+      "size": 2463,
+      "sha256": "e5b23d1addc2510d343036b9100491b40eaf9dc57824e0d593ee8f77c610c8cb"
+    },
+    {
+      "path": "skills/imaging-data/scripts/check_normalizer_domain.py",
+      "size": 10298,
+      "sha256": "41fc867fdc0b78e1c7327f05c2a0853a4333c8219bca3dc546a1c6d2ca1d01b4"
+    },
+    {
+      "path": "skills/imaging-data/scripts/check_normalizer_domain_challenge/expected/arbitrary_mismatch.txt",
+      "size": 831,
+      "sha256": "2242f2ce6d2d9f9e7945601c83b666cbab926e1d21f351fa9f1f03ad247eb743"
+    },
+    {
+      "path": "skills/imaging-data/scripts/check_normalizer_domain_challenge/expected/hu_clean.txt",
+      "size": 364,
+      "sha256": "1d167d500fe89dac825702f8777c65dcf1241d73847a197d2d59a170851063d4"
+    },
+    {
+      "path": "skills/imaging-data/scripts/check_normalizer_domain_challenge/fixture/plan_ct.json",
+      "size": 486,
+      "sha256": "57610f7e55e7935ef900f1a5aa7cfc9d88726122c20c8eceaa839f75e76dbcc6"
+    },
+    {
+      "path": "skills/imaging-data/scripts/check_normalizer_domain_challenge/fixture/profile_arbitrary.json",
+      "size": 4497,
+      "sha256": "e47c3f65fed42fa73d90558b45aadc8390efb07449d5774fb979a5f62c339046"
+    },
+    {
+      "path": "skills/imaging-data/scripts/check_normalizer_domain_challenge/fixture/profile_hu.json",
+      "size": 2740,
+      "sha256": "676222e981c53ed582adb2f2683b309893d2a9698b0d5d5f53a86dea319efb1c"
+    },
+    {
+      "path": "skills/imaging-data/scripts/check_normalizer_domain_challenge/problem.md",
+      "size": 2404,
+      "sha256": "76859e918c74e17baad62980dd58e8ef75eb372214a343b8d7dc0e85714ab8f0"
+    },
+    {
+      "path": "skills/imaging-data/scripts/check_normalizer_domain_challenge/verify.sh",
+      "size": 3075,
+      "sha256": "f365c66f43db20f2bb450d3e1408e95971db9fd3e2975fe0572cd4d3b9d9ff7d"
+    },
+    {
+      "path": "skills/imaging-data/scripts/check_preprocessing_leakage.py",
+      "size": 14121,
+      "sha256": "c0118907fb4382d4459700c7cf36d53966e59503ad03ad2b25df03894d85ce08"
+    },
+    {
+      "path": "skills/imaging-data/scripts/check_preprocessing_leakage_challenge/expected/clean.txt",
+      "size": 370,
+      "sha256": "bc1efcfc1d8575d78a0448752e60a3b58d654a5bc1a7b11360e4d9ba690665ac"
+    },
+    {
+      "path": "skills/imaging-data/scripts/check_preprocessing_leakage_challenge/expected/leak.txt",
+      "size": 1030,
+      "sha256": "fe046c81f20b34a6ff3fd6858f7832e786106ed56635b39f7e413b4853d4b7e8"
+    },
+    {
+      "path": "skills/imaging-data/scripts/check_preprocessing_leakage_challenge/fixture/manifest_clean.json",
+      "size": 800,
+      "sha256": "e01ff6d09aae6f76d3b2b1cd05c333d66fd53499a2a2d1296380eefde720c515"
+    },
+    {
+      "path": "skills/imaging-data/scripts/check_preprocessing_leakage_challenge/fixture/manifest_leak.json",
+      "size": 881,
+      "sha256": "a55389654128c577e16eefb3c6b8f85d8a47bdc06a817619f13036a1e1ebe4b4"
+    },
+    {
+      "path": "skills/imaging-data/scripts/check_preprocessing_leakage_challenge/problem.md",
+      "size": 903,
+      "sha256": "042ddd4736133ccf63192ea65c4faa714b2854ec9bb704f29ca2f401cd4658ee"
+    },
+    {
+      "path": "skills/imaging-data/scripts/check_preprocessing_leakage_challenge/verify.sh",
+      "size": 2188,
+      "sha256": "9201d264720627f7281f43bcf3b1093bf6940f67acd7c299c8b3ac64fb58b564"
+    },
+    {
+      "path": "skills/imaging-data/scripts/profile_imaging_dataset.py",
+      "size": 6996,
+      "sha256": "379283bde44c048664b5ba2c92b1742995c900749146108fb78c7a2fa1ccc3c2"
+    },
+    {
+      "path": "skills/imaging-data/skill.yml",
+      "size": 6163,
+      "sha256": "bf8db84a550c9ced77cc4753ded8a8db24b75e494afbf898cbf8620c29bb2503"
+    },
+    {
       "path": "skills/intake-project/SKILL.md",
       "size": 6300,
       "sha256": "db6fb71fe5cd93609dc0d4a08171cd4cb32b0488b95db330ea2cd9d9034ba0e2"
@@ -2289,7 +2334,7 @@
     {
       "path": "skills/make-figures/references/exemplar_plots/README.md",
       "size": 11082,
-      "sha256": "55d62362fa4d5a3a08899d869739a2d81ceae9c53a1f42ef84d463caf5f70be6"
+      "sha256": "c48e1fe21ad493c3a0f65129b55fdf17eecf349b580901bb8212cb885f656923"
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/ai_assistance_effect.md",
@@ -2329,7 +2374,7 @@
     {
       "path": "skills/make-figures/references/exemplar_plots/external_validation_comparison.md",
       "size": 3124,
-      "sha256": "7d905e5b2a75356a23442b222d904bf0381e55168a49e71bce762a6c7d32670d"
+      "sha256": "96e472b5364def9a14380634b925a5aa1521d1ad710e396fe04cdce918fdcc6d"
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/forest_plot.md",
@@ -2354,7 +2399,7 @@
     {
       "path": "skills/make-figures/references/exemplar_plots/model_comparison_leaderboard.md",
       "size": 4131,
-      "sha256": "f3cb7d5226afaf26d6645b308ed7eca19333c6a26a24cd220dd9ac1865443504"
+      "sha256": "9474873166cd00930824bef7c7f1815bed44a45d7b2aa85b88a1ad599635d9fe"
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/mrmc_roc.md",
@@ -2368,13 +2413,13 @@
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/segmentation_failure_panel.md",
-      "size": 4581,
-      "sha256": "9bedf2f0b762702b1b9f794d6e83abc512a0bd504101ac27133558074a788b04"
+      "size": 4578,
+      "sha256": "38ab7eb2a4d8762d59dc3be3b86e67a10dba05dcb1b6d48d0df98a6abcc99a0e"
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/shap_beeswarm.md",
-      "size": 4850,
-      "sha256": "bc3de2226c96d4d935d5291b4058e0cdd1dc03e807004391347b3ba32a6311d5"
+      "size": 4853,
+      "sha256": "fca893823651329864ba14befa51b36ab078180a7d97c0926381664850923029"
     },
     {
       "path": "skills/make-figures/references/exemplar_plots/spider_plot.md",
@@ -3168,8 +3213,8 @@
     },
     {
       "path": "skills/mllm-eval/SKILL.md",
-      "size": 6720,
-      "sha256": "afdc167bfccb6bad8a4019e0af5bd7c955129220d360511a89962ecd321bc44d"
+      "size": 6654,
+      "sha256": "a475fd6e625f00abd5f005200b7cec71e8457465c916f52fe35cafe3e88ae33d"
     },
     {
       "path": "skills/mllm-eval/references/evaluation_axes.md",
@@ -3203,13 +3248,228 @@
     },
     {
       "path": "skills/mllm-eval/skill.yml",
-      "size": 3373,
-      "sha256": "72fcc60d62edc95808df7cc0ff283822069caaa61e9163fc8d3f298a3afa3801"
+      "size": 3354,
+      "sha256": "33e11de75e24af13ed1a6552d91b95d2309aadbc5cdd1f0971ad7356e4e5669c"
+    },
+    {
+      "path": "skills/model-assessment/SKILL.md",
+      "size": 15352,
+      "sha256": "88db236d66a9e540dc0377bd09b749a7e2016162c718e2cee20590cb1815da06"
+    },
+    {
+      "path": "skills/model-assessment/references/explainability_guide.md",
+      "size": 4212,
+      "sha256": "fd2c1c8727904048a90b7765b639e77e3963e7c0bcc903acd3fd83131108d2f0"
+    },
+    {
+      "path": "skills/model-assessment/references/metric_guide.md",
+      "size": 6195,
+      "sha256": "682f2d64a7ee097d2c2a0d5d8c1faf736b32adc5f74ec57a1df546f5b751156a"
+    },
+    {
+      "path": "skills/model-assessment/references/metric_selection_grounding.md",
+      "size": 10236,
+      "sha256": "27cb83599797e053171edad984a55dde7da2bfdff90d7761b95cdb2f72edc6e8"
+    },
+    {
+      "path": "skills/model-assessment/references/uncertainty_guide.md",
+      "size": 5549,
+      "sha256": "dac3622d01b1e276290edc6e35cbbe28a1d2de836f73dbe8da75f23942362ad1"
+    },
+    {
+      "path": "skills/model-assessment/references/validation_design.md",
+      "size": 13761,
+      "sha256": "b0e994c32b81ffa314fe0edc8664fe40cf59251d88fc0274e3c0743ae2d1ec5d"
+    },
+    {
+      "path": "skills/model-assessment/scripts/check_explainability_report.py",
+      "size": 10830,
+      "sha256": "78c46fc1a6932f8d6390e1f2ea756bde71147c718b990c5694705684bcc13248"
+    },
+    {
+      "path": "skills/model-assessment/scripts/check_explainability_report_challenge/expected/strong.txt",
+      "size": 391,
+      "sha256": "317018eb7546f77b2de39ff1b73c9e82584a9d65c25eb91a940de76a4c7d2ec5"
+    },
+    {
+      "path": "skills/model-assessment/scripts/check_explainability_report_challenge/expected/weak.txt",
+      "size": 876,
+      "sha256": "de5c090c1ee4c632d7d59bc0d5f20fac8d28342b74b68eb51066677658245451"
+    },
+    {
+      "path": "skills/model-assessment/scripts/check_explainability_report_challenge/fixture/report_strong.json",
+      "size": 238,
+      "sha256": "b835871c1d98313f736575faf7f6adbb5cfabe4e3dfd1abe1279976c8c5f1867"
+    },
+    {
+      "path": "skills/model-assessment/scripts/check_explainability_report_challenge/fixture/report_weak.json",
+      "size": 163,
+      "sha256": "dfde5db357a83660f941fdde957bb3a9af25f60d26300322f04b3981b13c429a"
+    },
+    {
+      "path": "skills/model-assessment/scripts/check_explainability_report_challenge/problem.md",
+      "size": 805,
+      "sha256": "1b667c138ac54e38614e438efdb995adba208588007e95eed6f374233ff6dcdc"
+    },
+    {
+      "path": "skills/model-assessment/scripts/check_explainability_report_challenge/verify.sh",
+      "size": 2005,
+      "sha256": "5246897dc616e04fa1260e9b20d9970e1499f95ebb52034bba59482d401c1156"
+    },
+    {
+      "path": "skills/model-assessment/scripts/check_metric_reporting.py",
+      "size": 18006,
+      "sha256": "9eba3bd5d0a255825b232fe94003afa0dd6d489d8d02235b247e3da8eef18a30"
+    },
+    {
+      "path": "skills/model-assessment/scripts/check_split_leakage.py",
+      "size": 11655,
+      "sha256": "479f1572e1754787d38d83004711deb2a8c33d2b0a13402498e9a9856a0d5285"
+    },
+    {
+      "path": "skills/model-assessment/scripts/check_split_leakage_challenge/expected/clean.txt",
+      "size": 358,
+      "sha256": "5d1e203ebc6656c172f60f4cd4eb3954fdbcd77579a6768c6bbd56952a966e6c"
+    },
+    {
+      "path": "skills/model-assessment/scripts/check_split_leakage_challenge/expected/leak.txt",
+      "size": 470,
+      "sha256": "34be75bbbabf10073a1fd11587e019491b7319e2030b166a1ab3e82e4899f3c2"
+    },
+    {
+      "path": "skills/model-assessment/scripts/check_split_leakage_challenge/fixture/split_seed.txt",
+      "size": 3,
+      "sha256": "084c799cd551dd1d8d5c5f9a5d593b2e931f5e36122ee5c793c1d08a19839cc0"
+    },
+    {
+      "path": "skills/model-assessment/scripts/check_split_leakage_challenge/fixture/splits_clean.csv",
+      "size": 150,
+      "sha256": "a4a15320685b58c4868737e40b4df0a07a942b39b5d94611e87d63d22e88aee0"
+    },
+    {
+      "path": "skills/model-assessment/scripts/check_split_leakage_challenge/fixture/splits_leak.csv",
+      "size": 145,
+      "sha256": "1bc2cc7b11a7a4a9ddc0168a83eab33ea1b03e3ca98bda5301679a18e19faf53"
+    },
+    {
+      "path": "skills/model-assessment/scripts/check_split_leakage_challenge/problem.md",
+      "size": 2347,
+      "sha256": "f140095ec5d190120bf73dc62710b2ccac31c7f7d54307a0854c8438df61940e"
+    },
+    {
+      "path": "skills/model-assessment/scripts/check_split_leakage_challenge/verify.sh",
+      "size": 1925,
+      "sha256": "9ae88c109caa1408a3a3b08ea0583fc97ce98b93c909f75d043f08a231e91e61"
+    },
+    {
+      "path": "skills/model-assessment/scripts/check_uncertainty_reporting.py",
+      "size": 13089,
+      "sha256": "dcb3e0a897c69c723af0185bebe2318bc128872788d21e3b0162daaeac0e5f23"
+    },
+    {
+      "path": "skills/model-assessment/scripts/check_uncertainty_reporting_challenge/expected/strong.txt",
+      "size": 414,
+      "sha256": "2d3f1cbeb88b00d1ef8968c276f17d276c152eafbf445d3879315bd727a16c61"
+    },
+    {
+      "path": "skills/model-assessment/scripts/check_uncertainty_reporting_challenge/expected/weak.txt",
+      "size": 1077,
+      "sha256": "b37379da88b17881678d50534ad993823a9a7c3b96a9942ca45be21caed39aaf"
+    },
+    {
+      "path": "skills/model-assessment/scripts/check_uncertainty_reporting_challenge/fixture/uncertainty_strong.json",
+      "size": 323,
+      "sha256": "39a64a9e327bf00151d3bb7e1394e7ba87c04ed0df6523256f22d55c127320bf"
+    },
+    {
+      "path": "skills/model-assessment/scripts/check_uncertainty_reporting_challenge/fixture/uncertainty_weak.json",
+      "size": 204,
+      "sha256": "5748d22600c8f68485f3ab665c32eace4a4dfc827df7f98c1c09640d82f304c2"
+    },
+    {
+      "path": "skills/model-assessment/scripts/check_uncertainty_reporting_challenge/problem.md",
+      "size": 2460,
+      "sha256": "fb3350f915b3b4a36a91718f93837f4331410d209f66fbd7e7d751fd35af4cc9"
+    },
+    {
+      "path": "skills/model-assessment/scripts/check_uncertainty_reporting_challenge/verify.sh",
+      "size": 2117,
+      "sha256": "5ff542ed3c4b0a479a6c2f906cefbb75494cb1ca8118e121afaf45f07f31bb80"
+    },
+    {
+      "path": "skills/model-assessment/scripts/metric_reporting_challenge/fixture/clf_bad.md",
+      "size": 84,
+      "sha256": "571aceb9567454e8bbe12e0967bc4cde4b142da99f6056f7530f3b8723ddf77c"
+    },
+    {
+      "path": "skills/model-assessment/scripts/metric_reporting_challenge/fixture/clf_good.md",
+      "size": 186,
+      "sha256": "ba44a3b38b4128fa713555c8b332f211e9087e6bc016d80af4c3074c3ca6ef8e"
+    },
+    {
+      "path": "skills/model-assessment/scripts/metric_reporting_challenge/fixture/det_good_wrapped.md",
+      "size": 285,
+      "sha256": "0c1f5ed5167969870602106e7a7c9a2ae53e3a3ddea5fa280c3beb6bf470c454"
+    },
+    {
+      "path": "skills/model-assessment/scripts/metric_reporting_challenge/fixture/det_no_iou.md",
+      "size": 224,
+      "sha256": "08227fbe46829b8eecdfe15680e1bb32087f1e6c5a353b3df6055c67d8300fc0"
+    },
+    {
+      "path": "skills/model-assessment/scripts/metric_reporting_challenge/fixture/generative_bad.md",
+      "size": 134,
+      "sha256": "f4ac7e4d2d6dd12125e832a55363579181546d68411f49984680f334db5c8cb4"
+    },
+    {
+      "path": "skills/model-assessment/scripts/metric_reporting_challenge/fixture/generative_good.md",
+      "size": 437,
+      "sha256": "d218437b09d8d80fa13aa52a03c65fd6156d95e99204762cafaa7021c4b4b21f"
+    },
+    {
+      "path": "skills/model-assessment/scripts/metric_reporting_challenge/fixture/interactive_bad.md",
+      "size": 128,
+      "sha256": "be714934c18566a89c6c7b06951a420d8e2cbfca814e1daf26df87866252a185"
+    },
+    {
+      "path": "skills/model-assessment/scripts/metric_reporting_challenge/fixture/interactive_good.md",
+      "size": 500,
+      "sha256": "a45e14485fb02f0ee790350235c652ea2b871aa16cfd89e12a32e49cd6e1b9ca"
+    },
+    {
+      "path": "skills/model-assessment/scripts/metric_reporting_challenge/fixture/multiclass_bad.md",
+      "size": 128,
+      "sha256": "0ab44d8dcdf4ec8281c7afb7db021e61bb368f2f30bd5ec49ed5bcf962319421"
+    },
+    {
+      "path": "skills/model-assessment/scripts/metric_reporting_challenge/fixture/seg_bad.md",
+      "size": 119,
+      "sha256": "50c138840976b8fa010cb0ca9fd24fffc7181e275eb6c71e76500da7d2a0420d"
+    },
+    {
+      "path": "skills/model-assessment/scripts/metric_reporting_challenge/fixture/seg_good.md",
+      "size": 207,
+      "sha256": "903a2dbd61cf56ce8e3d808f867ebd47ba4d6f2bd1542d7482b85477a6876eb0"
+    },
+    {
+      "path": "skills/model-assessment/scripts/metric_reporting_challenge/problem.md",
+      "size": 1599,
+      "sha256": "1f842374e3569d5fc27d7c26aa7f6bc6be43f7f38d2d9f3e2f9ab62fb29ddd65"
+    },
+    {
+      "path": "skills/model-assessment/scripts/metric_reporting_challenge/verify.sh",
+      "size": 2642,
+      "sha256": "3efa9aff1f4ed223b7114740cac9cb67801456ffbfa3e5f7a7f1df7f46ada565"
+    },
+    {
+      "path": "skills/model-assessment/skill.yml",
+      "size": 7584,
+      "sha256": "8d227d520bec3b1b0eed7b7ce391e4f95298fbaf71534c7f398f29d5aa32f499"
     },
     {
       "path": "skills/model-card/SKILL.md",
-      "size": 5807,
-      "sha256": "070b1ab8391a37bc4ffebadb918b71e83251da2293d119f5b0cfbf28bea0d4c2"
+      "size": 5747,
+      "sha256": "1e0240624ce70d06af7e827e7403d7e2811b0f97d8342be87bf4c774e01d52f8"
     },
     {
       "path": "skills/model-card/references/datasheet_template.md",
@@ -3219,7 +3479,7 @@
     {
       "path": "skills/model-card/references/metric_dimensions.md",
       "size": 3066,
-      "sha256": "70aeb1af8ed7510aff0562c8ac99852a0b1b49de5eb3ef923a1bbeb4f4c051eb"
+      "sha256": "1d485a6f6248acb6a177968fde0e37f0b9f6c212ab11bb54049e80f11876578c"
     },
     {
       "path": "skills/model-card/references/model_card_template.md",
@@ -3229,7 +3489,7 @@
     {
       "path": "skills/model-card/scripts/check_model_card_complete.py",
       "size": 8901,
-      "sha256": "ccdf8e58b571f38b6014ecaa8de5ce1326034d66841a10e4f9a161c97b4a5157"
+      "sha256": "3bd023f45b9321b849a4039988ef63bd684a8cd288e34c5e7870a879be3a76e7"
     },
     {
       "path": "skills/model-card/scripts/check_model_card_complete_challenge/fixture/complete/DATASHEET.md",
@@ -3249,7 +3509,7 @@
     {
       "path": "skills/model-card/scripts/check_model_card_complete_challenge/problem.md",
       "size": 1853,
-      "sha256": "dc85f56704dfd049cd9807d0ffd77bc1264de69c2b20ca3e691f6eedc6843deb"
+      "sha256": "64bcdef4b5bf0ab8e0c84782962b7c66bcde9c19c17b64f5722d45e13c174888"
     },
     {
       "path": "skills/model-card/scripts/check_model_card_complete_challenge/verify.sh",
@@ -3259,117 +3519,32 @@
     {
       "path": "skills/model-card/skill.yml",
       "size": 2877,
-      "sha256": "0d71da374191ca35545b90130d7d30d4693e4bd469014a3b0993063bdfd4b958"
+      "sha256": "309d6a1b3660117a7b64a6751f7ad65512fd8761b37ed878e739b3c998e2bb94"
     },
     {
       "path": "skills/model-evaluation/SKILL.md",
-      "size": 7380,
-      "sha256": "b39293e54402fa79ac73de827201f4cd98bb2cc70fd1cd4fc8da4e940d429b3b"
-    },
-    {
-      "path": "skills/model-evaluation/references/metric_guide.md",
-      "size": 6194,
-      "sha256": "b8cb061cf40b0736961a4f06eb7f6b60f238a0e19f7b47e07f3cb38a82097f52"
-    },
-    {
-      "path": "skills/model-evaluation/references/metric_selection_grounding.md",
-      "size": 10256,
-      "sha256": "535282ae5cfbf2593c3e40926143e2ebd081ebbd78ac972cb0e6aeae839d1e77"
-    },
-    {
-      "path": "skills/model-evaluation/scripts/check_metric_reporting.py",
-      "size": 18006,
-      "sha256": "9eba3bd5d0a255825b232fe94003afa0dd6d489d8d02235b247e3da8eef18a30"
-    },
-    {
-      "path": "skills/model-evaluation/scripts/metric_reporting_challenge/fixture/clf_bad.md",
-      "size": 84,
-      "sha256": "571aceb9567454e8bbe12e0967bc4cde4b142da99f6056f7530f3b8723ddf77c"
-    },
-    {
-      "path": "skills/model-evaluation/scripts/metric_reporting_challenge/fixture/clf_good.md",
-      "size": 186,
-      "sha256": "ba44a3b38b4128fa713555c8b332f211e9087e6bc016d80af4c3074c3ca6ef8e"
-    },
-    {
-      "path": "skills/model-evaluation/scripts/metric_reporting_challenge/fixture/det_good_wrapped.md",
-      "size": 285,
-      "sha256": "0c1f5ed5167969870602106e7a7c9a2ae53e3a3ddea5fa280c3beb6bf470c454"
-    },
-    {
-      "path": "skills/model-evaluation/scripts/metric_reporting_challenge/fixture/det_no_iou.md",
-      "size": 224,
-      "sha256": "08227fbe46829b8eecdfe15680e1bb32087f1e6c5a353b3df6055c67d8300fc0"
-    },
-    {
-      "path": "skills/model-evaluation/scripts/metric_reporting_challenge/fixture/generative_bad.md",
-      "size": 134,
-      "sha256": "f4ac7e4d2d6dd12125e832a55363579181546d68411f49984680f334db5c8cb4"
-    },
-    {
-      "path": "skills/model-evaluation/scripts/metric_reporting_challenge/fixture/generative_good.md",
-      "size": 437,
-      "sha256": "d218437b09d8d80fa13aa52a03c65fd6156d95e99204762cafaa7021c4b4b21f"
-    },
-    {
-      "path": "skills/model-evaluation/scripts/metric_reporting_challenge/fixture/interactive_bad.md",
-      "size": 128,
-      "sha256": "be714934c18566a89c6c7b06951a420d8e2cbfca814e1daf26df87866252a185"
-    },
-    {
-      "path": "skills/model-evaluation/scripts/metric_reporting_challenge/fixture/interactive_good.md",
-      "size": 500,
-      "sha256": "a45e14485fb02f0ee790350235c652ea2b871aa16cfd89e12a32e49cd6e1b9ca"
-    },
-    {
-      "path": "skills/model-evaluation/scripts/metric_reporting_challenge/fixture/multiclass_bad.md",
-      "size": 128,
-      "sha256": "0ab44d8dcdf4ec8281c7afb7db021e61bb368f2f30bd5ec49ed5bcf962319421"
-    },
-    {
-      "path": "skills/model-evaluation/scripts/metric_reporting_challenge/fixture/seg_bad.md",
-      "size": 119,
-      "sha256": "50c138840976b8fa010cb0ca9fd24fffc7181e275eb6c71e76500da7d2a0420d"
-    },
-    {
-      "path": "skills/model-evaluation/scripts/metric_reporting_challenge/fixture/seg_good.md",
-      "size": 207,
-      "sha256": "903a2dbd61cf56ce8e3d808f867ebd47ba4d6f2bd1542d7482b85477a6876eb0"
-    },
-    {
-      "path": "skills/model-evaluation/scripts/metric_reporting_challenge/problem.md",
-      "size": 1599,
-      "sha256": "1f842374e3569d5fc27d7c26aa7f6bc6be43f7f38d2d9f3e2f9ab62fb29ddd65"
-    },
-    {
-      "path": "skills/model-evaluation/scripts/metric_reporting_challenge/verify.sh",
-      "size": 2642,
-      "sha256": "3efa9aff1f4ed223b7114740cac9cb67801456ffbfa3e5f7a7f1df7f46ada565"
-    },
-    {
-      "path": "skills/model-evaluation/skill.yml",
-      "size": 2944,
-      "sha256": "d055072bcfb86d84b90f0b29790a262a496a95e4fe8ffbf38d02a28bf9db258e"
+      "size": 428,
+      "sha256": "62ae275bef88a209146c9c5706c75f046d0239010e6b60e2e5c2c73cdfae9125"
     },
     {
       "path": "skills/model-scaffold/SKILL.md",
-      "size": 9527,
-      "sha256": "8fcf4060f064a1924d4bec278e0c0c628c99caf6ea75f617f8b9748cbb207ed8"
+      "size": 9443,
+      "sha256": "152f65d260e5d4dfd35b279b675b110be56ac78c88fb44297bed951b5dd62566"
     },
     {
       "path": "skills/model-scaffold/references/finetuning_guide.md",
-      "size": 6208,
-      "sha256": "b7817d53eeeb506b573beaae1889fa863dd81286d474ab99b46b38ad046b32e7"
+      "size": 6194,
+      "sha256": "137d762d41b2627389c16fc56e68c8deff8f0d84cff3c9d6f2f57253335c3ecc"
     },
     {
       "path": "skills/model-scaffold/references/mlops_guide.md",
-      "size": 5171,
-      "sha256": "cc9b62ed588daf97b40b6d7a8e27f9b6de96b9f5752ad2baa8e180e01d3d4973"
+      "size": 5168,
+      "sha256": "0b2725c7473f45969937abc751118a9b045a76adf64adf4fd8aa28fab48851fa"
     },
     {
       "path": "skills/model-scaffold/references/training_guide.md",
       "size": 2840,
-      "sha256": "9a7f7b5dda65e71d8007cb6539cda0cfb9c6b1f2c877aedee4646f368686e96f"
+      "sha256": "44d9dee81afc3f83858fe7e8d5ddc9204f11d3713b1b82873f5833d582c109a6"
     },
     {
       "path": "skills/model-scaffold/scripts/check_training_hygiene.py",
@@ -3379,7 +3554,7 @@
     {
       "path": "skills/model-scaffold/scripts/scaffold.py",
       "size": 52694,
-      "sha256": "a356c4a2022b7829b0c8a9ae65c29e5a3df2527bbf47c86357e4fd311c809468"
+      "sha256": "2b079d3f8f8af9dc61e57a062e0f15183a8392156d9bf1dde2d2633020306d6f"
     },
     {
       "path": "skills/model-scaffold/scripts/scaffold_challenge/expected/split_assignment.csv",
@@ -3394,7 +3569,7 @@
     {
       "path": "skills/model-scaffold/scripts/scaffold_challenge/problem.md",
       "size": 3226,
-      "sha256": "950af6c956f73b491b2bee102d884765aaeb783b5842eb428ac2ad81b49f67e8"
+      "sha256": "9524b9bc2f621cf00ea19a67b758c73308107c1286dac370a752bcc8d198a807"
     },
     {
       "path": "skills/model-scaffold/scripts/scaffold_challenge/verify.sh",
@@ -3403,118 +3578,108 @@
     },
     {
       "path": "skills/model-scaffold/skill.yml",
-      "size": 3772,
-      "sha256": "aaae59edb50c50b01be2aaca3c94b63ce76af067ff25750248517c5ce91ccf41"
+      "size": 3750,
+      "sha256": "8dafdb0ad8a8eefe6243392d971f743e2b7f2e428c688b202efad85648288dd4"
     },
     {
-      "path": "skills/model-sourcing/SKILL.md",
-      "size": 9185,
-      "sha256": "b2e27cafc5782334185b0f81aa942fd432c8697d4be92ce0951bc85177efcd75"
+      "path": "skills/model-selection/SKILL.md",
+      "size": 9771,
+      "sha256": "162ac30a9399edea8ec718577b48eb6dfeb07eb88f581b53889eef2ea72a7d57"
     },
     {
-      "path": "skills/model-sourcing/scripts/check_model_provenance.py",
+      "path": "skills/model-selection/references/classification.md",
+      "size": 7256,
+      "sha256": "b40cde279736ad23ebb1770fea93c9be7a73411491bce9b10a6a3b299627def0"
+    },
+    {
+      "path": "skills/model-selection/references/detection.md",
+      "size": 5969,
+      "sha256": "5d4fac3ad9ee5c7922875d3238d4fb7ef6f960a8abceff9467178c3b4d8b6bb1"
+    },
+    {
+      "path": "skills/model-selection/references/foundation_models.md",
+      "size": 9272,
+      "sha256": "c9addbacd4308ecd18f018e44032d3fdad91ad2059f19057a88277592e6e683d"
+    },
+    {
+      "path": "skills/model-selection/references/graph.md",
+      "size": 6865,
+      "sha256": "9696353cbab77a133db595e52e220f3489c2b8fc904f1bf9a4ca2e701bcb10dd"
+    },
+    {
+      "path": "skills/model-selection/references/index.md",
+      "size": 5310,
+      "sha256": "da649fcf937076d708594085cd3aeae38f9ebe1e4e3f0ae313e8cf083792783b"
+    },
+    {
+      "path": "skills/model-selection/references/segmentation.md",
+      "size": 10351,
+      "sha256": "147a14c73b413de0bc5dda0d815bda9ed178f90d64b2c4aca9cb3b0e6dd4fca6"
+    },
+    {
+      "path": "skills/model-selection/references/synthesis.md",
+      "size": 4628,
+      "sha256": "4b92af616e8a268516004739fb670c66fa6228f339c4555fa5fdb8e98166144e"
+    },
+    {
+      "path": "skills/model-selection/scripts/check_model_provenance.py",
       "size": 12739,
       "sha256": "36d81bf11180e0afaea2e6da2c420f39427f82f428802975af88dca63d9d2dcc"
     },
     {
-      "path": "skills/model-sourcing/scripts/check_model_provenance_challenge/expected/clean.txt",
+      "path": "skills/model-selection/scripts/check_model_provenance_challenge/expected/clean.txt",
       "size": 186,
       "sha256": "7f7653f48a4fb9839fe058fc582705afe5df899c7f6be5eca5fc38f19735e8bc"
     },
     {
-      "path": "skills/model-sourcing/scripts/check_model_provenance_challenge/expected/defect.txt",
+      "path": "skills/model-selection/scripts/check_model_provenance_challenge/expected/defect.txt",
       "size": 1845,
       "sha256": "487768c0ded663c76b4ca894e81ad669c0b30c495b357ca0a0b245226761db12"
     },
     {
-      "path": "skills/model-sourcing/scripts/check_model_provenance_challenge/expected/unstated.txt",
+      "path": "skills/model-selection/scripts/check_model_provenance_challenge/expected/unstated.txt",
       "size": 652,
       "sha256": "f08fb8bf1e19c824ac7c096ebee40ad479177b118cddc8ebe6baa912faf9fc4b"
     },
     {
-      "path": "skills/model-sourcing/scripts/check_model_provenance_challenge/fixture/dossier_clean.json",
+      "path": "skills/model-selection/scripts/check_model_provenance_challenge/fixture/dossier_clean.json",
       "size": 839,
       "sha256": "74f63c95ab7c6b860d0770065b4d98c2588c7cb787a84f8f2e65dd055936d601"
     },
     {
-      "path": "skills/model-sourcing/scripts/check_model_provenance_challenge/fixture/dossier_defect.json",
+      "path": "skills/model-selection/scripts/check_model_provenance_challenge/fixture/dossier_defect.json",
       "size": 626,
       "sha256": "87ac6828fdb1ee7c196dbc79abaa63070a87e967eb54e03be401476db4cb5496"
     },
     {
-      "path": "skills/model-sourcing/scripts/check_model_provenance_challenge/fixture/dossier_unstated.json",
+      "path": "skills/model-selection/scripts/check_model_provenance_challenge/fixture/dossier_unstated.json",
       "size": 556,
       "sha256": "93381970d38eb00f89f476df0268be09d5cd67131d0a6cd5709365d24779a894"
     },
     {
-      "path": "skills/model-sourcing/scripts/check_model_provenance_challenge/problem.md",
+      "path": "skills/model-selection/scripts/check_model_provenance_challenge/problem.md",
       "size": 2455,
       "sha256": "7f2185bb8bb812fd25c9fc6efe4c1de9640afdaba9b919378275a36b592af787"
     },
     {
-      "path": "skills/model-sourcing/scripts/check_model_provenance_challenge/verify.sh",
+      "path": "skills/model-selection/scripts/check_model_provenance_challenge/verify.sh",
       "size": 2584,
       "sha256": "523310a3c40bb3f0a989199ebf7b190e657ae83d960b7aa01206278c1e68fddb"
     },
     {
-      "path": "skills/model-sourcing/skill.yml",
-      "size": 4183,
-      "sha256": "5ab4933592b047e995e82f757e09171eea17b30121db0153d91d85b0ae1185f7"
+      "path": "skills/model-selection/skill.yml",
+      "size": 5266,
+      "sha256": "acfdaefc4ad8d465088d9eecfa35d45d8f7c079ba69b50e7e20fce72e57d8bb5"
+    },
+    {
+      "path": "skills/model-sourcing/SKILL.md",
+      "size": 425,
+      "sha256": "89f2e51e10b9ba54ac78bcce8e63e75565b0e3883cce570b1d62399629357faf"
     },
     {
       "path": "skills/model-validation/SKILL.md",
-      "size": 11527,
-      "sha256": "be75cfcf232c991b0c177d659ce4cd0106dc67a2c9ccb3c176639fe354236ef3"
-    },
-    {
-      "path": "skills/model-validation/references/validation_design.md",
-      "size": 13781,
-      "sha256": "7d7a91cd486f38cf376b50c20db5a8c724dc0c64276e9d8031b483f7f3548d2a"
-    },
-    {
-      "path": "skills/model-validation/scripts/check_split_leakage.py",
-      "size": 11655,
-      "sha256": "479f1572e1754787d38d83004711deb2a8c33d2b0a13402498e9a9856a0d5285"
-    },
-    {
-      "path": "skills/model-validation/scripts/check_split_leakage_challenge/expected/clean.txt",
-      "size": 358,
-      "sha256": "5d1e203ebc6656c172f60f4cd4eb3954fdbcd77579a6768c6bbd56952a966e6c"
-    },
-    {
-      "path": "skills/model-validation/scripts/check_split_leakage_challenge/expected/leak.txt",
-      "size": 470,
-      "sha256": "34be75bbbabf10073a1fd11587e019491b7319e2030b166a1ab3e82e4899f3c2"
-    },
-    {
-      "path": "skills/model-validation/scripts/check_split_leakage_challenge/fixture/split_seed.txt",
-      "size": 3,
-      "sha256": "084c799cd551dd1d8d5c5f9a5d593b2e931f5e36122ee5c793c1d08a19839cc0"
-    },
-    {
-      "path": "skills/model-validation/scripts/check_split_leakage_challenge/fixture/splits_clean.csv",
-      "size": 150,
-      "sha256": "a4a15320685b58c4868737e40b4df0a07a942b39b5d94611e87d63d22e88aee0"
-    },
-    {
-      "path": "skills/model-validation/scripts/check_split_leakage_challenge/fixture/splits_leak.csv",
-      "size": 145,
-      "sha256": "1bc2cc7b11a7a4a9ddc0168a83eab33ea1b03e3ca98bda5301679a18e19faf53"
-    },
-    {
-      "path": "skills/model-validation/scripts/check_split_leakage_challenge/problem.md",
-      "size": 2347,
-      "sha256": "f140095ec5d190120bf73dc62710b2ccac31c7f7d54307a0854c8438df61940e"
-    },
-    {
-      "path": "skills/model-validation/scripts/check_split_leakage_challenge/verify.sh",
-      "size": 1925,
-      "sha256": "9ae88c109caa1408a3a3b08ea0583fc97ce98b93c909f75d043f08a231e91e61"
-    },
-    {
-      "path": "skills/model-validation/skill.yml",
-      "size": 3064,
-      "sha256": "ca5cd8d671d1674b3d6e968b6e86f2b65fd2cc4af39ab1cf5e8d8c00b9196a71"
+      "size": 413,
+      "sha256": "9d71cfde99d365a99f16711cff8e6bbc3f55b1b07a7bcd87d7cb246c09f0faad"
     },
     {
       "path": "skills/obsidian-paper-vault/SKILL.md",
@@ -3578,8 +3743,8 @@
     },
     {
       "path": "skills/orchestrate/SKILL.md",
-      "size": 32896,
-      "sha256": "811fd9cb724a80121248cdcef5c739f82e7be3b5845a077dfb75a7ad498baf14"
+      "size": 32065,
+      "sha256": "f9c280ef84248ff70e5b52f44148fcc422bfd886191cd57e4ae1fbe5f11c2b9d"
     },
     {
       "path": "skills/orchestrate/references/data_flow_contract.md",
@@ -3663,8 +3828,8 @@
     },
     {
       "path": "skills/peer-review/references/domain-probes/model_development.md",
-      "size": 15847,
-      "sha256": "ea729356c212976adb5c3e86920e27abe9cd653f39f4e5d388a2e8157157ad82"
+      "size": 15846,
+      "sha256": "ad77a2570fb7309ead982afc94acd0f357668198429999ecd6fa56dc7dae2c64"
     },
     {
       "path": "skills/peer-review/references/domain-probes/narrative_review.md",
@@ -3978,93 +4143,8 @@
     },
     {
       "path": "skills/preprocess-imaging/SKILL.md",
-      "size": 8297,
-      "sha256": "df11b628031f7713317459fce2bf8cbf2c459db3b44fe846cf479e97f71f5089"
-    },
-    {
-      "path": "skills/preprocess-imaging/references/preprocessing_guide.md",
-      "size": 5023,
-      "sha256": "fdab6d435ff6bce7b6787319acda9b0b160411bc2e1109e15154bbb8a68c8282"
-    },
-    {
-      "path": "skills/preprocess-imaging/scripts/check_normalizer_domain.py",
-      "size": 10298,
-      "sha256": "41fc867fdc0b78e1c7327f05c2a0853a4333c8219bca3dc546a1c6d2ca1d01b4"
-    },
-    {
-      "path": "skills/preprocess-imaging/scripts/check_normalizer_domain_challenge/expected/arbitrary_mismatch.txt",
-      "size": 831,
-      "sha256": "2242f2ce6d2d9f9e7945601c83b666cbab926e1d21f351fa9f1f03ad247eb743"
-    },
-    {
-      "path": "skills/preprocess-imaging/scripts/check_normalizer_domain_challenge/expected/hu_clean.txt",
-      "size": 364,
-      "sha256": "1d167d500fe89dac825702f8777c65dcf1241d73847a197d2d59a170851063d4"
-    },
-    {
-      "path": "skills/preprocess-imaging/scripts/check_normalizer_domain_challenge/fixture/plan_ct.json",
-      "size": 486,
-      "sha256": "57610f7e55e7935ef900f1a5aa7cfc9d88726122c20c8eceaa839f75e76dbcc6"
-    },
-    {
-      "path": "skills/preprocess-imaging/scripts/check_normalizer_domain_challenge/fixture/profile_arbitrary.json",
-      "size": 4497,
-      "sha256": "e47c3f65fed42fa73d90558b45aadc8390efb07449d5774fb979a5f62c339046"
-    },
-    {
-      "path": "skills/preprocess-imaging/scripts/check_normalizer_domain_challenge/fixture/profile_hu.json",
-      "size": 2740,
-      "sha256": "676222e981c53ed582adb2f2683b309893d2a9698b0d5d5f53a86dea319efb1c"
-    },
-    {
-      "path": "skills/preprocess-imaging/scripts/check_normalizer_domain_challenge/problem.md",
-      "size": 2404,
-      "sha256": "76859e918c74e17baad62980dd58e8ef75eb372214a343b8d7dc0e85714ab8f0"
-    },
-    {
-      "path": "skills/preprocess-imaging/scripts/check_normalizer_domain_challenge/verify.sh",
-      "size": 3075,
-      "sha256": "f365c66f43db20f2bb450d3e1408e95971db9fd3e2975fe0572cd4d3b9d9ff7d"
-    },
-    {
-      "path": "skills/preprocess-imaging/scripts/check_preprocessing_leakage.py",
-      "size": 14121,
-      "sha256": "c0118907fb4382d4459700c7cf36d53966e59503ad03ad2b25df03894d85ce08"
-    },
-    {
-      "path": "skills/preprocess-imaging/scripts/check_preprocessing_leakage_challenge/expected/clean.txt",
-      "size": 370,
-      "sha256": "bc1efcfc1d8575d78a0448752e60a3b58d654a5bc1a7b11360e4d9ba690665ac"
-    },
-    {
-      "path": "skills/preprocess-imaging/scripts/check_preprocessing_leakage_challenge/expected/leak.txt",
-      "size": 1030,
-      "sha256": "fe046c81f20b34a6ff3fd6858f7832e786106ed56635b39f7e413b4853d4b7e8"
-    },
-    {
-      "path": "skills/preprocess-imaging/scripts/check_preprocessing_leakage_challenge/fixture/manifest_clean.json",
-      "size": 800,
-      "sha256": "e01ff6d09aae6f76d3b2b1cd05c333d66fd53499a2a2d1296380eefde720c515"
-    },
-    {
-      "path": "skills/preprocess-imaging/scripts/check_preprocessing_leakage_challenge/fixture/manifest_leak.json",
-      "size": 881,
-      "sha256": "a55389654128c577e16eefb3c6b8f85d8a47bdc06a817619f13036a1e1ebe4b4"
-    },
-    {
-      "path": "skills/preprocess-imaging/scripts/check_preprocessing_leakage_challenge/problem.md",
-      "size": 903,
-      "sha256": "042ddd4736133ccf63192ea65c4faa714b2854ec9bb704f29ca2f401cd4658ee"
-    },
-    {
-      "path": "skills/preprocess-imaging/scripts/check_preprocessing_leakage_challenge/verify.sh",
-      "size": 2188,
-      "sha256": "9201d264720627f7281f43bcf3b1093bf6940f67acd7c299c8b3ac64fb58b564"
-    },
-    {
-      "path": "skills/preprocess-imaging/skill.yml",
-      "size": 3518,
-      "sha256": "c6edc7ac6421438d4e0b64cd416202ac9f91092870ea1cb8531ba15fda7d5c72"
+      "size": 412,
+      "sha256": "3233e23bf28d832a9c3a9e32ef83c9902b3446671b933fc52aa62b216c329e5f"
     },
     {
       "path": "skills/present-paper/SKILL.md",
@@ -4268,53 +4348,8 @@
     },
     {
       "path": "skills/profile-imaging/SKILL.md",
-      "size": 10382,
-      "sha256": "e66d9d34bf9622736206baf1ca98bbbece1bf98d86d8cc67598aef6579debcdb"
-    },
-    {
-      "path": "skills/profile-imaging/scripts/check_dataset_profile.py",
-      "size": 16672,
-      "sha256": "3726e8205fe69cfcb06f4854cc97be95bd2c6fc89e02400fff11153a68be61e7"
-    },
-    {
-      "path": "skills/profile-imaging/scripts/check_dataset_profile_challenge/expected/clean.txt",
-      "size": 360,
-      "sha256": "9e5fddb88dd83dd32aea8d0651a0f66922e5b58fb010713fb5d550090d1b5a58"
-    },
-    {
-      "path": "skills/profile-imaging/scripts/check_dataset_profile_challenge/expected/defect.txt",
-      "size": 1600,
-      "sha256": "8eac4257e5904e777a7e7f2631e3680ae66a5366c3e4fb16b1a8f3bf2dc53525"
-    },
-    {
-      "path": "skills/profile-imaging/scripts/check_dataset_profile_challenge/fixture/profile_clean.json",
-      "size": 2887,
-      "sha256": "5527d34c123551319a8323f6c7a9536c94747e9cd11ed7de3c91edd41f802287"
-    },
-    {
-      "path": "skills/profile-imaging/scripts/check_dataset_profile_challenge/fixture/profile_defect.json",
-      "size": 4536,
-      "sha256": "933c4a235f6b27a5f14c78e096744a664dbe16ae100478d3b77400a323f770b9"
-    },
-    {
-      "path": "skills/profile-imaging/scripts/check_dataset_profile_challenge/problem.md",
-      "size": 1404,
-      "sha256": "feba54fdb80b99f757bb9d191b2be60008104d6ee0c2029b3d7fcba0f762d90d"
-    },
-    {
-      "path": "skills/profile-imaging/scripts/check_dataset_profile_challenge/verify.sh",
-      "size": 2463,
-      "sha256": "e5b23d1addc2510d343036b9100491b40eaf9dc57824e0d593ee8f77c610c8cb"
-    },
-    {
-      "path": "skills/profile-imaging/scripts/profile_imaging_dataset.py",
-      "size": 6996,
-      "sha256": "379283bde44c048664b5ba2c92b1742995c900749146108fb78c7a2fa1ccc3c2"
-    },
-    {
-      "path": "skills/profile-imaging/skill.yml",
-      "size": 3981,
-      "sha256": "4a1748f238dcfb247f9ca388506c24c7e8d14e786b613a0ecb6313ab4ecb2d54"
+      "size": 401,
+      "sha256": "58502b5d35265401908a9c4d4c2f3590c0b39325d186f9e5b02ea3e102f38b92"
     },
     {
       "path": "skills/publish-skill/SKILL.md",
@@ -4348,8 +4383,8 @@
     },
     {
       "path": "skills/radiomics-ml/SKILL.md",
-      "size": 8273,
-      "sha256": "cc65bfd50db2b6e9b6681e1c9649b306490cd5dd74192bfdf5316362b71f141b"
+      "size": 8274,
+      "sha256": "144813cdd9b8952124f61462009d67ef196016df39d64aa934cbc5ab2a65660d"
     },
     {
       "path": "skills/radiomics-ml/references/radiomics_ml_guide.md",
@@ -4393,8 +4428,8 @@
     },
     {
       "path": "skills/radiomics-ml/skill.yml",
-      "size": 3790,
-      "sha256": "9b99b87add656873d3f7277ce12490ffea36d919e9538bc4f4fbe1ebbfedc18e"
+      "size": 3789,
+      "sha256": "9fe4f9de343e08e5b2bdb589931291409238d972c4cecb7a0c4e53d63e2ee071"
     },
     {
       "path": "skills/render-pdf-doc/SKILL.md",
@@ -4674,7 +4709,7 @@
     {
       "path": "skills/self-review/SKILL.md",
       "size": 43972,
-      "sha256": "f681999026df8c1910894398e86fb5c36b58645548b0bf189ce9fd2795f1c907"
+      "sha256": "f957b2984bab33d9bb6baeaef3e8280b8300fc04abd756d56c85631108d8ae33"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
@@ -4723,8 +4758,8 @@
     },
     {
       "path": "skills/self-review/references/domain-probes/model_development.md",
-      "size": 15847,
-      "sha256": "ea729356c212976adb5c3e86920e27abe9cd653f39f4e5d388a2e8157157ad82"
+      "size": 15846,
+      "sha256": "ad77a2570fb7309ead982afc94acd0f357668198429999ecd6fa56dc7dae2c64"
     },
     {
       "path": "skills/self-review/references/domain-probes/narrative_review.md",
@@ -5039,7 +5074,7 @@
     {
       "path": "skills/self-review/scripts/check_cv_leakage.py",
       "size": 6385,
-      "sha256": "1c1f301dbd6ed737cbb7cabb40544102ff8475a020494a38bcb9ac0650ebd263"
+      "sha256": "dd133b57088d83ceb87b46ec7014b10acc8f0098fba0a16c720b4c8743c23cc0"
     },
     {
       "path": "skills/self-review/scripts/check_dta_denominators.py",
@@ -5988,53 +6023,8 @@
     },
     {
       "path": "skills/uncertainty-imaging/SKILL.md",
-      "size": 8224,
-      "sha256": "0ff26311b9b372a074751d9b64c5fc20ec7440aabe76fd17c3f2e09d54d4a080"
-    },
-    {
-      "path": "skills/uncertainty-imaging/references/uncertainty_guide.md",
-      "size": 5574,
-      "sha256": "fb63c7b48b00fc371dca2ed1a7bdb9932b318ceba6334bae5097f4da3b08b38a"
-    },
-    {
-      "path": "skills/uncertainty-imaging/scripts/check_uncertainty_reporting.py",
-      "size": 13089,
-      "sha256": "dcb3e0a897c69c723af0185bebe2318bc128872788d21e3b0162daaeac0e5f23"
-    },
-    {
-      "path": "skills/uncertainty-imaging/scripts/check_uncertainty_reporting_challenge/expected/strong.txt",
-      "size": 414,
-      "sha256": "2d3f1cbeb88b00d1ef8968c276f17d276c152eafbf445d3879315bd727a16c61"
-    },
-    {
-      "path": "skills/uncertainty-imaging/scripts/check_uncertainty_reporting_challenge/expected/weak.txt",
-      "size": 1077,
-      "sha256": "b37379da88b17881678d50534ad993823a9a7c3b96a9942ca45be21caed39aaf"
-    },
-    {
-      "path": "skills/uncertainty-imaging/scripts/check_uncertainty_reporting_challenge/fixture/uncertainty_strong.json",
-      "size": 323,
-      "sha256": "39a64a9e327bf00151d3bb7e1394e7ba87c04ed0df6523256f22d55c127320bf"
-    },
-    {
-      "path": "skills/uncertainty-imaging/scripts/check_uncertainty_reporting_challenge/fixture/uncertainty_weak.json",
-      "size": 204,
-      "sha256": "5748d22600c8f68485f3ab665c32eace4a4dfc827df7f98c1c09640d82f304c2"
-    },
-    {
-      "path": "skills/uncertainty-imaging/scripts/check_uncertainty_reporting_challenge/problem.md",
-      "size": 2460,
-      "sha256": "fb3350f915b3b4a36a91718f93837f4331410d209f66fbd7e7d751fd35af4cc9"
-    },
-    {
-      "path": "skills/uncertainty-imaging/scripts/check_uncertainty_reporting_challenge/verify.sh",
-      "size": 2117,
-      "sha256": "5ff542ed3c4b0a479a6c2f906cefbb75494cb1ca8118e121afaf45f07f31bb80"
-    },
-    {
-      "path": "skills/uncertainty-imaging/skill.yml",
-      "size": 3753,
-      "sha256": "a229c56e3133db1ed616880f76903bbf825ee59591eb26534d4ddb172cf0945c"
+      "size": 424,
+      "sha256": "805a31550e8e68ea60560b49b4d3409e1fd1581e46ce24b24352b23abf466984"
     },
     {
       "path": "skills/verify-refs/SKILL.md",

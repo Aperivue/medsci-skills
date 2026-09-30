@@ -66,6 +66,9 @@ jobs:
       - name: Transactional installer crash-recovery + legacy-migration test
         run: python3 installers/tests/test_txn.py
 
+      - name: "v5 -> v6 upgrade test (renamed skills become alias stubs; a user-modified one is backed up, never pruned)"
+        run: python3 installers/tests/test_v6_upgrade.py
+
       - name: Updater verify / safe-extract / check-update test (offline)
         run: python3 installers/tests/test_update.py
 
@@ -282,8 +285,8 @@ jobs:
       - name: "Run peer-review request-type challenge (unjustified computation fires; disclosure-led review clears)"
         run: bash skills/peer-review/scripts/check_review_request_types_challenge/verify.sh
 
-      - name: "Run model-sourcing model-provenance challenge (contradictory facts fire; absent facts flagged; full dossier clears)"
-        run: bash skills/model-sourcing/scripts/check_model_provenance_challenge/verify.sh
+      - name: "Run model-selection model-provenance challenge (contradictory facts fire; absent facts flagged; full dossier clears)"
+        run: bash skills/model-selection/scripts/check_model_provenance_challenge/verify.sh
 
       - name: "Run manage-refs citation-keys challenge (an undefined [@key] fails; a fully-resolved bibliography clears)"
         run: bash skills/manage-refs/scripts/check_citation_keys_challenge/verify.sh
@@ -553,32 +556,32 @@ jobs:
       - name: Run self-review cohort-arithmetic gate test
         run: bash skills/self-review/tests/test_cohort_arithmetic.sh
 
-      - name: Run model-validation split-leakage challenge
-        run: bash skills/model-validation/scripts/check_split_leakage_challenge/verify.sh
+      - name: Run model-assessment split-leakage challenge
+        run: bash skills/model-assessment/scripts/check_split_leakage_challenge/verify.sh
 
-      - name: Run model-validation split-leakage gate test
-        run: bash skills/model-validation/tests/test_split_leakage.sh
+      - name: Run model-assessment split-leakage gate test
+        run: bash skills/model-assessment/tests/test_split_leakage.sh
 
-      - name: Run profile-imaging dataset-profile challenge
-        run: bash skills/profile-imaging/scripts/check_dataset_profile_challenge/verify.sh
+      - name: Run imaging-data dataset-profile challenge
+        run: bash skills/imaging-data/scripts/check_dataset_profile_challenge/verify.sh
 
-      - name: Run profile-imaging dataset-profile gate test
-        run: bash skills/profile-imaging/tests/test_dataset_profile.sh
+      - name: Run imaging-data dataset-profile gate test
+        run: bash skills/imaging-data/tests/test_dataset_profile.sh
 
-      - name: Run preprocess-imaging leakage challenge
-        run: bash skills/preprocess-imaging/scripts/check_preprocessing_leakage_challenge/verify.sh
+      - name: Run imaging-data leakage challenge
+        run: bash skills/imaging-data/scripts/check_preprocessing_leakage_challenge/verify.sh
 
-      - name: Run preprocess-imaging normaliser-domain challenge
-        run: bash skills/preprocess-imaging/scripts/check_normalizer_domain_challenge/verify.sh
+      - name: Run imaging-data normaliser-domain challenge
+        run: bash skills/imaging-data/scripts/check_normalizer_domain_challenge/verify.sh
 
-      - name: Run preprocess-imaging leakage gate test
-        run: bash skills/preprocess-imaging/tests/test_preprocessing_leakage.sh
+      - name: Run imaging-data leakage gate test
+        run: bash skills/imaging-data/tests/test_preprocessing_leakage.sh
 
-      - name: Run explainability report challenge
-        run: bash skills/explainability/scripts/check_explainability_report_challenge/verify.sh
+      - name: Run model-assessment explainability-report challenge
+        run: bash skills/model-assessment/scripts/check_explainability_report_challenge/verify.sh
 
-      - name: Run explainability report gate test
-        run: bash skills/explainability/tests/test_explainability_report.sh
+      - name: Run model-assessment explainability-report gate test
+        run: bash skills/model-assessment/tests/test_explainability_report.sh
 
       - name: Run radiomics-ml pipeline challenge
         run: bash skills/radiomics-ml/scripts/check_radiomics_ml_challenge/verify.sh
@@ -592,11 +595,11 @@ jobs:
       - name: Run model-scaffold training-hygiene gate test
         run: bash skills/model-scaffold/tests/test_training_hygiene.sh
 
-      - name: Run uncertainty-imaging reporting challenge
-        run: bash skills/uncertainty-imaging/scripts/check_uncertainty_reporting_challenge/verify.sh
+      - name: Run model-assessment uncertainty-reporting challenge
+        run: bash skills/model-assessment/scripts/check_uncertainty_reporting_challenge/verify.sh
 
-      - name: Run uncertainty-imaging reporting gate test
-        run: bash skills/uncertainty-imaging/tests/test_uncertainty_reporting.sh
+      - name: Run model-assessment uncertainty-reporting gate test
+        run: bash skills/model-assessment/tests/test_uncertainty_reporting.sh
 
       - name: Run model-card completeness challenge
         run: bash skills/model-card/scripts/check_model_card_complete_challenge/verify.sh
@@ -604,11 +607,11 @@ jobs:
       - name: Run model-card completeness gate test
         run: bash skills/model-card/tests/test_model_card_complete.sh
 
-      - name: Run model-evaluation metric-reporting challenge
-        run: bash skills/model-evaluation/scripts/metric_reporting_challenge/verify.sh
+      - name: Run model-assessment metric-reporting challenge
+        run: bash skills/model-assessment/scripts/metric_reporting_challenge/verify.sh
 
-      - name: Run model-evaluation metric-reporting gate test
-        run: bash skills/model-evaluation/tests/test_metric_reporting.sh
+      - name: Run model-assessment metric-reporting gate test
+        run: bash skills/model-assessment/tests/test_metric_reporting.sh
 
       - name: Run mllm-eval completeness challenge
         run: bash skills/mllm-eval/scripts/mllm_eval_completeness_challenge/verify.sh
@@ -773,8 +776,8 @@ jobs:
       - name: Run meta-analysis screening-reconcile test
         run: bash skills/meta-analysis/tests/test_screening_reconcile.sh
 
-      - name: Run model-sourcing model-provenance test
-        run: bash skills/model-sourcing/tests/test_model_provenance.sh
+      - name: Run model-selection model-provenance test
+        run: bash skills/model-selection/tests/test_model_provenance.sh
 
       - name: Run present-paper backup-off-the-clock test
         run: python3 skills/present-paper/tests/test_backup_off_the_clock.py

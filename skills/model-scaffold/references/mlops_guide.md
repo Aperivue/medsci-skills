@@ -57,7 +57,7 @@ same way. Orchestrate with the framework's own pipeline; do not rebuild one.
 ## CI for an ML repo (what is worth gating)
 CI should gate the **network-free, deterministic** properties — not full training. The scaffold
 already ships these: `check_training_hygiene` (seeds, eval-mode inference, train-only loaders,
-pretrained provenance) and the split-leakage proof (`/model-validation`). Add a **forward-pass
+pretrained provenance) and the split-leakage proof (`/model-assessment`). Add a **forward-pass
 smoke** (build the model, one batch, check output shape) as a fast job. Do **not** put a real
 training run in CI — it is slow, non-deterministic, and not what CI is for.
 
@@ -71,7 +71,7 @@ CLAIM 2024; `/check-reporting` covers the items.
 ## Hand-offs
 - Dataset hash / reproducibility-lock → `/version-dataset`.
 - Model + dataset documentation → `/model-card`.
-- Split / validation-design audit → `/model-validation`.
-- Held-out metrics + CIs → `/model-evaluation` → `/analyze-stats`.
-- Deployment uncertainty / OOD / monitoring → `/uncertainty-imaging`.
+- Split / validation-design audit → `/model-assessment`.
+- Held-out metrics + CIs → `/model-assessment` → `/analyze-stats`.
+- Deployment uncertainty / OOD / monitoring → `/model-assessment`.
 - Reporting fit → `/check-reporting` (TRIPOD+AI / CLAIM / DECIDE-AI).

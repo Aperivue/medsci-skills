@@ -14,7 +14,7 @@ is for or where it must not be used.
 Datasheet section is **present** and **non-empty** — not missing, and not left as an
 unfilled placeholder. It is a presence check (the documentation analogue of
 `check_disclosure_availability`); it does **not** judge whether a stated fact is true
-(that is `/model-validation` and the human). It never fills a section itself — the
+(that is `/model-assessment` and the human). It never fills a section itself — the
 deliverable is a card the user completed from real facts.
 
 ## Fixture (synthetic only — no real model, no PII)

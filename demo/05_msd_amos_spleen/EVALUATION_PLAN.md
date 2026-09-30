@@ -5,7 +5,7 @@ epochs of 100, folds 3-4 have not started, and no inference has been run. Everyt
 therefore a commitment, not a description — and where it makes a prediction, the prediction can
 be wrong in public.
 
-Skill: `/model-evaluation` (shipped). Gate: `check_metric_reporting.py --task segmentation --strict`.
+Skill: `/model-assessment` (shipped). Gate: `check_metric_reporting.py --task segmentation --strict`.
 
 ---
 

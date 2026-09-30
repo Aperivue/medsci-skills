@@ -80,7 +80,7 @@ Read a reference only when its condition holds:
 | `references/venue_accept_recipe.md` | a clinical DL / AI-validation study must decide **which venue tier the achievable design can be accepted at, and the one design move that reaches the tier above** (the bridge into `/find-journal`); skip when there is no publication-tier decision |
 | `references/combine_models_ablation_design.md` | the model is built by **combining / adapting / fine-tuning existing models** (nnU-Net, TotalSegmentator, SAM/MedSAM, a pretrained backbone) and the comparator must be designed as an ablation; skip for a model trained de novo |
 | `references/multi_model_comparison_design.md` | the contribution is **comparing several models / architectures head-to-head** and the comparison must be fair; skip for a single-model study (one model's ablation → the row above; AI-vs-human → `/design-ai-benchmarking`) |
-| `references/segmentation_failure_characterization_design.md` | the claim is that a segmentation model is **clinically usable**, not that it scores well; skip when the endpoint is benchmark accuracy (metric choice → `/model-evaluation`; abstention / risk–coverage → `/uncertainty-imaging`) |
+| `references/segmentation_failure_characterization_design.md` | the claim is that a segmentation model is **clinically usable**, not that it scores well; skip when the endpoint is benchmark accuracy (metric choice → `/model-assessment`; abstention / risk–coverage → `/model-assessment`) |
 
 #### A. Analysis unit
 

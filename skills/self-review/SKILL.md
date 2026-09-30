@@ -198,7 +198,7 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/check_cv_leakage.py" \
 
 `CV_SELECTION_LEAKAGE` (Major) fires when a selection token co-occurs with cross-validation and no
 fold-nesting is disclosed ("within each fold" / "nested CV" suppresses it). Patient-vs-image split
-leakage is a different check (`model-validation/check_split_leakage.py`).
+leakage is a different check (`model-assessment/check_split_leakage.py`).
 
 ### Phase 2.5: Numerical Cross-Verification (Internal)
 

@@ -78,12 +78,12 @@ interval on a small test set is a red flag, not reassurance.
 
 ## What this does NOT replace
 
-- **metric selection** (Dice + a boundary metric; AUROC + AUPRC) → `/model-evaluation`; **validation
-  design + the split-leakage gate** → `/model-validation`; **sizing the between-model delta** →
+- **metric selection** (Dice + a boundary metric; AUROC + AUPRC) → `/model-assessment`; **validation
+  design + the split-leakage gate** → `/model-assessment`; **sizing the between-model delta** →
   `calc-sample-size` `references/multi_model_comparison_sample_size.md` (Test 16); **presenting the
   comparison** → `make-figures` `exemplar_plots/model_comparison_leaderboard.md` + `analyze-stats`
   `table-standards/table-types/model_comparison.md`; **which architecture to consider at all** →
-  `/architecture-zoo`; **a model built by combining / adapting one set of parts** →
+  `/model-selection`; **a model built by combining / adapting one set of parts** →
   `combine_models_ablation_design.md`.
 
 This is the **fair-comparison decision** for a model-vs-model study — the one that turns "our model won"

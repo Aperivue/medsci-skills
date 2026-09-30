@@ -7,7 +7,6 @@ One reference page per skill, generated from each skill's `SKILL.md` and `skill.
 - [academic-aio](academic-aio.md) — Medical AI paper optimization for AI search engines (Perplexity, ChatGPT web, Elicit, Consensus, SciSpace) and RAG-based literature tools. _(evidence: bundled_script)_
 - [add-journal](add-journal.md) — Add a new journal to the MedSci Skills profile database. _(evidence: manual_workflow)_
 - [analyze-stats](analyze-stats.md) — Statistical analysis for medical research papers. _(evidence: demo)_
-- [architecture-zoo](architecture-zoo.md) — Choose a model architecture for a medical-imaging research question before scaffolding. _(evidence: manual_workflow)_
 - [author-strategy](author-strategy.md) — PubMed author profile analysis. _(evidence: manual_workflow)_
 - [batch-cohort](batch-cohort.md) — Generate N analysis scripts from a single methodology template × multiple exposure/outcome combinations. _(evidence: manual_workflow)_
 - [calc-sample-size](calc-sample-size.md) — Interactive sample size calculator for medical research. _(evidence: manual_workflow)_
@@ -19,7 +18,6 @@ One reference page per skill, generated from each skill's `SKILL.md` and `skill.
 - [deidentify](deidentify.md) — De-identify clinical research data before LLM-assisted analysis. _(evidence: bundled_script)_
 - [design-ai-benchmarking](design-ai-benchmarking.md) — Design and validity review for studies that benchmark one or more AI systems against a human-expert panel as the reference. _(evidence: manual_workflow)_
 - [design-study](design-study.md) — Study design and validity review for radiology and medical AI research. _(evidence: manual_workflow)_
-- [explainability](explainability.md) — Produce or audit the interpretability/explainability analysis of a medical-imaging model — Grad-CAM / Grad-CAM++ / attention-rollout / saliency / integrated-gradients — so it clears the rigor bar a re… _(evidence: ci_validator)_
 - [fill-icmje-coi](fill-icmje-coi.md) — Batch-generate per-author ICMJE Conflict of Interest Disclosure Forms (`coi_disclosure.docx`) for manuscript submission. _(evidence: bundled_script)_
 - [fill-protocol](fill-protocol.md) — Fill institutional Word form templates (.doc/.docx) for IRB protocols, ethics applications, grant proposals, and other structured research documents while preserving the original styles, table layouts… _(evidence: bundled_script)_
 - [find-cohort-gap](find-cohort-gap.md) — Research gap finder for longitudinal cohort databases. _(evidence: bundled_script)_
@@ -28,6 +26,7 @@ One reference page per skill, generated from each skill's `SKILL.md` and `skill.
 - [generate-codebook](generate-codebook.md) — Generate a citable data dictionary / codebook from a tabular dataset (CSV/TSV/Excel/Parquet/Stata/SAS). _(evidence: bundled_script)_
 - [grant-builder](grant-builder.md) — Grant and challenge proposal support for radiology and medical AI projects. _(evidence: manual_workflow)_
 - [humanize](humanize.md) — Detect and remove AI writing patterns from academic manuscripts and response-to-reviewers letters. _(evidence: manual_workflow)_
+- [imaging-data](imaging-data.md) — Use before modelling a medical-imaging dataset: profile it (spacing, orientation, intensity domain, label integrity, foreground fraction, target volume) and gate it against the plan, then plan and aud… _(evidence: ci_validator)_
 - [intake-project](intake-project.md) — Intake and normalize a new radiology research project. _(evidence: manual_workflow)_
 - [lit-sync](lit-sync.md) — Sync research references from .bib files to Zotero library + Obsidian literature notes. _(evidence: manual_workflow)_
 - [ma-scout](ma-scout.md) — Meta-analysis topic discovery and feasibility assessment. _(evidence: manual_workflow)_
@@ -36,18 +35,15 @@ One reference page per skill, generated from each skill's `SKILL.md` and `skill.
 - [manage-refs](manage-refs.md) — Cross-cutting reference manager for medical manuscripts. _(evidence: bundled_script)_
 - [meta-analysis](meta-analysis.md) — Systematic review and meta-analysis pipeline for medical research. _(evidence: demo)_
 - [mllm-eval](mllm-eval.md) — Design or audit a model-agnostic evaluation harness for an LLM or multimodal LLM on a clinical task (radiology report generation, visual question answering, clinical text extraction/classification) —… _(evidence: ci_validator)_
+- [model-assessment](model-assessment.md) — Use to validate or evaluate a trained medical-imaging model: split-leakage and validation-design audit, task-correct held-out metrics (Dice + HD95, AUROC + AUPRC, FROC, calibration), uncertainty/OOD a… _(evidence: ci_validator)_
 - [model-card](model-card.md) — Generate the documentation an engineer-built medical-imaging model must carry — a Model Card (Mitchell et al. _(evidence: ci_validator)_
-- [model-evaluation](model-evaluation.md) — Compute and report task-correct held-out metrics for a trained medical-imaging model — segmentation (Dice plus a boundary metric such as HD95 or NSD, per structure), classification (AUROC plus AUPRC a… _(evidence: ci_validator)_
 - [model-scaffold](model-scaffold.md) — Generate a reproducible, runnable PyTorch training repo for a medical-imaging task — segmentation, classification, detection, image-to-image synthesis, self-supervised pretraining, or fine-tuning a pr… _(evidence: ci_validator)_
-- [model-sourcing](model-sourcing.md) — Vet the concrete third-party model a study will be built on — this repository, this revision, this checkpoint — not the architecture family. _(evidence: ci_validator)_
-- [model-validation](model-validation.md) — Design or audit the clinical-validation study for an engineer-built medical-imaging model (segmentation, classification, or detection) before the validation report or manuscript is written. _(evidence: ci_validator)_
+- [model-selection](model-selection.md) — Use when choosing the model for a medical-imaging study: pick a paper-grounded architecture family (architecture zoo: CNN/ViT, U-Net/nnU-Net, detection, SAM/foundation, GNN), then vet the concrete rep… _(evidence: ci_validator)_
 - [obsidian-paper-vault](obsidian-paper-vault.md) — Turn a folder of research PDFs into an Obsidian knowledge vault — consistently formatted literature notes with frontmatter, PDF embed links, and cross-referenced atomic concept notes. _(evidence: manual_workflow)_
 - [orchestrate](orchestrate.md) — General-purpose research orchestrator. _(evidence: demo)_
 - [peer-review](peer-review.md) — Peer review assistant for medical journals. _(evidence: ci_validator)_
 - [polish-language](polish-language.md) — Academic English consistency linting and non-native (ESL) language polish for medical manuscripts. _(evidence: bundled_script)_
-- [preprocess-imaging](preprocess-imaging.md) — Design or audit the data-preparation stage of a medical-imaging model — DICOM/NIfTI intake, resampling and intensity normalisation, and the augmentation plan — so the pipeline is leakage-safe before m… _(evidence: ci_validator)_
 - [present-paper](present-paper.md) — Academic presentation preparation — paper-driven (journal club, grand rounds, seminar) and lecture/teaching decks (course material, workshop slides, conference talks). _(evidence: bundled_script)_
-- [profile-imaging](profile-imaging.md) — Profile a medical-imaging dataset before any modelling decision is made — the acquisition grid, voxel spacing and orientation spread, the intensity domain, which label values are actually present, how… _(evidence: ci_validator)_
 - [publish-skill](publish-skill.md) — Convert a personal agent skill into a distributable, open-source-ready skill. _(evidence: bundled_script)_
 - [radiomics-ml](radiomics-ml.md) — Produce or audit a radiomics / tabular clinical-ML study — imaging or clinical features → any classical learner (penalised logistic [LASSO / ridge / elastic-net], SVM, k-NN, naive Bayes, LDA/QDA, deci… _(evidence: ci_validator)_
 - [render-pdf-doc](render-pdf-doc.md) — Render academic Markdown documents (English or Korean) to publication-quality PDF via pandoc + xelatex. _(evidence: bundled_script)_
@@ -58,8 +54,18 @@ One reference page per skill, generated from each skill's `SKILL.md` and `skill.
 - [self-review](self-review.md) — Pre-submission self-review for the user's own manuscripts, applying a reviewer perspective. _(evidence: demo)_
 - [setup-medsci](setup-medsci.md) — Diagnostic checklist for the MedSci Skills runtime. _(evidence: manual_workflow)_
 - [sync-submission](sync-submission.md) — Audit SSOT-to-submission drift and create journal submission manifests from canonical manuscript artifacts. _(evidence: bundled_script)_
-- [uncertainty-imaging](uncertainty-imaging.md) — Design or audit the uncertainty-quantification, out-of-distribution (OOD) detection, and selective-prediction layer of a medical-imaging model framed for deployment — so a clinical-use claim carries c… _(evidence: ci_validator)_
 - [verify-refs](verify-refs.md) — Audit-only verification of manuscript references against PubMed and CrossRef. _(evidence: bundled_script)_
 - [version-dataset](version-dataset.md) — Dataset version control for research reproducibility. _(evidence: ci_validator)_
 - [write-paper](write-paper.md) — Full-pipeline medical/scientific paper writing. _(evidence: demo)_
 - [write-protocol](write-protocol.md) — IRB/ethics committee research protocol generator. _(evidence: manual_workflow)_
+
+## Renamed skills (compatibility aliases until v7)
+
+- `/architecture-zoo` → [model-selection](model-selection.md)
+- `/explainability` → [model-assessment](model-assessment.md)
+- `/model-evaluation` → [model-assessment](model-assessment.md)
+- `/model-sourcing` → [model-selection](model-selection.md)
+- `/model-validation` → [model-assessment](model-assessment.md)
+- `/preprocess-imaging` → [imaging-data](imaging-data.md)
+- `/profile-imaging` → [imaging-data](imaging-data.md)
+- `/uncertainty-imaging` → [model-assessment](model-assessment.md)
