@@ -10,9 +10,24 @@ on:
   pull_request:
     branches: [main, "release/**"]
 
+# Every job here only reads the checkout; none pushes, comments or publishes. A token that can
+# write is a token a compromised dependency could use.
+permissions:
+  contents: read
+
+# A new push to the same pull request supersedes the run in flight, so cancel it instead of
+# holding a runner for a result nobody will read. Pushes to main and release branches are never
+# cancelled: each of those commits gets its own verdict.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   validate:
     runs-on: ubuntu-latest
+    # A green run takes about nine minutes. The GitHub default is six hours, so a hung test (a
+    # prompt waiting on stdin, a network call with no timeout) would hold the runner that long.
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
         with:
@@ -883,6 +898,7 @@ jobs:
       matrix:
         os: [macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
@@ -902,4 +918,33 @@ jobs:
       - name: Cursor project-rule test
         run: python installers/tests/test_cursor_rule.py
       - name: install.py transactional self-test
+        run: python installers/install.py --self-test
+
+  # The installer runs on whatever `python3` the user has, and stock macOS ships 3.9, the floor the
+  # README promises. `check_python_floor.py` in the validate job parses every user-facing file under
+  # 3.9 grammar, but parsing is not running: only a 3.9 interpreter executes the installer's code
+  # paths (extraction, journal recovery, settings merge) the way that user's machine will. No
+  # third-party packages are installed, because the installer must not need any.
+  python-floor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.9 (the promised floor)
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+      - name: Transactional installer crash-recovery + legacy-migration test (3.9)
+        run: python installers/tests/test_txn.py
+      - name: v5 -> v6 upgrade test (3.9)
+        run: python installers/tests/test_v6_upgrade.py
+      - name: Updater verify / safe-extract / check-update test (3.9)
+        run: python installers/tests/test_update.py
+      - name: SessionStart update-notify hook test (3.9)
+        run: python installers/tests/test_session_hook.py
+      - name: CLAUDE.md routing block test (3.9)
+        run: python installers/tests/test_routing.py
+      - name: Cursor project-rule test (3.9)
+        run: python installers/tests/test_cursor_rule.py
+      - name: install.py transactional self-test (3.9)
         run: python installers/install.py --self-test
