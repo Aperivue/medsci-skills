@@ -3773,8 +3773,8 @@
     },
     {
       "path": "skills/peer-review/SKILL.md",
-      "size": 52109,
-      "sha256": "7672c6bebbfa76c3d6f715a9e35c89a5e7eb9a122a2783d8aa3304fce2e152d7"
+      "size": 52130,
+      "sha256": "90122d0fdf5c1209ac25747363a43d412fea64c7ff612cc5b909be52b78a2710"
     },
     {
       "path": "skills/peer-review/references/aczel_2021_reviewer2_patterns.md",
@@ -3898,8 +3898,8 @@
     },
     {
       "path": "skills/peer-review/references/exemplar_reviews/README.md",
-      "size": 2764,
-      "sha256": "4893257641e95e7de24316c3ed75d1941b1d3dc10a8b69ede05b69cd0b651bf0"
+      "size": 2941,
+      "sha256": "8c12270b7d1d4400fda8dacad81afc6835fdff9b0f0799c6c4c4456fb00d4969"
     },
     {
       "path": "skills/peer-review/references/exemplar_reviews/ai_overclaiming.md",
@@ -3910,6 +3910,11 @@
       "path": "skills/peer-review/references/exemplar_reviews/calibration_missing.md",
       "size": 2175,
       "sha256": "3375fa9df38c1e676296093a1a4721e956769b742fde0854843ee94375f0e5a3"
+    },
+    {
+      "path": "skills/peer-review/references/exemplar_reviews/comparator_adequacy.md",
+      "size": 5145,
+      "sha256": "3767f4e502a9f926367ef06be363431a1c0c9507e5b569b6975d960bdb3bde31"
     },
     {
       "path": "skills/peer-review/references/exemplar_reviews/data_leakage.md",

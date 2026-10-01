@@ -40,7 +40,7 @@
 
 - `aczel_2021_reviewer2_patterns.md`
 - `domain-probes/` (23 files)
-- `exemplar_reviews/` (7 files)
+- `exemplar_reviews/` (8 files)
 - `narrative_review_audit.md`
 - `review_draft_template.md`
 - `reviewer_calibration/` (3 files)
