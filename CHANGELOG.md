@@ -26,6 +26,17 @@
   variable to `grep -q` through a pipe under `pipefail`; they now pass it as a here-string, so there
   is no pipe to break whatever the output size.
 
+### CI
+
+- **The installer is now run on Python 3.9, the floor the README promises.** Stock macOS ships 3.9,
+  and `check_python_floor.py` only parses user-facing code under 3.9 grammar. A new `python-floor`
+  job runs the installer, updater and hook tests and `install.py --self-test` on a real 3.9
+  interpreter with no third-party packages.
+- **`validate.yml` hardening.** The workflow token is read-only (`permissions: contents: read`); a
+  new push to a pull request cancels the run it supersedes (pushes to `main` and `release/**` are
+  never cancelled); each job has a timeout (30 minutes for `validate`, 15 for the others) instead of
+  GitHub's six-hour default.
+
 ### Documentation
 
 - `citation_styles/README.md` says why `vancouver.csl` and `nlm-citation-sequence.csl` are
