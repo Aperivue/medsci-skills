@@ -114,7 +114,7 @@ python3 "$DET" --manuscript "$FIX/manuscript.md" --profile "$PROFILE" \
   --portal-dir "$TMP/emitted" --strict >/dev/null 2>&1
 ck "emit -> check round-trips clean" 0 "$?"
 python3 "$DET" --manuscript "$FIX/manuscript.md" --profile "$PROFILE" --emit "$TMP/emitted" 2>&1 \
-  | grep -q "left alone" && ck "--emit will not clobber an edited file" 0 0 \
+  | grep "left alone" >/dev/null && ck "--emit will not clobber an edited file" 0 0 \
   || ck "--emit will not clobber an edited file" 0 1
 
 echo "== the artifact names its own author =="

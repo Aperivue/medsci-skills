@@ -45,14 +45,14 @@ else
   bad "no per-font reference count in the report"
 fi
 
-if python3 "$DET" "$FIX/portable.pptx" | grep -q '^OK:'; then
+if python3 "$DET" "$FIX/portable.pptx" | grep '^OK:' >/dev/null; then
   pass "Inter / Noto Sans Mono are left alone (a blocklist, not an allowlist)"
 else
   bad "a cross-platform deck was flagged — this check would be switched off within a week"
   python3 "$DET" "$FIX/portable.pptx"
 fi
 
-if python3 "$DET" "$FIX/embedded.pptx" | grep -q '^OK:'; then
+if python3 "$DET" "$FIX/embedded.pptx" | grep '^OK:' >/dev/null; then
   pass "embedding the fonts clears it — the check does not punish its own fix"
 else
   bad "a deck that EMBEDDED its macOS fonts was still flagged"
@@ -65,7 +65,7 @@ fi
 # Korean in it. That alone is also what you would see if inherited defaults were ignored ALWAYS --
 # a rule with no teeth passes the same test. korean_text.pptx is the same stock template with the
 # same theme and Korean on the slides, and it has to fire.
-if python3 "$DET" "$FIX/korean_text.pptx" | grep -q FONT_NOT_PORTABLE; then
+if python3 "$DET" "$FIX/korean_text.pptx" | grep FONT_NOT_PORTABLE >/dev/null; then
   pass "a Korean deck inheriting the template's Windows-only Korean face DOES fire"
 else
   bad "an inherited default never fires — the rule is 'ignore inherited fonts' wearing a costume"

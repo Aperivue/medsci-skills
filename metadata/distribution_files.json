@@ -4298,8 +4298,8 @@
     },
     {
       "path": "skills/present-paper/scripts/check_deck_budget_challenge/verify.sh",
-      "size": 7636,
-      "sha256": "a52bc174ea397110cc22ec6b6395b4b3f0e12cc874e5a08fdba22ac08395a7d1"
+      "size": 7710,
+      "sha256": "3a44b1ed0c079bd6202b17684dc2f2ba0b22378ede1b525865919dee1f38450e"
     },
     {
       "path": "skills/present-paper/scripts/check_diagram_edges.py",
@@ -4313,8 +4313,8 @@
     },
     {
       "path": "skills/present-paper/scripts/check_diagram_edges_challenge/verify.sh",
-      "size": 3082,
-      "sha256": "7f37b6130809932424d81dd2f508ed6ae52f2022c9ebe3061eea0c2e1d4e98d4"
+      "size": 3124,
+      "sha256": "d2c2f7177a58d46e81b0c6ed2666e7c4c560bdc38a5abcd79abc98df1a5e55ed"
     },
     {
       "path": "skills/present-paper/scripts/check_font_portability.py",
@@ -4328,8 +4328,8 @@
     },
     {
       "path": "skills/present-paper/scripts/check_font_portability_challenge/verify.sh",
-      "size": 5006,
-      "sha256": "613a3e55704052fe34b6f8fa17267ef050d4721b562bab900419c809394fe4ab"
+      "size": 5030,
+      "sha256": "16ced944e4808737529f5fc345c3b1b620d4b48bb897db4a2f58b6e768b15a23"
     },
     {
       "path": "skills/present-paper/scripts/check_slide_tells.py",
@@ -4343,8 +4343,8 @@
     },
     {
       "path": "skills/present-paper/scripts/check_slide_tells_challenge/verify.sh",
-      "size": 3441,
-      "sha256": "76228fd8cf77a1a72e925843c0ee067dfd6427c7528a051fec437465f347b4ab"
+      "size": 3449,
+      "sha256": "74eab8737c79819081687c388d067a6e25ab462fda60a5d0e3b1e6342236c10c"
     },
     {
       "path": "skills/present-paper/scripts/check_text_overflow.py",
@@ -4358,8 +4358,8 @@
     },
     {
       "path": "skills/present-paper/scripts/check_text_overflow_challenge/verify.sh",
-      "size": 4818,
-      "sha256": "568ce6a5fb51de50205d3e2f0121e399c75e0982da662c8a23cd32d6108628ef"
+      "size": 4826,
+      "sha256": "9a0c632b7986448c2d4018a6d6d05974311db0c7015ac6a7438b80d3067b38f5"
     },
     {
       "path": "skills/present-paper/scripts/extract_pdf_figures.py",
@@ -4653,8 +4653,8 @@
     },
     {
       "path": "skills/revise/scripts/density_complaint_challenge/verify.sh",
-      "size": 3125,
-      "sha256": "148db1c0a3eca89d47aade8f5a06bcbcb16861d3b4861b8c5f66fbe8e6ccd2f4"
+      "size": 3133,
+      "sha256": "93a529356705d7613ee885e1577c46e128d7c37dc3b57cbd182cf21969a4fdad"
     },
     {
       "path": "skills/revise/skill.yml",
@@ -6048,8 +6048,8 @@
     },
     {
       "path": "skills/sync-submission/scripts/portal_mirror_challenge/verify.sh",
-      "size": 6806,
-      "sha256": "1e0fa51a2d243416947078c2e8c60efe74cc7e73542448c23f798757e47d7f9b"
+      "size": 6814,
+      "sha256": "2d50144731b391daa25d243d2d4edab1b36b7f59faa2c9705cc4daf74f9a2433"
     },
     {
       "path": "skills/sync-submission/scripts/preflight_gate.py",

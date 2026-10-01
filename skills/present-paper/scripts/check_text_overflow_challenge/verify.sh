@@ -51,7 +51,7 @@ else
 fi
 
 # --- 3. text that fits is left alone ---------------------------------------------------------------
-if python3 "$DET" "$FIX/deck.pptx" --bbox-xml "$FIX/clean.xml" | grep -q '^OK:'; then
+if python3 "$DET" "$FIX/deck.pptx" --bbox-xml "$FIX/clean.xml" | grep '^OK:' >/dev/null; then
   pass "a measurement where everything fits reports nothing"
 else
   bad "the clean measurement produced findings"

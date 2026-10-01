@@ -28,28 +28,28 @@ fail=0
 pass() { echo "PASS  $1"; }
 bad()  { echo "FAIL  $1"; fail=1; }
 
-if python3 "$DET" "$FIX/clipped.png" | grep -q DIAGRAM_EDGE_CLIP; then
+if python3 "$DET" "$FIX/clipped.png" | grep DIAGRAM_EDGE_CLIP >/dev/null; then
   pass "a box whose side sits on the canvas edge is caught"
 else
   bad "the clipped box passed"
   python3 "$DET" "$FIX/clipped.png"
 fi
 
-if python3 "$DET" "$FIX/margin.png" | grep -q '^OK:'; then
+if python3 "$DET" "$FIX/margin.png" | grep '^OK:' >/dev/null; then
   pass "the same box, inset, is left alone"
 else
   bad "an inset diagram was flagged — the check would be switched off"
   python3 "$DET" "$FIX/margin.png"
 fi
 
-if python3 "$DET" "$FIX/corner.png" | grep -q DIAGRAM_EDGE_CLIP; then
+if python3 "$DET" "$FIX/corner.png" | grep DIAGRAM_EDGE_CLIP >/dev/null; then
   pass "a short run of ink along one edge is caught (the instance an eye walks past)"
 else
   bad "a partial edge touch passed"
   python3 "$DET" "$FIX/corner.png"
 fi
 
-if python3 "$DET" "$FIX/bleed.png" | grep -q '^OK:'; then
+if python3 "$DET" "$FIX/bleed.png" | grep '^OK:' >/dev/null; then
   pass "a full-bleed image is not a clipped diagram"
 else
   bad "a solid image was reported — this would fire on every photograph in a deck"
@@ -57,7 +57,7 @@ else
 fi
 
 # A directory argument is how this is actually used: point it at diagrams/ after savefig.
-if python3 "$DET" "$FIX" | grep -qE '2 of 4 image'; then
+if python3 "$DET" "$FIX" | grep -E '2 of 4 image' >/dev/null; then
   pass "a directory is walked, and the accounting names how many of how many"
 else
   bad "walking a directory did not report 2 of 4"

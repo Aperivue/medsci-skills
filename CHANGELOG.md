@@ -1,5 +1,21 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- **Tests no longer fail when a program writes its output in pieces.** Eleven test scripts piped a
+  program's output into `grep -q` under `set -o pipefail`. `grep -q` exits at the first match, so a
+  program still writing (Python with `PYTHONUNBUFFERED=1`, common in containers) died of a broken
+  pipe and the check failed: the diagram-edge challenge card failed intermittently and the
+  portal-mirror card every time. The scripts now let `grep` read the whole output.
+- **The tag-cleanup gate test works with a system ripgrep.** To force the gate's `grep` branch it
+  removed every PATH directory holding `rg`; with ripgrep in `/usr/bin`, that removed `bash` and
+  `grep` as well. It now puts a directory linking to everything except `rg` in its place.
+- **Stated counts.** `paper.md` said four end-to-end demonstrations (there are five) and that every
+  detector ships a challenge card (coverage is partial); the Korean and Chinese READMEs said ten
+  locale packs (there are eleven).
+
 ## [6.0.1] - 2026-10-01
 
 **Hotfix:** four checks could report a clearance they had not made: `/verify-refs` passed an invented title on a real DOI or PMID, `/deidentify` applied a review to data changed after it, the `/imaging-data` leakage check called an empty manifest leakage-safe, and `/analyze-stats` translated a negative correlation as an increase. Re-run `/verify-refs` on reference lists audited with an earlier version, re-check any de-identified output whose input file was edited between review and apply, and re-read any plain-language translation written from a negative correlation.

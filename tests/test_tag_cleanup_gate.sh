@@ -34,16 +34,25 @@ check() { local label="$1"; shift
 
 [[ -f "$GATE" ]] || { echo "ENV-ERR: $GATE missing" >&2; exit 2; }
 
-# A PATH with every directory that provides ripgrep removed, so the gate takes its grep
-# branch. Filtering the real PATH (rather than substituting a hand-built minimal one) keeps
-# every other tool the script may reach for available.
+# A PATH on which `rg` resolves to nothing, so the gate takes its grep branch, and on which
+# every other tool stays reachable. Each directory that provides ripgrep is replaced, in place,
+# by a shim directory linking to everything else in it. Dropping the directory outright worked
+# while ripgrep came from Homebrew, but a system ripgrep lives in /usr/bin, and dropping that
+# took bash and grep with it ("bash: command not found").
 strip_rg_from_path() {
-    local out="" d
+    local out="" d f name shim="$TMP/norg_bin"
     local -a dirs
     IFS=':' read -ra dirs <<< "$PATH"
     for d in "${dirs[@]}"; do
-        [[ -n "$d" && -x "$d/rg" ]] && continue
-        out="${out:+$out:}$d"
+        if [[ -n "$d" && -x "$d/rg" ]]; then
+            mkdir -p "$shim"
+            for f in "$d"/*; do
+                name="${f##*/}"
+                [[ "$name" == rg || -e "$shim/$name" ]] || ln -s "$f" "$shim/$name"
+            done
+            d="$shim"
+        fi
+        [[ ":$out:" == *":$d:"* ]] || out="${out:+$out:}$d"
     done
     printf '%s' "$out"
 }

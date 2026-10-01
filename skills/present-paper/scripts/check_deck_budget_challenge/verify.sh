@@ -29,21 +29,21 @@ bad()  { echo "FAIL  $1"; fail=1; }
 verdicts() { python3 "$DET" "$1" --archetype "$2" --minutes "$3" | grep -oE '^\s+\[[A-Z_]+\]' | tr -d ' []' | sort -u; }
 
 # --- the same deck, two rooms -------------------------------------------------------------------
-if python3 "$DET" "$FIX/academic.pptx" --archetype conference_oral --minutes 10 | grep -q '^OK:'; then
+if python3 "$DET" "$FIX/academic.pptx" --archetype conference_oral --minutes 10 | grep '^OK:' >/dev/null; then
   pass "an academic deck fits a 10-minute conference oral"
 else
   bad "the academic deck was rejected by its own archetype"
   python3 "$DET" "$FIX/academic.pptx" --archetype conference_oral --minutes 10
 fi
 
-if verdicts "$FIX/academic.pptx" keynote 20 | grep -q SLIDE_TOO_DENSE; then
+if verdicts "$FIX/academic.pptx" keynote 20 | grep SLIDE_TOO_DENSE >/dev/null; then
   pass "...and the SAME deck is too dense for a keynote (the archetype is doing the work)"
 else
   bad "the same deck passed as a keynote — then --archetype is decoration"
 fi
 
 # --- a keynote deck is not judged by academic density --------------------------------------------
-if python3 "$DET" "$FIX/keynote.pptx" --archetype keynote --minutes 20 | grep -q '^OK:'; then
+if python3 "$DET" "$FIX/keynote.pptx" --archetype keynote --minutes 20 | grep '^OK:' >/dev/null; then
   pass "a keynote deck fits a keynote"
 else
   bad "the keynote deck was rejected by its own archetype"
@@ -51,14 +51,14 @@ else
 fi
 
 # --- the clock ------------------------------------------------------------------------------------
-if verdicts "$FIX/bloated.pptx" conference_oral 10 | grep -q DECK_OVER_BUDGET; then
+if verdicts "$FIX/bloated.pptx" conference_oral 10 | grep DECK_OVER_BUDGET >/dev/null; then
   pass "60 slides for a 10-minute oral is caught"
 else
   bad "a 60-slide deck passed a 10-minute oral"
 fi
 
 # --- the back row ---------------------------------------------------------------------------------
-if verdicts "$FIX/tiny_type.pptx" conference_oral 10 | grep -q TYPE_TOO_SMALL; then
+if verdicts "$FIX/tiny_type.pptx" conference_oral 10 | grep TYPE_TOO_SMALL >/dev/null; then
   pass "12-pt body text is caught (the back row exists)"
 else
   bad "12-pt text passed the type floor"
@@ -70,14 +70,14 @@ fi
 #   fixed  -> the density and the type floor were always breached and now say so
 # Assert the fixed deck's findings explicitly: if this pair ever stops differing, ZERO_AREA_TEXT has
 # stopped meaning anything and is just another verdict that fires.
-if verdicts "$FIX/zero_area.pptx" conference_oral 10 | grep -q ZERO_AREA_TEXT; then
+if verdicts "$FIX/zero_area.pptx" conference_oral 10 | grep ZERO_AREA_TEXT >/dev/null; then
   pass "a half-written placeholder xfrm is caught (text in a shape with no area)"
 else
   bad "text in a zero-area shape passed — the deck that cannot be read reads as clean"
   python3 "$DET" "$FIX/zero_area.pptx" --archetype conference_oral --minutes 10
 fi
 
-if verdicts "$FIX/zero_area_fixed.pptx" conference_oral 10 | grep -q ZERO_AREA_TEXT; then
+if verdicts "$FIX/zero_area_fixed.pptx" conference_oral 10 | grep ZERO_AREA_TEXT >/dev/null; then
   bad "ZERO_AREA_TEXT fired on a deck whose four coordinates are all written (false positive)"
 else
   pass "...and does NOT fire once left/top/width/height are all set"
@@ -91,14 +91,14 @@ else
   echo "$fixed_verdicts"
 fi
 
-if verdicts "$FIX/zero_area.pptx" conference_oral 10 | grep -qE 'SLIDE_TOO_DENSE|TYPE_TOO_SMALL'; then
+if verdicts "$FIX/zero_area.pptx" conference_oral 10 | grep -E 'SLIDE_TOO_DENSE|TYPE_TOO_SMALL' >/dev/null; then
   pass "(those two are now visible on the broken deck as well)"
 else
   pass "the broken deck hides both of them — which is what the green was made of"
 fi
 
 # --- one clean deck, to be sure the new verdict is not simply always on -----------------------------
-if verdicts "$FIX/academic.pptx" conference_oral 10 | grep -q ZERO_AREA_TEXT; then
+if verdicts "$FIX/academic.pptx" conference_oral 10 | grep ZERO_AREA_TEXT >/dev/null; then
   bad "ZERO_AREA_TEXT fired on the clean academic deck"
 else
   pass "ZERO_AREA_TEXT is silent on a well-formed deck"

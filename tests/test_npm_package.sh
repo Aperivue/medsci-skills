@@ -16,7 +16,7 @@ echo "== test_npm_package =="
 pass "bin/medsci-skills.js is executable"
 
 # 2. Shebang present.
-head -1 bin/medsci-skills.js | grep -q '^#!/usr/bin/env node' || fail "missing '#!/usr/bin/env node' shebang"
+head -1 bin/medsci-skills.js | grep '^#!/usr/bin/env node' >/dev/null || fail "missing '#!/usr/bin/env node' shebang"
 pass "node shebang present"
 
 # 3. --help exits 0 and mentions install.
