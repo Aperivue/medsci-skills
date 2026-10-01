@@ -28,6 +28,9 @@
 
 ### CI
 
+- **A failing gate no longer hides the rest.** `validate` gates run after an earlier gate fails
+  (`if: !cancelled() && steps.setup.outcome == 'success'`), so one run reports every failure; a
+  failed setup still skips them all.
 - **The installer is now run on Python 3.9, the floor the README promises.** Stock macOS ships 3.9,
   and `check_python_floor.py` only parses user-facing code under 3.9 grammar. A new `python-floor`
   job runs the installer, updater and hook tests and `install.py --self-test` on a real 3.9

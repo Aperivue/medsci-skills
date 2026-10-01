@@ -28,6 +28,10 @@ jobs:
     # A green run takes about nine minutes. The GitHub default is six hours, so a hung test (a
     # prompt waiting on stdin, a network call with no timeout) would hold the runner that long.
     timeout-minutes: 30
+    # Every gate after the setup steps carries `if: !cancelled() && steps.setup.outcome == 'success'`,
+    # so one failing gate no longer skips the rest: a run reports every failure at once instead of
+    # one per nine-minute round trip. A failed setup still skips them all (their red would be noise).
+    # A new gate should copy that line.
     steps:
       - uses: actions/checkout@v4
         with:
@@ -45,280 +49,372 @@ jobs:
         run: pip install pyyaml pandas numpy scipy scikit-learn matplotlib python-pptx python-docx fonttools statsmodels lifelines
 
       - name: Install exiftool + poppler + pandoc (artifact and render tests; no TeX)
+        id: setup
         run: sudo apt-get update && sudo apt-get install -y libimage-exiftool-perl poppler-utils pandoc
 
       - name: "Workflow files parse (a broken one runs ZERO jobs and reports no checks)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 scripts/check_workflow_yaml.py --strict
 
       - name: "Workflow-yaml gate self-test (a runless step and an unquoted ': ' must both fail)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash tests/test_workflow_yaml.sh
 
       - name: Run run-ci-mirror self-test (the local mirror must enumerate the real gates)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash tests/test_run_ci_mirror.sh
 
       - name: Run validate_skills.sh (PII + structure)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash scripts/validate_skills.sh
 
       - name: "Validator scope self-test (it must READ every directory it claims to scan)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash tests/test_validator_scope.sh
 
       - name: "Validator --only self-test (a scoped run must not read like a full one)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash tests/test_validator_only_flag.sh
 
       - name: "Run check_frontmatter_scope.py (a manuscript detector must not read YAML front matter as prose)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 scripts/check_frontmatter_scope.py --strict
 
       - name: "Front-matter scope gate self-test (a new detector cannot join silently)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash tests/test_frontmatter_scope.sh
 
       - name: "Unshipped-rule gate self-test (an instruction we do not ship is not an instruction)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash tests/test_personal_rule_refs.sh
 
       # --- self-update foundation (PR-1a): version drift, transactional installer (manifest checks run last) ---
       - name: Version consistency (CITATION == package.json == distribution_manifest)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 scripts/check_version_consistency.py
 
       - name: Transactional installer crash-recovery + legacy-migration test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 installers/tests/test_txn.py
 
       - name: "v5 -> v6 upgrade test (renamed skills become alias stubs; a user-modified one is backed up, never pruned)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 installers/tests/test_v6_upgrade.py
 
       - name: Updater verify / safe-extract / check-update test (offline)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 installers/tests/test_update.py
 
       - name: install.py transactional self-test (no host/state dir touched)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 installers/install.py --self-test
 
       - name: Opt-in SessionStart update-notify hook test (settings merge + hook logic, offline)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 installers/tests/test_session_hook.py
 
       - name: Opt-in CLAUDE.md routing block test (a splice must not clobber the user's own file)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 installers/tests/test_routing.py
 
       - name: Cursor project-rule test (no machine path in a file people commit; atomic write)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 installers/tests/test_cursor_rule.py
 
       - name: Run validate_routing_assets.py (SKILL.md asset references must exist)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 scripts/validate_routing_assets.py --strict
 
       - name: Run validate_routing_assets.py self-test (dangling references/ pointer fails)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash tests/test_routing_assets.sh
 
       - name: "Run check_phase_budget.py (a phase over 80 lines, or a whole SKILL.md over 16k tokens, is a bill paid on every invocation)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 scripts/check_phase_budget.py --strict
 
       - name: "Run phase-budget self-test (the real 209-line phase must still fail the gate)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash tests/test_phase_budget.sh
 
       - name: "Run check_skill_discovery.py (a fixture under a nested skills/ ships as a real skill)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 scripts/check_skill_discovery.py --strict
 
       - name: "Run skill-discovery self-test (a nested skills/ must still fail the gate)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash tests/test_skill_discovery.sh
 
       - name: "Run check_named_skills_exist.py (a skill may not send you to a skill that does not exist)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 scripts/check_named_skills_exist.py --strict
 
       - name: "Run check_probe_declaration.py (a module must declare the probes it contains)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 scripts/check_probe_declaration.py --strict
 
       - name: "Run probe-declaration challenge (restore each defect; the gate must FAIL)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash scripts/probe_declaration_challenge/verify.sh
 
       - name: Run check_domain_probe_sync.py (vendored domain probes must be byte-identical)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 scripts/check_domain_probe_sync.py --strict
 
       - name: "Run vendoring-gate self-test (drifted checklist, drifted probe, undeclared pair all fail)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash tests/test_vendoring_sync.sh
 
       - name: "Run check_script_reachability.py (a script no skill runs never runs)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 scripts/check_script_reachability.py --strict
 
       - name: "Run script-reachability self-test (de-wired script and undocumented allowlist entry fail)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash tests/test_script_reachability.sh
 
       - name: "Run tag-cleanup-gate self-test (both scan backends must reach the same verdict)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash tests/test_tag_cleanup_gate.sh
 
       - name: "Run check_bundled_media_license.py (an MIT package may only ship what it holds — including inside a .pptx)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 scripts/check_bundled_media_license.py --strict
 
       - name: "Run check_third_party_index.py (the LICENSE must describe the package you downloaded)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 scripts/check_third_party_index.py --strict
 
       - name: "Run bundled-media + third-party-index self-test (restore each defect; the gate must FAIL)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash tests/test_bundled_media_license.sh
 
       - name: Run validate_capabilities.py (skill-registry consistency, capabilities.yml vs skill.yml)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 scripts/validate_capabilities.py --strict
 
       - name: Run capabilities-validator self-test (drift fixtures fail, live repo clean)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash tests/test_capabilities_validator.sh
 
       - name: "Run check_detector_reachability.py (a detector nothing calls never runs)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 scripts/check_detector_reachability.py --strict
 
       - name: Run check_orchestrate_reachability.py (every skill routable from /orchestrate)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 scripts/check_orchestrate_reachability.py --strict
 
       - name: Run orchestrate-reachability self-test (missing-row + ghost-route fail)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash tests/test_orchestrate_reachability.sh
 
       - name: Run check_detector_envelopes.py (every detector's JSON names the detector that wrote it)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 scripts/check_detector_envelopes.py --strict
 
       - name: Run detector-envelope gate self-test (unlabelled + mislabelled envelopes fail)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash tests/test_detector_envelopes.sh
 
       - name: Run check_detector_crossfire.py (a fixture clean for one detector must be clean for all)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 scripts/check_detector_crossfire.py
 
       - name: Run detector-crossfire self-test (restores the real 18pt vs 20pt bug; the gate must catch it)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash tests/test_detector_crossfire.sh
 
       - name: Run held-out crossfire self-test (the instrument must withhold a rate it cannot support)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash reverse_engineer/scripts/test_heldout_crossfire.sh
 
       - name: "Run render_jats fidelity test (a dropped section is not a missing signal, it is a FIRE, biased by publisher)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash reverse_engineer/scripts/test_render_jats.sh
 
       - name: "Run perturbation/invariance self-test (a probe that cannot see a moved verdict is worse than none)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash reverse_engineer/scripts/test_perturb_invariance.sh
 
       - name: "Run held-out acquisition self-test (seal must refuse a corpus that is not what was promised)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash reverse_engineer/scripts/test_acquire_heldout.sh
 
       - name: Run check_python_floor.py (everything a user runs must load on the Python we promise)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 scripts/check_python_floor.py --strict
 
       - name: "Python-floor self-test (a `str | None` signature parses on 3.9 but must still fail)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash tests/test_python_floor.sh
 
       - name: Run installer Python-guard test (old / missing Python must be refused, not crash)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash installers/tests/test_installer_python_guard.sh
 
       - name: Run setup-check test (hide pandoc; the report must NOTICE, and must install nothing)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash installers/tests/test_doctor.sh
 
       - name: Run check_release_cadence.py (a release is an event, not a commit)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 scripts/check_release_cadence.py --strict
 
       - name: Run release-cadence gate self-test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash tests/test_release_cadence.sh
 
       - name: "Run release publish-step test (create-or-update; a release with no assets is red)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash tests/test_release_publish_step.sh
 
       - name: Run check_locale_inventory.py (Korean-bearing files must be inventory-justified)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 scripts/check_locale_inventory.py
 
       - name: Run check_locale_inventory.py self-test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash tests/test_locale_inventory.sh
 
       - name: "Run check_hardcoded_locale.py (no skill picks its user's language)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 scripts/check_hardcoded_locale.py --strict
 
       - name: Run hardcoded-locale gate self-test (the rule /publish-skill already wrote down)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash tests/test_hardcoded_locale.sh
 
       - name: Run self-review panel-mode structural + PII test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/tests/test_panel_mode.sh
 
       - name: Run self-review reference-adequacy gate test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/tests/test_reference_adequacy.sh
 
       - name: Run self-review editorial-impression gate test (defensiveness counterweight)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/tests/test_editorial_impression.sh
 
       - name: Run self-review rounded-delta gate test (stated diff vs displayed components)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/tests/test_rounded_delta.sh
 
       - name: Run self-review orphan figure/table citation gate test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/tests/test_figure_citation.sh
 
       - name: "Run figure-citation label test (the summary must name the defect it found)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/tests/test_figure_citation_labels.sh
 
       - name: Run self-review inline-emphasis over-use gate test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/tests/test_emphasis_density.sh
 
       - name: Run humanize rewrite-fidelity gate test (a de-AI pass may not alter a number or drop a citation)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/humanize/tests/test_rewrite_fidelity.sh
 
       - name: Run humanize sentence-variety gate test (Fix rule 7 is now measured, not just prescribed)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/humanize/tests/test_sentence_variety.sh
 
       - name: Run self-review feature-selection-outside-CV leakage gate test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/tests/test_cv_leakage.sh
 
       - name: Run validate_catalog_consistency.py (doc counts must match disk SSOT)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 scripts/validate_catalog_consistency.py
 
       - name: "Run catalog-consistency quoted-claim test (a count in a quoted anti-example is not a claim)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash tests/test_catalog_quoted_claims.sh
 
       - name: "Run catalog-consistency translated-README test (a translation restates the count in its own words)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash tests/test_catalog_translated_claims.sh
 
       - name: Run check_frontmatter_schema.py (Agent Skills frontmatter spec — valid YAML, name, description)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 scripts/check_frontmatter_schema.py
 
       - name: Run frontmatter-schema gate self-test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash tests/test_frontmatter_schema.sh
 
       - name: Run gen_skill_docs.py --check (per-skill docs must match SKILL.md)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 scripts/gen_skill_docs.py --check
 
       - name: Run gen_skill_docs _ignorable regression test (worktree dotted-ancestor counts)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash tests/test_gen_skill_docs_ignorable.sh
 
       - name: Run gen_skills_catalog_json.py --check (storefront catalog SSOT)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 scripts/gen_skills_catalog_json.py --check
 
       - name: Run skills_catalog generator self-test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash tests/test_skills_catalog_json.sh
 
       - name: Run gen_marketplace_json.py --check (plugin marketplace SSOT)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 scripts/gen_marketplace_json.py --check
 
       - name: Run marketplace generator self-test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash tests/test_marketplace_json.sh
 
       - name: Run gen_detectors_catalog_json.py --check (MedSci-Audit detector SSOT)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 scripts/gen_detectors_catalog_json.py --check
 
       - name: Run detectors_catalog generator self-test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash tests/test_detectors_catalog_json.sh
 
       - name: Run sync_hero_skill.py generator self-test (standalone mirror build)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash tests/test_sync_hero_skill.sh
 
       - name: Run peer-review self-improvement-claim gate test (self-confirming / ungrounded loop)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/peer-review/tests/test_self_improvement_claims.sh
 
       - name: "Run peer-review PDF-scan XMP regression (an int xref must not crash the injection scan)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/peer-review/tests/test_scan_pdf_layers_xmp.sh
 
       - name: "Run peer-review draft gates (length per comment; recommendation must stay in the editor box)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/peer-review/tests/test_review_draft_gates.sh
 
       - name: "Run peer-review request-type challenge (unjustified computation fires; disclosure-led review clears)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/peer-review/scripts/check_review_request_types_challenge/verify.sh
 
       - name: "Run model-selection model-provenance challenge (contradictory facts fire; absent facts flagged; full dossier clears)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/model-selection/scripts/check_model_provenance_challenge/verify.sh
 
       - name: "Run manage-refs citation-keys challenge (an undefined [@key] fails; a fully-resolved bibliography clears)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/manage-refs/scripts/check_citation_keys_challenge/verify.sh
 
       - name: Run contribute safety gate test (PHI/identifier scan before anything leaves a laptop)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/contribute/tests/test_contribution_safety.sh
 
       - name: Run analyze-stats separation gate test (complete / quasi-complete separation)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/analyze-stats/tests/test_separation.sh
 
       - name: Run analyze-stats survival template and bound analysis tests
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: |
           bash skills/analyze-stats/tests/test_survival_template.sh
           bash skills/analyze-stats/tests/test_stats_templates.sh
@@ -326,391 +422,515 @@ jobs:
           bash skills/analyze-stats/scripts/analysis_run_challenge/verify.sh
 
       - name: "Run calc-sample-size worked-example test (every formula block reproduces its package value)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 skills/calc-sample-size/tests/test_worked_examples.py
 
       - name: Run sync-submission asset-anonymization gate test (A2)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/sync-submission/tests/test_asset_anonymization.sh
 
       - name: "Run anonymization config-scan test (the config that draws the figure is a figure source)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/sync-submission/tests/test_anonymization_config_scan.sh
 
       - name: "Run word-count heading-form test (setext and ATX must measure the same manuscript alike)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/sync-submission/tests/test_wordcount_heading_forms.sh
 
       - name: Run sync-submission disclosure/availability detector test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/sync-submission/tests/test_disclosure_availability.sh
 
       - name: Run academic-aio summary-box detector test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/academic-aio/tests/test_summary_box.sh
 
       - name: Run write-paper title-page affiliation-order test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/write-paper/tests/test_title_page_affiliations.sh
 
       - name: Run write-paper backbone full-text readiness gate test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/write-paper/tests/test_backbone_fulltext.sh
 
       - name: Run sync-submission cross-artifact staleness gate test (A3)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/sync-submission/tests/test_cross_artifact_stale.sh
 
       - name: Run check-reporting checklist-version gate test (A4)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/check-reporting/tests/test_checklist_version.sh
 
       - name: Run write-paper placeholder gate test (A5)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/write-paper/tests/test_placeholders.sh
 
       - name: Run sync-submission preflight gate test (A6)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: |
           bash skills/sync-submission/tests/test_preflight_gate.sh
           python3 skills/sync-submission/tests/test_submission_bundle.py
 
       - name: "Run sync-submission marked-build failure test (a failed Compare leaves no file behind)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/sync-submission/tests/test_marked_build_failure.sh
 
       - name: "Run sync-submission portal-field-residue challenge (paste-verbatim .txt with markdown -> fires; clean -> clean)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/sync-submission/scripts/check_portal_field_residue_challenge/verify.sh
 
       - name: "Run sync-submission figure portal-readiness challenge (over-cap / wrong-format figure fires; clean -> clean; preflight wiring)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/sync-submission/scripts/figure_portal_readiness_challenge/verify.sh
 
       - name: Run sync-submission word-count-cap gate test (A7)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/sync-submission/tests/test_wordcount_cap.sh
 
       - name: Run verify-refs corporate-author gate test (A8)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/verify-refs/tests/test_corporate_author.sh
 
       - name: Run verify-refs OpenAlex tertiary-index test (A8b)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/verify-refs/tests/test_openalex_tier.sh
 
       - name: Run verify-refs fabricated-author cross-check test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/verify-refs/tests/test_fabricated_author.sh
 
       - name: Run verify-refs author-normalization test (Unicode dash + BBT brace-protected surname)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/verify-refs/tests/test_author_normalization.sh
 
       - name: "Run verify-refs BibTeX and-others test (a declared et-al is not an author mismatch)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/verify-refs/tests/test_bibtex_et_al.sh
 
       - name: "Run verify-refs last-field test (an entry's final field has no trailing comma)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/verify-refs/tests/test_bib_last_field.sh
 
       - name: "Run verify-refs audit-source test (a committed audit must not carry an absolute path)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/verify-refs/tests/test_audit_source_path.sh
 
       - name: "Run verify-refs title-fallback test (a PubMed search hit alone does not verify a made-up title)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/verify-refs/tests/test_title_fallback_guard.sh
 
       - name: "Run verify-refs unregistered-DOI test (a DOI no registration agency holds is FABRICATED)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/verify-refs/tests/test_doi_not_registered.sh
 
       - name: "Run verify-refs identifier-title test (a resolving DOI or PMID does not verify a title it does not name)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/verify-refs/tests/test_identifier_title.sh
 
       - name: "Run verify-refs Markdown heading test (a ## References heading opens the reference list)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/verify-refs/tests/test_markdown_reference_heading.sh
 
       - name: "Run verify-refs claim-fidelity challenge (a real citation carrying a claim its source never makes)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: |
           bash skills/verify-refs/scripts/claim_fidelity_challenge/verify.sh
           python3 skills/verify-refs/tests/test_claim_evidence.py
 
       - name: Run manage-refs bib-title publisher-markup gate test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/manage-refs/tests/test_bib_title_markup.sh
 
       - name: Run revise response-claim verification gate test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/revise/tests/test_response_claims.sh
 
       - name: "Run revise density-complaint challenge (point-by-point revision that got longer must fail)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/revise/scripts/density_complaint_challenge/verify.sh
 
       - name: Run sync-submission marked-manuscript round-trip gate test (move-aware)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/sync-submission/tests/test_marked_manuscript.sh
 
       - name: Run find-cohort-gap local-codebook input adapter test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/find-cohort-gap/tests/test_cohort_profile.sh
 
       - name: Run self-review parenthesis-span corruption gate test (A9)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/tests/test_paren_spans.sh
 
       - name: Run self-review classical-style gate test (A10)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/tests/test_classical_style.sh
 
       - name: Run self-review confounding-completeness gate test (A11)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/tests/test_confounding_completeness.sh
 
       - name: Run self-review supplement-hygiene gate test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/tests/test_supplement_hygiene.sh
 
       - name: Run self-review artifact-coverage gate test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/tests/test_artifact_coverage.sh
 
       - name: Run self-review null-calibration gate test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/tests/test_null_calibration.sh
 
       - name: Run sync-submission supplement-assembler test (A12)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/sync-submission/tests/test_assemble_supplement.sh
 
       - name: Run render-pdf-doc glyph and render regressions (A13)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: |
           bash skills/render-pdf-doc/tests/test_glyph_coverage.sh
           python3 skills/render-pdf-doc/tests/test_font_faces.py
           python3 skills/render-pdf-doc/tests/test_render_pdf.py
 
       - name: Run author-strategy archetype-classifier test (A14)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/author-strategy/tests/test_archetype_classifier.sh
 
       # --- Tier 0/1 skill regression tests (existing + new, now CI-wired) ---
       - name: Run make-figures legend-reconcile test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/make-figures/tests/test_legend_reconcile.sh
 
       - name: Run make-figures pptx Mac-compatibility validator test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 skills/make-figures/tests/test_pptx_mac_compat.py
 
       - name: Run make-figures STROBE cascade-closure test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/make-figures/tests/test_strobe_cascade.sh
 
       - name: Run clean-data structural-zero test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/clean-data/tests/test_structural_zero.sh
 
       - name: Run clean-data reverse-coding test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/clean-data/tests/test_reverse_coding.sh
 
       - name: Run check_checklist_provenance.py (a checklist must say what it is and what was checked)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 scripts/check_checklist_provenance.py --strict
 
       - name: Checklist-provenance backlog ratchet (the list may only shrink)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 scripts/check_checklist_provenance.py --audit-backlog
 
       - name: Run checklist-provenance challenge (a bare "Verified" claim must fail)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash scripts/checklist_provenance_challenge/verify.sh
 
       - name: Run citekey-provenance challenge (a composed citekey must be caught)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/lit-sync/tests/citekey_provenance_challenge.sh
 
       - name: Run citekey-provenance self-test (mutate the detector; the card must FAIL)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/lit-sync/tests/citekey_provenance_challenge_selftest.sh
 
       - name: Run lit-sync poll-logic test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/lit-sync/tests/test_poll_logic.sh
 
       - name: Run meta-analysis pool-consistency test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/meta-analysis/tests/test_pool_consistency.sh
 
       - name: "Run meta-analysis exclusion-code-validity challenge (code excludes an eligible design -> fires; correct exclusion -> clean)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/meta-analysis/scripts/check_exclusion_code_validity_challenge/verify.sh
 
       - name: Run generate-codebook test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/generate-codebook/tests/test_generate_codebook.sh
 
       - name: Run slide-tells challenge (AI-made deck -> all 6 marks; human-made deck -> CLEAN)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/present-paper/scripts/check_slide_tells_challenge/verify.sh
 
       - name: "Run present-paper page-number test (the exemption must cover the generator's own form)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/present-paper/tests/test_slide_page_numbers.sh
 
       - name: "Run deck-budget challenge (same deck: fits an oral, too dense for a keynote)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/present-paper/scripts/check_deck_budget_challenge/verify.sh
 
       - name: "Run font-portability challenge (macOS-only fonts caught; embedded fonts exempt)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/present-paper/scripts/check_font_portability_challenge/verify.sh
 
       - name: "Run diagram-edge challenge (a stroke on the canvas edge; a full bleed is not one)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/present-paper/scripts/check_diagram_edges_challenge/verify.sh
 
       - name: "Run measured-overflow challenge (no render supplied -> exit 2, never a silent pass)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: |
           bash skills/present-paper/scripts/check_text_overflow_challenge/verify.sh
           python3 skills/present-paper/tests/test_overflow_pdf.py
 
       - name: Run present-paper builder chrome test (the old eyebrow-everywhere default must be CAUGHT)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: |
           python3 skills/present-paper/tests/test_builder_no_chrome.py
           python3 skills/present-paper/tests/test_builder_layout.py
 
       - name: Run present-paper speaker-notes markdown test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 skills/present-paper/tests/test_speaker_notes_markdown.py
 
       - name: Run version-dataset manifest/verify test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/version-dataset/tests/test_version_dataset.sh
 
       - name: Run manage-refs vN-docx cross-reference test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/manage-refs/tests/test_vN_docx_check.sh
 
       - name: "Run manage-refs separate-supplement test (a gate red on correct work gets skipped)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/manage-refs/tests/test_xref_separate_supplement.sh
 
       - name: "Run manage-refs plural-citation test (phrasing must not change the verdict)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/manage-refs/tests/test_xref_plural_citations.sh
 
       - name: "Run manage-refs inline-figure test (write-paper's own embed form is a caption, not MISSING_BODY)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/manage-refs/tests/test_xref_inline_figures.sh
 
       - name: "Run manage-refs citation-key boundary test (a full stop is not part of the key)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/manage-refs/tests/test_citation_key_boundaries.sh
 
       - name: "Run manage-refs journal-abbrev parsing test (a tool that cannot start is advertised)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/manage-refs/tests/test_journal_abbrev_parsing.sh
 
       - name: Run manage-refs CSL-render hardening test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/manage-refs/tests/test_csl_render.sh
 
       - name: "Run manage-refs render-audit test (UNVERIFIED references are not reported clean)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/manage-refs/tests/test_render_audit_unverified.sh
 
       - name: Run polish-language consistency-linter challenge
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: |
           bash skills/polish-language/scripts/lint_challenge/verify.sh
           python3 skills/polish-language/tests/test_consistency_controls.py
 
       - name: "Run polish-language numeral-designator test (\"type 2 diabetes\" is not \"type two\")"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/polish-language/tests/test_numeral_designators.sh
 
       - name: "Run polish-language figure-source locale challenge (UK word in a .pptx/.py label fires; universals stay silent)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/polish-language/scripts/lint_figure_locale_challenge/verify.sh
 
       - name: Run deidentify PHI-scan contract test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/deidentify/tests/test_deidentify_scan.sh
 
       - name: Run fill-icmje-coi form-clone contract test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/fill-icmje-coi/tests/test_fill_icmje_coi.sh
 
       - name: Run academic-aio schema-validator test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/academic-aio/tests/test_validate_schema.sh
 
       - name: Run academic-aio metadata-audit test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/academic-aio/tests/test_batch_metadata_audit.sh
 
       - name: Run fill-protocol form-fill test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/fill-protocol/tests/test_fill_form.sh
 
       - name: "Run fill-protocol newline test (a line break must reach the page, not hide in w:t)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/fill-protocol/tests/test_fill_form_newlines.sh
 
       - name: Run fulltext-retrieval pdf_to_md helper test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 skills/fulltext-retrieval/tests/test_pdf_to_md.py
 
       - name: Run fulltext-retrieval report-builder challenge
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: |
           bash skills/fulltext-retrieval/fetch_oa_report_challenge/verify.sh
           python3 skills/fulltext-retrieval/tests/test_source_identity.py
 
       - name: Run self-review scope-coherence gate test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/tests/test_scope_coherence.sh
 
       - name: Run self-review cohort-arithmetic gate test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/tests/test_cohort_arithmetic.sh
 
       - name: Run model-assessment split-leakage challenge
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/model-assessment/scripts/check_split_leakage_challenge/verify.sh
 
       - name: Run model-assessment split-leakage gate test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/model-assessment/tests/test_split_leakage.sh
 
       - name: Run imaging-data dataset-profile challenge
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/imaging-data/scripts/check_dataset_profile_challenge/verify.sh
 
       - name: Run imaging-data dataset-profile gate test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/imaging-data/tests/test_dataset_profile.sh
 
       - name: Run imaging-data leakage challenge
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/imaging-data/scripts/check_preprocessing_leakage_challenge/verify.sh
 
       - name: Run imaging-data normaliser-domain challenge
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/imaging-data/scripts/check_normalizer_domain_challenge/verify.sh
 
       - name: Run imaging-data leakage gate test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/imaging-data/tests/test_preprocessing_leakage.sh
 
       - name: Run model-assessment explainability-report challenge
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/model-assessment/scripts/check_explainability_report_challenge/verify.sh
 
       - name: Run model-assessment explainability-report gate test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/model-assessment/tests/test_explainability_report.sh
 
       - name: Run radiomics-ml pipeline challenge
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/radiomics-ml/scripts/check_radiomics_ml_challenge/verify.sh
 
       - name: Run radiomics-ml pipeline gate test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/radiomics-ml/tests/test_radiomics_ml.sh
 
       - name: Run model-scaffold build→validate challenge
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/model-scaffold/scripts/scaffold_challenge/verify.sh
 
       - name: Run model-scaffold training-hygiene gate test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/model-scaffold/tests/test_training_hygiene.sh
 
       - name: Run model-assessment uncertainty-reporting challenge
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/model-assessment/scripts/check_uncertainty_reporting_challenge/verify.sh
 
       - name: Run model-assessment uncertainty-reporting gate test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/model-assessment/tests/test_uncertainty_reporting.sh
 
       - name: Run model-card completeness challenge
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/model-card/scripts/check_model_card_complete_challenge/verify.sh
 
       - name: Run model-card completeness gate test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/model-card/tests/test_model_card_complete.sh
 
       - name: Run model-assessment metric-reporting challenge
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/model-assessment/scripts/metric_reporting_challenge/verify.sh
 
       - name: Run model-assessment metric-reporting gate test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/model-assessment/tests/test_metric_reporting.sh
 
       - name: Run mllm-eval completeness challenge
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/mllm-eval/scripts/mllm_eval_completeness_challenge/verify.sh
 
       - name: Run mllm-eval completeness gate test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/mllm-eval/tests/test_mllm_eval_completeness.sh
 
       - name: Run peer-review pdf-injection challenge (hidden-text guard, PyMuPDF-free)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/peer-review/scripts/check_pdf_injection_challenge/verify.sh
 
       - name: Run self-review table-percentage challenge (n (%) recompute vs denominator)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/scripts/check_table_percentages_challenge/verify.sh
 
       - name: "Run table-percentage denominator test (an inferred denominator must reconcile something)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/tests/test_table_percent_denominator.sh
 
       - name: Run self-review nested-group-comparison challenge (subset vs parent cohort)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/scripts/check_nested_group_comparison_challenge/verify.sh
 
       - name: Run self-review reported-P-from-counts challenge (recompute row P, stdlib)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/scripts/check_reported_p_from_counts_challenge/verify.sh
 
       - name: Run self-review DTA-denominator challenge (sens/spec vs reference-standard)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/scripts/check_dta_denominators_challenge/verify.sh
 
       - name: "Run self-review figure-citation panel-suffix challenge (Figure 3a cites Figure 3 -> no orphan; uncited -> orphan)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/scripts/check_figure_citation_challenge/verify.sh
 
       - name: "Run self-review analysis-definitions challenge (same analysis count, opposite verdict — definition is what the gate reads)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/scripts/check_analysis_definitions_challenge/verify.sh
 
       - name: Run self-review paired-difference-estimator challenge (median parity / degenerate CI)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/scripts/check_paired_difference_estimator_challenge/verify.sh
 
       - name: Run self-review effect-stability challenge (76-fold CI + low EPV vs tight CI + caveat)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/scripts/check_effect_stability_challenge/verify.sh
 
       - name: Run self-review incorporation-bias challenge (trajectory standard + trajectory predictor)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/scripts/check_incorporation_bias_challenge/verify.sh
 
       - name: "Run self-review refinement-stop challenge (terminal-state loop controller: zero-edit PASS / stop signal)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/scripts/refinement_stop_challenge/verify.sh
 
       - name: "Run qc severity-vocabulary test (a blocker must not be an optional Minor)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/tests/test_qc_severity_vocabulary.sh
 
       - name: "Run self-review baseline-drift challenge (framing drift vs the human-approved baseline; clean reword clears)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/scripts/check_baseline_drift_challenge/verify.sh
 
       - name: "Run self-review refinement-regression challenge (fixed vs broke across runs; Mirror-Loop churn)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/scripts/refinement_regression_challenge/verify.sh
 
       - name: "Run self-review perspective-structure challenge (IMRAD headings + flat abstract in a Perspective; genre-gated, Minor)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/scripts/check_perspective_structure_challenge/verify.sh
 
       - name: Run analyze-stats generated-code gate test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/analyze-stats/tests/test_generated_code.sh
 
       # --- previously-dormant skill regression tests, now CI-wired (v5 coverage-gap closure) ---
@@ -718,132 +938,174 @@ jobs:
       # gave false coverage. All pass on the same toolchain CI installs (stdlib + python-docx;
       # no pandoc/R). Re-run gen_distribution_manifest.py after adding any new fixture.
       - name: Run check-reporting checklist fail-fast test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/check-reporting/tests/test_checklist_fail_fast.sh
 
       - name: Run check-reporting framework-naming gate test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/check-reporting/tests/test_framework_naming.sh
 
       - name: "Run check-reporting checklist-fidelity gate test (a checklist must match the official inventory, issue #352)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/check-reporting/tests/test_checklist_fidelity.sh
 
       - name: Run check-reporting PRISMA-cascade test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/check-reporting/tests/test_prisma_cascade.sh
 
       - name: Run check-reporting PRISMA Figure 1 audit test (Step 4d)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/check-reporting/tests/test_prisma_figure.sh
 
       - name: Run manage-refs duplicate-bibliography gate test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/manage-refs/tests/test_reference_duplication.sh
 
       - name: "Run self-review confounding findings-contract challenge (a status row is not a finding)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/scripts/confounding_findings_challenge/verify.sh
 
       - name: "Run self-review cohort-arithmetic binding challenge (a label digit is not an event count)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/scripts/cohort_arith_binding_challenge/verify.sh
 
       - name: "Run self-review AI-disclosure placement challenge (the journals disagree; the target decides)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/scripts/disclosure_placement_challenge/verify.sh
 
       - name: Run self-review binning-consistency gate test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/tests/test_binning_consistency.sh
 
       - name: Run self-review float citation-order gate test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/tests/test_citation_order.sh
 
       - name: Run self-review aphorism-density gate test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/tests/test_aphorism_density.sh
 
       - name: Run self-review rhetorical-density gate test (antithesis + cleft, humanize P27)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/tests/test_rhetorical_density.sh
 
       - name: Run self-review claim-artifact (estimand provenance) gate test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/tests/test_claim_artifact.sh
 
       - name: Run self-review panel-diversity gate test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/tests/test_panel_diversity.sh
 
       - name: Run self-review reviewer-team-consistency gate test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/tests/test_reviewer_team_consistency.sh
 
       - name: "Run sync-submission CRediT-integrity challenge (a taxonomy term with nothing behind it)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/sync-submission/scripts/credit_integrity_challenge/verify.sh
 
       - name: "Run sync-submission portal-mirror challenge (a declaration that never reaches the field that replaces it)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/sync-submission/scripts/portal_mirror_challenge/verify.sh
 
       - name: Run sync-submission audit-dump leak gate test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/sync-submission/tests/test_checklist_dump_leak.sh
 
       - name: Run sync-submission copy-divergence gate test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/sync-submission/tests/test_copy_divergence.sh
 
       - name: Run sync-submission cross-document-N gate test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/sync-submission/tests/test_cross_document_n.sh
 
       - name: Run sync-submission scope-drift gate test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/sync-submission/tests/test_scope_drift.sh
 
       - name: Run sync-submission cover-letter title-drift gate test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/sync-submission/tests/test_cover_letter_title_drift.sh
 
       - name: Run sync-submission vN-docx assertion gate test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/sync-submission/tests/test_vN_docx_assertion.sh
 
       - name: Run verify-refs pagination-placeholder gate test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/verify-refs/tests/test_pagination_placeholder.sh
 
       # --- Tests that shipped on disk but no workflow ran. check_test_wiring.py below is what
       #     keeps this list from growing again by omission; these twelve were the standing backlog
       #     it found on 2026-07-25 (six of them declared in a skill.yml CI never reads).
       - name: "Run design-study adjustment-set challenge"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/design-study/scripts/adjustment_set_challenge/verify.sh
 
       - name: "Run find-journal acceptance-readiness challenge"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/find-journal/scripts/acceptance_readiness_challenge/verify.sh
 
       - name: "Run make-figures portal-TIFF export challenge"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/make-figures/scripts/export_portal_tiff_challenge/verify.sh
 
       - name: "Run make-figures core-figure render challenge"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/make-figures/scripts/render_core_figures_challenge/verify.sh
 
       - name: "Run meta-analysis extraction-assist challenge"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/meta-analysis/scripts/extract_assist_challenge/verify.sh
 
       - name: "Run search-lit snowball challenge"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/search-lit/references/snowball_challenge/verify.sh
 
       - name: "Run search-lit E-utilities test (an apostrophe in a query is data, not code)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/search-lit/tests/test_pubmed_eutils.sh
 
       - name: "Run DOI-record-match challenge (a resolvable DOI can belong to a different paper)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/search-lit/scripts/check_doi_record_match_challenge/verify.sh
 
       - name: Run meta-analysis screening-reconcile test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/meta-analysis/tests/test_screening_reconcile.sh
 
       - name: Run model-selection model-provenance test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/model-selection/tests/test_model_provenance.sh
 
       - name: Run present-paper backup-off-the-clock test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 skills/present-paper/tests/test_backup_off_the_clock.py
 
       - name: Run present-paper markdown-parity test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 skills/present-paper/tests/test_md_parity.py
 
       - name: Run Phase-1a gate test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash tests/test_phase1a_gates.sh
 
       - name: Run Phase-1c hook test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash tests/test_phase1c_hooks.sh
 
       - name: "Run check_test_wiring.py (a test CI never runs is a test that never runs)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 scripts/check_test_wiring.py
 
       - name: "Run test-wiring gate self-test (restore the real omission; the gate must FAIL)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash tests/test_test_wiring.sh
 
       - name: Verify demo manifest.lock files (reproducibility lock)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: |
           # All five demos. Demos 4 and 5 were added late: on 2026-08-01 demo/04's lock was
           # found stale in main — its reference_audit.json had been edited after the lock was
@@ -857,14 +1119,17 @@ jobs:
 
       # --- npm/npx distribution baseline (runs last so packaging failures are easy to isolate) ---
       - name: Set up Node
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         uses: actions/setup-node@v4
         with:
           node-version: "20"
 
       - name: npm package self-test (CLI shim + exec bit + version sync + pack audit)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash tests/test_npm_package.sh
 
       - name: npm pack content audit (real pack, package/ prefix normalized)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 scripts/check_npm_package_contents.py --real --privacy
 
       # --- distribution manifest: last on purpose ---
@@ -874,17 +1139,21 @@ jobs:
       # saw that one red step and none of the gates after it. Here they still fail the job, after
       # every other gate has reported.
       - name: Distribution manifests in sync (gen_distribution_manifest.py --check)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 scripts/gen_distribution_manifest.py --check
 
       - name: Distribution manifest + scope-pinning test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 installers/tests/test_distribution_manifest.py
 
       - name: Release-ZIP provenance + updater-consumability round-trip (build -> safe-extract)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: |
           bash installers/tests/test_release_zip.sh
           python3 tests/test_release_payloads.py
 
       - name: Run manifest-drift message test (a contributor's red X must be actionable)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash tests/test_manifest_drift_message.sh
 
   # Cross-platform safety for the transactional installer + updater (PR-1a/PR-1b). Ubuntu-only CI
