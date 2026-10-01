@@ -15,6 +15,22 @@
 - **Stated counts.** `paper.md` said four end-to-end demonstrations (there are five) and that every
   detector ships a challenge card (coverage is partial); the Korean and Chinese READMEs said ten
   locale packs (there are eleven).
+- **The catalog-count gate reads the translated READMEs.** `README.ko.md` and `README.zh-CN.md`
+  restate the guideline, skill and detector counts and the locale-pack count in their own words,
+  and only the shields badge was checked, which is how both stayed at ten locale packs after the
+  English README moved to eleven. `validate_catalog_consistency.py` now checks each of those
+  claims: the first three against disk, the locale-pack count against the English README (so a
+  one-file locale-pack contribution is never failed on prose). A reworded sentence fails instead of
+  going unchecked. Self-test: `tests/test_catalog_translated_claims.sh`.
+- **The rest of the `| grep -q` pipes are gone.** Twenty-two checks across ten scripts still fed a shell
+  variable to `grep -q` through a pipe under `pipefail`; they now pass it as a here-string, so there
+  is no pipe to break whatever the output size.
+
+### Documentation
+
+- `citation_styles/README.md` says why `vancouver.csl` and `nlm-citation-sequence.csl` are
+  byte-identical: JKMS resolves its parent by the second filename, and the first is the fallback a
+  user picks, so neither can be removed.
 
 ## [6.0.1] - 2026-10-01
 

@@ -35,7 +35,7 @@ summary="$(python3 "$SCRIPTS/dta_extraction_qc.py" \
   --out "$qc_out" 2>/dev/null | grep '^DTA QC:')"
 rm -f "$qc_out"
 
-if printf '%s' "$summary" | grep -q "OK=1 | SWAP=0 | MISMATCH=0"; then
+if grep -q "OK=1 | SWAP=0 | MISMATCH=0" <<<"$summary"; then
   echo "PASS: 11 AI_SUGGESTED candidates with page+quote (1 not_found); human-confirmed CSV clears dta_extraction_qc ($summary)."
 else
   echo "FAIL: confirmed CSV did not pass dta_extraction_qc cleanly: $summary" >&2

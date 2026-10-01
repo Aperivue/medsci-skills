@@ -35,8 +35,8 @@ trap 'rm -rf "$TMP"' EXIT
 pass=0; fail=0
 ck() { if [ "$2" = "$3" ]; then printf '  PASS  %-56s exit=%s\n' "$1" "$3"; pass=$((pass+1));
        else printf '  FAIL  %-56s want=%s got=%s\n' "$1" "$2" "$3"; fail=$((fail+1)); fi; }
-has() { if echo "$2" | grep -q "$3"; then ck "$1" 0 0; else ck "$1" 0 1; fi; }
-hasnt() { if echo "$2" | grep -q "$3"; then ck "$1" 0 1; else ck "$1" 0 0; fi; }
+has() { if grep -q "$3" <<<"$2"; then ck "$1" 0 0; else ck "$1" 0 1; fi; }
+hasnt() { if grep -q "$3" <<<"$2"; then ck "$1" 0 1; else ck "$1" 0 0; fi; }
 
 echo "== positive: a taxonomy that does not describe the work =="
 python3 "$DET" --manuscript "$FIX/manuscript_bad.md" --quiet >/dev/null 2>&1
