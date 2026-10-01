@@ -273,5 +273,5 @@ anchors the discussion, surrounding papers add nuance.
 - `~/.claude/rules/academic-lecture-style.md` — English body + Korean notes + Nature/Lancet (global default)
 - `~/.claude/rules/pptx-mac-compatibility.md` — TIFF / sp3d / app.xml / srcRect / Inches EMU / markdown notes
 - `~/.claude/rules/multidisciplinary-presentation.md` — glossary slide + intuition box pattern
-- `~/.claude/rules/journal-ai-image-policies.md` — AI-image policy (visual abstract /
+- `make-figures/SKILL.md` → *Journal AI-Image Policies* — AI-image policy (visual abstract /
   Central Illustration cases)

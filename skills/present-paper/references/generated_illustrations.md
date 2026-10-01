@@ -7,7 +7,7 @@ the friction back where it belongs.
 
 Read this before generating anything for a slide. For a figure destined for a **journal** —
 graphical abstract, Central Illustration — stop here and read
-`~/.claude/rules/journal-ai-image-policies.md` instead: several journals prohibit AI imagery
+`make-figures/SKILL.md` → *Journal AI-Image Policies* instead: several journals prohibit AI imagery
 outright, and that is a different decision from the one this file governs.
 
 ---
