@@ -2,6 +2,23 @@
 
 ## [Unreleased]
 
+### Added
+
+- **`/deidentify`: an Italian locale pack (`--locale it`).** Detects the Codice Fiscale (including
+  omocodic and lower-case forms, also in columns whose name the pack does not map), Italian phone
+  numbers and street addresses, with a synthetic fixture whose codes carry invalid check
+  characters. Contributed by @rtmalikian (#544).
+- **`/peer-review`: a comparator-adequacy exemplar review.** A synthetic teaching example for a
+  manuscript that claims added value over a comparator that is absent, trivial or mismatched: it
+  shows how to anchor the finding, ask for the paired difference with its interval, and calibrate
+  severity. Contributed by @aniruddhaadak80 (#542).
+
+### Changed
+
+- **Text files are checked out with LF on every platform** (`.gitattributes`, #588). A Windows
+  checkout with Git's default line-ending conversion produced a distribution manifest that could
+  never match CI; CSV files keep their committed bytes.
+
 ## [6.0.0] - 2026-10-01
 
 **Hotfix:** several results were wrong in ways a user may have relied on: `/calc-sample-size` returned sample sizes up to about four times too small, `/deidentify` wrote cell values into its reports and let columns it could not classify through on Enter, and `/verify-refs` could report a reference with a DOI that does not exist as OK. The first section below lists what to re-check.
