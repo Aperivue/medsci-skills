@@ -22,7 +22,7 @@ Source: https://github.com/citation-style-language/styles (zotero/styles).
 | `vancouver-superscript.csl` | Generic Vancouver (superscript) | Alternative fallback |
 | `springer-basic-brackets.csl` | Parent of European Radiology | Do not use directly — keep co-located |
 | `springer-vancouver-brackets.csl` | Parent of CVIR | Do not use directly — keep co-located |
-| `nlm-citation-sequence.csl` | Parent of JKMS | Do not use directly — keep co-located |
+| `nlm-citation-sequence.csl` | Parent of JKMS | Do not use directly — keep co-located. Byte-identical to `vancouver.csl` on purpose: JKMS resolves its parent by this filename, while `vancouver.csl` is the name a user picks as a fallback. Deleting either breaks one of the two; refresh both together |
 | `journal-of-clinical-oncology.csl` | Journal of Clinical Oncology (JCO) | Independent. Numeric |
 | `annals-of-oncology.csl` | Annals of Oncology | Independent. Numeric |
 | `journal-of-breast-cancer.csl` | Journal of Breast Cancer (JBC) | Independent. Numeric |

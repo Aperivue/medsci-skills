@@ -2723,8 +2723,8 @@
     },
     {
       "path": "skills/manage-refs/citation_styles/README.md",
-      "size": 6979,
-      "sha256": "c08122700197e0f91614cbd92f848e196c2c259b7e753d8cefa9ff4009b63b74"
+      "size": 7192,
+      "sha256": "293135a0bc9d6365f47241803ea3032a1d49fa9f74f4630ef3096673f674e6f0"
     },
     {
       "path": "skills/manage-refs/citation_styles/american-association-for-cancer-research.csl",
@@ -2903,8 +2903,8 @@
     },
     {
       "path": "skills/manage-refs/scripts/check_citation_keys_challenge/verify.sh",
-      "size": 1862,
-      "sha256": "c704ca3a531e1568febfbf79588843f8d65561406620069b50591c306368a6cd"
+      "size": 1836,
+      "sha256": "f2e03d05e2d757d1d7d4d3067d2bbde7de23237099976854cd86c5b2e8d04770"
     },
     {
       "path": "skills/manage-refs/scripts/check_csl_render.py",
@@ -3168,8 +3168,8 @@
     },
     {
       "path": "skills/meta-analysis/scripts/extract_assist_challenge/verify.sh",
-      "size": 1867,
-      "sha256": "41a4c333f7ea8d307754c1d725a5b1df2a78158302f20ae9c7c73e7566c6e987"
+      "size": 1856,
+      "sha256": "870c48f258127deb9cb1e4a43900a9377ef8f5ae05720c513e890ceb67e53e60"
     },
     {
       "path": "skills/meta-analysis/scripts/extraction_consensus_log_init.py",
@@ -5408,8 +5408,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_perspective_structure_challenge/verify.sh",
-      "size": 3438,
-      "sha256": "124dc9b572f06f234619b9f4f15023b1d81449cd59ea9448d97eb8cc4912e631"
+      "size": 3405,
+      "sha256": "fe813e5b09786bcc20bd94eb068222df0e27c9869671e6dd07ad4d3b7c0bc1a8"
     },
     {
       "path": "skills/self-review/scripts/check_reference_adequacy.py",
@@ -5528,8 +5528,8 @@
     },
     {
       "path": "skills/self-review/scripts/cohort_arith_binding_challenge/verify.sh",
-      "size": 5354,
-      "sha256": "930b21d097fa9fee9f809f1c036c2c1bb1a5195aba07e8b4487cef3dd7a917b5"
+      "size": 5346,
+      "sha256": "1fd17473da710168659c95e9c580268b07f8a4fb9c68574c2621844b406c8834"
     },
     {
       "path": "skills/self-review/scripts/confounding_findings_challenge/fixture/adjusted.txt",
@@ -5563,8 +5563,8 @@
     },
     {
       "path": "skills/self-review/scripts/disclosure_placement_challenge/verify.sh",
-      "size": 6430,
-      "sha256": "3026e2ce78ae38f45c48ad36e91e442ff1257c9d8ee0735e105e863385fe62fb"
+      "size": 6422,
+      "sha256": "dbe775ce797755b6cfc3d57c342970a473d01495f593ebb83083f27475ea0b9b"
     },
     {
       "path": "skills/self-review/scripts/refinement_regression.py",
@@ -5958,8 +5958,8 @@
     },
     {
       "path": "skills/sync-submission/scripts/credit_integrity_challenge/verify.sh",
-      "size": 7806,
-      "sha256": "c280d555ba31145ca89c04ae37da3b1b3dfb13f300bf6c4b731ff85658774f10"
+      "size": 7798,
+      "sha256": "3ab8b1a9f709110abda2d44981d0eb020292ee4836ed79140b571cec3d4660f2"
     },
     {
       "path": "skills/sync-submission/scripts/cross_document_n_check.py",
@@ -6048,8 +6048,8 @@
     },
     {
       "path": "skills/sync-submission/scripts/portal_mirror_challenge/verify.sh",
-      "size": 6814,
-      "sha256": "2d50144731b391daa25d243d2d4edab1b36b7f59faa2c9705cc4daf74f9a2433"
+      "size": 6806,
+      "sha256": "58c68ae78dbe32b420e0a1cf39fb994076f2dc5fc704eb36d4c95c41909ef298"
     },
     {
       "path": "skills/sync-submission/scripts/preflight_gate.py",
@@ -6148,8 +6148,8 @@
     },
     {
       "path": "skills/verify-refs/scripts/claim_fidelity_challenge/verify.sh",
-      "size": 8835,
-      "sha256": "8553470dcbaa3890b5964762ac6c3c87656752e44c56a96438b2a234b3e1fe97"
+      "size": 8827,
+      "sha256": "86d38ebe1c5724790475291b7f30756532010538a3f6069373ec4eec31e73363"
     },
     {
       "path": "skills/verify-refs/scripts/verify_cli.sh",

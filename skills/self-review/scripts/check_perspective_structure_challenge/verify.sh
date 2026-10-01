@@ -28,14 +28,14 @@ done
 
 # The positive fixture must name both verdicts.
 bad="$(python3 "$DET" --manuscript fixture/perspective_bad.md 2>/dev/null)"
-printf '%s' "$bad" | grep -q PERSPECTIVE_HEADING_NOT_ASSERTION \
+grep -q PERSPECTIVE_HEADING_NOT_ASSERTION <<<"$bad" \
   || { echo "FAIL: perspective_bad missing HEADING_NOT_ASSERTION" >&2; pass=0; }
-printf '%s' "$bad" | grep -q PERSPECTIVE_ABSTRACT_NO_AUTHORIAL_MOVE \
+grep -q PERSPECTIVE_ABSTRACT_NO_AUTHORIAL_MOVE <<<"$bad" \
   || { echo "FAIL: perspective_bad missing ABSTRACT_NO_AUTHORIAL_MOVE" >&2; pass=0; }
 
 # The genre gate must keep a non-Perspective silent despite IMRAD headings + a flat abstract.
-printf '%s' "$(python3 "$DET" --manuscript fixture/not_perspective.md 2>/dev/null)" \
-  | grep -q PERSPECTIVE_ && { echo "FAIL: not_perspective should be silent (genre gate)" >&2; pass=0; }
+grep -q PERSPECTIVE_ <<<"$(python3 "$DET" --manuscript fixture/not_perspective.md 2>/dev/null)" \
+  && { echo "FAIL: not_perspective should be silent (genre gate)" >&2; pass=0; }
 
 # Findings[] inspection on a known-good Perspective (a Minor detector's exit code is meaningless,
 # so assert the JSON directly: active AND empty findings — not silent because misclassified).

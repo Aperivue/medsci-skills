@@ -392,7 +392,7 @@ for skill_dir in "${SKILL_DIRS[@]}"; do
   PII_FIXTURE_PATHS='^skills/deidentify/tests/test_phi_[a-z]+\.csv$|^skills/contribute/tests/test_contribution_safety\.sh$'
   for f in "${integrity_files[@]}"; do
     rel_f="${f#$REPO_ROOT/}"
-    if printf '%s' "$rel_f" | grep -qE "$PII_FIXTURE_PATHS"; then
+    if grep -qE "$PII_FIXTURE_PATHS" <<<"$rel_f"; then
       continue
     fi
     matches=$(grep -nE "$email_pattern" "$f" | grep -vE "$email_whitelist" || true)
@@ -432,7 +432,7 @@ for skill_dir in "${SKILL_DIRS[@]}"; do
   filename_allow='^(Issue|Year|Vol|Table|Figure|Sample|Example|Demo|Test|Type|Class|Group|Cohort|Study|Trial|Phase|Run|Batch|Round|Stage|Step|Item|Mode)[0-9]{4}_'
   while IFS= read -r -d '' f; do
     base=$(basename "$f")
-    if echo "$base" | grep -qE "$filename_pattern" && ! echo "$base" | grep -qE "$filename_allow"; then
+    if grep -qE "$filename_pattern" <<<"$base" && ! grep -qE "$filename_allow" <<<"$base"; then
       rel="${f#$REPO_ROOT/}"
       fail "Author-style filename in $rel: $base"
       ((filename_hits++))
@@ -605,7 +605,7 @@ while IFS= read -r rel; do
   [ -f "$f" ] || continue
   ((META_SCANNED++))
   scan_src=$(cat "$f")
-  if echo "$rel" | grep -qE "$AUTHOR_ATTRIB_RE"; then
+  if grep -qE "$AUTHOR_ATTRIB_RE" <<<"$rel"; then
     precedent_hit=$(printf '%s' "$scan_src" | python3 "$CHECK_PRECEDENT" --allow-author -); precedent_rc=$?
   else
     precedent_hit=$(printf '%s' "$scan_src" | python3 "$CHECK_PRECEDENT" -); precedent_rc=$?

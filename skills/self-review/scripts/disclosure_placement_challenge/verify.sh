@@ -63,9 +63,9 @@ echo "== severity follows knowledge, not house style =="
 ck "a declared title-page target is Major" "Major" "$(sev --profile "$PROF/Diabetes_Metabolism_Journal.md")"
 ck "no target recorded is only Minor"      "Minor" "$(sev)"
 OUT="$(python3 "$DET" --manuscript "$FIX/manuscript.md" 2>&1)"
-if echo "$OUT" | grep -q "no target journal is recorded"; then ck "and it names the ambiguity" 0 0
+if grep -q "no target journal is recorded" <<<"$OUT"; then ck "and it names the ambiguity" 0 0
 else ck "and it names the ambiguity" 0 1; fi
-if echo "$OUT" | grep -q "belongs on the title page"; then ck "never asserting a placement it cannot know" 0 1
+if grep -q "belongs on the title page" <<<"$OUT"; then ck "never asserting a placement it cannot know" 0 1
 else ck "never asserting a placement it cannot know" 0 0; fi
 
 echo "== --strict: an unknown target must not fail a build =="

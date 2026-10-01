@@ -76,9 +76,9 @@ pass=$((pass + 1))
 
 # ------------------------------------------- the verdict names the skill it would collide with
 out="$(python3 "$DET" --root "$tmp/broken" --json 2>/dev/null)"
-echo "$out" | grep -q '"verdict": "SKILL_DISCOVERY_COLLISION"' \
+grep -q '"verdict": "SKILL_DISCOVERY_COLLISION"' <<<"$out" \
   || fail "JSON verdict missing SKILL_DISCOVERY_COLLISION"
-echo "$out" | grep -q '"skill_name_it_would_claim": "self-review"' \
+grep -q '"skill_name_it_would_claim": "self-review"' <<<"$out" \
   || fail "the verdict must name the skill the fixture would be published as"
 pass=$((pass + 1))
 

@@ -7,7 +7,7 @@ said "22 guidelines" while orchestrate said "15"; more recently every doc said
 "33 reporting guidelines" while only 32 are enumerated and vendored). This makes
 the counts a single source of truth and fails CI on drift.
 
-Four layers:
+Five layers:
   1. Recompute every count from disk (the real ground truth).
   2. Assert metadata/catalog_counts.json matches disk — the SSOT cannot lie.
      Exception: the journal-profile counts (``AUTO_DERIVED_KEYS``) are recomputed
@@ -32,6 +32,8 @@ Four layers:
      size, and its listed names against that family's true membership. Layer 3 already
      watched the "The N detectors fall into six audit families" total; nothing watched
      the rows under it, and they drifted to 72 against a total of 80.
+  5. Assert the counts the translated READMEs restate in their own phrasing (guidelines,
+     skills, detectors against disk; locale packs against the English README's claim).
 
 Exit 0 when everything agrees; non-zero on any drift. Stdlib-only.
 """
@@ -183,6 +185,80 @@ NUM_WORDS = {w: i for i, w in enumerate(
 # without a family-table row fails here instead of silently unbalancing the registry.
 FAMILY_TABLE_FILE = "MEDSCI_AUDIT.md"
 DETECTORS_CATALOG = "metadata/detectors_catalog.json"
+
+# Translated READMEs restate the English counts in their own phrasing, which the English-anchored
+# patterns above never match. Only the shields badge (a URL copied verbatim) was gated, so when the
+# Italian locale pack (#544) moved the English README to "eleven countries" both translations kept
+# "10" — and nothing failed. Each pattern below is anchored to the one phrasing that translation
+# uses for a current-total claim; a new translation adds its own row.
+#
+# The locale-pack count is checked against the ENGLISH README's claim, not against disk. Adding a
+# locale pack is a good-first-issue (#116) contribution, and the AUTO_DERIVED_KEYS rule applies to
+# it: a newcomer's one-file PR must never fail on prose they have no reason to touch. Parity is what
+# drifted; parity is what is asserted. When a maintainer updates the English count, the
+# translations must follow in the same change.
+TRANSLATED_CLAIMS: dict[str, dict[str, list[str]]] = {
+    "README.ko.md": {
+        "reporting_guidelines": [r"(\d{1,2})개 reporting guideline"],
+        "skills": [r"(\d{1,3})개 스킬 전체"],
+        "integrity_detectors": [r"(\d{1,3})개의 deterministic detector"],
+        "locale_packs": [r"(\d{1,2})개국 locale pack"],
+    },
+    "README.zh-CN.md": {
+        "reporting_guidelines": [r"按\s*(\d{1,2})\s*项报告规范"],
+        "skills": [r"全部\s*(\d{1,3})\s*个技能"],
+        "integrity_detectors": [r"(\d{1,3})\s*个确定性检测器"],
+        "locale_packs": [r"含(\d{1,2}|[一二三四五六七八九十]+)个国家的\s*locale"],
+    },
+}
+EN_LOCALE_CLAIM = re.compile(r"locale packs for (\w+) countries", re.IGNORECASE)
+_ZH_DIGITS = {c: i for i, c in enumerate("零一二三四五六七八九")}
+
+
+def _parse_count(tok: str) -> int | None:
+    """An Arabic numeral, an English number word, or a Chinese numeral up to 99 (十一, 二十)."""
+    if tok.isdigit():
+        return int(tok)
+    if tok.lower() in NUM_WORDS:
+        return NUM_WORDS[tok.lower()]
+    if tok and all(c in _ZH_DIGITS or c == "十" for c in tok):
+        if "十" not in tok:
+            return _ZH_DIGITS[tok] if len(tok) == 1 else None
+        tens, _, ones = tok.partition("十")
+        return (_ZH_DIGITS.get(tens, 1) if tens else 1) * 10 + (_ZH_DIGITS.get(ones, 0) if ones else 0)
+    return None
+
+
+def translated_claim_failures() -> list[str]:
+    """One message per translated-README count that disagrees with its source of truth."""
+    out: list[str] = []
+    truth = disk_counts()
+    en = ROOT / "README.md"
+    m = EN_LOCALE_CLAIM.search(en.read_text(encoding="utf-8")) if en.exists() else None
+    if m is not None:
+        truth["locale_packs"] = _parse_count(m.group(1))
+    for rel, claims in TRANSLATED_CLAIMS.items():
+        f = ROOT / rel
+        if not f.exists():
+            continue
+        lines = f.read_text(encoding="utf-8").splitlines()
+        for key, patterns in claims.items():
+            expected = truth.get(key)
+            if expected is None:
+                continue  # no English locale claim to hold the translation to
+            found = False
+            for i, line in enumerate(lines, 1):
+                for p in patterns:
+                    for hit in re.finditer(p, line):
+                        found = True
+                        n = _parse_count(hit.group(1))
+                        if n != expected:
+                            src = "README.md" if key == "locale_packs" else "disk"
+                            out.append(f"{rel} L{i} {key}: claims {hit.group(1)}, {src} says {expected}")
+            if not found:
+                # A reworded sentence must not silently retire its gate.
+                out.append(f"{rel}: no {key} claim matched {patterns} — update TRANSLATED_CLAIMS")
+    return out
 
 
 def family_table_failures() -> list[str]:
@@ -386,6 +462,11 @@ def main() -> int:
 
     # Layer 4 — the MEDSCI_AUDIT family table must match the generated catalog.
     for msg in family_table_failures():
+        print(f"\nFAIL: {msg}", file=sys.stderr)
+        failures += 1
+
+    # Layer 5 — translated READMEs restate the same counts in their own phrasing.
+    for msg in translated_claim_failures():
         print(f"\nFAIL: {msg}", file=sys.stderr)
         failures += 1
 
