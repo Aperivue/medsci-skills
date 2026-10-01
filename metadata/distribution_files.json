@@ -6158,8 +6158,8 @@
     },
     {
       "path": "skills/verify-refs/scripts/verify_refs.py",
-      "size": 67567,
-      "sha256": "bb5130f2273d96c2bf1bf8b201010f8a1fff0b5e6b9f0179fa62e4fe18bea16d"
+      "size": 67988,
+      "sha256": "0652db39858df3d225100cdc7c6ffe8b8f310a119fcf18714cebd439640ae013"
     },
     {
       "path": "skills/verify-refs/skill.yml",

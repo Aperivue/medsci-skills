@@ -845,7 +845,8 @@ def _us_spelling(w: str) -> str:
     w = re.sub(r"(?<=[a-z]{3})is(e|ed|ing|ation)$", r"iz\1", w)
     w = re.sub(r"(?<=[a-z]{2})yse$", "yze", w)
     w = re.sub(r"(?<=[a-z]{3}[aeiou])ll(ed|ing|er)$", r"l\1", w)  # modelled, labelling
-    return re.sub(r"(?<=[a-z]{2}[^aeiou])(t|b)re(d?)$", r"\1er\2", w)  # centre(d), fibre
+    w = re.sub(r"(?<=[a-z]{2})(t|b)red$", r"\1ered", w)  # centred -> centered
+    return re.sub(r"(?<=[a-z]{2})(t|b)re$", r"\1er", w)  # centre, metre, theatre, fibre
 
 
 def _title_words(s: str) -> set | None:
@@ -907,8 +908,10 @@ LINE_TITLE_MIN = 0.8
 
 
 def _non_latin_letters(s: str) -> int:
+    """Letters outside the Latin and Greek scripts (CJK, Hangul, Cyrillic, ...). Greek is common
+    in scientific titles (beta-amyloid), and accented Latin letters (o-slash, sharp s) are Latin."""
     return sum(1 for ch in s if ch.isalpha()
-               and not unicodedata.normalize("NFKD", ch).encode("ascii", "ignore"))
+               and not unicodedata.name(ch, "").startswith(("LATIN", "GREEK")))
 
 
 def resolved_title_in_text(text: str, resolved: list) -> bool | None:
@@ -917,10 +920,11 @@ def resolved_title_in_text(text: str, resolved: list) -> bool | None:
     A line's guessed title is often its author list, so the line itself is searched: True when
     at least LINE_TITLE_MIN of the words of some resolved title (or of its main title before a
     colon) occur in it, False when none does, None when there is nothing to compare: a line
-    holding a title in another script (four or more non-Latin letters), or no resolved title
-    readable as Latin script.
+    holding a letter of another script (its title may be written in it), or no resolved title
+    readable as Latin script. A record title of two or three words that happen to stand in the
+    line's journal name or author list still matches; the check cannot tell them apart.
     """
-    if _non_latin_letters(text) >= 4:
+    if _non_latin_letters(text):
         return None
     text_words = _title_words(text)
     if not text_words:

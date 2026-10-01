@@ -184,6 +184,14 @@ check("journal name supplies the record's title words -> MISMATCH", verify(journ
 stub(crossref(RECORD))
 check("plain-text line with a non-Latin title -> not MISMATCH",
       verify(line("\u5408\u6210\u961f\u5217\u7814\u7a76")).status != "MISMATCH")
+check("plain-text line with a two-character non-Latin title -> not MISMATCH",
+      verify(line("\u80ba\u764c")).status != "MISMATCH")
+stub(crossref("The possibilities of patient-centered medicine in synthetic practice"))
+check("plain-text line spelling -centred -> OK",
+      verify(line("The possibilities of patient-centred medicine in synthetic practice")).status == "OK")
+check("accented Latin and Greek letters in the line are still compared (MISMATCH)",
+      verify(vr.parse_reference_lines("References\n1. S\u00f8rensen A, \u00df B. " + INVENTED
+             + " of \u03b2-amyloid. J Synth. 2021. doi:10.0000/synthetic.0001\n")[0]).status == "MISMATCH")
 # The record's subtitle may be left out of the line.
 stub(crossref(RECORD + ": a multicentre registry of adverse events"))
 check("plain-text line without the record's subtitle -> OK", verify(line(RECORD)).status == "OK")
