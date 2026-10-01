@@ -257,7 +257,8 @@ def analyze(manifest_path: str) -> dict:
                          "there is nothing to check, so no all-clear can be given\n")
         sys.exit(2)
     untyped = [i for i, t in enumerate(transforms)
-               if not isinstance(t, dict) or not _norm(t.get("type"))]
+               if not isinstance(t, dict) or not isinstance(t.get("type"), str)
+               or not t["type"].strip()]
     if untyped:
         sys.stderr.write(f"ERROR: {len(untyped)} of {len(transforms)} transforms are not an object "
                          f"with a type (first: transform {untyped[0]}); a transform without a type "

@@ -110,7 +110,7 @@ EOF
 python3 "$SCRIPT" --manifest "$TMP/nopid.json" --strict > "$TMP/nopid.out" 2>&1
 check "split rows without a patient_id: exit 2" test "$?" -eq 2
 check "split rows without a patient_id: no leakage-safe claim" bash -c "! grep -q 'leakage-safe' '$TMP/nopid.out'"
-for bad in '[{}]' '["normalize"]'; do
+for bad in '[{}]' '["normalize"]' '[{"type": [], "fit_scope": "all", "stage": "before_split"}]' '[{"type": false}]'; do
     printf '{"split_seed": 5, "transforms": %s, "split_assignment": [{"patient_id": "A", "split": "train"}]}\n' "$bad" > "$TMP/untyped.json"
     python3 "$SCRIPT" --manifest "$TMP/untyped.json" --strict >/dev/null 2>&1
     check "transform without a type ($bad): exit 2" test "$?" -eq 2

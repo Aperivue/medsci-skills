@@ -702,9 +702,10 @@ def fingerprint_problem(report: dict, data: list[dict], headers: list[str]) -> s
         if algo != "pbkdf2-sha256" or not 0 < n <= 10 * FINGERPRINT_ITERATIONS:
             raise ValueError(algo)
         current = data_fingerprint(data, headers, bytes.fromhex(salt_hex), n)
-    except ValueError:
+        matches = hmac.compare_digest(current.encode("utf-8"), str(stored).encode("utf-8"))
+    except ValueError:  # includes UnicodeEncodeError (a lone surrogate in the stored value)
         return "the report's data fingerprint is malformed. Scan and review again."
-    if not hmac.compare_digest(current.encode("utf-8"), str(stored).encode("utf-8")):
+    if not matches:
         return ("the input data changed after the scan, so the reviewed decisions do not "
                 "describe it. Scan and review again.")
     return None

@@ -827,9 +827,10 @@ def _title_similarity(a: str, b: str) -> float:
 
 
 # A DOI or PMID that resolves verifies the work it resolves to, not the title cited with it. The
-# cited title is compared with every title the record answers to by overlap coefficient
-# (|A & B| / min(|A|, |B|)), which tolerates a subtitle dropped or added on either side; fewer
-# than half of the shorter title's words in common is a different work.
+# cited title is compared with every title the record answers to: fewer than half of the cited
+# title's words found in any of them is a different work. Measuring the cited side tolerates a
+# cited title that leaves out the record's subtitle, without letting a short title of a related
+# paper match a longer cited one because most of its few words are in it.
 IDENTIFIER_TITLE_MIN = 0.5
 
 
@@ -839,10 +840,12 @@ def _us_spelling(w: str) -> str:
     as a different title."""
     if len(w) > 4 and w.endswith("our"):
         w = w[:-3] + "or"
-    w = w.replace("ae", "e").replace("oe", "e")
+    if len(w) >= 5:  # an acronym (MAE, OE) is not a spelling
+        w = w.replace("ae", "e").replace("oe", "e")
     w = re.sub(r"(?<=[a-z]{3})is(e|ed|ing|ation)$", r"iz\1", w)
     w = re.sub(r"(?<=[a-z]{2})yse$", "yze", w)
-    return re.sub(r"(?<=[a-z]{2}[^aeiou])tre$", "ter", w)
+    w = re.sub(r"(?<=[a-z]{3}[aeiou])ll(ed|ing|er)$", r"l\1", w)  # modelled, labelling
+    return re.sub(r"(?<=[a-z]{2}[^aeiou])(t|b)re(d?)$", r"\1er\2", w)  # centre(d), fibre
 
 
 def _title_words(s: str) -> set | None:
@@ -870,10 +873,16 @@ def _title_words(s: str) -> set | None:
     return words or None
 
 
+def _same_title(a: str, b: str) -> bool:
+    """Near-identical titles (Jaccard >= TITLE_MATCH_MIN): the same title in two records."""
+    wa, wb = _title_words(a), _title_words(b)
+    return bool(wa and wb) and len(wa & wb) / len(wa | wb) >= TITLE_MATCH_MIN
+
+
 def cited_title_agrees(cited: str, resolved: list) -> bool | None:
     """Does the cited title name the record its DOI/PMID resolved to?
 
-    True when any resolved title shares at least IDENTIFIER_TITLE_MIN of the shorter title's
+    True when some resolved title contains at least IDENTIFIER_TITLE_MIN of the cited title's
     words, False when none does, None when there is nothing to compare: no cited title, or no
     title on either side readable as Latin script.
     """
@@ -885,31 +894,46 @@ def cited_title_agrees(cited: str, resolved: list) -> bool | None:
         words = _title_words(title)
         if not words:
             continue
-        if len(cited_words & words) / min(len(cited_words), len(words)) >= IDENTIFIER_TITLE_MIN:
+        if len(cited_words & words) / len(cited_words) >= IDENTIFIER_TITLE_MIN:
             return True
         verdict = False
     return verdict
+
+
+# A reference line also carries author and journal words, which can supply half of a short
+# title by chance ("Cancer research priorities" in a line citing the journal Cancer Research),
+# so a line must contain most of the resolved title, or of its part before a colon.
+LINE_TITLE_MIN = 0.8
+
+
+def _non_latin_letters(s: str) -> int:
+    return sum(1 for ch in s if ch.isalpha()
+               and not unicodedata.normalize("NFKD", ch).encode("ascii", "ignore"))
 
 
 def resolved_title_in_text(text: str, resolved: list) -> bool | None:
     """Is the resolved title written in a plain-text reference line?
 
     A line's guessed title is often its author list, so the line itself is searched: True when
-    at least IDENTIFIER_TITLE_MIN of some resolved title's words occur anywhere in it (author,
-    journal and year words around the title do not count against it), False when none does,
-    None when neither the line nor any resolved title is readable as Latin script.
+    at least LINE_TITLE_MIN of the words of some resolved title (or of its main title before a
+    colon) occur in it, False when none does, None when there is nothing to compare: a line
+    holding a title in another script (four or more non-Latin letters), or no resolved title
+    readable as Latin script.
     """
+    if _non_latin_letters(text) >= 4:
+        return None
     text_words = _title_words(text)
     if not text_words:
         return None
     verdict = None
     for title in resolved:
-        words = _title_words(title)
-        if not words:
-            continue
-        if len(words & text_words) / len(words) >= IDENTIFIER_TITLE_MIN:
-            return True
-        verdict = False
+        for candidate in dict.fromkeys([title, title.split(":")[0]]):
+            words = _title_words(candidate)
+            if not words or (candidate != title and len(words) < 3):
+                continue
+            if len(words & text_words) / len(words) >= LINE_TITLE_MIN:
+                return True
+            verdict = False
     return verdict
 
 
@@ -1210,7 +1234,7 @@ def verify_record(record: RefRecord, offline: bool, timeout: int,
             # in English: when this identifier's title matches the other identifier's record
             # (whose titles include PubMed's VernacularTitle), both name the same work.
             same_work = verdicts.get(other) is True and any(
-                cited_title_agrees(t, resolved_titles[other]) for t in resolved_titles[ident])
+                _same_title(a, b) for a in resolved_titles[ident] for b in resolved_titles[other])
             if agrees is False and not same_work:
                 wrong_ids.append(ident)
     title_mismatch = bool(wrong_ids)

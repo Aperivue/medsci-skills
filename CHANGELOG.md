@@ -26,12 +26,13 @@
 - **`/verify-refs` checks that a DOI or PMID resolves to the work the reference names.** A
   reference whose identifier resolved and whose authors matched was OK whatever title it carried,
   so an invented title on a real DOI passed, and a wrong DOI passed beside a right PMID. Each
-  identifier's record is now compared with the reference: with the BibTeX or TSV title by word
-  overlap, or, for a Markdown, DOCX or text reference list, by finding the record's title in the
-  reference line. Fewer than half the words in common is a MISMATCH. Subtitles, publisher markup,
-  British spelling and a PubMed original-language title do not count as differences; a title in a
-  script other than Latin is not compared. A `booktitle` field listed before `title` was read as
-  the title, and a quoted `title` in the last field was not read; both are fixed.
+  identifier's record is now compared with the reference, and the reference is a MISMATCH unless
+  a BibTeX or TSV title has at least half of its words in the record's title, or a line of a
+  Markdown, DOCX or text reference list contains most of the record's title (or of its part
+  before a colon). Subtitles, publisher markup, British spelling and a PubMed original-language
+  title do not count as differences; a title in a script other than Latin is not compared. A
+  `booktitle` field listed before `title` was read as the title, and a quoted `title` in the last
+  field was not read; both are fixed.
 - **`/deidentify` will not apply a review to data that changed after the scan.** Apply checked
   the decisions and the column names but not the data, so a value put into a kept column after
   the review was written to the output. The scan report now carries a salted PBKDF2 fingerprint

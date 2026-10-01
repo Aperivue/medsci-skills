@@ -374,7 +374,7 @@ fp = lambda rows: d.data_fingerprint(rows, h, salt, 1000)
 assert fp(base) == fp(base + [{'score': '', 'group': ' '}])
 assert fp(base) != fp([{'score': '61', 'group': 'a'}, {'score': '63', 'group': 'b'}])" "$SCRIPT"
 # A malformed fingerprint is refused with a message, not a traceback.
-for fp in 123 '"pbkdf2-sha256$200000$00$\u00e9"' '"md5$1$00$00"'; do
+for fp in 123 '"pbkdf2-sha256$200000$00$\u00e9"' '"pbkdf2-sha256$200000$00$\ud800"' '"md5$1$00$00"'; do
     mkdir -p "$F/bad" && python3 - "$F/reviewed_report.json" "$F/bad/reviewed_report.json" "$fp" <<'PY2'
 import json, sys
 r = json.load(open(sys.argv[1])); r["data_fingerprint"] = json.loads(sys.argv[3]); json.dump(r, open(sys.argv[2], "w"))

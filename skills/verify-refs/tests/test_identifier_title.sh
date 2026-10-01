@@ -4,7 +4,7 @@
 # A reference whose DOI (or PMID) resolved and whose authors agreed came out OK without the cited
 # title ever being compared with the record the identifier resolves to, so an invented title on a
 # real DOI was "verified". The resolved title(s) are now compared with the cited title, and the
-# reference is a MISMATCH when they share fewer than half of the shorter title's words.
+# reference is a MISMATCH when fewer than half of the cited title's words are in any of them.
 #
 # The comparison must not cost a clean reference its OK: a subtitle CrossRef keeps in a separate
 # field, a cited title that drops the record's subtitle, publisher markup (<i>) against BibTeX
@@ -103,6 +103,12 @@ check("British spelling and a plural -> OK",
 stub(crossref("Pediatric hematology: color Doppler of randomized tumors"))
 check("British spelling in nearly every word -> OK",
       verify(bib("Paediatric haematology: colour Doppler of randomised tumours")).status == "OK")
+stub(crossref("Patient-centered modeling of synthetic fiber intake"))
+check("-centred, -modelling, fibre -> OK",
+      verify(bib("Patient-centred modelling of synthetic fibre intake")).status == "OK")
+stub(crossref("ME of synthetic predictors"))
+check("an acronym is not a spelling (MAE vs ME) -> MISMATCH",
+      verify(bib("MAE of synthetic estimators")).status == "MISMATCH")
 stub(crossref(RECORD))
 check("two-word invented title on a resolving DOI -> MISMATCH",
       verify(bib("Renal failure")).status == "MISMATCH")
@@ -140,6 +146,10 @@ out = verify(both)
 check("right PMID, DOI of another work -> MISMATCH naming the DOI",
       out.status == "MISMATCH" and "DOI" in out.note)
 
+# A DOI of another work is not excused because its title shares words with the PMID's title.
+stub(crossref("Contrast reactions in outpatient imaging"),
+     efetch_xml=EFETCH.format(t=RECORD, v=VERNACULAR), esummary_title=RECORD)
+check("DOI of a related but different work -> MISMATCH", verify(both).status == "MISMATCH")
 # ...but a DOI whose CrossRef record holds only the original-language title is the same work.
 stub(crossref(VERNACULAR), efetch_xml=EFETCH.format(t=RECORD, v=VERNACULAR), esummary_title=RECORD)
 check("PMID English title, DOI original-language title -> OK", verify(both).status == "OK")
@@ -165,6 +175,18 @@ stub(crossref(RECORD))
 check("plain-text reference with the record's title -> OK", verify(line(RECORD)).status == "OK")
 check("plain-text reference with an invented title -> MISMATCH",
       verify(line(INVENTED)).status == "MISMATCH")
+# Author and journal words in the line must not stand in for the title.
+stub(crossref("Cancer research priorities"))
+journal_line = vr.parse_reference_lines(
+    "References\n1. Alpha A, Beta B. Renal failure. Cancer Research. 2021. doi:10.0000/synthetic.0001\n")[0]
+check("journal name supplies the record's title words -> MISMATCH", verify(journal_line).status == "MISMATCH")
+# A line whose title is in another script is not compared (its Latin words are authors/journal).
+stub(crossref(RECORD))
+check("plain-text line with a non-Latin title -> not MISMATCH",
+      verify(line("\u5408\u6210\u961f\u5217\u7814\u7a76")).status != "MISMATCH")
+# The record's subtitle may be left out of the line.
+stub(crossref(RECORD + ": a multicentre registry of adverse events"))
+check("plain-text line without the record's subtitle -> OK", verify(line(RECORD)).status == "OK")
 
 sys.exit(1 if fail else 0)
 PY
