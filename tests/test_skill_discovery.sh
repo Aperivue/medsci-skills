@@ -83,7 +83,7 @@ echo "$out" | grep -q '"skill_name_it_would_claim": "self-review"' \
 pass=$((pass + 1))
 
 # ----------------------------------------- the message must teach the fix, not just the failure
-python3 "$DET" --root "$tmp/broken" 2>/dev/null | grep -qi "rename" \
+python3 "$DET" --root "$tmp/broken" 2>/dev/null | grep -i "rename" >/dev/null \
   || fail "the message must tell the contributor to rename the directory, not delete the fixture"
 pass=$((pass + 1))
 

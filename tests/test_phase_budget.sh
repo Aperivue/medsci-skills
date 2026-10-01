@@ -67,7 +67,7 @@ REAL="$ROOT/tests/fixtures/phase_budget/real_defect"
 if python3 "$DET" --skills-dir "$REAL" --strict >/dev/null 2>&1; then
   fail "REGRESSION: the real 209-line self-review Phase 2 did NOT fail the gate"
 fi
-python3 "$DET" --skills-dir "$REAL" --json 2>/dev/null | grep -q '"body_lines": 209' \
+python3 "$DET" --skills-dir "$REAL" --json 2>/dev/null | grep '"body_lines": 209' >/dev/null \
   || fail "REGRESSION: the real defect was not measured at its true 209 lines"
 pass=$((pass + 1))
 
@@ -115,7 +115,7 @@ if python3 "$DET" --skills-dir "$tmp/fence/skills" --max-lines 120 --strict >/de
   fail "FENCE: a 200-line phase hid behind a '## ...' inside a code fence (fence-blind parsing)"
 fi
 python3 "$DET" --skills-dir "$tmp/fence/skills" --max-lines 120 --json 2>/dev/null \
-  | grep -q '"section": "Phase 9: Long"' \
+  | grep '"section": "Phase 9: Long"' >/dev/null \
   || fail "FENCE: the section was not measured as one whole body"
 pass=$((pass + 1))
 

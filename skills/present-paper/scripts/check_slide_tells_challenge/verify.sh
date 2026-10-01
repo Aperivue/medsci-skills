@@ -46,7 +46,7 @@ else
 fi
 
 # --- the human-made deck: nothing may fire ------------------------------------------------------
-if python3 "$DET" "$FIX/clean.pptx" | grep -q '^OK:'; then
+if python3 "$DET" "$FIX/clean.pptx" | grep '^OK:' >/dev/null; then
   echo "PASS  clean.pptx -> no false positives"
 else
   echo "FAIL  clean.pptx -> the detector fired on a well-made deck (this is how a checker dies)"

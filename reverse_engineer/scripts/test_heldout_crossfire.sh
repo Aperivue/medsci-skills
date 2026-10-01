@@ -105,7 +105,7 @@ with open(sys.argv[2], "w", newline="") as fh:
     w.writeheader(); w.writerows(rows)
 PY
 python3 "$RUNNER" --corpus "$TMP/corpus" --manifest "$TMP/manifest.json" --only "$DET" \
-    --dispositions "$TMP/disp.csv" 2>&1 | grep -q "FALSE-POSITIVE RATE: 0.500" \
+    --dispositions "$TMP/disp.csv" 2>&1 | grep "FALSE-POSITIVE RATE: 0.500" >/dev/null \
   || fail "finding-level dispositions did not yield the expected half-spurious rate"
 
 echo "== 2b. a pair-level label file (no code column) still labels every finding =="
@@ -123,13 +123,13 @@ with open(sys.argv[2], "w", newline="") as fh:
     w.writeheader(); w.writerows(out)
 PY
 python3 "$RUNNER" --corpus "$TMP/corpus" --manifest "$TMP/manifest.json" --only "$DET" \
-    --dispositions "$TMP/disp_pairlevel.csv" 2>&1 | grep -q "coverage 100%" \
+    --dispositions "$TMP/disp_pairlevel.csv" 2>&1 | grep "coverage 100%" >/dev/null \
   || fail "a pre-findings (pair-level) label file no longer covers the findings it labelled"
 
 echo "== 3. an unbacked paper is excluded, not silently measured =="
 cp "$TMP/corpus/alpha_2024_ct.md" "$TMP/corpus/gamma_undeclared.md"
 python3 "$RUNNER" --corpus "$TMP/corpus" --manifest "$TMP/manifest.json" --only "$DET" 2>&1 \
-  | grep -q "EXCLUDED (no heldout manifest record): gamma_undeclared.md" \
+  | grep "EXCLUDED (no heldout manifest record): gamma_undeclared.md" >/dev/null \
   || fail "a paper with no heldout manifest record was not excluded and named"
 rm "$TMP/corpus/gamma_undeclared.md"
 

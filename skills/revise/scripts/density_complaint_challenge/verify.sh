@@ -29,7 +29,7 @@ ck "point-by-point revision got longer -> UNADDRESSED" 1 "$?"
 
 # ...and it must NAME the verdict, not merely exit nonzero
 python3 "$DET" --comments "$FIX/decision_letter.md" --previous "$FIX/v_prev.md" \
-  --revised "$FIX/v20_longer.md" 2>&1 | grep -q "DENSITY_COMPLAINT_UNADDRESSED" \
+  --revised "$FIX/v20_longer.md" 2>&1 | grep "DENSITY_COMPLAINT_UNADDRESSED" >/dev/null \
   && ck "the verdict token is printed" 0 0 || ck "the verdict token is printed" 0 1
 
 # 2) the revision that actually CUT -> silent
