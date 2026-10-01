@@ -4213,8 +4213,8 @@
     },
     {
       "path": "skills/present-paper/references/critic_rubrics/slide.md",
-      "size": 9883,
-      "sha256": "4c90c7cc2001cccfb48c4d00588a36b17d761d53005eaeb1f73320a2832d284d"
+      "size": 9892,
+      "sha256": "4c84caadb42f64a6607a3084fb6e27b1d3528a9e52ae48d6dc0c84fe91132718"
     },
     {
       "path": "skills/present-paper/references/generate_pptx_templates.py",
@@ -4223,13 +4223,13 @@
     },
     {
       "path": "skills/present-paper/references/generated_illustrations.md",
-      "size": 6364,
-      "sha256": "11c9a1db8b8d335e08bef14c6b1c098ca50bc8746556c69f784ed6be582c50f5"
+      "size": 6373,
+      "sha256": "f6a711d6be81f33ca18e822c4b8a0d084f32db3f3048c5326073622d9c1a79cc"
     },
     {
       "path": "skills/present-paper/references/medical_presentation_templates.md",
-      "size": 15007,
-      "sha256": "d0f964af7523ec8bfef50ca627878f8c2cfe58159c2a827c5f7dfd43585cf9ee"
+      "size": 15016,
+      "sha256": "1d1f38f182e4f7770dd5c1db52d7d510da77ab2f25fa6e25209ce1e887f64f43"
     },
     {
       "path": "skills/present-paper/references/presentation_archetypes.md",
@@ -4238,13 +4238,13 @@
     },
     {
       "path": "skills/present-paper/references/presentation_design_guidelines.md",
-      "size": 7460,
-      "sha256": "689d021ff7fc5e04abf93f3d6e1b0646bb5aa86430239b76b51d2224b3b92f0c"
+      "size": 7427,
+      "sha256": "18055a84d53dad3cdefb2bfc383f34800719f542b66782794ac755fb5717fb91"
     },
     {
       "path": "skills/present-paper/references/slide_design_principles.md",
-      "size": 10657,
-      "sha256": "bb65031fa2acf592b59dd3847ad3353fb8fd15a95a132449426054304c22a7c4"
+      "size": 10689,
+      "sha256": "b5bb5866e79ad262e4cf28a32e1079e26ea20742edcdd55148df9c9547ee3ad6"
     },
     {
       "path": "skills/present-paper/references/slide_visual_styles/CATALOG.md",
@@ -6468,8 +6468,8 @@
     },
     {
       "path": "skills/write-paper/references/journal_profiles/JKMS.md",
-      "size": 11414,
-      "sha256": "7761d5b40a01cd1aa2b82a49afa19620df01cd20ce78b09eab237f893427cf59"
+      "size": 11442,
+      "sha256": "bd4fb2f56caf9d6b9a4ad2afb9bd30b7dd50a3e7889689039202a726e499351a"
     },
     {
       "path": "skills/write-paper/references/journal_profiles/JMIR.md",

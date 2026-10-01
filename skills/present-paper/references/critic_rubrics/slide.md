@@ -110,7 +110,7 @@ Run this once on the final deck before sending to a Mac viewer:
     move full bibliography to a handout or supplementary.
 35. **AI-image policy verified** — if any visual abstract / Central Illustration is
     AI-generated, the target audience/journal AI policy is checked
-    (`~/.claude/rules/journal-ai-image-policies.md`). JACC family prohibits without EIC
+    (`make-figures/SKILL.md` → *Journal AI-Image Policies*). JACC family prohibits without EIC
     permission; Radiology family allows with disclosure.
 
 ## I. Q&A readiness (Phase 4 cross-check)

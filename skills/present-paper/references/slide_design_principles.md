@@ -165,7 +165,7 @@ These compose with the more granular checks in `critic_rubrics/slide.md`:
 - **Logo-tax** — institutional logos on every slide masking content. Fix: title slide and
   closing slide only; corner-only on intermediate slides if mandated.
 - **AI-image without disclosure** — AI-generated illustration on a slide destined for a
-  journal that prohibits AI imagery. Fix: see `journal-ai-image-policies` rule before
+  journal that prohibits AI imagery. Fix: see `make-figures/SKILL.md` → *Journal AI-Image Policies* before
   building visual abstract / Central Illustration.
 
 ---
@@ -198,7 +198,7 @@ If two or more boxes are unchecked, return to Phase 0 outline before continuing.
 - `make-figures/references/design_principles.md` — figure-level design (this skill is the
   slide-level companion; both share Reynolds/Knaflic/Tufte foundations)
 - `~/.claude/rules/pptx-mac-compatibility.md` — TIFF, sp3d, app.xml, srcRect defects
-- `~/.claude/rules/journal-ai-image-policies.md` — AI-image policy (JACC prohibits, Radiology
+- `make-figures/SKILL.md` → *Journal AI-Image Policies* — AI-image policy (JACC prohibits, Radiology
   allows with disclosure)
 - `~/.claude/rules/manuscript-style-classical.md` — heading style for slides paired with
   manuscript submission

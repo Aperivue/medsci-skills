@@ -190,7 +190,7 @@ End-to-end submission mechanics — use as the JKMS submission checklist.
 
 **Graphical Abstract (required for Original Articles):**
 - JKMS provides **no fixed template**; after acceptance an external illustrator re-styles it (fee in APC). Submit a clear **draft** (PPT, separated objects) — illustrator edits faster when figure/conclusion/numbers are placed explicitly.
-- Build non-AI (matplotlib + Servier/BioArt) per `journal-ai-image-policies`. 4-block layout (Purpose/Methods/Results/Conclusions) works well. python-pptx + Mac-compat (`app.xml` sync, no TIFF).
+- Build non-AI (matplotlib + Servier/BioArt) per `make-figures/SKILL.md` → *Journal AI-Image Policies*. 4-block layout (Purpose/Methods/Results/Conclusions) works well. python-pptx + Mac-compat (`app.xml` sync, no TIFF).
 
 **Portal declaration answers (typical observational study):**
 - Article type Original Article · the numbered subspecialty leaf for your topic · IRB Yes + approval# + consent-waiver text · COI per ICMJE · AI use Yes→Proofreading (**must match manuscript AI disclosure** — never tick Statistics/Analysis if disclosure says otherwise) · Professional English proofreading No (unless paid service) · Suggested reviewers optional.

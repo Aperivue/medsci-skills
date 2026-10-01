@@ -83,7 +83,7 @@ Phase 3.5 slide critic scores against them.
   SSOT). Run `/verify-refs` before delivery for any cited reference.
 - Re-use of a published figure in slides is generally acceptable for scholarly critique
   **with on-slide attribution**; do not carry a lifted figure into the manuscript
-  without permission (`~/.claude/rules/journal-ai-image-policies.md`).
+  without the publisher's permission.
 
 ## 8. Delivery-facing rules (carried by other skill assets)
 

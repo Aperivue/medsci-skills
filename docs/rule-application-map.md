@@ -19,7 +19,7 @@
 | `data-integrity.md` | `/analyze-stats`, `/clean-data`, `/define-variables` Tier 0, `/meta-analysis` extraction phases | ENFORCED |
 | `dictionary-first.md` | `/define-variables` Tier 0 (data-dictionary citation), `/replicate-study`, `/cross-national` | ENFORCED for DB-backed observational research |
 | `pptx-mac-compatibility.md` | `/present-paper` Phase 3 Mode A (PPTX generation/edit) | ENFORCED |
-| `journal-ai-image-policies.md` | `/make-figures` (figure generation entry); also `/write-paper` cover-letter-time AI disclosure | ENFORCED for JACC family / NEJM (default to non-AI assets) |
+| ~~`journal-ai-image-policies.md`~~ (rule removed; the policy table now lives in `skills/make-figures/SKILL.md` → *Journal AI-Image Policies*) | `/make-figures` (figure generation entry); also `/write-paper` cover-letter-time AI disclosure | ENFORCED for JACC family / NEJM (default to non-AI assets) |
 | `zotero-workflow.md` | `/lit-sync` setup + ongoing, `/manage-refs` Workflow B (CWYW) | ENFORCED for projects using Zotero |
 | `manuscript-references.md` (Phase 1↔2↔3 transition) | `/manage-refs` decision tree (Workflow A vs B); orchestrate node N10 | ENFORCED at circulation entry |
 | `agent-skill-routing.md` | `/orchestrate` routing classification | ENFORCED (drift between routing table + this rule = bug) |
