@@ -259,14 +259,17 @@ expert-elicitation studies, clinical-utility framing, abstracts and figure capti
 1. **Pick an anchored contrast on the exposure**, not a 1-unit step. Default: 25th to 75th
    percentile (IQR), both endpoints in native units.
 2. **Translate to the outcome scale.**
-   - Rank/standardized association (Spearman's rho or a per-SD slope), under an approximately
-     monotonic-linear assumption:
-     `delta_outcome ~= ((x_p75 - x_p25) / SD_x) * |rho| * SD_outcome`. Report as: "going from
-     {x_p25} to {x_p75} {units} is associated with about {delta_outcome} {outcome units} on
-     average."
-   - Regression slope b: `delta_outcome = b * (x_p75 - x_p25)` (no monotonicity caveat).
-   - State the assumption; the IQR translation is a more defensible verbal guide than an
-     SD-scaled one.
+   - Regression slope b in native units: `delta_outcome = b * (x_p75 - x_p25)`. Keep the sign:
+     a negative b is a decrease.
+   - Per-SD slope (exposure standardized): `delta_outcome = beta * (x_p75 - x_p25) / SD_x`; a
+     fully standardized beta is also multiplied by SD_outcome.
+   - A correlation is not a slope. Pearson r converts to the simple regression slope of the same
+     data (`b = r * SD_outcome / SD_x`), which is the mean change per unit only if the relation is
+     linear; Spearman's rho converts to no change in outcome units. Fit the outcome on the
+     exposure and translate that slope (Theil-Sen if outliers are why Spearman was used); for a
+     monotonic but curved association, report the fitted outcome at x_p25 and at x_p75 instead.
+   - Report as: "going from {x_p25} to {x_p75} {units} is associated with about {delta_outcome}
+     {outcome units} on average", and state the linearity assumption behind it.
 3. **Bound the claim**: report the contrast, the assumption and a CI on the coefficient; do not
    imply causation from a crude or unadjusted estimate.
 

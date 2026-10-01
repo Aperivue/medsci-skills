@@ -43,10 +43,13 @@ needs **python-docx** — and installs the small things on request. Large things
 R, PyTorch) are never installed for you: it prints the size and the command and leaves the choice
 alone.
 
-**R is not required.** `/analyze-stats` writes Python by default and only emits R if you ask it to;
-the toolkit itself never executes R. Install R (with `meta`, `metafor`, `mada` for meta-analysis)
-only if you want to run the R code it writes for you. The same is true of PyTorch and
-`/model-scaffold`: writing the training code needs nothing; running it needs torch.
+**Some skills run R.** `/calc-sample-size` runs its R code to get the N it reports,
+`/meta-analysis` (`meta`, `metafor`, `mada`) and `/cross-national` run their analyses in R,
+`/make-figures` draws flow diagrams in R (DiagrammeR), and `/batch-cohort` and `/replicate-study`
+run R when their analysis template is an R script. `/analyze-stats` runs its analysis in Python
+by default; the R code it writes beside it (`gtsummary` tables, a survey-design cross-check) needs
+R only when you run it. PyTorch is similar for `/model-scaffold`: writing the training code needs
+nothing; running it needs torch.
 
 ## npm / npx (recommended)
 
@@ -151,7 +154,7 @@ when you update. To stay on a release instead, add the marketplace with its tag 
 plugins as above:
 
 ```text
-/plugin marketplace add Aperivue/medsci-skills@v6.0.0
+/plugin marketplace add Aperivue/medsci-skills@v6.0.1
 ```
 
 To move to a later release, remove the marketplace (`/plugin marketplace remove medsci-skills`, which
@@ -246,10 +249,10 @@ latest:
 
 | Channel | Command |
 |---|---|
-| npx | `npx medsci-skills@6.0.0 install` |
-| Claude Code plugin | `/plugin marketplace add Aperivue/medsci-skills@v6.0.0` (see [Staying on one release](#claude-code-plugin-marketplace)) |
-| GitHub CLI | `gh skill install Aperivue/medsci-skills --all --pin v6.0.0 --agent claude-code --scope user` |
-| git | `git clone --branch v6.0.0 https://github.com/Aperivue/medsci-skills.git`, then `python3 medsci-skills/installers/install.py` |
+| npx | `npx medsci-skills@6.0.1 install` |
+| Claude Code plugin | `/plugin marketplace add Aperivue/medsci-skills@v6.0.1` (see [Staying on one release](#claude-code-plugin-marketplace)) |
+| GitHub CLI | `gh skill install Aperivue/medsci-skills --all --pin v6.0.1 --agent claude-code --scope user` |
+| git | `git clone --branch v6.0.1 https://github.com/Aperivue/medsci-skills.git`, then `python3 medsci-skills/installers/install.py` |
 | Classroom ZIP | download the ZIP attached to that [release](https://github.com/Aperivue/medsci-skills/releases) instead of the latest one |
 
 The one-click updater and `npx medsci-skills@latest install` move you to the newest version, so skip

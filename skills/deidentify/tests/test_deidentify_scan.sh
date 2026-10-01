@@ -323,11 +323,84 @@ PY
 python3 "$SCRIPT" apply "$V/nokey/reviewed_report.json" >/dev/null 2>&1
 check "dates without a patient key: apply refuses" test "$?" -ne 0
 check "dates without a patient key: nothing written" no_deid_output "$V/nokey"
-mkdir -p "$V/blank" && cp "$V/reviewed_report.json" "$V/blank/"
-sed -i.bak 's/^10000002,/,/' "$V/v.csv"
-python3 "$SCRIPT" apply "$V/blank/reviewed_report.json" >/dev/null 2>&1
+mkdir -p "$V/blank" && sed 's/^10000002,/,/' "$V/v.csv" > "$V/blank/v.csv"
+python3 "$SCRIPT" scan "$V/blank/v.csv" --locale us -o "$V/blank" >/dev/null 2>&1
+review_with "$V/blank/scan_report.json" "" "" "" "" "" 1
+python3 "$SCRIPT" apply "$V/blank/reviewed_report.json" > "$V/blank/apply.out" 2>&1
 check "blank patient key on a dated row: apply refuses" test "$?" -ne 0
+check "blank patient key on a dated row: refused for the blank key" \
+    grep -q "no value in the patient key column" "$V/blank/apply.out"
 check "blank patient key on a dated row: nothing written" no_deid_output "$V/blank"
+
+# --- A review describes the data it was shown; changed data is not applied ---
+# A reviewed report was applied to whatever the file held by then: a value put into a kept
+# column after the review (an e-mail address in a numeric column) went into the output, because
+# apply checked decisions and column names but not the data. The report now carries a salted,
+# slow fingerprint of the table, and review and apply both refuse a table that no longer matches.
+F="$OUTDIR/fingerprint"; mkdir -p "$F"
+printf 'score,group\n61,a\n62,b\n63,a\n' > "$F/f.csv"
+cp "$F/f.csv" "$F/f.orig"
+python3 "$SCRIPT" scan "$F/f.csv" --locale us -o "$F" >/dev/null 2>&1
+review_with "$F/scan_report.json" "" "" ""
+check "fingerprint: reviewed report written" test -s "$F/reviewed_report.json"
+printf 'score,group\n61,a\nsynthetic.person@example.org,b\n63,a\n' > "$F/f.csv"
+python3 "$SCRIPT" apply "$F/reviewed_report.json" > "$F/apply.out" 2>&1
+check "data changed after review: apply refuses" test "$?" -ne 0
+check "data changed after review: nothing written" no_deid_output "$F"
+check "data changed after review: message names the cause, not the value" python3 -c "
+import sys
+out = open(sys.argv[1]).read()
+assert 'changed after the scan' in out and 'synthetic.person' not in out, out" "$F/apply.out"
+cp "$F/f.orig" "$F/f.csv"
+python3 "$SCRIPT" apply "$F/reviewed_report.json" >/dev/null 2>&1
+check "unchanged data: apply runs (exit 0, control)" test "$?" -eq 0
+rm -f "$F"/*_deidentified* "$F/mapping.json" "$F/audit_log.csv"
+# A report from a version that recorded no fingerprint cannot show what it reviewed.
+mkdir -p "$F/legacy" && python3 - "$F/reviewed_report.json" "$F/legacy/reviewed_report.json" <<'PY2'
+import json, sys
+r = json.load(open(sys.argv[1])); r.pop("data_fingerprint", None); json.dump(r, open(sys.argv[2], "w"))
+PY2
+python3 "$SCRIPT" apply "$F/legacy/reviewed_report.json" >/dev/null 2>&1
+check "report without a fingerprint: apply refuses" test "$?" -ne 0
+check "report without a fingerprint: nothing written" no_deid_output "$F/legacy"
+# A spreadsheet's trailing blank rows hold nothing to review; a changed cell does.
+check "fingerprint: a blank row does not change it, a changed cell does" python3 -c "
+import importlib.util, sys
+spec = importlib.util.spec_from_file_location('d', sys.argv[1]); d = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(d)
+salt, h = b'0' * 16, ['score', 'group']
+base = [{'score': '61', 'group': 'a'}, {'score': '62', 'group': 'b'}]
+fp = lambda rows: d.data_fingerprint(rows, h, salt, 1000)
+assert fp(base) == fp(base + [{'score': '', 'group': ' '}])
+assert fp(base) != fp([{'score': '61', 'group': 'a'}, {'score': '63', 'group': 'b'}])" "$SCRIPT"
+# A malformed fingerprint is refused with a message, not a traceback.
+for fp in 123 '"pbkdf2-sha256$200000$00$\u00e9"' '"md5$1$00$00"'; do
+    mkdir -p "$F/bad" && python3 - "$F/reviewed_report.json" "$F/bad/reviewed_report.json" "$fp" <<'PY2'
+import json, sys
+r = json.load(open(sys.argv[1])); r["data_fingerprint"] = json.loads(sys.argv[3]); json.dump(r, open(sys.argv[2], "w"))
+PY2
+    python3 "$SCRIPT" apply "$F/bad/reviewed_report.json" > "$F/bad/apply.out" 2>&1
+    check "malformed fingerprint ($fp): refused without a traceback" \
+        bash -c "! grep -q Traceback '$F/bad/apply.out' && grep -q 'Not applied' '$F/bad/apply.out'"
+done
+# Data changed between scan and review: the review would show values the scan never classified.
+mkdir -p "$F/rev" && printf 'score\n61\n62\n' > "$F/rev/r.csv"
+python3 "$SCRIPT" scan "$F/rev/r.csv" --locale us -o "$F/rev" >/dev/null 2>&1
+printf 'score\n61\nsynthetic.person@example.org\n' > "$F/rev/r.csv"
+review_with "$F/rev/scan_report.json" "" ""
+check "data changed before review: review refuses" test ! -e "$F/rev/reviewed_report.json"
+# The fingerprint must not expose a low-entropy table: no plain SHA-256 of it is in the report.
+mkdir -p "$F/one" && printf 'mrn\n10000001\n' > "$F/one/o.csv"
+python3 "$SCRIPT" scan "$F/one/o.csv" --locale us -o "$F/one" >/dev/null 2>&1
+check "fingerprint: scan report carries one" python3 -c "
+import json, sys
+assert json.load(open(sys.argv[1])).get('data_fingerprint', '').startswith('pbkdf2-sha256\$')" \
+    "$F/one/scan_report.json"
+check "fingerprint: no plain SHA-256 of the cell or the file in the report" python3 -c "
+import hashlib, sys
+rep = open(sys.argv[1]).read()
+for v in (b'10000001', open(sys.argv[2], 'rb').read()):
+    assert hashlib.sha256(v).hexdigest() not in rep" "$F/one/scan_report.json" "$F/one/o.csv"
 
 # --- An address matching the detector is never SAFE, however rare ---
 python3 - "$OUTDIR/addr_kr.csv" "$OUTDIR/addr_us.csv" <<'PY'

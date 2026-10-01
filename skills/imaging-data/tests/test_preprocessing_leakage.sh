@@ -96,7 +96,45 @@ check "resample to a declared fixed spacing does NOT fire PREPROCESS_BEFORE_SPLI
 python3 "$SCRIPT" --manifest "$TMP/resample_fixed.json" --strict --quiet >/dev/null 2>&1
 check "exit 0 on fixed-spacing resample" test "$?" -eq 0
 
-# (7) the shipped challenge card passes
+# (7) a manifest that gives the gate nothing to check is an input error, never "leakage-safe".
+# An empty manifest used to print "OK: preprocessing manifest is leakage-safe." and exit 0
+# under --strict; split rows without a patient_id were skipped the same way.
+echo '{}' > "$TMP/empty.json"
+python3 "$SCRIPT" --manifest "$TMP/empty.json" --strict > "$TMP/empty.out" 2>&1
+check "empty manifest: exit 2 under --strict" test "$?" -eq 2
+check "empty manifest: no leakage-safe claim" bash -c "! grep -q 'leakage-safe' '$TMP/empty.out'"
+cat > "$TMP/nopid.json" <<'EOF'
+{"split_seed": 5,
+ "split_assignment": [{"unit_id": "u1", "split": "train"}, {"unit_id": "u2", "split": "test"}]}
+EOF
+python3 "$SCRIPT" --manifest "$TMP/nopid.json" --strict > "$TMP/nopid.out" 2>&1
+check "split rows without a patient_id: exit 2" test "$?" -eq 2
+check "split rows without a patient_id: no leakage-safe claim" bash -c "! grep -q 'leakage-safe' '$TMP/nopid.out'"
+for bad in '[{}]' '["normalize"]'; do
+    printf '{"split_seed": 5, "transforms": %s, "split_assignment": [{"patient_id": "A", "split": "train"}]}\n' "$bad" > "$TMP/untyped.json"
+    python3 "$SCRIPT" --manifest "$TMP/untyped.json" --strict >/dev/null 2>&1
+    check "transform without a type ($bad): exit 2" test "$?" -eq 2
+done
+printf '{"split_seed": 5, "split_assignment": [{"patient_id": " ", "split": "train"}, {"patient_id": "B", "split": "test"}]}\n' > "$TMP/blankpid.json"
+python3 "$SCRIPT" --manifest "$TMP/blankpid.json" --strict >/dev/null 2>&1
+check "blank patient_id: exit 2" test "$?" -eq 2
+# A numeric patient_id 0 is an ID: it was dropped as falsy, so its cross-split went unseen.
+cat > "$TMP/zero.json" <<'EOF'
+{"split_seed": 5,
+ "split_assignment": [{"patient_id": 0, "split": "train"}, {"patient_id": 0, "split": "test"}]}
+EOF
+python3 "$SCRIPT" --manifest "$TMP/zero.json" --out "$OUT" --quiet >/dev/null 2>&1
+check "patient_id 0 in two splits fires PATIENT_CROSS_SPLIT" has_verdict PATIENT_CROSS_SPLIT
+# Transforms only: the transforms were checked, the patients were not, and the output says so.
+cat > "$TMP/transforms_only.json" <<'EOF'
+{"transforms": [{"name": "z", "type": "standardize", "fit_scope": "train", "stage": "after_split"}]}
+EOF
+python3 "$SCRIPT" --manifest "$TMP/transforms_only.json" --strict > "$TMP/tonly.out" 2>&1
+check "transforms only: exit 0 (nothing found in what was checked)" test "$?" -eq 0
+check "transforms only: says patient overlap was not checked" grep -q 'not checked' "$TMP/tonly.out"
+check "transforms only: no leakage-safe claim" bash -c "! grep -q 'leakage-safe' '$TMP/tonly.out'"
+
+# (8) the shipped challenge card passes
 check "challenge verify.sh passes" bash "$CH/verify.sh"
 
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"

@@ -81,7 +81,8 @@ python3 ${CLAUDE_SKILL_DIR}/deidentify.py scan data.xlsx --locale kr --output-di
 # Step 2: Review (interactive)
 python3 ${CLAUDE_SKILL_DIR}/deidentify.py review ./deidentified/scan_report.json
 
-# Step 3: Apply (refuses a report that was not reviewed, or has a column without a decision)
+# Step 3: Apply (refuses a report that was not reviewed, has a column without a decision,
+# or was made from data that has changed since: edit the file, then scan and review again)
 python3 ${CLAUDE_SKILL_DIR}/deidentify.py apply ./deidentified/reviewed_report.json
 ```
 

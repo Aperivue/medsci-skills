@@ -198,8 +198,8 @@
     },
     {
       "path": "skills/analyze-stats/SKILL.md",
-      "size": 26973,
-      "sha256": "4e2a60a6aebffe8f221a22fd21c242395a4f4a57d9d112c65b900740dadb9265"
+      "size": 27386,
+      "sha256": "9df48549e9b807287def826cb30202cca0a31d713f366c16350c0756efc38577"
     },
     {
       "path": "skills/analyze-stats/references/analysis_guides/agreement_reliability.md",
@@ -1053,13 +1053,13 @@
     },
     {
       "path": "skills/deidentify/SKILL.md",
-      "size": 12803,
-      "sha256": "11bdf7ea91bfea3cc65607f19fff65dc36cc4a9f19c26442d07403a718f8c343"
+      "size": 12891,
+      "sha256": "f84201b9adcc65c306a1fdafa317b109b13e6e0a56a1c8f380cda15f76cfeb7e"
     },
     {
       "path": "skills/deidentify/deidentify.py",
-      "size": 56556,
-      "sha256": "815e3158d21abfad7276ccdceeae8af520904749aa41e4da62ccf26fc8b0bf1f"
+      "size": 59464,
+      "sha256": "d947252603ef71f62155f0a6eb27c4d76258fb2db4f754e61acecf6c424c6928"
     },
     {
       "path": "skills/deidentify/locales/_template.json",
@@ -2028,8 +2028,8 @@
     },
     {
       "path": "skills/imaging-data/scripts/check_preprocessing_leakage.py",
-      "size": 14108,
-      "sha256": "007a63dbf526011ae850f01ff718a52b8f5e3e078a440acd4dcdd8ea84e5a373"
+      "size": 16149,
+      "sha256": "7d112d69b6cc4dc78d4e1f9df84eb2b87902a90542ac87a147d340387346e33f"
     },
     {
       "path": "skills/imaging-data/scripts/check_preprocessing_leakage_challenge/expected/clean.txt",
@@ -6158,8 +6158,8 @@
     },
     {
       "path": "skills/verify-refs/scripts/verify_refs.py",
-      "size": 57787,
-      "sha256": "8a72451e8bbdae6ff98e3a4af6806f574aadb56af75c8394faabe7ae1b05ccfc"
+      "size": 66332,
+      "sha256": "e9961fc9a9d7f09508e60c9b355cfef37835cca314c4da2fab9f0b608b2da9a3"
     },
     {
       "path": "skills/verify-refs/skill.yml",
