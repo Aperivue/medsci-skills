@@ -70,6 +70,12 @@ OUTPUT
      claims[{verdict, severity, detail, where}], summary}
   PREPROCESS_BEFORE_SPLIT / NORMALIZATION_LEAKAGE / PATIENT_CROSS_SPLIT are Major.
 
+A manifest that gives the gate nothing to check (no transforms and no split_assignment), a
+transform without a type, or split_assignment rows without a patient_id or split, is an input
+error (exit 2), never
+"leakage-safe": an empty manifest used to pass --strict with that message. When only one half
+is present, the OK line names the half that was not checked.
+
 Stdlib-only (json / argparse / pathlib). Exit codes: 0 clean (or report-only),
 1 Major claim(s) found (with --strict), 2 input/usage error.
 """
@@ -126,6 +132,19 @@ EVAL_SPLITS = {"val", "test"}
 
 def _norm(s) -> str:
     return str(s).strip().lower() if s is not None else ""
+
+
+def _patient(r: dict):
+    """The row's patient ID; a numeric 0 is an ID, a blank string is not."""
+    for key in ("patient_id", "subject_id", "patient", "id"):
+        value = r.get(key)
+        if value is not None and str(value).strip():
+            return value
+    return None
+
+
+def _split(r: dict) -> str:
+    return SPLIT_SYNONYM.get(_norm(r.get("split")), _norm(r.get("split")))
 
 
 def _is_fit_based(t: dict) -> bool:
@@ -190,8 +209,7 @@ def check(manifest: dict) -> list[dict]:
     rows = manifest.get("split_assignment") or []
     pat_to_splits: dict[str, set] = {}
     for r in rows:
-        pid = r.get("patient_id") or r.get("subject_id") or r.get("patient") or r.get("id")
-        sp = SPLIT_SYNONYM.get(_norm(r.get("split")), _norm(r.get("split")))
+        pid, sp = _patient(r), _split(r)
         if pid is None or not sp:
             continue
         pat_to_splits.setdefault(str(pid), set()).add(sp)
@@ -232,17 +250,35 @@ def analyze(manifest_path: str) -> dict:
         sys.stderr.write("ERROR: manifest JSON must be an object\n")
         sys.exit(2)
 
-    claims = check(manifest)
+    transforms = manifest.get("transforms") or []
     rows = manifest.get("split_assignment") or []
+    if not transforms and not rows:
+        sys.stderr.write("ERROR: the manifest declares no transforms and no split_assignment; "
+                         "there is nothing to check, so no all-clear can be given\n")
+        sys.exit(2)
+    untyped = [i for i, t in enumerate(transforms)
+               if not isinstance(t, dict) or not isinstance(t.get("type"), str)
+               or not t["type"].strip()]
+    if untyped:
+        sys.stderr.write(f"ERROR: {len(untyped)} of {len(transforms)} transforms are not an object "
+                         f"with a type (first: transform {untyped[0]}); a transform without a type "
+                         f"cannot be classified as data-fitted or not\n")
+        sys.exit(2)
+    unusable = [i for i, r in enumerate(rows)
+                if not isinstance(r, dict) or _patient(r) is None or not _split(r)]
+    if unusable:
+        sys.stderr.write(f"ERROR: {len(unusable)} of {len(rows)} split_assignment rows have no "
+                         f"patient_id or no split (first: row {unusable[0]}); patient overlap "
+                         f"cannot be checked on them\n")
+        sys.exit(2)
+
+    claims = check(manifest)
     partitions: dict[str, int] = {}
     patients: set = set()
     for r in rows:
-        sp = SPLIT_SYNONYM.get(_norm(r.get("split")), _norm(r.get("split")))
-        if sp:
-            partitions[sp] = partitions.get(sp, 0) + 1
-        pid = r.get("patient_id") or r.get("subject_id") or r.get("patient") or r.get("id")
-        if pid is not None:
-            patients.add(str(pid))
+        sp = _split(r)
+        partitions[sp] = partitions.get(sp, 0) + 1
+        patients.add(str(_patient(r)))
     n_major = sum(1 for c in claims if c["severity"] == "Major")
     return {
         "manifest": str(p),
@@ -251,6 +287,8 @@ def analyze(manifest_path: str) -> dict:
         "n_patients": len(patients),
         "partitions": dict(sorted(partitions.items())),
         "seed": manifest.get("split_seed"),
+        "unchecked": ([] if rows else ["patient overlap (no split_assignment)"])
+                     + ([] if transforms else ["preprocessing transforms (none declared)"]),
         "claims": claims,
         "summary": {
             "n_claims": len(claims),
@@ -261,12 +299,19 @@ def analyze(manifest_path: str) -> dict:
     }
 
 
+def clean_message(result: dict) -> str:
+    """What a run with no claims may say: all-clear only when both halves were checked."""
+    if not result["unchecked"]:
+        return "preprocessing manifest is leakage-safe"
+    return "no leakage found in what was checked; not checked: " + "; ".join(result["unchecked"])
+
+
 def render(result: dict) -> str:
     lines = ["| Check | Severity | Detail |", "|---|---|---|"]
     for c in result["claims"]:
         lines.append(f"| {c['verdict']} | {c['severity']} | {c['detail']} |")
     if len(lines) == 2:
-        lines.append("| (none) | — | preprocessing manifest is leakage-safe |")
+        lines.append(f"| (none) | — | {clean_message(result)} |")
     return "\n".join(lines)
 
 
@@ -295,7 +340,7 @@ def main() -> int:
         elif s["n_flag"]:
             print(f"MINOR flag: {s['n_flag']} preprocessing hygiene issue(s) (see table).")
         else:
-            print("OK: preprocessing manifest is leakage-safe.")
+            print(f"OK: {clean_message(result)}.")
 
     if args.out:
         Path(args.out).parent.mkdir(parents=True, exist_ok=True)

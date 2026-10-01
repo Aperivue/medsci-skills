@@ -18,6 +18,7 @@ import os
 import re
 import sys
 import time
+import unicodedata
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -70,6 +71,11 @@ class RefRecord:
     # must not fire MISMATCH (which would abort render on every guideline-citing
     # cohort manuscript).
     corporate_author: bool = False
+    # True when title_guess came from a title field (BibTeX `title`, a TSV title column). Only
+    # such a title is compared with the record a DOI/PMID resolves to: a title guessed from a
+    # plain-text reference line is often the author list, and comparing it would turn clean
+    # references into MISMATCH.
+    title_from_field: bool = False
     status: str = "UNVERIFIED"
     evidence: str = ""
     note: str = ""
@@ -177,7 +183,7 @@ def brace_field(entry: str, name: str) -> str:
     comma optional. Counting depth is correct in both cases. Returns "" when the field is absent or
     is not brace-delimited.
     """
-    m = re.search(rf"{name}\s*=\s*\{{", entry, re.I)
+    m = re.search(rf"(?<![\w-]){name}\s*=\s*\{{", entry, re.I)
     if not m:
         return ""
     start = m.end()
@@ -199,7 +205,10 @@ def parse_bib(text: str) -> list[RefRecord]:
         if not entry.startswith("@"):
             continue
         key_match = re.match(r"@\w+\{([^,]+),", entry)
-        title_match = re.search(r"title\s*=\s*[\{\"](.+?)[\}\"]\s*,", entry, re.I | re.S)
+        # Field names are matched whole (`(?<![\w-])`): `title` also matched inside `booktitle`,
+        # so a proceedings paper whose booktitle came first was read with the proceedings name.
+        title_match = (re.search(r"(?<![\w-])title\s*=\s*[\{\"](.+?)[\}\"]\s*,", entry, re.I | re.S)
+                       or re.search(r'(?<![\w-])title\s*=\s*"([^"]+)"', entry, re.I))
         # The trailing comma is OPTIONAL: BibTeX does not require one after an entry's LAST field,
         # and `doi` is very often that last field. Requiring it left `record.doi` empty for those
         # entries, which skips the CrossRef check outright and drops the record onto the soft-flagged
@@ -207,9 +216,9 @@ def parse_bib(text: str) -> list[RefRecord]:
         # check this skill exists for was silently off for exactly those references. Unlike `title`
         # on the line above, a DOI never carries brace-protected inner groups (`{Delphi}`), so
         # stopping at the first `}` is correct here and would truncate there.
-        doi_match = re.search(r"doi\s*=\s*[\{\"](.+?)[\}\"]\s*,?", entry, re.I | re.S)
-        pmid_match = re.search(r"pmid\s*=\s*[\{\"]?(\d{5,9})", entry, re.I)
-        year_match = re.search(r"year\s*=\s*[\{\"]?((?:19|20)\d{2})", entry, re.I)
+        doi_match = re.search(r"(?<![\w-])doi\s*=\s*[\{\"](.+?)[\}\"]\s*,?", entry, re.I | re.S)
+        pmid_match = re.search(r"(?<![\w-])pmid\s*=\s*[\{\"]?(\d{5,9})", entry, re.I)
+        year_match = re.search(r"(?<![\w-])year\s*=\s*[\{\"]?((?:19|20)\d{2})", entry, re.I)
         raw = normalize_space(entry)
         author_field = brace_field(entry, "author")
         # `title` needs the same balanced-brace read, and for the same reason `doi` needed an
@@ -232,6 +241,7 @@ def parse_bib(text: str) -> list[RefRecord]:
                 ref_id=key_match.group(1) if key_match else f"ref_{len(records)+1}",
                 raw=raw,
                 title_guess=normalize_space(title_text),
+                title_from_field=bool(title_text.strip()),
                 doi=clean_doi(doi_match.group(1)) if doi_match else "",
                 pmid=pmid_match.group(1) if pmid_match else "",
                 year_guess=year_match.group(1) if year_match else "",
@@ -268,6 +278,7 @@ def parse_tsv(text: str) -> list[RefRecord]:
                 ref_id=f"ref_{i}",
                 raw=normalize_space(joined),
                 title_guess=title,
+                title_from_field=bool(title.strip()),
                 doi=doi,
                 pmid=pmid,
                 first_author_guess=parse_first_author(author_field) if author_field else "",
@@ -566,8 +577,8 @@ def crossref_year(msg: dict) -> str:
     return f"{primary} ({primary_label}; " + "; ".join(f"{l} {v}" for l, v in others) + ")"
 
 
-def verify_crossref(doi: str, timeout: int) -> tuple[str, str, list]:
-    """Returns (status, evidence, family_names).
+def verify_crossref(doi: str, timeout: int, titles: list | None = None) -> tuple[str, str, list]:
+    """Returns (status, evidence, family_names); on OK, the record's titles go into `titles`.
 
     v1.3.0: returns full author family list instead of first-author only.
     CrossRef API is not authoritative for given names (documented case: CrossRef
@@ -596,7 +607,25 @@ def verify_crossref(doi: str, timeout: int) -> tuple[str, str, list]:
         evidence += f"; year={year}"
     if families:
         evidence += f"; authors={len(families)} (first={families[0]})"
+    if titles is not None:
+        titles.extend(crossref_titles(msg))
     return "OK", evidence, families
+
+
+def crossref_titles(msg: dict) -> list:
+    """Every title a CrossRef record answers to.
+
+    CrossRef keeps a subtitle in its own field, so the cited "Main: Sub" is matched against
+    the joined form as well as the bare title; a translated work carries `original-title`; and
+    a chapter DOI cited by its book's title is not a different work.
+    """
+    main = [t for t in (msg.get("title") or []) if t]
+    out = list(main)
+    out += [f"{m}: {sub}" for m in main for sub in (msg.get("subtitle") or []) if sub]
+    out += [t for t in (msg.get("original-title") or []) + (msg.get("short-title") or []) if t]
+    if msg.get("type") in ("book-chapter", "book-section", "book-part", "reference-entry"):
+        out += [t for t in (msg.get("container-title") or []) if t]
+    return out
 
 
 def verify_doi_handle(doi: str, timeout: int) -> tuple[str, str, list]:
@@ -633,8 +662,8 @@ def verify_doi_handle(doi: str, timeout: int) -> tuple[str, str, list]:
     return "FABRICATED", "DOI does not exist in any registry (CrossRef 404; doi.org handle not found)", []
 
 
-def verify_pubmed_pmid(pmid: str, timeout: int) -> tuple[str, str, list]:
-    """Returns (status, evidence, family_names).
+def verify_pubmed_pmid(pmid: str, timeout: int, titles: list | None = None) -> tuple[str, str, list]:
+    """Returns (status, evidence, family_names); on OK, the record's titles go into `titles`.
 
     Uses esummary (fast). Returns family-name approximation by stripping trailing
     initial block from "Surname Initials" form. Authoritative names → call
@@ -667,11 +696,18 @@ def verify_pubmed_pmid(pmid: str, timeout: int) -> tuple[str, str, list]:
     evidence = f"PubMed PMID OK; title={title[:120]}; authors={len(families)}"
     if families:
         evidence += f" (first={families[0]})"
+    if titles is not None:
+        titles.extend(t for t in (title, html.unescape(item.get("vernaculartitle") or ""),
+                                  html.unescape(item.get("booktitle") or "")) if t)
     return "OK", evidence, families
 
 
-def verify_pubmed_efetch(pmid: str, timeout: int) -> tuple[str, str, list, list]:
+def verify_pubmed_efetch(pmid: str, timeout: int,
+                         titles: list | None = None) -> tuple[str, str, list, list]:
     """Authoritative PubMed full author record via efetch.fcgi (XML).
+
+    On OK, the article's titles (a translated ArticleTitle and its VernacularTitle, or a
+    BookTitle) go into `titles`.
 
     Returns (status, evidence, family_names, given_names). Use given_names for
     given-name cross-check (CrossRef-vs-PubMed disagreement, e.g. a documented
@@ -701,6 +737,12 @@ def verify_pubmed_efetch(pmid: str, timeout: int) -> tuple[str, str, list, list]
         if lm:
             families.append(html.unescape(lm.group(1)).strip())
             givens.append(html.unescape(fm.group(1)).strip() if fm else "")
+    # Titles are kept even when there are no personal authors: a collective-author record
+    # (a guideline group) has none, and its VernacularTitle is only here, not in esummary.
+    if titles is not None:
+        for tag in ("ArticleTitle", "VernacularTitle", "BookTitle"):
+            for tm in re.finditer(rf"<{tag}\b[^>]*>(.*?)</{tag}>", xml_text, re.S):
+                titles.append(html.unescape(tm.group(1)))
     if not families:
         return "UNVERIFIED", "PubMed efetch returned no author elements", [], []
     return (
@@ -784,6 +826,121 @@ def _title_similarity(a: str, b: str) -> float:
     return len(ta & tb) / len(ta | tb)
 
 
+# A DOI or PMID that resolves verifies the work it resolves to, not the title cited with it. The
+# cited title is compared with every title the record answers to: fewer than half of the cited
+# title's words found in any of them is a different work. Measuring the cited side tolerates a
+# cited title that leaves out the record's subtitle, without letting a short title of a related
+# paper match a longer cited one because most of its few words are in it.
+IDENTIFIER_TITLE_MIN = 0.5
+
+
+def _us_spelling(w: str) -> str:
+    """Fold British spellings onto American ones, so that a title differing only in spelling
+    (paediatric/pediatric, tumour/tumor, randomised/randomized, centre/center) is not counted
+    as a different title."""
+    if len(w) > 4 and w.endswith("our"):
+        w = w[:-3] + "or"
+    if len(w) >= 5:  # an acronym (MAE, OE) is not a spelling
+        w = w.replace("ae", "e").replace("oe", "e")
+    w = re.sub(r"(?<=[a-z]{3})is(e|ed|ing|ation)$", r"iz\1", w)
+    w = re.sub(r"(?<=[a-z]{2})yse$", "yze", w)
+    w = re.sub(r"(?<=[a-z]{3}[aeiou])ll(ed|ing|er)$", r"l\1", w)  # modelled, labelling
+    w = re.sub(r"(?<=[a-z]{2})(t|b)red$", r"\1ered", w)  # centred -> centered
+    return re.sub(r"(?<=[a-z]{2})(t|b)re$", r"\1er", w)  # centre, metre, theatre, fibre
+
+
+def _title_words(s: str) -> set | None:
+    """Content words of a title, or None when it is not readable as Latin script.
+
+    The tokenizer folds to ASCII, so a title mostly in another script (Chinese, Korean,
+    Cyrillic) would shrink to its few Latin acronyms and be compared on those alone.
+    """
+    s = html.unescape(s or "")
+    s = re.sub(r"<[^>]+>", " ", s)          # publisher markup: <i>, <sub>, MathML
+    s = re.sub(r"\\[a-zA-Z]+", " ", s)      # LaTeX commands in a BibTeX title
+    letters = sum(ch.isalpha() for ch in s)
+    s = re.sub(r"['\u2019]s\b", "", s.lower())
+    s = unicodedata.normalize("NFKD", s).encode("ascii", "ignore").decode("ascii")
+    if not letters or sum(ch.isalpha() for ch in s) < letters / 2:
+        return None
+    s = re.sub(r"[^a-z0-9 ]", " ", s)
+    words = set()
+    for w in s.split():
+        if w in _TITLE_STOPWORDS:
+            continue
+        if len(w) > 3 and w.endswith("s") and not w.endswith(("ss", "is", "us")):
+            w = w[:-1]
+        words.add(_us_spelling(w))
+    return words or None
+
+
+def _same_title(a: str, b: str) -> bool:
+    """Near-identical titles (Jaccard >= TITLE_MATCH_MIN): the same title in two records."""
+    wa, wb = _title_words(a), _title_words(b)
+    return bool(wa and wb) and len(wa & wb) / len(wa | wb) >= TITLE_MATCH_MIN
+
+
+def cited_title_agrees(cited: str, resolved: list) -> bool | None:
+    """Does the cited title name the record its DOI/PMID resolved to?
+
+    True when some resolved title contains at least IDENTIFIER_TITLE_MIN of the cited title's
+    words, False when none does, None when there is nothing to compare: no cited title, or no
+    title on either side readable as Latin script.
+    """
+    cited_words = _title_words(cited)
+    if not cited_words:
+        return None
+    verdict = None
+    for title in resolved:
+        words = _title_words(title)
+        if not words:
+            continue
+        if len(cited_words & words) / len(cited_words) >= IDENTIFIER_TITLE_MIN:
+            return True
+        verdict = False
+    return verdict
+
+
+# A reference line also carries author and journal words, which can supply half of a short
+# title by chance ("Cancer research priorities" in a line citing the journal Cancer Research),
+# so a line must contain most of the resolved title, or of its part before a colon.
+LINE_TITLE_MIN = 0.8
+
+
+def _non_latin_letters(s: str) -> int:
+    """Letters outside the Latin and Greek scripts (CJK, Hangul, Cyrillic, ...). Greek is common
+    in scientific titles (beta-amyloid), and accented Latin letters (o-slash, sharp s) are Latin."""
+    return sum(1 for ch in s if ch.isalpha()
+               and not unicodedata.name(ch, "").startswith(("LATIN", "GREEK")))
+
+
+def resolved_title_in_text(text: str, resolved: list) -> bool | None:
+    """Is the resolved title written in a plain-text reference line?
+
+    A line's guessed title is often its author list, so the line itself is searched: True when
+    at least LINE_TITLE_MIN of the words of some resolved title (or of its main title before a
+    colon) occur in it, False when none does, None when there is nothing to compare: a line
+    holding a letter of another script (its title may be written in it), or no resolved title
+    readable as Latin script. A record title of two or three words that happen to stand in the
+    line's journal name or author list still matches; the check cannot tell them apart.
+    """
+    if _non_latin_letters(text):
+        return None
+    text_words = _title_words(text)
+    if not text_words:
+        return None
+    verdict = None
+    for title in resolved:
+        for candidate in dict.fromkeys([title, title.split(":")[0]]):
+            words = _title_words(candidate)
+            if not words or (candidate != title and len(words) < 3):
+                continue
+            if len(words & text_words) / len(words) >= LINE_TITLE_MIN:
+                return True
+            verdict = False
+    return verdict
+
+
 def _openalex_families(work: dict) -> list:
     """Best-effort family-name list from an OpenAlex work's authorships.
 
@@ -813,7 +970,8 @@ def _openalex_families(work: dict) -> list:
     return families
 
 
-def verify_openalex(doi: str, title: str, timeout: int) -> tuple[str, str, list]:
+def verify_openalex(doi: str, title: str, timeout: int,
+                    titles: list | None = None) -> tuple[str, str, list]:
     """Tertiary index for conference proceedings / non-DOI / non-biomedical works.
 
     PubMed covers only biomedical literature and CrossRef's proceedings coverage is
@@ -861,6 +1019,8 @@ def verify_openalex(doi: str, title: str, timeout: int) -> tuple[str, str, list]
         ev += f"; year={year}"
     if families:
         ev += f"; authors={len(families)} (first={families[0]})"
+    if titles is not None and via == "doi":
+        titles.extend(t for t in (work.get("title"), work.get("display_name")) if t)
     return "OK", ev, families
 
 
@@ -970,10 +1130,13 @@ def verify_record(record: RefRecord, offline: bool, timeout: int,
     # list can support a tolerant first-author membership check but NOT the strict
     # positional + author-count cross-check (which would mis-fire on the format noise).
     actual_authors_soft = False
+    # The titles each identifier resolved to; the reference must carry a title of each one, so a
+    # wrong DOI is caught even when the PMID beside it is right.
+    resolved_titles: dict[str, list[str]] = {"PMID": [], "DOI": []}
 
     # Step 1 — PubMed efetch (authoritative) when PMID present.
     if record.pmid:
-        st, ev, fams, givens = verify_pubmed_efetch(record.pmid, timeout)
+        st, ev, fams, givens = verify_pubmed_efetch(record.pmid, timeout, titles=resolved_titles["PMID"])
         time.sleep(0.2)
         statuses.append(st)
         evidence_parts.append(ev)
@@ -983,7 +1146,7 @@ def verify_record(record: RefRecord, offline: bool, timeout: int,
             sources_consulted.append("pubmed_efetch")
         # also run esummary for FABRICATED detection (efetch returns valid XML even for
         # unknown PMIDs in some edge cases; esummary's "error" field is decisive).
-        st_es, ev_es, fams_es = verify_pubmed_pmid(record.pmid, timeout)
+        st_es, ev_es, fams_es = verify_pubmed_pmid(record.pmid, timeout, titles=resolved_titles["PMID"])
         time.sleep(0.2)
         statuses.append(st_es)
         evidence_parts.append(ev_es)
@@ -993,7 +1156,7 @@ def verify_record(record: RefRecord, offline: bool, timeout: int,
 
     # Step 2 — CrossRef DOI (used only when efetch did not provide a list).
     if record.doi:
-        st_cr, ev_cr, fams_cr = verify_crossref(record.doi, timeout)
+        st_cr, ev_cr, fams_cr = verify_crossref(record.doi, timeout, titles=resolved_titles["DOI"])
         time.sleep(0.2)
         statuses.append(st_cr)
         evidence_parts.append(ev_cr)
@@ -1007,7 +1170,8 @@ def verify_record(record: RefRecord, offline: bool, timeout: int,
     # Recovers conference proceedings and non-biomedical works (NeurIPS/ICLR/ACL) and
     # retries DOIs that CrossRef missed.
     if use_openalex and not actual_authors:
-        st_oa, ev_oa, fams_oa = verify_openalex(record.doi, record.title_guess, timeout)
+        st_oa, ev_oa, fams_oa = verify_openalex(record.doi, record.title_guess, timeout,
+                                                titles=resolved_titles["DOI"])
         time.sleep(0.2)
         statuses.append(st_oa)
         evidence_parts.append(ev_oa)
@@ -1057,11 +1221,36 @@ def verify_record(record: RefRecord, offline: bool, timeout: int,
     if author_mismatch:
         evidence_parts.append("AUTHOR MISMATCH | " + " | ".join(mismatches))
 
+    # A resolving identifier with agreeing authors used to be OK whatever title was cited with
+    # it. A title read from a title field is compared as a title; a plain-text reference line
+    # (Markdown, DOCX, text) is searched for the resolved title instead, because the title
+    # guessed from such a line is often its author list (see RefRecord.title_from_field).
+    wrong_ids = []
+    if "OK" in statuses:
+        verdicts = {
+            ident: (cited_title_agrees(record.title_guess, titles) if record.title_from_field
+                    else resolved_title_in_text(record.raw, titles))
+            for ident, titles in resolved_titles.items() if titles
+        }
+        for ident, agrees in verdicts.items():
+            other = "DOI" if ident == "PMID" else "PMID"
+            # A CrossRef record may hold only the original-language title of a paper PubMed lists
+            # in English: when this identifier's title matches the other identifier's record
+            # (whose titles include PubMed's VernacularTitle), both name the same work.
+            same_work = verdicts.get(other) is True and any(
+                _same_title(a, b) for a in resolved_titles[ident] for b in resolved_titles[other])
+            if agrees is False and not same_work:
+                wrong_ids.append(ident)
+    title_mismatch = bool(wrong_ids)
+    if title_mismatch:
+        evidence_parts.append(f"TITLE MISMATCH | the {'/'.join(wrong_ids)} resolves to a work whose "
+                              "title shares under half its words with the cited reference")
+
     # Status precedence
     if "OK" in statuses and "FABRICATED" in statuses:
         record.status = "MISMATCH"
     elif "OK" in statuses:
-        record.status = "MISMATCH" if author_mismatch else "OK"
+        record.status = "MISMATCH" if (author_mismatch or title_mismatch) else "OK"
     elif "FABRICATED" in statuses:
         record.status = "FABRICATED"
     else:
@@ -1080,6 +1269,9 @@ def verify_record(record: RefRecord, offline: bool, timeout: int,
             record.note = "first-author hallucination suspected (DOI/PMID correct, family differs)"
         else:
             record.note = "non-first-author hallucination or count mismatch (DOI/PMID correct)"
+    if title_mismatch and not record.note:
+        record.note = (f"title mismatch: the {'/'.join(wrong_ids)} resolves to a work with a "
+                       "different title")
     if "OK" in statuses and "FABRICATED" in statuses and not record.note:
         record.note = "wrong identifier: the cited DOI/PMID does not exist, but the work itself was found"
     record.evidence = " | ".join(p for p in evidence_parts if p)

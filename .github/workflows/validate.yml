@@ -384,6 +384,9 @@ jobs:
       - name: "Run verify-refs unregistered-DOI test (a DOI no registration agency holds is FABRICATED)"
         run: bash skills/verify-refs/tests/test_doi_not_registered.sh
 
+      - name: "Run verify-refs identifier-title test (a resolving DOI or PMID does not verify a title it does not name)"
+        run: bash skills/verify-refs/tests/test_identifier_title.sh
+
       - name: "Run verify-refs Markdown heading test (a ## References heading opens the reference list)"
         run: bash skills/verify-refs/tests/test_markdown_reference_heading.sh
 

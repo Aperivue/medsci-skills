@@ -662,6 +662,55 @@ def classify_columns(data: list[dict], headers: list[str],
     return classifications
 
 
+# A review is a decision about the table it was shown. Apply used to check the decisions and
+# the column names but not the data, so a value put into a kept column after the review (an
+# e-mail address in a numeric column) went into the output. The scan report now carries a
+# fingerprint of the table, and review and apply refuse a table that no longer matches it.
+# It is salted and slow (PBKDF2) because the report is the file an agent may read: a plain
+# SHA-256 of a one-cell table is reversed by hashing every candidate chart number.
+FINGERPRINT_ITERATIONS = 200_000
+
+
+def data_fingerprint(data: list[dict], headers: list[str], salt: bytes | None = None,
+                     iterations: int = FINGERPRINT_ITERATIONS) -> str:
+    """Salted PBKDF2 fingerprint of the column names and every cell, in order.
+
+    A row with no value in any column holds nothing to review, so adding or dropping one
+    (a spreadsheet's trailing blank rows) does not change the fingerprint.
+    """
+    salt = secrets.token_bytes(16) if salt is None else salt
+    h = hashlib.sha256(json.dumps(headers, ensure_ascii=False).encode("utf-8"))
+    for row in data:
+        cells = [row.get(c, "") for c in headers]
+        if not any(str(v).strip() for v in cells):
+            continue
+        h.update(b"\n" + json.dumps(cells, ensure_ascii=False, default=str).encode("utf-8"))
+    digest = hashlib.pbkdf2_hmac("sha256", h.digest(), salt, iterations)
+    return f"pbkdf2-sha256${iterations}${salt.hex()}${digest.hex()}"
+
+
+def fingerprint_problem(report: dict, data: list[dict], headers: list[str]) -> str | None:
+    """Why the report does not describe this table, or None when it does."""
+    stored = report.get("data_fingerprint")
+    if not stored:
+        return ("the report records no fingerprint of the data it was made from (it predates "
+                "medsci-skills 6.0.1), so nothing shows the data is the data reviewed. "
+                "Scan and review again.")
+    try:
+        algo, iterations, salt_hex, _ = str(stored).split("$")
+        n = int(iterations)
+        if algo != "pbkdf2-sha256" or not 0 < n <= 10 * FINGERPRINT_ITERATIONS:
+            raise ValueError(algo)
+        current = data_fingerprint(data, headers, bytes.fromhex(salt_hex), n)
+        matches = hmac.compare_digest(current.encode("utf-8"), str(stored).encode("utf-8"))
+    except ValueError:  # includes UnicodeEncodeError (a lone surrogate in the stored value)
+        return "the report's data fingerprint is malformed. Scan and review again."
+    if not matches:
+        return ("the input data changed after the scan, so the reviewed decisions do not "
+                "describe it. Scan and review again.")
+    return None
+
+
 def build_scan_report(input_path: Path, data: list[dict],
                       meta: dict, classifications: list[dict],
                       locale: dict | None = None) -> dict:
@@ -671,6 +720,7 @@ def build_scan_report(input_path: Path, data: list[dict],
         "timestamp": datetime.now().isoformat(),
         "input_file": str(input_path),
         "meta": meta,
+        "data_fingerprint": data_fingerprint(data, meta["headers"]),
         "classifications": classifications,
     }
     if locale is not None:
@@ -869,6 +919,9 @@ def review_problems(report: dict, data: list[dict], headers: list[str]) -> list[
     """
     if not report.get("reviewed"):
         return ["the report has not been reviewed. Run: deidentify.py review <scan_report.json>"]
+    changed = fingerprint_problem(report, data, headers)
+    if changed:
+        return [changed]
     problems = []
     decided = {c["column"]: c.get("approved_action") for c in report["classifications"]}
     unresolved = [col for col, act in decided.items() if act not in ("anonymize", "keep")]
@@ -1235,7 +1288,10 @@ def cmd_review(args: argparse.Namespace) -> None:
     input_path = Path(report["input_file"])
     if not input_path.exists():
         sys.exit(f"Original file not found: {input_path}")
-    data, _ = load_tabular(input_path)
+    data, meta = load_tabular(input_path)
+    changed = fingerprint_problem(report, data, meta["headers"])
+    if changed:
+        sys.exit(f"Not reviewed: {changed}")
 
     reviewed = review_scan_report(report, data,
                                   auto_accept_safe=getattr(args, "auto_accept_safe", False))

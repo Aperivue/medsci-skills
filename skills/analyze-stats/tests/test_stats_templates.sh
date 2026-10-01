@@ -10,7 +10,8 @@
 # validate job installs (numpy, pandas, scipy, scikit-learn, matplotlib, statsmodels) and
 # nothing else; the DCA checks need R + dcurves, which CI does not have. A missing
 # dependency is reported on a loud "SKIPPED n runtime checks" line and never counted as a
-# pass.
+# pass. The python block must exit 0 and report all PY_RUNTIME_CHECKS checks: counting only the
+# PASS/FAIL lines it printed let a crash after the first PASS drop every later check silently.
 set -u
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -50,6 +51,7 @@ present dca_plot.R 'net_intervention_avoided' "ST-20 dca: interventions avoided 
 
 echo "--- runtime (python) ---"
 SKIPPED=0
+PY_RUNTIME_CHECKS=15
 if python3 -c "import numpy, pandas, scipy, sklearn, matplotlib, statsmodels" 2>/dev/null; then
   WORK="$(mktemp -d)"; trap 'rm -rf "$WORK"' EXIT
   OUT="$(python3 - "$T" "$WORK" <<'PY' 2>&1
@@ -204,17 +206,22 @@ check(tab is not None and close(res.fe_params["time"], 0.482955, 1e-4)
 
 PY
 )"
+  RC=$?
   echo "$OUT" | grep -E "^(PASS|FAIL): " | while read -r line; do echo "  $line"; done
   echo "$OUT" | grep -E "^SKIPPED " | while read -r line; do echo "  $line"; done
   PASS=$((PASS + $(echo "$OUT" | grep -c '^PASS: ')))
   FAIL=$((FAIL + $(echo "$OUT" | grep -c '^FAIL: ')))
-  SKIPPED=$((SKIPPED + $(echo "$OUT" | sed -n 's/^SKIPPED \([0-9]*\) .*/\1/p' | awk '{s+=$1} END {print s+0}')))
-  if ! echo "$OUT" | grep -qE '^(PASS|FAIL): '; then
-    echo "$OUT" | tail -20; bad "runtime block did not run"
+  INNER_SKIPPED=$(echo "$OUT" | sed -n 's/^SKIPPED \([0-9]*\) .*/\1/p' | awk '{s+=$1} END {print s+0}')
+  SKIPPED=$((SKIPPED + INNER_SKIPPED))
+  REPORTED=$(( $(echo "$OUT" | grep -cE '^(PASS|FAIL): ') + INNER_SKIPPED ))
+  if [ "$RC" -ne 0 ]; then
+    echo "$OUT" | tail -20; bad "runtime block exited $RC after $REPORTED of $PY_RUNTIME_CHECKS checks"
+  elif [ "$REPORTED" -ne "$PY_RUNTIME_CHECKS" ]; then
+    bad "runtime block reported $REPORTED of $PY_RUNTIME_CHECKS checks"
   fi
 else
-  echo "  SKIPPED 15 runtime checks: numpy/pandas/scipy/sklearn/matplotlib/statsmodels missing"
-  SKIPPED=$((SKIPPED + 15))
+  echo "  SKIPPED $PY_RUNTIME_CHECKS runtime checks: numpy/pandas/scipy/sklearn/matplotlib/statsmodels missing"
+  SKIPPED=$((SKIPPED + PY_RUNTIME_CHECKS))
 fi
 
 echo "--- runtime (R dcurves) ---"

@@ -73,7 +73,8 @@ def route(crossref, handle, openalex_doi=None, pubmed_title=None):
 
 def record(doi, title=FAKE_TITLE):
     return vr.RefRecord(ref_id="synthetic2024", raw="@article{synthetic2024, ...}",
-                        title_guess=title, doi=doi, cited_authors=["Nobody"], cited_author_count=1)
+                        title_guess=title, title_from_field=True,  # a BibTeX title, as parse_bib sets it
+                        doi=doi, cited_authors=["Nobody"], cited_author_count=1)
 
 def run(rec, use_openalex=True):
     calls.clear()

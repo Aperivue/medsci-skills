@@ -1,6 +1,8 @@
 # Changelog
 
-## [Unreleased]
+## [6.0.1] - 2026-10-01
+
+**Hotfix:** four checks could report a clearance they had not made: `/verify-refs` passed an invented title on a real DOI or PMID, `/deidentify` applied a review to data changed after it, the `/imaging-data` leakage check called an empty manifest leakage-safe, and `/analyze-stats` translated a negative correlation as an increase. Re-run `/verify-refs` on reference lists audited with an earlier version, re-check any de-identified output whose input file was edited between review and apply, and re-read any plain-language translation written from a negative correlation.
 
 ### Added
 
@@ -18,6 +20,44 @@
 - **Text files are checked out with LF on every platform** (`.gitattributes`, #588). A Windows
   checkout with Git's default line-ending conversion produced a distribution manifest that could
   never match CI; CSV files keep their committed bytes.
+
+### Fixed
+
+- **`/verify-refs` checks that a DOI or PMID resolves to the work the reference names.** A
+  reference whose identifier resolved and whose authors matched was OK whatever title it carried,
+  so an invented title on a real DOI passed, and a wrong DOI passed beside a right PMID. Each
+  identifier's record is now compared with the reference, and the reference is a MISMATCH unless
+  a BibTeX or TSV title has at least half of its words in the record's title, or a line of a
+  Markdown, DOCX or text reference list contains most of the record's title (or of its part
+  before a colon). Subtitles, publisher markup, British spelling and a PubMed original-language
+  title do not count as differences; a title in a script other than Latin is not compared. A
+  `booktitle` field listed before `title` was read as the title, and a quoted `title` in the last
+  field was not read; both are fixed.
+- **`/deidentify` will not apply a review to data that changed after the scan.** Apply checked
+  the decisions and the column names but not the data, so a value put into a kept column after
+  the review was written to the output. The scan report now carries a salted PBKDF2 fingerprint
+  of the table (blank rows excluded), and review and apply refuse a table that no longer matches
+  it. A report made by an earlier version has no fingerprint and is refused too: scan and review
+  again.
+- **The `/imaging-data` preprocessing-leakage check no longer passes a manifest it could not
+  check.** An empty manifest printed "leakage-safe" and passed `--strict`; it is now an input
+  error (exit 2), as are a transform without a type and a split row without a patient ID or
+  split. A patient ID of 0 was dropped as missing, so its rows were never checked for overlap.
+  When only transforms or only split rows are declared, the OK line names the check that did not
+  run.
+- **`/analyze-stats`: the plain-language translation of a correlation dropped its sign.** The
+  formula used `|rho|`, so a negative association read as an increase, and it treated Spearman's
+  rho as if it fixed a change in outcome units, which a rank correlation does not. The guidance
+  now translates a regression or per-SD slope with its sign, says to fit that slope when the
+  result is a correlation, and to report fitted values at the two percentiles when the
+  association is monotonic but curved.
+- **The analyze-stats template test let a crash pass.** It counted the PASS/FAIL lines its
+  Python block printed, so a crash after the first check dropped every later check and the test
+  still passed. It now fails when the block exits non-zero or reports fewer than its 15 checks.
+- **`docs/install.md` said the toolkit never runs R.** `/calc-sample-size`, `/meta-analysis`,
+  `/cross-national` and the `/make-figures` flow diagrams do, as do `/batch-cohort` and
+  `/replicate-study` with an R template, and `/analyze-stats` writes R code beside its Python
+  analysis; the page now says so.
 
 ## [6.0.0] - 2026-10-01
 
