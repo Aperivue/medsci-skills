@@ -1053,13 +1053,13 @@
     },
     {
       "path": "skills/deidentify/SKILL.md",
-      "size": 12726,
-      "sha256": "119e068bcbc6606e766f0d5345d8613f69b9b0004df9ffa0be1178f59f13a168"
+      "size": 12803,
+      "sha256": "11bdf7ea91bfea3cc65607f19fff65dc36cc4a9f19c26442d07403a718f8c343"
     },
     {
       "path": "skills/deidentify/deidentify.py",
-      "size": 56548,
-      "sha256": "f08d672fd50be3d6d1078cac720604f63266bd6de7e21b87a3e1b8542a71bb71"
+      "size": 56556,
+      "sha256": "815e3158d21abfad7276ccdceeae8af520904749aa41e4da62ccf26fc8b0bf1f"
     },
     {
       "path": "skills/deidentify/locales/_template.json",
@@ -1095,6 +1095,11 @@
       "path": "skills/deidentify/locales/in.json",
       "size": 1470,
       "sha256": "8789ebb3aa6db02b006f11b7561cdf81e900211fdec3f2e1eea9f05450e7a9e2"
+    },
+    {
+      "path": "skills/deidentify/locales/it.json",
+      "size": 2132,
+      "sha256": "99c7f249b6e633a59aefbcc2b6753b07764a91e67e4cf390e6c55047703592d5"
     },
     {
       "path": "skills/deidentify/locales/jp.json",
@@ -1133,8 +1138,8 @@
     },
     {
       "path": "skills/deidentify/skill.yml",
-      "size": 1864,
-      "sha256": "66ce711119599e5b17920e1c21df99ce1e5369aa1713a648f1fc609b71505e77"
+      "size": 1868,
+      "sha256": "108acd49aad21e02fa0ba0972694c7f1c287926b730e96fd31148a3285fdbcd4"
     },
     {
       "path": "skills/design-ai-benchmarking/SKILL.md",

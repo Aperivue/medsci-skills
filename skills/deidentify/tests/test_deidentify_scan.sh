@@ -24,7 +24,7 @@ check() { local label="$1"; shift
 }
 
 [[ -f "$SCRIPT" ]] || { echo "ENV-ERR: deidentify.py missing" >&2; exit 2; }
-for fx in test_phi_korean test_clean test_edge_cases; do
+for fx in test_phi_korean test_clean test_edge_cases test_phi_italian; do
     [[ -f "$HERE/$fx.csv" ]] || { echo "ENV-ERR: fixture $fx.csv missing" >&2; exit 2; }
 done
 
@@ -63,6 +63,32 @@ with open('$HERE/test_phi_korean.csv', encoding='utf-8') as f:
     hdr=next(csv.reader(f))
 cl={x['column']: x['classification'] for x in d['classifications']}
 for i in (7, 8):
+    assert cl.get(hdr[i])=='SAFE', (i, hdr[i], cl.get(hdr[i]))"
+
+# --- Fixture 4: Italian PHI (7 columns) -> PHI=5, REVIEW_NEEDED=0, SAFE=2 ---
+python3 "$SCRIPT" scan "$HERE/test_phi_italian.csv" --locale it -o "$OUTDIR" >/dev/null 2>&1
+IT_REPORT="$OUTDIR/scan_report.json"
+check "italian fixture: report written"      test -s "$IT_REPORT"
+check "italian fixture: PHI == 5"             test "$(count "$IT_REPORT" PHI)"           -eq 5
+check "italian fixture: REVIEW_NEEDED == 0"   test "$(count "$IT_REPORT" REVIEW_NEEDED)" -eq 0
+check "italian fixture: SAFE == 2"            test "$(count "$IT_REPORT" SAFE)"          -eq 2
+
+# Exactly one column has phi_type 'national_id' (codice fiscale) -> PHI.
+check "italian fixture: codice_fiscale column is PHI/national_id" python3 -c "
+import json
+d=json.load(open('$IT_REPORT'))
+cf=[x for x in d['classifications'] if x.get('phi_type')=='national_id']
+assert len(cf)==1, cf
+assert cf[0]['classification']=='PHI', cf[0]"
+
+# Header positions 5 (diagnosis) and 6 (measurement) must be SAFE.
+check "italian fixture: diagnosi + valore (cols 5,6) are SAFE" python3 -c "
+import json,csv
+d=json.load(open('$IT_REPORT'))
+with open('$HERE/test_phi_italian.csv', encoding='utf-8') as f:
+    hdr=next(csv.reader(f))
+cl={x['column']: x['classification'] for x in d['classifications']}
+for i in (5, 6):
     assert cl.get(hdr[i])=='SAFE', (i, hdr[i], cl.get(hdr[i]))"
 
 # --- Fixture 2: clean (no PHI) -> PHI == 0 (false-positive guard) ---

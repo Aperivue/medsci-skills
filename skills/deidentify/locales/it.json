@@ -1,0 +1,89 @@
+{
+  "address": {
+    "keywords": [
+      "Via",
+      "Viale",
+      "Piazza",
+      "Piazzale",
+      "Corso",
+      "Largo",
+      "Vicolo",
+      "Strada",
+      "Località",
+      "Frazione",
+      "Contrada"
+    ],
+    "min_ratio": 0.3,
+    "type": "keywords"
+  },
+  "code": "it",
+  "column_names": {
+    "assicurazione": "insurance",
+    "cap": "address",
+    "cartella_clinica": "id",
+    "cellulare": "phone",
+    "cf": "national_id",
+    "citta": "address",
+    "codice_fiscale": "national_id",
+    "codicefiscale": "national_id",
+    "cognome": "name",
+    "comune": "address",
+    "data_di_nascita": "date",
+    "data_nascita": "date",
+    "e_mail": "email",
+    "email": "email",
+    "id_paziente": "id",
+    "indirizzo": "address",
+    "luogo_nascita": "address",
+    "nome": "name",
+    "nome_cognome": "name",
+    "nominativo": "name",
+    "numero_paziente": "id",
+    "numero_telefono": "phone",
+    "polizza": "insurance",
+    "posta_elettronica": "email",
+    "provincia": "address",
+    "tel": "phone",
+    "telefono": "phone",
+    "tessera_sanitaria": "national_id"
+  },
+  "date_formats": [
+    {
+      "label": "Italian date (DD/MM/YYYY)",
+      "pattern": "\\b(0?[1-9]|[12]\\d|3[01])/(0?[1-9]|1[0-2])/(19|20)\\d{2}\\b"
+    },
+    {
+      "label": "Italian date (DD-MM-YYYY)",
+      "pattern": "\\b(0?[1-9]|[12]\\d|3[01])-(0?[1-9]|1[0-2])-(19|20)\\d{2}\\b"
+    }
+  ],
+  "name": "Italy",
+  "name_heuristic": {
+    "min_ratio": 0.3,
+    "only_in_name_columns": true,
+    "pattern": "",
+    "type": "none"
+  },
+  "national_id": {
+    "label": "Codice Fiscale (Fiscal Code)",
+    "patterns": [
+      "\\b[A-Z]{6}[0-9LMNPQRSTUV]{2}[ABCDEHLMPRST][0-9LMNPQRSTUV]{2}[A-Z][0-9LMNPQRSTUV]{3}[A-Z]\\b"
+    ],
+    "phi_type": "national_id"
+  },
+  "native_name": "Italia",
+  "phone": [
+    {
+      "label": "Italian mobile",
+      "pattern": "\\b3\\d{2}[\\s.\\-]?\\d{3}[\\s.\\-]?\\d{4}\\b"
+    },
+    {
+      "label": "Italian landline",
+      "pattern": "\\b0\\d{1,4}[\\s.\\-]?\\d{5,8}\\b"
+    },
+    {
+      "label": "Italian phone +39",
+      "pattern": "(?<!\\d)\\+39[\\s.\\-]?\\d(?:[\\s.\\-]?\\d){6,12}\\b"
+    }
+  ]
+}
