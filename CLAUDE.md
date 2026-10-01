@@ -34,6 +34,28 @@ The finding it produced was quarantined and not acted on, and the corpus in plac
 so nothing measurable was lost. The next corpus is the one that reading destroys, and this file
 exists because the fence was in a prompt instead of in the repository.
 
+## Merging your own pull requests
+
+The maintainer has authorized Claude to merge a pull request it opened, **without asking**, when all
+of these hold: CI is green on the current head, there is no merge conflict, no review thread is open,
+and the change is one of:
+
+- a CI, test or tooling fix (workflows, `scripts/`, `tests/`, challenge-card `verify.sh` plumbing);
+- a correction of a stated count, link or other fact in documentation;
+- bookkeeping (distribution manifest, generated docs and catalogs, CHANGELOG entries);
+- a refactor that changes no output a user sees.
+
+Squash-merge, then say what was merged. **Ask first** for anything else, and always for:
+
+- a change to what a detector flags or clears, or to its message — that is what a user is told about
+  their manuscript;
+- a change to a medical or research claim, or to a reporting checklist (`MAINTAINERS.md` requires
+  founder review);
+- a release, a version bump or a tag;
+- anything touching `_corpus/`.
+
+When a pull request mixes the two, it is the second kind.
+
 ## Everything else
 
 `CONTRIBUTING.md` is the entry point: what to run before pushing (CI is the merge gate), the
