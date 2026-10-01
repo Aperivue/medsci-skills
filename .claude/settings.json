@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git push --force-with-lease -u origin claude/*)",
+      "mcp__github__merge_pull_request",
+      "mcp__github__enable_pr_auto_merge",
+      "mcp__claude-code-remote__delete_trigger"
+    ],
+    "deny": [
+      "Bash(git push --force *)",
+      "Bash(git push -f *)",
+      "Read(_corpus/**)",
+      "Edit(_corpus/**)"
+    ]
+  },
+  "autoMode": {
+    "allow": [
+      "$defaults",
+      "Force-pushing with --force-with-lease to a branch whose name starts with claude/ that Claude itself created",
+      "Squash-merging a pull request Claude opened, when the merge rules in CLAUDE.md allow it and CI is green",
+      "Deleting or disabling a scheduled check-in (Routine) that Claude itself created in this session"
+    ]
+  }
+}
