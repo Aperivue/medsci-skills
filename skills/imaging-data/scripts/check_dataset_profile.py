@@ -128,8 +128,21 @@ def _plan(profile: dict) -> dict:
         "resample": bool(p.get("resample")),
         "reorient": bool(p.get("reorient")),
         "loss": _norm(p.get("loss") or ""),
-        "metrics": [_norm(m) for m in (p.get("metrics") or [])],
+        "metrics": _metrics(p.get("metrics")),
     }
+
+
+def _metrics(raw) -> list[str]:
+    """A single metric arrives as a string (`--plan metrics=accuracy` -> 'accuracy').
+    Iterating that string yields characters, so 'accuracy' never matched ACCURACY_TERMS
+    and ACCURACY_UNDER_IMBALANCE was silently cleared. Coerce to a list of names."""
+    if raw is None:
+        return []
+    items = [raw] if isinstance(raw, str) else list(raw)
+    out: list[str] = []
+    for m in items:
+        out.extend(x for x in (_norm(y) for y in re.split(r"[+,;]", str(m))) if x)
+    return out
 
 
 def _labelled_splits(profile: dict) -> dict[str, bool]:
