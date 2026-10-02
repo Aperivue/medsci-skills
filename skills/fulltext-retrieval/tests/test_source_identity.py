@@ -147,6 +147,34 @@ class SourceIdentityTests(unittest.TestCase):
         self.assertEqual(m.assess_source_identity({**RECORD, "title": title}, text)["status"],
                          "consistent")
 
+    def test_retraction_and_correction_notices_are_not_the_work(self):
+        # A notice prints the original work's title and DOI under its own heading, so
+        # title + DOI agreement once accepted the notice as the article itself.
+        for heading in ("RETRACTION NOTICE", "Retraction", "Retraction Note:",
+                        "Notice of Retraction", "Retracted Article", "Erratum", "Errata",
+                        "Correction", "Correction to:", "Corrigendum",
+                        "Expression of Concern", "EXPRESSION OF CONCERN:"):
+            with self.subTest(heading=heading):
+                body = GOOD.replace("Abstract:", "This article has been retracted.")
+                result = m.assess_source_identity(RECORD, f"{heading}\n{body}")
+                self.assertEqual(result["status"], "unresolved")
+                self.assertEqual(result["reason"], "correction_or_retraction_notice")
+
+    def test_correction_words_inside_a_real_article_are_not_markers(self):
+        # Precision guard: a title that starts with "Correction of", or a sentence that
+        # mentions an erratum or a retraction, is still the work.
+        title = "Correction of Motion Artifacts in Synthetic Chest CT"
+        text = f"{title}\nAlex Example\nhttps://doi.org/{DOI}\nAbstract: example"
+        self.assertEqual(m.assess_source_identity({**RECORD, "title": title}, text)["status"],
+                         "consistent")
+        for line in ("Correction of this article was not needed.",
+                     "Retraction Watch database was searched.",
+                     "Erratum published separately in a later issue."):
+            with self.subTest(line=line):
+                mentions = GOOD.replace("Abstract:", f"{line}\nAbstract:")
+                self.assertEqual(m.assess_source_identity(RECORD, mentions)["status"],
+                                 "consistent")
+
     def test_a_conflict_stays_a_conflict_with_a_supplement_heading(self):
         text = f"Supplementary Information\nGenome-wide analysis of crop yield\nDOI: {OTHER}"
         self.assertEqual(m.assess_source_identity(RECORD, text)["status"], "conflict")

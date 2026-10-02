@@ -565,5 +565,77 @@ sa, sb = s.shift(a, 'p'), s.shift(b, 'p')
 assert (datetime.fromisoformat(sb) - datetime.fromisoformat(sa)).total_seconds() == 0.8, (a, b, sa, sb)
 assert d._cell_text(datetime(2021, 5, 3, 12, 0, 0)) == '2021-05-03 12:00:00'" "$SKILL"
 
+# --- Date-shift offsets do not come from a guessable seed ---
+# Offsets came from random.Random(seed), seed = random.randint(1, 999999), in
+# row order: two or three known true dates identified the seed by brute force,
+# and the seed gave back every other patient's original dates.
+check "date shift: unseeded run never touches the module PRNG" python3 -c "
+import sys; sys.path.insert(0, sys.argv[1])
+import deidentify as d
+def boom(*a, **k): raise AssertionError('module PRNG used')
+d.random.Random = boom; d.random.randint = boom; d.random.random = boom
+data = [{'mrn': str(10000001 + i), 'dob': '2001-02-03'} for i in range(20)]
+rep = {'reviewed': True, 'patient_key': {'type': 'column', 'column': 'mrn'},
+       'classifications': [{'column': 'mrn', 'phi_type': 'id', 'approved_action': 'keep'},
+                           {'column': 'dob', 'phi_type': 'date', 'approved_action': 'anonymize'}]}
+out, mapping, _ = d.apply_anonymization(data, rep)
+assert 'date_shift_seed' not in mapping['_meta'], mapping['_meta']
+assert all(r['dob'] != '2001-02-03' for r in out), out" "$SKILL"
+check "date shift: two unseeded runs draw different offsets" python3 -c "
+import sys; sys.path.insert(0, sys.argv[1])
+import deidentify as d
+a, b = d.DateShifter(), d.DateShifter()
+ids = [str(i) for i in range(30)]
+assert [a._get_offset(i) for i in ids] != [b._get_offset(i) for i in ids]
+assert all(1 <= abs(a._get_offset(i)) <= 365 for i in ids)" "$SKILL"
+check "date shift: an explicit (test) seed stays reproducible" python3 -c "
+import sys; sys.path.insert(0, sys.argv[1])
+import deidentify as d
+assert d.DateShifter(seed=7).shift('2001-02-03', 'p') == d.DateShifter(seed=7).shift('2001-02-03', 'p')" "$SKILL"
+
+# --- Common date spellings, KR 070 numbers and US ZIP+4 are not SAFE ---
+# Each of these columns used to be classified SAFE (and passed through
+# un-stripped) even under a date-like header. Headers are neutral on purpose.
+PROBE='
+import sys; sys.path.insert(0, sys.argv[1])
+import deidentify as d
+loc, header, want = sys.argv[2], sys.argv[3], sys.argv[4]
+vals = sys.argv[5:]
+r = d.classify_columns([{header: v} for v in vals], [header], d.load_locale(loc))[0]
+got = r["classification"] + "/" + str(r.get("phi_type"))
+assert got == want, (got, want)'
+probe() { python3 -c "$PROBE" "$SKILL" "$@"; }
+check "dates: 15-Mar-2024 style is PHI/date"      probe us x  PHI/date 07-Aug-2019 15-Mar-2024
+check "dates: 15MAR2024 style is PHI/date"        probe us x  PHI/date 15MAR2024 01feb2023
+check "dates: 15-Mar-24 style is PHI/date"        probe us x  PHI/date 15-Mar-24 01-Feb-23
+check "dates: 'March 15, 2024' is PHI/date"       probe us surgery_date PHI/date "March 15, 2024" "Aug. 7 2019"
+check "dates: 3/15/24 under us is PHI/date"       probe us x  PHI/date 3/15/24 8/7/19
+check "dates: 03/15/2024 under kr is PHI/date"    probe kr x  PHI/date 03/15/2024 08/07/2019
+check "phone: kr 070 number is PHI/phone"         probe kr col7 PHI/phone 070-1234-5678 07098765432
+check "zip: us ZIP+4 is PHI/address"              probe us x  PHI/address 94110-1234 10001-0001
+# Negative controls: these must stay SAFE.
+check "control: month names alone stay SAFE"      probe us month SAFE/None March May June
+check "control: words around a month stay SAFE"   probe us note SAFE/None "Seen in March" "may improve" "Summary 5 2020"
+check "control: scores and ratios stay SAFE"      probe us score SAFE/None 15/30 1/2 120/80
+check "control: short 070 tokens stay SAFE"       probe kr x  SAFE/None 0701 070 12345
+check "control: 5-digit codes stay SAFE"          probe us cpt SAFE/None 99213 99214 99213
+# NDC drug codes (5-4-2, 5-4-1) contain a 5-4 digit run; '-' is a word
+# boundary, so a plain \b\d{5}-\d{4}\b ZIP+4 pattern matched them.
+check "control: NDC 5-4-2 codes stay SAFE"       probe us rx  SAFE/None 00093-7146-56 00002-3227-30 50090-1234-01
+# A 5-4-1 code has ten digits and reaches REVIEW_NEEDED/phone on main too; the
+# ZIP+4 pattern itself must not match it (nor 5-4-2).
+check "control: ZIP+4 pattern skips NDC codes" python3 -c "
+import sys, re, json
+p = re.compile(json.load(open(sys.argv[1] + '/locales/us.json'))['address']['postcode_pattern'])
+for v in ('00093-7146-5', '00093-7146-56', '12345-6789-01', 'x-12345-6789'):
+    assert not p.search(v), v
+for v in ('94110-1234', 'CA 94110-1234.'):
+    assert p.search(v), v" "$SKILL"
+# Three-part values: only month/day/2-digit-year shapes are dates under us.
+# 1/2/10 is a valid M/D/YY date and is flagged on purpose (SKILL.md, Known limits).
+check "control: 3-part non-date values stay SAFE" probe us score SAFE/None 120/80/60 13/40/99 1/2/3
+check "dates: 3-part M/D/YY under us is PHI/date" probe us score PHI/date 1/2/10 5/5/10
+check "zip: ZIP+4 inside an address line is PHI"  probe us x  PHI/address "Springfield 94110-1234" "Town, 10001-0001."
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"
