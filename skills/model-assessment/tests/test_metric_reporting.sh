@@ -118,6 +118,29 @@ check "F3: negated sens/spec -> ACCURACY_ONLY" has ACCURACY_ONLY
 printf 'Accuracy 92%%, sensitivity and specificity were 0.9 and 0.8 (95%% CI).\n' > "$W/acc_pair.md"
 check "F3 control: reported sens/spec pair clears ACCURACY_ONLY" ok0 "$W/acc_pair.md" classification
 
+# a year after 'MSD' is a dataset release, not a surface distance
+printf 'Dice was 0.91 (95%% CI 0.89-0.93). We used the MSD 2018 release.\n' > "$W/msd_year.md"
+python3 "$DET" --report "$W/msd_year.md" --task segmentation --out "$OUT" --quiet >/dev/null 2>&1
+check "F3: 'MSD 2018 release' (year) -> NO_BOUNDARY_METRIC" has NO_BOUNDARY_METRIC
+# negation scope ends at the clause boundary: a negated verb in an earlier clause ('..., and',
+# '..., but', 'but', '..., which', '..., whereas') does not disavow a metric reported after it
+# (review counterexamples; each must stay clean under --strict)
+nc(){ printf '%s\n' "$2" > "$W/$1.md"; check "neg-scope control: $1 passes --strict" ok0 "$W/$1.md" "$3"; }
+nc scope_and 'Accuracy was 0.90 (95% CI 0.85-0.94). We did not tune the threshold, and sensitivity and specificity were 0.88 and 0.91.' classification
+nc scope_comma_but 'Accuracy was 0.90 (95% CI 0.85-0.94). We did not report AUROC, but sensitivity of 0.88 and specificity of 0.91.' classification
+nc scope_but 'Accuracy was 0.90 (95% CI 0.85-0.94). We did not report AUROC but sensitivity was 0.88 and specificity 0.91.' classification
+nc scope_which 'Accuracy was 0.90 (95% CI 0.85-0.94). The threshold was not tuned, which gave sensitivity 0.88 and specificity 0.91.' classification
+nc scope_whereas 'Accuracy was 0.90 (95% CI 0.85-0.94). We did not calibrate, whereas sensitivity 0.88 and specificity 0.91 were reported.' classification
+nc scope_seg_but 'Dice was 0.91 (95% CI 0.89-0.93). We did not resample, but HD95 was 4.1 mm.' segmentation
+nc scope_seg_and 'Dice was 0.91 (95% CI 0.89-0.93). We did not use pixel accuracy, and HD95 was 4.1 mm.' segmentation
+# ...while a negated list keeps its whole scope across ', and'
+printf 'Accuracy was 92%% (95%% CI 90-94). We did not compute AUROC, sensitivity, and specificity.\n' > "$W/neg_oxford.md"
+python3 "$DET" --report "$W/neg_oxford.md" --task classification --out "$OUT" --quiet >/dev/null 2>&1
+check "F3: 'did not compute AUROC, sensitivity, and specificity' -> ACCURACY_ONLY" has ACCURACY_ONLY
+printf 'Accuracy was 92%% (95%% CI 90-94). We did not report sensitivity or specificity.\n' > "$W/neg_or.md"
+python3 "$DET" --report "$W/neg_or.md" --task classification --out "$OUT" --quiet >/dev/null 2>&1
+check "F3: 'did not report sensitivity or specificity' -> ACCURACY_ONLY" has ACCURACY_ONLY
+
 # --- F4: false clearances of DETECTION_METRIC_MISSING ---
 printf 'Lesion-level sensitivity was 0.88 (95%% CI 0.84-0.91). Figure 3 shows a saliency map; a prediction counted as a hit when its overlap of the lesion was any.\n' > "$W/det_map.md"
 python3 "$DET" --report "$W/det_map.md" --task detection --out "$OUT" --quiet >/dev/null 2>&1

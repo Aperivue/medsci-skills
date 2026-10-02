@@ -66,9 +66,9 @@ P = {
     # assessed") names no metric and must not satisfy the Dice+boundary pairing
     # 'MSD' also names the Medical Segmentation Decathlon ("the MSD liver task"), so the bare
     # abbreviation counts as mean surface distance only when a value follows it ("MSD 1.2 mm",
-    # "MSD (mm) of 1.2", "MSD = 0.9").
+    # "MSD (mm) of 1.2", "MSD = 0.9"), and a year ("the MSD 2018 release") is not a value.
     "boundary": r"\b(hd95|hd 95|hausdorff|assd|\basd\b|\bmasd\b|"
-                r"msd(?=\s*(?:\([^)]{0,12}\)\s*)?(?:=|:|,|of|was|were|is)?\s*\d)|nsd|"
+                r"msd(?=\s*(?:\([^)]{0,12}\)\s*)?(?:=|:|,|of|was|were|is)?\s*(?!(?:19|20)\d\d\b)\d)|nsd|"
                 r"normali[sz]ed surface dice|normali[sz]ed surface|surface dice similarity|"
                 r"surface dsc|surface dice|surface distance|mean (?:surface|boundary) distance|"
                 r"boundary[- ]?(?:iou|f1|f-?score))\b",
@@ -151,6 +151,14 @@ NEG_AFTER = re.compile(
 # A negation only disavows a token in its own clause: "pixel accuracy was not used; HD95 7.2 mm"
 # reports HD95. A period inside a number ("7.2") is not a clause break.
 CLAUSE_BREAK = re.compile(r"[.;:!?](?:\s|$)")
+# The scope of a single-token negation also ends where a new clause starts after a comma or a
+# contrast word: "We did not tune the threshold, and sensitivity was 0.88" and "We did not report
+# AUROC, but sensitivity was 0.88" both report sensitivity. "instead of" / "rather than" are
+# negations themselves and are not scope breaks. A negated list ("did not compute A, B, and C")
+# is handled by _list_negated, which reads the whole clause.
+NEG_SCOPE_BREAK = re.compile(
+    r"[.;:!?](?:\s|$)|,\s*(?=(?:and|but|which|whereas|while|yet|so|although|though)\b)"
+    r"|\b(?=(?:but|whereas|however|although|though)\b)", re.IGNORECASE)
 # A negation also reaches every item of a coordinated list: "we did not compute the Hausdorff
 # distance or HD95" disavows HD95, and "sensitivity and specificity were not reported"
 # disavows sensitivity. The gap between the list item and the negation must be list glue only:
@@ -178,8 +186,8 @@ def has_affirmative(text: str, key: str) -> bool:
     report pixel accuracy' or 'AUROC was not computed' is not treated as reporting it."""
     pat = re.compile(P[key], re.IGNORECASE)
     for m in pat.finditer(text):
-        before = CLAUSE_BREAK.split(text[max(0, m.start() - 28): m.start()])[-1]
-        after = CLAUSE_BREAK.split(text[m.end(): m.end() + 24])[0]
+        before = NEG_SCOPE_BREAK.split(text[max(0, m.start() - 28): m.start()])[-1]
+        after = NEG_SCOPE_BREAK.split(text[m.end(): m.end() + 24])[0]
         if NEG_BEFORE.search(before) or NEG_AFTER.search(after):
             continue
         if _list_negated(text, m.start(), m.end()):
