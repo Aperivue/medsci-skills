@@ -240,4 +240,34 @@ codes = {i["code"]: i["ids"] for i in d["blocking_issues"]}
 assert codes.get("TABLE1_NOT_IN_QUALITATIVE") == ["Study 3"], codes
 PY
 
-echo "PASS: test_screening_reconcile.sh (positive + 3 negatives; F1 labels x2, F2 IDs + negative, R2 unadjudicated labels x7, float labels, Table 1 digit-run match + positive)"
+
+# ------- positive: an excluded sibling report must not reach Table 1 through
+# the digit-run fallback. Smith2020_2 was excluded, Smith2020_1 is included;
+# Table 1 lists Smith2020_2. Main exits 1 TABLE1_NOT_IN_QUALITATIVE here.
+printf 'id\tdecision\nSmith2020_1\tinclude\nSmith2020_2\texclude\nJones2019\tinclude\n' > "$TMP/s_sib.tsv"
+printf 'study_id\nSmith2020_2\nJones2019\n' > "$TMP/t1_sib.csv"
+set +e
+python3 "$RECONCILE" --screening "$TMP/s_sib.tsv" \
+  --table1 "$TMP/t1_sib.csv" --output "$TMP/sib.json" > /dev/null
+rc=$?
+set -e
+[ "$rc" -eq 1 ] || fail "Table 1 excluded sibling: expected exit 1, got $rc"
+python3 - "$TMP/sib.json" <<'PY' || fail "Table 1 excluded sibling: not reported"
+import json, sys
+d = json.load(open(sys.argv[1]))
+codes = {i["code"]: i["ids"] for i in d["blocking_issues"]}
+assert codes.get("TABLE1_NOT_IN_QUALITATIVE") == ["Smith2020_2"], codes
+assert d["table1_matched_by_digit_run"] == {}, d
+PY
+
+# ------- positive: same, but Table 1 writes the excluded sibling in another
+# style ("Smith 2020 (2)") whose first digit run is shared by both siblings.
+printf 'study_id\nSmith 2020 (2)\nJones2019\n' > "$TMP/t1_sib2.csv"
+set +e
+python3 "$RECONCILE" --screening "$TMP/s_sib.tsv" \
+  --table1 "$TMP/t1_sib2.csv" --output "$TMP/sib2.json" > /dev/null
+rc=$?
+set -e
+[ "$rc" -eq 1 ] || fail "Table 1 ambiguous sibling: expected exit 1, got $rc"
+
+echo "PASS: test_screening_reconcile.sh (positive + 3 negatives; F1 labels x2, F2 IDs + negative, R2 unadjudicated labels x7, float labels, Table 1 digit-run match + positive, excluded sibling x2)"

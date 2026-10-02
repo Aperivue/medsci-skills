@@ -149,7 +149,10 @@ includes — bulk study loss no other gate can see), `CODE_NOT_REGISTERED` (off-
 PRISMA 5-way checks the SSOT flow arithmetic and CSV record counts; on prose surfaces it can only
 find a number missing. A number present ("12 studies" or "12 months") is `NOT_ASSESSED`, never OK
 (`--strict` exits 3): read those sentences. Known limits: screening labels must be one decision word
-(`Yes - include` exits 2, label named); a Table 1 ID with a shared digit run stays unmatched.
+(`Yes - include` exits 2, label named), and a blank decision cell exits 2 as `<blank>`; IDs
+are compared verbatim, so `#12` vs `12` across sheets reads as `STAGE_TRANSFER_LOSS`; a Table 1
+ID whose digit run is shared by any screened record stays unmatched. A PRISMA 2009 flow (other
+sources added before dedup) needs `deduplication.other_sources_before_dedup`, else `NOT_ASSESSED`.
 
 **3f.5 Pool composition lock (MANDATORY at adjudication freeze).** Once 3f passes, freeze the pool
 into a single source-of-truth YAML that every downstream artifact can be checked against:

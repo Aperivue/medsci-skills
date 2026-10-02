@@ -43,6 +43,10 @@ SSOT schema (YAML):
       figure_caption: "5_Figures/_captions.md"
 
 Optional SSOT keys used only by the flow-identity checks:
+    deduplication.other_sources_before_dedup
+                                      records from other sources (citation
+                                      searching, registers) added BEFORE
+                                      deduplication (PRISMA 2009 layout)
     screening.reports_not_retrieved   reports sought but not retrieved
     screening.other_methods_assessed  reports from other methods (citation
                                       searching, registers, experts) assessed
@@ -58,13 +62,14 @@ Optional SSOT keys used only by the flow-identity checks:
 
 What is checked
   1. Flow identities on the SSOT itself (each only when its keys are present):
-       sum(databases)              >= after_dedup
+       sum(databases) + other_sources_before_dedup >= after_dedup
        after_dedup - title_abstract_excluded - reports_not_retrieved
          + other_methods_assessed   = full_text_assessed
        full_text_assessed - full_text_excluded = included.reports or included.k
        sum(exclusion_reasons)       = full_text_excluded
      An identity whose gap could be explained by an optional key the SSOT does
      not declare is reported NOT_ASSESSED (not a failure, not a pass):
+       - sum(databases) < after_dedup and other_sources_before_dedup absent;
        - left side < full_text_assessed and other_methods_assessed absent;
        - left side > full_text_assessed and reports_not_retrieved absent;
        - assessed - excluded > k and included.reports absent (one study may
@@ -188,10 +193,24 @@ def flow_identity_checks(ssot: dict[str, Any]) -> list[dict[str, Any]]:
     def strict(lhs: int, rhs: int) -> str:
         return "OK" if lhs == rhs else "FAIL"
 
+    other_before = opt(dedup_sec, "deduplication", "other_sources_before_dedup")
     if dbs and dedup is not None:
         tot = sum(as_count(v, f"databases.{n}") for n, v in dbs.items())
-        add("sum(databases) >= deduplication.after_dedup",
-            "OK" if tot >= dedup else "FAIL", tot, dedup)
+        name = "sum(databases)"
+        if other_before is not None:
+            tot += other_before
+            name += " + other_sources_before_dedup"
+        name += " >= deduplication.after_dedup"
+        status, note = ("OK" if tot >= dedup else "FAIL"), ""
+        if tot < dedup and other_before is None:
+            # PRISMA 2009 flows add records from other sources before
+            # deduplication; they can outnumber the duplicates removed.
+            status = "NOT_ASSESSED"
+            note = ("after_dedup exceeds the database records by "
+                    f"{dedup - tot}; declare "
+                    "deduplication.other_sources_before_dedup (0 if none) "
+                    "to assess this identity")
+        add(name, status, tot, dedup, note)
     if None not in (dedup, ta_ex, assessed):
         lhs = dedup - ta_ex - (not_retrieved or 0) + (other_methods or 0)
         name = "after_dedup - title_abstract_excluded"

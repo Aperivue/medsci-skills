@@ -92,24 +92,33 @@ def digit_key(value: str) -> str:
     return match.group(0) if match else value
 
 
-def match_table1_ids(table1_ids: set[str], qualitative: set[str]) -> tuple[set[str], dict[str, str]]:
-    """Map Table 1 IDs onto qualitative IDs. A verbatim match wins. Otherwise a
-    Table 1 ID is matched by its first digit run (`Study 1` -> `1`, the matching
-    every table used before IDs became verbatim) only when exactly one
-    qualitative ID has that digit run; an ambiguous or absent digit run leaves
-    the ID unmatched, so it is reported rather than silently merged. Returns the
-    mapped set and the {table1_id: qualitative_id} pairs matched by digit run."""
+def match_table1_ids(
+    table1_ids: set[str], qualitative: set[str], known: set[str]
+) -> tuple[set[str], dict[str, str]]:
+    """Map Table 1 IDs onto qualitative IDs. A verbatim match wins. A Table 1 ID
+    that verbatim names any other screened or consensus record (e.g. an
+    excluded `Smith2020_2`) is never re-mapped. Otherwise a Table 1 ID is
+    matched by its first digit run (`Study 1` -> `1`, the matching every table
+    used before IDs became verbatim) only when exactly one record among ALL
+    screened and consensus IDs (`known`) has that digit run and that record is
+    in the qualitative set. Candidates come from every known record, not only
+    the qualitative ones, so an excluded sibling report (`Smith2020_2` beside an
+    included `Smith2020_1`) makes the digit run ambiguous instead of collapsing
+    onto the included sibling. An ambiguous or absent digit run leaves the ID
+    unmatched, so it is reported rather than silently merged. Returns the mapped
+    set and the {table1_id: qualitative_id} pairs matched by digit run."""
+    universe = set(known) | set(qualitative)
     by_key: dict[str, list[str]] = {}
-    for q in qualitative:
+    for q in universe:
         by_key.setdefault(digit_key(q), []).append(q)
     mapped: set[str] = set()
     via_digits: dict[str, str] = {}
     for t in table1_ids:
-        if t in qualitative:
+        if t in universe:
             mapped.add(t)
             continue
         cands = by_key.get(digit_key(t), [])
-        if len(cands) == 1:
+        if len(cands) == 1 and cands[0] in qualitative:
             mapped.add(cands[0])
             via_digits[t] = cands[0]
         else:
@@ -197,6 +206,7 @@ def main() -> int:
         consensus_include = {rid for rid, dec in consensus_decisions.items() if decision_kind(dec) == "include"}
     else:
         consensus_ids = set()
+        consensus_decisions = {}
         consensus_exclude = set()
         consensus_include = set()
 
@@ -208,7 +218,8 @@ def main() -> int:
         table1_ids = set()
 
     qualitative = (screening_include - consensus_exclude) | consensus_include
-    bivariate, table1_matched_by_digits = match_table1_ids(table1_ids, qualitative)
+    known_ids = set(screening_decisions) | set(consensus_decisions)
+    bivariate, table1_matched_by_digits = match_table1_ids(table1_ids, qualitative, known_ids)
     narrative_only = qualitative - bivariate
 
     # A record that passed screening and was EXCLUDED at consensus carries a decision.
@@ -274,7 +285,9 @@ def main() -> int:
                     "Included at screening but absent from the consensus artifact -- neither "
                     "included nor excluded, so no adjudication is recorded. Either restore these "
                     "records to the consensus stage, or record an explicit exclusion decision for "
-                    "each. Do not leave them to flow into the narrative-only set."
+                    "each. Do not leave them to flow into the narrative-only set. IDs are "
+                    "compared verbatim: if the two sheets write the same record differently "
+                    "(e.g. '#12' vs '12'), make the ID style match."
                 ),
             }
         )

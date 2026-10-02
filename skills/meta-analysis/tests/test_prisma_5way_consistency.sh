@@ -247,6 +247,16 @@ run_flow "F6b: included.reports 12 declared (PASS)" 0 "full_text_assessed" OK \
 'screening: {full_text_assessed: 25, full_text_excluded: 13}
 included: {k: 10, reports: 12}'
 
+run_flow "F7: PRISMA 2009, other records before dedup, key undeclared (NOT_ASSESSED)" 0 "sum(databases)" NOT_ASSESSED \
+'databases: {pubmed: 60, embase: 40}
+deduplication: {after_dedup: 104}'
+run_flow "F8: other_sources_before_dedup 6 declared (PASS)" 0 "sum(databases)" OK \
+'databases: {pubmed: 60, embase: 40}
+deduplication: {after_dedup: 104, other_sources_before_dedup: 6}'
+run_flow "F9: other_sources_before_dedup 0 declared, after_dedup too big (FAIL)" 1 "sum(databases)" FAIL \
+'databases: {pubmed: 60, embase: 40}
+deduplication: {after_dedup: 104, other_sources_before_dedup: 0}'
+
 # --------------------------------------------------------------------------
 # G: a non-numeric SSOT count is a clean exit 2, not a traceback.
 # --------------------------------------------------------------------------
