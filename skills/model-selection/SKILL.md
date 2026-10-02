@@ -95,6 +95,9 @@ Stdlib-only and network-free: nothing is fetched and no licence resolved online.
 | `LICENCE_UNSTATED` | Major | no licence recorded — not the same as a permissive one |
 | `LICENCE_INCOMPATIBLE` | Major | non-commercial / research-only licence under commercial or deployment intent |
 | `WEIGHTS_PROVENANCE_UNKNOWN` | Major | pretrained weights whose training corpus is not stated |
+| `DEVELOPED_ON_UNSTATED` | Major | the `developed_on` key is absent, so the conflict check could not run |
+| `EVALUATION_ARMS_UNSTATED` | Major | the `evaluation_arms` key is absent, so neither provenance check could run |
+| `INTENDED_USE_UNSTATED` | Major | `intended_use` is absent, so licence compatibility could not be checked |
 | `TASK_MISMATCH` | Minor | the model's task is not the study's task |
 | `NO_VERSION_PIN` | Minor | no commit, tag or revision |
 | `VALIDATION_UNREPORTED` | Minor | no reported validation (dataset + metric + source) |
@@ -105,6 +108,15 @@ The gate flags a **relationship, not a reputation**: `developed_on: ExampleBench
 long as no evaluation arm uses ExampleBench (the clean fixture proves this). Dataset names match as
 **token sequences** with a small family-alias table — `MSD Task09 Spleen` matches `MSD`,
 `MS Cohort 2026` does not — never by substring.
+
+An explicit empty list (`"developed_on": []`) states "none" and is not a finding; an absent key is.
+`intended_use` must be `research`, `commercial` or `clinical_deployment`, and `developed_on` /
+`weights.trained_on` must be lists of strings; anything else is an input error (exit 2), never a pass.
+
+**Known limits.** `LICENCE_INCOMPATIBLE` recognises non-commercial / research-only markers in the
+licence string (`NC`, `non-commercial`, `research-only`, in SPDX or spaced form). A free-text licence
+that restricts use without those markers (e.g. "academic use only"), or a copyleft licence under
+closed deployment, is not detected: read the licence file and record the conclusion yourself.
 
 ### Phase 6 — Turn a Major into a study decision
 A `BENCHMARK_PROVENANCE_CONFLICT` rarely means abandoning the model (it is often the best-engineered

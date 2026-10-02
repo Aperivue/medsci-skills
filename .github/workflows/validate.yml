@@ -600,6 +600,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/author-strategy/tests/test_archetype_classifier.sh
 
+      - name: Run replicate-study alcohol harmonization test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python3 skills/replicate-study/tests/test_alcohol_harmonization.py -v
+
       # --- Tier 0/1 skill regression tests (existing + new, now CI-wired) ---
       - name: Run make-figures legend-reconcile test
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
@@ -1071,6 +1075,10 @@ jobs:
       - name: "Run search-lit E-utilities test (an apostrophe in a query is data, not code)"
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/search-lit/tests/test_pubmed_eutils.sh
+
+      - name: "Run ma-scout test (an unknown esearch count is never 0; an unchecked PROSPERO is never clear)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/ma-scout/tests/test_esearch_count_and_prospero.sh
 
       - name: "Run DOI-record-match challenge (a resolvable DOI can belong to a different paper)"
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
