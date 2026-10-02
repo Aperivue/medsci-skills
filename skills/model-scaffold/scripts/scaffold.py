@@ -1337,6 +1337,33 @@ def split_patients(ids, seed, val_frac, test_frac):
     return assign
 
 
+# The same row rules imaging-data's check_preprocessing_leakage.py applies to split_assignment
+# (its SPLIT_SYNONYM and _patient), so a manifest that gate accepts is read here the same way.
+# Keep the two in step: a row it accepts and this rejects only fails closed (exit 2).
+UPSTREAM_SPLIT_SYNONYM = {
+    "train": "train", "training": "train",
+    "val": "val", "validation": "val", "valid": "val", "dev": "val",
+    "test": "test", "testing": "test", "holdout": "test", "hold-out": "test",
+    "eval": "test", "evaluation": "test",
+}
+UPSTREAM_PATIENT_KEYS = ("patient_id", "subject_id", "patient", "id")
+
+
+def _upstream_patient(r):
+    """The row's patient ID as a stripped string (a numeric 0 is an ID, a blank is not)."""
+    for key in UPSTREAM_PATIENT_KEYS:
+        value = r.get(key)
+        if value is not None and not isinstance(value, (dict, list)) and str(value).strip():
+            return str(value).strip()
+    return None
+
+
+def _upstream_split(r):
+    sp = r.get("split")
+    sp = str(sp).strip().lower() if sp is not None else ""
+    return UPSTREAM_SPLIT_SYNONYM.get(sp, sp)
+
+
 def load_upstream_split(path, ids):
     """Read the patient-level split from an imaging-data preprocessing_manifest.json so the repo
     trains on the SAME split that imaging-data's normalisation-leakage gate checked, instead of
@@ -1361,19 +1388,19 @@ def load_upstream_split(path, ids):
         sys.exit(2)
     assign, bad = {}, []
     for i, r in enumerate(rows):
-        pid = r.get("patient_id") if isinstance(r, dict) else None
-        sp = r.get("split") if isinstance(r, dict) else None
-        if not isinstance(pid, str) or not pid.strip() or sp not in ("train", "val", "test"):
+        pid = _upstream_patient(r) if isinstance(r, dict) else None
+        sp = _upstream_split(r) if isinstance(r, dict) else None
+        if pid is None or sp not in ("train", "val", "test"):
             bad.append(i)
             continue
-        pid = pid.strip()
         if assign.setdefault(pid, sp) != sp:
             sys.stderr.write(f"ERROR: --preprocessing-manifest {path}: patient '{pid}' is assigned to "
                              f"both {assign[pid]} and {sp}; the split is not patient-disjoint\n")
             sys.exit(2)
     if bad:
         sys.stderr.write(f"ERROR: --preprocessing-manifest {path}: {len(bad)} split_assignment row(s) "
-                         "lack a string patient_id or a split of train/val/test "
+                         "lack a patient ID (patient_id/subject_id/patient/id) or a split that "
+                         "maps to train/val/test "
                          f"(first: row {bad[0]})\n")
         sys.exit(2)
     missing = sorted(set(ids) - set(assign))

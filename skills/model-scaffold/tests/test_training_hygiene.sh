@@ -210,7 +210,7 @@ check "imported split with a patient in two splits exits 2" pm_bad dup \
 check "imported split without split_seed exits 2" pm_bad noseed \
   '{"split_assignment": [{"patient_id":"P1","split":"test"},{"patient_id":"P2","split":"train"},{"patient_id":"P3","split":"val"},{"patient_id":"P4","split":"train"}]}'
 check "imported split with an unknown split label exits 2" pm_bad label \
-  '{"split_seed": 7, "split_assignment": [{"patient_id":"P1","split":"holdout"},{"patient_id":"P2","split":"train"},{"patient_id":"P3","split":"val"},{"patient_id":"P4","split":"train"}]}'
+  '{"split_seed": 7, "split_assignment": [{"patient_id":"P1","split":"calibration"},{"patient_id":"P2","split":"train"},{"patient_id":"P3","split":"val"},{"patient_id":"P4","split":"train"}]}'
 check "missing --preprocessing-manifest file exits 2" bash -c \
   "python3 '$SCAFFOLD' --manifest '$WORK/m.csv' --preprocessing-manifest '$WORK/nope.json' --out '$WORK/nope' --quiet >/dev/null 2>&1; test \$? -eq 2"
 
@@ -287,6 +287,74 @@ check "--repo with no train.py -> no 'seeds all RNGs' clean row" bash -c \
   "! python3 '$HYGIENE' --repo '$G/notrain' | grep -q 'seeds all RNGs'"
 python3 "$HYGIENE" --repo "$G/notrain" --quiet >/dev/null 2>&1
 check "--repo with no train.py without --strict -> exit 0 (report-only)" test "$?" -eq 0
+
+# (l) decorated CLI entry points (click group / typer app) are reachable: the command function
+#     is registered by its decorator and never named by import-time code.
+cat > "$G/click_train.py" <<'PY'
+import random, click, numpy as np, torch
+@click.group()
+def cli():
+    pass
+@cli.command()
+@click.option("--seed", default=0)
+def train(seed):
+    random.seed(seed); np.random.seed(seed); torch.manual_seed(seed); torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+if __name__ == "__main__":
+    cli()
+PY
+python3 "$HYGIENE" --train "$G/click_train.py" --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "click group: seeding inside @cli.command() -> exit 0" test "$?" -eq 0
+check "click group: seeding inside @cli.command() -> no SEED_INCOMPLETE" no SEED_INCOMPLETE
+cat > "$G/typer_eval.py" <<'PY'
+import torch, typer
+app = typer.Typer()
+def get_device():
+    return "cpu"
+DEVICE = get_device()
+@app.command()
+def evaluate(ckpt: str):
+    model = torch.load(ckpt)
+    model.eval()
+    with torch.no_grad():
+        return model(torch.zeros(1))
+if __name__ == "__main__":
+    app()
+PY
+python3 "$HYGIENE" --eval "$G/typer_eval.py" --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "typer app: eval()+no_grad() inside @app.command() -> exit 0" test "$?" -eq 0
+check "typer app: eval()+no_grad() inside @app.command() -> no MISSING_EVAL_MODE" no MISSING_EVAL_MODE
+sed 's/^    model.eval()$/    pass/' "$G/typer_eval.py" > "$G/typer_eval_noeval.py"
+python3 "$HYGIENE" --eval "$G/typer_eval_noeval.py" --out "$OUT" --quiet >/dev/null 2>&1
+check "typer app without eval() -> MISSING_EVAL_MODE (decorated body is still checked)" has MISSING_EVAL_MODE
+
+# (m) a train+val refit wrapper is legitimate; train+test (already above) is not.
+loader_case refit 'both = ConcatDataset([DS(M, ".", split="train"), DS(M, ".", split="val")])
+l = DataLoader(both, shuffle=True)'
+check "ConcatDataset(train+val) refit shuffled loader -> no TRAIN_ON_NONTRAIN_SPLIT" no TRAIN_ON_NONTRAIN_SPLIT
+
+# (n) imaging-data's own clean preprocessing manifest (split synonyms such as "validation") is
+#     consumed as its leakage gate reads it; patient keys and numeric IDs follow the same rules.
+IMD_CLEAN="$HERE/../../imaging-data/scripts/check_preprocessing_leakage_challenge/fixture/manifest_clean.json"
+printf 'patient_id,image,label\nP01,a,m\nP02,b,n\nP03,c,o\nP04,d,p\nP05,e,q\n' > "$WORK/m5.csv"
+python3 "$SCAFFOLD" --manifest "$WORK/m5.csv" --preprocessing-manifest "$IMD_CLEAN" --out "$WORK/imd" --quiet >/dev/null 2>&1
+check "imaging-data clean fixture manifest imports (exit 0)" test "$?" -eq 0
+check "imaging-data clean fixture: 'validation' maps to val, split_seed kept" python3 -c "
+import csv, json
+got={r['patient_id']:r['split'] for r in csv.DictReader(open('$WORK/imd/splits/split_assignment.csv'))}
+assert got=={'P01':'train','P02':'train','P03':'val','P04':'test','P05':'test'}, got
+seed=json.load(open('$IMD_CLEAN'))['split_seed']
+assert open('$WORK/imd/splits/split_seed.txt').read().strip()==str(seed)"
+printf 'subject_id,image,label\n0,a,m\n1,b,n\n2,c,o\n' > "$WORK/mnum.csv"
+printf '%s\n' '{"split_seed": 3, "split_assignment": [{"subject_id":0,"split":"training"},{"subject_id":1,"split":"Validation"},{"subject_id":2,"split":"holdout"}]}' > "$WORK/pmnum.json"
+python3 "$SCAFFOLD" --manifest "$WORK/mnum.csv" --preprocessing-manifest "$WORK/pmnum.json" --out "$WORK/num" --quiet >/dev/null 2>&1
+check "subject_id key with numeric IDs (including 0) imports (exit 0)" test "$?" -eq 0
+check "numeric IDs map to the right splits" python3 -c "
+import csv
+got={r['subject_id']:r['split'] for r in csv.DictReader(open('$WORK/num/splits/split_assignment.csv'))}
+assert got=={'0':'train','1':'val','2':'test'}, got"
+check "imported split with a patient in two splits via synonyms exits 2" pm_bad syndup \
+  '{"split_seed": 7, "split_assignment": [{"patient_id":"P1","split":"training"},{"patient_id":"P1","split":"holdout"},{"patient_id":"P2","split":"train"},{"patient_id":"P3","split":"val"},{"patient_id":"P4","split":"train"}]}'
 
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

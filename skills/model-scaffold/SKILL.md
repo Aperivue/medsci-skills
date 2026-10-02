@@ -63,8 +63,10 @@ python3 ${CLAUDE_SKILL_DIR}/scripts/scaffold.py \
 # reuse the split /imaging-data's preprocessing gate checked (do not draw a new one):
 python3 ${CLAUDE_SKILL_DIR}/scripts/scaffold.py \
   --manifest <manifest.csv> --preprocessing-manifest preprocessing_manifest.json --out model_repo
-#   copies its split_assignment + split_seed into splits/; exits 2 if a manifest patient has no
-#   split there, a patient sits in two splits, a split is not train/val/test, or split_seed is absent.
+#   copies its split_assignment + split_seed into splits/, reading rows with the gate's own rules
+#   (patient key patient_id/subject_id/patient/id; split synonyms such as training/validation/holdout);
+#   exits 2 if a manifest patient has no split there, a patient sits in two splits, a split does not
+#   map to train/val/test, or split_seed is absent.
 ```
 This writes `model_repo/` with `config.yaml`, `model.py` (the task's model — U-Net / CNN / Faster R-CNN
 / Pix2Pix / SimCLR encoder), `dataset.py` (reads the frozen split), `losses.py` (task-appropriate),
@@ -134,11 +136,15 @@ runnability.
 - It counts seeding / cuDNN / `eval()` / `no_grad()` only in code a run reaches from the script's
   import-time statements. A file with no import-time call into its own functions is entered through
   every public top-level function nothing references, so an uncalled public `seed_everything` in such
-  a file still counts.
+  a file still counts. Every decorated function or method (a click/typer command, a route, a
+  `@staticmethod`) is also an entry point, so an uncalled decorated seeding helper still counts.
 - It does not check statement order: inference placed before `model.eval()` in the same function is
   not detected.
 - `--repo` without `train.py` / `evaluate.py` reports those checks as NOT CHECKED; with `--strict`
   it exits 2 rather than clearing them.
+- Dataset variables are resolved by one name-to-split map for the whole file (later assignment in
+  source order wins, across functions), not per scope; a shuffled loader that combines train with
+  val only (a train+val refit) is not flagged.
 
 ## Boundaries
 

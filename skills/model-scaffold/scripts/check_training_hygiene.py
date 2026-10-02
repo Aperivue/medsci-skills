@@ -28,7 +28,9 @@ CHECKS (verdicts):
                                       split="test" (keyword, or a positional "val"/"test"
                                       literal), directly, through a variable, or inside
                                       a wrapper such as ConcatDataset([...]) / Subset(...)
-                                      — training on a non-train split.
+                                      — training on a non-train split. A wrapper that
+                                      combines train with val only (a final refit on
+                                      train+val) is not flagged; train with test is.
   4. CUDNN_NONDETERMINISTIC  (Minor)  torch.backends.cudnn.deterministic is not set
                                       True in the training script.
   5. EVAL_SHUFFLE            (Minor)  an evaluation DataLoader uses shuffle=True
@@ -128,14 +130,18 @@ def _refs(nodes) -> set:
 
 def _reachable(tree: ast.Module) -> list:
     """The code a run of this script can execute: import-time statements plus every function unit
-    referenced (called, passed, decorated) from reachable code, transitively. A seeding helper that
-    is defined but never called therefore does not count as seeding.
+    referenced (called or passed) from reachable code, transitively. A seeding helper that is
+    defined but never called therefore does not count as seeding.
     A module whose import-time code references none of its own functions (a library-style file
     whose entry point lives elsewhere) is entered through each public top-level function that
-    nothing in the file references. Dunder methods are always entry points (called implicitly)."""
+    nothing in the file references. Dunder methods (called implicitly) and every decorated
+    function or method (a click/typer command, a route, a hook) are always entry points."""
     roots, units = _unit_defs(tree)
     root_refs = _refs(roots)
     entry = {n for n in units if n.startswith("__") and n.endswith("__")}
+    # A decorated function is registered with something that may call it without naming it
+    # (click/typer @cli.command(), @app.route, hooks), so it is an entry point too.
+    entry |= {n for n, defs in units.items() if any(d.decorator_list for d in defs)}
     if not (root_refs & set(units)):
         everywhere = set()
         for defs in units.values():
@@ -288,7 +294,9 @@ def analyze(train: str | None, eval_: str | None, repo: str | None = None,
             })
         # training on a non-train split (shuffle=True loader from a val/test dataset)
         for name, sps, shuffle in tfacts["loaders"]:
-            bad = sorted(set(sps) & set(NONTRAIN_SPLITS))
+            # train combined with val (a final refit on train+val after model selection) is a
+            # legitimate practice; combined with test it is not. Without train, val or test alone is.
+            bad = sorted(set(sps) & ({"test"} if "train" in sps else set(NONTRAIN_SPLITS)))
             if shuffle and bad:
                 sp = "/".join(bad)
                 claims.append({
