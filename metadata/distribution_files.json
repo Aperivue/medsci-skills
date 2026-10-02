@@ -1888,18 +1888,18 @@
     },
     {
       "path": "skills/generate-codebook/SKILL.md",
-      "size": 3896,
-      "sha256": "711923b19301960ec9b8aefcfab068440af4209d32862e55029ca02177ca52ea"
+      "size": 4455,
+      "sha256": "6c461d01e9310dd5d1c9fdeb98fce242607c706490993af411de91f3b7ee9edc"
     },
     {
       "path": "skills/generate-codebook/references/codebook_schema.md",
-      "size": 3435,
-      "sha256": "b85e52ef7383441dd09fd0cef2ad464054c2aea85247bb0bc9b3e38cf6e65f56"
+      "size": 3977,
+      "sha256": "ef1ad3d5f89c117c80b0b04de50ee3f78d9acb948d07677e4cca9d2f8dcd32aa"
     },
     {
       "path": "skills/generate-codebook/scripts/generate_codebook.py",
-      "size": 10982,
-      "sha256": "1a2db77ed0c13b7d5080f0d422ab6198a2d2fa88d0c9adbdabb9fc2a0dba8ddc"
+      "size": 12971,
+      "sha256": "f3bbafc399909d2575dffddc9b359ec265f42ee3238aba1cbf84efebd5d5df38"
     },
     {
       "path": "skills/generate-codebook/skill.yml",
