@@ -3823,8 +3823,8 @@
     },
     {
       "path": "skills/peer-review/SKILL.md",
-      "size": 52130,
-      "sha256": "90122d0fdf5c1209ac25747363a43d412fea64c7ff612cc5b909be52b78a2710"
+      "size": 53771,
+      "sha256": "9bbe92828bf260938c89092df0097e1698e0615da8bb0c51dd47df5f263fe3fe"
     },
     {
       "path": "skills/peer-review/references/aczel_2021_reviewer2_patterns.md",
@@ -4043,8 +4043,8 @@
     },
     {
       "path": "skills/peer-review/scripts/check_pdf_injection.py",
-      "size": 12990,
-      "sha256": "6234cded85de3c31c8f29d7c74b735d649dca70c58e7e6f2eab14107510a2181"
+      "size": 14798,
+      "sha256": "e179d09b076d95c3720b851b9c012de8197f73198f5b89475e3f889c7e35cb4e"
     },
     {
       "path": "skills/peer-review/scripts/check_pdf_injection_challenge/expected/clean.txt",
@@ -4082,6 +4082,16 @@
       "sha256": "86b0b9778ce68c05a41464f27dfd8b8318cf546a1e3d35c29fe28a35582aa68d"
     },
     {
+      "path": "skills/peer-review/scripts/check_pdf_injection_challenge/expected/render_hidden.txt",
+      "size": 780,
+      "sha256": "b63ca0d0e4bd7b8ebd27597f297d0380565e399352936e02cca2186545cba761"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_pdf_injection_challenge/expected/render_visible.txt",
+      "size": 345,
+      "sha256": "286ee405e9d8c4c28ecd8cdfd5e465416f1a4971b986532fde70bafe5a226371"
+    },
+    {
       "path": "skills/peer-review/scripts/check_pdf_injection_challenge/fixture/manifest_clean.json",
       "size": 553,
       "sha256": "bb67c4f241be5603b70743a2f443c8221ad69f48433ad4fa846845eaea70737d"
@@ -4117,24 +4127,34 @@
       "sha256": "567d91dc3154157a21833f9c61844f60ea5e17a3a50d2dcec920afb63093a2f7"
     },
     {
+      "path": "skills/peer-review/scripts/check_pdf_injection_challenge/fixture/manifest_render_hidden.json",
+      "size": 1017,
+      "sha256": "e743af70df139393aa1507d7bfeb4dff0568d279d1204c9c898e36df8b746fc9"
+    },
+    {
+      "path": "skills/peer-review/scripts/check_pdf_injection_challenge/fixture/manifest_render_visible.json",
+      "size": 1006,
+      "sha256": "06f246f4c81e673a3616ab36056b684437482e66fb7c21dcaae516296873054a"
+    },
+    {
       "path": "skills/peer-review/scripts/check_pdf_injection_challenge/problem.md",
-      "size": 4309,
-      "sha256": "2889af81d50bd625e550428420660973a131694630c7ef85b80c1949c9485ada"
+      "size": 5511,
+      "sha256": "c0267f508ae036f0423cb4ac08bd6e664f4132ed157db118230a94f52601c516"
     },
     {
       "path": "skills/peer-review/scripts/check_pdf_injection_challenge/verify.sh",
-      "size": 4025,
-      "sha256": "07882fe87626db4b71a9c660957aea2d90f7cb9d17ef8781bc1ec5eb5763be99"
+      "size": 4496,
+      "sha256": "1b6e744558d99fc5908c051aadd4c6744628531bc2d9fbeda20da9d2603e3efb"
     },
     {
       "path": "skills/peer-review/scripts/check_review_boxes.py",
-      "size": 8941,
-      "sha256": "9ff6d2a02191e9a7dafa039ce5d3b37d7b7395960c59f89e779caab38bd9e94c"
+      "size": 9434,
+      "sha256": "3041bf3f05af325a8762974ba227013f4e1a292dfc05c6608fdec75476d6eef8"
     },
     {
       "path": "skills/peer-review/scripts/check_review_length.py",
-      "size": 10012,
-      "sha256": "4d5f8010f5c4681ba33a2b02c092bf62085393c173bfd433a8149b208e5f01f4"
+      "size": 11004,
+      "sha256": "d81dc50ab2fe46affc254445ab7e43d37e4445578498e04dea875b28b85a1d6e"
     },
     {
       "path": "skills/peer-review/scripts/check_review_request_types.py",
@@ -4178,13 +4198,13 @@
     },
     {
       "path": "skills/peer-review/scripts/scan_pdf_layers.py",
-      "size": 7474,
-      "sha256": "e25d16e0f5e80f45635419261939038a5ba2577fea17facc5f1a59fcc12cc5db"
+      "size": 15014,
+      "sha256": "2773d3e6af1aabdc0786a88537b3a126ac2dfdfbbfd1dbeb920c8a59667b2911"
     },
     {
       "path": "skills/peer-review/skill.yml",
-      "size": 2346,
-      "sha256": "42bd6cc388a3802960ddf3e46b2ca226926bd4c9a779e6802b43e9fbb4172bac"
+      "size": 2716,
+      "sha256": "2c33570d221416e7c2519f722e55f069d19c7c47b893d8f9277796f2cc7837aa"
     },
     {
       "path": "skills/polish-language/SKILL.md",

@@ -401,6 +401,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/peer-review/tests/test_scan_pdf_layers_xmp.sh
 
+      - name: "Run peer-review PDF render-evidence regression (hidden spans flagged and kept out of --sanitize)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/peer-review/tests/test_pdf_render_evidence.sh
+
       - name: "Run peer-review draft gates (length per comment; recommendation must stay in the editor box)"
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/peer-review/tests/test_review_draft_gates.sh
