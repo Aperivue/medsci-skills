@@ -19,8 +19,12 @@ artifact policy.
       "tabular": {                     // present only for CSV/TSV/Parquet/Stata/SAS/Excel
         "n_rows": 200,
         "n_cols": 9,
-        "column_hashes": {"age": "…", "bmi": "…"}   // sha256 of the column's literal
-                                                    // cell strings (row order)
+        "column_hashes": {"age": "…", "bmi": "…"},  // sha256 of the column's literal
+                                                    // cell strings (row order) joined by
+                                                    // \x1e; a \x1e or \x1b inside a cell
+                                                    // is escaped with \x1b
+        "header": ["a", "a"]           // CSV/TSV only, and only when the raw header
+                                       // differs from the parsed names (duplicates)
       }
     }
   }
@@ -35,7 +39,9 @@ always yield the same manifest. `--base` stores file keys relative to a director
 
 | Category | Meaning |
 |---|---|
-| `CHANGED bytes: F` | A **non-tabular** file's SHA-256 differs. Tabular files are compared on logical content (below), not raw bytes, since re-save / float formatting / an `--ignore-cols` column would otherwise produce spurious byte drift. |
+| `CHANGED bytes: F` | A **non-tabular** file's SHA-256 differs. CSV/TSV files are compared on logical content (below), not raw bytes, so re-quoting, line endings or an `--ignore-cols` column do not produce spurious byte drift. |
+| `CHANGED bytes: F (column hashes match; …)` | A **binary tabular** file (Parquet/Stata/SAS/Excel) has identical column hashes but a different SHA-256. These formats hold content the column hashes do not cover (variable labels, other Excel sheets, file metadata), so the byte change is reported, not cleared. A binary re-save or a changed `--ignore-cols` column in a binary file also trips it. |
+| `CHANGED header F: [...] -> [...]` | The raw CSV/TSV header changed in a way the parsed column names hide (e.g. duplicate `a,a` vs `a,a.1`, which pandas reads identically). |
 | `MISSING file: F` | F was in the manifest but is absent now. |
 | `UNEXPECTED file: F` | F is present now but not in the manifest. |
 | `ROW COUNT F: a -> b` | Tabular row count changed. |

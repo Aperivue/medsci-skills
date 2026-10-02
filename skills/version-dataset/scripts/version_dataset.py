@@ -36,6 +36,24 @@ except ImportError:
     _HAVE_PANDAS = False
 
 TABULAR = {".csv", ".tsv", ".parquet", ".pq", ".dta", ".sas7bdat", ".xlsx"}
+# Plain-text tables: once the raw header is recorded, the per-column literal cell
+# strings capture everything the file holds, so a byte-only change (quoting, line
+# endings) is not drift. Binary formats also carry content the column hashes do
+# not see (Stata/SAS variable labels, other Excel sheets, Parquet metadata), so
+# for them a byte change is still reported even when every column hash matches.
+TEXT_TABULAR = {".csv", ".tsv"}
+
+# Cell separator in the column payload, and the escape that keeps it unambiguous.
+_SEP, _ESC = "\x1e", "\x1b"
+
+
+def _encode_cell(cell: str) -> str:
+    # Identity for any cell containing neither control character, so existing
+    # manifests keep their hashes; otherwise escape so that a separator inside
+    # a cell can never be confused with the boundary between two cells.
+    if _ESC in cell or _SEP in cell:
+        cell = cell.replace(_ESC, _ESC + _ESC).replace(_SEP, _ESC + _SEP)
+    return cell
 
 
 def file_sha256(path: Path) -> str:
@@ -73,6 +91,13 @@ def _read_str(path: Path):
     return df.astype(str)
 
 
+def _raw_header(path: Path) -> list[str]:
+    """The header row exactly as written (pandas mangles duplicates: a,a -> a,a.1)."""
+    sep = "\t" if path.suffix.lower() == ".tsv" else ","
+    hdr = pd.read_csv(path, sep=sep, header=None, nrows=1, dtype=str, keep_default_na=False)
+    return [str(v) for v in hdr.iloc[0].tolist()] if len(hdr) else []
+
+
 def column_hashes(path: Path, ignore_cols: set[str]) -> dict | None:
     if not _HAVE_PANDAS or path.suffix.lower() not in TABULAR:
         return None
@@ -82,19 +107,32 @@ def column_hashes(path: Path, ignore_cols: set[str]) -> dict | None:
         return None
     if df is None:
         return None
+    header = None
+    if path.suffix.lower() in TEXT_TABULAR:
+        try:
+            raw = _raw_header(path)
+        except Exception:
+            return None
+        # Recorded only when it differs from the parsed names (duplicate headers),
+        # so manifests of ordinary files are unchanged.
+        if raw != [str(c) for c in df.columns]:
+            header = raw
     cols = {}
     for c in df.columns:
         if c in ignore_cols:
             continue
         # Cells are already canonical strings (environment-independent); the
         # pandas dtype is deliberately NOT part of the digest.
-        payload = ("\x1e".join(df[c].tolist())).encode("utf-8")
+        payload = _SEP.join(_encode_cell(v) for v in df[c].tolist()).encode("utf-8")
         cols[str(c)] = hashlib.sha256(payload).hexdigest()
-    return {
+    tab = {
         "n_rows": int(len(df)),
         "n_cols": int(df.shape[1]),
         "column_hashes": cols,
     }
+    if header is not None:
+        tab["header"] = header
+    return tab
 
 
 def build_entry(path: Path, ignore_cols: set[str]) -> dict:
@@ -144,10 +182,10 @@ def _compare(expected: dict, actual: dict) -> list[str]:
         e, a = exp_files[name], act_files[name]
         et, at = e.get("tabular"), a.get("tabular")
         if et and at:
-            # Tabular: compare LOGICAL content (schema + column hashes), not raw
-            # bytes. Byte hash is over-sensitive (re-save, float formatting, an
-            # --ignore-cols column) and the column hashes fully characterize the
-            # data; only flag a byte change for non-tabular files below.
+            # Tabular: compare LOGICAL content (schema + column hashes). For
+            # plain-text tables that is the whole content, so a byte-only change
+            # (re-quoting, line endings, an --ignore-cols column) is not drift.
+            n_before = len(drift)
             if et["n_rows"] != at["n_rows"]:
                 drift.append(f"ROW COUNT {name}: {et['n_rows']} -> {at['n_rows']}")
             ec, ac = set(et["column_hashes"]), set(at["column_hashes"])
@@ -158,6 +196,15 @@ def _compare(expected: dict, actual: dict) -> list[str]:
             for col in sorted(ec & ac):
                 if et["column_hashes"][col] != at["column_hashes"][col]:
                     drift.append(f"CHANGED column {name}:{col}")
+            eh, ah = et.get("header"), at.get("header")
+            if (sorted(eh) if eh is not None else None) != (sorted(ah) if ah is not None else None):
+                drift.append(f"CHANGED header {name}: {eh} -> {ah}")
+            if (len(drift) == n_before and Path(name).suffix.lower() not in TEXT_TABULAR
+                    and e.get("sha256") != a.get("sha256")):
+                # Binary tabular formats hold content the column hashes do not
+                # cover (labels, other sheets, metadata): never clear a byte change.
+                drift.append(f"CHANGED bytes: {name} (column hashes match; labels, "
+                             f"metadata or other sheets differ)")
         else:
             # Non-tabular (or no longer readable as tabular): byte hash is the
             # only available signal.

@@ -52,5 +52,50 @@ python3 "$VS" manifest "$TMP/v.csv" --out "$TMP/vm.json" --ignore-cols ts >/dev/
 printf 'id,age,ts\n1,50,t9\n2,61,t8\n' > "$TMP/v.csv"   # only ts changes
 check "verify ignores volatile col" 0 "$(ec python3 "$VS" verify --manifest "$TMP/vm.json" --ignore-cols ts --strict)"
 
+# --- tabular byte changes the column hashes did not see must not be cleared ---
+# (a) duplicate header a,a re-written as a,a.1 (pandas parses both as a,a.1)
+printf 'a,a\n1,2\n' > "$TMP/h.csv"
+python3 "$VS" manifest "$TMP/h.csv" --out "$TMP/hm.json" >/dev/null 2>&1
+check "dup header: unchanged verifies clean" 0 "$(ec python3 "$VS" verify --manifest "$TMP/hm.json" --strict)"
+printf 'a,a.1\n1,2\n' > "$TMP/h.csv"
+check "dup header mangling -> drift" 1 "$(ec python3 "$VS" verify --manifest "$TMP/hm.json" --strict)"
+out="$(python3 "$VS" verify --manifest "$TMP/hm.json" 2>&1)"
+check "dup header reports CHANGED header" 0 "$([[ "$out" == *"CHANGED header"* ]] && echo 0 || echo 1)"
+
+# (b) record-separator collision in one column: ["a<RS>","b"] vs ["a","<RS>b"]
+printf 'c\na\036\nb\n' > "$TMP/s.csv"
+python3 "$VS" manifest "$TMP/s.csv" --out "$TMP/sm.json" >/dev/null 2>&1
+check "separator cells: unchanged verifies clean" 0 "$(ec python3 "$VS" verify --manifest "$TMP/sm.json" --strict)"
+printf 'c\na\n\036b\n' > "$TMP/s.csv"
+check "separator collision -> drift" 1 "$(ec python3 "$VS" verify --manifest "$TMP/sm.json" --strict)"
+
+# (c) CSV re-quoting changes bytes only -> still not drift (logical comparison kept)
+printf 'id,g\n1,A\n2,B\n' > "$TMP/q.csv"
+python3 "$VS" manifest "$TMP/q.csv" --out "$TMP/qm.json" >/dev/null 2>&1
+printf '"id","g"\r\n"1","A"\r\n"2","B"\r\n' > "$TMP/q.csv"
+check "csv re-quote (bytes only) stays clean" 0 "$(ec python3 "$VS" verify --manifest "$TMP/qm.json" --strict)"
+
+# (d) Stata: variable-label change with identical values -> drift;
+#     identical rewrite (fixed time stamp) -> clean
+mkdta() {
+    python3 - "$1" "$2" <<'PY'
+import sys, datetime, pandas as pd
+df = pd.DataFrame({"id": [1, 2, 3], "sbp": [120, 130, 125]})
+df.to_stata(sys.argv[1], write_index=False, variable_labels={"sbp": sys.argv[2]},
+            time_stamp=datetime.datetime(2020, 1, 1))
+PY
+}
+if mkdta "$TMP/d.dta" "Systolic BP" 2>/dev/null; then
+    python3 "$VS" manifest "$TMP/d.dta" --out "$TMP/dm.json" >/dev/null 2>&1
+    mkdta "$TMP/d.dta" "Systolic BP"
+    check "dta identical rewrite verifies clean" 0 "$(ec python3 "$VS" verify --manifest "$TMP/dm.json" --strict)"
+    mkdta "$TMP/d.dta" "Diastolic BP"
+    check "dta label change -> drift" 1 "$(ec python3 "$VS" verify --manifest "$TMP/dm.json" --strict)"
+    out="$(python3 "$VS" verify --manifest "$TMP/dm.json" 2>&1)"
+    check "dta label change reports CHANGED bytes" 0 "$([[ "$out" == *"CHANGED bytes"* ]] && echo 0 || echo 1)"
+else
+    echo "  SKIP  Stata writer unavailable"
+fi
+
 printf '\n%d/%d checks passed\n' "$((ran-fail))" "$ran"
 [[ "$fail" -eq 0 ]] || exit 1

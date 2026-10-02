@@ -48,9 +48,10 @@ proceed on changed data without their explicit acknowledgement and a re-lock. Si
 drifted data is the failure this skill exists to prevent.
 
 Read `${CLAUDE_SKILL_DIR}/references/manifest_schema.md` before interpreting drift — it defines
-each drift category. A tabular file is compared on its logical content (schema + per-column
-value hashes), not raw bytes, so re-saving the same data, reordering columns, or an
-`--ignore-cols` volatile column does not trip a false drift.
+each drift category. A CSV/TSV file is compared on its logical content (schema + per-column
+value hashes), not raw bytes, so re-quoting, reordering columns, or an `--ignore-cols` volatile
+column does not trip a false drift. Binary tabular files (Parquet/Stata/SAS/Excel) are also
+checked at the byte level, since labels, metadata and other sheets are not in the column hashes.
 
 ### Step 3: Diff across versions
 
