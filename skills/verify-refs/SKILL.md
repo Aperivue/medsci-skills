@@ -114,15 +114,15 @@ and writes no TSV and no `library.bib`.
   given names — with CrossRef and PubMed esummary as fallbacks. For BibTeX inputs every cited family name is
   compared index-by-index, and the cited and source author counts are compared, after
   normalizing case, diacritics, hyphen vs space, and name particles ("von", "van", "de"); one
-name may be a whole word of the other ("Garcia" / "Garcia-Lopez"), never a mere substring
-("Li" / "Williams"). A row
+  name may be a whole word of the other ("Garcia" / "Garcia-Lopez"), never a mere substring
+  ("Li" / "Williams"). A row
   whose DOI/PMID resolves but whose authors differ at any index or in count becomes `MISMATCH`:
   `note = "first-author hallucination suspected"` for the first author,
   `note = "non-first-author hallucination or count mismatch"` for #2..#N or the count. A correct
   first author does not establish the rest of the list. Plain-text / TSV inputs, and lists that
   cannot be parsed confidently, degrade to the first-author check (skipped if even that is
   empty). A PubMed title-only match is `OK` only when the matched record's esummary authors were
-compared with the cited ones and agree; otherwise it stays `UNVERIFIED`. A declared
+  compared with the cited ones and agree; otherwise it stays `UNVERIFIED`. A declared
   truncation — BibTeX `and others`, or a `_audit_truncated = <N>` field — turns a
   shorter-than-source count into a note; citing more authors than the source is always flagged.
 - Gate 5: verbatim PMID or normalized-DOI duplicates in the reference list are MAJOR findings in

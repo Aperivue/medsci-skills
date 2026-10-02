@@ -197,32 +197,76 @@ def brace_field(entry: str, name: str) -> str:
     return entry[start : j - 1]
 
 
-# An entry opens with `@type{` or `@type(` at the start of a line. BibTeX allows whitespace
-# before the `@`, between the type and the delimiter, and the parenthesised form; splitting only
-# at a column-0 `@type{` merged every such entry into the one before it, so only the first was
-# ever looked up while the audit still reported submission_safe. _claim_evidence.BIB_KEY_RE
-# recognises the same headers, so the freshness check and this parser agree on the key list.
-BIB_ENTRY_START_RE = re.compile(r"^[ \t]*@[ \t]*(\w+)\s*[{(]", re.M)
+# An entry opens with `@type{` or `@type(`. BibTeX allows whitespace before the `@`, between the
+# type and the delimiter, and the parenthesised form; splitting only at a column-0 `@type{` merged
+# every such entry into the one before it, so only the first was ever looked up while the audit
+# still reported submission_safe.
+BIB_ENTRY_HEAD_RE = re.compile(r"@[ \t]*(\w+)\s*([{(])")
 # Not references: string macros, preamble, and comments. They are skipped, not audited.
 BIB_NON_ENTRY_TYPES = ("comment", "string", "preamble")
-# A second entry header on the same line as the end of the previous entry (`} @article{b,`).
-# Splitting cannot see it, so it is refused rather than silently merged.
-BIB_INLINE_ENTRY_RE = re.compile(r"[})][ \t]*@[ \t]*(\w+)\s*[{(]\s*([^,\s]*)")
 
 
-class BibParseError(ValueError):
-    """The .bib holds an entry header this parser cannot separate from its neighbour."""
+def _bib_entry_end(text: str, i: int, opener: str) -> int:
+    """Index just past the delimiter that closes the entry body starting at text[i].
+
+    `@` inside a field value is text to BibTeX ("{Hospital} @ Home ({HaH})", an e-mail address),
+    so the body is walked by brace depth and only its own closing delimiter ends the entry.
+    Returns -1 when the body never closes.
+    """
+    depth, quoted, n = 0, False, len(text)
+    while i < n:
+        c = text[i]
+        if c == "{":
+            depth += 1
+        elif c == "}":
+            if depth == 0:
+                return i + 1 if opener == "{" else -1
+            depth -= 1
+        elif opener == "(" and depth == 0:
+            if c == '"':
+                quoted = not quoted
+            elif c == ")" and not quoted:
+                return i + 1
+        i += 1
+    return -1
+
+
+def _bib_entry_starts(text: str) -> list[int]:
+    """Offsets of the entry headers in `text`, in order.
+
+    Between entries a header counts when only whitespace precedes it on its line, or only
+    whitespace separates it from the previous entry's closing delimiter (`} @article{b,`).
+    Inside an entry's body an `@` is field text, never a header. One exception keeps what the
+    old column-0 split always did: a `@type{` at column 0 starts an entry even inside a body
+    that has not closed yet, so one unbalanced brace cannot swallow the rest of the file.
+    """
+    col0 = [m.start() for m in re.finditer(r"^@\w+\{", text, re.M)]
+    starts: list[int] = []
+    pos, prev_end = 0, -1
+    while True:
+        m = BIB_ENTRY_HEAD_RE.search(text, pos)
+        if not m:
+            return starts
+        line_start = text.rfind("\n", 0, m.start()) + 1
+        after_prev = prev_end >= 0 and not text[prev_end:m.start()].strip()
+        if text[line_start:m.start()].strip() and not after_prev:
+            pos = m.start() + 1
+            continue
+        starts.append(m.start())
+        end = _bib_entry_end(text, m.end(), m.group(2))
+        nxt = next((c for c in col0 if c > m.start()), -1)
+        if end < 0 or 0 <= nxt < end:
+            # The body has not closed before the next column-0 header: resume there.
+            if nxt < 0:
+                return starts
+            pos, prev_end = nxt, -1
+            continue
+        pos, prev_end = end, end
 
 
 def parse_bib(text: str) -> list[RefRecord]:
     records: list[RefRecord] = []
-    for m in BIB_INLINE_ENTRY_RE.finditer(text):
-        if m.group(1).lower() not in BIB_NON_ENTRY_TYPES:
-            line = text.count("\n", 0, m.start()) + 1
-            raise BibParseError(
-                f"line {line}: entry '@{m.group(1)}{{{m.group(2)}' starts on the same line as the "
-                "end of the previous entry; put each entry on its own line")
-    starts = [m.start() for m in BIB_ENTRY_START_RE.finditer(text)]
+    starts = _bib_entry_starts(text)
     entries = [text[a:b] for a, b in zip(starts, starts[1:] + [len(text)])]
     for entry in entries:
         entry = entry.strip()
@@ -1512,11 +1556,7 @@ def main() -> int:
     text = read_input(input_path)
     suffix = input_path.suffix.lower()
     if suffix == ".bib":
-        try:
-            records = parse_bib(text)
-        except BibParseError as exc:
-            print(f"Unrecognised BibTeX in {input_path.name}: {exc}", file=sys.stderr)
-            return 2
+        records = parse_bib(text)
     elif suffix == ".tsv":
         records = parse_tsv(text)
     else:
