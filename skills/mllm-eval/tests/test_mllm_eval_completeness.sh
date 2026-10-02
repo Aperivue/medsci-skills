@@ -108,4 +108,35 @@ python3 "$DET" --plan "$TMP/sense_control.md" --task report_generation --out "$O
 check "SENSE control: sense-specific complete plan passes (exit 0)" test "$?" -eq 0
 check "SENSE control: no PROMPT_PROVENANCE_MISSING" no PROMPT_PROVENANCE_MISSING
 
+# --- Negation is bounded to the concept's own phrase (review counterexamples). An unrelated
+#     negation earlier in the same sentence, a relative clause, a negated property or a negated
+#     result must NOT cancel an affirmative mention: a plan covering every axis stays clean. ---
+cat > "$TMP/scope_repro.md" <<'MD'
+We evaluate on MIMIC-CXR with BLEU and RadGraph-F1. Studies without prior imaging were adjudicated by two radiologists to form the reference standard. A blinded reader study is performed. Reports with no acute findings were also checked for hallucinations by atomic-fact decomposition. Because the training data are not public, contamination was probed with a canary. The prompt, temperature 0 and 3 runs are reported.
+MD
+python3 "$DET" --plan "$TMP/scope_repro.md" --task report_generation --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "SCOPE control: unrelated negation earlier in the sentence does not cancel (exit 0)" test "$?" -eq 0
+check "SCOPE control: no REFERENCE_STANDARD_MISSING ('Studies without prior imaging were adjudicated')" no REFERENCE_STANDARD_MISSING
+check "SCOPE control: no FAITHFULNESS_MISSING ('Reports with no acute findings ... hallucinations')" no FAITHFULNESS_MISSING
+check "SCOPE control: no CONTAMINATION_UNADDRESSED ('data are not public, contamination was probed')" no CONTAMINATION_UNADDRESSED
+BASE="We evaluate on MIMIC-CXR with BLEU and RadGraph-F1. The reference standard is adjudicated by two radiologists. A blinded reader study is performed. Contamination was probed with a canary. The prompt, temperature 0 and 3 runs are reported."
+printf '%s\n' "$BASE" "Faithfulness, which was not part of prior work, is assessed via atomic facts." > "$TMP/scope_rel.md"
+python3 "$DET" --plan "$TMP/scope_rel.md" --task report_generation --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "SCOPE control: relative clause 'which was not part of prior work' does not cancel (exit 0)" test "$?" -eq 0
+check "SCOPE control: relative clause -> no FAITHFULNESS_MISSING" no FAITHFULNESS_MISSING
+printf '%s\n' "We evaluate on MIMIC-CXR with BLEU and RadGraph-F1. Expert review is not blinded. A blinded reader study is performed; the reader study did not include trainees. Contamination was probed with a canary. Hallucination rate was not significantly different between models. No more than 5 runs were needed; the prompt and temperature 0 are reported." > "$TMP/scope_prop.md"
+python3 "$DET" --plan "$TMP/scope_prop.md" --task report_generation --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "SCOPE control: negated property / negated result / 'no more than' do not cancel (exit 0)" test "$?" -eq 0
+check "SCOPE control: no PROMPT_PROVENANCE_MISSING ('No more than 5 runs')" no PROMPT_PROVENANCE_MISSING
+# --- Negations without an auxiliary verb (label, table cell, "none", "out of scope") withdraw the axis. ---
+for form in "Hallucination: not assessed." "| Hallucination | not evaluated |" "Hallucination assessment: none." "Hallucination evaluation is out of scope."; do
+  printf '%s\n\n%s\n' "$BASE" "$form" > "$TMP/label_neg.md"
+  python3 "$DET" --plan "$TMP/label_neg.md" --task report_generation --out "$OUT" --strict --quiet >/dev/null 2>&1
+  check "LABEL-NEG: '$form' exits 1" test "$?" -eq 1
+  check "LABEL-NEG: '$form' -> FAITHFULNESS_MISSING" has FAITHFULNESS_MISSING
+done
+printf '%s\n' "$BASE" "Hallucination: none detected by atomic-fact checking." > "$TMP/label_ctl.md"
+python3 "$DET" --plan "$TMP/label_ctl.md" --task report_generation --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "LABEL-NEG control: 'Hallucination: none detected' is a result (exit 0)" test "$?" -eq 0
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"; exit "$fail"

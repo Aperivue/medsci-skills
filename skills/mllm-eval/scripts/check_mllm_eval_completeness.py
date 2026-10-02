@@ -6,8 +6,10 @@ clinical evaluation. It flags the axes a defensible evaluation must cover that a
 **absent** from the plan text — it is a presence check on the protocol (the analogue
 of check_model_card_complete for documentation), not a judge of results. Conservative:
 each verdict fires only when its concept is clearly missing from the text. A concept that
-clears a check counts only when stated affirmatively: a mention inside a negated clause
-("no expert review", "hallucination was not assessed") does not satisfy it, and the
+clears a check counts only when stated affirmatively: a mention that is itself negated
+("no expert review", "hallucination was not assessed", "Hallucination: not assessed") does
+not satisfy it, while a negation elsewhere in the sentence ("studies without prior imaging
+were adjudicated") does not cancel it. The
 patterns are sense-specific ("green arrows", "random sampling", "bootstrap CIs" or a
 held-out split of a public benchmark do not satisfy GREEN / decoding / multi-run /
 contamination).
@@ -100,25 +102,60 @@ SAT = {
 # not applied to them, so the negation guard can only ever add flags, never remove one.
 TRIGGER_CONCEPTS = {"ngram", "benchmark"}
 
-# Clause boundaries for the negation scope: sentence punctuation (not decimal points), a
-# paragraph break or a new list item / heading / table row (a wrapped prose line is NOT a
-# break), and contrastive conjunctions ("no BLEU but RadGraph-F1" -> RadGraph is affirmed).
+# Negation is bounded to the concept's own phrase, not the whole sentence: an unrelated
+# negation elsewhere in the sentence ("Studies without prior imaging were adjudicated",
+# "Because the data are not public, contamination was probed", "Faithfulness, which was not
+# part of prior work, is assessed") must not cancel an affirmative mention.
+#
+# Hard clause boundaries: sentence punctuation (not decimal points), a paragraph break or a
+# new list item / heading / table row (a wrapped prose line is NOT a break), and contrastive
+# conjunctions ("no BLEU but RadGraph-F1" -> RadGraph is affirmed).
 _CLAUSE_BREAK = re.compile(r"(?<!\d)[.;!?](?!\d)|\n\s*\n|\n[ \t]*(?:[-*+#>|]|\d+[.)])|\b(?:but|whereas|however|although|though|while|except)\b",
                            re.IGNORECASE)
-# A negator before the concept, in the same clause ("no expert review", "did not use an
-# adjudicated reference", "without a contamination check"). "not only" is not a negation;
-# "no evidence of X" / "found no X" report a RESULT of evaluating X, so they do not negate it.
-_PRE_NEG = re.compile(r"\b(?:no|not|without|never|neither|nor|none|lacks?|lacking|absent|omit(?:s|ted)?)\b"
-                      r"(?!\s+only\b)|n['\u2019]t\b", re.IGNORECASE)
-_PRE_RESULT = re.compile(r"\b(?:found|observed|detected|identified|showed|revealed|demonstrated)\s+no\b|"
-                         r"\bno\s+(?:evidence|signs?|indication)\b", re.IGNORECASE)
-# A negation after the concept, in the same clause ("Hallucination was not assessed", "the
-# prompt ... are not reported"), unless it reports a result ("contamination was not detected").
-_POST_NEG = re.compile(r"\b(?:was|were|is|are|be|been|will|shall|could|can|did|does|do)\s+(?:not|never)\b"
-                       r"(?!\s+(?:detected|found|observed|identified|seen|present|evident|only)\b)|"
-                       r"\b(?:wasn|weren|isn|aren|didn|doesn|don|won)['\u2019]t\b"
-                       r"(?!\s+(?:detected|found|observed|identified|seen|present|evident)\b)",
-                       re.IGNORECASE)
+# Soft boundaries close the negation window as well: a comma, a parenthesis, a relative
+# pronoun and "and" ("no BLEU and a reader study" -> the reader study is affirmed). "or"/"nor"
+# are not boundaries: "no reader study or expert review" negates both.
+_SOFT_BREAK = re.compile(r"[,()\[\]]|\b(?:and|which|who|whom|whose|that|where|when|because|since|if)\b",
+                         re.IGNORECASE)
+# After the concept only a parenthesis or a subordinate clause closes the window: a list or a
+# coordinated subject ("The prompt, temperature and runs are not reported") stays in scope.
+_POST_SOFT_BREAK = re.compile(r"[()\[\]]|\b(?:which|who|whom|whose|that|where|when|because|since|if)\b",
+                              re.IGNORECASE)
+# A negator governing the concept: at most _PRE_WINDOW words before it, with no finite
+# auxiliary in between ("Reports with no acute findings were checked for hallucinations": a
+# verb separates "no" from "hallucinations", so they are not negated).
+_PRE_WINDOW = 4
+_NEGATOR = re.compile(r"\b(?:no|not|without|never|neither|nor|none|lacks?|lacking|absent|omit(?:s|ted)?)\b|n['\u2019]t\b",
+                      re.IGNORECASE)
+_WORD = re.compile(r"[\w'\u2019/+-]+")
+_AUX = re.compile(r"^(?:is|are|was|were|be|been|being|has|have|had)$", re.IGNORECASE)
+# Not a negation: "not only", "no more/less/fewer/later than", "whether or not"; and
+# "no evidence of X" / "found no X" report a RESULT of evaluating X.
+_NEG_EXEMPT = re.compile(r"^(?:not|no)\s+(?:only|more|less|fewer|later|earlier|longer|greater)\b|"
+                         r"^no\s+(?:evidence|signs?|indication)\b", re.IGNORECASE)
+_PRE_RESULT = re.compile(r"\b(?:found|observed|detected|identified|showed|revealed|demonstrated)\s+$|"
+                         r"\bor\s+$", re.IGNORECASE)
+# A negation right after the concept that says the axis itself was NOT DONE ("Hallucination
+# was not assessed", "the prompt and temperature are not reported", "Hallucination: not
+# assessed", "| Hallucination | n/a |", "Hallucination assessment: none", "Hallucination
+# evaluation is out of scope"). The negated word must be an absence verb, so a negated property
+# ("expert review is not blinded") or a result ("contamination was not detected", "the rate
+# was not significantly different") leaves the concept affirmed.
+_ABSENCE = (r"(?:\w+ly\s+)?(?:assess|evaluat|perform|report|done|do\b|use|used|using|includ|conduct|"
+            r"measur|availab|plann|plan\b|consider|address|appl|disclos|examin|check|provid|undertak|"
+            r"collect|obtain|quantif|test|studi|stud|scor|record|specif|state[ds]?\b|captur|analy[sz]|"
+            r"investigat|implement|attempt|feasib|possib|carr|run|ran\b|account|control|explor)\w*")
+# The concept is the subject of a passive / copular "not": an active verb with an object ("The
+# reader study did not include trainees") describes the axis, it does not withdraw it.
+_POST_NEG = re.compile(
+    r"^(?:\s*,?\s*[\w'\u2019/+-]+){0,6}?\s*(?:"
+    r"\b(?:(?:was|were|is|are|be|been)\s+(?:not|never)|(?:has|have|had)\s+(?:not|never)\s+been|"
+    r"(?:will|shall|could|can|may|would|should)\s+(?:not|never)\s+be|cannot\s+be|"
+    r"(?:wasn|weren|isn|aren)['\u2019]t|(?:hasn|haven|hadn)['\u2019]t\s+been|(?:won|can|couldn)['\u2019]t\s+be)"
+    r"\s+" + _ABSENCE + r"|"
+    r"\s*[:|]\s*(?:not\s+(?:" + _ABSENCE + r"|applicable)|none\s*(?:[.;|]|$)|n/?a\b)|"
+    r"\b(?:is|are|was|were|remains?)\s+(?:considered\s+)?(?:out of scope|beyond the scope|outside the scope)\b)",
+    re.IGNORECASE)
 
 
 def _clause_bounds(text: str, start: int, end: int):
@@ -132,12 +169,32 @@ def _clause_bounds(text: str, start: int, end: int):
     return lo, hi
 
 
+def _pre_negated(before: str) -> bool:
+    """A negator within _PRE_WINDOW words before the concept, nothing but its own phrase between."""
+    soft = list(_SOFT_BREAK.finditer(before))
+    if soft:
+        before = before[soft[-1].end():]
+    negs = list(_NEGATOR.finditer(before))
+    if not negs:
+        return False
+    neg = negs[-1]
+    between = _WORD.findall(before[neg.end():])
+    if len(between) > _PRE_WINDOW or any(_AUX.match(w) for w in between):
+        return False
+    if _NEG_EXEMPT.match(before[neg.start():]) or _PRE_RESULT.search(before[:neg.start()]):
+        return False
+    return True
+
+
 def _negated(text: str, m) -> bool:
     lo, hi = _clause_bounds(text, m.start(), m.end())
     before, after = text[lo:m.start()], text[m.end():hi]
-    if _PRE_NEG.search(before) and not _PRE_RESULT.search(before):
+    if _pre_negated(before):
         return True
-    return _POST_NEG.search(after) is not None
+    soft = _POST_SOFT_BREAK.search(after)
+    if soft:
+        after = after[:soft.start()]
+    return _POST_NEG.match(after) is not None
 
 
 DEPLOY_CLAIM = re.compile(

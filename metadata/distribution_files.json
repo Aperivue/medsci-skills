@@ -3223,8 +3223,8 @@
     },
     {
       "path": "skills/mllm-eval/scripts/check_mllm_eval_completeness.py",
-      "size": 9434,
-      "sha256": "4364431238fec7dd01a9f8cf293bc70b7205b8d5f966928da6743b4d90e29a32"
+      "size": 17120,
+      "sha256": "160aca90a0abc619c9af1c8c7ffbd741330a76c19de43bd89aa837d4be876697"
     },
     {
       "path": "skills/mllm-eval/scripts/mllm_eval_completeness_challenge/fixture/plan_bad.md",
