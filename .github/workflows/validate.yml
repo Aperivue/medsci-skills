@@ -953,6 +953,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/check-reporting/tests/test_checklist_fidelity.sh
 
+      - name: Run review-paper macro-skeleton test (scoping/systematic carry PRISMA Methods/Results slots)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/review-paper/tests/test_macro_skeleton.sh
+
       - name: Run check-reporting PRISMA-cascade test
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/check-reporting/tests/test_prisma_cascade.sh
