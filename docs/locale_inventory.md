@@ -50,6 +50,7 @@ Buckets:
 | `skills/publish-skill/SKILL.md` | A | Language-hardcoding **detection** patterns (`한국어로`, `<한글이름> 교수님`) — the feature. |
 | `skills/publish-skill/scripts/audit_skill.sh` | A | Korean PII/name detection regex. |
 | `skills/publish-skill/references/pii-patterns.md` | A | Korean PII pattern examples for the auditor. |
+| `skills/publish-skill/tests/test_audit_skill.sh` | A | Synthetic Korean name + role fixtures for the auditor's regression test. |
 | `skills/sync-submission/scripts/check_asset_anonymization.py` | A | Korean institution-token **detection** regex (`병원\|의료원\|의과대학\|대학교\|연구윤리`) for the asset-anonymization gate — the feature. |
 | `skills/present-paper/scripts/inject_pronunciation_notes.py` | A | Korean pronunciation dictionary for Korean-presenter speaker notes. |
 | `skills/present-paper/SKILL.md` | A/D | `[ 발음 ]` pronunciation-section header example + bilingual trigger. |

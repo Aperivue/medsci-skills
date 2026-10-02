@@ -4408,8 +4408,8 @@
     },
     {
       "path": "skills/publish-skill/SKILL.md",
-      "size": 11950,
-      "sha256": "b52698c1eb54c58c7b075cc314d32619673bb4b259ff285080b4580c7f070417"
+      "size": 12628,
+      "sha256": "c6e9985e3b17208b5a5e86f20f316d2a57590367edeaba663f7c0ee0faabc916"
     },
     {
       "path": "skills/publish-skill/references/classroom-distribution.md",
@@ -4428,8 +4428,8 @@
     },
     {
       "path": "skills/publish-skill/scripts/audit_skill.sh",
-      "size": 10602,
-      "sha256": "23c2253855e27cf20256e44f18447d3344ff9f29c56d5201e620900f2a297c06"
+      "size": 14367,
+      "sha256": "2ae52b3d30a647a97931d3db198a88773d3177f414cad0454b50dcb113299d2a"
     },
     {
       "path": "skills/publish-skill/skill.yml",
