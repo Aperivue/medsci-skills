@@ -71,7 +71,9 @@ Output (qc/cross_document_n.json):
 Exit codes:
     0 = no drift
     1 = drift detected
-    2 = invocation error (missing files, bad arguments)
+    2 = invocation error (missing files, bad arguments), or a matched file
+        that cannot be read as UTF-8 (listed in "unreadable_files", never in
+        "files_scanned"; the report is still written with coverage "incomplete")
 
 This script does not modify source files. It is read-only.
 """
@@ -170,9 +172,14 @@ DEFAULT_GLOBS = (
     "prospero/*.md",
     "supplementary/*.md",
     "supplementary/**/*.md",
+    # `supplement/` is the directory preflight_gate.py and SKILL.md use; the
+    # per-journal cover letter lives at submission/<journal>/cover_letter.md.
+    "supplement/*.md",
+    "supplement/**/*.md",
     "INDEX.md",
     "submission/**/manuscript*.md",
     "submission/**/abstract*.md",
+    "submission/**/*cover_letter*.md",
 )
 
 
@@ -216,6 +223,7 @@ class Report:
     categories_scanned: list[str]
     files_scanned: list[str]
     lock_violations: list[dict] = field(default_factory=list)
+    unreadable_files: list[str] = field(default_factory=list)
 
     def as_dict(self) -> dict:
         return {
@@ -225,6 +233,8 @@ class Report:
             "categories_scanned": self.categories_scanned,
             "files_scanned": self.files_scanned,
             "lock_violations": self.lock_violations,
+            "unreadable_files": self.unreadable_files,
+            "coverage": "incomplete" if self.unreadable_files else "complete",
         }
 
 
@@ -237,12 +247,19 @@ def _to_int(raw: str) -> int:
     return int(raw.replace(",", ""))
 
 
-def scan_file(path: Path) -> list[tuple[str, Hit]]:
+def _read(path: Path) -> str | None:
+    try:
+        return path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return None
+
+
+def scan_file(path: Path, text: str | None = None) -> list[tuple[str, Hit]]:
     """Return (category, Hit) tuples for every matched N claim in path."""
     out: list[tuple[str, Hit]] = []
-    try:
-        text = path.read_text(encoding="utf-8")
-    except (OSError, UnicodeDecodeError):
+    if text is None:
+        text = _read(path)
+    if text is None:
         return out
     for lineno, line in enumerate(text.splitlines(), start=1):
         for category, pat in PATTERNS:
@@ -373,8 +390,17 @@ def build_report(
     pool_lock: Path | None = None,
 ) -> Report:
     hits_by_cat: dict[str, list[Hit]] = {}
+    scanned: list[Path] = []
+    unreadable: list[Path] = []
     for path in files:
-        for cat, hit in scan_file(path):
+        text = _read(path)
+        if text is None:
+            # Not scanned, so never listed as scanned: an undecodable cover letter
+            # must not read as "agrees with the manuscript".
+            unreadable.append(path)
+            continue
+        scanned.append(path)
+        for cat, hit in scan_file(path, text):
             hits_by_cat.setdefault(cat, []).append(hit)
 
     drifts = detect_drifts(hits_by_cat)
@@ -382,14 +408,15 @@ def build_report(
     if pool_lock is not None:
         lock_violations = check_pool_lock(pool_lock, hits_by_cat)
 
-    submission_safe = not drifts and not lock_violations
+    submission_safe = not drifts and not lock_violations and not unreadable
     return Report(
         submission_safe=submission_safe,
         drift_count=len(drifts),
         drifts=drifts,
         categories_scanned=sorted(hits_by_cat.keys()),
-        files_scanned=[str(p) for p in files],
+        files_scanned=[str(p) for p in scanned],
         lock_violations=lock_violations,
+        unreadable_files=[str(p) for p in unreadable],
     )
 
 
@@ -461,10 +488,17 @@ def main(argv: list[str] | None = None) -> int:
         args.out.parent.mkdir(parents=True, exist_ok=True)
         args.out.write_text(json.dumps(report.as_dict(), indent=2), encoding="utf-8")
 
+    if report.unreadable_files:
+        # Coverage is incomplete: exit 2 naming the file(s), never a PASS.
+        sys.stderr.write(
+            "ERROR: could not read as UTF-8 (not scanned): "
+            + ", ".join(report.unreadable_files) + "\n")
+        return 2
+
     if not args.quiet:
         if report.submission_safe:
             print(
-                f"PASS: scanned {len(files)} files, "
+                f"PASS: scanned {len(report.files_scanned)} files, "
                 f"{len(report.categories_scanned)} categories, no drift."
             )
         else:

@@ -5838,8 +5838,8 @@
     },
     {
       "path": "skills/sync-submission/SKILL.md",
-      "size": 29562,
-      "sha256": "f2f1db4c75fd59dd245a6899a029c27ae28bb24cbe3f49edce01ebec21dc01d2"
+      "size": 30942,
+      "sha256": "14e9dc89e62e10fd280978fe41927d98d28864359ddc98a633ab9749e06f5e68"
     },
     {
       "path": "skills/sync-submission/examples/build_synthetic_bundle.py",
@@ -5968,13 +5968,13 @@
     },
     {
       "path": "skills/sync-submission/scripts/check_wordcount_cap.py",
-      "size": 12569,
-      "sha256": "4ef2cb7ba5a7a7d799b03cc686b81bb7f22c99c1238588e363fd7f7fbdc36cd4"
+      "size": 16282,
+      "sha256": "2a4f998261b091b8bcef6a654ee06bde74c132210002a0d80da0d685b0b1d09c"
     },
     {
       "path": "skills/sync-submission/scripts/cover_letter_drift_check.py",
-      "size": 21393,
-      "sha256": "c14eac63515fe8d3c44bd5e4a9aef49cc39fa0ddc0f96ddedcd2728cb67ef24b"
+      "size": 21257,
+      "sha256": "a98dfaad509fffe3987296d65685cde5a7bc2bd42d230d8ff8318ff82c545b20"
     },
     {
       "path": "skills/sync-submission/scripts/credit_integrity_challenge/fixture/manuscript_bad.md",
@@ -5993,13 +5993,13 @@
     },
     {
       "path": "skills/sync-submission/scripts/cross_document_n_check.py",
-      "size": 15691,
-      "sha256": "97e9b3aa3dc85a420d5bb6331653dce137dd4e3a1dcf5119acd4acc3c5acc309"
+      "size": 17169,
+      "sha256": "cc004dcd676523542dd3f44252b7b39ae2b9960b6280c755cc0736237c226a79"
     },
     {
       "path": "skills/sync-submission/scripts/detect_copy_divergence.py",
-      "size": 5233,
-      "sha256": "a6c17162f26a7dd476958b4f912b7db0cf546a913be2bae4325496e23e4cb3ea"
+      "size": 6377,
+      "sha256": "173175aeee65c8c2aa80a2ce549666b54a28cf9fc55c65dfed350c3852688a38"
     },
     {
       "path": "skills/sync-submission/scripts/figure_portal_readiness_challenge/problem.md",
@@ -6083,8 +6083,8 @@
     },
     {
       "path": "skills/sync-submission/scripts/preflight_gate.py",
-      "size": 29080,
-      "sha256": "af5688aa499b6890270d1367260d1460f180a9f57decbdc3542c74c24e4fdf8e"
+      "size": 31652,
+      "sha256": "3ee92270831bf8a1b293de21dc4a77d37b29dae83bc8f21e2933231ef5d3dc9c"
     },
     {
       "path": "skills/sync-submission/scripts/scope_drift_check.py",

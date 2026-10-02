@@ -127,6 +127,53 @@ python3 "$SCRIPT" --files "$PROJ4/sub/a.md" "$PROJ4/sub/b.md" \
     --out "$PROJ4/qc/n.json" --quiet
 assert_exit "case 4: explicit --files PASS (30 = 30)" 0 $?
 
+# --------------------------------------------------------------------------
+# Case 5 (F4): the per-journal cover letter (submission/<journal>/cover_letter.md,
+# the path preflight_gate.py uses) and supplement/ were outside the glob set,
+# so drift there was a PASS.
+# --------------------------------------------------------------------------
+PROJ5="$TMP/case5_submission_cover"
+mkdir -p "$PROJ5/submission/chest"
+echo "We enrolled 120 patients in the cohort." > "$PROJ5/manuscript.md"
+echo "Dear Editor, our study of 118 patients is enclosed." > "$PROJ5/submission/chest/cover_letter.md"
+python3 "$SCRIPT" --root "$PROJ5" --out "$PROJ5/qc/n.json" --quiet
+assert_exit "case 5: submission/<j>/cover_letter.md drift (120 vs 118)" 1 $?
+
+PROJ6="$TMP/case6_supplement"
+mkdir -p "$PROJ6/supplement"
+echo "We enrolled 120 patients in the cohort." > "$PROJ6/manuscript.md"
+echo "Table S1 describes the 118 patients analysed." > "$PROJ6/supplement/S1.md"
+python3 "$SCRIPT" --root "$PROJ6" --out "$PROJ6/qc/n.json" --quiet
+assert_exit "case 6: supplement/ drift (120 vs 118)" 1 $?
+
+# NEGATIVE control: the same layout with agreeing N stays clean.
+PROJ7="$TMP/case7_submission_cover_ok"
+mkdir -p "$PROJ7/submission/chest" "$PROJ7/supplement"
+echo "We enrolled 120 patients in the cohort." > "$PROJ7/manuscript.md"
+echo "Dear Editor, our study of 120 patients is enclosed." > "$PROJ7/submission/chest/cover_letter.md"
+echo "Table S1 describes the 120 patients analysed." > "$PROJ7/supplement/S1.md"
+python3 "$SCRIPT" --root "$PROJ7" --out "$PROJ7/qc/n.json" --quiet
+assert_exit "case 7: negative control, agreeing N in new paths" 0 $?
+
+# --------------------------------------------------------------------------
+# Case 8 (F4): a non-UTF-8 file was silently dropped yet listed in files_scanned
+# (PASS). It is now an input error (exit 2) naming the file, and is reported as
+# unreadable, not scanned.
+# --------------------------------------------------------------------------
+PROJ8="$TMP/case8_unreadable"
+mkdir -p "$PROJ8"
+echo "We enrolled 120 patients in the cohort." > "$PROJ8/manuscript.md"
+printf 'Dear Editor, our caf\xe9 study of 118 patients.\n' > "$PROJ8/cover_letter.md"
+python3 "$SCRIPT" --root "$PROJ8" --out "$PROJ8/qc/n.json" --quiet 2>/dev/null
+assert_exit "case 8: non-UTF-8 cover letter -> exit 2 (not PASS)" 2 $?
+python3 - "$PROJ8/qc/n.json" <<'PY' || fail=$((fail + 1))
+import json, sys
+rep = json.load(open(sys.argv[1]))
+assert rep["unreadable_files"] and rep["unreadable_files"][0].endswith("cover_letter.md"), rep
+assert not any(f.endswith("cover_letter.md") for f in rep["files_scanned"]), rep
+assert rep["coverage"] == "incomplete" and rep["submission_safe"] is False, rep
+PY
+
 echo ""
 echo "ran=$ran fail=$fail"
 [[ $fail -eq 0 ]]
