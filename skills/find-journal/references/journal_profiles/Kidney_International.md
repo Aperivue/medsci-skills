@@ -26,7 +26,7 @@ renal physiology, renal pathology, glomerulonephritis, polycystic kidney disease
 - **Field:** Nephrology (general, flagship)
 
 ## Special Notes
-Kidney International (IF ~14.8) is highly selective. It enforces a strict limit of 6 combined figures/tables for Original Articles. Case reports are not accepted. AI policy: language editing only, disclose using Elsevier's declaration format before references, AI images banned.
+Kidney International is highly selective. It enforces a strict limit of 6 combined figures/tables for Original Articles. Case reports are not accepted. AI policy: language editing only, disclose using Elsevier's declaration format before references, AI images banned.
 
 ## Verification
 - **Source:** Kidney International Guide for Authors, read during maintainer review of PR #330 — verification record: https://github.com/Aperivue/medsci-skills/pull/330#issuecomment-4968075916

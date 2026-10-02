@@ -36,7 +36,7 @@ KEYWORDS = {
 Apply to body text and Figure source independently → produce two dictionaries
 `body_numbers` and `figure_numbers`.
 
-## Arithmetic checks (4)
+## Arithmetic checks (5)
 
 ```python
 def check_arithmetic(n: dict) -> list[dict]:
@@ -55,6 +55,11 @@ def check_arithmetic(n: dict) -> list[dict]:
         ok = n["sought"] - n["not_retrieved"] == n["retrieved"]
         results.append({"eq": "retrieved = sought - not_retrieved",
                         "lhs": n["retrieved"], "rhs": n["sought"] - n["not_retrieved"],
+                        "status": "PRESENT" if ok else "MISMATCH"})
+    if all(k in n for k in ["sought", "not_retrieved", "assessed"]):
+        ok = n["sought"] - n["not_retrieved"] == n["assessed"]
+        results.append({"eq": "assessed = sought - not_retrieved",
+                        "lhs": n["assessed"], "rhs": n["sought"] - n["not_retrieved"],
                         "status": "PRESENT" if ok else "MISMATCH"})
     if all(k in n for k in ["assessed", "excluded_eligibility", "included"]):
         ok = n["assessed"] - n["excluded_eligibility"] == n["included"]
@@ -102,8 +107,10 @@ For each key in `KEYWORDS`:
 ## Edge cases
 
 - **Multi-database identification**: PRISMA 2020 supports separate boxes for database vs
-  register vs other methods. Sum across boxes for `identified` total — extraction regex must
-  handle `321 records (213 from databases, 108 from citation searching)`.
+  register vs other methods. Sum across boxes for `identified` total. The script does **not**
+  do this: `identified` is the first match only, and per-source counts such as
+  `321 records (213 from databases, 108 from citation searching)` are not parsed or summed —
+  check that sum by hand.
 - **Citation searching strand**: separate flow on right side of PRISMA 2020 diagram. If
   present, run arithmetic checks on each strand independently + a combined `total identified`
   check.

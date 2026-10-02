@@ -28,7 +28,7 @@ infectious diseases, global health, antimicrobial resistance, vaccines, HIV/AIDS
 - **Field:** Infectious diseases
 
 ## Special Notes
-The Lancet Infectious Diseases is the leading specialty journal in ID with IF ~31. It shares the Lancet Group submission system and editorial standards; manuscripts rejected from The Lancet may be transferred. The journal strongly favors large multicenter trials, systematic reviews with global scope, and policy-relevant epidemiological studies.
+The Lancet Infectious Diseases is the leading specialty journal in ID. It shares the Lancet Group submission system and editorial standards; manuscripts rejected from The Lancet may be transferred. The journal strongly favors large multicenter trials, systematic reviews with global scope, and policy-relevant epidemiological studies.
 
 ## AI Writing Disclosure Policy
 - **Requirement level:** Required

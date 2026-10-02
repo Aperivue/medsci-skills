@@ -25,12 +25,11 @@ diabetes mellitus, type 2 diabetes, type 1 diabetes, obesity, thyroid disease, e
 
 ## Classification
 - **Tier:** Q1
-- **Impact Factor:** ~42
 - **Open Access:** Hybrid
 - **Field:** Endocrinology / Diabetes
 
 ## Special Notes
-Lancet Diabetes & Endocrinology is the premier endocrinology/diabetes specialty journal within the Lancet family. Extremely competitive (acceptance rate <10%). Publishes landmark diabetes trials (e.g., SGLT2 inhibitor, GLP-1 RA outcomes). Imaging studies accepted only when part of major clinical trials (e.g., body composition imaging, pancreatic imaging in diabetes). Follows Lancet Group editorial standards: strict adherence to ICMJE, EQUATOR checklists mandatory, and preference for large multicenter international RCTs or prospective cohorts.
+Lancet Diabetes & Endocrinology is the premier endocrinology/diabetes specialty journal within the Lancet family. Extremely competitive. Publishes landmark diabetes trials (e.g., SGLT2 inhibitor, GLP-1 RA outcomes). Imaging studies accepted only when part of major clinical trials (e.g., body composition imaging, pancreatic imaging in diabetes). Follows Lancet Group editorial standards: strict adherence to ICMJE, EQUATOR checklists mandatory, and preference for large multicenter international RCTs or prospective cohorts.
 
 ## AI Writing Disclosure Policy
 - **Requirement level:** Required
