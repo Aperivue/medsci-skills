@@ -167,6 +167,25 @@ _SUPPLEMENT_OR_FRONT_MATTER_RE = re.compile(
 )
 
 
+# A retraction notice, erratum, correction or expression of concern prints the original
+# work's title and DOI under its own heading, so title + DOI agreement accepted the
+# notice as the work. Only a line that is the heading itself counts (optionally followed
+# by ":" or "to:" and the work's title): a title such as "Correction of Myopia ..." or a
+# sentence that mentions a correction is not a marker.
+_NOTICE_RE = re.compile(
+    r"^\s*(?:"
+    r"retraction(?:\s+(?:notice|note|statement))?|notice\s+of\s+retraction|retracted\s+article"
+    r"|errat(?:um|a)|correction|corrigend(?:um|a)|expression\s+of\s+concern"
+    r")(?:\s+to)?\s*(?:$|:)",
+    re.I,
+)
+
+
+def correction_or_retraction_notice(front: str) -> bool:
+    """True when a line of the bounded front matter is a notice heading."""
+    return any(_NOTICE_RE.match(line) for line in front.splitlines())
+
+
 def supplement_or_front_matter(front: str) -> bool:
     """True when a line of the bounded front matter is a supplement/front-matter heading."""
     return any(_SUPPLEMENT_OR_FRONT_MATTER_RE.match(line) for line in front.splitlines())
@@ -230,6 +249,7 @@ def assess_source_identity(record: dict, extracted_text: str | None,
     Matching titles with a different DOI may be another version: unresolved.
     A supplement / preface / table-of-contents heading in that area makes the
     file unresolved even when title and DOI agree: it names the work, it is not it.
+    So does a retraction / erratum / correction / expression-of-concern heading.
     """
     front = first_page_front_matter(extracted_text)
     title_match = classify_title_match(record.get("title", ""), extracted_text, threshold)
@@ -264,6 +284,8 @@ def assess_source_identity(record: dict, extracted_text: str | None,
         status, reason = "conflict", "title_and_identifier_differ"
     if status not in ("conflict", "unavailable") and supplement_or_front_matter(front):
         status, reason = "unresolved", "supplement_or_front_matter"
+    if status not in ("conflict", "unavailable") and correction_or_retraction_notice(front):
+        status, reason = "unresolved", "correction_or_retraction_notice"
     return {"status": status, "reason": reason, "text_scope": "first_page_front_matter",
             "title_match": title_match, "doi_match": doi_match,
             "observed_identifiers": observed, "first_author_match": author_match}

@@ -1,0 +1,16 @@
+{
+ "status": "ok",
+ "message": {
+  "type": "posted-content",
+  "title": [
+   "Photon-counting CT of the temporal bone: a reader study"
+  ],
+  "update-to": [
+   {
+    "type": "new_version",
+    "DOI": "10.1000/version.009a",
+    "label": "New version"
+   }
+  ]
+ }
+}

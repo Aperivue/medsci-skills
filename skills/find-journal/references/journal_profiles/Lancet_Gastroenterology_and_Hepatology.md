@@ -46,4 +46,4 @@ gastroenterology, hepatology, MASLD, NAFLD, MASH, MetALD, ALD, alcohol-associate
 - East-Asian cohort epidemiology is regularly published, but the journal has a documented preference for *international or multi-cohort* validation (e.g., paired Korean + UK Biobank + NHANES analyses). Single-centre Korean cohorts are accepted when the methodological contribution (e.g., comparator refinement as a generalizable method) is strong enough to justify international relevance — the cover letter should pre-empt the "single-centre / Asian-only" reviewer concern.
 
 ## Acceptance Rate (estimated)
-~5–8 % overall (Lancet specialty journals' published acceptance bands; ~60–70 % desk-rejected before peer review, of the remainder ~25–35 % accepted).
+Not cached: no sourced acceptance rate is recorded for this journal. Verify current figures with the journal.
