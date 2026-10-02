@@ -110,9 +110,29 @@ def _extract_authors(author_list_el):
 
 def parse_esearch(data: str) -> None:
     """Parse esearch JSON response, print PMIDs and count."""
+    # A body without `esearchresult.count`, or with an `ERROR` field, is not a search that
+    # found nothing: it is a search that did not run. Defaulting the count to "0" printed
+    # "Total results: 0" with exit 0 for an error body, which a caller reads as "no papers"
+    # (ma-scout's "MA = 0" verdict). Name the input and exit 2 instead.
     result = json.loads(data)
-    esearch = result.get("esearchresult", {})
-    count = esearch.get("count", "0")
+    esearch = result.get("esearchresult") if isinstance(result, dict) else None
+    problem = None
+    if not isinstance(esearch, dict):
+        problem = "no 'esearchresult' object"
+        if isinstance(result, dict) and result.get("error"):
+            problem += f" (error: {result.get('error')})"
+    elif esearch.get("ERROR"):
+        problem = f"esearchresult.ERROR: {esearch.get('ERROR')}"
+    elif "count" not in esearch:
+        problem = "esearchresult has no 'count'"
+    if problem is not None:
+        print(
+            f"ERROR: esearch response is not a search result ({problem}); "
+            "the count is unknown, not 0.",
+            file=sys.stderr,
+        )
+        sys.exit(2)
+    count = esearch["count"]
     ids = esearch.get("idlist", [])
     print(f"Total results: {count}")
     print(f"Returned: {len(ids)}")
