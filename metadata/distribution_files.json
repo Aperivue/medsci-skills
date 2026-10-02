@@ -4593,18 +4593,18 @@
     },
     {
       "path": "skills/review-paper/SKILL.md",
-      "size": 4592,
-      "sha256": "edd52d6a641466e0ab92e327e48ee9f4e8c2be80e4ad82630bfe2c22bd8a5b01"
+      "size": 5227,
+      "sha256": "7ab68ea0c2ba9dc8545cff9cfaa62c0a89762120ce9054955ca20554ef9bd2e0"
     },
     {
       "path": "skills/review-paper/references/macro_skeleton.md",
-      "size": 426,
-      "sha256": "ff203c546076461f20f4388ba7cfbf8e9a5d258eba05a07b29388a41d15d2aa4"
+      "size": 4540,
+      "sha256": "529c0125e7fce7a44cd60ac3b0f090384243c95542d4ca992aa5e75621437720"
     },
     {
       "path": "skills/review-paper/skill.yml",
-      "size": 1002,
-      "sha256": "e6748af932583daa53be41956fffc7c93b53682a9f5374a530e9fe67d55eea91"
+      "size": 1104,
+      "sha256": "eef26645b8046a887827d14070793d9fc9f30fad26b04ade936c323fe008047c"
     },
     {
       "path": "skills/revise/SKILL.md",
