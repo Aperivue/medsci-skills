@@ -96,11 +96,15 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/check_sentence_variety.py" \
     --manuscript manuscript.md --out qc/sentence_variety.json
 ```
 
-`NUMBER_DRIFT` or `CITATION_DROP` means the rewrite broke an invariant — revert that passage, redo
-it, and flag it for the user. `EDIT_FOOTPRINT_HIGH` is advisory: Patterns 6 and 18 replace whole
+`NUMBER_DRIFT`, `NUMBER_REASSIGNED`, `CITATION_DROP` or `CITATION_MOVED` means the rewrite broke an
+invariant — revert that passage, redo it, and flag it for the user. `EDIT_FOOTPRINT_HIGH` is advisory: Patterns 6 and 18 replace whole
 paragraphs by design, so a correct pass over an inflated draft can exceed 60% of words changed.
 Read the diff and confirm the author's argument survived rather than assuming the percentage is a
 defect.
+
+**Known limits:** the fidelity gate does not check an added or removed negation, a number written
+in words, a changed unit, or a direction word next to a non-percentage. A clean exit does not
+clear these; read the diff for them.
 
 **Output: Verification Report**
 
@@ -153,7 +157,7 @@ authoring guidance, see the revise skill's `references/r2r_voice.md`.
 | Pattern 27 — antithesis / cleft density | ENFORCED | "rather than" / "not X but Y" / "X, not Y" or "What … is …" / "It is … that …" over a per-1000 threshold AND raw-count floor | run `python3 "${CLAUDE_SKILL_DIR}/../self-review/scripts/check_rhetorical_density.py" --manuscript manuscript.md`; `ANTITHESIS_DENSITY` / `CLEFT_DENSITY` (both Minor) — apply Fix rule 8 (the M2 test). A lone functional "rather than" or "instead of" never fires |
 | Pattern 25 — inline-emphasis over-use | ENFORCED | italic-emphasis density over threshold after allowlist | run `python3 "${CLAUDE_SKILL_DIR}/../self-review/scripts/check_emphasis_density.py" --manuscript manuscript.md`; `EMPHASIS_OVERUSE` (Minor) means strip inline italics (keep only stat symbols / Latin / gene-species); whole-clause italics are the strongest tell |
 | Patterns 22-24 — R2R editing-mechanism / draft line-number / tooling leak | TRIAGE (response letters); `§` = 0 hard | detection greps in ai_patterns.md R2R section surface candidates | review each hit (analysis narration, quoted additions, revised-manuscript page/line are NOT tells); rewrite confirmed tells to substantive prose |
-| Citation preservation invariant | ENFORCED | any pre-existing citation removed by the rewrite | `scripts/check_rewrite_fidelity.py --before <pre> --after <post> --strict` → `CITATION_DROP` (Major); revert that single rewrite and flag for the user |
-| Numerical preservation invariant | ENFORCED | any number changed by the rewrite | same script → `NUMBER_DRIFT` (Major); revert and flag |
+| Citation preservation invariant | ENFORCED | a citation item (each key of a multi-key or locator Pandoc citation, or a numeric marker) removed or changed, or carried across a sentence boundary the rewrite kept | `scripts/check_rewrite_fidelity.py --before <pre> --after <post> --strict` → `CITATION_DROP` / `CITATION_MOVED` (Major); revert that single rewrite and flag for the user |
+| Numerical preservation invariant | ENFORCED | a numeric token's count changed (sign, inequality sign and %-direction are part of the token), or values traded places while the words around them stayed | same script → `NUMBER_DRIFT` / `NUMBER_REASSIGNED` (Major); revert and flag. Known limits: a negation, a number written in words, a unit, or a direction word next to a non-percentage is not checked — read the diff for these |
 | Rewrite footprint | ADVISORY | fraction of word tokens changed exceeds `--warn-pct` (default 70) | `EDIT_FOOTPRINT_HIGH` (Minor) — never blocks; read the diff (Phase 4) |
 | Fix rule 7 — sentence-length uniformity | ADVISORY | prose has no short (≤12 words) or no long (≥25 words) sentences | `scripts/check_sentence_variety.py --manuscript <file>` → `SENTENCE_UNIFORM` (Minor); break up or combine sentences until both bands exist. Silent below 15 sentences |

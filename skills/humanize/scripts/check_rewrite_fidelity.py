@@ -13,10 +13,17 @@ and every citation present before the rewrite must still be present after it.
 
 Verdicts:
   NUMBER_DRIFT (Major)         a numeric token's count changed across the rewrite — including a
-                               dropped leading minus ("-2.4" -> "2.4") and a flipped comparison
-                               ("24% lower" -> "24% above"). Each changed token is reported with
+                               dropped leading minus ("-2.4" -> "2.4"), a flipped comparison
+                               ("24% lower" -> "24% above") and a flipped inequality sign
+                               ("P < 0.05" -> "P > 0.05"). Each changed token is reported with
                                a short before/after context snippet.
-  CITATION_DROP (Major)        a citation present before is absent after.
+  NUMBER_REASSIGNED (Major)    every number is still present, but values traded places while the
+                               words around them stayed ("sensitivity was 91% and specificity
+                               was 78%" -> "... 78% ... 91%").
+  CITATION_DROP (Major)        a citation present before is absent after. Multi-key and locator
+                               Pandoc citations ("[@a; @b]", "[@a, p. 4]") are compared key by key.
+  CITATION_MOVED (Major)       a citation is still present but now sits on the other side of a
+                               sentence boundary that the rewrite kept.
   EDIT_FOOTPRINT_HIGH (Minor)  more than --warn-pct of the words changed — re-read the diff.
 
 Why the footprint is advisory and the invariants are not: the two invariants are the skill's
@@ -24,12 +31,16 @@ own declared contract ("every number, statistic, p-value, confidence interval an
 must remain identical"; "do not remove or relocate citations"), so a violation is unambiguous.
 The footprint percentage has no such backing. Measured on this skill's own fixtures, a *correct*
 de-AI pass over an AI-inflated Discussion changed 61% of word tokens — because Patterns 6 and 18
-require replacing formulaic limitation and conclusion paragraphs with specific content, which
-rewrites whole paragraphs by design. A hard threshold would therefore fail exactly the edits the
+delete or replace whole formulaic limitation and conclusion paragraphs by design. A hard threshold would therefore fail exactly the edits the
 skill asks for. The percentage is reported so a human can notice an implausible one; it is not
 evidence of over-editing on its own, and the default is deliberately loose.
 
 Exit codes: 0 clean or Minor-only, 1 with --strict when any Major fires, 2 usage error.
+
+Not checked (read the diff for these): a negation added or removed ("did not improve"), a
+number written in words ("three" -> "two"), a changed unit ("5 mg" -> "5 g"), a direction word
+next to a non-percentage ("increased by 3.2" -> "decreased by 3.2"), and a value that moved to
+another variable together with the words around it. The clean message names what was checked.
 
 Scoped to keep false positives low:
   * Comparison is on WORD tokens, not characters, so punctuation-only fixes (Pattern 13
@@ -57,8 +68,11 @@ from pathlib import Path
 DETECTOR_ID = "check_rewrite_fidelity"
 
 FENCE_RE = re.compile(r"```.*?```", re.S)
-# Pandoc citation keys and bare numeric markers, e.g. [@smith2020], [12], [3-5], [3–5].
-CITEKEY_RE = re.compile(r"\[@[^\]\s]+\]")
+# Pandoc bracketed citations, single or multi-key, with or without locators ([@smith2020],
+# [@smith2020; @lee2021], [see @smith2020, p. 4]), and bare numeric markers ([12], [3-5]).
+# Each Pandoc key is one citation item.
+CITEKEY_RE = re.compile(r"\[[^\[\]]*@[^\[\]]*\]")
+_KEY_RE = re.compile(r"(?:^|(?<=[\s;\[-]))-?@(?P<key>[A-Za-z0-9_](?:[\w:.#$%&+?<>~/-]*\w)?)")
 NUMMARK_RE = re.compile(r"\[\d+(?:\s*[-–,]\s*\d+)*\]")
 WORD_RE = re.compile(r"[A-Za-z0-9''-]+")
 # A numeric token: integer, decimal, or percentage. Thousands separators are dropped so that
@@ -88,17 +102,46 @@ _CHANGE = (r"increase[sd]?|increasing|rise[sn]?|rose|gain(?:ed|s)?|decrease[sd]?
 _BEFORE_RE = re.compile(
     rf"\b(?:(?P<w>{_CHANGE})\s+(?:by\s+|of\s+)?"
     r"|(?P<c>higher|greater|larger|more|lower|less|fewer|smaller)\s+by\s+)$", re.IGNORECASE)
-_CONTEXT = 45  # characters of context either side of a changed token in the report
+# An inequality sign directly before a number is part of the value: "P < 0.05" and "P > 0.05"
+# share every digit. "=" and "≈" are not bound, so "P = 0.03" -> "P of 0.03" stays clean.
+_INEQ_RE = re.compile(r"(?P<op><=|>=|[<>≤≥⩽⩾])\s*$")
+_INEQ_NORM = {"<=": "≤", ">=": "≥", "⩽": "≤", "⩾": "≥"}
+# A sentence end: terminal punctuation followed by whitespace or end of text. Decimal points
+# never match, because number tokens are blanked before this runs.
+_EOS_RE = re.compile(r"[.!?](?=\s|$)")
+_ALPHA_RE = re.compile(r"[A-Za-z][A-Za-z'’-]*")
+_CONTEXT = 45 # characters of context either side of a changed token in the report
 
 
 def _strip_fences(text: str) -> str:
     return FENCE_RE.sub(" ", text)
 
 
-def _citations(text: str) -> Counter:
-    keys = CITEKEY_RE.findall(text)
-    marks = NUMMARK_RE.findall(text)
-    return Counter(k.strip() for k in keys + marks)
+def _citation_items(bracket: str) -> list[str]:
+    """Citation items in one bracketed Pandoc citation: "@key" plus its locator/suffix,
+    whitespace-normalised. A prefix such as "see" is not part of the item."""
+    items = []
+    for part in bracket[1:-1].split(";"):
+        m = _KEY_RE.search(part)
+        if not m:
+            continue
+        suffix = re.sub(r"\s+", " ", part[m.end():]).strip()
+        sep = "" if not suffix or suffix[0] in ",:" else " "
+        items.append("@" + m.group("key") + sep + suffix)
+    return items
+
+
+def _citation_tokens(text: str) -> list[tuple[str, int, int]]:
+    """(item, start, end) for every citation item, in text order. All items of one bracket
+    share the bracket's span."""
+    out: list[tuple[str, int, int]] = []
+    for m in CITEKEY_RE.finditer(text):
+        out.extend((item, m.start(), m.end()) for item in _citation_items(m.group(0)))
+    blank = lambda m: " " * len(m.group(0))  # noqa: E731
+    for m in NUMMARK_RE.finditer(CITEKEY_RE.sub(blank, text)):
+        out.append((m.group(0).strip(), m.start(), m.end()))
+    out.sort(key=lambda t: t[1])
+    return out
 
 
 def _is_minus(text: str, i: int) -> bool:
@@ -127,13 +170,16 @@ def _number_tokens(text: str) -> list[tuple[str, int, int]]:
         sign = m.group("sign")
         minus = bool(sign) and _is_minus(masked, m.start("sign"))
         token = ("-" if minus else "") + m.group("num").replace(",", "")
+        start = m.start("num") if not minus else m.start("sign")
+        op = _INEQ_RE.search(masked[max(0, start - 8):start])
+        if op:
+            token = _INEQ_NORM.get(op.group("op"), op.group("op")) + token
         if m.group("pct"):
             a = _AFTER_RE.match(masked, m.end())
             b = _BEFORE_RE.search(masked[max(0, m.start() - 40):m.start()])
             word = a.group("w") if a else (b.group("w") or b.group("c")) if b else None
             if word:
                 token += "% (up)" if _UP_RE.match(word) else "% (down)"
-        start = m.start("num") if not minus else m.start("sign")
         out.append((token, start, m.end()))
     return out
 
@@ -161,6 +207,70 @@ def _context(token: str, toks: list[tuple[str, int, int]], text: str, other: str
         if snip.strip("…") not in flat_other:
             return snip
     return _snippet(text, *hits[0])
+
+
+def _stream(text: str, nums: list[tuple[str, int, int]],
+            cites: list[tuple[str, int, int]]) -> list[tuple[str, str]]:
+    """The text as one ordered token stream: ("N", number), ("C", citation item), ("W", word),
+    ("S", sentence end). Numbers and citations are blanked before words and sentence ends are
+    read, so a decimal point is never a sentence end and a citation key is never a word."""
+    chars = list(text)
+    for _, s, e in nums + cites:
+        chars[s:e] = " " * (e - s)
+    masked = "".join(chars)
+    items: list[tuple[int, int, str, str]] = [(s, 1, "N", t) for t, s, _ in nums]
+    items += [(s, 1, "C", t) for t, s, _ in cites]
+    items += [(m.start(), 0, "W", m.group(0).lower()) for m in _ALPHA_RE.finditer(masked)]
+    items += [(m.start(), 2, "S", ".") for m in _EOS_RE.finditer(masked)]
+    items.sort(key=lambda x: (x[0], x[1]))
+    return [(k, v) for _, _, k, v in items]
+
+
+def _reassigned(sa: list[tuple[str, str]], sb: list[tuple[str, str]],
+                drifted: set[str]) -> list[dict]:
+    """Numbers replaced in place by other numbers while the words around them stayed: a
+    'replace' run that holds only numbers on both sides. Tokens whose count changed are left to
+    NUMBER_DRIFT, so this reports only values that traded places."""
+    out = []
+    sm = difflib.SequenceMatcher(a=sa, b=sb, autojunk=False)
+    for tag, i1, i2, j1, j2 in sm.get_opcodes():
+        if tag != "replace" or (i2 - i1) != (j2 - j1):
+            continue
+        a, b = sa[i1:i2], sb[j1:j2]
+        if not all(k == "N" for k, _ in a + b):
+            continue
+        for (_, x), (_, y) in zip(a, b):
+            if x != y and x not in drifted and y not in drifted:
+                out.append({"before": x, "after": y})
+    return out
+
+
+def _moved_citations(sa: list[tuple[str, str]], sb: list[tuple[str, str]],
+                     dropped: set[str]) -> list[dict]:
+    """Citation items left unmatched on both sides whose two positions lie on opposite sides of
+    a sentence end that the rewrite kept (a sentence end matched in the alignment)."""
+    sm = difflib.SequenceMatcher(a=sa, b=sb, autojunk=False)
+    matched_a: set[int] = set()
+    matched_b: set[int] = set()
+    eos: list[tuple[int, int]] = []
+    for blk in sm.get_matching_blocks():
+        for k in range(blk.size):
+            matched_a.add(blk.a + k)
+            matched_b.add(blk.b + k)
+            if sa[blk.a + k][0] == "S":
+                eos.append((blk.a + k, blk.b + k))
+    free_b: dict[str, list[int]] = {}
+    for j, (k, v) in enumerate(sb):
+        if k == "C" and j not in matched_b:
+            free_b.setdefault(v, []).append(j)
+    out = []
+    for i, (k, v) in enumerate(sa):
+        if k != "C" or i in matched_a or v in dropped or not free_b.get(v):
+            continue
+        j = free_b[v].pop(0)
+        if any((ea < i) != (eb < j) for ea, eb in eos):
+            out.append({"citation": v})
+    return out
 
 
 def _words(text: str) -> list[str]:
@@ -216,7 +326,13 @@ def main(argv: list[str] | None = None) -> int:
     for d in num_delta[:40]:
         d["before_context"] = _context(d["token"], before_toks, before_raw, after_raw)
         d["after_context"] = _context(d["token"], after_toks, after_raw, before_raw)
-    cite_delta = _diff_counter(_citations(before_raw), _citations(after_raw))
+    before_cites, after_cites = _citation_tokens(before_raw), _citation_tokens(after_raw)
+    cite_delta = _diff_counter(Counter(t for t, _, _ in before_cites),
+                               Counter(t for t, _, _ in after_cites))
+    sa = _stream(before_raw, before_toks, before_cites)
+    sb = _stream(after_raw, after_toks, after_cites)
+    swapped = _reassigned(sa, sb, {d["token"] for d in num_delta})
+    moved = _moved_citations(sa, sb, {d["token"] for d in cite_delta})
 
     claims: list[dict] = []
     if changed_pct > args.warn_pct:
@@ -242,6 +358,17 @@ def main(argv: list[str] | None = None) -> int:
                 "Humanize must never alter a number."
             ),
         })
+    if swapped:
+        claims.append({
+            "verdict": "NUMBER_REASSIGNED",
+            "severity": "Major",
+            "pairs": swapped[:40],
+            "message": (
+                f"{len(swapped)} number(s) replaced in place by another number of the same text "
+                "while the words around them stayed: values traded places. Humanize must never "
+                "move a value to a different variable or arm."
+            ),
+        })
     if cite_delta:
         claims.append({
             "verdict": "CITATION_DROP",
@@ -250,6 +377,16 @@ def main(argv: list[str] | None = None) -> int:
             "message": (
                 f"{len(cite_delta)} citation(s) changed count across the rewrite. "
                 "Humanize must never remove or relocate a citation."
+            ),
+        })
+    if moved:
+        claims.append({
+            "verdict": "CITATION_MOVED",
+            "severity": "Major",
+            "tokens": moved[:40],
+            "message": (
+                f"{len(moved)} citation(s) now sit on the other side of a sentence boundary the "
+                "rewrite kept. Humanize must never relocate a citation."
             ),
         })
 
@@ -276,8 +413,16 @@ def main(argv: list[str] | None = None) -> int:
                     print(f"      {d['token']}: {d['before']} -> {d['after']}")
                     print(f"        before: {d.get('before_context') or '(absent)'}")
                     print(f"        after:  {d.get('after_context') or '(absent)'}")
+            if claim["verdict"] == "NUMBER_REASSIGNED":
+                for d in claim["pairs"]:
+                    print(f"      {d['before']} -> {d['after']}")
+            if claim["verdict"] == "CITATION_MOVED":
+                for d in claim["tokens"]:
+                    print(f"      {d['citation']}")
         if not claims:
-            print("  clean: footprint within bounds, numbers and citations preserved")
+            print("  clean: footprint within bounds; numeric tokens (sign, inequality, "
+                  "%-direction), in-place value order and citations (count, sentence) "
+                  "unchanged. Not checked: negation, units, number words, meaning; read the diff.")
 
     if args.strict and any(c["severity"] == "Major" for c in claims):
         return 1
