@@ -93,9 +93,90 @@ if mkdta "$TMP/d.dta" "Systolic BP" 2>/dev/null; then
     check "dta label change -> drift" 1 "$(ec python3 "$VS" verify --manifest "$TMP/dm.json" --strict)"
     out="$(python3 "$VS" verify --manifest "$TMP/dm.json" 2>&1)"
     check "dta label change reports CHANGED bytes" 0 "$([[ "$out" == *"CHANGED bytes"* ]] && echo 0 || echo 1)"
+elif [[ "${CI:-}" == "true" ]]; then
+    # pandas' Stata writer needs nothing beyond pandas, which CI installs: a
+    # failure here is a broken environment, not a reason to skip the binary path.
+    check "Stata writer available under CI" 0 1
 else
     echo "  SKIP  Stata writer unavailable"
 fi
+
+# (e) a lock built by the previous script (no tabular.header key) for an
+#     unchanged duplicate-header CSV must still verify clean: an absent header
+#     means "not recorded", not "changed". The JSON below is verbatim output of
+#     the pre-header version_dataset.py `manifest h.csv --base .` on 'a,a\n1,2\n'.
+mkdir -p "$TMP/old"
+printf 'a,a\n1,2\n' > "$TMP/old/h.csv"
+cat > "$TMP/old/lock.json" <<'JSON'
+{
+  "schema_version": 1,
+  "seed": null,
+  "provenance": null,
+  "files": {
+    "h.csv": {
+      "sha256": "921520be8279e81db6a46688da4ae835cadd820a6892a557e3bfe1b06746b711",
+      "bytes": 8,
+      "tabular": {
+        "n_rows": 1,
+        "n_cols": 2,
+        "column_hashes": {
+          "a": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
+          "a.1": "d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35"
+        }
+      }
+    }
+  }
+}
+JSON
+check "old lock, unchanged dup-header csv: clean" 0 "$(ec python3 "$VS" verify --manifest "$TMP/old/lock.json" --base "$TMP/old" --strict)"
+out="$(python3 "$VS" verify --manifest "$TMP/old/lock.json" --base "$TMP/old" 2>&1)"
+check "old lock: no CHANGED header reported" 0 "$([[ "$out" != *"CHANGED header"* ]] && echo 0 || echo 1)"
+printf 'a,a\n1,9\n' > "$TMP/old/h.csv"
+check "old lock: value change still drifts" 1 "$(ec python3 "$VS" verify --manifest "$TMP/old/lock.json" --base "$TMP/old" --strict)"
+
+# (f) --ignore-cols is honoured for binary tabular files: a change confined to
+#     an ignored column must not fall through to the byte-level check.
+mkdtats() {
+    python3 - "$1" "$2" <<'PY'
+import sys, datetime, pandas as pd
+df = pd.DataFrame({"id": [1, 2], "ts": [sys.argv[2], "x"]})
+df.to_stata(sys.argv[1], write_index=False, time_stamp=datetime.datetime(2020, 1, 1))
+PY
+}
+if mkdtats "$TMP/t.dta" t1 2>/dev/null; then
+    python3 "$VS" manifest "$TMP/t.dta" --out "$TMP/tm.json" --ignore-cols ts >/dev/null 2>&1
+    mkdtats "$TMP/t.dta" t9
+    check "dta: change only in ignored col -> clean" 0 "$(ec python3 "$VS" verify --manifest "$TMP/tm.json" --ignore-cols ts --strict)"
+    python3 "$VS" manifest "$TMP/t.dta" --out "$TMP/tm0.json" >/dev/null 2>&1
+    mkdtats "$TMP/t.dta" t1
+    check "dta: same change without --ignore-cols -> drift" 1 "$(ec python3 "$VS" verify --manifest "$TMP/tm0.json" --strict)"
+elif [[ "${CI:-}" == "true" ]]; then
+    check "Stata writer available under CI" 0 1
+else
+    echo "  SKIP  Stata writer unavailable"
+fi
+# .xlsx/.parquet readers (openpyxl/pyarrow) are not installed in CI, so the
+# comparison is exercised through `diff` on manifests shaped as `manifest` writes
+# them for those formats: same column hashes, different bytes.
+for ext in xlsx parquet; do
+    for ig in yes no; do
+        python3 - "$TMP/o_$ext$ig.json" "$TMP/n_$ext$ig.json" "$ext" "$ig" <<'PY'
+import json, sys
+o, n, ext, ig = sys.argv[1:]
+def m(sha):
+    tab = {"n_rows": 2, "n_cols": 2, "column_hashes": {"id": "0" * 64}}
+    if ig == "yes":
+        tab["ignored_cols"] = ["ts"]
+    return {"schema_version": 1, "files": {f"d.{ext}": {"sha256": sha, "bytes": 1, "tabular": tab}}}
+json.dump(m("1" * 64), open(o, "w"))
+json.dump(m("2" * 64), open(n, "w"))
+PY
+    done
+    out="$(python3 "$VS" diff --old "$TMP/o_${ext}yes.json" --new "$TMP/n_${ext}yes.json" 2>&1)"
+    check "$ext: ignored col present -> no byte drift" 0 "$([[ "$out" == "No differences"* ]] && echo 0 || echo 1)"
+    out="$(python3 "$VS" diff --old "$TMP/o_${ext}no.json" --new "$TMP/n_${ext}no.json" 2>&1)"
+    check "$ext: no ignored col -> CHANGED bytes" 0 "$([[ "$out" == *"CHANGED bytes"* ]] && echo 0 || echo 1)"
+done
 
 printf '\n%d/%d checks passed\n' "$((ran-fail))" "$ran"
 [[ "$fail" -eq 0 ]] || exit 1

@@ -6168,18 +6168,18 @@
     },
     {
       "path": "skills/version-dataset/SKILL.md",
-      "size": 4000,
-      "sha256": "7c535e821f0495140ab6f6e6a8a09a9931921d0797703c803eb6049588ed5909"
+      "size": 4227,
+      "sha256": "0e7532398e18674052699c0e8e8b288de476f3e71ffd36eb7460a5634a92426e"
     },
     {
       "path": "skills/version-dataset/references/manifest_schema.md",
-      "size": 3171,
-      "sha256": "09dffeb93e85d94e4cb1f12114180f045ba03cddc5fbf8a8175c76491a2eff9f"
+      "size": 4576,
+      "sha256": "e0bba5ee1b9807d3dba437c5922a059be320e6d2c2057f0ab4d21517b1d2790b"
     },
     {
       "path": "skills/version-dataset/scripts/version_dataset.py",
-      "size": 9395,
-      "sha256": "6698d85a2c52b03a2af91edf9d1261e9cfdc1b03d58dd0352ca8c50d1e160be6"
+      "size": 12671,
+      "sha256": "f598a8ff54235917e9342963058f19408c5336c5ca9d953be1ad4c87d92d0a16"
     },
     {
       "path": "skills/version-dataset/skill.yml",

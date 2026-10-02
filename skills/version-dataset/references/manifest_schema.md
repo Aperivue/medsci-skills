@@ -23,8 +23,11 @@ artifact policy.
                                                     // cell strings (row order) joined by
                                                     // \x1e; a \x1e or \x1b inside a cell
                                                     // is escaped with \x1b
-        "header": ["a", "a"]           // CSV/TSV only, and only when the raw header
-                                       // differs from the parsed names (duplicates)
+        "header": ["a", "a"],          // CSV/TSV only, and only when the raw header
+                                       // differs from the parsed names (duplicates);
+                                       // absent = not recorded, so not compared
+        "ignored_cols": ["ts"]         // binary formats only, and only when an
+                                       // --ignore-cols column is present in the file
       }
     }
   }
@@ -40,8 +43,8 @@ always yield the same manifest. `--base` stores file keys relative to a director
 | Category | Meaning |
 |---|---|
 | `CHANGED bytes: F` | A **non-tabular** file's SHA-256 differs. CSV/TSV files are compared on logical content (below), not raw bytes, so re-quoting, line endings or an `--ignore-cols` column do not produce spurious byte drift. |
-| `CHANGED bytes: F (column hashes match; …)` | A **binary tabular** file (Parquet/Stata/SAS/Excel) has identical column hashes but a different SHA-256. These formats hold content the column hashes do not cover (variable labels, other Excel sheets, file metadata), so the byte change is reported, not cleared. A binary re-save or a changed `--ignore-cols` column in a binary file also trips it. |
-| `CHANGED header F: [...] -> [...]` | The raw CSV/TSV header changed in a way the parsed column names hide (e.g. duplicate `a,a` vs `a,a.1`, which pandas reads identically). |
+| `CHANGED bytes: F (column hashes match; …)` | A **binary tabular** file (Parquet/Stata/SAS/Excel) has identical column hashes but a different SHA-256. These formats hold content the column hashes do not cover (variable labels, other Excel sheets, file metadata), so the byte change is reported, not cleared. A binary re-save also trips it. Not emitted when an `--ignore-cols` column is present in the file (`ignored_cols`), since that column's changes alter the bytes; label/metadata changes in such a file are then not detected. |
+| `CHANGED header F: [...] -> [...]` | The raw CSV/TSV header changed in a way the parsed column names hide (e.g. duplicate `a,a` vs `a,a.1`, which pandas reads identically). Checked only when the lock recorded a header; a lock built before headers were recorded is not compared on it. |
 | `MISSING file: F` | F was in the manifest but is absent now. |
 | `UNEXPECTED file: F` | F is present now but not in the manifest. |
 | `ROW COUNT F: a -> b` | Tabular row count changed. |

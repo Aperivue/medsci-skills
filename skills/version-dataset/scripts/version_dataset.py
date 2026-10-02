@@ -118,8 +118,10 @@ def column_hashes(path: Path, ignore_cols: set[str]) -> dict | None:
         if raw != [str(c) for c in df.columns]:
             header = raw
     cols = {}
+    ignored = []
     for c in df.columns:
         if c in ignore_cols:
+            ignored.append(str(c))
             continue
         # Cells are already canonical strings (environment-independent); the
         # pandas dtype is deliberately NOT part of the digest.
@@ -132,6 +134,11 @@ def column_hashes(path: Path, ignore_cols: set[str]) -> dict | None:
     }
     if header is not None:
         tab["header"] = header
+    if ignored and path.suffix.lower() not in TEXT_TABULAR:
+        # Binary formats only (CSV/TSV manifests are unchanged): an ignored column
+        # is present, so the file's bytes legitimately differ when it changes and
+        # the byte-level fallback in _compare must not fire for this file.
+        tab["ignored_cols"] = sorted(ignored)
     return tab
 
 
@@ -197,12 +204,18 @@ def _compare(expected: dict, actual: dict) -> list[str]:
                 if et["column_hashes"][col] != at["column_hashes"][col]:
                     drift.append(f"CHANGED column {name}:{col}")
             eh, ah = et.get("header"), at.get("header")
-            if (sorted(eh) if eh is not None else None) != (sorted(ah) if ah is not None else None):
+            # A lock with no recorded header (built before the header was recorded,
+            # or whose raw header matched the parsed names) carries no header claim
+            # to check, so an absent expected header is "not recorded", not None.
+            if eh is not None and sorted(eh) != (sorted(ah) if ah is not None else None):
                 drift.append(f"CHANGED header {name}: {eh} -> {ah}")
             if (len(drift) == n_before and Path(name).suffix.lower() not in TEXT_TABULAR
+                    and not (et.get("ignored_cols") or at.get("ignored_cols"))
                     and e.get("sha256") != a.get("sha256")):
                 # Binary tabular formats hold content the column hashes do not
                 # cover (labels, other sheets, metadata): never clear a byte change.
+                # Skipped when an --ignore-cols column is present in the file, since
+                # its changes alter the bytes and must stay ignored.
                 drift.append(f"CHANGED bytes: {name} (column hashes match; labels, "
                              f"metadata or other sheets differ)")
         else:
