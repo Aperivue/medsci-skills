@@ -4,8 +4,10 @@ check_pdf_injection.py.
 
 This is the PyMuPDF-backed reader half of the peer-review injection guard. It
 turns a PDF into the deterministic JSON the (stdlib-only) detector audits:
-every text span with its font size, colour, local page-background colour, and
-on-page fraction, plus any text drawn under render mode 3 (invisible) and the
+every text span with its font size, colour, the background colour under its own
+box, how many of its glyphs the page render actually shows in its colour
+(glyphs / glyphs_inked), its on-page fraction and, when the text trace shows
+it drawn invisibly, its render mode (3) or opacity; plus any text drawn under render mode 3 (invisible) and the
 document metadata. It applies no thresholds and makes no verdict — that is the
 detector's job — so all tuning lives in one place and this reader stays a thin,
 faithful transcription of what an LLM ingesting the text layer would see.
@@ -25,6 +27,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import re
 import sys
 
@@ -67,9 +70,16 @@ def _xmp_text(doc) -> str:
     return re.sub(r"<[^>]+>", " ", xmp)
 
 
-def _page_background(page: "fitz.Page") -> list[int]:
-    """Most common pixel colour on a low-res render = the page background."""
-    pix = page.get_pixmap(dpi=36, colorspace=fitz.csRGB, alpha=False)
+RENDER_DPI = 144  # resolution of the page render that glyph boxes are read from
+
+
+def _page_pixmap(page: "fitz.Page"):
+    """The page as it is drawn: RGB, no alpha, everything painted in paint order."""
+    return page.get_pixmap(dpi=RENDER_DPI, colorspace=fitz.csRGB, alpha=False)
+
+
+def _page_background(pix) -> list[int]:
+    """Most common pixel colour on the page render (fallback background)."""
     counts: dict[tuple[int, int, int], int] = {}
     n = pix.width * pix.height
     step = max(1, n // 4000)  # sample ~4k pixels
@@ -79,6 +89,96 @@ def _page_background(page: "fitz.Page") -> list[int]:
         px = (s[off], s[off + 1], s[off + 2])
         counts[px] = counts.get(px, 0) + 1
     return list(max(counts, key=counts.get)) if counts else [255, 255, 255]
+
+
+def _box_histogram(samples: bytes, width: int, height: int,
+                   box: tuple[float, float, float, float]) -> dict:
+    """Colour histogram of the rendered RGB pixels under `box` (pixel coordinates),
+    clipped to the render. Empty when the box covers no pixel."""
+    x0 = max(0, int(math.floor(box[0])))
+    y0 = max(0, int(math.floor(box[1])))
+    x1 = min(width, int(math.ceil(box[2])))
+    y1 = min(height, int(math.ceil(box[3])))
+    hist: dict[tuple[int, int, int], int] = {}
+    stride = width * 3
+    for y in range(y0, y1):
+        row = samples[y * stride + x0 * 3: y * stride + x1 * 3]
+        for px in zip(row[0::3], row[1::3], row[2::3]):
+            hist[px] = hist.get(px, 0) + 1
+    return hist
+
+
+def _d2(a, b) -> int:
+    return sum((int(x) - int(y)) ** 2 for x, y in zip(a, b))
+
+
+def _inked(hist: dict, text_rgb: list[int], bg: tuple) -> bool:
+    """True when some pixel under the box is strictly closer to the text colour than
+    to the background: something in the text's colour was actually drawn there."""
+    return any(_d2(px, text_rgb) < _d2(px, bg) for px in hist)
+
+
+def _render_check(pix, to_px, span: dict, text_rgb: list[int]):
+    """(local background, glyphs, glyphs_inked) for one rawdict span.
+
+    The local background is the most common colour under the span's own box, not
+    the page's, so white text on a dark banner is judged against the banner and
+    black text on a black box against the box. A glyph is inked when its box in the
+    page render holds a pixel closer to the span's colour than to that background.
+    An un-inked glyph was covered by a later shape, painted transparent, not
+    painted, or drawn on its own colour. Applies no threshold; the detector decides.
+    (None, 0, 0) when the span covers no pixel of the render (e.g. off-page).
+    """
+    samples, w, h = pix.samples, pix.width, pix.height
+    hist = _box_histogram(samples, w, h, tuple(fitz.Rect(span["bbox"]) * to_px))
+    if not hist:
+        return None, 0, 0
+    bg = max(hist, key=hist.get)
+    glyphs = inked = 0
+    for ch in span.get("chars", ()):
+        if not ch.get("c", "").strip():
+            continue
+        ch_hist = _box_histogram(samples, w, h, tuple(fitz.Rect(ch["bbox"]) * to_px))
+        if not ch_hist:
+            continue
+        glyphs += 1
+        inked += _inked(ch_hist, text_rgb, bg)
+    return list(bg), glyphs, inked
+
+
+def _hidden_traces(page: "fitz.Page") -> list[dict]:
+    """Text the page draws invisibly, from PyMuPDF's text trace: render mode 3
+    (trace type 3) or zero opacity. get_text("dict") reports both as ordinary
+    spans, so without this they reached the sanitized "visible-only" text."""
+    out: list[dict] = []
+    try:
+        traces = page.get_texttrace()
+    except Exception:
+        return out
+    for t in traces:
+        invisible = t.get("type") == 3
+        opacity = t.get("opacity")
+        if not invisible and not (opacity is not None and float(opacity) <= 0.0):
+            continue
+        text = "".join(chr(c[0]) for c in t.get("chars", ()) if c and c[0] >= 0)
+        out.append({"bbox": tuple(t.get("bbox", (0, 0, 0, 0))), "text": text,
+                    "invisible": invisible, "opacity": opacity})
+    return out
+
+
+def _match_hidden(bbox: tuple, text: str, hidden: list[dict]) -> dict | None:
+    """The hidden trace that drew this span: an overlapping box and shared text."""
+    key = "".join(text.split())
+    if not key:
+        return None
+    for h in hidden:
+        hb = h["bbox"]
+        if hb[0] >= bbox[2] or bbox[0] >= hb[2] or hb[1] >= bbox[3] or bbox[1] >= hb[3]:
+            continue
+        hkey = "".join(h["text"].split())
+        if hkey and (key in hkey or hkey in key):
+            return h
+    return None
 
 
 def _visible_fraction(bbox: "fitz.Rect", page_rect: "fitz.Rect") -> float:
@@ -156,22 +256,38 @@ def extract(path: str) -> dict:
     manifest["metadata"] = meta
 
     for pno, page in enumerate(doc, start=1):
-        bg = _page_background(page)
+        pix = _page_pixmap(page)
+        page_bg = _page_background(pix)
+        # text coordinates are unrotated; the render is rotated and scaled
+        to_px = page.rotation_matrix * fitz.Matrix(RENDER_DPI / 72.0, RENDER_DPI / 72.0)
+        hidden = _hidden_traces(page)
         prect = page.rect
-        for block in page.get_text("dict").get("blocks", []):
+        for block in page.get_text("rawdict").get("blocks", []):
             for line in block.get("lines", []):
                 for span in line.get("spans", []):
-                    if not span.get("text", "").strip():
+                    text = "".join(ch.get("c", "") for ch in span.get("chars", ()))
+                    if not text.strip():
                         continue
                     bbox = fitz.Rect(span["bbox"])
-                    manifest["spans"].append({
+                    color = _int_to_rgb(span.get("color", 0))
+                    local_bg, glyphs, inked = _render_check(pix, to_px, span, color)
+                    rec = {
                         "page": pno,
-                        "text": span["text"],
+                        "text": text,
                         "size": round(float(span.get("size", 12.0)), 2),
-                        "color": _int_to_rgb(span.get("color", 0)),
-                        "bg": bg,
+                        "color": color,
+                        "bg": local_bg if local_bg is not None else page_bg,
                         "visible_frac": round(_visible_fraction(bbox, prect), 3),
-                    })
+                        "glyphs": glyphs,
+                        "glyphs_inked": inked,
+                    }
+                    h = _match_hidden(tuple(span["bbox"]), text, hidden)
+                    if h is not None:
+                        if h["invisible"]:
+                            rec["render_mode"] = 3
+                        if h["opacity"] is not None:
+                            rec["opacity"] = round(float(h["opacity"]), 3)
+                    manifest["spans"].append(rec)
         for s in _invisible_render_strings(page):
             manifest["invisible_strings"].append({"page": pno, "text": s})
 

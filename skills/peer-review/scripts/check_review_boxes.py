@@ -45,6 +45,7 @@ from pathlib import Path
 AUTHOR_HEAD = re.compile(r"^#{1,6}\s*.*comments?\s+to\s+the\s+authors?\b", re.I)
 EDITOR_HEAD = re.compile(r"^#{1,6}\s*.*(confidential|comments?\s+to\s+the\s+editor)", re.I)
 ANY_HEAD = re.compile(r"^#{1,6}\s+")
+HEAD_HASHES = re.compile(r"^(#{1,6})")
 
 # Recommendation grades. Bare "accept"/"reject" are excluded on purpose: "the authors accept
 # that ..." is ordinary prose, and a gate that fires on it gets switched off.
@@ -62,17 +63,21 @@ NGRAM = 6
 LONG_RUN = 12          # a shared run this long is a copied clause, whatever the total
 
 
-def _block(lines: list[str], head: re.Pattern) -> list[str] | None:
-    start = None
+def _block(lines: list[str], head: re.Pattern, other: re.Pattern) -> list[str] | None:
+    """The section under `head`, ending at the next heading of the same or a higher level,
+    or at the `other` box's heading at any level. A sub-heading such as `### Major
+    Comments` stays inside the block; ending at it hid every comment below it."""
+    start = level = None
     for i, line in enumerate(lines):
         if head.match(line):
-            start = i + 1
+            start, level = i + 1, len(HEAD_HASHES.match(line).group(1))
             break
     if start is None:
         return None
     end = len(lines)
     for j in range(start, len(lines)):
-        if ANY_HEAD.match(lines[j]):
+        if ANY_HEAD.match(lines[j]) and (
+                len(HEAD_HASHES.match(lines[j]).group(1)) <= level or other.match(lines[j])):
             end = j
             break
     return lines[start:end]
@@ -113,7 +118,7 @@ def longest_shared_run(a: list[str], b: list[str], cap: int = 40) -> list[str]:
 
 def audit(path: Path, max_shared: int) -> dict:
     lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
-    auth, edit = _block(lines, AUTHOR_HEAD), _block(lines, EDITOR_HEAD)
+    auth, edit = _block(lines, AUTHOR_HEAD, EDITOR_HEAD), _block(lines, EDITOR_HEAD, AUTHOR_HEAD)
     findings: list[dict] = []
 
     missing = [n for n, b in (("Comments to the Authors", auth),

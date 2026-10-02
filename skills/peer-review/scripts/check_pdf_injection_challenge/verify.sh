@@ -23,6 +23,11 @@
 #                                          instruction elsewhere           -> SUSPICIOUS
 #   manifest_label_other_hidden.json       labels hidden by colour or size, and an
 #                                          off-page "See Figure 4"         -> SUSPICIOUS
+#   Render evidence from the extractor (render_mode, opacity, glyphs/glyphs_inked):
+#   manifest_render_hidden.json   render mode 3, opacity 0, and 1 of 54 glyphs drawn
+#                                 (covered); colours look normal         -> SUSPICIOUS
+#   manifest_render_visible.json  white on a dark banner, near-complete ink, a 5pt
+#                                 "1", an off-page label with no pixels  -> CLEAN
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 DET="$HERE/../check_pdf_injection.py"
@@ -61,6 +66,8 @@ em_label_variants|CLEAN|0
 label_prefixed_injection|INJECTION DETECTED|1
 label_plus_white_text|SUSPICIOUS|1
 label_other_hidden|SUSPICIOUS|1
+render_hidden|SUSPICIOUS|1
+render_visible|CLEAN|0
 EOF
 
 if [ "$ok" -eq 1 ]; then
