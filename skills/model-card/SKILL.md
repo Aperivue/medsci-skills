@@ -58,7 +58,11 @@ record each finding in the Datasheet. Anything that affects the headline metric'
 python3 ${CLAUDE_SKILL_DIR}/scripts/check_model_card_complete.py \
   --card MODEL_CARD.md --datasheet DATASHEET.md --strict
 ```
-`MISSING_SECTION` / `EMPTY_REQUIRED_SECTION` must be zero before the card ships.
+`MISSING_SECTION` / `EMPTY_REQUIRED_SECTION` / `UNFILLED_FIELD` must be zero before the card ships.
+`UNFILLED_FIELD` names each field of a required section still left as `[NEEDS INPUT]` / `[VERIFY]`
+(e.g. License or subgroup performance), even when a sibling field is filled. An explicit `N/A` /
+`None` counts as an answer only as a field's whole value, and never in Intended Use, Training Data,
+Evaluation Data, Metrics or Quantitative Analyses.
 
 ### Phase 6 — Hand off
 Carry the card into `/write-paper` (the Methods / supplement reference it), `/check-reporting`

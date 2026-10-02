@@ -14,7 +14,17 @@ CHECKS (verdicts):
   2. EMPTY_REQUIRED_SECTION (Major)  a required section is present but has no real
                                      content — empty, or every content line is an
                                      unfilled placeholder ([NEEDS INPUT] / TODO /
-                                     [VERIFY] / XXXX / <...>).
+                                     [VERIFY] / XXXX / <...>). An explicit null
+                                     answer (N/A / None / Not applicable / Not
+                                     collected / Nil / Waived) counts as filled only
+                                     when it is a field's WHOLE value, and never in
+                                     Intended Use, Training Data, Evaluation Data,
+                                     Metrics or Quantitative Analyses.
+  3. UNFILLED_FIELD         (Major)  a required section has some content, but one or
+                                     more of its fields is still an unfilled
+                                     [NEEDS INPUT ...] / [VERIFY ...] placeholder
+                                     (e.g. License or subgroup performance left
+                                     blank while a sibling field is filled).
 
 Required Model Card sections: Model Details, Intended Use, Out-of-Scope Use,
 Training Data, Evaluation Data, Metrics, Quantitative Analyses, Ethical
@@ -29,7 +39,7 @@ INPUTS
 OUTPUT
   A table (stdout) and, with --out, a JSON artifact:
     {card, datasheet, claims[{verdict, severity, detail, where}], summary}
-  Both verdicts are Major.
+  All verdicts are Major.
 
 Stdlib-only (re / json / argparse / pathlib). Exit codes: 0 clean (or report-only),
 1 Major claim(s) found (with --strict), 2 input/usage error.
@@ -47,6 +57,15 @@ from pathlib import Path
 # (so the descriptive hint inside it is removed too), plus standalone TODO / TBD / <...> / XXXX.
 PLACEHOLDER_SPAN = re.compile(
     r"\[(?:NEEDS INPUT|VERIFY)[^\]]*\]|<[^>]*>|\bTODO\b|\bTBD\b|X{4,}", re.IGNORECASE)
+
+# The bracketed placeholder markers alone (no TODO / <...>): what the field-level check flags.
+FIELD_PLACEHOLDER = re.compile(r"\[(?:NEEDS INPUT|VERIFY)[^\]]*\]", re.IGNORECASE)
+
+# An explicit null answer, accepted only as a field's whole value.
+NULL_ANSWER = re.compile(r"(?:n/?a|none|not applicable|not collected|nil|waived)")
+
+# Sections where a null answer is never a filled answer: without them the card is not a card.
+NULL_NOT_ALLOWED = {"intended_use", "training_data", "evaluation_data", "metrics", "quant"}
 
 # canonical key -> (display label, [alias regexes on the normalized heading])
 MODEL_CARD_REQUIRED = [
@@ -98,23 +117,44 @@ def parse_sections(text: str) -> list[tuple[str, str]]:
     return sections
 
 
-def _has_real_content(body: str) -> bool:
+def _has_real_content(body: str, allow_null: bool = True) -> bool:
     """True if the section carries a filled value — not empty and not only unfilled
-    placeholders / field labels. The body is flattened (so a placeholder wrapped across
-    lines is still removed as one span), HTML comments are dropped, then unfilled-placeholder
-    spans and bold field-labels ('**Source**:') are removed; what remains is the real value."""
+    placeholders / field labels. HTML comments are dropped, then unfilled-placeholder
+    spans (removed as one span even when wrapped across lines) and bold field-labels
+    ('**Source**:') are removed; what remains, line by line, is the real value.
+
+    A line whose whole value is an explicit null answer (N/A, None, ...) counts as filled
+    only when `allow_null`; a null word inside a longer value is ordinary text."""
     body = re.sub(r"<!--.*?-->", " ", body, flags=re.DOTALL)         # drop HTML comments
-    text = " ".join(body.split())                                    # flatten line wraps
-    if not text:
+    if not body.split():
         return False
-    text = PLACEHOLDER_SPAN.sub(" ", text)                           # remove [NEEDS INPUT ...] etc.
+    text = PLACEHOLDER_SPAN.sub(" ", body)                           # remove [NEEDS INPUT ...] etc.
     text = re.sub(r"\*\*[^*]+\*\*:?", " ", text)                     # remove bold field labels
     text = re.sub(r"[*_`>#]+", " ", text)                            # strip residual markdown
-    low = text.lower()
-    if re.search(r"\b(n/?a|none|not applicable|not collected|nil|waived)\b", low):
-        return True                                                 # an explicit "empty" answer is filled
-    core = re.sub(r"[^a-z0-9]+", "", low)
-    return len(core) >= 3                                            # a real value remains
+    has_null, rest = False, []
+    for ln in text.lower().splitlines():
+        val = " ".join(ln.split())
+        bare = re.sub(r"^(?:[-+]\s*|\d+[.)]\s+)", "", val).strip(" .;:")
+        if bare and NULL_ANSWER.fullmatch(bare):
+            has_null = True                                          # the field's whole value
+        else:
+            rest.append(val)
+    core = re.sub(r"[^a-z0-9]+", "", " ".join(rest))
+    if len(core) >= 3:
+        return True                                                  # a real value remains
+    return has_null and allow_null                                   # an explicit empty answer
+
+
+def _unfilled_fields(body: str) -> list[str]:
+    """The lines of a section still holding a [NEEDS INPUT ...] / [VERIFY ...] placeholder
+    (HTML comments ignored), shortened for the report."""
+    body = re.sub(r"<!--.*?-->", " ", body, flags=re.DOTALL)
+    out = []
+    for m in FIELD_PLACEHOLDER.finditer(body):
+        start = body.rfind("\n", 0, m.start()) + 1
+        line = " ".join(body[start:m.end()].split())
+        out.append(line if len(line) <= 80 else line[:77] + "...")
+    return out
 
 
 def _check_doc(path: Path, required, label: str) -> list[dict]:
@@ -132,13 +172,22 @@ def _check_doc(path: Path, required, label: str) -> list[dict]:
                 "detail": f"{label}: required section '{disp}' is absent",
                 "where": path.name,
             })
-        elif not _has_real_content(match[1]):
+        elif not _has_real_content(match[1], allow_null=key not in NULL_NOT_ALLOWED):
             claims.append({
                 "verdict": "EMPTY_REQUIRED_SECTION", "severity": "Major",
                 "detail": f"{label}: section '{disp}' is present but empty / only an unfilled "
                           f"placeholder ([NEEDS INPUT] etc.)",
                 "where": path.name,
             })
+        else:
+            unfilled = _unfilled_fields(match[1])
+            if unfilled:
+                claims.append({
+                    "verdict": "UNFILLED_FIELD", "severity": "Major",
+                    "detail": f"{label}: section '{disp}' has {len(unfilled)} unfilled "
+                              f"field(s): " + "; ".join(unfilled),
+                    "where": path.name,
+                })
     return claims
 
 
@@ -159,7 +208,7 @@ def render(result: dict) -> str:
     for c in result["claims"]:
         lines.append(f"| {c['verdict']} | {c['severity']} | {c['detail']} |")
     if len(lines) == 2:
-        lines.append("| (none) | — | all required sections present and filled |")
+        lines.append("| (none) | — | all required sections and fields present and filled |")
     return "\n".join(lines)
 
 
