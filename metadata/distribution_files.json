@@ -1918,18 +1918,18 @@
     },
     {
       "path": "skills/humanize/SKILL.md",
-      "size": 10930,
-      "sha256": "ad2a213dc5077e811dd40f2446a01fe135c3cb4d066e147373847792efbd3f49"
+      "size": 11702,
+      "sha256": "6aebc1ff5204bde23b06f41725f508732e7938bfde0bc5463d47cab203d1c605"
     },
     {
       "path": "skills/humanize/references/ai_patterns.md",
-      "size": 42255,
-      "sha256": "0f800eac55fe883a1a45c8a532c997fa838e620861c152efe90d6bcd3e9addf0"
+      "size": 42110,
+      "sha256": "e228be68720872d417ec93900c5ce9f7879348da2c8748366ea338477755ddec"
     },
     {
       "path": "skills/humanize/scripts/check_rewrite_fidelity.py",
-      "size": 13898,
-      "sha256": "fa29071f2475eb6d6fe08ccd23279882af65eb8083462ab8d1729b51028b62e0"
+      "size": 23451,
+      "sha256": "6c8b677179915c8b8e4d566d6bdbe77a7135ac3f275deedeb3a83e74a6ce32a0"
     },
     {
       "path": "skills/humanize/scripts/check_sentence_variety.py",
