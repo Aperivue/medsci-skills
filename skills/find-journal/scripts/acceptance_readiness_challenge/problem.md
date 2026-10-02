@@ -25,12 +25,28 @@ and never auto-fixable.
   design with a hard endpoint and a comparator. It *deliberately* contains the
   management/surveillance verbs ("we recommend … guide management … surveillance")
   but **no** ceiling trigger, so the gated CLAIM_MISMATCH must stay silent.
-  Expected: 0 flags, verdict `NO STRUCTURAL CEILING DETECTED BY LEXICAL SCAN`
+  Expected: 0 flags, verdict
+  `NO LISTED SIGNAL MATCHED - NOT A DESIGN CLEARANCE; ASSESS DESIGN CEILING BY JUDGEMENT`
   (the negative fixture — proves no false positives).
+- `fixture_methods_vocab/` — routine methods wording that used to fire
+  (circular region of interest, marginal structural model, proxy/FIB-4 as covariates,
+  technical feasibility). Expected: 0 flags.
+- `fixture_references/` — design words appear only in the reference list. Expected:
+  0 flags (the References section is not scanned).
+- `fixture_refs_then_appendix/` — a section after References is scanned again.
+  Expected: 1 single-center flag.
+- `fixture_narrowed_positive/` — the narrowed patterns still fire on real signals
+  (circular validation, proxy endpoint, feasibility study, marginal gain).
+- `fixture_paraphrase/` — signals the lexical scan cannot match ("one institution",
+  "has not been externally validated"). Expected: 0 flags and the empty verdict, which
+  must say it is not a design clearance.
+- Generated at run time: a .docx (zip), a PDF, a Latin-1 file and a file with NUL
+  bytes must exit 2 with no report; a UTF-8 file with a BOM must scan normally.
 
 ## Pass criterion
-`verify.sh` runs the tool on both fixtures and diffs against the golden masters in
-`expected/`. Exit 0 iff both match. Deterministic and network-free.
+`verify.sh` runs the tool on every fixture, diffs against the golden masters in
+`expected/`, and checks the non-text exit codes. Exit 0 iff all pass. Deterministic
+and network-free.
 
 ## Run
 ```
