@@ -81,6 +81,29 @@ class FontFaces(unittest.TestCase):
         self.assertEqual(report["font_check"]["face_name"], "SyntheticGreek")
         self.assertEqual(self.run_scan("greek.ttf", text="κ")[0].returncode, 0)
 
+    def test_font_check_covers_characters_outside_the_classes(self):
+        # None of these is in the five advisory classes; the cmap check must
+        # still report each one the font lacks.
+        others = "∞°µ²‰∆≪–"
+        result, report = self.run_scan("greek.ttf", text="κ " + others)
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertTrue(report["font_checked"])
+        self.assertEqual(report["missing_in_font"], sorted(others))
+        self.assertEqual(report["summary"]["n_chars_checked"], len(others) + 1)
+        build_font(self.root / "wide.ttf", "κ" + others, "SyntheticWide")
+        result, report = self.run_scan("wide.ttf", text="κ " + others)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(report["missing_in_font"], [])
+
+    def test_characters_never_drawn_from_the_font_are_not_flagged(self):
+        # BOM, zero-width joiner, soft hyphen (format), and the three characters
+        # pandoc writes as ASCII TeX: no-break space, narrow no-break space, ellipsis.
+        text = "﻿κ‍­  … ok"
+        result, report = self.run_scan("greek.ttf", text=text)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(report["missing_in_font"], [])
+        self.assertEqual(report["summary"]["n_chars_checked"], 1)
+
     def test_real_cff_otf(self):
         self.assertEqual((self.root / "both.otf").read_bytes()[:4], b"OTTO")
         result, report = self.run_scan("both.otf")
