@@ -6113,8 +6113,8 @@
     },
     {
       "path": "skills/verify-refs/SKILL.md",
-      "size": 12580,
-      "sha256": "d297fd571a55afaf26e059ba4d5b76660ed05474acbf85fc0bdfe8aa20caed67"
+      "size": 12586,
+      "sha256": "282664d1cfed36b0ffb185f44f93634e9e66cf1c58921c209f87479a27b43527"
     },
     {
       "path": "skills/verify-refs/references/claim_evidence_workflow.md",
@@ -6128,8 +6128,8 @@
     },
     {
       "path": "skills/verify-refs/scripts/_claim_evidence.py",
-      "size": 16148,
-      "sha256": "a23441a91d5cd59a9871414b990e5edf1a2aa65329331369d60ab4a6cf238e79"
+      "size": 16154,
+      "sha256": "000d46e5cc028d2c74ea25113d6085cb0625e76c9f9c49c7d507e30f17002505"
     },
     {
       "path": "skills/verify-refs/scripts/_quote_match.py",
@@ -6188,8 +6188,8 @@
     },
     {
       "path": "skills/verify-refs/scripts/verify_refs.py",
-      "size": 72255,
-      "sha256": "f05afecb3a1710fae5ddbab91b6fadd72a6ff2fde5b379169e2b9961886e9be6"
+      "size": 73477,
+      "sha256": "61020dd83737f4d079b339b6bf8a0b963bc08bdec55d7ebbe48a43586404f5ab"
     },
     {
       "path": "skills/verify-refs/skill.yml",
