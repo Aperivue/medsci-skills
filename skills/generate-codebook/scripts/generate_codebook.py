@@ -130,12 +130,19 @@ def _is_numeric_level(v) -> bool:
     return bool(_NUMERIC_TOKEN.match(str(v).strip()))
 
 
-def _coded_levels(series: "pd.Series", allow_mixed: bool = True) -> bool:
+def _coded_levels(series: "pd.Series", allow_mixed: bool = True,
+                  numeric_is_code: bool = True) -> bool:
     """True when the levels are bare codes needing a dictionary.
 
     Flagged when every level is a bare code (number or short token), or —
     with ``allow_mixed`` — when any level is a numeric code: one readable label
     (``Unknown``) does not explain the numeric codes beside it (``1/2/3``).
+
+    With ``numeric_is_code=False`` a numeric value is read as a measurement,
+    not a code, and clears the column. This is the text-role rule: a
+    high-cardinality column of number strings with a sentinel ('45', '67',
+    ..., 'unk') is a measurement exported as text, matching the numeric rule
+    that an integer column with more than --max-levels values is continuous.
     """
     vals = series.dropna().unique().tolist()
     if not vals:
@@ -143,6 +150,8 @@ def _coded_levels(series: "pd.Series", allow_mixed: bool = True) -> bool:
     if allow_mixed and any(_is_numeric_level(v) for v in vals):
         return True
     for v in vals:
+        if not numeric_is_code and _is_numeric_level(v):
+            return False
         if pd.api.types.is_number(v):
             continue
         s = str(v).strip()
@@ -202,7 +211,8 @@ def profile_column(df: "pd.DataFrame", col: str, n_rows: int, max_levels: int) -
     elif role == "text":
         # High-cardinality strings are never listed as levels, but a column
         # whose every value is a bare code (S01..S29) still needs a dictionary.
-        if _coded_levels(nonnull, allow_mixed=False):
+        # Number strings are measurements here, not codes (age '45'..'unk').
+        if _coded_levels(nonnull, allow_mixed=False, numeric_is_code=False):
             rec["needs_dictionary"] = True
             rec["notes"].append("[NEEDS DICTIONARY] values are bare codes (too many to list as levels) — uninterpretable without the authoritative data dictionary; do not guess meanings")
     elif role == "id":

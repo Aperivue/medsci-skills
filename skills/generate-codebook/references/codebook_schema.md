@@ -67,7 +67,8 @@ human-readable (`never` / `former` / `current`) is **not** flagged. A column
 that mixes numeric codes with a label (`1` / `2` / `3` / `Unknown`) **is**
 flagged: the label does not explain the codes. A **text** column (too many
 distinct values to list as levels) is flagged when every value is a bare code
-(`S01` … `S29`); its levels are not listed. The flag is a
+(`S01` … `S29`); its levels are not listed. Number strings in a text column
+are read as measurements, not codes, so `45` / `67` / … / `unk` is not flagged. The flag is a
 prompt for the researcher to fill meanings from the authoritative dictionary; it
 is never resolved by guessing.
 

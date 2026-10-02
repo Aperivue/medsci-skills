@@ -91,6 +91,10 @@ pd.DataFrame({
     "visit_date": (pd.to_datetime("2023-01-01")
                    + pd.to_timedelta(rng.integers(0, 365, n), unit="D")).strftime("%Y-%m-%d"),  # NEG: still a date
     "bmi": rng.normal(25, 3, n).round(1),                              # NEG: continuous
+    # NEG: numeric measurements exported as strings because of a sentinel
+    "age_str": [str(x) for x in rng.integers(20, 90, n - 5)] + ["unk"] * 5,
+    "creat_str": [str(x) for x in rng.integers(40, 200, n - 5)] + ["<40"] * 5,
+    "lab_nd": [str(x) for x in rng.normal(5, 1, n - 5).round(2)] + ["ND"] * 5,
 }).to_csv(f"{out}/data2.csv", index=False)
 PY
 
@@ -113,6 +117,9 @@ checks = {
     "GC-2 stats: year_dx range is the integer years": y.get("stats", {}).get("min") == 1990.0 and y.get("stats", {}).get("max") == 2020.0,
     "GC-2 control: string visit_date still a date": col["visit_date"]["role"] == "date",
     "GC-2 control: bmi NOT flagged": col["bmi"]["needs_dictionary"] is False,
+    "text control: age_str ('45'..'unk') NOT flagged": col["age_str"]["role"] == "text" and col["age_str"]["needs_dictionary"] is False,
+    "text control: creat_str ('88'..'<40') NOT flagged": col["creat_str"]["role"] == "text" and col["creat_str"]["needs_dictionary"] is False,
+    "text control: lab_nd ('4.87'..'ND') NOT flagged": col["lab_nd"]["role"] == "text" and col["lab_nd"]["needs_dictionary"] is False,
     "count: needs_dictionary_count==2 (fixture 2)": cb["needs_dictionary_count"] == 2,
 }
 for k, v in checks.items():

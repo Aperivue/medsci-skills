@@ -72,6 +72,9 @@ data is `/clean-data`.
   codes, so their column is not flagged `needs_dictionary`.
 - An integer-coded column with more distinct values than `--max-levels` is classed `continuous`
   and is not flagged. The Step 2 role review is where such columns are caught.
+- The same holds for a `text` column holding number strings: any number value
+  (`45`, `88`) is read as a measurement, so integer codes exported as strings
+  with more than `--max-levels` values are not flagged.
 
 ## Output Format
 
