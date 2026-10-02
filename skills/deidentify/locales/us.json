@@ -20,7 +20,7 @@
     "type": "keywords",
     "keywords": ["Street", "St.", "Avenue", "Ave.", "Boulevard", "Blvd.", "Drive", "Dr.", "Lane", "Ln.", "Road", "Rd.", "Court", "Ct.", "Suite", "Ste.", "Apt.", "P.O. Box"],
     "min_ratio": 0.3,
-    "postcode_pattern": "\\b\\d{5}-\\d{4}\\b"
+    "postcode_pattern": "(?<![\\d-])\\d{5}-\\d{4}(?![\\d-])"
   },
 
   "name_heuristic": {

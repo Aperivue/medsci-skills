@@ -1053,8 +1053,8 @@
     },
     {
       "path": "skills/deidentify/SKILL.md",
-      "size": 13244,
-      "sha256": "f682651130e5ed117c101a2583da373bf4f1b1ed936ed6670d02bcab502fdfd8"
+      "size": 13730,
+      "sha256": "689c838b85dbc5f6cd114e902b120671997881c4321fd99e866cc9280b3dd40a"
     },
     {
       "path": "skills/deidentify/deidentify.py",
@@ -1118,8 +1118,8 @@
     },
     {
       "path": "skills/deidentify/locales/us.json",
-      "size": 1430,
-      "sha256": "3ba05042a136d3cf357d671618eb8acc37e4535fe20db61fe28cebcb819b6531"
+      "size": 1445,
+      "sha256": "2821f3cd259d044d0526ebc75549721ca89b0e738ace3bc2f40ce445775ed8ba"
     },
     {
       "path": "skills/deidentify/references/date_shift_guide.md",

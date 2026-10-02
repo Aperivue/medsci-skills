@@ -567,8 +567,8 @@ assert d._cell_text(datetime(2021, 5, 3, 12, 0, 0)) == '2021-05-03 12:00:00'" "$
 
 # --- Date-shift offsets do not come from a guessable seed ---
 # Offsets came from random.Random(seed), seed = random.randint(1, 999999), in
-# row order: two or three known true dates identified the seed by brute force
-# (about 10 s), and the seed gave back every other patient's original dates.
+# row order: two or three known true dates identified the seed by brute force,
+# and the seed gave back every other patient's original dates.
 check "date shift: unseeded run never touches the module PRNG" python3 -c "
 import sys; sys.path.insert(0, sys.argv[1])
 import deidentify as d
@@ -619,6 +619,23 @@ check "control: words around a month stay SAFE"   probe us note SAFE/None "Seen 
 check "control: scores and ratios stay SAFE"      probe us score SAFE/None 15/30 1/2 120/80
 check "control: short 070 tokens stay SAFE"       probe kr x  SAFE/None 0701 070 12345
 check "control: 5-digit codes stay SAFE"          probe us cpt SAFE/None 99213 99214 99213
+# NDC drug codes (5-4-2, 5-4-1) contain a 5-4 digit run; '-' is a word
+# boundary, so a plain \b\d{5}-\d{4}\b ZIP+4 pattern matched them.
+check "control: NDC 5-4-2 codes stay SAFE"       probe us rx  SAFE/None 00093-7146-56 00002-3227-30 50090-1234-01
+# A 5-4-1 code has ten digits and reaches REVIEW_NEEDED/phone on main too; the
+# ZIP+4 pattern itself must not match it (nor 5-4-2).
+check "control: ZIP+4 pattern skips NDC codes" python3 -c "
+import sys, re, json
+p = re.compile(json.load(open(sys.argv[1] + '/locales/us.json'))['address']['postcode_pattern'])
+for v in ('00093-7146-5', '00093-7146-56', '12345-6789-01', 'x-12345-6789'):
+    assert not p.search(v), v
+for v in ('94110-1234', 'CA 94110-1234.'):
+    assert p.search(v), v" "$SKILL"
+# Three-part values: only month/day/2-digit-year shapes are dates under us.
+# 1/2/10 is a valid M/D/YY date and is flagged on purpose (SKILL.md, Known limits).
+check "control: 3-part non-date values stay SAFE" probe us score SAFE/None 120/80/60 13/40/99 1/2/3
+check "dates: 3-part M/D/YY under us is PHI/date" probe us score PHI/date 1/2/10 5/5/10
+check "zip: ZIP+4 inside an address line is PHI"  probe us x  PHI/address "Springfield 94110-1234" "Town, 10001-0001."
 
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

@@ -205,6 +205,12 @@ not by itself make a dataset HIPAA Safe Harbor de-identified, or anonymous under
   `zipcode`, `zip_code`) or by the ZIP+4 form (`94110-1234`). A bare 5-digit value cannot be
   told apart from other 5-digit codes (e.g. procedure codes), so a ZIP column under another
   name can be classified SAFE: check the sample values in review.
+- **Known limits — dates:** these spellings are still classified SAFE: month-first with a
+  dash (`Mar-15-2024`), year-first with a month word (`2024-Mar-15`), month and year only
+  (`March 2024`), non-English month words (`15 mars 2024`, `15. März 2024`), and two-digit-year
+  day/month dates outside the `us` locale (`15/03/24` under `uk`). Under `us`, any
+  `M/D/YY`-shaped value (e.g. `1/2/10`) is treated as a date, so a column of such
+  three-part numbers is flagged PHI/date.
 - **Not detected:** URLs, IP addresses, account, licence, vehicle and device numbers (fax
   numbers only where they look like the locale's phone numbers), and identifiers written in
   column names or file names. Only the first sheet of an Excel file is processed (the other
