@@ -1068,6 +1068,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/search-lit/tests/test_pubmed_eutils.sh
 
+      - name: "Run search-lit parse_pubmed test (inline markup never truncates a title or abstract)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/search-lit/tests/test_parse_pubmed.sh
+
       - name: "Run ma-scout test (an unknown esearch count is never 0; an unchecked PROSPERO is never clear)"
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/ma-scout/tests/test_esearch_count_and_prospero.sh
