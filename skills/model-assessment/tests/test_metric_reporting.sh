@@ -110,4 +110,10 @@ for m in "mAP 0.71" "MAP of 0.71" "map@0.5 0.71" "mAP50-95 0.52" "mean average p
   check "F4 control: '$m' + saliency map passes --strict" ok0 "$W/det_ap.md" detection
 done
 
+# reviewer controls: AP phrasings that put an image word before mAP still count (clean on main)
+for m in "The instance segmentation mAP was 0.42" "The confidence mAP was 0.42"; do
+  printf '%s (95%% CI 0.38-0.46) at an IoU threshold of 0.5.\n' "$m" > "$W/det_ap2.md"
+  check "F4 control: '$m' passes --strict" ok0 "$W/det_ap2.md" detection
+done
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"; exit "$fail"

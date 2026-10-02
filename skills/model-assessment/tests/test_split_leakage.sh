@@ -4,7 +4,8 @@
 # (b) column auto-detection (subject_id / partition), (c) a missing split seed,
 # (d) the --no-require-seed / --seed downgrades, (e) a single-partition file, and
 # (f) a seed read from a column, and (g) an auto-picked image/study-level ID column that
-# clears while a column naming the patient overlaps (exit 2). Stdlib-only (python3).
+# clears while a column naming the patient overlaps (exit 2), and (h) patient attribute or
+# label columns that span partitions beside a clean patient ID stay clean. Stdlib-only (python3).
 set -u
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -92,6 +93,13 @@ check "image_id + case, disjoint: no PATIENT_OVERLAP" no_verdict PATIENT_OVERLAP
 python3 "$SCRIPT" --splits "$F/only_image_study_ids.csv" --seed 1 --strict --quiet >/dev/null 2>&1
 check "image_id + study_id, no patient column: exit 0 (unchanged)" test "$?" -eq 0
 check "chosen ID column printed on stdout" bash -c "python3 '$SCRIPT' --splits '$F/clean_imageid_case.csv' --seed 1 | grep -q 'id_col=image_id'"
+
+# (9) Reviewer counter-examples: a clean patient column auto-picked beside a patient attribute
+#     column that spans partitions stays clean (exit 0), as on main.
+for fx in clean_patient_visit_no clean_subject_sex_code clean_participant_site_id clean_imageid_casecontrol; do
+  python3 "$SCRIPT" --splits "$F/$fx.csv" --seed 42 --out "$OUT" --strict --quiet >/dev/null 2>&1
+  check "$fx: exit 0 (patient attribute / label column not compared)" test "$?" -eq 0
+done
 
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

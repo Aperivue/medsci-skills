@@ -60,9 +60,10 @@ import re
 import sys
 from pathlib import Path
 
+# 'segmentation' and 'confidence' are left out: "instance segmentation mAP" and "confidence
+# mAP" name mean average precision, and matching is case-insensitive (mAP == map).
 _MAP_IMAGE_WORDS = ("saliency", "heat", "attention", "activation", "probability", "feature",
-                    "attribution", "relevance", "occlusion", "cam", "uncertainty", "confidence",
-                    "segmentation", "density")
+                    "attribution", "relevance", "occlusion", "cam", "uncertainty", "density")
 _NOT_AN_AP_MAP = "".join(r"(?<!%s[ -])" % w for w in _MAP_IMAGE_WORDS)
 
 P = {

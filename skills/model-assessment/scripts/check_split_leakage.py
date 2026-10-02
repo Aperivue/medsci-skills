@@ -32,9 +32,11 @@ INPUTS
                id    : patient_id / subject_id / case_id / id / pid / mrn / studyid
                split : split / partition / set / subset / fold / phase / assignment
              Override with --id-col / --split-col. The chosen columns are printed.
-             When the auto-picked ID column shows no overlap but another column that
-             names the patient (case, patient_mrn, participant_id, ...) does, the
-             choice is ambiguous and the gate exits 2 naming both; pass --id-col.
+             When the auto-picked ID column is not itself a patient column (image_id,
+             study_id), shows no overlap, and another column that names the patient
+             (case, patient_mrn, participant_id, ...) and has more distinct values than
+             there are partitions does overlap, the choice is ambiguous and the gate
+             exits 2 naming both; pass --id-col.
   --seed     the split's random seed (int/str), to record reproducibility.
   --seed-file path to a file holding the seed (default: auto-detect split_seed.txt
              alongside --splits).
@@ -104,14 +106,13 @@ def _pick(header: list[str], hints: tuple[str, ...]):
 
 
 def _names_patient(col: str) -> bool:
-    """True for a column that names the patient: 'case', 'patient_mrn', 'subject_code' —
-    not 'patient_age' (a patient token alone does not make an identifier)."""
+    """True for a column that names the patient: 'case', 'patient_mrn', 'patientid' —
+    not 'patient_age' or 'patient_visit_no' (a patient token alone does not make an
+    identifier, and attribute suffixes such as no/num/code are not taken)."""
     n = _norm(col)
     if n in PATIENT_COLS:
         return True
-    return (any(t in n for t in PATIENT_TOKENS)
-            and (n.endswith("id") or n.endswith("no")
-                 or any(x in n for x in ("mrn", "num", "code", "key"))))
+    return any(t in n for t in PATIENT_TOKENS) and (n.endswith("id") or "mrn" in n)
 
 
 def _overlaps(rows: list[dict], idc: str, spc: str) -> list[str]:
@@ -191,10 +192,16 @@ def analyze(splits: str, id_col: str | None, split_col: str | None,
 
     n_subjects = len(id_to_splits)
     overlapping = sorted(sid for sid, parts in id_to_splits.items() if len(parts) > 1)
-    if not id_col and not overlapping:
-        # The auto-picked column clears; a column that names the patient must agree.
+    if not id_col and not overlapping and not _names_patient(idc):
+        # The auto-picked column is not a patient column (e.g. image_id, study_id) and
+        # clears; a column that names the patient must agree. A column with no more
+        # distinct values than there are partitions (a case/control label, a sex code)
+        # is a label, not an identifier, and is not compared.
         for alt in header:
             if alt in (idc, spc) or not _names_patient(alt):
+                continue
+            n_alt = len({(r.get(alt) or "").strip() for r in rows} - {""})
+            if n_alt <= len(part_counts):
                 continue
             alt_over = _overlaps(rows, alt, spc)
             if alt_over:
