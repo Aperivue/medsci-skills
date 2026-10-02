@@ -179,7 +179,7 @@ under HIPAA Safe Harbor" (or anonymised under another law) unless the gaps liste
 | File | Contains PHI? | Safe for Claude? | Purpose |
 |------|:------------:|:----------------:|---------|
 | `*_deidentified.xlsx/csv` | Only what the researcher kept, and what the tool cannot detect (see below) | After the researcher confirms it | Data for analysis |
-| `mapping.json` | **YES** | **No** | Original ↔ pseudonym mapping, date-shift seed, audit hash key |
+| `mapping.json` | **YES** | **No** | Original ↔ pseudonym mapping, per-patient date offsets, audit hash key |
 | `audit_log.csv` | No original values (keyed hashes) | Yes | What was changed and where |
 | `scan_report.json` | No cell values | Yes | Column classification results |
 | `reviewed_report.json` | No cell values | Yes | Researcher-reviewed classifications and patient key column |
@@ -199,8 +199,18 @@ not by itself make a dataset HIPAA Safe Harbor de-identified, or anonymous under
   review shows every column's sample values so the researcher can catch it.
 - **Rare combinations are not assessed.** Small cells, rare diagnoses, or quasi-identifiers
   (age + sex + ZIP + admission month) can identify a patient; no k-anonymity check is run.
-- **Geography is only as fine as the patterns.** ZIP codes and addresses are detected per
+- **Geography is only as fine as the patterns.** Addresses and postcodes are detected per
   locale; truncating ZIP codes to three digits (Safe Harbor) is not done.
+- **Known limits — bare 5-digit US ZIP codes:** a ZIP column is caught by its name (`zip`,
+  `zipcode`, `zip_code`) or by the ZIP+4 form (`94110-1234`). A bare 5-digit value cannot be
+  told apart from other 5-digit codes (e.g. procedure codes), so a ZIP column under another
+  name can be classified SAFE: check the sample values in review.
+- **Known limits — dates:** these spellings are still classified SAFE: month-first with a
+  dash (`Mar-15-2024`), year-first with a month word (`2024-Mar-15`), month and year only
+  (`March 2024`), non-English month words (`15 mars 2024`, `15. März 2024`), and two-digit-year
+  day/month dates outside the `us` locale (`15/03/24` under `uk`). Under `us`, any
+  `M/D/YY`-shaped value (e.g. `1/2/10`) is treated as a date, so a column of such
+  three-part numbers is flagged PHI/date.
 - **Not detected:** URLs, IP addresses, account, licence, vehicle and device numbers (fax
   numbers only where they look like the locale's phone numbers), and identifiers written in
   column names or file names. Only the first sheet of an Excel file is processed (the other

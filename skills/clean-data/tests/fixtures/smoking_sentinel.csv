@@ -1,0 +1,7 @@
+id,smoking_status,pack_years
+1,never,unknown
+2,never,-9
+3,never,-99
+4,never,0
+5,current,30
+6,former,-9

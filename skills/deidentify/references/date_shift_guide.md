@@ -26,12 +26,16 @@ The recommended approach, used by PCORI Clinical Data Research Networks:
 
 ## Implementation Details
 
-### Seed Management
+### Offset Generation
 
-- A random seed is generated once per run and stored in `mapping.json`
-- This makes the shifting deterministic and reproducible
-- Re-running with the same seed on the same data produces identical results
-- The seed should be kept as securely as the mapping file itself
+- Each patient's offset is drawn independently from the operating system's
+  cryptographic random source (`secrets.SystemRandom`); there is no run seed
+- An earlier version drew offsets from a seeded PRNG with a small seed space:
+  knowing a few patients' true dates was enough to find the seed and recover
+  every other patient's original dates. Offsets are not derivable from one another now
+- The offsets themselves are stored in `mapping.json`, which is what makes a run
+  reproducible; keep it as securely as the original data
+- Re-running `apply` draws new offsets
 
 ### Entity Identification
 
