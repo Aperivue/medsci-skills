@@ -84,5 +84,23 @@ done
 python3 "$SCRIPT" "$HERE/fixtures/gen_seeded_rng.py" --out "$OUT" --strict --quiet >/dev/null 2>&1
 check "exit 0: seeded default_rng(SEED) + def default random_state=None" test "$?" -eq 0
 
+#     the positive case still points at the real call, not the module docstring above it
+python3 "$SCRIPT" "$HERE/fixtures/gen_unseeded_rng.py" --out "$OUT" --quiet >/dev/null 2>&1
+check "MISSING_SEED line is the real default_rng() call (line 12)" python3 -c "
+import json
+d=json.load(open('$OUT'))
+assert [(c['verdict'], c['line']) for c in d['claims'] if c['severity']=='Major']==[('MISSING_SEED', 12)], d['claims']
+"
+
+# (7) negative control: default_rng() / np.random.seed() / RandomState(None) only
+#     MENTIONED in a docstring or a comment is not a call (tokenize-based stripping)
+python3 "$SCRIPT" "$HERE/fixtures/gen_rng_doc_mention.py" --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "exit 0: unseeded calls named only in docstrings/comments" test "$?" -eq 0
+check "no claims at all on the docstring/comment-mention fixture" python3 -c "
+import json
+d=json.load(open('$OUT'))
+assert d['claims']==[], d['claims']
+"
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

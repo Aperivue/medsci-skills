@@ -13,7 +13,8 @@ scans emitted .py / .R scripts before they are reported as final and flags:
                           argument), or a generator is explicitly initialised
                           unseeded (default_rng(), RandomState(None),
                           np.random.seed(), set.seed(NULL)) even when a seed
-                          is set elsewhere. Non-reproducible. (Major)
+                          is set elsewhere. Non-reproducible. Mentions in
+                          comments and (Python) docstrings are ignored. (Major)
   HARDCODED_DATA_LITERAL  a large hand-typed numeric literal that looks like
                           tabular data — either alongside a real data-file read,
                           or very large on its own. The data-integrity rule is
@@ -52,9 +53,11 @@ from __future__ import annotations
 
 import argparse
 import ast
+import io
 import json
 import re
 import sys
+import tokenize
 from pathlib import Path
 
 # --- shared regexes (language-agnostic unless noted) ------------------------
@@ -119,7 +122,8 @@ def _first_path_literal(arg: str) -> str | None:
 def strip_comments(src: str) -> str:
     """Blank out `#`-to-EOL comments while preserving byte offsets and line count,
     so seed/randomness detection never matches a mention inside a comment (e.g.
-    '# no set.seed() used') yet reported line numbers stay correct. Runs only for
+    '# no set.seed() used') yet reported line numbers stay correct. Used for R
+    sources (and as the Python fallback when tokenize fails). Runs only for
     the seed/randomness checks; path/literal checks keep the full source."""
     out = []
     for line in src.split("\n"):
@@ -128,11 +132,68 @@ def strip_comments(src: str) -> str:
     return "\n".join(out)
 
 
+def _blank_spans(src: str, spans: list[tuple[tuple[int, int], tuple[int, int]]]) -> str:
+    """Replace each ((row, col), (end_row, end_col)) span (tokenize coordinates:
+    1-based rows, 0-based character columns) with spaces, keeping newlines, so
+    offsets and line numbers of everything outside the spans are unchanged."""
+    lines = src.split("\n")
+    starts, pos = [], 0
+    for line in lines:
+        starts.append(pos)
+        pos += len(line) + 1
+    chars = list(src)
+    for (r0, c0), (r1, c1) in spans:
+        a, b = starts[r0 - 1] + c0, starts[r1 - 1] + c1
+        for i in range(a, min(b, len(chars))):
+            if chars[i] != "\n":
+                chars[i] = " "
+    return "".join(chars)
+
+
+def strip_py_comments_docstrings(src: str) -> str:
+    """Python: blank comments and docstrings / bare string statements using the
+    tokenize module (not a regex over raw text), so a mention such as
+    '# never call default_rng()' or a docstring explaining 'default_rng() is
+    unseeded' is not read as a call. A `#` inside an ordinary string literal is left
+    alone. Strings used as values (arguments, assignments) are kept. Falls back to
+    the line-based strip_comments() if the source does not tokenize."""
+    spans: list[tuple[tuple[int, int], tuple[int, int]]] = []
+    trivia = {tokenize.NL, tokenize.COMMENT, tokenize.INDENT, tokenize.DEDENT,
+              tokenize.ENCODING}
+    try:
+        toks = list(tokenize.generate_tokens(io.StringIO(src).readline))
+    except (tokenize.TokenError, IndentationError, SyntaxError):
+        return strip_comments(src)
+    prev_sig = None  # type of the previous significant token
+    i = 0
+    while i < len(toks):
+        tok = toks[i]
+        if tok.type == tokenize.COMMENT:
+            spans.append((tok.start, tok.end))
+        elif tok.type == tokenize.STRING and prev_sig in (None, tokenize.NEWLINE):
+            # a run of (implicitly concatenated) string tokens at the start of a
+            # logical line that ends the line is a docstring / bare string statement
+            j = i
+            while j + 1 < len(toks) and toks[j + 1].type in (tokenize.STRING, tokenize.NL):
+                j += 1
+            k = j + 1
+            while k < len(toks) and toks[k].type in (tokenize.COMMENT, tokenize.NL):
+                k += 1
+            if k >= len(toks) or toks[k].type in (tokenize.NEWLINE, tokenize.ENDMARKER):
+                spans.extend((t.start, t.end) for t in toks[i:j + 1]
+                             if t.type == tokenize.STRING)
+        if tok.type not in trivia:
+            prev_sig = tok.type
+        i += 1
+    return _blank_spans(src, spans)
+
+
 def check_text_common(src: str, lang: str) -> list[dict]:
     claims: list[dict] = []
     lines = src.splitlines()
     has_read = bool(READ_CALL.search(src))
-    code = strip_comments(src)  # comment-free copy for seed/randomness logic
+    # comment-free (and, for Python, docstring-free) copy for seed/randomness logic
+    code = strip_py_comments_docstrings(src) if lang == "py" else strip_comments(src)
 
     # MISSING_SEED
     rand, seed, unseeded = ((RAND_PY, SEED_PY, UNSEEDED_PY) if lang == "py"
