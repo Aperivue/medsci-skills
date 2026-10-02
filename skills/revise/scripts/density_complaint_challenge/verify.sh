@@ -86,6 +86,34 @@ printf '## 1. Introduction\n%s\n## 2. Results\n%s\n**Funding**\n%s\n%s\n%s\n' \
 python3 "$DET" --comments "$TMP/letter.md" --previous "$TMP/prev.md" --revised "$TMP/rev_num_cut.md" --strict >/dev/null 2>&1
 ck "numbered + bold headings bound a cut revision" 0 "$?"
 
+# 6) run-in declaration headings ("Funding: None.", "Data availability: The data ...") still
+#    end the body. A cut revision that adds a run-in data statement must still clear.
+printf 'The manuscript is too long and should be shortened. Please also add a data availability statement.\n' > "$TMP/letter_da.md"
+printf 'Introduction\n%s\n%s\nResults\n%s\n%s\nDiscussion\n%s\nFunding: None.\nReferences\n1. Ref.\n' \
+  "$FILL" "$FILL" "$FILL" "$FILL" "$FILL" > "$TMP/prev_runin.md"
+DA="Data availability: The de-identified data and the analysis code are available from the corresponding author on reasonable request after approval by the institutional review board."
+printf 'Introduction\n%s\n%s\nResults\n%s\nDiscussion\n%s\n%s\nFunding: None.\nReferences\n1. Ref.\n' \
+  "$FILL" "$FILL" "$FILL" "$FILL" "$DA" > "$TMP/rev_runin_cut.md"
+python3 "$DET" --comments "$TMP/letter_da.md" --previous "$TMP/prev_runin.md" --revised "$TMP/rev_runin_cut.md" --strict >/dev/null 2>&1
+ck "run-in 'Data availability: ...' ends the body" 0 "$?"
+printf 'Introduction\n%s\n%s\nResults\n%s\nDiscussion\n%s\n**Conflicts of interest:** none declared.\n%s\n%s\nReferences.\n1. Ref.\n' \
+  "$FILL" "$FILL" "$FILL" "$FILL" "$FILL" "$FILL" > "$TMP/rev_runin_bold.md"
+python3 "$DET" --comments "$TMP/letter_da.md" --previous "$TMP/prev_runin.md" --revised "$TMP/rev_runin_bold.md" --strict >/dev/null 2>&1
+ck "bold run-in 'Conflicts of interest:' ends the body" 0 "$?"
+printf 'Introduction\n%s\n%s\nResults\n%s\nDiscussion\n%s\nFunding. None.\n%s\n%s\nReferences\n1. Ref.\n' \
+  "$FILL" "$FILL" "$FILL" "$FILL" "$FILL" "$FILL" > "$TMP/rev_runin_period.md"
+python3 "$DET" --comments "$TMP/letter_da.md" --previous "$TMP/prev_runin.md" --revised "$TMP/rev_runin_period.md" --strict >/dev/null 2>&1
+ck "run-in 'Funding. None.' ends the body" 0 "$?"
+printf 'Introduction\n%s\n%s\nResults\n%s\nDiscussion\n%s\nReferences.\n%s\n%s\n%s\n' \
+  "$FILL" "$FILL" "$FILL" "$FILL" "$FILL" "$FILL" "$FILL" > "$TMP/rev_refs_period.md"
+python3 "$DET" --comments "$TMP/letter_da.md" --previous "$TMP/prev_runin.md" --revised "$TMP/rev_refs_period.md" --strict >/dev/null 2>&1
+ck "'References.' with a trailing period ends the body" 0 "$?"
+# ...while a body sentence with a colon after a non-keyword lead is still body text
+printf 'Introduction\n%s\n%s\nResults\n%s\n%s\nSupplementary Table S3: per-site estimates are given there.\n%s\n%s\nDiscussion\n%s\nFunding: None.\nReferences\n1. Ref.\n' \
+  "$FILL" "$FILL" "$FILL" "$FILL" "$FILL" "$FILL" "$FILL" > "$TMP/rev_supp_colon.md"
+python3 "$DET" --comments "$TMP/letter_da.md" --previous "$TMP/prev_runin.md" --revised "$TMP/rev_supp_colon.md" --strict >/dev/null 2>&1
+ck "body line 'Supplementary Table S3: ...' is not a heading" 1 "$?"
+
 echo
 echo "  $pass passed, $fail failed"
 [ "$fail" -eq 0 ] || exit 1

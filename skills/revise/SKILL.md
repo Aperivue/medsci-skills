@@ -248,11 +248,18 @@ Look at it by eye; do not delete a quote because of this verdict — accurate qu
 deleted that way. The tolerance stops at content: when the only near-match in the body differs from
 the quote by a number (the letter says 0.92, the body 0.87) or by a negation ("not", "no", "never"
 on one side only), the verdict is `RESPONSE_QUOTE_UNVERIFIED` (major), because that is a different
-claim, not extraction debris. A numeric citation counts only as a whole bracket element or inside a
-range: a claimed [5] is not satisfied by [15].
+claim, not extraction debris. Numbers are compared by value, so "P < 0.001" against "P < .001",
+"1234" against "1,234", or a superscript reference glued to a number is not a change; a negation on
+both sides in different spellings ("cannot" / "can not") cancels; and the near-match examined is the
+one with the fewest inserted tokens, so a negator in an earlier contrast sentence is not read into
+the quote. A numeric citation counts only as a whole bracket element or inside a range: a claimed
+[5] is not satisfied by [15].
 
 Known limits: a citation claim passes when ANY of its cited tokens is in the body, so "we now cite
-[15] and [16]" passes with only [15] inserted; check multi-citation claims by eye.
+[15] and [16]" passes with only [15] inserted; check multi-citation claims by eye. A quoted number
+replaced in the body still clears when the old number appears nearby in the same sentence (quote
+"was 0.92", body "was 0.87 (95% CI 0.80-0.92)"), and a body number that only extends the quoted
+digits ("0.92" vs "0.923") is read as glued-marker damage; check quoted results by eye.
 
 **If a reviewer called the manuscript too long or too dense, prove the body got shorter.**
 Answering a density comment point-by-point adds a sentence per point, so the revision that responds
@@ -267,10 +274,16 @@ python3 ${CLAUDE_SKILL_DIR}/scripts/check_density_complaint.py \
 
 `DENSITY_COMPLAINT_UNADDRESSED` fires only when the decision letter contains a density/length
 complaint AND the body word count (Introduction through Discussion, citation markers excluded) did
-not fall. Section boundaries are headings only (a markdown heading, or a standalone short line as a
-.docx paragraph extracts, optionally numbered or bold), so a body sentence that begins
-"Supplementary Table S3 ..." does not end the body; with no complaint it stays silent. When it fires, cut or move detail to the supplement; do
-not defend the length by adding a paragraph that explains it.
+not fall. Section boundaries are headings only: a markdown heading, a standalone short line as a
+.docx paragraph extracts (optionally numbered or bold, optionally ending in ':' or '.'), or a run-in
+heading whose keyword phrase is followed by ':' and text ("Funding: None.", "**Data availability:**
+The data ..."; declaration sections may also run in with '.', "Funding. None."). A body sentence that
+begins "Supplementary Table S3 ..." does not end the body. With no complaint the gate stays silent.
+When it fires, cut or move detail to the supplement; do not defend the length by adding a paragraph
+that explains it.
+
+Known limits: a run-in heading with no ':' or '.' after the keyword phrase ("Acknowledgements We
+thank ...") is read as a heading only when the keyword is followed by at most three words on the line.
 
 ---
 

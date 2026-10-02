@@ -233,6 +233,49 @@ printf '## Results\nAge was associated with civile. Why age is not enough. Rev M
 python3 "$V" --response "$TMP/resp_neg_add.md" --manuscript "$TMP/body_neg_bleed.md" --strict > /dev/null 2>&1
 ck "bled reference line containing 'not' is not drift" 0 "$?"
 
+# control: an EARLIER contrast sentence holding a negator is not part of the quote. The
+# matcher's first full run borrows 'not' from the training-set sentence; the run the quote
+# came from is the one with the fewest insertions, and it holds only a proof line number.
+printf '**Response 14.** We added the sentence "accuracy was high in the test set of the external cohort".\n' > "$TMP/resp_contrast.md"
+printf '## Results\nAccuracy was not high in the training set. Accuracy was 112 high in the test set of the external cohort.\n' > "$TMP/body_contrast.md"
+python3 "$V" --response "$TMP/resp_contrast.md" --manuscript "$TMP/body_contrast.md" --strict > /dev/null 2>&1
+ck "negator in an earlier contrast sentence is not drift" 0 "$?"
+python3 "$V" --response "$TMP/resp_contrast.md" --manuscript "$TMP/body_contrast.md" 2>&1 | grep -q RESPONSE_QUOTE_UNVERIFIED
+ck "earlier contrast sentence reports no UNVERIFIED" 1 "$?"
+# ...while the same quote against a body whose only matching sentence is negated still fails
+printf '## Results\nAccuracy was not high in the test set of the external cohort.\n' > "$TMP/body_contrast_neg.md"
+python3 "$V" --response "$TMP/resp_contrast.md" --manuscript "$TMP/body_contrast_neg.md" --strict > /dev/null 2>&1
+ck "negated test-set sentence still fails (--strict)" 1 "$?"
+
+# controls: a number written differently, or with a superscript reference glued on in
+# extraction, is the same number.
+printf '**Response 15.** The sentence now reads "the difference between the two arms was significant with P < 0.001 in the adjusted model".\n' > "$TMP/resp_p.md"
+printf '## Results\nThe difference between the two arms was significant with P < .001 in the adjusted 57 model.\n' > "$TMP/body_p.md"
+python3 "$V" --response "$TMP/resp_p.md" --manuscript "$TMP/body_p.md" --strict > /dev/null 2>&1
+ck "'P < 0.001' vs 'P < .001' is not drift (--strict)" 0 "$?"
+printf '**Response 16.** We added "a total of 1234 patients were enrolled at the three participating centres".\n' > "$TMP/resp_thou.md"
+printf '## Methods\nA total of 1,234 patients were enrolled at the three 88 participating centres.\n' > "$TMP/body_thou.md"
+python3 "$V" --response "$TMP/resp_thou.md" --manuscript "$TMP/body_thou.md" --strict > /dev/null 2>&1
+ck "'1234' vs '1,234' is not drift (--strict)" 0 "$?"
+printf '**Response 17.** We added "the guideline was last updated in 2019 by the international working group".\n' > "$TMP/resp_sup.md"
+printf '## Discussion\nThe guideline was last updated in 2019\xc2\xb2\xc2\xb3 by the international 64 working group.\n' > "$TMP/body_sup.md"
+python3 "$V" --response "$TMP/resp_sup.md" --manuscript "$TMP/body_sup.md" --strict > /dev/null 2>&1
+ck "superscript reference glued to '2019' is not drift" 0 "$?"
+# ...but a different year in the same place is
+printf '## Discussion\nThe guideline was last updated in 2021 by the international 64 working group.\n' > "$TMP/body_year.md"
+python3 "$V" --response "$TMP/resp_sup.md" --manuscript "$TMP/body_year.md" --strict > /dev/null 2>&1
+ck "quoted year changed in body fails (--strict)" 1 "$?"
+
+# controls: a negation on BOTH sides, spelled differently, cancels.
+printf '**Response 18.** We added "the model cannot be applied to paediatric patients in this setting".\n' > "$TMP/resp_cannot.md"
+printf '## Discussion\nThe model can not be applied to paediatric patients in this setting.\n' > "$TMP/body_cannot.md"
+python3 "$V" --response "$TMP/resp_cannot.md" --manuscript "$TMP/body_cannot.md" 2>&1 | grep -q RESPONSE_QUOTE_UNVERIFIED
+ck "'cannot' vs 'can not' is not a one-sided negation" 1 "$?"
+printf '**Response 19.** We added "the association isn'"'"'t explained by age or sex in the cohort".\n' > "$TMP/resp_isnt.md"
+printf '## Discussion\nThe association is not explained by age or sex in the cohort.\n' > "$TMP/body_isnt.md"
+python3 "$V" --response "$TMP/resp_isnt.md" --manuscript "$TMP/body_isnt.md" 2>&1 | grep -q RESPONSE_QUOTE_UNVERIFIED
+ck "\"isn't\" vs 'is not' is not a one-sided negation" 1 "$?"
+
 # --- citation intent read past a leading 'We (have) added' --------------------------------
 # The leftmost verb alternative 'we (have) added' swallowed the match, so 'added the citation'
 # / 'added a reference' were never seen and the claim was never checked.

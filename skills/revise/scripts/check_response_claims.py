@@ -58,7 +58,17 @@ import unicodedata
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from _quote_match import MAX_GAP, match_quality, tokens  # noqa: E402  (same-dir helper)
+from _quote_match import (  # noqa: E402  (same-dir helper)
+    _TOKEN_RE,
+    MAX_GAP,
+    MAX_INTERRUPTIONS,
+    MAX_TOTAL_INSERT_FRAC,
+    MIN_TOTAL_INSERT,
+    PARTIAL_COVERAGE,
+    match_quality,
+    tokens,
+)
+from _quote_match import normalize as qm_normalize  # noqa: E402
 
 # A claim that asserts an addition/edit to the manuscript.
 CLAIM_VERB = re.compile(
@@ -230,18 +240,32 @@ def _is_negator(tok: str) -> bool:
     return tok in NEGATORS or tok.endswith("n't")
 
 
-def content_mismatch(quote: str, body: str) -> dict:
-    """Content tokens that differ between the quote and its best ordered run in the body.
+def _best_run(q: list, h: list, allow_missing: bool):
+    """The matcher's ordered run, re-walked with the matcher's own limits, recording WHAT was
+    skipped.
 
-    Re-walks the matcher's ordered run (same MAX_GAP window, greedy per token) recording WHAT
-    was skipped: quote tokens missing from the run, and body tokens wedged into it. Returns
-    {"missing_numbers": [...], "negators": [...]}; both empty means the tolerated gaps are
-    content-free and the extraction-damage reading stands."""
-    q, h = tokens(quote), tokens(body)
+    Same candidate starts, MAX_GAP window, MAX_INTERRUPTIONS, insertion budget and missing cap
+    as _quote_match._ordered_run, so the run examined here is one the matcher would accept.
+    Ties on matched count go to the run with the FEWEST insertions: when the body holds an
+    earlier contrast sentence ('not high in the training set') before the quoted sentence
+    ('high in the test set'), the long run that borrows the earlier sentence's words is not
+    the one the quote came from. Returns (matched, inserted, missing, gaps, first, last) or
+    None; first/last are the body token indices of the first and last matched token."""
+    if not q or not h:
+        return None
+    budget = max(MIN_TOTAL_INSERT, int(len(q) * MAX_TOTAL_INSERT_FRAC))
+    max_missing = len(q) - int(len(q) * PARTIAL_COVERAGE)
+    starts = [i for i, t in enumerate(h) if t == q[0]]
+    if allow_missing and not starts:
+        wanted = set(q)
+        starts = [i for i, t in enumerate(h) if t in wanted]
     best = None
-    wanted = set(q)
-    for start in [i for i, t in enumerate(h) if t in wanted]:
-        hi, matched, missing, gaps = start, 0, [], []
+    for start in starts:
+        hi = start
+        matched = inserted = interruptions = 0
+        missing: list = []
+        gaps: list = []
+        first = last = -1
         for tok in q:
             found = -1
             for j in range(hi, min(hi + MAX_GAP + 1, len(h))):
@@ -249,23 +273,88 @@ def content_mismatch(quote: str, body: str) -> dict:
                     found = j
                     break
             if found < 0:
+                if not allow_missing:
+                    break
                 missing.append(tok)
+                if len(missing) > max_missing:
+                    break
                 continue
-            if found > hi and matched:
+            gap = found - hi
+            if gap:
+                interruptions += 1
+                if interruptions > MAX_INTERRUPTIONS:
+                    break
+            inserted += gap
+            if inserted > budget:
+                break
+            if gap and matched:
                 gaps.append(h[hi:found])
+            if first < 0:
+                first = found
+            last = found
             matched += 1
             hi = found + 1
-        if best is None or matched > best[0]:
-            best = (matched, missing, gaps)
+        if matched == 0:
+            continue
+        if best is None or matched > best[0] or (matched == best[0] and inserted < best[1]):
+            best = (matched, inserted, missing, gaps, first, last)
+    return best
+
+
+# A number in normalized text: '0.92', '.001', '1,234', '95'. Thousands commas are dropped
+# before the value is read, so '1,234' and '1234' are the same number.
+_NUMBER = re.compile(r"(?<![\d.])(?:\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?|\.\d+)")
+
+
+def _numbers(text: str) -> list:
+    return [m.group(0).replace(",", "") for m in _NUMBER.finditer(text)]
+
+
+def _number_present(qn: str, body_nums: list) -> bool:
+    """A quoted number is present if the run holds the same VALUE ('0.001' = '.001'), or a
+    number that merely extends its digits: a superscript reference glued on in extraction
+    ('2019' + superscript 23 -> '201923' after NFKC) is damage, not a changed value."""
+    qv = float(qn)
+    for bn in body_nums:
+        if float(bn) == qv or bn.startswith(qn):
+            return True
+    return False
+
+
+def content_mismatch(quote: str, body: str, allow_missing: bool) -> dict:
+    """Content that differs between the quote and the run the matcher graded.
+
+    Quoted numbers are compared by VALUE against the numbers in the body span of the run (its
+    first to last matched token, plus a number directly beside either end), so formatting
+    ('0.001' vs '.001', '1,234' vs '1234') and glued superscript markers are not a change.
+    Negators are read from quote tokens missing from the run and from short body insertions
+    inside it; a negator on BOTH sides (a quoted 'cannot' against an expanded 'can not',
+    "isn't" against 'is not') cancels. Returns {"missing_numbers": [...], "negators": [...]};
+    both empty means the tolerated gaps are content-free and extraction damage stands."""
+    q = tokens(quote)
+    nb = qm_normalize(body)
+    spans = [(m.start(), m.end()) for m in _TOKEN_RE.finditer(nb)]
+    h = [nb[i:j] for i, j in spans]
+    best = _best_run(q, h, allow_missing)
     if best is None:
         return {"missing_numbers": [], "negators": []}
-    _, missing, gaps = best
-    nums = [t for t in missing if any(c.isdigit() for c in t)]
-    negs = [t for t in missing if _is_negator(t)]
+    _, _, missing, gaps, first, last = best
+    lo, hi = spans[first][0], spans[last][1]
+    pre = re.search(r"[\d.,]*\d[\d.,]*[^\w]{0,3}$", nb[max(0, lo - 40):lo])
+    if pre:
+        lo -= len(pre.group(0))
+    post = re.match(r"[^\w]{0,3}[\d.,]*\d[\d.,]*", nb[hi:hi + 40])
+    if post:
+        hi += len(post.group(0))
+    body_nums = _numbers(nb[lo:hi])
+    nums = [n for n in _numbers(qm_normalize(quote)) if not _number_present(n, body_nums)]
+    q_negs = [t for t in missing if _is_negator(t)]
+    b_negs: list = []
     for gap in gaps:
         words = [t for t in gap if not t.isdigit()]
         if len(words) <= NEGATION_GAP_MAX:
-            negs.extend(t for t in words if _is_negator(t))
+            b_negs.extend(t for t in words if _is_negator(t))
+    negs = [] if (q_negs and b_negs) else q_negs + b_negs
     return {"missing_numbers": nums, "negators": negs}
 
 
@@ -320,7 +409,7 @@ def build_report(response_path: Path, manuscript_path: Path) -> dict:
         if kind == "quote":
             g = grade_quote(body, anchor)
             if g["grade"] in ("INTERLEAVED", "PARTIAL"):
-                cm = content_mismatch(anchor, body)
+                cm = content_mismatch(anchor, body, allow_missing=g["grade"] == "PARTIAL")
                 if cm["missing_numbers"] or cm["negators"]:
                     what = []
                     if cm["missing_numbers"]:
