@@ -33,9 +33,12 @@ Before reading any data file, check whether it might contain Protected Health In
 | **JACC family (incl. JACC: Asia, JACC Imaging, JACC EP, JACC BTS)** | **Prohibited without prior Editor-in-Chief permission** ([JACC pathway, PMC10167500](https://pmc.ncbi.nlm.nih.gov/articles/PMC10167500/)) | Cover-letter pre-submission inquiry + ICMJE-style declaration |
 | NEJM | AI image generation prohibited | N/A |
 | Radiology / Radiology AI | Allowed with disclosure | Manuscript disclosure block |
-| Nature family | Allowed with disclosure + license check | Methods + figure legend |
+| Springer Nature (Nature Portfolio, BMC, Springer journals) | Allowed only when the visual is derived from **independently verifiable** data, source material, methods or code; AI visuals without verifiable inputs are "opaque" and not permitted. Charts from datasets and author-reviewed code-generated figures are the policy's own allowed examples ([AI in manuscript preparation](https://www.springernature.com/gp/policies/editorial-policies/ai-manuscript-preparation)) | Declare model and purpose; disclose non-generative image edits in the caption |
+| Elsevier journals (publisher policy) | Explanatory images (flow charts, schematics) allowed. Data visualizations only when directly derived from the underlying data by reproducible methods. **Primary research images, including radiology scans and patient images, must not be created or altered with AI.** AI images produced as part of the research methods are permitted. Graphical abstracts: dedicated illustration tools, not general-purpose generative AI ([Generative AI policies for journals](https://www.elsevier.com/about/policies-and-standards/generative-ai-policies-for-journals)) | Caption + AI disclosure statement (explanatory); Methods (data visualizations, research-method use) |
 | Lancet family | Disclosure required, generation discouraged | Manuscript disclosure |
 | Default (target unknown) | Treat as prohibited until confirmed | N/A |
+
+Publisher pages set the floor; a journal's own guide can be stricter (JACC is an Elsevier journal). Check the target journal's guide as well as its publisher's.
 
 **Hard rule**: For JACC, NEJM, or any "unknown" target journal, **never** use Gemini / DALL-E / Midjourney / Stable Diffusion / Nano Banana to create images that will appear in figures, Central Illustrations, or graphical abstracts. AI text-editing of the manuscript prose remains acceptable subject to standard disclosure.
 
