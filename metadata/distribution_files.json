@@ -978,13 +978,13 @@
     },
     {
       "path": "skills/contribute/SKILL.md",
-      "size": 8699,
-      "sha256": "c2818aec31cf033add8254d9a844b842b3b3c790be12e21effc6e9ebc8d0ef19"
+      "size": 9689,
+      "sha256": "309c4e1081270ccaeb9388760e82872afa69f49b5a6e22e90677915d92caa715"
     },
     {
       "path": "skills/contribute/scripts/check_contribution_safety.py",
-      "size": 12575,
-      "sha256": "edf644025d75bf217acca8a3cbc335ec483f1c0972f6e6f4e8af1d642438c159"
+      "size": 15818,
+      "sha256": "bf61a2d3e4af90f107ac354dade0da59c68bd2b34cb231b92f3fadf45db1a6e3"
     },
     {
       "path": "skills/contribute/scripts/contribution_prefs.py",
@@ -1003,8 +1003,8 @@
     },
     {
       "path": "skills/contribute/scripts/submit_contribution.py",
-      "size": 8815,
-      "sha256": "e3e962861a87a7c5a409e9ebff9c9eb7d220d22c8cd92f34de11077af14c0203"
+      "size": 11684,
+      "sha256": "83ec59b2016721d8eca57233e7e9f87116bd48dbd3d12f44c2a534cf383b309f"
     },
     {
       "path": "skills/contribute/skill.yml",
