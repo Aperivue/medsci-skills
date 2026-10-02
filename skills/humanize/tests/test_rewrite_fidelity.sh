@@ -164,5 +164,26 @@ assert c and c[0]['severity']=='Major' and c[0]['tokens']==[{'citation':'[12]'}]
 check "reordered keys + merged/reworded sentences around citations stay clean" \
   python3 "$SCRIPT" --before "$CBEFORE" --after "$HERE/fixtures/fidelity_cite_after_same.md" --strict --quiet
 
+# (adjacent swap) values one word apart trade places: "from 12.4% to 8.1%" -> "from 8.1% to
+#   12.4%", "91% versus 78%", "88% and 64%", "sensitivity 0.93, specificity 0.71". A value-aware
+#   alignment pins one number to its new position and saw no in-place replacement.
+python3 "$SCRIPT" --before "$HERE/fixtures/fidelity_swap_before.md" \
+  --after "$HERE/fixtures/fidelity_swap_after.md" --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "--strict exits 1 when values one word apart trade places" test "$?" -eq 1
+check "NUMBER_REASSIGNED names every adjacent swap (from X to Y, versus, and, comma)" python3 -c "
+import json
+d=json.load(open('$OUT'))
+c=[x for x in d['claims'] if x['verdict']=='NUMBER_REASSIGNED']
+assert c and c[0]['severity']=='Major', d['claims']
+pairs={(p['before'],p['after']) for p in c[0]['pairs']}
+want={('12.4','8.1'),('8.1','12.4'),('91','78'),('78','91'),('88','64'),('64','88'),('0.93','0.71'),('0.71','0.93')}
+assert want <= pairs, pairs
+"
+# Negative control: two cited sentences reordered (each citation stays on its own claim), two
+#   number-bearing sentences reordered, and an ASCII arrow "1 -> 2" written as "1 to 2" -> clean.
+check "reordered cited/numbered sentences and an arrow written out stay clean" \
+  python3 "$SCRIPT" --before "$HERE/fixtures/fidelity_reorder_before.md" \
+  --after "$HERE/fixtures/fidelity_reorder_after.md" --strict --quiet
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

@@ -22,8 +22,8 @@ Verdicts:
                                was 78%" -> "... 78% ... 91%").
   CITATION_DROP (Major)        a citation present before is absent after. Multi-key and locator
                                Pandoc citations ("[@a; @b]", "[@a, p. 4]") are compared key by key.
-  CITATION_MOVED (Major)       a citation is still present but now sits on the other side of a
-                               sentence boundary that the rewrite kept.
+  CITATION_MOVED (Major)       a citation is still present but left the sentence of the word it
+                               was attached to, while that word kept its place.
   EDIT_FOOTPRINT_HIGH (Minor)  more than --warn-pct of the words changed — re-read the diff.
 
 Why the footprint is advisory and the invariants are not: the two invariants are the skill's
@@ -103,8 +103,11 @@ _BEFORE_RE = re.compile(
     rf"\b(?:(?P<w>{_CHANGE})\s+(?:by\s+|of\s+)?"
     r"|(?P<c>higher|greater|larger|more|lower|less|fewer|smaller)\s+by\s+)$", re.IGNORECASE)
 # An inequality sign directly before a number is part of the value: "P < 0.05" and "P > 0.05"
-# share every digit. "=" and "≈" are not bound, so "P = 0.03" -> "P of 0.03" stays clean.
-_INEQ_RE = re.compile(r"(?P<op><=|>=|[<>≤≥⩽⩾])\s*$")
+# share every digit. "=" and "≈" are not bound, so "P = 0.03" -> "P of 0.03" stays clean. An
+# arrow ("->", "=>") is not an inequality. Because the sign is part of the token, writing a bound
+# sign out in words ("P < 0.05" -> "P less than 0.05", "≥18 years" -> "18 years or older") also
+# fires NUMBER_DRIFT: keep the symbol.
+_INEQ_RE = re.compile(r"(?P<op><=|>=|(?<![-=])[<>]|[≤≥⩽⩾])\s*$")
 _INEQ_NORM = {"<=": "≤", ">=": "≥", "⩽": "≤", "⩾": "≥"}
 # A sentence end: terminal punctuation followed by whitespace or end of text. Decimal points
 # never match, because number tokens are blanked before this runs.
@@ -226,20 +229,46 @@ def _stream(text: str, nums: list[tuple[str, int, int]],
     return [(k, v) for _, _, k, v in items]
 
 
+def _anchored(sm: difflib.SequenceMatcher) -> tuple[dict[int, int], set[int], set[int]]:
+    """Map a->b for every aligned position, plus the positions (on each side) that sit in a
+    matching block of two or more tokens. A lone one-token match is not evidence that a token
+    kept its place: difflib pins an isolated number or word wherever an equal one happens to be."""
+    pos: dict[int, int] = {}
+    anch_a: set[int] = set()
+    anch_b: set[int] = set()
+    for blk in sm.get_matching_blocks():
+        for k in range(blk.size):
+            pos[blk.a + k] = blk.b + k
+            if blk.size >= 2:
+                anch_a.add(blk.a + k)
+                anch_b.add(blk.b + k)
+    return pos, anch_a, anch_b
+
+
 def _reassigned(sa: list[tuple[str, str]], sb: list[tuple[str, str]],
                 drifted: set[str]) -> list[dict]:
-    """Numbers replaced in place by other numbers while the words around them stayed: a
-    'replace' run that holds only numbers on both sides. Tokens whose count changed are left to
-    NUMBER_DRIFT, so this reports only values that traded places."""
+    """Numbers replaced in place by other numbers while the words around them stayed.
+
+    The streams are aligned twice. With every number reduced to a value-free placeholder, the
+    alignment says which number slot became which: in "from 12.4% to 8.1%" -> "from 8.1% to
+    12.4%" both slots line up with their surrounding words. A slot is reported when its before
+    and after values differ and the tokens on both sides of it are aligned with it (a slot at the
+    edge of an aligned run is a rephrasing, not a swap). It is not reported when either value
+    kept its place in the value-aware alignment (it sits in a matching block of two or more
+    tokens there): that is a clause reorder that carried the value with its words. Tokens whose
+    count changed are left to NUMBER_DRIFT."""
+    def blank(s: list[tuple[str, str]]) -> list[tuple[str, str]]:
+        return [(k, "") if k == "N" else (k, v) for k, v in s]
+
+    _, kept_a, kept_b = _anchored(difflib.SequenceMatcher(a=sa, b=sb, autojunk=False))
+    slots = difflib.SequenceMatcher(a=blank(sa), b=blank(sb), autojunk=False)
     out = []
-    sm = difflib.SequenceMatcher(a=sa, b=sb, autojunk=False)
-    for tag, i1, i2, j1, j2 in sm.get_opcodes():
-        if tag != "replace" or (i2 - i1) != (j2 - j1):
-            continue
-        a, b = sa[i1:i2], sb[j1:j2]
-        if not all(k == "N" for k, _ in a + b):
-            continue
-        for (_, x), (_, y) in zip(a, b):
+    for blk in slots.get_matching_blocks():
+        for k in range(1, blk.size - 1):
+            i, j = blk.a + k, blk.b + k
+            if sa[i][0] != "N" or i in kept_a or j in kept_b:
+                continue
+            x, y = sa[i][1], sb[j][1]
             if x != y and x not in drifted and y not in drifted:
                 out.append({"before": x, "after": y})
     return out
@@ -247,28 +276,36 @@ def _reassigned(sa: list[tuple[str, str]], sb: list[tuple[str, str]],
 
 def _moved_citations(sa: list[tuple[str, str]], sb: list[tuple[str, str]],
                      dropped: set[str]) -> list[dict]:
-    """Citation items left unmatched on both sides whose two positions lie on opposite sides of
-    a sentence end that the rewrite kept (a sentence end matched in the alignment)."""
+    """Citation items that left the sentence of the words they were attached to.
+
+    A citation's anchor is the nearest word before it in its own sentence. When that word kept
+    its place in the rewrite (it sits in a matching block of two or more tokens) and the citation
+    now sits in a different sentence from it, the citation moved. A citation whose anchor was
+    reworded or moved with it (a reordered sentence, a merged clause) is not judged."""
     sm = difflib.SequenceMatcher(a=sa, b=sb, autojunk=False)
-    matched_a: set[int] = set()
-    matched_b: set[int] = set()
-    eos: list[tuple[int, int]] = []
-    for blk in sm.get_matching_blocks():
-        for k in range(blk.size):
-            matched_a.add(blk.a + k)
-            matched_b.add(blk.b + k)
-            if sa[blk.a + k][0] == "S":
-                eos.append((blk.a + k, blk.b + k))
+    pos, anch_a, _ = _anchored(sm)
+    sent_b: list[int] = []
+    n = 0
+    for k, _v in sb:
+        sent_b.append(n)
+        if k == "S":
+            n += 1
+    aligned_b = set(pos.values())
     free_b: dict[str, list[int]] = {}
     for j, (k, v) in enumerate(sb):
-        if k == "C" and j not in matched_b:
+        if k == "C" and j not in aligned_b:
             free_b.setdefault(v, []).append(j)
     out = []
     for i, (k, v) in enumerate(sa):
-        if k != "C" or i in matched_a or v in dropped or not free_b.get(v):
+        if k != "C" or i in pos or v in dropped or not free_b.get(v):
             continue
         j = free_b[v].pop(0)
-        if any((ea < i) != (eb < j) for ea, eb in eos):
+        p = i - 1
+        while p >= 0 and sa[p][0] in ("C", "N"):
+            p -= 1
+        if p < 0 or sa[p][0] != "W" or p not in anch_a:
+            continue
+        if sent_b[pos[p]] != sent_b[j]:
             out.append({"citation": v})
     return out
 
@@ -385,8 +422,8 @@ def main(argv: list[str] | None = None) -> int:
             "severity": "Major",
             "tokens": moved[:40],
             "message": (
-                f"{len(moved)} citation(s) now sit on the other side of a sentence boundary the "
-                "rewrite kept. Humanize must never relocate a citation."
+                f"{len(moved)} citation(s) left the sentence of the words they were attached to, "
+                "while those words kept their place. Humanize must never relocate a citation."
             ),
         })
 
