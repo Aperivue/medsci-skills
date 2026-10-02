@@ -4488,8 +4488,8 @@
     },
     {
       "path": "skills/render-pdf-doc/SKILL.md",
-      "size": 7936,
-      "sha256": "31d264d9bf756b019e16a6c057ee6468bc49158af7f2e41be3b4d9c3523e6314"
+      "size": 8379,
+      "sha256": "770bcc52e57c8b84881328f83ee81e3b244adf2189c844cdd3f047b15f4e806e"
     },
     {
       "path": "skills/render-pdf-doc/references/known_pitfalls.md",
@@ -4513,13 +4513,13 @@
     },
     {
       "path": "skills/render-pdf-doc/scripts/render_pdf.sh",
-      "size": 9635,
-      "sha256": "5f38a20fb99630ac7f8eb164074b904351749c9c2e83bfdd04d454b62576c810"
+      "size": 11194,
+      "sha256": "8b76be5a1a8e297d235616860e221ee6e96dc2770adc6fa6e62dace5bb900e83"
     },
     {
       "path": "skills/render-pdf-doc/scripts/scan_glyph_coverage.py",
-      "size": 9266,
-      "sha256": "4795edba22e36e1ca28e30588f696628e203a573862e066961648896b7f6699d"
+      "size": 10494,
+      "sha256": "911f5cf0f5b511bcecfefe0b00ca04548a09edc3b4e39a70fa379373a589b8b8"
     },
     {
       "path": "skills/render-pdf-doc/skill.yml",
