@@ -42,8 +42,10 @@ that regime overfits. Control it:
   small n the amount of shrinkage they estimate is itself unstable, so the model can still be badly
   miscalibrated in new data (Riley et al., *J Clin Epidemiol* 2021; Van Calster et al., *Stat
   Methods Med Res* 2020).
-- Features ≥ events with no reduction → `HIGH_DIM_LOW_EVENTS`. That rule is a floor for the worst
-  case, not a sample-size criterion: a pipeline with 100 features on 105 events passes it.
+- Features ≥ events → `HIGH_DIM_LOW_EVENTS`, whether or not dimensionality reduction or
+  regularisation is declared (declaring it does not clear the verdict; events are counted as the
+  minority class). That rule is a floor for the worst case, not a sample-size criterion: a pipeline
+  with 100 features on 105 events passes it.
 
 ## 4. Nested cross-validation (the non-negotiable)
 

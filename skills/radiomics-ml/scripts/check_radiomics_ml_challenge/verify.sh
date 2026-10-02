@@ -8,8 +8,10 @@
 #   pipeline_weak.json   — 1200 features / 40 events, flat CV, selection on the whole
 #                          dataset, no dim-reduction / stability / calibration / external
 #                          validation (all six verdicts fire).
-#   pipeline_strong.json — nested CV, selection inside the fold, dim-reduction on, ICC
+#   pipeline_strong.json — 40 candidate features (1,200 extracted, reduced without the
+#                          outcome) / 110 events, nested CV, selection inside the fold, ICC
 #                          stability filter, calibration + temporal external validation.
+#                          (Declaring dim-reduction alone would not clear 1,200 / 110.)
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 DET="$HERE/../check_radiomics_ml.py"
