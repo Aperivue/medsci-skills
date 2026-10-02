@@ -209,6 +209,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash tests/test_orchestrate_reachability.sh
 
+      - name: Run orchestrate QC-gate contract test (self-review fatal_count, check-reporting missing, N8 trigger)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python3 skills/orchestrate/tests/test_qc_gate_contract.py
+
       - name: Run check_detector_envelopes.py (every detector's JSON names the detector that wrote it)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 scripts/check_detector_envelopes.py --strict
