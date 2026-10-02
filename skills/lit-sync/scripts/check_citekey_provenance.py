@@ -13,11 +13,12 @@ repeat across a library, and some arrive as URLs. Match notes to papers by DOI, 
 citekey; a key that names two entries identifies neither.
 
 Verdicts
-    OK             citekey is present exactly once in the library (and, when both the note
-                   and that entry carry a DOI, the DOIs agree)
-    MISMATCH       citekey is real, but the library gives it a different DOI than the note
-                   carries — the key belongs to another paper (a composed key that collided
-                   with a real one). The key the note's DOI resolves to is suggested
+    OK             citekey is present exactly once in the library (and the note's DOI is
+                   not another key's library DOI)
+    MISMATCH       citekey is real, but the note's DOI is the library's DOI for a
+                   different, unambiguous key — the key belongs to another paper (a composed
+                   key that collided with a real one). That other key is suggested. A note
+                   DOI that matches no library DOI as spelled never raises MISMATCH
     INVENTED       citekey absent, but the note's DOI (or PMID) resolves to a real key
                    (fixable here — unless that key is itself ambiguous, when no key is
                    suggested and ``reason`` says why)
@@ -237,7 +238,8 @@ def main() -> int:
         citekey = field(fm, "citekey")
         doi = norm_doi(field(fm, "doi"))
         pmid = field(fm, "pmid")
-        suggestion = doi_to_key.get(doi, "") if doi else ""
+        doi_key = doi_to_key.get(doi, "") if doi else ""
+        suggestion = doi_key
         if not suggestion and pmid:
             suggestion = pmid_to_key.get(pmid, "")
         reason = ""
@@ -250,12 +252,16 @@ def main() -> int:
         elif citekey in ambiguous:
             verdict, suggestion = "AMBIGUOUS", ""
             reason = "key is carried by several library entries; refresh keys in Better BibTeX"
-        elif citekey in keys and doi and key_dois.get(citekey) and doi not in key_dois[citekey]:
-            verdict = "MISMATCH"
-            reason = (f"the library gives {citekey} the DOI {sorted(key_dois[citekey])[0]}, "
-                      f"not this note's {doi}; the key belongs to another paper")
-            if suggestion and (suggestion in ambiguous or unusable(suggestion)):
-                suggestion = ""
+        elif (citekey in keys and doi_key and doi_key != citekey
+              and doi_key not in ambiguous and not unusable(doi_key)
+              and doi not in key_dois.get(citekey, set())):
+            # Only a DOI the library itself knows, on a different unambiguous key, proves
+            # the key belongs to another paper. A DOI spelled differently from the library
+            # (quotes, resolver host, BibTeX braces or escapes) resolves to no key and so
+            # never raises MISMATCH; it keeps main's OK.
+            verdict, suggestion = "MISMATCH", doi_key
+            reason = (f"this note's DOI {doi} is the library's DOI for {doi_key}, "
+                      f"not for {citekey}; the key belongs to another paper")
         elif citekey in keys:
             verdict = "OK" if path.stem == citekey else "FILENAME"
             suggestion = citekey if verdict == "FILENAME" else ""

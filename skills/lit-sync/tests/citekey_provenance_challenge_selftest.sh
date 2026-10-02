@@ -47,8 +47,8 @@ MUTATIONS = {
         ' or counts["UNRESOLVED"]):',
     ),
     "DOI/key mismatch check removed": (
-        "elif citekey in keys and doi and key_dois.get(citekey) and doi not in key_dois[citekey]:",
-        "elif False:",
+        "        elif (citekey in keys and doi_key and doi_key != citekey\n",
+        "        elif (False and doi_key and doi_key != citekey\n",
     ),
     "hidden test applied to the full path": (
         "if any(part.startswith(\".\") for part in rel_parts):",
@@ -79,8 +79,8 @@ MUTATIONS = {
         "if False:\n            continue",
     ),
     "DOI suggestion disabled": (
-        'suggestion = doi_to_key.get(doi, "") if doi else ""',
-        'suggestion = ""',
+        'doi_key = doi_to_key.get(doi, "") if doi else ""',
+        'doi_key = ""',
     ),
     "filename check removed": (
         'verdict = "OK" if path.stem == citekey else "FILENAME"',

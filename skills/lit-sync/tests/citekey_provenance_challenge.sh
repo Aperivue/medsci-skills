@@ -188,6 +188,31 @@ check "matching or missing DOIs stay OK" 3 "$(python3 -c "
 import json; print(json.load(open('$WORK/audit5.json'))['counts']['OK'])
 ")"
 
+# negative controls: the right key, with the same paper's DOI spelled differently from the
+# library (single-quoted YAML, a bare or www. resolver host, a double-braced or \_-escaped
+# .bib DOI). None of these DOIs is another key's library DOI, so none may read MISMATCH.
+VAULT12="$WORK/vault12"
+BIB12="$WORK/refs12.bib"
+mkdir -p "$VAULT12/www"
+printf '@article{bracedKey2022,\n  doi = {{10.1000/braced}},\n}\n@article{escKey2022,\n  doi = {10.1000/under\\_score},\n}\n' > "$BIB12"
+fm() { printf -- '---\ncitekey: "%s"\ndoi: %s\nnotetype: literature\n---\nbody\n' "$2" "$3" > "$VAULT12/$1.md"; }
+fm realKey2020      realKey2020   "'10.1000/real'"
+fm otherKey2021     otherKey2021  '"doi.org/10.1000/other"'
+fm www/realKey2020  realKey2020   '"https://www.doi.org/10.1000/real"'
+fm bracedKey2022    bracedKey2022 '"10.1000/braced"'
+fm escKey2022       escKey2022    '"10.1000/under_score"'
+python3 "$SCRIPT" --vault "$VAULT12" --bib "$BIB" "$BIB12" --strict --json "$WORK/audit12.json" > /dev/null 2>&1
+check "a DOI spelled differently from the library never raises MISMATCH (--strict exits 0)" 0 "$?"
+check "all five spelling-drift notes stay OK" 5 "$(python3 -c "
+import json; print(json.load(open('$WORK/audit12.json'))['counts']['OK'])
+")"
+# ...while a single-quoted note DOI that IS another key's library DOI is still MISMATCH
+VAULT13="$WORK/vault13"
+mkdir -p "$VAULT13"
+printf -- "---\ncitekey: \"otherKey2021\"\ndoi: \"https://doi.org/10.1000/REAL\"\nnotetype: literature\n---\nbody\n" > "$VAULT13/otherKey2021.md"
+python3 "$SCRIPT" --vault "$VAULT13" --bib "$BIB" --strict > /dev/null 2>&1
+check "a resolver-prefixed DOI of another key is still MISMATCH (--strict exits 1)" 1 "$?"
+
 # ------------- notes the scan used to skip silently (zero checked, --strict green)
 # A vault reached through ../ or kept under a dot-folder had every note treated as hidden;
 # a note saved with a UTF-8 BOM, or with frontmatter past 4000 characters, was not read.
