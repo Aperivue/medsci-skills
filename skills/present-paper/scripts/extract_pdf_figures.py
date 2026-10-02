@@ -72,6 +72,10 @@ def _render_page(pdf: Path, page: int, dpi: int, tmp_dir: Path) -> Path:
     """Render a single PDF page to PNG using pdftoppm; return resulting file path."""
     if not pdf.exists():
         raise FileNotFoundError(f"PDF not found: {pdf}")
+    # One fresh directory per render. A shared "page_<n>" prefix let paper B's page 1 overwrite
+    # paper A's in batch mode while the cache still pointed at the file, so a crop labelled
+    # "A.pdf page 1" was cut from paper B.
+    tmp_dir = Path(tempfile.mkdtemp(prefix="render_", dir=str(tmp_dir)))
     out_prefix = tmp_dir / f"page_{page}"
     cmd = [
         "pdftoppm",
@@ -119,7 +123,8 @@ def extract_one(pdf: Path, page: int, crop: tuple[float, float, float, float],
 
 
 def extract_batch(items: Iterable[dict], out_dir: Path, default_dpi: int = 250,
-                   pdf_dir: Path | None = None) -> list[Path]:
+                   pdf_dir: Path | None = None,
+                   skipped: list[str] | None = None) -> list[Path]:
     """Batch extraction from YAML config. Caches rendered pages per (pdf, page, dpi).
 
     Each item dict accepts:
@@ -129,7 +134,12 @@ def extract_batch(items: Iterable[dict], out_dir: Path, default_dpi: int = 250,
       crop (list[float], required): [left, top, right, bottom] normalized
       dpi  (int, optional): override default_dpi
       caption (str, optional): logged only
+
+    Every item that could not be extracted is appended to `skipped` (when given) by name, so the
+    caller can refuse to call a partial batch a success.
     """
+    if skipped is None:
+        skipped = []
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     results: list[Path] = []
@@ -147,6 +157,7 @@ def extract_batch(items: Iterable[dict], out_dir: Path, default_dpi: int = 250,
                 dpi = int(item.get("dpi", default_dpi))
             except (KeyError, ValueError, TypeError) as e:
                 print(f"SKIP item {item!r}: {e}")
+                skipped.append(str(item.get("name", item)) if isinstance(item, dict) else str(item))
                 continue
 
             pdf = Path(pdf_str)
@@ -159,6 +170,7 @@ def extract_batch(items: Iterable[dict], out_dir: Path, default_dpi: int = 250,
                     cache[cache_key] = _render_page(pdf, page, dpi, td_path)
                 except (FileNotFoundError, RuntimeError) as e:
                     print(f"SKIP {name}: {e}")
+                    skipped.append(name)
                     continue
 
             dst = out_dir / f"{name}.png"
@@ -166,6 +178,7 @@ def extract_batch(items: Iterable[dict], out_dir: Path, default_dpi: int = 250,
                 w, h = _crop_image(cache[cache_key], crop, dst)
             except ValueError as e:
                 print(f"SKIP {name}: {e}")
+                skipped.append(name)
                 continue
 
             caption = item.get("caption", "")
@@ -210,7 +223,12 @@ def _cli() -> int:
         dpi = int(args.dpi if args.dpi != 250 else cfg.get("dpi", 250))
         pdf_dir = cfg.get("pdf_dir")
         pdf_dir = Path(pdf_dir) if pdf_dir else None
-        extract_batch(items, out_dir, default_dpi=dpi, pdf_dir=pdf_dir)
+        skipped: list[str] = []
+        extract_batch(items, out_dir, default_dpi=dpi, pdf_dir=pdf_dir, skipped=skipped)
+        if skipped:
+            sys.stderr.write(f"ERROR: {len(skipped)} item(s) not extracted: "
+                             f"{', '.join(skipped)}\n")
+            return 2
         return 0
 
     # Single-crop mode (single or paired)
