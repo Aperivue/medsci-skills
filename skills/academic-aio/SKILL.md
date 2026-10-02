@@ -55,6 +55,8 @@ Journal-specific templates: `references/journal_summarybox_templates.yaml`. Neve
 
 **Deterministic format check.** Validate the drafted box against its journal spec with `python3 ${CLAUDE_SKILL_DIR}/scripts/check_summary_box.py --manuscript <file> --journal <stem> --strict` (reads `references/summary_box_specs.json`: Key Points / Key Results top-level bullet count + one-claim-per-bullet, Research-in-context's three sub-blocks each opening a line and carrying text, plain-language word band). It catches the wrong-format / wrong-bullet-count box that a production technical check rejects.
 
+**Known limits.** The box ends only at a heading or a bold-only label line, so a list under a plain-text label (`Abbreviations:`) right after the box is counted into it, and an emphasized body phrase that starts with the box label (`*Key points* of prior work ...`) is taken as the box; read the box by eye when either shape is present.
+
 ### 2.2 Declarative section headings
 Headings state a claim, not a generic label: "Model underperforms on rare-finding subset" beats "Subgroup analysis".
 

@@ -175,6 +175,53 @@ ck "radiology Key Points box still accepted" 0 "$(run --manuscript "$TMP/kp_ok.m
 printf '## Key Results\n- a.\n- b.\n' > "$TMP/kr_bad.md"
 ck "radiology Key Results wrong bullet count fails" 1 "$(run --manuscript "$TMP/kr_bad.md" --journal radiology --strict)"
 
+# --- Research-in-context box boundaries (reviewer counter-examples) ----------
+# 21) bold-only sub-labels ending in a period, each followed by text -> CONFORMANT
+cat > "$TMP/ric_period_labels.md" <<'EOF'
+## Research in context
+**Evidence before this study.**
+We searched PubMed for prior work.
+
+**Added value of this study.**
+This study adds an external cohort.
+
+**Implications of all the available evidence.**
+Findings support a prospective trial.
+EOF
+ck "research_in_context period sub-labels ok" 0 "$(run --manuscript "$TMP/ric_period_labels.md" --journal lancet-digital-health --strict)"
+
+# 22) a bold-only line inside a sub-block does not end the box -> CONFORMANT
+cat > "$TMP/ric_inner_bold.md" <<'EOF'
+## Research in context
+**Evidence before this study**
+We searched PubMed for prior work.
+
+**Search strategy**
+Terms were combined with Boolean operators.
+
+**Added value of this study**
+This study adds an external cohort.
+
+**Implications of all the available evidence**
+Findings support a prospective trial.
+EOF
+ck "research_in_context inner bold line kept" 0 "$(run --manuscript "$TMP/ric_inner_bold.md" --journal lancet-digital-health --strict)"
+
+# 23) negative control: after the last sub-block a bold label still ends the box,
+#     so an Implications sub-block whose text sits under it is empty -> fails
+cat > "$TMP/ric_trailing_bold.md" <<'EOF'
+## Research in context
+**Evidence before this study**
+We searched PubMed for prior work.
+**Added value of this study**
+This study adds an external cohort.
+**Implications of all the available evidence**
+
+**Funding**
+Synthetic grant text.
+EOF
+ck "research_in_context empty last sub-block before bold label fails" 1 "$(run --manuscript "$TMP/ric_trailing_bold.md" --journal lancet-digital-health --strict)"
+
 echo "----"
 echo "test_summary_box: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]

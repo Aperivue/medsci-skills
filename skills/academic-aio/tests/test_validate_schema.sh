@@ -109,6 +109,24 @@ check "ORCID with valid check digit -> exit 0" 0 python3 "$SCRIPT" "$TMP/orcid_o
 mk_person "$TMP/orcid_list_ok.jsonld" '[{"@type": "PropertyValue", "propertyID": "ORCID", "value": "0000-0002-1825-0097"}]'
 check "list ORCID valid -> exit 0" 0 python3 "$SCRIPT" "$TMP/orcid_list_ok.jsonld"
 
+# Person identifier list: other author IDs allowed; ORCID-looking entries checked.
+mk_person "$TMP/person_multi.jsonld" '["https://orcid.org/0000-0002-1825-0097", "https://www.scopus.com/authid/detail.uri?authorId=123"]'
+check "Person list ORCID + Scopus -> exit 0" 0 python3 "$SCRIPT" "$TMP/person_multi.jsonld"
+mk_person "$TMP/person_multi_bad.jsonld" '["https://orcid.org/0000-0002-1825-0098", "https://www.scopus.com/authid/detail.uri?authorId=123"]'
+check "Person list with bad ORCID check digit -> exit 1" 1 python3 "$SCRIPT" "$TMP/person_multi_bad.jsonld"
+mk_person "$TMP/person_str_scopus.jsonld" '"https://www.scopus.com/authid/detail.uri?authorId=123"'
+check "Person single non-ORCID string still fails -> exit 1" 1 python3 "$SCRIPT" "$TMP/person_str_scopus.jsonld"
+
+# DOI URL value handled the same in list and object shape; http ORCID in a list.
+mk_sa "$TMP/list_doi_url.jsonld" '[{"propertyID": "doi", "value": "https://doi.org/10.1000/synthetic.2026.001"}]'
+check "list DOI with doi.org URL value -> exit 0" 0 python3 "$SCRIPT" "$TMP/list_doi_url.jsonld"
+mk_sa "$TMP/obj_doi_url.jsonld" '{"propertyID": "doi", "value": "https://doi.org/10.1000/synthetic.2026.001"}'
+check "object DOI with doi.org URL value -> exit 0" 0 python3 "$SCRIPT" "$TMP/obj_doi_url.jsonld"
+mk_person "$TMP/orcid_http_list.jsonld" '[{"propertyID": "ORCID", "value": "http://orcid.org/0000-0002-1825-0097"}]'
+check "list ORCID http URL -> exit 0" 0 python3 "$SCRIPT" "$TMP/orcid_http_list.jsonld"
+mk_sa "$TMP/sici_hash.jsonld" '"10.1002/(SICI)1097-0258(19980430)17:8<857::AID-SIM777>3.0.CO;2-#"'
+check "string SICI DOI ending in # -> exit 0" 0 python3 "$SCRIPT" "$TMP/sici_hash.jsonld"
+
 # Prose with "<" is not a placeholder.
 python3 - "$TMP/ok.jsonld" "$TMP/prose_lt.jsonld" <<'PY'
 import json, sys

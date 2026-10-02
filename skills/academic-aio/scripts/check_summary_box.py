@@ -34,7 +34,8 @@ VERDICT
                       empty sub-block, word count outside the band, box absent).
   The box starts at a heading, bold label or bare label line naming it (not at a
   body sentence that begins with the same words) and ends at the next heading or
-  the next bold-only label line (the format's own sub-block labels excepted).
+  the next bold-only label line. In a Research-in-context box the sub-block labels
+  never end it, and another bold-only line ends it only after the last sub-block.
   ADVISORY            only soft rules fired (e.g. a bullet carries >1 claim).
   Exit: 0 conformant/advisory or report-only; 1 NONCONFORMANT under --strict;
         2 input/usage error.
@@ -100,14 +101,27 @@ def _label_line_re(label: str) -> "re.Pattern[str]":
 _BOLD_ONLY_RE = re.compile(r"^\s*(\*\*|__)\s*([^*_]+?)\s*:?\s*\1\s*:?\s*$")
 
 
+def _subblock_re(sub: str) -> "re.Pattern[str]":
+    """A line that opens with a sub-block label (optionally bulleted, headed,
+    bold/italic, followed by ':' or '.'); group 1 is the rest of the line."""
+    return re.compile(
+        r"^\s*(?:[-*+]\s+)?(?:#{1,6}\s*)?" + _MARK + r"?\s*" + re.escape(sub)
+        + r"\s*[.:]?\s*" + _MARK + r"?\s*[.:]?\s*(.*)$",
+        re.IGNORECASE,
+    )
+
+
 def extract_block(text: str, label: str, keep_labels: list[str] | None = None) -> str | None:
     """Return the lines under a heading/bold label matching `label`, up to the
-    next markdown heading or the next bold-only label line. Bold-only lines whose
-    text is one of `keep_labels` (the format's own sub-block labels) do not end
-    the block."""
+    next markdown heading or the next bold-only label line.
+
+    With `keep_labels` (the format's ordered sub-block labels), a line opening
+    with one of them never ends the block, and any other bold-only line ends it
+    only once the last sub-block label has been seen — a bold line inside a
+    sub-block ("**Search strategy**") stays in the box."""
     lines = text.splitlines()
     label_re = _label_line_re(label)
-    keep = {k.strip().lower() for k in (keep_labels or [])}
+    keep_res = [_subblock_re(k) for k in (keep_labels or [])]
     start = None
     for i, ln in enumerate(lines):
         if label_re.match(ln):
@@ -115,12 +129,18 @@ def extract_block(text: str, label: str, keep_labels: list[str] | None = None) -
             break
     if start is None:
         return None
-    out: list[str] = []
+    out = []
+    seen_last = not keep_res
     for ln in lines[start + 1:]:
         if re.match(r"^\s*#{1,6}\s+\S", ln):  # next heading ends the block
             break
-        m = _BOLD_ONLY_RE.match(ln)
-        if m and m.group(2).strip().rstrip(":").strip().lower() not in keep:
+        hit = [k for k, r in enumerate(keep_res) if r.match(ln)]
+        if hit:
+            if hit[0] == len(keep_res) - 1:
+                seen_last = True
+            out.append(ln)
+            continue
+        if seen_last and _BOLD_ONLY_RE.match(ln):
             break  # next bold-labelled section ends the block
         out.append(ln)
     return "\n".join(out).strip()
@@ -148,14 +168,7 @@ def subblock_contents(block: str, subblocks: list[str]) -> dict[str, str | None]
     open a line of the block. Content is the text after the label on its line
     plus the following lines up to the next sub-block label."""
     lines = block.splitlines()
-    pats = {
-        sub: re.compile(
-            r"^\s*(?:[-*+]\s+)?(?:#{1,6}\s*)?" + _MARK + r"?\s*" + re.escape(sub)
-            + r"\s*:?\s*" + _MARK + r"?\s*:?\s*(.*)$",
-            re.IGNORECASE,
-        )
-        for sub in subblocks
-    }
+    pats = {sub: _subblock_re(sub) for sub in subblocks}
     starts: list[tuple[int, str, str]] = []
     for i, ln in enumerate(lines):
         for sub, pat in pats.items():

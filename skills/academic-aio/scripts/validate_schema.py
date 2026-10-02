@@ -33,9 +33,10 @@ REQUIRED_BY_TYPE: dict[str, list[str]] = {
     "Person": ["name", "identifier"],
 }
 
-# A paired "<...>" occurs in legacy SICI-style DOI suffixes.
-DOI_RE = re.compile(r"^10\.\d{4,9}/(?:[-._;()/:A-Za-z0-9]|<[^<>\s]*>)+$")
+# A paired "<...>" and "#" occur in legacy SICI-style DOI suffixes.
+DOI_RE = re.compile(r"^10\.\d{4,9}/(?:[-._;()/:#A-Za-z0-9]|<[^<>\s]*>)+$")
 ORCID_RE = re.compile(r"^https://orcid\.org/\d{4}-\d{4}-\d{4}-\d{3}[\dX]$")
+ORCID_HTTP_RE = re.compile(r"^https?://orcid\.org/\d{4}-\d{4}-\d{4}-\d{3}[\dX]$")
 ORCID_BARE_RE = re.compile(r"^\d{4}-\d{4}-\d{4}-\d{3}[\dX]$")
 DOI_PREFIX_RE = re.compile(r"^(?:doi:\s*|https?://(?:dx\.)?doi\.org/)", re.IGNORECASE)
 
@@ -90,7 +91,9 @@ def orcid_checksum_ok(orcid: str) -> bool:
 
 
 def _orcid_errors(value: str, where: str, allow_bare: bool) -> list[str]:
-    shape_ok = bool(ORCID_RE.match(value)) or (allow_bare and bool(ORCID_BARE_RE.match(value)))
+    # allow_bare (a PropertyValue "value"): a bare iD, or an http(s) ORCID URL.
+    shape_ok = bool(ORCID_RE.match(value)) or (
+        allow_bare and bool(ORCID_BARE_RE.match(value) or ORCID_HTTP_RE.match(value)))
     if not shape_ok:
         want = "an ORCID URL or iD" if allow_bare else "an ORCID URL"
         return [f"{where} should be {want} (got {value!r})"]
@@ -110,7 +113,11 @@ def _identifier_errors(ident, typ: str, template: bool) -> list[str]:
             if template and _is_placeholder(entry, "identifier", True):
                 continue
             if typ == "Person":
-                if not _is_placeholder(entry, "identifier", True):
+                # A single string must be an ORCID URL (as on main). In a list, other
+                # author identifiers (Scopus, ResearcherID, ...) are allowed; only an
+                # entry that looks like an ORCID is checked.
+                looks_orcid = "orcid.org" in entry.lower() or bool(ORCID_BARE_RE.match(entry.strip()))
+                if (not from_list or looks_orcid) and not _is_placeholder(entry, "identifier", True):
                     errors += _orcid_errors(entry, "Person identifier", allow_bare=False)
             elif DOI_PREFIX_RE.match(entry) or entry.startswith("10."):
                 bare = DOI_PREFIX_RE.sub("", entry).strip()
@@ -124,7 +131,7 @@ def _identifier_errors(ident, typ: str, template: bool) -> list[str]:
             if _is_placeholder(value, "identifier", True):
                 continue  # reported (or, under --template, allowed) as a placeholder
             if pid == "doi":
-                bare = value if from_list else DOI_PREFIX_RE.sub("", value).strip()
+                bare = DOI_PREFIX_RE.sub("", value).strip()
                 if not DOI_RE.match(bare):
                     errors.append(f"DOI does not match canonical format: {value!r}")
             elif pid == "orcid":
