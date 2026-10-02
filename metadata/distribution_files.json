@@ -1918,8 +1918,8 @@
     },
     {
       "path": "skills/humanize/SKILL.md",
-      "size": 11626,
-      "sha256": "381a52dcbfd3e6706f9e3034448063a5eb04734e1313a026446b502f6b7c58aa"
+      "size": 11702,
+      "sha256": "6aebc1ff5204bde23b06f41725f508732e7938bfde0bc5463d47cab203d1c605"
     },
     {
       "path": "skills/humanize/references/ai_patterns.md",
@@ -1928,8 +1928,8 @@
     },
     {
       "path": "skills/humanize/scripts/check_rewrite_fidelity.py",
-      "size": 21432,
-      "sha256": "d10d905e6029f26ff413a023742daf081603db6fca6e51be6cdb88c1f01b3981"
+      "size": 23451,
+      "sha256": "6c8b677179915c8b8e4d566d6bdbe77a7135ac3f275deedeb3a83e74a6ce32a0"
     },
     {
       "path": "skills/humanize/scripts/check_sentence_variety.py",
