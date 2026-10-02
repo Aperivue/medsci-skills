@@ -341,8 +341,6 @@ phrasings. It misses others, for example the plural "major revisions", a bare
 would also flag ordinary author-facing sentences, so the gate does not try. Read the authors'
 block yourself for any grade before submitting, and check the compiled proof as well.
 
-Generate `{manuscript_id}_review_draft.md`:
-
 Generate `{manuscript_id}_review_draft.md` from the skeleton in
 `${CLAUDE_SKILL_DIR}/references/review_draft_template.md`. It has three blocks: a
 **Confidential Comments to the Editor** block (100–150 words: summary, strengths, key
