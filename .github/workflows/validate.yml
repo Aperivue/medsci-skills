@@ -1076,6 +1076,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/meta-analysis/tests/test_screening_reconcile.sh
 
+      - name: Run meta-analysis PRISMA 5-way consistency test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/meta-analysis/tests/test_prisma_5way_consistency.sh
+
       - name: Run model-selection model-provenance test
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/model-selection/tests/test_model_provenance.sh
