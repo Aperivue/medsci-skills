@@ -1943,8 +1943,8 @@
     },
     {
       "path": "skills/imaging-data/SKILL.md",
-      "size": 11054,
-      "sha256": "75717774eb8ff47101ac57f7fd822e8a5eb9fcf3ba792670d5f70ecb06b0045a"
+      "size": 11253,
+      "sha256": "8d7328f9e9380b8f8b2de61a81ca9fc39b32b41bafea9525b1c0b6258b25ece6"
     },
     {
       "path": "skills/imaging-data/references/preprocessing_guide.md",
@@ -1953,8 +1953,8 @@
     },
     {
       "path": "skills/imaging-data/scripts/check_dataset_profile.py",
-      "size": 16667,
-      "sha256": "08ed778d4d89fe5a21020eb27c1837b1123a8abaa3a67b6c0f38553c073a25a8"
+      "size": 17179,
+      "sha256": "41ad724a63c80f85d24a1efcc139474d2c4ac6220bd79a7c949cc0090e01efcc"
     },
     {
       "path": "skills/imaging-data/scripts/check_dataset_profile_challenge/expected/clean.txt",
@@ -2028,8 +2028,8 @@
     },
     {
       "path": "skills/imaging-data/scripts/check_preprocessing_leakage.py",
-      "size": 16199,
-      "sha256": "929a46e1df02e328827797459e9a3d7156de4d231f811dea3a6e90d846c24226"
+      "size": 17521,
+      "sha256": "26112d13c89521125208f0041da284cb13f31da4dbb55162966f9f2f4bf30ef3"
     },
     {
       "path": "skills/imaging-data/scripts/check_preprocessing_leakage_challenge/expected/clean.txt",
@@ -2063,8 +2063,8 @@
     },
     {
       "path": "skills/imaging-data/scripts/profile_imaging_dataset.py",
-      "size": 7013,
-      "sha256": "fa3735e9fcff43a75667085e14f4b2a28e6c52c00b2a26ec7a3f893c6e7d6442"
+      "size": 7238,
+      "sha256": "3e6cee3eb417c5eed7704e712650bd8cfd72553e6b6c6a57a22f49528b0a11e3"
     },
     {
       "path": "skills/imaging-data/skill.yml",
