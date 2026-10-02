@@ -1053,13 +1053,13 @@
     },
     {
       "path": "skills/deidentify/SKILL.md",
-      "size": 12891,
-      "sha256": "f84201b9adcc65c306a1fdafa317b109b13e6e0a56a1c8f380cda15f76cfeb7e"
+      "size": 13244,
+      "sha256": "f682651130e5ed117c101a2583da373bf4f1b1ed936ed6670d02bcab502fdfd8"
     },
     {
       "path": "skills/deidentify/deidentify.py",
-      "size": 59560,
-      "sha256": "511faef9e8fa90f76f4a19f89f6b5d8a556e0633cb1005f4903eb018de8e275e"
+      "size": 61358,
+      "sha256": "3404e1d3d5683d1b613b035d185e3766510fa4aa0df810983d8561894a3feda3"
     },
     {
       "path": "skills/deidentify/locales/_template.json",
@@ -1108,8 +1108,8 @@
     },
     {
       "path": "skills/deidentify/locales/kr.json",
-      "size": 1547,
-      "sha256": "6c88d9dab82921b2dd32d5b2eddb9cf43aa161380749c3b316d34918db7a0e93"
+      "size": 1628,
+      "sha256": "47badba90d1c04c9a8989e2440c960f1a13f04364c00bb6962d829714f6055fa"
     },
     {
       "path": "skills/deidentify/locales/uk.json",
@@ -1118,13 +1118,13 @@
     },
     {
       "path": "skills/deidentify/locales/us.json",
-      "size": 1278,
-      "sha256": "38589cfda5795499ddb8611b241a4a283fc62e425d80fb0d09764fa75ec38969"
+      "size": 1430,
+      "sha256": "3ba05042a136d3cf357d671618eb8acc37e4535fe20db61fe28cebcb819b6531"
     },
     {
       "path": "skills/deidentify/references/date_shift_guide.md",
-      "size": 3793,
-      "sha256": "198687840194f69bb8c8152ede026bf5de73470cf26c4ef30ca948850dea844e"
+      "size": 4097,
+      "sha256": "1c02c8478d5988c89152e35717d2de83c734a4c025eb355f2170524377316b55"
     },
     {
       "path": "skills/deidentify/references/hipaa_18_identifiers.md",
@@ -1133,8 +1133,8 @@
     },
     {
       "path": "skills/deidentify/references/korean_phi_patterns.md",
-      "size": 4008,
-      "sha256": "4d6a0801accfc16fcb653af948d09cbb9659a002affae57d036c41c52a0c878d"
+      "size": 4182,
+      "sha256": "92c5302bddff4efc3999281fa995eb003b957c04f702db41f879281291a7aeac"
     },
     {
       "path": "skills/deidentify/skill.yml",

@@ -19,7 +19,8 @@
   "address": {
     "type": "keywords",
     "keywords": ["Street", "St.", "Avenue", "Ave.", "Boulevard", "Blvd.", "Drive", "Dr.", "Lane", "Ln.", "Road", "Rd.", "Court", "Ct.", "Suite", "Ste.", "Apt.", "P.O. Box"],
-    "min_ratio": 0.3
+    "min_ratio": 0.3,
+    "postcode_pattern": "\\b\\d{5}-\\d{4}\\b"
   },
 
   "name_heuristic": {
@@ -31,7 +32,8 @@
 
   "date_formats": [
     {"pattern": "\\b(0?[1-9]|1[0-2])/(0?[1-9]|[12]\\d|3[01])/(19|20)\\d{2}\\b", "label": "US date (MM/DD/YYYY)"},
-    {"pattern": "\\b(0?[1-9]|1[0-2])-(0?[1-9]|[12]\\d|3[01])-(19|20)\\d{2}\\b", "label": "US date (MM-DD-YYYY)"}
+    {"pattern": "\\b(0?[1-9]|1[0-2])-(0?[1-9]|[12]\\d|3[01])-(19|20)\\d{2}\\b", "label": "US date (MM-DD-YYYY)"},
+    {"pattern": "\\b(0?[1-9]|1[0-2])/(0?[1-9]|[12]\\d|3[01])/\\d{2}\\b", "label": "US date (MM/DD/YY)"}
   ],
 
   "column_names": {
