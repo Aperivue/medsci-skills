@@ -56,6 +56,37 @@ Squash-merge, then say what was merged. **Ask first** for anything else, and alw
 
 When a pull request mixes the two, it is the second kind.
 
+## Working from a cloud session
+
+A cloud session sees this repository and nothing else. The maintainer's own Claude rules, skills
+and memory are on their machine, and so are their manuscript and project folders. Four of those
+local rules matter here, so they are restated.
+
+**Talk to the maintainer in Korean.** What lands in the repository stays in English: code,
+comments, commit messages and pull-request text (`CONTRIBUTING.md` → *Language Policy*).
+
+**Scan what CI does not.** `validate_skills.sh` scans files. A commit message and a pull-request
+body are stored separately, stay public, and nothing checks them. Before `git commit`, and before
+`gh pr create` or `gh pr edit`, write the text to a file and run:
+
+```bash
+python3 scripts/check_precedent.py pr_body.md   # exit 0 = clean, 3 = hit
+```
+
+The blocklist is hash-only on purpose. Never write an identifier itself into this repository, not
+in a gate, a comment, or a sentence saying it is absent. To report that something is clean, name
+the class ("no manuscript IDs"), not the value.
+
+**Stop and ask before building a new wall.** Before adding a gate, detector, CI check or skill,
+changing direction (positioning, target, distribution channel), or touching three or more gates
+or skills in one batch, stop and brief the maintainer in plain Korean: what it costs, what it could
+hide, and which real failure it answers. Bug fixes, corrections of a typo or a stated fact, and
+mechanical steps of a plan the maintainer already approved go ahead without this.
+
+**Do not reconstruct missing local context.** If a task depends on a manuscript, a project folder,
+a reviewer's comment or anything else that is not in this repository, say that it is missing and
+ask. Do not infer it from file names or commit history.
+
 ## Everything else
 
 `CONTRIBUTING.md` is the entry point: what to run before pushing (CI is the merge gate), the
