@@ -1288,8 +1288,8 @@
     },
     {
       "path": "skills/fill-protocol/SKILL.md",
-      "size": 6169,
-      "sha256": "7df18088cb5f2ec989bc127f98c64cedb87ad02d0800b352231a717c1e3ae20d"
+      "size": 6669,
+      "sha256": "de09b4c5c061460d102bba94ec9d8676c0e5344d6f9022f2d49a34b9850584d0"
     },
     {
       "path": "skills/fill-protocol/examples/example_irb_template.yaml",
@@ -1308,8 +1308,8 @@
     },
     {
       "path": "skills/fill-protocol/scripts/fill_form.py",
-      "size": 25981,
-      "sha256": "1cbb68a6653df6e2a08c02882fa6937619babe2ac913c200999b857f60958122"
+      "size": 30463,
+      "sha256": "9d9485e6c6fa4e1ce455b6f3772504f071355599258a9f5a7ef1541cdca23a92"
     },
     {
       "path": "skills/fill-protocol/scripts/inspect_template.py",

@@ -110,9 +110,16 @@ def _replace_paragraph_text_keep_style(para: Paragraph, new_text: str,
         if rPr is not None:
             template_rPr = rPr
 
-    # Remove all existing runs
-    for r in list(para._element.findall(qn("w:r"))):
-        para._element.remove(r)
+    # Remove all existing runs, including runs wrapped in a container (w:hyperlink, w:ins, w:del,
+    # w:smartTag, w:sdt, w:fldSimple, ...). Removing only direct w:r children left a placeholder
+    # that sat inside a hyperlink or a tracked insertion in the paragraph, next to the new text,
+    # under an [OK] line. Markers that carry no run (pPr, bookmarks, comment ranges) are kept.
+    r_tag = qn("w:r")
+    for child in list(para._element):
+        if child.tag == qn("w:pPr"):
+            continue
+        if child.tag == r_tag or any(True for _ in child.iter(r_tag)):
+            para._element.remove(child)
 
     # Add new run with the captured style
     new_run = OxmlElement("w:r")
@@ -211,6 +218,7 @@ class FormFiller:
         self._filled_rows: set[int] = set()
         self._table_results = FillResult()
         self._paragraph_results = FillResult()
+        self._unbounded_warnings: list[str] = []
 
     # ---- Table cell filling ----
 
@@ -284,11 +292,28 @@ class FormFiller:
             # Match patterns like "1. ", "2. ", ... "18. "
             end_re = re.compile(r"^\s*\d+\.\s+\S")
 
-        end_idx = len(all_ps)
+        end_idx = None
         for i in range(header_idx + 1, len(all_ps)):
             if end_re.match(all_ps[i].text):
                 end_idx = i
                 break
+
+        if end_idx is None:
+            # No end boundary. Deleting "to the end of the document" removed whatever followed the
+            # last section (a signature/date block) under an [OK] line. Replace only the first
+            # paragraph after the header and leave everything after it in place; say so when
+            # anything with text was left, so the author removes leftover template text by hand.
+            end_idx = min(header_idx + 2, len(all_ps))
+            kept = [p.text for p in all_ps[end_idx:] if p.text.strip()]
+            if kept:
+                replaced = (all_ps[header_idx + 1].text
+                            if header_idx + 1 < len(all_ps) else "")
+                self._unbounded_warnings.append(
+                    f"[SECTION-UNBOUNDED] No next section header after {header_text!r}: "
+                    f"replaced only the first paragraph ({replaced.strip()[:60]!r}) and left "
+                    f"{len(kept)} following paragraph(s) with text in place, first "
+                    f"{kept[0].strip()[:60]!r} — remove leftover template text by hand"
+                )
 
         # Paragraphs to replace: header_idx+1 .. end_idx-1
         # Strategy: replace first paragraph in range, remove rest, add new paragraphs
@@ -464,6 +489,7 @@ class FormFiller:
             warnings.append(f"[TABLE-MISS] Label not found: {label!r}")
         for header in self._paragraph_results.unmatched:
             warnings.append(f"[SECTION-MISS] Header not found: {header!r}")
+        warnings.extend(self._unbounded_warnings)
         warnings.extend(self._raw_newline_warnings())
         return warnings
 
@@ -570,11 +596,70 @@ class FormFiller:
 
 # ---------- CLI ----------
 
-def fill_from_yaml(template: Path, content_yaml: Path, output: Path) -> None:
-    with open(content_yaml, "r", encoding="utf-8") as f:
-        cfg = yaml.safe_load(f)
+class _StringScalarLoader(yaml.SafeLoader):
+    """SafeLoader that resolves every plain scalar to a string, except an empty one (-> None).
 
-    protections = cfg.get("protections", {}) or {}
+    `yaml.safe_load` + `str()` rewrote form values silently: `012345` -> `5349` (YAML 1.1 octal),
+    `12:30` -> `750` (sexagesimal), `1.10` -> `1.1`, `No` -> `False`. A form value is text, so the
+    content sections are loaded with no implicit type resolution at all. An empty value is kept as
+    None so it can be refused instead of being written as the word "None".
+    """
+
+
+_StringScalarLoader.yaml_implicit_resolvers = {}
+_StringScalarLoader.add_implicit_resolver(
+    "tag:yaml.org,2002:null", re.compile(r"^$"), [""])
+
+
+class ContentError(ValueError):
+    """The content YAML holds something the filler cannot write into a form."""
+
+
+_CONTENT_SECTIONS = ("table_kv", "section_replace", "paragraph_replace")
+
+
+def _load_content(content_yaml: Path) -> tuple[dict, dict]:
+    """Return (protections, sections). Raises ContentError naming the offending input."""
+    text = Path(content_yaml).read_text(encoding="utf-8")
+    # protections carry real booleans/null (e.g. `normalize_page_breaks: false`), so they keep
+    # the standard resolver; the form content does not.
+    typed = yaml.safe_load(text)
+    raw = yaml.load(text, Loader=_StringScalarLoader)  # noqa: S506 (SafeLoader subclass)
+    if typed is None:
+        typed, raw = {}, {}
+    if not isinstance(typed, dict):
+        raise ContentError(f"{content_yaml}: top level must be a mapping, got "
+                           f"{type(typed).__name__}")
+    protections = typed.get("protections") or {}
+    if not isinstance(protections, dict):
+        raise ContentError(f"{content_yaml}: 'protections' must be a mapping")
+    sections: dict = {}
+    for name in _CONTENT_SECTIONS:
+        block = raw.get(name)
+        if block is None:
+            sections[name] = {}
+            continue
+        if not isinstance(block, dict):
+            raise ContentError(f"{content_yaml}: {name!r} must be a mapping of "
+                               f"label -> text, got {type(block).__name__}")
+        for key, value in block.items():
+            if value is None:
+                raise ContentError(
+                    f"{content_yaml}: {name} {key!r} has an empty value; write the text, "
+                    "or '' to blank the field on purpose")
+            if not isinstance(value, str):
+                raise ContentError(
+                    f"{content_yaml}: {name} {key!r} is a {type(value).__name__}, not text; "
+                    "write it as one string (use a | block for several lines)")
+            if not isinstance(key, str):
+                raise ContentError(f"{content_yaml}: {name} has a non-text key {key!r}")
+        sections[name] = block
+    return protections, sections
+
+
+def fill_from_yaml(template: Path, content_yaml: Path, output: Path) -> None:
+    protections, sections = _load_content(content_yaml)
+
     korean_font = protections.get("korean_font", DEFAULT_KOREAN_FONT)
     blank_between = protections.get("blank_between_paragraphs", True)
     blank_around = protections.get("blank_around_section_header", True)
@@ -587,20 +672,20 @@ def fill_from_yaml(template: Path, content_yaml: Path, output: Path) -> None:
                          normalize_page_breaks=normalize_pb)
 
     # Fill table key-value pairs
-    for label, value in (cfg.get("table_kv") or {}).items():
-        ok = filler.fill_table_kv(str(label), str(value))
+    for label, value in sections["table_kv"].items():
+        ok = filler.fill_table_kv(label, value)
         status = "OK " if ok else "MISS"
         print(f"  [{status}] table_kv: {label!r}")
 
     # Replace section content (between headers)
-    for header, content in (cfg.get("section_replace") or {}).items():
-        ok = filler.replace_paragraphs_after(str(header), str(content))
+    for header, content in sections["section_replace"].items():
+        ok = filler.replace_paragraphs_after(header, content)
         status = "OK " if ok else "MISS"
         print(f"  [{status}] section: {header!r}")
 
     # Replace single paragraph in-place (e.g., title line)
-    for matcher, content in (cfg.get("paragraph_replace") or {}).items():
-        ok = filler.replace_paragraph_matching(str(matcher), str(content),
+    for matcher, content in sections["paragraph_replace"].items():
+        ok = filler.replace_paragraph_matching(matcher, content,
                                                 mode="startswith")
         status = "OK " if ok else "MISS"
         print(f"  [{status}] paragraph: {matcher!r}")
@@ -629,7 +714,11 @@ def main():
     parser.add_argument("--output", required=True, help="Output .docx path")
     args = parser.parse_args()
 
-    fill_from_yaml(Path(args.template), Path(args.content), Path(args.output))
+    try:
+        fill_from_yaml(Path(args.template), Path(args.content), Path(args.output))
+    except ContentError as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        sys.exit(2)
 
 
 if __name__ == "__main__":

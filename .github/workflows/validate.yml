@@ -771,6 +771,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/fill-protocol/tests/test_fill_form_newlines.sh
 
+      - name: "Run fill-protocol integrity test (no deleted trailer, no retyped value, no surviving placeholder)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/fill-protocol/tests/test_fill_form_integrity.sh
+
       - name: Run fulltext-retrieval pdf_to_md helper test
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 skills/fulltext-retrieval/tests/test_pdf_to_md.py

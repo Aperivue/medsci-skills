@@ -21,7 +21,8 @@ metadata:
 5. **For CJK languages, set the `eastAsia` font attribute**, not just `run.font.name`, or
    Hangul/Kanji/Hanzi render in fallback fonts.
 6. **Validate** every fill operation: resolve every `[MISS]` line and every `WARN:` line
-   (`[TABLE-MISS]`, `[SECTION-MISS]`, `[RAW-NEWLINE]`) before the filled form is submitted.
+   (`[TABLE-MISS]`, `[SECTION-MISS]`, `[SECTION-UNBOUNDED]`, `[RAW-NEWLINE]`) before the filled
+   form is submitted.
 
 ## Dependencies
 
@@ -114,6 +115,12 @@ python3 ${CLAUDE_SKILL_DIR}/scripts/fill_form.py \
 
 The CLI prints `[OK]` / `[MISS]` for every fill operation, a summary, then any `WARN:` lines.
 Investigate every `[MISS]` and `WARN:` before submitting (Principle 6).
+
+Every value under `table_kv`, `section_replace` and `paragraph_replace` is written exactly as
+typed (`012345`, `12:30`, `1.10`, `No` stay text). An empty value or a list/mapping value stops the
+run with exit 2 and names the label; write `''` to blank a field on purpose. A `section_replace`
+on a header with no later numbered header replaces only the first paragraph after it and keeps
+the rest (`[SECTION-UNBOUNDED]`), so a trailing signature/date block is never deleted.
 
 ### Step 5 — Visual verification
 
