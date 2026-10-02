@@ -139,4 +139,68 @@ printf '%s\n' "$BASE" "Hallucination: none detected by atomic-fact checking." > 
 python3 "$DET" --plan "$TMP/label_ctl.md" --task report_generation --out "$OUT" --strict --quiet >/dev/null 2>&1
 check "LABEL-NEG control: 'Hallucination: none detected' is a result (exit 0)" test "$?" -eq 0
 
+# --- Negation scope is the concept's own noun phrase, whatever the verb (round-2 review
+#     counterexamples). A negator separated from the concept by a lexical verb ("underwent",
+#     "received", "required"), a modal ("will undergo", "can receive"), a preposition ("edited
+#     before", "examples in the prompt"), a relative clause or a list does NOT cancel it. ---
+cat > "$TMP/scope_verb.md" <<'MD'
+We evaluate on MIMIC-CXR with BLEU and RadGraph-F1. Studies without IV contrast underwent expert review by two radiologists. A blinded reader study is performed. Reports were not edited before hallucination assessment. Contamination was probed with a canary. The prompt, temperature 0 and 3 runs are reported.
+MD
+python3 "$DET" --plan "$TMP/scope_verb.md" --task report_generation --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "SCOPE-VERB control: 'without IV contrast underwent expert review' / 'not edited before hallucination' (exit 0)" test "$?" -eq 0
+check "SCOPE-VERB control: no REFERENCE_STANDARD_MISSING" no REFERENCE_STANDARD_MISSING
+check "SCOPE-VERB control: no FAITHFULNESS_MISSING" no FAITHFULNESS_MISSING
+# Generated controls: each axis is named exactly once, right after an unrelated negation that
+# sits behind a modal, a lexical verb, a relative clause, a preposition or a list.
+cat > "$TMP/scope_gen1.md" <<'MD'
+We evaluate on MIMIC-CXR with BLEU and RadGraph-F1. Studies without contrast will undergo expert review.
+Reports lacking findings must undergo hallucination audit. Readers did not know the model identity
+during the blinded reader study. Without access to the weights we still probe contamination with a
+canary. We use no few-shot examples in the prompt; temperature 0 and 3 runs are reported.
+MD
+cat > "$TMP/scope_gen2.md" <<'MD'
+We evaluate on MIMIC-CXR with BLEU and RadGraph-F1. Patients who had no prior CT underwent expert review.
+For No Finding studies hallucination is assessed via atomic facts. We do not claim deployment; a blinded
+reader study is performed. Models were not fine-tuned, so contamination is probed with a canary. The
+prompt, temperature 0 and 3 runs are reported.
+MD
+cat > "$TMP/scope_gen3.md" <<'MD'
+We evaluate on MIMIC-CXR with BLEU and RadGraph-F1.
+- No-finding studies: reference standard adjudicated by two radiologists.
+- Exclusions: no prior imaging, no implants; negative studies with no pathology underwent hallucination audit.
+- Cases with no follow-up can receive a blinded reader study.
+- Because the training data are not public, contamination was probed with a canary.
+- The prompt, temperature 0 and 3 runs are reported.
+MD
+for g in scope_gen1 scope_gen2 scope_gen3; do
+  python3 "$DET" --plan "$TMP/$g.md" --task report_generation --out "$OUT" --strict --quiet >/dev/null 2>&1
+  check "SCOPE-GEN control: $g (unrelated negation behind a verb / clause / list) exits 0" test "$?" -eq 0
+  check "SCOPE-GEN control: $g has no claims" python3 -c "import json;d=json.load(open('$OUT'));assert d['claims']==[],d['claims']"
+done
+# --- More withdrawal forms: a determiner negator, a negated do-verb, a dash or parenthesis label,
+#     "beyond our scope", "was skipped". Each withdraws its axis from an otherwise complete plan. ---
+BASE_ALL="We evaluate on MIMIC-CXR with BLEU and RadGraph-F1."
+for pair in \
+  "FAITHFULNESS_MISSING|The study lacks any formal hallucination evaluation." \
+  "FAITHFULNESS_MISSING|We did not evaluate hallucination." \
+  "FAITHFULNESS_MISSING|Faithfulness is beyond our scope." \
+  "FAITHFULNESS_MISSING|Hallucination evaluation was skipped." \
+  "REFERENCE_STANDARD_MISSING|Expert review — not performed." \
+  "REFERENCE_STANDARD_MISSING|We do not have an expert reference standard." \
+  "CONTAMINATION_UNADDRESSED|Contamination (not assessed)." \
+  "READER_STUDY_MISSING|We did not perform any kind of formal blinded reader study."; do
+  v="${pair%%|*}"; form="$(printf '%b' "${pair#*|}")"
+  {
+    printf '%s\n' "$BASE_ALL"
+    [[ "$v" == REFERENCE_STANDARD_MISSING ]] || printf '%s\n' "The reference standard is adjudicated by two radiologists."
+    [[ "$v" == READER_STUDY_MISSING ]] || printf '%s\n' "A blinded reader study is performed."
+    [[ "$v" == FAITHFULNESS_MISSING ]] || printf '%s\n' "Hallucination is assessed via atomic facts."
+    [[ "$v" == CONTAMINATION_UNADDRESSED ]] || printf '%s\n' "Contamination was probed with a canary."
+    printf '%s\n' "The prompt, temperature 0 and 3 runs are reported." "$form"
+  } > "$TMP/withdraw.md"
+  python3 "$DET" --plan "$TMP/withdraw.md" --task report_generation --out "$OUT" --quiet >/dev/null 2>&1
+  check "WITHDRAW: '$form' -> $v" has "$v"
+  check "WITHDRAW: '$form' -> only $v" python3 -c "import json;d=json.load(open('$OUT'));assert [c['verdict'] for c in d['claims']]==['$v'],d['claims']"
+done
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"; exit "$fail"
