@@ -69,7 +69,8 @@ def binding_hash(binding: dict) -> str:
     return hashlib.sha256(json.dumps(binding, sort_keys=True).encode()).hexdigest()
 
 
-BIB_KEY_RE = re.compile(r"^\s*@(\w+)\s*\{\s*([^,\s]+)\s*,", re.M)
+# Same entry headers as verify_refs.BIB_ENTRY_START_RE: indented, spaced, or parenthesised.
+BIB_KEY_RE = re.compile(r"^\s*@[ \t]*(\w+)\s*[{(]\s*([^,\s]+)\s*,", re.M)
 
 
 def audit_freshness(audit: dict | None, bib: Path | None) -> dict | None:

@@ -64,7 +64,10 @@ def route(crossref, handle, openalex_doi=None, pubmed_title=None):
         if "esearch.fcgi" in url:
             return (200, {"esearchresult": {"idlist": ["90000001"] if pubmed_title else []}})
         if "esummary.fcgi" in url:
-            return (200, {"result": {"90000001": {"title": pubmed_title}}})
+            # The matched record's authors agree with the cited one: a title-only match is OK
+            # only when the cited authors were compared and agree (test_title_fallback_guard.sh).
+            return (200, {"result": {"90000001": {"title": pubmed_title,
+                                                  "authors": [{"name": "Nobody A", "authtype": "Author"}]}}})
         return (None, None)
     def json_only(url, timeout):
         status, data = fetch(url, timeout)

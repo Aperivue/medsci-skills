@@ -197,14 +197,39 @@ def brace_field(entry: str, name: str) -> str:
     return entry[start : j - 1]
 
 
+# An entry opens with `@type{` or `@type(` at the start of a line. BibTeX allows whitespace
+# before the `@`, between the type and the delimiter, and the parenthesised form; splitting only
+# at a column-0 `@type{` merged every such entry into the one before it, so only the first was
+# ever looked up while the audit still reported submission_safe. _claim_evidence.BIB_KEY_RE
+# recognises the same headers, so the freshness check and this parser agree on the key list.
+BIB_ENTRY_START_RE = re.compile(r"^[ \t]*@[ \t]*(\w+)\s*[{(]", re.M)
+# Not references: string macros, preamble, and comments. They are skipped, not audited.
+BIB_NON_ENTRY_TYPES = ("comment", "string", "preamble")
+# A second entry header on the same line as the end of the previous entry (`} @article{b,`).
+# Splitting cannot see it, so it is refused rather than silently merged.
+BIB_INLINE_ENTRY_RE = re.compile(r"[})][ \t]*@[ \t]*(\w+)\s*[{(]\s*([^,\s]*)")
+
+
+class BibParseError(ValueError):
+    """The .bib holds an entry header this parser cannot separate from its neighbour."""
+
+
 def parse_bib(text: str) -> list[RefRecord]:
     records: list[RefRecord] = []
-    entries = re.split(r"\n(?=@\w+\{)", "\n" + text)
+    for m in BIB_INLINE_ENTRY_RE.finditer(text):
+        if m.group(1).lower() not in BIB_NON_ENTRY_TYPES:
+            line = text.count("\n", 0, m.start()) + 1
+            raise BibParseError(
+                f"line {line}: entry '@{m.group(1)}{{{m.group(2)}' starts on the same line as the "
+                "end of the previous entry; put each entry on its own line")
+    starts = [m.start() for m in BIB_ENTRY_START_RE.finditer(text)]
+    entries = [text[a:b] for a, b in zip(starts, starts[1:] + [len(text)])]
     for entry in entries:
         entry = entry.strip()
-        if not entry.startswith("@"):
+        kind = re.match(r"@[ \t]*(\w+)", entry)
+        if not kind or kind.group(1).lower() in BIB_NON_ENTRY_TYPES:
             continue
-        key_match = re.match(r"@\w+\{([^,]+),", entry)
+        key_match = re.match(r"@[ \t]*\w+\s*[{(]\s*([^,]+?)\s*,", entry)
         # Field names are matched whole (`(?<![\w-])`): `title` also matched inside `booktitle`,
         # so a proceedings paper whose booktitle came first was read with the proceedings name.
         title_match = (re.search(r"(?<![\w-])title\s*=\s*[\{\"](.+?)[\}\"]\s*,", entry, re.I | re.S)
@@ -477,10 +502,18 @@ def author_surnames_match(cited: str, actual: str) -> bool:
     # Particle-stripped variants ("von elm" vs "elm")
     a_core = re.sub(r"^(?:" + "|".join(_NAME_PARTICLES) + r")\s+", "", a)
     b_core = re.sub(r"^(?:" + "|".join(_NAME_PARTICLES) + r")\s+", "", b)
-    if a_core and b_core and (a_core == b_core or a_core in b_core or b_core in a_core):
+    if a_core and b_core and a_core == b_core:
         return True
-    # Hyphen vs space ("Abd-alrazaq" vs "abd alrazaq")
-    if a.replace("-", " ") == b.replace("-", " "):
+    # One name is a whole-word part of the other ("Garcia" vs "Garcia-Lopez", "Berg" vs
+    # "van der Berg"). Containment is accepted only at a space or hyphen boundary: raw substring
+    # containment let any short surname match any longer one that spells it ("Li" vs
+    # "Williams", "Kim" vs "Kimura"), so a fabricated co-author passed the positional check.
+    a_words = [w for w in re.split(r"[\s-]+", a_core) if w]
+    b_words = [w for w in re.split(r"[\s-]+", b_core) if w]
+    if a_words and b_words and (set(a_words) <= set(b_words) or set(b_words) <= set(a_words)):
+        return True
+    # Hyphen vs space vs run-together ("Abd-alrazaq" vs "abd alrazaq", "Dela Cruz" vs "De la Cruz")
+    if re.sub(r"[\s-]", "", a) == re.sub(r"[\s-]", "", b):
         return True
     return False
 
@@ -662,6 +695,21 @@ def verify_doi_handle(doi: str, timeout: int) -> tuple[str, str, list]:
     return "FABRICATED", "DOI does not exist in any registry (CrossRef 404; doi.org handle not found)", []
 
 
+def _esummary_families(item: dict) -> list[str]:
+    """Family names from one esummary record ("Surname Initials" -> "Surname"), personal authors only."""
+    families: list[str] = []
+    for a in item.get("authors") or []:
+        if a.get("authtype") not in (None, "Author"):
+            continue
+        full = (a.get("name") or "").strip()
+        # esummary "name" is "Surname Initials" e.g. "Reichheld FF"
+        m = re.match(r"^(.+?)\s+[A-Z]{1,4}$", full)
+        fam = m.group(1).strip() if m else full
+        if fam:
+            families.append(fam)
+    return families
+
+
 def verify_pubmed_pmid(pmid: str, timeout: int, titles: list | None = None) -> tuple[str, str, list]:
     """Returns (status, evidence, family_names); on OK, the record's titles go into `titles`.
 
@@ -682,17 +730,7 @@ def verify_pubmed_pmid(pmid: str, timeout: int, titles: list | None = None) -> t
     if item.get("error"):
         return "FABRICATED", f"PubMed PMID error: {item['error']}", []
     title = html.unescape(item.get("title", ""))
-    authors_raw = item.get("authors") or []
-    families: list[str] = []
-    for a in authors_raw:
-        if a.get("authtype") not in (None, "Author"):
-            continue
-        full = (a.get("name") or "").strip()
-        # esummary "name" is "Surname Initials" e.g. "Reichheld FF"
-        m = re.match(r"^(.+?)\s+[A-Z]{1,4}$", full)
-        fam = m.group(1).strip() if m else full
-        if fam:
-            families.append(fam)
+    families = _esummary_families(item)
     evidence = f"PubMed PMID OK; title={title[:120]}; authors={len(families)}"
     if families:
         evidence += f" (first={families[0]})"
@@ -754,7 +792,7 @@ def verify_pubmed_efetch(pmid: str, timeout: int,
 
 
 def verify_pubmed_title(title: str, timeout: int) -> tuple[str, str, list]:
-    """Title-only search returns no confident author list.
+    """Title-only search; on a match, returns the matched record's esummary family names.
 
     esearch matches the words of a title, not the title, so a made-up title still returns
     PMIDs and a hit proves nothing on its own. The candidates' titles are fetched and the best
@@ -787,7 +825,11 @@ def verify_pubmed_title(title: str, timeout: int) -> tuple[str, str, list]:
         if sim > best_sim:
             best_id, best_sim = pmid, sim
     if best_sim >= TITLE_MATCH_MIN:
-        return "OK", f"PubMed title match; PMID={best_id} (sim={best_sim:.2f})", []
+        # The matched record's authors go back to the caller: a title match says a work with a
+        # similar title exists, not that the cited authors wrote it, so verify_record must still
+        # cross-check them before the row can be OK.
+        return ("OK", f"PubMed title match; PMID={best_id} (sim={best_sim:.2f})",
+                _esummary_families(result.get(best_id) or {}))
     return (
         "UNVERIFIED",
         f"No confident PubMed title match (best sim={best_sim:.2f}); PMID candidates={','.join(ids)}",
@@ -1182,11 +1224,18 @@ def verify_record(record: RefRecord, offline: bool, timeout: int,
                 actual_authors_soft = True
 
     # Step 4 — PubMed title-only final fallback when nothing confident resolved.
+    title_only = False
     if "OK" not in statuses and not actual_authors:
-        st_t, ev_t, _ = verify_pubmed_title(record.title_guess, timeout)
+        st_t, ev_t, fams_t = verify_pubmed_title(record.title_guess, timeout)
         time.sleep(0.2)
         statuses.append(st_t)
         evidence_parts.append(ev_t)
+        # A cited DOI/PMID that does not exist already makes a found work MISMATCH ("wrong
+        # identifier"); that verdict does not rest on the authors, so it is left as it was.
+        if st_t == "OK" and "FABRICATED" not in statuses:
+            title_only = True
+            sources_consulted.append("pubmed_title")
+            actual_authors = fams_t
 
     # Full-author cross-check
     record.actual_authors = actual_authors
@@ -1255,6 +1304,20 @@ def verify_record(record: RefRecord, offline: bool, timeout: int,
         record.status = "FABRICATED"
     else:
         record.status = "UNVERIFIED"
+
+    # A title-only match identifies a work only through its title, so it is OK only when the
+    # cited authors were compared with that record's authors and agree. With no author list on
+    # either side, or with authors that disagree (the matched record may be a different work with
+    # a similar title, e.g. "hepatitis B" vs "hepatitis C"), the reference stays UNVERIFIED.
+    if title_only and record.status in ("OK", "MISMATCH") \
+            and not (record.corporate_author or source_corporate):
+        compared = bool(actual_authors) and bool(record.cited_authors or record.first_author_guess)
+        if author_mismatch or not compared:
+            record.status = "UNVERIFIED"
+            record.note = ("title_only: PubMed title match whose authors differ from the cited ones"
+                           if author_mismatch else
+                           "title_only: PubMed title match; authors could not be compared")
+            author_mismatch = False
 
     # Note classification (most informative wins)
     if author_mismatch and not record.note:
@@ -1449,7 +1512,11 @@ def main() -> int:
     text = read_input(input_path)
     suffix = input_path.suffix.lower()
     if suffix == ".bib":
-        records = parse_bib(text)
+        try:
+            records = parse_bib(text)
+        except BibParseError as exc:
+            print(f"Unrecognised BibTeX in {input_path.name}: {exc}", file=sys.stderr)
+            return 2
     elif suffix == ".tsv":
         records = parse_tsv(text)
     else:
