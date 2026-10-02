@@ -13,7 +13,8 @@ single `n (%)` cell versus its denominator.
 `scripts/check_table_percentages.py` parses GFM pipe tables from the manuscript,
 recovers each column's denominator (a `n = N` header, a Total row, or the column's
 counts summing), and recomputes `100·n/denominator` for every count/percentage cell,
-flagging any that differs from the printed value by more than 0.5 pp (configurable).
+flagging any that differs from the printed value by more than half a unit in its last
+printed place (0.5 pp for `15%`, 0.05 pp for `15.0%`; `--tol X` sets a fixed X pp).
 A column is treated as percentages only when a cell carries an explicit `%` OR its
 parenthetical values sum to ~100 (a partition) — so `mean (SD)` cells, whose SDs
 carry no `%` and do not sum to 100, are never misread as percentages.
@@ -26,9 +27,16 @@ carry no `%` and do not sum to 100, are never misread as percentages.
   `n = 33`) plus a `mean (SD)` table (`45 (12)` / `24 (3)`); the gate must clear the
   correct column and must not false-positive on the standard deviations.
 
+- `fixture/table_precision.md` — `23 (15.0%)` and `40 (27.1%)` under `n = 150`
+  (15.3% / 26.7%): inside 0.5 pp, wrong at the printed one-decimal precision.
+- `fixture/table_precision_ok.md` — the same counts printed correctly at one decimal and
+  as integers, half-unit ties (`1 (12.5%)` of 8) and two-decimal cells (`1 (33.33%)` of 3).
+
 ## Expected
 - `expected/bad.txt` — `MISMATCH FOUND`, two `PERCENT_MISMATCH` rows; exit 1 under `--strict`.
 - `expected/ok.txt` — `OK`, zero findings; exit 0 under `--strict`.
+- `expected/precision.txt` — two `PERCENT_MISMATCH`; exit 1 under `--strict`.
+- `expected/precision_ok.txt` — `OK`; exit 0 under `--strict`.
 
 `verify.sh` diffs both stdout outputs against `expected/` and asserts the exit-code
 contract (bad → 1, ok → 0). Network-free, stdlib-only.

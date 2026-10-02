@@ -1,0 +1,6 @@
+== MISMATCH FOUND ==  fixture/table_precision.md
+mismatches=2 findings=2
+[MAJOR] PERCENT_MISMATCH       L3  printed 15.0% but 23/150 (header n=) = 15.3% (Δ0.3pp)
+        cell> Female: 23 (15.0%)
+[MAJOR] PERCENT_MISMATCH       L3  printed 27.1% but 40/150 (header n=) = 26.7% (Δ0.4pp)
+        cell> Smoker: 40 (27.1%)

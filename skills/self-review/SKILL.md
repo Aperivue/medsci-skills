@@ -206,7 +206,8 @@ Before the report, verify internal consistency:
 1. **Abstract vs Body**: every Abstract number matches Results and Tables.
 2. **Table vs Text**: sample sizes, primary outcomes and p-values agree between tables and narrative.
 3. **Figure vs Text**: figure legends match the data described in Results.
-4. **Percentage arithmetic**: n/N percentages are correct (23/150 = 15.3%, not 15.0%).
+4. **Percentage arithmetic**: n/N percentages are correct (23/150 = 15.3%, not 15.0%). The gate
+   holds each cell to its printed precision (half a unit in the last printed place).
 5. **CI plausibility**: confidence intervals are reasonable for the sample sizes.
 6. **Rate back-calculation**: every rate inverts to its own numerator/denominator (incidence rate ≈ events / person-years × scale, ±rounding). A rate that does not recompute, or implies more events than the cohort can supply, is a Major.
 7. **Exclusion-cascade and complete-case arithmetic** (cohort/observational): start N − Σ(exclusions) == final analytic N, and total − missing == complete. A footnote N that does not equal the subtraction is a Major.
@@ -547,7 +548,11 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/refinement_stop.py" \
 | `STOP_OVERHARDENING` | floor clean, ceiling flags accumulation | STOP adding; only optional SUBTRACTION (REMOVE/MOVE/TIGHTEN) remains — do **not** run another additive pass |
 | `STOP_MINOR_OPTIONAL` | floor clean, only optional Minor polish left | stop the required-work loop; present the Minor items as an optional menu, do not loop for them |
 | `STOP_ZERO_EDIT` | floor at fixed point, ceiling clean | the manuscript is submission-ready as-is — **NO EDITS REQUIRED. Do not manufacture changes.** Report the zero-edit PASS as a first-class outcome |
-| `INDETERMINATE` | no gate artifacts yet | run the floor + ceiling gates first |
+| `INDETERMINATE` | no gate artifacts yet, no floor gate parsed (e.g. only the ceiling ran), or an empty / invalid `qc/*.json` (a gate that crashed under `--json > file`) | run, or re-run, the floor + ceiling gates first |
+
+Known limits: a detector-keyed artifact whose findings are not under `claims` / `findings`
+(for example `/verify-refs`' `qc/reference_audit.json`) is listed as *Unparsed* with a WARNING but
+does not by itself block a `STOP_*`; read its own verdict before acting on the stop signal.
 
 Once the verdict is any `STOP_*`, stop the additive cycle: surface the terminal state in the Phase 3
 report and do not re-run self-review to find "one more thing". A zero-edit or minor-optional result

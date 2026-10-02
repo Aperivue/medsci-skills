@@ -8,7 +8,8 @@ TOOL="$HERE/../refinement_stop.py"
 cd "$HERE"
 
 pass=1
-for scenario in zero_edit overhardening minor_optional continue empty findings_major unparsed_gate; do
+for scenario in zero_edit overhardening minor_optional continue empty findings_major unparsed_gate \
+                ceiling_only crashed_gate; do
   got="$(python3 "$TOOL" --qc-dir "fixture/$scenario")"
   if ! diff -u "expected/$scenario.txt" <(printf '%s\n' "$got"); then
     echo "FAIL: $scenario output drifted from expected/$scenario.txt" >&2
@@ -36,6 +37,15 @@ grep -q '"check_table_percentages"' "$tmp"      || { echo "FAIL: findings-schema
 python3 "$TOOL" --qc-dir fixture/unparsed_gate --out "$tmp" --quiet
 python3 -c "import json,sys; d=json.load(open('$tmp')); sys.exit(0 if 'check_novel_schema' in d.get('gates_unparsed',[]) else 1)" \
                                                 || { echo "FAIL: unparsed gate not surfaced in gates_unparsed" >&2; pass=0; }
+# No STOP without a floor: a clean ceiling pass alone, or a floor gate that crashed and left an
+# empty / truncated qc/*.json beside clean ones, must not read as "submission-ready as-is".
+for scenario in ceiling_only crashed_gate; do
+  python3 "$TOOL" --qc-dir "fixture/$scenario" --out "$tmp" --quiet
+  grep -q '"verdict": "INDETERMINATE"' "$tmp" || { echo "FAIL: $scenario must be INDETERMINATE" >&2; pass=0; }
+  grep -q '"stop": false' "$tmp"             || { echo "FAIL: $scenario must not signal stop" >&2; pass=0; }
+done
+python3 -c "import json,sys; d=json.load(open('$tmp')); sys.exit(0 if d.get('artifacts_unreadable')==['reported_p.json','table_percentages.json'] else 1)" \
+                                                || { echo "FAIL: unreadable artifacts not named" >&2; pass=0; }
 rm -f "$tmp"
 
 if [ "$pass" -eq 1 ]; then

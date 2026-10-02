@@ -8,11 +8,21 @@ reported ``p<0.001`` whose true value is ~0.06) routinely survives review becaus
 no one recomputes it. This detector rebuilds the 2x2 table for every count row,
 recomputes Fisher's exact test and Pearson's chi-square (with and without Yates'
 correction) in pure stdlib, *calibrates* which family the manuscript used on the
-rows that reproduce, and flags any row whose reported P differs by more than one
-order of magnitude under **every** family.
+rows that reproduce (the family is named in the message only), and flags a row when,
+under **every** family, either
+  * the reported P differs from the computed one by more than one order of magnitude;
+  * the reported P and the computed one fall on opposite sides of alpha (default 0.05,
+    the significance-boundary crossing write-paper's Phase 7.3a blocker policy names).
+    A printed value whose rounding interval straddles alpha (e.g. "0.05") is not
+    judged on this rule; or
+  * a reported upper bound ("<0.001") is exceeded by the computed P.
 
-Guards: continuous rows (mean ± SD, median [IQR]) are skipped; at least two count
-rows are required so the family can be calibrated; a single-row table never fires.
+Guards: continuous rows (mean ± SD, median [IQR]) are skipped. A single-row table is
+checked too (the family calibration only names the family; it never gates a flag).
+A P printed on the first level of a multi-level variable (the next row has counts and
+an empty P cell) is an r x c omnibus P: the alpha and bound rules skip it, and the
+order-of-magnitude rule applies to it only as before (tables with >= 2 count rows).
+The report states how many rows were checked, and says so when none was.
 
 Stdlib-only (math.comb / math.erfc). Reads the manuscript, never writes it.
 
@@ -50,6 +60,7 @@ class Finding:
 class Report:
     source: str
     findings: list[Finding] = field(default_factory=list)
+    rows_checked: int = 0
 
     @property
     def n_flag(self) -> int:
@@ -109,7 +120,33 @@ def _order_gap(rep_op: str, rep_val: float, comp: float) -> float:
     return abs(math.log10(comp) - math.log10(rep_val))
 
 
-def audit(text: str, source: str) -> Report:
+def _decimals(num: str) -> int:
+    return len(num.split(".", 1)[1]) if "." in num else 0
+
+
+def _crosses_alpha(rep_op: str, rep_num: str, comp: float, alpha: float) -> bool:
+    """True when the reported P and the computed P sit on opposite sides of alpha.
+
+    '=' values are read as the interval their printed precision allows
+    (value ± half a unit in the last printed place); an interval that straddles
+    alpha is ambiguous and never judged. '<' bounds are handled by the bound rule."""
+    if rep_op == "<":
+        return False
+    val = float(rep_num)
+    half = 0.5 * 10 ** (-_decimals(rep_num))
+    lo, hi = val - half, val + half
+    if hi < alpha:
+        return comp >= alpha
+    if lo >= alpha:
+        return comp < alpha
+    return False
+
+
+def _bound_exceeded(rep_op: str, rep_val: float, comp: float) -> bool:
+    return rep_op == "<" and comp >= rep_val
+
+
+def audit(text: str, source: str, alpha: float = 0.05) -> Report:
     rep = Report(source=source)
     lines = text.splitlines()
     i, n = 0, len(lines)
@@ -135,8 +172,18 @@ def audit(text: str, source: str) -> Report:
         n1 = int(HEADER_N_RE.search(header[g1]).group(1).replace(",", ""))
         n2 = int(HEADER_N_RE.search(header[g2]).group(1).replace(",", ""))
 
+        def _level_row(k: int) -> bool:
+            """Row k carries counts in both groups and an empty P cell: a further
+            level of the variable above it (an r x c variable, not a 2x2 row)."""
+            if k >= len(rows):
+                return False
+            cl = rows[k][0]
+            return (max(g1, g2, p_col) < len(cl) and not cl[p_col].strip()
+                    and bool(COUNT_CELL_RE.match(cl[g1])) and bool(COUNT_CELL_RE.match(cl[g2])))
+
         parsed = []
-        for cells, ln in rows:
+        multi_level = []   # parallel to parsed: P printed on the first level of an r x c variable
+        for idx, (cells, ln) in enumerate(rows):
             if max(g1, g2, p_col) >= len(cells):
                 continue
             m1, m2 = COUNT_CELL_RE.match(cells[g1]), COUNT_CELL_RE.match(cells[g2])
@@ -147,30 +194,46 @@ def audit(text: str, source: str) -> Report:
             if a > n1 or c > n2:
                 continue
             b, d = n1 - a, n2 - c
-            parsed.append((cells[0], ln, a, b, c, d, pm.group(1) or "=", float(pm.group(2))))
+            parsed.append((cells[0], ln, a, b, c, d, pm.group(1) or "=", pm.group(2)))
+            multi_level.append(_level_row(idx + 1))
 
-        if len(parsed) < 2:
-            continue  # cannot calibrate the family on a single row
+        if not parsed:
+            continue
 
         # calibrate: which family reproduces the most rows to <= 1e-3 (op '=')?
         computed = [(_pvals(a, b, c, d)) for _, _, a, b, c, d, _, _ in parsed]
         repro = [0, 0, 0]
-        for (lbl, ln, a, b, c, d, op, val), pv in zip(parsed, computed):
+        for (lbl, ln, a, b, c, d, op, num), pv in zip(parsed, computed):
+            val = float(num)
             if op == "=":
                 for k in range(3):
                     if abs(pv[k] - val) <= 1e-3:
                         repro[k] += 1
         fam_idx = max(range(3), key=lambda k: repro[k]) if any(repro) else 2
 
-        for (lbl, ln, a, b, c, d, op, val), pv in zip(parsed, computed):
+        for (lbl, ln, a, b, c, d, op, num), pv, rxc in zip(parsed, computed, multi_level):
+            val = float(num)
             gaps = [_order_gap(op, val, pv[k]) for k in range(3)]
+            reason = None
+            if rxc and len(parsed) < 2:
+                continue  # first level of an r x c variable, alone in its table: not a 2x2 P
+            rep.rows_checked += 1
             if min(gaps) > 1.0:  # differs by >1 order under EVERY family
+                reason = ""
+            elif rxc:
+                pass  # an omnibus r x c P is not judged by the 2x2 boundary rules below
+            elif all(_bound_exceeded(op, val, pv[k]) for k in range(3)):
+                reason = "; the computed P exceeds the reported bound under every family"
+            elif all(_crosses_alpha(op, num, pv[k], alpha) for k in range(3)):
+                reason = (f"; the reported and computed P fall on opposite sides of "
+                          f"alpha={alpha:g} under every family")
+            if reason is not None:
                 closest = min(range(3), key=lambda k: gaps[k])
                 rep.findings.append(Finding(
                     "P_NOT_REPRODUCIBLE", "MAJOR", ln,
                     f"row '{lbl}' ({a}/{a+b} vs {c}/{c+d}) reports P{op}{val:g}, but recomputes to "
                     f"Fisher {pv[0]:.3g} / Yates {pv[1]:.3g} / uncorrected {pv[2]:.3g} "
-                    f"(closest {FAMILIES[closest]}; table family ≈ {FAMILIES[fam_idx]})"))
+                    f"(closest {FAMILIES[closest]}; table family ≈ {FAMILIES[fam_idx]}){reason}"))
     return rep
 
 
@@ -179,7 +242,11 @@ def format_report(rep: Report, color: bool) -> str:
     end = "\033[0m" if color else ""
     out = [f"{tag}== {rep.verdict} =={end}  {rep.source}", f"non_reproducible={rep.n_flag}"]
     if not rep.findings:
-        out.append("every reported P reproduces from its counts under a standard test.")
+        if rep.rows_checked:
+            out.append("every reported P reproduces from its counts under a standard test.")
+        else:
+            out.append("NOT CHECKED: no two-group count row with a P value was found; "
+                       "nothing was recomputed.")
         return "\n".join(out)
     for f in sorted(rep.findings, key=lambda x: (x.line, x.detail)):
         out.append(f"[{f.severity}] {f.kind} L{f.line}  {f.detail}")
@@ -193,16 +260,22 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--strict", action="store_true", help="exit 1 on any P_NOT_REPRODUCIBLE")
     ap.add_argument("--quiet", action="store_true", help="suppress the report; exit code only")
     ap.add_argument("--json", action="store_true", help="emit JSON instead of a text report")
+    ap.add_argument("--alpha", type=float, default=0.05,
+                    help="significance boundary for the crossing rule (default 0.05)")
     args = ap.parse_args(argv)
+    if not 0 < args.alpha < 1:
+        print(f"error: --alpha must be in (0, 1), got {args.alpha}", file=sys.stderr)
+        return 2
     try:
         text = open(args.manuscript, encoding="utf-8").read()
     except OSError as e:
         print(f"error: cannot read manuscript: {e}", file=sys.stderr)
         return 2
-    rep = audit(text, args.manuscript)
+    rep = audit(text, args.manuscript, alpha=args.alpha)
     if not args.quiet:
         if args.json:
             print(json.dumps({"detector": "check_reported_p_from_counts", "source": rep.source, "verdict": rep.verdict,
+                              "rows_checked": rep.rows_checked,
                               "findings": [asdict(f) for f in rep.findings]},
                              ensure_ascii=False, indent=2))
         else:

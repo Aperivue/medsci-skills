@@ -44,8 +44,14 @@ Matching the adjustment set to Table-1 covariate labels is fuzzy (a table row
 normalized-substring test in both directions; review the reconciliation table
 rather than trusting the count blindly.
 
+P cells are read as plain decimals, bounds ("<0.001") or scientific notation
+("3e-05", "2.1x10^-5", "2.1×10⁻⁵"). A non-empty P cell that is not a number in
+[0, 1] (and not NA / NS / a dash) is an input error: it is named and the run exits 2,
+never read as "balanced".
+
 Stdlib-only (csv / json / re / argparse). Exit codes: 0 clean (or report-only),
-1 unadjusted-imbalanced rows found (with --strict), 2 input/usage error.
+1 unadjusted-imbalanced rows found (with --strict), 2 input/usage error (including
+an unreadable P cell).
 """
 
 from __future__ import annotations
@@ -175,26 +181,50 @@ def _pick_col(header: list[str], hints: tuple[str, ...], override: str | None) -
     return None
 
 
+# A p-value number, plain or in scientific notation: "0.03", ".01", "3e-05", "1.2E-8",
+# "2.1x10^-5", "2.1×10⁻⁵" (superscripts and the Unicode minus are normalised first).
+_P_NUM = r"(\d*\.?\d+)(?:\s*(?:e|(?:x|×|\*)\s*10\s*\^?)\s*([-+]?\d+))?"
+_SUPERSCRIPT = str.maketrans("⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺−", "0123456789-+-")
+_P_MISSING = ("na", "n/a", "nr", "-", ".", "—", "–")
+# Cells that state "not significant" without a number.
+_P_NS = ("ns", "n.s.")
+
+
+class UnreadablePValue(ValueError):
+    """A non-empty P cell that is neither a number in [0, 1] nor a missing/NS marker."""
+
+
+def _p_number(m) -> float:
+    if m.group(2) is None:
+        return float(m.group(1))
+    return float(f"{m.group(1)}e{int(m.group(2))}")
+
+
 def _parse_p(raw: str) -> float | None:
-    """Parse a p-value cell: '0.001', '<0.001', 'p<0.01', '0.03*', 'NS'."""
+    """Parse a p-value cell: '0.001', '<0.001', 'p<0.01', '0.03*', 'NS', '3e-05',
+    '2.1x10^-5', '2.1×10⁻⁵'. Returns None for an empty / missing cell. Raises
+    UnreadablePValue for a cell that carries no number or a value outside [0, 1]
+    (an unread P must never be read as "balanced")."""
     if raw is None:
         return None
-    s = raw.strip().lower()
-    if not s or s in ("ns", "na", "n/a", "-", "."):
-        return 1.0 if s == "ns" else None
-    m = re.search(r"<\s*(0?\.[0-9]+|[0-9]+\.?[0-9]*)", s)   # "<0.001", "p<.01"
+    s = raw.strip().lower().translate(_SUPERSCRIPT)
+    if not s or s in _P_MISSING:
+        return None
+    if s in _P_NS:
+        return 1.0
+    m = re.search(r"<\s*" + _P_NUM, s)   # "<0.001", "p<.01", "<2e-16"
     if m:
-        try:                                   # report just under the stated bound
-            return max(float(m.group(1)) - 1e-6, 0.0)
-        except ValueError:
-            return None
-    m = re.search(r"0?\.[0-9]+|[0-9]+\.?[0-9]*", s)
+        v = _p_number(m)
+        if not 0.0 < v <= 1.0:
+            raise UnreadablePValue(raw)
+        return max(v - 1e-6, 0.0)        # report just under the stated bound
+    m = re.search(_P_NUM, s)
     if m:
-        try:
-            return float(m.group(0))
-        except ValueError:
-            return None
-    return None
+        v = _p_number(m)
+        if not 0.0 <= v <= 1.0:
+            raise UnreadablePValue(raw)
+        return v
+    raise UnreadablePValue(raw)
 
 
 def _parse_float(raw: str) -> float | None:
@@ -343,13 +373,18 @@ def analyze(table1: str, adj: list[str], name_col, p_col, smd_col,
     def_concepts = set().union(*(_concepts(d) for d in defining)) if defining else set()
     smd_source = "reported" if (pi is not None or si is not None) else "computed_from_mean_sd"
     covariates = []
+    unreadable_p = []
     for r in rows[1:]:
         if ni >= len(r):
             continue
         cov = r[ni].strip()
         if _is_skip_row(cov):
             continue
-        pval = _parse_p(r[pi]) if (pi is not None and pi < len(r)) else None
+        try:
+            pval = _parse_p(r[pi]) if (pi is not None and pi < len(r)) else None
+        except UnreadablePValue:
+            unreadable_p.append({"covariate": cov, "cell": r[pi]})
+            pval = None
         smd = _parse_float(r[si]) if (si is not None and si < len(r)) else None
         if smd is None and gi is not None:                       # A3: compute SMD
             g1 = _meansd(r[gi[0]]) if gi[0] < len(r) else None
@@ -401,6 +436,7 @@ def analyze(table1: str, adj: list[str], name_col, p_col, smd_col,
         "n_unadjusted_imbalanced": len(unadjusted),
         "n_exposure_defining_exempt": len(exempt),
         "covariates": covariates,
+        "unreadable_p": unreadable_p,
         "findings": findings,
         "verdict": "MAJOR_CANDIDATE" if unadjusted else "OK",
         "suggested_fix": (
@@ -479,14 +515,21 @@ def main() -> int:
         print(f"MAJOR candidate: {result['n_unadjusted_imbalanced']} imbalanced covariate(s) "
               f"absent from the adjustment set.")
         print(f"Fix: {result['suggested_fix']}")
+    elif result["unreadable_p"]:
+        print("NOT CHECKED: no imbalance verdict for the row(s) below, whose P cell could not be read.")
     else:
         print("OK: no measured-but-unadjusted imbalanced covariate.")
+    for u in result["unreadable_p"]:
+        sys.stderr.write(f"ERROR: {args.table1}: unreadable p-value {u['cell']!r} for covariate "
+                         f"{u['covariate']!r} (not a number in [0, 1]); fix the cell or pass --p-col.\n")
 
     if args.out:
         Path(args.out).parent.mkdir(parents=True, exist_ok=True)
         Path(args.out).write_text(json.dumps({"detector": "check_confounding_completeness", **result}, indent=2), encoding="utf-8")
         print(f"\nwrote {args.out}")
 
+    if result["unreadable_p"]:
+        return 2
     return 1 if (args.strict and result["n_unadjusted_imbalanced"]) else 0
 
 

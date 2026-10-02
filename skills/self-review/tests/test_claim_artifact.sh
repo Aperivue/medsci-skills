@@ -130,5 +130,41 @@ python3 "$SCRIPT" --manuscript "$BR" --out "$OUT" --strict >/dev/null 2>&1
 check "the same sentence in the body still fires (P0 preserved)" test "$?" -eq 1
 check "PRIMARY_REASSIGNED detected in body" has_verdict PRIMARY_REASSIGNED
 
+# E-value phrasings. The sentence window used to split on every '.', so the decimal
+# point inside "HR 1.52" cut the estimate out of the window (EVALUE_UNVERIFIABLE), and
+# "E-value = 3.10" / "(E-value 3.10)" were never read at all. HR 1.52 recomputes to
+# 2.41; each wrong 3.10 must be EVALUE_ARITHMETIC (exit 1), each correct 2.41 must clear.
+EV="$(mktemp -t ca_ev_XXXX).md"
+trap 'rm -f "$OUT" "$CLEAN" "$DISC" "$EV"' EXIT
+ev_case() {  # $1 expected exit, $2 expected verdict, $3 sentence
+    printf '## Results\n\n%s\n' "$3" > "$EV"
+    python3 "$SCRIPT" --manuscript "$EV" --out "$OUT" --strict >/dev/null 2>&1
+    check "exit $1: $3" test "$?" -eq "$1"
+    check "$2: $3" python3 -c "
+import json
+d=json.load(open('$OUT'))
+ev=[c['verdict'] for c in d['claims'] if c['type']=='evalue']
+raise SystemExit(0 if ev==['$2'] else 1)
+"
+}
+ev_case 1 EVALUE_ARITHMETIC "The primary HR was 1.52 (95% CI 1.20-1.93); the E-value was 3.10."
+ev_case 1 EVALUE_ARITHMETIC "The primary HR was 1.52; the E-value was 3.10."
+ev_case 1 EVALUE_ARITHMETIC "The E-value was 3.10 for the primary HR of 1.52."
+ev_case 1 EVALUE_ARITHMETIC "Primary HR 1.52, E-value = 3.10."
+ev_case 1 EVALUE_ARITHMETIC "Hazard ratio 1.52 (E-value 3.10)."
+ev_case 0 OK "The primary HR was 1.52 (95% CI 1.20-1.93); the E-value was 2.41."
+ev_case 0 OK "Primary HR 1.52, E-value = 2.41."
+ev_case 0 OK "Hazard ratio 1.52 (E-value 2.41)."
+# The near-null CI-limit E-value phase2_5f asks for (HR 1.80, CI 1.20-2.70: 1.69).
+ev_case 0 OK "The primary adjusted HR was 1.80 (95% CI 1.20-2.70); the E-value for the lower confidence limit was 1.69."
+# "the value" is not an E-value: no evalue claim at all.
+printf '## Results\n\nThe primary HR was 1.52, and the value to use when the pilot is thin is 0.50.\n' > "$EV"
+python3 "$SCRIPT" --manuscript "$EV" --out "$OUT" --strict >/dev/null 2>&1
+check "'the value ... is 0.50' is not read as an E-value" python3 -c "
+import json
+d=json.load(open('$OUT'))
+raise SystemExit(0 if not any(c['type']=='evalue' for c in d['claims']) else 1)
+"
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

@@ -1,0 +1,6 @@
+Refinement terminal-state: INDETERMINATE
+  Floor gates:   0 Major, 0 Minor
+  Ceiling pass:  0 finding(s)
+  Gates read:    check_editorial_impression
+  qc dir:        fixture/ceiling_only
+  -> No floor gate artifact was read (only the ceiling pass, or nothing parseable). Run the floor gates (Phases 2.5-2.5f) first; a clean ceiling alone cannot declare the floor at its fixed point.

@@ -1,0 +1,3 @@
+== OK ==  fixture/p_none.md
+non_reproducible=0
+NOT CHECKED: no two-group count row with a P value was found; nothing was recomputed.
