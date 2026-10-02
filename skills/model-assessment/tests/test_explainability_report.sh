@@ -81,6 +81,45 @@ check "attribution framing does NOT fire NO_LOCALIZATION_METRIC" no_verdict NO_L
 python3 "$SCRIPT" --manifest "$TMP/attribution.json" --strict --quiet >/dev/null 2>&1
 check "exit 0 on rigorous attribution report" test "$?" -eq 0
 
+# (F5) none-like sanity entries declare NO sanity check -> Major NO_SANITY_CHECK, not a Minor
+cat > "$TMP/sanity_none.json" <<'EOF'
+{"method": "grad-cam", "n_examples": 100, "cohort_level": true, "localization_metric": "none",
+ "sanity_checks": ["none"], "interpretation": "attribution"}
+EOF
+python3 "$SCRIPT" --manifest "$TMP/sanity_none.json" --out "$OUT" --quiet >/dev/null 2>&1
+check "sanity_checks [\"none\"] -> NO_SANITY_CHECK" has_verdict NO_SANITY_CHECK
+python3 "$SCRIPT" --manifest "$TMP/sanity_none.json" --strict --quiet >/dev/null 2>&1
+check "sanity_checks [\"none\"] exits 1 under --strict" test "$?" -eq 1
+cat > "$TMP/sanity_np.json" <<'EOF'
+{"method": "grad-cam", "n_examples": 100, "cohort_level": true, "localization_metric": "none",
+ "sanity_checks": "not performed", "interpretation": "attribution"}
+EOF
+python3 "$SCRIPT" --manifest "$TMP/sanity_np.json" --out "$OUT" --quiet >/dev/null 2>&1
+check "sanity_checks \"not performed\" -> NO_SANITY_CHECK" has_verdict NO_SANITY_CHECK
+# (F5) free-text interpretation / unknown sanity entry -> input error (exit 2), not a clearance
+cat > "$TMP/interp_free.json" <<'EOF'
+{"method": "grad-cam", "n_examples": 100, "cohort_level": true, "localization_metric": "iou",
+ "sanity_checks": ["model_randomization", "data_randomization"],
+ "interpretation": "the map proves the model is correct"}
+EOF
+python3 "$SCRIPT" --manifest "$TMP/interp_free.json" --strict --quiet >/dev/null 2>&1
+check "free-text interpretation -> exit 2" test "$?" -eq 2
+cat > "$TMP/sanity_meta.json" <<'EOF'
+{"method": "grad-cam", "n_examples": 100, "cohort_level": true, "localization_metric": "iou",
+ "sanity_checks": ["model_randomization", "metadata_check"], "interpretation": "localization"}
+EOF
+python3 "$SCRIPT" --manifest "$TMP/sanity_meta.json" --strict --quiet >/dev/null 2>&1
+check "'metadata_check' is not data randomisation -> exit 2 (unknown entry)" test "$?" -eq 2
+# negative controls: normalised spellings of known values stay clean
+cat > "$TMP/spelled.json" <<'EOF'
+{"method": "grad-cam", "n_examples": 100, "cohort_level": true, "localization_metric": "iou",
+ "localization_value": 0.6,
+ "sanity_checks": ["Model randomisation", "data-randomization"], "interpretation": "Localisation"}
+EOF
+python3 "$SCRIPT" --manifest "$TMP/spelled.json" --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "normalised spellings: exit 0 under --strict" test "$?" -eq 0
+check "normalised spellings: no INSUFFICIENT_SANITY" no_verdict INSUFFICIENT_SANITY
+
 # (7) the shipped challenge card passes
 check "challenge verify.sh passes" bash "$CH/verify.sh"
 

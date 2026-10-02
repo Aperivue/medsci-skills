@@ -29,9 +29,13 @@ NOT a leak and does not fire; only an ID spanning >= 2 partitions does.
 
 INPUTS
   --splits   split-assignment CSV (required). Columns auto-detected:
-               id    : patient_id / subject_id / case_id / id / pid / mrn / studyid
+               id    : patient-level only — patient_id / subject_id / case_id /
+                       participant_id / case / pid / mrn / eid, or a column such as
+                       patient_mrn; a lone bare `id` column is accepted. An image-,
+                       study- or series-level ID (image_id, study_id, accession) is
+                       never auto-picked: the gate exits 2 and asks for --id-col.
                split : split / partition / set / subset / fold / phase / assignment
-             Override with --id-col / --split-col.
+             Override with --id-col / --split-col. The chosen columns are printed.
   --seed     the split's random seed (int/str), to record reproducibility.
   --seed-file path to a file holding the seed (default: auto-detect split_seed.txt
              alongside --splits).
@@ -55,8 +59,21 @@ import re
 import sys
 from pathlib import Path
 
-ID_HINTS = ("patient_id", "subject_id", "case_id", "patientid", "subjectid", "caseid",
-            "patient", "subject", "id", "pid", "eid", "uid", "mrn", "studyid", "study_id")
+# Patient-level ID columns, exact (normalised) match, in priority order. The gate's
+# verdict is set arithmetic on ONE column, so that column must be the patient/subject
+# identifier: image-, study-, series- or accession-level IDs are NOT patient IDs (one
+# patient has many), and auditing them clears a real patient leak.
+ID_HINTS = ("patient_id", "subject_id", "case_id", "participant_id", "patientid",
+            "subjectid", "caseid", "participantid", "patient", "subject", "case",
+            "participant", "pid", "mrn", "eid")
+# Substring tokens that mark a column as patient-level (e.g. patient_mrn, subject_code);
+# such a column must also look like an identifier (see _ID_MARKERS), so patient_age is not one.
+PATIENT_TOKENS = ("patient", "subject", "participant", "mrn")
+_ID_MARKERS = ("mrn", "num", "code", "key")
+# Tokens that mark a column as a sub-patient (image/study/series/...) identifier.
+NON_PATIENT_TOKENS = ("image", "img", "study", "series", "scan", "slice", "accession",
+                      "instance", "sop", "file", "exam", "visit", "lesion", "frame",
+                      "acquisition", "volume", "dicom", "row", "record", "sample")
 SPLIT_HINTS = ("split", "partition", "set", "subset", "fold", "phase", "assignment",
                "split_assignment", "data_split", "group_split")
 
@@ -92,6 +109,47 @@ def _pick(header: list[str], hints: tuple[str, ...]):
             if h and h in col:
                 return header[i]
     return None
+
+
+def _is_id_like(col_norm: str) -> bool:
+    return col_norm == "id" or col_norm.endswith("id") or col_norm in ("uid", "mrn")
+
+
+def _pick_id(header: list[str]):
+    """Choose the patient-level ID column, or explain why none can be chosen safely.
+
+    Returns (column, None) or (None, error_message). Never falls back to an image /
+    study / series-level ID: a PATIENT_OVERLAP verdict computed on such a column is
+    meaningless (it clears a patient whose images sit in both train and test).
+    """
+    norm = [_norm(h) for h in header]
+    for hint in ID_HINTS:                    # exact patient-level match first
+        h = _norm(hint)
+        for i, col in enumerate(norm):
+            if col == h:
+                return header[i], None
+    # then a patient token inside an identifier-like name (patient_mrn, subject_code)
+    sub = [header[i] for i, col in enumerate(norm)
+           if any(t in col for t in PATIENT_TOKENS)
+           and (_is_id_like(col) or any(x in col for x in _ID_MARKERS))]
+    if len(sub) == 1:
+        return sub[0], None
+    if len(sub) > 1:
+        return None, (f"several patient-level ID columns {sub}; pass --id-col to say which "
+                      f"one identifies the patient")
+    # a single bare generic 'id' column is accepted only when no other ID-like column exists
+    id_like = [header[i] for i, col in enumerate(norm) if _is_id_like(col)]
+    if len(id_like) == 1 and _norm(id_like[0]) == "id":
+        return id_like[0], None
+    non_patient = [c for c in id_like if any(t in _norm(c) for t in NON_PATIENT_TOKENS)]
+    if non_patient:
+        return None, (f"no patient-level ID column found; {non_patient} look image/study-level "
+                      f"(one patient has many), so overlap on them would not prove a "
+                      f"patient-disjoint split; pass --id-col with the patient identifier")
+    if id_like:
+        return None, (f"no patient-level ID column found; candidate ID columns {id_like} are "
+                      f"ambiguous; pass --id-col with the patient identifier")
+    return None, (f"no ID column found (looked for {ID_HINTS[:6]}…); pass --id-col")
 
 
 def _find_seed(splits_path: Path, rows: list[dict], header: list[str],
@@ -139,11 +197,14 @@ def analyze(splits: str, id_col: str | None, split_col: str | None,
     if split_col and split_col not in header:
         sys.stderr.write(f"ERROR: --split-col '{split_col}' not in {header}\n")
         sys.exit(2)
-    idc = id_col or _pick(header, ID_HINTS)
+    if id_col:
+        idc = id_col
+    else:
+        idc, why = _pick_id(header)
+        if idc is None:
+            sys.stderr.write(f"ERROR: {why}\n")
+            sys.exit(2)
     spc = split_col or _pick(header, SPLIT_HINTS)
-    if idc is None:
-        sys.stderr.write(f"ERROR: no ID column found (looked for {ID_HINTS[:6]}…); pass --id-col\n")
-        sys.exit(2)
     if spc is None:
         sys.stderr.write(f"ERROR: no split column found (looked for {SPLIT_HINTS[:6]}…); pass --split-col\n")
         sys.exit(2)
@@ -246,6 +307,7 @@ def main() -> int:
         print("=" * 41)
         print(" Split-Leakage Gate (model-assessment)")
         print("=" * 41)
+        print(f"  id_col={result['id_col']}  split_col={result['split_col']}")
         print(f"  rows={result['n_rows']}  subjects={result['n_subjects']}  "
               f"partitions={result['partitions']}  seed={result['seed']}")
         print(render(result))

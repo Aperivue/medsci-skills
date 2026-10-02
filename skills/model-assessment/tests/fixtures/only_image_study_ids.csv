@@ -1,0 +1,4 @@
+image_id,study_id,split
+I1,S1,train
+I2,S2,test
+I3,S3,train

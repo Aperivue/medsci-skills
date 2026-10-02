@@ -44,6 +44,9 @@ MANIFEST (JSON)
     "interpretation": "localization"      // localization / faithfulness / attribution /
                                           // explanation / validation / causal
   }
+  Values are enumerated (case and separators normalised). An unrecognised
+  `interpretation` or `sanity_checks` entry is an input error (exit 2); a none-like
+  sanity entry ("none", "not performed") counts as no sanity check.
 
 INPUTS
   --manifest  explainability-report manifest JSON (required).
@@ -62,23 +65,84 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
+# Enumerated vocabularies, keyed on _key() (lower-case, separators -> "_", British -s- -> -z-).
+# A value outside the vocabulary is an input error (exit 2): free text such as "the map
+# proves the model is correct" used to match no set and cleared the Major
+# SALIENCY_AS_VALIDATION check.
 VALIDATION_INTERP = {
     "validation", "validate", "validated", "causal", "causation", "causality",
-    "proof", "proves", "correctness", "ground_truth", "ground-truth", "verifies",
+    "proof", "proves", "correctness", "ground_truth", "verifies",
     "verification", "confirms",
 }
 LOCALIZATION_INTERP = {
-    "localization", "localisation", "faithfulness", "faithful", "correctness",
+    "localization", "faithfulness", "faithful", "correctness",
     "attention_correctness", "region",
 }
+DESCRIPTIVE_INTERP = {"attribution", "explanation", "descriptive", "exploratory",
+                      "hypothesis_generating", "illustrative", "qualitative"}
+KNOWN_INTERP = VALIDATION_INTERP | LOCALIZATION_INTERP | DESCRIPTIVE_INTERP
 NO_METRIC_VALUES = {"", "none", "na", "n/a", "no", "false", "eyeball", "visual", "qualitative"}
+
+# sanity_checks vocabulary. A none-like entry ("none", "not performed") declares NO check —
+# it used to count as a declared check and downgraded the Major NO_SANITY_CHECK to a Minor.
+# Each axis is matched exactly, not by substring ("metadata_check" is not data randomisation).
+SANITY_NONE = {"", "none", "no", "na", "n_a", "false", "null", "nil", "not_performed",
+               "not_done", "not_applicable", "not_assessed", "not_run", "skipped", "omitted"}
+SANITY_MODEL = {"model_randomization", "model_parameter_randomization",
+                "parameter_randomization", "weight_randomization",
+                "cascading_randomization", "cascading_model_randomization",
+                "independent_randomization", "independent_layer_randomization",
+                "model_randomization_test", "model_parameter_randomization_test"}
+SANITY_DATA = {"data_randomization", "label_randomization", "data_label_randomization",
+               "label_permutation", "permuted_labels", "data_randomization_test",
+               "label_randomization_test"}
+# recognised checks that are neither Adebayo randomisation axis
+SANITY_OTHER = {"roar", "remove_and_retrain", "deletion", "insertion", "deletion_curve",
+                "insertion_curve", "infidelity", "sensitivity_n", "max_sensitivity",
+                "input_invariance", "pixel_perturbation", "perturbation"}
+KNOWN_SANITY = SANITY_MODEL | SANITY_DATA | SANITY_OTHER
 
 
 def _norm(s) -> str:
     return str(s).strip().lower() if s is not None else ""
+
+
+def _key(s) -> str:
+    """Canonical vocabulary key: 'Model randomisation' -> 'model_randomization'."""
+    k = re.sub(r"[^a-z0-9]+", "_", _norm(s)).strip("_")
+    return k.replace("randomisation", "randomization").replace("localisation", "localization")
+
+
+def _sanity_list(raw) -> list:
+    if raw is None or raw is False:
+        return []
+    if isinstance(raw, list):
+        return raw
+    return [raw]
+
+
+def validate(manifest: dict) -> list[str]:
+    """Input errors that would otherwise make a check silently skip (-> exit 2)."""
+    errors = []
+    raw_interp = manifest.get("interpretation")
+    if raw_interp is not None:
+        if not isinstance(raw_interp, str) or _key(raw_interp) not in KNOWN_INTERP:
+            errors.append(
+                f"unrecognised interpretation {raw_interp!r}; use one of attribution / explanation / "
+                f"localization / faithfulness (or validation / causal, which the gate flags) — free "
+                f"text cannot be checked for a validation or causal framing")
+    for s in _sanity_list(manifest.get("sanity_checks")):
+        k = _key(s) if isinstance(s, str) else None
+        if k is None or (k not in SANITY_NONE and k not in KNOWN_SANITY):
+            errors.append(
+                f"unrecognised sanity_checks entry {s!r}; use model_randomization / "
+                f"data_randomization (Adebayo et al.), another named check (roar, deletion, "
+                f"insertion, infidelity), or none")
+    return errors
 
 
 def check(manifest: dict) -> list[dict]:
@@ -86,10 +150,10 @@ def check(manifest: dict) -> list[dict]:
     method = manifest.get("method")
     cohort = manifest.get("cohort_level")
     loc_metric = _norm(manifest.get("localization_metric"))
-    sanity = manifest.get("sanity_checks") or []
-    if isinstance(sanity, str):
-        sanity = [sanity]
-    interp = _norm(manifest.get("interpretation") or "explanation")
+    # none-like entries ("none", "not performed") declare no check at all
+    sanity = [s for s in _sanity_list(manifest.get("sanity_checks"))
+              if _key(s) not in SANITY_NONE]
+    interp = _key(manifest.get("interpretation") or "explanation")
 
     # 1. Saliency framed as validation / causal evidence.
     if interp in VALIDATION_INTERP:
@@ -122,16 +186,21 @@ def check(manifest: dict) -> list[dict]:
         })
 
     # 4. Sanity check present but not both randomisation axes.
-    sset = {_norm(s) for s in sanity}
+    sset = {_key(s) for s in sanity}
     if sanity:
-        has_model = any("model" in s or "parameter" in s or "weight" in s for s in sset)
-        has_data = any("data" in s or "label" in s for s in sset)
+        has_model = bool(sset & SANITY_MODEL)
+        has_data = bool(sset & SANITY_DATA)
         if not (has_model and has_data):
-            missing = "data-randomisation" if has_model else "model-randomisation"
+            if not has_model and not has_data:
+                missing = "model- and data-randomisation tests are"
+            elif has_model:
+                missing = "data-randomisation test is"
+            else:
+                missing = "model-randomisation test is"
             claims.append({
                 "verdict": "INSUFFICIENT_SANITY", "severity": "Minor",
                 "detail": (f"sanity checks declared ({', '.join(sorted(sset))}) but the "
-                           f"{missing} test is missing; Adebayo et al. recommend both axes"),
+                           f"{missing} missing; Adebayo et al. recommend both axes"),
                 "where": "sanity_checks",
             })
 
@@ -169,6 +238,11 @@ def analyze(manifest_path: str) -> dict:
         sys.stderr.write("ERROR: manifest JSON must be an object\n")
         sys.exit(2)
 
+    errors = validate(manifest)
+    if errors:
+        for e in errors:
+            sys.stderr.write(f"ERROR: {e}\n")
+        sys.exit(2)
     claims = check(manifest)
     n_major = sum(1 for c in claims if c["severity"] == "Major")
     return {

@@ -3,7 +3,8 @@
 # Synthetic, PII-free fixtures reproduce: (a) a patient that crosses train/test,
 # (b) column auto-detection (subject_id / partition), (c) a missing split seed,
 # (d) the --no-require-seed / --seed downgrades, (e) a single-partition file, and
-# (f) a seed read from a column. Stdlib-only (python3).
+# (f) a seed read from a column, and (g) the patient-level ID column is chosen over an
+# image/study-level one (or the gate refuses). Stdlib-only (python3).
 set -u
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -73,6 +74,29 @@ check "exit 0 on single-partition (Minor only)" test "$?" -eq 0
 check "SINGLE_PARTITION detected" has_verdict SINGLE_PARTITION
 check "seed read from column" python3 -c "
 import json; d=json.load(open('$OUT')); assert d['seed']=='7', d['seed']"
+
+# (8) F1: the ID column must be patient-level. An image-/study-level ID sitting next to the
+#     patient column must not be audited instead of it (that cleared a real patient leak).
+python3 "$SCRIPT" --splits "$F/leak_imageid_case.csv" --seed 1 --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "image_id + case: exit 1 (patient P1 in train and test)" test "$?" -eq 1
+check "image_id + case: PATIENT_OVERLAP on the case column" python3 -c "
+import json; d=json.load(open('$OUT'))
+assert d['id_col']=='case', d['id_col']
+assert any(c['verdict']=='PATIENT_OVERLAP' for c in d['claims'])"
+python3 "$SCRIPT" --splits "$F/leak_studyid_mrn.csv" --seed 1 --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "study_id + patient_mrn: exit 1 (patient M1 in train and test)" test "$?" -eq 1
+check "study_id + patient_mrn: audits patient_mrn" python3 -c "
+import json; d=json.load(open('$OUT')); assert d['id_col']=='patient_mrn', d['id_col']"
+# only image/study-level IDs -> refuse (exit 2) rather than 'prove' a patient-disjoint split
+python3 "$SCRIPT" --splits "$F/only_image_study_ids.csv" --seed 1 --strict --quiet >/dev/null 2>&1
+check "only image/study IDs: exit 2 (asks for --id-col)" test "$?" -eq 2
+python3 "$SCRIPT" --splits "$F/only_image_study_ids.csv" --id-col study_id --seed 1 --strict --quiet >/dev/null 2>&1
+check "only image/study IDs + explicit --id-col: runs (exit 0)" test "$?" -eq 0
+# negative control: same layout, patient-disjoint -> exit 0, no overlap
+python3 "$SCRIPT" --splits "$F/clean_imageid_case.csv" --seed 1 --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "image_id + case, disjoint: exit 0" test "$?" -eq 0
+check "image_id + case, disjoint: no PATIENT_OVERLAP" no_verdict PATIENT_OVERLAP
+check "chosen ID column printed on stdout" bash -c "python3 '$SCRIPT' --splits '$F/clean_imageid_case.csv' --seed 1 | grep -q 'id_col=case'"
 
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

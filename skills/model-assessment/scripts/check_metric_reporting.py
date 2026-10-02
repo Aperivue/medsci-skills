@@ -64,7 +64,11 @@ P = {
     "dice_iou": r"\b(dice|dsc|jaccard|iou|intersection over union)\b",
     # named boundary metrics only: the bare word 'boundary' ("boundary error was not
     # assessed") names no metric and must not satisfy the Dice+boundary pairing
-    "boundary": r"\b(hd95|hd 95|hausdorff|assd|\basd\b|\bmasd\b|\bmsd\b|nsd|"
+    # 'MSD' also names the Medical Segmentation Decathlon ("the MSD liver task"), so the bare
+    # abbreviation counts as mean surface distance only when a value follows it ("MSD 1.2 mm",
+    # "MSD (mm) of 1.2", "MSD = 0.9").
+    "boundary": r"\b(hd95|hd 95|hausdorff|assd|\basd\b|\bmasd\b|"
+                r"msd(?=\s*(?:\([^)]{0,12}\)\s*)?(?:=|:|,|of|was|were|is)?\s*\d)|nsd|"
                 r"normali[sz]ed surface dice|normali[sz]ed surface|surface dice similarity|"
                 r"surface dsc|surface dice|surface distance|mean (?:surface|boundary) distance|"
                 r"boundary[- ]?(?:iou|f1|f-?score))\b",
@@ -76,7 +80,10 @@ P = {
     "auprc": r"\b(auprc|au[- ]?prc|average precision|precision[- ]?recall|pr[- ]?auc)\b",
     "sens": r"\b(sensitivit\w+|recall|true[- ]?positive rate|tpr)\b",
     "spec": r"\b(specificit\w+|true[- ]?negative rate|tnr)\b",
-    "detection": r"\b(froc|map\b|mean average precision|sensitivity per (?:false positive|fp)|"
+    # mAP is matched case-sensitively (or with an @/IoU suffix): a lower-case 'map' is a
+    # saliency / heat / probability map, not mean average precision.
+    "detection": r"\b(froc|(?-i:mAP)(?:@?\d+)?\b|map\s*@|mean average precision|"
+                 r"sensitivity per (?:false positive|fp)|"
                  r"competition performance metric|cpm)\b",
     "iou_crit": r"\b(?:iou|intersection over union|overlap)\b[^.]{0,40}"
                 r"(?:threshold|criterion|>=|≥|>|\bof\b|above|exceed|\d\.\d)"
@@ -144,6 +151,22 @@ NEG_AFTER = re.compile(
 # A negation only disavows a token in its own clause: "pixel accuracy was not used; HD95 7.2 mm"
 # reports HD95. A period inside a number ("7.2") is not a clause break.
 CLAUSE_BREAK = re.compile(r"[.;:!?](?:\s|$)")
+# A negation also reaches every item of a coordinated list: "we did not compute the Hausdorff
+# distance or HD95" disavows HD95, and "sensitivity and specificity were not reported"
+# disavows sensitivity. The gap between the list item and the negation must be list glue only:
+# no value (digit), no second predicate, no contrast ("instead", "but").
+LIST_GLUE_END = re.compile(r"(?:,|\b(?:or|nor|and)\b|/)\s*(?:the\s+)?$", re.IGNORECASE)
+LIST_GLUE_START = re.compile(r"^\s*(?:,|\b(?:or|nor|and)\b|/)", re.IGNORECASE)
+LIST_BREAKER = re.compile(
+    r"\d|\b(?:instead|but|rather|whereas|while|however|only|except|although|yet|"
+    r"was|were|is|are|be|been|had|has|have|we|it|they|"
+    r"report\w*|use[ds]?|using|comput\w+|calculat\w+|measur\w+|assess\w*|evaluat\w+|"
+    r"present\w*|provid\w+|perform\w*|show\w*|achiev\w+|obtain\w*|yield\w*|gave|give\w*)\b",
+    re.IGNORECASE)
+LIST_SPAN = 120
+OWN_VALUE = re.compile(r"^\s*(?:\([^)]{0,20}\)\s*)?(?:=|:|of|was|were|is|reached|achieved)?\s*\d",
+                       re.IGNORECASE)
+AFFIRM_COPULA = re.compile(r"\b(?:was|were|is|are|reached|achieved|yielded)\b", re.IGNORECASE)
 
 
 def has(text: str, key: str) -> bool:
@@ -159,7 +182,36 @@ def has_affirmative(text: str, key: str) -> bool:
         after = CLAUSE_BREAK.split(text[m.end(): m.end() + 24])[0]
         if NEG_BEFORE.search(before) or NEG_AFTER.search(after):
             continue
+        if _list_negated(text, m.start(), m.end()):
+            continue
         return True
+    return False
+
+
+def _list_negated(text: str, start: int, end: int) -> bool:
+    """True when the match is a later/earlier item of a list governed by a negation."""
+    clause_before = CLAUSE_BREAK.split(text[max(0, start - LIST_SPAN): start])[-1]
+    clause_after = CLAUSE_BREAK.split(text[end: end + LIST_SPAN])[0]
+    negs = list(NEG_BEFORE.finditer(clause_before))
+    # "We did not use pixel accuracy, Dice and HD95 were reported": the item has its own
+    # (affirmative) predicate or value after it, so the earlier negation does not reach it.
+    own_predicate = (OWN_VALUE.search(clause_after) is not None
+                     or (AFFIRM_COPULA.search(clause_after) is not None
+                         and NEG_AFTER.search(clause_after) is None))
+    if negs and not own_predicate:
+        gap = clause_before[negs[-1].end():]
+        # "did not compute the Hausdorff distance or " -> drop the governed verb, then the
+        # remainder must be list items ending in list glue
+        rest = re.sub(r"^\s*\w+", "", gap, count=1)
+        if LIST_GLUE_END.search(gap) and not LIST_BREAKER.search(rest):
+            return True
+    na = NEG_AFTER.search(clause_after)
+    if na:
+        gap = clause_after[:na.start()]
+        # "Sensitivity| and specificity |were not reported": strip the copula the negation
+        # pattern itself starts with, then the gap must be list glue + items only
+        if LIST_GLUE_START.search(gap) and not LIST_BREAKER.search(gap):
+            return True
     return False
 
 
@@ -204,7 +256,7 @@ def analyze(report: str, task: str) -> dict:
         # sensitivity+specificity pair is a threshold-pair report, not accuracy-only
         acc_stripped = re.sub(P["accuracy_phrase"], " ", text, flags=re.IGNORECASE)
         accuracy_metric = re.search(P["accuracy"], acc_stripped, re.IGNORECASE) is not None
-        threshold_pair = has(text, "sens") and has(text, "spec")
+        threshold_pair = has_affirmative(text, "sens") and has_affirmative(text, "spec")
         auroc_reported = has_affirmative(text, "auroc")
         if accuracy_metric and not auroc_reported and not threshold_pair:
             add("ACCURACY_ONLY", "Major",
@@ -221,7 +273,7 @@ def analyze(report: str, task: str) -> dict:
                 "scheme (one-vs-rest, macro/micro averaging, pairwise, or the prevalence-weighted "
                 "Obuchowski index) — the aggregate is ambiguous and prevalence-sensitive without it")
     elif task == "detection":
-        if not has(text, "detection"):
+        if not has_affirmative(text, "detection"):
             add("DETECTION_METRIC_MISSING", "Major",
                 "no detection metric (FROC / mAP / sensitivity-per-false-positive) is reported — "
                 "patient-level accuracy is not a detection metric")

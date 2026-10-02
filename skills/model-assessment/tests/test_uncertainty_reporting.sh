@@ -73,6 +73,34 @@ check "strong fixture: exit 0 under --strict" python3 "$SCRIPT" --manifest "$CH/
 python3 "$SCRIPT" --manifest "$CH/fixture/uncertainty_weak.json" --strict --quiet >/dev/null 2>&1 && rc=0 || rc=$?
 check "weak fixture: exit 1 under --strict (Major present)" test "${rc:-0}" -eq 1
 
+# --- F2: natural spellings of uncertainty_method must reach the method-specific checks ---
+printf '{"deployment_claim":true,"uncertainty_method":"conformal prediction","coverage_validated":false,"calibration_under_shift":true}' > "$TMP/conf_sp.json"
+run "$TMP/conf_sp.json"
+check "'conformal prediction' -> CONFORMAL_NO_COVERAGE_VALIDATION" has_verdict CONFORMAL_NO_COVERAGE_VALIDATION
+python3 "$SCRIPT" --manifest "$TMP/conf_sp.json" --strict --quiet >/dev/null 2>&1 && rc=0 || rc=$?
+check "'conformal prediction' unvalidated: exit 1 under --strict" test "${rc:-0}" -eq 1
+printf '{"deployment_claim":true,"uncertainty_method":"MAPIE","coverage_validated":false,"calibration_under_shift":true}' > "$TMP/mapie.json"
+run "$TMP/mapie.json"
+check "'MAPIE' -> CONFORMAL_NO_COVERAGE_VALIDATION" has_verdict CONFORMAL_NO_COVERAGE_VALIDATION
+printf '{"deployment_claim":true,"uncertainty_method":"MC dropout","mc_dropout_active_at_inference":false,"calibration_under_shift":true}' > "$TMP/mcd_sp.json"
+run "$TMP/mcd_sp.json"
+check "'MC dropout' -> MCDROPOUT_DISABLED_AT_INFERENCE" has_verdict MCDROPOUT_DISABLED_AT_INFERENCE
+printf '{"deployment_claim":true,"uncertainty_method":"deep ensemble","ensemble_members":1,"calibration_under_shift":true}' > "$TMP/ens_sp.json"
+run "$TMP/ens_sp.json"
+check "'deep ensemble' (1 member) -> ENSEMBLE_NOT_INDEPENDENT" has_verdict ENSEMBLE_NOT_INDEPENDENT
+# an unrecognised method is an input error, not a silent clearance
+printf '{"deployment_claim":true,"uncertainty_method":"magic uncertainty","calibration_under_shift":true}' > "$TMP/unk.json"
+python3 "$SCRIPT" --manifest "$TMP/unk.json" --quiet >/dev/null 2>&1 && rc=0 || rc=$?
+check "unknown uncertainty_method -> exit 2" test "${rc:-0}" -eq 2
+# negative controls: validated conformal / active MC dropout under natural spellings stay clean
+printf '{"deployment_claim":true,"uncertainty_method":"Split-Conformal Prediction","coverage_validated":true,"calibration_under_shift":true}' > "$TMP/conf_ok.json"
+run "$TMP/conf_ok.json"
+check "validated 'Split-Conformal Prediction' -> no CONFORMAL_NO_COVERAGE_VALIDATION" no_verdict CONFORMAL_NO_COVERAGE_VALIDATION
+check "validated 'Split-Conformal Prediction' -> exit 0 under --strict" python3 "$SCRIPT" --manifest "$TMP/conf_ok.json" --strict --quiet
+printf '{"deployment_claim":true,"uncertainty_method":"MC dropout","mc_dropout_active_at_inference":true,"calibration_under_shift":true}' > "$TMP/mcd_ok.json"
+run "$TMP/mcd_ok.json"
+check "active 'MC dropout' -> no MCDROPOUT_DISABLED_AT_INFERENCE" no_verdict MCDROPOUT_DISABLED_AT_INFERENCE
+
 # --- challenge card verifier ---
 check "challenge verify.sh passes" bash "$CH/verify.sh"
 

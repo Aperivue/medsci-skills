@@ -98,4 +98,34 @@ printf 'Three-class classification: one-vs-rest macro-averaged AUROC 0.90 and AU
 python3 "$DET" --report "$W/mc_ok.md" --task classification --out "$OUT" --quiet >/dev/null 2>&1
 check "FP: multiclass with one-vs-rest macro-average -> no MULTICLASS_NO_AVERAGING" no MULTICLASS_NO_AVERAGING
 
+# --- F3: false clearances of NO_BOUNDARY_METRIC / ACCURACY_ONLY ---
+# the Medical Segmentation Decathlon name 'MSD' is not mean surface distance
+printf 'We trained on the MSD liver task. Mean Dice was 0.91 (95%% CI 0.89-0.93).\n' > "$W/msd_ds.md"
+python3 "$DET" --report "$W/msd_ds.md" --task segmentation --out "$OUT" --quiet >/dev/null 2>&1
+check "F3: 'MSD liver task' (dataset) -> NO_BOUNDARY_METRIC" has NO_BOUNDARY_METRIC
+printf 'Dice 0.91 (95%% CI 0.89-0.93) and MSD 1.2 mm on the MSD liver task.\n' > "$W/msd_val.md"
+check "F3 control: 'MSD 1.2 mm' is a boundary metric (passes --strict)" ok0 "$W/msd_val.md" segmentation
+# a negation reaches every item of a coordinated list
+printf 'Dice was 0.91 (95%% CI 0.89-0.93). We did not compute the Hausdorff distance or HD95.\n' > "$W/neglist.md"
+python3 "$DET" --report "$W/neglist.md" --task segmentation --out "$OUT" --quiet >/dev/null 2>&1
+check "F3: 'did not compute the Hausdorff distance or HD95' -> NO_BOUNDARY_METRIC" has NO_BOUNDARY_METRIC
+printf 'We did not use pixel accuracy, Dice and HD95 were reported (95%% CI).\n' > "$W/neg_own.md"
+check "F3 control: negation does not reach an item with its own predicate" ok0 "$W/neg_own.md" segmentation
+# a negated sensitivity/specificity pair is not a threshold-pair report
+printf 'Accuracy was 92%% (95%% CI 90-94). Sensitivity and specificity were not reported.\n' > "$W/acc_negpair.md"
+python3 "$DET" --report "$W/acc_negpair.md" --task classification --out "$OUT" --quiet >/dev/null 2>&1
+check "F3: negated sens/spec -> ACCURACY_ONLY" has ACCURACY_ONLY
+printf 'Accuracy 92%%, sensitivity and specificity were 0.9 and 0.8 (95%% CI).\n' > "$W/acc_pair.md"
+check "F3 control: reported sens/spec pair clears ACCURACY_ONLY" ok0 "$W/acc_pair.md" classification
+
+# --- F4: false clearances of DETECTION_METRIC_MISSING ---
+printf 'Lesion-level sensitivity was 0.88 (95%% CI 0.84-0.91). Figure 3 shows a saliency map; a prediction counted as a hit when its overlap of the lesion was any.\n' > "$W/det_map.md"
+python3 "$DET" --report "$W/det_map.md" --task detection --out "$OUT" --quiet >/dev/null 2>&1
+check "F4: 'saliency map' is not mAP -> DETECTION_METRIC_MISSING" has DETECTION_METRIC_MISSING
+printf 'Patient-level sensitivity was 0.88. FROC analysis was not performed. IoU threshold 0.5.\n' > "$W/det_negfroc.md"
+python3 "$DET" --report "$W/det_negfroc.md" --task detection --out "$OUT" --quiet >/dev/null 2>&1
+check "F4: 'FROC analysis was not performed' -> DETECTION_METRIC_MISSING" has DETECTION_METRIC_MISSING
+printf 'mAP@0.5 was 0.71 (95%% CI 0.65-0.77) with IoU threshold 0.5.\n' > "$W/det_map_ok.md"
+check "F4 control: 'mAP@0.5' with IoU threshold passes --strict" ok0 "$W/det_map_ok.md" detection
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"; exit "$fail"
