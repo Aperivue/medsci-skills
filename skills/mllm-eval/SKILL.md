@@ -94,6 +94,9 @@ network-free). Reproducible challenge:
 **Known limits.** The gate checks that a term is present; it does not read negation. "No expert
 review" or "hallucination was not assessed" still counts as covering that axis, so read each
 cleared axis in the plan yourself before treating an exit 0 as clean.
+Some wrong senses still clear: "ground truth is the original report written by the attending
+radiologist" counts as a reference standard (no adjudication is implied), and "held out 10% of a
+public benchmark as an internal test set" counts as a contamination check because of "internal".
 
 ## Boundaries
 

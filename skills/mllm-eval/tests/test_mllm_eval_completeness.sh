@@ -67,6 +67,10 @@ sense "'held-out test split of MIMIC-CXR' (public)" CONTAMINATION_UNADDRESSED "$
   "We use the held-out test split of MIMIC-CXR."
 sense "'patient-level split prevented data leakage'" CONTAMINATION_UNADDRESSED "$BASE" "$REF" \
   "A patient-level split prevented data leakage."
+sense "'patient-level split prevented test-set leakage'" CONTAMINATION_UNADDRESSED "$BASE" "$REF" \
+  "A patient-level split prevented test-set leakage."
+sense "'to avoid test set leakage'" CONTAMINATION_UNADDRESSED "$BASE" "$REF" \
+  "Studies were split by patient to avoid test set leakage."
 sense "'green arrows' is not the GREEN metric" NGRAM_ONLY \
   "We evaluate on MIMIC-CXR with BLEU. Findings are shown with green arrows. A blinded reader study is performed. Hallucination rate is measured by atomic facts." \
   "$REF" "$CAN" "The prompt, temperature 0 and 3 runs are reported."
@@ -89,6 +93,7 @@ ctl "'ground truth annotated by radiologists'" "$BASE" "$CAN" "Ground truth labe
 ctl "'reference reports rewritten by radiologists'" "$BASE" "$CAN" "Reference reports were rewritten by three thoracic radiologists."
 ctl "'held-out internal test set'" "$BASE" "$REF" "Evaluation uses a held-out internal test set from our hospital."
 ctl "'data leakage into the pretraining corpus'" "$BASE" "$REF" "We checked for data leakage of the benchmark into the pretraining corpus."
+ctl "'benchmark leakage' (benchmark seen in training)" "$BASE" "$REF" "We assessed benchmark leakage for MIMIC-CXR."
 ctl "GREEN score / unsupported findings / nucleus sampling / variance" \
   "We evaluate on MIMIC-CXR with BLEU and the GREEN score. A blinded reader study is performed. Unsupported findings per report are counted." \
   "$REF" "$CAN" "The prompt, nucleus sampling settings and variance across runs are reported."

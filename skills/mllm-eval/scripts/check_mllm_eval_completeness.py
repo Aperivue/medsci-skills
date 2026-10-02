@@ -48,7 +48,8 @@ from pathlib import Path
 # concept -> regex of any phrasing that SATISFIES it (searched case-insensitively).
 # A bare word that also has an everyday meaning is not accepted on its own: "green arrows",
 # "unsupported image formats", "ground truth is the original report", "reference reports",
-# "a held-out test split" of a public benchmark, "patient-level data leakage", "random
+# "a held-out test split" of a public benchmark, "patient-level data leakage" or "test-set
+# leakage" (train/test overlap, not pretraining exposure), "random
 # sampling" and "bootstrap CIs" do not satisfy GREEN / faithfulness / reference standard /
 # contamination / decoding / multi-run. The gate does NOT understand negation ("no expert
 # review" still matches "expert review"); see SKILL.md -> Known limits.
@@ -73,7 +74,7 @@ SAT = {
                  r"public benchmark)\b",
     "contamination": r"\b(contaminat\w+|(?:training|pre-?training|knowledge)[- ]cut[- ]?off|"
                      r"post[- ]?cut[- ]?off|canary|memoris\w+|memoriz\w+|"
-                     r"(?:benchmark|test[- ]?set) (?:data )?leakage)\b"
+                     r"benchmark (?:data )?leakage)\b"
                      r"|\bheld[- ]?out\b[^.;\n]{0,60}\b" + _PRIVATE +
                      r"|\b" + _PRIVATE + r"\b[^.;\n]{0,60}\bheld[- ]?out\b"
                      r"|\b(?:data )?leakage\b[^.;\n]{0,60}\b" + _PRETRAIN +
