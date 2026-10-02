@@ -236,12 +236,14 @@ def _pre_negated(before: str) -> bool:
 
 def _is_subject(before: str) -> bool:
     """The concept heads the subject of its clause: only phrase words (or an adverb, or a
-    possessive) stand between it and the last comma / colon / parenthesis / clause start. So
-    "Reports with hallucination were not used for training" does not withdraw hallucination."""
+    possessive, or "and" inside a coordinated subject) stand between it and the last comma /
+    colon / parenthesis / clause start. So "Hallucination and expert review were not performed"
+    withdraws both, while "Reports with hallucination were not used for training" does not
+    withdraw hallucination."""
     seg = re.split(r"[,:()\[\]]", _mask_terms(before))[-1]
     for t in _TOK.findall(seg):
         tl = t.lower()
-        if not (tl == "\u00a7" or tl in _PHRASE or tl.endswith("ly")
+        if not (tl == "\u00a7" or tl in _PHRASE or tl == "and" or tl.endswith("ly")
                 or tl.endswith("'s") or tl.endswith("\u2019s")):
             return False
     return True

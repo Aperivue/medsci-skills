@@ -188,7 +188,8 @@ for pair in \
   "REFERENCE_STANDARD_MISSING|Expert review — not performed." \
   "REFERENCE_STANDARD_MISSING|We do not have an expert reference standard." \
   "CONTAMINATION_UNADDRESSED|Contamination (not assessed)." \
-  "READER_STUDY_MISSING|We did not perform any kind of formal blinded reader study."; do
+  "READER_STUDY_MISSING|We did not perform any kind of formal blinded reader study." \
+  "REFERENCE_STANDARD_MISSING|The reference standard and expert review were not performed."; do
   v="${pair%%|*}"; form="$(printf '%b' "${pair#*|}")"
   {
     printf '%s\n' "$BASE_ALL"
