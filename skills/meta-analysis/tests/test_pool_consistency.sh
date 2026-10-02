@@ -211,6 +211,26 @@ python3 "$SCRIPT" --lock "$TMP/c8/lock.yaml" --adjudication-tsv "$TMP/c8/r3.tsv"
     --out "$TMP/c8/report.json" --quiet
 assert_exit "case 8: consistent counts + hash (PASS)" 0 $?
 
+# Case 9 (negative control): two TSV rows for one UID that differ only in
+# wording on the same side of the pool ("EXCLUDE" / "EXCLUDE (duplicate)") are
+# not a conflicting decision => PASS
+mkdir -p "$TMP/c9"
+cat > "$TMP/c9/lock.yaml" <<'EOF'
+include_uids: [UID_001, UID_002]
+exclude_uids: [UID_004]
+mixed_uids: []
+EOF
+cat > "$TMP/c9/r3.tsv" <<'EOF'
+uid	round3_decision
+UID_001	INCLUDE
+UID_002	INCLUDE
+UID_004	EXCLUDE
+UID_004	EXCLUDE (duplicate)
+EOF
+python3 "$SCRIPT" --lock "$TMP/c9/lock.yaml" --adjudication-tsv "$TMP/c9/r3.tsv" \
+    --out "$TMP/c9/report.json" --quiet
+assert_exit "case 9: same-side wording difference (PASS)" 0 $?
+
 echo ""
 echo "ran=$ran fail=$fail"
 [[ $fail -eq 0 ]]

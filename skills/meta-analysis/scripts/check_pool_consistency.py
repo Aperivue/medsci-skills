@@ -200,10 +200,13 @@ def load_tsv_uids(
             if decision in label_set and uid:
                 uids.add(uid)
         if conflicts is not None:
-            # One UID, two different adjudication decisions: the sheet cannot say
-            # whether the study is in the pool, whatever set comparison then shows.
+            # One UID, rows that disagree on pool membership (one decision in the
+            # label set, another not): the sheet cannot say whether the study is in
+            # the pool, whatever set comparison then shows. Rows that differ only
+            # in wording on the same side ("EXCLUDE" / "EXCLUDE (duplicate)") are
+            # not a conflict.
             for uid, decs in seen.items():
-                if len(decs) > 1:
+                if len({d in label_set for d in decs}) > 1:
                     conflicts[uid] = sorted(decs)
         return uids
 

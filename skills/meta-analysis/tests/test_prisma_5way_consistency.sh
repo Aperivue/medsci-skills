@@ -9,6 +9,8 @@
 #      12, but k = 13), and every surface faithfully repeats the wrong k.
 #   C. a search CSV with a quoted multi-line abstract: 2 records, 3 data lines;
 #      line counting matched an SSOT total of 3.
+#   D-G: see each block. D and F1/F2/F4/F6 are negative controls for false
+#   flags the first version of this fix introduced (bullet lists, two-column flows).
 # The negative control is a consistent PRISMA flow whose prose also carries
 # decoy numbers (follow-up months, a table number, a citation, "1,500") and a
 # multi-line CSV record; it must stay clean.
@@ -140,6 +142,93 @@ wrong outcome 20, wrong study design 10). Fifteen (15) studies were included
 EOF
 python3 "$SCRIPT" --ssot "$TMP/n/prisma.yaml" --project-root "$TMP/n" --json > "$TMP/n/out.json"
 assert_exit "negative: consistent flow with decoy numbers (PASS)" 0 $?
+
+# --------------------------------------------------------------------------
+# D (negative): a Markdown bullet list. The unit lookahead used to cross the
+# newline and read the next bullet's "- Years" as a unit on 12 ("12-years").
+# --------------------------------------------------------------------------
+mkdir -p "$TMP/d/7_Manuscript"
+cat > "$TMP/d/prisma.yaml" <<'EOF'
+included: {k: 12}
+surfaces:
+  methods_md: {path: "7_Manuscript/methods.md", require: ["included.k"]}
+EOF
+for nxt in "- Years covered: 2000 to 2020" "- Days to follow-up: 30" "- Months: n/a" "* Hours: 4" "d Other"; do
+    printf -- '- Studies included: 12\n%s\n' "$nxt" > "$TMP/d/7_Manuscript/methods.md"
+    python3 "$SCRIPT" --ssot "$TMP/d/prisma.yaml" --project-root "$TMP/d" --json > "$TMP/d/out.json"
+    assert_exit "D: count at line end, next line '$nxt' (PASS)" 0 $?
+done
+
+# --------------------------------------------------------------------------
+# E: en / em dash units ("12–month") are units, like "12-month".
+# --------------------------------------------------------------------------
+mkdir -p "$TMP/e/7_Manuscript"
+cp "$TMP/d/prisma.yaml" "$TMP/e/prisma.yaml"
+for txt in "Nine studies; a 12–month follow-up." "Nine studies; a 12—month follow-up." "Nine studies; a 12 – year span."; do
+    printf '%s\n' "$txt" > "$TMP/e/7_Manuscript/methods.md"
+    python3 "$SCRIPT" --ssot "$TMP/e/prisma.yaml" --project-root "$TMP/e" --json > "$TMP/e/out.json"
+    assert_exit "E: k matched only by '$txt' (FAIL)" 1 $?
+done
+
+# --------------------------------------------------------------------------
+# F: PRISMA 2020 two-column flow. 90 after dedup - 70 TA-excluded = 20 database
+# reports, plus 5 from citation searching = 25 assessed.
+#   F1 (negative): other_methods_assessed undeclared -> the identity cannot be
+#       decided; NOT_ASSESSED, exit 0 (round 1 failed it, 20 vs 25).
+#   F2 (negative): declared 5 -> OK.
+#   F3 (positive): declared 2 -> FAIL (22 vs 25).
+#   F4 (negative): 2 reports not retrieved, key undeclared -> NOT_ASSESSED.
+#   F5 (positive): reports_not_retrieved declared 0 but the gap is 2 -> FAIL.
+#   F6 (negative): 25 - 13 = 12 reports for k = 10 studies; included.reports
+#       undeclared -> NOT_ASSESSED, declared 12 -> OK.
+# --------------------------------------------------------------------------
+mkdir -p "$TMP/f"
+run_flow() {  # run_flow LABEL EXPECTED_EXIT IDENTITY_PREFIX EXPECTED_STATUS YAML
+    printf '%s\n' "$5" > "$TMP/f/prisma.yaml"
+    python3 "$SCRIPT" --ssot "$TMP/f/prisma.yaml" --project-root "$TMP/f" --json > "$TMP/f/out.json"
+    assert_exit "$1" "$2" $?
+    python3 - "$TMP/f/out.json" "$3" "$4" <<'PY' || { echo "  FAIL  $1: identity status"; fail=$((fail + 1)); }
+import json, sys
+r = json.load(open(sys.argv[1]))
+rows = [c for c in r["flow_identities"] if c["identity"].startswith(sys.argv[2])]
+assert len(rows) == 1 and rows[0]["status"] == sys.argv[3], r["flow_identities"]
+PY
+}
+run_flow "F1: other-methods reports, key undeclared (NOT_ASSESSED)" 0 "after_dedup" NOT_ASSESSED \
+'deduplication: {after_dedup: 90}
+screening: {title_abstract_excluded: 70, full_text_assessed: 25, full_text_excluded: 15}
+included: {k: 10}'
+run_flow "F2: other_methods_assessed 5 declared (PASS)" 0 "after_dedup" OK \
+'deduplication: {after_dedup: 90}
+screening: {title_abstract_excluded: 70, full_text_assessed: 25, full_text_excluded: 15, other_methods_assessed: 5}
+included: {k: 10}'
+run_flow "F3: other_methods_assessed 2 declared, gap 5 (FAIL)" 1 "after_dedup" FAIL \
+'deduplication: {after_dedup: 90}
+screening: {title_abstract_excluded: 70, full_text_assessed: 25, full_text_excluded: 15, other_methods_assessed: 2}
+included: {k: 10}'
+run_flow "F4: reports not retrieved, key undeclared (NOT_ASSESSED)" 0 "after_dedup" NOT_ASSESSED \
+'deduplication: {after_dedup: 90}
+screening: {title_abstract_excluded: 70, full_text_assessed: 18, full_text_excluded: 8}
+included: {k: 10}'
+run_flow "F5: reports_not_retrieved 0 declared, gap 2 (FAIL)" 1 "after_dedup" FAIL \
+'deduplication: {after_dedup: 90}
+screening: {title_abstract_excluded: 70, full_text_assessed: 18, full_text_excluded: 8, reports_not_retrieved: 0}
+included: {k: 10}'
+run_flow "F6a: 12 reports vs k 10, reports undeclared (NOT_ASSESSED)" 0 "full_text_assessed" NOT_ASSESSED \
+'screening: {full_text_assessed: 25, full_text_excluded: 13}
+included: {k: 10}'
+run_flow "F6b: included.reports 12 declared (PASS)" 0 "full_text_assessed" OK \
+'screening: {full_text_assessed: 25, full_text_excluded: 13}
+included: {k: 10, reports: 12}'
+
+# --------------------------------------------------------------------------
+# G: a non-numeric SSOT count is a clean exit 2, not a traceback.
+# --------------------------------------------------------------------------
+mkdir -p "$TMP/g"
+printf 'screening: {full_text_assessed: "about 25", full_text_excluded: 13}\nincluded: {k: 10}\n' > "$TMP/g/prisma.yaml"
+python3 "$SCRIPT" --ssot "$TMP/g/prisma.yaml" --project-root "$TMP/g" > /dev/null 2> "$TMP/g/err"
+assert_exit "G: non-numeric SSOT count (exit 2)" 2 $?
+if grep -q Traceback "$TMP/g/err"; then echo "  FAIL  G: traceback"; fail=$((fail + 1)); fi
 
 echo ""
 echo "ran=$ran fail=$fail"

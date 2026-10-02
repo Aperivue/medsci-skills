@@ -150,4 +150,40 @@ assert d["blocking_issues"] == [], d["blocking_issues"]
 assert sorted(d["sets"]["qualitative"]) == ["Smith2020_1", "Smith2020_2"], d["sets"]["qualitative"]
 PY
 
-echo "PASS: test_screening_reconcile.sh (positive + 2 negatives; F1 labels x2, F2 IDs + negative)"
+# ------------------- positive: unadjudicated labels must not read as exclude (R2)
+# The leading-word rule once accepted any EXCLUDE value as a leading word, so a
+# consensus label "No decision yet" (leading word "no") or "N/A" (leading "n")
+# moved a screened include into consensus_exclude: the study dropped out of
+# qualitative and the run exited 0. yes/no/y/n/1/0 now count only as the whole
+# label; each of these must stop the run (exit 2) and name the label.
+for lab in "No decision yet" "No consensus" "N/A" "N/A - full text pending" "0 - pending" "Yes (pending)" "Y/N"; do
+  printf 'id\tdecision\n1\tinclude\n2\tinclude\n' > "$TMP/s_pend.tsv"
+  printf 'id\tdecision\n1\tinclude\n2\t%s\n' "$lab" > "$TMP/c_pend.tsv"
+  set +e
+  python3 "$RECONCILE" --screening "$TMP/s_pend.tsv" --consensus "$TMP/c_pend.tsv" \
+    --output "$TMP/pend.json" > /dev/null 2> "$TMP/pend.err"
+  rc=$?
+  set -e
+  [ "$rc" -eq 2 ] || fail "unadjudicated label '$lab': expected exit 2, got $rc"
+  grep -qF "$lab" "$TMP/pend.err" || fail "unadjudicated label '$lab': error does not name it"
+done
+
+# ------------------------- negative: bare whole-label y/n/1/0/yes/no still work
+printf 'id\tdecision\n1\tY\n2\t1\n3\tyes\n4\tn\n5\t0\n6\tNo\n' > "$TMP/s_bare.tsv"
+printf 'id\tdecision\n1\ty\n2\tTRUE\n3\tno\n'                    > "$TMP/c_bare.tsv"
+set +e
+python3 "$RECONCILE" --screening "$TMP/s_bare.tsv" --consensus "$TMP/c_bare.tsv" \
+  --output "$TMP/bare.json" > /dev/null
+rc=$?
+set -e
+[ "$rc" -eq 0 ] || fail "bare labels negative: expected exit 0, got $rc (false positive)"
+python3 - "$TMP/bare.json" <<'PY' || fail "bare labels negative: misclassified"
+import json, sys
+d = json.load(open(sys.argv[1]))
+assert d["sets"]["screening_include"] == ["1", "2", "3"], d["sets"]
+assert d["sets"]["consensus_exclude"] == ["3"], d["sets"]
+assert d["sets"]["qualitative"] == ["1", "2"], d["sets"]
+assert d["blocking_issues"] == [], d["blocking_issues"]
+PY
+
+echo "PASS: test_screening_reconcile.sh (positive + 3 negatives; F1 labels x2, F2 IDs + negative, R2 unadjudicated labels x7)"

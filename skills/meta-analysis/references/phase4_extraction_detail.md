@@ -52,7 +52,7 @@ The gate fails closed: any UID disagreement blocks extraction. So does a
 lock that contradicts itself (`final_pool_n` / `include_count` /
 `exclude_count` / `mixed_count` not equal to the UID lists, a non-empty
 `sha256` that does not match them, a UID filed under two decisions) and a
-TSV that gives one UID two different decisions. To
+TSV whose rows for one UID disagree on pool membership. To
 resolve, either (a) re-freeze the lock with the corrected set of UIDs
 and propagate to downstream artifacts, or (b) correct the adjudication
 TSV if a row was mis-labeled. Do NOT proceed to Phase 4 with a

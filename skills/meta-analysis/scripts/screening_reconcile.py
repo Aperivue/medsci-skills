@@ -18,6 +18,12 @@ from pathlib import Path
 
 INCLUDE_VALUES = {"include", "included", "yes", "y", "1", "true", "eligible", "include-qualitative"}
 EXCLUDE_VALUES = {"exclude", "excluded", "no", "n", "0", "false", "ineligible"}
+# Only these words decide a label when they LEAD a longer label
+# ("Exclude: wrong study type", "Excluded - not eligible"). yes/no/y/n/1/0/
+# true/false count only as the whole label: "No decision yet", "No consensus",
+# "0 - pending", "N/A" and "Yes (pending)" are not adjudications.
+LEADING_INCLUDE = {"include", "included", "eligible"}
+LEADING_EXCLUDE = {"exclude", "excluded", "ineligible"}
 
 
 def read_table(path: Path) -> list[dict[str, str]]:
@@ -52,21 +58,27 @@ def norm_id(value: str) -> str:
 def decision_kind(value: str) -> str:
     """Classify a decision label by EXACT token, never by substring.
 
-    The whole normalized label is tried first (`include-qualitative`), then its
-    leading word (`Exclude: wrong study type` -> `exclude`). A substring test would
-    read `y`/`1`/`eligible` inside `Exclude: wrong study type` or `ineligible` and
-    count an excluded record as included. Anything else is `unknown` -- the caller
-    refuses to reconcile rather than guess.
+    The whole normalized label is tried first (`include-qualitative`, `no`, `Y`).
+    Only an unambiguous decision word may decide a longer label as its leading
+    word (`Exclude: wrong study type` -> `exclude`); yes/no/y/n/1/0/true/false
+    must be the whole label, so `No decision yet` or `N/A` is not an exclusion.
+    A substring test would read `y`/`1`/`eligible` inside `Exclude: wrong study
+    type` or `ineligible` and count an excluded record as included. Anything
+    else is `unknown` -- the caller refuses to reconcile rather than guess.
     """
-    v = value.strip().lower()
+    v = " ".join(value.split()).lower()
     if not v:
         return "unknown"
+    if v in INCLUDE_VALUES:
+        return "include"
+    if v in EXCLUDE_VALUES:
+        return "exclude"
     lead = re.match(r"[a-z0-9]+", v)
-    for candidate in (v, lead.group(0) if lead else ""):
-        if candidate in INCLUDE_VALUES:
-            return "include"
-        if candidate in EXCLUDE_VALUES:
-            return "exclude"
+    word = lead.group(0) if lead else ""
+    if word in LEADING_INCLUDE:
+        return "include"
+    if word in LEADING_EXCLUDE:
+        return "exclude"
     return "unknown"
 
 
@@ -111,8 +123,10 @@ def ids_from_table(
         detail = "; ".join(f"{label!r} (ids: {', '.join(v[:5])}{', ...' if len(v) > 5 else ''})"
                            for label, v in sorted(unrecognized.items()))
         raise UnrecognizedDecisions(
-            f"{path}: unrecognized decision label(s): {detail}. Accepted (exact, or as the "
-            f"leading word): include={sorted(INCLUDE_VALUES)} exclude={sorted(EXCLUDE_VALUES)}"
+            f"{path}: unrecognized decision label(s): {detail}. Accepted as the whole label: "
+            f"include={sorted(INCLUDE_VALUES)} exclude={sorted(EXCLUDE_VALUES)}; as the leading "
+            f"word of a longer label: include={sorted(LEADING_INCLUDE)} "
+            f"exclude={sorted(LEADING_EXCLUDE)}"
         )
     return ids, decisions
 
