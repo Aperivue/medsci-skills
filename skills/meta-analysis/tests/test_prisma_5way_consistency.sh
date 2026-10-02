@@ -4,17 +4,17 @@
 # Each positive fixture isolates one false clearance the checker used to give
 # (exit 0, "PASS"):
 #   A. included.k = 12 "found" in methods.md because of "Follow-up was 12 months",
-#      while the text actually reports nine studies.
+#      while the text actually reports nine studies. The checker does not try to
+#      tell a count from a duration in prose; it must report the surface
+#      NOT_ASSESSED (never PASS / OK), and exit 3 under --strict.
 #   B. the SSOT's own flow arithmetic is impossible (15 assessed - 3 excluded is
 #      12, but k = 13), and every surface faithfully repeats the wrong k.
 #   C. a search CSV with a quoted multi-line abstract: 2 records, 3 data lines;
 #      line counting matched an SSOT total of 3.
-#   D-I: see each block. D, F1/F2/F4/F6 and H are negative controls for false
-#   flags earlier versions of this fix introduced (bullet lists, two-column
-#   flows, hyphenated clinical terms such as D-dimer or Y-90).
-# The negative control is a consistent PRISMA flow whose prose also carries
-# decoy numbers (follow-up months, a table number, a citation, "1,500") and a
-# multi-line CSV record; it must stay clean.
+#   F, G: see each block (F1/F2/F4/F6 are negative controls for two-column flows).
+# Negative controls: a consistent PRISMA flow whose prose carries "1,500" and a
+# multi-line CSV record (exit 0, no mismatch), and a structured-only SSOT with
+# no prose surface (verdict PASS, exit 0 even under --strict).
 
 set -uo pipefail
 
@@ -68,11 +68,33 @@ surfaces:
 EOF
 echo "Nine (9) studies were included. Follow-up was 12 months." > "$TMP/a/7_Manuscript/methods.md"
 python3 "$SCRIPT" --ssot "$TMP/a/prisma.yaml" --project-root "$TMP/a" --json > "$TMP/a/out.json"
-assert_exit "A: k matched only by '12 months' (FAIL)" 1 $?
-python3 - "$TMP/a/out.json" <<'PY' || fail=$((fail + 1))
+assert_exit "A: k present only as '12 months' (no mismatch, exit 0)" 0 $?
+python3 - "$TMP/a/out.json" <<'PY' || { echo "  FAIL  A: surface must be NOT_ASSESSED"; fail=$((fail + 1)); }
+import json, sys
+r = json.load(open(sys.argv[1]))
+s = r["surfaces"]["methods_md"]
+assert s["status"] == "NOT_ASSESSED", s
+assert s["present_not_verified_as_count"] == ["included.k"], s
+assert r["verdict"] == "NOT_ASSESSED", r["verdict"]
+assert any(m.startswith("methods_md:") for m in r["not_assessed"]), r["not_assessed"]
+PY
+python3 "$SCRIPT" --ssot "$TMP/a/prisma.yaml" --project-root "$TMP/a" > "$TMP/a/out.txt"
+assert_exit "A: text mode exit 0" 0 $?
+if grep -q "PASS" "$TMP/a/out.txt" || ! grep -q "NOT_ASSESSED" "$TMP/a/out.txt"; then
+    echo "  FAIL  A: text output must say NOT_ASSESSED, never PASS"; fail=$((fail + 1))
+fi
+python3 "$SCRIPT" --ssot "$TMP/a/prisma.yaml" --project-root "$TMP/a" --strict > /dev/null
+assert_exit "A: --strict, prose surface NOT_ASSESSED (exit 3)" 3 $?
+
+# A2: k absent from the surface altogether -> FAIL (unchanged from main).
+echo "Nine (9) studies were included. Follow-up was 6 months." > "$TMP/a/7_Manuscript/methods.md"
+python3 "$SCRIPT" --ssot "$TMP/a/prisma.yaml" --project-root "$TMP/a" --json > "$TMP/a/out2.json"
+assert_exit "A2: k absent from methods.md (FAIL)" 1 $?
+python3 - "$TMP/a/out2.json" <<'PY' || fail=$((fail + 1))
 import json, sys
 r = json.load(open(sys.argv[1]))
 assert r["surfaces"]["methods_md"]["missing_numbers"] == ["included.k"], r
+assert r["verdict"] == "FAIL", r["verdict"]
 PY
 
 # --------------------------------------------------------------------------
@@ -142,34 +164,35 @@ wrong outcome 20, wrong study design 10). Fifteen (15) studies were included
 (Table 2) [12], with median follow-up of 24 months.
 EOF
 python3 "$SCRIPT" --ssot "$TMP/n/prisma.yaml" --project-root "$TMP/n" --json > "$TMP/n/out.json"
-assert_exit "negative: consistent flow with decoy numbers (PASS)" 0 $?
+assert_exit "negative: consistent flow, '1,500' form (no mismatch)" 0 $?
+python3 - "$TMP/n/out.json" <<'PY' || { echo "  FAIL  negative: report"; fail=$((fail + 1)); }
+import json, sys
+r = json.load(open(sys.argv[1]))
+assert r["mismatches"] == [], r["mismatches"]
+assert all(c["status"] == "OK" for c in r["flow_identities"]), r["flow_identities"]
+assert r["surfaces"]["search_csv"]["ok"] is True, r["surfaces"]["search_csv"]
+assert r["surfaces"]["results_md"]["status"] == "NOT_ASSESSED", r["surfaces"]["results_md"]
+PY
 
-# --------------------------------------------------------------------------
-# D (negative): a Markdown bullet list. The unit lookahead used to cross the
-# newline and read the next bullet's "- Years" as a unit on 12 ("12-years").
-# --------------------------------------------------------------------------
-mkdir -p "$TMP/d/7_Manuscript"
-cat > "$TMP/d/prisma.yaml" <<'EOF'
+# Negative control for --strict: structured surfaces only (flow + CSV), all OK.
+mkdir -p "$TMP/p"
+write_csv "$TMP/p" 20
+cat > "$TMP/p/prisma.yaml" <<'EOF'
+databases: {pubmed: 20}
+deduplication: {after_dedup: 20}
+screening: {title_abstract_excluded: 5, full_text_assessed: 15, full_text_excluded: 3, reports_not_retrieved: 0, other_methods_assessed: 0}
 included: {k: 12}
+exclusion_reasons: {wrong_population: 3}
 surfaces:
-  methods_md: {path: "7_Manuscript/methods.md", require: ["included.k"]}
+  search_csv_glob: "1_Search/*.csv"
 EOF
-for nxt in "- Years covered: 2000 to 2020" "- Days to follow-up: 30" "- Months: n/a" "* Hours: 4" "d Other"; do
-    printf -- '- Studies included: 12\n%s\n' "$nxt" > "$TMP/d/7_Manuscript/methods.md"
-    python3 "$SCRIPT" --ssot "$TMP/d/prisma.yaml" --project-root "$TMP/d" --json > "$TMP/d/out.json"
-    assert_exit "D: count at line end, next line '$nxt' (PASS)" 0 $?
-done
-
-# --------------------------------------------------------------------------
-# E: en / em dash units ("12–month") are units, like "12-month".
-# --------------------------------------------------------------------------
-mkdir -p "$TMP/e/7_Manuscript"
-cp "$TMP/d/prisma.yaml" "$TMP/e/prisma.yaml"
-for txt in "Nine studies; a 12–month follow-up." "Nine studies; a 12—month follow-up." "Nine studies; a 12 – year span."; do
-    printf '%s\n' "$txt" > "$TMP/e/7_Manuscript/methods.md"
-    python3 "$SCRIPT" --ssot "$TMP/e/prisma.yaml" --project-root "$TMP/e" --json > "$TMP/e/out.json"
-    assert_exit "E: k matched only by '$txt' (FAIL)" 1 $?
-done
+python3 "$SCRIPT" --ssot "$TMP/p/prisma.yaml" --project-root "$TMP/p" --strict --json > "$TMP/p/out.json"
+assert_exit "negative: structured-only SSOT, --strict (PASS)" 0 $?
+python3 - "$TMP/p/out.json" <<'PY' || { echo "  FAIL  negative: verdict PASS"; fail=$((fail + 1)); }
+import json, sys
+r = json.load(open(sys.argv[1]))
+assert r["verdict"] == "PASS" and r["not_assessed"] == [], r
+PY
 
 # --------------------------------------------------------------------------
 # F: PRISMA 2020 two-column flow. 90 after dedup - 70 TA-excluded = 20 database
@@ -199,6 +222,8 @@ run_flow "F1: other-methods reports, key undeclared (NOT_ASSESSED)" 0 "after_ded
 'deduplication: {after_dedup: 90}
 screening: {title_abstract_excluded: 70, full_text_assessed: 25, full_text_excluded: 15}
 included: {k: 10}'
+python3 "$SCRIPT" --ssot "$TMP/f/prisma.yaml" --project-root "$TMP/f" --strict > /dev/null
+assert_exit "F1: --strict, identity NOT_ASSESSED (exit 3)" 3 $?
 run_flow "F2: other_methods_assessed 5 declared (PASS)" 0 "after_dedup" OK \
 'deduplication: {after_dedup: 90}
 screening: {title_abstract_excluded: 70, full_text_assessed: 25, full_text_excluded: 15, other_methods_assessed: 5}
@@ -230,39 +255,6 @@ printf 'screening: {full_text_assessed: "about 25", full_text_excluded: 13}\ninc
 python3 "$SCRIPT" --ssot "$TMP/g/prisma.yaml" --project-root "$TMP/g" > /dev/null 2> "$TMP/g/err"
 assert_exit "G: non-numeric SSOT count (exit 2)" 2 $?
 if grep -q Traceback "$TMP/g/err"; then echo "  FAIL  G: traceback"; fail=$((fail + 1)); fi
-
-# --------------------------------------------------------------------------
-# H (negative): a count followed by a clinical term that starts with a
-# single-letter "unit" and then "-" or ".". Round 2 read the letter as a unit
-# (d, g, s, h, y, l, m) and reported the stated k missing.
-# --------------------------------------------------------------------------
-mkdir -p "$TMP/h/7_Manuscript"
-cp "$TMP/d/prisma.yaml" "$TMP/h/prisma.yaml"
-for txt in "12 D-dimer studies were included." "12 G-tube trials were included." \
-           "12 S-ketamine trials were included." "12 H. pylori trials were included." \
-           "12 Y-90 radioembolization studies were included." "12 L-dopa trials were included." \
-           "12 m-Health studies were included." "12 G-CSF trials were included." \
-           "12 S. aureus studies were included." "12 d-amphetamine trials were included."; do
-    printf '%s\n' "$txt" > "$TMP/h/7_Manuscript/methods.md"
-    python3 "$SCRIPT" --ssot "$TMP/h/prisma.yaml" --project-root "$TMP/h" --json > "$TMP/h/out.json"
-    assert_exit "H: '$txt' states k (PASS)" 0 $?
-done
-
-# --------------------------------------------------------------------------
-# I: k appears only as a measurement; must stay a FAIL. Covers short units at
-# a sentence or line end and a non-breaking space (U+00A0 / U+202F) before the
-# unit, which a Word or pandoc conversion produces.
-# --------------------------------------------------------------------------
-mkdir -p "$TMP/i/7_Manuscript"
-cp "$TMP/d/prisma.yaml" "$TMP/i/prisma.yaml"
-for txt in "Nine studies. Follow-up was 12 y." "Nine studies; median follow-up 12 y" \
-           "Nine studies; follow-up 12 mo." "Nine studies; a 12-d course." \
-           "Nine studies; 12 h after dosing, then" "Nine studies; 12 mL bolus." \
-           $'Nine studies. Follow-up was 12\xc2\xa0months.' $'Nine studies; 12\xe2\x80\xaf% lost.'; do
-    printf '%s\n' "$txt" > "$TMP/i/7_Manuscript/methods.md"
-    python3 "$SCRIPT" --ssot "$TMP/i/prisma.yaml" --project-root "$TMP/i" --json > "$TMP/i/out.json"
-    assert_exit "I: k matched only by '$txt' (FAIL)" 1 $?
-done
 
 echo ""
 echo "ran=$ran fail=$fail"

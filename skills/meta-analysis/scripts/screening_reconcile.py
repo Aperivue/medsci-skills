@@ -69,6 +69,10 @@ def decision_kind(value: str) -> str:
     v = " ".join(value.split()).lower()
     if not v:
         return "unknown"
+    # A 0/1 column read through pandas or Excel as floats is written "1.0"/"0.0".
+    num = re.fullmatch(r"([01])\.0+", v)
+    if num:
+        v = num.group(1)
     if v in INCLUDE_VALUES:
         return "include"
     if v in EXCLUDE_VALUES:
@@ -80,6 +84,37 @@ def decision_kind(value: str) -> str:
     if word in LEADING_EXCLUDE:
         return "exclude"
     return "unknown"
+
+
+def digit_key(value: str) -> str:
+    """First digit run of an ID (`Study 1` -> `1`), else the ID itself."""
+    match = re.search(r"\d+", value)
+    return match.group(0) if match else value
+
+
+def match_table1_ids(table1_ids: set[str], qualitative: set[str]) -> tuple[set[str], dict[str, str]]:
+    """Map Table 1 IDs onto qualitative IDs. A verbatim match wins. Otherwise a
+    Table 1 ID is matched by its first digit run (`Study 1` -> `1`, the matching
+    every table used before IDs became verbatim) only when exactly one
+    qualitative ID has that digit run; an ambiguous or absent digit run leaves
+    the ID unmatched, so it is reported rather than silently merged. Returns the
+    mapped set and the {table1_id: qualitative_id} pairs matched by digit run."""
+    by_key: dict[str, list[str]] = {}
+    for q in qualitative:
+        by_key.setdefault(digit_key(q), []).append(q)
+    mapped: set[str] = set()
+    via_digits: dict[str, str] = {}
+    for t in table1_ids:
+        if t in qualitative:
+            mapped.add(t)
+            continue
+        cands = by_key.get(digit_key(t), [])
+        if len(cands) == 1:
+            mapped.add(cands[0])
+            via_digits[t] = cands[0]
+        else:
+            mapped.add(t)
+    return mapped, via_digits
 
 
 class UnrecognizedDecisions(ValueError):
@@ -173,7 +208,7 @@ def main() -> int:
         table1_ids = set()
 
     qualitative = (screening_include - consensus_exclude) | consensus_include
-    bivariate = table1_ids
+    bivariate, table1_matched_by_digits = match_table1_ids(table1_ids, qualitative)
     narrative_only = qualitative - bivariate
 
     # A record that passed screening and was EXCLUDED at consensus carries a decision.
@@ -218,6 +253,7 @@ def main() -> int:
             "k_narrative_only_unadjudicated": len(narrative_only_unadjudicated),
             "k_stage_transfer_loss": len(stage_transfer_loss),
         },
+        "table1_matched_by_digit_run": {t: table1_matched_by_digits[t] for t in sorted(table1_matched_by_digits)},
         "blocking_issues": [],
     }
 

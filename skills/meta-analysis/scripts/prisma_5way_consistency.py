@@ -52,6 +52,9 @@ Optional SSOT keys used only by the flow-identity checks:
     included.reports                  reports of included studies, when one
                                       study has several reports (else k is used)
   Declare a key as 0 when it does not apply; that makes the identity strict.
+  Like every screening.* key, a declared key is also a number a bare-path
+  surface (one without `require`) must contain; list `require` explicitly on
+  surfaces that do not state it.
 
 What is checked
   1. Flow identities on the SSOT itself (each only when its keys are present):
@@ -68,16 +71,17 @@ What is checked
          have several reports). assessed - excluded < k is always a failure.
   2. search_csv: CSV *records* (csv module; a quoted multi-line abstract is one
      record) across the glob = sum(databases).
-  3. Each Markdown surface contains each required number AS A COUNT: not a
-     decimal fragment ("3.12"), not part of a larger number ("1,500" for 500),
-     not followed by a unit ("12 months", "12-month", "12%"), and not a table /
-     figure / citation number ("Table 12", "[12]"). "1,500" matches 1500.
-     The unit test looks only along the same line (a following Markdown
-     bullet "- Years ..." is not a unit) and accepts "-", en and em dashes.
-     This is still presence, not proof that the sentence states that count.
+  3. Each Markdown surface: a required number that does not occur at all is a
+     FAIL (it cannot be stated there). A number that does occur is only
+     PRESENT: prose cannot be parsed into "this is the count of included
+     studies" ("12 months", "Table 12" and "12 studies" all contain 12), so the
+     surface is reported NOT_ASSESSED, never OK. Read those sentences yourself.
+     "1,500" is accepted as an occurrence of 1500.
 
-Exit codes: 0 all-consistent (NOT_ASSESSED identities do not fail the run),
-1 mismatch, 2 bad args / missing ssot / non-numeric SSOT count.
+Exit codes: 0 no mismatch (verdict PASS, or NOT_ASSESSED when a flow identity
+or a prose surface could not be assessed -- the report lists each one),
+1 mismatch, 2 bad args / missing ssot / non-numeric SSOT count,
+3 --strict and something was NOT_ASSESSED.
 """
 
 from __future__ import annotations
@@ -129,62 +133,25 @@ def count_csv_rows(csv_glob: str, project_root: Path) -> int:
     return total
 
 
-# A number followed by one of these is a measurement, not a PRISMA count.
-# "[^\S\r\n]" is any whitespace except a line break (so a non-breaking space
-# from a Word/pandoc conversion still joins "12" to "months", but the next
-# bullet's "- Years" on a new line does not).
-_HSPACE = r"[^\S\r\n]"
-# Multi-letter units: case-insensitive, end at a word boundary.
-_LONG_UNITS = (
-    r"(?:months?|years?-old|year-old|years?|yrs?|weeks?|wks?|days?|hours?|hrs?|"
-    r"minutes?|mins?|seconds?|mg|kg|mcg|µg|ml|cm|mm|kDa|Gy|mmHg|bpm|fold|times)\b"
-)
-# One- and two-letter units are lower case (plus "L" for litre) and count only
-# when the token ends there: not followed by a letter or digit, by "-" or "."
-# then a letter or digit, or by ". " then a lower-case word. Otherwise
-# "12 D-dimer", "12 G-tube", "12 S-ketamine", "12 H. pylori", "12 Y-90",
-# "12 L-dopa", "12 m-Health" and "G-CSF" would read as measurements and hide
-# the count they state.
-_SHORT_UNITS = (
-    r"(?-i:mo|y|d|h|s|m|g|l|L)"
-    r"(?![\w])(?![-.\u2013\u2014]\w)(?!\.[^\S\r\n]+[a-z])"
-)
-_UNIT_RE = (
-    rf"(?:%|percent\b|per{_HSPACE}*cent\b|"
-    rf"(?:[-\u2013\u2014]{_HSPACE}*|{_HSPACE}+)?(?:{_LONG_UNITS}|{_SHORT_UNITS}))"
-)
-# A number preceded by one of these labels something else (a table, a citation).
-_LABEL_BEFORE_RE = re.compile(
-    r"(?:\b(?:table|tables|figure|figures|fig\.?|supplementary|appendix|item|items|"
-    r"ref\.?|refs\.?|reference|references|version|v)\s*|\[[\d,\s\u2013-]*|\^)$",
-    re.IGNORECASE,
-)
-
-
-def _count_pattern(val: int) -> re.Pattern:
+def number_present(text: str, val: int) -> bool:
+    """True when `val` occurs as a digit run in `text` (the boundary main always
+    used: not preceded or followed by another digit), or in its thousands-
+    separated form ("1,500" for 1500). This is PRESENCE only. Whether that
+    occurrence is the PRISMA count ("12 studies") or something else ("12
+    months", "Table 12") is not decided here -- no prose heuristic can decide it
+    reliably -- so a present number is reported NOT_ASSESSED, never OK."""
     forms = [str(val)]
     if abs(val) >= 1000:
         forms.append(f"{val:,}")
     alts = "|".join(re.escape(f) for f in sorted(forms, key=len, reverse=True))
-    return re.compile(
-        rf"(?<![\d.,])(?:{alts})(?!\d)(?!\.\d)(?!,\d{{3}})(?!{_HSPACE}*{_UNIT_RE})",
-        re.IGNORECASE,
-    )
-
-
-def number_present_as_count(text: str, val: int) -> bool:
-    for m in _count_pattern(val).finditer(text):
-        if _LABEL_BEFORE_RE.search(text[max(0, m.start() - 20):m.start()]):
-            continue
-        return True
-    return False
+    return re.search(rf"(?<!\d)(?:{alts})(?!\d)", text) is not None
 
 
 def find_numbers_in_file(path: Path, expected: dict[str, int]) -> dict[str, bool]:
     if not path.exists():
         return {k: False for k in expected}
     text = path.read_text(encoding="utf-8")
-    return {key: number_present_as_count(text, val) for key, val in expected.items()}
+    return {key: number_present(text, val) for key, val in expected.items()}
 
 
 def flow_identity_checks(ssot: dict[str, Any]) -> list[dict[str, Any]]:
@@ -267,6 +234,8 @@ def main() -> int:
     ap.add_argument("--ssot", required=True, help="YAML single source of truth")
     ap.add_argument("--project-root", default=".", help="Project root (default: cwd)")
     ap.add_argument("--json", action="store_true", help="Emit JSON report")
+    ap.add_argument("--strict", action="store_true",
+                    help="Exit 3 when any check is NOT_ASSESSED (prose surface or flow identity)")
     args = ap.parse_args()
 
     ssot_path = Path(args.ssot)
@@ -313,11 +282,14 @@ def main() -> int:
     report: dict[str, Any] = {"ssot": str(ssot_path), "surfaces": {}, "mismatches": []}
 
     report["flow_identities"] = flow
+    report["not_assessed"] = []
     for chk in report["flow_identities"]:
         if chk["status"] == "FAIL":
             report["mismatches"].append(
                 f"flow: {chk['identity']} fails ({chk['lhs']} vs {chk['rhs']})"
             )
+        elif chk["status"] == "NOT_ASSESSED":
+            report["not_assessed"].append(f"flow: {chk['identity']}")
 
     csv_glob = surfaces.get("search_csv_glob")
     db_total = sum(v for k, v in all_numbers.items() if k.startswith("databases."))
@@ -345,11 +317,21 @@ def main() -> int:
         expected = resolve_require(require)
         hits = find_numbers_in_file(path, expected)
         missing = sorted(k for k, present in hits.items() if not present)
+        present = sorted(k for k, hit in hits.items() if hit)
+        if not path.exists() or missing:
+            status = "FAIL"
+        elif present:
+            status = "NOT_ASSESSED"
+        else:
+            status = "OK"  # nothing required on this surface
         report["surfaces"][surface_key] = {
             "path": str(path),
             "exists": path.exists(),
             "required": sorted(expected),
             "missing_numbers": missing,
+            # Present somewhere in the prose; NOT verified to be stated as that count.
+            "present_not_verified_as_count": present,
+            "status": status,
         }
         if not path.exists():
             report["mismatches"].append(f"{surface_key}: file not found ({path})")
@@ -357,26 +339,45 @@ def main() -> int:
             report["mismatches"].append(
                 f"{surface_key}: missing {len(missing)} SSOT number(s): {', '.join(missing)}"
             )
+        if path.exists() and present:
+            report["not_assessed"].append(
+                f"{surface_key}: {len(present)} number(s) present in prose but not verified "
+                f"as the PRISMA count: {', '.join(present)}"
+            )
 
     report["consistent"] = not report["mismatches"]
+    if report["mismatches"]:
+        report["verdict"] = "FAIL"
+    elif report["not_assessed"]:
+        report["verdict"] = "NOT_ASSESSED"
+    else:
+        report["verdict"] = "PASS"
 
     if args.json:
         print(json.dumps(report, indent=2))
     else:
-        print(f"PRISMA 5-way consistency: {'PASS' if report['consistent'] else 'FAIL'}")
+        print(f"PRISMA 5-way consistency: {report['verdict']}")
         print(f"  SSOT: {ssot_path}")
         for chk in report["flow_identities"]:
             extra = f" - {chk['note']}" if chk.get("note") else ""
             print(f"  [{chk['status']}] flow: {chk['identity']} ({chk['lhs']} vs {chk['rhs']}){extra}")
         for surface, info in report["surfaces"].items():
-            status = "OK" if not info.get("missing_numbers") and info.get("exists", True) and info.get("ok", True) else "FAIL"
+            status = info.get("status") or ("OK" if info.get("ok", True) else "FAIL")
             print(f"  [{status}] {surface}: {info}")
         if report["mismatches"]:
             print("\nMismatches:")
             for m in report["mismatches"]:
                 print(f"  - {m}")
+        if report["not_assessed"]:
+            print("\nNot assessed (no mismatch found, but not verified either):")
+            for m in report["not_assessed"]:
+                print(f"  - {m}")
 
-    return 0 if report["consistent"] else 1
+    if not report["consistent"]:
+        return 1
+    if args.strict and report["not_assessed"]:
+        return 3
+    return 0
 
 
 if __name__ == "__main__":

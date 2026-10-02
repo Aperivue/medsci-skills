@@ -186,4 +186,58 @@ assert d["sets"]["qualitative"] == ["1", "2"], d["sets"]
 assert d["blocking_issues"] == [], d["blocking_issues"]
 PY
 
-echo "PASS: test_screening_reconcile.sh (positive + 3 negatives; F1 labels x2, F2 IDs + negative, R2 unadjudicated labels x7)"
+# ------------- negative: 0/1 decision column written as floats ("1.0"/"0.0")
+# pandas / Excel write an integer column holding blanks as floats. Main read
+# these correctly; exact-token matching must not turn them into exit 2.
+printf 'id\tdecision\n1\t1.0\n2\t1.0\n3\t0.0\n' > "$TMP/s_flt.tsv"
+printf 'id\tdecision\n1\t1.0\n2\t0.0\n'         > "$TMP/c_flt.tsv"
+set +e
+python3 "$RECONCILE" --screening "$TMP/s_flt.tsv" --consensus "$TMP/c_flt.tsv" \
+  --output "$TMP/flt.json" > /dev/null
+rc=$?
+set -e
+[ "$rc" -eq 0 ] || fail "float labels negative: expected exit 0, got $rc"
+python3 - "$TMP/flt.json" <<'PY' || fail "float labels negative: misclassified"
+import json, sys
+d = json.load(open(sys.argv[1]))
+assert d["sets"]["screening_include"] == ["1", "2"], d["sets"]
+assert d["sets"]["consensus_exclude"] == ["2"], d["sets"]
+assert d["sets"]["qualitative"] == ["1"], d["sets"]
+PY
+
+# ------- negative: Table 1 labels studies "Study 1", screening uses "1"
+# Main matched these through the first digit run; verbatim IDs must not turn
+# them into TABLE1_NOT_IN_QUALITATIVE. The digit-run match is recorded.
+printf 'id\tdecision\n1\tinclude\n2\tinclude\n3\texclude\n' > "$TMP/s_t1.tsv"
+printf 'id\tdecision\n1\tinclude\n2\tinclude\n3\texclude\n' > "$TMP/c_t1.tsv"
+printf 'study_id\nStudy 1\nStudy 2\n'                        > "$TMP/t1.csv"
+set +e
+python3 "$RECONCILE" --screening "$TMP/s_t1.tsv" --consensus "$TMP/c_t1.tsv" \
+  --table1 "$TMP/t1.csv" --output "$TMP/t1.json" > /dev/null
+rc=$?
+set -e
+[ "$rc" -eq 0 ] || fail "Table 1 'Study N' negative: expected exit 0, got $rc"
+python3 - "$TMP/t1.json" <<'PY' || fail "Table 1 'Study N' negative: not matched"
+import json, sys
+d = json.load(open(sys.argv[1]))
+assert d["blocking_issues"] == [], d["blocking_issues"]
+assert d["sets"]["narrative_only"] == [], d["sets"]
+assert d["table1_matched_by_digit_run"] == {"Study 1": "1", "Study 2": "2"}, d
+PY
+
+# ------- positive: a Table 1 study that is not in the qualitative set
+printf 'study_id\nStudy 1\nStudy 3\n' > "$TMP/t1p.csv"
+set +e
+python3 "$RECONCILE" --screening "$TMP/s_t1.tsv" --consensus "$TMP/c_t1.tsv" \
+  --table1 "$TMP/t1p.csv" --output "$TMP/t1p.json" > /dev/null
+rc=$?
+set -e
+[ "$rc" -eq 1 ] || fail "Table 1 excluded study: expected exit 1, got $rc"
+python3 - "$TMP/t1p.json" <<'PY' || fail "Table 1 excluded study: not reported"
+import json, sys
+d = json.load(open(sys.argv[1]))
+codes = {i["code"]: i["ids"] for i in d["blocking_issues"]}
+assert codes.get("TABLE1_NOT_IN_QUALITATIVE") == ["Study 3"], codes
+PY
+
+echo "PASS: test_screening_reconcile.sh (positive + 3 negatives; F1 labels x2, F2 IDs + negative, R2 unadjudicated labels x7, float labels, Table 1 digit-run match + positive)"

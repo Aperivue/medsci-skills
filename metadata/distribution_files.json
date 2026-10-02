@@ -2958,8 +2958,8 @@
     },
     {
       "path": "skills/meta-analysis/SKILL.md",
-      "size": 34322,
-      "sha256": "c5a9dd6c4257b3654bfc583533a5e9f5fda2179b9acd4d24c25728efc7b14502"
+      "size": 34713,
+      "sha256": "200c54fcf3fc241fe342f8f79ddf030a281caf8b35394b0782348eddee9a621f"
     },
     {
       "path": "skills/meta-analysis/references/LICENSES.md",
@@ -3178,13 +3178,13 @@
     },
     {
       "path": "skills/meta-analysis/scripts/prisma_5way_consistency.py",
-      "size": 16251,
-      "sha256": "bad7c8f36cf08ea706ce132501479a83949d023b0152869f52a225388232f54a"
+      "size": 16485,
+      "sha256": "5ccba8a49cebec127e5faf8567beaee18faa7901c5015fdd152585e34424f320"
     },
     {
       "path": "skills/meta-analysis/scripts/screening_reconcile.py",
-      "size": 10807,
-      "sha256": "e40964e88ae898275e95ae5b1b43147f34080a915b27db92362718b345ec1285"
+      "size": 12408,
+      "sha256": "5bd67366e087716e4403685416a0c0408e98dd8949d97064c509f01ad0802160"
     },
     {
       "path": "skills/meta-analysis/scripts/tag_cleanup_gate.sh",
@@ -3198,8 +3198,8 @@
     },
     {
       "path": "skills/meta-analysis/templates/FINAL_POOL_LOCK.yaml.template",
-      "size": 2916,
-      "sha256": "98107508254d09f3f4d9bcc4daa800a9305b9df7fbc23150188feb93de6df86b"
+      "size": 3215,
+      "sha256": "a376672aa0fb65d6a42e552a4a3ecbcaeef6e59fd2fb79bcdc188b7b1dc0c19a"
     },
     {
       "path": "skills/meta-analysis/templates/extraction_form_v2.md",

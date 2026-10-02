@@ -146,6 +146,10 @@ python3 ${CLAUDE_SKILL_DIR}/scripts/prisma_5way_consistency.py --ssot prisma.yam
 Exclusion-code verdicts: `CODE_CONTRADICTS_ELIGIBILITY` (a code excludes a design the protocol
 includes — bulk study loss no other gate can see), `CODE_NOT_REGISTERED` (off-protocol code),
 `CODE_RENUMBERED` (same code, two meanings); `NOT_ASSESSED` = no code column found (pass `--code-col`).
+PRISMA 5-way checks the SSOT flow arithmetic and CSV record counts; on prose surfaces it can only
+find a number missing. A number present ("12 studies" or "12 months") is `NOT_ASSESSED`, never OK
+(`--strict` exits 3): read those sentences. Known limits: screening labels must be one decision word
+(`Yes - include` exits 2, label named); a Table 1 ID with a shared digit run stays unmatched.
 
 **3f.5 Pool composition lock (MANDATORY at adjudication freeze).** Once 3f passes, freeze the pool
 into a single source-of-truth YAML that every downstream artifact can be checked against:
