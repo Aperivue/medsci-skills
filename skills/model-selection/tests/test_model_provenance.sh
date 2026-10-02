@@ -96,7 +96,82 @@ PY
 python3 "$SCRIPT" --dossier "$TMP/nc.json" --out "$OUT" --quiet >/dev/null 2>&1
 check "a non-commercial licence under research use is not a conflict" no_verdict LICENCE_INCOMPATIBLE
 
-# (6) the shipped challenge card reproduces
+# (6) aliases resolve inside suffixed family names (F1)
+mk "$TMP/d.json" "MSD" "Medical Segmentation Decathlon Task03 Liver"
+python3 "$SCRIPT" --dossier "$TMP/d.json" --out "$OUT" --quiet >/dev/null 2>&1
+check "spelled-out family + task suffix matches 'MSD'" has_verdict BENCHMARK_PROVENANCE_CONFLICT
+mk "$TMP/d.json" "Medical Segmentation Decathlon" "Medical Segmentation Decathlon Task03 Liver"
+python3 "$SCRIPT" --dossier "$TMP/d.json" --out "$OUT" --quiet >/dev/null 2>&1
+check "suffixed spelled-out family matches the bare spelled-out family" has_verdict BENCHMARK_PROVENANCE_CONFLICT
+mk "$TMP/d.json" "MSD" "Decathlon Task03 Liver"
+python3 "$SCRIPT" --dossier "$TMP/d.json" --out "$OUT" --quiet >/dev/null 2>&1
+check "'Decathlon Task03 Liver' matches 'MSD'" has_verdict BENCHMARK_PROVENANCE_CONFLICT
+mk "$TMP/d.json" "Medical Segmentation Decathlon" "Medical Imaging Cohort 2026"
+python3 "$SCRIPT" --dossier "$TMP/d.json" --out "$OUT" --quiet >/dev/null 2>&1
+check "control: an unrelated name opening with 'Medical' does not match" no_verdict BENCHMARK_PROVENANCE_CONFLICT
+
+# variant builder: a clean base dossier, then a Python statement edits the dict d
+mkv() { python3 - "$1" "$2" <<'PY'
+import json, sys
+d = {"model": "m", "source": {"commit": "c"},
+     "licence": {"spdx": "Apache-2.0", "verified_from": "LICENSE"},
+     "intended_use": "research", "weights": {"pretrained": False},
+     "task": {"model": "t", "study": "t"},
+     "reported_validation": [{"dataset": "x", "metric": "Dice", "source": "s"}],
+     "developed_on": ["ExampleBench"],
+     "evaluation_arms": [{"name": "a", "dataset": "OtherCohort"}],
+     "hardware": {}}
+exec(sys.argv[2])
+json.dump(d, open(sys.argv[1], "w"))
+PY
+}
+run() { rm -f "$OUT"; python3 "$SCRIPT" --dossier "$TMP/v.json" --out "$OUT" --strict --quiet >/dev/null 2>&1; }
+
+mkv "$TMP/v.json" 'pass'
+run; check "control: base variant dossier exits 0 under --strict" test "$?" -eq 0
+
+# (7) a string where a list belongs is an input error, not a silent clearance (F2)
+mkv "$TMP/v.json" 'd["developed_on"]="ExampleBench"; d["evaluation_arms"]=[{"name":"a","dataset":"ExampleBench Task03"}]'
+run; check "developed_on as a bare string -> exit 2" test "$?" -eq 2
+mkv "$TMP/v.json" 'd["weights"]={"pretrained":True,"trained_on":"ExampleBench"}; d["evaluation_arms"]=[{"name":"a","dataset":"ExampleBench"}]'
+run; check "weights.trained_on as a bare string -> exit 2" test "$?" -eq 2
+mkv "$TMP/v.json" 'd["weights"]={"pretrained":True,"trained_on":["ExampleBench"]}; d["evaluation_arms"]=[{"name":"a","dataset":"ExampleBench"}]'
+run; check "control: trained_on as a list still fires EVAL_DATA_IN_TRAINING" has_verdict EVAL_DATA_IN_TRAINING
+
+# (8) an absent key is a finding; an explicit empty list is a statement (F3)
+mkv "$TMP/v.json" 'del d["developed_on"]'
+run; check "absent developed_on -> exit 1 under --strict" test "$?" -eq 1
+check "absent developed_on -> DEVELOPED_ON_UNSTATED" has_verdict DEVELOPED_ON_UNSTATED
+mkv "$TMP/v.json" 'del d["evaluation_arms"]'
+run; check "absent evaluation_arms -> exit 1 under --strict" test "$?" -eq 1
+check "absent evaluation_arms -> EVALUATION_ARMS_UNSTATED" has_verdict EVALUATION_ARMS_UNSTATED
+mkv "$TMP/v.json" 'del d["intended_use"]; d["licence"]["spdx"]="CC-BY-NC-4.0"'
+run; check "absent intended_use -> exit 1 under --strict" test "$?" -eq 1
+check "absent intended_use -> INTENDED_USE_UNSTATED" has_verdict INTENDED_USE_UNSTATED
+mkv "$TMP/v.json" 'd["developed_on"]=[]; d["evaluation_arms"]=[]'
+run; check "control: explicit empty lists exit 0" test "$?" -eq 0
+check "control: explicit empty developed_on is not DEVELOPED_ON_UNSTATED" no_verdict DEVELOPED_ON_UNSTATED
+
+# (9) intended_use and licence spellings are token-normalised (F4)
+for use in "clinical deployment" "Clinical-Deployment" "Commercial"; do
+  mkv "$TMP/v.json" "d['licence']['spdx']='CC-BY-NC-4.0'; d['intended_use']='$use'"
+  run; check "NC licence + '$use' -> LICENCE_INCOMPATIBLE" has_verdict LICENCE_INCOMPATIBLE
+done
+for lic in "CC BY NC 4.0" "Non Commercial Research License"; do
+  mkv "$TMP/v.json" "d['licence']['spdx']='$lic'; d['intended_use']='commercial'"
+  run; check "'$lic' + commercial -> LICENCE_INCOMPATIBLE" has_verdict LICENCE_INCOMPATIBLE
+done
+for use in "clinical" "Commercial product"; do
+  mkv "$TMP/v.json" "d['licence']['spdx']='CC-BY-NC-4.0'; d['intended_use']='$use'"
+  run; check "unrecognised intended_use '$use' -> exit 2" test "$?" -eq 2
+done
+mkv "$TMP/v.json" 'd["licence"]["spdx"]="CC BY NC 4.0"; d["intended_use"]="Research"'
+run; check "control: spaced NC licence under research use exits 0" test "$?" -eq 0
+mkv "$TMP/v.json" 'd["licence"]["spdx"]="Apache 2.0"; d["intended_use"]="clinical deployment"'
+run; check "control: permissive licence under clinical deployment exits 0" test "$?" -eq 0
+check "control: permissive licence under clinical deployment is not incompatible" no_verdict LICENCE_INCOMPATIBLE
+
+# (10) the shipped challenge card reproduces
 check "challenge verify.sh passes" bash "$CH/verify.sh"
 
 echo
