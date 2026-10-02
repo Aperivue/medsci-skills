@@ -178,5 +178,75 @@ PY
     check "$ext: no ignored col -> CHANGED bytes" 0 "$([[ "$out" == *"CHANGED bytes"* ]] && echo 0 || echo 1)"
 done
 
+# (g) locks built by the pre-escaping script for UNCHANGED files whose cells hold
+#     \x1b (ANSI colour codes) or \x1e must still verify clean. The JSON below is
+#     verbatim output of origin/main's version_dataset.py `manifest e.csv r.csv
+#     --base .` on the two files written here.
+mkdir -p "$TMP/esc"
+printf 'a,b\n\033[31mred\033[0m,2\nplain,3\n' > "$TMP/esc/e.csv"
+printf 'c,d\nx\036y,1\nz,2\n' > "$TMP/esc/r.csv"
+cat > "$TMP/esc/lock.json" <<'JSON'
+{
+  "schema_version": 1,
+  "seed": null,
+  "provenance": null,
+  "files": {
+    "e.csv": {
+      "sha256": "8b0e512530f97e8db83f7e3652773c03620a52bc93f23744eafe091becb39ed7",
+      "bytes": 27,
+      "tabular": {
+        "n_rows": 2,
+        "n_cols": 2,
+        "column_hashes": {
+          "a": "03e6a9990c37bfd9f2240335dde655a87e79878c50ac7095bc74d9278310b8e4",
+          "b": "6f52c50f8abbf0792f693542eb0bf3cd5086881e6e960fe1885aa46340d14380"
+        }
+      }
+    },
+    "r.csv": {
+      "sha256": "0cc1fa61bf2012081b6b7cb9b6887375dc89ff79677310b75b8b9dc9acd2d92d",
+      "bytes": 14,
+      "tabular": {
+        "n_rows": 2,
+        "n_cols": 2,
+        "column_hashes": {
+          "c": "24e60967e73629b5ed59c021ac1ee7fca4b5ad72c93c62c6761426460af7cd18",
+          "d": "d95838638b57fb04835fc9103a8a6f4d724435aad81507e74d5cdb2ff57f7d77"
+        }
+      }
+    }
+  }
+}
+JSON
+check "old lock, unchanged \\x1b/\\x1e cells: clean" 0 "$(ec python3 "$VS" verify --manifest "$TMP/esc/lock.json" --base "$TMP/esc" --strict)"
+# a new lock of the \x1b-only file hashes it exactly as the old script did
+python3 "$VS" manifest "$TMP/esc/e.csv" "$TMP/esc/r.csv" --base "$TMP/esc" --out "$TMP/esc/new.json" >/dev/null 2>&1
+same="$(python3 - "$TMP/esc/lock.json" "$TMP/esc/new.json" <<'PY'
+import json, sys
+o, n = (json.load(open(f))["files"] for f in sys.argv[1:])
+ok = (o["e.csv"]["tabular"] == n["e.csv"]["tabular"]
+      and n["r.csv"]["tabular"]["column_hashes"]["d"] == o["r.csv"]["tabular"]["column_hashes"]["d"]
+      and n["r.csv"]["tabular"].get("escaped_cols") == ["c"])
+print(0 if ok else 1)
+PY
+)"
+check "new lock: \\x1b-only column hashes unchanged" 0 "$same"
+check "new lock, unchanged \\x1e cells: clean" 0 "$(ec python3 "$VS" verify --manifest "$TMP/esc/new.json" --base "$TMP/esc" --strict)"
+printf 'a,b\n\033[32mred\033[0m,2\nplain,3\n' > "$TMP/esc/e.csv"
+check "old lock: changed \\x1b cell -> drift" 1 "$(ec python3 "$VS" verify --manifest "$TMP/esc/lock.json" --base "$TMP/esc" --strict)"
+printf 'c,d\nx\036q,1\nz,2\n' > "$TMP/esc/r.csv"
+out="$(python3 "$VS" verify --manifest "$TMP/esc/lock.json" --base "$TMP/esc" 2>&1)"
+check "old lock: changed \\x1e cell -> CHANGED column" 0 "$([[ "$out" == *"CHANGED column"*"r.csv:c"* ]] && echo 0 || echo 1)"
+# an escaped column in the lock whose separator cell disappears is drift
+printf 'c,d\nxy,1\nz,2\n' > "$TMP/esc/r.csv"
+check "new lock: \\x1e removed from cell -> drift" 1 "$(ec python3 "$VS" verify --manifest "$TMP/esc/new.json" --base "$TMP/esc" --strict)"
+
+# (h) the CHANGED header line names the new raw header, not None
+printf 'a,a\n1,2\n' > "$TMP/h2.csv"
+python3 "$VS" manifest "$TMP/h2.csv" --out "$TMP/h2m.json" >/dev/null 2>&1
+printf 'a,a.1\n1,2\n' > "$TMP/h2.csv"
+out="$(python3 "$VS" verify --manifest "$TMP/h2m.json" 2>&1)"
+check "CHANGED header shows new raw header" 0 "$([[ "$out" == *"-> ['a', 'a.1']"* ]] && echo 0 || echo 1)"
+
 printf '\n%d/%d checks passed\n' "$((ran-fail))" "$ran"
 [[ "$fail" -eq 0 ]] || exit 1

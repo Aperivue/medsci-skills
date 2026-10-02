@@ -6173,13 +6173,13 @@
     },
     {
       "path": "skills/version-dataset/references/manifest_schema.md",
-      "size": 4576,
-      "sha256": "e0bba5ee1b9807d3dba437c5922a059be320e6d2c2057f0ab4d21517b1d2790b"
+      "size": 5441,
+      "sha256": "8fcf0ce8c320e82ee61432979db021a8cdf5bc4966b642f13a75f9ec3f67b94c"
     },
     {
       "path": "skills/version-dataset/scripts/version_dataset.py",
-      "size": 12671,
-      "sha256": "f598a8ff54235917e9342963058f19408c5336c5ca9d953be1ad4c87d92d0a16"
+      "size": 14470,
+      "sha256": "ab7af786eaf1e75904a835d69311bcdfc9a9d87e50c1a31383a5e3cd1f1a4a54"
     },
     {
       "path": "skills/version-dataset/skill.yml",

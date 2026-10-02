@@ -21,8 +21,13 @@ artifact policy.
         "n_cols": 9,
         "column_hashes": {"age": "…", "bmi": "…"},  // sha256 of the column's literal
                                                     // cell strings (row order) joined by
-                                                    // \x1e; a \x1e or \x1b inside a cell
-                                                    // is escaped with \x1b
+                                                    // \x1e; only in a column where some
+                                                    // cell itself holds \x1e, every \x1e
+                                                    // or \x1b inside a cell is escaped
+                                                    // with \x1b
+        "escaped_cols": ["note"],      // only when some column was hashed in the
+                                       // escaped form; absent = all columns use the
+                                       // plain join, as every older manifest does
         "header": ["a", "a"],          // CSV/TSV only, and only when the raw header
                                        // differs from the parsed names (duplicates);
                                        // absent = not recorded, so not compared
@@ -49,7 +54,7 @@ always yield the same manifest. `--base` stores file keys relative to a director
 | `UNEXPECTED file: F` | F is present now but not in the manifest. |
 | `ROW COUNT F: a -> b` | Tabular row count changed. |
 | `ADDED column F:c` / `REMOVED column F:c` | Schema change. |
-| `CHANGED column F:c` | Column c's values (or dtype) changed, even if row count is stable. |
+| `CHANGED column F:c` | Column c's values (or dtype) changed, even if row count is stable. `verify` checks a column that the lock does not list in `escaped_cols` (this includes every lock written before escaping existed) with the plain join, so such a lock still verifies an unchanged file clean; in it, a `\x1e` moved across a cell boundary is not detected until the file is re-locked. `diff` has no file to re-hash, so comparing an older manifest with a newer one of the same data reports a column that holds `\x1e` in a cell as changed. |
 
 `verify --strict` exits non-zero if any drift is found; without `--strict` it
 reports and exits 0 (for advisory runs).

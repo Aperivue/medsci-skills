@@ -47,13 +47,23 @@ TEXT_TABULAR = {".csv", ".tsv"}
 _SEP, _ESC = "\x1e", "\x1b"
 
 
-def _encode_cell(cell: str) -> str:
-    # Identity for any cell containing neither control character, so existing
-    # manifests keep their hashes; otherwise escape so that a separator inside
-    # a cell can never be confused with the boundary between two cells.
-    if _ESC in cell or _SEP in cell:
-        cell = cell.replace(_ESC, _ESC + _ESC).replace(_SEP, _ESC + _SEP)
-    return cell
+def _column_payloads(cells: list[str]) -> tuple[bytes, bytes | None]:
+    """Return (payload, legacy_payload) for one column.
+
+    The legacy payload joins the cells with _SEP, as every manifest written
+    before escaping existed did. It is unambiguous unless some cell contains
+    _SEP itself, so it stays the payload for every such column and those hashes
+    never change. Only a column where some cell holds _SEP is escaped (_ESC and
+    _SEP inside a cell are prefixed with _ESC); legacy_payload is then returned
+    too, so a lock that hashed that column the old way can still be checked.
+    An escaped payload holds at least n_rows _SEP characters and a legacy one
+    exactly n_rows - 1, so the two forms cannot collide at the same row count.
+    """
+    legacy = _SEP.join(cells).encode("utf-8")
+    if not any(_SEP in c for c in cells):
+        return legacy, None
+    esc = _SEP.join(c.replace(_ESC, _ESC + _ESC).replace(_SEP, _ESC + _SEP) for c in cells)
+    return esc.encode("utf-8"), legacy
 
 
 def file_sha256(path: Path) -> str:
@@ -98,7 +108,9 @@ def _raw_header(path: Path) -> list[str]:
     return [str(v) for v in hdr.iloc[0].tolist()] if len(hdr) else []
 
 
-def column_hashes(path: Path, ignore_cols: set[str]) -> dict | None:
+def column_hashes(path: Path, ignore_cols: set[str], for_verify: bool = False) -> dict | None:
+    """Tabular summary of *path*. With for_verify, also return in-memory-only keys
+    (`_legacy_hashes`, `_raw_header`) that _compare uses and no manifest stores."""
     if not _HAVE_PANDAS or path.suffix.lower() not in TABULAR:
         return None
     try:
@@ -107,7 +119,7 @@ def column_hashes(path: Path, ignore_cols: set[str]) -> dict | None:
         return None
     if df is None:
         return None
-    header = None
+    header = raw = None
     if path.suffix.lower() in TEXT_TABULAR:
         try:
             raw = _raw_header(path)
@@ -118,6 +130,7 @@ def column_hashes(path: Path, ignore_cols: set[str]) -> dict | None:
         if raw != [str(c) for c in df.columns]:
             header = raw
     cols = {}
+    legacy = {}
     ignored = []
     for c in df.columns:
         if c in ignore_cols:
@@ -125,8 +138,10 @@ def column_hashes(path: Path, ignore_cols: set[str]) -> dict | None:
             continue
         # Cells are already canonical strings (environment-independent); the
         # pandas dtype is deliberately NOT part of the digest.
-        payload = _SEP.join(_encode_cell(v) for v in df[c].tolist()).encode("utf-8")
+        payload, legacy_payload = _column_payloads([str(v) for v in df[c].tolist()])
         cols[str(c)] = hashlib.sha256(payload).hexdigest()
+        if legacy_payload is not None:
+            legacy[str(c)] = hashlib.sha256(legacy_payload).hexdigest()
     tab = {
         "n_rows": int(len(df)),
         "n_cols": int(df.shape[1]),
@@ -134,6 +149,13 @@ def column_hashes(path: Path, ignore_cols: set[str]) -> dict | None:
     }
     if header is not None:
         tab["header"] = header
+    if legacy:
+        # Columns hashed in escaped form; absent = every column used the legacy
+        # join (all manifests written before escaping existed).
+        tab["escaped_cols"] = sorted(legacy)
+    if for_verify:
+        tab["_legacy_hashes"] = legacy
+        tab["_raw_header"] = raw
     if ignored and path.suffix.lower() not in TEXT_TABULAR:
         # Binary formats only (CSV/TSV manifests are unchanged): an ignored column
         # is present, so the file's bytes legitimately differ when it changes and
@@ -142,9 +164,9 @@ def column_hashes(path: Path, ignore_cols: set[str]) -> dict | None:
     return tab
 
 
-def build_entry(path: Path, ignore_cols: set[str]) -> dict:
+def build_entry(path: Path, ignore_cols: set[str], for_verify: bool = False) -> dict:
     entry = {"sha256": file_sha256(path), "bytes": path.stat().st_size}
-    tab = column_hashes(path, ignore_cols)
+    tab = column_hashes(path, ignore_cols, for_verify)
     if tab is not None:
         entry["tabular"] = tab
     return entry
@@ -200,15 +222,23 @@ def _compare(expected: dict, actual: dict) -> list[str]:
                 drift.append(f"REMOVED column {name}:{col}")
             for col in sorted(ac - ec):
                 drift.append(f"ADDED column {name}:{col}")
+            exp_escaped = set(et.get("escaped_cols", []))
+            act_legacy = at.get("_legacy_hashes", {})
             for col in sorted(ec & ac):
-                if et["column_hashes"][col] != at["column_hashes"][col]:
+                act_hash = at["column_hashes"][col]
+                if col not in exp_escaped and col in act_legacy:
+                    # The lock hashed this column with the legacy join (it predates
+                    # escaping, or held no separator in a cell), so check it that way.
+                    act_hash = act_legacy[col]
+                if et["column_hashes"][col] != act_hash:
                     drift.append(f"CHANGED column {name}:{col}")
             eh, ah = et.get("header"), at.get("header")
             # A lock with no recorded header (built before the header was recorded,
             # or whose raw header matched the parsed names) carries no header claim
             # to check, so an absent expected header is "not recorded", not None.
             if eh is not None and sorted(eh) != (sorted(ah) if ah is not None else None):
-                drift.append(f"CHANGED header {name}: {eh} -> {ah}")
+                shown = ah if ah is not None else at.get("_raw_header")
+                drift.append(f"CHANGED header {name}: {eh} -> {shown}")
             if (len(drift) == n_before and Path(name).suffix.lower() not in TEXT_TABULAR
                     and not (et.get("ignored_cols") or at.get("ignored_cols"))
                     and e.get("sha256") != a.get("sha256")):
@@ -236,7 +266,7 @@ def cmd_verify(args: argparse.Namespace) -> int:
         if not p.is_file():
             actual_files[name] = {"sha256": None}
             continue
-        actual_files[name] = build_entry(p, ignore)
+        actual_files[name] = build_entry(p, ignore, for_verify=True)
     actual = {"files": actual_files}
     drift = _compare(expected, actual)
     print("=" * 41)
