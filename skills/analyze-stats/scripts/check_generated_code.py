@@ -9,7 +9,12 @@ scans emitted .py / .R scripts before they are reported as final and flags:
   MISSING_SEED            randomness is used (sampling, bootstrap, train/test
                           split, shuffling, rng) but no seed is set
                           (np.random.seed / set.seed / random_state= /
-                          default_rng / RandomState). Non-reproducible. (Major)
+                          default_rng / RandomState, each with a real
+                          argument), or a generator is explicitly initialised
+                          unseeded (default_rng(), RandomState(None),
+                          np.random.seed(), set.seed(NULL)) even when a seed
+                          is set elsewhere. Non-reproducible. Mentions in
+                          comments and (Python) docstrings are ignored. (Major)
   HARDCODED_DATA_LITERAL  a large hand-typed numeric literal that looks like
                           tabular data — either alongside a real data-file read,
                           or very large on its own. The data-integrity rule is
@@ -48,9 +53,11 @@ from __future__ import annotations
 
 import argparse
 import ast
+import io
 import json
 import re
 import sys
+import tokenize
 from pathlib import Path
 
 # --- shared regexes (language-agnostic unless noted) ------------------------
@@ -71,13 +78,23 @@ RAND_PY = re.compile(
     r"np\.random\.|numpy\.random\.|\brandom\.(?:sample|shuffle|choice|random|randint|randrange)\b|"
     r"\bRandomState\b|\bdefault_rng\b|\btrain_test_split\b|\bKFold\b|\bStratifiedKFold\b|"
     r"\bShuffleSplit\b|\bresample\s*\(|\bbootstrap\b|\bpermutation\b")
+# A seed call counts only with a real argument: `default_rng()`, `RandomState()`,
+# `np.random.seed()`, `random.seed(None)` and `random_state=None` all draw fresh OS entropy.
+_PY_SEED_ARG = r"\s*(?![\s)]|None\b)"
 SEED_PY = re.compile(
-    r"np\.random\.seed\s*\(|numpy\.random\.seed\s*\(|\brandom\.seed\s*\(|"
-    r"\bRandomState\s*\(|\bdefault_rng\s*\(|\brandom_state\s*=")
+    r"(?:np\.random\.seed|numpy\.random\.seed|\brandom\.seed|\bRandomState|\bdefault_rng)"
+    r"\s*\(" + _PY_SEED_ARG + r"|\brandom_state\s*=(?!=)" + _PY_SEED_ARG)
+# ...and an explicitly UNSEEDED generator is non-reproducible even if a seed is set elsewhere:
+# `np.random.seed(42); rng = np.random.default_rng()` draws from `rng` unseeded. (A bare
+# `random_state=None` is not flagged on its own: it is the usual default in a `def` signature.)
+UNSEEDED_PY = re.compile(
+    r"(?:np\.random\.seed|numpy\.random\.seed|\brandom\.seed|\bRandomState|\bdefault_rng)"
+    r"\s*\(\s*(?:None\s*)?\)")
 RAND_R = re.compile(
     r"\bsample\s*\(|\bsample\.int\s*\(|\brnorm\s*\(|\brunif\s*\(|\brbinom\s*\(|"
     r"\brpois\s*\(|\bboot\s*\(|\bcreateDataPartition\s*\(")
-SEED_R = re.compile(r"\bset\.seed\s*\(")
+SEED_R = re.compile(r"\bset\.seed\s*\(\s*(?![\s)]|NULL\b)")
+UNSEEDED_R = re.compile(r"\bset\.seed\s*\(\s*NULL\s*\)")  # re-initialises from entropy
 
 # data-file reads / writes (for INPLACE_SOURCE_OVERWRITE and the DATA_LITERAL gate)
 READ_CALL = re.compile(
@@ -105,7 +122,8 @@ def _first_path_literal(arg: str) -> str | None:
 def strip_comments(src: str) -> str:
     """Blank out `#`-to-EOL comments while preserving byte offsets and line count,
     so seed/randomness detection never matches a mention inside a comment (e.g.
-    '# no set.seed() used') yet reported line numbers stay correct. Runs only for
+    '# no set.seed() used') yet reported line numbers stay correct. Used for R
+    sources (and as the Python fallback when tokenize fails). Runs only for
     the seed/randomness checks; path/literal checks keep the full source."""
     out = []
     for line in src.split("\n"):
@@ -114,16 +132,84 @@ def strip_comments(src: str) -> str:
     return "\n".join(out)
 
 
+def _blank_spans(src: str, spans: list[tuple[tuple[int, int], tuple[int, int]]]) -> str:
+    """Replace each ((row, col), (end_row, end_col)) span (tokenize coordinates:
+    1-based rows, 0-based character columns) with spaces, keeping newlines, so
+    offsets and line numbers of everything outside the spans are unchanged."""
+    lines = src.split("\n")
+    starts, pos = [], 0
+    for line in lines:
+        starts.append(pos)
+        pos += len(line) + 1
+    chars = list(src)
+    for (r0, c0), (r1, c1) in spans:
+        a, b = starts[r0 - 1] + c0, starts[r1 - 1] + c1
+        for i in range(a, min(b, len(chars))):
+            if chars[i] != "\n":
+                chars[i] = " "
+    return "".join(chars)
+
+
+def strip_py_comments_docstrings(src: str) -> str:
+    """Python: blank comments and docstrings / bare string statements using the
+    tokenize module (not a regex over raw text), so a mention such as
+    '# never call default_rng()' or a docstring explaining 'default_rng() is
+    unseeded' is not read as a call. A `#` inside an ordinary string literal is left
+    alone. Strings used as values (arguments, assignments) are kept. Falls back to
+    the line-based strip_comments() if the source does not tokenize."""
+    spans: list[tuple[tuple[int, int], tuple[int, int]]] = []
+    trivia = {tokenize.NL, tokenize.COMMENT, tokenize.INDENT, tokenize.DEDENT,
+              tokenize.ENCODING}
+    try:
+        toks = list(tokenize.generate_tokens(io.StringIO(src).readline))
+    except (tokenize.TokenError, IndentationError, SyntaxError):
+        return strip_comments(src)
+    prev_sig = None  # type of the previous significant token
+    i = 0
+    while i < len(toks):
+        tok = toks[i]
+        if tok.type == tokenize.COMMENT:
+            spans.append((tok.start, tok.end))
+        elif tok.type == tokenize.STRING and prev_sig in (None, tokenize.NEWLINE):
+            # a run of (implicitly concatenated) string tokens at the start of a
+            # logical line that ends the line is a docstring / bare string statement
+            j = i
+            while j + 1 < len(toks) and toks[j + 1].type in (tokenize.STRING, tokenize.NL):
+                j += 1
+            k = j + 1
+            while k < len(toks) and toks[k].type in (tokenize.COMMENT, tokenize.NL):
+                k += 1
+            if k >= len(toks) or toks[k].type in (tokenize.NEWLINE, tokenize.ENDMARKER):
+                spans.extend((t.start, t.end) for t in toks[i:j + 1]
+                             if t.type == tokenize.STRING)
+        if tok.type not in trivia:
+            prev_sig = tok.type
+        i += 1
+    return _blank_spans(src, spans)
+
+
 def check_text_common(src: str, lang: str) -> list[dict]:
     claims: list[dict] = []
     lines = src.splitlines()
     has_read = bool(READ_CALL.search(src))
-    code = strip_comments(src)  # comment-free copy for seed/randomness logic
+    # comment-free (and, for Python, docstring-free) copy for seed/randomness logic
+    code = strip_py_comments_docstrings(src) if lang == "py" else strip_comments(src)
 
     # MISSING_SEED
-    rand, seed = (RAND_PY, SEED_PY) if lang == "py" else (RAND_R, SEED_R)
+    rand, seed, unseeded = ((RAND_PY, SEED_PY, UNSEEDED_PY) if lang == "py"
+                            else (RAND_R, SEED_R, UNSEEDED_R))
     rm = rand.search(code)
-    if rm and not seed.search(code):
+    um = unseeded.search(code)
+    if rm and um:
+        ln = src[:um.start()].count("\n") + 1
+        claims.append({
+            "verdict": "MISSING_SEED", "severity": "Major", "line": ln,
+            "detail": (f"a random generator is initialised WITHOUT a seed "
+                       f"('{um.group(0).strip()[:30]}' draws fresh OS entropy on every run), "
+                       f"so the result is not reproducible even if a seed is set elsewhere; "
+                       f"pass a fixed integer seed"),
+        })
+    elif rm and not seed.search(code):
         ln = src[:rm.start()].count("\n") + 1
         claims.append({
             "verdict": "MISSING_SEED", "severity": "Major", "line": ln,

@@ -201,6 +201,58 @@ printf 'just some prose with no table and no variables at all\n' > "$TMP/prose.t
 python3 "$B" --codebook "$TMP/prose.txt" --out-dir "$TMP/o6" > /dev/null 2>&1
 ck "codebook with no variables fails (no empty profile)" 1 "$?"
 
+# 11) F1 -- a DATA EXPORT with a `name` / `code` column is still a data export. Routing it as
+# a codebook enumerated the ROW VALUES -- patient names -- as "variables" (exit 0).
+printf 'patient_id,name,age,sex,death_date\n1,Hong Gildong,45,M,\n2,Kim Younghee,61,F,2020-01-02\n' > "$TMP/export_name.csv"
+printf 'code,bmi,smoking\nA017,24.1,never\nB220,31.0,current\n' > "$TMP/export_code.csv"
+python3 "$B" --codebook "$TMP/export_name.csv" --codebook "$TMP/export_code.csv" --out-dir "$TMP/o7" > /dev/null 2>&1
+python3 - "$TMP/o7" <<'PY'
+import json, sys
+d = sys.argv[1]
+p = json.load(open(d + "/cohort_profile.json"))
+names = [v["name"] for v in p["variables"]]
+assert names == ["patient_id", "name", "age", "sex", "death_date", "code", "bmi", "smoking"], names
+blob = open(d + "/cohort_profile.json").read() + open(d + "/cohort_profile.md").read()
+for row_value in ("Hong Gildong", "Kim Younghee", "A017", "B220"):
+    assert row_value not in blob, f"row value {row_value!r} leaked into the profile"
+PY
+ck "export with name/code column: header = variables" 0 "$?"
+
+# 11b) control: a weak `name` header IS a codebook when every other column is a codebook title
+printf 'Name,Description,Type,Units\nsbp,Systolic blood pressure,num,mmHg\negfr,eGFR,num,mL/min\n' > "$TMP/weak_codebook.csv"
+python3 "$B" --codebook "$TMP/weak_codebook.csv" --out-dir "$TMP/o8" > /dev/null 2>&1
+python3 - "$TMP/o8/cohort_profile.json" <<'PY'
+import json, sys
+p = json.load(open(sys.argv[1]))
+assert [v["name"] for v in p["variables"]] == ["sbp", "egfr"], p["variables"]
+PY
+ck "control: Name/Description/Type/Units is still a codebook" 0 "$?"
+
+# 11c) ambiguous (weak name + description-like + data columns) stops instead of guessing
+printf 'patient_id,name,comment\n1,Hong Gildong,follow up\n' > "$TMP/ambiguous.csv"
+python3 "$B" --codebook "$TMP/ambiguous.csv" --out-dir "$TMP/o9" > /dev/null 2>&1
+ck "ambiguous name+comment+data header fails loudly" 1 "$?"
+[ ! -e "$TMP/o9/cohort_profile.json" ]
+ck "ambiguous header writes no profile" 0 "$?"
+
+# 12) F2 -- a codebook whose name column is headed with a space (`Variable Name`) is a
+# codebook. It used to fall through to the data-export path and emit the header cells.
+printf 'Variable Name,Description,Type\nsbp_v1,Systolic BP visit 1,num\nhba1c,HbA1c,num\n' > "$TMP/spaced.csv"
+printf '| Variable Name | Description |\n|---|---|\n| waist_cm | Waist circumference |\n' > "$TMP/spaced.md"
+python3 "$B" --codebook "$TMP/spaced.csv" --codebook "$TMP/spaced.md" --out-dir "$TMP/o10" > /dev/null 2>&1
+python3 - "$TMP/o10/cohort_profile.json" <<'PY'
+import json, sys
+p = json.load(open(sys.argv[1]))
+names = [v["name"] for v in p["variables"]]
+assert names == ["sbp_v1", "hba1c", "waist_cm"], names
+PY
+ck "'Variable Name' header (csv + md) read as a codebook" 0 "$?"
+
+# 12b) a "variable list" made only of codebook column titles is refused, not profiled
+printf 'Description,Type,Units\nSystolic BP,num,mmHg\n' > "$TMP/titles_only.csv"
+python3 "$B" --codebook "$TMP/titles_only.csv" --out-dir "$TMP/o11" > /dev/null 2>&1
+ck "variables that are only codebook titles fail loudly" 1 "$?"
+
 echo "----"
 echo "test_cohort_profile: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]

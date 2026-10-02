@@ -4,6 +4,30 @@
 
 ### Fixed
 
+- **radiomics-ml: the pipeline gate fails closed.** `check_radiomics_ml.py` no longer clears
+  features >= events because dimensionality reduction is declared, counts events as the minority
+  class, flags a missing or unrecognised feature-selection stage, accepts stability and
+  external-validation values only from an allow-list, and rejects malformed counts as input errors
+  (exit 2). The strong challenge fixture now has 40 candidate features.
+- **analyze-stats: two gates stop clearing what they cannot see.** `check_separation.py` flags
+  quasi-complete separation at a tied boundary and joint separation across predictors (when scipy is
+  present); its OK line no longer claims the MLE exists unless the joint check ran.
+  `check_generated_code.py` no longer accepts an unseeded generator (`default_rng()`,
+  `RandomState(None)`, `random_state=None`, `set.seed(NULL)` and similar) as a seed, and ignores
+  calls named only in comments or docstrings.
+- **imaging-data: two false clearances closed.** `check_dataset_profile.py` reads a single metric
+  string as one metric, so `ACCURACY_UNDER_IMBALANCE` fires on `metrics=accuracy`.
+  `check_preprocessing_leakage.py` treats a transform as data-fitted when its type is a known fitted
+  op or the manifest declares a dataset-level `fit_scope` for it.
+- **version-dataset: `verify` reports tabular changes the column hashes miss** — a duplicate CSV
+  header re-written by pandas, a `\x1e` moved across a cell boundary, and a binary table whose bytes
+  changed while every column hash matched (with a newly built lock). Locks built by the previous
+  script still verify an unchanged CSV/TSV clean.
+- **find-cohort-gap: data exports are no longer read as codebooks.** `build_cohort_profile.py`
+  routed a file with a `name`/`code`/`item`/`field`/`column` header as a codebook and wrote its row
+  values (for example patient names) into the profile. Headers are normalised, a weak name column
+  counts only when every other header is a codebook title, and an ambiguous file stops with exit 1
+  and writes no profile.
 - **Tests no longer fail when a program writes its output in pieces.** Eleven test scripts piped a
   program's output into `grep -q` under `set -o pipefail`. `grep -q` exits at the first match, so a
   program still writing (Python with `PYTHONUNBUFFERED=1`, common in containers) died of a broken

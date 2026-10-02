@@ -93,7 +93,9 @@ clinical definition, cutoff, diagnostic criterion or guideline claim you could n
    ```
 
    `COMPLETE_SEPARATION` (an empty cell) and `QUASI_SEPARATION` (a cell below the sparsity
-   floor) both halt the plan. The remedy is a **design** decision, made in the plan: Firth's
+   floor) both halt the plan. With two or more predictors the script also tests them jointly
+   (a linear combination can separate the outcome when no single predictor does); that test
+   needs scipy, and without it the report says the joint check was not run. The remedy is a **design** decision, made in the plan: Firth's
    penalised likelihood keeps one model, while a **two-stage rule** — classify the sign-positive
    cases directly, model only the sign-negative remainder — is usually the clinically meaningful
    choice for a pathognomonic sign, because a sign-positive patient is already diagnosed.

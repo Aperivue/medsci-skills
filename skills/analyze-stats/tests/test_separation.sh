@@ -149,6 +149,124 @@ assert json.load(open(sys.argv[1]))["detector"] == "check_separation"
 PY
 ck "JSON envelope self-identifies" 0 "$?"
 
+# --- false-clearance regressions (F1: tied-boundary continuous; F2: joint separation) -------
+python3 - "$TMP" <<'PY'
+import csv, random, sys
+from pathlib import Path
+out = Path(sys.argv[1])
+def write(name, rows):
+    with (out / name).open("w", newline="") as fh:
+        w = csv.DictWriter(fh, fieldnames=list(rows[0]))
+        w.writeheader(); w.writerows(rows)
+# F1 positive: the two outcome ranges meet ONLY at the tied value 3 (two y=0 and one y=1 there).
+# Quasi-complete separation: glm returns a slope of ~180 with SE ~ 7e4 and p = 1.
+x0 = [1, 2, 3, 3, 2.5, 1.5, 2.2, 1.1, 2.9, 0.5, 0.7, 1.9]
+x1 = [3, 4, 5, 3.5, 4.4, 6, 7, 5.5, 4.1, 8, 9, 3.3]
+write("tie.csv", [{"y": 0, "x": v} for v in x0] + [{"y": 1, "x": v} for v in x1])
+# F1 negative: same data, but one y=1 case moved inside the y=0 range -> genuine overlap.
+write("tie_overlap.csv", [{"y": 0, "x": v} for v in x0] + [{"y": 1, "x": v} for v in [2.0] + x1[1:]])
+# F2 positive: y = 1[x1 > x2]. Each predictor overlaps fully on its own; together they
+# classify every case, and glm returns coefficients of +/-400 with p ~ 0.98.
+rng = random.Random(7)
+ms = []
+for _ in range(200):
+    a, b = round(rng.uniform(0, 10), 2), round(rng.uniform(0, 10), 2)
+    if a == b:
+        b += 0.01
+    ms.append({"y": int(a > b), "x1": a, "x2": b, "grp": rng.choice("ABC")})
+write("multi.csv", ms)
+# F2 positive, quasi-complete and mixed types: the score threshold is 50 when sign = 0 and
+# 60 when sign = 1, and the two boundary points (0, 50) and (1, 60) carry BOTH outcomes.
+# Each sign level has both outcomes and plenty of each; the score ranges overlap across
+# 50-60. Only the combination score - 10*sign splits the outcome, with ties on the boundary.
+mq = []
+for sign, cut in ((0, 50), (1, 60)):
+    for score in range(30, 81, 2):
+        if score != cut:
+            mq.append({"y": int(score > cut), "sign": sign, "score": score})
+    mq += [{"y": 0, "sign": sign, "score": cut}, {"y": 1, "sign": sign, "score": cut}]
+write("multi_quasi.csv", mq)
+# F2 negative: y depends on x1 - x2 but with noise -> overlap, a finite MLE exists.
+mn = []
+for r in ms:
+    mn.append({"y": int(r["x1"] - r["x2"] + rng.gauss(0, 3) > 0), "x1": r["x1"], "x2": r["x2"],
+               "grp": r["grp"]})
+write("multi_noisy.csv", mn)
+PY
+
+# 9) F1 positive: ranges that touch only at a tied boundary value are quasi-complete separation
+python3 "$V" --data "$TMP/tie.csv" --outcome y --predictor x --out "$TMP/t.json" --strict --quiet > /dev/null 2>&1
+ck "tied-boundary continuous predictor fires (--strict)" 1 "$?"
+python3 - "$TMP/t.json" <<'PY'
+import json, sys
+r = json.load(open(sys.argv[1]))
+f = r["findings"]
+assert len(f) == 1 and f[0]["verdict"] == "QUASI_SEPARATION", [x["verdict"] for x in f]
+assert "does not exist" in f[0]["detail"] and r["model_safe"] is False
+PY
+ck "tied boundary reported as QUASI_SEPARATION, MLE absent" 0 "$?"
+
+# 10) F1 negative: a genuine overlap must stay silent
+python3 "$V" --data "$TMP/tie_overlap.csv" --outcome y --predictor x --strict --quiet > /dev/null 2>&1
+ck "genuinely overlapping continuous predictor does not fire" 0 "$?"
+
+# 11) F2 positive: y = 1[x1 > x2] passes each predictor alone, fails jointly
+python3 "$V" --data "$TMP/multi.csv" --outcome y --predictor x1 --predictor x2 --out "$TMP/m.json" --strict --quiet > /dev/null 2>&1
+ck "joint (linear-combination) separation fires (--strict)" 1 "$?"
+python3 - "$TMP/m.json" <<'PY'
+import json, sys
+r = json.load(open(sys.argv[1]))
+f = r["findings"]
+assert len(f) == 1 and f[0]["verdict"] == "COMPLETE_SEPARATION", [x["verdict"] for x in f]
+assert f[0]["cell"]["joint"] == ["x1", "x2"], f[0]["cell"]
+assert r["joint_check"]["status"] == "separated" and r["model_safe"] is False
+PY
+ck "joint separation is COMPLETE and names x1, x2" 0 "$?"
+python3 "$V" --data "$TMP/multi.csv" --outcome y --predictor x1 --strict --quiet > /dev/null 2>&1
+ck "each of those predictors alone does not fire" 0 "$?"
+
+# 12) F2 positive, quasi-complete, categorical x continuous
+python3 "$V" --data "$TMP/multi_quasi.csv" --outcome y --predictor sign --predictor score --out "$TMP/mq.json" --strict --quiet > /dev/null 2>&1
+ck "joint quasi-complete separation (sign + score) fires" 1 "$?"
+python3 - "$TMP/mq.json" <<'PY'
+import json, sys
+r = json.load(open(sys.argv[1]))
+f = r["findings"]
+assert [x["verdict"] for x in f] == ["QUASI_SEPARATION"], [x["verdict"] for x in f]
+assert f[0]["cell"]["joint"] == ["score", "sign"] and f[0]["cell"]["n_tied"] == 4, f[0]["cell"]
+assert r["joint_check"]["status"] == "separated"
+PY
+ck "joint quasi finding is QUASI, names both, 4 ties" 0 "$?"
+
+# 13) F2 negative: noisy y = 1[x1 - x2 + e > 0] overlaps jointly -> clean, and certified
+python3 "$V" --data "$TMP/multi_noisy.csv" --outcome y --predictor x1 --predictor x2 --predictor grp --out "$TMP/mn.json" --strict --quiet > /dev/null 2>&1
+ck "jointly overlapping predictors do not fire" 0 "$?"
+python3 - "$TMP/mn.json" <<'PY'
+import json, sys
+r = json.load(open(sys.argv[1]))
+assert r["findings"] == [] and r["joint_check"]["status"] == "clear" and r["model_safe"] is True, r["joint_check"]
+PY
+ck "joint check ran and cleared; model_safe" 0 "$?"
+
+# 14) without scipy the joint check cannot run: the report must say so and not certify the model
+python3 - "$V" "$TMP/multi.csv" <<'PY' > "$TMP/noscipy.txt" 2>&1
+import runpy, sys
+sys.modules["scipy"] = None; sys.modules["scipy.optimize"] = None
+v, data = sys.argv[1], sys.argv[2]
+sys.argv = [v, "--data", data, "--outcome", "y", "--predictor", "x1", "--predictor", "x2",
+            "--out", data + ".json"]
+try:
+    runpy.run_path(v, run_name="__main__")
+except SystemExit as e:
+    assert not e.code, e.code
+import json
+r = json.load(open(data + ".json"))
+assert r["joint_check"]["status"] == "not_run" and r["model_safe"] is False, r["joint_check"]
+PY
+rc=$?
+if [ "$rc" -eq 0 ] && grep -q "NOT checked" "$TMP/noscipy.txt" && ! grep -q "MLE exists" "$TMP/noscipy.txt"; then rc=0; else rc=1; fi
+ck "no scipy: joint check reported NOT run, model not certified" 0 "$rc"
+
 echo "----"
 echo "test_separation: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]

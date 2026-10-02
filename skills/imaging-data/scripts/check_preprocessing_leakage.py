@@ -35,6 +35,11 @@ CHECKS (verdicts):
 A data-fitted transform is one whose `type` is a fitted operation (normalization,
 standardize, scaler, min-max, clip_percentile, histogram_match, pca, whitening,
 feature_selection, resample, …) AND whose `fit_scope` is not per-sample/none/fixed.
+A transform of ANY other type that declares a dataset-level `fit_scope` (train-OK or
+non-train, e.g. TorchIO `HistogramStandardization` or MONAI `NormalizeIntensityd`
+with `fit_scope: all`) is data-fitted by its own declaration and is judged the same
+way: the type vocabulary is not allowed to clear a transform the manifest says was fit
+on every case.
 A genuinely fixed transform (a fixed HU window, a resample to a spacing you chose
 in advance) is not data-fitted and never leaks — declare `fit_scope: fixed` and it
 stays silent.
@@ -84,6 +89,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -96,6 +102,12 @@ FIT_BASED_TYPES = {
     "histogram_equalization", "histogram_equalisation", "pca", "whitening",
     "feature_selection", "intensity_normalization", "intensity_normalisation",
     "nyul", "zca",
+    # Library spellings of fitted intensity transforms (TorchIO HistogramStandardization
+    # learns landmarks from a cohort; nnU-Net CTNormalization clips/scales with
+    # foreground statistics from the training fingerprint). Compared alnum-only, so
+    # `HistogramStandardization` and `histogram_standardization` are the same key.
+    "histogram_standardization", "histogram_standardisation",
+    "intensity_standardization", "intensity_standardisation", "ctnormalization",
     # Resampling belongs here whenever the *target* is derived from the data. nnU-Net's
     # target spacing is a percentile of the dataset fingerprint, so a resample fitted over
     # all cases carries held-out geometry into the training grid exactly as an intensity
@@ -147,14 +159,25 @@ def _split(r: dict) -> str:
     return SPLIT_SYNONYM.get(_norm(r.get("split")), _norm(r.get("split")))
 
 
+def _alnum(s: str) -> str:
+    return re.sub(r"[^a-z0-9]", "", s)
+
+
+_FIT_BASED_KEYS = {_alnum(t) for t in FIT_BASED_TYPES}
+
+
 def _is_fit_based(t: dict) -> bool:
+    """Data-fitted if the type is a known fitted operation, OR if the manifest itself
+    declares a dataset-level fit_scope for it. An unrecognised type used to mean "not
+    fitted" regardless of fit_scope, so `HistogramStandardization` fit on `all` before the
+    split was reported leakage-safe."""
     typ = _norm(t.get("type"))
     scope = _norm(t.get("fit_scope"))
-    if typ not in FIT_BASED_TYPES:
-        return False
     if scope in SAMPLE_SCOPES:
         return False
-    return True
+    if _alnum(typ) in _FIT_BASED_KEYS:
+        return True
+    return scope in NON_TRAIN_SCOPES or scope in TRAIN_OK_SCOPES
 
 
 def check(manifest: dict) -> list[dict]:
