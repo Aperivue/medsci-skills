@@ -65,6 +65,11 @@ UNIVERSAL_COLUMN_NAMES: dict[str, str] = {
     "insurance_no": "insurance", "insurance_number": "insurance",
 }
 
+# An English month name or abbreviation, any case, as a whole word.
+_MONTH_WORD = (r"(?i:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?"
+               r"|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?"
+               r"|nov(?:ember)?|dec(?:ember)?)(?![A-Za-z])")
+
 # Universal value patterns (always active regardless of locale).
 UNIVERSAL_VALUE_PATTERNS: list[tuple[re.Pattern, str]] = [
     # Email
@@ -75,6 +80,17 @@ UNIVERSAL_VALUE_PATTERNS: list[tuple[re.Pattern, str]] = [
     (re.compile(r"\b([5-9]\d|0[0-4])(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\b"), "date"),
     # YYYYMMDD (compact date, also inside text such as "visit=20260930")
     (re.compile(r"\b(19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\b"), "date"),
+    # D/M/YYYY or M/D/YYYY (also with - or .). Only the year-first form was
+    # universal, so 03/15/2024 was SAFE under any locale whose pack did not
+    # list it (kr), and a SAFE column is passed through un-stripped.
+    (re.compile(r"\b(0?[1-9]|[12]\d|3[01])([-/.])(0?[1-9]|[12]\d|3[01])\2(19|20)\d{2}\b"), "date"),
+    # Month written as a word: 15-Mar-2024, 15MAR2024, 15 March 2024,
+    # 15-Mar-24, March 15, 2024, Mar. 15 2024. These were SAFE everywhere.
+    (re.compile(r"\b(0?[1-9]|[12]\d|3[01])([-\s/]?)" + _MONTH_WORD +
+                r"\.?\2(19|20)\d{2}\b"), "date"),
+    (re.compile(r"\b(0?[1-9]|[12]\d|3[01])([-/])" + _MONTH_WORD + r"\2\d{2}\b"), "date"),
+    (re.compile(r"\b" + _MONTH_WORD +
+                r"\.?\s+(0?[1-9]|[12]\d|3[01])(?:st|nd|rd|th)?,?\s+(19|20)\d{2}\b"), "date"),
 ]
 
 # Separators people put between digit groups ("010 1234 5678", "010.1234.5678").
@@ -980,8 +996,15 @@ class DateShifter:
     preserving relative time intervals between events for the same entity.
     """
 
-    def __init__(self, seed: int, max_days: int = 365):
-        self._rng = random.Random(seed)
+    def __init__(self, seed: int | None = None, max_days: int = 365):
+        # Each offset is drawn from the operating system's CSPRNG. Offsets
+        # used to come from random.Random(seed) with a seed drawn from
+        # 1..999999, in row order: anyone who knew two or three patients'
+        # true dates could try every seed and recover every other patient's
+        # original dates. The offsets are stored in mapping.json, so no seed
+        # is needed to reproduce a run. An explicit seed is for tests only.
+        self._rng = (random.Random(seed) if seed is not None
+                     else secrets.SystemRandom())
         self._max_days = max_days
         self._offsets: dict[str, int] = {}
         self.seed = seed
@@ -1094,18 +1117,20 @@ def apply_anonymization(data: list[dict], report: dict,
     # Initialize anonymizers
     name_gen = PseudonymGenerator(prefix="P")
     id_gen = IDReplacer(prefix="ID")
-    seed = date_shift_seed if date_shift_seed is not None else random.randint(1, 999999)
-    date_shifter = DateShifter(seed=seed)
+    # No seed by default: offsets come from the OS CSPRNG (see DateShifter).
+    date_shifter = DateShifter(seed=date_shift_seed)
     audit_key = secrets.token_bytes(32)
 
-    mapping: dict[str, dict] = {
-        "_meta": {
-            "date_shift_seed": seed,
-            "audit_hash_key": audit_key.hex(),
-            "timestamp": datetime.now().isoformat(),
-            "version": REPORT_VERSION,
-        }
+    meta: dict = {
+        "date_shift_rng": ("seeded (test only)" if date_shift_seed is not None
+                           else "secrets.SystemRandom"),
+        "audit_hash_key": audit_key.hex(),
+        "timestamp": datetime.now().isoformat(),
+        "version": REPORT_VERSION,
     }
+    if date_shift_seed is not None:
+        meta["date_shift_seed"] = date_shift_seed
+    mapping: dict[str, dict] = {"_meta": meta}
     audit: list[dict] = []
 
     # Process each row

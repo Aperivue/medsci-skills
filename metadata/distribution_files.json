@@ -958,8 +958,8 @@
     },
     {
       "path": "skills/clean-data/references/profiling_template.py",
-      "size": 10805,
-      "sha256": "e0860f86d9421bd488743903afeb483418c18904ff5460d49b6a2611c924b700"
+      "size": 11413,
+      "sha256": "be90e05c4f4e98733b05749195ffe673c98b7b3844e77f14c6927ef3172468cf"
     },
     {
       "path": "skills/clean-data/scripts/check_reverse_coding.py",
@@ -968,8 +968,8 @@
     },
     {
       "path": "skills/clean-data/scripts/check_structural_zero.py",
-      "size": 6655,
-      "sha256": "357b896db5730b8c2e65d327359556020f1579633134419efb7a1898cfc76657"
+      "size": 7821,
+      "sha256": "66df285401b8d5140972630cb811d574cff7444d45499c6aa175b54e716b28cb"
     },
     {
       "path": "skills/clean-data/skill.yml",
@@ -1053,13 +1053,13 @@
     },
     {
       "path": "skills/deidentify/SKILL.md",
-      "size": 12891,
-      "sha256": "f84201b9adcc65c306a1fdafa317b109b13e6e0a56a1c8f380cda15f76cfeb7e"
+      "size": 13730,
+      "sha256": "689c838b85dbc5f6cd114e902b120671997881c4321fd99e866cc9280b3dd40a"
     },
     {
       "path": "skills/deidentify/deidentify.py",
-      "size": 59560,
-      "sha256": "511faef9e8fa90f76f4a19f89f6b5d8a556e0633cb1005f4903eb018de8e275e"
+      "size": 61358,
+      "sha256": "3404e1d3d5683d1b613b035d185e3766510fa4aa0df810983d8561894a3feda3"
     },
     {
       "path": "skills/deidentify/locales/_template.json",
@@ -1108,8 +1108,8 @@
     },
     {
       "path": "skills/deidentify/locales/kr.json",
-      "size": 1547,
-      "sha256": "6c88d9dab82921b2dd32d5b2eddb9cf43aa161380749c3b316d34918db7a0e93"
+      "size": 1628,
+      "sha256": "47badba90d1c04c9a8989e2440c960f1a13f04364c00bb6962d829714f6055fa"
     },
     {
       "path": "skills/deidentify/locales/uk.json",
@@ -1118,13 +1118,13 @@
     },
     {
       "path": "skills/deidentify/locales/us.json",
-      "size": 1278,
-      "sha256": "38589cfda5795499ddb8611b241a4a283fc62e425d80fb0d09764fa75ec38969"
+      "size": 1445,
+      "sha256": "2821f3cd259d044d0526ebc75549721ca89b0e738ace3bc2f40ce445775ed8ba"
     },
     {
       "path": "skills/deidentify/references/date_shift_guide.md",
-      "size": 3793,
-      "sha256": "198687840194f69bb8c8152ede026bf5de73470cf26c4ef30ca948850dea844e"
+      "size": 4097,
+      "sha256": "1c02c8478d5988c89152e35717d2de83c734a4c025eb355f2170524377316b55"
     },
     {
       "path": "skills/deidentify/references/hipaa_18_identifiers.md",
@@ -1133,8 +1133,8 @@
     },
     {
       "path": "skills/deidentify/references/korean_phi_patterns.md",
-      "size": 4008,
-      "sha256": "4d6a0801accfc16fcb653af948d09cbb9659a002affae57d036c41c52a0c878d"
+      "size": 4182,
+      "sha256": "92c5302bddff4efc3999281fa995eb003b957c04f702db41f879281291a7aeac"
     },
     {
       "path": "skills/deidentify/skill.yml",
@@ -1148,8 +1148,8 @@
     },
     {
       "path": "skills/design-ai-benchmarking/references/anchor_rotate_reader_allocation.md",
-      "size": 5463,
-      "sha256": "33b97cfcd7d4eb9bde33352d27e9b59fe7d5371dcbf0bd4396f0d4da8d85307a"
+      "size": 6476,
+      "sha256": "0b83c4de85db85e4539bd1a8b06eff148bb877ff2abcab135f6b291e73bdb813"
     },
     {
       "path": "skills/design-ai-benchmarking/references/benchmark_export_schema.json",
@@ -1833,13 +1833,13 @@
     },
     {
       "path": "skills/fulltext-retrieval/SKILL.md",
-      "size": 7525,
-      "sha256": "c5b456bb16a46dbef666d56571e692ff8b12e8f0ba8ee78a5f45eaefb59859ff"
+      "size": 7790,
+      "sha256": "d96a28bb003ae19c0b4ab150958f48c28efe358b9706c547769177c9f1660f5f"
     },
     {
       "path": "skills/fulltext-retrieval/fetch_oa.py",
-      "size": 35996,
-      "sha256": "03b6fe7d998580e7b6cdbfc021bae0c854de30219cc8ad272c7531459e150ca3"
+      "size": 37110,
+      "sha256": "8ae1348466de6058e774bff68cc32b374ff7add7de78096cea01ec32129eeddd"
     },
     {
       "path": "skills/fulltext-retrieval/fetch_oa_report_challenge/expected/projection.json",
@@ -1888,18 +1888,18 @@
     },
     {
       "path": "skills/generate-codebook/SKILL.md",
-      "size": 3896,
-      "sha256": "711923b19301960ec9b8aefcfab068440af4209d32862e55029ca02177ca52ea"
+      "size": 4455,
+      "sha256": "6c461d01e9310dd5d1c9fdeb98fce242607c706490993af411de91f3b7ee9edc"
     },
     {
       "path": "skills/generate-codebook/references/codebook_schema.md",
-      "size": 3435,
-      "sha256": "b85e52ef7383441dd09fd0cef2ad464054c2aea85247bb0bc9b3e38cf6e65f56"
+      "size": 3977,
+      "sha256": "ef1ad3d5f89c117c80b0b04de50ee3f78d9acb948d07677e4cca9d2f8dcd32aa"
     },
     {
       "path": "skills/generate-codebook/scripts/generate_codebook.py",
-      "size": 10982,
-      "sha256": "1a2db77ed0c13b7d5080f0d422ab6198a2d2fa88d0c9adbdabb9fc2a0dba8ddc"
+      "size": 12971,
+      "sha256": "f3bbafc399909d2575dffddc9b359ec265f42ee3238aba1cbf84efebd5d5df38"
     },
     {
       "path": "skills/generate-codebook/skill.yml",
@@ -3528,8 +3528,8 @@
     },
     {
       "path": "skills/model-scaffold/SKILL.md",
-      "size": 8704,
-      "sha256": "ab5bb4de96cd1c69b5b63ccb7b6f7023806b14ff80153cf614a37d6fc1f91b9e"
+      "size": 10703,
+      "sha256": "2ecaab418a43f0232c28512c08476b6c34f1f161a67b661a741be57f39c94342"
     },
     {
       "path": "skills/model-scaffold/references/finetuning_guide.md",
@@ -3548,13 +3548,13 @@
     },
     {
       "path": "skills/model-scaffold/scripts/check_training_hygiene.py",
-      "size": 14137,
-      "sha256": "ff08cc101819def5ba1471c9426bd67dbc12978435a8a6456877e75a63bbd4e1"
+      "size": 21346,
+      "sha256": "e563fdd4227b23f40786031b9a79c67aded2eba9ed3f781edb972c1aae930dab"
     },
     {
       "path": "skills/model-scaffold/scripts/scaffold.py",
-      "size": 53371,
-      "sha256": "e1803b3328c2cd14d744f8f2ea44dbd92c2a8b861028e42847107b4c5f187d5f"
+      "size": 59636,
+      "sha256": "836741889acff41ef936a55ef0141fba682486ace5c1785223e970bca4d01260"
     },
     {
       "path": "skills/model-scaffold/scripts/scaffold_challenge/expected/split_assignment.csv",
@@ -3573,13 +3573,13 @@
     },
     {
       "path": "skills/model-scaffold/scripts/scaffold_challenge/verify.sh",
-      "size": 8936,
-      "sha256": "005f9c8c4ac4f4c89a80b8e73c227b4aadb98387196517e18975682f837532a9"
+      "size": 9122,
+      "sha256": "3397b65a28d90437552d02744ae7a951141343701c357c9bfbd9daa55a732cb9"
     },
     {
       "path": "skills/model-scaffold/skill.yml",
-      "size": 3750,
-      "sha256": "8dafdb0ad8a8eefe6243392d971f743e2b7f2e428c688b202efad85648288dd4"
+      "size": 3937,
+      "sha256": "d20a5d8083075b3cee69442b54ec34bdd43318982e7c0b5e3af1788310aae2b2"
     },
     {
       "path": "skills/model-selection/SKILL.md",
@@ -3683,8 +3683,8 @@
     },
     {
       "path": "skills/obsidian-paper-vault/SKILL.md",
-      "size": 6170,
-      "sha256": "2c277fa6e5cec28b93e3681e7b8122a25df827a8900fc45f419596f618e17cb4"
+      "size": 6331,
+      "sha256": "05a18e8c796b88fa027fc1cb3351b0914c9379f550cade5976306b836665368e"
     },
     {
       "path": "skills/obsidian-paper-vault/assets/example_concept_note.md",
@@ -3733,13 +3733,13 @@
     },
     {
       "path": "skills/obsidian-paper-vault/scripts/extract_pdfs.py",
-      "size": 2555,
-      "sha256": "dc6320e3e4a07f58015eac104a1077dbb7ecd169022f376f946b5b95e13bdae0"
+      "size": 3360,
+      "sha256": "a35885c525e63496578677d0ae9ca6e5c7c9422e6970809874b1aedf31583d5a"
     },
     {
       "path": "skills/obsidian-paper-vault/skill.yml",
-      "size": 2694,
-      "sha256": "365b5843e14d945626a0316da83d6a024330f6b16b9888a9c6b8042d8aa3ae3f"
+      "size": 2735,
+      "sha256": "fb696bc14cd57e8ba23a61dc2ed314b421290e11dbba07b0a2ef00363b00f60b"
     },
     {
       "path": "skills/orchestrate/SKILL.md",
@@ -4573,13 +4573,13 @@
     },
     {
       "path": "skills/replicate-study/references/harmonization_3country.csv",
-      "size": 11611,
-      "sha256": "66c42de1f40b9dd846aa1fbc28ca367e455854cd1a8fbf74a88dfcc6f90583dc"
+      "size": 12796,
+      "sha256": "eb14510d0c2b9a70a6684dc152bfc2e40dae16eced557f68fe10f7b84a73fc9f"
     },
     {
       "path": "skills/replicate-study/references/harmonization_knhanes_nhanes.csv",
-      "size": 11356,
-      "sha256": "81fa9eacfaa0d2bedbf6d978c95fd3ddb32cfbc10c275cfbd4c5e14d809d96e7"
+      "size": 12013,
+      "sha256": "ecc9301ee2437e29df267e9a50e87923cb7114729152843bb8f52c72d05e7952"
     },
     {
       "path": "skills/replicate-study/references/methodology_extraction_template.md",
@@ -4663,8 +4663,8 @@
     },
     {
       "path": "skills/search-lit/SKILL.md",
-      "size": 18001,
-      "sha256": "a214f70bd6038e737d33361df7d74a3897474164b5674a7ab1fe17ea6521e5a7"
+      "size": 18933,
+      "sha256": "d3ea8542a0b49d899e25b1e0629745e9a6efa7c1c719011a26897ada7a733e8b"
     },
     {
       "path": "skills/search-lit/references/embase_browser.md",
@@ -4673,8 +4673,8 @@
     },
     {
       "path": "skills/search-lit/references/parse_pubmed.py",
-      "size": 13449,
-      "sha256": "e8dc9621f5808710ab8ab888f2ac75101e35425cfaeb048b4b81c4aed7f90fe1"
+      "size": 14111,
+      "sha256": "10a122f9c07e4cc2ee1343767863d66b47b1d387d888a6649e1e8d851909f065"
     },
     {
       "path": "skills/search-lit/references/pubmed_eutils.sh",
@@ -4683,8 +4683,8 @@
     },
     {
       "path": "skills/search-lit/references/snowball.py",
-      "size": 12850,
-      "sha256": "faff954df85be3d6ad78cfc9a04c459d42614c07c6f5ded38b0b179bd248d37b"
+      "size": 14990,
+      "sha256": "2c40dd6a42c7383d4c50aba02ac4edbdb8188f77bd3fdca15b2bbd18b26fc401"
     },
     {
       "path": "skills/search-lit/references/snowball_challenge/expected/snowball.bib",
@@ -4707,6 +4707,16 @@
       "sha256": "d05e87d6afc1c8faaf06f20f53b791095f1c1b1172b6f194ea26d98d0d633412"
     },
     {
+      "path": "skills/search-lit/references/snowball_challenge/fixture/DOI_10_0_seed_err.backward.json",
+      "size": 59,
+      "sha256": "d5f282f6969d3a4ec0dc6de9391d9ffe35feff2fab5b0044d985c77d5c91fac0"
+    },
+    {
+      "path": "skills/search-lit/references/snowball_challenge/fixture/DOI_10_0_seed_trunc.forward.json",
+      "size": 678,
+      "sha256": "0ea707ae51c824bbf320b363739410dfc65fc9d321e64741be50483bab12987a"
+    },
+    {
       "path": "skills/search-lit/references/snowball_challenge/fixture/library.bib",
       "size": 277,
       "sha256": "f778db88f7f5727d1d8e322c2c83ca9eed1ddd57ee165015980d81e801e0b221"
@@ -4718,13 +4728,23 @@
     },
     {
       "path": "skills/search-lit/references/snowball_challenge/verify.sh",
-      "size": 780,
-      "sha256": "fe78f15b64daff006c4a3b421bb35e943461b2de7ec00ddb2213ceb843da868e"
+      "size": 3125,
+      "sha256": "c11bdd788e03e3bae206ae351f2d1c67699bd5b2d642a6de83c7c61085149f84"
     },
     {
       "path": "skills/search-lit/scripts/check_doi_record_match.py",
-      "size": 11486,
-      "sha256": "ee1b48751d64cdf8fa56957950c38d65d1825004bb0e23925ac09eefe1ac5a07"
+      "size": 13230,
+      "sha256": "3791a1ee945aa3bd0238434b11cb4f3d98de86519d450e487bcdd8707a11a58b"
+    },
+    {
+      "path": "skills/search-lit/scripts/check_doi_record_match_challenge/fixture/cache/10.1000%2Farticle.008.json",
+      "size": 278,
+      "sha256": "477a95c17a48b076295d0005c5d58a84a926f99dbe6bc428e368b1beb3b51088"
+    },
+    {
+      "path": "skills/search-lit/scripts/check_doi_record_match_challenge/fixture/cache/10.1000%2Ferratum.007.json",
+      "size": 292,
+      "sha256": "d001f0932c7ffa497f6c24499eae6fd3a134a5da60a873a45e8966f24e72ae16"
     },
     {
       "path": "skills/search-lit/scripts/check_doi_record_match_challenge/fixture/cache/10.1000%2Fmarkup.005.json",
@@ -4747,14 +4767,24 @@
       "sha256": "1495ead4a558dfdbc464429105e52da0d65b3b53dd36fb42999c0d2d8d07ba05"
     },
     {
+      "path": "skills/search-lit/scripts/check_doi_record_match_challenge/fixture/cache/10.1000%2Fversion.009.json",
+      "size": 265,
+      "sha256": "f44d2dd5cb250656210889e4568a907ecb1d56009c02d84666fbe94469f509c9"
+    },
+    {
       "path": "skills/search-lit/scripts/check_doi_record_match_challenge/fixture/screening.tsv",
       "size": 615,
       "sha256": "63fe9a58d6c3aa80426f8e2b958edfc0f93cc260e5bb68abefdf99ced648f575"
     },
     {
+      "path": "skills/search-lit/scripts/check_doi_record_match_challenge/fixture/update_notice.tsv",
+      "size": 444,
+      "sha256": "d553180fde5c89d769ff485096bfada8eea409dbbd08d832e3b9427f7a980e7f"
+    },
+    {
       "path": "skills/search-lit/scripts/check_doi_record_match_challenge/verify.sh",
-      "size": 4604,
-      "sha256": "a4d6014a1c366a4386309f1397d1fd3f834cba50ff5db67e219bb0226c6da9e1"
+      "size": 6065,
+      "sha256": "0c4e1e4b7a57e6dfa2796694f4d6146074aeb3ac6c661bfa5eb05c08ea2c2b8e"
     },
     {
       "path": "skills/search-lit/skill.yml",
@@ -6083,8 +6113,8 @@
     },
     {
       "path": "skills/verify-refs/SKILL.md",
-      "size": 12045,
-      "sha256": "9e1ace3bc4688df81de05e28b39c2441ed89172ed345c984dae0682c3c5d3a27"
+      "size": 12586,
+      "sha256": "282664d1cfed36b0ffb185f44f93634e9e66cf1c58921c209f87479a27b43527"
     },
     {
       "path": "skills/verify-refs/references/claim_evidence_workflow.md",
@@ -6098,8 +6128,8 @@
     },
     {
       "path": "skills/verify-refs/scripts/_claim_evidence.py",
-      "size": 16048,
-      "sha256": "fc000fcec82fd3ab61b4a4275bfc3344d3e61813c9cd67292b4381374ab63fce"
+      "size": 16154,
+      "sha256": "000d46e5cc028d2c74ea25113d6085cb0625e76c9f9c49c7d507e30f17002505"
     },
     {
       "path": "skills/verify-refs/scripts/_quote_match.py",
@@ -6158,8 +6188,8 @@
     },
     {
       "path": "skills/verify-refs/scripts/verify_refs.py",
-      "size": 67988,
-      "sha256": "0652db39858df3d225100cdc7c6ffe8b8f310a119fcf18714cebd439640ae013"
+      "size": 73477,
+      "sha256": "61020dd83737f4d079b339b6bf8a0b963bc08bdec55d7ebbe48a43586404f5ab"
     },
     {
       "path": "skills/verify-refs/skill.yml",
@@ -6188,8 +6218,8 @@
     },
     {
       "path": "skills/write-paper/SKILL.md",
-      "size": 35539,
-      "sha256": "0090a8dd6ba5b56d216baf51081142b1dbf7def92f640322a02493e862255938"
+      "size": 36105,
+      "sha256": "7a46c0d8cbc219496ab73868215d60211feb667e59e6293d39d665e756c4b3c5"
     },
     {
       "path": "skills/write-paper/references/exemplar_abstract.md",
@@ -6738,18 +6768,18 @@
     },
     {
       "path": "skills/write-paper/scripts/build_title_page_affiliations.py",
-      "size": 11723,
-      "sha256": "ff1b29d66c8272c62423f7c31f945041ce2c097b0452097fd88f25777641a3db"
+      "size": 12344,
+      "sha256": "493f2faedcd57639780c5ecd8a59239b166ea5d736ef56b2955c10d91621f8f6"
     },
     {
       "path": "skills/write-paper/scripts/check_placeholders.py",
-      "size": 8998,
-      "sha256": "eb781cf4dbd7246bfd15c76ee09454df024770b8c9633f11e837d92489a36121"
+      "size": 11181,
+      "sha256": "4f2f34cbbe876368c258813ad2e9a01fd69242fc6143c473def8bd13fb88b2f9"
     },
     {
       "path": "skills/write-paper/scripts/gate_backbone_fulltext.py",
-      "size": 8358,
-      "sha256": "fa06f0d38c59b319a6cb892f4fb0beeccbf147ec4377a87d0f4b35a49d607050"
+      "size": 9493,
+      "sha256": "13cb223806474ef29cd8ae0c4be82df775c6c2458f71c244d4bba1059cd70cd0"
     },
     {
       "path": "skills/write-paper/skill.yml",

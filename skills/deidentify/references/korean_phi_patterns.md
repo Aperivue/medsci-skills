@@ -49,6 +49,15 @@ This file serves as documentation; the actual patterns are in the Python script.
 - Area codes: 02 (Seoul), 031-033 (Gyeonggi), 041-044 (Chungcheong), 051-055 (Gyeongsang), 061-064 (Jeolla/Jeju)
 - Examples: `02-555-1234`, `031-765-4321`, `051-234-5678`
 
+### 전화번호 — 인터넷전화 (070)
+
+```
+070-?\d{3,4}-?\d{4}
+```
+
+- Not covered by the landline pattern above (its area codes start 02-06)
+- Example: `070-1234-5678`
+
 ### 이메일 (Email)
 
 ```
