@@ -26,7 +26,14 @@ Resolution order for the backbone's extracted text:
   1. an explicit `--fulltext PATH` (authoritative);
   2. a `<citekey>.md` in any `--fulltext-dir`;
   3. any `*.md` in a `--fulltext-dir` whose text contains the backbone DOI
-     (resolved from `--refs`) or the citekey.
+     (resolved from `--refs`) or the citekey **before its References /
+     Bibliography heading**. A match inside a reference list only proves that
+     the file *cites* the backbone, not that it *is* the backbone, so it does
+     not count.
+
+Known limit: a different paper that names the backbone DOI in its own body or
+title (an editorial about it, say) still resolves by rule 3. Name the file
+`<citekey>.md` or pass `--fulltext` to make the match unambiguous.
 
 Usage:
     gate_backbone_fulltext.py --project project.yaml --refs manuscript/_src/refs.bib \
@@ -80,6 +87,22 @@ def doi_for_citekey(refs: Path, citekey: str) -> str | None:
     return d.group(1).strip() if d else None
 
 
+# A line that opens a reference list: "References", "## References", "**REFERENCES**",
+# "Bibliography:" ... -- the whole line must be the heading, so a sentence that merely
+# contains the word does not cut the text.
+REFERENCES_HEADING_RE = re.compile(
+    r"^\s*(?:#{1,6}\s*)?(?:\*\*|__)?\s*(?:\d+\.?\s*)?"
+    r"(?:references|bibliography|reference list|literature cited|works cited)"
+    r"\s*:?\s*(?:\*\*|__)?\s*:?\s*$",
+    re.IGNORECASE | re.MULTILINE)
+
+
+def body_before_references(text: str) -> str:
+    """Text up to (not including) the first reference-list heading line."""
+    m = REFERENCES_HEADING_RE.search(text)
+    return text[: m.start()] if m else text
+
+
 def find_fulltext(citekey: str, doi: str | None, dirs: list[Path]) -> Path | None:
     """Locate an extracted-markdown file for the backbone article."""
     doi_l = doi.lower() if doi else None
@@ -94,7 +117,8 @@ def find_fulltext(citekey: str, doi: str | None, dirs: list[Path]) -> Path | Non
             continue
         for md in sorted(d.rglob("*.md")):
             try:
-                head = md.read_text(encoding="utf-8", errors="replace")[:20000].lower()
+                head = body_before_references(
+                    md.read_text(encoding="utf-8", errors="replace")[:20000]).lower()
             except OSError:
                 continue
             if citekey.lower() in head or (doi_l and doi_l in head):

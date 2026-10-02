@@ -26,7 +26,7 @@ clinical nephrology, chronic kidney disease, acute kidney injury, hemodialysis, 
 - **Field:** Nephrology (clinical)
 
 ## Special Notes
-AJKD (IF ~10.4) requires a highly specific structured abstract (max 300 words) with headings like Rationale & Objective, Setting & Participants, Predictors, Outcomes, Measurements, and Limitations. Requires a Clinical Summary section at the beginning. AI policy: language editing only, disclose before references, AI images banned.
+AJKD requires a highly specific structured abstract (max 300 words) with headings like Rationale & Objective, Setting & Participants, Predictors, Outcomes, Measurements, and Limitations. Requires a Clinical Summary section at the beginning. AI policy: language editing only, disclose before references, AI images banned.
 
 ## Verification
 - **Source:** AJKD Information for Authors — https://www.ajkd.org/article/S0272-6386(11)01206-6/fulltext
