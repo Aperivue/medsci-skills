@@ -138,6 +138,45 @@ for safe in train contest pretest protest_cohort validation; do
   check "no TEST_SET_UNLABELLED on unlabelled split named '$safe'" no_verdict TEST_SET_UNLABELLED
 done
 
+# (5b) a single reported metric. `--plan metrics=accuracy` (the documented usage) reached
+# the gate as the string "accuracy", which was iterated per character, so accuracy at
+# 0.4 % foreground passed --strict as "OK" while metrics=accuracy+dice was a Major.
+write_metric() {  # $1=out  $2=JSON value for plan.metrics
+  python3 - "$1" "$2" "$CH/fixture/profile_clean.json" <<'PY'
+import json, sys
+out, metrics, src = sys.argv[1], json.loads(sys.argv[2]), sys.argv[3]
+p = json.load(open(src))
+p["plan"]["metrics"] = metrics
+json.dump(p, open(out, "w"))
+PY
+}
+for m in '"accuracy"' '"Accuracy"' '"accuracy+dice"' '["accuracy"]'; do
+  write_metric "$TMP/m.json" "$m"
+  python3 "$SCRIPT" --profile "$TMP/m.json" --out "$OUT" --strict --quiet >/dev/null 2>&1
+  check "metrics=$m at 0.4% foreground: exit 1 under --strict" test "$?" -eq 1
+  check "metrics=$m at 0.4% foreground: ACCURACY_UNDER_IMBALANCE" has_verdict ACCURACY_UNDER_IMBALANCE
+done
+for m in '"dice"' '"hd95"' '["dice"]'; do
+  write_metric "$TMP/m.json" "$m"
+  python3 "$SCRIPT" --profile "$TMP/m.json" --out "$OUT" --strict --quiet >/dev/null 2>&1
+  check "metrics=$m (no accuracy): exit 0" test "$?" -eq 0
+  check "metrics=$m (no accuracy): no ACCURACY_UNDER_IMBALANCE" no_verdict ACCURACY_UNDER_IMBALANCE
+done
+# The profiler's --plan parser emits a list for a single metric. nibabel/numpy are stubbed:
+# parse_kv needs neither, and the CI runner has no nibabel.
+parse_kv_ok() { python3 - "$HERE/../scripts" <<'PY'
+import sys, types
+for mod in ("nibabel", "numpy"):
+    sys.modules.setdefault(mod, types.ModuleType(mod))
+sys.path.insert(0, sys.argv[1])
+from profile_imaging_dataset import parse_kv
+assert parse_kv("metrics=accuracy")["metrics"] == ["accuracy"], parse_kv("metrics=accuracy")
+assert parse_kv("metrics=dice+hd95")["metrics"] == ["dice", "hd95"]
+assert parse_kv("loss=dice_ce,resample=true") == {"loss": "dice_ce", "resample": True}
+PY
+}
+check "profiler parse_kv: metrics=accuracy -> ['accuracy']" parse_kv_ok
+
 # (6) challenge card reproduces
 check "challenge card verify.sh" bash "$CH/verify.sh"
 

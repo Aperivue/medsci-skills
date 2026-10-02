@@ -36,8 +36,9 @@ data.
 ## The failure modes (what the gate enforces)
 1. **No nested CV.** Tuning and reporting on the same folds inflates performance. Use nested CV or a
    held-out test set.
-2. **High dimensionality, low events.** Features ≥ events with no dimensionality reduction overfits —
-   the classic radiomics trap. The gate's `p ≥ events` rule is a floor that catches the worst case,
+2. **High dimensionality, low events.** Candidate features ≥ events overfits — the classic radiomics
+   trap. Declaring `dimensionality_reduction` does not clear it: `n_features` already counts what is
+   left after outcome-blind reduction. The gate's `p ≥ events` rule (events = the minority class) is a floor that catches the worst case,
    **not a sample-size criterion**: size the study with `/calc-sample-size` Test 12 (Riley criteria,
    `pmsampsize`), counting every **candidate** feature that reaches outcome-driven selection or
    fitting. At C = 0.75 and 35% prevalence that is about 48 patients per candidate parameter: 100
@@ -115,7 +116,14 @@ split by. See `references/radiomics_ml_guide.md`.
 - `n_features` — the **candidate** features that reach outcome-driven selection or fitting, after
   outcome-blind reduction (here 1,200 extracted → ICC ≥ 0.75 → |r| < 0.9 → 40). This example passes
   the gate, yet `pmsampsize` (C = 0.75, prevalence 110/300) asks for N = 1,868 with 685 events for
-  40 candidate parameters: the gate does not size the study, Test 12 does.
+  40 candidate parameters: the gate does not size the study, Test 12 does. `n_features`,
+  `n_samples` and `n_events` must be non-negative integers (`n_events` ≤ `n_samples`); anything else
+  is an input error (exit 2). `dimensionality_reduction` is informational and clears nothing.
+- `feature_selection_stage` — `inside_cv`, `outside_cv`, or `none` (no outcome-driven selection).
+  Missing or unrecognised is treated as not shown to be in-fold (`SELECTION_OUTSIDE_CV`).
+- `feature_stability` — `icc` / `test_retest`; `external_validation` — `external` / `temporal` /
+  `geographic`. Any other value (e.g. `planned`, `internal`, `bootstrap`, `random_split`) is flagged.
+  Values are case-insensitive; `-` and spaces read as `_`.
 - `cv_scheme` — `nested`, or `held_out_test` / `single_split` when hyperparameters and model choice
   were tuned on the training split only and the test split was touched once. A split that was also
   used for tuning, model selection or a threshold is `flat` (choosing among 12 candidate models on
