@@ -1,0 +1,36 @@
+{
+  "offset": 0,
+  "next": 2,
+  "data": [
+    {
+      "citingPaper": {
+        "title": "Synthetic Forward Page Paper One",
+        "year": 2024,
+        "venue": "Synthetic Imaging",
+        "externalIds": {
+          "DOI": "10.0/page-one"
+        },
+        "authors": [
+          {
+            "name": "Eve Scholar"
+          }
+        ]
+      }
+    },
+    {
+      "citingPaper": {
+        "title": "Synthetic Forward Page Paper Two",
+        "year": 2025,
+        "venue": "Synthetic Imaging",
+        "externalIds": {
+          "DOI": "10.0/page-two"
+        },
+        "authors": [
+          {
+            "name": "Finn Scholar"
+          }
+        ]
+      }
+    }
+  ]
+}

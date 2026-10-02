@@ -34,18 +34,20 @@ incomplete block design: reader pairs are not co-rated equally often.
 ### Formulas
 ```
 rot_budget        = cap - A                      # each reader's rotating (unique) slots; must be > 0
-unique            = pool - A
-R (readers)       = ceil(m * unique / rot_budget) # readers needed for ~m raters per unique item
-reads_per_reader  = A + rot_budget  (= cap)
-raters_per_unique = R * rot_budget / unique
+unique            = pool - A                     # must be > 0 (pool > A); m must be >= 1
+R (readers)       = max(m, ceil(m * unique / rot_budget)) # ~m raters per unique item, never < m
+reads_per_reader  = A + min(rot_budget, unique)  # (= cap unless unique < rot_budget)
+raters_per_unique = min(R, R * rot_budget / unique) # an item cannot have more raters than readers
 anchor_reads      = R * A                          # reliability strength on the anchor set
 ```
+When `unique < rot_budget` every reader rates every item: the design is fully crossed and
+rotation is not needed.
 
 ### Reverse (the usually-binding question)
 Given **R available readers** (expert raters are typically the scarce resource), the largest
 unique pool you can evaluate at `m` raters/item is:
 ```
-max_pool = A + (R * (cap - A)) // m
+max_pool = A + (R * (cap - A)) // m            # requires R >= m: m distinct raters need m readers
 ```
 This is the real ceiling: with a small expert panel, total feature-scored coverage is small.
 Curate the must-rate item set to fit `max_pool` rather than assuming the cap is per-study.
@@ -69,7 +71,14 @@ Curate the must-rate item set to fit `max_pool` rather than assuming the cap is 
 import math
 
 def plan(cap, pool, anchor, m):
-    """Anchor-and-rotate allocation. Returns readers needed + per-reader load, or None if infeasible."""
+    """Anchor-and-rotate allocation. Returns readers needed + per-reader load, or None if infeasible.
+
+    Raises ValueError on input no allocation can satisfy (anchor < 0, m < 1, pool <= anchor).
+    """
+    if anchor < 0 or m < 1:
+        raise ValueError(f"need anchor >= 0 and m >= 1 (got anchor={anchor}, m={m})")
+    if pool <= anchor:
+        raise ValueError(f"pool ({pool}) must exceed anchor ({anchor}): no rotating items")
     rot = cap - anchor
     if rot <= 0:
         return None  # anchor >= cap: no room to rotate
@@ -77,14 +86,21 @@ def plan(cap, pool, anchor, m):
     R = max(m, math.ceil(m * unique / rot))
     return {
         "readers": R,
-        "reads_per_reader": anchor + rot,           # == cap
-        "raters_per_unique": (R * rot) / unique if unique else float("inf"),
+        "reads_per_reader": anchor + min(rot, unique),  # < cap when unique < rot
+        "raters_per_unique": min(R, (R * rot) / unique),  # at most one rating per reader
         "anchor_reads": R * anchor,
         "within_cap": (anchor + rot) <= cap,
     }
 
 def max_pool_for_readers(cap, anchor, m, R):
-    """Reverse: largest unique pool for R available readers at m raters/item."""
+    """Reverse: largest unique pool for R available readers at m raters/item.
+
+    Raises ValueError when anchor < 0, m < 1, or R < m (m distinct raters need m readers).
+    """
+    if anchor < 0 or m < 1:
+        raise ValueError(f"need anchor >= 0 and m >= 1 (got anchor={anchor}, m={m})")
+    if R < m:
+        raise ValueError(f"R ({R}) readers cannot give m ({m}) distinct raters per item")
     rot = cap - anchor
     return None if rot <= 0 else anchor + (R * rot) // m
 
