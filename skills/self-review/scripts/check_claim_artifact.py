@@ -81,6 +81,9 @@ DISCLOSURE_RE = re.compile(
     re.I,
 )
 EFFECT_RE = re.compile(r"\b(s?HR|a?HR|a?OR|RR|hazard ratio|odds ratio|risk ratio)\b\D{0,8}(\d+\.\d+)", re.I)
+# The same labels without a number: counts how many estimates a sentence names, including
+# one whose figure sits too far from its label for EFFECT_RE to bind.
+EFFECT_LABEL_RE = re.compile(r"\b(s?HR|a?HR|a?OR|RR|hazard ratio|odds ratio|risk ratio)\b", re.I)
 # A confidence interval printed right after the effect estimate: "(95% CI 1.20-1.93)".
 CI_AFTER_EFFECT_RE = re.compile(
     r"[^()\d]{0,4}\(?\s*\d{2}\s*%\s*(?:CI|confidence interval)[,:]?\s*"
@@ -276,10 +279,10 @@ def check_evalue(manuscript: str) -> list[dict]:
             if e.end() <= ev_lo:
                 return ev_lo - e.end()
             return 0
-        eff = min(EFFECT_RE.finditer(sent), key=_gap, default=None)
+        effs = sorted(EFFECT_RE.finditer(sent), key=_gap)
         nonprimary = any(kw in sent.lower() for kw in NONPRIMARY_KW)
 
-        if not eff:
+        if not effs:
             claims.append({
                 "claim_id": f"EVAL-{i}",
                 "type": "evalue",
@@ -291,19 +294,43 @@ def check_evalue(manuscript: str) -> list[dict]:
             })
             continue
 
+        def _fit(e) -> tuple[float, float, str]:
+            """(rel. diff, recomputed, note) of the stated E-value against estimate e."""
+            rr_ = float(e.group(2))
+            rec = evalue_point(rr_)
+            rel_ = abs(stated - rec) / rec if rec else 1.0
+            # A stated value may be the E-value for the near-null confidence limit
+            # (phase2_5f asks for both); accept it when the CI is printed with the estimate.
+            ci = CI_AFTER_EFFECT_RE.match(sent, e.end())
+            if rel_ > EVALUE_TOL and ci:
+                lo, hi = sorted((float(ci.group(1)), float(ci.group(2))))
+                ci_ev = _ci_limit_evalue(lo, hi)
+                if abs(stated - ci_ev) / ci_ev <= EVALUE_TOL:
+                    return (abs(stated - ci_ev) / ci_ev, ci_ev,
+                            f" for the CI limit nearest the null ({lo}-{hi})")
+            return rel_, rec, ""
+
+        fits = [(e, _fit(e)) for e in effs]          # nearest estimate first
+        matching = [(e, f) for e, f in fits if f[0] <= EVALUE_TOL]
+        n_named = max(len(effs), len(EFFECT_LABEL_RE.findall(sent)))
+        if not matching and n_named > 1:
+            # Several estimates in one sentence and the stated E-value fits none: which
+            # estimate it belongs to cannot be read off the sentence, so do not call it
+            # an arithmetic error.
+            listed = ", ".join(f"{e.group(1)} {e.group(2)} -> {f[1]:.2f}" for e, f in fits)
+            claims.append({
+                "claim_id": f"EVAL-{i}",
+                "type": "evalue",
+                "prose_value": f"E-value {stated}",
+                "artifact_source": f"{n_named} effect estimates named in the sentence",
+                "verdict": "EVALUE_UNVERIFIABLE",
+                "detail": (f"E-value {stated} matches none of the estimates read from its sentence "
+                           f"({listed}), which names {n_named}; confirm which estimate it was "
+                           f"computed for."),
+            })
+            continue
+        eff, (rel, recomputed, ci_note) = (matching or fits)[0]
         rr = float(eff.group(2))
-        recomputed = evalue_point(rr)
-        rel = abs(stated - recomputed) / recomputed if recomputed else 1.0
-        # A stated value may be the E-value for the near-null confidence limit
-        # (phase2_5f asks for both); accept it when the CI is printed with the estimate.
-        ci = CI_AFTER_EFFECT_RE.match(sent, eff.end())
-        ci_note = ""
-        if rel > EVALUE_TOL and ci:
-            lo, hi = sorted((float(ci.group(1)), float(ci.group(2))))
-            ci_ev = _ci_limit_evalue(lo, hi)
-            if abs(stated - ci_ev) / ci_ev <= EVALUE_TOL:
-                rel, recomputed = abs(stated - ci_ev) / ci_ev, ci_ev
-                ci_note = f" for the CI limit nearest the null ({lo}-{hi})"
         if rel > EVALUE_TOL:
             verdict = "EVALUE_ARITHMETIC"
             detail = (f"stated E-value {stated} but {eff.group(1)} {rr} recomputes to "

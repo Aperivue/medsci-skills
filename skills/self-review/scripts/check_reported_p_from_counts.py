@@ -22,6 +22,12 @@ checked too (the family calibration only names the family; it never gates a flag
 A P printed on the first level of a multi-level variable (the next row has counts and
 an empty P cell) is an r x c omnibus P: the alpha and bound rules skip it, and the
 order-of-magnitude rule applies to it only as before (tables with >= 2 count rows).
+The alpha and bound rules (and the single-row check) judge a row only when its crude
+2x2 is established: both cells print a % that equals count / header n to its printed
+precision, and the P is not model-based (no "adjusted" / "multivariable" / "model" in
+the P header, no OR / HR / RR / beta / estimate column). Any other row gets only the
+original order-of-magnitude rule, in tables with >= 2 count rows, and the report adds a
+LIMITED line counting such rows.
 The report states how many rows were checked, and says so when none was.
 
 Stdlib-only (math.comb / math.erfc). Reads the manuscript, never writes it.
@@ -45,6 +51,15 @@ PVAL_HEADER_RE = re.compile(r"^\s*\*?\s*[Pp]\s*(?:[- ]?value)?\s*\*?\s*$")
 PVAL_HEADER_CONTAINS = re.compile(r"\bp[- ]?value\b", re.I)
 COUNT_CELL_RE = re.compile(r"^\s*(\d[\d,]*)\s*(?:\(|$)")          # integer count, optionally "count (pct)"
 PVAL_CELL_RE = re.compile(r"^\s*([<=]?)\s*(0?\.\d+|\d+(?:\.\d+)?)\s*$")
+COUNT_PCT_RE = re.compile(r"^\s*\d[\d,]*\s*\(\s*(\d+(?:\.\d+)?)\s*%?\s*\)")  # "count (pct)"
+# A table whose P is model-based cannot be rebuilt from crude counts: the P column
+# header says adjusted / multivariable / model, or another column holds an effect
+# estimate (OR / HR / RR / beta ...). Read from the table header only, never from prose.
+ADJ_P_HEADER_RE = re.compile(r"adjust|multivariab|multivariate|model", re.I)
+EFFECT_HEADER_RE = re.compile(
+    r"\b(?:a?ORs?|a?HRs?|a?RRs?|a?IRRs?|sHRs?|SHRs?)\b|β|"
+    r"(?i:\b(?:odds|hazard|risk|rate)\s+ratio|relative\s+risk|\bbeta\b|coefficient|"
+    r"\bestimate|adjust|multivariab|multivariate)")
 FAMILIES = ("Fisher exact", "Pearson chi-square (Yates)", "Pearson chi-square (uncorrected)")
 
 
@@ -61,6 +76,8 @@ class Report:
     source: str
     findings: list[Finding] = field(default_factory=list)
     rows_checked: int = 0
+    rows_order_only: int = 0   # checked, but only by the order-of-magnitude rule
+    rows_skipped: int = 0      # lone row whose crude 2x2 could not be established
 
     @property
     def n_flag(self) -> int:
@@ -142,6 +159,18 @@ def _crosses_alpha(rep_op: str, rep_num: str, comp: float, alpha: float) -> bool
     return False
 
 
+def _pct_matches(cell: str, count: int, n: int) -> bool:
+    """True when the cell prints a percentage that equals count / n to its printed
+    precision (half a unit in the last printed place). A cell with no percentage, or
+    one whose % implies another denominator (missing data), is not verified."""
+    m = COUNT_PCT_RE.match(cell)
+    if not m or n <= 0:
+        return False
+    pct = m.group(1)
+    half = 0.5 * 10 ** (-_decimals(pct))
+    return abs(100.0 * count / n - float(pct)) <= half + 1e-9
+
+
 def _bound_exceeded(rep_op: str, rep_val: float, comp: float) -> bool:
     return rep_op == "<" and comp >= rep_val
 
@@ -183,6 +212,9 @@ def audit(text: str, source: str, alpha: float = 0.05) -> Report:
 
         parsed = []
         multi_level = []   # parallel to parsed: P printed on the first level of an r x c variable
+        denom_ok = []      # parallel to parsed: both printed % agree with count / header n
+        model_based = (bool(ADJ_P_HEADER_RE.search(header[p_col]))
+                       or any(EFFECT_HEADER_RE.search(h) for k, h in enumerate(header) if k != 0))
         for idx, (cells, ln) in enumerate(rows):
             if max(g1, g2, p_col) >= len(cells):
                 continue
@@ -196,6 +228,7 @@ def audit(text: str, source: str, alpha: float = 0.05) -> Report:
             b, d = n1 - a, n2 - c
             parsed.append((cells[0], ln, a, b, c, d, pm.group(1) or "=", pm.group(2)))
             multi_level.append(_level_row(idx + 1))
+            denom_ok.append(_pct_matches(cells[g1], a, n1) and _pct_matches(cells[g2], c, n2))
 
         if not parsed:
             continue
@@ -211,17 +244,28 @@ def audit(text: str, source: str, alpha: float = 0.05) -> Report:
                         repro[k] += 1
         fam_idx = max(range(3), key=lambda k: repro[k]) if any(repro) else 2
 
-        for (lbl, ln, a, b, c, d, op, num), pv, rxc in zip(parsed, computed, multi_level):
+        for (lbl, ln, a, b, c, d, op, num), pv, rxc, dok in zip(parsed, computed, multi_level,
+                                                                 denom_ok):
             val = float(num)
             gaps = [_order_gap(op, val, pv[k]) for k in range(3)]
-            reason = None
+            crude = dok and not model_based  # the 2x2 built from header n is the row's own table
+            if not crude and len(parsed) < 2:
+                rep.rows_skipped += 1
+                continue  # unverified 2x2 alone in its table: the original >= 2-row guard
             if rxc and len(parsed) < 2:
                 continue  # first level of an r x c variable, alone in its table: not a 2x2 P
             rep.rows_checked += 1
+            if not crude:
+                rep.rows_order_only += 1
+            reason = None
             if min(gaps) > 1.0:  # differs by >1 order under EVERY family
                 reason = ""
-            elif rxc:
-                pass  # an omnibus r x c P is not judged by the 2x2 boundary rules below
+            elif not crude or rxc:
+                # Not judged by the 2x2 boundary rules: a model-based P (adjusted header or
+                # an effect-estimate column), a row whose printed % does not tie its count
+                # to the header n (missing data -> another denominator), or an omnibus
+                # r x c P.
+                pass
             elif all(_bound_exceeded(op, val, pv[k]) for k in range(3)):
                 reason = "; the computed P exceeds the reported bound under every family"
             elif all(_crosses_alpha(op, num, pv[k], alpha) for k in range(3)):
@@ -247,9 +291,14 @@ def format_report(rep: Report, color: bool) -> str:
         else:
             out.append("NOT CHECKED: no two-group count row with a P value was found; "
                        "nothing was recomputed.")
-        return "\n".join(out)
     for f in sorted(rep.findings, key=lambda x: (x.line, x.detail)):
         out.append(f"[{f.severity}] {f.kind} L{f.line}  {f.detail}")
+    if rep.rows_order_only or rep.rows_skipped:
+        out.append(f"LIMITED: {rep.rows_order_only} row(s) checked to an order of magnitude only "
+                   f"and {rep.rows_skipped} lone row(s) not checked, because the crude 2x2 is not "
+                   f"established: the P is model-based (adjusted / multivariable P header or an "
+                   f"effect-estimate column) or the row prints no % that ties its count to the "
+                   f"header n (e.g. missing data).")
     return "\n".join(out)
 
 
@@ -276,6 +325,8 @@ def main(argv: list[str] | None = None) -> int:
         if args.json:
             print(json.dumps({"detector": "check_reported_p_from_counts", "source": rep.source, "verdict": rep.verdict,
                               "rows_checked": rep.rows_checked,
+                              "rows_order_only": rep.rows_order_only,
+                              "rows_skipped": rep.rows_skipped,
                               "findings": [asdict(f) for f in rep.findings]},
                              ensure_ascii=False, indent=2))
         else:

@@ -185,7 +185,10 @@ def _pick_col(header: list[str], hints: tuple[str, ...], override: str | None) -
 # "2.1x10^-5", "2.1×10⁻⁵" (superscripts and the Unicode minus are normalised first).
 _P_NUM = r"(\d*\.?\d+)(?:\s*(?:e|(?:x|×|\*)\s*10\s*\^?)\s*([-+]?\d+))?"
 _SUPERSCRIPT = str.maketrans("⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺−", "0123456789-+-")
-_P_MISSING = ("na", "n/a", "nr", "-", ".", "—", "–")
+_P_MISSING = ("na", "n/a", "n.a.", "nr", "n.r.", "ne", "n.e.", "ref", "ref.", "reference",
+              "-", ".", "—", "–")
+# Trailing footnote markers on a cell: "N/A†", "NA^a", "0.03*", "NE‡".
+_FOOTNOTE_TAIL = re.compile(r"(?:\s*(?:[*†‡§¶#]+|\^[a-z]+))+$")
 # Cells that state "not significant" without a number.
 _P_NS = ("ns", "n.s.")
 
@@ -207,7 +210,7 @@ def _parse_p(raw: str) -> float | None:
     (an unread P must never be read as "balanced")."""
     if raw is None:
         return None
-    s = raw.strip().lower().translate(_SUPERSCRIPT)
+    s = _FOOTNOTE_TAIL.sub("", raw.strip().lower()).translate(_SUPERSCRIPT).strip()
     if not s or s in _P_MISSING:
         return None
     if s in _P_NS:

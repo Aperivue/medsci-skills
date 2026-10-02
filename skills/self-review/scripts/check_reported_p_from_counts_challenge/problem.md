@@ -20,7 +20,12 @@ value whose rounding interval straddles alpha is not judged), or is an upper bou
 (`<0.001`) the computed P exceeds. Continuous rows (mean ± SD, median [IQR]) are
 skipped. A single-row table is checked. A P printed on the first level of a
 multi-level variable (next row: counts, empty P) is an omnibus P and is not judged by
-the alpha or bound rules. When no count row with a P is found the report says
+the alpha or bound rules. The alpha, bound and single-row rules need the crude 2x2 to be the
+row's own table: both cells must print a % equal to count / header n at its printed
+precision (a smaller missing-data denominator fails this), and the P must not be
+model-based (an adjusted / multivariable / model P header, or an OR / HR / RR / beta /
+estimate column). Other rows keep only the order-of-magnitude rule (tables with >= 2
+count rows) and the report adds a `LIMITED` line counting them. When no count row with a P is found the report says
 `NOT CHECKED` instead of claiming every P reproduces.
 
 ## Fixture (synthetic only — no real manuscript, no PII)
@@ -34,6 +39,12 @@ the alpha or bound rules. When no count row with a P is found the report says
   rounding interval straddles alpha, a `0.046` that only one family reproduces, and a
   three-level Stage variable with one omnibus P on its first level.
 - `fixture/p_none.md` — prose only, no table.
+- `fixture/p_adjusted.md` — 20/100 vs 31/100 with an adjusted OR and an adjusted P of
+  0.03 (crude Fisher ≈ 0.10), the same with an OR column and a plain P header, and a
+  multivariable P header -> not judged by the crude alpha rule.
+- `fixture/p_missing_denom.md` — 20 (33.3) vs 32 (53.3) under n = 100 per group with a
+  footnote giving 60 per group with BMI, P 0.03 (true for 20/60 vs 32/60) -> not judged
+  against the header n; a count row with no % likewise.
 
 ## Expected
 - `expected/bad.txt` — one `P_NOT_REPRODUCIBLE`; exit 1 under `--strict`.
@@ -41,5 +52,6 @@ the alpha or bound rules. When no count row with a P is found the report says
 - `expected/cross.txt` — three `P_NOT_REPRODUCIBLE`; exit 1 under `--strict`.
 - `expected/cross_ok.txt` — `OK`; exit 0.
 - `expected/none.txt` — `NOT CHECKED`; exit 0.
+- `expected/adjusted.txt`, `expected/missing_denom.txt` — `OK` with a `LIMITED` line; exit 0.
 
 `verify.sh` diffs both outputs and asserts the exit-code contract. Network-free, stdlib-only.

@@ -12,19 +12,27 @@
 #   p_cross_ok.md — the same rows corrected, a straddling 0.05, a one-family 0.046
 #                   and an r x c omnibus P -> OK.
 #   p_none.md     — no table -> OK with an explicit NOT CHECKED line.
+#   p_adjusted.md — adjusted / multivariable P or an OR column: the crude 2x2 is not the
+#                   model, so only the order-of-magnitude rule applies -> OK + LIMITED.
+#   p_missing_denom.md — printed % implies a smaller denominator than the header n
+#                   (missing data) -> not judged on the 2x2 boundary rules -> OK + LIMITED.
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"; DET="$HERE/../check_reported_p_from_counts.py"; cd "$HERE"
 bad="$(python3 "$DET" --manuscript fixture/p_bad.md)"; ok="$(python3 "$DET" --manuscript fixture/p_ok.md)"
 pass=1
 diff -u expected/bad.txt <(printf '%s\n' "$bad") || { echo "FAIL: bad drift" >&2; pass=0; }
 diff -u expected/ok.txt  <(printf '%s\n' "$ok")  || { echo "FAIL: ok drift" >&2; pass=0; }
-for c in cross cross_ok none; do
+for c in cross cross_ok none adjusted missing_denom; do
   out="$(python3 "$DET" --manuscript "fixture/p_$c.md")"
   diff -u "expected/$c.txt" <(printf '%s\n' "$out") || { echo "FAIL: $c drift" >&2; pass=0; }
 done
 python3 "$DET" --manuscript fixture/p_cross.md --strict --quiet >/dev/null 2>&1 && rx=0 || rx=$?
 python3 "$DET" --manuscript fixture/p_cross_ok.md --strict --quiet >/dev/null 2>&1 && rxo=0 || rxo=$?
 python3 "$DET" --manuscript fixture/p_none.md --strict --quiet >/dev/null 2>&1 && rn=0 || rn=$?
+for c in adjusted missing_denom; do
+  python3 "$DET" --manuscript "fixture/p_$c.md" --strict --quiet >/dev/null 2>&1 && rc=0 || rc=$?
+  [ "$rc" -eq 0 ] || { echo "FAIL: $c should exit 0 (got $rc)" >&2; pass=0; }
+done
 [ "${rx:-0}" -eq 1 ] || { echo "FAIL: cross should exit 1 (got ${rx:-0})" >&2; pass=0; }
 [ "$rxo" -eq 0 ]     || { echo "FAIL: cross_ok should exit 0 (got $rxo)" >&2; pass=0; }
 [ "$rn" -eq 0 ]      || { echo "FAIL: none should exit 0 (got $rn)" >&2; pass=0; }

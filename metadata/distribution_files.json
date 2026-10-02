@@ -4793,8 +4793,8 @@
     },
     {
       "path": "skills/self-review/SKILL.md",
-      "size": 44461,
-      "sha256": "81b5af210b12735e5e4ccf279e8109a4c7b9e1ba2deb8af83e04476d9b972b12"
+      "size": 45319,
+      "sha256": "d13b8916264cdead1a3354b0024b6d873d52f710e60b0ac91cb5c568912a2881"
     },
     {
       "path": "skills/self-review/references/domain-probes/ai_overclaiming.md",
@@ -5138,8 +5138,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_claim_artifact.py",
-      "size": 24922,
-      "sha256": "db8c41d3e82885c92a15a2286ee86fd2fd4f32ddcfd79337505d23f28f26a33e"
+      "size": 26560,
+      "sha256": "f71ce3c1feb9263ed019e867e988b16a51e387b0cb0b12f4c8a3d1efc9154e01"
     },
     {
       "path": "skills/self-review/scripts/check_classical_style.py",
@@ -5153,8 +5153,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_confounding_completeness.py",
-      "size": 24509,
-      "sha256": "6d90439cc8bec4f744c0c40a0256a9346612e348555e529086841470e89e5d06"
+      "size": 24758,
+      "sha256": "c87c0fa9434890114e6a50cfb3fee2f2452202fe300c1e56ae7376bca315b19a"
     },
     {
       "path": "skills/self-review/scripts/check_cv_leakage.py",
@@ -5448,8 +5448,13 @@
     },
     {
       "path": "skills/self-review/scripts/check_reported_p_from_counts.py",
-      "size": 12506,
-      "sha256": "7d907eced28dec462d492351e7a2ebc5b4e7127b04f6f64d3cdf6c1cdd8ae7bf"
+      "size": 15908,
+      "sha256": "1bd2078af89a02637d0de614a69c9481da698cfb544e05c95ee56f5eb9991daf"
+    },
+    {
+      "path": "skills/self-review/scripts/check_reported_p_from_counts_challenge/expected/adjusted.txt",
+      "size": 413,
+      "sha256": "9a3e9f2255f27e72a84ce695e97edf40f928b8f14e587beda9212420f4e8c4de"
     },
     {
       "path": "skills/self-review/scripts/check_reported_p_from_counts_challenge/expected/bad.txt",
@@ -5467,6 +5472,11 @@
       "sha256": "16e901061f4a5c7825951375a072918c21cd721512623c63372cd9a6509a0861"
     },
     {
+      "path": "skills/self-review/scripts/check_reported_p_from_counts_challenge/expected/missing_denom.txt",
+      "size": 418,
+      "sha256": "4681bc55eff7724290887fbc9f7ca225f5e0c2c88347484f4ab7961c697b8569"
+    },
+    {
       "path": "skills/self-review/scripts/check_reported_p_from_counts_challenge/expected/none.txt",
       "size": 133,
       "sha256": "ef1ad464fd694f82b7fa88ed2cca306702b8bc7e11b4d3588c7cf4436018aa5d"
@@ -5475,6 +5485,11 @@
       "path": "skills/self-review/scripts/check_reported_p_from_counts_challenge/expected/ok.txt",
       "size": 112,
       "sha256": "cddb1acfec3c0a27e18c24755373a0bcb5521eae3d6ad6e97b06a03eabfafdbc"
+    },
+    {
+      "path": "skills/self-review/scripts/check_reported_p_from_counts_challenge/fixture/p_adjusted.md",
+      "size": 670,
+      "sha256": "d9ef348aedd99e3ab6ec829db97a75c44150b9efa203ada115abf5f59f776958"
     },
     {
       "path": "skills/self-review/scripts/check_reported_p_from_counts_challenge/fixture/p_bad.md",
@@ -5492,6 +5507,11 @@
       "sha256": "16a5f47f8a44e5ded1b878ec753f5f6fce3e0eb68ac36b5db2eaf1dd1d358ea9"
     },
     {
+      "path": "skills/self-review/scripts/check_reported_p_from_counts_challenge/fixture/p_missing_denom.md",
+      "size": 613,
+      "sha256": "0b52a088448d2387cbd65ae857fc876fc970303aec309ac8b9a291fb1282fb4b"
+    },
+    {
       "path": "skills/self-review/scripts/check_reported_p_from_counts_challenge/fixture/p_none.md",
       "size": 94,
       "sha256": "d48a566bfeca3645ac7e30236a874e847780f2e81c5a83a60c863bc26e68696e"
@@ -5503,13 +5523,13 @@
     },
     {
       "path": "skills/self-review/scripts/check_reported_p_from_counts_challenge/problem.md",
-      "size": 2740,
-      "sha256": "caa370b4d0fc53bfc7634eecb044de447205d6bea461693a84702544a56af655"
+      "size": 3776,
+      "sha256": "5e21d4aad2ae573bf53f6d51c0bd288829a368ee80576f2293268032d86b0261"
     },
     {
       "path": "skills/self-review/scripts/check_reported_p_from_counts_challenge/verify.sh",
-      "size": 2625,
-      "sha256": "05fe45bef2df4cc0e09050a591b4ec44346966c648f82a00b4b164c930d3455c"
+      "size": 3221,
+      "sha256": "aceab8a2fa69bceaa0c8c75f78bd461c31f8f825cc7c76e5425c21659ee2f953"
     },
     {
       "path": "skills/self-review/scripts/check_reviewer_team_consistency.py",

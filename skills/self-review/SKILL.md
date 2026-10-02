@@ -248,6 +248,13 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/check_dta_denominators.py" \
 **P0 Major** — not a rounding disagreement: one of the two numbers is wrong. Run the first two on
 **every** manuscript with a table; the third only on diagnostic-accuracy work.
 
+Known limits: `check_reported_p_from_counts.py` judges a P against alpha or a `<` bound only when
+the row's crude 2x2 is established (each cell prints a % equal to count / header n, and the P is not
+adjusted or model-based); other rows get only the order-of-magnitude check and a `LIMITED` line.
+`check_table_percentages.py` reads one denominator per column, so a row with its own missing-data
+denominator (`23 (15.4%)` under n = 150 with 149 known) is a `PERCENT_MISMATCH` unless the table
+prints that denominator in its own column or `n = N` header; confirm such rows against the footnote.
+
 ### Phase 2.5a: Numerical Source-Fidelity Audit (External)
 
 Numbers can be self-consistent everywhere and still wrong at the source; only a traversal back to
@@ -456,6 +463,10 @@ python3 "${CLAUDE_SKILL_DIR}/../analyze-stats/scripts/rating_monotonicity.py" \
 | `CITATION_ORDER` | **Major**; `CITATION_GAP` **Minor** |
 | `CONFIRM_NULL_NO_MDE` | **Major** |
 | `ESTIMAND_DRIFT`, `PRIMARY_DISCLOSURE_NOTE` | **Advisory Minor — never a blocker.** The provenance match is fuzzy (token overlap); confirm against the actual registration first. `PRIMARY_DISCLOSURE_NOTE` flags an honest disclosure the guidance recommends — do not penalise it. |
+
+Known limits: the E-value check reads the singular "E-value" only (plural "E-values were ..." is
+not read), and a sentence naming more than one effect estimate whose E-value fits none of them is
+`EVALUE_UNVERIFIABLE`, not `EVALUE_ARITHMETIC`; check those by hand.
 
 **Checks no script makes** (prose judgement):
 

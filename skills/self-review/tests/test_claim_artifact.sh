@@ -157,6 +157,14 @@ ev_case 0 OK "Primary HR 1.52, E-value = 2.41."
 ev_case 0 OK "Hazard ratio 1.52 (E-value 2.41)."
 # The near-null CI-limit E-value phase2_5f asks for (HR 1.80, CI 1.20-2.70: 1.69).
 ev_case 0 OK "The primary adjusted HR was 1.80 (95% CI 1.20-2.70); the E-value for the lower confidence limit was 1.69."
+# Two estimates in one sentence: the E-value is correct for the adjusted HR 1.52 (2.41)
+# though the unadjusted HR 1.80 (3.00) sits nearer. A value that fits a bound estimate
+# clears; when the sentence names more than one estimate and the value fits none that
+# could be read (here "HR for the primary outcome was 1.52" is too far apart to bind),
+# it is EVALUE_UNVERIFIABLE (which estimate?), never EVALUE_ARITHMETIC.
+ev_case 0 OK "The adjusted HR was 1.52 (95% CI 1.20-1.93) and the unadjusted HR was 1.80; the E-value was 2.41."
+ev_case 0 EVALUE_UNVERIFIABLE "The adjusted HR for the primary outcome was 1.52 (95% CI 1.20-1.93) and the unadjusted HR was 1.80; the E-value was 2.41."
+ev_case 0 EVALUE_UNVERIFIABLE "The adjusted HR for the primary outcome was 1.52 (95% CI 1.20-1.93) and the unadjusted HR was 1.80; the E-value was 4.50."
 # "the value" is not an E-value: no evalue claim at all.
 printf '## Results\n\nThe primary HR was 1.52, and the value to use when the pilot is thin is 0.50.\n' > "$EV"
 python3 "$SCRIPT" --manuscript "$EV" --out "$OUT" --strict >/dev/null 2>&1

@@ -166,6 +166,16 @@ for pcell in "3.0" "pending"; do
     check "P '$pcell': stderr names the cell" grep -q "unreadable p-value '$pcell'" "$OUT.err"
 done
 rm -f "$OUT.err"
+# Missing / reference markers, with or without a trailing footnote marker, are a missing P
+# (as on main), not an unreadable one; a footnoted number still parses.
+for pcell in "N/A†" "NA^a" "n.a." "NE" "Ref."; do
+    printf 'Covariate,Exposed,Unexposed,P\nAge,"55 ± 10","54 ± 10",0.40\nSmoking,80 (40%%),40 (20%%),%s\n' "$pcell" > "$SCI"
+    python3 "$SCRIPT" --table1 "$SCI" --adjusted-list "Age" >/dev/null 2>&1
+    check "P '$pcell': read as missing (exit 0, not 2)" test "$?" -eq 0
+done
+printf 'Covariate,Exposed,Unexposed,P\nAge,"55 ± 10","54 ± 10",0.40\nSmoking,80 (40%%),40 (20%%),3e-05†\n' > "$SCI"
+python3 "$SCRIPT" --table1 "$SCI" --adjusted-list "Age" --strict >/dev/null 2>&1
+check "P '3e-05†': footnoted value still flags (exit 1)" test "$?" -eq 1
 
 echo "ran=$ran fail=$fail"
 [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
