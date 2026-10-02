@@ -618,8 +618,8 @@
     },
     {
       "path": "skills/check-reporting/SKILL.md",
-      "size": 30551,
-      "sha256": "dedbed156ef53890d10137149e33f4efe045b1359fc4d926d6ce5ec44edbb73a"
+      "size": 31451,
+      "sha256": "555ab2d45c5d853bf07e1fb6dc2809ad55e36507bc89422097649f8b18733c95"
     },
     {
       "path": "skills/check-reporting/references/LICENSES.md",
@@ -893,8 +893,8 @@
     },
     {
       "path": "skills/check-reporting/references/report_templates.md",
-      "size": 5731,
-      "sha256": "bc6699d862ae5a46621f5bcd44acb7260ae2b18cb5e41799929cfbdf1c87e754"
+      "size": 6233,
+      "sha256": "58dda3c1a7438ce888224f4f3ce2ff6a4c921f6aa3ec4aa0888f425ee9f79b98"
     },
     {
       "path": "skills/check-reporting/references/step4c_registration_timing.md",
@@ -903,8 +903,8 @@
     },
     {
       "path": "skills/check-reporting/references/step4d_prisma_figure_audit.md",
-      "size": 6611,
-      "sha256": "ec20f18b92cb5ca4745926f43d2cb406c96a4a5efeb9053f3246d1afcb865af9"
+      "size": 7090,
+      "sha256": "b0dbbc2efccf680e1678583bbe8d24f129a0d14c8b0d24ef760106e2b6a6fa8d"
     },
     {
       "path": "skills/check-reporting/scripts/check_checklist_exists.py",
@@ -923,13 +923,13 @@
     },
     {
       "path": "skills/check-reporting/scripts/check_prisma_figure.py",
-      "size": 7802,
-      "sha256": "d68c2f37d547a1a37314891226e123b2dfe83b8d8b703fa8f8897cbb05c31d63"
+      "size": 8134,
+      "sha256": "89410c2b7e230befad15b30c8fcff5d1850cad274460cddce79e4cbcafc59a97"
     },
     {
       "path": "skills/check-reporting/scripts/prisma_cascade_check.py",
-      "size": 9382,
-      "sha256": "fe4859261c2af0783c82f4e0fe49af2e4b9311c7ca2d9c6241dd134a2bc32a04"
+      "size": 11143,
+      "sha256": "e13259d686a5087f761bb5122343f6920606c4c0893d8e090e1fe541c281925a"
     },
     {
       "path": "skills/check-reporting/scripts/verify_checklist_fidelity.py",
@@ -6768,8 +6768,8 @@
     },
     {
       "path": "skills/write-paper/references/phase7_polish_detail.md",
-      "size": 19643,
-      "sha256": "140baea76f533b1c2b741df2c6af10157d255bb93457fffff6a06d2f3ed482a7"
+      "size": 19847,
+      "sha256": "21ab068a7ae820f0e073b2fb410030134f542af79e3f42acfc528a3a37ce6bd8"
     },
     {
       "path": "skills/write-paper/references/phase8_cover_letter.md",

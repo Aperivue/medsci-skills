@@ -1005,6 +1005,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/check-reporting/tests/test_prisma_figure.sh
 
+      - name: Run check-reporting report-template contract test (Part D JSON example)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/check-reporting/tests/test_report_template_contract.sh
+
       - name: Run manage-refs duplicate-bibliography gate test
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/manage-refs/tests/test_reference_duplication.sh
