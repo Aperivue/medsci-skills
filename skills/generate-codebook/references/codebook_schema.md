@@ -42,7 +42,9 @@ They are filled **only** from the authoritative data dictionary, never inferred.
 Decided in this order; dtype and column name dominate so that continuous
 measurements are never misread as identifiers on small datasets:
 
-1. **date** — datetime dtype, or >80% of a sample parses as dates.
+1. **date** — datetime dtype, or (non-numeric columns only) >80% of a sample
+   parses as dates. Numeric columns such as integer years are never sniffed as
+   dates; they fall through to the numeric rules below.
 2. **binary** — exactly 2 distinct non-null values.
 3. **numeric dtype:**
    - **id** — integer-valued, id-like name (`*_id`, `uid`, `mrn`, `subject`, `patient`, `record`, `accession`), and unique count > `--max-levels`.
@@ -61,7 +63,11 @@ many levels; lower it to force more columns to `continuous`/`text`.
 A categorical/binary column is flagged `needs_dictionary: true` when its levels
 are **bare codes** — integers, or short tokens like `Y`/`N`/`M`/`U`/`NA` — i.e.,
 uninterpretable without the source dictionary. A column whose levels are already
-human-readable (`never` / `former` / `current`) is **not** flagged. The flag is a
+human-readable (`never` / `former` / `current`) is **not** flagged. A column
+that mixes numeric codes with a label (`1` / `2` / `3` / `Unknown`) **is**
+flagged: the label does not explain the codes. A **text** column (too many
+distinct values to list as levels) is flagged when every value is a bare code
+(`S01` … `S29`); its levels are not listed. The flag is a
 prompt for the researcher to fill meanings from the authoritative dictionary; it
 is never resolved by guessing.
 

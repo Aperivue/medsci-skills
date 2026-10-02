@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -56,6 +57,12 @@ def read_table(path: Path) -> "pd.DataFrame":
 def _looks_like_date(series: "pd.Series") -> bool:
     if pd.api.types.is_datetime64_any_dtype(series):
         return True
+    # A numeric column is never sniffed as a date: str(1990) parses as a year,
+    # and pd.to_datetime on the integers themselves reads them as epoch
+    # nanoseconds (1970-01-01 00:00:00.000001990). Numeric columns fall through
+    # to the numeric role rules instead.
+    if pd.api.types.is_numeric_dtype(series) or pd.api.types.is_bool_dtype(series):
+        return False
     s = series.dropna().astype(str).head(50)
     if s.empty:
         return False
@@ -114,11 +121,27 @@ def infer_role(series: "pd.Series", n_rows: int, n_unique: int, max_levels: int,
     return "text"
 
 
-def _coded_levels(series: "pd.Series") -> bool:
-    """True when the categorical/binary levels are bare codes needing a dictionary."""
+_NUMERIC_TOKEN = re.compile(r"^[+-]?\d+(\.\d+)?$")
+
+
+def _is_numeric_level(v) -> bool:
+    if pd.api.types.is_number(v):
+        return True
+    return bool(_NUMERIC_TOKEN.match(str(v).strip()))
+
+
+def _coded_levels(series: "pd.Series", allow_mixed: bool = True) -> bool:
+    """True when the levels are bare codes needing a dictionary.
+
+    Flagged when every level is a bare code (number or short token), or —
+    with ``allow_mixed`` — when any level is a numeric code: one readable label
+    (``Unknown``) does not explain the numeric codes beside it (``1/2/3``).
+    """
     vals = series.dropna().unique().tolist()
     if not vals:
         return False
+    if allow_mixed and any(_is_numeric_level(v) for v in vals):
+        return True
     for v in vals:
         if pd.api.types.is_number(v):
             continue
@@ -176,6 +199,12 @@ def profile_column(df: "pd.DataFrame", col: str, n_rows: int, max_levels: int) -
         except Exception:
             pass
         rec["notes"].append("[NEEDS DICTIONARY] confirm whether this is event / measurement / enrollment date")
+    elif role == "text":
+        # High-cardinality strings are never listed as levels, but a column
+        # whose every value is a bare code (S01..S29) still needs a dictionary.
+        if _coded_levels(nonnull, allow_mixed=False):
+            rec["needs_dictionary"] = True
+            rec["notes"].append("[NEEDS DICTIONARY] values are bare codes (too many to list as levels) — uninterpretable without the authoritative data dictionary; do not guess meanings")
     elif role == "id":
         rec["notes"].append("identifier candidate (high/maximal cardinality) — exclude from analysis variables")
 

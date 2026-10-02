@@ -72,5 +72,53 @@ for k, v in checks.items():
 PY
 )
 
+# Regression fixture (GC-1, GC-2): coded columns main cleared, integer years
+# main turned into epoch-nanosecond "dates", plus negative controls.
+python3 - "$TMP" <<'PY'
+import sys, numpy as np, pandas as pd
+out = sys.argv[1]
+rng = np.random.default_rng(7); n = 200
+words = ["alpha", "bravo", "charlie", "delta", "echo", "foxtrot", "golf", "hotel",
+         "india", "juliet", "kilo", "lima", "mike", "november", "oscar", "papa",
+         "quebec", "romeo", "sierra", "tango", "uniform", "victor", "whiskey",
+         "xray", "yankee", "zulu", "amber", "cobalt", "indigo", "maroon"]
+pd.DataFrame({
+    "grade_mixed": rng.choice(["1", "2", "3", "Unknown"], n),         # GC-1 POS: codes + one label
+    "site_code": [f"S{(i % 29) + 1:02d}" for i in range(n)],           # GC-1 POS: 29 bare codes -> text
+    "year_dx": rng.integers(1990, 2021, n),                            # GC-2 POS: int years
+    "smoking_status": rng.choice(["never", "former", "current"], n),  # NEG: labels only
+    "free_label": [words[i % 30] for i in range(n)],                   # NEG: 30 readable labels -> text
+    "visit_date": (pd.to_datetime("2023-01-01")
+                   + pd.to_timedelta(rng.integers(0, 365, n), unit="D")).strftime("%Y-%m-%d"),  # NEG: still a date
+    "bmi": rng.normal(25, 3, n).round(1),                              # NEG: continuous
+}).to_csv(f"{out}/data2.csv", index=False)
+PY
+
+python3 "$SCRIPT" "$TMP/data2.csv" --out-dir "$TMP/out2" >/dev/null 2>&1
+
+while IFS=$'\t' read -r status label; do
+    [[ -z "$label" ]] && continue
+    assert "$label" "$([[ "$status" == "PASS" ]] && echo 1 || echo 0)"
+done < <(python3 - "$TMP/out2/codebook.json" <<'PY'
+import json, sys
+cb = json.load(open(sys.argv[1]))
+col = {c["name"]: c for c in cb["columns"]}
+y = col["year_dx"]
+checks = {
+    "GC-1 needs_dict: grade_mixed (1/2/3/Unknown) flagged": col["grade_mixed"]["needs_dictionary"] is True,
+    "GC-1 needs_dict: site_code (S01..S29, text) flagged": col["site_code"]["role"] == "text" and col["site_code"]["needs_dictionary"] is True,
+    "GC-1 control: smoking_status NOT flagged": col["smoking_status"]["needs_dictionary"] is False,
+    "GC-1 control: free_label (30 labels, text) NOT flagged": col["free_label"]["role"] == "text" and col["free_label"]["needs_dictionary"] is False,
+    "GC-2 role: year_dx (int) is not a date": y["role"] != "date",
+    "GC-2 stats: year_dx range is the integer years": y.get("stats", {}).get("min") == 1990.0 and y.get("stats", {}).get("max") == 2020.0,
+    "GC-2 control: string visit_date still a date": col["visit_date"]["role"] == "date",
+    "GC-2 control: bmi NOT flagged": col["bmi"]["needs_dictionary"] is False,
+    "count: needs_dictionary_count==2 (fixture 2)": cb["needs_dictionary_count"] == 2,
+}
+for k, v in checks.items():
+    print(("PASS" if v else "FAIL") + "\t" + k)
+PY
+)
+
 printf '\n%d/%d checks passed\n' "$((ran-fail))" "$ran"
 [[ "$fail" -eq 0 ]] || exit 1
