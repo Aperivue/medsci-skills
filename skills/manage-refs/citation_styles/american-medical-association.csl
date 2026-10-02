@@ -93,11 +93,13 @@
   </macro>
   <macro name="editor">
     <names variable="editor">
+      <name/>
       <label form="short" prefix=", "/>
     </names>
   </macro>
   <macro name="author">
     <names variable="author">
+      <name/>
       <label form="short" prefix=", "/>
       <substitute>
         <names variable="editor"/>

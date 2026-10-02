@@ -159,6 +159,7 @@
   </macro>
   <macro name="author">
     <names variable="author">
+      <name/>
       <label prefix=", "/>
       <substitute>
         <names variable="editor-translator"/>
@@ -202,6 +203,7 @@
   </macro>
   <macro name="secondary-authors">
     <names variable="editor">
+      <name/>
       <label prefix=", "/>
     </names>
   </macro>
@@ -403,6 +405,7 @@
       <else-if variable="collection-title">
         <group delimiter=". " prefix="(" suffix=")">
           <names variable="collection-editor">
+            <name/>
             <label prefix=", "/>
           </names>
           <group delimiter="; ">

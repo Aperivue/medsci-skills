@@ -74,6 +74,16 @@ with a different style:
 | `liver-international.csl` | `nlm-citation-sequence-superscript` (locally retitled) | yes |
 | `journal-of-korean-medical-science-strict.csl` | `journal-of-korean-medical-science-strict` | **no** — the slug matches the filename, but the style is locally authored (its `<title>` is a description, not a journal name). Confirm the slug resolves upstream before refreshing it |
 
+**Local `<name/>` addition — reapply after any refresh.** In `vancouver.csl`,
+`vancouver-superscript.csl`, `nlm-citation-sequence.csl`, `american-medical-association.csl`,
+`journal-of-korean-medical-science-strict.csl` and `liver-international.csl`, every `<names>` element
+that had no `<name>` child now starts with an empty `<name/>`. These styles set their name options
+(`initialize-with`, `name-as-sort-order`, et-al) on `<style>` / `<bibliography>` only, and pandoc
+3.1.3 did not apply them to a `<names>` without a `<name>`: references printed `Jong Hyun Kim, Su Min
+Lee` instead of `Kim JH, Lee SM`, and long author lists were not truncated. An empty `<name/>`
+inherits the same options under the CSL specification, so the style itself is unchanged. A refresh
+from upstream drops the line; `tests/test_csl_author_names.sh` fails until it is put back.
+
 Check which files are safe to refresh (filename must equal the `<id>` slug):
 ```bash
 for f in *.csl; do

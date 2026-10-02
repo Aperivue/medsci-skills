@@ -42,7 +42,12 @@ from pathlib import Path
 # UNUSED (nothing cited `Smith2023`) in a single run. Trailing `;` `,` `]` already terminated the
 # match; `.` `-` `/` `+` leaked, and `.` is the one that ends English sentences. `@Sec.2a` stays one
 # key, because there the period is followed by an alphanumeric — pandoc's own rule, now encoded.
-CITE_RE = re.compile(r"(?<![A-Za-z0-9_])-?@([A-Za-z][\w]*(?:[:.\-/+][\w]+)*)")
+#
+# The FIRST key character may be a letter, a digit or an underscore: pandoc 3.1.3 reads `[@2019who]`
+# and `[@_anon2018]` as citations, and when the key is missing from the .bib it prints `(2019who?)`
+# in the rendered manuscript. The old pattern required a letter, so those keys were invisible here
+# and an unresolved citation passed this gate with `OK`.
+CITE_RE = re.compile(r"(?<![A-Za-z0-9_])-?@([A-Za-z0-9_][\w]*(?:[:.\-/+][\w]+)*)")
 BIB_KEY_RE = re.compile(r"^@\w+\s*\{\s*([^,\s]+)\s*,", re.MULTILINE)
 
 # Quarto / pandoc-crossref cross-references share the `@` sigil but are not bibliography keys:

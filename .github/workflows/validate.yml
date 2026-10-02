@@ -725,6 +725,14 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/manage-refs/tests/test_render_audit_unverified.sh
 
+      - name: "Run manage-refs CSL author-name test (bundled CSLs print family-first names and truncate long lists)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/manage-refs/tests/test_csl_author_names.sh
+
+      - name: "Run manage-refs marker-convert test (every [N] left behind is reported)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/manage-refs/tests/test_md_marker_convert.sh
+
       - name: Run polish-language consistency-linter challenge
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: |

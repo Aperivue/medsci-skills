@@ -15,14 +15,26 @@ Inputs:
                        this set are left untouched. Use to stage partial
                        conversion (e.g. sample-only build).
 
+A range inside a marker (``[1-3]``, ``[1–3]``, ``[2, 4-6]``) is expanded to
+its members before conversion, so ``[1-3]`` becomes ``[@K1, @K2, @K3]``.
+
 Numbers without a mapping (or outside ``--active-ns``) are left as plain
 ``[N]`` so a downstream Zotero refresh / hand-edit can finalize them.
 
 Anti-Hallucination:
   - The mapping is the single source of truth. Never invents keys.
-  - If a marker contains a number not in the map AND no ``--active-ns`` is
-    given, it is left untouched and reported on stderr (exit 0). The caller
-    must fix the map or accept the partial conversion.
+  - Every marker left untouched is reported on stderr, with the reason:
+    a number with no mapping (UNMAPPED), a number outside ``--active-ns``
+    (INACTIVE, the staged-conversion case), or a range that runs backwards
+    (MALFORMED).
+  - Exit 1 when a marker was left because of an UNMAPPED number or a
+    MALFORMED range (or, with ``--to-numbers``, a key not in the map); the
+    output is still written. Pass ``--allow-partial`` to accept that partial
+    conversion with exit 0. INACTIVE markers alone never fail: leaving them
+    is what ``--active-ns`` asks for.
+  - The pattern is chosen by direction, never by the file's content:
+    ``--to-keys`` converts only ``[N]`` markers and leaves ``[@key]`` text
+    alone, so re-running it on a partially converted file is safe.
 
 Origin: generalized from the a per-project ``build_zotero_docx.py`` replacer
 (2026-05-01), validated on a 21-reference manuscript.
@@ -37,8 +49,12 @@ import re
 import sys
 from pathlib import Path
 
-# [N], [N, M], [N,M,...], possibly with internal whitespace
-_NUM_RE = re.compile(r"\[(\d+(?:\s*,\s*\d+)*)\]")
+# [N], [N, M], [N,M,...], possibly with internal whitespace; any member may be a range N-M
+# (hyphen, en dash or em dash). A range used to fall outside the pattern entirely, so "[1-3]" was
+# neither converted nor counted nor reported.
+_RANGE_SEP = r"\s*[-\u2013\u2014]\s*"
+_NUM_ITEM = rf"\d+(?:{_RANGE_SEP}\d+)?"
+_NUM_RE = re.compile(rf"\[({_NUM_ITEM}(?:\s*,\s*{_NUM_ITEM})*)\]")
 # Pandoc citekey group: [@KEY], [@K1, @K2], [@K1; @K2]
 _KEY_RE = re.compile(r"\[(@[A-Za-z0-9_]+(?:\s*[,;]\s*@[A-Za-z0-9_]+)*)\]")
 
@@ -64,23 +80,46 @@ def parse_active(spec: str | None, full_keys: set[int]) -> set[int]:
     return {int(x.strip()) for x in spec.split(",") if x.strip()}
 
 
-def make_num_to_key(n_to_key: dict[int, str], active: set[int]):
-    unmapped: set[int] = set()
+def expand_marker(body: str) -> list[int] | None:
+    """The numbers a marker body names, ranges expanded. None for a backwards range."""
+    nums: list[int] = []
+    for item in body.split(","):
+        parts = [x.strip() for x in re.split(_RANGE_SEP, item.strip())]
+        if len(parts) == 1:
+            nums.append(int(parts[0]))
+            continue
+        lo, hi = int(parts[0]), int(parts[1])
+        if hi < lo:
+            return None
+        nums.extend(range(lo, hi + 1))
+    return nums
+
+
+def make_num_to_key(n_to_key: dict[int, str], active: set[int], staged: bool = False):
+    """Replacement function for ``[N]`` markers, plus the record of every marker it left.
+
+    ``left`` maps a reason (UNMAPPED / INACTIVE / MALFORMED) to the markers left for it. A number
+    with no mapping used to be dropped before it was recorded whenever it was also outside the
+    active set — which, with no --active-ns, is every unmapped number — so it was never reported.
+    ``staged`` is True when --active-ns was given: a number outside it is INACTIVE (left on
+    purpose) whether or not the map covers it; a number inside it with no mapping is UNMAPPED.
+    """
+    left: dict[str, list[str]] = {"UNMAPPED": [], "INACTIVE": [], "MALFORMED": []}
 
     def repl(m: re.Match) -> str:
-        nums = [int(x.strip()) for x in m.group(1).split(",")]
-        if not all(n in active for n in nums):
+        nums = expand_marker(m.group(1))
+        if nums is None:
+            left["MALFORMED"].append(m.group(0))
             return m.group(0)
-        keys: list[str] = []
-        for n in nums:
-            k = n_to_key.get(n)
-            if k is None:
-                unmapped.add(n)
-                return m.group(0)
-            keys.append(f"@{k}")
-        return "[" + ", ".join(keys) + "]"
+        if any(n not in n_to_key and (n in active or not staged) for n in nums):
+            left["UNMAPPED"].append(m.group(0))
+            return m.group(0)
+        if not all(n in active for n in nums):
+            left["INACTIVE"].append(m.group(0))
+            return m.group(0)
+        return "[" + ", ".join(f"@{n_to_key[n]}" for n in nums) + "]"
 
-    return repl, unmapped
+    return repl, left
 
 
 def make_key_to_num(n_to_key: dict[int, str]):
@@ -101,15 +140,22 @@ def make_key_to_num(n_to_key: dict[int, str]):
     return repl, unknown
 
 
-def transform_text(text: str, repl) -> str:
-    # Auto-pick regex based on whether the text contains '@' citekeys.
-    pattern = _KEY_RE if "[@" in text else _NUM_RE
-    return pattern.sub(repl, text)
+def pattern_for(direction: str) -> re.Pattern:
+    """The marker pattern is set by the direction asked for, never guessed from the content.
+
+    Guessing ("[@" present -> key pattern) made a re-run of --to-keys on a partially converted file
+    feed "@KEY" to int() and crash, and would have converted nothing on a file that mixed both.
+    """
+    return _KEY_RE if direction == "to-numbers" else _NUM_RE
 
 
-def convert_markdown(src: Path, dst: Path, repl) -> int:
+def transform_text(text: str, repl, direction: str = "to-keys") -> str:
+    return pattern_for(direction).sub(repl, text)
+
+
+def convert_markdown(src: Path, dst: Path, repl, direction: str = "to-keys") -> int:
     text = src.read_text(encoding="utf-8")
-    pattern = _KEY_RE if "[@" in text else _NUM_RE
+    pattern = pattern_for(direction)
     n = sum(1 for _ in pattern.finditer(text))
     new = pattern.sub(repl, text)
     dst.write_text(new, encoding="utf-8")
@@ -122,7 +168,7 @@ def convert_docx(src: Path, dst: Path, repl, direction: str) -> int:
     except ImportError:
         sys.exit("ERROR: python-docx is required for .docx input. `pip install python-docx`")
     doc = Document(str(src))
-    pattern = _KEY_RE if direction == "to-numbers" else _NUM_RE
+    pattern = pattern_for(direction)
     n = 0
 
     def process(p):
@@ -157,6 +203,9 @@ def main() -> int:
                            help="[N] → [@KEY] (default).")
     direction.add_argument("--to-numbers", action="store_true",
                            help="[@KEY] → [N] (round-trip).")
+    ap.add_argument("--allow-partial", action="store_true",
+                    help="Exit 0 even when markers were left for an UNMAPPED number, a "
+                         "MALFORMED range or an unknown key (they are still reported).")
     args = ap.parse_args()
 
     if not args.input.exists():
@@ -168,24 +217,42 @@ def main() -> int:
     if not n_to_key:
         sys.exit("ERROR: empty mapping.")
 
+    unknown: set[str] = set()
+    left: dict[str, list[str]] = {}
     if args.to_numbers:
         repl, unknown = make_key_to_num(n_to_key)
         direction = "to-numbers"
     else:
         active = parse_active(args.active_ns, set(n_to_key))
-        repl, unknown = make_num_to_key(n_to_key, active)
+        repl, left = make_num_to_key(n_to_key, active, staged=bool(args.active_ns))
         direction = "to-keys"
 
     if args.input.suffix == ".docx":
         seen = convert_docx(args.input, args.output, repl, direction)
     else:
-        seen = convert_markdown(args.input, args.output, repl)
+        seen = convert_markdown(args.input, args.output, repl, direction)
 
     print(f"[md_marker_convert] direction={direction} markers_seen={seen} → {args.output}",
           file=sys.stderr)
+    why = {
+        "UNMAPPED": "a number has no entry in the map",
+        "MALFORMED": "the range runs backwards",
+        "INACTIVE": "outside --active-ns (staged conversion; not a failure)",
+    }
+    for reason in ("UNMAPPED", "MALFORMED", "INACTIVE"):
+        markers = left.get(reason, [])
+        if markers:
+            label = "NOTE" if reason == "INACTIVE" else "WARNING"
+            print(f"[md_marker_convert] {label}: {len(markers)} marker(s) left untouched, "
+                  f"{reason} — {why[reason]}: {', '.join(markers)}", file=sys.stderr)
     if unknown:
         print(f"[md_marker_convert] WARNING: unmapped tokens left untouched: "
               f"{sorted(unknown)}", file=sys.stderr)
+    failing = bool(left.get("UNMAPPED") or left.get("MALFORMED") or unknown)
+    if failing and not args.allow_partial:
+        print(f"[md_marker_convert] FAIL: partial conversion written to {args.output}. Fix the map, "
+              f"or pass --allow-partial to accept it.", file=sys.stderr)
+        return 1
     return 0
 
 

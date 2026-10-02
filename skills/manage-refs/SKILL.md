@@ -58,6 +58,8 @@ User provides `manuscript.md` with `[@bibkey]` citations + `refs.bib`.
    what is on disk when `-j` names a style it cannot find, so ask the script rather than
    trusting a list written here. Two standing fallbacks: use `radiology` for RYAI and
    `vancouver` for JVIR (neither has a dedicated CSL).
+   A cited key that is not in the `.bib` makes the render exit 5 and name the key: pandoc
+   prints it as `(key?)` in the output and does not fail on its own.
 3. **QC**:
    ```bash
    python3 "${CLAUDE_SKILL_DIR}/scripts/check_xref.py" \
@@ -80,8 +82,9 @@ a `[N] → ZoteroKey` mapping.
      --input manuscript.md --output manuscript_keys.md \
      --map ref_map.json --to-keys
    ```
-   The conversion never guesses a Zotero key for a number: unmapped markers stay as `[N]` and
-   are reported on stderr. Optionally stage with `--active-ns 1,2,3,4,19` for a sample build
+   The conversion never guesses a Zotero key for a number: unmapped markers stay as `[N]`, are
+   reported on stderr, and make the script exit 1 (the partial output is still written; pass
+   `--allow-partial` to accept it). Ranges such as `[1-3]` are expanded. Optionally stage with `--active-ns 1,2,3,4,19` for a sample build
    first (a 5-reference sample limits the Word Refresh blast radius while debugging).
 2. **Render to .docx** with pandoc (workflow A) so the body has plain text
    `[@key]` markers, OR pre-build a .docx some other way that still contains
@@ -214,7 +217,10 @@ This skill defines **three submission gates** and **one user approval gate**:
 - **Gate 1 (citekey integrity)**: `check_citation_keys.py` exits non-zero on
   UNDEFINED keys. The pipeline halts; the user reviews and fixes.
 - **Gate 2 (cross-reference integrity)**: `check_xref.py --strict` exits 1 on
-  any `MISSING_DOCX` / `MISSING_BODY` / `MISMATCH` row. The user reviews
+  any `MISSING_DOCX` / `MISSING_BODY` / `MISMATCH` row (a float the markdown
+  defines but the DOCX lacks is `MISSING_DOCX` even when no in-text citation of
+  it was recognised). With `--docx` and no `python-docx` it exits 2: the DOCX
+  audit did not run. The user reviews
   `qc/xref_audit.json` and resolves before proceeding. Under
   `--allow-separate-attachments`, check `summary.downgraded_unchecked` as well as
   `submission_safe`: a non-zero count means rows passed without being checked.
@@ -238,3 +244,8 @@ This skill defines **three submission gates** and **one user approval gate**:
 - **Webpage / non-journal item types**: handled by the patched
   `zotero_to_csl_json` that fetches Zotero's native CSL-JSON; do not bypass
   this patch.
+- **"Table 1 and 2" (singular kind word, number list)**: `check_xref.py` reads only
+  `Table 1` from it; parsing a bare number after "and" in prose would read "Table 1 and 2
+  patients" as a citation. A float defined in the markdown but absent from the DOCX is still
+  blocked as `MISSING_DOCX`; one that is neither defined nor rendered is not seen. Write
+  "Tables 1 and 2" or "Table 1 and Table 2".

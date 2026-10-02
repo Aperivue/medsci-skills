@@ -52,8 +52,10 @@ Exit codes
 
 Dependencies
 ------------
-  python-docx (only if --docx is passed). Falls back to body-only audit
-  with a warning if python-docx is unavailable.
+  python-docx (only if --docx is passed). If --docx is passed and
+  python-docx is unavailable, the script exits 2 without writing a verdict:
+  the DOCX audit that was asked for could not run. Omit --docx for a
+  body-only audit.
 """
 from __future__ import annotations
 
@@ -282,17 +284,23 @@ def extract_body_captions(md_text: str) -> dict[str, Caption]:
     return captions
 
 
+class DocxUnreadable(Exception):
+    """The --docx file was supplied but could not be read."""
+
+
 def extract_docx_captions(docx_path: Path) -> dict[str, Caption]:
-    """Extract caption paragraphs from a rendered DOCX using python-docx."""
+    """Extract caption paragraphs from a rendered DOCX using python-docx.
+
+    Raises DocxUnreadable when python-docx is missing. It used to return {} — an EMPTY caption set,
+    which reads as "the DOCX was read and contains no floats": every cited float became MISSING_DOCX
+    "proven absent", MISMATCH was never evaluated, and --allow-separate-attachments then cleared it.
+    """
     try:
         from docx import Document  # type: ignore
-    except ImportError:
-        print(
-            "[check_xref] WARNING: python-docx not installed; "
-            "skipping rendered-DOCX audit. Install with: pip install python-docx",
-            file=sys.stderr,
-        )
-        return {}
+    except ImportError as exc:
+        raise DocxUnreadable(
+            "python-docx is not installed, so the rendered DOCX cannot be read "
+            "(install with: pip install python-docx)") from exc
 
     doc = Document(str(docx_path))
     captions: dict[str, Caption] = {}
@@ -401,6 +409,14 @@ def _classify(
     docx_text: Optional[str],
 ) -> tuple[str, str]:
     if not cited:
+        # A float the markdown DEFINES but the rendered DOCX does not carry is a float missing from
+        # the submission, whether or not the in-text mention was recognised. Reporting it as UNCITED
+        # (non-blocking) let "Table 1 and 2" clear --strict with Table 2 absent from the DOCX: the
+        # singular kind word with a number list is not read as a citation of Table 2. The verdict now
+        # rests on the two structured sources — body caption vs DOCX caption — not on the phrasing.
+        if in_body and in_docx is False:
+            return "MISSING_DOCX", ("defined in the markdown body but absent from rendered DOCX "
+                                    "(no in-text citation recognised)")
         if in_body or in_docx:
             return "UNCITED", "defined or rendered but never cited in main text"
         return "NOT_CITED_NO_BODY", ""
@@ -623,7 +639,14 @@ def main() -> int:
         if not args.docx.exists():
             print(f"ERROR: docx not found: {args.docx}", file=sys.stderr)
             return 2
-        docx_captions = extract_docx_captions(args.docx)
+        try:
+            docx_captions = extract_docx_captions(args.docx)
+        except DocxUnreadable as exc:
+            # The DOCX audit was asked for and could not run. Never report it as run.
+            print(f"ERROR: --docx {args.docx}: {exc}. The DOCX audit did not run; no verdict "
+                  f"was written. Install python-docx, or omit --docx for a body-only audit.",
+                  file=sys.stderr)
+            return 2
 
     findings = reconcile(citations, body_captions, docx_captions)
 
