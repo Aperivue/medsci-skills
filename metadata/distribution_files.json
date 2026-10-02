@@ -3528,8 +3528,8 @@
     },
     {
       "path": "skills/model-scaffold/SKILL.md",
-      "size": 10137,
-      "sha256": "6f6ddfc052e3319a904d88cbb81478c021de1d10e7b92638280e948ad4586f4a"
+      "size": 10703,
+      "sha256": "2ecaab418a43f0232c28512c08476b6c34f1f161a67b661a741be57f39c94342"
     },
     {
       "path": "skills/model-scaffold/references/finetuning_guide.md",
@@ -3548,13 +3548,13 @@
     },
     {
       "path": "skills/model-scaffold/scripts/check_training_hygiene.py",
-      "size": 20596,
-      "sha256": "a317094c1edb2aa5b879ecf499d6f9acb4a6042cec6109397e33ebc287579b09"
+      "size": 21346,
+      "sha256": "e563fdd4227b23f40786031b9a79c67aded2eba9ed3f781edb972c1aae930dab"
     },
     {
       "path": "skills/model-scaffold/scripts/scaffold.py",
-      "size": 58527,
-      "sha256": "da1beefe0ab99ae0a7f0c30e6c1c1b1d80a688786d077704e83063953ebf0c95"
+      "size": 59636,
+      "sha256": "836741889acff41ef936a55ef0141fba682486ace5c1785223e970bca4d01260"
     },
     {
       "path": "skills/model-scaffold/scripts/scaffold_challenge/expected/split_assignment.csv",
@@ -3578,8 +3578,8 @@
     },
     {
       "path": "skills/model-scaffold/skill.yml",
-      "size": 3920,
-      "sha256": "8697bb6b6721bed5bd2e45fdd166b3f9b3274e64526ac83b788ad38bdc2af7f9"
+      "size": 3937,
+      "sha256": "d20a5d8083075b3cee69442b54ec34bdd43318982e7c0b5e3af1788310aae2b2"
     },
     {
       "path": "skills/model-selection/SKILL.md",
