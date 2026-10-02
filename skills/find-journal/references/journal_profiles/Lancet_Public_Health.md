@@ -27,4 +27,4 @@ public health, population health, health equity, epidemiology, health policy, so
 - **Field:** Public health / General medicine
 
 ## Special Notes
-The Lancet Public Health is fully open access with no author charges, making it unique among high-impact public health journals. It follows Lancet Group formatting (unstructured summary, ~150 words; panels for key messages). Highly selective (~8% acceptance). Strong emphasis on health equity and LMIC research. Requires data sharing statement and EQUATOR checklist. AI policy: language editing only, Acknowledgments disclosure required, AI images banned (Lancet Group policy).
+The Lancet Public Health is fully open access with no author charges, making it unique among high-impact public health journals. It follows Lancet Group formatting (unstructured summary, ~150 words; panels for key messages). Highly selective. Strong emphasis on health equity and LMIC research. Requires data sharing statement and EQUATOR checklist. AI policy: language editing only, Acknowledgments disclosure required, AI images banned (Lancet Group policy).

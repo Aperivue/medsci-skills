@@ -24,7 +24,6 @@ respiratory medicine, COPD, asthma, lung cancer, interstitial lung disease, pulm
 
 ## Classification
 - **Tier:** Q1
-- **Impact Factor:** ~33
 - **Open Access:** Hybrid
 - **Field:** Pulmonology
 

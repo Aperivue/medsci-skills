@@ -209,6 +209,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash tests/test_orchestrate_reachability.sh
 
+      - name: Run orchestrate QC-gate contract test (self-review fatal_count, check-reporting missing, N8 trigger)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python3 skills/orchestrate/tests/test_qc_gate_contract.py
+
       - name: Run check_detector_envelopes.py (every detector's JSON names the detector that wrote it)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 scripts/check_detector_envelopes.py --strict
@@ -328,6 +332,10 @@ jobs:
       - name: Run self-review feature-selection-outside-CV leakage gate test
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/tests/test_cv_leakage.sh
+
+      - name: Run obsidian-paper-vault extractor test (image-only PDF and max_pages<1 never yield an empty .txt)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python3 skills/obsidian-paper-vault/tests/test_extract_pdfs.py
 
       - name: Run validate_catalog_consistency.py (doc counts must match disk SSOT)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
@@ -783,6 +791,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/fill-protocol/tests/test_fill_form_newlines.sh
 
+      - name: "Run fill-protocol integrity test (no deleted trailer, no retyped value, no surviving placeholder)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/fill-protocol/tests/test_fill_form_integrity.sh
+
       - name: Run fulltext-retrieval pdf_to_md helper test
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 skills/fulltext-retrieval/tests/test_pdf_to_md.py
@@ -969,6 +981,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/check-reporting/tests/test_checklist_fidelity.sh
 
+      - name: Run review-paper macro-skeleton test (scoping/systematic carry PRISMA Methods/Results slots)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/review-paper/tests/test_macro_skeleton.sh
+
       - name: Run check-reporting PRISMA-cascade test
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/check-reporting/tests/test_prisma_cascade.sh
@@ -1123,6 +1139,10 @@ jobs:
       - name: Run Phase-1c hook test
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash tests/test_phase1c_hooks.sh
+
+      - name: "Run manage-project SSOT-native mark-complete test (an --ssot project can reach enforce)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/manage-project/tests/test_ssot_mark_complete.sh
 
       - name: "Run check_test_wiring.py (a test CI never runs is a test that never runs)"
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}

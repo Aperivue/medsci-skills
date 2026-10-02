@@ -9,6 +9,13 @@ for most research papers).
 
 Output: One .txt file per PDF in the output folder, with page breaks marked by
 '===PAGE BREAK==='.
+
+A PDF whose extracted pages contain no text at all (an image-only scan) is
+reported as 'FAILED <name>: no extractable text ... (needs OCR)', is not
+counted as extracted, and gets no .txt file: an empty text file handed to a
+note-writing subagent is the condition under which it invents a note.
+
+max_pages must be an integer >= 1; anything else exits 2 naming the value.
 """
 
 import fitz  # PyMuPDF
@@ -35,6 +42,11 @@ def extract_pdf_pages(pdf_path, output_dir, max_pages=12):
             texts.append(page.get_text("text"))
 
         full_text = "\n\n===PAGE BREAK===\n\n".join(texts)
+
+        if not "".join(texts).strip():
+            print(f"FAILED {filename}: no extractable text in the first "
+                  f"{num_pages} page(s) (needs OCR); no .txt written")
+            return False
 
         with open(out_path, "w", encoding="utf-8") as f:
             f.write(full_text)
@@ -72,7 +84,15 @@ if __name__ == "__main__":
 
     pdf_folder = sys.argv[1]
     output_folder = sys.argv[2]
-    max_pages = int(sys.argv[3]) if len(sys.argv) > 3 else 12
+    max_pages = 12
+    if len(sys.argv) > 3:
+        try:
+            max_pages = int(sys.argv[3])
+        except ValueError:
+            max_pages = 0
+        if max_pages < 1:
+            print(f"ERROR: max_pages must be an integer >= 1, got {sys.argv[3]!r}")
+            sys.exit(2)
 
     if os.path.isdir(pdf_folder):
         extract_folder(pdf_folder, output_folder, max_pages)

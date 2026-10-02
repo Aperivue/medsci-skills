@@ -50,10 +50,10 @@ schema:
   negative_rule: "any negative firing suppresses the label (insufficient_evidence)"
   ai_terms: &ai_terms
     [deep learning, machine learning, artificial intelligence, neural network,
-     large language model, foundation model, multimodal, convolutional, radiomics]
+     large language model, foundation model, convolutional, radiomics]
   reporting_quality_terms: &reporting_terms
     [reproducibility, reproducible, external validation, generalizability, generalisability,
-     reporting quality, tripod, claim, quadas, probast, radiomics quality score, checklist,
+     reporting quality, tripod, quadas, probast, radiomics quality score, checklist,
      federated learning]
 
 # ---------------------------------------------------------------------------
@@ -178,26 +178,16 @@ archetypes:
     score_threshold: 0.34
     max_confidence_mvp: high
     signals:
-      - id: ai_term_presence
-        provenance: rule-derived
-        kind: corpus_level
-        metric: ai_term_fraction
-        required_columns: [title, study_type]
-        params:
-          terms: *ai_terms
-          direction: ge
-          fraction: 0.1
-        weight: 0.25
-        narrative: "AI/ML title/study-type terms become present (>= 10% of corpus)."
       - id: dual_mode_corpus
         provenance: rule-derived
         kind: per_paper
         metric: dual_genre_copresence
-        required_columns: [title, study_type]
+        required_columns: [title, study_type, author_position]
         params:
           genre_a_terms: *ai_terms
           genre_a_study_types: [AI/ML]
           genre_b_terms: *reporting_terms
+          positions: [first, last]
           min_each: 1
         weight: 0.3
         narrative: "First/senior on both clinical-AI MODEL papers AND reproducibility/reporting-quality papers in the same domain (strong hybrid marker)."
@@ -221,8 +211,11 @@ archetypes:
           direction: between
           lo: 0.1
           hi: 0.9
-        weight: 0.2
-        narrative: "Clinical-imaging publications sustained concurrently with AI papers (hybrid, not defection): AI fraction between 10% and 90%."
+        # Single AI-fraction signal: the former separate `ai_term_presence` (AI fraction
+        # >= 10%, weight 0.25) thresholded the same statistic, so one number fired two
+        # "distinct" signals. Merged here; weight = 0.25 + 0.2.
+        weight: 0.45
+        narrative: "AI/ML papers present but clinical publications sustained concurrently (hybrid, not defection): AI fraction between 10% and 90%."
       - id: mobility_preprint_citation_spike
         provenance: unavailable
         kind: corpus_level
@@ -236,6 +229,12 @@ archetypes:
         params:
           terms: *ai_terms
         narrative: "ML-only from career start with no clinical floor (AI fraction == 100%) rules the archetype OUT."
+      - id: no_clinical_foundation_before_ai
+        metric: no_clinical_foundation_before_ai
+        required_columns: [title, study_type, year]
+        params:
+          terms: *ai_terms
+        narrative: "No non-AI paper is dated strictly before the earliest AI paper: there is no clinical foundation to pivot from, which rules the archetype OUT."
 
   A4:
     name: "Systematic-review / meta-analysis volume engine"
