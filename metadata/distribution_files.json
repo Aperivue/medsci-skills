@@ -1833,13 +1833,13 @@
     },
     {
       "path": "skills/fulltext-retrieval/SKILL.md",
-      "size": 7525,
-      "sha256": "c5b456bb16a46dbef666d56571e692ff8b12e8f0ba8ee78a5f45eaefb59859ff"
+      "size": 7790,
+      "sha256": "d96a28bb003ae19c0b4ab150958f48c28efe358b9706c547769177c9f1660f5f"
     },
     {
       "path": "skills/fulltext-retrieval/fetch_oa.py",
-      "size": 35996,
-      "sha256": "03b6fe7d998580e7b6cdbfc021bae0c854de30219cc8ad272c7531459e150ca3"
+      "size": 37110,
+      "sha256": "8ae1348466de6058e774bff68cc32b374ff7add7de78096cea01ec32129eeddd"
     },
     {
       "path": "skills/fulltext-retrieval/fetch_oa_report_challenge/expected/projection.json",
