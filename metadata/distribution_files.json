@@ -4203,8 +4203,8 @@
     },
     {
       "path": "skills/present-paper/SKILL.md",
-      "size": 36351,
-      "sha256": "9b90f9d8aa70d0f7e9c2a1bb849396c34e0cae75f0c22148396fd859cfc079c7"
+      "size": 36625,
+      "sha256": "e185d2b8e091e14f911197fb56fb09b29db7ffc8738b571f62111327b1f9b3b8"
     },
     {
       "path": "skills/present-paper/references/ai_slide_tells.md",
@@ -4288,8 +4288,8 @@
     },
     {
       "path": "skills/present-paper/scripts/check_deck_budget.py",
-      "size": 16252,
-      "sha256": "3a84a8b80ff4118ee6f8d21954204d531f9beacb8793a3ae778e72ac329d682b"
+      "size": 16210,
+      "sha256": "fa0353b6b651294720a9c077465c020135ac1e6b644e6d284e0cd16cb24db43b"
     },
     {
       "path": "skills/present-paper/scripts/check_deck_budget_challenge/make_fixtures.py",
