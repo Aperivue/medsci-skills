@@ -37,7 +37,9 @@ Deterministic and conservative — it stays silent unless it can prove the defec
     (no legend -> cannot assess -> silent, never a false positive on absence).
   * RENUMBERED fires only when both sides carry a reason and their content words
     are disjoint.
-  * Missing/blank inputs degrade to a clean run rather than firing.
+  * Missing/blank inputs never fire a claim. But when no screening file carries a
+    recognisable code/reason column, the run reports verdict NOT_ASSESSED (never
+    OK), and exits 2 under --strict: an unchecked sheet is not a clean sheet.
 
 INPUT
   --protocol PATH       registered protocol / PROSPERO markdown or text (required).
@@ -52,7 +54,8 @@ OUTPUT  (--out path)
   CODE_RENUMBERED is Minor.
 
 Stdlib-only (csv / re / json / argparse / pathlib). Exit codes: 0 clean (or
-report-only), 1 a Major claim exists (with --strict), 2 input/usage error.
+report-only), 1 a Major claim exists (with --strict), 2 input/usage error or,
+with --strict, NOT_ASSESSED (no code/reason column found in any screening file).
 """
 
 from __future__ import annotations
@@ -138,6 +141,13 @@ def read_table(path: Path) -> list[dict[str, str]]:
                 for row in csv.DictReader(fh, delimiter=delimiter)]
 
 
+def read_header(path: Path) -> list[str]:
+    delimiter = "\t" if path.suffix.lower() in {".tsv", ".tab"} else ","
+    with path.open(encoding="utf-8-sig", newline="") as fh:
+        first = next(csv.reader(fh, delimiter=delimiter), [])
+    return [h.strip() for h in first if h and h.strip()]
+
+
 def find_col(rows: list[dict[str, str]], candidates: list[str]) -> str | None:
     if not rows:
         return None
@@ -164,13 +174,34 @@ def content_tokens(s: str) -> set[str]:
 def collect_used_codes(paths: list[Path], code_col_arg: str | None,
                        reason_col_arg: str | None) -> dict[str, set[str]]:
     """code -> set of reason strings actually applied in the screening artifacts."""
+    used, _ = collect_used_codes_with_coverage(paths, code_col_arg, reason_col_arg)
+    return used
+
+
+def collect_used_codes_with_coverage(paths: list[Path], code_col_arg: str | None,
+                                     reason_col_arg: str | None) -> tuple[dict[str, set[str]], list[str]]:
+    """As collect_used_codes, plus the list of files in which an exclusion-code or
+    reason column was actually found. A file with rows but no such column was NOT
+    assessed -- an empty `used` from it is absence of evidence, not a clean result."""
     used: dict[str, set[str]] = {}
+    assessed: list[str] = []
     for path in paths:
         rows = read_table(path)
-        if not rows:
+        header = read_header(path)
+        # A header-only sheet still says which columns exist (zero codes applied is
+        # a real, assessable result); probe it with an empty row.
+        probe = rows or ([{h: "" for h in header}] if header else [])
+        if not probe:
             continue
-        code_col = code_col_arg or find_col(rows, CODE_COL_CANDS)
-        reason_col = reason_col_arg or find_col(rows, REASON_COL_CANDS)
+        cols = set(probe[0].keys())
+        code_col = code_col_arg or find_col(probe, CODE_COL_CANDS)
+        reason_col = reason_col_arg or find_col(probe, REASON_COL_CANDS)
+        if code_col not in cols:
+            code_col = None
+        if reason_col not in cols:
+            reason_col = None
+        if code_col or reason_col:
+            assessed.append(str(path))
         for row in rows:
             raw_code = row.get(code_col, "") if code_col else ""
             raw_reason = row.get(reason_col, "") if reason_col else ""
@@ -184,7 +215,7 @@ def collect_used_codes(paths: list[Path], code_col_arg: str | None,
             used.setdefault(code, set())
             if reason:
                 used[code].add(reason)
-    return used
+    return used, assessed
 
 
 def extract_legend(text: str) -> dict[str, str]:
@@ -297,19 +328,29 @@ def analyze(protocol: str, screening: list[str], code_col: str | None,
         if not sp.is_file():
             sys.stderr.write(f"ERROR: screening file not found: {sp}\n")
             sys.exit(2)
-    used = collect_used_codes(spaths, code_col, reason_col)
+    used, assessed = collect_used_codes_with_coverage(spaths, code_col, reason_col)
     claims = check(ppath.read_text(encoding="utf-8"), used)
     n_major = sum(1 for c in claims if c["severity"] == "Major")
+    if n_major:
+        verdict = "MAJOR_CANDIDATE"
+    elif not assessed:
+        # No file carried a recognisable code/reason column: nothing was checked.
+        # Reporting OK here would claim coverage the run did not have.
+        verdict = "NOT_ASSESSED"
+    else:
+        verdict = "OK"
     return {
         "protocol": str(ppath),
         "screening": [str(s) for s in spaths],
+        "screening_assessed": assessed,
         "codes_used": sorted(used),
         "claims": claims,
         "summary": {
             "n_claims": len(claims),
             "n_major": n_major,
             "n_minor": len(claims) - n_major,
-            "verdict": "MAJOR_CANDIDATE" if n_major else "OK",
+            "n_codes_used": len(used),
+            "verdict": verdict,
         },
     }
 
@@ -319,7 +360,10 @@ def render(result: dict) -> str:
     for c in result["claims"]:
         lines.append(f"| {c['verdict']} | {c['severity']} | {c['code']} | {c['detail']} |")
     if len(lines) == 2:
-        lines.append("| (none) | — | — | every applied code is registered and consistent with eligibility |")
+        if result["summary"]["verdict"] == "NOT_ASSESSED":
+            lines.append("| (not assessed) | — | — | no exclusion-code or reason column found; nothing was checked |")
+        else:
+            lines.append("| (none) | — | — | every applied code is registered and consistent with eligibility |")
     return "\n".join(lines)
 
 
@@ -347,8 +391,12 @@ def main() -> int:
             print(f"MAJOR candidate: {s['n_major']} code(s) unregistered or contradicting eligibility.")
         elif s["n_minor"]:
             print(f"MINOR: {s['n_minor']} renumbered code(s); no study-loss defect.")
+        elif s["verdict"] == "NOT_ASSESSED":
+            print("NOT ASSESSED: no exclusion-code or reason column was found in any screening "
+                  "file, so no applied code was checked. Pass --code-col/--reason-col.")
         else:
-            print("OK: every applied exclusion code is registered and consistent with the protocol.")
+            print(f"OK: every applied exclusion code ({s['n_codes_used']} code(s)) is registered "
+                  f"and consistent with the protocol.")
 
     if args.out:
         Path(args.out).parent.mkdir(parents=True, exist_ok=True)
@@ -358,7 +406,13 @@ def main() -> int:
         if not args.quiet:
             print(f"\nwrote {args.out}")
 
-    return 1 if (args.strict and result["summary"]["n_major"]) else 0
+    if args.strict and result["summary"]["n_major"]:
+        return 1
+    if args.strict and result["summary"]["verdict"] == "NOT_ASSESSED":
+        sys.stderr.write("ERROR: --strict and no exclusion-code/reason column was found; "
+                         "nothing was assessed (pass --code-col/--reason-col)\n")
+        return 2
+    return 0
 
 
 if __name__ == "__main__":

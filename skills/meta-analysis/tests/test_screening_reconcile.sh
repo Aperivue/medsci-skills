@@ -84,4 +84,70 @@ assert d["totals"]["k_stage_transfer_loss"] == 0
 assert d["blocking_issues"] == []
 PY
 
-echo "PASS: test_screening_reconcile.sh (positive + 2 negatives)"
+# ------------------------------------- positive: free-text exclusion labels (F1)
+# Labels such as "Exclude: wrong study type" or "ineligible" contain the substrings
+# "y", "1" and "eligible". A substring classifier read them as INCLUDE, so excluded
+# records 3 and 4 landed in `qualitative` and the run exited 0. Labels are now
+# matched as exact tokens (whole label, or its leading word).
+printf 'id\tdecision\n1\tInclude\n2\tincluded\n3\tExclude: wrong study type\n4\tineligible\n' > "$TMP/s_lab.tsv"
+printf 'id\tdecision\n1\tINCLUDE\n2\tinclude\n3\tEXCLUDE (E1)\n4\tExcluded - not eligible\n'   > "$TMP/c_lab.tsv"
+set +e
+python3 "$RECONCILE" --screening "$TMP/s_lab.tsv" --consensus "$TMP/c_lab.tsv" \
+  --output "$TMP/lab.json" > /dev/null
+rc=$?
+set -e
+[ "$rc" -eq 0 ] || fail "free-text labels: expected exit 0, got $rc"
+python3 - "$TMP/lab.json" <<'PY' || fail "free-text labels: excluded records counted as included"
+import json, sys
+d = json.load(open(sys.argv[1]))
+assert d["sets"]["screening_include"] == ["1", "2"], d["sets"]["screening_include"]
+assert d["sets"]["consensus_exclude"] == ["3", "4"], d["sets"]["consensus_exclude"]
+assert d["sets"]["qualitative"] == ["1", "2"], d["sets"]["qualitative"]
+PY
+
+# ---------------------------------- positive: unrecognized label must not pass (F1)
+# "maybe" is neither include nor exclude. It used to be read as include (it
+# contains "y"); it must now stop the run (exit 2) and name the label.
+printf 'id\tdecision\n1\tinclude\n2\tmaybe\n' > "$TMP/s_unk.tsv"
+set +e
+python3 "$RECONCILE" --screening "$TMP/s_unk.tsv" --output "$TMP/unk.json" > /dev/null 2> "$TMP/unk.err"
+rc=$?
+set -e
+[ "$rc" -eq 2 ] || fail "unrecognized label: expected exit 2, got $rc"
+grep -q "maybe" "$TMP/unk.err" || fail "unrecognized label: error does not name the label"
+
+# --------------------------------- positive: IDs sharing a number run (F2)
+# Smith2020_1 and Smith2020_2 both reduced to "2020" under first-number-run
+# normalization, so Smith2020_2 -- included at screening, absent from consensus --
+# was hidden and the run exited 0. IDs are now compared verbatim.
+printf 'id\tdecision\nSmith2020_1\tinclude\nSmith2020_2\tinclude\n' > "$TMP/s_id.tsv"
+printf 'id\tdecision\nSmith2020_1\tinclude\n'                       > "$TMP/c_id.tsv"
+set +e
+python3 "$RECONCILE" --screening "$TMP/s_id.tsv" --consensus "$TMP/c_id.tsv" \
+  --output "$TMP/id.json" > /dev/null
+rc=$?
+set -e
+[ "$rc" -eq 1 ] || fail "shared-number IDs: expected exit 1 (STAGE_TRANSFER_LOSS), got $rc"
+python3 - "$TMP/id.json" <<'PY' || fail "shared-number IDs: Smith2020_2 loss not reported"
+import json, sys
+d = json.load(open(sys.argv[1]))
+assert d["sets"]["stage_transfer_loss"] == ["Smith2020_2"], d["sets"]["stage_transfer_loss"]
+PY
+
+# ------------------------------------ negative: distinct string IDs, all adjudicated
+printf 'id\tdecision\nSmith2020_1\tinclude\nSmith2020_2\tinclude\nLee2019\texclude\n'        > "$TMP/s_idn.tsv"
+printf 'id\tdecision\nSmith2020_1\tinclude\n Smith2020_2 \tinclude\nLee2019\tExclude: E2\n' > "$TMP/c_idn.tsv"
+set +e
+python3 "$RECONCILE" --screening "$TMP/s_idn.tsv" --consensus "$TMP/c_idn.tsv" \
+  --output "$TMP/idn.json" > /dev/null
+rc=$?
+set -e
+[ "$rc" -eq 0 ] || fail "string IDs negative: expected exit 0, got $rc (false positive)"
+python3 - "$TMP/idn.json" <<'PY' || fail "string IDs negative: IDs merged or lost"
+import json, sys
+d = json.load(open(sys.argv[1]))
+assert d["blocking_issues"] == [], d["blocking_issues"]
+assert sorted(d["sets"]["qualitative"]) == ["Smith2020_1", "Smith2020_2"], d["sets"]["qualitative"]
+PY
+
+echo "PASS: test_screening_reconcile.sh (positive + 2 negatives; F1 labels x2, F2 IDs + negative)"

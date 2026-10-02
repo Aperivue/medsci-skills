@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Reconcile meta-analysis screening ID sets into a canonical JSON artifact."""
+"""Reconcile meta-analysis screening ID sets into a canonical JSON artifact.
+
+Exit codes: 0 reconciled, 1 blocking issue (e.g. STAGE_TRANSFER_LOSS),
+2 a screening/consensus decision label is unrecognized (or no decision column),
+so the record cannot be classified as include or exclude.
+"""
 
 from __future__ import annotations
 
@@ -38,42 +43,77 @@ def find_col(rows: list[dict[str, str]], candidates: list[str]) -> str | None:
 
 
 def norm_id(value: str) -> str:
-    value = value.strip()
-    if not value:
-        return ""
-    match = re.search(r"\d+", value)
-    return match.group(0) if match else value
+    """Record IDs are compared verbatim (surrounding whitespace trimmed, inner runs
+    collapsed). No digit extraction: `Smith2020_1` and `Smith2020_2` are different
+    records, and reducing both to `2020` hides a lost study."""
+    return " ".join(value.split())
 
 
 def decision_kind(value: str) -> str:
+    """Classify a decision label by EXACT token, never by substring.
+
+    The whole normalized label is tried first (`include-qualitative`), then its
+    leading word (`Exclude: wrong study type` -> `exclude`). A substring test would
+    read `y`/`1`/`eligible` inside `Exclude: wrong study type` or `ineligible` and
+    count an excluded record as included. Anything else is `unknown` -- the caller
+    refuses to reconcile rather than guess.
+    """
     v = value.strip().lower()
-    if any(token in v for token in INCLUDE_VALUES):
-        return "include"
-    if any(token in v for token in EXCLUDE_VALUES):
-        return "exclude"
+    if not v:
+        return "unknown"
+    lead = re.match(r"[a-z0-9]+", v)
+    for candidate in (v, lead.group(0) if lead else ""):
+        if candidate in INCLUDE_VALUES:
+            return "include"
+        if candidate in EXCLUDE_VALUES:
+            return "exclude"
     return "unknown"
 
 
-def ids_from_table(path: Path, id_col_arg: str | None, decision_col_arg: str | None, include_only: bool) -> tuple[set[str], dict[str, str]]:
+class UnrecognizedDecisions(ValueError):
+    pass
+
+
+def ids_from_table(
+    path: Path,
+    id_col_arg: str | None,
+    decision_col_arg: str | None,
+    include_only: bool,
+    require_decisions: bool = True,
+) -> tuple[set[str], dict[str, str]]:
     rows = read_table(path)
     id_col = id_col_arg or find_col(rows, ["id", "record_id", "study_id", "ref_id"])
     if not id_col:
         raise ValueError(f"Could not identify ID column in {path}")
     decision_col = decision_col_arg or find_col(rows, ["decision", "verdict", "include", "screening", "consensus", "outcome"])
+    if require_decisions and rows and not decision_col:
+        raise UnrecognizedDecisions(
+            f"{path}: no decision column found; pass the matching --*-decision-col"
+        )
     ids: set[str] = set()
     decisions: dict[str, str] = {}
+    unrecognized: dict[str, list[str]] = {}
     for row in rows:
         rid = norm_id(row.get(id_col, ""))
         if not rid:
             continue
         decision = row.get(decision_col, "") if decision_col else ""
         kind = decision_kind(decision)
+        if require_decisions and kind == "unknown":
+            unrecognized.setdefault(decision.strip() or "<blank>", []).append(rid)
         decisions[rid] = decision
         if include_only:
             if kind == "include":
                 ids.add(rid)
         else:
             ids.add(rid)
+    if unrecognized:
+        detail = "; ".join(f"{label!r} (ids: {', '.join(v[:5])}{', ...' if len(v) > 5 else ''})"
+                           for label, v in sorted(unrecognized.items()))
+        raise UnrecognizedDecisions(
+            f"{path}: unrecognized decision label(s): {detail}. Accepted (exact, or as the "
+            f"leading word): include={sorted(INCLUDE_VALUES)} exclude={sorted(EXCLUDE_VALUES)}"
+        )
     return ids, decisions
 
 
@@ -91,14 +131,19 @@ def main() -> int:
     args = parser.parse_args()
 
     screening_path = Path(args.screening)
-    screening_include, screening_decisions = ids_from_table(
-        screening_path, args.screening_id_col, args.screening_decision_col, include_only=True
-    )
+    try:
+        screening_include, screening_decisions = ids_from_table(
+            screening_path, args.screening_id_col, args.screening_decision_col, include_only=True
+        )
+        if args.consensus:
+            consensus_ids, consensus_decisions = ids_from_table(
+                Path(args.consensus), args.consensus_id_col, args.consensus_decision_col, include_only=False
+            )
+    except UnrecognizedDecisions as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
 
     if args.consensus:
-        consensus_ids, consensus_decisions = ids_from_table(
-            Path(args.consensus), args.consensus_id_col, args.consensus_decision_col, include_only=False
-        )
         consensus_exclude = {rid for rid, dec in consensus_decisions.items() if decision_kind(dec) == "exclude"}
         consensus_include = {rid for rid, dec in consensus_decisions.items() if decision_kind(dec) == "include"}
     else:
@@ -107,7 +152,9 @@ def main() -> int:
         consensus_include = set()
 
     if args.table1:
-        table1_ids, _ = ids_from_table(Path(args.table1), args.table1_id_col, None, include_only=False)
+        table1_ids, _ = ids_from_table(
+            Path(args.table1), args.table1_id_col, None, include_only=False, require_decisions=False
+        )
     else:
         table1_ids = set()
 

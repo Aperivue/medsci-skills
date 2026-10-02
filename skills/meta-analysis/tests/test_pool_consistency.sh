@@ -118,6 +118,99 @@ python3 "$SCRIPT" --lock "$TMP/c4/lock.yaml" \
     --out "$TMP/c4/report.json" --quiet 2>/dev/null
 assert_exit "case 4: missing decision col (exit 2)" 2 $?
 
+# --------------------------------------------------------------------------
+# Cases 5-7: the UID sets agree, but the lock or the TSV contradicts itself.
+# Before these checks each case printed "PASS: lock and TSV agree" and exited 0,
+# although final_pool_n is the k the manuscript reports (SKILL.md 3f.5).
+# --------------------------------------------------------------------------
+cat > "$TMP/agree.tsv" <<'EOF'
+uid	round3_decision
+UID_001	INCLUDE
+UID_002	INCLUDE
+UID_003	INCLUDE
+UID_004	EXCLUDE
+EOF
+
+# Case 5: final_pool_n says 10, the lock lists 3 pool UIDs => FAIL
+mkdir -p "$TMP/c5"
+cat > "$TMP/c5/lock.yaml" <<'EOF'
+final_pool_n: 10
+include_uids: [UID_001, UID_002, UID_003]
+exclude_uids: []
+mixed_uids: []
+EOF
+python3 "$SCRIPT" --lock "$TMP/c5/lock.yaml" --adjudication-tsv "$TMP/agree.tsv" \
+    --out "$TMP/c5/report.json" --quiet
+assert_exit "case 5: final_pool_n != pool UIDs (FAIL)" 1 $?
+python3 - "$TMP/c5/report.json" <<'PY' || fail=$((fail + 1))
+import json, sys
+with open(sys.argv[1]) as fh: r = json.load(fh)
+assert any("final_pool_n" in e for e in r["lock_integrity_errors"]), r
+PY
+
+# Case 6: sha256 does not match the UID lists => FAIL
+mkdir -p "$TMP/c6"
+cat > "$TMP/c6/lock.yaml" <<'EOF'
+final_pool_n: 3
+include_count: 3
+exclude_count: 1
+include_uids: [UID_001, UID_002, UID_003]
+exclude_uids: [UID_004]
+mixed_uids: []
+sha256: "0000000000000000000000000000000000000000000000000000000000000000"
+EOF
+python3 "$SCRIPT" --lock "$TMP/c6/lock.yaml" --adjudication-tsv "$TMP/agree.tsv" \
+    --out "$TMP/c6/report.json" --quiet
+assert_exit "case 6: sha256 mismatch (FAIL)" 1 $?
+
+# Case 7: UID_003 is both INCLUDE and EXCLUDE in the TSV => FAIL
+mkdir -p "$TMP/c7"
+cat > "$TMP/c7/lock.yaml" <<'EOF'
+include_uids: [UID_001, UID_002, UID_003]
+exclude_uids: []
+mixed_uids: []
+EOF
+cat > "$TMP/c7/r3.tsv" <<'EOF'
+uid	round3_decision
+UID_001	INCLUDE
+UID_002	INCLUDE
+UID_003	INCLUDE
+UID_003	EXCLUDE
+EOF
+python3 "$SCRIPT" --lock "$TMP/c7/lock.yaml" --adjudication-tsv "$TMP/c7/r3.tsv" \
+    --out "$TMP/c7/report.json" --quiet
+assert_exit "case 7: conflicting TSV decisions (FAIL)" 1 $?
+python3 - "$TMP/c7/report.json" <<'PY' || fail=$((fail + 1))
+import json, sys
+with open(sys.argv[1]) as fh: r = json.load(fh)
+assert r["tsv_conflicting_uids"] == {"UID_003": ["EXCLUDE", "INCLUDE"]}, r
+PY
+
+# Case 8 (negative control): counts, hash and a repeated-but-identical TSV row
+# are all consistent => PASS
+mkdir -p "$TMP/c8"
+cat > "$TMP/c8/lock.yaml" <<'EOF'
+final_pool_n: 3
+include_count: 3
+exclude_count: 1
+mixed_count: 0
+include_uids: [UID_001, UID_002, UID_003]
+exclude_uids: [UID_004]
+mixed_uids: []
+sha256: "c1c4e101d689662e83698f830265a620bd46dedb4e261a7d66bde1f7dc655578"
+EOF
+cat > "$TMP/c8/r3.tsv" <<'EOF'
+uid	round3_decision
+UID_001	INCLUDE
+UID_002	INCLUDE
+UID_002	INCLUDE
+UID_003	INCLUDE
+UID_004	EXCLUDE
+EOF
+python3 "$SCRIPT" --lock "$TMP/c8/lock.yaml" --adjudication-tsv "$TMP/c8/r3.tsv" \
+    --out "$TMP/c8/report.json" --quiet
+assert_exit "case 8: consistent counts + hash (PASS)" 0 $?
+
 echo ""
 echo "ran=$ran fail=$fail"
 [[ $fail -eq 0 ]]

@@ -144,8 +144,8 @@ python3 ${CLAUDE_SKILL_DIR}/scripts/prisma_5way_consistency.py --ssot prisma.yam
 ```
 
 Exclusion-code verdicts: `CODE_CONTRADICTS_ELIGIBILITY` (a code excludes a design the protocol
-includes — bulk study loss no arithmetic or inter-rater gate can see), `CODE_NOT_REGISTERED`
-(off-protocol code), `CODE_RENUMBERED` (same code, two meanings).
+includes — bulk study loss no other gate can see), `CODE_NOT_REGISTERED` (off-protocol code),
+`CODE_RENUMBERED` (same code, two meanings); `NOT_ASSESSED` = no code column found (pass `--code-col`).
 
 **3f.5 Pool composition lock (MANDATORY at adjudication freeze).** Once 3f passes, freeze the pool
 into a single source-of-truth YAML that every downstream artifact can be checked against:
