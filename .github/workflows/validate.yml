@@ -289,6 +289,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash tests/test_hardcoded_locale.sh
 
+      - name: Run publish-skill audit_skill.sh regression test (a check that cannot run is never CLEAN)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/publish-skill/tests/test_audit_skill.sh
+
       - name: Run self-review panel-mode structural + PII test
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/tests/test_panel_mode.sh
