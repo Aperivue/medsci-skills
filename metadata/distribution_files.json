@@ -1368,18 +1368,18 @@
     },
     {
       "path": "skills/find-journal/SKILL.md",
-      "size": 12905,
-      "sha256": "336174d2dd2c90d387720eae3e4ab6515d44bcb8a755046a90f14f97e2aab46f"
+      "size": 13683,
+      "sha256": "f4b4e02ee78b4d9b92cf80da53ee67e7901ce36e868fd3fd47e97e51d4931e83"
     },
     {
       "path": "skills/find-journal/references/acceptance_signals_schema.md",
-      "size": 6869,
-      "sha256": "620ba1c55272908a16125ba69074491df5246d6cf9afa14e6b08a08e8dc4e866"
+      "size": 7019,
+      "sha256": "2f0f51e5bfb47905ccb29600dd1b9a22b10ded4a21be3410232073e39543eb89"
     },
     {
       "path": "skills/find-journal/references/journal_profiles/AJKD.md",
-      "size": 1764,
-      "sha256": "4852b353847a9fa166a9b874be9cd4dc90231e791a3b4ca86835872fcf54c0f1"
+      "size": 1753,
+      "sha256": "61c88e4260cac9b7d224bc71a9ce92a770222a3c5d1c6926b36f5a0d9cec24a5"
     },
     {
       "path": "skills/find-journal/references/journal_profiles/AJNR.md",
@@ -1423,8 +1423,8 @@
     },
     {
       "path": "skills/find-journal/references/journal_profiles/BMC_Medicine.md",
-      "size": 1609,
-      "sha256": "0823dd2c8e3123721af503ed9e55166686672a9a986abe61cdbddd80f3b8d4c9"
+      "size": 1599,
+      "sha256": "3a6fd814207febed9ad3e06997f8fa66eb157aa2e7a5b9a0af8db8c4fbd23af5"
     },
     {
       "path": "skills/find-journal/references/journal_profiles/BMJ_Case_Reports.md",
@@ -1538,8 +1538,8 @@
     },
     {
       "path": "skills/find-journal/references/journal_profiles/JACC_Asia.md",
-      "size": 2425,
-      "sha256": "c30c00f3e56c9a0f935473def6de0b076e9ca7fc0542e566bec05627ecf053e1"
+      "size": 2402,
+      "sha256": "2a16a816f0be6d2071643ee54383b8d0bf67afecc59e2932cb8a6c7be603ece2"
     },
     {
       "path": "skills/find-journal/references/journal_profiles/JACR.md",
@@ -1558,8 +1558,8 @@
     },
     {
       "path": "skills/find-journal/references/journal_profiles/JASN.md",
-      "size": 2133,
-      "sha256": "5f7311ff8e8270caaaf8a3c22a16cf185a6cb034f58f222ca3ca1f60c635eb79"
+      "size": 2099,
+      "sha256": "2b4afcac75abd0e344c3cbf491c7f48a34055ecbecce54759a956d90c42d1731"
     },
     {
       "path": "skills/find-journal/references/journal_profiles/JCSM.md",
@@ -1578,8 +1578,8 @@
     },
     {
       "path": "skills/find-journal/references/journal_profiles/JMIR_Medical_Education.md",
-      "size": 1465,
-      "sha256": "c3e7a483bab97fa0d329204de04201c78eaf47d75a5f0e3e169b12cda862e0e9"
+      "size": 1442,
+      "sha256": "c7dfd1701f37b0f20ec00d90734d3a7689a99886fda806ae5279c05cb762f787"
     },
     {
       "path": "skills/find-journal/references/journal_profiles/JNIS.md",
@@ -1638,8 +1638,8 @@
     },
     {
       "path": "skills/find-journal/references/journal_profiles/Kidney_International.md",
-      "size": 1871,
-      "sha256": "60792a1f6b5466bb7ca740904f123c62cb54c9ddb7cea422a89ed2768d02b51d"
+      "size": 1860,
+      "sha256": "8fd590e6c7d6d644cc3605ef83aaef749b04fe702df85389a8af3f70f3587df7"
     },
     {
       "path": "skills/find-journal/references/journal_profiles/Korean_Circulation_Journal.md",
@@ -1653,28 +1653,28 @@
     },
     {
       "path": "skills/find-journal/references/journal_profiles/Lancet_Diabetes_and_Endocrinology.md",
-      "size": 2370,
-      "sha256": "57c6108ddc88ad79a29f2dea594f331d846f2b448e83e6cb5ec489e510a3180c"
+      "size": 2322,
+      "sha256": "d7eccfc78d0d8c5f92f69460bce6ec82be065ce991ba75eb909c6fa81e1d4af6"
     },
     {
       "path": "skills/find-journal/references/journal_profiles/Lancet_Gastroenterology_and_Hepatology.md",
-      "size": 4905,
-      "sha256": "e076bc24ca70d1dcb099fce12563801bf109bb5a4ef4d2a9bd424a5ffd466163"
+      "size": 4858,
+      "sha256": "ce1aaf802488cca54f11760ddf479d79859f57ac0af05a23094b3451cb5fcf36"
     },
     {
       "path": "skills/find-journal/references/journal_profiles/Lancet_Infectious_Diseases.md",
-      "size": 1939,
-      "sha256": "5e74de977f88ae7a67412e487267f60d8a0d52e747fca2c0fa9da74f434bca13"
+      "size": 1927,
+      "sha256": "b27768b1b529160df0f01ad6f49c47974ece5049f1f13aac8981f9229a170e97"
     },
     {
       "path": "skills/find-journal/references/journal_profiles/Lancet_Neurology.md",
-      "size": 2166,
-      "sha256": "730a489475e122a25db2c33ba6fdd2326b465dba53a9b646f4af6731562ebe0e"
+      "size": 2124,
+      "sha256": "5c06b0c80c1a117db895cd4f8e7945fc257e2972aff0b3de5e04403b34c5c34d"
     },
     {
       "path": "skills/find-journal/references/journal_profiles/Lancet_Oncology.md",
-      "size": 2206,
-      "sha256": "68ecce79d8030a107a89120aaac67641a9540ce2e90e619df544476b7e7fa9e1"
+      "size": 2181,
+      "sha256": "0c00cc56a238b5c3c655aab1970fa6a8c832deb6e373936e2d1ea5e1059a5dd7"
     },
     {
       "path": "skills/find-journal/references/journal_profiles/Lancet_Psychiatry.md",
@@ -1683,13 +1683,13 @@
     },
     {
       "path": "skills/find-journal/references/journal_profiles/Lancet_Public_Health.md",
-      "size": 1725,
-      "sha256": "9cab0b8700e76d9958a6833a23a07f54a2856d79a81a1556fdffc80e00c853e1"
+      "size": 1708,
+      "sha256": "21f496b6fc3fb6dd3f4a02c0d2197461d9393493d9652c62d8107ab821758de0"
     },
     {
       "path": "skills/find-journal/references/journal_profiles/Lancet_Respiratory_Medicine.md",
-      "size": 2235,
-      "sha256": "ed3247b3ca1633d81f06bf9eee68bc430b43fb721dbd3ffe119ec720b25486bd"
+      "size": 2210,
+      "sha256": "82d0e5f9fa36cc3ba3ae808dda9c96d708d0ef1001cf487158272a53eb2204b0"
     },
     {
       "path": "skills/find-journal/references/journal_profiles/Liver_International.md",
@@ -1703,8 +1703,8 @@
     },
     {
       "path": "skills/find-journal/references/journal_profiles/NEJM.md",
-      "size": 1641,
-      "sha256": "853a26b1f0033cf8e10a0970bde73aab632857ac39feaf80a26b5cbb845189df"
+      "size": 1607,
+      "sha256": "d74f333f0c3bb3eaa7e60e04cb9083d4dace0b8156d6caf596422e4b97171cbc"
     },
     {
       "path": "skills/find-journal/references/journal_profiles/NEJM_AI.md",
@@ -1738,13 +1738,13 @@
     },
     {
       "path": "skills/find-journal/references/journal_profiles/RYAI.md",
-      "size": 2363,
-      "sha256": "ca8ed6c6ef5dd3537560be51adca74a57b5a5c89b582c2b1f9c4d4528e717af3"
+      "size": 2355,
+      "sha256": "4395a9d316f22d858d7577f68e0818faa4d22b56e26ad0879413b6ef53b53329"
     },
     {
       "path": "skills/find-journal/references/journal_profiles/Radiology.md",
-      "size": 1558,
-      "sha256": "06f8cd5c023a4f84f3cb60f7b31267147ef6bf7f728708bb65472cd8069c0d5b"
+      "size": 1509,
+      "sha256": "d7ffbf56dafab1d019e856cb48cd621dead68634f789562c5a9eb12cf66c3efe"
     },
     {
       "path": "skills/find-journal/references/journal_profiles/Radiology_Case_Reports.md",
@@ -1763,8 +1763,8 @@
     },
     {
       "path": "skills/find-journal/references/journal_profiles/The_BMJ.md",
-      "size": 1551,
-      "sha256": "1f44cfca2622ab697eb09d1812dc13c1ec106ff0de3f4a6e5cd88154b3b5ed3c"
+      "size": 1540,
+      "sha256": "1d49590ff459cf036a1cf3bf705fe430c85397b8037752fc042d71fca77b74b6"
     },
     {
       "path": "skills/find-journal/references/journal_profiles/The_Lancet.md",
@@ -1773,13 +1773,13 @@
     },
     {
       "path": "skills/find-journal/references/journal_profiles/The_Lancet_Digital_Health.md",
-      "size": 2231,
-      "sha256": "bb3ac6c10aa733cb4fbeb823ed5288001fa5a72e8aa0e47cd87b9f80a0b0310d"
+      "size": 2172,
+      "sha256": "166bfecb971ba39234bf4de3644de20a8e83d6b7506b80f1b3f90460eb006315"
     },
     {
       "path": "skills/find-journal/references/journal_profiles/World_Journal_of_Hepatology.md",
-      "size": 3707,
-      "sha256": "912a14910717f00306a8f94a7b1ec4cd81a2690dae0dcabe1a85d7e82e109eb2"
+      "size": 3592,
+      "sha256": "c04d9215957f9d0e19d5e4c96ad6e492b88562c4adfa3e60f12dea5676fc32e6"
     },
     {
       "path": "skills/find-journal/references/journal_profiles/npj_Breast_Cancer.md",
@@ -1798,8 +1798,33 @@
     },
     {
       "path": "skills/find-journal/scripts/acceptance_readiness_challenge/expected/report_clean.txt",
-      "size": 350,
-      "sha256": "40b1a3b94cf15d504fc2c04e25f5aa737410a8b2480118dcd3c9cd1927ee825c"
+      "size": 389,
+      "sha256": "a1450cd433a1cacfafbd1604fdea6c9b76f8bd66499f63a56fec52d97241ef38"
+    },
+    {
+      "path": "skills/find-journal/scripts/acceptance_readiness_challenge/expected/report_methods_vocab.txt",
+      "size": 389,
+      "sha256": "a1450cd433a1cacfafbd1604fdea6c9b76f8bd66499f63a56fec52d97241ef38"
+    },
+    {
+      "path": "skills/find-journal/scripts/acceptance_readiness_challenge/expected/report_narrowed_positive.txt",
+      "size": 924,
+      "sha256": "d475a036d837811ceaa40838e2df8967d83293590077879d199e60fe3d980b3d"
+    },
+    {
+      "path": "skills/find-journal/scripts/acceptance_readiness_challenge/expected/report_paraphrase.txt",
+      "size": 389,
+      "sha256": "a1450cd433a1cacfafbd1604fdea6c9b76f8bd66499f63a56fec52d97241ef38"
+    },
+    {
+      "path": "skills/find-journal/scripts/acceptance_readiness_challenge/expected/report_references.txt",
+      "size": 389,
+      "sha256": "a1450cd433a1cacfafbd1604fdea6c9b76f8bd66499f63a56fec52d97241ef38"
+    },
+    {
+      "path": "skills/find-journal/scripts/acceptance_readiness_challenge/expected/report_refs_then_appendix.txt",
+      "size": 458,
+      "sha256": "1b728ca56aa62a6830e5d32608cbf682d64d8a54aa84351652d5d8fb63a37f28"
     },
     {
       "path": "skills/find-journal/scripts/acceptance_readiness_challenge/fixture_ceiling/manuscript.md",
@@ -1812,19 +1837,44 @@
       "sha256": "77a215d5c5fe8d09035308f04cdf26ab7c2736c53563b71930a2be1941b7061b"
     },
     {
+      "path": "skills/find-journal/scripts/acceptance_readiness_challenge/fixture_methods_vocab/manuscript.md",
+      "size": 457,
+      "sha256": "67b47160a5ab5a65bb72e9dc25f9e411bd6c474276bc7d4da0f6a4e738e1dd3d"
+    },
+    {
+      "path": "skills/find-journal/scripts/acceptance_readiness_challenge/fixture_narrowed_positive/manuscript.md",
+      "size": 296,
+      "sha256": "4c33ff53669fa6d488801a2bec40cbc2743ccbe3a2ca221ab8573a0519c240ac"
+    },
+    {
+      "path": "skills/find-journal/scripts/acceptance_readiness_challenge/fixture_paraphrase/manuscript.md",
+      "size": 246,
+      "sha256": "bd8643b0077b38a0ace7c48440518fa0a3877b569dc67b23069a3a6435c269f3"
+    },
+    {
+      "path": "skills/find-journal/scripts/acceptance_readiness_challenge/fixture_references/manuscript.md",
+      "size": 395,
+      "sha256": "594dadf1f00cb25259956cdb5e1a211f43fe735ef245c535b35d918f895daf44"
+    },
+    {
+      "path": "skills/find-journal/scripts/acceptance_readiness_challenge/fixture_refs_then_appendix/manuscript.md",
+      "size": 322,
+      "sha256": "719f41cc4b1f2418343bb2c6d4c2c7758b3f82a6b5c5d56a5c0cd069a19aec1a"
+    },
+    {
       "path": "skills/find-journal/scripts/acceptance_readiness_challenge/problem.md",
-      "size": 1981,
-      "sha256": "469b518a373f5bef95016dc866f82b0d05395eb26ae162656abf1303495ed71c"
+      "size": 3044,
+      "sha256": "7dbc4fe6b0491e3c72d3698da13677d9b62f8ebb495fceaa42dbe1585263d2c5"
     },
     {
       "path": "skills/find-journal/scripts/acceptance_readiness_challenge/verify.sh",
-      "size": 1232,
-      "sha256": "0c525f322306fd5229269f155179924d80a419301988fff0171115c3b323d795"
+      "size": 3640,
+      "sha256": "2eaca0baa3c3b9771745ab4069f20e7f9168fb8e8afb0f9bc1f8261b3cf69c89"
     },
     {
       "path": "skills/find-journal/scripts/assess_acceptance_readiness.py",
-      "size": 10959,
-      "sha256": "32930f970f308d95aaf82c61d809a307685668165df4fe2bf7c2b4f5052b3e87"
+      "size": 13921,
+      "sha256": "60dea6d7fbf60284d558285625c1dea077c2ef61680cee22beb027a9c13d3846"
     },
     {
       "path": "skills/find-journal/skill.yml",
