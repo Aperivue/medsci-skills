@@ -67,5 +67,22 @@ assert not any(c['verdict']=='HARDCODED_DATA_LITERAL' for c in d['claims']), 'pa
 python3 "$SCRIPT" "$PALETTE" --strict --quiet >/dev/null 2>&1
 check "exit 0 on clean palette script" test "$?" -eq 0
 
+# (6) an UNSEEDED generator is not a seed (F3 false-clearance regression):
+#     default_rng() / np.random.seed(None) / random_state=None / set.seed(NULL)
+only_seed_major() { python3 -c "
+import json
+d=json.load(open('$OUT'))
+m=[c['verdict'] for c in d['claims'] if c['severity']=='Major']
+assert m==['MISSING_SEED'], m
+"; }
+for f in gen_unseeded_rng.py gen_seed_none.py gen_seed_null.R; do
+    python3 "$SCRIPT" "$HERE/fixtures/$f" --out "$OUT" --strict --quiet >/dev/null 2>&1
+    check "exit 1: unseeded RNG is MISSING_SEED ($f)" test "$?" -eq 1
+    check "MISSING_SEED is the only Major claim ($f)" only_seed_major
+done
+#     negative control: a seeded Generator, with random_state=None only as a def default
+python3 "$SCRIPT" "$HERE/fixtures/gen_seeded_rng.py" --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "exit 0: seeded default_rng(SEED) + def default random_state=None" test "$?" -eq 0
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

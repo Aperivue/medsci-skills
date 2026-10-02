@@ -9,7 +9,11 @@ scans emitted .py / .R scripts before they are reported as final and flags:
   MISSING_SEED            randomness is used (sampling, bootstrap, train/test
                           split, shuffling, rng) but no seed is set
                           (np.random.seed / set.seed / random_state= /
-                          default_rng / RandomState). Non-reproducible. (Major)
+                          default_rng / RandomState, each with a real
+                          argument), or a generator is explicitly initialised
+                          unseeded (default_rng(), RandomState(None),
+                          np.random.seed(), set.seed(NULL)) even when a seed
+                          is set elsewhere. Non-reproducible. (Major)
   HARDCODED_DATA_LITERAL  a large hand-typed numeric literal that looks like
                           tabular data — either alongside a real data-file read,
                           or very large on its own. The data-integrity rule is
@@ -71,13 +75,23 @@ RAND_PY = re.compile(
     r"np\.random\.|numpy\.random\.|\brandom\.(?:sample|shuffle|choice|random|randint|randrange)\b|"
     r"\bRandomState\b|\bdefault_rng\b|\btrain_test_split\b|\bKFold\b|\bStratifiedKFold\b|"
     r"\bShuffleSplit\b|\bresample\s*\(|\bbootstrap\b|\bpermutation\b")
+# A seed call counts only with a real argument: `default_rng()`, `RandomState()`,
+# `np.random.seed()`, `random.seed(None)` and `random_state=None` all draw fresh OS entropy.
+_PY_SEED_ARG = r"\s*(?![\s)]|None\b)"
 SEED_PY = re.compile(
-    r"np\.random\.seed\s*\(|numpy\.random\.seed\s*\(|\brandom\.seed\s*\(|"
-    r"\bRandomState\s*\(|\bdefault_rng\s*\(|\brandom_state\s*=")
+    r"(?:np\.random\.seed|numpy\.random\.seed|\brandom\.seed|\bRandomState|\bdefault_rng)"
+    r"\s*\(" + _PY_SEED_ARG + r"|\brandom_state\s*=(?!=)" + _PY_SEED_ARG)
+# ...and an explicitly UNSEEDED generator is non-reproducible even if a seed is set elsewhere:
+# `np.random.seed(42); rng = np.random.default_rng()` draws from `rng` unseeded. (A bare
+# `random_state=None` is not flagged on its own: it is the usual default in a `def` signature.)
+UNSEEDED_PY = re.compile(
+    r"(?:np\.random\.seed|numpy\.random\.seed|\brandom\.seed|\bRandomState|\bdefault_rng)"
+    r"\s*\(\s*(?:None\s*)?\)")
 RAND_R = re.compile(
     r"\bsample\s*\(|\bsample\.int\s*\(|\brnorm\s*\(|\brunif\s*\(|\brbinom\s*\(|"
     r"\brpois\s*\(|\bboot\s*\(|\bcreateDataPartition\s*\(")
-SEED_R = re.compile(r"\bset\.seed\s*\(")
+SEED_R = re.compile(r"\bset\.seed\s*\(\s*(?![\s)]|NULL\b)")
+UNSEEDED_R = re.compile(r"\bset\.seed\s*\(\s*NULL\s*\)")  # re-initialises from entropy
 
 # data-file reads / writes (for INPLACE_SOURCE_OVERWRITE and the DATA_LITERAL gate)
 READ_CALL = re.compile(
@@ -121,9 +135,20 @@ def check_text_common(src: str, lang: str) -> list[dict]:
     code = strip_comments(src)  # comment-free copy for seed/randomness logic
 
     # MISSING_SEED
-    rand, seed = (RAND_PY, SEED_PY) if lang == "py" else (RAND_R, SEED_R)
+    rand, seed, unseeded = ((RAND_PY, SEED_PY, UNSEEDED_PY) if lang == "py"
+                            else (RAND_R, SEED_R, UNSEEDED_R))
     rm = rand.search(code)
-    if rm and not seed.search(code):
+    um = unseeded.search(code)
+    if rm and um:
+        ln = src[:um.start()].count("\n") + 1
+        claims.append({
+            "verdict": "MISSING_SEED", "severity": "Major", "line": ln,
+            "detail": (f"a random generator is initialised WITHOUT a seed "
+                       f"('{um.group(0).strip()[:30]}' draws fresh OS entropy on every run), "
+                       f"so the result is not reproducible even if a seed is set elsewhere; "
+                       f"pass a fixed integer seed"),
+        })
+    elif rm and not seed.search(code):
         ln = src[:rm.start()].count("\n") + 1
         claims.append({
             "verdict": "MISSING_SEED", "severity": "Major", "line": ln,
