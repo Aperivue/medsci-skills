@@ -3583,8 +3583,8 @@
     },
     {
       "path": "skills/model-selection/SKILL.md",
-      "size": 9690,
-      "sha256": "ecfc38aef655c7001a235b05d022bce1ecd4c436d8b9e13b4eba5c40f8af4da1"
+      "size": 10715,
+      "sha256": "d800d0379f2bcc5ee23203e465b20ab7d5c4c2487eb282e0f4b00239acdd97ef"
     },
     {
       "path": "skills/model-selection/references/classification.md",
@@ -3623,8 +3623,8 @@
     },
     {
       "path": "skills/model-selection/scripts/check_model_provenance.py",
-      "size": 12750,
-      "sha256": "3f7f7ca61af5f0126e71af93fbc8a2a3225dd65ab4c08167fa58e81984ee28bc"
+      "size": 16575,
+      "sha256": "81d343922d269beb21a7edac614db62024ec8a2f488a077d1c06f8db6bbb5c65"
     },
     {
       "path": "skills/model-selection/scripts/check_model_provenance_challenge/expected/clean.txt",
