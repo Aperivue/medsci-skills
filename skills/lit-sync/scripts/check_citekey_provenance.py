@@ -13,7 +13,11 @@ repeat across a library, and some arrive as URLs. Match notes to papers by DOI, 
 citekey; a key that names two entries identifies neither.
 
 Verdicts
-    OK             citekey is present exactly once in the library
+    OK             citekey is present exactly once in the library (and, when both the note
+                   and that entry carry a DOI, the DOIs agree)
+    MISMATCH       citekey is real, but the library gives it a different DOI than the note
+                   carries — the key belongs to another paper (a composed key that collided
+                   with a real one). The key the note's DOI resolves to is suggested
     INVENTED       citekey absent, but the note's DOI (or PMID) resolves to a real key
                    (fixable here — unless that key is itself ambiguous, when no key is
                    suggested and ``reason`` says why)
@@ -27,8 +31,12 @@ Verdicts
     UNUSABLE       citekey contains '/' or is a URL — it cannot be a filename or a [[link]]
     NO_CITEKEY     note has no citekey (recoverable; not a violation)
     FILENAME       citekey is real but the filename disagrees with it
+    UNPARSED       note declares ``notetype: literature`` but its frontmatter has no closing
+                   ``---``, so its citekey could not be read
 
-Exit status is 0 unless --strict is given, matching the repo's gate convention.
+Exit status is 0 unless --strict is given, matching the repo's gate convention. Under
+--strict, INVENTED, MISMATCH or UNPARSED exit 1, and a scan that found no literature note
+at all exits 2 (the check did not run, so it cannot pass).
 
 Usage
     check_citekey_provenance.py --vault ~/Vault/Literature --bib refs.bib
@@ -49,6 +57,7 @@ from pathlib import Path
 BBT_JSONRPC = "http://127.0.0.1:23119/better-bibtex/json-rpc"
 
 FRONTMATTER_RE = re.compile(r"\A---\n(.*?)\n---", re.S)
+OPEN_FENCE_RE = re.compile(r"\A---\n")
 BIB_ENTRY_RE = re.compile(r"@\w+\{([^,]+),(.*?)(?=\n@|\Z)", re.S)
 BIB_DOI_RE = re.compile(r"\bdoi\s*=\s*[{\"]([^}\"]+)", re.I)
 BIB_PMID_RE = re.compile(r"\bpmid\s*=\s*[{\"]\s*(\d+)", re.I)
@@ -90,8 +99,8 @@ def parse_library(text: str) -> tuple:
     return counts, key_dois, doi_to_key, pmid_to_key
 
 
-def merge_libraries(sources: list) -> tuple[set[str], set[str], dict[str, str], dict[str, str]]:
-    """Return (citekeys, ambiguous citekeys, doi -> citekey, pmid -> citekey).
+def merge_libraries(sources: list) -> tuple:
+    """Return (citekeys, ambiguous citekeys, key -> DOIs, doi -> citekey, pmid -> citekey).
 
     A key is ambiguous when one source carries it on two or more entries, or when the
     sources give it two different DOIs. The same entry seen in a .bib snapshot AND the live
@@ -112,7 +121,7 @@ def merge_libraries(sources: list) -> tuple[set[str], set[str], dict[str, str], 
         for pmid, key in pmids.items():
             pmid_to_key.setdefault(pmid, key)
     ambiguous |= {k for k, values in key_dois.items() if len(values) > 1}
-    return keys, ambiguous, doi_to_key, pmid_to_key
+    return keys, ambiguous, key_dois, doi_to_key, pmid_to_key
 
 
 def load_bib(paths: list[Path]) -> list:
@@ -149,15 +158,30 @@ def load_live() -> list:
 
 
 def iter_notes(root: Path):
+    """Yield (path, frontmatter) for each literature note; frontmatter is None when unparsed.
+
+    Hidden folders are judged relative to the vault root, so a vault reached through
+    ``../`` or stored under a dot-directory is still scanned. The whole frontmatter is
+    read (no length cap) and a UTF-8 BOM or CRLF line endings do not hide a note.
+    """
     for path in sorted(root.rglob("*.md")):
-        if any(part.startswith(".") for part in path.parts):
+        try:
+            rel_parts = path.relative_to(root).parts
+        except ValueError:
+            rel_parts = path.parts
+        if any(part.startswith(".") for part in rel_parts):
             continue
         try:
-            head = path.read_text(encoding="utf-8", errors="ignore")[:4000]
+            text = path.read_text(encoding="utf-8-sig", errors="ignore")
         except OSError:
             continue
-        m = FRONTMATTER_RE.match(head)
+        text = text.replace("\r\n", "\n")
+        m = FRONTMATTER_RE.match(text)
         if not m:
+            # An opening fence with no closing one: say so when the note declares itself
+            # a literature note, instead of skipping it as if it were not one.
+            if OPEN_FENCE_RE.match(text) and field(text, "notetype") == "literature":
+                yield path, None
             continue
         fm = m.group(1)
         if field(fm, "notetype") != "literature":
@@ -175,7 +199,8 @@ def main() -> int:
                     help="also query the running Better BibTeX for the full library")
     ap.add_argument("--json", type=Path, help="write the full audit here")
     ap.add_argument("--strict", action="store_true",
-                    help="exit 1 when any INVENTED note is found")
+                    help="exit 1 when any INVENTED, MISMATCH or UNPARSED note is found; "
+                         "exit 2 when no literature note was found")
     args = ap.parse_args()
 
     if not args.vault.exists():
@@ -189,7 +214,7 @@ def main() -> int:
     sources = load_bib(list(args.bib))
     if args.live:
         sources += load_live()
-    keys, ambiguous, doi_to_key, pmid_to_key = merge_libraries(sources)
+    keys, ambiguous, key_dois, doi_to_key, pmid_to_key = merge_libraries(sources)
 
     if not keys:
         print("error: reference library is empty — every note would be reported as "
@@ -198,9 +223,17 @@ def main() -> int:
         return 2
 
     rows = []
-    counts = {"OK": 0, "INVENTED": 0, "UNRESOLVED": 0, "NO_IDENTIFIER": 0,
-              "AMBIGUOUS": 0, "UNUSABLE": 0, "NO_CITEKEY": 0, "FILENAME": 0}
+    counts = {"OK": 0, "INVENTED": 0, "MISMATCH": 0, "UNRESOLVED": 0, "NO_IDENTIFIER": 0,
+              "AMBIGUOUS": 0, "UNUSABLE": 0, "NO_CITEKEY": 0, "FILENAME": 0, "UNPARSED": 0}
     for path, fm in iter_notes(args.vault):
+        if fm is None:
+            counts["UNPARSED"] += 1
+            rows.append({
+                "file": str(path), "verdict": "UNPARSED", "citekey": "", "doi": "",
+                "pmid": "", "suggested_citekey": "",
+                "reason": "frontmatter opens with --- but never closes; citekey not read",
+            })
+            continue
         citekey = field(fm, "citekey")
         doi = norm_doi(field(fm, "doi"))
         pmid = field(fm, "pmid")
@@ -217,6 +250,12 @@ def main() -> int:
         elif citekey in ambiguous:
             verdict, suggestion = "AMBIGUOUS", ""
             reason = "key is carried by several library entries; refresh keys in Better BibTeX"
+        elif citekey in keys and doi and key_dois.get(citekey) and doi not in key_dois[citekey]:
+            verdict = "MISMATCH"
+            reason = (f"the library gives {citekey} the DOI {sorted(key_dois[citekey])[0]}, "
+                      f"not this note's {doi}; the key belongs to another paper")
+            if suggestion and (suggestion in ambiguous or unusable(suggestion)):
+                suggestion = ""
         elif citekey in keys:
             verdict = "OK" if path.stem == citekey else "FILENAME"
             suggestion = citekey if verdict == "FILENAME" else ""
@@ -247,8 +286,8 @@ def main() -> int:
 
     total = sum(counts.values())
     print(f"literature notes checked: {total}   (library: {len(keys)} keys)")
-    for verdict in ("OK", "FILENAME", "INVENTED", "AMBIGUOUS", "UNUSABLE", "UNRESOLVED",
-                    "NO_IDENTIFIER", "NO_CITEKEY"):
+    for verdict in ("OK", "FILENAME", "INVENTED", "MISMATCH", "UNPARSED", "AMBIGUOUS",
+                    "UNUSABLE", "UNRESOLVED", "NO_IDENTIFIER", "NO_CITEKEY"):
         if counts[verdict]:
             print(f"  {verdict:<13} {counts[verdict]}")
 
@@ -284,7 +323,18 @@ def main() -> int:
     if counts["UNRESOLVED"] or counts["NO_IDENTIFIER"]:
         print("\nUNRESOLVED / NO_IDENTIFIER mean 'not found with what this note carries', not "
               "'never added'. Search the full library before importing, or you add a duplicate.")
-    if args.strict and counts["INVENTED"]:
+    if counts["MISMATCH"]:
+        print(f"\n{counts['MISMATCH']} note(s) carry a real key that the library gives to a "
+              "different DOI. The citation will resolve — to the wrong paper.")
+    if counts["UNPARSED"]:
+        print(f"\n{counts['UNPARSED']} literature note(s) have frontmatter with no closing "
+              "---; their citekeys were not checked.")
+    if total == 0:
+        print(f"warning: no literature note (notetype: literature) found under {args.vault}; "
+              "nothing was checked", file=sys.stderr)
+        if args.strict:
+            return 2
+    if args.strict and (counts["INVENTED"] or counts["MISMATCH"] or counts["UNPARSED"]):
         return 1
     return 0
 
