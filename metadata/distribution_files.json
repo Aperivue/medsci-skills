@@ -4438,23 +4438,23 @@
     },
     {
       "path": "skills/radiomics-ml/SKILL.md",
-      "size": 10187,
-      "sha256": "9fb5723cee00d968546b198b51d192167851d9916b21ae705e13e4ebc2534e41"
+      "size": 10988,
+      "sha256": "d1a2d2e0b873f97037f018bce62ad4c144d093962cebb661f029e65ec1615d1b"
     },
     {
       "path": "skills/radiomics-ml/references/radiomics_ml_guide.md",
-      "size": 11186,
-      "sha256": "7a9a55a980a9d7bf21251bc2682d3598a676f8625fa70020386c06c255eff650"
+      "size": 11327,
+      "sha256": "f6b2a27fcd9f42e4a5ece561291eef147caf8bafbd51003687cd48930c9b07f6"
     },
     {
       "path": "skills/radiomics-ml/scripts/check_radiomics_ml.py",
-      "size": 11055,
-      "sha256": "e9748a3579105f43a90037a05cf7c2b055cdd1a71b3dcc846d2a9cdafec841bc"
+      "size": 15827,
+      "sha256": "9e56e3a1d1733a932ec03fe3710c511a5fe5a81001fbff83f5217e773587b428"
     },
     {
       "path": "skills/radiomics-ml/scripts/check_radiomics_ml_challenge/expected/strong.txt",
-      "size": 369,
-      "sha256": "c73c776e6558d9a78dacd3c63ae1cc3dee183d9e1a2f27d99b1e0db70f44997e"
+      "size": 367,
+      "sha256": "4d85eaa7a274cd04d21a4c8cc80ffe5fc44034e7730049f6f00045fd36269aa5"
     },
     {
       "path": "skills/radiomics-ml/scripts/check_radiomics_ml_challenge/expected/weak.txt",
@@ -4463,8 +4463,8 @@
     },
     {
       "path": "skills/radiomics-ml/scripts/check_radiomics_ml_challenge/fixture/pipeline_strong.json",
-      "size": 322,
-      "sha256": "83d128fe0b728ef52a1fd98ef5b5bd478c3e48455cdb07d8040f9d130df81cee"
+      "size": 320,
+      "sha256": "75554233481b9dbee0a5fc819b4ea3d7794ea785837029fb71b946ebf8782662"
     },
     {
       "path": "skills/radiomics-ml/scripts/check_radiomics_ml_challenge/fixture/pipeline_weak.json",
@@ -4478,8 +4478,8 @@
     },
     {
       "path": "skills/radiomics-ml/scripts/check_radiomics_ml_challenge/verify.sh",
-      "size": 1988,
-      "sha256": "b9e55aaf9b29f3e810b837fc373c7a212dc5f778a49bac11854bdb50ed84a184"
+      "size": 2168,
+      "sha256": "7586d9297e4213de15bc1ea1d3b0a77d8cd2935a92bc0a910fb78029059b5042"
     },
     {
       "path": "skills/radiomics-ml/skill.yml",
