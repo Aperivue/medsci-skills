@@ -11,6 +11,7 @@ inputs:
   - "data manifest CSV (one row per image, with a patient/subject ID column and image/label paths)"
   - "task / architecture choice (segmentation; U-Net) and channel + split-fraction settings"
   - "for --task finetune: the pretrained-weight source (--from-pretrained), e.g. timm:resnet50.a1_in1k / MedSAM / a URL-DOI"
+  - "optional: an imaging-data preprocessing_manifest.json (--preprocessing-manifest) whose split_assignment + split_seed the repo reuses instead of drawing a new split"
 outputs:
   - "a runnable PyTorch repo (config.yaml, model.py, dataset.py, losses.py, train.py, evaluate.py, requirements.txt, REPRODUCIBILITY.md, methods_stub.md)"
   - "a frozen patient-level split artifact (splits/split_assignment.csv + split_seed.txt)"
