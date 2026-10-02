@@ -33,6 +33,13 @@
 #       arrow: true        # false -> no arrowhead
 #       constraint: true   # false -> layout ignores this edge
 #
+# Cascade check (_strobe_cascade.py, run before rendering): a node reached by a `style: dashed`
+# edge is read as an exclusion subtracted on that step. Its total is the box's only `n = X`, or
+# the single `n = X` on its first line ("Excluded (n = 100):\n- reason (n = 60) ..."); a box that
+# lists reasons with no stated total is skipped (reported as not checked). Do not use a dashed
+# edge for a non-subtractive side note on a linear step (e.g. "Lost to follow-up" beside an ITT
+# "Analyzed" box that keeps the full count): it is read as an exclusion and flagged.
+#
 # Dependencies: DiagrammeR, DiagrammeRsvg, rsvg, yaml, librsvg (system).
 
 suppressPackageStartupMessages({

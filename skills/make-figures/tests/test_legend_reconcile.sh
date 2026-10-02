@@ -47,6 +47,21 @@ check "header + blank line: verdict OK, Figure 2 not read" python3 -c "
 import json; d=json.load(open('$OUT'))
 assert d['verdict']=='OK' and d['caption_counts']==[286, 998, 1284], d"
 
+# "## Figure 1" heading followed by a "**Figure 1.**" caption paragraph, and an image embed
+# between the header and the caption: the caption paragraph is read (both were NOT_CHECKED).
+for f in manuscript_stale_heading_then_caption manuscript_stale_image_then_caption; do
+  python3 "$SCRIPT" --flow-config "$FLOW" --manuscript "$FX/$f.md" --out "$OUT" --strict >/dev/null 2>&1
+  check "$f: stale caption exits 1" test "$?" -eq 1
+  check "$f: 1150 flagged" python3 -c "
+import json; d=json.load(open('$OUT'))
+assert d['verdict']=='MISMATCH' and 1150 in d['stale_in_caption'], d"
+done
+python3 "$SCRIPT" --flow-config "$FLOW" --manuscript "$FX/manuscript_ok_image_then_caption.md" --out "$OUT" --strict >/dev/null 2>&1
+check "heading + image + matching caption exits 0" test "$?" -eq 0
+check "heading + image: verdict OK, Figure 2 not read" python3 -c "
+import json; d=json.load(open('$OUT'))
+assert d['verdict']=='OK' and d['caption_counts']==[286, 998, 1284], d"
+
 # A check that could not run is never an OK under --strict.
 python3 "$SCRIPT" --flow-config "$FLOW" --manuscript "$FX/manuscript_no_caption.md" --out "$OUT" --strict >/dev/null 2>&1
 check "no Figure 1 caption exits 2 under --strict" test "$?" -eq 2

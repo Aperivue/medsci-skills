@@ -503,7 +503,13 @@ figure1_strobe.yaml --strict` to check a config without rebuilding the diagram. 
 the `generate_flow_diagram.R` nodes/edges schema (a `style: dashed` edge marks an exclusion box) and
 the R script runs it before rendering (warning by default; `--strict-cascade` refuses to render). A
 config in neither schema exits 2; under `--strict`, a config with no checkable exclusion link also
-exits 2 rather than reporting OK.
+exits 2 rather than reporting OK. In the nodes/edges schema an exclusion box's total is its only
+`n = X` or the single `n = X` on its first line ("Excluded (n = 100):" then the reasons); a box that
+lists reasons with no stated total is skipped, not guessed.
+
+Known limits: a dashed edge used for a non-subtractive side note on a linear step (e.g. "Lost to
+follow-up" beside an ITT "Analyzed" box that keeps the full count) is read as an exclusion and
+flagged; draw such notes with a solid edge or as a separate chain node.
 
 For STROBE the canonical KJR/Radiology/BMJ submission flow is:
 

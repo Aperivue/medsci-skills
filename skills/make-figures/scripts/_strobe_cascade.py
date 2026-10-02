@@ -47,6 +47,26 @@ def extract_count(text: str | None) -> int | None:
     return int(m.group(1).replace(",", "")) if m else None
 
 
+def exclusion_total(text: str | None) -> int | None:
+    """Total of a nodes/edges exclusion box, or None when the label states no total.
+
+    An exclusion box often lists its reasons ("Excluded:\\n- Age < 18 (n = 60)\\n- Missing
+    imaging (n = 40)") with no total of its own; reading the first sub-count as the total would
+    flag a cascade that closes. A total is read only when the label has exactly one count, or
+    when its first line carries exactly one count (the stated total) and the rest come on later
+    lines. Anything else is an unknown total and the link is skipped, never guessed.
+    """
+    if not text:
+        return None
+    text = str(text).replace("\\n", "\n")
+    counts = _COUNT_RE.findall(text)
+    if not counts:
+        return None
+    if len(counts) > 1 and len(_COUNT_RE.findall(text.split("\n", 1)[0])) != 1:
+        return None
+    return int(counts[0].replace(",", ""))
+
+
 def _check_spine(cfg: dict) -> tuple[list[dict], int]:
     """Spine/exclusions schema (build_strobe_template.py). Returns (findings, links checked)."""
     spine = cfg.get("spine") or []
@@ -106,6 +126,7 @@ def _check_graph(cfg: dict) -> tuple[list[dict], int]:
     nodes = [n for n in (cfg.get("nodes") or []) if isinstance(n, dict) and n.get("id") is not None]
     edges = [e for e in (cfg.get("edges") or []) if isinstance(e, dict)]
     counts = {n["id"]: extract_count(n.get("label")) for n in nodes}
+    labels = {n["id"]: n.get("label") for n in nodes}
     solid_children: dict = {}
     solid_parents: dict = {}
     excl_of: dict = {}
@@ -125,7 +146,7 @@ def _check_graph(cfg: dict) -> tuple[list[dict], int]:
         aid = n["id"]
         if aid not in excl_of:
             continue
-        excls = [counts.get(x) for x in excl_of[aid]]
+        excls = [exclusion_total(labels.get(x)) for x in excl_of[aid]]
         a_n = counts.get(aid)
         if a_n is None or any(x is None for x in excls):
             continue                        # never guess a missing count
@@ -206,7 +227,8 @@ def main() -> int:
         return 1 if a.strict else 0
     if checked == 0:
         print(f"NOT CHECKED: no evaluable exclusion link in {a.config} ({schema} schema); "
-              "the cascade closure could not be verified.")
+              "the cascade closure could not be verified (a link is skipped when a box has no "
+              "'n = X', an exclusion box states no total on its first line, or the step branches).")
         return 2 if a.strict else 0
     print(f"OK: exclusion cascade closes at every declared link ({checked} checked, {schema} schema).")
     return 0

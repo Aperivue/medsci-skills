@@ -1,0 +1,10 @@
+# Reasons and counts on one line, no total: 1,000 - 60 - 40 = 900 closes. The first count is
+# not a stated total, so the link is skipped rather than read as 1,000 - 60.
+rankdir: TB
+nodes:
+  - {id: a, label: "Screened\nN = 1,000"}
+  - {id: excl, shape: note, label: "Excluded: age < 18 (n = 60), missing imaging (n = 40)", rank_same_with: a}
+  - {id: b, label: "Included\nN = 900"}
+edges:
+  - {from: a, to: b}
+  - {from: a, to: excl, style: dashed, arrow: false, constraint: false}

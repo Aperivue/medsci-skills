@@ -73,6 +73,11 @@ def extract_caption(manuscript_text: str) -> str:
         # The header line carries no caption text ("## Figure 1", "**Figure 1:**"): the caption
         # is the next paragraph, after any blank lines — not the empty header alone.
         body = after.lstrip("\n \t\r")
+        # Skip image embeds between the header and the caption ("![...](figure1.png)").
+        while re.match(r"!\[[^\]]*\]\([^)]*\)[^\n]*(\n|$)", body):
+            body = body.split("\n", 1)[1].lstrip("\n \t\r") if "\n" in body else ""
+        if CAPTION_HDR_RE.match(body):
+            return extract_caption(body)    # "## Figure 1" heading, then a "**Figure 1.** ..." caption
         if re.match(r"#{1,4}\s|\**\s*(Figure|Fig\.?)\s*\d", body):
             return ""                       # the next block is another header / caption
         head = manuscript_text[start:m.end() + len(head_line)]
@@ -152,8 +157,8 @@ def main() -> int:
         print(f"\nMISMATCH: caption cites {stale} not present in the flow diagram.")
         print(result["suggested_fix"])
     elif not_checked:
-        print(f"\nNOT CHECKED: {not_checked}; the caption could not be reconciled "
-              "(counts written without 'n =' are not parsed).")
+        hint = " (counts written without 'n =' are not parsed)" if caption else ""
+        print(f"\nNOT CHECKED: {not_checked}; the caption could not be reconciled{hint}.")
     else:
         print("\nOK: every caption count is present in the flow diagram.")
     if missing:

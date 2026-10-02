@@ -1,0 +1,9 @@
+# Exclusion box stating its total first, then the reasons: 1,000 - 100 = 900 closes.
+rankdir: TB
+nodes:
+  - {id: a, label: "Screened\nN = 1,000"}
+  - {id: excl, shape: note, label: "Excluded (n = 100):\n- Age < 18 (n = 60)\n- Missing imaging (n = 40)", rank_same_with: a}
+  - {id: b, label: "Included\nN = 900"}
+edges:
+  - {from: a, to: b}
+  - {from: a, to: excl, style: dashed, arrow: false, constraint: false}

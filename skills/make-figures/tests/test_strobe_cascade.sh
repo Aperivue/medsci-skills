@@ -59,6 +59,22 @@ for t in strobe consort prisma stard; do
   printf '%s\n' "$out6" | grep -q 'nodes/edges schema' && ck "$t exemplar actually checked" yes yes || ck "$t exemplar actually checked" yes no
 done
 
+# (5b) Exclusion box total. A box listing reasons with no total of its own must not have its
+#      first sub-count read as the total (reviewer counter-example: 1,000 - 60 - 40 = 900 closes,
+#      but reading 60 as the total reported 940 != 900). The total is unknown, so the link is
+#      skipped: never CASCADE_IMBALANCE, and NOT CHECKED (exit 2) under --strict.
+for f in excl_no_total excl_inline_reasons; do
+  out7="$(python3 "$CHK" --config "$FX/flow_graph_$f.yaml" --strict 2>&1)"; rc=$?
+  ck "$f: total unknown, not flagged (exit 2 = not checked)" 2 "$rc"
+  printf '%s\n' "$out7" | grep -q 'CASCADE_IMBALANCE' && ck "$f: no CASCADE_IMBALANCE" no yes || ck "$f: no CASCADE_IMBALANCE" no no
+  python3 "$CHK" --config "$FX/flow_graph_$f.yaml" >/dev/null 2>&1; ck "$f: report-only exits 0" 0 "$?"
+done
+python3 "$CHK" --config "$FX/flow_graph_excl_total_first.yaml" --strict >/dev/null 2>&1
+ck "total stated first, then reasons: closes (exit 0)" 0 "$?"
+out8="$(python3 "$CHK" --config "$FX/flow_graph_excl_total_first_imbalanced.yaml" --strict 2>&1)"; rc=$?
+ck "total stated first, imbalanced: exit 1" 1 "$rc"
+printf '%s\n' "$out8" | grep -q "1,000 - 100 = 900 but the next box 'b' says 880" && ck "imbalance reads the stated total 100" yes yes || ck "imbalance reads the stated total 100" yes no
+
 # (6) A check that could not run is never an OK: unrecognised schema -> exit 2 (with or without
 #     --strict); no evaluable exclusion link -> exit 2 under --strict.
 python3 "$CHK" --config "$FX/figure1_flow.yaml" >/dev/null 2>&1; ck "unrecognised schema exits 2" 2 "$?"
