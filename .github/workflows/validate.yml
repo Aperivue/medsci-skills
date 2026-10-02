@@ -1072,6 +1072,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/search-lit/tests/test_pubmed_eutils.sh
 
+      - name: "Run ma-scout test (an unknown esearch count is never 0; an unchecked PROSPERO is never clear)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/ma-scout/tests/test_esearch_count_and_prospero.sh
+
       - name: "Run DOI-record-match challenge (a resolvable DOI can belong to a different paper)"
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/search-lit/scripts/check_doi_record_match_challenge/verify.sh
