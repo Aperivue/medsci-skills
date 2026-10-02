@@ -4,7 +4,10 @@
 High-impact medical-AI journals require a structured summary box whose *format*
 is journal-specific, and a production/technical check rejects the wrong one:
 
-  - Radiology / Radiology:AI (RSNA): "Key Points" — exactly 3 bullets, one claim each.
+  - Radiology / Radiology:AI (RSNA): exactly 3 bullets, one claim each. The box
+    label is read from the spec: "Key Points" by default; for journal stems listed
+    under `labels_by_journal` (Radiology, labelled "Key Results" in
+    references/journal_summarybox_templates.yaml) each listed label is accepted.
   - Lancet family: "Research in context" — three labelled sub-blocks
     (Evidence before this study / Added value of this study / Implications of all
     the available evidence).
@@ -27,8 +30,11 @@ INPUTS
 
 VERDICT
   CONFORMANT          the box matches its format's spec.
-  NONCONFORMANT       a hard rule failed (wrong bullet count, missing sub-block,
-                      word count outside the band, box absent).
+  NONCONFORMANT       a hard rule failed (wrong top-level bullet count, missing or
+                      empty sub-block, word count outside the band, box absent).
+  The box starts at a heading, bold label or bare label line naming it (not at a
+  body sentence that begins with the same words) and ends at the next heading or
+  the next bold-only label line (the format's own sub-block labels excepted).
   ADVISORY            only soft rules fired (e.g. a bullet carries >1 claim).
   Exit: 0 conformant/advisory or report-only; 1 NONCONFORMANT under --strict;
         2 input/usage error.
@@ -70,16 +76,41 @@ def pick_format(formats: dict, journal: str | None, fmt: str | None) -> str | No
     return None
 
 
-def extract_block(text: str, label: str) -> str | None:
-    """Return the lines under a heading/bold label matching `label`, up to the
-    next markdown heading or a blank-line-separated next bold label section."""
-    lines = text.splitlines()
-    label_re = re.compile(
-        r"^\s*(?:#{1,6}\s*|\*\*\s*|\*\s*)?" + re.escape(label) + r"\b", re.IGNORECASE
+_MARK = r"(?:\*\*|__|\*|_)"
+
+
+def _label_line_re(label: str) -> "re.Pattern[str]":
+    """A line that *is* the box label: a markdown heading starting with the label,
+    a bold/italic span starting with the label, or the label alone on its line
+    (optional trailing colon). A body sentence that merely begins with the label
+    words ("Key points of prior work are ...") is not a label line."""
+    lab = re.escape(label)
+    return re.compile(
+        r"^\s*(?:"
+        r"#{1,6}\s*" + lab + r"\b.*"                                   # heading
+        r"|" + _MARK + r"\s*" + lab + r"\b[^*_]*?" + _MARK + r".*"         # bold/italic span
+        r"|" + lab + r"\s*:?\s*"                                       # bare label line
+        r")$",
+        re.IGNORECASE,
     )
+
+
+# A line consisting only of a bold label ("**Abbreviations**", "__Funding:__") —
+# the start of the next labelled section.
+_BOLD_ONLY_RE = re.compile(r"^\s*(\*\*|__)\s*([^*_]+?)\s*:?\s*\1\s*:?\s*$")
+
+
+def extract_block(text: str, label: str, keep_labels: list[str] | None = None) -> str | None:
+    """Return the lines under a heading/bold label matching `label`, up to the
+    next markdown heading or the next bold-only label line. Bold-only lines whose
+    text is one of `keep_labels` (the format's own sub-block labels) do not end
+    the block."""
+    lines = text.splitlines()
+    label_re = _label_line_re(label)
+    keep = {k.strip().lower() for k in (keep_labels or [])}
     start = None
     for i, ln in enumerate(lines):
-        if label_re.search(ln):
+        if label_re.match(ln):
             start = i
             break
     if start is None:
@@ -88,17 +119,57 @@ def extract_block(text: str, label: str) -> str | None:
     for ln in lines[start + 1:]:
         if re.match(r"^\s*#{1,6}\s+\S", ln):  # next heading ends the block
             break
+        m = _BOLD_ONLY_RE.match(ln)
+        if m and m.group(2).strip().rstrip(":").strip().lower() not in keep:
+            break  # next bold-labelled section ends the block
         out.append(ln)
     return "\n".join(out).strip()
 
 
+_BULLET_RE = re.compile(r"^(\s*)(?:[-*+]|\d+[.)])\s+(.*\S)")
+
+
 def count_bullets(block: str) -> list[str]:
-    bullets: list[str] = []
+    """Top-level bullets only: a bullet indented two or more columns deeper than
+    the shallowest bullet in the block is a sub-bullet and is not counted."""
+    found: list[tuple[int, str]] = []
     for ln in block.splitlines():
-        m = re.match(r"^\s*(?:[-*+]|\d+[.)])\s+(.*\S)", ln)
+        m = _BULLET_RE.match(ln.expandtabs(4))
         if m:
-            bullets.append(m.group(1).strip())
-    return bullets
+            found.append((len(m.group(1)), m.group(2).strip()))
+    if not found:
+        return []
+    top = min(ind for ind, _ in found)
+    return [b for ind, b in found if ind < top + 2]
+
+
+def subblock_contents(block: str, subblocks: list[str]) -> dict[str, str | None]:
+    """Map each sub-block label to its content, or None when the label does not
+    open a line of the block. Content is the text after the label on its line
+    plus the following lines up to the next sub-block label."""
+    lines = block.splitlines()
+    pats = {
+        sub: re.compile(
+            r"^\s*(?:[-*+]\s+)?(?:#{1,6}\s*)?" + _MARK + r"?\s*" + re.escape(sub)
+            + r"\s*:?\s*" + _MARK + r"?\s*:?\s*(.*)$",
+            re.IGNORECASE,
+        )
+        for sub in subblocks
+    }
+    starts: list[tuple[int, str, str]] = []
+    for i, ln in enumerate(lines):
+        for sub, pat in pats.items():
+            m = pat.match(ln)
+            if m:
+                starts.append((i, sub, m.group(1)))
+                break
+    result: dict[str, str | None] = {sub: None for sub in subblocks}
+    for k, (i, sub, rest) in enumerate(starts):
+        if result[sub] is not None:
+            continue
+        end = starts[k + 1][0] if k + 1 < len(starts) else len(lines)
+        result[sub] = "\n".join([rest] + lines[i + 1:end]).strip()
+    return result
 
 
 def multi_claim(bullet: str) -> bool:
@@ -115,15 +186,35 @@ def word_count(block: str) -> int:
     return len(re.findall(r"\b[\w'-]+\b", block))
 
 
-def check(text: str, fmt: str, spec: dict) -> dict:
-    label = spec["label"]
-    block = extract_block(text, label)
+def accepted_labels(spec: dict, journal: str | None) -> list[str]:
+    """The box labels accepted for this journal: a per-journal list from
+    `labels_by_journal` when the spec has one for the journal, else `label`."""
+    by_j = spec.get("labels_by_journal") or {}
+    if journal:
+        j = journal.strip().lower()
+        for key, labels in by_j.items():
+            if key.lower() == j and labels:
+                return list(labels)
+    return [spec["label"]]
+
+
+def check(text: str, fmt: str, spec: dict, journal: str | None = None) -> dict:
+    labels = accepted_labels(spec, journal)
+    keep = spec.get("subblocks") if fmt == "research_in_context" else None
+    label = labels[0]
+    block = None
+    for cand in labels:
+        block = extract_block(text, cand, keep)
+        if block is not None:
+            label = cand
+            break
     findings: list[dict] = []
     if block is None:
+        names = " / ".join(f"'{x}'" for x in labels)
         return {
             "format": fmt, "label": label, "verdict": "NONCONFORMANT",
             "findings": [{"rule": "box_present", "severity": "hard",
-                          "detail": f"no '{label}' box found in the manuscript"}],
+                          "detail": f"no {names} box found in the manuscript"}],
         }
 
     if fmt == "key_points":
@@ -138,11 +229,15 @@ def check(text: str, fmt: str, spec: dict) -> dict:
                     findings.append({"rule": "one_claim_per_bullet", "severity": "soft",
                                      "detail": f"bullet packs >1 claim: {b[:80]}"})
     elif fmt == "research_in_context":
-        low = block.lower()
+        contents = subblock_contents(block, spec["subblocks"])
         for sub in spec["subblocks"]:
-            if sub.lower() not in low:
+            body = contents[sub]
+            if body is None:
                 findings.append({"rule": "subblock_present", "severity": "hard",
-                                 "detail": f"missing sub-block: '{sub}'"})
+                                 "detail": f"missing sub-block: '{sub}' (no line opens with this label)"})
+            elif not re.search(r"\w", body):
+                findings.append({"rule": "subblock_content", "severity": "hard",
+                                 "detail": f"empty sub-block: '{sub}' has a label but no text"})
     elif fmt == "plain_language_summary":
         wc = word_count(block)
         lo, hi = spec["word_min"], spec["word_max"]
@@ -182,7 +277,7 @@ def main() -> int:
         return _err("could not select a format — pass --format or a --journal listed in the specs")
 
     text = man.read_text(encoding="utf-8")
-    report = check(text, fmt, formats[fmt])
+    report = check(text, fmt, formats[fmt], args.journal)
 
     out_path = Path(args.out) if args.out else Path("qc") / "summary_box_report.json"
     out_path.parent.mkdir(parents=True, exist_ok=True)

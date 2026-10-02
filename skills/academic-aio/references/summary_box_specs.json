@@ -1,12 +1,17 @@
 {
-  "_comment": "Synthesis of PUBLIC, journal-documented structured-summary-box facts (bullet counts, sub-block labels, word bands) — NOT verbatim journal text. Mirrors the facts academic-aio/SKILL.md already states (Lancet 'Research in context' 3 sub-blocks; Radiology/RYAI 'Key Points' 3 one-claim bullets; npj 'Plain-language summary' 150-200 words). Verify current instructions-to-authors at the journal site before relying on a format; these are conventions, not guarantees.",
+  "_comment": "Synthesis of PUBLIC, journal-documented structured-summary-box facts (bullet counts, sub-block labels, word bands) — NOT verbatim journal text. Mirrors the facts academic-aio/SKILL.md already states (Lancet 'Research in context' 3 sub-blocks; Radiology/RYAI 3 one-claim bullets, labelled 'Key Results' (Radiology) / 'Key Points' (RYAI) in journal_summarybox_templates.yaml; npj 'Plain-language summary' 150-200 words). Verify current instructions-to-authors at the journal site before relying on a format; these are conventions, not guarantees.",
   "schema_version": 1,
   "formats": {
     "key_points": {
       "label": "Key Points",
+      "_labels_by_journal_comment": "journal_summarybox_templates.yaml labels the Radiology (rsna-radiology) box 'Key Results' and the Radiology: AI box 'Key Points'; for Radiology both labels are accepted until the label is verified against the RSNA instructions for authors.",
+      "labels_by_journal": {
+        "radiology": ["Key Results", "Key Points"],
+        "rsna-radiology": ["Key Results", "Key Points"]
+      },
       "bullets": 3,
       "one_claim_per_bullet": true,
-      "journals": ["radiology", "radiology-ai", "ryai", "rsna"]
+      "journals": ["radiology", "radiology-ai", "ryai", "rsna", "rsna-radiology", "rsna-radiology-ai"]
     },
     "research_in_context": {
       "label": "Research in context",

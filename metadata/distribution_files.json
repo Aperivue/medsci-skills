@@ -78,8 +78,8 @@
     },
     {
       "path": "skills/academic-aio/SKILL.md",
-      "size": 18422,
-      "sha256": "027582bfcee674e92a1364698990763d665df2cee77d0d83a63694458dfef5c5"
+      "size": 18701,
+      "sha256": "fdf292d86725d5edeba6d3602e70687f4254742757fb7efd28da6abb47b5b857"
     },
     {
       "path": "skills/academic-aio/references/ai_tool_citation_framing.md",
@@ -118,8 +118,8 @@
     },
     {
       "path": "skills/academic-aio/references/reporting_guideline_mapping.md",
-      "size": 3571,
-      "sha256": "8704259253d86404f4a8f9feb411d7aff3def38fb8bea8650634f9779014c9c1"
+      "size": 3961,
+      "sha256": "63a8ec7cec23eda7ca3da53c1590ea266ceb1f2b802729d54780b81f6d629afd"
     },
     {
       "path": "skills/academic-aio/references/repository_and_cards.md",
@@ -143,8 +143,8 @@
     },
     {
       "path": "skills/academic-aio/references/schema_markup_templates/README.md",
-      "size": 2098,
-      "sha256": "602c2e54617e1b36811be61b2252c3d88aa105b927e3b6e8af69e8f7e8e3297c"
+      "size": 2444,
+      "sha256": "8be526046e1ffb357073b4827888dad50f698e62edbe4fbc146572001a27f919"
     },
     {
       "path": "skills/academic-aio/references/schema_markup_templates/ScholarlyArticle.jsonld",
@@ -153,8 +153,8 @@
     },
     {
       "path": "skills/academic-aio/references/summary_box_specs.json",
-      "size": 1155,
-      "sha256": "87f70d5473eaced22e1583bd95f2d23c26e772e130b42230566782c09adc30a0"
+      "size": 1701,
+      "sha256": "29fa6ad77e66947183e72aaccec0961e8043d48cde939ba8385583ef05059d9b"
     },
     {
       "path": "skills/academic-aio/scripts/batch_metadata_audit.py",
@@ -163,13 +163,13 @@
     },
     {
       "path": "skills/academic-aio/scripts/check_summary_box.py",
-      "size": 8066,
-      "sha256": "da4831e51e3b4f4eaf3ea6e7a46a4d7b8622c54020939d3f845745e3d30b28c0"
+      "size": 12427,
+      "sha256": "aba6ad5f58267210b68f3c1aaf5dad23116c2adb6e06d91d264736015813d322"
     },
     {
       "path": "skills/academic-aio/scripts/validate_schema.py",
-      "size": 3924,
-      "sha256": "4bc1f0f44ca7320f17b0ffbd587090eb7a05828c5558a1ef0dea78e0c746cbfd"
+      "size": 8675,
+      "sha256": "58e0266e2d75a8a8bd7985b693642e2dcdb2bea13a335ea50596b41f6632b7dd"
     },
     {
       "path": "skills/academic-aio/skill.yml",

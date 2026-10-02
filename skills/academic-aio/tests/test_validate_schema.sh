@@ -62,5 +62,60 @@ check "malformed DOI -> exit 1" 1 python3 "$SCRIPT" "$TMP/bad_doi.jsonld"
 # Mixed batch (one bad file) still fails overall.
 check "batch with one bad file -> exit 1" 1 python3 "$SCRIPT" "$TMP/ok.jsonld" "$TMP/bad_ctx.jsonld"
 
+# --- Placeholders and identifier shapes (regression) --------------------------
+TPL="$HERE/../references/schema_markup_templates"
+mk_sa() {  # $1 = file, $2 = JSON value of "identifier"
+cat > "$1" <<JSON
+{"@context": "https://schema.org", "@type": "ScholarlyArticle", "headline": "Synthetic",
+ "datePublished": "2026-01-01", "author": [{"@type": "Person", "name": "Alice Kim"}],
+ "identifier": $2, "url": "https://example.org/article"}
+JSON
+}
+mk_person() {  # $1 = file, $2 = JSON value of "identifier"
+cat > "$1" <<JSON
+{"@context": "https://schema.org", "@type": "Person", "name": "Alice Kim", "identifier": $2}
+JSON
+}
+
+# Unfilled shipped templates FAIL by default and PASS under --template.
+for t in "$TPL"/*.jsonld; do
+    check "unfilled template $(basename "$t") -> exit 1" 1 python3 "$SCRIPT" "$t"
+done
+check "templates under --template -> exit 0" 0 python3 "$SCRIPT" --template "$TPL"/*.jsonld
+
+mk_sa "$TMP/ph_doi.jsonld" '[{"@type": "PropertyValue", "propertyID": "DOI", "value": "10.xxxx/yyyy"}]'
+check "placeholder DOI 10.xxxx/yyyy -> exit 1" 1 python3 "$SCRIPT" "$TMP/ph_doi.jsonld"
+check "placeholder DOI under --template -> exit 0" 0 python3 "$SCRIPT" --template "$TMP/ph_doi.jsonld"
+
+# DOI checked in every identifier shape.
+mk_sa "$TMP/str_bad_doi.jsonld" '"doi: not-a-doi"'
+check "string identifier with malformed DOI -> exit 1" 1 python3 "$SCRIPT" "$TMP/str_bad_doi.jsonld"
+mk_sa "$TMP/dict_bad_doi.jsonld" '{"@type": "PropertyValue", "propertyID": "DOI", "value": "not-a-doi"}'
+check "object identifier with malformed DOI -> exit 1" 1 python3 "$SCRIPT" "$TMP/dict_bad_doi.jsonld"
+mk_sa "$TMP/str_ok_doi.jsonld" '"https://doi.org/10.1000/synthetic.2026.001"'
+check "string identifier with valid DOI URL -> exit 0" 0 python3 "$SCRIPT" "$TMP/str_ok_doi.jsonld"
+mk_sa "$TMP/str_pmid.jsonld" '"PMID:12345678"'
+check "string non-DOI identifier left alone -> exit 0" 0 python3 "$SCRIPT" "$TMP/str_pmid.jsonld"
+mk_sa "$TMP/sici.jsonld" '[{"propertyID": "DOI", "value": "10.1002/(SICI)1097-0258(19980430)17:8<857::AID-SIM777>3.0.CO;2-E"}]'
+check "SICI-style DOI with <...> -> exit 0" 0 python3 "$SCRIPT" "$TMP/sici.jsonld"
+
+# ORCID: list shape checked; check digit (ISO 7064 MOD 11-2) verified.
+mk_person "$TMP/orcid_list_bad.jsonld" '[{"@type": "PropertyValue", "propertyID": "ORCID", "value": "orcid-garbage"}]'
+check "list ORCID malformed -> exit 1" 1 python3 "$SCRIPT" "$TMP/orcid_list_bad.jsonld"
+mk_person "$TMP/orcid_bad_check.jsonld" '"https://orcid.org/0000-0002-1825-0098"'
+check "ORCID with wrong check digit -> exit 1" 1 python3 "$SCRIPT" "$TMP/orcid_bad_check.jsonld"
+mk_person "$TMP/orcid_ok.jsonld" '"https://orcid.org/0000-0002-1825-0097"'
+check "ORCID with valid check digit -> exit 0" 0 python3 "$SCRIPT" "$TMP/orcid_ok.jsonld"
+mk_person "$TMP/orcid_list_ok.jsonld" '[{"@type": "PropertyValue", "propertyID": "ORCID", "value": "0000-0002-1825-0097"}]'
+check "list ORCID valid -> exit 0" 0 python3 "$SCRIPT" "$TMP/orcid_list_ok.jsonld"
+
+# Prose with "<" is not a placeholder.
+python3 - "$TMP/ok.jsonld" "$TMP/prose_lt.jsonld" <<'PY'
+import json, sys
+d = json.load(open(sys.argv[1])); d["abstract"] = "AUC rose (p<0.05) in <i>vivo</i>."
+json.dump(d, open(sys.argv[2], "w"))
+PY
+check "abstract containing '<' -> exit 0" 0 python3 "$SCRIPT" "$TMP/prose_lt.jsonld"
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

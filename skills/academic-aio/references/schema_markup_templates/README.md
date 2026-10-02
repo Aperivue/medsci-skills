@@ -28,13 +28,16 @@ Place the script tag in the `<head>` of the HTML page. For static-site generator
 Run `scripts/validate_schema.py path/to/file.jsonld` to verify syntactic validity and required-field presence before deploy.
 
 ```bash
-python scripts/validate_schema.py references/schema_markup_templates/*.jsonld
+# a filled file meant for deploy: any leftover placeholder FAILs ("PLACEHOLDER:")
+python scripts/validate_schema.py path/to/file.jsonld
+# the unfilled templates themselves: placeholders allowed
+python scripts/validate_schema.py --template references/schema_markup_templates/*.jsonld
 ```
 
 ## Anti-hallucination
 
 - Do not auto-fill placeholder values (`<First Last>`, `0000-0000-0000-0000`, `10.xxxx/yyyy`). Mark unknown fields as `null` or remove the field — partial fabricated identifiers are worse than missing ones.
-- Verify DOI format `10.{prefix}/{suffix}` and ORCID format before commit.
+- Verify DOI format `10.{prefix}/{suffix}` and ORCID format before commit; the validator checks both (including the ORCID check digit) and fails a file that still carries a placeholder unless `--template` is passed.
 
 ## Related
 
