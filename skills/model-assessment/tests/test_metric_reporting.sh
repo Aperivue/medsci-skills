@@ -98,55 +98,16 @@ printf 'Three-class classification: one-vs-rest macro-averaged AUROC 0.90 and AU
 python3 "$DET" --report "$W/mc_ok.md" --task classification --out "$OUT" --quiet >/dev/null 2>&1
 check "FP: multiclass with one-vs-rest macro-average -> no MULTICLASS_NO_AVERAGING" no MULTICLASS_NO_AVERAGING
 
-# --- F3: false clearances of NO_BOUNDARY_METRIC ---
-# the Medical Segmentation Decathlon name 'MSD' is not mean surface distance
-printf 'We trained on the MSD liver task. Mean Dice was 0.91 (95%% CI 0.89-0.93).\n' > "$W/msd_ds.md"
-python3 "$DET" --report "$W/msd_ds.md" --task segmentation --out "$OUT" --quiet >/dev/null 2>&1
-check "F3: 'MSD liver task' (dataset) -> NO_BOUNDARY_METRIC" has NO_BOUNDARY_METRIC
-printf 'Dice was 0.91 (95%% CI 0.89-0.93). We used the MSD 2018 release.\n' > "$W/msd_year.md"
-python3 "$DET" --report "$W/msd_year.md" --task segmentation --out "$OUT" --quiet >/dev/null 2>&1
-check "F3: 'MSD 2018 release' (year) -> NO_BOUNDARY_METRIC" has NO_BOUNDARY_METRIC
-printf 'Dice was 0.91 (95%% CI 0.89-0.93) on MSD Task09 (Medical Segmentation Decathlon (MSD)).\n' > "$W/msd_task.md"
-python3 "$DET" --report "$W/msd_task.md" --task segmentation --out "$OUT" --quiet >/dev/null 2>&1
-check "F3: 'MSD Task09' / 'Decathlon (MSD)' -> NO_BOUNDARY_METRIC" has NO_BOUNDARY_METRIC
-# a negation reaches every item of a coordinated list of boundary metrics
-printf 'Dice was 0.91 (95%% CI 0.89-0.93). We did not compute the Hausdorff distance or HD95.\n' > "$W/neglist.md"
-python3 "$DET" --report "$W/neglist.md" --task segmentation --out "$OUT" --quiet >/dev/null 2>&1
-check "F3: 'did not compute the Hausdorff distance or HD95' -> NO_BOUNDARY_METRIC" has NO_BOUNDARY_METRIC
-# negative controls (each must pass --strict): MSD as a reported distance, in prose and in
-# markdown tables; a list item with its own predicate; comparative phrasing is not a disavowal;
-# sensitivity/specificity and detection metrics keep main's presence test (review counterexamples)
-nc(){ printf '%b\n' "$2" > "$W/$1.md"; check "control: $1 passes --strict" ok0 "$W/$1.md" "$3"; }
-nc msd_val 'Dice 0.91 (95% CI 0.89-0.93) and MSD 1.2 mm on the MSD liver task.' segmentation
-nc msd_tab_hdr '| Model | Dice (95% CI) | MSD (mm) |\n|---|---|---|\n| nnU-Net | 0.91 (0.89-0.93) | 1.2 |' segmentation
-nc msd_tab_row '| Dice | 0.91 (95% CI 0.89-0.93) |\n| MSD | 1.2 mm |' segmentation
-nc msd_decr 'Dice 0.91 (95% CI 0.89-0.93); MSD decreased to 1.2 mm.' segmentation
-nc msd_folds 'Dice 0.91 (95% CI 0.89-0.93). Mean MSD across folds: 1.2 mm.' segmentation
-nc msd_paren 'Dice 0.91 (95% CI 0.89-0.93). MSD (mean ± SD, mm) 1.2 ± 0.4.' segmentation
-nc neg_own 'We did not use pixel accuracy, Dice and HD95 were reported (95% CI).' segmentation
-nc seg_without 'Dice was 0.91 (95% CI 0.89-0.93). Without resampling, HD95 and ASSD were 4.1 and 1.2 mm.' segmentation
-nc acc_pair 'Accuracy 92%, sensitivity and specificity were 0.9 and 0.8 (95% CI).' classification
-nc scope_and 'Accuracy was 0.90 (95% CI 0.85-0.94). We did not tune the threshold, and sensitivity and specificity were 0.88 and 0.91.' classification
-nc scope_comma_but 'Accuracy was 0.90 (95% CI 0.85-0.94). We did not report AUROC, but sensitivity of 0.88 and specificity of 0.91.' classification
-nc scope_which 'Accuracy was 0.90 (95% CI 0.85-0.94). The threshold was not tuned, which gave sensitivity 0.88 and specificity 0.91.' classification
-nc cx_without_prior 'Accuracy was 0.90 (95% CI 0.85-0.94). In patients without prior imaging, sensitivity and specificity were 0.88 and 0.91.' classification
-nc cx_studies_without 'Accuracy was 0.90 (95% CI 0.85-0.94). Studies without prior imaging, sensitivity was 0.88 and specificity 0.91.' classification
-nc cx_without_contrast 'Accuracy was 0.90 (95% CI 0.85-0.94). In cases without contrast, sensitivity 0.88; specificity 0.91.' classification
-nc cx_without_tuning 'Accuracy was 0.90 (95% CI 0.85-0.94). Without threshold tuning, sensitivity and specificity were 0.88 and 0.91.' classification
-nc cx_relclause 'Accuracy 0.90 (95% CI 0.85-0.94). Sensitivity and specificity, which were not prespecified, were 0.88 and 0.91.' classification
-nc cx_noninferior 'Accuracy was 0.90 (95% CI 0.85-0.94). The sensitivity and specificity of the model were not inferior to those of radiologists (0.88 and 0.91).' classification
-nc cx_notdiff 'Accuracy 0.9 (95% CI 0.85-0.94). Sensitivity and specificity were not significantly different from the reader (0.88 and 0.91).' classification
-nc cx_notsurpr 'Accuracy 0.90 (95% CI 0.85-0.94). Not surprisingly, sensitivity and specificity were high (0.88 and 0.91).' classification
-nc cx_dash 'Accuracy 0.9 (95% CI 0.85-0.94). We did not tune the threshold - sensitivity and specificity were 0.88 and 0.91.' classification
-nc cx_paren 'Accuracy 0.9 (95% CI 0.85-0.94). Thresholds were not tuned (sensitivity and specificity, 0.88 and 0.91).' classification
-nc cx_notaug 'Accuracy 0.9 (95% CI 0.85-0.94). Images that were not augmented, sensitivity and specificity were 0.88 and 0.91.' classification
-nc cx_det_nms 'Detection sensitivity 0.9 (95% CI 0.85-0.94) with IoU threshold 0.3. Without NMS, FROC CPM was 0.81.' detection
-nc cx_det_notlower 'Average sensitivity per false positive (FROC) was not lower than the radiologists (0.81, 95% CI 0.77-0.85), IoU threshold 0.3.' detection
-
-# --- F4: false clearance of DETECTION_METRIC_MISSING ---
-printf 'Lesion-level sensitivity was 0.88 (95%% CI 0.84-0.91). Figure 3 shows a saliency map; a prediction counted as a hit when its overlap of the lesion was any.\n' > "$W/det_map.md"
-python3 "$DET" --report "$W/det_map.md" --task detection --out "$OUT" --quiet >/dev/null 2>&1
-check "F4: 'saliency map' is not mAP -> DETECTION_METRIC_MISSING" has DETECTION_METRIC_MISSING
-nc det_map_ok 'mAP@0.5 was 0.71 (95% CI 0.65-0.77) with IoU threshold 0.5.' detection
+# --- F4: a saliency / heat / probability map is not mAP (main cleared these) ---
+for w in "saliency map" "heat map" "Grad-CAM map" "probability map" "heat-map"; do
+  printf 'Lesion-level sensitivity was 0.88 (95%% CI 0.84-0.91). Figure 3 shows a %s; a hit required IoU >= 0.3.\n' "$w" > "$W/det_map.md"
+  python3 "$DET" --report "$W/det_map.md" --task detection --out "$OUT" --quiet >/dev/null 2>&1
+  check "F4: '$w' alone -> DETECTION_METRIC_MISSING" has DETECTION_METRIC_MISSING
+done
+# negative controls: every spelling of mean average precision still counts, also next to a saliency map
+for m in "mAP 0.71" "MAP of 0.71" "map@0.5 0.71" "mAP50-95 0.52" "mean average precision 0.71"; do
+  printf 'Detection: %s (95%% CI 0.65-0.77), IoU threshold 0.5. Figure 3 shows a saliency map.\n' "$m" > "$W/det_ap.md"
+  check "F4 control: '$m' + saliency map passes --strict" ok0 "$W/det_ap.md" detection
+done
 
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"; exit "$fail"

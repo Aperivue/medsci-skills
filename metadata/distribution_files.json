@@ -3253,8 +3253,8 @@
     },
     {
       "path": "skills/model-assessment/SKILL.md",
-      "size": 16822,
-      "sha256": "df3082f1ecf12b0872e4e8342df40c83b028dea08f6d8b0caae4ae3294e084f5"
+      "size": 17352,
+      "sha256": "1c956f7f8a8a9c80edf3012625962a29c20e0efd432c2cf222a052906ff0a4b8"
     },
     {
       "path": "skills/model-assessment/references/explainability_guide.md",
@@ -3283,8 +3283,8 @@
     },
     {
       "path": "skills/model-assessment/scripts/check_explainability_report.py",
-      "size": 14810,
-      "sha256": "5e77ea358b91485c2ab1e0eefaa87cf715c3134d3d666e2f9e926fcea18f7994"
+      "size": 12772,
+      "sha256": "bce3d2356e74367b54f932036302934228fda401cc4c776a3c61fbf2c566e4c9"
     },
     {
       "path": "skills/model-assessment/scripts/check_explainability_report_challenge/expected/strong.txt",
@@ -3318,13 +3318,13 @@
     },
     {
       "path": "skills/model-assessment/scripts/check_metric_reporting.py",
-      "size": 23182,
-      "sha256": "d61a6da78905fac9b1dd8ec395a599f25c4c5bd72935cff5bc545850a6112aff"
+      "size": 19271,
+      "sha256": "fc8245cff93c9788a3b8b40dd6fe0031d8e8de4352f8851f36a2f9d04c615979"
     },
     {
       "path": "skills/model-assessment/scripts/check_split_leakage.py",
-      "size": 15219,
-      "sha256": "b02f361c4b0b41806e332334c000f367783b694c5e2d8334859f14ea71ea05cb"
+      "size": 13982,
+      "sha256": "b231cafcedf749e056ff31bec44202960fd02ebbf3ccb337c18a5e980d5a38f9"
     },
     {
       "path": "skills/model-assessment/scripts/check_split_leakage_challenge/expected/clean.txt",

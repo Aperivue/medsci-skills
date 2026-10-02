@@ -96,7 +96,7 @@ cat > "$TMP/sanity_np.json" <<'EOF'
 EOF
 python3 "$SCRIPT" --manifest "$TMP/sanity_np.json" --out "$OUT" --quiet >/dev/null 2>&1
 check "sanity_checks \"not performed\" -> NO_SANITY_CHECK" has_verdict NO_SANITY_CHECK
-# (F5) free-text interpretation / unknown sanity entry -> input error (exit 2), not a clearance
+# (F5) free-text interpretation -> input error (exit 2), not a clearance
 cat > "$TMP/interp_free.json" <<'EOF'
 {"method": "grad-cam", "n_examples": 100, "cohort_level": true, "localization_metric": "iou",
  "sanity_checks": ["model_randomization", "data_randomization"],
@@ -108,8 +108,16 @@ cat > "$TMP/sanity_meta.json" <<'EOF'
 {"method": "grad-cam", "n_examples": 100, "cohort_level": true, "localization_metric": "iou",
  "sanity_checks": ["model_randomization", "metadata_check"], "interpretation": "localization"}
 EOF
-python3 "$SCRIPT" --manifest "$TMP/sanity_meta.json" --strict --quiet >/dev/null 2>&1
-check "'metadata_check' is not data randomisation -> exit 2 (unknown entry)" test "$?" -eq 2
+python3 "$SCRIPT" --manifest "$TMP/sanity_meta.json" --out "$OUT" --quiet >/dev/null 2>&1
+check "'metadata_check' is not data randomisation -> INSUFFICIENT_SANITY" has_verdict INSUFFICIENT_SANITY
+# negative controls: a documented interpretation and both randomisation axes stay clean
+cat > "$TMP/interp_ok.json" <<'EOF'
+{"method": "grad-cam", "n_examples": 100, "cohort_level": true, "localization_metric": "iou",
+ "sanity_checks": ["model_randomization", "data_randomization"], "interpretation": "attribution"}
+EOF
+python3 "$SCRIPT" --manifest "$TMP/interp_ok.json" --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "documented interpretation 'attribution': exit 0 under --strict" test "$?" -eq 0
+check "model + data randomisation: no INSUFFICIENT_SANITY" no_verdict INSUFFICIENT_SANITY
 # negative controls: normalised spellings of known values stay clean
 cat > "$TMP/spelled.json" <<'EOF'
 {"method": "grad-cam", "n_examples": 100, "cohort_level": true, "localization_metric": "iou",

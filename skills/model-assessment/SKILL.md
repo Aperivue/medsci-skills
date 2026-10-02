@@ -52,7 +52,8 @@ python3 ${CLAUDE_SKILL_DIR}/scripts/check_split_leakage.py \
 ```
 
 `PATIENT_OVERLAP` (a patient in ≥ 2 partitions) and `MISSING_SEED` (an unreproducible split) are
-Major, `SINGLE_PARTITION` Minor — proven by set arithmetic. A design with patient overlap is never
+Major, `SINGLE_PARTITION` Minor — proven by set arithmetic on the ID column the gate prints as
+`id_col` (pass `--id-col` with the patient identifier when it is not the one). A design with patient overlap is never
 approved. Then walk the leakage the table cannot show (Kapoor & Narayanan, *Patterns* 2023):
 preprocessing fit before the split (normalisation, resampling, foundation-model embeddings, ComBat
 harmonisation over the whole cohort — `/imaging-data` gates the declared pipeline), site / scanner /
@@ -138,6 +139,12 @@ python3 ${CLAUDE_SKILL_DIR}/scripts/check_metric_reporting.py \
   --out qc/metric_reporting.json --strict
 ```
 `PIXEL_ACCURACY_SEG` / `NO_BOUNDARY_METRIC` / `ACCURACY_ONLY` / `DETECTION_METRIC_MISSING` must be zero.
+
+Known limits: this gate tests keyword presence, not negation scope. "MSD" counts as mean surface
+distance even when it names the Medical Segmentation Decathlon, "we did not compute the Hausdorff
+distance or HD95" still counts HD95, and "sensitivity and specificity were not reported" or "FROC
+was not performed" still count as reported. Zero Majors means no keyword-level red flag; read the
+report for these cases.
 
 ## Part C — Uncertainty, OOD and selective prediction (deployment claims)
 

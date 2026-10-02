@@ -60,22 +60,16 @@ import re
 import sys
 from pathlib import Path
 
-# words that mark 'MSD' as the Medical Segmentation Decathlon dataset, not a distance
-_MSD_DATASET = (r"(?:19|20)\d\d\b|task|challenge|data\b|dataset|data set|decathlon|benchmark|"
-                r"release|collection|cohort|cases?\b|images?\b|scans?\b|volumes?\b|subset|split|"
-                r"held[- ]?out|training\b|test\b|validation\b")
+_MAP_IMAGE_WORDS = ("saliency", "heat", "attention", "activation", "probability", "feature",
+                    "attribution", "relevance", "occlusion", "cam", "uncertainty", "confidence",
+                    "segmentation", "density")
+_NOT_AN_AP_MAP = "".join(r"(?<!%s[ -])" % w for w in _MAP_IMAGE_WORDS)
 
 P = {
     "dice_iou": r"\b(dice|dsc|jaccard|iou|intersection over union)\b",
     # named boundary metrics only: the bare word 'boundary' ("boundary error was not
     # assessed") names no metric and must not satisfy the Dice+boundary pairing
-    # 'MSD' also names the Medical Segmentation Decathlon ("the MSD liver task", "MSD Task09",
-    # "the MSD 2018 release", "Medical Segmentation Decathlon (MSD)"). The bare abbreviation
-    # counts as mean surface distance unless such a dataset context surrounds it, so a results
-    # table ("| MSD (mm) |", "| MSD | 1.2 mm |") and prose ("MSD decreased to 1.2 mm") still count.
-    "boundary": r"\b(hd95|hd 95|hausdorff|assd|\basd\b|\bmasd\b|"
-                r"(?<!decathlon \()msd(?!\s*\)?[\s-]*(?:" + _MSD_DATASET + r"|[a-z]+[\s-]+(?:"
-                + _MSD_DATASET + r")))|nsd|"
+    "boundary": r"\b(hd95|hd 95|hausdorff|assd|\basd\b|\bmasd\b|\bmsd\b|nsd|"
                 r"normali[sz]ed surface dice|normali[sz]ed surface|surface dice similarity|"
                 r"surface dsc|surface dice|surface distance|mean (?:surface|boundary) distance|"
                 r"boundary[- ]?(?:iou|f1|f-?score))\b",
@@ -87,9 +81,10 @@ P = {
     "auprc": r"\b(auprc|au[- ]?prc|average precision|precision[- ]?recall|pr[- ]?auc)\b",
     "sens": r"\b(sensitivit\w+|recall|true[- ]?positive rate|tpr)\b",
     "spec": r"\b(specificit\w+|true[- ]?negative rate|tnr)\b",
-    # mAP is matched case-sensitively (or with an @/IoU suffix): a lower-case 'map' is a
-    # saliency / heat / probability map, not mean average precision.
-    "detection": r"\b(froc|(?-i:mAP)(?:@?\d+)?\b|map\s*@|mean average precision|"
+    # 'map' alone also ends "saliency map" / "heat map" / "probability map"; a map named by
+    # one of these image words is a picture, not mean average precision, so it does not count.
+    # An IoU suffix ("mAP50", "mAP50-95") still names mean average precision.
+    "detection": r"\b(froc|" + _NOT_AN_AP_MAP + r"map\d*\b|mean average precision|"
                  r"sensitivity per (?:false positive|fp)|"
                  r"competition performance metric|cpm)\b",
     "iou_crit": r"\b(?:iou|intersection over union|overlap)\b[^.]{0,40}"
@@ -158,77 +153,22 @@ NEG_AFTER = re.compile(
 # A negation only disavows a token in its own clause: "pixel accuracy was not used; HD95 7.2 mm"
 # reports HD95. A period inside a number ("7.2") is not a clause break.
 CLAUSE_BREAK = re.compile(r"[.;:!?](?:\s|$)")
-# A negation also reaches every item of a coordinated list of BOUNDARY metrics: "we did not
-# compute the Hausdorff distance or HD95" disavows HD95. Only an explicit not-reporting verb
-# governs the list ("did not compute/report/...", "were not reported/computed/..."); "without",
-# "not surprisingly" or a comparison ("were not significantly different from") never does, and
-# the gap between the list item and the negation must be list glue only: no value (digit), no
-# second predicate, no relative clause, no contrast ("instead", "but").
-_DISAVOW_VERB = (r"(?:report|comput|calculat|measur|assess|evaluat|us|provid|present|perform|"
-                 r"estimat|includ)\w*")
-LIST_NEG_BEFORE = re.compile(
-    r"\b(?:did not|do not|does not|didn't|don't|doesn't|never)\s+(?:\w+\s+)?" + _DISAVOW_VERB
-    + r"\b", re.IGNORECASE)
-LIST_NEG_AFTER = re.compile(
-    r"\b(?:was|were|is|are)\s+not\s+(?:computed|reported|available|performed|calculated|"
-    r"presented|provided|assessed|evaluated|measured|used|estimated|obtained)\b", re.IGNORECASE)
-LIST_GLUE_END = re.compile(r"(?:,|\b(?:or|nor|and)\b|/)\s*(?:the\s+)?$", re.IGNORECASE)
-LIST_GLUE_START = re.compile(r"^\s*(?:,|\b(?:or|nor|and)\b|/)", re.IGNORECASE)
-LIST_BREAKER = re.compile(
-    r"\d|\b(?:instead|but|rather|whereas|while|however|only|except|although|yet|which|that|who|"
-    r"was|were|is|are|be|been|had|has|have|we|it|they|"
-    r"report\w*|use[ds]?|using|comput\w+|calculat\w+|measur\w+|assess\w*|evaluat\w+|"
-    r"present\w*|provid\w+|perform\w*|show\w*|achiev\w+|obtain\w*|yield\w*|gave|give\w*)\b",
-    re.IGNORECASE)
-LIST_SPAN = 120
-OWN_VALUE = re.compile(r"^\s*(?:\([^)]{0,20}\)\s*)?(?:=|:|of|was|were|is|reached|achieved)?\s*\d",
-                       re.IGNORECASE)
-AFFIRM_COPULA = re.compile(r"\b(?:was|were|is|are|reached|achieved|yielded)\b", re.IGNORECASE)
 
 
 def has(text: str, key: str) -> bool:
     return re.search(P[key], text, re.IGNORECASE) is not None
 
 
-def has_affirmative(text: str, key: str, list_negation: bool = False) -> bool:
+def has_affirmative(text: str, key: str) -> bool:
     """has(), but a match disavowed by a nearby negation does not count — so 'we do not
-    report pixel accuracy' or 'AUROC was not computed' is not treated as reporting it.
-    With list_negation, an explicit not-reporting verb also reaches the other items of a
-    coordinated list (used for boundary metrics only)."""
+    report pixel accuracy' or 'AUROC was not computed' is not treated as reporting it."""
     pat = re.compile(P[key], re.IGNORECASE)
     for m in pat.finditer(text):
         before = CLAUSE_BREAK.split(text[max(0, m.start() - 28): m.start()])[-1]
         after = CLAUSE_BREAK.split(text[m.end(): m.end() + 24])[0]
         if NEG_BEFORE.search(before) or NEG_AFTER.search(after):
             continue
-        if list_negation and _list_negated(text, m.start(), m.end()):
-            continue
         return True
-    return False
-
-
-def _list_negated(text: str, start: int, end: int) -> bool:
-    """True when the match is a later/earlier item of a list governed by a not-reporting verb."""
-    clause_before = CLAUSE_BREAK.split(text[max(0, start - LIST_SPAN): start])[-1]
-    clause_after = CLAUSE_BREAK.split(text[end: end + LIST_SPAN])[0]
-    negs = list(LIST_NEG_BEFORE.finditer(clause_before))
-    # "We did not use pixel accuracy, Dice and HD95 were reported": the item has its own
-    # (affirmative) predicate or value after it, so the earlier negation does not reach it.
-    own_predicate = (OWN_VALUE.search(clause_after) is not None
-                     or (AFFIRM_COPULA.search(clause_after) is not None
-                         and NEG_AFTER.search(clause_after) is None))
-    if negs and not own_predicate:
-        # "did not compute| the Hausdorff distance or |HD95": the remainder must be list items
-        # ending in list glue
-        gap = clause_before[negs[-1].end():]
-        if LIST_GLUE_END.search(gap) and not LIST_BREAKER.search(gap):
-            return True
-    na = LIST_NEG_AFTER.search(clause_after)
-    if na:
-        # "HD95| and ASSD |were not computed": the gap must be list glue + items only
-        gap = clause_after[:na.start()]
-        if LIST_GLUE_START.search(gap) and not LIST_BREAKER.search(gap):
-            return True
     return False
 
 
@@ -246,7 +186,7 @@ def analyze(report: str, task: str) -> dict:
             add("PIXEL_ACCURACY_SEG", "Major",
                 "pixel/voxel accuracy is reported for segmentation — misleading on imbalanced masks; "
                 "report Dice/IoU with a boundary metric instead")
-        if has(text, "dice_iou") and not has_affirmative(text, "boundary", list_negation=True):
+        if has(text, "dice_iou") and not has_affirmative(text, "boundary"):
             add("NO_BOUNDARY_METRIC", "Major",
                 "Dice/IoU is reported without a boundary metric (HD95 / NSD / surface distance) — "
                 "overlap alone is shape- and size-insensitive; pair it with a boundary metric, "
