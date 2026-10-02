@@ -112,8 +112,73 @@ SERIAL_SUFFIX = re.compile(r"^(?P<stem>.+?)[ _\-.]?(?:v|t|w|wave|visit|yr|y|roun
 SERIAL_PREFIX = re.compile(r"^(?:v|t|w|wave|visit|yr|y|round|time)(?P<idx>\d{1,2})[ _\-.](?P<stem>.+)$", re.I)
 
 # A column in a codebook that holds the variable NAME (as opposed to its description).
-NAME_COL = re.compile(r"^\s*(variable|var|var_?name|name|field|field_?name|column|col|item|code)\s*$", re.I)
+# Headers are normalised first (`_norm_header`: case-folded, runs of space / - / . become
+# `_`), so `Variable Name`, `variable-name` and `VAR_NAME` are the same header.
+#
+# STRONG names say "this column lists variables" on their own. WEAK names (`name`, `code`,
+# `item`, ...) are also ordinary DATA columns -- a patient export with a `name` column is
+# the common case -- so they only mark a codebook when every other header cell is a
+# codebook column title too (see `_codebook_name_col`). Getting this wrong is not a
+# cosmetic error: routing a data export as a codebook enumerates its ROW VALUES (patient
+# names) as "variables" and writes them into the profile.
+NAME_COL_STRONG = re.compile(
+    r"^(variable|var|varname|var_name|variable_name|variable_id|field_name|column_name)$"
+)
+NAME_COL_WEAK = re.compile(r"^(name|field|column|col|item|code|item_name|item_code)$")
+NAME_COL = re.compile(f"(?:{NAME_COL_STRONG.pattern})|(?:{NAME_COL_WEAK.pattern})")
 DESC_COL = re.compile(r"^\s*(desc|description|label|definition|meaning|explanation|comment|note|한글|설명)", re.I)
+# Other columns a data dictionary typically carries. Used only to decide whether a header
+# made of codebook-ish titles is a codebook, and to refuse a "variable list" that is
+# nothing but such titles.
+META_COL = re.compile(
+    r"^(type|data_type|datatype|var_type|unit|units|format|values?|value_labels?|range|levels?|"
+    r"coding|missing|missing_codes?|length|width|decimals|valid_values|allowed_values|"
+    r"answer_options|dtype|categories)$"
+)
+
+
+def _norm_header(h: str) -> str:
+    return re.sub(r"[\s\-.]+", "_", (h or "").strip().lower()).strip("_")
+
+
+def _is_name_header(h: str) -> bool:
+    return bool(NAME_COL.match(_norm_header(h)))
+
+
+def _is_codebook_title(h: str) -> bool:
+    n = _norm_header(h)
+    return bool(NAME_COL.match(n) or DESC_COL.match(n) or META_COL.match(n))
+
+
+def _codebook_name_col(header: list[str]) -> int | None:
+    """Index of the column that lists variable names if this header is a CODEBOOK header,
+    else None (the file is a data export whose header row IS the variable list).
+
+    A strong name header (`variable`, `Variable Name`, ...) decides it. A weak one (`name`,
+    `code`, ...) decides it only when every other non-empty header cell is a codebook
+    title (description / type / unit / ...). `patient_id,name,age,sex` is a data export.
+    A weak name header next to a description column AND other columns is ambiguous; it
+    stops and asks rather than guessing, because guessing "codebook" on a data export
+    publishes its row values."""
+    norm = [_norm_header(h) for h in header]
+    for i, n in enumerate(norm):
+        if NAME_COL_STRONG.match(n):
+            return i
+    weak = next((i for i, n in enumerate(norm) if NAME_COL_WEAK.match(n)), None)
+    if weak is None:
+        return None
+    others = [h for j, h in enumerate(header) if j != weak and (h or "").strip()]
+    if others and all(_is_codebook_title(h) for h in others):
+        return weak
+    if any(DESC_COL.match(_norm_header(h)) for h in others):
+        raise SystemExit(
+            f"cannot tell whether this is a codebook or a data export: the header has a "
+            f"'{header[weak].strip()}' column and a description-like column, but also "
+            f"other columns ({', '.join(h.strip() for h in others if not _is_codebook_title(h))[:120]}). "
+            "If it is a codebook, rename the variable-name column to `variable`. If it is a "
+            "data export, pass only its header row (or rename the description-like column)."
+        )
+    return None
 
 
 class _Strip(html.parser.HTMLParser):
@@ -153,7 +218,7 @@ def _from_delimited(path: Path, delim: str) -> list[Var]:
     if not rows:
         return []
     header = rows[0]
-    name_idx = next((i for i, h in enumerate(header) if NAME_COL.match(h or "")), None)
+    name_idx = _codebook_name_col(header)
 
     if name_idx is None:  # data export: the header row IS the variable list
         return [
@@ -200,7 +265,7 @@ def _from_markdown(text: str, origin: str) -> list[Var]:
             continue
         if s.startswith("|"):
             cells = [c.strip().strip("`*") for c in s.strip("|").split("|")]
-            if len(cells) >= 1 and cells[0] and not NAME_COL.match(cells[0]):
+            if len(cells) >= 1 and cells[0] and not _is_name_header(cells[0]):
                 out.append((cells[0], cells[1] if len(cells) > 1 else "", f"{origin}:{i}"))
             continue
         m = re.match(r"^[-*+]?\s*`([^`]+)`\s*[-–—:]?\s*(.*)$", s)
@@ -222,7 +287,7 @@ def _from_xlsx(path: Path) -> list[Var]:
     if not rows:
         return []
     header = rows[0]
-    name_idx = next((i for i, h in enumerate(header) if NAME_COL.match(h or "")), None)
+    name_idx = _codebook_name_col(header)
     if name_idx is None:
         return [(h.strip(), "", f"{path.name}:1 (column {i + 1})") for i, h in enumerate(header) if h.strip()]
     desc_idx = next((i for i, h in enumerate(header) if DESC_COL.match(h or "")), None)
@@ -248,6 +313,19 @@ def _pdf_text(path: Path) -> str:
 
 
 def read_codebook(path: Path) -> list[Var]:
+    out = _read_codebook(path)
+    # A "variable list" made only of codebook column titles (`Variable Name, Description,
+    # Type`) means the header was misread, not that the cohort has those variables.
+    if out and all(_is_codebook_title(name) for name, _, _ in out):
+        raise SystemExit(
+            f"{path.name}: the only 'variables' found are codebook column titles "
+            f"({', '.join(n for n, _, _ in out[:6])}). The header was not recognised as a "
+            "codebook header; rename the variable-name column to `variable` and re-run."
+        )
+    return out
+
+
+def _read_codebook(path: Path) -> list[Var]:
     if not path.is_file():
         raise SystemExit(f"not found: {path}")
     suf = path.suffix.lower()
@@ -502,7 +580,8 @@ def main() -> int:
     if not profile["n_variables"]:
         raise SystemExit(
             "no variables found. If this is a data export, the first row must be the header; "
-            "if it is a codebook, one column must be named variable / var / name / field / column."
+            "if it is a codebook, one column must be named variable / var / Variable Name "
+            "(or name / field / code when every other column is a codebook title)."
         )
 
     a.out_dir.mkdir(parents=True, exist_ok=True)
