@@ -3468,8 +3468,8 @@
     },
     {
       "path": "skills/model-card/SKILL.md",
-      "size": 5697,
-      "sha256": "fd23b55ef01d19671e1ba4ff963d98b8585532bed3edd7b722dbec5b6080ed3f"
+      "size": 5984,
+      "sha256": "32aec7b517d1eb6e8d84ec907d39b2d6d9ee7a5af786fa08d3a1025f9de9f806"
     },
     {
       "path": "skills/model-card/references/datasheet_template.md",
@@ -3488,8 +3488,8 @@
     },
     {
       "path": "skills/model-card/scripts/check_model_card_complete.py",
-      "size": 11572,
-      "sha256": "58e69924a95d6cdc0f19d0e44d12fd9e23fd43b74c53b6cc4dec3bd6a9e5395b"
+      "size": 11770,
+      "sha256": "1b0854b0d640521cbf51043a8484307e5dc362040cdf413336dcd4ccbab719e9"
     },
     {
       "path": "skills/model-card/scripts/check_model_card_complete_challenge/fixture/complete/DATASHEET.md",

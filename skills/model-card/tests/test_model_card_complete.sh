@@ -146,5 +146,25 @@ variant "$TMP/ethna.md" "- Errors could lead to missed lesions; automation bias 
 python3 "$DET" --card "$TMP/ethna.md" --strict --quiet >/dev/null 2>&1
 check "control: whole-value N/A in Ethical Considerations stays clean" test "$?" -eq 0
 
+# (11) negative controls — markdown link text starting with 'verify' is not a placeholder
+CAV="Performance on small lesions is weaker and should be communicated to users."
+variant "$TMP/link.md" "$CAV" "$CAV
+- Before local deployment, [verify the acquisition protocol against the checklist](https://example.org/protocol-checklist)."
+python3 "$DET" --card "$TMP/link.md" --strict --quiet >/dev/null 2>&1
+check "control: '[verify ...](url)' link in Caveats stays clean" test "$?" -eq 0
+variant "$TMP/link2.md" "$CAV" "$CAV
+- See [Verifying model outputs](https://example.org/verifying)."
+python3 "$DET" --card "$TMP/link2.md" --strict --quiet >/dev/null 2>&1
+check "control: '[Verifying ...](url)' link stays clean" test "$?" -eq 0
+variant "$TMP/link3.md" "$CAV" "$CAV
+- [VERIFY]"
+python3 "$DET" --card "$TMP/link3.md" --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "a bare [VERIFY] (not a link) in Caveats is still UNFILLED_FIELD" only UNFILLED_FIELD "Caveats"
+
+# (12) negative control — whole-value 'N/A,' in Ethical Considerations stays clean
+variant "$TMP/ethna2.md" "- Errors could lead to missed lesions; automation bias is a risk if used without independent review. The training cohort is single-centre and may not represent other populations." "N/A,"
+python3 "$DET" --card "$TMP/ethna2.md" --strict --quiet >/dev/null 2>&1
+check "control: whole-value 'N/A,' in Ethical Considerations stays clean" test "$?" -eq 0
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

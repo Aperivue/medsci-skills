@@ -59,7 +59,9 @@ PLACEHOLDER_SPAN = re.compile(
     r"\[(?:NEEDS INPUT|VERIFY)[^\]]*\]|<[^>]*>|\bTODO\b|\bTBD\b|X{4,}", re.IGNORECASE)
 
 # The bracketed placeholder markers alone (no TODO / <...>): what the field-level check flags.
-FIELD_PLACEHOLDER = re.compile(r"\[(?:NEEDS INPUT|VERIFY)[^\]]*\]", re.IGNORECASE)
+# A bracket followed by '(' is markdown link text ('[verify the protocol](https://...)'), not a
+# placeholder; the keyword must end at a word boundary ('[Verifying ...]' is not a marker).
+FIELD_PLACEHOLDER = re.compile(r"\[(?:NEEDS INPUT|VERIFY)\b[^\]]*\](?!\()", re.IGNORECASE)
 
 # An explicit null answer, accepted only as a field's whole value.
 NULL_ANSWER = re.compile(r"(?:n/?a|none|not applicable|not collected|nil|waived)")
@@ -134,7 +136,7 @@ def _has_real_content(body: str, allow_null: bool = True) -> bool:
     has_null, rest = False, []
     for ln in text.lower().splitlines():
         val = " ".join(ln.split())
-        bare = re.sub(r"^(?:[-+]\s*|\d+[.)]\s+)", "", val).strip(" .;:")
+        bare = re.sub(r"^(?:[-+]\s*|\d+[.)]\s+)", "", val).strip(" .;:,!")
         if bare and NULL_ANSWER.fullmatch(bare):
             has_null = True                                          # the field's whole value
         else:
