@@ -134,6 +134,42 @@ check "transforms only: exit 0 (nothing found in what was checked)" test "$?" -e
 check "transforms only: says patient overlap was not checked" grep -q 'not checked' "$TMP/tonly.out"
 check "transforms only: no leakage-safe claim" bash -c "! grep -q 'leakage-safe' '$TMP/tonly.out'"
 
+# (7b) a data-fitted transform whose type is outside the internal vocabulary. Library class
+# names (TorchIO HistogramStandardization, MONAI NormalizeIntensityd, ...) used to be read
+# as "not data-fitted" whatever their fit_scope, so a fit on `all` before the split printed
+# "leakage-safe" under --strict. The manifest's own fit_scope now decides.
+leak_typed() {  # $1=out  $2=type  $3=fit_scope  $4=stage
+  printf '{"split_seed": 1, "transforms": [{"name": "t", "type": "%s", "fit_scope": "%s", "stage": "%s"}], "split_assignment": [{"patient_id": "A", "split": "train"}, {"patient_id": "B", "split": "test"}]}\n' "$2" "$3" "$4" > "$1"
+}
+for typ in histogram_standardization HistogramStandardization NormalizeIntensityd \
+           ScaleIntensityRangePercentilesd intensity_standardization; do
+  leak_typed "$TMP/lt.json" "$typ" all before_split
+  python3 "$SCRIPT" --manifest "$TMP/lt.json" --out "$OUT" --strict --quiet >/dev/null 2>&1
+  check "$typ fit on all before split: exit 1 under --strict" test "$?" -eq 1
+  check "$typ fit on all before split: PREPROCESS_BEFORE_SPLIT" has_verdict PREPROCESS_BEFORE_SPLIT
+  leak_typed "$TMP/lt.json" "$typ" all after_split
+  python3 "$SCRIPT" --manifest "$TMP/lt.json" --out "$OUT" --quiet >/dev/null 2>&1
+  check "$typ fit on all after split: NORMALIZATION_LEAKAGE" has_verdict NORMALIZATION_LEAKAGE
+done
+# controls: the same types fit on train, or per image, stay clean
+no_claims() { python3 -c "
+import json; assert not json.load(open('$OUT'))['claims']"; }
+for typ in HistogramStandardization NormalizeIntensityd; do
+  leak_typed "$TMP/lt.json" "$typ" train after_split
+  python3 "$SCRIPT" --manifest "$TMP/lt.json" --out "$OUT" --strict --quiet >/dev/null 2>&1
+  check "$typ fit on train after split: exit 0" test "$?" -eq 0
+  check "$typ fit on train after split: no claims" no_claims
+  leak_typed "$TMP/lt.json" "$typ" per_image before_split
+  python3 "$SCRIPT" --manifest "$TMP/lt.json" --out "$OUT" --strict --quiet >/dev/null 2>&1
+  check "$typ per-image before split: exit 0" test "$?" -eq 0
+  check "$typ per-image before split: no claims" no_claims
+done
+# an unknown type with fit_scope none is still not presumed fitted (crop, pad, ...)
+leak_typed "$TMP/lt.json" crop_foreground none before_split
+python3 "$SCRIPT" --manifest "$TMP/lt.json" --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "crop with fit_scope none before split: exit 0" test "$?" -eq 0
+check "crop with fit_scope none before split: no claims" no_claims
+
 # (8) the shipped challenge card passes
 check "challenge verify.sh passes" bash "$CH/verify.sh"
 

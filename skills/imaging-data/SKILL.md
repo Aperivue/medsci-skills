@@ -118,6 +118,8 @@ assignments.
 `fit_scope`: `train` (OK) · `all`/`full`/`dataset`/`test` (leak) · `sample`/`per_image`/`none`/`fixed`
 (not data-fitted). `stage`: `before_split` / `after_split`. The fields must describe what the code
 actually does — never tag a dataset-fitted transform per-sample to clear the gate; that hides the leak.
+A declared dataset-level `fit_scope` is judged whatever the `type` is, so a library class name
+(`HistogramStandardization`, `NormalizeIntensityd`) fit on `all` is a leak like `standardize` would be.
 
 **Declare the fit scope of resampling too.** A target spacing chosen in advance is `fit_scope: fixed`
 and never leaks. A target derived from the cohort does: nnU-Net sets its target spacing from a
