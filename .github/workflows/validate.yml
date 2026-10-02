@@ -596,6 +596,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/author-strategy/tests/test_archetype_classifier.sh
 
+      - name: Run replicate-study alcohol harmonization test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python3 skills/replicate-study/tests/test_alcohol_harmonization.py -v
+
       # --- Tier 0/1 skill regression tests (existing + new, now CI-wired) ---
       - name: Run make-figures legend-reconcile test
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}

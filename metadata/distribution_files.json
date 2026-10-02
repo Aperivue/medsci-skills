@@ -4573,13 +4573,13 @@
     },
     {
       "path": "skills/replicate-study/references/harmonization_3country.csv",
-      "size": 11611,
-      "sha256": "66c42de1f40b9dd846aa1fbc28ca367e455854cd1a8fbf74a88dfcc6f90583dc"
+      "size": 12796,
+      "sha256": "eb14510d0c2b9a70a6684dc152bfc2e40dae16eced557f68fe10f7b84a73fc9f"
     },
     {
       "path": "skills/replicate-study/references/harmonization_knhanes_nhanes.csv",
-      "size": 11356,
-      "sha256": "81fa9eacfaa0d2bedbf6d978c95fd3ddb32cfbc10c275cfbd4c5e14d809d96e7"
+      "size": 12013,
+      "sha256": "ecc9301ee2437e29df267e9a50e87923cb7114729152843bb8f52c72d05e7952"
     },
     {
       "path": "skills/replicate-study/references/methodology_extraction_template.md",

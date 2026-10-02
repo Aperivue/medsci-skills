@@ -1,0 +1,2 @@
+domain,concept,concept_en,knhanes_var,knhanes_label,nhanes_table,nhanes_var,nhanes_label,harmonization_notes
+questionnaire,음주빈도,Alcohol frequency,BD1_11,1년간 음주빈도(1=전혀/2=월1미만/3=월1/4=월2-4/5=주2-3/6=주4+/8=비해당),ALQ_J,ALQ121,Past 12 mo how often drink,"Joo2026 coding: 2-6=Frequent(current drinker), 1=Occasional(past-year abstainer), 8=Never(lifetime non-drinker)"
