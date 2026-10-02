@@ -23,10 +23,18 @@ DOCX), pass it with `--rendered-words N` and that is used verbatim.
 
 CAP SOURCE
   --limit N                 the body word cap (deterministic; preferred).
-  --journal-profile P       a find-journal profile .md; the cap is parsed from the
-    [--article-type T]      article-type line (default match: "Original"). If the
-                            cap cannot be parsed to a single integer, the script
-                            errors and asks for --limit (no fuzzy guessing).
+  --journal-profile P       a journal profile .md; the cap is read from a STRUCTURED
+    [--article-type T]      field only (default match: "Original"):
+                              * a markdown table whose header has one non-abstract
+                                word-limit column ("Body Word Limit", "Word Limit"),
+                                in the row whose first cell starts with T; or
+                              * failing a table, a list item that STARTS with T, e.g.
+                                "- Original Article (4,000 words, abstract <250)",
+                                taking its first "N words".
+                            Prose that merely mentions T ("a structured abstract
+                            of 250 words required for Original Articles") is never
+                            read. If no single integer results, the script exits 2
+                            and asks for --limit (no fuzzy guessing).
 
 OUTPUT
   stdout summary and, with --out, a JSON artifact:
@@ -95,13 +103,32 @@ def measure_body(manuscript_path: Path) -> tuple[int, int, int]:
     subheadings are 60 words). Headings of skipped sections (Abstract, References, ...)
     are not counted, like the sections themselves.
     """
+    words = 0
+    cites = 0
+    heading_words = 0
+    for kind, stripped in iter_body(manuscript_path):
+        if kind == "heading":
+            heading_words += _heading_words(stripped)
+            continue
+        cites += len(CITE_RE.findall(stripped))
+        # Don't count the citation tokens themselves as prose words.
+        prose = CITE_RE.sub(" ", stripped)
+        words += len(WORD_RE.findall(prose))
+    return words + heading_words, cites, heading_words
+
+
+def iter_body(manuscript_path: Path):
+    """Yield ("heading", line) / ("prose", line) for the body that counts toward a word cap.
+
+    The ONE section walker shared by this gate and cover_letter_drift_check.py, so both
+    agree on where the body ends: ATX headings of any depth and setext headings both open
+    and close skipped sections (Abstract, References, ...). YAML front matter, code fences,
+    table rows and HTML comments are never yielded.
+    """
     lines = manuscript_path.read_text(encoding="utf-8").splitlines()
     _, body_lines = split_yaml_front_matter(lines)
     in_skip = False
     in_code_fence = False
-    words = 0
-    cites = 0
-    heading_words = 0
     for idx, line in enumerate(body_lines):
         stripped = line.rstrip()
         if stripped.startswith("```"):
@@ -117,22 +144,18 @@ def measure_body(manuscript_path: Path) -> tuple[int, int, int]:
         if stripped.strip() and SETEXT_UNDERLINE_RE.match(nxt):
             in_skip = bool(SETEXT_SKIP_RE.match(stripped.strip()))
             if not in_skip:
-                heading_words += _heading_words(stripped)
+                yield "heading", stripped
             continue
         if HEADER_RE.match(stripped):
             in_skip = bool(SKIP_SECTION_RE.match(stripped))
             if not in_skip:
-                heading_words += _heading_words(stripped)
+                yield "heading", stripped
             continue
         if in_skip:
             continue
         if stripped.startswith("|") or stripped.startswith("<!--"):
             continue
-        cites += len(CITE_RE.findall(stripped))
-        # Don't count the citation tokens themselves as prose words.
-        prose = CITE_RE.sub(" ", stripped)
-        words += len(WORD_RE.findall(prose))
-    return words + heading_words, cites, heading_words
+        yield "prose", stripped
 
 
 # --- cap from a journal profile --------------------------------------------
@@ -140,25 +163,77 @@ def measure_body(manuscript_path: Path) -> tuple[int, int, int]:
 # "Original Article (4,000 words ...)" / "Original Research Article (≤ 5,000 words ...)"
 PROFILE_LIMIT_RE = re.compile(r"(?:≤|<=|<|up to|max(?:imum)?)?\s*([0-9][0-9,]{2,})\s*[- ]?words?",
                               re.IGNORECASE)
+# A bare integer of three or more digits (table cells carry the number without "words").
+CELL_INT_RE = re.compile(r"(?<![0-9.,])([0-9]{1,3}(?:,[0-9]{3})+|[0-9]{3,})(?![0-9.,]*[0-9])")
+TABLE_SEP_RE = re.compile(r"^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)*\|?\s*$")
+
+
+def _cells(line: str) -> list[str]:
+    return [c.strip() for c in line.strip().strip("|").split("|")]
+
+
+def _label(cell: str) -> str:
+    return re.sub(r"[*_`]", "", cell).strip().lower()
+
+
+def _table_caps(lines: list[str], want: str) -> list[tuple[int, str]]:
+    """(line_no, cell) for each table row of type `want` under a body-word-limit column."""
+    out: list[tuple[int, str]] = []
+    i = 0
+    while i + 1 < len(lines):
+        if "|" in lines[i] and TABLE_SEP_RE.match(lines[i + 1]):
+            header = [_label(c) for c in _cells(lines[i])]
+            # The body-limit column: one header naming "body" (e.g. "Body", "Body (max)",
+            # "Body Word Limit"); failing that, one non-abstract "word" header.
+            body_cols = [k for k, h in enumerate(header) if "body" in h and "abstract" not in h]
+            word_cols = [k for k, h in enumerate(header) if "word" in h and "abstract" not in h]
+            col = body_cols or word_cols
+            j = i + 2
+            while j < len(lines) and "|" in lines[j]:
+                row = _cells(lines[j])
+                if row and _label(row[0]).startswith(want):
+                    if len(col) != 1 or col[0] >= len(row):
+                        out.append((j + 1, ""))  # ambiguous/absent column -> refuse
+                    else:
+                        out.append((j + 1, row[col[0]]))
+                j += 1
+            i = j
+            continue
+        i += 1
+    return out
 
 
 def parse_cap_from_profile(profile: Path, article_type: str) -> int:
     if not profile.is_file():
         sys.stderr.write(f"ERROR: journal profile not found: {profile}\n")
         sys.exit(2)
-    want = article_type.lower()
+    want = article_type.lower().strip()
+    lines = profile.read_text(encoding="utf-8").splitlines()
     candidates: list[int] = []
-    for line in profile.read_text(encoding="utf-8").splitlines():
-        if want in line.lower():
-            nums = [int(m.group(1).replace(",", "")) for m in PROFILE_LIMIT_RE.finditer(line)]
-            # the first "N words" on the article-type line is the body cap
-            if nums:
-                candidates.append(nums[0])
+    unreadable: list[int] = []
+    # 1) a table row of this article type, under the body word-limit column.
+    for lineno, cell in _table_caps(lines, want):
+        nums = {int(m.group(1).replace(",", "")) for m in CELL_INT_RE.finditer(cell)}
+        if len(nums) == 1:
+            candidates.append(nums.pop())
+        else:
+            unreadable.append(lineno)
+    # 2) only when no table carries the type: a LIST ITEM that starts with the label.
+    lead = re.compile(r"^\s*(?:[-*+]|[0-9]+[.)])\s+[*_`]*" + re.escape(want), re.IGNORECASE)
+    for line in ([] if (candidates or unreadable) else lines):
+        if "|" in line or not lead.match(line):
+            continue
+        nums = [int(m.group(1).replace(",", "")) for m in PROFILE_LIMIT_RE.finditer(line)]
+        if nums:
+            candidates.append(nums[0])
     uniq = sorted(set(candidates))
-    if len(uniq) != 1:
+    if len(uniq) != 1 or unreadable:
+        why = (f"found {uniq or 'none'}"
+               + (f"; ambiguous table row(s) at line {', '.join(map(str, unreadable))}"
+                  if unreadable else ""))
         sys.stderr.write(
-            f"ERROR: could not parse a single body word cap for article type "
-            f"'{article_type}' from {profile.name} (found {uniq or 'none'}). "
+            f"ERROR: could not read a single body word cap for article type "
+            f"'{article_type}' from a structured field of {profile.name} ({why}). "
             f"Pass --limit N explicitly.\n")
         sys.exit(2)
     return uniq[0]

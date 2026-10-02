@@ -80,7 +80,11 @@ It shells out to the per-check scripts (reimplementing none), writes
   `cross_document_n_check`, `check_cross_artifact_stale`; `check_asset_anonymization` is P1 unless
   `--double-blind`.
 - A check whose inputs are absent (no rendered docx, no cover letter, no copies, no journal) is
-  recorded `skipped`, never a blocker.
+  recorded `skipped`, never a blocker. A check that **ran and failed** — a traceback, an
+  unexpected exit code, or a "missing input" exit while its inputs are present (malformed
+  `.journal_meta.json`, an undecodable cover letter, a named `--copy` that does not exist, an
+  unreadable file in the N scan) — is recorded `error`: `submission_safe` is false and the gate
+  exits `2`, with or without `--strict`.
 
 Do not read the report as approval. Its legacy `submission_safe` field means only "no configured
 blocker/error"; `readiness` stays `not_assessed`; the optional bundle hash binding identifies the
@@ -144,8 +148,14 @@ reuse permissions.
     --manuscript manuscript/manuscript.md \
     --journal-profile "${CLAUDE_SKILL_DIR}/../find-journal/references/journal_profiles/<Journal>.md" \
     --article-type "Original Article" --out qc/wordcount_cap.json --strict
-  # or, deterministic: --limit 4000   (and --rendered-words N from the built DOCX when available)
+  # or, deterministic: --limit <the journal's body cap>   (and --rendered-words N from the built DOCX when available)
   ```
+
+  The profile cap is read only from a structured field: the body-limit column of an article-type
+  table (`| Type | Body Word Limit | Abstract | ... |`), or, when no table carries the type, a list
+  item that starts with it (`- Original Article (4,000 words, ...)`). Prose that merely mentions
+  the type (often an abstract limit) is never read; when no single number results, or the cell
+  holds more than one number, the script exits `2` and asks for `--limit`.
 
 - Gate 14 (supplement structure — the numbering lock): a supplement of `S{N}_*.md` sections plus an index, hand-concatenated into `_combined.md`, desynchronizes across revision rounds — an index row with no file, a file the index never lists, two files claiming the same `S{N}`, a sub-section gap after an insert (`S6.3` then `S6.5`) — and "Supplementary Table S9" opens the wrong content. Before freeze, run `scripts/assemble_supplement.py` to validate index↔file 1:1, rebuild `_combined.md` in index order (reproducible rather than hand-maintained), and — with `--manuscript` — report body callouts with no section file (`CALLOUT_WITHOUT_SECTION`) and section files the body never cites (`SECTION_UNCITED`). The four structural kinds are P0 under `--strict`; coverage findings are advisory.
 
@@ -254,7 +264,10 @@ PRISMA flow caption all repeat the same `k included` / `k excluded` / `N patient
 any disagreement reads to reviewers as a data-integrity or late-edit failure.
 `scripts/cross_document_n_check.py` extracts every "N <noun>" claim by category (patients, cases,
 included, excluded, nodules, tumors, studies_total); a category with more than one distinct
-integer value is a P0 drift.
+integer value is a P0 drift. With `--root` it scans the manuscript, abstract, PROSPERO, root and
+per-journal (`submission/<journal>/`) cover letters, `supplement/` and `supplementary/`. A matched
+file that cannot be read as UTF-8 is listed under `unreadable_files` (never `files_scanned`) and
+the script exits `2`, so incomplete coverage cannot read as a pass.
 
 ```bash
 python "${CLAUDE_SKILL_DIR}/scripts/cross_document_n_check.py" \
@@ -344,9 +357,10 @@ It reports, per copy, the SSOT *claims* (numeric assertions — `n = N`, percent
 OR/HR/RR, 95% CI — and section headings) that did not propagate. A `STALE_COPY` (`DIVERGENT`
 overall) is a **P0 blocker**: re-propagate the claims, or — better — stop hand-maintaining
 parallel copies and **generate the circulation / submission variants from the single SSOT via a
-build step** (pandoc transform). Only a changed or absent number/heading registers, not wording;
-legitimately copy-specific content (a circulation cover note) shows up as `copy_only` and can be
-ignored.
+build step** (pandoc transform). Only a changed or absent number/heading registers, not wording.
+A **numeric** claim present only in the copy (`stale_in_copy`, e.g. an old `n = 118` left beside
+the propagated `n = 120`) also makes the copy `STALE_COPY`; a copy-only **heading** (a circulation
+cover note) is listed in `copy_only` but does not. A `--copy` path that does not exist exits `2`.
 
 ## Phase 9 — Springer Editorial Manager packaging (no title-page slot)
 

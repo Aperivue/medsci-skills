@@ -2,11 +2,15 @@
 """Migrate legacy project.yaml to SSOT.yaml (schema v1).
 
 Usage:
-    python3 scripts/migrate_project_to_ssot.py --project-root <path> [--write] [--verbose]
+    python3 scripts/migrate_project_to_ssot.py --project-root <path> [--write] [--mark-complete] [--verbose]
 
 Default is dry-run (prints proposed SSOT.yaml to stdout). Use --write to persist
 to <project-root>/SSOT.yaml. The original project.yaml is preserved as a legacy
 alias for the 6-month transition window (sunset 2026-10-24).
+
+SSOT-native projects (SSOT.yaml present, no project.yaml, e.g. from
+`init_project.py --ssot`): `--mark-complete` validates the existing SSOT.yaml and,
+on PASS, writes qc/migration_complete. SSOT.yaml itself is never rewritten.
 
 Mapping: see docs/ssot_schema_v1.md "project.yaml -> SSOT.yaml field mapping".
 """
@@ -117,7 +121,9 @@ def main() -> int:
         "--mark-complete",
         action="store_true",
         help="After --write, validate via scripts/validate_project_contract.py and "
-        "touch qc/migration_complete on PASS. Required to activate Phase 1C auto-enforce.",
+        "touch qc/migration_complete on PASS. Required to activate Phase 1C auto-enforce. "
+        "On an SSOT-native project (SSOT.yaml, no project.yaml) it validates the existing "
+        "SSOT.yaml and marks it on PASS; --write is not needed there.",
     )
     args = parser.parse_args()
 
@@ -126,7 +132,24 @@ def main() -> int:
     target = root / "SSOT.yaml"
 
     if not legacy.exists():
+        if target.exists() and args.mark_complete:
+            # SSOT-native project (e.g. `init_project.py --ssot`): there is no
+            # project.yaml to migrate, but the existing SSOT.yaml can still be
+            # validated and, on PASS, marked complete. Nothing is written
+            # except the marker.
+            print(
+                f"No {legacy.name}; {target.name} already present (SSOT-native project). "
+                "Nothing to migrate — validating the existing SSOT.yaml.",
+                file=sys.stderr,
+            )
+            return _validate_and_mark(root)
         print(f"ERROR: {legacy} not found", file=sys.stderr)
+        if target.exists():
+            print(
+                f"       {target.name} is present: for an SSOT-native project, re-run with "
+                "--mark-complete to validate it and write qc/migration_complete.",
+                file=sys.stderr,
+            )
         return 2
 
     project = read_simple_yaml(legacy)

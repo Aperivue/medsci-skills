@@ -58,19 +58,25 @@ reclassify a paper by guess.
 
 ### Step 4: Interpret and Present
 
-Read `analysis_report.md` and present to the user; every count, rate and tier comes from that
+Read `analysis_report.md` and present to the user; every count and rate comes from that
 report or the fetched CSV, never from memory:
 
-1. **Executive summary**: total publications, growth trajectory, high-tier rate
+1. **Executive summary**: total publications, growth trajectory, most frequent journals (venue-impact tier is `unavailable` — never present a "high-tier" rate)
 2. **Primary strategy**: what study type dominates and why
 3. **Author position analysis**: first/last positional rate vs middle (positional heuristic only — not leadership or corresponding-author metadata, which are unavailable here)
 4. **Topic clusters**: research focus areas
-5. **ROI quadrant**: which strategies yield high-tier + leadership vs. volume only
+5. **ROI quadrant**: which study types combine volume with first/last positional rate (chart 07; no venue-tier axis)
 6. **Replication opportunities**: which patterns are replicable with Claude Code + public databases
 
 State the classifier's limits when they matter: it is tuned for Korean epidemiology and public
 health researchers and may undercount specialized study types in other fields, and NHIS studies
 that lack its keywords fall into "Other".
+
+Known limits: a supplied `--orcid` or `--initials` that contradicts every same-surname author on
+a paper yields `match_basis` `orcid-conflict` / `initials-conflict` and position `unknown` (a
+namesake is never attributed). The `journal_tier` CSV column always reads `unavailable [VERIFY]`.
+The A3 reporting-quality term list no longer contains `claim` (it matched "claims database"), so
+papers naming only the CLAIM checklist do not count toward `dual_mode_corpus`.
 
 ### Step 5: Optional — MA Gap Identification
 
@@ -150,7 +156,7 @@ python "${CLAUDE_SKILL_DIR}/render_archetype_doc.py" --check # CI/test sync gate
     01_yearly_stacked.png
     02_study_type_pie.png
     03_author_position.png
-    04_journal_tier_heatmap.png
+    04_journal_heatmap.png
     05_topic_distribution.png
     06_growth_curve.png
     07_strategy_roi.png
