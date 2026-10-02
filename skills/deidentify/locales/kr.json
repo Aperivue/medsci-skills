@@ -13,7 +13,8 @@
 
   "phone": [
     {"label": "Mobile", "pattern": "\\b01[016789]-?\\d{3,4}-?\\d{4}\\b"},
-    {"label": "Landline", "pattern": "\\b0[2-6][0-9]{0,2}-?\\d{3,4}-?\\d{4}\\b"}
+    {"label": "Landline", "pattern": "\\b0[2-6][0-9]{0,2}-?\\d{3,4}-?\\d{4}\\b"},
+    {"label": "Internet phone (070)", "pattern": "\\b070-?\\d{3,4}-?\\d{4}\\b"}
   ],
 
   "address": {

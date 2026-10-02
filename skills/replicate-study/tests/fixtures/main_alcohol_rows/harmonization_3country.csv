@@ -1,0 +1,2 @@
+domain,concept,concept_en,knhanes_var,knhanes_label,knhanes_years,nhanes_table_J,nhanes_table_P,nhanes_var,nhanes_label,chns_file,chns_var,chns_label,chns_waves,harmonization_notes
+questionnaire,음주빈도,Alcohol frequency,BD1_11,1년간 음주빈도,2007-2024,ALQ_J,P_ALQ,ALQ121,Past 12 mo how often drink,pexam_00,U40+U41,Drank last year + frequency,1989-2011,"CHNS U40: 0=no 1=yes. U41: 1=almost daily 2=3-4x/wk 3=1-2x/wk 4=1-2x/mo 5=<1x/mo. Recode to: never(U40==0) / occasional(U41≥4) / frequent(U41≤3)"
