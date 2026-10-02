@@ -91,6 +91,10 @@ audit → `/self-review` (loads ME0–ME8).
 network-free). Reproducible challenge:
 `bash ${CLAUDE_SKILL_DIR}/scripts/mllm_eval_completeness_challenge/verify.sh`.
 
+**Known limits.** The gate checks that a term is present; it does not read negation. "No expert
+review" or "hallucination was not assessed" still counts as covering that axis, so read each
+cleared axis in the plan yourself before treating an exit 0 as clean.
+
 ## Boundaries
 
 ```

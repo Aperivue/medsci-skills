@@ -3213,8 +3213,8 @@
     },
     {
       "path": "skills/mllm-eval/SKILL.md",
-      "size": 6438,
-      "sha256": "9d518e319b571514136f09811d759a669419ac93375b0ca26f77cfae3c976a20"
+      "size": 6698,
+      "sha256": "4d719743f31d04a10bcddce302c526ca64370b9399a09011582149d85297948b"
     },
     {
       "path": "skills/mllm-eval/references/evaluation_axes.md",
@@ -3223,8 +3223,8 @@
     },
     {
       "path": "skills/mllm-eval/scripts/check_mllm_eval_completeness.py",
-      "size": 20641,
-      "sha256": "136ba920bef6185f68c2333df19b5ce50a4a0fc31b1bd87d78f6cb546f659145"
+      "size": 11083,
+      "sha256": "8f850568979cb447664ab065ce355605d52e26bf49166ae14f55d23105053db0"
     },
     {
       "path": "skills/mllm-eval/scripts/mllm_eval_completeness_challenge/fixture/plan_bad.md",
