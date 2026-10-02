@@ -701,6 +701,18 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 skills/present-paper/tests/test_speaker_notes_markdown.py
 
+      - name: "Run present-paper deck-reading test (tables measured; slides and notes in presentation order)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python3 skills/present-paper/tests/test_deck_reading.py
+
+      - name: "Run present-paper sharing-strip test (notes pages, comments, author, hidden slides)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python3 skills/present-paper/tests/test_strip_notes_for_sharing.py
+
+      - name: "Run present-paper figure-extraction test (each crop from its own PDF; a skip fails)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python3 skills/present-paper/tests/test_extract_pdf_figures.py
+
       - name: Run version-dataset manifest/verify test
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/version-dataset/tests/test_version_dataset.sh

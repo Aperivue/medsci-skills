@@ -4203,8 +4203,8 @@
     },
     {
       "path": "skills/present-paper/SKILL.md",
-      "size": 35712,
-      "sha256": "d4ac2791ea3fdabd282388860751192e2f62c93abfde68a5e273628abe23c24d"
+      "size": 36351,
+      "sha256": "9b90f9d8aa70d0f7e9c2a1bb849396c34e0cae75f0c22148396fd859cfc079c7"
     },
     {
       "path": "skills/present-paper/references/ai_slide_tells.md",
@@ -4288,8 +4288,8 @@
     },
     {
       "path": "skills/present-paper/scripts/check_deck_budget.py",
-      "size": 13544,
-      "sha256": "b3b2979615e70023aad54fdf42e1efac0be122f52d1d3189e248ce2ffd2de448"
+      "size": 16252,
+      "sha256": "3a84a8b80ff4118ee6f8d21954204d531f9beacb8793a3ae778e72ac329d682b"
     },
     {
       "path": "skills/present-paper/scripts/check_deck_budget_challenge/make_fixtures.py",
@@ -4333,8 +4333,8 @@
     },
     {
       "path": "skills/present-paper/scripts/check_slide_tells.py",
-      "size": 29422,
-      "sha256": "5b8722d2fe2239e4cf689c25f45d562993d39d9de38e2350211487e91b8e1a72"
+      "size": 32480,
+      "sha256": "2bbfd4259a2b8eb030a2249cb49f1a21d781408b22cd648f5e3ac743f6c367be"
     },
     {
       "path": "skills/present-paper/scripts/check_slide_tells_challenge/make_fixtures.py",
@@ -4348,8 +4348,8 @@
     },
     {
       "path": "skills/present-paper/scripts/check_text_overflow.py",
-      "size": 17384,
-      "sha256": "df6c3eeed8142bc6d3447d975c9049bdcf5bf2e63b42b50689ff9455407e4220"
+      "size": 17400,
+      "sha256": "173f3471fae70ccbc5f86a35227bb6c91d01600598baf5d5547b0b8d5ca48172"
     },
     {
       "path": "skills/present-paper/scripts/check_text_overflow_challenge/make_fixtures.py",
@@ -4363,8 +4363,8 @@
     },
     {
       "path": "skills/present-paper/scripts/extract_pdf_figures.py",
-      "size": 9682,
-      "sha256": "63a6060d84d8e515433bdfcbd165114108b1455adce189c77442ba8ab6f77dd8"
+      "size": 10642,
+      "sha256": "de325fd64432ef94217a2478bec918d118a1b43670cdddb640eb0aab341ce41e"
     },
     {
       "path": "skills/present-paper/scripts/inject_pronunciation_notes.py",
@@ -4383,8 +4383,8 @@
     },
     {
       "path": "skills/present-paper/scripts/strip_notes_for_sharing.py",
-      "size": 5508,
-      "sha256": "6d00556e1b934eb7330fe5a602643bdd2253c8bb51a8a396ae30d42c213d3d66"
+      "size": 13159,
+      "sha256": "f18b4fedfa8fe531ce66164fdaed03af23dc0d4f9dd6cf485399d42c6992f698"
     },
     {
       "path": "skills/present-paper/scripts/trim_caption.py",

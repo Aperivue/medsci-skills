@@ -20,8 +20,11 @@ It checks the things about a deck that are mechanical, and therefore checkable:
 The clock stops at the backup section. Nearly every conference deck carries one — the slides you
 do not present, and open only if someone asks. Counting them against the clock told people to
 delete their Q&A preparation, so the check was wrong in the one place a speaker most needs to be
-prepared. A slide whose headline is "Backup", "Appendix", "Q&A", "Reserve" or "Supplementary" ends
-the talk: everything from there on is off the clock.
+prepared. A slide whose headline IS "Backup", "Appendix", "Q&A", "Reserve" or "Supplementary" (the
+whole first line: "Backup slides" and "Backup — Q&A" count, "Appendix perforation in children"
+does not) ends the talk: everything from there on is off the clock. Slides are taken in the order
+they are shown (presentation.xml), and the output says where the clock stopped; --backup-from N
+sets the boundary explicitly when a divider says something else.
 
 Density and type size still apply to those slides. Anything you might put on a screen has to be
 readable when it gets there; a backup slide is shown under questioning, which is the worst possible
@@ -34,7 +37,8 @@ a pretext, whether the limitation is the one that matters — is judgment, and i
 Stdlib only. Reads the .pptx as the ZIP of XML it is.
 
 Usage:
-    check_deck_budget.py deck.pptx --archetype conference_oral --minutes 10 [--json out.json] [--strict]
+    check_deck_budget.py deck.pptx --archetype conference_oral --minutes 10 [--backup-from N]
+                         [--json out.json] [--strict]
     check_deck_budget.py --list
 """
 
@@ -96,6 +100,11 @@ BUDGETS: Dict[str, Budget] = {
 }
 
 
+# The boundary the last audit() used (0-based index or None), so main() can say where the clock
+# stopped instead of leaving the user to guess why a long deck passed.
+LAST_BOUNDARY: List[Optional[int]] = [None]
+
+
 @dataclass
 class Finding:
     detector: str
@@ -114,36 +123,55 @@ def words_on(shapes) -> int:
     return n
 
 
+_BACKUP_KW = (r"(?:back[\s-]?up|appendix|q\s*&\s*a|q\s*and\s*a|reserve|supplement(?:ary)?"
+              r"|백업|부록|예비)")
+_BACKUP_TAIL = r"(?:slides?|section|materials?|자료|슬라이드)"
+# The WHOLE first line must be a signpost: the keyword, optionally a section word ("Backup
+# slides", "백업 슬라이드") or a designator ("Appendix A"), then either nothing but punctuation or a
+# separator and a subtitle ("Backup — Q&A"). Matching only the start made every headline that
+# opens with one of these words a boundary — "Appendix perforation in children", "Supplementary
+# oxygen did not help", "Reserve capacity predicts survival", "예비 연구 결과" — and the clock
+# stopped at slide 2.
 _BACKUP_RE = re.compile(
-    r"^\W*(back[\s-]?up|appendix|q\s*&\s*a|q\s*and\s*a|reserve|supplement(?:ary)?"
-    r"|백업|부록|예비)(?![A-Za-z])", re.I)
+    rf"^\W*{_BACKUP_KW}(?:\s+{_BACKUP_TAIL})?(?:\s+(?:[A-Z]|\d{{1,2}}|[IVX]{{1,4}}))?"
+    r"(?:\W*$|\s*[:|·/–—(&-].*$)",
+    re.I)
+
+
+def is_backup_signpost(line: str) -> bool:
+    head = line.strip()
+    return bool(head) and len(head.split()) <= 6 and bool(_BACKUP_RE.match(head))
 
 
 def find_backup_boundary(slides) -> Optional[int]:
     """Index of the first backup slide, or None. Everything from there on is off the clock.
 
     A backup section opens with a marker slide -- a divider or a heading that says "Backup",
-    "Appendix", "Q&A". We look for that *headline*, and we require it to be short: a slide whose
-    body happens to discuss "the appendix of the guideline" is not a boundary, and a nine-word
-    sentence containing the word "reserve" is a sentence, not a signpost.
+    "Appendix", "Q&A". We look for that *headline*, and we require the whole headline to be the
+    signpost: a slide whose body happens to discuss "the appendix of the guideline" is not a
+    boundary, and neither is a finding that merely starts with the word ("Appendix perforation in
+    children", "Supplementary oxygen did not help").
 
     Headline means the shape's FIRST LINE, not its whole text. A section divider normally carries
     its title and its subtitle in one text frame, so the shape reads
 
-        "Backup\\nQ&A -- the four questions this design invites"
+        "Backup\nQ&A -- the four questions this design invites"
 
     and a guard that measured the whole text threw the boundary away for being ten words long.
     That is not hypothetical: it is how this check failed the first real deck it met.
+
+    When a deck's divider says something else, pass --backup-from N instead of renaming it.
     """
     for i, shapes in enumerate(slides):
         for s in shapes:
             head = next((ln.strip() for ln in (s.text or "").splitlines() if ln.strip()), "")
-            if head and len(head.split()) <= 6 and _BACKUP_RE.match(head):
+            if is_backup_signpost(head):
                 return i
     return None
 
 
-def audit(deck: Path, archetype: str, minutes: float) -> List[Finding]:
+def audit(deck: Path, archetype: str, minutes: float,
+          backup_from: Optional[int] = None) -> List[Finding]:
     from check_slide_tells import mark_chrome  # noqa: PLC0415
 
     b = BUDGETS[archetype]
@@ -171,7 +199,14 @@ def audit(deck: Path, archetype: str, minutes: float) -> List[Finding]:
 
     # --- the clock -------------------------------------------------------------------------
     # Backup slides are not part of the talk, so they are not part of its clock.
-    backup_at = find_backup_boundary(slides)
+    if backup_from is not None:
+        if not 1 <= backup_from <= len(slides):
+            raise ValueError(f"--backup-from {backup_from} is outside the deck's "
+                             f"{len(slides)} slide(s)")
+        backup_at: Optional[int] = backup_from - 1
+    else:
+        backup_at = find_backup_boundary(slides)
+    LAST_BOUNDARY[0] = backup_at
     n = backup_at if backup_at is not None else len(slides)
     allowed = max(1, round(minutes * b.slides_per_minute))
     if n > allowed * 1.25:  # 25% of slack: some slides are a divider, some are a single number
@@ -245,6 +280,9 @@ def main() -> int:
     ap.add_argument("--list", action="store_true", help="show the archetypes and their budgets")
     ap.add_argument("--json", type=Path)
     ap.add_argument("--strict", action="store_true")
+    ap.add_argument("--backup-from", type=int, metavar="N",
+                    help="slide N (1-based, presentation order) opens the backup section; "
+                         "overrides the detected divider")
     a = ap.parse_args()
 
     if a.list:
@@ -262,19 +300,30 @@ def main() -> int:
         return 2
 
     try:
-        findings = audit(a.deck, a.archetype, a.minutes)
+        findings = audit(a.deck, a.archetype, a.minutes, a.backup_from)
     except (zipfile.BadZipFile, ET.ParseError, KeyError) as exc:
         print(f"{a.deck} is not a readable .pptx ({exc})", file=sys.stderr)
+        return 2
+    except ValueError as exc:
+        print(str(exc), file=sys.stderr)
         return 2
 
     if a.json:
         a.json.parent.mkdir(parents=True, exist_ok=True)
         a.json.write_text(json.dumps(
             {"detector": DETECTOR, "deck": str(a.deck), "archetype": a.archetype,
-             "minutes": a.minutes, "findings": [f.__dict__ for f in findings]},
+             "minutes": a.minutes,
+             "backup_from": None if LAST_BOUNDARY[0] is None else LAST_BOUNDARY[0] + 1,
+             "findings": [f.__dict__ for f in findings]},
             indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
     b = BUDGETS[a.archetype]
+    if LAST_BOUNDARY[0] is None:
+        print("clock: every slide counts (no backup divider found; --backup-from N sets one)")
+    else:
+        how = "given by --backup-from" if a.backup_from is not None else "detected divider"
+        print(f"clock: stops at slide {LAST_BOUNDARY[0] + 1} ({how}); "
+              "slides from there on are backup, off the clock")
     if not findings:
         print(f"OK: the deck fits {b.label} at {a.minutes:g} minutes.")
         return 0
