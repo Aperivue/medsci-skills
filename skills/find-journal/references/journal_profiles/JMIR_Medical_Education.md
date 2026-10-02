@@ -26,4 +26,4 @@ medical education technology, e-learning, simulation-based education, virtual re
 - **Field:** Medical education technology
 
 ## Special Notes
-High-impact (IF ~12.6) JMIR sister journal focused on technology-enhanced medical education. Cascading peer review from JMIR flagship; single-blind with named reviewers published alongside accepted articles. Fast-track option (20 working days). AI policy: generative AI use must be disclosed per JMIR AI policy.
+JMIR sister journal focused on technology-enhanced medical education. Cascading peer review from JMIR flagship; single-blind with named reviewers published alongside accepted articles. Fast-track option (20 working days). AI policy: generative AI use must be disclosed per JMIR AI policy.

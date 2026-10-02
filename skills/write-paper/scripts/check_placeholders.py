@@ -12,6 +12,20 @@ Detected finding types:
   ai_disclosure_placeholder (blocker) a literal [version]/[date]/[tool]/[model]/
                             [channel] token in an AI-use disclosure (the FLAIR/
                             TRIPOD+AI tokens were never filled in).
+  template_token            (blocker) a literal, unfilled token copied from one of
+                            write-paper's own templates: the AI-disclosure tokens
+                            ([developer], [Claude/tool name], [Anthropic/developer],
+                            [Journal Name], [statistician/author], [date range]) and
+                            the curly software/LLM-methods tokens ({version},
+                            {company}, {Model name}, {Tool name}, {start date},
+                            {end date}). Exact tokens only -- a closed list, not a
+                            pattern over prose.
+  verify_marker             (blocker) an unresolved [VERIFY...] marker (bare
+                            [VERIFY], [VERIFY: ...], [VERIFY-CSV]) or the reference
+                            marker [UNVERIFIED - NEEDS MANUAL CHECK] -- write-paper
+                            tells the author to leave these on anything not yet
+                            checked, so one that survives means the check never
+                            happened. A bare [UNVERIFIED] is not matched.
   generic_todo              (blocker) a TODO / FIXME / TBD / XXX authoring marker
                             outside a fenced code block.
   template_url              (blocker) a template/unfilled URL — example.com,
@@ -52,6 +66,21 @@ from pathlib import Path
 # Blocker patterns: each match is an unambiguous unresolved authoring marker.
 NEW_MARKER = re.compile(r"\[@NEW:[^\]]*\]", re.IGNORECASE)
 AI_DISCLOSURE_PLACEHOLDER = re.compile(r"\[(?:version|date|tool|model|channel)\]", re.IGNORECASE)
+# Unfilled tokens emitted verbatim by write-paper's own templates (SKILL.md
+# "Disclosure Locations" templates; references/section_templates/methods_statistical.md
+# software and LLM-methods paragraphs). A closed list of exact tokens: a new template
+# token must be added here by name.
+TEMPLATE_TOKEN = re.compile(
+    r"\[(?:developer|Claude/tool name|Anthropic/developer|Journal Name|statistician/author|date range)\]"
+    r"|(?<![\w\\])\{(?:version|company|Model name|Tool name|start date|end date)\}",
+    re.IGNORECASE)
+# An unresolved verification marker: [VERIFY], [VERIFY: ...], [VERIFY-CSV], and the
+# exact reference marker write-paper Phase 1 emits, [UNVERIFIED - NEEDS MANUAL CHECK].
+# Blocks on its own (no strength word needed). A bare [UNVERIFIED] is NOT matched: the
+# repo's demos carry it as a deliberate reference stub and /verify-refs owns that state.
+VERIFY_BLOCKER = re.compile(
+    r"\[VERIFY\b[^\]]*\]|\[UNVERIFIED\s*[-\u2013\u2014]\s*NEEDS MANUAL CHECK\]",
+    re.IGNORECASE)
 # TODO/FIXME/TBD and XXX (3+ uppercase X) — case-sensitive so "tbd"/"fix me" inside
 # ordinary words or Roman numerals (XXXI) do not trip it.
 GENERIC_TODO = re.compile(r"\b(?:TODO|FIXME|TBD|X{3,})\b")
@@ -69,6 +98,8 @@ BARE_NUMERIC_CITE = re.compile(r"(?<!\w)\[\d{1,3}(?:\s*[–-]\s*\d{1,3})?\](?!\(
 BLOCKER_PATTERNS = [
     ("new_marker", NEW_MARKER),
     ("ai_disclosure_placeholder", AI_DISCLOSURE_PLACEHOLDER),
+    ("template_token", TEMPLATE_TOKEN),
+    ("verify_marker", VERIFY_BLOCKER),
     ("generic_todo", GENERIC_TODO),
     ("template_url", TEMPLATE_URL),
 ]

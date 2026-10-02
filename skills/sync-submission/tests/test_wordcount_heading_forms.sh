@@ -79,6 +79,22 @@ body = "The intervention reduced mortality in the enrolled cohort. " * 60
 PY
 ck "no-References manuscript matches"     "$atx" "$(words_of norefs.md)"
 
+echo "==== the cover-letter drift gate walks the same sections ===="
+# cover_letter_drift_check.py kept its own `#{1,3}` ATX-only walker, so on a setext or `####`
+# manuscript its body-word "truth" swallowed the whole References section and disagreed with this
+# gate on the same file. It now shares check_wordcount_cap.iter_body.
+CL="$REPO_ROOT/skills/sync-submission/scripts"
+cl_words() {  # cl_words <file> -> cover-letter gate's body-word truth
+  python3 -c "import sys; sys.path.insert(0, sys.argv[1]); import cover_letter_drift_check as c; from pathlib import Path; print(c.count_body_words(Path(sys.argv[2])))" "$CL" "$WORK/$1" 2>/dev/null
+}
+cl_atx="$(cl_words atx.md)"
+# The fixture's Introduction is one 8-word sentence x 60 and the gate does not count headings.
+ck "cover-letter ATX baseline == 8 x 60"  480 "$cl_atx"
+ck "cover-letter setext '=' equals ATX"   "$cl_atx" "$(cl_words setext.md)"
+ck "cover-letter setext '-' equals ATX"   "$cl_atx" "$(cl_words setext_dash.md)"
+ck "cover-letter #### References skipped" "$cl_atx" "$(cl_words deep.md)"
+ck "cover-letter no-References matches"   "$cl_atx" "$(cl_words norefs.md)"
+
 echo
 echo "  passed=$pass failed=$fail"
 [ "$fail" -eq 0 ] || exit 1

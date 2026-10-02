@@ -329,6 +329,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/tests/test_cv_leakage.sh
 
+      - name: Run obsidian-paper-vault extractor test (image-only PDF and max_pages<1 never yield an empty .txt)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python3 skills/obsidian-paper-vault/tests/test_extract_pdfs.py
+
       - name: Run validate_catalog_consistency.py (doc counts must match disk SSOT)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 scripts/validate_catalog_consistency.py
@@ -518,6 +522,10 @@ jobs:
       - name: "Run verify-refs last-field test (an entry's final field has no trailing comma)"
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/verify-refs/tests/test_bib_last_field.sh
+
+      - name: "Run verify-refs entry-header test (an indented, spaced or parenthesised entry is its own record)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/verify-refs/tests/test_bib_entry_headers.sh
 
       - name: "Run verify-refs audit-source test (a committed audit must not carry an absolute path)"
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
@@ -779,6 +787,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/fill-protocol/tests/test_fill_form_newlines.sh
 
+      - name: "Run fill-protocol integrity test (no deleted trailer, no retyped value, no surviving placeholder)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/fill-protocol/tests/test_fill_form_integrity.sh
+
       - name: Run fulltext-retrieval pdf_to_md helper test
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 skills/fulltext-retrieval/tests/test_pdf_to_md.py
@@ -965,6 +977,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/check-reporting/tests/test_checklist_fidelity.sh
 
+      - name: Run review-paper macro-skeleton test (scoping/systematic carry PRISMA Methods/Results slots)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/review-paper/tests/test_macro_skeleton.sh
+
       - name: Run check-reporting PRISMA-cascade test
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/check-reporting/tests/test_prisma_cascade.sh
@@ -1083,6 +1099,10 @@ jobs:
       - name: "Run search-lit E-utilities test (an apostrophe in a query is data, not code)"
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/search-lit/tests/test_pubmed_eutils.sh
+
+      - name: "Run search-lit parse_pubmed test (inline markup never truncates a title or abstract)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/search-lit/tests/test_parse_pubmed.sh
 
       - name: "Run ma-scout test (an unknown esearch count is never 0; an unchecked PROSPERO is never clear)"
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
