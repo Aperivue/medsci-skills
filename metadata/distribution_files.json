@@ -573,8 +573,8 @@
     },
     {
       "path": "skills/calc-sample-size/references/formulas.md",
-      "size": 54615,
-      "sha256": "70180135ea072e786ad5e3865a8a0b415c73b9a94135cbba813da0ff87131c74"
+      "size": 55635,
+      "sha256": "e1b6f35683d83b0543125f90bb74ccadf125291143b733ecce4577ca5965de9b"
     },
     {
       "path": "skills/calc-sample-size/references/justification_examples.md",
@@ -2123,18 +2123,18 @@
     },
     {
       "path": "skills/ma-scout/SKILL.md",
-      "size": 20755,
-      "sha256": "8a12f4599915317a036e35199c21f8fd461ab54d9a86ec633d8ec045d83b7fba"
+      "size": 21503,
+      "sha256": "6287818962889e01839c8ba07230fb7dd2fb75d777e2a48c28f4ab90cafe249c"
     },
     {
       "path": "skills/ma-scout/references/project_readme_template.md",
-      "size": 4234,
-      "sha256": "d6b430e906036f609af86f7552c2e97e554a6faefb5907bc9402f87c451f8147"
+      "size": 4404,
+      "sha256": "a313e0f4d3a5748c8cf2ecd614f68fce4f44ae3e4e3eb53918fd8af19f0449a9"
     },
     {
       "path": "skills/ma-scout/references/project_readme_template_ko.md",
-      "size": 3043,
-      "sha256": "6eb273f476d5d31147e83e26d46758db3cc0657466453654531e2e9f6a8a227d"
+      "size": 3235,
+      "sha256": "a0aa3b991fdb0b6b02e9e3b3cd340e9aedac16fc6975b6722599ab2ae1ddd2d3"
     },
     {
       "path": "skills/ma-scout/references/topic_discovery_heuristics.md",
@@ -3583,8 +3583,8 @@
     },
     {
       "path": "skills/model-selection/SKILL.md",
-      "size": 9690,
-      "sha256": "ecfc38aef655c7001a235b05d022bce1ecd4c436d8b9e13b4eba5c40f8af4da1"
+      "size": 10715,
+      "sha256": "d800d0379f2bcc5ee23203e465b20ab7d5c4c2487eb282e0f4b00239acdd97ef"
     },
     {
       "path": "skills/model-selection/references/classification.md",
@@ -3623,8 +3623,8 @@
     },
     {
       "path": "skills/model-selection/scripts/check_model_provenance.py",
-      "size": 12750,
-      "sha256": "3f7f7ca61af5f0126e71af93fbc8a2a3225dd65ab4c08167fa58e81984ee28bc"
+      "size": 16575,
+      "sha256": "81d343922d269beb21a7edac614db62024ec8a2f488a077d1c06f8db6bbb5c65"
     },
     {
       "path": "skills/model-selection/scripts/check_model_provenance_challenge/expected/clean.txt",
@@ -4673,8 +4673,8 @@
     },
     {
       "path": "skills/search-lit/references/parse_pubmed.py",
-      "size": 12457,
-      "sha256": "764140b06478fb86e0e313d83db8503396ee4a0f93bff57aba63256b2006016e"
+      "size": 13449,
+      "sha256": "e8dc9621f5808710ab8ab888f2ac75101e35425cfaeb048b4b81c4aed7f90fe1"
     },
     {
       "path": "skills/search-lit/references/pubmed_eutils.sh",

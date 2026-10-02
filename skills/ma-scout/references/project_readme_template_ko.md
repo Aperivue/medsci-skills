@@ -31,7 +31,7 @@ Copy the block below into `{topic_folder}/README.md` and fill in the curly-brace
 - 기존 MA: {N}편 ({상세, 가장 최근 연도, 범위 한계})
 - Consensus/Scholar Gateway 추가 확인: {결과 요약}
 - medRxiv/bioRxiv preprint MA: {있음/없음}
-- PROSPERO 등록 프로토콜: {있음 (CRD#) / 없음}
+- PROSPERO 등록 프로토콜: {있음 (CRD#) / 없음 / 확인 안 됨 (검색 불가 또는 실패)}
 - {구체적 gap 설명 — 왜 새 MA가 필요한지}
 
 ## Professor's Authority
@@ -78,5 +78,5 @@ Copy the block below into `{topic_folder}/README.md` and fill in the curly-brace
 - Consensus MCP: ✅/❌
 - Scholar Gateway: ✅/❌
 - bioRxiv/medRxiv: ✅/❌
-- PROSPERO: ✅
+- PROSPERO: {검색함 (일치 있음: CRD#) / 검색함 (일치 없음) / 확인 안 됨 (사용 불가/실패)} — 검색어: `{query}`, 날짜: {YYYY-MM-DD}
 ````
