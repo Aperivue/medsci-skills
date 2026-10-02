@@ -90,7 +90,8 @@ PY
 #     Python, and a hygiene-clean train.py / evaluate.py.
 for task in classification detection synthesis ssl finetune; do
   tdir="$WORK/$task"
-  python3 "$SCAFFOLD" --manifest "$HERE/fixture/manifest.csv" --task "$task" --out "$tdir" --seed 42 --quiet
+  extra=""; [ "$task" = finetune ] && extra="--out-channels 2"   # softmax CE head: >= 2 classes
+  python3 "$SCAFFOLD" --manifest "$HERE/fixture/manifest.csv" --task "$task" $extra --out "$tdir" --seed 42 --quiet
   diff -q "$HERE/expected/split_assignment.csv" "$tdir/splits/split_assignment.csv" >/dev/null \
     || { echo "FAIL: $task split differs from the frozen (task-independent) split" >&2; exit 1; }
   for f in "$tdir"/*.py; do
@@ -142,6 +143,7 @@ for label, id_col in cases.items():
         out = work / f"{label}-{task}"
         r = subprocess.run([sys.executable, scaffold, "--manifest", str(manifest), "--id-col", id_col,
                             "--task", task, "--from-pretrained", source, "--out", str(out),
+                            "--out-channels", "2" if task == "finetune" else "1",
                             "--seed", "42", "--quiet"], capture_output=True, text=True)
         assert r.returncode == 0, f"FAIL: {label}/{task}: scaffold exited {r.returncode}: {r.stderr}"
         found = {}

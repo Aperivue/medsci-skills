@@ -12,7 +12,7 @@ inputs:
   - "verified refs (_src/refs.bib) from search-lit/lit-sync"
   - "optional: prior/adjacent reviews to differentiate against"
 outputs:
-  - "manuscript.md scaffold (7-part) + summary-table stub + figure/table legend plan"
+  - "manuscript.md scaffold (7-part for narrative; IMRaD with PRISMA-ScR / PRISMA 2020 Methods and Results slots for scoping / systematic) + summary-table stub + figure/table legend plan"
 side_effects:
   - writes_manuscript_scaffold
 downstream_consumers:
