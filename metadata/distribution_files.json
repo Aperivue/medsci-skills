@@ -2138,8 +2138,8 @@
     },
     {
       "path": "skills/lit-sync/SKILL.md",
-      "size": 18126,
-      "sha256": "a4d9ebe9fd092608df0c4cd7f95e635164d9e036bc4862cadacc11298566f3eb"
+      "size": 18551,
+      "sha256": "45ba031478d6b5dd41c85c61eea8b99e3611514a6b04afbfd9b8a2f7edef764b"
     },
     {
       "path": "skills/lit-sync/references/bbt_lookup.md",
@@ -2163,8 +2163,8 @@
     },
     {
       "path": "skills/lit-sync/scripts/check_citekey_provenance.py",
-      "size": 12162,
-      "sha256": "99fc4e0486fcab6bba1ec1bb6c58443482e3203b9194b1dc0c9713871ab0595b"
+      "size": 15622,
+      "sha256": "e2d661d08e7419ae31b81a3516526b28384f9710e5cb8043d381558fb6de01ee"
     },
     {
       "path": "skills/lit-sync/skill.yml",
