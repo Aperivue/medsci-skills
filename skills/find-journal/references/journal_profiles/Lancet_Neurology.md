@@ -24,12 +24,11 @@ neurology, stroke, dementia, Alzheimer disease, epilepsy, Parkinson disease, mul
 
 ## Classification
 - **Tier:** Q1
-- **Impact Factor:** ~45
 - **Open Access:** Hybrid
 - **Field:** Neurology
 
 ## Special Notes
-The Lancet Neurology is the highest-impact specialty neurology journal. It shares the Lancet Group editorial policies, formatting requirements, and submission platform. Manuscripts must have a structured Summary (Background, Methods, Findings, Interpretation, Funding). The journal is highly selective (~5% acceptance) and favors multicenter RCTs, landmark cohort studies, and comprehensive systematic reviews that shape clinical practice or guidelines.
+The Lancet Neurology is the highest-impact specialty neurology journal. It shares the Lancet Group editorial policies, formatting requirements, and submission platform. Manuscripts must have a structured Summary (Background, Methods, Findings, Interpretation, Funding). The journal is highly selective and favors multicenter RCTs, landmark cohort studies, and comprehensive systematic reviews that shape clinical practice or guidelines.
 
 ## AI Writing Disclosure Policy
 - **Requirement level:** Required

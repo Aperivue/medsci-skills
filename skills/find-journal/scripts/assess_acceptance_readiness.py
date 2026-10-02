@@ -26,8 +26,10 @@ Usage
   python3 assess_acceptance_readiness.py MANUSCRIPT.md
   python3 assess_acceptance_readiness.py --json MANUSCRIPT.md
 
-Exit code is always 0 (advisory). Output is deterministic (sorted, stable) so it
-can be golden-mastered in a network-free challenge card.
+Exit code is 0 when the scan ran (advisory), 2 when the input is missing or is
+not a UTF-8 text file (e.g. .docx, .pdf, .doc): convert it to markdown/plain text
+first. A References/Bibliography section is not scanned. Output is deterministic
+(sorted, stable) so it can be golden-mastered in a network-free challenge card.
 """
 from __future__ import annotations
 
@@ -52,7 +54,7 @@ DETECTORS = [
     ("DESIGN_CEILING", _D(r"\bcross[-\s]?sectional\b"),
      "cross-sectional design",
      "cross-sectional data cannot support prognostic, causal, or surveillance claims"),
-    ("DESIGN_CEILING", _D(r"\b(?:surrogate|proxy)\b|\bFIB[-\s]?4\b|\bnon[-\s]?invasive (?:surrogate|marker)\b"),
+    ("DESIGN_CEILING", _D(r"\bsurrogate\b|\bproxy (?:endpoint|outcome)\b|\bnon[-\s]?invasive (?:surrogate|marker)\b"),
      "surrogate / non-invasive marker as endpoint",
      "a surrogate endpoint without a hard clinical or histologic endpoint caps clinical-impact claims"),
     ("DESIGN_CEILING", _D(r"\bsingle[-\s]?cent(?:er|re)\b"),
@@ -62,7 +64,7 @@ DETECTORS = [
                           r"|\bexternal validation (?:was )?(?:not|never) (?:performed|done|available|conducted)\b"),
      "no external validation",
      "a prediction/diagnostic model without external validation rarely clears a top venue"),
-    ("DESIGN_CEILING", _D(r"\b(?:pilot|preliminary|proof[-\s]?of[-\s]?concept|feasibility)\b"),
+    ("DESIGN_CEILING", _D(r"\b(?:pilot|preliminary|proof[-\s]?of[-\s]?concept)\b|\bfeasibility (?:study|trial)\b"),
      "pilot / preliminary framing",
      "appropriate for tolerant venues; high-impact originals expect a definitive design"),
 
@@ -71,7 +73,7 @@ DETECTORS = [
                             r"|\btarget[-\s]?derived\b"),
      "possible data leakage",
      "leakage is an unfixable validity threat; in-sample performance becomes uninterpretable"),
-    ("UNFIXABLE_DEFECT", _D(r"\bcircular(?:ity)?\b|\bself[-\s]?fulfilling\b"),
+    ("UNFIXABLE_DEFECT", _D(r"\bcircular (?:design|validation|reasoning|analysis)\b|\bself[-\s]?fulfilling\b"),
      "circular design / validation",
      "predicting a label from inputs that encode it is structurally guaranteed, not a finding"),
     ("UNFIXABLE_DEFECT", _D(r"\bno (?:comparator|baseline)\b|\bwithout (?:a )?(?:comparator|baseline)\b"
@@ -88,7 +90,7 @@ DETECTORS = [
                            r"|\bdid not (?:differ|improve|change|increase|reduce)\b|\bnull (?:result|finding)\b"),
      "negative / null framing",
      "a null/negative result needs explicit importance justification; low-impact nulls are desk-rejected"),
-    ("IMPORTANCE_RISK", _D(r"\bincremental\b|\bmarginal\b|\bmodest improvement\b|\bslight(?:ly)? (?:better|higher|improved)\b"),
+    ("IMPORTANCE_RISK", _D(r"\bincremental\b|\bmarginal(?!\s+(?:structural|models?|effects?|means?|likelihood|distributions?|probabilit))\b|\bmodest improvement\b|\bslight(?:ly)? (?:better|higher|improved)\b"),
      "incremental-gain framing",
      "incremental contribution is the single most common desk-rejection reason (~52%)"),
     ("IMPORTANCE_RISK", _D(r"\bsimilar to (?:previous|prior)\b|\bconsistent with (?:existing|prior) (?:work|literature)\b"
@@ -115,15 +117,53 @@ _CEILING_TRIGGER_LABELS = {
     "pilot / preliminary framing",
 }
 
-VERDICT_NONE = "NO STRUCTURAL CEILING DETECTED BY LEXICAL SCAN"
+# The scan only matches listed phrases, so an empty result is not a clearance:
+# paraphrases ("one institution", "has not been externally validated") are missed.
+VERDICT_NONE = "NO LISTED SIGNAL MATCHED - NOT A DESIGN CLEARANCE; ASSESS DESIGN CEILING BY JUDGEMENT"
 VERDICT_IMPORTANCE = "IMPORTANCE-FRAMING REVIEW RECOMMENDED"
 VERDICT_SPECIALTY = "SPECIALTY / TOLERANT-VENUE OR DESIGN FIX RECOMMENDED"
 VERDICT_HIGH = "HIGH-IMPACT VENUE UNLIKELY WITHOUT A DESIGN CHANGE"
 
 
+# A reference list cites other studies' designs ("a single-center pilot study"),
+# which says nothing about this manuscript's design, so it is not scanned.
+_REF_HEADING = re.compile(
+    r"^\s*(#{1,6})?\s*(?:\*\*)?\s*(?:references|bibliography|literature cited|works cited)"
+    r"\s*:?\s*(?:\*\*)?\s*$",
+    re.IGNORECASE,
+)
+_MD_HEADING = re.compile(r"^\s*(#{1,6})\s+\S")
+
+
+def _blank_reference_sections(lines):
+    """Return lines with every References/Bibliography section blanked out.
+
+    A section runs from its heading to the next markdown heading of the same or
+    higher level (any markdown heading when the References heading is a bare or
+    bold line). Line numbers are preserved.
+    """
+    out = []
+    ref_level = None  # None = not inside a reference section
+    for line in lines:
+        if ref_level is not None:
+            m = _MD_HEADING.match(line)
+            if m and len(m.group(1)) <= ref_level and not _REF_HEADING.match(line):
+                ref_level = None
+            else:
+                out.append("")
+                continue
+        m = _REF_HEADING.match(line)
+        if m:
+            ref_level = len(m.group(1)) if m.group(1) else 6
+            out.append("")
+            continue
+        out.append(line)
+    return out
+
+
 def scan(text: str):
     """Return a sorted list of flags: (line_no, category, label, rationale)."""
-    lines = text.splitlines()
+    lines = _blank_reference_sections(text.splitlines())
     raw = []
     doc_has_ceiling = False
     # First pass: every detector except CLAIM_MISMATCH, and learn doc_has_ceiling.
@@ -190,8 +230,36 @@ def render_text(basename: str, flags, counts, verd) -> str:
     return "\n".join(out)
 
 
+# Leading bytes of container/binary formats a manuscript commonly arrives in.
+_BINARY_MAGIC = (
+    (b"PK\x03\x04", "a zip container (.docx/.odt/.pages?)"),
+    (b"%PDF", "a PDF"),
+    (b"\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1", "an OLE container (.doc?)"),
+    (b"{\\rtf", "an RTF document"),
+)
+
+
+class UnreadableInput(Exception):
+    """The file is not UTF-8 text, so a lexical scan of it would be meaningless."""
+
+
+def read_text(path: Path) -> str:
+    data = path.read_bytes()
+    for magic, kind in _BINARY_MAGIC:
+        if data.startswith(magic):
+            raise UnreadableInput(f"{path} looks like {kind}, not markdown/plain text")
+    if b"\x00" in data:
+        raise UnreadableInput(f"{path} contains NUL bytes; it is not a text file")
+    try:
+        return data.decode("utf-8-sig")
+    except UnicodeDecodeError as exc:
+        raise UnreadableInput(
+            f"{path} is not valid UTF-8 text (byte offset {exc.start})"
+        ) from None
+
+
 def build_report(path: Path):
-    text = path.read_text(encoding="utf-8", errors="replace")
+    text = read_text(path)
     flags = scan(text)
     counts = {c: 0 for c in CATEGORIES}
     for _lineno, category, _label, _rationale in flags:
@@ -211,7 +279,12 @@ def main(argv=None):
         print(f"error: file not found: {path}", file=sys.stderr)
         return 2
 
-    flags, counts, verd = build_report(path)
+    try:
+        flags, counts, verd = build_report(path)
+    except UnreadableInput as exc:
+        print(f"error: {exc}; convert it to markdown or plain text "
+              "(e.g. pandoc -t markdown) and rerun. No scan was run.", file=sys.stderr)
+        return 2
 
     if args.json:
         payload = {

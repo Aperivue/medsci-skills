@@ -11,7 +11,8 @@
 # registered nowhere is FABRICATED; test_doi_not_registered.sh covers that). Cases: the fabricated
 # title ends UNVERIFIED (never OK, never FABRICATED: a search miss is a coverage gap, not proof);
 # the positive control, a title PubMed really holds, still ends OK; and a failed candidate fetch is
-# UNVERIFIED. Network-free: http_json and http_fetch are monkeypatched.
+# UNVERIFIED. A title match is OK only when the matched record's authors were compared with the
+# cited ones and agree (case 7). Network-free: http_json and http_fetch are monkeypatched.
 set -u
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -47,7 +48,9 @@ UNRELATED = {"result": {"uids": ["90000001", "90000002", "90000003"],
 # PubMed style: trailing period, one candidate is the cited work.
 HOLDS_IT = {"result": {"uids": ["90000001", "90000002", "90000003"],
     "90000001": {"title": "Prediction of outcomes after an unrelated procedure in adults."},
-    "90000002": {"title": REAL_TITLE + "."},
+    "90000002": {"title": REAL_TITLE + ".",
+                 "authors": [{"name": "Nobody A", "authtype": "Author"},
+                             {"name": "Noone B", "authtype": "Author"}]},
     "90000003": {"title": "Imaginary numbers in signal processing."}}}
 
 def make_http(summary):
@@ -140,6 +143,52 @@ def mr_http(url, timeout):
 use(mr_http)
 out = vr.verify_record(fake_record(CT_TITLE), offline=False, timeout=5, use_openalex=True)
 check("CT title matched only by an MR record -> UNVERIFIED, not OK", out.status == "UNVERIFIED")
+
+# 7. A title-only match says a work with that title exists, not that the cited authors wrote it.
+#    It used to return OK with an empty author list, so the author cross-check never ran and a
+#    reference with invented authors ended OK. The Jaccard guard also tolerates one substituted
+#    token once a title has nine or more content tokens, so "hepatitis B" matches "hepatitis C".
+HEP_B = ("Long term outcomes of antiviral therapy in chronic hepatitis B patients "
+         "enrolled in a multicentre prospective registry cohort")
+HEP_C = HEP_B.replace("hepatitis B", "hepatitis C")
+check("one substituted token in a long title passes the similarity guard (the gap this closes)",
+      vr._title_similarity(HEP_B, HEP_C) >= vr.TITLE_MATCH_MIN)
+def one_hit(title, authors):
+    item = {"title": title + "."}
+    if authors is not None:
+        item["authors"] = [{"name": a, "authtype": "Author"} for a in authors]
+    def _http(url, timeout):
+        if "esearch.fcgi" in url:
+            return {"esearchresult": {"idlist": ["90000005"]}}
+        if "esummary.fcgi" in url:
+            return {"result": {"uids": ["90000005"], "90000005": item}}
+        if "api.openalex.org" in url:
+            return {"results": []}
+        return None
+    return _http
+def no_id_record(title, authors):
+    return vr.RefRecord(ref_id="synthetic2024", raw="@article{synthetic2024, ...}",
+                        title_guess=title, title_from_field=True,
+                        cited_authors=list(authors), cited_author_count=len(authors))
+
+use(one_hit(HEP_C, ["Realname JK", "Truename L"]))
+out = vr.verify_record(no_id_record(HEP_B, ["Fakeauthor", "Nobody"]), offline=False, timeout=5)
+check("title match + invented authors -> not OK", out.status != "OK")
+check("title match + invented authors -> UNVERIFIED (the matched work may be another one)",
+      out.status == "UNVERIFIED" and out.note.startswith("title_only"))
+use(one_hit(HEP_B, None))
+out = vr.verify_record(no_id_record(HEP_B, ["Fakeauthor", "Nobody"]), offline=False, timeout=5)
+check("title match whose record has no author list -> UNVERIFIED",
+      out.status == "UNVERIFIED" and "could not be compared" in out.note)
+use(one_hit(HEP_B, ["Realname JK", "Truename L"]))
+out = vr.verify_record(no_id_record(HEP_B, []), offline=False, timeout=5)
+check("title match with no cited authors to compare -> UNVERIFIED", out.status == "UNVERIFIED")
+# Negative control: the same title match with agreeing authors is still OK.
+out = vr.verify_record(no_id_record(HEP_B, ["Realname", "Truename"]), offline=False, timeout=5)
+check("title match + agreeing authors -> OK", out.status == "OK" and not out.note)
+st, ev, fams = vr.verify_pubmed_title(HEP_B, 5)
+check("verify_pubmed_title returns the matched record's family names",
+      st == "OK" and fams == ["Realname", "Truename"])
 
 print(f"fail={fail}")
 print("ALL PASS" if fail == 0 else f"FAILURES: {fail}")
