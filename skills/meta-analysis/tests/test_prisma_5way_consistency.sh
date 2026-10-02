@@ -9,8 +9,9 @@
 #      12, but k = 13), and every surface faithfully repeats the wrong k.
 #   C. a search CSV with a quoted multi-line abstract: 2 records, 3 data lines;
 #      line counting matched an SSOT total of 3.
-#   D-G: see each block. D and F1/F2/F4/F6 are negative controls for false
-#   flags the first version of this fix introduced (bullet lists, two-column flows).
+#   D-I: see each block. D, F1/F2/F4/F6 and H are negative controls for false
+#   flags earlier versions of this fix introduced (bullet lists, two-column
+#   flows, hyphenated clinical terms such as D-dimer or Y-90).
 # The negative control is a consistent PRISMA flow whose prose also carries
 # decoy numbers (follow-up months, a table number, a citation, "1,500") and a
 # multi-line CSV record; it must stay clean.
@@ -229,6 +230,39 @@ printf 'screening: {full_text_assessed: "about 25", full_text_excluded: 13}\ninc
 python3 "$SCRIPT" --ssot "$TMP/g/prisma.yaml" --project-root "$TMP/g" > /dev/null 2> "$TMP/g/err"
 assert_exit "G: non-numeric SSOT count (exit 2)" 2 $?
 if grep -q Traceback "$TMP/g/err"; then echo "  FAIL  G: traceback"; fail=$((fail + 1)); fi
+
+# --------------------------------------------------------------------------
+# H (negative): a count followed by a clinical term that starts with a
+# single-letter "unit" and then "-" or ".". Round 2 read the letter as a unit
+# (d, g, s, h, y, l, m) and reported the stated k missing.
+# --------------------------------------------------------------------------
+mkdir -p "$TMP/h/7_Manuscript"
+cp "$TMP/d/prisma.yaml" "$TMP/h/prisma.yaml"
+for txt in "12 D-dimer studies were included." "12 G-tube trials were included." \
+           "12 S-ketamine trials were included." "12 H. pylori trials were included." \
+           "12 Y-90 radioembolization studies were included." "12 L-dopa trials were included." \
+           "12 m-Health studies were included." "12 G-CSF trials were included." \
+           "12 S. aureus studies were included." "12 d-amphetamine trials were included."; do
+    printf '%s\n' "$txt" > "$TMP/h/7_Manuscript/methods.md"
+    python3 "$SCRIPT" --ssot "$TMP/h/prisma.yaml" --project-root "$TMP/h" --json > "$TMP/h/out.json"
+    assert_exit "H: '$txt' states k (PASS)" 0 $?
+done
+
+# --------------------------------------------------------------------------
+# I: k appears only as a measurement; must stay a FAIL. Covers short units at
+# a sentence or line end and a non-breaking space (U+00A0 / U+202F) before the
+# unit, which a Word or pandoc conversion produces.
+# --------------------------------------------------------------------------
+mkdir -p "$TMP/i/7_Manuscript"
+cp "$TMP/d/prisma.yaml" "$TMP/i/prisma.yaml"
+for txt in "Nine studies. Follow-up was 12 y." "Nine studies; median follow-up 12 y" \
+           "Nine studies; follow-up 12 mo." "Nine studies; a 12-d course." \
+           "Nine studies; 12 h after dosing, then" "Nine studies; 12 mL bolus." \
+           $'Nine studies. Follow-up was 12\xc2\xa0months.' $'Nine studies; 12\xe2\x80\xaf% lost.'; do
+    printf '%s\n' "$txt" > "$TMP/i/7_Manuscript/methods.md"
+    python3 "$SCRIPT" --ssot "$TMP/i/prisma.yaml" --project-root "$TMP/i" --json > "$TMP/i/out.json"
+    assert_exit "I: k matched only by '$txt' (FAIL)" 1 $?
+done
 
 echo ""
 echo "ran=$ran fail=$fail"

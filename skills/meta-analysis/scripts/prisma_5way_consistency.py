@@ -130,11 +130,28 @@ def count_csv_rows(csv_glob: str, project_root: Path) -> int:
 
 
 # A number followed by one of these is a measurement, not a PRISMA count.
+# "[^\S\r\n]" is any whitespace except a line break (so a non-breaking space
+# from a Word/pandoc conversion still joins "12" to "months", but the next
+# bullet's "- Years" on a new line does not).
+_HSPACE = r"[^\S\r\n]"
+# Multi-letter units: case-insensitive, end at a word boundary.
+_LONG_UNITS = (
+    r"(?:months?|years?-old|year-old|years?|yrs?|weeks?|wks?|days?|hours?|hrs?|"
+    r"minutes?|mins?|seconds?|mg|kg|mcg|µg|ml|cm|mm|kDa|Gy|mmHg|bpm|fold|times)\b"
+)
+# One- and two-letter units are lower case (plus "L" for litre) and count only
+# when the token ends there: not followed by a letter or digit, by "-" or "."
+# then a letter or digit, or by ". " then a lower-case word. Otherwise
+# "12 D-dimer", "12 G-tube", "12 S-ketamine", "12 H. pylori", "12 Y-90",
+# "12 L-dopa", "12 m-Health" and "G-CSF" would read as measurements and hide
+# the count they state.
+_SHORT_UNITS = (
+    r"(?-i:mo|y|d|h|s|m|g|l|L)"
+    r"(?![\w])(?![-.\u2013\u2014]\w)(?!\.[^\S\r\n]+[a-z])"
+)
 _UNIT_RE = (
-    r"(?:%|percent\b|per[ \t]*cent\b|"
-    r"(?:[-\u2013\u2014][ \t]*|[ \t]+)?(?:months?|mo|years?|yrs?|y|weeks?|wks?|days?|d|hours?|hrs?|h|"
-    r"minutes?|mins?|seconds?|s|mg|kg|g|mcg|µg|ml|mL|l|L|cm|mm|m|kDa|Gy|mmHg|bpm|"
-    r"years?-old|year-old|fold|times)\b)"
+    rf"(?:%|percent\b|per{_HSPACE}*cent\b|"
+    rf"(?:[-\u2013\u2014]{_HSPACE}*|{_HSPACE}+)?(?:{_LONG_UNITS}|{_SHORT_UNITS}))"
 )
 # A number preceded by one of these labels something else (a table, a citation).
 _LABEL_BEFORE_RE = re.compile(
@@ -150,7 +167,7 @@ def _count_pattern(val: int) -> re.Pattern:
         forms.append(f"{val:,}")
     alts = "|".join(re.escape(f) for f in sorted(forms, key=len, reverse=True))
     return re.compile(
-        rf"(?<![\d.,])(?:{alts})(?!\d)(?!\.\d)(?!,\d{{3}})(?![ \t]*{_UNIT_RE})",
+        rf"(?<![\d.,])(?:{alts})(?!\d)(?!\.\d)(?!,\d{{3}})(?!{_HSPACE}*{_UNIT_RE})",
         re.IGNORECASE,
     )
 
