@@ -21,8 +21,12 @@ OUTPUT
   Per (reference-level, dose) pair: counts of
     - implied_zero_missing : category == reference AND dose is NULL/blank   (FIX)
     - implied_zero_nonzero : category == reference AND dose > 0  (mislabeled — review)
+    - implied_zero_invalid : category == reference AND dose is non-numeric
+                             (e.g. "unknown") or negative (e.g. a -9/-99
+                             sentinel) — not a valid zero          (REVIEW)
     - implied_zero_ok      : category == reference AND dose == 0
-  Exit 1 (with --strict) if any implied_zero_missing rows exist.
+  Exit 1 (with --strict) if any implied_zero_missing or implied_zero_invalid
+  rows exist.
 
 Stdlib-only (csv / json / argparse). Exit codes: 0 clean (or report-only),
 1 contradiction rows found (with --strict), 2 input/usage error.
@@ -81,8 +85,9 @@ def analyze(data: str, category_col: str, reference: str, dose_cols: list[str]) 
     ref = _norm(reference)
     results = []
     total_missing = 0
+    total_invalid = 0
     for d, dkey in dose_keys.items():
-        miss = nonzero = ok = ref_n = 0
+        miss = nonzero = invalid = ok = ref_n = 0
         for r in rows:
             if _norm(r.get(cat_key, "")) != ref:
                 continue
@@ -92,21 +97,25 @@ def analyze(data: str, category_col: str, reference: str, dose_cols: list[str]) 
                 miss += 1
             else:
                 val = _to_float(raw)
-                if val is None:
-                    continue            # non-numeric, not our concern here
-                if val > 0:
+                if val is None or val != val or val < 0:
+                    invalid += 1        # unparseable, NaN or negative sentinel: not a zero
+                elif val > 0:
                     nonzero += 1
                 else:
                     ok += 1
         total_missing += miss
+        total_invalid += invalid
         results.append({
             "dose_col": d,
             "reference_level": reference,
             "reference_n": ref_n,
             "implied_zero_missing": miss,
             "implied_zero_nonzero": nonzero,
+            "implied_zero_invalid": invalid,
             "implied_zero_ok": ok,
-            "verdict": "FIX_STRUCTURAL_ZERO" if miss else ("REVIEW_MISLABEL" if nonzero else "OK"),
+            "verdict": ("FIX_STRUCTURAL_ZERO" if miss else
+                        "REVIEW_INVALID_DOSE" if invalid else
+                        "REVIEW_MISLABEL" if nonzero else "OK"),
         })
 
     return {
@@ -115,6 +124,7 @@ def analyze(data: str, category_col: str, reference: str, dose_cols: list[str]) 
         "n_rows": len(rows),
         "results": results,
         "total_implied_zero_missing": total_missing,
+        "total_implied_zero_invalid": total_invalid,
         "suggested_fix": (
             f"Set dose = 0 where {category_col} == '{reference}' (structural zero), "
             "then impute only the residual missingness among the exposed."
@@ -124,14 +134,15 @@ def analyze(data: str, category_col: str, reference: str, dose_cols: list[str]) 
 
 def render(result: dict) -> str:
     lines = [
-        "| Dose col | ref n | implied-zero MISSING | nonzero (mislabel) | zero (ok) | Verdict |",
-        "|---|---|---|---|---|---|",
+        "| Dose col | ref n | implied-zero MISSING | nonzero (mislabel) | invalid (non-numeric/negative) | zero (ok) | Verdict |",
+        "|---|---|---|---|---|---|---|",
     ]
     for r in result["results"]:
-        mark = {"FIX_STRUCTURAL_ZERO": "✗ Fix", "REVIEW_MISLABEL": "△ Review", "OK": "✓"}[r["verdict"]]
+        mark = {"FIX_STRUCTURAL_ZERO": "✗ Fix", "REVIEW_INVALID_DOSE": "✗ Review",
+                "REVIEW_MISLABEL": "△ Review", "OK": "✓"}[r["verdict"]]
         lines.append(
             f"| {r['dose_col']} | {r['reference_n']} | {r['implied_zero_missing']} | "
-            f"{r['implied_zero_nonzero']} | {r['implied_zero_ok']} | {mark} |"
+            f"{r['implied_zero_nonzero']} | {r['implied_zero_invalid']} | {r['implied_zero_ok']} | {mark} |"
         )
     return "\n".join(lines)
 
@@ -144,7 +155,7 @@ def main() -> int:
     ap.add_argument("--dose-col", required=True, action="append",
                     help="dose/duration column (repeatable)")
     ap.add_argument("--out", help="write JSON artifact to this path")
-    ap.add_argument("--strict", action="store_true", help="exit 1 if any implied-zero-missing rows")
+    ap.add_argument("--strict", action="store_true", help="exit 1 if any implied-zero-missing or invalid-dose rows")
     args = ap.parse_args()
 
     result = analyze(args.data, args.category_col, args.reference_level, args.dose_col)
@@ -159,7 +170,11 @@ def main() -> int:
         print(f"FIX: {result['total_implied_zero_missing']} reference-level row(s) store the implied "
               f"zero as missing.")
         print(result["suggested_fix"])
-    else:
+    if result["total_implied_zero_invalid"]:
+        print(f"REVIEW: {result['total_implied_zero_invalid']} reference-level row(s) hold a non-numeric "
+              f"or negative dose (e.g. 'unknown' or a -9/-99 sentinel); these are not valid zeros. "
+              f"Resolve each against the codebook before setting it to 0 or missing.")
+    if not result["total_implied_zero_missing"] and not result["total_implied_zero_invalid"]:
         print("OK: no categorical-implied-zero stored as missing.")
 
     if args.out:
@@ -167,7 +182,8 @@ def main() -> int:
         Path(args.out).write_text(json.dumps({"detector": "check_structural_zero", **result}, indent=2), encoding="utf-8")
         print(f"\nwrote {args.out}")
 
-    return 1 if (args.strict and result["total_implied_zero_missing"]) else 0
+    flagged = result["total_implied_zero_missing"] or result["total_implied_zero_invalid"]
+    return 1 if (args.strict and flagged) else 0
 
 
 if __name__ == "__main__":

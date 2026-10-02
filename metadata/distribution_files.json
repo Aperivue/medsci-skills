@@ -958,8 +958,8 @@
     },
     {
       "path": "skills/clean-data/references/profiling_template.py",
-      "size": 10805,
-      "sha256": "e0860f86d9421bd488743903afeb483418c18904ff5460d49b6a2611c924b700"
+      "size": 11413,
+      "sha256": "be90e05c4f4e98733b05749195ffe673c98b7b3844e77f14c6927ef3172468cf"
     },
     {
       "path": "skills/clean-data/scripts/check_reverse_coding.py",
@@ -968,8 +968,8 @@
     },
     {
       "path": "skills/clean-data/scripts/check_structural_zero.py",
-      "size": 6655,
-      "sha256": "357b896db5730b8c2e65d327359556020f1579633134419efb7a1898cfc76657"
+      "size": 7821,
+      "sha256": "66df285401b8d5140972630cb811d574cff7444d45499c6aa175b54e716b28cb"
     },
     {
       "path": "skills/clean-data/skill.yml",
