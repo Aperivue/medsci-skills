@@ -245,7 +245,14 @@ correct the response wording. `RESPONSE_QUOTE_UNRESOLVED` is **minor** and does 
 the quoted words are all present in order but separated by extraction debris (a reference column
 bled in from a two-column PDF, proof line numbers, a footnote marker, a hyphen split across a line).
 Look at it by eye; do not delete a quote because of this verdict — accurate quotes have nearly been
-deleted that way.
+deleted that way. The tolerance stops at content: when the only near-match in the body differs from
+the quote by a number (the letter says 0.92, the body 0.87) or by a negation ("not", "no", "never"
+on one side only), the verdict is `RESPONSE_QUOTE_UNVERIFIED` (major), because that is a different
+claim, not extraction debris. A numeric citation counts only as a whole bracket element or inside a
+range: a claimed [5] is not satisfied by [15].
+
+Known limits: a citation claim passes when ANY of its cited tokens is in the body, so "we now cite
+[15] and [16]" passes with only [15] inserted; check multi-citation claims by eye.
 
 **If a reviewer called the manuscript too long or too dense, prove the body got shorter.**
 Answering a density comment point-by-point adds a sentence per point, so the revision that responds
@@ -260,7 +267,9 @@ python3 ${CLAUDE_SKILL_DIR}/scripts/check_density_complaint.py \
 
 `DENSITY_COMPLAINT_UNADDRESSED` fires only when the decision letter contains a density/length
 complaint AND the body word count (Introduction through Discussion, citation markers excluded) did
-not fall; with no complaint it stays silent. When it fires, cut or move detail to the supplement; do
+not fall. Section boundaries are headings only (a markdown heading, or a standalone short line as a
+.docx paragraph extracts, optionally numbered or bold), so a body sentence that begins
+"Supplementary Table S3 ..." does not end the body; with no complaint it stays silent. When it fires, cut or move detail to the supplement; do
 not defend the length by adding a paragraph that explains it.
 
 ---

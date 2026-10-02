@@ -61,11 +61,29 @@ COMPLAINT = re.compile(
 
 # Section headings, in reviewer-count order. Body = first Introduction..Introduction-like heading
 # through the end of Discussion / before References.
-BODY_START = re.compile(r"^#{0,4}\s*\**\s*(introduction|background)\b", re.IGNORECASE | re.MULTILINE)
-BODY_END = re.compile(r"^#{0,4}\s*\**\s*(references|acknowledg|funding|conflict|"
-                      r"data availability|supplementary|supporting information|figure legends?)\b",
-                      re.IGNORECASE | re.MULTILINE)
-ABSTRACT = re.compile(r"^#{0,4}\s*\**\s*abstract\b", re.IGNORECASE | re.MULTILINE)
+#
+# A boundary must be a HEADING, not a body line that happens to start with the word: a Results
+# sentence "Supplementary Table S3 gives ..." or a Methods sentence "Funding sources had no
+# role ..." used to cut the body there, so a longer revision was measured shorter and cleared.
+# A heading is either a markdown heading (#..######) or a standalone line (as a .docx paragraph
+# extracts) holding only the keyword and at most a few more words, optionally bold, optionally
+# numbered ("2. Introduction"), optionally ending in a colon, with no sentence punctuation.
+_NUM = r"(?:\d+(?:\.\d+)*\.?[ \t]+)?"
+
+
+def _heading(keywords: str) -> re.Pattern:
+    return re.compile(
+        r"^(?:#{1,6}[ \t]*\**[ \t]*" + _NUM + r"(?:" + keywords + r")\b"
+        r"|[ \t]*(?:\*\*|__)?[ \t]*" + _NUM + r"(?:" + keywords + r")\w*"
+        r"(?:[ \t]+[A-Za-z&]+){0,3}[ \t]*(?:\*\*|__)?[ \t]*:?[ \t]*(?:\*\*|__)?[ \t]*$)",
+        re.IGNORECASE | re.MULTILINE,
+    )
+
+
+BODY_START = _heading(r"introduction|background")
+BODY_END = _heading(r"references|acknowledg|funding|conflict|"
+                    r"data availability|supplementary|supporting information|figure legends?")
+ABSTRACT = _heading(r"abstract")
 
 CITATION = re.compile(r"\[[\d,\s–\-]+\]|\((?:[A-Z][A-Za-z'`-]+(?: et al\.?)?,?\s*\d{4}[a-z]?;?\s*)+\)")
 

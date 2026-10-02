@@ -25,6 +25,11 @@ checkable anchor, so paraphrase and honest rewording do not false-positive:
     as drift. A contiguous substring test cannot tell these apart and calls a
     correct quote absent — the failure that once came one step from having two
     accurate verbatim quotes deleted. Matching lives in _quote_match.py.
+    A quote whose tolerated gaps change what it SAYS is not extraction damage, so it is
+    graded RESPONSE_QUOTE_UNVERIFIED (major) instead: a quoted number missing from the
+    body's matching sentence (the letter says 0.92, the body 0.87), or a negator ('not',
+    'no', 'never', ...) present on one side only. Foreign numbers inserted into the body
+    stay tolerated, because proof line numbers and footnote markers are exactly that.
   * RESPONSE_CITATION_UNVERIFIED (major) — the letter says a citation was added
     / "now cite(d)", but none of the cited tokens ([N] / [@key] / Author et al.)
     appear in the revised manuscript body.
@@ -53,7 +58,7 @@ import unicodedata
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from _quote_match import match_quality  # noqa: E402  (same-dir helper)
+from _quote_match import MAX_GAP, match_quality, tokens  # noqa: E402  (same-dir helper)
 
 # A claim that asserts an addition/edit to the manuscript.
 CLAIM_VERB = re.compile(
@@ -83,6 +88,15 @@ PARA_BREAK = re.compile(r"\n[ \t]*\n")
 CIT_NUMERIC = re.compile(r"\[(\d{1,3}(?:\s*[,–-]\s*\d{1,3})*)\]")
 CIT_BIBKEY = re.compile(r"\[@([A-Za-z0-9_:.\-]+)\]")
 CIT_AUTHOR = re.compile(r"\b([A-Z][A-Za-zÀ-ſ'-]{2,})\s+et\s+al\.?")
+
+# Tokens whose loss or insertion changes what a quoted sentence asserts. A missing quote
+# token that holds a digit, or a negator on one side only, is a content edit, not the
+# extraction damage the matcher tolerates. Closed list, compared token-for-token against the
+# matched run; this is not a scan of free prose.
+NEGATORS = frozenset({"not", "no", "never", "nor", "neither", "none", "cannot", "without"})
+# A negation edit inserts a short run ('not', 'did not reduce'); a bled reference column is
+# a long one. Numeric tokens (line numbers, footnote markers) are left out of the length.
+NEGATION_GAP_MAX = 3
 
 # Chars after a claim verb in which its object must START. A quotation that opens inside
 # the window is read to its own closing mark however long it runs: truncating it at the
@@ -186,10 +200,73 @@ def extract_claims(response: str):
             cits.append(("key", cm.group(1)))
         for cm in CIT_AUTHOR.finditer(window):
             cits.append(("author", cm.group(1)))
-        # only treat a verb as a citation claim if the verb itself is citation-ish
-        if cits and re.search(r"cit|reference", m.group(0), re.IGNORECASE):
+        # Only treat a verb as a citation claim if the claim is citation-ish. The leftmost
+        # verb alternative wins, so in 'We have added a reference to X [15]' m.group(0) is
+        # just 'We have added': the intent words sit between the verb and the first citation
+        # token, in the same sentence, and are read there.
+        if cits and _citation_intent(m.group(0), window):
             claims.append(("citation", cits, ctx))
     return claims
+
+
+def _citation_intent(verb: str, window: str) -> bool:
+    """True if the claim verb, or the same-sentence text between it and the first citation
+    token in the window, says a citation/reference was added."""
+    if re.search(r"cit|reference", verb, re.IGNORECASE):
+        return True
+    firsts = [rx.search(window) for rx in (CIT_NUMERIC, CIT_BIBKEY, CIT_AUTHOR)]
+    first = min((f.start() for f in firsts if f), default=0)
+    lead = window[:first]
+    brk = PARA_BREAK.search(lead)
+    if brk:
+        lead = lead[: brk.start()]
+    end = re.search(r"(?<!\bal)[.!?](?:\s|$)", lead)
+    if end:
+        lead = lead[: end.start()]
+    return bool(re.search(r"\bcit|\breference", lead, re.IGNORECASE))
+
+
+def _is_negator(tok: str) -> bool:
+    return tok in NEGATORS or tok.endswith("n't")
+
+
+def content_mismatch(quote: str, body: str) -> dict:
+    """Content tokens that differ between the quote and its best ordered run in the body.
+
+    Re-walks the matcher's ordered run (same MAX_GAP window, greedy per token) recording WHAT
+    was skipped: quote tokens missing from the run, and body tokens wedged into it. Returns
+    {"missing_numbers": [...], "negators": [...]}; both empty means the tolerated gaps are
+    content-free and the extraction-damage reading stands."""
+    q, h = tokens(quote), tokens(body)
+    best = None
+    wanted = set(q)
+    for start in [i for i, t in enumerate(h) if t in wanted]:
+        hi, matched, missing, gaps = start, 0, [], []
+        for tok in q:
+            found = -1
+            for j in range(hi, min(hi + MAX_GAP + 1, len(h))):
+                if h[j] == tok:
+                    found = j
+                    break
+            if found < 0:
+                missing.append(tok)
+                continue
+            if found > hi and matched:
+                gaps.append(h[hi:found])
+            matched += 1
+            hi = found + 1
+        if best is None or matched > best[0]:
+            best = (matched, missing, gaps)
+    if best is None:
+        return {"missing_numbers": [], "negators": []}
+    _, missing, gaps = best
+    nums = [t for t in missing if any(c.isdigit() for c in t)]
+    negs = [t for t in missing if _is_negator(t)]
+    for gap in gaps:
+        words = [t for t in gap if not t.isdigit()]
+        if len(words) <= NEGATION_GAP_MAX:
+            negs.extend(t for t in words if _is_negator(t))
+    return {"missing_numbers": nums, "negators": negs}
 
 
 def grade_quote(body: str, quote: str) -> dict:
@@ -205,16 +282,33 @@ def grade_quote(body: str, quote: str) -> dict:
 
 def body_has_citation(body: str, norm_body: str, cits) -> bool:
     """True if ANY cited token appears in the body (conservative: any-match passes)."""
+    nums = None
     for kind, tok in cits:
-        if kind == "num" and re.search(r"\[\s*\d*[,\s–-]*" + re.escape(tok) + r"\b", body):
-            return True
-        if kind == "num" and ("[" + tok + "]") in body:
-            return True
+        if kind == "num":
+            if nums is None:
+                nums = body_numeric_citations(body)
+            if int(tok) in nums:
+                return True
         if kind == "key" and ("@" + tok) in body:
             return True
         if kind == "author" and normalize(tok) in norm_body:
             return True
     return False
+
+
+def body_numeric_citations(body: str) -> set:
+    """Every reference number cited in a bracket list in the body, ranges expanded.
+
+    Whole elements only: [15] does not cite 5, and [14-17] cites 16."""
+    out: set = set()
+    for cm in CIT_NUMERIC.finditer(body):
+        for part in cm.group(1).split(","):
+            ends = [int(x) for x in re.split(r"\s*[–-]\s*", part.strip()) if x.strip()]
+            if len(ends) == 2 and ends[0] <= ends[1]:
+                out.update(range(ends[0], ends[1] + 1))
+            else:
+                out.update(ends)
+    return out
 
 
 def build_report(response_path: Path, manuscript_path: Path) -> dict:
@@ -225,6 +319,29 @@ def build_report(response_path: Path, manuscript_path: Path) -> dict:
     for kind, anchor, ctx in extract_claims(response):
         if kind == "quote":
             g = grade_quote(body, anchor)
+            if g["grade"] in ("INTERLEAVED", "PARTIAL"):
+                cm = content_mismatch(anchor, body)
+                if cm["missing_numbers"] or cm["negators"]:
+                    what = []
+                    if cm["missing_numbers"]:
+                        what.append("quoted number(s) " + ", ".join(cm["missing_numbers"]) + " not in the body's sentence")
+                    if cm["negators"]:
+                        what.append("negation (" + ", ".join(cm["negators"]) + ") on one side only")
+                    findings.append(
+                        {
+                            "verdict": "RESPONSE_QUOTE_UNVERIFIED",
+                            "severity": "major",
+                            "claimed_text": anchor,
+                            "context": ctx,
+                            "match": {**g, "content_mismatch": cm},
+                            "message": (
+                                "The quoted sentence is in the body only with its content changed: "
+                                + "; ".join(what)
+                                + ". A changed number or negation is a different claim, not extraction damage."
+                            ),
+                        }
+                    )
+                    continue
             if g["grade"] == "INTERLEAVED":
                 findings.append(
                     {

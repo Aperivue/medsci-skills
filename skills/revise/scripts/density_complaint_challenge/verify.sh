@@ -59,6 +59,33 @@ assert d["delta_words"] > 0 and d["density_complaints"], d
 print("  PASS  JSON report has verdict + delta + complaints")
 PY
 
+# 5) a body LINE that starts with an end-section word is not a heading. "Supplementary Table S3
+#    gives ..." in Results used to end the body there, so a longer revision measured shorter.
+FILL="The cohort included adults with suspected disease who underwent imaging and follow up at the study centre."
+printf 'Reviewer 1: The manuscript is too long and should be shortened.\n' > "$TMP/letter.md"
+printf '## Introduction\n%s\n%s\n## Results\n%s\n%s\n## Discussion\n%s\n## References\n1. Ref.\n' \
+  "$FILL" "$FILL" "$FILL" "$FILL" "$FILL" > "$TMP/prev.md"
+printf '## Introduction\n%s\n%s\n## Results\n%s\nSupplementary Table S3 gives the per-site estimates.\n%s\n%s\n%s\n## Discussion\n%s\n%s\n## References\n1. Ref.\n' \
+  "$FILL" "$FILL" "$FILL" "$FILL" "$FILL" "$FILL" "$FILL" "$FILL" > "$TMP/rev_supp.md"
+python3 "$DET" --comments "$TMP/letter.md" --previous "$TMP/prev.md" --revised "$TMP/rev_supp.md" --strict >/dev/null 2>&1
+ck "body line 'Supplementary Table ...' is not a heading" 1 "$?"
+printf '## Introduction\n%s\nFunding sources had no role in the design of this study.\n%s\n%s\n## Results\n%s\n%s\n## Discussion\n%s\n## References\n1. Ref.\n' \
+  "$FILL" "$FILL" "$FILL" "$FILL" "$FILL" "$FILL" > "$TMP/rev_fund.md"
+python3 "$DET" --comments "$TMP/letter.md" --previous "$TMP/prev.md" --revised "$TMP/rev_fund.md" --strict >/dev/null 2>&1
+ck "body line 'Funding sources had ...' is not a heading" 1 "$?"
+# controls: real headings still end the body, as plain .docx-style lines, bold, or numbered,
+# so a genuinely cut revision still clears.
+printf 'Introduction\n%s\n%s\nResults\n%s\n%s\nDiscussion\n%s\nSupplementary Material\n%s\n%s\n%s\nReferences\n1. Ref.\n' \
+  "$FILL" "$FILL" "$FILL" "$FILL" "$FILL" "$FILL" "$FILL" "$FILL" > "$TMP/prev_plain.md"
+printf 'Introduction\n%s\n%s\nResults\n%s\nDiscussion\n%s\nSupplementary Material\n%s\n%s\n%s\n%s\nReferences\n1. Ref.\n' \
+  "$FILL" "$FILL" "$FILL" "$FILL" "$FILL" "$FILL" "$FILL" "$FILL" > "$TMP/rev_plain_cut.md"
+python3 "$DET" --comments "$TMP/letter.md" --previous "$TMP/prev_plain.md" --revised "$TMP/rev_plain_cut.md" --strict >/dev/null 2>&1
+ck "plain-line 'Supplementary Material' heading still ends body" 0 "$?"
+printf '## 1. Introduction\n%s\n## 2. Results\n%s\n**Funding**\n%s\n%s\n%s\n' \
+  "$FILL" "$FILL" "$FILL" "$FILL" "$FILL" > "$TMP/rev_num_cut.md"
+python3 "$DET" --comments "$TMP/letter.md" --previous "$TMP/prev.md" --revised "$TMP/rev_num_cut.md" --strict >/dev/null 2>&1
+ck "numbered + bold headings bound a cut revision" 0 "$?"
+
 echo
 echo "  $pass passed, $fail failed"
 [ "$fail" -eq 0 ] || exit 1

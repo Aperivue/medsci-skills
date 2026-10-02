@@ -202,6 +202,69 @@ printf '## Methods\nEach reader'"'"'s threshold was fixed before the test set wa
 python3 "$V" --response "$TMP/resp_apos.md" --manuscript "$TMP/body_apos_other.md" 2>&1 | grep -q RESPONSE_QUOTE
 ck "a different subject before the apostrophe is not verified" 0 "$?"
 
+# --- a changed number or negation is a different claim, not extraction damage ------------
+# The tolerant matcher let a quote through as minor UNRESOLVED when the body differed by one
+# number ("0.92" vs "0.87") or by a "not" — a changed result or a flipped finding passed
+# --strict. Those are now major. Synthetic text only.
+printf '**Response 7.** The sentence now reads "the sensitivity of the model was 0.92 in the external test set".\n' > "$TMP/resp_num.md"
+printf '## Results\nThe sensitivity of the model was 0.87 in the external test set.\n' > "$TMP/body_num_changed.md"
+python3 "$V" --response "$TMP/resp_num.md" --manuscript "$TMP/body_num_changed.md" --strict > /dev/null 2>&1
+ck "quoted number changed in body fails (--strict)" 1 "$?"
+python3 "$V" --response "$TMP/resp_num.md" --manuscript "$TMP/body_num_changed.md" 2>&1 | grep -q RESPONSE_QUOTE_UNVERIFIED
+ck "quoted number changed reports UNVERIFIED" 0 "$?"
+# control: same number, proof line numbers wedged in -> still extraction damage, not drift
+printf '## Results\n41 The sensitivity of the model 42 was 0.92 in the external test set.\n' > "$TMP/body_num_linenum.md"
+python3 "$V" --response "$TMP/resp_num.md" --manuscript "$TMP/body_num_linenum.md" --strict > /dev/null 2>&1
+ck "same number + line numbers is not drift (--strict)" 0 "$?"
+
+printf '**Response 8.** We added the sentence "age was associated with mortality in the adjusted model".\n' > "$TMP/resp_neg_add.md"
+printf '## Results\nAge was not associated with mortality in the adjusted model.\n' > "$TMP/body_neg_add.md"
+python3 "$V" --response "$TMP/resp_neg_add.md" --manuscript "$TMP/body_neg_add.md" --strict > /dev/null 2>&1
+ck "negation added in body fails (--strict)" 1 "$?"
+printf '**Response 9.** We added the sentence "age was not associated with mortality in the adjusted model".\n' > "$TMP/resp_neg_drop.md"
+printf '## Results\nAge was associated with mortality in the adjusted model.\n' > "$TMP/body_neg_drop.md"
+python3 "$V" --response "$TMP/resp_neg_drop.md" --manuscript "$TMP/body_neg_drop.md" --strict > /dev/null 2>&1
+ck "negation dropped from body fails (--strict)" 1 "$?"
+# control: the negated sentence is present as quoted -> passes
+python3 "$V" --response "$TMP/resp_neg_drop.md" --manuscript "$TMP/body_neg_add.md" --strict > /dev/null 2>&1
+ck "negated quote present as quoted passes (--strict)" 0 "$?"
+# control: a bled reference line that happens to contain "not" is still extraction debris
+printf '## Results\nAge was associated with civile. Why age is not enough. Rev Med Suisse 2019;15:1122. mortality in the adjusted model.\n' > "$TMP/body_neg_bleed.md"
+python3 "$V" --response "$TMP/resp_neg_add.md" --manuscript "$TMP/body_neg_bleed.md" --strict > /dev/null 2>&1
+ck "bled reference line containing 'not' is not drift" 0 "$?"
+
+# --- citation intent read past a leading 'We (have) added' --------------------------------
+# The leftmost verb alternative 'we (have) added' swallowed the match, so 'added the citation'
+# / 'added a reference' were never seen and the claim was never checked.
+printf '**Response 10.** We added the citation [15] to the Discussion.\n' > "$TMP/resp_cit_added.md"
+printf '**Response 11.** We have added a reference to Tariq et al. [15] in the Discussion.\n' > "$TMP/resp_ref_added.md"
+python3 "$V" --response "$TMP/resp_cit_added.md" --manuscript "$TMP/body_bad.md" --strict > /dev/null 2>&1
+ck "'We added the citation [15]' absent fails (--strict)" 1 "$?"
+python3 "$V" --response "$TMP/resp_ref_added.md" --manuscript "$TMP/body_bad.md" --strict > /dev/null 2>&1
+ck "'We have added a reference to X [15]' absent fails" 1 "$?"
+python3 "$V" --response "$TMP/resp_ref_added.md" --manuscript "$TMP/body_good.md" --strict > /dev/null 2>&1
+ck "'We have added a reference to X [15]' present passes" 0 "$?"
+# control: an added SENTENCE that merely mentions a cited study is not a citation claim
+printf '**Response 12.** We added a limitation paragraph to the Discussion, as Tariq et al. [15] suggested.\n' > "$TMP/resp_not_cit.md"
+python3 "$V" --response "$TMP/resp_not_cit.md" --manuscript "$TMP/body_bad.md" --strict > /dev/null 2>&1
+ck "added text mentioning a study is not a citation claim" 0 "$?"
+
+# --- numeric citations match whole bracket elements --------------------------------------
+printf '**Response 13.** We now cite [5] in the Discussion.\n' > "$TMP/resp_cit5.md"
+printf '## Discussion\nPrior work agrees [15].\n' > "$TMP/body_cit15.md"
+python3 "$V" --response "$TMP/resp_cit5.md" --manuscript "$TMP/body_cit15.md" --strict > /dev/null 2>&1
+ck "claimed [5] is not satisfied by [15] (--strict)" 1 "$?"
+printf '## Discussion\nPrior work agrees [25, 31].\n' > "$TMP/body_cit25.md"
+python3 "$V" --response "$TMP/resp_cit5.md" --manuscript "$TMP/body_cit25.md" --strict > /dev/null 2>&1
+ck "claimed [5] is not satisfied by [25, 31] (--strict)" 1 "$?"
+# controls: the number as a later list element, and inside a range, are real citations
+printf '## Discussion\nPrior work agrees [2, 3, 5].\n' > "$TMP/body_cit_list.md"
+python3 "$V" --response "$TMP/resp_cit5.md" --manuscript "$TMP/body_cit_list.md" --strict > /dev/null 2>&1
+ck "claimed [5] found as third list element passes" 0 "$?"
+printf '## Discussion\nPrior work agrees [3–7].\n' > "$TMP/body_cit_range.md"
+python3 "$V" --response "$TMP/resp_cit5.md" --manuscript "$TMP/body_cit_range.md" --strict > /dev/null 2>&1
+ck "claimed [5] found inside range [3-7] passes" 0 "$?"
+
 echo "----"
 echo "test_response_claims: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]
