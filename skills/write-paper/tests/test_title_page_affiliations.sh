@@ -68,6 +68,32 @@ Alice Lee^1^; Bob Park^2^
 MD
 ck "missing city/country is soft (exit 0)" "$([ "$(rc python3 "$S" --check "$TMP/nocity.md")" = "0" ] && echo 1 || echo 0)"
 
+# --- CHECK: one author per line (F3). Main read only the densest line, so with one
+#     ^N^ per line it parsed the first author alone and a 1,3,2 numbering passed. ---
+cat > "$TMP/perline_bad.md" <<'MD'
+Jane Doe^1^\
+John Roe^3^\
+Alan Poe^2^
+
+^1^ Department of X, Hospital A, Seoul, Republic of Korea
+^2^ Department of Y, Hospital B, Busan, Republic of Korea
+^3^ Department of Z, Hospital C, Daegu, Republic of Korea
+MD
+ck "one-author-per-line out-of-order numbering fails (--strict)" "$([ "$(rc python3 "$S" --check "$TMP/perline_bad.md" --strict)" = "1" ] && echo 1 || echo 0)"
+ck "one-author-per-line: first_appearance_order reported" "$(python3 "$S" --check "$TMP/perline_bad.md" 2>/dev/null | grep -c 'first_appearance_order')"
+# negative control: the same layout numbered in author order stays clean
+cat > "$TMP/perline_ok.md" <<'MD'
+Jane Doe^1^\
+John Roe^2^\
+Alan Poe^3,1^
+
+^1^ Department of X, Hospital A, Seoul, Republic of Korea
+^2^ Department of Y, Hospital B, Busan, Republic of Korea
+^3^ Department of Z, Hospital C, Daegu, Republic of Korea
+MD
+ck "one-author-per-line in author order passes --check --strict" "$([ "$(rc python3 "$S" --check "$TMP/perline_ok.md" --strict)" = "0" ] && echo 1 || echo 0)"
+ck "one-author-per-line in author order: no findings" "$(python3 "$S" --check "$TMP/perline_ok.md" 2>/dev/null | grep -c '^OK:')"
+
 echo "----"
 echo "test_title_page_affiliations: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]

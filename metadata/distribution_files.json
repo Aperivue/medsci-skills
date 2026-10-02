@@ -6218,8 +6218,8 @@
     },
     {
       "path": "skills/write-paper/SKILL.md",
-      "size": 35539,
-      "sha256": "0090a8dd6ba5b56d216baf51081142b1dbf7def92f640322a02493e862255938"
+      "size": 36105,
+      "sha256": "7a46c0d8cbc219496ab73868215d60211feb667e59e6293d39d665e756c4b3c5"
     },
     {
       "path": "skills/write-paper/references/exemplar_abstract.md",
@@ -6768,18 +6768,18 @@
     },
     {
       "path": "skills/write-paper/scripts/build_title_page_affiliations.py",
-      "size": 11723,
-      "sha256": "ff1b29d66c8272c62423f7c31f945041ce2c097b0452097fd88f25777641a3db"
+      "size": 12344,
+      "sha256": "493f2faedcd57639780c5ecd8a59239b166ea5d736ef56b2955c10d91621f8f6"
     },
     {
       "path": "skills/write-paper/scripts/check_placeholders.py",
-      "size": 8998,
-      "sha256": "eb781cf4dbd7246bfd15c76ee09454df024770b8c9633f11e837d92489a36121"
+      "size": 11181,
+      "sha256": "4f2f34cbbe876368c258813ad2e9a01fd69242fc6143c473def8bd13fb88b2f9"
     },
     {
       "path": "skills/write-paper/scripts/gate_backbone_fulltext.py",
-      "size": 8358,
-      "sha256": "fa06f0d38c59b319a6cb892f4fb0beeccbf147ec4377a87d0f4b35a49d607050"
+      "size": 9493,
+      "sha256": "13cb223806474ef29cd8ae0c4be82df775c6c2458f71c244d4bba1059cd70cd0"
     },
     {
       "path": "skills/write-paper/skill.yml",
