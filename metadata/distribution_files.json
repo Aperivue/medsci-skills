@@ -1263,8 +1263,8 @@
     },
     {
       "path": "skills/fill-icmje-coi/SKILL.md",
-      "size": 5192,
-      "sha256": "702cd669f0dda6ab8619158b839f831183082cccaab46557bee966722fddeb1e"
+      "size": 5897,
+      "sha256": "a119ef0a0e5c105233029c2a1fbc57fb0d88c8db170bd7a7697a9c68183e56df"
     },
     {
       "path": "skills/fill-icmje-coi/references/seeds.md",
@@ -1273,8 +1273,8 @@
     },
     {
       "path": "skills/fill-icmje-coi/scripts/fill_icmje_coi.py",
-      "size": 5346,
-      "sha256": "894d94391acf765e1995065c5f7e0e9845139831a6f8459a28c9087537901bed"
+      "size": 6454,
+      "sha256": "01ce3b71c9ae35ec00311872f6bd8cca49dbfa4fab0988cd2a8788d44a947984"
     },
     {
       "path": "skills/fill-icmje-coi/skill.yml",
