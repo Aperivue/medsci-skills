@@ -20,11 +20,11 @@ It checks the things about a deck that are mechanical, and therefore checkable:
 The clock stops at the backup section. Nearly every conference deck carries one — the slides you
 do not present, and open only if someone asks. Counting them against the clock told people to
 delete their Q&A preparation, so the check was wrong in the one place a speaker most needs to be
-prepared. A slide whose headline IS "Backup", "Appendix", "Q&A", "Reserve" or "Supplementary" (the
-whole first line: "Backup slides" and "Backup — Q&A" count, "Appendix perforation in children"
-does not) ends the talk: everything from there on is off the clock. Slides are taken in the order
-they are shown (presentation.xml), and the output says where the clock stopped; --backup-from N
-sets the boundary explicitly when a divider says something else.
+prepared. A slide whose headline starts with "Backup", "Appendix", "Q&A", "Reserve" or
+"Supplementary" ends the talk: everything from there on is off the clock. Slides are taken in the
+order they are shown (presentation.xml), and the output says where the clock stopped, because the
+keyword also matches a short finding that opens with one of those words ("Appendix perforation in
+children"); --backup-from N sets the boundary explicitly when the detected one is wrong.
 
 Density and type size still apply to those slides. Anything you might put on a screen has to be
 readable when it gets there; a backup slide is shown under questioning, which is the worst possible
@@ -123,19 +123,15 @@ def words_on(shapes) -> int:
     return n
 
 
-_BACKUP_KW = (r"(?:back[\s-]?up|appendix|q\s*&\s*a|q\s*and\s*a|reserve|supplement(?:ary)?"
-              r"|백업|부록|예비)")
-_BACKUP_TAIL = r"(?:slides?|section|materials?|자료|슬라이드)"
-# The WHOLE first line must be a signpost: the keyword, optionally a section word ("Backup
-# slides", "백업 슬라이드") or a designator ("Appendix A"), then either nothing but punctuation or a
-# separator and a subtitle ("Backup — Q&A"). Matching only the start made every headline that
-# opens with one of these words a boundary — "Appendix perforation in children", "Supplementary
-# oxygen did not help", "Reserve capacity predicts survival", "예비 연구 결과" — and the clock
-# stopped at slide 2.
+# The keyword heuristic is main's, unchanged: a short first line that STARTS with one of these
+# words. It also matches a finding that opens with one ("Appendix perforation in children"), and
+# that is a known limit. Narrowing it to "the whole line is a signpost" needs a list of the nouns
+# real dividers use ("Supplementary figures", "Backup data", ...); a narrower list stopped clearing
+# real dividers, and a longer one is another prose heuristic. The explicit --backup-from N and the
+# printed boundary are the remedy instead.
 _BACKUP_RE = re.compile(
-    rf"^\W*{_BACKUP_KW}(?:\s+{_BACKUP_TAIL})?(?:\s+(?:[A-Z]|\d{{1,2}}|[IVX]{{1,4}}))?"
-    r"(?:\W*$|\s*[:|·/–—(&-].*$)",
-    re.I)
+    r"^\W*(back[\s-]?up|appendix|q\s*&\s*a|q\s*and\s*a|reserve|supplement(?:ary)?"
+    r"|백업|부록|예비)(?![A-Za-z])", re.I)
 
 
 def is_backup_signpost(line: str) -> bool:
@@ -147,15 +143,16 @@ def find_backup_boundary(slides) -> Optional[int]:
     """Index of the first backup slide, or None. Everything from there on is off the clock.
 
     A backup section opens with a marker slide -- a divider or a heading that says "Backup",
-    "Appendix", "Q&A". We look for that *headline*, and we require the whole headline to be the
-    signpost: a slide whose body happens to discuss "the appendix of the guideline" is not a
-    boundary, and neither is a finding that merely starts with the word ("Appendix perforation in
-    children", "Supplementary oxygen did not help").
+    "Appendix", "Q&A". We look for that *headline*, and we require it to be short: a slide whose
+    body happens to discuss "the appendix of the guideline" is not a boundary, and a nine-word
+    sentence containing the word "reserve" is a sentence, not a signpost. A short finding that
+    opens with one of the words ("Appendix perforation in children") still matches -- a known
+    limit; the CLI prints the slide the clock stopped at, and --backup-from N overrides it.
 
     Headline means the shape's FIRST LINE, not its whole text. A section divider normally carries
     its title and its subtitle in one text frame, so the shape reads
 
-        "Backup\nQ&A -- the four questions this design invites"
+        "Backup\\nQ&A -- the four questions this design invites"
 
     and a guard that measured the whole text threw the boundary away for being ten words long.
     That is not hypothetical: it is how this check failed the first real deck it met.

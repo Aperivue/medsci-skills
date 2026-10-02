@@ -529,9 +529,12 @@ evidence that it is worth keeping.
 (`SLIDE_TOO_DENSE`), and the type floor for the back row (`TYPE_TOO_SMALL`). `--list` prints the
 budgets. It also reports `ZERO_AREA_TEXT`, which decides whether the other three mean anything —
 see Step 3.7. Table text is measured with the rest; chart and SmartArt text lives in parts of its
-own and is not. The clock stops at a backup divider whose whole headline is the signpost
-("Backup", "Backup slides", "Appendix A"), and the output names the slide it stopped at; pass
-`--backup-from N` when the divider says something else.
+own and is not. The clock stops at the first short headline that starts with "Backup",
+"Appendix", "Q&A", "Reserve" or "Supplementary", and the output names the slide it stopped at;
+pass `--backup-from N` when that is not where your backup begins.
+**Known limits:** a short finding that opens with one of those words ("Appendix perforation in
+children") is still taken for the backup divider and stops the clock there; check the printed
+`clock: stops at slide N` line and pass `--backup-from N` when it is wrong.
 
 Six slide-tell verdicts, each one a mark reviewers spot instantly. **Every one must be cleared or
 consciously overruled**, with the reason written down:
