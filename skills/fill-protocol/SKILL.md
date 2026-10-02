@@ -21,8 +21,7 @@ metadata:
 5. **For CJK languages, set the `eastAsia` font attribute**, not just `run.font.name`, or
    Hangul/Kanji/Hanzi render in fallback fonts.
 6. **Validate** every fill operation: resolve every `[MISS]` line and every `WARN:` line
-   (`[TABLE-MISS]`, `[SECTION-MISS]`, `[SECTION-UNBOUNDED]`, `[RAW-NEWLINE]`) before the filled
-   form is submitted.
+   (`[TABLE-MISS]`, `[SECTION-MISS]`, `[RAW-NEWLINE]`) before the filled form is submitted.
 
 ## Dependencies
 
@@ -119,8 +118,15 @@ Investigate every `[MISS]` and `WARN:` before submitting (Principle 6).
 Every value under `table_kv`, `section_replace` and `paragraph_replace` is written exactly as
 typed (`012345`, `12:30`, `1.10`, `No` stay text). An empty value or a list/mapping value stops the
 run with exit 2 and names the label; write `''` to blank a field on purpose. A `section_replace`
-on a header with no later numbered header replaces only the first paragraph after it and keeps
-the rest (`[SECTION-UNBOUNDED]`), so a trailing signature/date block is never deleted.
+on a header with no later numbered header replaces everything to the end of the document, and its
+`[OK]` line says so with the number of paragraphs replaced. If a signature/date block or anything
+else follows the last section, bound it with `section_end` (header -> regex matched against the
+paragraph that starts the kept block):
+
+```yaml
+section_end:
+  "18. References": "^Investigator signature"
+```
 
 ### Step 5 — Visual verification
 
@@ -132,7 +138,7 @@ Open the PDF and confirm: page count is sensible, no table row was split across 
 back to Times New Roman, all required fields are populated.
 
 Read `${CLAUDE_SKILL_DIR}/references/best_practices.md` when a label or section header does not
-match, the template has no numbered section headers (`stop_pattern` via the Python API), a cell
+match, the template has no numbered section headers (`section_end`), a cell
 needs multi-line content, or cells are merged.
 
 ## Known Limitations
@@ -143,3 +149,5 @@ needs multi-line content, or cells are merged.
 - **Embedded form fields** (Word content controls): not supported; plain paragraph and table cell
   content only.
 - **Right-to-left scripts** (Arabic, Hebrew): untested.
+- **Last section with no later header**: replaced through the end of the document unless a
+  `section_end` pattern is given; the filler cannot tell the section body from a trailing block.

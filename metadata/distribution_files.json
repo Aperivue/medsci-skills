@@ -1288,8 +1288,8 @@
     },
     {
       "path": "skills/fill-protocol/SKILL.md",
-      "size": 6669,
-      "sha256": "de09b4c5c061460d102bba94ec9d8676c0e5344d6f9022f2d49a34b9850584d0"
+      "size": 7032,
+      "sha256": "2d7082c97468d9cd792165d76e49652f96700620ceb0353226faa0d19e07333b"
     },
     {
       "path": "skills/fill-protocol/examples/example_irb_template.yaml",
@@ -1298,8 +1298,8 @@
     },
     {
       "path": "skills/fill-protocol/references/best_practices.md",
-      "size": 6919,
-      "sha256": "2e9a9dcab8dc5481c2c9df5a62dae657d9785a2e39bae775b25051c0f7aac2a0"
+      "size": 7145,
+      "sha256": "a08c13e2ed82e2bbb6a729620045b2bcc52203ee6b3dc82ffb3fe1ec7808bc42"
     },
     {
       "path": "skills/fill-protocol/scripts/doc_to_docx.py",
@@ -1308,8 +1308,8 @@
     },
     {
       "path": "skills/fill-protocol/scripts/fill_form.py",
-      "size": 30463,
-      "sha256": "9d9485e6c6fa4e1ce455b6f3772504f071355599258a9f5a7ef1541cdca23a92"
+      "size": 32103,
+      "sha256": "96315c2e55e2a5e73b026b788d90648d400540a73839dd12e1b87057bf914732"
     },
     {
       "path": "skills/fill-protocol/scripts/inspect_template.py",

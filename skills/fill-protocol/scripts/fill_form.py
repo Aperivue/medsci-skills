@@ -218,7 +218,7 @@ class FormFiller:
         self._filled_rows: set[int] = set()
         self._table_results = FillResult()
         self._paragraph_results = FillResult()
-        self._unbounded_warnings: list[str] = []
+        self.last_section_note: str | None = None
 
     # ---- Table cell filling ----
 
@@ -298,22 +298,17 @@ class FormFiller:
                 end_idx = i
                 break
 
+        self.last_section_note = None
         if end_idx is None:
-            # No end boundary. Deleting "to the end of the document" removed whatever followed the
-            # last section (a signature/date block) under an [OK] line. Replace only the first
-            # paragraph after the header and leave everything after it in place; say so when
-            # anything with text was left, so the author removes leftover template text by hand.
-            end_idx = min(header_idx + 2, len(all_ps))
-            kept = [p.text for p in all_ps[end_idx:] if p.text.strip()]
-            if kept:
-                replaced = (all_ps[header_idx + 1].text
-                            if header_idx + 1 < len(all_ps) else "")
-                self._unbounded_warnings.append(
-                    f"[SECTION-UNBOUNDED] No next section header after {header_text!r}: "
-                    f"replaced only the first paragraph ({replaced.strip()[:60]!r}) and left "
-                    f"{len(kept)} following paragraph(s) with text in place, first "
-                    f"{kept[0].strip()[:60]!r} — remove leftover template text by hand"
-                )
+            # No end boundary: replace through the end of the document (unchanged behaviour). The
+            # filler cannot tell the section's own body from a trailing block (signature, date)
+            # without reading prose, so it does not guess; it reports how many paragraphs with text
+            # it replaced so the author can see it, and `section_end` in the YAML (stop_pattern
+            # here) bounds the range explicitly.
+            end_idx = len(all_ps)
+            n_text = sum(1 for p in all_ps[header_idx + 1:end_idx] if p.text.strip())
+            self.last_section_note = (f"no later section header: replaced through end of "
+                                      f"document, {n_text} paragraph(s) with text")
 
         # Paragraphs to replace: header_idx+1 .. end_idx-1
         # Strategy: replace first paragraph in range, remove rest, add new paragraphs
@@ -489,7 +484,6 @@ class FormFiller:
             warnings.append(f"[TABLE-MISS] Label not found: {label!r}")
         for header in self._paragraph_results.unmatched:
             warnings.append(f"[SECTION-MISS] Header not found: {header!r}")
-        warnings.extend(self._unbounded_warnings)
         warnings.extend(self._raw_newline_warnings())
         return warnings
 
@@ -609,6 +603,9 @@ class _StringScalarLoader(yaml.SafeLoader):
 _StringScalarLoader.yaml_implicit_resolvers = {}
 _StringScalarLoader.add_implicit_resolver(
     "tag:yaml.org,2002:null", re.compile(r"^$"), [""])
+# Keep `<<: *anchor` merges working inside the content sections, as they did with safe_load.
+_StringScalarLoader.add_implicit_resolver(
+    "tag:yaml.org,2002:merge", re.compile(r"^(?:<<)$"), ["<"])
 
 
 class ContentError(ValueError):
@@ -618,23 +615,46 @@ class ContentError(ValueError):
 _CONTENT_SECTIONS = ("table_kv", "section_replace", "paragraph_replace")
 
 
-def _load_content(content_yaml: Path) -> tuple[dict, dict]:
-    """Return (protections, sections). Raises ContentError naming the offending input."""
+def _typed_protections(text: str) -> dict:
+    """Construct only the top-level `protections` node with the standard resolver.
+
+    protections carry real booleans/null (`normalize_page_breaks: false`), the form content does
+    not. Constructing only this node keeps a typed parse of the content (an invalid date such as
+    2024-02-30) from crashing a run whose content is written verbatim anyway.
+    """
+    root = yaml.compose(text, Loader=yaml.SafeLoader)
+    if not isinstance(root, yaml.MappingNode):
+        return {}
+    for key_node, value_node in root.value:
+        if isinstance(key_node, yaml.ScalarNode) and key_node.value == "protections":
+            loader = yaml.SafeLoader("")
+            try:
+                return loader.construct_document(value_node)
+            finally:
+                loader.dispose()
+    return {}
+
+
+def _load_content(content_yaml: Path) -> tuple[dict, dict, dict]:
+    """Return (protections, sections, section_end). Raises ContentError naming the input."""
     text = Path(content_yaml).read_text(encoding="utf-8")
-    # protections carry real booleans/null (e.g. `normalize_page_breaks: false`), so they keep
-    # the standard resolver; the form content does not.
-    typed = yaml.safe_load(text)
-    raw = yaml.load(text, Loader=_StringScalarLoader)  # noqa: S506 (SafeLoader subclass)
-    if typed is None:
-        typed, raw = {}, {}
-    if not isinstance(typed, dict):
-        raise ContentError(f"{content_yaml}: top level must be a mapping, got "
-                           f"{type(typed).__name__}")
-    protections = typed.get("protections") or {}
+    try:
+        raw = yaml.load(text, Loader=_StringScalarLoader)  # noqa: S506 (SafeLoader subclass)
+        if raw is None:
+            raw = {}
+        if not isinstance(raw, dict):
+            raise ContentError(f"{content_yaml}: top level must be a mapping, got "
+                               f"{type(raw).__name__}")
+        protections = _typed_protections(text) if "protections" in raw else {}
+    except (yaml.YAMLError, ValueError) as e:
+        if isinstance(e, ContentError):
+            raise
+        raise ContentError(f"{content_yaml}: cannot parse YAML: {e}") from e
+    protections = protections or {}
     if not isinstance(protections, dict):
         raise ContentError(f"{content_yaml}: 'protections' must be a mapping")
     sections: dict = {}
-    for name in _CONTENT_SECTIONS:
+    for name in _CONTENT_SECTIONS + ("section_end",):
         block = raw.get(name)
         if block is None:
             sections[name] = {}
@@ -654,11 +674,23 @@ def _load_content(content_yaml: Path) -> tuple[dict, dict]:
             if not isinstance(key, str):
                 raise ContentError(f"{content_yaml}: {name} has a non-text key {key!r}")
         sections[name] = block
-    return protections, sections
+    section_end = sections.pop("section_end")
+    for header, pattern in section_end.items():
+        if header not in sections["section_replace"]:
+            raise ContentError(f"{content_yaml}: section_end {header!r} is not a "
+                               "section_replace header")
+        if not pattern.strip():
+            raise ContentError(f"{content_yaml}: section_end {header!r} is an empty pattern")
+        try:
+            re.compile(pattern)
+        except re.error as e:
+            raise ContentError(f"{content_yaml}: section_end {header!r} is not a valid "
+                               f"regular expression: {e}") from e
+    return protections, sections, section_end
 
 
 def fill_from_yaml(template: Path, content_yaml: Path, output: Path) -> None:
-    protections, sections = _load_content(content_yaml)
+    protections, sections, section_end = _load_content(content_yaml)
 
     korean_font = protections.get("korean_font", DEFAULT_KOREAN_FONT)
     blank_between = protections.get("blank_between_paragraphs", True)
@@ -679,9 +711,11 @@ def fill_from_yaml(template: Path, content_yaml: Path, output: Path) -> None:
 
     # Replace section content (between headers)
     for header, content in sections["section_replace"].items():
-        ok = filler.replace_paragraphs_after(header, content)
+        ok = filler.replace_paragraphs_after(header, content,
+                                             stop_pattern=section_end.get(header))
         status = "OK " if ok else "MISS"
-        print(f"  [{status}] section: {header!r}")
+        note = f" ({filler.last_section_note})" if ok and filler.last_section_note else ""
+        print(f"  [{status}] section: {header!r}{note}")
 
     # Replace single paragraph in-place (e.g., title line)
     for matcher, content in sections["paragraph_replace"].items():
