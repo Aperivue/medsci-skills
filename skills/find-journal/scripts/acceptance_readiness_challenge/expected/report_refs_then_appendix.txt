@@ -1,0 +1,10 @@
+ACCEPTANCE-READINESS PRE-FLIGHT
+file: manuscript.md
+note: advisory lexical scan — flags cap the venue tier a design can support;
+      not an acceptance prediction and not auto-fixable.
+
+flags:
+  L10  [DESIGN_CEILING] single-center :: high-impact venues expect multi-center cohorts or external validation
+
+summary: design_ceiling=1 unfixable_defect=0 importance_risk=0 claim_mismatch=0 total=1
+ceiling: SPECIALTY / TOLERANT-VENUE OR DESIGN FIX RECOMMENDED

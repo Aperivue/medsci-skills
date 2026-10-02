@@ -325,6 +325,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/tests/test_cv_leakage.sh
 
+      - name: Run obsidian-paper-vault extractor test (image-only PDF and max_pages<1 never yield an empty .txt)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python3 skills/obsidian-paper-vault/tests/test_extract_pdfs.py
+
       - name: Run validate_catalog_consistency.py (doc counts must match disk SSOT)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 scripts/validate_catalog_consistency.py
@@ -964,6 +968,10 @@ jobs:
       - name: "Run check-reporting checklist-fidelity gate test (a checklist must match the official inventory, issue #352)"
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/check-reporting/tests/test_checklist_fidelity.sh
+
+      - name: Run review-paper macro-skeleton test (scoping/systematic carry PRISMA Methods/Results slots)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/review-paper/tests/test_macro_skeleton.sh
 
       - name: Run check-reporting PRISMA-cascade test
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}

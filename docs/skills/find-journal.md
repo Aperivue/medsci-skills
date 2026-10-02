@@ -42,7 +42,7 @@
 
 **Scripts** (`skills/find-journal/scripts/`):
 
-- `acceptance_readiness_challenge/` (6 files)
+- `acceptance_readiness_challenge/` (16 files)
 - `assess_acceptance_readiness.py`
 
 ## Source

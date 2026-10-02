@@ -82,9 +82,9 @@ is worth opening.
 
 | `source_identity.status` | Meaning / action |
 |---|---|
-| `consistent` | Complete normalized title and a compatible DOI/arXiv identifier occur in the bounded first-page front matter, with no supplement / preface / table-of-contents heading there; an optional supplied author must also match. Evidence agrees, but this is not independent source verification or claim validation. |
+| `consistent` | Complete normalized title and a compatible DOI/arXiv identifier occur in the bounded first-page front matter, with no supplement / preface / table-of-contents heading and no retraction / erratum / correction / corrigendum / expression-of-concern heading there; an optional supplied author must also match. Evidence agrees, but this is not independent source verification or claim validation. |
 | `conflict` | Both the title and observed identifier differ. Inspect the PDF and requested record. |
-| `unresolved` | Evidence is incomplete or ambiguous: title-only, DOI-only, missing author, multiple identifiers, a matching title with another DOI/version, or a supplement / preface / table-of-contents file that names the work without being it (`supplement_or_front_matter`). Inspect before using as evidence. |
+| `unresolved` | Evidence is incomplete or ambiguous: title-only, DOI-only, missing author, multiple identifiers, a matching title with another DOI/version, or a supplement / preface / table-of-contents file that names the work without being it (`supplement_or_front_matter`). A retraction notice, erratum, correction, corrigendum or expression of concern whose heading line sits in that area is likewise `unresolved` (`correction_or_retraction_notice`). Inspect before using as evidence. |
 | `unavailable` | No usable extracted text, Poppler unavailable, no output PDF, or the PDF changed during assessment. No current identity assessment was possible. |
 
 Evidence is limited to the first page before a recognized abstract/body/reference heading (at
