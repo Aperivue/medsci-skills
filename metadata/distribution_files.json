@@ -2648,8 +2648,8 @@
     },
     {
       "path": "skills/manage-project/SKILL.md",
-      "size": 5720,
-      "sha256": "93aa04510c5f9f52fae5907ea36e61b04cac429ac23bc51e20b9e4fb72dd558e"
+      "size": 6375,
+      "sha256": "e14d6a4a02682078678186614cdb4f0bec6344f5ecf42ae4e0ba5ade1ece0b5f"
     },
     {
       "path": "skills/manage-project/references/init_scaffold.md",
@@ -2683,13 +2683,13 @@
     },
     {
       "path": "skills/manage-project/scripts/init_project.py",
-      "size": 10093,
-      "sha256": "54a5581bd40d1cd453ebd691974ee19fda33c8725be36626f0f74bcb63f39074"
+      "size": 10183,
+      "sha256": "b9eed46bd74633f0a54e1185986ed09f9fb3eeb100eec7dd8fe864f7e8cfa23b"
     },
     {
       "path": "skills/manage-project/scripts/migrate_project_to_ssot.py",
-      "size": 6962,
-      "sha256": "1e719191f507a8a17a57fc254461225a801f7001e72ab9204bbf73fbf9c48307"
+      "size": 8236,
+      "sha256": "eb6e2b4e35da4998036f04c054302c1ab42cb2b09ad56e8f1b57b7cd5ee621fc"
     },
     {
       "path": "skills/manage-project/scripts/validate_project_contract.py",

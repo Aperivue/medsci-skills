@@ -15,7 +15,7 @@ metadata:
 - `{name}` -- Project identifier (e.g., `nnunet-skull-fracture`, `rfa-meta-analysis`)
 - `--type` -- Paper type: `original | meta | case | animal | technical | ai_validation | letter`
 - `--journal` -- Target journal: `RYAI | AJR | Radiology | European_Radiology | KJR | INSI | AJNR | generic`
-- `--ssot` -- Emit `SSOT.yaml` (schema v1) from `templates/SSOT.yaml.template` instead of legacy `project.yaml`. Required for Phase 1C auto-enforce (the PostToolUse verify-refs hook blocks instead of warns). New projects should pass `--ssot`; legacy in-flight projects stay on `project.yaml` until `/manage-project migrate-ssot` is run.
+- `--ssot` -- Emit `SSOT.yaml` (schema v1) from `templates/SSOT.yaml.template` instead of legacy `project.yaml`. Required, but not sufficient, for Phase 1C auto-enforce (the PostToolUse verify-refs hook blocks instead of warns): enforce also needs `qc/migration_complete`, which init does not write. After init, run `migrate_project_to_ssot.py --project-root {target_dir} --mark-complete` to validate the SSOT.yaml and write the marker. New projects should pass `--ssot`; legacy in-flight projects stay on `project.yaml` until `/manage-project migrate-ssot` is run.
 - `--zotero-collection NAME` -- Optional. Create a Zotero collection via pyzotero and populate `library_id` + `collection_key` in the contract. Requires `ZOTERO_API_KEY` + `ZOTERO_LIBRARY_ID` (optionally `ZOTERO_LIBRARY_TYPE`, default `user`). With pyzotero or the credentials missing, the contract is scaffolded with `library_id: null` / `collection_key: null` and a WARN is printed.
 
 **SSOT template substitutions:** `{{PROJECT_ID}}` → `{name}`; `{{PROJECT_TYPE}}` → the SSOT
@@ -36,7 +36,9 @@ It writes the contract file (`SSOT.yaml` with `--ssot`, else legacy `project.yam
 directory scaffold, the minimal stubs `scripts/validate_project_contract.py` requires
 (`manuscript/index.qmd`, `artifact_manifest.json`, `qc/status.json`), the memory-file stubs,
 and `project_state.json`. **`qc/migration_complete` is NOT written by init** — that marker belongs
-to the migrate pipeline.
+to the migrate script. For an `--ssot` project, run it with `--mark-complete` (no project.yaml
+needed): it validates the existing SSOT.yaml and writes the marker only on PASS. Until then the
+reference hook stays in warn mode.
 
 **Do not hand-build the scaffold.** The script is the source of truth for the tree and for
 `project_state.json`; a hand-built one drifts from what the contract validator expects. Read
@@ -49,6 +51,9 @@ After the script, copy the matching reporting-guideline checklist from
 ### `/manage-project migrate-ssot [--no-mark-complete]`
 
 Converts a legacy `project.yaml` project into SSOT.yaml form and, by default, touches `qc/migration_complete` so Phase 1C `auto` mode switches from `warn` to `enforce`.
+On an SSOT-native project (SSOT.yaml present, no project.yaml — e.g. `init --ssot`) there is nothing
+to convert: `--mark-complete` validates the existing SSOT.yaml and writes the marker on PASS;
+SSOT.yaml is not rewritten.
 
 ```bash
 python3 "${CLAUDE_SKILL_DIR}/scripts/migrate_project_to_ssot.py" \
