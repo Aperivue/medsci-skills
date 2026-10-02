@@ -39,6 +39,8 @@ Gather essential information from the user before any writing begins.
      --fulltext-dir pdfs/ --strict
    ```
 
+   A file in `--fulltext-dir` counts as the backbone when it is named `<citekey>.md` or names the backbone DOI/citekey *before* its References heading; a paper that only cites the backbone in its reference list does not count. Known limit: another paper that names the DOI in its own body still resolves — name the file `<citekey>.md` or pass `--fulltext` to remove the doubt.
+
    `BACKBONE_FULLTEXT_MISSING` / `BACKBONE_FULLTEXT_THIN` → **stop and retrieve it** (`/lit-sync` Phase 2.7, then `/fulltext-retrieval` `pdf_to_md.py`). Do not begin Methods drafting until this passes. If the article is genuinely unavailable in full text, record that limitation and get user confirmation before proceeding on the abstract alone.
 8. Summarize the setup — journal constraints, paper type, reporting guideline, backbone article, directory path, LLM-disclosure status — and confirm before proceeding.
 
@@ -374,7 +376,9 @@ disclosure.
 The statements about what the authors did (reviewed, verified, approved; what the tool was not
 used for) are the authors' to make. Draft them inside a `[TODO authors confirm: …]` marker and
 leave the marker for the authors to resolve — `check_placeholders.py` blocks submission while a
-`TODO` or an unfilled `[tool]`/`[version]` token remains.
+`TODO`, an unfilled token from these templates (`[tool]`, `[version]`, `[developer]`,
+`[Claude/tool name]`, `[Journal Name]`, `[statistician/author]`, `{version}` …), or any
+`[VERIFY…]` / `[UNVERIFIED - NEEDS MANUAL CHECK]` marker remains.
 
 #### 1. Methods Section — Last Paragraph
 

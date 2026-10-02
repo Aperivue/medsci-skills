@@ -10,7 +10,7 @@ output files; the Standard Pipeline in SKILL.md already names the files for its 
 | analyze-stats | raw data (CSV/Excel) | analysis/tables/*.csv, analysis/figures/*, `analysis/_analysis_outputs.md` |
 | make-figures | `analysis/_analysis_outputs.md`, data files | analysis/figures/*.pdf, analysis/figures/*.png, `analysis/figures/_figure_manifest.md` |
 | write-paper | analysis/figures/, analysis/tables/, manifests, journal profile | manuscript/manuscript.md, manuscript/title_page.md (DOCX rendering is delegated to manage-refs) |
-| check-reporting | manuscript/manuscript.md | qc/reporting_checklist.md |
+| check-reporting | manuscript/manuscript.md | qc/reporting_checklist.md, qc/reporting_checklist.json (Part D JSON) |
 | verify-refs | manuscript/manuscript.md or a bib input | qc/reference_audit.json (sole writer; see `/verify-refs` §Output Contract) |
 | self-review | manuscript/manuscript.md | qc/self_review.md (with JSON block) |
 | lit-sync | Zotero collection (live), `manuscript/_src/refs.bib` (Better BibTeX auto-export) | `manuscript/_src/refs.bib` (refreshed), `references/zotero_collection.json`, Obsidian literature notes (sole writer of refs.bib) |

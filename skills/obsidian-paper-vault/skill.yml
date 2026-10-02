@@ -51,4 +51,5 @@ known_limitations:
 validation_commands:
   - "python3 scripts/extract_pdfs.py <pdf_folder> <cache_folder>"
   - "grep -c 'date_published' <vault>/<literature_folder>/*.md"
+  - "python3 tests/test_extract_pdfs.py"
 evidence_surface: manual_workflow

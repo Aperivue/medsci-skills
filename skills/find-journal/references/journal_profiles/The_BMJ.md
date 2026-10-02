@@ -28,4 +28,4 @@ clinical trials, evidence-based medicine, public health, epidemiology, primary c
 - **Field:** General medicine
 
 ## Special Notes
-The BMJ is the 3rd highest-impact general medical journal (IF 93.7). It uses open peer review with prepublication history posted alongside accepted papers. Requires a "What is already known / What this study adds" summary box and mandatory patient/public involvement reporting. AI policy: all tasks permitted with disclosure, AI images must be declared.
+The BMJ is a leading high-impact general medical journal. It uses open peer review with prepublication history posted alongside accepted papers. Requires a "What is already known / What this study adds" summary box and mandatory patient/public involvement reporting. AI policy: all tasks permitted with disclosure, AI images must be declared.
