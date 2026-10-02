@@ -22,15 +22,25 @@ else's review article, use `/peer-review` or `/self-review` (the RV1-RV9 probes)
    pre-empts the reviewer's first question, "why another review on this?" (user-approval
    checkpoint: confirm the boundary with the user before scaffolding).
 
-## Step 1 — Scaffold the 7-part macro skeleton
+## Step 1 — Scaffold the macro skeleton for the format
 
-Load `${CLAUDE_SKILL_DIR}/references/macro_skeleton.md` and write the scaffold to `manuscript.md`
-in the manuscript directory, with the summary-table stubs (Step 2) and the reference's
-figure/table legend plan:
+Load `${CLAUDE_SKILL_DIR}/references/macro_skeleton.md` and write the section for the chosen
+format to `manuscript.md` in the manuscript directory, with the summary-table stubs (Step 2) and
+that section's figure/table legend plan. The structure depends on the format:
 
-1. **Abstract** — structured for scoping/systematic; a 4-5 move version for narrative.
+- **Narrative** — the 7-part skeleton below.
+- **Scoping / systematic** — IMRaD with one Methods and one Results slot per PRISMA-ScR or
+  PRISMA 2020 item (the reference lists them by item number). Do not use the 7-part skeleton
+  for these: it has no place for eligibility criteria, search, selection, charting/extraction,
+  risk of bias or synthesis methods, nor for study-selection results. The thematic body by
+  spine axis goes inside Results → synthesis; frontiers and the evaluation-metrics critique go
+  inside Discussion.
+
+The narrative 7-part skeleton:
+
+1. **Abstract** — a 4-5 move version (structured for scoping/systematic).
 2. **Introduction** — clinical motivation → technology → **scope + non-overlap block
-   (required field)** → "this review…".
+   (required field, all formats)** → "this review…".
 3. **Background / technical principles** — tight; cite once, do not re-survey the field.
 4. **Thematic body by spine axis** — each section ends with a **summary table** (stub
    generated to match the type, Step 2).

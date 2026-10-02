@@ -6,8 +6,9 @@ Academic markdown routinely
 carries glyphs a default Latin font misses: transition arrows (→ ↑ ↓ ↔), math
 operators (− ≤ ≥ ± √ ∪ × ≈ ≠), stats Greek (κ μ σ β χ), bullets/marks (• ★ ✓),
 and CJK. This scans the SOURCE markdown, groups the risky non-ASCII glyphs it
-finds by class, and (when a font file + fonttools are available) reports which are
-genuinely absent from the font's cmap. The DOCX is authoritative; the PDF is a
+finds by class, and (when a font file + fonttools are available) reports which
+non-ASCII characters of the source -- every drawable one, not only the five
+classes -- are genuinely absent from the font's cmap. The DOCX is authoritative; the PDF is a
 convenience copy, so the goal is to surface a likely silent drop before it ships.
 
 NOT an integrity detector — named `scan_glyph_coverage.py` (not check_/detect_/
@@ -16,8 +17,9 @@ derive_) so the catalog glob does not count it; it is a render-time QA helper.
 INPUT
   markdown   one or more .md files (positional).
   --font     optional path to the .ttf/.otf/.ttc/.otc that will render the body; with
-             `fonttools` installed, glyphs absent from its cmap are reported as
-             MISSING (the real coverage check). Without it, the scan is advisory
+             `fonttools` installed, every drawable non-ASCII character of the
+             source (in a class or not: e.g. ° µ ² ‰ ∞ –) that is absent from
+             its cmap is reported as MISSING (the real coverage check). Without it, the scan is advisory
              (presence by class — verify your mainfont/CJKmainfont covers them).
   --font-index  required zero-based face index for a collection; one face is
                 checked, never the union of different faces' glyphs.
@@ -25,6 +27,7 @@ INPUT
 OUTPUT
   stdout report and, with --json, an artifact:
     {files, classes{name:[chars]}, font_checked, font_check, missing_in_font[], summary}
+  summary.n_chars_checked is how many distinct characters the cmap check covered.
   Exit 1 (with --strict) when risky glyphs are present AND no font verified them,
   or when --font is given and any glyph is genuinely missing from it.
 
@@ -68,7 +71,18 @@ def _classify(ch: str) -> str | None:
     return None
 
 
+# Code points that are never drawn as a glyph (controls, format characters such
+# as a BOM or zero-width joiner, surrogates, line/paragraph separators) are not
+# looked up in the cmap, nor are the three that pandoc's LaTeX writer emits as
+# ASCII TeX (U+00A0 -> ~, U+202F -> \,, U+2026 -> \ldots{}; pandoc 3.1.3), so the
+# font is never asked for them. Every other non-ASCII character is.
+_NOT_DRAWN = {"Cc", "Cf", "Cs", "Zl", "Zp"}
+_WRITTEN_AS_ASCII = {" ", " ", "…"}
+
+
 def scan(paths: list[Path]) -> dict:
+    """Return the risky classes (advisory grouping) and every drawable non-ASCII
+    character (``chars``), which is what a --font cmap check covers."""
     classes: dict[str, dict[str, int]] = {}
     all_chars: set[str] = set()
     for p in paths:
@@ -76,10 +90,14 @@ def scan(paths: list[Path]) -> dict:
             sys.stderr.write(f"ERROR: file not found: {p}\n")
             sys.exit(2)
         for ch in p.read_text(encoding="utf-8"):
+            if ord(ch) < 0x80:
+                continue
             cls = _classify(ch)
             if cls:
                 classes.setdefault(cls, {}).setdefault(ch, 0)
                 classes[cls][ch] += 1
+            if (unicodedata.category(ch) not in _NOT_DRAWN
+                    and ch not in _WRITTEN_AS_ASCII):
                 all_chars.add(ch)
     return {"classes": classes, "chars": sorted(all_chars)}
 
@@ -165,7 +183,8 @@ def main() -> int:
         "font_check": font_check,
         "missing_in_font": sorted(missing),
         "summary": {"n_risky_glyphs": n_risky, "n_classes": len(classes),
-                    "n_missing_in_font": len(missing)},
+                    "n_missing_in_font": len(missing),
+                    "n_chars_checked": len(res["chars"]) if checked else 0},
     }
 
     if not args.quiet:
@@ -179,7 +198,8 @@ def main() -> int:
             print("  (no risky non-ASCII glyphs found)")
         if checked:
             print(f"\nfont face {font_check['face_index']}: {font_check['face_name'] or '(unnamed)'}")
-            print(f"\nfont cmap checked: {len(missing)} glyph(s) MISSING from the font"
+            print(f"\nfont cmap checked ({len(res['chars'])} distinct non-ASCII character(s)): "
+                  f"{len(missing)} glyph(s) MISSING from the font"
                   + (f": {' '.join(missing)}" if missing else ""))
         elif classes:
             print("\nADVISORY: risky glyphs present; verify mainfont/CJKmainfont cover them "

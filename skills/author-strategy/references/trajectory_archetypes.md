@@ -70,15 +70,15 @@ _min_sample: 8 · score_threshold: 0.34 · max_confidence_mvp: high_
 
 Signals:
 
-- **ai_term_presence** (`rule-derived`, weight 0.25) — AI/ML title/study-type terms become present (>= 10% of corpus).
 - **dual_mode_corpus** (`rule-derived`, weight 0.3) — First/senior on both clinical-AI MODEL papers AND reproducibility/reporting-quality papers in the same domain (strong hybrid marker).
 - **venue_drift_ai** (`rule-derived`, weight 0.25) — AI/ML terms absent in the early third of the timeline but recurring (>= 2) in the late third.
-- **sustained_clinical_concurrent** (`rule-derived`, weight 0.2) — Clinical-imaging publications sustained concurrently with AI papers (hybrid, not defection): AI fraction between 10% and 90%.
+- **sustained_clinical_concurrent** (`rule-derived`, weight 0.45) — AI/ML papers present but clinical publications sustained concurrently (hybrid, not defection): AI fraction between 10% and 90%.
 - **mobility_preprint_citation_spike** (`unavailable` [VERIFY], weight 0.0) — Cross-border mobility, open-artifact release, preprint lead-time, mid-career citation spike. _Affiliation-country change, preprint-then-journal lag, modality citation shock — links/citations/preprint-match not in MVP ([VERIFY])._
 
 Negatives (rule the archetype OUT):
 
 - **pure_ai_no_clinical_floor** — ML-only from career start with no clinical floor (AI fraction == 100%) rules the archetype OUT.
+- **no_clinical_foundation_before_ai** — No non-AI paper is dated strictly before the earliest AI paper: there is no clinical foundation to pivot from, which rules the archetype OUT.
 
 ### A4 — Systematic-review / meta-analysis volume engine
 
