@@ -271,11 +271,10 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/check_citekey_provenance.py" --vault "$VAUL
 
 `INVENTED` means the note's key is absent but its DOI resolves to a real key; fix it here.
 `MISMATCH` means the key is real but the note's DOI is the library's DOI for another key, so it
-cites another paper; rename to the suggested key (known limit: a note DOI spelled differently
-from the library's, e.g. quoted or braced, never raises it). `UNPARSED` means a literature note's frontmatter never
-closes, so its key was not read. With `--strict` these three exit 1, and a scan that finds no
-literature note exits 2. Match
-notes to papers by DOI, never by key (`AMBIGUOUS`, `UNUSABLE`, `NO_IDENTIFIER`: see the script's
+cites another paper; rename to the suggested key (known limit: a note DOI spelled differently from
+the library's, e.g. quoted or braced, never raises it). `UNPARSED` means a literature note's
+frontmatter never closes, so its key was not read. With `--strict` these three exit 1, and a scan
+that finds no literature note exits 2. Match notes to papers by DOI, never by key (`AMBIGUOUS`, `UNUSABLE`, `NO_IDENTIFIER`: see the script's
 `--help`), and search the full library (`--live`) before importing anything it reports missing.
 
 #### Template
