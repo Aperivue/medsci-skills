@@ -109,6 +109,16 @@ CASES = [
          needle="**254 per arm, 508 total**"),
     Case(T, "Test 7:", "n_total", 594, "gsDesign::nSurv(..., ratio=2, method='Schoenfeld') n = 593.65 -> 396 + 198",
          inputs={"p_alloc": 2 / 3}),
+    # Test 7 -- the same study entered in years must give the same N (eta per time_unit, not per month).
+    Case(T, "Test 7:", "n_total", 508, "same study as the 508 Check in years; eta = -log(0.95)/1 per year",
+         inputs={"time_unit": "years", "median_ctrl": 2, "accrual_time": 1, "follow_up": 2}),
+    Case(T, "Test 7:", "n_total", 606, "closed form + numerical integration, 20%/yr dropout, months",
+         inputs={"annual_dropout": 0.20}),
+    Case(T, "Test 7:", "n_total", 606, "same 20%/yr study in years (a per-month eta gave 490, ~71% power)",
+         inputs={"time_unit": "years", "median_ctrl": 2, "accrual_time": 1, "follow_up": 2,
+                 "annual_dropout": 0.20}),
+    Case(T, "Test 7:", "n_total", None, "an unrecognised time unit stops the block",
+         inputs={"time_unit": "days"}, error="not recognised"),
     # Test 8 -- statsmodels returns TOTAL N.
     Case(T, "Test 8:", "n_total", 159, "pwr::pwr.anova.test(k=3, f=0.25, power=0.8) n = 52.40 per group",
          needle="**53 per group, 159 total**"),
