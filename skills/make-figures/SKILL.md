@@ -273,7 +273,10 @@ python ${CLAUDE_SKILL_DIR}/scripts/critic_figure.py \
 
 `--source-text` is optional (expected strings for OCR coverage). The JSON report covers DPI and
 physical width vs. the journal spec, the dominant-color breakdown and out-of-Wong-palette fraction,
-and OCR word count, minimum text height, and source-word coverage.
+and OCR word count, minimum text height, and source-word coverage. When the image carries no DPI
+metadata, the DPI check uses the resolution at the spec width (`width_px / --spec-width-in`). A check
+that cannot run (physical width without DPI metadata, OCR without `pytesseract`) is listed under
+`not_run` and the summary reads `INCOMPLETE`, never `PASS`; `--strict` exits 3 on `INCOMPLETE`.
 
 **Stage 2: Qualitative review**
 
@@ -437,7 +440,12 @@ python3 ${CLAUDE_SKILL_DIR}/scripts/derive_figure_legend_counts.py \
 
 Any `n = N` in the caption that is not a box count in the flow config is a `MISMATCH` (stale
 caption) — update the caption from the config, never the reverse. The reconciler is stdlib-only and
-parses the config as text, so it works regardless of the flow tool.
+parses the config as text, so it works regardless of the flow tool. When no Figure 1 caption is found
+or the caption carries no `n = N`, the verdict is `NOT_CHECKED` (exit 2 under `--strict`), not OK.
+
+Known limits: only `n = N` notation is read (a bare "1,150 patients" is not), and agreement is set
+membership, so a count moved to the wrong box (excluded and analysed swapped) is not detected; check
+those by eye against the diagram.
 
 ### Official Reporting Guideline Templates → `templates/official/`
 
@@ -491,7 +499,11 @@ exclusion, the spine box count minus the exclusions after it must equal the next
 (`A - Σ(exclusions after A) == B`). It warns loudly on any imbalance and, with `--strict-cascade`,
 refuses to build — catching figure arithmetic drift (a dropped exclusion leaving the figure short of
 the analytic N) that text and prose gates miss. Run `scripts/_strobe_cascade.py --config
-figure1_strobe.yaml --strict` to check a config without rebuilding the diagram.
+figure1_strobe.yaml --strict` to check a config without rebuilding the diagram. The same helper reads
+the `generate_flow_diagram.R` nodes/edges schema (a `style: dashed` edge marks an exclusion box) and
+the R script runs it before rendering (warning by default; `--strict-cascade` refuses to render). A
+config in neither schema exits 2; under `--strict`, a config with no checkable exclusion link also
+exits 2 rather than reporting OK.
 
 For STROBE the canonical KJR/Radiology/BMJ submission flow is:
 

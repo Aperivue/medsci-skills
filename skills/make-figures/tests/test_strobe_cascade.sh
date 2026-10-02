@@ -43,5 +43,27 @@ else
   echo "  SKIP  build integration (python-pptx not installed)"
 fi
 
+# (5) generate_flow_diagram.R nodes/edges schema (dashed edge = exclusion). Before this check
+#     existed the helper printed OK for every such config without reading it.
+out5="$(python3 "$CHK" --config "$FX/flow_graph_imbalanced.yaml" --strict 2>&1)"; rc=$?
+ck "nodes/edges imbalanced exits 1 under --strict" 1 "$rc"
+printf '%s\n' "$out5" | grep -q '9,470' && ck "nodes/edges imbalance names the 9,470 box" yes yes || ck "nodes/edges imbalance names the 9,470 box" yes no
+python3 "$CHK" --config "$FX/flow_graph_child_attached_imbalanced.yaml" --strict >/dev/null 2>&1
+ck "exclusion beside the produced box: imbalance exits 1" 1 "$?"
+python3 "$CHK" --config "$FX/flow_graph_balanced.yaml" --strict >/dev/null 2>&1; ck "nodes/edges balanced exits 0" 0 "$?"
+python3 "$CHK" --config "$FX/flow_graph_child_attached.yaml" --strict >/dev/null 2>&1
+ck "exclusion beside the produced box + branch side note exits 0 (no false positive)" 0 "$?"
+for t in strobe consort prisma stard; do
+  out6="$(python3 "$CHK" --config "$HERE/../references/exemplar_diagrams/$t/template_input.yaml" --strict 2>&1)"; rc=$?
+  ck "$t exemplar template closes (exit 0)" 0 "$rc"
+  printf '%s\n' "$out6" | grep -q 'nodes/edges schema' && ck "$t exemplar actually checked" yes yes || ck "$t exemplar actually checked" yes no
+done
+
+# (6) A check that could not run is never an OK: unrecognised schema -> exit 2 (with or without
+#     --strict); no evaluable exclusion link -> exit 2 under --strict.
+python3 "$CHK" --config "$FX/figure1_flow.yaml" >/dev/null 2>&1; ck "unrecognised schema exits 2" 2 "$?"
+python3 "$CHK" --config "$FX/flow_graph_no_exclusion.yaml" --strict >/dev/null 2>&1; ck "no exclusion link exits 2 under --strict" 2 "$?"
+python3 "$CHK" --config "$FX/flow_graph_no_exclusion.yaml" >/dev/null 2>&1; ck "no exclusion link report-only exits 0" 0 "$?"
+
 echo "fail=$fail"; [ "$fail" -eq 0 ] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

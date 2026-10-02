@@ -18,6 +18,14 @@ Usage:
         --type stard --spec-min-dpi 600 --spec-width-in 7.0 \
         --source-text figures/fig1_stard.txt \
         --out figures/fig1_stard.critique.json
+
+With no DPI metadata in the image, the DPI check uses the resolution at the spec width
+(width_px / --spec-width-in). A check that cannot run (no DPI and no spec width, physical width
+without DPI, OCR without pytesseract) is listed under "not_run" and the summary reads INCOMPLETE,
+never PASS.
+
+Exit codes: 0 PASS or INCOMPLETE, 1 issue(s) flagged, 2 image not found,
+3 INCOMPLETE under --strict.
 """
 from __future__ import annotations
 
@@ -105,14 +113,28 @@ def check_dimensions(img: Image.Image, spec: dict) -> dict:
     }
     min_dpi = spec.get("min_dpi")
     width_in = spec.get("width_in")
+    not_run: list[str] = []
     if min_dpi and dpi_x:
         result["dpi_meets_spec"] = dpi_x >= min_dpi
         result["required_dpi"] = min_dpi
+    elif min_dpi and width_in:
+        # No DPI tag: the resolution the figure has when printed at the spec width.
+        effective = w_px / width_in
+        result["effective_dpi_at_spec_width"] = round(effective, 1)
+        result["dpi_source"] = "width_px / spec width (no DPI metadata)"
+        result["dpi_meets_spec"] = effective >= min_dpi
+        result["required_dpi"] = min_dpi
+    elif min_dpi:
+        not_run.append("DPI: image has no DPI metadata and no --spec-width-in to derive it from")
     if width_in and dpi_x:
         actual_width_in = w_px / dpi_x
         result["width_in"] = round(actual_width_in, 2)
         result["width_matches_spec"] = abs(actual_width_in - width_in) < 0.3
         result["required_width_in"] = width_in
+    elif width_in:
+        not_run.append("width: image has no DPI metadata, so its physical width is unknown")
+    if not_run:
+        result["not_run"] = not_run
     return result
 
 
@@ -182,8 +204,9 @@ def critique(
     flags = []
     dim = checks["dimensions"]
     if dim.get("dpi_meets_spec") is False:
+        got = dim.get("dpi_x") or f"{dim.get('effective_dpi_at_spec_width')} effective at spec width"
         flags.append(
-            f"DPI below journal spec ({dim.get('dpi_x')} < {dim.get('required_dpi')})"
+            f"DPI below journal spec ({got} < {dim.get('required_dpi')})"
         )
     if dim.get("width_matches_spec") is False:
         flags.append(
@@ -203,13 +226,26 @@ def critique(
             f"{ocr['missing_source_word_count']} source words not detected by OCR (possible cropping/truncation)"
         )
 
+    # A check that could not run is reported, never counted as passed.
+    not_run = list(dim.get("not_run", []))
+    if pal.get("passed") is None:
+        not_run.append(f"palette: {pal.get('note', 'not run')}")
+    if ocr.get("passed") is None and "note" in ocr:
+        not_run.append(f"OCR (text size / source coverage): {ocr['note']}")
+    if flags:
+        summary = f"{len(flags)} issue(s) flagged"
+    elif not_run:
+        summary = f"INCOMPLETE: {len(not_run)} check(s) could not run"
+    else:
+        summary = "PASS"
     return {
         "image": str(image_path),
         "figure_type": figure_type,
         "journal": journal,
         "checks": checks,
         "flags": flags,
-        "summary": "PASS" if not flags else f"{len(flags)} issue(s) flagged",
+        "not_run": not_run,
+        "summary": summary,
     }
 
 
@@ -230,6 +266,8 @@ def main() -> int:
     p.add_argument("--spec-width-in", type=float, help="Expected figure width in inches (per figure_specs.md)")
     p.add_argument("--spec-min-dpi", type=int, help="Minimum DPI (600 for line art, 300 for halftone)")
     p.add_argument("--out", default=None, help="Path to JSON report (default: {image}.critique.json)")
+    p.add_argument("--strict", action="store_true",
+                   help="exit 3 when no issue is flagged but a check could not run (INCOMPLETE)")
     args = p.parse_args()
 
     image_path = Path(args.image)
@@ -255,9 +293,12 @@ def main() -> int:
     out_path = Path(args.out) if args.out else image_path.with_suffix(image_path.suffix + ".critique.json")
     out_path.write_text(json.dumps(report, indent=2, ensure_ascii=False))
 
-    print(json.dumps({"summary": report["summary"], "flags": report["flags"]}, indent=2, ensure_ascii=False))
+    print(json.dumps({"summary": report["summary"], "flags": report["flags"],
+                      "not_run": report["not_run"]}, indent=2, ensure_ascii=False))
     print(f"\nFull report: {out_path}", file=sys.stderr)
-    return 0 if not report["flags"] else 1
+    if report["flags"]:
+        return 1
+    return 3 if (args.strict and report["not_run"]) else 0
 
 
 if __name__ == "__main__":
