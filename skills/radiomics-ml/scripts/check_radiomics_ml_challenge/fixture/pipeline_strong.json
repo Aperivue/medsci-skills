@@ -1,6 +1,6 @@
 {
   "task": "classification",
-  "n_features": 1200,
+  "n_features": 40,
   "n_samples": 300,
   "n_events": 110,
   "cv_scheme": "nested",

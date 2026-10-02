@@ -19,8 +19,20 @@ artifact policy.
       "tabular": {                     // present only for CSV/TSV/Parquet/Stata/SAS/Excel
         "n_rows": 200,
         "n_cols": 9,
-        "column_hashes": {"age": "…", "bmi": "…"}   // sha256 of the column's literal
-                                                    // cell strings (row order)
+        "column_hashes": {"age": "…", "bmi": "…"},  // sha256 of the column's literal
+                                                    // cell strings (row order) joined by
+                                                    // \x1e; only in a column where some
+                                                    // cell itself holds \x1e, every \x1e
+                                                    // or \x1b inside a cell is escaped
+                                                    // with \x1b
+        "escaped_cols": ["note"],      // only when some column was hashed in the
+                                       // escaped form; absent = all columns use the
+                                       // plain join, as every older manifest does
+        "header": ["a", "a"],          // CSV/TSV only, and only when the raw header
+                                       // differs from the parsed names (duplicates);
+                                       // absent = not recorded, so not compared
+        "ignored_cols": ["ts"]         // binary formats only, and only when an
+                                       // --ignore-cols column is present in the file
       }
     }
   }
@@ -35,12 +47,14 @@ always yield the same manifest. `--base` stores file keys relative to a director
 
 | Category | Meaning |
 |---|---|
-| `CHANGED bytes: F` | A **non-tabular** file's SHA-256 differs. Tabular files are compared on logical content (below), not raw bytes, since re-save / float formatting / an `--ignore-cols` column would otherwise produce spurious byte drift. |
+| `CHANGED bytes: F` | A **non-tabular** file's SHA-256 differs. CSV/TSV files are compared on logical content (below), not raw bytes, so re-quoting, line endings or an `--ignore-cols` column do not produce spurious byte drift. |
+| `CHANGED bytes: F (column hashes match; …)` | A **binary tabular** file (Parquet/Stata/SAS/Excel) has identical column hashes but a different SHA-256. These formats hold content the column hashes do not cover (variable labels, other Excel sheets, file metadata), so the byte change is reported, not cleared. A binary re-save also trips it. Not emitted when an `--ignore-cols` column is present in the file (`ignored_cols`), since that column's changes alter the bytes; label/metadata changes in such a file are then not detected. |
+| `CHANGED header F: [...] -> [...]` | The raw CSV/TSV header changed in a way the parsed column names hide (e.g. duplicate `a,a` vs `a,a.1`, which pandas reads identically). Checked only when the lock recorded a header; a lock built before headers were recorded is not compared on it. |
 | `MISSING file: F` | F was in the manifest but is absent now. |
 | `UNEXPECTED file: F` | F is present now but not in the manifest. |
 | `ROW COUNT F: a -> b` | Tabular row count changed. |
 | `ADDED column F:c` / `REMOVED column F:c` | Schema change. |
-| `CHANGED column F:c` | Column c's values (or dtype) changed, even if row count is stable. |
+| `CHANGED column F:c` | Column c's values (or dtype) changed, even if row count is stable. `verify` checks a column that the lock does not list in `escaped_cols` (this includes every lock written before escaping existed) with the plain join, so such a lock still verifies an unchanged file clean; in it, a `\x1e` moved across a cell boundary is not detected until the file is re-locked. `diff` has no file to re-hash, so comparing an older manifest with a newer one of the same data reports a column that holds `\x1e` in a cell as changed. |
 
 `verify --strict` exits non-zero if any drift is found; without `--strict` it
 reports and exits 0 (for advisory runs).
