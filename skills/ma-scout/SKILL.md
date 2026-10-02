@@ -77,6 +77,8 @@ bash ${CLAUDE_SKILL_DIR}/../search-lit/references/pubmed_eutils.sh search \
   '"[Full Name]"[Author]' 200 \
   | python3 ${CLAUDE_SKILL_DIR}/../search-lit/references/parse_pubmed.py esearch
 ```
+If the parser exits non-zero (an error body, or no `count`), the count is unknown — re-run the
+search; never record it as 0 papers or 0 MAs.
 
 **Step 2 — Fetch metadata for MeSH-based clustering (parallel):**
 ```bash
@@ -185,6 +187,7 @@ server: "medrxiv"  (clinical topics; "biorxiv" for preclinical)
 
 - Search PROSPERO via WebSearch `site:crd.york.ac.uk/prospero [topic keywords]`; also try WebFetch `https://www.crd.york.ac.uk/prospero/#searchadvanced`
 - Look for registered-but-unpublished protocols that could block entry; if a PROSPERO match is found → flag as 🚫 competition risk in ranking
+- Record the exact query, the search date and one status: `searched (match found)`, `searched (no match)`, or `not checked (unavailable/failed)`; a fetch that returns the site shell or an error page instead of a result list is `not checked`. Only `searched (no match)` clears the PROSPERO gate.
 
 #### 2g. Realistic k estimation
 
@@ -368,8 +371,11 @@ Before finalizing a topic as viable:
 - [ ] (B) Clinical question refined to PICO/PIRD (not just a keyword)
 - [ ] (A) Confirmed MA = 0 or last MA >5 years (via PubMed E-utilities, not assumption)
 - [ ] **Cross-validated** via PubMed + Consensus + Scholar Gateway + bioRxiv/medRxiv — no hidden MAs with different terminology, no preprint MA in progress
-- [ ] Confirmed k_realistic ≥ 8 (DTA) or ≥ 6 (prognostic) after the 15-30% discount
-- [ ] **PROSPERO searched** — no registered competing protocol found
+- [ ] Confirmed k_realistic ≥ 8 (DTA) or ≥ 6 (prognostic), where k_realistic = raw count × 0.15–0.30
+      (§2g: keep 15–30% of raw hits, i.e. a 70–85% discount — not a 15–30% discount)
+- [ ] **PROSPERO searched** — the search ran and returned results (query + date recorded, §2f), and no
+      registered competing protocol was found. A PROSPERO search that failed or was unavailable is
+      "not checked", never "none found": this item stays open
 - [ ] No 2024-2026 competing MA in press or preprint
 - [ ] Research question is specific enough for PROSPERO registration
 - [ ] (B) User's domain expertise sufficient for clinical interpretation (or co-author identified); 2nd reviewer identified or plan to recruit
