@@ -18,17 +18,21 @@ INPUTS
   --copy   a copy to check against the SSOT (repeatable).
 
 OUTPUT  (--out path)
-  {ssot, copies: [{copy, unpropagated_to_copy, copy_only, verdict}], verdict}
-  STALE_COPY (a copy missing SSOT claims) is the Major finding. Exit 1 (with
-  --strict) when any copy is stale.
+  {ssot, copies: [{copy, unpropagated_to_copy, copy_only, stale_in_copy, verdict}], verdict}
+  STALE_COPY is the Major finding: a copy missing SSOT claims, OR a copy carrying a
+  numeric claim the SSOT does not make (`stale_in_copy` — e.g. an old `n = 118`
+  left next to the propagated `n = 120`). Exit 1 (with --strict) when any copy is
+  stale.
 
 Claims are matched as normalized strings, so wording differences do not register —
-only a changed/absent number or heading does. Review the lists; legitimately
-copy-specific sections (e.g. a circulation cover note) will show up as `copy_only`
-and can be ignored.
+only a changed/absent number or heading does. A heading present only in a copy
+(e.g. a circulation cover note) is listed in `copy_only` but does not make the copy
+stale; a NUMERIC claim present only in a copy does, because it is the shape a stale
+number takes once the new one has been pasted beside it.
 
 Stdlib-only (re / json / argparse). Exit codes: 0 in sync (or report-only),
-1 a stale copy (with --strict), 2 input/usage error.
+1 a stale copy (with --strict), 2 input/usage error (including a --copy that does
+not exist or cannot be decoded as UTF-8 — a named copy is never silently skipped).
 """
 
 from __future__ import annotations
@@ -78,24 +82,36 @@ def main() -> int:
         sys.stderr.write("ERROR: provide at least one --copy\n")
         return 2
 
-    ssot_claims = claims(sp.read_text(encoding="utf-8"))
+    missing = [c for c in args.copy if not Path(c).is_file()]
+    if missing:
+        sys.stderr.write(f"ERROR: copy not found: {', '.join(missing)}\n")
+        return 2
+    texts = {}
+    for f in [args.ssot] + args.copy:
+        try:
+            texts[f] = Path(f).read_text(encoding="utf-8")
+        except UnicodeDecodeError:
+            sys.stderr.write(f"ERROR: cannot decode as UTF-8: {f}\n")
+            return 2
+
+    ssot_claims = claims(texts[args.ssot])
     copies = []
     n_stale = 0
     for c in args.copy:
         cp = Path(c)
-        if not cp.is_file():
-            sys.stderr.write(f"WARN: copy not found, skipping: {c}\n")
-            continue
-        cc = claims(cp.read_text(encoding="utf-8"))
+        cc = claims(texts[c])
         unprop = sorted(ssot_claims - cc)
         copy_only = sorted(cc - ssot_claims)
-        verdict = "STALE_COPY" if unprop else "OK"
-        if unprop:
+        # Numeric claims only the copy makes; headings ("h:...") stay advisory.
+        stale_in_copy = [x for x in copy_only if not x.startswith("h:")]
+        verdict = "STALE_COPY" if (unprop or stale_in_copy) else "OK"
+        if verdict == "STALE_COPY":
             n_stale += 1
         copies.append({
             "copy": str(cp),
             "unpropagated_to_copy": unprop,
             "copy_only": copy_only,
+            "stale_in_copy": stale_in_copy,
             "verdict": verdict,
         })
 
@@ -104,7 +120,8 @@ def main() -> int:
         "copies": copies,
         "verdict": "DIVERGENT" if n_stale else "OK",
         "suggested_fix": (
-            "Re-propagate the unpropagated SSOT claims into each stale copy, or "
+            "Re-propagate the unpropagated SSOT claims into each stale copy and remove "
+            "the numbers the SSOT no longer states (stale_in_copy), or "
             "generate the copies from the SSOT via a build step instead of hand-maintaining them."
         ) if n_stale else None,
     }
@@ -119,6 +136,9 @@ def main() -> int:
         if c["unpropagated_to_copy"]:
             print(f"    unpropagated SSOT claims ({len(c['unpropagated_to_copy'])}): "
                   f"{c['unpropagated_to_copy'][:6]}")
+        if c["stale_in_copy"]:
+            print(f"    numeric claims absent from the SSOT ({len(c['stale_in_copy'])}): "
+                  f"{c['stale_in_copy'][:6]}")
     if n_stale:
         print(f"\nDIVERGENT: {n_stale} stale copy(ies). {result['suggested_fix']}")
     else:

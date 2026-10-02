@@ -43,12 +43,12 @@
 - `parse_pubmed.py`
 - `pubmed_eutils.sh`
 - `snowball.py`
-- `snowball_challenge/` (7 files)
+- `snowball_challenge/` (9 files)
 
 **Scripts** (`skills/search-lit/scripts/`):
 
 - `check_doi_record_match.py`
-- `check_doi_record_match_challenge/` (6 files)
+- `check_doi_record_match_challenge/` (10 files)
 
 ## Source
 

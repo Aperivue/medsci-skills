@@ -33,6 +33,20 @@ from textwrap import shorten
 _EAST_ASIAN_REVERSE_THRESHOLD = 3  # LastName length lower bound for suspicion
 
 
+def _full_text(parent, path: str, default: str = "") -> str:
+    """All text inside the element at `path`, including text inside inline children.
+
+    PubMed marks up titles and abstracts inline (`<i>Helicobacter pylori</i>`, `CO<sub>2</sub>`).
+    `findtext()` / `.text` return only the text before the first child element, which cut
+    "Eradication of <i>Helicobacter pylori</i> infection." down to "Eradication of " while the
+    BibTeX entry was still stamped verified. Absent element -> `default`.
+    """
+    el = parent.find(path) if parent is not None else None
+    if el is None:
+        return default
+    return "".join(el.itertext())
+
+
 def _looks_east_asian_reversed(last: str, fore: str) -> bool:
     """Return True if (LastName, ForeName) look swapped per PubMed encoding bug."""
     if not last or not fore:
@@ -189,7 +203,7 @@ def parse_efetch(data: str) -> None:
         if art is None:
             continue
 
-        title = art.findtext("ArticleTitle", "N/A")
+        title = _full_text(art, "ArticleTitle", "N/A")
         journal_el = art.find("Journal")
         journal = journal_el.findtext("Title", "N/A") if journal_el is not None else "N/A"
         journal_abbrev = journal_el.findtext("ISOAbbreviation", "") if journal_el is not None else ""
@@ -224,7 +238,7 @@ def parse_efetch(data: str) -> None:
         if abstract_el is not None:
             parts = abstract_el.findall("AbstractText")
             abstract = " ".join(
-                (p.get("Label", "") + ": " if p.get("Label") else "") + (p.text or "")
+                (p.get("Label", "") + ": " if p.get("Label") else "") + "".join(p.itertext())
                 for p in parts
             )
 
@@ -256,7 +270,7 @@ def generate_bibtex(data: str) -> None:
         if art is None:
             continue
 
-        title = art.findtext("ArticleTitle", "")
+        title = _full_text(art, "ArticleTitle", "")
         journal_el = art.find("Journal")
         journal_abbrev = journal_el.findtext("ISOAbbreviation", "") if journal_el is not None else ""
         journal_full = journal_el.findtext("Title", "") if journal_el is not None else ""
