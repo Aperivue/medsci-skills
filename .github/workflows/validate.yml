@@ -515,6 +515,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/verify-refs/tests/test_bib_last_field.sh
 
+      - name: "Run verify-refs entry-header test (an indented, spaced or parenthesised entry is its own record)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/verify-refs/tests/test_bib_entry_headers.sh
+
       - name: "Run verify-refs audit-source test (a committed audit must not carry an absolute path)"
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/verify-refs/tests/test_audit_source_path.sh
