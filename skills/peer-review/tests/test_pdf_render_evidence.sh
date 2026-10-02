@@ -11,6 +11,11 @@
 #   - render-mode-3 text was flagged (from the content-stream walk) but the same text
 #     was ALSO in the sanitized text that SKILL.md says to hand the LLM;
 #   - white heading text on a dark banner read SUSPICIOUS (judged against white paper).
+# Negative controls from review: the first local-background rule took the most common
+# colour under the span's own box. Over an image or a gradient no background colour is
+# common, the text's own pixels won, and a black label on a photo, a yellow scale-bar
+# label and black text in a gradient "Key Points" box all read NOT_RENDERED 0/N. A faint
+# (opacity 0.15) watermark also read NOT_RENDERED. main cleared all of them; so must we.
 #
 # Part 1 (always runs, stdlib only): the detector on render-evidence manifests, with the
 # sanitize output checked, and the extractor's pure helpers on synthetic pixels.
@@ -82,6 +87,41 @@ if mod._match_hidden((72, 88, 316, 103), "A visible manuscript sentence", hidden
     fails.append("a span elsewhere with other text must not match")
 if mod._match_hidden((72, 188, 376, 203), "Visible results paragraph", hidden) is not None:
     fails.append("an overlapping span with different text must not match")
+# Local background: the text colour never wins by being the commonest colour.
+lb = mod._local_background
+blk = (0, 0, 0)
+# textured image under a black label: 5 text pixels, 9 distinct image colours
+tex = {blk: 5, (118, 86, 124): 1, (90, 70, 120): 1, (140, 100, 160): 1, (60, 50, 80): 1,
+       (200, 180, 190): 1, (30, 20, 40): 1, (75, 75, 75): 1, (160, 150, 170): 1, (99, 88, 77): 1}
+t_bg, r_bg = lb(tex, [0, 0, 0])
+if t_bg == blk or r_bg is not None:
+    fails.append(f"textured image: test bg must not be the text colour and no bg reported: {t_bg} {r_bg}")
+if not mod._inked({blk: 3, (118, 86, 124): 4}, mod._ink_colour([0, 0, 0], t_bg, None), t_bg):
+    fails.append("black text pixels over an image must count as ink")
+# gradient box: each row its own shade
+grad = {blk: 4}
+grad.update({(240 - k, 240 - k, 252): 3 for k in range(8)})
+t_bg, r_bg = lb(grad, [0, 0, 0])
+if t_bg == blk or r_bg is not None:
+    fails.append(f"gradient: test bg must not be the text colour and no bg reported: {t_bg} {r_bg}")
+# flat banner: the banner is reported
+if lb({navy: 8, white: 2}, [255, 255, 255]) != (navy, navy):
+    fails.append("flat banner must be the reported background")
+# text on its own colour: the box is a solid block of the text colour
+if lb({blk: 90, white: 10}, [0, 0, 0]) != (blk, blk):
+    fails.append("a box mostly in the text colour must give the text colour as background")
+if lb({}, [0, 0, 0]) != (None, None):
+    fails.append("empty histogram must give no background")
+# opacity: a faint watermark's pixels are the blend, and they count as ink
+ink = mod._ink_colour([128, 128, 128], white, 0.15)
+if ink != (236, 236, 236):
+    fails.append(f"opacity 0.15 grey over white must blend to (236,236,236): {ink}")
+if not mod._inked({white: 10, (236, 236, 236): 4}, ink, white):
+    fails.append("a faint watermark's blended pixels must count as ink")
+if mod._ink_colour([0, 0, 0], white, 0.0) != white:
+    fails.append("opacity 0 must blend to the background (nothing drawn)")
+if mod._ink_colour([0, 0, 0], white, None) != blk:
+    fails.append("no opacity must leave the text colour as ink")
 if fails:
     print("FAIL: scan_pdf_layers render helpers", file=sys.stderr)
     for f in fails:
@@ -126,6 +166,38 @@ def body(p):
     for k, ch in enumerate([".", ",", "'", ":", "1"]):
         p.insert_text((72 + 12 * k, 330), ch, fontsize=5)
 make("visible_body", body)
+import random
+def texture(w, h, seed, lo, hi):
+    rnd = random.Random(seed)
+    pix = fitz.Pixmap(fitz.csRGB, fitz.IRect(0, 0, w, h), False)
+    for y in range(h):
+        for x in range(w):
+            v = rnd.randint(lo, hi)
+            pix.set_pixel(x, y, (v, max(0, v - rnd.randint(0, 40)), min(255, v + rnd.randint(0, 40))))
+    return pix.tobytes("png")
+def tex_black(p):
+    p.insert_image(fitz.Rect(72, 150, 472, 450), stream=texture(200, 150, 1, 60, 200))
+    p.insert_text((90, 200), "Arrow: spiculated nodule in right upper lobe", fontsize=11)
+make("image_black_label", tex_black)
+def tex_yellow(p):
+    p.insert_image(fitz.Rect(72, 150, 472, 450), stream=texture(200, 150, 2, 20, 120))
+    p.insert_text((380, 430), "10 mm", fontsize=10, color=(1, 1, 0))
+make("image_yellow_scalebar", tex_yellow)
+def vgrad(p):
+    for i in range(60):
+        g = 0.97 - 0.003 * i
+        p.draw_rect(fitz.Rect(60, 200 + i, 560, 201 + i), color=None, fill=(g, g, 0.99), width=0)
+    p.insert_text((72, 220), "Key Points", fontsize=12)
+    p.insert_text((72, 240), "Deep learning improved nodule detection sensitivity.", fontsize=10)
+make("gradient_key_points", vgrad)
+def hgrad(p):
+    for i in range(500):
+        g = 0.98 - 0.0004 * i
+        p.draw_rect(fitz.Rect(60 + i, 200, 61 + i, 260), color=None, fill=(g, 0.95, g), width=0)
+    p.insert_text((72, 235), "Summary statement in a shaded box.", fontsize=11)
+make("gradient_horizontal", hgrad)
+make("faint_watermark", lambda p: p.insert_text((100, 500), "DRAFT - NOT FOR DISTRIBUTION",
+     fontsize=30, color=(0.5, 0.5, 0.5), fill_opacity=0.15))
 PY
 
 while IFS='|' read -r stem want leak; do
@@ -142,8 +214,24 @@ occluded|1|0
 opacity0|1|0
 white_on_banner|0|0
 visible_body|0|0
+image_black_label|0|0
+image_yellow_scalebar|0|0
+gradient_key_points|0|0
+gradient_horizontal|0|0
+faint_watermark|0|0
 EOF
 grep -q "Key Results" "$TMP/white_on_banner.txt" \
   || { echo "FAIL: white-on-banner heading missing from the sanitized text" >&2; fail=1; }
+while IFS='|' read -r stem want; do
+  grep -q "$want" "$TMP/$stem.txt" \
+    || { echo "FAIL: $stem: '$want' missing from the sanitized text" >&2; fail=1; }
+done <<'EOF'
+image_black_label|spiculated nodule
+image_yellow_scalebar|10 mm
+gradient_key_points|Key Points
+gradient_key_points|nodule detection sensitivity
+gradient_horizontal|shaded box
+faint_watermark|NOT FOR DISTRIBUTION
+EOF
 [ "$fail" -eq 0 ] || exit 1
-echo "PASS: real PDFs: four hiding methods flagged and removed from the sanitized text; visible controls clean."
+echo "PASS: real PDFs: four hiding methods flagged and removed from the sanitized text; visible controls (banner, image labels, gradients, faint watermark) clean."

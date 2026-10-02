@@ -3773,8 +3773,8 @@
     },
     {
       "path": "skills/peer-review/SKILL.md",
-      "size": 53485,
-      "sha256": "bbada933733a01613ea750bea17c54b102bb49c02b4d1493670e59e71fb8b6b6"
+      "size": 53816,
+      "sha256": "7c8ed8a97a74d57be3a1b928f0acce0a7cdc6def6f8ce6a861b1422890734957"
     },
     {
       "path": "skills/peer-review/references/aczel_2021_reviewer2_patterns.md",
@@ -4148,13 +4148,13 @@
     },
     {
       "path": "skills/peer-review/scripts/scan_pdf_layers.py",
-      "size": 12533,
-      "sha256": "2ee3e286fe7bc2cc875234809cb1777a06515ee68733b428acf880d34755f229"
+      "size": 15014,
+      "sha256": "2773d3e6af1aabdc0786a88537b3a126ac2dfdfbbfd1dbeb920c8a59667b2911"
     },
     {
       "path": "skills/peer-review/skill.yml",
-      "size": 2529,
-      "sha256": "7b58b92cee862c3cd98b40d94f0916258877f44922a93f0cf47d08ec8a863f97"
+      "size": 2716,
+      "sha256": "2c33570d221416e7c2519f722e55f069d19c7c47b893d8f9277796f2cc7837aa"
     },
     {
       "path": "skills/polish-language/SKILL.md",
