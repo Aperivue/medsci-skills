@@ -3683,8 +3683,8 @@
     },
     {
       "path": "skills/obsidian-paper-vault/SKILL.md",
-      "size": 6170,
-      "sha256": "2c277fa6e5cec28b93e3681e7b8122a25df827a8900fc45f419596f618e17cb4"
+      "size": 6331,
+      "sha256": "05a18e8c796b88fa027fc1cb3351b0914c9379f550cade5976306b836665368e"
     },
     {
       "path": "skills/obsidian-paper-vault/assets/example_concept_note.md",
@@ -3733,13 +3733,13 @@
     },
     {
       "path": "skills/obsidian-paper-vault/scripts/extract_pdfs.py",
-      "size": 2555,
-      "sha256": "dc6320e3e4a07f58015eac104a1077dbb7ecd169022f376f946b5b95e13bdae0"
+      "size": 3360,
+      "sha256": "a35885c525e63496578677d0ae9ca6e5c7c9422e6970809874b1aedf31583d5a"
     },
     {
       "path": "skills/obsidian-paper-vault/skill.yml",
-      "size": 2694,
-      "sha256": "365b5843e14d945626a0316da83d6a024330f6b16b9888a9c6b8042d8aa3ae3f"
+      "size": 2735,
+      "sha256": "fb696bc14cd57e8ba23a61dc2ed314b421290e11dbba07b0a2ef00363b00f60b"
     },
     {
       "path": "skills/orchestrate/SKILL.md",
