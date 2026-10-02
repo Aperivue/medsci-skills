@@ -425,6 +425,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 skills/calc-sample-size/tests/test_worked_examples.py
 
+      - name: "Run design-ai-benchmarking reader-allocation test (sizing block returns only possible allocations)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python3 skills/design-ai-benchmarking/tests/test_reader_allocation.py
+
       - name: Run sync-submission asset-anonymization gate test (A2)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/sync-submission/tests/test_asset_anonymization.sh
