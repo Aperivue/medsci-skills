@@ -2,7 +2,7 @@
 
 **Purpose**: medsci-skills repo는 자체 룰을 들고 있지 않음. Manuscript writing/QC에 적용되는 글로벌 룰들은 `~/.claude/rules/` (사용자 글로벌 영역, repo 외부)에 거주. 이 표는 어느 룰이 어느 스킬의 어느 phase에서 trigger되는지를 한 페이지로 매핑한다.
 
-**Status**: 2026-05-01 신설. 룰 신규 추가 시 이 표도 갱신할 것.
+**Status**: 2026-05-01 신설. 룰 신규 추가 시 이 표도 갱신할 것. 2026-07 룰 재편 이후 일부 룰은 로컬 스킬(`~/.claude/skills/`)로 옮겨졌고, 라우팅 룰 3개는 `routing.md` 하나로 합쳐졌다. 첫 칸이 현재 위치를 가리킨다.
 
 **Authoritative source**: `~/.claude/rules/` (글로벌). 이 매트릭스는 인덱스. 룰 본문은 사용자의 `.claude/rules/` 폴더에서만 편집.
 
@@ -12,30 +12,30 @@
 |---|---|---|
 | `manuscript-style-classical.md` | `/write-paper` Phase 7.1 (classical-style QC), `/self-review`, `/humanize` | ENFORCED |
 | `manuscript-references.md` | `/write-paper` Phase 7.6 (delegates to `/manage-refs`), `/manage-refs` entry | ENFORCED |
-| `senior-mentor-circulation.md` | `/write-paper` post-Phase 7.7 (circulation round entry), `/revise` entry | ADVISORY (until first co-author docx attached → ENFORCED) |
-| `ai-drafted-document-policy.md` | `/meta-analysis` Phase 4.0 gate, `/write-paper` Phase 0 (when senior mentor attaches AI-draft), `/revise` (R1 attachments) | ENFORCED |
+| `senior-mentor-circulation` (now a local skill, `~/.claude/skills/senior-mentor-circulation/`) | `/write-paper` post-Phase 7.7 (circulation round entry), `/revise` entry | ADVISORY (until first co-author docx attached → ENFORCED) |
+| `ai-drafted-document-policy` (now a local skill, `~/.claude/skills/ai-drafted-document-policy/`) | `/meta-analysis` Phase 4.0 gate, `/write-paper` Phase 0 (when senior mentor attaches AI-draft), `/revise` (R1 attachments) | ENFORCED |
 | `citation-safety.md` | `/verify-refs --strict` (first-author cross-check), `/manage-refs` Gate 1 | ENFORCED |
 | `numerical-safety.md` | `/analyze-stats` Phase 2.5, `/write-paper` Phase 7.1, `/revise` Step 2.5 (`[VERIFY-CSV]` tagging), `/meta-analysis`, `/self-review` | ENFORCED |
 | `data-integrity.md` | `/analyze-stats`, `/clean-data`, `/define-variables` Tier 0, `/meta-analysis` extraction phases | ENFORCED |
 | `dictionary-first.md` | `/define-variables` Tier 0 (data-dictionary citation), `/replicate-study`, `/cross-national` | ENFORCED for DB-backed observational research |
 | `pptx-mac-compatibility.md` | `/present-paper` Phase 3 Mode A (PPTX generation/edit) | ENFORCED |
-| ~~`journal-ai-image-policies.md`~~ (rule removed; the policy table now lives in `skills/make-figures/SKILL.md` → *Journal AI-Image Policies*) | `/make-figures` (figure generation entry); also `/write-paper` cover-letter-time AI disclosure | ENFORCED for JACC family / NEJM (default to non-AI assets) |
+| `journal-ai-image-policies` (now a local skill; the shipped policy table is `skills/make-figures/SKILL.md` → *Journal AI-Image Policies*) | `/make-figures` (figure generation entry); also `/write-paper` cover-letter-time AI disclosure | ENFORCED for JACC family / NEJM (default to non-AI assets) |
 | `zotero-workflow.md` | `/lit-sync` setup + ongoing, `/manage-refs` Workflow B (CWYW) | ENFORCED for projects using Zotero |
 | `manuscript-references.md` (Phase 1↔2↔3 transition) | `/manage-refs` decision tree (Workflow A vs B); orchestrate node N10 | ENFORCED at circulation entry |
 | `agent-skill-routing.md` | `/orchestrate` routing classification | ENFORCED (drift between routing table + this rule = bug) |
-| `domain-routing.md` | `/orchestrate` cross-domain ambiguity, `/research`, `/biz`, `/imagine` | ENFORCED |
-| `model-routing.md` | session-level model selection (opus vs sonnet) | ADVISORY |
-| `email-drafts.md` | when invoking `gws-draft.py` (e.g., `/manage-project` follow-ups, contributor replies) | ENFORCED |
+| `routing.md` → *Domain Routing* (was `domain-routing.md`) | `/orchestrate` cross-domain ambiguity, `/research`, `/biz`, `/imagine` | ENFORCED |
+| `routing.md` → *Model Routing* (was `model-routing.md`) | session-level model selection (opus vs sonnet) | ADVISORY |
+| `email-drafts` (now a local skill, `~/.claude/skills/email-drafts/`) | when invoking `gws-draft.py` (e.g., `/manage-project` follow-ups, contributor replies) | ENFORCED |
 | `terminal-ux.md` | all skills' user-facing output (absolute paths, alias usage, command length) | ADVISORY |
 | `work-directory.md` | session start, `/intake-project`, `/manage-project init` | ENFORCED |
 | `language.md` | all skills' Communication Rules section | ENFORCED |
 | `user-profile.md` | `/write-paper` author block generation, `/find-journal` profile matching, all CV-touching skills | ENFORCED — never write outdated affiliation |
-| `post-submission-harvest.md` | `/handoff`, `/manage-project` at submission/acceptance milestone | ENFORCED at milestone trigger |
+| `post-submission-harvest` (now a local skill, `~/.claude/skills/post-submission-harvest/`) | `/handoff`, `/manage-project` at submission/acceptance milestone | ENFORCED at milestone trigger |
 | `session-end-checklist.md` + `handoff-protocol.md` | `/handoff` (session end orchestration) | ENFORCED |
-| `institutional-form-fill.md` | `/fill-protocol` (skill selection + template detection) | ENFORCED |
-| `icmje-coi-fill.md` | `/fill-icmje-coi` (entry, seed selection, batch generation) | ENFORCED |
-| `medical-community-kakao.md` | `/biz` 또는 `/research` 커뮤니티 운영 요청 | ADVISORY |
-| `codex-routing.md` | `/codex:rescue`, `/codex:review`, `/codex:adversarial-review` 진입 | ENFORCED |
+| `institutional-form-fill` (now a local skill, `~/.claude/skills/institutional-form-fill/`) | `/fill-protocol` (skill selection + template detection) | ENFORCED |
+| `icmje-coi-fill` (now a local skill, `~/.claude/skills/icmje-coi-fill/`) | `/fill-icmje-coi` (entry, seed selection, batch generation) | ENFORCED |
+| `medical-community-kakao` (now a local skill, `~/.claude/skills/medical-community-kakao/`) | `/biz` 또는 `/research` 커뮤니티 운영 요청 | ADVISORY |
+| `routing.md` → *Codex Routing* (was `codex-routing.md`) | `/codex:rescue`, `/codex:review`, `/codex:adversarial-review` 진입 | ENFORCED |
 | `writing-style.md` | `/write-paper`, `/humanize`, critic agent (general 18-pattern checklist) | ENFORCED |
 
 ## How to use
