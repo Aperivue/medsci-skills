@@ -98,6 +98,11 @@ def _norm_target(t) -> str:
     return str(t).strip().lower() if t is not None else ""
 
 
+# Plan keys that are always lists, even with one value: `metrics=accuracy` must reach the
+# gate as ["accuracy"], not the string "accuracy" (which the gate iterated per character).
+LIST_KEYS = {"metrics"}
+
+
 def parse_kv(s: str | None, sep: str = ",") -> dict:
     out: dict = {}
     if not s:
@@ -109,7 +114,7 @@ def parse_kv(s: str | None, sep: str = ",") -> dict:
         k, v = k.strip(), v.strip()
         if v.lower() in ("true", "false"):
             out[k] = v.lower() == "true"
-        elif "+" in v:
+        elif "+" in v or k in LIST_KEYS:
             out[k] = [x for x in v.split("+") if x]
         else:
             out[k] = v
