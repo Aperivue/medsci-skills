@@ -325,6 +325,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/tests/test_cv_leakage.sh
 
+      - name: Run obsidian-paper-vault extractor test (image-only PDF and max_pages<1 never yield an empty .txt)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python3 skills/obsidian-paper-vault/tests/test_extract_pdfs.py
+
       - name: Run validate_catalog_consistency.py (doc counts must match disk SSOT)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 scripts/validate_catalog_consistency.py
@@ -425,6 +429,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 skills/calc-sample-size/tests/test_worked_examples.py
 
+      - name: "Run design-ai-benchmarking reader-allocation test (sizing block returns only possible allocations)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python3 skills/design-ai-benchmarking/tests/test_reader_allocation.py
+
       - name: Run sync-submission asset-anonymization gate test (A2)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/sync-submission/tests/test_asset_anonymization.sh
@@ -511,6 +519,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/verify-refs/tests/test_bib_last_field.sh
 
+      - name: "Run verify-refs entry-header test (an indented, spaced or parenthesised entry is its own record)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/verify-refs/tests/test_bib_entry_headers.sh
+
       - name: "Run verify-refs audit-source test (a committed audit must not carry an absolute path)"
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/verify-refs/tests/test_audit_source_path.sh
@@ -596,6 +608,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/author-strategy/tests/test_archetype_classifier.sh
 
+      - name: Run replicate-study alcohol harmonization test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: python3 skills/replicate-study/tests/test_alcohol_harmonization.py -v
+
       # --- Tier 0/1 skill regression tests (existing + new, now CI-wired) ---
       - name: Run make-figures legend-reconcile test
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
@@ -616,6 +632,10 @@ jobs:
       - name: Run clean-data reverse-coding test
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/clean-data/tests/test_reverse_coding.sh
+
+      - name: Run clean-data profiling-template NA-token test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/clean-data/tests/test_profiling_template.sh
 
       - name: Run check_checklist_provenance.py (a checklist must say what it is and what was checked)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
@@ -1067,6 +1087,10 @@ jobs:
       - name: "Run search-lit E-utilities test (an apostrophe in a query is data, not code)"
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/search-lit/tests/test_pubmed_eutils.sh
+
+      - name: "Run search-lit parse_pubmed test (inline markup never truncates a title or abstract)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/search-lit/tests/test_parse_pubmed.sh
 
       - name: "Run ma-scout test (an unknown esearch count is never 0; an unchecked PROSPERO is never clear)"
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}

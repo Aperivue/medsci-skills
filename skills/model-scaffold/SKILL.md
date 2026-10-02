@@ -42,7 +42,8 @@ in the generated `requirements.txt`); it does not reimplement them.
 ### Phase 1 — Prepare the manifest
 A CSV with **one row per image** and a **patient/subject ID** column (`patient_id` / `subject_id` /
 `case_id`), plus image and label path columns. The ID column is load-bearing: the split is done at the
-patient level off this column.
+patient level off this column. IDs are compared after stripping surrounding whitespace (`P01` and
+`P01 ` are one patient), in the split and in the generated `dataset.py` alike.
 
 ### Phase 2 — Generate the repo
 ```bash
@@ -50,13 +51,22 @@ python3 ${CLAUDE_SKILL_DIR}/scripts/scaffold.py \
   --manifest <manifest.csv> --task segmentation --out model_repo --seed 42 \
   --in-channels 1 --out-channels 1
 # --task = segmentation | classification | detection | synthesis | ssl | finetune
-#   (out-channels = num classes for classification/finetune, target channels for synthesis)
+#   (out-channels = num classes for classification/finetune, target channels for synthesis;
+#    finetune uses a softmax CrossEntropy head, so it refuses --out-channels < 2 — binary = 2)
 # fine-tuning a pretrained backbone (transfer learning) on collected clinical data:
 python3 ${CLAUDE_SKILL_DIR}/scripts/scaffold.py \
   --manifest <manifest.csv> --task finetune --out model_repo --seed 42 \
   --out-channels <num_classes> --from-pretrained timm:resnet50.a1_in1k
 #   emits PRETRAINED.md (provenance) + a frozen→unfrozen train.py with discriminative LRs;
-#   record the exact pretrained source so the fine-tune is reproducible.
+#   record the exact pretrained source so the fine-tune is reproducible. build_model(pretrained=True)
+#   raises if timm is missing (never a silent random-init stand-in); best.pt records backbone_class.
+# reuse the split /imaging-data's preprocessing gate checked (do not draw a new one):
+python3 ${CLAUDE_SKILL_DIR}/scripts/scaffold.py \
+  --manifest <manifest.csv> --preprocessing-manifest preprocessing_manifest.json --out model_repo
+#   copies its split_assignment + split_seed into splits/, reading rows with the gate's own rules
+#   (patient key patient_id/subject_id/patient/id; split synonyms such as training/validation/holdout);
+#   exits 2 if a manifest patient has no split there, a patient sits in two splits, a split does not
+#   map to train/val/test, or split_seed is absent.
 ```
 This writes `model_repo/` with `config.yaml`, `model.py` (the task's model — U-Net / CNN / Faster R-CNN
 / Pix2Pix / SimCLR encoder), `dataset.py` (reads the frozen split), `losses.py` (task-appropriate),
@@ -121,6 +131,20 @@ runnability.
   (`PRETRAINED_PROVENANCE_MISSING`).
 - `scripts/scaffold_challenge/verify.sh` — the build → validate chain, network-free (torch tier
   self-skips).
+
+### Known limits of `check_training_hygiene.py`
+- It counts seeding / cuDNN / `eval()` / `no_grad()` only in code a run reaches from the script's
+  import-time statements. A file with no import-time call into its own functions is entered through
+  every public top-level function nothing references, so an uncalled public `seed_everything` in such
+  a file still counts. Every decorated function or method (a click/typer command, a route, a
+  `@staticmethod`) is also an entry point, so an uncalled decorated seeding helper still counts.
+- It does not check statement order: inference placed before `model.eval()` in the same function is
+  not detected.
+- `--repo` without `train.py` / `evaluate.py` reports those checks as NOT CHECKED; with `--strict`
+  it exits 2 rather than clearing them.
+- Dataset variables are resolved by one name-to-split map for the whole file (later assignment in
+  source order wins, across functions), not per scope; a shuffled loader that combines train with
+  val only (a train+val refit) is not flagged.
 
 ## Boundaries
 

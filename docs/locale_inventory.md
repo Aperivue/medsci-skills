@@ -61,6 +61,8 @@ Buckets:
 | `skills/sync-submission/scripts/author_registry_example.yaml` | A | `성명` as a hangul `native_names` example comment. |
 | `skills/replicate-study/references/harmonization_knhanes_nhanes.csv` | A | KNHANES authoritative Korean variable labels (`개인아이디`, `조사연도`). Notes already English. |
 | `skills/replicate-study/references/harmonization_3country.csv` | A | KNHANES authoritative Korean variable labels. |
+| `skills/replicate-study/tests/fixtures/main_alcohol_rows/harmonization_3country.csv` | A | Test fixture: rows copied from the reference CSV, keeping its KNHANES Korean variable labels. |
+| `skills/replicate-study/tests/fixtures/main_alcohol_rows/harmonization_knhanes_nhanes.csv` | A | Test fixture: rows copied from the reference CSV, keeping its KNHANES Korean variable labels. |
 | `skills/define-variables/SKILL.md` | A/D | KNHANES-style dictionary sheet/row example (`5-1.복부초음파 r12`) + bilingual trigger. |
 | `skills/render-pdf-doc/references/pandoc_korean_cheatsheet.md` | A | Korean-PDF rendering reference (the skill renders Korean academic PDFs). +label in PR3. |
 | `skills/render-pdf-doc/references/known_pitfalls.md` | A | Korean-PDF rendering failure-mode demonstrations. +label in PR3. |

@@ -35,6 +35,11 @@ random.seed(42)
 # 1. Data Loading
 # ---------------------------------------------------------------------------
 
+# Missing-value tokens added on top of pandas' default NA set. pandas does not
+# treat "." (SAS/Stata export) or "missing" as NA, so without these a column
+# written with them profiles as 0% missing. Extend per dataset/codebook.
+EXTRA_NA_TOKENS = [".", "missing", "Missing", "MISSING"]
+
 def load_data(file_path: str) -> pd.DataFrame:
     """Auto-detect CSV vs Excel and load into a DataFrame."""
     path = Path(file_path)
@@ -42,9 +47,9 @@ def load_data(file_path: str) -> pd.DataFrame:
 
     if ext in (".csv", ".tsv"):
         sep = "\t" if ext == ".tsv" else ","
-        df = pd.read_csv(path, sep=sep, low_memory=False)
+        df = pd.read_csv(path, sep=sep, low_memory=False, na_values=EXTRA_NA_TOKENS)
     elif ext in (".xls", ".xlsx", ".xlsm"):
-        df = pd.read_excel(path, engine="openpyxl")
+        df = pd.read_excel(path, engine="openpyxl", na_values=EXTRA_NA_TOKENS)
     else:
         raise ValueError(f"Unsupported file format: {ext}. Use CSV, TSV, or Excel.")
 
@@ -75,6 +80,7 @@ def build_variable_summary(df: pd.DataFrame) -> pd.DataFrame:
             "n_missing": n_missing,
             "pct_missing": pct_missing,
             "n_unique": n_unique,
+            "n_non_numeric": None,
             "min": None,
             "max": None,
             "mean": None,
@@ -85,6 +91,9 @@ def build_variable_summary(df: pd.DataFrame) -> pd.DataFrame:
         # Numeric descriptive statistics
         if inferred_type == "numeric":
             numeric = pd.to_numeric(series, errors="coerce")
+            # Non-missing values that failed numeric coercion (e.g. "<5",
+            # "unknown"): excluded from the stats below, so report the count.
+            rec["n_non_numeric"] = int((numeric.isna() & series.notna()).sum())
             rec["min"] = round(float(numeric.min()), 4) if numeric.notna().any() else None
             rec["max"] = round(float(numeric.max()), 4) if numeric.notna().any() else None
             rec["mean"] = round(float(numeric.mean()), 4) if numeric.notna().any() else None
