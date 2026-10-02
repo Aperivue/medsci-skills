@@ -513,18 +513,18 @@
     },
     {
       "path": "skills/author-strategy/SKILL.md",
-      "size": 7445,
-      "sha256": "dfecd3c1381e5783d1cb5b2011a06248250840c3509623051b616134dea74650"
+      "size": 8016,
+      "sha256": "872932f290f97e9d0679932bcbf0183e944a411a7bddeb71defd0d80c99e0c45"
     },
     {
       "path": "skills/author-strategy/analyze_patterns.py",
-      "size": 12865,
-      "sha256": "e1d06a54c877e7b517f3847408b3dbcd53bb15ddd82e1c19edf2351852b875e4"
+      "size": 13458,
+      "sha256": "42fbce666fbc3ccfba407bd04e3412a9af97b1aad4e162356725245e74753836"
     },
     {
       "path": "skills/author-strategy/classify_archetypes.py",
-      "size": 20803,
-      "sha256": "8859294ed7f61888f96c1ec470afb2cdac88bd54c4aad8ce0ea34f245c67194a"
+      "size": 21834,
+      "sha256": "13c1d88c50021a98816fd824b475282fe88ff6971120a3ad70b75dd331faf885"
     },
     {
       "path": "skills/author-strategy/fetch_pubmed.py",
@@ -533,18 +533,18 @@
     },
     {
       "path": "skills/author-strategy/pubmed_parse.py",
-      "size": 14663,
-      "sha256": "9645298fda0968f30623fac2c6034c09129530eb3ca388df21eef5e202679c92"
+      "size": 16031,
+      "sha256": "a14124b3b5449ae7201584c8bae3e913f90e9521c09b20ceb526435caa1c6a3d"
     },
     {
       "path": "skills/author-strategy/references/trajectory_archetypes.md",
-      "size": 8954,
-      "sha256": "ec52b722ec308eb80bb1c421ce20f17bef024024c2529aad393af152cac17101"
+      "size": 9021,
+      "sha256": "13b9c800f9c0eef4720147a96ac12d0b72bcf5108f0cbfe5c83792b826ece696"
     },
     {
       "path": "skills/author-strategy/references/trajectory_archetypes.yaml",
-      "size": 16666,
-      "sha256": "2d6217b51c618493449f4136c18519c97e5fb2a5c0bc5cd79bb1ce26afc25e15"
+      "size": 16929,
+      "sha256": "a64c6dd51a32542b5e61d591086594dc49f3f6f561f1642dde05602e66eff0b4"
     },
     {
       "path": "skills/author-strategy/render_archetype_doc.py",
