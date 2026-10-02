@@ -111,6 +111,9 @@ def bib_field(body: str, name: str) -> str:
         val = body[i + 1:j if j != -1 else len(body)]
     else:
         return ""
+    # A LaTeX-escaped special ("{\&}", "\_") prints as the bare character, so compare that:
+    # otherwise "Journal of X {\&} Y" is never found in the render and its full title clears.
+    val = re.sub(r"\\([&_%$#])", r"\1", val)
     return " ".join(val.replace("{", "").replace("}", "").split())
 
 

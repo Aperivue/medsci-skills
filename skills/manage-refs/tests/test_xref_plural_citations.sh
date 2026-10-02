@@ -121,6 +121,55 @@ ck "  ... as proven absent"                      1 \
    "$(python3 -c "import json;print(json.load(open('$WORK/sep.json'))['summary']['downgraded_proven_absent'])")"
 ck "'Figure 1 and 2', both in DOCX: exit 0"      0 "$(run singular_list.md full.docx)"
 
+echo "==== a commented-out or fenced legend is not a float the DOCX must carry ===="
+# Pandoc drops HTML comments and fenced code, so a legend there is not rendered. Commenting out the
+# legend of a dropped figure is an ordinary edit; main reported it UNCITED (exit 0) and so must this.
+cat > "$WORK/commented.md" <<'MD'
+## Results
+
+As shown in Figure 1, the effect held.
+
+## Figure Legends
+
+**Figure 1.** Study flow diagram.
+
+<!--
+**Figure 2.** Kaplan-Meier survival curves.
+-->
+MD
+cat > "$WORK/fenced.md" <<'MD'
+## Results
+
+As shown in Figure 1, the effect held.
+
+## Figure Legends
+
+**Figure 1.** Study flow diagram.
+
+```
+**Figure 2.** Kaplan-Meier survival curves.
+```
+MD
+ck "commented-out legend, Figure 2 absent: exit 0"  0 "$(run commented.md partial.docx)"
+ck "  Figure 2 stays UNCITED"                       UNCITED "$(status_of commented.md Figure:2)"
+ck "fenced legend, Figure 2 absent: exit 0"         0 "$(run fenced.md partial.docx)"
+ck "  Figure 2 stays UNCITED"                       UNCITED "$(status_of fenced.md Figure:2)"
+# Control: the same legend un-commented is a live definition, and its absence still blocks.
+ck "control: live legend, Figure 2 absent: blocks"  1 "$(run uncited.md partial.docx)"
+cat > "$WORK/inline_comment.md" <<'MD'
+## Results
+
+As shown in Figure 1, the effect held. <!-- note to self -->
+
+## Figure Legends
+
+**Figure 1.** Study flow diagram.
+
+**Figure 2.** Kaplan-Meier survival curves.
+MD
+ck "control: a comment elsewhere does not hide a live legend" 1 "$(run inline_comment.md partial.docx)"
+ck "  Figure 2 is MISSING_DOCX"                     MISSING_DOCX "$(status_of inline_comment.md Figure:2)"
+
 echo "==== --docx given but python-docx unavailable: the audit did not run ===="
 # extract_docx_captions used to return {} — "the DOCX holds no floats" — so every float became
 # MISSING_DOCX "proven absent", MISMATCH was never evaluated, and --allow-separate-attachments then

@@ -84,7 +84,8 @@ a `[N] → ZoteroKey` mapping.
    ```
    The conversion never guesses a Zotero key for a number: unmapped markers stay as `[N]`, are
    reported on stderr, and make the script exit 1 (the partial output is still written; pass
-   `--allow-partial` to accept it). Ranges such as `[1-3]` are expanded. Optionally stage with `--active-ns 1,2,3,4,19` for a sample build
+   `--allow-partial` to accept it). Ranges such as `[1-3]` are expanded. Any bracketed
+   number counts as a marker, so a year in brackets (`[2019-2021]`) is reported UNMAPPED too. Optionally stage with `--active-ns 1,2,3,4,19` for a sample build
    first (a 5-reference sample limits the Word Refresh blast radius while debugging).
 2. **Render to .docx** with pandoc (workflow A) so the body has plain text
    `[@key]` markers, OR pre-build a .docx some other way that still contains
@@ -219,7 +220,8 @@ This skill defines **three submission gates** and **one user approval gate**:
 - **Gate 2 (cross-reference integrity)**: `check_xref.py --strict` exits 1 on
   any `MISSING_DOCX` / `MISSING_BODY` / `MISMATCH` row (a float the markdown
   defines but the DOCX lacks is `MISSING_DOCX` even when no in-text citation of
-  it was recognised). With `--docx` and no `python-docx` it exits 2: the DOCX
+  it was recognised; a legend inside an HTML comment or fenced code is not
+  rendered, so it stays `UNCITED`). With `--docx` and no `python-docx` it exits 2: the DOCX
   audit did not run. The user reviews
   `qc/xref_audit.json` and resolves before proceeding. Under
   `--allow-separate-attachments`, check `summary.downgraded_unchecked` as well as

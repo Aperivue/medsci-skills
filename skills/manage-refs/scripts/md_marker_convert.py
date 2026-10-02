@@ -44,6 +44,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import itertools
 import json
 import re
 import sys
@@ -80,19 +81,24 @@ def parse_active(spec: str | None, full_keys: set[int]) -> set[int]:
     return {int(x.strip()) for x in spec.split(",") if x.strip()}
 
 
-def expand_marker(body: str) -> list[int] | None:
-    """The numbers a marker body names, ranges expanded. None for a backwards range."""
-    nums: list[int] = []
+def expand_marker(body: str) -> list[range] | None:
+    """The numbers a marker body names, as one range per item. None for a backwards range.
+
+    Ranges stay lazy: "[1-100000000]" is not materialised. The caller stops at the first number
+    the map lacks, so the work done is bounded by the size of the map, not by the range.
+    """
+    spans: list[range] = []
     for item in body.split(","):
         parts = [x.strip() for x in re.split(_RANGE_SEP, item.strip())]
         if len(parts) == 1:
-            nums.append(int(parts[0]))
+            n = int(parts[0])
+            spans.append(range(n, n + 1))
             continue
         lo, hi = int(parts[0]), int(parts[1])
         if hi < lo:
             return None
-        nums.extend(range(lo, hi + 1))
-    return nums
+        spans.append(range(lo, hi + 1))
+    return spans
 
 
 def make_num_to_key(n_to_key: dict[int, str], active: set[int], staged: bool = False):
@@ -107,17 +113,25 @@ def make_num_to_key(n_to_key: dict[int, str], active: set[int], staged: bool = F
     left: dict[str, list[str]] = {"UNMAPPED": [], "INACTIVE": [], "MALFORMED": []}
 
     def repl(m: re.Match) -> str:
-        nums = expand_marker(m.group(1))
-        if nums is None:
+        spans = expand_marker(m.group(1))
+        if spans is None:
             left["MALFORMED"].append(m.group(0))
             return m.group(0)
-        if any(n not in n_to_key and (n in active or not staged) for n in nums):
+        if staged:
+            # Only an ACTIVE number can be unmapped; test the (finite) active set against the spans.
+            unmapped = any(n not in n_to_key and any(n in sp for sp in spans) for n in active)
+        else:
+            # Stops at the first number the map lacks: at most len(map) + 1 steps.
+            unmapped = any(n not in n_to_key for n in itertools.chain.from_iterable(spans))
+        if unmapped:
             left["UNMAPPED"].append(m.group(0))
             return m.group(0)
-        if not all(n in active for n in nums):
+        # Stops at the first number outside the active set: at most len(active) + 1 steps. Past it,
+        # every number is active and mapped, so the join is bounded by the map size.
+        if not all(n in active for n in itertools.chain.from_iterable(spans)):
             left["INACTIVE"].append(m.group(0))
             return m.group(0)
-        return "[" + ", ".join(f"@{n_to_key[n]}" for n in nums) + "]"
+        return "[" + ", ".join(f"@{n_to_key[n]}" for n in itertools.chain.from_iterable(spans)) + "]"
 
     return repl, left
 

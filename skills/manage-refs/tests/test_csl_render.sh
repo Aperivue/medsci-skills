@@ -220,6 +220,36 @@ BIB
     bad "control title/abbreviation word list (rc=$rc): $out"
   fi
   rm -rf "$ctl_dir"
+  # A LaTeX-escaped '&' in the journal field: pandoc prints '&', so the full title must be compared
+  # unescaped. A CSL printing the long container-title fails --expect-abbrev yes with '{\&}' exactly
+  # as it does with 'and'; vancouver (short form) clears both.
+  esc_dir="$(mktemp -d)"
+  sed 's/<text form="short" strip-periods="true" variable="container-title"\/>/<text variable="container-title"\/>/' \
+    "$STYLES/vancouver.csl" > "$esc_dir/full_title.csl"
+  for jt in '{\&}' 'and'; do
+    cat > "$esc_dir/refs.bib" <<BIB
+@article{jv2020,
+  title        = {A synthetic interventional study},
+  author       = {Alpha, Ada},
+  journal      = {Journal of Vascular $jt Interventional Radiology},
+  shortjournal = {J Vasc Interv Radiol},
+  year         = {2020}
+}
+BIB
+    out="$(python3 "$SCRIPT" --csl "$esc_dir/full_title.csl" --bib "$esc_dir/refs.bib" --expect-abbrev yes 2>&1)"; rc=$?
+    if [[ $rc -eq 1 && "$out" == *'"abbrev_full_detected": true'* ]]; then
+      pass "full-title CSL fails --expect-abbrev yes (journal with '$jt')"
+    else
+      bad "full-title CSL with '$jt' in journal (rc=$rc): $out"
+    fi
+    out="$(python3 "$SCRIPT" --csl "$STYLES/vancouver.csl" --bib "$esc_dir/refs.bib" --expect-abbrev yes 2>&1)"; rc=$?
+    if [[ $rc -eq 0 ]]; then
+      pass "control: short-form CSL clears (journal with '$jt')"
+    else
+      bad "control short-form CSL with '$jt' in journal (rc=$rc): $out"
+    fi
+  done
+  rm -rf "$esc_dir"
   csl_check vancouver --journal JKMS
   if [[ $rc -ne 2 && "$out" != *"unknown --journal"* ]]; then
     pass "--journal is matched case-insensitively"

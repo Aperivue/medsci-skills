@@ -284,6 +284,19 @@ def extract_body_captions(md_text: str) -> dict[str, Caption]:
     return captions
 
 
+_INERT_RE = re.compile(r"<!--.*?-->|^[ \t]*(```|~~~).*?^[ \t]*\1", re.DOTALL | re.MULTILINE)
+
+
+def mask_inert(md_text: str) -> str:
+    """Blank HTML comments and fenced code blocks, keeping every offset and newline.
+
+    Pandoc renders neither into the DOCX, so a legend inside them is not a float the submission
+    defines. Only the uncited-but-defined MISSING_DOCX verdict reads this masked view (see main);
+    every other verdict reads the markdown exactly as before.
+    """
+    return _INERT_RE.sub(lambda m: re.sub(r"[^\n]", " ", m.group(0)), md_text)
+
+
 class DocxUnreadable(Exception):
     """The --docx file was supplied but could not be read."""
 
@@ -344,7 +357,12 @@ def reconcile(
     citations: list[Label],
     body: dict[str, Caption],
     docx: Optional[dict[str, Caption]],
+    live_body_keys: Optional[set[str]] = None,
 ) -> list[Finding]:
+    """``live_body_keys``: body caption keys defined OUTSIDE comments and fenced code. Defaults to
+    every body key. Only those can turn an uncited float into MISSING_DOCX."""
+    if live_body_keys is None:
+        live_body_keys = set(body.keys())
     cited_keys = {lbl.key for lbl in citations}
     body_keys = set(body.keys())
     docx_keys = set(docx.keys()) if docx is not None else set()
@@ -375,7 +393,8 @@ def reconcile(
                 panel_note = (panel_note + "; " if panel_note else "") + \
                     f"panel reference resolved to {base.replace(':', ' ')} in DOCX"
 
-        status, note = _classify(is_cited, in_body, in_docx, body_text, docx_text)
+        status, note = _classify(is_cited, in_body, in_docx, body_text, docx_text,
+                                 in_live_body=key in live_body_keys)
         if panel_note and status == "OK":
             note = panel_note
 
@@ -407,14 +426,20 @@ def _classify(
     in_docx: Optional[bool],
     body_text: Optional[str],
     docx_text: Optional[str],
+    in_live_body: Optional[bool] = None,
 ) -> tuple[str, str]:
+    if in_live_body is None:
+        in_live_body = in_body
     if not cited:
         # A float the markdown DEFINES but the rendered DOCX does not carry is a float missing from
         # the submission, whether or not the in-text mention was recognised. Reporting it as UNCITED
         # (non-blocking) let "Table 1 and 2" clear --strict with Table 2 absent from the DOCX: the
         # singular kind word with a number list is not read as a citation of Table 2. The verdict now
         # rests on the two structured sources — body caption vs DOCX caption — not on the phrasing.
-        if in_body and in_docx is False:
+        # A legend inside an HTML comment or fenced code is not rendered (pandoc drops both), so a
+        # commented-out legend of a dropped float is not a float missing from the DOCX: it stays
+        # UNCITED, as before this rule existed.
+        if in_live_body and in_docx is False:
             return "MISSING_DOCX", ("defined in the markdown body but absent from rendered DOCX "
                                     "(no in-text citation recognised)")
         if in_body or in_docx:
@@ -648,7 +673,8 @@ def main() -> int:
                   file=sys.stderr)
             return 2
 
-    findings = reconcile(citations, body_captions, docx_captions)
+    live_body_keys = set(extract_body_captions(mask_inert(md_text)).keys())
+    findings = reconcile(citations, body_captions, docx_captions, live_body_keys)
 
     # Submission safety: any cited label whose status is not OK or UNCITED is a blocker.
     #

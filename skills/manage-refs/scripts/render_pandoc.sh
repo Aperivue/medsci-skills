@@ -133,6 +133,7 @@ ARGS=(--citeproc --csl="$CSL_FILE" --bibliography="$BIB"
 # manuscript, warns on stderr and exits 0 — so the render used to report "ok" on a document with a
 # broken citation in it. Read pandoc's structured log (--log, JSON) for that warning and fail.
 PANDOC_LOG="$(mktemp)"
+# The script's only EXIT trap. A later `trap ... EXIT` replaces it: fold any new cleanup into this one.
 trap 'rm -f "$PANDOC_LOG"' EXIT
 ARGS+=(--log="$PANDOC_LOG")
 

@@ -62,6 +62,17 @@ ck "  converted"                               "Earlier work [@AAA, @BBB, @CCC] 
 ck "a backwards range [3-1]: exit 1"           1 "$(conv backwards.md backwards_out.md --to-keys)"
 ck "  named as MALFORMED"                      1 "$(grep -c 'MALFORMED.*\[3-1\]' "$WORK/backwards_out.md.err")"
 
+echo "==== 2b. a huge range is not materialised ===="
+# expand_marker used to build the whole list, so "[1-100000000]" allocated a hundred million ints.
+printf 'Cohorts [1-100000000] and [2].\n' > "$WORK/huge.md"
+ck "[1-100000000], unstaged: exit 1 quickly"   1 "$(timeout 20 python3 "$CONV" --input "$WORK/huge.md" \
+     --output "$WORK/huge_out.md" --map "$WORK/map.json" --to-keys 2> "$WORK/huge_out.md.err"; echo $?)"
+ck "  named as UNMAPPED"                       1 "$(grep -c 'UNMAPPED.*\[1-100000000\]' "$WORK/huge_out.md.err")"
+ck "[1-100000000], staged 1,2: exit 0 quickly" 0 "$(timeout 20 python3 "$CONV" --input "$WORK/huge.md" \
+     --output "$WORK/huge_st.md" --map "$WORK/map.json" --to-keys --active-ns 1,2 \
+     2> "$WORK/huge_st.md.err"; echo $?)"
+ck "  left as INACTIVE, [2] converted"         "Cohorts [1-100000000] and [@BBB]." "$(cat "$WORK/huge_st.md")"
+
 echo "==== 3. re-running --to-keys on partial output does not crash ===="
 ck "re-run on partially converted file: exit 1" 1 "$(conv unmapped_out.md rerun.md --to-keys)"
 ck "  no traceback"                            0 "$(grep -c 'Traceback' "$WORK/rerun.md.err")"
