@@ -617,6 +617,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/clean-data/tests/test_reverse_coding.sh
 
+      - name: Run clean-data profiling-template NA-token test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/clean-data/tests/test_profiling_template.sh
+
       - name: Run check_checklist_provenance.py (a checklist must say what it is and what was checked)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 scripts/check_checklist_provenance.py --strict
