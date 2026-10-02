@@ -29,6 +29,9 @@ Output contract (matches search-lit BibTeX section)
 - BibTeX is APPENDED to the candidate pool (default references/library.bib).
 - NEVER writes to manuscript/_src/refs.bib (that is /lit-sync's sole path).
 - A PRISMA "records identified through citation searching" line is printed.
+- Exit 0 only when every seed/direction answered in full. A failed fetch (network error, an
+  error body) or a page the source says continues (`next`, i.e. more than --limit records) is
+  printed as FAILED / TRUNCATED, the PRISMA line ends with INCOMPLETE, and the exit is 1.
 
 Usage
 -----
@@ -98,16 +101,23 @@ def _http_get_json(url: str) -> dict:
 
 
 def fetch_direction(seed_id: str, direction: str, limit: int,
-                    fixture_dir: Path | None) -> list[dict]:
-    """Return a list of paper dicts for one seed+direction.
+                    fixture_dir: Path | None) -> tuple[list[dict], str | None]:
+    """Return (papers, problem) for one seed+direction.
 
-    Each returned dict has at least: title, year, venue, externalIds, authors.
+    Each paper dict has at least: title, year, venue, externalIds, authors.
+    `problem` is None when the source answered in full, otherwise a one-line reason starting with
+    `FAILED` (the fetch did not run, or its answer was not a result) or `TRUNCATED` (the source
+    says more records exist beyond `--limit`). Either way the count for this seed+direction is a
+    lower bound, not the number that exists, and the caller must say so.
     """
     if fixture_dir is not None:
         fpath = fixture_dir / f"{fixture_slug(seed_id)}.{direction}.json"
         if not fpath.exists():
-            return []
-        payload = json.loads(fpath.read_text())
+            return [], None
+        try:
+            payload = json.loads(fpath.read_text())
+        except (OSError, ValueError) as exc:
+            return [], f"FAILED {direction} for {seed_id}: unreadable fixture {fpath.name} ({exc})"
     else:
         enc = urllib.parse.quote(seed_id, safe="")
         if direction == "backward":
@@ -120,20 +130,31 @@ def fetch_direction(seed_id: str, direction: str, limit: int,
             raise ValueError(f"unknown direction: {direction}")
         try:
             payload = _http_get_json(url)
-        except Exception as exc:  # noqa: BLE001 — network failure is non-fatal
-            sys.stderr.write(f"[snowball] {direction} fetch failed for {seed_id}: {exc}\n")
-            return []
+        except Exception as exc:  # noqa: BLE001 — reported to the caller, never read as 0
+            return [], f"FAILED {direction} for {seed_id}: {exc}"
 
     # Normalize payload shapes:
-    #   references/citations: {"data": [{"citedPaper"|"citingPaper": {...}}]}
+    #   references/citations: {"data": [{"citedPaper"|"citingPaper": {...}}], "next": N?}
     #   recommendations:      {"recommendedPapers": [{...}]} or {"data": [{...}]}
+    # A body with neither list (an `error` payload, say) is not "no papers": the search did not run.
+    if not isinstance(payload, dict) or not (
+            isinstance(payload.get("data"), list)
+            or isinstance(payload.get("recommendedPapers"), list)):
+        detail = payload.get("error") or payload.get("message") if isinstance(payload, dict) else None
+        return [], (f"FAILED {direction} for {seed_id}: response has no 'data' or "
+                    f"'recommendedPapers' list" + (f" ({detail})" if detail else ""))
     rows = payload.get("data") or payload.get("recommendedPapers") or []
     papers = []
     for row in rows:
         paper = row.get("citedPaper") or row.get("citingPaper") or row
         if isinstance(paper, dict) and paper.get("title"):
             papers.append(paper)
-    return papers
+    # The paginated endpoints carry `next` only when more records exist past this page.
+    if payload.get("next") is not None:
+        return papers, (f"TRUNCATED {direction} for {seed_id}: the source has more records "
+                        f"after the first {len(rows)} (next offset {payload.get('next')}); "
+                        "raise --limit")
+    return papers, None
 
 
 # --------------------------------------------------------------------------- #
@@ -264,10 +285,13 @@ def main(argv: list[str] | None = None) -> int:
     counts = {d: 0 for d in directions}
     entries: list[str] = []
     raw_found = 0
+    problems: list[str] = []
 
     for seed in seeds:
         for direction in directions:
-            papers = fetch_direction(seed, direction, args.limit, fixture_dir)
+            papers, problem = fetch_direction(seed, direction, args.limit, fixture_dir)
+            if problem:
+                problems.append(problem)
             for paper in papers:
                 raw_found += 1
                 ext = paper.get("externalIds") or {}
@@ -303,17 +327,24 @@ def main(argv: list[str] | None = None) -> int:
     # PRISMA citation-searching line (stderr so --stdout BibTeX stays clean)
     breakdown = ", ".join(f"{d}={counts[d]}" for d in directions)
     pool_n = len(pool_dois) + len(pool_titles)
+    for problem in problems:
+        sys.stderr.write(f"[snowball] {problem}\n")
+    incomplete = (
+        f" INCOMPLETE: {len(problems)} seed/direction fetch(es) failed or were truncated; "
+        "these counts are a lower bound and must not be recorded in the PRISMA flow."
+        if problems else ""
+    )
     sys.stderr.write(
         f"Records identified through citation searching (snowballing): "
         f"{raw_found} raw ({breakdown}); after dedup against existing pool: "
-        f"{new_total} new candidates.\n"
+        f"{new_total} new candidates.{incomplete}\n"
     )
     sys.stderr.write(
         f"[snowball] seeds={len(seeds)} directions={'+'.join(directions)} "
         f"pool_keys={pool_n} -> {new_total} appended"
         f"{' (stdout)' if args.stdout else f' to {out_path}'}\n"
     )
-    return 0
+    return 1 if problems else 0
 
 
 if __name__ == "__main__":

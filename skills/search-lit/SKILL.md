@@ -132,8 +132,9 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/check_doi_record_match.py" --table 2_Screen
 ```
 
 `DOI_NOT_THIS_RECORD` is a DOI that resolves to another paper; `DOI_IS_CONTAINER` resolves to an
-issue, supplement or proceedings rather than an article; `DOI_UNRESOLVED` is reported rather than
-dropped. This runs at screening, where a wrong DOI is still cheap; `/verify-refs` audits a finished
+issue, supplement or proceedings rather than an article; `DOI_IS_UPDATE_NOTICE` resolves to a
+correction, erratum or retraction notice (Crossref `update-to`) rather than to the article it
+updates; `DOI_UNRESOLVED` is reported rather than dropped. This runs at screening, where a wrong DOI is still cheap; `/verify-refs` audits a finished
 reference list.
 
 ### Phase 2.5: Citation Searching (Snowballing)
@@ -160,6 +161,10 @@ python3 "${CLAUDE_SKILL_DIR}/references/snowball.py" \
 - **PRISMA line**: the script prints `Records identified through citation searching (snowballing):
   N raw (backward=…, forward=…, similar=…); after dedup against existing pool: M new candidates.`
   Record M in the PRISMA flow's citation-searching box.
+- **Incomplete runs**: when any seed/direction fetch fails, or the source says more records exist
+  past `--limit` (a `next` page), the script prints a `FAILED` or `TRUNCATED` line per
+  seed/direction, ends the PRISMA line with `INCOMPLETE`, and exits 1. Those counts are a lower
+  bound. Do not record them; re-run (or raise `--limit`) until the run exits 0.
 
 ### Phase 3: Deep Read
 
@@ -366,3 +371,11 @@ PubMed → Embase query translation.
   the reference exists.
 - If a reference cannot be verified by any method, state: "This reference could not be verified.
   Please check manually before submission." Never silently include an unverified reference.
+
+## Known limits
+
+- `check_doi_record_match.py` compares titles at a similarity threshold and reads structured
+  Crossref fields (`type`, `update-to`). A study protocol, or part 2 of a multi-part paper, whose
+  title differs from the row's by a word or a number is not separated from the paper the row
+  describes; no structured field marks it. Treat a silent run as "no mismatch detected", not as
+  proof that every DOI is right.

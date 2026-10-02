@@ -63,27 +63,37 @@ python3 ${CLAUDE_SKILL_DIR}/scripts/fill_icmje_coi.py \
 ```
 
 It writes one `ICMJE_COI_{NN}_{Name}.docx` per author and exits nonzero if any seed string is not
-found, so a mismatch never fails silently.
+found. It exits 2, before writing anything, if any `--seed-*` or `--new-*` value or author name is
+empty: an empty seed string would match nothing and leave the seed's value in every form.
 
 ### Phase 3 — Verify
 
 For each generated docx confirm: ☒ count = 14 (13 disclosure items + final certification);
 "None" disclosures = 13; the correct name after "Your Name:" and title after "Manuscript Title:";
-no seed placeholder strings left (`Placeholder Author`, `Placeholder Manuscript Title`,
-`January 1, 2000`).
+no seed strings left. `SEED` must be the exact `--seed-name`, `--seed-title` and `--seed-date`
+values used in Phase 2 (the shipped placeholders below, or a custom seed's own strings); `TITLE`
+must be the `--new-title` value.
 
 ```bash
 python3 - {out_dir}/*.docx <<'PY'
 import sys, zipfile
+SEED = ("Placeholder Author", "Placeholder Manuscript Title", "January 1, 2000")  # = --seed-* values
+TITLE = "{exact manuscript title}"                                                 # = --new-title
+assert all(s.strip() for s in SEED) and TITLE.strip(), "empty SEED/TITLE value"
 for f in sys.argv[1:]:
     xml = zipfile.ZipFile(f).read("word/document.xml").decode("utf-8")
     assert xml.count("☒") == 14, f"{f}: bad ☒ count"
     assert xml.count(">None<") + xml.count(">None ") == 13, f"{f}: bad None count"
-    for ph in ("Placeholder Author", "Placeholder Manuscript Title", "January 1, 2000"):
+    for ph in SEED:
         assert ph not in xml, f"{f}: seed leak {ph!r}"
+    t = TITLE.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    assert t in xml, f"{f}: title missing"
     print("✓", f)
 PY
 ```
+
+This snippet does not locate the name inside the "Your Name:" field; confirm the name by opening
+each form.
 
 **Gate 2 — user review.** Present the verification results before handing off the files.
 

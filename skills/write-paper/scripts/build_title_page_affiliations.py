@@ -153,14 +153,29 @@ AUTHOR_TOKEN_RE = re.compile(r"([^;]+?)\^([0-9,\\\*†‡§ ]+)\^")
 
 def parse_author_line(text: str) -> list[list[int]]:
     """Return, per author (in order), the list of affiliation numbers they cite.
-    Looks at the densest superscript-bearing line (the author byline)."""
+
+    The byline is the densest superscript-bearing line. When that line carries a
+    single author (a one-author-per-line byline), every superscript-bearing line
+    above the first '^N^ affiliation' line is read, in order, as the byline --
+    otherwise only the first author would be checked and an out-of-order numbering
+    on the following lines would pass."""
+    lines = text.splitlines()
     best_line, best_count = "", 0
-    for ln in text.splitlines():
+    for ln in lines:
         c = len(SUP_RE.findall(ln))
         if c > best_count:
             best_line, best_count = ln, c
+    tokens = AUTHOR_TOKEN_RE.findall(best_line)
+    if len(tokens) <= 1:
+        multi: list[tuple[str, str]] = []
+        for ln in lines:
+            if AFFIL_LINE_RE.match(ln.replace("\\", "")):
+                break
+            multi.extend(AUTHOR_TOKEN_RE.findall(ln))
+        if len(multi) > len(tokens):
+            tokens = multi
     per_author: list[list[int]] = []
-    for _name, sup in AUTHOR_TOKEN_RE.findall(best_line):
+    for _name, sup in tokens:
         nums = [int(n) for n in re.findall(r"\d+", sup)]
         per_author.append(nums)
     return per_author
