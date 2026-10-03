@@ -24,8 +24,8 @@ a 3-D model; do not collapse to independent slices if the structure is volumetri
 - **Reference impl**: MONAI `UNet`; the shipped `/model-scaffold` `model.py` is a small
   configurable 2-D U-Net.
 - **Validation setup**: patient-level split; report **Dice/IoU AND a boundary metric (HD95 /
-  Normalised Surface Distance)**, per structure not only a global mean (Dice is shape- and
-  size-insensitive); loss = Dice+BCE or Tversky for imbalance.
+  Normalised Surface Distance)**, per structure not only a global mean (Dice is shape-insensitive
+  and penalises the same boundary error far more on small structures); loss = Dice+BCE or Tversky for imbalance.
 - **Scaffold**: `python3 scaffold.py --task segmentation --arch unet ...` — emits exactly
   this, with the patient-disjoint seed-locked split.
 

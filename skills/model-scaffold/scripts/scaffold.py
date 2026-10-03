@@ -1280,7 +1280,7 @@ A `__ARCH__` model was trained for __TASK__ (in=`__IN_CH__`, out=`__OUT_CH__`, b
 frozen and seed-locked (seed __SPLIT_SEED__), so no patient contributed images to more than one
 partition. All random number generators (Python, NumPy, PyTorch, CUDA) were seeded and cuDNN
 was set deterministic. Held-out performance is reported as
-[VERIFY: task-correct metrics with 95% CIs over >= 3 seeds] on the test split.
+[VERIFY: task-correct metrics with patient-level bootstrap 95% CIs on the test split (/model-assessment); seed spread as mean +/- SD over >= 3 seeds].
 """
 
 # Emitted only for --task finetune: the pretrained-weight provenance record. A fine-tune

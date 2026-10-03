@@ -43,8 +43,8 @@ design** for an interactive evaluation — the human-as-operator reader arm and 
 - **Discrimination with CIs**: **AUROC and AUPRC**, with patient-level bootstrap 95% CIs. The PR
   view adds the PPV-side information the ROC does not show. Report AUPRC **with the test-set
   prevalence**, which is its no-skill value (Saito & Rehmsmeier 2015): AUPRC falls as prevalence
-  falls even when ranking is unchanged (one binormal classifier: AUROC 0.90 throughout, AUPRC
-  0.90 / 0.73 / 0.46 / 0.19 at 50% / 20% / 5% / 1% prevalence), so AUPRC from an enriched or
+  falls even when ranking is unchanged (one equal-variance binormal classifier: AUROC 0.90
+  throughout, AUPRC 0.90 / 0.74 / 0.46 / 0.20 at 50% / 20% / 5% / 1% prevalence), so AUPRC from an enriched or
   case-control test set does not transfer to deployment and is not comparable across datasets.
 - **Operating-point metrics at the deployment prevalence**: sensitivity/specificity and
   **PPV/NPV computed at the real base rate**, not on an artificially balanced set; fix the
@@ -53,7 +53,8 @@ design** for an interactive evaluation — the human-as-operator reader arm and 
   diagnostic output, **calibration-in-the-large** (intercept), the **calibration slope** and a
   **flexible (loess) calibration curve**, plus the Brier score (Van Calster et al., *BMC Med*
   2019). Binned ECE mostly reflects where predictions cluster and hides overfitting: a simulated
-  overconfident model at 3.9% prevalence had ECE 0.030 with a calibration slope of 0.61. ECE is
+  overconfident model at 3.9% prevalence (calibration slope 0.61) had an ECE of only about
+  0.02-0.03, depending on binning, sample size and calibration-in-the-large. ECE is
   at most a supplementary top-label summary for multi-class confidence, with its binning stated.
 - **Multiclass**: state the aggregation scheme (Park et al., *Radiol Med* 2024) — **one-vs-rest**
   with **macro** (unweighted) or **micro** (instance-weighted) averaging, all **pairwise** two-class
@@ -102,8 +103,9 @@ discrimination lives in `/analyze-stats`, not in this reporting gate (stated per
   sampling uncertainty of the test-set estimate.
 - Seed-to-seed SD across training runs measures training-run variability, not that sampling
   uncertainty, and is usually smaller: for AUROC 0.91 with 60 positives and 540 negatives the
-  test-set SD is about 0.02, so "0.91 ± 0.01 (3 seeds)" read as an interval covers the true AUROC
-  in about 69% of test sets. Report seed SD **separately**, over ≥ 5 runs, when the claim is about
+  test-set SD is about 0.02, so "0.91 ± 0.01 (3 seeds)" read as a 95% interval (± 1.96 × 0.01)
+  covers the true AUROC in about 69% of test sets, and read literally (± 0.01) in about 39%
+  (equal-variance binormal model). Report seed SD **separately**, over ≥ 5 runs, when the claim is about
   the training recipe or compares methods (Bouthillier et al., *MLSys* 2021); never as the CI. A
   frozen vendor or open-weights model has no runs to vary.
 
