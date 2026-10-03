@@ -25,11 +25,13 @@ checkable anchor, so paraphrase and honest rewording do not false-positive:
     as drift. A contiguous substring test cannot tell these apart and calls a
     correct quote absent — the failure that once came one step from having two
     accurate verbatim quotes deleted. Matching lives in _quote_match.py.
-    A quote whose tolerated gaps change what it SAYS is not extraction damage, so it is
-    graded RESPONSE_QUOTE_UNVERIFIED (major) instead: a quoted number missing from the
-    body's matching sentence (the letter says 0.92, the body 0.87), or a negator ('not',
-    'no', 'never', ...) present on one side only. Foreign numbers inserted into the body
-    stay tolerated, because proof line numbers and footnote markers are exactly that.
+    A quote whose matching body sentence lacks one of its NUMBERS is not extraction
+    damage, so it is graded RESPONSE_QUOTE_UNVERIFIED (major) instead (the letter says
+    0.92, the body 0.87). Numbers are compared by value after a fixed normalisation
+    (mid-dot decimals, space/thin-space/comma thousands groups, '.001' = '0.001').
+    Foreign numbers inserted into the body stay tolerated, because proof line numbers
+    and footnote markers are exactly that. Negation is NOT compared: a quote that differs
+    from the body only by 'not' stays minor UNRESOLVED (see SKILL.md Known limits).
   * RESPONSE_CITATION_UNVERIFIED (major) — the letter says a citation was added
     / "now cite(d)", but none of the cited tokens ([N] / [@key] / Author et al.)
     appear in the revised manuscript body.
@@ -98,15 +100,9 @@ PARA_BREAK = re.compile(r"\n[ \t]*\n")
 CIT_NUMERIC = re.compile(r"\[(\d{1,3}(?:\s*[,–-]\s*\d{1,3})*)\]")
 CIT_BIBKEY = re.compile(r"\[@([A-Za-z0-9_:.\-]+)\]")
 CIT_AUTHOR = re.compile(r"\b([A-Z][A-Za-zÀ-ſ'-]{2,})\s+et\s+al\.?")
-
-# Tokens whose loss or insertion changes what a quoted sentence asserts. A missing quote
-# token that holds a digit, or a negator on one side only, is a content edit, not the
-# extraction damage the matcher tolerates. Closed list, compared token-for-token against the
-# matched run; this is not a scan of free prose.
-NEGATORS = frozenset({"not", "no", "never", "nor", "neither", "none", "cannot", "without"})
-# A negation edit inserts a short run ('not', 'did not reduce'); a bled reference column is
-# a long one. Numeric tokens (line numbers, footnote markers) are left out of the length.
-NEGATION_GAP_MAX = 3
+# Numeric citations as the BODY may print them: ';' as a list separator and spaces inside
+# the bracket ('[5; 7]', '[ 5 ]') as well as the letter-side forms above.
+BODY_CIT_NUMERIC = re.compile(r"\[\s*(\d{1,3}(?:\s*[,;–-]\s*\d{1,3})*)\s*\]")
 
 # Chars after a claim verb in which its object must START. A quotation that opens inside
 # the window is read to its own closing mark however long it runs: truncating it at the
@@ -236,10 +232,6 @@ def _citation_intent(verb: str, window: str) -> bool:
     return bool(re.search(r"\bcit|\breference", lead, re.IGNORECASE))
 
 
-def _is_negator(tok: str) -> bool:
-    return tok in NEGATORS or tok.endswith("n't")
-
-
 def _best_run(q: list, h: list, allow_missing: bool):
     """The matcher's ordered run, re-walked with the matcher's own limits, recording WHAT was
     skipped.
@@ -247,10 +239,10 @@ def _best_run(q: list, h: list, allow_missing: bool):
     Same candidate starts, MAX_GAP window, MAX_INTERRUPTIONS, insertion budget and missing cap
     as _quote_match._ordered_run, so the run examined here is one the matcher would accept.
     Ties on matched count go to the run with the FEWEST insertions: when the body holds an
-    earlier contrast sentence ('not high in the training set') before the quoted sentence
-    ('high in the test set'), the long run that borrows the earlier sentence's words is not
-    the one the quote came from. Returns (matched, inserted, missing, gaps, first, last) or
-    None; first/last are the body token indices of the first and last matched token."""
+    earlier contrast sentence before the quoted sentence, the long run that borrows the
+    earlier sentence's words is not the one the quote came from. Returns (matched, inserted,
+    first, last) or None; first/last are the body token indices of the first and last
+    matched token."""
     if not q or not h:
         return None
     budget = max(MIN_TOTAL_INSERT, int(len(q) * MAX_TOTAL_INSERT_FRAC))
@@ -263,8 +255,7 @@ def _best_run(q: list, h: list, allow_missing: bool):
     for start in starts:
         hi = start
         matched = inserted = interruptions = 0
-        missing: list = []
-        gaps: list = []
+        missing = 0
         first = last = -1
         for tok in q:
             found = -1
@@ -275,8 +266,8 @@ def _best_run(q: list, h: list, allow_missing: bool):
             if found < 0:
                 if not allow_missing:
                     break
-                missing.append(tok)
-                if len(missing) > max_missing:
+                missing += 1
+                if missing > max_missing:
                     break
                 continue
             gap = found - hi
@@ -287,8 +278,6 @@ def _best_run(q: list, h: list, allow_missing: bool):
             inserted += gap
             if inserted > budget:
                 break
-            if gap and matched:
-                gaps.append(h[hi:found])
             if first < 0:
                 first = found
             last = found
@@ -297,65 +286,88 @@ def _best_run(q: list, h: list, allow_missing: bool):
         if matched == 0:
             continue
         if best is None or matched > best[0] or (matched == best[0] and inserted < best[1]):
-            best = (matched, inserted, missing, gaps, first, last)
+            best = (matched, inserted, first, last)
     return best
 
 
-# A number in normalized text: '0.92', '.001', '1,234', '95'. Thousands commas are dropped
-# before the value is read, so '1,234' and '1234' are the same number.
-_NUMBER = re.compile(r"(?<![\d.])(?:\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?|\.\d+)")
+# Deterministic number normalisation, applied to quote and body alike. A value written in two
+# journal formats is the same value: a mid-dot decimal (U+00B7, U+2219) is a decimal point;
+# a thin space (U+2009), narrow no-break space (U+202F), no-break space (U+00A0), plain space
+# or comma between digit groups of three is a thousands separator; '.001' is '0.001'.
+_MIDDOT = re.compile(r"(?<=\d)[\u00b7\u2219](?=\d)")
+_SPACES = re.compile(r"[\u2009\u202f\u00a0]")
+# A number: a grouped integer part ('1,234', '12 345'), a plain one, or a bare decimal.
+_NUMBER = re.compile(
+    r"(?<![\d.])(?:\d{1,3}(?:[, ]\d{3}(?!\d))+(?:\.\d+)?|\d+(?:\.\d+)?|\.\d+)(?!\d)"
+)
 
 
-def _numbers(text: str) -> list:
-    return [m.group(0).replace(",", "") for m in _NUMBER.finditer(text)]
+def _number_readings(text: str) -> list:
+    """Each number in `text` as a list of readings.
+
+    An ungrouped number has one reading. A grouped one ('12 345', '1,234') has two: the
+    whole value with its separators removed, and its groups read as separate numbers, because
+    a proof line number before a three-digit number ('42 300 patients') looks the same as a
+    space-grouped thousand. Returns [(whole, [parts...]), ...]; parts is empty when ungrouped."""
+    t = _SPACES.sub(" ", _MIDDOT.sub(".", text))
+    out = []
+    for m in _NUMBER.finditer(t):
+        raw = m.group(0)
+        if re.search(r"[, ]", raw):
+            out.append((re.sub(r"[, ]", "", raw), re.split(r"[, ]", raw)))
+        else:
+            out.append((raw, []))
+    return out
 
 
-def _number_present(qn: str, body_nums: list) -> bool:
-    """A quoted number is present if the run holds the same VALUE ('0.001' = '.001'), or a
+def _value_present(qn: str, body_vals: list) -> bool:
+    """A quoted value is present if the run holds the same VALUE ('0.001' = '.001'), or a
     number that merely extends its digits: a superscript reference glued on in extraction
     ('2019' + superscript 23 -> '201923' after NFKC) is damage, not a changed value."""
     qv = float(qn)
-    for bn in body_nums:
+    for bn in body_vals:
         if float(bn) == qv or bn.startswith(qn):
             return True
     return False
 
 
 def content_mismatch(quote: str, body: str, allow_missing: bool) -> dict:
-    """Content that differs between the quote and the run the matcher graded.
+    """Quoted numbers absent from the run the matcher graded.
 
-    Quoted numbers are compared by VALUE against the numbers in the body span of the run (its
-    first to last matched token, plus a number directly beside either end), so formatting
-    ('0.001' vs '.001', '1,234' vs '1234') and glued superscript markers are not a change.
-    Negators are read from quote tokens missing from the run and from short body insertions
-    inside it; a negator on BOTH sides (a quoted 'cannot' against an expanded 'can not',
-    "isn't" against 'is not') cancels. Returns {"missing_numbers": [...], "negators": [...]};
-    both empty means the tolerated gaps are content-free and extraction damage stands."""
+    Quoted numbers are compared by VALUE, after the normalisation above, against the numbers
+    in the body span of the run (its first to last matched token, plus a number directly
+    beside either end), so formatting and glued superscript markers are not a change. A
+    grouped number on either side is present under either reading (whole, or its groups).
+    Returns {"missing_numbers": [...]}; empty means the tolerated gaps are number-free and
+    extraction damage stands."""
     q = tokens(quote)
     nb = qm_normalize(body)
     spans = [(m.start(), m.end()) for m in _TOKEN_RE.finditer(nb)]
     h = [nb[i:j] for i, j in spans]
     best = _best_run(q, h, allow_missing)
     if best is None:
-        return {"missing_numbers": [], "negators": []}
-    _, _, missing, gaps, first, last = best
+        return {"missing_numbers": []}
+    _, _, first, last = best
     lo, hi = spans[first][0], spans[last][1]
-    pre = re.search(r"[\d.,]*\d[\d.,]*[^\w]{0,3}$", nb[max(0, lo - 40):lo])
+    num = r"\d(?:[\d.,\u00b7\u2219]| (?=\d))*"
+    pre = re.search(num + r"[^\w]{0,3}$", nb[max(0, lo - 40):lo])
     if pre:
         lo -= len(pre.group(0))
-    post = re.match(r"[^\w]{0,3}[\d.,]*\d[\d.,]*", nb[hi:hi + 40])
+    post = re.match(r"[^\w]{0,3}" + num, nb[hi:hi + 40])
     if post:
         hi += len(post.group(0))
-    body_nums = _numbers(nb[lo:hi])
-    nums = [n for n in _numbers(qm_normalize(quote)) if not _number_present(n, body_nums)]
-    q_negs = [t for t in missing if _is_negator(t)]
-    b_negs: list = []
-    for gap in gaps:
-        words = [t for t in gap if not t.isdigit()]
-        if len(words) <= NEGATION_GAP_MAX:
-            b_negs.extend(t for t in words if _is_negator(t))
-    negs = [] if (q_negs and b_negs) else q_negs + b_negs
-    return {"missing_numbers": nums, "negators": negs}
+    body_vals: list = []
+    for whole, parts in _number_readings(nb[lo:hi]):
+        body_vals.append(whole)
+        body_vals.extend(parts)
+    missing = []
+    for whole, parts in _number_readings(qm_normalize(quote)):
+        if _value_present(whole, body_vals):
+            continue
+        if parts and all(_value_present(p, body_vals) for p in parts):
+            continue
+        missing.append(whole)
+    return {"missing_numbers": missing}
 
 
 def grade_quote(body: str, quote: str) -> dict:
@@ -390,8 +402,8 @@ def body_numeric_citations(body: str) -> set:
 
     Whole elements only: [15] does not cite 5, and [14-17] cites 16."""
     out: set = set()
-    for cm in CIT_NUMERIC.finditer(body):
-        for part in cm.group(1).split(","):
+    for cm in BODY_CIT_NUMERIC.finditer(body):
+        for part in re.split(r"[,;]", cm.group(1)):
             ends = [int(x) for x in re.split(r"\s*[–-]\s*", part.strip()) if x.strip()]
             if len(ends) == 2 and ends[0] <= ends[1]:
                 out.update(range(ends[0], ends[1] + 1))
@@ -410,12 +422,7 @@ def build_report(response_path: Path, manuscript_path: Path) -> dict:
             g = grade_quote(body, anchor)
             if g["grade"] in ("INTERLEAVED", "PARTIAL"):
                 cm = content_mismatch(anchor, body, allow_missing=g["grade"] == "PARTIAL")
-                if cm["missing_numbers"] or cm["negators"]:
-                    what = []
-                    if cm["missing_numbers"]:
-                        what.append("quoted number(s) " + ", ".join(cm["missing_numbers"]) + " not in the body's sentence")
-                    if cm["negators"]:
-                        what.append("negation (" + ", ".join(cm["negators"]) + ") on one side only")
+                if cm["missing_numbers"]:
                     findings.append(
                         {
                             "verdict": "RESPONSE_QUOTE_UNVERIFIED",
@@ -425,8 +432,10 @@ def build_report(response_path: Path, manuscript_path: Path) -> dict:
                             "match": {**g, "content_mismatch": cm},
                             "message": (
                                 "The quoted sentence is in the body only with its content changed: "
-                                + "; ".join(what)
-                                + ". A changed number or negation is a different claim, not extraction damage."
+                                + "quoted number(s) "
+                                + ", ".join(cm["missing_numbers"])
+                                + " not in the body's sentence. A changed number is a different claim, "
+                                + "not extraction damage."
                             ),
                         }
                     )

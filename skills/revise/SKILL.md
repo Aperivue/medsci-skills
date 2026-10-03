@@ -245,21 +245,25 @@ correct the response wording. `RESPONSE_QUOTE_UNRESOLVED` is **minor** and does 
 the quoted words are all present in order but separated by extraction debris (a reference column
 bled in from a two-column PDF, proof line numbers, a footnote marker, a hyphen split across a line).
 Look at it by eye; do not delete a quote because of this verdict — accurate quotes have nearly been
-deleted that way. The tolerance stops at content: when the only near-match in the body differs from
-the quote by a number (the letter says 0.92, the body 0.87) or by a negation ("not", "no", "never"
-on one side only), the verdict is `RESPONSE_QUOTE_UNVERIFIED` (major), because that is a different
-claim, not extraction debris. Numbers are compared by value, so "P < 0.001" against "P < .001",
-"1234" against "1,234", or a superscript reference glued to a number is not a change; a negation on
-both sides in different spellings ("cannot" / "can not") cancels; and the near-match examined is the
-one with the fewest inserted tokens, so a negator in an earlier contrast sentence is not read into
-the quote. A numeric citation counts only as a whole bracket element or inside a range: a claimed
-[5] is not satisfied by [15].
+deleted that way. The tolerance stops at numbers: when the only near-match in the body lacks a number
+the quote states (the letter says 0.92, the body 0.87), the verdict is `RESPONSE_QUOTE_UNVERIFIED`
+(major), because that is a different claim, not extraction debris. Numbers are compared by value
+after a fixed normalisation, so "P < 0.001" against "P < .001", "0.92" against the mid-dot "0·92",
+"12345" against "12,345" or "12 345" (plain, thin or no-break space), or a superscript reference
+glued to a number is not a change; a space-grouped number is also read as its separate groups, so
+a proof line number before "300 patients" is not merged into it. The near-match examined is the one
+with the fewest inserted tokens. A numeric citation counts only as a whole bracket element or inside
+a range (',' or ';' separated, spaces inside the bracket allowed): a claimed [5] is not satisfied
+by [15].
 
-Known limits: a citation claim passes when ANY of its cited tokens is in the body, so "we now cite
-[15] and [16]" passes with only [15] inserted; check multi-citation claims by eye. A quoted number
-replaced in the body still clears when the old number appears nearby in the same sentence (quote
-"was 0.92", body "was 0.87 (95% CI 0.80-0.92)"), and a body number that only extends the quoted
-digits ("0.92" vs "0.923") is read as glued-marker damage; check quoted results by eye.
+Known limits: negation is not compared, so a quote that differs from the body only by "not" (or any
+other negator, added or dropped) stays minor `RESPONSE_QUOTE_UNRESOLVED`; read every UNRESOLVED
+quote by eye for a flipped finding. A citation claim passes when ANY of its cited tokens is in the
+body, so "we now cite [15] and [16]" passes with only [15] inserted; check multi-citation claims by
+eye. A quoted number replaced in the body still clears when the old number appears nearby in the
+same sentence (quote "was 0.92", body "was 0.87 (95% CI 0.80-0.92)"), and a body number that only
+extends the quoted digits ("0.9" vs "0.95", "0.92" vs "0.923") is read as glued-marker damage;
+check quoted results by eye.
 
 **If a reviewer called the manuscript too long or too dense, prove the body got shorter.**
 Answering a density comment point-by-point adds a sentence per point, so the revision that responds
@@ -283,7 +287,10 @@ When it fires, cut or move detail to the supplement; do not defend the length by
 that explains it.
 
 Known limits: a run-in heading with no ':' or '.' after the keyword phrase ("Acknowledgements We
-thank ...") is read as a heading only when the keyword is followed by at most three words on the line.
+thank ...") is read as a heading only when the keyword is followed by at most three words on the line. A run-in
+heading whose keyword phrase holds a digit ("Supplementary Data 1: ...") is not a boundary, so that
+the Results sentence "Supplementary Table S3: ..." stays in the body; if such a section sits between
+Discussion and References, the body count includes it — confirm the count by eye.
 
 ---
 

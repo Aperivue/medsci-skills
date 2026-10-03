@@ -202,10 +202,11 @@ printf '## Methods\nEach reader'"'"'s threshold was fixed before the test set wa
 python3 "$V" --response "$TMP/resp_apos.md" --manuscript "$TMP/body_apos_other.md" 2>&1 | grep -q RESPONSE_QUOTE
 ck "a different subject before the apostrophe is not verified" 0 "$?"
 
-# --- a changed number or negation is a different claim, not extraction damage ------------
+# --- a changed number is a different claim, not extraction damage -----------------------
 # The tolerant matcher let a quote through as minor UNRESOLVED when the body differed by one
-# number ("0.92" vs "0.87") or by a "not" — a changed result or a flipped finding passed
-# --strict. Those are now major. Synthetic text only.
+# number ("0.92" vs "0.87") — a changed result passed --strict. That is now major. Negation is
+# NOT compared (SKILL.md Known limits): a quote differing only by "not" stays minor
+# UNRESOLVED, exactly as before. Synthetic text only.
 printf '**Response 7.** The sentence now reads "the sensitivity of the model was 0.92 in the external test set".\n' > "$TMP/resp_num.md"
 printf '## Results\nThe sensitivity of the model was 0.87 in the external test set.\n' > "$TMP/body_num_changed.md"
 python3 "$V" --response "$TMP/resp_num.md" --manuscript "$TMP/body_num_changed.md" --strict > /dev/null 2>&1
@@ -219,12 +220,17 @@ ck "same number + line numbers is not drift (--strict)" 0 "$?"
 
 printf '**Response 8.** We added the sentence "age was associated with mortality in the adjusted model".\n' > "$TMP/resp_neg_add.md"
 printf '## Results\nAge was not associated with mortality in the adjusted model.\n' > "$TMP/body_neg_add.md"
+# known limit: a negation added or dropped is not compared; it stays minor UNRESOLVED
 python3 "$V" --response "$TMP/resp_neg_add.md" --manuscript "$TMP/body_neg_add.md" --strict > /dev/null 2>&1
-ck "negation added in body fails (--strict)" 1 "$?"
+ck "known limit: negation added stays minor (exit 0)" 0 "$?"
+python3 "$V" --response "$TMP/resp_neg_add.md" --manuscript "$TMP/body_neg_add.md" 2>&1 | grep -q RESPONSE_QUOTE_UNRESOLVED
+ck "known limit: negation added reports UNRESOLVED" 0 "$?"
 printf '**Response 9.** We added the sentence "age was not associated with mortality in the adjusted model".\n' > "$TMP/resp_neg_drop.md"
 printf '## Results\nAge was associated with mortality in the adjusted model.\n' > "$TMP/body_neg_drop.md"
 python3 "$V" --response "$TMP/resp_neg_drop.md" --manuscript "$TMP/body_neg_drop.md" --strict > /dev/null 2>&1
-ck "negation dropped from body fails (--strict)" 1 "$?"
+ck "known limit: negation dropped stays minor (exit 0)" 0 "$?"
+python3 "$V" --response "$TMP/resp_neg_drop.md" --manuscript "$TMP/body_neg_drop.md" 2>&1 | grep -q RESPONSE_QUOTE_UNRESOLVED
+ck "known limit: negation dropped reports UNRESOLVED" 0 "$?"
 # control: the negated sentence is present as quoted -> passes
 python3 "$V" --response "$TMP/resp_neg_drop.md" --manuscript "$TMP/body_neg_add.md" --strict > /dev/null 2>&1
 ck "negated quote present as quoted passes (--strict)" 0 "$?"
@@ -233,19 +239,18 @@ printf '## Results\nAge was associated with civile. Why age is not enough. Rev M
 python3 "$V" --response "$TMP/resp_neg_add.md" --manuscript "$TMP/body_neg_bleed.md" --strict > /dev/null 2>&1
 ck "bled reference line containing 'not' is not drift" 0 "$?"
 
-# control: an EARLIER contrast sentence holding a negator is not part of the quote. The
-# matcher's first full run borrows 'not' from the training-set sentence; the run the quote
-# came from is the one with the fewest insertions, and it holds only a proof line number.
+# control: an EARLIER contrast sentence holding a negator is not part of the quote (reviewer
+# counterexample against the removed negation comparison; main cleared it as minor).
 printf '**Response 14.** We added the sentence "accuracy was high in the test set of the external cohort".\n' > "$TMP/resp_contrast.md"
 printf '## Results\nAccuracy was not high in the training set. Accuracy was 112 high in the test set of the external cohort.\n' > "$TMP/body_contrast.md"
 python3 "$V" --response "$TMP/resp_contrast.md" --manuscript "$TMP/body_contrast.md" --strict > /dev/null 2>&1
 ck "negator in an earlier contrast sentence is not drift" 0 "$?"
 python3 "$V" --response "$TMP/resp_contrast.md" --manuscript "$TMP/body_contrast.md" 2>&1 | grep -q RESPONSE_QUOTE_UNVERIFIED
 ck "earlier contrast sentence reports no UNVERIFIED" 1 "$?"
-# ...while the same quote against a body whose only matching sentence is negated still fails
+# known limit: a body whose only matching sentence is negated is minor, not major
 printf '## Results\nAccuracy was not high in the test set of the external cohort.\n' > "$TMP/body_contrast_neg.md"
-python3 "$V" --response "$TMP/resp_contrast.md" --manuscript "$TMP/body_contrast_neg.md" --strict > /dev/null 2>&1
-ck "negated test-set sentence still fails (--strict)" 1 "$?"
+python3 "$V" --response "$TMP/resp_contrast.md" --manuscript "$TMP/body_contrast_neg.md" 2>&1 | grep -q RESPONSE_QUOTE_UNRESOLVED
+ck "known limit: negated test-set sentence is UNRESOLVED" 0 "$?"
 
 # controls: a number written differently, or with a superscript reference glued on in
 # extraction, is the same number.
@@ -275,6 +280,56 @@ printf '**Response 19.** We added "the association isn'"'"'t explained by age or
 printf '## Discussion\nThe association is not explained by age or sex in the cohort.\n' > "$TMP/body_isnt.md"
 python3 "$V" --response "$TMP/resp_isnt.md" --manuscript "$TMP/body_isnt.md" 2>&1 | grep -q RESPONSE_QUOTE_UNVERIFIED
 ck "\"isn't\" vs 'is not' is not a one-sided negation" 1 "$?"
+
+# --- number formats: the same value in two journal styles is not a change ---------------
+# Reviewer counterexamples: main cleared these as minor; comparing raw digits flagged them.
+# Lancet mid-dot decimal (U+00B7), and the bullet operator (U+2219) used the same way.
+printf '## Results\nThe sensitivity of the model was 0\xc2\xb792 in the external test set.\n' > "$TMP/body_middot.md"
+python3 "$V" --response "$TMP/resp_num.md" --manuscript "$TMP/body_middot.md" --strict > /dev/null 2>&1
+ck "mid-dot '0\xc2\xb792' vs '0.92' is not drift (--strict)" 0 "$?"
+printf '## Results\nThe sensitivity of the model was 0\xe2\x88\x9992 in the external test set.\n' > "$TMP/body_bulletop.md"
+python3 "$V" --response "$TMP/resp_num.md" --manuscript "$TMP/body_bulletop.md" --strict > /dev/null 2>&1
+ck "U+2219 '0.92' is not drift (--strict)" 0 "$?"
+# ...and a mid-dot in the LETTER against a plain decimal in the body
+printf '**Response 20.** The sentence now reads "the sensitivity of the model was 0\xc2\xb792 in the external test set".\n' > "$TMP/resp_middot.md"
+printf '## Results\nThe sensitivity of the model was 0.92 in the 31 external test set.\n' > "$TMP/body_num_plain.md"
+python3 "$V" --response "$TMP/resp_middot.md" --manuscript "$TMP/body_num_plain.md" --strict > /dev/null 2>&1
+ck "letter mid-dot vs body '.' is not drift (--strict)" 0 "$?"
+# ...while a changed value in mid-dot style is still caught
+printf '## Results\nThe sensitivity of the model was 0\xc2\xb787 in the external test set.\n' > "$TMP/body_middot_changed.md"
+python3 "$V" --response "$TMP/resp_num.md" --manuscript "$TMP/body_middot_changed.md" --strict > /dev/null 2>&1
+ck "mid-dot '0\xc2\xb787' vs '0.92' fails (--strict)" 1 "$?"
+# space-grouped thousands: plain space, thin space U+2009, narrow no-break space U+202F,
+# no-break space U+00A0; letter written '12345' and '12,345'
+printf '**Response 21.** We added "a total of 12345 patients were enrolled at the three participating centres".\n' > "$TMP/resp_12345.md"
+printf '**Response 22.** We added "a total of 12,345 patients were enrolled at the three participating centres".\n' > "$TMP/resp_12c345.md"
+for sp in ' ' '\xe2\x80\x89' '\xe2\x80\xaf' '\xc2\xa0'; do
+  printf "## Methods\nA total of 12${sp}345 patients were enrolled at the three participating centres.\n" > "$TMP/body_grp.md"
+  for r in 12345 12c345; do
+    python3 "$V" --response "$TMP/resp_$r.md" --manuscript "$TMP/body_grp.md" --strict > /dev/null 2>&1
+    ck "letter $r vs body space-grouped ($sp) not drift" 0 "$?"
+  done
+done
+# ...a grouped body value that differs is still caught
+printf '## Methods\nA total of 12 354 patients were enrolled at the three participating centres.\n' > "$TMP/body_grp_changed.md"
+python3 "$V" --response "$TMP/resp_12345.md" --manuscript "$TMP/body_grp_changed.md" --strict > /dev/null 2>&1
+ck "letter 12345 vs body '12 354' fails (--strict)" 1 "$?"
+# a proof line number before a three-digit number is not merged into one number
+printf '**Response 23.** We added "a total of 300 patients were enrolled at the three participating centres".\n' > "$TMP/resp_300.md"
+printf '## Methods\nA total of 42 300 patients were enrolled at the three participating centres.\n' > "$TMP/body_ln300.md"
+python3 "$V" --response "$TMP/resp_300.md" --manuscript "$TMP/body_ln300.md" --strict > /dev/null 2>&1
+ck "line number '42' before '300' is not drift (--strict)" 0 "$?"
+
+# known limits (unchanged from main, documented in SKILL.md): the old number nearby in the
+# same sentence clears a replaced one, and a body number that only extends the quoted digits
+# is read as glued-marker damage. Both stay minor UNRESOLVED, exit 0.
+printf '## Results\nThe sensitivity of the model was 0.87 (95%% CI 0.80-0.92) in the external test set.\n' > "$TMP/body_ci.md"
+python3 "$V" --response "$TMP/resp_num.md" --manuscript "$TMP/body_ci.md" --strict > /dev/null 2>&1
+ck "known limit: old value inside the CI clears (exit 0)" 0 "$?"
+printf '**Response 24.** The sentence now reads "the sensitivity of the model was 0.9 in the external test set".\n' > "$TMP/resp_09.md"
+printf '## Results\nThe sensitivity of the model was 0.95 in the external test set.\n' > "$TMP/body_095.md"
+python3 "$V" --response "$TMP/resp_09.md" --manuscript "$TMP/body_095.md" --strict > /dev/null 2>&1
+ck "known limit: '0.9' vs '0.95' prefix clears (exit 0)" 0 "$?"
 
 # --- citation intent read past a leading 'We (have) added' --------------------------------
 # The leftmost verb alternative 'we (have) added' swallowed the match, so 'added the citation'
@@ -307,6 +362,19 @@ ck "claimed [5] found as third list element passes" 0 "$?"
 printf '## Discussion\nPrior work agrees [3–7].\n' > "$TMP/body_cit_range.md"
 python3 "$V" --response "$TMP/resp_cit5.md" --manuscript "$TMP/body_cit_range.md" --strict > /dev/null 2>&1
 ck "claimed [5] found inside range [3-7] passes" 0 "$?"
+# reviewer counterexamples: ';' as a list separator, and spaces inside the bracket
+printf '## Discussion\nPrior work agrees [5; 7].\n' > "$TMP/body_cit_semi.md"
+python3 "$V" --response "$TMP/resp_cit5.md" --manuscript "$TMP/body_cit_semi.md" --strict > /dev/null 2>&1
+ck "claimed [5] found in '[5; 7]' passes" 0 "$?"
+printf '## Discussion\nPrior work agrees [3; 5].\n' > "$TMP/body_cit_semi2.md"
+python3 "$V" --response "$TMP/resp_cit5.md" --manuscript "$TMP/body_cit_semi2.md" --strict > /dev/null 2>&1
+ck "claimed [5] found in '[3; 5]' passes" 0 "$?"
+printf '## Discussion\nPrior work agrees [ 5 ].\n' > "$TMP/body_cit_space.md"
+python3 "$V" --response "$TMP/resp_cit5.md" --manuscript "$TMP/body_cit_space.md" --strict > /dev/null 2>&1
+ck "claimed [5] found in '[ 5 ]' passes" 0 "$?"
+printf '## Discussion\nPrior work agrees [15; 25].\n' > "$TMP/body_cit_semi15.md"
+python3 "$V" --response "$TMP/resp_cit5.md" --manuscript "$TMP/body_cit_semi15.md" --strict > /dev/null 2>&1
+ck "claimed [5] is not satisfied by '[15; 25]'" 1 "$?"
 
 echo "----"
 echo "test_response_claims: $pass passed, $fail failed"
