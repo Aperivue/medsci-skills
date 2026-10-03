@@ -22,8 +22,8 @@ as the interval of its printed precision ("0.04" -> [0.035, 0.045), "<0.001" -> 
 of alpha and the recomputed P strictly on the other. P_NOT_ASSESSED (Minor) is given
 for an adjusted, paired or "other:" test, a row not found (or found twice), with no
 counts or no P, a printed percentage that is not count/n (another denominator), and a
-table of three or more groups (a Total column whose n is the sum of the others is
-dropped first). An "other:" test also gives UNLISTED_METHOD (Minor). The
+table of three or more groups (a column headed Total / Overall / All whose n is the
+sum of the others is dropped first). An "other:" test also gives UNLISTED_METHOD (Minor). The
 order-of-magnitude rule above runs unchanged alongside.
 
 Stdlib-only (math.comb / math.erfc). Reads the manuscript, never writes it.

@@ -5588,8 +5588,8 @@
     },
     {
       "path": "skills/self-review/scripts/check_reported_p_from_counts.py",
-      "size": 22091,
-      "sha256": "16aeef0f28a1a365466937a75409fa3ece986477306e6a60bc422725d2411b75"
+      "size": 22114,
+      "sha256": "59f5c0388eddfe5fda074e72d9549ca53ea6a4c9aecce2adbbdf33a83ccfeee8"
     },
     {
       "path": "skills/self-review/scripts/check_reported_p_from_counts_challenge/expected/bad.txt",
