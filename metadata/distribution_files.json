@@ -3313,8 +3313,8 @@
     },
     {
       "path": "skills/mllm-eval/skill.yml",
-      "size": 3354,
-      "sha256": "33e11de75e24af13ed1a6552d91b95d2309aadbc5cdd1f0971ad7356e4e5669c"
+      "size": 3506,
+      "sha256": "9f29b070b6b87bc3b56795aee0fad843280d5006e30255173937180e1c0a2066"
     },
     {
       "path": "skills/mllm-eval/templates/eval_manifest.json",
@@ -3558,8 +3558,8 @@
     },
     {
       "path": "skills/model-assessment/skill.yml",
-      "size": 7584,
-      "sha256": "8d227d520bec3b1b0eed7b7ce391e4f95298fbaf71534c7f398f29d5aa32f499"
+      "size": 7739,
+      "sha256": "fc757ba841a621e4fec225381b9a4bcc97f4d76eb326a79c179b28e5fb8aed16"
     },
     {
       "path": "skills/model-assessment/templates/metrics_manifest.json",
@@ -3873,8 +3873,8 @@
     },
     {
       "path": "skills/peer-review/SKILL.md",
-      "size": 53771,
-      "sha256": "9bbe92828bf260938c89092df0097e1698e0615da8bb0c51dd47df5f263fe3fe"
+      "size": 53854,
+      "sha256": "869702ba3d1ed1450008aa096e358730e10a0af9f7f71506bd536fd58935d806"
     },
     {
       "path": "skills/peer-review/references/aczel_2021_reviewer2_patterns.md",
@@ -4783,8 +4783,8 @@
     },
     {
       "path": "skills/revise/skill.yml",
-      "size": 2489,
-      "sha256": "49919f89209ef910d125d26160b02b228dd5f712b3286685b7d098fd2da36a53"
+      "size": 2697,
+      "sha256": "d19ec2420fd4b54479792ce14ac3e0811fccd2bc2c5f005ae4e37643f9218fca"
     },
     {
       "path": "skills/revise/templates/revision_values.json",
@@ -6033,8 +6033,8 @@
     },
     {
       "path": "skills/self-review/skill.yml",
-      "size": 4803,
-      "sha256": "3012c55b363dbcf761b6ce4c96d87876b023f81ba1a2ce44472f955b09011db0"
+      "size": 4954,
+      "sha256": "11f62cf2dc9bcd8d23c39be14015b3eee49024074ef2a6f592faccba3918f7f1"
     },
     {
       "path": "skills/self-review/templates/evalues.json",
