@@ -171,6 +171,15 @@
   table row that holds its anchor (number formats folded; .docx tracked changes read as
   accepted), else `RESPONSE_VALUE_MISMATCH` (major); unreadable numbers or an approximate anchor
   give `RESPONSE_VALUE_NOT_ASSESSED` (minor). Output without `--values` is unchanged.
+- **self-review** (#654): two declared inputs close the open SR-01/SR-02 limits when given.
+  `check_claim_artifact.py --evalues evalues.json` recomputes each declared RR's VanderWeele-Ding
+  E-value (point and near-null CI limit) and flags `EVALUE_DECLARED_MISMATCH` only when the
+  rounding intervals do not overlap. `check_reported_p_from_counts.py --tests p_tests.json`
+  recomputes a row's P with its declared crude test and flags `P_ALPHA_CROSSING` only when the
+  reported P's printed interval and the recomputed P sit on opposite sides of alpha; adjusted,
+  paired, multi-group and missing-data rows are `P_NOT_ASSESSED`. Output without the flags is
+  unchanged.
+- **model-assessment** (#653): Phase 9 lists every metric-reporting Major that must be zero.
 - **radiomics-ml: the pipeline gate fails closed.** `check_radiomics_ml.py` no longer clears
   features >= events because dimensionality reduction is declared, counts events as the minority
   class, flags a missing or unrecognised feature-selection stage, accepts stability and
