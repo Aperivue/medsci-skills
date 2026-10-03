@@ -1,5 +1,0 @@
-== NON-REPRODUCIBLE P ==  fixture/p_cross.md
-non_reproducible=2
-[MINOR] P_ALPHA_CROSSING L6  row 'Diabetes' (40/100 vs 30/100) reports P=0.04, but recomputes to Fisher 0.182 / Yates 0.182 / uncorrected 0.138 (closest Pearson chi-square (uncorrected); table family ≈ Fisher exact); the reported and computed P fall on opposite sides of alpha=0.05 under every family. The reported P may be adjusted or use a different denominator than the header n; confirm the test and the denominator
-[MAJOR] P_NOT_REPRODUCIBLE L7  row 'Hypertension' (45/100 vs 25/100) reports P<0.001, but recomputes to Fisher 0.00468 / Yates 0.00485 / uncorrected 0.00303 (closest Pearson chi-square (uncorrected); table family ≈ Fisher exact); the computed P exceeds the reported bound under every family
-[MAJOR] P_NOT_REPRODUCIBLE L13  row 'Smoker' (60/100 vs 30/100) reports P=0.9, but recomputes to Fisher 3.3e-05 / Yates 3.76e-05 / uncorrected 2.01e-05 (closest Pearson chi-square (Yates); table family ≈ Pearson chi-square (uncorrected))

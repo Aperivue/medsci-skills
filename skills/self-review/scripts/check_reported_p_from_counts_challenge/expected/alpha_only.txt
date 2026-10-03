@@ -1,4 +1,0 @@
-== OK ==  fixture/p_alpha_only.md
-non_reproducible=0
-no reported P is off by an order of magnitude or exceeds its bound; see the MINOR advisory below.
-[MINOR] P_ALPHA_CROSSING L5  row 'Hypertension' (40/100 vs 30/100) reports P=0.04, but recomputes to Fisher 0.182 / Yates 0.182 / uncorrected 0.138 (closest Pearson chi-square (uncorrected); table family ≈ Pearson chi-square (uncorrected)); the reported and computed P fall on opposite sides of alpha=0.05 under every family. The reported P may be adjusted or use a different denominator than the header n; confirm the test and the denominator

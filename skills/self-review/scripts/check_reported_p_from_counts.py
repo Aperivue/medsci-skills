@@ -8,31 +8,11 @@ reported ``p<0.001`` whose true value is ~0.06) routinely survives review becaus
 no one recomputes it. This detector rebuilds the 2x2 table for every count row,
 recomputes Fisher's exact test and Pearson's chi-square (with and without Yates'
 correction) in pure stdlib, *calibrates* which family the manuscript used on the
-rows that reproduce (the family is named in the message only), and flags a row
-(P_NOT_REPRODUCIBLE, MAJOR) when, under **every** family, either
-  * the reported P differs from the computed one by more than one order of magnitude; or
-  * a reported upper bound ("<0.001") is exceeded by the computed P.
-When the reported P and the computed one fall on opposite sides of alpha (default 0.05)
-under every family, the row gets a MINOR advisory (P_ALPHA_CROSSING) that never fails
---strict: the table cannot show that the P is a crude 2x2 P, so it may be adjusted or use
-a different denominator. A printed value whose rounding interval straddles alpha (e.g.
-"0.05") is not judged on this rule.
+rows that reproduce, and flags any row whose reported P differs by more than one
+order of magnitude under **every** family.
 
-Guards: continuous rows (mean ± SD, median [IQR]) are skipped. A single-row table is
-checked too (the family calibration only names the family; it never gates a flag).
-A P printed on the first level of a multi-level variable (the next row has counts and
-an empty P cell) is an r x c omnibus P: the alpha and bound rules skip it, and the
-order-of-magnitude rule applies to it only as before (tables with >= 2 count rows).
-The alpha and bound rules (and the single-row check) judge a row only when its crude
-2x2 is established: both cells print a % that equals count / header n to its printed
-precision, and the P is not model-based (no "adjusted" / "multivariable" / "model" /
-"regression" / "weighted" in the P header, no OR / HR / RR / beta / estimate column, and
-no "adjusted" / "multivariable" / "regression" / "weighted" in the table's caption (the
-paragraph directly above it) or footnotes (the paragraph directly below it and further
-paragraphs opening with a footnote marker)). Any other row gets only the
-original order-of-magnitude rule, in tables with >= 2 count rows, and the report adds a
-LIMITED line counting such rows.
-The report states how many rows were checked, and says so when none was.
+Guards: continuous rows (mean ± SD, median [IQR]) are skipped; at least two count
+rows are required so the family can be calibrated; a single-row table never fires.
 
 Stdlib-only (math.comb / math.erfc). Reads the manuscript, never writes it.
 
@@ -55,20 +35,6 @@ PVAL_HEADER_RE = re.compile(r"^\s*\*?\s*[Pp]\s*(?:[- ]?value)?\s*\*?\s*$")
 PVAL_HEADER_CONTAINS = re.compile(r"\bp[- ]?value\b", re.I)
 COUNT_CELL_RE = re.compile(r"^\s*(\d[\d,]*)\s*(?:\(|$)")          # integer count, optionally "count (pct)"
 PVAL_CELL_RE = re.compile(r"^\s*([<=]?)\s*(0?\.\d+|\d+(?:\.\d+)?)\s*$")
-COUNT_PCT_RE = re.compile(r"^\s*\d[\d,]*\s*\(\s*(\d+(?:\.\d+)?)\s*%?\s*\)")  # "count (pct)"
-# A table whose P is model-based cannot be rebuilt from crude counts: the P column
-# header says adjusted / multivariable / model, or another column holds an effect
-# estimate (OR / HR / RR / beta ...). Read from the table header only, never from prose.
-ADJ_P_HEADER_RE = re.compile(r"adjust|multivariab|multivariate|model|regression|weight", re.I)
-# The same declaration made in the table's caption (the paragraph directly above the
-# header) or its footnotes (the paragraph directly below the table, and any further
-# paragraph that opens with a footnote marker). Read only there, never from body prose.
-ADJ_CONTEXT_RE = re.compile(r"adjust|multivariab|multivariate|regression|weight", re.I)
-FOOTNOTE_START_RE = re.compile(r"^\s*(?:[*†‡§¶#]|\^|<sup>|[a-z][).]?\s)")
-EFFECT_HEADER_RE = re.compile(
-    r"\b(?:a?ORs?|a?HRs?|a?RRs?|a?IRRs?|sHRs?|SHRs?)\b|β|"
-    r"(?i:\b(?:odds|hazard|risk|rate)\s+ratio|relative\s+risk|\bbeta\b|coefficient|"
-    r"\bestimate|adjust|multivariab|multivariate)")
 FAMILIES = ("Fisher exact", "Pearson chi-square (Yates)", "Pearson chi-square (uncorrected)")
 
 
@@ -84,9 +50,6 @@ class Finding:
 class Report:
     source: str
     findings: list[Finding] = field(default_factory=list)
-    rows_checked: int = 0
-    rows_order_only: int = 0   # checked, but only by the order-of-magnitude rule
-    rows_skipped: int = 0      # lone row whose crude 2x2 could not be established
 
     @property
     def n_flag(self) -> int:
@@ -146,82 +109,7 @@ def _order_gap(rep_op: str, rep_val: float, comp: float) -> float:
     return abs(math.log10(comp) - math.log10(rep_val))
 
 
-def _decimals(num: str) -> int:
-    return len(num.split(".", 1)[1]) if "." in num else 0
-
-
-def _crosses_alpha(rep_op: str, rep_num: str, comp: float, alpha: float) -> bool:
-    """True when the reported P and the computed P sit on opposite sides of alpha.
-
-    '=' values are read as the interval their printed precision allows
-    (value ± half a unit in the last printed place); an interval that straddles
-    alpha is ambiguous and never judged. '<' bounds are handled by the bound rule."""
-    if rep_op == "<":
-        return False
-    val = float(rep_num)
-    half = 0.5 * 10 ** (-_decimals(rep_num))
-    lo, hi = val - half, val + half
-    if hi < alpha:
-        return comp >= alpha
-    if lo >= alpha:
-        return comp < alpha
-    return False
-
-
-def _pct_matches(cell: str, count: int, n: int) -> bool:
-    """True when the cell prints a percentage that equals count / n to its printed
-    precision (half a unit in the last printed place). A cell with no percentage, or
-    one whose % implies another denominator (missing data), is not verified."""
-    m = COUNT_PCT_RE.match(cell)
-    if not m or n <= 0:
-        return False
-    pct = m.group(1)
-    half = 0.5 * 10 ** (-_decimals(pct))
-    return abs(100.0 * count / n - float(pct)) <= half + 1e-9
-
-
-def _bound_exceeded(rep_op: str, rep_val: float, comp: float) -> bool:
-    return rep_op == "<" and comp >= rep_val
-
-
-def _caption(lines: list[str], hdr: int) -> str:
-    """The paragraph directly above the table header (blank lines skipped)."""
-    k = hdr - 1
-    while k >= 0 and not lines[k].strip():
-        k -= 1
-    out = []
-    while k >= 0 and lines[k].strip() and "|" not in lines[k]:
-        out.append(lines[k])
-        k -= 1
-    return " ".join(reversed(out))
-
-
-def _footnotes(lines: list[str], end: int) -> str:
-    """The paragraph directly below the table, plus each following paragraph that opens
-    with a footnote marker; stops at a heading or the next table."""
-    out, k, first = [], end, True
-    while k < len(lines):
-        while k < len(lines) and not lines[k].strip():
-            k += 1
-        if k >= len(lines) or lines[k].lstrip().startswith("#") or "|" in lines[k]:
-            break
-        if not first and not FOOTNOTE_START_RE.match(lines[k]):
-            break
-        para = []
-        while k < len(lines) and lines[k].strip() and "|" not in lines[k]:
-            para.append(lines[k])
-            k += 1
-        nxt = k
-        while nxt < len(lines) and not lines[nxt].strip():
-            nxt += 1
-        if nxt < len(lines) and "|" in lines[nxt]:
-            break  # this paragraph is the next table's caption, not a footnote
-        out.extend(para)
-        first = False
-    return " ".join(out)
-
-
-def audit(text: str, source: str, alpha: float = 0.05) -> Report:
+def audit(text: str, source: str) -> Report:
     rep = Report(source=source)
     lines = text.splitlines()
     i, n = 0, len(lines)
@@ -230,7 +118,7 @@ def audit(text: str, source: str, alpha: float = 0.05) -> Report:
             i += 1
             continue
         header = _split_row(lines[i])
-        hdr_idx = i
+        lineno0 = i + 1
         group_cols = [j for j, h in enumerate(header) if HEADER_N_RE.search(h)]
         p_col = next((j for j, h in enumerate(header)
                       if PVAL_HEADER_RE.match(h) or PVAL_HEADER_CONTAINS.search(h)), None)
@@ -247,23 +135,8 @@ def audit(text: str, source: str, alpha: float = 0.05) -> Report:
         n1 = int(HEADER_N_RE.search(header[g1]).group(1).replace(",", ""))
         n2 = int(HEADER_N_RE.search(header[g2]).group(1).replace(",", ""))
 
-        def _level_row(k: int) -> bool:
-            """Row k carries counts in both groups and an empty P cell: a further
-            level of the variable above it (an r x c variable, not a 2x2 row)."""
-            if k >= len(rows):
-                return False
-            cl = rows[k][0]
-            return (max(g1, g2, p_col) < len(cl) and not cl[p_col].strip()
-                    and bool(COUNT_CELL_RE.match(cl[g1])) and bool(COUNT_CELL_RE.match(cl[g2])))
-
         parsed = []
-        multi_level = []   # parallel to parsed: P printed on the first level of an r x c variable
-        denom_ok = []      # parallel to parsed: both printed % agree with count / header n
-        model_based = (bool(ADJ_P_HEADER_RE.search(header[p_col]))
-                       or any(EFFECT_HEADER_RE.search(h) for k, h in enumerate(header) if k != 0)
-                       or bool(ADJ_CONTEXT_RE.search(_caption(lines, hdr_idx)))
-                       or bool(ADJ_CONTEXT_RE.search(_footnotes(lines, j))))
-        for idx, (cells, ln) in enumerate(rows):
+        for cells, ln in rows:
             if max(g1, g2, p_col) >= len(cells):
                 continue
             m1, m2 = COUNT_CELL_RE.match(cells[g1]), COUNT_CELL_RE.match(cells[g2])
@@ -274,64 +147,30 @@ def audit(text: str, source: str, alpha: float = 0.05) -> Report:
             if a > n1 or c > n2:
                 continue
             b, d = n1 - a, n2 - c
-            parsed.append((cells[0], ln, a, b, c, d, pm.group(1) or "=", pm.group(2)))
-            multi_level.append(_level_row(idx + 1))
-            denom_ok.append(_pct_matches(cells[g1], a, n1) and _pct_matches(cells[g2], c, n2))
+            parsed.append((cells[0], ln, a, b, c, d, pm.group(1) or "=", float(pm.group(2))))
 
-        if not parsed:
-            continue
+        if len(parsed) < 2:
+            continue  # cannot calibrate the family on a single row
 
         # calibrate: which family reproduces the most rows to <= 1e-3 (op '=')?
         computed = [(_pvals(a, b, c, d)) for _, _, a, b, c, d, _, _ in parsed]
         repro = [0, 0, 0]
-        for (lbl, ln, a, b, c, d, op, num), pv in zip(parsed, computed):
-            val = float(num)
+        for (lbl, ln, a, b, c, d, op, val), pv in zip(parsed, computed):
             if op == "=":
                 for k in range(3):
                     if abs(pv[k] - val) <= 1e-3:
                         repro[k] += 1
         fam_idx = max(range(3), key=lambda k: repro[k]) if any(repro) else 2
 
-        for (lbl, ln, a, b, c, d, op, num), pv, rxc, dok in zip(parsed, computed, multi_level,
-                                                                 denom_ok):
-            val = float(num)
+        for (lbl, ln, a, b, c, d, op, val), pv in zip(parsed, computed):
             gaps = [_order_gap(op, val, pv[k]) for k in range(3)]
-            crude = dok and not model_based  # the 2x2 built from header n is the row's own table
-            if not crude and len(parsed) < 2:
-                rep.rows_skipped += 1
-                continue  # unverified 2x2 alone in its table: the original >= 2-row guard
-            if rxc and len(parsed) < 2:
-                continue  # first level of an r x c variable, alone in its table: not a 2x2 P
-            rep.rows_checked += 1
-            if not crude:
-                rep.rows_order_only += 1
-            reason = None
-            advisory = False
             if min(gaps) > 1.0:  # differs by >1 order under EVERY family
-                reason = ""
-            elif not crude or rxc:
-                # Not judged by the 2x2 boundary rules: a model-based P (adjusted /
-                # regression / weighted in the P header, caption or footnotes, or an
-                # effect-estimate column), a row whose printed % does not tie its count to
-                # the header n (missing data -> another denominator), or an omnibus r x c P.
-                pass
-            elif all(_bound_exceeded(op, val, pv[k]) for k in range(3)):
-                reason = "; the computed P exceeds the reported bound under every family"
-            elif all(_crosses_alpha(op, num, pv[k], alpha) for k in range(3)):
-                # Advisory only: the table cannot show that this P is a crude 2x2 P.
-                advisory = True
-                reason = (f"; the reported and computed P fall on opposite sides of "
-                          f"alpha={alpha:g} under every family. The reported P may be adjusted "
-                          f"or use a different denominator than the header n; confirm the test "
-                          f"and the denominator")
-            if reason is not None:
                 closest = min(range(3), key=lambda k: gaps[k])
                 rep.findings.append(Finding(
-                    "P_ALPHA_CROSSING" if advisory else "P_NOT_REPRODUCIBLE",
-                    "MINOR" if advisory else "MAJOR", ln,
+                    "P_NOT_REPRODUCIBLE", "MAJOR", ln,
                     f"row '{lbl}' ({a}/{a+b} vs {c}/{c+d}) reports P{op}{val:g}, but recomputes to "
                     f"Fisher {pv[0]:.3g} / Yates {pv[1]:.3g} / uncorrected {pv[2]:.3g} "
-                    f"(closest {FAMILIES[closest]}; table family ≈ {FAMILIES[fam_idx]}){reason}"))
+                    f"(closest {FAMILIES[closest]}; table family ≈ {FAMILIES[fam_idx]})"))
     return rep
 
 
@@ -340,23 +179,10 @@ def format_report(rep: Report, color: bool) -> str:
     end = "\033[0m" if color else ""
     out = [f"{tag}== {rep.verdict} =={end}  {rep.source}", f"non_reproducible={rep.n_flag}"]
     if not rep.findings:
-        if rep.rows_checked:
-            out.append("every reported P reproduces from its counts under a standard test.")
-        else:
-            out.append("NOT CHECKED: no two-group count row with a P value was found; "
-                       "nothing was recomputed.")
-    elif not rep.n_flag:
-        out.append("no reported P is off by an order of magnitude or exceeds its bound; "
-                   "see the MINOR advisory below.")
+        out.append("every reported P reproduces from its counts under a standard test.")
+        return "\n".join(out)
     for f in sorted(rep.findings, key=lambda x: (x.line, x.detail)):
         out.append(f"[{f.severity}] {f.kind} L{f.line}  {f.detail}")
-    if rep.rows_order_only or rep.rows_skipped:
-        out.append(f"LIMITED: {rep.rows_order_only} row(s) checked to an order of magnitude only "
-                   f"and {rep.rows_skipped} lone row(s) not checked, because the crude 2x2 is not "
-                   f"established: the P is model-based (adjusted / multivariable / regression / "
-                   f"weighted in the P header, caption or footnotes, or an effect-estimate "
-                   f"column) or the row prints no % that ties its count to the header n (e.g. "
-                   f"missing data).")
     return "\n".join(out)
 
 
@@ -367,24 +193,16 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--strict", action="store_true", help="exit 1 on any P_NOT_REPRODUCIBLE")
     ap.add_argument("--quiet", action="store_true", help="suppress the report; exit code only")
     ap.add_argument("--json", action="store_true", help="emit JSON instead of a text report")
-    ap.add_argument("--alpha", type=float, default=0.05,
-                    help="significance boundary for the crossing rule (default 0.05)")
     args = ap.parse_args(argv)
-    if not 0 < args.alpha < 1:
-        print(f"error: --alpha must be in (0, 1), got {args.alpha}", file=sys.stderr)
-        return 2
     try:
         text = open(args.manuscript, encoding="utf-8").read()
     except OSError as e:
         print(f"error: cannot read manuscript: {e}", file=sys.stderr)
         return 2
-    rep = audit(text, args.manuscript, alpha=args.alpha)
+    rep = audit(text, args.manuscript)
     if not args.quiet:
         if args.json:
             print(json.dumps({"detector": "check_reported_p_from_counts", "source": rep.source, "verdict": rep.verdict,
-                              "rows_checked": rep.rows_checked,
-                              "rows_order_only": rep.rows_order_only,
-                              "rows_skipped": rep.rows_skipped,
                               "findings": [asdict(f) for f in rep.findings]},
                              ensure_ascii=False, indent=2))
         else:

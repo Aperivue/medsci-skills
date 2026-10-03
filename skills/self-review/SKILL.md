@@ -248,12 +248,12 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/check_dta_denominators.py" \
 **P0 Major** — not a rounding disagreement: one of the two numbers is wrong. Run the first two on
 **every** manuscript with a table; the third only on diagnostic-accuracy work.
 
-Known limits: `check_reported_p_from_counts.py` judges a P against a `<` bound, or against alpha,
-only when the row's crude 2x2 is established (each cell prints a % equal to count / header n, and
-neither the P header, an effect-estimate column, the caption nor a footnote says adjusted /
-multivariable / regression / weighted); other rows get only the order-of-magnitude check and a
-`LIMITED` line. An alpha crossing is a Minor `P_ALPHA_CROSSING` advisory, never a Major: a P adjusted
-without saying so in the table, or a paired test, still looks crude to the script.
+Known limits: `check_reported_p_from_counts.py` flags a row only when its reported P differs from
+the crude 2x2 P by more than one order of magnitude under every test family, and only in tables
+with at least two count rows. It does not flag a reported `<` bound (`<0.001`) that the crude P
+exceeds, or a P on the other side of alpha, by less than that, nor a lone count row (open finding
+SR-01): the table cannot show whether the P is adjusted, paired or on another denominator. Check
+such P values against the stated test by hand.
 `check_table_percentages.py` reads one denominator per column. A cell that misses only at its printed
 precision (within 0.5 pp) on a footnoted row (`Current smoker^a | 23 (15.4%)` under n = 150 with 149
 known) is a Minor `PERCENT_PRECISION_NOTE`; an unfootnoted row, or a larger miss, is a

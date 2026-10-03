@@ -103,7 +103,7 @@
 - `check_perspective_structure_challenge/` (10 files)
 - `check_reference_adequacy.py`
 - `check_reported_p_from_counts.py`
-- `check_reported_p_from_counts_challenge/` (22 files)
+- `check_reported_p_from_counts_challenge/` (6 files)
 - `check_reviewer_team_consistency.py`
 - `check_rhetorical_density.py`
 - `check_rounded_delta.py`

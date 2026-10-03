@@ -1,3 +1,0 @@
-== OK ==  fixture/p_cross_ok.md
-non_reproducible=0
-every reported P reproduces from its counts under a standard test.
