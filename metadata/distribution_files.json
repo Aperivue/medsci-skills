@@ -3263,18 +3263,33 @@
     },
     {
       "path": "skills/mllm-eval/SKILL.md",
-      "size": 6987,
-      "sha256": "af26264fb0d4507e423a7e55b6ff662c9ce8debe00f56a7931c3f0ef639117b9"
+      "size": 7492,
+      "sha256": "893c745643e72710ac4222b6079e4866ce5921951ca41782d108d29c0e0f6b46"
+    },
+    {
+      "path": "skills/mllm-eval/references/eval_manifest_schema.md",
+      "size": 3522,
+      "sha256": "a21fbb1767f7c8beef97fae37a293ebfebff98686238662c7b2453751d5fcf1c"
     },
     {
       "path": "skills/mllm-eval/references/evaluation_axes.md",
-      "size": 11954,
-      "sha256": "2eea2938788c989b6f08b7ebdc23c159f6cbade30f71f38c3f1fb1801c4ac901"
+      "size": 12074,
+      "sha256": "79dc71630964274c500755acd6dfef1a892ef1a6a9da9f5e747f0c3741e95155"
     },
     {
       "path": "skills/mllm-eval/scripts/check_mllm_eval_completeness.py",
-      "size": 9434,
-      "sha256": "4364431238fec7dd01a9f8cf293bc70b7205b8d5f966928da6743b4d90e29a32"
+      "size": 23710,
+      "sha256": "f21e9e81303ffd58d094a139a032a801a8e8936e67ca784f16e9888294e9cff0"
+    },
+    {
+      "path": "skills/mllm-eval/scripts/mllm_eval_completeness_challenge/fixture/manifest_bad.json",
+      "size": 354,
+      "sha256": "bf4a74568ff549d61d77ad25f31c67c7dc7e1532286ddd170eb49b2daeef18ee"
+    },
+    {
+      "path": "skills/mllm-eval/scripts/mllm_eval_completeness_challenge/fixture/manifest_good.json",
+      "size": 791,
+      "sha256": "c24778ccde762274053c4ec45f33ab7aa38b86a2e331cb0e15d07de11696c442"
     },
     {
       "path": "skills/mllm-eval/scripts/mllm_eval_completeness_challenge/fixture/plan_bad.md",
@@ -3288,18 +3303,23 @@
     },
     {
       "path": "skills/mllm-eval/scripts/mllm_eval_completeness_challenge/problem.md",
-      "size": 1681,
-      "sha256": "dc9ce54a7bd47ff5d3383c76e681760c0891dc503933863948df1cd999a11a0e"
+      "size": 2078,
+      "sha256": "1a13e6bb6e7364aac0ee021d8b530245ed215b1926313e8debba2fa8ba1bf13b"
     },
     {
       "path": "skills/mllm-eval/scripts/mllm_eval_completeness_challenge/verify.sh",
-      "size": 1335,
-      "sha256": "7c3afbcd5adecdcdc8a2c9d14251521e2bfa39cbd3f650e77c92f37aabe49c9c"
+      "size": 2568,
+      "sha256": "290bb8988bde0fc49e341fb2c7a9619c82098857cab2ce76683a9bb823656f80"
     },
     {
       "path": "skills/mllm-eval/skill.yml",
       "size": 3354,
       "sha256": "33e11de75e24af13ed1a6552d91b95d2309aadbc5cdd1f0971ad7356e4e5669c"
+    },
+    {
+      "path": "skills/mllm-eval/templates/eval_manifest.json",
+      "size": 791,
+      "sha256": "c24778ccde762274053c4ec45f33ab7aa38b86a2e331cb0e15d07de11696c442"
     },
     {
       "path": "skills/model-assessment/SKILL.md",

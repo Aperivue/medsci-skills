@@ -1,0 +1,18 @@
+{
+  "task": "report_generation",
+  "metrics": {
+    "lexical": ["bleu", "rouge"],
+    "clinical": ["radgraph_f1", "chexbert_f1"]
+  },
+  "faithfulness": {"methods": ["atomic_fact_decomposition", "false_premise_probe"]},
+  "reference_standard": {"type": "adjudicated_expert"},
+  "benchmarks": ["MIMIC-CXR"],
+  "contamination": {"methods": ["held_out_set"]},
+  "reader_study": {"performed": true, "n_readers": 3, "blinded": true},
+  "prompt": {"template_released": true},
+  "decoding": {"temperature": 0, "seed": 42},
+  "runs": {"n": 3},
+  "answer_matching": {"method": "none"},
+  "claims": {"clinical_deployment": false},
+  "notes": "Replace every value with what the study actually does. Use \"none\" for an axis that is not done, and \"other:<description>\" for a method not on the list."
+}

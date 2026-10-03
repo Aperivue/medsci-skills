@@ -1,0 +1,10 @@
+{
+  "task": "report_generation",
+  "metrics": {"lexical": ["bleu", "rouge"], "clinical": "none"},
+  "faithfulness": {"methods": "none"},
+  "reference_standard": {"type": "single_unverified_report"},
+  "benchmarks": ["MIMIC-CXR"],
+  "contamination": {"methods": "none"},
+  "reader_study": {"performed": false},
+  "claims": {"clinical_deployment": true}
+}
