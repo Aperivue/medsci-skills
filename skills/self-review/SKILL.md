@@ -468,10 +468,9 @@ python3 "${CLAUDE_SKILL_DIR}/../analyze-stats/scripts/rating_monotonicity.py" \
 | `CONFIRM_NULL_NO_MDE` | **Major** |
 | `ESTIMAND_DRIFT`, `PRIMARY_DISCLOSURE_NOTE` | **Advisory Minor — never a blocker.** The provenance match is fuzzy (token overlap); confirm against the actual registration first. `PRIMARY_DISCLOSURE_NOTE` flags an honest disclosure the guidance recommends — do not penalise it. |
 
-Known limits: the E-value check reads the singular "E-value" only (plural "E-values were ..." is
-not read), and a sentence naming more than one effect estimate whose E-value fits none of them is
-`EVALUE_UNVERIFIABLE`, not `EVALUE_ARITHMETIC`, as is one whose only estimate sits in a parenthetical
-aside outside the E-value phrase; check those by hand.
+Known limits: the E-value check splits sentences at every '.', so the decimal in "HR 1.52" can cut
+the estimate out of its window (`EVALUE_UNVERIFIABLE`); "E-value = 3.10", "(E-value 3.10)" and the
+plural are not read, and a CI-limit E-value is not recognised (open finding SR-02). Check by hand.
 
 **Checks no script makes** (prose judgement):
 

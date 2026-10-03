@@ -81,26 +81,12 @@ DISCLOSURE_RE = re.compile(
     re.I,
 )
 EFFECT_RE = re.compile(r"\b(s?HR|a?HR|a?OR|RR|hazard ratio|odds ratio|risk ratio)\b\D{0,8}(\d+\.\d+)", re.I)
-# The same labels without a number: counts how many estimates a sentence names, including
-# one whose figure sits too far from its label for EFFECT_RE to bind.
-EFFECT_LABEL_RE = re.compile(r"\b(s?HR|a?HR|a?OR|RR|hazard ratio|odds ratio|risk ratio)\b", re.I)
-# A confidence interval printed right after the effect estimate: "(95% CI 1.20-1.93)".
-CI_AFTER_EFFECT_RE = re.compile(
-    r"[^()\d]{0,4}\(?\s*\d{2}\s*%\s*(?:CI|confidence interval)[,:]?\s*"
-    r"(\d+\.\d+)\s*(?:-|–|—|to|,)\s*(\d+\.\d+)", re.I)
 # The E-value figure follows a connective (was / of / = / :), so the non-greedy
 # scan does not grab the effect estimate's number from an adjacent "(HR 1.34)".
-# '=' and ':' are symbols, so they take no word boundary ("E-value = 3.10" has a space
-# before '='). A figure directly after the label ("E-value 3.10") is the E-value too.
-# The leading \b keeps "the value" (the-e + " value") from reading as an E-value.
 EVALUE_RE = re.compile(
-    r"\bE[- ]?value\b[^\n]{0,90}?(?:\b(?:was|were|of|is|reached|equals?(?:\s+to)?)|[=:])\s*\(?(\d+\.\d+)"
-    r"|\bE[- ]?value\s+\(?(\d+\.\d+)",
+    r"E[- ]?value\b[^\n]{0,90}?\b(?:was|were|of|is|=|:|reached|equals?(?:\s+to)?)\s*\(?(\d+\.\d+)",
     re.I,
 )
-# A sentence ends at . ! ? followed by whitespace or the end of the text, never at a
-# decimal point ("HR 1.52").
-SENT_END_RE = re.compile(r"[.!?](?=\s|$)")
 NONPRIMARY_KW = ("secondary", "exploratory", "subgroup", "sensitivity", "supporting",
                  "cause-specific", "cancer-specific", "post-hoc", "post hoc", "non-primary")
 
@@ -247,56 +233,18 @@ def check_estimand(manuscript: str, prereg: str | None, prereg_raw: str | None =
     return claims
 
 
-def _sentence_bounds(text: str, start: int, end: int) -> tuple[int, int]:
-    """[s, e) of the sentence holding text[start:end]; decimal points never split it."""
-    s = 0
-    for m in SENT_END_RE.finditer(text, 0, start):
-        s = m.end()
-    m = SENT_END_RE.search(text, end)
-    return s, (m.start() if m else len(text))
-
-
-def _ci_limit_evalue(lo: float, hi: float) -> float:
-    """E-value for the confidence limit closest to the null (1 if the CI spans 1)."""
-    if lo <= 1.0 <= hi:
-        return 1.0
-    return evalue_point(lo if lo > 1.0 else hi)
-
-
-def _in_aside(sent: str, pos: int, ev_lo: int, ev_hi: int) -> bool:
-    """True when sent[pos] lies inside a parenthesis pair that sits wholly outside the
-    E-value phrase sent[ev_lo:ev_hi] (it closes before the phrase or opens after it)."""
-    stack = []
-    for k, ch in enumerate(sent):
-        if ch == "(":
-            stack.append(k)
-        elif ch == ")" and stack:
-            o = stack.pop()
-            if o < pos < k and (k < ev_lo or o >= ev_hi):
-                return True
-    return False
-
-
 def check_evalue(manuscript: str) -> list[dict]:
     claims = []
     for i, m in enumerate(EVALUE_RE.finditer(manuscript), 1):
-        stated = float(m.group(1) or m.group(2))
-        # sentence window around the E-value (real sentence boundaries, not decimals)
-        start, end = _sentence_bounds(manuscript, m.start(), m.end())
-        sent = manuscript[start:end]
-        # bind the effect estimate nearest to the E-value, before or after it
-        ev_lo, ev_hi = m.start() - start, m.end() - start
-        # (an estimate inside the E-value phrase itself, "E-value for (HR 1.52) was", is 0 away)
-        def _gap(e) -> int:
-            if e.start() >= ev_hi:
-                return e.start() - ev_hi
-            if e.end() <= ev_lo:
-                return ev_lo - e.end()
-            return 0
-        effs = sorted(EFFECT_RE.finditer(sent), key=_gap)
+        stated = float(m.group(1))
+        # sentence window around the E-value
+        start = manuscript.rfind(".", 0, m.start()) + 1
+        end = manuscript.find(".", m.end())
+        sent = manuscript[start:(end if end != -1 else len(manuscript))]
+        eff = EFFECT_RE.search(sent)
         nonprimary = any(kw in sent.lower() for kw in NONPRIMARY_KW)
 
-        if not effs:
+        if not eff:
             claims.append({
                 "claim_id": f"EVAL-{i}",
                 "type": "evalue",
@@ -308,58 +256,9 @@ def check_evalue(manuscript: str) -> list[dict]:
             })
             continue
 
-        def _fit(e) -> tuple[float, float, str]:
-            """(rel. diff, recomputed, note) of the stated E-value against estimate e."""
-            rr_ = float(e.group(2))
-            rec = evalue_point(rr_)
-            rel_ = abs(stated - rec) / rec if rec else 1.0
-            # A stated value may be the E-value for the near-null confidence limit
-            # (phase2_5f asks for both); accept it when the CI is printed with the estimate.
-            ci = CI_AFTER_EFFECT_RE.match(sent, e.end())
-            if rel_ > EVALUE_TOL and ci:
-                lo, hi = sorted((float(ci.group(1)), float(ci.group(2))))
-                ci_ev = _ci_limit_evalue(lo, hi)
-                if abs(stated - ci_ev) / ci_ev <= EVALUE_TOL:
-                    return (abs(stated - ci_ev) / ci_ev, ci_ev,
-                            f" for the CI limit nearest the null ({lo}-{hi})")
-            return rel_, rec, ""
-
-        fits = [(e, _fit(e)) for e in effs]          # nearest estimate first
-        matching = [(e, f) for e, f in fits if f[0] <= EVALUE_TOL]
-        n_named = max(len(effs), len(EFFECT_LABEL_RE.findall(sent)))
-        if not matching and n_named > 1:
-            # Several estimates in one sentence and the stated E-value fits none: which
-            # estimate it belongs to cannot be read off the sentence, so do not call it
-            # an arithmetic error.
-            listed = ", ".join(f"{e.group(1)} {e.group(2)} -> {f[1]:.2f}" for e, f in fits)
-            claims.append({
-                "claim_id": f"EVAL-{i}",
-                "type": "evalue",
-                "prose_value": f"E-value {stated}",
-                "artifact_source": f"{n_named} effect estimates named in the sentence",
-                "verdict": "EVALUE_UNVERIFIABLE",
-                "detail": (f"E-value {stated} matches none of the estimates read from its sentence "
-                           f"({listed}), which names {n_named}; confirm which estimate it was "
-                           f"computed for."),
-            })
-            continue
-        eff, (rel, recomputed, ci_note) = (matching or fits)[0]
         rr = float(eff.group(2))
-        if rel > EVALUE_TOL and _in_aside(sent, eff.start(), ev_lo, ev_hi):
-            # The only estimate the sentence binds sits in a parenthetical aside that does
-            # not hold the E-value phrase ("... (HR 1.52 for death), and the E-value for the
-            # risk difference was 1.90"): it need not be the estimate the E-value is for.
-            claims.append({
-                "claim_id": f"EVAL-{i}",
-                "type": "evalue",
-                "prose_value": f"E-value {stated}",
-                "artifact_source": f"{eff.group(1)} {rr} named only in a parenthetical aside",
-                "verdict": "EVALUE_UNVERIFIABLE",
-                "detail": (f"E-value {stated} does not recompute from {eff.group(1)} {rr} "
-                           f"({recomputed:.2f}), but that estimate sits in a parenthetical aside "
-                           f"outside the E-value phrase; confirm which estimate it was computed for."),
-            })
-            continue
+        recomputed = evalue_point(rr)
+        rel = abs(stated - recomputed) / recomputed if recomputed else 1.0
         if rel > EVALUE_TOL:
             verdict = "EVALUE_ARITHMETIC"
             detail = (f"stated E-value {stated} but {eff.group(1)} {rr} recomputes to "
@@ -367,13 +266,12 @@ def check_evalue(manuscript: str) -> list[dict]:
                       "likely belongs to a different (e.g. non-primary) estimate.")
         elif nonprimary:
             verdict = "EVALUE_NON_PRIMARY"
-            detail = (f"E-value {stated} matches {eff.group(1)} {rr}{ci_note} (recompute {recomputed:.2f}), "
+            detail = (f"E-value {stated} matches {eff.group(1)} {rr} (recompute {recomputed:.2f}), "
                       "but the sentence references a secondary/exploratory estimate; confirm the "
                       "headline E-value bounds the PRIMARY contrast, not this one.")
         else:
             verdict = "OK"
-            detail = (f"E-value {stated} consistent with {eff.group(1)} {rr}{ci_note} "
-                      f"(recompute {recomputed:.2f}).")
+            detail = f"E-value {stated} consistent with {eff.group(1)} {rr} (recompute {recomputed:.2f})."
         claims.append({
             "claim_id": f"EVAL-{i}",
             "type": "evalue",
