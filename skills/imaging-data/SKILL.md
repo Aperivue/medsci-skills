@@ -158,7 +158,11 @@ arbitrary-unit cohort that must raise a Major, and an unreadable contract that m
 - `preprocessing_manifest.json` with the augmentation-appropriateness and normalisation fit-scope
   notes (Phases 4–5), `qc/preprocessing_leakage.json` (Phase 6), `qc/normalizer_domain.json` (Phase 7).
 
-The manifest feeds `/model-scaffold`; it documents the CLAIM 2024 / TRIPOD+AI data-preprocessing items
+The manifest feeds `/model-scaffold`, which also **reads the `qc/` reports**: keep them in `qc/` beside
+the manifest (or `../qc/`), or pass them with `--imaging-qc`. An unresolved Major there refuses the
+scaffold until it is fixed and re-gated or acknowledged with a stated reason (`--ack-qc`); Minor and
+Flag claims are carried into the repo's `IMAGING_QC.md`, and a missing report is recorded as not
+assessed. Re-run a gate after fixing its finding — a stale report still blocks. The manifest documents the CLAIM 2024 / TRIPOD+AI data-preprocessing items
 for `/check-reporting`; `/self-review`'s `model_development` probe looks for exactly this pipeline in a
 finished manuscript. Regression: `bash ${CLAUDE_SKILL_DIR}/scripts/check_dataset_profile_challenge/verify.sh`,
 `bash ${CLAUDE_SKILL_DIR}/scripts/check_preprocessing_leakage_challenge/verify.sh`,

@@ -18,7 +18,7 @@ outputs:
   - "dataset-profile audit JSON qc/dataset_profile.json (deterministic verdicts)"
   - "decision notes for the study record: resampling target, loss/metric family, pre-specified subgroups, held-out provenance, cohort limitations"
   - "a declarative preprocessing manifest preprocessing_manifest.json (transforms with type/fit_scope/stage + split_assignment + split_seed) that model-scaffold consumes, with augmentation-appropriateness and normalisation fit-scope notes"
-  - "preprocessing-leakage audit JSON qc/preprocessing_leakage.json and normaliser-domain audit JSON qc/normalizer_domain.json (deterministic)"
+  - "preprocessing-leakage audit JSON qc/preprocessing_leakage.json and normaliser-domain audit JSON qc/normalizer_domain.json (deterministic) — read by model-scaffold, which refuses on an unacknowledged Major and carries Minor/Flag claims into the repo's IMAGING_QC.md"
 deterministic_scripts:
   - scripts/check_dataset_profile.py
   - scripts/check_preprocessing_leakage.py
