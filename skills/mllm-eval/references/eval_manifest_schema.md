@@ -15,7 +15,7 @@ unknown key exits 2 and names the field. A field left out counts as not covered,
 | Field | Type | Allowed values | Verdict when not covered |
 |---|---|---|---|
 | `task` | string | `report_generation`, `vqa`, `classification` (no `none` or `other:`) | exit 2 if missing and no `--task` |
-| `metrics.lexical` | list | `bleu`, `rouge`, `meteor`, `cider` | — |
+| `metrics.lexical` | list | `bleu`, `rouge` (also `rouge_l`, `rouge_1`, `rouge_2`), `meteor`, `cider` | — |
 | `metrics.clinical` | list | `radgraph_f1`, `chexbert_f1`, `chexpert_labeler`, `radcliq`, `green` | `NGRAM_ONLY` (Major, report generation, when lexical is declared) |
 | `faithfulness.methods` | list | `atomic_fact_decomposition`, `false_premise_probe`, `med_halt`, `medvh` | `FAITHFULNESS_MISSING` (Major, report generation and VQA) |
 | `reference_standard.type` | string | `adjudicated_expert`; also accepted but **not** clearing: `single_unverified_report`, `model_derived_label` (SKILL.md Phase 2) | `REFERENCE_STANDARD_MISSING` (Major, report generation) |
@@ -32,3 +32,7 @@ unknown key exits 2 and names the field. A field left out counts as not covered,
 Every value that clears an axis is named in `evaluation_axes.md` (the reference standard in
 SKILL.md Phase 2). An LLM judge must itself be validated against a human-labelled subset; the gate
 does not check that.
+
+An `other:<description>` value counts as covering its axis, the reference standard included,
+and is reported only as a Minor `UNLISTED_METHOD`: read each one by eye. `other: none` is read as
+`none`.

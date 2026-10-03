@@ -3268,8 +3268,8 @@
     },
     {
       "path": "skills/mllm-eval/references/eval_manifest_schema.md",
-      "size": 3283,
-      "sha256": "a323c9dad878ff2a3284b32fb5e8df812d12d3a64e7c6b8a1ccef060c5f3ede3"
+      "size": 3522,
+      "sha256": "a21fbb1767f7c8beef97fae37a293ebfebff98686238662c7b2453751d5fcf1c"
     },
     {
       "path": "skills/mllm-eval/references/evaluation_axes.md",
@@ -3278,8 +3278,8 @@
     },
     {
       "path": "skills/mllm-eval/scripts/check_mllm_eval_completeness.py",
-      "size": 23260,
-      "sha256": "eab0616ae50d7cb9fe0a4419121132a80505f68248b54c27f90496e3167a90da"
+      "size": 23525,
+      "sha256": "561671dc082c5e4f32a421dd44c90025c2c5a8cc25829a4dbc4d74073bc9b5ea"
     },
     {
       "path": "skills/mllm-eval/scripts/mllm_eval_completeness_challenge/fixture/manifest_bad.json",

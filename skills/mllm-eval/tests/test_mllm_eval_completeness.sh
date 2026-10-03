@@ -86,7 +86,7 @@ check "  UNLISTED_METHOD reported" has UNLISTED_METHOD
 check "  other: counts as a clinical metric" no NGRAM_ONLY
 mk 'm["metrics"]["clinical"]=["other:"]'; run
 check "empty other: exits 2" test "$?" -eq 2
-mk 'm["faithfulness"]={"methods": ["none", "atomic_fact_check"]}'; run
+mk 'm["faithfulness"]={"methods": ["none", "atomic_fact_decomposition"]}'; run
 check "'none' mixed with a method exits 2" test "$?" -eq 2
 mk 'm["reader_study"]["performed"]="yes"'; run
 check "non-boolean reader_study.performed exits 2" test "$?" -eq 2
@@ -142,6 +142,17 @@ python3 "$DET" --manifest "$TMP/deep.json" --task vqa --quiet >/dev/null 2>&1
 check "deeply nested JSON exits 2" test "$?" -eq 2
 python3 "$DET" --manifest "" --plan "$F/plan_good.md" --task vqa --quiet >/dev/null 2>&1
 check "--manifest '' exits 2 (not prose mode)" test "$?" -eq 2
+
+python3 -c "print('{\"task\":\"vqa\",\"runs\":{\"n\":'+'9'*5000+'}}')" > "$TMP/big.json"
+python3 "$DET" --manifest "$TMP/big.json" --quiet >/dev/null 2>&1
+check "5000-digit integer exits 2" test "$?" -eq 2
+printf '{"task": "vqa", "decoding": {"temperature": 1e999}}' > "$TMP/huge.json"
+python3 "$DET" --manifest "$TMP/huge.json" --quiet >/dev/null 2>&1
+check "temperature 1e999 (inf) exits 2" test "$?" -eq 2
+mk 'm["metrics"]["clinical"]="none"; m["metrics"]["lexical"]=["ROUGE-L"]'; run
+check "ROUGE-L is read as rouge (NGRAM_ONLY)" has NGRAM_ONLY
+mk 'm["faithfulness"]={"methods": "other: none"}'; run
+check "'other: none' is read as none" has FAITHFULNESS_MISSING
 
 # with --manifest the prose plan is not read; with neither, or --plan without --task, exit 2
 python3 "$DET" --manifest "$F/manifest_good.json" --plan "$F/plan_bad.md" --strict --quiet >/dev/null 2>&1

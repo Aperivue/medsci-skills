@@ -52,6 +52,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import re
 import sys
 from pathlib import Path
@@ -165,7 +166,7 @@ REFERENCE = REFERENCE_OK | {"single_unverified_report", "model_derived_label"}
 CONTAMINATION = {"cutoff_vs_release_date", "held_out_set", "canary", "perturbed_duplicate_gap",
                  "membership_test"}
 ANSWER_MATCH = {"exact", "normalised", "llm_as_judge"}
-ALIASES = {"normalized": "normalised"}
+ALIASES = {"normalized": "normalised", "rouge_l": "rouge", "rouge_1": "rouge", "rouge_2": "rouge"}
 MIN_RUNS = 3   # SKILL.md Phase 4: ">= 3 runs with variance"
 
 TOP_KEYS = {"task", "metrics", "faithfulness", "reference_standard", "benchmarks",
@@ -212,6 +213,8 @@ def _enum(value, allowed: set, where: str, unlisted: list) -> str:
     if om:
         if not om.group(1).strip():
             raise ManifestError(f"{where}: 'other:' needs a description")
+        if _key(om.group(1)) == "none":
+            return "none"
         unlisted.append((where, value.strip()))
         return "other"
     raise ManifestError(f"{where}: {value!r} is not one of {sorted(allowed | {'none'})} "
@@ -261,7 +264,7 @@ def analyze_manifest(path: str, task_arg: str | None) -> dict:
     try:
         m = json.loads(Path(path).read_text(encoding="utf-8"),
                        parse_constant=_reject_constant)
-    except (OSError, UnicodeDecodeError, json.JSONDecodeError, RecursionError) as e:
+    except (OSError, ValueError, RecursionError) as e:   # ValueError covers JSONDecodeError
         raise ManifestError(f"cannot read manifest: {e}")
     if not isinstance(m, dict):
         raise ManifestError("manifest must be a JSON object")
@@ -311,7 +314,8 @@ def analyze_manifest(path: str, task_arg: str | None) -> dict:
     prompt_ok = _bool(pr.get("template_released"), "prompt.template_released")
     dec = _obj(m, "decoding")
     temp = dec.get("temperature")
-    if temp is not None and (isinstance(temp, bool) or not isinstance(temp, (int, float)) or temp < 0):
+    if temp is not None and (isinstance(temp, bool) or not isinstance(temp, (int, float))
+                             or not math.isfinite(temp) or temp < 0):
         raise ManifestError(f"decoding.temperature: expected a number >= 0, got {temp!r}")
     greedy = _bool(dec.get("greedy"), "decoding.greedy")
     _int(dec.get("seed"), "decoding.seed", 0)   # recorded, not gated
@@ -359,7 +363,8 @@ def analyze_manifest(path: str, task_arg: str | None) -> dict:
             add("READER_STUDY_MISSING", sev,
                 f"no blinded clinical reader study ({state})" +
                 (" for a declared clinical-deployment claim" if sev == "Major"
-                 else " (automated metrics only)"), "reader_study.performed")
+                 else " (automated metrics only)"),
+                "reader_study.blinded" if rs_done is True else "reader_study.performed")
 
     if (is_gen or is_vqa) and not faith:
         add("FAITHFULNESS_MISSING", "Major",
