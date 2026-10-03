@@ -154,6 +154,10 @@ check "ROUGE-L is read as rouge (NGRAM_ONLY)" has NGRAM_ONLY
 mk 'm["faithfulness"]={"methods": "other: none"}'; run
 check "'other: none' is read as none" has FAITHFULNESS_MISSING
 
+python3 -c "print('{\"task\":\"vqa\",\"decoding\":{\"temperature\":1'+'0'*400+'}}')" > "$TMP/hugeint.json"
+python3 "$DET" --manifest "$TMP/hugeint.json" --quiet >/dev/null 2>&1
+check "400-digit integer temperature does not crash (exit 0, finite)" test "$?" -eq 0
+
 # with --manifest the prose plan is not read; with neither, or --plan without --task, exit 2
 python3 "$DET" --manifest "$F/manifest_good.json" --plan "$F/plan_bad.md" --strict --quiet >/dev/null 2>&1
 check "--manifest wins over --plan" test "$?" -eq 0

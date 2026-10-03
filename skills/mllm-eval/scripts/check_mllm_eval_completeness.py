@@ -286,7 +286,7 @@ def analyze_manifest(path: str, task_arg: str | None) -> dict:
             raise ManifestError(f"task: manifest says {task!r} but --task is {task_arg!r}")
 
     metrics = _obj(m, "metrics")
-    lexical = _enum_list(metrics.get("lexical"), LEXICAL, "metrics.lexical", unlisted)
+    lexical = list(dict.fromkeys(_enum_list(metrics.get("lexical"), LEXICAL, "metrics.lexical", unlisted)))
     clinical = _enum_list(metrics.get("clinical"), CLINICAL, "metrics.clinical", unlisted)
     faith_obj = _obj(m, "faithfulness")
     faith = _enum_list(faith_obj.get("methods"), FAITHFULNESS, "faithfulness.methods", unlisted)
@@ -315,7 +315,7 @@ def analyze_manifest(path: str, task_arg: str | None) -> dict:
     dec = _obj(m, "decoding")
     temp = dec.get("temperature")
     if temp is not None and (isinstance(temp, bool) or not isinstance(temp, (int, float))
-                             or not math.isfinite(temp) or temp < 0):
+                             or (isinstance(temp, float) and not math.isfinite(temp)) or temp < 0):
         raise ManifestError(f"decoding.temperature: expected a number >= 0, got {temp!r}")
     greedy = _bool(dec.get("greedy"), "decoding.greedy")
     _int(dec.get("seed"), "decoding.seed", 0)   # recorded, not gated
@@ -434,7 +434,8 @@ def main() -> int:
             sys.stderr.write("NOTE: --manifest given; --plan is not read\n")
         try:
             result = analyze_manifest(args.manifest, args.task)
-        except ManifestError as e:
+        except (ManifestError, ValueError, OverflowError, RecursionError) as e:
+            # any unreadable manifest is an input error (exit 2), never a Major (exit 1)
             sys.stderr.write(f"ERROR: {args.manifest}: {e}\n")
             return 2
     elif args.plan is not None:
