@@ -17,7 +17,8 @@ carries no `check_` prefix, and is not counted in the detector catalog. It reads
 state: `CONTINUE` (a floor Major remains), `STOP_OVERHARDENING` (floor clean but the
 ceiling pass flags accumulation), `STOP_MINOR_OPTIONAL` (only optional Minor polish
 left), `STOP_ZERO_EDIT` (floor at fixed point, ceiling clean — submission-ready as-is),
-or `INDETERMINATE` (no gate artifacts yet). A floor gate is recognised by a
+or `INDETERMINATE` (no gate artifacts yet, no parsed floor gate, or an empty / invalid
+`qc/*.json`). Every STOP verdict needs at least one parsed floor gate. A floor gate is recognised by a
 `summary.n_major`; the ceiling pass by a `summary.by_action`. It is advisory and never
 blocks — it must not double-gate the floor detectors, which already exit non-zero on
 their own Majors — so every run exits 0.
@@ -29,6 +30,11 @@ Five `qc/` directories of synthetic gate envelopes:
 - `fixture/minor_optional/` — floor 0 Major/1 Minor + ceiling 0 → `STOP_MINOR_OPTIONAL`.
 - `fixture/continue/` — floor 1 Major → `CONTINUE`.
 - `fixture/empty/` — no `*.json` → `INDETERMINATE`.
+- `fixture/ceiling_only/` — only a clean ceiling artifact, no floor gate → `INDETERMINATE`
+  (a clean ceiling cannot declare the floor at its fixed point).
+- `fixture/crashed_gate/` — clean floor + ceiling beside a 0-byte `reported_p.json` and a
+  truncated `table_percentages.json` (gates that crashed under `--json > file`) →
+  `INDETERMINATE`, with both files named under `artifacts_unreadable`.
 
 ## Expected
 - `expected/<scenario>.txt` — the terminal-state summary for each directory.

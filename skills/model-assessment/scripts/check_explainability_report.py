@@ -44,6 +44,10 @@ MANIFEST (JSON)
     "interpretation": "localization"      // localization / faithfulness / attribution /
                                           // explanation / validation / causal
   }
+  `interpretation` is an enumerated field: a value outside the list above (or its
+  descriptive synonyms) is an input error, exit 2, because free text such as "the map
+  proves the model is correct" cannot be checked for a validation framing. A none-like
+  `sanity_checks` entry ("none", "not performed") counts as no sanity check.
 
 INPUTS
   --manifest  explainability-report manifest JSON (required).
@@ -62,6 +66,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -74,11 +79,38 @@ LOCALIZATION_INTERP = {
     "localization", "localisation", "faithfulness", "faithful", "correctness",
     "attention_correctness", "region",
 }
+# non-validation framings: accepted, never flagged as SALIENCY_AS_VALIDATION
+DESCRIPTIVE_INTERP = {"attribution", "explanation", "descriptive", "exploratory",
+                      "illustrative", "qualitative", "hypothesis_generating"}
+# a sanity_checks entry that declares no check at all (compared on _key())
+SANITY_NONE = {"", "none", "no", "na", "n_a", "false", "null", "not_performed", "not_done",
+               "not_run", "skipped"}
 NO_METRIC_VALUES = {"", "none", "na", "n/a", "no", "false", "eyeball", "visual", "qualitative"}
 
 
 def _norm(s) -> str:
     return str(s).strip().lower() if s is not None else ""
+
+
+def _key(s) -> str:
+    """_norm() with separators collapsed: 'Not performed' -> 'not_performed'."""
+    return re.sub(r"[^a-z0-9]+", "_", _norm(s)).strip("_")
+
+
+def _in(value: str, vocab: set) -> bool:
+    return value in vocab or _key(value) in vocab
+
+
+def interpretation_error(manifest: dict) -> str | None:
+    """An unrecognised interpretation would skip checks 1 and 3 silently; it is an input error."""
+    raw = manifest.get("interpretation")
+    if raw is None or raw == "":
+        return None
+    known = VALIDATION_INTERP | LOCALIZATION_INTERP | DESCRIPTIVE_INTERP
+    if not isinstance(raw, str) or not _in(_norm(raw), known):
+        return (f"unrecognised interpretation {raw!r}; use one of localization / faithfulness / "
+                f"attribution / explanation / validation / causal")
+    return None
 
 
 def check(manifest: dict) -> list[dict]:
@@ -89,10 +121,12 @@ def check(manifest: dict) -> list[dict]:
     sanity = manifest.get("sanity_checks") or []
     if isinstance(sanity, str):
         sanity = [sanity]
+    # "none" / "not performed" declares no check; it must not stand in for one
+    sanity = [s for s in sanity if _key(s) not in SANITY_NONE]
     interp = _norm(manifest.get("interpretation") or "explanation")
 
     # 1. Saliency framed as validation / causal evidence.
-    if interp in VALIDATION_INTERP:
+    if _in(interp, VALIDATION_INTERP):
         claims.append({
             "verdict": "SALIENCY_AS_VALIDATION", "severity": "Major",
             "detail": (f"the saliency map is framed as '{interp}'; a saliency/attribution map "
@@ -112,7 +146,7 @@ def check(manifest: dict) -> list[dict]:
 
     # 3. Localisation/faithfulness claim without a quantitative metric.
     loc_ok = bool(loc_metric) and loc_metric not in NO_METRIC_VALUES
-    if interp in LOCALIZATION_INTERP and not loc_ok:
+    if _in(interp, LOCALIZATION_INTERP) and not loc_ok:
         claims.append({
             "verdict": "NO_LOCALIZATION_METRIC", "severity": "Major",
             "detail": (f"interpretation='{interp}' asserts the map localises the finding, but no "
@@ -125,7 +159,8 @@ def check(manifest: dict) -> list[dict]:
     sset = {_norm(s) for s in sanity}
     if sanity:
         has_model = any("model" in s or "parameter" in s or "weight" in s for s in sset)
-        has_data = any("data" in s or "label" in s for s in sset)
+        # "metadata" is not data randomisation
+        has_data = any(re.search(r"(?<!meta)data", s) or "label" in s for s in sset)
         if not (has_model and has_data):
             missing = "data-randomisation" if has_model else "model-randomisation"
             claims.append({
@@ -169,6 +204,10 @@ def analyze(manifest_path: str) -> dict:
         sys.stderr.write("ERROR: manifest JSON must be an object\n")
         sys.exit(2)
 
+    err = interpretation_error(manifest)
+    if err:
+        sys.stderr.write(f"ERROR: {err}\n")
+        sys.exit(2)
     claims = check(manifest)
     n_major = sum(1 for c in claims if c["severity"] == "Major")
     return {

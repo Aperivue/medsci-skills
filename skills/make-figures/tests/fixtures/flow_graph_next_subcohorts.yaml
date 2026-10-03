@@ -1,0 +1,10 @@
+# The next box lists sub-cohorts with no total: 1,000 - 100 = 900 = 500 + 400 closes. The next
+# box's first sub-count (500) is not its total, so the link is NOT ASSESSED, never flagged.
+rankdir: TB
+nodes:
+  - {id: a, label: "Screened\nN = 1,000"}
+  - {id: excl, shape: note, label: "Excluded (n = 100)", rank_same_with: a}
+  - {id: b, label: "Included:\nMen (n = 500)\nWomen (n = 400)"}
+edges:
+  - {from: a, to: b}
+  - {from: a, to: excl, style: dashed, arrow: false, constraint: false}

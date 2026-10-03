@@ -98,4 +98,20 @@ printf 'Three-class classification: one-vs-rest macro-averaged AUROC 0.90 and AU
 python3 "$DET" --report "$W/mc_ok.md" --task classification --out "$OUT" --quiet >/dev/null 2>&1
 check "FP: multiclass with one-vs-rest macro-average -> no MULTICLASS_NO_AVERAGING" no MULTICLASS_NO_AVERAGING
 
+# --- detection metric controls: every spelling of mean average precision counts,
+# also next to a saliency map and after an image-like word (clean on main) ---
+for m in "mAP 0.71" "MAP of 0.71" "map@0.5 0.71" "mAP50-95 0.52" "mean average precision 0.71"; do
+  printf 'Detection: %s (95%% CI 0.65-0.77), IoU threshold 0.5. Figure 3 shows a saliency map.\n' "$m" > "$W/det_ap.md"
+  check "control: '$m' + saliency map passes --strict" ok0 "$W/det_ap.md" detection
+done
+for m in "The instance segmentation mAP was 0.42" "The confidence mAP was 0.42" \
+         "At high density mAP was 0.42" "With attention mAP was 0.42"; do
+  printf '%s (95%% CI 0.38-0.46) at an IoU threshold of 0.5.\n' "$m" > "$W/det_ap2.md"
+  check "control: '$m' passes --strict" ok0 "$W/det_ap2.md" detection
+done
+for m in 'The instance segmentation\nmAP was 0.42' 'The mAP\nwas 0.42'; do
+  printf "$m"' (95%% CI 0.38-0.46) at an IoU threshold of 0.5.\n' > "$W/det_ap3.md"
+  check "control: wrapped '$m' passes --strict" ok0 "$W/det_ap3.md" detection
+done
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"; exit "$fail"

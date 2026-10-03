@@ -80,6 +80,29 @@ As shown in @fig-flow, enrolment proceeded. See also @tbl-baseline and @sec-meth
 EOF
 
 printf 'Cites [@Smith2023] and [@Ghost2024].\n' > "$WORK/undefined.md"
+# 4. pandoc starts a key with a letter, a digit or an underscore, and prints `(2019who?)` for one it
+#    cannot find. These were invisible to the checker (letter-only first character), so the gate
+#    said OK on a manuscript that rendered with broken citations.
+printf 'A guideline [@2019who] and [@_anon2018] and [@Smith2023].\n' > "$WORK/digitkey.md"
+cat > "$WORK/digitkey.bib" <<'EOF2'
+@article{Smith2023,
+  author = {Smith, John},
+  title  = {A title},
+  year   = {2023}
+}
+@misc{2019who,
+  author = {{World Health Organization}},
+  title  = {A guideline},
+  year   = {2019}
+}
+@misc{_anon2018,
+  author = {Anon, A},
+  title  = {A report},
+  year   = {2018}
+}
+EOF2
+printf 'Contact the authors at first.author@example.org; dosing is described in [@Smith2023].\n' \
+  > "$WORK/email.md"
 printf 'Cites [@fig-consort].\n' > "$WORK/figkey.md"
 
 echo "==== 1. a citation ending a sentence is the same citation ===="
@@ -99,7 +122,19 @@ ck "Quarto manuscript: exit 0"          0 "$(run quarto.qmd refs.bib)"
 ck "  3 cross-references REPORTED"      3 "$(section_count quarto.qmd CROSS-REFERENCES)"
 ck "  0 undefined"                      0 "$(section_count quarto.qmd UNDEFINED)"
 
+echo "==== 4. digit- and underscore-led keys are citations, as pandoc reads them ===="
+ck "[@2019who] [@_anon2018] undefined: exit 1" 1 "$(run digitkey.md refs.bib)"
+ck "  both named UNDEFINED"             2 "$(section_count digitkey.md UNDEFINED)"
+ck "  [@2019who] named"                 "[@2019who]" \
+   "$(grep -oE '\[@2019who\]' "$WORK/digitkey.md.out" | head -1)"
+ck "  same keys defined in the .bib: exit 0" 0 "$(run digitkey.md digitkey.bib)"
+ck "  counted as three citations"       "cited=3" \
+   "$(grep -oE 'cited=[0-9]+' "$WORK/digitkey.md.out")"
+
 echo "==== NEGATIVE CONTROLS ===="
+ck "an e-mail address is not a citation" 0 "$(run email.md refs.bib)"
+ck "  cited=1"                          "cited=1" \
+   "$(grep -oE 'cited=[0-9]+' "$WORK/email.md.out")"
 ck "a genuinely undefined key still fails" 1 "$(run undefined.md refs.bib)"
 ck "  and it is named"                  "[@Ghost2024]" \
    "$(grep -oE '\[@Ghost2024\]' "$WORK/undefined.md.out" | head -1)"
@@ -109,6 +144,6 @@ ck "UNUSED detection still works"       1 "$(run undefined.md refs.bib --strict-
 
 echo
 echo "  passed=$pass failed=$fail"
-[ "$fail" -eq 0 ] || { for f in sentence_end.md quarto.qmd undefined.md figkey.md; do
+[ "$fail" -eq 0 ] || { for f in sentence_end.md quarto.qmd undefined.md figkey.md digitkey.md email.md; do
     echo "--- $f"; cat "$WORK/$f.out"; done; exit 1; }
 echo "OK: the full stop is punctuation, a cross-reference is not a citation, and a ghost key still fails."

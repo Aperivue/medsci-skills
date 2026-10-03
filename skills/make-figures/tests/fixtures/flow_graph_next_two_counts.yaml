@@ -1,0 +1,14 @@
+# Shape of the PRISMA exemplar's last step: the exclusion sits beside the box it is subtracted
+# from (208 - 180 = 28), and the next box lists two counts with no stated total ("included"
+# 28, "in meta-analysis" 24). The other reading (previous box 220 - 180 = 40 != 208) must not
+# turn the unknown next-box total into a CASCADE_IMBALANCE: the link is NOT ASSESSED.
+rankdir: TB
+nodes:
+  - {id: sought, label: "Reports sought\n(n = 220)"}
+  - {id: assessed, label: "Reports assessed\n(n = 208)"}
+  - {id: excl, shape: note, label: "Reports excluded (n = 180)", rank_same_with: assessed}
+  - {id: included, label: "Studies included\n(n = 28)\nIn meta-analysis\n(n = 24)"}
+edges:
+  - {from: sought, to: assessed}
+  - {from: assessed, to: included}
+  - {from: assessed, to: excl, style: dashed, arrow: false, constraint: false}

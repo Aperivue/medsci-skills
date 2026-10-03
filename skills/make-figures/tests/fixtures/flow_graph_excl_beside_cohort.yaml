@@ -1,0 +1,12 @@
+# Reviewer counter-example (exclusion listing reasons, no total) in the exemplar's own layout:
+# "Screened N = 1,000" -> "Included N = 900", dashed "Excluded:" with reasons 60 and 40 on
+# separate lines. Closes (1,000 - 60 - 40 = 900); the exclusion total is unknown, so the link is
+# NOT ASSESSED and never reported as 1,000 - 60 = 940.
+rankdir: TB
+nodes:
+  - {id: a, label: "Screened N = 1,000"}
+  - {id: excl, shape: note, label: "Excluded:\n- Age < 18 (n = 60)\n- Missing imaging (n = 40)", rank_same_with: a}
+  - {id: b, label: "Included N = 900"}
+edges:
+  - {from: a, to: b}
+  - {from: a, to: excl, style: dashed, arrow: false, constraint: false}

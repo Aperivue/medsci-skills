@@ -206,7 +206,8 @@ Before the report, verify internal consistency:
 1. **Abstract vs Body**: every Abstract number matches Results and Tables.
 2. **Table vs Text**: sample sizes, primary outcomes and p-values agree between tables and narrative.
 3. **Figure vs Text**: figure legends match the data described in Results.
-4. **Percentage arithmetic**: n/N percentages are correct (23/150 = 15.3%, not 15.0%).
+4. **Percentage arithmetic**: n/N percentages are correct (23/150 = 15.3%, not 15.0%). The gate
+   holds each cell to its printed precision (half a unit in the last printed place).
 5. **CI plausibility**: confidence intervals are reasonable for the sample sizes.
 6. **Rate back-calculation**: every rate inverts to its own numerator/denominator (incidence rate ≈ events / person-years × scale, ±rounding). A rate that does not recompute, or implies more events than the cohort can supply, is a Major.
 7. **Exclusion-cascade and complete-case arithmetic** (cohort/observational): start N − Σ(exclusions) == final analytic N, and total − missing == complete. A footnote N that does not equal the subtraction is a Major.
@@ -246,6 +247,17 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/check_dta_denominators.py" \
 `PERCENT_MISMATCH`, `P_NOT_REPRODUCIBLE`, and `DTA_DENOMINATOR_MISMATCH` / `STAGE_ROWSUM` are
 **P0 Major** — not a rounding disagreement: one of the two numbers is wrong. Run the first two on
 **every** manuscript with a table; the third only on diagnostic-accuracy work.
+
+Known limits: `check_reported_p_from_counts.py` flags a row only when its reported P differs from
+the crude 2x2 P by more than one order of magnitude under every test family, and only in tables
+with at least two count rows. It does not flag a reported `<` bound (`<0.001`) that the crude P
+exceeds, or a P on the other side of alpha, by less than that, nor a lone count row (open finding
+SR-01): the table cannot show whether the P is adjusted, paired or on another denominator. Check
+such P values against the stated test by hand.
+`check_table_percentages.py` reads one denominator per column. A cell that misses only at its printed
+precision (within 0.5 pp) on a footnoted row (`Current smoker^a | 23 (15.4%)` under n = 150 with 149
+known) is a Minor `PERCENT_PRECISION_NOTE`; an unfootnoted row, or a larger miss, is a
+`PERCENT_MISMATCH`. Confirm footnoted rows against the footnote.
 
 ### Phase 2.5a: Numerical Source-Fidelity Audit (External)
 
@@ -456,6 +468,10 @@ python3 "${CLAUDE_SKILL_DIR}/../analyze-stats/scripts/rating_monotonicity.py" \
 | `CONFIRM_NULL_NO_MDE` | **Major** |
 | `ESTIMAND_DRIFT`, `PRIMARY_DISCLOSURE_NOTE` | **Advisory Minor — never a blocker.** The provenance match is fuzzy (token overlap); confirm against the actual registration first. `PRIMARY_DISCLOSURE_NOTE` flags an honest disclosure the guidance recommends — do not penalise it. |
 
+Known limits: the E-value check splits sentences at every '.', so the decimal in "HR 1.52" can cut
+the estimate out of its window (`EVALUE_UNVERIFIABLE`); "E-value = 3.10", "(E-value 3.10)" and the
+plural are not read, and a CI-limit E-value is not recognised (open finding SR-02). Check by hand.
+
 **Checks no script makes** (prose judgement):
 
 1. **Primary-change guard** — two models for one contrast, one significant and one null, the
@@ -547,7 +563,11 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/refinement_stop.py" \
 | `STOP_OVERHARDENING` | floor clean, ceiling flags accumulation | STOP adding; only optional SUBTRACTION (REMOVE/MOVE/TIGHTEN) remains — do **not** run another additive pass |
 | `STOP_MINOR_OPTIONAL` | floor clean, only optional Minor polish left | stop the required-work loop; present the Minor items as an optional menu, do not loop for them |
 | `STOP_ZERO_EDIT` | floor at fixed point, ceiling clean | the manuscript is submission-ready as-is — **NO EDITS REQUIRED. Do not manufacture changes.** Report the zero-edit PASS as a first-class outcome |
-| `INDETERMINATE` | no gate artifacts yet | run the floor + ceiling gates first |
+| `INDETERMINATE` | no gate artifacts yet, no floor gate parsed (e.g. only the ceiling ran), or an empty / invalid `qc/*.json` (a gate that crashed under `--json > file`) | run, or re-run, the floor + ceiling gates first |
+
+Known limits: a detector-keyed artifact whose findings are not under `claims` / `findings`
+(for example `/verify-refs`' `qc/reference_audit.json`) is listed as *Unparsed* with a WARNING but
+does not by itself block a `STOP_*`; read its own verdict before acting on the stop signal.
 
 Once the verdict is any `STOP_*`, stop the additive cycle: surface the terminal state in the Phase 3
 report and do not re-run self-review to find "one more thing". A zero-edit or minor-optional result

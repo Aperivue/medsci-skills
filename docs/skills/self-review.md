@@ -110,14 +110,14 @@
 - `check_scope_coherence.py`
 - `check_supplement_hygiene.py`
 - `check_table_percentages.py`
-- `check_table_percentages_challenge/` (6 files)
+- `check_table_percentages_challenge/` (14 files)
 - `cohort_arith_binding_challenge/` (4 files)
 - `confounding_findings_challenge/` (4 files)
 - `disclosure_placement_challenge/` (3 files)
 - `refinement_regression.py`
 - `refinement_regression_challenge/` (20 files)
 - `refinement_stop.py`
-- `refinement_stop_challenge/` (21 files)
+- `refinement_stop_challenge/` (28 files)
 
 ## Source
 

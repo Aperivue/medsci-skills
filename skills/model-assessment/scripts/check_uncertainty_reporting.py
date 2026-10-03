@@ -46,6 +46,9 @@ MANIFEST (JSON)
     "task": "classification",
     "deployment_claim": true,             // is a deployment / clinical-use claim made?
     "uncertainty_method": "conformal",    // conformal / mc_dropout / deep_ensemble / bayesian / none
+                                          // (case and separators are normalised: "MC dropout",
+                                          // "conformal prediction", "MAPIE" are accepted; an
+                                          // unrecognised value is an input error, exit 2)
     "coverage_target": 0.90,              // nominal coverage (conformal / selective); null if n/a
     "coverage_validated": true,           // coverage measured on a test split disjoint from calibration
     "ensemble_members": 5,                // deep_ensemble member count
@@ -74,13 +77,35 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
 NONE_VALUES = {"", "none", "no", "na", "n/a", "false", "0", "null"}
-CONFORMAL = {"conformal", "split_conformal", "split-conformal", "cqr", "raps", "aps"}
-MC_DROPOUT = {"mc_dropout", "mcdropout", "mc-dropout", "monte_carlo_dropout"}
-DEEP_ENSEMBLE = {"deep_ensemble", "deep-ensemble", "ensemble", "deep_ensembles"}
+# uncertainty_method vocabulary, keyed on _method_key() (lower-case, separators -> "_").
+# A spelling outside every set is an input error (exit 2), never a silent skip: before
+# this, "conformal prediction" / "MC dropout" / "deep ensemble" / "MAPIE" matched no set,
+# so the conformal, MC-dropout and ensemble checks never ran and the manifest cleared.
+METHOD_NONE = {"none", "no", "na", "n_a", "false", "0", "null", "point", "point_prediction",
+               "point_predictions"}
+CONFORMAL = {"conformal", "conformal_prediction", "split_conformal", "split_conformal_prediction",
+             "inductive_conformal", "inductive_conformal_prediction", "conformalized",
+             "conformal_quantile_regression", "conformalized_quantile_regression", "cqr",
+             "raps", "aps", "mapie"}
+MC_DROPOUT = {"mc_dropout", "mcdropout", "monte_carlo_dropout", "mc_dropout_sampling",
+              "dropout_sampling"}
+DEEP_ENSEMBLE = {"deep_ensemble", "deep_ensembles", "ensemble", "ensembles"}
+OTHER_UQ = {"bayesian", "bayesian_neural_network", "bnn", "variational_inference", "vi",
+            "laplace", "laplace_approximation", "swag", "evidential", "evidential_deep_learning",
+            "test_time_augmentation", "tta", "quantile_regression", "gaussian_process", "gp"}
+KNOWN_METHODS = METHOD_NONE | CONFORMAL | MC_DROPOUT | DEEP_ENSEMBLE | OTHER_UQ
+
+
+def _method_key(v) -> str:
+    """Canonical key for an uncertainty_method spelling ("MC dropout" -> "mc_dropout")."""
+    if v is None:
+        return ""
+    return re.sub(r"[^a-z0-9]+", "_", str(v).strip().lower()).strip("_")
 
 
 def _norm(s) -> str:
@@ -95,7 +120,7 @@ def _is_none(v) -> bool:
 def check(m: dict) -> list[dict]:
     claims: list[dict] = []
     deployment = m.get("deployment_claim")
-    method = _norm(m.get("uncertainty_method"))
+    method = _method_key(m.get("uncertainty_method"))
     coverage_validated = m.get("coverage_validated")
     ensemble_members = m.get("ensemble_members")
     ensemble_independent = m.get("ensemble_independent")
@@ -106,7 +131,7 @@ def check(m: dict) -> list[dict]:
     selective_target = m.get("selective_target")
     calib_shift = m.get("calibration_under_shift")
 
-    method_none = method in NONE_VALUES
+    method_none = method == "" or method in METHOD_NONE
 
     # 1. Deployment claim with point predictions only.
     if deployment is True and method_none:
@@ -198,6 +223,16 @@ def analyze(manifest_path: str) -> dict:
         sys.stderr.write("ERROR: manifest JSON must be an object\n")
         sys.exit(2)
 
+    raw_method = m.get("uncertainty_method")
+    key = _method_key(raw_method)
+    if raw_method is not None and (not isinstance(raw_method, (str, bool)) or
+                                   (key and key not in KNOWN_METHODS)):
+        sys.stderr.write(
+            f"ERROR: unrecognised uncertainty_method {raw_method!r}; use one of conformal / "
+            f"split_conformal / cqr / raps / aps, mc_dropout, deep_ensemble, bayesian / laplace / "
+            f"swag / evidential / tta, or none (an unknown spelling would silently skip the "
+            f"method-specific checks)\n")
+        sys.exit(2)
     claims = check(m)
     n_major = sum(1 for c in claims if c["severity"] == "Major")
     return {

@@ -1,0 +1,11 @@
+# PRISMA 2020 identification box listing its sources with no total of its own (reviewer
+# counter-example): 1,800 + 200 = 2,000, minus 300 duplicates = 1,700 closes. The first sub-count
+# (1,800) is not the box total, so the link is NOT ASSESSED and never a CASCADE_IMBALANCE.
+rankdir: TB
+nodes:
+  - {id: ident, label: "Records identified from:\nDatabases (n = 1,800)\nRegisters (n = 200)"}
+  - {id: removed, shape: note, label: "Records removed before screening:\nDuplicate records removed (n = 300)", rank_same_with: ident}
+  - {id: screened, label: "Records screened\n(n = 1,700)"}
+edges:
+  - {from: ident, to: screened}
+  - {from: ident, to: removed, style: dashed, arrow: false, constraint: false}

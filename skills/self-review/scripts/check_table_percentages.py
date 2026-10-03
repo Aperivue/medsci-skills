@@ -19,6 +19,14 @@ Denominator recovery, in order: a ``n = N`` in the column header; a Total/Overal
 row's count; or the column's own counts summing (a partition). A column with no
 recoverable denominator emits ``PERCENT_DENOM_UNKNOWN`` (informational only).
 
+Tolerance: by default a printed percentage must equal the recomputed one rounded to the
+printed precision, i.e. differ by at most half a unit in its last printed place (0.5 pp
+for ``15%``, 0.05 pp for ``15.0%``). A cell that misses only that printed-precision rule
+(within 0.5 pp) on a row whose label ends in a footnote marker (``^a``, ``*``, ``†``) is a
+MINOR ``PERCENT_PRECISION_NOTE``: the footnote may give the row its own denominator. ``--tol X`` replaces that with a fixed X pp for
+every cell. Whether an INFERRED denominator explains a column is still judged at the
+0.5 pp default, so tightening the cell rule never turns a flagged column into INFO.
+
 Stdlib-only. Reads the manuscript, never writes it.
 
 Usage:
@@ -35,18 +43,22 @@ import re
 import sys
 from dataclasses import dataclass, field, asdict
 
-DEFAULT_TOL = 0.5  # percentage points
+DEFAULT_TOL = 0.5  # percentage points: half a unit of an integer-printed percentage
+_ROUND_EPS = 1e-9  # float slack so an exact half-unit tie (1/8 = 12.5 -> "13") is not flagged
 
 CELL_RE = re.compile(r"^\s*([0-9][0-9,]*)\s*\(\s*([0-9]+(?:\.[0-9]+)?)\s*(%?)\s*\)\s*$")
 HEADER_N_RE = re.compile(r"\bn\s*=\s*([0-9][0-9,]*)", re.I)
 TOTAL_LABEL_RE = re.compile(r"^\s*(total|overall|all|entire cohort|full cohort|whole cohort)\b", re.I)
 SEP_RE = re.compile(r"^\s*\|?[\s:|-]*-[\s:|-]*\|?\s*$")
+# A row label that ends in a footnote marker ("Current smoker^a", "Obesity*", "BMI†",
+# "Smoker<sup>a</sup>", "Smokerᵃ"): the footnote may give the row its own denominator.
+LABEL_FOOTNOTE_RE = re.compile(r"(?:\^[A-Za-z0-9]+\^?|[*†‡§¶]+|<sup>[^<]*</sup>|[ᵃᵇᶜᵈᵉᶠᵍʰⁱʲᵏˡᵐⁿᵒᵖʳˢᵗᵘᵛʷˣʸᶻ]+)\s*$")
 
 
 @dataclass
 class Finding:
-    kind: str            # PERCENT_MISMATCH / PERCENT_DENOM_UNKNOWN
-    severity: str        # MAJOR / INFO
+    kind: str            # PERCENT_MISMATCH / PERCENT_PRECISION_NOTE / PERCENT_DENOM_UNKNOWN
+    severity: str        # MAJOR / MINOR / INFO
     table_line: int      # 1-indexed line of the table header
     cell: str
     detail: str
@@ -102,7 +114,22 @@ def _cell_count_pct(cell: str):
     return count, pct, has_pct
 
 
-def audit(text: str, source: str, tol: float = DEFAULT_TOL) -> Report:
+def _pct_text(raw: str) -> str:
+    """The percentage exactly as printed ("15.0", not 15)."""
+    m = CELL_RE.match(raw)
+    return m.group(2) if m else ""
+
+
+def _printed_tol(raw: str) -> float:
+    """Half a unit in the last printed place of the cell's percentage."""
+    num = _pct_text(raw)
+    decimals = len(num.split(".", 1)[1]) if "." in num else 0
+    return 0.5 * 10 ** (-decimals) + _ROUND_EPS
+
+
+def audit(text: str, source: str, tol: float | None = None) -> Report:
+    """tol=None: per-cell tolerance from the printed precision; a number: fixed pp."""
+    fit_tol = DEFAULT_TOL if tol is None else tol
     rep = Report(source=source)
     for header, rows, lineno in _parse_tables(text):
         ncols = len(header)
@@ -170,12 +197,25 @@ def audit(text: str, source: str, tol: float = DEFAULT_TOL) -> Report:
                 if count > denom:
                     continue  # not a proportion of this denominator
                 recomputed = 100.0 * count / denom
-                if abs(recomputed - pct) > tol:
-                    column_findings.append(Finding(
-                        "PERCENT_MISMATCH", "MAJOR", lineno, f"{label}: {raw}",
-                        f"printed {pct:g}% but {count}/{denom} ({src}) = {recomputed:.1f}% "
-                        f"(Δ{abs(recomputed - pct):.1f}pp)"))
-                else:
+                diff = abs(recomputed - pct)
+                cell_tol = _printed_tol(raw) if tol is None else tol
+                if diff > cell_tol:
+                    shown = 1 if diff >= 0.05 else 2
+                    msg = (f"printed {_pct_text(raw) or format(pct, 'g')}% but {count}/{denom} ({src}) = {recomputed:.{max(1, shown)}f}% "
+                           f"(Δ{diff:.{shown}f}pp)")
+                    if tol is None and diff <= DEFAULT_TOL and LABEL_FOOTNOTE_RE.search(label):
+                        # Off only at the printed precision, on a footnoted row: the footnote
+                        # may give the row its own (missing-data) denominator, which the table
+                        # does not show. Advisory, not a Major.
+                        column_findings.append(Finding(
+                            "PERCENT_PRECISION_NOTE", "MINOR", lineno, f"{label}: {raw}",
+                            msg + "; the row label carries a footnote marker, so its denominator "
+                                  "may differ from the column's (e.g. missing data): confirm "
+                                  "against the footnote"))
+                    else:
+                        column_findings.append(Finding(
+                            "PERCENT_MISMATCH", "MAJOR", lineno, f"{label}: {raw}", msg))
+                if diff <= fit_tol:
                     reconciled += 1
 
             # An inferred denominator that reconciles NOTHING is the wrong denominator, not proof
@@ -211,8 +251,9 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--manuscript", required=True, help="manuscript markdown/text with GFM tables")
-    ap.add_argument("--tol", type=float, default=DEFAULT_TOL,
-                    help=f"flag threshold in percentage points (default {DEFAULT_TOL})")
+    ap.add_argument("--tol", type=float, default=None,
+                    help="fixed flag threshold in percentage points (default: half a unit in "
+                         "the last printed place of each cell, e.g. 0.5 for '15%%', 0.05 for '15.0%%')")
     ap.add_argument("--strict", action="store_true", help="exit 1 if any PERCENT_MISMATCH")
     ap.add_argument("--quiet", action="store_true", help="suppress the report; exit code only")
     ap.add_argument("--json", action="store_true", help="emit JSON instead of a text report")
