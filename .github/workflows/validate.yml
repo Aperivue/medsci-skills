@@ -46,7 +46,8 @@ jobs:
           python-version: "3.11"
 
       - name: Install Python test dependencies
-        run: pip install pyyaml pandas numpy scipy scikit-learn matplotlib python-pptx python-docx fonttools statsmodels lifelines
+        # Pinned (transitive set); see the file header for how to update it.
+        run: pip install -r .github/requirements-ci.txt
 
       - name: Install exiftool + poppler + pandoc (artifact and render tests; no TeX)
         id: setup
