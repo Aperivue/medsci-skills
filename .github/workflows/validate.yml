@@ -214,11 +214,11 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 skills/orchestrate/tests/test_qc_gate_contract.py
 
-      - name: Run check_detector_envelopes.py (every detector's JSON names the detector that wrote it)
+      - name: Run check_detector_envelopes.py (JSON names its detector; summary.verdict vocabulary ratchet)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: python3 scripts/check_detector_envelopes.py --strict
 
-      - name: Run detector-envelope gate self-test (unlabelled + mislabelled envelopes fail)
+      - name: Run detector-envelope gate self-test (unlabelled, mislabelled, off-vocabulary, stale-grandfather fail)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash tests/test_detector_envelopes.sh
 
