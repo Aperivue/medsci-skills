@@ -1348,8 +1348,8 @@
     },
     {
       "path": "skills/find-cohort-gap/references/saturation_query_templates.md",
-      "size": 4354,
-      "sha256": "ee21c6fd0b10c22f2f9a9f120005b7e6ee0e1404dbf00aede8bbbe59f2eba1ef"
+      "size": 4294,
+      "sha256": "46cc874b925e6087dcec4f9b3e75d3439c46fb82b6d73fb506d355972f029993"
     },
     {
       "path": "skills/find-cohort-gap/scripts/build_cohort_profile.py",
