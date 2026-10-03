@@ -510,6 +510,26 @@ ck "docx tracked change: inserted value is read" 0 "$?"
 vjson '{"entries":[{"id":"R1","anchor":"The area under the curve in the external cohort was","values":[0.87]}]}'
 python3 "$V" --response "$TMP/resp_v.md" --manuscript "$TMP/tracked.docx" --values "$TMP/v.json" --strict > /dev/null 2>&1
 ck "docx tracked change: deleted value is not read -> exit 1" 1 "$?"
+python3 - "$TMP/nbh.docx" <<'PY'
+import sys, docx
+from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
+d = docx.Document()
+p = d.add_paragraph("The mean difference between the two arms was ")
+r = OxmlElement("w:r"); r.append(OxmlElement("w:noBreakHyphen")); t = OxmlElement("w:t"); t.text = "2.3"; r.append(t); p._p.append(r)
+p.add_run(" points.")
+q = d.add_paragraph("The area under the curve in the external cohort was ")
+mf = OxmlElement("w:moveFrom"); mf.set(qn("w:id"), "2"); mf.set(qn("w:author"), "a")
+r = OxmlElement("w:r"); t = OxmlElement("w:t"); t.text = "0.87 "; r.append(t); mf.append(r); q._p.append(mf)
+q.add_run("0.92.")
+d.save(sys.argv[1])
+PY
+vjson '{"entries":[{"id":"R1","anchor":"The mean difference between the two arms was","values":[-2.3]}]}'
+python3 "$V" --response "$TMP/resp_v.md" --manuscript "$TMP/nbh.docx" --values "$TMP/v.json" --strict > /dev/null 2>&1
+ck "docx non-breaking hyphen reads as a minus" 0 "$?"
+vjson '{"entries":[{"id":"R1","anchor":"The area under the curve in the external cohort was","values":[0.87]}]}'
+python3 "$V" --response "$TMP/resp_v.md" --manuscript "$TMP/nbh.docx" --values "$TMP/v.json" --strict > /dev/null 2>&1
+ck "docx moved-away text is not read -> exit 1" 1 "$?"
 fi
 printf '{"entries":[{"id":"R1","anchor":"— — — — ± ± ±","values":[0.92]}]}' > "$TMP/v.json"; vrun
 ck "anchor without four Latin/digit words exits 2 (no crash)" 2 "$?"

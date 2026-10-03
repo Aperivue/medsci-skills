@@ -430,17 +430,23 @@ def read_blocks(path: Path) -> list:
         from docx.oxml.ns import qn  # type: ignore
         doc = Document(str(path))
         T, BR, CR, TAB = qn("w:t"), qn("w:br"), qn("w:cr"), qn("w:tab")
+        NBH, PTAB, MOVE_FROM = qn("w:noBreakHyphen"), qn("w:ptab"), qn("w:moveFrom")
 
         def ptext(p) -> str:
-            """Paragraph text with tracked changes accepted: inserted runs (w:ins) are read,
-            deleted text (w:delText) is not. python-docx's .text drops the insertions, which
-            would hide exactly the new value a revision put in."""
+            """Paragraph text with tracked changes accepted: inserted runs (w:ins, w:moveTo) are
+            read, deleted and moved-away text (w:delText, w:moveFrom) is not. python-docx's
+            .text drops the insertions, which would hide exactly the new value a revision put
+            in. A non-breaking hyphen reads as '-' and a tab as a tab, as .text renders them."""
             out = []
-            for el in p._p.iter(T, BR, CR, TAB):
+            for el in p._p.iter(T, BR, CR, TAB, NBH, PTAB):
+                if any(a.tag == MOVE_FROM for a in el.iterancestors()):
+                    continue
                 if el.tag == T:
                     out.append(el.text or "")
-                elif el.tag == TAB:
+                elif el.tag in (TAB, PTAB):
                     out.append("\t")
+                elif el.tag == NBH:
+                    out.append("-")
                 else:
                     out.append("\n")
             return "".join(out)
