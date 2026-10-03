@@ -1,0 +1,11 @@
+=========================================
+ Claim-vs-Artifact Cross-Check (Phase 2.5f)
+=========================================
+△ [EVAL-1] EVALUE_UNVERIFIABLE
+    No HR/OR/RR found in the same sentence; confirm the E-value is computed for the declared primary estimate.
+△ [EVAL-2] EVALUE_UNVERIFIABLE
+    No HR/OR/RR found in the same sentence; confirm the E-value is computed for the declared primary estimate.
+✓ [EVAL-3] OK
+    E-value 2.41 consistent with HR 1.52 (recompute 2.41).
+
+0 Major candidate(s), 2 flag(s).

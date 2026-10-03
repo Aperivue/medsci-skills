@@ -945,6 +945,10 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/scripts/check_reported_p_from_counts_challenge/verify.sh
 
+      - name: Run self-review declared P-test test (--tests, alpha crossing)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/self-review/tests/test_p_tests_declared.sh
+
       - name: Run self-review DTA-denominator challenge (sens/spec vs reference-standard)
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/scripts/check_dta_denominators_challenge/verify.sh
@@ -1060,6 +1064,10 @@ jobs:
       - name: Run self-review claim-artifact (estimand provenance) gate test
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/self-review/tests/test_claim_artifact.sh
+
+      - name: Run self-review declared E-value test (--evalues, rounding-safe recompute)
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/self-review/tests/test_evalues_declared.sh
 
       - name: Run self-review panel-diversity gate test
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}

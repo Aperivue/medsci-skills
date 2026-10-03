@@ -1,0 +1,10 @@
+{
+  "entries": [
+    {"id": "point-wrong", "measure": "rr", "estimate": 1.52, "ci_low": 1.20, "ci_high": 1.93,
+     "evalue_point": 3.10},
+    {"id": "ci-wrong", "measure": "rr", "estimate": 1.52, "ci_low": 1.20, "ci_high": 1.93,
+     "evalue_point": 2.42, "evalue_ci": 2.42},
+    {"id": "ci-spans-null", "measure": "rr", "estimate": 1.30, "ci_low": 0.95, "ci_high": 1.78,
+     "evalue_point": 1.92, "evalue_ci": 1.50}
+  ]
+}

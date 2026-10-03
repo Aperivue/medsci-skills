@@ -1,0 +1,24 @@
+{
+  "alpha": 0.05,
+  "rows": [
+    {"row": "Diabetes", "test": "chi2"},
+    {"row": "female", "test": "chi2"},
+    {"row": "STATIN USE", "test": "fisher"},
+    {"row": "Anemia", "test": "chi2"},
+    {"row": "Borderline finding", "test": "chi2"},
+    {"row": "Prior stroke", "test": "chi2"},
+    {"row": "Prior MI", "test": "chi2"},
+    {"row": "Smoker", "test": "fisher"},
+    {"row": "Age, years", "test": "fisher"},
+    {"row": "Insulin", "test": "fisher"},
+    {"row": "Retinopathy", "test": "adjusted"},
+    {"row": "Repeat visit", "test": "paired"},
+    {"row": "Hypertension", "test": "chi2"},
+    {"row": "Dyslipidemia", "test": "chi2_yates"},
+    {"row": "Male", "test": "fisher"},
+    {"row": "Obesity", "test": "chi2"},
+    {"row": "Statin", "test": "fisher"},
+    {"row": "Diabetes duration", "test": "other: Cochran-Armitage trend test"}
+  ],
+  "notes": "Synthetic; every row label is from p_declared.md except 'Statin' (a partial label) and 'Diabetes duration'."
+}

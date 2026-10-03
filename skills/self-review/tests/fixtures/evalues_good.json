@@ -1,0 +1,11 @@
+{
+  "entries": [
+    {"id": "primary", "measure": "rr", "estimate": 1.52, "ci_low": "1.20", "ci_high": 1.93,
+     "evalue_point": 2.42, "evalue_ci": "1.70", "location": "Results, paragraph 1"},
+    {"id": "secondary", "measure": "RR", "estimate": "1.30", "ci_low": 0.95, "ci_high": 1.78,
+     "evalue_point": "1.920", "evalue_ci": "1.00"},
+    {"id": "protective", "measure": "risk ratio", "estimate": "0.70", "ci_low": 0.55, "ci_high": 0.89,
+     "evalue_point": 2.21, "evalue_ci": "1.50"}
+  ],
+  "notes": "Synthetic. RR 1.52 recomputes to 2.41 from the printed value but to 2.42 from 1.5249; both must pass."
+}

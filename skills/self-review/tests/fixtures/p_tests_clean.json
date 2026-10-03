@@ -1,0 +1,8 @@
+{"rows": [
+  {"row": "Female", "test": "chi2"},
+  {"row": "Anemia", "test": "chi2"},
+  {"row": "Borderline finding", "test": "chi2"},
+  {"row": "Prior stroke", "test": "chi2"},
+  {"row": "Prior MI", "test": "chi2"},
+  {"row": "Dyslipidemia", "test": "chi2_yates"}
+]}
