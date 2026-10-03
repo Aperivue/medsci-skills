@@ -355,8 +355,9 @@ random back-check against the primary paper caught it.
    effect size in a sensitivity / leave-one-out / erosion / alternative-model analysis (Cohen's
    dz/f, AUC, OR, HR, β, sens/spec, ICC) MUST be re-derived from the modified dataset. If a
    sensitivity-table effect size is **identical to the primary analysis to two decimals across ≥4
-   values** while the underlying means/SDs/counts differ, the recomputation did not run (chance
-   coincidence ≈ (0.01)^4) and the primary values were transcribed — re-run the script on the
+   values** while the underlying means/SDs/counts differ, the recomputation may not have run
+   (small leave-one-out shifts can round to the same value, so confirm from the script output
+   rather than assume) and the primary values may have been transcribed — re-run the script on the
    modified data.
 
 6. **A "fixed" / "resolved" audit note requires re-run evidence, not a claim.** A number recorded
@@ -405,8 +406,8 @@ Re-read `references/empirical_lessons.md` before submission.
    results; Summary of findings / GRADE table (one row per outcome — Phase 7).
 
 5. **The items published radiology SR/MAs most often drop** — check these by hand before the
-   compliance run. Park 2022 (Korean J Radiol; PMID:35213097) scored 24 SR/MAs against PRISMA
-   2020 and found 24 of 42 items reported by fewer than 80%:
+   compliance run. Park 2022 (Korean J Radiol; PMID:35213097) scored 24 SR/MAs (18 with meta-analysis) against
+   PRISMA 2020, with each item's percentage on its own denominator (MA-only items out of 18), and found 24 of 42 items reported by fewer than 80%:
 
    | PRISMA item | What is missing | Observed |
    |---|---|---|
@@ -414,9 +415,9 @@ Re-read `references/empirical_lessons.md` before submission.
    | **27** | Data availability: which of the extraction forms, extracted data, analysis dataset, and analytic code are public, and where | 0/24 |
    | **24a–c** | Registration number, where the protocol can be read, and any amendment — an explicit "not registered" satisfies 24a | 0/24 |
    | **22 / 15** | Certainty of evidence per outcome, and the method used to assess it | 9% |
-   | **13f / 20d** | Sensitivity analysis: method and result | 28% |
+   | **13f / 20d** | Sensitivity analysis: method and result | 28% (5/18) |
    | **18** | Risk of bias **per study**, shown study-by-study rather than as a pooled proportion | 32% |
-   | **13d** | Rationale for the synthesis model (see Phase 6 check 2) | 35% |
+   | **13d** | Rationale for the synthesis model (see Phase 6 check 2) | 35% [VERIFY: the text implies 5/18 = 28%] |
    | **16b** | Studies that look eligible but were excluded, cited individually with the reason | 25% |
    | Abstract **#3, #12** | Eligibility criteria and registration inside the structured abstract | 0/24 each |
 
