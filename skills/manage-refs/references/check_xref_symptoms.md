@@ -11,7 +11,7 @@ rendered DOCX (via `python-docx`).
 | Status | Meaning | Severity | Fix |
 |---|---|---|---|
 | `OK` | cited + body caption + DOCX caption all present, caption text agrees (Jaccard ≥ 0.40) | — | none |
-| `MISSING_DOCX` | cited but no caption with that label in the rendered DOCX | **P0 blocker** | drop the citation if the figure/table was retired, or re-add it to the build pipeline and rebuild DOCX |
+| `MISSING_DOCX` | cited, or defined in the markdown body (outside HTML comments and fenced code), but no caption with that label in the rendered DOCX | **P0 blocker** | drop the citation if the figure/table was retired, or re-add it to the build pipeline and rebuild DOCX |
 | `MISSING_BODY` | cited but no caption definition in the markdown body sections | **P0 blocker**, with one exception — see below | add the caption under `## Tables` / `## Figures` in `manuscript.md`, then re-render |
 | `MISMATCH` | label exists in both body and DOCX but caption text disagrees (Jaccard < 0.40) | **P0 blocker** | reconcile body vs build script — body caption is the SSOT, update the build pipeline to match, never the reverse |
 | `UNCITED` | caption defined or rendered but never cited in main text | warn | either delete the caption or add a citation; never ship UNCITED on a clean run |
@@ -70,7 +70,8 @@ and DOCX captions is the only place those drifts surface.
 ## Pipeline placement
 
 Always run **after** the DOCX build (Workflow A step 2 or after
-`render_pandoc.sh`) and **before** the final submission gate. If
-`python-docx` is unavailable, the script falls back to a body-only audit
-(citations vs body captions) with a stderr warning; install with
-`pip install python-docx` for full coverage.
+`render_pandoc.sh`) and **before** the final submission gate. If `--docx`
+is passed and `python-docx` is unavailable, the script exits 2 and writes no
+verdict, because the DOCX audit it was asked for could not run; install with
+`pip install python-docx`, or omit `--docx` for a body-only audit
+(citations vs body captions).

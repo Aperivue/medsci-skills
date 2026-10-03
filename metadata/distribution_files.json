@@ -2768,13 +2768,13 @@
     },
     {
       "path": "skills/manage-refs/SKILL.md",
-      "size": 15462,
-      "sha256": "644f8394385ab58d0091e701322d2e18c6ea0ff3d40b2b62db8201b86f4501af"
+      "size": 16559,
+      "sha256": "0ed36281bee86f5d104942b81484ad2234d1b0854352071f2ca026beb031d743"
     },
     {
       "path": "skills/manage-refs/citation_styles/README.md",
-      "size": 7192,
-      "sha256": "293135a0bc9d6365f47241803ea3032a1d49fa9f74f4630ef3096673f674e6f0"
+      "size": 8053,
+      "sha256": "0abb577c2609907eec4db4f2f241ca47e46ac4fdfd5c75363fad7765af85ca57"
     },
     {
       "path": "skills/manage-refs/citation_styles/american-association-for-cancer-research.csl",
@@ -2788,8 +2788,8 @@
     },
     {
       "path": "skills/manage-refs/citation_styles/american-medical-association.csl",
-      "size": 11575,
-      "sha256": "d70f843d93c2b1e8c59c0e26e2396bea4ed99fb4a1aac69b6dddc249a10fadf7"
+      "size": 11603,
+      "sha256": "cf4afdce2a406a027fc82931ad7c1cb89a907852dae355e8859466f21d976278"
     },
     {
       "path": "skills/manage-refs/citation_styles/annals-of-oncology.csl",
@@ -2843,8 +2843,8 @@
     },
     {
       "path": "skills/manage-refs/citation_styles/journal-of-korean-medical-science-strict.csl",
-      "size": 18145,
-      "sha256": "8a23da60035ccf67802bc18d6bf042f4b136961974b44b9ba837cf1c0db49e21"
+      "size": 18193,
+      "sha256": "41d8c91b151e85492f4e7f13245acbca2fd5f2844db3111f09341aa6623687bf"
     },
     {
       "path": "skills/manage-refs/citation_styles/journal-of-korean-medical-science.csl",
@@ -2858,8 +2858,8 @@
     },
     {
       "path": "skills/manage-refs/citation_styles/liver-international.csl",
-      "size": 18264,
-      "sha256": "c7c144ff5df948fc09c9604bf9f8269c6cd427c29bd043da6ead24e75c80971f"
+      "size": 18312,
+      "sha256": "9f917b818e4500a476c32bcde874bc4a285f5214cfc9b8685a94a120e01d5768"
     },
     {
       "path": "skills/manage-refs/citation_styles/nature.csl",
@@ -2868,8 +2868,8 @@
     },
     {
       "path": "skills/manage-refs/citation_styles/nlm-citation-sequence.csl",
-      "size": 18126,
-      "sha256": "3bcebfe5ac07cba3d17716e77e6ded213435fba77ceb28a55e8e39f1eb9d2dfd"
+      "size": 18174,
+      "sha256": "158a3299427da48cc2af771b3e752c534675f83f6027c75993cf9917c7268477"
     },
     {
       "path": "skills/manage-refs/citation_styles/radiology.csl",
@@ -2903,13 +2903,13 @@
     },
     {
       "path": "skills/manage-refs/citation_styles/vancouver-superscript.csl",
-      "size": 18299,
-      "sha256": "ef01d0d0f29c6c1d9837310120d29616e8cfa198051f7befb0c15bd4060573f5"
+      "size": 18347,
+      "sha256": "5cb4657e3b92f3801934b6540658690d65c558b0ee12c27bc4e8333bac4480ec"
     },
     {
       "path": "skills/manage-refs/citation_styles/vancouver.csl",
-      "size": 18126,
-      "sha256": "3bcebfe5ac07cba3d17716e77e6ded213435fba77ceb28a55e8e39f1eb9d2dfd"
+      "size": 18174,
+      "sha256": "158a3299427da48cc2af771b3e752c534675f83f6027c75993cf9917c7268477"
     },
     {
       "path": "skills/manage-refs/references/REFERENCE_STYLE_SPECS.md",
@@ -2918,8 +2918,8 @@
     },
     {
       "path": "skills/manage-refs/references/check_xref_symptoms.md",
-      "size": 4668,
-      "sha256": "654067872e1f8ee33debf2a58e331195d7230b287c6cf0d996488ccbaa3e04b2"
+      "size": 4818,
+      "sha256": "0b5599fe369bf46a011be3951ba50f8e6e329bb60ba327fc97c99456babbb0c2"
     },
     {
       "path": "skills/manage-refs/scripts/_vendor_citation_writer.py",
@@ -2933,8 +2933,8 @@
     },
     {
       "path": "skills/manage-refs/scripts/check_citation_keys.py",
-      "size": 6593,
-      "sha256": "acf0b653df453ef3d9ed905f09656212ae5f8de6471a19cde52ca415b980fb47"
+      "size": 6956,
+      "sha256": "9a2e1987116156af24a8a54f64aba2985d9ba8add97b42c68643b3e36dbb5a04"
     },
     {
       "path": "skills/manage-refs/scripts/check_citation_keys_challenge/fixture/manuscript.md",
@@ -2958,8 +2958,8 @@
     },
     {
       "path": "skills/manage-refs/scripts/check_csl_render.py",
-      "size": 10167,
-      "sha256": "6f497c9400d33348ac9ec84431f366e0353e80090d2b46e08804a5a9bff3211c"
+      "size": 15895,
+      "sha256": "fd2a688c739e60e267b6faec255e3baca75191ad26a37a3e81e394c03dbb17f1"
     },
     {
       "path": "skills/manage-refs/scripts/check_reference_duplication.py",
@@ -2968,8 +2968,8 @@
     },
     {
       "path": "skills/manage-refs/scripts/check_xref.py",
-      "size": 33350,
-      "sha256": "e66af6ab68062845c3dd80f5632a3f7afe5d26f86065feaf4593874c3b201e1e"
+      "size": 36305,
+      "sha256": "c8ed6856f392843021db8d259fe83550b1a596d14e734990832c5a5e9be6a0db"
     },
     {
       "path": "skills/manage-refs/scripts/fill_journal_abbrev.py",
@@ -2983,8 +2983,8 @@
     },
     {
       "path": "skills/manage-refs/scripts/md_marker_convert.py",
-      "size": 6776,
-      "sha256": "29a00d15a19eb5c971631a3dd74db6d20f2b1e3c84806f7f58502604aceca373"
+      "size": 11418,
+      "sha256": "06aaa2fef6b41f1c1bd6ea9495a1c3704f5f6a1aeaea3f0e63ee82b68d3806b3"
     },
     {
       "path": "skills/manage-refs/scripts/pre_submission_gate.sh",
@@ -2993,8 +2993,8 @@
     },
     {
       "path": "skills/manage-refs/scripts/render_pandoc.sh",
-      "size": 5461,
-      "sha256": "b14fe92a821eaf141346ad960c1244758162a18300323096e373ba76102ea305"
+      "size": 6650,
+      "sha256": "31c1bdec77ad4d56e016d66827a8d0226948dbf1abbb308ece6561a71c47d6dd"
     },
     {
       "path": "skills/manage-refs/scripts/strip_source_metadata.lua",
