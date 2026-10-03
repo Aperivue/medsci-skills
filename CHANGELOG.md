@@ -234,6 +234,13 @@
   a count is missing instead of skipping `HIGH_DIM_LOW_EVENTS` silently. Manifest-mode runs print
   `OK (as declared): ...` and write `"basis": "declared"`; a run with only Minor claims prints
   `No Major issue: N Minor` instead of an OK line.
+- **model-scaffold reads imaging-data's QC** (#665). Given `--preprocessing-manifest` or the new
+  `--imaging-qc PATH`, `scaffold.py` reads the dataset-profile, preprocessing-leakage and
+  normaliser-domain reports beside the manifest. An unacknowledged Major refuses to scaffold (exit 1,
+  nothing written) until `--ack-qc CODE=reason`, which is recorded in `IMAGING_QC.md`, `config.yaml`
+  and `REPRODUCIBILITY.md`; Minor claims are carried forward into `IMAGING_QC.md`, so a profiling
+  warning now reaches a file the next step reads (demo 05's `INTENSITY_SCALE_INCONSISTENT`). Missing
+  or unreadable reports are recorded NOT ASSESSED. Without the flags the output is unchanged.
 
 ### CI
 
