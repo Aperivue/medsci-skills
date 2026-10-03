@@ -773,6 +773,14 @@ jobs:
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/manage-refs/tests/test_render_audit_unverified.sh
 
+      - name: "Run manage-refs CSL author-name test (bundled CSLs print family-first names and truncate long lists)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/manage-refs/tests/test_csl_author_names.sh
+
+      - name: "Run manage-refs marker-convert test (every [N] left behind is reported)"
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/manage-refs/tests/test_md_marker_convert.sh
+
       - name: Run polish-language consistency-linter challenge
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: |
@@ -1143,6 +1151,10 @@ jobs:
       - name: Run meta-analysis screening-reconcile test
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         run: bash skills/meta-analysis/tests/test_screening_reconcile.sh
+
+      - name: Run meta-analysis PRISMA 5-way consistency test
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: bash skills/meta-analysis/tests/test_prisma_5way_consistency.sh
 
       - name: Run model-selection model-provenance test
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}

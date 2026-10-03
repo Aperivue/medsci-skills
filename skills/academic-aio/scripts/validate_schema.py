@@ -7,11 +7,15 @@ Validates:
 - @context = "https://schema.org"
 - @type matches one of the supported types
 - Required fields present (per schema.org minimal recommendations + medsci-skills policy)
-- Identifier format (DOI, ORCID)
+- Identifier format (DOI, ORCID incl. its ISO 7064 MOD 11-2 check digit), whether
+  the identifier is a string, a PropertyValue object, or a list of them
+- No unfilled template placeholder (<...>, 10.xxxx/yyyy, 0000-0000-0000-0000,
+  YYYY-MM-DD): a file meant for deploy that still carries one FAILs with a
+  "PLACEHOLDER:" line. Pass --template to validate an unfilled template.
 
 Usage:
     python validate_schema.py path/to/file.jsonld [path/to/another.jsonld ...]
-    python validate_schema.py --strict references/schema_markup_templates/*.jsonld
+    python validate_schema.py --template references/schema_markup_templates/*.jsonld
 """
 
 from __future__ import annotations
@@ -21,6 +25,7 @@ import json
 import re
 import sys
 from pathlib import Path
+from urllib.parse import unquote
 
 REQUIRED_BY_TYPE: dict[str, list[str]] = {
     "ScholarlyArticle": ["headline", "datePublished", "author", "identifier", "url"],
@@ -29,21 +34,124 @@ REQUIRED_BY_TYPE: dict[str, list[str]] = {
     "Person": ["name", "identifier"],
 }
 
-DOI_RE = re.compile(r"^10\.\d{4,9}/[-._;()/:A-Za-z0-9]+$")
+# A paired "<...>" and "#" occur in legacy SICI-style DOI suffixes.
+DOI_RE = re.compile(r"^10\.\d{4,9}/(?:[-._;()/:#A-Za-z0-9]|<[^<>\s]*>)+$")
 ORCID_RE = re.compile(r"^https://orcid\.org/\d{4}-\d{4}-\d{4}-\d{3}[\dX]$")
+ORCID_HTTP_RE = re.compile(r"^https?://orcid\.org/\d{4}-\d{4}-\d{4}-\d{3}[\dX]$")
+ORCID_BARE_RE = re.compile(r"^\d{4}-\d{4}-\d{4}-\d{3}[\dX]$")
+DOI_PREFIX_RE = re.compile(r"^(?:doi:\s*|https?://(?:dx\.)?doi\.org/)", re.IGNORECASE)
 
-PLACEHOLDER_TOKENS = ("<", "xxxx", "yyyy", "0000-0000-0000-0000")
+# Template placeholders, as shipped in references/schema_markup_templates/:
+#   a value that is wholly "<...>"         ("<First Last>", "<paper title verbatim>")
+#   "<word...>" inside an identifier/URL   ("https://github.com/<org>/<repo>")
+#   an all-x DOI registrant ("10.xxxx/")   and the all-zero ORCID
+#   "YYYY" in a date field                 ("YYYY-MM-DD")
+WHOLE_PLACEHOLDER_RE = re.compile(r"^\s*<[^<>]+>\s*$")
+INNER_PLACEHOLDER_RE = re.compile(r"<[A-Za-z][^<>]*>|10\.x{2,}/|0000-0000-0000-0000", re.IGNORECASE)
+IDENT_KEYS = {"identifier", "sameAs", "url", "@id", "codeRepository", "contentUrl"}
+DATE_KEYS = {"datePublished", "dateCreated", "dateModified"}
 
 
-def _is_placeholder(value: str) -> bool:
-    """Return True for template placeholder strings that should skip strict checks."""
+def _is_placeholder(value: str, key: str | None = None, in_ident: bool = False) -> bool:
+    """True for a template placeholder string (see the token list above)."""
     if not isinstance(value, str):
         return False
-    lowered = value.lower()
-    return any(tok in lowered for tok in PLACEHOLDER_TOKENS)
+    if WHOLE_PLACEHOLDER_RE.match(value):
+        return True
+    if (in_ident or key in IDENT_KEYS) and INNER_PLACEHOLDER_RE.search(value):
+        return True
+    if key in DATE_KEYS and "YYYY" in value.upper():
+        return True
+    return False
 
 
-def validate(path: Path) -> list[str]:
+def find_placeholders(node, path: str = "$", key: str | None = None, in_ident: bool = False) -> list[str]:
+    """Paths of every unfilled template placeholder in the document."""
+    hits: list[str] = []
+    if isinstance(node, dict):
+        for k, v in node.items():
+            hits += find_placeholders(v, f"{path}.{k}", k, in_ident or k in IDENT_KEYS)
+    elif isinstance(node, list):
+        for i, v in enumerate(node):
+            hits += find_placeholders(v, f"{path}[{i}]", key, in_ident)
+    elif _is_placeholder(node, key, in_ident):
+        hits.append(f"{path}={node!r}")
+    return hits
+
+
+def orcid_checksum_ok(orcid: str) -> bool:
+    """ISO 7064 MOD 11-2 check character of a 16-character ORCID iD."""
+    digits = orcid.rsplit("/", 1)[-1].replace("-", "").upper()
+    if len(digits) != 16 or not digits[:-1].isdigit():
+        return False
+    total = 0
+    for ch in digits[:-1]:
+        total = (total + int(ch)) * 2
+    result = (12 - total % 11) % 11
+    return digits[-1] == ("X" if result == 10 else str(result))
+
+
+def _orcid_errors(value: str, where: str, allow_bare: bool) -> list[str]:
+    # allow_bare (a PropertyValue "value"): a bare iD, or an http(s) ORCID URL.
+    shape_ok = bool(ORCID_RE.match(value)) or (
+        allow_bare and bool(ORCID_BARE_RE.match(value) or ORCID_HTTP_RE.match(value)))
+    if not shape_ok:
+        want = "an ORCID URL or iD" if allow_bare else "an ORCID URL"
+        return [f"{where} should be {want} (got {value!r})"]
+    if not orcid_checksum_ok(value):
+        return [f"{where} ORCID check digit is invalid (ISO 7064 MOD 11-2): {value!r}"]
+    return []
+
+
+def _bare_doi(value: str) -> str:
+    """The DOI with any doi:/doi.org prefix removed; a doi.org URL is
+    percent-decoded first ("%28SICI%29" -> "(SICI)")."""
+    v = value.strip()
+    if re.match(r"^https?://", v, re.IGNORECASE):
+        v = unquote(v)
+    return DOI_PREFIX_RE.sub("", v).strip()
+
+
+def _identifier_errors(ident, typ: str, template: bool) -> list[str]:
+    """Format checks for the top-level identifier in each JSON-LD shape:
+    a string, a single PropertyValue object, or a list of them."""
+    errors: list[str] = []
+    entries = ident if isinstance(ident, list) else [ident]
+    from_list = isinstance(ident, list)
+    for entry in entries:
+        if isinstance(entry, str):
+            if template and _is_placeholder(entry, "identifier", True):
+                continue
+            if typ == "Person":
+                # A single string must be an ORCID URL (as on main). In a list, other
+                # author identifiers (Scopus, ResearcherID, ...) are allowed; only an
+                # entry that looks like an ORCID is checked, and a bare iD or an
+                # http ORCID URL is accepted there as it is in a PropertyValue.
+                looks_orcid = "orcid.org" in entry.lower() or bool(ORCID_BARE_RE.match(entry.strip()))
+                if (not from_list or looks_orcid) and not _is_placeholder(entry, "identifier", True):
+                    errors += _orcid_errors(entry.strip() if from_list else entry,
+                                            "Person identifier", allow_bare=from_list)
+            elif DOI_PREFIX_RE.match(entry) or entry.startswith("10."):
+                bare = _bare_doi(entry)
+                if not _is_placeholder(entry, "identifier", True) and not DOI_RE.match(bare):
+                    errors.append(f"DOI does not match canonical format: {entry!r}")
+        elif isinstance(entry, dict):
+            pid = str(entry.get("propertyID", "")).strip().lower()
+            value = entry.get("value", "")
+            if not isinstance(value, str) or not value:
+                continue
+            if _is_placeholder(value, "identifier", True):
+                continue  # reported (or, under --template, allowed) as a placeholder
+            if pid == "doi":
+                bare = _bare_doi(value)
+                if not DOI_RE.match(bare):
+                    errors.append(f"DOI does not match canonical format: {value!r}")
+            elif pid == "orcid":
+                errors += _orcid_errors(value, "ORCID identifier", allow_bare=True)
+    return errors
+
+
+def validate(path: Path, template: bool = False) -> list[str]:
     errors: list[str] = []
     try:
         data = json.loads(path.read_text())
@@ -68,17 +176,17 @@ def validate(path: Path) -> list[str]:
         if field not in data or data[field] in (None, "", []):
             errors.append(f"Missing required field: {field}")
 
-    ident = data.get("identifier")
-    if isinstance(ident, list):
-        for entry in ident:
-            if isinstance(entry, dict) and entry.get("propertyID") == "DOI":
-                value = entry.get("value", "")
-                if value and not _is_placeholder(value) and not DOI_RE.match(value):
-                    errors.append(f"DOI does not match canonical format: {value!r}")
+    if not template:
+        hits = find_placeholders(data)
+        for hit in hits:
+            errors.append(f"PLACEHOLDER: unfilled template value {hit}")
+        if hits:
+            errors.append(
+                "PLACEHOLDER: fill each value or remove the field "
+                "(pass --template to validate an unfilled template)"
+            )
 
-    if typ == "Person" and isinstance(ident, str):
-        if not _is_placeholder(ident) and not ORCID_RE.match(ident):
-            errors.append(f"Person identifier should be an ORCID URL (got {ident!r})")
+    errors += _identifier_errors(data.get("identifier"), typ, template)
 
     authors = data.get("author") or data.get("creator") or []
     if isinstance(authors, list):
@@ -95,6 +203,12 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("files", nargs="+", type=Path)
     parser.add_argument(
+        "--template",
+        action="store_true",
+        help="Validate an unfilled template: placeholder values (<...>, 10.xxxx/yyyy, "
+             "0000-0000-0000-0000, YYYY-MM-DD) are allowed instead of failing.",
+    )
+    parser.add_argument(
         "--strict",
         action="store_true",
         help="Exit 1 on any error (default behaviour; flag retained for clarity).",
@@ -103,7 +217,7 @@ def main(argv: list[str] | None = None) -> int:
 
     overall_ok = True
     for path in args.files:
-        errors = validate(path)
+        errors = validate(path, template=args.template)
         if errors:
             overall_ok = False
             print(f"FAIL  {path}")

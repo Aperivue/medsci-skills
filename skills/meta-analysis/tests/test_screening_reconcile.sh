@@ -84,4 +84,280 @@ assert d["totals"]["k_stage_transfer_loss"] == 0
 assert d["blocking_issues"] == []
 PY
 
-echo "PASS: test_screening_reconcile.sh (positive + 2 negatives)"
+# ------------------------------------- positive: free-text exclusion labels (F1)
+# Labels such as "Exclude: wrong study type" or "ineligible" contain the substrings
+# "y", "1" and "eligible". A substring classifier read them as INCLUDE, so excluded
+# records 3 and 4 landed in `qualitative` and the run exited 0. Labels are now
+# matched as exact tokens (whole label, or its leading word).
+printf 'id\tdecision\n1\tInclude\n2\tincluded\n3\tExclude: wrong study type\n4\tineligible\n' > "$TMP/s_lab.tsv"
+printf 'id\tdecision\n1\tINCLUDE\n2\tinclude\n3\tEXCLUDE (E1)\n4\tExcluded - not eligible\n'   > "$TMP/c_lab.tsv"
+set +e
+python3 "$RECONCILE" --screening "$TMP/s_lab.tsv" --consensus "$TMP/c_lab.tsv" \
+  --output "$TMP/lab.json" > /dev/null
+rc=$?
+set -e
+[ "$rc" -eq 0 ] || fail "free-text labels: expected exit 0, got $rc"
+python3 - "$TMP/lab.json" <<'PY' || fail "free-text labels: excluded records counted as included"
+import json, sys
+d = json.load(open(sys.argv[1]))
+assert d["sets"]["screening_include"] == ["1", "2"], d["sets"]["screening_include"]
+assert d["sets"]["consensus_exclude"] == ["3", "4"], d["sets"]["consensus_exclude"]
+assert d["sets"]["qualitative"] == ["1", "2"], d["sets"]["qualitative"]
+PY
+
+# ---------------------------------- positive: unrecognized label must not pass (F1)
+# "maybe" is neither include nor exclude. It used to be read as include (it
+# contains "y"); it must now stop the run (exit 2) and name the label.
+printf 'id\tdecision\n1\tinclude\n2\tmaybe\n' > "$TMP/s_unk.tsv"
+set +e
+python3 "$RECONCILE" --screening "$TMP/s_unk.tsv" --output "$TMP/unk.json" > /dev/null 2> "$TMP/unk.err"
+rc=$?
+set -e
+[ "$rc" -eq 2 ] || fail "unrecognized label: expected exit 2, got $rc"
+grep -q "maybe" "$TMP/unk.err" || fail "unrecognized label: error does not name the label"
+
+# --------------------------------- positive: IDs sharing a number run (F2)
+# Smith2020_1 and Smith2020_2 both reduced to "2020" under first-number-run
+# normalization, so Smith2020_2 -- included at screening, absent from consensus --
+# was hidden and the run exited 0. IDs are now compared verbatim.
+printf 'id\tdecision\nSmith2020_1\tinclude\nSmith2020_2\tinclude\n' > "$TMP/s_id.tsv"
+printf 'id\tdecision\nSmith2020_1\tinclude\n'                       > "$TMP/c_id.tsv"
+set +e
+python3 "$RECONCILE" --screening "$TMP/s_id.tsv" --consensus "$TMP/c_id.tsv" \
+  --output "$TMP/id.json" > /dev/null
+rc=$?
+set -e
+[ "$rc" -eq 1 ] || fail "shared-number IDs: expected exit 1 (STAGE_TRANSFER_LOSS), got $rc"
+python3 - "$TMP/id.json" <<'PY' || fail "shared-number IDs: Smith2020_2 loss not reported"
+import json, sys
+d = json.load(open(sys.argv[1]))
+assert d["sets"]["stage_transfer_loss"] == ["Smith2020_2"], d["sets"]["stage_transfer_loss"]
+PY
+
+# ------------------------------------ negative: distinct string IDs, all adjudicated
+printf 'id\tdecision\nSmith2020_1\tinclude\nSmith2020_2\tinclude\nLee2019\texclude\n'        > "$TMP/s_idn.tsv"
+printf 'id\tdecision\nSmith2020_1\tinclude\n Smith2020_2 \tinclude\nLee2019\tExclude: E2\n' > "$TMP/c_idn.tsv"
+set +e
+python3 "$RECONCILE" --screening "$TMP/s_idn.tsv" --consensus "$TMP/c_idn.tsv" \
+  --output "$TMP/idn.json" > /dev/null
+rc=$?
+set -e
+[ "$rc" -eq 0 ] || fail "string IDs negative: expected exit 0, got $rc (false positive)"
+python3 - "$TMP/idn.json" <<'PY' || fail "string IDs negative: IDs merged or lost"
+import json, sys
+d = json.load(open(sys.argv[1]))
+assert d["blocking_issues"] == [], d["blocking_issues"]
+assert sorted(d["sets"]["qualitative"]) == ["Smith2020_1", "Smith2020_2"], d["sets"]["qualitative"]
+PY
+
+# ------------------- positive: unadjudicated labels must not read as exclude (R2)
+# The leading-word rule once accepted any EXCLUDE value as a leading word, so a
+# consensus label "No decision yet" (leading word "no") or "N/A" (leading "n")
+# moved a screened include into consensus_exclude: the study dropped out of
+# qualitative and the run exited 0. yes/no/y/n/1/0 now count only as the whole
+# label; each of these must stop the run (exit 2) and name the label.
+for lab in "No decision yet" "No consensus" "N/A" "N/A - full text pending" "0 - pending" "Yes (pending)" "Y/N"; do
+  printf 'id\tdecision\n1\tinclude\n2\tinclude\n' > "$TMP/s_pend.tsv"
+  printf 'id\tdecision\n1\tinclude\n2\t%s\n' "$lab" > "$TMP/c_pend.tsv"
+  set +e
+  python3 "$RECONCILE" --screening "$TMP/s_pend.tsv" --consensus "$TMP/c_pend.tsv" \
+    --output "$TMP/pend.json" > /dev/null 2> "$TMP/pend.err"
+  rc=$?
+  set -e
+  [ "$rc" -eq 2 ] || fail "unadjudicated label '$lab': expected exit 2, got $rc"
+  grep -qF "$lab" "$TMP/pend.err" || fail "unadjudicated label '$lab': error does not name it"
+done
+
+# ------------------------- negative: bare whole-label y/n/1/0/yes/no still work
+printf 'id\tdecision\n1\tY\n2\t1\n3\tyes\n4\tn\n5\t0\n6\tNo\n' > "$TMP/s_bare.tsv"
+printf 'id\tdecision\n1\ty\n2\tTRUE\n3\tno\n'                    > "$TMP/c_bare.tsv"
+set +e
+python3 "$RECONCILE" --screening "$TMP/s_bare.tsv" --consensus "$TMP/c_bare.tsv" \
+  --output "$TMP/bare.json" > /dev/null
+rc=$?
+set -e
+[ "$rc" -eq 0 ] || fail "bare labels negative: expected exit 0, got $rc (false positive)"
+python3 - "$TMP/bare.json" <<'PY' || fail "bare labels negative: misclassified"
+import json, sys
+d = json.load(open(sys.argv[1]))
+assert d["sets"]["screening_include"] == ["1", "2", "3"], d["sets"]
+assert d["sets"]["consensus_exclude"] == ["3"], d["sets"]
+assert d["sets"]["qualitative"] == ["1", "2"], d["sets"]
+assert d["blocking_issues"] == [], d["blocking_issues"]
+PY
+
+# ------------- negative: 0/1 decision column written as floats ("1.0"/"0.0")
+# pandas / Excel write an integer column holding blanks as floats. Main read
+# these correctly; exact-token matching must not turn them into exit 2.
+printf 'id\tdecision\n1\t1.0\n2\t1.0\n3\t0.0\n' > "$TMP/s_flt.tsv"
+printf 'id\tdecision\n1\t1.0\n2\t0.0\n'         > "$TMP/c_flt.tsv"
+set +e
+python3 "$RECONCILE" --screening "$TMP/s_flt.tsv" --consensus "$TMP/c_flt.tsv" \
+  --output "$TMP/flt.json" > /dev/null
+rc=$?
+set -e
+[ "$rc" -eq 0 ] || fail "float labels negative: expected exit 0, got $rc"
+python3 - "$TMP/flt.json" <<'PY' || fail "float labels negative: misclassified"
+import json, sys
+d = json.load(open(sys.argv[1]))
+assert d["sets"]["screening_include"] == ["1", "2"], d["sets"]
+assert d["sets"]["consensus_exclude"] == ["2"], d["sets"]
+assert d["sets"]["qualitative"] == ["1"], d["sets"]
+PY
+
+# ------- negative: Table 1 labels studies "Study 1", screening uses "1"
+# Main matched these through the first digit run; verbatim IDs must not turn
+# them into TABLE1_NOT_IN_QUALITATIVE. The digit-run match is recorded.
+printf 'id\tdecision\n1\tinclude\n2\tinclude\n3\texclude\n' > "$TMP/s_t1.tsv"
+printf 'id\tdecision\n1\tinclude\n2\tinclude\n3\texclude\n' > "$TMP/c_t1.tsv"
+printf 'study_id\nStudy 1\nStudy 2\n'                        > "$TMP/t1.csv"
+set +e
+python3 "$RECONCILE" --screening "$TMP/s_t1.tsv" --consensus "$TMP/c_t1.tsv" \
+  --table1 "$TMP/t1.csv" --output "$TMP/t1.json" > /dev/null
+rc=$?
+set -e
+[ "$rc" -eq 0 ] || fail "Table 1 'Study N' negative: expected exit 0, got $rc"
+python3 - "$TMP/t1.json" <<'PY' || fail "Table 1 'Study N' negative: not matched"
+import json, sys
+d = json.load(open(sys.argv[1]))
+assert d["blocking_issues"] == [], d["blocking_issues"]
+assert d["sets"]["narrative_only"] == [], d["sets"]
+assert d["table1_matched_by_digit_run"] == {"Study 1": "1", "Study 2": "2"}, d
+PY
+
+# ------- positive: a Table 1 study that is not in the qualitative set
+printf 'study_id\nStudy 1\nStudy 3\n' > "$TMP/t1p.csv"
+set +e
+python3 "$RECONCILE" --screening "$TMP/s_t1.tsv" --consensus "$TMP/c_t1.tsv" \
+  --table1 "$TMP/t1p.csv" --output "$TMP/t1p.json" > /dev/null
+rc=$?
+set -e
+[ "$rc" -eq 1 ] || fail "Table 1 excluded study: expected exit 1, got $rc"
+python3 - "$TMP/t1p.json" <<'PY' || fail "Table 1 excluded study: not reported"
+import json, sys
+d = json.load(open(sys.argv[1]))
+codes = {i["code"]: i["ids"] for i in d["blocking_issues"]}
+assert codes.get("TABLE1_NOT_IN_QUALITATIVE") == ["Study 3"], codes
+PY
+
+
+# ------- positive: an excluded sibling report must not reach Table 1 through
+# the digit-run fallback. Smith2020_2 was excluded, Smith2020_1 is included;
+# Table 1 lists Smith2020_2. Main exits 1 TABLE1_NOT_IN_QUALITATIVE here.
+printf 'id\tdecision\nSmith2020_1\tinclude\nSmith2020_2\texclude\nJones2019\tinclude\n' > "$TMP/s_sib.tsv"
+printf 'study_id\nSmith2020_2\nJones2019\n' > "$TMP/t1_sib.csv"
+set +e
+python3 "$RECONCILE" --screening "$TMP/s_sib.tsv" \
+  --table1 "$TMP/t1_sib.csv" --output "$TMP/sib.json" > /dev/null
+rc=$?
+set -e
+[ "$rc" -eq 1 ] || fail "Table 1 excluded sibling: expected exit 1, got $rc"
+python3 - "$TMP/sib.json" <<'PY' || fail "Table 1 excluded sibling: not reported"
+import json, sys
+d = json.load(open(sys.argv[1]))
+codes = {i["code"]: i["ids"] for i in d["blocking_issues"]}
+assert codes.get("TABLE1_NOT_IN_QUALITATIVE") == ["Smith2020_2"], codes
+assert d["table1_matched_by_digit_run"] == {}, d
+PY
+
+# ------- positive: same, but Table 1 writes the excluded sibling in another
+# style ("Smith 2020 (2)") whose first digit run is shared by both siblings.
+printf 'study_id\nSmith 2020 (2)\nJones2019\n' > "$TMP/t1_sib2.csv"
+set +e
+python3 "$RECONCILE" --screening "$TMP/s_sib.tsv" \
+  --table1 "$TMP/t1_sib2.csv" --output "$TMP/sib2.json" > /dev/null
+rc=$?
+set -e
+[ "$rc" -eq 1 ] || fail "Table 1 ambiguous sibling: expected exit 1, got $rc"
+
+
+# ------- negative: Table 1 IDs differing only in spacing / case / punctuation
+# Reviewer counterexample: "Smith 2020" vs "Smith2020" was TABLE1_NOT_IN_QUALITATIVE
+# whenever another record shared the year (main cleared it by digit run). IDs are
+# now also compared with case, whitespace and punctuation removed -- every letter
+# and digit kept, so Smith2020_1 / Smith2020_2 stay distinct.
+printf 'id\tdecision\nSmith2020\tinclude\nLee2020\tinclude\nLee2019\tinclude\n' > "$TMP/s_sty.tsv"
+printf 'study_id\nSmith 2020\nLEE-2020\nLee 2019\n' > "$TMP/t1_sty.csv"
+set +e
+python3 "$RECONCILE" --screening "$TMP/s_sty.tsv" \
+  --table1 "$TMP/t1_sty.csv" --output "$TMP/sty.json" > /dev/null
+rc=$?
+set -e
+[ "$rc" -eq 0 ] || fail "Table 1 ID style negative: expected exit 0, got $rc"
+python3 - "$TMP/sty.json" <<'PY' || fail "Table 1 ID style negative: not matched"
+import json, sys
+d = json.load(open(sys.argv[1]))
+assert d["blocking_issues"] == [], d["blocking_issues"]
+assert d["sets"]["narrative_only"] == [], d["sets"]
+assert d["table1_matched_by_id_style"] == {
+    "LEE-2020": "Lee2020", "Lee 2019": "Lee2019", "Smith 2020": "Smith2020"}, d
+PY
+
+# ------- negative: sibling reports both included, Table 1 in another style
+printf 'id\tdecision\nSmith2020_1\tinclude\nSmith2020_2\tinclude\n' > "$TMP/s_sty2.tsv"
+printf 'study_id\nsmith2020-1\nSmith 2020 2\n' > "$TMP/t1_sty2.csv"
+set +e
+python3 "$RECONCILE" --screening "$TMP/s_sty2.tsv" \
+  --table1 "$TMP/t1_sty2.csv" --output "$TMP/sty2.json" > /dev/null
+rc=$?
+set -e
+[ "$rc" -eq 0 ] || fail "Table 1 sibling style negative: expected exit 0, got $rc"
+python3 - "$TMP/sty2.json" <<'PY' || fail "Table 1 sibling style negative: siblings merged"
+import json, sys
+d = json.load(open(sys.argv[1]))
+assert d["sets"]["bivariate"] == ["Smith2020_1", "Smith2020_2"], d["sets"]
+PY
+
+# ------- positive: the style match maps onto an EXCLUDED record, which is reported
+printf 'id\tdecision\nSmith2020\tinclude\nLee2020\texclude\n' > "$TMP/s_sty3.tsv"
+printf 'study_id\nSmith2020\nlee 2020\n' > "$TMP/t1_sty3.csv"
+set +e
+python3 "$RECONCILE" --screening "$TMP/s_sty3.tsv" \
+  --table1 "$TMP/t1_sty3.csv" --output "$TMP/sty3.json" > /dev/null
+rc=$?
+set -e
+[ "$rc" -eq 1 ] || fail "Table 1 style -> excluded record: expected exit 1, got $rc"
+python3 - "$TMP/sty3.json" <<'PY' || fail "Table 1 style -> excluded record: not reported"
+import json, sys
+d = json.load(open(sys.argv[1]))
+codes = {i["code"]: i["ids"] for i in d["blocking_issues"]}
+assert codes.get("TABLE1_NOT_IN_QUALITATIVE") == ["Lee2020"], codes
+PY
+
+# ------- positive: '#12' vs '12' across screening and consensus (reviewer)
+# Still STAGE_TRANSFER_LOSS (IDs are not merged across stages), but the issue
+# names the ID-style mismatch as the likely cause and the pair involved.
+printf 'id\tdecision\n#12\tinclude\n#13\tinclude\n' > "$TMP/s_hash.tsv"
+printf 'id\tdecision\n12\tinclude\n#13\tinclude\n'  > "$TMP/c_hash.tsv"
+set +e
+python3 "$RECONCILE" --screening "$TMP/s_hash.tsv" --consensus "$TMP/c_hash.tsv" \
+  --output "$TMP/hash.json" > /dev/null
+rc=$?
+set -e
+[ "$rc" -eq 1 ] || fail "'#12' vs '12': expected exit 1, got $rc"
+python3 - "$TMP/hash.json" <<'PY' || fail "'#12' vs '12': ID-style cause not named"
+import json, sys
+d = json.load(open(sys.argv[1]))
+issue = [i for i in d["blocking_issues"] if i["code"] == "STAGE_TRANSFER_LOSS"][0]
+assert issue["ids"] == ["#12"], issue
+assert issue["likely_id_style_mismatch"] == {"#12": "12"}, issue
+assert "ID style" in issue["detail"] and "'12'" in issue["detail"], issue["detail"]
+PY
+# A genuine loss (no consensus ID resembles it) carries no style hint.
+python3 - "$TMP/id.json" <<'PY' || fail "genuine loss: spurious ID-style hint"
+import json, sys
+d = json.load(open(sys.argv[1]))
+issue = [i for i in d["blocking_issues"] if i["code"] == "STAGE_TRANSFER_LOSS"][0]
+assert "likely_id_style_mismatch" not in issue, issue
+PY
+
+# ------- positive: a blank decision cell stops the run (exit 2, '<blank>')
+printf 'id\tdecision\n1\tinclude\n2\t\n' > "$TMP/s_blank.tsv"
+set +e
+python3 "$RECONCILE" --screening "$TMP/s_blank.tsv" --output "$TMP/blank.json" > /dev/null 2> "$TMP/blank.err"
+rc=$?
+set -e
+[ "$rc" -eq 2 ] || fail "blank decision: expected exit 2, got $rc"
+grep -q "<blank>" "$TMP/blank.err" || fail "blank decision: error does not say <blank>"
+
+echo "PASS: test_screening_reconcile.sh (positive + 3 negatives; F1 labels x2, F2 IDs + negative, R2 unadjudicated labels x7, float labels, Table 1 digit-run match + positive, excluded sibling x2, Table 1 ID style x3, '#12' vs '12' hint, blank decision)"

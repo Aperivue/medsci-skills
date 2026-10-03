@@ -42,11 +42,17 @@ Output `qc/pool_consistency.json`:
   "lock_include_n": 42,
   "tsv_include_n": 43,
   "in_lock_not_tsv": ["UID_007"],
-  "in_tsv_not_lock": ["UID_055"]
+  "in_tsv_not_lock": ["UID_055"],
+  "lock_integrity_errors": ["final_pool_n is 44 but include_uids ∪ mixed_uids has 42 UID(s)"],
+  "tsv_conflicting_uids": {"UID_013": ["EXCLUDE", "INCLUDE"]}
 }
 ```
 
-The gate fails closed: any UID disagreement blocks extraction. To
+The gate fails closed: any UID disagreement blocks extraction. So does a
+lock that contradicts itself (`final_pool_n` / `include_count` /
+`exclude_count` / `mixed_count` not equal to the UID lists, a non-empty
+`sha256` that does not match them, a UID filed under two decisions) and a
+TSV whose rows for one UID disagree on pool membership. To
 resolve, either (a) re-freeze the lock with the corrected set of UIDs
 and propagate to downstream artifacts, or (b) correct the adjudication
 TSV if a row was mis-labeled. Do NOT proceed to Phase 4 with a
