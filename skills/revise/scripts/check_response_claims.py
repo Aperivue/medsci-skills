@@ -32,11 +32,13 @@ checkable anchor, so paraphrase and honest rewording do not false-positive:
 With --values revision_values.json (the revision-time numerical audit table, declared), each
 entry's anchor sentence is located in the body and its declared values are checked there:
 
-  * RESPONSE_VALUE_MISMATCH (major) — the anchor is in the body, but a declared value is
-    not among the numbers of the paragraph(s) that hold it (after folding mid-dot decimals,
-    thin-space and comma thousands, decimal commas, Unicode minus and leading-dot P values).
-  * RESPONSE_VALUE_NOT_ASSESSED (minor) — the anchor is not found, or the value is missing
-    from a paragraph whose numbers cannot all be read (superscripts, x10^n notation).
+  * RESPONSE_VALUE_MISMATCH (major) — the anchor is in the body word for word (across line
+    breaks, not across a blank line), but a declared value is not among the numbers on its
+    lines and up to three following lines (mid-dot decimals, space or comma thousands, decimal
+    commas, minus/en-dash signs and leading-dot P values folded).
+  * RESPONSE_VALUE_NOT_ASSESSED (minor) — the anchor is not found or only approximately, or
+    the value is missing from text whose numbers cannot all be read (superscripts, x10^n,
+    e-notation).
 
 Vague claims with no quote and no citation ("we clarified the Methods") are not
 verifiable and are intentionally NOT flagged. Reviewer-comment blockquotes
@@ -65,7 +67,7 @@ import unicodedata
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from _quote_match import match_quality  # noqa: E402  (same-dir helper)
+from _quote_match import match_quality, normalize as _qm_normalize  # noqa: E402  (same-dir helper)
 from decimal import Decimal, InvalidOperation  # noqa: E402
 
 # A claim that asserts an addition/edit to the manuscript.
@@ -274,7 +276,7 @@ VALUE_ENTRY_KEYS = {"id", "anchor", "values", "location"}
 _NUM = r"-?(?:\d+(?:\.\d+)?|\.\d+)"
 _CMP = {"<": "<", ">": ">", "≤": "<=", "≥": ">=", "<=": "<=", ">=": ">=", "=<": "<=", "=>": ">="}
 DECL_SINGLE = re.compile(rf"^\s*(<=|>=|=<|=>|<|>|≤|≥)?\s*({_NUM})\s*%?\s*$")
-DECL_RANGE = re.compile(rf"^\s*({_NUM})\s*(?:-|–|—|to)\s*({_NUM})\s*%?\s*$")
+DECL_RANGE = re.compile(rf"^\s*({_NUM})\s*%?\s*(?:-|–|—|to)\s*({_NUM})\s*%?\s*$")
 # Body constructs whose digits cannot be read reliably: superscript digits and x10^n notation.
 UNREADABLE = re.compile(r"[⁰¹²³⁴⁵⁶⁷⁸⁹⁻]|[×x]\s*10\s*[\^⁻⁰-⁹]|\d[eE][-+]?\d")
 
@@ -310,6 +312,7 @@ def _declared(value, where: str) -> list:
         return [("eq", _dec(repr(value) if isinstance(value, float) else str(value)))]
     if not isinstance(value, str) or not value.strip():
         raise ValuesError(f"{where}: expected a number or a value string, got {value!r}")
+    value = value.replace("\u2212", "-")
     m = DECL_RANGE.match(value)
     if m:
         return [("eq", _dec(m.group(1))), ("eq", _dec(m.group(2)))]
@@ -323,7 +326,7 @@ def _declared(value, where: str) -> list:
 
 def load_values(path: Path) -> list:
     try:
-        m = json.loads(path.read_text(encoding="utf-8"), parse_constant=_reject_constant)
+        m = json.loads(path.read_text(encoding="utf-8-sig"), parse_constant=_reject_constant)
     except (OSError, ValueError, RecursionError) as e:   # ValueError covers JSONDecodeError
         raise ValuesError(f"cannot read values file: {e}")
     if not isinstance(m, dict):
@@ -378,12 +381,14 @@ def _fold_numbers(text: str, thousands: bool, spaces: bool) -> str:
 
 
 _BODY_NUM = re.compile(r"(<=|>=|<|>|=)?\s*(\d+(?:\.\d+)?)")
-_MINUS_BEFORE = re.compile(r"(?:^|[\s(=:;,\[])$")
+_SIGN = "-\u2212\u2013"   # hyphen, true minus, and the en dash Word autocorrect uses as a minus
 
 
 def _paragraph_values(para: str) -> list:
-    """(comparator, value) pairs. A sign is taken only from a true minus (U+2212) or a hyphen
-    that opens a number, so the dash of a range ("0.88-0.95") never makes 0.95 negative."""
+    """(comparator, value) pairs. A dash directly before a number is read as its sign unless a
+    digit directly precedes the dash, so "0.88-0.95" gives 0.95 while "-4.1--0.5", "–2.3" and
+    "**−2.3**" give negatives. A positive declared value is compared by magnitude, so a range
+    dash read as a sign ("0.88 – 0.95") never hides a value."""
     out = []
     for th, sp in ((False, False), (True, False), (True, True)):
         t = _fold_numbers(para, th, sp)
@@ -393,7 +398,8 @@ def _paragraph_values(para: str) -> list:
             except InvalidOperation:
                 continue
             k = m.start(2)
-            if k and t[k - 1] in "\u2212-" and _MINUS_BEFORE.search(t[:k - 1]) and not m.group(1):
+            if (k and t[k - 1] in _SIGN and not m.group(1)
+                    and not (k >= 2 and (t[k - 2].isdigit() or t[k - 2] == "."))):
                 v = -v
             out.append((m.group(1) or "", v))
     return out
@@ -402,49 +408,87 @@ def _paragraph_values(para: str) -> list:
 def _value_present(need: tuple, found: list) -> bool:
     op, val = need
     for fop, fval in found:
-        if fval != val:
+        if fval != val and not (val >= 0 and abs(fval) == val):
             continue
         if op == "eq" or fop == op:
             return True
     return False
 
 
+_TOK = re.compile(r"[0-9a-z]+(?:'[a-z]+)?", re.IGNORECASE)
+FOLLOW_LINES = 3   # lines after the anchor that may hold its values (a wrapped line, table cells)
+
+
+def _line_tokens(lines: list) -> list:
+    """[(token, line_index)] over the body, with a None barrier at every blank line."""
+    out = []
+    for i, ln in enumerate(lines):
+        if not ln.strip():
+            out.append((None, i))
+            continue
+        out.extend((t, i) for t in _TOK.findall(_qm_normalize(ln)))
+    return out
+
+
+def _anchor_windows(lines: list, anchor: str) -> list:
+    """Text windows for every EXACT token-sequence occurrence of the anchor (across line breaks,
+    never across a blank line): the anchor's lines plus up to FOLLOW_LINES following lines."""
+    want = _TOK.findall(_qm_normalize(anchor))
+    toks = _line_tokens(lines)
+    n, out = len(want), []
+    for k in range(len(toks) - n + 1):
+        if all(toks[k + q][0] == want[q] for q in range(n)):
+            first, last = toks[k][1], toks[k + n - 1][1]
+            end = last
+            while end + 1 < len(lines) and end < last + FOLLOW_LINES and lines[end + 1].strip():
+                end += 1
+            out.append("\n".join(lines[first:end + 1]))
+    return out
+
+
 def check_values(body: str, entries: list) -> list:
-    paras = [p for p in re.split(r"\n\s*\n|\n", body) if p.strip()]
+    lines = body.splitlines()
     findings = []
     for e in entries:
-        hits = [p for p in paras if match_quality(e["anchor"], p)["grade"] != "ABSENT"]
-        if not hits:
+        windows = _anchor_windows(lines, e["anchor"])
+        exact = bool(windows)
+        if not exact:   # fall back to the extraction-tolerant matcher, minor only
+            windows = [ln for ln in lines if ln.strip()
+                       and match_quality(e["anchor"], ln)["grade"] != "ABSENT"]
+        if not windows:
             findings.append({
                 "verdict": "RESPONSE_VALUE_NOT_ASSESSED", "severity": "minor", "id": e["id"],
-                "claimed_text": e["anchor"], "context": e["location"] or "",
+                "claimed_text": e["anchor"], "context": e["location"] or e["id"],
                 "message": "The declared anchor sentence is not in the revised manuscript, so its "
                            "values were not checked; fix the anchor or confirm the edit by eye.",
             })
             continue
-        found = [v for p in hits for v in _paragraph_values(p)]
-        unreadable = any(UNREADABLE.search(p) for p in hits)
+        found = [v for w in windows for v in _paragraph_values(w)]
+        unreadable = any(UNREADABLE.search(w) for w in windows)
         for raw, needs in e["values"]:
             if all(_value_present(n, found) for n in needs):
                 continue
-            if unreadable:
+            if unreadable or not exact:
+                why = ("the text there has numbers this gate cannot read (superscripts, x10^n or "
+                       "e-notation)" if unreadable else
+                       "the anchor matched only approximately (extraction damage or a reworded "
+                       "sentence)")
                 findings.append({
                     "verdict": "RESPONSE_VALUE_NOT_ASSESSED", "severity": "minor", "id": e["id"],
-                    "claimed_text": e["anchor"], "declared_value": raw, "context": e["location"] or "",
-                    "message": f"Declared value {raw!r} was not found, but the paragraph has numbers "
-                               "this gate cannot read (superscripts or x10^n); confirm by eye.",
+                    "claimed_text": e["anchor"], "declared_value": raw,
+                    "context": e["location"] or e["id"],
+                    "message": f"Declared value {raw!r} was not found, but {why}; confirm by eye.",
                 })
             else:
                 shown = sorted({(op + str(v)) for op, v in found})[:12]
                 findings.append({
                     "verdict": "RESPONSE_VALUE_MISMATCH", "severity": "major", "id": e["id"],
-                    "claimed_text": e["anchor"], "declared_value": raw, "context": e["location"] or "",
-                    "body_values": shown,
-                    "message": f"Declared value {raw!r} is not in the revised manuscript paragraph "
-                               f"that holds the anchor (numbers there: {', '.join(shown) or 'none'}).",
+                    "claimed_text": e["anchor"], "declared_value": raw,
+                    "context": e["location"] or e["id"], "body_values": shown,
+                    "message": f"Declared value {raw!r} is not next to its anchor in the revised "
+                               f"manuscript (numbers there: {', '.join(shown) or 'none'}).",
                 })
     return findings
-
 
 def build_report(response_path: Path, manuscript_path: Path, values: list | None = None) -> dict:
     response = read_text(response_path)
@@ -563,7 +607,7 @@ def main(argv: list[str] | None = None) -> int:
             for f in report["findings"]:
                 anchor = f.get("claimed_text") or ", ".join(f.get("claimed_citation", []))
                 print(f"  [{f['verdict']}] ({f['severity']}) {anchor!r}")
-                if "declared_value" in f:
+                if "declared_value" in f and f["severity"] != "minor":
                     print(f"      {f['message']}")
                 print(f"      near: {f['context']}")
                 if f["severity"] == "minor":
@@ -573,7 +617,10 @@ def main(argv: list[str] | None = None) -> int:
                       "not claims of an edit that was never made.")
 
     if args.strict and not report["submission_safe"]:
-        print("\nRESPONSE_CLAIM_UNVERIFIED: a response-letter claim is not reflected in the revised manuscript.", file=sys.stderr)
+        if any(f["verdict"] == "RESPONSE_VALUE_MISMATCH" for f in report["findings"]):
+            print("\nRESPONSE_VALUE_MISMATCH: a declared revision value is not in the revised manuscript.", file=sys.stderr)
+        if any(f["severity"] == "major" and f["verdict"] != "RESPONSE_VALUE_MISMATCH" for f in report["findings"]):
+            print("\nRESPONSE_CLAIM_UNVERIFIED: a response-letter claim is not reflected in the revised manuscript.", file=sys.stderr)
         return 1
     return 0
 

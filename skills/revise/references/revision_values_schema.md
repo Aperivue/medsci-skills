@@ -13,25 +13,34 @@ Start from `templates/revision_values.json`.
 | `entries` | list (non-empty) | one object per changed number or group of numbers |
 | `entries[].id` | string | the response item, e.g. `R1-3` |
 | `entries[].anchor` | string, at least 4 words | words of the revised sentence that hold the values, as they appear in the body |
-| `entries[].values` | list (non-empty) | each a JSON number (`0.92`, `1234`), or a string: an inequality (`"<0.001"`, `"≤ .05"`), a range (`"0.88-0.95"`, `"0.88 to 0.95"`) or a percentage (`"12.5%"`) |
+| `entries[].values` | list (non-empty) | each a JSON number (`0.92`, `1234`), or a string: an inequality (`"<0.001"`, `"≤ .05"`), a range (`"0.88-0.95"`, `"0.88 to 0.95"`, `"-4.1 to -0.5"`, `"80.1%-89.2%"`) or a percentage (`"12.5%"`); write a negative with `-` or `−`, not `+` for a positive; no `P` prefix or e-notation in a string |
 | `entries[].location` | string, optional | where it is (recorded, not checked) |
 | `notes` | any | free text, not read |
 
 Any other key, a wrong type, an empty list, a non-finite number, or a value string in another
 form (for example `"1,234"`: write `1234`) exits 2 and names the field.
 
-How a value is checked. The anchor is located paragraph by paragraph with the same
-extraction-tolerant matcher the quote check uses. The numbers of the matching paragraph(s) are
-read with the body's formats folded: mid-dot decimals (`0·92`), thin or non-breaking-space
-thousands (`12 345`), comma thousands (`1,234`), decimal commas (`0,92`), a Unicode minus, and a
-leading-dot value (`P = .03`). Each reading is tried and a value counts as present under any of
-them. A number equals the declared one numerically (`0.920` matches `0.92`); a positive declared
-value also matches a number written after a range dash; an inequality needs the same comparator.
+How a value is checked. The anchor is found word by word (case, punctuation and markdown
+emphasis ignored) anywhere in the body, across line breaks but never across a blank line, so a
+hard-wrapped sentence or a .docx soft break still matches. Its values are read from the anchor's
+own lines plus up to three following lines, stopping at a blank line: a value on the next wrapped
+line, or in the cells after a .docx table row label (each cell is its own line), is found; a
+number in the next paragraph is not. The numbers there are read with the body's formats folded:
+mid-dot decimals (`0·92`), thousands grouped by a comma or by a plain, thin or non-breaking space
+(`1,234`, `12 345`), decimal commas (`0,92`), and a leading-dot value (`P = .03`). Each reading is
+tried and a value counts as present under any of them. A hyphen, Unicode minus or en dash directly
+before a number is its sign unless a digit precedes it, so `–2.3` and `−4.1–−0.5` read as negatives
+and the dash of `0.88-0.95` does not. A number equals the declared one numerically (`0.920` matches
+`0.92`); a positive declared value also matches by magnitude; an inequality needs the same
+comparator (`P less than 0.001` is not read as `<0.001`).
+
+If the anchor is matched only approximately (a word damaged in extraction or reworded), a missing
+value is reported as minor, never major.
 
 | Verdict | Severity | When |
 |---|---|---|
-| `RESPONSE_VALUE_MISMATCH` | major | the anchor is found but a declared value is not among that paragraph's numbers |
-| `RESPONSE_VALUE_NOT_ASSESSED` | minor | the anchor is not found; or the value is missing from a paragraph that has superscript digits or `x10^n` notation, which this gate cannot read |
+| `RESPONSE_VALUE_MISMATCH` | major | the anchor is found word for word but a declared value is not among the numbers next to it |
+| `RESPONSE_VALUE_NOT_ASSESSED` | minor | the anchor is not found, or found only approximately; or the value is missing from text that has superscript digits, `x10^n` or e-notation, which this gate cannot read |
 
 The gate checks numbers only. A flipped finding ("was significant" → "was not significant") is
 not compared; read each changed sentence for that by eye.

@@ -436,6 +436,35 @@ vhas RESPONSE_VALUE_MISMATCH; ck "  no RESPONSE_VALUE_MISMATCH" 1 "$?"
 vjson '{"entries":[{"id":"R2-3","anchor":"The mean difference was","values":[-0.5, "12.5%"]}]}'
 vbody 'The mean difference was −0.5 units, affecting 12.5% of patients.'
 vrun; ck "Unicode minus and percentage" 0 "$?"
+# review round 1: values on a wrapped line, a docx soft break or table cells; minus forms; no pooling
+VA='{"entries":[{"id":"R1","anchor":"The area under the curve in the external cohort was","values":[0.92,"0.88-0.95"]}]}'
+vjson "$VA"
+printf 'The area under the curve in the external cohort was\n0.92 (95%% CI 0.88-0.95).\n' > "$TMP/body_v.md"; vrun
+ck "value on the next (hard-wrapped) line" 0 "$?"
+printf 'The area under the curve in the external\ncohort was 0.92 (95%% CI\n0.88-0.95).\n' > "$TMP/body_v.md"; vrun
+ck "anchor itself wrapped across lines" 0 "$?"
+printf 'The area under the curve in the external cohort was 0.87 (0.80-0.90).\n\nElsewhere: 0.92 0.88 0.95.\n' > "$TMP/body_v.md"; vrun
+ck "values after a blank line are not borrowed -> exit 1" 1 "$?"
+vjson '{"entries":[{"id":"R1","anchor":"Sensitivity in the external validation cohort","values":[85.0,"80.1-89.2"]}]}'
+printf 'Table 2\nSensitivity in the external validation cohort\n85.0\n80.1–89.2\n' > "$TMP/body_v.md"; vrun
+ck "docx table row: label then value cells" 0 "$?"
+vjson '{"entries":[{"id":"R1","anchor":"The mean difference between the two arms was","values":[-2.3,"−4.1 to −0.5"]}]}'
+printf 'The mean difference between the two arms was –2.3 points (95%% CI –4.1 to –0.5).\n' > "$TMP/body_v.md"; vrun
+ck "en dash used as a minus" 0 "$?"
+printf 'The mean difference between the two arms was **−2.3** (95%% CI −4.1–−0.5).\n' > "$TMP/body_v.md"; vrun
+ck "bold minus and an en dash between negatives" 0 "$?"
+vjson '{"entries":[{"id":"R1","anchor":"The AUC in the external cohort was","values":[0.92]}]}'
+printf 'The AUC in the external cohort was 0.87.\n\nThe sensitivity in the external cohort was 0.92.\n' > "$TMP/body_v.md"; vrun
+ck "a neighbouring sentence's number is not pooled -> exit 1" 1 "$?"
+printf 'The AUC in the extrnal cohrt was 0.87.\n' > "$TMP/body_v.md"; vrun
+ck "approximate anchor + missing value -> NOT_ASSESSED (exit 0)" 0 "$?"
+vhas RESPONSE_VALUE_NOT_ASSESSED; ck "  RESPONSE_VALUE_NOT_ASSESSED" 0 "$?"
+vjson '{"entries":[{"id":"R1","anchor":"The cohort included a total of","values":[12345]}]}'
+printf 'The cohort included a total of 12\xe2\x80\x89345 patients.\n' > "$TMP/body_v.md"; vrun
+ck "real thin-space thousands (U+2009)" 0 "$?"
+printf '\xef\xbb\xbf{"entries":[{"id":"R1","anchor":"The cohort included a total of","values":[12345]}]}' > "$TMP/v.json"; vrun
+ck "UTF-8 BOM in the values file is read" 0 "$?"
+
 # malformed values files exit 2
 for bad in '{"entries":[]}' '{"entries":[{"id":"R1","anchor":"too short","values":[1]}]}' \
            '{"entries":[{"id":"R1","anchor":"the AUC of the model","values":["1,234"]}]}' \
