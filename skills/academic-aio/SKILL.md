@@ -47,13 +47,15 @@ Title, abstract, and keywords together should cover the concept's key terms, wit
 ### 2.1 Summary box
 Include the journal-specific summary box verbatim when supported; it is the fragment AI search engines most often copy or paraphrase:
 - Lancet family: "Research in context" (Evidence before this study / Added value / Implications).
-- RSNA Radiology and RYAI: "Key Points" — 3 bullets, one claim each.
+- RSNA Radiology and RYAI: 3 bullets, one claim each — labelled "Key Results" for Radiology and "Key Points" for RYAI in `references/journal_summarybox_templates.yaml`. Confirm the label in the current RSNA instructions for authors; the format check accepts either label for Radiology.
 - npj Digital Medicine: no summary box; Articles carry an unstructured abstract of up to 150 words.
 - Nature Medicine: editor's summary (supplied by editorial, but draft one proactively).
 
 Journal-specific templates: `references/journal_summarybox_templates.yaml`. Never invent a summary-box rule: verify each template against the journal's current instructions for authors before applying it.
 
-**Deterministic format check.** Validate the drafted box against its journal spec with `python3 ${CLAUDE_SKILL_DIR}/scripts/check_summary_box.py --manuscript <file> --journal <stem> --strict` (reads `references/summary_box_specs.json`: Key Points bullet count + one-claim-per-bullet, Research-in-context's three sub-blocks, plain-language word band). It catches the wrong-format / wrong-bullet-count box that a production technical check rejects.
+**Deterministic format check.** Validate the drafted box against its journal spec with `python3 ${CLAUDE_SKILL_DIR}/scripts/check_summary_box.py --manuscript <file> --journal <stem> --strict` (reads `references/summary_box_specs.json`: Key Points / Key Results top-level bullet count + one-claim-per-bullet, Research-in-context's three sub-blocks each opening a line and carrying text, plain-language word band). It catches the wrong-format / wrong-bullet-count box that a production technical check rejects.
+
+**Known limits.** The box ends only at a heading or a bold-only label line, so a list under a plain-text label (`Abbreviations:`) right after the box is counted into it, and an emphasized body phrase that starts with the box label (`*Key points* of prior work ...`) is taken as the box; read the box by eye when either shape is present. In a Research-in-context box, a bold-only line after the last sub-block label ends the box, so a sub-heading inside Implications (`**For clinicians**`) cannot be told from the next section; an Implications sub-block left empty that way is reported as an advisory, not a failure.
 
 ### 2.2 Declarative section headings
 Headings state a claim, not a generic label: "Model underperforms on rare-finding subset" beats "Subgroup analysis".
