@@ -140,6 +140,43 @@ python3 "$SCRIPT" --table1 "$MSFIX" --adjusted-list "age, FIB-4" \
     --strict >/dev/null 2>&1
 check "exit 0 when defining exempt + non-defining adjusted" test "$?" -eq 0
 
+# 10. Scientific-notation P cells. `_parse_p` read '3e-05' as 3.0 and '2.1x10^-5' as 2.1, so an
+#     imbalanced, unadjusted Smoking row printed the way R prints small P values cleared as
+#     balanced. Each notation must flag exactly like the plain decimal does.
+SCI="$(mktemp -t cc_sci_XXXX).csv"
+trap 'rm -f "$OUT" "$DBOUT" "$MSOUT" "$SCI"' EXIT
+for pcell in "0.00003" "3e-05" "2.1x10^-5" "2.1×10⁻⁵" "1.2E-8" "<2e-16"; do
+    printf 'Covariate,Exposed,Unexposed,P\nAge,"55 ± 10","54 ± 10",0.40\nSmoking,80 (40%%),40 (20%%),%s\nDiabetes,30 (15%%),28 (14%%),0.78\n' "$pcell" > "$SCI"
+    python3 "$SCRIPT" --table1 "$SCI" --adjusted-list "Age, Diabetes" --out "$OUT" --strict >/dev/null 2>&1
+    check "P '$pcell': unadjusted Smoking flags (exit 1)" test "$?" -eq 1
+    check "P '$pcell': Smoking is the one finding" python3 -c "
+import json
+d=json.load(open('$OUT'))
+assert [f['covariate'] for f in d['findings']]==['Smoking'], d['findings']"
+done
+# Negative control: a large P in e-notation stays balanced (no Major, exit 0).
+printf 'Covariate,Exposed,Unexposed,P\nAge,"55 ± 10","54 ± 10",0.40\nSmoking,42 (21%%),40 (20%%),8.1e-01\n' > "$SCI"
+python3 "$SCRIPT" --table1 "$SCI" --adjusted-list "Age" --strict >/dev/null 2>&1
+check "P '8.1e-01' (balanced) stays clean (exit 0)" test "$?" -eq 0
+# An unreadable P (a value > 1, or no number) is an input error naming the cell, not "balanced".
+for pcell in "3.0" "pending"; do
+    printf 'Covariate,Exposed,Unexposed,P\nSmoking,80 (40%%),40 (20%%),%s\n' "$pcell" > "$SCI"
+    python3 "$SCRIPT" --table1 "$SCI" --adjusted-list "Age" >/dev/null 2>"$OUT.err"
+    check "P '$pcell': exit 2 (unreadable P)" test "$?" -eq 2
+    check "P '$pcell': stderr names the cell" grep -q "unreadable p-value '$pcell'" "$OUT.err"
+done
+rm -f "$OUT.err"
+# Missing / reference markers, with or without a trailing footnote marker, are a missing P
+# (as on main), not an unreadable one; a footnoted number still parses.
+for pcell in "N/A†" "NA^a" "n.a." "NE" "Ref." "NC" "NT" "not tested" "not significant" "NC‡" "n.c."; do
+    printf 'Covariate,Exposed,Unexposed,P\nAge,"55 ± 10","54 ± 10",0.40\nSmoking,80 (40%%),40 (20%%),%s\n' "$pcell" > "$SCI"
+    python3 "$SCRIPT" --table1 "$SCI" --adjusted-list "Age" >/dev/null 2>&1
+    check "P '$pcell': read as missing (exit 0, not 2)" test "$?" -eq 0
+done
+printf 'Covariate,Exposed,Unexposed,P\nAge,"55 ± 10","54 ± 10",0.40\nSmoking,80 (40%%),40 (20%%),3e-05†\n' > "$SCI"
+python3 "$SCRIPT" --table1 "$SCI" --adjusted-list "Age" --strict >/dev/null 2>&1
+check "P '3e-05†': footnoted value still flags (exit 1)" test "$?" -eq 1
+
 echo "ran=$ran fail=$fail"
 [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"
 exit "$fail"

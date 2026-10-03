@@ -28,7 +28,13 @@ it cannot rationalize away:
   STOP_ZERO_EDIT       floor at fixed point (0 Major, 0 Minor), ceiling clean. The
                        manuscript is submission-ready as-is. A zero-edit result is a
                        valid PASS -- do not manufacture changes.
-  INDETERMINATE        no gate artifacts found; the floor/ceiling gates have not run.
+  INDETERMINATE        the floor cannot be judged: no gate artifacts found, no floor gate
+                       was parsed (e.g. only the ceiling pass ran), or a qc/*.json file
+                       was empty or not valid JSON (a gate that crashed under
+                       `--json > file`), and no Major was read elsewhere. A STOP verdict
+                       needs at least one parsed floor gate and no unreadable artifact.
+                       A detector-keyed artifact of an unrecognised schema is still only
+                       a WARNING (see Known limits in SKILL.md).
 
 A floor gate's JSON is recognised by a `summary.n_major`; the ceiling pass by a
 `summary.by_action`. The classifier is advisory and NEVER blocks -- it must not
@@ -92,6 +98,18 @@ RECOMMENDATIONS = {
     ),
 }
 
+INDETERMINATE_NO_FLOOR = (
+    "No floor gate artifact was read (only the ceiling pass, or nothing parseable). Run the "
+    "floor gates (Phases 2.5-2.5f) first; a clean ceiling alone cannot declare the floor at "
+    "its fixed point."
+)
+INDETERMINATE_UNREAD = (
+    "{n_unread} gate artifact(s) were empty or not valid JSON, so the floor is not known "
+    "to be at its fixed point. Re-run the gate(s) that produced them "
+    "(an empty file usually means the gate crashed under `--json > file`) before treating "
+    "the loop as done."
+)
+
 STOP_VERDICTS = {"STOP_OVERHARDENING", "STOP_MINOR_OPTIONAL", "STOP_ZERO_EDIT"}
 
 
@@ -100,10 +118,14 @@ def classify(qc_dir: Path) -> dict:
     gates: list[str] = []
     unparsed: list[str] = []
     unknown_sev: list[str] = []
+    unreadable: list[str] = []
+    n_floor_parsed = 0
     for path in sorted(qc_dir.glob("*.json")):
         try:
             obj = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, ValueError):
+            # an empty or corrupt artifact is a gate that did not report -- never clean
+            unreadable.append(path.name)
             continue
         g = _qc_findings.parse_gate(obj)
         if g is None:
@@ -117,13 +139,16 @@ def classify(qc_dir: Path) -> dict:
         if g["kind"] == "ceiling":
             ceiling_findings += g["major"] + g["minor"]
         else:
+            n_floor_parsed += 1
             floor_major += g["major"]
             floor_minor += g["minor"]
 
-    if not gates:
+    if not gates and not unreadable:
         verdict = "INDETERMINATE"
     elif floor_major > 0:
         verdict = "CONTINUE"
+    elif unreadable or n_floor_parsed == 0:
+        verdict = "INDETERMINATE"
     elif ceiling_findings > 0:
         verdict = "STOP_OVERHARDENING"
     elif floor_minor > 0:
@@ -131,10 +156,16 @@ def classify(qc_dir: Path) -> dict:
     else:
         verdict = "STOP_ZERO_EDIT"
 
-    rec = RECOMMENDATIONS[verdict].format(
+    template = RECOMMENDATIONS[verdict]
+    if verdict == "INDETERMINATE" and unreadable:
+        template = INDETERMINATE_UNREAD
+    elif verdict == "INDETERMINATE" and gates:
+        template = INDETERMINATE_NO_FLOOR
+    rec = template.format(
         floor_major=floor_major,
         floor_minor=floor_minor,
         ceiling_findings=ceiling_findings,
+        n_unread=len(unreadable),
     )
     if unknown_sev:
         rec += (f" (WARNING: severity word(s) no controller knows: "
@@ -144,6 +175,9 @@ def classify(qc_dir: Path) -> dict:
         rec += (f" (WARNING: {len(unparsed)} gate artifact(s) had an unrecognised schema and were "
                 f"NOT counted -- this verdict may understate the floor: "
                 f"{', '.join(sorted(set(unparsed)))})")
+    if unreadable and verdict != "INDETERMINATE":
+        rec += (f" (WARNING: {len(unreadable)} artifact(s) were empty or not valid JSON and were "
+                f"NOT counted: {', '.join(unreadable)})")
     return {
         "tool": TOOL,
         "verdict": verdict,
@@ -153,6 +187,7 @@ def classify(qc_dir: Path) -> dict:
         "ceiling_findings": ceiling_findings,
         "gates_read": sorted(set(gates)),
         "gates_unparsed": sorted(set(unparsed)),
+        "artifacts_unreadable": unreadable,
         "unknown_severities": sorted(set(unknown_sev)),
         "recommendation": rec,
     }
@@ -172,6 +207,8 @@ def render(result: dict, qc_dir_display: str) -> str:
                      f"(counted as Major — the loop continues rather than stopping on a guess)")
     if result.get("gates_unparsed"):
         lines.append(f"  Unparsed:      {', '.join(result['gates_unparsed'])}  (unrecognised schema — NOT counted)")
+    if result.get("artifacts_unreadable"):
+        lines.append(f"  Unreadable:    {', '.join(result['artifacts_unreadable'])}  (empty or invalid JSON — NOT counted)")
     lines.append(f"  qc dir:        {qc_dir_display}")
     lines.append(f"  -> {result['recommendation']}")
     return "\n".join(lines)
@@ -200,6 +237,7 @@ def main(argv=None) -> int:
             "ceiling_findings": 0,
             "gates_read": [],
             "gates_unparsed": [],
+            "artifacts_unreadable": [],
             "unknown_severities": [],
             "recommendation": RECOMMENDATIONS["INDETERMINATE"],
         }

@@ -1,0 +1,6 @@
+== MISMATCH FOUND ==  fixture/table_precision_footnote_bad.md
+mismatches=1 findings=2
+[MAJOR] PERCENT_MISMATCH       L3  printed 16.4% but 23/150 (header n=) = 15.3% (Δ1.1pp)
+        cell> Current smoker^a: 23 (16.4%)
+[MINOR] PERCENT_PRECISION_NOTE L3  printed 15.1% but 18/120 (header n=) = 15.0% (Δ0.1pp); the row label carries a footnote marker, so its denominator may differ from the column's (e.g. missing data): confirm against the footnote
+        cell> Current smoker^a: 18 (15.1%)

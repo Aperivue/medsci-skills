@@ -1,0 +1,7 @@
+Refinement terminal-state: INDETERMINATE
+  Floor gates:   0 Major, 0 Minor
+  Ceiling pass:  0 finding(s)
+  Gates read:    check_cohort_arithmetic, check_editorial_impression
+  Unreadable:    reported_p.json, table_percentages.json  (empty or invalid JSON — NOT counted)
+  qc dir:        fixture/crashed_gate
+  -> 2 gate artifact(s) were empty or not valid JSON, so the floor is not known to be at its fixed point. Re-run the gate(s) that produced them (an empty file usually means the gate crashed under `--json > file`) before treating the loop as done.
