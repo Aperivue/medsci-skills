@@ -490,6 +490,26 @@ PY
 vjson '{"entries":[{"id":"R1","anchor":"External validation cohort (n = 512)","values":[0.92,"0.88-0.95"]},{"id":"R2","anchor":"The hazard ratio for death in the treated group","values":[0.75,"0.60-0.94"]}]}'
 python3 "$V" --response "$TMP/resp_v.md" --manuscript "$TMP/wide.docx" --values "$TMP/v.json" --strict > /dev/null 2>&1
 ck "docx: six-column row, two-paragraph cell, soft line break" 0 "$?"
+python3 - "$TMP/tracked.docx" <<'PY'
+import sys, docx
+from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
+d = docx.Document()
+p = d.add_paragraph("The area under the curve in the external cohort was ")
+def wrap(tag, text, deleted=False):
+    w = OxmlElement(tag); w.set(qn("w:id"), "1"); w.set(qn("w:author"), "a")
+    r = OxmlElement("w:r"); t = OxmlElement("w:delText" if deleted else "w:t"); t.text = text
+    r.append(t); w.append(r); p._p.append(w)
+wrap("w:ins", "0.92"); wrap("w:del", "0.87", deleted=True)
+p.add_run(" (95% CI 0.88–0.95).")
+d.save(sys.argv[1])
+PY
+vjson '{"entries":[{"id":"R1","anchor":"The area under the curve in the external cohort was","values":[0.92]}]}'
+python3 "$V" --response "$TMP/resp_v.md" --manuscript "$TMP/tracked.docx" --values "$TMP/v.json" --strict > /dev/null 2>&1
+ck "docx tracked change: inserted value is read" 0 "$?"
+vjson '{"entries":[{"id":"R1","anchor":"The area under the curve in the external cohort was","values":[0.87]}]}'
+python3 "$V" --response "$TMP/resp_v.md" --manuscript "$TMP/tracked.docx" --values "$TMP/v.json" --strict > /dev/null 2>&1
+ck "docx tracked change: deleted value is not read -> exit 1" 1 "$?"
 fi
 printf '{"entries":[{"id":"R1","anchor":"— — — — ± ± ±","values":[0.92]}]}' > "$TMP/v.json"; vrun
 ck "anchor without four Latin/digit words exits 2 (no crash)" 2 "$?"

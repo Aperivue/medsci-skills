@@ -427,14 +427,31 @@ def read_blocks(path: Path) -> list:
     '|' table row a block of its own."""
     if path.suffix.lower() == ".docx":
         from docx import Document  # type: ignore  (read_text already required it)
+        from docx.oxml.ns import qn  # type: ignore
         doc = Document(str(path))
-        blocks = [p.text for p in doc.paragraphs]
+        T, BR, CR, TAB = qn("w:t"), qn("w:br"), qn("w:cr"), qn("w:tab")
+
+        def ptext(p) -> str:
+            """Paragraph text with tracked changes accepted: inserted runs (w:ins) are read,
+            deleted text (w:delText) is not. python-docx's .text drops the insertions, which
+            would hide exactly the new value a revision put in."""
+            out = []
+            for el in p._p.iter(T, BR, CR, TAB):
+                if el.tag == T:
+                    out.append(el.text or "")
+                elif el.tag == TAB:
+                    out.append("\t")
+                else:
+                    out.append("\n")
+            return "".join(out)
+
+        blocks = [ptext(p) for p in doc.paragraphs]
 
         def walk_table(tbl):
             for row in tbl.rows:
                 cells = []
                 for cell in row.cells:
-                    cells.append("\n".join(p.text for p in cell.paragraphs))
+                    cells.append("\n".join(ptext(p) for p in cell.paragraphs))
                     for t in cell.tables:
                         walk_table(t)
                 blocks.append(" | ".join(cells))
@@ -456,17 +473,17 @@ def read_blocks(path: Path) -> list:
     return blocks
 
 
-def _has_anchor(block: str, want: list) -> bool:
-    toks = _TOK.findall(_qm_normalize(block))
+def _has_anchor(toks: list, want: list) -> bool:
     n = len(want)
     return any(toks[k:k + n] == want for k in range(len(toks) - n + 1))
 
 
 def check_values(blocks: list, entries: list) -> list:
     findings = []
+    block_toks = [_TOK.findall(_qm_normalize(b)) for b in blocks]
     for e in entries:
         want = _TOK.findall(_qm_normalize(e["anchor"]))
-        windows = [b for b in blocks if _has_anchor(b, want)]
+        windows = [b for b, t in zip(blocks, block_toks) if _has_anchor(t, want)]
         exact = bool(windows)
         if not exact:   # fall back to the extraction-tolerant matcher, minor only
             windows = [b for b in blocks if match_quality(e["anchor"], b)["grade"] != "ABSENT"]

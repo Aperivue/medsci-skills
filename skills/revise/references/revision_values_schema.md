@@ -21,7 +21,7 @@ Any other key, a wrong type, an empty list, a non-finite number, or a value stri
 form (for example `"1,234"`: write `1234`) exits 2 and names the field.
 
 How a value is checked. The manuscript is cut into blocks: for a .docx, each paragraph (its soft
-line breaks included) and each table row (its cells joined, a multi-paragraph cell kept whole); for
+line breaks included, tracked changes read as accepted: inserted text in, deleted text out) and each table row (its cells joined, a multi-paragraph cell kept whole); for
 .md/.txt, each blank-line-separated block, with every `|` table row a block of its own. The anchor
 is found word by word (case, punctuation and markdown emphasis ignored) inside a block, and the
 declared values must be among that block's numbers — before or after the anchor, on any wrapped
@@ -46,3 +46,7 @@ value is reported as minor, never major.
 
 The gate checks numbers only. A flipped finding ("was significant" → "was not significant") is
 not compared; read each changed sentence for that by eye.
+
+Not read: text in .docx headers, footers, text boxes and content controls (an anchor there is
+`RESPONSE_VALUE_NOT_ASSESSED`); European `1.234,5` and Swiss `1'234` thousands; a full-width `＜`.
+A value written that way is reported missing — write the anchor on a plain body sentence.
