@@ -245,7 +245,26 @@ correct the response wording. `RESPONSE_QUOTE_UNRESOLVED` is **minor** and does 
 the quoted words are all present in order but separated by extraction debris (a reference column
 bled in from a two-column PDF, proof line numbers, a footnote marker, a hyphen split across a line).
 Look at it by eye; do not delete a quote because of this verdict — accurate quotes have nearly been
-deleted that way.
+deleted that way. When a body bracket holds only numbers (',' or ';' separated, ranges with the
+common dashes, '~', '--' or '---', spaces and pandoc's escaped `\[5\]` allowed), a numeric
+citation counts only as a whole element or inside a range: a claimed [5] is not satisfied by [15]. A bracket that mixes
+numbers and words ("[5, see also 8]", "[5, p. 12]") keeps the older prefix match, so "[15, p. 3]"
+still satisfies [5] there; check such citations by eye.
+The response letter is read as typed: a claim written in pandoc form ("\[5\]", "[5--7]") is not
+recognised as a citation claim and is not checked.
+
+Known limits: quote CONTENT is not compared. A quote that differs from the body's sentence by a
+number (the letter says 0.92, the body 0.87) or by a negator ("not", added or dropped) is graded
+like extraction debris, minor `RESPONSE_QUOTE_UNRESOLVED`, and `--strict` passes. A number
+comparison was tried and withdrawn: the same value written in two formats (mid-dot decimals,
+space-grouped thousands, a plain-text "10^9" against a superscript that extraction glues onto the
+base) read as a changed number and flagged accurate quotes. Read every UNRESOLVED quote by eye for a
+changed number or a flipped finding. A citation claim passes when ANY of its cited tokens is in the
+body, so "we now cite [15] and [16]" passes with only [15] inserted; check multi-citation claims by
+eye.
+A claim is read as a citation claim only when its verb says so ("cite", "reference"): "We added
+the citation [15]" or "We have added a reference to X [15]" is not checked. Read any added citation
+by eye; reading past the verb was withdrawn ("reference standard" fired).
 
 **If a reviewer called the manuscript too long or too dense, prove the body got shorter.**
 Answering a density comment point-by-point adds a sentence per point, so the revision that responds
