@@ -15,16 +15,16 @@ detectors; nothing checks it mechanically and most existing detectors do not fol
 | verdict | means |
 |---|---|
 | `MAJOR_CANDIDATE` | at least one Major claim fired. Takes precedence over the two below. |
-| `NOT_ASSESSED` | no Major claim, and the run could not check what it was asked to (no usable column, section or field was found). Never reported as `OK`. |
-| `OK` | every check ran and none raised a Major claim. Minor claims may exist; they are counted in the summary, not hidden. |
+| `NOT_ASSESSED` | no Major claim, and nothing could be checked (no usable column, section or field was found). Never reported as `OK`. |
+| `OK` | no Major claim, and the run could assess its input. A check that could not run is reported as a `<CHECK>_NOT_ASSESSED` claim and counted in the summary, not hidden; other Minor claims are counted the same way. |
 
 Do not add synonyms (`CLEAN`, `PASS`, `FLAG`, `REVIEW`, `MAJOR`, `INCOMPLETE`, ...). Write the
 verdict from string literals (`"MAJOR_CANDIDATE" if n_major else "OK"`, or a local variable
 assigned literals): the gate reads source, not output, and a verdict it cannot resolve fails.
 
 The gate does not see a verdict outside `summary`, a value chosen at run time for the wrong
-reason (an `OK` written for a run that skipped a check), or scripts outside the four name
-patterns. Its docstring lists these limits.
+reason (an `OK` written for a run that skipped a check without a `*_NOT_ASSESSED` claim), or
+scripts outside the four name patterns. Its docstring lists these limits.
 
 ## 2. Target for new or modified detectors
 
