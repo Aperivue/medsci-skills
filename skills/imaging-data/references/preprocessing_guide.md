@@ -58,7 +58,7 @@ Augmentation must keep the image clinically plausible and label-consistent.
 ## 5. Library wiring (integrate, don't reimplement)
 
 - **MONAI transforms** — `LoadImaged`, `Spacingd`, `ScaleIntensityRanged` (fixed HU window),
-  `NormalizeIntensityd` (z-score; set on the train subset), `RandFlipd`/`RandAffined`/`RandGaussianNoised`
+  `NormalizeIntensityd` (z-score; per-image by default — if you pass dataset `subtrahend`/`divisor`, compute them on the train subset), `RandFlipd`/`RandAffined`/`RandGaussianNoised`
   (train pipeline only).
 - **TorchIO** — `Resample`, `ZNormalization`, `HistogramStandardization` (fit `landmarks` on train),
   `RandomFlip`/`RandomElasticDeformation` (train only).

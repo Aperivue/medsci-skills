@@ -1993,13 +1993,13 @@
     },
     {
       "path": "skills/imaging-data/SKILL.md",
-      "size": 11253,
-      "sha256": "8d7328f9e9380b8f8b2de61a81ca9fc39b32b41bafea9525b1c0b6258b25ece6"
+      "size": 11267,
+      "sha256": "7e2e9b0da0b3f0a3e1e116ea51a2f8e282cdda6a04daad5328af7d1afca11be3"
     },
     {
       "path": "skills/imaging-data/references/preprocessing_guide.md",
-      "size": 5032,
-      "sha256": "117a3058a020b579ab332d2520d539bdf7513806f29522ee58f0cc277936a530"
+      "size": 5110,
+      "sha256": "3bfc89ee9e2a4fe5c6f545b26ba38d7ed56fe74d79f27a6986cef3ea588f604b"
     },
     {
       "path": "skills/imaging-data/scripts/check_dataset_profile.py",
@@ -3333,8 +3333,8 @@
     },
     {
       "path": "skills/model-assessment/references/metric_guide.md",
-      "size": 8539,
-      "sha256": "fda5d8f78a125daced3b7afd86b000ce301a2a6258b8507c467bc35836cb2bef"
+      "size": 8731,
+      "sha256": "a9f2fe3b72102b294d8d353e566e149902b621f73e61932c413cbc5ed78f82ee"
     },
     {
       "path": "skills/model-assessment/references/metric_selection_grounding.md",
@@ -3353,8 +3353,8 @@
     },
     {
       "path": "skills/model-assessment/references/validation_design.md",
-      "size": 14741,
-      "sha256": "677ced40fc34517f692d34ae57ebefc8f73e4db48fe689e3c48cda0b3971a29b"
+      "size": 14815,
+      "sha256": "965210d1cd5c8a7efeee8549e5514a751e31a2c5b548a48d5b2cd68e47e564b0"
     },
     {
       "path": "skills/model-assessment/scripts/check_explainability_report.py",
@@ -3653,8 +3653,8 @@
     },
     {
       "path": "skills/model-scaffold/scripts/scaffold.py",
-      "size": 59636,
-      "sha256": "836741889acff41ef936a55ef0141fba682486ace5c1785223e970bca4d01260"
+      "size": 59726,
+      "sha256": "d2f15e9c5d9c66088cba92943b9c9ccfaa0520b3dc92b95ce1903759d52b87fa"
     },
     {
       "path": "skills/model-scaffold/scripts/scaffold_challenge/expected/split_assignment.csv",
@@ -3713,8 +3713,8 @@
     },
     {
       "path": "skills/model-selection/references/segmentation.md",
-      "size": 10351,
-      "sha256": "147a14c73b413de0bc5dda0d815bda9ed178f90d64b2c4aca9cb3b0e6dd4fca6"
+      "size": 10408,
+      "sha256": "a8075baaa6619fcc2889987f815d07a27977c183a8c5eae2bbcd35f072087392"
     },
     {
       "path": "skills/model-selection/references/synthesis.md",

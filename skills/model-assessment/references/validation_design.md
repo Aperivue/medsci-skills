@@ -115,8 +115,8 @@ Two different quantities, not interchangeable:
   (Varoquaux & Cheplygina, *npj Digit Med* 2022; Kapoor & Narayanan 2023). This is training-run
   variability and is usually smaller than the sampling uncertainty (Bouthillier et al.,
   *MLSys* 2021). Report it **separately**, as an SD over ≥ 5 runs, when the claim is about the
-  training recipe or compares methods; three runs cannot estimate an SD. Never present a seed SD
-  as the CI of the headline: "AUROC 0.91 ± 0.01 (3 seeds)" understates an uncertainty that, with
+  training recipe or compares methods; three runs give a very imprecise SD (95% CI about 0.5-6 x
+  the observed SD; with five runs about 0.6-2.9 x). Never present a seed SD as the CI of the headline: "AUROC 0.91 ± 0.01 (3 seeds)" understates an uncertainty that, with
   60 positive test cases, is about ±0.04. For a frozen vendor or open-weights model there is no
   retraining to vary; fix and report the inference seed and the determinism caveat.
 

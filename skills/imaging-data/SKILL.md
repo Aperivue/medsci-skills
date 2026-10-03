@@ -38,7 +38,7 @@ Every profile figure comes from opening the files — never from a dataset's REA
 or memory. A README can be wrong about its own label indices; the labels cannot.
 
 **`--target-label` on a multi-structure atlas.** Foreground defaults to every non-zero index — the
-whole annotated anatomy. Measured on AMOS22, that pools to 3.2 % instead of the spleen's 0.2 %, so the
+whole annotated anatomy. Measured on the AMOS22 CT cases, that pools to 3.2 % instead of the spleen's 0.20 %, so the
 pooled figure sits above the 1 % imbalance threshold while the target sits far below it and the
 imbalance verdicts go quiet exactly where the risk is. Naming the target also makes `LABEL_EMPTY` mean
 *this case has no spleen*. Pass `--target-label all` for a genuinely multi-class study; leave it out
