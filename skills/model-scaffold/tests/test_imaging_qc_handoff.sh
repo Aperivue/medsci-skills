@@ -206,6 +206,15 @@ check "summary.n_major 2.0 with no claims blocks"   sev_case s_flt '' ', "summar
 sev_case s_nan '' ', "summary": {"n_major": "two"}' 0
 check "summary.n_major \"two\" -> UNREADABLE on stderr" grep -q "UNREADABLE QC FILE: .*non-integral summary.n_major" "$WORK/s_nan/stderr"
 check "detector matched case-insensitively (blocks)" sev_case s_case '{"verdict": "LABEL_EMPTY", "severity": "Major", "detail": "x"}' ', "detector": "Check_Dataset_Profile"' 1
+sev_case s_inf '' ', "summary": {"n_major": "inf"}' 0
+check "summary.n_major \"inf\" -> UNREADABLE, no traceback" bash -c "grep -q 'UNREADABLE QC FILE: .*summary.n_major' '$WORK/s_inf/stderr' && ! grep -q Traceback '$WORK/s_inf/stderr'"
+sev_case s_neg '' ', "summary": {"n_major": -1}' 0
+check "negative summary.n_major -> UNREADABLE" grep -q "UNREADABLE QC FILE: .*summary.n_major" "$WORK/s_neg/stderr"
+# a byte-identical copy under the recorded name at ANY base keeps the report read, even when a
+# different same-named file sits at an earlier base (all bases are checked, not the first hit)
+leak_proj l_fw; printf '%s\n' "$PM" > "$WORK/l_fw/manifests/pm_final.json"; printf '%s\n' "$PM_NAIVE" > "$WORK/l_fw/pm_final.json"
+leak_case l_fw 'pm_final.json'
+check "identical copy at a later base: report read (exit 1)" test "$?" -eq 1
 
 # (k) N4 + N5: ack hygiene
 ack_rc() { python3 "$SCAFFOLD" --manifest "$WORK/m.csv" --preprocessing-manifest "$WORK/major/preprocessing_manifest.json" \

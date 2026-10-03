@@ -1521,7 +1521,8 @@ def _read_qc_file(path):
             n_num = float(n) if not isinstance(n, bool) else None
         except (TypeError, ValueError):
             n_num = None
-        if n_num is None or n_num != n_num or n_num != int(n_num):
+        if (n_num is None or n_num != n_num or n_num in (float('inf'), float('-inf'))
+                or n_num != int(n_num) or n_num < 0):
             return "unreadable", f"{det} report with a non-integral summary.n_major ({_one_line(n)!r})"
         summary = dict(summary, n_major=int(n_num))
         doc = dict(doc, summary=summary)
@@ -1532,8 +1533,8 @@ def _read_qc_file(path):
 def _leakage_report_other_manifest(report_path, recorded, manifest):
     """The reason to skip a leakage report, or None to read it. Fail closed: skip ONLY when
     (1) the recorded manifest's file name differs from the scaffolded manifest's, (2) the recorded
-    path resolves to an existing file, and (3) that file's bytes differ from the scaffolded
-    manifest's. A copied project, a gate run from another directory, or a same-named report from
+    path resolves to an existing file, and (3) no base resolves it to a byte-identical copy of the
+    scaffolded manifest. A copied project, a gate run from another directory, or a same-named report from
     elsewhere is read (and its Major blocks) rather than guessed away."""
     rec = str(recorded).replace("\\", "/")
     rec_name = rec.rsplit("/", 1)[-1]
@@ -1545,16 +1546,21 @@ def _leakage_report_other_manifest(report_path, recorded, manifest):
         mine = manifest.read_bytes()
     except OSError:
         return None
+    # Every base is tried: one byte-identical candidate anywhere means the report may be about this
+    # manifest, so it is read; it is skipped only when some candidate exists and none is identical.
+    different = None
     for base in bases:
         cand = Path(rec) if base is None else base / rec
         if cand.is_file():
             try:
-                if cand.read_bytes() != mine:
-                    return (f"audits {_shown(cand)} ({rec_name}), a different manifest from "
-                            f"{_shown(manifest)}")
+                if cand.read_bytes() == mine:
+                    return None
             except OSError:
-                continue
-            return None
+                return None
+            different = different or cand
+    if different is not None:
+        return (f"audits {_shown(different)} ({rec_name}), a different manifest from "
+                f"{_shown(manifest)}")
     return None
 
 
