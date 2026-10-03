@@ -3263,8 +3263,8 @@
     },
     {
       "path": "skills/mllm-eval/SKILL.md",
-      "size": 6438,
-      "sha256": "9d518e319b571514136f09811d759a669419ac93375b0ca26f77cfae3c976a20"
+      "size": 6987,
+      "sha256": "af26264fb0d4507e423a7e55b6ff662c9ce8debe00f56a7931c3f0ef639117b9"
     },
     {
       "path": "skills/mllm-eval/references/evaluation_axes.md",
