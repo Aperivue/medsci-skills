@@ -3303,8 +3303,8 @@
     },
     {
       "path": "skills/model-assessment/SKILL.md",
-      "size": 16822,
-      "sha256": "df3082f1ecf12b0872e4e8342df40c83b028dea08f6d8b0caae4ae3294e084f5"
+      "size": 17741,
+      "sha256": "38e72392ab976b8a41ec98fcb0096dd0aa5ff727571394106ea9ab2196ad162b"
     },
     {
       "path": "skills/model-assessment/references/explainability_guide.md",
@@ -3333,8 +3333,8 @@
     },
     {
       "path": "skills/model-assessment/scripts/check_explainability_report.py",
-      "size": 10834,
-      "sha256": "4bf3967f8e26a35a0c54ebb420a4efac49c3efc2d6e9f7a8d856dfad45a2a1c4"
+      "size": 12772,
+      "sha256": "bce3d2356e74367b54f932036302934228fda401cc4c776a3c61fbf2c566e4c9"
     },
     {
       "path": "skills/model-assessment/scripts/check_explainability_report_challenge/expected/strong.txt",
@@ -3373,18 +3373,18 @@
     },
     {
       "path": "skills/model-assessment/scripts/check_split_leakage.py",
-      "size": 11655,
-      "sha256": "93450c7023f69f45724be51f3ad80429c97dd308663e626abcb4bccde610e18f"
+      "size": 13092,
+      "sha256": "0fe76ff04a1ffc1ba023245b7b49a28e8764c4540658ff0fe8a6669799d1b280"
     },
     {
       "path": "skills/model-assessment/scripts/check_split_leakage_challenge/expected/clean.txt",
-      "size": 358,
-      "sha256": "eeaa341e8bc7af61ec95dab02db41592780cb76e9083cd35b6584711c1101452"
+      "size": 395,
+      "sha256": "3eb969f169408d06c6ccf1482cfc3dcaeaf85f67bc7ff25d310adcb41800328e"
     },
     {
       "path": "skills/model-assessment/scripts/check_split_leakage_challenge/expected/leak.txt",
-      "size": 470,
-      "sha256": "85858999ec8eaf1dcfbe0c881a2c6f1ec15a33d1f58d62d52e31e814e1773e79"
+      "size": 507,
+      "sha256": "2abb7811658ea93e340918f2751733d204554d283182901a0c4fb3330d28306e"
     },
     {
       "path": "skills/model-assessment/scripts/check_split_leakage_challenge/fixture/split_seed.txt",
@@ -3413,8 +3413,8 @@
     },
     {
       "path": "skills/model-assessment/scripts/check_uncertainty_reporting.py",
-      "size": 13343,
-      "sha256": "e7b1b05c4fc1b1a2e7799c7942e342dca87571979d30d54d1904b58a8742f03d"
+      "size": 15599,
+      "sha256": "f66f0a686fb7061c816334832f8d2f7c3891b6727cc2fb5399c503ed6ed90005"
     },
     {
       "path": "skills/model-assessment/scripts/check_uncertainty_reporting_challenge/expected/strong.txt",

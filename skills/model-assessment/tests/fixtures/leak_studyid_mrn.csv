@@ -1,0 +1,5 @@
+study_id,patient_mrn,split
+S1,M1,train
+S2,M1,test
+S3,M2,train
+S4,M3,test

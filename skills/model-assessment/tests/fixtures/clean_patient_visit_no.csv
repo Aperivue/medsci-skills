@@ -1,0 +1,7 @@
+patient_id,patient_visit_no,split
+P1,1,train
+P1,2,train
+P2,1,val
+P2,2,val
+P3,1,test
+P3,2,test
