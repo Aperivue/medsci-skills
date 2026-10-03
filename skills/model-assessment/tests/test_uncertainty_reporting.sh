@@ -101,6 +101,16 @@ printf '{"deployment_claim":true,"uncertainty_method":"MC dropout","mc_dropout_a
 run "$TMP/mcd_ok.json"
 check "active 'MC dropout' -> no MCDROPOUT_DISABLED_AT_INFERENCE" no_verdict MCDROPOUT_DISABLED_AT_INFERENCE
 
+# reviewer counter-examples (clean on main): entropy / scaling / selective spellings are not in
+# the uncertainty_method vocabulary. The F2 contract keeps them an input error (exit 2), never a
+# Major and never a silent clearance; the message lists the accepted values.
+for m in "softmax entropy" "predictive entropy" "temperature scaling" "selective prediction"; do
+  printf '{"deployment_claim":true,"uncertainty_method":"%s","calibration_under_shift":true}' "$m" > "$TMP/rv.json"
+  python3 "$SCRIPT" --manifest "$TMP/rv.json" --strict --quiet >/dev/null 2>&1 && rc=0 || rc=$?
+  check "'$m' -> exit 2 (input error, not a Major)" test "${rc:-0}" -eq 2
+  check "'$m' -> error lists accepted values" bash -c "python3 '$SCRIPT' --manifest '$TMP/rv.json' --quiet 2>&1 >/dev/null | grep -q 'use one of'"
+done
+
 # --- challenge card verifier ---
 check "challenge verify.sh passes" bash "$CH/verify.sh"
 

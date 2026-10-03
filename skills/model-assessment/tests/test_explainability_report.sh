@@ -128,6 +128,14 @@ python3 "$SCRIPT" --manifest "$TMP/spelled.json" --out "$OUT" --strict --quiet >
 check "normalised spellings: exit 0 under --strict" test "$?" -eq 0
 check "normalised spellings: no INSUFFICIENT_SANITY" no_verdict INSUFFICIENT_SANITY
 
+# reviewer counter-examples (clean on main): free-text interpretation framings outside the
+# enumerated list stay an input error (exit 2) under the F5 contract, never a Major.
+for v in "visual explanation" "qualitative assessment" "localization of lesions"; do
+  printf '{"method": "grad-cam", "n_examples": 100, "cohort_level": true, "localization_metric": "iou", "sanity_checks": ["model_randomization", "data_randomization"], "interpretation": "%s"}' "$v" > "$TMP/rv_interp.json"
+  python3 "$SCRIPT" --manifest "$TMP/rv_interp.json" --strict --quiet >/dev/null 2>&1 && rc=0 || rc=$?
+  check "interpretation '$v' -> exit 2 (input error, not a Major)" test "${rc:-0}" -eq 2
+done
+
 # (7) the shipped challenge card passes
 check "challenge verify.sh passes" bash "$CH/verify.sh"
 

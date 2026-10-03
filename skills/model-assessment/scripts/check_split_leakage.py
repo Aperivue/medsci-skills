@@ -32,11 +32,10 @@ INPUTS
                id    : patient_id / subject_id / case_id / id / pid / mrn / studyid
                split : split / partition / set / subset / fold / phase / assignment
              Override with --id-col / --split-col. The chosen columns are printed.
-             When the auto-picked ID column is not itself a patient column (image_id,
-             study_id), shows no overlap, and another column that names the patient
-             (case, patient_mrn, participant_id, ...) and has more distinct values than
-             there are partitions does overlap, the choice is ambiguous and the gate
-             exits 2 naming both; pass --id-col.
+             When the auto-picked ID column's name does not say it is patient- or
+             subject-level (image_id, study_id), a Minor ID_COL_NOT_PATIENT_LEVEL
+             advisory asks you to confirm it or pass --id-col; it never changes the
+             exit code. Overlap is computed on the chosen column only.
   --seed     the split's random seed (int/str), to record reproducibility.
   --seed-file path to a file holding the seed (default: auto-detect split_seed.txt
              alongside --splits).
@@ -62,12 +61,10 @@ from pathlib import Path
 
 ID_HINTS = ("patient_id", "subject_id", "case_id", "patientid", "subjectid", "caseid",
             "patient", "subject", "id", "pid", "eid", "uid", "mrn", "studyid", "study_id")
-# Columns that name the PATIENT (compared on _norm()). The auto-picked ID column can be an
-# image- or study-level ID ("image_id" beside "case", "study_id" beside "patient_mrn");
-# set arithmetic on it then clears a patient whose images sit in train and test.
-PATIENT_COLS = ("patientid", "subjectid", "caseid", "participantid", "patient", "subject",
-                "case", "participant", "pid", "mrn", "eid")
-PATIENT_TOKENS = ("patient", "subject", "participant", "mrn")
+# Name tokens (compared on _norm()) that say an ID column is patient/subject level. An
+# auto-picked column without one (image_id, study_id, uid) may hold several rows per
+# patient, so a patient whose images sit in train and test would not show as overlap.
+PATIENT_LEVEL_TOKENS = ("patient", "subject", "participant", "case", "mrn", "pid")
 SPLIT_HINTS = ("split", "partition", "set", "subset", "fold", "phase", "assignment",
                "split_assignment", "data_split", "group_split")
 
@@ -105,24 +102,9 @@ def _pick(header: list[str], hints: tuple[str, ...]):
     return None
 
 
-def _names_patient(col: str) -> bool:
-    """True for a column that names the patient: 'case', 'patient_mrn', 'patientid' —
-    not 'patient_age' or 'patient_visit_no' (a patient token alone does not make an
-    identifier, and attribute suffixes such as no/num/code are not taken)."""
+def _names_patient_level(col: str) -> bool:
     n = _norm(col)
-    if n in PATIENT_COLS:
-        return True
-    return any(t in n for t in PATIENT_TOKENS) and (n.endswith("id") or "mrn" in n)
-
-
-def _overlaps(rows: list[dict], idc: str, spc: str) -> list[str]:
-    seen: dict[str, set[str]] = {}
-    for r in rows:
-        sid = (r.get(idc) or "").strip()
-        part = _canon_split(r.get(spc) or "")
-        if sid and part:
-            seen.setdefault(sid, set()).add(part)
-    return sorted(sid for sid, parts in seen.items() if len(parts) > 1)
+    return any(t in n for t in PATIENT_LEVEL_TOKENS)
 
 
 def _find_seed(splits_path: Path, rows: list[dict], header: list[str],
@@ -192,25 +174,6 @@ def analyze(splits: str, id_col: str | None, split_col: str | None,
 
     n_subjects = len(id_to_splits)
     overlapping = sorted(sid for sid, parts in id_to_splits.items() if len(parts) > 1)
-    if not id_col and not overlapping and not _names_patient(idc):
-        # The auto-picked column is not a patient column (e.g. image_id, study_id) and
-        # clears; a column that names the patient must agree. A column with no more
-        # distinct values than there are partitions (a case/control label, a sex code)
-        # is a label, not an identifier, and is not compared.
-        for alt in header:
-            if alt in (idc, spc) or not _names_patient(alt):
-                continue
-            n_alt = len({(r.get(alt) or "").strip() for r in rows} - {""})
-            if n_alt <= len(part_counts):
-                continue
-            alt_over = _overlaps(rows, alt, spc)
-            if alt_over:
-                sys.stderr.write(
-                    f"ERROR: ambiguous ID column: auto-picked '{idc}' shows no overlap, but "
-                    f"'{alt}' (which names the patient) has {len(alt_over)} value(s) in >= 2 "
-                    f"partitions (e.g. '{alt_over[0]}'); pass --id-col with the patient "
-                    f"identifier\n")
-                sys.exit(2)
     seed_val = _find_seed(p, rows, header, seed, seed_file)
 
     claims: list[dict] = []
@@ -243,6 +206,16 @@ def analyze(splits: str, id_col: str | None, split_col: str | None,
                        f"({', '.join(sorted(part_counts)) or 'none'}); this is not a "
                        f"train/val/test split"),
             "where": f"--splits split column '{spc}'",
+        })
+    if not id_col and not _names_patient_level(idc):
+        claims.append({
+            "verdict": "ID_COL_NOT_PATIENT_LEVEL",
+            "severity": "Minor",
+            "detail": (f"the auto-picked ID column '{idc}' does not name a patient or subject; "
+                       f"if one patient can have several '{idc}' values, overlap is not tested "
+                       f"at patient level. Confirm it, or pass --id-col with the patient "
+                       f"identifier"),
+            "where": f"--splits id column '{idc}'",
         })
 
     n_major = sum(1 for c in claims if c["severity"] == "Major")

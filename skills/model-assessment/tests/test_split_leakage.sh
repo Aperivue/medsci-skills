@@ -3,9 +3,10 @@
 # Synthetic, PII-free fixtures reproduce: (a) a patient that crosses train/test,
 # (b) column auto-detection (subject_id / partition), (c) a missing split seed,
 # (d) the --no-require-seed / --seed downgrades, (e) a single-partition file, and
-# (f) a seed read from a column, and (g) an auto-picked image/study-level ID column that
-# clears while a column naming the patient overlaps (exit 2), and (h) patient attribute or
-# label columns that span partitions beside a clean patient ID stay clean. Stdlib-only (python3).
+# (f) a seed read from a column, (g) the printed id/split columns and the Minor advisory for
+# an auto-picked ID column that is not patient-level (image_id / study_id; exit code
+# unchanged), and (h) patient attribute or label columns that span partitions stay clean.
+# Stdlib-only (python3).
 set -u
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -76,29 +77,52 @@ check "SINGLE_PARTITION detected" has_verdict SINGLE_PARTITION
 check "seed read from column" python3 -c "
 import json; d=json.load(open('$OUT')); assert d['seed']=='7', d['seed']"
 
-# (8) F1: the auto-picked ID column (image_id / study_id) must not clear a patient leak that a
-#     column naming the patient shows. The gate exits 2 and names both columns.
-python3 "$SCRIPT" --splits "$F/leak_imageid_case.csv" --seed 1 --strict --quiet >/dev/null 2>&1
-check "image_id + case, P1 in train and test: exit 2 (ambiguous ID column)" test "$?" -eq 2
-check "image_id + case: error names both columns" bash -c "python3 '$SCRIPT' --splits '$F/leak_imageid_case.csv' --seed 1 2>&1 >/dev/null | grep -q \"'image_id'.*'case'\""
-python3 "$SCRIPT" --splits "$F/leak_studyid_mrn.csv" --seed 1 --strict --quiet >/dev/null 2>&1
-check "study_id + patient_mrn, M1 in train and test: exit 2" test "$?" -eq 2
+# (8) F1: the ID column the gate audits is printed, and an auto-picked column whose name does
+#     not say it is patient-level (image_id / study_id) gets a Minor ID_COL_NOT_PATIENT_LEVEL
+#     advisory pointing at --id-col. The decision is main's: overlap is computed on the chosen
+#     column only, so the exit code is unchanged (no guessing from other columns).
+check "chosen ID column printed on stdout" bash -c "python3 '$SCRIPT' --splits '$F/clean_imageid_case.csv' --seed 1 | grep -q 'id_col=image_id  split_col=split'"
+python3 "$SCRIPT" --splits "$F/leak_imageid_case.csv" --seed 1 --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "image_id + case (P1 crosses): exit 0, as on main (advisory only)" test "$?" -eq 0
+check "image_id auto-picked: ID_COL_NOT_PATIENT_LEVEL advisory" has_verdict ID_COL_NOT_PATIENT_LEVEL
+check "ID_COL_NOT_PATIENT_LEVEL is Minor and suggests --id-col" python3 -c "
+import json; d=json.load(open('$OUT'))
+c=[c for c in d['claims'] if c['verdict']=='ID_COL_NOT_PATIENT_LEVEL'][0]
+assert c['severity']=='Minor' and '--id-col' in c['detail'], c
+assert d['summary']['n_major']==0, d['summary']"
+python3 "$SCRIPT" --splits "$F/leak_studyid_mrn.csv" --seed 1 --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "study_id + patient_mrn (M1 crosses): exit 0, as on main (advisory only)" test "$?" -eq 0
+check "study_id auto-picked: ID_COL_NOT_PATIENT_LEVEL advisory" has_verdict ID_COL_NOT_PATIENT_LEVEL
 python3 "$SCRIPT" --splits "$F/leak_imageid_case.csv" --id-col case --seed 1 --out "$OUT" --strict --quiet >/dev/null 2>&1
 check "--id-col case: exit 1 (PATIENT_OVERLAP)" test "$?" -eq 1
 check "--id-col case: PATIENT_OVERLAP" has_verdict PATIENT_OVERLAP
-# negative controls: the same layouts, patient-disjoint, stay clean exactly as before
+check "--id-col given: no ID_COL_NOT_PATIENT_LEVEL advisory" no_verdict ID_COL_NOT_PATIENT_LEVEL
+python3 "$SCRIPT" --splits "$F/leak_studyid_mrn.csv" --id-col patient_mrn --seed 1 --out "$OUT" --strict --quiet >/dev/null 2>&1
+check "--id-col patient_mrn: exit 1 (PATIENT_OVERLAP)" test "$?" -eq 1
 python3 "$SCRIPT" --splits "$F/clean_imageid_case.csv" --seed 1 --out "$OUT" --strict --quiet >/dev/null 2>&1
 check "image_id + case, disjoint: exit 0" test "$?" -eq 0
 check "image_id + case, disjoint: no PATIENT_OVERLAP" no_verdict PATIENT_OVERLAP
 python3 "$SCRIPT" --splits "$F/only_image_study_ids.csv" --seed 1 --strict --quiet >/dev/null 2>&1
 check "image_id + study_id, no patient column: exit 0 (unchanged)" test "$?" -eq 0
-check "chosen ID column printed on stdout" bash -c "python3 '$SCRIPT' --splits '$F/clean_imageid_case.csv' --seed 1 | grep -q 'id_col=image_id'"
+python3 "$SCRIPT" --splits "$CHF/splits_clean.csv" --out "$OUT" --quiet >/dev/null 2>&1
+check "patient_id auto-picked: no ID_COL_NOT_PATIENT_LEVEL advisory" no_verdict ID_COL_NOT_PATIENT_LEVEL
 
-# (9) Reviewer counter-examples: a clean patient column auto-picked beside a patient attribute
-#     column that spans partitions stays clean (exit 0), as on main.
-for fx in clean_patient_visit_no clean_subject_sex_code clean_participant_site_id clean_imageid_casecontrol; do
+# (9) Reviewer counter-examples, all clean on main: a clean patient column beside a patient
+#     attribute column that spans partitions, and image-level splits beside a label column
+#     named 'case' (binary, 3-class over train/test, 4-class over train/val/test). Each stays
+#     exit 0 under --strict with no Major; a patient-named ID column gets no advisory.
+for fx in clean_patient_visit_no clean_subject_sex_code clean_participant_site_id; do
   python3 "$SCRIPT" --splits "$F/$fx.csv" --seed 42 --out "$OUT" --strict --quiet >/dev/null 2>&1
-  check "$fx: exit 0 (patient attribute / label column not compared)" test "$?" -eq 0
+  check "$fx: exit 0 (patient attribute column not compared)" test "$?" -eq 0
+  check "$fx: no Major" python3 -c "
+import json; d=json.load(open('$OUT')); assert d['summary']['n_major']==0, d['summary']"
+  check "$fx: no ID_COL_NOT_PATIENT_LEVEL advisory" no_verdict ID_COL_NOT_PATIENT_LEVEL
+done
+for fx in clean_imageid_casecontrol clean_imageid_case3class clean_imageid_case4class; do
+  python3 "$SCRIPT" --splits "$F/$fx.csv" --seed 42 --out "$OUT" --strict --quiet >/dev/null 2>&1
+  check "$fx: exit 0 (label column 'case' not compared)" test "$?" -eq 0
+  check "$fx: no Major" python3 -c "
+import json; d=json.load(open('$OUT')); assert d['summary']['n_major']==0, d['summary']"
 done
 
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"

@@ -231,7 +231,9 @@ def analyze(report: str, task: str) -> dict:
                 "scheme (one-vs-rest, macro/micro averaging, pairwise, or the prevalence-weighted "
                 "Obuchowski index) — the aggregate is ambiguous and prevalence-sensitive without it")
     elif task == "detection":
-        if not has(text, "detection"):
+        # Whitespace (a Markdown line wrap included) is collapsed first so the image-word
+        # lookbehind before 'map' also sees "saliency\nmap".
+        if not has(re.sub(r"\s+", " ", text), "detection"):
             add("DETECTION_METRIC_MISSING", "Major",
                 "no detection metric (FROC / mAP / sensitivity-per-false-positive) is reported — "
                 "patient-level accuracy is not a detection metric")

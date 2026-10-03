@@ -53,7 +53,8 @@ python3 ${CLAUDE_SKILL_DIR}/scripts/check_split_leakage.py \
 
 `PATIENT_OVERLAP` (a patient in ≥ 2 partitions) and `MISSING_SEED` (an unreproducible split) are
 Major, `SINGLE_PARTITION` Minor — proven by set arithmetic on the ID column the gate prints as
-`id_col` (pass `--id-col` with the patient identifier when it is not the one). A design with patient overlap is never
+`id_col` (pass `--id-col` with the patient identifier when it is not the one; an auto-picked
+column whose name is not patient-level, such as `image_id`, gets a Minor `ID_COL_NOT_PATIENT_LEVEL`). A design with patient overlap is never
 approved. Then walk the leakage the table cannot show (Kapoor & Narayanan, *Patterns* 2023):
 preprocessing fit before the split (normalisation, resampling, foundation-model embeddings, ComBat
 harmonisation over the whole cohort — `/imaging-data` gates the declared pipeline), site / scanner /

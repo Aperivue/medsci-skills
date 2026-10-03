@@ -3303,8 +3303,8 @@
     },
     {
       "path": "skills/model-assessment/SKILL.md",
-      "size": 17352,
-      "sha256": "1c956f7f8a8a9c80edf3012625962a29c20e0efd432c2cf222a052906ff0a4b8"
+      "size": 17468,
+      "sha256": "be19f365d40b537c7fa7ad2ad08d28d7e1e587cfb07aa78ccbb52ae9660a7c4e"
     },
     {
       "path": "skills/model-assessment/references/explainability_guide.md",
@@ -3368,13 +3368,13 @@
     },
     {
       "path": "skills/model-assessment/scripts/check_metric_reporting.py",
-      "size": 19271,
-      "sha256": "fc8245cff93c9788a3b8b40dd6fe0031d8e8de4352f8851f36a2f9d04c615979"
+      "size": 19568,
+      "sha256": "6f1988a95b6cf203f82952cbcfc623f794b353ba7e2c64eb66db647ff1f92064"
     },
     {
       "path": "skills/model-assessment/scripts/check_split_leakage.py",
-      "size": 13982,
-      "sha256": "b231cafcedf749e056ff31bec44202960fd02ebbf3ccb337c18a5e980d5a38f9"
+      "size": 13092,
+      "sha256": "0fe76ff04a1ffc1ba023245b7b49a28e8764c4540658ff0fe8a6669799d1b280"
     },
     {
       "path": "skills/model-assessment/scripts/check_split_leakage_challenge/expected/clean.txt",

@@ -116,4 +116,17 @@ for m in "The instance segmentation mAP was 0.42" "The confidence mAP was 0.42";
   check "F4 control: '$m' passes --strict" ok0 "$W/det_ap2.md" detection
 done
 
+# reviewer counter-example: a saliency map wrapped across a Markdown line is still not mAP
+printf 'Lesion-level sensitivity was 0.88 (95%% CI 0.84-0.91). Figure 3 shows a saliency\nmap; a hit required IoU >= 0.3.\n' > "$W/det_wrap.md"
+python3 "$DET" --report "$W/det_wrap.md" --task detection --out "$OUT" --quiet >/dev/null 2>&1
+check "F4: 'saliency<newline>map' alone -> DETECTION_METRIC_MISSING" has DETECTION_METRIC_MISSING
+printf 'Lesion-level sensitivity was 0.88 (95%% CI 0.84-0.91). Figure 3 shows a heat  map; a hit required IoU >= 0.3.\n' > "$W/det_dblsp.md"
+python3 "$DET" --report "$W/det_dblsp.md" --task detection --out "$OUT" --quiet >/dev/null 2>&1
+check "F4: 'heat<two spaces>map' alone -> DETECTION_METRIC_MISSING" has DETECTION_METRIC_MISSING
+# controls: AP phrasings wrapped across a line still count (clean on main)
+for m in 'The instance segmentation\nmAP was 0.42' 'The mean average\nprecision was 0.42' 'The mAP\nwas 0.42'; do
+  printf "$m"' (95%% CI 0.38-0.46) at an IoU threshold of 0.5.\n' > "$W/det_ap3.md"
+  check "F4 control: wrapped '$m' passes --strict" ok0 "$W/det_ap3.md" detection
+done
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"; exit "$fail"
