@@ -47,12 +47,6 @@ Optional SSOT keys used only by the flow-identity checks:
                                       records from other sources (citation
                                       searching, registers) added BEFORE
                                       deduplication (PRISMA 2009 layout)
-    screening.reports_not_retrieved   reports sought but not retrieved
-    screening.other_methods_assessed  reports from other methods (citation
-                                      searching, registers, experts) assessed
-                                      at full text without passing through
-                                      deduplication / title-abstract screening
-                                      (PRISMA 2020 two-column flow)
     included.reports                  reports of included studies. Declare it
                                       to make assessed - excluded strict; without
                                       it a mismatch with k is NOT_ASSESSED (one
@@ -66,8 +60,6 @@ Optional SSOT keys used only by the flow-identity checks:
 What is checked
   1. Flow identities on the SSOT itself (each only when its keys are present):
        sum(databases) + other_sources_before_dedup >= after_dedup
-       after_dedup - title_abstract_excluded - reports_not_retrieved
-         + other_methods_assessed   = full_text_assessed
        full_text_assessed - full_text_excluded = included.reports
          (or = included.k when included.reports is absent; see below)
        included.reports             >= included.k
@@ -75,8 +67,6 @@ What is checked
      An identity whose gap could be explained by an optional key the SSOT does
      not declare is reported NOT_ASSESSED (not a failure, not a pass):
        - sum(databases) < after_dedup and other_sources_before_dedup absent;
-       - left side < full_text_assessed and other_methods_assessed absent;
-       - left side > full_text_assessed and reports_not_retrieved absent;
        - assessed - excluded != k and included.reports absent: one study may
          have several reports (> k), and one report may contribute several
          studies -- DTA cohorts / 2x2 tables, or an updated review's studies
@@ -84,6 +74,9 @@ What is checked
        - included.reports < included.k (a report may hold several studies);
        - sum(exclusion_reasons) > full_text_excluded (several reasons may be
          recorded per report). A smaller sum is a failure.
+     after_dedup -> full_text_assessed is NOT checked: the SSOT has no key for
+     records removed before screening (automation tools, other reasons), so a
+     correct PRISMA 2020 flow cannot be told from a wrong one.
   2. search_csv: CSV *records* (csv module; a quoted multi-line abstract is one
      record) across the glob = sum(databases).
   3. Each Markdown surface: a required number that does not occur at all is a
@@ -184,11 +177,8 @@ def flow_identity_checks(ssot: dict[str, Any]) -> list[dict[str, Any]]:
         return None if v is None else as_count(v, f"{sec_name}.{key}")
 
     dedup = opt(dedup_sec, "deduplication", "after_dedup")
-    ta_ex = opt(scr, "screening", "title_abstract_excluded")
     assessed = opt(scr, "screening", "full_text_assessed")
     ft_ex = opt(scr, "screening", "full_text_excluded")
-    not_retrieved = opt(scr, "screening", "reports_not_retrieved")
-    other_methods = opt(scr, "screening", "other_methods_assessed")
     k = opt(inc, "included", "k")
     reports = opt(inc, "included", "reports")
     out: list[dict[str, Any]] = []
@@ -221,26 +211,6 @@ def flow_identity_checks(ssot: dict[str, Any]) -> list[dict[str, Any]]:
                     "deduplication.other_sources_before_dedup (0 if none) "
                     "to assess this identity")
         add(name, status, tot, dedup, note)
-    if None not in (dedup, ta_ex, assessed):
-        lhs = dedup - ta_ex - (not_retrieved or 0) + (other_methods or 0)
-        name = "after_dedup - title_abstract_excluded"
-        if not_retrieved is not None:
-            name += " - reports_not_retrieved"
-        if other_methods is not None:
-            name += " + other_methods_assessed"
-        name += " = full_text_assessed"
-        status, note = strict(lhs, assessed), ""
-        if lhs < assessed and other_methods is None:
-            status = "NOT_ASSESSED"
-            note = ("full_text_assessed exceeds the database path by "
-                    f"{assessed - lhs}; declare screening.other_methods_assessed "
-                    "(0 if none) to assess this identity")
-        elif lhs > assessed and not_retrieved is None:
-            status = "NOT_ASSESSED"
-            note = ("database path exceeds full_text_assessed by "
-                    f"{lhs - assessed}; declare screening.reports_not_retrieved "
-                    "(0 if none) to assess this identity")
-        add(name, status, lhs, assessed, note)
     if None not in (assessed, ft_ex) and (reports is not None or k is not None):
         lhs = assessed - ft_ex
         if reports is not None:

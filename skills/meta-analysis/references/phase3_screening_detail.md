@@ -137,6 +137,8 @@ an artifact the lost studies had already dropped out of.
   several studies, e.g. DTA cohorts); `included.reports < included.k` is flagged for reading, not
   failed; a sum of exclusion reasons above `full_text_excluded` (several reasons per report) is
   `NOT_ASSESSED`, below it a FAIL.
+  The step `after_dedup -> full_text_assessed` is not checked: the SSOT has no key for records
+  removed before screening (automation tools, other reasons) in a PRISMA 2020 flow.
 - **Screening labels** must be one decision word (`Yes - include` exits 2, label named); a blank
   decision cell exits 2 as `<blank>`.
 - **Record IDs** are compared verbatim across screening and consensus, so `#12` vs `12` reads as

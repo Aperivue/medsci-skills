@@ -13,7 +13,7 @@
 #      k is NOT_ASSESSED (a report may hold several studies), never FAIL (B0).
 #   C. a search CSV with a quoted multi-line abstract: 2 records, 3 data lines;
 #      line counting matched an SSOT total of 3.
-#   F, G: see each block (F1/F2/F4/F6 are negative controls for two-column flows).
+#   F, G: see each block (F0/F6/F7/F8 are negative controls).
 # Negative controls: a consistent PRISMA flow whose prose carries "1,500" and a
 # multi-line CSV record (exit 0, no mismatch), and a structured-only SSOT with
 # no prose surface (verdict PASS, exit 0 even under --strict).
@@ -193,7 +193,7 @@ write_csv "$TMP/p" 20
 cat > "$TMP/p/prisma.yaml" <<'EOF'
 databases: {pubmed: 20}
 deduplication: {after_dedup: 20}
-screening: {title_abstract_excluded: 5, full_text_assessed: 15, full_text_excluded: 3, reports_not_retrieved: 0, other_methods_assessed: 0}
+screening: {title_abstract_excluded: 5, full_text_assessed: 15, full_text_excluded: 3}
 included: {k: 12}
 exclusion_reasons: {wrong_population: 3}
 surfaces:
@@ -208,51 +208,43 @@ assert r["verdict"] == "PASS" and r["not_assessed"] == [], r
 PY
 
 # --------------------------------------------------------------------------
-# F: PRISMA 2020 two-column flow. 90 after dedup - 70 TA-excluded = 20 database
-# reports, plus 5 from citation searching = 25 assessed.
-#   F1 (negative): other_methods_assessed undeclared -> the identity cannot be
-#       decided; NOT_ASSESSED, exit 0 (round 1 failed it, 20 vs 25).
-#   F2 (negative): declared 5 -> OK.
-#   F3 (positive): declared 2 -> FAIL (22 vs 25).
-#   F4 (negative): 2 reports not retrieved, key undeclared -> NOT_ASSESSED.
-#   F5 (positive): reports_not_retrieved declared 0 but the gap is 2 -> FAIL.
+# F: flow identities, one row each.
+#   F0 (negative, reviewer counterexample): a PRISMA 2020 flow where 100
+#       records were removed before screening by automation tools. The SSOT
+#       has no key for them, so after_dedup -> full_text_assessed is not
+#       checked at all (same as main); exit 0 with reports_not_retrieved 0 or 5.
 #   F6 (negative): 25 - 13 = 12 reports for k = 10 studies; included.reports
 #       undeclared -> NOT_ASSESSED, declared 12 -> OK.
+#   F7-F9: PRISMA 2009 records from other sources added before dedup.
 # --------------------------------------------------------------------------
 mkdir -p "$TMP/f"
 run_flow() {  # run_flow LABEL EXPECTED_EXIT IDENTITY_PREFIX EXPECTED_STATUS YAML
     printf '%s\n' "$5" > "$TMP/f/prisma.yaml"
     python3 "$SCRIPT" --ssot "$TMP/f/prisma.yaml" --project-root "$TMP/f" --json > "$TMP/f/out.json"
     assert_exit "$1" "$2" $?
-    python3 - "$TMP/f/out.json" "$3" "$4" <<'PY' || { echo "  FAIL  $1: identity status"; fail=$((fail + 1)); }
+    python3 - "$TMP/f/out.json" "$3" "$4" <<'PY2' || { echo "  FAIL  $1: identity status"; fail=$((fail + 1)); }
 import json, sys
 r = json.load(open(sys.argv[1]))
 rows = [c for c in r["flow_identities"] if c["identity"].startswith(sys.argv[2])]
 assert len(rows) == 1 and rows[0]["status"] == sys.argv[3], r["flow_identities"]
-PY
+PY2
 }
-run_flow "F1: other-methods reports, key undeclared (NOT_ASSESSED)" 0 "after_dedup" NOT_ASSESSED \
-'deduplication: {after_dedup: 90}
-screening: {title_abstract_excluded: 70, full_text_assessed: 25, full_text_excluded: 15}
-included: {k: 10}'
-python3 "$SCRIPT" --ssot "$TMP/f/prisma.yaml" --project-root "$TMP/f" --strict > /dev/null
-assert_exit "F1: --strict, identity NOT_ASSESSED (exit 3)" 3 $?
-run_flow "F2: other_methods_assessed 5 declared (PASS)" 0 "after_dedup" OK \
-'deduplication: {after_dedup: 90}
-screening: {title_abstract_excluded: 70, full_text_assessed: 25, full_text_excluded: 15, other_methods_assessed: 5}
-included: {k: 10}'
-run_flow "F3: other_methods_assessed 2 declared, gap 5 (FAIL)" 1 "after_dedup" FAIL \
-'deduplication: {after_dedup: 90}
-screening: {title_abstract_excluded: 70, full_text_assessed: 25, full_text_excluded: 15, other_methods_assessed: 2}
-included: {k: 10}'
-run_flow "F4: reports not retrieved, key undeclared (NOT_ASSESSED)" 0 "after_dedup" NOT_ASSESSED \
-'deduplication: {after_dedup: 90}
-screening: {title_abstract_excluded: 70, full_text_assessed: 18, full_text_excluded: 8}
-included: {k: 10}'
-run_flow "F5: reports_not_retrieved 0 declared, gap 2 (FAIL)" 1 "after_dedup" FAIL \
-'deduplication: {after_dedup: 90}
-screening: {title_abstract_excluded: 70, full_text_assessed: 18, full_text_excluded: 8, reports_not_retrieved: 0}
-included: {k: 10}'
+for nr in 0 5; do
+    printf '%s\n' \
+'databases: {pubmed: 600, embase: 400}' \
+'deduplication: {after_dedup: 800}' \
+"screening: {title_abstract_excluded: 620, reports_not_retrieved: $nr, full_text_assessed: 80, full_text_excluded: 65}" \
+'included: {k: 15}' \
+'exclusion_reasons: {a: 40, b: 25}' > "$TMP/f/prisma.yaml"
+    python3 "$SCRIPT" --ssot "$TMP/f/prisma.yaml" --project-root "$TMP/f" --json > "$TMP/f/out.json"
+    assert_exit "F0: 100 removed before screening, not_retrieved $nr (exit 0)" 0 $?
+    python3 - "$TMP/f/out.json" <<'PY2' || { echo "  FAIL  F0: no after_dedup identity, no mismatch"; fail=$((fail + 1)); }
+import json, sys
+r = json.load(open(sys.argv[1]))
+assert r["mismatches"] == [], r["mismatches"]
+assert not any(c["identity"].startswith("after_dedup") for c in r["flow_identities"]), r
+PY2
+done
 run_flow "F6a: 12 reports vs k 10, reports undeclared (NOT_ASSESSED)" 0 "full_text_assessed" NOT_ASSESSED \
 'screening: {full_text_assessed: 25, full_text_excluded: 13}
 included: {k: 10}'
