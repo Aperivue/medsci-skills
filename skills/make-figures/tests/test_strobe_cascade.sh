@@ -75,6 +75,32 @@ out8="$(python3 "$CHK" --config "$FX/flow_graph_excl_total_first_imbalanced.yaml
 ck "total stated first, imbalanced: exit 1" 1 "$rc"
 printf '%s\n' "$out8" | grep -q "1,000 - 100 = 900 but the next box 'b' says 880" && ck "imbalance reads the stated total 100" yes yes || ck "imbalance reads the stated total 100" yes no
 
+# (5c) Every box on the link follows the same total rule, not only the exclusion box. A source
+#      or next box that lists its parts with no stated total (PRISMA 2020 identification box,
+#      sub-cohorts) has an unknown total: the link is NOT_ASSESSED, reported, and never a
+#      CASCADE_IMBALANCE. All of these close; main cleared them and they must stay unflagged.
+for f in prisma2020_ident sources_first_line next_subcohorts next_two_counts excl_beside_cohort; do
+  out9="$(python3 "$CHK" --config "$FX/flow_graph_$f.yaml" --strict 2>&1)"; rc=$?
+  ck "$f: not flagged (exit 2 = not checked)" 2 "$rc"
+  printf '%s\n' "$out9" | grep -q 'CASCADE_IMBALANCE' && ck "$f: no CASCADE_IMBALANCE" no yes || ck "$f: no CASCADE_IMBALANCE" no no
+  printf '%s\n' "$out9" | grep -q '^NOT_ASSESSED: ' && ck "$f: link reported NOT_ASSESSED" yes yes || ck "$f: link reported NOT_ASSESSED" yes no
+  python3 "$CHK" --config "$FX/flow_graph_$f.yaml" >/dev/null 2>&1; ck "$f: report-only exits 0" 0 "$?"
+done
+# A stated total (a count alone on the first or last line that equals the sum of the others)
+# is read, so the link is still evaluated: closes -> 0, does not close -> 1 naming the total.
+python3 "$CHK" --config "$FX/flow_graph_ident_total_last.yaml" --strict >/dev/null 2>&1
+ck "source box with total on its last line: closes (exit 0)" 0 "$?"
+for f in ident_total_last_imbalanced ident_total_first_imbalanced; do
+  out10="$(python3 "$CHK" --config "$FX/flow_graph_$f.yaml" --strict 2>&1)"; rc=$?
+  ck "$f: exit 1" 1 "$rc"
+  printf '%s\n' "$out10" | grep -q "'ident' 2,000 - 300 = 1,700 but the next box 'screened' says 1,650" \
+    && ck "$f: reads the stated total 2,000" yes yes || ck "$f: reads the stated total 2,000" yes no
+done
+# The PRISMA exemplar's last step ("included" lists 28 and 24) is reported, not evaluated.
+python3 "$CHK" --config "$HERE/../references/exemplar_diagrams/prisma/template_input.yaml" 2>&1 \
+  | grep -q "^NOT_ASSESSED: .*'ft_assessed'" && ck "prisma exemplar: two-count box link NOT_ASSESSED" yes yes \
+  || ck "prisma exemplar: two-count box link NOT_ASSESSED" yes no
+
 # (6) A check that could not run is never an OK: unrecognised schema -> exit 2 (with or without
 #     --strict); no evaluable exclusion link -> exit 2 under --strict.
 python3 "$CHK" --config "$FX/figure1_flow.yaml" >/dev/null 2>&1; ck "unrecognised schema exits 2" 2 "$?"

@@ -34,8 +34,9 @@ import re
 import sys
 from pathlib import Path
 
-# The box TOTAL is the first "n = X" / "N = X" in the box text — the parenthetical after the
-# label ("Enrolled (n = 10,000)", "Excluded (n = 500):"). Sub-bullet counts come after it.
+# Spine schema: the box TOTAL is the first "n = X" / "N = X" in the box text — the parenthetical
+# after the label ("Enrolled (n = 10,000)", "Excluded (n = 500):"). Sub-bullet counts come after
+# it. The nodes/edges schema reads totals with box_total() instead.
 _COUNT_RE = re.compile(r"[nN]\s*=\s*([\d,]+)")
 
 
@@ -47,24 +48,39 @@ def extract_count(text: str | None) -> int | None:
     return int(m.group(1).replace(",", "")) if m else None
 
 
-def exclusion_total(text: str | None) -> int | None:
-    """Total of a nodes/edges exclusion box, or None when the label states no total.
+def box_total(text: str | None) -> int | None:
+    """Total of a nodes/edges box (flow or exclusion), or None when the label states no
+    unambiguous total.
 
-    An exclusion box often lists its reasons ("Excluded:\\n- Age < 18 (n = 60)\\n- Missing
-    imaging (n = 40)") with no total of its own; reading the first sub-count as the total would
-    flag a cascade that closes. A total is read only when the label has exactly one count, or
-    when its first line carries exactly one count (the stated total) and the rest come on later
-    lines. Anything else is an unknown total and the link is skipped, never guessed.
+    A box often lists its parts with no total of its own: an exclusion box listing reasons
+    ("Excluded:\\n- Age < 18 (n = 60)\\n- Missing imaging (n = 40)"), or a PRISMA 2020
+    identification box listing sources ("Records identified from:\\nDatabases (n = 1,800)
+    \\nRegisters (n = 200)"). Reading the first sub-count as the total would flag a cascade that
+    closes. A total is read only when the label has exactly one count, or when a count standing
+    alone on the first or the last line equals the sum of every other count in the label (a stated
+    total with its breakdown). Anything else is an unknown total: the link is not assessed, never
+    guessed.
     """
     if not text:
         return None
     text = str(text).replace("\\n", "\n")
-    counts = _COUNT_RE.findall(text)
+    counts = [int(c.replace(",", "")) for c in _COUNT_RE.findall(text)]
     if not counts:
         return None
-    if len(counts) > 1 and len(_COUNT_RE.findall(text.split("\n", 1)[0])) != 1:
-        return None
-    return int(counts[0].replace(",", ""))
+    if len(counts) == 1:
+        return counts[0]
+    lines = [ln for ln in text.split("\n") if ln.strip()]
+    found = set()
+    for line, idx in ((lines[0], 0), (lines[-1], len(counts) - 1)):
+        if len(_COUNT_RE.findall(line)) != 1:
+            continue
+        if counts[idx] == sum(counts) - counts[idx]:
+            found.add(counts[idx])
+    return found.pop() if len(found) == 1 else None
+
+
+# Kept for callers of the previous name: an exclusion box follows the same total rule.
+exclusion_total = box_total
 
 
 def _check_spine(cfg: dict) -> tuple[list[dict], int]:
@@ -112,8 +128,9 @@ def check_cascade(cfg: dict) -> list[dict]:
     return _check_spine(cfg)[0]
 
 
-def _check_graph(cfg: dict) -> tuple[list[dict], int]:
-    """nodes/edges schema (generate_flow_diagram.R). Returns (findings, links checked).
+def _check_graph(cfg: dict) -> tuple[list[dict], int, list[str]]:
+    """nodes/edges schema (generate_flow_diagram.R). Returns (findings, links checked,
+    links not assessed).
 
     An exclusion is a node reached from box A by a ``style: dashed`` edge. Two attachment
     conventions are in use: the exclusion sits beside the box it is subtracted FROM (A - excl =
@@ -121,12 +138,16 @@ def _check_graph(cfg: dict) -> tuple[list[dict], int]:
     A convention is evaluable only on a linear step (one solid child that has one solid parent,
     or one solid parent that has one solid child) with every count extractable, so a branching
     step is never read as a cascade. The link passes when any evaluable convention closes and is
-    flagged only when at least one is evaluable and none closes.
+    flagged only when at least one is evaluable and none closes. Every box count, on either
+    side of the exclusion and in the exclusion itself, is read with ``box_total``; a link whose
+    boxes have no unambiguous total (several ``n = X`` and no stated total) is NOT ASSESSED and
+    reported as such, never evaluated from a sub-count.
     """
     nodes = [n for n in (cfg.get("nodes") or []) if isinstance(n, dict) and n.get("id") is not None]
     edges = [e for e in (cfg.get("edges") or []) if isinstance(e, dict)]
-    counts = {n["id"]: extract_count(n.get("label")) for n in nodes}
+    counts = {n["id"]: box_total(n.get("label")) for n in nodes}
     labels = {n["id"]: n.get("label") for n in nodes}
+    has_count = {k: extract_count(v) is not None for k, v in labels.items()}
     solid_children: dict = {}
     solid_parents: dict = {}
     excl_of: dict = {}
@@ -140,34 +161,58 @@ def _check_graph(cfg: dict) -> tuple[list[dict], int]:
             solid_children.setdefault(frm, []).append(to)
             solid_parents.setdefault(to, []).append(frm)
 
+    def ambiguous(ids: list) -> list:
+        """Boxes that carry counts but no unambiguous total."""
+        return [x for x in ids if counts.get(x) is None and has_count.get(x)]
+
     findings: list[dict] = []
     checked = 0
+    not_assessed: list[str] = []
     for n in nodes:
         aid = n["id"]
         if aid not in excl_of:
             continue
-        excls = [exclusion_total(labels.get(x)) for x in excl_of[aid]]
+        excls = [counts.get(x) for x in excl_of[aid]]
         a_n = counts.get(aid)
+        kids = solid_children.get(aid, [])
+        pars = solid_parents.get(aid, [])
+        linear_kid = len(kids) == 1 and len(solid_parents.get(kids[0], [])) == 1
+        linear_par = len(pars) == 1 and len(solid_children.get(pars[0], [])) == 1
         if a_n is None or any(x is None for x in excls):
+            amb = ambiguous([aid] + list(excl_of[aid]))
+            if amb and (linear_kid or linear_par):
+                not_assessed.append(f"exclusion(s) {excl_of[aid]} of '{aid}': no unambiguous "
+                                    f"total in {amb} (several 'n = X', no stated total)")
             continue                        # never guess a missing count
         total = sum(excls)
         tried = []                          # (description, expected, actual)
-        kids = solid_children.get(aid, [])
-        if (len(kids) == 1 and len(solid_parents.get(kids[0], [])) == 1
-                and counts.get(kids[0]) is not None):
+        amb = []
+        if linear_kid:
             b = kids[0]
-            tried.append((f"'{aid}' {a_n:,} - {total:,} = {a_n - total:,} but the next box "
-                          f"'{b}' says {counts[b]:,}", a_n - total, counts[b]))
-        pars = solid_parents.get(aid, [])
-        if (len(pars) == 1 and len(solid_children.get(pars[0], [])) == 1
-                and counts.get(pars[0]) is not None):
+            if counts.get(b) is not None:
+                tried.append((f"'{aid}' {a_n:,} - {total:,} = {a_n - total:,} but the next box "
+                              f"'{b}' says {counts[b]:,}", a_n - total, counts[b]))
+            else:
+                amb += ambiguous([b])
+        if linear_par:
             q = pars[0]
-            tried.append((f"the previous box '{q}' {counts[q]:,} - {total:,} = "
-                          f"{counts[q] - total:,} but '{aid}' says {a_n:,}", counts[q] - total, a_n))
+            if counts.get(q) is not None:
+                tried.append((f"the previous box '{q}' {counts[q]:,} - {total:,} = "
+                              f"{counts[q] - total:,} but '{aid}' says {a_n:,}",
+                              counts[q] - total, a_n))
+            else:
+                amb += ambiguous([q])
+        closes = any(exp == act for _, exp, act in tried)
+        if amb and not closes:
+            # One side of the step has no unambiguous total, so the convention that would have
+            # used it is unknown; a non-closing reading of the other side proves nothing.
+            not_assessed.append(f"exclusion(s) {excl_of[aid]} of '{aid}': no unambiguous "
+                                f"total in {amb} (several 'n = X', no stated total)")
+            continue
         if not tried:
             continue
         checked += 1
-        if any(exp == act for _, exp, act in tried):
+        if closes:
             continue
         findings.append({
             "after": aid,
@@ -175,20 +220,20 @@ def _check_graph(cfg: dict) -> tuple[list[dict], int]:
             "detail": (f"flow cascade does not close at the exclusion(s) {excl_of[aid]} of '{aid}': "
                        + "; ".join(d for d, _, _ in tried)),
         })
-    return findings, checked
+    return findings, checked, not_assessed
 
 
-def check_config(cfg: object) -> tuple[str | None, list[dict], int]:
-    """Dispatch on schema: (schema name, or None when unrecognised; findings; links checked)."""
+def check_config(cfg: object) -> tuple[str | None, list[dict], int, list[str]]:
+    """Dispatch on schema: (schema name, or None when unrecognised; findings; links checked;
+    links not assessed)."""
     if not isinstance(cfg, dict):
-        return None, [], 0
+        return None, [], 0, []
     if isinstance(cfg.get("spine"), list):
         f, c = _check_spine(cfg)
-        return "spine", f, c
+        return "spine", f, c, []
     if isinstance(cfg.get("nodes"), list) and isinstance(cfg.get("edges"), list):
-        f, c = _check_graph(cfg)
-        return "nodes/edges", f, c
-    return None, [], 0
+        return ("nodes/edges",) + _check_graph(cfg)
+    return None, [], 0, []
 
 
 def _load(path: Path) -> dict:
@@ -215,12 +260,14 @@ def main() -> int:
     if not path.is_file():
         sys.stderr.write(f"ERROR: config not found: {a.config}\n")
         return 2
-    schema, findings, checked = check_config(_load(path))
+    schema, findings, checked, not_assessed = check_config(_load(path))
     if schema is None:
         sys.stderr.write(f"ERROR: unrecognised config schema in {a.config}: expected a 'spine' "
                          "list (build_strobe_template.py) or 'nodes' + 'edges' lists "
                          "(generate_flow_diagram.R); nothing was checked.\n")
         return 2
+    for na in not_assessed:
+        print(f"NOT_ASSESSED: {na}")
     if findings:
         for f in findings:
             print(f"CASCADE_IMBALANCE: {f['detail']}")
@@ -228,9 +275,11 @@ def main() -> int:
     if checked == 0:
         print(f"NOT CHECKED: no evaluable exclusion link in {a.config} ({schema} schema); "
               "the cascade closure could not be verified (a link is skipped when a box has no "
-              "'n = X', an exclusion box states no total on its first line, or the step branches).")
+              "'n = X', a box lists several 'n = X' with no stated total, or the step branches).")
         return 2 if a.strict else 0
-    print(f"OK: exclusion cascade closes at every declared link ({checked} checked, {schema} schema).")
+    extra = f", {len(not_assessed)} not assessed" if not_assessed else ""
+    print(f"OK: exclusion cascade closes at every evaluated link ({checked} checked{extra}, "
+          f"{schema} schema).")
     return 0
 
 
