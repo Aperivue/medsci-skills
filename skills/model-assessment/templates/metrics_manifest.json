@@ -1,0 +1,10 @@
+{
+  "task": "segmentation",
+  "metrics": ["dice", "hd95", "nsd"],
+  "ci_reported": true,
+  "classification": {"n_classes": 2, "averaging": "none"},
+  "detection": {"match_criterion": "iou_threshold", "threshold": 0.5},
+  "interactive": {"interaction_axis": "none", "initial_vs_converged": false, "per_case_time": false},
+  "generative": {"downstream_task": "none"},
+  "notes": "List only metrics the Results actually report. Sub-objects for other tasks are read but only the task's own checks run. Use \"none\" for absent and \"other:<description>\" for a value not listed."
+}

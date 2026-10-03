@@ -1,0 +1,1 @@
+{"task": "segmentation", "metrics": ["dice", "pixel_accuracy"], "ci_reported": true}

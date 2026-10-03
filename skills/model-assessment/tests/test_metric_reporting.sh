@@ -114,4 +114,97 @@ for m in 'The instance segmentation\nmAP was 0.42' 'The mAP\nwas 0.42'; do
   check "control: wrapped '$m' passes --strict" ok0 "$W/det_ap3.md" detection
 done
 
+# --- manifest mode: declared metrics instead of prose keywords -----------------------------
+mrun(){ python3 "$DET" --manifest "$1" --out "$OUT" --strict --quiet >/dev/null 2>&1; }
+mrun "$F/manifest_seg_bad.json"
+check "manifest seg_bad exits 1" test "$?" -eq 1
+check "  PIXEL_ACCURACY_SEG" has PIXEL_ACCURACY_SEG
+check "  NO_BOUNDARY_METRIC" has NO_BOUNDARY_METRIC
+check "  mode=manifest" python3 -c "import json;assert json.load(open('$OUT'))['mode']=='manifest'"
+mrun "$F/manifest_seg_good.json"
+check "manifest seg_good exits 0" test "$?" -eq 0
+mrun "$F/manifest_det_no_match.json"
+check "manifest detection without match criterion exits 1" test "$?" -eq 1
+check "  DETECTION_METRIC_MISSING" has DETECTION_METRIC_MISSING
+mrun "$F/manifest_clf_bad.json"
+check "manifest accuracy + sensitivity only -> ACCURACY_ONLY" has ACCURACY_ONLY
+
+mj(){ printf '%s' "$1" > "$W/m.json"; mrun "$W/m.json"; }
+# the prose Known limits, declared: negated boundary metric, negated FROC, saliency map, Decathlon
+mj '{"task":"segmentation","metrics":["dice"],"ci_reported":true}'
+check "Dice with no boundary metric declared -> NO_BOUNDARY_METRIC" has NO_BOUNDARY_METRIC
+mj '{"task":"detection","metrics":["sensitivity"],"detection":{"match_criterion":"iou_threshold"},"ci_reported":true}'
+check "detection with no FROC/mAP declared -> DETECTION_METRIC_MISSING" has DETECTION_METRIC_MISSING
+mj '{"task":"detection","metrics":["map"],"detection":{"match_criterion":"IoU threshold","threshold":0.5},"ci_reported":true}'
+check "mAP + IoU threshold -> exit 0" test "$?" -eq 0
+mj '{"task":"classification","metrics":["accuracy","sensitivity","specificity"],"ci_reported":true}'
+check "accuracy + sensitivity + specificity -> no ACCURACY_ONLY" no ACCURACY_ONLY
+mj '{"task":"classification","metrics":["AUC","accuracy"],"ci_reported":true}'
+check "'AUC' folds to auroc -> AUPRC_MISSING (Minor)" has AUPRC_MISSING
+mj '{"task":"classification","metrics":["auroc","auprc"],"classification":{"n_classes":3},"ci_reported":true}'
+check "3 classes without averaging -> MULTICLASS_NO_AVERAGING" has MULTICLASS_NO_AVERAGING
+mj '{"task":"classification","metrics":["auroc","auprc"],"classification":{"n_classes":3,"averaging":["one-vs-rest","macro"]},"ci_reported":true}'
+check "3 classes with one-vs-rest macro -> clean" no MULTICLASS_NO_AVERAGING
+mj '{"task":"interactive","metrics":["dice","nsd"],"ci_reported":true}'
+check "interactive without interaction axis -> exit 1" test "$?" -eq 1
+check "  INTERACTIVE_NO_INTERACTION_COUNT" has INTERACTIVE_NO_INTERACTION_COUNT
+check "  INTERACTIVE_NO_TIME" has INTERACTIVE_NO_TIME
+mj '{"task":"interactive","metrics":["dice","hd95","noc"],"interactive":{"interaction_axis":"interactions_to_threshold","initial_vs_converged":true,"per_case_time":true},"ci_reported":true}'
+check "interactive complete -> exit 0" test "$?" -eq 0
+mj '{"task":"generative","metrics":["psnr","ssim"],"ci_reported":true}'
+check "generative similarity only -> GENERATIVE_NO_DOWNSTREAM" has GENERATIVE_NO_DOWNSTREAM
+mj '{"task":"generative","metrics":["psnr","ssim"],"generative":{"downstream_task":"segmentation"},"ci_reported":true}'
+check "generative with downstream task -> exit 0" test "$?" -eq 0
+mj '{"task":"segmentation","metrics":["dice","hd95"]}'
+check "ci_reported missing -> CI_MISSING (Minor)" has CI_MISSING
+# other: escape hatch
+mj '{"task":"segmentation","metrics":["dice","other: ASSD"],"ci_reported":true}'
+check "other: metric is recorded but does not satisfy the boundary check" has NO_BOUNDARY_METRIC
+check "  UNLISTED_METHOD reported" has UNLISTED_METHOD
+mj '{"task":"detection","metrics":["froc"],"detection":{"match_criterion":"other: within 5 mm of the lesion centre"},"ci_reported":true}'
+check "other: match criterion covers the field (exit 0)" test "$?" -eq 0
+# input errors exit 2 and never 1
+mj '{"task":"segmentation","metrics":["dice","boundary_f1"]}'
+check "off-list metric exits 2" test "$?" -eq 2
+mj '{"task":"segmentation","metrics":"dice","ci_reported":"yes"}'
+check "non-boolean ci_reported exits 2" test "$?" -eq 2
+mj '{"task":"segmentation","metrix":["dice"]}'
+check "misspelled top-level key exits 2" test "$?" -eq 2
+mj '{"task":"segmentation","detection":{"iou":0.5}}'
+check "unknown sub-key exits 2" test "$?" -eq 2
+mj '{"task":"other: registration","metrics":["dice"]}'
+check "task other: exits 2" test "$?" -eq 2
+mj '{"task":"classification","classification":{"n_classes":1}}'
+check "n_classes < 2 exits 2" test "$?" -eq 2
+mj '{"task":"detection","metrics":["froc"],"detection":{"match_criterion":"iou_threshold","threshold":Infinity}}'
+check "Infinity exits 2" test "$?" -eq 2
+mj '{"task":"segmentation","metrics":["none","dice"]}'
+check "'none' mixed with a metric exits 2" test "$?" -eq 2
+python3 -c "print('{\"notes\":'+'['*100000+']'*100000+'}')" > "$W/deep.json"
+python3 "$DET" --manifest "$W/deep.json" --task segmentation --quiet >/dev/null 2>&1
+check "deeply nested JSON exits 2" test "$?" -eq 2
+python3 -c "print('{\"task\":\"classification\",\"classification\":{\"n_classes\":'+'9'*5000+'}}')" > "$W/big.json"
+python3 "$DET" --manifest "$W/big.json" --quiet >/dev/null 2>&1
+check "5000-digit integer exits 2" test "$?" -eq 2
+python3 -c "print('{\"task\":\"detection\",\"metrics\":[\"froc\"],\"detection\":{\"match_criterion\":\"iou_threshold\",\"threshold\":1'+'0'*400+'},\"ci_reported\":true}')" > "$W/hugeint.json"
+python3 "$DET" --manifest "$W/hugeint.json" --quiet >/dev/null 2>&1
+check "400-digit integer threshold does not crash (exit 0)" test "$?" -eq 0
+mj '{"metrics":["dice","hd95"],"ci_reported":true}'
+check "manifest without task and no --task exits 2" test "$?" -eq 2
+python3 "$DET" --manifest "$W/m.json" --task segmentation --quiet >/dev/null 2>&1
+check "  ... --task supplies it" test "$?" -eq 0
+python3 "$DET" --manifest "$F/manifest_seg_good.json" --task detection --quiet >/dev/null 2>&1
+check "--task contradicting the manifest exits 2" test "$?" -eq 2
+python3 "$DET" --manifest "$F/manifest_seg_good.json" --report "$F/seg_bad.md" --strict --quiet >/dev/null 2>&1
+check "--manifest wins over --report" test "$?" -eq 0
+python3 "$DET" --manifest "" --report "$F/seg_good.md" --task segmentation --quiet >/dev/null 2>&1
+check "--manifest '' exits 2" test "$?" -eq 2
+python3 "$DET" --quiet >/dev/null 2>&1
+check "no input exits 2" test "$?" -eq 2
+python3 "$DET" --report "$F/seg_good.md" --quiet >/dev/null 2>&1
+check "--report without --task exits 2" test "$?" -eq 2
+python3 "$DET" --report "$F/seg_good.md" --task segmentation --out "$OUT" > "$W/prose.txt" 2>&1
+check "prose mode prints the PROSE_MODE notice" grep -q '^PROSE_MODE:' "$W/prose.txt"
+check "prose mode JSON mode=prose" python3 -c "import json;assert json.load(open('$OUT'))['mode']=='prose'"
+
 echo "fail=$fail"; [[ "$fail" -eq 0 ]] && echo "ALL PASS" || echo "FAILURES: $fail"; exit "$fail"

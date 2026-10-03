@@ -134,22 +134,22 @@ CSV** for `/analyze-stats`. Load
 the CLAIM 2024 fit map.
 
 ### Phase 9 — Gate the metric choice
+Declare the reported metrics in `metrics_manifest.json` (copy
+`${CLAUDE_SKILL_DIR}/templates/metrics_manifest.json`; fields and allowed values in
+`references/metrics_manifest_schema.md`), then:
 ```bash
 python3 ${CLAUDE_SKILL_DIR}/scripts/check_metric_reporting.py \
-  --report results.md --task segmentation|classification|detection|interactive|generative \
-  --out qc/metric_reporting.json --strict
+  --manifest metrics_manifest.json --out qc/metric_reporting.json --strict
 ```
 `PIXEL_ACCURACY_SEG` / `NO_BOUNDARY_METRIC` / `ACCURACY_ONLY` / `DETECTION_METRIC_MISSING` must be zero.
+An off-list value exits 2; use `"none"` or `"other:<description>"`. `--report results.md --task
+<task>` still runs the older keyword check on prose.
 
-Known limits: this gate tests keyword presence, not negation scope. "MSD" counts as mean surface
+Known limits: manifest mode checks what is declared, not the reported numbers. Prose mode
+(`--report`) tests keyword presence with a short negation window: "MSD" counts as mean surface
 distance even when it names the Medical Segmentation Decathlon, "we did not compute the Hausdorff
-distance or HD95" still counts HD95, and "sensitivity and specificity were not reported" or "FROC
-was not performed" still count as reported. Zero Majors means no keyword-level red flag; read the
-report for these cases.
-
-- Open: a bare "map" counts as mAP, so "saliency map", "heat map" or "probability map" (also
-  wrapped across a line) satisfies the detection-metric check in a report with no AP; and a
-  wrapped "mean average\nprecision" is not seen. Read the detection results for these.
+distance or HD95" still counts HD95, "sensitivity and specificity were not reported" or "FROC was
+not performed" still count as reported, and a bare "map" ("saliency map") counts as mAP.
 
 ## Part C — Uncertainty, OOD and selective prediction (deployment claims)
 

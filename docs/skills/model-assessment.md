@@ -47,6 +47,7 @@
 - `explainability_guide.md`
 - `metric_guide.md`
 - `metric_selection_grounding.md`
+- `metrics_manifest_schema.md`
 - `uncertainty_guide.md`
 - `validation_design.md`
 
@@ -59,7 +60,11 @@
 - `check_split_leakage_challenge/` (7 files)
 - `check_uncertainty_reporting.py`
 - `check_uncertainty_reporting_challenge/` (6 files)
-- `metric_reporting_challenge/` (13 files)
+- `metric_reporting_challenge/` (17 files)
+
+**Templates** (`skills/model-assessment/templates/`):
+
+- `metrics_manifest.json`
 
 ## Source
 

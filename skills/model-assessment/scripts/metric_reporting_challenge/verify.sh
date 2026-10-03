@@ -43,4 +43,23 @@ want generative_bad.md generative GENERATIVE_NO_DOWNSTREAM
 clean generative_good.md generative
 want multiclass_bad.md classification MULTICLASS_NO_AVERAGING
 
+# Manifest mode: the same task-metric mismatches declared as fields; an off-list value exits 2.
+mwant() {  # manifest expected_verdict
+  python3 "$DET" --manifest "$HERE/fixture/$1" --out "$TMP/m.json" --quiet >/dev/null 2>&1 || true
+  python3 - "$TMP/m.json" "$2" <<'PY' || exit 1
+import json, sys
+d = json.load(open(sys.argv[1]))
+assert any(c["verdict"] == sys.argv[2] for c in d["claims"]), f"{sys.argv[2]} not flagged"
+PY
+}
+mwant manifest_seg_bad.json PIXEL_ACCURACY_SEG
+mwant manifest_seg_bad.json NO_BOUNDARY_METRIC
+mwant manifest_det_no_match.json DETECTION_METRIC_MISSING
+mwant manifest_clf_bad.json ACCURACY_ONLY
+python3 "$DET" --manifest "$HERE/fixture/manifest_seg_good.json" --strict --quiet >/dev/null 2>&1 \
+  || { echo "FAIL: manifest_seg_good should pass --strict" >&2; exit 1; }
+printf '{"task": "segmentation", "metrics": ["dice", "boundary_f1"]}' > "$TMP/off.json"
+set +e; python3 "$DET" --manifest "$TMP/off.json" --quiet >/dev/null 2>&1; rc=$?; set -e
+[ "$rc" -eq 2 ] || { echo "FAIL: an off-list metric should exit 2 (got $rc)" >&2; exit 1; }
+
 echo "PASS: metric-reporting gate flags Dice-only/pixel-accuracy, accuracy-only, detection without an IoU criterion, interactive segmentation reported as one-shot, generative similarity without a downstream task, and multiclass without an aggregation scheme; clears task-correct reports."
