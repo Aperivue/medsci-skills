@@ -141,7 +141,8 @@ Declare the reported metrics in `metrics_manifest.json` (copy
 python3 ${CLAUDE_SKILL_DIR}/scripts/check_metric_reporting.py \
   --manifest metrics_manifest.json --out qc/metric_reporting.json --strict
 ```
-`PIXEL_ACCURACY_SEG` / `NO_BOUNDARY_METRIC` / `ACCURACY_ONLY` / `DETECTION_METRIC_MISSING` must be zero.
+`PIXEL_ACCURACY_SEG` / `NO_BOUNDARY_METRIC` / `ACCURACY_ONLY` / `DETECTION_METRIC_MISSING` /
+`INTERACTIVE_NO_INTERACTION_COUNT` / `GENERATIVE_NO_DOWNSTREAM` (every Major) must be zero.
 An off-list value exits 2; use `"none"` or `"other:<description>"`. `--report results.md --task
 <task>` still runs the older keyword check on prose.
 
