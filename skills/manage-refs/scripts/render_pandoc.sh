@@ -34,6 +34,10 @@ Options:
 
 Pass-through: any args after '--' go directly to pandoc.
 
+Exit codes: 0 ok; 1 usage; 2 missing CSL/input/bib; 3 reference audit found
+FABRICATED/MISMATCH; 5 citation(s) not found in the .bib (rendered as '(key?)');
+other non-zero codes come from pandoc itself.
+
 The pre-render gate delegates to /verify-refs (when found alongside, or via
 \$MEDSCI_VERIFY_REFS) and blocks the render on fabricated/mismatched citations.
 EOF
@@ -125,6 +129,22 @@ ARGS=(--citeproc --csl="$CSL_FILE" --bibliography="$BIB"
       --lua-filter="${SCRIPT_DIR}/strip_source_metadata.lua" -t "$FORMAT" -o "$OUTPUT")
 [[ -n "$REFDOC" && -f "$REFDOC" ]] && ARGS+=(--reference-doc="$REFDOC")
 
+# Unresolved citations: citeproc does not fail on a key it cannot find. It prints `(key?)` into the
+# manuscript, warns on stderr and exits 0 — so the render used to report "ok" on a document with a
+# broken citation in it. Read pandoc's structured log (--log, JSON) for that warning and fail.
+PANDOC_LOG="$(mktemp)"
+# The script's only EXIT trap. A later `trap ... EXIT` replaces it: fold any new cleanup into this one.
+trap 'rm -f "$PANDOC_LOG"' EXIT
+ARGS+=(--log="$PANDOC_LOG")
+
 echo "[render] journal=$JOURNAL csl=$(basename "$CSL_FILE") in=$INPUT bib=$BIB out=$OUTPUT" >&2
 pandoc "${ARGS[@]}" "$@" "$INPUT"
+missing_cites="$(grep -oE '"message": *"citation [^"]+ not found"' "$PANDOC_LOG" \
+  | sed -E 's/^"message": *"citation (.+) not found"$/\1/' || true)"
+if [[ -n "$missing_cites" ]]; then
+  echo "ERROR: unresolved citation(s) — cited in $INPUT but not found in $BIB; pandoc printed them as '(key?)' in $OUTPUT:" >&2
+  printf '%s\n' "$missing_cites" | sed 's/^/  [@/; s/$/]/' >&2
+  echo "       Add the entries to the .bib (or fix the keys), then render again. Do not submit $OUTPUT." >&2
+  exit 5
+fi
 echo "[render] ok → $OUTPUT" >&2
