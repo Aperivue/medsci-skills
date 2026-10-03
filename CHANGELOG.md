@@ -114,6 +114,45 @@
   gates. The PDF injection guard flags text the page does not show (render mode 3, opacity 0, an
   opaque cover, text on its own colour) and keeps it out of --sanitize. A label over an image or a
   gradient, and a faint watermark, stay clean.
+- **mllm-eval** (#638): the deterministic gate's SKILL.md section lists its known limits: it checks
+  that a term is present, not negation or sense, so "No human evaluation was performed" still covers
+  that axis. No detector change.
+- **meta-analysis** (#639): PRISMA flow identities the SSOT cannot decide (assessed - excluded vs k
+  without `included.reports`, reports < k, reasons summing above the excluded count) report
+  NOT_ASSESSED instead of FAIL; Table 1 IDs match across case, spacing and punctuation;
+  STAGE_TRANSFER_LOSS names likely ID-style mismatches. The after_dedup -> full_text_assessed step
+  is not checked (no SSOT key for records removed before screening), as on the previous release.
+- **model-card** (#640): the completeness gate flags each required field left as an upper-case
+  `[NEEDS INPUT]`/`[VERIFY]` token (UNFILLED_FIELD) and ignores markdown links, HTML comments and
+  fenced code. A bare N/A no longer fills Intended Use, Training/Evaluation Data, Metrics or
+  Quantitative Analyses.
+- **academic-aio** (#641): the summary-box detector anchors and bounds the box, counts only
+  top-level bullets, accepts Radiology's 'Key Results' label and 'Label.' bare lines, and requires
+  non-empty Research-in-context sub-blocks; the schema validator fails unfilled placeholders
+  (`--template` to allow) and checks DOIs and ORCIDs (including the check digit) in every
+  identifier shape; the crosswalk drops unverified item numbers.
+- **manage-refs** (#642): six citation and cross-reference false clearances closed (H1-H6).
+  `check_csl_render` cites its sample and judges DOI and journal abbreviation from bib fields; a
+  full title contained in its own abbreviation ('Cancers (Basel)') is NOT_ASSESSED, not FAIL.
+- **make-figures** (#643): legend reconcile and the figure critic no longer report a pass for a
+  check they never ran; the cascade helper rejects unrecognised configs. Flow-diagram boxes that
+  list parts without a stated total (PRISMA 2020 identification box, exclusion reasons,
+  sub-cohorts) are NOT_ASSESSED instead of a false CASCADE_IMBALANCE.
+- **model-assessment** (#644): uncertainty_method and explainability values are normalised and
+  checked against a vocabulary (unknown values exit 2); a "none" sanity check no longer counts as a
+  check. The split-leakage gate prints the ID/split columns it audits and gives a Minor
+  ID_COL_NOT_PATIENT_LEVEL advisory for an auto-picked non-patient ID column. The metric gate is
+  unchanged; its keyword limits (MSD, negation, "saliency map" as mAP) are listed in SKILL.md.
+- **self-review** (#645): refinement_stop returns INDETERMINATE for a ceiling-only run or a crashed
+  or empty gate JSON; the Table 1 P parser reads scientific notation and footnoted or missing
+  markers (an unreadable P cell exits 2); percentages are checked at their printed precision, with
+  a Minor PERCENT_PRECISION_NOTE for a footnoted near miss. The reported-P alpha rules and the
+  E-value binding change were withdrawn and are listed as known limits.
+- **revise** (#646): a claimed numeric citation is matched by whole element when the body bracket
+  holds only numbers, so [15] no longer satisfies a claimed [5]; ';' lists, range middles, common
+  dashes and pandoc's `\[5\]` and '--'/'---' ranges are read. Other brackets keep the previous
+  prefix match. The quote-content, citation-intent and density-boundary changes were withdrawn and
+  are listed as known limits.
 - **radiomics-ml: the pipeline gate fails closed.** `check_radiomics_ml.py` no longer clears
   features >= events because dimensionality reduction is declared, counts events as the minority
   class, flags a missing or unrecognised feature-selection stage, accepts stability and
