@@ -48,7 +48,8 @@ dev_surv$sample_size  # 5249
 ```
 
 **Check** (pmsampsize 1.1.3): binary → **1556** participants, 312 events, criterion 1
-(shrinkage) binds; time-to-event → **5249** participants, 1764 events, criteria 1 and 3 bind.
+(shrinkage) binds; time-to-event → **5249** participants, 1764 events, criterion 1 binds
+(criterion 3 is met at that N).
 
 Report the **minimum N and the required number of events**, the assumed C-statistic / R²
 and its source, and the binding criterion. A development set below this is a standard

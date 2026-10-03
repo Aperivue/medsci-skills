@@ -1222,12 +1222,19 @@ Base R (no additional packages needed).
 | f (ANOVA) | 0.10 | 0.25 | 0.40 | SD of group means / within-group SD |
 | h (proportions) | 0.20 | 0.50 | 0.80 | Arcsine-transformed proportion difference |
 | w (chi-square) | 0.10 | 0.30 | 0.50 | Chi-square contingency effect |
-| OR (logistic) | 1.5 | 2.0 | 3.0+ | Odds ratio (approximate equivalence) |
-| HR (survival) | 0.80 | 0.65 | 0.50 | Hazard ratio (values < 1 favor treatment) |
-| ICC | 0.50-0.75 | 0.75-0.90 | > 0.90 | Poor/moderate/good/excellent |
-| Kappa | 0.21-0.40 | 0.41-0.60 | 0.61-0.80 | Fair/moderate/substantial |
 
 **Important**: Cohen's conventions are rules of thumb. Always prefer effect sizes estimated from prior literature or pilot data. When conventions are used, explicitly state this limitation in the IRB justification.
+
+### Common rules of thumb (not Cohen's)
+
+Cohen defines no OR, HR, ICC or kappa conventions; the rows below are common rules of thumb and carry the same limitation.
+
+| Measure | Small | Medium | Large | Context |
+|---------|-------|--------|-------|---------|
+| OR (logistic) | 1.5 | 2.0 | 3.0+ | Odds ratio. Not equivalent to Cohen's d: under the logistic conversion (ln OR = d·π/√3) these correspond to d ≈ 0.22 / 0.38 / 0.61, and d 0.2 / 0.5 / 0.8 corresponds to OR 1.44 / 2.48 / 4.27 |
+| HR (survival) | 0.80 | 0.65 | 0.50 | Hazard ratio (values < 1 favor treatment); no Cohen's d analogue |
+| ICC | 0.50-0.75 | 0.75-0.90 | > 0.90 | Poor/moderate/good/excellent |
+| Kappa | 0.21-0.40 | 0.41-0.60 | 0.61-0.80 | Fair/moderate/substantial |
 
 ---
 

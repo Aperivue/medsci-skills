@@ -43,7 +43,8 @@ cat("═══ 1. DIAGNOSTIC ACCURACY ══════════════
 # Buderer (1996), Wald interval: sensitivity is estimated in the diseased,
 # specificity in the non-diseased; N is the larger of the two requirements.
 # Check: Se 0.85, Sp 0.90, prevalence 0.30, half-width 0.05 -> 654
-#        (epiR::epi.ssdxsesp(0.85, 0.90, Py = 0.3, epsilon = 0.05, error = "absolute"))
+#        (epiR::epi.ssdxsesp(test = 0.85, type = "se", Py = 0.3, epsilon = 0.05,
+#         error = "absolute") -> 654; test = 0.90, type = "sp" -> 198)
 
 sensitivity_expected <- 0.85
 specificity_expected <- 0.90
@@ -82,7 +83,7 @@ results[["diagnostic_accuracy"]] <- data.frame(
 
 # ══════════════════════════════════════════════════════════════════════════════
 # 2. INTER-RATER AGREEMENT — ICC
-#    Bonett (2002) formula for two-way mixed ICC
+#    Walter, Eliasziw & Donner (1998) test of ICC against a null value
 # ══════════════════════════════════════════════════════════════════════════════
 
 cat("═══ 2. INTER-RATER AGREEMENT (ICC) ═══════════════════════════════════\n")
