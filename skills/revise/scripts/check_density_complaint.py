@@ -68,8 +68,8 @@ COMPLAINT = re.compile(
 # A heading is one of:
 #   * a markdown heading (#..######) starting with the keyword;
 #   * a standalone line (as a .docx paragraph extracts) holding only the keyword and at most
-#     three more words, optionally bold, optionally numbered ("2. Introduction"), optionally
-#     ending in ':' or '.' ("References.");
+#     three more words (digits allowed: "Supplementary Appendix 1"), optionally bold,
+#     optionally numbered ("2. Introduction"), optionally ending in ':' or '.' ("References.");
 #   * a RUN-IN heading: the same keyword phrase followed by ':' (optionally inside bold) and
 #     then text on the same line ("Funding: None.", "**Data availability:** The data ...").
 #     Declaration sections (acknowledgements, funding, conflicts, data availability) may
@@ -82,12 +82,16 @@ _BOLD = r"(?:\*\*|__)?"
 
 def _heading(keywords: str, runin_period: str = "") -> re.Pattern:
     lead = r"[ \t]*" + _BOLD + r"[ \t]*" + _NUM
+    # Run-in: the keyword phrase is purely alphabetic, so "Supplementary Table S3: ..." in
+    # Results is not one. Standalone: the whole line is the heading, so a word with a digit
+    # ("Supplementary Appendix 1", "Supplementary Figure S1.") cannot be a body sentence.
     phrase = r"\w*(?:[ \t]+[A-Za-z&]+){0,3}[ \t]*"
+    phrase_line = r"\w*(?:[ \t]+[A-Za-z0-9&]+){0,3}[ \t]*"
     alts = [
         # markdown heading
         r"#{1,6}[ \t]*\**[ \t]*" + _NUM + r"(?:" + keywords + r")\b",
         # standalone heading line
-        lead + r"(?:" + keywords + r")" + phrase + _BOLD + r"[ \t]*[:.]?[ \t]*" + _BOLD + r"[ \t]*$",
+        lead + r"(?:" + keywords + r")" + phrase_line + _BOLD + r"[ \t]*[:.]?[ \t]*" + _BOLD + r"[ \t]*$",
         # run-in heading with a colon
         lead + r"(?:" + keywords + r")" + phrase + _BOLD + r"[ \t]*:[ \t]*" + _BOLD + r"[ \t]*\S",
     ]

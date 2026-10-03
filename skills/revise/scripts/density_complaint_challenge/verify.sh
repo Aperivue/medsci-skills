@@ -108,6 +108,16 @@ printf 'Introduction\n%s\n%s\nResults\n%s\nDiscussion\n%s\nReferences.\n%s\n%s\n
   "$FILL" "$FILL" "$FILL" "$FILL" "$FILL" "$FILL" "$FILL" > "$TMP/rev_refs_period.md"
 python3 "$DET" --comments "$TMP/letter_da.md" --previous "$TMP/prev_runin.md" --revised "$TMP/rev_refs_period.md" --strict >/dev/null 2>&1
 ck "'References.' with a trailing period ends the body" 0 "$?"
+# 7) a standalone heading line whose phrase holds a digit still ends the body (reviewer
+#    counterexample: main ended the body at these; a cut revision must still clear).
+printf 'Introduction\n%s\n%s\nResults\n%s\n%s\nDiscussion\n%s\nReferences\n1. Ref.\n' \
+  "$FILL" "$FILL" "$FILL" "$FILL" "$FILL" > "$TMP/prev_app.md"
+for H in 'Supplementary Appendix 1' '**Supplementary Figure S1.**' 'Supplementary Table S3'; do
+  printf 'Introduction\n%s\n%s\nResults\n%s\nDiscussion\n%s\n%s\n%s\n%s\nReferences\n1. Ref.\n' \
+    "$FILL" "$FILL" "$FILL" "$FILL" "$H" "$FILL" "$FILL" > "$TMP/rev_app.md"
+  python3 "$DET" --comments "$TMP/letter.md" --previous "$TMP/prev_app.md" --revised "$TMP/rev_app.md" --strict >/dev/null 2>&1
+  ck "standalone '$H' line ends the body" 0 "$?"
+done
 # ...while a body sentence with a colon after a non-keyword lead is still body text
 printf 'Introduction\n%s\n%s\nResults\n%s\n%s\nSupplementary Table S3: per-site estimates are given there.\n%s\n%s\nDiscussion\n%s\nFunding: None.\nReferences\n1. Ref.\n' \
   "$FILL" "$FILL" "$FILL" "$FILL" "$FILL" "$FILL" "$FILL" > "$TMP/rev_supp_colon.md"

@@ -202,17 +202,17 @@ printf '## Methods\nEach reader'"'"'s threshold was fixed before the test set wa
 python3 "$V" --response "$TMP/resp_apos.md" --manuscript "$TMP/body_apos_other.md" 2>&1 | grep -q RESPONSE_QUOTE
 ck "a different subject before the apostrophe is not verified" 0 "$?"
 
-# --- a changed number is a different claim, not extraction damage -----------------------
-# The tolerant matcher let a quote through as minor UNRESOLVED when the body differed by one
-# number ("0.92" vs "0.87") — a changed result passed --strict. That is now major. Negation is
-# NOT compared (SKILL.md Known limits): a quote differing only by "not" stays minor
-# UNRESOLVED, exactly as before. Synthetic text only.
+# --- quote content is not compared (SKILL.md Known limits) -----------------------------
+# The tolerant matcher grades a quote that differs from the body by one number ("0.92" vs
+# "0.87") or by a negator as minor UNRESOLVED, and --strict passes. Pinned here so a change to
+# that grading is deliberate; the controls below must stay clear whatever is done about it.
+# Synthetic text only.
 printf '**Response 7.** The sentence now reads "the sensitivity of the model was 0.92 in the external test set".\n' > "$TMP/resp_num.md"
 printf '## Results\nThe sensitivity of the model was 0.87 in the external test set.\n' > "$TMP/body_num_changed.md"
 python3 "$V" --response "$TMP/resp_num.md" --manuscript "$TMP/body_num_changed.md" --strict > /dev/null 2>&1
-ck "quoted number changed in body fails (--strict)" 1 "$?"
-python3 "$V" --response "$TMP/resp_num.md" --manuscript "$TMP/body_num_changed.md" 2>&1 | grep -q RESPONSE_QUOTE_UNVERIFIED
-ck "quoted number changed reports UNVERIFIED" 0 "$?"
+ck "known limit: quoted number changed stays minor (exit 0)" 0 "$?"
+python3 "$V" --response "$TMP/resp_num.md" --manuscript "$TMP/body_num_changed.md" 2>&1 | grep -q RESPONSE_QUOTE_UNRESOLVED
+ck "known limit: quoted number changed reports UNRESOLVED" 0 "$?"
 # control: same number, proof line numbers wedged in -> still extraction damage, not drift
 printf '## Results\n41 The sensitivity of the model 42 was 0.92 in the external test set.\n' > "$TMP/body_num_linenum.md"
 python3 "$V" --response "$TMP/resp_num.md" --manuscript "$TMP/body_num_linenum.md" --strict > /dev/null 2>&1
@@ -266,10 +266,6 @@ printf '**Response 17.** We added "the guideline was last updated in 2019 by the
 printf '## Discussion\nThe guideline was last updated in 2019\xc2\xb2\xc2\xb3 by the international 64 working group.\n' > "$TMP/body_sup.md"
 python3 "$V" --response "$TMP/resp_sup.md" --manuscript "$TMP/body_sup.md" --strict > /dev/null 2>&1
 ck "superscript reference glued to '2019' is not drift" 0 "$?"
-# ...but a different year in the same place is
-printf '## Discussion\nThe guideline was last updated in 2021 by the international 64 working group.\n' > "$TMP/body_year.md"
-python3 "$V" --response "$TMP/resp_sup.md" --manuscript "$TMP/body_year.md" --strict > /dev/null 2>&1
-ck "quoted year changed in body fails (--strict)" 1 "$?"
 
 # controls: a negation on BOTH sides, spelled differently, cancels.
 printf '**Response 18.** We added "the model cannot be applied to paediatric patients in this setting".\n' > "$TMP/resp_cannot.md"
@@ -282,7 +278,7 @@ python3 "$V" --response "$TMP/resp_isnt.md" --manuscript "$TMP/body_isnt.md" 2>&
 ck "\"isn't\" vs 'is not' is not a one-sided negation" 1 "$?"
 
 # --- number formats: the same value in two journal styles is not a change ---------------
-# Reviewer counterexamples: main cleared these as minor; comparing raw digits flagged them.
+# Reviewer counterexamples against a number comparison: these must stay clear.
 # Lancet mid-dot decimal (U+00B7), and the bullet operator (U+2219) used the same way.
 printf '## Results\nThe sensitivity of the model was 0\xc2\xb792 in the external test set.\n' > "$TMP/body_middot.md"
 python3 "$V" --response "$TMP/resp_num.md" --manuscript "$TMP/body_middot.md" --strict > /dev/null 2>&1
@@ -295,10 +291,6 @@ printf '**Response 20.** The sentence now reads "the sensitivity of the model wa
 printf '## Results\nThe sensitivity of the model was 0.92 in the 31 external test set.\n' > "$TMP/body_num_plain.md"
 python3 "$V" --response "$TMP/resp_middot.md" --manuscript "$TMP/body_num_plain.md" --strict > /dev/null 2>&1
 ck "letter mid-dot vs body '.' is not drift (--strict)" 0 "$?"
-# ...while a changed value in mid-dot style is still caught
-printf '## Results\nThe sensitivity of the model was 0\xc2\xb787 in the external test set.\n' > "$TMP/body_middot_changed.md"
-python3 "$V" --response "$TMP/resp_num.md" --manuscript "$TMP/body_middot_changed.md" --strict > /dev/null 2>&1
-ck "mid-dot '0\xc2\xb787' vs '0.92' fails (--strict)" 1 "$?"
 # space-grouped thousands: plain space, thin space U+2009, narrow no-break space U+202F,
 # no-break space U+00A0; letter written '12345' and '12,345'
 printf '**Response 21.** We added "a total of 12345 patients were enrolled at the three participating centres".\n' > "$TMP/resp_12345.md"
@@ -310,19 +302,19 @@ for sp in ' ' '\xe2\x80\x89' '\xe2\x80\xaf' '\xc2\xa0'; do
     ck "letter $r vs body space-grouped ($sp) not drift" 0 "$?"
   done
 done
-# ...a grouped body value that differs is still caught
-printf '## Methods\nA total of 12 354 patients were enrolled at the three participating centres.\n' > "$TMP/body_grp_changed.md"
-python3 "$V" --response "$TMP/resp_12345.md" --manuscript "$TMP/body_grp_changed.md" --strict > /dev/null 2>&1
-ck "letter 12345 vs body '12 354' fails (--strict)" 1 "$?"
+# plain-text power of ten in the letter, superscript in the body (NFKC glues '10'+'9')
+printf '**Response 25.** We added "patients with a platelet count below 150 x 10^9/L were excluded from the analysis".\n' > "$TMP/resp_pow.md"
+printf '## Methods\nPatients with a platelet count below 150 \xc3\x97 10\xe2\x81\xb9/L were excluded from the 88 analysis.\n' > "$TMP/body_pow.md"
+python3 "$V" --response "$TMP/resp_pow.md" --manuscript "$TMP/body_pow.md" --strict > /dev/null 2>&1
+ck "'x 10^9/L' vs superscript '10\xe2\x81\xb9/L' is not drift (--strict)" 0 "$?"
 # a proof line number before a three-digit number is not merged into one number
 printf '**Response 23.** We added "a total of 300 patients were enrolled at the three participating centres".\n' > "$TMP/resp_300.md"
 printf '## Methods\nA total of 42 300 patients were enrolled at the three participating centres.\n' > "$TMP/body_ln300.md"
 python3 "$V" --response "$TMP/resp_300.md" --manuscript "$TMP/body_ln300.md" --strict > /dev/null 2>&1
 ck "line number '42' before '300' is not drift (--strict)" 0 "$?"
 
-# known limits (unchanged from main, documented in SKILL.md): the old number nearby in the
-# same sentence clears a replaced one, and a body number that only extends the quoted digits
-# is read as glued-marker damage. Both stay minor UNRESOLVED, exit 0.
+# known limits (documented in SKILL.md): a replaced number with the old one nearby, and a
+# body number that only extends the quoted digits, stay minor UNRESOLVED, exit 0.
 printf '## Results\nThe sensitivity of the model was 0.87 (95%% CI 0.80-0.92) in the external test set.\n' > "$TMP/body_ci.md"
 python3 "$V" --response "$TMP/resp_num.md" --manuscript "$TMP/body_ci.md" --strict > /dev/null 2>&1
 ck "known limit: old value inside the CI clears (exit 0)" 0 "$?"
