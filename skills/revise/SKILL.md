@@ -245,11 +245,13 @@ correct the response wording. `RESPONSE_QUOTE_UNRESOLVED` is **minor** and does 
 the quoted words are all present in order but separated by extraction debris (a reference column
 bled in from a two-column PDF, proof line numbers, a footnote marker, a hyphen split across a line).
 Look at it by eye; do not delete a quote because of this verdict — accurate quotes have nearly been
-deleted that way. When a body bracket holds only numbers (',' or ';' separated, ranges with any
-dash, '--' or '---', spaces and pandoc's escaped `\[5\]` allowed), a numeric citation counts only
-as a whole element or inside a range: a claimed [5] is not satisfied by [15]. A bracket that mixes
+deleted that way. When a body bracket holds only numbers (',' or ';' separated, ranges with the
+common dashes, '~', '--' or '---', spaces and pandoc's escaped `\[5\]` allowed), a numeric
+citation counts only as a whole element or inside a range: a claimed [5] is not satisfied by [15]. A bracket that mixes
 numbers and words ("[5, see also 8]", "[5, p. 12]") keeps the older prefix match, so "[15, p. 3]"
 still satisfies [5] there; check such citations by eye.
+The response letter is read as typed: a claim written in pandoc form ("\[5\]", "[5--7]") is not
+recognised as a citation claim and is not checked.
 
 Known limits: quote CONTENT is not compared. A quote that differs from the body's sentence by a
 number (the letter says 0.92, the body 0.87) or by a negator ("not", added or dropped) is graded
