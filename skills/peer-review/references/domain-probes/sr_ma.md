@@ -51,8 +51,8 @@ Internal-consistency-first gate (P0) plus a 19-probe checklist (P1–P19). These
 - If supplementary contains only figure captions or is missing 3+ of these → MAJOR.
 
 **P6 — PROSPERO ID format + live URL request**:
-- Standard PROSPERO format: `CRD42` + 4-digit YYYY + 6-digit sequential = 13 chars total. Some pre-2020 IDs are 12 chars (5-digit sequential).
-- IDs with >13 chars or non-numeric tail → FORMAT_ANOMALY (MAJOR).
+- Standard PROSPERO format: `CRD42` + 9 digits = 14 chars total (e.g. `CRD42024500001`).
+- IDs that are not 14 chars or have a non-numeric tail → FORMAT_ANOMALY (MAJOR).
 - Always request authors provide live registration URL in cover letter for protocol cross-check.
 
 **P7 — Reference duplicate detection** (extends `/verify-refs`):
